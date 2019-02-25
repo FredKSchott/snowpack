@@ -1,0 +1,41 @@
+{
+  "name": "pika-cdn",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "pack build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "@pika/pack": {
+    "pipeline": [
+      [
+        "@pika/plugin-ts-standard-pkg"
+      ],
+      [
+        "@pika/plugin-build-node"
+      ]
+    ]
+  },
+  "webDependencies": [
+    "lodash-es"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.3.3",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/plugin-syntax-import-meta": "^7.2.0",
+    "@babel/preset-env": "^7.3.1",
+    "lodash-es": "latest",
+    "rollup": "^1.2.3",
+    "semver": "^5.6.0"
+  },
+  "devDependencies": {
+    "@pika/pack": "^0.3.3",
+    "@pika/plugin-build-node": "^0.3.12",
+    "@pika/plugin-ts-standard-pkg": "^0.3.12",
+    "prettier": "^1.16.4",
+    "typescript": "^3.3.3333"
+  }
+}
