@@ -9,7 +9,7 @@
 
 ## Quickstart
 
-```js
+```
 # To run @pika/web in your project:
 $ npx @pika/web
 # To run @pika/web in your project *on every npm install*:
