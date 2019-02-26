@@ -6,6 +6,8 @@
   <strong>@pika/web</strong> • Drop the bundler. Install npm packages that run natively in the browser.
 </p>
 
+> Note: This README is still in progress. Please give the project a try! ...but hold off on sharing publicly for a few days while I finish it up :)
+
 
 ## Quickstart
 
@@ -33,10 +35,6 @@ You can also define a whitelist of "webDependencies" in your `package.json`, if 
 
 * `"webDependencies"`: By default, @pika/web reads your `package.json` "dependencies" object and installs any packages with a "module" entrypoint. If this is an issue, you can define a "webDependencies" whitelist in your `package.json` of which packages to install to `node_modules/`.
 * `--strict`: Only support 100% ESM installations. By default, @pika/web will handle Common.js transitive dependencies.
-
-## Why
-
-Still TODO
 
 ## Special Thanks
 
