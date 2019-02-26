@@ -1,14 +1,12 @@
 {
-  "name": "pika-cdn",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "@pika/web",
+  "version": "0.1.0",
+  "description": "Install npm packages that run natively in the browser.",
   "scripts": {
-    "build": "pack build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "pack build"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Fred K. Schott <fkschott@gmail.com>",
+  "license": "MIT",
   "@pika/pack": {
     "pipeline": [
       [
@@ -16,24 +14,26 @@
       ],
       [
         "@pika/plugin-build-node"
+      ],
+      [
+        "@pika/plugin-simple-bin",
+        {
+          "bin": "pika-web"
+        }
       ]
     ]
   },
-  "webDependencies": [
-    "lodash-es"
-  ],
   "dependencies": {
-    "@babel/core": "^7.3.3",
-    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
-    "@babel/plugin-syntax-import-meta": "^7.2.0",
-    "@babel/preset-env": "^7.3.1",
-    "lodash-es": "latest",
+    "ora": "^3.1.0",
     "rollup": "^1.2.3",
-    "semver": "^5.6.0"
+    "rollup-plugin-commonjs": "^9.2.1",
+    "rollup-plugin-node-resolve": "^4.0.1",
+    "yargs-parser": "^13.0.0"
   },
   "devDependencies": {
     "@pika/pack": "^0.3.3",
     "@pika/plugin-build-node": "^0.3.12",
+    "@pika/plugin-simple-bin": "^0.3.12",
     "@pika/plugin-ts-standard-pkg": "^0.3.12",
     "prettier": "^1.16.4",
     "typescript": "^3.3.3333"

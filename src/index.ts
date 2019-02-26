@@ -1,112 +1,109 @@
 import fs from 'fs';
 import path from 'path';
-import mkdirp from 'mkdirp';
 import rimraf from 'rimraf';
-import babel from '@babel/core';
-import babelPluginDynamicImportSyntax from '@babel/plugin-syntax-dynamic-import';
-import babelPluginImportMetaSyntax from '@babel/plugin-syntax-import-meta';
-import babelPluginImportRewrite from './babel-plugin-import-rewrite.js';
+import chalk from 'chalk';
+import ora from 'ora';
 import * as rollup from 'rollup';
-
-function transformWebModuleFilename(depName:string):string {
-  return depName.replace('/', '-');
-}
+import rollupPluginNodeResolve from 'rollup-plugin-node-resolve';
+import rollupPluginCommonjs from 'rollup-plugin-commonjs';
+import yargs from 'yargs-parser';
 
 const cwd = process.cwd();
-let arrayOfDeps = [
-  "@pika/fetch",
-  "preact",
-  "epoch-timeago",
-  "htm"
-];
-const WEB_ENV = {modules: false, targets: {esmodules: true}};
+let spinner = ora(chalk.bold(`@pika/web`) + ` installing...`);
 
-(async () => {
+function showHelp() {
+  console.log(`${chalk.bold(`@pika/web`)} - Install npm dependencies to run natively on the web.`);
+  console.log(`
+  Options
+    --strict  Support only ESM dependencies.
+`);
+}
+
+function logError(msg) {
+  spinner.stopAndPersist({symbol: chalk.cyan('⠼')});
+  spinner = ora(chalk.red(msg));
+  spinner.fail();
+}
+
+function transformWebModuleFilename(depName:string):string {
+  return depName.replace('/', '--');
+}
+
+export async function install(arrayOfDeps: string[], {isWhitelist, supportsCJS}: {isWhitelist: boolean, supportsCJS?: boolean}) {
+  if (arrayOfDeps.length === 0) {
+    logError('no dependencies found.');
+    return;
+  }
+  if (!fs.existsSync(path.join(cwd, 'node_modules'))) {
+    logError('no node_modules/ directory exists. Run "npm install" in your project before running @pika/web.');
+    return;
+  }
 
   rimraf.sync(path.join(cwd, 'web_modules'));
 
-  let dep;
-  while (dep = arrayOfDeps.shift()) {
-    const writeToWebNative = path.join(cwd, 'web_modules', dep, `${transformWebModuleFilename(dep)}.js`);
+  const depObject = {};
+  for (const dep of arrayOfDeps) {
     const depLoc = path.join(cwd, 'node_modules', dep);
-    const manifest = require(path.join(cwd, 'node_modules', dep, 'package.json'));
-
-    const packageBundle = await rollup.rollup({
-      // @ts-ignore
-      input: path.join(depLoc, manifest.module),
-      // @ts-ignore
-      onwarn: (warning, defaultOnWarnHandler) => {
-        console.log(warning);
-        if (warning.code === 'UNRESOLVED_IMPORT') {
-          return;
-        }
-        defaultOnWarnHandler(warning);
-      },
-    });
-    const {output: bundledOutput} = await packageBundle.generate({
-      format: 'esm',
-      name: dep,
-      file: `${dep}.js`,
-    });
-
-    const relativeDepsInfo = {};
-    for (const [depDepName, _] of Object.entries(manifest.dependencies || {})) {
-      const depManifest = require(path.join(cwd, 'node_modules', depDepName, 'package.json'));
-      const depDepLoc = path.join(cwd, 'web_modules', depDepName, depManifest.module);
-      relativeDepsInfo[depDepName] = path.relative(path.dirname(writeToWebNative), depDepLoc);
-    }
-
-    for (const chunkOrAsset of bundledOutput) {
-      if (chunkOrAsset.isAsset) {
-        console.log('Asset', chunkOrAsset);
-        fs.writeFileSync(path.join(path.dirname(writeToWebNative), chunkOrAsset.fileName), chunkOrAsset.source);
-      } else {
-        const bundledCode = chunkOrAsset.code;
-        const resultWebModule = await babel.transformAsync(bundledCode, {
-          cwd: depLoc,
-          compact: false,
-          babelrc: false,
-          plugins: [
-            [babelPluginImportRewrite, {deps: relativeDepsInfo}],
-            babelPluginDynamicImportSyntax,
-            babelPluginImportMetaSyntax,
-          ],
-        });
-        mkdirp.sync(path.dirname(writeToWebNative));
-        fs.writeFileSync(writeToWebNative, resultWebModule.code);
-
-        // For chunks, this contains
-        // {
-        //   code: string,                  // the generated JS code
-        //   dynamicImports: string[],      // external modules imported dynamically by the chunk
-        //   exports: string[],             // exported variable names
-        //   facadeModuleId: string | null, // the id of a module that this chunk corresponds to
-        //   fileName: string,              // the chunk file name
-        //   imports: string[],             // external modules imported statically by the chunk
-        //   isDynamicEntry: boolean,       // is this chunk a dynamic entry point
-        //   isEntry: boolean,              // is this chunk a static entry point
-        //   map: string | null,            // sourcemaps if present
-        //   modules: {                     // information about the modules in this chunk
-        //     [id: string]: {
-        //       renderedExports: string[]; // exported variable names that were included
-        //       removedExports: string[];  // exported variable names that were removed
-        //       renderedLength: number;    // the length of the remaining code in this module
-        //       originalLength: number;    // the original length of the code in this module
-        //     };
-        //   },
-        //   name: string                   // the name of this chunk as used in naming patterns
-        // }
-        // console.log('Chunk', chunkOrAsset.modules);
+    const depManifestLoc = path.join(cwd, 'node_modules', dep, 'package.json');
+    const depManifest = require(depManifestLoc);
+    if (!depManifest.module) {
+      if (isWhitelist) {
+        logError(`dependency "${dep}" has no ES "module" entrypoint.`);
+        console.log('\n' + chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://pikapkg.com/packages')}`) + '\n');
+        return false;
       }
+      continue;
     }
-
-    // or write the bundle to disk
-    // await packageBundle.write({
-    //   // dir: path.dirname(writeToWebNative),
-    //   format: 'esm',
-    //   name: dep,
-    //   file: writeToWebNative,
-    // });
-
+    depObject[transformWebModuleFilename(dep)] = path.join(depLoc, depManifest.module);
   }
-})();
+
+  const inputOptions = {
+    input: depObject,
+    plugins: [
+      rollupPluginNodeResolve({
+        module: true, // Default: true
+        jsnext: false,  // Default: false
+        main: supportsCJS,  // Default: true
+        browser: false,  // Default: false
+        modulesOnly: !supportsCJS, // Default: false
+        extensions: [ '.mjs', '.js', '.json' ],  // Default: [ '.mjs', '.js', '.json', '.node' ]
+        jail: path.join(cwd, 'node_modules'),
+        // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
+        preferBuiltins: false,  // Default: true
+      }),
+      supportsCJS && rollupPluginCommonjs({
+        extensions: [ '.js', '.cjs' ],  // Default: [ '.js' ]
+      })
+    ]
+  };
+  const outputOptions = {
+    dir: path.join(cwd, "web_modules"),
+    format: "esm" as 'esm',
+    sourcemap: true,
+    exports: 'named' as 'named',
+    chunkFileNames: "common/[name]-[hash].js"
+  };
+  const packageBundle = await rollup.rollup(inputOptions);
+  await packageBundle.write(outputOptions);
+  return true;
+}
+
+
+export async function cli(args: string[]) {
+  const {help, strict} = yargs(args);
+
+	if (help) {
+    showHelp();
+    process.exit(0);
+  }
+
+  const cwdManifest = require(path.join(cwd, 'package.json'));
+  const isWhitelist = !!cwdManifest.webDependencies;
+  const arrayOfDeps = cwdManifest.webDependencies || Object.keys(cwdManifest.dependencies || {});
+  spinner.start();
+  const startTime = Date.now();
+  const result = await install(arrayOfDeps, {isWhitelist, supportsCJS: !strict});
+  if (result) {
+    spinner.succeed(chalk.green.bold(`@pika/web`) + ` installed web-native dependencies. ` + chalk.dim(`[${((Date.now() - startTime) / 1000).toFixed(2)}s]`));
+  }
+}
