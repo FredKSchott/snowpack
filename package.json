@@ -31,7 +31,9 @@
     ]
   },
   "dependencies": {
+    "chalk": "^2.4.2",
     "ora": "^3.1.0",
+    "rimraf": "^2.6.3",
     "rollup": "^1.2.3",
     "rollup-plugin-commonjs": "^9.2.1",
     "rollup-plugin-node-resolve": "^4.0.1",
