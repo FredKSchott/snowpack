@@ -9,11 +9,11 @@
 
 ## Quickstart
 
-```bash
+```js
 # To run @pika/web in your project:
-$ npm install && npx @pika/web
+$ npx @pika/web
 # To run @pika/web in your project *on every npm install*:
-$ npm install -save-dev @pika/web
+$ npm install --save-dev @pika/web
 {"scripts": {"prepare": "pika-web"}}
 ```
 

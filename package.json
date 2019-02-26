@@ -2,11 +2,18 @@
   "name": "@pika/web",
   "version": "0.1.2",
   "description": "Install npm packages that run natively in the browser.",
+  "author": "Fred K. Schott <fkschott@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/pack.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "pack build"
   },
-  "author": "Fred K. Schott <fkschott@gmail.com>",
-  "license": "MIT",
   "@pika/pack": {
     "pipeline": [
       [
