@@ -1,6 +1,6 @@
 {
   "name": "@pika/web",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Install npm packages that run natively in the browser.",
   "scripts": {
     "build": "pack build"
