@@ -9,7 +9,7 @@
 
 ---
 
-[npm on Dec 6, 2018](https://medium.com/npm-inc/this-year-in-javascript-2018-in-review-and-npms-predictions-for-2019-3a3d7e5298ef) - *"JavaScript in 2018 is somewhat notorious for requiring a lot of tooling to get going, which is quite a reversal from the situation in 2014... **All of our survey respondents would like to see less tooling [and] less configuration required to get started**."*  
+[npm on Dec 6, 2018](https://medium.com/npm-inc/this-year-in-javascript-2018-in-review-and-npms-predictions-for-2019-3a3d7e5298ef) - *"JavaScript in 2018 is somewhat notorious for requiring a lot of tooling to get going, which is quite a reversal from the situation in 2014... **All of our survey respondents would like to see less tooling [and] less configuration required to get started**."*
 
 ---
 
@@ -58,6 +58,8 @@ By default, @pika/web will install all package.json dependencies with an [ES "mo
 
 ### package.json Options
 
+> *Note: All package.json options are scoped under the `"@pika/web"` property.*
+
 * `"webDependencies"`: You can define an optional whitelist of "webDependencies" in your `package.json` manifest. This is useful if your entire "dependencies" object is too large or contains unrelated, server-only packages that may break @pika/web.
 
 ```js
@@ -66,7 +68,7 @@ By default, @pika/web will install all package.json dependencies with an [ES "mo
     "preact": "^8.0.0",
     /* A mix of other server and frontend dependencies */
   },
-  "webDependencies": ["preact", "htm"],
+  "@pika/web": {"webDependencies": ["htm", "preact"]},
 ```
 
 ### CLI Options
@@ -77,11 +79,11 @@ By default, @pika/web will install all package.json dependencies with an [ES "mo
 
 ## Performance
 
-When @pika/web installs your dependencies, it bundles each one into a single JavaScript file. Shared chunks are created for any transitive dependencies shared between them. Example: If @pika/web installs 10 npm packages into `web_modules/`, you can expect 10 JavaScript files plus a few extra shared chunks.
+When @pika/web installs your dependencies, it bundles each package into a single ESM JavaScript file. Shared chunks are created for any transitive dependencies shared between them, if they exist. Example: If @pika/web installs 10 npm packages into `web_modules/`, you can expect 10 JavaScript files and maybe a few additional shared chunks.
 
-Max Jung's post on ["The Right Way to Bundle Your Assets for Faster Sites over HTTP/2"](https://medium.com/@asyncmax/the-right-way-to-bundle-your-assets-for-faster-sites-over-http-2-437c37efe3ff) is the best study on HTTP/2 performance & bundling that we could find online. @pika/web's installation most closely matches the study's moderate, "50 file" bundling strategy. Jung's post found that for HTTP/2, "differences among concatenation levels below 1000 [small files] (50, 6 or 1) were negligible." 
+Max Jung's post on ["The Right Way to Bundle Your Assets for Faster Sites over HTTP/2"](https://medium.com/@asyncmax/the-right-way-to-bundle-your-assets-for-faster-sites-over-http-2-437c37efe3ff) is the best study on HTTP/2 performance & bundling that we could find online. @pika/web's installation most closely matches the study's moderate, "50 file" bundling strategy. Jung's post found that for HTTP/2, "differences among concatenation levels below 1000 [small files] (50, 6 or 1) were negligible."
 
-More testing is needed, but at this early stage we feel confident extrapolating the following: Because individual dependency bundles leverage browser caching more efficiently than larger combined bundles, @pika/web installations perform better in production than single "vendor" JavaScript bundles and most custom dependency bundling strategies.
+More testing is obviously needed, but at this early stage we feel confident extrapolating the following: When served with HTTP/2, @pika/web installations perform better in production than single "vendor" JavaScript bundles and most custom dependency bundling strategies due to the comprable load performance and more efficient cache usage.
 
 
 ## Why?
