@@ -14,7 +14,7 @@
 ---
 
 
-## @pika/web brings that nostalgic, 2014 simplicity to 2019 web apps:
+## @pika/web brings that nostalgic, 2014 simplicity to 2019 web development:
 
 - **Simple** 💪 No bundlers required. Load [modern, ESM packages](http://pikapkg.com) natively in the browser.
 - **Flexible** 🧘‍♂️ Handles dependency trees of any size, even ones that includes legacy Common.js packages.
