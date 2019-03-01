@@ -3,39 +3,92 @@
 </p>
 
 <p align="center">
-  <strong>@pika/web</strong> • Drop the bundler. Install npm packages that run natively in the browser.
+   <strong>@pika/web</strong> • Install npm dependencies that run directly in the browser. No Browserify, Webpack or import maps required.
 </p>
 
-> Note: This README is still in progress. Please give the project a try! ...but hold off on sharing publicly for a few days while I finish it up :)
+
+---
+
+[npm on Dec 6, 2018](https://medium.com/npm-inc/this-year-in-javascript-2018-in-review-and-npms-predictions-for-2019-3a3d7e5298ef) - *"JavaScript in 2018 is somewhat notorious for requiring a lot of tooling to get going, which is quite a reversal from the situation in 2014... **All of our survey respondents would like to see less tooling [and] less configuration required to get started**."*  
+
+---
+
+
+## @pika/web brings that nostalgic, 2014 simplicity to 2019 web apps:
+
+- **Simple** 💪 No bundlers required. Load [modern, ESM packages](http://pikapkg.com) natively in the browser.
+- **Flexible** 🧘‍♂️ Handles dependency trees of any size, even ones that includes legacy Common.js packages.
+- **HTTP/2 Optimized** ⚡️ No more huge, cache-busting bundles. Browsers only download deps when they change.
 
 
 ## Quickstart
 
 ```
-# To run @pika/web in your project:
+npm install --save-dev @pika/web
+yarn add --dev @pika/web
+```
+
+```diff
+# 1. Run @pika/web in your project:
 $ npx @pika/web
-# To run @pika/web in your project *on every npm install*:
-$ npm install --save-dev @pika/web
+
+# 2. Replace all NPM package imports in your web app with web-native URLs:
+- import { createElement, Component } from "preact";
+- import htm from "htm";
++ import { createElement, Component } from "/web_modules/preact.js";
++ import htm from "/web_modules/htm.js";
+
+# 3. Run that file directly in the browser and see the magic! 
+✨ ~(‾▿‾~)(~‾▿‾)~ ✨
+
+# 4. (Optional) Add a package.json "prepare" script to run @pika/web on every npm install:
 {"scripts": {"prepare": "pika-web"}}
 ```
 
-Now, in your project you can do:
+By default, @pika/web will install all package.json dependencies with an [ES "module" entrypoint](https://github.com/rollup/rollup/wiki/pkg.module) to the `web_modules/` directory. @pika/web is able to handle any legacy Common.js/Node.js transitive dependencies in your dependency tree, however the top-level dependencies (the ones that you import directly) must have a "module" entrypoint.
+ 
+> ┻┳|  
+> ┳┻| _  
+> ┻┳| •.•) 💬 *"Tip: Use [pikapkg.com](https://www.pikapkg.com) to find modern, web-ready packages on npm :)"*  
+> ┳┻|⊂ﾉ     
+> ┻┳|  
 
-```js
-import { createElement, Component } from "/web_modules/preact.js";
-import htm from "/web_modules/htm.js";
-```
-
-By default, @pika/web reads your `package.json` for a list of "dependencies", and installs any with a "module" entrypoint from your `node_modules/` directory into a new `web_modules/` directory.
-
-You can also define a whitelist of "webDependencies" in your `package.json`, if your entire "dependencies" object is too large or contains unrelated, Node.js-only packages.
 
 ## Options
 
+### package.json Options
 
-* `"webDependencies"`: By default, @pika/web reads your `package.json` "dependencies" object and installs any packages with a "module" entrypoint. If this is an issue, you can define a "webDependencies" whitelist in your `package.json` of which packages to install to `node_modules/`.
-* `--strict`: Only support 100% ESM installations. By default, @pika/web will handle Common.js transitive dependencies.
+* `"webDependencies"`: You can define an optional whitelist of "webDependencies" in your `package.json` manifest. This is useful if your entire "dependencies" object is too large or contains unrelated, server-only packages that may break @pika/web.
 
-## Special Thanks
+```js
+  "dependencies": {
+    "htm": "^1.0.0",
+    "preact": "^8.0.0",
+    /* A mix of other server and frontend dependencies */
+  },
+  "webDependencies": ["preact", "htm"],
+```
 
-@pika/web is powered internally by Rollup.
+### CLI Options
+
+* `--strict`: Only install pure ESM dependency trees. Great for purists, or anyone who doesn't want to deal with transitive Common.js and Node.js-only dependencies.
+* `--optimize`: (Planned, coming soon!) Minify installed dependencies.
+
+
+## Performance
+
+When @pika/web installs your dependencies, it bundles each one into a single JavaScript file. Shared chunks are created for any transitive dependencies shared between them. Example: If @pika/web installs 10 npm packages into `web_modules/`, you can expect 10 JavaScript files plus a few extra shared chunks.
+
+Max Jung's post on ["The Right Way to Bundle Your Assets for Faster Sites over HTTP/2"](https://medium.com/@asyncmax/the-right-way-to-bundle-your-assets-for-faster-sites-over-http-2-437c37efe3ff) is the best study on HTTP/2 performance & bundling that we could find online. @pika/web's installation most closely matches the study's moderate, "50 file" bundling strategy. Jung's post found that for HTTP/2, "differences among concatenation levels below 1000 [small files] (50, 6 or 1) were negligible." 
+
+More testing is needed, but at this early stage we feel confident extrapolating the following: Because individual dependency bundles leverage browser caching more efficiently than larger combined bundles, @pika/web installations perform better in production than single "vendor" JavaScript bundles and most custom dependency bundling strategies.
+
+
+## Why?
+
+Pika's mission is to make modern JavaScript more accessible by making it easier to find, publish, install, and use modern packages on npm. You can learn more the Pika project at https://www.pikapkg.com/about.
+
+
+## Special Thanks: Rollup
+
+@pika/web is powered internally by [Rollup](https://rollupjs.org/). We believe that bundlers shouldn't be a *requirement* for modern web development, but none of this would be possible without the awesome work done by Rollup contributors. If you use and enjoy our software, consider contributing back to [Rollup on Open Collective](https://opencollective.com/rollup).
