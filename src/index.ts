@@ -44,6 +44,10 @@ export async function install(arrayOfDeps: string[], {isWhitelist, supportsCJS}:
   const depObject = {};
   for (const dep of arrayOfDeps) {
     const depLoc = path.join(cwd, 'node_modules', dep);
+    if (!fs.existsSync(depLoc)) {
+        logError(`dependency "${dep}" not found in your node_modules/ directory. Did you run npm install?`);
+      return;
+    }
     const depManifestLoc = path.join(cwd, 'node_modules', dep, 'package.json');
     const depManifest = require(depManifestLoc);
     if (!depManifest.module) {
@@ -98,8 +102,8 @@ export async function cli(args: string[]) {
   }
 
   const cwdManifest = require(path.join(cwd, 'package.json'));
-  const isWhitelist = !!cwdManifest.webDependencies;
-  const arrayOfDeps = cwdManifest.webDependencies || Object.keys(cwdManifest.dependencies || {});
+  const isWhitelist = !!cwdManifest && !!cwdManifest['@pika/web'] && !!cwdManifest['@pika/web'].webDependencies;
+  const arrayOfDeps = isWhitelist ? cwdManifest['@pika/web'].webDependencies : Object.keys(cwdManifest.dependencies || {});
   spinner.start();
   const startTime = Date.now();
   const result = await install(arrayOfDeps, {isWhitelist, supportsCJS: !strict});
