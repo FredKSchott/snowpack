@@ -42,7 +42,6 @@ $ npx @pika/web
 ✨ ~(‾▿‾~)(~‾▿‾)~ ✨
 
 # (Optional) If you are already using Babel to build your application, skip "Step 2" and use our plugin to rewrite your package imports automatically:
-npm install --save-dev @pika/web
 echo '{"plugins": [["@pika/web/assets/babel-plugin.js"]]}' > .babelrc
 
 # (Optional) Add a package.json "prepare" script to run @pika/web on every npm install:
