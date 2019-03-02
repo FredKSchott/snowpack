@@ -14,7 +14,7 @@
 ---
 
 
-## @pika/web brings that nostalgic, 2014 simplicity to 2019 web apps:
+## @pika/web brings that nostalgic, 2014 simplicity to 2019 web development:
 
 - **Simple** 💪 No bundlers required. Load [modern, ESM packages](http://pikapkg.com) natively in the browser.
 - **Flexible** 🧘‍♂️ Handles dependency trees of any size, even ones that includes legacy Common.js packages.
@@ -41,7 +41,10 @@ $ npx @pika/web
 # 3. Run that file directly in the browser and see the magic! 
 ✨ ~(‾▿‾~)(~‾▿‾)~ ✨
 
-# 4. (Optional) Add a package.json "prepare" script to run @pika/web on every npm install:
+# (Optional) If you already use Babel to build your application, skip "Step 2" and let our plugin rewrite your imports automatically:
+echo '{"plugins": [["@pika/web/assets/babel-plugin.js"]]}' > .babelrc
+
+# (Optional) Add a package.json "prepare" script to run @pika/web on every npm install:
 {"scripts": {"prepare": "pika-web"}}
 ```
 
@@ -52,6 +55,21 @@ By default, @pika/web will install all package.json dependencies with an [ES "mo
 > ┻┳| •.•) 💬 *"Tip: Use [pikapkg.com](https://www.pikapkg.com) to find modern, web-ready packages on npm :)"*  
 > ┳┻|⊂ﾉ     
 > ┻┳|  
+
+
+
+## Performance
+
+When @pika/web installs your dependencies, it bundles each package into a single ESM JavaScript file. Shared chunks are created for any transitive dependencies shared between them, if they exist. Example: If @pika/web installs 10 npm packages into `web_modules/`, you can expect 10 JavaScript files and maybe a few additional shared chunks.
+
+Max Jung's post on ["The Right Way to Bundle Your Assets for Faster Sites over HTTP/2"](https://medium.com/@asyncmax/the-right-way-to-bundle-your-assets-for-faster-sites-over-http-2-437c37efe3ff) is the best study on HTTP/2 performance & bundling that we could find online. @pika/web's installation most closely matches the study's moderate, "50 file" bundling strategy. Jung's post found that for HTTP/2, "differences among concatenation levels below 1000 [small files] (50, 6 or 1) were negligible."
+
+More testing is obviously needed, but at this early stage we feel confident extrapolating the following: When served with HTTP/2, @pika/web installations perform better in production than single "vendor" JavaScript bundles and most custom dependency bundling strategies due to the comprable load performance + more efficient cache usage.
+
+
+## Why?
+
+Pika's mission is to make modern JavaScript more accessible by making it easier to find, publish, install, and use modern packages on npm. You can learn more the Pika project at https://www.pikapkg.com/about.
 
 
 ## Options
@@ -75,20 +93,6 @@ By default, @pika/web will install all package.json dependencies with an [ES "mo
 
 * `--strict`: Only install pure ESM dependency trees. Great for purists, or anyone who doesn't want to deal with transitive Common.js and Node.js-only dependencies.
 * `--optimize`: (Planned, coming soon!) Minify installed dependencies.
-
-
-## Performance
-
-When @pika/web installs your dependencies, it bundles each package into a single ESM JavaScript file. Shared chunks are created for any transitive dependencies shared between them, if they exist. Example: If @pika/web installs 10 npm packages into `web_modules/`, you can expect 10 JavaScript files and maybe a few additional shared chunks.
-
-Max Jung's post on ["The Right Way to Bundle Your Assets for Faster Sites over HTTP/2"](https://medium.com/@asyncmax/the-right-way-to-bundle-your-assets-for-faster-sites-over-http-2-437c37efe3ff) is the best study on HTTP/2 performance & bundling that we could find online. @pika/web's installation most closely matches the study's moderate, "50 file" bundling strategy. Jung's post found that for HTTP/2, "differences among concatenation levels below 1000 [small files] (50, 6 or 1) were negligible."
-
-More testing is obviously needed, but at this early stage we feel confident extrapolating the following: When served with HTTP/2, @pika/web installations perform better in production than single "vendor" JavaScript bundles and most custom dependency bundling strategies due to the comprable load performance + more efficient cache usage.
-
-
-## Why?
-
-Pika's mission is to make modern JavaScript more accessible by making it easier to find, publish, install, and use modern packages on npm. You can learn more the Pika project at https://www.pikapkg.com/about.
 
 
 ## Special Thanks: Rollup
