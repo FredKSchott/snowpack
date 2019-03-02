@@ -92,6 +92,8 @@ Pika's mission is to make modern JavaScript more accessible by making it easier 
 ### CLI Options
 
 * `--strict`: Only install pure ESM dependency trees. Great for purists, or anyone who doesn't want to deal with transitive Common.js and Node.js-only dependencies.
+* `--dest`: Specify destination directory (default: `web_modules`).
+* `--no-clean`: Do not remove the destination directory before building the modules.
 * `--optimize`: (Planned, coming soon!) Minify installed dependencies.
 
 
