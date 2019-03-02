@@ -99,7 +99,7 @@ export async function install(arrayOfDeps: string[], {cleanFolder, destFolder, i
 }
 
 export async function cli(args: string[]) {
-  const {help, strict, noClean = false, dest = "web_modules"} = yargs(args);
+  const {help, strict, clean = true, dest = "web_modules"} = yargs(args);
 
 	if (help) {
     showHelp();
@@ -111,7 +111,7 @@ export async function cli(args: string[]) {
   const arrayOfDeps = isWhitelist ? cwdManifest['@pika/web'].webDependencies : Object.keys(cwdManifest.dependencies || {});
   spinner.start();
   const startTime = Date.now();
-  const result = await install(arrayOfDeps, {cleanFolder: !noClean, destFolder: dest, isWhitelist, supportsCJS: !strict});
+  const result = await install(arrayOfDeps, {cleanFolder: clean, destFolder: dest, isWhitelist, supportsCJS: !strict});
   if (result) {
     spinner.succeed(chalk.green.bold(`@pika/web`) + ` installed web-native dependencies. ` + chalk.dim(`[${((Date.now() - startTime) / 1000).toFixed(2)}s]`));
   }
