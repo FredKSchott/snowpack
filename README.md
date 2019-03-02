@@ -6,6 +6,11 @@
    <strong>@pika/web</strong> • Install npm dependencies that run directly in the browser. No Browserify, Webpack or import maps required.
 </p>
 
+<p align="center">
+  <a href="https://twitter.com/midudev/status/1101828172390248448">
+    <img alt="Logo" src="https://next.pikapkg.com/static/img/pika-web-demo.png?f" width="540">
+  </a>
+</p>
 
 ---
 
