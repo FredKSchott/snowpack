@@ -17,7 +17,7 @@ function showHelp() {
   Options
     --strict    Support only ESM dependencies.
     --dest      Specify destination directory (default: web_modules).
-    --no-clean  Do not remove the dist directory before building the project. (default: true)
+    --no-clean  Do not remove the dist directory before building the project.
 `);
 }
 
