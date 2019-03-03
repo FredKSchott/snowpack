@@ -8,6 +8,13 @@ import rollupPluginNodeResolve from 'rollup-plugin-node-resolve';
 import rollupPluginCommonjs from 'rollup-plugin-commonjs';
 import yargs from 'yargs-parser';
 
+export interface InstallOptions {
+  isCleanInstall: boolean;
+  destLoc: string;
+  isWhitelist: boolean;
+  isStrict?: boolean;
+}
+
 const cwd = process.cwd();
 let spinner = ora(chalk.bold(`@pika/web`) + ` installing...`);
 
@@ -15,9 +22,9 @@ function showHelp() {
   console.log(`${chalk.bold(`@pika/web`)} - Install npm dependencies to run natively on the web.`);
   console.log(`
   Options
-    --strict    Support only ESM dependencies.
-    --dest      Specify destination directory (default: web_modules).
-    --no-clean  Do not remove the dist directory before building the project.
+    --dest      Specify destination directory (default: "web_modules/").
+    --clean     Clear out the destination directory before install.
+    --strict    Only install pure ESM dependency trees. Fail if a CJS module is encountered.
 `);
 }
 
@@ -31,7 +38,7 @@ function transformWebModuleFilename(depName:string):string {
   return depName.replace('/', '--');
 }
 
-export async function install(arrayOfDeps: string[], {cleanFolder, destFolder, isWhitelist, supportsCJS}: {cleanFolder: boolean, destFolder: string, isWhitelist: boolean, supportsCJS?: boolean}) {
+export async function install(arrayOfDeps: string[], {isCleanInstall, destLoc, isWhitelist, isStrict}: InstallOptions) {
   if (arrayOfDeps.length === 0) {
     logError('no dependencies found.');
     return;
@@ -41,10 +48,8 @@ export async function install(arrayOfDeps: string[], {cleanFolder, destFolder, i
     return;
   }
 
-  const outputDir = path.join(cwd, destFolder)
-
-  if (cleanFolder) {
-    rimraf.sync(outputDir);
+  if (isCleanInstall) {
+    rimraf.sync(destLoc);
   }
 
   const depObject = {};
@@ -73,21 +78,21 @@ export async function install(arrayOfDeps: string[], {cleanFolder, destFolder, i
       rollupPluginNodeResolve({
         module: true, // Default: true
         jsnext: false,  // Default: false
-        main: supportsCJS,  // Default: true
+        main: !isStrict,  // Default: true
         browser: false,  // Default: false
-        modulesOnly: !supportsCJS, // Default: false
+        modulesOnly: isStrict, // Default: false
         extensions: [ '.mjs', '.js', '.json' ],  // Default: [ '.mjs', '.js', '.json', '.node' ]
         jail: path.join(cwd, 'node_modules'),
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: false,  // Default: true
       }),
-      supportsCJS && rollupPluginCommonjs({
+      !isStrict && rollupPluginCommonjs({
         extensions: [ '.js', '.cjs' ],  // Default: [ '.js' ]
       })
     ]
   };
   const outputOptions = {
-    dir: outputDir,
+    dir: destLoc,
     format: "esm" as 'esm',
     sourcemap: true,
     exports: 'named' as 'named',
@@ -99,7 +104,8 @@ export async function install(arrayOfDeps: string[], {cleanFolder, destFolder, i
 }
 
 export async function cli(args: string[]) {
-  const {help, strict, clean = true, dest = "web_modules"} = yargs(args);
+  const {help, strict = false, clean = false, dest = "web_modules"} = yargs(args);
+  const destLoc = path.join(cwd, dest);
 
 	if (help) {
     showHelp();
@@ -111,7 +117,7 @@ export async function cli(args: string[]) {
   const arrayOfDeps = isWhitelist ? cwdManifest['@pika/web'].webDependencies : Object.keys(cwdManifest.dependencies || {});
   spinner.start();
   const startTime = Date.now();
-  const result = await install(arrayOfDeps, {cleanFolder: clean, destFolder: dest, isWhitelist, supportsCJS: !strict});
+  const result = await install(arrayOfDeps, {isCleanInstall: clean, destLoc, isWhitelist, isStrict: strict});
   if (result) {
     spinner.succeed(chalk.green.bold(`@pika/web`) + ` installed web-native dependencies. ` + chalk.dim(`[${((Date.now() - startTime) / 1000).toFixed(2)}s]`));
   }
