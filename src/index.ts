@@ -3,16 +3,19 @@ import path from 'path';
 import rimraf from 'rimraf';
 import chalk from 'chalk';
 import ora from 'ora';
+import yargs from 'yargs-parser';
+
 import * as rollup from 'rollup';
 import rollupPluginNodeResolve from 'rollup-plugin-node-resolve';
 import rollupPluginCommonjs from 'rollup-plugin-commonjs';
-import yargs from 'yargs-parser';
+import { terser as rollupPluginTerser } from "rollup-plugin-terser";
 
 export interface InstallOptions {
-  isCleanInstall: boolean;
   destLoc: string;
-  isWhitelist: boolean;
+  isCleanInstall?: boolean;
+  isWhitelist?: boolean;
   isStrict?: boolean;
+  isOptimized?: boolean;
 }
 
 const cwd = process.cwd();
@@ -24,6 +27,7 @@ function showHelp() {
   Options
     --dest      Specify destination directory (default: "web_modules/").
     --clean     Clear out the destination directory before install.
+    --optimize  Minify installed dependencies.
     --strict    Only install pure ESM dependency trees. Fail if a CJS module is encountered.
 `);
 }
@@ -38,7 +42,7 @@ function transformWebModuleFilename(depName:string):string {
   return depName.replace('/', '--');
 }
 
-export async function install(arrayOfDeps: string[], {isCleanInstall, destLoc, isWhitelist, isStrict}: InstallOptions) {
+export async function install(arrayOfDeps: string[], {isCleanInstall, destLoc, isWhitelist, isStrict, isOptimized}: InstallOptions) {
   if (arrayOfDeps.length === 0) {
     logError('no dependencies found.');
     return;
@@ -88,7 +92,8 @@ export async function install(arrayOfDeps: string[], {isCleanInstall, destLoc, i
       }),
       !isStrict && rollupPluginCommonjs({
         extensions: [ '.js', '.cjs' ],  // Default: [ '.js' ]
-      })
+      }),
+      isOptimized && rollupPluginTerser()
     ]
   };
   const outputOptions = {
@@ -104,7 +109,7 @@ export async function install(arrayOfDeps: string[], {isCleanInstall, destLoc, i
 }
 
 export async function cli(args: string[]) {
-  const {help, strict = false, clean = false, dest = "web_modules"} = yargs(args);
+  const {help, optimize = false, strict = false, clean = false, dest = "web_modules"} = yargs(args);
   const destLoc = path.join(cwd, dest);
 
 	if (help) {
@@ -117,7 +122,7 @@ export async function cli(args: string[]) {
   const arrayOfDeps = isWhitelist ? cwdManifest['@pika/web'].webDependencies : Object.keys(cwdManifest.dependencies || {});
   spinner.start();
   const startTime = Date.now();
-  const result = await install(arrayOfDeps, {isCleanInstall: clean, destLoc, isWhitelist, isStrict: strict});
+  const result = await install(arrayOfDeps, {isCleanInstall: clean, destLoc, isWhitelist, isStrict: strict, isOptimized: optimize});
   if (result) {
     spinner.succeed(chalk.green.bold(`@pika/web`) + ` installed web-native dependencies. ` + chalk.dim(`[${((Date.now() - startTime) / 1000).toFixed(2)}s]`));
   }
