@@ -15,7 +15,9 @@ function showHelp() {
   console.log(`${chalk.bold(`@pika/web`)} - Install npm dependencies to run natively on the web.`);
   console.log(`
   Options
-    --strict  Support only ESM dependencies.
+    --strict    Support only ESM dependencies.
+    --dest      Specify destination directory (default: web_modules).
+    --no-clean  Do not remove the dist directory before building the project.
 `);
 }
 
@@ -29,7 +31,7 @@ function transformWebModuleFilename(depName:string):string {
   return depName.replace('/', '--');
 }
 
-export async function install(arrayOfDeps: string[], {isWhitelist, supportsCJS}: {isWhitelist: boolean, supportsCJS?: boolean}) {
+export async function install(arrayOfDeps: string[], {cleanFolder, destFolder, isWhitelist, supportsCJS}: {cleanFolder: boolean, destFolder: string, isWhitelist: boolean, supportsCJS?: boolean}) {
   if (arrayOfDeps.length === 0) {
     logError('no dependencies found.');
     return;
@@ -39,7 +41,11 @@ export async function install(arrayOfDeps: string[], {isWhitelist, supportsCJS}:
     return;
   }
 
-  rimraf.sync(path.join(cwd, 'web_modules'));
+  const outputDir = path.join(cwd, destFolder)
+
+  if (cleanFolder) {
+    rimraf.sync(outputDir);
+  }
 
   const depObject = {};
   for (const dep of arrayOfDeps) {
@@ -81,7 +87,7 @@ export async function install(arrayOfDeps: string[], {isWhitelist, supportsCJS}:
     ]
   };
   const outputOptions = {
-    dir: path.join(cwd, "web_modules"),
+    dir: outputDir,
     format: "esm" as 'esm',
     sourcemap: true,
     exports: 'named' as 'named',
@@ -92,9 +98,8 @@ export async function install(arrayOfDeps: string[], {isWhitelist, supportsCJS}:
   return true;
 }
 
-
 export async function cli(args: string[]) {
-  const {help, strict} = yargs(args);
+  const {help, strict, clean = true, dest = "web_modules"} = yargs(args);
 
 	if (help) {
     showHelp();
@@ -106,7 +111,7 @@ export async function cli(args: string[]) {
   const arrayOfDeps = isWhitelist ? cwdManifest['@pika/web'].webDependencies : Object.keys(cwdManifest.dependencies || {});
   spinner.start();
   const startTime = Date.now();
-  const result = await install(arrayOfDeps, {isWhitelist, supportsCJS: !strict});
+  const result = await install(arrayOfDeps, {cleanFolder: clean, destFolder: dest, isWhitelist, supportsCJS: !strict});
   if (result) {
     spinner.succeed(chalk.green.bold(`@pika/web`) + ` installed web-native dependencies. ` + chalk.dim(`[${((Date.now() - startTime) / 1000).toFixed(2)}s]`));
   }
