@@ -1,6 +1,6 @@
 {
   "name": "@pika/web",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Install npm packages that run natively in the browser.",
   "author": "Fred K. Schott <fkschott@gmail.com>",
   "license": "MIT",
