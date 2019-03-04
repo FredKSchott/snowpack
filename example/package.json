@@ -1,0 +1,20 @@
+{
+  "name": "example",
+  "private": true,
+  "scripts": {
+    "prepare": "pika-web",
+    "start": "serve ./"
+  },
+  "dependencies": {
+    "slugy": "^1.0.2"
+  },
+  "devDependencies": {
+    "@pika/web": "^0.3.0",
+    "serve": "^10.1.2"
+  },
+  "@pika/web": {
+    "webDependencies": [
+      "slugy"
+    ]
+  }
+}
