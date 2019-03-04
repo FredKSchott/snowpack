@@ -74,7 +74,7 @@ More testing is obviously needed, but at this early stage we feel confident extr
 
 ## Why?
 
-Pika's mission is to make modern JavaScript more accessible by making it easier to find, publish, install, and use modern packages on npm. You can learn more the Pika project at https://www.pikapkg.com/about.
+Pika's mission is to make modern JavaScript more accessible by making it easier to find, publish, install, and use modern packages on npm. You can learn more about the Pika project at https://www.pikapkg.com/about.
 
 
 ## Options
