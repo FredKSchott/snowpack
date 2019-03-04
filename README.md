@@ -23,7 +23,7 @@
 
 - **Simple** 💪 No bundlers required. Load [modern ESM packages](http://pikapkg.com) natively in the browser.
 - **Flexible** 🧘‍♂️ Handles dependency trees of any size, even ones that includes legacy Common.js packages.
-- **HTTP/2 Optimized** ⚡️ No more huge, cache-busting bundles. Browsers only download depedencies when they change.
+- **HTTP/2 Optimized** ⚡️ No more huge, cache-busting bundles. Browsers only download dependencies when they change.
 
 
 ## Quickstart
