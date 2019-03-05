@@ -21,9 +21,9 @@
 
 ## @pika/web brings that nostalgic, 2014 simplicity to 2019 web development:
 
-- **Simple** 💪 No bundlers required. Load [modern, ESM packages](http://pikapkg.com) natively in the browser.
+- **Simple** 💪 No bundlers required. Load [modern ESM packages](http://pikapkg.com) natively in the browser.
 - **Flexible** 🧘‍♂️ Handles dependency trees of any size, even ones that includes legacy Common.js packages.
-- **HTTP/2 Optimized** ⚡️ No more huge, cache-busting bundles. Browsers only download deps when they change.
+- **HTTP/2 Optimized** ⚡️ No more huge, cache-busting bundles. Browsers only download dependencies when they change.
 
 
 ## Quickstart
@@ -65,11 +65,11 @@ By default, @pika/web will install all package.json dependencies with an [ES "mo
 
 ## Performance
 
-When @pika/web installs your dependencies, it bundles each package into a single ESM JavaScript file. Shared chunks are created for any transitive dependencies shared between them, if they exist. Example: If @pika/web installs 10 npm packages into `web_modules/`, you can expect 10 JavaScript files and maybe a few additional shared chunks.
+When @pika/web installs your dependencies, it bundles each package into a single ESM JavaScript file. Shared chunks are created for any shared, existing transitive dependencies. Example: If @pika/web installs 10 npm packages into `web_modules/`, you can expect 10 JavaScript files and maybe a few additional shared chunks.
 
-Max Jung's post on ["The Right Way to Bundle Your Assets for Faster Sites over HTTP/2"](https://medium.com/@asyncmax/the-right-way-to-bundle-your-assets-for-faster-sites-over-http-2-437c37efe3ff) is the best study on HTTP/2 performance & bundling that we could find online. @pika/web's installation most closely matches the study's moderate, "50 file" bundling strategy. Jung's post found that for HTTP/2, "differences among concatenation levels below 1000 [small files] (50, 6 or 1) were negligible."
+Max Jung's post on ["The Right Way to Bundle Your Assets for Faster Sites over HTTP/2"](https://medium.com/@asyncmax/the-right-way-to-bundle-your-assets-for-faster-sites-over-http-2-437c37efe3ff) is the best study on HTTP/2 performance & bundling we could find online. @pika/web's installation most closely matches the study's moderate, "50 file" bundling strategy. Jung's post found that for HTTP/2, "differences among concatenation levels below 1000 [small files] (50, 6 or 1) were negligible."
 
-More testing is obviously needed, but at this early stage we feel confident extrapolating the following: When served with HTTP/2, @pika/web installations perform better in production than single "vendor" JavaScript bundles and most custom dependency bundling strategies due to the comparable load performance + more efficient cache usage.
+More testing is needed, but at this early stage we feel confident extrapolating the following: When served with HTTP/2, @pika/web installations perform better in production than single "vendor" JavaScript bundles and most custom dependency bundling strategies due to the comparable load performance and efficient cache usage.
 
 
 ## Why?
