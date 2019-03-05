@@ -9,6 +9,7 @@ import * as rollup from 'rollup';
 import rollupPluginNodeResolve from 'rollup-plugin-node-resolve';
 import rollupPluginCommonjs from 'rollup-plugin-commonjs';
 import { terser as rollupPluginTerser } from "rollup-plugin-terser";
+import rollupPluginReplace from 'rollup-plugin-replace';
 
 export interface InstallOptions {
   destLoc: string;
@@ -79,6 +80,9 @@ export async function install(arrayOfDeps: string[], {isCleanInstall, destLoc, i
   const inputOptions = {
     input: depObject,
     plugins: [
+      rollupPluginReplace({
+        'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"'
+      }),
       rollupPluginNodeResolve({
         module: true, // Default: true
         jsnext: false,  // Default: false

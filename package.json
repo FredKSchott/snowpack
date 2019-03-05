@@ -50,6 +50,7 @@
     "@pika/plugin-simple-bin": "^0.3.12",
     "@pika/plugin-ts-standard-pkg": "^0.3.12",
     "prettier": "^1.16.4",
+    "rollup-plugin-replace": "^2.1.0",
     "typescript": "^3.3.3333"
   }
 }
