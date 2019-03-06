@@ -80,7 +80,7 @@ export async function install(arrayOfDeps: string[], {isCleanInstall, destLoc, i
   const inputOptions = {
     input: depObject,
     plugins: [
-      rollupPluginReplace({
+      !isStrict && rollupPluginReplace({
         'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"'
       }),
       rollupPluginNodeResolve({
