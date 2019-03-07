@@ -13,22 +13,20 @@ import { terser as rollupPluginTerser } from "rollup-plugin-terser";
 export interface InstallOptions {
   destLoc: string;
   isCleanInstall?: boolean;
-  isWhitelist?: boolean;
+  isExplicitDeps?: boolean;
   isStrict?: boolean;
   isOptimized?: boolean;
 }
 
+type DependencyType
+  = 'package'
+  | 'module';
+
 interface ESModuleResolutionResult {
-  found: boolean;
+  isPackageLackingModule?: boolean;
   path?: string;
+  depNameRefersTo: DependencyType;
 }
-interface ESModuleDescriptorExplicit {
-  type: 'es_module' | 'directory';
-  path: 'string';
-}
-type ESModuleDescriptor
-  = string
-  | ESModuleDescriptorExplicit;
 
 const cwd = process.cwd();
 let spinner = ora(chalk.bold(`@pika/web`) + ` installing...`);
@@ -50,15 +48,20 @@ function logError(msg) {
   spinner.fail();
 }
 
-function moduleDescriptorToWebModuleName(esModule: ESModuleDescriptor): string {
-  if (typeof esModule === 'string') {
-    return transformWebModuleFilename(esModule);
+function dependencyDescriptorToWebModuleFileName(dependencyDescriptor: string, dependencyType: DependencyType): string {
+  let dependencyName;
+  if (dependencyType === 'package') {
+    dependencyName = dependencyDescriptor;
+  } else if (dependencyType === 'module') {
+    dependencyName = dependencyDescriptor.replace(/\.js$/, '');
+  } else {
+    throw new Error(`Unsupported dependency type, "${dependencyType}".`);
   }
-  return transformWebModuleFilename(esModule.path);
+  return sanitizeReservedFilesystemCharacters(dependencyName);
 }
 
-function transformWebModuleFilename(depName:string):string {
-  return depName.replace('/', '--');
+function sanitizeReservedFilesystemCharacters(path: string): string {
+  return path.replace('/', '--');
 }
 
 class ErrorWithHint extends Error {
@@ -69,69 +72,74 @@ class ErrorWithHint extends Error {
   }
 }
 
-function locateEsModule(esModule: ESModuleDescriptor, toleratePackagesLackingModules: boolean): ESModuleResolutionResult {
-  if (typeof esModule === 'string') {
-    return locateEsModuleWithinDirectory(esModule, toleratePackagesLackingModules);
+function locateEsModule(dependencyDescriptor: string): ESModuleResolutionResult {
+  const dependencyPath = path.join(cwd, 'node_modules', dependencyDescriptor);
+  if (!fs.existsSync(dependencyPath)) {
+    throw new Error(`dependency "${dependencyDescriptor}" not found in your node_modules/ directory. Did you run npm install?`);
   }
-  if (esModule.type === 'directory') {
-    return locateEsModuleWithinDirectory(esModule.path, toleratePackagesLackingModules);
+  const dependencyStats = fs.statSync(dependencyPath);
+  if (dependencyStats.isDirectory()) {
+    return locateEsModuleWithinDirectory(dependencyPath);
   }
-  return {
-    found: true,
-    path: path.join(cwd, 'node_modules', esModule.path),
-  };
+  if (dependencyStats.isFile()) {
+    return {
+      depNameRefersTo: 'module',
+      path: dependencyPath,
+    };
+  }
+  throw new Error(`Dependency "${dependencyDescriptor}"'s path, "${dependencyPath}" refers to neither a directory nor a regular file.`);
 }
 
-function locateEsModuleWithinDirectory(directory: string, toleratePackagesLackingModules: boolean): ESModuleResolutionResult {
-  const moduleDirectory = path.join(cwd, 'node_modules', directory);
-  if (!fs.existsSync(moduleDirectory)) {
-    throw new Error(`dependency "${directory}" not found in your node_modules/ directory. Did you run npm install?`);
-  }
-  const manifestPath = path.join(moduleDirectory, 'package.json');
+function locateEsModuleWithinDirectory(packageDirectory: string): ESModuleResolutionResult {
+  const manifestPath = path.join(packageDirectory, 'package.json');
   const manifest = require(manifestPath);
   if (!manifest.module) {
-    if (!toleratePackagesLackingModules) {
-      throw new ErrorWithHint(
-        `dependency "${directory}" has no ES "module" entrypoint.`,
-        '\n' + chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://pikapkg.com/packages')}`) + '\n');
-    }
-    return { found: false };
+    return {
+      depNameRefersTo: 'package',
+      isPackageLackingModule: true,
+    };
   }
   return {
-    found: true,
-    path: path.join(moduleDirectory, manifest.module),
+    depNameRefersTo: 'package',
+    path: path.join(packageDirectory, manifest.module),
   };
 }
 
-export async function install(arrayOfDeps: ESModuleDescriptor[], {isCleanInstall, destLoc, isWhitelist, isStrict, isOptimized}: InstallOptions) {
-  if (arrayOfDeps.length === 0) {
-    logError('no dependencies found.');
-    return;
-  }
-  if (!fs.existsSync(path.join(cwd, 'node_modules'))) {
-    logError('no node_modules/ directory exists. Run "npm install" in your project before running @pika/web.');
-    return;
-  }
-
-  if (isCleanInstall) {
-    rimraf.sync(destLoc);
-  }
-
+export async function install(arrayOfDeps: string[], {isCleanInstall, destLoc, isExplicitDeps, isStrict, isOptimized}: InstallOptions) {
   const depObject = {};
-  for (const dep of arrayOfDeps) {
-    try {
-      const resolutionResult = locateEsModule(dep, !isWhitelist);
-      if (!resolutionResult.found) {
+  try {
+    if (arrayOfDeps.length === 0) {
+      throw new Error('no dependencies found.');
+    }
+    if (!fs.existsSync(path.join(cwd, 'node_modules'))) {
+      throw new Error('no node_modules/ directory exists. Run "npm install" in your project before running @pika/web.');
+    }
+
+    if (isCleanInstall) {
+      rimraf.sync(destLoc);
+    }
+
+    for (const dep of arrayOfDeps) {
+      const resolutionResult = locateEsModule(dep);
+      if (resolutionResult.isPackageLackingModule) {
+        if (isExplicitDeps) {
+          throw new ErrorWithHint(
+            `dependency "${dep}"'s package.json has no ES "module" entrypoint.`,
+            '\n' + chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://pikapkg.com/packages')}`) + '\n'
+            );
+        }
+        // user didn't explicitly specify which packages they care about, so we settle for best-effort
         continue;
       }
-      depObject[moduleDescriptorToWebModuleName(dep)] = resolutionResult.path;
-    } catch(err) {
-      logError(err.message);
-      if (err instanceof ErrorWithHint) {
-        console.log(err.hint);
-      }
-      return;
+      depObject[dependencyDescriptorToWebModuleFileName(dep, resolutionResult.depNameRefersTo)] = resolutionResult.path;
     }
+
+  } catch(err) {
+    logError(err.message);
+    if (err instanceof ErrorWithHint) {
+      console.log(err.hint);
+    }
+    return;
   }
 
   const inputOptions = {
@@ -176,11 +184,11 @@ export async function cli(args: string[]) {
   }
 
   const cwdManifest = require(path.join(cwd, 'package.json'));
-  const isWhitelist = !!cwdManifest && !!cwdManifest['@pika/web'] && !!cwdManifest['@pika/web'].webDependencies;
-  const arrayOfDeps = isWhitelist ? cwdManifest['@pika/web'].webDependencies : Object.keys(cwdManifest.dependencies || {});
+  const isExplicitDeps = !!cwdManifest && !!cwdManifest['@pika/web'] && !!cwdManifest['@pika/web'].webDependencies;
+  const arrayOfDeps = isExplicitDeps ? cwdManifest['@pika/web'].webDependencies : Object.keys(cwdManifest.dependencies || {});
   spinner.start();
   const startTime = Date.now();
-  const result = await install(arrayOfDeps, {isCleanInstall: clean, destLoc, isWhitelist, isStrict: strict, isOptimized: optimize});
+  const result = await install(arrayOfDeps, {isCleanInstall: clean, destLoc, isExplicitDeps, isStrict: strict, isOptimized: optimize});
   if (result) {
     spinner.succeed(chalk.green.bold(`@pika/web`) + ` installed web-native dependencies. ` + chalk.dim(`[${((Date.now() - startTime) / 1000).toFixed(2)}s]`));
   }
