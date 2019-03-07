@@ -18,6 +18,18 @@ export interface InstallOptions {
   isOptimized?: boolean;
 }
 
+interface ESModuleResolutionResult {
+  found: boolean;
+  path?: string;
+}
+interface ESModuleDescriptorExplicit {
+  type: 'es_module' | 'directory';
+  path: 'string';
+}
+type ESModuleDescriptor
+  = string
+  | ESModuleDescriptorExplicit;
+
 const cwd = process.cwd();
 let spinner = ora(chalk.bold(`@pika/web`) + ` installing...`);
 
@@ -38,11 +50,60 @@ function logError(msg) {
   spinner.fail();
 }
 
+function moduleDescriptorToWebModuleName(esModule: ESModuleDescriptor): string {
+  if (typeof esModule === 'string') {
+    return transformWebModuleFilename(esModule);
+  }
+  return transformWebModuleFilename(esModule.path);
+}
+
 function transformWebModuleFilename(depName:string):string {
   return depName.replace('/', '--');
 }
 
-export async function install(arrayOfDeps: string[], {isCleanInstall, destLoc, isWhitelist, isStrict, isOptimized}: InstallOptions) {
+class ErrorWithHint extends Error {
+  constructor(message: string, public readonly hint: string) {
+    super(message);
+    // see: typescriptlang.org/docs/handbook/release-notes/typescript-2-2.html
+    Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
+  }
+}
+
+function locateEsModule(esModule: ESModuleDescriptor, toleratePackagesLackingModules: boolean): ESModuleResolutionResult {
+  if (typeof esModule === 'string') {
+    return locateEsModuleWithinDirectory(esModule, toleratePackagesLackingModules);
+  }
+  if (esModule.type === 'directory') {
+    return locateEsModuleWithinDirectory(esModule.path, toleratePackagesLackingModules);
+  }
+  return {
+    found: true,
+    path: path.join(cwd, 'node_modules', esModule.path),
+  };
+}
+
+function locateEsModuleWithinDirectory(directory: string, toleratePackagesLackingModules: boolean): ESModuleResolutionResult {
+  const moduleDirectory = path.join(cwd, 'node_modules', directory);
+  if (!fs.existsSync(moduleDirectory)) {
+    throw new Error(`dependency "${directory}" not found in your node_modules/ directory. Did you run npm install?`);
+  }
+  const manifestPath = path.join(moduleDirectory, 'package.json');
+  const manifest = require(manifestPath);
+  if (!manifest.module) {
+    if (!toleratePackagesLackingModules) {
+      throw new ErrorWithHint(
+        `dependency "${directory}" has no ES "module" entrypoint.`,
+        '\n' + chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://pikapkg.com/packages')}`) + '\n');
+    }
+    return { found: false };
+  }
+  return {
+    found: true,
+    path: path.join(moduleDirectory, manifest.module),
+  };
+}
+
+export async function install(arrayOfDeps: ESModuleDescriptor[], {isCleanInstall, destLoc, isWhitelist, isStrict, isOptimized}: InstallOptions) {
   if (arrayOfDeps.length === 0) {
     logError('no dependencies found.');
     return;
@@ -58,22 +119,19 @@ export async function install(arrayOfDeps: string[], {isCleanInstall, destLoc, i
 
   const depObject = {};
   for (const dep of arrayOfDeps) {
-    const depLoc = path.join(cwd, 'node_modules', dep);
-    if (!fs.existsSync(depLoc)) {
-        logError(`dependency "${dep}" not found in your node_modules/ directory. Did you run npm install?`);
+    try {
+      const resolutionResult = locateEsModule(dep, !isWhitelist);
+      if (!resolutionResult.found) {
+        continue;
+      }
+      depObject[moduleDescriptorToWebModuleName(dep)] = resolutionResult.path;
+    } catch(err) {
+      logError(err.message);
+      if (err instanceof ErrorWithHint) {
+        console.log(err.hint);
+      }
       return;
     }
-    const depManifestLoc = path.join(cwd, 'node_modules', dep, 'package.json');
-    const depManifest = require(depManifestLoc);
-    if (!depManifest.module) {
-      if (isWhitelist) {
-        logError(`dependency "${dep}" has no ES "module" entrypoint.`);
-        console.log('\n' + chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://pikapkg.com/packages')}`) + '\n');
-        return false;
-      }
-      continue;
-    }
-    depObject[transformWebModuleFilename(dep)] = path.join(depLoc, depManifest.module);
   }
 
   const inputOptions = {
