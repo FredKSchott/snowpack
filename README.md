@@ -82,16 +82,21 @@ More testing is needed, but at this early stage we feel confident extrapolating 
 
 > *Note: All package.json options are scoped under the `"@pika/web"` property.*
 
-* `"webDependencies"`: You can define an optional whitelist of "webDependencies" in your `package.json` manifest. This is useful if your entire "dependencies" object is too large or contains unrelated, server-only packages that may break @pika/web.
+
+* `"webDependencies"`: You can define an optional whitelist of "webDependencies" in your `package.json` manifest. This is useful if your entire "dependencies" object is too large, or if you'd like to install dependencies by file path.
 
 ```js
-  "dependencies": {
-    "htm": "^1.0.0",
-    "preact": "^8.0.0",
-    /* A mix of other server and frontend dependencies */
+  "dependencies": { "htm": "^1.0.0", "preact": "^8.0.0", /* ... */ },
+  "@pika/web": {
+    "webDependencies": [
+      "htm",
+      "preact",
+      "preact/hooks", // A package within a package
+      "unistore/full/preact.es.js" // An ESM file within a package
+    ]
   },
-  "@pika/web": {"webDependencies": ["htm", "preact"]},
 ```
+
 
 ### CLI Options
 
