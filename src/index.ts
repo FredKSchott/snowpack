@@ -83,8 +83,13 @@ function resolveWebDependency(dep: string): string {
   );
 }
 
-function transformWebModuleFilename(depName: string): string {
-  return depName.replace(/\//g, '--').replace(/\.js$/, '');
+/**
+ * Formats the @pika/web dependency name from a "webDependencies" input value:
+ * 1. Replace all `/` URL/path seperators with "--"
+ * 2. Remove any ".js" extension (will be added automatically by Rollup)
+ */
+function getWebDependencyName(dep: string): string {
+  return dep.replace(/\//g, '--').replace(/\.js$/, '');
 }
 
 export async function install(
@@ -107,7 +112,7 @@ export async function install(
   const depObject = {};
   for (const dep of arrayOfDeps) {
     try {
-      const depName = transformWebModuleFilename(dep);
+      const depName = getWebDependencyName(dep);
       const depLoc = resolveWebDependency(dep);
       depObject[depName] = depLoc;
     } catch (err) {
@@ -116,7 +121,6 @@ export async function install(
       if (err.hint) {
         console.log(err.hint);
       }
-      // If you're working off of an explicit whitelist: exit. Otherwise, continue.
       if (!skipFailures) {
         return false;
       }
