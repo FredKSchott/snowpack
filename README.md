@@ -82,7 +82,6 @@ More testing is needed, but at this early stage we feel confident extrapolating 
 
 > *Note: All package.json options are scoped under the `"@pika/web"` property.*
 
-
 * `"webDependencies"`: You can define an optional whitelist of "webDependencies" in your `package.json` manifest. This is useful if your entire "dependencies" object is too large, or if you'd like to install dependencies by file path.
 
 ```js
