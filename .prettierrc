@@ -3,5 +3,5 @@
     "trailingComma": "all",
     "bracketSpacing": false,
     "printWidth": 100,
-    "parser": "flow"
+    "parser": "typescript"
   }
