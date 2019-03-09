@@ -1,6 +1,6 @@
 # @pika/web Examples
 
-> 🙋‍♀️ Have a great example you'd like to share? Create it on [CodeSandbox](https://codesandbox.io/), [Glitch](https://glitch.com), or a new GitHub repo and then [add it here!](https://github.com/pikapkg/web/edit/master/EXAMPLES.md)  
+> 🙋‍♀️ Have a great example you'd like to share? Create it on [CodeSandbox](https://codesandbox.io/), [Glitch](https://glitch.com), or a new GitHub repo. Then, [add it here!](https://github.com/pikapkg/web/edit/master/EXAMPLES.md)  
 > 🙋‍♂️ Have a idea for an example that's not shown here? Add it to the ["Call for Examples"](#call-for-examples-cfe) section below.
 
 ## List of Examples
