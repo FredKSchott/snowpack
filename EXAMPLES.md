@@ -11,4 +11,4 @@
 
 ## Call for Examples (CFE)
 
-- [Add yours here!](https://github.com/pikapkg/web/edit/master/EXAMPLES.md)
+- [Add examples that you'd like to see here!](https://github.com/pikapkg/web/edit/master/EXAMPLES.md)
