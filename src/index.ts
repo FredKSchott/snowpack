@@ -90,7 +90,6 @@ export async function install(arrayOfDeps: string[], {isCleanInstall, destLoc, i
         browser: false,  // Default: false
         modulesOnly: isStrict, // Default: false
         extensions: [ '.mjs', '.js', '.json' ],  // Default: [ '.mjs', '.js', '.json', '.node' ]
-        jail: path.join(cwd, 'node_modules'),
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: false,  // Default: true
       }),
