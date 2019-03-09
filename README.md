@@ -25,6 +25,16 @@
 - **Flexible** 🧘‍♂️ Handles dependency trees of any size, even ones that includes legacy Common.js packages.
 - **HTTP/2 Optimized** ⚡️ No more huge, cache-busting bundles. Browsers only download dependencies when they change.
 
+@pika/web installs all supported project dependencies to a new `web_modules/` directory.  If your dependency exports an [ES "module" entrypoint](https://github.com/rollup/rollup/wiki/pkg.module) in its package.json manifest, it is supported. Even if it internally depends on legacy Common.js dependencies, @pika/web should be able to install it.
+
+With a single command, @pika/web installs each dependency and any transitive dependencies into a single file that runs natively in the browser. Bundling packages on a per-module basis makes it easy to build a web application that runs fast and caches well. That's right, updating a single dependency won't force a complete re-download of your web application.
+
+> ┻┳|
+> ┳┻| _
+> ┻┳| •.•) 💬 *"Tip: Use [pikapkg.com](https://www.pikapkg.com) to find modern, web-ready packages on npm :)"*
+> ┳┻|⊂ﾉ
+> ┻┳|
+
 
 ## Quickstart
 
@@ -43,7 +53,7 @@ $ npx @pika/web
 + import { createElement, Component } from "/web_modules/preact.js";
 + import htm from "/web_modules/htm.js";
 
-# 3. Run that file directly in the browser and see the magic! 
+# 3. Run that file directly in the browser and see the magic!
 ✨ ~(‾▿‾~)(~‾▿‾)~ ✨
 
 # (Optional) If you already use Babel to build your application, skip "Step 2" and let our plugin rewrite your imports automatically:
@@ -53,14 +63,11 @@ echo '{"plugins": [["@pika/web/assets/babel-plugin.js"]]}' > .babelrc
 {"scripts": {"prepare": "pika-web"}}
 ```
 
-By default, @pika/web will install all package.json dependencies with an [ES "module" entrypoint](https://github.com/rollup/rollup/wiki/pkg.module) to the `web_modules/` directory. @pika/web is able to handle any legacy Common.js/Node.js transitive dependencies in your dependency tree, however the top-level dependencies (the ones that you import directly) must have a "module" entrypoint.
- 
-> ┻┳|  
-> ┳┻| _  
-> ┻┳| •.•) 💬 *"Tip: Use [pikapkg.com](https://www.pikapkg.com) to find modern, web-ready packages on npm :)"*  
-> ┳┻|⊂ﾉ     
-> ┻┳|  
+## Examples? We got 'em
 
+- A basic, three-dependency @pika/web project: [[Source]](https://glitch.com/edit/#!/pika-web-example-simple) [[Live Demo]](https://pika-web-example-simple.glitch.me/)
+- A Preact + HTM project: [[Source]](https://glitch.com/edit/#!/pika-web-example-preact-htm) [[Live Demo]](https://pika-web-example-preact-htm.glitch.me)
+- [See our full list of examples →](/EXAMPLES.md) Preact, HTM, Electron, Three.js...
 
 
 ## Performance
