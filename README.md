@@ -71,10 +71,9 @@ Max Jung's post on ["The Right Way to Bundle Your Assets for Faster Sites over H
 
 More testing is needed, but at this early stage we feel confident extrapolating the following: When served with HTTP/2, @pika/web installations perform better in production than single "vendor" JavaScript bundles and most custom dependency bundling strategies due to the comparable load performance and efficient cache usage.
 
+## Browser Support
 
-## Why?
-
-Pika's mission is to make modern JavaScript more accessible by making it easier to find, publish, install, and use modern packages on npm. You can learn more about the Pika project at https://www.pikapkg.com/about.
+@pika/web installs ES Module (ESM) dependencies from npm, which run [wherever ESM syntax is supported](https://caniuse.com/#feat=es6-module). This includes all modern browsers (Firefox, Chrome, Edge, Safari) going back at least a year, but not IE11 or UC Browser for Android.
 
 
 ## Options
@@ -101,6 +100,11 @@ Pika's mission is to make modern JavaScript more accessible by making it easier 
 * `--clean`: Clear out the destination directory before install.
 * `--optimize`: Minify installed dependencies.
 * `--strict`: Only install pure ESM dependency trees. Great for purists, or anyone who doesn't want to deal with transitive Common.js and Node.js-only dependencies.
+
+
+## Why?
+
+Pika's mission is to make modern JavaScript more accessible by making it easier to find, publish, install, and use modern packages on npm. You can learn more about the Pika project at https://www.pikapkg.com/about.
 
 
 ## Special Thanks: Rollup
