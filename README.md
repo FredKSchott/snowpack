@@ -29,11 +29,11 @@
 
 With a single command, @pika/web installs each dependency and any transitive dependencies into a single file that runs natively in the browser. Bundling packages on a per-module basis makes it easy to build a web application that runs fast and caches well. That's right, updating a single dependency won't force a complete re-download of your web application.
 
-> ┻┳|
-> ┳┻| _
-> ┻┳| •.•) 💬 *"Tip: Use [pikapkg.com](https://www.pikapkg.com) to find modern, web-ready packages on npm :)"*
-> ┳┻|⊂ﾉ
-> ┻┳|
+> ┻┳|  
+> ┳┻| _  
+> ┻┳| •.•) 💬 *"Tip: Use [pikapkg.com](https://www.pikapkg.com) to find modern, web-ready packages on npm :)"*  
+> ┳┻|⊂ﾉ     
+> ┻┳|  
 
 
 ## Quickstart
@@ -53,7 +53,7 @@ $ npx @pika/web
 + import { createElement, Component } from "/web_modules/preact.js";
 + import htm from "/web_modules/htm.js";
 
-# 3. Run that file directly in the browser and see the magic!
+# 3. Run that file directly in the browser and see the magic!  
 ✨ ~(‾▿‾~)(~‾▿‾)~ ✨
 
 # (Optional) If you already use Babel to build your application, skip "Step 2" and let our plugin rewrite your imports automatically:
