@@ -5,7 +5,7 @@
 
 ## List of Examples
 
-- Coming soon.
+- A basic, three-dependency @pika/web project: https://pika-web-example-simple.glitch.me/
 
 ## Call for Examples (CFE)
 
