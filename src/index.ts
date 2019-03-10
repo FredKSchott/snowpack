@@ -10,6 +10,7 @@ import rollupPluginNodeResolve from 'rollup-plugin-node-resolve';
 import rollupPluginCommonjs from 'rollup-plugin-commonjs';
 import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import rollupPluginReplace from 'rollup-plugin-replace';
+import rollupPluginJson from 'rollup-plugin-json';
 
 export interface InstallOptions {
   destLoc: string;
@@ -109,6 +110,11 @@ export async function install(
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: false, // Default: true
       }),
+      !isStrict &&
+        rollupPluginJson({
+          preferConst: true,
+          indent: '  ',
+        }),
       !isStrict &&
         rollupPluginCommonjs({
           extensions: ['.js', '.cjs'], // Default: [ '.js' ]
