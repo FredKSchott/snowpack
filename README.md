@@ -27,7 +27,7 @@
 
 @pika/web installs dependencies to a new `web_modules/` directory.  If your dependency exports an [ES "module" entrypoint](https://github.com/rollup/rollup/wiki/pkg.module) in its `package.json` manifest, it is supported. Even if it internally depends on legacy Common.js dependencies, @pika/web should be able to handle it.
 
-With zero configuration, @pika/web installs each dependency as a single file that runs natively in the browser. Bundling packages on a per-module basis makes it easy to build a web application that runs fast and caches well (Updating a single dependency won't force a complete re-download of your web application). [More on performance below.](#performance)
+With zero configuration, @pika/web installs each dependency as a single file that runs natively in the browser. Bundling packages on a per-module basis makes it easy to build a web application that runs fast and caches well. Updating a single dependency won't force a complete re-download of your web application. [More on performance below.](#performance)
 
 > ┻┳|  
 > ┳┻| _  
