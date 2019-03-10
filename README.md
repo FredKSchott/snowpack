@@ -21,9 +21,9 @@
 
 ## @pika/web brings that nostalgic, 2014 simplicity to 2019 web development:
 
-- **Simple** 💪 No bundlers required. Load [modern ESM packages](http://pikapkg.com) natively in the browser.
+- **Simple** 💪 No bundlers required. Load [modern packages](http://pikapkg.com) natively in the browser.
 - **Flexible** 🧘‍♂️ Handles dependency trees of any size, even ones that includes legacy Common.js packages.
-- **HTTP/2 Optimized** ⚡️ No more huge, cache-busting bundles. Browsers only download dependencies when they change.
+- **HTTP/2 Optimized** ⚡️ No more huge JS bundles. Browsers only download dependencies when they change.
 
 @pika/web installs dependencies to a new `web_modules/` directory.  If your dependency exports an [ES "module" entrypoint](https://github.com/rollup/rollup/wiki/pkg.module) in its `package.json` manifest, it is supported. Even if it internally depends on legacy Common.js dependencies, @pika/web should be able to handle it.
 
