@@ -52,18 +52,18 @@ class ErrorWithHint extends Error {
  * field instead of the CJS "main" field.
  */
 function resolveWebDependency(dep: string): string {
-  const lazyDependencyPath = path.join(cwd, 'node_modules', dep);
+  const nodeModulesLoc = path.join(cwd, 'node_modules', dep);
   let dependencyStats: fs.Stats;
   try {
-    dependencyStats = fs.statSync(lazyDependencyPath);
+    dependencyStats = fs.statSync(nodeModulesLoc);
   } catch (err) {
     throw new Error(`"${dep}" not found in your node_modules directory. Did you run npm install?`);
   }
   if (dependencyStats.isFile()) {
-    return lazyDependencyPath;
+    return nodeModulesLoc;
   }
   if (dependencyStats.isDirectory()) {
-    const dependencyManifestLoc = path.join(cwd, 'node_modules', dep, 'package.json');
+    const dependencyManifestLoc = path.join(nodeModulesLoc, 'package.json');
     const manifest = require(dependencyManifestLoc);
     if (!manifest.module) {
       throw new ErrorWithHint(
@@ -75,11 +75,11 @@ function resolveWebDependency(dep: string): string {
         ),
       );
     }
-    return path.join(cwd, 'node_modules', dep, manifest.module);
+    return path.join(nodeModulesLoc, manifest.module);
   }
 
   throw new Error(
-    `Error loading "${dep}" at "${lazyDependencyPath}". (MODE=${dependencyStats.mode}) `,
+    `Error loading "${dep}" at "${nodeModulesLoc}". (MODE=${dependencyStats.mode}) `,
   );
 }
 
