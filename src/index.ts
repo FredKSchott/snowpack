@@ -15,9 +15,9 @@ import rollupPluginJson from 'rollup-plugin-json';
 export interface InstallOptions {
   destLoc: string;
   isCleanInstall?: boolean;
-  isWhitelist?: boolean;
   isStrict?: boolean;
   isOptimized?: boolean;
+  skipFailures?: boolean;
 }
 
 const cwd = process.cwd();
@@ -40,22 +40,69 @@ function logError(msg) {
   spinner.fail();
 }
 
-function transformWebModuleFilename(depName: string): string {
-  return depName.replace('/', '--');
+class ErrorWithHint extends Error {
+  constructor(message: string, public readonly hint: string) {
+    super(message);
+  }
+}
+
+/**
+ * Resolve a "webDependencies" input value to the correct absolute file location.
+ * Supports both npm package names, and file paths relative to the node_modules directory.
+ * Follows logic similar to Node's resolution logic, but using a package.json's ESM "module"
+ * field instead of the CJS "main" field.
+ */
+function resolveWebDependency(dep: string): string {
+  const nodeModulesLoc = path.join(cwd, 'node_modules', dep);
+  let dependencyStats: fs.Stats;
+  try {
+    dependencyStats = fs.statSync(nodeModulesLoc);
+  } catch (err) {
+    throw new Error(`"${dep}" not found in your node_modules directory. Did you run npm install?`);
+  }
+  if (dependencyStats.isFile()) {
+    return nodeModulesLoc;
+  }
+  if (dependencyStats.isDirectory()) {
+    const dependencyManifestLoc = path.join(nodeModulesLoc, 'package.json');
+    const manifest = require(dependencyManifestLoc);
+    if (!manifest.module) {
+      throw new ErrorWithHint(
+        `dependency "${dep}" has no ES "module" entrypoint.`,
+        chalk.italic(
+          `Tip: Find modern, web-ready packages at ${chalk.underline(
+            'https://pikapkg.com/packages',
+          )}`,
+        ),
+      );
+    }
+    return path.join(nodeModulesLoc, manifest.module);
+  }
+
+  throw new Error(
+    `Error loading "${dep}" at "${nodeModulesLoc}". (MODE=${dependencyStats.mode}) `,
+  );
+}
+
+/**
+ * Formats the @pika/web dependency name from a "webDependencies" input value:
+ * 1. Replace all `/` URL/path seperators with "--"
+ * 2. Remove any ".js" extension (will be added automatically by Rollup)
+ */
+function getWebDependencyName(dep: string): string {
+  return dep.replace(/\//g, '--').replace(/\.js$/, '');
 }
 
 export async function install(
   arrayOfDeps: string[],
-  {isCleanInstall, destLoc, isWhitelist, isStrict, isOptimized}: InstallOptions,
+  {isCleanInstall, destLoc, skipFailures, isStrict, isOptimized}: InstallOptions,
 ) {
   if (arrayOfDeps.length === 0) {
     logError('no dependencies found.');
     return;
   }
   if (!fs.existsSync(path.join(cwd, 'node_modules'))) {
-    logError(
-      'no node_modules/ directory exists. Run "npm install" in your project before running @pika/web.',
-    );
+    logError('no "node_modules" directory exists. Did you run "npm install" first?');
     return;
   }
 
@@ -65,32 +112,20 @@ export async function install(
 
   const depObject = {};
   for (const dep of arrayOfDeps) {
-    const depLoc = path.join(cwd, 'node_modules', dep);
-    if (!fs.existsSync(depLoc)) {
-      logError(
-        `dependency "${dep}" not found in your node_modules/ directory. Did you run npm install?`,
-      );
-      return;
-    }
-    const depManifestLoc = path.join(cwd, 'node_modules', dep, 'package.json');
-    const depManifest = require(depManifestLoc);
-    if (!depManifest.module) {
-      if (isWhitelist) {
-        logError(`dependency "${dep}" has no ES "module" entrypoint.`);
-        console.log(
-          '\n' +
-            chalk.italic(
-              `Tip: Find modern, web-ready packages at ${chalk.underline(
-                'https://pikapkg.com/packages',
-              )}`,
-            ) +
-            '\n',
-        );
+    try {
+      const depName = getWebDependencyName(dep);
+      const depLoc = resolveWebDependency(dep);
+      depObject[depName] = depLoc;
+    } catch (err) {
+      // An error occurred! Log it.
+      logError(err.message || err);
+      if (err.hint) {
+        console.log(err.hint);
+      }
+      if (!skipFailures) {
         return false;
       }
-      continue;
     }
-    depObject[transformWebModuleFilename(dep)] = path.join(depLoc, depManifest.module);
   }
 
   const inputOptions = {
@@ -144,9 +179,10 @@ export async function cli(args: string[]) {
   }
 
   const cwdManifest = require(path.join(cwd, 'package.json'));
-  const isWhitelist =
-    !!cwdManifest && !!cwdManifest['@pika/web'] && !!cwdManifest['@pika/web'].webDependencies;
-  const arrayOfDeps = isWhitelist
+  const doesWhitelistExist = !!(
+    cwdManifest['@pika/web'] && cwdManifest['@pika/web'].webDependencies
+  );
+  const arrayOfDeps = doesWhitelistExist
     ? cwdManifest['@pika/web'].webDependencies
     : Object.keys(cwdManifest.dependencies || {});
   spinner.start();
@@ -154,7 +190,7 @@ export async function cli(args: string[]) {
   const result = await install(arrayOfDeps, {
     isCleanInstall: clean,
     destLoc,
-    isWhitelist,
+    skipFailures: !doesWhitelistExist,
     isStrict: strict,
     isOptimized: optimize,
   });
