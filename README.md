@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-   <strong>@pika/web</strong> • Install npm dependencies that run directly in the browser. No Browserify, Webpack or import maps required.
+   <strong>@pika/web</strong> • Run npm dependencies directly in the browser. No Browserify, Webpack or import maps required.
 </p>
 
 <p align="center">
