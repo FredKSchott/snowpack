@@ -1,21 +1,13 @@
+// A lame copy-paste from src/index.ts
+function getWebDependencyName(dep) {
+  return dep.replace(/\.js$/, '');
+}
+
 function rewriteBareModuleImport(imp) {
   if (imp.startsWith('/') || imp.startsWith('.')|| imp.startsWith('\\')) {
     return imp;
   }
-
-  if (imp.startsWith('@')) {
-    const [owner, packageName, ...parts] = imp.split('/');
-    if (parts.length > 0) {
-      return imp;
-    }
-    return `/web_modules/${owner}--${packageName}.js`;
-  }
-
-  const [packageName, ...parts] = imp.split('/');
-  if (parts.length > 0) {
-    return imp;
-  }
-  return `/web_modules/${packageName}.js`;
+  return `/web_modules/${getWebDependencyName(imp)}.js`;
 }
 
 module.exports = function pikaWebBabelTransform({types: t}) {

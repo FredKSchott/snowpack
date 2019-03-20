@@ -86,11 +86,10 @@ function resolveWebDependency(dep: string): string {
 
 /**
  * Formats the @pika/web dependency name from a "webDependencies" input value:
- * 1. Replace all `/` URL/path seperators with "--"
  * 2. Remove any ".js" extension (will be added automatically by Rollup)
  */
 function getWebDependencyName(dep: string): string {
-  return dep.replace(/\//g, '--').replace(/\.js$/, '');
+  return dep.replace(/\.js$/, '');
 }
 
 export async function install(
