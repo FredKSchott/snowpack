@@ -25,9 +25,9 @@
 - **Flexible** 🧘‍♂️ Handles dependency trees of any size, even ones that includes legacy Common.js packages.
 - **HTTP/2 Optimized** ⚡️ No more huge JS bundles. Browsers only download dependencies when they change.
 
-@pika/web installs dependencies to a new `web_modules/` directory.  If your dependency exports an [ES "module" entrypoint](https://github.com/rollup/rollup/wiki/pkg.module) in its `package.json` manifest, it is supported. Even if it internally depends on legacy Common.js dependencies, @pika/web should be able to handle it.
+@pika/web installs npm packages as single `.js` files to a new `web_modules/` directory. If your dependency exports an [ES "module" entrypoint](https://github.com/rollup/rollup/wiki/pkg.module) in its `package.json` manifest, it is supported. Even if it internally depends on other npm packages (even legacy Common.js packages) @pika/web should be able to handle it.
 
-With zero configuration, @pika/web installs each dependency as a single file that runs natively in the browser. Bundling packages on a per-module basis makes it easy to build a web application that runs fast and caches well. Updating a single dependency won't force a complete re-download of your web application. [More on performance below.](#performance)
+Bundling packages on a per-module basis like this makes it easy to build a web application that runs fast and caches well. Updating a single dependency won't force a complete re-download of your web application. [More on performance below.](#performance)
 
 > ┻┳|  
 > ┳┻| _  
