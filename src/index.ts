@@ -116,14 +116,15 @@ export async function install(
       const depLoc = resolveWebDependency(dep);
       depObject[depName] = depLoc;
     } catch (err) {
+      if (skipFailures) {
+        continue;
+      }
       // An error occurred! Log it.
       logError(err.message || err);
       if (err.hint) {
         console.log(err.hint);
       }
-      if (!skipFailures) {
-        return false;
-      }
+      return false;
     }
   }
 
