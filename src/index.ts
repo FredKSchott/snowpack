@@ -21,7 +21,9 @@ export interface InstallOptions {
 }
 
 const cwd = process.cwd();
-let spinner = ora(chalk.bold(`@pika/web`) + ` installing...`);
+const banner = chalk.bold(`@pika/web`) + ` installing... `;
+const detectionResults = [];
+let spinner = ora(banner);
 
 function showHelp() {
   console.log(`${chalk.bold(`@pika/web`)} - Install npm dependencies to run natively on the web.`);
@@ -34,11 +36,16 @@ function showHelp() {
 `);
 }
 
+function formatDetectionResults(skipFailures): string {
+  return detectionResults.map(([d, yn]) => yn ? chalk.green(d) : skipFailures ? chalk.dim(d) : chalk.red(d)).join(', ');
+}
+
 function logError(msg) {
   spinner.stopAndPersist({symbol: chalk.cyan('⠼')});
   spinner = ora(chalk.red(msg));
   spinner.fail();
 }
+
 
 class ErrorWithHint extends Error {
   constructor(message: string, public readonly hint: string) {
@@ -115,7 +122,11 @@ export async function install(
       const depName = getWebDependencyName(dep);
       const depLoc = resolveWebDependency(dep);
       depObject[depName] = depLoc;
+      detectionResults.push([dep, true]);
+      spinner.text = banner + formatDetectionResults(skipFailures);
     } catch (err) {
+      detectionResults.push([dep, false]);
+      spinner.text = banner + formatDetectionResults(skipFailures);
       if (skipFailures) {
         continue;
       }
@@ -196,8 +207,7 @@ export async function cli(args: string[]) {
   });
   if (result) {
     spinner.succeed(
-      chalk.green.bold(`@pika/web`) +
-        ` installed web-native dependencies. ` +
+      chalk.bold(`@pika/web`) + ` installed: ` + formatDetectionResults(!doesWhitelistExist) + '. ' +
         chalk.dim(`[${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
   }
