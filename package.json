@@ -12,7 +12,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "pack build"
+    "build": "pack build",
+    "publish": "pack publish"
   },
   "@pika/pack": {
     "pipeline": [
