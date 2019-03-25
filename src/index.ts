@@ -180,8 +180,21 @@ export async function install(
   return true;
 }
 
+/**
+ * Returns CLI arguments configured in the package.json
+ */
+function packageCfg() {
+  try {
+    return require(path.join(cwd, 'package.json'))['@pika/web'] || {};
+  } catch (e) {
+    return {};
+  }
+}
+
 export async function cli(args: string[]) {
-  const {help, optimize = false, strict = false, clean = false, dest = 'web_modules'} = yargs(args);
+  const {help, optimize = false, strict = false, clean = false, dest = 'web_modules'} = 
+    // overwrite package.json arguments with CLI arguments
+    Object.assign(packageCfg(), yargs(args));
   const destLoc = path.join(cwd, dest);
 
   if (help) {

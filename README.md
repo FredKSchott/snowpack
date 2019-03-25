@@ -103,6 +103,18 @@ More testing is needed, but at this early stage we feel confident extrapolating 
   },
 ```
 
+#### Additional `package.json` Options
+
+The [CLI options](#cli-options) below can also be added directly to the `@pika/web` object in `package.json` allowing you to set default values that can be overridden using the command line.
+
+```json
+{
+  "@pika/web": {
+    "dest": "htdocs"
+  }
+}
+```
+
 
 ### CLI Options
 
