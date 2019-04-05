@@ -65,7 +65,7 @@ function resolveWebDependency(dep: string): string {
   try {
     dependencyStats = fs.statSync(nodeModulesLoc);
   } catch (err) {
-    throw new Error(`"${dep}" not found in your node_modules directory. Did you run npm install?`);
+    throw new ErrorWithHint(`"${dep}" not found in your node_modules directory.`, chalk.bold(`Did you run npm install?`));
   }
   if (dependencyStats.isFile()) {
     return nodeModulesLoc;
