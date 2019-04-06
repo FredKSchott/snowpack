@@ -11,5 +11,5 @@
 
 ## Call for Examples (CFE)
 
-- Ionic 4 basic application (if applicable)
+- Ionic 4 basic application (if applicable) [[Discussion]](https://github.com/pikapkg/web/pull/28)
 - [Add examples that you'd like to see here!](https://github.com/pikapkg/web/edit/master/EXAMPLES.md)
