@@ -8,6 +8,7 @@
 - A basic, three-dependency @pika/web project: [[Source]](https://glitch.com/edit/#!/pika-web-example-simple) [[Live Demo]](https://pika-web-example-simple.glitch.me/)
 - A Preact + HTM project: [[Source]](https://glitch.com/edit/#!/pika-web-example-preact-htm) [[Live Demo]](https://pika-web-example-preact-htm.glitch.me)
 - An Electron project, using Three.js: [[Source]](https://github.com/br3tt/electron-three)
+- A Preact + TypeScript project [[Source]](https://glitch.com/edit/#!/pika-web-ts-preact) [[Live Demo]](https://pika-web-ts-preact.glitch.me/)
 
 ## Call for Examples (CFE)
 
