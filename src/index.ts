@@ -37,7 +37,9 @@ function showHelp() {
 }
 
 function formatDetectionResults(skipFailures): string {
-  return detectionResults.map(([d, yn]) => yn ? chalk.green(d) : skipFailures ? chalk.dim(d) : chalk.red(d)).join(', ');
+  return detectionResults
+    .map(([d, yn]) => (yn ? chalk.green(d) : skipFailures ? chalk.dim(d) : chalk.red(d)))
+    .join(', ');
 }
 
 function logError(msg) {
@@ -45,7 +47,6 @@ function logError(msg) {
   spinner = ora(chalk.red(msg));
   spinner.fail();
 }
-
 
 class ErrorWithHint extends Error {
   constructor(message: string, public readonly hint: string) {
@@ -65,7 +66,10 @@ function resolveWebDependency(dep: string): string {
   try {
     dependencyStats = fs.statSync(nodeModulesLoc);
   } catch (err) {
-    throw new ErrorWithHint(`"${dep}" not found in your node_modules directory.`, chalk.italic(`Did you remember to run npm install?`));
+    throw new ErrorWithHint(
+      `"${dep}" not found in your node_modules directory.`,
+      chalk.italic(`Did you remember to run npm install?`),
+    );
   }
   if (dependencyStats.isFile()) {
     return nodeModulesLoc;
@@ -86,9 +90,7 @@ function resolveWebDependency(dep: string): string {
     return path.join(nodeModulesLoc, manifest.module);
   }
 
-  throw new Error(
-    `Error loading "${dep}" at "${nodeModulesLoc}". (MODE=${dependencyStats.mode}) `,
-  );
+  throw new Error(`Error loading "${dep}" at "${nodeModulesLoc}". (MODE=${dependencyStats.mode}) `);
 }
 
 /**
@@ -204,7 +206,10 @@ export async function cli(args: string[]) {
   });
   if (result) {
     spinner.succeed(
-      chalk.bold(`@pika/web`) + ` installed: ` + formatDetectionResults(!doesWhitelistExist) + '. ' +
+      chalk.bold(`@pika/web`) +
+        ` installed: ` +
+        formatDetectionResults(!doesWhitelistExist) +
+        '. ' +
         chalk.dim(`[${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
   }
