@@ -147,12 +147,9 @@ export async function install(
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
         }),
       rollupPluginNodeResolve({
-        module: true, // Default: true
-        jsnext: false, // Default: false
-        main: !isStrict, // Default: true
-        browser: false, // Default: false
+        mainFields: ['module', !isStrict && 'main'].filter(Boolean),
         modulesOnly: isStrict, // Default: false
-        extensions: ['.mjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
+        extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: false, // Default: true
       }),
