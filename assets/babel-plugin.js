@@ -1,16 +1,22 @@
+const path = require('path');
+
 // A lame copy-paste from src/index.ts
 function getWebDependencyName(dep) {
   return dep.replace(/\.js$/, '');
 }
 
-function rewriteBareModuleImport(imp) {
+function rewriteBareModuleImport(imp, addMissingJsExtensions) {
+  const extname = addMissingJsExtensions && '.js';
   if (imp.startsWith('/') || imp.startsWith('.')|| imp.startsWith('\\')) {
+    if (extname && !path.extname(imp)) imp += extname;
     return imp;
   }
   return `/web_modules/${getWebDependencyName(imp)}.js`;
 }
 
-module.exports = function pikaWebBabelTransform({types: t}) {
+module.exports = function pikaWebBabelTransform({types: t}, options) {
+  const addMissingJsExtensions = options.addMissingJsExtensions;
+  const rewriteBareModuleName = options.rewriteBareModuleName || rewriteBareModuleImport;
   return {
     visitor: {
       CallExpression(path, {file, opts}) {
@@ -26,7 +32,7 @@ module.exports = function pikaWebBabelTransform({types: t}) {
 
 
         source.replaceWith(
-          t.stringLiteral(rewriteBareModuleImport(source.node.value)),
+          t.stringLiteral(rewriteBareModuleName(source.node.value, addMissingJsExtensions)),
         );
       },
       'ImportDeclaration|ExportNamedDeclaration|ExportAllDeclaration'(path, {file, opts}) {
@@ -38,7 +44,7 @@ module.exports = function pikaWebBabelTransform({types: t}) {
         }
 
         source.replaceWith(
-          t.stringLiteral(rewriteBareModuleImport(source.node.value)),
+          t.stringLiteral(rewriteBareModuleName(source.node.value, addMissingJsExtensions)),
         );
       },
     },
