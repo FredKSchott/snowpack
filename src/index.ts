@@ -37,7 +37,9 @@ function showHelp() {
 }
 
 function formatDetectionResults(skipFailures): string {
-  return detectionResults.map(([d, yn]) => yn ? chalk.green(d) : skipFailures ? chalk.dim(d) : chalk.red(d)).join(', ');
+  return detectionResults
+    .map(([d, yn]) => (yn ? chalk.green(d) : skipFailures ? chalk.dim(d) : chalk.red(d)))
+    .join(', ');
 }
 
 function logError(msg) {
@@ -45,7 +47,6 @@ function logError(msg) {
   spinner = ora(chalk.red(msg));
   spinner.fail();
 }
-
 
 class ErrorWithHint extends Error {
   constructor(message: string, public readonly hint: string) {
@@ -65,7 +66,10 @@ function resolveWebDependency(dep: string): string {
   try {
     dependencyStats = fs.statSync(nodeModulesLoc);
   } catch (err) {
-    throw new Error(`"${dep}" not found in your node_modules directory. Did you run npm install?`);
+    throw new ErrorWithHint(
+      `"${dep}" not found in your node_modules directory.`,
+      chalk.italic(`Did you remember to run npm install?`),
+    );
   }
   if (dependencyStats.isFile()) {
     return nodeModulesLoc;
@@ -86,9 +90,7 @@ function resolveWebDependency(dep: string): string {
     return path.join(nodeModulesLoc, manifest.module);
   }
 
-  throw new Error(
-    `Error loading "${dep}" at "${nodeModulesLoc}". (MODE=${dependencyStats.mode}) `,
-  );
+  throw new Error(`Error loading "${dep}" at "${nodeModulesLoc}". (MODE=${dependencyStats.mode}) `);
 }
 
 /**
@@ -147,12 +149,9 @@ export async function install(
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
         }),
       rollupPluginNodeResolve({
-        module: true, // Default: true
-        jsnext: false, // Default: false
-        main: !isStrict, // Default: true
-        browser: false, // Default: false
+        mainFields: ['module', !isStrict && 'main'].filter(Boolean),
         modulesOnly: isStrict, // Default: false
-        extensions: ['.mjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
+        extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: false, // Default: true
       }),
@@ -220,7 +219,10 @@ export async function cli(args: string[]) {
   });
   if (result) {
     spinner.succeed(
-      chalk.bold(`@pika/web`) + ` installed: ` + formatDetectionResults(!doesWhitelistExist) + '. ' +
+      chalk.bold(`@pika/web`) +
+        ` installed: ` +
+        formatDetectionResults(!doesWhitelistExist) +
+        '. ' +
         chalk.dim(`[${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
   }
