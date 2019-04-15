@@ -192,22 +192,22 @@ function packageCfg() {
 }
 
 export async function cli(args: string[]) {
-  const {help, optimize = false, strict = false, clean = false, dest = 'web_modules'} = 
-    // overwrite package.json arguments with CLI arguments
-    Object.assign(packageCfg(), yargs(args));
+  const cwdManifest = packageCfg();
+  const {help = false, optimize = false, strict = false, clean = false, dest = 'web_modules'} = {
+    ...yargs(args),
+    ...(cwdManifest['@pika/web'] || {})
+  };
   const destLoc = path.join(cwd, dest);
 
   if (help) {
     showHelp();
     process.exit(0);
   }
-
-  const cwdManifest = require(path.join(cwd, 'package.json'));
   const doesWhitelistExist = !!(
-    cwdManifest['@pika/web'] && cwdManifest['@pika/web'].webDependencies
+    cwdManifest && cwdManifest.webDependencies
   );
   const arrayOfDeps = doesWhitelistExist
-    ? cwdManifest['@pika/web'].webDependencies
+    ? cwdManifest.webDependencies
     : Object.keys(cwdManifest.dependencies || {});
   spinner.start();
   const startTime = Date.now();
