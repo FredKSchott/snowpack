@@ -154,6 +154,7 @@ export async function install(
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: false, // Default: true
+        browser: true // Default: false
       }),
       !isStrict &&
         rollupPluginJson({
