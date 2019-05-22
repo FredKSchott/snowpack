@@ -11,6 +11,8 @@ import rollupPluginCommonjs from 'rollup-plugin-commonjs';
 import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import rollupPluginReplace from 'rollup-plugin-replace';
 import rollupPluginJson from 'rollup-plugin-json';
+import rollupPluginNodeGlobals from 'rollup-plugin-node-globals';
+import rollupPluginNodeBuiltins from 'rollup-plugin-node-builtins';
 
 export interface InstallOptions {
   destLoc: string;
@@ -165,6 +167,8 @@ export async function install(
         rollupPluginCommonjs({
           extensions: ['.js', '.cjs'], // Default: [ '.js' ]
         }),
+      rollupPluginNodeGlobals(),
+      rollupPluginNodeBuiltins(),
       isOptimized && rollupPluginTerser(),
     ],
   };
