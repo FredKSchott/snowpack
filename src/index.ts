@@ -11,6 +11,7 @@ import rollupPluginCommonjs from 'rollup-plugin-commonjs';
 import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import rollupPluginReplace from 'rollup-plugin-replace';
 import rollupPluginJson from 'rollup-plugin-json';
+import isNodeBuiltin from 'is-builtin-module';
 
 export interface InstallOptions {
   destLoc: string;
@@ -86,7 +87,7 @@ function resolveWebDependency(dep: string): string {
         `dependency "${dep}" has no ES "module" entrypoint.`,
         chalk.italic(
           `Tip: Find modern, web-ready packages at ${chalk.underline(
-            'https://pikapkg.com/packages',
+            'https://www.pikapkg.com',
           )}`,
         ),
       );
@@ -173,7 +174,11 @@ export async function install(
     onwarn: ((warning, warn) => {
       if (warning.code === 'UNRESOLVED_IMPORT') {
         logError(`'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`);
-        console.log(chalk.dim(`  Make sure that the file or package exists on disk.`));
+        if (isNodeBuiltin(warning.source)) {
+          console.log(chalk.dim(`  This package was likely written for Node.js only. You can find modern, web-ready packages at ${chalk.underline('https://www.pikapkg.com')}`));
+        } else {
+          console.log(chalk.dim(`  Make sure that the file or package exists on disk.`));
+        }
         return;
       }
       warn(warning);
