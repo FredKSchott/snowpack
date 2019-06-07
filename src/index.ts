@@ -59,6 +59,28 @@ class ErrorWithHint extends Error {
   }
 }
 
+// Add common, well-used non-esm packages here so that Rollup doesn't die trying to analyze them.
+const PACKAGES_TO_AUTO_DETECT_EXPORTS = [
+  path.join('node_modules', 'react', 'index.js'),
+  path.join('node_modules', 'react-dom', 'index.js'),
+  path.join('node_modules', 'react-is', 'index.js'),
+  path.join('node_modules', 'prop-types', 'index.js'),
+  // Note: rxjs/Rx.js depends on rxjs-compat as well.
+  path.join('node_modules', 'rxjs', 'Rx.js'),
+];
+
+function detectExports(filePath: string, cwd: string): string[] | undefined {
+  const fileLoc = path.join(cwd, filePath);
+  try {
+    if (fs.existsSync(fileLoc)) {
+      return Object.keys(require(fileLoc)).filter((e) => (e[0] !== '_'));
+    }
+  } catch (err) {
+    console.log(err);
+    // ignore
+  }
+}
+
 /**
  * Resolve a "webDependencies" input value to the correct absolute file location.
  * Supports both npm package names, and file paths relative to the node_modules directory.
@@ -110,6 +132,12 @@ export async function install(
   arrayOfDeps: string[],
   {isCleanInstall, destLoc, skipFailures, isStrict, isOptimized}: InstallOptions,
 ) {
+
+  const knownNamedExports = {};
+  for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
+    knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath, cwd) || [];
+  }
+
   if (arrayOfDeps.length === 0) {
     logError('no dependencies found.');
     return;
@@ -168,6 +196,7 @@ export async function install(
       !isStrict &&
         rollupPluginCommonjs({
           extensions: ['.js', '.cjs'], // Default: [ '.js' ]
+          namedExports: knownNamedExports
         }),
       isOptimized && rollupPluginTerser(),
     ],
