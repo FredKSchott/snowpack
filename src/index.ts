@@ -24,6 +24,7 @@ const cwd = process.cwd();
 const banner = chalk.bold(`@pika/web`) + ` installing... `;
 const detectionResults = [];
 let spinner = ora(banner);
+let spinnerHasError = false;
 
 function showHelp() {
   console.log(`${chalk.bold(`@pika/web`)} - Install npm dependencies to run natively on the web.`);
@@ -43,7 +44,10 @@ function formatDetectionResults(skipFailures): string {
 }
 
 function logError(msg) {
-  spinner.stopAndPersist({symbol: chalk.cyan('⠼')});
+  if (!spinnerHasError) {
+    spinner.stopAndPersist({symbol: chalk.cyan('⠼')});
+  }
+  spinnerHasError = true;
   spinner = ora(chalk.red(msg));
   spinner.fail();
 }
@@ -148,7 +152,7 @@ export async function install(
         rollupPluginReplace({
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
         }),
-      rollupPluginNodeResolve({
+       rollupPluginNodeResolve({
         mainFields: ['module', !isStrict && 'main'].filter(Boolean),
         modulesOnly: isStrict, // Default: false
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
@@ -166,6 +170,14 @@ export async function install(
         }),
       isOptimized && rollupPluginTerser(),
     ],
+    onwarn: ((warning, warn) => {
+      if (warning.code === 'UNRESOLVED_IMPORT') {
+        logError(`'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`);
+        console.log(chalk.dim(`  Make sure that the file or package exists on disk.`));
+        return;
+      }
+      warn(warning);
+    }) as any
   };
   const outputOptions = {
     dir: destLoc,
@@ -212,5 +224,10 @@ export async function cli(args: string[]) {
         '. ' +
         chalk.dim(`[${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
+  }
+  if (spinnerHasError) {
+    // Set the exit code so that programatic usage of the CLI knows that there were errors.
+    spinner.warn(chalk(`Finished with warnings.`));
+    process.exitCode = 1;
   }
 }
