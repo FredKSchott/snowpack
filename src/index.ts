@@ -205,7 +205,7 @@ export async function install(
       if (warning.code === 'UNRESOLVED_IMPORT') {
         logError(`'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`);
         if (isNodeBuiltin(warning.source)) {
-          console.log(chalk.dim(`  This package was likely written for Node.js only. You can find modern, web-ready packages at ${chalk.underline('https://www.pikapkg.com')}`));
+          console.log(chalk.dim(`  '${warning.source}' is a Node.js builtin module that won't exist on the web. You can find modern, web-ready packages at ${chalk.underline('https://www.pikapkg.com')}`));
         } else {
           console.log(chalk.dim(`  Make sure that the file or package exists on disk.`));
         }
