@@ -19,6 +19,7 @@ export interface InstallOptions {
   isStrict?: boolean;
   isOptimized?: boolean;
   skipFailures?: boolean;
+  namedExports?: {[filepath: string]: string[]};
 }
 
 const cwd = process.cwd();
@@ -130,10 +131,10 @@ function getWebDependencyName(dep: string): string {
 
 export async function install(
   arrayOfDeps: string[],
-  {isCleanInstall, destLoc, skipFailures, isStrict, isOptimized}: InstallOptions,
+  {isCleanInstall, destLoc, skipFailures, isStrict, isOptimized, namedExports}: InstallOptions,
 ) {
 
-  const knownNamedExports = {};
+  const knownNamedExports = {...namedExports};
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
     knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath, cwd) || [];
   }
@@ -234,18 +235,16 @@ export async function cli(args: string[]) {
     process.exit(0);
   }
 
-  const cwdManifest = require(path.join(cwd, 'package.json'));
-  const doesWhitelistExist = !!(
-    cwdManifest['@pika/web'] && cwdManifest['@pika/web'].webDependencies
-  );
-  const arrayOfDeps = doesWhitelistExist
-    ? cwdManifest['@pika/web'].webDependencies
-    : Object.keys(cwdManifest.dependencies || {});
+  const pkgManifest = require(path.join(cwd, 'package.json'));
+  const {namedExports, webDependencies} = pkgManifest['@pika/web'] || {namedExports: undefined, webDependencies:undefined};
+  const arrayOfDeps = webDependencies || Object.keys(pkgManifest.dependencies || {});
+  const doesWhitelistExist = !!webDependencies;
   spinner.start();
   const startTime = Date.now();
   const result = await install(arrayOfDeps, {
     isCleanInstall: clean,
     destLoc,
+    namedExports,
     skipFailures: !doesWhitelistExist,
     isStrict: strict,
     isOptimized: optimize,
