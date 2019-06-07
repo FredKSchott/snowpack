@@ -48,12 +48,12 @@
     "yargs-parser": "^13.0.0"
   },
   "devDependencies": {
-    "@pika/pack": "^0.3.3",
-    "@pika/plugin-build-node": "^0.3.12",
-    "@pika/plugin-copy-assets": "^0.3.12",
-    "@pika/plugin-simple-bin": "^0.3.12",
-    "@pika/plugin-ts-standard-pkg": "^0.3.12",
+    "@pika/pack": "^0.3.7",
+    "@pika/plugin-build-node": "^0.4.0",
+    "@pika/plugin-copy-assets": "^0.4.0",
+    "@pika/plugin-simple-bin": "^0.4.0",
+    "@pika/plugin-ts-standard-pkg": "^0.4.0",
     "prettier": "^1.16.4",
-    "typescript": "^3.3.3333"
+    "typescript": "^3.5.1"
   }
 }
