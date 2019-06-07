@@ -13,7 +13,8 @@
   },
   "scripts": {
     "build": "pack build",
-    "publish": "pack publish"
+    "publish": "pack publish",
+    "version": "npm run build"
   },
   "@pika/pack": {
     "pipeline": [
