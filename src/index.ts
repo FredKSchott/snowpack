@@ -13,6 +13,13 @@ import rollupPluginReplace from 'rollup-plugin-replace';
 import rollupPluginJson from 'rollup-plugin-json';
 import isNodeBuiltin from 'is-builtin-module';
 
+// Having trouble getting this ES2019 feature to compile, so using this ponyfill for now.
+function fromEntries (iterable) {
+  return [...iterable]
+    .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {})
+}
+
+
 export interface InstallOptions {
   destLoc: string;
   isCleanInstall?: boolean;
@@ -20,6 +27,8 @@ export interface InstallOptions {
   isOptimized?: boolean;
   skipFailures?: boolean;
   namedExports?: {[filepath: string]: string[]};
+  remoteUrl?: string;
+  remotePackages: {[dependencyName: string]: string};
 }
 
 const cwd = process.cwd();
@@ -69,7 +78,7 @@ const PACKAGES_TO_AUTO_DETECT_EXPORTS = [
   path.join('node_modules', 'rxjs', 'Rx.js'),
 ];
 
-function detectExports(filePath: string, cwd: string): string[] | undefined {
+function detectExports(filePath: string): string[] | undefined {
   const fileLoc = path.join(cwd, filePath);
   try {
     if (fs.existsSync(fileLoc)) {
@@ -130,12 +139,12 @@ function getWebDependencyName(dep: string): string {
 
 export async function install(
   arrayOfDeps: string[],
-  {isCleanInstall, destLoc, skipFailures, isStrict, isOptimized, namedExports}: InstallOptions,
+  {isCleanInstall, destLoc, skipFailures, isStrict, isOptimized, namedExports, remoteUrl, remotePackages}: InstallOptions,
 ) {
 
   const knownNamedExports = {...namedExports};
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
-    knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath, cwd) || [];
+    knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
   }
 
   if (arrayOfDeps.length === 0) {
@@ -181,6 +190,16 @@ export async function install(
         rollupPluginReplace({
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
         }),
+      !!remoteUrl && {
+          name: 'pika:peer-dependency-resolver',
+          resolveId (source) {
+            if (remotePackages[source]) {
+              return {id: `${remoteUrl}/${source}/${remotePackages[source]}`, external: true, isExternal: true};
+            }
+            return null;
+          },
+          load ( id ) { return null; }
+        },
        rollupPluginNodeResolve({
         mainFields: ['browser', 'module', !isStrict && 'main'].filter(Boolean),
         modulesOnly: isStrict, // Default: false
@@ -198,7 +217,7 @@ export async function install(
           extensions: ['.js', '.cjs'], // Default: [ '.js' ]
           namedExports: knownNamedExports
         }),
-      isOptimized && rollupPluginTerser(),
+      !!isOptimized && rollupPluginTerser(),
     ],
     onwarn: ((warning, warn) => {
       if (warning.code === 'UNRESOLVED_IMPORT') {
@@ -226,7 +245,7 @@ export async function install(
 }
 
 export async function cli(args: string[]) {
-  const {help, optimize = false, strict = false, clean = false, dest = 'web_modules'} = yargs(args);
+  const {help, optimize = false, strict = false, clean = false, dest = 'web_modules', remoteUrl, remotePackage: remotePackages = []} = yargs(args);
   const destLoc = path.join(cwd, dest);
 
   if (help) {
@@ -236,8 +255,8 @@ export async function cli(args: string[]) {
 
   const pkgManifest = require(path.join(cwd, 'package.json'));
   const {namedExports, webDependencies} = pkgManifest['@pika/web'] || {namedExports: undefined, webDependencies:undefined};
-  const arrayOfDeps = webDependencies || Object.keys(pkgManifest.dependencies || {});
   const doesWhitelistExist = !!webDependencies;
+  const arrayOfDeps = webDependencies || Object.keys(pkgManifest.dependencies || {});
   spinner.start();
   const startTime = Date.now();
   const result = await install(arrayOfDeps, {
@@ -247,6 +266,8 @@ export async function cli(args: string[]) {
     skipFailures: !doesWhitelistExist,
     isStrict: strict,
     isOptimized: optimize,
+    remoteUrl,
+    remotePackages: fromEntries(remotePackages.map(p => p.split(','))),
   });
   if (result) {
     spinner.succeed(
