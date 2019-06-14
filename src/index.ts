@@ -14,7 +14,7 @@ import rollupPluginJson from 'rollup-plugin-json';
 import isNodeBuiltin from 'is-builtin-module';
 
 // Having trouble getting this ES2019 feature to compile, so using this ponyfill for now.
-function fromEntries (iterable) {
+function fromEntries(iterable: [string, string][]): {[key: string]: string} {
   return [...iterable]
     .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {})
 }
@@ -28,7 +28,7 @@ export interface InstallOptions {
   skipFailures?: boolean;
   namedExports?: {[filepath: string]: string[]};
   remoteUrl?: string;
-  remotePackages: {[dependencyName: string]: string};
+  remotePackages: [string, string][];
 }
 
 const cwd = process.cwd();
@@ -40,11 +40,15 @@ let spinnerHasError = false;
 function showHelp() {
   console.log(`${chalk.bold(`@pika/web`)} - Install npm dependencies to run natively on the web.`);
   console.log(`
-  Options
-    --dest      Specify destination directory (default: "web_modules/").
-    --clean     Clear out the destination directory before install.
-    --optimize  Minify installed dependencies.
-    --strict    Only install pure ESM dependency trees. Fail if a CJS module is encountered.
+  Options:
+    --dest            Specify destination directory (default: "web_modules/").
+    --clean           Clear out the destination directory before install.
+    --optimize        Minify installed dependencies.
+    --strict          Only install pure ESM dependency trees. Fail if a CJS module is encountered.
+  Advanced Options:
+    --remote-package  "name,version" pair(s) signal that a package should be left unbundled and referenced remotely.
+                      Example: With the value "foo,v4" will rewrite all imports of "foo" to "{remoteUrl}/foo/v4" (see --remote-url).
+    --remote-url      Configures the domain where remote imports point to (default: "https://cdn.pika.dev")
 `);
 }
 
@@ -143,6 +147,7 @@ export async function install(
 ) {
 
   const knownNamedExports = {...namedExports};
+  const remotePackageMap = fromEntries(remotePackages);
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
     knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
   }
@@ -190,11 +195,11 @@ export async function install(
         rollupPluginReplace({
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
         }),
-      !!remoteUrl && {
+      remotePackages.length > 0 && {
           name: 'pika:peer-dependency-resolver',
-          resolveId (source) {
-            if (remotePackages[source]) {
-              return {id: `${remoteUrl}/${source}/${remotePackages[source]}`, external: true, isExternal: true};
+          resolveId (source: string) {
+            if (remotePackageMap[source]) {
+              return {id: `${remoteUrl}/${source}/${remotePackageMap[source]}`, external: true, isExternal: true};
             }
             return null;
           },
@@ -245,7 +250,7 @@ export async function install(
 }
 
 export async function cli(args: string[]) {
-  const {help, optimize = false, strict = false, clean = false, dest = 'web_modules', remoteUrl, remotePackage: remotePackages = []} = yargs(args);
+  const {help, optimize = false, strict = false, clean = false, dest = 'web_modules', remoteUrl = 'https://cdn.pika.dev', remotePackage: remotePackages = []} = yargs(args);
   const destLoc = path.join(cwd, dest);
 
   if (help) {
@@ -267,7 +272,7 @@ export async function cli(args: string[]) {
     isStrict: strict,
     isOptimized: optimize,
     remoteUrl,
-    remotePackages: fromEntries(remotePackages.map(p => p.split(','))),
+    remotePackages: remotePackages.map(p => p.split(',')),
   });
   if (result) {
     spinner.succeed(
