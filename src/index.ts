@@ -66,7 +66,6 @@ const PACKAGES_TO_AUTO_DETECT_EXPORTS = [
   path.join('node_modules', 'react-dom', 'index.js'),
   path.join('node_modules', 'react-is', 'index.js'),
   path.join('node_modules', 'prop-types', 'index.js'),
-  // Note: rxjs/Rx.js depends on rxjs-compat as well.
   path.join('node_modules', 'rxjs', 'Rx.js'),
 ];
 
