@@ -183,7 +183,7 @@ export async function install(
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
         }),
        rollupPluginNodeResolve({
-        mainFields: ['module', !isStrict && 'main'].filter(Boolean),
+        mainFields: ['browser', 'module', !isStrict && 'main'].filter(Boolean),
         modulesOnly: isStrict, // Default: false
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
