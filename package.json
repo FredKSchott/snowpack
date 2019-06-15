@@ -49,7 +49,7 @@
     "yargs-parser": "^13.0.0"
   },
   "devDependencies": {
-    "@pika/pack": "^0.3.7",
+    "@pika/pack": "^0.4.0",
     "@pika/plugin-build-node": "^0.4.0",
     "@pika/plugin-copy-assets": "^0.4.0",
     "@pika/plugin-simple-bin": "^0.4.0",
