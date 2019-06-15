@@ -199,7 +199,17 @@ export async function install(
           name: 'pika:peer-dependency-resolver',
           resolveId (source: string) {
             if (remotePackageMap[source]) {
-              return {id: `${remoteUrl}/${source}/${remotePackageMap[source]}`, external: true, isExternal: true};
+              let urlSourcePath = source;
+              // NOTE(@fks): This is really Pika CDN specific, but no one else should be using this option.
+              // Don't release to latest until this is codified via arguments.
+              if (source === 'react' || source === 'react-dom') {
+                urlSourcePath = '_/' + source;
+              }
+              return {
+                id: `${remoteUrl}/${urlSourcePath}/${remotePackageMap[source]}`,
+                 external: true,
+                 isExternal: true
+              };
             }
             return null;
           },
