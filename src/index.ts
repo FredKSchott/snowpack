@@ -122,7 +122,7 @@ function resolveWebDependency(dep: string): string {
         `dependency "${dep}" has no ES "module" entrypoint.`,
         chalk.italic(
           `Tip: Find modern, web-ready packages at ${chalk.underline(
-            'https://www.pikapkg.com',
+            'https://www.pika.dev',
           )}`,
         ),
       );
@@ -188,6 +188,12 @@ export async function install(
     }
   }
 
+  if (Object.keys(depObject).length === 0) {
+    logError(`No ESM dependencies found!`);
+    console.log(chalk.dim(`  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`));
+    return false;
+  }
+
   const inputOptions = {
     input: depObject,
     plugins: [
@@ -238,9 +244,9 @@ export async function install(
       if (warning.code === 'UNRESOLVED_IMPORT') {
         logError(`'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`);
         if (isNodeBuiltin(warning.source)) {
-          console.log(chalk.dim(`  '${warning.source}' is a Node.js builtin module that won't exist on the web. You can find modern, web-ready packages at ${chalk.underline('https://www.pikapkg.com')}`));
+          console.log(chalk.dim(`  '${warning.source}' is a Node.js builtin module that won't exist on the web. You can find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`));
         } else {
-          console.log(chalk.dim(`  Make sure that the file or package exists on disk.`));
+          console.log(chalk.dim(`  Make sure that the package is installed and that the file exists.`));
         }
         return;
       }
