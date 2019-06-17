@@ -69,6 +69,24 @@ echo '{"plugins": [["@pika/web/assets/babel-plugin.js"]]}' > .babelrc
 - A Preact + HTM project: [[Source]](https://glitch.com/edit/#!/pika-web-example-preact-htm) [[Live Demo]](https://pika-web-example-preact-htm.glitch.me)
 - Preact, HTM, Electron, Three.js... [See our full list of examples →](/EXAMPLES.md)
 
+## React.js support
+
+React is [not yet published with ES Module support](https://github.com/facebook/react/issues/11503), **however**, it is possible to get React working with @pika/web 🎉 using the following steps:
+
+1. `npm install -P react@npm:@reactesm/react`
+2. `npm install -P react-dom@npm:@reactesm/react-dom`
+3. Add `react` and `react-dom` to "webDependencies" if you've added that to package.json (see Options below)
+4. Run @pika/web with `npx @pika/web`, or with `npm install` if you have the aforementioned "prepare" script installed
+
+After following these instructions, your `node_modules/react` and `node_modules/react-dom` directories in your project will be ESM-compatible versions of production-ready React and ReactDOM! Now just import it into any JavaScript file like so:
+
+```js
+import React from './web_modules/react.js';
+// also supports destructuring:
+import { useState } from './web_modules/react.js';
+```
+
+Note that [any ESM-compatible React libraries](https://www.pika.dev/search?q=react-) can now be installed and turned into web_modules files! 🎉
 
 ## Performance
 
