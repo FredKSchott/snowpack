@@ -166,11 +166,13 @@ export async function install(
   }
 
   const depObject = {};
+  const importMap = {};
   for (const dep of arrayOfDeps) {
     try {
       const depName = getWebDependencyName(dep);
       const depLoc = resolveWebDependency(dep);
       depObject[depName] = depLoc;
+      importMap[depName] = `./${depName}.js`;
       detectionResults.push([dep, true]);
       spinner.text = banner + formatDetectionResults(skipFailures);
     } catch (err) {
@@ -187,7 +189,6 @@ export async function install(
       return false;
     }
   }
-
   if (Object.keys(depObject).length === 0) {
     logError(`No ESM dependencies found!`);
     console.log(chalk.dim(`  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`));
@@ -262,6 +263,10 @@ export async function install(
   };
   const packageBundle = await rollup.rollup(inputOptions);
   await packageBundle.write(outputOptions);
+  fs.writeFileSync(
+    path.join(destLoc, 'import-map.json'),
+    JSON.stringify({imports: importMap}, undefined, 2), {encoding: 'utf8'}
+  );
   return true;
 }
 
