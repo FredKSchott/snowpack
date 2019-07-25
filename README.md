@@ -29,11 +29,11 @@
 
 Bundling packages on a per-module basis like this makes it easy to build a web application that runs fast and caches well. Updating a single dependency won't force a complete re-download of your web application. [More on performance below.](#performance)
 
-> ┻┳|  
-> ┳┻| _  
-> ┻┳| •.•) 💬 *"Tip: Use [pikapkg.com](https://www.pikapkg.com) to find modern, web-ready packages on npm :)"*  
-> ┳┻|⊂ﾉ     
-> ┻┳|  
+> ┻┳|
+> ┳┻| _
+> ┻┳| •.•) 💬 *"Tip: Use [pikapkg.com](https://www.pikapkg.com) to find modern, web-ready packages on npm"*
+> ┳┻|⊂ﾉ
+> ┻┳|
 
 
 ## Quickstart
@@ -53,57 +53,34 @@ $ npx @pika/web
 + import { createElement, Component } from "/web_modules/preact.js";
 + import htm from "/web_modules/htm.js";
 
-# 3. Run that file directly in the browser and see the magic!  
-✨ ~(‾▿‾~)(~‾▿‾)~ ✨
-
-# (Optional) If you already use Babel to build your application, skip "Step 2" and let our plugin rewrite your imports automatically:
+# Optional: Use Babel to skip "Step 2" and let our plugin rewrite your imports automatically:
 echo '{"plugins": [["@pika/web/assets/babel-plugin.js"]]}' > .babelrc
 
-# (Optional) Add a package.json "prepare" script to run @pika/web on every npm install:
+# 3. Run your code directly in the browser and see the magic!
+✨ ~(‾▿‾~)(~‾▿‾)~ ✨
+
+# 4. Add a package.json "prepare" script to run @pika/web on every npm install:
 {"scripts": {"prepare": "pika-web"}}
 ```
 
 ## Examples? We got 'em
 
-- A basic, three-dependency @pika/web project: [[Source]](https://glitch.com/edit/#!/pika-web-example-simple) [[Live Demo]](https://pika-web-example-simple.glitch.me/)
-- A Preact + HTM project: [[Source]](https://glitch.com/edit/#!/pika-web-example-preact-htm) [[Live Demo]](https://pika-web-example-preact-htm.glitch.me)
+- "Hello, World": [[Source]](https://glitch.com/edit/#!/pika-web-example-simple) [[Live Demo]](https://pika-web-example-simple.glitch.me/)
+- Preact + HTM: [[Source]](https://glitch.com/edit/#!/pika-web-example-preact-htm) [[Live Demo]](https://pika-web-example-preact-htm.glitch.me)
+- Vue: [[Source]](https://glitch.com/edit/#!/pika-web-vue-httpvueloader) [[Live Demo]](https://pika-web-vue-httpvueloader.glitch.me/) [By: [@thiagoabreu](https://github.com/thiagoabreu)]
 - Preact, HTM, Electron, Three.js... [See our full list of examples →](/EXAMPLES.md)
-
-## React.js support
-
-React is [not yet published with ES Module support](https://github.com/facebook/react/issues/11503), **however**, it is possible to get React working with @pika/web 🎉 using the following steps:
-
-1. `npm install -P react@npm:@reactesm/react`
-2. `npm install -P react-dom@npm:@reactesm/react-dom`
-3. Add `react` and `react-dom` to "webDependencies" if you've added that to package.json (see Options below)
-4. Run @pika/web with `npx @pika/web`, or with `npm install` if you have the aforementioned "prepare" script installed
-
-After following these instructions, your `node_modules/react` and `node_modules/react-dom` directories in your project will be ESM-compatible versions of production-ready React and ReactDOM! Now just import it into any JavaScript file like so:
-
-```js
-import React from './web_modules/react.js';
-// also supports destructuring:
-import { useState } from './web_modules/react.js';
-```
-
-Note that [any ESM-compatible React libraries](https://www.pika.dev/search?q=react-) can now be installed and turned into web_modules files! 🎉
 
 ## Performance
 
-When @pika/web installs your dependencies, it bundles each package into a single ESM JavaScript file. Shared chunks are created for any shared, existing transitive dependencies. Example: If @pika/web installs 10 npm packages into `web_modules/`, you can expect 10 JavaScript files and maybe a few additional shared chunks.
+When @pika/web installs your dependencies, it bundles each package into a single ESM JavaScript file. Example: If @pika/web installs 10 npm packages into `web_modules/`, you can expect 10 JavaScript files and maybe 1-2 additional files of code shared between them.
 
 Max Jung's post on ["The Right Way to Bundle Your Assets for Faster Sites over HTTP/2"](https://medium.com/@asyncmax/the-right-way-to-bundle-your-assets-for-faster-sites-over-http-2-437c37efe3ff) is the best study on HTTP/2 performance & bundling we could find online. @pika/web's installation most closely matches the study's moderate, "50 file" bundling strategy. Jung's post found that for HTTP/2, "differences among concatenation levels below 1000 [small files] (50, 6 or 1) were negligible."
 
-More testing is needed, but at this early stage we feel confident extrapolating the following: When served with HTTP/2, @pika/web installations perform better in production than single "vendor" JavaScript bundles and most custom dependency bundling strategies due to the comparable load performance and efficient cache usage.
-
 ## Browser Support
 
-@pika/web installs ES Module (ESM) dependencies from npm, which run [wherever ESM syntax is supported](https://caniuse.com/#feat=es6-module). This includes all modern browsers (Firefox, Chrome, Edge, Safari) going back at least a year, but not IE11 or UC Browser for Android.
-
+@pika/web installs ES Module (ESM) dependencies from npm, which run [wherever ESM syntax is supported](https://caniuse.com/#feat=es6-module). This includes 86%+ of all browsers in use today: All modern browsers (Firefox, Chrome, Edge, Safari) going back at least a year, but notably not IE11 or UC Browser for Android.
 
 ## Options
-
-### package.json Options
 
 > *Note: All package.json options are scoped under the `"@pika/web"` property.*
 
@@ -122,20 +99,30 @@ More testing is needed, but at this early stage we feel confident extrapolating 
 ```
 
 
-### CLI Options
+## A Note on React
+
+React is [not yet published with ES Module support](https://github.com/facebook/react/issues/11503). **However**, it is still possible to use with @pika/web thanks to @sdegutis's [@reactesm](https://www.npmjs.com/org/reactesm) project & npm/yarn's alias feature:
+
+```
+npm install react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
+yarn add react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
+```
+
+This command installs ESM versions of the latest react & react-dom, which @pika/web will then use when it installs your `web_modules/` directory. This works with [any ESM-compatible React libraries](https://www.pika.dev/search?q=react-) as well!
+
+```js
+import React, { useState } from './web_modules/react.js';
+```
 
 
-* `--dest`: Specify destination directory (default: `web_modules/`).
-* `--clean`: Clear out the destination directory before install.
-* `--optimize`: Minify installed dependencies.
-* `--strict`: Only install pure ESM dependency trees. Great for purists, or anyone who doesn't want to deal with transitive Common.js and Node.js-only dependencies.
+## A Note on JSX
 
+Remember that JSX won't run in any browser. To use JSX with @pika/web:
 
-## Why?
-
-Pika's mission is to make modern JavaScript more accessible by making it easier to find, publish, install, and use modern packages on npm. You can learn more about the Pika project at https://www.pikapkg.com/about.
+1. Use Babel to build your `src/` directory to an output `lib/` directory, and load that in the browser.
+1. Use a JSX-like library like Jason Miller's [htm](https://github.com/developit/htm) that can run in the browser.
 
 
 ## Special Thanks: Rollup
 
-@pika/web is powered internally by [Rollup](https://rollupjs.org/). We believe that bundlers shouldn't be a *requirement* for modern web development, but none of this would be possible without the awesome work done by Rollup contributors. If you use and enjoy our software, consider contributing back to [Rollup on Open Collective](https://opencollective.com/rollup).
+@pika/web is powered internally by [Rollup](https://rollupjs.org/). We believe that bundlers shouldn't be a *requirement* for modern web app development, but none of this would be possible without the awesome work done by Rollup contributors. If you use and enjoy our software, consider contributing back to [Rollup on Open Collective](https://opencollective.com/rollup).
