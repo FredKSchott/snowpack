@@ -208,7 +208,6 @@ export async function install(
             if (remotePackageMap[source]) {
               let urlSourcePath = source;
               // NOTE(@fks): This is really Pika CDN specific, but no one else should be using this option.
-              // Don't release to latest until this is codified via arguments.
               if (source === 'react' || source === 'react-dom') {
                 urlSourcePath = '_/' + source;
               }
