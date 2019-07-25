@@ -29,6 +29,7 @@ export interface InstallOptions {
   namedExports?: {[filepath: string]: string[]};
   remoteUrl?: string;
   remotePackages: [string, string][];
+  noSourceMaps?: boolean;
 }
 
 const cwd = process.cwd();
@@ -45,6 +46,7 @@ function showHelp() {
     --clean           Clear out the destination directory before install.
     --optimize        Minify installed dependencies.
     --strict          Only install pure ESM dependency trees. Fail if a CJS module is encountered.
+    --no-source-maps  Skip emitting source map files (.js.map) into dest
   Advanced Options:
     --remote-package  "name,version" pair(s) signal that a package should be left unbundled and referenced remotely.
                       Example: With the value "foo,v4" will rewrite all imports of "foo" to "{remoteUrl}/foo/v4" (see --remote-url).
@@ -143,7 +145,7 @@ function getWebDependencyName(dep: string): string {
 
 export async function install(
   arrayOfDeps: string[],
-  {isCleanInstall, destLoc, skipFailures, isStrict, isOptimized, namedExports, remoteUrl, remotePackages}: InstallOptions,
+  {isCleanInstall, destLoc, skipFailures, isStrict, isOptimized, noSourceMaps, namedExports, remoteUrl, remotePackages}: InstallOptions,
 ) {
 
   const knownNamedExports = {...namedExports};
@@ -256,7 +258,7 @@ export async function install(
   const outputOptions = {
     dir: destLoc,
     format: 'esm' as 'esm',
-    sourcemap: true,
+    sourcemap: !noSourceMaps,
     exports: 'named' as 'named',
     chunkFileNames: 'common/[name]-[hash].js',
   };
@@ -270,7 +272,7 @@ export async function install(
 }
 
 export async function cli(args: string[]) {
-  const {help, optimize = false, strict = false, clean = false, dest = 'web_modules', remoteUrl = 'https://cdn.pika.dev', remotePackage: remotePackages = []} = yargs(args);
+  const {help, noSourceMaps = false, optimize = false, strict = false, clean = false, dest = 'web_modules', remoteUrl = 'https://cdn.pika.dev', remotePackage: remotePackages = []} = yargs(args);
   const destLoc = path.join(cwd, dest);
 
   if (help) {
@@ -291,6 +293,7 @@ export async function cli(args: string[]) {
     skipFailures: !doesWhitelistExist,
     isStrict: strict,
     isOptimized: optimize,
+    noSourceMaps,
     remoteUrl,
     remotePackages: remotePackages.map(p => p.split(',')),
   });
