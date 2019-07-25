@@ -33,7 +33,7 @@ module.exports = function pikaWebBabelTransform({types: t}) {
         const source = path.get('source');
 
         // An export without a 'from' clause
-        if (source.node === null) {
+        if (!source.node) {
           return;
         }
 
