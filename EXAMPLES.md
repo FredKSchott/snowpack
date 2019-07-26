@@ -37,4 +37,5 @@ Remember that JSX is non-standard, and won't run in any browser. To use JSX with
 ## Call for Examples (CFE)
 
 - Ionic 4 basic application [[Discussion]](https://github.com/pikapkg/web/pull/28)
+- React + Styled Components [[Discussion]](https://github.com/pikapkg/web/issues/66)
 - [Add examples that you'd like to see here!](https://github.com/pikapkg/web/edit/master/EXAMPLES.md)
