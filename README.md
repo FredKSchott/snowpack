@@ -108,11 +108,11 @@ Additionally, @pika/web runs all dependencies through Babel via `@preset/env` to
 
 ## A Note on React
 
-React is [not yet published with ES Module support](https://github.com/facebook/react/issues/11503), and the way it's build makes it impossible to bundle as an entrypoint (`Error: '__moduleExports' is not exported by node_modules/react/index.js`). **However**, it is still possible to React with @pika/web thanks to @sdegutis's [@reactesm](https://www.npmjs.com/org/reactesm) project & npm/yarn's alias feature:
+React is [not yet published with ES Module support](https://github.com/facebook/react/issues/11503), and the way it's build makes it impossible to bundle as an entrypoint (`Error: '__moduleExports' is not exported by node_modules/react/index.js`). **However**, it is still possible to use React with @pika/web thanks to [@sdegutis](https://github.com/sdegutis)'s [@reactesm](https://www.npmjs.com/org/reactesm) project & npm/yarn's alias feature:
 
 ```
 npm install react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
-yarn add react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
+   yarn add react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
 ```
 
 This command installs ESM versions of the latest react & react-dom, which @pika/web will then use when it installs your `web_modules/` directory. This works with [any ESM-compatible React libraries](https://www.pika.dev/search?q=react-) as well!
