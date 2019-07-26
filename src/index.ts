@@ -27,7 +27,7 @@ export interface InstallOptions {
   isCleanInstall?: boolean;
   isStrict?: boolean;
   isOptimized?: boolean;
-  transpileDeps?: boolean;
+  hasBrowserlistConfig?: boolean;
   isExplicit?: boolean;
   namedExports?: {[filepath: string]: string[]};
   remoteUrl?: string;
@@ -122,19 +122,21 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
   if (dependencyStats.isDirectory()) {
     const dependencyManifestLoc = path.join(nodeModulesLoc, 'package.json');
     const manifest = require(dependencyManifestLoc);
-    let foundEntrypoint = manifest.module;
+    let foundEntrypoint: string = manifest.module;
     // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
     if (!foundEntrypoint && isExplicit) {
       foundEntrypoint = manifest.main;
     }
     if (!foundEntrypoint) {
       throw new ErrorWithHint(
-        `dependency "${dep}" has no ES "module" entrypoint.`,
-        chalk.italic(
-          `Tip: Find modern, web-ready packages at ${chalk.underline(
-            'https://www.pika.dev',
-          )}`,
-        ),
+        `dependency "${dep}" has no native "module" entrypoint.`,
+        chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`),
+      );
+    }
+    if (dep === 'react' && foundEntrypoint === 'index.js') {
+      throw new ErrorWithHint(
+        `dependency "react" has no native "module" entrypoint.`,
+        chalk.italic(`See: ${chalk.underline('https://github.com/pikapkg/web#a-note-on-react')}`),
       );
     }
     return path.join(nodeModulesLoc, foundEntrypoint);
@@ -153,7 +155,7 @@ function getWebDependencyName(dep: string): string {
 
 export async function install(
   arrayOfDeps: string[],
-  {isCleanInstall, destLoc, transpileDeps, isExplicit, isStrict, isOptimized, sourceMap, namedExports, remoteUrl, remotePackages}: InstallOptions,
+  {isCleanInstall, destLoc, hasBrowserlistConfig, isExplicit, isStrict, isOptimized, sourceMap, namedExports, remoteUrl, remotePackages}: InstallOptions,
 ) {
   const knownNamedExports = {...namedExports};
   const remotePackageMap = fromEntries(remotePackages);
@@ -251,7 +253,7 @@ export async function install(
       rollupPluginBabel({
         compact: false,
         babelrc: false,
-        presets: [[babelPresetEnv, { modules: false }]],
+        presets: [[babelPresetEnv, { modules: false, targets: hasBrowserlistConfig ? undefined : ">0.5%, not ie 11, not op_mini all" }]],
       }),
       !!isOptimized && rollupPluginTerser(),
     ],
@@ -297,9 +299,7 @@ export async function cli(args: string[]) {
   const {namedExports, webDependencies} = pkgManifest['@pika/web'] || {namedExports: undefined, webDependencies:undefined};
   const doesWhitelistExist = !!webDependencies;
   const arrayOfDeps = webDependencies || Object.keys(pkgManifest.dependencies || {});
-  if (optimize && !pkgManifest.browserslist && !process.env.BROWSERSLIST && !fs.existsSync(path.join(cwd, '.browserslistrc')) && !fs.existsSync(path.join(cwd, 'browserslist'))) {
-    console.log('!', 'No "browserslist" config detected. Babel\'s default transpilation is most likely overkill for production.');
-  }
+  const hasBrowserlistConfig = !!pkgManifest.browserslist || !!process.env.BROWSERSLIST || fs.existsSync(path.join(cwd, '.browserslistrc')) || fs.existsSync(path.join(cwd, 'browserslist'));
 
   spinner.start();
   const startTime = Date.now();
@@ -312,7 +312,7 @@ export async function cli(args: string[]) {
     isOptimized: optimize,
     sourceMap,
     remoteUrl,
-    transpileDeps: !!pkgManifest.browserslist,
+    hasBrowserlistConfig,
     remotePackages: remotePackages.map(p => p.split(',')),
   });
   if (result) {
