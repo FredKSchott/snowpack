@@ -80,6 +80,13 @@ Max Jung's post on ["The Right Way to Bundle Your Assets for Faster Sites over H
 
 @pika/web installs ES Module (ESM) dependencies from npm, which run [wherever ESM syntax is supported](https://caniuse.com/#feat=es6-module). This includes 86%+ of all browsers in use today: All modern browsers (Firefox, Chrome, Edge, Safari) going back at least a year, but notably not IE11 or UC Browser for Android.
 
+@pika/web runs all dependencies through Babel via `@preset/env`. Babel's defaults are overkill for ESM-supporting browsers, which can cause unnecessary transpiler bloat in your web_modules folder. Add a "browserslist" key to your `package.json` manifest to target a more modern set of browsers:
+
+```js
+  /* package.json - Recommended target for ESM-supporting browsers */
+  "browserslist": ">0.5%, not ie 11, not op_mini all"
+```
+
 ## Options
 
 > *Note: All package.json options are scoped under the `"@pika/web"` property.*

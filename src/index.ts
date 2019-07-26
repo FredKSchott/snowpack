@@ -11,6 +11,8 @@ import rollupPluginCommonjs from 'rollup-plugin-commonjs';
 import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import rollupPluginReplace from 'rollup-plugin-replace';
 import rollupPluginJson from 'rollup-plugin-json';
+import rollupPluginBabel from 'rollup-plugin-babel';
+import babelPresetEnv from '@babel/preset-env';
 import isNodeBuiltin from 'is-builtin-module';
 
 // Having trouble getting this ES2019 feature to compile, so using this ponyfill for now.
@@ -25,7 +27,8 @@ export interface InstallOptions {
   isCleanInstall?: boolean;
   isStrict?: boolean;
   isOptimized?: boolean;
-  skipFailures?: boolean;
+  transpileDeps?: boolean;
+  isExplicit?: boolean;
   namedExports?: {[filepath: string]: string[]};
   remoteUrl?: string;
   remotePackages: [string, string][];
@@ -102,7 +105,7 @@ function detectExports(filePath: string): string[] | undefined {
  * Follows logic similar to Node's resolution logic, but using a package.json's ESM "module"
  * field instead of the CJS "main" field.
  */
-function resolveWebDependency(dep: string): string {
+function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boolean): string {
   const nodeModulesLoc = path.join(cwd, 'node_modules', dep);
   let dependencyStats: fs.Stats;
   try {
@@ -119,7 +122,12 @@ function resolveWebDependency(dep: string): string {
   if (dependencyStats.isDirectory()) {
     const dependencyManifestLoc = path.join(nodeModulesLoc, 'package.json');
     const manifest = require(dependencyManifestLoc);
-    if (!manifest.module) {
+    let foundEntrypoint = manifest.module;
+    // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
+    if (!foundEntrypoint && isExplicit) {
+      foundEntrypoint = manifest.main;
+    }
+    if (!foundEntrypoint) {
       throw new ErrorWithHint(
         `dependency "${dep}" has no ES "module" entrypoint.`,
         chalk.italic(
@@ -129,7 +137,7 @@ function resolveWebDependency(dep: string): string {
         ),
       );
     }
-    return path.join(nodeModulesLoc, manifest.module);
+    return path.join(nodeModulesLoc, foundEntrypoint);
   }
 
   throw new Error(`Error loading "${dep}" at "${nodeModulesLoc}". (MODE=${dependencyStats.mode}) `);
@@ -145,9 +153,8 @@ function getWebDependencyName(dep: string): string {
 
 export async function install(
   arrayOfDeps: string[],
-  {isCleanInstall, destLoc, skipFailures, isStrict, isOptimized, sourceMap, namedExports, remoteUrl, remotePackages}: InstallOptions,
+  {isCleanInstall, destLoc, transpileDeps, isExplicit, isStrict, isOptimized, sourceMap, namedExports, remoteUrl, remotePackages}: InstallOptions,
 ) {
-
   const knownNamedExports = {...namedExports};
   const remotePackageMap = fromEntries(remotePackages);
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
@@ -169,10 +176,11 @@ export async function install(
 
   const depObject = {};
   const importMap = {};
+  const skipFailures = !isExplicit;
   for (const dep of arrayOfDeps) {
     try {
       const depName = getWebDependencyName(dep);
-      const depLoc = resolveWebDependency(dep);
+      const depLoc = resolveWebDependency(dep, isExplicit, isOptimized);
       depObject[depName] = depLoc;
       importMap[depName] = `./${depName}.js`;
       detectionResults.push([dep, true]);
@@ -205,25 +213,25 @@ export async function install(
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
         }),
       remotePackages.length > 0 && {
-          name: 'pika:peer-dependency-resolver',
-          resolveId (source: string) {
-            if (remotePackageMap[source]) {
-              let urlSourcePath = source;
-              // NOTE(@fks): This is really Pika CDN specific, but no one else should be using this option.
-              if (source === 'react' || source === 'react-dom') {
-                urlSourcePath = '_/' + source;
-              }
-              return {
-                id: `${remoteUrl}/${urlSourcePath}/${remotePackageMap[source]}`,
-                 external: true,
-                 isExternal: true
-              };
+        name: 'pika:peer-dependency-resolver',
+        resolveId (source: string) {
+          if (remotePackageMap[source]) {
+            let urlSourcePath = source;
+            // NOTE(@fks): This is really Pika CDN specific, but no one else should be using this option.
+            if (source === 'react' || source === 'react-dom') {
+              urlSourcePath = '_/' + source;
             }
-            return null;
-          },
-          load ( id ) { return null; }
+            return {
+              id: `${remoteUrl}/${urlSourcePath}/${remotePackageMap[source]}`,
+                external: true,
+                isExternal: true
+            };
+          }
+          return null;
         },
-       rollupPluginNodeResolve({
+        load ( id ) { return null; }
+      },
+      rollupPluginNodeResolve({
         mainFields: ['browser', 'module', 'jsnext:main', !isStrict && 'main'].filter(Boolean),
         modulesOnly: isStrict, // Default: false
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
@@ -240,6 +248,11 @@ export async function install(
           extensions: ['.js', '.cjs'], // Default: [ '.js' ]
           namedExports: knownNamedExports
         }),
+      rollupPluginBabel({
+        compact: false,
+        babelrc: false,
+        presets: [[babelPresetEnv, { modules: false }]],
+      }),
       !!isOptimized && rollupPluginTerser(),
     ],
     onwarn: ((warning, warn) => {
@@ -284,17 +297,22 @@ export async function cli(args: string[]) {
   const {namedExports, webDependencies} = pkgManifest['@pika/web'] || {namedExports: undefined, webDependencies:undefined};
   const doesWhitelistExist = !!webDependencies;
   const arrayOfDeps = webDependencies || Object.keys(pkgManifest.dependencies || {});
+  if (optimize && !pkgManifest.browserslist && !process.env.BROWSERSLIST && !fs.existsSync(path.join(cwd, '.browserslistrc')) && !fs.existsSync(path.join(cwd, 'browserslist'))) {
+    console.log('!', 'No "browserslist" config detected. Babel\'s default transpilation is most likely overkill for production.');
+  }
+
   spinner.start();
   const startTime = Date.now();
   const result = await install(arrayOfDeps, {
     isCleanInstall: clean,
     destLoc,
     namedExports,
-    skipFailures: !doesWhitelistExist,
+    isExplicit: doesWhitelistExist,
     isStrict: strict,
     isOptimized: optimize,
     sourceMap,
     remoteUrl,
+    transpileDeps: !!pkgManifest.browserslist,
     remotePackages: remotePackages.map(p => p.split(',')),
   });
   if (result) {
