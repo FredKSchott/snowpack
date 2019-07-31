@@ -41,20 +41,20 @@ const detectionResults = [];
 let spinner = ora(banner);
 let spinnerHasError = false;
 
-function showHelp() {
-  console.log(`${chalk.bold(`@pika/web`)} - Install npm dependencies to run natively on the web.`);
+function printHelp() {
   console.log(`
-  Options:
+${chalk.bold(`@pika/web`)} - Install npm dependencies to run natively on the web.
+${chalk.bold('Options:')}
     --dest              Specify destination directory (default: "web_modules/").
     --clean             Clear out the destination directory before install.
     --optimize          Minify installed dependencies.
     --strict            Only install pure ESM dependency trees. Fail if a CJS module is encountered.
     --no-source-map     Skip emitting source map files (.js.map) into dest
-  Advanced Options:
-    --remote-package    "name,version" pair(s) signal that a package should be left unbundled and referenced remotely.
-                        Example: With the value "foo,v4" will rewrite all imports of "foo" to "{remoteUrl}/foo/v4" (see --remote-url).
+${chalk.bold('Advanced:')}
+    --remote-package    "name,version" pair(s) of packages that should be left unbundled and referenced remotely.
+                        Example: "foo,v4" will rewrite all imports of "foo" to "{remoteUrl}/foo/v4" (see --remote-url).
     --remote-url        Configures the domain where remote imports point to (default: "https://cdn.pika.dev")
-`);
+    `.trim());
 }
 
 function formatDetectionResults(skipFailures): string {
@@ -94,7 +94,6 @@ function detectExports(filePath: string): string[] | undefined {
       return Object.keys(require(fileLoc)).filter((e) => (e[0] !== '_'));
     }
   } catch (err) {
-    console.log(err);
     // ignore
   }
 }
@@ -291,7 +290,7 @@ export async function cli(args: string[]) {
   const destLoc = path.join(cwd, dest);
 
   if (help) {
-    showHelp();
+    printHelp();
     process.exit(0);
   }
 
