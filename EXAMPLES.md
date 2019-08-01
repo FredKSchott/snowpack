@@ -10,6 +10,7 @@
 - Electron (using Three.js): [[Source]](https://github.com/br3tt/electron-three)
 - TypeScript (using Preact): [[Source]](https://glitch.com/edit/#!/pika-web-ts-preact) [[Live Demo]](https://pika-web-ts-preact.glitch.me/)
 - Vue (using httpVueLoader): [[Source]](https://glitch.com/edit/#!/pika-web-vue-httpvueloader) [[Live Demo]](https://pika-web-vue-httpvueloader.glitch.me/) [By: [@thiagoabreu](https://github.com/thiagoabreu)]
+- LitElement + lit-html PWA: [[Source]](https://github.com/thepassle/reddit-pwa) [[Live Demo]](https://angry-turing-4769b3.netlify.com/)
 
 ## A Note on React
 
