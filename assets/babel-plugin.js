@@ -18,6 +18,7 @@ function rewriteImport(imp, dir, shouldAddMissingExtension) {
 
 /**
  * BABEL OPTIONS:
+ *   dir                - The web_modules installed location once hosted on the web. Defaults to '/web_modules/*'
  *   optionalExtensions - Adds any missing JS extensions to local/relative imports. Support for these
  *                        partial imports is missing in the browser and being phased out of Node.js, but
  *                        this can be a useful option for migrating an old project to @pika/web.
