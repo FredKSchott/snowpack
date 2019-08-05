@@ -252,7 +252,7 @@ export async function install(
       rollupPluginBabel({
         compact: false,
         babelrc: false,
-        presets: [[babelPresetEnv, { modules: false, targets: hasBrowserlistConfig ? undefined : ">0.5%, not ie 11, not op_mini all" }]],
+        presets: [[babelPresetEnv, { modules: false, targets: hasBrowserlistConfig ? undefined : ">0.75%, not ie 11, not op_mini all" }]],
       }),
       !!isOptimized && rollupPluginTerser(),
     ],
