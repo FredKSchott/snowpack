@@ -84,7 +84,7 @@ Additionally, @pika/web runs all dependencies through Babel via `@preset/env` to
 
 ```js
   /* package.json - Recommended target for ESM-supporting browsers (default) */
-  "browserslist": ">0.5%, not ie 11, not op_mini all"
+  "browserslist": ">0.75%, not ie 11, not op_mini all"
 ```
 
 ## Options

@@ -4,10 +4,11 @@ function getWebDependencyName(dep) {
   return dep.replace(/\.js$/, '');
 }
 
-function rewriteImport(imp, shouldAddMissingExtension) {
+function rewriteImport(imp, dir, shouldAddMissingExtension) {
   const isSourceImport = imp.startsWith('/') || imp.startsWith('.')|| imp.startsWith('\\');
+  dir = dir || 'web_modules';
   if (!isSourceImport) {
-    return `/web_modules/${getWebDependencyName(imp)}.js`;
+    return path.posix.join('/', dir, `${getWebDependencyName(imp)}.js`);
   }
   if (shouldAddMissingExtension && !path.extname(imp)) {
     return imp + '.js';
@@ -21,7 +22,7 @@ function rewriteImport(imp, shouldAddMissingExtension) {
  *                        partial imports is missing in the browser and being phased out of Node.js, but
  *                        this can be a useful option for migrating an old project to @pika/web.
  */
-module.exports = function pikaWebBabelTransform({types: t}, {optionalExtensions}) {
+module.exports = function pikaWebBabelTransform({types: t}, {optionalExtensions, dir}) {
   return {
     visitor: {
       CallExpression(path, {file, opts}) {
@@ -37,7 +38,7 @@ module.exports = function pikaWebBabelTransform({types: t}, {optionalExtensions}
 
 
         source.replaceWith(
-          t.stringLiteral(rewriteImport(source.node.value, optionalExtensions)),
+          t.stringLiteral(rewriteImport(source.node.value, dir, optionalExtensions)),
         );
       },
       'ImportDeclaration|ExportNamedDeclaration|ExportAllDeclaration'(path, {file, opts}) {
@@ -49,7 +50,7 @@ module.exports = function pikaWebBabelTransform({types: t}, {optionalExtensions}
         }
 
         source.replaceWith(
-          t.stringLiteral(rewriteImport(source.node.value, optionalExtensions)),
+          t.stringLiteral(rewriteImport(source.node.value, dir, optionalExtensions)),
         );
       },
     },
