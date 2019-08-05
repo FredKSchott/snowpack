@@ -21,6 +21,10 @@ function fromEntries(iterable: [string, string][]): {[key: string]: string} {
     .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {})
 }
 
+export interface DependencyLoc {
+  depLoc?: string,
+  styleLoc?: string
+}
 
 export interface InstallOptions {
   destLoc: string;
@@ -104,7 +108,7 @@ function detectExports(filePath: string): string[] | undefined {
  * Follows logic similar to Node's resolution logic, but using a package.json's ESM "module"
  * field instead of the CJS "main" field.
  */
-function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boolean): string {
+function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boolean): DependencyLoc {
   const nodeModulesLoc = path.join(cwd, 'node_modules', dep);
   let dependencyStats: fs.Stats;
   try {
@@ -116,17 +120,24 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
     );
   }
   if (dependencyStats.isFile()) {
-    return nodeModulesLoc;
+    const locations: DependencyLoc = {};
+    if (path.extname(dep) !== '.js') {
+      locations.styleLoc = nodeModulesLoc;
+    } else {
+      locations.depLoc = dep;
+    }
+    return locations;
   }
   if (dependencyStats.isDirectory()) {
     const dependencyManifestLoc = path.join(nodeModulesLoc, 'package.json');
     const manifest = require(dependencyManifestLoc);
     let foundEntrypoint: string = manifest.module;
+    let dependencyStyles: string = manifest.style;
     // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
     if (!foundEntrypoint && isExplicit) {
       foundEntrypoint = manifest.main || 'index.js';
-    }
-    if (!foundEntrypoint) {
+    }    
+    if (!foundEntrypoint && !dependencyStyles) {
       throw new ErrorWithHint(
         `dependency "${dep}" has no native "module" entrypoint.`,
         chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`),
@@ -138,7 +149,14 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
         chalk.italic(`See: ${chalk.underline('https://github.com/pikapkg/web#a-note-on-react')}`),
       );
     }
-    return path.join(nodeModulesLoc, foundEntrypoint);
+    const locations: DependencyLoc = {};
+    if (foundEntrypoint) {
+      locations.depLoc = path.join(nodeModulesLoc, foundEntrypoint);
+    }
+    if (dependencyStyles) {
+      locations.styleLoc = path.join(nodeModulesLoc, dependencyStyles)
+    }
+    return locations;
   }
 
   throw new Error(`Error loading "${dep}" at "${nodeModulesLoc}". (MODE=${dependencyStats.mode}) `);
@@ -177,14 +195,21 @@ export async function install(
 
   const depObject = {};
   const importMap = {};
+  const styles = [];
   const skipFailures = !isExplicit;
   for (const dep of arrayOfDeps) {
     try {
       const depName = getWebDependencyName(dep);
-      const depLoc = resolveWebDependency(dep, isExplicit, isOptimized);
-      depObject[depName] = depLoc;
-      importMap[depName] = `./${depName}.js`;
-      detectionResults.push([dep, true]);
+      const { depLoc, styleLoc } = resolveWebDependency(dep, isExplicit, isOptimized);
+      if (depLoc) {
+        depObject[depName] = depLoc;
+        importMap[depName] = `./${depName}.js`;
+        detectionResults.push([dep, true]);
+      }
+      if (isExplicit && styleLoc && fs.existsSync(styleLoc)) {
+        styles.push(styleLoc);
+        detectionResults.push([dep, true]);
+      }
       spinner.text = banner + formatDetectionResults(skipFailures);
     } catch (err) {
       detectionResults.push([dep, false]);
@@ -278,6 +303,15 @@ export async function install(
   };
   const packageBundle = await rollup.rollup(inputOptions);
   await packageBundle.write(outputOptions);
+  if (isExplicit) {
+    styles.forEach(style => {
+      fs.copyFile(style, `${destLoc}/${path.basename(style)}`, (err) => {
+        if (err) {
+          logError(err);
+        }
+      });
+    });
+  }
   fs.writeFileSync(
     path.join(destLoc, 'import-map.json'),
     JSON.stringify({imports: importMap}, undefined, 2), {encoding: 'utf8'}
