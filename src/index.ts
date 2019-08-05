@@ -124,7 +124,7 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
     let foundEntrypoint: string = manifest.module;
     // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
     if (!foundEntrypoint && isExplicit) {
-      foundEntrypoint = manifest.main;
+      foundEntrypoint = manifest.main || 'index.js';
     }
     if (!foundEntrypoint) {
       throw new ErrorWithHint(
