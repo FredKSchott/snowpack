@@ -46,10 +46,10 @@ Bundling packages on a per-module basis like this makes it easy to build a web a
 +   import { createElement, Component } from "/web_modules/preact.js";
 -   import htm from "htm";
 +   import htm from "/web_modules/htm.js";
-# Optional: Use Babel to skip "Step 2" and let our plugin rewrite your imports automatically:
-    echo '{"plugins": [["@pika/web/assets/babel-plugin.js"]]}' > .babelrc
 # 3. Run your code directly in the browser and see the magic!
     ✨ ~(‾▿‾~)(~‾▿‾)~ ✨
+# Optional: Using Babel? Skip "Step 2" and let our plugin rewrite your imports automatically:
+    echo '{"plugins": [["@pika/web/assets/babel-plugin.js"]]}' > .babelrc
 # Optional: Install @pika/web locally so that it runs faster next time...
     npm install --save-dev @pika/web
 # Optional: ...and then add a "prepare" script to your package.json to have it run after every install:
