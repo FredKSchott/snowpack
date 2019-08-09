@@ -43,8 +43,8 @@ Bundling packages on a per-module basis like this makes it easy to build a web a
     $ npx @pika/web
 # 2. Replace all NPM package imports in your web app with web-native URLs:
 -   import { createElement, Component } from "preact";
--   import htm from "htm";
 +   import { createElement, Component } from "/web_modules/preact.js";
+-   import htm from "htm";
 +   import htm from "/web_modules/htm.js";
 # Optional: Use Babel to skip "Step 2" and let our plugin rewrite your imports automatically:
     echo '{"plugins": [["@pika/web/assets/babel-plugin.js"]]}' > .babelrc
