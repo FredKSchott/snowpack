@@ -56,9 +56,8 @@ Bundling packages on a per-module basis like this makes it easy to build a web a
     {"scripts": {"prepare": "pika install"}}
 ```
 
-```
 
-## Examples? We got 'em
+## Examples
 
 - "Hello, World": [[Source]](https://glitch.com/edit/#!/pika-web-example-simple) [[Live Demo]](https://pika-web-example-simple.glitch.me/)
 - Preact + HTM: [[Source]](https://glitch.com/edit/#!/pika-web-example-preact-htm) [[Live Demo]](https://pika-web-example-preact-htm.glitch.me)
