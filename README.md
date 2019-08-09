@@ -38,11 +38,6 @@ Bundling packages on a per-module basis like this makes it easy to build a web a
 
 ## Quickstart
 
-```
-npm install --save-dev @pika/web
-yarn add --dev @pika/web
-```
-
 ```diff
 # 1. Run @pika/web in your project:
 $ npx @pika/web
@@ -59,8 +54,12 @@ echo '{"plugins": [["@pika/web/assets/babel-plugin.js"]]}' > .babelrc
 # 3. Run your code directly in the browser and see the magic!
 ✨ ~(‾▿‾~)(~‾▿‾)~ ✨
 
-# 4. Add a package.json "prepare" script to run @pika/web on every npm install:
-{"scripts": {"prepare": "pika-web"}}
+# Optional: Install @pika/web locally so that it runs faster next time...
+npm install --save-dev @pika/web
+# Optional: ...and then add a "prepare" script to your package.json to have it run after every install:
+ {"scripts": {"prepare": "pika install"}}
+```
+
 ```
 
 ## Examples? We got 'em
