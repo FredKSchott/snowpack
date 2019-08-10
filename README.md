@@ -7,12 +7,8 @@
 <p align="center">
    <strong>@pika/web</strong> • Run npm dependencies directly in the browser. No Browserify, Webpack or import maps required.
 </p>
----
-
-[npm on Dec 6, 2018](https://medium.com/npm-inc/this-year-in-javascript-2018-in-review-and-npms-predictions-for-2019-3a3d7e5298ef) - *"JavaScript in 2018 is somewhat notorious for requiring a lot of tooling to get going, which is quite a reversal from the situation in 2014... **All of our survey respondents would like to see less tooling [and] less configuration required to get started**."*
 
 ---
-
 
 ## @pika/web brings that nostalgic, 2014 simplicity to 2019 web development:
 
