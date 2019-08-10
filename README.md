@@ -7,9 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://twitter.com/midudev/status/1101828172390248448">
-    <img alt="Logo" src="https://next.pikapkg.com/static/img/pika-web-demo.png?f" width="540">
-  </a>
+  <img alt="Logo" src="https://i.imgur.com/q6JcN0B.png" width="720">
 </p>
 
 ---
