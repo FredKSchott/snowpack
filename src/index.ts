@@ -4,6 +4,7 @@ import rimraf from 'rimraf';
 import chalk from 'chalk';
 import ora from 'ora';
 import yargs from 'yargs-parser';
+import { sync as mkdirSync } from 'mkdirp';
 
 import * as rollup from 'rollup';
 import rollupPluginNodeResolve from 'rollup-plugin-node-resolve';
@@ -23,7 +24,7 @@ function fromEntries(iterable: [string, string][]): {[key: string]: string} {
 
 export interface DependencyLoc {
   depLoc?: string,
-  styleLoc?: string
+  assetLoc?: string
 }
 
 export interface InstallOptions {
@@ -121,10 +122,11 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
   }
   if (dependencyStats.isFile()) {
     const locations: DependencyLoc = {};
-    if (path.extname(dep) !== '.js') {
-      locations.styleLoc = nodeModulesLoc;
+    const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
+    if (isJSFile) {
+      locations.depLoc = nodeModulesLoc;
     } else {
-      locations.depLoc = dep;
+      locations.assetLoc = nodeModulesLoc;
     }
     return locations;
   }
@@ -132,12 +134,11 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
     const dependencyManifestLoc = path.join(nodeModulesLoc, 'package.json');
     const manifest = require(dependencyManifestLoc);
     let foundEntrypoint: string = manifest.module;
-    let dependencyStyles: string = manifest.style;
     // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
     if (!foundEntrypoint && isExplicit) {
       foundEntrypoint = manifest.main || 'index.js';
-    }    
-    if (!foundEntrypoint && !dependencyStyles) {
+    }
+    if (!foundEntrypoint) {
       throw new ErrorWithHint(
         `dependency "${dep}" has no native "module" entrypoint.`,
         chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`),
@@ -152,9 +153,6 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
     const locations: DependencyLoc = {};
     if (foundEntrypoint) {
       locations.depLoc = path.join(nodeModulesLoc, foundEntrypoint);
-    }
-    if (dependencyStyles) {
-      locations.styleLoc = path.join(nodeModulesLoc, dependencyStyles)
     }
     return locations;
   }
@@ -193,21 +191,21 @@ export async function install(
     rimraf.sync(destLoc);
   }
 
-  const depObject = {};
+  const depObject: {[depName: string]: string} = {};
+  const assetObject: {[depName: string]: string} = {};
   const importMap = {};
-  const styles = [];
   const skipFailures = !isExplicit;
   for (const dep of arrayOfDeps) {
     try {
       const depName = getWebDependencyName(dep);
-      const { depLoc, styleLoc } = resolveWebDependency(dep, isExplicit, isOptimized);
+      const { depLoc, assetLoc } = resolveWebDependency(dep, isExplicit, isOptimized);
       if (depLoc) {
         depObject[depName] = depLoc;
         importMap[depName] = `./${depName}.js`;
         detectionResults.push([dep, true]);
       }
-      if (isExplicit && styleLoc && fs.existsSync(styleLoc)) {
-        styles.push(styleLoc);
+      if (assetLoc) {
+        assetObject[depName] = assetLoc;
         detectionResults.push([dep, true]);
       }
       spinner.text = banner + formatDetectionResults(skipFailures);
@@ -225,7 +223,7 @@ export async function install(
       return false;
     }
   }
-  if (Object.keys(depObject).length === 0) {
+  if (Object.keys(depObject).length === 0 && Object.keys(assetObject).length === 0) {
     logError(`No ESM dependencies found!`);
     console.log(chalk.dim(`  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`));
     return false;
@@ -303,15 +301,13 @@ export async function install(
   };
   const packageBundle = await rollup.rollup(inputOptions);
   await packageBundle.write(outputOptions);
-  if (isExplicit) {
-    styles.forEach(style => {
-      fs.copyFile(style, `${destLoc}/${path.basename(style)}`, (err) => {
-        if (err) {
-          logError(err);
-        }
-      });
-    });
-  }
+  Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
+<<<<<<< HEAD
+    mkdirSync(`${destLoc}/${path.dirname(assetName)}`);
+=======
+>>>>>>> a6027af... Update index.ts
+    fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
+  });
   fs.writeFileSync(
     path.join(destLoc, 'import-map.json'),
     JSON.stringify({imports: importMap}, undefined, 2), {encoding: 'utf8'}
@@ -358,7 +354,7 @@ export async function cli(args: string[]) {
     );
   }
   if (spinnerHasError) {
-    // Set the exit code so that programatic usage of the CLI knows that there were errors.
+    // Set the exit code so that programmatic usage of the CLI knows that there were errors.
     spinner.warn(chalk(`Finished with warnings.`));
     process.exitCode = 1;
   }
