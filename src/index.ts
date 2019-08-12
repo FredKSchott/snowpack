@@ -136,7 +136,7 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
     // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
     if (!foundEntrypoint && isExplicit) {
       foundEntrypoint = manifest.main || 'index.js';
-    }    
+    }
     if (!foundEntrypoint) {
       throw new ErrorWithHint(
         `dependency "${dep}" has no native "module" entrypoint.`,
@@ -190,9 +190,9 @@ export async function install(
     rimraf.sync(destLoc);
   }
 
-  const depObject = {};
+  const depObject: {[depName: string]: string} = {};
+  const assetObject: {[depName: string]: string} = {};
   const importMap = {};
-  const assets = [];
   const skipFailures = !isExplicit;
   for (const dep of arrayOfDeps) {
     try {
@@ -204,7 +204,7 @@ export async function install(
         detectionResults.push([dep, true]);
       }
       if (assetLoc) {
-        assets.push(assetLoc);
+        assetObject[depName] = assetLoc;
         detectionResults.push([dep, true]);
       }
       spinner.text = banner + formatDetectionResults(skipFailures);
@@ -222,7 +222,7 @@ export async function install(
       return false;
     }
   }
-  if (Object.keys(depObject).length === 0) {
+  if (Object.keys(depObject).length === 0 && Object.keys(assetObject).length === 0) {
     logError(`No ESM dependencies found!`);
     console.log(chalk.dim(`  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`));
     return false;
@@ -300,8 +300,8 @@ export async function install(
   };
   const packageBundle = await rollup.rollup(inputOptions);
   await packageBundle.write(outputOptions);
-  assets.forEach(asset => {
-    fs.copyFileSync(asset, `${destLoc}/${path.basename(asset)}`);
+  Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
+    fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
   });
   fs.writeFileSync(
     path.join(destLoc, 'import-map.json'),
@@ -349,7 +349,7 @@ export async function cli(args: string[]) {
     );
   }
   if (spinnerHasError) {
-    // Set the exit code so that programatic usage of the CLI knows that there were errors.
+    // Set the exit code so that programmatic usage of the CLI knows that there were errors.
     spinner.warn(chalk(`Finished with warnings.`));
     process.exitCode = 1;
   }
