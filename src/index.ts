@@ -23,7 +23,7 @@ function fromEntries(iterable: [string, string][]): {[key: string]: string} {
 
 export interface DependencyLoc {
   depLoc?: string,
-  styleLoc?: string
+  assetLoc?: string
 }
 
 export interface InstallOptions {
@@ -121,10 +121,11 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
   }
   if (dependencyStats.isFile()) {
     const locations: DependencyLoc = {};
-    if (path.extname(dep) !== '.js') {
-      locations.styleLoc = nodeModulesLoc;
-    } else {
+    const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
+    if (isJSFile) {
       locations.depLoc = dep;
+    } else {
+      locations.assetLoc = nodeModulesLoc;
     }
     return locations;
   }
@@ -132,12 +133,11 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
     const dependencyManifestLoc = path.join(nodeModulesLoc, 'package.json');
     const manifest = require(dependencyManifestLoc);
     let foundEntrypoint: string = manifest.module;
-    let dependencyStyles: string = manifest.style;
     // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
     if (!foundEntrypoint && isExplicit) {
       foundEntrypoint = manifest.main || 'index.js';
     }    
-    if (!foundEntrypoint && !dependencyStyles) {
+    if (!foundEntrypoint) {
       throw new ErrorWithHint(
         `dependency "${dep}" has no native "module" entrypoint.`,
         chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`),
@@ -152,9 +152,6 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
     const locations: DependencyLoc = {};
     if (foundEntrypoint) {
       locations.depLoc = path.join(nodeModulesLoc, foundEntrypoint);
-    }
-    if (dependencyStyles) {
-      locations.styleLoc = path.join(nodeModulesLoc, dependencyStyles)
     }
     return locations;
   }
@@ -195,19 +192,19 @@ export async function install(
 
   const depObject = {};
   const importMap = {};
-  const styles = [];
+  const assets = [];
   const skipFailures = !isExplicit;
   for (const dep of arrayOfDeps) {
     try {
       const depName = getWebDependencyName(dep);
-      const { depLoc, styleLoc } = resolveWebDependency(dep, isExplicit, isOptimized);
+      const { depLoc, assetLoc } = resolveWebDependency(dep, isExplicit, isOptimized);
       if (depLoc) {
         depObject[depName] = depLoc;
         importMap[depName] = `./${depName}.js`;
         detectionResults.push([dep, true]);
       }
-      if (isExplicit && styleLoc && fs.existsSync(styleLoc)) {
-        styles.push(styleLoc);
+      if (assetLoc) {
+        assets.push(assetLoc);
         detectionResults.push([dep, true]);
       }
       spinner.text = banner + formatDetectionResults(skipFailures);
@@ -303,15 +300,9 @@ export async function install(
   };
   const packageBundle = await rollup.rollup(inputOptions);
   await packageBundle.write(outputOptions);
-  if (isExplicit) {
-    styles.forEach(style => {
-      fs.copyFile(style, `${destLoc}/${path.basename(style)}`, (err) => {
-        if (err) {
-          logError(err);
-        }
-      });
-    });
-  }
+  assets.forEach(asset => {
+    fs.copyFileSync(asset, `${destLoc}/${path.basename(asset)}`);
+  });
   fs.writeFileSync(
     path.join(destLoc, 'import-map.json'),
     JSON.stringify({imports: importMap}, undefined, 2), {encoding: 'utf8'}
