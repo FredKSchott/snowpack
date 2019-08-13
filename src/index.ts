@@ -302,10 +302,7 @@ export async function install(
   const packageBundle = await rollup.rollup(inputOptions);
   await packageBundle.write(outputOptions);
   Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
-<<<<<<< HEAD
     mkdirSync(`${destLoc}/${path.dirname(assetName)}`);
-=======
->>>>>>> a6027af... Update index.ts
     fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
   });
   fs.writeFileSync(
