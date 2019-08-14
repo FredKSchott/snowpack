@@ -4,6 +4,7 @@ import rimraf from 'rimraf';
 import chalk from 'chalk';
 import ora from 'ora';
 import yargs from 'yargs-parser';
+import { sync as mkdirSync } from 'mkdirp';
 
 import * as rollup from 'rollup';
 import rollupPluginNodeResolve from 'rollup-plugin-node-resolve';
@@ -21,6 +22,10 @@ function fromEntries(iterable: [string, string][]): {[key: string]: string} {
     .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {})
 }
 
+export interface DependencyLoc {
+  depLoc?: string,
+  assetLoc?: string
+}
 
 export interface InstallOptions {
   destLoc: string;
@@ -104,7 +109,7 @@ function detectExports(filePath: string): string[] | undefined {
  * Follows logic similar to Node's resolution logic, but using a package.json's ESM "module"
  * field instead of the CJS "main" field.
  */
-function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boolean): string {
+function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boolean): DependencyLoc {
   const nodeModulesLoc = path.join(cwd, 'node_modules', dep);
   let dependencyStats: fs.Stats;
   try {
@@ -116,7 +121,14 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
     );
   }
   if (dependencyStats.isFile()) {
-    return nodeModulesLoc;
+    const locations: DependencyLoc = {};
+    const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
+    if (isJSFile) {
+      locations.depLoc = nodeModulesLoc;
+    } else {
+      locations.assetLoc = nodeModulesLoc;
+    }
+    return locations;
   }
   if (dependencyStats.isDirectory()) {
     const dependencyManifestLoc = path.join(nodeModulesLoc, 'package.json');
@@ -138,7 +150,11 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
         chalk.italic(`See: ${chalk.underline('https://github.com/pikapkg/web#a-note-on-react')}`),
       );
     }
-    return path.join(nodeModulesLoc, foundEntrypoint);
+    const locations: DependencyLoc = {};
+    if (foundEntrypoint) {
+      locations.depLoc = path.join(nodeModulesLoc, foundEntrypoint);
+    }
+    return locations;
   }
 
   throw new Error(`Error loading "${dep}" at "${nodeModulesLoc}". (MODE=${dependencyStats.mode}) `);
@@ -175,16 +191,23 @@ export async function install(
     rimraf.sync(destLoc);
   }
 
-  const depObject = {};
+  const depObject: {[depName: string]: string} = {};
+  const assetObject: {[depName: string]: string} = {};
   const importMap = {};
   const skipFailures = !isExplicit;
   for (const dep of arrayOfDeps) {
     try {
       const depName = getWebDependencyName(dep);
-      const depLoc = resolveWebDependency(dep, isExplicit, isOptimized);
-      depObject[depName] = depLoc;
-      importMap[depName] = `./${depName}.js`;
-      detectionResults.push([dep, true]);
+      const { depLoc, assetLoc } = resolveWebDependency(dep, isExplicit, isOptimized);
+      if (depLoc) {
+        depObject[depName] = depLoc;
+        importMap[depName] = `./${depName}.js`;
+        detectionResults.push([dep, true]);
+      }
+      if (assetLoc) {
+        assetObject[depName] = assetLoc;
+        detectionResults.push([dep, true]);
+      }
       spinner.text = banner + formatDetectionResults(skipFailures);
     } catch (err) {
       detectionResults.push([dep, false]);
@@ -200,7 +223,7 @@ export async function install(
       return false;
     }
   }
-  if (Object.keys(depObject).length === 0) {
+  if (Object.keys(depObject).length === 0 && Object.keys(assetObject).length === 0) {
     logError(`No ESM dependencies found!`);
     console.log(chalk.dim(`  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`));
     return false;
@@ -278,6 +301,10 @@ export async function install(
   };
   const packageBundle = await rollup.rollup(inputOptions);
   await packageBundle.write(outputOptions);
+  Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
+    mkdirSync(`${destLoc}/${path.dirname(assetName)}`);
+    fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
+  });
   fs.writeFileSync(
     path.join(destLoc, 'import-map.json'),
     JSON.stringify({imports: importMap}, undefined, 2), {encoding: 'utf8'}
@@ -324,7 +351,7 @@ export async function cli(args: string[]) {
     );
   }
   if (spinnerHasError) {
-    // Set the exit code so that programatic usage of the CLI knows that there were errors.
+    // Set the exit code so that programmatic usage of the CLI knows that there were errors.
     spinner.warn(chalk(`Finished with warnings.`));
     process.exitCode = 1;
   }
