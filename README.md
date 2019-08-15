@@ -8,24 +8,18 @@
    <strong>@pika/web</strong> • Run npm dependencies directly in the browser. No Browserify, Webpack or import maps required.
 </p>
 
----
-
-## @pika/web brings that nostalgic, 2014 simplicity to 2019 web development:
-
 - **Simple** 💪 No bundlers required. Load [modern packages](http://pikapkg.com) natively in the browser.
 - **Flexible** 🧘‍♂️ Handles dependency trees of any size, even ones that includes legacy Common.js packages.
 - **HTTP/2 Optimized** ⚡️ No more huge JS bundles. Browsers only download dependencies when they change.
 
-@pika/web installs npm packages as single `.js` files to a new `web_modules/` directory. If your dependency exports an [ES "module" entrypoint](https://github.com/rollup/rollup/wiki/pkg.module) in its `package.json` manifest, it is supported. Even if it internally depends on other npm packages (even legacy Common.js packages) @pika/web should be able to handle it.
 
-Bundling packages on a per-module basis like this makes it easy to build a web application that runs fast and caches well. Updating a single dependency won't force a complete re-download of your web application. [More on performance below.](#performance)
+## Install
 
-> ┻┳|
-> ┳┻| _
-> ┻┳| •.•) 💬 *"Tip: Use [pikapkg.com](https://www.pikapkg.com) to find modern, web-ready packages on npm"*
-> ┳┻|⊂ﾉ
-> ┻┳|
-
+```bash
+npx @pika/web                           # Run once.
+npm install -g @pika/cli && pika web    # Run multiple.
+npm install --dev @pika/web             # Optional: Install locally to use "pika web" in any package.json scripts
+```
 
 ## Quickstart
 
@@ -46,6 +40,15 @@ Bundling packages on a per-module basis like this makes it easy to build a web a
 # Optional: ...and then add a "prepare" script to your package.json to have it run after every install:
     {"scripts": {"prepare": "pika install"}}
 ```
+
+
+@pika/web installs npm packages as single `.js` files to a new `web_modules/` directory. If your dependency exports an [ES "module" entrypoint](https://github.com/rollup/rollup/wiki/pkg.module) in its `package.json` manifest, it is supported. Even if it internally depends on other npm packages (even legacy Common.js packages) @pika/web should be able to handle it.
+
+Bundling packages on a per-module basis like this makes it easy to build a web application that runs fast and caches well. Updating a single dependency won't force a complete re-download of your web application. [More on performance below.](#performance)
+
+> ┳┻| _  
+> ┻┳| •.•) 💬 *"Tip: Use [pikapkg.com](https://www.pikapkg.com) to find modern, web-ready packages on npm"*  
+> ┳┻|⊂ﾉ
 
 
 ## Examples
