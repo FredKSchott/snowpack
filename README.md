@@ -26,13 +26,16 @@ npm install --dev @pika/web             # Optional: Install locally to use "pika
 ```diff
 # 1. Run @pika/web in your project:
     $ npx @pika/web
+    
 # 2. Replace all NPM package imports in your web app with web-native URLs:
 -   import { createElement, Component } from "preact";
 +   import { createElement, Component } from "/web_modules/preact.js";
 -   import htm from "htm";
 +   import htm from "/web_modules/htm.js";
+
 # 3. Run your code directly in the browser and see the magic!
     ✨ ~(‾▿‾~)(~‾▿‾)~ ✨
+
 # Optional: Using Babel? Skip "Step 2" and let our plugin rewrite your imports automatically:
     echo '{"plugins": [["@pika/web/assets/babel-plugin.js"]]}' > .babelrc
 # Optional: Install @pika/web locally so that it runs faster next time...
