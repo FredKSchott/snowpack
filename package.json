@@ -41,6 +41,7 @@
     "@pika/cli": "latest",
     "chalk": "^2.4.2",
     "is-builtin-module": "^3.0.0",
+    "mkdirp": "^0.5.1",
     "ora": "^3.1.0",
     "rimraf": "^2.6.3",
     "rollup": "^1.2.3",
@@ -58,6 +59,7 @@
     "@pika/plugin-copy-assets": "^0.6.0",
     "@pika/plugin-simple-bin": "^0.6.0",
     "@pika/plugin-ts-standard-pkg": "^0.6.0",
+    "@types/mkdirp": "^0.5.2",
     "prettier": "^1.16.4",
     "typescript": "^3.5.1"
   }

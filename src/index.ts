@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import rimraf from 'rimraf';
+import mkdirp from 'mkdirp';
 import chalk from 'chalk';
 import ora from 'ora';
 import yargs from 'yargs-parser';
-import { sync as mkdirSync } from 'mkdirp';
 
 import * as rollup from 'rollup';
 import rollupPluginNodeResolve from 'rollup-plugin-node-resolve';
@@ -23,8 +23,8 @@ function fromEntries(iterable: [string, string][]): {[key: string]: string} {
 }
 
 export interface DependencyLoc {
-  depLoc?: string,
-  assetLoc?: string
+  type: 'JS' | 'ASSET';
+  loc: string;
 }
 
 export interface InstallOptions {
@@ -121,14 +121,11 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
     );
   }
   if (dependencyStats.isFile()) {
-    const locations: DependencyLoc = {};
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
-    if (isJSFile) {
-      locations.depLoc = nodeModulesLoc;
-    } else {
-      locations.assetLoc = nodeModulesLoc;
-    }
-    return locations;
+    return {
+      type: isJSFile ? 'JS' : 'ASSET',
+      loc: nodeModulesLoc,
+    };
   }
   if (dependencyStats.isDirectory()) {
     const dependencyManifestLoc = path.join(nodeModulesLoc, 'package.json');
@@ -150,11 +147,10 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
         chalk.italic(`See: ${chalk.underline('https://github.com/pikapkg/web#a-note-on-react')}`),
       );
     }
-    const locations: DependencyLoc = {};
-    if (foundEntrypoint) {
-      locations.depLoc = path.join(nodeModulesLoc, foundEntrypoint);
+    return {
+      type: "JS",
+      loc: path.join(nodeModulesLoc, foundEntrypoint),
     }
-    return locations;
   }
 
   throw new Error(`Error loading "${dep}" at "${nodeModulesLoc}". (MODE=${dependencyStats.mode}) `);
@@ -198,14 +194,14 @@ export async function install(
   for (const dep of arrayOfDeps) {
     try {
       const depName = getWebDependencyName(dep);
-      const { depLoc, assetLoc } = resolveWebDependency(dep, isExplicit, isOptimized);
-      if (depLoc) {
+      const { type: depType, loc: depLoc } = resolveWebDependency(dep, isExplicit, isOptimized);
+      if (depType === 'JS') {
         depObject[depName] = depLoc;
         importMap[depName] = `./${depName}.js`;
         detectionResults.push([dep, true]);
       }
-      if (assetLoc) {
-        assetObject[depName] = assetLoc;
+      if (depType === 'ASSET') {
+        assetObject[depName] = depLoc;
         detectionResults.push([dep, true]);
       }
       spinner.text = banner + formatDetectionResults(skipFailures);
@@ -302,7 +298,7 @@ export async function install(
   const packageBundle = await rollup.rollup(inputOptions);
   await packageBundle.write(outputOptions);
   Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
-    mkdirSync(`${destLoc}/${path.dirname(assetName)}`);
+    mkdirp.sync(`${destLoc}/${assetName}`);
     fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
   });
   fs.writeFileSync(
