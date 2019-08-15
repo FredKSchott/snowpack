@@ -298,7 +298,7 @@ export async function install(
   const packageBundle = await rollup.rollup(inputOptions);
   await packageBundle.write(outputOptions);
   Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
-    mkdirp.sync(`${destLoc}/${assetName}`);
+    mkdirp.sync(path.dirname(`${destLoc}/${assetName}`));
     fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
   });
   fs.writeFileSync(
