@@ -16,9 +16,9 @@
 ## Install
 
 ```bash
-npx @pika/web                           # Run once.
-npm install -g @pika/cli && pika web    # Run multiple.
-npm install --dev @pika/web             # Optional: Install locally to use "pika web" in any package.json scripts
+npx @pika/web                            # Run once.
+npm install -g @pika/cli && pika install # Run multiple.
+npm install --dev @pika/web              # Optional: Install locally to use "pika install" in any package.json scripts
 ```
 
 ## Quickstart
