@@ -40,6 +40,7 @@
     "@babel/preset-env": "^7.5.5",
     "@pika/cli": "latest",
     "chalk": "^2.4.2",
+    "glob": "^7.1.4",
     "is-builtin-module": "^3.0.0",
     "mkdirp": "^0.5.1",
     "ora": "^3.1.0",
