@@ -171,24 +171,23 @@ export async function install(
 ) {
   const knownNamedExports = {...namedExports};
   const remotePackageMap = fromEntries(remotePackages);
-  const globDependencies = arrayOfDeps.filter(dep => glob.hasMagic(dep));
-  if (globDependencies.length) {
-    globDependencies.forEach(dep => {
-      const indexOfDep = arrayOfDeps.indexOf(dep);
-      arrayOfDeps.splice(indexOfDep, 1);
-    });
-    const globResults = globDependencies
-      .map(dep => path.join(cwd, 'node_modules', dep))
-      .map(dep => glob.sync(dep))
-      .flat()
-      .map(dep => path.relative(`${cwd}/node_modules`, dep)); 
-    arrayOfDeps.push(...globResults);
-  }
+  const depList: Set<string> = new Set();
+  arrayOfDeps.forEach(dep => {
+    if (!glob.hasMagic(dep)) {
+      depList.add(dep);
+    } else {
+      const globLoc = path.join(cwd, 'node_modules', dep);
+      glob.sync(globLoc).forEach(globDep => {
+        const depPath = path.relative(`${cwd}/node_modules`, globDep);
+        depList.add(depPath);
+      });
+    }
+  });
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
     knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
   }
 
-  if (arrayOfDeps.length === 0) {
+  if (depList.size === 0) {
     logError('no dependencies found.');
     return;
   }
@@ -205,7 +204,7 @@ export async function install(
   const assetObject: {[depName: string]: string} = {};
   const importMap = {};
   const skipFailures = !isExplicit;
-  for (const dep of arrayOfDeps) {
+  for (const dep of depList) {
     try {
       const depName = getWebDependencyName(dep);
       const { type: depType, loc: depLoc } = resolveWebDependency(dep, isExplicit, isOptimized);
