@@ -111,10 +111,10 @@ function detectExports(filePath: string): string[] | undefined {
  * field instead of the CJS "main" field.
  */
 function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boolean): DependencyLoc {
-  const nodeModulesLoc = path.join(cwd, 'node_modules', dep);
+  const depNodeModulesLoc = path.join(cwd, 'node_modules', dep);
   let dependencyStats: fs.Stats;
   try {
-    dependencyStats = fs.statSync(nodeModulesLoc);
+    dependencyStats = fs.statSync(depNodeModulesLoc);
   } catch (err) {
     throw new ErrorWithHint(
       `"${dep}" not found in your node_modules directory.`,
@@ -125,11 +125,11 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
     return {
       type: isJSFile ? 'JS' : 'ASSET',
-      loc: nodeModulesLoc,
+      loc: depNodeModulesLoc,
     };
   }
   if (dependencyStats.isDirectory()) {
-    const dependencyManifestLoc = path.join(nodeModulesLoc, 'package.json');
+    const dependencyManifestLoc = path.join(depNodeModulesLoc, 'package.json');
     const manifest = require(dependencyManifestLoc);
     let foundEntrypoint: string = manifest.module;
     // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
@@ -150,11 +150,11 @@ function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boo
     }
     return {
       type: "JS",
-      loc: path.join(nodeModulesLoc, foundEntrypoint),
+      loc: path.join(depNodeModulesLoc, foundEntrypoint),
     }
   }
 
-  throw new Error(`Error loading "${dep}" at "${nodeModulesLoc}". (MODE=${dependencyStats.mode}) `);
+  throw new Error(`Error loading "${dep}" at "${depNodeModulesLoc}". (MODE=${dependencyStats.mode}) `);
 }
 
 /**
@@ -169,6 +169,7 @@ export async function install(
   arrayOfDeps: string[],
   {isCleanInstall, destLoc, hasBrowserlistConfig, isExplicit, isStrict, isOptimized, sourceMap, namedExports, remoteUrl, remotePackages}: InstallOptions,
 ) {
+  const nodeModulesLoc = path.join(cwd, 'node_modules');
   const knownNamedExports = {...namedExports};
   const remotePackageMap = fromEntries(remotePackages);
   const depList: Set<string> = new Set();
@@ -176,11 +177,7 @@ export async function install(
     if (!glob.hasMagic(dep)) {
       depList.add(dep);
     } else {
-      const globLoc = path.join(cwd, 'node_modules', dep);
-      glob.sync(globLoc).forEach(globDep => {
-        const depPath = path.relative(`${cwd}/node_modules`, globDep);
-        depList.add(depPath);
-      });
+      glob.sync(dep, {cwd: nodeModulesLoc}).forEach(depList.add);
     }
   });
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
