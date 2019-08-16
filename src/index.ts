@@ -3,6 +3,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import mkdirp from 'mkdirp';
 import chalk from 'chalk';
+import glob from 'glob';
 import ora from 'ora';
 import yargs from 'yargs-parser';
 
@@ -170,6 +171,19 @@ export async function install(
 ) {
   const knownNamedExports = {...namedExports};
   const remotePackageMap = fromEntries(remotePackages);
+  const globDependencies = arrayOfDeps.filter(dep => glob.hasMagic(dep));
+  if (globDependencies.length) {
+    globDependencies.forEach(dep => {
+      const indexOfDep = arrayOfDeps.indexOf(dep);
+      arrayOfDeps.splice(indexOfDep, 1);
+    });
+    const globResults = globDependencies
+      .map(dep => path.join(cwd, 'node_modules', dep))
+      .map(dep => glob.sync(dep))
+      .flat()
+      .map(dep => path.relative(`${cwd}/node_modules`, dep)); 
+    arrayOfDeps.push(...globResults);
+  }
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
     knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
   }
