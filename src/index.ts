@@ -177,7 +177,7 @@ export async function install(
     if (!glob.hasMagic(dep)) {
       depList.add(dep);
     } else {
-      glob.sync(dep, {cwd: nodeModulesLoc}).forEach(depList.add);
+      glob.sync(dep, {cwd: nodeModulesLoc, nodir: true}).forEach((f) => depList.add(f));
     }
   });
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
