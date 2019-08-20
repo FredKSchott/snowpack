@@ -6,11 +6,12 @@ function getWebDependencyName(dep) {
 
 function rewriteImport(imp, dir, shouldAddMissingExtension) {
   const isSourceImport = imp.startsWith('/') || imp.startsWith('.')|| imp.startsWith('\\');
+  const isRemoteimport = imp.startsWith('http://') || imp.startsWith('https://');
   dir = dir || 'web_modules';
-  if (!isSourceImport) {
+  if (!isSourceImport && !isRemoteimport) {
     return path.posix.join('/', dir, `${getWebDependencyName(imp)}.js`);
   }
-  if (shouldAddMissingExtension && !path.extname(imp)) {
+  if (!isRemoteimport && shouldAddMissingExtension && !path.extname(imp)) {
     return imp + '.js';
   }
   return imp;
