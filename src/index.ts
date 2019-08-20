@@ -301,7 +301,7 @@ export async function install(
   const outputOptions = {
     dir: destLoc,
     format: 'esm' as 'esm',
-    sourcemap: sourceMap,
+    sourcemap: sourceMap === undefined ? isOptimized : sourceMap,
     exports: 'named' as 'named',
     chunkFileNames: 'common/[name]-[hash].js',
   };
@@ -319,7 +319,7 @@ export async function install(
 }
 
 export async function cli(args: string[]) {
-  const {help, sourceMap = true, optimize = false, strict = false, clean = false, dest = 'web_modules', remoteUrl = 'https://cdn.pika.dev', remotePackage: remotePackages = []} = yargs(args);
+  const {help, sourceMap, optimize = false, strict = false, clean = false, dest = 'web_modules', remoteUrl = 'https://cdn.pika.dev', remotePackage: remotePackages = []} = yargs(args);
   const destLoc = path.join(cwd, dest);
 
   if (help) {
