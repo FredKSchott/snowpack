@@ -229,92 +229,95 @@ export async function install(
       return false;
     }
   }
+
   if (Object.keys(depObject).length === 0 && Object.keys(assetObject).length === 0) {
     logError(`No ESM dependencies found!`);
     console.log(chalk.dim(`  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`));
     return false;
   }
 
-  const inputOptions = {
-    input: depObject,
-    plugins: [
-      !isStrict &&
-        rollupPluginReplace({
-          'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
-        }),
-      remotePackages.length > 0 && {
-        name: 'pika:peer-dependency-resolver',
-        resolveId (source: string) {
-          if (remotePackageMap[source]) {
-            let urlSourcePath = source;
-            // NOTE(@fks): This is really Pika CDN specific, but no one else should be using this option.
-            if (source === 'react' || source === 'react-dom') {
-              urlSourcePath = '_/' + source;
+  if (Object.keys(depObject).length > 0) {
+    const inputOptions = {
+      input: depObject,
+      plugins: [
+        !isStrict &&
+          rollupPluginReplace({
+            'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
+          }),
+        remotePackages.length > 0 && {
+          name: 'pika:peer-dependency-resolver',
+          resolveId (source: string) {
+            if (remotePackageMap[source]) {
+              let urlSourcePath = source;
+              // NOTE(@fks): This is really Pika CDN specific, but no one else should be using this option.
+              if (source === 'react' || source === 'react-dom') {
+                urlSourcePath = '_/' + source;
+              }
+              return {
+                id: `${remoteUrl}/${urlSourcePath}/${remotePackageMap[source]}`,
+                  external: true,
+                  isExternal: true
+              };
             }
-            return {
-              id: `${remoteUrl}/${urlSourcePath}/${remotePackageMap[source]}`,
-                external: true,
-                isExternal: true
-            };
-          }
-          return null;
+            return null;
+          },
+          load ( id ) { return null; }
         },
-        load ( id ) { return null; }
-      },
-      rollupPluginNodeResolve({
-        mainFields: ['browser', 'module', !isStrict && 'main'].filter(Boolean),
-        modulesOnly: isStrict, // Default: false
-        extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
-        // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
-        preferBuiltins: false, // Default: true
-      }),
-      !isStrict &&
-        rollupPluginJson({
-          preferConst: true,
-          indent: '  ',
+        rollupPluginNodeResolve({
+          mainFields: ['browser', 'module', !isStrict && 'main'].filter(Boolean),
+          modulesOnly: isStrict, // Default: false
+          extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
+          // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
+          preferBuiltins: false, // Default: true
         }),
-      !isStrict &&
-        rollupPluginCommonjs({
-          extensions: ['.js', '.cjs'], // Default: [ '.js' ]
-          namedExports: knownNamedExports
+        !isStrict &&
+          rollupPluginJson({
+            preferConst: true,
+            indent: '  ',
+          }),
+        !isStrict &&
+          rollupPluginCommonjs({
+            extensions: ['.js', '.cjs'], // Default: [ '.js' ]
+            namedExports: knownNamedExports
+          }),
+        rollupPluginBabel({
+          compact: false,
+          babelrc: false,
+          presets: [[babelPresetEnv, { modules: false, targets: hasBrowserlistConfig ? undefined : ">0.75%, not ie 11, not op_mini all" }]],
         }),
-      rollupPluginBabel({
-        compact: false,
-        babelrc: false,
-        presets: [[babelPresetEnv, { modules: false, targets: hasBrowserlistConfig ? undefined : ">0.75%, not ie 11, not op_mini all" }]],
-      }),
-      !!isOptimized && rollupPluginTerser(),
-    ],
-    onwarn: ((warning, warn) => {
-      if (warning.code === 'UNRESOLVED_IMPORT') {
-        logError(`'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`);
-        if (isNodeBuiltin(warning.source)) {
-          console.log(chalk.dim(`  '${warning.source}' is a Node.js builtin module that won't exist on the web. You can find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`));
-        } else {
-          console.log(chalk.dim(`  Make sure that the package is installed and that the file exists.`));
+        !!isOptimized && rollupPluginTerser(),
+      ],
+      onwarn: ((warning, warn) => {
+        if (warning.code === 'UNRESOLVED_IMPORT') {
+          logError(`'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`);
+          if (isNodeBuiltin(warning.source)) {
+            console.log(chalk.dim(`  '${warning.source}' is a Node.js builtin module that won't exist on the web. You can find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`));
+          } else {
+            console.log(chalk.dim(`  Make sure that the package is installed and that the file exists.`));
+          }
+          return;
         }
-        return;
-      }
-      warn(warning);
-    }) as any
-  };
-  const outputOptions = {
-    dir: destLoc,
-    format: 'esm' as 'esm',
-    sourcemap: sourceMap === undefined ? isOptimized : sourceMap,
-    exports: 'named' as 'named',
-    chunkFileNames: 'common/[name]-[hash].js',
-  };
-  const packageBundle = await rollup.rollup(inputOptions);
-  await packageBundle.write(outputOptions);
+        warn(warning);
+      }) as any
+    };
+    const outputOptions = {
+      dir: destLoc,
+      format: 'esm' as 'esm',
+      sourcemap: sourceMap === undefined ? isOptimized : sourceMap,
+      exports: 'named' as 'named',
+      chunkFileNames: 'common/[name]-[hash].js',
+    };
+    const packageBundle = await rollup.rollup(inputOptions);
+    await packageBundle.write(outputOptions);
+    fs.writeFileSync(
+      path.join(destLoc, 'import-map.json'),
+      JSON.stringify({imports: importMap}, undefined, 2), {encoding: 'utf8'}
+    );
+  }
   Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
     mkdirp.sync(path.dirname(`${destLoc}/${assetName}`));
     fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
   });
-  fs.writeFileSync(
-    path.join(destLoc, 'import-map.json'),
-    JSON.stringify({imports: importMap}, undefined, 2), {encoding: 'utf8'}
-  );
   return true;
 }
 
