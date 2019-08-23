@@ -12,6 +12,7 @@
     "access": "public"
   },
   "scripts": {
+    "format": "prettier --write \"src/**/*.ts\"",
     "build": "pika build",
     "publish": "pika publish",
     "version": "npm run build"
