@@ -6,6 +6,7 @@ import chalk from 'chalk';
 import glob from 'glob';
 import ora from 'ora';
 import yargs from 'yargs-parser';
+import resolveFrom from 'resolve-from';
 
 import * as rollup from 'rollup';
 import rollupPluginNodeResolve from 'rollup-plugin-node-resolve';
@@ -86,16 +87,16 @@ class ErrorWithHint extends Error {
 
 // Add common, well-used non-esm packages here so that Rollup doesn't die trying to analyze them.
 const PACKAGES_TO_AUTO_DETECT_EXPORTS = [
-  path.join('node_modules', 'react', 'index.js'),
-  path.join('node_modules', 'react-dom', 'index.js'),
-  path.join('node_modules', 'react-is', 'index.js'),
-  path.join('node_modules', 'prop-types', 'index.js'),
-  path.join('node_modules', 'rxjs', 'Rx.js'),
+  path.join('react', 'index.js'),
+  path.join('react-dom', 'index.js'),
+  path.join('react-is', 'index.js'),
+  path.join('prop-types', 'index.js'),
+  path.join('rxjs', 'Rx.js'),
 ];
 
 function detectExports(filePath: string): string[] | undefined {
-  const fileLoc = path.join(cwd, filePath);
   try {
+    const fileLoc = resolveFrom(cwd, filePath);
     if (fs.existsSync(fileLoc)) {
       return Object.keys(require(fileLoc)).filter((e) => (e[0] !== '_'));
     }
@@ -111,50 +112,39 @@ function detectExports(filePath: string): string[] | undefined {
  * field instead of the CJS "main" field.
  */
 function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boolean): DependencyLoc {
-  const depNodeModulesLoc = path.join(cwd, 'node_modules', dep);
-  let dependencyStats: fs.Stats;
-  try {
-    dependencyStats = fs.statSync(depNodeModulesLoc);
-  } catch (err) {
-    throw new ErrorWithHint(
-      `"${dep}" not found in your node_modules directory.`,
-      chalk.italic(`Did you remember to run npm install?`),
-    );
-  }
-  if (dependencyStats.isFile()) {
+  // if the path includes a file extension, just use it
+  if (path.extname(dep)) {
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
     return {
       type: isJSFile ? 'JS' : 'ASSET',
-      loc: depNodeModulesLoc,
+      loc: resolveFrom(cwd, dep),
     };
   }
-  if (dependencyStats.isDirectory()) {
-    const dependencyManifestLoc = path.join(depNodeModulesLoc, 'package.json');
-    const manifest = require(dependencyManifestLoc);
-    let foundEntrypoint: string = manifest.module;
-    // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
-    if (!foundEntrypoint && isExplicit) {
-      foundEntrypoint = manifest.main || 'index.js';
-    }
-    if (!foundEntrypoint) {
-      throw new ErrorWithHint(
-        `dependency "${dep}" has no native "module" entrypoint.`,
-        chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`),
-      );
-    }
-    if (dep === 'react' && foundEntrypoint === 'index.js') {
-      throw new ErrorWithHint(
-        `dependency "react" has no native "module" entrypoint.`,
-        chalk.italic(`See: ${chalk.underline('https://github.com/pikapkg/web#a-note-on-react')}`),
-      );
-    }
-    return {
-      type: "JS",
-      loc: path.join(depNodeModulesLoc, foundEntrypoint),
-    }
+
+  const depManifestLoc = resolveFrom(cwd, `${dep}/package.json`);
+  const depManifest = require(depManifestLoc);
+  let foundEntrypoint: string = depManifest.module;
+  // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
+  if (!foundEntrypoint && isExplicit) {
+    foundEntrypoint = depManifest.main || 'index.js';
+  }
+  if (!foundEntrypoint) {
+    throw new ErrorWithHint(
+      `dependency "${dep}" has no native "module" entrypoint.`,
+      chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`),
+    );
+  }
+  if (dep === 'react' && foundEntrypoint === 'index.js') {
+    throw new ErrorWithHint(
+      `dependency "react" has no native "module" entrypoint.`,
+      chalk.italic(`See: ${chalk.underline('https://github.com/pikapkg/web#a-note-on-react')}`),
+    );
+  }
+  return {
+    type: "JS",
+    loc: path.join(depManifestLoc, '..', foundEntrypoint),
   }
 
-  throw new Error(`Error loading "${dep}" at "${depNodeModulesLoc}". (MODE=${dependencyStats.mode}) `);
 }
 
 /**
