@@ -81,7 +81,8 @@ Additionally, @pika/web runs all dependencies through Babel via `@preset/env` to
 
 > *Note: All package.json options are scoped under the `"@pika/web"` property.*
 
-* `"webDependencies"`: You can define an optional whitelist of "webDependencies" in your `package.json` manifest. This is useful if your entire "dependencies" object is too large, or if you'd like to install dependencies by file path.
+* `"webDependencies"`: (Recommended) Configure which packages to install with @pika/web. Without this, @pika/web will just try to install every package in your "dependencies" config. That behavior is great for getting started but it won't warn you if an expected package fails to install. 
+* `"namedExports"`: (Optional) If needed, you can explicitly define named exports for any dependency. You should only use this if you're getting `"'X' is not exported by Y"` errors without it. See [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs#usage) for more info.
 
 ```js
   "dependencies": { "htm": "^1.0.0", "preact": "^8.0.0", /* ... */ },
@@ -91,7 +92,7 @@ Additionally, @pika/web runs all dependencies through Babel via `@preset/env` to
       "preact",
       "preact/hooks", // A package within a package
       "unistore/full/preact.es.js" // An ESM file within a package
-    ]
+    ],
   },
 ```
 
