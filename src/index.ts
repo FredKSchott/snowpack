@@ -34,6 +34,7 @@ export interface InstallOptions {
   isCleanInstall?: boolean;
   isStrict?: boolean;
   isOptimized?: boolean;
+  isBabel?: boolean;
   hasBrowserlistConfig?: boolean;
   isExplicit?: boolean;
   namedExports?: {[filepath: string]: string[]};
@@ -54,7 +55,8 @@ ${chalk.bold(`@pika/web`)} - Install npm dependencies to run natively on the web
 ${chalk.bold('Options:')}
     --dest              Specify destination directory (default: "web_modules/").
     --clean             Clear out the destination directory before install.
-    --optimize          Minify installed dependencies.
+    --optimize          Transpile, minify, and optimize installed dependencies for production.
+    --babel             Transpile installed dependencies. Also enabled with "--optimize".
     --strict            Only install pure ESM dependency trees. Fail if a CJS module is encountered.
     --no-source-map     Skip emitting source map files (.js.map) into dest
 ${chalk.bold('Advanced:')}
@@ -111,7 +113,7 @@ function detectExports(filePath: string): string[] | undefined {
  * Follows logic similar to Node's resolution logic, but using a package.json's ESM "module"
  * field instead of the CJS "main" field.
  */
-function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boolean): DependencyLoc {
+function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
   // if the path includes a file extension, just use it
   if (path.extname(dep)) {
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
@@ -157,7 +159,7 @@ function getWebDependencyName(dep: string): string {
 
 export async function install(
   arrayOfDeps: string[],
-  {isCleanInstall, destLoc, hasBrowserlistConfig, isExplicit, isStrict, isOptimized, sourceMap, namedExports, remoteUrl, remotePackages}: InstallOptions,
+  {isCleanInstall, destLoc, hasBrowserlistConfig, isExplicit, isStrict, isBabel, isOptimized, sourceMap, namedExports, remoteUrl, remotePackages}: InstallOptions,
 ) {
   const nodeModulesLoc = path.join(cwd, 'node_modules');
   const knownNamedExports = {...namedExports};
@@ -194,7 +196,7 @@ export async function install(
   for (const dep of depList) {
     try {
       const depName = getWebDependencyName(dep);
-      const { type: depType, loc: depLoc } = resolveWebDependency(dep, isExplicit, isOptimized);
+      const { type: depType, loc: depLoc } = resolveWebDependency(dep, isExplicit);
       if (depType === 'JS') {
         depObject[depName] = depLoc;
         importMap[depName] = `./${depName}.js`;
@@ -268,7 +270,7 @@ export async function install(
           extensions: ['.js', '.cjs'], // Default: [ '.js' ]
           namedExports: knownNamedExports
         }),
-      rollupPluginBabel({
+      !!isBabel && rollupPluginBabel({
         compact: false,
         babelrc: false,
         presets: [[babelPresetEnv, { modules: false, targets: hasBrowserlistConfig ? undefined : ">0.75%, not ie 11, not op_mini all" }]],
@@ -309,7 +311,7 @@ export async function install(
 }
 
 export async function cli(args: string[]) {
-  const {help, sourceMap, optimize = false, strict = false, clean = false, dest = 'web_modules', remoteUrl = 'https://cdn.pika.dev', remotePackage: remotePackages = []} = yargs(args);
+  const {help, sourceMap, babel = false, optimize = false, strict = false, clean = false, dest = 'web_modules', remoteUrl = 'https://cdn.pika.dev', remotePackage: remotePackages = []} = yargs(args);
   const destLoc = path.join(cwd, dest);
 
   if (help) {
@@ -331,6 +333,7 @@ export async function cli(args: string[]) {
     namedExports,
     isExplicit: doesWhitelistExist,
     isStrict: strict,
+    isBabel: babel || optimize,
     isOptimized: optimize,
     sourceMap,
     remoteUrl,
