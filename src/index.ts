@@ -323,7 +323,7 @@ export async function install(
 
 export async function cli(args: string[]) {
   const {help, sourceMap, optimize = false, strict = false, clean = false, dest = 'web_modules', remoteUrl = 'https://cdn.pika.dev', remotePackage: remotePackages = []} = yargs(args);
-  const destLoc = path.join(cwd, dest);
+  const destLoc = path.resolve(cwd, dest);
 
   if (help) {
     printHelp();
