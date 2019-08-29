@@ -11,7 +11,8 @@
 - TypeScript (using Preact): [[Source]](https://glitch.com/edit/#!/pika-web-ts-preact) [[Live Demo]](https://pika-web-ts-preact.glitch.me/)
 - Vue (using httpVueLoader): [[Source]](https://glitch.com/edit/#!/pika-web-vue-httpvueloader) [[Live Demo]](https://pika-web-vue-httpvueloader.glitch.me/) [By: [@thiagoabreu](https://github.com/thiagoabreu)]
 - PWA-Starter-Kit (lit-html + Redux): [[Source]](https://github.com/Polymer/pwa-starter-kit/issues/339)
-- LitElement + lit-html PWA: [[Source]](https://github.com/thepassle/reddit-pwa) [[Live Demo]](https://angry-turing-4769b3.netlify.com/)
+- LitElement + lit-html PWA: [[Source]](https://github.com/thepassle/reddit-pwa) [[Live Demo]](https://angry-turing-4769b3.netlify.com/)  
+- Terminal Homepage (Preact + Typescript + Babel): [[Source]](https://github.com/ndom91/terminal-homepage) [[Live Demo]](https://termy.netlify.com)  
 
 
 
