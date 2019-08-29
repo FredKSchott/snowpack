@@ -35,6 +35,7 @@ npm install --dev @pika/web              # Optional: Install locally to use "pik
 
 # 3. Run your code directly in the browser and see the magic!
     ✨ ~(‾▿‾~)(~‾▿‾)~ ✨
+    
 # Optional: Using Babel? Skip "Step 2" and let our plugin rewrite your imports automatically:
     echo '{"plugins": [["@pika/web/assets/babel-plugin.js"]]}' > .babelrc
 # Optional: Install @pika/web locally so that it runs faster next time...
