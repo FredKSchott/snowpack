@@ -20,8 +20,7 @@ import isNodeBuiltin from 'is-builtin-module';
 
 // Having trouble getting this ES2019 feature to compile, so using this ponyfill for now.
 function fromEntries(iterable: [string, string][]): {[key: string]: string} {
-  return [...iterable]
-    .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {})
+  return [...iterable].reduce((obj, {0: key, 1: val}) => Object.assign(obj, {[key]: val}), {});
 }
 
 export interface DependencyLoc {
@@ -50,7 +49,8 @@ let spinner = ora(banner);
 let spinnerHasError = false;
 
 function printHelp() {
-  console.log(`
+  console.log(
+    `
 ${chalk.bold(`@pika/web`)} - Install npm dependencies to run natively on the web.
 ${chalk.bold('Options:')}
     --dest              Specify destination directory (default: "web_modules/").
@@ -63,7 +63,8 @@ ${chalk.bold('Advanced:')}
     --remote-package    "name,version" pair(s) of packages that should be left unbundled and referenced remotely.
                         Example: "foo,v4" will rewrite all imports of "foo" to "{remoteUrl}/foo/v4" (see --remote-url).
     --remote-url        Configures the domain where remote imports point to (default: "https://cdn.pika.dev")
-    `.trim());
+    `.trim(),
+  );
 }
 
 function formatDetectionResults(skipFailures): string {
@@ -100,7 +101,7 @@ function detectExports(filePath: string): string[] | undefined {
   try {
     const fileLoc = resolveFrom(cwd, filePath);
     if (fs.existsSync(fileLoc)) {
-      return Object.keys(require(fileLoc)).filter((e) => (e[0] !== '_'));
+      return Object.keys(require(fileLoc)).filter(e => e[0] !== '_');
     }
   } catch (err) {
     // ignore
@@ -133,7 +134,9 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
   if (!foundEntrypoint) {
     throw new ErrorWithHint(
       `dependency "${dep}" has no native "module" entrypoint.`,
-      chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`),
+      chalk.italic(
+        `Tip: Find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`,
+      ),
     );
   }
   if (dep === 'react' && foundEntrypoint === 'index.js') {
@@ -143,10 +146,9 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
     );
   }
   return {
-    type: "JS",
+    type: 'JS',
     loc: path.join(depManifestLoc, '..', foundEntrypoint),
-  }
-
+  };
 }
 
 /**
@@ -159,7 +161,19 @@ function getWebDependencyName(dep: string): string {
 
 export async function install(
   arrayOfDeps: string[],
-  {isCleanInstall, destLoc, hasBrowserlistConfig, isExplicit, isStrict, isBabel, isOptimized, sourceMap, namedExports, remoteUrl, remotePackages}: InstallOptions,
+  {
+    isCleanInstall,
+    destLoc,
+    hasBrowserlistConfig,
+    isExplicit,
+    isStrict,
+    isBabel,
+    isOptimized,
+    sourceMap,
+    namedExports,
+    remoteUrl,
+    remotePackages,
+  }: InstallOptions,
 ) {
   const nodeModulesLoc = path.join(cwd, 'node_modules');
   const knownNamedExports = {...namedExports};
@@ -169,7 +183,7 @@ export async function install(
     if (!glob.hasMagic(dep)) {
       depList.add(dep);
     } else {
-      glob.sync(dep, {cwd: nodeModulesLoc, nodir: true}).forEach((f) => depList.add(f));
+      glob.sync(dep, {cwd: nodeModulesLoc, nodir: true}).forEach(f => depList.add(f));
     }
   });
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
@@ -196,7 +210,7 @@ export async function install(
   for (const dep of depList) {
     try {
       const depName = getWebDependencyName(dep);
-      const { type: depType, loc: depLoc } = resolveWebDependency(dep, isExplicit);
+      const {type: depType, loc: depLoc} = resolveWebDependency(dep, isExplicit);
       if (depType === 'JS') {
         depObject[depName] = depLoc;
         importMap[depName] = `./${depName}.js`;
@@ -224,7 +238,13 @@ export async function install(
 
   if (Object.keys(depObject).length === 0 && Object.keys(assetObject).length === 0) {
     logError(`No ESM dependencies found!`);
-    console.log(chalk.dim(`  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`));
+    console.log(
+      chalk.dim(
+        `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${chalk.underline(
+          'https://www.pika.dev',
+        )}`,
+      ),
+    );
     return false;
   }
 
@@ -238,7 +258,7 @@ export async function install(
           }),
         remotePackages.length > 0 && {
           name: 'pika:peer-dependency-resolver',
-          resolveId (source: string) {
+          resolveId(source: string) {
             if (remotePackageMap[source]) {
               let urlSourcePath = source;
               // NOTE(@fks): This is really Pika CDN specific, but no one else should be using this option.
@@ -247,13 +267,15 @@ export async function install(
               }
               return {
                 id: `${remoteUrl}/${urlSourcePath}/${remotePackageMap[source]}`,
-                  external: true,
-                  isExternal: true
+                external: true,
+                isExternal: true,
               };
             }
             return null;
           },
-          load ( id ) { return null; }
+          load(id) {
+            return null;
+          },
         },
         rollupPluginNodeResolve({
           mainFields: ['browser', 'module', !isStrict && 'main'].filter(Boolean),
@@ -270,27 +292,48 @@ export async function install(
         !isStrict &&
           rollupPluginCommonjs({
             extensions: ['.js', '.cjs'], // Default: [ '.js' ]
-            namedExports: knownNamedExports
+            namedExports: knownNamedExports,
           }),
-          !!isBabel && rollupPluginBabel({
-          compact: false,
-          babelrc: false,
-          presets: [[babelPresetEnv, { modules: false, targets: hasBrowserlistConfig ? undefined : ">0.75%, not ie 11, not op_mini all" }]],
-        }),
+        !!isBabel &&
+          rollupPluginBabel({
+            compact: false,
+            babelrc: false,
+            presets: [
+              [
+                babelPresetEnv,
+                {
+                  modules: false,
+                  targets: hasBrowserlistConfig ? undefined : '>0.75%, not ie 11, not op_mini all',
+                },
+              ],
+            ],
+          }),
         !!isOptimized && rollupPluginTerser(),
       ],
       onwarn: ((warning, warn) => {
         if (warning.code === 'UNRESOLVED_IMPORT') {
-          logError(`'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`);
+          logError(
+            `'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`,
+          );
           if (isNodeBuiltin(warning.source)) {
-            console.log(chalk.dim(`  '${warning.source}' is a Node.js builtin module that won't exist on the web. You can find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`));
+            console.log(
+              chalk.dim(
+                `  '${
+                  warning.source
+                }' is a Node.js builtin module that won't exist on the web. You can find modern, web-ready packages at ${chalk.underline(
+                  'https://www.pika.dev',
+                )}`,
+              ),
+            );
           } else {
-            console.log(chalk.dim(`  Make sure that the package is installed and that the file exists.`));
+            console.log(
+              chalk.dim(`  Make sure that the package is installed and that the file exists.`),
+            );
           }
           return;
         }
         warn(warning);
-      }) as any
+      }) as any,
     };
     const outputOptions = {
       dir: destLoc,
@@ -303,7 +346,8 @@ export async function install(
     await packageBundle.write(outputOptions);
     fs.writeFileSync(
       path.join(destLoc, 'import-map.json'),
-      JSON.stringify({imports: importMap}, undefined, 2), {encoding: 'utf8'}
+      JSON.stringify({imports: importMap}, undefined, 2),
+      {encoding: 'utf8'},
     );
   }
   Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
@@ -314,7 +358,17 @@ export async function install(
 }
 
 export async function cli(args: string[]) {
-  const {help, sourceMap, babel = false, optimize = false, strict = false, clean = false, dest = 'web_modules', remoteUrl = 'https://cdn.pika.dev', remotePackage: remotePackages = []} = yargs(args);
+  const {
+    help,
+    sourceMap,
+    babel = false,
+    optimize = false,
+    strict = false,
+    clean = false,
+    dest = 'web_modules',
+    remoteUrl = 'https://cdn.pika.dev',
+    remotePackage: remotePackages = [],
+  } = yargs(args);
   const destLoc = path.resolve(cwd, dest);
 
   if (help) {
@@ -323,10 +377,17 @@ export async function cli(args: string[]) {
   }
 
   const pkgManifest = require(path.join(cwd, 'package.json'));
-  const {namedExports, webDependencies} = pkgManifest['@pika/web'] || {namedExports: undefined, webDependencies:undefined};
+  const {namedExports, webDependencies} = pkgManifest['@pika/web'] || {
+    namedExports: undefined,
+    webDependencies: undefined,
+  };
   const doesWhitelistExist = !!webDependencies;
   const arrayOfDeps = webDependencies || Object.keys(pkgManifest.dependencies || {});
-  const hasBrowserlistConfig = !!pkgManifest.browserslist || !!process.env.BROWSERSLIST || fs.existsSync(path.join(cwd, '.browserslistrc')) || fs.existsSync(path.join(cwd, 'browserslist'));
+  const hasBrowserlistConfig =
+    !!pkgManifest.browserslist ||
+    !!process.env.BROWSERSLIST ||
+    fs.existsSync(path.join(cwd, '.browserslistrc')) ||
+    fs.existsSync(path.join(cwd, 'browserslist'));
 
   spinner.start();
   const startTime = Date.now();
