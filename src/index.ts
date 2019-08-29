@@ -6,6 +6,7 @@ import chalk from 'chalk';
 import glob from 'glob';
 import ora from 'ora';
 import yargs from 'yargs-parser';
+import resolveFrom from 'resolve-from';
 
 import * as rollup from 'rollup';
 import rollupPluginNodeResolve from 'rollup-plugin-node-resolve';
@@ -33,6 +34,7 @@ export interface InstallOptions {
   isCleanInstall?: boolean;
   isStrict?: boolean;
   isOptimized?: boolean;
+  isBabel?: boolean;
   hasBrowserlistConfig?: boolean;
   isExplicit?: boolean;
   namedExports?: {[filepath: string]: string[]};
@@ -53,7 +55,8 @@ ${chalk.bold(`@pika/web`)} - Install npm dependencies to run natively on the web
 ${chalk.bold('Options:')}
     --dest              Specify destination directory (default: "web_modules/").
     --clean             Clear out the destination directory before install.
-    --optimize          Minify installed dependencies.
+    --optimize          Transpile, minify, and optimize installed dependencies for production.
+    --babel             Transpile installed dependencies. Also enabled with "--optimize".
     --strict            Only install pure ESM dependency trees. Fail if a CJS module is encountered.
     --no-source-map     Skip emitting source map files (.js.map) into dest
 ${chalk.bold('Advanced:')}
@@ -86,16 +89,16 @@ class ErrorWithHint extends Error {
 
 // Add common, well-used non-esm packages here so that Rollup doesn't die trying to analyze them.
 const PACKAGES_TO_AUTO_DETECT_EXPORTS = [
-  path.join('node_modules', 'react', 'index.js'),
-  path.join('node_modules', 'react-dom', 'index.js'),
-  path.join('node_modules', 'react-is', 'index.js'),
-  path.join('node_modules', 'prop-types', 'index.js'),
-  path.join('node_modules', 'rxjs', 'Rx.js'),
+  path.join('react', 'index.js'),
+  path.join('react-dom', 'index.js'),
+  path.join('react-is', 'index.js'),
+  path.join('prop-types', 'index.js'),
+  path.join('rxjs', 'Rx.js'),
 ];
 
 function detectExports(filePath: string): string[] | undefined {
-  const fileLoc = path.join(cwd, filePath);
   try {
+    const fileLoc = resolveFrom(cwd, filePath);
     if (fs.existsSync(fileLoc)) {
       return Object.keys(require(fileLoc)).filter((e) => (e[0] !== '_'));
     }
@@ -110,51 +113,40 @@ function detectExports(filePath: string): string[] | undefined {
  * Follows logic similar to Node's resolution logic, but using a package.json's ESM "module"
  * field instead of the CJS "main" field.
  */
-function resolveWebDependency(dep: string, isExplicit: boolean, isOptimized: boolean): DependencyLoc {
-  const depNodeModulesLoc = path.join(cwd, 'node_modules', dep);
-  let dependencyStats: fs.Stats;
-  try {
-    dependencyStats = fs.statSync(depNodeModulesLoc);
-  } catch (err) {
-    throw new ErrorWithHint(
-      `"${dep}" not found in your node_modules directory.`,
-      chalk.italic(`Did you remember to run npm install?`),
-    );
-  }
-  if (dependencyStats.isFile()) {
+function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
+  // if the path includes a file extension, just use it
+  if (path.extname(dep)) {
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
     return {
       type: isJSFile ? 'JS' : 'ASSET',
-      loc: depNodeModulesLoc,
+      loc: resolveFrom(cwd, dep),
     };
   }
-  if (dependencyStats.isDirectory()) {
-    const dependencyManifestLoc = path.join(depNodeModulesLoc, 'package.json');
-    const manifest = require(dependencyManifestLoc);
-    let foundEntrypoint: string = manifest.module;
-    // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
-    if (!foundEntrypoint && isExplicit) {
-      foundEntrypoint = manifest.main || 'index.js';
-    }
-    if (!foundEntrypoint) {
-      throw new ErrorWithHint(
-        `dependency "${dep}" has no native "module" entrypoint.`,
-        chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`),
-      );
-    }
-    if (dep === 'react' && foundEntrypoint === 'index.js') {
-      throw new ErrorWithHint(
-        `dependency "react" has no native "module" entrypoint.`,
-        chalk.italic(`See: ${chalk.underline('https://github.com/pikapkg/web#a-note-on-react')}`),
-      );
-    }
-    return {
-      type: "JS",
-      loc: path.join(depNodeModulesLoc, foundEntrypoint),
-    }
+
+  const depManifestLoc = resolveFrom(cwd, `${dep}/package.json`);
+  const depManifest = require(depManifestLoc);
+  let foundEntrypoint: string = depManifest.module;
+  // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
+  if (!foundEntrypoint && isExplicit) {
+    foundEntrypoint = depManifest.main || 'index.js';
+  }
+  if (!foundEntrypoint) {
+    throw new ErrorWithHint(
+      `dependency "${dep}" has no native "module" entrypoint.`,
+      chalk.italic(`Tip: Find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`),
+    );
+  }
+  if (dep === 'react' && foundEntrypoint === 'index.js') {
+    throw new ErrorWithHint(
+      `dependency "react" has no native "module" entrypoint.`,
+      chalk.italic(`See: ${chalk.underline('https://github.com/pikapkg/web#a-note-on-react')}`),
+    );
+  }
+  return {
+    type: "JS",
+    loc: path.join(depManifestLoc, '..', foundEntrypoint),
   }
 
-  throw new Error(`Error loading "${dep}" at "${depNodeModulesLoc}". (MODE=${dependencyStats.mode}) `);
 }
 
 /**
@@ -167,7 +159,7 @@ function getWebDependencyName(dep: string): string {
 
 export async function install(
   arrayOfDeps: string[],
-  {isCleanInstall, destLoc, hasBrowserlistConfig, isExplicit, isStrict, isOptimized, sourceMap, namedExports, remoteUrl, remotePackages}: InstallOptions,
+  {isCleanInstall, destLoc, hasBrowserlistConfig, isExplicit, isStrict, isBabel, isOptimized, sourceMap, namedExports, remoteUrl, remotePackages}: InstallOptions,
 ) {
   const nodeModulesLoc = path.join(cwd, 'node_modules');
   const knownNamedExports = {...namedExports};
@@ -204,7 +196,7 @@ export async function install(
   for (const dep of depList) {
     try {
       const depName = getWebDependencyName(dep);
-      const { type: depType, loc: depLoc } = resolveWebDependency(dep, isExplicit, isOptimized);
+      const { type: depType, loc: depLoc } = resolveWebDependency(dep, isExplicit);
       if (depType === 'JS') {
         depObject[depName] = depLoc;
         importMap[depName] = `./${depName}.js`;
@@ -280,7 +272,7 @@ export async function install(
             extensions: ['.js', '.cjs'], // Default: [ '.js' ]
             namedExports: knownNamedExports
           }),
-        rollupPluginBabel({
+          !!isBabel && rollupPluginBabel({
           compact: false,
           babelrc: false,
           presets: [[babelPresetEnv, { modules: false, targets: hasBrowserlistConfig ? undefined : ">0.75%, not ie 11, not op_mini all" }]],
@@ -322,7 +314,7 @@ export async function install(
 }
 
 export async function cli(args: string[]) {
-  const {help, sourceMap, optimize = false, strict = false, clean = false, dest = 'web_modules', remoteUrl = 'https://cdn.pika.dev', remotePackage: remotePackages = []} = yargs(args);
+  const {help, sourceMap, babel = false, optimize = false, strict = false, clean = false, dest = 'web_modules', remoteUrl = 'https://cdn.pika.dev', remotePackage: remotePackages = []} = yargs(args);
   const destLoc = path.resolve(cwd, dest);
 
   if (help) {
@@ -344,6 +336,7 @@ export async function cli(args: string[]) {
     namedExports,
     isExplicit: doesWhitelistExist,
     isStrict: strict,
+    isBabel: babel || optimize,
     isOptimized: optimize,
     sourceMap,
     remoteUrl,
