@@ -50,7 +50,7 @@ npm install --dev @pika/web              # Optional: Install locally to use "pik
 Bundling packages on a per-module basis like this makes it easy to build a web application that runs fast and caches well. Updating a single dependency won't force a complete re-download of your web application. [More on performance below.](#performance)
 
 > ┳┻| _  
-> ┻┳| •.•) 💬 *"Tip: Use [pikapkg.com](https://www.pikapkg.com) to find modern, web-ready packages on npm"*  
+> ┻┳| •.•) 💬 *"Tip: Use [pika.dev](https://www.pika.dev) to search 70,000+ modern, web-ready packages on npm"*  
 > ┳┻|⊂ﾉ
 
 
