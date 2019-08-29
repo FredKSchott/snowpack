@@ -5,10 +5,10 @@
 </p>
 
 <p align="center">
-   <strong>@pika/web</strong> • Run npm dependencies directly in the browser. No Browserify, Webpack or import maps required.
+   <strong>@pika/web</strong> • Install npm dependencies to run directly in the browser. No Browserify, Webpack or import maps required.
 </p>
 
-- **Simple** 💪 No bundlers required. Load [modern packages](http://pikapkg.com) natively in the browser.
+- **Simple** 💪 No app bundlers required. Run [modern packages](https://www.pika.dev) natively in the browser.
 - **Flexible** 🧘‍♂️ Handles dependency trees of any size, even ones that includes legacy Common.js packages.
 - **HTTP/2 Optimized** ⚡️ No more huge JS bundles. Browsers only download dependencies when they change.
 
