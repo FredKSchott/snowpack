@@ -3,6 +3,11 @@
 > 🙋‍♀️ Have a great example you'd like to share? Create it on [CodeSandbox](https://codesandbox.io/), [Glitch](https://glitch.com), or [GitHub](https://github.com/new). Then [add it here!](https://github.com/pikapkg/web/edit/master/EXAMPLES.md)
 > 🙋‍♂️ Have a idea for an example that's not shown here? Add it to the ["Call for Examples"](#call-for-examples-cfe) section below.
 
+
+## :rocket: Starter App
+
+[`npx create-pika-app`](https://github.com/ndom91/create-pika-app) Bootstraps a starter app with Preact, TypeScript, etc.
+
 ## List of Examples
 
 - A basic, three-dependency @pika/web project: [[Source]](https://glitch.com/edit/#!/pika-web-example-simple) [[Live Demo]](https://pika-web-example-simple.glitch.me/)
@@ -13,7 +18,7 @@
 - PWA-Starter-Kit (lit-html + Redux): [[Source]](https://github.com/Polymer/pwa-starter-kit/issues/339)
 - LitElement + lit-html PWA: [[Source]](https://github.com/thepassle/reddit-pwa) [[Live Demo]](https://angry-turing-4769b3.netlify.com/)  
 - Terminal Homepage (Preact + Typescript + Babel): [[Source]](https://github.com/ndom91/terminal-homepage) [[Live Demo]](https://termy.netlify.com)  
-- create-pika-app (Bootstraping Tool): [[Source]](https://github.com/ndom91/create-pika-app)
+
 
 
 ## Call for Examples (CFE)
