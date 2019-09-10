@@ -92,7 +92,8 @@ Additionally, @pika/web runs all dependencies through Babel via `@preset/env` to
       "htm",
       "preact",
       "preact/hooks", // A package within a package
-      "unistore/full/preact.es.js" // An ESM file within a package
+      "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
+      "bulma/css/bulma.css" // A non-JS static asset (supports globs)
     ],
   },
 ```
