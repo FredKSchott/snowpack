@@ -123,6 +123,27 @@ Remember that JSX won't run in any browser. To use JSX with @pika/web:
 1. Use a JSX-like library like Jason Miller's [htm](https://github.com/developit/htm) that can run in the browser.
 
 
+## A Note on TypeScript
+
+@pika/web is meant to play well with TypeScript. https://www.pika.dev itself is built using both tools. But by default, TypeScript expects to import packages by name. There are two solutions to get TypeScript and @pika/web working well together.
+
+1. Use Babel to build your app, so that you can leverage our Babel plugin to continue to write imports by package name (see instructions above).
+2. Add the following to your `tsconfig.json` configuration:
+      ```js
+      "compilerOptions": {
+       "moduleResolution": "node",
+        "baseUrl": ".",
+        "paths": {
+            "/web_modules/*.js": [
+                "node_modules/@types/*",
+                "node_modules/*",
+                "web_modules/*.js"
+            ]
+        },
+        // ...
+      }
+      ```
+      
 ## Special Thanks: Rollup
 
 @pika/web is powered internally by [Rollup](https://rollupjs.org/). We believe that bundlers shouldn't be a *requirement* for modern web app development, but none of this would be possible without the awesome work done by Rollup contributors. If you use and enjoy our software, consider contributing back to [Rollup on Open Collective](https://opencollective.com/rollup).
