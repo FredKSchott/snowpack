@@ -127,22 +127,24 @@ Remember that JSX won't run in any browser. To use JSX with @pika/web:
 
 @pika/web is meant to play well with TypeScript. https://www.pika.dev itself is built using both tools. But by default, TypeScript expects to import packages by name. There are two solutions to get TypeScript and @pika/web working well together.
 
-1. Use Babel to build your app, so that you can leverage our Babel plugin to continue to write imports by package name (see instructions above).
-2. Add the following to your `tsconfig.json` configuration:
-      ```js
-      "compilerOptions": {
-       "moduleResolution": "node",
-        "baseUrl": ".",
-        "paths": {
-            "/web_modules/*.js": [
-                "node_modules/@types/*",
-                "node_modules/*",
-                "web_modules/*.js"
-            ]
-        },
-        // ...
-      }
-      ```
+If you are using Babel to build your app, you can leverage our Babel plugin to continue to write imports by package name in a way that TypeScript will also understand (see instructions above).
+
+Otherwise, add the following to your `tsconfig.json` configuration to support typed `"/web_modules/*.js"` imports:
+
+```js
+"compilerOptions": {
+ "moduleResolution": "node",
+  "baseUrl": ".",
+  "paths": {
+      "/web_modules/*.js": [
+          "node_modules/@types/*",
+          "node_modules/*",
+          "web_modules/*.js"
+      ]
+  },
+  // ...
+}
+```
       
 ## Special Thanks: Rollup
 
