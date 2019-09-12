@@ -312,6 +312,10 @@ export async function install(
       ],
       onwarn: ((warning, warn) => {
         if (warning.code === 'UNRESOLVED_IMPORT') {
+          // If we're using remoteUrl, we should expect them to be unresolved. ("external" should handle this for us, but we're still seeing it)
+          if (remoteUrl && warning.source.startsWith(remoteUrl)) {
+            return;
+          }
           logError(
             `'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`,
           );
