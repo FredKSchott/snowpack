@@ -92,7 +92,8 @@ Additionally, @pika/web runs all dependencies through Babel via `@preset/env` to
       "htm",
       "preact",
       "preact/hooks", // A package within a package
-      "unistore/full/preact.es.js" // An ESM file within a package
+      "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
+      "bulma/css/bulma.css" // A non-JS static asset (supports globs)
     ],
   },
 ```
@@ -122,6 +123,29 @@ Remember that JSX won't run in any browser. To use JSX with @pika/web:
 1. Use a JSX-like library like Jason Miller's [htm](https://github.com/developit/htm) that can run in the browser.
 
 
+## A Note on TypeScript
+
+@pika/web is meant to play well with TypeScript. https://www.pika.dev itself is built using both tools. But by default, TypeScript expects to import packages by name. There are two solutions to get TypeScript and @pika/web working well together.
+
+If you are using Babel to build your app, you can leverage our Babel plugin to continue to write imports by package name in a way that TypeScript will also understand (see instructions above).
+
+Otherwise, add the following to your `tsconfig.json` configuration to support typed `"/web_modules/*.js"` imports:
+
+```js
+"compilerOptions": {
+ "moduleResolution": "node",
+  "baseUrl": ".",
+  "paths": {
+      "/web_modules/*.js": [
+          "node_modules/@types/*",
+          "node_modules/*",
+          "web_modules/*.js"
+      ]
+  },
+  // ...
+}
+```
+      
 ## Special Thanks: Rollup
 
 @pika/web is powered internally by [Rollup](https://rollupjs.org/). We believe that bundlers shouldn't be a *requirement* for modern web app development, but none of this would be possible without the awesome work done by Rollup contributors. If you use and enjoy our software, consider contributing back to [Rollup on Open Collective](https://opencollective.com/rollup).
