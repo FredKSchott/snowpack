@@ -17,6 +17,7 @@ import rollupPluginJson from 'rollup-plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import babelPresetEnv from '@babel/preset-env';
 import isNodeBuiltin from 'is-builtin-module';
+import autoResolve from './auto-resolve';
 
 // Having trouble getting this ES2019 feature to compile, so using this ponyfill for now.
 function fromEntries(iterable: [string, string][]): {[key: string]: string} {
@@ -29,6 +30,7 @@ export interface DependencyLoc {
 }
 
 export interface InstallOptions {
+  dependencyTree?: string;
   destLoc: string;
   isCleanInstall?: boolean;
   isStrict?: boolean;
@@ -57,6 +59,8 @@ ${chalk.bold('Options:')}
     --clean             Clear out the destination directory before install.
     --optimize          Transpile, minify, and optimize installed dependencies for production.
     --babel             Transpile installed dependencies. Also enabled with "--optimize".
+    --entry             Entry file(s) to recursively scan for imports, comma-separated
+    --dep-tree          Output dependency-tree.json (default: false)
     --strict            Only install pure ESM dependency trees. Fail if a CJS module is encountered.
     --no-source-map     Skip emitting source map files (.js.map) into dest
 ${chalk.bold('Advanced:')}
@@ -163,6 +167,7 @@ export async function install(
   arrayOfDeps: string[],
   {
     isCleanInstall,
+    dependencyTree,
     destLoc,
     hasBrowserlistConfig,
     isExplicit,
@@ -353,6 +358,9 @@ export async function install(
       JSON.stringify({imports: importMap}, undefined, 2),
       {encoding: 'utf8'},
     );
+    if (dependencyTree) {
+      fs.writeFileSync(path.resolve(destLoc, 'dependency-tree.json'), dependencyTree, 'utf8');
+    }
   }
   Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
     mkdirp.sync(path.dirname(`${destLoc}/${assetName}`));
@@ -367,6 +375,8 @@ export async function cli(args: string[]) {
     sourceMap,
     babel = false,
     optimize = false,
+    entry,
+    depTree = false,
     strict = false,
     clean = false,
     dest = 'web_modules',
@@ -385,18 +395,66 @@ export async function cli(args: string[]) {
     namedExports: undefined,
     webDependencies: undefined,
   };
-  const doesWhitelistExist = !!webDependencies;
-  const arrayOfDeps = webDependencies || Object.keys(pkgManifest.dependencies || {});
+  let doesWhitelistExist = !!webDependencies;
+  let arrayOfDeps = webDependencies || Object.keys(pkgManifest.dependencies || {});
   const hasBrowserlistConfig =
     !!pkgManifest.browserslist ||
     !!process.env.BROWSERSLIST ||
     fs.existsSync(path.join(cwd, '.browserslistrc')) ||
     fs.existsSync(path.join(cwd, 'browserslist'));
+  let dependencyTree: string | undefined;
+
+  // auto detection with --entry flag
+  if (typeof entry === 'string' && entry.length) {
+    const files = entry.split(',').map(file => path.resolve(cwd, file));
+    const fileDeps = autoResolve(files, cwd);
+
+    // print out dependency tree if specified
+    if (depTree) {
+      dependencyTree = JSON.stringify({dependencies: fileDeps});
+    }
+
+    // this will examine package.json dependencies for any matches.
+    const destRoot = dest.replace(/\$/, '').split('/'); // take last segment of --dest
+    if (pkgManifest.dependencies) {
+      function npmName(filename: string) {
+        const npmRoot = filename.split(`${destRoot[destRoot.length - 1]}/`)[1]; // determine npm root based on --dest
+        if (!npmRoot) {
+          return;
+        }
+        const moduleName = npmRoot.replace(/\.[A-z]+$/, ''); // remove .js extension
+        return moduleName.startsWith('@')
+          ? moduleName.replace(/(\/[^/]*).*/, '$1')
+          : moduleName.replace(/\/.*/, ''); // keep first slash if scoped, or remove all slashes if non-scoped
+      }
+
+      // for each dependency, add it if it’s new
+      Object.values(fileDeps).forEach(depList => {
+        depList.forEach(dep => {
+          const moduleName = npmName(dep);
+          if (pkgManifest.dependencies[moduleName] && !arrayOfDeps.includes(moduleName)) {
+            arrayOfDeps.push(moduleName);
+          }
+        });
+      });
+    } else {
+      console.warn(chalk.yellow('No dependencies found in package.json to resolve'));
+    }
+
+    // if node_module dependencies were found by scanning these files, only install those
+    // otherwise, install all dependencies from package.json
+    if (arrayOfDeps.length > 0) {
+      doesWhitelistExist = true;
+    } else {
+      console.warn(chalk.yellow(`No npm dependencies found in ${entry} or imported files`));
+    }
+  }
 
   spinner.start();
   const startTime = Date.now();
   const result = await install(arrayOfDeps, {
     isCleanInstall: clean,
+    dependencyTree,
     destLoc,
     namedExports,
     isExplicit: doesWhitelistExist,
