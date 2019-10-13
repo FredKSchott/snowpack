@@ -406,7 +406,11 @@ export async function cli(args: string[]) {
 
   // auto detection with --entry flag
   if (typeof entry === 'string' && entry.length) {
+    const depSpinner = ora(`Scanning ${entry}`).start();
     const files = entry.split(',').map(file => path.resolve(cwd, file));
+
+    // grab dependencies
+    const timeStart = process.hrtime();
     const fileDeps = autoResolve(files, cwd);
 
     // print out dependency tree if specified
@@ -437,6 +441,14 @@ export async function cli(args: string[]) {
           }
         });
       });
+      const timeEnd = process.hrtime(timeStart);
+
+      const ms = timeEnd[0] + Math.round(timeEnd[1] / 1e6);
+      depSpinner.succeed(
+        `@pika/web resolved: ${arrayOfDeps.length} dependencies ${chalk.dim(
+          `[${ms.toString()}ms]`,
+        )}`,
+      );
     } else {
       console.warn(chalk.yellow('No dependencies found in package.json to resolve'));
     }
