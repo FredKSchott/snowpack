@@ -278,7 +278,7 @@ export async function install(
           },
         },
         rollupPluginNodeResolve({
-          mainFields: ['browser', 'module', !isStrict && 'main'].filter(Boolean),
+          mainFields: ['module', 'jsnext:main', 'browser', !isStrict && 'main'].filter(Boolean),
           modulesOnly: isStrict, // Default: false
           extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
           // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
