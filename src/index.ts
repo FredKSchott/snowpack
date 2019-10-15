@@ -126,7 +126,8 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
 
   const depManifestLoc = resolveFrom(cwd, `${dep}/package.json`);
   const depManifest = require(depManifestLoc);
-  let foundEntrypoint: string = depManifest.module;
+  let foundEntrypoint: string =
+    depManifest['browser:module'] || depManifest.module || depManifest.browser;
   // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
   if (!foundEntrypoint && isExplicit) {
     foundEntrypoint = depManifest.main || 'index.js';
@@ -278,7 +279,7 @@ export async function install(
           },
         },
         rollupPluginNodeResolve({
-          mainFields: ['module', 'jsnext:main', 'browser', !isStrict && 'main'].filter(Boolean),
+          mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(Boolean),
           modulesOnly: isStrict, // Default: false
           extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
           // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
