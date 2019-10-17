@@ -419,7 +419,7 @@ export async function cli(args: string[]) {
     }
 
     // this will examine package.json dependencies for any matches.
-    const destRoot = dest.replace(/\$/, '').split('/'); // take last segment of --dest
+    const destRoot = dest.replace(/\/$/, '').split('/'); // take last segment of --dest
     if (pkgManifest.dependencies) {
       function npmName(filename: string) {
         const npmRoot = filename.split(`${destRoot[destRoot.length - 1]}/`)[1]; // determine npm root based on --dest
