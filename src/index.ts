@@ -17,7 +17,7 @@ import rollupPluginJson from 'rollup-plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import babelPresetEnv from '@babel/preset-env';
 import isNodeBuiltin from 'is-builtin-module';
-import autoResolve from './auto-resolve';
+import autoResolve from './auto-resolve.js';
 
 // Having trouble getting this ES2019 feature to compile, so using this ponyfill for now.
 function fromEntries(iterable: [string, string][]): {[key: string]: string} {
