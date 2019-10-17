@@ -32,6 +32,7 @@ export interface DependencyLoc {
 export interface InstallOptions {
   dependencyTree?: string;
   destLoc: string;
+  entry?: string;
   isCleanInstall?: boolean;
   isStrict?: boolean;
   isOptimized?: boolean;
