@@ -409,8 +409,9 @@ export async function cli(args: string[]) {
     const depSpinner = ora(`Scanning ${entry}`).start();
     const files = entry.split(',').map(file => path.resolve(cwd, file));
 
+    const timeStart = process.hrtime(); // start perf benchmark
+
     // grab dependencies
-    const timeStart = process.hrtime();
     const fileDeps = autoResolve(files, cwd);
 
     // print out dependency tree if specified
@@ -421,27 +422,28 @@ export async function cli(args: string[]) {
     // this will examine package.json dependencies for any matches.
     const destRoot = dest.replace(/\/$/, '').split('/'); // take last segment of --dest
     if (pkgManifest.dependencies) {
+      // take an import string and figure out if it’s a dependency in package.json
       function npmName(filename: string) {
         const npmRoot = filename.split(`${destRoot[destRoot.length - 1]}/`)[1]; // determine npm root based on --dest
         if (!npmRoot) {
           return;
         }
         const moduleName = npmRoot.replace(/\.[A-z]+$/, ''); // remove .js extension
-        return moduleName.startsWith('@')
+        return moduleName.startsWith('@') // is this scoped?
           ? moduleName.replace(/(\/[^/]*).*/, '$1')
-          : moduleName.replace(/\/.*/, ''); // keep first slash if scoped, or remove all slashes if non-scoped
+          : moduleName.replace(/\/.*/, '');
       }
 
-      // for each dependency, add it if it’s new
+      // iterate through imports
       Object.values(fileDeps).forEach(depList => {
         depList.forEach(dep => {
-          const moduleName = npmName(dep);
+          const moduleName = npmName(dep); // is this an npm package?
           if (pkgManifest.dependencies[moduleName] && !arrayOfDeps.includes(moduleName)) {
-            arrayOfDeps.push(moduleName);
+            arrayOfDeps.push(moduleName); // if this is an npm package, add if it’s not in array
           }
         });
       });
-      const timeEnd = process.hrtime(timeStart);
+      const timeEnd = process.hrtime(timeStart); // end perf benchmark
 
       const ms = timeEnd[0] + Math.round(timeEnd[1] / 1e6);
       depSpinner.succeed(
@@ -453,8 +455,6 @@ export async function cli(args: string[]) {
       console.warn(chalk.yellow('No dependencies found in package.json to resolve'));
     }
 
-    // if node_module dependencies were found by scanning these files, only install those
-    // otherwise, install all dependencies from package.json
     if (arrayOfDeps.length > 0) {
       doesWhitelistExist = true;
     } else {
