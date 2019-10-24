@@ -40,6 +40,7 @@ export interface InstallOptions {
   remoteUrl?: string;
   remotePackages: [string, string][];
   sourceMap?: boolean | 'inline';
+  dedupe?: string[]; 
 }
 
 const cwd = process.cwd();
@@ -173,6 +174,7 @@ export async function install(
     namedExports,
     remoteUrl,
     remotePackages,
+    dedupe
   }: InstallOptions,
 ) {
   const nodeModulesLoc = path.join(cwd, 'node_modules');
@@ -283,6 +285,7 @@ export async function install(
           extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
           // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
           preferBuiltins: false, // Default: true
+          dedupe: dedupe
         }),
         !isStrict &&
           rollupPluginJson({
@@ -381,9 +384,10 @@ export async function cli(args: string[]) {
   }
 
   const pkgManifest = require(path.join(cwd, 'package.json'));
-  const {namedExports, webDependencies} = pkgManifest['@pika/web'] || {
+  const {namedExports, webDependencies, dedupe} = pkgManifest['@pika/web'] || {
     namedExports: undefined,
     webDependencies: undefined,
+    dedupe: []
   };
   const doesWhitelistExist = !!webDependencies;
   const arrayOfDeps = webDependencies || Object.keys(pkgManifest.dependencies || {});
@@ -407,6 +411,7 @@ export async function cli(args: string[]) {
     remoteUrl,
     hasBrowserlistConfig,
     remotePackages: remotePackages.map(p => p.split(',')),
+    dedupe
   });
   if (result) {
     spinner.succeed(
