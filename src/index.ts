@@ -387,7 +387,7 @@ export async function cli(args: string[]) {
   const {namedExports, webDependencies, dedupe} = pkgManifest['@pika/web'] || {
     namedExports: undefined,
     webDependencies: undefined,
-    dedupe: []
+    dedupe: undefined
   };
   const doesWhitelistExist = !!webDependencies;
   const arrayOfDeps = webDependencies || Object.keys(pkgManifest.dependencies || {});
