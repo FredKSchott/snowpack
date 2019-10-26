@@ -17,7 +17,7 @@ import rollupPluginJson from 'rollup-plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import babelPresetEnv from '@babel/preset-env';
 import isNodeBuiltin from 'is-builtin-module';
-import autoResolve from './auto-resolve.js';
+import scanImports from './lib/scan-imports.js';
 
 // Having trouble getting this ES2019 feature to compile, so using this ponyfill for now.
 function fromEntries(iterable: [string, string][]): {[key: string]: string} {
@@ -60,7 +60,7 @@ ${chalk.bold('Options:')}
     --clean             Clear out the destination directory before install.
     --optimize          Transpile, minify, and optimize installed dependencies for production.
     --babel             Transpile installed dependencies. Also enabled with "--optimize".
-    --entry             Entry file(s) to recursively scan for imports, comma-separated
+    --entry             Auto-detect imports from file(s). Supports glob.
     --dep-tree          Output dependency-tree.json (default: false)
     --strict            Only install pure ESM dependency trees. Fail if a CJS module is encountered.
     --no-source-map     Skip emitting source map files (.js.map) into dest
@@ -396,79 +396,27 @@ export async function cli(args: string[]) {
     namedExports: undefined,
     webDependencies: undefined,
   };
-  let doesWhitelistExist = !!webDependencies;
-  let arrayOfDeps = webDependencies || Object.keys(pkgManifest.dependencies || {});
+
+  let doesWhitelistExist = true;
+  const {dependencies, dependencyTree} = scanImports(entry || '', {dest});
+  const arrayOfDeps = [...webDependencies, ...dependencies];
+  if (!arrayOfDeps.length) {
+    doesWhitelistExist = false;
+    arrayOfDeps.push(...Object.keys(pkgManifest.dependencies || {}));
+  }
+
   const hasBrowserlistConfig =
     !!pkgManifest.browserslist ||
     !!process.env.BROWSERSLIST ||
     fs.existsSync(path.join(cwd, '.browserslistrc')) ||
     fs.existsSync(path.join(cwd, 'browserslist'));
-  let dependencyTree: string | undefined;
-
-  // auto detection with --entry flag
-  if (typeof entry === 'string' && entry.length) {
-    const depSpinner = ora(`Scanning ${entry}`).start();
-    const files = entry.split(',').map(file => path.resolve(cwd, file));
-
-    const timeStart = process.hrtime(); // start perf benchmark
-
-    // grab dependencies
-    const fileDeps = autoResolve(files, cwd);
-
-    // print out dependency tree if specified
-    if (depTree) {
-      dependencyTree = JSON.stringify({dependencies: fileDeps});
-    }
-
-    // this will examine package.json dependencies for any matches.
-    const destRoot = dest.replace(/\/$/, '').split('/'); // take last segment of --dest
-    if (pkgManifest.dependencies) {
-      // take an import string and figure out if it’s a dependency in package.json
-      function npmName(filename: string) {
-        const npmRoot = filename.split(`${destRoot[destRoot.length - 1]}/`)[1]; // determine npm root based on --dest
-        if (!npmRoot) {
-          return;
-        }
-        const moduleName = npmRoot.replace(/\.[A-z]+$/, ''); // remove .js extension
-        return moduleName.startsWith('@') // is this scoped?
-          ? moduleName.replace(/(\/[^/]*).*/, '$1')
-          : moduleName.replace(/\/.*/, '');
-      }
-
-      // iterate through imports
-      Object.values(fileDeps).forEach(depList => {
-        depList.forEach(dep => {
-          const moduleName = npmName(dep); // is this an npm package?
-          if (pkgManifest.dependencies[moduleName] && !arrayOfDeps.includes(moduleName)) {
-            arrayOfDeps.push(moduleName); // if this is an npm package, add if it’s not in array
-          }
-        });
-      });
-      const timeEnd = process.hrtime(timeStart); // end perf benchmark
-
-      const ms = timeEnd[0] + Math.round(timeEnd[1] / 1e6);
-      depSpinner.succeed(
-        `@pika/web resolved: ${arrayOfDeps.length} dependencies ${chalk.dim(
-          `[${ms.toString()}ms]`,
-        )}`,
-      );
-    } else {
-      console.warn(chalk.yellow('No dependencies found in package.json to resolve'));
-    }
-
-    if (arrayOfDeps.length > 0) {
-      doesWhitelistExist = true;
-    } else {
-      console.warn(chalk.yellow(`No npm dependencies found in ${entry} or imported files`));
-    }
-  }
 
   spinner.start();
   const startTime = Date.now();
   const result = await install(arrayOfDeps, {
     isCleanInstall: clean,
-    dependencyTree,
     destLoc,
+    dependencyTree: depTree === true && dependencyTree ? JSON.stringify(dependencyTree) : undefined,
     namedExports,
     isExplicit: doesWhitelistExist,
     isStrict: strict,
