@@ -19,20 +19,25 @@ interface DependencyTree {
 const cwd = process.cwd();
 
 /**
+ * Splits a filename into folder segments
+ */
+function explode(file: string) {
+  return file.split('/').filter(part => part);
+}
+
+/**
  * Renames `web_modules/vue.js` to `vue` based on --dest
  */
 function getNpmName(modulePath: string, dest: string) {
-  const noExtension = modulePath.replace(/\.[^.]+$/, '');
+  const noExt = modulePath.replace(/\.[^.]+$/, '');
 
-  // this RegEx allows for web_modules, web_modules/, ./folder/web_modules, etc. as valid --dest options
-  const [lastSegment] = dest.match(/\/?([^/]+)\/?$/);
-  const [_, moduleName] = noExtension.split(lastSegment);
-
+  const lastPart = [...explode(dest)].pop();
+  const [_, moduleName] = noExt.split(lastPart);
   if (!moduleName) {
-    return noExtension; // module not in --dest
+    return noExt; // module not in --dest
   }
 
-  const parts = moduleName.split('/').filter(part => part); // split into folders
+  const parts = explode(moduleName);
   const isScoped = parts[0].startsWith('@');
   return isScoped ? `${parts[0]}/${parts[1]}` : parts[0];
 }
