@@ -30,7 +30,6 @@ export interface DependencyLoc {
 }
 
 export interface InstallOptions {
-  dependencyTree?: string;
   destLoc: string;
   entry?: string;
   isCleanInstall?: boolean;
@@ -61,7 +60,6 @@ ${chalk.bold('Options:')}
     --optimize          Transpile, minify, and optimize installed dependencies for production.
     --babel             Transpile installed dependencies. Also enabled with "--optimize".
     --entry             Auto-detect imports from file(s). Supports glob.
-    --dep-tree          Output dependency-tree.json (default: false)
     --strict            Only install pure ESM dependency trees. Fail if a CJS module is encountered.
     --no-source-map     Skip emitting source map files (.js.map) into dest
 ${chalk.bold('Advanced:')}
@@ -168,7 +166,6 @@ export async function install(
   arrayOfDeps: string[],
   {
     isCleanInstall,
-    dependencyTree,
     destLoc,
     hasBrowserlistConfig,
     isExplicit,
@@ -359,9 +356,6 @@ export async function install(
       JSON.stringify({imports: importMap}, undefined, 2),
       {encoding: 'utf8'},
     );
-    if (dependencyTree) {
-      fs.writeFileSync(path.resolve(destLoc, 'dependency-tree.json'), dependencyTree, 'utf8');
-    }
   }
   Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
     mkdirp.sync(path.dirname(`${destLoc}/${assetName}`));
@@ -377,7 +371,6 @@ export async function cli(args: string[]) {
     babel = false,
     optimize = false,
     entry,
-    depTree = false,
     strict = false,
     clean = false,
     dest = 'web_modules',
@@ -398,8 +391,7 @@ export async function cli(args: string[]) {
   };
 
   let doesWhitelistExist = true;
-  const {dependencies, dependencyTree} = scanImports(entry || '', {dest});
-  const arrayOfDeps = [...webDependencies, ...dependencies];
+  const arrayOfDeps = [...webDependencies, ...scanImports(entry || '', {dest})];
   if (!arrayOfDeps.length) {
     doesWhitelistExist = false;
     arrayOfDeps.push(...Object.keys(pkgManifest.dependencies || {}));
@@ -416,7 +408,6 @@ export async function cli(args: string[]) {
   const result = await install(arrayOfDeps, {
     isCleanInstall: clean,
     destLoc,
-    dependencyTree: depTree === true && dependencyTree ? JSON.stringify(dependencyTree) : undefined,
     namedExports,
     isExplicit: doesWhitelistExist,
     isStrict: strict,

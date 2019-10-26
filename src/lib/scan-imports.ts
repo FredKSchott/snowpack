@@ -168,25 +168,20 @@ function buildDependencyTree(
     }
   });
 
-  return {dependencyTree, npmDependencies};
+  return npmDependencies;
 }
 
 interface ScanOptions {
   dest: string;
 }
 
-interface ScanResults {
-  dependencies: string[];
-  dependencyTree?: DependencyTree;
-}
-
 /**
  * Scan files and their imports for dependencies
  */
-export default function scanImports(entry: string, options: ScanOptions): ScanResults {
+export default function scanImports(entry: string, options: ScanOptions): string[] {
   // return on missing entry
   if (!entry.length) {
-    return {dependencies: []};
+    return [];
   }
 
   const files = glob.sync(entry);
@@ -194,7 +189,7 @@ export default function scanImports(entry: string, options: ScanOptions): ScanRe
   // return & warn on no matching files
   if (!files.length) {
     console.warn(`No files found matching ${entry}`);
-    return {dependencies: []};
+    return [];
   }
 
   // start perf benchmark
@@ -202,7 +197,7 @@ export default function scanImports(entry: string, options: ScanOptions): ScanRe
   const timeStart = process.hrtime();
 
   // build dep tree
-  const {dependencyTree, npmDependencies} = buildDependencyTree(files);
+  const npmDependencies = buildDependencyTree(files);
 
   // end perf benchmark & print
   const timeEnd = process.hrtime(timeStart);
@@ -213,10 +208,7 @@ export default function scanImports(entry: string, options: ScanOptions): ScanRe
     )}`,
   );
 
-  return {
-    dependencies: [...npmDependencies]
-      .map(dep => getNpmName(dep, options.dest))
-      .sort((a, b) => a.localeCompare(b)),
-    dependencyTree,
-  };
+  return [...npmDependencies]
+    .map(dep => getNpmName(dep, options.dest))
+    .sort((a, b) => a.localeCompare(b));
 }
