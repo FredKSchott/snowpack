@@ -103,7 +103,7 @@ Additionally, @pika/web runs all dependencies through Babel via `@preset/env` to
 ### CLI
 
 | Option    | Description                                                                                    | Example                          |
-|:----------|:---------------------------------------------------------------------------------j-------------|:---------------------------------|
+|-----------|------------------------------------------------------------------------------------------------|----------------------------------|
 | `--entry` | Auto-detect `import`s from your codebase. Supports [glob](https://www.npmjs.com/package/glob). | `npx @pika/web --entry src/*.js` |
 
 ## A Note on React
