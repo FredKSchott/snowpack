@@ -84,6 +84,7 @@ Additionally, @pika/web runs all dependencies through Babel via `@preset/env` to
 
 * `"webDependencies"`: (Recommended) Configure which packages to install with @pika/web. Without this, @pika/web will just try to install every package in your "dependencies" config. That behavior is great for getting started but it won't warn you if an expected package fails to install. 
 * `"namedExports"`: (Optional) If needed, you can explicitly define named exports for any dependency. You should only use this if you're getting `"'X' is not exported by Y"` errors without it. See [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs#usage) for more info.
+* `"dedupe"`: (Optional) If needed, force resolving for these modules to root's node_modules. This helps prevend bundling package multiple time if package is imported from dependencies. See [rollup-plugin-node-resolve](https://github.com/rollup/rollup-plugin-node-resolve#usage). This is usefull when developing a dependency locally, and prevent rollup to duplicate dependencies included both in local and remote packages. 
 
 ```js
   "dependencies": { "htm": "^1.0.0", "preact": "^8.0.0", /* ... */ },
@@ -95,6 +96,10 @@ Additionally, @pika/web runs all dependencies through Babel via `@preset/env` to
       "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
       "bulma/css/bulma.css" // A non-JS static asset (supports globs)
     ],
+    "dedupe": [
+        "lit-element",
+        "lit-html" 
+    ]
   },
 ```
 
