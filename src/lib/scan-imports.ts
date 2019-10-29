@@ -19,20 +19,40 @@ function explode(file: string) {
 }
 
 /**
- * Renames `web_modules/vue.js` to `vue` based on --dest
+ * Remove file extension
  */
-function getNpmName(modulePath: string, dest: string) {
-  const noExt = modulePath.replace(/\.[^.]+$/, '');
+function noExtension(file: string) {
+  return file.replace(/\.[^.]+$/, '');
+}
 
-  const lastPart = [...explode(dest)].pop();
-  const [_, moduleName] = noExt.split(lastPart);
-  if (!moduleName) {
-    return noExt; // module not in --dest
+/**
+ * Attempt to return npm package name
+ */
+function packageName(name: string) {
+  // if there’s no slash, this is likely a package name already
+  if (!name.includes('/')) {
+    return name;
+  }
+  // return first 2 segments if scoped package, or first if not scoped
+  const [scope, pkg] = explode(name);
+  return scope.startsWith('@') ? `${scope}/${pkg}` : scope;
+}
+
+/**
+ * Attempt to figure out web_module’s identity
+ */
+function resolveWebModule(name: string, dest: string) {
+  const lastSegment = [...explode(dest)].pop();
+  // is the last folder segment of --dest present?
+  if (name.includes(lastSegment)) {
+    const [_, webModule] = name.split(lastSegment);
+    if (webModule) {
+      return packageName(noExtension(webModule)); // remove file extension if web module
+    }
   }
 
-  const parts = explode(moduleName);
-  const isScoped = parts[0].startsWith('@');
-  return isScoped ? `${parts[0]}/${parts[1]}` : parts[0];
+  // otherwise, return package name
+  return packageName(name);
 }
 
 /**
@@ -67,7 +87,7 @@ function parseImports(file: string) {
   if (!code) {
     return [];
   }
-  const deps = new Set<string>(); // micro-optimization: use Set() to dedupe
+  const deps = new Set<string>();
 
   // try to parse; this will fail if not JS
   try {
@@ -83,7 +103,7 @@ function parseImports(file: string) {
         }
       },
     });
-    return [...deps]; // return Array for simplicity
+    return [...deps];
   } catch (e) {
     return [];
   }
@@ -95,20 +115,14 @@ interface ScanOptions {
 }
 
 /**
- * Scan files and their imports for dependencies
+ * Scan glob pattern for imports
  */
 export default function scanImports(entry: string, options: ScanOptions): string[] {
-  // return on missing entry
-  if (!entry.length) {
-    return [];
-  }
-
-  // if package.json has no dependencies, skip
   if (!Object.keys(options.dependencies).length) {
+    console.warn(`No dependencies or devDependencies found in package.json`);
     return [];
   }
 
-  // return & warn on no matching files
   const files = glob.sync(entry, {nodir: true});
   if (!files.length) {
     console.warn(`No files found matching ${entry}`);
@@ -119,17 +133,16 @@ export default function scanImports(entry: string, options: ScanOptions): string
   const spinner = ora(`Scanning ${entry}`).start();
   const timeStart = process.hrtime();
 
-  // get all dependencies within globs
+  // get all dependencies (even local ones)
   const allDependencies = new Set<string>();
   files.forEach(file => {
     parseImports(file).forEach(dep => {
-      allDependencies.add(dep);
+      allDependencies.add(resolveWebModule(dep, options.dest));
     });
   });
 
-  // filter out dependencies not in deps or devDeps
+  // filter out dependencies not in package.json and sort
   const npmDependencies = [...allDependencies]
-    .map(dep => getNpmName(dep, options.dest))
     .filter(dep => !!options.dependencies[dep])
     .sort((a, b) => a.localeCompare(b));
 
@@ -142,7 +155,5 @@ export default function scanImports(entry: string, options: ScanOptions): string
     )}`,
   );
 
-  return [...npmDependencies]
-    .map(dep => getNpmName(dep, options.dest))
-    .sort((a, b) => a.localeCompare(b));
+  return npmDependencies;
 }
