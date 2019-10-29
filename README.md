@@ -26,7 +26,7 @@ npm install --dev @pika/web              # Optional: Install locally to use "pik
 ```diff
 # 1. Run @pika/web in your project:
     $ npx @pika/web
-
+    
 # 2. Replace all NPM package imports in your web app with web-native URLs:
 -   import { createElement, Component } from "preact";
 +   import { createElement, Component } from "/web_modules/preact.js";
@@ -35,7 +35,7 @@ npm install --dev @pika/web              # Optional: Install locally to use "pik
 
 # 3. Run your code directly in the browser and see the magic!
     ✨ ~(‾▿‾~)(~‾▿‾)~ ✨
-
+    
 # Optional: Using Babel? Skip "Step 2" and let our plugin rewrite your imports automatically:
     echo '{"plugins": [["@pika/web/assets/babel-plugin.js"]]}' > .babelrc
 # Optional: Install @pika/web locally so that it runs faster next time...
@@ -49,8 +49,8 @@ npm install --dev @pika/web              # Optional: Install locally to use "pik
 
 Bundling packages on a per-module basis like this makes it easy to build a web application that runs fast and caches well. Updating a single dependency won't force a complete re-download of your web application. [More on performance below.](#performance)
 
-> ┳┻| _
-> ┻┳| •.•) 💬 *"Tip: Use [pika.dev](https://www.pika.dev) to search 70,000+ modern, web-ready packages on npm"*
+> ┳┻| _  
+> ┻┳| •.•) 💬 *"Tip: Use [pika.dev](https://www.pika.dev) to search 70,000+ modern, web-ready packages on npm"*  
 > ┳┻|⊂ﾉ
 
 
@@ -84,7 +84,7 @@ Additionally, @pika/web runs all dependencies through Babel via `@preset/env` to
 
 > *Note: All package.json options are scoped under the `"@pika/web"` property.*
 
-* `"webDependencies"`: (Recommended) Configure which packages to install with @pika/web. Without this, @pika/web will just try to install every package in your "dependencies" config. That behavior is great for getting started but it won't warn you if an expected package fails to install.
+* `"webDependencies"`: (Recommended) Configure which packages to install with @pika/web. Without this, @pika/web will just try to install every package in your "dependencies" config. That behavior is great for getting started but it won't warn you if an expected package fails to install. 
 * `"namedExports"`: (Optional) If needed, you can explicitly define named exports for any dependency. You should only use this if you're getting `"'X' is not exported by Y"` errors without it. See [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs#usage) for more info.
 
 ```js
@@ -152,7 +152,7 @@ Otherwise, add the following to your `tsconfig.json` configuration to support ty
   // ...
 }
 ```
-
+      
 ## Special Thanks: Rollup
 
 @pika/web is powered internally by [Rollup](https://rollupjs.org/). We believe that bundlers shouldn't be a *requirement* for modern web app development, but none of this would be possible without the awesome work done by Rollup contributors. If you use and enjoy our software, consider contributing back to [Rollup on Open Collective](https://opencollective.com/rollup).
