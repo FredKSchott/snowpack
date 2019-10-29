@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
 import glob from 'glob';
@@ -11,12 +10,6 @@ import {
   isImportDeclaration,
   isCallExpression,
 } from '@babel/types';
-
-interface DependencyTree {
-  [key: string]: string[];
-}
-
-const cwd = process.cwd();
 
 /**
  * Splits a filename into folder segments
@@ -43,9 +36,9 @@ function getNpmName(modulePath: string, dest: string) {
 }
 
 /**
- * Return module name from static import
+ * Return import name (or undefined)
  */
-function importModuleName(node: NodePath<ImportDeclaration>) {
+function importModuleName(node: NodePath<ImportDeclaration>): string | undefined {
   if (isImportDeclaration(node)) {
     return node.node.source.value;
   }
@@ -53,9 +46,9 @@ function importModuleName(node: NodePath<ImportDeclaration>) {
 }
 
 /**
- * Return dynamic module name
+ * Return dynamic import name (or undefined)
  */
-function dynamicImportModuleName(node: NodePath<CallExpression>) {
+function dynamicImportModuleName(node: NodePath<CallExpression>): string | undefined {
   if (isCallExpression(node)) {
     if (node.node.callee.type === 'Import' && node.node.arguments && node.node.arguments.length) {
       return (node.node.arguments[0] as any).value;
@@ -67,111 +60,37 @@ function dynamicImportModuleName(node: NodePath<CallExpression>) {
 /**
  * Return array of dependencies
  */
-function getDependencies(file: string) {
+function parseImports(file: string) {
   const code = fs.readFileSync(file, 'utf8');
+
+  // skip file if empty, or if permissions error
   if (!code) {
-    throw new Error(`Could not read ${file}`);
+    return [];
   }
-  const ast = parse(code, {plugins: ['dynamicImport'], sourceType: 'module'});
+  const deps = new Set<string>(); // micro-optimization: use Set() to dedupe
 
-  const deps: string[] = [];
+  // try to parse; this will fail if not JS
+  try {
+    const ast = parse(code, {plugins: ['dynamicImport'], sourceType: 'module'});
+    traverse(ast, {
+      enter(node) {
+        const moduleName =
+          importModuleName(node as NodePath<ImportDeclaration>) ||
+          dynamicImportModuleName(node as NodePath<CallExpression>);
 
-  traverse(ast, {
-    enter(node) {
-      const moduleName =
-        importModuleName(node as NodePath<ImportDeclaration>) ||
-        dynamicImportModuleName(node as NodePath<CallExpression>);
-
-      if (!moduleName) {
-        return;
-      }
-
-      // if remote module
-      if (moduleName.startsWith('http://') || moduleName.startsWith('https://')) {
-        if (!deps.includes(moduleName)) {
-          deps.push(moduleName);
+        if (moduleName) {
+          deps.add(moduleName);
         }
-        return;
-      }
-
-      try {
-        // if local module
-        const resolvedPath = path.resolve(path.dirname(file), moduleName);
-        if (exists(resolvedPath) && !deps.includes(resolvedPath)) {
-          deps.push(resolvedPath.replace(cwd, '')); // strip out full path above project root (cwd) when adding
-        }
-      } catch (e) {
-        // if npm module
-        if (!deps.includes(moduleName)) {
-          deps.push(moduleName);
-        }
-      }
-    },
-  });
-
-  return [...deps].sort((a, b) => a.localeCompare(b));
-}
-
-/**
- * Check if filepath is valid
- */
-
-function exists(filename: string) {
-  const stats = fs.statSync(filename);
-  return stats && stats.isFile();
-}
-
-/**
- * Take an array of files, recursively scan imports, and return dependencies
- */
-function buildDependencyTree(
-  files: string[],
-  dependencyTree: DependencyTree = {},
-  npmDependencies: string[] = [],
-) {
-  files.forEach(file => {
-    const key = file.replace(cwd, ''); // don’t expose full filepath
-
-    // if file already parsed, skip
-    if (dependencyTree[key]) {
-      return;
-    }
-
-    // if new module, add to tree
-    const modules = getDependencies(file);
-    dependencyTree[key] = modules;
-
-    // resolve modules
-    const localModules: string[] = [];
-    modules.forEach(moduleName => {
-      if (moduleName.startsWith('http://') || moduleName.startsWith('https://')) {
-        return; // skip remote modules
-      }
-
-      // if local, try and resolve (this will throw if missing)
-      try {
-        const localModule = path.resolve(cwd, moduleName.replace(/^\//, ''));
-        if (exists(localModule)) {
-          localModules.push(localModule);
-        }
-      } catch (e) {
-        // if file can’t be located, it might be an npm module
-        if (!npmDependencies.includes(moduleName)) {
-          npmDependencies.push(moduleName);
-        }
-      }
+      },
     });
-
-    // recursively scan these modules until there are none left
-    if (localModules.length) {
-      buildDependencyTree(localModules, dependencyTree, npmDependencies);
-    }
-  });
-
-  return npmDependencies;
+    return [...deps]; // return Array for simplicity
+  } catch (e) {
+    return [];
+  }
 }
 
 interface ScanOptions {
+  dependencies: {[key: string]: string};
   dest: string;
 }
 
@@ -184,9 +103,13 @@ export default function scanImports(entry: string, options: ScanOptions): string
     return [];
   }
 
-  const files = glob.sync(entry);
+  // if package.json has no dependencies, skip
+  if (!Object.keys(options.dependencies).length) {
+    return [];
+  }
 
   // return & warn on no matching files
+  const files = glob.sync(entry, {nodir: true});
   if (!files.length) {
     console.warn(`No files found matching ${entry}`);
     return [];
@@ -196,8 +119,19 @@ export default function scanImports(entry: string, options: ScanOptions): string
   const spinner = ora(`Scanning ${entry}`).start();
   const timeStart = process.hrtime();
 
-  // build dep tree
-  const npmDependencies = buildDependencyTree(files);
+  // get all dependencies within globs
+  const allDependencies = new Set<string>();
+  files.forEach(file => {
+    parseImports(file).forEach(dep => {
+      allDependencies.add(dep);
+    });
+  });
+
+  // filter out dependencies not in deps or devDeps
+  const npmDependencies = [...allDependencies]
+    .map(dep => getNpmName(dep, options.dest))
+    .filter(dep => !!options.dependencies[dep])
+    .sort((a, b) => a.localeCompare(b));
 
   // end perf benchmark & print
   const timeEnd = process.hrtime(timeStart);

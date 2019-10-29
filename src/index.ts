@@ -391,7 +391,15 @@ export async function cli(args: string[]) {
   };
 
   let doesWhitelistExist = true;
-  const arrayOfDeps = [...webDependencies, ...scanImports(entry || '', {dest})];
+  const arrayOfDeps = [...webDependencies];
+  if (entry) {
+    arrayOfDeps.push(
+      ...scanImports(entry, {
+        dependencies: {...(pkgManifest.dependencies || {}), ...(pkgManifest.devDependencies || {})},
+        dest,
+      }),
+    );
+  }
   if (!arrayOfDeps.length) {
     doesWhitelistExist = false;
     arrayOfDeps.push(...Object.keys(pkgManifest.dependencies || {}));
