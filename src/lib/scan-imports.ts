@@ -19,26 +19,6 @@ function explode(file: string) {
 }
 
 /**
- * Remove file extension
- */
-function noExtension(file: string) {
-  return file.replace(/\.[^.]+$/, '');
-}
-
-/**
- * Attempt to return npm package name
- */
-function packageName(name: string) {
-  // if there’s no slash, this is likely a package name already
-  if (!name.includes('/')) {
-    return name;
-  }
-  // return first 2 segments if scoped package, or first if not scoped
-  const [scope, pkg] = explode(name);
-  return scope.startsWith('@') ? `${scope}/${pkg}` : scope;
-}
-
-/**
  * Attempt to figure out web_module’s identity
  */
 function resolveWebModule(name: string, dest: string) {
@@ -47,12 +27,12 @@ function resolveWebModule(name: string, dest: string) {
   if (name.includes(lastSegment)) {
     const [_, webModule] = name.split(lastSegment);
     if (webModule) {
-      return packageName(noExtension(webModule)); // remove file extension if web module
+      return webModule.replace(/^\//, ''); // remove file extension, and leading slash, if any
     }
   }
 
   // otherwise, return package name
-  return packageName(name);
+  return name;
 }
 
 /**
@@ -117,20 +97,20 @@ interface ScanOptions {
 /**
  * Scan glob pattern for imports
  */
-export default function scanImports(entry: string, options: ScanOptions): string[] {
+export default function scanImports(include: string, options: ScanOptions): string[] {
   if (!Object.keys(options.dependencies).length) {
     console.warn(`No dependencies or devDependencies found in package.json`);
     return [];
   }
 
-  const files = glob.sync(entry, {nodir: true});
+  const files = glob.sync(include, {nodir: true});
   if (!files.length) {
-    console.warn(`No files found matching ${entry}`);
+    console.warn(`No files found matching ${include}`);
     return [];
   }
 
   // start perf benchmark
-  const spinner = ora(`Scanning ${entry}`).start();
+  const spinner = ora(`Scanning ${include}`).start();
   const timeStart = process.hrtime();
 
   // get all dependencies (even local ones)
@@ -141,9 +121,29 @@ export default function scanImports(entry: string, options: ScanOptions): string
     });
   });
 
-  // filter out dependencies not in package.json and sort
+  // filter out modules not in options.dependencies and sort
+  const foundInDeps = (name: string) => !!options.dependencies[name];
   const npmDependencies = [...allDependencies]
-    .filter(dep => !!options.dependencies[dep])
+    .map(originalName => {
+      // npm name (ex: `vue`)
+      if (foundInDeps(originalName)) {
+        return originalName;
+      }
+      // npm name + extension (ex: `graphql.js`)
+      const noExt = originalName.replace(/\.[^.]+$/, '');
+      if (foundInDeps(noExt)) {
+        return noExt;
+      }
+      // nested dep (ex: `algoliasearch/dist/algoliasearchLite.js`)
+      const [scope, name] = explode(originalName);
+      const rootName = scope.startsWith('@') ? `${scope}/${name}` : scope;
+      if (foundInDeps(rootName)) {
+        return originalName;
+      }
+      // dep not found
+      return undefined;
+    })
+    .filter(dep => dep) // filter out unresolved
     .sort((a, b) => a.localeCompare(b));
 
   // end perf benchmark & print
