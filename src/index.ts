@@ -31,7 +31,7 @@ export interface DependencyLoc {
 
 export interface InstallOptions {
   destLoc: string;
-  entry?: string;
+  include?: string;
   isCleanInstall?: boolean;
   isStrict?: boolean;
   isOptimized?: boolean;
@@ -59,7 +59,7 @@ ${chalk.bold('Options:')}
     --clean             Clear out the destination directory before install.
     --optimize          Transpile, minify, and optimize installed dependencies for production.
     --babel             Transpile installed dependencies. Also enabled with "--optimize".
-    --entry             Auto-detect imports from file(s). Supports glob.
+    --include           Auto-detect imports from file(s). Supports glob.
     --strict            Only install pure ESM dependency trees. Fail if a CJS module is encountered.
     --no-source-map     Skip emitting source map files (.js.map) into dest
 ${chalk.bold('Advanced:')}
@@ -370,7 +370,7 @@ export async function cli(args: string[]) {
     sourceMap,
     babel = false,
     optimize = false,
-    entry,
+    include,
     strict = false,
     clean = false,
     dest = 'web_modules',
@@ -392,9 +392,9 @@ export async function cli(args: string[]) {
 
   let doesWhitelistExist = true;
   const arrayOfDeps = [...webDependencies];
-  if (entry) {
+  if (include) {
     arrayOfDeps.push(
-      ...scanImports(entry, {
+      ...scanImports(include, {
         dependencies: {...(pkgManifest.dependencies || {}), ...(pkgManifest.devDependencies || {})},
         dest,
       }),
