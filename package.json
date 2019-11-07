@@ -37,8 +37,11 @@
     ]
   },
   "dependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.5.5",
+    "@babel/core": "^7.6.4",
+    "@babel/parser": "^7.6.4",
+    "@babel/preset-env": "^7.6.3",
+    "@babel/traverse": "^7.6.3",
+    "@babel/types": "^7.6.3",
     "@pika/cli": "latest",
     "chalk": "^2.4.2",
     "glob": "^7.1.4",
@@ -58,12 +61,13 @@
   },
   "devDependencies": {
     "@pika/pack": "^0.5.0",
-    "@pika/plugin-build-node": "^0.6.0",
-    "@pika/plugin-copy-assets": "^0.6.0",
-    "@pika/plugin-simple-bin": "^0.6.0",
-    "@pika/plugin-ts-standard-pkg": "^0.6.0",
+    "@pika/plugin-build-node": "^0.6.1",
+    "@pika/plugin-copy-assets": "^0.6.1",
+    "@pika/plugin-simple-bin": "^0.6.1",
+    "@pika/plugin-ts-standard-pkg": "^0.6.1",
+    "@types/babel__traverse": "^7.0.7",
     "@types/mkdirp": "^0.5.2",
-    "prettier": "^1.16.4",
-    "typescript": "^3.5.1"
+    "prettier": "^1.18.2",
+    "typescript": "^3.6.4"
   }
 }

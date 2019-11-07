@@ -80,6 +80,8 @@ Additionally, @pika/web runs all dependencies through Babel via `@preset/env` to
 
 ## Options
 
+### `package.json` config
+
 > *Note: All package.json options are scoped under the `"@pika/web"` property.*
 
 * `"webDependencies"`: (Recommended) Configure which packages to install with @pika/web. Without this, @pika/web will just try to install every package in your "dependencies" config. That behavior is great for getting started but it won't warn you if an expected package fails to install. 
@@ -103,6 +105,11 @@ Additionally, @pika/web runs all dependencies through Babel via `@preset/env` to
   },
 ```
 
+### CLI
+
+| Option    | Description                                                                                    | Example                          |
+|-----------|------------------------------------------------------------------------------------------------|----------------------------------|
+| `--entry` | Auto-detect `import`s from your codebase. Supports [glob](https://www.npmjs.com/package/glob). | `npx @pika/web --entry 'src/**/*.js'` |
 
 ## A Note on React
 

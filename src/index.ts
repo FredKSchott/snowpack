@@ -17,6 +17,7 @@ import rollupPluginJson from 'rollup-plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import babelPresetEnv from '@babel/preset-env';
 import isNodeBuiltin from 'is-builtin-module';
+import scanImports from './lib/scan-imports.js';
 
 // Having trouble getting this ES2019 feature to compile, so using this ponyfill for now.
 function fromEntries(iterable: [string, string][]): {[key: string]: string} {
@@ -30,6 +31,7 @@ export interface DependencyLoc {
 
 export interface InstallOptions {
   destLoc: string;
+  include?: string;
   isCleanInstall?: boolean;
   isStrict?: boolean;
   isOptimized?: boolean;
@@ -58,6 +60,7 @@ ${chalk.bold('Options:')}
     --clean             Clear out the destination directory before install.
     --optimize          Transpile, minify, and optimize installed dependencies for production.
     --babel             Transpile installed dependencies. Also enabled with "--optimize".
+    --include           Auto-detect imports from file(s). Supports glob.
     --strict            Only install pure ESM dependency trees. Fail if a CJS module is encountered.
     --no-source-map     Skip emitting source map files (.js.map) into dest
 ${chalk.bold('Advanced:')}
@@ -370,6 +373,7 @@ export async function cli(args: string[]) {
     sourceMap,
     babel = false,
     optimize = false,
+    include,
     strict = false,
     clean = false,
     dest = 'web_modules',
@@ -389,8 +393,22 @@ export async function cli(args: string[]) {
     webDependencies: undefined,
     dedupe: undefined
   };
-  const doesWhitelistExist = !!webDependencies;
-  const arrayOfDeps = webDependencies || Object.keys(pkgManifest.dependencies || {});
+
+  let doesWhitelistExist = true;
+  const arrayOfDeps = [...webDependencies];
+  if (include) {
+    arrayOfDeps.push(
+      ...scanImports(include, {
+        dependencies: {...(pkgManifest.dependencies || {}), ...(pkgManifest.devDependencies || {})},
+        dest,
+      }),
+    );
+  }
+  if (!arrayOfDeps.length) {
+    doesWhitelistExist = false;
+    arrayOfDeps.push(...Object.keys(pkgManifest.dependencies || {}));
+  }
+
   const hasBrowserlistConfig =
     !!pkgManifest.browserslist ||
     !!process.env.BROWSERSLIST ||
