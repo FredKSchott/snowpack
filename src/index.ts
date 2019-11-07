@@ -17,7 +17,7 @@ import rollupPluginJson from 'rollup-plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import babelPresetEnv from '@babel/preset-env';
 import isNodeBuiltin from 'is-builtin-module';
-import scanImports from './lib/scan-imports.js';
+import scanImports from './scan-imports.js';
 
 // Having trouble getting this ES2019 feature to compile, so using this ponyfill for now.
 function fromEntries(iterable: [string, string][]): {[key: string]: string} {
@@ -42,7 +42,7 @@ export interface InstallOptions {
   remoteUrl?: string;
   remotePackages: [string, string][];
   sourceMap?: boolean | 'inline';
-  dedupe?: string[]; 
+  dedupe?: string[];
 }
 
 const cwd = process.cwd();
@@ -177,7 +177,7 @@ export async function install(
     namedExports,
     remoteUrl,
     remotePackages,
-    dedupe
+    dedupe,
   }: InstallOptions,
 ) {
   const nodeModulesLoc = path.join(cwd, 'node_modules');
@@ -288,7 +288,7 @@ export async function install(
           extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
           // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
           preferBuiltins: false, // Default: true
-          dedupe: dedupe
+          dedupe: dedupe,
         }),
         !isStrict &&
           rollupPluginJson({
@@ -391,7 +391,7 @@ export async function cli(args: string[]) {
   const {namedExports, webDependencies, dedupe} = pkgManifest['@pika/web'] || {
     namedExports: undefined,
     webDependencies: undefined,
-    dedupe: undefined
+    dedupe: undefined,
   };
 
   let doesWhitelistExist = true;
@@ -429,7 +429,7 @@ export async function cli(args: string[]) {
     remoteUrl,
     hasBrowserlistConfig,
     remotePackages: remotePackages.map(p => p.split(',')),
-    dedupe
+    dedupe,
   });
   if (result) {
     spinner.succeed(
