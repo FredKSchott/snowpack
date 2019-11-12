@@ -18,8 +18,8 @@ export type InstallTarget = {
   named: string[];
 };
 
-function stripJsExtension(dep) {
-  return dep.replace(/\.js$/, '');
+function stripJsExtension(dep: string): string {
+  return dep.replace(/\.m?js$/i, '');
 }
 
 function createInstallTarget(specifier: string, all = true): InstallTarget {
@@ -105,17 +105,17 @@ function getInstallTargetsForFile(
   return allImports;
 }
 
-export function scanWhitelist(whitelist: string[], cwd: string): InstallTarget[] {
+export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
   const nodeModulesLoc = nodePath.join(cwd, 'node_modules');
-  return whitelist
+  return depList
     .map(whitelistItem => {
       if (!glob.hasMagic(whitelistItem)) {
         return [createInstallTarget(whitelistItem, true)];
       } else {
-        return scanWhitelist(glob.sync(whitelistItem, {cwd: nodeModulesLoc, nodir: true}), cwd);
+        return scanDepList(glob.sync(whitelistItem, {cwd: nodeModulesLoc, nodir: true}), cwd);
       }
     })
-    .reduce((flat, item) => flat.concat(item));
+    .reduce((flat, item) => flat.concat(item), []);
 }
 
 export function scanImports(include: string, knownDependencies: string[]): InstallTarget[] {

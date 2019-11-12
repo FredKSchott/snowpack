@@ -19,7 +19,7 @@ import rollupPluginJson from 'rollup-plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
 import {rollupPluginRemoteResolve} from './rollup-plugin-remote-resolve.js';
-import {scanImports, scanWhitelist, InstallTarget} from './scan-imports.js';
+import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 
 export interface DependencyLoc {
   type: 'JS' | 'ASSET';
@@ -154,10 +154,10 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
 
 /**
  * Formats the @pika/web dependency name from a "webDependencies" input value:
- * 2. Remove any ".js" extension (will be added automatically by Rollup)
+ * 2. Remove any ".js"/".mjs" extension (will be added automatically by Rollup)
  */
 function getWebDependencyName(dep: string): string {
-  return dep.replace(/\.js$/, '');
+  return dep.replace(/\.m?js$/i, '');
 }
 
 export async function install(
@@ -376,14 +376,14 @@ export async function cli(args: string[]) {
 
   if (webDependencies) {
     isExplicit = true;
-    installTargets.push(...scanWhitelist(webDependencies, cwd));
+    installTargets.push(...scanDepList(webDependencies, cwd));
   }
   if (include) {
     isExplicit = true;
     installTargets.push(...scanImports(include, allDependencies));
   }
   if (!installTargets.length) {
-    installTargets.push(...scanWhitelist(implicitDependencies, cwd));
+    installTargets.push(...scanDepList(implicitDependencies, cwd));
   }
 
   const hasBrowserlistConfig =
