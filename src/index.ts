@@ -382,7 +382,7 @@ export async function cli(args: string[]) {
     isExplicit = true;
     installTargets.push(...scanImports(include, allDependencies));
   }
-  if (!installTargets.length) {
+  if (!webDependencies && !include) {
     installTargets.push(...scanDepList(implicitDependencies, cwd));
   }
 
