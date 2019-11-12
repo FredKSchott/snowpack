@@ -51,8 +51,8 @@ export function rollupPluginTreeshakeInputs(allImports: InstallTarget[]) {
       const result = `
         ${treeshakeSummary.namespace ? `export * from '${fileLoc}';` : ''}
         ${
-          treeshakeSummary.default && !uniqueNamedImports.has('default')
-            ? `export {default} from '${fileLoc}';`
+          treeshakeSummary.default
+            ? `import __pika_web_default_export_for_treeshaking__ from '${fileLoc}'; export default __pika_web_default_export_for_treeshaking__;`
             : ''
         }
         ${`export {${[...uniqueNamedImports].join(',')}} from '${fileLoc}';`}
