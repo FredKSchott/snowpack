@@ -55,7 +55,11 @@ function parseWebModuleSpecifier(specifier: string, knownDependencies: string[])
   return resolvedSpecifier;
 }
 
-function getInstallTargetsForFile(code: string, knownDependencies: string[]): InstallTarget[] {
+function getInstallTargetsForFile(
+  filePath: string,
+  code: string,
+  knownDependencies: string[],
+): InstallTarget[] {
   const allImports: InstallTarget[] = [];
   try {
     const ast = parse(code, {plugins: ['dynamicImport'], sourceType: 'module'});
@@ -95,7 +99,7 @@ function getInstallTargetsForFile(code: string, knownDependencies: string[]): In
       },
     });
   } catch (e) {
-    // TODO: report the error
+    console.error(`[PARSE ERROR]: Skipping ${filePath}`);
     return [];
   }
   return allImports;
@@ -117,15 +121,15 @@ export function scanWhitelist(whitelist: string[], cwd: string): InstallTarget[]
 export function scanImports(include: string, knownDependencies: string[]): InstallTarget[] {
   const includeFiles = glob.sync(include, {nodir: true});
   if (!includeFiles.length) {
-    console.warn(`Warning: No files matching "${include}"`);
+    console.warn(`[SCAN ERROR]: No files matching "${include}"`);
     return [];
   }
 
   // Scan every matched JS file for web dependency imports
   return includeFiles
-    .filter(file => file.endsWith('.js') || file.endsWith('mjs'))
-    .map(file => fs.readFileSync(file, 'utf8'))
-    .map(code => getInstallTargetsForFile(code, knownDependencies))
+    .filter(filePath => filePath.endsWith('.js') || filePath.endsWith('mjs'))
+    .map(filePath => [filePath, fs.readFileSync(filePath, 'utf8')])
+    .map(([filePath, code]) => getInstallTargetsForFile(filePath, code, knownDependencies))
     .reduce((flat, item) => flat.concat(item))
     .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier));
 }
