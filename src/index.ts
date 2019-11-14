@@ -415,8 +415,10 @@ export async function cli(args: string[]) {
       chalk.bold(`@pika/web`) +
         ` installed: ` +
         formatInstallResults(!isExplicit) +
-        '. ' +
-        chalk.dim(`[${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
+        '.' +
+        (process.env.NODE_ENV === 'test'
+          ? ''
+          : chalk.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`)),
     );
   }
 

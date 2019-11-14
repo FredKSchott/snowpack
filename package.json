@@ -15,7 +15,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "build": "pika build",
     "publish": "pika publish",
-    "version": "npm run build"
+    "version": "npm run build",
+    "test": "jest __tests__/runner.js"
   },
   "@pika/pack": {
     "pipeline": [
@@ -44,6 +45,7 @@
     "@babel/types": "^7.6.3",
     "@pika/cli": "latest",
     "chalk": "^2.4.2",
+    "dir-compare": "^1.8.0",
     "glob": "^7.1.4",
     "is-builtin-module": "^3.0.0",
     "mkdirp": "^0.5.1",
@@ -67,6 +69,7 @@
     "@pika/plugin-ts-standard-pkg": "^0.6.1",
     "@types/babel__traverse": "^7.0.7",
     "@types/mkdirp": "^0.5.2",
+    "jest": "^24.9.0",
     "prettier": "^1.18.2",
     "typescript": "^3.6.4"
   }

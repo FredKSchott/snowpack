@@ -1,3 +1,4 @@
-node_modules
-web_modules
 pkg
+/node_modules
+/web_modules
+__tests__/*/web_modules
