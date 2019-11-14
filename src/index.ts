@@ -7,6 +7,8 @@ import glob from 'glob';
 import ora from 'ora';
 import yargs from 'yargs-parser';
 import resolveFrom from 'resolve-from';
+import babelPresetEnv from '@babel/preset-env';
+import isNodeBuiltin from 'is-builtin-module';
 
 import * as rollup from 'rollup';
 import rollupPluginNodeResolve from 'rollup-plugin-node-resolve';
@@ -15,14 +17,9 @@ import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import rollupPluginReplace from 'rollup-plugin-replace';
 import rollupPluginJson from 'rollup-plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
-import babelPresetEnv from '@babel/preset-env';
-import isNodeBuiltin from 'is-builtin-module';
-import scanImports from './scan-imports.js';
-
-// Having trouble getting this ES2019 feature to compile, so using this ponyfill for now.
-function fromEntries(iterable: [string, string][]): {[key: string]: string} {
-  return [...iterable].reduce((obj, {0: key, 1: val}) => Object.assign(obj, {[key]: val}), {});
-}
+import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
+import {rollupPluginRemoteResolve} from './rollup-plugin-remote-resolve.js';
+import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 
 export interface DependencyLoc {
   type: 'JS' | 'ASSET';
@@ -47,7 +44,7 @@ export interface InstallOptions {
 
 const cwd = process.cwd();
 const banner = chalk.bold(`@pika/web`) + ` installing... `;
-const detectionResults = [];
+const installResults = [];
 let spinner = ora(banner);
 let spinnerHasError = false;
 
@@ -71,8 +68,8 @@ ${chalk.bold('Advanced:')}
   );
 }
 
-function formatDetectionResults(skipFailures): string {
-  return detectionResults
+function formatInstallResults(skipFailures): string {
+  return installResults
     .map(([d, yn]) => (yn ? chalk.green(d) : skipFailures ? chalk.dim(d) : chalk.red(d)))
     .join(', ');
 }
@@ -157,14 +154,14 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
 
 /**
  * Formats the @pika/web dependency name from a "webDependencies" input value:
- * 2. Remove any ".js" extension (will be added automatically by Rollup)
+ * 2. Remove any ".js"/".mjs" extension (will be added automatically by Rollup)
  */
 function getWebDependencyName(dep: string): string {
-  return dep.replace(/\.js$/, '');
+  return dep.replace(/\.m?js$/i, '');
 }
 
 export async function install(
-  arrayOfDeps: string[],
+  installTargets: InstallTarget[],
   {
     isCleanInstall,
     destLoc,
@@ -180,55 +177,45 @@ export async function install(
     dedupe,
   }: InstallOptions,
 ) {
-  const nodeModulesLoc = path.join(cwd, 'node_modules');
   const knownNamedExports = {...namedExports};
-  const remotePackageMap = fromEntries(remotePackages);
-  const depList: Set<string> = new Set();
-  arrayOfDeps.forEach(dep => {
-    if (!glob.hasMagic(dep)) {
-      depList.add(dep);
-    } else {
-      glob.sync(dep, {cwd: nodeModulesLoc, nodir: true}).forEach(f => depList.add(f));
-    }
-  });
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
     knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
   }
-
-  if (depList.size === 0) {
-    logError('no dependencies found.');
+  if (installTargets.length === 0) {
+    logError('Nothing to install.');
     return;
   }
   if (!fs.existsSync(path.join(cwd, 'node_modules'))) {
     logError('no "node_modules" directory exists. Did you run "npm install" first?');
     return;
   }
-
   if (isCleanInstall) {
     rimraf.sync(destLoc);
   }
 
-  const depObject: {[depName: string]: string} = {};
-  const assetObject: {[depName: string]: string} = {};
+  const allInstallSpecifiers = new Set(installTargets.map(dep => dep.specifier));
+  const depObject: {[targetName: string]: string} = {};
+  const assetObject: {[targetName: string]: string} = {};
   const importMap = {};
+  const installTargetsMap = {};
   const skipFailures = !isExplicit;
-  for (const dep of depList) {
+  for (const installSpecifier of allInstallSpecifiers) {
     try {
-      const depName = getWebDependencyName(dep);
-      const {type: depType, loc: depLoc} = resolveWebDependency(dep, isExplicit);
-      if (depType === 'JS') {
-        depObject[depName] = depLoc;
-        importMap[depName] = `./${depName}.js`;
-        detectionResults.push([dep, true]);
+      const targetName = getWebDependencyName(installSpecifier);
+      const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, isExplicit);
+      if (targetType === 'JS') {
+        depObject[targetName] = targetLoc;
+        importMap[targetName] = `./${targetName}.js`;
+        installTargetsMap[targetLoc] = installTargets.filter(t => installSpecifier === t.specifier);
+        installResults.push([installSpecifier, true]);
+      } else if (targetType === 'ASSET') {
+        assetObject[targetName] = targetLoc;
+        installResults.push([installSpecifier, true]);
       }
-      if (depType === 'ASSET') {
-        assetObject[depName] = depLoc;
-        detectionResults.push([dep, true]);
-      }
-      spinner.text = banner + formatDetectionResults(skipFailures);
+      spinner.text = banner + formatInstallResults(skipFailures);
     } catch (err) {
-      detectionResults.push([dep, false]);
-      spinner.text = banner + formatDetectionResults(skipFailures);
+      installResults.push([installSpecifier, false]);
+      spinner.text = banner + formatInstallResults(skipFailures);
       if (skipFailures) {
         continue;
       }
@@ -261,27 +248,7 @@ export async function install(
           rollupPluginReplace({
             'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
           }),
-        remotePackages.length > 0 && {
-          name: 'pika:peer-dependency-resolver',
-          resolveId(source: string) {
-            if (remotePackageMap[source]) {
-              let urlSourcePath = source;
-              // NOTE(@fks): This is really Pika CDN specific, but no one else should be using this option.
-              if (source === 'react' || source === 'react-dom') {
-                urlSourcePath = '_/' + source;
-              }
-              return {
-                id: `${remoteUrl}/${urlSourcePath}/${remotePackageMap[source]}`,
-                external: true,
-                isExternal: true,
-              };
-            }
-            return null;
-          },
-          load(id) {
-            return null;
-          },
-        },
+        remoteUrl && rollupPluginRemoteResolve({remoteUrl, remotePackages}),
         rollupPluginNodeResolve({
           mainFields: ['module', 'jsnext:main', 'browser', !isStrict && 'main'].filter(Boolean),
           modulesOnly: isStrict, // Default: false
@@ -314,6 +281,7 @@ export async function install(
               ],
             ],
           }),
+        !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
         !!isOptimized && rollupPluginTerser(),
       ],
       onwarn: ((warning, warn) => {
@@ -388,25 +356,34 @@ export async function cli(args: string[]) {
   }
 
   const pkgManifest = require(path.join(cwd, 'package.json'));
+  const implicitDependencies = [
+    ...Object.keys(pkgManifest.dependencies || {}),
+    ...Object.keys(pkgManifest.peerDependencies || {}),
+  ];
+  const allDependencies = [
+    ...Object.keys(pkgManifest.dependencies || {}),
+    ...Object.keys(pkgManifest.peerDependencies || {}),
+    ...Object.keys(pkgManifest.devDependencies || {}),
+  ];
+
+  let isExplicit = false;
+  const installTargets = [];
   const {namedExports, webDependencies, dedupe} = pkgManifest['@pika/web'] || {
     namedExports: undefined,
     webDependencies: undefined,
     dedupe: undefined,
   };
 
-  let doesWhitelistExist = true;
-  const arrayOfDeps = [...webDependencies];
-  if (include) {
-    arrayOfDeps.push(
-      ...scanImports(include, {
-        dependencies: {...(pkgManifest.dependencies || {}), ...(pkgManifest.devDependencies || {})},
-        dest,
-      }),
-    );
+  if (webDependencies) {
+    isExplicit = true;
+    installTargets.push(...scanDepList(webDependencies, cwd));
   }
-  if (!arrayOfDeps.length) {
-    doesWhitelistExist = false;
-    arrayOfDeps.push(...Object.keys(pkgManifest.dependencies || {}));
+  if (include) {
+    isExplicit = true;
+    installTargets.push(...scanImports(include, allDependencies));
+  }
+  if (!webDependencies && !include) {
+    installTargets.push(...scanDepList(implicitDependencies, cwd));
   }
 
   const hasBrowserlistConfig =
@@ -417,11 +394,11 @@ export async function cli(args: string[]) {
 
   spinner.start();
   const startTime = Date.now();
-  const result = await install(arrayOfDeps, {
+  const result = await install(installTargets, {
     isCleanInstall: clean,
     destLoc,
     namedExports,
-    isExplicit: doesWhitelistExist,
+    isExplicit,
     isStrict: strict,
     isBabel: babel || optimize,
     isOptimized: optimize,
@@ -431,17 +408,19 @@ export async function cli(args: string[]) {
     remotePackages: remotePackages.map(p => p.split(',')),
     dedupe,
   });
+
   if (result) {
     spinner.succeed(
       chalk.bold(`@pika/web`) +
         ` installed: ` +
-        formatDetectionResults(!doesWhitelistExist) +
+        formatInstallResults(!isExplicit) +
         '. ' +
         chalk.dim(`[${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
   }
+
+  //If an error happened, set the exit code so that programmatic usage of the CLI knows.
   if (spinnerHasError) {
-    // Set the exit code so that programmatic usage of the CLI knows that there were errors.
     spinner.warn(chalk(`Finished with warnings.`));
     process.exitCode = 1;
   }
