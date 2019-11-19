@@ -14,6 +14,7 @@
   "scripts": {
     "format": "prettier --write \"src/**/*.ts\"",
     "build": "pika build",
+    "lint": "prettier --check 'src/**/*.ts'",
     "publish": "pika publish",
     "version": "npm run build",
     "test": "jest __tests__/runner.js"
