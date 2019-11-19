@@ -418,9 +418,7 @@ export async function cli(args: string[]) {
         ` installed: ` +
         formatInstallResults(!isExplicit) +
         '.' +
-        (process.env.NODE_ENV === 'test'
-          ? ''
-          : chalk.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`)),
+        chalk.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
   }
 
