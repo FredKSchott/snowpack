@@ -118,8 +118,18 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
     .reduce((flat, item) => flat.concat(item), []);
 }
 
-export function scanImports(include: string, knownDependencies: string[]): InstallTarget[] {
-  const includeFiles = glob.sync(include, {nodir: true});
+interface ScanImportsParams {
+  include: string;
+  exclude?: glob.IOptions['ignore'];
+  knownDependencies: string[];
+}
+
+export function scanImports({
+  include,
+  exclude,
+  knownDependencies,
+}: ScanImportsParams): InstallTarget[] {
+  const includeFiles = glob.sync(include, {ignore: exclude, nodir: true});
   if (!includeFiles.length) {
     console.warn(`[SCAN ERROR]: No files matching "${include}"`);
     return [];
@@ -130,6 +140,6 @@ export function scanImports(include: string, knownDependencies: string[]): Insta
     .filter(filePath => filePath.endsWith('.js') || filePath.endsWith('mjs'))
     .map(filePath => [filePath, fs.readFileSync(filePath, 'utf8')])
     .map(([filePath, code]) => getInstallTargetsForFile(filePath, code, knownDependencies))
-    .reduce((flat, item) => flat.concat(item))
+    .reduce((flat, item) => flat.concat(item), [])
     .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier));
 }

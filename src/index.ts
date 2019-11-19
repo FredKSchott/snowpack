@@ -58,6 +58,7 @@ ${chalk.bold('Options:')}
     --optimize          Transpile, minify, and optimize installed dependencies for production.
     --babel             Transpile installed dependencies. Also enabled with "--optimize".
     --include           Auto-detect imports from file(s). Supports glob.
+    --exclude           Exclude files from --include. Follows glob’s ignore pattern.
     --strict            Only install pure ESM dependency trees. Fail if a CJS module is encountered.
     --no-source-map     Skip emitting source map files (.js.map) into dest
 ${chalk.bold('Advanced:')}
@@ -341,6 +342,7 @@ export async function cli(args: string[]) {
     help,
     sourceMap,
     babel = false,
+    exclude = ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
     optimize = false,
     include,
     strict = false,
@@ -381,7 +383,7 @@ export async function cli(args: string[]) {
   }
   if (include) {
     isExplicit = true;
-    installTargets.push(...scanImports(include, allDependencies));
+    installTargets.push(...scanImports({include, exclude, knownDependencies: allDependencies}));
   }
   if (!webDependencies && !include) {
     installTargets.push(...scanDepList(implicitDependencies, cwd));
