@@ -12,8 +12,9 @@
     "access": "public"
   },
   "scripts": {
-    "format": "prettier --write \"src/**/*.ts\"",
     "build": "pika build",
+    "format": "prettier --write 'src/**/*.ts'",
+    "lint": "prettier --check 'src/**/*.ts'",
     "publish": "pika publish",
     "version": "npm run build",
     "test": "jest __tests__/runner.js"
