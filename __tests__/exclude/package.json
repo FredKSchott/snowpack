@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "TEST": "../../pkg/dist-node/index.bin.js --include '*.js' --exclude 'exclude.js'"
+  },
+  "dependencies": {
+    "@emotion/is-prop-valid": "^0.8.5",
+    "vue": "^2.6.10",
+    "vue-router": "^3.1.3"
+  }
+}
