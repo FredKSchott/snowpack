@@ -26,4 +26,5 @@
 - Ionic 4 basic application [[Discussion]](https://github.com/pikapkg/web/pull/28)
 - React + Styled Components [[Discussion]](https://github.com/pikapkg/web/issues/66)
 - Svelte example
+- ESM + Fallback for IE11
 - [Add examples that you'd like to see here!](https://github.com/pikapkg/web/edit/master/EXAMPLES.md)
