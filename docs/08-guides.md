@@ -2,6 +2,8 @@
 
 ### Optimizing for Production
 
+![Tree-shaking example](/img/treeshaking.jpg)
+
 ```
 $ npx snowpack --optimize
 ```

@@ -107,7 +107,7 @@ npx serve
 
 Look at that! No bundler needed! Any changes that you make to your src/app.js file are **immediately** reflected when you refresh your page. No bundlers, build steps, or waiting around required.
 
-#### 6. Extra Credit (Optional)
+#### 6. Next Steps
 
 - Open up your browser's Dev Tools, and browse your source code!
 - Add HTM to your project as a tooling-free alternative to JSX.
@@ -139,4 +139,4 @@ const app = (<div>Hello World!</div>);
 render(app, document.getElementById('app'));
 ```
 
-Check out our guides below for even more inspiration!
+Check out our guides below for more inspiration!

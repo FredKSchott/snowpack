@@ -8,6 +8,8 @@ const syntaxHighlight = require('@11ty/eleventy-plugin-syntaxhighlight');
 
 module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy(path.join(__dirname, 'css'));
+  eleventyConfig.addPassthroughCopy(path.join(__dirname, 'img'));
+  eleventyConfig.addPassthroughCopy(path.join(__dirname, 'favicon'));
   // eleventyConfig.addPlugin(pluginRss);
   // eleventyConfig.addPlugin(pluginSyntaxHighlight);
   // eleventyConfig.setDataDeepMerge(true);
