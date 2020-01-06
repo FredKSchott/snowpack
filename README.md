@@ -18,14 +18,12 @@ npm install --dev snowpack
 - Enables tooling-free / build-free / bundle-free development.
 - Works well with Import Maps.
 
-### 💁 More info at the official [Snowpack website ➞](https://snowpack.dev)
+**💁 More info at the official [Snowpack website ➞](https://snowpack.dev)**
 
 
 ## Examples
 
 🆕 **Check out [`npx @pika/init`](https://github.com/pikapkg/init)**! Instantly bootstrap a starter app with Snowpack, Preact, TypeScript, and more!
-
-🙋‍♀️ Have a great example you'd like to share? Create it on [CodeSandbox](https://codesandbox.io/), [Glitch](https://glitch.com), or [GitHub](https://github.com/new). Then [add it here!](https://github.com/pikapkg/web/edit/master/EXAMPLES.md)
 
 - A basic, three-dependency project: [[Source]](https://glitch.com/edit/#!/pika-web-example-simple) [[Live Demo]](https://pika-web-example-simple.glitch.me/)
 - Preact + HTM: [[Source]](https://glitch.com/edit/#!/pika-web-example-preact-htm) [[Live Demo]](https://pika-web-example-preact-htm.glitch.me)
@@ -35,3 +33,4 @@ npm install --dev snowpack
 - PWA-Starter-Kit (lit-html + Redux): [[Source]](https://github.com/Polymer/pwa-starter-kit/issues/339)
 - LitElement + lit-html PWA: [[Source]](https://github.com/thepassle/reddit-pwa) [[Live Demo]](https://angry-turing-4769b3.netlify.com/)  
 - Terminal Homepage (Preact + Typescript + Babel): [[Source]](https://github.com/ndom91/terminal-homepage) [[Live Demo]](https://termy.netlify.com)  
+- 🙋‍♀️ Have a great example you'd like to share? Create it on [CodeSandbox](https://codesandbox.io/), [Glitch](https://glitch.com), or [GitHub](https://github.com/new). Then add it here via PR.
