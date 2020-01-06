@@ -17,7 +17,10 @@
     "lint": "prettier --check 'src/**/*.ts'",
     "publish": "pika publish",
     "version": "npm run build",
-    "test": "jest __tests__/runner.js"
+    "test": "jest __tests__/runner.js",
+    "docs:build": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js",
+    "docs:watch": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js --serve",
+    "docs:deploy": "cd www/dist && now"
   },
   "@pika/pack": {
     "pipeline": [
@@ -63,6 +66,11 @@
     "yargs-parser": "^13.0.0"
   },
   "devDependencies": {
+    "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.1",
+    "@11ty/eleventy": "^0.9.0",
+    "eleventy-plugin-nesting-toc": "^1.1.0",
+    "markdown-it": "^10.0.0",
+    "markdown-it-anchor": "^5.2.5",
     "@pika/pack": "^0.5.0",
     "@pika/plugin-build-node": "^0.6.1",
     "@pika/plugin-copy-assets": "^0.6.1",

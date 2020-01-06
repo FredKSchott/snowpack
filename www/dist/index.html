@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Snowpack</title>
+    	<link href="/css/prism.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap" >
+    <link rel="stylesheet" href="/css/github-markdown.css" >
+    <style>
+    /*! minireset.css v0.0.6 | MIT License | github.com/jgthms/minireset.css */html,body,p,ol,ul,li,dl,dt,dd,blockquote,figure,fieldset,legend,textarea,pre,iframe,hr,h1,h2,h3,h4,h5,h6{margin:0;padding:0}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal}ul{list-style:none}button,input,select,textarea{margin:0}html{box-sizing:border-box}*,*::before,*::after{box-sizing:inherit}img,video{height:auto;max-width:100%}iframe{border:0}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}td:not([align]),th:not([align]){text-align:left}
+
+.markdown-body h2 + h3 {
+  margin-top: 16px;
+}
+.markdown-body ul {
+  list-style: initial;
+}
+
+* {
+	position: relative;
+	box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+body {
+  display: grid;
+  grid-template-columns: 82px 260px 1fr;
+  grid-template-rows: 62px 4px 1fr;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+}
+
+.grid-logo { grid-area: 1 / 1 / 2 / 2; }
+.grid-header { grid-area: 1 / 2 / 2 / 4; }
+.grid-header-border { grid-area: 2 / 1 / 3 / 4; }
+.grid-toc { grid-area: 3 / 1 / 4 / 3; }
+.grid-body { grid-area: 3 / 3 / 4 / 4; }
+.grid-toc, .grid-body {
+  overflow: scroll;
+}
+
+@media (max-width: 700px) {
+  .grid-toc { display: none; }
+  .grid-body { grid-area: 3 / 1 / 4 / 4; }
+}
+
+.grid-logo {
+  padding: 10px 1em;
+}
+.grid-header {
+  font-family: 'Montserrat', 'ProximaNova-Bold', 'Helvetica Neue', Arial, sans-serif;
+  padding: 12px 1em 12px 0;
+  line-height: 42px;
+  color: #333;
+  letter-spacing: 1px;
+ }
+.grid-header h1 {
+  font-size: 32px;
+  display: inline-block;
+}
+.grid-header .version-tag {
+  font-size: 20px;
+}
+.grid-header a {
+  float: right;
+  color: #333;
+  text-decoration: none;
+}
+.grid-header-border {
+    background: linear-gradient(to right, #55F 0%, #51BBFF66 100%);
+ }
+
+.toc {
+  padding: 1em;
+}
+.toc a {
+  text-decoration: none;
+  color: #888;
+}
+
+.toc a.active {
+  color: red;
+}
+
+.toc ol {
+  list-style: none;
+  line-height: 1.6;
+}
+.toc > ol > li {
+  font-weight: bold;
+}
+.toc > ol > li > a {
+  color: #333;
+}
+.toc > ol > li > ol {
+  padding: 0 1em 0em 1em;
+  font-weight: normal;
+}
+
+
+.grid-body {
+  padding: 1em;
+}
+.markdown-body {
+  max-width: 720px;
+  margin-bottom: 50vh;
+}
+    </style>
+  </head>
+  <body>
+  <div class="grid-logo">
+    <svg  height="42px" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#55F" offset="0%"></stop>
+            <stop stop-color="#61CCFF" offset="100%"></stop>
+        </linearGradient>
+        </defs>
+        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="mountain-solid" transform="translate(-1.000000, 0.000000)" fill="url(#linearGradient-1)" fill-rule="nonzero">
+                <path d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z" id="Shape"></path>
+            </g>
+        </g>
+    </svg>
+  </div>
+    <header class="grid-header">
+      <h1>Snowpack</h1>
+      <span class="version-tag">v1.0.0</span>
+      <a href="https://github.com/pikapkg/snowpack/blob/master/docs">[Edit on GitHub]</a>
+    </header>
+    <div class="grid-header-border">
+    </div>
+    <aside class="grid-toc">
+      <nav class="toc">
+                <ol>
+                    
+                    <li><a href="#what-is-snowpack%3F">What is Snowpack?</a>
+            
+                <ol>
+                    
+                    <li><a href="#tl%3Bdr">tl;dr</a>
+            		</li>
+
+                    <li><a href="#how-does-it-work%3F">How Does it Work?</a>
+            		</li>
+
+                    <li><a href="#browser-support">Browser Support</a>
+            		</li>
+
+                    <li><a href="#performance">Performance</a>
+            		</li>
+                </ol>
+            		</li>
+
+                    <li><a href="#installation">Installation</a>
+            		</li>
+
+                    <li><a href="#quickstart">Quickstart</a>
+            		</li>
+
+                    <li><a href="#usage">Usage</a>
+            
+                <ol>
+                    
+                    <li><a href="#zero-config-installs-(default)">Zero-Config Installs (Default)</a>
+            		</li>
+
+                    <li><a href="#automatic-installs-(recommended)">Automatic Installs (Recommended)</a>
+            		</li>
+
+                    <li><a href="#whitelist-dependencies">Whitelist Dependencies</a>
+            		</li>
+
+                    <li><a href="#import-packages-by-name">Import Packages by Name</a>
+            		</li>
+                </ol>
+            		</li>
+
+                    <li><a href="#advanced-usage">Advanced Usage</a>
+            
+                <ol>
+                    
+                    <li><a href="#optimize-for-production">Optimize for Production</a>
+            		</li>
+
+                    <li><a href="#run-on-every-%E2%80%9Cnpm-install%E2%80%9D">Run on Every “npm install”</a>
+            		</li>
+
+                    <li><a href="#customize-browser-support">Customize Browser Support</a>
+            		</li>
+
+                    <li><a href="#all-cli-options">All CLI Options</a>
+            		</li>
+
+                    <li><a href="#all-config-options">All Config Options</a>
+            		</li>
+                </ol>
+            		</li>
+
+                    <li><a href="#guides">Guides</a>
+            
+                <ol>
+                    
+                    <li><a href="#babel">Babel</a>
+            		</li>
+
+                    <li><a href="#typescript">TypeScript</a>
+            		</li>
+
+                    <li><a href="#react">React</a>
+            		</li>
+
+                    <li><a href="#jsx">JSX</a>
+            		</li>
+
+                    <li><a href="#saying-goodbye-(migrating)">Saying Goodbye (Migrating)</a>
+            		</li>
+                </ol>
+            		</li>
+
+                    <li><a href="#examples">Examples</a>
+            		</li>
+                </ol>
+            </nav>
+    </aside>
+    <div id="grid-body" class="grid-body">
+      <article class="markdown-body">
+    <!--
+        <div style="text-align: center; padding: 10vh 0vw 5vh">
+          <svg height="200px" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+              <defs>
+              <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-2">
+                  <stop stop-color="#55F" offset="0%"></stop>
+                  <stop stop-color="#61CCFF00" offset="100%"></stop>
+              </linearGradient>
+              </defs>
+              <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                  <g id="mountain-solid" transform="translate(-1.000000, 0.000000)" fill="url(#linearGradient-2)" fill-rule="nonzero">
+                      <path d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z" id="Shape"></path>
+                  </g>
+              </g>
+          </svg>
+        </div>
+        -->
+        <h2 id="what-is-snowpack%3F">What is Snowpack?</h2>
+<h3 id="tl%3Bdr">tl;dr</h3>
+<ul>
+<li><strong>Install any npm package to run directly in the browser via ESM.</strong></li>
+<li>Replaces traditional app bundlers (Webpack, Rollup, Parcel, etc).</li>
+<li>Just run once at install time. No other tooling required.</li>
+<li>Enables tooling-free / build-free / bundle-free development.</li>
+<li>Works well with Import Maps.</li>
+</ul>
+<h3 id="how-does-it-work%3F">How Does it Work?</h3>
+<p>Snowpack reads dependencies from your project <code>node_modules/</code> directory and installs them into a new <code>web_modules/</code> directory. Each <code>web_modules/</code> dependency is installed as a single ESM JavaScript file that can run natively in the browser, without any additional bundling or tooling.</p>
+<h3 id="browser-support">Browser Support</h3>
+<p>Snowpack installs ES Module (ESM) dependencies from npm, which run <a href="https://caniuse.com/#feat=es6-module">wherever ESM syntax is supported</a>. This includes ~90%+ of all browsers in use today. <strong>All modern browsers (Firefox, Chrome, Edge, Safari) going back to 2018 support it.</strong></p>
+<p>The only two notable browsers that don’t support ESM are IE11 and UC Browser for Android. If your need to support users in the enterprise or China, you should consider sticking with traditional web application bundlers.</p>
+<p>Additionally, Snowpack runs all dependencies through Babel via <code>@preset/env</code> to transpile any less-suported language features found in your dependencies. You can customize this behavior by setting your own “browserslist” key in your <code>package.json</code> manifest (see below).</p>
+<h3 id="performance">Performance</h3>
+<p>You can think of Snowpack like code-splitting with Webpack or Rollup. Dependencies are installed as single files, with all internal package files bundled together as efficiently as possible.</p>
+<p>Max Jung’s post on <a href="https://medium.com/@asyncmax/the-right-way-to-bundle-your-assets-for-faster-sites-over-http-2-437c37efe3ff">“The Right Way to Bundle Your Assets for Faster Sites over HTTP/2”</a> is the best study on HTTP/2 performance &amp; bundling we could find online. Snowpack’s installation most closely matches the study’s moderate, “50 file” bundling strategy. Jung’s post found that for HTTP/2, “differences among concatenation levels below 1000 [small files] (50, 6 or 1) were negligible.”</p>
+<p>Snowpack is most performant when it comes to caching. Snowpack keeps your dependencies separate from your application code, and from each other. This allows the browser cache dependencies as efficiently as possible, and only fetch updates when individual dependencies change.</p>
+<h2 id="installation">Installation</h2>
+<pre class="language-bash"><code class="language-bash"><span class="token comment"># Try Snowpack before installing:</span><br>npx snowpack      <br><span class="token comment"># Installing Snowpack locally speeds up npx: </span><br><span class="token function">npm</span> <span class="token function">install</span> --dev snowpack</code></pre>
+<h2 id="quickstart">Quickstart</h2>
+<h4 id="1.-create-a-new-project-directory-with-%E2%80%9Cpreact%E2%80%9D.">1. Create a new project directory with “preact”.</h4>
+<pre><code>mkdir snowpack-demo
+cd snowpack-demo
+npm init --yes
+npm install --save preact@10
+</code></pre>
+<p>We’re using Preact for this Quickstart, but you could use any package. If you’re just starting out, we strongly recommend packages with an ESM “module” entrypoint defined, which can be found on pika.dev. Legacy packages (Common.js) are supported, but are more likely to cause issues at install-time.</p>
+<h4 id="2.-run-snowpack-to-create-your-web_modules-directory">2. Run Snowpack to create your web_modules directory</h4>
+<pre class="language-bash"><code class="language-bash">npx snowpack<br><span class="token comment"># Optional: Run "npm install snowpack --dev" to speed up future runs</span></code></pre>
+<h4 id="3.-create-a-simple-html-file-for-your-application%3A">3. Create a simple HTML file for your application:</h4>
+<pre class="language-html"><code class="language-html"><span class="token comment">&lt;!-- File Location: index.html --></span><br><span class="token doctype">&lt;!DOCTYPE html></span><br><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span> <span class="token attr-name">lang</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>en<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><br>  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>title</span><span class="token punctuation">></span></span>Snowpack - Simple Example<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>title</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">></span></span>  <br>  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">></span></span><br>    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>app<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><br>    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>module<span class="token punctuation">"</span></span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>/src/app.js<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><br>  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">></span></span><br><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">></span></span></code></pre>
+<h4 id="4.-create-a-simple-javascript-application-entrypoint%3A">4. Create a simple JavaScript application entrypoint:</h4>
+<pre class="language-js"><code class="language-js"><span class="token comment">/* File Location: src/app.js */</span><br><span class="token comment">// Import your web-ready dependencies</span><br><span class="token keyword">import</span> <span class="token punctuation">{</span> h<span class="token punctuation">,</span> Component<span class="token punctuation">,</span> render <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'/web_modules/preact.js'</span><span class="token punctuation">;</span><br><span class="token comment">// Create your app</span><br><span class="token keyword">const</span> app <span class="token operator">=</span> <span class="token function">h</span><span class="token punctuation">(</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">,</span> <span class="token string">'Hello World!'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><br><span class="token comment">// Inject your application into the an element with the id `app`.</span><br><span class="token function">render</span><span class="token punctuation">(</span>app<span class="token punctuation">,</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">'app'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<h4 id="5.-serve-your-application-to-view-it-in-a-web-browser!">5. Serve your application to view it in a web browser!</h4>
+<pre><code>npx serve
+# Optional: Run &quot;npm install -g serve&quot; to speed up future runs
+</code></pre>
+<p>Look at that! No bundler needed! Any changes that you make to your src/app.js file are <strong>immediately</strong> reflected when you refresh your page. No bundlers, build steps, or waiting around required.</p>
+<h4 id="6.-extra-credit-(optional)">6. Extra Credit (Optional)</h4>
+<ul>
+<li>Open up your browser’s Dev Tools, and browse your source code!</li>
+<li>Add HTM to your project as a tooling-free alternative to JSX.</li>
+</ul>
+<pre class="language-js"><code class="language-js"><span class="token comment">/* File Location: src/app.js */</span><br><span class="token keyword">import</span> <span class="token punctuation">{</span> h<span class="token punctuation">,</span> Component<span class="token punctuation">,</span> render <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'/web_modules/preact.js'</span><span class="token punctuation">;</span><br><span class="token keyword">import</span> htm <span class="token keyword">from</span> <span class="token string">'/web_modules/htm.js'</span><span class="token punctuation">;</span><br><span class="token keyword">const</span> html <span class="token operator">=</span> <span class="token function">htm</span><span class="token punctuation">.</span><span class="token function">bind</span><span class="token punctuation">(</span>h<span class="token punctuation">)</span><span class="token punctuation">;</span><br><span class="token comment">// Create your app with HTM.</span><br><span class="token keyword">const</span> app <span class="token operator">=</span> html<span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">&lt;div>Hello World!&lt;/div></span><span class="token template-punctuation string">`</span></span><br><span class="token comment">// Render your app.</span><br><span class="token function">render</span><span class="token punctuation">(</span>app<span class="token punctuation">,</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">'app'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<ul>
+<li>Add Babel to your project so that you can use JSX.</li>
+</ul>
+<pre class="language-bash"><code class="language-bash">babel src/ --out-dir lib --watch</code></pre>
+<pre class="language-jsx"><code class="language-jsx"><span class="token comment">/* File Location: src/app.js */</span><br><span class="token comment">/* Babel Output:  lib/app.js (Remember to point your index.html file here!) */</span><br><span class="token keyword">import</span> <span class="token punctuation">{</span> h<span class="token punctuation">,</span> Component<span class="token punctuation">,</span> render <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'/web_modules/preact.js'</span><span class="token punctuation">;</span><br><span class="token comment">// Create your app with HTM.</span><br><span class="token keyword">const</span> app <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">Hello World!</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><br><span class="token comment">// Render your app.</span><br><span class="token function">render</span><span class="token punctuation">(</span>app<span class="token punctuation">,</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">'app'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>Check out our guides below for even more inspiration!</p>
+<h2 id="usage">Usage</h2>
+<p>Snowpack has a single goal: to install web-ready npm packages to a new <code>web_modules/</code> directory in your project. What you build with it (and how you serve that project locally) is entirely up to you. You can use as many or as few tools on top of Snowpack as you’d like.</p>
+<p>Still stuck? See our Quickstart guide above for help to get started.</p>
+<h3 id="zero-config-installs-(default)">Zero-Config Installs (Default)</h3>
+<pre><code>$ npx snowpack
+</code></pre>
+<p>By default, Snowpack will attempt to install all “dependencies” listed in your package.json. If the package defines an ESM “module” entrypoint, then that package is installed into your new <code>web_modules/</code> directory.</p>
+<p>As long as all of your web dependencies are listed as package.json “dependencies” (with all other dependencies listed under “devDependencies”) this zero-config behavior should work well for your project.</p>
+<h3 id="automatic-installs-(recommended)">Automatic Installs (Recommended)</h3>
+<pre><code>$ npx snowpack --include &quot;src/**/*.js&quot;
+</code></pre>
+<p>With some additional config, Snowpack is also able to automatically detect dependencies by scanning your application for import statements. This is the recommended way to use Snowpack, since it is both faster and more accurate than trying to install every dependency.</p>
+<p>To enable automatic import scanning, use the <code>--include</code> CLI flag to tell Snowpack which files to scan for. Snowpack will automatically scan every file for imports with <code>web_modules</code> in the import path. It will then parse those to find every dependency required by your project.</p>
+<p>Remember to re-run Snowpack every time you import an new dependency.</p>
+<h3 id="whitelist-dependencies">Whitelist Dependencies</h3>
+<pre class="language-js"><code class="language-js">  <span class="token comment">/* package.json */</span><br>  <span class="token string">"snowpack"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><br>    <span class="token string">"webDependencies"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><br>      <span class="token string">"htm"</span><span class="token punctuation">,</span><br>      <span class="token string">"preact"</span><span class="token punctuation">,</span><br>      <span class="token string">"preact/hooks"</span><span class="token punctuation">,</span> <span class="token comment">// A package within a package</span><br>      <span class="token string">"unistore/full/preact.es.js"</span><span class="token punctuation">,</span> <span class="token comment">// An ESM file within a package (supports globs)</span><br>      <span class="token string">"bulma/css/bulma.css"</span> <span class="token comment">// A non-JS static asset (supports globs)</span><br>    <span class="token punctuation">]</span><span class="token punctuation">,</span><br>  <span class="token punctuation">}</span></code></pre>
+<p>Whitelist any dependencies by defining them in your “webDependencies” config (see below). You can use this to control exactly which packages are installed OR use this together with the   <code>--include</code> flag to include additional non-JS assets in your <code>web_modules/</code> directory.</p>
+<h3 id="import-packages-by-name">Import Packages by Name</h3>
+<pre class="language-js"><code class="language-js"><span class="token comment">/* .babelrc */</span><br>  <span class="token string">"plugins"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><br>    <span class="token punctuation">[</span><span class="token string">"snowpack/assets/babel-plugin.js"</span><span class="token punctuation">]</span><span class="token punctuation">,</span><br>  <span class="token punctuation">]</span></code></pre>
+<p>Importing packages by name (ex: <code>import React from 'react'</code>) isn’t supported in any modern browsers. Unless you’re using a traditional app bundler or a build tool like Babel, you’ll need to import all dependencies in your application by URL (ex: <code>import React from '/web_modules/react.js'</code>).</p>
+<p>If you are using Babel, you can use the Snowpack Babel Plugin to transform your imports automatically at build time. The plugin reads any packages name imports in your files and rewrites them to full URLs that run in the browser.</p>
+<h2 id="advanced-usage">Advanced Usage</h2>
+<h3 id="optimize-for-production">Optimize for Production</h3>
+<pre><code>$ npx snowpack --optimize
+</code></pre>
+<p>By default, Snowpack installs dependencies un-minified. You can run minification and other production optimizations on your installation by running <code>snowpack</code> with the <code>--optimize</code> flag.</p>
+<h3 id="run-on-every-%E2%80%9Cnpm-install%E2%80%9D">Run on Every “npm install”</h3>
+<pre class="language-js"><code class="language-js">  <span class="token comment">/* package.json */</span><br>  <span class="token string">"scripts"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><br>    <span class="token string">"prepare"</span><span class="token punctuation">:</span> <span class="token string">"snowpack"</span><br>  <span class="token punctuation">}</span></code></pre>
+<p>Optionally, you can add “snowpack” as a <code>&quot;prepare&quot;</code> script to your <code>package.json</code> and npm/yarn will run it after every new dependency install. This is recommended so that new dependencies are automatically included in your <code>web_modules/</code> directory.</p>
+<h3 id="customize-browser-support">Customize Browser Support</h3>
+<pre class="language-js"><code class="language-js">  <span class="token comment">/* package.json */</span><br>  <span class="token string">"browserslist"</span><span class="token punctuation">:</span> <span class="token string">" >0.75%, not ie 11, not UCAndroid all, not OperaMini all"</span><span class="token punctuation">,</span></code></pre>
+<p>By default, Snowpack runs all dependencies through Babel via <code>@preset/env</code> to transpile any unsupported language features found in your dependencies. By default, Snowpack will use the string shown above, but you can customize this behavior by setting your own “browserslist” key in your <code>package.json</code> manifest.</p>
+<h3 id="all-cli-options">All CLI Options</h3>
+<p>Run Snowpack with the <code>--help</code> flag to see a list of all supported options to customize how Snowpack installs your dependencies.</p>
+<pre class="language-bash"><code class="language-bash">npx snowpack --help</code></pre>
+<h3 id="all-config-options">All Config Options</h3>
+<blockquote>
+<p><em>Note: All package.json options are scoped under the <code>&quot;snowpack&quot;</code> property.</em></p>
+</blockquote>
+<ul>
+<li><code>&quot;webDependencies&quot;</code>: (Recommended) Set exactly which packages to install with Snowpack. Without this, Snowpack will just try to install every package in your “dependencies” config. That behavior is great for getting started but it won’t warn you if an expected package fails to install.</li>
+<li><code>&quot;namedExports&quot;</code>: (Optional) If needed, you can explicitly define named exports for any dependency. You should only use this if you’re getting <code>&quot;'X' is not exported by Y&quot;</code> errors without it. See <a href="https://github.com/rollup/rollup-plugin-commonjs#usage">rollup-plugin-commonjs</a> for more info.</li>
+<li><code>&quot;dedupe&quot;</code>: (Optional) If needed, force resolving for these modules to root’s node_modules. This helps prevend bundling package multiple time if package is imported from dependencies. See <a href="https://github.com/rollup/rollup-plugin-node-resolve#usage">rollup-plugin-node-resolve</a>. This is useful when developing a dependency locally, and prevent rollup to duplicate dependencies included both in local and remote packages.</li>
+</ul>
+<pre class="language-js"><code class="language-js">  <span class="token string">"dependencies"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token string">"htm"</span><span class="token punctuation">:</span> <span class="token string">"^1.0.0"</span><span class="token punctuation">,</span> <span class="token string">"preact"</span><span class="token punctuation">:</span> <span class="token string">"^8.0.0"</span><span class="token punctuation">,</span> <span class="token comment">/* ... */</span> <span class="token punctuation">}</span><span class="token punctuation">,</span><br>  <span class="token string">"snowpack"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><br>    <span class="token string">"webDependencies"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><br>      <span class="token string">"htm"</span><span class="token punctuation">,</span><br>      <span class="token string">"preact"</span><span class="token punctuation">,</span><br>      <span class="token string">"preact/hooks"</span><span class="token punctuation">,</span> <span class="token comment">// A package within a package</span><br>      <span class="token string">"unistore/full/preact.es.js"</span><span class="token punctuation">,</span> <span class="token comment">// An ESM file within a package (supports globs)</span><br>      <span class="token string">"bulma/css/bulma.css"</span> <span class="token comment">// A non-JS static asset (supports globs)</span><br>    <span class="token punctuation">]</span><span class="token punctuation">,</span><br>    <span class="token string">"dedupe"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><br>        <span class="token string">"lit-element"</span><span class="token punctuation">,</span><br>        <span class="token string">"lit-html"</span> <br>    <span class="token punctuation">]</span><br>  <span class="token punctuation">}</span><span class="token punctuation">,</span></code></pre>
+<h2 id="guides">Guides</h2>
+<h3 id="babel">Babel</h3>
+<p>Snowpack is expected to play well with Babel. Guide coming soon.</p>
+<h3 id="typescript">TypeScript</h3>
+<p>Snowpack is expected to play well with TypeScript. <a href="https://www.pika.dev">https://www.pika.dev</a> itself is built using both tools. But by default, TypeScript expects to import packages by name. There are two solutions to get TypeScript and Snowpack working well together.</p>
+<p>If you are using Babel to build your app, you can leverage our Babel plugin to continue to write imports by package name in a way that TypeScript will also understand (see instructions above).</p>
+<p>Otherwise, add the following to your <code>tsconfig.json</code> configuration to support typed <code>&quot;/web_modules/*.js&quot;</code> imports:</p>
+<pre class="language-js"><code class="language-js"><span class="token string">"compilerOptions"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><br> <span class="token string">"moduleResolution"</span><span class="token punctuation">:</span> <span class="token string">"node"</span><span class="token punctuation">,</span><br>  <span class="token string">"baseUrl"</span><span class="token punctuation">:</span> <span class="token string">"."</span><span class="token punctuation">,</span><br>  <span class="token string">"paths"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><br>      <span class="token string">"/web_modules/*.js"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><br>          <span class="token string">"node_modules/@types/*"</span><span class="token punctuation">,</span><br>          <span class="token string">"node_modules/*"</span><span class="token punctuation">,</span><br>          <span class="token string">"web_modules/*.js"</span><br>      <span class="token punctuation">]</span><br>  <span class="token punctuation">}</span><span class="token punctuation">,</span><br>  <span class="token comment">// ...</span><br><span class="token punctuation">}</span></code></pre>
+<h3 id="react">React</h3>
+<p>React is <a href="https://github.com/facebook/react/issues/11503">not yet published with ES Module support</a>, and the way it’s build makes it impossible to bundle as an entrypoint (<code>Error: '__moduleExports' is not exported by node_modules/react/index.js</code>). <strong>However</strong>, it is still possible to use React with Snowpack thanks to <a href="https://github.com/sdegutis">@sdegutis</a>’s <a href="https://www.npmjs.com/org/reactesm">@reactesm</a> project &amp; npm/yarn’s alias feature:</p>
+<pre><code>npm install react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
+   yarn add react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
+</code></pre>
+<p>This command installs ESM versions of the latest react &amp; react-dom, which Snowpack will then use when it installs your <code>web_modules/</code> directory. This works with <a href="https://www.pika.dev/search?q=react-">any ESM-compatible React libraries</a> as well!</p>
+<pre class="language-js"><code class="language-js"><span class="token keyword">import</span> React<span class="token punctuation">,</span> <span class="token punctuation">{</span> useState <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'./web_modules/react.js'</span><span class="token punctuation">;</span></code></pre>
+<h3 id="jsx">JSX</h3>
+<p>Remember that JSX won’t run directly in any browser. To use JSX with Snowpack you will need to do one of the following:</p>
+<ol>
+<li>Use Babel to build your <code>src/</code> application to an output <code>lib/</code> directory, and load that in the browser.</li>
+<li>Use a JSX-like library like Jason Miller’s <a href="https://github.com/developit/htm">htm</a> that can run in the browser.</li>
+</ol>
+<h3 id="saying-goodbye-(migrating)">Saying Goodbye (Migrating)</h3>
+<p>Snowpack is designed for zero lock-in. If you ever feel the need to add a traditional application bundler to your stack (for whatever reason!) you can do so in seconds.</p>
+<p>Any application built with Snowpack should Just Work™️ when passed through Webpack/Rollup/Parcel. If you are importing packages by full URL (ex: <code>import React from '/web_modules/react.js'</code>), then a simple Find &amp; Replace should help you re-write them to plain package names.</p>
+<h2 id="examples">Examples</h2>
+<ul>
+<li>“Hello, World”: <a href="https://glitch.com/edit/#!/pika-web-example-simple">[Source]</a> <a href="https://pika-web-example-simple.glitch.me/">[Live Demo]</a></li>
+<li>Preact + HTM: <a href="https://glitch.com/edit/#!/pika-web-example-preact-htm">[Source]</a> <a href="https://pika-web-example-preact-htm.glitch.me">[Live Demo]</a></li>
+<li>Vue: <a href="https://glitch.com/edit/#!/pika-web-vue-httpvueloader">[Source]</a> <a href="https://pika-web-vue-httpvueloader.glitch.me/">[Live Demo]</a> [By: <a href="https://github.com/thiagoabreu">@thiagoabreu</a>]</li>
+<li>Preact, HTM, Electron, Three.js… <a href="/EXAMPLES.md">See our full list of examples →</a></li>
+</ul>
+
+      </article>
+    </div>
+  </body>
+
+  <script>
+
+    /**
+    * Debounce functions for better performance
+    * (c) 2018 Chris Ferdinandi, MIT License, https://gomakethings.com
+    * @param  {Function} fn The function to debounce
+    */
+    function debounce(fn) {
+      // Setup a timer
+      var timeout;
+      // Return a function to run debounced
+      return function () {
+        // Setup the arguments
+        var context = this;
+        var args = arguments;
+        // If there's a timer, cancel it
+        if (timeout) {
+          window.cancelAnimationFrame(timeout);
+        }
+        // Setup the new requestAnimationFrame()
+        timeout = window.requestAnimationFrame(function () {
+          fn.apply(context, args);
+        });
+      }
+    };
+
+    function isScrolledIntoView(el) {
+      var rect = el.getBoundingClientRect();
+      var elemTop = rect.top;
+      var elemBottom = rect.bottom;
+      // Only completely visible elements return true:
+      var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+      // Partially visible elements return true:
+      //isVisible = elemTop < window.innerHeight && elemBottom >= 0;
+      return isVisible;
+    }
+
+    function setActiveToc() {
+      for (const el of document.querySelectorAll('h3, h2')) {
+        if (!isScrolledIntoView(el)) {
+          continue;
+        }
+        const elId = el.id;
+        const tocEl = tableOfContentsEl.querySelector(`a[href="#${elId}"]`);
+        tableOfContentsEl.querySelectorAll(`a.active`).forEach(aEl => aEl.classList.remove('active'));;
+        if (!tocEl) {
+          return;
+        }
+        tocEl.classList.add('active');
+        tocEl.scrollIntoView();
+        return;
+      }
+    }
+
+    const gridBodyEl = document.getElementById('grid-body');
+    const tableOfContentsEl = document.querySelector('.toc');
+    gridBodyEl.addEventListener('scroll', debounce(setActiveToc));
+    setActiveToc();
+  </script>
+</html>
