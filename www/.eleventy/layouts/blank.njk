@@ -220,7 +220,10 @@ body {
           return;
         }
         tocEl.classList.add('active');
-        tocEl.scrollIntoView();
+        // Don't scroll the top one
+        if (elId !== 'what-is-snowpack%3F') {
+          tocEl.scrollIntoView();
+        }
         return;
       }
     }
