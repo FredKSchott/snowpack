@@ -43,7 +43,7 @@ export interface InstallOptions {
 }
 
 const cwd = process.cwd();
-const banner = chalk.bold(`@pika/web`) + ` installing... `;
+const banner = chalk.bold(`snowpack`) + ` installing... `;
 const installResults = [];
 let spinner = ora(banner);
 let spinnerHasError = false;
@@ -51,7 +51,7 @@ let spinnerHasError = false;
 function printHelp() {
   console.log(
     `
-${chalk.bold(`@pika/web`)} - Install npm dependencies to run natively on the web.
+${chalk.bold(`snowpack`)} - Install npm dependencies to run natively on the web.
 ${chalk.bold('Options:')}
     --dest              Specify destination directory (default: "web_modules/").
     --clean             Clear out the destination directory before install.
@@ -155,7 +155,7 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
 }
 
 /**
- * Formats the @pika/web dependency name from a "webDependencies" input value:
+ * Formats the snowpack dependency name from a "webDependencies" input value:
  * 2. Remove any ".js"/".mjs" extension (will be added automatically by Rollup)
  */
 function getWebDependencyName(dep: string): string {
@@ -373,7 +373,7 @@ export async function cli(args: string[]) {
 
   let isExplicit = false;
   const installTargets = [];
-  const {namedExports, webDependencies, dedupe} = pkgManifest['@pika/web'] || {
+  const {namedExports, webDependencies, dedupe} = pkgManifest['snowpack'] || {
     namedExports: undefined,
     webDependencies: undefined,
     dedupe: undefined,
@@ -416,7 +416,7 @@ export async function cli(args: string[]) {
 
   if (result) {
     spinner.succeed(
-      chalk.bold(`@pika/web`) +
+      chalk.bold(`snowpack`) +
         ` installed: ` +
         formatInstallResults(!isExplicit) +
         '.' +

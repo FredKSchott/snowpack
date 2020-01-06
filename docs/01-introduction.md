@@ -44,6 +44,8 @@ npm install --dev snowpack
 
 ## Quickstart
 
+🆕 Check out **[`npx create-pika-app`](https://github.com/ndom91/create-pika-app)** Bootstrap a starter app with Snowpack, Preact, TypeScript, and more!
+
 #### 1. Create a new project directory with "preact".
 
 ```

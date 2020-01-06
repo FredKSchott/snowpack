@@ -2,7 +2,7 @@
   "scripts": {
     "TEST": "../../pkg/dist-node/index.bin.js"
   },
-  "@pika/web": {
+  "snowpack": {
     "webDependencies": [
       "async"
     ]

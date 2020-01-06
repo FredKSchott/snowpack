@@ -23,7 +23,7 @@ function rewriteImport(imp, dir, shouldAddMissingExtension) {
  *                        Defaults to "web_modules", which translates package imports to "/web_modules/PACKAGE_NAME".
  *   optionalExtensions - Adds any missing JS extensions to local/relative imports. Support for these
  *                        partial imports is missing in the browser and being phased out of Node.js, but
- *                        this can be a useful option for migrating an old project to @pika/web.
+ *                        this can be a useful option for migrating an old project to snowpack.
  */
 module.exports = function pikaWebBabelTransform({types: t}, {optionalExtensions, dir}) {
   return {
