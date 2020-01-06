@@ -20,7 +20,7 @@
     "test": "jest __tests__/runner.js",
     "docs:build": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js",
     "docs:watch": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js --serve",
-    "docs:deploy": "cd www/dist && now"
+    "docs:deploy": "npm run docs:build && cd www/dist && now --prod"
   },
   "@pika/pack": {
     "pipeline": [
