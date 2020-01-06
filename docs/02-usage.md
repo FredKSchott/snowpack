@@ -61,20 +61,6 @@ Importing packages by name (ex: `import React from 'react'`) isn't supported in
 If you are using Babel, you can use the Snowpack Babel Plugin to transform your imports automatically at build time. The plugin reads any packages name imports in your files and rewrites them to full URLs that run in the browser.
 
 
-
-
-## Advanced Usage
-
-### Optimize for Production
-
-```
-$ npx snowpack --optimize
-```
-
-By default, Snowpack installs dependencies un-minified. You can run minification and other production optimizations on your installation by running `snowpack` with the `--optimize` flag. 
-
-
-
 ### Run on Every "npm install"
 
 ``` js

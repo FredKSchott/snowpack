@@ -1,8 +1,17 @@
 ## Guides
 
-### Babel
+### Optimizing for Production
 
-Snowpack is expected to play well with Babel. Guide coming soon.
+```
+$ npx snowpack --optimize
+```
+
+By default, Snowpack installs dependencies optimized for development. When you're ready for production, you can run Snowpack with the `--optimize` flag to enable certain production-only optimizations:
+
+- **Minification:** Dependencies will be minified (with source maps).
+- **Transpilation:** Dependencies will be transpiled to match your application's [browser support target](#customize-browser-support) (in case any dependencies use too-modern language features).
+- **Tree-Shaking:** Dependencies will have unused code removed based on your imports (when "Automatic Mode" is enabled via the `--include` flag).
+
 
 
 ### TypeScript

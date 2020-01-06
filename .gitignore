@@ -1,5 +1,6 @@
 pkg
 www/index.md
+www/dist
 /node_modules
 /web_modules
 __tests__/*/web_modules

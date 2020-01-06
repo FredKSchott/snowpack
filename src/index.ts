@@ -280,7 +280,7 @@ export async function install(
                   modules: false,
                   targets: hasBrowserlistConfig
                     ? undefined
-                    : '>0.75%, not ie 11, not UCAndroid all, not OperaMini all',
+                    : '>0.75%, not ie 11, not UCAndroid >0, not OperaMini all',
                 },
               ],
             ],

@@ -11,7 +11,13 @@
 
 ### How Does it Work?
 
-Snowpack reads dependencies from your project `node_modules/` directory and installs them into a new `web_modules/` directory. Each `web_modules/` dependency is installed as a single ESM JavaScript file that can run natively in the browser, without any additional bundling or tooling. 
+```js
+import React from '/web_modules/react.js';
+```
+
+- Snowpack installs your `node_modules/` dependencies into a new `web_modules/` directory. 
+- Each dependency is installed as a single ESM JavaScript file.
+- This lets you import any `web_modules/` dependency file natively in the browser with no additional bundlers or tooling required.
 
 
 ### Browser Support

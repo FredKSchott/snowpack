@@ -1,9 +1,12 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link id="favicon" rel="icon" type="image/x-icon" href="/static/img/favicon.ico" />
     <title>{{ title }}</title>
-    	<link href="/css/prism.css" rel="stylesheet" />
 
+    <link href="/css/prism.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap" >
     <link rel="stylesheet" href="/css/github-markdown.css" >
     <style>
@@ -49,6 +52,7 @@ body {
 @media (max-width: 700px) {
   .grid-toc { display: none; }
   .grid-body { grid-area: 3 / 1 / 4 / 4; }
+  .hidden-mobile {display: none; }
 }
 
 .grid-logo {
@@ -133,7 +137,7 @@ body {
     <header class="grid-header">
       <h1>Snowpack</h1>
       <span class="version-tag">v1.0.0</span>
-      <a href="https://github.com/pikapkg/snowpack/blob/master/docs">[Edit on GitHub]</a>
+      <a class="hidden-mobile" href="https://github.com/pikapkg/snowpack/blob/master/docs">[Edit on GitHub]</a>
     </header>
     <div class="grid-header-border">
     </div>
