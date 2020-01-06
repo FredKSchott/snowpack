@@ -9,9 +9,6 @@
 </p>
 
 ``` bash
-# try Snowpack before installing:
-npx snowpack      
-# or, install Snowpack locally: 
 npm install --dev snowpack
 ```
 
