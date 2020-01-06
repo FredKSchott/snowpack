@@ -1,7 +1,7 @@
 
 
 <p align="center">
-  <img alt="Logo" src="https://i.imgur.com/q6JcN0B.png" width="720">
+  <img alt="Logo" src="https://www.snowpack.dev/img/logo.png" height="240">
 </p>
 
 <p align="center">
