@@ -1,13 +1,14 @@
-## What is Snowpack?
+## Introduction
 
 ### tl;dr
 
-- **Build web applications with less tooling and 10x faster iteration.**
-- Snowpack replaces Webpack, Parcel, Rollup and other JavaScript bundlers.
-- Snowpack doesn't touch your source code. It runs once at install-time and only on your dependencies.
-- Write your application, import your Snowpack-installed dependencies, and then run the whole application directly in browser.
-- Supports Babel, TypeScript, and all other build tools (/w near-instant iteration speeds). 
-- Production ready: Snowpack optimizes your dependencies with tree-shaking, minification, source maps, and more.
+- **Build your web application with less tooling and 10x faster iteration.**
+- Snowpack replaces the bundler (Webpack, Parcel, Rollup) in your web app build process.
+- **Fast:** Run Snowpack on your dependencies once (at install time) and then import them inside of your application. 
+- **REALLY Fast:** Make changes and see them instantly reflected in the browser. No building or bundling required.
+- **Flexible:** Keep using your favorite web frameworks (React, Preact, Vue, Svelte) and build tools (Babel, TypeScript).
+- **Production Ready:** Snowpack optimizes your dependencies with tree-shaking, minification, source maps, and more.
+
 
 ### Why?
 
@@ -24,14 +25,17 @@
 - **Beginners!** Popular starter applications usually come with 1000's of dependencies and 100's of lines of bundler configuration that you don't actually need. Snowpack shrinks the number of things you need to learn to get started with web development. Shipping your code directly to the browser also lets you easily inspect your code in the browser, set break-points, etc. for faster feedback loops.
 - **Anyone starting a new application!** Snowpack has zero lock-in, so you can always add a traditional bundler later down the road. But until then, you get all the dev speed improvements that come with bundler-free development. 
 - **Anyone who wants a lightning-fast dev environment!** Less tooling means less to install, less to do every time you make a change, and less to debug when something goes wrong. Shipping your code to the browser also makes your Dev Tools much more useful for debugging.
+- **Anyone who is interested in the future of web development!** Snowpack is just one step towards a future of web development that lets us build more with less complexity and tooling overhead. Regardless of what happens to Snowpack, this future is here to stay.
 
 ### Who Should Avoid Snowpack?
 
-- **Anyone building for the enterprise!** IE 11 still doesn't support ESM, which is required for Snowpack-installed dependencies to run.
-- **Anyone building for China (Today)!** UC Browser doesn't support ESM, although it should soon.
+- **Anyone building for the enterprise!** IE 11 still doesn't support ESM, which is required for Snowpack-installed dependencies to run. if you need IE 11 support, consider sticking to a traditional bundler in that project (for now).
+- **Anyone building for China! (Today)** UC Browser doesn't support ESM, but it should in future versions.
 - **Anyone who loves tooling-heavy development!** This isn't sarcastic, I promise! By dropping the bundler, you can't do the magic that Webpack is famous for. Using `import` to load CSS, Images, and other non-JS resources is  non-standard and unsupported in the browser (for now). You may appreciate a dev environment that is true to what standard JavaScript browsers support. Or, you may find this annoying.
 
 ### How Does Snowpack Work?
+
+![how it works illustration](/img/how-does-it-work.jpg)
 
 ```js
 import React from '/web_modules/react.js';

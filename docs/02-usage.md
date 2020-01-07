@@ -1,4 +1,4 @@
-## Usage
+## Basic Usage
 
 Snowpack has a single goal: to install web-ready npm packages to a new `web_modules/` directory in your project. It doesn't touch your source code. What you build with it, which frameworks you use, and how you serve your project locally is entirely up to you. You can use as many or as few tools on top of Snowpack as you'd like. 
 
@@ -29,7 +29,7 @@ To enable automatic import scanning, use the `--include` CLI flag to tell Snowpa
 Remember to re-run Snowpack every time you import an new dependency.
 
 
-### Whitelist Dependencies
+### Whitelisting Dependencies
 
 ``` js
   /* package.json */
@@ -47,31 +47,6 @@ Remember to re-run Snowpack every time you import an new dependency.
 Optionally, you can also whitelist any dependencies by defining them in your "webDependencies" config (see below). You can use this to control exactly what is installed, including non-JS assets or deeper package resources. 
 
 Note that having this config will disable the zero-config mode that attempts to install every package found in your package.json "dependencies". Either use this together with the  `--include` flag, or just make sure that you whitelist everything that you want installed.
-
-
-### Customize Browser Support
-
-```js
-  /* package.json */
-  "browserslist": " >0.75%, not ie 11, not UCAndroid all, not OperaMini all",
-```
-
-By default, Snowpack runs all dependencies through Babel (via `@preset/env`) to transpile unsupported language features found in your dependencies. This is useful if any package in your dependency tree is written using a too-modern feature that your users browser may not support.
-
-By default, Snowpack will transpile using the recommended support string shown above, but you can customize this behavior by setting your own "browserslist" key in your `package.json` manifest.
-
-
-### Run After Every Install
-
-``` js
-  /* package.json */
-  "scripts": {
-    "prepare": "snowpack"
-  }
-```
-
-You can optionally add "snowpack" as a `"prepare"` script to your `package.json` and npm/yarn will automatically run it after every new dependency install. This is recommended so that new dependencies are automatically included in your `web_modules/` directory.
-    
 
 
 ### All CLI Options
