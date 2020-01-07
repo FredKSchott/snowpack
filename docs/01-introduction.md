@@ -2,27 +2,49 @@
 
 ### tl;dr
 
-- **Install any npm package to run directly in the browser via ESM.**
-- Replaces traditional app bundlers (Webpack, Rollup, Parcel, etc). 
-- Just run once at install time. No other tooling required.
-- Enables tooling-free / build-free / bundle-free development.
-- Works well with Import Maps.
+- **Build web applications with less tooling and 10x faster iteration.**
+- Snowpack replaces Webpack, Parcel, Rollup and other JavaScript bundlers.
+- Snowpack doesn't touch your source code. It runs once at install-time and only on your dependencies.
+- Write your application, import your Snowpack-installed dependencies, and then run the whole application directly in browser.
+- Supports Babel, TypeScript, and all other build tools (/w near-instant iteration speeds). 
+- Production ready: Snowpack optimizes your dependencies with tree-shaking, minification, source maps, and more.
+
+### Why?
+
+- Ever been stuck waiting for your webapp to rebuild during development? Ever heard your laptop fans go wild every time you hit save? Then you've seen the cost of bundling on web development. 
+- Bundlers like Webpack are powerful, but they can easily introduce a complex mess of configuration, plugins, and dependencies. Create React App, for example, installs ~200MB of dependencies and uses ~600 lines of Webpack configuration.
+- Bundlers became a required web development tool in the 2010's, mainly because of npm's use of a module format that didn't run natively in the browser (Common.js). 
+- Bundling had been around forever, but up until that point it had been a production-only optimization and not a dev-time requirement.
+- Now that we have native modules in most browsers (ESM) bundlers are no longer required. You can build a performant, production-ready web application without Webpack!
+- **By replacing a rebuild-on-every-change build step (Webpack) with a run-once install step (Snowpack) you get a 10x faster dev environment with less tooling complexity.**
 
 
-### How Does it Work?
+### Who Should Use Snowpack?
+
+- **Beginners!** Popular starter applications usually come with 1000's of dependencies and 100's of lines of bundler configuration that you don't actually need. Snowpack shrinks the number of things you need to learn to get started with web development. Shipping your code directly to the browser also lets you easily inspect your code in the browser, set break-points, etc. for faster feedback loops.
+- **Anyone starting a new application!** Snowpack has zero lock-in, so you can always add a traditional bundler later down the road. But until then, you get all the dev speed improvements that come with bundler-free development. 
+- **Anyone who wants a lightning-fast dev environment!** Less tooling means less to install, less to do every time you make a change, and less to debug when something goes wrong. Shipping your code to the browser also makes your Dev Tools much more useful for debugging.
+
+### Who Should Avoid Snowpack?
+
+- **Anyone building for the enterprise!** IE 11 still doesn't support ESM, which is required for Snowpack-installed dependencies to run.
+- **Anyone building for China (Today)!** UC Browser doesn't support ESM, although it should soon.
+- **Anyone who loves tooling-heavy development!** This isn't sarcastic, I promise! By dropping the bundler, you can't do the magic that Webpack is famous for. Using `import` to load CSS, Images, and other non-JS resources is  non-standard and unsupported in the browser (for now). You may appreciate a dev environment that is true to what standard JavaScript browsers support. Or, you may find this annoying.
+
+### How Does Snowpack Work?
 
 ```js
 import React from '/web_modules/react.js';
 ```
 
-- Snowpack installs your `node_modules/` dependencies into a new `web_modules/` directory. 
-- Each dependency is installed as a single ESM JavaScript file.
-- This lets you import any `web_modules/` dependency file natively in the browser with no additional bundlers or tooling required.
+1. Snowpack installs your dependencies into a new `web_modules/` directory. 
+2. Each dependency is installed as a single ESM JavaScript file. For example, React (and all of its files & dependencies) are installed to `web_modules/react.js`. 
+3. Browsers can `import` these ESM files directly without a bundler or any tooling needed.
 
 
 ### Browser Support
 
-Snowpack installs ES Module (ESM) dependencies from npm, which run [wherever ESM syntax is supported](https://caniuse.com/#feat=es6-module). This includes ~90%+ of all browsers in use today. **All modern browsers (Firefox, Chrome, Edge, Safari) going back to 2018 support it.**
+Snowpack installs ES Module (ESM) dependencies from npm, which run [wherever ESM syntax is supported](https://caniuse.com/#feat=es6-module). This includes ~90% of all browsers in use today. **All modern browsers (Firefox, Chrome, Edge, Safari) going back to 2018 support it.**
 
 The only two notable browsers that don't support ESM are IE11 and UC Browser for Android. If your need to support users in the enterprise or China, you should consider sticking with traditional web application bundlers.
 
@@ -31,11 +53,13 @@ Additionally, Snowpack runs all dependencies through Babel via `@preset/env` to 
 
 ### Performance
 
-You can think of Snowpack like code-splitting with Webpack or Rollup. Dependencies are installed as single files, with all internal package files bundled together as efficiently as possible. 
+You can think of Snowpack like code-splitting for Webpack or Rollup. Dependencies are installed as single files, with all internal package files bundled together as efficiently as possible. Any common, shared dependencies are moved into common, shared chunks in your `web_modules/` directory.
 
 Max Jung's post on ["The Right Way to Bundle Your Assets for Faster Sites over HTTP/2"](https://medium.com/@asyncmax/the-right-way-to-bundle-your-assets-for-faster-sites-over-http-2-437c37efe3ff) is the best study on HTTP/2 performance & bundling we could find online. Snowpack's installation most closely matches the study's moderate, "50 file" bundling strategy. Jung's post found that for HTTP/2, "differences among concatenation levels below 1000 [small files] (50, 6 or 1) were negligible."
 
-Snowpack is most performant when it comes to caching. Snowpack keeps your dependencies separate from your application code, and from each other. This allows the browser cache dependencies as efficiently as possible, and only fetch updates when individual dependencies change.
+Snowpack performs best when it comes to caching. Snowpack keeps your dependencies separate from your application code and from each other, which gives you a super-optimized caching strategy *by default.* This lets the browser cache dependencies as efficiently as possible, and only fetch updates when individual dependencies are updated.
+
+The same applies to unbundled application code as well. When you make changes to a file, the browser only needs to re-fetch that one file. This is especially useful if you manage multiple deployments a day. 
 
 
 ## Installation
@@ -50,9 +74,9 @@ npm install --dev snowpack
 
 ## Quickstart
 
-🆕 Check out **[`npx create-pika-app`](https://github.com/ndom91/create-pika-app)** Bootstrap a starter app with Snowpack, Preact, TypeScript, and more!
+🆕 Check out **[`npx @pika/init`](https://github.com/pikapkg/init)**! Bootstrap a starter app with Snowpack, Preact, TypeScript, and more.
 
-#### 1. Create a new project directory with "preact".
+#### 1. Create a new project directory
 
 ```
 mkdir snowpack-demo
@@ -86,7 +110,7 @@ npx snowpack
 </html>
 ```
 
-#### 4. Create a simple JavaScript application entrypoint:
+#### 4. Create a simple JavaScript application:
 
 ```js
 /* File Location: src/app.js */
@@ -109,7 +133,7 @@ Look at that! No bundler needed! Any changes that you make to your src/app.js fi
 
 #### 6. Next Steps
 
-- Open up your browser's Dev Tools, and browse your source code!
+- Open up your browser's Dev Tools, and browse your source code directly in the browser!
 - Add HTM to your project as a tooling-free alternative to JSX.
 
 ```js
@@ -139,4 +163,5 @@ const app = (<div>Hello World!</div>);
 render(app, document.getElementById('app'));
 ```
 
-Check out our guides below for more inspiration!
+- Add TypeScript to your project.
+- Check out our guides below for more inspiration!

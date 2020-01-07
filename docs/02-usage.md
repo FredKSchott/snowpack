@@ -1,6 +1,6 @@
 ## Usage
 
-Snowpack has a single goal: to install web-ready npm packages to a new `web_modules/` directory in your project. What you build with it (and how you serve that project locally) is entirely up to you. You can use as many or as few tools on top of Snowpack as you'd like. 
+Snowpack has a single goal: to install web-ready npm packages to a new `web_modules/` directory in your project. It doesn't touch your source code. What you build with it, which frameworks you use, and how you serve your project locally is entirely up to you. You can use as many or as few tools on top of Snowpack as you'd like. 
 
 Still stuck? See our Quickstart guide above for help to get started.
 
@@ -10,7 +10,7 @@ Still stuck? See our Quickstart guide above for help to get started.
 $ npx snowpack
 ```
 
-By default, Snowpack will attempt to install all "dependencies" listed in your package.json. If the package defines an ESM "module" entrypoint, then that package is installed into your new `web_modules/` directory. 
+By default, Snowpack will attempt to install all "dependencies" listed in your package.json manifest. If the package defines an ESM "module" entrypoint, then that package is installed into your new `web_modules/` directory. 
 
 As long as all of your web dependencies are listed as package.json "dependencies" (with all other dependencies listed under "devDependencies") this zero-config behavior should work well for your project.
 
@@ -44,34 +44,9 @@ Remember to re-run Snowpack every time you import an new dependency.
   }
 ```
 
-Whitelist any dependencies by defining them in your "webDependencies" config (see below). You can use this to control exactly which packages are installed OR use this together with the   `--include` flag to include additional non-JS assets in your `web_modules/` directory.
+Optionally, you can also whitelist any dependencies by defining them in your "webDependencies" config (see below). You can use this to control exactly what is installed, including non-JS assets or deeper package resources. 
 
-
-### Import Packages by Name
-
-``` js
-/* .babelrc */
-  "plugins": [
-    ["snowpack/assets/babel-plugin.js"],
-  ]
-```
-
-Importing packages by name (ex: `import React from 'react'`) isn't supported in any modern browsers. Unless you're using a traditional app bundler or a build tool like Babel, you'll need to import all dependencies in your application by URL (ex: `import React from '/web_modules/react.js'`).
-
-If you are using Babel, you can use the Snowpack Babel Plugin to transform your imports automatically at build time. The plugin reads any packages name imports in your files and rewrites them to full URLs that run in the browser.
-
-
-### Run on Every "npm install"
-
-``` js
-  /* package.json */
-  "scripts": {
-    "prepare": "snowpack"
-  }
-```
-
-Optionally, you can add "snowpack" as a `"prepare"` script to your `package.json` and npm/yarn will run it after every new dependency install. This is recommended so that new dependencies are automatically included in your `web_modules/` directory.
-    
+Note that having this config will disable the zero-config mode that attempts to install every package found in your package.json "dependencies". Either use this together with the  `--include` flag, or just make sure that you whitelist everything that you want installed.
 
 
 ### Customize Browser Support
@@ -81,8 +56,22 @@ Optionally, you can add "snowpack" as a `"prepare"` script to your `package.json
   "browserslist": " >0.75%, not ie 11, not UCAndroid all, not OperaMini all",
 ```
 
-By default, Snowpack runs all dependencies through Babel via `@preset/env` to transpile any unsupported language features found in your dependencies. By default, Snowpack will use the string shown above, but you can customize this behavior by setting your own "browserslist" key in your `package.json` manifest.
+By default, Snowpack runs all dependencies through Babel (via `@preset/env`) to transpile unsupported language features found in your dependencies. This is useful if any package in your dependency tree is written using a too-modern feature that your users browser may not support.
 
+By default, Snowpack will transpile using the recommended support string shown above, but you can customize this behavior by setting your own "browserslist" key in your `package.json` manifest.
+
+
+### Run After Every Install
+
+``` js
+  /* package.json */
+  "scripts": {
+    "prepare": "snowpack"
+  }
+```
+
+You can optionally add "snowpack" as a `"prepare"` script to your `package.json` and npm/yarn will automatically run it after every new dependency install. This is recommended so that new dependencies are automatically included in your `web_modules/` directory.
+    
 
 
 ### All CLI Options
