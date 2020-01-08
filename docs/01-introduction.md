@@ -109,7 +109,7 @@ npx snowpack
   <head><title>Snowpack - Simple Example</title></head>  
   <body>
     <div id="app"></div>
-    <script type="module" src="/src/app.js">
+    <script type="module" src="/src/app.js"></script>
   </body>
 </html>
 ```
