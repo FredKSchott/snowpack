@@ -106,11 +106,16 @@ npx snowpack
 <!-- File Location: index.html -->
 <!DOCTYPE html>
 <html lang="en">
-  <head><title>Snowpack - Simple Example</title></head>  
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/app.js">
-  </body>
+
+<head>
+  <title>Snowpack - Simple Example</title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/app.js"></script>
+</body>
+
 </html>
 ```
 
