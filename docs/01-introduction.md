@@ -72,7 +72,7 @@ The same applies to unbundled application code as well. When you make changes to
 # Try Snowpack before installing:
 npx snowpack      
 # Installing Snowpack locally speeds up npx: 
-npm install --dev snowpack
+npm install --save-dev snowpack
 ```
 
 
@@ -96,7 +96,7 @@ We're using Preact for this Quickstart, but you could use any package. If you're
 
 ```bash
 npx snowpack
-# Optional: Run "npm install snowpack --dev" to speed up future runs
+# Optional: Run "npm install snowpack --save-dev" to speed up future runs
 ```
 
 
