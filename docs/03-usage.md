@@ -1,6 +1,6 @@
 ## Basic Usage
 
-Snowpack has a single goal: to install web-ready npm packages to a new `web_modules/` directory in your project. It doesn't touch your source code. What you build with it, which frameworks you use, and how you serve your project locally is entirely up to you. You can use as many or as few tools on top of Snowpack as you'd like. 
+Snowpack has a single goal: to install web-ready npm packages to `web_modules/` directory. It doesn't touch your source code. What you build with it, which frameworks you use, and how you serve your project locally is entirely up to you. You can use as many or as few tools on top of Snowpack as you'd like. 
 
 Still stuck? See our Quickstart guide above for help to get started.
 

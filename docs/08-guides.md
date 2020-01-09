@@ -115,3 +115,23 @@ TODO
 ### Styled Components
 
 TODO.
+
+
+
+### Migrating an Existing App
+
+How you migrate an existing app to Snowpack depends on which Bundler features/plugins you're using. If you're only using the `import` statement to import other JavaScript files, the process should only take a couple of minutes. If you're importing CSS, images, or other non-JS content in your application, you'll need to first get rid of those Webpack-specific imports before migrating away from Webpack. 
+
+Assuming you've removed all code specific to your bundler, you can use the following rough plan to migrate to Snowpack.
+
+1. Use Babel to assist in the migration. If you don't want to use Babel, don't worry; You can always remove it after migrating.
+1. Follow the Babel guide above to build your existing `src/` directory to a new `lib/` directory. 
+1. Follow the Babel Plugin guide above to add the Snowpack Babel plugin so that your package imports will continue to run as is. Check your output `lib/` directory to make sure that dependency imports are being rewritten as expected.
+1. Run your application in the browser! If everything is working, you're done! Otherwise, use your browser's dev tools to hunt down any remaining issues in your application code.
+
+### Migrating off of Snowpack
+
+Snowpack is designed for zero lock-in. If you ever feel the need to add a traditional application bundler to your stack (for whatever reason!) you can do so in seconds. 
+
+Any application built with Snowpack should Just Work™️ when passed through Webpack/Rollup/Parcel. If you are importing packages by full URL (ex: `import React from '/web_modules/react.js'`), then a simple Find & Replace should help you re-write them to the plain package names  (ex: `import React from 'react'`) that bundlers expect.
+
