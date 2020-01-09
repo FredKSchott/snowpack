@@ -30,7 +30,7 @@ import React from 'react';
 
 - Ever been stuck waiting for your webapp to rebuild during development? Ever heard your laptop fans go wild every time you hit save? Then you've experienced the cost of bundling during development. 
 - Web bundlers like Webpack are powerful, but they can easily introduce a complex mess of configuration, plugins, and dependencies. Create React App, for example, installs ~200MB of dependencies and uses ~600 lines of Webpack configuration internally.
-- Bundlers became a required web development tool in the 2010's, mainly because of npm's use of a module format that didn't run natively in the browser (Common.js). Before then, web developers would commonly skip development source code directly to the browser. Bundling used to be a production-only optimization (vs. the dev-time requirement it is today).
+- Bundlers became a required web development tool in the 2010's, mainly because of npm's use of a module format that didn't run natively in the browser (Common.js). Before then, web developers would commonly ship development source code directly to the browser. Bundling used to be a production-only optimization (vs. the dev-time requirement it is today).
 - ESM has had ~5 years to bake in browser, and is now supported in all modern browsers (going back to early 2018). With ESM, bundlers are no longer required. You can build a modern, performant, production-ready web application without Webpack!
 - **By replacing a rebuild-on-every-change build step (Webpack, Parcel, etc.) with a run-once install step (Snowpack) you get a faster dev environment with less tooling complexity.**
 
