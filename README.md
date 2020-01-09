@@ -5,19 +5,19 @@
 </p>
 
 <p align="center">
-   <strong>Snowpack</strong><br/>Run npm packages directly in the browser. No Webpack, Parcel, or bundlers required.
+   <strong>Snowpack</strong><br/>Install npm packages to run directly in the browser. No bundler required.
 </p>
 
 ``` bash
 npm install --dev snowpack
 ```
 
-- **Build your web application with less tooling and 10x faster iteration.**
-- Snowpack replaces Webpack, Parcel, or Rollup in your web app build process.
-- **Fast:** Run Snowpack on your dependencies once, import them from your application, and then run the whole thing directly in browser without a build step. 
-- **REALLY Fast:** When you remove the bundler, changes are made and reflected in the browser instantly on refresh.
-- **Flexible:** Keep using your favorite web frameworks (React, Preact, Vue, Svelte) and build tools (Babel, TypeScript).
-- **Production Ready:** Snowpack optimizes your dependencies with tree-shaking, minification, source maps, and more.
+- Build your web application with less tooling and 10x faster iteration.
+- Snowpack removes the need for a bundler (Webpack, Parcel, Rollup) in your web app build process.
+- Instead of bundling your app on every change, just run Snowpack once (right after `npm install`).
+2. Snowpack installs your dependencies as single JS files to a new `web_modules/` directory.
+3. Write your application code, import those dependencies via an ESM `import`, and then run it all in the browser. 
+4. 💥 See changes reflected instantly in the browser. **(0ms!)**
 
 **💁 More info at the official [Snowpack website ➞](https://snowpack.dev)**
 
