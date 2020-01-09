@@ -48,7 +48,7 @@ Optionally, you can now run `npm install snowpack --dev` to speed up future Snow
   <head><title>Snowpack - Simple Example</title></head>  
   <body>
     <div id="app"></div>
-    <script type="module" src="/src/app.js">
+    <script type="module" src="/src/app.js"></script>
   </body>
 </html>
 ```
