@@ -15,7 +15,7 @@ npm install --save-dev snowpack
 - Build your web application with less tooling and 10x faster iteration.
 - Snowpack removes the need for a bundler (Webpack, Parcel, Rollup) in your web app build process.
 - Instead of bundling your app on every change, just run Snowpack once (right after `npm install`).
--. Write your application code, import those dependencies via an ESM `import`, and then run it all instantly in the browser. 
+- Write your application code, import those dependencies via an ESM `import`, and then run it all instantly in the browser. 
 
 **💁 More info at the official [Snowpack website ➞](https://snowpack.dev)**
 
