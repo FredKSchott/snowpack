@@ -2,12 +2,12 @@
 
 ### Installation
 
-``` bash
+```toml
 # Try Snowpack before installing:
 npx snowpack      
 # Installing Snowpack locally speeds up npx: 
-npm install --dev snowpack
-yarn add --dev snowpack
+npm install --save-dev snowpack
+   (or) yarn add --dev snowpack
 ```
 
 
@@ -36,7 +36,7 @@ npx snowpack
 
 If all went well, you should see a `web_modules/` directory containing the file `preact.js`. This is the magic of Snowpack: you can import this file directly in your application and ship it all to the browser without a bundler.
 
-Optionally, you can now run `npm install snowpack --dev` to speed up future Snowpack runs by installing the dependency locally in your project. Otherwise npx tends to re-install the tool before every run.
+Optionally, you can now run `npm install snowpack --save-dev` to speed up future Snowpack runs by installing the dependency locally in your project. Otherwise npx tends to re-install the tool before every run.
 
 
 #### 3. Create a simple HTML file for your application:

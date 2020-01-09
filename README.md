@@ -9,7 +9,7 @@
 </p>
 
 ``` bash
-npm install --dev snowpack
+npm install --save-dev snowpack
 ```
 
 - Build your web application with less tooling and 10x faster iteration.
