@@ -1,5 +1,25 @@
 ## Advanced Usage
 
+### Importing Packages by Name
+
+```js
+// ✘ NOT SUPPORTED IN THE BROWSER
+// ✔ BUT... CAN BE TRANSFORMED BY BABEL
+import 'package-name';
+```
+
+Browsers only support importing by URL, so importing a package by name (ex: `import React from 'react'`) isn't supported without additional tooling/configuration. Unless you're using a traditional app bundler or a build tool like Babel, you'll need to import all dependencies in your application by URL (ex: `import React from '/web_modules/react.js'`).
+
+**If you use Babel with Snowpack, you can use our Babel plugin to support package name imports.** The plugin reads any packages name imports in your source code and rewrites them to full `"/web_modules/${PACKAGE_NAME}.js"` URLs that run in the browser. This way, you can keep using the package name imports that you're used to without needing a full web app bundler. Check out our guide below.
+
+``` js
+/* .babelrc */
+  "plugins": [
+    ["snowpack/assets/babel-plugin.js", {}],
+  ]
+```
+
+
 ### Import Maps
 
 > Warning: [Import Maps](https://github.com/WICG/import-maps) are an experimental web technology that is not supported in every browser. 
@@ -50,3 +70,30 @@ By default, Snowpack will transpile using the recommended target string shown ab
 ```
 
 You can optionally add "snowpack" as a `"prepare"` script to your `package.json` and npm/yarn will automatically run it after every new dependency install. This is recommended so that new dependencies are automatically included in your `web_modules/` directory immediately.
+
+
+### Importing CSS
+
+```js
+// ✘ NOT SUPPORTED OUTSIDE OF BUNDLERS
+import './style.css';
+```
+
+No browser today supports importing a CSS file directly from JS. Instead, you'll want to use one of the following libraries/solutions:
+
+1. **Recommended!** If you're building a simple app, consider defining your CSS inside your HTML using a `<style>` block.
+2. **Recommended!** `csz`: Adds support for importing CSS from JS
+3. `@emotion/core` (React): Adds support for a `css` property on React components. Requires Babel to work.
+4. Most CSS-in-JS libraries will work without a bundler, although some require a library-specific Babel plugin to work.
+
+### Importing Images 
+
+```js
+// ✘ NOT SUPPORTED OUTSIDE OF BUNDLERS
+import './photo.png';
+```
+
+No browser today supports importing an image directly from JS. Instead, you'll want to use one of the following libraries/solutions:
+
+1. **Recommended!** You can reference any image file by path. This works for both CSS rules and for `<img>` elements.
+

@@ -2,24 +2,27 @@
 
 
 <p class="notification is-link">
-  <strong style="text-decoration: underline">TL;DR</strong> - Snowpack removes the need for bundlers (Webpack, Parcel, Rollup) in a traditional application by leveraging the ESM syntax you're already writing. <strong>Keep using your favorite web frameworks (React, Preact, Vue, Svelte) & build tools (Babel, TypeScript)!</strong>
+  <strong style="text-decoration: underline">TL;DR</strong> - With Snowpack you can build modern web apps (with React, Vue, etc.) without a bundler (like Webpack, Parcel, Rollup). No more waiting for your bundler every time you hit save. Instead, changes are ready in the browser instantly.
 </p>
 
 
 ### How It Works
 
 
-1. Instead of bundling on every change, just run Snowpack once (right after `npm install`).
+1. Instead of bundling on every change, just run Snowpack once right after `npm install`.
 2. Snowpack installs your dependencies as single JS files to a new `web_modules/` directory.
-3. Write your application code, import those dependencies via an ESM `import`, and then run it all in the browser. 
-4. 💥 See changes reflected instantly in the browser. **(0ms!)**
+3. Write code, import those dependencies via an ESM `import`, and then run it all in the browser.
+4. Skip the bundle step and see your changes reflected in the browser immidiately after hitting save.
+5. Keep using your favorite web frameworks and build tools (Babel, TypeScript).
 
 ![how it works illustration](/img/how-does-it-work.jpg)
 
 ```js
-// In your application:
+// ✘ In a traditional, bundled web app: (fails in the browser)
+import React from 'react';
+// ✔️ In a Snowpack web app: (runs in the browser)
 import React from '/web_modules/react.js';
-// Or, with Babel you can keep importing packages by name:
+// ✔️ When used with Babel, keep importing packages by name:
 import React from 'react';
 ```
 
@@ -58,7 +61,7 @@ import React from 'react';
   </a>
 </p>
 
-Snowpack installs ES Module (ESM) dependencies from npm, which run [wherever ESM syntax is supported](https://caniuse.com/#feat=es6-module). This includes ~90% of all browsers in use today. **All modern browsers (Firefox, Chrome, Edge, Safari) going back to 2018 support it.**
+Snowpack installs ES Module (ESM) dependencies from npm, which run [wherever ESM syntax is supported](https://caniuse.com/#feat=es6-module). This includes ~90% of all browsers in use today. **All modern browsers (Firefox, Chrome, Edge, Safari) have supported ESM since early 2018.**
 
 The two notable browsers that don't support ESM are IE11 and UC Browser for Android. If your project needs to support users in the enterprise or China, consider sticking with traditional web application bundlers for now.
 
