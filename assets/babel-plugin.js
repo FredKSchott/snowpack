@@ -5,7 +5,7 @@ function getWebDependencyName(dep) {
 }
 
 function rewriteImport(imp, dir, shouldAddMissingExtension) {
-  const isSourceImport = imp.startsWith('/') || imp.startsWith('.')|| imp.startsWith('\\');
+  const isSourceImport = imp.startsWith('/') || imp.startsWith('.') || imp.startsWith('\\');
   const isRemoteimport = imp.startsWith('http://') || imp.startsWith('https://');
   dir = dir || 'web_modules';
   if (!isSourceImport && !isRemoteimport) {
@@ -23,7 +23,7 @@ function rewriteImport(imp, dir, shouldAddMissingExtension) {
  *                        Defaults to "web_modules", which translates package imports to "/web_modules/PACKAGE_NAME".
  *   optionalExtensions - Adds any missing JS extensions to local/relative imports. Support for these
  *                        partial imports is missing in the browser and being phased out of Node.js, but
- *                        this can be a useful option for migrating an old project to snowpack.
+ *                        this can be a useful option for migrating an old project to Snowpack.
  */
 module.exports = function pikaWebBabelTransform({types: t}, {optionalExtensions, dir}) {
   return {
@@ -38,7 +38,6 @@ module.exports = function pikaWebBabelTransform({types: t}, {optionalExtensions,
           /* Should never happen */
           return;
         }
-
 
         source.replaceWith(
           t.stringLiteral(rewriteImport(source.node.value, dir, optionalExtensions)),
@@ -58,4 +57,4 @@ module.exports = function pikaWebBabelTransform({types: t}, {optionalExtensions,
       },
     },
   };
-}
+};

@@ -48,6 +48,27 @@ By default, Snowpack installs dependencies unminified and optimized for developm
 - **Transpilation:** Dependencies will be transpiled to match your application's [browser support target](#customize-browser-support) (in case any packages are written using too-modern language features).
 - **Tree-Shaking:** Dependencies will have any unused code removed (when "Automatic Mode" is enabled via the `--include` flag).
 
+
+### Browser Caching
+
+By letting you build an unbundled application, Snowpack helps you build applications that are ultra cache-efficient. But proper caching requires some helpful information from the server. Below is a list of caching strategies for your server that you can use with Snowpack.
+
+#### ETag Headers
+
+[ETag support](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag) is the easiest caching strategy to implement, and many hosting providers (like Zeit) will enable this for you automatically. From MDN:
+
+> The ETag HTTP response header is an identifier for a specific version of a resource. It lets caches be more efficient and save bandwidth, as a web server does not need to resend a full response if the content has not changed. Additionally, etags help prevent simultaneous updates of a resource from overwriting each other ("mid-air collisions").
+> -- https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
+
+#### Service Workers
+
+Service workers can implement a client-side cache for your site regardless of what your server responses look like. Check out this article on ["Caching Files with Service Worker
+"](https://developers.google.com/web/ilt/pwa/caching-files-with-service-worker), and be sure to read our [Workbox](#Workbox) guide below for help using [Workbox](https://developers.google.com/web/tools/workbox/) with Snowpack. 
+
+
+
+
+
 ### Customize Transpilation
 
 ```js
@@ -70,30 +91,4 @@ By default, Snowpack will transpile using the recommended target string shown ab
 ```
 
 You can optionally add "snowpack" as a `"prepare"` script to your `package.json` and npm/yarn will automatically run it after every new dependency install. This is recommended so that new dependencies are automatically included in your `web_modules/` directory immediately.
-
-
-### Importing CSS
-
-```js
-// ✘ NOT SUPPORTED OUTSIDE OF BUNDLERS
-import './style.css';
-```
-
-No browser today supports importing a CSS file directly from JS. Instead, you'll want to use one of the following libraries/solutions:
-
-1. **Recommended!** If you're building a simple app, consider defining your CSS inside your HTML using a `<style>` block.
-2. **Recommended!** `csz`: Adds support for importing CSS from JS
-3. `@emotion/core` (React): Adds support for a `css` property on React components. Requires Babel to work.
-4. Most CSS-in-JS libraries will work without a bundler, although some require a library-specific Babel plugin to work.
-
-### Importing Images 
-
-```js
-// ✘ NOT SUPPORTED OUTSIDE OF BUNDLERS
-import './photo.png';
-```
-
-No browser today supports importing an image directly from JS. Instead, you'll want to use one of the following libraries/solutions:
-
-1. **Recommended!** You can reference any image file by path. This works for both CSS rules and for `<img>` elements.
 

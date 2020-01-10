@@ -2,7 +2,7 @@
 
 
 <p class="notification is-link">
-  <strong style="text-decoration: underline">TL;DR</strong> - With Snowpack you can build modern web apps (with React, Vue, etc.) without a bundler (like Webpack, Parcel, Rollup). No more waiting for your bundler every time you hit save. Instead, changes are ready in the browser instantly.
+  <strong style="text-decoration: underline">TL;DR</strong> - With Snowpack you can build modern web apps (with React, Vue, etc.) without a bundler (like Webpack, Parcel, Rollup). No more waiting for your bundler to rebuild your site every time you hit save. Instead, changes are ready in the browser instantly.
 </p>
 
 
@@ -10,19 +10,18 @@
 
 
 1. Instead of bundling on every change, just run Snowpack once right after `npm install`.
-2. Snowpack installs your dependencies as single JS files to a new `web_modules/` directory.
+2. Snowpack re-installs your dependencies as single JS files to a new `web_modules/` directory.
 3. Write code, import those dependencies via an ESM `import`, and then run it all in the browser.
 4. Skip the bundle step and see your changes reflected in the browser immidiately after hitting save.
-5. Keep using your favorite web frameworks and build tools (Babel, TypeScript).
+5. Keep using your favorite web frameworks and build tools! Babel & TypeScript supported.
 
 ![how it works illustration](/img/how-does-it-work.jpg)
 
 ```js
-// ✘ In a traditional, bundled web app: (fails in the browser)
-import React from 'react';
-// ✔️ In a Snowpack web app: (runs in the browser)
+// In a Snowpack application, this runs directly in the browser!
 import React from '/web_modules/react.js';
-// ✔️ When used with Babel, keep importing packages by name:
+
+// In a Snowpack application /w Babel:
 import React from 'react';
 ```
 

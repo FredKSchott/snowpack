@@ -55,28 +55,26 @@ To use TypeScript with Snowpack, you'll need to set up your tsconfig.json to und
 
 ```js
 /*
- * https://vuejs.org/v2/guide/installation.html#Explanation-of-Different-Builds
  * NOTE: The Vue package points to the runtime-only distribution by default.
- * You can also point to any other build in the package dist/ folder directly.
+ * Unless you are using the Vue CLI, you'll most likely need the full browser build.
+ * Runtime only: `import Vue from "/web_modules/vue.js"`
  * 
- * Example: import Vue from "/web_modules/vue/dist/vue.esm.browser.js";
+ * https://vuejs.org/v2/guide/installation.html#Explanation-of-Different-Builds
  */
-import Vue from "/web_modules/vue.js";
+import Vue from "/web_modules/vue/dist/vue.esm.browser.js";
 
 // $ snowpack --include "src/index.js"
-// ✔ snowpack installed: vue. [1.07s]
+// ✔ snowpack installed: vue/dist/vue.esm.browser.js. [1.07s]
 ```
 
-#### Relevant guides:
-- [Importing Packages by Name](#importing-packages-by-name) (Optional)
-
+> Psst... are you an expert on Vue? We'd [love your help](https://github.com/pikapkg/snowpack/blob/master/docs) writing a short guide for authoring `.vue` SFC's and then compiling them to valid JS!
 
 ### Preact
 
 ```js
 // File: src/index.js
 import { h, Component, render } from '/web_modules/preact.js';
-// Optional, if using HTM instead of JSX:
+// Optional, if using HTM instead of JSX and Babel:
 import htm from '/web_modules/htm.js';
 const html = htm.bind(h);
 
@@ -87,6 +85,7 @@ const html = htm.bind(h);
 #### Relevant guides:
 - [Hello, World! Tutorial](#hello%2C-world!) (Written for Preact!)
 - [Snowpack + Babel](#Babel) (Required for JSX)
+- [HTM](#HTM) (Alternative to JSX)
 - [Importing Packages by Name](#importing-packages-by-name) (Optional)
 
 
@@ -113,7 +112,53 @@ To use JSX with Snowpack, you can either:
 
 1. Use TypeScript with ["--jsx" mode](https://www.typescriptlang.org/docs/handbook/jsx.html) enabled. See our "TypeScript" guide for more.
 1. Use Babel with a plugin like [@babel/plugin-transform-react-jsx](https://babeljs.io/docs/en/babel-plugin-transform-react-jsx) or a framework-specific preset like [@babel/preset-react](https://babeljs.io/docs/en/babel-preset-react). See our "Babel" guide for more.
-1. Use a JSX-like alternative that can run in the browser. Jason Miller's [htm](https://github.com/developit/htm) is a great option. 
+1. Use a JSX-like alternative that can run in the browser. Jason Miller's [htm](https://github.com/developit/htm) is a great option (keep reading).
+
+
+### HTM
+
+HTM is described as a "JSX alternative using [...] JSX-like syntax in plain JavaScript - no transpiler necessary." It has first-class support for Preact (built by the same team) but also works with React.
+
+https://www.pika.dev happily used HTM + Preact for many months before adding Babel and switching to React + TypeScript.
+
+```js
+// File: src/index.js
+import { h, Component, render } from '/web_modules/preact.js';
+import htm from '/web_modules/htm.js';
+const html = htm.bind(h);
+
+return html`<div id="foo" foo=${40 + 2}>Hello!</div>`
+
+// $ snowpack --include "src/index.js"
+// ✔ snowpack installed: preact, htm. [1.06s]
+```
+
+
+### Importing CSS
+
+```js
+// ✘ NOT SUPPORTED OUTSIDE OF BUNDLERS
+import './style.css';
+```
+
+No browser today supports importing a CSS file directly from JS. Instead, you'll want to use one of the following libraries/solutions:
+
+1. **Recommended!** If you're building a simple app, consider defining your CSS inside your HTML using a `<style>` block.
+2. **Recommended!** `csz`: Adds support for importing CSS from JS
+3. `@emotion/core` (React): Adds support for a `css` property on React components. Requires Babel to work.
+4. Most CSS-in-JS libraries will work without a bundler, although some require a library-specific Babel plugin to work.
+
+### Importing Images 
+
+```js
+// ✘ NOT SUPPORTED OUTSIDE OF BUNDLERS
+import './photo.png';
+```
+
+No browser today supports importing an image directly from JS. Instead, you'll want to use one of the following libraries/solutions:
+
+1. **Recommended!** You can reference any image file by path. This works for both CSS rules and for `<img>` elements.
+
 
 ### Tailwind CSS
 
