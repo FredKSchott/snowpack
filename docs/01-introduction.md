@@ -2,14 +2,14 @@
 
 
 <p class="notification is-link">
-  <strong style="text-decoration: underline">TL;DR</strong> - With Snowpack you can build modern web apps (with React, Vue, etc.) without a bundler (like Webpack, Parcel, Rollup). No more waiting for your bundler to rebuild your site every time you hit save. Instead, changes are ready in the browser instantly.
+  <strong style="text-decoration: underline">TL;DR</strong> - With Snowpack you can build modern web apps (using React, Vue, etc.) without a bundler (like Webpack, Parcel, Rollup). No more waiting for your bundler to rebuild your site every time you hit save. Instead, every change is reflected in the browser instantly.
 </p>
 
 
 ### How It Works
 
 
-1. Instead of bundling on every change, just run Snowpack once right after `npm install`.
+1. Instead of bundling on every change, just run Snowpack ***once*** right after `npm install`.
 2. Snowpack re-installs your dependencies as single JS files to a new `web_modules/` directory.
 3. Write code, import those dependencies via an ESM `import`, and then run it all in the browser.
 4. Skip the bundle step and see your changes reflected in the browser immediately after hitting save.
