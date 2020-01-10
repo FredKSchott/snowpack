@@ -8,7 +8,7 @@ Below are a collection of guides for using different web frameworks and build to
 
 To use Babel with Snowpack:
 
-1. Make sure that your entire application lives instead a source directory (ex: `src/`). 
+1. Make sure that your entire application lives inside a source directory (ex: `src/`). 
 2. Run Babel to build your `src/` application to an output `lib/` directory (ex: `babel src/ --out-dir lib --watch`)
 3. Update your HTML entrypoint to point to your `lib/` directory.
 4. Now make changes to your `src/` directory, and see them build instantly.
