@@ -170,7 +170,6 @@ When using third party packages that may also use lit-html, it's important to [d
 ```js
 // File: package.json
   "snowpack": {
-    // ...
     "webDependencies": [
       "lit-html",
       "lit-html/directives/until.js"
