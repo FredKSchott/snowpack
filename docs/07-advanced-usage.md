@@ -92,3 +92,30 @@ By default, Snowpack will transpile using the recommended target string shown ab
 
 You can optionally add "snowpack" as a `"prepare"` script to your `package.json` and npm/yarn will automatically run it after every new dependency install. This is recommended so that new dependencies are automatically included in your `web_modules/` directory immediately.
 
+
+
+### Importing CSS
+
+```js
+// ✘ NOT SUPPORTED OUTSIDE OF BUNDLERS
+import './style.css';
+```
+
+No browser today supports importing a CSS file directly from JS. Instead, you'll want to use one of the following libraries/solutions:
+
+1. **Recommended!** If you're building a simple app, consider defining your CSS inside your HTML using a `<style>` block.
+2. **Recommended!** [csz](https://github.com/lukejacksonn/csz) - "Runtime CSS modules with SASS like preprocessing"
+3. [@emotion/core](https://emotion.sh/docs/@emotion/core) - "Simple styling in React." (Requires Babel)
+4. Most CSS-in-JS libraries will work without a bundler, although some may require extra Babel plugins to work.
+
+### Importing Images
+
+```js
+// ✘ NOT SUPPORTED OUTSIDE OF BUNDLERS
+import './photo.png';
+```
+
+No browser today supports importing an image directly from JS. Instead, you'll want to use one of the following libraries/solutions:
+
+1. **Recommended!** Keep referencing images by URL. You can put any image URL directly into an `<img>` src tag: `<img src="/img/photo.png">`. 
+

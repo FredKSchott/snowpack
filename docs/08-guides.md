@@ -98,7 +98,7 @@ npm install react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
    yarn add react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
 ```
 
-@reactesm publishes an ESM build of the latest react & react-dom libraries. When installed under the usual react/react-dom alias, tools like Snowpack will use the easier-to-optimize ESM builds inside your `web_modules/` directory. 
+@reactesm/react & @reactesm/react-dom are ESM builds of the latest React libraries. When installed under the usual react/react-dom alias, Snowpack will install these easier-to-optimize builds into your `web_modules/` directory. You can then run them in the browser, as expected.
 
 ```js
 import React, { useState } from '/web_modules/react.js';
@@ -117,7 +117,7 @@ To use JSX with Snowpack, you can either:
 
 ### HTM
 
-HTM is described as a "JSX alternative using [...] JSX-like syntax in plain JavaScript - no transpiler necessary." It has first-class support for Preact (built by the same team) but also works with React.
+HTM is "a JSX alternative using [...] JSX-like syntax in plain JavaScript - no transpiler necessary." It has first-class support for Preact (built by the same team) but also works with React.
 
 https://www.pika.dev happily used HTM + Preact for many months before adding Babel and switching to React + TypeScript.
 
@@ -133,26 +133,34 @@ return html`<div id="foo" foo=${40 + 2}>Hello!</div>`
 // ✔ snowpack installed: preact, htm. [1.06s]
 ```
 
-### Lit-html
+### lit-html
 
-[lit-html](https://lit-html.polymer-project.org/) is a fast, efficient and expressive templating library for JavaScript. Similar to HTM, lit-html uses tagged template literals which allows for JSX-like syntax in the browser without requiring any transpilation.
+[lit-html](https://lit-html.polymer-project.org/) is "an efficient, expressive, extensible HTML templating library for JavaScript." Similarly to [HTM](#HTM), lit-html uses tagged template literals for JSX-like syntax in the browser without requiring any transpilation.
 
 ```js
 // File: src/index.js
 import { html } from "/web_modules/lit-html.js";
+import { html } from "/web_modules/lit-html/directives/until.js";
 
 // $ snowpack --include "src/index.js"
-// ✔ snowpack installed: lit-html [0.17s]
+// ✔ snowpack installed: lit-html, lit-html/directives/until.js [0.17s]
 ```
 
-#### Using Directives
-
-If you want to use lit-html [directives](https://lit-html.polymer-project.org/guide/template-reference#built-in-directives), you'll have to separately add them to the `webDependencies` property in your `package.json` like so:
+**Important:** There should only ever be one version of lit-html run in the browser. If you are using third-party packages that also depend on lit-html, we strongly recommend adding `"lit-html"` to your [dedupe](#all-config-options) config to prevent Snowpack from installing multiple versions:
 
 ```js
 // File: package.json
   "snowpack": {
     // ...
+    "dedupe": ["lit-html"]
+  },
+```
+
+**Important:** [lit-html directives](https://lit-html.polymer-project.org/guide/template-reference#built-in-directives) aren't exported by the main package. Run Snowpack with the `--include` flag so that Snowpack can automatically detect these imports in your application. Otherwise, add them each separately to the `webDependencies` whitelist in your `package.json`:
+
+```js
+// File: package.json
+  "snowpack": {
     "webDependencies": [
       "lit-html",
       "lit-html/directives/until.js",
@@ -160,29 +168,10 @@ If you want to use lit-html [directives](https://lit-html.polymer-project.org/gu
   },
 ```
 
-> Remember: Setting a list of `webDependencies` will disable zero-config (link) mode. Make sure that you are using the `--include` flag, or add all of your used dependencies to `webDependencies`.
 
+### LitElement
 
-#### Deduping lit-html
-
-When using third party packages that may also use lit-html, it's important to [dedupe](#all-config-options) lit-html as there should always only be one version of lit-html on the page. Having duplicate versions of lit-html will lead to errors. You can do so by adding a `dedupe` property to your `package.json`:
-
-```js
-// File: package.json
-  "snowpack": {
-    "webDependencies": [
-      "lit-html",
-      "lit-html/directives/until.js"
-    ],
-    "dedupe": [
-      "lit-html"
-    ]
-  },
-```
-
-### Lit-element + lit-html
-
-[Lit-element](https://lit-element.polymer-project.org/) is a simple base class for creating fast, lightweight web components that leverages [lit-html](https://lit-html.polymer-project.org/) for fast, efficient and expressive templating.
+[LitElement](https://lit-element.polymer-project.org/) is "a simple base class for creating fast, lightweight web components" built on top of [lit-html](https://lit-html.polymer-project.org/). Read our [lit-html](#lit-html) guide for important information.
 
 ```js
 // File: src/index.js
@@ -192,33 +181,6 @@ import { repeat } from "/web_modules/lit-html.js";
 // $ snowpack --include "src/index.js"
 // ✔ snowpack installed: lit-html, lit-element [0.25s]
 ```
-
-Also see lit-html's [using directives](#using-directives) section.
-
-### Importing CSS
-
-```js
-// ✘ NOT SUPPORTED OUTSIDE OF BUNDLERS
-import './style.css';
-```
-
-No browser today supports importing a CSS file directly from JS. Instead, you'll want to use one of the following libraries/solutions:
-
-1. **Recommended!** If you're building a simple app, consider defining your CSS inside your HTML using a `<style>` block.
-2. **Recommended!** `csz`: Adds support for importing CSS from JS
-3. `@emotion/core` (React): Adds support for a `css` property on React components. Requires Babel to work.
-4. Most CSS-in-JS libraries will work without a bundler, although some require a library-specific Babel plugin to work.
-
-### Importing Images 
-
-```js
-// ✘ NOT SUPPORTED OUTSIDE OF BUNDLERS
-import './photo.png';
-```
-
-No browser today supports importing an image directly from JS. Instead, you'll want to use one of the following libraries/solutions:
-
-1. **Recommended!** You can reference any image file by path. This works for both CSS rules and for `<img>` elements.
 
 
 ### Tailwind CSS
@@ -273,6 +235,7 @@ import Button from "/web_modules/@material-ui/core/Button/index.js";
 The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbox-cli) integrates well with Snowpack. Run the wizard to bootstrap your first configuration file, and then run `workbox generateSW` to generate your service worker.
 
 Remember that Workbox expects to be run every time you deploy, as a part of your production "build" process (similar to how Snowpack's [`--optimize`](#production-optimization) flag works).
+
 
 ### Migrating an Existing App
 
