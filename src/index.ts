@@ -117,8 +117,8 @@ function detectExports(filePath: string): string[] | undefined {
  * field instead of the CJS "main" field.
  */
 function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
-  // if the path includes a file extension, just use it
-  if (path.extname(dep)) {
+  // if dep includes a file extension, check that dep isn't a package before returning
+  if (path.extname(dep) && !resolveFrom.silent(cwd, `${dep}/package.json`)) {
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
     return {
       type: isJSFile ? 'JS' : 'ASSET',
