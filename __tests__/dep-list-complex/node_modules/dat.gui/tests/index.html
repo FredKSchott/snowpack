@@ -1,0 +1,1450 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+
+  <link rel="stylesheet" href="qunit.css" type="text/css" media="screen"/>
+  <script type="text/javascript" src="qunit.js"></script>
+  <script type="text/javascript" src="jquery.js"></script>
+
+  <script type="text/javascript" src="../build/dat.gui.js"></script>
+  <script type="text/javascript">
+
+  $.noConflict();
+  jQuery(document).ready(function($) {
+    var math = dat.color.math;
+    var interpret = dat.color.interpret;
+    var Color = dat.color.Color;
+    var dom = dat.dom.dom;
+    var Controller = dat.controllers.Controller;
+    var BooleanController = dat.controllers.BooleanController;
+    var OptionController = dat.controllers.OptionController;
+    var StringController = dat.controllers.StringController;
+    var NumberController = dat.controllers.NumberController;
+    var NumberControllerBox = dat.controllers.NumberControllerBox;
+    var NumberControllerSlider = dat.controllers.NumberControllerSlider;
+    var FunctionController = dat.controllers.FunctionController;
+    var ColorController = dat.controllers.ColorController;
+    var GUI = dat.gui.GUI;
+
+
+    module("Color Math");
+
+    test("rgb_to_hex", function() {
+
+      equal(
+          math.rgb_to_hex(100, 255, 20),
+          0x64ff14
+      );
+
+    });
+
+    test("component_from_hex", function() {
+
+      equal(
+          math.component_from_hex(0xff3366, 0),
+          0x66,
+          'get blue'
+      );
+
+      equal(
+          math.component_from_hex(0xff3366, 1),
+          0x33,
+          'get green'
+      );
+
+      equal(
+          math.component_from_hex(0xff3366, 2),
+          0xff,
+          'get red'
+      );
+
+    });
+
+    test("hex_with_component", function() {
+
+      equal(
+          math.hex_with_component(0x002203, 0, 0x32),
+          0x002232,
+          'replace blue'
+      );
+
+      equal(
+          math.hex_with_component(0x002203, 1, 0x32),
+          0x003203,
+          'replace green'
+      );
+
+      equal(
+          math.hex_with_component(0x002203, 2, 0x32),
+          0x322203,
+          'replace red'
+      );
+
+    });
+
+    test("rgb_to_hsv", function() {
+
+      match(
+          math.rgb_to_hsv(173, 52, 141),
+          {
+            h: 315.86776859504135,
+            s: 0.6994219653179191,
+            v: 0.6784313725490196
+          });
+
+      match(
+          math.rgb_to_hsv(10, 10, 10),
+          {
+            h: NaN,
+            s: 0,
+            v: 0.0392156862745098
+          }, 'grayscale');
+
+      match(
+          math.rgb_to_hsv(0, 0, 0),
+          {
+            h: NaN,
+            s: 0,
+            v: 0
+          }, 'black');
+
+    });
+
+    test("hsv_to_rgb", function() {
+
+      match(
+          math.hsv_to_rgb(255, 0.85, 0.46),
+          {
+            r: 42.52125000000001,
+            g: 17.595000000000006,
+            b: 117.30000000000001
+          });
+
+      match(
+          math.hsv_to_rgb(0, 0, 0.46),
+          {
+            r: 117.30000000000001,
+            g: 117.30000000000001,
+            b: 117.30000000000001
+          }, 'grayscale');
+
+    });
+
+    module("Color Interpretations");
+
+    test("CSS Strings", function() {
+
+      match(
+          interpret('#ccc'),
+          {
+            hex: 0xcccccc,
+            space: 'HEX',
+            conversionName: 'THREE_CHAR_HEX'
+          },
+          'THREE_CHAR_HEX'
+      );
+
+      match(
+          interpret('#f09'),
+          {
+            hex: 0xff0099,
+            space: 'HEX',
+            conversionName: 'THREE_CHAR_HEX'
+          },
+          'THREE_CHAR_HEX'
+      );
+
+      match(
+          interpret('#0f93cd'),
+          {
+            hex: 0x0f93cd,
+            space: 'HEX',
+            conversionName: 'SIX_CHAR_HEX'
+          },
+          'SIX_CHAR_HEX'
+      );
+
+      match(
+          interpret('rgba(255,10,200,0.3)'),
+          {
+            r: 255,
+            g: 10,
+            b: 200,
+            a: 0.3,
+            space: 'RGB',
+            conversionName: 'CSS_RGBA'
+          },
+          'CSS_RGBA'
+      );
+
+      match(
+          interpret('rgb(255,10,200)'),
+          {
+            r: 255,
+            g: 10,
+            b: 200,
+            space: 'RGB',
+            conversionName: 'CSS_RGB'
+          },
+          'CSS_RGB'
+      );
+
+    });
+
+    test("Other", function() {
+
+      match(
+          interpret(0xff3322),
+          {
+            hex: 0xff3322,
+            space: 'HEX',
+            conversionName: 'HEX'
+          },
+          'HEX'
+      );
+
+      match(
+          interpret([255, 255, 0]),
+          {
+            r: 255,
+            g: 255,
+            b: 0,
+            space: 'RGB',
+            conversionName: 'RGB_ARRAY'
+          },
+          'RGB_ARRAY'
+      );
+
+
+      match(
+          interpret([0, 110, 255, 0.3]),
+          {
+            r: 0,
+            g: 110,
+            b: 255,
+            a: 0.3,
+            space: 'RGB',
+            conversionName: 'RGBA_ARRAY'
+          },
+          'RGBA_ARRAY'
+      );
+
+      match(
+          interpret({
+                r: 255,
+                g: 255,
+                b: 200
+              }),
+          {
+            r: 255,
+            g: 255,
+            b: 200,
+            space: 'RGB',
+            conversionName: 'RGB_OBJ'
+          },
+          'RGB_OBJ'
+      );
+
+      match(
+          interpret({
+                r: 255,
+                g: 255,
+                b: 200,
+                a: 0.2
+              }),
+          {
+            r: 255,
+            g: 255,
+            b: 200,
+            a: 0.2,
+            space: 'RGB',
+            conversionName: 'RGBA_OBJ'
+          },
+          'RGBA_OBJ'
+      );
+
+      match(
+          interpret({
+                h: 360,
+                s: 1,
+                v: 0.5
+              }),
+          {
+            h: 360,
+            s: 1,
+            v: 0.5,
+            space: 'HSV',
+            conversionName: 'HSV_OBJ'
+          },
+          'HSV_OBJ'
+      );
+
+      match(
+          interpret({
+                h: 360,
+                s: 1,
+                v: 0.5,
+                a: 0.8
+              }),
+          {
+            h: 360,
+            s: 1,
+            v: 0.5,
+            a: 0.8,
+            space: 'HSV',
+            conversionName: 'HSVA_OBJ'
+          },
+          'HSVA_OBJ'
+      );
+
+      match(
+          interpret('Failuuureeee'),
+          false,
+          'FAIL'
+      );
+
+    });
+
+    module("Color Objects");
+
+    test("Creation", function() {
+
+      var c = new Color(255, 100, 20, 0.3);
+
+      equal(c.r, 255, 'red');
+      equal(c.g, 100, 'green');
+      equal(c.b, 20, 'blue');
+      equal(c.a, 0.3, 'alpha');
+
+      equal(c.hex, 0xff6414, 'hex');
+
+      equal(Math.round(c.h), 20, 'hue');
+      equal(Math.round(c.s * 100), 92, 'saturation');
+      equal(Math.round(c.v * 100), 100, 'value');
+
+    });
+
+    test("RGB Modification", function() {
+
+      var c = new Color(255, 100, 20, 0.3);
+
+      c.r -= 100;
+
+      equal(c.r, 155, 'green');
+      equal(c.g, 100, 'green');
+      equal(c.b, 20, 'blue');
+      equal(c.a, 0.3, 'alpha');
+
+      equal(c.hex, 0x9b6414, 'hex');
+
+      equal(Math.round(c.h), 36, 'hue');
+      equal(Math.round(c.s * 100), 87, 'saturation');
+      equal(Math.round(c.v * 100), 61, 'value');
+
+    });
+
+    test("RGB Modification", function() {
+
+      var c = new Color(255, 100, 20, 0.3);
+
+      c.r -= 100;
+
+      equal(c.r, 155, 'green');
+      equal(c.g, 100, 'green');
+      equal(c.b, 20, 'blue');
+      equal(c.a, 0.3, 'alpha');
+
+      equal(c.hex, 0x9b6414, 'hex');
+
+      equal(Math.round(c.h), 36, 'hue');
+      equal(Math.round(c.s * 100), 87, 'saturation');
+      equal(Math.round(c.v * 100), 61, 'value');
+
+    });
+
+    test("Setting RGB, Modifying HSV", function() {
+
+      var c = new Color(255, 0, 100);
+
+      c.s = 1;
+
+      equal(c.r, 255);
+      equal(c.g, 0);
+      equalish(c.b, 100, 0.00001);
+      equal(c.a, 1);
+
+    });
+
+
+    test("Setting HSV, Modifying RGB", function() {
+
+      var c = new Color({ h: 340, s: 0.3, v: 0.9 });
+
+      c.g = 0;
+
+      equal(c.h, 312);
+      equal(c.s, 1);
+      equal(c.v, 0.9);
+      equal(c.a, 1);
+
+    });
+
+    test("Grayscale Hue", function() {
+
+      var c = new Color(120, 100, 20, 0.3);
+
+      var prevHue = c.h;
+
+      equal(typeof c.h, 'number');
+
+      // Make graysale
+      c.g = c.b = c.r;
+
+      equal(c.h, prevHue, 'grayscale, hue intact');
+
+    });
+
+    test("Black Hue", function() {
+
+      var c = new Color(120, 100, 20, 0.3);
+
+      var prevHue = c.h;
+      console.log('heh?');
+
+      c.r = 0;
+      c.b = 0;
+      c.g = 0;
+
+      equal(c.h, prevHue, 'black, hue intact');
+
+    });
+
+		function match(a, b, msg) {
+
+			for (var i in b) {
+				if (b[i] !== b[i]) {
+					ok(a[i] !== a[i], msg)
+				} else {
+					equal(b[i], a[i], msg);
+				}
+			}
+
+		}
+
+		function equalish(a, b, tolerance, label) {
+			return ok(Math.abs(a - b) < tolerance, label);
+		}
+
+
+
+
+    function initObject() {
+      return {
+        numberProperty: 10,
+        stringProperty: 'foo',
+        booleanProperty: false,
+        functionProperty: function() {
+          // do something
+        },
+        anotherBooleanProperty: true,
+        colorProperty: "#ffffff"
+      };
+    }
+
+    var hidden = document.createElement('div');
+    hidden.style.display = 'none';
+    document.body.appendChild(hidden);
+
+    module("Controller");
+
+    test("Retrieves values", function() {
+
+      var object = initObject();
+
+      var c1 = new Controller(object, 'numberProperty');
+      var c2 = new Controller(object, 'stringProperty');
+      var c3 = new Controller(object, 'booleanProperty');
+      var c4 = new Controller(object, 'functionProperty');
+
+      equal(c1.getValue(), object.numberProperty, "Number property");
+      equal(c2.getValue(), object.stringProperty, "String property");
+      equal(c3.getValue(), object.booleanProperty, "Boolean property");
+      equal(c4.getValue(), object.functionProperty, "Function property");
+
+    });
+
+    test("Sets values", function() {
+      var object = initObject();
+
+      var c1 = new Controller(object, 'numberProperty');
+      c1.setValue(40);
+
+      equal(40, object.numberProperty);
+
+    });
+
+    module("BooleanController");
+
+    test("Acknowledges original values", function() {
+
+      var object = initObject();
+      var c1 = new BooleanController(object, 'booleanProperty');
+      var c2 = new BooleanController(object, 'anotherBooleanProperty');
+
+      equal(c1.__checkbox.checked,
+          object.booleanProperty);
+
+console.log(c2.__checkbox.getAttribute('checked'));
+
+      equal(c2.__checkbox.getAttribute('checked') === 'checked',
+          object.anotherBooleanProperty);
+
+    });
+
+    test("Modifies values (starting true)", function() {
+
+      var object = { booleanProperty: true };
+
+      var c1 = new BooleanController(object, 'booleanProperty');
+
+      // Must append this to body for click to work
+      hidden.appendChild(c1.domElement);
+
+      dom.fakeEvent(c1.__checkbox, 'click');
+      equal(false, object.booleanProperty, 'changes');
+      equal(false, c1.__checkbox.checked, 'checkbox valid');
+
+      dom.fakeEvent(c1.__checkbox, 'click');
+      equal(true, object.booleanProperty, 'changes back');
+
+      equal(true, c1.__checkbox.checked, 'checkbox valid');
+
+
+
+      object.booleanProperty = false;
+      dom.fakeEvent(c1.__checkbox, 'click');
+      equal(false, object.booleanProperty, 'maintains sync');
+      equal(false, c1.__checkbox.checked, 'checkbox valid');
+
+    });
+
+    test("Modifies values (starting false)", function() {
+
+      var object = { booleanProperty: false };
+
+      var c1 = new BooleanController(object, 'booleanProperty');
+
+      // Must append this to body for click to work
+      hidden.appendChild(c1.domElement);
+
+      dom.fakeEvent(c1.__checkbox, 'click');
+      equal(true, object.booleanProperty, 'changes');
+      equal(true, c1.__checkbox.checked, 'checkbox valid');
+
+      dom.fakeEvent(c1.__checkbox, 'click');
+      equal(false, object.booleanProperty, 'changes back');
+      equal(false, c1.__checkbox.checked, 'checkbox valid');
+
+      object.booleanProperty = true;
+      dom.fakeEvent(c1.__checkbox, 'click');
+      equal(true, object.booleanProperty, 'maintains sync');
+      equal(true, c1.__checkbox.checked, 'checkbox valid');
+
+
+    });
+
+    module("OptionController");
+
+    test("Populates with string array", function() {
+      var object = initObject();
+      var options = ['Jono', 'Doug', 'George'];
+
+      var c1 = new OptionController(object, 'stringProperty',
+          options);
+
+//        hidden.appendChild(c1.domElement);
+
+      $(c1.__select).children().each(function(index) {
+        equal(options[index], this.innerHTML);
+        equal(options[index], $(this).attr('value'));
+      });
+
+    });
+
+    test("Populates with map", function() {
+      var object = initObject();
+      var options = {
+        'Small': 0,
+        'Medium': 2,
+        'Large': 10
+      };
+
+      var c1 = new OptionController(object, 'stringProperty',
+          options);
+
+//        hidden.appendChild(c1.domElement);
+
+      $(c1.__select).children().each(function(index) {
+        equal(options[this.innerHTML], $(this).attr('value'));
+      });
+
+    });
+
+    test("Acknowledges original value", function() {
+      var object = initObject();
+      var options = {
+        'Small': 0,
+        'Medium': 2,
+        'Large': object.numberProperty
+      };
+
+      var c1 = new OptionController(object, 'numberProperty',
+          options);
+
+//        hidden.appendChild(c1.domElement);
+
+      equal($(c1.__select).val(), object.numberProperty);
+
+    });
+
+    test("Modifies values", function() {
+      var object = initObject();
+      var options = {
+        'Small': 0,
+        'Medium': 2,
+        'Large': 10
+      };
+
+      var c1 = new OptionController(object, 'numberProperty',
+          options);
+
+      var c2 = new OptionController(object, 'stringProperty', ['a', 'b', 'c']);
+
+//        hidden.appendChild(c1.domElement);
+
+      var elem = $(c1.__select).val(options['Medium'])[0];
+      dom.fakeEvent(elem, 'change');
+
+      equal(options['Medium'], object.numberProperty, 'Number property');
+
+      elem = $(c2.__select).val('b')[0];
+      dom.fakeEvent(elem, 'change');
+
+      equal('b', object.stringProperty, 'String property');
+
+    });
+
+    module("StringController");
+
+    test("Acknowledges original value", function() {
+      var object = initObject();
+      var c1 = new StringController(object, 'stringProperty');
+
+      equal($(c1.__input).val(), object.stringProperty);
+
+    });
+
+    test("Modifies values", function() {
+      var object = initObject();
+      var c1 = new StringController(object, 'stringProperty');
+
+      var newVal = (new Date()).toJSON();
+
+      var elem = $(c1.__input).val(newVal)[0];
+      dom.fakeEvent(elem, 'change');
+
+      equal(newVal, object.stringProperty);
+
+    });
+
+    module("NumberController");
+
+    test("Constraints", function() {
+      var object = initObject();
+      var params = { min: 0, max: 10, step: 2 };
+
+      var c1 = new NumberController(object,
+          'numberProperty', params);
+
+      c1.setValue(12);
+      equal(object.numberProperty, params.max, "Maximum values");
+
+      c1.setValue(-20);
+      equal(object.numberProperty, params.min, "Minimum values");
+
+      c1.setValue(1);
+      equal(object.numberProperty, 2, "Steps");
+
+    });
+
+    module("NumberControllerBox");
+
+    test("Acknowledges original value", function() {
+      var object = initObject();
+      var c1 = new NumberControllerBox(object,
+          'numberProperty');
+
+//        var newVal = Date.now();
+//
+//        $(c1.__input).val(newVal).trigger('change');
+//
+      equal($(c1.__input).val(), object.numberProperty.toString());
+
+    });
+
+    test("Modifies value", function() {
+      var object = initObject();
+      var c1 = new NumberControllerBox(object,
+          'numberProperty');
+
+      var newVal = Date.now();
+
+      var elem = $(c1.__input).val(newVal)[0];
+      dom.fakeEvent(elem, 'change');
+
+      equal(typeof object.numberProperty, 'number');
+      equal(object.numberProperty, newVal);
+
+    });
+
+
+    test("Handles invalid input", function() {
+      var object = initObject();
+      var c1 = new NumberControllerBox(object,
+          'numberProperty');
+
+      var newVal = '~! I98* omg this is not a N&^&*^umber.e-083.9';
+      var prevVal = object.numberProperty;
+
+      var elem = $(c1.__input).val(newVal)[0];
+      dom.fakeEvent(elem, 'change');
+
+      equal(typeof object.numberProperty, 'number');
+      equal(object.numberProperty, prevVal);
+
+    });
+
+
+    test("Handles drag", function() {
+
+      var object = { numberProperty: 0 };
+      var params = { step: Math.random() * 21 };
+
+      var c1 = new NumberControllerBox(object,
+          'numberProperty', params);
+
+      var prevVal = object.numberProperty;
+      var disp = Math.round(Math.random() * 100);
+
+      var elem = c1.__input;
+
+      dom.fakeEvent(elem, 'mousedown', {
+        x: 0,
+        y: 0
+      });
+      dom.fakeEvent(window, 'mousemove', {
+        x: 0,
+        y: disp
+      });
+      dom.fakeEvent(window, 'mouseup');
+
+      equal(object.numberProperty, prevVal + params.step * -disp);
+
+    });
+
+    module("NumberControllerSlider");
+
+    test("Acknowledges original value", function() {
+
+      var object = initObject();
+
+      var min = 0, max = 50;
+
+      var c1 = new NumberControllerSlider(object, 'numberProperty', min, max);
+
+      document.body.appendChild(c1.domElement);
+
+      var bw = dom.getWidth(c1.__background);
+      var fw = dom.getWidth(c1.__foreground);
+
+      document.body.removeChild(c1.domElement);
+
+      equalish(fw/bw, (object.numberProperty - min) / (max - min), 0.01, 'Slider width indicative of value.');
+
+    });
+
+    test("Modifies values", function() {
+
+      var object = initObject();
+
+      var min = 0, max = 50;
+
+      var c1 = new NumberControllerSlider(object, 'numberProperty', min, max, 1);
+
+      document.body.appendChild(c1.domElement);
+
+      var o = dom.getOffset(c1.domElement);
+      var w = dom.getWidth(c1.domElement);
+
+      dom.fakeEvent(c1.__background, 'mousedown', {
+        x: o.left + w/2,
+        y: o.top
+      });
+
+      var bw = dom.getWidth(c1.__background);
+      var fw = dom.getWidth(c1.__foreground);
+
+      equal(object.numberProperty, (min+max)/2, 'Mouse down');
+
+      equalish(fw/bw, (object.numberProperty - min) / (max - min), 0.01, 'Slider width still indicative of value.');
+
+      dom.fakeEvent(window, 'mousemove', {
+        x: o.left,
+        y: o.top
+      });
+
+      fw = dom.getWidth(c1.__foreground);
+
+
+      equal(object.numberProperty, min, 'Mouse move');
+
+      equal(fw/bw, (object.numberProperty - min) / (max - min), 'Slider width still indicative of value.');
+
+
+      dom.fakeEvent(window, 'mouseup');
+
+      dom.fakeEvent(window, 'mousemove', {
+        x: o.left+w,
+        y: o.top
+      });
+
+      equal(object.numberProperty, min, 'Mouse releases drag');
+
+      document.body.removeChild(c1.domElement);
+
+
+    });
+
+    module("ColorController");
+
+    test("Get Color", function() {
+      var object = initObject();
+      var c1 = new ColorController(object, 'colorProperty');
+      document.body.appendChild(c1.domElement);
+
+      var input = c1.domElement.getElementsByTagName("input")[0];
+      equal(input.value, object.colorProperty, "Input value is the same as the colorProperty");
+
+      document.body.removeChild(c1.domElement);
+    });
+
+/*
+    test("Set Color", function() {
+      // get from click, get from hover
+      var object = initObject();
+      var c1 = new ColorController(object, 'colorProperty');
+
+      document.body.appendChild(c1.domElement);
+      var input = c1.domElement.getElementsByTagName("input")[0];
+
+      // type in color
+      input.value = "#ff0";
+
+      // TODO fake events for keys not working
+      dom.fakeEvent(input, 'keydown', { keyCode: 13 });
+
+      // click sv field
+
+      // click hue slider
+
+      equal(1,0, "TODO: add set color tests.");
+
+      document.body.removeChild(c1.domElement);
+    });
+*/
+    module("Controller Events");
+
+    test("onChange", function() {
+
+      var object = initObject();
+
+      var c0 = new NumberControllerSlider(object, 'numberProperty');
+      var c1 = new NumberControllerBox(object, 'numberProperty');
+      var c2 = new StringController(object, 'stringProperty');
+      var c3 = new BooleanController(object, 'booleanProperty');
+      var c4 = new FunctionController(object, 'functionProperty');
+      var c5 = new OptionController(object, 'stringProperty', [0,1,2]);
+
+      var c0_changed = false;
+      var c1_changed = false;
+      var c2_changed = false;
+      var c3_changed = false;
+      var c4_changed = false;
+      var c5_changed = false;
+
+      c0.onChange(function() {
+        c0_changed = true;
+      });
+
+      c1.onChange(function() {
+        c1_changed = true;
+      });
+
+      c2.onChange(function() {
+        c2_changed = true;
+      });
+
+      c3.onChange(function() {
+        c3_changed = true;
+      });
+
+      c4.onChange(function() {
+        c4_changed = true;
+      });
+
+      c5.onChange(function() {
+        c5_changed = true;
+      });
+
+      hidden.appendChild(c3.domElement);
+
+      c0.setValue(0.5);
+      c1.setValue(10);
+      c2.setValue('hey');
+      c3.setValue(false);
+      c4.fire();
+      c5.setValue('yo');
+
+      ok(c1_changed, 'NumberControllerSlider');
+      ok(c1_changed, 'NumberControllerBox');
+      ok(c2_changed, 'StringController');
+      ok(c3_changed, 'BooleanController');
+      ok(c4_changed, 'FunctionController');
+      ok(c5_changed, 'OptionController');
+
+    });
+
+    test("onFinishChange", function() {
+
+      var object = initObject();
+
+      var min = 0, max = 100;
+
+      var c0 = new NumberControllerSlider(object, 'numberProperty', min, max);
+      var c1 = new NumberControllerBox(object, 'numberProperty');
+      var c2 = new StringController(object, 'stringProperty');
+
+      var c0_changed = false;
+      var c1_changed = false;
+      var c2_changed = false;
+
+      c0.onFinishChange(function() {
+        c0_changed = true;
+      });
+
+      document.body.appendChild(c0.domElement);
+
+      var o = dom.getOffset(c0.domElement);
+      var w = dom.getWidth(c0.domElement);
+
+      dom.fakeEvent(c0.__background, 'mousedown', {
+        x: o.left + w/2,
+        y: o.top
+      });
+
+      ok(!c0_changed, 'NumberControllerSlider didn\'t jump the gun ...');
+
+      dom.fakeEvent(window, 'mousemove', {
+        x: o.left,
+        y: o.top
+      });
+      dom.fakeEvent(window, 'mouseup', {
+        x: o.left,
+        y: o.top
+      });
+
+      ok(c0_changed, 'NumberControllerSlider fires when needed.');
+
+      document.body.removeChild(c0.domElement);
+
+      c1.onFinishChange(function() {
+        c1_changed = true;
+      });
+
+      document.body.appendChild(c1.domElement);
+
+      c1.__input.focus();
+      c1.__input.value = '1';
+      ok(!c1_changed, 'NumberControllerBox didn\'t jump the gun ...');
+      c1.__input.value += '2';
+      c1.__input.blur();
+
+      document.body.removeChild(c1.domElement);
+
+      ok(c1_changed, 'NumberControllerBox fires when needed.');
+
+      c2.onFinishChange(function() {
+        c2_changed = true;
+      });
+
+      document.body.appendChild(c2.domElement);
+
+      c2.__input.focus();
+      c2.__input.value = 'friendBudd';
+      ok(!c2_changed, 'StringController didn\'t jump the gun ...');
+      c2.__input.value += 'y';
+      c2.__input.blur();
+
+      document.body.removeChild(c2.domElement);
+
+      ok(c2_changed, 'StringController fires when needed.');
+
+    });
+
+		function equalish(a, b, tolerance, label) {
+			return ok(Math.abs(a - b) < tolerance, label);
+		}
+
+
+
+    module('GUI Appearance');
+
+    test('Auto placement', function() {
+
+      var gui = new GUI();
+      gui.add({ x: 0 }, 'x');
+
+      var gui2 = new GUI();
+      gui2.add({ x: 0 }, 'x');
+
+      equal($('.dg.ac').length, 1, 'A single auto-place container created');
+      equal($('.dg.ac').children().length, 2, 'Containing two GUI\'s');
+
+      equal(gui.parent, undefined);
+      equal(gui2.parent, undefined);
+
+      $('.dg.ac').children().each(function(key, value) {
+        ok($(value).hasClass(GUI.CLASS_AUTO_PLACE), 'GUI has auto-place class');
+        ok($(value).hasClass(GUI.CLASS_MAIN), 'GUI has main class');
+
+      });
+
+      gui.destroy();
+      gui2.destroy();
+
+    });
+
+    test('Auto placement scroll', function() {
+
+      var gui = new GUI();
+
+      // Add a lot of controllers. This will fail if you have some freakishly tall monitor.
+      for (var i = 0; i < 100; i++) {
+        gui.add({ x: 0 }, 'x');
+      }
+
+
+      setTimeout(function() {
+        ok($(gui.domElement).hasClass(GUI.CLASS_TOO_TALL), 'GUI has too tall class');
+        notEqual($(gui.domElement).children('ul')[0].style.height, 'auto');
+
+        gui.destroy();
+      }, 0);
+    });
+
+    test('close/open button position', function() {
+
+      var gui = new GUI({closeOnTop:true});
+      var gui2 = new GUI({closeOnTop:false});
+      var gui3 = new GUI();
+
+      ok($(gui.domElement).find('ul').prev().hasClass(GUI.CLASS_CLOSE_BUTTON) && $(gui.domElement).find('ul').prev().hasClass(GUI.CLASS_CLOSE_TOP), 'GUI has close/open button on top');
+      ok($(gui2.domElement).find('ul').next().hasClass(GUI.CLASS_CLOSE_BUTTON) && $(gui2.domElement).find('ul').next().hasClass(GUI.CLASS_CLOSE_BOTTOM), 'GUI has close/open button on bottom');
+      ok($(gui3.domElement).find('ul').next().hasClass(GUI.CLASS_CLOSE_BUTTON) && $(gui3.domElement).find('ul').next().hasClass(GUI.CLASS_CLOSE_BOTTOM), 'GUI has close/open button on bottom by default');
+
+      gui.destroy();
+      gui2.destroy();
+      gui3.destroy();
+
+    });
+
+    test('Folders', function() {
+
+      var gui = new GUI();
+      gui.add({x:0}, 'x');
+
+      var name1 = 'name';
+      var f1 = gui.addFolder(name1);
+
+      f1.add({ x: 0 }, 'x');
+
+      equal(f1.name, name1, "Accepts name");
+      equal($(f1.domElement).find('li.title').html(), name1, "Displays name");
+
+      equal(f1.closed, true, "Closed by default");
+      ok($(f1.domElement).find('ul').hasClass(GUI.CLASS_CLOSED), "Has closed class");
+
+      var title = $(f1.domElement).find('li.title')[0];
+
+      dom.fakeEvent(title, 'click');
+
+      equal(f1.closed, false, "Opens on click");
+      ok(!$(f1.domElement).find('ul').hasClass(GUI.CLASS_CLOSED), "Opens on click");
+
+      dom.fakeEvent(title, 'click');
+
+      equal(f1.closed, true, "Closes back up");
+      ok($(f1.domElement).find('ul').hasClass(GUI.CLASS_CLOSED), "Closes back up");
+
+      gui.destroy();
+
+    });
+
+
+    module("GUI Controller Methods");
+
+    test('options', function() {
+
+      var gui = new GUI();
+
+      var controller = gui.add({ x: 0 }, 'x').options(0, 1, 2, 3, 4);
+
+      $(controller.__select).children().each(function(key, value) {
+        equals(value.innerHTML, key, 'By array name okay');
+        equals(value.value, key, 'By array value okay');
+      });
+
+      controller = gui.add({ x: 0 }, 'x').options(
+          {
+            0: '0',
+            1: '1',
+            2: '2',
+            3: '3',
+            4: '4'
+          }
+      );
+
+      $(controller.__select).children().each(function(key, value) {
+        equals(value.innerHTML, key, 'By array name okay');
+        equals(value.value, key, 'By array value okay');
+      });
+
+      gui.destroy();
+
+    });
+
+    test('name', function() {
+
+      var gui = new GUI();
+
+      var name = 'hey man';
+      var name2 = 'yoyoo';
+
+      var controller = gui.add({ x: 0 }, 'x').name(name);
+
+      equals($(controller.__li).find('.property-name').html(), name);
+
+      controller.name(name2);
+      equals($(controller.__li).find('.property-name').html(), name2);
+
+      gui.destroy();
+
+    });
+
+    test('listen', function() {
+
+      var gui = new GUI();
+
+      var obj = { x: 0 };
+
+      var returned1 = gui.add(obj, 'x');
+      var returned2 = returned1.listen();
+
+      obj.x = 10;
+
+      setTimeout(function() {
+        ok(returned1 === returned2, 'Returns self');
+
+        equal(returned1.__input.value, obj.x, 'Updates display');
+        gui.destroy();
+      }, 0);
+
+    });
+
+    test('remove', function() {
+
+      var gui = new GUI();
+
+      var c = gui.add({x:0}, 'x');
+
+      ok($.contains(gui.domElement, c.domElement), "Now you see it");
+      c.remove();
+
+      ok(!$.contains(gui.domElement, c.domElement), "Now you don't.");
+
+      gui.destroy();
+
+    });
+
+    test('removeFolder', function() {
+
+      var gui = new GUI();
+
+      var f = gui.addFolder('Temporary folder');
+
+      ok($.contains(gui.domElement, f.domElement), "Now you see it");
+      gui.removeFolder(f);
+
+      ok(!$.contains(gui.domElement, f.domElement), "Now you don't.");
+
+      gui.destroy();
+
+    });
+
+    test('min, max & step', function() {
+
+      var gui = new GUI();
+
+      var min = -10;
+      var max = 200;
+      var step = 5;
+
+      var c = gui.add({ x: 0 }, 'x');
+
+      c.min(min);
+      equals(c.__min, min, 'min');
+
+      c.step(step);
+      equals(c.__step, step, 'step');
+
+      var c2 = c.max(max);
+      equals(c.__max, max, 'max');
+
+      notEqual(c2, c, 'Controller has changed.');
+
+      ok($(c2.__li).find('.slider').length > 0, 'Slider added');
+
+      equals(c.__step, step, 'step intact');
+
+      gui.destroy();
+
+    });
+
+    module("GUI Controller Augmentation");
+
+    test('Adds NumberControllerBox to sliders', function() {
+      var gui = new GUI();
+
+      var c = gui.add({ x: 0 }, 'x', 0, 10);
+
+      ok($(c.__li).find('input').length > 0, 'NumberControllerBox added');
+
+      gui.destroy();
+
+    });
+
+    test('Clickable rows for BooleanControllers', function() {
+
+      var gui = new GUI();
+
+      var c = gui.add({ x: false }, 'x');
+
+      equal(c.__checkbox.checked, false, 'Acknowledges original');
+
+      dom.fakeEvent(c.__li, 'click');
+
+      equal($(c.__checkbox).attr('checked'), 'checked', 'Changes when I click the row');
+
+      dom.fakeEvent(c.__li, 'click');
+
+      equal(c.__checkbox.checked, false, 'Changes back');
+
+      gui.destroy();
+
+    });
+
+    test('Clickable rows for FunctionControllers', function() {
+
+      expect(3);
+
+      var gui = new GUI();
+
+      var c = gui.add({ x: function() {
+        ok(true)
+      } }, 'x');
+
+      dom.fakeEvent(c.__li, 'click');
+      c.fire();
+      dom.fakeEvent(c.__li, 'click');
+
+      gui.destroy();
+
+    });
+
+    module('GUI Saving');
+
+    test('Remembering values', function() {
+
+      var object = {
+        number: 0,
+        boolean: false,
+        string: 'hey'
+      };
+
+      var controllers = {};
+
+      var changed = {
+        number: -20,
+        boolean: true,
+        string: 'hang'
+      };
+
+      var gui = new GUI();
+      gui.remember(object);
+
+      for (var i in object) {
+        controllers[i] = gui.add(object, i);
+      }
+
+      for (i in controllers) {
+        controllers[i].setValue(changed[i]);
+      }
+
+      var saveObject = gui.getSaveObject();
+
+      gui.destroy();
+
+      gui = new GUI({
+            load: saveObject
+          });
+
+      gui.remember(object);
+
+      for (i in object) {
+        controllers[i] = gui.add(object, i);
+        equal(object[i], changed[i]);
+      }
+
+      ensurePresetSelectDisplay(gui);
+
+      gui.destroy();
+
+    });
+
+    test('Presets', function() {
+
+      var presetName = 'New Preset';
+
+      var object = {
+        number: 0,
+        boolean: false,
+        string: 'hey'
+      };
+
+      var original = {};
+
+      for (var i in object) {
+        original[i] = object[i];
+      }
+
+      var controllers = {};
+
+      var changed = {
+        number: -20,
+        boolean: true,
+        string: 'hang'
+      };
+
+      var gui = new GUI();
+      gui.remember(object);
+
+      for (i in object) {
+        controllers[i] = gui.add(object, i);
+      }
+
+      for (i in controllers) {
+        controllers[i].setValue(changed[i]);
+      }
+
+      ensurePresetSelectDisplay(gui);
+
+      gui.saveAs(presetName);
+
+      ensurePresetSelectDisplay(gui);
+
+      var saveObject = gui.getSaveObject();
+      console.log(saveObject);
+
+      gui.destroy();
+
+      gui = new GUI({
+            load: saveObject
+          });
+
+      gui.remember(object);
+
+      for (i in object) {
+        controllers[i] = gui.add(object, i);
+        equal(object[i], changed[i], "Uses last defined preset");
+      }
+
+      equal(gui.preset, presetName, "Preset value correct");
+      ensurePresetSelectDisplay(gui);
+
+      gui.destroy();
+
+      gui = new GUI({
+            preset: "Default",
+            load: saveObject
+          });
+
+      gui.remember(object);
+
+      for (i in object) {
+        controllers[i] = gui.add(object, i);
+        equal(object[i], original[i], "Loads with explicitly set preset");
+      }
+
+      equal(gui.preset, "Default", "Preset value correct");
+      ensurePresetSelectDisplay(gui);
+
+      gui.preset = presetName;
+
+      for (i in object) {
+        equal(object[i], changed[i], "Changes via gui.preset property");
+      }
+
+      $(gui.__preset_select).val('Default');
+      dom.fakeEvent(gui.__preset_select, 'change');
+
+      for (i in object) {
+        equal(object[i], original[i], "Changes via dropdown");
+      }
+
+      gui.destroy();
+
+    });
+
+    function ensurePresetSelectDisplay(gui) {
+
+      equal($(gui.__preset_select).children('option:selected')[0].value, gui.preset, "Dropdown display matches preset value");
+
+    }
+
+
+});
+</script>
+
+</head>
+<body>
+<h1 id="qunit-header"></h1>
+
+<h2 id="qunit-banner"></h2>
+
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+<div id="qunit-fixture">test markup, will be hidden</div>
+</body>
+</html>
