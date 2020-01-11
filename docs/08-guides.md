@@ -133,6 +133,67 @@ return html`<div id="foo" foo=${40 + 2}>Hello!</div>`
 // ✔ snowpack installed: preact, htm. [1.06s]
 ```
 
+### Lit-html
+
+[lit-html](https://lit-html.polymer-project.org/) is a fast, efficient and expressive templating library for JavaScript. Similar to HTM, lit-html uses tagged template literals which allows for JSX-like syntax in the browser without requiring any transpilation.
+
+```js
+// File: src/index.js
+import { html } from "/web_modules/lit-html.js";
+
+// $ snowpack --include "src/index.js"
+// ✔ snowpack installed: lit-html [0.17s]
+```
+
+#### Using Directives
+
+If you want to use lit-html [directives](https://lit-html.polymer-project.org/guide/template-reference#built-in-directives), you'll have to separately add them to the `webDependencies` property in your `package.json` like so:
+
+```js
+// File: package.json
+  "snowpack": {
+    // ...
+    "webDependencies": [
+      "lit-html",
+      "lit-html/directives/until.js",
+    ],
+  },
+```
+
+> Remember: Setting a list of `webDependencies` will disable zero-config (link) mode. Make sure that you are using the `--include` flag, or add all of your used dependencies to `webDependencies`.
+
+
+#### Deduping lit-html
+
+When using third party packages that may also use lit-html, it's important to [dedupe](#all-config-options) lit-html as there should always only be one version of lit-html on the page. Having duplicate versions of lit-html will lead to errors. You can do so by adding a `dedupe` property to your `package.json`:
+
+```js
+// File: package.json
+  "snowpack": {
+    "webDependencies": [
+      "lit-html",
+      "lit-html/directives/until.js"
+    ],
+    "dedupe": [
+      "lit-html"
+    ]
+  },
+```
+
+### Lit-element + lit-html
+
+[Lit-element](https://lit-element.polymer-project.org/) is a simple base class for creating fast, lightweight web components that leverages [lit-html](https://lit-html.polymer-project.org/) for fast, efficient and expressive templating.
+
+```js
+// File: src/index.js
+import { LitElement, html, css } from "/web_modules/lit-element.js";
+import { repeat } from "/web_modules/lit-html.js";
+
+// $ snowpack --include "src/index.js"
+// ✔ snowpack installed: lit-html, lit-element [0.25s]
+```
+
+Also see lit-html's [using directives](#using-directives) section.
 
 ### Importing CSS
 
