@@ -147,7 +147,7 @@ import { html } from "/web_modules/lit-html.js";
 
 #### Using Directives
 
-If you want to use lit-html [directives](https://lit-html.polymer-project.org/guide/template-reference#built-in-directives), you'll have to add them to the `webDependencies` property in your `package.json` like so:
+If you want to use lit-html [directives](https://lit-html.polymer-project.org/guide/template-reference#built-in-directives), you'll have to separately add them to the `webDependencies` property in your `package.json` like so:
 
 ```js
 // File: package.json
