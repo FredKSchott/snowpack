@@ -4,6 +4,13 @@ import glob from 'glob';
 import {parse} from '@babel/parser';
 import traverse from '@babel/traverse';
 
+const WEB_MODULES_TOKEN = 'web_modules/';
+const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
+
+// [@\w] - Match a word-character or @ (valid package name)
+// (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)
+const BARE_SPECIFIER_REGEX = /^[@\w](?!.*(:\/\/))/;
+
 /**
  * An install target represents information about a dependency to install.
  * The specifier is the key pointing to the dependency, either as a package
@@ -37,12 +44,17 @@ function createInstallTarget(specifier: string, all = true): InstallTarget {
  * null is returned.
  */
 function parseWebModuleSpecifier(specifier: string, knownDependencies: string[]): null | string {
-  const webModulesIndex = specifier.indexOf('web_modules/');
+  // If specifier is a "bare module specifier" (ie: package name) just return it directly
+  if (BARE_SPECIFIER_REGEX.test(specifier)) {
+    return specifier;
+  }
+  // Otherwise, check that it includes the "web_modules/" directory
+  const webModulesIndex = specifier.indexOf(WEB_MODULES_TOKEN);
   if (webModulesIndex === -1) {
     return null;
   }
   // check if the resolved specifier (including file extension) is a known package.
-  const resolvedSpecifier = specifier.substring(webModulesIndex + 'web_modules/'.length);
+  const resolvedSpecifier = specifier.substring(webModulesIndex + WEB_MODULES_TOKEN_LENGTH);
   if (knownDependencies.includes(resolvedSpecifier)) {
     return resolvedSpecifier;
   }
