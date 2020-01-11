@@ -25,7 +25,7 @@ function rewriteImport(imp, dir, shouldAddMissingExtension) {
  *                        partial imports is missing in the browser and being phased out of Node.js, but
  *                        this can be a useful option for migrating an old project to Snowpack.
  */
-module.exports = function pikaWebBabelTransform({types: t}, {optionalExtensions, dir}) {
+module.exports = function pikaWebBabelTransform({types: t}, {optionalExtensions, dir} = {}) {
   return {
     visitor: {
       CallExpression(path, {file, opts}) {
