@@ -133,6 +133,52 @@ return html`<div id="foo" foo=${40 + 2}>Hello!</div>`
 // ✔ snowpack installed: preact, htm. [1.06s]
 ```
 
+### Lit-element + lit-html
+
+[Lit-element](https://lit-element.polymer-project.org/) is a simple base class for creating fast, lightweight web components that leverages [lit-html](https://lit-html.polymer-project.org/) for fast, efficient and expressive templating. Similar to HTM, lit-html uses tagged template literals which allows for JSX-like syntax in the browser without requiring transpilation.
+
+```js
+// File: src/index.js
+import { LitElement, html, css } from "/web_modules/lit-element.js";
+
+// $ snowpack --include "src/index.js"
+// ✔ snowpack installed: lit-html, lit-element [0.25s]
+```
+
+#### Using Directives
+
+If you want to use lit-html [directives](https://lit-html.polymer-project.org/guide/template-reference#built-in-directives), you'll have to add them to the `webDependencies` property in your `package.json` like so:
+
+```js
+// File: package.json
+  "snowpack": {
+    "webDependencies": [
+      "lit-html",
+      "lit-element",
+      "lit-html/directives/until.js",
+    ],
+  },
+```
+
+> Note that once you specify `webDependencies`, you'll have to list _all_ your `webDependencies`, not just the one you're looking to add
+
+#### Deduping lit-html
+
+When using third party packages that may also use lit-html, it's important to dedupe lit-html as there should always only be one version of lit-html on the page. Having duplicate versions of lit-html will lead to errors. You can do so by adding a `dedupe` property to your `package.json`:
+
+```js
+// File: package.json
+  "snowpack": {
+    "webDependencies": [
+      "lit-html",
+      "lit-element",
+      "lit-html/directives/until.js"
+    ],
+    "dedupe": [
+      "lit-html"
+    ]
+  },
+```
 
 ### Importing CSS
 
