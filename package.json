@@ -17,7 +17,7 @@
     "lint": "prettier --check 'src/**/*.ts'",
     "publish": "pika publish",
     "version": "npm run build",
-    "test": "jest __tests__/runner.js",
+    "test": "jest __tests__/runner.js --test-timeout=15000",
     "docs:build": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js",
     "docs:watch": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js --serve",
     "docs:deploy": "npm run docs:build && cd www/dist && now --prod"
