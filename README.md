@@ -22,7 +22,7 @@ npm install --save-dev snowpack
 
 ## Examples
 
-🆕 **Check out [`npx @pika/init`](https://github.com/pikapkg/init)**! Instantly bootstrap a starter app with Snowpack, Preact, TypeScript, and more!
+> 🆕 Check out **[`snowpack-init`](https://github.com/pikapkg/snowpack-init)**! Instantly bootstrap a starter app with Snowpack + Preact, Lit-HTML, TypeScript, and more.
 
 - A basic, three-dependency project: [[Source]](https://glitch.com/edit/#!/pika-web-example-simple) [[Live Demo]](https://pika-web-example-simple.glitch.me/)
 - Preact + HTM: [[Source]](https://glitch.com/edit/#!/pika-web-example-preact-htm) [[Live Demo]](https://pika-web-example-preact-htm.glitch.me)

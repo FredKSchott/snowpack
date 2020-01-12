@@ -13,7 +13,7 @@ npm install --save-dev snowpack
 
 ### Hello, World!
 
-> 🆕 Check out **[`npx @pika/init`](https://github.com/pikapkg/init)**! Bootstrap a starter app with Snowpack, Preact, TypeScript, and more.
+> 🆕 Check out **[`snowpack-init`](https://github.com/pikapkg/snowpack-init)**! Instantly bootstrap a starter app with Snowpack + Preact, Lit-HTML, TypeScript, and more.
 
 #### 1. Create a new project directory
 
