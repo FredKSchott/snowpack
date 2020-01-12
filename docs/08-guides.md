@@ -1,4 +1,4 @@
-## Guides
+b## Guides
 
 Snowpack dramatically speeds up your development time by removing the need for a web application bundler. But you can still use build tools like Babel or TypeScript and get the same speed improvements without the bundler. On every change, your build tool will only need to update a single file, instead of entire bundles.
 
@@ -140,7 +140,7 @@ return html`<div id="foo" foo=${40 + 2}>Hello!</div>`
 ```js
 // File: src/index.js
 import { html } from "/web_modules/lit-html.js";
-import { html } from "/web_modules/lit-html/directives/until.js";
+import { until } from "/web_modules/lit-html/directives/until.js";
 
 // $ snowpack --include "src/index.js"
 // ✔ snowpack installed: lit-html, lit-html/directives/until.js [0.17s]
@@ -176,7 +176,7 @@ import { html } from "/web_modules/lit-html/directives/until.js";
 ```js
 // File: src/index.js
 import { LitElement, html, css } from "/web_modules/lit-element.js";
-import { repeat } from "/web_modules/lit-html.js";
+import { repeat } from "/web_modules/lit-html/directives/repeat.js";
 
 // $ snowpack --include "src/index.js"
 // ✔ snowpack installed: lit-html, lit-element [0.25s]
@@ -234,7 +234,7 @@ import Button from "/web_modules/@material-ui/core/Button/index.js";
 
 The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbox-cli) integrates well with Snowpack. Run the wizard to bootstrap your first configuration file, and then run `workbox generateSW` to generate your service worker.
 
-Remember that Workbox expects to be run every time you deploy, as a part of your production "build" process (similar to how Snowpack's [`--optimize`](#production-optimization) flag works).
+Remember that Workbox expects to be run every time you deploy, as a part of a production "build" process (similar to how Snowpack's [`--optimize`](#production-optimization) flag works). If you don't have one yet, create a [`"deploy"` and/or `"build"` script](https://michael-kuehnel.de/tooling/2018/03/22/helpers-and-tips-for-npm-run-scripts.html) in your `package.json` to automate your production build process.
 
 
 ### Migrating an Existing App
