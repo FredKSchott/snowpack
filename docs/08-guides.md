@@ -1,4 +1,4 @@
-## Guides
+b## Guides
 
 Snowpack dramatically speeds up your development time by removing the need for a web application bundler. But you can still use build tools like Babel or TypeScript and get the same speed improvements without the bundler. On every change, your build tool will only need to update a single file, instead of entire bundles.
 
@@ -234,7 +234,7 @@ import Button from "/web_modules/@material-ui/core/Button/index.js";
 
 The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbox-cli) integrates well with Snowpack. Run the wizard to bootstrap your first configuration file, and then run `workbox generateSW` to generate your service worker.
 
-Remember that Workbox expects to be run every time you deploy, as a part of your production "build" process (similar to how Snowpack's [`--optimize`](#production-optimization) flag works).
+Remember that Workbox expects to be run every time you deploy, as a part of a production "build" process (similar to how Snowpack's [`--optimize`](#production-optimization) flag works). If you don't have one yet, create a [`"deploy"` and/or `"build"` script](https://michael-kuehnel.de/tooling/2018/03/22/helpers-and-tips-for-npm-run-scripts.html) in your `package.json` to automate your production build process.
 
 
 ### Migrating an Existing App
