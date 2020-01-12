@@ -31,4 +31,5 @@ npm install --save-dev snowpack
 - PWA-Starter-Kit (lit-html + Redux): [[Source]](https://github.com/Polymer/pwa-starter-kit/issues/339)
 - LitElement + lit-html PWA: [[Source]](https://github.com/thepassle/reddit-pwa) [[Live Demo]](https://angry-turing-4769b3.netlify.com/)
 - Hyperapp and JSX (using Babel): [[Source]](https://github.com/Monchi/snowpack-hyperapp) [[Live Demo]](https://snowpack-hyperapp.netlify.com/)
+- React PWA Starter (React + Styled components + Workbox): [[Source]](https://github.com/matthoffner/es-react-pwa) [[Live Demo]](https://es-react-pwa.netlify.com/)
 - 🙋‍♀️ Have a great example you'd like to share? Create it on [CodeSandbox](https://codesandbox.io/), [Glitch](https://glitch.com), or [GitHub](https://github.com/new). Then add it here via PR.
