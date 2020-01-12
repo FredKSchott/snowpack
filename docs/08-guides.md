@@ -140,7 +140,7 @@ return html`<div id="foo" foo=${40 + 2}>Hello!</div>`
 ```js
 // File: src/index.js
 import { html } from "/web_modules/lit-html.js";
-import { html } from "/web_modules/lit-html/directives/until.js";
+import { until } from "/web_modules/lit-html/directives/until.js";
 
 // $ snowpack --include "src/index.js"
 // ✔ snowpack installed: lit-html, lit-html/directives/until.js [0.17s]
@@ -176,7 +176,7 @@ import { html } from "/web_modules/lit-html/directives/until.js";
 ```js
 // File: src/index.js
 import { LitElement, html, css } from "/web_modules/lit-element.js";
-import { repeat } from "/web_modules/lit-html.js";
+import { repeat } from "/web_modules/lit-html/directives/repeat.js";
 
 // $ snowpack --include "src/index.js"
 // ✔ snowpack installed: lit-html, lit-element [0.25s]
