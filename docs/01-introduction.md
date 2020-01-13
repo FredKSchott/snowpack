@@ -9,8 +9,8 @@
 ### How It Works
 
 
-1. Instead of bundling on every change, just run Snowpack ***once*** right after `npm install`.
-2. Snowpack re-installs your dependencies as single JS files to a new `web_modules/` directory.
+1. Instead of bundling on every change, just run Snowpack **once** right after `npm install`.
+2. Snowpack re-installs your dependencies as single JS files to a new `web_modules/` directory. **It never touches your source code.**
 3. Write code, import those dependencies via an ESM `import`, and then run it all in the browser.
 4. Skip the bundle step and see your changes reflected in the browser immediately after hitting save.
 5. Keep using your favorite web frameworks and build tools! Babel & TypeScript supported.
