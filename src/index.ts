@@ -11,11 +11,11 @@ import babelPresetEnv from '@babel/preset-env';
 import isNodeBuiltin from 'is-builtin-module';
 
 import * as rollup from 'rollup';
-import rollupPluginNodeResolve from 'rollup-plugin-node-resolve';
-import rollupPluginCommonjs from 'rollup-plugin-commonjs';
+import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
+import rollupPluginCommonjs from '@rollup/plugin-commonjs';
 import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
-import rollupPluginReplace from 'rollup-plugin-replace';
-import rollupPluginJson from 'rollup-plugin-json';
+import rollupPluginReplace from '@rollup/plugin-replace';
+import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
 import {rollupPluginRemoteResolve} from './rollup-plugin-remote-resolve.js';
@@ -263,6 +263,8 @@ export async function install(
           rollupPluginJson({
             preferConst: true,
             indent: '  ',
+            compact: isOptimized,
+            namedExports: true,
           }),
         !isStrict &&
           rollupPluginCommonjs({
