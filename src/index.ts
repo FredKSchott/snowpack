@@ -3,7 +3,6 @@ import path from 'path';
 import rimraf from 'rimraf';
 import mkdirp from 'mkdirp';
 import chalk from 'chalk';
-import glob from 'glob';
 import ora from 'ora';
 import yargs from 'yargs-parser';
 import resolveFrom from 'resolve-from';
@@ -362,14 +361,14 @@ export async function cli(args: string[]) {
     process.exit(0);
   }
 
-  
-  const pkgManifestPath = path.join(cwd, 'package.json');
-
-  if (!fs.existsSync(pkgManifestPath)) {
-    return console.log(chalk.red('[Error]: Please add a package.json to your project, snowpack needs it to work'))
+  let pkgManifest: any;
+  try {
+    pkgManifest = require(path.join(cwd, 'package.json'));
+  } catch (err) {
+    console.log(chalk.red('[ERROR] package.json required but no file was found.'));
+    process.exit(0);
   }
- 
- const pkgManifest = require(pkgManifestPath);
+
   const implicitDependencies = [
     ...Object.keys(pkgManifest.dependencies || {}),
     ...Object.keys(pkgManifest.peerDependencies || {}),
