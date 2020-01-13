@@ -15,6 +15,7 @@ npx snowpack
 Snowpack is agnostic to how you serve your site during development. If you have a static dev server that you already like, use it to serve your Snowpack app. Otherwise, we recommend one of the following for local development:
 
 - [`serve`](https://www.npmjs.com/package/serve) (popular, easy to use)
+- [`servor`](https://www.npmjs.com/package/servor) (dependency free, has live-reload by default)
 - [`live-server`](https://www.npmjs.com/package/live-server) (popular, easy to use, has live-reload)
 - [`lite-server`](https://www.npmjs.com/package/lite-server) (has live-reload, built for SPAs)
 - [`browser-sync`](https://www.npmjs.com/package/browser-sync) (popular, battle-tested)
