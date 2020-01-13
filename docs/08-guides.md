@@ -83,7 +83,7 @@ const html = htm.bind(h);
 ```
 
 #### Relevant guides:
-- [Hello, World! Tutorial](#hello%2C-world!) (Written for Preact!)
+- [Quick Start Tutorial](#Quick%2CStart) (Written for Preact!)
 - [Snowpack + Babel](#Babel) (Required for JSX)
 - [HTM](#HTM) (Alternative to JSX)
 - [Importing Packages by Name](#importing-packages-by-name) (Optional)

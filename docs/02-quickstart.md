@@ -1,17 +1,27 @@
 ## Get Started
 
-### Installation
+### Installing Snowpack
 
 ```toml
-# Try Snowpack before installing:
-npx snowpack      
-# Installing Snowpack locally speeds up npx: 
 npm install --save-dev snowpack
    (or) yarn add --dev snowpack
+
+# Then, run Snowpack:
+npx snowpack      
 ```
 
+### Installing a Dev Server
 
-### Hello, World!
+Snowpack is agnostic to how you serve your site during development. If you have a static dev server that you already like, use it to serve your Snowpack app. Otherwise, we recommend one of the following for local development:
+
+- [`serve`](https://www.npmjs.com/package/serve) (popular, easy to use)
+- [`live-server`](https://www.npmjs.com/package/live-server) (popular, easy to use, has live-reload)
+- [`lite-server`](https://www.npmjs.com/package/lite-server) (has live-reload, built for SPAs)
+- [`browser-sync`](https://www.npmjs.com/package/browser-sync) (popular, battle-tested)
+- `now dev`/`netlify dev` (If you already deploy via Zeit/Netlify)
+
+
+### Quick Start
 
 > 🆕 Check out **[`snowpack-init`](https://github.com/pikapkg/snowpack-init)**! Instantly bootstrap a starter app with Snowpack + Preact, Lit-HTML, TypeScript, and more.
 
