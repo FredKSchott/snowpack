@@ -360,7 +360,14 @@ export async function cli(args: string[]) {
     process.exit(0);
   }
 
-  const pkgManifest = require(path.join(cwd, 'package.json'));
+  
+  const pkgManifestPath = path.join(cwd, 'package.json');
+
+  if (!fs.existsSync(pkgManifestPath)) {
+    return console.log(chalk.red('[Error]: Please add a package.json to your project, snowpack needs it to work'))
+  }
+ 
+ const pkgManifest = require(pkgManifestPath);
   const implicitDependencies = [
     ...Object.keys(pkgManifest.dependencies || {}),
     ...Object.keys(pkgManifest.peerDependencies || {}),
