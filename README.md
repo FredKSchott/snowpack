@@ -22,7 +22,6 @@ npm install --save-dev snowpack
 > 🆕 Check out **[`snowpack-init`](https://github.com/pikapkg/snowpack-init)**! Instantly bootstrap a starter app with Snowpack + Preact, Lit-HTML, TypeScript, and more.
 
 - A basic, three-dependency project: [[Source]](https://glitch.com/edit/#!/pika-web-example-simple) [[Live Demo]](https://pika-web-example-simple.glitch.me/)
-- Preact + HTM: [[Source]](https://glitch.com/edit/#!/pika-web-example-preact-htm) [[Live Demo]](https://pika-web-example-preact-htm.glitch.me)
 - To-do app with server-side render (Preact + HTM + Express): [[Source]](https://github.com/beejunk/universal-pika-example) [[Live Demo]](https://safe-everglades-56846.herokuapp.com/)
 - Terminal Homepage (Preact + Typescript + Babel): [[Source]](https://github.com/ndom91/terminal-homepage) [[Live Demo]](https://termy.netlify.com)
 - Electron (using Three.js): [[Source]](https://github.com/br3tt/electron-three)
