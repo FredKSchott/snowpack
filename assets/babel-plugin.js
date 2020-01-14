@@ -11,14 +11,15 @@ function getPackageVersion(package) {
   return json.version;
 }
 
-function rewriteImport(imp, dir, shouldAddMissingExtension, shouldAddVersion) {
+function rewriteImport(imp, dir, shouldAddMissingExtension, shouldAddVersion, versionTag) {
   const isSourceImport = imp.startsWith('/') || imp.startsWith('.') || imp.startsWith('\\');
   const isRemoteimport = imp.startsWith('http://') || imp.startsWith('https://');
   dir = dir || 'web_modules';
+  versionTag = versionTag || 'version';
   if (!isSourceImport && !isRemoteimport) {
     return shouldAddVersion
       ? path.posix.join('/', dir, `${getWebDependencyName(imp)}.js`) +
-          `?version=${getPackageVersion(imp)}`
+          `?${versionTag}=${getPackageVersion(imp)}`
       : path.posix.join('/', dir, `${getWebDependencyName(imp)}.js`);
   }
   if (!isRemoteimport && shouldAddMissingExtension && !path.extname(imp)) {
@@ -29,16 +30,18 @@ function rewriteImport(imp, dir, shouldAddMissingExtension, shouldAddVersion) {
 
 /**
  * BABEL OPTIONS:
- *   addVersion         - Adds package version as a query parameter to blow browser cache.
+ *   addVersion         - Adds package version as a query parameter to package imports.
  *   dir                - The web_modules installed location once hosted on the web.
  *                        Defaults to "web_modules", which translates package imports to "/web_modules/PACKAGE_NAME".
  *   optionalExtensions - Adds any missing JS extensions to local/relative imports. Support for these
  *                        partial imports is missing in the browser and being phased out of Node.js, but
  *                        this can be a useful option for migrating an old project to Snowpack.
+ *   versionTag         - The name of query parameter added via "addVersion" option.
+ *                        Defaults to "version".
  */
 module.exports = function pikaWebBabelTransform(
   {types: t},
-  {optionalExtensions, dir, addVersion} = {},
+  {optionalExtensions, dir, addVersion, versionTag} = {},
 ) {
   return {
     visitor: {
@@ -54,7 +57,9 @@ module.exports = function pikaWebBabelTransform(
         }
 
         source.replaceWith(
-          t.stringLiteral(rewriteImport(source.node.value, dir, optionalExtensions, addVersion)),
+          t.stringLiteral(
+            rewriteImport(source.node.value, dir, optionalExtensions, addVersion, versionTag),
+          ),
         );
       },
       'ImportDeclaration|ExportNamedDeclaration|ExportAllDeclaration'(path, {file, opts}) {
@@ -66,7 +71,9 @@ module.exports = function pikaWebBabelTransform(
         }
 
         source.replaceWith(
-          t.stringLiteral(rewriteImport(source.node.value, dir, optionalExtensions, addVersion)),
+          t.stringLiteral(
+            rewriteImport(source.node.value, dir, optionalExtensions, addVersion, versionTag),
+          ),
         );
       },
     },
