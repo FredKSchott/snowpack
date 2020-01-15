@@ -83,26 +83,33 @@ const html = htm.bind(h);
 ```
 
 #### Relevant guides:
-- [Quick Start Tutorial](#Quick%2CStart) (Written for Preact!)
-- [Snowpack + Babel](#Babel) (Required for JSX)
+- [Quick Start](#quick-start) (Written for Preact!)
+- [Snowpack + Babel](#babel) (Required for JSX)
 - [HTM](#htm) (Alternative to JSX)
 - [Importing Packages by Name](#importing-packages-by-name) (Optional)
 
 
 ### React
 
-React is [not yet published with ES Module support](https://github.com/facebook/react/issues/11503), and the way it's build makes it impossible to bundle as an entrypoint (*"Error: '__moduleExports' is not exported by node_modules/react/index.js"*). **However**, it is still possible to use React with Snowpack thanks to [@sdegutis](https://github.com/sdegutis)'s [@reactesm](https://www.npmjs.com/org/reactesm) project & npm/yarn's alias feature:
+<p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/pUUAil_9yIw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</p>
+
+```js
+import React, { useState } from '/web_modules/react.js';
+```
+
+**Important:** React is [not yet published with ES Module support](https://github.com/facebook/react/issues/11503), and due to the way it's written, it's impossible to install as a dependency (*"Error: '__moduleExports' is not exported by node_modules/react/index.js"*). **However**, it is still possible to use React with Snowpack thanks to [@sdegutis](https://github.com/sdegutis)'s [@reactesm](https://www.npmjs.com/org/reactesm) project & npm/yarn's alias feature:
 
 ```
 npm install react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
    yarn add react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
 ```
 
-@reactesm/react & @reactesm/react-dom are ESM builds of the latest React libraries. When installed under the usual react/react-dom alias, Snowpack will install these easier-to-optimize builds into your `web_modules/` directory. You can then run them in the browser, as expected.
+When installed under the usual react/react-dom alias, Snowpack will install these easier-to-optimize ESM distributions into your `web_modules/` directory. 
 
-```js
-import React, { useState } from '/web_modules/react.js';
-```
+
+
 
 ### JSX
 
@@ -209,7 +216,7 @@ import styled from "/web_modules/styled-components.js";
 
 #### Relevant guides:
 - [Snowpack + React](#React) (Required)
-- [Snowpack + Babel](#Babel) (Required for JSX)
+- [Snowpack + Babel](#babel) (Required for JSX)
 - [Importing Packages by Name](#importing-packages-by-name) (Optional)
 
 
@@ -227,7 +234,7 @@ import Button from "/web_modules/@material-ui/core/Button/index.js";
 
 #### Relevant guides:
 - [Snowpack + React](#React) (Required)
-- [Snowpack + Babel](#Babel) (Required for JSX)
+- [Snowpack + Babel](#babel) (Required for JSX)
 - [Importing Packages by Name](#importing-packages-by-name) (Optional)
 
 ### Workbox

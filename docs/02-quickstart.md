@@ -24,30 +24,33 @@ Snowpack is agnostic to how you serve your site during development. If you have 
 
 ### Quick Start
 
-> 🆕 Check out **[`snowpack-init`](https://github.com/pikapkg/snowpack-init)**! Instantly bootstrap a starter app with Snowpack + Preact, Lit-HTML, TypeScript, and more.
-
-#### 1. Create a new project directory
+#### 0. First, create a new project directory
 
 ```
 mkdir snowpack-demo
 cd snowpack-demo
 npm init --yes
-npm install --save preact@10
 ```
 
-We're using Preact for this Quickstart, but you could use any package. If you're just starting out, we strongly recommend packages with an ESM "module" entrypoint defined, which can be found on pika.dev. Legacy packages (Common.js) are supported, but are more likely to cause issues at install-time.
+#### 1. Install your dependencies
+
+```
+npm install --save preact htm
+```
+
+We'll start this tutorial by using Preact (similar to React) & HTM (similar to JSX). Even if you only want to use React and JSX, you should still start here. By the end of this tutorial, we'll show how you can optionally replace Preact with React, and HTM with JSX (via Babel). 
 
 
-#### 2. Run Snowpack to create your web_modules directory
+#### 2. Run Snowpack to create your web_modules/ directory
 
 ```bash
 npx snowpack
-✔ snowpack installed: preact. [0.50s]
+✔ snowpack installed: preact, htm. [0.50s]
 ```
 
-If all went well, you should see a `web_modules/` directory containing the file `preact.js`. This is the magic of Snowpack: you can import this file directly in your application and ship it all to the browser without a bundler.
+If all went well, you should see a `web_modules/` directory containing the files `preact.js` & `htm.js`. This is the magic of Snowpack: you can import this file directly in the browser. This lets you ship your application to the browser without requiring a bundler.
 
-Optionally, you can now run `npm install snowpack --save-dev` to speed up future Snowpack runs by installing the dependency locally in your project. Otherwise npx tends to re-install the tool before every run.
+Optionally, you can now run `npm install snowpack --save-dev` to speed up future Snowpack runs. Otherwise, npx tends to re-install the tool before every run.
 
 
 #### 3. Create a simple HTML file for your application:
@@ -70,52 +73,38 @@ Optionally, you can now run `npm install snowpack --save-dev` to speed up future
 /* File Location: src/app.js */
 // Import your web-ready dependencies
 import { h, Component, render } from '/web_modules/preact.js';
-// Create your app
-const app = h('div', null, 'Hello World!');
+import htm from '/web_modules/htm.js';
+const html = htm.bind(h);
+// Create your main app component
+function SomePreactComponent(props) {
+  return html`<h1 style="color: red">Hello, World!</h1>`;
+}
 // Inject your application into the an element with the id `app`.
-render(app, document.getElementById('app'));
+render(html`<${SomePreactComponent} />`, document.getElementById('app'));
 ```
 
-#### 5. Serve your application to view it in a web browser!
+#### 5. Serve & run your application
 
 ```
 npx serve
 # Optional: Run "npm install -g serve" to speed up future runs
 ```
 
-Look at that: No bundler needed! Any changes that you make to your src/app.js file are **immediately** reflected when you refresh your page. No bundlers, build steps, or waiting around required.
+Open a web browser and see your application running directly in the browser, as written! Any changes that you make to your src/app.js file are **immediately** reflected when you refresh your page. No bundlers, build steps, or waiting around required.
 
-#### 6. Next Steps
+Open up your browser's Dev Tools and debug your application directly in the browser. Browse your source code as its written. Set breakpoints. Get more useful error messages.
 
-- Open up your browser's Dev Tools and debug your application directly in the browser.
-- Add HTM to your project as a tooling-free alternative to JSX.
+#### 6. Optional Next Steps
 
-```js
-/* File Location: src/app.js */
-import { h, Component, render } from '/web_modules/preact.js';
-import htm from '/web_modules/htm.js';
-const html = htm.bind(h);
-// Create your app with HTM.
-const app = html`<div>Hello World!</div>`
-// Render your app.
-render(app, document.getElementById('app'));
-```
+- Replace Preact with React (see our [React](#react) guide below).
+- Replace HTM with JSX (see our [Babel](#babel) guide below).
+- Add TypeScript support (see our [TypeScript](#typescript) guide below).
+- Add 'package name" import support (see our [Importing Packages by Name](#importing-packages-by-name)) guide below).
+- See all of our guides below!
 
-- Add Babel to your project so that you can use JSX. 
 
-```bash
-babel src/ --out-dir lib --watch
-```
 
-```jsx
-/* File Location: src/app.js */
-/* Babel Output:  lib/app.js (Remember to update your index.html) */
-import { h, Component, render } from '/web_modules/preact.js';
-// Create your app with HTM.
-const app = (<div>Hello World!</div>);
-// Render your app.
-render(app, document.getElementById('app'));
-```
 
-- Add TypeScript to your project.
-- Check out our guides below for more inspiration!
+### Bootstrap a Starter App
+
+🆕 Check out **[`snowpack-init`](https://github.com/pikapkg/snowpack-init)**! Instantly bootstrap a starter app with Snowpack. Choose between templates for Preact, Lit-HTML, TypeScript, and more.
