@@ -18,9 +18,9 @@ function getPackageVersion(package) {
 
 function rewriteImport(imp, dir, shouldAddMissingExtension, shouldAddVersion) {
   const isSourceImport = imp.startsWith('/') || imp.startsWith('.') || imp.startsWith('\\');
-  const isRemoteimport = imp.startsWith('http://') || imp.startsWith('https://');
+  const isRemoteImport = imp.startsWith('http://') || imp.startsWith('https://');
   dir = dir || 'web_modules';
-  if (!isSourceImport && !isRemoteimport) {
+  if (!isSourceImport && !isRemoteImport) {
     const depFileName = `${getWebDependencyName(imp)}.js`;
     const depImport = path.posix.join('/', dir, depFileName);
     if (!shouldAddVersion) {
@@ -29,7 +29,7 @@ function rewriteImport(imp, dir, shouldAddMissingExtension, shouldAddVersion) {
     const packageVersion = getPackageVersion(imp);
     return depImport + `?${VERSION_TAG}=${packageVersion}`;
   }
-  if (!isRemoteimport && shouldAddMissingExtension && !path.extname(imp)) {
+  if (!isRemoteImport && shouldAddMissingExtension && !path.extname(imp)) {
     return imp + '.js';
   }
   return imp;
