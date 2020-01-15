@@ -1,5 +1,5 @@
 const path = require('path');
-const fs = require('fs');
+const finder = require('find-package-json');
 
 const VERSION_TAG = 'v';
 
@@ -9,8 +9,10 @@ function getWebDependencyName(dep) {
 }
 
 function getPackageVersion(package) {
-  const packageJsonPath = path.posix.join('./', 'node_modules', package, 'package.json');
-  const json = JSON.parse(fs.readFileSync(packageJsonPath));
+  // First three are path for @babel/cli, so ignore
+  const modulesPath = require.main.paths.slice(3);
+  const entryPointPath = require.resolve(package, {paths: modulesPath});
+  const json = finder(entryPointPath).next().value;
   return json.version;
 }
 
