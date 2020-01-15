@@ -38,8 +38,9 @@ import React from 'react';
 
 - **Beginners!** Popular starter applications usually come with 1000's of dependencies and 100's of lines of bundler configuration that you don't actually need. Snowpack shrinks the number of things you need to learn to get started with web development. Shipping your code directly to the browser also lets you easily inspect your code in the browser, set break-points, etc. for easier feedback loops as you're getting started.
 - **Anyone starting a new application!** Snowpack has zero lock-in, so you can always add a traditional bundler later down the road (see our guide below). But until then, you can still use all your other favorite tools like Babel & TypeScript while still getting all the dev speed improvements that come with bundler-free development. 
-- **Anyone who thinks web development has gotten too complex!** Less tooling means less to install, less layers of tooling, less to do every time you make a change, and less to debug when something goes wrong. Shipping your code to the browser without a bundler also makes your Dev Tools much more useful for debugging.
-- **Anyone who is interested in the future of web development!** Snowpack is just one step towards a future of web development that lets us build more with less complexity and tooling overhead. Regardless of what happens to Snowpack, this future is here to stay.
+- **Anyone who thinks web development has gotten too complex!** Less tooling means less to install, less complexity, less to do every time you make a change, and less to debug when something goes wrong. Removing tooling that sits between your editor and the browser also makes your Dev Tools much more useful for live debugging.
+- **Anyone who is interested in the future of web development!** Snowpack is just one step towards a future of web development that lets us build more with less complexity and tooling overhead. And this future is here to stay.
+
 
 ### Who Should Avoid Snowpack?
 
