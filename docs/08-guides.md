@@ -85,7 +85,7 @@ const html = htm.bind(h);
 #### Relevant guides:
 - [Quick Start Tutorial](#Quick%2CStart) (Written for Preact!)
 - [Snowpack + Babel](#Babel) (Required for JSX)
-- [HTM](#HTM) (Alternative to JSX)
+- [HTM](#htm) (Alternative to JSX)
 - [Importing Packages by Name](#importing-packages-by-name) (Optional)
 
 
@@ -135,7 +135,7 @@ return html`<div id="foo" foo=${40 + 2}>Hello!</div>`
 
 ### lit-html
 
-[lit-html](https://lit-html.polymer-project.org/) is "an efficient, expressive, extensible HTML templating library for JavaScript." Similarly to [HTM](#HTM), lit-html uses tagged template literals for JSX-like syntax in the browser without requiring any transpilation.
+[lit-html](https://lit-html.polymer-project.org/) is "an efficient, expressive, extensible HTML templating library for JavaScript." Similarly to [HTM](#htm), lit-html uses tagged template literals for JSX-like syntax in the browser without requiring any transpilation.
 
 ```js
 // File: src/index.js
