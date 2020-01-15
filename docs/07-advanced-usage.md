@@ -49,9 +49,9 @@ By default, Snowpack installs dependencies unminified and optimized for developm
 - **Tree-Shaking:** Dependencies will have any unused code removed (when "Automatic Mode" is enabled via the `--include` flag).
 
 
-### Browser Caching
+### Caching in the Browser
 
-By letting you build an unbundled application, Snowpack helps you build applications that are ultra cache-efficient. But proper caching requires some helpful information from the server. Below is a list of caching strategies for your server that you can use with Snowpack.
+The unbundled applications that Snowpack allows you to build can be ultra cache-efficient, with zero code duplication across page loads. But proper caching requires some helpful information from the server. Below is a list of caching strategies for your server that you can use with Snowpack.
 
 #### ETag Headers
 
@@ -65,8 +65,25 @@ By letting you build an unbundled application, Snowpack helps you build applicat
 Service workers can implement a client-side cache for your site regardless of what your server responses look like. Check out this article on ["Caching Files with Service Worker
 "](https://developers.google.com/web/ilt/pwa/caching-files-with-service-worker), and be sure to read our [Workbox](#Workbox) guide below for help using [Workbox](https://developers.google.com/web/tools/workbox/) with Snowpack. 
 
+#### Automatic Cache Busting via Import URL
 
+The browser cache is keyed by unique resource URL. This means that different URL query params will result in different cache hits (and cache misses) even if the server ignores them. Applications built with [Babel](#babel) can leverage this behavior to automatically control the cache.
 
+The Snowpack Babel plugin supports an `"addVersion"` option that will automatically add the package version of any package import as a query parameter of the import URL in the final build. This effectively creates a new cache entry every time a dependency changes, which allows your server to send more aggressive long-term cache headers for the `web_modules/` directory.
+
+``` js
+/* .babelrc */
+"plugins": [
+  ["snowpack/assets/babel-plugin.js", {"addVersion": true}],
+]
+```
+
+``` js
+// src/ File Input
+import Foo from 'package-name';
+// lib/ Babel Output
+import Foo from '/web_modules/package-name.js?v=1.2.3';
+```
 
 
 ### Customize Transpilation
