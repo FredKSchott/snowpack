@@ -125,7 +125,13 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
     };
   }
 
-  const depManifestLoc = resolveFrom(cwd, `${dep}/package.json`);
+  const depManifestLoc = resolveFrom.silent(cwd, `${dep}/package.json`);
+  if (!depManifestLoc) {
+    throw new ErrorWithHint(
+      `"${dep}" not found. Have you installed the package via npm?`,
+      chalk.italic(depManifestLoc),
+    );
+  }
   const depManifest = require(depManifestLoc);
   let foundEntrypoint: string =
     depManifest['browser:module'] || depManifest.module || depManifest.browser;
