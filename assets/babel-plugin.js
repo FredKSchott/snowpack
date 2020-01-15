@@ -21,10 +21,13 @@ function rewriteImport(imp, dir, shouldAddMissingExtension, shouldAddVersion) {
   const isRemoteimport = imp.startsWith('http://') || imp.startsWith('https://');
   dir = dir || 'web_modules';
   if (!isSourceImport && !isRemoteimport) {
-    return shouldAddVersion
-      ? path.posix.join('/', dir, `${getWebDependencyName(imp)}.js`) +
-          `?${VERSION_TAG}=${getPackageVersion(imp)}`
-      : path.posix.join('/', dir, `${getWebDependencyName(imp)}.js`);
+    const depFileName = `${getWebDependencyName(imp)}.js`;
+    const depImport = path.posix.join('/', dir, depFileName);
+    if (!shouldAddVersion) {
+      return depImport;
+    }
+    const packageVersion = getPackageVersion(imp);
+    return depImport + `?${VERSION_TAG}=${packageVersion}`;
   }
   if (!isRemoteimport && shouldAddMissingExtension && !path.extname(imp)) {
     return imp + '.js';
