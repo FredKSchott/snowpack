@@ -47,6 +47,27 @@
 .markdown-body h2 + h3, .markdown-body h4 {
   margin-top: 16px;
 }
+.markdown-body h2.highlighted, .markdown-body h3.highlighted, .markdown-body h4.highlighted {
+  padding: 6px;
+}
+.markdown-body h2::before, .markdown-body h3::before, .markdown-body h4::before {
+  display: block; 
+  content: " "; 
+  margin-top: -12vh; 
+  height: 12vh; 
+  visibility: hidden; 
+  pointer-events: none;
+}
+.markdown-body h2 .header-link, .markdown-body h3 .header-link {
+  font-weight: 300;
+  margin-left: 8px;
+  opacity: 0;
+  transition: opacity 100ms ease-in-out;
+}
+.markdown-body h2:hover .header-link, .markdown-body h3:hover .header-link {
+  opacity: 1;
+} 
+
 .markdown-body ul {
   list-style: initial;
 }
@@ -311,7 +332,7 @@ body {
         }
         tocEl.classList.add('active');
         // Don't scroll the top one
-        if (elId !== 'what-is-snowpack%3F') {
+        if (elId !== 'introduction') {
           tocEl.scrollIntoView();
         }
         return;
@@ -322,6 +343,41 @@ body {
     const tableOfContentsEl = document.querySelector('.toc');
     gridBodyEl.addEventListener('scroll', debounce(setActiveToc));
     setActiveToc();
+
+    window.addEventListener('DOMContentLoaded', (event) => {
+      if (!window.location.hash) {
+        return;
+      }
+      const elNeedingScroll = document.getElementById(window.location.hash.substring(1));
+      if (!elNeedingScroll) {
+        return;
+      }
+      elNeedingScroll.scrollIntoView();
+      elNeedingScroll.classList.add('highlighted');
+    });
+
+    window.addEventListener('DOMContentLoaded', (event) => {
+      
+      /* May not be needed:
+      document.querySelectorAll('.markdown-body h2, .markdown-body h3').forEach((headerEl) => {
+        const linkEl = document.createElement("a"); 
+        // linkEl.setAttribute('target', "_blank");
+        linkEl.setAttribute('href', window.location.protocol  + '/#' + headerEl.id);
+        linkEl.classList.add('header-link');
+        linkEl.innerText = '#';
+        headerEl.appendChild(linkEl);
+      });
+      */
+      if (!window.location.hash) {
+        return;
+      }
+      const elNeedingScroll = document.getElementById(window.location.hash.substring(1));
+      if (!elNeedingScroll) {
+        return;
+      }
+      elNeedingScroll.scrollIntoView();
+      elNeedingScroll.classList.add('highlighted');
+    });
   </script>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-130280175-9"></script>
