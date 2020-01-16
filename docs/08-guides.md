@@ -189,13 +189,24 @@ import { repeat } from "/web_modules/lit-html/directives/repeat.js";
 // ✔ snowpack installed: lit-html, lit-element [0.25s]
 ```
 
+### SASS
+
+```toml
+# 1. Build your CSS (add --watch to watch for changes)
+sass ./scss:./css
+# 2. Load the output css anywhere in your application
+<link rel="stylesheet" type="text/css" href="/css/index.css">
+```
+
+[SASS](https://sass-lang.com/) is a "mature, stable, and powerful professional grade CSS extension language" that compiles to CSS. Use the [SASS CLI](https://sass-lang.com/install) to compile your SASS into CSS, and then load that CSS anywhere in your application.
+
 
 ### Tailwind CSS
 
 ```toml
 # 1. Build your CSS
 npx tailwind build styles.css -o css/tailwind.css
-# 2. Load the output file somewhere in your application
+# 2. Load the output file anywhere in your application
 <link rel="stylesheet" type="text/css" href="/css/tailwind.css">
 ```
 
