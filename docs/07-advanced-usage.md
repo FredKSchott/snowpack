@@ -22,7 +22,7 @@ Browsers only support importing by URL, so importing a package by name (ex: `im
 
 ### Import Maps
 
-> Warning: [Import Maps](https://github.com/WICG/import-maps) are an experimental web technology that is not supported in every browser.
+> Warning: [Import Maps](https://github.com/WICG/import-maps) are an experimental web technology that is not supported in every browser. For polyfilling import maps, [check out es-module-shims](https://github.com/guybedford/es-module-shims#import-maps).
 
 ```
 // Include this in your application HTML...
@@ -32,8 +32,6 @@ import * as _ from 'lodash';
 ```
 
 Snowpack generates an [Import Map](https://github.com/WICG/import-maps) with every installation. If your browser supports Import Maps, you can load the import map somewhere in your application and unlock the ability to import packages by name natively in the browser (no Babel step required).
-
-For polyfilling import maps, [check out es-module-shims](https://github.com/guybedford/es-module-shims#import-maps).
 
 
 ### Production Optimization
