@@ -14,12 +14,10 @@ npx snowpack
 
 Snowpack is agnostic to how you serve your site during development. If you have a static dev server that you already like, use it to serve your Snowpack app. Otherwise, we recommend one of the following for local development:
 
-- [`serve`](https://www.npmjs.com/package/serve) (popular, easy to use)
-- [`servor`](https://www.npmjs.com/package/servor) (dependency free, has live-reload by default)
-- [`live-server`](https://www.npmjs.com/package/live-server) (popular, easy to use, has live-reload)
-- [`lite-server`](https://www.npmjs.com/package/lite-server) (has live-reload, built for SPAs)
-- [`browser-sync`](https://www.npmjs.com/package/browser-sync) (popular, battle-tested)
-- `now dev`/`netlify dev` (If you already deploy via Zeit/Netlify)
+- [`serve`](https://www.npmjs.com/package/serve) (recommended: popular, easy to use)
+- [`servor`](https://www.npmjs.com/package/servor) (recommended: has live-reload, built for SPAs)
+- [`live-server`](https://www.npmjs.com/package/live-server), [`lite-server`](https://www.npmjs.com/package/lite-server),[`browser-sync`](https://www.npmjs.com/package/browser-sync) (honorable mentions)
+- [`now dev`](http://now.sh/), [`netlify dev`](https://www.netlify.com/products/dev/) (if you already deploy via Zeit/Netlify)
 
 
 ### Quick Start
@@ -86,13 +84,15 @@ render(html`<${SomePreactComponent} />`, document.getElementById('app'));
 #### 5. Serve & run your application
 
 ```
-npx serve
-# Optional: Run "npm install -g serve" to speed up future runs
+npx servor --reload
 ```
 
-Open a web browser and see your application running directly in the browser, as written! Any changes that you make to your src/app.js file are **immediately** reflected when you refresh your page. No bundlers, build steps, or waiting around required.
+Start up a simple dev server (we recommend [servor](https://github.com/lukejacksonn/servor) with the `--reload` flag for live-reload). Open your web browser and see your application running directly in the browser, instantly!
 
-Open up your browser's Dev Tools and debug your application directly in the browser. Browse your source code as its written. Set breakpoints. Get more useful error messages.
+Any changes that you make to your src/app.js file are **immediately** reflected via either live-reload (if supported by your dev server) or a manual browser refresh. No bundlers, no build steps, and no waiting around for things to re-build after you make a change.
+
+Open up your browser's Dev Tools and debug your application directly in the browser. Browse your source code, set breakpoints, and get more useful error messages.
+
 
 #### 6. Optional Next Steps
 
