@@ -33,6 +33,8 @@ import * as _ from 'lodash';
 
 Snowpack generates an [Import Map](https://github.com/WICG/import-maps) with every installation. If your browser supports Import Maps, you can load the import map somewhere in your application and unlock the ability to import packages by name natively in the browser (no Babel step required).
 
+For polyfilling import maps, [check out es-module-shims](https://github.com/guybedford/es-module-shims#import-maps).
+
 
 ### Production Optimization
 
