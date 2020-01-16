@@ -8,7 +8,7 @@ Below are a collection of guides for using different web frameworks and build to
 
 To use Babel with Snowpack:
 
-1. Make sure that your entire application lives inside a source directory (ex: `src/`). 
+1. Make sure that your entire application lives inside a source directory (ex: `src/`).
 2. Run Babel to build your `src/` application to an output `lib/` directory (ex: `babel src/ --out-dir lib --watch`)
 3. Update your HTML entrypoint to point to your `lib/` directory.
 4. Now make changes to your `src/` directory, and see them build instantly.
@@ -21,9 +21,9 @@ TypeScript expects imports to be by package name, and won't be able to understan
 
 #### With Babel:
 
-While it may sound like overkill, Babel & TypeScript work well together. This article does a good job of explaining how each tackles their own problem better than either could on their own: [TypeScript With Babel: A Beautiful Marriage](https://iamturns.com/typescript-babel/) 
+While it may sound like overkill, Babel & TypeScript work well together. This article does a good job of explaining how each tackles their own problem better than either could on their own: [TypeScript With Babel: A Beautiful Marriage](https://iamturns.com/typescript-babel/)
 
-To use TypeScript with Babel, just use our "Import by Package Name" Babel plugin to rewrite you package name imports at build time. This way, TypeScript will only ever see the package name imports, as expected. See our guide above for more info on connecting this plugin.
+To use TypeScript with Babel, just use our "Import by Package Name" Babel plugin to rewrite your package name imports at build time. This way, TypeScript will only ever see the package name imports, as expected. See our guide above for more info on connecting this plugin.
 
 #### Without Babel:
 
@@ -31,7 +31,7 @@ To use TypeScript with Snowpack, you'll need to set up your tsconfig.json to und
 
 ```js
 "compilerOptions": {
-  // Choose your target based on which browsers you'd like to support. 
+  // Choose your target based on which browsers you'd like to support.
   "target": "es2017",
   // Required: Use module="esnext" so that TS won't compile/disallow any ESM syntax.
   "module": "esnext",
@@ -58,7 +58,7 @@ To use TypeScript with Snowpack, you'll need to set up your tsconfig.json to und
  * NOTE: The Vue package points to the runtime-only distribution by default.
  * Unless you are using the Vue CLI, you'll most likely need the full browser build.
  * Runtime only: `import Vue from "/web_modules/vue.js"`
- * 
+ *
  * https://vuejs.org/v2/guide/installation.html#Explanation-of-Different-Builds
  */
 import Vue from "/web_modules/vue/dist/vue.esm.browser.js";
@@ -106,7 +106,7 @@ npm install react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
    yarn add react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
 ```
 
-When installed under the usual react/react-dom alias, Snowpack will install these easier-to-optimize ESM distributions into your `web_modules/` directory. 
+When installed under the usual react/react-dom alias, Snowpack will install these easier-to-optimize ESM distributions into your `web_modules/` directory.
 
 
 
@@ -257,18 +257,18 @@ Remember that Workbox expects to be run every time you deploy, as a part of a pr
 
 ### Migrating an Existing App
 
-How you migrate an existing app to Snowpack depends on which Bundler features/plugins you're using. If you're only using the `import` statement to import other JavaScript files, the process should only take a couple of minutes. If you're importing CSS, images, or other non-JS content in your application, you'll need to first get rid of those Webpack-specific imports before migrating away from Webpack. 
+How you migrate an existing app to Snowpack depends on which Bundler features/plugins you're using. If you're only using the `import` statement to import other JavaScript files, the process should only take a couple of minutes. If you're importing CSS, images, or other non-JS content in your application, you'll need to first get rid of those Webpack-specific imports before migrating away from Webpack.
 
 Assuming you've removed all code specific to your bundler, you can use the following rough plan to migrate to Snowpack.
 
 1. Use Babel to assist in the migration. If you don't want to use Babel, don't worry; You can always remove it after migrating.
-1. Follow the Babel guide above to build your existing `src/` directory to a new `lib/` directory. 
+1. Follow the Babel guide above to build your existing `src/` directory to a new `lib/` directory.
 1. Follow the Babel Plugin guide above to add the Snowpack Babel plugin so that your package imports will continue to run as is. Check your output `lib/` directory to make sure that dependency imports are being rewritten as expected.
 1. Run your application in the browser! If everything is working, you're done! Otherwise, use your browser's dev tools to hunt down any remaining issues in your application code.
 
 ### Migrating off of Snowpack
 
-Snowpack is designed for zero lock-in. If you ever feel the need to add a traditional application bundler to your stack (for whatever reason!) you can do so in seconds. 
+Snowpack is designed for zero lock-in. If you ever feel the need to add a traditional application bundler to your stack (for whatever reason!) you can do so in seconds.
 
 Any application built with Snowpack should Just Work™️ when passed through Webpack/Rollup/Parcel. If you are importing packages by full URL (ex: `import React from '/web_modules/react.js'`), then a simple Find & Replace should help you re-write them to the plain package names  (ex: `import React from 'react'`) that bundlers expect.
 
