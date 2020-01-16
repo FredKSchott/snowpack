@@ -237,6 +237,43 @@ body {
 .github-button {
   display: none;
 }
+.company-logos {
+  display: flex;
+  margin-top: -16px;
+  margin-bottom: 16px;
+}
+.company-logos > a {
+  text-decoration: none;
+  color: #e74c3c;
+  height: 116px;
+  margin: 8px 4px;
+  padding: 16px;
+  transition: transform 100ms ease-in-out;
+}
+.company-logos > .add-company-button {
+  display: flex; 
+  align-items: center; 
+  height: 44px; 
+  margin: 44px 8px; 
+  border: 2px solid #e74c3c; 
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+img.company-logo {
+  box-shadow: none;
+  border: none;
+  flex: 100%;
+  height: 84px;
+}
+.company-logos > a:hover {
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 10px;
+  box-shadow: 0px 5px 12px 0 #DDD;
+  transform: scale(1.02);
+}
+
     </style>
   </head>
   <body>
@@ -286,26 +323,10 @@ body {
     </div>
     <aside class="grid-toc">
       {{ content | toc | safe }}
+
     </aside>
     <div id="grid-body" class="grid-body">
       <article class="markdown-body">
-    <!--
-        <div style="text-align: center; padding: 10vh 0vw 5vh">
-          <svg height="200px" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-              <defs>
-              <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-2">
-                  <stop stop-color="#55F" offset="0%"></stop>
-                  <stop stop-color="#61CCFF00" offset="100%"></stop>
-              </linearGradient>
-              </defs>
-              <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                  <g id="mountain-solid" transform="translate(-1.000000, 0.000000)" fill="url(#linearGradient-2)" fill-rule="nonzero">
-                      <path d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z" id="Shape"></path>
-                  </g>
-              </g>
-          </svg>
-        </div>
-        -->
         {{ content | safe }}
       </article>
     </div>
