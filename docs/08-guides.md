@@ -200,7 +200,9 @@ sass ./scss:./css
 
 [SASS](https://sass-lang.com/) is a "mature, stable, and powerful professional grade CSS extension language" that compiles to CSS. Use the [SASS CLI](https://sass-lang.com/install) to compile your SASS into CSS, and then load that CSS anywhere in your application.
 
+**You might also like:** [csz](https://github.com/lukejacksonn/csz), run-time CSS modules with support for SASS-like selectors. CSZ runs directly in the browser, so you can skip the SASS build/watch step. 
 
+ 
 ### Tailwind CSS
 
 ```toml
