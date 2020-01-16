@@ -22,7 +22,7 @@ Browsers only support importing by URL, so importing a package by name (ex: `im
 
 ### Import Maps
 
-> Warning: [Import Maps](https://github.com/WICG/import-maps) are an experimental web technology that is not supported in every browser. 
+> Warning: [Import Maps](https://github.com/WICG/import-maps) are an experimental web technology that is not supported in every browser.
 
 ```
 // Include this in your application HTML...
@@ -63,7 +63,7 @@ The unbundled applications that Snowpack allows you to build can be ultra cache-
 #### Service Workers
 
 Service workers can implement a client-side cache for your site regardless of what your server responses look like. Check out this article on ["Caching Files with Service Worker
-"](https://developers.google.com/web/ilt/pwa/caching-files-with-service-worker), and be sure to read our [Workbox](#Workbox) guide below for help using [Workbox](https://developers.google.com/web/tools/workbox/) with Snowpack. 
+"](https://developers.google.com/web/ilt/pwa/caching-files-with-service-worker), and be sure to read our [Workbox](#Workbox) guide below for help using [Workbox](https://developers.google.com/web/tools/workbox/) with Snowpack.
 
 #### Automatic Cache Busting via Import URL
 
@@ -93,7 +93,7 @@ import Foo from '/web_modules/package-name.js?v=1.2.3';
   "browserslist": " >0.75%, not ie 11, not UCAndroid >0, not OperaMini all",
 ```
 
-Snowpack runs all dependencies through Babel (via `@preset/env`) to transpile unsupported language features in your dependencies. This is useful when packages rely on modern language features that your users' browsers may not not support.
+Snowpack runs all dependencies through Babel (via `@preset/env`) to transpile unsupported language features in your dependencies. This is useful when packages rely on modern language features that your users' browsers may not support.
 
 By default, Snowpack will transpile using the recommended target string shown above. You you can customize this behavior by setting your own top-level "browserslist" key in your `package.json` manifest.
 
@@ -134,5 +134,5 @@ import './photo.png';
 
 No browser today supports importing an image directly from JS. Instead, you'll want to use one of the following libraries/solutions:
 
-1. **Recommended!** Keep referencing images by URL. You can put any image URL directly into an `<img>` src tag: `<img src="/img/photo.png">`. 
+1. **Recommended!** Keep referencing images by URL. You can put any image URL directly into an `<img>` src tag: `<img src="/img/photo.png">`.
 

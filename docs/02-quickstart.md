@@ -7,7 +7,7 @@ npm install --save-dev snowpack
    (or) yarn add --dev snowpack
 
 # Then, run Snowpack:
-npx snowpack      
+npx snowpack
 ```
 
 ### Installing a Dev Server
@@ -38,7 +38,7 @@ npm init --yes
 npm install --save preact htm
 ```
 
-We'll start this tutorial by using Preact (similar to React) & HTM (similar to JSX). Even if you only want to use React and JSX, you should still start here. By the end of this tutorial, we'll show how you can optionally replace Preact with React, and HTM with JSX (via Babel). 
+We'll start this tutorial by using Preact (similar to React) & HTM (similar to JSX). Even if you only want to use React and JSX, you should still start here. By the end of this tutorial, we'll show how you can optionally replace Preact with React, and HTM with JSX (via Babel).
 
 
 #### 2. Run Snowpack to create your web_modules/ directory
@@ -59,7 +59,7 @@ Optionally, you can now run `npm install snowpack --save-dev` to speed up future
 <!-- File Location: index.html -->
 <!DOCTYPE html>
 <html lang="en">
-  <head><title>Snowpack - Simple Example</title></head>  
+  <head><title>Snowpack - Simple Example</title></head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/app.js"></script>
