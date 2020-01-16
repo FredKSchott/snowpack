@@ -280,6 +280,7 @@ export async function install(
           rollupPluginBabel({
             compact: false,
             babelrc: false,
+            configFile: false,
             presets: [
               [
                 babelPresetEnv,
