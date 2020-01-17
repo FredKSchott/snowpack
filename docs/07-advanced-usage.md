@@ -22,7 +22,7 @@ Browsers only support importing by URL, so importing a package by name (ex: `im
 
 ### Import Maps
 
-> Warning: [Import Maps](https://github.com/WICG/import-maps) are an experimental web technology that is not supported in every browser.
+> Warning: [Import Maps](https://github.com/WICG/import-maps) are an experimental web technology that is not supported in every browser. For polyfilling import maps, [check out es-module-shims](https://github.com/guybedford/es-module-shims#import-maps).
 
 ```
 // Include this in your application HTML...
