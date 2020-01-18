@@ -16,7 +16,8 @@ Snowpack is agnostic to how you serve your site during development. If you have 
 
 - [`serve`](https://www.npmjs.com/package/serve) (recommended: popular, easy to use)
 - [`servor`](https://www.npmjs.com/package/servor) (recommended: has live-reload, built for SPAs)
-- [`live-server`](https://www.npmjs.com/package/live-server), [`lite-server`](https://www.npmjs.com/package/lite-server), [`browser-sync`](https://www.npmjs.com/package/browser-sync), [`es-dev-server`](https://www.npmjs.com/package/es-dev-server) (honorable mentions)
+- [`es-dev-server`](https://www.npmjs.com/package/es-dev-server) (recommended: built for buildless workflows, efficient browser caching)
+- [`live-server`](https://www.npmjs.com/package/live-server), [`lite-server`](https://www.npmjs.com/package/lite-server), [`browser-sync`](https://www.npmjs.com/package/browser-sync) (honorable mentions)
 - [`now dev`](http://now.sh/), [`netlify dev`](https://www.netlify.com/products/dev/) (if you already deploy via Zeit/Netlify)
 
 
