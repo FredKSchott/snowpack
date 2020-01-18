@@ -44,9 +44,24 @@
 .markdown-body h1, .pretty-font {
   font-family: 'Montserrat', 'ProximaNova-Bold', 'Helvetica Neue', Arial, sans-serif;
 }
-.markdown-body h2 + h3, .markdown-body h4 {
-  margin-top: 16px;
+.markdown-body h2 {
+  font-size: 3.0em;
+  margin-top: 0;
+  padding-top: 36px;
 }
+.markdown-body h3 {
+  margin-top: 0;
+  padding-top: 24px;
+}
+.markdown-body h4 {
+  margin-top: 0;
+  padding-top: 6px;
+}
+.markdown-body h2 + h3 {
+  padding-top: 0px;
+}
+
+/*
 .markdown-body h2.highlighted, .markdown-body h3.highlighted, .markdown-body h4.highlighted {
   padding: 6px;
 }
@@ -58,6 +73,7 @@
   visibility: hidden; 
   pointer-events: none;
 }
+*/
 .markdown-body h2 .header-link, .markdown-body h3 .header-link {
   font-weight: 300;
   margin-left: 8px;
@@ -344,6 +360,8 @@ body {
     gridBodyEl.addEventListener('scroll', debounce(setActiveToc));
     setActiveToc();
 
+
+    /* May not be needed:
     window.addEventListener('DOMContentLoaded', (event) => {
       if (!window.location.hash) {
         return;
@@ -355,10 +373,9 @@ body {
       elNeedingScroll.scrollIntoView();
       elNeedingScroll.classList.add('highlighted');
     });
+    */
 
     window.addEventListener('DOMContentLoaded', (event) => {
-      
-      /* May not be needed:
       document.querySelectorAll('.markdown-body h2, .markdown-body h3').forEach((headerEl) => {
         const linkEl = document.createElement("a"); 
         // linkEl.setAttribute('target', "_blank");
@@ -367,16 +384,6 @@ body {
         linkEl.innerText = '#';
         headerEl.appendChild(linkEl);
       });
-      */
-      if (!window.location.hash) {
-        return;
-      }
-      const elNeedingScroll = document.getElementById(window.location.hash.substring(1));
-      if (!elNeedingScroll) {
-        return;
-      }
-      elNeedingScroll.scrollIntoView();
-      elNeedingScroll.classList.add('highlighted');
     });
   </script>
   <!-- Global site tag (gtag.js) - Google Analytics -->
