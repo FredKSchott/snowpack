@@ -8,10 +8,10 @@ function getWebDependencyName(dep) {
   return dep.replace(/\.js$/, '');
 }
 
-function getPackageVersion(package) {
+function getPackageVersion(packageName) {
   // The root module for require.resolve is @babel/cli in default, so configure here.
   const modulesPath = process.cwd() + '/node_modules';
-  const entryPointPath = require.resolve(package, {paths: [modulesPath]});
+  const entryPointPath = require.resolve(packageName, {paths: [modulesPath]});
   const json = finder(entryPointPath).next().value;
   return json.version;
 }
