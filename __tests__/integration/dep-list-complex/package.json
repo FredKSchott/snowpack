@@ -1,0 +1,14 @@
+{
+  "description": "Test packages with tricky names",
+  "scripts": {
+    "TEST": "../../../pkg/dist-node/index.bin.js"
+  },
+  "snowpack": {
+    "webDependencies": [
+      "dat.gui"
+    ]
+  },
+  "dependencies": {
+    "dat.gui": "^0.7.6"
+  }
+}

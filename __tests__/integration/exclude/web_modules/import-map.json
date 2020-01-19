@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "vue": "./vue.js",
+    "vue-router": "./vue-router.js"
+  }
+}
