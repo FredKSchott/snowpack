@@ -35,6 +35,8 @@ export interface InstallOptions {
   hasBrowserlistConfig?: boolean;
   isExplicit?: boolean;
   namedExports?: {[filepath: string]: string[]};
+  nomodule?: string;
+  nomoduleOutput?: string;
   remoteUrl?: string;
   remotePackages: [string, string][];
   sourceMap?: boolean | 'inline';
@@ -64,6 +66,8 @@ ${chalk.bold('Advanced:')}
     --remote-package    "name,version" pair(s) of packages that should be left unbundled and referenced remotely.
                         Example: "foo,v4" will rewrite all imports of "foo" to "{remoteUrl}/foo/v4" (see --remote-url).
     --remote-url        Configures the domain where remote imports point to (default: "https://cdn.pika.dev")
+    --nomodule          Your app’s entry file for generating a <script nomodule> bundle
+    --nomodule-output   Filename for nomodule output (default: 'app.nomodule.js')
     `.trim(),
   );
 }
@@ -179,6 +183,8 @@ export async function install(
     isOptimized,
     sourceMap,
     namedExports,
+    nomodule,
+    nomoduleOutput,
     remoteUrl,
     remotePackages,
     dedupe,
@@ -334,6 +340,51 @@ export async function install(
     };
     const packageBundle = await rollup.rollup(inputOptions);
     await packageBundle.write(outputOptions);
+
+    if (nomodule) {
+      const nomoduleStart = Date.now();
+      function rollupResolutionHelper() {
+        return {
+          name: 'rename-import-plugin',
+          resolveId(source) {
+            // resolve from import map
+            if (importMap[source]) {
+              return importMap[source];
+            }
+            // resolve web_modules
+            if (source.includes('/web_modules/')) {
+              const suffix = source.split('/web_modules/')[1];
+              return {id: path.join(destLoc, suffix)};
+            }
+            // null means try to resolve as-is
+            return null;
+          },
+        };
+      }
+      try {
+        const noModuleBundle = await rollup.rollup({
+          input: nomodule,
+          inlineDynamicImports: true,
+          plugins: [...inputOptions.plugins, rollupResolutionHelper()],
+        });
+        await noModuleBundle.write({file: path.resolve(destLoc, nomoduleOutput), format: 'iife'});
+        const nomoduleEnd = Date.now() - nomoduleStart;
+        spinner.info(
+          `${chalk.bold(
+            'snowpack',
+          )} bundled your application for legacy browsers: ${nomoduleOutput} ${chalk.dim(
+            `[${(nomoduleEnd / 1000).toFixed(2)}s]`,
+          )}`,
+        );
+      } catch (err) {
+        spinner.warn(
+          `${chalk.bold('snowpack')} encountered an error bundling for legacy browsers: ${
+            err.message
+          }`,
+        );
+      }
+    }
+
     fs.writeFileSync(
       path.join(destLoc, 'import-map.json'),
       JSON.stringify({imports: importMap}, undefined, 2),
@@ -353,8 +404,10 @@ export async function cli(args: string[]) {
     sourceMap,
     babel = false,
     exclude = ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
-    optimize = false,
     include,
+    nomodule,
+    nomoduleOutput = 'app.nomodule.js',
+    optimize = false,
     strict = false,
     clean = false,
     dest = 'web_modules',
@@ -427,6 +480,8 @@ export async function cli(args: string[]) {
     isStrict: strict,
     isBabel: babel || optimize,
     isOptimized: optimize,
+    nomodule,
+    nomoduleOutput,
     sourceMap,
     remoteUrl,
     hasBrowserlistConfig,
