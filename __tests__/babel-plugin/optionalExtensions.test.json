@@ -1,0 +1,7 @@
+{
+    "options": {
+        "optionalExtensions": true
+    },
+    "input": "import module from 'any/local/file';",
+    "output": "import module from '/web_modules/any/local/file.js';"
+}

@@ -1,0 +1,5 @@
+{
+    "options": {},
+    "input": "import hyperapp from 'hyperapp';",
+    "output": "import hyperapp from '/web_modules/hyperapp.js';"
+}

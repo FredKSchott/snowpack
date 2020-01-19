@@ -1,0 +1,5 @@
+{
+    "dependencies": {
+        "hyperapp": "^1.2.10"
+    }
+}

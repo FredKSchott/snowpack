@@ -18,6 +18,7 @@
     "publish": "pika publish",
     "version": "npm run build",
     "test": "jest __tests__/integration/runner.js",
+    "test:babel-plugin": "jest __tests__/babel-plugin/runner.js",
     "docs:build": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js",
     "docs:watch": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js --serve",
     "docs:deploy": "npm run docs:build && cd www/dist && now --prod"
@@ -66,11 +67,8 @@
     "yargs-parser": "^16.1.0"
   },
   "devDependencies": {
-    "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.1",
     "@11ty/eleventy": "^0.10.0",
-    "eleventy-plugin-nesting-toc": "^1.1.0",
-    "markdown-it": "^10.0.0",
-    "markdown-it-anchor": "^5.2.5",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.1",
     "@pika/pack": "^0.5.0",
     "@pika/plugin-build-node": "^0.8.1",
     "@pika/plugin-copy-assets": "^0.8.1",
@@ -78,7 +76,11 @@
     "@pika/plugin-ts-standard-pkg": "^0.8.1",
     "@types/babel__traverse": "^7.0.7",
     "@types/mkdirp": "^0.5.2",
+    "babel-plugin-tester": "^8.0.1",
+    "eleventy-plugin-nesting-toc": "^1.1.0",
     "jest": "^24.9.0",
+    "markdown-it": "^10.0.0",
+    "markdown-it-anchor": "^5.2.5",
     "prettier": "^1.18.2",
     "typescript": "^3.6.4"
   }
