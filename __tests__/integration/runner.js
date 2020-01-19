@@ -6,7 +6,7 @@ const execa = require('execa');
 const dircompare = require('dir-compare');
 
 function stripBenchmark(stdout) {
-  stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark	  return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
+  return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
 }
 
 for (const testName of readdirSync(__dirname)) {
