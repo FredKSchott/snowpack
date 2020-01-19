@@ -1,1 +1,1 @@
-import hyperapp from 'hyperapp';
+import module from 'example-dep';

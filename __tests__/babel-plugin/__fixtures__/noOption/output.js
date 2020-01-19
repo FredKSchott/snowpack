@@ -1,1 +1,1 @@
-import hyperapp from '/web_modules/hyperapp.js';
+import module from '/web_modules/example-dep.js';
