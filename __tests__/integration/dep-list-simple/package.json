@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "TEST": "../../../pkg/dist-node/index.bin.js"
+  },
+  "snowpack": {
+    "webDependencies": [
+      "async"
+    ]
+  },
+  "dependencies": {
+    "async": "3.1.0"
+  }
+}

@@ -1,8 +1,0 @@
-{
-  "scripts": {
-    "TEST": "../../pkg/dist-node/index.bin.js"
-  },
-  "dependencies": {
-    "preact": "latest"
-  }
-}
