@@ -100,7 +100,7 @@ Open up your browser's Dev Tools and debug your application directly in the brow
 - Replace Preact with React (see our [React](#react) guide below).
 - Replace HTM with JSX (see our [Babel](#babel) guide below).
 - Add TypeScript support (see our [TypeScript](#typescript) guide below).
-- Add 'package name" import support (see our [Importing Packages by Name](#importing-packages-by-name)) guide below).
+- Add "package name" import support (see our [Importing Packages by Name](#importing-packages-by-name)) guide below).
 - See all of our guides below!
 
 
