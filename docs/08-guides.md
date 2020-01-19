@@ -189,6 +189,44 @@ import { repeat } from "/web_modules/lit-html/directives/repeat.js";
 // ✔ snowpack installed: lit-html, lit-element [0.25s]
 ```
 
+### Svelvet
+
+[Svelvet](https://github.com/jakedeichert/svelvet) is a cli [svelte](https://github.com/sveltejs/svelte) compiler and file watcher that integrates directly with snowpack.
+
+This component is taken from the example project [found here](https://github.com/jakedeichert/svelvet/tree/master/examples/basic).
+
+```html
+<!-- File: src/App.svelte -->
+<script>
+    import Header from './components/Header';
+    import Footer from './components/Footer/index';
+</script>
+
+<Header />
+<Footer />
+```
+
+And here's the minimum `package.json` you would need:
+
+```json
+{
+  "name": "svelvet-example",
+  "scripts": {
+    "dev": "svelvet",
+    "build": "NODE_ENV=production svelvet"
+  },
+  "dependencies": {
+    "svelte": "^3.7.1"
+  },
+  "devDependencies": {
+    "svelvet": "^0.1.1"
+  }
+}
+```
+
+Use `npm run dev` to compile in watch mode or `npm run build` to generate an optimized, tree-shaken production build. The output is a `dist` directory that contains your compiled svelte app with `web_modules`! For more details, check out the [svelvet guide](https://github.com/jakedeichert/svelvet).
+
+
 ### SASS
 
 ```toml
