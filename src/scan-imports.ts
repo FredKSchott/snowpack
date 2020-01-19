@@ -39,6 +39,14 @@ function createInstallTarget(specifier: string, all = true): InstallTarget {
   };
 }
 
+function removeSpecifierQueryString(specifier: string) {
+  const queryStringIndex = specifier.indexOf('?');
+  if (queryStringIndex >= 0) {
+    specifier = specifier.substring(0, queryStringIndex);
+  }
+  return specifier;
+}
+
 /**
  * parses an import specifier, looking for a web modules to install. If a web module is not detected,
  * null is returned.
@@ -48,13 +56,15 @@ function parseWebModuleSpecifier(specifier: string, knownDependencies: string[])
   if (BARE_SPECIFIER_REGEX.test(specifier)) {
     return specifier;
   }
+  // Clean the specifier, remove any query params that may mess with matching
+  const cleanedSpecifier = removeSpecifierQueryString(specifier);
   // Otherwise, check that it includes the "web_modules/" directory
-  const webModulesIndex = specifier.indexOf(WEB_MODULES_TOKEN);
+  const webModulesIndex = cleanedSpecifier.indexOf(WEB_MODULES_TOKEN);
   if (webModulesIndex === -1) {
     return null;
   }
   // check if the resolved specifier (including file extension) is a known package.
-  const resolvedSpecifier = specifier.substring(webModulesIndex + WEB_MODULES_TOKEN_LENGTH);
+  const resolvedSpecifier = cleanedSpecifier.substring(webModulesIndex + WEB_MODULES_TOKEN_LENGTH);
   if (knownDependencies.includes(resolvedSpecifier)) {
     return resolvedSpecifier;
   }
