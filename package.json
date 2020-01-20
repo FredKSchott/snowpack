@@ -49,6 +49,7 @@
     "@babel/preset-env": "^7.6.3",
     "@babel/traverse": "^7.6.3",
     "@babel/types": "^7.6.3",
+    "@joseph184/rollup-plugin-node-builtins": "^2.1.4",
     "@rollup/plugin-commonjs": "^11.0.0",
     "@rollup/plugin-json": "^4.0.0",
     "@rollup/plugin-node-resolve": "^7.0.0",
@@ -64,6 +65,7 @@
     "rimraf": "^3.0.0",
     "rollup": "^1.2.3",
     "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-terser": "^5.1.1",
     "yargs-parser": "^16.1.0"
   },

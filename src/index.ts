@@ -12,10 +12,12 @@ import isNodeBuiltin from 'is-builtin-module';
 import * as rollup from 'rollup';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginCommonjs from '@rollup/plugin-commonjs';
-import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import rollupPluginReplace from '@rollup/plugin-replace';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
+import rollupPluginNodeGlobals from 'rollup-plugin-node-globals';
+import rollupPluginNodeBuiltins from '@joseph184/rollup-plugin-node-builtins';
+import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
 import {rollupPluginRemoteResolve} from './rollup-plugin-remote-resolve.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
@@ -40,6 +42,7 @@ export interface InstallOptions {
   remoteUrl?: string;
   remotePackages: [string, string][];
   sourceMap?: boolean | 'inline';
+  supportNodeBuiltins?: boolean;
   dedupe?: string[];
 }
 
@@ -182,6 +185,7 @@ export async function install(
     isBabel,
     isOptimized,
     sourceMap,
+    supportNodeBuiltins,
     namedExports,
     nomodule,
     nomoduleOutput,
@@ -261,6 +265,7 @@ export async function install(
           rollupPluginReplace({
             'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
           }),
+        supportNodeBuiltins && rollupPluginNodeBuiltins(),
         remoteUrl && rollupPluginRemoteResolve({remoteUrl, remotePackages}),
         rollupPluginNodeResolve({
           mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(Boolean),
@@ -281,6 +286,7 @@ export async function install(
           rollupPluginCommonjs({
             extensions: ['.js', '.cjs'], // Default: [ '.js' ]
             namedExports: knownNamedExports,
+            ignoreGlobal: supportNodeBuiltins,
           }),
         !!isBabel &&
           rollupPluginBabel({
@@ -299,6 +305,7 @@ export async function install(
               ],
             ],
           }),
+        supportNodeBuiltins && rollupPluginNodeGlobals(),
         !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
         !!isOptimized && rollupPluginTerser(),
       ],
@@ -314,11 +321,7 @@ export async function install(
           if (isNodeBuiltin(warning.source)) {
             console.log(
               chalk.dim(
-                `  '${
-                  warning.source
-                }' is a Node.js builtin module that won't exist on the web. You can find modern, web-ready packages at ${chalk.underline(
-                  'https://www.pika.dev',
-                )}`,
+                `  '${warning.source}' only exists on Node.js. Use the --builtins CLI flag to polyfill/shim Node.js built-in modules, or find a more browser-friendly dependency on https://www.pika.dev`,
               ),
             );
           } else {
@@ -402,6 +405,7 @@ export async function cli(args: string[]) {
   const {
     help,
     sourceMap,
+    builtins,
     babel = false,
     exclude = ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
     include,
@@ -474,6 +478,7 @@ export async function cli(args: string[]) {
   const startTime = Date.now();
   const result = await install(installTargets, {
     isCleanInstall: clean,
+    supportNodeBuiltins: builtins,
     destLoc,
     namedExports,
     isExplicit,
