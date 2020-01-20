@@ -45,7 +45,7 @@ import React from 'react';
 ### Who Should Avoid Snowpack?
 
 - **Anyone building for the enterprise!** IE 11 still doesn't support ESM, which is required for Snowpack-installed dependencies to run. if you need IE 11 support, consider sticking to a traditional bundler in that project (for now).
-- **Anyone building for China! (Today)** UC Browser doesn't support ESM, but it should in future versions.
+- **Anyone building for India or China! (Today)** UC Browser doesn't support ESM, but it will in the next major version.
 - **Anyone who loves tooling-heavy development!** This isn't sarcastic, I promise :) By dropping the bundler, you can't do the magic that Webpack is famous for. Using `import` to load CSS, Images, and other non-JS resources is  non-standard and unsupported in the browser (for now). You may appreciate a dev environment that is true to what standard JavaScript browsers support. Or, you may find this annoying.
 
 
@@ -63,7 +63,7 @@ import React from 'react';
 
 Snowpack installs ES Module (ESM) dependencies from npm, which run [wherever ESM syntax is supported](https://caniuse.com/#feat=es6-module). This includes ~90% of all browsers in use today. **All modern browsers (Firefox, Chrome, Edge, Safari) have supported ESM since early 2018.**
 
-The two notable browsers that don't support ESM are IE11 and UC Browser for Android. If your project needs to support users in the enterprise or China, consider sticking with traditional web application bundlers for now.
+The two notable browsers that don't support ESM are IE11 and UC Browser for Android. If your project needs to support users in the enterprise or India/China, consider sticking with traditional web application bundlers for now.
 
 Additionally, Snowpack runs all dependencies through Babel via `@preset/env` to transpile any less-supported language features found in your dependencies. You can customize this behavior by setting your own "browserslist" key in your `package.json` manifest (see below).
 
