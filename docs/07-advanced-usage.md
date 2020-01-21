@@ -47,6 +47,32 @@ By default, Snowpack installs dependencies unminified and optimized for developm
 - **Minification:** Dependencies will be minified (source maps included).
 - **Transpilation:** Dependencies will be transpiled to match your application's [browser support target](#customize-browser-support) (in case any packages are written using too-modern language features).
 - **Tree-Shaking:** Dependencies will have any unused code removed (when "Automatic Mode" is enabled via the `--include` flag).
+- **Legacy Browser Bundling:** Optional, via the `--nomodule` flag (see below).
+
+
+### Supporting Legacy Browsers
+
+```toml
+$ npx snowpack --nomodule src/index.js
+# snowpack bundled your application for legacy browsers: app.nomodule.js [0.25s]
+```
+
+**As of v1.1, Snowpack supports legacy browsers like IE11 & UC via the the `--nomodule` flag.** 
+
+If you are building a Single Page Application (SPA), run Snowpack with `--nomodule` and pass in your application entrypoint. Then, create a second script tag in your application to point legacy browsers towards this legacy build alongside your modern `type="module"` entrypoint:
+
+```html
+<!-- Ignored by legacy browsers: -->
+<script type="module" src="/src/index.js"></script>
+<!-- Ignored by modern browsers: -->
+<script nomodule src="/web_modules/nomodule.js"></script>
+```
+
+After doing this, run Snowpack to generate a `/web_modules/nomodule.js` application bundle that will automatically be run in older, legacy browsers.
+
+Similar to the `--optimize` flag, `--nomodule` must be run before every deployment. When using this flag, we **strongly recommend** scripting your deployments to guarantee that Snowpack is never skipped before a deployment (ex: `npm run deploy` or `npm run build:production`).
+
+This bundle step was designed to be simple and general-purpose enough to cover any browser-ready application with zero config. But, if you do get to the point where you'd like to manually configure/control your production bundles, we'd recommend [setting up a bundler yourself](https://www.snowpack.dev/#migrating-off-of-snowpack) separately from Snowpack.
 
 
 ### Caching in the Browser

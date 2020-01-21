@@ -31,25 +31,25 @@ import React from 'react';
 - Web bundlers like Webpack are powerful, but they can easily introduce a complex mess of configuration, plugins, and dependencies. Create React App, for example, installs ~200MB of dependencies and uses ~600 lines of Webpack configuration internally.
 - Bundlers became a required web development tool in the 2010's, mainly because of npm's use of a module format that didn't run natively in the browser (Common.js). Before then, web developers would commonly ship development source code directly to the browser. Bundling used to be a production-only optimization (vs. the dev-time requirement it is today).
 - ESM has had ~5 years to bake in browser, and is now supported in all modern browsers (going back to early 2018). With ESM, bundlers are no longer required. You can build a modern, performant, production-ready web application without Webpack!
-- **By replacing a rebuild-on-every-change build step (Webpack, Parcel, etc.) with a run-once install step (Snowpack) you get a faster dev environment with less tooling complexity.**
+- **Replace a rebuild-on-every-change build step (Webpack, Parcel, etc.) with a run-once install step (Snowpack) to get a faster dev environment with less tooling complexity.**
 
 
 ### Who Should Use Snowpack?
 
 - **Beginners!** Popular starter applications usually come with 1000's of dependencies and 100's of lines of bundler configuration that you don't actually need. Snowpack shrinks the number of things you need to learn to get started with web development. Shipping your code directly to the browser also lets you easily inspect your code in the browser, set break-points, etc. for easier feedback loops as you're getting started.
 - **Anyone starting a new application!** Snowpack has zero lock-in, so you can always add a traditional bundler later down the road (see our guide below). But until then, you can still use all your other favorite tools like Babel & TypeScript while still getting all the dev speed improvements that come with bundler-free development. 
+- **Anyone building an application that doesn't change often!** Have you ever gotten back into a project after a while, and spent 80% of your time at the start just updating outdated dependencies? Less tooling & less configuration means there are fewer opportunities for plugin churn, breaking changes, and deprecation to hurt you.
 - **Anyone who thinks web development has gotten too complex!** Less tooling means less to install, less complexity, less to do every time you make a change, and less to debug when something goes wrong. Removing tooling that sits between your editor and the browser also makes your Dev Tools much more useful for live debugging.
 - **Anyone who is interested in the future of web development!** Snowpack is just one step towards a future of web development that lets us build more with less complexity and tooling overhead. And this future is here to stay.
 
 
 ### Who Should Avoid Snowpack?
 
-- **Anyone building for the enterprise!** IE 11 still doesn't support ESM, which is required for Snowpack-installed dependencies to run. if you need IE 11 support, consider sticking to a traditional bundler in that project (for now).
-- **Anyone building for India or China! (Today)** UC Browser doesn't support ESM, but it will in the next major version.
+- ~~**Anyone building for older browser**~~ [Snowpack now supports older browsers like IE11!](#runs-in-every-browser)
 - **Anyone who loves tooling-heavy development!** This isn't sarcastic, I promise :) By dropping the bundler, you can't do the magic that Webpack is famous for. Using `import` to load CSS, Images, and other non-JS resources is  non-standard and unsupported in the browser (for now). You may appreciate a dev environment that is true to what standard JavaScript browsers support. Or, you may find this annoying.
 
 
-### Browser Support
+### Modern Browser Support
 
 <script src="https://cdn.jsdelivr.net/gh/ireade/caniuse-embed/public/caniuse-embed.min.js" async></script>
 <p class="ciu_embed" data-feature="es6-module" data-periods="future_1,current,past_1,past_2" data-accessible-colours="false">
@@ -61,11 +61,16 @@ import React from 'react';
   </a>
 </p>
 
-Snowpack installs ES Module (ESM) dependencies from npm, which run [wherever ESM syntax is supported](https://caniuse.com/#feat=es6-module). This includes ~90% of all browsers in use today. **All modern browsers (Firefox, Chrome, Edge, Safari) have supported ESM since early 2018.**
-
-The two notable browsers that don't support ESM are IE11 and UC Browser for Android. If your project needs to support users in the enterprise or India/China, consider sticking with traditional web application bundlers for now.
+By default, Snowpack installs npm dependencies as ES Module (ESM), which run natively [wherever ESM syntax is supported](https://caniuse.com/#feat=es6-module). This includes ~90% of all browsers in use today. **All modern browsers (Firefox, Chrome, Edge, Safari) have supported ESM since early 2018.**
 
 Additionally, Snowpack runs all dependencies through Babel via `@preset/env` to transpile any less-supported language features found in your dependencies. You can customize this behavior by setting your own "browserslist" key in your `package.json` manifest (see below).
+
+
+### Legacy Browser Support
+
+**As of v1.1, Snowpack also supports legacy browsers via the the `--nomodule` flag!** This is a production-only flag that generates a legacy bundle of your entire application for older browsers that don't understand ESM syntax. 
+
+Unlike the rest of Snowpack, this needs to be run on every deployment (instead of once at install-time). But, if you need to support legacy browsers like IE11 & UC Browser for Android (popular in China and India) this can still be a better option than a heavier, traditional app bundler. [Read our guide](#legacy-browser-support) for more details.
 
 
 ### Load Performance
