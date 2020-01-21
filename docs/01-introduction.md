@@ -44,7 +44,7 @@ import React from 'react';
 
 ### Who Should Avoid Snowpack?
 
-- **Anyone building for the enterprise!** IE 11 still doesn't support ESM, which is required for Snowpack-installed dependencies to run. if you need IE 11 support, consider sticking to a traditional bundler in that project (for now).
+- **Anyone building for the enterprise!** IE 11 still doesn't support ESM, which is required for Snowpack-installed dependencies to run. If you need IE 11 support, consider sticking to a traditional bundler in that project (for now).
 - **Anyone building for India or China! (Today)** UC Browser doesn't support ESM, but it will in the next major version.
 - **Anyone who loves tooling-heavy development!** This isn't sarcastic, I promise :) By dropping the bundler, you can't do the magic that Webpack is famous for. Using `import` to load CSS, Images, and other non-JS resources is  non-standard and unsupported in the browser (for now). You may appreciate a dev environment that is true to what standard JavaScript browsers support. Or, you may find this annoying.
 
