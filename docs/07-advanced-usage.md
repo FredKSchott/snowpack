@@ -52,12 +52,7 @@ By default, Snowpack installs dependencies unminified and optimized for developm
 
 ### Supporting Legacy Browsers
 
-```toml
-$ npx snowpack --nomodule src/index.js
-# snowpack bundled your application for legacy browsers: app.nomodule.js [0.25s]
-```
-
-**As of v1.1, Snowpack supports legacy browsers like IE11 & UC via the the `--nomodule` flag.** 
+![Nomodule example](/img/nomodule.png)
 
 If you are building a Single Page Application (SPA), run Snowpack with `--nomodule` and pass in your application entrypoint. Then, create a second script tag in your application to point legacy browsers towards this legacy build alongside your modern `type="module"` entrypoint:
 

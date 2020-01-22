@@ -104,6 +104,9 @@ Open up your browser's Dev Tools and debug your application directly in the brow
 - See all of our guides below!
 
 
+### Examples
+
+Check out our repo's README for a full list of example applications built with Snowpack: [https://github.com/pikapkg/snowpack](https://github.com/pikapkg/snowpack).
 
 
 ### Bootstrap a Starter App

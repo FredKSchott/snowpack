@@ -268,7 +268,7 @@ Assuming you've removed all code specific to your bundler, you can use the follo
 1. Follow the Babel Plugin guide above to add the Snowpack Babel plugin so that your package imports will continue to run as is. Check your output `lib/` directory to make sure that dependency imports are being rewritten as expected.
 1. Run your application in the browser! If everything is working, you're done! Otherwise, use your browser's dev tools to hunt down any remaining issues in your application code.
 
-### Migrating off of Snowpack
+### Migrating to Webpack/Parcel
 
 Snowpack is designed for zero lock-in. If you ever feel the need to add a traditional application bundler to your stack (for whatever reason!) you can do so in seconds.
 
