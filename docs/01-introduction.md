@@ -66,11 +66,23 @@ By default, Snowpack installs npm dependencies as ES Module (ESM), which run nat
 Additionally, Snowpack runs all dependencies through Babel via `@preset/env` to transpile any less-supported language features found in your dependencies. You can customize this behavior by setting your own "browserslist" key in your `package.json` manifest (see below).
 
 
+
+
 ### Legacy Browser Support
 
-**As of v1.1, Snowpack also supports legacy browsers via the the `--nomodule` flag!** This is a production-only flag that generates a legacy bundle of your entire application for older browsers that don't understand ESM syntax. 
+<p>
+<img alt="legacy browser icons" src="/img/browser-logos-all.png" style="
+    border: none;
+    box-shadow: none;" />
+</p>
 
-Unlike the rest of Snowpack, this needs to be run on every deployment (instead of once at install-time). But, if you need to support legacy browsers like IE11 & UC Browser for Android (popular in China and India) this can still be a better option than a heavier, traditional app bundler. [Read our guide](#legacy-browser-support) for more details.
+**As of v1.1, Snowpack also supports legacy browsers via the the `--nomodule` flag!** This is a production-only flag that generates a legacy bundle of your entire application for older browsers that don't understand ESM syntax. Because your application is already built to run in the browser, there's no configuration or extra plugins required to use it.
+
+If you need to support legacy browsers like **IE11**, **UC Browser for Android** (popular in China and India), **Samsung Mobile**, and **Opera Mini** then be sure to enable this feature.
+
+Note that this introduces a production build step into your deployment process, if you don't already have one. This is in addition to Snowpack's "run-only-once-at-install-time" normal behavior, but still much lighter than Webpack/Parcel's "run-on-every-change-at-dev-time" normal behavior.
+
+Read our guide on [Supporting Legacy Browsers](#supporting-legacy-browsers) for more details.
 
 
 ### Load Performance

@@ -65,10 +65,10 @@ If you are building a Single Page Application (SPA), run Snowpack with `--nomodu
 <!-- Ignored by legacy browsers: -->
 <script type="module" src="/src/index.js"></script>
 <!-- Ignored by modern browsers: -->
-<script nomodule src="/web_modules/nomodule.js"></script>
+<script nomodule src="/web_modules/app.nomodule.js"></script>
 ```
 
-After doing this, run Snowpack to generate a `/web_modules/nomodule.js` application bundle that will automatically be run in older, legacy browsers.
+After doing this, run Snowpack to generate a `/web_modules/app.nomodule.js` application bundle that will automatically be run on older, legacy browsers.
 
 Similar to the `--optimize` flag, `--nomodule` must be run before every deployment. When using this flag, we **strongly recommend** scripting your deployments to guarantee that Snowpack is never skipped before a deployment (ex: `npm run deploy` or `npm run build:production`).
 
