@@ -8,6 +8,9 @@ const dircompare = require('dir-compare');
 function stripBenchmark(stdout) {
   return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
 }
+function stripWhitespace(stdout) {
+  return stdout.replace(/( +)$/gm, '');
+}
 
 beforeAll(() => {
   // Needed so that ora (spinner) doesn't use platform-specific characters
@@ -27,7 +30,7 @@ for (const testName of readdirSync(__dirname)) {
     // Test Output
     const expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
     const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
-    assert.strictEqual(stripBenchmark(all), expectedOutput);
+    assert.strictEqual(stripWhitespace(stripBenchmark(all)), expectedOutput);
 
     const expectedWebDependenciesLoc = path.join(__dirname, testName, 'expected-install');
     const actualWebDependenciesLoc = path.join(__dirname, testName, 'web_modules');
