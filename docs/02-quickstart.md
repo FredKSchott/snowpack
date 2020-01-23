@@ -47,7 +47,7 @@ npx snowpack
 ✔ snowpack installed: preact, htm. [0.50s]
 ```
 
-If all went well, you should see a `web_modules/` directory containing the files `preact.js` & `htm.js`. This is the magic of Snowpack: you can import this file directly in the browser. This lets you ship your application to the browser without requiring a bundler.
+If all went well, you should see a `web_modules/` directory containing the files `preact.js` & `htm.js`. This is the magic of Snowpack: your application can import these files directly and the browser will run them with no additional tooling needed!
 
 Optionally, you can now run `npm install snowpack --save-dev` to speed up future Snowpack runs. Otherwise, npx tends to re-install the tool before every run.
 
@@ -100,8 +100,8 @@ Open up your browser's Dev Tools and debug your application directly in the brow
 - Replace Preact with React (see our [React](#react) guide below).
 - Replace HTM with JSX (see our [Babel](#babel) guide below).
 - Add TypeScript support (see our [TypeScript](#typescript) guide below).
-- Add "package name" import support (see our [Importing Packages by Name](#importing-packages-by-name)) guide below).
-- See all of our guides below!
+- Add "package name" import support (see our [Importing Packages by Name](#importing-packages-by-name) guide below).
+- Check out all of our guides below!
 
 
 ### Examples
