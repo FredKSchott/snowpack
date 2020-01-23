@@ -9,7 +9,7 @@ function stripBenchmark(stdout) {
   return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
 }
 function stripWhitespace(stdout) {
-  return stdout.replace(/( +)$/gm, '');
+  return stdout.replace(/\s+$/gm, '');
 }
 
 beforeAll(() => {
