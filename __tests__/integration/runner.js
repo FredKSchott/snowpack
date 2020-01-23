@@ -30,7 +30,7 @@ for (const testName of readdirSync(__dirname)) {
     // Test Output
     const expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
     const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
-    console.log(stripWhitespace(stripBenchmark(all)));
+    console.log(JSON.stringify(stripWhitespace(stripBenchmark(all))));
     console.log(JSON.stringify(expectedOutput));
     assert.strictEqual(stripWhitespace(stripBenchmark(all)), expectedOutput);
 
