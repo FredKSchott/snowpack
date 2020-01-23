@@ -124,11 +124,11 @@ By default, Snowpack will transpile using the recommended target string shown ab
 ``` js
   /* package.json */
   "scripts": {
-    "prepare": "snowpack"
+    "postshrinkwrap": "snowpack"
   }
 ```
 
-You can optionally add "snowpack" as a `"prepare"` script to your `package.json` and npm/yarn will automatically run it after every new dependency install. This is recommended so that new dependencies are automatically included in your `web_modules/` directory immediately.
+You can optionally add "snowpack" as a `"postshrinkwrap"` script to your `package.json` and npm/yarn will automatically run it after every install. This is recommended so that new dependencies are automatically included in your `web_modules/` directory immediately.
 
 
 
