@@ -9,6 +9,11 @@ function stripBenchmark(stdout) {
   return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
 }
 
+beforeAll(() => {
+  // Needed so that ora (spinner) doesn't use platform-specific characters
+  process.env = Object.assign(process.env, {CI: '1'});
+});
+
 for (const testName of readdirSync(__dirname)) {
   if (testName === 'node_modules' || testName.includes('.')) {
     continue;
