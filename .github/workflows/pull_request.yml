@@ -20,6 +20,8 @@ jobs:
         npm ci --no-optional
         npm run build --if-present
         npm test
+      env:
+        CI: true
   lint:
     runs-on: ubuntu-latest
     steps:
