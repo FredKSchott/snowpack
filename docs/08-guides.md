@@ -53,6 +53,41 @@ To use TypeScript with Snowpack, you'll need to set up your tsconfig.json to und
 
 ### Vue
 
+The simplest way to get Vue SFCs working with Snowpack is to use JSX. You will need to use bable to transpile the SFCs to plain javascript. You can find an example [project here](https://gitlab.com/unclejustin/snowpack-vue).
+
+Install babel and presets
+
+```sh
+yarn add @babel/cli @babel/core @babel/preset-env @vue/babel-helper-vue-jsx-merge-props @vue/babel-preset-jsx -D
+
+# or
+
+npm install @babel/cli @babel/core @babel/preset-env @vue/babel-helper-vue-jsx-merge-props @vue/babel-preset-jsx --save-dev
+```
+
+```json
+// .babelrc
+{
+  "plugins": [["snowpack/assets/babel-plugin.js", {}]],
+  "presets": [
+    "@vue/babel-preset-jsx",
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "esmodules": true
+        },
+        "modules": "false",
+        "useBuiltIns": false
+      }
+    ]
+  ]
+}
+
+```
+
+Now running babel will compile JSX and let you use SFCs like this:
+
 ```js
 /*
  * NOTE: The Vue package points to the runtime-only distribution by default.
@@ -62,12 +97,22 @@ To use TypeScript with Snowpack, you'll need to set up your tsconfig.json to und
  * https://vuejs.org/v2/guide/installation.html#Explanation-of-Different-Builds
  */
 import Vue from "/web_modules/vue/dist/vue.esm.browser.js";
+import HiVue from './components/HiVue.js';
+
+new Vue({
+  el: '#app',
+  components: { HiVue },
+  template: `<hi-vue name="Vue" />`,
+});
 
 // $ snowpack --include "src/index.js"
 // ✔ snowpack installed: vue/dist/vue.esm.browser.js. [1.07s]
 ```
 
-> Psst... are you an expert on Vue? We'd [love your help](https://github.com/pikapkg/snowpack/blob/master/docs) writing a short guide for authoring `.vue` SFC's and then compiling them to valid JS!
+```js
+// components/HiVue.js
+export default ({ props }) => <div>Hi {props.name}!</div>;
+```
 
 ### Preact
 
@@ -202,7 +247,7 @@ sass ./scss:./css
 
 **You might also like:** [csz](https://github.com/lukejacksonn/csz), run-time CSS modules with support for SASS-like selectors. CSZ runs directly in the browser, so you can skip the SASS build/watch step. 
 
- 
+
 ### Tailwind CSS
 
 ```toml
@@ -273,4 +318,3 @@ Assuming you've removed all code specific to your bundler, you can use the follo
 Snowpack is designed for zero lock-in. If you ever feel the need to add a traditional application bundler to your stack (for whatever reason!) you can do so in seconds.
 
 Any application built with Snowpack should Just Work™️ when passed through Webpack/Rollup/Parcel. If you are importing packages by full URL (ex: `import React from '/web_modules/react.js'`), then a simple Find & Replace should help you re-write them to the plain package names  (ex: `import React from 'react'`) that bundlers expect.
-
