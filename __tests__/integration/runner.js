@@ -30,8 +30,6 @@ for (const testName of readdirSync(__dirname)) {
     // Test Output
     const expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
     const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
-    console.log(JSON.stringify(stripWhitespace(stripBenchmark(all))));
-    console.log(JSON.stringify(stripWhitespace(expectedOutput)));
     assert.strictEqual(stripWhitespace(stripBenchmark(all)), stripWhitespace(expectedOutput));
 
     const expectedWebDependenciesLoc = path.join(__dirname, testName, 'expected-install');
@@ -57,8 +55,8 @@ for (const testName of readdirSync(__dirname)) {
         return;
       }
       return assert.strictEqual(
-        readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'}),
-        readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'}),
+        stripWhitespace(readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'})),
+        stripWhitespace(readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'})),
       );
     });
   });
