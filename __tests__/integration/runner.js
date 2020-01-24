@@ -30,9 +30,9 @@ for (const testName of readdirSync(__dirname)) {
     // Test Output
     const expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
     const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
-    console.log(JSON.stringify(stripBenchmark(all)));
+    console.log(JSON.stringify(stripWhitespace(stripBenchmark(all))));
     console.log(JSON.stringify(stripWhitespace(expectedOutput)));
-    assert.strictEqual(stripBenchmark(all), stripWhitespace(expectedOutput));
+    assert.strictEqual(stripWhitespace(stripBenchmark(all)), stripWhitespace(expectedOutput));
 
     const expectedWebDependenciesLoc = path.join(__dirname, testName, 'expected-install');
     const actualWebDependenciesLoc = path.join(__dirname, testName, 'web_modules');
