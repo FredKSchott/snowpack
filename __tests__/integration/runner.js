@@ -21,7 +21,7 @@ for (const testName of readdirSync(__dirname)) {
   if (testName === 'node_modules' || testName.includes('.')) {
     continue;
   }
-  if (testName.includes('nomodule') && process.platform === 'win32') {
+  if (testName === 'nomodule' && process.platform === 'win32') {
     test.skip(testName, () => {
       throw new Error('TODO: Get nomodule working on windows.');
     });
