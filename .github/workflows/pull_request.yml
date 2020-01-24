@@ -4,9 +4,10 @@ on: [pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-2016]
         node-version: [10.x, 12.x, 13.x]
     steps:
     - uses: actions/checkout@v1
@@ -16,7 +17,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install, build, and test
       run: |
-        npm ci
+        npm ci --no-optional
         npm run build --if-present
         npm test
       env:
@@ -26,5 +27,5 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
-      - run: npm install
+      - run: npm ci --no-optional
       - run: npm run lint
