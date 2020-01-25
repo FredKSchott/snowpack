@@ -17,7 +17,6 @@ import rollupPluginReplace from '@rollup/plugin-replace';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
-import {rollupPluginRemoteResolve} from './rollup-plugin-remote-resolve.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 
 export interface DependencyLoc {
@@ -37,8 +36,7 @@ export interface InstallOptions {
   namedExports?: {[filepath: string]: string[]};
   nomodule?: string;
   nomoduleOutput?: string;
-  remoteUrl?: string;
-  remotePackages: [string, string][];
+  isExternal: boolean;
   sourceMap?: boolean | 'inline';
   dedupe?: string[];
 }
@@ -63,11 +61,9 @@ ${chalk.bold('Options:')}
     --strict            Only install pure ESM dependency trees. Fail if a CJS module is encountered.
     --no-source-map     Skip emitting source map files (.js.map) into dest
 ${chalk.bold('Advanced:')}
-    --remote-package    "name,version" pair(s) of packages that should be left unbundled and referenced remotely.
-                        Example: "foo,v4" will rewrite all imports of "foo" to "{remoteUrl}/foo/v4" (see --remote-url).
-    --remote-url        Configures the domain where remote imports point to (default: "https://cdn.pika.dev")
     --nomodule          Your app’s entry file for generating a <script nomodule> bundle
     --nomodule-output   Filename for nomodule output (default: 'app.nomodule.js')
+    --external          [Experimental / Internal use only.] May go away at any time.
     `.trim(),
   );
 }
@@ -185,8 +181,7 @@ export async function install(
     namedExports,
     nomodule,
     nomoduleOutput,
-    remoteUrl,
-    remotePackages,
+    isExternal,
     dedupe,
   }: InstallOptions,
 ) {
@@ -254,6 +249,9 @@ export async function install(
   }
 
   if (Object.keys(depObject).length > 0) {
+    const jail =
+      isExternal &&
+      path.dirname(resolveFrom(cwd, `${Array.from(allInstallSpecifiers)[0]}/package.json`));
     const inputOptions = {
       input: depObject,
       plugins: [
@@ -261,11 +259,11 @@ export async function install(
           rollupPluginReplace({
             'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
           }),
-        remoteUrl && rollupPluginRemoteResolve({remoteUrl, remotePackages}),
         rollupPluginNodeResolve({
           mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(Boolean),
           modulesOnly: isStrict, // Default: false
           extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
+          jail,
           // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
           preferBuiltins: false, // Default: true
           dedupe: dedupe,
@@ -304,8 +302,7 @@ export async function install(
       ],
       onwarn: ((warning, warn) => {
         if (warning.code === 'UNRESOLVED_IMPORT') {
-          // If we're using remoteUrl, we should expect them to be unresolved. ("external" should handle this for us, but we're still seeing it)
-          if (remoteUrl && warning.source.startsWith(remoteUrl)) {
+          if (jail && !(warning.source.startsWith('./') || warning.source.startsWith('../'))) {
             return;
           }
           logError(
@@ -411,8 +408,7 @@ export async function cli(args: string[]) {
     strict = false,
     clean = false,
     dest = 'web_modules',
-    remoteUrl = 'https://cdn.pika.dev',
-    remotePackage: remotePackages = [],
+    external,
   } = yargs(args);
   const destLoc = path.resolve(cwd, dest);
 
@@ -483,9 +479,8 @@ export async function cli(args: string[]) {
     nomodule,
     nomoduleOutput,
     sourceMap,
-    remoteUrl,
     hasBrowserlistConfig,
-    remotePackages: remotePackages.map(p => p.split(',')),
+    isExternal: external,
     dedupe,
   });
 
