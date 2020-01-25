@@ -36,7 +36,7 @@ export interface InstallOptions {
   namedExports?: {[filepath: string]: string[]};
   nomodule?: string;
   nomoduleOutput?: string;
-  isExternal: boolean;
+  externalPackages: string[];
   sourceMap?: boolean | 'inline';
   dedupe?: string[];
 }
@@ -63,7 +63,7 @@ ${chalk.bold('Options:')}
 ${chalk.bold('Advanced:')}
     --nomodule          Your app’s entry file for generating a <script nomodule> bundle
     --nomodule-output   Filename for nomodule output (default: 'app.nomodule.js')
-    --external          [Experimental / Internal use only.] May go away at any time.
+    --external-package  [Internal use only.] May go away at any time.    
     `.trim(),
   );
 }
@@ -181,7 +181,7 @@ export async function install(
     namedExports,
     nomodule,
     nomoduleOutput,
-    isExternal,
+    externalPackages,
     dedupe,
   }: InstallOptions,
 ) {
@@ -249,11 +249,9 @@ export async function install(
   }
 
   if (Object.keys(depObject).length > 0) {
-    const jail =
-      isExternal &&
-      path.dirname(resolveFrom(cwd, `${Array.from(allInstallSpecifiers)[0]}/package.json`));
     const inputOptions = {
       input: depObject,
+      external: externalPackages,
       plugins: [
         !isStrict &&
           rollupPluginReplace({
@@ -263,7 +261,6 @@ export async function install(
           mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(Boolean),
           modulesOnly: isStrict, // Default: false
           extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
-          jail,
           // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
           preferBuiltins: false, // Default: true
           dedupe: dedupe,
@@ -302,9 +299,6 @@ export async function install(
       ],
       onwarn: ((warning, warn) => {
         if (warning.code === 'UNRESOLVED_IMPORT') {
-          if (jail && !(warning.source.startsWith('./') || warning.source.startsWith('../'))) {
-            return;
-          }
           logError(
             `'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`,
           );
@@ -408,8 +402,8 @@ export async function cli(args: string[]) {
     strict = false,
     clean = false,
     dest = 'web_modules',
-    external,
-  } = yargs(args);
+    externalPackage: externalPackages = [],
+  } = yargs(args, {array: ['externalPackage']});
   const destLoc = path.resolve(cwd, dest);
 
   if (help) {
@@ -480,7 +474,7 @@ export async function cli(args: string[]) {
     nomoduleOutput,
     sourceMap,
     hasBrowserlistConfig,
-    isExternal: external,
+    externalPackages,
     dedupe,
   });
 
