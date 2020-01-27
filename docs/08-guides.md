@@ -19,11 +19,22 @@ To use Babel with Snowpack:
 
 TypeScript expects imports to be by package name, and won't be able to understand your "web_modules/" imports by default. You'll need to follow one of the following guides based on your setup:
 
-#### With Babel:
+#### With Babel (Recommended)
 
-While it may sound like overkill, Babel & TypeScript work well together. This article does a good job of explaining how each tackles their own problem better than either could on their own: [TypeScript With Babel: A Beautiful Marriage](https://iamturns.com/typescript-babel/)
+If you build your site with Babel, you can keep importing packages by name thanks to our [Snowpack Plugin](#importing-packages-by-name). TypeScript will be able to understand these "package name imports" and properly map them back to the type definitions found in your `node_modules/` directory when it type checks your source directory.
 
-To use TypeScript with Babel, just use our "Import by Package Name" Babel plugin to rewrite your package name imports at build time. This way, TypeScript will only ever see the package name imports, as expected. See our guide above for more info on connecting this plugin.
+To use TypeScript with Babel, [set up Babel](#babel) with the following plugins (feel free to add others):
+
+```js
+/* .babelrc */
+{
+  "presets": ["@babel/preset-typescript"]
+  "plugins": ["snowpack/assets/babel-plugin.js"],
+}
+```
+ 
+Once you have Babel building your site correctly, TypeScript should be able to understand your source directory without any additional configuration.
+
 
 #### Without Babel:
 
