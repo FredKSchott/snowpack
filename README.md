@@ -32,6 +32,7 @@ npm install --save-dev snowpack
 - Vue (using JSX): [[Source]](https://gitlab.com/unclejustin/snowpack-vue) [[Live Demo]](https://snowpack-vue.netlify.com/) [By: [@unclejustin](https://gitlab.com/unclejustin)]
 - PWA-Starter-Kit (lit-html + Redux): [[Source]](https://github.com/Polymer/pwa-starter-kit/issues/339)
 - LitElement + lit-html PWA: [[Source]](https://github.com/thepassle/reddit-pwa) [[Live Demo]](https://angry-turing-4769b3.netlify.com/)
+- [Heresy](https://github.com/WebReflection/heresy) and [LighterHTML](https://github.com/WebReflection/lighterhtml): [[Source]](https://github.com/AhnafCodes/SAltEnv/)
 - Hyperapp and JSX (using Babel): [[Source]](https://github.com/Monchi/snowpack-hyperapp) [[Live Demo]](https://snowpack-hyperapp.netlify.com/)
 - React PWA Starter (React + Styled components + Workbox): [[Source]](https://github.com/matthoffner/es-react-pwa) [[Live Demo]](https://es-react-pwa.netlify.com/)
 - Preact, JSX, Fragment, Router, CSS Grid, Typescript, Babel: [[Source]](https://github.com/crra/snowpack-doodle)
