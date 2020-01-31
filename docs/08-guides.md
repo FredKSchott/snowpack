@@ -219,7 +219,7 @@ And here's the minimum `package.json` you would need:
     "svelte": "^3.7.1"
   },
   "devDependencies": {
-    "svelvet": "^0.1.1"
+    "svelvet": "^0.1.10"
   }
 }
 ```
