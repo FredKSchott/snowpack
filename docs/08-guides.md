@@ -28,8 +28,8 @@ To use TypeScript with Babel, [set up Babel](#babel) with the following plugins 
 ```js
 /* .babelrc */
 {
-  "presets": ["@babel/preset-typescript"]
-  "plugins": ["snowpack/assets/babel-plugin.js"],
+  "presets": ["@babel/preset-typescript"],
+  "plugins": ["snowpack/assets/babel-plugin.js"]
 }
 ```
  
