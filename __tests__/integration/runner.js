@@ -21,12 +21,6 @@ for (const testName of readdirSync(__dirname)) {
   if (testName === 'node_modules' || testName.includes('.')) {
     continue;
   }
-  if (testName === 'nomodule' && process.platform === 'win32') {
-    test.skip(testName, () => {
-      throw new Error('TODO: Get nomodule working on windows.');
-    });
-    continue;
-  }
 
   test(testName, async () => {
     const {all} = await execa('npm', ['run', `TEST`, `--silent`], {
@@ -58,6 +52,10 @@ for (const testName of readdirSync(__dirname)) {
     res.diffSet.forEach(function(entry) {
       if (entry.type1 !== 'file') {
         // NOTE: We only compare files so that we give the test runner a more detailed diff.
+        return;
+      }
+      // NOTE: Skip source map on Windows, because generated source map has different newline code (CRLF).
+      if (process.platform === 'win32' && entry.name1.endsWith('.js.map')) {
         return;
       }
       return assert.strictEqual(

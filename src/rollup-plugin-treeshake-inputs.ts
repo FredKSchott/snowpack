@@ -1,5 +1,6 @@
 import {InputOptions} from 'rollup';
 import {InstallTarget} from './scan-imports';
+import path from 'path';
 
 /**
  * rollup-plugin-treeshake-inputs
@@ -48,14 +49,15 @@ export function rollupPluginTreeshakeInputs(allImports: InstallTarget[]) {
         return summary;
       });
       const uniqueNamedImports = new Set(treeshakeSummary.named);
+      const normalizedFileLoc = fileLoc.split(path.win32.sep).join(path.posix.sep);
       const result = `
-        ${treeshakeSummary.namespace ? `export * from '${fileLoc}';` : ''}
+        ${treeshakeSummary.namespace ? `export * from '${normalizedFileLoc}';` : ''}
         ${
           treeshakeSummary.default
-            ? `import __pika_web_default_export_for_treeshaking__ from '${fileLoc}'; export default __pika_web_default_export_for_treeshaking__;`
+            ? `import __pika_web_default_export_for_treeshaking__ from '${normalizedFileLoc}'; export default __pika_web_default_export_for_treeshaking__;`
             : ''
         }
-        ${`export {${[...uniqueNamedImports].join(',')}} from '${fileLoc}';`}
+        ${`export {${[...uniqueNamedImports].join(',')}} from '${normalizedFileLoc}';`}
       `;
       return result;
     },
