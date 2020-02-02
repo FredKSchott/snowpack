@@ -71,7 +71,7 @@ Optionally, you can now run `npm install snowpack --save-dev` to speed up future
 ```js
 /* File Location: src/app.js */
 // Import your web-ready dependencies
-import { h, Component, render } from '/web_modules/preact.js';
+import { h, render } from '/web_modules/preact.js';
 import htm from '/web_modules/htm.js';
 const html = htm.bind(h);
 // Create your main app component
