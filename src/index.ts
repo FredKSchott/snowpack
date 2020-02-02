@@ -18,27 +18,12 @@ import rollupPluginReplace from '@rollup/plugin-replace';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
+import loadConfig, {SnowpackConfig} from './config.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 
 export interface DependencyLoc {
   type: 'JS' | 'ASSET';
   loc: string;
-}
-
-export interface InstallOptions {
-  destLoc: string;
-  include?: string;
-  isStrict?: boolean;
-  isOptimized?: boolean;
-  isBabel?: boolean;
-  hasBrowserlistConfig?: boolean;
-  isExplicit?: boolean;
-  namedExports?: {[filepath: string]: string[]};
-  nomodule?: string;
-  nomoduleOutput?: string;
-  externalPackages: string[];
-  sourceMap?: boolean | 'inline';
-  dedupe?: string[];
 }
 
 const ALWAYS_SHOW_ERRORS = new Set(['react', 'react-dom']);
@@ -64,7 +49,7 @@ ${chalk.bold('Options:')}
 ${chalk.bold('Advanced:')}
     --nomodule          Your app’s entry file for generating a <script nomodule> bundle
     --nomodule-output   Filename for nomodule output (default: 'app.nomodule.js')
-    --external-package  [Internal use only.] May go away at any time.    
+    --external-package  [Internal use only.] May go away at any time.
     `.trim(),
   );
 }
@@ -179,22 +164,17 @@ function getWebDependencyName(dep: string): string {
   return dep.replace(/\.m?js$/i, '');
 }
 
-export async function install(installTargets: InstallTarget[], installOptions: InstallOptions) {
-  const {
-    destLoc,
-    hasBrowserlistConfig,
-    isExplicit,
-    isStrict,
-    isBabel,
-    isOptimized,
-    sourceMap,
-    namedExports,
-    nomodule,
-    nomoduleOutput,
-    externalPackages,
-    dedupe,
-  } = installOptions;
-  const knownNamedExports = {...namedExports};
+interface InstallOptions {
+  hasBrowserlistConfig: boolean;
+  isExplicit: boolean;
+}
+
+export async function install(
+  installTargets: InstallTarget[],
+  {hasBrowserlistConfig, isExplicit}: InstallOptions,
+  config: SnowpackConfig,
+) {
+  const knownNamedExports = {...config.namedExports};
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
     knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
   }
@@ -251,33 +231,38 @@ export async function install(installTargets: InstallTarget[], installOptions: I
 
   const inputOptions = {
     input: depObject,
-    external: externalPackages,
+    external: config.options.externalPackage,
     plugins: [
-      !isStrict &&
+      !config.options.strict &&
         rollupPluginReplace({
-          'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
+          'process.env.NODE_ENV': config.options.optimize ? '"production"' : '"development"',
         }),
       rollupPluginNodeResolve({
-        mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(Boolean),
-        modulesOnly: isStrict, // Default: false
+        mainFields: [
+          'browser:module',
+          'module',
+          'browser',
+          !config.options.strict && 'main',
+        ].filter(Boolean),
+        modulesOnly: config.options.strict, // Default: false
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: false, // Default: true
-        dedupe,
+        dedupe: config.dedupe,
       }),
-      !isStrict &&
+      !config.options.strict &&
         rollupPluginJson({
           preferConst: true,
           indent: '  ',
-          compact: isOptimized,
+          compact: config.options.optimize,
           namedExports: true,
         }),
-      !isStrict &&
+      !config.options.strict &&
         rollupPluginCommonjs({
           extensions: ['.js', '.cjs'], // Default: [ '.js' ]
           namedExports: knownNamedExports,
         }),
-      !!isBabel &&
+      !!config.options.babel &&
         rollupPluginBabel({
           compact: false,
           babelrc: false,
@@ -294,8 +279,8 @@ export async function install(installTargets: InstallTarget[], installOptions: I
             ],
           ],
         }),
-      !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
-      !!isOptimized && rollupPluginTerser(),
+      !!config.options.optimize && rollupPluginTreeshakeInputs(installTargets),
+      !!config.options.optimize && rollupPluginTerser(),
     ],
     onwarn: ((warning, warn) => {
       if (warning.code === 'UNRESOLVED_IMPORT') {
@@ -323,9 +308,10 @@ export async function install(installTargets: InstallTarget[], installOptions: I
     }) as any,
   };
   const outputOptions = {
-    dir: destLoc,
+    dir: config.options.dest,
     format: 'esm' as 'esm',
-    sourcemap: sourceMap === undefined ? isOptimized : sourceMap,
+    sourcemap:
+      config.options.sourceMap === undefined ? config.options.optimize : config.options.sourceMap,
     exports: 'named' as 'named',
     chunkFileNames: 'common/[name]-[hash].js',
   };
@@ -333,7 +319,7 @@ export async function install(installTargets: InstallTarget[], installOptions: I
     const packageBundle = await rollup.rollup(inputOptions);
     await packageBundle.write(outputOptions);
   }
-  if (nomodule) {
+  if (config.options.nomodule) {
     const nomoduleStart = Date.now();
     function rollupResolutionHelper() {
       return {
@@ -346,7 +332,7 @@ export async function install(installTargets: InstallTarget[], installOptions: I
           // resolve web_modules
           if (source.includes('/web_modules/')) {
             const suffix = source.split('/web_modules/')[1];
-            return {id: path.join(destLoc, suffix)};
+            return {id: path.join(config.options.dest, suffix)};
           }
           // null means try to resolve as-is
           return null;
@@ -355,18 +341,19 @@ export async function install(installTargets: InstallTarget[], installOptions: I
     }
     try {
       const noModuleBundle = await rollup.rollup({
-        input: nomodule,
+        input: config.options.nomodule,
         inlineDynamicImports: true,
         plugins: [...inputOptions.plugins, rollupResolutionHelper()],
       });
-      await noModuleBundle.write({file: path.resolve(destLoc, nomoduleOutput), format: 'iife'});
+      await noModuleBundle.write({
+        file: path.resolve(config.options.dest, config.options.nomoduleOutput),
+        format: 'iife',
+      });
       const nomoduleEnd = Date.now() - nomoduleStart;
       spinner.info(
-        `${chalk.bold(
-          'snowpack',
-        )} bundled your application for legacy browsers: ${nomoduleOutput} ${chalk.dim(
-          `[${(nomoduleEnd / 1000).toFixed(2)}s]`,
-        )}`,
+        `${chalk.bold('snowpack')} bundled your application for legacy browsers: ${
+          config.options.nomoduleOutput
+        } ${chalk.dim(`[${(nomoduleEnd / 1000).toFixed(2)}s]`)}`,
       );
     } catch (err) {
       spinner.warn(
@@ -377,35 +364,30 @@ export async function install(installTargets: InstallTarget[], installOptions: I
     }
   }
   fs.writeFileSync(
-    path.join(destLoc, 'import-map.json'),
+    path.join(config.options.dest, 'import-map.json'),
     JSON.stringify({imports: importMap}, undefined, 2),
     {encoding: 'utf8'},
   );
   Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
-    mkdirp.sync(path.dirname(`${destLoc}/${assetName}`));
-    fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
+    mkdirp.sync(path.dirname(`${config.options.dest}/${assetName}`));
+    fs.copyFileSync(assetLoc, `${config.options.dest}/${assetName}`);
   });
   return true;
 }
 
 export async function cli(args: string[]) {
-  const {
-    help,
-    sourceMap,
-    babel = false,
-    exclude = ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
-    include,
-    nomodule,
-    nomoduleOutput = 'app.nomodule.js',
-    optimize = false,
-    strict = false,
-    clean = false,
-    dest = 'web_modules',
-    externalPackage: externalPackages = [],
-  } = yargs(args, {array: ['externalPackage']});
-  const destLoc = path.resolve(cwd, dest);
+  // Load config
+  const cliFlags = yargs(args, {array: ['exclude', 'externalPackage']});
+  const {config, errors} = await loadConfig({options: cliFlags as SnowpackConfig['options']});
 
-  if (help) {
+  if (Array.isArray(errors) && errors.length) {
+    errors.forEach(logError);
+    process.exit(0);
+  }
+
+  config.options.dest = path.resolve(cwd, config.options.dest);
+
+  if (cliFlags.help) {
     printHelp();
     process.exit(0);
   }
@@ -435,53 +417,41 @@ export async function cli(args: string[]) {
 
   let isExplicit = false;
   const installTargets = [];
-  const {namedExports, webDependencies, dedupe} = pkgManifest['snowpack'] || {
-    namedExports: undefined,
-    webDependencies: undefined,
-    dedupe: undefined,
-  };
 
   if (pkgManifest['@pika/web']) {
     console.log(
       '[WARN] Update package.json "@pika/web" configuration to use "snowpack" configuration name.',
     );
   }
-  if (webDependencies) {
+  if (config.webDependencies) {
     isExplicit = true;
-    installTargets.push(...scanDepList(webDependencies, cwd));
+    installTargets.push(...scanDepList(config.webDependencies, cwd));
   }
-  if (include) {
+  if (config.options.include) {
     isExplicit = true;
-    installTargets.push(...scanImports({include, exclude, knownDependencies: allDependencies}));
+    installTargets.push(
+      ...scanImports({
+        include: config.options.include,
+        exclude: config.options.exclude,
+        knownDependencies: allDependencies,
+      }),
+    );
   }
-  if (!webDependencies && !include) {
+  if (!config.webDependencies && !config.options.include) {
     installTargets.push(...scanDepList(implicitDependencies, cwd));
   }
   if (installTargets.length === 0) {
     logError('Nothing to install.');
     return;
   }
-  if (clean) {
-    rimraf.sync(destLoc);
+  if (config.options.clean) {
+    rimraf.sync(config.options.dest);
   }
 
   spinner.start();
   const startTime = Date.now();
-  const installOptions = {
-    destLoc,
-    namedExports,
-    isExplicit,
-    isStrict: strict,
-    isBabel: babel || optimize,
-    isOptimized: optimize,
-    nomodule,
-    nomoduleOutput,
-    sourceMap,
-    hasBrowserlistConfig,
-    externalPackages,
-    dedupe: dedupe || [],
-  };
-  const result = await install(installTargets, installOptions);
+  const result = await install(installTargets, {hasBrowserlistConfig, isExplicit}, config);
+
   if (result) {
     spinner.succeed(
       chalk.bold(`snowpack`) +

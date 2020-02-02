@@ -1,0 +1,9 @@
+{
+  "description": "Test that the --optimize flag overrides the config",
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --optimize"
+  },
+  "dependencies": {
+    "shallow-equal": "^1.2.1"
+  }
+}

@@ -1,0 +1,2 @@
+function r(r,t){if(r===t)return!0;if(!r||!t)return!1;var e=Object.keys(r),n=Object.keys(t),f=e.length;if(n.length!==f)return!1;for(var u=0;u<f;u++){var i=e[u];if(r[i]!==t[i]||!Object.prototype.hasOwnProperty.call(t,i))return!1}return!0}function t(r,t){if(r===t)return!0;if(!r||!t)return!1;var e=r.length;if(t.length!==e)return!1;for(var n=0;n<e;n++)if(r[n]!==t[n])return!1;return!0}export{t as shallowEqualArrays,r as shallowEqualObjects};
+//# sourceMappingURL=shallow-equal.js.map

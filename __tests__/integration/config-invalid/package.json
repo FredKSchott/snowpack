@@ -1,0 +1,12 @@
+{
+  "description": "Test invalid configuration",
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+  },
+  "snowpack": {
+    "webDependencies": "shallow-equal"
+  },
+  "dependencies": {
+    "shallow-equal": "^1.2.1"
+  }
+}

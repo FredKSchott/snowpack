@@ -1,0 +1,18 @@
+{
+  "description": "Test configuration w/ package.json",
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+  },
+  "snowpack": {
+    "options": {
+      "optimize": true
+    },
+    "webDependencies": [
+      "shallow-equal"
+    ]
+  },
+  "dependencies": {
+    "@emotion/is-prop-valid": "^0.8.6",
+    "shallow-equal": "^1.2.1"
+  }
+}

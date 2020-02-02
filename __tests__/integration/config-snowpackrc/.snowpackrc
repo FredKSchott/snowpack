@@ -1,0 +1,8 @@
+{
+  "options": {
+    "optimize": true
+  },
+  "webDependencies": [
+    "shallow-equal"
+  ]
+}
