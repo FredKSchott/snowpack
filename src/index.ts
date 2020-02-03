@@ -263,7 +263,7 @@ export async function install(
           extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
           // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
           preferBuiltins: false, // Default: true
-          dedupe: dedupe,
+          dedupe,
         }),
         !isStrict &&
           rollupPluginJson({
@@ -434,7 +434,7 @@ export async function cli(args: string[]) {
   const {namedExports, webDependencies, dedupe} = pkgManifest['snowpack'] || {
     namedExports: undefined,
     webDependencies: undefined,
-    dedupe: undefined,
+    dedupe: [],
   };
 
   if (pkgManifest['@pika/web']) {
