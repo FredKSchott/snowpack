@@ -39,3 +39,21 @@ npm install --save-dev snowpack
 - React, JSX, Material-UI and super basic routing: [[Source]](https://github.com/jmetev1/snowpackJSXreact)
 - A basic svelte setup powered by svelvet: [[Source]](https://github.com/jakedeichert/svelvet)
 - 🙋‍♀️ Have a great example you'd like to share? Create it on [CodeSandbox](https://codesandbox.io/), [Glitch](https://glitch.com), or [GitHub](https://github.com/new). Then add it here via PR.
+
+
+## Contributors Welcome!
+
+Interested in contributing? We'd love your help! Our [issue tracker](https://github.com/pikapkg/snowpack/issues) is always organized with high-proirity bugs, feature requests, and "help wanted!"/"good first issue" items. For other threads, check out our [Package Community](https://www.pika.dev/community) for general package troubleshooting and discussions.
+
+```bash
+# Local Setup
+git clone ${REPO}
+npm install
+# Build after every change
+npm run build
+# Run the built package directly by path, in some sibling project
+../pkg/dist-node/index.bin.js 
+# Or, link the built package to run via CLI in any directory
+cd pkg && npm link
+snowpack
+```
