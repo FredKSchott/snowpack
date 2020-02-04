@@ -31,8 +31,5 @@ export function rollupPluginRemoteResolve({
       }
       return null;
     },
-    load() {
-      return null;
-    },
   };
 }

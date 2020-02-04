@@ -17,16 +17,24 @@ import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import validatePackageName from 'validate-npm-package-name';
 import yargs from 'yargs-parser';
 import loadConfig, {SnowpackConfig, CLIFlags} from './config.js';
+import {resolveTargetsFromRemoteCDN} from './resolve-remote.js';
+import {rollupPluginDependencyCache} from './rollup-plugin-remote-cdn.js';
 import {rollupPluginEntrypointAlias} from './rollup-plugin-entrypoint-alias.js';
 import {DependencyStatsOutput, rollupPluginDependencyStats} from './rollup-plugin-stats.js';
 import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
 import {InstallTarget, scanDepList, scanImports} from './scan-imports.js';
 import {printStats} from './stats-formatter.js';
-import {isTruthy, MISSING_PLUGIN_SUGGESTIONS, resolveDependencyManifest} from './util.js';
+import {
+  ImportMap,
+  isTruthy,
+  MISSING_PLUGIN_SUGGESTIONS,
+  readLockfile,
+  resolveDependencyManifest,
+  writeLockfile,
+} from './util.js';
 
 type InstallResult = 'SUCCESS' | 'ASSET' | 'FAIL';
-
-export interface DependencyLoc {
+interface DependencyLoc {
   type: 'JS' | 'ASSET';
   loc: string;
 }
@@ -90,6 +98,10 @@ function logError(msg: string) {
   spinnerHasError = true;
   spinner = ora(chalk.red(msg));
   spinner.fail();
+}
+
+function logUpdate(msg: string) {
+  spinner.text = banner + msg;
 }
 
 class ErrorWithHint extends Error {
@@ -203,16 +215,18 @@ function getWebDependencyName(dep: string): string {
 interface InstallOptions {
   hasBrowserlistConfig: boolean;
   isExplicit: boolean;
+  lockfile: ImportMap | null;
 }
 
 export async function install(
   installTargets: InstallTarget[],
-  {hasBrowserlistConfig, isExplicit}: InstallOptions,
+  {hasBrowserlistConfig, isExplicit, lockfile}: InstallOptions,
   config: SnowpackConfig,
 ) {
   const {
     dedupe,
     namedExports,
+    source,
     installOptions: {
       babel: isBabel,
       dest: destLoc,
@@ -232,34 +246,43 @@ export async function install(
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
     knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
   }
-  if (!fs.existsSync(path.join(cwd, 'node_modules'))) {
+  if (source === 'local' && !fs.existsSync(path.join(cwd, 'node_modules'))) {
     logError('no "node_modules" directory exists. Did you run "npm install" first?');
     return;
   }
-  const allInstallSpecifiers = new Set(installTargets.map(dep => dep.specifier));
+
+  const allInstallSpecifiers = new Set(installTargets.map(dep => dep.specifier).sort());
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
-  const importMap: {[installSpecifier: string]: string} = {};
+  const importMap: ImportMap = {imports: {}};
   const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
   const skipFailures = !isExplicit;
+
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
+    if (lockfile && lockfile.imports[installSpecifier]) {
+      installEntrypoints[targetName] = lockfile.imports[installSpecifier];
+      importMap.imports[installSpecifier] = `./${targetName}.js`;
+      installResults.push([targetName, 'SUCCESS']);
+      logUpdate(formatInstallResults(skipFailures));
+      continue;
+    }
     try {
       const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, isExplicit);
       if (targetType === 'JS') {
         const hashQs = useHash ? `?rev=${await generateHashFromFile(targetLoc)}` : '';
         installEntrypoints[targetName] = targetLoc;
-        importMap[installSpecifier] = `./${targetName}.js${hashQs}`;
+        importMap.imports[installSpecifier] = `./${targetName}.js${hashQs}`;
         installTargetsMap[targetLoc] = installTargets.filter(t => installSpecifier === t.specifier);
         installResults.push([installSpecifier, 'SUCCESS']);
       } else if (targetType === 'ASSET') {
         assetEntrypoints[targetName] = targetLoc;
         installResults.push([installSpecifier, 'ASSET']);
       }
-      spinner.text = banner + formatInstallResults(skipFailures);
+      logUpdate(formatInstallResults(skipFailures));
     } catch (err) {
       installResults.push([installSpecifier, 'FAIL']);
-      spinner.text = banner + formatInstallResults(skipFailures);
+      logUpdate(formatInstallResults(skipFailures));
       if (skipFailures && !ALWAYS_SHOW_ERRORS.has(installSpecifier)) {
         continue;
       }
@@ -289,6 +312,7 @@ export async function install(
     external: externalPackages,
     plugins: [
       rollupPluginEntrypointAlias({cwd}),
+      source === 'pika' && rollupPluginDependencyCache(),
       !isStrict &&
         rollupPluginReplace({
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
@@ -399,8 +423,8 @@ export async function install(
         name: 'rename-import-plugin',
         resolveId(source) {
           // resolve from import map
-          if (importMap[source]) {
-            return importMap[source];
+          if (importMap.imports[source]) {
+            return importMap.imports[source];
           }
           // resolve web_modules
           if (source.includes('/web_modules/')) {
@@ -439,11 +463,7 @@ export async function install(
       );
     }
   }
-  fs.writeFileSync(
-    path.join(destLoc, 'import-map.json'),
-    JSON.stringify({imports: importMap}, undefined, 2),
-    {encoding: 'utf8'},
-  );
+  await writeLockfile(path.join(destLoc, 'import-map.json'), importMap);
   Object.entries(assetEntrypoints).forEach(([assetName, assetLoc]) => {
     mkdirp.sync(path.dirname(`${destLoc}/${assetName}`));
     fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
@@ -470,9 +490,15 @@ export async function cli(args: string[]) {
     process.exit(0);
   }
 
+  // load lockfile
+  let lockfile = await readLockfile(cwd);
+  let newLockfile: ImportMap | null = null;
+
   const {
     installOptions: {clean, dest, exclude, include},
+    dependencies,
     webDependencies,
+    source,
   } = config;
 
   let pkgManifest: any;
@@ -486,6 +512,7 @@ export async function cli(args: string[]) {
   const implicitDependencies = [
     ...Object.keys(pkgManifest.peerDependencies || {}),
     ...Object.keys(pkgManifest.dependencies || {}),
+    ...Object.keys(dependencies || {}),
   ];
   const hasBrowserlistConfig =
     !!pkgManifest.browserslist ||
@@ -514,12 +541,15 @@ export async function cli(args: string[]) {
   if (clean) {
     rimraf.sync(dest);
   }
-
+  await mkdirp(dest);
   spinner.start();
   const startTime = Date.now();
+  if (source === 'pika') {
+    newLockfile = await resolveTargetsFromRemoteCDN(installTargets, lockfile, pkgManifest, config);
+  }
   const finalResult = await install(
     installTargets,
-    {hasBrowserlistConfig, isExplicit},
+    {hasBrowserlistConfig, isExplicit, lockfile: newLockfile},
     config,
   ).catch(err => {
     err.loc && console.log('\n' + chalk.red.bold(`✘ ${err.loc.file}`));
@@ -537,6 +567,10 @@ export async function cli(args: string[]) {
     if (!!dependencyStats) {
       console.log(printStats(dependencyStats));
     }
+  }
+
+  if (newLockfile) {
+    await writeLockfile(path.join(cwd, 'snowpack.lock.json'), newLockfile);
   }
 
   // If an error happened, set the exit code so that programmatic usage of the CLI knows.

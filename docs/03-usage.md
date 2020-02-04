@@ -29,19 +29,38 @@ Remember to re-run Snowpack every time you import an new dependency.
 ### Whitelisting Dependencies
 
 ```js
-  /* package.json */
-  "snowpack": {
-    "webDependencies": [
-      "htm",
-      "preact",
-      "preact/hooks", // A package within a package
-      "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
-      "bulma/css/bulma.css" // A non-JS static asset (supports globs)
-    ],
-  }
+/* package.json */
+"snowpack": {
+  "webDependencies": [
+    "htm",
+    "preact",
+    "preact/hooks", // A package within a package
+    "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
+    "bulma/css/bulma.css" // A non-JS static asset (supports globs)
+  ],
+}
 ```
 
 Optionally, you can also whitelist any dependencies by defining them in your "webDependencies" config (see below). You can use this to control exactly what is installed, including non-JS assets or deeper package resources.
 
 Note that this config will disable the zero-config mode that attempts to install every package found in your package.json "dependencies". Either use this together with the `--include` flag, or just make sure that you whitelist everything that you want installed.
 
+
+### Skipping NPM Install
+
+```
+$ snowpack --source pika
+```
+
+```js
+/* package.json */
+"snowpack": {
+  "source": "pika"
+}
+```
+
+Snowpack defaults to reading packages from your local `node_modules/` directory, but you can control this behavior with the `--source` flag to simplify your Snowpack install step even further.
+
+Use `--source pika` to have Snowpack fetch packages directly from the [Pika CDN](https://cdn.pika.dev/) instead of your local `node_modules/` directory. Your app will still get the same npm package code, but now Snowpack is fully installing and managing your npm dependencies for you. You no longer have to run `npm install` before running Snowpack.
+
+After a successful run with `--source pika`, Snowpack will create a `snowpack.lock.json` [import map](https://github.com/WICG/import-maps) in your project which locks each dependency to a specific version for future installations. Each CDN response is cached locally, so repeat runs of Snowpack happen at local speeds. `npm` & `yarn` should still be used to manage your server-side dependencies. 
