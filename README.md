@@ -37,4 +37,5 @@ npm install --save-dev snowpack
 - React PWA Starter (React + Styled components + Workbox): [[Source]](https://github.com/matthoffner/es-react-pwa) [[Live Demo]](https://es-react-pwa.netlify.com/)
 - Preact, JSX, Fragment, Router, CSS Grid, Typescript, Babel: [[Source]](https://github.com/crra/snowpack-doodle)
 - React, JSX, Material-UI and super basic routing: [[Source]](https://github.com/jmetev1/snowpackJSXreact)
+- A basic svelte setup powered by svelvet: [[Source]](https://github.com/jakedeichert/svelvet)
 - 🙋‍♀️ Have a great example you'd like to share? Create it on [CodeSandbox](https://codesandbox.io/), [Glitch](https://glitch.com), or [GitHub](https://github.com/new). Then add it here via PR.
