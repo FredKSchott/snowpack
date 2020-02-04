@@ -434,7 +434,7 @@ export async function cli(args: string[]) {
   const {namedExports, webDependencies, dedupe} = pkgManifest['snowpack'] || {
     namedExports: undefined,
     webDependencies: undefined,
-    dedupe: [],
+    dedupe: undefined,
   };
 
   if (pkgManifest['@pika/web']) {
@@ -475,7 +475,7 @@ export async function cli(args: string[]) {
     sourceMap,
     hasBrowserlistConfig,
     externalPackages,
-    dedupe,
+    dedupe: dedupe || [],
   });
 
   if (result) {
