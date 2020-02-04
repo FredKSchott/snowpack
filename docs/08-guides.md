@@ -113,8 +113,8 @@ import React, { useState } from '/web_modules/react.js';
 **Important:** React is [not yet published with ES Module support](https://github.com/facebook/react/issues/11503), and the way that it's written makes it impossible to install as a dependency (*"Error: '__moduleExports' is not exported by node_modules/react/index.js"*). **However**, React is still supported thanks to our actively-maintained ESM builds of [React](https://www.npmjs.com/package/@pika/react) & [React-DOM](https://www.npmjs.com/package/@pika/react). You can install them both in your project under an alias like so:
 
 ```
-npm install react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
-   yarn add react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
+npm install react@npm:@pika/react react-dom@npm:@pika/react-dom
+   yarn add react@npm:@pika/react react-dom@npm:@pika/react-dom
 ```
 
 When installed under the react/react-dom alias, all tooling (including Snowpack) will benefit from these easier-to-analyze ESM distributions of the popular packages.
