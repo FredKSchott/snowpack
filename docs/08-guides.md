@@ -191,22 +191,20 @@ import { repeat } from "/web_modules/lit-html/directives/repeat.js";
 
 ### Svelte
 
-[Svelvet](https://github.com/jakedeichert/svelvet) is a cli [Svelte](https://github.com/sveltejs/svelte) compiler and file watcher that integrates directly with snowpack. Using Svelvet, you can write Svelte components which are compiled to standard esm files in your `dist/` directory.
-
-This component is taken from the example project [found here](https://github.com/jakedeichert/svelvet/tree/master/examples/basic).
+[Svelvet](https://github.com/jakedeichert/svelvet) is a [Svelte](https://github.com/sveltejs/svelte) compiler + dev environment that integrates directly with Snowpack. Svelvet watches your source directory and compiles your Svelte components to standard, browser-ready JavaScript.
 
 ```html
 <!-- File: src/App.svelte -->
+<!-- Taken from example app: https://github.com/jakedeichert/svelvet/tree/master/examples/basic -->
 <script>
     import Header from './components/Header';
     import Footer from './components/Footer/index';
 </script>
-
 <Header />
 <Footer />
 ```
 
-Run `npx svelvet` on the command line to start the dev server. Svelvet will write your `src/` application to `dist/` and then continue watching your source directory for additional changes. For more details and instructions on how to build your Svelte application for production, check out [the full Svelvet guide](https://github.com/jakedeichert/svelvet).
+Run `npx svelvet` on the command line to start Svelvet in dev mode. For more information on Svelvet and instructions on how to build for production, [check out the full guide](https://github.com/jakedeichert/svelvet).
 
 
 ### SASS
