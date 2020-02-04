@@ -110,14 +110,14 @@ const html = htm.bind(h);
 import React, { useState } from '/web_modules/react.js';
 ```
 
-**Important:** React is [not yet published with ES Module support](https://github.com/facebook/react/issues/11503), and due to the way it's written, it's impossible to install as a dependency (*"Error: '__moduleExports' is not exported by node_modules/react/index.js"*). **However**, it is still possible to use React with Snowpack thanks to [@sdegutis](https://github.com/sdegutis)'s [@reactesm](https://www.npmjs.com/org/reactesm) project & npm/yarn's alias feature:
+**Important:** React is [not yet published with ES Module support](https://github.com/facebook/react/issues/11503), and the way that it's written makes it impossible to install as a dependency (*"Error: '__moduleExports' is not exported by node_modules/react/index.js"*). **However**, React is still supported thanks to our actively-maintained ESM builds of [React](https://www.npmjs.com/package/@pika/react) & [React-DOM](https://www.npmjs.com/package/@pika/react). You can install them both in your project under an alias like so:
 
 ```
 npm install react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
    yarn add react@npm:@reactesm/react react-dom@npm:@reactesm/react-dom
 ```
 
-When installed under the usual react/react-dom alias, Snowpack will install these easier-to-optimize ESM distributions into your `web_modules/` directory.
+When installed under the react/react-dom alias, all tooling (including Snowpack) will benefit from these easier-to-analyze ESM distributions of the popular packages.
 
 
 

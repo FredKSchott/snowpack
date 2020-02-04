@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+  },
+  "snowpack": {
+    "webDependencies": [
+      "react-dom"
+    ]
+  },
+  "dependencies": {
+    "react-dom": "latest"
+  }
+}
