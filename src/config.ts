@@ -14,6 +14,8 @@ type DeepPartial<T> = {
 
 // interface this library uses internally
 export interface SnowpackConfig {
+  source: string;
+  dependencies?: {[packageName: string]: string};
   webDependencies?: string[];
   dedupe?: string[];
   namedExports?: {[filepath: string]: string[]};
@@ -42,10 +44,12 @@ export interface SnowpackConfig {
 export interface CLIFlags extends Partial<SnowpackConfig['installOptions']> {
   help?: boolean;
   version?: boolean;
+  source?: SnowpackConfig['source'];
 }
 
 // default settings
 const DEFAULT_CONFIG: SnowpackConfig = {
+  source: 'local',
   dedupe: [],
   installOptions: {
     clean: false,
@@ -105,9 +109,11 @@ const configSchema = {
   },
 };
 
+/** Convert CLI flags to an incomplete Snowpack config representation. */
 function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
-  const {help, version, ...installOptions} = flags;
+  const {source, help, version, ...installOptions} = flags;
   return {
+    source,
     installOptions,
   };
 }
