@@ -4,6 +4,7 @@ import rimraf from 'rimraf';
 import mkdirp from 'mkdirp';
 import chalk from 'chalk';
 import ora from 'ora';
+import hasha from 'hasha';
 import yargs from 'yargs-parser';
 import resolveFrom from 'resolve-from';
 import babelPresetEnv from '@babel/preset-env';
@@ -66,6 +67,11 @@ ${chalk.bold('Advanced:')}
     --external-package  [Internal use only.] May go away at any time.    
     `.trim(),
   );
+}
+
+async function generateHashFromFile(targetLoc) {
+  const longHash = await hasha.fromFile(targetLoc, {algorithm: 'md5'});
+  return longHash.slice(0, 10);
 }
 
 function formatInstallResults(skipFailures): string {
@@ -207,8 +213,9 @@ export async function install(installTargets: InstallTarget[], installOptions: I
       const targetName = getWebDependencyName(installSpecifier);
       const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, isExplicit);
       if (targetType === 'JS') {
+        const hash = await generateHashFromFile(targetLoc);
         depObject[targetName] = targetLoc;
-        importMap[targetName] = `./${targetName}.js`;
+        importMap[targetName] = `./${targetName}.js?rev=${hash}`;
         installTargetsMap[targetLoc] = installTargets.filter(t => installSpecifier === t.specifier);
         installResults.push([installSpecifier, true]);
       } else if (targetType === 'ASSET') {

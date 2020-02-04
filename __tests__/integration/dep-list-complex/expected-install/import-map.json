@@ -1,5 +1,5 @@
 {
   "imports": {
-    "dat.gui": "./dat.gui.js"
+    "dat.gui": "./dat.gui.js?rev=XXXXXXXXXX"
   }
 }

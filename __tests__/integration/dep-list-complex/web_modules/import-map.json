@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "dat.gui": "./dat.gui.js"
-  }
-}
