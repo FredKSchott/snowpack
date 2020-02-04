@@ -41,6 +41,7 @@ export interface InstallOptions {
   dedupe?: string[];
 }
 
+const ALWAYS_SHOW_ERRORS = new Set(['react', 'react-dom']);
 const cwd = process.cwd();
 const banner = chalk.bold(`snowpack`) + ` installing... `;
 const installResults = [];
@@ -117,6 +118,7 @@ function detectExports(filePath: string): string[] | undefined {
  */
 function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
   // if dep includes a file extension, check that dep isn't a package before returning
+  const depManifestLoc = resolveFrom.silent(cwd, `${dep}/package.json`);
   if (path.extname(dep) && !resolveFrom.silent(cwd, `${dep}/package.json`)) {
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
     return {
@@ -124,8 +126,6 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
       loc: resolveFrom(cwd, dep),
     };
   }
-
-  const depManifestLoc = resolveFrom.silent(cwd, `${dep}/package.json`);
   if (!depManifestLoc) {
     throw new ErrorWithHint(
       `"${dep}" not found. Have you installed the package via npm?`,
@@ -139,18 +139,25 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
   if (!foundEntrypoint && isExplicit) {
     foundEntrypoint = depManifest.main || 'index.js';
   }
+  if (
+    (dep === 'react' || dep === 'react-dom') &&
+    (!foundEntrypoint || foundEntrypoint === 'index.js')
+  ) {
+    throw new ErrorWithHint(
+      chalk.bold(`Dependency "${dep}" has no native "module" entrypoint.`) +
+        `
+  To continue, install our drop-in, ESM-ready builds of "react" & "react-dom" to your project:
+    npm: npm install react@npm:@pika/react react-dom@npm:@pika/react-dom
+    yarn: yarn add react@npm:@pika/react react-dom@npm:@pika/react-dom`,
+      chalk.italic(`See ${chalk.underline('https://www.snowpack.dev/#react')} for more info.`),
+    );
+  }
   if (!foundEntrypoint) {
     throw new ErrorWithHint(
       `dependency "${dep}" has no native "module" entrypoint.`,
       chalk.italic(
         `Tip: Find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`,
       ),
-    );
-  }
-  if (dep === 'react' && foundEntrypoint === 'index.js') {
-    throw new ErrorWithHint(
-      `dependency "react" has no native "module" entrypoint.`,
-      chalk.italic(`See: ${chalk.underline('https://github.com/pikapkg/web#a-note-on-react')}`),
     );
   }
   return {
@@ -224,7 +231,7 @@ export async function install(
     } catch (err) {
       installResults.push([installSpecifier, false]);
       spinner.text = banner + formatInstallResults(skipFailures);
-      if (skipFailures) {
+      if (skipFailures && !ALWAYS_SHOW_ERRORS.has(installSpecifier)) {
         continue;
       }
       // An error occurred! Log it.
