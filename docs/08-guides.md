@@ -189,9 +189,9 @@ import { repeat } from "/web_modules/lit-html/directives/repeat.js";
 // ✔ snowpack installed: lit-html, lit-element [0.25s]
 ```
 
-### Svelvet
+### Svelte
 
-[Svelvet](https://github.com/jakedeichert/svelvet) is a cli [svelte](https://github.com/sveltejs/svelte) compiler and file watcher that integrates directly with snowpack.
+[Svelvet](https://github.com/jakedeichert/svelvet) is a cli [Svelte](https://github.com/sveltejs/svelte) compiler and file watcher that integrates directly with snowpack. Using Svelvet, you can write Svelte components which are compiled to standard esm files in your `dist/` directory.
 
 This component is taken from the example project [found here](https://github.com/jakedeichert/svelvet/tree/master/examples/basic).
 
@@ -206,25 +206,7 @@ This component is taken from the example project [found here](https://github.com
 <Footer />
 ```
 
-And here's the minimum `package.json` you would need:
-
-```json
-{
-  "name": "svelvet-example",
-  "scripts": {
-    "dev": "svelvet",
-    "build": "NODE_ENV=production svelvet"
-  },
-  "dependencies": {
-    "svelte": "^3.7.1"
-  },
-  "devDependencies": {
-    "svelvet": "^0.1.10"
-  }
-}
-```
-
-Use `npm run dev` to compile in watch mode or `npm run build` to generate an optimized, tree-shaken production build. The output is a `dist` directory that contains your compiled svelte app with `web_modules`! For more details, check out the [svelvet guide](https://github.com/jakedeichert/svelvet).
+Run `npx svelvet` on the command line to start the dev server. Svelvet will write your `src/` application to `dist/` and then continue watching your source directory for additional changes. For more details and instructions on how to build your Svelte application for production, check out [the full Svelvet guide](https://github.com/jakedeichert/svelvet).
 
 
 ### SASS
