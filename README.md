@@ -43,7 +43,7 @@ npm install --save-dev snowpack
 
 ## Contributors Welcome!
 
-Interested in contributing? We'd love your help! Our [issue tracker](https://github.com/pikapkg/snowpack/issues) is always organized with high-proirity bugs, feature requests, and "help wanted!"/"good first issue" items. For other threads, check out our [Package Community](https://www.pika.dev/community) for general package troubleshooting and discussions.
+Interested in contributing? We'd love your help! Our [issue tracker](https://github.com/pikapkg/snowpack/issues) is always organized with high-proirity bugs, feature requests, and "help wanted!"/"good first issue" items. For other threads, check out our [Package Community](https://www.pika.dev/npm/snowpack/discuss) for general package troubleshooting and discussions.
 
 ```bash
 # Local Setup
