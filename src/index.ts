@@ -174,10 +174,8 @@ function getWebDependencyName(dep: string): string {
   return dep.replace(/\.m?js$/i, '');
 }
 
-export async function install(
-  installTargets: InstallTarget[],
-  {
-    isCleanInstall,
+export async function install(installTargets: InstallTarget[], installOptions: InstallOptions) {
+  const {
     destLoc,
     hasBrowserlistConfig,
     isExplicit,
@@ -190,24 +188,15 @@ export async function install(
     nomoduleOutput,
     externalPackages,
     dedupe,
-  }: InstallOptions,
-) {
+  } = installOptions;
   const knownNamedExports = {...namedExports};
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
     knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
-  }
-  if (installTargets.length === 0) {
-    logError('Nothing to install.');
-    return;
   }
   if (!fs.existsSync(path.join(cwd, 'node_modules'))) {
     logError('no "node_modules" directory exists. Did you run "npm install" first?');
     return;
   }
-  if (isCleanInstall) {
-    rimraf.sync(destLoc);
-  }
-
   const allInstallSpecifiers = new Set(installTargets.map(dep => dep.specifier));
   const depObject: {[targetName: string]: string} = {};
   const assetObject: {[targetName: string]: string} = {};
@@ -242,7 +231,6 @@ export async function install(
       return false;
     }
   }
-
   if (Object.keys(depObject).length === 0 && Object.keys(assetObject).length === 0) {
     logError(`No ESM dependencies found!`);
     console.log(
@@ -255,140 +243,138 @@ export async function install(
     return false;
   }
 
-  if (Object.keys(depObject).length > 0) {
-    const inputOptions = {
-      input: depObject,
-      external: externalPackages,
-      plugins: [
-        !isStrict &&
-          rollupPluginReplace({
-            'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
-          }),
-        rollupPluginNodeResolve({
-          mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(Boolean),
-          modulesOnly: isStrict, // Default: false
-          extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
-          // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
-          preferBuiltins: false, // Default: true
-          dedupe,
+  const inputOptions = {
+    input: depObject,
+    external: externalPackages,
+    plugins: [
+      !isStrict &&
+        rollupPluginReplace({
+          'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
         }),
-        !isStrict &&
-          rollupPluginJson({
-            preferConst: true,
-            indent: '  ',
-            compact: isOptimized,
-            namedExports: true,
-          }),
-        !isStrict &&
-          rollupPluginCommonjs({
-            extensions: ['.js', '.cjs'], // Default: [ '.js' ]
-            namedExports: knownNamedExports,
-          }),
-        !!isBabel &&
-          rollupPluginBabel({
-            compact: false,
-            babelrc: false,
-            configFile: false,
-            presets: [
-              [
-                babelPresetEnv,
-                {
-                  modules: false,
-                  targets: hasBrowserlistConfig
-                    ? undefined
-                    : '>0.75%, not ie 11, not UCAndroid >0, not OperaMini all',
-                },
-              ],
+      rollupPluginNodeResolve({
+        mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(Boolean),
+        modulesOnly: isStrict, // Default: false
+        extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
+        // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
+        preferBuiltins: false, // Default: true
+        dedupe,
+      }),
+      !isStrict &&
+        rollupPluginJson({
+          preferConst: true,
+          indent: '  ',
+          compact: isOptimized,
+          namedExports: true,
+        }),
+      !isStrict &&
+        rollupPluginCommonjs({
+          extensions: ['.js', '.cjs'], // Default: [ '.js' ]
+          namedExports: knownNamedExports,
+        }),
+      !!isBabel &&
+        rollupPluginBabel({
+          compact: false,
+          babelrc: false,
+          configFile: false,
+          presets: [
+            [
+              babelPresetEnv,
+              {
+                modules: false,
+                targets: hasBrowserlistConfig
+                  ? undefined
+                  : '>0.75%, not ie 11, not UCAndroid >0, not OperaMini all',
+              },
             ],
-          }),
-        !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
-        !!isOptimized && rollupPluginTerser(),
-      ],
-      onwarn: ((warning, warn) => {
-        if (warning.code === 'UNRESOLVED_IMPORT') {
-          logError(
-            `'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`,
+          ],
+        }),
+      !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
+      !!isOptimized && rollupPluginTerser(),
+    ],
+    onwarn: ((warning, warn) => {
+      if (warning.code === 'UNRESOLVED_IMPORT') {
+        logError(
+          `'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`,
+        );
+        if (isNodeBuiltin(warning.source)) {
+          console.log(
+            chalk.dim(
+              `  '${
+                warning.source
+              }' is a Node.js builtin module that won't exist on the web. You can find modern, web-ready packages at ${chalk.underline(
+                'https://www.pika.dev',
+              )}`,
+            ),
           );
-          if (isNodeBuiltin(warning.source)) {
-            console.log(
-              chalk.dim(
-                `  '${
-                  warning.source
-                }' is a Node.js builtin module that won't exist on the web. You can find modern, web-ready packages at ${chalk.underline(
-                  'https://www.pika.dev',
-                )}`,
-              ),
-            );
-          } else {
-            console.log(
-              chalk.dim(`  Make sure that the package is installed and that the file exists.`),
-            );
-          }
-          return;
+        } else {
+          console.log(
+            chalk.dim(`  Make sure that the package is installed and that the file exists.`),
+          );
         }
-        warn(warning);
-      }) as any,
-    };
-    const outputOptions = {
-      dir: destLoc,
-      format: 'esm' as 'esm',
-      sourcemap: sourceMap === undefined ? isOptimized : sourceMap,
-      exports: 'named' as 'named',
-      chunkFileNames: 'common/[name]-[hash].js',
-    };
+        return;
+      }
+      warn(warning);
+    }) as any,
+  };
+  const outputOptions = {
+    dir: destLoc,
+    format: 'esm' as 'esm',
+    sourcemap: sourceMap === undefined ? isOptimized : sourceMap,
+    exports: 'named' as 'named',
+    chunkFileNames: 'common/[name]-[hash].js',
+  };
+  if (Object.keys(depObject).length > 0) {
     const packageBundle = await rollup.rollup(inputOptions);
     await packageBundle.write(outputOptions);
-
-    if (nomodule) {
-      const nomoduleStart = Date.now();
-      function rollupResolutionHelper() {
-        return {
-          name: 'rename-import-plugin',
-          resolveId(source) {
-            // resolve from import map
-            if (importMap[source]) {
-              return importMap[source];
-            }
-            // resolve web_modules
-            if (source.includes('/web_modules/')) {
-              const suffix = source.split('/web_modules/')[1];
-              return {id: path.join(destLoc, suffix)};
-            }
-            // null means try to resolve as-is
-            return null;
-          },
-        };
-      }
-      try {
-        const noModuleBundle = await rollup.rollup({
-          input: nomodule,
-          inlineDynamicImports: true,
-          plugins: [...inputOptions.plugins, rollupResolutionHelper()],
-        });
-        await noModuleBundle.write({file: path.resolve(destLoc, nomoduleOutput), format: 'iife'});
-        const nomoduleEnd = Date.now() - nomoduleStart;
-        spinner.info(
-          `${chalk.bold(
-            'snowpack',
-          )} bundled your application for legacy browsers: ${nomoduleOutput} ${chalk.dim(
-            `[${(nomoduleEnd / 1000).toFixed(2)}s]`,
-          )}`,
-        );
-      } catch (err) {
-        spinner.warn(
-          `${chalk.bold('snowpack')} encountered an error bundling for legacy browsers: ${
-            err.message
-          }`,
-        );
-      }
-    }
-
-    fs.writeFileSync(
-      path.join(destLoc, 'import-map.json'),
-      JSON.stringify({imports: importMap}, undefined, 2),
-      {encoding: 'utf8'},
-    );
   }
+  if (nomodule) {
+    const nomoduleStart = Date.now();
+    function rollupResolutionHelper() {
+      return {
+        name: 'rename-import-plugin',
+        resolveId(source) {
+          // resolve from import map
+          if (importMap[source]) {
+            return importMap[source];
+          }
+          // resolve web_modules
+          if (source.includes('/web_modules/')) {
+            const suffix = source.split('/web_modules/')[1];
+            return {id: path.join(destLoc, suffix)};
+          }
+          // null means try to resolve as-is
+          return null;
+        },
+      };
+    }
+    try {
+      const noModuleBundle = await rollup.rollup({
+        input: nomodule,
+        inlineDynamicImports: true,
+        plugins: [...inputOptions.plugins, rollupResolutionHelper()],
+      });
+      await noModuleBundle.write({file: path.resolve(destLoc, nomoduleOutput), format: 'iife'});
+      const nomoduleEnd = Date.now() - nomoduleStart;
+      spinner.info(
+        `${chalk.bold(
+          'snowpack',
+        )} bundled your application for legacy browsers: ${nomoduleOutput} ${chalk.dim(
+          `[${(nomoduleEnd / 1000).toFixed(2)}s]`,
+        )}`,
+      );
+    } catch (err) {
+      spinner.warn(
+        `${chalk.bold('snowpack')} encountered an error bundling for legacy browsers: ${
+          err.message
+        }`,
+      );
+    }
+  }
+  fs.writeFileSync(
+    path.join(destLoc, 'import-map.json'),
+    JSON.stringify({imports: importMap}, undefined, 2),
+    {encoding: 'utf8'},
+  );
   Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
     mkdirp.sync(path.dirname(`${destLoc}/${assetName}`));
     fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
@@ -435,6 +421,11 @@ export async function cli(args: string[]) {
     ...Object.keys(pkgManifest.peerDependencies || {}),
     ...Object.keys(pkgManifest.devDependencies || {}),
   ];
+  const hasBrowserlistConfig =
+    !!pkgManifest.browserslist ||
+    !!process.env.BROWSERSLIST ||
+    fs.existsSync(path.join(cwd, '.browserslistrc')) ||
+    fs.existsSync(path.join(cwd, 'browserslist'));
 
   let isExplicit = false;
   const installTargets = [];
@@ -460,17 +451,17 @@ export async function cli(args: string[]) {
   if (!webDependencies && !include) {
     installTargets.push(...scanDepList(implicitDependencies, cwd));
   }
-
-  const hasBrowserlistConfig =
-    !!pkgManifest.browserslist ||
-    !!process.env.BROWSERSLIST ||
-    fs.existsSync(path.join(cwd, '.browserslistrc')) ||
-    fs.existsSync(path.join(cwd, 'browserslist'));
+  if (installTargets.length === 0) {
+    logError('Nothing to install.');
+    return;
+  }
+  if (clean) {
+    rimraf.sync(destLoc);
+  }
 
   spinner.start();
   const startTime = Date.now();
-  const result = await install(installTargets, {
-    isCleanInstall: clean,
+  const installOptions = {
     destLoc,
     namedExports,
     isExplicit,
@@ -483,8 +474,8 @@ export async function cli(args: string[]) {
     hasBrowserlistConfig,
     externalPackages,
     dedupe: dedupe || [],
-  });
-
+  };
+  const result = await install(installTargets, installOptions);
   if (result) {
     spinner.succeed(
       chalk.bold(`snowpack`) +
