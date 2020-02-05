@@ -1,0 +1,22 @@
+{
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+  },
+  "snowpack": {
+    "webDependencies": [
+      "react",
+      "react-dom",
+      "redux",
+      "react-redux",
+      "react-router"
+    ]
+  },
+  "dependencies": {
+    "formik": "^2.1.3",
+    "react": "npm:@reactesm/react@^0.1.0",
+    "react-dom": "npm:@reactesm/react-dom@^0.1.1",
+    "react-redux": "^7.1.3",
+    "react-router": "^5.1.2",
+    "redux": "^4.0.5"
+  }
+}

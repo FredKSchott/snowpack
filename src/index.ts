@@ -18,6 +18,7 @@ import rollupPluginReplace from '@rollup/plugin-replace';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
+import {rollupPluginDependencyInfo} from './rollup-plugin-dependency-info.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 
 export interface DependencyLoc {
@@ -296,6 +297,7 @@ export async function install(installTargets: InstallTarget[], installOptions: I
         }),
       !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
       !!isOptimized && rollupPluginTerser(),
+      rollupPluginDependencyInfo(),
     ],
     onwarn: ((warning, warn) => {
       if (warning.code === 'UNRESOLVED_IMPORT') {
