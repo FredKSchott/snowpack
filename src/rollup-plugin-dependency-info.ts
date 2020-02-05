@@ -24,7 +24,7 @@ export function rollupPluginDependencyInfo(cb: (dependencyInfo: DependencyInfoOu
   };
 
   const compareDependencies = (files: string[], type: DependencyType) => {
-    files.forEach(file => {
+    for (let file of files) {
       const filePath = path.join(outputDir, file);
       const {size} = fs.statSync(filePath);
       output[type][file] = {
@@ -36,7 +36,7 @@ export function rollupPluginDependencyInfo(cb: (dependencyInfo: DependencyInfoOu
         const delta = (size - cache[file]) / 1000;
         output[type][file].delta = delta;
       }
-    });
+    }
   };
 
   return {
