@@ -121,15 +121,27 @@ By default, Snowpack will transpile using the recommended target string shown ab
 
 ### Run After Every Install
 
+#### Yarn 
+
+You can optionally add "snowpack" as a `"prepare"` script to your `package.json` and yarn will automatically run it after every install. This is recommended so that new dependencies are automatically included in your `web_modules/` directory immediately.
+
+``` js
+  /* package.json */
+  "scripts": {
+    "prepare": "snowpack"
+  }
+```
+
+#### npm
+
+You can optionally add "snowpack" as a `"postshrinkwrap"` script to your `package.json` and npm will automatically run it after every install. This is recommended so that new dependencies are automatically included in your `web_modules/` directory immediately.
+
 ``` js
   /* package.json */
   "scripts": {
     "postshrinkwrap": "snowpack"
   }
 ```
-
-You can optionally add "snowpack" as a `"postshrinkwrap"` script to your `package.json` and npm/yarn will automatically run it after every install. This is recommended so that new dependencies are automatically included in your `web_modules/` directory immediately.
-
 
 
 ### Importing CSS
