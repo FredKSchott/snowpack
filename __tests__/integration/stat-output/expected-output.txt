@@ -1,6 +1,6 @@
 - snowpack installing...
 ✔ snowpack installed: cached-constructors-x, has-working-bind-x.
-Direct dependences: web_modules/
+Direct dependencies: web_modules/
 ├─ cached-constructors-x.js []
 └─ has-working-bind-x.js []
 Shared dependencies: web_modules/common/
