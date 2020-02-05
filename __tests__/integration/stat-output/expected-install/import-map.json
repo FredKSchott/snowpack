@@ -1,9 +1,9 @@
 {
   "imports": {
-    "react": "./react.js",
-    "react-dom": "./react-dom.js",
-    "redux": "./redux.js",
-    "react-redux": "./react-redux.js",
-    "react-router": "./react-router.js"
+    "react": "./react.js?rev=XXXXXXXXXX",
+    "react-dom": "./react-dom.js?rev=XXXXXXXXXX",
+    "redux": "./redux.js?rev=XXXXXXXXXX",
+    "react-redux": "./react-redux.js?rev=XXXXXXXXXX",
+    "react-router": "./react-router.js?rev=XXXXXXXXXX"
   }
 }
