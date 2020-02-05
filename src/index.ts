@@ -426,11 +426,6 @@ export async function cli(args: string[]) {
   let isExplicit = false;
   const installTargets = [];
 
-  if (pkgManifest['@pika/web']) {
-    console.log(
-      '[WARN] Update package.json "@pika/web" configuration to use "snowpack" configuration name.',
-    );
-  }
   if (webDependencies) {
     isExplicit = true;
     installTargets.push(...scanDepList(webDependencies, cwd));
