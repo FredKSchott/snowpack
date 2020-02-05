@@ -9,7 +9,7 @@ function stripBenchmark(stdout) {
   return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
 }
 function stripWhitespace(stdout) {
-  return stdout.replace(/\s+$/gm, '');
+  return stdout.replace(/((\s+$)|((\\r\\n)|(\\n)))/gm, '');
 }
 
 beforeAll(() => {
@@ -52,10 +52,6 @@ for (const testName of readdirSync(__dirname)) {
     res.diffSet.forEach(function(entry) {
       if (entry.type1 !== 'file') {
         // NOTE: We only compare files so that we give the test runner a more detailed diff.
-        return;
-      }
-      // NOTE: Skip source map on Windows, because generated source map has different newline code (CRLF).
-      if (process.platform === 'win32' && entry.name1.endsWith('.js.map')) {
         return;
       }
       return assert.strictEqual(
