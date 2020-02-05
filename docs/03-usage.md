@@ -28,7 +28,7 @@ Remember to re-run Snowpack every time you import an new dependency.
 
 ### Whitelisting Dependencies
 
-```js
+```json
   /* package.json */
   "snowpack": {
     "webDependencies": [
@@ -108,15 +108,31 @@ Snowpack can be configured within `package.json` under the `snowpack` namespace:
 }
 ```
 
+#### Using snowpack.config.json
+
+Alternately, you may configure Snowpack with a `snowpack.config.json` file in the same directory as `package.json`. You may prefer this option if you’d like to keep your `package.json` tidier. Its structure is identical to `package.json`:
+
+```json
+{
+  "webDependencies": [
+    "preact",
+  ],
+  "options": {
+    "optimize": false
+  }
+}
+```
+
 #### Using snowpack.config.js
 
-Alternately, you may configure Snowpack with a `snowpack.config.js` file in the same directory as `package.json`. You may prefer this option if you want to generate parts of your configuration with Node.js, or if you’d simply like to keep your `package.json` cleaner.
+To generate parts of your configuration with Node.js, you may use a `snowpack.config.js` instead:
 
 ```js
 module.exports = {
   webDependencies: [...myWebDependenciesGeneratorFunction()],
   options: {
-    optimize: process.env.NODE_ENV === "production"
+    optimize: process.env.NODE_ENV === "production",
+    strict: true
   }
 };
 ```

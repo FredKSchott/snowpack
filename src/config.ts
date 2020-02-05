@@ -18,7 +18,7 @@ export interface SnowpackConfig {
     optimize?: boolean;
     remotePackage?: string[];
     remoteUrl?: string;
-    sourceMap?: boolean;
+    sourceMap?: boolean | 'inline';
     strict?: boolean;
   };
   webDependencies?: string[];
@@ -63,7 +63,7 @@ const configSchema = {
         optimize: {type: 'boolean'},
         remotePackage: {type: 'array', items: {type: 'string'}},
         remoteUrl: {type: 'string'},
-        sourceMap: {type: 'boolean'},
+        sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
         strict: {type: 'boolean'},
       },
     },
@@ -82,8 +82,9 @@ export default function loadConfig(cliFlags?: SnowpackConfig) {
 
   // user has no config
   if (!result || !result.config || result.isEmpty) {
+    // if CLI flags present, apply those as overrides
     return {
-      config: cliFlags ? merge(defaultConfig, cliFlags) : defaultConfig,
+      config: normalizeDest(cliFlags ? merge(defaultConfig, cliFlags) : defaultConfig),
       errors: [],
     };
   }
@@ -99,9 +100,15 @@ export default function loadConfig(cliFlags?: SnowpackConfig) {
   // if valid, apply config over defaults
   const mergedConfig = merge(defaultConfig, config);
 
-  // if CLI flags present, return those as overrides
+  // if CLI flags present, apply those as overrides
   return {
-    config: cliFlags ? merge(mergedConfig, cliFlags) : mergedConfig,
+    config: normalizeDest(cliFlags ? merge(mergedConfig, cliFlags) : mergedConfig),
     errors: validation.errors.map(msg => `${path.basename(result.filepath)}: ${msg.toString()}`),
   };
+}
+
+// resolve --dest relative to cwd
+function normalizeDest(config: SnowpackConfig) {
+  config.options.dest = path.resolve(process.cwd(), config.options.dest);
+  return config;
 }

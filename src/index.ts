@@ -177,7 +177,7 @@ export async function install(
   const {
     dedupe,
     namedExports,
-    options: {externalPackage, strict, babel, dest, nomodule, optimize, sourceMap, nomoduleOutput},
+    options: {babel, dest, externalPackage, nomodule, nomoduleOutput, optimize, sourceMap, strict},
   } = config;
 
   const knownNamedExports = {...namedExports};
@@ -345,10 +345,7 @@ export async function install(
         inlineDynamicImports: true,
         plugins: [...inputOptions.plugins, rollupResolutionHelper()],
       });
-      await noModuleBundle.write({
-        file: path.resolve(dest, nomoduleOutput),
-        format: 'iife',
-      });
+      await noModuleBundle.write({file: path.resolve(dest, nomoduleOutput), format: 'iife'});
       const nomoduleEnd = Date.now() - nomoduleStart;
       spinner.info(
         `${chalk.bold(
@@ -378,27 +375,28 @@ export async function install(
 }
 
 export async function cli(args: string[]) {
-  // Load config
+  // parse CLI flags
   const cliFlags = yargs(args, {array: ['exclude', 'externalPackage']});
+
+  // if printing help, stop here
+  if (cliFlags.help) {
+    printHelp();
+    process.exit(0);
+  }
+
+  // load config
   const {config, errors} = loadConfig({options: cliFlags as SnowpackConfig['options']});
 
+  // handle config errors (if any)
   if (Array.isArray(errors) && errors.length) {
     errors.forEach(logError);
     process.exit(0);
   }
 
   const {
-    options: {clean, include, dest, exclude},
+    options: {clean, dest, exclude, include},
     webDependencies,
   } = config;
-
-  // resolve --dest relative to cwd
-  config.options.dest = path.resolve(cwd, config.options.dest);
-
-  if (cliFlags.help) {
-    printHelp();
-    process.exit(0);
-  }
 
   let pkgManifest: any;
   try {
