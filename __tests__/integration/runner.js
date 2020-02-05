@@ -11,6 +11,9 @@ function stripBenchmark(stdout) {
 function stripWhitespace(stdout) {
   return stdout.replace(/\s+$/gm, '');
 }
+function stripRev(code) {
+  return code.replace(/\?rev=\w+/gm, '?rev=XXXXXXXXXX');
+}
 
 beforeAll(() => {
   // Needed so that ora (spinner) doesn't use platform-specific characters
@@ -61,8 +64,12 @@ for (const testName of readdirSync(__dirname)) {
         return;
       }
       return assert.strictEqual(
-        stripWhitespace(readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'})),
-        stripWhitespace(readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'})),
+        stripWhitespace(
+          stripRev(readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'})),
+        ),
+        stripWhitespace(
+          stripRev(readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'})),
+        ),
       );
     });
   });

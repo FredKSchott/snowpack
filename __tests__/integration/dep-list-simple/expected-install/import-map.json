@@ -1,5 +1,5 @@
 {
   "imports": {
-    "async": "./async.js"
+    "async": "./async.js?rev=XXXXXXXXXX"
   }
 }
