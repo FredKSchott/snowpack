@@ -90,8 +90,7 @@ function formatDependencyInfoAnalysis(): string {
     files.map((file, index) => {
       const {fileName, size, delta} = file;
       let fileInfo = `${index >= files.length - 1 ? '└─' : '├─'} ${fileName} [${size / 1000} KB`;
-      fileInfo +=
-        delta !== 0 ? `,  Δ ${delta > 0 ? '+' : ''}${Math.round(delta * 100) / 100} KB` : '';
+      fileInfo += !!delta ? `,  Δ ${delta > 0 ? '+' : ''}${Math.round(delta * 100) / 100} KB` : '';
       fileInfo += ']';
       return fileInfo;
     });
