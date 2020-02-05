@@ -378,7 +378,7 @@ export async function install(
 export async function cli(args: string[]) {
   // Load config
   const cliFlags = yargs(args, {array: ['exclude', 'externalPackage']});
-  const {config, errors} = await loadConfig({options: cliFlags as SnowpackConfig['options']});
+  const {config, errors} = loadConfig({options: cliFlags as SnowpackConfig['options']});
 
   if (Array.isArray(errors) && errors.length) {
     errors.forEach(logError);

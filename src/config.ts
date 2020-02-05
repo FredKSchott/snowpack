@@ -71,7 +71,7 @@ const configSchema = {
   },
 };
 
-export default async function loadConfig(cliFlags?: SnowpackConfig) {
+export default function loadConfig(cliFlags?: SnowpackConfig) {
   const explorerSync = cosmiconfigSync('snowpack');
   const result = explorerSync.search(); // search for snowpack config
 
