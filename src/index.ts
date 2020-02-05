@@ -27,7 +27,6 @@ export interface DependencyLoc {
 export interface InstallOptions {
   destLoc: string;
   include?: string;
-  isCleanInstall?: boolean;
   isStrict?: boolean;
   isOptimized?: boolean;
   isBabel?: boolean;
