@@ -174,7 +174,13 @@ export async function install(
   {hasBrowserlistConfig, isExplicit}: InstallOptions,
   config: SnowpackConfig,
 ) {
-  const knownNamedExports = {...config.namedExports};
+  const {
+    dedupe,
+    namedExports,
+    options: {externalPackage, strict, babel, dest, nomodule, optimize, sourceMap, nomoduleOutput},
+  } = config;
+
+  const knownNamedExports = {...namedExports};
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
     knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
   }
@@ -231,38 +237,33 @@ export async function install(
 
   const inputOptions = {
     input: depObject,
-    external: config.options.externalPackage,
+    external: externalPackage,
     plugins: [
-      !config.options.strict &&
+      !strict &&
         rollupPluginReplace({
-          'process.env.NODE_ENV': config.options.optimize ? '"production"' : '"development"',
+          'process.env.NODE_ENV': optimize ? '"production"' : '"development"',
         }),
       rollupPluginNodeResolve({
-        mainFields: [
-          'browser:module',
-          'module',
-          'browser',
-          !config.options.strict && 'main',
-        ].filter(Boolean),
-        modulesOnly: config.options.strict, // Default: false
+        mainFields: ['browser:module', 'module', 'browser', !strict && 'main'].filter(Boolean),
+        modulesOnly: strict, // Default: false
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: false, // Default: true
-        dedupe: config.dedupe,
+        dedupe,
       }),
-      !config.options.strict &&
+      !strict &&
         rollupPluginJson({
           preferConst: true,
           indent: '  ',
-          compact: config.options.optimize,
+          compact: optimize,
           namedExports: true,
         }),
-      !config.options.strict &&
+      !strict &&
         rollupPluginCommonjs({
           extensions: ['.js', '.cjs'], // Default: [ '.js' ]
           namedExports: knownNamedExports,
         }),
-      !!config.options.babel &&
+      !!babel &&
         rollupPluginBabel({
           compact: false,
           babelrc: false,
@@ -279,8 +280,8 @@ export async function install(
             ],
           ],
         }),
-      !!config.options.optimize && rollupPluginTreeshakeInputs(installTargets),
-      !!config.options.optimize && rollupPluginTerser(),
+      !!optimize && rollupPluginTreeshakeInputs(installTargets),
+      !!optimize && rollupPluginTerser(),
     ],
     onwarn: ((warning, warn) => {
       if (warning.code === 'UNRESOLVED_IMPORT') {
@@ -308,10 +309,9 @@ export async function install(
     }) as any,
   };
   const outputOptions = {
-    dir: config.options.dest,
+    dir: dest,
     format: 'esm' as 'esm',
-    sourcemap:
-      config.options.sourceMap === undefined ? config.options.optimize : config.options.sourceMap,
+    sourcemap: sourceMap === undefined ? optimize : sourceMap,
     exports: 'named' as 'named',
     chunkFileNames: 'common/[name]-[hash].js',
   };
@@ -319,7 +319,7 @@ export async function install(
     const packageBundle = await rollup.rollup(inputOptions);
     await packageBundle.write(outputOptions);
   }
-  if (config.options.nomodule) {
+  if (nomodule) {
     const nomoduleStart = Date.now();
     function rollupResolutionHelper() {
       return {
@@ -332,7 +332,7 @@ export async function install(
           // resolve web_modules
           if (source.includes('/web_modules/')) {
             const suffix = source.split('/web_modules/')[1];
-            return {id: path.join(config.options.dest, suffix)};
+            return {id: path.join(dest, suffix)};
           }
           // null means try to resolve as-is
           return null;
@@ -341,19 +341,21 @@ export async function install(
     }
     try {
       const noModuleBundle = await rollup.rollup({
-        input: config.options.nomodule,
+        input: nomodule,
         inlineDynamicImports: true,
         plugins: [...inputOptions.plugins, rollupResolutionHelper()],
       });
       await noModuleBundle.write({
-        file: path.resolve(config.options.dest, config.options.nomoduleOutput),
+        file: path.resolve(dest, nomoduleOutput),
         format: 'iife',
       });
       const nomoduleEnd = Date.now() - nomoduleStart;
       spinner.info(
-        `${chalk.bold('snowpack')} bundled your application for legacy browsers: ${
-          config.options.nomoduleOutput
-        } ${chalk.dim(`[${(nomoduleEnd / 1000).toFixed(2)}s]`)}`,
+        `${chalk.bold(
+          'snowpack',
+        )} bundled your application for legacy browsers: ${nomoduleOutput} ${chalk.dim(
+          `[${(nomoduleEnd / 1000).toFixed(2)}s]`,
+        )}`,
       );
     } catch (err) {
       spinner.warn(
@@ -364,13 +366,13 @@ export async function install(
     }
   }
   fs.writeFileSync(
-    path.join(config.options.dest, 'import-map.json'),
+    path.join(dest, 'import-map.json'),
     JSON.stringify({imports: importMap}, undefined, 2),
     {encoding: 'utf8'},
   );
   Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
-    mkdirp.sync(path.dirname(`${config.options.dest}/${assetName}`));
-    fs.copyFileSync(assetLoc, `${config.options.dest}/${assetName}`);
+    mkdirp.sync(path.dirname(`${dest}/${assetName}`));
+    fs.copyFileSync(assetLoc, `${dest}/${assetName}`);
   });
   return true;
 }
@@ -385,6 +387,12 @@ export async function cli(args: string[]) {
     process.exit(0);
   }
 
+  const {
+    options: {clean, include, dest, exclude},
+    webDependencies,
+  } = config;
+
+  // resolve --dest relative to cwd
   config.options.dest = path.resolve(cwd, config.options.dest);
 
   if (cliFlags.help) {
@@ -423,29 +431,23 @@ export async function cli(args: string[]) {
       '[WARN] Update package.json "@pika/web" configuration to use "snowpack" configuration name.',
     );
   }
-  if (config.webDependencies) {
+  if (webDependencies) {
     isExplicit = true;
-    installTargets.push(...scanDepList(config.webDependencies, cwd));
+    installTargets.push(...scanDepList(webDependencies, cwd));
   }
-  if (config.options.include) {
+  if (include) {
     isExplicit = true;
-    installTargets.push(
-      ...scanImports({
-        include: config.options.include,
-        exclude: config.options.exclude,
-        knownDependencies: allDependencies,
-      }),
-    );
+    installTargets.push(...scanImports({include, exclude, knownDependencies: allDependencies}));
   }
-  if (!config.webDependencies && !config.options.include) {
+  if (!webDependencies && !include) {
     installTargets.push(...scanDepList(implicitDependencies, cwd));
   }
   if (installTargets.length === 0) {
     logError('Nothing to install.');
     return;
   }
-  if (config.options.clean) {
-    rimraf.sync(config.options.dest);
+  if (clean) {
+    rimraf.sync(dest);
   }
 
   spinner.start();

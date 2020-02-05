@@ -72,58 +72,45 @@ npx snowpack --help
 
 ### Configuration
 
-Snowpack can be configured with a `.snowpackrc` file. This allows you to run the `snowpack` CLI command with no flags while still respecting your options.
+All CLI flags can optionally be specified in a configuration file, along with additional options.
 
 #### Default config
 
-You can configure Snowpack using a `.snowpackrc` file. Place this file in the same directory as your `package.json`:
+Snowpack can be configured within `package.json` under the `snowpack` namespace:
 
 ```json
 {
-  "webDependencies": [
-    "htm",
-    "preact",
-    "preact/hooks", // A package within a package
-    "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
-    "bulma/css/bulma.css" // A non-JS static asset (supports globs)
-  ],
-  "options": {
-    "dest": "web_modules",
-    "clean": false,
-    "optimize": false,
-    "babel": false,
-    "include": "src/**/*.{js,jsx,ts,tsx}",
-    "exclude": ["**/__tests__/*", "**/*.@(spec\|test).@(js\|mjs)"],
-    "strict": false,
-    "sourceMap": true,
-    "remotePackage": [],
-    "remoteUrl": "https://cdn.pika.dev",
-    "nomodule": "src/index.js",
-    "nomoduleOutput": "app.nomodule.js"
-  },
-  "dedupe": ["lit-element", "lit-html"]
-}
-```
-
-#### Using package.json
-
-Alternately, you may configure Snowpack within `package.json` under the `snowpack` namespace. You may prefer this option if you don’t like additional config files in your project.
-
-```json
   "dependencies": { "htm": "^1.0.0", "preact": "^8.0.0", /* ... */ },
   "snowpack": {
     "webDependencies": [
-      …
+      "htm",
+      "preact",
+      "preact/hooks", // A package within a package
+      "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
+      "bulma/css/bulma.css" // A non-JS static asset (supports globs)
     ],
     "options": {
-      "optimize": true
-    }
+      "dest": "web_modules",
+      "clean": false,
+      "optimize": false,
+      "babel": false,
+      "include": "src/**/*.{js,jsx,ts,tsx}",
+      "exclude": ["**/__tests__/*", "**/*.@(spec\|test).@(js\|mjs)"],
+      "strict": false,
+      "sourceMap": true,
+      "remotePackage": [],
+      "remoteUrl": "https://cdn.pika.dev",
+      "nomodule": "src/index.js",
+      "nomoduleOutput": "app.nomodule.js"
+    },
+    "dedupe": ["lit-element", "lit-html"]
   }
+}
 ```
 
 #### Using snowpack.config.js
 
-If you’d like to programatically configure Snowpack with Node.js, use a `snowpack.config.js` file instead (not needed by default; you’ll usually know when you need to do this):
+Alternately, you may configure Snowpack with a `snowpack.config.js` file in the same directory as `package.json`. You may prefer this option if you want to generate parts of your configuration with Node.js, or if you’d simply like to keep your `package.json` cleaner.
 
 ```js
 module.exports = {

@@ -72,7 +72,12 @@ const configSchema = {
 };
 
 export default function loadConfig(cliFlags?: SnowpackConfig) {
-  const explorerSync = cosmiconfigSync('snowpack');
+  const explorerSync = cosmiconfigSync('snowpack', {
+    // only support/document these 3 types of config:
+    searchPlaces: ['package.json', 'snowpack.config.js', 'snowpack.config.json'],
+    // don't support crawling up the folder tree:
+    stopDir: path.resolve(process.cwd(), '../'),
+  });
   const result = explorerSync.search(); // search for snowpack config
 
   // user has no config
