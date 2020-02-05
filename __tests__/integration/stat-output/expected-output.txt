@@ -1,0 +1,10 @@
+- snowpack installing...
+✔ snowpack installed: react, react-dom, redux, react-redux, react-router.
+Direct dependences: web_modules/
+├─ react.js [13.441 KB]
+├─ react-dom.js [108.82 KB]
+├─ redux.js [24.603 KB]
+├─ react-redux.js [47.222 KB]
+└─ react-router.js [50.921 KB]
+Shared dependencies: web_modules/common/
+└─ hoist-non-react-statics.cjs-1a03a3d9.js [43.666 KB]

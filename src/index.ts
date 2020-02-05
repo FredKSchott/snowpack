@@ -97,8 +97,10 @@ function formatDependencyInfoAnalysis(): string {
     });
   output += 'Direct dependences: web_modules/\n';
   output += formatFileInfo(Object.values(direct)).join('\n');
-  output += 'Shared dependencies: web_modules/common/\n';
-  output += formatFileInfo(Object.values(shared)).join('\n');
+  if (Object.values(shared).length > 0) {
+    output += '\nShared dependencies: web_modules/common/\n';
+    output += formatFileInfo(Object.values(shared)).join('\n');
+  }
   return output;
 }
 
