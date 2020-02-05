@@ -5,19 +5,12 @@
   },
   "snowpack": {
     "webDependencies": [
-      "react",
-      "react-dom",
-      "redux",
-      "react-redux",
-      "react-router"
+      "cached-constructors-x",
+      "has-working-bind-x"
     ]
   },
   "dependencies": {
-    "formik": "^2.1.3",
-    "react": "npm:@reactesm/react@^0.1.0",
-    "react-dom": "npm:@reactesm/react-dom@^0.1.1",
-    "react-redux": "^7.1.3",
-    "react-router": "^5.1.2",
-    "redux": "^4.0.5"
+    "cached-constructors-x": "^2.2.1",
+    "has-working-bind-x": "^1.0.1"
   }
 }

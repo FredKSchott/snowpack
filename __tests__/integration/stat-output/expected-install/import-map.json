@@ -1,9 +1,6 @@
 {
   "imports": {
-    "react": "./react.js?rev=XXXXXXXXXX",
-    "react-dom": "./react-dom.js?rev=XXXXXXXXXX",
-    "redux": "./redux.js?rev=XXXXXXXXXX",
-    "react-redux": "./react-redux.js?rev=XXXXXXXXXX",
-    "react-router": "./react-router.js?rev=XXXXXXXXXX"
+    "cached-constructors-x": "./cached-constructors-x.js?rev=XXXXXXXXXX",
+    "has-working-bind-x": "./has-working-bind-x.js?rev=XXXXXXXXXX"
   }
 }

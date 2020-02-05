@@ -1,10 +1,7 @@
 - snowpack installing...
-✔ snowpack installed: react, react-dom, redux, react-redux, react-router.
+✔ snowpack installed: cached-constructors-x, has-working-bind-x.
 Direct dependences: web_modules/
-├─ react.js [13.441 KB]
-├─ react-dom.js [108.82 KB]
-├─ redux.js [24.603 KB]
-├─ react-redux.js [47.222 KB]
-└─ react-router.js [50.921 KB]
+├─ cached-constructors-x.js [1.643 KB]
+└─ has-working-bind-x.js [1.314 KB]
 Shared dependencies: web_modules/common/
-└─ hoist-non-react-statics.cjs-1a03a3d9.js [43.666 KB]
+└─ noop-x.esm-e72ec11e.js [0.141 KB]
