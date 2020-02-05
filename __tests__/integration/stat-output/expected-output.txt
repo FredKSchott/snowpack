@@ -1,7 +1,7 @@
 - snowpack installing...
 ✔ snowpack installed: cached-constructors-x, has-working-bind-x.
 Direct dependences: web_modules/
-├─ cached-constructors-x.js [1.643 KB]
-└─ has-working-bind-x.js [1.314 KB]
+├─ cached-constructors-x.js []
+└─ has-working-bind-x.js []
 Shared dependencies: web_modules/common/
-└─ noop-x.esm-e72ec11e.js [0.141 KB]
+└─ noop-x.esm-e72ec11e.js []

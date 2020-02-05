@@ -8,6 +8,9 @@ const dircompare = require('dir-compare');
 function stripBenchmark(stdout) {
   return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
 }
+function stripStats(stdout) {
+  return stdout.replace(/\[\d+\.\d+\sKB((,?)\s[\+\-]\d+\.\d+\sKB)?\]/g, '[$2]');
+}
 function stripWhitespace(stdout) {
   return stdout.replace(/\s+$/gm, '');
 }
@@ -39,7 +42,10 @@ for (const testName of readdirSync(__dirname)) {
     // Test Output
     const expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
     const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
-    assert.strictEqual(stripWhitespace(stripBenchmark(all)), stripWhitespace(expectedOutput));
+    assert.strictEqual(
+      stripWhitespace(stripBenchmark(stripStats(all))),
+      stripWhitespace(expectedOutput),
+    );
 
     const expectedWebDependenciesLoc = path.join(__dirname, testName, 'expected-install');
     const actualWebDependenciesLoc = path.join(__dirname, testName, 'web_modules');
