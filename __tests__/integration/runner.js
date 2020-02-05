@@ -9,7 +9,7 @@ function stripBenchmark(stdout) {
   return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
 }
 function stripWhitespace(stdout) {
-  return stdout.replace(/\s+$/gm, '');
+  return stdout.replace(/((\s+$)|((\\r\\n)|(\\n)))/gm, '');
 }
 function stripRev(code) {
   return code.replace(/\?rev=\w+/gm, '?rev=XXXXXXXXXX');
@@ -22,12 +22,6 @@ beforeAll(() => {
 
 for (const testName of readdirSync(__dirname)) {
   if (testName === 'node_modules' || testName.includes('.')) {
-    continue;
-  }
-  if (testName === 'nomodule' && process.platform === 'win32') {
-    test.skip(testName, () => {
-      throw new Error('TODO: Get nomodule working on windows.');
-    });
     continue;
   }
 
