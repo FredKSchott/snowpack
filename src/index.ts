@@ -89,12 +89,14 @@ function formatDependencyInfoAnalysis(): string {
   const formatFileInfo = files =>
     files.map((file, index) => {
       const {fileName, size, delta} = file;
-      let fileInfo = `${index >= files.length - 1 ? '└─' : '├─'} ${fileName} [${size / 1000} KB`;
+      let fileInfo = `${index >= files.length - 1 ? '└─' : '├─'} ${fileName} [${Math.round(
+        (size / 1000) * 100,
+      ) / 100} KB`;
       fileInfo += !!delta ? `,  Δ ${delta > 0 ? '+' : ''}${Math.round(delta * 100) / 100} KB` : '';
       fileInfo += ']';
       return fileInfo;
     });
-  output += 'Direct dependences: web_modules/\n';
+  output += 'Direct dependencies: web_modules/\n';
   output += formatFileInfo(Object.values(direct)).join('\n');
   if (Object.values(shared).length > 0) {
     output += '\nShared dependencies: web_modules/common/\n';

@@ -17,6 +17,14 @@ function stripWhitespace(stdout) {
 function stripRev(code) {
   return code.replace(/\?rev=\w+/gm, '?rev=XXXXXXXXXX');
 }
+function stripChunkHashe(stdout) {
+  const [directDependencies, sharedDependencies] = stdout.split('web_modules/common');
+  return sharedDependencies
+    ? directDependencies.concat(
+        `web_modules/common${sharedDependencies.replace(/\-[a-z0-9]+(\.[a-z]*\s\[)/g, '$1')}`,
+      )
+    : stdout;
+}
 
 beforeAll(() => {
   // Needed so that ora (spinner) doesn't use platform-specific characters
@@ -43,7 +51,7 @@ for (const testName of readdirSync(__dirname)) {
     const expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
     const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
     assert.strictEqual(
-      stripWhitespace(stripBenchmark(stripStats(all))),
+      stripWhitespace(stripBenchmark(stripChunkHashe(stripStats(all)))),
       stripWhitespace(expectedOutput),
     );
 
