@@ -73,6 +73,7 @@ for (const testName of readdirSync(__dirname)) {
     });
     // If any diffs are detected, we'll assert the difference so that we get nice output.
     res.diffSet.forEach(function(entry) {
+      console.log(entry);
       if (entry.type1 !== 'file') {
         // NOTE: We only compare files so that we give the test runner a more detailed diff.
         return;
