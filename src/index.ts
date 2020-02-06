@@ -18,7 +18,10 @@ import rollupPluginReplace from '@rollup/plugin-replace';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
-import {rollupPluginDependencyInfo, DependencyInfoOutput} from './rollup-plugin-dependency-info.js';
+import {
+  rollupPluginDependencyStats,
+  DependencyStatsOutput,
+} from './rollup-plugin-dependency-info.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 
 export interface DependencyLoc {
@@ -47,7 +50,7 @@ const ALWAYS_SHOW_ERRORS = new Set(['react', 'react-dom']);
 const cwd = process.cwd();
 const banner = chalk.bold(`snowpack`) + ` installing... `;
 const installResults = [];
-let dependencyInfo: DependencyInfoOutput = null;
+let dependencyStats: DependencyStatsOutput = null;
 let spinner = ora(banner);
 let spinnerHasError = false;
 
@@ -83,24 +86,45 @@ function formatInstallResults(skipFailures): string {
     .join(', ');
 }
 
-function formatDependencyInfoAnalysis(): string {
+function formatSize(size) {
+  const kb = Math.round((size / 1000) * 100) / 100;
+  let color;
+  if (kb < 15) {
+    color = 'green';
+  } else if (kb < 30) {
+    color = 'yellow';
+  } else {
+    color = 'red';
+  }
+  return chalk[color](`${kb} KB`);
+}
+
+function formatDelta(delta) {
+  const kb = Math.round(delta * 100) / 100;
+  const color = delta > 0 ? 'red' : 'green';
+  return `Δ ${chalk[color](`${delta > 0 ? '+' : ''}${kb}`)} KB`;
+}
+
+function formatFileInfo(file, lastFile) {
+  const lineGlyph = lastFile ? '└─' : '├─';
+  const lineName = chalk.cyan(file.fileName);
+  const lineSize = formatSize(file.size);
+  const lineDelta = file.delta ? `,  ${formatDelta(file.delta)}` : '';
+  return `${lineGlyph} ${lineName} [${lineSize}${lineDelta}]`;
+}
+
+function formatFiles(files, title) {
+  return `${title}
+${files.map((file, index) => formatFileInfo(file, index >= files.length - 1)).join('\n')}`;
+}
+
+function formatDependencyStats(): string {
   let output = '';
-  const {direct, shared} = dependencyInfo;
-  const formatFileInfo = files =>
-    files.map((file, index) => {
-      const {fileName, size, delta} = file;
-      let fileInfo = `${index >= files.length - 1 ? '└─' : '├─'} ${fileName} [${Math.round(
-        (size / 1000) * 100,
-      ) / 100} KB`;
-      fileInfo += !!delta ? `,  Δ ${delta > 0 ? '+' : ''}${Math.round(delta * 100) / 100} KB` : '';
-      fileInfo += ']';
-      return fileInfo;
-    });
-  output += 'Direct dependencies: web_modules/\n';
-  output += formatFileInfo(Object.values(direct)).join('\n');
-  if (Object.values(shared).length > 0) {
-    output += '\nShared dependencies: web_modules/common/\n';
-    output += formatFileInfo(Object.values(shared)).join('\n');
+  const {direct, common} = dependencyStats;
+
+  output += formatFiles(Object.values(direct), 'Direct dependencies: web_modules/');
+  if (Object.values(common).length > 0) {
+    output += `\n${formatFiles(Object.values(common), 'Shared dependencies: web_modules/common/')}`;
   }
   return output;
 }
@@ -322,7 +346,7 @@ export async function install(installTargets: InstallTarget[], installOptions: I
         }),
       !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
       !!isOptimized && rollupPluginTerser(),
-      !!withStats && rollupPluginDependencyInfo(info => (dependencyInfo = info)),
+      !!withStats && rollupPluginDependencyStats(info => (dependencyStats = info)),
     ],
     onwarn: ((warning, warn) => {
       if (warning.code === 'UNRESOLVED_IMPORT') {
@@ -519,8 +543,8 @@ export async function cli(args: string[]) {
         '.' +
         chalk.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
-    if (!!dependencyInfo) {
-      console.log(formatDependencyInfoAnalysis());
+    if (!!dependencyStats) {
+      console.log(formatDependencyStats());
     }
   }
 

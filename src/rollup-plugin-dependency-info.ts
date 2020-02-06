@@ -2,28 +2,36 @@ import fs from 'fs';
 import path from 'path';
 import {OutputOptions, OutputBundle} from 'rollup';
 
-type Dependency = {
+type DependencyStats = {
   fileName: string;
   size: number;
   delta?: number;
 };
-type Dependencies = {
-  [filePath: string]: Dependency;
+type DependencyStatsMap = {
+  [filePath: string]: DependencyStats;
 };
-type DependencyType = 'direct' | 'shared';
-export type DependencyInfoOutput = Record<DependencyType, Dependencies>;
+type DependencyType = 'direct' | 'common';
+export type DependencyStatsOutput = Record<DependencyType, DependencyStatsMap>;
 
-export function rollupPluginDependencyInfo(cb: (dependencyInfo: DependencyInfoOutput) => void) {
+export function rollupPluginDependencyStats(cb: (dependencyInfo: DependencyStatsOutput) => void) {
   let outputDir: string;
-  let cache: {
-    [fileName: string]: number;
-  } = {};
-  let output: DependencyInfoOutput = {
+  let cache: {[fileName: string]: number} = {};
+  let output: DependencyStatsOutput = {
     direct: {},
-    shared: {},
+    common: {},
   };
 
-  const compareDependencies = (files: string[], type: DependencyType) => {
+  function buildCache(bundle: OutputBundle) {
+    for (let fileName of Object.keys(bundle)) {
+      const filePath = path.join(outputDir, fileName);
+      if (fs.existsSync(filePath)) {
+        const {size} = fs.statSync(filePath);
+        cache[fileName] = size;
+      }
+    }
+  }
+
+  function compareDependencies(files: string[], type: DependencyType) {
     for (let file of files) {
       const filePath = path.join(outputDir, file);
       const {size} = fs.statSync(filePath);
@@ -37,30 +45,26 @@ export function rollupPluginDependencyInfo(cb: (dependencyInfo: DependencyInfoOu
         output[type][file].delta = delta;
       }
     }
-  };
+  }
 
   return {
     generateBundle(options: OutputOptions, bundle: OutputBundle) {
       outputDir = options.dir;
-
-      for (let fileName of Object.keys(bundle)) {
-        const filePath = path.join(outputDir, fileName);
-        if (fs.existsSync(filePath)) {
-          const {size} = fs.statSync(filePath);
-          cache[fileName] = size;
-        }
-      }
+      buildCache(bundle);
     },
     writeBundle(bundle: OutputBundle) {
       const files = Object.keys(bundle);
 
-      const [directDependencies, sharedDependencies] = files.reduce(
-        ([d, s], f) => (f.startsWith('common') ? [d, [...s, f]] : [[...d, f], s]),
+      const [directDependencies, commonDependencies] = files.reduce(
+        ([direct, common], fileName) =>
+          fileName.startsWith('common')
+            ? [direct, [...common, fileName]]
+            : [[...direct, fileName], common],
         [[], []],
       );
 
       compareDependencies(directDependencies, 'direct');
-      compareDependencies(sharedDependencies, 'shared');
+      compareDependencies(commonDependencies, 'common');
 
       cb(output);
     },
