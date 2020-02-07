@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --clean"
+    "TEST": "node --no-warnings ../../../pkg/dist-node/index.bin.js --clean"
   },
   "snowpack": {
     "webDependencies": [
