@@ -3,6 +3,7 @@ import fs from 'fs';
 import glob from 'glob';
 import {parse} from '@babel/parser';
 import traverse from '@babel/traverse';
+import validate from 'validate-npm-package-name';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -51,7 +52,7 @@ function removeSpecifierQueryString(specifier: string) {
  * parses an import specifier, looking for a web modules to install. If a web module is not detected,
  * null is returned.
  */
-function parseWebModuleSpecifier(specifier: string, knownDependencies: string[]): null | string {
+function parseWebModuleSpecifier(specifier: string): null | string {
   // If specifier is a "bare module specifier" (ie: package name) just return it directly
   if (BARE_SPECIFIER_REGEX.test(specifier)) {
     return specifier;
@@ -63,34 +64,25 @@ function parseWebModuleSpecifier(specifier: string, knownDependencies: string[])
   if (webModulesIndex === -1) {
     return null;
   }
-  // check if the resolved specifier (including file extension) is a known package.
+
+  // Check if this matches `@scope/package.js` or `package.js` format.
+  // If it is, assume that this is a top-level pcakage that should be installed without the “.js”
   const resolvedSpecifier = cleanedSpecifier.substring(webModulesIndex + WEB_MODULES_TOKEN_LENGTH);
-  if (knownDependencies.includes(resolvedSpecifier)) {
-    return resolvedSpecifier;
-  }
-  // check if the resolved specifier (without extension) is a known package.
   const resolvedSpecifierWithoutExtension = stripJsExtension(resolvedSpecifier);
-  if (knownDependencies.includes(resolvedSpecifierWithoutExtension)) {
+  if (validate(resolvedSpecifierWithoutExtension).validForNewPackages) {
     return resolvedSpecifierWithoutExtension;
   }
   // Otherwise, this is an explicit import to a file within a package.
   return resolvedSpecifier;
 }
 
-function getInstallTargetsForFile(
-  filePath: string,
-  code: string,
-  knownDependencies: string[],
-): InstallTarget[] {
+function getInstallTargetsForFile(filePath: string, code: string): InstallTarget[] {
   const allImports: InstallTarget[] = [];
   try {
     const ast = parse(code, {plugins: ['dynamicImport'], sourceType: 'module'});
     traverse(ast, {
       ImportDeclaration(path) {
-        const webModuleSpecifier = parseWebModuleSpecifier(
-          path.node.source.value,
-          knownDependencies,
-        );
+        const webModuleSpecifier = parseWebModuleSpecifier(path.node.source.value);
         if (webModuleSpecifier) {
           allImports.push({
             specifier: webModuleSpecifier,
@@ -114,7 +106,7 @@ function getInstallTargetsForFile(
           return;
         }
         // Analyze that string argument as an import specifier
-        const webModuleSpecifier = parseWebModuleSpecifier(argNode.value, knownDependencies);
+        const webModuleSpecifier = parseWebModuleSpecifier(argNode.value);
         if (webModuleSpecifier) {
           allImports.push(createInstallTarget(webModuleSpecifier, true));
         }
@@ -143,14 +135,9 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
 interface ScanImportsParams {
   include: string;
   exclude?: glob.IOptions['ignore'];
-  knownDependencies: string[];
 }
 
-export function scanImports({
-  include,
-  exclude,
-  knownDependencies,
-}: ScanImportsParams): InstallTarget[] {
+export function scanImports({include, exclude}: ScanImportsParams): InstallTarget[] {
   const includeFiles = glob.sync(include, {ignore: exclude, nodir: true});
   if (!includeFiles.length) {
     console.warn(`[SCAN ERROR]: No files matching "${include}"`);
@@ -161,7 +148,7 @@ export function scanImports({
   return includeFiles
     .filter(filePath => filePath.endsWith('.js') || filePath.endsWith('mjs'))
     .map(filePath => [filePath, fs.readFileSync(filePath, 'utf8')])
-    .map(([filePath, code]) => getInstallTargetsForFile(filePath, code, knownDependencies))
+    .map(([filePath, code]) => getInstallTargetsForFile(filePath, code))
     .reduce((flat, item) => flat.concat(item), [])
     .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier));
 }

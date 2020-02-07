@@ -422,11 +422,6 @@ export async function cli(args: string[]) {
     ...Object.keys(pkgManifest.dependencies || {}),
     ...Object.keys(pkgManifest.peerDependencies || {}),
   ];
-  const allDependencies = [
-    ...Object.keys(pkgManifest.dependencies || {}),
-    ...Object.keys(pkgManifest.peerDependencies || {}),
-    ...Object.keys(pkgManifest.devDependencies || {}),
-  ];
   const hasBrowserlistConfig =
     !!pkgManifest.browserslist ||
     !!process.env.BROWSERSLIST ||
@@ -452,7 +447,7 @@ export async function cli(args: string[]) {
   }
   if (include) {
     isExplicit = true;
-    installTargets.push(...scanImports({include, exclude, knownDependencies: allDependencies}));
+    installTargets.push(...scanImports({include, exclude}));
   }
   if (!webDependencies && !include) {
     installTargets.push(...scanDepList(implicitDependencies, cwd));
