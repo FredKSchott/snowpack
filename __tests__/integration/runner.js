@@ -18,7 +18,7 @@ function stripRev(code) {
   return code.replace(/\?rev=\w+/gm, '?rev=XXXXXXXXXX');
 }
 function stripChunkHash(stdout) {
-  return stdout.replace(/(.+\-.+)\-[a-z0-9]{8}(\.js)/gm, '$1$2');
+  return stdout.replace(/([\w\-]+)\-[a-z0-9]{8}(\.js)/g, '$1$2');
 }
 
 beforeAll(() => {
@@ -75,6 +75,7 @@ for (const testName of readdirSync(__dirname)) {
         // NOTE: We only compare files so that we give the test runner a more detailed diff.
         return;
       }
+
       return assert.strictEqual(
         stripWhitespace(
           stripChunkHash(
