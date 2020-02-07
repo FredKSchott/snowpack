@@ -4,7 +4,7 @@
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
   "snowpack": {
-    "options": {
+    "installOptions": {
       "optimize": true
     },
     "webDependencies": [

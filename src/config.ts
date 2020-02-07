@@ -3,10 +3,26 @@ import {cosmiconfigSync} from 'cosmiconfig';
 import {validate} from 'jsonschema';
 import {merge} from 'lodash';
 
+// default settings
+const DEFAULT_CONFIG: SnowpackConfig = {
+  dedupe: [],
+  installOptions: {
+    clean: false,
+    dest: 'web_modules',
+    exclude: ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
+    externalPackage: [],
+    nomoduleOutput: 'app.nomodule.js',
+    optimize: false,
+    remoteUrl: 'https://cdn.pika.dev',
+    strict: false,
+  },
+};
+
+// interface this library uses internally
 export interface SnowpackConfig {
   dedupe?: string[];
   namedExports?: {[filepath: string]: string[]};
-  options: {
+  installOptions: {
     babel?: boolean;
     clean?: boolean;
     dest?: string;
@@ -24,20 +40,6 @@ export interface SnowpackConfig {
   webDependencies?: string[];
 }
 
-const defaultConfig: SnowpackConfig = {
-  dedupe: [],
-  options: {
-    clean: false,
-    dest: 'web_modules',
-    exclude: ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
-    externalPackage: [],
-    nomoduleOutput: 'app.nomodule.js',
-    optimize: false,
-    remoteUrl: 'https://cdn.pika.dev',
-    strict: false,
-  },
-};
-
 const configSchema = {
   type: 'object',
   properties: {
@@ -49,7 +51,7 @@ const configSchema = {
       type: 'object',
       additionalProperties: {type: 'array', items: {type: 'string'}},
     },
-    options: {
+    installOptions: {
       type: 'object',
       properties: {
         babel: {type: 'boolean'},
@@ -84,7 +86,7 @@ export default function loadConfig(cliFlags?: SnowpackConfig) {
   if (!result || !result.config || result.isEmpty) {
     // if CLI flags present, apply those as overrides
     return {
-      config: normalizeDest(cliFlags ? merge(defaultConfig, cliFlags) : defaultConfig),
+      config: normalizeDest(cliFlags ? merge(DEFAULT_CONFIG, cliFlags) : DEFAULT_CONFIG),
       errors: [],
     };
   }
@@ -98,7 +100,7 @@ export default function loadConfig(cliFlags?: SnowpackConfig) {
   });
 
   // if valid, apply config over defaults
-  const mergedConfig = merge(defaultConfig, config);
+  const mergedConfig = merge(DEFAULT_CONFIG, config);
 
   // if CLI flags present, apply those as overrides
   return {
@@ -109,6 +111,6 @@ export default function loadConfig(cliFlags?: SnowpackConfig) {
 
 // resolve --dest relative to cwd
 function normalizeDest(config: SnowpackConfig) {
-  config.options.dest = path.resolve(process.cwd(), config.options.dest);
+  config.installOptions.dest = path.resolve(process.cwd(), config.installOptions.dest);
   return config;
 }

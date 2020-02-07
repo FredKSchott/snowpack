@@ -89,7 +89,7 @@ Snowpack can be configured within `package.json` under the `snowpack` namespace:
       "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
       "bulma/css/bulma.css" // A non-JS static asset (supports globs)
     ],
-    "options": {
+    "installOptions": {
       "dest": "web_modules",
       "clean": false,
       "optimize": false,
@@ -117,7 +117,7 @@ Alternately, you may configure Snowpack with a `snowpack.config.json` file in th
   "webDependencies": [
     "preact",
   ],
-  "options": {
+  "installOptions": {
     "optimize": false
   }
 }
@@ -130,7 +130,7 @@ To generate parts of your configuration with Node.js, you may use a `snowpack.co
 ```js
 module.exports = {
   webDependencies: [...myWebDependenciesGeneratorFunction()],
-  options: {
+  installOptions: {
     optimize: process.env.NODE_ENV === "production",
     strict: true
   }
@@ -142,6 +142,6 @@ module.exports = {
 | Key               | Type       | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | ----------------- | ---------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `webDependencies` | `string[]` | `[]`    | (Recommended) Set exactly which packages to install with Snowpack. Without this, Snowpack will just try to install every package in your "dependencies" config. That behavior is great for getting started but it won't warn you if an expected package fails to install.                                                                                                                                                              |
-| `options.*`       | `object`   | `{}`    | CLI options (camelcased, so `source-map` becomes `"sourceMap"`). If any settings here conflict with a CLI flag, the CLI flag takes priority.                                                                                                                                                                                                                                                                                           |  |
+| `installOptions.*`       | `object`   | `{}`    | CLI options (camelcased, so `source-map` becomes `"sourceMap"`). If any settings here conflict with a CLI flag, the CLI flag takes priority.                                                                                                                                                                                                                                                                                           |  |
 | `namedExports`    | `object`   |         | (Optional) If needed, you can explicitly define named exports for any dependency. You should only use this if you're getting `"'X' is not exported by Y"` errors without it. See [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs#usage) for more info.                                                                                                                                                       |
 | `dedupe`          | `string[]` | `[]`    | (Optional) If needed, force resolving for these modules to root's node_modules. This helps prevent bundling package multiple time if package is imported from dependencies. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage). This is useful when developing a dependency locally, and prevent rollup to duplicate dependencies included both in local and remote packages. |

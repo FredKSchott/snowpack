@@ -1,5 +1,5 @@
 {
-  "options": {
+  "installOptions": {
     "optimize": true
   },
   "webDependencies": [

@@ -177,7 +177,16 @@ export async function install(
   const {
     dedupe,
     namedExports,
-    options: {babel, dest, externalPackage, nomodule, nomoduleOutput, optimize, sourceMap, strict},
+    installOptions: {
+      babel,
+      dest,
+      externalPackage,
+      nomodule,
+      nomoduleOutput,
+      optimize,
+      sourceMap,
+      strict,
+    },
   } = config;
 
   const knownNamedExports = {...namedExports};
@@ -385,7 +394,9 @@ export async function cli(args: string[]) {
   }
 
   // load config
-  const {config, errors} = loadConfig({options: cliFlags as SnowpackConfig['options']});
+  const {config, errors} = loadConfig({
+    installOptions: cliFlags as SnowpackConfig['installOptions'],
+  });
 
   // handle config errors (if any)
   if (Array.isArray(errors) && errors.length) {
@@ -394,7 +405,7 @@ export async function cli(args: string[]) {
   }
 
   const {
-    options: {clean, dest, exclude, include},
+    installOptions: {clean, dest, exclude, include},
     webDependencies,
   } = config;
 
