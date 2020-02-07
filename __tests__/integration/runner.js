@@ -17,7 +17,7 @@ function stripWhitespace(stdout) {
 function stripRev(code) {
   return code.replace(/\?rev=\w+/gm, '?rev=XXXXXXXXXX');
 }
-function stripChunkHashe(stdout) {
+function stripChunkHash(stdout) {
   const [directDependencies, sharedDependencies] = stdout.split('web_modules/common');
   return sharedDependencies
     ? directDependencies.concat(
@@ -51,7 +51,7 @@ for (const testName of readdirSync(__dirname)) {
     const expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
     const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
     assert.strictEqual(
-      stripWhitespace(stripBenchmark(stripChunkHashe(stripStats(all)))),
+      stripWhitespace(stripBenchmark(stripChunkHash(stripStats(all)))),
       stripWhitespace(expectedOutput),
     );
 
@@ -70,10 +70,12 @@ for (const testName of readdirSync(__dirname)) {
     // Test That all files match
     var res = dircompare.compareSync(actualWebDependenciesLoc, expectedWebDependenciesLoc, {
       compareSize: true,
+      // the chunk hashes created in the common dependency file names are generated
+      // differently on windows & linux and cause CI tests to fail
+      excludeFilter: 'common',
     });
     // If any diffs are detected, we'll assert the difference so that we get nice output.
     res.diffSet.forEach(function(entry) {
-      console.log(entry);
       if (entry.type1 !== 'file') {
         // NOTE: We only compare files so that we give the test runner a more detailed diff.
         return;
