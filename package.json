@@ -64,6 +64,7 @@
     "rollup": "^1.2.3",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-terser": "^5.1.1",
+    "validate-npm-package-name": "^3.0.0",
     "yargs-parser": "^16.1.0"
   },
   "devDependencies": {

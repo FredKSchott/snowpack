@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --clean --include '*.js'"
+  }
+}
