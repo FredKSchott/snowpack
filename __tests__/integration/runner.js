@@ -18,12 +18,7 @@ function stripRev(code) {
   return code.replace(/\?rev=\w+/gm, '?rev=XXXXXXXXXX');
 }
 function stripChunkHash(stdout) {
-  const [directDependencies, sharedDependencies] = stdout.split('web_modules/common');
-  return sharedDependencies
-    ? directDependencies.concat(
-        `web_modules/common${sharedDependencies.replace(/\-[a-z0-9]+(\.[a-z]*\s\[)/g, '$1')}`,
-      )
-    : stdout;
+  return stdout.replace(/(.+\-.+)\-[a-z0-9]{8}(\.js)/gm, '$1$2');
 }
 
 beforeAll(() => {
@@ -70,7 +65,7 @@ for (const testName of readdirSync(__dirname)) {
     // Test That all files match
     var res = dircompare.compareSync(actualWebDependenciesLoc, expectedWebDependenciesLoc, {
       compareSize: true,
-      // the chunk hashes created in the common dependency file names are generated
+      // Chunk hashes created in common dependency file names are generated
       // differently on windows & linux and cause CI tests to fail
       excludeFilter: 'common',
     });
@@ -82,10 +77,14 @@ for (const testName of readdirSync(__dirname)) {
       }
       return assert.strictEqual(
         stripWhitespace(
-          stripRev(readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'})),
+          stripChunkHash(
+            stripRev(readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'})),
+          ),
         ),
         stripWhitespace(
-          stripRev(readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'})),
+          stripChunkHash(
+            stripRev(readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'})),
+          ),
         ),
       );
     });
