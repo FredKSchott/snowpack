@@ -6,9 +6,9 @@ import chalk from 'chalk';
 import ora from 'ora';
 import hasha from 'hasha';
 import yargs from 'yargs-parser';
-import resolveFrom from 'resolve-from';
 import babelPresetEnv from '@babel/preset-env';
 import isNodeBuiltin from 'is-builtin-module';
+import validatePackageName from 'validate-npm-package-name';
 
 import * as rollup from 'rollup';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
@@ -106,12 +106,42 @@ const PACKAGES_TO_AUTO_DETECT_EXPORTS = [
 
 function detectExports(filePath: string): string[] | undefined {
   try {
-    const fileLoc = resolveFrom(cwd, filePath);
+    const fileLoc = require.resolve(filePath, {paths: [cwd]});
     if (fs.existsSync(fileLoc)) {
       return Object.keys(require(fileLoc)).filter(e => e[0] !== '_');
     }
   } catch (err) {
     // ignore
+  }
+}
+
+/**
+ * Given a package name, look for that package's package.json manifest.
+ * Return both the manifest location (if believed to exist) and the
+ * manifest itself (if found).
+ *
+ * NOTE: You used to be able to require() a package.json file directly,
+ * but now with export map support in Node v13 that's no longer possible.
+ */
+function resolveDependencyManifest(dep: string, cwd: string) {
+  let result = [null, null] as [string | null, any | null];
+  try {
+    const fullPath = require.resolve(dep, {paths: [cwd]});
+    // Strip everything after the package name to get the package root path
+    // NOTE: This find-replace is very gross, replace with something like upath.
+    const searchPath = `${path.sep}node_modules${path.sep}${dep.replace('/', path.sep)}`;
+    const indexOfSearch = fullPath.lastIndexOf(searchPath);
+    if (indexOfSearch >= 0) {
+      const manifestPath =
+        fullPath.substring(0, indexOfSearch + searchPath.length + 1) + 'package.json';
+      result[0] = manifestPath;
+      const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf8'});
+      result[1] = JSON.parse(manifestStr);
+    }
+  } catch (err) {
+    // ignore
+  } finally {
+    return result;
   }
 }
 
@@ -123,21 +153,20 @@ function detectExports(filePath: string): string[] | undefined {
  */
 function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
   // if dep includes a file extension, check that dep isn't a package before returning
-  const depManifestLoc = resolveFrom.silent(cwd, `${dep}/package.json`);
-  if (path.extname(dep) && !resolveFrom.silent(cwd, `${dep}/package.json`)) {
+  if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
     return {
       type: isJSFile ? 'JS' : 'ASSET',
-      loc: resolveFrom(cwd, dep),
+      loc: require.resolve(dep, {paths: [cwd]}),
     };
   }
-  if (!depManifestLoc) {
+  const [depManifestLoc, depManifest] = resolveDependencyManifest(dep, cwd);
+  if (!depManifest) {
     throw new ErrorWithHint(
       `"${dep}" not found. Have you installed the package via npm?`,
-      chalk.italic(depManifestLoc),
+      depManifestLoc && chalk.italic(depManifestLoc),
     );
   }
-  const depManifest = require(depManifestLoc);
   let foundEntrypoint: string =
     depManifest['browser:module'] || depManifest.module || depManifest.browser;
   // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
@@ -487,9 +516,12 @@ export async function cli(args: string[]) {
     );
   }
 
-  //If an error happened, set the exit code so that programmatic usage of the CLI knows.
+  // If an error happened, set the exit code so that programmatic usage of the CLI knows.
+  // We were seeing race conditions here, so add a little buffer.
   if (spinnerHasError) {
-    spinner.warn(chalk(`Finished with warnings.`));
-    process.exitCode = 1;
+    setTimeout(() => {
+      spinner.warn(chalk(`Finished with warnings.`));
+      process.exitCode = 1;
+    }, 5);
   }
 }

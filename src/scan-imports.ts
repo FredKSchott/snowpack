@@ -3,7 +3,7 @@ import fs from 'fs';
 import glob from 'glob';
 import {parse} from '@babel/parser';
 import traverse from '@babel/traverse';
-import validate from 'validate-npm-package-name';
+import validatePackageName from 'validate-npm-package-name';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -69,7 +69,7 @@ function parseWebModuleSpecifier(specifier: string): null | string {
   // If it is, assume that this is a top-level pcakage that should be installed without the “.js”
   const resolvedSpecifier = cleanedSpecifier.substring(webModulesIndex + WEB_MODULES_TOKEN_LENGTH);
   const resolvedSpecifierWithoutExtension = stripJsExtension(resolvedSpecifier);
-  if (validate(resolvedSpecifierWithoutExtension).validForNewPackages) {
+  if (validatePackageName(resolvedSpecifierWithoutExtension).validForNewPackages) {
     return resolvedSpecifierWithoutExtension;
   }
   // Otherwise, this is an explicit import to a file within a package.
