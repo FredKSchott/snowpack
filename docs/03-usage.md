@@ -48,82 +48,66 @@ Note that this config will disable the zero-config mode that attempts to install
 
 ### Configuring Snowpack
 
-Snowpack's behavior can be configured by CLI flags, a custom config file, or both. CLI flags will always be merged with (and take priority over) a config file.
+Snowpack's behavior can be configured by CLI flags, a custom Snowpack config file, or both. CLI flags will always be merged with (and take priority over) a config file.
 
-#### Configuration via `package.json`
+[See the table below for the full list of options](#all-configuration-options).
 
-Snowpack can be configured within your `package.json` manifest under the `snowpack` namespace:
+#### CLI Flags
 
-```json
-{
-  "dependencies": { "htm": "^1.0.0", "preact": "^8.0.0", /* ... */ },
-  "snowpack": {
-    "webDependencies": [
-      "htm",
-      "preact",
-      "preact/hooks", // A package within a package
-      "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
-      "bulma/css/bulma.css" // A non-JS static asset (supports globs)
-    ],
-    "installOptions": {
-      "dest": "web_modules",
-      "clean": false,
-      "optimize": false,
-      "babel": false,
-      "include": "src/**/*.{js,jsx,ts,tsx}",
-      "exclude": ["**/__tests__/*", "**/*.@(spec\|test).@(js\|mjs)"],
-      "strict": false,
-      "sourceMap": true,
-      "remotePackage": [],
-      "remoteUrl": "https://cdn.pika.dev",
-      "nomodule": "src/index.js",
-      "nomoduleOutput": "app.nomodule.js"
-    },
-    "dedupe": ["lit-element", "lit-html"]
-  }
-}
+```
+$ npx snowpack --optimize --clean
 ```
 
-#### Configuration via `snowpack.config.json`
+- CLI flags can be included with each call to `snowpack` on the command line.
+- CLI flags can be combined with any configuration file (the CLI flag values will always take priority).
 
-Alternately, you may configure Snowpack with a `snowpack.config.json` file in the same directory as `package.json`. You may prefer this option if you’d like to keep your `package.json` tidier. Its structure is identical:
+#### Config Files
 
 ```json
 {
   "webDependencies": [
+    "htm",
     "preact",
+    "preact/hooks", // A package within a package
+    "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
+    "bulma/css/bulma.css" // A non-JS static asset (supports globs)
   ],
   "installOptions": {
-    "optimize": false
-  }
+    "dest": "web_modules",
+    "clean": false,
+    "optimize": false,
+    "babel": false,
+    "include": "src/**/*.{js,jsx,ts,tsx}",
+    "exclude": ["**/__tests__/*", "**/*.@(spec\|test).@(js\|mjs)"],
+    "strict": false,
+    "sourceMap": true,
+    "remotePackage": [],
+    "remoteUrl": "https://cdn.pika.dev",
+    "nomodule": "src/index.js",
+    "nomoduleOutput": "app.nomodule.js"
+  },
+  "dedupe": ["lit-element", "lit-html"]
 }
 ```
 
-#### Configuration via `snowpack.config.js`
+Snowpack supports all of the following config file formats. Snowpack will always look up your configuration in the current working directory in this order:
 
-To generate parts of your configuration with Node.js, you may use a `snowpack.config.js` file instead:
+1. `snowpack.config.json`: A JSON file containing config.
+2. `snowpack.config.js`: A JS file exporting a config object (`module.exports = {...}`).
+3. `package.json`: A namespaced config object (`"snowpack": {...}`).
 
-```js
-module.exports = {
-  webDependencies: [...myWebDependenciesGeneratorFunction()],
-  installOptions: {
-    optimize: process.env.NODE_ENV === "production",
-    strict: true
-  }
-};
-```
+[See the table below for the full list of options](#all-configuration-options).
 
 
 ### All Configuration Options
 
-#### Top-Level Configuration
 
 | Config Option     | Type       | Description                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | ----------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `webDependencies` | `string[]` | (Recommended) Set exactly which packages to install with Snowpack. Without this, Snowpack will just try to install every package in your "dependencies" config. That behavior is great for getting started but it won't warn you if an expected package fails to install.                                                                                                                                                              |
-| `installOptions.*`| `object`   | (Optional) Configure how packages are installed. See table below for all install options.                                                                                                                                                                                                                                                                                          |  |
-| `namedExports`    | `object`   | (Optional) If needed, you can explicitly define named exports for any dependency. You should only use this if you're getting `"'X' is not exported by Y"` errors without it. See [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs#usage) for more info.                                                                                                                                                       |
-| `dedupe`          | `string[]` | (Optional) If needed, force resolving for these modules to root's node_modules. This helps prevent bundling package multiple time if package is imported from dependencies. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage). This is useful when developing a dependency locally, and prevent rollup to duplicate dependencies included both in local and remote packages. |
+| `webDependencies` | `string[]` | (Recommended) Set exactly which packages to install with Snowpack.                                                                                                                                                            |
+| `installOptions.*`| `object`   | (Optional) Configure how packages are installed. See table below for all options.                                                                                                                                                                                                                                                                                          |  |
+| `namedExports`    | `object`   | (Optional) If needed, you can explicitly define named exports for any dependency. You should only use this if you're getting `"'X' is not exported by Y"` errors without it. See [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs#usage) for more documentation.                                                                                                                                                       |
+| `dedupe`          | `string[]` | (Optional) If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation. |
 
 
 #### Install Options (`installOptions.*`)

@@ -3,14 +3,17 @@
 ### Importing Packages by Name
 
 ```js
-// ✘ NOT SUPPORTED IN THE BROWSER
-// ✔ BUT... CAN BE TRANSFORMED BY BABEL
-import 'package-name';
+// ✔ RUNS IN THE BROWSER
+import React from '/web_modules/react.js';
+
+// ✘ WON'T RUN IN THE BROWSER
+// ✔ CAN BE TRANSFORMED AUTOMATICALLY BY BABEL, ETC.
+import React from 'react';
 ```
 
-Browsers only support importing by URL, so importing a package by name (ex: `import React from 'react'`) isn't supported without additional tooling/configuration. Unless you're using a traditional app bundler or a build tool like Babel, you'll need to import all dependencies in your application by URL (ex: `import React from '/web_modules/react.js'`).
+Browsers can only import by URL, so importing a package by name requires additional tooling. Below are some options for build tools that handle the import name -> URL transformation for you automatically. This can be especially useful when you are [migrating an existing app to Snowpack](#migrating-an-existing-app).
 
-**Babel Support:** If you use Babel with Snowpack, you can use our Babel plugin to support package name imports. The plugin reads any packages name imports in your source code and rewrites them to full `"/web_modules/${PACKAGE_NAME}.js"` URLs that run in the browser. This way, you can keep using the package name imports that you're used to without needing a full web app bundler. Check out our guide below.
+**Babel Support:** If you use Babel with Snowpack, you can use our Babel plugin to support package name imports. The plugin reads any packages name imports in your source code and rewrites them to full `"/web_modules/${PACKAGE_NAME}.js"` URLs that run in the browser. This way, you can keep using the package name imports that you're used to without needing a full web app bundler. Check out our [Babel](#babel) guide below for instructions on setting up Babel.
 
 ``` js
 /* .babelrc */
@@ -19,7 +22,7 @@ Browsers only support importing by URL, so importing a package by name (ex: `im
   ]
 ```
 
-**TTypeScript Support:** If you use [TTypescript](https://github.com/cevek/ttypescript) (note: this is a separate tool from TypeScript) you can use the [@magic-works/ttypescript-browser-like-import-transformer](https://github.com/Jack-Works/ttypescript-browser-like-import-transformer) plugin to support package name imports. The transformer reads any import and export declarations in your source code and rewrites them to full `"/web_modules/${PACKAGE_NAME}.js"` URLs that run in the browser. 
+**TTypeScript Support:** If you use [TTypescript](https://github.com/cevek/ttypescript) (note: this is a separate tool from TypeScript) you can use the [@magic-works/ttypescript-browser-like-import-transformer](https://github.com/Jack-Works/ttypescript-browser-like-import-transformer) plugin to support package name imports. The transformer reads import declarations in your source code and rewrites them to full `"/web_modules/${PACKAGE_NAME}.js"` URLs that run in the browser.
 
 ``` js
 /* tsconfig.json */
