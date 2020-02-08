@@ -28,7 +28,7 @@ Remember to re-run Snowpack every time you import an new dependency.
 
 ### Whitelisting Dependencies
 
-```json
+```js
   /* package.json */
   "snowpack": {
     "webDependencies": [
@@ -43,40 +43,16 @@ Remember to re-run Snowpack every time you import an new dependency.
 
 Optionally, you can also whitelist any dependencies by defining them in your "webDependencies" config (see below). You can use this to control exactly what is installed, including non-JS assets or deeper package resources.
 
-Note that having this config will disable the zero-config mode that attempts to install every package found in your package.json "dependencies". Either use this together with the `--include` flag, or just make sure that you whitelist everything that you want installed.
+Note that this config will disable the zero-config mode that attempts to install every package found in your package.json "dependencies". Either use this together with the `--include` flag, or just make sure that you whitelist everything that you want installed.
 
-### All CLI Options
 
-Add any flags to the `snowpack` CLI command:
+### Configuring Snowpack
 
-| Key                 | Type       | Default                                            | Description                                                                                                                                                                                 |
-| ------------------- | ---------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--dest`            | `string`   | `web_modules`                                      | Specify destination directory.                                                                                                                                                              |
-| `--clean`           | `boolean`  | `false`                                            | Clean out the `dest` directory before running.                                                                                                                                              |
-| `--optimize`        | `boolean`  | `false`                                            | Transpile, minify, and optimize installed dependencies for production (this may slow down snowpack!).                                                                                       |
-| `--babel`           | `boolean`  | `false`                                            | Transpile installed dependencies. Automatically enabled with `--optimize`.                                                                                                                  |
-| `--include`         | `string`   |                                                    | Auto-detect imports from file(s). Supports glob.                                                                                                                                            |
-| `--exclude`         | `string`   | `'**/__tests__/*' '**/*.@(spec\|test).@(js\|mjs)'` | Exclude files from `--include`. Follows glob’s ignore pattern.                                                                                                                              |
-| `--strict`          | `boolean`  | `false`                                            | Only install pure ESM dependency trees. Fail if a CJS module is encountered.                                                                                                                |
-| `--no-source-map`   | `boolean`  | `false`                                            | Skip emitting source map files (`.js.map`) into `dest`.                                                                                                                                     |
-| `--remote-package`  | `string[]` |                                                    | `name,version` pair(s) of packages that should be left unbundled and referenced remotely. Example: `foo,v4` will rewrite all imports of `foo` to `{remoteUrl}/foo/v4` (see `--remote-url`). |
-| `--remote-url`      | `string`   | `https://cdn.pika.dev`                             | Configures the domain where remote imports point to.                                                                                                                                        |
-| `--nomodule`        | `string`   |                                                    | Your app’s entry file for generating a `<script nomodule>` bundle                                                                                                                           |
-| `--nomodule-output` | `string`   | `app.nomodule.js`                                  | Filename for nomodule output                                                                                                                                                                |
+Snowpack's behavior can be configured by CLI flags, a custom config file, or both. CLI flags will always be merged with (and take priority over) a config file.
 
-You can see a list of all these options with the `--help` flag without having to refer back to these docs:
+#### Configuration via `package.json`
 
-```bash
-npx snowpack --help
-```
-
-### Configuration
-
-All CLI flags can optionally be specified in a configuration file, along with additional options.
-
-#### Default config
-
-Snowpack can be configured within `package.json` under the `snowpack` namespace:
+Snowpack can be configured within your `package.json` manifest under the `snowpack` namespace:
 
 ```json
 {
@@ -108,9 +84,9 @@ Snowpack can be configured within `package.json` under the `snowpack` namespace:
 }
 ```
 
-#### Using snowpack.config.json
+#### Configuration via `snowpack.config.json`
 
-Alternately, you may configure Snowpack with a `snowpack.config.json` file in the same directory as `package.json`. You may prefer this option if you’d like to keep your `package.json` tidier. Its structure is identical to `package.json`:
+Alternately, you may configure Snowpack with a `snowpack.config.json` file in the same directory as `package.json`. You may prefer this option if you’d like to keep your `package.json` tidier. Its structure is identical:
 
 ```json
 {
@@ -123,9 +99,9 @@ Alternately, you may configure Snowpack with a `snowpack.config.json` file in th
 }
 ```
 
-#### Using snowpack.config.js
+#### Configuration via `snowpack.config.js`
 
-To generate parts of your configuration with Node.js, you may use a `snowpack.config.js` instead:
+To generate parts of your configuration with Node.js, you may use a `snowpack.config.js` file instead:
 
 ```js
 module.exports = {
@@ -137,11 +113,35 @@ module.exports = {
 };
 ```
 
-#### All Options
 
-| Key               | Type       | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| ----------------- | ---------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `webDependencies` | `string[]` | `[]`    | (Recommended) Set exactly which packages to install with Snowpack. Without this, Snowpack will just try to install every package in your "dependencies" config. That behavior is great for getting started but it won't warn you if an expected package fails to install.                                                                                                                                                              |
-| `installOptions.*`       | `object`   | `{}`    | CLI options (camelcased, so `source-map` becomes `"sourceMap"`). If any settings here conflict with a CLI flag, the CLI flag takes priority.                                                                                                                                                                                                                                                                                           |  |
-| `namedExports`    | `object`   |         | (Optional) If needed, you can explicitly define named exports for any dependency. You should only use this if you're getting `"'X' is not exported by Y"` errors without it. See [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs#usage) for more info.                                                                                                                                                       |
-| `dedupe`          | `string[]` | `[]`    | (Optional) If needed, force resolving for these modules to root's node_modules. This helps prevent bundling package multiple time if package is imported from dependencies. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage). This is useful when developing a dependency locally, and prevent rollup to duplicate dependencies included both in local and remote packages. |
+### All Configuration Options
+
+#### Top-Level Configuration
+
+| Config Option     | Type       | Description                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ----------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `webDependencies` | `string[]` | (Recommended) Set exactly which packages to install with Snowpack. Without this, Snowpack will just try to install every package in your "dependencies" config. That behavior is great for getting started but it won't warn you if an expected package fails to install.                                                                                                                                                              |
+| `installOptions.*`| `object`   | (Optional) Configure how packages are installed. See table below for all install options.                                                                                                                                                                                                                                                                                          |  |
+| `namedExports`    | `object`   | (Optional) If needed, you can explicitly define named exports for any dependency. You should only use this if you're getting `"'X' is not exported by Y"` errors without it. See [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs#usage) for more info.                                                                                                                                                       |
+| `dedupe`          | `string[]` | (Optional) If needed, force resolving for these modules to root's node_modules. This helps prevent bundling package multiple time if package is imported from dependencies. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage). This is useful when developing a dependency locally, and prevent rollup to duplicate dependencies included both in local and remote packages. |
+
+
+#### Install Options (`installOptions.*`)
+
+| CLI Flag             | Config Option     | Type       | Default           | Description                                                                                                                                                                                            |
+| -------------------- | ----------------- | ---------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--dest`             | `dest`            | `string`   | `web_modules`     | Configure the install directory.                                                                                                                                                                       |
+| `--clean`            | `clean`           | `boolean`  | `false`           | Delete the existing `dest` directory (any any outdated files) before installing.                                                                                                                       |
+| `--optimize`         | `optimize`        | `boolean`  | `false`           | Recommended for production: transpile, minify, and optimize installed dependencies (this may slow down snowpack!).                                                                                     |
+| `--babel`            | `babel`           | `boolean`  | `false`           | Transpile installed dependencies. Enabled automatically by `--optimize`. Can be disabled via CLI flag via `--no-babel`.                                                                                |
+| `--include`          | `include`         | `string`   |                   | Scans source files to auto-detect install targets. Supports glob pattern matching. See our [Automatic Installs](#automatic-installs-(recommended)) guide for more info.                                |
+| `--exclude`          | `exclude`         | `string`   | See Description.  | Exclude files from `--include` scanning. Supports glob pattern matching. Defaults to exclude common test file locations: `['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`                           |
+| `--strict`           | `strict`          | `boolean`  | `false`           | Only install pure ESM dependency trees. Fail if a CJS module is encountered.                                                                                                                           |
+| `--stat`             | `stat`            | `boolean`  | `false`           | Logs install statistics after installing, with information on install targets and file sizes. Useful for CI, performance review.                                                                       |
+| `--source-map`       | `sourceMap`       | `boolean`  | See Description.  | Emit source maps. Enabled automatically by `--optimize`. Can be disabled via CLI flag via `--no-source-map`.                                                                                           |
+| `--nomodule`         | `nomodule`        | `string`   |                   | Enable a `<script nomodule>` bundle. Value should be the entrypoint of your application to start bundling from. See our [Supporting Legacy Browsers](#supporting-legacy-browsers) guide for more info. |
+| `--nomodule-output`  | `nomoduleOutput`  | `string`   | `app.nomodule.js` | File name/path for the nomodule output.                                                                                                                                                                |
+| `--external-package` | `externalPackage` | `string[]` | `[]`              | (Advanced use only) Mark these packages as external to be left unbundled and referenced remotely. Example: `--external-package foo` will leave in all imports of `foo`.                                |
+
+You can also use the `--help` flag to see a list of these options on the command line.
+
