@@ -19,6 +19,24 @@ Browsers only support importing by URL, so importing a package by name (ex: `im
   ]
 ```
 
+**If you use TypeScript with Snowpack, you can use a [ttypescript](https://github.com/cevek/ttypescript) plugin called [@magic-works/ttypescript-browser-like-import-transformer](https://github.com/Jack-Works/ttypescript-browser-like-import-transformer) to support package name imports.** The transformer reads any import and export declarations in your source code and rewrites them to full `"/web_modules/${PACKAGE_NAME}.js"` URLs that run in the browser. This way, you can keep using the package name imports that you're used to without needing a full web app bundler. Check out our guide below.
+
+``` jsonc
+/* tsconfig.json */
+{
+    "compilerOptions": {
+        "module": "es2015",
+        "plugins": [
+            {
+                "transform": "@magic-works/ttypescript-browser-like-import-transformer",
+                "after": true,
+                "bareModuleRewrite": "snowpack"
+            }
+        ]
+    }
+}
+```
+
 
 ### Import Maps
 
