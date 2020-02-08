@@ -47,9 +47,9 @@ npx snowpack
 ✔ snowpack installed: preact, htm. [0.50s]
 ```
 
-If all went well, you should see a `web_modules/` directory containing the files `preact.js` & `htm.js`. This is the magic of Snowpack: your application can import these files directly and the browser will run them with no additional tooling needed!
+If all went well, you should see a `web_modules/` directory containing the files `preact.js` & `htm.js`. This is the magic of Snowpack: any npm package can be transformed from `node_modules/PACKAGE_NAME` to `web_modules/PACKAGE_NAME.js`, a bundled, single-file JS package that runs directly in the browser with no additional tooling needed!
 
-Optionally, you can now run `npm install snowpack --save-dev` to speed up future Snowpack runs. Otherwise, npx tends to re-install the tool before every run.
+Optionally, you can now run `npm install snowpack --save-dev` to speed up future Snowpack runs & run Snowpack inside of your package.json scripts. Otherwise, npx tends to re-install the tool before every run.
 
 
 #### 3. Create a simple HTML file for your application:
