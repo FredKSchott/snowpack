@@ -1,7 +1,7 @@
 import path from 'path';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {validate} from 'jsonschema';
-import {merge} from 'lodash';
+import merge from 'deepmerge';
 
 // default settings
 const DEFAULT_CONFIG: SnowpackConfig = {
@@ -76,10 +76,10 @@ const configSchema = {
 
 export default function loadConfig(cliFlags?: SnowpackConfig) {
   const explorerSync = cosmiconfigSync('snowpack', {
-    // only support/document these 3 types of config:
+    // only support these 3 types of config for now
     searchPlaces: ['package.json', 'snowpack.config.js', 'snowpack.config.json'],
     // don't support crawling up the folder tree:
-    stopDir: path.resolve(process.cwd(), '../'),
+    stopDir: path.dirname(process.cwd()),
   });
   const result = explorerSync.search(); // search for snowpack config
 

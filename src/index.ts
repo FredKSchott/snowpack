@@ -255,14 +255,14 @@ export async function install(
     dedupe,
     namedExports,
     installOptions: {
-      babel,
-      dest,
-      externalPackage,
+      babel: isBabel,
+      dest: destLoc,
+      externalPackage: externalPackages,
       nomodule,
       nomoduleOutput,
-      optimize,
+      optimize: isOptimized,
       sourceMap,
-      strict,
+      strict: isStrict,
       stat: withStats,
     },
   } = config;
@@ -324,33 +324,33 @@ export async function install(
 
   const inputOptions = {
     input: depObject,
-    external: externalPackage,
+    external: externalPackages,
     plugins: [
-      !strict &&
+      !isStrict &&
         rollupPluginReplace({
-          'process.env.NODE_ENV': optimize ? '"production"' : '"development"',
+          'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
         }),
       rollupPluginNodeResolve({
-        mainFields: ['browser:module', 'module', 'browser', !strict && 'main'].filter(Boolean),
-        modulesOnly: strict, // Default: false
+        mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(Boolean),
+        modulesOnly: isStrict, // Default: false
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: false, // Default: true
         dedupe,
       }),
-      !strict &&
+      !isStrict &&
         rollupPluginJson({
           preferConst: true,
           indent: '  ',
-          compact: optimize,
+          compact: isOptimized,
           namedExports: true,
         }),
-      !strict &&
+      !isStrict &&
         rollupPluginCommonjs({
           extensions: ['.js', '.cjs'], // Default: [ '.js' ]
           namedExports: knownNamedExports,
         }),
-      !!babel &&
+      !!isBabel &&
         rollupPluginBabel({
           compact: false,
           babelrc: false,
@@ -367,8 +367,8 @@ export async function install(
             ],
           ],
         }),
-      !!optimize && rollupPluginTreeshakeInputs(installTargets),
-      !!optimize && rollupPluginTerser(),
+      !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
+      !!isOptimized && rollupPluginTerser(),
       !!withStats && rollupPluginDependencyStats(info => (dependencyStats = info)),
     ],
     onwarn: ((warning, warn) => {
@@ -397,9 +397,9 @@ export async function install(
     }) as any,
   };
   const outputOptions = {
-    dir: dest,
+    dir: destLoc,
     format: 'esm' as 'esm',
-    sourcemap: sourceMap === undefined ? optimize : sourceMap,
+    sourcemap: sourceMap === undefined ? isOptimized : sourceMap,
     exports: 'named' as 'named',
     chunkFileNames: 'common/[name]-[hash].js',
   };
@@ -420,7 +420,7 @@ export async function install(
           // resolve web_modules
           if (source.includes('/web_modules/')) {
             const suffix = source.split('/web_modules/')[1];
-            return {id: path.join(dest, suffix)};
+            return {id: path.join(destLoc, suffix)};
           }
           // null means try to resolve as-is
           return null;
@@ -433,7 +433,7 @@ export async function install(
         inlineDynamicImports: true,
         plugins: [...inputOptions.plugins, rollupResolutionHelper()],
       });
-      await noModuleBundle.write({file: path.resolve(dest, nomoduleOutput), format: 'iife'});
+      await noModuleBundle.write({file: path.resolve(destLoc, nomoduleOutput), format: 'iife'});
       const nomoduleEnd = Date.now() - nomoduleStart;
       spinner.info(
         `${chalk.bold(
@@ -451,13 +451,13 @@ export async function install(
     }
   }
   fs.writeFileSync(
-    path.join(dest, 'import-map.json'),
+    path.join(destLoc, 'import-map.json'),
     JSON.stringify({imports: importMap}, undefined, 2),
     {encoding: 'utf8'},
   );
   Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
-    mkdirp.sync(path.dirname(`${dest}/${assetName}`));
-    fs.copyFileSync(assetLoc, `${dest}/${assetName}`);
+    mkdirp.sync(path.dirname(`${destLoc}/${assetName}`));
+    fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
   });
   return true;
 }
