@@ -1,0 +1,8 @@
+{
+  "installOptions": {
+    "optimize": true
+  },
+  "webDependencies": [
+    "shallow-equal"
+  ]
+}

@@ -18,6 +18,7 @@ import rollupPluginReplace from '@rollup/plugin-replace';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
+import loadConfig, {SnowpackConfig} from './config.js';
 import {
   rollupPluginDependencyStats,
   DependencyStatsOutput,
@@ -27,23 +28,6 @@ import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 export interface DependencyLoc {
   type: 'JS' | 'ASSET';
   loc: string;
-}
-
-export interface InstallOptions {
-  destLoc: string;
-  include?: string;
-  isStrict?: boolean;
-  isOptimized?: boolean;
-  isBabel?: boolean;
-  hasBrowserlistConfig?: boolean;
-  isExplicit?: boolean;
-  withStats?: boolean;
-  namedExports?: {[filepath: string]: string[]};
-  nomodule?: string;
-  nomoduleOutput?: string;
-  externalPackages: string[];
-  sourceMap?: boolean | 'inline';
-  dedupe?: string[];
 }
 
 const ALWAYS_SHOW_ERRORS = new Set(['react', 'react-dom']);
@@ -70,7 +54,7 @@ ${chalk.bold('Options:')}
 ${chalk.bold('Advanced:')}
     --nomodule          Your app’s entry file for generating a <script nomodule> bundle
     --nomodule-output   Filename for nomodule output (default: 'app.nomodule.js')
-    --external-package  [Internal use only.] May go away at any time.    
+    --external-package  [Internal use only.] May go away at any time.
     `.trim(),
   );
 }
@@ -257,22 +241,32 @@ function getWebDependencyName(dep: string): string {
   return dep.replace(/\.m?js$/i, '');
 }
 
-export async function install(installTargets: InstallTarget[], installOptions: InstallOptions) {
+interface InstallOptions {
+  hasBrowserlistConfig: boolean;
+  isExplicit: boolean;
+}
+
+export async function install(
+  installTargets: InstallTarget[],
+  {hasBrowserlistConfig, isExplicit}: InstallOptions,
+  config: SnowpackConfig,
+) {
   const {
-    destLoc,
-    hasBrowserlistConfig,
-    isExplicit,
-    isStrict,
-    isBabel,
-    isOptimized,
-    withStats,
-    sourceMap,
-    namedExports,
-    nomodule,
-    nomoduleOutput,
-    externalPackages,
     dedupe,
-  } = installOptions;
+    namedExports,
+    installOptions: {
+      babel: isBabel,
+      dest: destLoc,
+      externalPackage: externalPackages,
+      nomodule,
+      nomoduleOutput,
+      optimize: isOptimized,
+      sourceMap,
+      strict: isStrict,
+      stat: withStats,
+    },
+  } = config;
+
   const knownNamedExports = {...namedExports};
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
     knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
@@ -470,27 +464,30 @@ export async function install(installTargets: InstallTarget[], installOptions: I
 }
 
 export async function cli(args: string[]) {
-  const {
-    help,
-    sourceMap,
-    babel = false,
-    exclude = ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
-    include,
-    nomodule,
-    nomoduleOutput = 'app.nomodule.js',
-    optimize = false,
-    stat = false,
-    strict = false,
-    clean = false,
-    dest = 'web_modules',
-    externalPackage: externalPackages = [],
-  } = yargs(args, {array: ['externalPackage']});
-  const destLoc = path.resolve(cwd, dest);
+  // parse CLI flags
+  const cliFlags = yargs(args, {array: ['exclude', 'externalPackage']});
 
-  if (help) {
+  // if printing help, stop here
+  if (cliFlags.help) {
     printHelp();
     process.exit(0);
   }
+
+  // load config
+  const {config, errors} = loadConfig({
+    installOptions: cliFlags as SnowpackConfig['installOptions'],
+  });
+
+  // handle config errors (if any)
+  if (Array.isArray(errors) && errors.length) {
+    errors.forEach(logError);
+    process.exit(0);
+  }
+
+  const {
+    installOptions: {clean, dest, exclude, include},
+    webDependencies,
+  } = config;
 
   let pkgManifest: any;
   try {
@@ -512,17 +509,7 @@ export async function cli(args: string[]) {
 
   let isExplicit = false;
   const installTargets = [];
-  const {namedExports, webDependencies, dedupe} = pkgManifest['snowpack'] || {
-    namedExports: undefined,
-    webDependencies: undefined,
-    dedupe: undefined,
-  };
 
-  if (pkgManifest['@pika/web']) {
-    console.log(
-      '[WARN] Update package.json "@pika/web" configuration to use "snowpack" configuration name.',
-    );
-  }
   if (webDependencies) {
     isExplicit = true;
     installTargets.push(...scanDepList(webDependencies, cwd));
@@ -539,27 +526,13 @@ export async function cli(args: string[]) {
     return;
   }
   if (clean) {
-    rimraf.sync(destLoc);
+    rimraf.sync(dest);
   }
 
   spinner.start();
   const startTime = Date.now();
-  const installOptions = {
-    destLoc,
-    namedExports,
-    isExplicit,
-    isStrict: strict,
-    isBabel: babel || optimize,
-    isOptimized: optimize,
-    withStats: stat,
-    nomodule,
-    nomoduleOutput,
-    sourceMap,
-    hasBrowserlistConfig,
-    externalPackages,
-    dedupe: dedupe || [],
-  };
-  const result = await install(installTargets, installOptions);
+  const result = await install(installTargets, {hasBrowserlistConfig, isExplicit}, config);
+
   if (result) {
     spinner.succeed(
       chalk.bold(`snowpack`) +
