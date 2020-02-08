@@ -311,6 +311,7 @@ export async function install(installTargets: InstallTarget[], installOptions: I
       // An error occurred! Log it.
       logError(err.message || err);
       if (err.hint) {
+        // Note: Wait 1ms to guarentee a log message after the spinner
         setTimeout(() => console.log(err.hint), 1);
       }
       return false;
