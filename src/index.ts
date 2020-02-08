@@ -311,7 +311,7 @@ export async function install(installTargets: InstallTarget[], installOptions: I
       // An error occurred! Log it.
       logError(err.message || err);
       if (err.hint) {
-        console.log(err.hint);
+        setTimeout(() => console.log(err.hint), 1);
       }
       return false;
     }
