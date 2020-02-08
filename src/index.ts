@@ -86,31 +86,35 @@ function formatSize(size) {
 function formatDelta(delta) {
   const kb = Math.round(delta * 100) / 100;
   const color = delta > 0 ? 'red' : 'green';
-  return `Δ ${chalk[color](`${delta > 0 ? '+' : ''}${kb}`)} KB`;
+  return chalk[color](`Δ ${delta > 0 ? '+' : ''}${kb} KB`);
 }
 
-function formatFileInfo(file, lastFile) {
-  const lineGlyph = lastFile ? '└─' : '├─';
-  const lineName = chalk.cyan(file.fileName);
-  const lineSize = formatSize(file.size);
-  const lineDelta = file.delta ? `,  ${formatDelta(file.delta)}` : '';
-  return `${lineGlyph} ${lineName} [${lineSize}${lineDelta}]`;
+function formatFileInfo(file, padEnd, isLastFile) {
+  const lineGlyph = chalk.dim(isLastFile ? '└─' : '├─');
+  const lineName = file.fileName.padEnd(padEnd);
+  const lineSize = chalk.dim('[') + formatSize(file.size) + chalk.dim(']');
+  const lineDelta = file.delta ? chalk.dim(' [') + formatDelta(file.delta) + chalk.dim(']') : '';
+  return `    ${lineGlyph} ${lineName} ${lineSize}${lineDelta}`;
 }
 
 function formatFiles(files, title) {
-  return `${title}
-${files.map((file, index) => formatFileInfo(file, index >= files.length - 1)).join('\n')}`;
+  const maxFileNameLength = files.reduce((max, file) => Math.max(file.fileName.length, max), 0);
+  return `  ⦿ ${chalk.bold(title)}
+${files
+  .map((file, index) => formatFileInfo(file, maxFileNameLength, index >= files.length - 1))
+  .join('\n')}`;
 }
 
 function formatDependencyStats(): string {
   let output = '';
   const {direct, common} = dependencyStats;
-
-  output += formatFiles(Object.values(direct), 'Direct dependencies: web_modules/');
+  const allDirect = Object.values(direct);
+  const allCommon = Object.values(common);
+  output += formatFiles(allDirect, 'web_modules/');
   if (Object.values(common).length > 0) {
-    output += `\n${formatFiles(Object.values(common), 'Shared dependencies: web_modules/common/')}`;
+    output += `\n${formatFiles(allCommon, 'web_modules/common/ (Shared)')}`;
   }
-  return output;
+  return `\n${output}\n`;
 }
 
 function logError(msg) {
