@@ -18,6 +18,10 @@ import rollupPluginReplace from '@rollup/plugin-replace';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
+import {
+  rollupPluginDependencyStats,
+  DependencyStatsOutput,
+} from './rollup-plugin-dependency-info.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 
 export interface DependencyLoc {
@@ -33,6 +37,7 @@ export interface InstallOptions {
   isBabel?: boolean;
   hasBrowserlistConfig?: boolean;
   isExplicit?: boolean;
+  withStats?: boolean;
   namedExports?: {[filepath: string]: string[]};
   nomodule?: string;
   nomoduleOutput?: string;
@@ -45,6 +50,7 @@ const ALWAYS_SHOW_ERRORS = new Set(['react', 'react-dom']);
 const cwd = process.cwd();
 const banner = chalk.bold(`snowpack`) + ` installing... `;
 const installResults = [];
+let dependencyStats: DependencyStatsOutput = null;
 let spinner = ora(banner);
 let spinnerHasError = false;
 
@@ -78,6 +84,49 @@ function formatInstallResults(skipFailures): string {
   return installResults
     .map(([d, yn]) => (yn ? chalk.green(d) : skipFailures ? chalk.dim(d) : chalk.red(d)))
     .join(', ');
+}
+
+function formatSize(size) {
+  const kb = Math.round((size / 1000) * 100) / 100;
+  let color;
+  if (kb < 15) {
+    color = 'green';
+  } else if (kb < 30) {
+    color = 'yellow';
+  } else {
+    color = 'red';
+  }
+  return chalk[color](`${kb} KB`);
+}
+
+function formatDelta(delta) {
+  const kb = Math.round(delta * 100) / 100;
+  const color = delta > 0 ? 'red' : 'green';
+  return `Δ ${chalk[color](`${delta > 0 ? '+' : ''}${kb}`)} KB`;
+}
+
+function formatFileInfo(file, lastFile) {
+  const lineGlyph = lastFile ? '└─' : '├─';
+  const lineName = chalk.cyan(file.fileName);
+  const lineSize = formatSize(file.size);
+  const lineDelta = file.delta ? `,  ${formatDelta(file.delta)}` : '';
+  return `${lineGlyph} ${lineName} [${lineSize}${lineDelta}]`;
+}
+
+function formatFiles(files, title) {
+  return `${title}
+${files.map((file, index) => formatFileInfo(file, index >= files.length - 1)).join('\n')}`;
+}
+
+function formatDependencyStats(): string {
+  let output = '';
+  const {direct, common} = dependencyStats;
+
+  output += formatFiles(Object.values(direct), 'Direct dependencies: web_modules/');
+  if (Object.values(common).length > 0) {
+    output += `\n${formatFiles(Object.values(common), 'Shared dependencies: web_modules/common/')}`;
+  }
+  return output;
 }
 
 function logError(msg) {
@@ -216,6 +265,7 @@ export async function install(installTargets: InstallTarget[], installOptions: I
     isStrict,
     isBabel,
     isOptimized,
+    withStats,
     sourceMap,
     namedExports,
     nomodule,
@@ -325,6 +375,7 @@ export async function install(installTargets: InstallTarget[], installOptions: I
         }),
       !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
       !!isOptimized && rollupPluginTerser(),
+      !!withStats && rollupPluginDependencyStats(info => (dependencyStats = info)),
     ],
     onwarn: ((warning, warn) => {
       if (warning.code === 'UNRESOLVED_IMPORT') {
@@ -427,6 +478,7 @@ export async function cli(args: string[]) {
     nomodule,
     nomoduleOutput = 'app.nomodule.js',
     optimize = false,
+    stat = false,
     strict = false,
     clean = false,
     dest = 'web_modules',
@@ -498,6 +550,7 @@ export async function cli(args: string[]) {
     isStrict: strict,
     isBabel: babel || optimize,
     isOptimized: optimize,
+    withStats: stat,
     nomodule,
     nomoduleOutput,
     sourceMap,
@@ -514,6 +567,9 @@ export async function cli(args: string[]) {
         '.' +
         chalk.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
+    if (!!dependencyStats) {
+      console.log(formatDependencyStats());
+    }
   }
 
   // If an error happened, set the exit code so that programmatic usage of the CLI knows.
