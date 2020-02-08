@@ -36,6 +36,7 @@ export interface SnowpackConfig {
     remoteUrl?: string;
     sourceMap?: boolean | 'inline';
     strict?: boolean;
+    stat?: boolean;
   };
   webDependencies?: string[];
 }

@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "TEST": "node --no-warnings ../../../pkg/dist-node/index.bin.js --clean"
+  },
+  "snowpack": {
+    "webDependencies": [
+      "preact"
+    ]
+  },
+  "dependencies": {
+    "preact": "10.3.1"
+  }
+}
