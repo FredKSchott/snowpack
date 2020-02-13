@@ -46,19 +46,28 @@ Optionally, you can also whitelist any dependencies by defining them in your "we
 Note that this config will disable the zero-config mode that attempts to install every package found in your package.json "dependencies". Either use this together with the `--include` flag, or just make sure that you whitelist everything that you want installed.
 
 
-### Configuring Snowpack
+## Configuration
 
-Snowpack's behavior can be configured by CLI flags, a custom Snowpack config file, or both. CLI flags will always be merged with (and take priority over) a config file.
+Snowpack's behavior can be configured by CLI flags, a custom Snowpack config file, or both. [See the table below for the full list of supported options](#all-configuration-options).
 
-[See the table below for the full list of supported options](#all-configuration-options).
-
-#### CLI Flags
+### CLI Flags
 
 ```
 $ npx snowpack --optimize --clean
 ```
 
-#### Config Files
+CLI flags will always be merged with (and take priority over) a config file.
+
+### Config Files
+
+Snowpack supports configuration files in multiple formats. Snowpack will look for configuration in the current working directory in this order:
+
+1. `package.json`: A namespaced config object (`"snowpack": {...}`).
+2. `snowpack.config.js`: A JS file exporting a config object (`module.exports = {...}`).
+3. `snowpack.config.json`: A JSON file containing config (`{...}`).
+
+
+### Configuration Options
 
 ```json
 {
@@ -86,18 +95,6 @@ $ npx snowpack --optimize --clean
   "dedupe": ["lit-element", "lit-html"]
 }
 ```
-
-Snowpack supports configuration files in multiple formats. Snowpack will look for configuration in the current working directory in this order:
-
-1. `package.json`: A namespaced config object (`"snowpack": {...}`).
-2. `snowpack.config.js`: A JS file exporting a config object (`module.exports = {...}`).
-3. `snowpack.config.json`: A JSON file containing config.
-
-[See the table below for the full list of supported options](#all-configuration-options).
-
-
-### All Configuration Options
-
 
 | Config Option     | Type       | Description                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | ----------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
