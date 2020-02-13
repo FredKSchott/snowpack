@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "solid-js/dom": "./solid-js/dom.js?rev=1998341c1a"
+  }
+}
