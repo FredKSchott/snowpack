@@ -4,6 +4,7 @@
   <strong style="text-decoration: underline">TL;DR</strong> - With Snowpack you can build modern web apps (using React, Vue, etc.) without a bundler (like Webpack, Parcel, Rollup). No more waiting for your bundler to rebuild your site every time you hit save. Instead, every change is reflected in the browser instantly.
 </p>
 
+
 ### How It Works
 
 
@@ -37,15 +38,18 @@ import React from 'react';
 
 <div class="company-logos">
 {% for user in usersList %}
-  <a href="{{ user.url }}" taget="_blank">
-    <img class="company-logo" src="{{ user.img }}" alt="{{ user.name }}" />
+  <a href="{{ user.url }}" target="_blank">
+    {% if user.img %}<img class="company-logo" src="{{ user.img }}" alt="{{ user.name }}" />
+    {% else %}<span>{{ user.name }}</span>
+    {% endif %}
   </a>
 {% endfor %}
-<a href="https://github.com/pikapkg/snowpack/edit/master/docs/00.md" taget="_blank" title="Add Your Project/Company!" class="add-company-button" >
+<a href="https://github.com/pikapkg/snowpack/edit/master/docs/00.md" target="_blank" title="Add Your Project/Company!" class="add-company-button" >
   <svg style="height: 26px; margin-right: 8px;"aria-hidden="true" focusable="false" data-prefix="fas" data-icon="plus" class="company-logo" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg>
-  Your company?
+  Add your logo
 </a>
 </div>
+
 
 ### Who Should Use Snowpack?
 

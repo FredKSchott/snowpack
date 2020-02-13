@@ -50,16 +50,13 @@ Note that this config will disable the zero-config mode that attempts to install
 
 Snowpack's behavior can be configured by CLI flags, a custom Snowpack config file, or both. CLI flags will always be merged with (and take priority over) a config file.
 
-[See the table below for the full list of options](#all-configuration-options).
+[See the table below for the full list of supported options](#all-configuration-options).
 
 #### CLI Flags
 
 ```
 $ npx snowpack --optimize --clean
 ```
-
-- CLI flags can be included with each call to `snowpack` on the command line.
-- CLI flags can be combined with any configuration file (the CLI flag values will always take priority).
 
 #### Config Files
 
@@ -90,13 +87,13 @@ $ npx snowpack --optimize --clean
 }
 ```
 
-Snowpack supports all of the following config file formats. Snowpack will always look up your configuration in the current working directory in this order:
+Snowpack supports configuration files in multiple formats. Snowpack will look for configuration in the current working directory in this order:
 
-1. `snowpack.config.json`: A JSON file containing config.
+1. `package.json`: A namespaced config object (`"snowpack": {...}`).
 2. `snowpack.config.js`: A JS file exporting a config object (`module.exports = {...}`).
-3. `package.json`: A namespaced config object (`"snowpack": {...}`).
+3. `snowpack.config.json`: A JSON file containing config.
 
-[See the table below for the full list of options](#all-configuration-options).
+[See the table below for the full list of supported options](#all-configuration-options).
 
 
 ### All Configuration Options

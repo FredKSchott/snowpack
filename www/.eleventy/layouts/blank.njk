@@ -56,12 +56,19 @@
 .markdown-body h4 {
   margin-top: 0;
   padding-top: 6px;
+  text-transform: uppercase;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 1px;
 }
 .markdown-body h2 + h3 {
   padding-top: 0px;
 }
 .markdown-body thead tr {
-  background-color: #e2f3ff;
+  background-color: #0366d616;
+}
+.header-link {
+  padding-left: 2px;
 }
 
 /*
@@ -83,7 +90,7 @@
   opacity: 0;
   transition: opacity 100ms ease-in-out;
 }
-.markdown-body h2:hover .header-link, .markdown-body h3:hover .header-link {
+.markdown-body h3:hover .header-link {
   opacity: 1;
 } 
 
@@ -166,6 +173,10 @@ body {
   .markdown-body h1 {
     font-size: 3.5em;
   }
+  .markdown-body h3 .header-link {
+    opacity: 1;
+  } 
+
 }
 
 .grid-logo {
@@ -237,41 +248,44 @@ body {
 .github-button {
   display: none;
 }
+
 .company-logos {
   display: flex;
-  margin-top: -16px;
-  margin-bottom: 16px;
+  flex-wrap: wrap;
+  margin-top: -4px;
+  margin-bottom: 24px;
 }
 .company-logos > a {
+  flex-shrink: 0;
   text-decoration: none;
   color: #e74c3c;
-  height: 116px;
-  margin: 8px 4px;
-  padding: 16px;
-  transition: transform 100ms ease-in-out;
+  margin: 0px 4px;
+  padding: 10px;
+  filter: grayscale(0.1);
+  opacity: 0.8;
 }
 .company-logos > .add-company-button {
   display: flex; 
   align-items: center; 
   height: 44px; 
-  margin: 44px 8px; 
+  margin: 14px 14px 0px; 
   border: 2px solid #e74c3c; 
   border-radius: 10px;
   font-weight: 500;
+  filter: grayscale(0);
+  opacity: 1;
 }
-
 img.company-logo {
   box-shadow: none;
   border: none;
   flex: 100%;
-  height: 84px;
+  height: 56px;
 }
 .company-logos > a:hover {
-  text-decoration: none;
+  text-decoration: underline;
   font-weight: 500;
-  border-radius: 10px;
-  box-shadow: 0px 5px 12px 0 #DDD;
-  transform: scale(1.02);
+  filter: grayscale(0);
+  opacity: 1;
 }
 
     </style>
@@ -410,7 +424,7 @@ img.company-logo {
     */
 
     window.addEventListener('DOMContentLoaded', (event) => {
-      document.querySelectorAll('.markdown-body h2, .markdown-body h3').forEach((headerEl) => {
+      document.querySelectorAll('.markdown-body h3').forEach((headerEl) => {
         const linkEl = document.createElement("a"); 
         // linkEl.setAttribute('target', "_blank");
         linkEl.setAttribute('href', window.location.protocol  + '/#' + headerEl.id);
