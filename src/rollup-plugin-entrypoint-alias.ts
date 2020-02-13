@@ -26,9 +26,9 @@ export function rollupPluginEntrypointAlias({cwd}: {cwd: string}) {
         return null;
       }
       let needsAlias =
-        (manifest.module && source === path.join(packageFullName, manifest.module)) ||
-        (manifest.browser && source === path.join(packageFullName, manifest.browser)) ||
-        (manifest.main && source === path.join(packageFullName, manifest.main));
+        (manifest.module && source === path.posix.join(packageFullName, manifest.module)) ||
+        (manifest.browser && source === path.posix.join(packageFullName, manifest.browser)) ||
+        (manifest.main && source === path.posix.join(packageFullName, manifest.main));
       if (!needsAlias) {
         return null;
       }
