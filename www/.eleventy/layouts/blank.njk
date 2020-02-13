@@ -56,12 +56,19 @@
 .markdown-body h4 {
   margin-top: 0;
   padding-top: 6px;
+  text-transform: uppercase;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 1px;
 }
 .markdown-body h2 + h3 {
   padding-top: 0px;
 }
 .markdown-body thead tr {
-  background-color: #e2f3ff;
+  background-color: #0366d616;
+}
+.header-link {
+  padding-left: 2px;
 }
 
 /*
@@ -83,7 +90,7 @@
   opacity: 0;
   transition: opacity 100ms ease-in-out;
 }
-.markdown-body h2:hover .header-link, .markdown-body h3:hover .header-link {
+.markdown-body h3:hover .header-link {
   opacity: 1;
 } 
 
@@ -166,6 +173,10 @@ body {
   .markdown-body h1 {
     font-size: 3.5em;
   }
+  .markdown-body h3 .header-link {
+    opacity: 1;
+  } 
+
 }
 
 .grid-logo {
@@ -237,6 +248,46 @@ body {
 .github-button {
   display: none;
 }
+
+.company-logos {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: -4px;
+  margin-bottom: 24px;
+}
+.company-logos > a {
+  flex-shrink: 0;
+  text-decoration: none;
+  color: #e74c3c;
+  margin: 0px 4px;
+  padding: 10px;
+  filter: grayscale(0.1);
+  opacity: 0.8;
+}
+.company-logos > .add-company-button {
+  display: flex; 
+  align-items: center; 
+  height: 44px; 
+  margin: 14px 14px 0px; 
+  border: 2px solid #e74c3c; 
+  border-radius: 10px;
+  font-weight: 500;
+  filter: grayscale(0);
+  opacity: 1;
+}
+img.company-logo {
+  box-shadow: none;
+  border: none;
+  flex: 100%;
+  height: 56px;
+}
+.company-logos > a:hover {
+  text-decoration: underline;
+  font-weight: 500;
+  filter: grayscale(0);
+  opacity: 1;
+}
+
     </style>
   </head>
   <body>
@@ -286,26 +337,10 @@ body {
     </div>
     <aside class="grid-toc">
       {{ content | toc | safe }}
+
     </aside>
     <div id="grid-body" class="grid-body">
       <article class="markdown-body">
-    <!--
-        <div style="text-align: center; padding: 10vh 0vw 5vh">
-          <svg height="200px" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-              <defs>
-              <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-2">
-                  <stop stop-color="#55F" offset="0%"></stop>
-                  <stop stop-color="#61CCFF00" offset="100%"></stop>
-              </linearGradient>
-              </defs>
-              <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                  <g id="mountain-solid" transform="translate(-1.000000, 0.000000)" fill="url(#linearGradient-2)" fill-rule="nonzero">
-                      <path d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z" id="Shape"></path>
-                  </g>
-              </g>
-          </svg>
-        </div>
-        -->
         {{ content | safe }}
       </article>
     </div>
@@ -389,7 +424,7 @@ body {
     */
 
     window.addEventListener('DOMContentLoaded', (event) => {
-      document.querySelectorAll('.markdown-body h2, .markdown-body h3').forEach((headerEl) => {
+      document.querySelectorAll('.markdown-body h3').forEach((headerEl) => {
         const linkEl = document.createElement("a"); 
         // linkEl.setAttribute('target', "_blank");
         linkEl.setAttribute('href', window.location.protocol  + '/#' + headerEl.id);

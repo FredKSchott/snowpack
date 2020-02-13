@@ -1,6 +1,5 @@
 ## Introduction
 
-
 <p class="notification is-link">
   <strong style="text-decoration: underline">TL;DR</strong> - With Snowpack you can build modern web apps (using React, Vue, etc.) without a bundler (like Webpack, Parcel, Rollup). No more waiting for your bundler to rebuild your site every time you hit save. Instead, every change is reflected in the browser instantly.
 </p>
@@ -11,7 +10,7 @@
 
 1. Instead of bundling on every change, just run Snowpack **once** right after `npm install`.
 2. Snowpack re-installs your dependencies as single JS files to a new `web_modules/` directory. **It never touches your source code.**
-3. Write code, import those dependencies via an ESM `import`, and then run it all in the browser.
+3. Build your app, import those dependencies via an ESM `import`, and then run it all in the browser.
 4. Skip the bundle step and see your changes reflected in the browser immediately after hitting save.
 5. Keep using your favorite web frameworks and build tools! Babel & TypeScript supported.
 
@@ -25,6 +24,7 @@ import React from '/web_modules/react.js';
 import React from 'react';
 ```
 
+
 ### Why?
 
 - Ever been stuck waiting for your webapp to rebuild during development? Ever heard your laptop fans go wild every time you hit save? Then you've experienced the cost of bundling during development. 
@@ -32,6 +32,23 @@ import React from 'react';
 - Bundlers became a required web development tool in the 2010's, mainly because of npm's use of a module format that didn't run natively in the browser (Common.js). Before then, web developers would commonly ship development source code directly to the browser. Bundling used to be a production-only optimization (vs. the dev-time requirement it is today).
 - ESM has had ~5 years to bake in browser, and is now supported in all modern browsers (going back to early 2018). With ESM, bundlers are no longer required. You can build a modern, performant, production-ready web application without Webpack!
 - **Replace a rebuild-on-every-change build step (Webpack, Parcel, etc.) with a run-once install step (Snowpack) to get a faster dev environment with less tooling complexity.**
+
+
+### Who's Using Snowpack?
+
+<div class="company-logos">
+{% for user in usersList %}
+  <a href="{{ user.url }}" target="_blank">
+    {% if user.img %}<img class="company-logo" src="{{ user.img }}" alt="{{ user.name }}" />
+    {% else %}<span>{{ user.name }}</span>
+    {% endif %}
+  </a>
+{% endfor %}
+<a href="https://github.com/pikapkg/snowpack/edit/master/docs/00.md" target="_blank" title="Add Your Project/Company!" class="add-company-button" >
+  <svg style="height: 26px; margin-right: 8px;"aria-hidden="true" focusable="false" data-prefix="fas" data-icon="plus" class="company-logo" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg>
+  Add your logo
+</a>
+</div>
 
 
 ### Who Should Use Snowpack?
