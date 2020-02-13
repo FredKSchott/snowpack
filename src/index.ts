@@ -18,12 +18,14 @@ import rollupPluginReplace from '@rollup/plugin-replace';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginBabel from 'rollup-plugin-babel';
 import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
+import {rollupPluginEntrypointAlias} from './rollup-plugin-entrypoint-alias.js';
 import loadConfig, {SnowpackConfig} from './config.js';
 import {
   rollupPluginDependencyStats,
   DependencyStatsOutput,
 } from './rollup-plugin-dependency-info.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
+import {resolveDependencyManifest} from './util.js';
 
 export interface DependencyLoc {
   type: 'JS' | 'ASSET';
@@ -149,36 +151,6 @@ function detectExports(filePath: string): string[] | undefined {
     }
   } catch (err) {
     // ignore
-  }
-}
-
-/**
- * Given a package name, look for that package's package.json manifest.
- * Return both the manifest location (if believed to exist) and the
- * manifest itself (if found).
- *
- * NOTE: You used to be able to require() a package.json file directly,
- * but now with export map support in Node v13 that's no longer possible.
- */
-function resolveDependencyManifest(dep: string, cwd: string) {
-  let result = [null, null] as [string | null, any | null];
-  try {
-    const fullPath = require.resolve(dep, {paths: [cwd]});
-    // Strip everything after the package name to get the package root path
-    // NOTE: This find-replace is very gross, replace with something like upath.
-    const searchPath = `${path.sep}node_modules${path.sep}${dep.replace('/', path.sep)}`;
-    const indexOfSearch = fullPath.lastIndexOf(searchPath);
-    if (indexOfSearch >= 0) {
-      const manifestPath =
-        fullPath.substring(0, indexOfSearch + searchPath.length + 1) + 'package.json';
-      result[0] = manifestPath;
-      const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf8'});
-      result[1] = JSON.parse(manifestStr);
-    }
-  } catch (err) {
-    // ignore
-  } finally {
-    return result;
   }
 }
 
@@ -331,6 +303,7 @@ export async function install(
     input: depObject,
     external: externalPackages,
     plugins: [
+      rollupPluginEntrypointAlias({cwd}),
       !isStrict &&
         rollupPluginReplace({
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
@@ -556,6 +529,6 @@ export async function cli(args: string[]) {
     setTimeout(() => {
       spinner.warn(chalk(`Finished with warnings.`));
       process.exitCode = 1;
-    }, 5);
+    }, 20);
   }
 }

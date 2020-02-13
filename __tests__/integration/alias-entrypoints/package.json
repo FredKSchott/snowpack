@@ -1,0 +1,14 @@
+{
+  "description": "Handle deep imports to package entrypoints",
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --external-package lit-html"
+  },
+  "snowpack": {
+    "webDependencies": [
+      "lit-element"
+    ]
+  },
+  "dependencies": {
+    "lit-element": "^2.2.1"
+  }
+}

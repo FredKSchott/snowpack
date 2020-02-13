@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+  },
+  "snowpack": {
+    "webDependencies": [
+      "solid-js/dom"
+    ]
+  },
+  "dependencies": {
+    "solid-js": "^0.16.7"
+  }
+}
