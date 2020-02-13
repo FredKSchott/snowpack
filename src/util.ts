@@ -10,6 +10,26 @@ import path from 'path';
  * but now with export map support in Node v13 that's no longer possible.
  */
 export function resolveDependencyManifest(dep: string, cwd: string) {
+  // Attempt #1: Resolve the dependency manifest normally. This works for most
+  // packages, but fails when the package defines an export map that doesn't
+  // include a package.json. If we detect that to be the reason for failure,
+  // move on to our custom implementation.
+  try {
+    const depManifest = require.resolve(`${dep}/package.json`, {paths: [cwd]});
+    return [depManifest, require(depManifest)];
+  } catch (err) {
+    if (err.code === 'MODULE_NOT_FOUND' && err.message.includes(`'./package.json'`)) {
+      // its most likely an export map issue, move on to our manual resolver.
+    } else {
+      throw err;
+    }
+  }
+
+  // Attempt #2: Resolve the dependency manifest manually. This involves resolving
+  // the dep itself to find the entrypoint file, and then haphazardly replacing the
+  // file path within the package with a "./package.json" instead. It's not as
+  // thorough as Attempt #1, but it should work well until export maps become more
+  // established & move out of experimental mode.
   let result = [null, null] as [string | null, any | null];
   try {
     const fullPath = require.resolve(dep, {paths: [cwd]});
