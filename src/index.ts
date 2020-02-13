@@ -529,6 +529,6 @@ export async function cli(args: string[]) {
     setTimeout(() => {
       spinner.warn(chalk(`Finished with warnings.`));
       process.exitCode = 1;
-    }, 5);
+    }, 20);
   }
 }
