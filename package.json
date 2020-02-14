@@ -18,8 +18,8 @@
     "publish": "pika publish",
     "version": "npm run build",
     "test": "npm run test:integration && npm run test:babel-plugin",
-    "test:integration": "jest __tests__/integration/runner.js  --test-timeout=15000",
-    "test:babel-plugin": "jest __tests__/babel-plugin/runner.js",
+    "test:integration": "jest test/integration/runner.js  --test-timeout=15000 --testMatch \"**/test/**/*.[jt]s?(x)\"",
+    "test:babel-plugin": "jest test/babel-plugin/runner.js --testMatch \"**/test/**/*.[jt]s?(x)\"",
     "docs:build": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js",
     "docs:watch": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js --serve",
     "docs:deploy": "npm run docs:build && cd www/dist && now --prod"
