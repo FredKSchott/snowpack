@@ -1,5 +1,5 @@
 {
   "imports": {
-    "@material/list": "./@material/list.js?rev=720673b46d"
+    "@material/list": "./@material/list.js"
   }
 }

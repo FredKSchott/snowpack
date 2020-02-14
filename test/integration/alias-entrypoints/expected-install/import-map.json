@@ -1,5 +1,5 @@
 {
   "imports": {
-    "lit-element": "./lit-element.js?rev=db26ba5501"
+    "lit-element": "./lit-element.js"
   }
 }

@@ -8,6 +8,7 @@ const DEFAULT_CONFIG: SnowpackConfig = {
   dedupe: [],
   installOptions: {
     clean: false,
+    hash: false,
     dest: 'web_modules',
     exclude: ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
     externalPackage: [],
@@ -25,6 +26,7 @@ export interface SnowpackConfig {
   installOptions: {
     babel?: boolean;
     clean?: boolean;
+    hash?: boolean;
     dest?: string;
     exclude?: string[];
     externalPackage?: string[];
@@ -56,6 +58,7 @@ const configSchema = {
       type: 'object',
       properties: {
         babel: {type: 'boolean'},
+        hash: {type: 'boolean'},
         clean: {type: 'boolean'},
         dest: {type: 'string'},
         exclude: {type: 'array', items: {type: 'string'}},

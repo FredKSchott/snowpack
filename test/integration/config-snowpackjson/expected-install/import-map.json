@@ -1,5 +1,5 @@
 {
   "imports": {
-    "shallow-equal": "./shallow-equal.js?rev=XXXXXXXXXX"
+    "shallow-equal": "./shallow-equal.js"
   }
 }

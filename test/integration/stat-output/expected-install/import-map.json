@@ -1,6 +1,6 @@
 {
   "imports": {
-    "cached-constructors-x": "./cached-constructors-x.js?rev=XXXXXXXXXX",
-    "has-working-bind-x": "./has-working-bind-x.js?rev=XXXXXXXXXX"
+    "cached-constructors-x": "./cached-constructors-x.js",
+    "has-working-bind-x": "./has-working-bind-x.js"
   }
 }

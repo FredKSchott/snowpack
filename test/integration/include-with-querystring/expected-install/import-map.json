@@ -1,5 +1,5 @@
 {
   "imports": {
-    "array-flatten": "./array-flatten.js?rev=XXXXXXXXXX"
+    "array-flatten": "./array-flatten.js"
   }
 }

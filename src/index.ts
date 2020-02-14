@@ -233,6 +233,7 @@ export async function install(
     installOptions: {
       babel: isBabel,
       dest: destLoc,
+      hash: useHash,
       externalPackage: externalPackages,
       nomodule,
       nomoduleOutput,
@@ -262,9 +263,9 @@ export async function install(
       const targetName = getWebDependencyName(installSpecifier);
       const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, isExplicit);
       if (targetType === 'JS') {
-        const hash = await generateHashFromFile(targetLoc);
+        const hashQs = useHash ? `?rev=${await generateHashFromFile(targetLoc)}` : '';
         depObject[targetName] = targetLoc;
-        importMap[targetName] = `./${targetName}.js?rev=${hash}`;
+        importMap[targetName] = `./${targetName}.js${hashQs}`;
         installTargetsMap[targetLoc] = installTargets.filter(t => installSpecifier === t.specifier);
         installResults.push([installSpecifier, true]);
       } else if (targetType === 'ASSET') {

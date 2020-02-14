@@ -1,5 +1,5 @@
 {
   "imports": {
-    "preact": "./preact.js?rev=5f00e5bb59"
+    "preact": "./preact.js"
   }
 }
