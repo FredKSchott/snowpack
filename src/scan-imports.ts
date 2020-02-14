@@ -117,51 +117,6 @@ function getInstallTargetsForFile(filePath: string, code: string): InstallTarget
   return allImports;
 }
 
-// function getInstallTargetsForFile(filePath: string, code: string): InstallTarget[] {
-//   console.log('getInstallTargetsForFile');
-//   const allImports: InstallTarget[] = [];
-//   try {
-//     const ast = parse(code, {plugins: ['dynamicImport'], sourceType: 'module'});
-//     traverse(ast, {
-//       ImportDeclaration(path) {
-//         const webModuleSpecifier = parseWebModuleSpecifier(path.node.source.value);
-//         if (webModuleSpecifier) {
-//           allImports.push({
-//             specifier: webModuleSpecifier,
-//             all: false,
-//             default: path.node.specifiers.some(s => s.type === 'ImportDefaultSpecifier'),
-//             namespace: path.node.specifiers.some(s => s.type === 'ImportNamespaceSpecifier'),
-//             named: path.node.specifiers
-//               .map(s => s.type === 'ImportSpecifier' && s.imported.name)
-//               .filter(Boolean),
-//           });
-//         }
-//       },
-//       Import(path) {
-//         // Only match dynamic imports that are called as a function
-//         if (path.parent.type !== 'CallExpression') {
-//           return;
-//         }
-//         // Only match dynamic imports called with a single string argument
-//         const [argNode] = path.parent.arguments;
-//         if (argNode.type !== 'StringLiteral') {
-//           return;
-//         }
-//         // Analyze that string argument as an import specifier
-//         const webModuleSpecifier = parseWebModuleSpecifier(argNode.value);
-//         if (webModuleSpecifier) {
-//           allImports.push(createInstallTarget(webModuleSpecifier, true));
-//         }
-//       },
-//     });
-//   } catch (e) {
-//     console.error(`[PARSE ERROR]: Skipping ${filePath}`);
-//     return [];
-//   }
-//   console.log(allImports);
-//   return allImports;
-// }
-
 export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
   const nodeModulesLoc = nodePath.join(cwd, 'node_modules');
   return depList
