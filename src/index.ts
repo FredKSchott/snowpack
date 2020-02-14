@@ -501,7 +501,7 @@ export async function cli(args: string[]) {
   }
   if (include) {
     isExplicit = true;
-    installTargets.push(...scanImports({include, exclude}));
+    installTargets.push(...(await scanImports({include, exclude})));
   }
   if (!webDependencies && !include) {
     installTargets.push(...scanDepList(implicitDependencies, cwd));

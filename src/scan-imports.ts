@@ -1,9 +1,8 @@
 import nodePath from 'path';
 import fs from 'fs';
 import glob from 'glob';
-import {parse} from '@babel/parser';
-import traverse from '@babel/traverse';
 import validatePackageName from 'validate-npm-package-name';
+import {init, parse} from 'es-module-lexer';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -11,6 +10,7 @@ const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
 // [@\w] - Match a word-character or @ (valid package name)
 // (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)
 const BARE_SPECIFIER_REGEX = /^[@\w](?!.*(:\/\/))/;
+const NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/;
 
 /**
  * An install target represents information about a dependency to install.
@@ -48,17 +48,26 @@ function removeSpecifierQueryString(specifier: string) {
   return specifier;
 }
 
+function removeSpecifierQuotes(specifier: string) {
+  const strippedSpecifier = specifier.replace(/[\'\"]/g, '');
+  return strippedSpecifier;
+}
+
 /**
  * parses an import specifier, looking for a web modules to install. If a web module is not detected,
  * null is returned.
  */
 function parseWebModuleSpecifier(specifier: string): null | string {
+  // Remove any quotes included in the specifier
+  // (left over from dynamic import parameters)
+  const pureSpecifier = removeSpecifierQuotes(specifier);
+
   // If specifier is a "bare module specifier" (ie: package name) just return it directly
-  if (BARE_SPECIFIER_REGEX.test(specifier)) {
-    return specifier;
+  if (BARE_SPECIFIER_REGEX.test(pureSpecifier)) {
+    return pureSpecifier;
   }
   // Clean the specifier, remove any query params that may mess with matching
-  const cleanedSpecifier = removeSpecifierQueryString(specifier);
+  const cleanedSpecifier = removeSpecifierQueryString(pureSpecifier);
   // Otherwise, check that it includes the "web_modules/" directory
   const webModulesIndex = cleanedSpecifier.indexOf(WEB_MODULES_TOKEN);
   if (webModulesIndex === -1) {
@@ -77,47 +86,81 @@ function parseWebModuleSpecifier(specifier: string): null | string {
 }
 
 function getInstallTargetsForFile(filePath: string, code: string): InstallTarget[] {
+  const [imports] = parse(code) || [];
   const allImports: InstallTarget[] = [];
-  try {
-    const ast = parse(code, {plugins: ['dynamicImport'], sourceType: 'module'});
-    traverse(ast, {
-      ImportDeclaration(path) {
-        const webModuleSpecifier = parseWebModuleSpecifier(path.node.source.value);
-        if (webModuleSpecifier) {
-          allImports.push({
-            specifier: webModuleSpecifier,
-            all: false,
-            default: path.node.specifiers.some(s => s.type === 'ImportDefaultSpecifier'),
-            namespace: path.node.specifiers.some(s => s.type === 'ImportNamespaceSpecifier'),
-            named: path.node.specifiers
-              .map(s => s.type === 'ImportSpecifier' && s.imported.name)
-              .filter(Boolean),
-          });
-        }
-      },
-      Import(path) {
-        // Only match dynamic imports that are called as a function
-        if (path.parent.type !== 'CallExpression') {
-          return;
-        }
-        // Only match dynamic imports called with a single string argument
-        const [argNode] = path.parent.arguments;
-        if (argNode.type !== 'StringLiteral') {
-          return;
-        }
-        // Analyze that string argument as an import specifier
-        const webModuleSpecifier = parseWebModuleSpecifier(argNode.value);
-        if (webModuleSpecifier) {
-          allImports.push(createInstallTarget(webModuleSpecifier, true));
-        }
-      },
+
+  for (const {s: start, e: end, ss: sStart, se: sEnd, d: dynamicImportIndex} of imports) {
+    const webModuleSpecifier = parseWebModuleSpecifier(code.substring(start, end));
+    if (!webModuleSpecifier) {
+      continue;
+    }
+
+    const importStatement = code.substring(sStart, sEnd);
+    const dynamicImport = dynamicImportIndex > -1;
+    const defaultImport = !dynamicImport && !importStatement.includes('{');
+    const namespaceImport = !dynamicImport && importStatement.includes('as');
+
+    const namedImports = (importStatement.match(NAMED_IMPORTS_REGEX) || [, ''])[1]
+      .split(',')
+      .map(name => name.trim())
+      .filter(Boolean);
+
+    allImports.push({
+      specifier: webModuleSpecifier,
+      all: dynamicImport,
+      default: defaultImport,
+      namespace: namespaceImport,
+      named: namedImports,
     });
-  } catch (e) {
-    console.error(`[PARSE ERROR] "${filePath}" ${e.message}`);
-    return [];
   }
+
   return allImports;
 }
+
+// function getInstallTargetsForFile(filePath: string, code: string): InstallTarget[] {
+//   console.log('getInstallTargetsForFile');
+//   const allImports: InstallTarget[] = [];
+//   try {
+//     const ast = parse(code, {plugins: ['dynamicImport'], sourceType: 'module'});
+//     traverse(ast, {
+//       ImportDeclaration(path) {
+//         const webModuleSpecifier = parseWebModuleSpecifier(path.node.source.value);
+//         if (webModuleSpecifier) {
+//           allImports.push({
+//             specifier: webModuleSpecifier,
+//             all: false,
+//             default: path.node.specifiers.some(s => s.type === 'ImportDefaultSpecifier'),
+//             namespace: path.node.specifiers.some(s => s.type === 'ImportNamespaceSpecifier'),
+//             named: path.node.specifiers
+//               .map(s => s.type === 'ImportSpecifier' && s.imported.name)
+//               .filter(Boolean),
+//           });
+//         }
+//       },
+//       Import(path) {
+//         // Only match dynamic imports that are called as a function
+//         if (path.parent.type !== 'CallExpression') {
+//           return;
+//         }
+//         // Only match dynamic imports called with a single string argument
+//         const [argNode] = path.parent.arguments;
+//         if (argNode.type !== 'StringLiteral') {
+//           return;
+//         }
+//         // Analyze that string argument as an import specifier
+//         const webModuleSpecifier = parseWebModuleSpecifier(argNode.value);
+//         if (webModuleSpecifier) {
+//           allImports.push(createInstallTarget(webModuleSpecifier, true));
+//         }
+//       },
+//     });
+//   } catch (e) {
+//     console.error(`[PARSE ERROR]: Skipping ${filePath}`);
+//     return [];
+//   }
+//   console.log(allImports);
+//   return allImports;
+// }
 
 export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
   const nodeModulesLoc = nodePath.join(cwd, 'node_modules');
@@ -137,7 +180,8 @@ interface ScanImportsParams {
   exclude?: glob.IOptions['ignore'];
 }
 
-export function scanImports({include, exclude}: ScanImportsParams): InstallTarget[] {
+export async function scanImports({include, exclude}: ScanImportsParams): Promise<InstallTarget[]> {
+  await init;
   const includeFiles = glob.sync(include, {ignore: exclude, nodir: true});
   if (!includeFiles.length) {
     console.warn(`[SCAN ERROR]: No files matching "${include}"`);
