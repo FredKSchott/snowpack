@@ -508,7 +508,10 @@ export async function cli(args: string[]) {
 
   spinner.start();
   const startTime = Date.now();
-  const result = await install(installTargets, {hasBrowserlistConfig, isExplicit}, config);
+  const result = await install(installTargets, {hasBrowserlistConfig, isExplicit}, config).catch((err) => {
+    err.loc && console.log('\n' + chalk.red.bold(`✘ ${err.loc.file}`));
+    throw err;
+  });
 
   if (result) {
     spinner.succeed(
