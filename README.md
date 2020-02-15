@@ -52,7 +52,7 @@ npm install
 # Build after changes
 npm run build
 # Run the built package directly by path, in some sibling project
-../pkg/dist-node/index.bin.js 
+./pkg/dist-node/index.bin.js 
 # Or, link the built package to run via CLI in any directory
 cd pkg && npm link
 snowpack
