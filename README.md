@@ -49,11 +49,13 @@ Interested in contributing? We'd love your help! Our [issue tracker](https://git
 # Local Setup
 git clone ${REPO}
 npm install
-# Build after every change
+# Build after changes
 npm run build
 # Run the built package directly by path, in some sibling project
 ../pkg/dist-node/index.bin.js 
 # Or, link the built package to run via CLI in any directory
 cd pkg && npm link
 snowpack
+# Run your tests
+npm test
 ```
