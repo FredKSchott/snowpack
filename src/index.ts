@@ -408,11 +408,15 @@ export async function install(
     }
     try {
       const noModuleBundle = await rollup.rollup({
-        input: nomodule,
+        input: path.resolve(cwd, nomodule),
         inlineDynamicImports: true,
         plugins: [...inputOptions.plugins, rollupResolutionHelper()],
       });
-      await noModuleBundle.write({file: path.resolve(destLoc, nomoduleOutput), format: 'iife'});
+      await noModuleBundle.write({
+        file: path.resolve(destLoc, nomoduleOutput),
+        format: 'iife',
+        name: 'App',
+      });
       const nomoduleEnd = Date.now() - nomoduleStart;
       spinner.info(
         `${chalk.bold(
