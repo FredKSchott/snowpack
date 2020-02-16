@@ -23,7 +23,7 @@ Snowpack supports configuration files in multiple formats. Snowpack will look fo
 
 ### Configuration Options
 
-```json
+```js
 {
   "webDependencies": [
     "htm",
@@ -46,17 +46,20 @@ Snowpack supports configuration files in multiple formats. Snowpack will look fo
     "nomodule": "src/index.js",
     "nomoduleOutput": "app.nomodule.js"
   },
-  "dedupe": ["lit-element", "lit-html"]
+  "dedupe": ["lit-element", "lit-html"],
+  "rollup": {
+    "plugins": []
+  }
 }
 ```
 
-| Config Option     | Type       | Description                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| ----------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `webDependencies` | `string[]` | (Recommended) Set exactly which packages to install with Snowpack.                                                                                                                                                            |
-| `installOptions.*`| `object`   | (Optional) Configure how packages are installed. See table below for all options.                                                                                                                                                                                                                                                                                          |  |
-| `namedExports`    | `object`   | (Optional) If needed, you can explicitly define named exports for any dependency. You should only use this if you're getting `"'X' is not exported by Y"` errors without it. See [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs#usage) for more documentation.                                                                                                                                                       |
-| `dedupe`          | `string[]` | (Optional) If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation. |
-
+| Config Option      | Type       | Description                                                                                                                                                                                                                                                                                                                                  |
+| ------------------ | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `webDependencies`  | `string[]` | (Recommended) Set exactly which packages to install with Snowpack.                                                                                                                                                                                                                                                                           |
+| `installOptions.*` | `object`   | (Optional) Configure how packages are installed. See table below for all options.                                                                                                                                                                                                                                                            |
+| `namedExports`     | `object`   | (Optional) If needed, you can explicitly define named exports for any dependency. You should only use this if you're getting `"'X' is not exported by Y"` errors without it. See [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs#usage) for more documentation.                                                    |
+| `dedupe`           | `string[]` | (Optional) If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation. |
+| `rollup.plugins`   | `object[]` | (Optional) Specify [Custom Rollup plugins](#custom-rollup-plugins) if you are dealing with non-standard files.                                                                                                                                                                                                                               |
 
 #### Install Options (`installOptions.*`)
 

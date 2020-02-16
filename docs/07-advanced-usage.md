@@ -178,3 +178,21 @@ No browser today supports importing an image directly from JS. Instead, you'll w
 
 1. **Recommended!** Keep referencing images by URL. You can put any image URL directly into an `<img>` src tag: `<img src="/img/photo.png">`.
 
+### Custom Rollup Plugins
+
+You may encounter non-JS npm packages that can only run with additional parsing/processing. Svelte packages, for example, commonly include `.svelte` files that will require additional tooling to parse and install for the browser.
+
+In these rare cases, you can add your own Rollup plugins to your [Snowpack config](#configuration-options) to handle these special files:
+
+```js
+/* snowpack.config.js */
+const rollupPluginSvelte = require('rollup-plugin-svelte');
+
+module.exports = {
+  rollup: {
+    plugins: [rollupPluginSvelte()]
+  }
+};
+```
+
+Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#using-plugins) for more information.
