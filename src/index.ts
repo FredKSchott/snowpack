@@ -242,6 +242,7 @@ export async function install(
       strict: isStrict,
       stat: withStats,
     },
+    rollup: userDefinedRollup,
   } = config;
 
   const knownNamedExports = {...namedExports};
@@ -349,6 +350,7 @@ export async function install(
       !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
       !!isOptimized && rollupPluginTerser(),
       !!withStats && rollupPluginDependencyStats(info => (dependencyStats = info)),
+      ...userDefinedRollup.plugins, // load user-defined plugins last
     ],
     onwarn: ((warning, warn) => {
       if (warning.code === 'UNRESOLVED_IMPORT') {

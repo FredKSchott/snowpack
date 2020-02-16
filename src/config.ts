@@ -1,5 +1,6 @@
 import path from 'path';
 import {cosmiconfigSync} from 'cosmiconfig';
+import {RollupOptions} from 'rollup';
 import {validate} from 'jsonschema';
 import merge from 'deepmerge';
 
@@ -17,6 +18,7 @@ const DEFAULT_CONFIG: SnowpackConfig = {
     remoteUrl: 'https://cdn.pika.dev',
     strict: false,
   },
+  rollup: {plugins: []},
 };
 
 // interface this library uses internally
@@ -37,8 +39,11 @@ export interface SnowpackConfig {
     remotePackage?: string[];
     remoteUrl?: string;
     sourceMap?: boolean | 'inline';
-    strict?: boolean;
     stat?: boolean;
+    strict?: boolean;
+  };
+  rollup?: {
+    plugins?: RollupOptions['plugins']; // for simplicity, only Rollup plugins are supported for now
   };
   webDependencies?: string[];
 }
@@ -70,7 +75,14 @@ const configSchema = {
         remotePackage: {type: 'array', items: {type: 'string'}},
         remoteUrl: {type: 'string'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
+        stat: {type: 'boolean'},
         strict: {type: 'boolean'},
+      },
+    },
+    rollup: {
+      type: 'object',
+      properties: {
+        plugins: {type: 'array', items: {type: 'object'}}, // type: 'object' ensures the user loaded the Rollup plugins correctly
       },
     },
     webDependencies: {type: 'array', items: {type: 'string'}},

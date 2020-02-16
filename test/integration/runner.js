@@ -5,6 +5,10 @@ const {readdirSync, readFileSync} = require('fs');
 const execa = require('execa');
 const dircompare = require('dir-compare');
 
+const SKIP_FILE_CHECK = [
+  'config-rollup', // only expected-output.txt is needed for the test, and Windows comparison fails because of backslashes
+];
+
 function stripBenchmark(stdout) {
   return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
 }
@@ -48,6 +52,11 @@ for (const testName of readdirSync(__dirname)) {
     const actualWebDependenciesLoc = path.join(__dirname, testName, 'web_modules');
     const expectedWebDependencies = await fs.readdir(expectedWebDependenciesLoc).catch(() => {});
     if (!expectedWebDependencies) {
+      // skip file comparison for specific tests
+      if (SKIP_FILE_CHECK.includes(testName)) {
+        return;
+      }
+      // throw error if web_modules/ is generated but expected-install/ is missing
       assert.rejects(() => fs.readdir(actualWebDependenciesLoc), 'web_modules/ exists');
       return;
     }
