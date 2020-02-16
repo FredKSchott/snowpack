@@ -23,7 +23,7 @@ npm test
 
 ```bash
 # Run snowpack locally by path, in some sibling project
-../pkg/dist-node/index.bin.js 
+cd ../some-other-project && ../pkg/dist-node/index.bin.js 
 # Or, link the built package to run anywhere via global CLI
 cd pkg && npm link
 snowpack
