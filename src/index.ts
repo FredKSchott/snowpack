@@ -360,11 +360,12 @@ export async function install(
         if (isNodeBuiltin(warning.source)) {
           console.log(
             chalk.dim(
-              `  '${
-                warning.source
-              }' is a Node.js builtin module that won't exist on the web. You can find modern, web-ready packages at ${chalk.underline(
-                'https://www.pika.dev',
-              )}`,
+              `  '${warning.source}' is a Node.js builtin module that won't exist in the browser.`,
+            ),
+          );
+          console.log(
+            chalk.dim(
+              `  Find a more web-friendly alternative, or add the "rollup-plugin-node-polyfills" plugin to your Snowpack config file.`,
             ),
           );
         } else {
