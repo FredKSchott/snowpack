@@ -113,7 +113,7 @@ function getInstallTargetsForFile(filePath: string, code: string): InstallTarget
       },
     });
   } catch (e) {
-    console.error(`[PARSE ERROR]: Skipping ${filePath}`);
+    console.error(`[PARSE ERROR] "${filePath}" ${e.message}`);
     return [];
   }
   return allImports;
