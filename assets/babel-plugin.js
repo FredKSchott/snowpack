@@ -32,7 +32,12 @@ function getImportMap(explicitPath, dir) {
 function rewriteImport(importMap, imp, dir, shouldAddMissingExtension) {
   const isSourceImport = imp.startsWith('/') || imp.startsWith('.') || imp.startsWith('\\');
   const isRemoteImport = imp.startsWith('http://') || imp.startsWith('https://');
-  const mappedImport = importMap.imports[imp];
+  const extname = path.extname(imp);
+  let tempImp = imp;
+  if (extname) {
+    tempImp = imp.replace(extname, '');
+  }
+  const mappedImport = importMap.imports[tempImp];
   if (mappedImport) {
     if (mappedImport.startsWith('http://') || mappedImport.startsWith('https://')) {
       return mappedImport;
@@ -47,7 +52,7 @@ function rewriteImport(importMap, imp, dir, shouldAddMissingExtension) {
     console.log(`warn: bare import "${imp}" not found in import map, ignoring...`);
     return imp;
   }
-  if (isSourceImport && shouldAddMissingExtension && !path.extname(imp)) {
+  if (isSourceImport && shouldAddMissingExtension && !extname) {
     return imp + '.js';
   }
   return imp;
