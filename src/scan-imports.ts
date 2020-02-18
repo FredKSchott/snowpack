@@ -50,7 +50,7 @@ function removeSpecifierQueryString(specifier: string) {
   return specifier;
 }
 
-function getSpecifierFromImport(code, imp: ImportSpecifier) {
+function getWebModuleSpecifierFromCode(code, imp: ImportSpecifier) {
   if (imp.d > -1) {
     return code.substring(imp.s + 1, imp.e - 1);
   }
@@ -85,13 +85,14 @@ function parseWebModuleSpecifier(specifier: string): null | string {
   return resolvedSpecifier;
 }
 
-function parseImport(importStatement: string, imp: ImportSpecifier): InstallTarget {
-  const webModuleSpecifier = parseWebModuleSpecifier(getSpecifierFromImport(importStatement, imp));
+function parseImport(code: string, imp: ImportSpecifier): null | InstallTarget {
+  const webModuleSpecifier = parseWebModuleSpecifier(getWebModuleSpecifierFromCode(code, imp));
 
   if (!webModuleSpecifier) {
     return null;
   }
 
+  const importStatement = code.substring(imp.ss, imp.se);
   const dynamicImport = imp.d > -1;
   const defaultImport = !dynamicImport && DEFAULT_IMPORT_REGEX.test(importStatement);
   const namespaceImport = !dynamicImport && importStatement.includes('*');
@@ -115,7 +116,7 @@ function getInstallTargetsForFile(filePath: string, code: string): InstallTarget
   const allImports: InstallTarget[] = [];
 
   for (const imp of imports) {
-    allImports.push(parseImport(code.substring(imp.ss, imp.se), imp));
+    allImports.push(parseImport(code, imp));
   }
 
   return allImports.filter(Boolean);
