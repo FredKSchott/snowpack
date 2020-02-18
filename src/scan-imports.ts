@@ -2,7 +2,7 @@ import nodePath from 'path';
 import fs from 'fs';
 import glob from 'glob';
 import validatePackageName from 'validate-npm-package-name';
-import {init, parse} from 'es-module-lexer';
+import {init, parse, ImportSpecifier} from 'es-module-lexer';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -10,7 +10,9 @@ const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
 // [@\w] - Match a word-character or @ (valid package name)
 // (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)
 const BARE_SPECIFIER_REGEX = /^[@\w](?!.*(:\/\/))/;
-const NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/;
+const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/;
+const SPLIT_NAMED_IMPORTS_REGEX = /\bas\s\w+|,/;
+const DEFAULT_IMPORT_REGEX = /import\s(\w)+(,\s\{[\w\s]*\})?\s+from/;
 
 /**
  * An install target represents information about a dependency to install.
@@ -48,9 +50,11 @@ function removeSpecifierQueryString(specifier: string) {
   return specifier;
 }
 
-function removeSpecifierQuotes(specifier: string) {
-  const strippedSpecifier = specifier.replace(/[\'\"]/g, '');
-  return strippedSpecifier;
+function getSpecifierFromImport(code, imp: ImportSpecifier) {
+  if (imp.d > -1) {
+    return code.substring(imp.s + 1, imp.e - 1);
+  }
+  return code.substring(imp.s, imp.e);
 }
 
 /**
@@ -58,16 +62,12 @@ function removeSpecifierQuotes(specifier: string) {
  * null is returned.
  */
 function parseWebModuleSpecifier(specifier: string): null | string {
-  // Remove any quotes included in the specifier
-  // (left over from dynamic import parameters)
-  const pureSpecifier = removeSpecifierQuotes(specifier);
-
   // If specifier is a "bare module specifier" (ie: package name) just return it directly
-  if (BARE_SPECIFIER_REGEX.test(pureSpecifier)) {
-    return pureSpecifier;
+  if (BARE_SPECIFIER_REGEX.test(specifier)) {
+    return specifier;
   }
   // Clean the specifier, remove any query params that may mess with matching
-  const cleanedSpecifier = removeSpecifierQueryString(pureSpecifier);
+  const cleanedSpecifier = removeSpecifierQueryString(specifier);
   // Otherwise, check that it includes the "web_modules/" directory
   const webModulesIndex = cleanedSpecifier.indexOf(WEB_MODULES_TOKEN);
   if (webModulesIndex === -1) {
@@ -85,36 +85,40 @@ function parseWebModuleSpecifier(specifier: string): null | string {
   return resolvedSpecifier;
 }
 
+function parseImport(importStatement: string, imp: ImportSpecifier): InstallTarget {
+  const webModuleSpecifier = parseWebModuleSpecifier(getSpecifierFromImport(importStatement, imp));
+
+  if (!webModuleSpecifier) {
+    return null;
+  }
+
+  const dynamicImport = imp.d > -1;
+  const defaultImport = !dynamicImport && DEFAULT_IMPORT_REGEX.test(importStatement);
+  const namespaceImport = !dynamicImport && importStatement.includes('*');
+
+  const namedImports = (importStatement.match(HAS_NAMED_IMPORTS_REGEX) || [, ''])[1]
+    .split(SPLIT_NAMED_IMPORTS_REGEX)
+    .map(name => name.trim())
+    .filter(Boolean);
+
+  return {
+    specifier: webModuleSpecifier,
+    all: dynamicImport,
+    default: defaultImport,
+    namespace: namespaceImport,
+    named: namedImports,
+  };
+}
+
 function getInstallTargetsForFile(filePath: string, code: string): InstallTarget[] {
   const [imports] = parse(code) || [];
   const allImports: InstallTarget[] = [];
 
-  for (const {s: start, e: end, ss: sStart, se: sEnd, d: dynamicImportIndex} of imports) {
-    const webModuleSpecifier = parseWebModuleSpecifier(code.substring(start, end));
-    if (!webModuleSpecifier) {
-      continue;
-    }
-
-    const importStatement = code.substring(sStart, sEnd);
-    const dynamicImport = dynamicImportIndex > -1;
-    const defaultImport = !dynamicImport && !importStatement.includes('{');
-    const namespaceImport = !dynamicImport && importStatement.includes('as');
-
-    const namedImports = (importStatement.match(NAMED_IMPORTS_REGEX) || [, ''])[1]
-      .split(',')
-      .map(name => name.trim())
-      .filter(Boolean);
-
-    allImports.push({
-      specifier: webModuleSpecifier,
-      all: dynamicImport,
-      default: defaultImport,
-      namespace: namespaceImport,
-      named: namedImports,
-    });
+  for (const imp of imports) {
+    allImports.push(parseImport(code.substring(imp.ss, imp.se), imp));
   }
 
-  return allImports;
+  return allImports.filter(Boolean);
 }
 
 export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
