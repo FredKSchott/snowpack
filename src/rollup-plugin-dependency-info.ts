@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {OutputOptions, OutputBundle} from 'rollup';
 
-type DependencyStats = {
+export type DependencyStats = {
   size: number;
   delta?: number;
 };

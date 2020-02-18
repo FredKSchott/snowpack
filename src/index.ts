@@ -23,6 +23,7 @@ import loadConfig, {SnowpackConfig} from './config.js';
 import {
   rollupPluginDependencyStats,
   DependencyStatsOutput,
+  DependencyStats,
 } from './rollup-plugin-dependency-info.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 import {resolveDependencyManifest} from './util.js';
@@ -91,7 +92,12 @@ function formatDelta(delta) {
   return chalk[color](`Δ ${delta > 0 ? '+' : ''}${kb} KB`);
 }
 
-function formatFileInfo(filename, stats, padEnd, isLastFile) {
+function formatFileInfo(
+  filename: string,
+  stats: DependencyStats,
+  padEnd: number,
+  isLastFile: boolean,
+): string {
   const lineGlyph = chalk.dim(isLastFile ? '└─' : '├─');
   const lineName = filename.padEnd(padEnd);
   const lineSize = chalk.dim('[') + formatSize(stats.size) + chalk.dim(']');
@@ -99,11 +105,11 @@ function formatFileInfo(filename, stats, padEnd, isLastFile) {
   return `    ${lineGlyph} ${lineName} ${lineSize}${lineDelta}`;
 }
 
-function formatFiles(files, title) {
+function formatFiles(files: [string, DependencyStats][], title: string) {
   const strippedFiles = files.map(([filename, stats]) => [
     filename.replace(/^common\//, ''),
     stats,
-  ]);
+  ]) as [string, DependencyStats][];
   const maxFileNameLength = strippedFiles.reduce(
     (max, [filename]) => Math.max(filename.length, max),
     0,
