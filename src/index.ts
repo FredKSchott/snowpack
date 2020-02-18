@@ -266,7 +266,7 @@ export async function install(
       if (targetType === 'JS') {
         const hashQs = useHash ? `?rev=${await generateHashFromFile(targetLoc)}` : '';
         depObject[targetName] = targetLoc;
-        importMap[targetName] = `./${targetName}.js${hashQs}`;
+        importMap[installSpecifier] = `./${targetName}.js${hashQs}`;
         installTargetsMap[targetLoc] = installTargets.filter(t => installSpecifier === t.specifier);
         installResults.push([installSpecifier, true]);
       } else if (targetType === 'ASSET') {
