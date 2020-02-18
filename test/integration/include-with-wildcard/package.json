@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --clean --include '*.js'"
+  },
+  "dependencies": {
+    "@pika/react": "^16.12.2",
+    "shallow-equal": "^1.2.1"
+  }
+}

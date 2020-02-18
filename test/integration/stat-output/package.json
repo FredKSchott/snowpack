@@ -1,7 +1,7 @@
 {
   "description": "Test the --stat output",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --stat"
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --clean --stat"
   },
   "snowpack": {
     "webDependencies": [
