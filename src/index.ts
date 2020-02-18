@@ -23,6 +23,7 @@ import loadConfig, {SnowpackConfig} from './config.js';
 import {
   rollupPluginDependencyStats,
   DependencyStatsOutput,
+  DependencyStats,
 } from './rollup-plugin-dependency-info.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 import {resolveDependencyManifest} from './util.js';
@@ -91,27 +92,41 @@ function formatDelta(delta) {
   return chalk[color](`Δ ${delta > 0 ? '+' : ''}${kb} KB`);
 }
 
-function formatFileInfo(file, padEnd, isLastFile) {
+function formatFileInfo(
+  filename: string,
+  stats: DependencyStats,
+  padEnd: number,
+  isLastFile: boolean,
+): string {
   const lineGlyph = chalk.dim(isLastFile ? '└─' : '├─');
-  const lineName = file.fileName.padEnd(padEnd);
-  const lineSize = chalk.dim('[') + formatSize(file.size) + chalk.dim(']');
-  const lineDelta = file.delta ? chalk.dim(' [') + formatDelta(file.delta) + chalk.dim(']') : '';
+  const lineName = filename.padEnd(padEnd);
+  const lineSize = chalk.dim('[') + formatSize(stats.size) + chalk.dim(']');
+  const lineDelta = stats.delta ? chalk.dim(' [') + formatDelta(stats.delta) + chalk.dim(']') : '';
   return `    ${lineGlyph} ${lineName} ${lineSize}${lineDelta}`;
 }
 
-function formatFiles(files, title) {
-  const maxFileNameLength = files.reduce((max, file) => Math.max(file.fileName.length, max), 0);
+function formatFiles(files: [string, DependencyStats][], title: string) {
+  const strippedFiles = files.map(([filename, stats]) => [
+    filename.replace(/^common\//, ''),
+    stats,
+  ]) as [string, DependencyStats][];
+  const maxFileNameLength = strippedFiles.reduce(
+    (max, [filename]) => Math.max(filename.length, max),
+    0,
+  );
   return `  ⦿ ${chalk.bold(title)}
-${files
-  .map((file, index) => formatFileInfo(file, maxFileNameLength, index >= files.length - 1))
+${strippedFiles
+  .map(([filename, stats], index) =>
+    formatFileInfo(filename, stats, maxFileNameLength, index >= files.length - 1),
+  )
   .join('\n')}`;
 }
 
 function formatDependencyStats(): string {
   let output = '';
   const {direct, common} = dependencyStats;
-  const allDirect = Object.values(direct);
-  const allCommon = Object.values(common);
+  const allDirect = Object.entries(direct);
+  const allCommon = Object.entries(common);
   output += formatFiles(allDirect, 'web_modules/');
   if (Object.values(common).length > 0) {
     output += `\n${formatFiles(allCommon, 'web_modules/common/ (Shared)')}`;

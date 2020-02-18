@@ -1,4 +1,4 @@
-import { n as noop } from './common/noop-x.esm-e72ec11e.js';
+import { n as noop } from '../../common/noop-x.esm-e72ec11e.js';
 
 var bind = noop.bind;
 
