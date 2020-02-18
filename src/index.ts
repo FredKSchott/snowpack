@@ -27,6 +27,8 @@ import {
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 import {resolveDependencyManifest} from './util.js';
 
+import {gzipSync, brotliCompressSync} from 'zlib';
+
 export interface DependencyLoc {
   type: 'JS' | 'ASSET';
   loc: string;
@@ -92,9 +94,22 @@ function formatDelta(delta) {
 }
 
 function formatFileInfo(file, padEnd, isLastFile) {
+  const fileContent = fs.readFileSync(path.join(cwd, 'web_modules', file.fileName), 'utf-8');
+  const gzipSize = gzipSync(fileContent).byteLength;
+  const brSize = brotliCompressSync(fileContent).byteLength;
+
   const lineGlyph = chalk.dim(isLastFile ? '└─' : '├─');
   const lineName = file.fileName.padEnd(padEnd);
-  const lineSize = chalk.dim('[') + formatSize(file.size) + chalk.dim(']');
+  const lineSize =
+    chalk.dim('[') +
+    formatSize(file.size) +
+    chalk.dim(']') +
+    ' [ gzip: ' +
+    formatSize(gzipSize) +
+    ' ]' +
+    ' [ brotli: ' +
+    formatSize(brSize) +
+    ' ]';
   const lineDelta = file.delta ? chalk.dim(' [') + formatDelta(file.delta) + chalk.dim(']') : '';
   return `    ${lineGlyph} ${lineName} ${lineSize}${lineDelta}`;
 }
