@@ -2,7 +2,7 @@ import nodePath from 'path';
 import fs from 'fs';
 import glob from 'glob';
 import validatePackageName from 'validate-npm-package-name';
-import {init, parse, ImportSpecifier} from 'es-module-lexer';
+import {init as initESModuleLexer, parse, ImportSpecifier} from 'es-module-lexer';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -85,7 +85,7 @@ function parseWebModuleSpecifier(specifier: string): null | string {
   return resolvedSpecifier;
 }
 
-function parseImport(code: string, imp: ImportSpecifier): null | InstallTarget {
+function parseImportStatement(code: string, imp: ImportSpecifier): null | InstallTarget {
   const webModuleSpecifier = parseWebModuleSpecifier(getWebModuleSpecifierFromCode(code, imp));
 
   if (!webModuleSpecifier) {
@@ -113,13 +113,11 @@ function parseImport(code: string, imp: ImportSpecifier): null | InstallTarget {
 
 function getInstallTargetsForFile(filePath: string, code: string): InstallTarget[] {
   const [imports] = parse(code) || [];
-  const allImports: InstallTarget[] = [];
+  const allImports: InstallTarget[] = imports
+    .map(imp => parseImportStatement(code, imp))
+    .filter(Boolean);
 
-  for (const imp of imports) {
-    allImports.push(parseImport(code, imp));
-  }
-
-  return allImports.filter(Boolean);
+  return allImports;
 }
 
 export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
@@ -141,7 +139,7 @@ interface ScanImportsParams {
 }
 
 export async function scanImports({include, exclude}: ScanImportsParams): Promise<InstallTarget[]> {
-  await init;
+  await initESModuleLexer;
   const includeFiles = glob.sync(include, {ignore: exclude, nodir: true});
   if (!includeFiles.length) {
     console.warn(`[SCAN ERROR]: No files matching "${include}"`);
