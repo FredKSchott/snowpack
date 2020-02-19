@@ -56,6 +56,7 @@ ${chalk.bold('Options:')}
     --exclude           Exclude files from --include. Follows glob’s ignore pattern.
     --strict            Only install pure ESM dependency trees. Fail if a CJS module is encountered.
     --no-source-map     Skip emitting source map files (.js.map) into dest
+    --stat              Logs install statistics after installing, with information on install targets and file sizes. Useful for CI, performance review.
 ${chalk.bold('Advanced:')}
     --nomodule          Your app’s entry file for generating a <script nomodule> bundle
     --nomodule-output   Filename for nomodule output (default: 'app.nomodule.js')
