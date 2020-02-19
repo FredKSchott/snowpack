@@ -13,10 +13,7 @@ function stripBenchmark(stdout) {
   return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
 }
 function stripStats(stdout) {
-  return stdout.replace(
-    /\[\d+\.\d+\sKB((,?)\s[\+\-]\d+\.\d+\sKB)?\]\s\[gzip\:\s\d+.\d+\sKB\]\s\[brotli\:\s\d+.\d+\sKB\]/g,
-    '[$2]',
-  );
+  return stdout.replace(/\[.+? KB\]/g, '[XXX KB]');
 }
 function stripWhitespace(stdout) {
   return stdout.replace(/((\s+$)|((\\r\\n)|(\\n)))/gm, '');
