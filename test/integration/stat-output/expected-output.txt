@@ -2,7 +2,7 @@
 ✔ snowpack installed: cached-constructors-x, has-working-bind-x/dist/has-working-bind-x.esm.js.
 
   ⦿ web_modules/
-    ├─ cached-constructors-x.js                          [XXX KB]
-    └─ has-working-bind-x/dist/has-working-bind-x.esm.js [XXX KB]
+    ├─ cached-constructors-x.js                          [XXX KB] [XXX KB] [XXX KB]
+    └─ has-working-bind-x/dist/has-working-bind-x.esm.js [XXX KB] [XXX KB] [XXX KB]
   ⦿ web_modules/common/ (Shared)
-    └─ noop-x.esm.js [XXX KB]
+    └─ noop-x.esm.js [XXX KB] [XXX KB] [XXX KB]
