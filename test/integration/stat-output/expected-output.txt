@@ -2,7 +2,7 @@
 ✔ snowpack installed: cached-constructors-x, has-working-bind-x.
 
   ⦿ web_modules/
-    ├─ cached-constructors-x.js [] [ gzip: ] [ brotli: ]
-    └─ has-working-bind-x.js    [] [ gzip: ] [ brotli: ]
+    ├─ cached-constructors-x.js [] [] []
+    └─ has-working-bind-x.js    [] [] []
   ⦿ web_modules/common/ (Shared)
-    └─ noop-x.esm.js [] [ gzip: ] [ brotli: ]
+    └─ noop-x.esm.js [] [] []

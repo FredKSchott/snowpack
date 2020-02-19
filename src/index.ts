@@ -108,8 +108,8 @@ function formatFileInfo(file, padEnd, isLastFile) {
   const lineGlyph = chalk.dim(isLastFile ? '└─' : '├─');
   const lineName = file.fileName.padEnd(padEnd);
   const fileStat = chalk.dim('[') + formatSize(file.size) + chalk.dim(']');
-  const gzipStat = ' [ gzip: ' + formatSize(gzipSize) + ' ]';
-  const brotliStat = ' [ brotli: ' + formatSize(brSize) + ' ]';
+  const gzipStat = ' [gzip: ' + formatSize(gzipSize) + ']';
+  const brotliStat = ' [brotli: ' + formatSize(brSize) + ']';
   const lineSize = zlib.brotliCompressSync ? fileStat + gzipStat + brotliStat : fileStat + gzipStat;
   const lineDelta = file.delta ? chalk.dim(' [') + formatDelta(file.delta) + chalk.dim(']') : '';
   return `    ${lineGlyph} ${lineName} ${lineSize}${lineDelta}`;
