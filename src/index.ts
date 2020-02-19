@@ -465,7 +465,12 @@ export async function install(
 
 export async function cli(args: string[]) {
   // parse CLI flags
-  const cliFlags = yargs(args, {array: ['exclude', 'externalPackage']});
+  const cliFlags = yargs.detailed(args, {
+    array: ['exclude', 'externalPackage'],
+    configuration: {
+      'strip-dashed': true,
+    },
+  }).argv;
 
   // if printing help, stop here
   if (cliFlags.help) {

@@ -3,6 +3,8 @@ import {cosmiconfigSync} from 'cosmiconfig';
 import {RollupOptions} from 'rollup';
 import {validate} from 'jsonschema';
 import merge from 'deepmerge';
+import camelcase from 'camelcase';
+import decamelize from 'decamelize';
 
 // default settings
 const DEFAULT_CONFIG: SnowpackConfig = {
@@ -89,19 +91,18 @@ const configSchema = {
   },
 };
 
+const knownCliFlags = Object.keys(configSchema.properties.installOptions.properties);
+
 export default function loadConfig(cliFlags?: SnowpackConfig) {
   // Validate cli flags
   if (!!cliFlags) {
     const unknownFlags = Object.keys(cliFlags.installOptions).filter(
-      flag =>
-        !Object.keys(configSchema.properties.installOptions.properties).includes(flag) &&
-        // The value with key `_` is an array representing the positional arguments presented by yargs-parser
-        flag !== '_',
+      flag => !knownCliFlags.includes(camelcase(flag)) && flag !== '_',
     );
     if (unknownFlags.length > 0) {
       return {
         config: null,
-        errors: unknownFlags.map(flag => `Unknown flag: --${flag}`),
+        errors: unknownFlags.map(flag => `Unknown flag: --${decamelize(flag, '-')}`),
       };
     }
   }
