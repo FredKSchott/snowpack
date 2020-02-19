@@ -1,12 +1,12 @@
 {
   "description": "Test the --stat output",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --stat"
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --clean --stat"
   },
   "snowpack": {
     "webDependencies": [
       "cached-constructors-x",
-      "has-working-bind-x"
+      "has-working-bind-x/dist/has-working-bind-x.esm.js"
     ]
   },
   "dependencies": {

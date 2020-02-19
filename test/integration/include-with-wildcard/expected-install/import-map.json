@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "@pika/react": "./@pika/react.js",
+    "shallow-equal": "./shallow-equal.js"
+  }
+}

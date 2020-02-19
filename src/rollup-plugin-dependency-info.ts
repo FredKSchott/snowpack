@@ -2,8 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {OutputOptions, OutputBundle} from 'rollup';
 
-type DependencyStats = {
-  fileName: string;
+export type DependencyStats = {
   size: number;
   delta?: number;
 };
@@ -36,7 +35,6 @@ export function rollupPluginDependencyStats(cb: (dependencyInfo: DependencyStats
       const filePath = path.join(outputDir, file);
       const {size} = fs.statSync(filePath);
       output[type][file] = {
-        fileName: path.basename(file),
         size,
       };
 

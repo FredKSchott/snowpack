@@ -23,6 +23,7 @@ import loadConfig, {SnowpackConfig} from './config.js';
 import {
   rollupPluginDependencyStats,
   DependencyStatsOutput,
+  DependencyStats,
 } from './rollup-plugin-dependency-info.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 import {resolveDependencyManifest} from './util.js';
@@ -93,41 +94,52 @@ function formatDelta(delta) {
   return chalk[color](`Δ ${delta > 0 ? '+' : ''}${kb} KB`);
 }
 
-function formatFileInfo(file, padEnd, isLastFile) {
-  const commonPath = path.join(cwd, 'web_modules/common', file.fileName);
-  const filePath = fs.existsSync(commonPath)
-    ? commonPath
-    : path.join(cwd, 'web_modules', file.fileName);
+function formatFileInfo(
+  filename: string,
+  stats: DependencyStats,
+  padEnd: number,
+  isLastFile: boolean,
+): string {
+  const commonPath = path.join(cwd, 'web_modules/common', filename);
+  const filePath = fs.existsSync(commonPath) ? commonPath : path.join(cwd, 'web_modules', filename);
   const fileContent = fs.readFileSync(filePath, 'utf-8');
   const gzipSize = zlib.gzipSync(fileContent).byteLength;
   let brSize;
   if (zlib.brotliCompressSync) {
     brSize = zlib.brotliCompressSync(fileContent).byteLength;
   }
-
   const lineGlyph = chalk.dim(isLastFile ? '└─' : '├─');
-  const lineName = file.fileName.padEnd(padEnd);
-  const fileStat = chalk.dim('[') + formatSize(file.size) + chalk.dim(']');
+  const lineName = filename.padEnd(padEnd);
+  const fileStat = chalk.dim('[') + formatSize(stats.size) + chalk.dim(']');
   const gzipStat = ' [gzip: ' + formatSize(gzipSize) + ']';
   const brotliStat = ' [brotli: ' + formatSize(brSize) + ']';
   const lineSize = zlib.brotliCompressSync ? fileStat + gzipStat + brotliStat : fileStat + gzipStat;
-  const lineDelta = file.delta ? chalk.dim(' [') + formatDelta(file.delta) + chalk.dim(']') : '';
+  const lineDelta = stats.delta ? chalk.dim(' [') + formatDelta(stats.delta) + chalk.dim(']') : '';
   return `    ${lineGlyph} ${lineName} ${lineSize}${lineDelta}`;
 }
 
-function formatFiles(files, title) {
-  const maxFileNameLength = files.reduce((max, file) => Math.max(file.fileName.length, max), 0);
+function formatFiles(files: [string, DependencyStats][], title: string) {
+  const strippedFiles = files.map(([filename, stats]) => [
+    filename.replace(/^common\//, ''),
+    stats,
+  ]) as [string, DependencyStats][];
+  const maxFileNameLength = strippedFiles.reduce(
+    (max, [filename]) => Math.max(filename.length, max),
+    0,
+  );
   return `  ⦿ ${chalk.bold(title)}
-${files
-  .map((file, index) => formatFileInfo(file, maxFileNameLength, index >= files.length - 1))
+${strippedFiles
+  .map(([filename, stats], index) =>
+    formatFileInfo(filename, stats, maxFileNameLength, index >= files.length - 1),
+  )
   .join('\n')}`;
 }
 
 function formatDependencyStats(): string {
   let output = '';
   const {direct, common} = dependencyStats;
-  const allDirect = Object.values(direct);
-  const allCommon = Object.values(common);
+  const allDirect = Object.entries(direct);
+  const allCommon = Object.entries(common);
   output += formatFiles(allDirect, 'web_modules/');
   if (Object.values(common).length > 0) {
     output += `\n${formatFiles(allCommon, 'web_modules/common/ (Shared)')}`;
@@ -282,7 +294,7 @@ export async function install(
       if (targetType === 'JS') {
         const hashQs = useHash ? `?rev=${await generateHashFromFile(targetLoc)}` : '';
         depObject[targetName] = targetLoc;
-        importMap[targetName] = `./${targetName}.js${hashQs}`;
+        importMap[installSpecifier] = `./${targetName}.js${hashQs}`;
         installTargetsMap[targetLoc] = installTargets.filter(t => installSpecifier === t.specifier);
         installResults.push([installSpecifier, true]);
       } else if (targetType === 'ASSET') {
@@ -517,7 +529,7 @@ export async function cli(args: string[]) {
   }
   if (include) {
     isExplicit = true;
-    installTargets.push(...scanImports({include, exclude}));
+    installTargets.push(...(await scanImports({include, exclude})));
   }
   if (!webDependencies && !include) {
     installTargets.push(...scanDepList(implicitDependencies, cwd));
