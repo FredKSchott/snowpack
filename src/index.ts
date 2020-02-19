@@ -28,6 +28,8 @@ import {
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 import {resolveDependencyManifest} from './util.js';
 
+import zlib from 'zlib';
+
 export interface DependencyLoc {
   type: 'JS' | 'ASSET';
   loc: string;
@@ -98,9 +100,20 @@ function formatFileInfo(
   padEnd: number,
   isLastFile: boolean,
 ): string {
+  const commonPath = path.join(cwd, 'web_modules/common', filename);
+  const filePath = fs.existsSync(commonPath) ? commonPath : path.join(cwd, 'web_modules', filename);
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  const gzipSize = zlib.gzipSync(fileContent).byteLength;
+  let brSize;
+  if (zlib.brotliCompressSync) {
+    brSize = zlib.brotliCompressSync(fileContent).byteLength;
+  }
   const lineGlyph = chalk.dim(isLastFile ? '└─' : '├─');
   const lineName = filename.padEnd(padEnd);
-  const lineSize = chalk.dim('[') + formatSize(stats.size) + chalk.dim(']');
+  const fileStat = chalk.dim('[') + formatSize(stats.size) + chalk.dim(']');
+  const gzipStat = ' [gzip: ' + formatSize(gzipSize) + ']';
+  const brotliStat = ' [brotli: ' + formatSize(brSize) + ']';
+  const lineSize = zlib.brotliCompressSync ? fileStat + gzipStat + brotliStat : fileStat + gzipStat;
   const lineDelta = stats.delta ? chalk.dim(' [') + formatDelta(stats.delta) + chalk.dim(']') : '';
   return `    ${lineGlyph} ${lineName} ${lineSize}${lineDelta}`;
 }
