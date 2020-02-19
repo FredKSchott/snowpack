@@ -88,8 +88,5 @@
     "markdown-it-anchor": "^5.2.5",
     "prettier": "^1.18.2",
     "typescript": "^3.6.4"
-  },
-  "engines": {
-    "node": ">= 10.16"
   }
 }
