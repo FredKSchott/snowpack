@@ -90,6 +90,22 @@ const configSchema = {
 };
 
 export default function loadConfig(cliFlags?: SnowpackConfig) {
+  // Validate cli flags
+  if (!!cliFlags) {
+    const unknownFlags = Object.keys(cliFlags.installOptions).filter(
+      flag =>
+        !Object.keys(configSchema.properties.installOptions.properties).includes(flag) &&
+        // The value with key `_` is an array representing the positional arguments presented by yargs-parser
+        flag !== '_',
+    );
+    if (unknownFlags.length > 0) {
+      return {
+        config: null,
+        errors: unknownFlags.map(flag => `Unknown flag: --${flag}`),
+      };
+    }
+  }
+
   const explorerSync = cosmiconfigSync('snowpack', {
     // only support these 3 types of config for now
     searchPlaces: ['package.json', 'snowpack.config.js', 'snowpack.config.json'],
