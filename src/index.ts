@@ -207,7 +207,22 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
     );
   }
   let foundEntrypoint: string =
-    depManifest['browser:module'] || depManifest.module || depManifest.browser;
+    depManifest['browser:module'] ||
+    depManifest.module ||
+    depManifest['main:esnext'] ||
+    depManifest.browser;
+  // Some packages define "browser" as an object. We'll do our best to find the
+  // right entrypoint in an entrypoint object, or fail otherwise.
+  // See: https://github.com/defunctzombie/package-browser-field-spec
+  if (typeof foundEntrypoint === 'object') {
+    foundEntrypoint =
+      foundEntrypoint[dep] ||
+      foundEntrypoint['./index.js'] ||
+      foundEntrypoint['./index'] ||
+      foundEntrypoint['./'] ||
+      foundEntrypoint['.'] ||
+      foundEntrypoint;
+  }
   // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
   if (!foundEntrypoint && isExplicit) {
     foundEntrypoint = depManifest.main || 'index.js';
@@ -232,6 +247,9 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
         `Tip: Find modern, web-ready packages at ${chalk.underline('https://www.pika.dev')}`,
       ),
     );
+  }
+  if (typeof foundEntrypoint !== 'string') {
+    throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
   }
   return {
     type: 'JS',
