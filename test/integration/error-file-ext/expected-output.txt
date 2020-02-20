@@ -1,4 +1,4 @@
 - snowpack installing...
 ⠼ snowpack installing... @zeit-ui/style, deepmerge
-✖ snowpack encountered an error importing /node_modules/@zeit-ui/style/dist/style.css. Try installing rollup-plugin-postcss and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)
+✖ snowpack could not import node_modules/@zeit-ui/style/dist/style.css. Try installing rollup-plugin-postcss and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)
 ⚠ Finished with warnings.
