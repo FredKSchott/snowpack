@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --include '*.js'"
+  },
+  "dependencies": {
+    "@zeit-ui/style": "^0.9.4",
+    "deepmerge": "^4.2.2"
+  }
+}

@@ -26,7 +26,7 @@ import {
   DependencyStats,
 } from './rollup-plugin-dependency-info.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
-import {resolveDependencyManifest} from './util.js';
+import {resolveDependencyManifest, fileExtSuggestions} from './util.js';
 
 import zlib from 'zlib';
 
@@ -416,9 +416,31 @@ export async function install(
     chunkFileNames: 'common/[name]-[hash].js',
   };
   if (Object.keys(depObject).length > 0) {
-    const packageBundle = await rollup.rollup(inputOptions);
-    await packageBundle.write(outputOptions);
+    // Main Snowpack Install 🚀
+    try {
+      const packageBundle = await rollup.rollup(inputOptions);
+      await packageBundle.write(outputOptions);
+    } catch (err) {
+      // Main Snowpack Install error handling
+      const {loc} = err as rollup.RollupError; // Note: err contains a ton of useful information for error handling
+
+      // if there’s a suggestion based on the file extension, show it
+      const invalidFile = loc.file || ''; // Rollup erred on this exact file
+      const suggestion = fileExtSuggestions[path.extname(invalidFile)];
+      if (suggestion) {
+        const relativeName = invalidFile.replace(cwd, '').replace(/\\/g, '/'); // use forward slashes for display
+        logError(
+          `${chalk.bold('snowpack')} encountered an error importing ${relativeName}. ${suggestion}`,
+        );
+        return;
+      }
+
+      // otherwise, show the error message
+      logError(`${chalk.bold('snowpack')} encountered an error: ${err.message}`);
+      return;
+    }
   }
+
   if (nomodule) {
     const nomoduleStart = Date.now();
     function rollupResolutionHelper() {
