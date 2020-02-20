@@ -169,6 +169,7 @@ const PACKAGES_TO_AUTO_DETECT_EXPORTS = [
   path.join('react-dom', 'index.js'),
   path.join('react-is', 'index.js'),
   path.join('prop-types', 'index.js'),
+  path.join('scheduler', 'index.js'),
   path.join('rxjs', 'Rx.js'),
 ];
 
