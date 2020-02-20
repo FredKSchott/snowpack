@@ -26,7 +26,7 @@ import {
   DependencyStats,
 } from './rollup-plugin-dependency-info.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
-import {resolveDependencyManifest, fileExtSuggestions} from './util.js';
+import {resolveDependencyManifest, MISSING_PLUGIN_SUGGESTIONS} from './util.js';
 
 import zlib from 'zlib';
 
@@ -416,27 +416,25 @@ export async function install(
     chunkFileNames: 'common/[name]-[hash].js',
   };
   if (Object.keys(depObject).length > 0) {
-    // Main Snowpack Install 🚀
     try {
       const packageBundle = await rollup.rollup(inputOptions);
       await packageBundle.write(outputOptions);
     } catch (err) {
-      // Main Snowpack Install error handling
-      const {loc} = err as rollup.RollupError; // Note: err contains a ton of useful information for error handling
-
-      // if there’s a suggestion based on the file extension, show it
-      const invalidFile = loc.file || ''; // Rollup erred on this exact file
-      const suggestion = fileExtSuggestions[path.extname(invalidFile)];
-      if (suggestion) {
-        const relativeName = invalidFile.replace(cwd, '').replace(/\\/g, '/'); // use forward slashes for display
-        logError(
-          `${chalk.bold('snowpack')} encountered an error importing ${relativeName}. ${suggestion}`,
-        );
-        return;
+      const {loc} = err as rollup.RollupError;
+      if (!loc || !loc.file) {
+        throw err;
       }
-
-      // otherwise, show the error message
-      logError(`${chalk.bold('snowpack')} encountered an error: ${err.message}`);
+      // NOTE: Rollup will fail instantly on error. Because of that, we can
+      // only report one error at a time. `err.watchFiles` also exists, but
+      // for now `err.loc.file` has all the information that we need.
+      const failedExtension = path.extname(loc.file);
+      const suggestion = MISSING_PLUGIN_SUGGESTIONS[failedExtension];
+      if (!suggestion) {
+        throw err;
+      }
+      // Display posix-style on all environments, mainly to help with CI :)
+      const fileName = loc.file.replace(cwd + path.sep, '').replace(/\\/g, '/');
+      logError(`${chalk.bold('snowpack')} could not import ${fileName}. ${suggestion}`);
       return;
     }
   }
