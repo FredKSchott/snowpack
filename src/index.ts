@@ -48,19 +48,19 @@ function printHelp() {
     `
 ${chalk.bold(`snowpack`)} - Install npm dependencies to run natively on the web.
 ${chalk.bold('Options:')}
-    --dest              Specify destination directory (default: "web_modules/").
-    --clean             Clear out the destination directory before install.
-    --optimize          Transpile, minify, and optimize installed dependencies for production.
-    --babel             Transpile installed dependencies. Also enabled with "--optimize".
-    --include           Auto-detect imports from file(s). Supports glob.
-    --exclude           Exclude files from --include. Follows glob’s ignore pattern.
-    --strict            Only install pure ESM dependency trees. Fail if a CJS module is encountered.
-    --no-source-map     Skip emitting source map files (.js.map) into dest
-    --stat              Logs install statistics after installing, with information on install targets and file sizes. Useful for CI, performance review.
-${chalk.bold('Advanced:')}
-    --nomodule          Your app’s entry file for generating a <script nomodule> bundle
-    --nomodule-output   Filename for nomodule output (default: 'app.nomodule.js')
-    --external-package  [Internal use only.] May go away at any time.
+  --dest [path]             Specify destination directory (default: "web_modules/").
+  --clean                   Clear out the destination directory before install.
+  --optimize                Transpile, minify, and optimize installed dependencies for production.
+  --babel                   Transpile installed dependencies. Also enabled with "--optimize".
+  --include [glob]          Auto-detect imports from file(s). Supports glob.
+  --exclude [glob]          Exclude files from --include. Follows glob’s ignore pattern.
+  --strict                  Only install pure ESM dependency trees. Fail if a CJS module is encountered.
+  --no-source-map           Skip emitting source map files (.js.map) into dest
+  --stat                    Logs install statistics after installing, with information on install targets and file sizes. Useful for CI, performance review.
+  --nomodule [path]         Your app’s entry file for generating a <script nomodule> bundle
+  --nomodule-output [path]  Filename for nomodule output (default: 'app.nomodule.js')
+    ${chalk.bold('Advanced:')}
+  --external-package [val]  Internal use only, may be removed at any time.
     `.trim(),
   );
 }
