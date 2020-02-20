@@ -433,7 +433,7 @@ export async function install(
         throw err;
       }
       // Display posix-style on all environments, mainly to help with CI :)
-      const fileName = path.posix.relative(cwd, loc.file);
+      const fileName = loc.file.replace(cwd + path.sep, '').replace(/\\/g, '/');
       logError(`${chalk.bold('snowpack')} could not import ${fileName}. ${suggestion}`);
       return;
     }
