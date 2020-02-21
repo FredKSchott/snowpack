@@ -2,7 +2,7 @@
 
 ## Configuration
 
-Snowpack's behavior can be configured by CLI flags, a custom Snowpack config file, or both. [See the table below for the full list of supported options](#all-configuration-options).
+Snowpack's behavior can be configured by CLI flags, a custom Snowpack config file, or both. [See the table below for the full list of supported options](#configuration-options).
 
 ### CLI Flags
 
