@@ -1,0 +1,1 @@
+{"version":3,"file":"mock-test-package.js","sources":["../node_modules/mock-test-package/entrypoint.js"],"sourcesContent":["export const foobar = 42;"],"names":["foobar"],"mappings":"AAAY,MAACA,EAAS"}
