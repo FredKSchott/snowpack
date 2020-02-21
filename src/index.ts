@@ -20,15 +20,10 @@ import rollupPluginBabel from 'rollup-plugin-babel';
 import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
 import {rollupPluginEntrypointAlias} from './rollup-plugin-entrypoint-alias.js';
 import loadConfig, {SnowpackConfig} from './config.js';
-import {
-  rollupPluginDependencyStats,
-  DependencyStatsOutput,
-  DependencyStats,
-} from './rollup-plugin-dependency-info.js';
+import {printStats} from './stats-formatter.js';
+import {rollupPluginDependencyStats, DependencyStatsOutput} from './rollup-plugin-stats.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 import {resolveDependencyManifest, truthy, MISSING_PLUGIN_SUGGESTIONS} from './util.js';
-
-import zlib from 'zlib';
 
 export interface DependencyLoc {
   type: 'JS' | 'ASSET';
@@ -74,77 +69,6 @@ function formatInstallResults(skipFailures: boolean): string {
   return installResults
     .map(([d, yn]) => (yn ? chalk.green(d) : skipFailures ? chalk.dim(d) : chalk.red(d)))
     .join(', ');
-}
-
-function formatSize(size: number) {
-  const kb = Math.round((size / 1000) * 100) / 100;
-  let color: 'green' | 'yellow' | 'red';
-  if (kb < 15) {
-    color = 'green';
-  } else if (kb < 30) {
-    color = 'yellow';
-  } else {
-    color = 'red';
-  }
-  return chalk[color](`${kb} KB`);
-}
-
-function formatDelta(delta: number) {
-  const kb = Math.round(delta * 100) / 100;
-  const color = delta > 0 ? 'red' : 'green';
-  return chalk[color](`Δ ${delta > 0 ? '+' : ''}${kb} KB`);
-}
-
-function formatFileInfo(
-  filename: string,
-  stats: DependencyStats,
-  padEnd: number,
-  isLastFile: boolean,
-): string {
-  const commonPath = path.join(cwd, 'web_modules/common', filename);
-  const filePath = fs.existsSync(commonPath) ? commonPath : path.join(cwd, 'web_modules', filename);
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  const gzipSize = zlib.gzipSync(fileContent).byteLength;
-  let brSize: number;
-  if (zlib.brotliCompressSync) {
-    brSize = zlib.brotliCompressSync(fileContent).byteLength;
-  }
-  const lineGlyph = chalk.dim(isLastFile ? '└─' : '├─');
-  const lineName = filename.padEnd(padEnd);
-  const fileStat = chalk.dim('[') + formatSize(stats.size) + chalk.dim(']');
-  const gzipStat = ' [gzip: ' + formatSize(gzipSize) + ']';
-  const brotliStat = ' [brotli: ' + formatSize(brSize!) + ']';
-  const lineSize = zlib.brotliCompressSync ? fileStat + gzipStat + brotliStat : fileStat + gzipStat;
-  const lineDelta = stats.delta ? chalk.dim(' [') + formatDelta(stats.delta) + chalk.dim(']') : '';
-  return `    ${lineGlyph} ${lineName} ${lineSize}${lineDelta}`;
-}
-
-function formatFiles(files: [string, DependencyStats][], title: string) {
-  const strippedFiles = files.map(
-    ([filename, stats]) => [filename.replace(/^common\//, ''), stats] as const,
-  );
-  const maxFileNameLength = strippedFiles.reduce(
-    (max, [filename]) => Math.max(filename.length, max),
-    0,
-  );
-  return `  ⦿ ${chalk.bold(title)}
-${strippedFiles
-  .map(([filename, stats], index) =>
-    formatFileInfo(filename, stats, maxFileNameLength, index >= files.length - 1),
-  )
-  .join('\n')}`;
-}
-
-function formatDependencyStats(): string {
-  let output = '';
-  const {direct, common} = dependencyStats!;
-  const allDirect = Object.entries(direct);
-  const allCommon = Object.entries(common);
-  output += formatFiles(allDirect, 'web_modules/');
-  if (Object.values(common).length > 0) {
-    output += `\n${formatFiles(allCommon, 'web_modules/common/ (Shared)')}`;
-  }
-  return `\n${output}\n`;
 }
 
 function logError(msg: string) {
@@ -599,7 +523,7 @@ export async function cli(args: string[]) {
         chalk.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
     if (!!dependencyStats) {
-      console.log(formatDependencyStats());
+      console.log(printStats(dependencyStats));
     }
   }
 
