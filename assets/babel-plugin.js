@@ -32,7 +32,7 @@ function getImportMap(explicitPath, dir) {
   return importMapJson;
 }
 
-function rewriteImport(importMap, imp, dir, shouldAddMissingExtension) {
+function rewriteImport(importMap, imp, file, dir, shouldAddMissingExtension) {
   const isSourceImport = imp.startsWith('/') || imp.startsWith('.') || imp.startsWith('\\');
   const isRemoteImport = imp.startsWith('http://') || imp.startsWith('https://');
   const mappedImport = importMap.imports[imp];
@@ -52,6 +52,13 @@ function rewriteImport(importMap, imp, dir, shouldAddMissingExtension) {
   }
   if (isSourceImport && shouldAddMissingExtension && !path.extname(imp)) {
     return imp + '.js';
+  }
+  const importPathOnFs = path.resolve(path.join(path.dirname(file.opts.filename), imp));
+  if (fs.existsSync(importPathOnFs)) {
+    const indexExists = fs.readdirSync(importPathOnFs).some(f => f.startsWith('index.'));
+    if (indexExists) {
+      return imp + "/index.js";
+    }
   }
   return imp;
 }
@@ -97,7 +104,7 @@ module.exports = function pikaWebBabelTransform(
         }
         source.replaceWith(
           t.stringLiteral(
-            rewriteImport(this.importMapJson, source.node.value, dir, optionalExtensions),
+            rewriteImport(this.importMapJson, source.node.value, file, dir, optionalExtensions),
           ),
         );
       },
@@ -109,7 +116,7 @@ module.exports = function pikaWebBabelTransform(
         }
         source.replaceWith(
           t.stringLiteral(
-            rewriteImport(this.importMapJson, source.node.value, dir, optionalExtensions),
+            rewriteImport(this.importMapJson, source.node.value, file, dir, optionalExtensions),
           ),
         );
       },
