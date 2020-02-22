@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const resolve = require('enhanced-resolve');
 
 function readImportMapFile(explicitPath, dir) {
   if (explicitPath) {
@@ -32,7 +33,7 @@ function getImportMap(explicitPath, dir) {
   return importMapJson;
 }
 
-function rewriteImport(importMap, imp, dir, shouldAddMissingExtension) {
+function rewriteImport(importMap, imp, file, dir, useNodeResolver) {
   const isSourceImport = imp.startsWith('/') || imp.startsWith('.') || imp.startsWith('\\');
   const isRemoteImport = imp.startsWith('http://') || imp.startsWith('https://');
   const mappedImport = importMap.imports[imp];
@@ -50,8 +51,23 @@ function rewriteImport(importMap, imp, dir, shouldAddMissingExtension) {
     console.log(`warn: bare import "${imp}" not found in import map, ignoring...`);
     return imp;
   }
-  if (isSourceImport && shouldAddMissingExtension && !path.extname(imp)) {
-    return imp + '.js';
+  if (isSourceImport && useNodeResolver) {
+    try {
+      const dirOfFile = path.dirname(file.opts.filename);
+      const absPath = resolve.create.sync({
+        extensions: [".js", ".ts", ".jsx", ".tsx", ".json"]
+      })(dirOfFile, imp);
+      const relativePath = path
+          .relative(dirOfFile, absPath)
+          .replace(/(\.ts|\.tsx|.jsx)$/, '.js')
+          .replace(/\\/g, '/');
+      return relativePath.startsWith('.') ? relativePath : ("./" + relativePath);
+    } catch (err) {
+      // File could not be resolved by Node
+      // We warn and just fallback to old 'optionalExtensions' behaviour of appending .js
+      console.warn(err.message);
+      return imp + '.js'
+    }
   }
   return imp;
 }
@@ -66,13 +82,16 @@ function rewriteImport(importMap, imp, dir, shouldAddMissingExtension) {
  *   optionalExtensions - Adds any missing JS extensions to local/relative imports. Support for these
  *                        partial imports is missing in the browser and being phased out of Node.js, but
  *                        this can be a useful option for migrating an old project to Snowpack.
+ *                        NOTE: This is deprecated in favor of 'useNodeResolver'.
+ *   useNodeResolver    - Uses node's built-in file and path resolver to rewrite imports for source
+ *                        file imports.
  */
 module.exports = function pikaWebBabelTransform(
   {types: t, env},
-  {optionalExtensions, dir, addVersion, importMap} = {},
+  {optionalExtensions, useNodeResolver, dir, addVersion, importMap} = {},
 ) {
   // Default options
-  optionalExtensions = optionalExtensions || false;
+  useNodeResolver = useNodeResolver || optionalExtensions || false;
   dir = dir || 'web_modules';
   // Deprecation warnings
   if (addVersion) {
@@ -97,7 +116,7 @@ module.exports = function pikaWebBabelTransform(
         }
         source.replaceWith(
           t.stringLiteral(
-            rewriteImport(this.importMapJson, source.node.value, dir, optionalExtensions),
+            rewriteImport(this.importMapJson, source.node.value, file, dir, useNodeResolver),
           ),
         );
       },
@@ -109,7 +128,7 @@ module.exports = function pikaWebBabelTransform(
         }
         source.replaceWith(
           t.stringLiteral(
-            rewriteImport(this.importMapJson, source.node.value, dir, optionalExtensions),
+            rewriteImport(this.importMapJson, source.node.value, file, dir, useNodeResolver),
           ),
         );
       },

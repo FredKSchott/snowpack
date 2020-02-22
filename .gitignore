@@ -5,3 +5,4 @@ www/dist
 /web_modules
 test/integration/*/web_modules
 .DS_Store
+.idea
