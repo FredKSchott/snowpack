@@ -127,6 +127,6 @@ export default function loadConfig(cliFlags?: SnowpackConfig) {
 
 // resolve --dest relative to cwd
 function normalizeDest(config: SnowpackConfig) {
-  config.installOptions.dest = path.resolve(process.cwd(), config.installOptions.dest);
+  config.installOptions.dest = path.resolve(process.cwd(), config.installOptions.dest!);
   return config;
 }
