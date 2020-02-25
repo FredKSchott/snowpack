@@ -1,4 +1,5 @@
 import path from 'path';
+import {Plugin} from 'rollup';
 import {resolveDependencyManifest} from './util';
 
 const IS_DEEP_PACKAGE_IMPORT = /^(@[\w-]+\/)?([\w-]+)\/(.*)/;
@@ -12,14 +13,14 @@ const IS_DEEP_PACKAGE_IMPORT = /^(@[\w-]+\/)?([\w-]+)\/(.*)/;
  * Even though both eventually resolve to the same place, without this plugin
  * we lose the ability to mark "lit-html" as an external package.
  */
-export function rollupPluginEntrypointAlias({cwd}: {cwd: string}) {
+export function rollupPluginEntrypointAlias({cwd}: {cwd: string}): Plugin {
   return {
     name: 'pika:rollup-plugin-entrypoint-alias',
-    resolveId(source: string, importer) {
+    resolveId(source, importer) {
       if (!IS_DEEP_PACKAGE_IMPORT.test(source)) {
         return null;
       }
-      const [, packageScope, packageName] = source.match(IS_DEEP_PACKAGE_IMPORT);
+      const [, packageScope, packageName] = source.match(IS_DEEP_PACKAGE_IMPORT)!;
       const packageFullName = packageScope ? `${packageScope}${packageName}` : packageName;
       const [, manifest] = resolveDependencyManifest(packageFullName, cwd);
       if (!manifest) {
@@ -36,7 +37,7 @@ export function rollupPluginEntrypointAlias({cwd}: {cwd: string}) {
         return null;
       }
 
-      return this.resolve(packageFullName, importer, {skipSelf: true}).then(resolved => {
+      return this.resolve(packageFullName, importer!, {skipSelf: true}).then(resolved => {
         return resolved || null;
       });
     },

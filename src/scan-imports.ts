@@ -3,6 +3,7 @@ import fs from 'fs';
 import glob from 'glob';
 import validatePackageName from 'validate-npm-package-name';
 import {init as initESModuleLexer, parse, ImportSpecifier} from 'es-module-lexer';
+import {truthy} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -50,7 +51,7 @@ function removeSpecifierQueryString(specifier: string) {
   return specifier;
 }
 
-function getWebModuleSpecifierFromCode(code, imp: ImportSpecifier) {
+function getWebModuleSpecifierFromCode(code: string, imp: ImportSpecifier) {
   if (imp.d > -1) {
     return code.substring(imp.s + 1, imp.e - 1);
   }
@@ -97,10 +98,10 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
   const defaultImport = !dynamicImport && DEFAULT_IMPORT_REGEX.test(importStatement);
   const namespaceImport = !dynamicImport && importStatement.includes('*');
 
-  const namedImports = (importStatement.match(HAS_NAMED_IMPORTS_REGEX) || [, ''])[1]
+  const namedImports = (importStatement.match(HAS_NAMED_IMPORTS_REGEX)! || [, ''])[1]
     .split(SPLIT_NAMED_IMPORTS_REGEX)
     .map(name => name.trim())
-    .filter(Boolean);
+    .filter(truthy);
 
   return {
     specifier: webModuleSpecifier,
@@ -115,7 +116,7 @@ function getInstallTargetsForFile(filePath: string, code: string): InstallTarget
   const [imports] = parse(code) || [];
   const allImports: InstallTarget[] = imports
     .map(imp => parseImportStatement(code, imp))
-    .filter(Boolean);
+    .filter(truthy);
 
   return allImports;
 }

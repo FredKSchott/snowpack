@@ -10,7 +10,7 @@ import babelPresetEnv from '@babel/preset-env';
 import isNodeBuiltin from 'is-builtin-module';
 import validatePackageName from 'validate-npm-package-name';
 
-import * as rollup from 'rollup';
+import {rollup, InputOptions, OutputOptions, Plugin, RollupError} from 'rollup';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginCommonjs from '@rollup/plugin-commonjs';
 import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
@@ -26,7 +26,7 @@ import {
   DependencyStats,
 } from './rollup-plugin-dependency-info.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
-import {resolveDependencyManifest, MISSING_PLUGIN_SUGGESTIONS} from './util.js';
+import {resolveDependencyManifest, truthy, MISSING_PLUGIN_SUGGESTIONS} from './util.js';
 
 import zlib from 'zlib';
 
@@ -38,8 +38,8 @@ export interface DependencyLoc {
 const ALWAYS_SHOW_ERRORS = new Set(['react', 'react-dom']);
 const cwd = process.cwd();
 const banner = chalk.bold(`snowpack`) + ` installing... `;
-const installResults = [];
-let dependencyStats: DependencyStatsOutput = null;
+const installResults: [string, boolean][] = [];
+let dependencyStats: DependencyStatsOutput | null = null;
 let spinner = ora(banner);
 let spinnerHasError = false;
 
@@ -65,20 +65,20 @@ ${chalk.bold('Options:')}
   );
 }
 
-async function generateHashFromFile(targetLoc) {
+async function generateHashFromFile(targetLoc: string) {
   const longHash = await hasha.fromFile(targetLoc, {algorithm: 'md5'});
-  return longHash.slice(0, 10);
+  return longHash!.slice(0, 10);
 }
 
-function formatInstallResults(skipFailures): string {
+function formatInstallResults(skipFailures: boolean): string {
   return installResults
     .map(([d, yn]) => (yn ? chalk.green(d) : skipFailures ? chalk.dim(d) : chalk.red(d)))
     .join(', ');
 }
 
-function formatSize(size) {
+function formatSize(size: number) {
   const kb = Math.round((size / 1000) * 100) / 100;
-  let color;
+  let color: 'green' | 'yellow' | 'red';
   if (kb < 15) {
     color = 'green';
   } else if (kb < 30) {
@@ -89,7 +89,7 @@ function formatSize(size) {
   return chalk[color](`${kb} KB`);
 }
 
-function formatDelta(delta) {
+function formatDelta(delta: number) {
   const kb = Math.round(delta * 100) / 100;
   const color = delta > 0 ? 'red' : 'green';
   return chalk[color](`Δ ${delta > 0 ? '+' : ''}${kb} KB`);
@@ -105,7 +105,7 @@ function formatFileInfo(
   const filePath = fs.existsSync(commonPath) ? commonPath : path.join(cwd, 'web_modules', filename);
   const fileContent = fs.readFileSync(filePath, 'utf-8');
   const gzipSize = zlib.gzipSync(fileContent).byteLength;
-  let brSize;
+  let brSize: number;
   if (zlib.brotliCompressSync) {
     brSize = zlib.brotliCompressSync(fileContent).byteLength;
   }
@@ -113,17 +113,16 @@ function formatFileInfo(
   const lineName = filename.padEnd(padEnd);
   const fileStat = chalk.dim('[') + formatSize(stats.size) + chalk.dim(']');
   const gzipStat = ' [gzip: ' + formatSize(gzipSize) + ']';
-  const brotliStat = ' [brotli: ' + formatSize(brSize) + ']';
+  const brotliStat = ' [brotli: ' + formatSize(brSize!) + ']';
   const lineSize = zlib.brotliCompressSync ? fileStat + gzipStat + brotliStat : fileStat + gzipStat;
   const lineDelta = stats.delta ? chalk.dim(' [') + formatDelta(stats.delta) + chalk.dim(']') : '';
   return `    ${lineGlyph} ${lineName} ${lineSize}${lineDelta}`;
 }
 
 function formatFiles(files: [string, DependencyStats][], title: string) {
-  const strippedFiles = files.map(([filename, stats]) => [
-    filename.replace(/^common\//, ''),
-    stats,
-  ]) as [string, DependencyStats][];
+  const strippedFiles = files.map(
+    ([filename, stats]) => [filename.replace(/^common\//, ''), stats] as const,
+  );
   const maxFileNameLength = strippedFiles.reduce(
     (max, [filename]) => Math.max(filename.length, max),
     0,
@@ -138,7 +137,7 @@ ${strippedFiles
 
 function formatDependencyStats(): string {
   let output = '';
-  const {direct, common} = dependencyStats;
+  const {direct, common} = dependencyStats!;
   const allDirect = Object.entries(direct);
   const allCommon = Object.entries(common);
   output += formatFiles(allDirect, 'web_modules/');
@@ -148,7 +147,7 @@ function formatDependencyStats(): string {
   return `\n${output}\n`;
 }
 
-function logError(msg) {
+function logError(msg: string) {
   if (!spinnerHasError) {
     spinner.stopAndPersist({symbol: chalk.cyan('⠼')});
   }
@@ -293,7 +292,7 @@ export async function install(
     rollup: userDefinedRollup,
   } = config;
 
-  const knownNamedExports = {...namedExports};
+  const knownNamedExports = {...namedExports!};
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
     knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
   }
@@ -304,8 +303,8 @@ export async function install(
   const allInstallSpecifiers = new Set(installTargets.map(dep => dep.specifier));
   const depObject: {[targetName: string]: string} = {};
   const assetObject: {[targetName: string]: string} = {};
-  const importMap = {};
-  const installTargetsMap = {};
+  const importMap: {[installSpecifier: string]: string} = {};
+  const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
   const skipFailures = !isExplicit;
   for (const installSpecifier of allInstallSpecifiers) {
     try {
@@ -349,7 +348,7 @@ export async function install(
     return false;
   }
 
-  const inputOptions = {
+  const inputOptions: InputOptions = {
     input: depObject,
     external: externalPackages,
     plugins: [
@@ -359,7 +358,7 @@ export async function install(
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
         }),
       rollupPluginNodeResolve({
-        mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(Boolean),
+        mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(truthy),
         modulesOnly: isStrict, // Default: false
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
@@ -398,9 +397,9 @@ export async function install(
       !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
       !!isOptimized && rollupPluginTerser(),
       !!withStats && rollupPluginDependencyStats(info => (dependencyStats = info)),
-      ...userDefinedRollup.plugins, // load user-defined plugins last
+      ...userDefinedRollup!.plugins!, // load user-defined plugins last
     ],
-    onwarn: ((warning, warn) => {
+    onwarn(warning, warn) {
       if (warning.code === 'UNRESOLVED_IMPORT') {
         logError(
           `'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`,
@@ -424,21 +423,21 @@ export async function install(
         return;
       }
       warn(warning);
-    }) as any,
+    },
   };
-  const outputOptions = {
+  const outputOptions: OutputOptions = {
     dir: destLoc,
-    format: 'esm' as 'esm',
-    sourcemap: sourceMap === undefined ? isOptimized : sourceMap,
-    exports: 'named' as 'named',
+    format: 'esm',
+    sourcemap: sourceMap ?? isOptimized,
+    exports: 'named',
     chunkFileNames: 'common/[name]-[hash].js',
   };
   if (Object.keys(depObject).length > 0) {
     try {
-      const packageBundle = await rollup.rollup(inputOptions);
+      const packageBundle = await rollup(inputOptions);
       await packageBundle.write(outputOptions);
     } catch (err) {
-      const {loc} = err as rollup.RollupError;
+      const {loc} = err as RollupError;
       if (!loc || !loc.file) {
         throw err;
       }
@@ -459,7 +458,7 @@ export async function install(
 
   if (nomodule) {
     const nomoduleStart = Date.now();
-    function rollupResolutionHelper() {
+    function rollupResolutionHelper(): Plugin {
       return {
         name: 'rename-import-plugin',
         resolveId(source) {
@@ -470,7 +469,7 @@ export async function install(
           // resolve web_modules
           if (source.includes('/web_modules/')) {
             const suffix = source.split('/web_modules/')[1];
-            return {id: path.join(destLoc, suffix)};
+            return {id: path.join(destLoc!, suffix)};
           }
           // null means try to resolve as-is
           return null;
@@ -478,13 +477,13 @@ export async function install(
       };
     }
     try {
-      const noModuleBundle = await rollup.rollup({
+      const noModuleBundle = await rollup({
         input: path.resolve(cwd, nomodule),
         inlineDynamicImports: true,
-        plugins: [...inputOptions.plugins, rollupResolutionHelper()],
+        plugins: [...inputOptions.plugins!, rollupResolutionHelper()],
       });
       await noModuleBundle.write({
-        file: path.resolve(destLoc, nomoduleOutput),
+        file: path.resolve(destLoc!, nomoduleOutput!),
         format: 'iife',
         name: 'App',
       });
@@ -505,7 +504,7 @@ export async function install(
     }
   }
   fs.writeFileSync(
-    path.join(destLoc, 'import-map.json'),
+    path.join(destLoc!, 'import-map.json'),
     JSON.stringify({imports: importMap}, undefined, 2),
     {encoding: 'utf8'},
   );
@@ -561,7 +560,7 @@ export async function cli(args: string[]) {
     fs.existsSync(path.join(cwd, 'browserslist'));
 
   let isExplicit = false;
-  const installTargets = [];
+  const installTargets: InstallTarget[] = [];
 
   if (webDependencies) {
     isExplicit = true;

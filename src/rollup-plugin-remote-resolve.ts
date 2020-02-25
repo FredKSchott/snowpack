@@ -1,3 +1,5 @@
+import {Plugin} from 'rollup';
+
 /**
  * rollup-plugin-remote-resolve
  *
@@ -10,11 +12,11 @@ export function rollupPluginRemoteResolve({
 }: {
   remoteUrl: string;
   remotePackages: [string, string][];
-}) {
+}): Plugin {
   const remotePackageMap = new Map(remotePackages);
   return {
     name: 'pika:peer-dependency-resolver',
-    resolveId(source: string) {
+    resolveId(source) {
       if (remotePackageMap.has(source)) {
         let urlSourcePath = source;
         // NOTE(@fks): This is really Pika CDN specific, but no one else should be using this option.
@@ -29,7 +31,7 @@ export function rollupPluginRemoteResolve({
       }
       return null;
     },
-    load(id) {
+    load() {
       return null;
     },
   };

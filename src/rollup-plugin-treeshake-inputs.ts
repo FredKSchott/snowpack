@@ -1,4 +1,4 @@
-import {InputOptions} from 'rollup';
+import {Plugin} from 'rollup';
 import {InstallTarget} from './scan-imports';
 import path from 'path';
 
@@ -12,31 +12,32 @@ import path from 'path';
  *    a. That virtual file contains only `export ... from 'ACTUAL_FILE_PATH';` exports
  *    b. Rollup uses those exports to drive its tree-shaking algorithm.
  */
-export function rollupPluginTreeshakeInputs(allImports: InstallTarget[]) {
+export function rollupPluginTreeshakeInputs(allImports: InstallTarget[]): Plugin {
   const installTargetsByFile: {[loc: string]: InstallTarget[]} = {};
   return {
     name: 'pika:treeshake-inputs',
     // Mark some inputs for tree-shaking.
-    options(inputOptions: InputOptions) {
-      for (const [key, val] of Object.entries(inputOptions.input)) {
+    options(inputOptions) {
+      const input = inputOptions.input as {[entryAlias: string]: string};
+      for (const [key, val] of Object.entries(input)) {
         installTargetsByFile[val] = allImports.filter(imp => imp.specifier === key);
         // If an input has known install targets, and none of those have "all=true", mark for treeshaking.
         if (
           installTargetsByFile[val].length > 0 &&
           !installTargetsByFile[val].some(imp => imp.all)
         ) {
-          inputOptions.input[key] = `pika-treeshake:${val}`;
+          input[key] = `pika-treeshake:${val}`;
         }
       }
       return inputOptions;
     },
-    resolveId(source: string) {
+    resolveId(source) {
       if (source.startsWith('pika-treeshake:')) {
         return source;
       }
       return null;
     },
-    load(id: string) {
+    load(id) {
       if (!id.startsWith('pika-treeshake:')) {
         return null;
       }

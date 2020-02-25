@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {OutputOptions, OutputBundle} from 'rollup';
+import {OutputBundle, Plugin} from 'rollup';
 
 export type DependencyStats = {
   size: number;
@@ -12,7 +12,9 @@ type DependencyStatsMap = {
 type DependencyType = 'direct' | 'common';
 export type DependencyStatsOutput = Record<DependencyType, DependencyStatsMap>;
 
-export function rollupPluginDependencyStats(cb: (dependencyInfo: DependencyStatsOutput) => void) {
+export function rollupPluginDependencyStats(
+  cb: (dependencyInfo: DependencyStatsOutput) => void,
+): Plugin {
   let outputDir: string;
   let cache: {[fileName: string]: number} = {};
   let output: DependencyStatsOutput = {
@@ -46,20 +48,22 @@ export function rollupPluginDependencyStats(cb: (dependencyInfo: DependencyStats
   }
 
   return {
-    generateBundle(options: OutputOptions, bundle: OutputBundle) {
-      outputDir = options.dir;
+    name: 'pika:rollup-plugin-dependency-info',
+    generateBundle(options, bundle) {
+      outputDir = options.dir!;
       buildCache(bundle);
     },
-    writeBundle(bundle: OutputBundle) {
-      const files = Object.keys(bundle);
+    writeBundle(bundle) {
+      const directDependencies: string[] = [];
+      const commonDependencies: string[] = [];
 
-      const [directDependencies, commonDependencies] = files.reduce(
-        ([direct, common], fileName) =>
-          fileName.startsWith('common')
-            ? [direct, [...common, fileName]]
-            : [[...direct, fileName], common],
-        [[], []],
-      );
+      for (const fileName of Object.keys(bundle)) {
+        if (fileName.startsWith('common')) {
+          commonDependencies.push(fileName);
+        } else {
+          directDependencies.push(fileName);
+        }
+      }
 
       compareDependencies(directDependencies, 'direct');
       compareDependencies(commonDependencies, 'common');
