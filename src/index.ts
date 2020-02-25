@@ -1,29 +1,28 @@
+import babelPresetEnv from '@babel/preset-env';
+import rollupPluginCommonjs from '@rollup/plugin-commonjs';
+import rollupPluginJson from '@rollup/plugin-json';
+import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
+import rollupPluginReplace from '@rollup/plugin-replace';
+import chalk from 'chalk';
 import fs from 'fs';
+import hasha from 'hasha';
+import isNodeBuiltin from 'is-builtin-module';
+import mkdirp from 'mkdirp';
+import ora from 'ora';
 import path from 'path';
 import rimraf from 'rimraf';
-import mkdirp from 'mkdirp';
-import chalk from 'chalk';
-import ora from 'ora';
-import hasha from 'hasha';
-import yargs from 'yargs-parser';
-import babelPresetEnv from '@babel/preset-env';
-import isNodeBuiltin from 'is-builtin-module';
-import validatePackageName from 'validate-npm-package-name';
-
-import {rollup, InputOptions, OutputOptions, Plugin, RollupError} from 'rollup';
-import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
-import rollupPluginCommonjs from '@rollup/plugin-commonjs';
-import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
-import rollupPluginReplace from '@rollup/plugin-replace';
-import rollupPluginJson from '@rollup/plugin-json';
+import {InputOptions, OutputOptions, Plugin, rollup, RollupError} from 'rollup';
 import rollupPluginBabel from 'rollup-plugin-babel';
-import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
-import {rollupPluginEntrypointAlias} from './rollup-plugin-entrypoint-alias.js';
+import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
+import validatePackageName from 'validate-npm-package-name';
+import yargs from 'yargs-parser';
 import loadConfig, {SnowpackConfig} from './config.js';
+import {rollupPluginEntrypointAlias} from './rollup-plugin-entrypoint-alias.js';
+import {DependencyStatsOutput, rollupPluginDependencyStats} from './rollup-plugin-stats.js';
+import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
+import {InstallTarget, scanDepList, scanImports} from './scan-imports.js';
 import {printStats} from './stats-formatter.js';
-import {rollupPluginDependencyStats, DependencyStatsOutput} from './rollup-plugin-stats.js';
-import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
-import {resolveDependencyManifest, isTruthy, MISSING_PLUGIN_SUGGESTIONS} from './util.js';
+import {isTruthy, MISSING_PLUGIN_SUGGESTIONS, resolveDependencyManifest} from './util.js';
 
 type InstallResult = 'SUCCESS' | 'ASSET' | 'FAIL';
 
