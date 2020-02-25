@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-export function truthy<T>(item: T | false | null | undefined): item is T {
+export function isTruthy<T>(item: T | false | null | undefined): item is T {
   return Boolean(item);
 }
 

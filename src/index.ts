@@ -23,7 +23,7 @@ import loadConfig, {SnowpackConfig} from './config.js';
 import {printStats} from './stats-formatter.js';
 import {rollupPluginDependencyStats, DependencyStatsOutput} from './rollup-plugin-stats.js';
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
-import {resolveDependencyManifest, truthy, MISSING_PLUGIN_SUGGESTIONS} from './util.js';
+import {resolveDependencyManifest, isTruthy, MISSING_PLUGIN_SUGGESTIONS} from './util.js';
 
 export interface DependencyLoc {
   type: 'JS' | 'ASSET';
@@ -282,7 +282,7 @@ export async function install(
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
         }),
       rollupPluginNodeResolve({
-        mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(truthy),
+        mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(isTruthy),
         modulesOnly: isStrict, // Default: false
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names

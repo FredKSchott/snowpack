@@ -23,7 +23,7 @@ export function rollupPluginDependencyStats(cb: (dependencyInfo: DependencyStats
     common: {},
   };
 
-  function buildCache(bundle: OutputBundle) {
+  function buildExistingFileCache(bundle: OutputBundle) {
     for (let fileName of Object.keys(bundle)) {
       const filePath = path.join(outputDir, fileName);
       if (fs.existsSync(filePath)) {
@@ -53,12 +53,12 @@ export function rollupPluginDependencyStats(cb: (dependencyInfo: DependencyStats
 
   return {
     generateBundle(options: OutputOptions, bundle: OutputBundle) {
-      outputDir = options.dir;
-      buildCache(bundle);
+      outputDir = options.dir!;
+      buildExistingFileCache(bundle);
     },
     writeBundle(bundle: OutputBundle) {
-      const directDependencies = [];
-      const commonDependencies = [];
+      const directDependencies: {fileName: string; contents: Buffer}[] = [];
+      const commonDependencies: {fileName: string; contents: Buffer}[] = [];
       for (const [fileName, assetOrChunk] of Object.entries(bundle)) {
         const raw = assetOrChunk.type === 'asset' ? assetOrChunk.source : assetOrChunk.code;
         const contents = Buffer.isBuffer(raw) ? raw : Buffer.from(raw, 'utf8');
