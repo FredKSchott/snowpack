@@ -25,6 +25,8 @@ import {rollupPluginDependencyStats, DependencyStatsOutput} from './rollup-plugi
 import {scanImports, scanDepList, InstallTarget} from './scan-imports.js';
 import {resolveDependencyManifest, isTruthy, MISSING_PLUGIN_SUGGESTIONS} from './util.js';
 
+type InstallResult = 'SUCCESS' | 'ASSET' | 'FAIL';
+
 export interface DependencyLoc {
   type: 'JS' | 'ASSET';
   loc: string;
@@ -33,7 +35,7 @@ export interface DependencyLoc {
 const ALWAYS_SHOW_ERRORS = new Set(['react', 'react-dom']);
 const cwd = process.cwd();
 const banner = chalk.bold(`snowpack`) + ` installing... `;
-const installResults: [string, boolean][] = [];
+const installResults: [string, InstallResult][] = [];
 let dependencyStats: DependencyStatsOutput | null = null;
 let spinner = ora(banner);
 let spinnerHasError = false;
@@ -67,7 +69,18 @@ async function generateHashFromFile(targetLoc: string) {
 
 function formatInstallResults(skipFailures: boolean): string {
   return installResults
-    .map(([d, yn]) => (yn ? chalk.green(d) : skipFailures ? chalk.dim(d) : chalk.red(d)))
+    .map(([d, result]) => {
+      if (result === 'SUCCESS') {
+        return chalk.green(d);
+      }
+      if (result === 'ASSET') {
+        return chalk.yellow(d);
+      }
+      if (result === 'FAIL') {
+        return skipFailures ? chalk.dim(d) : chalk.red(d);
+      }
+      return d;
+    })
     .join(', ');
 }
 
@@ -225,28 +238,28 @@ export async function install(
     return;
   }
   const allInstallSpecifiers = new Set(installTargets.map(dep => dep.specifier));
-  const depObject: {[targetName: string]: string} = {};
-  const assetObject: {[targetName: string]: string} = {};
+  const installEntrypoints: {[targetName: string]: string} = {};
+  const assetEntrypoints: {[targetName: string]: string} = {};
   const importMap: {[installSpecifier: string]: string} = {};
   const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
   const skipFailures = !isExplicit;
   for (const installSpecifier of allInstallSpecifiers) {
+    const targetName = getWebDependencyName(installSpecifier);
     try {
-      const targetName = getWebDependencyName(installSpecifier);
       const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, isExplicit);
       if (targetType === 'JS') {
         const hashQs = useHash ? `?rev=${await generateHashFromFile(targetLoc)}` : '';
-        depObject[targetName] = targetLoc;
+        installEntrypoints[targetName] = targetLoc;
         importMap[installSpecifier] = `./${targetName}.js${hashQs}`;
         installTargetsMap[targetLoc] = installTargets.filter(t => installSpecifier === t.specifier);
-        installResults.push([installSpecifier, true]);
+        installResults.push([installSpecifier, 'SUCCESS']);
       } else if (targetType === 'ASSET') {
-        assetObject[targetName] = targetLoc;
-        installResults.push([installSpecifier, true]);
+        assetEntrypoints[targetName] = targetLoc;
+        installResults.push([installSpecifier, 'ASSET']);
       }
       spinner.text = banner + formatInstallResults(skipFailures);
     } catch (err) {
-      installResults.push([installSpecifier, false]);
+      installResults.push([installSpecifier, 'FAIL']);
       spinner.text = banner + formatInstallResults(skipFailures);
       if (skipFailures && !ALWAYS_SHOW_ERRORS.has(installSpecifier)) {
         continue;
@@ -254,13 +267,13 @@ export async function install(
       // An error occurred! Log it.
       logError(err.message || err);
       if (err.hint) {
-        // Note: Wait 1ms to guarentee a log message after the spinner
+        // Note: Wait 1ms to guarantee a log message after the spinner
         setTimeout(() => console.log(err.hint), 1);
       }
       return false;
     }
   }
-  if (Object.keys(depObject).length === 0 && Object.keys(assetObject).length === 0) {
+  if (Object.keys(installEntrypoints).length === 0 && Object.keys(assetEntrypoints).length === 0) {
     logError(`No ESM dependencies found!`);
     console.log(
       chalk.dim(
@@ -273,7 +286,7 @@ export async function install(
   }
 
   const inputOptions: InputOptions = {
-    input: depObject,
+    input: installEntrypoints,
     external: externalPackages,
     plugins: [
       rollupPluginEntrypointAlias({cwd}),
@@ -356,7 +369,7 @@ export async function install(
     exports: 'named',
     chunkFileNames: 'common/[name]-[hash].js',
   };
-  if (Object.keys(depObject).length > 0) {
+  if (Object.keys(installEntrypoints).length > 0) {
     try {
       const packageBundle = await rollup(inputOptions);
       await packageBundle.write(outputOptions);
@@ -432,7 +445,7 @@ export async function install(
     JSON.stringify({imports: importMap}, undefined, 2),
     {encoding: 'utf8'},
   );
-  Object.entries(assetObject).forEach(([assetName, assetLoc]) => {
+  Object.entries(assetEntrypoints).forEach(([assetName, assetLoc]) => {
     mkdirp.sync(path.dirname(`${destLoc}/${assetName}`));
     fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
   });
@@ -474,8 +487,8 @@ export async function cli(args: string[]) {
   }
 
   const implicitDependencies = [
-    ...Object.keys(pkgManifest.dependencies || {}),
     ...Object.keys(pkgManifest.peerDependencies || {}),
+    ...Object.keys(pkgManifest.dependencies || {}),
   ];
   const hasBrowserlistConfig =
     !!pkgManifest.browserslist ||
@@ -507,14 +520,16 @@ export async function cli(args: string[]) {
 
   spinner.start();
   const startTime = Date.now();
-  const result = await install(installTargets, {hasBrowserlistConfig, isExplicit}, config).catch(
-    err => {
-      err.loc && console.log('\n' + chalk.red.bold(`✘ ${err.loc.file}`));
-      throw err;
-    },
-  );
+  const finalResult = await install(
+    installTargets,
+    {hasBrowserlistConfig, isExplicit},
+    config,
+  ).catch(err => {
+    err.loc && console.log('\n' + chalk.red.bold(`✘ ${err.loc.file}`));
+    throw err;
+  });
 
-  if (result) {
+  if (finalResult) {
     spinner.succeed(
       chalk.bold(`snowpack`) +
         ` installed: ` +
