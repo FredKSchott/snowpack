@@ -52,8 +52,12 @@ for (const testName of readdirSync(__dirname)) {
     const actualWebDependenciesLoc = path.join(__dirname, testName, 'web_modules');
     const expectedWebDependencies = await fs.readdir(expectedWebDependenciesLoc).catch(() => {});
     if (!expectedWebDependencies) {
-      // skip file comparison for specific tests
+      // skip web_modules/ comparison for specific tests
       if (SKIP_FILE_CHECK.includes(testName)) {
+        return;
+      }
+      // skip web_modules/ comparison for tests that start with error-*
+      if (testName.startsWith('error-')) {
         return;
       }
       // throw error if web_modules/ is generated but expected-install/ is missing
