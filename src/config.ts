@@ -1,6 +1,6 @@
 import path from 'path';
 import {cosmiconfigSync} from 'cosmiconfig';
-import {RollupOptions} from 'rollup';
+import {Plugin} from 'rollup';
 import {validate} from 'jsonschema';
 import merge from 'deepmerge';
 
@@ -16,6 +16,7 @@ const DEFAULT_CONFIG: SnowpackConfig = {
     nomoduleOutput: 'app.nomodule.js',
     optimize: false,
     remoteUrl: 'https://cdn.pika.dev',
+    stat: false,
     strict: false,
   },
   rollup: {plugins: []},
@@ -27,23 +28,23 @@ export interface SnowpackConfig {
   namedExports?: {[filepath: string]: string[]};
   installOptions: {
     babel?: boolean;
-    clean?: boolean;
-    hash?: boolean;
-    dest?: string;
-    exclude?: string[];
-    externalPackage?: string[];
+    clean: boolean;
+    hash: boolean;
+    dest: string;
+    exclude: string[];
+    externalPackage: string[];
     include?: string;
     nomodule?: string;
-    nomoduleOutput?: string;
-    optimize?: boolean;
+    nomoduleOutput: string;
+    optimize: boolean;
     remotePackage?: string[];
-    remoteUrl?: string;
+    remoteUrl: string;
     sourceMap?: boolean | 'inline';
-    stat?: boolean;
-    strict?: boolean;
+    stat: boolean;
+    strict: boolean;
   };
-  rollup?: {
-    plugins?: RollupOptions['plugins']; // for simplicity, only Rollup plugins are supported for now
+  rollup: {
+    plugins: Plugin[]; // for simplicity, only Rollup plugins are supported for now
   };
   webDependencies?: string[];
 }
@@ -89,7 +90,13 @@ const configSchema = {
   },
 };
 
-export default function loadConfig(cliFlags?: SnowpackConfig) {
+// TODO: Improve this argument type to be more flexible and take in CLI flags
+// that aren't just installOptions.
+export default function loadConfig({
+  installOptions,
+}: {
+  installOptions: Partial<SnowpackConfig['installOptions']>;
+}) {
   const explorerSync = cosmiconfigSync('snowpack', {
     // only support these 3 types of config for now
     searchPlaces: ['package.json', 'snowpack.config.js', 'snowpack.config.json'],
@@ -102,7 +109,9 @@ export default function loadConfig(cliFlags?: SnowpackConfig) {
   if (!result || !result.config || result.isEmpty) {
     // if CLI flags present, apply those as overrides
     return {
-      config: normalizeDest(cliFlags ? merge(DEFAULT_CONFIG, cliFlags) : DEFAULT_CONFIG),
+      config: normalizeDest(
+        merge<any>(DEFAULT_CONFIG, {installOptions}),
+      ),
       errors: [],
     };
   }
@@ -120,13 +129,15 @@ export default function loadConfig(cliFlags?: SnowpackConfig) {
 
   // if CLI flags present, apply those as overrides
   return {
-    config: normalizeDest(cliFlags ? merge(mergedConfig, cliFlags) : mergedConfig),
+    config: normalizeDest(
+      merge<any>(mergedConfig, {installOptions}),
+    ),
     errors: validation.errors.map(msg => `${path.basename(result.filepath)}: ${msg.toString()}`),
   };
 }
 
 // resolve --dest relative to cwd
 function normalizeDest(config: SnowpackConfig) {
-  config.installOptions.dest = path.resolve(process.cwd(), config.installOptions.dest!);
+  config.installOptions.dest = path.resolve(process.cwd(), config.installOptions.dest);
   return config;
 }

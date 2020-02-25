@@ -62,7 +62,7 @@ ${chalk.bold('Options:')}
 
 async function generateHashFromFile(targetLoc: string) {
   const longHash = await hasha.fromFile(targetLoc, {algorithm: 'md5'});
-  return longHash!.slice(0, 10);
+  return longHash?.slice(0, 10);
 }
 
 function formatInstallResults(skipFailures: boolean): string {
@@ -216,7 +216,7 @@ export async function install(
     rollup: userDefinedRollup,
   } = config;
 
-  const knownNamedExports = {...namedExports!};
+  const knownNamedExports = {...namedExports};
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
     knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
   }
@@ -321,7 +321,7 @@ export async function install(
       !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
       !!isOptimized && rollupPluginTerser(),
       !!withStats && rollupPluginDependencyStats(info => (dependencyStats = info)),
-      ...userDefinedRollup!.plugins!, // load user-defined plugins last
+      ...userDefinedRollup.plugins, // load user-defined plugins last
     ],
     onwarn(warning, warn) {
       if (warning.code === 'UNRESOLVED_IMPORT') {
@@ -393,7 +393,7 @@ export async function install(
           // resolve web_modules
           if (source.includes('/web_modules/')) {
             const suffix = source.split('/web_modules/')[1];
-            return {id: path.join(destLoc!, suffix)};
+            return {id: path.join(destLoc, suffix)};
           }
           // null means try to resolve as-is
           return null;
@@ -407,7 +407,7 @@ export async function install(
         plugins: [...inputOptions.plugins!, rollupResolutionHelper()],
       });
       await noModuleBundle.write({
-        file: path.resolve(destLoc!, nomoduleOutput!),
+        file: path.resolve(destLoc, nomoduleOutput),
         format: 'iife',
         name: 'App',
       });
@@ -428,7 +428,7 @@ export async function install(
     }
   }
   fs.writeFileSync(
-    path.join(destLoc!, 'import-map.json'),
+    path.join(destLoc, 'import-map.json'),
     JSON.stringify({imports: importMap}, undefined, 2),
     {encoding: 'utf8'},
   );
@@ -451,7 +451,7 @@ export async function cli(args: string[]) {
 
   // load config
   const {config, errors} = loadConfig({
-    installOptions: cliFlags as SnowpackConfig['installOptions'],
+    installOptions: cliFlags as Partial<SnowpackConfig['installOptions']>,
   });
 
   // handle config errors (if any)
