@@ -13,7 +13,7 @@ function stripBenchmark(stdout) {
   return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
 }
 function stripStats(stdout) {
-  return stdout.replace(/\[.+? KB\]/g, '[XXX KB]');
+  return stdout.replace(/[\d\.]*? KB/g, 'XXXX KB');
 }
 function stripWhitespace(stdout) {
   return stdout.replace(/((\s+$)|((\\r\\n)|(\\n)))/gm, '');
@@ -22,7 +22,7 @@ function stripRev(code) {
   return code.replace(/\?rev=\w+/gm, '?rev=XXXXXXXXXX');
 }
 function stripChunkHash(stdout) {
-  return stdout.replace(/([\w\-]+)\-[a-z0-9]{8}(\.js)/g, '$1$2');
+  return stdout.replace(/([\w\-]+\-)[a-z0-9]{8}(\.js)/g, '$1XXXXXXXX$2');
 }
 
 beforeAll(() => {

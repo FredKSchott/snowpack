@@ -3,7 +3,7 @@ import fs from 'fs';
 import glob from 'glob';
 import validatePackageName from 'validate-npm-package-name';
 import {init as initESModuleLexer, parse, ImportSpecifier} from 'es-module-lexer';
-import {truthy} from './util';
+import {isTruthy} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -101,7 +101,7 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
   const namedImports = (importStatement.match(HAS_NAMED_IMPORTS_REGEX)! || [, ''])[1]
     .split(SPLIT_NAMED_IMPORTS_REGEX)
     .map(name => name.trim())
-    .filter(truthy);
+    .filter(isTruthy);
 
   return {
     specifier: webModuleSpecifier,
@@ -116,7 +116,7 @@ function getInstallTargetsForFile(filePath: string, code: string): InstallTarget
   const [imports] = parse(code) || [];
   const allImports: InstallTarget[] = imports
     .map(imp => parseImportStatement(code, imp))
-    .filter(truthy);
+    .filter(isTruthy);
 
   return allImports;
 }
