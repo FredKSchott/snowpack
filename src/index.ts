@@ -16,7 +16,7 @@ import rollupPluginBabel from 'rollup-plugin-babel';
 import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import validatePackageName from 'validate-npm-package-name';
 import yargs from 'yargs-parser';
-import loadConfig, {SnowpackConfig} from './config.js';
+import loadConfig, {SnowpackConfig, CLIFlags} from './config.js';
 import {rollupPluginEntrypointAlias} from './rollup-plugin-entrypoint-alias.js';
 import {DependencyStatsOutput, rollupPluginDependencyStats} from './rollup-plugin-stats.js';
 import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
@@ -453,7 +453,7 @@ export async function install(
 
 export async function cli(args: string[]) {
   // parse CLI flags
-  const cliFlags = yargs(args, {array: ['exclude', 'externalPackage']});
+  const cliFlags = yargs(args, {array: ['exclude', 'externalPackage']}) as CLIFlags;
 
   // if printing help, stop here
   if (cliFlags.help) {
@@ -462,9 +462,7 @@ export async function cli(args: string[]) {
   }
 
   // load config
-  const {config, errors} = loadConfig({
-    installOptions: cliFlags as Partial<SnowpackConfig['installOptions']>,
-  });
+  const {config, errors} = loadConfig(cliFlags);
 
   // handle config errors (if any)
   if (Array.isArray(errors) && errors.length) {

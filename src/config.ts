@@ -4,26 +4,17 @@ import {Plugin} from 'rollup';
 import {validate} from 'jsonschema';
 import merge from 'deepmerge';
 
-// default settings
-const DEFAULT_CONFIG: SnowpackConfig = {
-  dedupe: [],
-  installOptions: {
-    clean: false,
-    hash: false,
-    dest: 'web_modules',
-    exclude: ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
-    externalPackage: [],
-    nomoduleOutput: 'app.nomodule.js',
-    optimize: false,
-    remoteUrl: 'https://cdn.pika.dev',
-    stat: false,
-    strict: false,
-  },
-  rollup: {plugins: []},
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends Array<infer U>
+    ? Array<DeepPartial<U>>
+    : T[P] extends ReadonlyArray<infer U>
+    ? ReadonlyArray<DeepPartial<U>>
+    : DeepPartial<T[P]>;
 };
 
 // interface this library uses internally
 export interface SnowpackConfig {
+  webDependencies?: string[];
   dedupe?: string[];
   namedExports?: {[filepath: string]: string[]};
   installOptions: {
@@ -46,12 +37,37 @@ export interface SnowpackConfig {
   rollup: {
     plugins: Plugin[]; // for simplicity, only Rollup plugins are supported for now
   };
-  webDependencies?: string[];
 }
+
+export interface CLIFlags extends Partial<SnowpackConfig['installOptions']> {
+  help?: boolean;
+  version?: boolean;
+}
+
+// default settings
+const DEFAULT_CONFIG: SnowpackConfig = {
+  dedupe: [],
+  installOptions: {
+    clean: false,
+    hash: false,
+    dest: 'web_modules',
+    exclude: ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
+    externalPackage: [],
+    nomoduleOutput: 'app.nomodule.js',
+    optimize: false,
+    remoteUrl: 'https://cdn.pika.dev',
+    stat: false,
+    strict: false,
+  },
+  rollup: {plugins: []},
+};
 
 const configSchema = {
   type: 'object',
   properties: {
+    source: {type: 'string'},
+    dependencies: {type: 'object'},
+    webDependencies: {type: 'array', items: {type: 'string'}},
     dedupe: {
       type: 'array',
       items: {type: 'string'},
@@ -86,17 +102,24 @@ const configSchema = {
         plugins: {type: 'array', items: {type: 'object'}}, // type: 'object' ensures the user loaded the Rollup plugins correctly
       },
     },
-    webDependencies: {type: 'array', items: {type: 'string'}},
   },
 };
 
-// TODO: Improve this argument type to be more flexible and take in CLI flags
-// that aren't just installOptions.
-export default function loadConfig({
-  installOptions,
-}: {
-  installOptions: Partial<SnowpackConfig['installOptions']>;
-}) {
+function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
+  const {help, version, ...installOptions} = flags;
+  return {
+    installOptions,
+  };
+}
+
+/** resolve --dest relative to cwd */
+function normalizeDest(config: SnowpackConfig) {
+  config.installOptions.dest = path.resolve(process.cwd(), config.installOptions.dest);
+  return config;
+}
+
+export default function loadConfig(flags: CLIFlags) {
+  const cliConfig = expandCliFlags(flags);
   const explorerSync = cosmiconfigSync('snowpack', {
     // only support these 3 types of config for now
     searchPlaces: ['package.json', 'snowpack.config.js', 'snowpack.config.json'],
@@ -109,9 +132,7 @@ export default function loadConfig({
   if (!result || !result.config || result.isEmpty) {
     // if CLI flags present, apply those as overrides
     return {
-      config: normalizeDest(
-        merge<any>(DEFAULT_CONFIG, {installOptions}),
-      ),
+      config: normalizeDest(merge<any>(DEFAULT_CONFIG, cliConfig)),
       errors: [],
     };
   }
@@ -129,15 +150,7 @@ export default function loadConfig({
 
   // if CLI flags present, apply those as overrides
   return {
-    config: normalizeDest(
-      merge<any>(mergedConfig, {installOptions}),
-    ),
+    config: normalizeDest(merge<any>(mergedConfig, cliConfig)),
     errors: validation.errors.map(msg => `${path.basename(result.filepath)}: ${msg.toString()}`),
   };
-}
-
-// resolve --dest relative to cwd
-function normalizeDest(config: SnowpackConfig) {
-  config.installOptions.dest = path.resolve(process.cwd(), config.installOptions.dest);
-  return config;
 }
