@@ -15,7 +15,7 @@ import path from 'path';
 export function rollupPluginTreeshakeInputs(allImports: InstallTarget[]): Plugin {
   const installTargetsByFile: {[loc: string]: InstallTarget[]} = {};
   return {
-    name: 'pika:treeshake-inputs',
+    name: 'snowpack:treeshake-inputs',
     // Mark some inputs for tree-shaking.
     options(inputOptions) {
       const input = inputOptions.input as {[entryAlias: string]: string};

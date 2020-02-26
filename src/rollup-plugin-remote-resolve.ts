@@ -15,7 +15,7 @@ export function rollupPluginRemoteResolve({
 }): Plugin {
   const remotePackageMap = new Map(remotePackages);
   return {
-    name: 'pika:peer-dependency-resolver',
+    name: 'snowpack:peer-dependency-resolver',
     resolveId(source) {
       if (remotePackageMap.has(source)) {
         let urlSourcePath = source;

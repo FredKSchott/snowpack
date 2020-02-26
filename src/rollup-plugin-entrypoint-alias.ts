@@ -15,7 +15,7 @@ const IS_DEEP_PACKAGE_IMPORT = /^(@[\w-]+\/)?([\w-]+)\/(.*)/;
  */
 export function rollupPluginEntrypointAlias({cwd}: {cwd: string}): Plugin {
   return {
-    name: 'pika:rollup-plugin-entrypoint-alias',
+    name: 'snowpack:rollup-plugin-entrypoint-alias',
     resolveId(source, importer) {
       if (!IS_DEEP_PACKAGE_IMPORT.test(source)) {
         return null;
