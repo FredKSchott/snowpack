@@ -1,0 +1,9 @@
+{
+  "description": "Test that --source pika works without a node_modules directory",
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --source pika"
+  },
+  "dependencies": {
+    "async": "3.1.0"
+  }
+}

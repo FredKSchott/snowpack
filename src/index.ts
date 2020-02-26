@@ -496,7 +496,6 @@ export async function cli(args: string[]) {
 
   const {
     installOptions: {clean, dest, exclude, include},
-    dependencies,
     webDependencies,
     source,
   } = config;
@@ -512,7 +511,6 @@ export async function cli(args: string[]) {
   const implicitDependencies = [
     ...Object.keys(pkgManifest.peerDependencies || {}),
     ...Object.keys(pkgManifest.dependencies || {}),
-    ...Object.keys(dependencies || {}),
   ];
   const hasBrowserlistConfig =
     !!pkgManifest.browserslist ||
@@ -538,15 +536,17 @@ export async function cli(args: string[]) {
     logError('Nothing to install.');
     return;
   }
-  if (clean) {
-    rimraf.sync(dest);
-  }
-  await mkdirp(dest);
+
   spinner.start();
   const startTime = Date.now();
   if (source === 'pika') {
     newLockfile = await resolveTargetsFromRemoteCDN(installTargets, lockfile, pkgManifest, config);
   }
+
+  if (clean) {
+    rimraf.sync(dest);
+  }
+  await mkdirp(dest);
   const finalResult = await install(
     installTargets,
     {hasBrowserlistConfig, isExplicit, lockfile: newLockfile},

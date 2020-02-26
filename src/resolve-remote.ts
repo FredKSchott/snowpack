@@ -87,14 +87,12 @@ export async function resolveTargetsFromRemoteCDN(
   pkgManifest: any,
   config: SnowpackConfig,
 ) {
-  const {dependencies} = config;
   const downloadQueue = new PQueue({concurrency: 16});
   const newLockfile: ImportMap = {imports: {}};
 
   const allInstallSpecifiers = new Set(installTargets.map(dep => dep.specifier));
   for (const installSpecifier of allInstallSpecifiers) {
     const installSemver: string =
-      (dependencies || {})[installSpecifier] ||
       (pkgManifest.dependencies || {})[installSpecifier] ||
       (pkgManifest.devDependencies || {})[installSpecifier] ||
       (pkgManifest.peerDependencies || {})[installSpecifier] ||

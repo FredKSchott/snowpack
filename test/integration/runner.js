@@ -3,7 +3,12 @@ const path = require('path');
 const fs = require('fs').promises;
 const {readdirSync, readFileSync} = require('fs');
 const execa = require('execa');
+const rimraf = require('rimraf');
 const dircompare = require('dir-compare');
+
+const KEEP_LOCKFILE = [
+  'source-pika-lockfile', // We explicitly want to test the lockfile in this test
+];
 
 const SKIP_FILE_CHECK = [
   'config-rollup', // only expected-output.txt is needed for the test, and Windows comparison fails because of backslashes
@@ -36,6 +41,12 @@ for (const testName of readdirSync(__dirname)) {
   }
 
   test(testName, async () => {
+    // Prepare test directory
+    const testDir = path.join(__dirname, testName);
+    if (!KEEP_LOCKFILE.includes(testName)) {
+      rimraf.sync(path.join(testDir, 'snowpack.lock.json'));
+    }
+
     const {all} = await execa('npm', ['run', `TEST`, `--silent`], {
       cwd: path.join(__dirname, testName),
       reject: false,
@@ -47,6 +58,17 @@ for (const testName of readdirSync(__dirname)) {
       stripWhitespace(stripBenchmark(stripChunkHash(stripStats(all)))),
       stripWhitespace(expectedOutput),
     );
+
+    // Test Lockfile (if one exists)
+    const expectedLockLoc = path.join(__dirname, testName, 'expected-lock.json');
+    const expectedLock = await fs
+      .readFile(expectedLockLoc, {encoding: 'utf8'})
+      .catch((/* ignore */) => null);
+    if (expectedLock) {
+      const actualLockLoc = path.join(__dirname, testName, 'snowpack.lock.json');
+      const actualLock = await fs.readFile(actualLockLoc, {encoding: 'utf8'});
+      assert.strictEqual(stripWhitespace(actualLock), stripWhitespace(expectedLock));
+    }
 
     const expectedWebDependenciesLoc = path.join(__dirname, testName, 'expected-install');
     const actualWebDependenciesLoc = path.join(__dirname, testName, 'web_modules');

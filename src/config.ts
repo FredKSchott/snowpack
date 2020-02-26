@@ -15,7 +15,6 @@ type DeepPartial<T> = {
 // interface this library uses internally
 export interface SnowpackConfig {
   source: 'local' | 'pika';
-  dependencies?: {[packageName: string]: string};
   webDependencies?: string[];
   dedupe?: string[];
   namedExports?: {[filepath: string]: string[]};
@@ -70,7 +69,6 @@ const configSchema = {
   type: 'object',
   properties: {
     source: {type: 'string'},
-    dependencies: {type: 'object'},
     webDependencies: {type: 'array', items: {type: 'string'}},
     dedupe: {
       type: 'array',

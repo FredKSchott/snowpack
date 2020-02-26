@@ -1,0 +1,17 @@
+{
+  "description": "Test that --source pika works without a node_modules directory",
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --source pika"
+  },
+  "snowpack": {
+    "webDependencies": [
+      "async",
+      "cdn-not-supported-package",
+      "cdn-not-supported-package/styles.css"
+    ]
+  },
+  "dependencies": {
+    "async": "3.1.0",
+    "cdn-not-supported-package": "1.2.3"
+  }
+}

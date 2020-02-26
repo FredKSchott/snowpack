@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "async": "./async.js",
+    "cdn-not-supported-package": "./cdn-not-supported-package.js"
+  }
+}
