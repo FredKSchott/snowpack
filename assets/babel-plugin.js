@@ -5,10 +5,9 @@ function readImportMapFile(explicitPath, dir) {
   if (explicitPath) {
     if(path.isAbsolute(explicitPath)){
       return fs.readFileSync(explicitPath, {encoding: 'utf8'});
-    } else {
-      const explicitImportMap = path.join(process.cwd(), dir, explicitPath);
-      return fs.readFileSync(explicitImportMap, {encoding: 'utf8'});
-    }
+    } 
+    const explicitImportMap = path.join(process.cwd(), dir, explicitPath);
+    return fs.readFileSync(explicitImportMap, {encoding: 'utf8'});
   }
   const localImportMap = path.join(process.cwd(), dir, `import-map.local.json`);
   const defaultImportMap = path.join(process.cwd(), dir, `import-map.json`);
