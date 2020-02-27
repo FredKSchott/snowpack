@@ -3,9 +3,9 @@ const path = require('path');
 
 function readImportMapFile(explicitPath, dir) {
   if (explicitPath) {
-    if(path.isAbsolute(explicitPath)){
+    if (path.isAbsolute(explicitPath)) {
       return fs.readFileSync(explicitPath, {encoding: 'utf8'});
-    } 
+    }
     const explicitImportMap = path.join(process.cwd(), dir, explicitPath);
     return fs.readFileSync(explicitImportMap, {encoding: 'utf8'});
   }
