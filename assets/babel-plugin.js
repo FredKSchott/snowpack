@@ -57,8 +57,10 @@ function rewriteImport(importMap, imp, file, dir, useNodeResolver) {
       const absPath = resolve.create.sync({
         extensions: [".js", ".ts", ".jsx", ".tsx", ".json"]
       })(dirOfFile, imp);
-      const relativePath = path.relative(dirOfFile, absPath);
-      return relativePath.replace(/(\.ts|\.tsx|.jsx)$/, '.js');
+      const relativePath = path
+          .relative(dirOfFile, absPath)
+          .replace(/(\.ts|\.tsx|.jsx)$/, '.js');
+      return relativePath.startsWith('.') ? relativePath : ("./" + relativePath);
     } catch (err) {
       // File could not be resolved by Node
       // We warn and just fallback to old 'optionalExtensions' behaviour of appending .js
