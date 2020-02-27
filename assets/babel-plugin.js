@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const resolve = require('enhanced-resolve');
 
 function readImportMapFile(explicitPath, dir) {
   if (explicitPath) {
@@ -53,11 +54,14 @@ function rewriteImport(importMap, imp, file, dir, useNodeResolver) {
   if (isSourceImport && useNodeResolver) {
     try {
       const dirOfFile = path.dirname(file.opts.filename);
-      const absPath = require.resolve(imp, {paths: [dirOfFile]});
-      return path.relative(dirOfFile, absPath);
+      const absPath = resolve.create.sync({
+        extensions: [".js", ".ts", ".jsx", ".tsx", ".json"]
+      })(dirOfFile, imp);
+      const relativePath = path.relative(dirOfFile, absPath);
+      return relativePath.replace(/(\.ts|\.tsx|.jsx)$/, '.js');
     } catch (err) {
       // File could not be resolved by Node
-      // We warn and just fallback to old behaviour of appending .js
+      // We warn and just fallback to old 'optionalExtensions' behaviour of appending .js
       console.warn(err.message);
       return imp + '.js'
     }
