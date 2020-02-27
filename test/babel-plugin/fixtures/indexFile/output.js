@@ -1,1 +1,1 @@
-import module from './index.js';
+import module from 'subdir/index.js';
