@@ -59,8 +59,9 @@ function rewriteImport(importMap, imp, file, dir, useNodeResolver) {
       })(dirOfFile, imp);
       const relativePath = path
           .relative(dirOfFile, absPath)
-          .replace(/(\.ts|\.tsx|.jsx)$/, '.js');
-      return relativePath.startsWith('.') ? relativePath : ("." + path.sep + relativePath);
+          .replace(/(\.ts|\.tsx|.jsx)$/, '.js')
+          .replace(/\\/g, '/');
+      return relativePath.startsWith('.') ? relativePath : ("./" + relativePath);
     } catch (err) {
       // File could not be resolved by Node
       // We warn and just fallback to old 'optionalExtensions' behaviour of appending .js
