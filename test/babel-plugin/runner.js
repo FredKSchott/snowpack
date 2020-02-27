@@ -9,3 +9,12 @@ pluginTester({
   pluginName: 'snowpack/assets/babel-plugin.js',
   fixtures: path.join(__dirname, 'fixtures'),
 });
+
+pluginTester({
+  plugin: babelPlugin,
+  pluginName: 'snowpack/assets/babel-plugin.js',
+  fixtures: path.join(__dirname, 'fixtures-absolute'),
+  pluginOptions: {
+    importMap: path.resolve(process.cwd(), 'web_modules/import-map-absolute.test.json'),
+  },
+});
