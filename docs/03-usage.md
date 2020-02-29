@@ -52,15 +52,8 @@ Note that this config will disable the zero-config mode that attempts to install
 $ snowpack --source pika
 ```
 
-```js
-/* package.json */
-"snowpack": {
-  "source": "pika"
-}
-```
-
 Snowpack defaults to reading packages from your local `node_modules/` directory, but you can control this behavior with the `--source` flag to simplify your Snowpack install step even further.
 
-Use `--source pika` to have Snowpack fetch packages directly from the [Pika CDN](https://cdn.pika.dev/) instead of your local `node_modules/` directory. Your app will still get the same npm package code, but now Snowpack is fully installing and managing your npm dependencies for you. You no longer have to run `npm install` before running Snowpack.
+Use `--source pika` to have Snowpack fetch packages directly from the [Pika CDN](https://cdn.pika.dev/) instead of your local `node_modules/` directory. Your app will still get the same npm package code, but now Snowpack is fully installing and managing your npm dependencies for you. **With `--source pika` you no longer have to run `npm install` before running Snowpack.**
 
 After a successful run with `--source pika`, Snowpack will create a `snowpack.lock.json` [import map](https://github.com/WICG/import-maps) in your project which locks each dependency to a specific version for future installations. Each CDN response is cached locally, so repeat runs of Snowpack happen at local speeds. `npm` & `yarn` should still be used to manage your server-side dependencies. 
