@@ -11,9 +11,9 @@ const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
 // [@\w] - Match a word-character or @ (valid package name)
 // (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)
 const BARE_SPECIFIER_REGEX = /^[@\w](?!.*(:\/\/))/;
-const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/;
-const SPLIT_NAMED_IMPORTS_REGEX = /\bas\s\w+|,/;
-const DEFAULT_IMPORT_REGEX = /import\s(\w)+(,\s\{[\w\s]*\})?\s+from/;
+const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
+const SPLIT_NAMED_IMPORTS_REGEX = /\bas\s+\w+|,/s;
+const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s]*\})?\s+from/s;
 
 /**
  * An install target represents information about a dependency to install.
@@ -117,7 +117,6 @@ function getInstallTargetsForFile(filePath: string, code: string): InstallTarget
   const allImports: InstallTarget[] = imports
     .map(imp => parseImportStatement(code, imp))
     .filter(isTruthy);
-
   return allImports;
 }
 
