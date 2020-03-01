@@ -1,4 +1,4 @@
-// test 4: dynamic export
+// test c1: dynamic export
 import('/web_modules/http-vue-loader/src/httpVueLoader.js').then(httpVueLoader => {
   Vue.use(httpVueLoader);
 
