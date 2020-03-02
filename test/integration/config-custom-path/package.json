@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --config snowpack.dev.json"
+  },
+  "dependencies": {
+    "array-flatten": "^3.0.0",
+    "deepmerge": "^4.2.2"
+  }
+}

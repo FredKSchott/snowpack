@@ -4,6 +4,8 @@ import {Plugin} from 'rollup';
 import {validate} from 'jsonschema';
 import merge from 'deepmerge';
 
+const CONFIG_NAME = 'snowpack';
+
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
     ? Array<DeepPartial<U>>
@@ -41,10 +43,11 @@ export interface SnowpackConfig {
 }
 
 export interface CLIFlags extends Partial<SnowpackConfig['installOptions']> {
-  help?: boolean;
-  version?: boolean;
+  help?: boolean; // display help text
+  version?: boolean; // display Snowpack version
   reload?: boolean;
   source?: SnowpackConfig['source'];
+  config?: string; // manual path to config file
 }
 
 // default settings
@@ -131,20 +134,34 @@ function normalizeDest(config: SnowpackConfig) {
 
 export default function loadConfig(flags: CLIFlags) {
   const cliConfig = expandCliFlags(flags);
-  const explorerSync = cosmiconfigSync('snowpack', {
+
+  const explorerSync = cosmiconfigSync(CONFIG_NAME, {
     // only support these 3 types of config for now
     searchPlaces: ['package.json', 'snowpack.config.js', 'snowpack.config.json'],
     // don't support crawling up the folder tree:
     stopDir: path.dirname(process.cwd()),
   });
-  const result = explorerSync.search(); // search for snowpack config
 
-  // user has no config
+  let result;
+
+  // if user specified --config path, load that
+  const errors: string[] = [];
+  if (flags.config) {
+    result = explorerSync.load(path.resolve(flags.config));
+    if (!result) {
+      errors.push(`Could not locate Snowpack config at ${flags.config}`);
+    }
+  } else {
+    // if --config not given, try searching up the file tree
+    result = explorerSync.search();
+  }
+
+  // no config found
   if (!result || !result.config || result.isEmpty) {
     // if CLI flags present, apply those as overrides
     return {
       config: normalizeDest(merge<any>(DEFAULT_CONFIG, cliConfig)),
-      errors: [],
+      errors,
     };
   }
 
@@ -153,7 +170,7 @@ export default function loadConfig(flags: CLIFlags) {
   // validate against schema; throw helpful user if invalid
   const validation = validate(config, configSchema, {
     allowUnknownAttributes: false,
-    propertyName: 'snowpack',
+    propertyName: CONFIG_NAME,
   });
 
   // if valid, apply config over defaults
