@@ -1,5 +1,3 @@
-
-
 ## Configuration
 
 Snowpack's behavior can be configured by CLI flags, a custom Snowpack config file, or both. [See the table below for the full list of supported options](#configuration-options).
@@ -12,6 +10,26 @@ $ npx snowpack --optimize --clean
 
 CLI flags will always be merged with (and take priority over) a config file.
 
+| CLI Flag             | Type       | Default           | Description                                                                                                                                                                                            |
+| -------------------- | ---------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--dest`             | `string`   | `web_modules`     | Configure the install directory.                                                                                                                                                                       |
+| `--clean`            | `boolean`  | `false`           | Delete the existing `dest` directory (any any outdated files) before installing.                                                                                                                       |
+| `--optimize`         | `boolean`  | `false`           | Recommended for production: transpile, minify, and optimize installed dependencies (this may slow down snowpack!).                                                                                     |
+| `--config`           | `string`   |                   | Specify a [config file](#config-files) location (CLI flags will overwrite config file settings).                                                                                                       |
+| `--babel`            | `boolean`  | `false`           | Transpile installed dependencies. Enabled automatically by `--optimize`. Can be disabled via CLI flag via `--no-babel`.                                                                                |
+| `--include`          | `string`   |                   | Scans source files to auto-detect install targets. Supports glob pattern matching. See our [Automatic Installs](<#automatic-installs-(recommended)>) guide for more info.                              |
+| `--exclude`          | `string`   | See Description.  | Exclude files from `--include` scanning. Supports glob pattern matching. Defaults to exclude common test file locations: `['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`                           |
+| `--strict`           | `boolean`  | `false`           | Only install pure ESM dependency trees. Fail if a CJS module is encountered.                                                                                                                           |
+| `--stat`             | `boolean`  | `false`           | Logs install statistics after installing, with information on install targets and file sizes. Useful for CI, performance review.                                                                       |
+| `--hash`             | `boolean`  | `false`           | Add a `?rev=XXX` hash to each import in the import map / used by Babel plugin. May cause double-requests, if one top-level package imports another.                                                    |
+| `--source-map`       | `boolean`  | See Description.  | Emit source maps. Enabled automatically by `--optimize`. Can be disabled via CLI flag via `--no-source-map`.                                                                                           |
+| `--nomodule`         | `string`   |                   | Enable a `<script nomodule>` bundle. Value should be the entrypoint of your application to start bundling from. See our [Supporting Legacy Browsers](#supporting-legacy-browsers) guide for more info. |
+| `--nomodule-output`  | `string`   | `app.nomodule.js` | File name/path for the nomodule output.                                                                                                                                                                |
+| `--help`             | `boolean`  |                   | Show this help.                                                                                                                                                                                        |
+| `--version`          | `boolean`  |                   | Show the current version.                                                                                                                                                                              |
+| `--reload`           | `boolean`  |                   | Clear the local CDN cache. Only needed if you're using [Pika CDN as your install source](#skipping-npm-install).                                                                                       |
+| `--external-package` | `string[]` | `[]`              | (Advanced use only) Mark these packages as external to be left unbundled and referenced remotely. Example: `--external-package foo` will leave in all imports of `foo`.                                |
+
 ### Config Files
 
 Snowpack supports configuration files in multiple formats. Snowpack will look for configuration in the current working directory in this order:
@@ -20,6 +38,15 @@ Snowpack supports configuration files in multiple formats. Snowpack will look fo
 2. `snowpack.config.js`: A JS file exporting a config object (`module.exports = {...}`).
 3. `snowpack.config.json`: A JSON file containing config (`{...}`).
 
+#### Custom location
+
+If your configuration lives in a different location than any of the above, use the `--config` CLI flag:
+
+```bash
+snowpack --config ./path/to/snowpack.dev.js
+```
+
+_Note: this file can be in any folder and named anything but must still end in `.js` or `.json`_
 
 ### Configuration Options
 
@@ -56,7 +83,7 @@ Snowpack supports configuration files in multiple formats. Snowpack will look fo
 | Config Option      | Type       | Description                                                                                                                                                                                                                                                                                                                       |
 | ------------------ | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `webDependencies`  | `string[]` | (Recommended) Set exactly which packages to install with Snowpack.                                                                                                                                                                                                                                                                |
-| `source`           | `string`   | Configure where packages are installed from. See [Skipping NPM Install](#skipping-npm-install) for more info. Supported: `pika`, `local` (default).                                                                                                                                                                                |
+| `source`           | `string`   | Configure where packages are installed from. See [Skipping NPM Install](#skipping-npm-install) for more info. Supported: `pika`, `local` (default).                                                                                                                                                                               |
 | `installOptions.*` | `object`   | Configure how packages are installed. See table below for all options.                                                                                                                                                                                                                                                            |
 | `namedExports`     | `object`   | If needed, you can explicitly define named exports for any dependency. You should only use this if you're getting `"'X' is not exported by Y"` errors without it. See [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs#usage) for more documentation.                                                    |
 | `dedupe`           | `string[]` | If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation. |
@@ -64,24 +91,20 @@ Snowpack supports configuration files in multiple formats. Snowpack will look fo
 
 #### Install Options (`installOptions.*`)
 
-| CLI Flag             | Config Option     | Type       | Default           | Description                                                                                                                                                                                            |
-| -------------------- | ----------------- | ---------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `--dest`             | `dest`            | `string`   | `web_modules`     | Configure the install directory.                                                                                                                                                                       |
-| `--clean`            | `clean`           | `boolean`  | `false`           | Delete the existing `dest` directory (any any outdated files) before installing.                                                                                                                       |
-| `--optimize`         | `optimize`        | `boolean`  | `false`           | Recommended for production: transpile, minify, and optimize installed dependencies (this may slow down snowpack!).                                                                                     |
-| `--babel`            | `babel`           | `boolean`  | `false`           | Transpile installed dependencies. Enabled automatically by `--optimize`. Can be disabled via CLI flag via `--no-babel`.                                                                                |
-| `--include`          | `include`         | `string`   |                   | Scans source files to auto-detect install targets. Supports glob pattern matching. See our [Automatic Installs](#automatic-installs-(recommended)) guide for more info.                                |
-| `--exclude`          | `exclude`         | `string`   | See Description.  | Exclude files from `--include` scanning. Supports glob pattern matching. Defaults to exclude common test file locations: `['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`                           |
-| `--strict`           | `strict`          | `boolean`  | `false`           | Only install pure ESM dependency trees. Fail if a CJS module is encountered.                                                                                                                           |
-| `--stat`             | `stat`            | `boolean`  | `false`           | Logs install statistics after installing, with information on install targets and file sizes. Useful for CI, performance review.                                                                       |
-| `--hash`             | `hash`            | `boolean`  | `false`           | Add a `?rev=XXX` hash to each import in the import map / used by Babel plugin. May cause double-requests, if one top-level package imports another.                                                    |
-| `--source-map`       | `sourceMap`       | `boolean`  | See Description.  | Emit source maps. Enabled automatically by `--optimize`. Can be disabled via CLI flag via `--no-source-map`.                                                                                           |
-| `--nomodule`         | `nomodule`        | `string`   |                   | Enable a `<script nomodule>` bundle. Value should be the entrypoint of your application to start bundling from. See our [Supporting Legacy Browsers](#supporting-legacy-browsers) guide for more info. |
-| `--nomodule-output`  | `nomoduleOutput`  | `string`   | `app.nomodule.js` | File name/path for the nomodule output.                                                                                                                                                                |
-| `--help`             | none              | `boolean`  |                   | Show this help.                                                                                                                                                                                        |
-| `--version`          | none              | `boolean`  |                   | Show the current version.                                                                                                                                                                              |
-| `--reload`           | none              | `boolean`  |                   | Clear the local CDN cache. Only needed if you're using [Pika CDN as your install source](#skipping-npm-install).                                                                                       |
-| `--external-package` | `externalPackage` | `string[]` | `[]`              | (Advanced use only) Mark these packages as external to be left unbundled and referenced remotely. Example: `--external-package foo` will leave in all imports of `foo`.                                |
+| Config Option     | Type       | Default           | Description                                                                                                                                                                                            |
+| ----------------- | ---------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `dest`            | `string`   | `web_modules`     | Configure the install directory.                                                                                                                                                                       |
+| `clean`           | `boolean`  | `false`           | Delete the existing `dest` directory (any any outdated files) before installing.                                                                                                                       |
+| `optimize`        | `boolean`  | `false`           | Recommended for production: transpile, minify, and optimize installed dependencies (this may slow down snowpack!).                                                                                     |
+| `babel`           | `boolean`  | `false`           | Transpile installed dependencies. Enabled automatically by `--optimize`. Can be disabled via CLI flag via `--no-babel`.                                                                                |
+| `include`         | `string`   |                   | Scans source files to auto-detect install targets. Supports glob pattern matching. See our [Automatic Installs](<#automatic-installs-(recommended)>) guide for more info.                              |
+| `exclude`         | `string`   | See Description.  | Exclude files from `--include` scanning. Supports glob pattern matching. Defaults to exclude common test file locations: `['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`                           |
+| `strict`          | `boolean`  | `false`           | Only install pure ESM dependency trees. Fail if a CJS module is encountered.                                                                                                                           |
+| `stat`            | `boolean`  | `false`           | Logs install statistics after installing, with information on install targets and file sizes. Useful for CI, performance review.                                                                       |
+| `hash`            | `boolean`  | `false`           | Add a `?rev=XXX` hash to each import in the import map / used by Babel plugin. May cause double-requests, if one top-level package imports another.                                                    |
+| `sourceMap`       | `boolean`  | See Description.  | Emit source maps. Enabled automatically by `--optimize`. Can be disabled via CLI flag via `--no-source-map`.                                                                                           |
+| `nomodule`        | `string`   |                   | Enable a `<script nomodule>` bundle. Value should be the entrypoint of your application to start bundling from. See our [Supporting Legacy Browsers](#supporting-legacy-browsers) guide for more info. |
+| `nomoduleOutput`  | `string`   | `app.nomodule.js` | File name/path for the nomodule output.                                                                                                                                                                |
+| `externalPackage` | `string[]` | `[]`              | (Advanced use only) Mark these packages as external to be left unbundled and referenced remotely. Example: `--external-package foo` will leave in all imports of `foo`.                                |
 
 You can also use the `--help` flag to see a list of these options on the command line.
-
