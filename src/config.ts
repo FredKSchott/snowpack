@@ -43,6 +43,7 @@ export interface SnowpackConfig {
 export interface CLIFlags extends Partial<SnowpackConfig['installOptions']> {
   help?: boolean;
   version?: boolean;
+  reload?: boolean;
   source?: SnowpackConfig['source'];
 }
 

@@ -17,7 +17,7 @@ import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import validatePackageName from 'validate-npm-package-name';
 import yargs from 'yargs-parser';
 import loadConfig, {SnowpackConfig, CLIFlags} from './config.js';
-import {resolveTargetsFromRemoteCDN} from './resolve-remote.js';
+import {resolveTargetsFromRemoteCDN, clearCache} from './resolve-remote.js';
 import {rollupPluginDependencyCache} from './rollup-plugin-remote-cdn.js';
 import {rollupPluginEntrypointAlias} from './rollup-plugin-entrypoint-alias.js';
 import {DependencyStatsOutput, rollupPluginDependencyStats} from './rollup-plugin-stats.js';
@@ -312,7 +312,7 @@ export async function install(
     external: externalPackages,
     plugins: [
       rollupPluginEntrypointAlias({cwd}),
-      source === 'pika' && rollupPluginDependencyCache(),
+      source === 'pika' && rollupPluginDependencyCache({log: url => logUpdate(chalk.dim(url))}),
       !isStrict &&
         rollupPluginReplace({
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
@@ -395,6 +395,7 @@ export async function install(
   if (Object.keys(installEntrypoints).length > 0) {
     try {
       const packageBundle = await rollup(inputOptions);
+      logUpdate('');
       await packageBundle.write(outputOptions);
     } catch (err) {
       const {loc} = err as RollupError;
@@ -480,6 +481,10 @@ export async function cli(args: string[]) {
     printHelp();
     process.exit(0);
   }
+  if (cliFlags.reload) {
+    console.log(`${chalk.yellow('ℹ')} clearing CDN cache...`);
+    await clearCache();
+  }
 
   // load config
   const {config, errors} = loadConfig(cliFlags);
@@ -488,6 +493,15 @@ export async function cli(args: string[]) {
   if (Array.isArray(errors) && errors.length) {
     errors.forEach(logError);
     process.exit(0);
+  }
+
+  if (cliFlags.source || config.source === 'pika') {
+    console.log(
+      `${chalk.yellow(
+        'ℹ',
+      )} "source" configuration is still experimental. Behavior may change before the next major version...`,
+    );
+    await clearCache();
   }
 
   // load lockfile

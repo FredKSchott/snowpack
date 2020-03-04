@@ -12,7 +12,7 @@ const CACHED_FILE_ID_PREFIX = 'snowpack-pkg-cache:';
  * successful CDN resolution, we save the file to the local cache and then tell
  * rollup that it's safe to load from the cache in the `load()` hook.
  */
-export function rollupPluginDependencyCache() {
+export function rollupPluginDependencyCache({log}: {log: (url: string) => void}) {
   return {
     name: 'snowpack:rollup-plugin-remote-cdn',
     async resolveId(source: string, importer) {
@@ -28,6 +28,7 @@ export function rollupPluginDependencyCache() {
       // If the source path is a CDN path including a hash, it's assumed the
       // file will never change and it is safe to pull from our local cache
       // without a network request.
+      log(source);
       if (HAS_CDN_HASH_REGEX.test(source)) {
         const cachedResult = await cacache.get
           .info(RESOURCE_CACHE, cacheKey)
