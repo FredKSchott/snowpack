@@ -148,7 +148,13 @@ export async function scanImports({include, exclude}: ScanImportsParams): Promis
 
   // Scan every matched JS file for web dependency imports
   return includeFiles
-    .filter(filePath => filePath.endsWith('.js') || filePath.endsWith('mjs'))
+    .filter(
+      filePath =>
+        filePath.endsWith('.js') ||
+        filePath.endsWith('mjs') ||
+        filePath.endsWith('.ts') ||
+        filePath.endsWith('.tsx'),
+    )
     .map(filePath => [filePath, fs.readFileSync(filePath, 'utf8')])
     .map(([filePath, code]) => getInstallTargetsForFile(filePath, code))
     .reduce((flat, item) => flat.concat(item), [])
