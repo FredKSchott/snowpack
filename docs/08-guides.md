@@ -110,16 +110,20 @@ const html = htm.bind(h);
 import React, { useState } from '/web_modules/react.js';
 ```
 
-**Important:** React is [not yet published with ES Module support](https://github.com/facebook/react/issues/11503), and the way that it's written makes it impossible to install as a dependency (*"Error: '__moduleExports' is not exported by node_modules/react/index.js"*). **However**, React is still supported thanks to our actively-maintained ESM builds of [React](https://www.npmjs.com/package/@pika/react) & [React-DOM](https://www.npmjs.com/package/@pika/react). You can install them both in your project under an alias like so:
+**Important:** Depending on how you use Snowpack, you may run into the issue that [React is not yet published with ES Module support](https://github.com/facebook/react/issues/11503). This isn't a problem for most packages, but due to the way that the React package is written it is impossible for Snowpack to install normally (*"Error: '__moduleExports' is not exported by node_modules/react/index.js"*). 
+
+To use React with Snowpack, you can either:
+
+1. **Recommended:** use the [`--source pika`](#skipping-npm-install) flag to install your web dependencies directly from the Pika CDN. The CDN's version of React is built to support ESM, and all npm packages should be supported.
+
+2. **Alternatively:** If you run into an issue with `--source pika`, you can use our actively-maintained ESM-alternative packages of [React](https://www.npmjs.com/package/@pika/react) & [React-DOM](https://www.npmjs.com/package/@pika/react). These packages include the same code as the originals, but published within an ESM wrapper so that build tools like Snowpack can benefit from the easier-to-analyze code.
+
+You can install both ESM-alternative packages in your project under an alias:
 
 ```
 npm install react@npm:@pika/react react-dom@npm:@pika/react-dom
    yarn add react@npm:@pika/react react-dom@npm:@pika/react-dom
 ```
-
-When installed under the react/react-dom alias, all tooling (including Snowpack) will benefit from these easier-to-analyze ESM distributions of the popular packages.
-
-
 
 
 ### JSX
