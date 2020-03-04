@@ -1,0 +1,11 @@
+{
+  "description": "Test that the lockfile import URLs & version info are used",
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+  },
+  "webDependencies": {
+    "async": "~3.0.0",
+    "react": "16.13.1",
+    "react-dom": "16.13.1"
+  }
+}

@@ -122,12 +122,12 @@ function getInstallTargetsForFile(filePath: string, code: string): InstallTarget
 }
 
 export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
-  const nodeModulesLoc = nodePath.join(cwd, 'node_modules');
   return depList
     .map((whitelistItem) => {
       if (!glob.hasMagic(whitelistItem)) {
         return [createInstallTarget(whitelistItem, true)];
       } else {
+        const nodeModulesLoc = nodePath.join(cwd, 'node_modules');
         return scanDepList(glob.sync(whitelistItem, {cwd: nodeModulesLoc, nodir: true}), cwd);
       }
     })

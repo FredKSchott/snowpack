@@ -7,7 +7,6 @@ export const PIKA_CDN = `https://cdn.pika.dev`;
 export const CACHE_DIR = cachedir('snowpack');
 export const RESOURCE_CACHE = path.join(CACHE_DIR, 'pkg-cache-1.4');
 export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
-
 export interface ImportMap {
   imports: {[packageName: string]: string};
 }
@@ -26,7 +25,11 @@ export async function readLockfile(cwd: string): Promise<ImportMap | null> {
 }
 
 export async function writeLockfile(loc: string, importMap: ImportMap): Promise<void> {
-  fs.writeFileSync(loc, JSON.stringify(importMap, undefined, 2), {encoding: 'utf8'});
+  const sortedImportMap: ImportMap = {imports: {}};
+  for (const key of Object.keys(importMap.imports).sort()) {
+    sortedImportMap.imports[key] = importMap.imports[key];
+  }
+  fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
 }
 
 export function fetchCDNResource(resourceUrl: string) {
