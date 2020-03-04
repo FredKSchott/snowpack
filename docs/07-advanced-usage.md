@@ -22,6 +22,13 @@ Browsers can only import by URL, so importing a package by name requires additio
   ]
 ```
 
+#### Babel Plugin Options
+
+- `dir`: Optional. A custom path to your 'web_modules/' directory.
+- `importMap`: Optional. A custom path to your 'import-map.json' file.
+- `optionalExtensions`: Optional, Defaults to `false`. Toggle behavior to add missing JS extensions to local/relative imports. Support for these "partial imports" is currently being phased out of Node.js, but our plugin supports them via this option to help you migrate older projects to Snowpack.
+
+
 **TTypeScript Support:** If you use [TTypescript](https://github.com/cevek/ttypescript) (note: this is a separate tool from TypeScript) you can use the [@magic-works/ttypescript-browser-like-import-transformer](https://github.com/Jack-Works/ttypescript-browser-like-import-transformer) plugin to support package name imports. The transformer reads import declarations in your source code and rewrites them to full `"/web_modules/${PACKAGE_NAME}.js"` URLs that run in the browser.
 
 ``` js
