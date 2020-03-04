@@ -1,5 +1,43 @@
 import fs from 'fs';
 import path from 'path';
+import got from 'got';
+import cachedir from 'cachedir';
+
+export const PIKA_CDN = `https://cdn.pika.dev`;
+export const CACHE_DIR = cachedir('snowpack');
+export const RESOURCE_CACHE = path.join(CACHE_DIR, 'pkg-cache-1.4');
+export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
+
+export interface ImportMap {
+  imports: {[packageName: string]: string};
+}
+
+export async function readLockfile(cwd: string): Promise<ImportMap | null> {
+  try {
+    var lockfileContents = fs.readFileSync(path.join(cwd, 'snowpack.lock.json'), {
+      encoding: 'utf8',
+    });
+  } catch (err) {
+    // no lockfile found, ignore and continue
+    return null;
+  }
+  // If this fails, we actually do want to alert the user by throwing
+  return JSON.parse(lockfileContents);
+}
+
+export async function writeLockfile(loc: string, importMap: ImportMap): Promise<void> {
+  fs.writeFileSync(loc, JSON.stringify(importMap, undefined, 2), {encoding: 'utf8'});
+}
+
+export function fetchCDNResource(resourceUrl: string) {
+  if (!resourceUrl.startsWith(PIKA_CDN)) {
+    resourceUrl = PIKA_CDN + resourceUrl;
+  }
+  return got(resourceUrl, {
+    headers: {'user-agent': `snowpack/v1.4 (https://snowpack.dev)`},
+    throwHttpErrors: false,
+  });
+}
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {
   return Boolean(item);

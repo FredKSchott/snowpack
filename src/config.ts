@@ -14,6 +14,7 @@ type DeepPartial<T> = {
 
 // interface this library uses internally
 export interface SnowpackConfig {
+  source: 'local' | 'pika';
   webDependencies?: string[];
   dedupe?: string[];
   namedExports?: {[filepath: string]: string[]};
@@ -42,10 +43,13 @@ export interface SnowpackConfig {
 export interface CLIFlags extends Partial<SnowpackConfig['installOptions']> {
   help?: boolean;
   version?: boolean;
+  reload?: boolean;
+  source?: SnowpackConfig['source'];
 }
 
 // default settings
 const DEFAULT_CONFIG: SnowpackConfig = {
+  source: 'local',
   dedupe: [],
   installOptions: {
     clean: false,
@@ -66,7 +70,6 @@ const configSchema = {
   type: 'object',
   properties: {
     source: {type: 'string'},
-    dependencies: {type: 'object'},
     webDependencies: {type: 'array', items: {type: 'string'}},
     dedupe: {
       type: 'array',
@@ -105,11 +108,19 @@ const configSchema = {
   },
 };
 
+/**
+ * Convert CLI flags to an incomplete Snowpack config representation.
+ * We need to be careful about setting properties here if the flag value
+ * is undefined, since the deep merge strategy would then overwrite good
+ * defaults with 'undefined'.
+ */
 function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
-  const {help, version, ...installOptions} = flags;
-  return {
-    installOptions,
-  };
+  const {source, help, version, ...installOptions} = flags;
+  const result: DeepPartial<SnowpackConfig> = {installOptions};
+  if (source) {
+    result.source = source;
+  }
+  return result;
 }
 
 /** resolve --dest relative to cwd */
