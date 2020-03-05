@@ -7,7 +7,7 @@
 </p>
 
 ```bash
-npm install --save-dev snowpack
+npm i --save-dev snowpack
 ```
 
 1. Instead of bundling on every change, just run Snowpack **once** right after `npm install`.
