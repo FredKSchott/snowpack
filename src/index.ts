@@ -3,6 +3,7 @@ import rollupPluginCommonjs from '@rollup/plugin-commonjs';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
+import rollupPluginAlias from '@rollup/plugin-alias';
 import chalk from 'chalk';
 import fs from 'fs';
 import hasha from 'hasha';
@@ -324,6 +325,11 @@ export async function install(
         rollupPluginReplace({
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
         }),
+      rollupPluginAlias({
+        entries: Array.from(allInstallSpecifiers)
+          .filter(spec => Array.isArray(spec))
+          .map(([alias, mod]) => ({find: alias, replacement: mod})),
+      }),
       rollupPluginNodeResolve({
         mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(isTruthy),
         modulesOnly: isStrict, // Default: false
