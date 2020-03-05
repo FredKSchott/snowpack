@@ -223,6 +223,7 @@ export async function install(
   {hasBrowserlistConfig, isExplicit, lockfile}: InstallOptions,
   config: SnowpackConfig,
 ) {
+  // throw new Error('typescript sucks'); // @ts-ignore
   const {
     dedupe,
     namedExports,
@@ -258,11 +259,17 @@ export async function install(
   const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
   const skipFailures = !isExplicit;
 
-  for (const installSpecifier of allInstallSpecifiers) {
+  for (const installSpecifierOrArr of allInstallSpecifiers) {
+    const installSpecifier = Array.isArray(installSpecifierOrArr)
+      ? installSpecifierOrArr[1]
+      : installSpecifierOrArr;
+    const installSpecifierOrAlias = Array.isArray(installSpecifierOrArr)
+      ? installSpecifierOrArr[0]
+      : installSpecifierOrArr;
     const targetName = getWebDependencyName(installSpecifier);
     if (lockfile && lockfile.imports[installSpecifier]) {
       installEntrypoints[targetName] = lockfile.imports[installSpecifier];
-      importMap.imports[installSpecifier] = `./${targetName}.js`;
+      importMap.imports[installSpecifierOrAlias] = `./${targetName}.js`;
       installResults.push([targetName, 'SUCCESS']);
       logUpdate(formatInstallResults(skipFailures));
       continue;
@@ -272,7 +279,7 @@ export async function install(
       if (targetType === 'JS') {
         const hashQs = useHash ? `?rev=${await generateHashFromFile(targetLoc)}` : '';
         installEntrypoints[targetName] = targetLoc;
-        importMap.imports[installSpecifier] = `./${targetName}.js${hashQs}`;
+        importMap.imports[installSpecifierOrAlias] = `./${targetName}.js${hashQs}`;
         installTargetsMap[targetLoc] = installTargets.filter(t => installSpecifier === t.specifier);
         installResults.push([installSpecifier, 'SUCCESS']);
       } else if (targetType === 'ASSET') {

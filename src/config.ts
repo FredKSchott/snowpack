@@ -73,7 +73,23 @@ const configSchema = {
   type: 'object',
   properties: {
     source: {type: 'string'},
-    webDependencies: {type: 'array', items: {type: 'string'}},
+    webDependencies: {
+      type: 'array',
+      items: {
+        anyOf: [
+          {type: 'string'},
+          {
+            type: 'array',
+            items: [
+              {
+                type: 'string',
+              },
+              {type: 'string'},
+            ],
+          },
+        ],
+      },
+    },
     dedupe: {
       type: 'array',
       items: {type: 'string'},

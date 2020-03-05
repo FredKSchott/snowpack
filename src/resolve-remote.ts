@@ -91,7 +91,10 @@ export async function resolveTargetsFromRemoteCDN(
   const newLockfile: ImportMap = {imports: {}};
 
   const allInstallSpecifiers = new Set(installTargets.map(dep => dep.specifier));
-  for (const installSpecifier of allInstallSpecifiers) {
+  for (const installSpecifierOrArr of allInstallSpecifiers) {
+    const installSpecifier = Array.isArray(installSpecifierOrArr)
+      ? installSpecifierOrArr[1]
+      : installSpecifierOrArr;
     const installSemver: string =
       (pkgManifest.dependencies || {})[installSpecifier] ||
       (pkgManifest.devDependencies || {})[installSpecifier] ||

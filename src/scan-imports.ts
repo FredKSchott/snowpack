@@ -22,7 +22,7 @@ const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s]*\})?\s+from/s;
  * are metadata about what is actually being imported.
  */
 export type InstallTarget = {
-  specifier: string;
+  specifier: string | [string, string];
   all: boolean;
   default: boolean;
   namespace: boolean;
@@ -33,7 +33,7 @@ function stripJsExtension(dep: string): string {
   return dep.replace(/\.m?js$/i, '');
 }
 
-function createInstallTarget(specifier: string, all = true): InstallTarget {
+function createInstallTarget(specifier: string | [string, string], all = true): InstallTarget {
   return {
     specifier,
     all,
@@ -124,7 +124,8 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
   const nodeModulesLoc = nodePath.join(cwd, 'node_modules');
   return depList
     .map(whitelistItem => {
-      if (!glob.hasMagic(whitelistItem)) {
+      const safelistName = Array.isArray(whitelistItem) ? whitelistItem[1] : whitelistItem;
+      if (!glob.hasMagic(safelistName)) {
         return [createInstallTarget(whitelistItem, true)];
       } else {
         return scanDepList(glob.sync(whitelistItem, {cwd: nodeModulesLoc, nodir: true}), cwd);
@@ -158,5 +159,9 @@ export async function scanImports({include, exclude}: ScanImportsParams): Promis
     .map(filePath => [filePath, fs.readFileSync(filePath, 'utf8')])
     .map(([filePath, code]) => getInstallTargetsForFile(filePath, code))
     .reduce((flat, item) => flat.concat(item), [])
-    .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier));
+    .sort((impA, impB) => {
+      const specifierA = Array.isArray(impA.specifier) ? impA.specifier[1] : impA.specifier;
+      const specifierB = Array.isArray(impB.specifier) ? impB.specifier[1] : impB.specifier;
+      return specifierA.localeCompare(specifierB);
+    });
 }
