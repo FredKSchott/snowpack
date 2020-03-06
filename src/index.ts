@@ -224,7 +224,6 @@ export async function install(
   {hasBrowserlistConfig, isExplicit, lockfile}: InstallOptions,
   config: SnowpackConfig,
 ) {
-  // throw new Error('typescript sucks'); // @ts-ignore
   const {
     dedupe,
     namedExports,
