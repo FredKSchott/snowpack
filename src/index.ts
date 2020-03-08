@@ -58,6 +58,7 @@ ${chalk.bold('Options:')}
   --babel                   Transpile installed dependencies. Also enabled with "--optimize".
   --include [glob]          Auto-detect imports from file(s). Supports glob.
   --exclude [glob]          Exclude files from --include. Follows glob’s ignore pattern.
+  --config [path]           Location of Snowpack config file.
   --strict                  Only install pure ESM dependency trees. Fail if a CJS module is encountered.
   --no-source-map           Skip emitting source map files (.js.map) into dest
   --stat                    Logs install statistics after installing, with information on install targets and file sizes. Useful for CI, performance review.
