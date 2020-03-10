@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import nodePath from 'path';
 import fs from 'fs';
 import glob from 'glob';
@@ -148,13 +149,13 @@ export async function scanImports({include, exclude}: ScanImportsParams): Promis
 
   // Scan every matched JS file for web dependency imports
   return includeFiles
-    .filter(
-      filePath =>
-        filePath.endsWith('.js') ||
-        filePath.endsWith('mjs') ||
-        filePath.endsWith('.ts') ||
-        filePath.endsWith('.tsx'),
-    )
+    .filter(filePath => {
+      if (filePath.endsWith('.js') || filePath.endsWith('mjs') || filePath.endsWith('.ts')) {
+        return true;
+      }
+      console.warn(chalk.dim(`ignoring unsupported file "${filePath}"`));
+      return false;
+    })
     .map(filePath => [filePath, fs.readFileSync(filePath, 'utf8')])
     .map(([filePath, code]) => getInstallTargetsForFile(filePath, code))
     .reduce((flat, item) => flat.concat(item), [])
