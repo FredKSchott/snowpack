@@ -61,7 +61,7 @@ const DEFAULT_CONFIG: SnowpackConfig = {
     exclude: ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
     externalPackage: [],
     nomoduleOutput: 'app.nomodule.js',
-    optimize: false,
+    optimize: process.env.NODE_ENV === 'production',
     remoteUrl: 'https://cdn.pika.dev',
     stat: false,
     strict: false,

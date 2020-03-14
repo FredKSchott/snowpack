@@ -70,7 +70,7 @@ Snowpack generates an [Import Map](https://github.com/WICG/import-maps) with eve
 $ npx snowpack --optimize
 ```
 
-By default, Snowpack installs dependencies unminified and optimized for development. When you're ready for production, run Snowpack with the `--optimize` flag to enable certain production-only optimizations:
+By default, Snowpack installs dependencies unminified and optimized for development. When you're ready for production, run Snowpack with either the `--optimize` flag or a `NODE_ENV=production` environment variable to enable certain production-only optimizations:
 
 - **Minification:** Dependencies will be minified (source maps included).
 - **Transpilation:** Dependencies will be transpiled to match your application's [browser support target](#customize-browser-support) (in case any packages are written using too-modern language features).

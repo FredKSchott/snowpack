@@ -1,0 +1,9 @@
+{
+  "description": "Test that the NODE_ENV=production sets optimize config default",
+  "scripts": {
+    "TEST": "NODE_ENV=production node ../../../pkg/dist-node/index.bin.js"
+  },
+  "dependencies": {
+    "shallow-equal": "^1.2.1"
+  }
+}
