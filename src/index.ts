@@ -311,12 +311,13 @@ export async function install(
     input: installEntrypoints,
     external: externalPackages,
     plugins: [
-      rollupPluginEntrypointAlias({cwd}),
-      source === 'pika' && rollupPluginDependencyCache({log: url => logUpdate(chalk.dim(url))}),
       !isStrict &&
         rollupPluginReplace({
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
+          'process.env': '({})',
         }),
+      rollupPluginEntrypointAlias({cwd}),
+      source === 'pika' && rollupPluginDependencyCache({log: url => logUpdate(chalk.dim(url))}),
       rollupPluginNodeResolve({
         mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(isTruthy),
         modulesOnly: isStrict, // Default: false
@@ -438,10 +439,14 @@ export async function install(
       };
     }
     try {
+      // Strip the replace plugin from the set of plugins that we use.
+      // Since we've already run it once it can cause trouble on a second run.
+      console.assert(inputOptions.plugins![0].name === 'replace');
+      const noModulePlugins = inputOptions.plugins!.slice(1);
       const noModuleBundle = await rollup({
         input: path.resolve(cwd, nomodule),
         inlineDynamicImports: true,
-        plugins: [...inputOptions.plugins!, rollupResolutionHelper()],
+        plugins: [...noModulePlugins, rollupResolutionHelper()],
       });
       await noModuleBundle.write({
         file: path.resolve(destLoc, nomoduleOutput),
