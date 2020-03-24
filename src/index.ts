@@ -177,16 +177,13 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
   if (!foundEntrypoint && isExplicit) {
     foundEntrypoint = depManifest.main || 'index.js';
   }
-  if (
-    (dep === 'react' || dep === 'react-dom') &&
-    (!foundEntrypoint || foundEntrypoint === 'index.js')
-  ) {
+  if (dep === 'react-dom' && (!foundEntrypoint || foundEntrypoint === 'index.js')) {
     throw new ErrorWithHint(
       chalk.bold(`Dependency "${dep}" has no native "module" entrypoint.`) +
         `
-  To continue, install our drop-in, ESM-ready builds of "react" & "react-dom" to your project:
-    npm: npm install react@npm:@pika/react react-dom@npm:@pika/react-dom
-    yarn: yarn add react@npm:@pika/react react-dom@npm:@pika/react-dom`,
+  To continue, install our drop-in, ESM-ready build of "react-dom" to your project:
+    npm: npm install react-dom@npm:@pika/react-dom
+    yarn: yarn add react-dom@npm:@pika/react-dom`,
       chalk.italic(`See ${chalk.underline('https://www.snowpack.dev/#react')} for more info.`),
     );
   }
