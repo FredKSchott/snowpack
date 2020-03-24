@@ -1,0 +1,1 @@
+{"version":3,"file":"mock-test-package.js","sources":["../node_modules/mock-test-package/entrypoint.js"],"sourcesContent":["export const foobar = process.env.NODE_ENV === 'FOOBAR' ? true : false;\n"],"names":["foobar"],"mappings":"AAAY,MAACA,GAA6C"}
