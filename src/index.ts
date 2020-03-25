@@ -3,6 +3,7 @@ import rollupPluginCommonjs from '@rollup/plugin-commonjs';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
+import rollupPluginAlias from '@rollup/plugin-alias';
 import chalk from 'chalk';
 import fs from 'fs';
 import hasha from 'hasha';
@@ -224,6 +225,7 @@ export async function install(
   config: SnowpackConfig,
 ) {
   const {
+    aliases = {},
     dedupe,
     namedExports,
     source,
@@ -250,8 +252,14 @@ export async function install(
     logError('no "node_modules" directory exists. Did you run "npm install" first?');
     return;
   }
+  const allInstallSpecifiers = new Set(
+    installTargets
+      .map(dep => dep.specifier)
+      .concat(Object.values(aliases))
+      .sort(),
+  );
+  console.log('allInstallSpecifiers', allInstallSpecifiers);
 
-  const allInstallSpecifiers = new Set(installTargets.map(dep => dep.specifier).sort());
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
   const importMap: ImportMap = {imports: {}};
@@ -261,6 +269,7 @@ export async function install(
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
     if (lockfile && lockfile.imports[installSpecifier]) {
+      console.log(targetName, installSpecifier);
       installEntrypoints[targetName] = lockfile.imports[installSpecifier];
       importMap.imports[installSpecifier] = `./${targetName}.js`;
       installResults.push([targetName, 'SUCCESS']);
@@ -273,6 +282,12 @@ export async function install(
         const hashQs = useHash ? `?rev=${await generateHashFromFile(targetLoc)}` : '';
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${targetName}.js${hashQs}`;
+        Object.entries(aliases)
+          .filter(([key, value]) => value === installSpecifier)
+          .forEach(([key, value]) => {
+            importMap.imports[key] = `./${targetName}.js${hashQs}`;
+          });
+
         installTargetsMap[targetLoc] = installTargets.filter(t => installSpecifier === t.specifier);
         installResults.push([installSpecifier, 'SUCCESS']);
       } else if (targetType === 'ASSET') {
@@ -317,6 +332,12 @@ export async function install(
         rollupPluginReplace({
           'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
         }),
+      rollupPluginAlias({
+        entries: Object.entries(aliases).map(([alias, mod]) => ({
+          find: alias,
+          replacement: mod,
+        })),
+      }),
       rollupPluginNodeResolve({
         mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(isTruthy),
         modulesOnly: isStrict, // Default: false
