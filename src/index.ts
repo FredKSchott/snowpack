@@ -258,8 +258,6 @@ export async function install(
       .concat(Object.values(aliases))
       .sort(),
   );
-  console.log('allInstallSpecifiers', allInstallSpecifiers);
-
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
   const importMap: ImportMap = {imports: {}};
