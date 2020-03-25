@@ -269,7 +269,6 @@ export async function install(
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
     if (lockfile && lockfile.imports[installSpecifier]) {
-      console.log(targetName, installSpecifier);
       installEntrypoints[targetName] = lockfile.imports[installSpecifier];
       importMap.imports[installSpecifier] = `./${targetName}.js`;
       installResults.push([targetName, 'SUCCESS']);
