@@ -310,6 +310,7 @@ export async function install(
   const inputOptions: InputOptions = {
     input: installEntrypoints,
     external: externalPackages,
+    treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
       rollupPluginEntrypointAlias({cwd}),
       source === 'pika' && rollupPluginDependencyCache({log: url => logUpdate(chalk.dim(url))}),
