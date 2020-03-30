@@ -55,6 +55,7 @@ ${chalk.bold('Options:')}
   --dest [path]             Specify destination directory (default: "web_modules/").
   --clean                   Clear out the destination directory before install.
   --optimize                Transpile, minify, and optimize installed dependencies for production.
+  --node-env                Set the NODE_ENV property inside dependencies.
   --babel                   Transpile installed dependencies. Also enabled with "--optimize".
   --include [glob]          Auto-detect imports from file(s). Supports glob.
   --exclude [glob]          Exclude files from --include. Follows glob’s ignore pattern.
@@ -63,7 +64,7 @@ ${chalk.bold('Options:')}
   --no-source-map           Skip emitting source map files (.js.map) into dest
   --stat                    Logs install statistics after installing, with information on install targets and file sizes. Useful for CI, performance review.
   --nomodule [path]         Your app’s entry file for generating a <script nomodule> bundle
-  --nomodule-output [path]  Filename for nomodule output (default: 'app.nomodule.js')
+  --nomodule-output [path]  Filename for nomodule output (default: "app.nomodule.js")
     ${chalk.bold('Advanced:')}
   --external-package [val]  Internal use only, may be removed at any time.
     `.trim(),
@@ -238,6 +239,7 @@ export async function install(
       sourceMap,
       strict: isStrict,
       stat: withStats,
+      nodeEnv,
     },
     rollup: userDefinedRollup,
   } = config;
@@ -257,6 +259,7 @@ export async function install(
   const importMap: ImportMap = {imports: {}};
   const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
   const skipFailures = !isExplicit;
+  const defaultNodeEnv = isOptimized ? '"production"' : '"development"';
 
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
@@ -314,7 +317,7 @@ export async function install(
     plugins: [
       !isStrict &&
         rollupPluginReplace({
-          'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
+          'process.env.NODE_ENV': nodeEnv ? `"${nodeEnv}"` : defaultNodeEnv,
           'process.env': '({})',
         }),
       rollupPluginEntrypointAlias({cwd}),
