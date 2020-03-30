@@ -576,7 +576,12 @@ export async function cli(args: string[]) {
     {hasBrowserlistConfig, isExplicit, lockfile: newLockfile},
     config,
   ).catch((err) => {
-    err.loc && console.log('\n' + chalk.red.bold(`✘ ${err.loc.file}`));
+    if (err.loc) {
+      console.log('\n' + chalk.red.bold(`✘ ${err.loc.file}`));
+    }
+    if (err.url) {
+      console.log(chalk.dim(`👉 ${err.url}`));
+    }
     throw err;
   });
 

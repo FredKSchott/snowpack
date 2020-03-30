@@ -60,6 +60,7 @@ _Note: this file can be in any folder and named anything but must still end in `
     "nomodule": "src/index.js",
     "nomoduleOutput": "app.nomodule.js"
   },
+  "namedExports": {},
   "dedupe": ["lit-element", "lit-html"],
   "rollup": {
     "plugins": []
