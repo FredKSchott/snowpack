@@ -171,8 +171,7 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
       foundEntrypoint['./index.js'] ||
       foundEntrypoint['./index'] ||
       foundEntrypoint['./'] ||
-      foundEntrypoint['.'] ||
-      foundEntrypoint;
+      foundEntrypoint['.'];
   }
   // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
   if (!foundEntrypoint && isExplicit) {
