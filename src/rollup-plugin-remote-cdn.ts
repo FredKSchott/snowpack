@@ -48,7 +48,7 @@ export function rollupPluginDependencyCache({log}: {log: (url: string) => void})
       // If lookup failed, skip this plugin and resolve the import locally instead.
       // TODO: Log that this has happened (if some sort of verbose mode is enabled).
       const packageName = source.substring(3).split('@')[0];
-      return this.resolve(packageName, importer!, {skipSelf: true}).then(resolved => {
+      return this.resolve(packageName, importer!, {skipSelf: true}).then((resolved) => {
         let finalResult = resolved;
         if (!finalResult) {
           finalResult = ({id: packageName} as any) as ResolvedId;
