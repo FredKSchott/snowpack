@@ -56,12 +56,16 @@ export function rollupPluginDependencyStats(cb: (dependencyInfo: DependencyStats
       outputDir = options.dir!;
       buildExistingFileCache(bundle);
     },
-    writeBundle(bundle: OutputBundle) {
+    writeBundle(options: OutputOptions, bundle: OutputBundle) {
       const directDependencies: {fileName: string; contents: Buffer}[] = [];
       const commonDependencies: {fileName: string; contents: Buffer}[] = [];
       for (const [fileName, assetOrChunk] of Object.entries(bundle)) {
         const raw = assetOrChunk.type === 'asset' ? assetOrChunk.source : assetOrChunk.code;
-        const contents = Buffer.isBuffer(raw) ? raw : Buffer.from(raw, 'utf8');
+        const contents = Buffer.isBuffer(raw)
+          ? raw
+          : typeof raw === 'string'
+          ? Buffer.from(raw, 'utf8')
+          : Buffer.from(raw);
         if (fileName.startsWith('common')) {
           commonDependencies.push({fileName, contents});
         } else {

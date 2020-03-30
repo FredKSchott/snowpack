@@ -128,7 +128,7 @@ function detectExports(filePath: string): string[] | undefined {
   try {
     const fileLoc = require.resolve(filePath, {paths: [cwd]});
     if (fs.existsSync(fileLoc)) {
-      return Object.keys(require(fileLoc)).filter(e => e[0] !== '_');
+      return Object.keys(require(fileLoc)).filter((e) => e[0] !== '_');
     }
   } catch (err) {
     // ignore
@@ -252,7 +252,7 @@ export async function install(
     return;
   }
 
-  const allInstallSpecifiers = new Set(installTargets.map(dep => dep.specifier).sort());
+  const allInstallSpecifiers = new Set(installTargets.map((dep) => dep.specifier).sort());
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
   const importMap: ImportMap = {imports: {}};
@@ -275,7 +275,9 @@ export async function install(
         const hashQs = useHash ? `?rev=${await generateHashFromFile(targetLoc)}` : '';
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${targetName}.js${hashQs}`;
-        installTargetsMap[targetLoc] = installTargets.filter(t => installSpecifier === t.specifier);
+        installTargetsMap[targetLoc] = installTargets.filter(
+          (t) => installSpecifier === t.specifier,
+        );
         installResults.push([installSpecifier, 'SUCCESS']);
       } else if (targetType === 'ASSET') {
         assetEntrypoints[targetName] = targetLoc;
@@ -320,7 +322,7 @@ export async function install(
           'process.env': '({})',
         }),
       rollupPluginEntrypointAlias({cwd}),
-      source === 'pika' && rollupPluginDependencyCache({log: url => logUpdate(chalk.dim(url))}),
+      source === 'pika' && rollupPluginDependencyCache({log: (url) => logUpdate(chalk.dim(url))}),
       rollupPluginNodeResolve({
         mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(isTruthy),
         modulesOnly: isStrict, // Default: false
@@ -360,7 +362,7 @@ export async function install(
         }),
       !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
       !!isOptimized && rollupPluginTerser(),
-      !!withStats && rollupPluginDependencyStats(info => (dependencyStats = info)),
+      !!withStats && rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
     ],
     onwarn(warning, warn) {
@@ -573,7 +575,7 @@ export async function cli(args: string[]) {
     installTargets,
     {hasBrowserlistConfig, isExplicit, lockfile: newLockfile},
     config,
-  ).catch(err => {
+  ).catch((err) => {
     err.loc && console.log('\n' + chalk.red.bold(`✘ ${err.loc.file}`));
     throw err;
   });

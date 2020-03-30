@@ -181,6 +181,6 @@ export default function loadConfig(flags: CLIFlags) {
   // if CLI flags present, apply those as overrides
   return {
     config: normalizeDest(merge<any>(mergedConfig, cliConfig)),
-    errors: validation.errors.map(msg => `${path.basename(result.filepath)}: ${msg.toString()}`),
+    errors: validation.errors.map((msg) => `${path.basename(result.filepath)}: ${msg.toString()}`),
   };
 }
