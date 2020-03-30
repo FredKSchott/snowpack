@@ -178,16 +178,13 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
   if (!foundEntrypoint && isExplicit) {
     foundEntrypoint = depManifest.main || 'index.js';
   }
-  if (
-    (dep === 'react' || dep === 'react-dom') &&
-    (!foundEntrypoint || foundEntrypoint === 'index.js')
-  ) {
+  if (dep === 'react-dom' && (!foundEntrypoint || foundEntrypoint === 'index.js')) {
     throw new ErrorWithHint(
       chalk.bold(`Dependency "${dep}" has no native "module" entrypoint.`) +
         `
-  To continue, install our drop-in, ESM-ready builds of "react" & "react-dom" to your project:
-    npm: npm install react@npm:@pika/react react-dom@npm:@pika/react-dom
-    yarn: yarn add react@npm:@pika/react react-dom@npm:@pika/react-dom`,
+  To continue, install our drop-in, ESM-ready build of "react-dom" to your project:
+    npm: npm install react-dom@npm:@pika/react-dom
+    yarn: yarn add react-dom@npm:@pika/react-dom`,
       chalk.italic(`See ${chalk.underline('https://www.snowpack.dev/#react')} for more info.`),
     );
   }
@@ -317,12 +314,13 @@ export async function install(
     input: installEntrypoints,
     external: externalPackages,
     plugins: [
-      rollupPluginEntrypointAlias({cwd}),
-      source === 'pika' && rollupPluginDependencyCache({log: url => logUpdate(chalk.dim(url))}),
       !isStrict &&
         rollupPluginReplace({
           'process.env.NODE_ENV': nodeEnv ? `"${nodeEnv}"` : defaultNodeEnv,
+          'process.env': '({})',
         }),
+      rollupPluginEntrypointAlias({cwd}),
+      source === 'pika' && rollupPluginDependencyCache({log: url => logUpdate(chalk.dim(url))}),
       rollupPluginNodeResolve({
         mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(isTruthy),
         modulesOnly: isStrict, // Default: false
@@ -444,10 +442,14 @@ export async function install(
       };
     }
     try {
+      // Strip the replace plugin from the set of plugins that we use.
+      // Since we've already run it once it can cause trouble on a second run.
+      console.assert(inputOptions.plugins![0].name === 'replace');
+      const noModulePlugins = inputOptions.plugins!.slice(1);
       const noModuleBundle = await rollup({
         input: path.resolve(cwd, nomodule),
         inlineDynamicImports: true,
-        plugins: [...inputOptions.plugins!, rollupResolutionHelper()],
+        plugins: [...noModulePlugins, rollupResolutionHelper()],
       });
       await noModuleBundle.write({
         file: path.resolve(destLoc, nomoduleOutput),
