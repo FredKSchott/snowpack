@@ -56,6 +56,7 @@
     "chalk": "^3.0.0",
     "cosmiconfig": "^6.0.0",
     "deepmerge": "^4.2.2",
+    "enhanced-resolve": "^4.1.1",
     "es-module-lexer": "^0.3.17",
     "find-package-json": "^1.2.0",
     "glob": "^7.1.4",
