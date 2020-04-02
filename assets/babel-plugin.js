@@ -37,8 +37,8 @@ function rewriteImport(
   importMap,
   imp,
   file,
-  webModulesDir,
-  webModulesPath,
+  webModulesFile,
+  webModulesWeb,
   shouldResolveRelative,
   resolveDependency,
 ) {
@@ -49,11 +49,10 @@ function rewriteImport(
     if (mappedImport.startsWith('http://') || mappedImport.startsWith('https://')) {
       return mappedImport;
     } else {
-      const joinedImport = path.posix.join('/', webModulesPath, mappedImport);
+      const joinedImport = path.posix.join('/', webModulesWeb, mappedImport);
       if (resolveDependency === 'relative') {
-        const relativeToDir = path.posix.dirname(
-          path.posix.relative(file.opts.filename, webModulesDir),
-        );
+        const relativeToRoot = path.posix.relative(file.opts.filename, file.opts.root);
+        const relativeToDir = path.posix.relative(path.posix.dirname(webModulesFile), relativeToRoot);
         return relativeToDir + joinedImport;
       }
       return joinedImport;
@@ -111,8 +110,8 @@ module.exports = function pikaWebBabelTransform(
   {
     resolveRelative,
     resolveDependency,
-    dirFile: webModulesDir,
-    dirWeb: webModulesPath,
+    dirFile: webModulesFile,
+    dirWeb: webModulesWeb,
     addVersion,
     importMap,
     optionalExtensions,
@@ -120,8 +119,8 @@ module.exports = function pikaWebBabelTransform(
   } = {},
 ) {
   // Default options
-  webModulesPath = webModulesPath || 'web_modules';
-  webModulesDir = webModulesDir || 'web_modules';
+  webModulesWeb = webModulesWeb || 'web_modules';
+  webModulesFile = webModulesFile || 'web_modules';
   resolveDependency = resolveDependency || 'absolute';
   const shouldResolveRelative = resolveRelative === 'node' || !!optionalExtensions;
   // Deprecation warnings
@@ -129,8 +128,8 @@ module.exports = function pikaWebBabelTransform(
     console.warn(
       'warn: "dir" option is now deprecated. Please update to use "dirWeb" & "dirFile" instead.',
     );
-    webModulesPath = dir;
-    webModulesDir = dir;
+    webModulesWeb = dir;
+    webModulesFile = dir;
   }
   if (addVersion) {
     console.warn(
@@ -140,7 +139,7 @@ module.exports = function pikaWebBabelTransform(
   // Plugin code
   return {
     pre() {
-      this.importMapJson = getImportMap(importMap, webModulesDir);
+      this.importMapJson = getImportMap(importMap, webModulesFile);
     },
     visitor: {
       CallExpression(path, {file, opts}) {
@@ -158,8 +157,8 @@ module.exports = function pikaWebBabelTransform(
               this.importMapJson,
               source.node.value,
               file,
-              webModulesDir,
-              webModulesPath,
+              webModulesFile,
+              webModulesWeb,
               shouldResolveRelative,
               resolveDependency,
             ),
@@ -178,8 +177,8 @@ module.exports = function pikaWebBabelTransform(
               this.importMapJson,
               source.node.value,
               file,
-              webModulesDir,
-              webModulesPath,
+              webModulesFile,
+              webModulesWeb,
               shouldResolveRelative,
               resolveDependency,
             ),
