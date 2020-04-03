@@ -961,3 +961,7 @@
 .markdown-body .pl-12 {
   padding-left: 128px!important;
 }
+
+.markdown-body iframe {
+  max-width: 100%;
+}
