@@ -322,7 +322,7 @@ export async function install(
       !isStrict &&
         rollupPluginReplace({
           'process.env.NODE_ENV': nodeEnv ? `"${nodeEnv}"` : defaultNodeEnv,
-          'process.env': '({})',
+          'process.env.': '({}).',
         }),
       rollupPluginEntrypointAlias({cwd}),
       source === 'pika' && rollupPluginDependencyCache({log: (url) => logUpdate(chalk.dim(url))}),
