@@ -255,7 +255,7 @@ export async function install(
   const allInstallSpecifiers = new Set(
     installTargets
       .map(dep => dep.specifier)
-      .concat(Object.values(aliases))
+      .map(specifier => aliases[specifier] || specifier)
       .sort(),
   );
   const installEntrypoints: {[targetName: string]: string} = {};
