@@ -1,4 +1,5 @@
 import babelPresetEnv from '@babel/preset-env';
+import babelInlineNodeEnv from 'babel-plugin-transform-node-env-inline';
 import rollupPluginCommonjs from '@rollup/plugin-commonjs';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
@@ -362,6 +363,7 @@ export async function install(
               },
             ],
           ],
+          plugins: [[babelInlineNodeEnv]],
         }),
       !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
       !!isOptimized && rollupPluginTerser(),
