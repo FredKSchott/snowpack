@@ -103,7 +103,6 @@ const configSchema = {
         nomodule: {type: 'string'},
         nomoduleOutput: {type: 'string'},
         optimize: {type: 'boolean'},
-        nodeEnv: {type: 'string'},
         remotePackage: {type: 'array', items: {type: 'string'}},
         remoteUrl: {type: 'string'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
