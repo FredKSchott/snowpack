@@ -1,4 +1,4 @@
-[![CI](https://github.com/pikapkg/snowpack/workflows/CI/badge.svg)](https://github.com/pikapkg/snowpack/actions)
+[![CI](https://github.com/pikapkg/snowpack/workflows/CI/badge.svg?event=push)](https://github.com/pikapkg/snowpack/actions)
 
 <p align="center">
   <img alt="Logo" src="https://www.snowpack.dev/img/logo.png" height="240">
