@@ -404,7 +404,7 @@ export async function install(
   if (Object.keys(installEntrypoints).length > 0) {
     try {
       const packageBundle = await rollup(inputOptions);
-      logUpdate('');
+      logUpdate(formatInstallResults(skipFailures));
       await packageBundle.write(outputOptions);
     } catch (err) {
       const {loc} = err as RollupError;
@@ -499,8 +499,17 @@ export async function cli(args: string[]) {
     await clearCache();
   }
 
+  // Load the current package manifest
+  let pkgManifest: any;
+  try {
+    pkgManifest = require(path.join(cwd, 'package.json'));
+  } catch (err) {
+    console.log(chalk.red('[ERROR] package.json required but no file was found.'));
+    process.exit(0);
+  }
+
   // load config
-  const {config, errors} = loadConfig(cliFlags);
+  const {config, errors} = loadConfig(cliFlags, pkgManifest);
 
   // handle config errors (if any)
   if (Array.isArray(errors) && errors.length) {
@@ -512,7 +521,7 @@ export async function cli(args: string[]) {
     console.log(
       `${chalk.yellow(
         'ℹ',
-      )} "source" configuration is still experimental. Behavior may change before the next major version...`,
+      )} "source: pika" mode enabled. Behavior is still experimental and may change before the next major version...`,
     );
     await clearCache();
   }
@@ -523,17 +532,10 @@ export async function cli(args: string[]) {
 
   const {
     installOptions: {clean, dest, exclude, include},
-    webDependencies,
+    entrypoints: configEntrypoints,
     source,
+    webDependencies,
   } = config;
-
-  let pkgManifest: any;
-  try {
-    pkgManifest = require(path.join(cwd, 'package.json'));
-  } catch (err) {
-    console.log(chalk.red('[ERROR] package.json required but no file was found.'));
-    process.exit(0);
-  }
 
   const implicitDependencies = [
     ...Object.keys(pkgManifest.peerDependencies || {}),
@@ -548,15 +550,19 @@ export async function cli(args: string[]) {
   let isExplicit = false;
   const installTargets: InstallTarget[] = [];
 
+  if (configEntrypoints) {
+    isExplicit = true;
+    installTargets.push(...scanDepList(configEntrypoints, cwd));
+  }
   if (webDependencies) {
     isExplicit = true;
-    installTargets.push(...scanDepList(webDependencies, cwd));
+    installTargets.push(...scanDepList(Object.keys(webDependencies), cwd));
   }
   if (include) {
     isExplicit = true;
     installTargets.push(...(await scanImports({include, exclude})));
   }
-  if (!webDependencies && !include) {
+  if (!isExplicit) {
     installTargets.push(...scanDepList(implicitDependencies, cwd));
   }
   if (installTargets.length === 0) {
@@ -567,7 +573,15 @@ export async function cli(args: string[]) {
   spinner.start();
   const startTime = Date.now();
   if (source === 'pika') {
-    newLockfile = await resolveTargetsFromRemoteCDN(installTargets, lockfile, pkgManifest, config);
+    newLockfile = await resolveTargetsFromRemoteCDN(
+      installTargets,
+      lockfile,
+      pkgManifest,
+      config,
+    ).catch((err) => {
+      logError(err.message || err);
+      process.exit(1);
+    });
   }
 
   if (clean) {

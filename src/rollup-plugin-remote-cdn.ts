@@ -3,7 +3,7 @@ import cacache from 'cacache';
 import {RESOURCE_CACHE, fetchCDNResource, PIKA_CDN, HAS_CDN_HASH_REGEX} from './util';
 
 const CACHED_FILE_ID_PREFIX = 'snowpack-pkg-cache:';
-
+const PIKA_CDN_TRIM_LENGTH = PIKA_CDN.length;
 /**
  * rollup-plugin-remote-cdn
  *
@@ -21,6 +21,8 @@ export function rollupPluginDependencyCache({log}: {log: (url: string) => void})
         cacheKey = source;
       } else if (source.startsWith('/-/')) {
         cacheKey = PIKA_CDN + source;
+      } else if (source.startsWith('/pin/')) {
+        cacheKey = PIKA_CDN + source;
       } else {
         return null;
       }
@@ -28,8 +30,8 @@ export function rollupPluginDependencyCache({log}: {log: (url: string) => void})
       // If the source path is a CDN path including a hash, it's assumed the
       // file will never change and it is safe to pull from our local cache
       // without a network request.
-      log(source);
-      if (HAS_CDN_HASH_REGEX.test(source)) {
+      log(cacheKey);
+      if (HAS_CDN_HASH_REGEX.test(cacheKey)) {
         const cachedResult = await cacache.get
           .info(RESOURCE_CACHE, cacheKey)
           .catch((/* ignore */) => null);
@@ -47,7 +49,11 @@ export function rollupPluginDependencyCache({log}: {log: (url: string) => void})
 
       // If lookup failed, skip this plugin and resolve the import locally instead.
       // TODO: Log that this has happened (if some sort of verbose mode is enabled).
-      const packageName = source.substring(3).split('@')[0];
+      const packageName = cacheKey
+        .substring(PIKA_CDN_TRIM_LENGTH)
+        .replace('/-/', '')
+        .replace('/pin/', '')
+        .split('@')[0];
       return this.resolve(packageName, importer!, {skipSelf: true}).then((resolved) => {
         let finalResult = resolved;
         if (!finalResult) {
@@ -61,6 +67,7 @@ export function rollupPluginDependencyCache({log}: {log: (url: string) => void})
         return null;
       }
       const cacheKey = id.substring(CACHED_FILE_ID_PREFIX.length);
+      log(cacheKey);
       const cachedResult = await cacache.get(RESOURCE_CACHE, cacheKey);
       return cachedResult.data.toString('utf8');
     },

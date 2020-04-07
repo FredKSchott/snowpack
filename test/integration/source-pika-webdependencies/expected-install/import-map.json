@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "async": "./async.js",
+    "react": "./react.js",
+    "react-dom": "./react-dom.js"
+  }
+}
