@@ -167,21 +167,21 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
  * @param config
  */
 function normalizeEnv(config: SnowpackConfig) {
-    const reducer = (src: any) => (acc: any, id: string) => {
-      const index = id.indexOf('=');
-      const [key, val] = index > 0 ? [id.substr(0, index), id.substr(index + 1)] : [id, src[id]];
-      acc[`process.env.${key}`] = `"${val}"`;
-      return acc;
-    };
-    const env = config.installOptions.env;
-    const result: any = {
-      'process.env.NODE_ENV': config.installOptions.optimize ? '"production"' : '"development"',
-    };
-    config.installOptions.env = Array.isArray(env)
-      ? env.reduce(reducer(process.env), result)
-      : Object.keys(env!).reduce(reducer(env), result);
-    return config;
-  }
+  const reducer = (src: any) => (acc: any, id: string) => {
+    const index = id.indexOf('=');
+    const [key, val] = index > 0 ? [id.substr(0, index), id.substr(index + 1)] : [id, src[id]];
+    acc[`process.env.${key}`] = `"${val}"`;
+    return acc;
+  };
+  const env = config.installOptions.env;
+  const result: any = {
+    'process.env.NODE_ENV': config.installOptions.optimize ? '"production"' : '"development"',
+  };
+  config.installOptions.env = Array.isArray(env)
+    ? env.reduce(reducer(process.env), result)
+    : Object.keys(env!).reduce(reducer(env), result);
+  return config;
+}
 
 export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
   const cliConfig = expandCliFlags(flags);
