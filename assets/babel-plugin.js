@@ -2,16 +2,16 @@ const fs = require('fs');
 const path = require('path');
 const nodeResolve = require('enhanced-resolve');
 
-function readImportMapFile(explicitPath, dir) {
+function readImportMapFile(explicitPath, webModulesFile) {
   if (explicitPath) {
     if (path.isAbsolute(explicitPath)) {
       return fs.readFileSync(explicitPath, {encoding: 'utf8'});
     }
-    const explicitImportMap = path.join(process.cwd(), dir, explicitPath);
+    const explicitImportMap = path.join(webModulesFile, explicitPath);
     return fs.readFileSync(explicitImportMap, {encoding: 'utf8'});
   }
-  const localImportMap = path.join(process.cwd(), dir, `import-map.local.json`);
-  const defaultImportMap = path.join(process.cwd(), dir, `import-map.json`);
+  const localImportMap = path.join(webModulesFile, `import-map.local.json`);
+  const defaultImportMap = path.join(webModulesFile, `import-map.json`);
   try {
     return fs.readFileSync(localImportMap, {encoding: 'utf8'});
   } catch (err) {
@@ -27,8 +27,8 @@ function readImportMapFile(explicitPath, dir) {
   ✘ ${defaultImportMap}`);
 }
 
-function getImportMap(explicitPath, dir) {
-  const fileContents = readImportMapFile(explicitPath, dir);
+function getImportMap(explicitPath, webModulesFile) {
+  const fileContents = readImportMapFile(explicitPath, webModulesFile);
   importMapJson = JSON.parse(fileContents);
   return importMapJson;
 }
@@ -51,8 +51,13 @@ function rewriteImport(
     } else {
       const joinedImport = path.posix.join('/', webModulesWeb, mappedImport);
       if (resolveDependency === 'relative') {
-        const relativeToRoot = path.posix.relative(file.opts.filename, file.opts.root);
-        const relativeToDir = path.posix.relative(path.posix.dirname(webModulesFile), relativeToRoot);
+        const relativeToRoot = path.relative(file.opts.filename, file.opts.root);
+        const relativeToDir = path
+          .relative(path.dirname(webModulesFile), relativeToRoot)
+          .replace(/\\/g, '/');
+        console.warn('A', file.opts.filename, file.opts.root, relativeToRoot);
+        console.warn('B', webModulesFile, path.posix.dirname(webModulesFile), relativeToDir);
+        console.warn('BB', relativeToDir + joinedImport);
         return relativeToDir + joinedImport;
       }
       return joinedImport;
@@ -71,6 +76,7 @@ function rewriteImport(
       const absPath = nodeResolve.create.sync({
         extensions: ['.js', '.ts', '.jsx', '.tsx', '.json'],
       })(dirOfFile, imp);
+      console.warn('C', file.opts.filename, dirOfFile, imp, absPath);
       const relativePath = path
         .relative(dirOfFile, absPath)
         .replace(/(\.ts|\.tsx|.jsx)$/, '.js')
@@ -118,24 +124,22 @@ module.exports = function pikaWebBabelTransform(
     dir,
   } = {},
 ) {
-  // Default options
-  webModulesWeb = webModulesWeb || 'web_modules';
-  webModulesFile = webModulesFile || 'web_modules';
-  resolveDependency = resolveDependency || 'absolute';
-  const shouldResolveRelative = resolveRelative === 'node' || !!optionalExtensions;
   // Deprecation warnings
   if (dir) {
     console.warn(
       'warn: "dir" option is now deprecated. Please update to use "dirWeb" & "dirFile" instead.',
     );
-    webModulesWeb = dir;
-    webModulesFile = dir;
   }
   if (addVersion) {
     console.warn(
       'warn: "addVersion" option is now built into Snowpack and on by default. The Babel option is no longer needed.',
     );
   }
+  // Default options
+  webModulesWeb = webModulesWeb || dir || 'web_modules';
+  webModulesFile = path.resolve(process.cwd(), webModulesFile || dir || './web_modules');
+  resolveDependency = resolveDependency || 'absolute';
+  const shouldResolveRelative = resolveRelative === 'node' || !!optionalExtensions;
   // Plugin code
   return {
     pre() {

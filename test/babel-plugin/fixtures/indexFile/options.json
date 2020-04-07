@@ -1,3 +1,3 @@
 {
-    "resolve": "node"
+    "resolveRelative": "node"
 }
