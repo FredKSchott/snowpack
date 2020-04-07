@@ -14,6 +14,8 @@ type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
+export type EnvVarReplacements = Record<string, string>;
+
 // interface this library uses internally
 export interface SnowpackConfig {
   source: 'local' | 'pika';
@@ -32,7 +34,7 @@ export interface SnowpackConfig {
     nomodule?: string;
     nomoduleOutput: string;
     optimize: boolean;
-    env?: Record<string, string> | string[];
+    env?: EnvVarReplacements | string[];
     remotePackage?: string[];
     remoteUrl: string;
     sourceMap?: boolean | 'inline';
@@ -109,15 +111,10 @@ const configSchema = {
         stat: {type: 'boolean'},
         strict: {type: 'boolean'},
         env: {
-          oneOf: [
-            {
-              type: 'object',
-              additionalProperties: {
-                oneOf: [{type: 'number'}, {type: 'string'}, {type: 'boolean'}],
-              },
-            },
-            {type: 'array', items: {type: 'string'}},
-          ],
+          type: 'object',
+          additionalProperties: {
+            oneOf: [{type: 'number'}, {type: 'string'}, {type: 'boolean'}],
+          },
         },
       },
     },
@@ -137,12 +134,49 @@ const configSchema = {
  * defaults with 'undefined'.
  */
 function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
-  const {source, help, version, ...installOptions} = flags;
+  const {source, env, help, version, ...installOptions} = flags;
   const result: DeepPartial<SnowpackConfig> = {installOptions};
   if (source) {
     result.source = source;
   }
+  result.installOptions!.env = prepareCliEnvVars((env as string[]) || []);
   return result;
+}
+
+function prepareCliEnvVars(env: string[]): EnvVarReplacements {
+  return env.reduce((acc, id) => {
+    const index = id.indexOf('=');
+    const [key, val] =
+      index > 0 ? [id.substr(0, index), id.substr(index + 1)] : [id, process.env[id]];
+    acc[`process.env.${key}`] = `"${val}"`;
+    return acc;
+  }, {});
+}
+
+function prepareConfigEnvVars(config: DeepPartial<SnowpackConfig>): DeepPartial<SnowpackConfig> {
+  if (!config.installOptions) {
+    config.installOptions = {};
+  }
+  const env = config.installOptions.env;
+  config.installOptions.env = env
+    ? Object.keys(env!).reduce((acc, id) => {
+        const val = env![id];
+        acc[`process.env.${id}`] = `"${val === true ? process.env[id] : val}"`;
+        return acc;
+      }, {})
+    : {};
+  return config;
+}
+
+function finalizeEnvVars(config: SnowpackConfig) {
+  const env = config.installOptions.env!;
+  const nodeEnvID = `process.env.NODE_ENV`;
+  if (!env[nodeEnvID]) {
+    env[nodeEnvID] = config.installOptions.optimize ? '"production"' : '"development"';
+  }
+  env['process.env.'] = '({}).';
+  //   console.log(env);
+  return config;
 }
 
 /** resolve --dest relative to cwd, and set the default "source" */
@@ -156,30 +190,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     const isDetailedObject = config.webDependencies && typeof config.webDependencies === 'object';
     config.source = isDetailedObject ? 'pika' : 'local';
   }
-  normalizeEnv(config);
-  return config;
-}
-
-/**
- * Prepares environment variable config for inlining purposes.
- *
- * @param config
- */
-function normalizeEnv(config: SnowpackConfig) {
-  const reducer = (src: any) => (acc: any, id: string) => {
-    const index = id.indexOf('=');
-    const [key, val] = index > 0 ? [id.substr(0, index), id.substr(index + 1)] : [id, src[id]];
-    acc[`process.env.${key}`] = `"${val}"`;
-    return acc;
-  };
-  const env = config.installOptions.env;
-  const result: any = {
-    'process.env.NODE_ENV': config.installOptions.optimize ? '"production"' : '"development"',
-  };
-  config.installOptions.env = Array.isArray(env)
-    ? env.reduce(reducer(process.env), result)
-    : Object.keys(env!).reduce(reducer(env), result);
-  return config;
+  return finalizeEnvVars(config);
 }
 
 export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
@@ -233,7 +244,7 @@ export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
   const mergedConfig = merge<SnowpackConfig>([
     DEFAULT_CONFIG,
     {webDependencies: pkgManifest.webDependencies},
-    config,
+    prepareConfigEnvVars(config),
     cliConfig as any,
   ]);
 

@@ -16,7 +16,7 @@ import rollupPluginBabel from 'rollup-plugin-babel';
 import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import validatePackageName from 'validate-npm-package-name';
 import yargs from 'yargs-parser';
-import loadConfig, {SnowpackConfig, CLIFlags} from './config.js';
+import loadConfig, {CLIFlags, EnvVarReplacements, SnowpackConfig} from './config.js';
 import {resolveTargetsFromRemoteCDN, clearCache} from './resolve-remote.js';
 import {rollupPluginDependencyCache} from './rollup-plugin-remote-cdn.js';
 import {rollupPluginEntrypointAlias} from './rollup-plugin-entrypoint-alias.js';
@@ -321,7 +321,7 @@ export async function install(
     external: externalPackages,
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
-      !isStrict && rollupPluginReplace(env! as any),
+      !isStrict && rollupPluginReplace(env! as EnvVarReplacements),
       rollupPluginEntrypointAlias({cwd}),
       source === 'pika' && rollupPluginDependencyCache({log: (url) => logUpdate(chalk.dim(url))}),
       rollupPluginNodeResolve({

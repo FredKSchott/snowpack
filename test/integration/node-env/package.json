@@ -1,8 +1,17 @@
 {
-  "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --optimize --env NODE_ENV=FOOBAR"
-  },
-  "dependencies": {
-    "mock-test-package": "^1.2.3"
-  }
+    "scripts": {
+        "TEST": "CLI_A=cli CONF_A=alpha node ../../../pkg/dist-node/index.bin.js --optimize --env NODE_ENV=FOOBAR --env CLI_A"
+    },
+    "dependencies": {
+        "mock-test-package": "^1.2.3"
+    },
+    "snowpack": {
+        "installOptions": {
+            "optimize": true,
+            "env": {
+                "CONF_A": true,
+                "CONF_B": "beta"
+            }
+        }
+    }
 }
