@@ -8,7 +8,7 @@ Snowpack's behavior can be configured by CLI flags, a custom Snowpack config fil
 $ npx snowpack --optimize --clean
 ```
 
-CLI flags will always be merged with (and take priority over) a config file. In addition to the Install Options outlined in the next section, the CLI also supports the following flags: 
+CLI flags will always be merged with (and take priority over) a config file. In addition to the Install Options outlined in the next section, the CLI also supports the following flags:
 
 | Flag        | Description                                                                                                        |
 | ----------- | ------------------------------------------------------------------------------------------------------------------ |
@@ -51,6 +51,10 @@ _Note: this file can be in any folder and named anything but must still end in `
     "clean": false,
     "optimize": false,
     "babel": false,
+    "env": {
+        "API_KEY": "1234-5678"
+        "LOG_LEVEL": "WARN"
+    },
     "include": "src/**/*.{js,jsx,ts,tsx}",
     "exclude": ["**/__tests__/*", "**/*.@(spec\|test).@(js\|mjs)"],
     "strict": false,
@@ -79,21 +83,24 @@ _Note: this file can be in any folder and named anything but must still end in `
 
 #### Install Options (`installOptions.*`)
 
-| Config Option     | Type       | Default           | Description                                                                                                                                                                                            |
-| ----------------- | ---------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `dest`            | `string`   | `"web_modules"`   | Configure the install directory.                                                                                                                                                                       |
-| `clean`           | `boolean`  | `false`           | Delete the existing `dest` directory (any any outdated files) before installing.                                                                                                                       |
-| `optimize`        | `boolean`  | `false`           | Recommended for production: transpile, minify, and optimize installed dependencies.                                                                                                                    |
-| `nodeEnv`         | `string`   | `"development"`   | Set the `NODE_ENV` property inside dependencies. Defaults to "production" with `--optimize`.                                                                                                     |
-| `babel`           | `boolean`  | `false`           | Transpile installed dependencies. Enabled automatically by `--optimize`. Can be disabled via CLI flag via `--no-babel`.                                                                                |
-| `include`         | `string`   |                   | Scans source files to auto-detect install targets. Supports glob pattern matching. See our [Automatic Installs](<#automatic-installs-(recommended)>) guide for more info.                              |
-| `exclude`         | `string`   | See Description.  | Exclude files from `--include` scanning. Supports glob pattern matching. Defaults to exclude common test file locations: `['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`                           |
-| `strict`          | `boolean`  | `false`           | Only install pure ESM dependency trees. Fail if a CJS module is encountered.                                                                                                                           |
-| `stat`            | `boolean`  | `false`           | Logs install statistics after installing, with information on install targets and file sizes. Useful for CI, performance review.                                                                       |
-| `hash`            | `boolean`  | `false`           | Add a `?rev=XXX` hash to each import in the import map / used by Babel plugin. May cause double-requests, if one top-level package imports another.                                                    |
-| `sourceMap`       | `boolean`  | See Description.  | Emit source maps. Enabled automatically by `--optimize`. Can be disabled via CLI flag via `--no-source-map`.                                                                                           |
-| `nomodule`        | `string`   |                   | Enable a `<script nomodule>` bundle. Value should be the entrypoint of your application to start bundling from. See our [Supporting Legacy Browsers](#supporting-legacy-browsers) guide for more info. |
-| `nomoduleOutput`  | `string`   | `app.nomodule.js` | File name/path for the nomodule output.                                                                                                                                                                |
-| `externalPackage` | `string[]` | `[]`              | (Advanced use only) Mark these packages as external to be left unbundled and referenced remotely. Example: `--external-package foo` will leave in all imports of `foo`.                                |
+| Config Option     | Type                  | Default           | Description                                                                                                                                                                                            |
+|-------------------|-----------------------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `dest`            | `string`              | `"web_modules"`   | Configure the install directory.                                                                                                                                                                       |
+| `clean`           | `boolean`             | `false`           | Delete the existing `dest` directory (any any outdated files) before installing.                                                                                                                       |
+| `optimize`        | `boolean`             | `false`           | Recommended for production: transpile, minify, and optimize installed dependencies.                                                                                                                    |
+| `env`             | `string[]` / `object` | `{}`              | Sets environment variables inside dependencies (via: `process.env.`):                                                                                                                                  |
+|                   |                       |                   | - If array and only var NAME given, reads value from real env var.                                                                                                                                     |
+|                   |                       |                   | - If object (or `NAME=value` via CLI), uses provided values for each key.                                                                                                                              |
+|                   |                       |                   | - `NODE_ENV` defaults to "production" with `--optimize`.                                                                                                                                               |
+| `babel`           | `boolean`             | `false`           | Transpile installed dependencies. Enabled automatically by `--optimize`. Can be disabled via CLI flag via `--no-babel`.                                                                                |
+| `include`         | `string`              |                   | Scans source files to auto-detect install targets. Supports glob pattern matching. See our [Automatic Installs](<#automatic-installs-(recommended)>) guide for more info.                              |
+| `exclude`         | `string`              | See Description.  | Exclude files from `--include` scanning. Supports glob pattern matching. Defaults to exclude common test file locations: `['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`                           |
+| `strict`          | `boolean`             | `false`           | Only install pure ESM dependency trees. Fail if a CJS module is encountered.                                                                                                                           |
+| `stat`            | `boolean`             | `false`           | Logs install statistics after installing, with information on install targets and file sizes. Useful for CI, performance review.                                                                       |
+| `hash`            | `boolean`             | `false`           | Add a `?rev=XXX` hash to each import in the import map / used by Babel plugin. May cause double-requests, if one top-level package imports another.                                                    |
+| `sourceMap`       | `boolean`             | See Description.  | Emit source maps. Enabled automatically by `--optimize`. Can be disabled via CLI flag via `--no-source-map`.                                                                                           |
+| `nomodule`        | `string`              |                   | Enable a `<script nomodule>` bundle. Value should be the entrypoint of your application to start bundling from. See our [Supporting Legacy Browsers](#supporting-legacy-browsers) guide for more info. |
+| `nomoduleOutput`  | `string`              | `app.nomodule.js` | File name/path for the nomodule output.                                                                                                                                                                |
+| `externalPackage` | `string[]`            | `[]`              | (Advanced use only) Mark these packages as external to be left unbundled and referenced remotely. Example: `--external-package foo` will leave in all imports of `foo`.                                |
 
 You can also use the `--help` flag to see a list of these options on the command line.

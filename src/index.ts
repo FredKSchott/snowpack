@@ -1,5 +1,4 @@
 import babelPresetEnv from '@babel/preset-env';
-import babelInlineNodeEnv from 'babel-plugin-transform-node-env-inline';
 import rollupPluginCommonjs from '@rollup/plugin-commonjs';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
@@ -56,7 +55,10 @@ ${chalk.bold('Options:')}
   --dest [path]             Specify destination directory (default: "web_modules/").
   --clean                   Clear out the destination directory before install.
   --optimize                Transpile, minify, and optimize installed dependencies for production.
-  --node-env                Set the NODE_ENV property inside dependencies.
+  --env                     Set environment variable(s) inside dependencies:
+                                - if only NAME given, reads value from real env var
+                                - if \`NAME=value\`, uses given value
+                                - NODE_ENV defaults to "production" with "--optimize" (overridable)
   --babel                   Transpile installed dependencies. Also enabled with "--optimize".
   --include [glob]          Auto-detect imports from file(s). Supports glob.
   --exclude [glob]          Exclude files from --include. Follows glob’s ignore pattern.
@@ -242,7 +244,7 @@ export async function install(
       sourceMap,
       strict: isStrict,
       stat: withStats,
-      nodeEnv,
+      env,
     },
     rollup: userDefinedRollup,
   } = config;
@@ -262,7 +264,6 @@ export async function install(
   const importMap: ImportMap = {imports: {}};
   const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
   const skipFailures = !isExplicit;
-  const defaultNodeEnv = isOptimized ? '"production"' : '"development"';
 
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
@@ -320,11 +321,7 @@ export async function install(
     external: externalPackages,
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
-      !isStrict &&
-        rollupPluginReplace({
-          'process.env.NODE_ENV': nodeEnv ? `"${nodeEnv}"` : defaultNodeEnv,
-          'process.env.': '({}).',
-        }),
+      !isStrict && rollupPluginReplace(env! as any),
       rollupPluginEntrypointAlias({cwd}),
       source === 'pika' && rollupPluginDependencyCache({log: (url) => logUpdate(chalk.dim(url))}),
       rollupPluginNodeResolve({
@@ -363,7 +360,6 @@ export async function install(
               },
             ],
           ],
-          plugins: [[babelInlineNodeEnv]],
         }),
       !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
       !!isOptimized && rollupPluginTerser(),
@@ -489,7 +485,7 @@ export async function install(
 
 export async function cli(args: string[]) {
   // parse CLI flags
-  const cliFlags = yargs(args, {array: ['exclude', 'externalPackage']}) as CLIFlags;
+  const cliFlags = yargs(args, {array: ['env', 'exclude', 'externalPackage']}) as CLIFlags;
 
   // if printing help, stop here
   if (cliFlags.help) {

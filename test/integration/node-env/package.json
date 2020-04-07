@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --optimize --node-env FOOBAR"
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --optimize --env NODE_ENV=FOOBAR"
   },
   "dependencies": {
     "mock-test-package": "^1.2.3"

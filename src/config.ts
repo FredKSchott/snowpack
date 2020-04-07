@@ -32,7 +32,7 @@ export interface SnowpackConfig {
     nomodule?: string;
     nomoduleOutput: string;
     optimize: boolean;
-    nodeEnv?: string;
+    env?: Record<string, string> | string[];
     remotePackage?: string[];
     remoteUrl: string;
     sourceMap?: boolean | 'inline';
@@ -66,6 +66,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     remoteUrl: 'https://cdn.pika.dev',
     stat: false,
     strict: false,
+    env: {},
   },
   rollup: {plugins: []},
 };
@@ -108,6 +109,17 @@ const configSchema = {
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
         stat: {type: 'boolean'},
         strict: {type: 'boolean'},
+        env: {
+          oneOf: [
+            {
+              type: 'object',
+              additionalProperties: {
+                oneOf: [{type: 'number'}, {type: 'string'}, {type: 'boolean'}],
+              },
+            },
+            {type: 'array', items: {type: 'string'}},
+          ],
+        },
       },
     },
     rollup: {
@@ -145,8 +157,31 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     const isDetailedObject = config.webDependencies && typeof config.webDependencies === 'object';
     config.source = isDetailedObject ? 'pika' : 'local';
   }
+  normalizeEnv(config);
   return config;
 }
+
+/**
+ * Prepares environment variable config for inlining purposes.
+ *
+ * @param config
+ */
+function normalizeEnv(config: SnowpackConfig) {
+    const reducer = (src: any) => (acc: any, id: string) => {
+      const index = id.indexOf('=');
+      const [key, val] = index > 0 ? [id.substr(0, index), id.substr(index + 1)] : [id, src[id]];
+      acc[`process.env.${key}`] = `"${val}"`;
+      return acc;
+    };
+    const env = config.installOptions.env;
+    const result: any = {
+      'process.env.NODE_ENV': config.installOptions.optimize ? '"production"' : '"development"',
+    };
+    config.installOptions.env = Array.isArray(env)
+      ? env.reduce(reducer(process.env), result)
+      : Object.keys(env!).reduce(reducer(env), result);
+    return config;
+  }
 
 export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
   const cliConfig = expandCliFlags(flags);
