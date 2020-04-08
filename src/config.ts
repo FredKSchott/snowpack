@@ -14,7 +14,7 @@ type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
-export type EnvVarReplacements = Record<string, string | true>;
+export type EnvVarReplacements = Record<string, string | number | true>;
 
 // interface this library uses internally
 export interface SnowpackConfig {
@@ -114,7 +114,11 @@ const configSchema = {
         env: {
           type: 'object',
           additionalProperties: {
-            oneOf: [{type: 'string'}, {type: 'boolean', enum: [true]}],
+            oneOf: [
+              {id: 'EnvVarString', type: 'string'},
+              {id: 'EnvVarNumber', type: 'number'},
+              {id: 'EnvVarTrue', type: 'boolean', enum: [true]},
+            ],
           },
         },
       },
