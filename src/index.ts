@@ -16,7 +16,7 @@ import rollupPluginBabel from 'rollup-plugin-babel';
 import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import validatePackageName from 'validate-npm-package-name';
 import yargs from 'yargs-parser';
-import loadConfig, {SnowpackConfig, CLIFlags} from './config.js';
+import loadConfig, {CLIFlags, EnvVarReplacements, SnowpackConfig} from './config.js';
 import {resolveTargetsFromRemoteCDN, clearCache} from './resolve-remote.js';
 import {rollupPluginDependencyCache} from './rollup-plugin-remote-cdn.js';
 import {rollupPluginEntrypointAlias} from './rollup-plugin-entrypoint-alias.js';
@@ -55,7 +55,10 @@ ${chalk.bold('Options:')}
   --dest [path]             Specify destination directory (default: "web_modules/").
   --clean                   Clear out the destination directory before install.
   --optimize                Transpile, minify, and optimize installed dependencies for production.
-  --node-env                Set the NODE_ENV property inside dependencies.
+  --env                     Set environment variable(s) inside dependencies:
+                                - if only NAME given, reads value from real env var
+                                - if \`NAME=value\`, uses given value
+                                - NODE_ENV defaults to "production" with "--optimize" (overridable)
   --babel                   Transpile installed dependencies. Also enabled with "--optimize".
   --include [glob]          Auto-detect imports from file(s). Supports glob.
   --exclude [glob]          Exclude files from --include. Follows glob’s ignore pattern.
@@ -215,6 +218,29 @@ function getWebDependencyName(dep: string): string {
   return dep.replace(/\.m?js$/i, '');
 }
 
+/**
+ * Takes object of env var mappings and converts it to actual
+ * replacement specs as expected by @rollup/plugin-replace. The
+ * `optimize` arg is used to derive NODE_ENV default.
+ *
+ * @param env
+ * @param optimize
+ */
+function getRollupReplaceKeys(env: EnvVarReplacements, optimize: boolean): Record<string, string> {
+  const result = Object.keys(env).reduce(
+    (acc, id) => {
+      const val = env[id];
+      acc[`process.env.${id}`] = `"${val === true ? process.env[id] : val}"`;
+      return acc;
+    },
+    {
+      'process.env.NODE_ENV': optimize ? '"production"' : '"development"',
+      'process.env.': '({}).',
+    },
+  );
+  return result;
+}
+
 interface InstallOptions {
   hasBrowserlistConfig: boolean;
   isExplicit: boolean;
@@ -241,7 +267,7 @@ export async function install(
       sourceMap,
       strict: isStrict,
       stat: withStats,
-      nodeEnv,
+      env,
     },
     rollup: userDefinedRollup,
   } = config;
@@ -261,7 +287,6 @@ export async function install(
   const importMap: ImportMap = {imports: {}};
   const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
   const skipFailures = !isExplicit;
-  const defaultNodeEnv = isOptimized ? '"production"' : '"development"';
 
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
@@ -319,11 +344,7 @@ export async function install(
     external: externalPackages,
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
-      !isStrict &&
-        rollupPluginReplace({
-          'process.env.NODE_ENV': nodeEnv ? `"${nodeEnv}"` : defaultNodeEnv,
-          'process.env.': '({}).',
-        }),
+      !isStrict && rollupPluginReplace(getRollupReplaceKeys(env!, isOptimized)),
       rollupPluginEntrypointAlias({cwd}),
       source === 'pika' && rollupPluginDependencyCache({log: (url) => logUpdate(chalk.dim(url))}),
       rollupPluginNodeResolve({
@@ -487,7 +508,7 @@ export async function install(
 
 export async function cli(args: string[]) {
   // parse CLI flags
-  const cliFlags = yargs(args, {array: ['exclude', 'externalPackage']}) as CLIFlags;
+  const cliFlags = yargs(args, {array: ['env', 'exclude', 'externalPackage']}) as CLIFlags;
 
   // if printing help, stop here
   if (cliFlags.help) {

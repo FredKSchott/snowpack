@@ -8,7 +8,7 @@ Snowpack's behavior can be configured by CLI flags, a custom Snowpack config fil
 $ npx snowpack --optimize --clean
 ```
 
-CLI flags will always be merged with (and take priority over) a config file. In addition to the Install Options outlined in the next section, the CLI also supports the following flags: 
+CLI flags will always be merged with (and take priority over) a config file. In addition to the Install Options outlined in the next section, the CLI also supports the following flags:
 
 | Flag        | Description                                                                                                        |
 | ----------- | ------------------------------------------------------------------------------------------------------------------ |
@@ -51,6 +51,10 @@ _Note: this file can be in any folder and named anything but must still end in `
     "clean": false,
     "optimize": false,
     "babel": false,
+    "env": {
+        "API_KEY": true, // Value read from actual env var
+        "LOG_LEVEL": "WARN"
+    },
     "include": "src/**/*.{js,jsx,ts,tsx}",
     "exclude": ["**/__tests__/*", "**/*.@(spec\|test).@(js\|mjs)"],
     "strict": false,
@@ -80,11 +84,14 @@ _Note: this file can be in any folder and named anything but must still end in `
 #### Install Options (`installOptions.*`)
 
 | Config Option     | Type       | Default           | Description                                                                                                                                                                                            |
-| ----------------- | ---------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|-------------------|------------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `dest`            | `string`   | `"web_modules"`   | Configure the install directory.                                                                                                                                                                       |
 | `clean`           | `boolean`  | `false`           | Delete the existing `dest` directory (any any outdated files) before installing.                                                                                                                       |
 | `optimize`        | `boolean`  | `false`           | Recommended for production: transpile, minify, and optimize installed dependencies.                                                                                                                    |
-| `nodeEnv`         | `string`   | `"development"`   | Set the `NODE_ENV` property inside dependencies. Defaults to "production" with `--optimize`.                                                                                                     |
+| `env`             | `object`   | `{}`              | Sets environment variables inside dependencies (via: `process.env.`):                                                                                                                                  |
+|                   |            |                   | - Object properties are env var names and values will be stringified (`--env NAME=value` via CLI).                                                                                                     |
+|                   |            |                   | - If prop value is `true`, reads value from real env var (`--env NAME` via CLI).                                                                                                                       |
+|                   |            |                   | - `NODE_ENV` defaults to "production" with `--optimize`.                                                                                                                                               |
 | `babel`           | `boolean`  | `false`           | Transpile installed dependencies. Enabled automatically by `--optimize`. Can be disabled via CLI flag via `--no-babel`.                                                                                |
 | `include`         | `string`   |                   | Scans source files to auto-detect install targets. Supports glob pattern matching. See our [Automatic Installs](<#automatic-installs-(recommended)>) guide for more info.                              |
 | `exclude`         | `string`   | See Description.  | Exclude files from `--include` scanning. Supports glob pattern matching. Defaults to exclude common test file locations: `['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`                           |

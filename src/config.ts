@@ -14,6 +14,8 @@ type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
+export type EnvVarReplacements = Record<string, string | number | true>;
+
 // interface this library uses internally
 export interface SnowpackConfig {
   source: 'local' | 'pika';
@@ -32,7 +34,7 @@ export interface SnowpackConfig {
     nomodule?: string;
     nomoduleOutput: string;
     optimize: boolean;
-    nodeEnv?: string;
+    env?: EnvVarReplacements;
     remotePackage?: string[];
     remoteUrl: string;
     sourceMap?: boolean | 'inline';
@@ -44,12 +46,13 @@ export interface SnowpackConfig {
   };
 }
 
-export interface CLIFlags extends Partial<SnowpackConfig['installOptions']> {
+export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>, 'env'> {
   help?: boolean; // display help text
   version?: boolean; // display Snowpack version
   reload?: boolean;
   source?: SnowpackConfig['source'];
   config?: string; // manual path to config file
+  env?: string[]; // env vars
 }
 
 // default settings
@@ -66,6 +69,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     remoteUrl: 'https://cdn.pika.dev',
     stat: false,
     strict: false,
+    env: {},
   },
   rollup: {plugins: []},
 };
@@ -102,12 +106,21 @@ const configSchema = {
         nomodule: {type: 'string'},
         nomoduleOutput: {type: 'string'},
         optimize: {type: 'boolean'},
-        nodeEnv: {type: 'string'},
         remotePackage: {type: 'array', items: {type: 'string'}},
         remoteUrl: {type: 'string'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
         stat: {type: 'boolean'},
         strict: {type: 'boolean'},
+        env: {
+          type: 'object',
+          additionalProperties: {
+            oneOf: [
+              {id: 'EnvVarString', type: 'string'},
+              {id: 'EnvVarNumber', type: 'number'},
+              {id: 'EnvVarTrue', type: 'boolean', enum: [true]},
+            ],
+          },
+        },
       },
     },
     rollup: {
@@ -126,11 +139,17 @@ const configSchema = {
  * defaults with 'undefined'.
  */
 function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
-  const {source, help, version, ...installOptions} = flags;
+  const {source, env, help, version, ...installOptions} = flags;
   const result: DeepPartial<SnowpackConfig> = {installOptions};
   if (source) {
     result.source = source;
   }
+  result.installOptions!.env = (env || []).reduce((acc, id) => {
+    const index = id.indexOf('=');
+    const [key, val] = index > 0 ? [id.substr(0, index), id.substr(index + 1)] : [id, true];
+    acc[key] = val;
+    return acc;
+  }, {});
   return result;
 }
 
