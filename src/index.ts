@@ -218,6 +218,29 @@ function getWebDependencyName(dep: string): string {
   return dep.replace(/\.m?js$/i, '');
 }
 
+/**
+ * Takes object of env var mappings and converts it to actual
+ * replacement specs as expected by @rollup/plugin-replace. The
+ * `optimize` arg is used to derive NODE_ENV default.
+ *
+ * @param env
+ * @param optimize
+ */
+function getRollupReplaceKeys(env: EnvVarReplacements, optimize: boolean): Record<string, string> {
+  const result = Object.keys(env).reduce(
+    (acc, id) => {
+      const val = env[id];
+      acc[`process.env.${id}`] = `"${val === true ? process.env[id] : val}"`;
+      return acc;
+    },
+    {
+      'process.env.NODE_ENV': optimize ? '"production"' : '"development"',
+      'process.env.': '({}).',
+    },
+  );
+  return result;
+}
+
 interface InstallOptions {
   hasBrowserlistConfig: boolean;
   isExplicit: boolean;
@@ -321,7 +344,7 @@ export async function install(
     external: externalPackages,
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
-      !isStrict && rollupPluginReplace(env! as EnvVarReplacements),
+      !isStrict && rollupPluginReplace(getRollupReplaceKeys(env!, isOptimized)),
       rollupPluginEntrypointAlias({cwd}),
       source === 'pika' && rollupPluginDependencyCache({log: (url) => logUpdate(chalk.dim(url))}),
       rollupPluginNodeResolve({

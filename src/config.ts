@@ -14,7 +14,7 @@ type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
-export type EnvVarReplacements = Record<string, string>;
+export type EnvVarReplacements = Record<string, string | true>;
 
 // interface this library uses internally
 export interface SnowpackConfig {
@@ -34,7 +34,7 @@ export interface SnowpackConfig {
     nomodule?: string;
     nomoduleOutput: string;
     optimize: boolean;
-    env?: EnvVarReplacements | string[];
+    env?: EnvVarReplacements;
     remotePackage?: string[];
     remoteUrl: string;
     sourceMap?: boolean | 'inline';
@@ -46,12 +46,13 @@ export interface SnowpackConfig {
   };
 }
 
-export interface CLIFlags extends Partial<SnowpackConfig['installOptions']> {
+export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>, 'env'> {
   help?: boolean; // display help text
   version?: boolean; // display Snowpack version
   reload?: boolean;
   source?: SnowpackConfig['source'];
   config?: string; // manual path to config file
+  env?: string[]; // env vars
 }
 
 // default settings
@@ -113,7 +114,7 @@ const configSchema = {
         env: {
           type: 'object',
           additionalProperties: {
-            oneOf: [{type: 'number'}, {type: 'string'}, {type: 'boolean'}],
+            oneOf: [{type: 'string'}, {type: 'boolean', enum: [true]}],
           },
         },
       },
@@ -139,44 +140,13 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
   if (source) {
     result.source = source;
   }
-  result.installOptions!.env = prepareCliEnvVars((env as string[]) || []);
-  return result;
-}
-
-function prepareCliEnvVars(env: string[]): EnvVarReplacements {
-  return env.reduce((acc, id) => {
+  result.installOptions!.env = (env || []).reduce((acc, id) => {
     const index = id.indexOf('=');
-    const [key, val] =
-      index > 0 ? [id.substr(0, index), id.substr(index + 1)] : [id, process.env[id]];
-    acc[`process.env.${key}`] = `"${val}"`;
+    const [key, val] = index > 0 ? [id.substr(0, index), id.substr(index + 1)] : [id, true];
+    acc[key] = val;
     return acc;
   }, {});
-}
-
-function prepareConfigEnvVars(config: DeepPartial<SnowpackConfig>): DeepPartial<SnowpackConfig> {
-  if (!config.installOptions) {
-    config.installOptions = {};
-  }
-  const env = config.installOptions.env;
-  config.installOptions.env = env
-    ? Object.keys(env!).reduce((acc, id) => {
-        const val = env![id];
-        acc[`process.env.${id}`] = `"${val === true ? process.env[id] : val}"`;
-        return acc;
-      }, {})
-    : {};
-  return config;
-}
-
-function finalizeEnvVars(config: SnowpackConfig) {
-  const env = config.installOptions.env!;
-  const nodeEnvID = `process.env.NODE_ENV`;
-  if (!env[nodeEnvID]) {
-    env[nodeEnvID] = config.installOptions.optimize ? '"production"' : '"development"';
-  }
-  env['process.env.'] = '({}).';
-  //   console.log(env);
-  return config;
+  return result;
 }
 
 /** resolve --dest relative to cwd, and set the default "source" */
@@ -190,7 +160,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     const isDetailedObject = config.webDependencies && typeof config.webDependencies === 'object';
     config.source = isDetailedObject ? 'pika' : 'local';
   }
-  return finalizeEnvVars(config);
+  return config;
 }
 
 export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
@@ -244,7 +214,7 @@ export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
   const mergedConfig = merge<SnowpackConfig>([
     DEFAULT_CONFIG,
     {webDependencies: pkgManifest.webDependencies},
-    prepareConfigEnvVars(config),
+    config,
     cliConfig as any,
   ]);
 
