@@ -51,7 +51,7 @@ function rewriteImport(
     } else {
       const joinedImport = path.posix.join(webModulesUrlPath, mappedImport);
       if (importType === 'relative') {
-        const relativeToRoot = path.relative(file.opts.filename, file.opts.root);
+        const relativeToRoot = path.relative(path.dirname(file.opts.filename), file.opts.root);
         const relativeToDir = path
           .relative(path.dirname(webModulesDir), relativeToRoot)
           .replace(/\\/g, '/');
