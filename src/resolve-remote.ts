@@ -1,5 +1,6 @@
 import cacache from 'cacache';
 import PQueue from 'p-queue';
+import chalk from 'chalk';
 import validatePackageName from 'validate-npm-package-name';
 import {SnowpackConfig} from './config.js';
 import {InstallTarget} from './scan-imports.js';
@@ -18,6 +19,7 @@ async function resolveDependency(
   installSpecifier: string,
   packageSemver: string,
   lockfile: ImportMap | null,
+  canRetry = true,
 ): Promise<null | string> {
   // Right now, the CDN is only for top-level JS packages. The CDN doesn't support CSS,
   // non-JS assets, and has limited support for deep package imports. Snowpack
@@ -29,8 +31,10 @@ async function resolveDependency(
 
   // Grab the installUrl from our lockfile if it exists, otherwise resolve it yourself.
   let installUrl: string;
+  let installUrlType: 'pin' | 'lookup';
   if (lockfile && lockfile.imports[installSpecifier]) {
     installUrl = lockfile.imports[installSpecifier];
+    installUrlType = 'pin';
   } else {
     if (packageSemver === 'latest') {
       console.warn(
@@ -39,7 +43,7 @@ async function resolveDependency(
     }
     if (packageSemver.startsWith('npm:@reactesm') || packageSemver.startsWith('npm:@pika/react')) {
       throw new Error(
-        `React workarounds no longer needed in --source=pika mode. Revert to the official React & React-DOM packages.`,
+        `React workaround packages no longer needed! Revert to the official React & React-DOM packages.`,
       );
     }
     if (packageSemver.includes(' ') || packageSemver.includes(':')) {
@@ -48,12 +52,13 @@ async function resolveDependency(
       );
       return null;
     }
+    installUrlType = 'lookup';
     installUrl = `${PIKA_CDN}/${installSpecifier}@${packageSemver}`;
   }
 
   // Hashed CDN urls never change, so its safe to grab them directly from the local cache
   // without a network request.
-  if (HAS_CDN_HASH_REGEX.test(installUrl)) {
+  if (installUrlType === 'pin') {
     const cachedResult = await cacache.get.info(RESOURCE_CACHE, installUrl).catch(() => null);
     if (cachedResult) {
       if (cachedResult.metadata) {
@@ -70,15 +75,46 @@ async function resolveDependency(
     console.warn(`Falling back to local copy...`);
     return null;
   }
-  const _pinnedUrl = headers['x-pinned-url'] as string;
-  if (!_pinnedUrl) {
-    throw new Error('X-Pinned-URL Header expected, but none received.');
+  if (installUrlType === 'pin') {
+    const pinnedUrl = installUrl;
+    await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
+      metadata: {pinnedUrl},
+    });
+    return pinnedUrl;
   }
-  const pinnedUrl = `${PIKA_CDN}${_pinnedUrl}`;
-  await cacache.put(RESOURCE_CACHE, installUrl, body, {
-    metadata: {pinnedUrl},
-  });
-  return pinnedUrl;
+  let importUrlPath = headers['x-import-url'] as string;
+  let pinnedUrlPath = headers['x-pinned-url'] as string;
+  const buildStatus = headers['x-import-status'] as string;
+  if (pinnedUrlPath) {
+    const pinnedUrl = `${PIKA_CDN}${pinnedUrlPath}`;
+    await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
+      metadata: {pinnedUrl},
+    });
+    return pinnedUrl;
+  }
+  if (buildStatus === 'SUCCESS') {
+    console.warn(`Failed to lookup [${statusCode}]: ${installUrl}`);
+    console.warn(`Falling back to local copy...`);
+    return null;
+  }
+  if (!canRetry || buildStatus === 'FAIL') {
+    console.warn(`Failed to build: ${installSpecifier}@${packageSemver}`);
+    console.warn(`Falling back to local copy...`);
+    return null;
+  }
+  console.log(
+    chalk.cyan(
+      `Building ${installSpecifier}@${packageSemver}... (This takes a moment, but will be cached for future use)`,
+    ),
+  );
+  if (!importUrlPath) {
+    throw new Error('X-Import-URL header expected, but none received.');
+  }
+  const {statusCode: lookupStatusCode} = await fetchCDNResource(importUrlPath);
+  if (lookupStatusCode !== 200) {
+    throw new Error(`Unexpected response [${lookupStatusCode}]: ${PIKA_CDN}${importUrlPath}`);
+  }
+  return resolveDependency(installSpecifier, packageSemver, lockfile, false);
 }
 
 export async function resolveTargetsFromRemoteCDN(
@@ -89,23 +125,33 @@ export async function resolveTargetsFromRemoteCDN(
 ) {
   const downloadQueue = new PQueue({concurrency: 16});
   const newLockfile: ImportMap = {imports: {}};
+  let resolutionError: Error | undefined;
 
-  const allInstallSpecifiers = new Set(installTargets.map(dep => dep.specifier));
+  const allInstallSpecifiers = new Set(installTargets.map((dep) => dep.specifier));
   for (const installSpecifier of allInstallSpecifiers) {
     const installSemver: string =
+      (config.webDependencies || {})[installSpecifier] ||
+      (pkgManifest.webDependencies || {})[installSpecifier] ||
       (pkgManifest.dependencies || {})[installSpecifier] ||
       (pkgManifest.devDependencies || {})[installSpecifier] ||
       (pkgManifest.peerDependencies || {})[installSpecifier] ||
       'latest';
     downloadQueue.add(async () => {
-      const resolvedUrl = await resolveDependency(installSpecifier, installSemver, lockfile);
-      if (resolvedUrl) {
-        newLockfile.imports[installSpecifier] = resolvedUrl;
+      try {
+        const resolvedUrl = await resolveDependency(installSpecifier, installSemver, lockfile);
+        if (resolvedUrl) {
+          newLockfile.imports[installSpecifier] = resolvedUrl;
+        }
+      } catch (err) {
+        resolutionError = resolutionError || err;
       }
     });
   }
 
   await downloadQueue.onIdle();
+  if (resolutionError) {
+    throw resolutionError;
+  }
 
   return newLockfile;
 }

@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import nodePath from 'path';
 import fs from 'fs';
 import glob from 'glob';
@@ -100,7 +101,7 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
 
   const namedImports = (importStatement.match(HAS_NAMED_IMPORTS_REGEX)! || [, ''])[1]
     .split(SPLIT_NAMED_IMPORTS_REGEX)
-    .map(name => name.trim())
+    .map((name) => name.trim())
     .filter(isTruthy);
 
   return {
@@ -115,18 +116,18 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
 function getInstallTargetsForFile(filePath: string, code: string): InstallTarget[] {
   const [imports] = parse(code) || [];
   const allImports: InstallTarget[] = imports
-    .map(imp => parseImportStatement(code, imp))
+    .map((imp) => parseImportStatement(code, imp))
     .filter(isTruthy);
   return allImports;
 }
 
 export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
-  const nodeModulesLoc = nodePath.join(cwd, 'node_modules');
   return depList
-    .map(whitelistItem => {
+    .map((whitelistItem) => {
       if (!glob.hasMagic(whitelistItem)) {
         return [createInstallTarget(whitelistItem, true)];
       } else {
+        const nodeModulesLoc = nodePath.join(cwd, 'node_modules');
         return scanDepList(glob.sync(whitelistItem, {cwd: nodeModulesLoc, nodir: true}), cwd);
       }
     })
@@ -148,14 +149,14 @@ export async function scanImports({include, exclude}: ScanImportsParams): Promis
 
   // Scan every matched JS file for web dependency imports
   return includeFiles
-    .filter(
-      filePath =>
-        filePath.endsWith('.js') ||
-        filePath.endsWith('mjs') ||
-        filePath.endsWith('.ts') ||
-        filePath.endsWith('.tsx'),
-    )
-    .map(filePath => [filePath, fs.readFileSync(filePath, 'utf8')])
+    .filter((filePath) => {
+      if (filePath.endsWith('.js') || filePath.endsWith('mjs') || filePath.endsWith('.ts')) {
+        return true;
+      }
+      console.warn(chalk.dim(`ignoring unsupported file "${filePath}"`));
+      return false;
+    })
+    .map((filePath) => [filePath, fs.readFileSync(filePath, 'utf8')])
     .map(([filePath, code]) => getInstallTargetsForFile(filePath, code))
     .reduce((flat, item) => flat.concat(item), [])
     .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier));

@@ -12,6 +12,7 @@ const KEEP_LOCKFILE = [
 
 const SKIP_FILE_CHECK = [
   'config-rollup', // only expected-output.txt is needed for the test, and Windows comparison fails because of backslashes
+  'include-ignore-unsupported-files', // no output expected
 ];
 
 function stripBenchmark(stdout) {

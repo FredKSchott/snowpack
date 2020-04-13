@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --include 'src/*'"
+  },
+  "dependencies": {}
+}

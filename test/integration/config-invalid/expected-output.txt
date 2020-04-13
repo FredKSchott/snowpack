@@ -1,2 +1,2 @@
 ⠼ snowpack installing...
-✖ package.json: snowpack.webDependencies is not of a type(s) array
+✖ package.json: snowpack.webDependencies is not of a type(s) array,object

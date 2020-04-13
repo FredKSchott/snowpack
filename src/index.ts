@@ -17,7 +17,7 @@ import rollupPluginBabel from 'rollup-plugin-babel';
 import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import validatePackageName from 'validate-npm-package-name';
 import yargs from 'yargs-parser';
-import loadConfig, {SnowpackConfig, CLIFlags} from './config.js';
+import loadConfig, {CLIFlags, EnvVarReplacements, SnowpackConfig} from './config.js';
 import {resolveTargetsFromRemoteCDN, clearCache} from './resolve-remote.js';
 import {rollupPluginDependencyCache} from './rollup-plugin-remote-cdn.js';
 import {rollupPluginEntrypointAlias} from './rollup-plugin-entrypoint-alias.js';
@@ -56,14 +56,19 @@ ${chalk.bold('Options:')}
   --dest [path]             Specify destination directory (default: "web_modules/").
   --clean                   Clear out the destination directory before install.
   --optimize                Transpile, minify, and optimize installed dependencies for production.
+  --env                     Set environment variable(s) inside dependencies:
+                                - if only NAME given, reads value from real env var
+                                - if \`NAME=value\`, uses given value
+                                - NODE_ENV defaults to "production" with "--optimize" (overridable)
   --babel                   Transpile installed dependencies. Also enabled with "--optimize".
   --include [glob]          Auto-detect imports from file(s). Supports glob.
   --exclude [glob]          Exclude files from --include. Follows glob’s ignore pattern.
+  --config [path]           Location of Snowpack config file.
   --strict                  Only install pure ESM dependency trees. Fail if a CJS module is encountered.
   --no-source-map           Skip emitting source map files (.js.map) into dest
   --stat                    Logs install statistics after installing, with information on install targets and file sizes. Useful for CI, performance review.
   --nomodule [path]         Your app’s entry file for generating a <script nomodule> bundle
-  --nomodule-output [path]  Filename for nomodule output (default: 'app.nomodule.js')
+  --nomodule-output [path]  Filename for nomodule output (default: "app.nomodule.js")
     ${chalk.bold('Advanced:')}
   --external-package [val]  Internal use only, may be removed at any time.
     `.trim(),
@@ -115,17 +120,19 @@ class ErrorWithHint extends Error {
 const PACKAGES_TO_AUTO_DETECT_EXPORTS = [
   path.join('react', 'index.js'),
   path.join('react-dom', 'index.js'),
-  path.join('react-is', 'index.js'),
-  path.join('prop-types', 'index.js'),
-  path.join('scheduler', 'index.js'),
-  path.join('rxjs', 'Rx.js'),
+  'react-is',
+  'prop-types',
+  'scheduler',
+  'rxjs',
+  'exenv',
+  'body-scroll-lock',
 ];
 
 function detectExports(filePath: string): string[] | undefined {
   try {
     const fileLoc = require.resolve(filePath, {paths: [cwd]});
     if (fs.existsSync(fileLoc)) {
-      return Object.keys(require(fileLoc)).filter(e => e[0] !== '_');
+      return Object.keys(require(fileLoc)).filter((e) => e[0] !== '_');
     }
   } catch (err) {
     // ignore
@@ -168,8 +175,7 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
       foundEntrypoint['./index.js'] ||
       foundEntrypoint['./index'] ||
       foundEntrypoint['./'] ||
-      foundEntrypoint['.'] ||
-      foundEntrypoint;
+      foundEntrypoint['.'];
   }
   // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
   if (!foundEntrypoint && isExplicit) {
@@ -213,6 +219,29 @@ function getWebDependencyName(dep: string): string {
   return dep.replace(/\.m?js$/i, '');
 }
 
+/**
+ * Takes object of env var mappings and converts it to actual
+ * replacement specs as expected by @rollup/plugin-replace. The
+ * `optimize` arg is used to derive NODE_ENV default.
+ *
+ * @param env
+ * @param optimize
+ */
+function getRollupReplaceKeys(env: EnvVarReplacements, optimize: boolean): Record<string, string> {
+  const result = Object.keys(env).reduce(
+    (acc, id) => {
+      const val = env[id];
+      acc[`process.env.${id}`] = `"${val === true ? process.env[id] : val}"`;
+      return acc;
+    },
+    {
+      'process.env.NODE_ENV': optimize ? '"production"' : '"development"',
+      'process.env.': '({}).',
+    },
+  );
+  return result;
+}
+
 interface InstallOptions {
   hasBrowserlistConfig: boolean;
   isExplicit: boolean;
@@ -240,6 +269,7 @@ export async function install(
       sourceMap,
       strict: isStrict,
       stat: withStats,
+      env,
     },
     rollup: userDefinedRollup,
   } = config;
@@ -254,8 +284,8 @@ export async function install(
   }
   const allInstallSpecifiers = new Set(
     installTargets
-      .map(dep => dep.specifier)
-      .map(specifier => aliases[specifier] || specifier)
+      .map((dep) => dep.specifier)
+      .map((specifier) => aliases[specifier] || specifier)
       .sort(),
   );
   const installEntrypoints: {[targetName: string]: string} = {};
@@ -284,7 +314,6 @@ export async function install(
           .forEach(([key, value]) => {
             importMap.imports[key] = `./${targetName}.js${hashQs}`;
           });
-
         installTargetsMap[targetLoc] = installTargets.filter(t => installSpecifier === t.specifier);
         installResults.push([installSpecifier, 'SUCCESS']);
       } else if (targetType === 'ASSET') {
@@ -322,13 +351,11 @@ export async function install(
   const inputOptions: InputOptions = {
     input: installEntrypoints,
     external: externalPackages,
+    treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
+      !isStrict && rollupPluginReplace(getRollupReplaceKeys(env!, isOptimized)),
       rollupPluginEntrypointAlias({cwd}),
-      source === 'pika' && rollupPluginDependencyCache({log: url => logUpdate(chalk.dim(url))}),
-      !isStrict &&
-        rollupPluginReplace({
-          'process.env.NODE_ENV': isOptimized ? '"production"' : '"development"',
-        }),
+      source === 'pika' && rollupPluginDependencyCache({log: (url) => logUpdate(chalk.dim(url))}),
       rollupPluginAlias({
         entries: Object.entries(aliases).map(([alias, mod]) => ({
           find: alias,
@@ -374,7 +401,7 @@ export async function install(
         }),
       !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
       !!isOptimized && rollupPluginTerser(),
-      !!withStats && rollupPluginDependencyStats(info => (dependencyStats = info)),
+      !!withStats && rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
     ],
     onwarn(warning, warn) {
@@ -413,7 +440,7 @@ export async function install(
   if (Object.keys(installEntrypoints).length > 0) {
     try {
       const packageBundle = await rollup(inputOptions);
-      logUpdate('');
+      logUpdate(formatInstallResults(skipFailures));
       await packageBundle.write(outputOptions);
     } catch (err) {
       const {loc} = err as RollupError;
@@ -456,10 +483,14 @@ export async function install(
       };
     }
     try {
+      // Strip the replace plugin from the set of plugins that we use.
+      // Since we've already run it once it can cause trouble on a second run.
+      console.assert(inputOptions.plugins![0].name === 'replace');
+      const noModulePlugins = inputOptions.plugins!.slice(1);
       const noModuleBundle = await rollup({
         input: path.resolve(cwd, nomodule),
         inlineDynamicImports: true,
-        plugins: [...inputOptions.plugins!, rollupResolutionHelper()],
+        plugins: [...noModulePlugins, rollupResolutionHelper()],
       });
       await noModuleBundle.write({
         file: path.resolve(destLoc, nomoduleOutput),
@@ -492,7 +523,7 @@ export async function install(
 
 export async function cli(args: string[]) {
   // parse CLI flags
-  const cliFlags = yargs(args, {array: ['exclude', 'externalPackage']}) as CLIFlags;
+  const cliFlags = yargs(args, {array: ['env', 'exclude', 'externalPackage']}) as CLIFlags;
 
   // if printing help, stop here
   if (cliFlags.help) {
@@ -504,8 +535,17 @@ export async function cli(args: string[]) {
     await clearCache();
   }
 
+  // Load the current package manifest
+  let pkgManifest: any;
+  try {
+    pkgManifest = require(path.join(cwd, 'package.json'));
+  } catch (err) {
+    console.log(chalk.red('[ERROR] package.json required but no file was found.'));
+    process.exit(0);
+  }
+
   // load config
-  const {config, errors} = loadConfig(cliFlags);
+  const {config, errors} = loadConfig(cliFlags, pkgManifest);
 
   // handle config errors (if any)
   if (Array.isArray(errors) && errors.length) {
@@ -517,7 +557,7 @@ export async function cli(args: string[]) {
     console.log(
       `${chalk.yellow(
         'ℹ',
-      )} "source" configuration is still experimental. Behavior may change before the next major version...`,
+      )} "source: pika" mode enabled. Behavior is still experimental and may change before the next major version...`,
     );
     await clearCache();
   }
@@ -528,17 +568,10 @@ export async function cli(args: string[]) {
 
   const {
     installOptions: {clean, dest, exclude, include},
-    webDependencies,
+    entrypoints: configEntrypoints,
     source,
+    webDependencies,
   } = config;
-
-  let pkgManifest: any;
-  try {
-    pkgManifest = require(path.join(cwd, 'package.json'));
-  } catch (err) {
-    console.log(chalk.red('[ERROR] package.json required but no file was found.'));
-    process.exit(0);
-  }
 
   const implicitDependencies = [
     ...Object.keys(pkgManifest.peerDependencies || {}),
@@ -553,15 +586,19 @@ export async function cli(args: string[]) {
   let isExplicit = false;
   const installTargets: InstallTarget[] = [];
 
+  if (configEntrypoints) {
+    isExplicit = true;
+    installTargets.push(...scanDepList(configEntrypoints, cwd));
+  }
   if (webDependencies) {
     isExplicit = true;
-    installTargets.push(...scanDepList(webDependencies, cwd));
+    installTargets.push(...scanDepList(Object.keys(webDependencies), cwd));
   }
   if (include) {
     isExplicit = true;
     installTargets.push(...(await scanImports({include, exclude})));
   }
-  if (!webDependencies && !include) {
+  if (!isExplicit) {
     installTargets.push(...scanDepList(implicitDependencies, cwd));
   }
   if (installTargets.length === 0) {
@@ -572,7 +609,15 @@ export async function cli(args: string[]) {
   spinner.start();
   const startTime = Date.now();
   if (source === 'pika') {
-    newLockfile = await resolveTargetsFromRemoteCDN(installTargets, lockfile, pkgManifest, config);
+    newLockfile = await resolveTargetsFromRemoteCDN(
+      installTargets,
+      lockfile,
+      pkgManifest,
+      config,
+    ).catch((err) => {
+      logError(err.message || err);
+      process.exit(1);
+    });
   }
 
   if (clean) {
@@ -583,8 +628,13 @@ export async function cli(args: string[]) {
     installTargets,
     {hasBrowserlistConfig, isExplicit, lockfile: newLockfile},
     config,
-  ).catch(err => {
-    err.loc && console.log('\n' + chalk.red.bold(`✘ ${err.loc.file}`));
+  ).catch((err) => {
+    if (err.loc) {
+      console.log('\n' + chalk.red.bold(`✘ ${err.loc.file}`));
+    }
+    if (err.url) {
+      console.log(chalk.dim(`👉 ${err.url}`));
+    }
     throw err;
   });
 

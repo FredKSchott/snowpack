@@ -37,7 +37,7 @@ export function rollupPluginEntrypointAlias({cwd}: {cwd: string}): Plugin {
         return null;
       }
 
-      return this.resolve(packageFullName, importer!, {skipSelf: true}).then(resolved => {
+      return this.resolve(packageFullName, importer!, {skipSelf: true}).then((resolved) => {
         return resolved || null;
       });
     },

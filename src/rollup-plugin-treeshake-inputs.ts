@@ -20,11 +20,11 @@ export function rollupPluginTreeshakeInputs(allImports: InstallTarget[]): Plugin
     options(inputOptions) {
       const input = inputOptions.input as {[entryAlias: string]: string};
       for (const [key, val] of Object.entries(input)) {
-        installTargetsByFile[val] = allImports.filter(imp => imp.specifier === key);
+        installTargetsByFile[val] = allImports.filter((imp) => imp.specifier === key);
         // If an input has known install targets, and none of those have "all=true", mark for treeshaking.
         if (
           installTargetsByFile[val].length > 0 &&
-          !installTargetsByFile[val].some(imp => imp.all)
+          !installTargetsByFile[val].some((imp) => imp.all)
         ) {
           input[key] = `pika-treeshake:${val}`;
         }
