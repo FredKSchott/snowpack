@@ -1,3 +1,4 @@
+import babel from '@babel/core';
 import chalk from 'chalk';
 import nodePath from 'path';
 import fs from 'fs';
@@ -113,7 +114,7 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
   };
 }
 
-function getInstallTargetsForFile(filePath: string, code: string): InstallTarget[] {
+function getInstallTargetsForFile(code: string): InstallTarget[] {
   const [imports] = parse(code) || [];
   const allImports: InstallTarget[] = imports
     .map((imp) => parseImportStatement(code, imp))
@@ -148,16 +149,31 @@ export async function scanImports({include, exclude}: ScanImportsParams): Promis
   }
 
   // Scan every matched JS file for web dependency imports
-  return includeFiles
-    .filter((filePath) => {
-      if (filePath.endsWith('.js') || filePath.endsWith('mjs') || filePath.endsWith('.ts')) {
-        return true;
+  const loadedFiles = await Promise.all(
+    includeFiles.map(async (filePath) => {
+      // Our import scanner can handle normal JS & even TypeScript without a problem.
+      if (filePath.endsWith('.js') || filePath.endsWith('.mjs') || filePath.endsWith('.ts')) {
+        return fs.promises.readFile(filePath, 'utf-8');
+      }
+      // JSX breaks our import scanner, so we need to transform it before sending it to our scanner.
+      if (filePath.endsWith('.jsx') || filePath.endsWith('.tsx')) {
+        const result = await babel.transformFileAsync(filePath, {
+          plugins: [
+            [require('@babel/plugin-transform-react-jsx'), {runtime: 'classic'}],
+            [require('@babel/plugin-syntax-typescript'), {isTSX: true}],
+          ],
+          babelrc: false,
+          configFile: false,
+        });
+        return result && result.code;
       }
       console.warn(chalk.dim(`ignoring unsupported file "${filePath}"`));
-      return false;
-    })
-    .map((filePath) => [filePath, fs.readFileSync(filePath, 'utf8')])
-    .map(([filePath, code]) => getInstallTargetsForFile(filePath, code))
+      return null;
+    }),
+  );
+  return (loadedFiles as string[])
+    .filter((code) => !!code)
+    .map((code) => getInstallTargetsForFile(code))
     .reduce((flat, item) => flat.concat(item), [])
     .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier));
 }
