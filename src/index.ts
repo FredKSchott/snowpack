@@ -526,7 +526,7 @@ export async function cli(args: string[]) {
     pkgManifest = require(path.join(cwd, 'package.json'));
   } catch (err) {
     console.log(chalk.red('[ERROR] package.json required but no file was found.'));
-    process.exit(0);
+    process.exit(1);
   }
 
   // load config
@@ -535,7 +535,7 @@ export async function cli(args: string[]) {
   // handle config errors (if any)
   if (Array.isArray(errors) && errors.length) {
     errors.forEach(logError);
-    process.exit(0);
+    process.exit(1);
   }
 
   if (cliFlags.source || config.source === 'pika') {
