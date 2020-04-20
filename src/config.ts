@@ -215,12 +215,11 @@ export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
   });
 
   // if valid, apply config over defaults
-  const mergedConfig = merge<SnowpackConfig>([
-    DEFAULT_CONFIG,
-    {webDependencies: pkgManifest.webDependencies},
-    config,
-    cliConfig as any,
-  ]);
+  const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
+  const mergedConfig = merge<SnowpackConfig>(
+    [DEFAULT_CONFIG, {webDependencies: pkgManifest.webDependencies}, config, cliConfig as any],
+    {arrayMerge: overwriteMerge},
+  );
 
   // if CLI flags present, apply those as overrides
   return {
