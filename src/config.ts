@@ -27,7 +27,7 @@ export interface SnowpackConfig {
   entrypoints?: string[];
   dedupe?: string[];
   namedExports?: {[filepath: string]: string[]};
-  dev: {dist: string; mount: [string, string][]; fallback?: string};
+  dev: {dest: string; mount: [string, string][]; fallback?: string};
   scripts: DevScripts;
   installOptions: {
     babel?: boolean;
@@ -80,7 +80,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     env: {},
   },
   dev: {
-    dist: '.',
+    dest: '.',
     mount: [],
   },
   rollup: {plugins: []},
@@ -140,8 +140,8 @@ const configSchema = {
     dev: {
       type: 'object',
       properties: {
-        dist: {type: 'string'},
-        mount: {type: ['string', 'array']},
+        dest: {type: 'string'},
+        mount: {type: 'array', items: {type: 'array', items: {type: 'string'}}},
         fallback: {type: 'string'},
       },
     },
@@ -192,15 +192,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     config.source = isDetailedObject ? 'pika' : 'local';
   }
   config.dev.mount = config.dev.mount.map((val: any) => {
-    if (typeof val === 'string') {
-      return [path.resolve(cwd, val), '.'];
-    }
-    if (val[1] !== '.') {
-      throw new Error(
-        `mount: ${JSON.stringify(val)} not yet supported. Second argument must be "." if given.`,
-      );
-    }
-    return [path.resolve(cwd, val[0]), val[1]];
+    return [path.resolve(cwd, val[0]), val[1] || val[0]];
   });
   if (config.scripts) {
     for (const scriptId of Object.keys(config.scripts)) {

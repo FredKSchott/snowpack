@@ -33,7 +33,8 @@ import {
   writeLockfile,
 } from './util.js';
 
-import {command} from './dev/command';
+import {command as devCommand} from './commands/dev';
+import {command as buildCommand} from './commands/build';
 
 type InstallResult = 'SUCCESS' | 'ASSET' | 'FAIL';
 interface DependencyLoc {
@@ -562,8 +563,16 @@ export async function cli(args: string[]) {
   let lockfile = await readLockfile(cwd);
   let newLockfile: ImportMap | null = null;
 
+  if (cliFlags['_'][2] === 'build') {
+    await buildCommand({
+      cwd,
+      config,
+    });
+    return;
+  }
+
   if (cliFlags['_'][2] === 'dev') {
-    await command({
+    await devCommand({
       cwd,
       port: (cliFlags as any).port || 3000,
       config,

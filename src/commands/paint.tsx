@@ -3,7 +3,7 @@ import ansiEscapes from 'ansi-escapes';
 import chalk from 'chalk';
 import {DevScript} from '../config';
 
-function getStateString(workerState) {
+function getStateString(workerState: any, isWatch: boolean) {
   if (workerState.state) {
     if (Array.isArray(workerState.state)) {
       return chalk[workerState.state[1]](workerState.state[0]);
@@ -13,18 +13,22 @@ function getStateString(workerState) {
   if (workerState.done) {
     return workerState.error ? chalk.red('FAILED') : chalk.green('DONE');
   }
-  if (workerState.config.watch) {
+  if (workerState.config.watch && isWatch) {
     return chalk.dim('WATCHING');
   }
-  return chalk.cyan('RUNNING');
+  return chalk.dim('RUNNING');
 }
 
 const WORKER_BASE_STATE = {done: false, error: null, output: ''};
 
-export function paint(bus: EventEmitter, registeredWorkers: [string, DevScript][]) {
+export function paint(
+  bus: EventEmitter,
+  registeredWorkers: [string, DevScript][],
+  isWatch: boolean,
+) {
   let consoleOutput = '';
   let hasBeenCleared = false;
-  const allWorkerStates = {};
+  const allWorkerStates: any = {};
 
   for (const [workerId, config] of registeredWorkers) {
     allWorkerStates[workerId] = {...WORKER_BASE_STATE, config};
@@ -38,7 +42,7 @@ export function paint(bus: EventEmitter, registeredWorkers: [string, DevScript][
       const workerState = allWorkerStates[workerId];
       const dotLength = 24 - workerId.length;
       const dots = ''.padEnd(dotLength, '.');
-      const stateStr = getStateString(workerState);
+      const stateStr = getStateString(workerState, isWatch);
       process.stdout.write(`  ${workerId}${chalk.dim(dots)}[${stateStr}]\n`);
     }
     process.stdout.write('\n');
@@ -60,6 +64,24 @@ export function paint(bus: EventEmitter, registeredWorkers: [string, DevScript][
     if (consoleOutput) {
       process.stdout.write(`${chalk.underline.bold('▼ Console')}\n`);
       process.stdout.write('  ' + consoleOutput.trim().replace(/\n/gm, '\n  '));
+      process.stdout.write('\n\n');
+    }
+    const overallStatus: any = Object.values(allWorkerStates).reduce(
+      (result: any, {done, error}: any) => {
+        return {
+          done: result.done && done,
+          error: result.error || error,
+        };
+      },
+    );
+    if (overallStatus.error) {
+      process.stdout.write(`${chalk.underline.red.bold('▼ Result')}\n\n`);
+      process.stdout.write('  ⚠️  Finished, with errors.');
+      process.stdout.write('\n\n');
+      process.exit(1);
+    } else if (overallStatus.done) {
+      process.stdout.write(`${chalk.underline.green.bold('▼ Result')}\n\n`);
+      process.stdout.write('  ✨  Finished successfully!');
       process.stdout.write('\n\n');
     }
   }

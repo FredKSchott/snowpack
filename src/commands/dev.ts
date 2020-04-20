@@ -33,6 +33,7 @@ import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
 import url from 'url';
+import os from 'os';
 import {SnowpackConfig} from '../config';
 import {paint} from './paint';
 
@@ -115,6 +116,7 @@ export async function command({cwd, port, config}: DevOptions) {
   console.log('NOTE: Still experimental, default behavior may change.');
   console.log('Starting up...');
 
+  const tempDist = await fs.mkdtemp(path.join(os.tmpdir(), 'snowpack-'));
   const liveReloadClients: http.ServerResponse[] = [];
   const messageBus = new EventEmitter();
 
@@ -175,29 +177,30 @@ export async function command({cwd, port, config}: DevOptions) {
   // snowpackInstallPromise.stderr!.pipe(process.stderr);
   // await snowpackInstallPromise;
   // spin up a web server, serve each file from our cache
-  const registeredWorkers = Object.entries(config.scripts)
-    .filter(([id, workerConfig]) => {
-      return id.startsWith('build') || workerConfig.watch;
-    })
-    .sort((a, b) => {
-      const categoryA = a[0].split(':')[0];
-      const categoryB = b[0].split(':')[0];
-      if (categoryA !== categoryB) {
-        return categoryA.localeCompare(categoryB);
-      }
-      if (a[1].watch && !b[1].watch) {
-        return 1;
-      }
-      if (b[1].watch && a[1].watch) {
-        return -1;
-      }
-      return a[0].localeCompare(b[0]);
-    });
+  const registeredWorkers = Object.entries(config.scripts);
+  // .filter(([id, workerConfig]) => {
+  //   return id.startsWith('build') || workerConfig.watch;
+  // })
+  // .sort((a, b) => {
+  //   const categoryA = a[0].split(':')[0];
+  //   const categoryB = b[0].split(':')[0];
+  //   if (categoryA !== categoryB) {
+  //     return categoryA.localeCompare(categoryB);
+  //   }
+  //   if (a[1].watch && !b[1].watch) {
+  //     return 1;
+  //   }
+  //   if (b[1].watch && a[1].watch) {
+  //     return -1;
+  //   }
+  //   return a[0].localeCompare(b[0]);
+  // });
   for (const [id, workerConfig] of registeredWorkers) {
     let {cmd} = workerConfig;
     if (workerConfig.watch) {
       cmd += workerConfig.watch.replace('$1', '');
     }
+    cmd = cmd.replace(/\$DEST/g, tempDist);
     const workerPromise = execa.command(cmd, {env: npmRunPath.env(), shell: true});
     const {stdout, stderr} = workerPromise;
     stdout?.on('data', (b) => {
@@ -281,7 +284,7 @@ export async function command({cwd, port, config}: DevOptions) {
       //   return;
       // }
 
-      const buildDirectoryLoc = path.resolve(cwd, config.dev.dist);
+      const buildDirectoryLoc = path.resolve(cwd, tempDist);
       const resource = decodeURI(reqPath);
       let requestedFileExt = path.parse(resource).ext.toLowerCase();
       let isRoute = false;
@@ -291,11 +294,14 @@ export async function command({cwd, port, config}: DevOptions) {
         if (fileLoc) {
           continue;
         }
-        // 'web_modules', '.'
-        // resource: /web_modules/react.js
-        // result: cwd/web_modules/react.js
-        const requestedFile =
-          dirUrl === '.' ? path.join(dirDisk, resource) : path.join(cwd, resource);
+        let requestedFile: string;
+        if (dirUrl === '.') {
+          requestedFile = path.join(dirDisk, resource);
+        } else if (resource.startsWith(`/${dirUrl}/`)) {
+          requestedFile = path.join(dirDisk, resource.replace(`/${dirUrl}/`, '/'));
+        } else {
+          continue;
+        }
         fileLoc =
           fileLoc ||
           (await fs
@@ -428,6 +434,6 @@ export async function command({cwd, port, config}: DevOptions) {
     messageBus.emit('CONSOLE', {level: 'error', args});
   };
 
-  paint(messageBus, registeredWorkers);
+  paint(messageBus, registeredWorkers, true);
   return new Promise(() => {});
 }
