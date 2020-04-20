@@ -530,14 +530,6 @@ export async function cli(args: string[]) {
     console.log(`Unexpected multiple commands`);
     process.exit(1);
   }
-  if (cliFlags['_'][2] === 'dev') {
-    await command({
-      cwd,
-      port: (cliFlags as any).port || 3000,
-      config: require(process.cwd() + '/snowpack.dev.js'),
-    });
-    return;
-  }
 
   // Load the current package manifest
   let pkgManifest: any;
@@ -569,6 +561,15 @@ export async function cli(args: string[]) {
   // load lockfile
   let lockfile = await readLockfile(cwd);
   let newLockfile: ImportMap | null = null;
+
+  if (cliFlags['_'][2] === 'dev') {
+    await command({
+      cwd,
+      port: (cliFlags as any).port || 3000,
+      config,
+    });
+    return;
+  }
 
   const {
     installOptions: {clean, dest, exclude, include},

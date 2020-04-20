@@ -16,6 +16,9 @@ type DeepPartial<T> = {
 
 export type EnvVarReplacements = Record<string, string | number | true>;
 
+export type DevScript = {cmd: string; watch: string | undefined};
+export type DevScripts = {[id: string]: DevScript};
+
 // interface this library uses internally
 export interface SnowpackConfig {
   source: 'local' | 'pika';
@@ -24,6 +27,8 @@ export interface SnowpackConfig {
   entrypoints?: string[];
   dedupe?: string[];
   namedExports?: {[filepath: string]: string[]};
+  dev: {dist: string; mount: [string, string][]; fallback?: string};
+  scripts: DevScripts;
   installOptions: {
     babel?: boolean;
     clean: boolean;
@@ -73,6 +78,10 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     stat: false,
     strict: false,
     env: {},
+  },
+  dev: {
+    dist: '.',
+    mount: [],
   },
   rollup: {plugins: []},
 };
@@ -128,6 +137,18 @@ const configSchema = {
         },
       },
     },
+    dev: {
+      type: 'object',
+      properties: {
+        dist: {type: 'string'},
+        mount: {type: ['string', 'array']},
+        fallback: {type: 'string'},
+      },
+    },
+    scripts: {
+      type: 'object',
+      additionalProperties: {type: ['string']},
+    },
     rollup: {
       type: 'object',
       properties: {
@@ -160,7 +181,8 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
 
 /** resolve --dest relative to cwd, and set the default "source" */
 function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
-  config.installOptions.dest = path.resolve(process.cwd(), config.installOptions.dest);
+  const cwd = process.cwd();
+  config.installOptions.dest = path.resolve(cwd, config.installOptions.dest);
   if (Array.isArray(config.webDependencies)) {
     config.entrypoints = config.webDependencies;
     delete config.webDependencies;
@@ -168,6 +190,33 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   if (!config.source) {
     const isDetailedObject = config.webDependencies && typeof config.webDependencies === 'object';
     config.source = isDetailedObject ? 'pika' : 'local';
+  }
+  config.dev.mount = config.dev.mount.map((val: any) => {
+    if (typeof val === 'string') {
+      return [path.resolve(cwd, val), '.'];
+    }
+    if (val[1] !== '.') {
+      throw new Error(
+        `mount: ${JSON.stringify(val)} not yet supported. Second argument must be "." if given.`,
+      );
+    }
+    return [path.resolve(cwd, val[0]), val[1]];
+  });
+  if (config.scripts) {
+    for (const scriptId of Object.keys(config.scripts)) {
+      if (scriptId.includes('::')) {
+        continue;
+      }
+      config.scripts[scriptId] = {
+        cmd: (config.scripts[scriptId] as any) as string,
+        watch: (config.scripts[`${scriptId}::watch`] as any) as string | undefined,
+      };
+    }
+    for (const scriptId of Object.keys(config.scripts)) {
+      if (scriptId.includes('::')) {
+        delete config.scripts[scriptId];
+      }
+    }
   }
   return config;
 }
