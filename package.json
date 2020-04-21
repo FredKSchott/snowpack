@@ -48,7 +48,7 @@
     "@babel/plugin-transform-react-jsx": "^7.9.4",
     "@babel/preset-env": "^7.6.3",
     "@babel/types": "^7.6.3",
-    "@rollup/plugin-commonjs": "^11.0.0",
+    "@rollup/plugin-commonjs": "~11.0.0",
     "@rollup/plugin-json": "^4.0.0",
     "@rollup/plugin-node-resolve": "^7.1.0",
     "@rollup/plugin-replace": "^2.1.0",
