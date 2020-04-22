@@ -3,6 +3,8 @@ import {EventEmitter} from 'events';
 import execa from 'execa';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
+import fs from 'fs';
+import glob from 'glob';
 import {SnowpackConfig, DevScript} from '../config';
 import {paint} from './paint';
 const {copy} = require('fs-extra');
@@ -19,7 +21,8 @@ export async function command({cwd, config}: DevOptions) {
   const messageBus = new EventEmitter();
   const registeredWorkers = Object.entries(config.scripts);
 
-  const buildDirectoryLoc = path.resolve(cwd, config.dev.dest);
+  const buildDirectoryLoc = config.dev.out;
+  const distDirectoryLoc = path.join(buildDirectoryLoc, config.dev.dist);
   const mountWorkers: [string, DevScript][] = [];
   for (const [dirDisk, dirUrl] of config.dev.mount) {
     const id = `mount:${path.relative(cwd, dirDisk)}`;
@@ -38,8 +41,51 @@ export async function command({cwd, config}: DevOptions) {
 
   for (const [id, workerConfig] of registeredWorkers) {
     let {cmd} = workerConfig;
-    cmd = cmd.replace(/\$DEST/g, config.dev.dest);
-    const workerPromise = execa.command(cmd, {env: npmRunPath.env(), shell: true});
+    if (!id.startsWith('build:')) {
+      continue;
+    }
+    let files: string[];
+    const extMatcher = id.split('::')[1] || id.split(':')[1];
+    // const ext = extMatcher === '*' ? extMatcher.split(',')[0];
+    if (extMatcher.includes(',')) {
+      files = glob.sync(`${config.dev.src}/**/*.{${extMatcher}}`, {
+        nodir: true,
+      });
+    } else {
+      files = glob.sync(`${config.dev.src}/**/*.${extMatcher}`, {
+        nodir: true,
+      });
+    }
+    for (const f of files) {
+      const {stdout} = await execa.command(cmd, {
+        env: npmRunPath.env(),
+        extendEnv: true,
+        shell: true,
+        input: fs.createReadStream(f),
+      });
+
+      let outPath = f.replace(config.dev.src, distDirectoryLoc);
+      console.log(config.dev.src, distDirectoryLoc, f, outPath);
+      if (id.split('::')[1]) {
+        const extsToFind = id.split('::')[1].split(',');
+        const extToReplace = id.split(':')[1];
+        for (const ext of extsToFind) {
+          outPath = outPath.replace(new RegExp(`${ext}$`), extToReplace!);
+          console.log(outPath);
+        }
+      }
+      fs.mkdirSync(path.dirname(outPath), {recursive: true});
+      fs.writeFileSync(outPath, stdout);
+    }
+  }
+
+  for (const [id, workerConfig] of registeredWorkers) {
+    let {cmd} = workerConfig;
+    if (!id.startsWith('buildall:')) {
+      continue;
+    }
+    cmd = cmd.replace(/\$DIST/g, distDirectoryLoc);
+    const workerPromise = execa.command(cmd, {env: npmRunPath.env(), extendEnv: true, shell: true});
     workerPromise.catch((err) => {
       messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
       messageBus.emit('WORKER_COMPLETE', {id, error: err});

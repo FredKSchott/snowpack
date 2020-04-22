@@ -27,7 +27,13 @@ export interface SnowpackConfig {
   entrypoints?: string[];
   dedupe?: string[];
   namedExports?: {[filepath: string]: string[]};
-  dev: {dest: string; mount: [string, string][]; fallback?: string};
+  dev: {
+    out: string;
+    src: string;
+    dist: string;
+    mount: [string, string][];
+    fallback?: string;
+  };
   scripts: DevScripts;
   installOptions: {
     babel?: boolean;
@@ -80,7 +86,9 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     env: {},
   },
   dev: {
-    dest: '.',
+    src: 'src',
+    out: 'build',
+    dist: '/_dist_/',
     mount: [],
   },
   rollup: {plugins: []},
@@ -140,7 +148,9 @@ const configSchema = {
     dev: {
       type: 'object',
       properties: {
-        dest: {type: 'string'},
+        src: {type: 'string'},
+        out: {type: 'string'},
+        dist: {type: 'string'},
         mount: {type: 'array', items: {type: 'array', items: {type: 'string'}}},
         fallback: {type: 'string'},
       },
@@ -183,6 +193,8 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
 function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const cwd = process.cwd();
   config.installOptions.dest = path.resolve(cwd, config.installOptions.dest);
+  config.dev.src = path.resolve(cwd, config.dev.src);
+  config.dev.out = path.resolve(cwd, config.dev.out);
   if (Array.isArray(config.webDependencies)) {
     config.entrypoints = config.webDependencies;
     delete config.webDependencies;
@@ -196,7 +208,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   });
   if (config.scripts) {
     for (const scriptId of Object.keys(config.scripts)) {
-      if (scriptId.includes('::')) {
+      if (scriptId.includes('::watch')) {
         continue;
       }
       config.scripts[scriptId] = {
@@ -205,7 +217,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
       };
     }
     for (const scriptId of Object.keys(config.scripts)) {
-      if (scriptId.includes('::')) {
+      if (scriptId.includes('::watch')) {
         delete config.scripts[scriptId];
       }
     }
@@ -228,7 +240,7 @@ export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
   // if user specified --config path, load that
   const errors: string[] = [];
   if (flags.config) {
-    result = explorerSync.load(path.resolve(flags.config));
+    result = explorerSync.load(path.resolve(process.cwd(), flags.config));
     if (!result) {
       errors.push(`Could not locate Snowpack config at ${flags.config}`);
     }
@@ -252,9 +264,8 @@ export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
     };
   }
 
-  const config: SnowpackConfig = result.config;
-
   // validate against schema; throw helpful user if invalid
+  const config: SnowpackConfig = result.config;
   const validation = validate(config, configSchema, {
     allowUnknownAttributes: false,
     propertyName: CONFIG_NAME,
@@ -279,7 +290,6 @@ export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
       );
     }
   }
-
   // if valid, apply config over defaults
   const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
   const mergedConfig = merge<SnowpackConfig>(

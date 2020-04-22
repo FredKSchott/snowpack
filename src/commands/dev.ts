@@ -34,7 +34,7 @@ import npmRunPath from 'npm-run-path';
 import path from 'path';
 import url from 'url';
 import os from 'os';
-import {SnowpackConfig} from '../config';
+import {SnowpackConfig, DevScript} from '../config';
 import {paint} from './paint';
 
 // const FILE_CACHE = new Map<string, string>();
@@ -116,7 +116,6 @@ export async function command({cwd, port, config}: DevOptions) {
   console.log('NOTE: Still experimental, default behavior may change.');
   console.log('Starting up...');
 
-  const tempDist = await fs.mkdtemp(path.join(os.tmpdir(), 'snowpack-'));
   const liveReloadClients: http.ServerResponse[] = [];
   const messageBus = new EventEmitter();
 
@@ -178,6 +177,7 @@ export async function command({cwd, port, config}: DevOptions) {
   // await snowpackInstallPromise;
   // spin up a web server, serve each file from our cache
   const registeredWorkers = Object.entries(config.scripts);
+
   // .filter(([id, workerConfig]) => {
   //   return id.startsWith('build') || workerConfig.watch;
   // })
@@ -195,13 +195,43 @@ export async function command({cwd, port, config}: DevOptions) {
   //   }
   //   return a[0].localeCompare(b[0]);
   // });
+
+  // - add config value for "src"
+  // - add config value for "/_dist_/"
+  // - dev: mount src to _dist_
+
+  // build: attach to server handler
+  // buildall: start workers
+  // server handler:
+  //   - if /_dist_/ & file extension, check build:* workers for a match
+  //     - if match, read from src/*, pipe into worker, return output
+  //     - otherwise, check each DEST on disk
+  //     - otherwise, check src/ on disk
+  //     - otherwise, 404
+  //   - if not /_dist_/, check each mounted directory
+  //     - otherwise, 404
+  //
+  const workerDirectories: string[] = [];
+  const mountWorkers: [string, DevScript][] = [];
+
+  for (const [dirDisk, dirUrl] of config.dev.mount) {
+    const id = `mount:${path.relative(cwd, dirDisk)}`;
+    mountWorkers.push([id, {cmd: 'NA', watch: undefined}]);
+    setTimeout(() => messageBus.emit('WORKER_UPDATE', {id, state: ['DONE', 'green']}), 400);
+  }
+
   for (const [id, workerConfig] of registeredWorkers) {
     let {cmd} = workerConfig;
+    if (!id.startsWith('buildall:')) {
+      continue;
+    }
     if (workerConfig.watch) {
       cmd += workerConfig.watch.replace('$1', '');
     }
-    cmd = cmd.replace(/\$DEST/g, tempDist);
-    const workerPromise = execa.command(cmd, {env: npmRunPath.env(), shell: true});
+    const tempBuildDir = await fs.mkdtemp(path.join(os.tmpdir(), `snowpack-${id}`));
+    workerDirectories.unshift(tempBuildDir);
+    cmd = cmd.replace(/\$DIST/g, tempBuildDir);
+    const workerPromise = execa.command(cmd, {env: npmRunPath.env(), extendEnv: true, shell: true});
     const {stdout, stderr} = workerPromise;
     stdout?.on('data', (b) => {
       let stdOutput = b.toString();
@@ -284,14 +314,65 @@ export async function command({cwd, port, config}: DevOptions) {
       //   return;
       // }
 
-      const buildDirectoryLoc = path.resolve(cwd, tempDist);
       const resource = decodeURI(reqPath);
       let requestedFileExt = path.parse(resource).ext.toLowerCase();
       let isRoute = false;
       let fileLoc: string | null = null;
+      let fileContents: string | null = null;
+      let fileBuilder: ((code: string) => Promise<string>) | undefined;
 
-      for (const [dirDisk, dirUrl] of [...config.dev.mount, [buildDirectoryLoc, '.']]) {
+      for (const [id, workerConfig] of registeredWorkers) {
+        if (
+          fileLoc ||
+          !resource.startsWith(config.dev.dist) ||
+          !requestedFileExt ||
+          !id.startsWith('build:')
+        ) {
+          continue;
+        }
+        const [, extMatcher] = id.split('::').length > 1 ? id.split('::') : id.split(':');
+        const extMatches = extMatcher.split(',');
+        if (extMatches[0] !== requestedFileExt.substr(1)) {
+          continue;
+        }
+        const {cmd} = workerConfig;
+        let requestedFile = path.join(config.dev.src, resource.replace(`${config.dev.dist}`, ''));
+        for (const ext of extMatches) {
+          fileLoc =
+            fileLoc ||
+            (await fs
+              .stat(requestedFile.replace(requestedFileExt, `.${ext}`))
+              .then(() => requestedFile.replace(requestedFileExt, `.${ext}`))
+              .catch(() => null /* ignore */));
+        }
+
+        fileBuilder = async (code: string) => {
+          const {stdout, stderr} = await execa.command(cmd, {
+            env: npmRunPath.env(),
+            extendEnv: true,
+            shell: true,
+            input: code,
+          });
+          return stdout;
+        };
+      }
+
+      for (const dirDisk of workerDirectories) {
+        if (fileLoc || !requestedFileExt || !resource.startsWith(config.dev.dist)) {
+          continue;
+        }
+        let requestedFile = path.join(dirDisk, resource.replace(`${config.dev.dist}`, ''));
+        fileLoc = await fs
+          .stat(requestedFile)
+          .then((stat) => (stat.isFile() ? requestedFile : null))
+          .catch(() => null /* ignore */);
+      }
+
+      for (const [dirDisk, dirUrl] of config.dev.mount) {
         if (fileLoc) {
+          continue;
+        }
+        if (resource.startsWith(config.dev.dist)) {
           continue;
         }
         let requestedFile: string;
@@ -368,8 +449,12 @@ export async function command({cwd, port, config}: DevOptions) {
       }
 
       try {
-        var fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
+        fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
+        if (fileBuilder) {
+          fileContents = await fileBuilder(fileContents);
+        }
       } catch (err) {
+        console.error(fileLoc, err);
         return sendError(res, 500);
       }
 
@@ -434,6 +519,6 @@ export async function command({cwd, port, config}: DevOptions) {
     messageBus.emit('CONSOLE', {level: 'error', args});
   };
 
-  paint(messageBus, registeredWorkers, true);
+  paint(messageBus, [...mountWorkers, ...registeredWorkers], true);
   return new Promise(() => {});
 }

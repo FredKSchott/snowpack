@@ -123,4 +123,5 @@ export function paint(
   // });
 
   // unmountDashboard = render(<App bus={bus} registeredWorkers={registeredWorkers} />).unmount;
+  repaint();
 }
