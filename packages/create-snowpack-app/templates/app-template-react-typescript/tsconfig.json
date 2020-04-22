@@ -1,0 +1,23 @@
+{
+  "include": ["src", "types"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "module": "es2020",
+    "moduleResolution": "node",
+    "jsx": "preserve",
+    "baseUrl": "./",
+    "paths": { "*": ["web_modules/.types/*"] },
+
+    /* noEmit - We use Babel to compile to JavaScript. */
+    "noEmit": true,
+
+    /* Additional Options */
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "noImplicitReturns": true,
+    // "noFallthroughCasesInSwitch": true,
+  }
+}

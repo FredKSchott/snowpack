@@ -1,0 +1,23 @@
+{
+  "name": "@snowpack/app-template-vue",
+  "version": "0.0.1",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepare": "../../../snowpack/pkg/dist-node/index.bin.js",
+    "start": "../../../snowpack/pkg/dist-node/index.bin.js dev",
+    "build": "NODE_ENV=production ../../../snowpack/pkg/dist-node/index.bin.js build",
+    "test": "jest"
+  },
+  "webDependencies": {
+    "vue": "^3.0.0-0"
+  },
+  "devDependencies": {
+    "@snowpack/app-scripts-vue": "^0.0.1",
+    "@testing-library/vue": "^5.0.2",
+    "jest": "^25.4.0",
+    "parcel-bundler": "^1.12.4"
+  }
+}

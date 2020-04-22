@@ -1,0 +1,29 @@
+{
+  "name": "@snowpack/app-template-react",
+  "version": "0.0.1",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepare": "snowpack",
+    "start": "snowpack dev",
+    "build": "NODE_ENV=production snowpack build",
+    "test": "jest"
+  },
+  "webDependencies": {
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0",
+    "csz": "^1.2.0"
+  },
+  "devDependencies": {
+    "@snowpack/app-scripts-react": "^0.0.1",
+    "@testing-library/jest-dom": "^5.5.0",
+    "@testing-library/react": "^10.0.3",
+    "jest": "^25.4.0",
+    "parcel-bundler": "^1.12.4",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "snowpack": "^2.0.0-0"
+  }
+}

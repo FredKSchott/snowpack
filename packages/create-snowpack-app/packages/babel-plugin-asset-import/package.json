@@ -1,0 +1,11 @@
+{
+  "name": "@snowpack/babel-plugin-asset-import",
+  "version": "0.0.1",
+  "description": "",
+  "main": "plugin.js",
+  "scripts": {},
+  "license": "MIT",
+  "dependencies": {
+    "@babel/parser": "^7.9.4"
+  }
+}

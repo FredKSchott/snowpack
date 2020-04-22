@@ -1,0 +1,9 @@
+{
+  "presets": ["@babel/preset-react"],
+  "plugins": [["@babel/plugin-syntax-import-meta"]],
+  "env": {
+    "development": {
+      "plugins": [["@snowpack/babel-plugin-asset-import", { "csz": true }]]
+    }
+  }
+}

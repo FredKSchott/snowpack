@@ -1,0 +1,13 @@
+node_modules
+.DS_Store
+
+templates/*/template/build
+templates/*/template/package-lock.json
+templates/*/template/node_modules
+templates/*/template/web_modules
+templates/*/build
+templates/*/package-lock.json
+templates/*/yarn.json
+templates/*/node_modules
+templates/*/web_modules
+snowpack.lock.json

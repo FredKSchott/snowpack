@@ -1,0 +1,23 @@
+{
+  "name": "@snowpack/app-scripts-vue",
+  "version": "0.0.1",
+  "description": "",
+  "main": "snowpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^7.0.0-bridge.0"
+  },
+  "dependencies": {
+    "@babel/core": "^7.9.0",
+    "@vue/compiler-sfc": "^3.0.0-beta.4",
+    "babel-jest": "^25.4.0",
+    "hash-sum": "^2.0.0",
+    "vue-jest": "^3.0.5",
+    "vue-template-compiler": "^2.6.11"
+  }
+}

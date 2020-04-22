@@ -1,0 +1,12 @@
+{
+  "name": "WORKSPACE",
+  "private": "true",
+  "workspaces": [
+    "packages/*",
+    "templates/*"
+  ],
+  "scripts": {},
+  "devDependencies": {
+    "lerna": "^3.20.2"
+  }
+}
