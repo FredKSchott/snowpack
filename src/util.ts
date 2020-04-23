@@ -13,9 +13,11 @@ export interface ImportMap {
 
 export async function readLockfile(cwd: string): Promise<ImportMap | null> {
   try {
+    console.log(cwd, path.join(cwd, 'snowpack.lock.json'));
     var lockfileContents = fs.readFileSync(path.join(cwd, 'snowpack.lock.json'), {
       encoding: 'utf8',
     });
+    console.log('GOOD', lockfileContents);
   } catch (err) {
     // no lockfile found, ignore and continue
     return null;
