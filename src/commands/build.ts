@@ -24,6 +24,24 @@ export async function command({cwd, config}: DevOptions) {
   const buildDirectoryLoc = config.dev.out;
   const distDirectoryLoc = path.join(buildDirectoryLoc, config.dev.dist);
   const mountWorkers: [string, DevScript][] = [];
+
+  for (const [dirDisk, dirUrl] of config.dev.mount) {
+    const id = `mount:${path.relative(cwd, dirDisk)}`;
+    mountWorkers.push([id, {cmd: 'NA', watch: undefined}]);
+  }
+
+  console.log = (...args) => {
+    messageBus.emit('CONSOLE', {level: 'log', args});
+  };
+  console.warn = (...args) => {
+    messageBus.emit('CONSOLE', {level: 'warn', args});
+  };
+  console.error = (...args) => {
+    messageBus.emit('CONSOLE', {level: 'error', args});
+  };
+
+  paint(messageBus, [...mountWorkers, ...registeredWorkers], false);
+
   for (const [dirDisk, dirUrl] of config.dev.mount) {
     const id = `mount:${path.relative(cwd, dirDisk)}`;
     const destinationFile =
@@ -50,6 +68,10 @@ export async function command({cwd, config}: DevOptions) {
     if (extMatcher.includes(',')) {
       files = glob.sync(`${config.dev.src}/**/*.{${extMatcher}}`, {
         nodir: true,
+        ignore: [
+          `${config.dev.src}/**/__tests__/**/*.{js,jsx,ts,tsx}`,
+          `${config.dev.src}/**/*.{spec,test}.{js,jsx,ts,tsx}`,
+        ],
       });
     } else {
       files = glob.sync(`${config.dev.src}/**/*.${extMatcher}`, {
@@ -57,13 +79,21 @@ export async function command({cwd, config}: DevOptions) {
       });
     }
     for (const f of files) {
-      const {stdout} = await execa.command(cmd, {
+      const {stdout, stderr} = await execa.command(cmd, {
         env: npmRunPath.env(),
         extendEnv: true,
         shell: true,
         input: fs.createReadStream(f),
       });
-
+      if (stderr) {
+        const missingWebModuleRegex = /warn\: bare import "(.*?)" not found in import map\, ignoring\.\.\./m;
+        const missingWebModuleMatch = stderr.match(missingWebModuleRegex);
+        if (missingWebModuleMatch) {
+          messageBus.emit('MISSING_WEB_MODULE', {specifier: missingWebModuleMatch[1]});
+          messageBus.emit('WORKER_COMPLETE', {id, error: new Error(`[${id}] stderr`)});
+        }
+        console.error(stderr);
+      }
       let outPath = f.replace(config.dev.src, distDirectoryLoc);
       if (id.split('::')[1]) {
         const extsToFind = id.split('::')[1].split(',');
@@ -75,6 +105,7 @@ export async function command({cwd, config}: DevOptions) {
       fs.mkdirSync(path.dirname(outPath), {recursive: true});
       fs.writeFileSync(outPath, stdout);
     }
+    messageBus.emit('WORKER_COMPLETE', {id, error: null});
   }
 
   for (const [id, workerConfig] of registeredWorkers) {
@@ -118,6 +149,5 @@ export async function command({cwd, config}: DevOptions) {
     stderr?.on('data', (b) => {});
   }
 
-  paint(messageBus, [...mountWorkers, ...registeredWorkers], false);
   return new Promise(() => {});
 }

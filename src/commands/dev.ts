@@ -353,6 +353,14 @@ export async function command({cwd, port, config}: DevOptions) {
             shell: true,
             input: code,
           });
+          if (stderr) {
+            const missingWebModuleRegex = /warn\: bare import "(.*?)" not found in import map\, ignoring\.\.\./m;
+            const missingWebModuleMatch = stderr.match(missingWebModuleRegex);
+            if (missingWebModuleMatch) {
+              messageBus.emit('MISSING_WEB_MODULE', {specifier: missingWebModuleMatch[1]});
+            }
+            console.error(stderr);
+          }
           return stdout;
         };
       }
