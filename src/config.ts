@@ -19,6 +19,7 @@ export type EnvVarReplacements = Record<string, string | number | true>;
 // interface this library uses internally
 export interface SnowpackConfig {
   source: 'local' | 'pika';
+  extends?: string;
   webDependencies?: {[packageName: string]: string};
   entrypoints?: string[];
   dedupe?: string[];
@@ -78,6 +79,7 @@ const configSchema = {
   type: 'object',
   properties: {
     source: {type: 'string'},
+    extends: {type: 'string'},
     entrypoints: {type: 'array', items: {type: 'string'}},
     // TODO: Array of strings data format is deprecated, remove for v2
     webDependencies: {
@@ -213,17 +215,43 @@ export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
     allowUnknownAttributes: false,
     propertyName: CONFIG_NAME,
   });
+  let validationErrors = validation.errors;
+
+  let extendConfig: SnowpackConfig | {} = {};
+  if (config.extends) {
+    const extendConfigLoc = config.extends.startsWith('.')
+      ? path.resolve(path.dirname(result.filepath), config.extends)
+      : require.resolve(config.extends, {paths: [process.cwd()]});
+    const extendResult = explorerSync.load(extendConfigLoc);
+    if (!extendResult) {
+      errors.push(`Could not locate Snowpack config at ${flags.config}`);
+    } else {
+      extendConfig = extendResult.config;
+      validationErrors = validationErrors.concat(
+        validate(extendConfig, configSchema, {
+          allowUnknownAttributes: false,
+          propertyName: CONFIG_NAME,
+        }).errors,
+      );
+    }
+  }
 
   // if valid, apply config over defaults
   const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
   const mergedConfig = merge<SnowpackConfig>(
-    [DEFAULT_CONFIG, {webDependencies: pkgManifest.webDependencies}, config, cliConfig as any],
+    [
+      DEFAULT_CONFIG,
+      extendConfig,
+      {webDependencies: pkgManifest.webDependencies},
+      config,
+      cliConfig as any,
+    ],
     {arrayMerge: overwriteMerge},
   );
 
   // if CLI flags present, apply those as overrides
   return {
     config: normalizeConfig(mergedConfig),
-    errors: validation.errors.map((msg) => `${path.basename(result.filepath)}: ${msg.toString()}`),
+    errors: validationErrors.map((msg) => `${path.basename(result.filepath)}: ${msg.toString()}`),
   };
 }
