@@ -1,7 +1,7 @@
 const assert = require('assert');
 const path = require('path');
 const fs = require('fs').promises;
-const {readdirSync, readFileSync} = require('fs');
+const {readdirSync, readFileSync, statSync} = require('fs');
 const execa = require('execa');
 const rimraf = require('rimraf');
 const dircompare = require('dir-compare');
@@ -31,22 +31,14 @@ function stripChunkHash(stdout) {
   return stdout.replace(/([\w\-]+\-)[a-z0-9]{8}(\.js)/g, '$1XXXXXXXX$2');
 }
 
+function removeLockfile(testName) {
+  const testDir = path.join(__dirname, testName);
+  rimraf.sync(path.join(testDir, 'snowpack.lock.json'));
+}
+
 beforeAll(() => {
   // Needed so that ora (spinner) doesn't use platform-specific characters
   process.env = Object.assign(process.env, {CI: '1'});
-});
-
-afterAll(() => {
-  for (const testName of readdirSync(__dirname)) {
-    if (testName === 'node_modules' || testName.includes('.')) {
-      continue;
-    }
-    // Cleanup test directory
-    const testDir = path.join(__dirname, testName);
-    if (!KEEP_LOCKFILE.includes(testName)) {
-      rimraf.sync(path.join(testDir, 'snowpack.lock.json'));
-    }
-  }
 });
 
 for (const testName of readdirSync(__dirname)) {
@@ -55,6 +47,12 @@ for (const testName of readdirSync(__dirname)) {
   }
 
   test(testName, async () => {
+    // Cleanup
+    if (!KEEP_LOCKFILE.includes(testName)) {
+      removeLockfile(testName);
+    }
+
+    // Run Test
     const {all} = await execa('npm', ['run', `TEST`, `--silent`], {
       cwd: path.join(__dirname, testName),
       reject: false,
@@ -92,7 +90,9 @@ for (const testName of readdirSync(__dirname)) {
         return;
       }
       // throw error if web_modules/ is generated but expected-install/ is missing
-      assert.rejects(() => fs.readdir(actualWebDependenciesLoc), 'web_modules/ exists');
+      assert.throws(() => {
+        statSync(actualWebDependenciesLoc);
+      }, actualWebDependenciesLoc + ' exists');
       return;
     }
 
@@ -127,5 +127,10 @@ for (const testName of readdirSync(__dirname)) {
         ),
       );
     });
+
+    // Cleanup
+    if (!KEEP_LOCKFILE.includes(testName)) {
+      removeLockfile(testName);
+    }
   });
 }
