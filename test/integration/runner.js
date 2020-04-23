@@ -51,6 +51,7 @@ for (const testName of readdirSync(__dirname)) {
     const {all} = await execa('npm', ['run', `TEST`, `--silent`], {
       cwd: path.join(__dirname, testName),
       reject: false,
+      all: true,
     });
     // Test Output
     const expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
@@ -100,7 +101,7 @@ for (const testName of readdirSync(__dirname)) {
       excludeFilter: 'common',
     });
     // If any diffs are detected, we'll assert the difference so that we get nice output.
-    res.diffSet.forEach(function(entry) {
+    res.diffSet.forEach((entry) => {
       if (entry.type1 !== 'file') {
         // NOTE: We only compare files so that we give the test runner a more detailed diff.
         return;
