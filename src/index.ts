@@ -257,6 +257,7 @@ export async function install(
     namedExports,
     source,
     installOptions: {
+      installTypes,
       babel: isBabel,
       dest: destLoc,
       hash: useHash,
@@ -346,7 +347,11 @@ export async function install(
     plugins: [
       !isStrict && rollupPluginReplace(getRollupReplaceKeys(env!, isOptimized)),
       rollupPluginEntrypointAlias({cwd}),
-      source === 'pika' && rollupPluginDependencyCache({log: (url) => logUpdate(chalk.dim(url))}),
+      source === 'pika' &&
+        rollupPluginDependencyCache({
+          installTypes,
+          log: (url) => logUpdate(chalk.dim(url)),
+        }),
       rollupPluginNodeResolve({
         mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(isTruthy),
         modulesOnly: isStrict, // Default: false

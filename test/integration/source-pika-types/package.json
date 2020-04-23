@@ -1,0 +1,9 @@
+{
+  "description": "Test that --install-types works as expected.",
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --source pika --install-types"
+  },
+  "dependencies": {
+    "async": "3.1.0"
+  }
+}
