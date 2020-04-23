@@ -36,18 +36,25 @@ beforeAll(() => {
   process.env = Object.assign(process.env, {CI: '1'});
 });
 
+afterAll(() => {
+  for (const testName of readdirSync(__dirname)) {
+    if (testName === 'node_modules' || testName.includes('.')) {
+      continue;
+    }
+    // Cleanup test directory
+    const testDir = path.join(__dirname, testName);
+    if (!KEEP_LOCKFILE.includes(testName)) {
+      rimraf.sync(path.join(testDir, 'snowpack.lock.json'));
+    }
+  }
+});
+
 for (const testName of readdirSync(__dirname)) {
   if (testName === 'node_modules' || testName.includes('.')) {
     continue;
   }
 
   test(testName, async () => {
-    // Prepare test directory
-    const testDir = path.join(__dirname, testName);
-    if (!KEEP_LOCKFILE.includes(testName)) {
-      rimraf.sync(path.join(testDir, 'snowpack.lock.json'));
-    }
-
     const {all} = await execa('npm', ['run', `TEST`, `--silent`], {
       cwd: path.join(__dirname, testName),
       reject: false,

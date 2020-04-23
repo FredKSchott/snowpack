@@ -75,20 +75,24 @@ async function resolveDependency(
     console.warn(`Falling back to local copy...`);
     return null;
   }
-  if (installUrlType === 'pin') {
-    const pinnedUrl = installUrl;
-    await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
-      metadata: {pinnedUrl},
-    });
-    return pinnedUrl;
-  }
+
   let importUrlPath = headers['x-import-url'] as string;
   let pinnedUrlPath = headers['x-pinned-url'] as string;
   const buildStatus = headers['x-import-status'] as string;
+  const typesUrlPath = headers['x-typescript-types'] as string | undefined;
+  const typesUrl = typesUrlPath && `${PIKA_CDN}${typesUrlPath}`;
+
+  if (installUrlType === 'pin') {
+    const pinnedUrl = installUrl;
+    await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
+      metadata: {pinnedUrl, typesUrl},
+    });
+    return pinnedUrl;
+  }
   if (pinnedUrlPath) {
     const pinnedUrl = `${PIKA_CDN}${pinnedUrlPath}`;
     await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
-      metadata: {pinnedUrl},
+      metadata: {pinnedUrl, typesUrl},
     });
     return pinnedUrl;
   }

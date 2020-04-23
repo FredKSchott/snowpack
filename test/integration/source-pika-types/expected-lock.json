@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "async": "https://cdn.pika.dev/pin/async@v3.1.0-t2zPE8phAyA9kLXoTEKm/async.js"
+  }
+}

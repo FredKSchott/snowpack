@@ -35,6 +35,7 @@ export interface SnowpackConfig {
     nomoduleOutput: string;
     optimize: boolean;
     env?: EnvVarReplacements;
+    installTypes: boolean;
     remotePackage?: string[];
     remoteUrl: string;
     sourceMap?: boolean | 'inline';
@@ -66,6 +67,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     externalPackage: [],
     nomoduleOutput: 'app.nomodule.js',
     optimize: false,
+    installTypes: false,
     remoteUrl: 'https://cdn.pika.dev',
     stat: false,
     strict: false,
@@ -106,6 +108,7 @@ const configSchema = {
         nomodule: {type: 'string'},
         nomoduleOutput: {type: 'string'},
         optimize: {type: 'boolean'},
+        installTypes: {type: 'boolean'},
         remotePackage: {type: 'array', items: {type: 'string'}},
         remoteUrl: {type: 'string'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},

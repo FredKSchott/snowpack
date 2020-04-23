@@ -32,11 +32,13 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
   fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
 }
 
-export function fetchCDNResource(resourceUrl: string) {
+export function fetchCDNResource(resourceUrl: string, responseType?: 'text' | 'json' | 'buffer') {
   if (!resourceUrl.startsWith(PIKA_CDN)) {
     resourceUrl = PIKA_CDN + resourceUrl;
   }
+  // @ts-ignore - TS doesn't like responseType being unknown amount three options
   return got(resourceUrl, {
+    responseType: responseType,
     headers: {'user-agent': `snowpack/v1.4 (https://snowpack.dev)`},
     throwHttpErrors: false,
   });

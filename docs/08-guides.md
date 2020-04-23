@@ -35,6 +35,19 @@ To use TypeScript with Babel, [set up Babel](#babel) with the following plugins 
 
 Once you have Babel building your site correctly, TypeScript should be able to understand your source directory without any additional configuration.
 
+**If you're using `installTypes`:** Make sure that you've configured your tsconfig.json to pick up types from the new web_modules/.types location:
+
+```js
+// NOTE: Only required when using `installTypes`
+"compilerOptions": {
+  "skipLibCheck": true,
+  "baseUrl": ".",
+  "paths": {
+    "*": ["web_modules/.types/*"]
+  },
+  // ...
+}
+```
 
 #### Without Babel:
 
@@ -43,20 +56,23 @@ To use TypeScript with Snowpack, you'll need to set up your tsconfig.json to und
 ```js
 "compilerOptions": {
   // Choose your target based on which browsers you'd like to support.
-  "target": "es2017",
+  "target": "es2020",
   // Required: Use module="esnext" so that TS won't compile/disallow any ESM syntax.
-  "module": "esnext",
+  "module": "es2020",
   // Optional, but recommended
   "moduleResolution": "node",
   // Optional, but recommended
   "baseUrl": ".",
   // Required: Map "/web_modules/*" imports back to their node_modules/ TS definition files.
   "paths": {
-      "/web_modules/*.js": [
-          "node_modules/@types/*",
-          "node_modules/*",
-          "web_modules/*.js"
-      ]
+    "/web_modules/*.js": [
+      "web_modules/.types/*",
+      "web_modules/.types/*.js",
+      "node_modules/@types/*",
+      "node_modules/@types/*.js",
+      "node_modules/*",
+      "node_modules/*.js"
+    ]
   },
   // ...
 }
