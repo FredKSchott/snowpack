@@ -61,9 +61,15 @@ export function paint(
         process.stdout.write('\n\n');
       }
     }
-    if (consoleOutput) {
-      process.stdout.write(`${chalk.underline.bold('▼ Console')}\n`);
-      process.stdout.write('  ' + consoleOutput.trim().replace(/\n/gm, '\n  '));
+    if (isWatch || consoleOutput) {
+      process.stdout.write(`${chalk.underline.bold('▼ Console')}\n\n`);
+      process.stdout.write(
+        consoleOutput
+          ? '  ' + consoleOutput.trim().replace(/\n/gm, '\n  ')
+          : hasBeenCleared
+          ? chalk.dim('  Output cleared.')
+          : chalk.dim('  No output, yet.'),
+      );
       process.stdout.write('\n\n');
     }
     const overallStatus: any = Object.values(allWorkerStates).reduce(
@@ -106,6 +112,13 @@ export function paint(
   bus.on('CONSOLE', ({level, args}) => {
     consoleOutput += `[${level}] ${args.join(' ')}\n`;
     repaint();
+  });
+  bus.on('NEW_SESSION', () => {
+    if (consoleOutput) {
+      consoleOutput = ``;
+      hasBeenCleared = true;
+      repaint();
+    }
   });
 
   // const rl = readline.createInterface({

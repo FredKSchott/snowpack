@@ -65,13 +65,11 @@ export async function command({cwd, config}: DevOptions) {
       });
 
       let outPath = f.replace(config.dev.src, distDirectoryLoc);
-      console.log(config.dev.src, distDirectoryLoc, f, outPath);
       if (id.split('::')[1]) {
         const extsToFind = id.split('::')[1].split(',');
         const extToReplace = id.split(':')[1];
         for (const ext of extsToFind) {
           outPath = outPath.replace(new RegExp(`${ext}$`), extToReplace!);
-          console.log(outPath);
         }
       }
       fs.mkdirSync(path.dirname(outPath), {recursive: true});

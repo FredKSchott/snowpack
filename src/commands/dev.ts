@@ -222,7 +222,7 @@ export async function command({cwd, port, config}: DevOptions) {
 
   for (const [id, workerConfig] of registeredWorkers) {
     let {cmd} = workerConfig;
-    if (!id.startsWith('buildall:')) {
+    if (!id.startsWith('buildall:') && !id.startsWith('lintall:')) {
       continue;
     }
     if (workerConfig.watch) {
