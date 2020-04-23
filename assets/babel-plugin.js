@@ -62,7 +62,7 @@ function rewriteImport(importMap, imp, file, webModulesUrl, shouldResolveRelativ
     return imp;
   }
   if (!isSourceImport && !mappedImport) {
-    console.log(`warn: bare import "${imp}" not found in import map, ignoring...`);
+    console.error(`warn: bare import "${imp}" not found in import map, ignoring...`);
     return imp;
   }
   if (isSourceImport && shouldResolveRelative) {
@@ -79,7 +79,7 @@ function rewriteImport(importMap, imp, file, webModulesUrl, shouldResolveRelativ
     } catch (err) {
       // File could not be resolved by Node
       // We warn and just fallback to old 'optionalExtensions' behaviour of appending .js
-      console.warn(err.message);
+      console.error(err.message);
       return imp + '.js';
     }
   }
@@ -102,6 +102,7 @@ function rewriteImport(importMap, imp, file, webModulesUrl, shouldResolveRelativ
  *                        - "node": Rewrite all relative paths to use node's built-in resolution, resolving things like
  *                          missing file extensions and directory imports. This is useful to assist migrating an older,
  *                          bundled project to Snowpack.
+ *   ignore             - Array of import specifiers to ignore and leave untouched / bare.
  *   dir                - DEPRECATED: use "webModulesUrl" & "webModulesDir" instead.
  *   optionalExtensions - DEPRECATED: use "resolve: node" instead.
  */
@@ -114,17 +115,18 @@ module.exports = function pikaWebBabelTransform(
     addVersion,
     importMap,
     optionalExtensions,
+    ignore,
     dir,
   } = {},
 ) {
   // Deprecation warnings
   if (dir) {
-    console.warn(
+    console.error(
       'warn: "dir" option is deprecated and has been removed. Please update to use "webModulesUrl" or "webModulesDir" instead.',
     );
   }
   if (addVersion) {
-    console.warn(
+    console.error(
       'warn: "addVersion" option is now built into Snowpack and on by default. The Babel option is no longer needed.',
     );
   }
@@ -150,6 +152,9 @@ module.exports = function pikaWebBabelTransform(
           /* Should never happen */
           return;
         }
+        if (ignore && ignore.includes(source.node.value)) {
+          return;
+        }
         source.replaceWith(
           t.stringLiteral(
             rewriteImport(
@@ -166,6 +171,9 @@ module.exports = function pikaWebBabelTransform(
         const source = path.get('source');
         // An export without a 'from' clause
         if (!source.node) {
+          return;
+        }
+        if (ignore && ignore.includes(source.node.value)) {
           return;
         }
         source.replaceWith(
