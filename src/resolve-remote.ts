@@ -32,7 +32,6 @@ async function resolveDependency(
   // Grab the installUrl from our lockfile if it exists, otherwise resolve it yourself.
   let installUrl: string;
   let installUrlType: 'pin' | 'lookup';
-  console.log(installSpecifier, lockfile && lockfile.imports[installSpecifier]);
   if (lockfile && lockfile.imports[installSpecifier]) {
     installUrl = lockfile.imports[installSpecifier];
     installUrlType = 'pin';
