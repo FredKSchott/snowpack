@@ -330,14 +330,16 @@ export async function command({cwd, port, config}: DevOptions) {
         ) {
           continue;
         }
-        const [, extMatcher] = id.split('::').length > 1 ? id.split('::') : id.split(':');
-        const extMatches = extMatcher.split(',');
-        if (extMatches[0] !== requestedFileExt.substr(1)) {
+        const srcExtMatchers =
+          id.split('::').length > 1 ? id.split('::')[1].split(',') : id.split(':')[1].split(',');
+        const destExtMatcher = id.split(':')[1];
+        if (destExtMatcher !== requestedFileExt.substr(1)) {
           continue;
         }
+
         const {cmd} = workerConfig;
         let requestedFile = path.join(config.dev.src, resource.replace(`${config.dev.dist}`, ''));
-        for (const ext of extMatches) {
+        for (const ext of srcExtMatchers) {
           fileLoc =
             fileLoc ||
             (await fs
