@@ -79,9 +79,7 @@ export async function command({cwd, config}: DevOptions) {
       }
 
       const destinationFile =
-        dirUrl === '.'
-          ? path.join(buildDirectoryLoc, dirUrl)
-          : path.join(buildDirectoryLoc, dirUrl);
+        dirUrl === '/' ? buildDirectoryLoc : path.join(buildDirectoryLoc, dirUrl);
       await copy(dirDisk, destinationFile).catch((err) => {
         messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
         messageBus.emit('WORKER_COMPLETE', {id, error: err});

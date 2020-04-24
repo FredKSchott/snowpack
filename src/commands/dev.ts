@@ -234,7 +234,7 @@ export async function command({cwd, port, config}: DevOptions) {
       dirDisk = path.resolve(cwd, from);
       dirUrl = to;
     }
-    mountedDirectories.push(dirDisk, dirUrl);
+    mountedDirectories.push([dirDisk, dirUrl]);
     setTimeout(() => messageBus.emit('WORKER_UPDATE', {id, state: ['DONE', 'green']}), 400);
   }
 
@@ -405,10 +405,10 @@ export async function command({cwd, port, config}: DevOptions) {
           continue;
         }
         let requestedFile: string;
-        if (dirUrl === '.') {
+        if (dirUrl === '/') {
           requestedFile = path.join(dirDisk, resource);
-        } else if (resource.startsWith(`/${dirUrl}/`)) {
-          requestedFile = path.join(dirDisk, resource.replace(`/${dirUrl}/`, '/'));
+        } else if (resource.startsWith(dirUrl)) {
+          requestedFile = path.join(dirDisk, resource.replace(dirUrl, '/'));
         } else {
           continue;
         }
@@ -440,7 +440,7 @@ export async function command({cwd, port, config}: DevOptions) {
 
         if (!fileLoc && config.dev.fallback) {
           const fallbackFile =
-            dirUrl === '.'
+            dirUrl === '/'
               ? path.join(dirDisk, config.dev.fallback)
               : path.join(cwd, config.dev.fallback);
           fileLoc =
