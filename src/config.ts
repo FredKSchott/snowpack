@@ -31,7 +31,6 @@ export interface SnowpackConfig {
     out: string;
     src: string;
     dist: string;
-    mount: [string, string][];
     bundle: boolean;
     fallback: string;
   };
@@ -92,7 +91,6 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     dist: '/_dist_/',
     fallback: 'index.html',
     bundle: false,
-    mount: [],
   },
   rollup: {plugins: []},
 };
@@ -154,7 +152,6 @@ const configSchema = {
         src: {type: 'string'},
         out: {type: 'string'},
         dist: {type: 'string'},
-        mount: {type: 'array', items: {type: 'array', items: {type: 'string'}}},
         bundle: {type: 'boolean'},
         fallback: {type: 'string'},
       },
@@ -207,9 +204,6 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     const isDetailedObject = config.webDependencies && typeof config.webDependencies === 'object';
     config.source = isDetailedObject ? 'pika' : 'local';
   }
-  config.dev.mount = config.dev.mount.map((val: any) => {
-    return [path.resolve(cwd, val[0]), val[1] || val[0]];
-  });
   if (config.scripts) {
     for (const scriptId of Object.keys(config.scripts)) {
       if (scriptId.includes('::watch')) {

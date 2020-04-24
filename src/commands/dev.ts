@@ -36,6 +36,7 @@ import url from 'url';
 import os from 'os';
 import {SnowpackConfig, DevScript} from '../config';
 import {paint} from './paint';
+import yargs from 'yargs-parser';
 
 // const FILE_CACHE = new Map<string, string>();
 
@@ -212,16 +213,34 @@ export async function command({cwd, port, config}: DevOptions) {
   //     - otherwise, 404
   //
   const workerDirectories: string[] = [];
-  const mountWorkers: [string, DevScript][] = [];
+  const mountedDirectories: [string, string][] = [];
 
-  for (const [dirDisk, dirUrl] of config.dev.mount) {
-    const id = `mount:${path.relative(cwd, dirDisk)}`;
-    mountWorkers.push([id, {cmd: 'NA', watch: undefined}]);
+  for (const [id, workerConfig] of registeredWorkers) {
+    if (!id.startsWith('mount:')) {
+      continue;
+    }
+
+    const cmdArr = workerConfig.cmd.split(/\s+/);
+    if (cmdArr[0] !== 'mount') {
+      throw new Error(`script[${id}] must use the mount command`);
+    }
+    cmdArr.unshift();
+    let dirUrl, dirDisk;
+    if (cmdArr.length === 1) {
+      dirDisk = path.resolve(cwd, cmdArr[0]);
+      dirUrl = cmdArr[0];
+    } else {
+      const {from, to} = yargs(cmdArr);
+      dirDisk = path.resolve(cwd, from);
+      dirUrl = to;
+    }
+    mountedDirectories.push(dirDisk, dirUrl);
     setTimeout(() => messageBus.emit('WORKER_UPDATE', {id, state: ['DONE', 'green']}), 400);
   }
 
   for (const [id, workerConfig] of registeredWorkers) {
     let {cmd} = workerConfig;
+
     if (!id.startsWith('buildall:') && !id.startsWith('lintall:')) {
       continue;
     }
@@ -378,7 +397,7 @@ export async function command({cwd, port, config}: DevOptions) {
           .catch(() => null /* ignore */);
       }
 
-      for (const [dirDisk, dirUrl] of config.dev.mount) {
+      for (const [dirDisk, dirUrl] of mountedDirectories) {
         if (fileLoc) {
           continue;
         }
@@ -529,6 +548,6 @@ export async function command({cwd, port, config}: DevOptions) {
     messageBus.emit('CONSOLE', {level: 'error', args});
   };
 
-  paint(messageBus, [...mountWorkers, ...registeredWorkers], true);
+  paint(messageBus, registeredWorkers, true);
   return new Promise(() => {});
 }
