@@ -32,7 +32,8 @@ export interface SnowpackConfig {
     src: string;
     dist: string;
     mount: [string, string][];
-    fallback?: string;
+    bundle: boolean;
+    fallback: string;
   };
   scripts: DevScripts;
   installOptions: {
@@ -89,6 +90,8 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     src: 'src',
     out: 'build',
     dist: '/_dist_/',
+    fallback: 'index.html',
+    bundle: false,
     mount: [],
   },
   rollup: {plugins: []},
@@ -152,6 +155,7 @@ const configSchema = {
         out: {type: 'string'},
         dist: {type: 'string'},
         mount: {type: 'array', items: {type: 'array', items: {type: 'string'}}},
+        bundle: {type: 'boolean'},
         fallback: {type: 'string'},
       },
     },

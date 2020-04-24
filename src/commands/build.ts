@@ -3,10 +3,12 @@ import {EventEmitter} from 'events';
 import execa from 'execa';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
-import fs from 'fs';
+import {promises as fs, createReadStream, existsSync} from 'fs';
+import os from 'os';
 import glob from 'glob';
 import {SnowpackConfig, DevScript} from '../config';
 import {paint} from './paint';
+import rimraf from 'rimraf';
 const {copy} = require('fs-extra');
 
 interface DevOptions {
@@ -19,15 +21,27 @@ export async function command({cwd, config}: DevOptions) {
   console.log('NOTE: Still experimental, default behavior may change.');
 
   const messageBus = new EventEmitter();
-  const registeredWorkers = Object.entries(config.scripts);
+  const allRegisteredWorkers = Object.entries(config.scripts);
+  const relevantWorkers: [string, DevScript][] = [];
+  const allWorkerPromises: Promise<any>[] = [];
 
-  const buildDirectoryLoc = config.dev.out;
+  const isBundled = config.dev.bundle;
+  const finalDirectoryLoc = config.dev.out;
+  const buildDirectoryLoc = isBundled
+    ? await fs.mkdtemp(path.join(os.tmpdir(), `snowpack-build`))
+    : config.dev.out;
   const distDirectoryLoc = path.join(buildDirectoryLoc, config.dev.dist);
-  const mountWorkers: [string, DevScript][] = [];
+
+  rimraf.sync(finalDirectoryLoc);
 
   for (const [dirDisk, dirUrl] of config.dev.mount) {
     const id = `mount:${path.relative(cwd, dirDisk)}`;
-    mountWorkers.push([id, {cmd: 'NA', watch: undefined}]);
+    relevantWorkers.push([id, {cmd: 'NA', watch: undefined}]);
+  }
+  for (const [id, workerConfig] of allRegisteredWorkers) {
+    if (id.startsWith('build:')) {
+      relevantWorkers.push([id, workerConfig]);
+    }
   }
 
   console.log = (...args) => {
@@ -40,13 +54,19 @@ export async function command({cwd, config}: DevOptions) {
     messageBus.emit('CONSOLE', {level: 'error', args});
   };
 
-  paint(messageBus, [...mountWorkers, ...registeredWorkers], false);
+  if (isBundled) {
+    relevantWorkers.push(['bundle:*', {cmd: 'NA', watch: undefined}]);
+  }
 
+  paint(messageBus, relevantWorkers, false);
+
+  let lastMountPromise = Promise.resolve();
   for (const [dirDisk, dirUrl] of config.dev.mount) {
     const id = `mount:${path.relative(cwd, dirDisk)}`;
     const destinationFile =
       dirUrl === '.' ? path.join(buildDirectoryLoc, dirUrl) : path.join(buildDirectoryLoc, dirUrl);
-    const copyMountPromise = copy(dirDisk, destinationFile);
+    const copyMountPromise = lastMountPromise.then(() => copy(dirDisk, destinationFile));
+    lastMountPromise = copyMountPromise;
     copyMountPromise.catch((err) => {
       messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
       messageBus.emit('WORKER_COMPLETE', {id, error: err});
@@ -54,10 +74,10 @@ export async function command({cwd, config}: DevOptions) {
     copyMountPromise.then(() => {
       messageBus.emit('WORKER_COMPLETE', {id, error: null});
     });
-    mountWorkers.push([id, {cmd: 'NA', watch: undefined}]);
+    allWorkerPromises.push(copyMountPromise);
   }
 
-  for (const [id, workerConfig] of registeredWorkers) {
+  for (const [id, workerConfig] of allRegisteredWorkers) {
     let {cmd} = workerConfig;
     if (!id.startsWith('build:')) {
       continue;
@@ -83,7 +103,7 @@ export async function command({cwd, config}: DevOptions) {
         env: npmRunPath.env(),
         extendEnv: true,
         shell: true,
-        input: fs.createReadStream(f),
+        input: createReadStream(f),
       });
       if (stderr) {
         const missingWebModuleRegex = /warn\: bare import "(.*?)" not found in import map\, ignoring\.\.\./m;
@@ -102,19 +122,20 @@ export async function command({cwd, config}: DevOptions) {
           outPath = outPath.replace(new RegExp(`${ext}$`), extToReplace!);
         }
       }
-      fs.mkdirSync(path.dirname(outPath), {recursive: true});
-      fs.writeFileSync(outPath, stdout);
+      await fs.mkdir(path.dirname(outPath), {recursive: true});
+      await fs.writeFile(outPath, stdout);
     }
     messageBus.emit('WORKER_COMPLETE', {id, error: null});
   }
 
-  for (const [id, workerConfig] of registeredWorkers) {
+  for (const [id, workerConfig] of allRegisteredWorkers) {
     let {cmd} = workerConfig;
     if (!id.startsWith('buildall:')) {
       continue;
     }
     cmd = cmd.replace(/\$DIST/g, distDirectoryLoc);
     const workerPromise = execa.command(cmd, {env: npmRunPath.env(), extendEnv: true, shell: true});
+    allWorkerPromises.push(workerPromise);
     workerPromise.catch((err) => {
       messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
       messageBus.emit('WORKER_COMPLETE', {id, error: err});
@@ -147,6 +168,35 @@ export async function command({cwd, config}: DevOptions) {
       messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
     });
     stderr?.on('data', (b) => {});
+  }
+
+  await Promise.all(allWorkerPromises);
+
+  if (buildDirectoryLoc !== finalDirectoryLoc) {
+    await fs.copyFile(path.join(cwd, 'package.json'), path.join(buildDirectoryLoc, 'package.json'));
+
+    await fs.writeFile(
+      path.join(buildDirectoryLoc, '.babelrc'),
+      `{"plugins": [["${require.resolve('@babel/plugin-syntax-import-meta')}"]]}`,
+    );
+
+    const bundleAppPromise = execa(
+      'parcel',
+      ['build', config.dev.fallback, '--out-dir', finalDirectoryLoc],
+      {
+        cwd: buildDirectoryLoc,
+        env: npmRunPath.env(),
+        extendEnv: true,
+      },
+    );
+    bundleAppPromise.catch((err) => {
+      messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'error', msg: err.toString()});
+      messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: err});
+    });
+    bundleAppPromise.then(() => {
+      messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
+    });
+    await bundleAppPromise;
   }
 
   return new Promise(() => {});
