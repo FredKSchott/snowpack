@@ -54,17 +54,28 @@ function removeSpecifierQueryString(specifier: string) {
 }
 
 function getWebModuleSpecifierFromCode(code: string, imp: ImportSpecifier) {
-  if (imp.d > -1) {
-    return code.substring(imp.s + 1, imp.e - 1);
+  // import.meta: we can ignore
+  if (imp.d === -2) {
+    return null;
   }
-  return code.substring(imp.s, imp.e);
+  // Static imports: easy to parse
+  if (imp.d === -1) {
+    return code.substring(imp.s, imp.e);
+  }
+  // Dynamic imports: a bit trickier to parse. Today, we only support string literals.
+  const importStatement = code.substring(imp.s, imp.e);
+  const importSpecifierMatch = importStatement.match(/^\s*['"](.*)['"]\s*$/m);
+  return importSpecifierMatch ? importSpecifierMatch[1] : null;
 }
 
 /**
  * parses an import specifier, looking for a web modules to install. If a web module is not detected,
  * null is returned.
  */
-function parseWebModuleSpecifier(specifier: string): null | string {
+function parseWebModuleSpecifier(specifier: string | null): null | string {
+  if (!specifier) {
+    return null;
+  }
   // If specifier is a "bare module specifier" (ie: package name) just return it directly
   if (BARE_SPECIFIER_REGEX.test(specifier)) {
     return specifier;
@@ -90,7 +101,6 @@ function parseWebModuleSpecifier(specifier: string): null | string {
 
 function parseImportStatement(code: string, imp: ImportSpecifier): null | InstallTarget {
   const webModuleSpecifier = parseWebModuleSpecifier(getWebModuleSpecifierFromCode(code, imp));
-
   if (!webModuleSpecifier) {
     return null;
   }

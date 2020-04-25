@@ -1,4 +1,9 @@
 // test 4: dynamic export
+import(`bad:${'template'}-string`);
+
+const badVariable = 'bad:cant-scan-a-variable';
+import(badVariable);
+
 import('/web_modules/http-vue-loader/src/httpVueLoader.js').then((httpVueLoader) => {
   Vue.use(httpVueLoader);
 
