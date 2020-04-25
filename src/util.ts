@@ -65,13 +65,8 @@ export function resolveDependencyManifest(dep: string, cwd: string) {
     const depManifest = require.resolve(`${dep}/package.json`, {paths: [cwd]});
     return [depManifest, require(depManifest)];
   } catch (err) {
-    if (
-      (err.code === 'MODULE_NOT_FOUND' || err.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') &&
-      err.message.includes(`'./package.json'`)
-    ) {
-      // its most likely an export map issue, move on to our manual resolver.
-      // TODO(03-2020): Remove MODULE_NOT_FOUND check (only needed for Node v13.1-v13.9).
-    } else {
+    // if its an export map issue, move on to our manual resolver.
+    if (err.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
       throw err;
     }
   }
