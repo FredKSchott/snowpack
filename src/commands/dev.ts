@@ -233,8 +233,8 @@ export async function command({cwd, port, config}: DevOptions) {
       dirDisk = path.resolve(cwd, cmdArr[0]);
       dirUrl = cmdArr[0];
     } else {
-      const {from, to} = yargs(cmdArr);
-      dirDisk = path.resolve(cwd, from);
+      const {to} = yargs(cmdArr);
+      dirDisk = path.resolve(cwd, cmdArr[0]);
       dirUrl = to;
     }
     mountedDirectories.push([dirDisk, dirUrl]);

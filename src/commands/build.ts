@@ -116,12 +116,9 @@ export async function command({cwd, config}: DevOptions) {
       if (cmdArr.length === 1) {
         dirDisk = path.resolve(cwd, cmdArr[0]);
         dirUrl = cmdArr[0];
-      } else if (cmdArr.length === 2) {
-        dirDisk = path.resolve(cwd, cmdArr[0]);
-        dirUrl = cmdArr[1];
       } else {
-        const {from, to} = yargs(cmdArr);
-        dirDisk = path.resolve(cwd, from);
+        const {to} = yargs(cmdArr);
+        dirDisk = path.resolve(cwd, cmdArr[0]);
         dirUrl = to;
       }
 
