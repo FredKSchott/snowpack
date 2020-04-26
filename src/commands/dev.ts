@@ -38,6 +38,7 @@ import {SnowpackConfig, DevScript} from '../config';
 import {paint} from './paint';
 import yargs from 'yargs-parser';
 import srcFileExtensionMapping from './src-file-extension-mapping';
+import {transformEsmImports} from '../rewrite-imports';
 
 // const FILE_CACHE = new Map<string, string>();
 
@@ -120,6 +121,7 @@ export async function command({cwd, port, config}: DevOptions) {
 
   const liveReloadClients: http.ServerResponse[] = [];
   const messageBus = new EventEmitter();
+  const serverStart = Date.now();
 
   // const {dest: webModulesLoc} = config.installOptions;
   // const babelUserConfig = babel.loadPartialConfig({cwd}) || {options: {}};
@@ -242,7 +244,7 @@ export async function command({cwd, port, config}: DevOptions) {
   for (const [id, workerConfig] of registeredWorkers) {
     let {cmd} = workerConfig;
 
-    if (!id.startsWith('buildall:') && !id.startsWith('lintall:')) {
+    if (!id.startsWith('lintall:')) {
       continue;
     }
     if (workerConfig.watch) {
@@ -346,7 +348,7 @@ export async function command({cwd, port, config}: DevOptions) {
           fileLoc ||
           !resource.startsWith(config.dev.dist) ||
           !requestedFileExt ||
-          !id.startsWith('build:')
+          (!id.startsWith('build:') && !id.startsWith('plugin:'))
         ) {
           continue;
         }
@@ -369,23 +371,96 @@ export async function command({cwd, port, config}: DevOptions) {
         if (!fileLoc) {
           continue;
         }
-        fileBuilder = async (code: string) => {
-          const {stdout, stderr} = await execa.command(cmd, {
-            env: npmRunPath.env(),
-            extendEnv: true,
-            shell: true,
-            input: code,
-          });
-          if (stderr) {
-            const missingWebModuleRegex = /warn\: bare import "(.*?)" not found in import map\, ignoring\.\.\./m;
-            const missingWebModuleMatch = stderr.match(missingWebModuleRegex);
-            if (missingWebModuleMatch) {
-              messageBus.emit('MISSING_WEB_MODULE', {specifier: missingWebModuleMatch[1]});
+        if (id.startsWith('plugin:')) {
+          const {build} = require(cmd);
+          fileBuilder = async (code: string) => {
+            try {
+              let {result} = await build(fileLoc);
+              return result;
+            } catch (err) {
+              err.message = `[${id}] ${err.message}`;
+              console.error(err);
+              return '';
             }
-            console.error(stderr);
-          }
-          return stdout;
-        };
+          };
+          //   let files: string[];
+          //   const extMatcher = id.split(':')[1];
+          //   if (extMatcher.includes(',')) {
+          //     files = glob.sync(`${config.dev.src}/**/*.{${extMatcher}}`, {
+          //       nodir: true,
+          //       ignore: [
+          //         `${config.dev.src}/**/__tests__/**/*.{js,jsx,ts,tsx}`,
+          //         `${config.dev.src}/**/*.{spec,test}.{js,jsx,ts,tsx}`,
+          //       ],
+          //     });
+          //   } else {
+          //     files = glob.sync(`${config.dev.src}/**/*.${extMatcher}`, {
+          //       nodir: true,
+          //       ignore: [
+          //         `${config.dev.src}/**/__tests__/**/*.{js,jsx,ts,tsx}`,
+          //         `${config.dev.src}/**/*.{spec,test}.{js,jsx,ts,tsx}`,
+          //       ],
+          //     });
+          //   }
+          //   const {build} = require(cmd);
+          //   for (const f of files) {
+          //     try {
+          //       var {result} = await build(f);
+          //     } catch (err) {
+          //       err.message = `[${id}] ${err.message}`;
+          //       console.error(err);
+          //       messageBus.emit('WORKER_COMPLETE', {id, error: err});
+          //       continue;
+          //     }
+          //     let outPath = f.replace(config.dev.src, distDirectoryLoc);
+          //     const extToFind = path.extname(f).substr(1);
+          //     const extToReplace = srcFileExtensionMapping[extToFind];
+          //     if (extToReplace) {
+          //       outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace);
+          //     }
+          //     let code = result;
+          //     if (path.extname(outPath) === '.js') {
+          //       code = await transformEsmImports(code, (spec) => {
+          //         if (spec.startsWith('http') || spec.startsWith('/')) {
+          //           return spec;
+          //         }
+          //         if (spec.startsWith('./') || spec.startsWith('../')) {
+          //           const ext = path.extname(spec).substr(1);
+          //           const extToReplace = srcFileExtensionMapping[ext];
+          //           if (extToReplace) {
+          //             return spec.replace(new RegExp(`${ext}$`), extToReplace);
+          //           }
+          //           return spec;
+          //         }
+          //         return `/web_modules/${spec}.js`;
+          //       });
+          //     }
+          //     await fs.mkdir(path.dirname(outPath), {recursive: true});
+          //     await fs.writeFile(outPath, code);
+          //   }
+          //   messageBus.emit('WORKER_COMPLETE', {id, error: null});
+          // }
+          continue;
+        }
+        if (id.startsWith('build:')) {
+          fileBuilder = async (code: string) => {
+            const {stdout, stderr} = await execa.command(cmd, {
+              env: npmRunPath.env(),
+              extendEnv: true,
+              shell: true,
+              input: code,
+            });
+            if (stderr) {
+              const missingWebModuleRegex = /warn\: bare import "(.*?)" not found in import map\, ignoring\.\.\./m;
+              const missingWebModuleMatch = stderr.match(missingWebModuleRegex);
+              if (missingWebModuleMatch) {
+                messageBus.emit('MISSING_WEB_MODULE', {specifier: missingWebModuleMatch[1]});
+              }
+              console.error(stderr);
+            }
+            return stdout;
+          };
+        }
       }
 
       for (const dirDisk of workerDirectories) {
@@ -484,6 +559,26 @@ export async function command({cwd, port, config}: DevOptions) {
         if (fileBuilder) {
           fileContents = await fileBuilder(fileContents);
         }
+        if (requestedFileExt === '.js') {
+          fileContents = await transformEsmImports(fileContents, (spec) => {
+            if (spec.startsWith('http') || spec.startsWith('/')) {
+              return spec;
+            }
+            if (spec.startsWith('./') || spec.startsWith('../')) {
+              const ext = path.extname(spec).substr(1);
+              if (!ext) {
+                console.error(`${fileLoc}: Import ${spec} is missing a required file extension`);
+                return spec;
+              }
+              const extToReplace = srcFileExtensionMapping[ext];
+              if (extToReplace) {
+                return spec.replace(new RegExp(`${ext}$`), extToReplace);
+              }
+              return spec;
+            }
+            return `/web_modules/${spec}.js`;
+          });
+        }
       } catch (err) {
         console.error(fileLoc, err);
         return sendError(res, 500);
@@ -550,6 +645,10 @@ export async function command({cwd, port, config}: DevOptions) {
     messageBus.emit('CONSOLE', {level: 'error', args});
   };
 
-  paint(messageBus, registeredWorkers, true);
+  const ips = Object.values(os.networkInterfaces())
+    .reduce((every: os.NetworkInterfaceInfo[], i) => [...every, ...(i || [])], [])
+    .filter((i) => i.family === 'IPv4' && i.internal === false)
+    .map((i) => i.address);
+  paint(messageBus, registeredWorkers, {port, ips, startTimeMs: Date.now() - serverStart});
   return new Promise(() => {});
 }

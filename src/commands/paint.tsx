@@ -24,7 +24,7 @@ const WORKER_BASE_STATE = {done: false, error: null, output: ''};
 export function paint(
   bus: EventEmitter,
   registeredWorkers: [string, DevScript][],
-  isWatch: boolean,
+  devMode?: {port: number; ips: string[]; startTimeMs: number},
 ) {
   let consoleOutput = '';
   let hasBeenCleared = false;
@@ -39,11 +39,19 @@ export function paint(
     process.stdout.write(ansiEscapes.clearTerminal);
     process.stdout.write(`${chalk.bold('☶ Snowpack')}\n\n`);
     // Dashboard
+    if (devMode) {
+      process.stdout.write(`  ${chalk.bold.cyan(`http://localhost:${devMode.port},`)}`);
+      for (const ip of devMode.ips) {
+        process.stdout.write(` ${chalk.bold.cyan(`http://${ip}:${devMode.port}`)}`);
+      }
+      process.stdout.write('\n' + chalk.dim(`  Server started in ${devMode.startTimeMs}ms.\n\n`));
+    }
+
     for (const [workerId, config] of registeredWorkers) {
       const workerState = allWorkerStates[workerId];
       const dotLength = 24 - workerId.length;
       const dots = ''.padEnd(dotLength, '.');
-      const stateStr = getStateString(workerState, isWatch);
+      const stateStr = getStateString(workerState, !!devMode);
       process.stdout.write(`  ${workerId}${chalk.dim(dots)}[${stateStr}]\n`);
     }
     process.stdout.write('\n');

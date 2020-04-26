@@ -11,6 +11,7 @@ import {paint} from './paint';
 import rimraf from 'rimraf';
 import yargs from 'yargs-parser';
 import srcFileExtensionMapping from './src-file-extension-mapping';
+import {transformEsmImports} from '../rewrite-imports';
 const {copy} = require('fs-extra');
 
 interface DevOptions {
@@ -39,8 +40,8 @@ export async function command({cwd, config}: DevOptions) {
   for (const [id, workerConfig] of allRegisteredWorkers) {
     if (
       id.startsWith('build:') ||
-      id.startsWith('buildall:') ||
       id.startsWith('plugin:') ||
+      id.startsWith('lintall:') ||
       id.startsWith('mount:')
     ) {
       relevantWorkers.push([id, workerConfig]);
@@ -61,9 +62,49 @@ export async function command({cwd, config}: DevOptions) {
     relevantWorkers.push(['bundle:*', {cmd: 'NA', watch: undefined}]);
   }
 
-  paint(messageBus, relevantWorkers, false);
+  paint(messageBus, relevantWorkers);
 
   for (const [id, workerConfig] of relevantWorkers) {
+    if (id.startsWith('lintall:')) {
+      const workerPromise = execa.command(workerConfig.cmd, {
+        env: npmRunPath.env(),
+        extendEnv: true,
+        shell: true,
+      });
+      allWorkerPromises.push(workerPromise);
+      workerPromise.catch((err) => {
+        messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
+        messageBus.emit('WORKER_COMPLETE', {id, error: err});
+      });
+      workerPromise.then(() => {
+        messageBus.emit('WORKER_COMPLETE', {id, error: null});
+      });
+      const {stdout, stderr} = workerPromise;
+      stdout?.on('data', (b) => {
+        let stdOutput = b.toString();
+        if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
+          messageBus.emit('WORKER_RESET', {id});
+          stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
+        }
+        if (id.endsWith(':tsc')) {
+          if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
+            messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+          }
+          if (/Watching for file changes./gm.test(stdOutput)) {
+            messageBus.emit('WORKER_UPDATE', {id, state: 'WATCHING'});
+          }
+          const errorMatch = stdOutput.match(/Found (\d+) error/);
+          if (errorMatch && errorMatch[1] !== '0') {
+            messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
+          }
+        }
+        messageBus.emit('WORKER_MSG', {id, level: 'log', msg: stdOutput});
+      });
+      stderr?.on('data', (b) => {
+        messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
+      });
+    }
+
     let {cmd} = workerConfig;
     if (id.startsWith('mount:')) {
       const cmdArr = workerConfig.cmd.split(/\s+/);
@@ -132,15 +173,34 @@ export async function command({cwd, config}: DevOptions) {
           continue;
         }
         let outPath = f.replace(config.dev.src, distDirectoryLoc);
-        const extsToFind = id.split(':')[1].split(',');
-        for (const ext of extsToFind) {
-          const extToReplace = srcFileExtensionMapping[ext];
-          if (extToReplace) {
-            outPath = outPath.replace(new RegExp(`${ext}$`), extToReplace!);
-          }
+        const extToFind = path.extname(f).substr(1);
+        const extToReplace = srcFileExtensionMapping[extToFind];
+        if (extToReplace) {
+          outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace!);
+        }
+        let code = stdout;
+        if (path.extname(outPath) === '.js') {
+          code = await transformEsmImports(code, (spec) => {
+            if (spec.startsWith('http') || spec.startsWith('/')) {
+              return spec;
+            }
+            if (spec.startsWith('./') || spec.startsWith('../')) {
+              const ext = path.extname(spec).substr(1);
+              if (!ext) {
+                console.error(`${f}: Import ${spec} is missing a required file extension.`);
+                return spec;
+              }
+              const extToReplace = srcFileExtensionMapping[ext];
+              if (extToReplace) {
+                return spec.replace(new RegExp(`${ext}$`), extToReplace);
+              }
+              return spec;
+            }
+            return `/web_modules/${spec}.js`;
+          });
         }
         await fs.mkdir(path.dirname(outPath), {recursive: true});
-        await fs.writeFile(outPath, stdout);
+        await fs.writeFile(outPath, code);
       }
       messageBus.emit('WORKER_COMPLETE', {id, error: null});
     }
@@ -180,51 +240,31 @@ export async function command({cwd, config}: DevOptions) {
         if (extToReplace) {
           outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace);
         }
+        let code = result;
+        if (path.extname(outPath) === '.js') {
+          code = await transformEsmImports(code, (spec) => {
+            if (spec.startsWith('http') || spec.startsWith('/')) {
+              return spec;
+            }
+            if (spec.startsWith('./') || spec.startsWith('../')) {
+              const ext = path.extname(spec).substr(1);
+              if (!ext) {
+                console.error(`${f}: Import ${spec} is missing a required file extension.`);
+                return spec;
+              }
+              const extToReplace = srcFileExtensionMapping[ext];
+              if (extToReplace) {
+                return spec.replace(new RegExp(`${ext}$`), extToReplace);
+              }
+              return spec;
+            }
+            return `/web_modules/${spec}.js`;
+          });
+        }
         await fs.mkdir(path.dirname(outPath), {recursive: true});
-        await fs.writeFile(outPath, result);
+        await fs.writeFile(outPath, code);
       }
       messageBus.emit('WORKER_COMPLETE', {id, error: null});
-    }
-    if (id.startsWith('buildall:')) {
-      cmd = cmd.replace(/\$DIST/g, distDirectoryLoc);
-      const workerPromise = execa.command(cmd, {
-        env: npmRunPath.env(),
-        extendEnv: true,
-        shell: true,
-      });
-      allWorkerPromises.push(workerPromise);
-      workerPromise.catch((err) => {
-        messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
-        messageBus.emit('WORKER_COMPLETE', {id, error: err});
-      });
-      workerPromise.then(() => {
-        messageBus.emit('WORKER_COMPLETE', {id, error: null});
-      });
-      const {stdout, stderr} = workerPromise;
-      stdout?.on('data', (b) => {
-        let stdOutput = b.toString();
-        if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
-          messageBus.emit('WORKER_RESET', {id});
-          stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
-        }
-        if (id.endsWith(':tsc')) {
-          if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
-            messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-          }
-          if (/Watching for file changes./gm.test(stdOutput)) {
-            messageBus.emit('WORKER_UPDATE', {id, state: 'WATCHING'});
-          }
-          const errorMatch = stdOutput.match(/Found (\d+) error/);
-          if (errorMatch && errorMatch[1] !== '0') {
-            messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
-          }
-        }
-        messageBus.emit('WORKER_MSG', {id, level: 'log', msg: stdOutput});
-      });
-      stderr?.on('data', (b) => {
-        messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
-      });
-      stderr?.on('data', (b) => {});
     }
   }
 
