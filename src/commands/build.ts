@@ -37,7 +37,12 @@ export async function command({cwd, config}: DevOptions) {
   rimraf.sync(finalDirectoryLoc);
 
   for (const [id, workerConfig] of allRegisteredWorkers) {
-    if (id.startsWith('build:') || id.startsWith('buildall:') || id.startsWith('mount:')) {
+    if (
+      id.startsWith('build:') ||
+      id.startsWith('buildall:') ||
+      id.startsWith('plugin:') ||
+      id.startsWith('mount:')
+    ) {
       relevantWorkers.push([id, workerConfig]);
     }
   }
@@ -136,6 +141,47 @@ export async function command({cwd, config}: DevOptions) {
         }
         await fs.mkdir(path.dirname(outPath), {recursive: true});
         await fs.writeFile(outPath, stdout);
+      }
+      messageBus.emit('WORKER_COMPLETE', {id, error: null});
+    }
+    if (id.startsWith('plugin:')) {
+      let files: string[];
+      const extMatcher = id.split(':')[1];
+      if (extMatcher.includes(',')) {
+        files = glob.sync(`${config.dev.src}/**/*.{${extMatcher}}`, {
+          nodir: true,
+          ignore: [
+            `${config.dev.src}/**/__tests__/**/*.{js,jsx,ts,tsx}`,
+            `${config.dev.src}/**/*.{spec,test}.{js,jsx,ts,tsx}`,
+          ],
+        });
+      } else {
+        files = glob.sync(`${config.dev.src}/**/*.${extMatcher}`, {
+          nodir: true,
+          ignore: [
+            `${config.dev.src}/**/__tests__/**/*.{js,jsx,ts,tsx}`,
+            `${config.dev.src}/**/*.{spec,test}.{js,jsx,ts,tsx}`,
+          ],
+        });
+      }
+      const {build} = require(cmd);
+      for (const f of files) {
+        try {
+          var {result} = await build(f);
+        } catch (err) {
+          err.message = `[${id}] ${err.message}`;
+          console.error(err);
+          messageBus.emit('WORKER_COMPLETE', {id, error: err});
+          continue;
+        }
+        let outPath = f.replace(config.dev.src, distDirectoryLoc);
+        const extToFind = path.extname(f).substr(1);
+        const extToReplace = srcFileExtensionMapping[extToFind];
+        if (extToReplace) {
+          outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace);
+        }
+        await fs.mkdir(path.dirname(outPath), {recursive: true});
+        await fs.writeFile(outPath, result);
       }
       messageBus.emit('WORKER_COMPLETE', {id, error: null});
     }
