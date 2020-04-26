@@ -10,6 +10,7 @@ import {SnowpackConfig, DevScript} from '../config';
 import {paint} from './paint';
 import rimraf from 'rimraf';
 import yargs from 'yargs-parser';
+import srcFileExtensionMapping from './src-file-extension-mapping';
 const {copy} = require('fs-extra');
 
 interface DevOptions {
@@ -90,8 +91,7 @@ export async function command({cwd, config}: DevOptions) {
     }
     if (id.startsWith('build:')) {
       let files: string[];
-      const extMatcher = id.split('::')[1] || id.split(':')[1];
-      // const ext = extMatcher === '*' ? extMatcher.split(',')[0];
+      const extMatcher = id.split(':')[1];
       if (extMatcher.includes(',')) {
         files = glob.sync(`${config.dev.src}/**/*.{${extMatcher}}`, {
           nodir: true,
@@ -127,10 +127,10 @@ export async function command({cwd, config}: DevOptions) {
           continue;
         }
         let outPath = f.replace(config.dev.src, distDirectoryLoc);
-        if (id.split('::')[1]) {
-          const extsToFind = id.split('::')[1].split(',');
-          const extToReplace = id.split(':')[1];
-          for (const ext of extsToFind) {
+        const extsToFind = id.split(':')[1].split(',');
+        for (const ext of extsToFind) {
+          const extToReplace = srcFileExtensionMapping[ext];
+          if (extToReplace) {
             outPath = outPath.replace(new RegExp(`${ext}$`), extToReplace!);
           }
         }

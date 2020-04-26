@@ -37,6 +37,7 @@ import os from 'os';
 import {SnowpackConfig, DevScript} from '../config';
 import {paint} from './paint';
 import yargs from 'yargs-parser';
+import srcFileExtensionMapping from './src-file-extension-mapping';
 
 // const FILE_CACHE = new Map<string, string>();
 
@@ -349,24 +350,25 @@ export async function command({cwd, port, config}: DevOptions) {
         ) {
           continue;
         }
-        const srcExtMatchers =
-          id.split('::').length > 1 ? id.split('::')[1].split(',') : id.split(':')[1].split(',');
-        const destExtMatcher = id.split(':')[1];
-        if (destExtMatcher !== requestedFileExt.substr(1)) {
-          continue;
-        }
-
+        const srcExtMatchers = id.split(':')[1].split(',');
         const {cmd} = workerConfig;
         let requestedFile = path.join(config.dev.src, resource.replace(`${config.dev.dist}`, ''));
         for (const ext of srcExtMatchers) {
-          fileLoc =
-            fileLoc ||
-            (await fs
-              .stat(requestedFile.replace(requestedFileExt, `.${ext}`))
-              .then(() => requestedFile.replace(requestedFileExt, `.${ext}`))
-              .catch(() => null /* ignore */));
+          if (
+            !srcFileExtensionMapping[ext] ||
+            srcFileExtensionMapping[ext] === requestedFileExt.substr(1)
+          ) {
+            fileLoc =
+              fileLoc ||
+              (await fs
+                .stat(requestedFile.replace(requestedFileExt, `.${ext}`))
+                .then(() => requestedFile.replace(requestedFileExt, `.${ext}`))
+                .catch(() => null /* ignore */));
+          }
         }
-
+        if (!fileLoc) {
+          continue;
+        }
         fileBuilder = async (code: string) => {
           const {stdout, stderr} = await execa.command(cmd, {
             env: npmRunPath.env(),
