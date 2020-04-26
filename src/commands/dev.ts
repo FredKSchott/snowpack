@@ -227,7 +227,7 @@ export async function command({cwd, port, config}: DevOptions) {
     if (cmdArr[0] !== 'mount') {
       throw new Error(`script[${id}] must use the mount command`);
     }
-    cmdArr.unshift();
+    cmdArr.shift();
     let dirUrl, dirDisk;
     if (cmdArr.length === 1) {
       dirDisk = path.resolve(cwd, cmdArr[0]);
@@ -649,6 +649,10 @@ export async function command({cwd, port, config}: DevOptions) {
     .reduce((every: os.NetworkInterfaceInfo[], i) => [...every, ...(i || [])], [])
     .filter((i) => i.family === 'IPv4' && i.internal === false)
     .map((i) => i.address);
-  paint(messageBus, registeredWorkers, {port, ips, startTimeMs: Date.now() - serverStart});
+  paint(messageBus, registeredWorkers, undefined, {
+    port,
+    ips,
+    startTimeMs: Date.now() - serverStart,
+  });
   return new Promise(() => {});
 }

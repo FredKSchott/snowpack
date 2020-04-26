@@ -24,7 +24,8 @@ const WORKER_BASE_STATE = {done: false, error: null, output: ''};
 export function paint(
   bus: EventEmitter,
   registeredWorkers: [string, DevScript][],
-  devMode?: {port: number; ips: string[]; startTimeMs: number},
+  buildMode: {dest: string} | undefined,
+  devMode: {port: number; ips: string[]; startTimeMs: number} | undefined,
 ) {
   let consoleOutput = '';
   let hasBeenCleared = false;
@@ -45,6 +46,10 @@ export function paint(
         process.stdout.write(` ${chalk.bold.cyan(`http://${ip}:${devMode.port}`)}`);
       }
       process.stdout.write('\n' + chalk.dim(`  Server started in ${devMode.startTimeMs}ms.\n\n`));
+    }
+    if (buildMode) {
+      process.stdout.write('  ' + chalk.bold.cyan(buildMode.dest));
+      process.stdout.write(chalk.dim(` Building your application...\n\n`));
     }
 
     for (const [workerId, config] of registeredWorkers) {
@@ -132,7 +137,7 @@ export function paint(
     repaint();
   });
   bus.on('CONSOLE', ({level, args}) => {
-    consoleOutput += `[${level}] ${args.join(' ')}\n`;
+    consoleOutput += `[${level}] ${args.map((arg) => JSON.stringify(arg, null, 2)).join(' ')}\n`;
     repaint();
   });
   bus.on('NEW_SESSION', () => {

@@ -62,7 +62,7 @@ export async function command({cwd, config}: DevOptions) {
     relevantWorkers.push(['bundle:*', {cmd: 'NA', watch: undefined}]);
   }
 
-  paint(messageBus, relevantWorkers);
+  paint(messageBus, relevantWorkers, {dest: config.dev.dist}, undefined);
 
   for (const [id, workerConfig] of relevantWorkers) {
     if (id.startsWith('lintall:')) {
@@ -111,7 +111,7 @@ export async function command({cwd, config}: DevOptions) {
       if (cmdArr[0] !== 'mount') {
         throw new Error(`script[${id}] must use the mount command`);
       }
-      cmdArr.unshift();
+      cmdArr.shift();
       let dirUrl, dirDisk;
       if (cmdArr.length === 1) {
         dirDisk = path.resolve(cwd, cmdArr[0]);
