@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@babel/core": "^7.9.0",
-    "@snowpack/app-scripts-svelte": "^0.1.0",
     "babel-jest": "^25.4.0",
     "jest-transform-svelte": "^2.1.1"
   }
