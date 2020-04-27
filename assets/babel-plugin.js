@@ -29,7 +29,7 @@ function readImportMapFile(explicitPath, webModulesDir) {
 
 function getImportMap(explicitPath, webModulesDir) {
   const fileContents = readImportMapFile(explicitPath, webModulesDir);
-  importMapJson = JSON.parse(fileContents);
+  const importMapJson = JSON.parse(fileContents);
   return importMapJson;
 }
 
