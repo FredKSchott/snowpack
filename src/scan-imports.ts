@@ -106,6 +106,10 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
   }
 
   const importStatement = code.substring(imp.ss, imp.se);
+  if (/^import\s+type/.test(importStatement)) {
+    return null;
+  }
+
   const dynamicImport = imp.d > -1;
   const defaultImport = !dynamicImport && DEFAULT_IMPORT_REGEX.test(importStatement);
   const namespaceImport = !dynamicImport && importStatement.includes('*');
