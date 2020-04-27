@@ -598,7 +598,7 @@ export async function cli(args: string[]) {
 
   spinner.start();
   const startTime = Date.now();
-  if (source === 'pika' && webDependencies && Object.keys(webDependencies).length > 0) {
+  if (source === 'pika') {
     newLockfile = await resolveTargetsFromRemoteCDN(
       installTargets,
       lockfile,
