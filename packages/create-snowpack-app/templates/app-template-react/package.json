@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-react",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,7 +17,7 @@
     "csz": "^1.2.0"
   },
   "devDependencies": {
-    "@snowpack/app-scripts-react": "^0.1.2",
+    "@snowpack/app-scripts-react": "^0.1.3",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/react": "^10.0.3",
     "jest": "^25.4.0",

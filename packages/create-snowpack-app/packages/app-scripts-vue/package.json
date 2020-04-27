@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-vue",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "main": "snowpack.config.js",
   "license": "MIT",
   "publishConfig": {
