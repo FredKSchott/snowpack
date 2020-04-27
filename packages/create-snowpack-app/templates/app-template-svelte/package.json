@@ -19,5 +19,6 @@
     "parcel-bundler": "^1.12.4",
     "snowpack": "^2.0.0-0",
     "svelte": "^3.21.0"
-  }
+  },
+  "gitHead": "0bf66ae9d3deb041bc048a475ce90828f93148a4"
 }

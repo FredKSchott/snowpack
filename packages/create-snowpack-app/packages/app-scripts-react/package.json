@@ -1,13 +1,10 @@
 {
   "name": "@snowpack/app-scripts-react",
   "version": "0.1.1",
-  "description": "",
   "main": "snowpack.config.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "publishConfig": {
+    "access": "public"
   },
-  "keywords": [],
-  "author": "",
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.8.4",
@@ -24,5 +21,6 @@
     "postcss-normalize": "^9.0.0",
     "postcss-preset-env": "^6.7.0",
     "react-app-polyfill": "^1.0.6"
-  }
+  },
+  "gitHead": "0bf66ae9d3deb041bc048a475ce90828f93148a4"
 }

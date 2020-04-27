@@ -1,13 +1,10 @@
 {
   "name": "@snowpack/app-scripts-svelte",
   "version": "0.1.1",
-  "description": "",
   "main": "snowpack.config.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "publishConfig": {
+    "access": "public"
   },
-  "keywords": [],
-  "author": "",
   "license": "MIT",
   "peerDependencies": {
     "svelte": "^3.21.0"
@@ -16,5 +13,6 @@
     "@babel/core": "^7.9.0",
     "babel-jest": "^25.4.0",
     "jest-transform-svelte": "^2.1.1"
-  }
+  },
+  "gitHead": "0bf66ae9d3deb041bc048a475ce90828f93148a4"
 }
