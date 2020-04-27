@@ -39,6 +39,7 @@ import {paint} from './paint';
 import yargs from 'yargs-parser';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 import {transformEsmImports} from '../rewrite-imports';
+import {ImportMap} from '../util';
 
 // const FILE_CACHE = new Map<string, string>();
 
@@ -122,6 +123,9 @@ export async function command({cwd, port, config}: DevOptions) {
   const liveReloadClients: http.ServerResponse[] = [];
   const messageBus = new EventEmitter();
   const serverStart = Date.now();
+
+  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
+  const dependencyImportMap: ImportMap = require(dependencyImportMapLoc);
 
   // const {dest: webModulesLoc} = config.installOptions;
   // const babelUserConfig = babel.loadPartialConfig({cwd}) || {options: {}};
@@ -451,11 +455,6 @@ export async function command({cwd, port, config}: DevOptions) {
               input: code,
             });
             if (stderr) {
-              const missingWebModuleRegex = /warn\: bare import "(.*?)" not found in import map\, ignoring\.\.\./m;
-              const missingWebModuleMatch = stderr.match(missingWebModuleRegex);
-              if (missingWebModuleMatch) {
-                messageBus.emit('MISSING_WEB_MODULE', {specifier: missingWebModuleMatch[1]});
-              }
               console.error(stderr);
             }
             return stdout;
@@ -576,6 +575,10 @@ export async function command({cwd, port, config}: DevOptions) {
               }
               return spec;
             }
+            if (dependencyImportMap.imports[spec]) {
+              return `/web_modules/${dependencyImportMap.imports[spec]}`;
+            }
+            messageBus.emit('MISSING_WEB_MODULE', {specifier: spec});
             return `/web_modules/${spec}.js`;
           });
         }

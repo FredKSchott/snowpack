@@ -38,12 +38,14 @@ export function paint(
 
   function repaint() {
     process.stdout.write(ansiEscapes.clearTerminal);
-    process.stdout.write(`${chalk.bold('☶ Snowpack')}\n\n`);
+    process.stdout.write(`${chalk.bold('Snowpack')}\n\n`);
     // Dashboard
     if (devMode) {
-      process.stdout.write(`  ${chalk.bold.cyan(`http://localhost:${devMode.port},`)}`);
+      process.stdout.write(`  ${chalk.bold.cyan(`http://localhost:${devMode.port}`)}`);
       for (const ip of devMode.ips) {
-        process.stdout.write(` ${chalk.bold.cyan(`http://${ip}:${devMode.port}`)}`);
+        process.stdout.write(
+          `${chalk.cyan(` > `)}${chalk.bold.cyan(`http://${ip}:${devMode.port}`)}`,
+        );
       }
       process.stdout.write('\n' + chalk.dim(`  Server started in ${devMode.startTimeMs}ms.\n\n`));
     }
@@ -60,6 +62,34 @@ export function paint(
       process.stdout.write(`  ${workerId}${chalk.dim(dots)}[${stateStr}]\n`);
     }
     process.stdout.write('\n');
+    if (missingWebModule) {
+      let [missingPackageName, ...deepPackagePathParts] = missingWebModule.split('/');
+      if (missingPackageName.startsWith('@')) {
+        missingPackageName += '/' + deepPackagePathParts.shift();
+      }
+      process.stdout.write(`${chalk.red.underline.bold('▼ Snowpack')}\n\n`);
+      process.stdout.write(`  Package ${chalk.bold(missingWebModule)} could not be found!\n`);
+      process.stdout.write(
+        `    1. Make sure that your ${chalk.bold(
+          'web_modules/',
+        )} directory is mounted correctly.\n`,
+      );
+      if (deepPackagePathParts.length > 0) {
+        process.stdout.write(
+          `    2. Add ${chalk.bold(missingPackageName)} to your package.json "dependencies".\n`,
+        );
+        process.stdout.write(
+          `    3. Add ${chalk.bold(
+            '"' + missingWebModule + '"',
+          )} to your Snowpack "entrypoints".\n`,
+        );
+      } else {
+        process.stdout.write(
+          `    2. Add ${chalk.bold(missingPackageName)} to your Snowpack "webDependencies".\n`,
+        );
+      }
+      process.stdout.write('\n');
+    }
     for (const [workerId, config] of registeredWorkers) {
       const workerState = allWorkerStates[workerId];
       if (workerState && workerState.output) {
@@ -84,21 +114,6 @@ export function paint(
           ? chalk.dim('  Output cleared.')
           : chalk.dim('  No output, yet.'),
       );
-      process.stdout.write('\n\n');
-    }
-    if (missingWebModule) {
-      process.stdout.write(`${chalk.red.underline.bold('▼ Snowpack')}\n\n`);
-      process.stdout.write(
-        `  ${chalk.bold(missingWebModule)} could not be found in your web_modules directory!\n\n`,
-      );
-      process.stdout.write(`  If this is a package:\n`);
-      process.stdout.write(`    - Add it to your set of "webDependencies".\n`);
-      process.stdout.write(`  If this is a file within a package:\n`);
-      process.stdout.write(
-        `    - Install the package with npm, and then add "${missingWebModule}" to your Snowpack "entrypoints".\n`,
-      );
-      process.stdout.write(`  If no packages are loading correctly:\n`);
-      process.stdout.write(`    - Your web_modules directory may not be mounted correctly.\n`);
       process.stdout.write('\n\n');
     }
     const overallStatus: any = Object.values(allWorkerStates).reduce(
@@ -141,10 +156,10 @@ export function paint(
     repaint();
   });
   bus.on('NEW_SESSION', () => {
+    missingWebModule = null;
     if (consoleOutput) {
       consoleOutput = ``;
       hasBeenCleared = true;
-      missingWebModule = null;
       repaint();
     }
   });
