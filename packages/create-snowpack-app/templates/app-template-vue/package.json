@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-vue",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
     "vue": "^3.0.0-0"
   },
   "devDependencies": {
-    "@snowpack/app-scripts-vue": "^0.0.1",
+    "@snowpack/app-scripts-vue": "^0.1.0",
     "@testing-library/vue": "^5.0.2",
     "jest": "^25.4.0",
     "parcel-bundler": "^1.12.4",

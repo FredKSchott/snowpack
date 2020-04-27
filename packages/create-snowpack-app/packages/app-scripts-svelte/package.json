@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-svelte",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "",
   "main": "snowpack.config.js",
   "scripts": {
@@ -9,13 +9,12 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "devDependencies": {},
   "peerDependencies": {
     "svelte": "^3.21.0"
   },
   "dependencies": {
     "@babel/core": "^7.9.0",
-    "@snowpack/app-scripts-svelte": "^0.0.1",
+    "@snowpack/app-scripts-svelte": "^0.1.0",
     "babel-jest": "^25.4.0",
     "jest-transform-svelte": "^2.1.1"
   }
