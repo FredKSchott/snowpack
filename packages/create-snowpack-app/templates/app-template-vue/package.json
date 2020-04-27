@@ -6,9 +6,9 @@
     "access": "public"
   },
   "scripts": {
-    "prepare": "../../../snowpack/pkg/dist-node/index.bin.js",
-    "start": "../../../snowpack/pkg/dist-node/index.bin.js dev",
-    "build": "NODE_ENV=production ../../../snowpack/pkg/dist-node/index.bin.js build",
+    "prepare": "snowpack",
+    "start": "snowpack dev",
+    "build": "NODE_ENV=production snowpack build",
     "test": "jest"
   },
   "webDependencies": {

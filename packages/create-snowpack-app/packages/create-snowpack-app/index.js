@@ -1,58 +1,69 @@
-const execa = require("execa");
+const execSync = require("child_process").execSync;
 const fs = require("fs");
 const path = require("path");
+const execa = require("execa");
 const yargs = require("yargs-parser");
-const { copy } = require("fs-extra");
+const { copy, removeSync } = require("fs-extra");
+const chalk = require("chalk");
 
-(async () => {
-  const { template, _ } = yargs(process.argv);
-  console.log(_);
+function validateArgs(args) {
+  const { template, yarn, _ } = yargs(args);
   if (_.length === 2) {
-    console.log(`Missing target directory`);
+    console.error(
+      `${chalk.red("[error]")} Missing target directory. ${chalk.dim(
+        chalk.underline("https://github.com/pikapkg/create-snowpack-app")
+      )}`
+    );
     process.exit(1);
   }
   if (!template) {
-    console.log(`Missing --template`);
+    console.error(
+      `${chalk.red("[error]")} Missing --template argument. ${chalk.dim(
+        chalk.underline("https://github.com/pikapkg/create-snowpack-app")
+      )}`
+    );
     process.exit(1);
   }
   if (_.length > 3) {
-    console.log(`Unexpected multiple arguments`);
+    console.error(
+      `${chalk.red("[error]")} Unexpected extra arguments. ${chalk.dim(
+        chalk.underline("https://github.com/pikapkg/create-snowpack-app")
+      )}`
+    );
     process.exit(1);
   }
-
-  const targetDirectory = path.resolve(process.cwd(), _[2]);
-
-  fs.mkdirSync(targetDirectory, { recursive: true });
-  console.log(targetDirectory);
-  execa.sync("npm", ["init", "--yes"], {
-    cwd: targetDirectory,
-  });
-  console.log(
-    execa.sync("npm", ["install", template, "--ignore-scripts"], {
-      cwd: targetDirectory,
-    })
-  );
-
-  const installedTemplate = path.join(
+  const targetDirectoryRelative = _[2];
+  const targetDirectory = path.resolve(process.cwd(), targetDirectoryRelative);
+  if (fs.existsSync(targetDirectory)) {
+    console.error(`${chalk.red("[error]")} ${targetDirectory} already exists`);
+    process.exit(1);
+  }
+  return {
+    template,
+    useYarn: !!yarn,
+    targetDirectoryRelative,
     targetDirectory,
-    "node_modules",
-    template
-  );
-  console.log(installedTemplate);
-  await copy(installedTemplate, targetDirectory);
+  };
+}
 
-  const newRootPackageManifest = path.join(targetDirectory, "package.json");
+async function cleanProject(dir) {
+  const packageManifest = path.join(dir, "package.json");
+  removeSync(path.join(dir, "package-lock.json"));
+  removeSync(path.join(dir, "node_modules"));
+
   const {
     scripts,
+    webDependencies,
     dependencies,
     devDependencies,
-  } = require(newRootPackageManifest);
-  const { install, start, build, test, ...otherScripts } = scripts;
-  await fs.promises.writeFile(
-    newRootPackageManifest,
+  } = require(packageManifest);
+  const { prepare, start, build, test, ...otherScripts } = scripts;
+  return fs.promises.writeFile(
+    packageManifest,
     JSON.stringify(
       {
-        scripts: { install, start, build, test, ...otherScripts },
+        scripts: { prepare, start, build, test, ...otherScripts },
+        webDependencies,
         dependencies,
         devDependencies,
       },
@@ -60,13 +71,38 @@ const { copy } = require("fs-extra");
       2
     )
   );
+}
 
-  // 1. verify target directory
-  // 2. verify template
-  // mkdir target
-  // const tarballUrl = `npm view level dist.tarball`
-  // download and unpack tarball to tmp directory
+const { template, useYarn, targetDirectory } = validateArgs(process.argv);
+const installedTemplate = path.join(targetDirectory, "node_modules", template);
 
-  // copy pkg/template dir to target-directory
-  // 3. install package
+(async () => {
+  console.log(`\n  - Using template ${chalk.cyan(template)}`);
+  console.log(`  - Creating a new project in ${chalk.cyan(targetDirectory)}`);
+
+  fs.mkdirSync(targetDirectory, { recursive: true });
+  await execa("npm", ["install", template, "--ignore-scripts"], {
+    cwd: targetDirectory,
+  });
+  await copy(installedTemplate, targetDirectory);
+  await cleanProject(targetDirectory);
+
+  console.log(
+    `  - Installing package dependencies. This might take a couple of minutes.\n`
+  );
+  const npmInstallProcess = execa(
+    useYarn ? "yarn" : "npm",
+    ["install", "--loglevel", "error"],
+    {
+      cwd: targetDirectory,
+      stdio: "inherit",
+    }
+  );
+  npmInstallProcess.stdout && npmInstallProcess.stdout.pipe(process.stdout);
+  npmInstallProcess.stderr && npmInstallProcess.stderr.pipe(process.stderr);
+  await npmInstallProcess;
+
+  console.log(`\n  - Initializing git repo.\n`);
+  await execa("git", ["init"], { cwd: targetDirectory });
+  console.log(`Success! `);
 })();

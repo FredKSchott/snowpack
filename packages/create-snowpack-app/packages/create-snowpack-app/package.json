@@ -7,7 +7,9 @@
     "access": "public"
   },
   "dependencies": {
+    "chalk": "^4.0.0",
     "execa": "^4.0.0",
+    "fs-extra": "^9.0.0",
     "yargs-parser": "^18.1.3"
   },
   "gitHead": "0bf66ae9d3deb041bc048a475ce90828f93148a4"
