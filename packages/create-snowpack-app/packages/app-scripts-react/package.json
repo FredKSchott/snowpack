@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "cssnano": "^4.1.10",
-    "jest-environment-jsdom-fourteen": "^1.0.1",
     "postcss-flexbugs-fixes": "^4.2.0",
     "postcss-normalize": "^9.0.0",
     "postcss-preset-env": "^6.7.0",

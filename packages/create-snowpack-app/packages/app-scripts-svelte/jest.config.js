@@ -17,6 +17,7 @@ module.exports = {
     "^.+\\.svelte$": "jest-transform-svelte",
     "^.+\\.js$": path.resolve(__dirname, "jest/babelTransform.js"),
   },
+
   moduleFileExtensions: ["js", "svelte"],
   testPathIgnorePatterns: ["node_modules"],
   transformIgnorePatterns: ["node_modules"],

@@ -17,7 +17,6 @@ module.exports = {
     "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
     "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}",
   ],
-  testEnvironment: "jest-environment-jsdom-fourteen",
   transform: {
     "^.+\\.(js|jsx|ts|tsx)$": path.resolve(__dirname, "jest/babelTransform.js"),
     "^.+\\.css$": path.resolve(__dirname, "jest/cssTransform.js"),
