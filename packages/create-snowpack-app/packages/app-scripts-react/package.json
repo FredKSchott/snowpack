@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "snowpack.config.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "postcss-cli": "^7.1.0"
   },
   "dependencies": {
-    "@snowpack/babel-plugin-asset-import": "^0.1.0",
+    "@snowpack/babel-plugin-asset-import": "^0.1.1",
     "cssnano": "^4.1.10",
     "postcss-flexbugs-fixes": "^4.2.0",
     "postcss-normalize": "^9.0.0",
