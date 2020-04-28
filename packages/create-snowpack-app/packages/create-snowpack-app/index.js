@@ -8,7 +8,7 @@ const { copy, removeSync } = require("fs-extra");
 const chalk = require("chalk");
 
 function validateArgs(args) {
-  const { template, yarn, _ } = yargs(args);
+  const { template, useYarn, _ } = yargs(args);
   if (_.length === 2) {
     console.error(
       `${chalk.red("[ERROR]")} Missing --target directory. ${chalk.dim(
@@ -128,23 +128,23 @@ const installedTemplate = path.join(targetDirectory, "node_modules", template);
   console.log(`  - ${chalk.green("Success!")}`);
 
   console.log(``);
-  console.log(chalk.bold(`Quickstart:`));
+  console.log(chalk.bold.underline(`Quickstart:`));
+  console.log(``);
   console.log(`  cd ${targetDirectoryRelative}`);
   console.log(`  ${useYarn ? "yarn" : "npm"} start`);
   console.log(``);
-  console.log(chalk.bold(`All Commands:`));
+  console.log(chalk.bold.underline(`All Commands:`));
   console.log(``);
   console.log(`  ${useYarn ? "yarn" : "npm"} start`);
   console.log(`  ${chalk.dim("Starts the development server.")}`);
-  console.log(`  ${useYarn ? "yarn" : "npm"} build`);
+  console.log(`  ${useYarn ? "yarn" : "npm run"} build`);
   console.log(
     `  ${chalk.dim("Bundles the app into static files for production.")}`
   );
   console.log(`  ${useYarn ? "yarn" : "npm"} test`);
   console.log(`  ${chalk.dim("Starts the test runner.")}`);
   console.log(`  ${useYarn ? "yarn" : "npm"} install`);
-  console.log(`  ${chalk.dim("Install npm + snowpack dependencies.")}`);
-  console.log(
-    `  ${chalk.dim("Note: We already ran this one for you to start.")}`
-  );
+  console.log(`  ${chalk.dim("Install all dependencies (npm + snowpack).")}`);
+  console.log(`  ${chalk.dim("We already ran this one for you.")}`);
+  console.log(``);
 })();
