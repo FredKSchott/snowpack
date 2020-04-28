@@ -2,6 +2,9 @@
   "name": "@snowpack/app-template-react-typescript",
   "version": "0.1.5",
   "license": "MIT",
+  "keywords": [
+    "csa-template"
+  ],
   "publishConfig": {
     "access": "public"
   },

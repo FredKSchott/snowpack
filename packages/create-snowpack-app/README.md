@@ -1,7 +1,7 @@
 ## Create Snowpack App (CSA)
 
 ```
-npx create-snowpack-app my-app --template @snowpack/app-template-react
+npx create-snowpack-app new-dir --template @snowpack/app-template-react
 ```
 
 ### Official App Templates
@@ -15,7 +15,8 @@ npx create-snowpack-app my-app --template @snowpack/app-template-react
 - @snowpack/app-template-htm [HELP WANTED]
 - @snowpack/app-template-htm [HELP WANTED]
 
-### Community App Templates
+### Featured Community Templates
 
 - None yet!
-- PRs that add a link to this list are welcome.
+- PRs that add a link to this list are welcome!
+- [See all templates on npm](https://www.npmjs.com/search?q=keywords%3Acsa-template)

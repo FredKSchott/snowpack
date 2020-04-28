@@ -11,15 +11,15 @@ function validateArgs(args) {
   const { template, yarn, _ } = yargs(args);
   if (_.length === 2) {
     console.error(
-      `${chalk.red("[error]")} Missing target directory. ${chalk.dim(
+      `${chalk.red("[ERROR]")} Missing --target directory. ${chalk.dim(
         chalk.underline("https://github.com/pikapkg/create-snowpack-app")
       )}`
     );
     process.exit(1);
   }
-  if (!template) {
+  if (typeof template !== "string") {
     console.error(
-      `${chalk.red("[error]")} Missing --template argument. ${chalk.dim(
+      `${chalk.red("[ERROR]")} Missing --template argument. ${chalk.dim(
         chalk.underline("https://github.com/pikapkg/create-snowpack-app")
       )}`
     );
@@ -27,7 +27,7 @@ function validateArgs(args) {
   }
   if (_.length > 3) {
     console.error(
-      `${chalk.red("[error]")} Unexpected extra arguments. ${chalk.dim(
+      `${chalk.red("[ERROR]")} Unexpected extra arguments. ${chalk.dim(
         chalk.underline("https://github.com/pikapkg/create-snowpack-app")
       )}`
     );
@@ -36,7 +36,7 @@ function validateArgs(args) {
   const targetDirectoryRelative = _[2];
   const targetDirectory = path.resolve(process.cwd(), targetDirectoryRelative);
   if (fs.existsSync(targetDirectory)) {
-    console.error(`${chalk.red("[error]")} ${targetDirectory} already exists`);
+    console.error(`${chalk.red("[ERROR]")} ${targetDirectory} already exists`);
     process.exit(1);
   }
   return {
@@ -45,6 +45,20 @@ function validateArgs(args) {
     targetDirectoryRelative,
     targetDirectory,
   };
+}
+
+async function verifyProjectTemplate(dir) {
+  const packageManifest = path.join(dir, "package.json");
+  const { keywords } = require(packageManifest);
+  if (!keywords || !keywords.include("csa-template")) {
+    console.error(
+      `\n${chalk.red(
+        "[ERROR]"
+      )} Template is not properly marked as a CSA template (Missing "csa-template" keyword in package.json).`
+    );
+    console.error(`${chalk.red("[ERROR]")} Cannot continue safely. Exiting...`);
+    process.exit(1);
+  }
 }
 
 async function cleanProject(dir) {
@@ -91,6 +105,7 @@ const installedTemplate = path.join(targetDirectory, "node_modules", template);
     cwd: targetDirectory,
   });
   await copy(installedTemplate, targetDirectory);
+  await verifyProjectTemplate(targetDirectory);
   await cleanProject(targetDirectory);
 
   console.log(
