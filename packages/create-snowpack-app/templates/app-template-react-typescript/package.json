@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-react-typescript",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -20,7 +20,7 @@
     "csz": "^1.2.0"
   },
   "devDependencies": {
-    "@snowpack/app-scripts-react": "^0.1.5",
+    "@snowpack/app-scripts-react": "^0.1.10",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/react": "^10.0.3",
     "jest": "^25.4.0",
