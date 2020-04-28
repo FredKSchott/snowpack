@@ -13,7 +13,6 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-react [--use-y
 - @snowpack/app-template-lit-html [HELP WANTED]
 - @snowpack/app-template-preact [HELP WANTED]
 - @snowpack/app-template-htm [HELP WANTED]
-- @snowpack/app-template-htm [HELP WANTED]
 
 ### Featured Community Templates
 
