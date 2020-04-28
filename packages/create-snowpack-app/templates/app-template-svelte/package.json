@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-svelte",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -13,7 +13,7 @@
   },
   "webDependencies": {},
   "devDependencies": {
-    "@snowpack/app-scripts-svelte": "^0.1.3",
+    "@snowpack/app-scripts-svelte": "^0.1.4",
     "@testing-library/svelte": "^3.0.0",
     "jest": "^25.4.0",
     "parcel-bundler": "^1.12.4",
