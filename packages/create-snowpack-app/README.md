@@ -1,7 +1,7 @@
 ## Create Snowpack App (CSA)
 
 ```
-npx create-snowpack-app new-dir --template @snowpack/app-template-react [--use-yarn]
+npx create-snowpack-app new-dir --template @snowpack/app-template-... [--use-yarn]
 ```
 
 ### Official App Templates
