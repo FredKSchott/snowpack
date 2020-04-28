@@ -11,6 +11,7 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-react [--use-y
 - [@snowpack/app-template-svelte](/templates/app-template-svelte)
 - [@snowpack/app-template-vue](/templates/app-template-vue)
 - @snowpack/app-template-lit-html [HELP WANTED]
+- @snowpack/app-template-lit-element [HELP WANTED]
 - @snowpack/app-template-preact [HELP WANTED]
 - @snowpack/app-template-htm [HELP WANTED]
 
