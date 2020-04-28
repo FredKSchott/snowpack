@@ -50,7 +50,7 @@ function validateArgs(args) {
 async function verifyProjectTemplate(dir) {
   const packageManifest = path.join(dir, "package.json");
   const { keywords } = require(packageManifest);
-  if (!keywords || !keywords.include("csa-template")) {
+  if (!keywords || !keywords.includes("csa-template")) {
     console.error(
       `\n${chalk.red(
         "[ERROR]"
