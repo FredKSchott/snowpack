@@ -22,8 +22,6 @@
     "@testing-library/react": "^10.0.3",
     "jest": "^25.4.0",
     "parcel-bundler": "^1.12.4",
-    "react": "^16.13.0",
-    "react-dom": "^16.13.0",
     "snowpack": "^2.0.0-0"
   },
   "gitHead": "0bf66ae9d3deb041bc048a475ce90828f93148a4"

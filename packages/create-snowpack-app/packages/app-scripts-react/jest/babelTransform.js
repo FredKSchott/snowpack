@@ -20,7 +20,12 @@ module.exports = babelJest.createTransformer({
       "snowpack/assets/babel-plugin.js",
       {
         webModulesUrl: "./web_modules",
-        ignore: ["react", "react-dom", "@testing-library/react"],
+        ignore: [
+          "react",
+          "react-dom",
+          "@testing-library/react",
+          "@testing-library/jest-dom/extend-expect",
+        ],
       },
     ],
   ],

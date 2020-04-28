@@ -2,12 +2,12 @@ const fs = require("fs");
 const path = require("path");
 
 const cwd = process.cwd();
+const isTS = fs.existsSync(path.join(cwd, "tsconfig.json"));
+
 const scripts = {
   "mount:public": "mount public --to /",
-  "mount:web_modules": "mount web_modules --to /web_modules",
+  "mount:web_modules": "mount web_modules",
 };
-
-const isTS = fs.existsSync(path.join(cwd, "tsconfig.json"));
 
 if (isTS) {
   scripts["lintall:tsc"] = "tsc --noEmit";
@@ -55,5 +55,3 @@ module.exports = {
   },
   scripts,
 };
-
-console.log(module.exports);

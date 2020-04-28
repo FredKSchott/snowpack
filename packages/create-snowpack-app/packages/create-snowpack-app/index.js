@@ -1,4 +1,3 @@
-const execSync = require("child_process").execSync;
 const fs = require("fs");
 const path = require("path");
 const execa = require("execa");
@@ -73,7 +72,12 @@ async function cleanProject(dir) {
   );
 }
 
-const { template, useYarn, targetDirectory } = validateArgs(process.argv);
+const {
+  template,
+  useYarn,
+  targetDirectoryRelative,
+  targetDirectory,
+} = validateArgs(process.argv);
 const installedTemplate = path.join(targetDirectory, "node_modules", template);
 
 (async () => {
@@ -104,5 +108,26 @@ const installedTemplate = path.join(targetDirectory, "node_modules", template);
 
   console.log(`\n  - Initializing git repo.\n`);
   await execa("git", ["init"], { cwd: targetDirectory });
-  console.log(`Success! `);
+  console.log(`  - ${chalk.green("Success!")}`);
+
+  console.log(``);
+  console.log(chalk.bold(`Quickstart:`));
+  console.log(`  cd ${targetDirectoryRelative}`);
+  console.log(`  ${useYarn ? "yarn" : "npm"} start`);
+  console.log(``);
+  console.log(chalk.bold(`All Commands:`));
+  console.log(``);
+  console.log(`  ${useYarn ? "yarn" : "npm"} start`);
+  console.log(`  ${chalk.dim("Starts the development server.")}`);
+  console.log(`  ${useYarn ? "yarn" : "npm"} build`);
+  console.log(
+    `  ${chalk.dim("Bundles the app into static files for production.")}`
+  );
+  console.log(`  ${useYarn ? "yarn" : "npm"} test`);
+  console.log(`  ${chalk.dim("Starts the test runner.")}`);
+  console.log(`  ${useYarn ? "yarn" : "npm"} install`);
+  console.log(`  ${chalk.dim("Install npm + snowpack dependencies.")}`);
+  console.log(
+    `  ${chalk.dim("Note: We already ran this one for you to start.")}`
+  );
 })();

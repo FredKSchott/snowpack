@@ -1,3 +1,3 @@
 module.exports = {
-  ...require("@snowpack/app-scripts-vue/jest.config.js"),
+  ...require("@snowpack/app-scripts-vue/jest.config.js")(),
 };
