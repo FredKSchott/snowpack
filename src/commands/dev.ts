@@ -120,105 +120,14 @@ export async function command({cwd, port, config}: DevOptions) {
   console.log('NOTE: Still experimental, default behavior may change.');
   console.log('Starting up...');
 
+  const fileBuildCache = new Map<string, string>();
   const liveReloadClients: http.ServerResponse[] = [];
   const messageBus = new EventEmitter();
   const serverStart = Date.now();
 
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
   const dependencyImportMap: ImportMap = require(dependencyImportMapLoc);
-
-  // const {dest: webModulesLoc} = config.installOptions;
-  // const babelUserConfig = babel.loadPartialConfig({cwd}) || {options: {}};
-  // const hasBabelUserConfig = !!babelUserConfig.options.babelrc || !!babelUserConfig.config;
-  // const babelConfig = hasBabelUserConfig && babelUserConfig.options;
-  // const babelFileErrors = new Map<string, Error>();
-  // const hasTypeScriptConfig = existsSync(path.resolve(cwd, 'tsconfig.json'));
-
-  // async function buildBabelFile(fileLoc, fileContents) {
-  //   try {
-  //     messageBus.emit('BABEL_START', {file: fileLoc});
-  //     const result = await babel.transformAsync(fileContents, {
-  //       ...babelConfig,
-  //       filename: fileLoc,
-  //     });
-  //     babelFileErrors.delete(fileLoc);
-  //     messageBus.emit('BABEL_FINISH', {file: fileLoc, result});
-  //     return [null, result];
-  //   } catch (err) {
-  //     babelFileErrors.set(fileLoc, err);
-  //     messageBus.emit('BABEL_ERROR', {file: fileLoc, err});
-  //     return [err];
-  //   }
-  // }
-
-  // TODO: Support a default Babel config if none is found.
-  // if (!babelConfig || !babelConfig.plugins) {
-  //   exitWithInvalidBabelConfiguration();
-  //   return;
-  // }
-  // const hasSnowpackBabelPlugin = !!babelConfig.plugins.find((p: any) => {
-  //   if (p.file) {
-  //     return p.file.request === 'snowpack/assets/babel-plugin.js';
-  //   }
-  //   if (p.name) {
-  //     return p.name === 'snowpack/assets/babel-plugin.js';
-  //   }
-  //   return false;
-  // });
-  // const hasJsxBabelPlugin = !!babelConfig.plugins.find((p: any) => {
-  //   if (p.file) {
-  //     return p.file.request === '@babel/plugin-syntax-jsx';
-  //   }
-  //   if (p.name) {
-  //     return p.name === '@babel/plugin-syntax-jsx';
-  //   }
-  //   return false;
-  // });
-  // if (!hasSnowpackBabelPlugin || !hasJsxBabelPlugin) {
-  //   exitWithInvalidBabelConfiguration();
-  //   return;
-  // }
-
-  // const snowpackInstallPromise = execa(require.resolve('./index.bin.js'), []);
-  // snowpackInstallPromise.stdout!.pipe(process.stdout);
-  // snowpackInstallPromise.stderr!.pipe(process.stderr);
-  // await snowpackInstallPromise;
-  // spin up a web server, serve each file from our cache
   const registeredWorkers = Object.entries(config.scripts);
-
-  // .filter(([id, workerConfig]) => {
-  //   return id.startsWith('build') || workerConfig.watch;
-  // })
-  // .sort((a, b) => {
-  //   const categoryA = a[0].split(':')[0];
-  //   const categoryB = b[0].split(':')[0];
-  //   if (categoryA !== categoryB) {
-  //     return categoryA.localeCompare(categoryB);
-  //   }
-  //   if (a[1].watch && !b[1].watch) {
-  //     return 1;
-  //   }
-  //   if (b[1].watch && a[1].watch) {
-  //     return -1;
-  //   }
-  //   return a[0].localeCompare(b[0]);
-  // });
-
-  // - add config value for "src"
-  // - add config value for "/_dist_/"
-  // - dev: mount src to _dist_
-
-  // build: attach to server handler
-  // buildall: start workers
-  // server handler:
-  //   - if /_dist_/ & file extension, check build:* workers for a match
-  //     - if match, read from src/*, pipe into worker, return output
-  //     - otherwise, check each DEST on disk
-  //     - otherwise, check src/ on disk
-  //     - otherwise, 404
-  //   - if not /_dist_/, check each mounted directory
-  //     - otherwise, 404
-  //
   const workerDirectories: string[] = [];
   const mountedDirectories: [string, string][] = [];
 
@@ -235,7 +144,7 @@ export async function command({cwd, port, config}: DevOptions) {
     let dirUrl, dirDisk;
     if (cmdArr.length === 1) {
       dirDisk = path.resolve(cwd, cmdArr[0]);
-      dirUrl = cmdArr[0];
+      dirUrl = '/' + cmdArr[0];
     } else {
       const {to} = yargs(cmdArr);
       dirDisk = path.resolve(cwd, cmdArr[0]);
@@ -323,22 +232,14 @@ export async function command({cwd, port, config}: DevOptions) {
         return;
       }
 
-      // let isSrc = false;
-
-      // for (const {src: pathSrc, dest: pathDest} of mount) {
-      //   if (new RegExp(pathSrc).test(reqPath)) {
-      //     requestedFile = path.join(cwd, resource);
-      //     isSrc = true;
-      //     if (pathDest) {
-      //       requestedFile = path.resolve(cwd, resource.replace(new RegExp(pathSrc), pathDest));
-      //     }
-      //   }
-      // }
-
-      // if (FILE_CACHE.has(requestedFile)) {
-      //   sendFile(res, FILE_CACHE.get(requestedFile), requestedFileExt);
-      //   return;
-      // }
+      const attemptedFileLoads: string[] = [];
+      function attemptLoadFile(requestedFile) {
+        attemptedFileLoads.push(requestedFile);
+        return fs
+          .stat(requestedFile)
+          .then((stat) => (stat.isFile() ? requestedFile : null))
+          .catch(() => null /* ignore */);
+      }
 
       const resource = decodeURI(reqPath);
       let requestedFileExt = path.parse(resource).ext.toLowerCase();
@@ -364,20 +265,18 @@ export async function command({cwd, port, config}: DevOptions) {
             !srcFileExtensionMapping[ext] ||
             srcFileExtensionMapping[ext] === requestedFileExt.substr(1)
           ) {
-            fileLoc =
-              fileLoc ||
-              (await fs
-                .stat(requestedFile.replace(requestedFileExt, `.${ext}`))
-                .then(() => requestedFile.replace(requestedFileExt, `.${ext}`))
-                .catch(() => null /* ignore */));
+            const srcFile = requestedFile.replace(requestedFileExt, `.${ext}`);
+            fileLoc = fileLoc || (await attemptLoadFile(srcFile));
           }
         }
         if (!fileLoc) {
           continue;
         }
         if (id.startsWith('plugin:')) {
-          const {build} = require(cmd);
+          const modulePath = require.resolve(cmd, {paths: [cwd]});
+          const {build} = require(modulePath);
           fileBuilder = async (code: string) => {
+            messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
             try {
               let {result} = await build(fileLoc);
               return result;
@@ -385,69 +284,15 @@ export async function command({cwd, port, config}: DevOptions) {
               err.message = `[${id}] ${err.message}`;
               console.error(err);
               return '';
+            } finally {
+              messageBus.emit('WORKER_UPDATE', {id, state: null});
             }
           };
-          //   let files: string[];
-          //   const extMatcher = id.split(':')[1];
-          //   if (extMatcher.includes(',')) {
-          //     files = glob.sync(`${config.dev.src}/**/*.{${extMatcher}}`, {
-          //       nodir: true,
-          //       ignore: [
-          //         `${config.dev.src}/**/__tests__/**/*.{js,jsx,ts,tsx}`,
-          //         `${config.dev.src}/**/*.{spec,test}.{js,jsx,ts,tsx}`,
-          //       ],
-          //     });
-          //   } else {
-          //     files = glob.sync(`${config.dev.src}/**/*.${extMatcher}`, {
-          //       nodir: true,
-          //       ignore: [
-          //         `${config.dev.src}/**/__tests__/**/*.{js,jsx,ts,tsx}`,
-          //         `${config.dev.src}/**/*.{spec,test}.{js,jsx,ts,tsx}`,
-          //       ],
-          //     });
-          //   }
-          //   const {build} = require(cmd);
-          //   for (const f of files) {
-          //     try {
-          //       var {result} = await build(f);
-          //     } catch (err) {
-          //       err.message = `[${id}] ${err.message}`;
-          //       console.error(err);
-          //       messageBus.emit('WORKER_COMPLETE', {id, error: err});
-          //       continue;
-          //     }
-          //     let outPath = f.replace(config.dev.src, distDirectoryLoc);
-          //     const extToFind = path.extname(f).substr(1);
-          //     const extToReplace = srcFileExtensionMapping[extToFind];
-          //     if (extToReplace) {
-          //       outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace);
-          //     }
-          //     let code = result;
-          //     if (path.extname(outPath) === '.js') {
-          //       code = await transformEsmImports(code, (spec) => {
-          //         if (spec.startsWith('http') || spec.startsWith('/')) {
-          //           return spec;
-          //         }
-          //         if (spec.startsWith('./') || spec.startsWith('../')) {
-          //           const ext = path.extname(spec).substr(1);
-          //           const extToReplace = srcFileExtensionMapping[ext];
-          //           if (extToReplace) {
-          //             return spec.replace(new RegExp(`${ext}$`), extToReplace);
-          //           }
-          //           return spec;
-          //         }
-          //         return `/web_modules/${spec}.js`;
-          //       });
-          //     }
-          //     await fs.mkdir(path.dirname(outPath), {recursive: true});
-          //     await fs.writeFile(outPath, code);
-          //   }
-          //   messageBus.emit('WORKER_COMPLETE', {id, error: null});
-          // }
           continue;
         }
         if (id.startsWith('build:')) {
           fileBuilder = async (code: string) => {
+            messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
             const {stdout, stderr} = await execa.command(cmd, {
               env: npmRunPath.env(),
               extendEnv: true,
@@ -457,6 +302,7 @@ export async function command({cwd, port, config}: DevOptions) {
             if (stderr) {
               console.error(stderr);
             }
+            messageBus.emit('WORKER_UPDATE', {id, state: null});
             return stdout;
           };
         }
@@ -467,10 +313,7 @@ export async function command({cwd, port, config}: DevOptions) {
           continue;
         }
         let requestedFile = path.join(dirDisk, resource.replace(`${config.dev.dist}`, ''));
-        fileLoc = await fs
-          .stat(requestedFile)
-          .then((stat) => (stat.isFile() ? requestedFile : null))
-          .catch(() => null /* ignore */);
+        fileLoc = await attemptLoadFile(requestedFile);
       }
 
       for (const [dirDisk, dirUrl] of mountedDirectories) {
@@ -488,12 +331,7 @@ export async function command({cwd, port, config}: DevOptions) {
         } else {
           continue;
         }
-        fileLoc =
-          fileLoc ||
-          (await fs
-            .stat(requestedFile)
-            .then((stat) => (stat.isFile() ? requestedFile : null))
-            .catch(() => null /* ignore */));
+        fileLoc = fileLoc || (await attemptLoadFile(requestedFile));
 
         if (requestedFileExt) {
           continue;
@@ -501,29 +339,16 @@ export async function command({cwd, port, config}: DevOptions) {
 
         fileLoc =
           fileLoc ||
-          (await fs
-            .stat(requestedFile + '.html')
-            .then(() => requestedFile + '.html')
-            .catch(() => null /* ignore */)) ||
-          (await fs
-            .stat(requestedFile + '/index.html')
-            .then(() => requestedFile + '/index.html')
-            .catch(() => null /* ignore */)) ||
-          (await fs
-            .stat(requestedFile + 'index.html')
-            .then(() => requestedFile + 'index.html')
-            .catch(() => null /* ignore */));
+          (await attemptLoadFile(requestedFile + '.html')) ||
+          (await attemptLoadFile(requestedFile + '/index.html')) ||
+          (await attemptLoadFile(requestedFile + 'index.html'));
 
         if (!fileLoc && config.dev.fallback) {
           const fallbackFile =
             dirUrl === '/'
               ? path.join(dirDisk, config.dev.fallback)
               : path.join(cwd, config.dev.fallback);
-          fileLoc =
-            (await fs
-              .stat(fallbackFile)
-              .then((stat) => (stat.isFile() ? fallbackFile : null))
-              .catch(() => null /* ignore */)) || null;
+          fileLoc = await attemptLoadFile(fallbackFile);
         }
         if (fileLoc) {
           requestedFileExt = '.html';
@@ -531,81 +356,59 @@ export async function command({cwd, port, config}: DevOptions) {
         }
       }
 
-      // if (!fileLoc && isSrc) {
-      //   fileLoc =
-      //     fileLoc ||
-      //     (await fs
-      //       .stat(requestedFile.replace(/\.js$/, '.ts'))
-      //       .then(() => requestedFile.replace(/\.js$/, '.ts'))
-      //       .catch(() => null /* ignore */)) ||
-      //     (await fs
-      //       .stat(requestedFile.replace(/\.js$/, '.jsx'))
-      //       .then(() => requestedFile.replace(/\.js$/, '.jsx'))
-      //       .catch(() => null /* ignore */)) ||
-      //     (await fs
-      //       .stat(requestedFile.replace(/\.js$/, '.tsx'))
-      //       .then(() => requestedFile.replace(/\.js$/, '.tsx'))
-      //       .catch(() => null /* ignore */));
-      // }
-      // if (!fileLoc && !requestedFileExt) {
-
-      if (!fileLoc) {
-        return sendError(res, 404);
-      }
-
-      try {
-        fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
-        if (fileBuilder) {
-          fileContents = await fileBuilder(fileContents);
-        }
-        if (requestedFileExt === '.js') {
-          fileContents = await transformEsmImports(fileContents, (spec) => {
-            if (spec.startsWith('http') || spec.startsWith('/')) {
-              return spec;
-            }
-            if (spec.startsWith('./') || spec.startsWith('../')) {
-              const ext = path.extname(spec).substr(1);
-              if (!ext) {
-                console.error(`${fileLoc}: Import ${spec} is missing a required file extension`);
-                return spec;
-              }
-              const extToReplace = srcFileExtensionMapping[ext];
-              if (extToReplace) {
-                return spec.replace(new RegExp(`${ext}$`), extToReplace);
-              }
-              return spec;
-            }
-            if (dependencyImportMap.imports[spec]) {
-              return `/web_modules/${dependencyImportMap.imports[spec]}`;
-            }
-            messageBus.emit('MISSING_WEB_MODULE', {specifier: spec});
-            return `/web_modules/${spec}.js`;
-          });
-        }
-      } catch (err) {
-        console.error(fileLoc, err);
-        return sendError(res, 500);
-      }
-
-      if (!fileContents) {
-        return sendError(res, 404);
-      }
-
       if (isRoute) {
-        fileContents = fileContents + LIVE_RELOAD_SNIPPET;
         messageBus.emit('NEW_SESSION');
       }
+      if (!fileLoc) {
+        const prefix = chalk.red('  ✘ ');
+        console.error(
+          `[404] ${reqUrl}\n${attemptedFileLoads.map((loc) => prefix + loc).join('\n')}`,
+        );
 
-      // let responseContents = fileContents;
-      // if (requestedFileExt === '.js' && !fileLoc.includes('/web_modules/')) {
-      //   const [babelErr, babelResult] = await buildBabelFile(fileLoc, fileContents);
-      //   if (babelErr || !babelResult.code) {
-      //     return sendError(res, 500);
-      //   }
-      //   responseContents = babelResult.code;
-      // }
+        return sendError(res, 404);
+      }
 
-      // FILE_CACHE.set(fileLoc, responseContents);
+      fileContents = fileBuildCache.get(fileLoc) || null;
+      if (!fileContents) {
+        try {
+          fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
+          if (fileBuilder) {
+            fileContents = await fileBuilder(fileContents);
+          }
+          if (isRoute) {
+            fileContents += LIVE_RELOAD_SNIPPET;
+          }
+          if (requestedFileExt === '.js') {
+            fileContents = await transformEsmImports(fileContents, (spec) => {
+              if (spec.startsWith('http') || spec.startsWith('/')) {
+                return spec;
+              }
+              if (spec.startsWith('./') || spec.startsWith('../')) {
+                const ext = path.extname(spec).substr(1);
+                if (!ext) {
+                  console.error(`${fileLoc}: Import ${spec} is missing a required file extension`);
+                  return spec;
+                }
+                const extToReplace = srcFileExtensionMapping[ext];
+                if (extToReplace) {
+                  return spec.replace(new RegExp(`${ext}$`), extToReplace);
+                }
+                return spec;
+              }
+              if (dependencyImportMap.imports[spec]) {
+                return `/web_modules/${dependencyImportMap.imports[spec]}`;
+              }
+              messageBus.emit('MISSING_WEB_MODULE', {specifier: spec});
+              return `/web_modules/${spec}.js`;
+            });
+          }
+        } catch (err) {
+          console.error(fileLoc, err);
+          return sendError(res, 500);
+        }
+      }
+
+      fileBuildCache.set(fileLoc, fileContents);
       sendFile(res, fileContents, requestedFileExt);
     })
     .listen(port);
@@ -614,6 +417,7 @@ export async function command({cwd, port, config}: DevOptions) {
     while (liveReloadClients.length > 0) {
       sendMessage(liveReloadClients.pop(), 'message', 'reload');
     }
+    fileBuildCache.delete(fileLoc);
     // let requestId = fileLoc;
     // if (requestId.startsWith(cwd)) {
     //   requestId = requestId.replace(/\.(js|ts|jsx|tsx)$/, '.js');
@@ -629,7 +433,7 @@ export async function command({cwd, port, config}: DevOptions) {
     // }
   }
 
-  watch(cwd, onWatchEvent);
+  watch(config.dev.src, onWatchEvent);
 
   process.on('SIGINT', () => {
     for (const client of liveReloadClients) {

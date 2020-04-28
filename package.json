@@ -38,6 +38,12 @@
       [
         "@pika/plugin-simple-bin",
         {
+          "bin": "sp"
+        }
+      ],
+      [
+        "@pika/plugin-simple-bin",
+        {
           "bin": "snowpack"
         }
       ]

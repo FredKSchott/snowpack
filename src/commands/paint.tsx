@@ -1,6 +1,7 @@
 import {EventEmitter} from 'events';
 import ansiEscapes from 'ansi-escapes';
 import chalk from 'chalk';
+import util from 'util';
 import {DevScript} from '../config';
 
 function getStateString(workerState: any, isWatch: boolean) {
@@ -13,10 +14,12 @@ function getStateString(workerState: any, isWatch: boolean) {
   if (workerState.done) {
     return workerState.error ? chalk.red('FAILED') : chalk.green('DONE');
   }
-  if (workerState.config.watch && isWatch) {
-    return chalk.dim('WATCHING');
+  if (isWatch) {
+    if (workerState.config.watch) {
+      return chalk.dim('WATCHING');
+    }
   }
-  return chalk.dim('RUNNING');
+  return chalk.dim('READY');
 }
 
 const WORKER_BASE_STATE = {done: false, error: null, output: ''};
@@ -139,10 +142,13 @@ export function paint(
     repaint();
   });
   bus.on('WORKER_UPDATE', ({id, state}) => {
-    allWorkerStates[id].state = state || allWorkerStates[id].state;
+    if (typeof state !== undefined) {
+      allWorkerStates[id].state = state;
+    }
     repaint();
   });
   bus.on('WORKER_COMPLETE', ({id, error}) => {
+    allWorkerStates[id].state = null;
     allWorkerStates[id].done = true;
     allWorkerStates[id].error = allWorkerStates[id].error || error;
     repaint();
@@ -152,7 +158,7 @@ export function paint(
     repaint();
   });
   bus.on('CONSOLE', ({level, args}) => {
-    consoleOutput += `[${level}] ${args.map((arg) => JSON.stringify(arg, null, 2)).join(' ')}\n`;
+    consoleOutput += `[${level}] ${util.format.apply(util, args)}\n`;
     repaint();
   });
   bus.on('NEW_SESSION', () => {

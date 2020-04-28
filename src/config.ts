@@ -66,6 +66,7 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
   source?: SnowpackConfig['source'];
   config?: string; // manual path to config file
   env?: string[]; // env vars
+  bundle?: boolean;
 }
 
 // default settings
@@ -176,8 +177,12 @@ const configSchema = {
  * defaults with 'undefined'.
  */
 function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
-  const {source, env, help, version, ...installOptions} = flags;
+  const {source, env, help, version, bundle, ...installOptions} = flags;
   const result: DeepPartial<SnowpackConfig> = {installOptions};
+  if (bundle) {
+    result.dev = result.dev || {};
+    result.dev.bundle = bundle;
+  }
   if (source) {
     result.source = source;
   }
