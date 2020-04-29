@@ -289,6 +289,14 @@ export async function install(
   const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
   const skipFailures = !isExplicit;
 
+  let {silent} = userDefinedRollup;
+
+  let silentHandler;
+  if (typeof silent === 'function') {
+    silentHandler = silent;
+    silent = true;
+  }
+
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
     if (lockfile && lockfile.imports[installSpecifier]) {
@@ -417,7 +425,14 @@ export async function install(
         }
         return;
       }
-      warn(warning);
+
+      if (silentHandler !== undefined) {
+        silentHandler(warning, warn);
+      } else if (silent) {
+        return;
+      } else {
+        warn(warning);
+      }
     },
   };
   const outputOptions: OutputOptions = {

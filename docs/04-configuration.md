@@ -67,6 +67,7 @@ _Note: this file can be in any folder and named anything but must still end in `
   "namedExports": {},
   "dedupe": ["lit-element", "lit-html"],
   "rollup": {
+    "silent": false,
     "plugins": []
   }
 }
@@ -81,6 +82,7 @@ _Note: this file can be in any folder and named anything but must still end in `
 | `source`           | `string`   | Configure where packages are installed from. See [Skipping NPM Install](#skipping-npm-install) for more info. Supported: `pika`, `local` (default).                                                                                                                                                                               |
 | `extends`          | `string`   | Inherit from a "base" config. Can be a relative file path, an npm package, or a file within an npm package.                                                                                                                                                                                                                       |
 | `rollup.plugins`   | `object[]` | Specify [Custom Rollup plugins](#custom-rollup-plugins) if you are dealing with non-standard files.                                                                                                                                                                                                                               |
+| `rollup.silent`   | `boolean|function` | Specify if rollup warnings should be silenced or handled files. See [Silence Rollup Warnings](#silence-rollup-warnings).                                                                                                                                                                                                                               |
 
 #### Install Options (`installOptions.*`)
 

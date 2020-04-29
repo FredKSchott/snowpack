@@ -1,6 +1,6 @@
 import path from 'path';
 import {cosmiconfigSync} from 'cosmiconfig';
-import {Plugin} from 'rollup';
+import {Plugin, WarningHandlerWithDefault} from 'rollup';
 import {validate} from 'jsonschema';
 import {all as merge} from 'deepmerge';
 
@@ -44,6 +44,7 @@ export interface SnowpackConfig {
     strict: boolean;
   };
   rollup: {
+    silent: boolean | WarningHandlerWithDefault;
     plugins: Plugin[]; // for simplicity, only Rollup plugins are supported for now
   };
 }
@@ -74,7 +75,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     strict: false,
     env: {},
   },
-  rollup: {plugins: []},
+  rollup: {plugins: [], silent: false},
 };
 
 const configSchema = {

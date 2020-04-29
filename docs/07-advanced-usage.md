@@ -209,3 +209,37 @@ module.exports = {
 ```
 
 Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#using-plugins) for more information.
+
+### Silence Rollup Warnings
+
+You may encounter JS packages that emit warnings around things like circular dependencies. In these rare cases, you can silence them completely or handle the warnings with a custom silence handler in your [Snowpack config](#configuration-options):
+
+```js
+/* snowpack.config.js */
+module.exports = {
+  rollup: {
+    silence: true
+  }
+};
+```
+
+Or with a custom silence handler:
+
+
+```js
+/* snowpack.config.js */
+module.exports = {
+  rollup: {
+    silence(warning, warn) {
+      // Skip circular dependency warnings
+      if (warning.code === 'CIRCULAR_DEPENDENCY') {
+        return;
+      }
+
+      warn(warning);
+    }
+  }
+};
+```
+
+Refer to [Rollup’s documentation on handling warnings](https://rollupjs.org/guide/en/#onwarn) for more information.
