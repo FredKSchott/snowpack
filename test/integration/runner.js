@@ -30,10 +30,17 @@ function stripRev(code) {
 function stripChunkHash(stdout) {
   return stdout.replace(/([\w\-]+\-)[a-z0-9]{8}(\.js)/g, '$1XXXXXXXX$2');
 }
+function stripUrlHash(stdout) {
+  return stdout.replace(/\-[A-Za-z0-9]{20}\//g, 'XXXXXXXX');
+}
 
 function removeLockfile(testName) {
-  const testDir = path.join(__dirname, testName);
-  rimraf.sync(path.join(testDir, 'snowpack.lock.json'));
+  const lockfileLoc = path.join(__dirname, testName, 'snowpack.lock.json');
+  try {
+    rimraf.sync(lockfileLoc);
+  } catch (err) {
+    // ignore
+  }
 }
 
 beforeAll(() => {
@@ -74,7 +81,18 @@ for (const testName of readdirSync(__dirname)) {
     if (expectedLock) {
       const actualLockLoc = path.join(__dirname, testName, 'snowpack.lock.json');
       const actualLock = await fs.readFile(actualLockLoc, {encoding: 'utf8'});
-      assert.strictEqual(stripWhitespace(actualLock), stripWhitespace(expectedLock));
+      if (KEEP_LOCKFILE.includes(testName)) {
+        assert.strictEqual(stripWhitespace(actualLock), stripWhitespace(expectedLock));
+      } else {
+        assert.strictEqual(
+          stripWhitespace(stripUrlHash(actualLock)),
+          stripWhitespace(stripUrlHash(expectedLock)),
+        );
+      }
+    }
+    // Cleanup
+    if (!KEEP_LOCKFILE.includes(testName)) {
+      removeLockfile(testName);
     }
 
     const expectedWebDependenciesLoc = path.join(__dirname, testName, 'expected-install');
@@ -127,10 +145,5 @@ for (const testName of readdirSync(__dirname)) {
         ),
       );
     });
-
-    // Cleanup
-    if (!KEEP_LOCKFILE.includes(testName)) {
-      removeLockfile(testName);
-    }
   });
 }
