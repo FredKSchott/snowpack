@@ -1,114 +1,50 @@
 ## Get Started
 
-### Installing Snowpack
+### Install Snowpack
 
-```toml
+``` bash
+# using npm
 npm install --save-dev snowpack
-   (or) yarn add --dev snowpack
 
-# Then, run Snowpack:
-npx snowpack
+# using yarn
+yarn add --dev snowpack
 ```
 
-### Installing a Dev Server
+Snowpack can also be installed globally on your machine via `npm install -g snowpack`. But, we recommend installing individually in every project via `--save-dev`/`--dev` so that you can better manage your tools across multiple codebases on your machine.
 
-Snowpack is agnostic to how you serve your site during development. If you have a static dev server that you already like, use it to serve your Snowpack app. Otherwise, we recommend one of the following for local development:
+You can run your local copy of Snowpack via package.json "scripts", npm's `npx snowpack`, or via `yarn snowpack`.
 
-- [`serve`](https://www.npmjs.com/package/serve) (recommended: popular, easy to use)
-- [`servor`](https://www.npmjs.com/package/servor) (recommended: has live-reload, built for SPAs)
-- [`es-dev-server`](https://www.npmjs.com/package/es-dev-server) (recommended: built for buildless workflows, efficient browser caching)
-- [`live-server`](https://www.npmjs.com/package/live-server), [`lite-server`](https://www.npmjs.com/package/lite-server), [`browser-sync`](https://www.npmjs.com/package/browser-sync) (honorable mentions)
-- [`now dev`](http://now.sh/), [`netlify dev`](https://www.netlify.com/products/dev/) (if you already deploy via Zeit/Netlify)
+### Create Snowpack App (CSA)
 
+The easiest way to get started with Snowpack is via Create Snowpack App (CSA). CSA automatically initializes a starter application for you with an already-configured, Snowpack-powered dev environment. 
 
-### Quick Start
+If you've ever used Create React App, this is a lot like that!
 
-#### 0. First, create a new project directory
-
-```
-mkdir snowpack-demo
-cd snowpack-demo
-npm init --yes
+``` bash
+npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 ```
 
-#### 1. Install your dependencies
+### Official App Templates
 
-```
-npm install --save preact htm
-```
+- [@snowpack/app-template-blank](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-blank)
+- [@snowpack/app-template-react](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-react)
+- [@snowpack/app-template-react-typescript](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-react-typescript)
+- [@snowpack/app-template-svelte](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-svelte)
+- [@snowpack/app-template-vue](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-vue)
 
-We'll start this tutorial by using Preact (similar to React) & HTM (similar to JSX). Even if you only want to use React and JSX, you should still start here. By the end of this tutorial, we'll show how you can optionally replace Preact with React, and HTM with JSX (via Babel).
+You can also find a full list of unofficial, community plugins by searching the ["csa-template"](https://www.npmjs.com/search?q=keywords%3Acsa-template) keyword on NPM.
 
+### Tutorial: Recreating CRA from Scratch
 
-#### 2. Run Snowpack to create your web_modules/ directory
+While CSA is a great all-in-one starter dev environment, you may prefer to learn exactly how it works under the hood. In that case, we have this tutorial that walks you through how you can build your own Create React App -like dev environment with Snowpack and only a few lines of configuration.
 
-```bash
-npx snowpack
-✔ snowpack installed: preact, htm. [0.50s]
-```
-
-If all went well, you should see a `web_modules/` directory containing the files `preact.js` & `htm.js`. This is the magic of Snowpack: any npm package can be transformed from `node_modules/PACKAGE_NAME` to `web_modules/PACKAGE_NAME.js`, a bundled, single-file JS package that runs directly in the browser with no additional tooling needed!
-
-Optionally, you can now run `npm install snowpack --save-dev` to speed up future Snowpack runs & run Snowpack inside of your package.json scripts. Otherwise, npx tends to re-install the tool before every run.
+**TODO**
 
 
-#### 3. Create a simple HTML file for your application:
+### Migrating an Existing App
 
-```html
-<!-- File Location: index.html -->
-<!DOCTYPE html>
-<html lang="en">
-  <head><title>Snowpack - Simple Example</title></head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/app.js"></script>
-  </body>
-</html>
-```
+To migrate an existing app to Snowpack depends on how many specialized/customized bundler features/plugins you're currently using. Certain bundler plugins lock you in to that specific setup, since your application code can become dependent on certain plugin behaviors.
 
-#### 4. Create a simple JavaScript application:
+Your best bet is to start with a Create Snowpack App (CSA) template, copy over your "source" & "public" non-source files from your old app, and then run `snowpack dev` to finish up the migration, troubleshooting any remaining issues. 
 
-```js
-/* File Location: src/app.js */
-// Import your web-ready dependencies
-import { h, render } from '/web_modules/preact.js';
-import htm from '/web_modules/htm.js';
-const html = htm.bind(h);
-// Create your main app component
-function SomePreactComponent(props) {
-  return html`<h1 style="color: red">Hello, World!</h1>`;
-}
-// Inject your application into the an element with the id `app`.
-render(html`<${SomePreactComponent} />`, document.getElementById('app'));
-```
-
-#### 5. Serve & run your application
-
-```
-npx servor --reload
-```
-
-Start up a simple dev server (we recommend [servor](https://github.com/lukejacksonn/servor) with the `--reload` flag for live-reload). Open your web browser and see your application running directly in the browser, instantly!
-
-Any changes that you make to your src/app.js file are **immediately** reflected via either live-reload (if supported by your dev server) or a manual browser refresh. No bundlers, no build steps, and no waiting around for things to re-build after you make a change.
-
-Open up your browser's Dev Tools and debug your application directly in the browser. Browse your source code, set breakpoints, and get more useful error messages.
-
-
-#### 6. Optional Next Steps
-
-- Replace Preact with React (see our [React](#react) guide below).
-- Replace HTM with JSX (see our [Babel](#babel) guide below).
-- Add TypeScript support (see our [TypeScript](#typescript) guide below).
-- Add "package name" import support (see our [Importing Packages by Name](#importing-packages-by-name) guide below).
-- Check out all of our guides below!
-
-
-### Examples
-
-Check out our repo's README for a full list of example applications built with Snowpack: [https://github.com/pikapkg/snowpack](https://github.com/pikapkg/snowpack).
-
-
-### Bootstrap a Starter App
-
-🆕 Check out **[`snowpack-init`](https://github.com/pikapkg/snowpack-init)**! Instantly bootstrap a starter app with Snowpack. Choose between templates for Preact, Lit-HTML, TypeScript, and more.
+CSA is a good starting point for existing applications because it has a few common tools (like Babel) built in by default to replicate the full feature set of a traditional bundled app. CSA is also meant to be a drop-in replacement for Create React App, so any existing Create React App project should run without additional changes.
