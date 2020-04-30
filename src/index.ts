@@ -39,6 +39,7 @@ interface DependencyLoc {
   loc: string;
 }
 
+const OUTPUT_BUFFER_MS = 25;
 const ALWAYS_SHOW_ERRORS = new Set(['react', 'react-dom']);
 const cwd = process.cwd();
 const banner = chalk.bold(`snowpack`) + ` installing... `;
@@ -323,19 +324,21 @@ export async function install(
       logError(err.message || err);
       if (err.hint) {
         // Note: Wait 1ms to guarantee a log message after the spinner
-        setTimeout(() => console.log(err.hint), 1);
+        setTimeout(() => console.log(err.hint), OUTPUT_BUFFER_MS);
       }
       return false;
     }
   }
   if (Object.keys(installEntrypoints).length === 0 && Object.keys(assetEntrypoints).length === 0) {
     logError(`No ESM dependencies found!`);
-    console.log(
-      chalk.dim(
-        `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${chalk.underline(
-          'https://www.pika.dev',
-        )}`,
-      ),
+    setTimeout(
+      () =>
+        chalk.dim(
+          `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${chalk.underline(
+            'https://www.pika.dev',
+          )}`,
+        ),
+      OUTPUT_BUFFER_MS,
     );
     return false;
   }
@@ -651,6 +654,6 @@ export async function cli(args: string[]) {
     setTimeout(() => {
       spinner.warn(chalk(`Finished with warnings.`));
       process.exitCode = 1;
-    }, 20);
+    }, OUTPUT_BUFFER_MS);
   }
 }
