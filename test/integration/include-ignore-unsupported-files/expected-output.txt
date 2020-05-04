@@ -1,4 +1,3 @@
-ignoring unsupported file "src/c.png"
-ignoring unsupported file "src/d.css"
+ignoring unsupported file "src/c.abcdefg"
 ⠼ snowpack installing...
 ✖ Nothing to install.

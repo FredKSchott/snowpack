@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import nodePath from 'path';
 import fs from 'fs';
 import glob from 'glob';
+import mime from 'mime-types';
 import validatePackageName from 'validate-npm-package-name';
 import {init as initESModuleLexer, parse, ImportSpecifier} from 'es-module-lexer';
 import {isTruthy} from './util';
@@ -16,6 +17,8 @@ const BARE_SPECIFIER_REGEX = /^[@\w](?!.*(:\/\/))/;
 const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
 const SPLIT_NAMED_IMPORTS_REGEX = /\bas\s+\w+|,/s;
 const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s]*\})?\s+from/s;
+
+const HTML_JS_REGEX = /<script.*?>(.*)<\/script>/gm;
 
 /**
  * An install target represents information about a dependency to install.
@@ -186,9 +189,16 @@ export async function scanImports({include, exclude}: ScanImportsParams): Promis
         });
         return result && result.code;
       }
-      console.warn(
-        chalk.dim(`ignoring unsupported file "${nodePath.relative(process.cwd(), filePath)}"`),
-      );
+      if (filePath.endsWith('.vue') || filePath.endsWith('.svelte')) {
+        const result = await fs.promises.readFile(filePath, 'utf-8');
+        return [...result.matchAll(HTML_JS_REGEX)].map((full, code) => code).join('\n');
+      }
+      // If we don't recognize the file type, it could be source. Warn just in case.
+      if (!mime.lookup(nodePath.extname(filePath))) {
+        console.warn(
+          chalk.dim(`ignoring unsupported file "${nodePath.relative(process.cwd(), filePath)}"`),
+        );
+      }
       return null;
     }),
   );
