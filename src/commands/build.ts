@@ -308,5 +308,9 @@ export async function command({cwd, config}: DevOptions) {
       messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
     });
     await bundleAppPromise;
+
+    if (finalDirectoryLoc !== buildDirectoryLoc) {
+      rimraf.sync(buildDirectoryLoc);
+    }
   }
 }

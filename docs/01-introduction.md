@@ -1,22 +1,25 @@
 ## Introduction
 
-Today's build tooling is built on an old assumption: that web applications can't run in the browser without a bundler. This had been true in the past, but ESM `import`/`export` support in the browser changed everything. 
+Today's web tooling is built on an outdated assumption: that a website can't run in the browser without a bundler. This may have been true in the past, but ESM `import`/`export` support in the browser changed everything. 
 
 **The truth is, you no longer need a bundler during development.**
 
-This is great news for developers because most bundlers introduce a complex mix of configuration, plugins, dependencies and complexity that you probably wouldn't otherwise need. Not only that, but bundling during development introduces a significant slow down to your dev workflow, as you wait for entire chunks of your application to rebuild just because you changed a single file. Bundling is still a great production optimization, but it really has little use during development.
+This is great news for developers because bundlers can easily introduce a mix of configuration, plugins, dependencies and tooling complexity to your workflow that you probably wouldn't otherwise need. Understanding how to configure a bundler shouldn't be a prerequisite for being a great web developer.
+
+Not only that, but bundling during development adds a significant slow down to your dev workflow. When you make changes to a bundled application, you need to wait for the bundler to rebuild an entire chunk of your application just to update your changes to a single file.
 
 **Snowpack marks the start of an entirely new generation of bundle-free development tooling.**
 
 ### What is Snowpack?
 
-<div class="notification is-link">
-  <strong>Snowpack is bundle-free build tooling for React, Vue, Svelte and more.</strong> Snowpack's lightning-fast dev server starts up in &lt;20ms and reflects changes instantly thanks to single-file rebuilding. When you're ready to deploy, Snowpack will build, bundle, and optimize your site for production.
-</div>
+- <strong>Snowpack is bundle-free build tooling for the next generation of web development.</strong> 
+- Snowpack works with React, Vue, Svelte and all of your favorite frameworks and build tools. 
+- Snowpack's lightning-fast dev server starts up in &lt;20ms and reflects changes instantly thanks to single-file rebuilding. 
+- Snowpack optimizes your site for production thanks to a built-in Parcel integration.
 
 Snowpack removes the bundler from your development workflow so that you can build faster with less complexity. Connect your favorite build tools like Babel and PostCSS to customize how your source files are handled with simple, 1-line build tool integrations.
 
-Snowpack also ships with a built-in Parcel integration to help optimize your site for production. Bundling for production with Parcel keeps your site running fast without slowing down your development workflow.
+Snowpack also ships with a built-in Parcel integration to optimize & bundle your site for production. Bundling for production with Parcel keeps your site running fast without slowing down your development workflow.
 
 
 ### Who's Using Snowpack?

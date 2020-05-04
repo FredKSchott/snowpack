@@ -408,7 +408,8 @@ export async function command({cwd, port, config}: DevOptions) {
     })
     .listen(port);
 
-  async function onWatchEvent(event, fileLoc) {
+  async function onWatchEvent(event, _fileLoc) {
+    const fileLoc = path.resolve(config.include!, _fileLoc);
     while (liveReloadClients.length > 0) {
       sendMessage(liveReloadClients.pop(), 'message', 'reload');
     }

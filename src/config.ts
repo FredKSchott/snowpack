@@ -165,6 +165,9 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
   };
   const {help, version, ...relevantFlags} = flags;
   for (const [flag, val] of Object.entries(relevantFlags)) {
+    if (flag === '_') {
+      continue;
+    }
     if (configSchema.properties[flag]) {
       result[flag] = val;
     }
@@ -172,8 +175,10 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
       result.installOptions[flag] = val;
     }
     if (configSchema.properties.devOptions.properties[flag]) {
-      result.installOptions[flag] = val;
+      result.devOptions[flag] = val;
     }
+    console.error(`Unknown CLI flag: "${flag}"`);
+    process.exit(1);
   }
   if (result.installOptions.env) {
     result.installOptions.env = result.installOptions.env.reduce((acc, id) => {
@@ -199,20 +204,31 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   }
   config.installOptions.dest = path.resolve(cwd, config.installOptions.dest);
   config.devOptions.out = path.resolve(cwd, config.devOptions.out);
-  if (config.scripts) {
-    for (const scriptId of Object.keys(config.scripts)) {
-      if (scriptId.includes('::watch')) {
-        continue;
-      }
-      config.scripts[scriptId] = {
-        cmd: (config.scripts[scriptId] as any) as string,
-        watch: (config.scripts[`${scriptId}::watch`] as any) as string | undefined,
-      };
+  const scriptsBase = {
+    'mount:web_modules': 'mount web_modules',
+  };
+  if (fs.existsSync(path.resolve(cwd, 'public'))) {
+    scriptsBase['mount:public'] = scriptsBase['mount:public'] || 'mount public --to /';
+  } else if (!config.scripts) {
+    scriptsBase['mount:/'] = 'mount . --to /';
+  }
+  // @ts-ignore
+  config.scripts = {
+    ...scriptsBase,
+    ...config.scripts,
+  };
+  for (const scriptId of Object.keys(config.scripts)) {
+    if (scriptId.includes('::watch')) {
+      continue;
     }
-    for (const scriptId of Object.keys(config.scripts)) {
-      if (scriptId.includes('::watch')) {
-        delete config.scripts[scriptId];
-      }
+    config.scripts[scriptId] = {
+      cmd: (config.scripts[scriptId] as any) as string,
+      watch: (config.scripts[`${scriptId}::watch`] as any) as string | undefined,
+    };
+  }
+  for (const scriptId of Object.keys(config.scripts)) {
+    if (scriptId.includes('::watch')) {
+      delete config.scripts[scriptId];
     }
   }
   return config;

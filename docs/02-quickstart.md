@@ -2,13 +2,16 @@
 
 ### Install Snowpack
 
+**Snowpack v2.0 is in early access!** We'll be launching the official 2.0.0 release later this month, but we'd love for you to try it out today. Just don't forget to install `@next` when you install with npm/yarn:
+
 ``` bash
 # using npm
-npm install --save-dev snowpack
+npm install --save-dev snowpack@next
 
 # using yarn
-yarn add --dev snowpack
+yarn add --dev snowpack@next
 ```
+
 
 Snowpack can also be installed globally via `npm install -g snowpack`. But, we recommend installing locally in every project via `--save-dev`/`--dev`. You can run the Snowpack CLI locally via package.json "scripts", npm's `npx snowpack`, or via `yarn snowpack`.
 
@@ -32,7 +35,7 @@ npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 
 You can also find a full list of unofficial, community plugins by searching the ["csa-template"](https://www.npmjs.com/search?q=keywords%3Acsa-template) keyword on NPM.
 
-### Tutorial: Recreating CRA from Scratch
+### Tutorial: Starting from Scratch
 
 While CSA is a great all-in-one starter dev environment, you may prefer to learn exactly how it works under the hood. In that case, we have this tutorial that walks you through how you can build your own Create React App -like dev environment with Snowpack and only a few lines of configuration.
 
