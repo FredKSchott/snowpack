@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --include '*.ts'"
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --include 'dir'"
   },
   "dependencies": {
     "array-flatten": "^3.0.0",

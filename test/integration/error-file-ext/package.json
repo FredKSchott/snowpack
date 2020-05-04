@@ -1,6 +1,9 @@
 {
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --include '*.js'"
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+  },
+  "snowpack": {
+    "knownEntrypoints": ["@zeit-ui/style", "deepmerge"]
   },
   "dependencies": {
     "@zeit-ui/style": "^0.9.4",

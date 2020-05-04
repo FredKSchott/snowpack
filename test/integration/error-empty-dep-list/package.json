@@ -3,6 +3,6 @@
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
   "snowpack": {
-    "webDependencies": []
+    "knownEntrypoints": []
   }
 }

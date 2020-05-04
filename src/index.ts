@@ -73,7 +73,7 @@ ${chalk.bold('Options:')}
   );
 }
 
-function formatInstallResults(skipFailures: boolean): string {
+function formatInstallResults(): string {
   return installResults
     .map(([d, result]) => {
       if (result === 'SUCCESS') {
@@ -83,7 +83,7 @@ function formatInstallResults(skipFailures: boolean): string {
         return chalk.yellow(d);
       }
       if (result === 'FAIL') {
-        return skipFailures ? chalk.dim(d) : chalk.red(d);
+        return chalk.red(d);
       }
       return d;
     })
@@ -224,11 +224,11 @@ function getRollupReplaceKeys(env: EnvVarReplacements): Record<string, string> {
   const result = Object.keys(env).reduce(
     (acc, id) => {
       const val = env[id];
-      acc[`process.env.${id}`] = `"${val === true ? process.env[id] : val}"`;
+      acc[`process.env.${id}`] = `${JSON.stringify(val === true ? process.env[id] : val)}`;
       return acc;
     },
     {
-      'process.env.NODE_ENV': process.env.NODE_ENV || 'development',
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
       'process.env.': '({}).',
     },
   );
@@ -237,13 +237,12 @@ function getRollupReplaceKeys(env: EnvVarReplacements): Record<string, string> {
 
 interface InstallOptions {
   hasBrowserlistConfig: boolean;
-  isExplicit: boolean;
   lockfile: ImportMap | null;
 }
 
 export async function install(
   installTargets: InstallTarget[],
-  {hasBrowserlistConfig, isExplicit, lockfile}: InstallOptions,
+  {hasBrowserlistConfig, lockfile}: InstallOptions,
   config: SnowpackConfig,
 ) {
   const {
@@ -273,7 +272,7 @@ export async function install(
   const assetEntrypoints: {[targetName: string]: string} = {};
   const importMap: ImportMap = {imports: {}};
   const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
-  const skipFailures = !isExplicit;
+  const skipFailures = false;
 
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
@@ -281,11 +280,11 @@ export async function install(
       installEntrypoints[targetName] = lockfile.imports[installSpecifier];
       importMap.imports[installSpecifier] = `./${targetName}.js`;
       installResults.push([targetName, 'SUCCESS']);
-      logUpdate(formatInstallResults(skipFailures));
+      logUpdate(formatInstallResults());
       continue;
     }
     try {
-      const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, isExplicit);
+      const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, true);
       if (targetType === 'JS') {
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${targetName}.js`;
@@ -297,10 +296,10 @@ export async function install(
         assetEntrypoints[targetName] = targetLoc;
         installResults.push([installSpecifier, 'ASSET']);
       }
-      logUpdate(formatInstallResults(skipFailures));
+      logUpdate(formatInstallResults());
     } catch (err) {
       installResults.push([installSpecifier, 'FAIL']);
-      logUpdate(formatInstallResults(skipFailures));
+      logUpdate(formatInstallResults());
       if (skipFailures && !ALWAYS_SHOW_ERRORS.has(installSpecifier)) {
         continue;
       }
@@ -410,7 +409,7 @@ export async function install(
   if (Object.keys(installEntrypoints).length > 0) {
     try {
       const packageBundle = await rollup(inputOptions);
-      logUpdate(formatInstallResults(skipFailures));
+      logUpdate(formatInstallResults());
       await packageBundle.write(outputOptions);
     } catch (err) {
       const {loc} = err as RollupError;
@@ -471,11 +470,6 @@ export async function cli(args: string[]) {
   const config = loadAndValidateConfig(cliFlags, pkgManifest);
 
   if (config.webDependencies) {
-    console.log(
-      `${chalk.yellow(
-        'ℹ',
-      )} "webDependencies" support is still experimental, changes are expected...`,
-    );
     await clearCache();
   }
 
@@ -518,23 +512,16 @@ export async function cli(args: string[]) {
     fs.existsSync(path.join(cwd, '.browserslistrc')) ||
     fs.existsSync(path.join(cwd, 'browserslist'));
 
-  let isExplicit = false;
   const installTargets: InstallTarget[] = [];
 
   if (knownEntrypoints) {
-    isExplicit = true;
     installTargets.push(...scanDepList(knownEntrypoints, cwd));
   }
   if (webDependencies) {
-    isExplicit = true;
     installTargets.push(...scanDepList(Object.keys(webDependencies), cwd));
   }
   if (include) {
-    isExplicit = true;
     installTargets.push(...(await scanImports({include, exclude})));
-  }
-  if (!isExplicit) {
-    installTargets.push(...scanDepList(implicitDependencies, cwd));
   }
   if (installTargets.length === 0) {
     logError('Nothing to install.');
@@ -556,7 +543,7 @@ export async function cli(args: string[]) {
   await mkdirp(dest);
   const finalResult = await install(
     installTargets,
-    {hasBrowserlistConfig, isExplicit, lockfile: newLockfile},
+    {hasBrowserlistConfig, lockfile: newLockfile},
     config,
   ).catch((err) => {
     if (err.loc) {
@@ -571,9 +558,7 @@ export async function cli(args: string[]) {
   if (finalResult) {
     spinner.succeed(
       chalk.bold(`snowpack`) +
-        ` installed: ` +
-        formatInstallResults(!isExplicit) +
-        '.' +
+        ` install complete.` +
         chalk.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
     if (!!dependencyStats) {

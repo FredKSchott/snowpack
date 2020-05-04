@@ -1,3 +1,0 @@
-- snowpack installing...
-ℹ snowpack bundled your application for legacy browsers: app.nomodule.js
-✔ snowpack installed: array-flatten, http-vue-loader/src/httpVueLoader.js, vue-router, vue/dist/vue.esm.browser.js.

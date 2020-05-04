@@ -2,6 +2,9 @@
   "scripts": {
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
+  "snowpack": {
+  "knownEntrypoints": ["array-flatten"]
+  },
   "dependencies": {
     "array-flatten": "^3.0.0"
   }

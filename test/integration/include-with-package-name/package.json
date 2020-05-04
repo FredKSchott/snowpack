@@ -1,6 +1,7 @@
 {
+  "description": "Test that 'include' import scanner supports package name imports",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --clean --include 'dir'"
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --clean --include 'src'"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^0.8.5",

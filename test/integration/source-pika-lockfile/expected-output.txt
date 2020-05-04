@@ -1,3 +1,4 @@
-ℹ "source: pika" mode enabled. Behavior is still experimental and may change before the next major version...
 - snowpack installing...
-✔ snowpack installed: async.
+✔ snowpack install complete.
+  ⦿ web_modules/     size       gzip       brotli
+    └─ async.js      XXXX KB  XXXX KB   XXXX KB

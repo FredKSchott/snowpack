@@ -33,6 +33,12 @@ function stripChunkHash(stdout) {
 function stripUrlHash(stdout) {
   return stdout.replace(/\-[A-Za-z0-9]{20}\//g, 'XXXXXXXX');
 }
+function stripConfigErrorPath(stdout) {
+  return stdout.replace(/^! (.*)package\.json$/gm, '! XXX/package.json');
+}
+function stripResolveErrorPath(stdout) {
+  return stdout.replace(/" via "(.*)"/g, '" via "XXX"');
+}
 
 function removeLockfile(testName) {
   const lockfileLoc = path.join(__dirname, testName, 'snowpack.lock.json');
@@ -69,7 +75,11 @@ for (const testName of readdirSync(__dirname)) {
     const expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
     const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
     assert.strictEqual(
-      stripWhitespace(stripBenchmark(stripChunkHash(stripStats(all)))),
+      stripWhitespace(
+        stripConfigErrorPath(
+          stripResolveErrorPath(stripBenchmark(stripChunkHash(stripStats(all)))),
+        ),
+      ),
       stripWhitespace(expectedOutput),
     );
 

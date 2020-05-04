@@ -63,7 +63,6 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
 
 // default settings
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
-  include: 'src',
   exclude: ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
   knownEntrypoints: [],
   installOptions: {
@@ -187,7 +186,14 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
 /** resolve --dest relative to cwd, etc. */
 function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const cwd = process.cwd();
-  config.include = path.resolve(cwd, config.include);
+  if (config.include) {
+    config.include = path.resolve(cwd, config.include);
+  } else {
+    const potentialIncludeDir = path.resolve(cwd, 'src');
+    if (fs.existsSync(potentialIncludeDir)) {
+      config.include = potentialIncludeDir;
+    }
+  }
   config.installOptions.dest = path.resolve(cwd, config.installOptions.dest);
   config.devOptions.out = path.resolve(cwd, config.devOptions.out);
   if (config.scripts) {
@@ -215,9 +221,9 @@ function handleConfigError(msg: string) {
 }
 
 function handleValidationErrors(filepath: string, errors: {toString: () => string}[]) {
-  console.error(chalk.red(`✘ ${filepath}`));
-  console.error(errors.map((err) => `  - ${err.toString()}`).join('\n'));
-  console.error(`  See https://www.snowpack.dev/#configuration for more info.`);
+  console.error(chalk.red(`! ${filepath || 'Configuration error'}`));
+  console.error(errors.map((err) => `    - ${err.toString()}`).join('\n'));
+  console.error(`    See https://www.snowpack.dev/#configuration for more info.`);
   process.exit(1);
 }
 
@@ -299,9 +305,7 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
   });
 
   let result;
-
   // if user specified --config path, load that
-  const errors: string[] = [];
   if (flags.config) {
     result = explorerSync.load(path.resolve(process.cwd(), flags.config));
     if (!result) {
@@ -326,7 +330,7 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     allowUnknownAttributes: false,
     propertyName: CONFIG_NAME,
   });
-  if (validation.errors) {
+  if (validation.errors && validation.errors.length > 0) {
     handleValidationErrors(result.filepath, validation.errors);
     process.exit(1);
   }
@@ -346,7 +350,7 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
       allowUnknownAttributes: false,
       propertyName: CONFIG_NAME,
     });
-    if (extendValidation.errors) {
+    if (extendValidation.errors && extendValidation.errors.length > 0) {
       handleValidationErrors(result.filepath, extendValidation.errors);
       process.exit(1);
     }

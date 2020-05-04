@@ -1,10 +1,10 @@
 {
-  "description": "Test invalid configuration",
+  "description": "Test invalid configuration (knownEntrypoints should be array)",
   "scripts": {
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
   "snowpack": {
-    "webDependencies": "shallow-equal"
+    "knownEntrypoints": "shallow-equal"
   },
   "dependencies": {
     "shallow-equal": "^1.2.1"

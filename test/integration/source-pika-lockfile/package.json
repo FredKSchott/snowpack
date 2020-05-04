@@ -1,11 +1,9 @@
 {
   "description": "Test that the lockfile import URLs & version info are used",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --source pika"
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
-  "snowpack": {
-    "webDependencies": [
-      "async"
-    ]
+  "webDependencies": {
+      "async": "3.1.0"
   }
 }

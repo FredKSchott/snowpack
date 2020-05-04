@@ -1,2 +1,4 @@
 - snowpack installing...
-✔ snowpack installed: preact.
+✔ snowpack install complete.
+  ⦿ web_modules/     size       gzip       brotli
+    └─ preact.js     XXXX KB    XXXX KB    XXXX KB

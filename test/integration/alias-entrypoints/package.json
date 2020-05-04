@@ -4,7 +4,7 @@
     "TEST": "node ../../../pkg/dist-node/index.bin.js --external-package lit-html"
   },
   "snowpack": {
-    "webDependencies": [
+    "knownEntrypoints": [
       "lit-element"
     ]
   },

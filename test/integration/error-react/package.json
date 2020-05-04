@@ -2,6 +2,9 @@
   "scripts": {
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
+  "snowpack": {
+    "knownEntrypoints": ["react"]
+  },
   "dependencies": {
     "react": "latest"
   }

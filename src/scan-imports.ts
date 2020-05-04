@@ -156,7 +156,12 @@ interface ScanImportsParams {
 
 export async function scanImports({include, exclude}: ScanImportsParams): Promise<InstallTarget[]> {
   await initESModuleLexer;
-  const includeFiles = glob.sync(`${include}/**/*`, {ignore: exclude, nodir: true});
+  const includeFiles = glob.sync(`**/*`, {
+    ignore: exclude,
+    cwd: include,
+    absolute: true,
+    nodir: true,
+  });
   if (!includeFiles.length) {
     console.warn(`[SCAN ERROR]: No files matching "${include}"`);
     return [];
@@ -181,7 +186,9 @@ export async function scanImports({include, exclude}: ScanImportsParams): Promis
         });
         return result && result.code;
       }
-      console.warn(chalk.dim(`ignoring unsupported file "${filePath}"`));
+      console.warn(
+        chalk.dim(`ignoring unsupported file "${nodePath.relative(process.cwd(), filePath)}"`),
+      );
       return null;
     }),
   );

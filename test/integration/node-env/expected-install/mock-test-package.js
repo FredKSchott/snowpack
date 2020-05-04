@@ -1,2 +1,6 @@
-const o=!0,t=!0,c=!0,e=!0;export{t as cliA,c as confA,e as confB,o as nodeEnv};
-//# sourceMappingURL=mock-test-package.js.map
+const nodeEnv =  true ;
+const cliA =  true ;
+const confA =  true ;
+const confB =  true ;
+
+export { cliA, confA, confB, nodeEnv };

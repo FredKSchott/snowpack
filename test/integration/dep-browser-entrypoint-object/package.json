@@ -1,0 +1,12 @@
+{
+  "description": "Test that we can handle a package.json 'browser' object entrypoint",
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+  },
+  "snowpack": {
+    "knownEntrypoints": ["mock-test-package"]
+  },
+  "dependencies": {
+    "mock-test-package": "^1.2.3"
+  }
+}

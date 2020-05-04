@@ -1,2 +1,3 @@
-⠼ snowpack installing...
-✖ package.json: snowpack.webDependencies is not of a type(s) array,object
+! XXX/package.json
+    - snowpack.knownEntrypoints is not of a type(s) array
+    See https://www.snowpack.dev/#configuration for more info.

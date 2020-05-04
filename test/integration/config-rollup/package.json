@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --include '*.js'"
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
   "dependencies": {
     "rollup-plugin-svelte": "^5.1.1",

@@ -1,2 +1,53 @@
-function r(r,t){if(r===t)return!0;if(!r||!t)return!1;var e=Object.keys(r),n=Object.keys(t),f=e.length;if(n.length!==f)return!1;for(var u=0;u<f;u++){var i=e[u];if(r[i]!==t[i]||!Object.prototype.hasOwnProperty.call(t,i))return!1}return!0}function t(r,t){if(r===t)return!0;if(!r||!t)return!1;var e=r.length;if(t.length!==e)return!1;for(var n=0;n<e;n++)if(r[n]!==t[n])return!1;return!0}export{t as shallowEqualArrays,r as shallowEqualObjects};
-//# sourceMappingURL=shallow-equal.js.map
+function shallowEqualObjects(objA, objB) {
+  if (objA === objB) {
+    return true;
+  }
+
+  if (!objA || !objB) {
+    return false;
+  }
+
+  var aKeys = Object.keys(objA);
+  var bKeys = Object.keys(objB);
+  var len = aKeys.length;
+
+  if (bKeys.length !== len) {
+    return false;
+  }
+
+  for (var i = 0; i < len; i++) {
+    var key = aKeys[i];
+
+    if (objA[key] !== objB[key] || !Object.prototype.hasOwnProperty.call(objB, key)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function shallowEqualArrays(arrA, arrB) {
+  if (arrA === arrB) {
+    return true;
+  }
+
+  if (!arrA || !arrB) {
+    return false;
+  }
+
+  var len = arrA.length;
+
+  if (arrB.length !== len) {
+    return false;
+  }
+
+  for (var i = 0; i < len; i++) {
+    if (arrA[i] !== arrB[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export { shallowEqualArrays, shallowEqualObjects };

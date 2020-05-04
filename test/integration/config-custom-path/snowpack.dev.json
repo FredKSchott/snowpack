@@ -1,5 +1,5 @@
 {
-  "webDependencies": [
+  "knownEntrypoints": [
     "array-flatten"
   ]
 }

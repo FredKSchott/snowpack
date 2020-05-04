@@ -1,7 +1,10 @@
 {
   "description": "Test that the --optimize flag overrides the config",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --optimize"
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --no-source-map"
+  },
+  "snowpack": {
+    "knownEntrypoints": ["shallow-equal"]
   },
   "dependencies": {
     "shallow-equal": "^1.2.1"
