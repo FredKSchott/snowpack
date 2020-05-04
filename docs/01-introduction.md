@@ -1,19 +1,17 @@
 ## Introduction
 
+Web developers are working on an outdated assumption: you can't build a website without a bundler. 
 
-Web development is built on an outdated assumption: that you can't build a website without a bundler. 
+At some point in the last decade, bundling shifted from a production nice-to-have optimization to a full-on dev requirement. Configuration files, plugins, extra dependencies, tooling complexity, code-splitting, waiting around on every save... all of this suddenly became a requirement to build anything on the web.
 
-The concept of bundling and combining files together for production has been around for ages. However, at some point in the last decade bundling shifted from a production nice-to-have to a full-on dev requirement. Bundler configuration files, plugins, dependencies, tooling complexity, code-splitting, longer build times... none of this should be required by default.
-
-**Snowpack marks the start of an new generation of tooling that is fast, simple and bundle-free during development.**
+**Snowpack marks the start of an new generation of build tool that removes the bundler to create a dev environment that is faster, simpler and more powerful than anything else that exists today.**
 
 ### What is Snowpack?
 
 - <strong>Snowpack is the fastest way to build & develop web applications.</strong> 
-- Snowpack installs npm dependencies that run in the browser without a bundler.
-- React, Vue, Svelte, Babel, TypeScript, PostCSS and all of your favorite tools & frameworks are supported with simple 1-line build integrations. 
-- Snowpack's dev server starts up in &lt;20ms and reacts instantly to changes thanks to single-file rebuilding. 
-- Continue to optimize your site for production with Snowpack's built-in [Parcel](https://parceljs.org/) integration.
+- React, Vue, Svelte, Babel, TypeScript, PostCSS and all of your favorite tools & frameworks are supported with [simple 1-line build integrations.](#build-scripts)
+- Snowpack's [dev server](#snowpack-dev) starts up in &lt;20ms and reacts instantly to changes thanks to single-file rebuilding. 
+- Snowpack's built-in [Parcel](#snowpack-build---bundle) integration bundles your site for production.
 
 
 ### Who's Using Snowpack?
