@@ -1,6 +1,11 @@
-import {ResolvedId, Plugin} from 'rollup';
+import mkdirp from 'mkdirp';
 import cacache from 'cacache';
-import {RESOURCE_CACHE, fetchCDNResource, PIKA_CDN, HAS_CDN_HASH_REGEX} from './util';
+import url from 'url';
+import fs from 'fs';
+import path from 'path';
+import tar from 'tar';
+import {OutputBundle, OutputOptions, Plugin, ResolvedId} from 'rollup';
+import {fetchCDNResource, HAS_CDN_HASH_REGEX, PIKA_CDN, RESOURCE_CACHE} from './util';
 
 const CACHED_FILE_ID_PREFIX = 'snowpack-pkg-cache:';
 const PIKA_CDN_TRIM_LENGTH = PIKA_CDN.length;
@@ -12,7 +17,14 @@ const PIKA_CDN_TRIM_LENGTH = PIKA_CDN.length;
  * successful CDN resolution, we save the file to the local cache and then tell
  * rollup that it's safe to load from the cache in the `load()` hook.
  */
-export function rollupPluginDependencyCache({log}: {log: (url: string) => void}) {
+export function rollupPluginDependencyCache({
+  installTypes,
+  log,
+}: {
+  installTypes: boolean;
+  log: (url: string) => void;
+}) {
+  const allTypesToInstall = new Set<string>();
   return {
     name: 'snowpack:rollup-plugin-remote-cdn',
     async resolveId(source: string, importer) {
@@ -43,7 +55,13 @@ export function rollupPluginDependencyCache({log}: {log: (url: string) => void})
       // Otherwise, make the remote request and cache the file on success.
       const response = await fetchCDNResource(cacheKey);
       if (response.statusCode === 200) {
-        await cacache.put(RESOURCE_CACHE, cacheKey, response.body);
+        const typesUrlPath = response.headers['x-typescript-types'] as string | undefined;
+        const pinnedUrlPath = response.headers['x-pinned-url'] as string;
+        const typesUrl = typesUrlPath && `${PIKA_CDN}${typesUrlPath}`;
+        const pinnedUrl = pinnedUrlPath && `${PIKA_CDN}${pinnedUrlPath}`;
+        await cacache.put(RESOURCE_CACHE, cacheKey, response.body, {
+          metadata: {pinnedUrl, typesUrl},
+        });
         return CACHED_FILE_ID_PREFIX + cacheKey;
       }
 
@@ -69,7 +87,46 @@ export function rollupPluginDependencyCache({log}: {log: (url: string) => void})
       const cacheKey = id.substring(CACHED_FILE_ID_PREFIX.length);
       log(cacheKey);
       const cachedResult = await cacache.get(RESOURCE_CACHE, cacheKey);
+      const typesUrl: string | undefined = cachedResult.metadata?.typesUrl;
+      if (typesUrl && installTypes) {
+        const typesTarballUrl = typesUrl.replace(/(mode=types.*?)\/.*/, '$1/all.tgz');
+        allTypesToInstall.add(typesTarballUrl);
+      }
       return cachedResult.data.toString('utf8');
+    },
+    async writeBundle(options: OutputOptions) {
+      if (!installTypes) {
+        return;
+      }
+      await mkdirp(path.join(options.dir!, '.types'));
+      const tempDir = await cacache.tmp.mkdir(RESOURCE_CACHE);
+      for (const typesTarballUrl of allTypesToInstall) {
+        let tarballContents: Buffer;
+        const cachedTarball = await cacache
+          .get(RESOURCE_CACHE, typesTarballUrl)
+          .catch((/* ignore */) => null);
+        if (cachedTarball) {
+          tarballContents = cachedTarball.data;
+        } else {
+          const tarballResponse = await fetchCDNResource(typesTarballUrl, 'buffer');
+          if (tarballResponse.statusCode !== 200) {
+            continue;
+          }
+          tarballContents = (tarballResponse.body as any) as Buffer;
+          await cacache.put(RESOURCE_CACHE, typesTarballUrl, tarballContents);
+        }
+        const typesUrlParts = url.parse(typesTarballUrl).pathname!.split('/');
+        const typesPackageName = url.parse(typesTarballUrl).pathname!.startsWith('/-/@')
+          ? typesUrlParts[2] + '/' + typesUrlParts[3].split('@')[0]
+          : typesUrlParts[2].split('@')[0];
+        fs.writeFileSync(path.join(tempDir, `${typesPackageName}.tgz`), tarballContents);
+        const typesPackageLoc = path.join(options.dir!, `.types/${typesPackageName}`);
+        await mkdirp(typesPackageLoc);
+        await tar.x({
+          file: path.join(tempDir, `${typesPackageName}.tgz`),
+          cwd: typesPackageLoc,
+        });
+      }
     },
   } as Plugin;
 }

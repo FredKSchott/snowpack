@@ -1,37 +1,29 @@
 ## Introduction
 
-<p class="notification is-link">
-  <strong style="text-decoration: underline">TL;DR</strong> - With Snowpack you can build modern web apps (using React, Vue, etc.) without a bundler (like Webpack, Parcel, Rollup). No more waiting for your bundler to rebuild your site every time you hit save. Instead, every change is reflected in the browser instantly.
-</p>
 
+The web has evolved over the last decade, but our build tooling hasn't. We're still relying on the old assumption that your application won't run in the browser until you've bundled the whole thing up into larger, shared chunks. That may have been true a few years ago, but ESM `import`/`export` support in the browser changed everything. 
 
-### How It Works
+**You no longer need a bundler during development.**
 
+This is great news for developers because it mean that you are no longer *required* to rely on a complex mix of bundler configuration, plugins, dependencies and complexity that you probably wouldn't otherwise need. Bundling is still a great production optimization, but it really has little use during development.   
 
-1. Instead of bundling on every change, just run Snowpack **once** right after `npm install`.
-2. Snowpack re-installs your dependencies as single JS files to a new `web_modules/` directory. **It never touches your source code.**
-3. Build your app, import those dependencies via an ESM `import`, and then run it all in the browser.
-4. Skip the bundle step and see your changes reflected in the browser immediately after hitting save.
-5. Keep using your favorite web frameworks and build tools! Babel & TypeScript supported.
+**Snowpack marks the start of an entirely new generation of bundle-free development tooling.**
 
-![how it works illustration](/img/how-does-it-work.jpg)
+### What is Snowpack?
 
-```js
-// In a Snowpack application, this runs directly in the browser!
-import React from '/web_modules/react.js';
+<div class="notification is-link">
+  <strong>Snowpack is the bundle-free build tool for React, Vue, Svelte and more.</strong> Snowpack's dev server starts up in &lt;20ms and only builds your site as needed during development. Every code change you make is reflected instantly in the browser thanks to single-file rebuilding.
+</div>
 
-// In a Snowpack application /w Babel:
-import React from 'react';
-```
+Snowpack removes the bundler from your development workflow so that you can build faster with less complexity. Connect your favorite build tools like Babel and PostCSS to customize how your source files are handled with simple, 1-line integrations.
 
+Snowpack also ships with a built-in Parcel integration to help optimize your site for production. Bundling for production with Parcel keeps your site running fast without slowing down your development workflow.
 
-### Why?
+#### Key Takeaways
 
-- Ever been stuck waiting for your webapp to rebuild during development? Ever heard your laptop fans go wild every time you hit save? Then you've experienced the cost of bundling during development. 
-- Web bundlers like Webpack are powerful, but they can easily introduce a complex mess of configuration, plugins, and dependencies. Create React App, for example, installs ~200MB of dependencies and uses ~600 lines of Webpack configuration internally.
-- Bundlers became a required web development tool in the 2010's, mainly because of npm's use of a module format that didn't run natively in the browser (Common.js). Before then, web developers would commonly ship development source code directly to the browser. Bundling used to be a production-only optimization (vs. the dev-time requirement it is today).
-- ESM has had ~5 years to bake in browser, and is now supported in all modern browsers (going back to early 2018). With ESM, bundlers are no longer required. You can build a modern, performant, production-ready web application without Webpack!
-- **Replace a rebuild-on-every-change build step (Webpack, Parcel, etc.) with a run-once install step (Snowpack) to get a faster dev environment with less tooling complexity.**
+- Snowpack is a lightning fast dev environment, powered by bundle-free development.
+- Simple, 1-line integrations for all of your favorite frameworks and build tools.
+- Built-in Parcel support for bundled, production-optimized deployments.
 
 
 ### Who's Using Snowpack?
@@ -44,8 +36,12 @@ import React from 'react';
     {% endif %}
   </a>
 {% endfor %}
+<a href="https://github.com/pikapkg/snowpack" target="_blank" title="Star on GitHub!" class="add-star-button" >
+  <svg style="height: 20px; margin-right: 8px;" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="star" class="svg-inline--fa fa-star fa-w-18" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="currentColor" d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"></path></svg>
+  Star on GitHub
+</a>
 <a href="https://github.com/pikapkg/snowpack/edit/master/docs/00.md" target="_blank" title="Add Your Project/Company!" class="add-company-button" >
-  <svg style="height: 26px; margin-right: 8px;"aria-hidden="true" focusable="false" data-prefix="fas" data-icon="plus" class="company-logo" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg>
+  <svg style="height: 22px; margin-right: 8px;" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="plus" class="company-logo" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg>
   Add your logo
 </a>
 </div>
@@ -53,70 +49,24 @@ import React from 'react';
 
 ### Who Should Use Snowpack?
 
-- **Beginners!** Popular starter applications usually come with 1000's of dependencies and 100's of lines of bundler configuration that you don't actually need. Snowpack shrinks the number of things you need to learn to get started with web development. Shipping your code directly to the browser also lets you easily inspect your code in the browser, set break-points, etc. for easier feedback loops as you're getting started.
-- **Anyone starting a new application!** Snowpack has zero lock-in, so you can always add a traditional bundler later down the road (see our guide below). But until then, you can still use all your other favorite tools like Babel & TypeScript while still getting all the dev speed improvements that come with bundler-free development. 
-- **Anyone building an application that doesn't change often!** Have you ever gotten back into a project after a while, and spent 80% of your time at the start just updating outdated dependencies? Less tooling & less configuration means there are fewer opportunities for plugin churn, breaking changes, and deprecation to hurt you.
-- **Anyone who thinks web development has gotten too complex!** Less tooling means less to install, less complexity, less to do every time you make a change, and less to debug when something goes wrong. Removing tooling that sits between your editor and the browser also makes your Dev Tools much more useful for live debugging.
-- **Anyone who is interested in the future of web development!** Snowpack is just one step towards a future of web development that lets us build more with less complexity and tooling overhead. And this future is here to stay.
+- **Beginners!** Popular starter applications usually come with 1000's of dependencies and 100's of lines of bundler configuration that you don't actually need. Snowpack simplifies your build and shrinks your configuration needs to zero.
+- **Anyone starting a new application!** Snowpack has zero lock-in, so you can always move off of Snowpack and onto a more traditional bundled dev setup down the road (see our guides below). 
+- **Anyone building an application that doesn't change often!** Simplified tooling means less time wasated updating breaking changes in your dependencies.
+- **Anyone who thinks web development has gotten too complex!** Less tooling means less to install, less complexity, less to do every time you make a change, and less to debug when something goes wrong.
+- **Anyone who is interested in the future of web development!** Snowpack is just one step towards a future of web development featuring less complexity and less overhead.
 
 
-### Who Should Avoid Snowpack?
+### Supporting Old Browsers
 
-- ~~**Anyone building for older browser**~~ [Snowpack now supports older browsers like IE11!](#runs-in-every-browser)
-- **Anyone who loves tooling-heavy development!** This isn't sarcastic, I promise :) By dropping the bundler, you can't do the magic that Webpack is famous for. Using `import` to load CSS, Images, and other non-JS resources is  non-standard and unsupported in the browser (for now). You may appreciate a dev environment that is true to what standard JavaScript browsers support. Or, you may find this annoying.
+**Snowpack builds sites for both modern and legacy browsers.** The only requirement is that you use a [modern browser](http://caniuse.com/#feat=es6-module) *during development* to reduce the total amount of processing time your site needs on every change. Any recent release of Firefox, Chrome, or Edge will do. 
 
-
-### Modern Browser Support
-
-<script src="https://cdn.jsdelivr.net/gh/ireade/caniuse-embed/public/caniuse-embed.min.js" async></script>
-<p class="ciu_embed" data-feature="es6-module" data-periods="future_1,current,past_1,past_2" data-accessible-colours="false">
-  <a href="http://caniuse.com/#feat=es6-module">
-  <picture>
-    <source type="image/webp" srcset="https://caniuse.bitsofco.de/image/es6-module.webp">
-    <img src="https://caniuse.bitsofco.de/image/es6-module.png" alt="Data on support for the es6-module feature across the major browsers from caniuse.com">
-  </picture>
-  </a>
-</p>
-
-By default, Snowpack installs npm dependencies as ES Module (ESM), which run natively [wherever ESM syntax is supported](https://caniuse.com/#feat=es6-module). This includes ~90% of all browsers in use today. **All modern browsers (Firefox, Chrome, Edge, Safari) have supported ESM since early 2018.**
-
-Additionally, Snowpack runs all dependencies through Babel via `@preset/env` to transpile any less-supported language features found in your dependencies. You can customize this behavior by setting your own "browserslist" key in your `package.json` manifest (see below).
+When you build your site for production, Snowpack will automatically transpile your site to run on older browsers as well. You can control and customize this behavior with the ["browserlist" package.json property.](https://css-tricks.com/browserlist-good-idea/).
 
 
+### Bundling for Production
 
+**Snowpack gives you the best of both worlds: faster iteration during development + faster loading in production.**
 
-### Legacy Browser Support
+If you want to bundle your site for production, you just use the optimized `--bundle` flag. This improves site performance while also allowing you to target even older, non-ESM browsers like IE11.The do have to pay the price for bundling (ie: longer builds) but only during production builds. Your development workflow stays bundle-free and fast.
 
-<p>
-<img alt="legacy browser icons" src="/img/browser-logos-all.png" style="
-    border: none;
-    box-shadow: none;" />
-</p>
-
-**As of v1.1, Snowpack also supports legacy browsers via the the `--nomodule` flag!** This is a production-only flag that generates a legacy bundle of your entire application for older browsers that don't understand ESM syntax. Because your application is already built to run in the browser, there's no configuration or extra plugins required to use it.
-
-If you need to support legacy browsers like **IE11**, **UC Browser for Android** (popular in China and India), **Samsung Mobile**, and **Opera Mini** then be sure to enable this feature.
-
-Note that this introduces a production build step into your deployment process, if you don't already have one. This is in addition to Snowpack's "run-only-once-at-install-time" normal behavior, but still much lighter than Webpack/Parcel's "run-on-every-change-at-dev-time" normal behavior.
-
-Read our guide on [Supporting Legacy Browsers](#supporting-legacy-browsers) for more details.
-
-
-### Load Performance
-
-You can think of Snowpack like an optimized code-splitting strategy for your dependencies. Dependencies are bundled into individual files at install-time, with all internal package files bundled together as efficiently as possible. Any common, shared dependencies are moved into common, shared chunks in your `web_modules/` directory. 
-
-But make no mistake: unbundled applications have a different performance story than bundled applications. Cache efficiency improves significantly (especially useful if you deploy multiple times per day) and the risk of shipping duplicate code across bundles goes to zero.
-
-Unlike in traditional bundled applications, long (7+) chains of imports can slow down your first page load. How you weigh these pros and cons of unbundled production applications depends on your specific application and use-case.
-
-Of course, you're always free to add a bundler as a part of your production build pipeline only and you'll continue to get the developer experience boost. Or, just use  Snowpack to get started and then add a bundler whenever you feel you need to for performance. That's what we did when we started www.pika.dev, and years later performance is still good. 
-
-To learn more about unbundled load performance, check out Max Jung's post on ["The Right Way to Bundle Your Assets for Faster Sites over HTTP/2"](https://medium.com/@asyncmax/the-right-way-to-bundle-your-assets-for-faster-sites-over-http-2-437c37efe3ff). It's the best study on HTTP/2 performance & bundling we could find online, backed up by real data. Snowpack's installation most closely matches the study's moderate, "50 file" bundling strategy. Jung's post found that for HTTP/2, "differences among concatenation levels below 1000 [small files] (50, 6 or 1) were negligible."
-
-### Cache Performance
-
-Snowpack performs best when it comes to caching. Snowpack keeps your dependencies separate from your application code and from each other, which gives you a super-optimized caching strategy *by default.* This lets the browser cache dependencies as efficiently as possible, and only fetch updates when individual dependencies are updated.
-
-The same applies to unbundled application code as well. When you make changes to a file, the browser only needs to re-fetch that one file. This is especially useful if you manage multiple deployments a day, since only changed files need to be loaded.
 

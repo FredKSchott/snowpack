@@ -32,11 +32,13 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
   fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
 }
 
-export function fetchCDNResource(resourceUrl: string) {
+export function fetchCDNResource(resourceUrl: string, responseType?: 'text' | 'json' | 'buffer') {
   if (!resourceUrl.startsWith(PIKA_CDN)) {
     resourceUrl = PIKA_CDN + resourceUrl;
   }
+  // @ts-ignore - TS doesn't like responseType being unknown amount three options
   return got(resourceUrl, {
+    responseType: responseType,
     headers: {'user-agent': `snowpack/v1.4 (https://snowpack.dev)`},
     throwHttpErrors: false,
   });
@@ -63,13 +65,8 @@ export function resolveDependencyManifest(dep: string, cwd: string) {
     const depManifest = require.resolve(`${dep}/package.json`, {paths: [cwd]});
     return [depManifest, require(depManifest)];
   } catch (err) {
-    if (
-      (err.code === 'MODULE_NOT_FOUND' || err.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') &&
-      err.message.includes(`'./package.json'`)
-    ) {
-      // its most likely an export map issue, move on to our manual resolver.
-      // TODO(03-2020): Remove MODULE_NOT_FOUND check (only needed for Node v13.1-v13.9).
-    } else {
+    // if its an export map issue, move on to our manual resolver.
+    if (err.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
       throw err;
     }
   }

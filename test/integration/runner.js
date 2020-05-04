@@ -1,7 +1,7 @@
 const assert = require('assert');
 const path = require('path');
 const fs = require('fs').promises;
-const {readdirSync, readFileSync} = require('fs');
+const {readdirSync, readFileSync, statSync} = require('fs');
 const execa = require('execa');
 const rimraf = require('rimraf');
 const dircompare = require('dir-compare');
@@ -30,6 +30,18 @@ function stripRev(code) {
 function stripChunkHash(stdout) {
   return stdout.replace(/([\w\-]+\-)[a-z0-9]{8}(\.js)/g, '$1XXXXXXXX$2');
 }
+function stripUrlHash(stdout) {
+  return stdout.replace(/\-[A-Za-z0-9]{20}\//g, 'XXXXXXXX');
+}
+
+function removeLockfile(testName) {
+  const lockfileLoc = path.join(__dirname, testName, 'snowpack.lock.json');
+  try {
+    rimraf.sync(lockfileLoc);
+  } catch (err) {
+    // ignore
+  }
+}
 
 beforeAll(() => {
   // Needed so that ora (spinner) doesn't use platform-specific characters
@@ -42,15 +54,16 @@ for (const testName of readdirSync(__dirname)) {
   }
 
   test(testName, async () => {
-    // Prepare test directory
-    const testDir = path.join(__dirname, testName);
+    // Cleanup
     if (!KEEP_LOCKFILE.includes(testName)) {
-      rimraf.sync(path.join(testDir, 'snowpack.lock.json'));
+      removeLockfile(testName);
     }
 
+    // Run Test
     const {all} = await execa('npm', ['run', `TEST`, `--silent`], {
       cwd: path.join(__dirname, testName),
       reject: false,
+      all: true,
     });
     // Test Output
     const expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
@@ -68,7 +81,18 @@ for (const testName of readdirSync(__dirname)) {
     if (expectedLock) {
       const actualLockLoc = path.join(__dirname, testName, 'snowpack.lock.json');
       const actualLock = await fs.readFile(actualLockLoc, {encoding: 'utf8'});
-      assert.strictEqual(stripWhitespace(actualLock), stripWhitespace(expectedLock));
+      if (KEEP_LOCKFILE.includes(testName)) {
+        assert.strictEqual(stripWhitespace(actualLock), stripWhitespace(expectedLock));
+      } else {
+        assert.strictEqual(
+          stripWhitespace(stripUrlHash(actualLock)),
+          stripWhitespace(stripUrlHash(expectedLock)),
+        );
+      }
+    }
+    // Cleanup
+    if (!KEEP_LOCKFILE.includes(testName)) {
+      removeLockfile(testName);
     }
 
     const expectedWebDependenciesLoc = path.join(__dirname, testName, 'expected-install');
@@ -84,7 +108,9 @@ for (const testName of readdirSync(__dirname)) {
         return;
       }
       // throw error if web_modules/ is generated but expected-install/ is missing
-      assert.rejects(() => fs.readdir(actualWebDependenciesLoc), 'web_modules/ exists');
+      assert.throws(() => {
+        statSync(actualWebDependenciesLoc);
+      }, actualWebDependenciesLoc + ' exists');
       return;
     }
 
@@ -100,7 +126,7 @@ for (const testName of readdirSync(__dirname)) {
       excludeFilter: 'common',
     });
     // If any diffs are detected, we'll assert the difference so that we get nice output.
-    res.diffSet.forEach(function(entry) {
+    res.diffSet.forEach((entry) => {
       if (entry.type1 !== 'file') {
         // NOTE: We only compare files so that we give the test runner a more detailed diff.
         return;

@@ -1,3 +1,4 @@
+import babel from '@babel/core';
 import chalk from 'chalk';
 import nodePath from 'path';
 import fs from 'fs';
@@ -53,17 +54,28 @@ function removeSpecifierQueryString(specifier: string) {
 }
 
 function getWebModuleSpecifierFromCode(code: string, imp: ImportSpecifier) {
-  if (imp.d > -1) {
-    return code.substring(imp.s + 1, imp.e - 1);
+  // import.meta: we can ignore
+  if (imp.d === -2) {
+    return null;
   }
-  return code.substring(imp.s, imp.e);
+  // Static imports: easy to parse
+  if (imp.d === -1) {
+    return code.substring(imp.s, imp.e);
+  }
+  // Dynamic imports: a bit trickier to parse. Today, we only support string literals.
+  const importStatement = code.substring(imp.s, imp.e);
+  const importSpecifierMatch = importStatement.match(/^\s*['"](.*)['"]\s*$/m);
+  return importSpecifierMatch ? importSpecifierMatch[1] : null;
 }
 
 /**
  * parses an import specifier, looking for a web modules to install. If a web module is not detected,
  * null is returned.
  */
-function parseWebModuleSpecifier(specifier: string): null | string {
+function parseWebModuleSpecifier(specifier: string | null): null | string {
+  if (!specifier) {
+    return null;
+  }
   // If specifier is a "bare module specifier" (ie: package name) just return it directly
   if (BARE_SPECIFIER_REGEX.test(specifier)) {
     return specifier;
@@ -89,12 +101,15 @@ function parseWebModuleSpecifier(specifier: string): null | string {
 
 function parseImportStatement(code: string, imp: ImportSpecifier): null | InstallTarget {
   const webModuleSpecifier = parseWebModuleSpecifier(getWebModuleSpecifierFromCode(code, imp));
-
   if (!webModuleSpecifier) {
     return null;
   }
 
   const importStatement = code.substring(imp.ss, imp.se);
+  if (/^import\s+type/.test(importStatement)) {
+    return null;
+  }
+
   const dynamicImport = imp.d > -1;
   const defaultImport = !dynamicImport && DEFAULT_IMPORT_REGEX.test(importStatement);
   const namespaceImport = !dynamicImport && importStatement.includes('*');
@@ -113,7 +128,7 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
   };
 }
 
-function getInstallTargetsForFile(filePath: string, code: string): InstallTarget[] {
+function getInstallTargetsForFile(code: string): InstallTarget[] {
   const [imports] = parse(code) || [];
   const allImports: InstallTarget[] = imports
     .map((imp) => parseImportStatement(code, imp))
@@ -141,23 +156,38 @@ interface ScanImportsParams {
 
 export async function scanImports({include, exclude}: ScanImportsParams): Promise<InstallTarget[]> {
   await initESModuleLexer;
-  const includeFiles = glob.sync(include, {ignore: exclude, nodir: true});
+  const includeFiles = glob.sync(`${include}/**/*`, {ignore: exclude, nodir: true});
   if (!includeFiles.length) {
     console.warn(`[SCAN ERROR]: No files matching "${include}"`);
     return [];
   }
 
   // Scan every matched JS file for web dependency imports
-  return includeFiles
-    .filter((filePath) => {
-      if (filePath.endsWith('.js') || filePath.endsWith('mjs') || filePath.endsWith('.ts')) {
-        return true;
+  const loadedFiles = await Promise.all(
+    includeFiles.map(async (filePath) => {
+      // Our import scanner can handle normal JS & even TypeScript without a problem.
+      if (filePath.endsWith('.js') || filePath.endsWith('.mjs') || filePath.endsWith('.ts')) {
+        return fs.promises.readFile(filePath, 'utf-8');
+      }
+      // JSX breaks our import scanner, so we need to transform it before sending it to our scanner.
+      if (filePath.endsWith('.jsx') || filePath.endsWith('.tsx')) {
+        const result = await babel.transformFileAsync(filePath, {
+          plugins: [
+            [require('@babel/plugin-transform-react-jsx'), {runtime: 'classic'}],
+            [require('@babel/plugin-syntax-typescript'), {isTSX: true}],
+          ],
+          babelrc: false,
+          configFile: false,
+        });
+        return result && result.code;
       }
       console.warn(chalk.dim(`ignoring unsupported file "${filePath}"`));
-      return false;
-    })
-    .map((filePath) => [filePath, fs.readFileSync(filePath, 'utf8')])
-    .map(([filePath, code]) => getInstallTargetsForFile(filePath, code))
+      return null;
+    }),
+  );
+  return (loadedFiles as string[])
+    .filter((code) => !!code)
+    .map((code) => getInstallTargetsForFile(code))
     .reduce((flat, item) => flat.concat(item), [])
     .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier));
 }

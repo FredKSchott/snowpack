@@ -27,38 +27,38 @@
     <meta property="twitter:description" content="Build web applications with less tooling and faster iteration.">
     <meta property="twitter:image" content="https://www.snowpack.dev/img/social.jpg">
 
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
 
-    <link href="/css/prism.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:600&display=swap" >
-    <link rel="stylesheet" href="/css/github-markdown.css" >
     <style>
-    /*! minireset.css v0.0.6 | MIT License | github.com/jgthms/minireset.css */html,body,p,ol,ul,li,dl,dt,dd,blockquote,figure,fieldset,legend,textarea,pre,iframe,hr,h1,h2,h3,h4,h5,h6{margin:0;padding:0}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal}ul{list-style:none}button,input,select,textarea{margin:0}html{box-sizing:border-box}*,*::before,*::after{box-sizing:inherit}img,video{height:auto;max-width:100%}iframe{border:0}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}td:not([align]),th:not([align]){text-align:left}
+      /*! minireset.css v0.0.6 | MIT License | github.com/jgthms/minireset.css */html,body,p,ol,ul,li,dl,dt,dd,blockquote,figure,fieldset,legend,textarea,pre,iframe,hr,h1,h2,h3,h4,h5,h6{margin:0;padding:0}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal}ul{list-style:none}button,input,select,textarea{margin:0}html{box-sizing:border-box}*,*::before,*::after{box-sizing:inherit}img,video{height:auto;max-width:100%}iframe{border:0}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}td:not([align]),th:not([align]){text-align:left}
+    </style>
+    <link rel="stylesheet" href="/css/github-markdown.css" >
+    <link href="/css/prism.css" rel="stylesheet" />
 
-/**
- * 1. Use the system font stack as a sane default.
- * 2. Use Tailwind's default "normal" line-height so the user isn't forced
- * to override it to ensure consistency even when using the default theme.
- */
- html, body, .markdown-body {font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji; /* 1 */line-height:1.5 /* 2 */}
 
-.markdown-body h1, .pretty-font {
-  font-family: 'Montserrat', 'ProximaNova-Bold', 'Helvetica Neue', Arial, sans-serif;
+    <style>
+html, body, .markdown-body {
+  font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji; 
+}
+.header-logo, .header-snowpack,
+.header-snowpack-subtitle, .notification, .markdown-body h1, .markdown-body h2, .markdown-body h3, .pretty-font, .toc {
+  font-family: 'Overpass', sans-serif;
 }
 .markdown-body h2 {
   font-size: 3.0em;
   margin-top: 0;
-  padding-top: 36px;
+  padding-top: 48px;
 }
 .markdown-body h3 {
   margin-top: 0;
-  padding-top: 24px;
+  padding-top: 48px;
 }
 .markdown-body h4 {
   margin-top: 0;
-  padding-top: 6px;
+  padding-top: 24px;
   text-transform: uppercase;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: bold;
   letter-spacing: 1px;
 }
 .markdown-body h2 + h3 {
@@ -67,10 +67,66 @@
 .markdown-body thead tr {
   background-color: #0366d616;
 }
+
+
+.button {
+  display: inline-block;
+  zoom: 1;
+  line-height: normal;
+  white-space: nowrap;
+  vertical-align: middle;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;   
+  font-family: inherit;
+  font-size: 100%;
+  padding: .5em 1.5em;
+  text-decoration: none;
+  border-radius: 2px;
+  color: #fff;
+  font-size: 22px;
+  background: linear-gradient(45deg, #24bf62, #267dd6, #b224d0);
+  font-family: 'Overpass', sans-serif;
+  font-weight: bold;
+  box-shadow: 0 1px 3px 0 #2e5e82;
+  width: 100%;
+}
+
+
 .header-link {
   padding-left: 2px;
 }
-
+.grid-body-header > svg {
+  margin: auto;
+  display: block;
+  opacity: 0.8;
+}
+.header-snowpack {
+  letter-spacing: -0.045em;
+  font-size: 5.75rem;
+  font-weight: 900;
+  max-width: 424px;
+  margin: -0.5rem auto -0.5rem;
+}
+.header-snowpack-subtitle {
+  font-size: 2.73rem;
+  font-weight: normal;
+  line-height: 1.1;
+  max-width: 424px;
+  margin: auto;
+}
+.header-code {
+  font-size: 1.6rem;
+  max-width: 424px;
+  background: #EEEEEE;
+  background: linear-gradient(45deg, #2FCC6E66,  #0e8bec66, #be2edd66);
+  border-radius: 6px;
+  box-shadow: 0 1px 3px 0 #2e5e82;
+  padding: 1rem;
+  margin: 1.5rem auto;
+  font-weight: bold;
+}
 
 
 /*
@@ -87,7 +143,6 @@
 }
 */
 .markdown-body h2 .header-link, .markdown-body h3 .header-link {
-  font-weight: 300;
   margin-left: 8px;
   opacity: 0;
   transition: opacity 100ms ease-in-out;
@@ -99,38 +154,70 @@
 .markdown-body ul {
   list-style: initial;
 }
+.markdown-body ul > li > ul {
+    list-style: none;
+    border-left: 3px solid #99D;
+    padding: 0.5rem 1rem 0.6rem;
+    margin: 0.5rem 0;
+    border-left: 6px solid #2e5e82;
+    background: #258ad622;
+}
 .markdown-body img, .markdown-body iframe {
   box-shadow: 0px 5px 12px 0 #CCC;
   border: 1px solid #AAA;
   border-radius: 3px;
 }
 .notification {
-    border-radius: 4px;
-    padding: 1.25rem 2.5rem 1.25rem 1.5rem;
+    padding: 1rem 1.5rem;
+    margin: 2rem 0;
     position: relative;
-    background-color: #3298dc;
-    color: #fff;
-    border: #0005 1px solid;
+    border-left: 6px solid #2e5e82;
+    background:  #258ad622;
+    font-size: 20px;
+    line-height: 1.4;
+
 }
-.header-buttons {
+.grid-toc-buttons {
   flex-grow: 1;
+  background: #457396;
+  background: #2e5e82;
+  padding: 0.5rem 0.5rem;
 }
-.header-buttons svg,
-.header-buttons img {
-  height: 38px;
-  width: 38px;
+.grid-toc-buttons svg,
+.grid-toc-buttons img {
+  height: 28px;
+  width: 28px;
   padding: 4px;
   display: inline-block;
-  color: #999;
+  color: #FFFB;
 }
-.header-buttons svg:hover {
-  color: #3298dc;
+.grid-toc-buttons svg:hover {
+  color: #fff;
 }
-.header-buttons img {
+.grid-toc-buttons img {
   filter: grayscale(90%);
 }
-.header-buttons img:hover {
+.grid-toc-buttons img:hover {
   filter: none;
+}
+.grid-toc-buttons a.header-logo {
+    float: left;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 22px;
+    line-height: 1;
+}
+.grid-toc-buttons a.header-logo svg {
+  color: #ffF;
+  padding: 0;
+  margin-left: 2px;
+  margin-right: 8px;
+}
+.grid-toc-buttons a {
+  float: right;
+  color: white;
+  text-decoration: none;
 }
 
 * {
@@ -148,113 +235,115 @@ body {
 
 body {
   display: grid;
-  grid-template-columns: 82px 260px 1fr;
-  grid-template-rows: 62px 4px 1fr;
+  grid-template-columns: 360px minmax(auto, 720px) 1fr;
+  grid-template-rows: 44px 1fr;
   grid-column-gap: 0px;
   grid-row-gap: 0px;
+  grid-template-areas:
+        "c b d"
+        "a b d";
 }
 
-.grid-logo { grid-area: 1 / 1 / 2 / 2; }
-.grid-header { grid-area: 1 / 2 / 2 / 4; }
-.grid-header-border { grid-area: 2 / 1 / 3 / 4; }
-.grid-toc { grid-area: 3 / 1 / 4 / 3; }
-.grid-body { grid-area: 3 / 3 / 4 / 4; }
+.grid-toc { grid-area: a; }
+.grid-body { grid-area:  b; }
+.grid-toc-buttons { grid-area: c; }
+.grid-extra-space { grid-area: d; }
 .grid-toc, .grid-body {
   overflow: scroll;
 }
 
-@media (max-width: 700px) {
-  .grid-toc { display: none; }
-  .grid-body { grid-area: 3 / 1 / 4 / 4; }
-  .hidden-mobile {display: none; }
-  .version-tag {display: none; }
-  .header-buttons svg, .header-buttons img {
-    padding: 8px 0;
-    width: 30px;
-  }
-  .markdown-body h1 {
-    font-size: 3.5em;
-  }
-  .markdown-body h3 .header-link {
-    opacity: 1;
-  } 
+.grid-extra-space {
+  overflow: hidden;
+  opacity: 0.4;
+  z-index: -1; 
+  background: #043456;
+  background: url('/img/extra-space-3.jpg') center; 
+  background-size: cover;
+  /*
+    background: url('/img/extra-space.png') center; 
+  */
 }
-
-
+.grid-extra-space video {
+    height: 114%;
+    width: 100%;
+    object-fit: cover;
+    z-index: -100;
+    right: 0;
+    top: 0;
+    background: linear-gradient(#5cb0bd, #043456);
+    overflow: hidden;
+}
 .markdown-body table td:nth-child(1) {
   white-space: nowrap;
 }
-@media (min-width: 1110px) {
-  .markdown-body table {
-    width: 66vw;
-  }
-}
-
-.grid-logo {
-  padding: 10px 1em;
-}
-.grid-header {
-  font-family: 'Montserrat', 'ProximaNova-Bold', 'Helvetica Neue', Arial, sans-serif;
-  padding: 12px 0.5em 12px 0;
-  line-height: 42px;
-  letter-spacing: 1px;
-  display: flex;
- }
-.grid-header h1 {
-  font-size: 32px;
-  display: inline-block;
-  color: #333;
-}
-.grid-header h1:hover {
-  color: #575DFF;
-}
-.grid-header .version-tag {
-  font-size: 20px;
-}
-.header-buttons a {
-  float: right;
-  color: #333;
-  text-decoration: none;
-}
-.grid-header-border {
-    background: linear-gradient(to right, #55F 0%, #51BBFF66 100%);
- }
 
 .toc {
-  padding: 1em;
+  padding: 2rem 3rem 0.25rem;
+  background: #2e5e82;
 }
 .toc a {
+  position: relative;
   text-decoration: none;
-  color: #888;
+  color: #FFFB;
+}
+.toc a:before {
+  content: '▸';
+  position: absolute;
+  opacity: 0;
+  left: -19px;
+  top: -4px;
+  font-weight: normal;
+  transition: left 140ms ease-out;
+
 }
 
+.toc a:hover {
+  text-decoration: underline;
+}
 .toc a.active {
-  color: red;
+  color: #fff;
+  font-weight: bold;
+  text-decoration: underline;
+}
+.toc a.active:before {
+  opacity: 1;
+  left: -17px;
 }
 
 .toc ol {
   list-style: none;
   line-height: 1.8;
+  margin-bottom: 3rem;
 }
 .toc > ol > li {
   font-weight: bold;
+  text-transform: uppercase;
 }
 .toc > ol > li > a {
-  color: #333;
+  color: #FFF;
 }
 .toc > ol > li > ol {
   padding: 0 1em 0em 1em;
   font-weight: normal;
+  text-transform: none;
 }
 
 
 .grid-body {
-  padding: 1em;
+  background: white;
+  padding: 1rem 3em;
   -webkit-overflow-scrolling: touch;
 }
-.markdown-body {
+.markdown-body,
+.grid-body-header {
   max-width: 720px;
+}
+.grid-body-header {
+  margin: 4rem 0 4rem;
+}
+.markdown-body {
   margin-bottom: 50vh;
+
 }
 .github-button {
   display: none;
@@ -275,16 +364,22 @@ body {
   filter: grayscale(0.1);
   opacity: 0.8;
 }
-.company-logos > .add-company-button {
+.company-logos > .add-company-button,
+.company-logos > .add-star-button {
   display: flex; 
   align-items: center; 
   height: 44px; 
-  margin: 14px 14px 0px; 
-  border: 2px solid #e74c3c; 
-  border-radius: 10px;
-  font-weight: 500;
+  margin: 14px 0px 0px 10px; 
+  border: 2px solid #666; 
+  color: #555;
+  border-radius: 8px;
+  font-weight: normal;
   filter: grayscale(0);
   opacity: 1;
+}
+.company-logos > .add-company-button {
+  border-color: #e74c3c; 
+  color: #e74c3c;
 }
 img.company-logo {
   box-shadow: none;
@@ -294,63 +389,147 @@ img.company-logo {
 }
 .company-logos > a:hover {
   text-decoration: underline;
-  font-weight: 500;
+  font-weight: normal;
   filter: grayscale(0);
   opacity: 1;
 }
 
+
+
+    .highlight-container, .highlight {
+      position: relative;
+      font-weight: bold;
+    }
+    .highlight-container {
+    display: inline-block;
+}
+/*
+    .highlight-container:before {
+    content: " ";
+    display: block;
+    height: 96%;
+    width: 104%;
+    position: absolute;
+    left: -2%;
+    top: 2%;
+    background: #45f17a85;
+    padding: 12px 4px 4px 12px;
+    border-radius: 4px;
+}
+*/
+    .highlight-red {
+      color: #2ecc71;
+    }
+    .highlight-yellow {
+      color: #be2edd;
+    }
+    .highlight-green {
+      color: #0c8cec;
+    }
+
+#toc-logo {
+  display: inline-block;
+}
+#toc-drawer-button {
+  display: none;
+}
+@media (min-width: 1110px) {
+  .markdown-body table {
+    width: 66vw;
+  }
+}
+
+@media (max-width: 860px) {
+body {
+  grid-template-columns: 280px 1fr;
+}
+  .grid-extra-space { display: none; }
+  .grid-body, .toc {
+    padding: 1em;
+  }
+}
+@media (max-width: 740px) {
+  .grid-toc  { grid-area: 2 / 1 / 2 / 4; }
+  .grid-toc-buttons { grid-area: 1 / 1 / 1 / 4;  }
+  .grid-body { grid-area: 2 / 1 / 2 / 4; }
+  .hidden-mobile {display: none; }
+  .version-tag {display: none; }
+#toc-logo {
+  display: none;
+}
+#toc-drawer-button {
+  display: inline-block;
+}
+  .grid-body {
+    padding: 1em;
+  }
+
+  .grid-body.hidden {
+  display: none;
+
+  }
+  .markdown-body h1 {
+    font-size: 3.5em;
+  }
+  .markdown-body h3 .header-link {
+    opacity: 1;
+  } 
+}
+
+
     </style>
   </head>
   <body>
-  <div class="grid-logo">
-    <svg  height="42px" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-        <defs>
-        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
-            <stop stop-color="#55F" offset="0%"></stop>
-            <stop stop-color="#61CCFF" offset="100%"></stop>
-        </linearGradient>
-        </defs>
-        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-            <g id="mountain-solid" transform="translate(-1.000000, 0.000000)" fill="url(#linearGradient-1)" fill-rule="nonzero">
-                <path d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z" id="Shape"></path>
-            </g>
-        </g>
-    </svg>
-  </div>
-    <header class="grid-header">
-      <a href="#snowpack"><h1>Snowpack</h1></a>
-<!-- Place this tag where you want the button to render. -->
-<span class="hidden-mobile" style="
-    line-height: 33px;
-    margin-left: 12px;"><a class="github-button" href="https://github.com/pikapkg/snowpack" data-icon="octicon-star" data-show-count="true" aria-label="Star pikapkg/snowpack on GitHub">Star</a></span>
-<!-- Place this tag in your head or just before your close body tag. -->
-<script async defer src="https://buttons.github.io/buttons.js"></script>
-
-      <div class="header-buttons">
-        <a href="https://www.pika.dev" target="_blank">
-          <img src="https://www.pika.dev/static/img/logo5.svg" />
-        </a>
-        <a href="https://github.com/pikapkg/snowpack" target="_blank">
-          <svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="github" class="svg-inline--fa fa-github fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg>
-        </a>
-        <a href="https://twitter.com/pikapkg" target="_blank">
-          <svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="twitter" class="svg-inline--fa fa-twitter fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"></path></svg>
-        </a>
-        <a class="hidden-mobile" disabled>
-          <svg style="width: 16px; opacity: 0.5" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle" class="svg-inline--fa fa-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path></svg>
-        </a>
-        <a class="hidden-mobile" href="https://github.com/pikapkg/snowpack/blob/master/docs" target="_blank">
-          <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="pencil-alt" class="svg-inline--fa fa-pencil-alt fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"></path></svg>
-        </a>
-      </div>
-    </header>
-    <div class="grid-header-border">
+    <div class="grid-extra-space">
+      <!-- <video id="background-video" src="/img/extra-space-4.mp4" autoplay loop muted></video> -->
     </div>
     <aside class="grid-toc">
       {{ content | toc | safe }}
-
     </aside>
+
+    <div class="grid-toc-buttons">
+      <a class="header-logo" href="/">
+        <svg id="toc-drawer-button" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="bars" class="svg-inline--fa fa-bars fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"></path></svg>
+        <svg id="toc-logo" height="38px" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <g id="Page-1" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
+                <g id="mountain-solid" transform="translate(-1.000000, 0.000000)"fill-rule="nonzero">
+                    <path d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z" id="Shape"></path>
+                </g>
+            </g>
+        </svg>
+      Snowpack
+      </a>
+      <a href="https://github.com/pikapkg/snowpack" target="_blank">
+        <svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="github" class="svg-inline--fa fa-github fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg>
+      </a>
+      <a href="https://twitter.com/pikapkg" target="_blank">
+        <svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="twitter" class="svg-inline--fa fa-twitter fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"></path></svg>
+      </a>
+    </div>
     <div id="grid-body" class="grid-body">
+      <div class="grid-body-header">
+        <svg height="64px" style="padding-left: 8px;" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <g id="Page-1" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
+                <g id="mountain-solid" transform="translate(-1.000000, 0.000000)"fill-rule="nonzero">
+                    <path d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z" id="Shape"></path>
+                </g>
+            </g>
+        </svg>
+        <h1 class="header-snowpack">Snowpack</h1>
+        <p class="header-snowpack-subtitle">
+          The 
+          <span class="highlight-container highlight-red"><span class="highlight">fast,</span></span> 
+          <span class="highlight-container highlight-yellow"><span class="highlight">bundle-free</span></span> 
+          build tool for 
+          <span class="highlight-container highlight-green"><span class="highlight">modern</span></span> 
+          web apps.
+        </p>
+        <div style="margin: 1.5rem auto; max-width: 424px;">
+          <a href="#get-started" class="button">Install Snowpack</a>
+        </div>
+        <!-- <pre class="header-code"><code>npm install -D snowpack</pre></code> -->
+      </div>
+
       <article class="markdown-body">
         {{ content | safe }}
       </article>
@@ -384,24 +563,25 @@ img.company-logo {
     };
 
     function isScrolledIntoView(el) {
-      var rect = el.getBoundingClientRect();
-      var elemTop = rect.top;
-      var elemBottom = rect.bottom;
+      const rect = el.getBoundingClientRect();
+      const elemTop = rect.top;
+      const elemBottom = rect.bottom;
       // Only completely visible elements return true:
-      var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+      // var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
       // Partially visible elements return true:
-      //isVisible = elemTop < window.innerHeight && elemBottom >= 0;
+      const isVisible = elemTop < window.innerHeight && elemBottom >= 0;
       return isVisible;
     }
 
     function setActiveToc() {
+      // backgroundVideo.style.top = `-${(gridBodyEl.scrollTop/2000)}%`
       for (const el of document.querySelectorAll('h3, h2')) {
         if (!isScrolledIntoView(el)) {
           continue;
         }
         const elId = el.id;
         const tocEl = tableOfContentsEl.querySelector(`a[href="#${elId}"]`);
-        tableOfContentsEl.querySelectorAll(`a.active`).forEach(aEl => aEl.classList.remove('active'));;
+        tableOfContentsEl.querySelectorAll(`a.active`).forEach(aEl => aEl.classList.remove('active'));
         if (!tocEl) {
           return;
         }
@@ -409,17 +589,27 @@ img.company-logo {
         // Don't scroll the top one
         if (elId !== 'introduction') {
           tocEl.scrollIntoView();
+          tableOfContentsEl.parentElement.scrollTop -= 40;
+        } else {
+          tableOfContentsEl.parentElement.scrollTop = 0;
         }
         return;
       }
     }
 
+    // const backgroundVideo = document.getElementById('background-video');
     const gridBodyEl = document.getElementById('grid-body');
     const tableOfContentsEl = document.querySelector('.toc');
     gridBodyEl.addEventListener('scroll', debounce(setActiveToc));
-    setActiveToc();
 
 
+    document.getElementById('toc-drawer-button').addEventListener('click', (e) => {
+      e.preventDefault();
+      gridBodyEl.classList.toggle('hidden');
+    });
+    document.querySelector('.grid-toc').addEventListener('click', (e) => {
+      gridBodyEl.classList.remove('hidden');
+    });
     /* May not be needed:
     window.addEventListener('DOMContentLoaded', (event) => {
       if (!window.location.hash) {
@@ -435,6 +625,7 @@ img.company-logo {
     */
 
     window.addEventListener('DOMContentLoaded', (event) => {
+      setActiveToc();
       document.querySelectorAll('.markdown-body h3').forEach((headerEl) => {
         const linkEl = document.createElement("a"); 
         // linkEl.setAttribute('target', "_blank");

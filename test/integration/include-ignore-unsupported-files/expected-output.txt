@@ -1,5 +1,3 @@
-ignoring unsupported file "src/a.tsx"
-ignoring unsupported file "src/b.jsx"
 ignoring unsupported file "src/c.png"
 ignoring unsupported file "src/d.css"
 ⠼ snowpack installing... 

@@ -75,20 +75,24 @@ async function resolveDependency(
     console.warn(`Falling back to local copy...`);
     return null;
   }
-  if (installUrlType === 'pin') {
-    const pinnedUrl = installUrl;
-    await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
-      metadata: {pinnedUrl},
-    });
-    return pinnedUrl;
-  }
+
   let importUrlPath = headers['x-import-url'] as string;
   let pinnedUrlPath = headers['x-pinned-url'] as string;
   const buildStatus = headers['x-import-status'] as string;
+  const typesUrlPath = headers['x-typescript-types'] as string | undefined;
+  const typesUrl = typesUrlPath && `${PIKA_CDN}${typesUrlPath}`;
+
+  if (installUrlType === 'pin') {
+    const pinnedUrl = installUrl;
+    await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
+      metadata: {pinnedUrl, typesUrl},
+    });
+    return pinnedUrl;
+  }
   if (pinnedUrlPath) {
     const pinnedUrl = `${PIKA_CDN}${pinnedUrlPath}`;
     await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
-      metadata: {pinnedUrl},
+      metadata: {pinnedUrl, typesUrl},
     });
     return pinnedUrl;
   }
@@ -118,7 +122,6 @@ async function resolveDependency(
 }
 
 export async function resolveTargetsFromRemoteCDN(
-  installTargets: InstallTarget[],
   lockfile: ImportMap | null,
   pkgManifest: any,
   config: SnowpackConfig,
@@ -127,15 +130,7 @@ export async function resolveTargetsFromRemoteCDN(
   const newLockfile: ImportMap = {imports: {}};
   let resolutionError: Error | undefined;
 
-  const allInstallSpecifiers = new Set(installTargets.map((dep) => dep.specifier));
-  for (const installSpecifier of allInstallSpecifiers) {
-    const installSemver: string =
-      (config.webDependencies || {})[installSpecifier] ||
-      (pkgManifest.webDependencies || {})[installSpecifier] ||
-      (pkgManifest.dependencies || {})[installSpecifier] ||
-      (pkgManifest.devDependencies || {})[installSpecifier] ||
-      (pkgManifest.peerDependencies || {})[installSpecifier] ||
-      'latest';
+  for (const [installSpecifier, installSemver] of Object.entries(config.webDependencies!)) {
     downloadQueue.add(async () => {
       try {
         const resolvedUrl = await resolveDependency(installSpecifier, installSemver, lockfile);
