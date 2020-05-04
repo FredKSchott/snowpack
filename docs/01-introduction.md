@@ -1,29 +1,22 @@
 ## Introduction
 
+Today's build tooling is built on an old assumption: that web applications can't run in the browser without a bundler. This had been true in the past, but ESM `import`/`export` support in the browser changed everything. 
 
-The web has evolved over the last decade, but our build tooling hasn't. We're still relying on the old assumption that your application won't run in the browser until you've bundled the whole thing up into larger, shared chunks. That may have been true a few years ago, but ESM `import`/`export` support in the browser changed everything. 
+**The truth is, you no longer need a bundler during development.**
 
-**You no longer need a bundler during development.**
-
-This is great news for developers because it mean that you are no longer *required* to rely on a complex mix of bundler configuration, plugins, dependencies and complexity that you probably wouldn't otherwise need. Bundling is still a great production optimization, but it really has little use during development.   
+This is great news for developers because most bundlers introduce a complex mix of configuration, plugins, dependencies and complexity that you probably wouldn't otherwise need. Not only that, but bundling during development introduces a significant slow down to your dev workflow, as you wait for entire chunks of your application to rebuild just because you changed a single file. Bundling is still a great production optimization, but it really has little use during development.
 
 **Snowpack marks the start of an entirely new generation of bundle-free development tooling.**
 
 ### What is Snowpack?
 
 <div class="notification is-link">
-  <strong>Snowpack is the bundle-free build tool for React, Vue, Svelte and more.</strong> Snowpack's dev server starts up in &lt;20ms and only builds your site as needed during development. Every code change you make is reflected instantly in the browser thanks to single-file rebuilding.
+  <strong>Snowpack is bundle-free build tooling for React, Vue, Svelte and more.</strong> Snowpack's lightning-fast dev server starts up in &lt;20ms and reflects changes instantly thanks to single-file rebuilding. When you're ready to deploy, Snowpack will build, bundle, and optimize your site for production.
 </div>
 
-Snowpack removes the bundler from your development workflow so that you can build faster with less complexity. Connect your favorite build tools like Babel and PostCSS to customize how your source files are handled with simple, 1-line integrations.
+Snowpack removes the bundler from your development workflow so that you can build faster with less complexity. Connect your favorite build tools like Babel and PostCSS to customize how your source files are handled with simple, 1-line build tool integrations.
 
 Snowpack also ships with a built-in Parcel integration to help optimize your site for production. Bundling for production with Parcel keeps your site running fast without slowing down your development workflow.
-
-#### Key Takeaways
-
-- Snowpack is a lightning fast dev environment, powered by bundle-free development.
-- Simple, 1-line integrations for all of your favorite frameworks and build tools.
-- Built-in Parcel support for bundled, production-optimized deployments.
 
 
 ### Who's Using Snowpack?
@@ -47,26 +40,18 @@ Snowpack also ships with a built-in Parcel integration to help optimize your sit
 </div>
 
 
-### Who Should Use Snowpack?
-
-- **Beginners!** Popular starter applications usually come with 1000's of dependencies and 100's of lines of bundler configuration that you don't actually need. Snowpack simplifies your build and shrinks your configuration needs to zero.
-- **Anyone starting a new application!** Snowpack has zero lock-in, so you can always move off of Snowpack and onto a more traditional bundled dev setup down the road (see our guides below). 
-- **Anyone building an application that doesn't change often!** Simplified tooling means less time wasated updating breaking changes in your dependencies.
-- **Anyone who thinks web development has gotten too complex!** Less tooling means less to install, less complexity, less to do every time you make a change, and less to debug when something goes wrong.
-- **Anyone who is interested in the future of web development!** Snowpack is just one step towards a future of web development featuring less complexity and less overhead.
-
 
 ### Supporting Old Browsers
 
-**Snowpack builds sites for both modern and legacy browsers.** The only requirement is that you use a [modern browser](http://caniuse.com/#feat=es6-module) *during development* to reduce the total amount of processing time your site needs on every change. Any recent release of Firefox, Chrome, or Edge will do. 
+**Snowpack builds sites for both modern and legacy browsers.** The only requirement is that you use a [modern browser](http://caniuse.com/#feat=es6-module) *during development*. Any recent release of Firefox, Chrome, or Edge will do. 
 
 When you build your site for production, Snowpack will automatically transpile your site to run on older browsers as well. You can control and customize this behavior with the ["browserlist" package.json property.](https://css-tricks.com/browserlist-good-idea/).
 
 
 ### Bundling for Production
 
-**Snowpack gives you the best of both worlds: faster iteration during development + faster loading in production.**
+**Snowpack gives you the best of both worlds: faster bundle-free development + optimized bundling in production.**
 
-If you want to bundle your site for production, you just use the optimized `--bundle` flag. This improves site performance while also allowing you to target even older, non-ESM browsers like IE11.The do have to pay the price for bundling (ie: longer builds) but only during production builds. Your development workflow stays bundle-free and fast.
+If you want to bundle your site for production, you can just use the optimized `--bundle` flag. This improves site performance while also allowing you to target even older, non-ESM browsers like IE11.You still have to pay the price for bundling (ie: longer builds) but only during production builds. Your development workflow stays bundle-free and fast.
 
 

@@ -72,8 +72,6 @@ CLI flags will be merged with (and take priority over) your config file values. 
   - Emit source maps for installed packages.
 - **`env`** | `{[ENV_NAME: string]: (string | true)}`
   - Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
-- **`babel`** | `boolean`
-  - Transpile your installed dependencies to run on older browsers. 
 - **`installTypes`** | `boolean`
   - Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#TypeScript) to pick up these types. 
 - **`alias`** | `{[mapFromPackageName: string]: string}`

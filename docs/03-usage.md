@@ -2,7 +2,7 @@
 
 ### snowpack install
 
-Unbundled development wouldn't be possible without Snowpack's npm package installer. When you run `snowpack install`, Snowpack scans your source code for all package imports and then installs these npm packages to a new `"web_modules/"` directory in your current project. It does all the work upfront to convert every raw npm package into a web-ready, single JS file that runs natively in your browser.
+Unbundled development wouldn't be possible without Snowpack's npm package installer. When you run `snowpack install`, Snowpack scans your `src/` directory to find and install every referenced npm package to run bundle-free on the web. You can also provide a list of package names manually via the "knownEntrypoints" config that should be installed along with any scanned `src/` dependencies.
 
 ``` bash
 # Example: Snowpack detects `import 'react'` & `import 'react-dom'` statements in your "src/" code.
@@ -14,19 +14,22 @@ $ ls web_modules/
 # react.js react-dom.js import.map.js
 ```
 
-If it helps, you can think of your `web_modules/` directory like you do your `node_modules/` directory. But, instead of containing raw package folders, each package is installed as a single, web-ready JS file. Every other Snowpack workflow (`dev`, `build`, etc) is built on top of this directory.
+Every installed package can be imported and run directly in the browser, with zero addition bundling or tooling required. This is the foundation that all bundle-free development (and the rest of Snowpack) is built on top of.
+
+By default, Snowpack will install these frontend packages to the `web_modules/` directory using the existing package code already found in your project's `node_modules/` directory. To avoid the extra step of having to install each package twice (once with npm/yarn, and then again with Snowpack) you can have Snowpack fully manage your frontend dependencies via the package.json "webDependencies" config. Learn more about removing the unnecessary `npm install` step in the Fully-Managed Dependencies section below.
+
 
 ### snowpack dev
 
-Snowpack's dev server is your instant dev environment for any web application. `snowpack dev` starts up instantly, in less than <20ms on most machines. This speed isn't affected by the size of your project, since files are only built as they are requested by the browser. By skipping bundling during development, you no longer have to wait for your application to rebundle entire chunks of your application every time you change a single file. 
+Snowpack's dev server is an instant dev environment for any web application. `snowpack dev` starts up instantly, regardless of how many files your project has. In bundle-free development each file is only build as requested by the browser, so there's almost no setup work to do at startup and no rebundling to wait for every time you change a single file. 
 
-By default, Snowpack makes three directories in your project available to the browser as a part of your hosted application (known as "mounting"):
+By default, three specific project directories make up your hosted application:
 
 - `web_modules/` - Your Snowpack-installed web dependencies.
 - `public/` (Mounted to the root URL) - Any static web assets.
 - `src/` (Mounted to `/_dist_/*` URL)  - Any application source code.
 
-**By default, Snowpack will build files inside the `src/` directory before sending them to the browser.** This lets you author your application code using whatever language you'd like (JSX, TypeScript, Vue, Svelte, etc.) as long as Snowpack knows how transform it into browser-native JavaScript.  Check out the "Build Scripts" section below for more information about which source transformations are supported by default and how to create your own.
+**By default, Snowpack will build all `src/` files before sending them to the browser.** This lets you author your application code using whatever language you'd like (JSX, TypeScript, Vue, Svelte, etc.) as long as Snowpack knows how transform it into the browser-native JavaScript that it serves at the `/_dist_/*` URL path.  Check out the "Build Scripts" section below for more information about which source transformations are supported by default and how to create your own.
 
 ### snowpack build
 

@@ -6,15 +6,18 @@ Snowpack is more than just a static file server, it's a platform that can power 
 
 Build scripts only run on files in the `src/` directory. Build scripts are useful or even essential in some projects that rely on custom, non-standard syntax. Svelte, Vue, and even React (via JSX) all need to be built or processed in some way (ex: passed through Babel) before they can run in the browser.
 
+<!--
+
 ### Default Build Scripts 
 
-Snowpack provides some basic build scripts out of the box to help you get started:
+Snowpack provides some basic build scripts out of the box to help you get started. The following are enabled by default durinb both dev & build:
 
 - `build:jsx` - All `src/*.jsx` files are transpiled for basic React & Preact support. 
 - `build:ts` - All `src/*.ts` files are transpiled for basic TypeScript support.
 - `build:tsx` - All `src/*.tsx` files are transpiled for both JSX & TypeScript.
+-->
 
-Snowpack also rewrites any package name imports for you automatically, so that you can import packages by name in your source code.
+Snowpack also rewrites your package imports automatically using your installed `web_modules/import-map.json` file. This way uou can import packages by name anywhere in your `src/` directory and Snowpack will automatically rewrite them to point to the proper `/web_modules/*` URL during dev/build.
  
 ### Custom Build Scripts
 

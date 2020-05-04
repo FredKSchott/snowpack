@@ -10,9 +10,7 @@ npm install --save-dev snowpack
 yarn add --dev snowpack
 ```
 
-Snowpack can also be installed globally on your machine via `npm install -g snowpack`. But, we recommend installing individually in every project via `--save-dev`/`--dev` so that you can better manage your tools across multiple codebases on your machine.
-
-You can run your local copy of Snowpack via package.json "scripts", npm's `npx snowpack`, or via `yarn snowpack`.
+Snowpack can also be installed globally via `npm install -g snowpack`. But, we recommend installing locally in every project via `--save-dev`/`--dev`. You can run the Snowpack CLI locally via package.json "scripts", npm's `npx snowpack`, or via `yarn snowpack`.
 
 ### Create Snowpack App (CSA)
 
@@ -38,13 +36,13 @@ You can also find a full list of unofficial, community plugins by searching the 
 
 While CSA is a great all-in-one starter dev environment, you may prefer to learn exactly how it works under the hood. In that case, we have this tutorial that walks you through how you can build your own Create React App -like dev environment with Snowpack and only a few lines of configuration.
 
-**TODO**
+**Coming Soon!**
 
 
 ### Migrating an Existing App
 
 To migrate an existing app to Snowpack depends on how many specialized/customized bundler features/plugins you're currently using. Certain bundler plugins lock you in to that specific setup, since your application code can become dependent on certain plugin behaviors.
 
-Your best bet is to start with a Create Snowpack App (CSA) template, copy over your "source" & "public" non-source files from your old app, and then run `snowpack dev` to finish up the migration, troubleshooting any remaining issues. 
+Your best bet is to start with a Create Snowpack App (CSA) template, copy over your "src" & "public" files from your old app, and then run `snowpack dev` to finish up the migration and troubleshoot any remaining issues. 
 
-CSA is a good starting point for existing applications because it has a few common tools (like Babel) built in by default to replicate the full feature set of a traditional bundled app. CSA is also meant to be a drop-in replacement for Create React App, so any existing Create React App project should run without additional changes.
+CSA is a good starting point for existing applications because it has a few common tools (like Babel) built in by default to replicate the full feature set of a traditional bundled app. CSA is also meant to be a drop-in replacement for Create React App, so any existing Create React App project should run with zero changes needed.

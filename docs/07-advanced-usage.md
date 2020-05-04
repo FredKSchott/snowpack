@@ -4,30 +4,45 @@
 
 Most CSS-in-JS libraries work great with Snowpack. However, using the JavaScript `import` keyword to load a CSS inside of a JavaScript file isn't supported by any browser. If you'd still like to control your CSS loading inside of JavaScript, you can consider one of these alternatives:
 
-#### 1. [TODO] Plugin (Recommended)
+#### 1. @snowpack/babel-plugin-asset-import
 
 ``` js
 import './style.css';
 ```
 
-The [TODO] babel plugin replaces every CSS import with a `<style>` element to inject the CSS file contents at runtime. We reccomend this because unlike the other of the solutions listed here, this is the only one that also works with the `--bundle` flag, so that you also get fully bundled application CSS in production.
+The @snowpack/babel-plugin-asset-import babel plugin replaces every CSS import with a `<style>` element to inject the CSS file contents at build time. We recommend this because unlike other solutions listed here, this one works with the `--bundle` flag so that you still get fully bundled application CSS in production.
 
 #### 2. CSZ
 
 ``` js
 import csz from 'csz';
-const className = csz`./style.css`;
+
+// 1. Import by absolute URL
+const className = csz`/style.css`;
+// 2. Import by relative URL
+const className = csz`${new URL('./style.css', import.meta.url).pathname}`;
 ```
 
-[csz](https://github.com/lukejacksonn/csz) supports run-time CSS modules with SASS-like selectors via the [TODO] babel plugin. CSZ runs directly in the browser, so you can skip the SASS build/watch step.
+[csz](https://github.com/lukejacksonn/csz) supports run-time CSS modules with SASS-like selectors. No Babel plugin is needed for this one. Since CSZ runs directly in the browser, you can skip any sort of SASS build/watch step.
 
-#### 3. CSZ + [TODO] Plugin
+
+### Asset Reference Support
 
 ``` js
-import className from './style.css';
+// Not recommended, see below.
+import img from './image.png'; // `img` is a URL pointing to this image
 ```
-The [TODO] babel plugin lets you write CSS imports via the JavaScript `import` keyword and then Babel will automatically transform it to to the csz equivalent above.
 
+It's common in bundled applications to import non-JS assets as a URL reference to that final asset. However, we recommend not relying on this non-standard import behavior and keeping all non-source code files in the `public/` directory where it can be referenced by absolute URL.
+
+If you must support this, then you can use the @snowpack/babel-plugin-asset-import Babel plugin (the same plugin referenced in the previous section). The plugin will transform any non-JS default import to a direct URL reference at build time.
+
+``` js
+// Input
+import img from './image.png';
+// @snowpack/babel-plugin-asset-import output
+const img = new URL('./image.png', import.meta.url).pathname;
+```
 
 ### TypeScript Support
 
@@ -48,7 +63,7 @@ NOTE: TypeScript isn't yet aware of this new `/web_modules/.types/` location by 
 }
 ```
 
-### Snowpack-Managed Dependencies
+### Managed Dependencies
 
 By default, Snowpack will install your `web_modules/` dependencies usinng the raw package code found in your `node_modules/` directory. This means that each packages is installed twice in your project: once in each directory.
 
