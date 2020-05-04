@@ -52,6 +52,7 @@ export function rollupPluginDependencyStats(cb: (dependencyInfo: DependencyStats
   }
 
   return {
+    name: 'snowpack:rollup-plugin-stats',
     generateBundle(options: OutputOptions, bundle: OutputBundle) {
       outputDir = options.dir!;
       buildExistingFileCache(bundle);

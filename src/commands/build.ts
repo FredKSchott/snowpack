@@ -13,6 +13,7 @@ import yargs from 'yargs-parser';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 import {transformEsmImports} from '../rewrite-imports';
 import mkdirp from 'mkdirp';
+import {ImportMap} from '../util';
 const {copy} = require('fs-extra');
 
 interface DevOptions {
@@ -30,6 +31,8 @@ export async function command({cwd, config}: DevOptions) {
   const finalDirectoryLoc = config.devOptions.out;
   const buildDirectoryLoc = isBundled ? path.join(cwd, `.build`) : config.devOptions.out;
   const distDirectoryLoc = path.join(buildDirectoryLoc, config.devOptions.dist);
+  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
+  const dependencyImportMap: ImportMap = require(dependencyImportMapLoc);
 
   rimraf.sync(finalDirectoryLoc);
   mkdirp.sync(finalDirectoryLoc);
@@ -148,113 +151,115 @@ export async function command({cwd, config}: DevOptions) {
     messageBus.emit('WORKER_COMPLETE', {id, error: null});
   }
 
-  const allFiles = glob.sync(`${config.include}/**/*`, {
-    nodir: true,
-    ignore: [`${config.include}/**/__tests__`, `${config.include}/**/*.{spec,test}.*`],
-  });
+  if (config.include) {
+    const allFiles = glob.sync(`${config.include}/**/*`, {
+      nodir: true,
+      ignore: [`${config.include}/**/__tests__`, `${config.include}/**/*.{spec,test}.*`],
+    });
 
-  for (const [id, workerConfig] of relevantWorkers) {
-    if (!id.startsWith('build:') && !id.startsWith('plugin:')) {
-      continue;
-    }
-    messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-    for (const f of allFiles) {
-      const fileExtension = path.extname(f).substr(1);
-      if (!id.includes(`:${fileExtension}`) && !id.includes(`,${fileExtension}`)) {
+    for (const [id, workerConfig] of relevantWorkers) {
+      if (!id.startsWith('build:') && !id.startsWith('plugin:')) {
         continue;
       }
+      messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+      for (const f of allFiles) {
+        const fileExtension = path.extname(f).substr(1);
+        if (!id.includes(`:${fileExtension}`) && !id.includes(`,${fileExtension}`)) {
+          continue;
+        }
 
-      let {cmd} = workerConfig;
-      if (id.startsWith('build:')) {
-        const {stdout, stderr} = await execa.command(cmd, {
-          env: npmRunPath.env(),
-          extendEnv: true,
-          shell: true,
-          input: createReadStream(f),
-        });
-        if (stderr) {
-          const missingWebModuleRegex = /warn\: bare import "(.*?)" not found in import map\, ignoring\.\.\./m;
-          const missingWebModuleMatch = stderr.match(missingWebModuleRegex);
-          if (missingWebModuleMatch) {
-            messageBus.emit('MISSING_WEB_MODULE', {specifier: missingWebModuleMatch[1]});
-            messageBus.emit('WORKER_COMPLETE', {id, error: new Error(`[${id}] ${stderr}`)});
+        let {cmd} = workerConfig;
+        if (id.startsWith('build:')) {
+          const {stdout, stderr} = await execa.command(cmd, {
+            env: npmRunPath.env(),
+            extendEnv: true,
+            shell: true,
+            input: createReadStream(f),
+          });
+          if (stderr) {
+            console.error(stderr);
           }
-          console.error(stderr);
-          continue;
-        }
-        let outPath = f.replace(config.include, distDirectoryLoc);
-        const extToFind = path.extname(f).substr(1);
-        const extToReplace = srcFileExtensionMapping[extToFind];
-        if (extToReplace) {
-          outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace!);
-        }
-        let code = stdout;
-        if (path.extname(outPath) === '.js') {
-          code = await transformEsmImports(code, (spec) => {
-            if (spec.startsWith('http') || spec.startsWith('/')) {
-              return spec;
-            }
-            if (spec.startsWith('./') || spec.startsWith('../')) {
-              const ext = path.extname(spec).substr(1);
-              if (!ext) {
-                console.error(`${f}: Import ${spec} is missing a required file extension.`);
+          if (!stdout) {
+            continue;
+          }
+          let outPath = f.replace(config.include, distDirectoryLoc);
+          const extToFind = path.extname(f).substr(1);
+          const extToReplace = srcFileExtensionMapping[extToFind];
+          if (extToReplace) {
+            outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace!);
+          }
+          let code = stdout;
+          if (path.extname(outPath) === '.js') {
+            code = await transformEsmImports(code, (spec) => {
+              if (spec.startsWith('http') || spec.startsWith('/')) {
                 return spec;
               }
-              const extToReplace = srcFileExtensionMapping[ext];
-              if (extToReplace) {
-                return spec.replace(new RegExp(`${ext}$`), extToReplace);
-              }
-              return spec;
-            }
-            return `/web_modules/${spec}.js`;
-          });
-        }
-        await fs.mkdir(path.dirname(outPath), {recursive: true});
-        await fs.writeFile(outPath, code);
-      }
-      if (id.startsWith('plugin:')) {
-        const modulePath = require.resolve(cmd, {paths: [cwd]});
-        const {build} = require(modulePath);
-        try {
-          var {result} = await build(f);
-        } catch (err) {
-          err.message = `[${id}] ${err.message}`;
-          console.error(err);
-          messageBus.emit('WORKER_COMPLETE', {id, error: err});
-          continue;
-        }
-        let outPath = f.replace(config.include, distDirectoryLoc);
-        const extToFind = path.extname(f).substr(1);
-        const extToReplace = srcFileExtensionMapping[extToFind];
-        if (extToReplace) {
-          outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace);
-        }
-        let code = result;
-        if (path.extname(outPath) === '.js') {
-          code = await transformEsmImports(code, (spec) => {
-            if (spec.startsWith('http') || spec.startsWith('/')) {
-              return spec;
-            }
-            if (spec.startsWith('./') || spec.startsWith('../')) {
-              const ext = path.extname(spec).substr(1);
-              if (!ext) {
-                console.error(`${f}: Import ${spec} is missing a required file extension.`);
+              if (spec.startsWith('./') || spec.startsWith('../')) {
+                const ext = path.extname(spec).substr(1);
+                if (!ext) {
+                  console.error(`${f}: Import ${spec} is missing a required file extension.`);
+                  return spec;
+                }
+                const extToReplace = srcFileExtensionMapping[ext];
+                if (extToReplace) {
+                  return spec.replace(new RegExp(`${ext}$`), extToReplace);
+                }
                 return spec;
               }
-              const extToReplace = srcFileExtensionMapping[ext];
-              if (extToReplace) {
-                return spec.replace(new RegExp(`${ext}$`), extToReplace);
+              if (dependencyImportMap.imports[spec]) {
+                return `/web_modules/${dependencyImportMap.imports[spec]}`;
               }
-              return spec;
-            }
-            return `/web_modules/${spec}.js`;
-          });
+              messageBus.emit('MISSING_WEB_MODULE', {specifier: spec});
+              return `/web_modules/${spec}.js`;
+            });
+          }
+          await fs.mkdir(path.dirname(outPath), {recursive: true});
+          await fs.writeFile(outPath, code);
         }
-        await fs.mkdir(path.dirname(outPath), {recursive: true});
-        await fs.writeFile(outPath, code);
+        if (id.startsWith('plugin:')) {
+          const modulePath = require.resolve(cmd, {paths: [cwd]});
+          const {build} = require(modulePath);
+          try {
+            var {result} = await build(f);
+          } catch (err) {
+            err.message = `[${id}] ${err.message}`;
+            console.error(err);
+            messageBus.emit('WORKER_COMPLETE', {id, error: err});
+            continue;
+          }
+          let outPath = f.replace(config.include, distDirectoryLoc);
+          const extToFind = path.extname(f).substr(1);
+          const extToReplace = srcFileExtensionMapping[extToFind];
+          if (extToReplace) {
+            outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace);
+          }
+          let code = result;
+          if (path.extname(outPath) === '.js') {
+            code = await transformEsmImports(code, (spec) => {
+              if (spec.startsWith('http') || spec.startsWith('/')) {
+                return spec;
+              }
+              if (spec.startsWith('./') || spec.startsWith('../')) {
+                const ext = path.extname(spec).substr(1);
+                if (!ext) {
+                  console.error(`${f}: Import ${spec} is missing a required file extension.`);
+                  return spec;
+                }
+                const extToReplace = srcFileExtensionMapping[ext];
+                if (extToReplace) {
+                  return spec.replace(new RegExp(`${ext}$`), extToReplace);
+                }
+                return spec;
+              }
+              return `/web_modules/${spec}.js`;
+            });
+          }
+          await fs.mkdir(path.dirname(outPath), {recursive: true});
+          await fs.writeFile(outPath, code);
+        }
       }
+      messageBus.emit('WORKER_COMPLETE', {id, error: null});
     }
-    messageBus.emit('WORKER_COMPLETE', {id, error: null});
   }
 
   await Promise.all(allWorkerPromises);

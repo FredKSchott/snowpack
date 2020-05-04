@@ -24,7 +24,7 @@ export type DevScripts = {[id: string]: DevScript};
 // interface this library uses internally
 export interface SnowpackConfig {
   extends?: string;
-  include: string;
+  include?: string;
   exclude: string[];
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
@@ -40,7 +40,6 @@ export interface SnowpackConfig {
     dest: string;
     clean: boolean;
     env: EnvVarReplacements;
-    babel: boolean;
     installTypes: boolean;
     sourceMap?: boolean | 'inline';
     externalPackage: string[];
@@ -68,7 +67,6 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   knownEntrypoints: [],
   installOptions: {
     clean: false,
-    babel: false,
     dest: 'web_modules',
     externalPackage: [],
     installTypes: false,
@@ -102,7 +100,6 @@ const configSchema = {
     installOptions: {
       type: 'object',
       properties: {
-        babel: {type: 'boolean'},
         clean: {type: 'boolean'},
         dest: {type: 'string'},
         externalPackage: {type: 'array', items: {type: 'string'}},
@@ -288,6 +285,11 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   if (rawConfig.installOptions?.nomoduleOutput || cliFlags.nomoduleOutput) {
     handleDeprecatedConfigError(
       '[Snowpack v1 -> v2] `installOptions.nomoduleOutput` has been replaced by `snowpack build --bundle`.',
+    );
+  }
+  if (rawConfig.installOptions?.babel || cliFlags.babel) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `installOptions.babel` has been replaced by `snowpack build --bundle`.',
     );
   }
   if (rawConfig.installOptions?.optimize || cliFlags.optimize) {

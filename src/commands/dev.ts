@@ -96,19 +96,6 @@ const sendMessage = (res, channel, data) => {
   res.write('\n\n');
 };
 
-function exitWithInvalidBabelConfiguration() {
-  console.log(chalk.bold.red('⚠️  Valid Babel configuration could not be found!'));
-  console.log(`To continue, create a "babel.config.json" file and include the Snowpack plugin:
-
-{
-  "plugins": [
-    ["snowpack/assets/babel-plugin.js"]
-  ]
-}
-`);
-  process.exit(1);
-}
-
 interface DevOptions {
   cwd: string;
   port: number;
@@ -253,9 +240,14 @@ export async function command({cwd, port, config}: DevOptions) {
           fileLoc ||
           !resource.startsWith(config.devOptions.dist) ||
           !requestedFileExt ||
+          !config.include ||
           (!id.startsWith('build:') && !id.startsWith('plugin:'))
         ) {
           continue;
+        }
+        if (!config.include) {
+          console.error('"include" directory required to build');
+          return;
         }
         const srcExtMatchers = id.split(':')[1].split(',');
         const {cmd} = workerConfig;
@@ -436,7 +428,7 @@ export async function command({cwd, port, config}: DevOptions) {
     // }
   }
 
-  if (existsSync(config.include)) {
+  if (config.include) {
     watch(config.include, onWatchEvent);
   }
 

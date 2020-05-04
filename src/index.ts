@@ -12,7 +12,6 @@ import ora from 'ora';
 import path from 'path';
 import rimraf from 'rimraf';
 import {InputOptions, OutputOptions, rollup, RollupError} from 'rollup';
-import rollupPluginBabel from 'rollup-plugin-babel';
 import validatePackageName from 'validate-npm-package-name';
 import yargs from 'yargs-parser';
 import {command as buildCommand} from './commands/build';
@@ -250,7 +249,6 @@ export async function install(
     webDependencies,
     installOptions: {
       installTypes,
-      babel: isBabel,
       dest: destLoc,
       externalPackage: externalPackages,
       alias: installAlias,
@@ -342,7 +340,7 @@ export async function install(
     plugins: [
       rollupPluginReplace(getRollupReplaceKeys(env)),
       rollupPluginEntrypointAlias({cwd}),
-      webDependencies &&
+      !!webDependencies &&
         rollupPluginDependencyCache({
           installTypes,
           log: (url) => logUpdate(chalk.dim(url)),
@@ -370,26 +368,9 @@ export async function install(
         extensions: ['.js', '.cjs'], // Default: [ '.js' ]
         namedExports: knownNamedExports,
       }),
-      !!isBabel &&
-        rollupPluginBabel({
-          compact: false,
-          babelrc: false,
-          configFile: false,
-          presets: [
-            [
-              babelPresetEnv,
-              {
-                modules: false,
-                targets: hasBrowserlistConfig
-                  ? undefined
-                  : '>0.75%, not ie 11, not UCAndroid >0, not OperaMini all',
-              },
-            ],
-          ],
-        }),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
-    ],
+    ].filter(Boolean) as Plugin[],
     onwarn(warning, warn) {
       if (warning.code === 'UNRESOLVED_IMPORT') {
         logError(
@@ -519,10 +500,6 @@ export async function cli(args: string[]) {
     webDependencies,
   } = config;
 
-  const implicitDependencies = [
-    ...Object.keys(pkgManifest.peerDependencies || {}),
-    ...Object.keys(pkgManifest.dependencies || {}),
-  ];
   const hasBrowserlistConfig =
     !!pkgManifest.browserslist ||
     !!process.env.BROWSERSLIST ||
