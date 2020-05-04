@@ -187,8 +187,6 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
       "react": "^${depManifest.version}",
       "react-dom": "^${depManifest.version}"
     }
-
-  See https://www.snowpack.dev/#react for more info.
 `,
 
       chalk.italic(`See ${chalk.underline('https://www.snowpack.dev/#react')} for more info.`),

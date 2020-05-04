@@ -163,19 +163,22 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
     installOptions: {} as any,
     devOptions: {} as any,
   };
-  const {help, version, ...relevantFlags} = flags;
+  const {help, version, config, ...relevantFlags} = flags;
   for (const [flag, val] of Object.entries(relevantFlags)) {
-    if (flag === '_') {
+    if (flag === '_' || flag.includes('-')) {
       continue;
     }
     if (configSchema.properties[flag]) {
       result[flag] = val;
+      continue;
     }
     if (configSchema.properties.installOptions.properties[flag]) {
       result.installOptions[flag] = val;
+      continue;
     }
     if (configSchema.properties.devOptions.properties[flag]) {
       result.devOptions[flag] = val;
+      continue;
     }
     console.error(`Unknown CLI flag: "${flag}"`);
     process.exit(1);

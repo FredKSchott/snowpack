@@ -67,7 +67,22 @@ Note that while TypeScript is a great type checker, we recommend using Babel to 
 }
 ```
 
-### React & Preact
+### React
+
+For technical reasons, React & ReactDOM can't be installed as easily as other packages. [The React team is working on a fix](https://github.com/facebook/react/issues/11503), but until then you'll just need to make sure that you install these two packages with Snowpack via your "webDependency" configuration:
+
+```js
+// package.json
+"webDependencies": {
+  "react": "^16.13.0",
+  "react-dom": "^16.13.0"
+}
+```
+
+See our guide on [Fully-Managed Dependencies](#managed-dependencies) for more information.
+
+
+### JSX (React, Preact, etc.)
 
 JSX is handled by Snowpack by default. If you want to define your own build script for JS, you'll need to handle the JSX transformation by yourself (usually via Babel). Or you can use HTM, a JSX alternative that runs natively in the browser, no babel required.
 
