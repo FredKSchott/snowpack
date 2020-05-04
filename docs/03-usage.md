@@ -29,7 +29,7 @@ By default, three specific project directories make up your hosted application:
 - `public/` (Mounted to the root URL) - Any static web assets.
 - `src/` (Mounted to `/_dist_/*` URL)  - Any application source code.
 
-**By default, Snowpack will build all `src/` files before sending them to the browser.** This lets you author your application code using whatever language you'd like (JSX, TypeScript, Vue, Svelte, etc.) as long as Snowpack knows how transform it into the browser-native JavaScript that it serves at the `/_dist_/*` URL path.  Check out the "Build Scripts" section below for more information about which source transformations are supported by default and how to create your own.
+**By default, Snowpack will build all `src/` files before sending them to the browser.** This lets you author your application code using whatever language you'd like (JSX, TypeScript, Vue, Svelte, etc.) as long as Snowpack is told how to transform it into the browser-native JavaScript that it serves at the `/_dist_/*` URL path.  Check out the "Build Scripts" section below for more information about which source transformations are supported by default and how to create your own.
 
 ### snowpack build
 

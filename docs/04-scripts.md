@@ -119,3 +119,7 @@ There are a few reasons you may want to use a plugin instead of a normal "build:
   "plugin:vue": "./my-custom-vue-plugin.js",
 }
 ```
+
+### Writing a Build Plugin
+
+Coming Soon!
