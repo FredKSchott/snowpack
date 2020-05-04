@@ -7,8 +7,7 @@ import VueRouter from '/web_modules/vue-router.js';
 Vue.use(VueRouter);
 
 // test 3: type import
-
-import type { Component } from "vue"
+import type {Component} from 'vue';
 
 // test 4: standard TypeScript syntax
 
