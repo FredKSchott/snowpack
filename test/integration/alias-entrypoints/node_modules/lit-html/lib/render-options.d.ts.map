@@ -1,1 +1,0 @@
-{"version":3,"file":"render-options.d.ts","sourceRoot":"","sources":["../src/lib/render-options.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;;GAYG;AAEH;;GAEG;AAEH,OAAO,EAAC,eAAe,EAAC,MAAM,uBAAuB,CAAC;AAEtD,MAAM,WAAW,aAAa;IAC5B,QAAQ,CAAC,eAAe,EAAE,eAAe,CAAC;IAC1C,QAAQ,CAAC,YAAY,CAAC,EAAE,WAAW,CAAC;CACrC"}

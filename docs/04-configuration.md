@@ -68,14 +68,17 @@ CLI flags will be merged with (and take priority over) your config file values. 
 - **`clean`** | `boolean`
   - *Default:`true`*
   - Delete the existing `dest` directory (any any outdated files) before installing.
+- **`sourceMap`** | `boolean`  
+  - Emit source maps for installed packages.
 - **`env`** | `{[ENV_NAME: string]: (string | true)}`
   - Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
 - **`babel`** | `boolean`
   - Transpile your installed dependencies to run on older browsers. 
 - **`installTypes`** | `boolean`
   - Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#TypeScript) to pick up these types. 
-- **`sourceMap`** | `boolean`  
-  - Emit source maps for installed packages.
+- **`alias`** | `{[mapFromPackageName: string]: string}`
+  - Alias an installed package name. This applies to imports within your application and within your installed dependency graph. 
+  - Example: `"alias": {"react": "preact/compat", "react-dom": "preact/compat"}`
 - **`rollup`**
   - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use. 
   - **`rollup.plugins`** - Specify [Custom Rollup plugins](#custom-rollup-plugins) if you are dealing with non-standard files.

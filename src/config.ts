@@ -28,7 +28,6 @@ export interface SnowpackConfig {
   exclude: string[];
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
-  aliases?: {[key: string]: string};
   scripts: DevScripts;
   devOptions: {
     port: number;
@@ -45,6 +44,7 @@ export interface SnowpackConfig {
     installTypes: boolean;
     sourceMap?: boolean | 'inline';
     externalPackage: string[];
+    alias: {[key: string]: string};
   };
   rollup: {
     plugins: Plugin[]; // for simplicity, only Rollup plugins are supported for now
@@ -73,6 +73,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     externalPackage: [],
     installTypes: false,
     env: {},
+    alias: {},
   },
   devOptions: {
     port: 8080,
@@ -97,20 +98,20 @@ const configSchema = {
     webDependencies: {
       type: ['object'],
       additionalProperties: {type: 'string'},
-    },                                           
-    aliases: {
-      type: 'object',
-      additionalProperties: {type: 'string'},
     },
     installOptions: {
       type: 'object',
-      properties: {      
+      properties: {
         babel: {type: 'boolean'},
         clean: {type: 'boolean'},
         dest: {type: 'string'},
         externalPackage: {type: 'array', items: {type: 'string'}},
         installTypes: {type: 'boolean'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
+        alias: {
+          type: 'object',
+          additionalProperties: {type: 'string'},
+        },
         env: {
           type: 'object',
           additionalProperties: {

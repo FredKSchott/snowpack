@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "preact/compat": "./preact/compat.js",
+    "react": "./preact/compat.js",
+    "react-dom": "./preact/compat.js"
+  }
+}

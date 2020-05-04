@@ -1,4 +1,0 @@
-- snowpack installing...
-✔ snowpack install complete.
-  ⦿ web_modules/       size       gzip       brotli
-    └─ lit-element.js  XXXX KB   XXXX KB   XXXX KB

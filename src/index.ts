@@ -247,13 +247,13 @@ export async function install(
   config: SnowpackConfig,
 ) {
   const {
-    aliases = {},
     webDependencies,
     installOptions: {
       installTypes,
       babel: isBabel,
       dest: destLoc,
       externalPackage: externalPackages,
+      alias: installAlias,
       sourceMap,
       env,
     },
@@ -271,7 +271,7 @@ export async function install(
   const allInstallSpecifiers = new Set(
     installTargets
       .map((dep) => dep.specifier)
-      .map((specifier) => aliases[specifier] || specifier)
+      .map((specifier) => installAlias[specifier] || specifier)
       .sort(),
   );
   const installEntrypoints: {[targetName: string]: string} = {};
@@ -294,7 +294,7 @@ export async function install(
       if (targetType === 'JS') {
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${targetName}.js`;
-        Object.entries(aliases)
+        Object.entries(installAlias)
           .filter(([key, value]) => value === installSpecifier)
           .forEach(([key, value]) => {
             importMap.imports[key] = `./${targetName}.js`;
@@ -348,7 +348,7 @@ export async function install(
           log: (url) => logUpdate(chalk.dim(url)),
         }),
       rollupPluginAlias({
-        entries: Object.entries(aliases).map(([alias, mod]) => ({
+        entries: Object.entries(installAlias).map(([alias, mod]) => ({
           find: alias,
           replacement: mod,
         })),

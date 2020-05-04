@@ -1,0 +1,21 @@
+{
+  "description": "Handle deep imports to package entrypoints",
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js --external-package lit-html"
+  },
+  "snowpack": {
+    "installOptions": {
+      "alias": {
+        "react": "preact/compat",
+        "react-dom": "preact/compat"
+      }
+    },
+    "knownEntrypoints": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "dependencies": {
+    "preact": "^10.0.0"
+  }
+}
