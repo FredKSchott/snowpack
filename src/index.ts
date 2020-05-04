@@ -5,23 +5,22 @@ import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
 import chalk from 'chalk';
 import fs from 'fs';
-import hasha from 'hasha';
 import isNodeBuiltin from 'is-builtin-module';
 import mkdirp from 'mkdirp';
 import ora from 'ora';
 import path from 'path';
 import rimraf from 'rimraf';
-import {InputOptions, OutputOptions, Plugin, rollup, RollupError} from 'rollup';
+import {InputOptions, OutputOptions, rollup, RollupError} from 'rollup';
 import rollupPluginBabel from 'rollup-plugin-babel';
-import {terser as rollupPluginTerser} from 'rollup-plugin-terser';
 import validatePackageName from 'validate-npm-package-name';
 import yargs from 'yargs-parser';
-import loadConfig, {CLIFlags, EnvVarReplacements, SnowpackConfig} from './config.js';
-import {resolveTargetsFromRemoteCDN, clearCache} from './resolve-remote.js';
-import {rollupPluginDependencyCache} from './rollup-plugin-remote-cdn.js';
+import {command as buildCommand} from './commands/build';
+import {command as devCommand} from './commands/dev';
+import {loadAndValidateConfig, CLIFlags, EnvVarReplacements, SnowpackConfig} from './config.js';
+import {clearCache, resolveTargetsFromRemoteCDN} from './resolve-remote.js';
 import {rollupPluginEntrypointAlias} from './rollup-plugin-entrypoint-alias.js';
+import {rollupPluginDependencyCache} from './rollup-plugin-remote-cdn.js';
 import {DependencyStatsOutput, rollupPluginDependencyStats} from './rollup-plugin-stats.js';
-import {rollupPluginTreeshakeInputs} from './rollup-plugin-treeshake-inputs.js';
 import {InstallTarget, scanDepList, scanImports} from './scan-imports.js';
 import {printStats} from './stats-formatter.js';
 import {
@@ -72,11 +71,6 @@ ${chalk.bold('Options:')}
   --external-package [val]  Internal use only, may be removed at any time.
     `.trim(),
   );
-}
-
-async function generateHashFromFile(targetLoc: string) {
-  const longHash = await hasha.fromFile(targetLoc, {algorithm: 'md5'});
-  return longHash?.slice(0, 10);
 }
 
 function formatInstallResults(skipFailures: boolean): string {
@@ -226,7 +220,7 @@ function getWebDependencyName(dep: string): string {
  * @param env
  * @param optimize
  */
-function getRollupReplaceKeys(env: EnvVarReplacements, optimize: boolean): Record<string, string> {
+function getRollupReplaceKeys(env: EnvVarReplacements): Record<string, string> {
   const result = Object.keys(env).reduce(
     (acc, id) => {
       const val = env[id];
@@ -234,7 +228,7 @@ function getRollupReplaceKeys(env: EnvVarReplacements, optimize: boolean): Recor
       return acc;
     },
     {
-      'process.env.NODE_ENV': optimize ? '"production"' : '"development"',
+      'process.env.NODE_ENV': process.env.NODE_ENV || 'development',
       'process.env.': '({}).',
     },
   );
@@ -253,31 +247,23 @@ export async function install(
   config: SnowpackConfig,
 ) {
   const {
-    dedupe,
-    namedExports,
-    source,
+    webDependencies,
     installOptions: {
       installTypes,
       babel: isBabel,
       dest: destLoc,
-      hash: useHash,
       externalPackage: externalPackages,
-      nomodule,
-      nomoduleOutput,
-      optimize: isOptimized,
       sourceMap,
-      strict: isStrict,
-      stat: withStats,
       env,
     },
     rollup: userDefinedRollup,
   } = config;
 
-  const knownNamedExports = {...namedExports};
+  const knownNamedExports = {...userDefinedRollup.namedExports};
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
     knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
   }
-  if (source === 'local' && !fs.existsSync(path.join(cwd, 'node_modules'))) {
+  if (!webDependencies && !fs.existsSync(path.join(cwd, 'node_modules'))) {
     logError('no "node_modules" directory exists. Did you run "npm install" first?');
     return;
   }
@@ -301,9 +287,8 @@ export async function install(
     try {
       const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, isExplicit);
       if (targetType === 'JS') {
-        const hashQs = useHash ? `?rev=${await generateHashFromFile(targetLoc)}` : '';
         installEntrypoints[targetName] = targetLoc;
-        importMap.imports[installSpecifier] = `./${targetName}.js${hashQs}`;
+        importMap.imports[installSpecifier] = `./${targetName}.js`;
         installTargetsMap[targetLoc] = installTargets.filter(
           (t) => installSpecifier === t.specifier,
         );
@@ -345,33 +330,30 @@ export async function install(
     external: externalPackages,
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
-      !isStrict && rollupPluginReplace(getRollupReplaceKeys(env!, isOptimized)),
+      rollupPluginReplace(getRollupReplaceKeys(env)),
       rollupPluginEntrypointAlias({cwd}),
-      source === 'pika' &&
+      webDependencies &&
         rollupPluginDependencyCache({
           installTypes,
           log: (url) => logUpdate(chalk.dim(url)),
         }),
       rollupPluginNodeResolve({
-        mainFields: ['browser:module', 'module', 'browser', !isStrict && 'main'].filter(isTruthy),
-        modulesOnly: isStrict, // Default: false
+        mainFields: ['browser:module', 'module', 'browser', 'main'].filter(isTruthy),
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: false, // Default: true
-        dedupe,
+        dedupe: userDefinedRollup.dedupe,
       }),
-      !isStrict &&
-        rollupPluginJson({
-          preferConst: true,
-          indent: '  ',
-          compact: isOptimized,
-          namedExports: true,
-        }),
-      !isStrict &&
-        rollupPluginCommonjs({
-          extensions: ['.js', '.cjs'], // Default: [ '.js' ]
-          namedExports: knownNamedExports,
-        }),
+      rollupPluginJson({
+        preferConst: true,
+        indent: '  ',
+        compact: false,
+        namedExports: true,
+      }),
+      rollupPluginCommonjs({
+        extensions: ['.js', '.cjs'], // Default: [ '.js' ]
+        namedExports: knownNamedExports,
+      }),
       !!isBabel &&
         rollupPluginBabel({
           compact: false,
@@ -389,9 +371,7 @@ export async function install(
             ],
           ],
         }),
-      !!isOptimized && rollupPluginTreeshakeInputs(installTargets),
-      !!isOptimized && rollupPluginTerser(),
-      !!withStats && rollupPluginDependencyStats((info) => (dependencyStats = info)),
+      rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
     ],
     onwarn(warning, warn) {
@@ -423,7 +403,7 @@ export async function install(
   const outputOptions: OutputOptions = {
     dir: destLoc,
     format: 'esm',
-    sourcemap: sourceMap ?? isOptimized,
+    sourcemap: sourceMap,
     exports: 'named',
     chunkFileNames: 'common/[name]-[hash].js',
   };
@@ -452,57 +432,6 @@ export async function install(
     }
   }
 
-  if (nomodule) {
-    const nomoduleStart = Date.now();
-    function rollupResolutionHelper(): Plugin {
-      return {
-        name: 'rename-import-plugin',
-        resolveId(source) {
-          // resolve from import map
-          if (importMap.imports[source]) {
-            return importMap.imports[source];
-          }
-          // resolve web_modules
-          if (source.includes('/web_modules/')) {
-            const suffix = source.split('/web_modules/')[1];
-            return {id: path.join(destLoc, suffix)};
-          }
-          // null means try to resolve as-is
-          return null;
-        },
-      };
-    }
-    try {
-      // Strip the replace plugin from the set of plugins that we use.
-      // Since we've already run it once it can cause trouble on a second run.
-      console.assert(inputOptions.plugins![0].name === 'replace');
-      const noModulePlugins = inputOptions.plugins!.slice(1);
-      const noModuleBundle = await rollup({
-        input: path.resolve(cwd, nomodule),
-        inlineDynamicImports: true,
-        plugins: [...noModulePlugins, rollupResolutionHelper()],
-      });
-      await noModuleBundle.write({
-        file: path.resolve(destLoc, nomoduleOutput),
-        format: 'iife',
-        name: 'App',
-      });
-      const nomoduleEnd = Date.now() - nomoduleStart;
-      spinner.info(
-        `${chalk.bold(
-          'snowpack',
-        )} bundled your application for legacy browsers: ${nomoduleOutput} ${chalk.dim(
-          `[${(nomoduleEnd / 1000).toFixed(2)}s]`,
-        )}`,
-      );
-    } catch (err) {
-      spinner.warn(
-        `${chalk.bold('snowpack')} encountered an error bundling for legacy browsers: ${
-          err.message
-        }`,
-      );
-    }
-  }
   await writeLockfile(path.join(destLoc, 'import-map.json'), importMap);
   Object.entries(assetEntrypoints).forEach(([assetName, assetLoc]) => {
     mkdirp.sync(path.dirname(`${destLoc}/${assetName}`));
@@ -524,6 +453,10 @@ export async function cli(args: string[]) {
     console.log(`${chalk.yellow('ℹ')} clearing CDN cache...`);
     await clearCache();
   }
+  if (cliFlags['_'].length > 3) {
+    console.log(`Unexpected multiple commands`);
+    process.exit(1);
+  }
 
   // Load the current package manifest
   let pkgManifest: any;
@@ -535,19 +468,13 @@ export async function cli(args: string[]) {
   }
 
   // load config
-  const {config, errors} = loadConfig(cliFlags, pkgManifest);
+  const config = loadAndValidateConfig(cliFlags, pkgManifest);
 
-  // handle config errors (if any)
-  if (Array.isArray(errors) && errors.length) {
-    errors.forEach(logError);
-    process.exit(1);
-  }
-
-  if (cliFlags.source || config.source === 'pika') {
+  if (config.webDependencies) {
     console.log(
       `${chalk.yellow(
         'ℹ',
-      )} "source: pika" mode enabled. Behavior is still experimental and may change before the next major version...`,
+      )} "webDependencies" support is still experimental, changes are expected...`,
     );
     await clearCache();
   }
@@ -556,10 +483,28 @@ export async function cli(args: string[]) {
   let lockfile = await readLockfile(cwd);
   let newLockfile: ImportMap | null = null;
 
+  if (cliFlags['_'][2] === 'build') {
+    await buildCommand({
+      cwd,
+      config,
+    });
+    return;
+  }
+
+  if (cliFlags['_'][2] === 'dev') {
+    await devCommand({
+      cwd,
+      port: (cliFlags as any).port || 3000,
+      config,
+    });
+    return;
+  }
+
   const {
-    installOptions: {clean, dest, exclude, include},
-    entrypoints: configEntrypoints,
-    source,
+    exclude,
+    include,
+    installOptions: {clean, dest},
+    knownEntrypoints,
     webDependencies,
   } = config;
 
@@ -576,9 +521,9 @@ export async function cli(args: string[]) {
   let isExplicit = false;
   const installTargets: InstallTarget[] = [];
 
-  if (configEntrypoints) {
+  if (knownEntrypoints) {
     isExplicit = true;
-    installTargets.push(...scanDepList(configEntrypoints, cwd));
+    installTargets.push(...scanDepList(knownEntrypoints, cwd));
   }
   if (webDependencies) {
     isExplicit = true;
@@ -598,13 +543,8 @@ export async function cli(args: string[]) {
 
   spinner.start();
   const startTime = Date.now();
-  if (source === 'pika') {
-    newLockfile = await resolveTargetsFromRemoteCDN(
-      installTargets,
-      lockfile,
-      pkgManifest,
-      config,
-    ).catch((err) => {
+  if (webDependencies && Object.keys(webDependencies).length > 0) {
+    newLockfile = await resolveTargetsFromRemoteCDN(lockfile, pkgManifest, config).catch((err) => {
       logError(err.message || err);
       process.exit(1);
     });
