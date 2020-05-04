@@ -28,6 +28,7 @@ export interface SnowpackConfig {
   exclude: string[];
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
+  aliases?: {[key: string]: string};
   scripts: DevScripts;
   devOptions: {
     port: number;
@@ -96,10 +97,14 @@ const configSchema = {
     webDependencies: {
       type: ['object'],
       additionalProperties: {type: 'string'},
+    },                                           
+    aliases: {
+      type: 'object',
+      additionalProperties: {type: 'string'},
     },
     installOptions: {
       type: 'object',
-      properties: {
+      properties: {      
         babel: {type: 'boolean'},
         clean: {type: 'boolean'},
         dest: {type: 'string'},

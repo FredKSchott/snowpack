@@ -3,6 +3,7 @@ import rollupPluginCommonjs from '@rollup/plugin-commonjs';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
+import rollupPluginAlias from '@rollup/plugin-alias';
 import chalk from 'chalk';
 import fs from 'fs';
 import isNodeBuiltin from 'is-builtin-module';
@@ -246,6 +247,7 @@ export async function install(
   config: SnowpackConfig,
 ) {
   const {
+    aliases = {},
     webDependencies,
     installOptions: {
       installTypes,
@@ -266,8 +268,12 @@ export async function install(
     logError('no "node_modules" directory exists. Did you run "npm install" first?');
     return;
   }
-
-  const allInstallSpecifiers = new Set(installTargets.map((dep) => dep.specifier).sort());
+  const allInstallSpecifiers = new Set(
+    installTargets
+      .map((dep) => dep.specifier)
+      .map((specifier) => aliases[specifier] || specifier)
+      .sort(),
+  );
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
   const importMap: ImportMap = {imports: {}};
@@ -288,6 +294,11 @@ export async function install(
       if (targetType === 'JS') {
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${targetName}.js`;
+        Object.entries(aliases)
+          .filter(([key, value]) => value === installSpecifier)
+          .forEach(([key, value]) => {
+            importMap.imports[key] = `./${targetName}.js`;
+          });
         installTargetsMap[targetLoc] = installTargets.filter(
           (t) => installSpecifier === t.specifier,
         );
@@ -336,6 +347,12 @@ export async function install(
           installTypes,
           log: (url) => logUpdate(chalk.dim(url)),
         }),
+      rollupPluginAlias({
+        entries: Object.entries(aliases).map(([alias, mod]) => ({
+          find: alias,
+          replacement: mod,
+        })),
+      }),
       rollupPluginNodeResolve({
         mainFields: ['browser:module', 'module', 'browser', 'main'].filter(isTruthy),
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
