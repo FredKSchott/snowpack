@@ -1,59 +1,39 @@
 ## Basic Usage
 
-Snowpack has a single goal: to install web-ready npm packages to `web_modules/` directory. It doesn't touch your source code. What you build with it, which frameworks you use, and how you serve your project locally is entirely up to you. You can use as many or as few tools on top of Snowpack as you'd like.
+### snowpack install
 
-Still stuck? See our [Quick Start](#quick-start) guide above for help to get started.
+Unbundled development wouldn't be possible without Snowpack's npm package installer. When you run `snowpack install`, Snowpack scans your source code for all package imports and then installs these npm packages to a new `"web_modules/"` directory in your current project. It does all the work upfront to convert every raw npm package into a web-ready, single JS file that runs natively in your browser.
 
-### Zero-Config Installs (Default)
+``` bash
+# Example: Snowpack detects `import 'react'` & `import 'react-dom'` statements in your "src/" code.
 
-```
-$ npx snowpack
-```
+$ snowpack install
+# snowpack installed: react, react-dom.
 
-By default, Snowpack will attempt to install all "dependencies" listed in your package.json manifest. If the package defines an ESM "module" entrypoint, then that package is installed into your new `web_modules/` directory.
-
-As long as all of your web dependencies are listed as package.json "dependencies" (with all other dependencies listed under "devDependencies") this zero-config behavior should work well for your project.
-
-### Automatic Installs (Recommended)
-
-```
-$ npx snowpack --include "src/**/*.js"
+$ ls web_modules/
+# react.js react-dom.js import.map.js
 ```
 
-With some additional config, Snowpack is also able to automatically detect dependencies by scanning your application for import statements. This is the recommended way to use Snowpack, since it is both faster and more accurate than trying to install every dependency.
+If it helps, you can think of your `web_modules/` directory like you do your `node_modules/` directory. But, instead of containing raw package folders, each package is installed as a single, web-ready JS file. Every other Snowpack workflow (`dev`, `build`, etc) is built on top of this directory.
 
-To enable automatic import scanning, use the `--include` CLI flag to tell Snowpack which files to scan for. Snowpack will automatically scan every file for imports with `web_modules` in the import path. It will then parse those to find every dependency required by your project.
+### snowpack dev
 
-Remember to re-run Snowpack every time you import an new dependency.
+Snowpack's dev server is your instant dev environment for any web application. `snowpack dev` starts up instantly, in less than <20ms on most machines. This speed isn't affected by the size of your project, since files are only built as they are requested by the browser. By skipping bundling during development, you no longer have to wait for your application to rebundle entire chunks of your application every time you change a single file. 
 
-### Whitelisting Dependencies
+By default, Snowpack makes three directories in your project available to the browser as a part of your hosted application (known as "mounting"):
 
-```js
-/* package.json */
-"snowpack": {
-  "webDependencies": [
-    "htm",
-    "preact",
-    "preact/hooks", // A package within a package
-    "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
-    "bulma/css/bulma.css" // A non-JS static asset (supports globs)
-  ],
-}
-```
+- `web_modules/` - Your Snowpack-installed web dependencies.
+- `public/` (Mounted to the root URL) - Any static web assets.
+- `src/` (Mounted to `/_dist_/*` URL)  - Any application source code.
 
-Optionally, you can also whitelist any dependencies by defining them in your "webDependencies" config (see below). You can use this to control exactly what is installed, including non-JS assets or deeper package resources.
+**By default, Snowpack will build files inside the `src/` directory before sending them to the browser.** This lets you author your application code using whatever language you'd like (JSX, TypeScript, Vue, Svelte, etc.) as long as Snowpack knows how transform it into browser-native JavaScript.  Check out the "Build Scripts" section below for more information about which source transformations are supported by default and how to create your own.
 
-Note that this config will disable the zero-config mode that attempts to install every package found in your package.json "dependencies". Either use this together with the `--include` flag, or just make sure that you whitelist everything that you want installed.
+### snowpack build
 
+When you're ready to deploy your application, run `snowpack build` to generate a static copy of your site for production. The build command is tightly integrated with your dev configuration, so you are guarenteed to get a working copy of the same code you saw during development.
 
-### Skipping NPM Install
+### snowpack build --bundle
 
-```
-$ snowpack --source pika
-```
+The default output of the `snowpack build` command is an exact copy of your unbundled dev site. Deploying unbundled code is fine for simple sites, but you may want to optimize your site by bundling your final deployment for production. 
 
-Snowpack defaults to reading packages from your local `node_modules/` directory, but you can control this behavior with the `--source` flag to simplify your Snowpack install step even further.
-
-Use `--source pika` to have Snowpack fetch packages directly from the [Pika CDN](https://cdn.pika.dev/) instead of your local `node_modules/` directory. Your app will still get the same npm package code, but now Snowpack is fully installing and managing your npm dependencies for you. **With `--source pika` you no longer have to run `npm install` before running Snowpack.**
-
-After a successful run with `--source pika`, Snowpack will create a `snowpack.lock.json` [import map](https://github.com/WICG/import-maps) in your project which locks each dependency to a specific version for future installations. Each CDN response is cached locally, so repeat runs of Snowpack happen at local speeds. `npm` & `yarn` should still be used to manage your server-side dependencies. 
+**Snowpack supports production bundling via a simple, zero-config `--bundle` flag.** `snowpack build --bundle` runs your final build through [Parcel](https://parceljs.org/), a popular web application bundler. By bundling together your JavaScript and CSS files into larger shared chunks, you may see a production speed up as your users have fewer files to download. 

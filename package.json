@@ -22,7 +22,7 @@
     "test:babel-plugin": "jest test/babel-plugin/runner.js --testMatch \"**/test/**/*.[jt]s?(x)\"",
     "docs:build": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js",
     "docs:watch": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js --serve",
-    "docs:deploy": "npm run docs:build && cd www/dist && now --prod"
+    "docs:deploy": "npm run docs:build && cd www/dist && now"
   },
   "@pika/pack": {
     "pipeline": [
