@@ -1,11 +1,12 @@
-## Create Snowpack App (CSA)
+# Create Snowpack App (CSA)
 
 ```
 npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-yarn]
 ```
 
-### Official App Templates
+## Official App Templates
 
+- [@snowpack/app-template-blank](/templates/app-template-blank)
 - [@snowpack/app-template-react](/templates/app-template-react)
 - [@snowpack/app-template-react-typescript](/templates/app-template-react-typescript)
 - [@snowpack/app-template-svelte](/templates/app-template-svelte)
@@ -15,7 +16,7 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 - @snowpack/app-template-preact [HELP WANTED]
 - @snowpack/app-template-htm [HELP WANTED]
 
-### Featured Community Templates
+## Featured Community Templates
 
 - None yet!
 - PRs that add a link to this list are welcome!
