@@ -1,6 +1,6 @@
 - snowpack installing...
 ⠼ snowpack installing... react-dom
-Dependency "react-dom" has no native "module" entrypoint.
+✖ Dependency "react-dom" has no native "module" entrypoint.
   To continue, add react & react-dom to your package.json "webDependencies":
     "webDependencies": {
       "react": "^16.12.0",
