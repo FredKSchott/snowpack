@@ -27,14 +27,14 @@
 import chalk from 'chalk';
 import {EventEmitter} from 'events';
 import execa from 'execa';
-import {promises as fs, readdirSync, statSync, watch as fsWatch} from 'fs';
+import {promises as fs, existsSync, readdirSync, statSync, watch as fsWatch} from 'fs';
 import http from 'http';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
 import url from 'url';
 import os from 'os';
-import {SnowpackConfig, DevScript} from '../config';
+import {SnowpackConfig} from '../config';
 import {paint} from './paint';
 import yargs from 'yargs-parser';
 import srcFileExtensionMapping from './src-file-extension-mapping';
@@ -116,7 +116,7 @@ interface DevOptions {
 }
 
 export async function command({cwd, port, config}: DevOptions) {
-  console.log(chalk.bold('☶ Snowpack Dev Server (Beta)'));
+  console.log(chalk.bold('Snowpack Dev Server (Beta)'));
   console.log('NOTE: Still experimental, default behavior may change.');
   console.log('Starting up...');
 
@@ -251,7 +251,7 @@ export async function command({cwd, port, config}: DevOptions) {
       for (const [id, workerConfig] of registeredWorkers) {
         if (
           fileLoc ||
-          !resource.startsWith(config.dev.dist) ||
+          !resource.startsWith(config.devOptions.dist) ||
           !requestedFileExt ||
           (!id.startsWith('build:') && !id.startsWith('plugin:'))
         ) {
@@ -259,7 +259,10 @@ export async function command({cwd, port, config}: DevOptions) {
         }
         const srcExtMatchers = id.split(':')[1].split(',');
         const {cmd} = workerConfig;
-        let requestedFile = path.join(config.dev.src, resource.replace(`${config.dev.dist}`, ''));
+        let requestedFile = path.join(
+          config.include,
+          resource.replace(`${config.devOptions.dist}`, ''),
+        );
         for (const ext of srcExtMatchers) {
           if (
             !srcFileExtensionMapping[ext] ||
@@ -309,10 +312,10 @@ export async function command({cwd, port, config}: DevOptions) {
       }
 
       for (const dirDisk of workerDirectories) {
-        if (fileLoc || !requestedFileExt || !resource.startsWith(config.dev.dist)) {
+        if (fileLoc || !requestedFileExt || !resource.startsWith(config.devOptions.dist)) {
           continue;
         }
-        let requestedFile = path.join(dirDisk, resource.replace(`${config.dev.dist}`, ''));
+        let requestedFile = path.join(dirDisk, resource.replace(`${config.devOptions.dist}`, ''));
         fileLoc = await attemptLoadFile(requestedFile);
       }
 
@@ -320,7 +323,7 @@ export async function command({cwd, port, config}: DevOptions) {
         if (fileLoc) {
           continue;
         }
-        if (resource.startsWith(config.dev.dist)) {
+        if (resource.startsWith(config.devOptions.dist)) {
           continue;
         }
         let requestedFile: string;
@@ -343,11 +346,11 @@ export async function command({cwd, port, config}: DevOptions) {
           (await attemptLoadFile(requestedFile + '/index.html')) ||
           (await attemptLoadFile(requestedFile + 'index.html'));
 
-        if (!fileLoc && config.dev.fallback) {
+        if (!fileLoc && dirUrl === '/' && config.devOptions.fallback) {
           const fallbackFile =
             dirUrl === '/'
-              ? path.join(dirDisk, config.dev.fallback)
-              : path.join(cwd, config.dev.fallback);
+              ? path.join(dirDisk, config.devOptions.fallback)
+              : path.join(cwd, config.devOptions.fallback);
           fileLoc = await attemptLoadFile(fallbackFile);
         }
         if (fileLoc) {
@@ -433,7 +436,9 @@ export async function command({cwd, port, config}: DevOptions) {
     // }
   }
 
-  watch(config.dev.src, onWatchEvent);
+  if (existsSync(config.include)) {
+    watch(config.include, onWatchEvent);
+  }
 
   process.on('SIGINT', () => {
     for (const client of liveReloadClients) {

@@ -1,8 +1,10 @@
 import path from 'path';
+import fs from 'fs';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {Plugin} from 'rollup';
-import {validate} from 'jsonschema';
+import {validate, ValidationError} from 'jsonschema';
 import {all as merge} from 'deepmerge';
+import chalk from 'chalk';
 
 const CONFIG_NAME = 'snowpack';
 
@@ -21,41 +23,32 @@ export type DevScripts = {[id: string]: DevScript};
 
 // interface this library uses internally
 export interface SnowpackConfig {
-  source: 'local' | 'pika';
   extends?: string;
+  include: string;
+  exclude: string[];
+  knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
-  entrypoints?: string[];
-  dedupe?: string[];
-  namedExports?: {[filepath: string]: string[]};
-  dev: {
-    out: string;
-    src: string;
-    dist: string;
-    bundle: boolean;
-    fallback: string;
-  };
   scripts: DevScripts;
+  devOptions: {
+    port: number;
+    out: string;
+    dist: string;
+    fallback: string;
+    bundle: boolean;
+  };
   installOptions: {
-    babel?: boolean;
-    clean: boolean;
-    hash: boolean;
     dest: string;
-    exclude: string[];
-    externalPackage: string[];
-    include?: string;
-    nomodule?: string;
-    nomoduleOutput: string;
-    optimize: boolean;
-    env?: EnvVarReplacements;
+    clean: boolean;
+    env: EnvVarReplacements;
+    babel: boolean;
     installTypes: boolean;
-    remotePackage?: string[];
-    remoteUrl: string;
     sourceMap?: boolean | 'inline';
-    stat: boolean;
-    strict: boolean;
+    externalPackage: string[];
   };
   rollup: {
     plugins: Plugin[]; // for simplicity, only Rollup plugins are supported for now
+    dedupe?: string[];
+    namedExports?: {[filepath: string]: string[]};
   };
 }
 
@@ -63,7 +56,6 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
   help?: boolean; // display help text
   version?: boolean; // display Snowpack version
   reload?: boolean;
-  source?: SnowpackConfig['source'];
   config?: string; // manual path to config file
   env?: string[]; // env vars
   bundle?: boolean;
@@ -71,70 +63,50 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
 
 // default settings
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
-  dedupe: [],
+  include: 'src',
+  exclude: ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
+  knownEntrypoints: [],
   installOptions: {
     clean: false,
-    hash: false,
+    babel: false,
     dest: 'web_modules',
-    exclude: ['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)'],
     externalPackage: [],
-    nomoduleOutput: 'app.nomodule.js',
-    optimize: false,
     installTypes: false,
-    remoteUrl: 'https://cdn.pika.dev',
-    stat: false,
-    strict: false,
     env: {},
   },
-  dev: {
-    src: 'src',
+  devOptions: {
+    port: 8080,
     out: 'build',
-    dist: '/_dist_/',
+    dist: '/_dist_',
     fallback: 'index.html',
     bundle: false,
   },
-  rollup: {plugins: []},
+  rollup: {
+    plugins: [],
+    dedupe: [],
+  },
 };
 
 const configSchema = {
   type: 'object',
   properties: {
-    source: {type: 'string'},
     extends: {type: 'string'},
-    entrypoints: {type: 'array', items: {type: 'string'}},
-    // TODO: Array of strings data format is deprecated, remove for v2
+    knownEntrypoints: {type: 'array', items: {type: 'string'}},
+    include: {type: 'string'},
+    exclude: {type: 'array', items: {type: 'string'}},
     webDependencies: {
-      type: ['array', 'object'],
+      type: ['object'],
       additionalProperties: {type: 'string'},
-      items: {type: 'string'},
-    },
-    dedupe: {
-      type: 'array',
-      items: {type: 'string'},
-    },
-    namedExports: {
-      type: 'object',
-      additionalProperties: {type: 'array', items: {type: 'string'}},
     },
     installOptions: {
       type: 'object',
       properties: {
         babel: {type: 'boolean'},
-        hash: {type: 'boolean'},
         clean: {type: 'boolean'},
         dest: {type: 'string'},
-        exclude: {type: 'array', items: {type: 'string'}},
         externalPackage: {type: 'array', items: {type: 'string'}},
-        include: {type: 'string'},
-        nomodule: {type: 'string'},
-        nomoduleOutput: {type: 'string'},
-        optimize: {type: 'boolean'},
         installTypes: {type: 'boolean'},
-        remotePackage: {type: 'array', items: {type: 'string'}},
-        remoteUrl: {type: 'string'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
-        stat: {type: 'boolean'},
-        strict: {type: 'boolean'},
         env: {
           type: 'object',
           additionalProperties: {
@@ -147,14 +119,14 @@ const configSchema = {
         },
       },
     },
-    dev: {
+    devOptions: {
       type: 'object',
       properties: {
-        src: {type: 'string'},
+        port: {type: 'number'},
         out: {type: 'string'},
         dist: {type: 'string'},
-        bundle: {type: 'boolean'},
         fallback: {type: 'string'},
+        bundle: {type: 'boolean'},
       },
     },
     scripts: {
@@ -164,7 +136,15 @@ const configSchema = {
     rollup: {
       type: 'object',
       properties: {
-        plugins: {type: 'array', items: {type: 'object'}}, // type: 'object' ensures the user loaded the Rollup plugins correctly
+        plugins: {type: 'array', items: {type: 'object'}},
+        dedupe: {
+          type: 'array',
+          items: {type: 'string'},
+        },
+        namedExports: {
+          type: 'object',
+          additionalProperties: {type: 'array', items: {type: 'string'}},
+        },
       },
     },
   },
@@ -177,38 +157,39 @@ const configSchema = {
  * defaults with 'undefined'.
  */
 function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
-  const {source, env, help, version, bundle, ...installOptions} = flags;
-  const result: DeepPartial<SnowpackConfig> = {installOptions};
-  if (bundle) {
-    result.dev = result.dev || {};
-    result.dev.bundle = bundle;
+  const result = {
+    installOptions: {} as any,
+    devOptions: {} as any,
+  };
+  const {help, version, ...relevantFlags} = flags;
+  for (const [flag, val] of Object.entries(relevantFlags)) {
+    if (configSchema.properties[flag]) {
+      result[flag] = val;
+    }
+    if (configSchema.properties.installOptions.properties[flag]) {
+      result.installOptions[flag] = val;
+    }
+    if (configSchema.properties.devOptions.properties[flag]) {
+      result.installOptions[flag] = val;
+    }
   }
-  if (source) {
-    result.source = source;
+  if (result.installOptions.env) {
+    result.installOptions.env = result.installOptions.env.reduce((acc, id) => {
+      const index = id.indexOf('=');
+      const [key, val] = index > 0 ? [id.substr(0, index), id.substr(index + 1)] : [id, true];
+      acc[key] = val;
+      return acc;
+    }, {});
   }
-  result.installOptions!.env = (env || []).reduce((acc, id) => {
-    const index = id.indexOf('=');
-    const [key, val] = index > 0 ? [id.substr(0, index), id.substr(index + 1)] : [id, true];
-    acc[key] = val;
-    return acc;
-  }, {});
   return result;
 }
 
-/** resolve --dest relative to cwd, and set the default "source" */
+/** resolve --dest relative to cwd, etc. */
 function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const cwd = process.cwd();
+  config.include = path.resolve(cwd, config.include);
   config.installOptions.dest = path.resolve(cwd, config.installOptions.dest);
-  config.dev.src = path.resolve(cwd, config.dev.src);
-  config.dev.out = path.resolve(cwd, config.dev.out);
-  if (Array.isArray(config.webDependencies)) {
-    config.entrypoints = config.webDependencies;
-    delete config.webDependencies;
-  }
-  if (!config.source) {
-    const isDetailedObject = config.webDependencies && typeof config.webDependencies === 'object';
-    config.source = isDetailedObject ? 'pika' : 'local';
-  }
+  config.devOptions.out = path.resolve(cwd, config.devOptions.out);
   if (config.scripts) {
     for (const scriptId of Object.keys(config.scripts)) {
       if (scriptId.includes('::watch')) {
@@ -228,9 +209,88 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   return config;
 }
 
-export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
-  const cliConfig = expandCliFlags(flags);
+function handleConfigError(msg: string) {
+  console.error(`[error]: ${msg}`);
+  process.exit(1);
+}
 
+function handleValidationErrors(filepath: string, errors: {toString: () => string}[]) {
+  console.error(chalk.red(`✘ ${filepath}`));
+  console.error(errors.map((err) => `  - ${err.toString()}`).join('\n'));
+  console.error(`  See https://www.snowpack.dev/#configuration for more info.`);
+  process.exit(1);
+}
+
+function handleDeprecatedConfigError(msg: string) {
+  console.error(chalk.red(msg));
+  console.error(`See https://www.snowpack.dev/#configuration for more info.`);
+  process.exit(1);
+}
+
+function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
+  // Moved!
+  if (rawConfig.dedupe || cliFlags.dedupe) {
+    handleDeprecatedConfigError('[Snowpack v1 -> v2] `dedupe` is now `rollup.dedupe`.');
+  }
+  if (rawConfig.namedExports || cliFlags.namedExports) {
+    handleDeprecatedConfigError('[Snowpack v1 -> v2] `namedExports` is now `rollup.namedExports`.');
+  }
+  if (rawConfig.installOptions?.include) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `installOptions.include` is now `include` but its syntax has also changed!',
+    );
+  }
+  if (rawConfig.installOptions?.exclude) {
+    handleDeprecatedConfigError('[Snowpack v1 -> v2] `installOptions.exclude` is now `exclude`.');
+  }
+  if (Array.isArray(rawConfig.webDependencies)) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] The `webDependencies` array is now `knownEntrypoints`.',
+    );
+  }
+  if (rawConfig.entrypoints) {
+    handleDeprecatedConfigError('[Snowpack v1 -> v2] `entrypoints` is now `knownEntrypoints`.');
+  }
+  // Replaced!
+  if (rawConfig.source || cliFlags.source) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `source` is now detected automatically, this config is safe to remove.',
+    );
+  }
+  if (rawConfig.stat || cliFlags.stat) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `stat` is now the default output, this config is safe to remove.',
+    );
+  }
+  // Removed!
+  if (rawConfig.hash || cliFlags.hash) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `installOptions.hash` has been replaced by `snowpack build`.',
+    );
+  }
+  if (rawConfig.installOptions?.nomodule || cliFlags.nomodule) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `installOptions.nomodule` has been replaced by `snowpack build --bundle`.',
+    );
+  }
+  if (rawConfig.installOptions?.nomoduleOutput || cliFlags.nomoduleOutput) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `installOptions.nomoduleOutput` has been replaced by `snowpack build --bundle`.',
+    );
+  }
+  if (rawConfig.installOptions?.optimize || cliFlags.optimize) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `installOptions.optimize` has been replaced by `snowpack build --bundle`.',
+    );
+  }
+  if (rawConfig.installOptions?.strict || cliFlags.strict) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `installOptions.strict` is no longer supported.',
+    );
+  }
+}
+
+export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
   const explorerSync = cosmiconfigSync(CONFIG_NAME, {
     // only support these 3 types of config for now
     searchPlaces: ['package.json', 'snowpack.config.js', 'snowpack.config.json'],
@@ -245,35 +305,31 @@ export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
   if (flags.config) {
     result = explorerSync.load(path.resolve(process.cwd(), flags.config));
     if (!result) {
-      errors.push(`Could not locate Snowpack config at ${flags.config}`);
+      handleConfigError(`Could not locate Snowpack config at ${flags.config}`);
     }
-  } else {
-    // if --config not given, try searching up the file tree
-    result = explorerSync.search();
   }
 
-  // no config found
+  // If no config was found above, search for one.
+  result = result || explorerSync.search();
+
+  // If still no config found, assume none exists and use the default config.
   if (!result || !result.config || result.isEmpty) {
-    // if CLI flags present, apply those as overrides
-    return {
-      config: normalizeConfig(
-        merge<SnowpackConfig>([
-          DEFAULT_CONFIG,
-          {webDependencies: pkgManifest.webDependencies},
-          cliConfig as any,
-        ]),
-      ),
-      errors,
-    };
+    result = {config: {...DEFAULT_CONFIG}};
   }
 
   // validate against schema; throw helpful user if invalid
   const config: SnowpackConfig = result.config;
+  const cliConfig = expandCliFlags(flags);
+  validateConfigAgainstV1(result.config, flags);
+
   const validation = validate(config, configSchema, {
     allowUnknownAttributes: false,
     propertyName: CONFIG_NAME,
   });
-  let validationErrors = validation.errors;
+  if (validation.errors) {
+    handleValidationErrors(result.filepath, validation.errors);
+    process.exit(1);
+  }
 
   let extendConfig: SnowpackConfig | {} = {};
   if (config.extends) {
@@ -282,15 +338,17 @@ export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
       : require.resolve(config.extends, {paths: [process.cwd()]});
     const extendResult = explorerSync.load(extendConfigLoc);
     if (!extendResult) {
-      errors.push(`Could not locate Snowpack config at ${flags.config}`);
-    } else {
-      extendConfig = extendResult.config;
-      validationErrors = validationErrors.concat(
-        validate(extendConfig, configSchema, {
-          allowUnknownAttributes: false,
-          propertyName: CONFIG_NAME,
-        }).errors,
-      );
+      handleConfigError(`Could not locate Snowpack config at ${flags.config}`);
+      process.exit(1);
+    }
+    extendConfig = extendResult.config;
+    const extendValidation = validate(extendConfig, configSchema, {
+      allowUnknownAttributes: false,
+      propertyName: CONFIG_NAME,
+    });
+    if (extendValidation.errors) {
+      handleValidationErrors(result.filepath, extendValidation.errors);
+      process.exit(1);
     }
   }
   // if valid, apply config over defaults
@@ -307,8 +365,5 @@ export default function loadConfig(flags: CLIFlags, pkgManifest: any) {
   );
 
   // if CLI flags present, apply those as overrides
-  return {
-    config: normalizeConfig(mergedConfig),
-    errors: validationErrors.map((msg) => `${path.basename(result.filepath)}: ${msg.toString()}`),
-  };
+  return normalizeConfig(mergedConfig);
 }

@@ -152,7 +152,7 @@ interface ScanImportsParams {
 
 export async function scanImports({include, exclude}: ScanImportsParams): Promise<InstallTarget[]> {
   await initESModuleLexer;
-  const includeFiles = glob.sync(include, {ignore: exclude, nodir: true});
+  const includeFiles = glob.sync(`${include}/**/*`, {ignore: exclude, nodir: true});
   if (!includeFiles.length) {
     console.warn(`[SCAN ERROR]: No files matching "${include}"`);
     return [];

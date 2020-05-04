@@ -122,7 +122,6 @@ async function resolveDependency(
 }
 
 export async function resolveTargetsFromRemoteCDN(
-  installTargets: InstallTarget[],
   lockfile: ImportMap | null,
   pkgManifest: any,
   config: SnowpackConfig,
@@ -131,15 +130,7 @@ export async function resolveTargetsFromRemoteCDN(
   const newLockfile: ImportMap = {imports: {}};
   let resolutionError: Error | undefined;
 
-  const allInstallSpecifiers = new Set(installTargets.map((dep) => dep.specifier));
-  for (const installSpecifier of allInstallSpecifiers) {
-    const installSemver: string =
-      (config.webDependencies || {})[installSpecifier] ||
-      (pkgManifest.webDependencies || {})[installSpecifier] ||
-      (pkgManifest.dependencies || {})[installSpecifier] ||
-      (pkgManifest.devDependencies || {})[installSpecifier] ||
-      (pkgManifest.peerDependencies || {})[installSpecifier] ||
-      'latest';
+  for (const [installSpecifier, installSemver] of Object.entries(config.webDependencies!)) {
     downloadQueue.add(async () => {
       try {
         const resolvedUrl = await resolveDependency(installSpecifier, installSemver, lockfile);

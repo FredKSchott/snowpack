@@ -21,18 +21,15 @@ interface DevOptions {
 }
 
 export async function command({cwd, config}: DevOptions) {
-  console.log(chalk.bold('☶ Snowpack Build'));
-  console.log('NOTE: Still experimental, default behavior may change.');
-
   const messageBus = new EventEmitter();
   const allRegisteredWorkers = Object.entries(config.scripts);
   const relevantWorkers: [string, DevScript][] = [];
   const allWorkerPromises: Promise<any>[] = [];
 
-  const isBundled = config.dev.bundle;
-  const finalDirectoryLoc = config.dev.out;
-  const buildDirectoryLoc = isBundled ? path.join(cwd, `.build`) : config.dev.out;
-  const distDirectoryLoc = path.join(buildDirectoryLoc, config.dev.dist);
+  const isBundled = config.devOptions.bundle;
+  const finalDirectoryLoc = config.devOptions.out;
+  const buildDirectoryLoc = isBundled ? path.join(cwd, `.build`) : config.devOptions.out;
+  const distDirectoryLoc = path.join(buildDirectoryLoc, config.devOptions.dist);
 
   rimraf.sync(finalDirectoryLoc);
   mkdirp.sync(finalDirectoryLoc);
@@ -73,7 +70,7 @@ export async function command({cwd, config}: DevOptions) {
   console.error = (...args) => {
     messageBus.emit('CONSOLE', {level: 'error', args});
   };
-  let relDest = path.relative(cwd, config.dev.out);
+  let relDest = path.relative(cwd, config.devOptions.out);
   if (!relDest.startsWith(`..${path.sep}`)) {
     relDest = `.${path.sep}` + relDest;
   }
@@ -151,9 +148,9 @@ export async function command({cwd, config}: DevOptions) {
     messageBus.emit('WORKER_COMPLETE', {id, error: null});
   }
 
-  const allFiles = glob.sync(`${config.dev.src}/**/*`, {
+  const allFiles = glob.sync(`${config.include}/**/*`, {
     nodir: true,
-    ignore: [`${config.dev.src}/**/__tests__`, `${config.dev.src}/**/*.{spec,test}.*`],
+    ignore: [`${config.include}/**/__tests__`, `${config.include}/**/*.{spec,test}.*`],
   });
 
   for (const [id, workerConfig] of relevantWorkers) {
@@ -185,7 +182,7 @@ export async function command({cwd, config}: DevOptions) {
           console.error(stderr);
           continue;
         }
-        let outPath = f.replace(config.dev.src, distDirectoryLoc);
+        let outPath = f.replace(config.include, distDirectoryLoc);
         const extToFind = path.extname(f).substr(1);
         const extToReplace = srcFileExtensionMapping[extToFind];
         if (extToReplace) {
@@ -226,7 +223,7 @@ export async function command({cwd, config}: DevOptions) {
           messageBus.emit('WORKER_COMPLETE', {id, error: err});
           continue;
         }
-        let outPath = f.replace(config.dev.src, distDirectoryLoc);
+        let outPath = f.replace(config.include, distDirectoryLoc);
         const extToFind = path.extname(f).substr(1);
         const extToReplace = srcFileExtensionMapping[extToFind];
         if (extToReplace) {
@@ -285,7 +282,7 @@ export async function command({cwd, config}: DevOptions) {
 
     const bundleAppPromise = execa(
       'parcel',
-      ['build', config.dev.fallback, '--out-dir', finalDirectoryLoc],
+      ['build', config.devOptions.fallback, '--out-dir', finalDirectoryLoc],
       {
         cwd: buildDirectoryLoc,
         env: npmRunPath.env(),
