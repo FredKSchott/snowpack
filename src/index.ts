@@ -181,8 +181,8 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
     throw new ErrorWithHint(
       chalk.bold(`Dependency "${dep}" has no native "module" entrypoint.`) +
         `
-  To continue, add react & react-dom to your "webDependencies" in your package.json:
-  
+  To continue, add react & react-dom to your package.json "webDependencies":
+
     "webDependencies": {
       "react": "^${depManifest.version}",
       "react-dom": "^${depManifest.version}"

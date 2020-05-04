@@ -1,25 +1,19 @@
 ## Introduction
 
-Today's web tooling is built on an outdated assumption: that a website can't run in the browser without a bundler. This may have been true in the past, but ESM `import`/`export` support in the browser changed everything. 
 
-**The truth is, you no longer need a bundler during development.**
+Web development is built on an outdated assumption: that you can't build a website without a bundler. 
 
-This is great news for developers because bundlers can easily introduce a mix of configuration, plugins, dependencies and tooling complexity to your workflow that you probably wouldn't otherwise need. Understanding how to configure a bundler shouldn't be a prerequisite for being a great web developer.
+The concept of bundling and combining files together for production has been around for ages. However, at some point in the last decade bundling shifted from a production nice-to-have to a full-on dev requirement. Bundler configuration files, plugins, dependencies, tooling complexity, code-splitting, longer build times... none of this should be required by default.
 
-Not only that, but bundling during development adds a significant slow down to your dev workflow. When you make changes to a bundled application, you need to wait for the bundler to rebuild an entire chunk of your application just to update your changes to a single file.
-
-**Snowpack marks the start of an entirely new generation of bundle-free development tooling.**
+**Snowpack marks the start of an new generation of tooling that is fast, simple and bundle-free during development.**
 
 ### What is Snowpack?
 
-- <strong>Snowpack is bundle-free build tooling for the next generation of web development.</strong> 
-- Snowpack works with React, Vue, Svelte and all of your favorite frameworks and build tools. 
-- Snowpack's lightning-fast dev server starts up in &lt;20ms and reflects changes instantly thanks to single-file rebuilding. 
-- Snowpack optimizes your site for production thanks to a built-in Parcel integration.
-
-Snowpack removes the bundler from your development workflow so that you can build faster with less complexity. Connect your favorite build tools like Babel and PostCSS to customize how your source files are handled with simple, 1-line build tool integrations.
-
-Snowpack also ships with a built-in Parcel integration to optimize & bundle your site for production. Bundling for production with Parcel keeps your site running fast without slowing down your development workflow.
+- <strong>Snowpack is the fastest way to build & develop web applications.</strong> 
+- Snowpack installs npm dependencies that run in the browser without a bundler.
+- React, Vue, Svelte, Babel, TypeScript, PostCSS and all of your favorite tools & frameworks are supported with simple 1-line build integrations. 
+- Snowpack's dev server starts up in &lt;20ms and reacts instantly to changes thanks to single-file rebuilding. 
+- Continue to optimize your site for production with Snowpack's built-in [Parcel](https://parceljs.org/) integration.
 
 
 ### Who's Using Snowpack?
@@ -48,13 +42,13 @@ Snowpack also ships with a built-in Parcel integration to optimize & bundle your
 
 **Snowpack builds sites for both modern and legacy browsers.** The only requirement is that you use a [modern browser](http://caniuse.com/#feat=es6-module) *during development*. Any recent release of Firefox, Chrome, or Edge will do. 
 
-When you build your site for production, Snowpack will automatically transpile your site to run on older browsers as well. You can control and customize this behavior with the ["browserlist" package.json property.](https://css-tricks.com/browserlist-good-idea/).
+When you build your site for production, Snowpack will automatically transpile your site to run on older browsers as well. You can control and customize this behavior with the ["browserlist" package.json property.](https://css-tricks.com/browserlist-good-idea/)
 
 
 ### Bundling for Production
 
 **Snowpack gives you the best of both worlds: faster bundle-free development + optimized bundling in production.**
 
-If you want to bundle your site for production, you can just use the optimized `--bundle` flag. This improves site performance while also allowing you to target even older, non-ESM browsers like IE11.You still have to pay the price for bundling (ie: longer builds) but only during production builds. Your development workflow stays bundle-free and fast.
+If you want to bundle your site for production, use the optimized `--bundle` flag. This improves site performance while also allowing you to target even older, non-ESM browsers like IE11. Pay the price for bundling (ie: a longer build) but only during production deployments. Your development workflow stays fast and bundle-free.
 
 

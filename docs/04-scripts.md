@@ -1,31 +1,10 @@
 ## Build Scripts
 
-Snowpack is more than just a static file server, it's a platform that can power your entire website build workflow. Babel, TypeScript, PostCSS, and any favorite build tool can be connected directly with Snowpack via simple, 1-line transformations. 
-
-**These transformations are called "build scripts".**
-
-Build scripts only run on files in the `src/` directory. Build scripts are useful or even essential in some projects that rely on custom, non-standard syntax. Svelte, Vue, and even React (via JSX) all need to be built or processed in some way (ex: passed through Babel) before they can run in the browser.
-
-<!--
-
-### Default Build Scripts 
-
-Snowpack provides some basic build scripts out of the box to help you get started. The following are enabled by default durinb both dev & build:
-
-- `build:jsx` - All `src/*.jsx` files are transpiled for basic React & Preact support. 
-- `build:ts` - All `src/*.ts` files are transpiled for basic TypeScript support.
-- `build:tsx` - All `src/*.tsx` files are transpiled for both JSX & TypeScript.
--->
-
-Snowpack also rewrites your package imports automatically using your installed `web_modules/import-map.json` file. This way uou can import packages by name anywhere in your `src/` directory and Snowpack will automatically rewrite them to point to the proper `/web_modules/*` URL during dev/build.
- 
-### Custom Build Scripts
+Snowpack is more than just a static file server, it's a platform that can power your entire website build workflow. Babel, TypeScript, PostCSS, and any favorite build tool can be connected directly with Snowpack via simple, 1-line transformations. These transformations are called **"build scripts".**
 
 A build script is just a simple bash command. Based on the file extension given in the script name, Snowpack will pipe source files into each command (via stdin) and then send it's output (via stdout) to the browser (or writing it to disk, when building your application).
 
-If you've ever worked with `package.json` "scripts", providing your own build scripts should feel familiar.
-
-**The `"build"` script type is the basic building block for any Snowpack dev & build pipeline.** In the following example, `babel`, `postcss`, and `cat` are all used to process a project's `src/` directory at dev time and then again when building for production. Each file is piped through the proper command to get the final build output.
+If you've ever worked with `package.json` "scripts", creating your own build scripts should feel familiar.
 
 ```js
 // snowpack.config.json
@@ -41,7 +20,30 @@ If you've ever worked with `package.json` "scripts", providing your own build sc
 }
 ```
 
+**The `"build"` script type is the basic building block for any Snowpack dev & build pipeline.** In this example `babel`, `postcss`, and `cat` are all used to process a project's `src/` directory at dev time and then again when building for production. Each file is piped through the proper CLI to get the final build output.
 
+**Build scripts are only run on your `src/` directory.** Build scripts are useful or even essential in some projects that rely on custom, non-standard syntax. Svelte, Vue, and even React (via JSX) all need to be built or processed in some way (ex: passed through Babel) before they can run in the browser.
+
+**Your built `src/` directory is hosted at the `/_dist_/*` URL path.** Make sure that you load scripts and files from the correct `/_dist_/` URL to get the correct build output. For example, you should load your `/src/index.xxx` application entrypoint via the following script tag:
+
+```html
+<script type="module" src="/_dist_/index.js"></script>
+```
+
+
+<!--
+
+### Default Build Scripts 
+
+Snowpack provides some basic build scripts out of the box to help you get started. The following are enabled by default durinb both dev & build:
+
+- `build:jsx` - All `src/*.jsx` files are transpiled for basic React & Preact support. 
+- `build:ts` - All `src/*.ts` files are transpiled for basic TypeScript support.
+- `build:tsx` - All `src/*.tsx` files are transpiled for both JSX & TypeScript.
+
+Snowpack also rewrites your package imports automatically using your installed `web_modules/import-map.json` file. This way uou can import packages by name anywhere in your `src/` directory and Snowpack will automatically rewrite them to point to the proper `/web_modules/*` URL during dev/build.
+-->
+ 
 ### All Script Types
 
 Snowpack supports several other script types in addition to the basic `"build"` type. These different script types serve different goals so that you can fully customize and control your dev environment:

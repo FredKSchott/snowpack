@@ -207,10 +207,10 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const scriptsBase = {
     'mount:web_modules': 'mount web_modules',
   };
-  if (fs.existsSync(path.resolve(cwd, 'public'))) {
-    scriptsBase['mount:public'] = scriptsBase['mount:public'] || 'mount public --to /';
-  } else if (!config.scripts) {
+  if (!config.scripts) {
     scriptsBase['mount:/'] = 'mount . --to /';
+  } else if (fs.existsSync(path.resolve(cwd, 'public'))) {
+    scriptsBase['mount:public'] = scriptsBase['mount:public'] || 'mount public --to /';
   }
   // @ts-ignore
   config.scripts = {

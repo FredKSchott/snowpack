@@ -44,8 +44,8 @@ While CSA is a great all-in-one starter dev environment, you may prefer to learn
 
 ### Migrating an Existing App
 
-To migrate an existing app to Snowpack depends on how many specialized/customized bundler features/plugins you're currently using. Certain bundler plugins lock you in to that specific setup, since your application code can become dependent on certain plugin behaviors.
-
-Your best bet is to start with a Create Snowpack App (CSA) template, copy over your "src" & "public" files from your old app, and then run `snowpack dev` to finish up the migration and troubleshoot any remaining issues. 
+Migrating an existing app to Snowpack is generally easy, since Snowpack supports almost every build tools that you're already using today (Babel, PostCSS, etc). If this is your first time using Snowpack you should start with a Create Snowpack App (CSA) template, copy over your "src" & "public" files from your old app, and then run `snowpack dev` to finish up the migration and troubleshoot any remaining issues. 
 
 CSA is a good starting point for existing applications because it has a few common tools (like Babel) built in by default to replicate the full feature set of a traditional bundled app. CSA is also meant to be a drop-in replacement for Create React App, so any existing Create React App project should run with zero changes needed.
+
+If you run into issues, check out our [Advanced Usage](#advanced-usage) section for guides on importing CSS, asset references, and more.
