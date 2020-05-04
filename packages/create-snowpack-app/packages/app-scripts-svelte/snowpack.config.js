@@ -13,7 +13,7 @@ module.exports = {
   installOptions: {
     clean: true,
   },
-  webDependencies: {},
+  knownEntrypoints: ["svelte/internal"],
   dev: {
     port: 3000,
     src: "src",

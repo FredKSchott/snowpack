@@ -41,10 +41,6 @@ module.exports = {
     clean: true,
     installTypes: isTS,
   },
-  webDependencies: {
-    react: "^16.13.0",
-    "react-dom": "^16.13.0",
-  },
   dev: {
     port: 3000,
     src: "src",

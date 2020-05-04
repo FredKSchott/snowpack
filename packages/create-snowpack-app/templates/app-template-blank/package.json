@@ -1,0 +1,24 @@
+{
+  "name": "@snowpack/app-template-blank",
+  "version": "0.1.10",
+  "license": "MIT",
+  "keywords": [
+    "csa-template"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepare": "snowpack",
+    "start": "snowpack dev",
+    "build": "NODE_ENV=production snowpack build",
+    "test": "echo \"This template does not include a test runner by default.\" && exit 1"
+  },
+  "webDependencies": {
+    "canvas-confetti": "^1.2.0"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4",
+    "snowpack": "^2.0.0-0"
+  }
+}

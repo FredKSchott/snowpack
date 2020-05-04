@@ -1,6 +1,4 @@
 {
   "extends": "@snowpack/app-scripts-vue",
-  "scripts": {},
-  "plugins": [],
-  "entrypoints": []
+  "scripts": {}
 }

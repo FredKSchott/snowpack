@@ -1,7 +1,4 @@
 {
   "extends": "@snowpack/app-scripts-svelte",
-  "scripts": {},
-  "plugins": [],
-  "webDependencies": {},
-  "entrypoints": ["svelte/internal"]
+  "scripts": {}
 }

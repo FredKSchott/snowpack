@@ -1,19 +1,19 @@
 const path = require("path");
 const babelParser = require("@babel/parser");
 
-function importCSZ() {
-  return babelParser.parse(`import css from 'csz';`, {
-    plugins: ["importMeta"],
-    sourceType: "module",
-  });
-}
+// function importCSZ() {
+//   return babelParser.parse(`import css from 'csz';`, {
+//     plugins: ["importMeta"],
+//     sourceType: "module",
+//   });
+// }
 
-function loadCSZ(val, spec) {
-  return babelParser.parse(
-    `const ${spec} = css\`\$\{new URL('${val}', import.meta.url).pathname\}\`;`,
-    { plugins: ["importMeta"], sourceType: "module" }
-  );
-}
+// function loadCSZ(val, spec) {
+//   return babelParser.parse(
+//     `const ${spec} = css\`\$\{new URL('${val}', import.meta.url).pathname\}\`;`,
+//     { plugins: ["importMeta"], sourceType: "module" }
+//   );
+// }
 
 function loadCSS(val) {
   return babelParser.parseExpression(
@@ -35,10 +35,7 @@ function loadAssetURL(val) {
   );
 }
 
-module.exports = function pikaWebBabelTransform(
-  { types: t, env },
-  { csz } = { csz: false }
-) {
+module.exports = function assetImportPlugin({ types: t, env }, {} = {}) {
   return {
     visitor: {
       ImportDeclaration(p, { file, opts }) {
@@ -68,25 +65,13 @@ module.exports = function pikaWebBabelTransform(
               p.remove();
               return;
             }
-            if (!defaultImportRef || specs.length > 1) {
-              // throw an error / return.
-              return;
-            }
-            if (!csz) {
-              // throw an error / return.
-              return;
-            }
-            if (!this.hasCSZImport) {
-              p.insertBefore(importCSZ());
-              this.hasCSZImport = true;
-            }
-            p.insertBefore(
-              loadCSZ(source.node.value, defaultImportRef.node.local.name)
-            );
-            p.remove();
+            // throw an error?
             return;
 
-          default:
+          case ".svg":
+          case ".png":
+          case ".jpg":
+          case ".jpeg":
             if (!defaultImportRef || specs.length > 1) {
               // throw an error / return.
               return;
@@ -100,6 +85,7 @@ module.exports = function pikaWebBabelTransform(
               ])
             );
             p.remove();
+          default:
         }
       },
     },
