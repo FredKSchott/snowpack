@@ -458,5 +458,10 @@ export async function command({cwd, port, config}: DevOptions) {
     ips,
     startTimeMs: Date.now() - serverStart,
   });
+
+  const openCmd =
+    process.platform == 'darwin' ? 'open' : process.platform == 'win32' ? 'start' : 'xdg-open';
+  execa(openCmd, [`http://localhost:${port}`]);
+
   return new Promise(() => {});
 }
