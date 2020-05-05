@@ -32,7 +32,7 @@ npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 - [@snowpack/app-template-react-typescript](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-react-typescript)
 - [@snowpack/app-template-svelte](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-svelte)
 - [@snowpack/app-template-vue](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-vue)
-- **More coming soon!** Got a favorite framework that you don't see here? We'd love your help creating new templates for popular tools/frameworks before the official v2.0 launch.
+- **More coming soon!** Got a favorite framework that you don't see here? [We'd love your help](https://github.com/pikapkg/create-snowpack-app) creating new templates for popular tools/frameworks before the official v2.0 launch.
 
 You can also find a full list of unofficial, community plugins by searching the ["csa-template"](https://www.npmjs.com/search?q=keywords%3Acsa-template) keyword on NPM.
 
