@@ -1,4 +1,5 @@
 - snowpack installing...
-⠼ snowpack installing... svelte-routing, svelte/internal
-✖ Cannot read property 'startsWith' of undefined
-⚠ Finished with warnings.
+✔ snowpack install complete.
+  ⦿ web_modules/           size       gzip       brotli
+    ├─ svelte-routing.js   XXXX KB   XXXX KB    XXXX KB
+    └─ svelte/internal.js  XXXX KB   XXXX KB   XXXX KB
