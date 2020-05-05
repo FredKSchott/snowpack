@@ -10,12 +10,10 @@
     "@babel/core": "^7.9.0",
     "@snowpack/babel-plugin-package-import": "^0.2.4",
     "@snowpack/plugin-vue": "^0.2.2",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^25.4.0",
     "vue-jest": "^3.0.5",
     "vue-template-compiler": "^2.6.11"
-  },
-  "devDependencies": {
-    "babel-core": "^7.0.0-bridge.0"
   },
   "gitHead": "YYY"
 }

@@ -18,6 +18,7 @@
   "devDependencies": {
     "@snowpack/app-scripts-svelte": "^0.2.4",
     "@testing-library/svelte": "^3.0.0",
+    "@testing-library/jest-dom": "^5.5.0",
     "jest": "^25.4.0",
     "parcel-bundler": "^1.12.4",
     "snowpack": "^2.0.0-0",

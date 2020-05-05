@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/babel-plugin-package-import",
-  "version": "0.2.4",
+  "version": "0.2.0",
   "main": "plugin.js",
   "license": "MIT",
   "publishConfig": {

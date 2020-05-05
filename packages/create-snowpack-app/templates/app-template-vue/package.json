@@ -17,6 +17,7 @@
   "webDependencies": {},
   "devDependencies": {
     "@snowpack/app-scripts-vue": "^0.2.4",
+    "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/vue": "^5.0.2",
     "jest": "^25.4.0",
     "parcel-bundler": "^1.12.4",
