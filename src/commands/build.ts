@@ -274,6 +274,20 @@ export async function command({cwd, config}: DevOptions) {
   if (isBundled) {
     messageBus.emit('WORKER_UPDATE', {id: 'bundle:*', state: ['RUNNING', 'yellow']});
     async function prepareBuildDirectoryForParcel() {
+      // Prepare the new build directory by copying over all static assets
+      // This is important since sometimes Parcel doesn't pick these up.
+      await copy(buildDirectoryLoc, finalDirectoryLoc, {
+        filter: (srcLoc) => {
+          return (
+            !srcLoc.startsWith(buildDirectoryLoc + path.sep + 'web_modules') &&
+            !srcLoc.startsWith(buildDirectoryLoc + path.sep + config.devOptions.dist.substr(1))
+          );
+        },
+      }).catch((err) => {
+        messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'error', msg: err.toString()});
+        messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: err});
+        throw err;
+      });
       const tempBuildManifest = JSON.parse(
         await fs.readFile(path.join(cwd, 'package.json'), {encoding: 'utf-8'}),
       );
