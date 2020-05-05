@@ -73,7 +73,7 @@ async function cleanProject(dir) {
     devDependencies,
   } = require(packageManifest);
   const { prepare, start, build, test, ...otherScripts } = scripts;
-  return fs.promises.writeFile(
+  await fs.promises.writeFile(
     packageManifest,
     JSON.stringify(
       {
@@ -85,6 +85,10 @@ async function cleanProject(dir) {
       null,
       2
     )
+  );
+  await fs.promises.writeFile(
+    path.join(dir, ".gitignore"),
+    [".build", "build", "web_modules", "node_modules"].join("\n")
   );
 }
 
