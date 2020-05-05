@@ -19,7 +19,8 @@ function stripBenchmark(stdout) {
   return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
 }
 function stripStats(stdout) {
-  return stdout.replace(/[\d\.]*? KB/g, 'XXXX KB');
+  // Need to strip leading whitespace to get around strange Node v13 behavior
+  return stdout.replace(/\s+[\d\.]*? KB/g, '    XXXX KB');
 }
 function stripWhitespace(stdout) {
   return stdout.replace(/((\s+$)|((\\r\\n)|(\\n)))/gm, '');

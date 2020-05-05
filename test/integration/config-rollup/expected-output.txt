@@ -1,5 +1,5 @@
 - snowpack installing...
 ✔ snowpack install complete.
   ⦿ web_modules/           size       gzip       brotli
-    ├─ svelte-routing.js   XXXX KB   XXXX KB    XXXX KB
-    └─ svelte/internal.js  XXXX KB   XXXX KB   XXXX KB
+    ├─ svelte-routing.js    XXXX KB    XXXX KB    XXXX KB
+    └─ svelte/internal.js    XXXX KB    XXXX KB    XXXX KB

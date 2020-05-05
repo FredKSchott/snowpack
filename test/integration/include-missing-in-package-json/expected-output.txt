@@ -1,4 +1,4 @@
 - snowpack installing...
 ✔ snowpack install complete.
   ⦿ web_modules/          size       gzip       brotli
-    └─ @material/list.js  XXXX KB   XXXX KB    XXXX KB
+    └─ @material/list.js    XXXX KB    XXXX KB    XXXX KB
