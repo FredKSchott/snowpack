@@ -41,7 +41,7 @@ function validateArgs(args) {
   }
   return {
     template,
-    useYarn: !!yarn,
+    useYarn,
     targetDirectoryRelative,
     targetDirectory,
   };
