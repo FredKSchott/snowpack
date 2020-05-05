@@ -2,19 +2,21 @@
 
 Snowpack is more than just a static file server, it's a platform to power your entire build pipeline. Babel, TypeScript, PostCSS, and any favorite build tool can be connected directly into Snowpack via simple, 1-line transformations. These transformations are called **"build scripts".**
 
-A build script is just a simple bash command or CLI. Based on the file extension given in the script name, Snowpack will pipe your source files into each command (via stdin) and then send it's output (via stdout) to the browser (or writing it to disk when building your application).
+### What are Build Scripts?
 
-If you've ever worked with `package.json` "scripts", creating your own build scripts should feel familiar.
+A build script is just a simple bash (CLI) command. Snowpack will  pipe your source files into matching script commands (via stdin) and then sending it's output (via stdout) to the browser or build directory.
+
+If you've ever worked with `package.json` "scripts", creating your own build scripts should feel very familiar.
 
 ```js
 // snowpack.config.json
 {
   "scripts": {
-    // Run every .js & .jsx file through Babel CLI
+    // Pipe every .js & .jsx file through Babel CLI
     "build:js,jsx": "babel",
-    // Run every .css file through PostCSS CLI
+    // Pipe every .css file through PostCSS CLI
     "build:css": "postcss",
-    // Run every .svg file through 'cat' (copies the file without transforming)
+    // Pipe every .svg file through 'cat' (copies the file without transforming)
     "build:svg": "cat"
   }
 }
@@ -22,11 +24,12 @@ If you've ever worked with `package.json` "scripts", creating your own build scr
 
 **The `"build"` script type is the basic building block for any Snowpack build pipeline.** In this example `babel`, `postcss`, and `cat` are all used to process a project's `src/` directory at dev time and then again when building for production. Each file is piped through the proper CLI to get the final build output.
 
-**Build scripts are only run on your `src/` directory.** Build scripts are useful or even essential in some projects that rely on custom, non-standard syntax. Svelte, Vue, and even React (via JSX) all need to be built or processed in some way (ex: passed through Babel) before they can run in the browser.
+**Build scripts are only run on your `src/` directory.** Svelte, Vue, and even React (via JSX) all need to be built or processed in some way (ex: passed through a Babel build script) before they can run in the browser.
 
 **Your built `src/` directory can be found at the `/_dist_/*` URL path.** Make sure that you load scripts and files from the correct `/_dist_/` URL to get the fully built output. For example, you would load a `/src/index.jsx` application entrypoint via the following script tag:
 
 ```html
+<!-- Example: Load your "src/index" file in the browser -->
 <script type="module" src="/_dist_/index.js"></script>
 ```
 
@@ -52,12 +55,12 @@ Snowpack supports several other script types in addition to the basic `"build"` 
   - Pipe any matching file into this CLI command, and write it's output to disk.
   - ex: `"build:js,jsx": "babel"`
 - `"lint:*": "..."`
-  - Pipe any matching file into this CLI command, and log any output.
+  - Pipe any matching file into this CLI command, and log any errors/output.
   - ex: `"lint:js": "eslint"`
 - `"lintall:*": "..."`
-  - Run a single command once, log any output.
+  - Run a single command once, log any output/errors.
   - Useful for tools like TypeScript that lint multiple files / entire projects at once.
-  - ex: `"lint:ts,tsx": "tsc"`
+  - ex: `"lintall:ts,tsx": "tsc"`
 - `"mount:*": "mount DIR [--to URL]"`
   - Copy a folder directly into the final build at the `--to` URL location.
   - If no `--to` argument is provided, the folder will be copied to the same location relative to the project directory.
@@ -66,9 +69,9 @@ Snowpack supports several other script types in addition to the basic `"build"` 
 - `"plugin:*": "..."`
   - Connect a custom Snowpack plugin. See the section below for more info.
 
-#### Script Modifiers
+### "::" Script Modifiers
 
-You can extend certain scripts via the `"::"` script modifier token. These act as addons to a previous matching script that extend that script's behavior:
+You can extend your build scripts via the `"::"` script modifier token. These act as addons to a previous matching script that extend that script's behavior:
 
 - `"lintall:*::watch"`
   - This adds a watch mode to a previous "lintall" script, so that you can turn any supported linter into a live-updating watch command during development. 
@@ -88,11 +91,11 @@ You can extend certain scripts via the `"::"` script modifier token. These act a
 Note that `$1` can be used with a script modifier to reference the original script. This is useful so that you don't need to copy-paste a script in two places.
 
 
-### Build Plugins
+### Build Script Plugins
 
-For an even more powerful integration, Snowpack supports custom plugins built specifically for Snowpack. Instead of running these plugins as CLI commands, each plugin is loaded as a JavaScript module that exports custom `build()` and `lint()` functions.
+For a more powerful integration, you can also write build scripts using JavaScript to create *build plugins*. Each plugin is loaded as a JavaScript module that exports custom `build()` and `lint()` functions that are run on matching files.
 
-There are a few reasons you may want to use a plugin instead of a normal "build:" or "lint:" CLI command script:
+There are a few reasons you may want to use a build plugin instead of a normal "build:" or "lint:" CLI command script:
 
 **Speed:** Some CLIs may have a slower start-up time, which may become a problem as your site grows. Plugins can be faster across many files since they only need to be loaded & initialized once and not once for every file.
 
@@ -122,6 +125,6 @@ There are a few reasons you may want to use a plugin instead of a normal "build:
 }
 ```
 
-### Writing a Build Plugin
+### Build Plugin API
 
 Coming Soon!

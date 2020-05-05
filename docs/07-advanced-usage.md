@@ -10,17 +10,15 @@ Most CSS-in-JS libraries work great with Snowpack. However, using the JavaScript
 import './style.css';
 ```
 
-The @snowpack/babel-plugin-asset-import babel plugin replaces every CSS import with a `<style>` element to inject the CSS file contents at build time. We recommend this because unlike other solutions listed here, this one works with the `--bundle` flag so that you still get fully bundled application CSS in production.
+The [@snowpack/babel-plugin-asset-import](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/babel-plugin-asset-import) Babel plugin replaces every CSS import with a `<style>` element to inject the CSS file contents at build time. 
+
+We recommend this solution because unlike others this works with the `--bundle` flag so that you still get fully bundled application CSS in production.
 
 #### 2. CSZ
 
 ``` js
 import csz from 'csz';
-
-// 1. Import by absolute URL
 const className = csz`/style.css`;
-// 2. Import by relative URL
-const className = csz`${new URL('./style.css', import.meta.url).pathname}`;
 ```
 
 [csz](https://github.com/lukejacksonn/csz) supports run-time CSS modules with SASS-like selectors. No Babel plugin is needed for this one. Since CSZ runs directly in the browser, you can skip any sort of SASS build/watch step.

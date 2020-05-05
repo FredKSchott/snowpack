@@ -1,19 +1,18 @@
 ## Introduction
 
-Web developers are relying on an outdated assumption: you can't build a website without a bundler. 
+Web developers are relying on an outdated assumption: you can't build websites without a bundler. 
 
-At some point in the last decade, bundling shifted from a production nice-to-have optimization to a full-on dev requirement. Configuration files, plugins, extra dependencies, tooling complexity, code-splitting, waiting around on every save... all of this suddenly became required just to build on the web.
+At some point in the last decade, JavaScript bundling shifted from being a production nice-to-have optimization to a full-on dev requirement. Configuration files, plugin ecosystems, extra dependencies, tooling complexity, code-splitting, waiting to rebundle every save... all of this suddenly became required overhead to do any level of web development.
 
-### What is Snowpack?
+**Snowpack marks the start of a new generation of no-bundle dev tooling.** Snowpack installs your npm dependencies so that they can run directly in the browser (via native ESM `import`) and then provides additional dev + build tooling to run your entire application.
 
-**Snowpack marks the start of a new generation of bundle-free dev tooling.** Native ESM [`import`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import)/[`export`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export) syntax can power complex applications without ever needing a bundler. Snowpack installs your npm dependencies so that they can run directly in the browser via ESM `import`, and then provides a dev server + build workflow for your entire application.
+### Key Highlights
 
-- **On-Demand File Building:** Snowpack has zero upfront build time since files are only build individually, as they are requested by the browser.
-- **Instant Startup:** With no initial build to speak of, Snowpack's dev server starts up in less than 20ms on most machines.
-- **Instant Rebuilding:** Each file change takes milliseconds to rebuild, since there's no large app chunks to rebuild.
-- **Simplified Configuration:** Each file is built individually, so each build tool can be managed separately using a familiar ["scripts" interface](#build-scripts) that removes the risk of configuration spaghetti.
+- **No More Bundling During Development:** Snowpack installs your npm dependencies so that they can be imported directly in the browser without an application bundler.
+- **Instant Dev Startup:** Snowpack's dev server starts up in less than 20ms on most machines. Files are only built on-demand, as requested by the browser.
+- **Instant Dev Rebuilding:** Never wait more than a few milliseconds when you hit save. Since there's no large app chunks to rebuild, changes are reflected in the browser instantly.
+- **Connect your Favorite Build Tools:**  Manage your build using a simple, familiar ["scripts" interface](#build-scripts) that replaces traditionally complex plugin ecosystems.
 - **Bundle for Production:** It's the best of both worlds: fast bundle-free development + optimized bundling in production. Choose between bundled (optimized) or unbundled build output without any additional config needed.
-
 
 ### Who's Using Snowpack?
 
