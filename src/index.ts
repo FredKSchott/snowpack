@@ -184,20 +184,6 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
   if (dep === 'react-dom' && (!foundEntrypoint || foundEntrypoint === 'index.js')) {
     foundEntrypoint = 'cjs/react-dom.production.min.js';
   }
-  //     throw new ErrorWithHint(
-  //       chalk.bold(`Dependency "${dep}" has no native "module" entrypoint.`) +
-  //         `
-  //   To continue, add react & react-dom to your package.json "webDependencies":
-
-  //     "webDependencies": {
-  //       "react": "^${depManifest.version}",
-  //       "react-dom": "^${depManifest.version}"
-  //     }
-  // `,
-
-  //       chalk.italic(`See ${chalk.underline('https://www.snowpack.dev/#react')} for more info.`),
-  //     );
-  //   }
   if (typeof foundEntrypoint !== 'string') {
     throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
   }
