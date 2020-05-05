@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-vue",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "snowpack.config.js",
   "license": "MIT",
   "publishConfig": {
@@ -9,7 +9,7 @@
   "dependencies": {
     "@babel/core": "^7.9.0",
     "@snowpack/babel-plugin-package-import": "^0.2.0",
-    "@snowpack/plugin-vue": "^0.2.0",
+    "@snowpack/plugin-vue": "^0.2.1",
     "babel-jest": "^25.4.0",
     "vue-jest": "^3.0.5",
     "vue-template-compiler": "^2.6.11"
