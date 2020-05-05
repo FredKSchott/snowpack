@@ -1,8 +1,8 @@
 ## Build Scripts
 
-Snowpack is more than just a static file server, it's a platform that can power your entire website build workflow. Babel, TypeScript, PostCSS, and any favorite build tool can be connected directly with Snowpack via simple, 1-line transformations. These transformations are called **"build scripts".**
+Snowpack is more than just a static file server, it's a platform to power your entire build pipeline. Babel, TypeScript, PostCSS, and any favorite build tool can be connected directly into Snowpack via simple, 1-line transformations. These transformations are called **"build scripts".**
 
-A build script is just a simple bash command. Based on the file extension given in the script name, Snowpack will pipe source files into each command (via stdin) and then send it's output (via stdout) to the browser (or writing it to disk, when building your application).
+A build script is just a simple bash command. Based on the file extension given in the script name, Snowpack will pipe your source files into each command (via stdin) and then send it's output (via stdout) to the browser (or writing it to disk, when building your application).
 
 If you've ever worked with `package.json` "scripts", creating your own build scripts should feel familiar.
 
@@ -24,7 +24,7 @@ If you've ever worked with `package.json` "scripts", creating your own build scr
 
 **Build scripts are only run on your `src/` directory.** Build scripts are useful or even essential in some projects that rely on custom, non-standard syntax. Svelte, Vue, and even React (via JSX) all need to be built or processed in some way (ex: passed through Babel) before they can run in the browser.
 
-**Your built `src/` directory is hosted at the `/_dist_/*` URL path.** Make sure that you load scripts and files from the correct `/_dist_/` URL to get the correct build output. For example, you should load your `/src/index.xxx` application entrypoint via the following script tag:
+**Your built `src/` directory is hosted at the `/_dist_/*` URL path.** Make sure that you load scripts and files from the correct `/_dist_/` URL to get the fully built output. For example, you would load a `/src/index.jsx` application entrypoint via the following script tag:
 
 ```html
 <script type="module" src="/_dist_/index.js"></script>
@@ -35,7 +35,7 @@ If you've ever worked with `package.json` "scripts", creating your own build scr
 
 ### Default Build Scripts 
 
-Snowpack provides some basic build scripts out of the box to help you get started. The following are enabled by default durinb both dev & build:
+Snowpack provides some basic build scripts out of the box to help you get started. The following are enabled by default during both dev & build:
 
 - `build:jsx` - All `src/*.jsx` files are transpiled for basic React & Preact support. 
 - `build:ts` - All `src/*.ts` files are transpiled for basic TypeScript support.
@@ -64,11 +64,11 @@ Snowpack supports several other script types in addition to the basic `"build"` 
   - ex: `"mount:public": "mount public --to /"`
   - ex: `"mount:web_modules": "mount web_modules"`
 - `"plugin:*": "..."`
-  - Connect a custom Snowpack plugins. See the section below for more info.
+  - Connect a custom Snowpack plugin. See the section below for more info.
 
 #### Script Modifiers
 
-Additionally, we support script modifiers via  the `"::"` token. These are addons to a previous matching script that extend that script's behavior:
+You can extend certain scripts via the `"::"` script modifier token. These act as addons to a previous matching script that extend that script's behavior:
 
 - `"lintall:*::watch"`
   - This adds a watch mode to a previous "lintall" script, so that you can turn any supported linter into a live-updating watch command during development. 
@@ -79,13 +79,13 @@ Additionally, we support script modifiers via  the `"::"` token. These are addon
   "scripts": {
     // Run TypeScript to lint your project.
     "lintall:ts,tsx": "tsc --noEmit",
-    // Run TypeScript in --watch mode during development for live feedback.
+    // Run `tsc --noEmit --watch` mode during development for live feedback.
     "lintall:ts,tsx::watch": "$1 --watch",
   }
 }
 ```
 
-Note that `$1` can be used with a script modifier to reference the original script. This is useful so that you don't need to copy-paste the original script in two places.
+Note that `$1` can be used with a script modifier to reference the original script. This is useful so that you don't need to copy-paste a script in two places.
 
 
 ### Build Plugins
