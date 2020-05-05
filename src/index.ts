@@ -154,8 +154,8 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
     );
   }
   if (
-    (depManifest.name && depManifest.name.startsWith('@reactesm')) ||
-    depManifest.name.startsWith('@pika/react')
+    depManifest.name &&
+    (depManifest.name.startsWith('@reactesm') || depManifest.name.startsWith('@pika/react'))
   ) {
     throw new Error(
       `React workaround packages no longer needed! Revert back to the official React & React-DOM packages.`,
