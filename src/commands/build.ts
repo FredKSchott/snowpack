@@ -89,6 +89,7 @@ export async function command({cwd, config}: DevOptions) {
     if (!id.startsWith('lintall:')) {
       continue;
     }
+    messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
     const workerPromise = execa.command(workerConfig.cmd, {
       env: npmRunPath.env(),
       extendEnv: true,

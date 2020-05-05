@@ -3,8 +3,7 @@ import PQueue from 'p-queue';
 import chalk from 'chalk';
 import validatePackageName from 'validate-npm-package-name';
 import {SnowpackConfig} from './config.js';
-import {InstallTarget} from './scan-imports.js';
-import {fetchCDNResource, ImportMap, PIKA_CDN, RESOURCE_CACHE, HAS_CDN_HASH_REGEX} from './util.js';
+import {fetchCDNResource, ImportMap, PIKA_CDN, RESOURCE_CACHE} from './util.js';
 
 /**
  * Given an install specifier, attempt to resolve it from the CDN.
