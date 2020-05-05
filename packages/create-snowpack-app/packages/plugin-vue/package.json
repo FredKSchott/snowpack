@@ -7,11 +7,11 @@
     "access": "public"
   },
   "dependencies": {
-    "@vue/compiler-sfc": "^3.0.0-beta.4",
+    "@vue/compiler-sfc": "^3.0.0-0",
     "hash-sum": "^2.0.0"
   },
   "devDependencies": {
-    "vue": "^3.0.0-beta.4"
+    "vue": "*"
   },
   "gitHead": "0bf66ae9d3deb041bc048a475ce90828f93148a4"
 }

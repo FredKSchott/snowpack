@@ -1,9 +1,8 @@
 {
   "presets": ["@babel/preset-react"],
-  "plugins": [["@babel/plugin-syntax-import-meta"], "babel-plugin-macros"],
-  "env": {
-    "development": {
-      "plugins": [["@snowpack/babel-plugin-asset-import"]]
-    }
-  }
+  "plugins": [
+    ["@babel/plugin-syntax-import-meta"],
+    "@snowpack/babel-plugin-asset-import",
+    "babel-plugin-macros"
+  ]
 }

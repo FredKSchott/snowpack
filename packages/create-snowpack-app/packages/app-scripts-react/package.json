@@ -15,6 +15,7 @@
     "@snowpack/babel-plugin-asset-import": "^0.1.5",
     "@snowpack/babel-plugin-package-import": "^0.1.5",
     "babel-plugin-macros": "^2.8.0",
+    "babel-preset-react-app": "^9.1.2",
     "cssnano": "^4.1.10",
     "postcss-cli": "^7.1.0",
     "postcss-flexbugs-fixes": "^4.2.0",

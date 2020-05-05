@@ -9,21 +9,4 @@
 
 const babelJest = require("babel-jest");
 
-module.exports = babelJest.createTransformer({
-  presets: [
-    [
-      "@babel/preset-env",
-      {
-        targets: {
-          node: "current",
-        },
-      },
-    ],
-  ],
-  plugins: [
-    [
-      "@snowpack/babel-plugin-package-import",
-      { webModulesUrl: "./web_modules", ignore: ["@testing-library/vue"] },
-    ],
-  ],
-});
+module.exports = babelJest.createTransformer(require("./babel.config.json"));

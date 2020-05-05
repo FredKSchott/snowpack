@@ -10,11 +10,7 @@
 const babelJest = require("babel-jest");
 
 module.exports = babelJest.createTransformer({
-  presets: [
-    require.resolve(
-      "/Users/fks/Code/fizbuz/node_modules/babel-preset-react-app"
-    ),
-  ],
+  presets: [require.resolve("babel-preset-react-app")],
   plugins: [
     [
       "@snowpack/babel-plugin-package-import",

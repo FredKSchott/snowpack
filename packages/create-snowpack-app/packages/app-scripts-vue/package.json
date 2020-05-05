@@ -10,6 +10,7 @@
     "@babel/core": "^7.9.0",
     "@snowpack/babel-plugin-package-import": "^0.1.5",
     "@snowpack/plugin-vue": "^0.1.5",
+    "vue-template-compiler": "^2.6.11",
     "babel-jest": "^25.4.0",
     "vue-jest": "^3.0.5"
   },

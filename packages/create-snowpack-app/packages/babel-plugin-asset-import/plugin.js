@@ -59,8 +59,8 @@ module.exports = function assetImportPlugin({ types: t, env }, {} = {}) {
             return;
 
           case ".css":
-            if (hasNoImportRefs) {
-              // warn about flash of content
+            if (hasNoImportRefs && process.env.NODE_ENV !== "production") {
+              // warn about flash of content?
               p.insertBefore(loadCSS(source.node.value));
               p.remove();
               return;
@@ -74,6 +74,9 @@ module.exports = function assetImportPlugin({ types: t, env }, {} = {}) {
           case ".jpeg":
             if (!defaultImportRef || specs.length > 1) {
               // throw an error / return.
+              return;
+            }
+            if (process.env.NODE_ENV === "production") {
               return;
             }
             p.insertBefore(
