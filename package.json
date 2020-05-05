@@ -21,7 +21,7 @@
     "test:integration": "jest test/integration/runner.js --test-timeout=15000 --testMatch \"**/test/**/*.[jt]s?(x)\" -i",
     "docs:build": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js",
     "docs:watch": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js --serve",
-    "docs:deploy": "npm run docs:build && cd www/dist && now"
+    "docs:deploy": "npm run docs:build && cp now.json www/dist && cd www/dist && now"
   },
   "@pika/pack": {
     "pipeline": [

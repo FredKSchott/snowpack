@@ -1,9 +1,8 @@
-import babelPresetEnv from '@babel/preset-env';
+import rollupPluginAlias from '@rollup/plugin-alias';
 import rollupPluginCommonjs from '@rollup/plugin-commonjs';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
-import rollupPluginAlias from '@rollup/plugin-alias';
 import chalk from 'chalk';
 import fs from 'fs';
 import isNodeBuiltin from 'is-builtin-module';
@@ -16,7 +15,7 @@ import validatePackageName from 'validate-npm-package-name';
 import yargs from 'yargs-parser';
 import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
-import {loadAndValidateConfig, CLIFlags, EnvVarReplacements, SnowpackConfig} from './config.js';
+import {CLIFlags, EnvVarReplacements, loadAndValidateConfig, SnowpackConfig} from './config.js';
 import {clearCache, resolveTargetsFromRemoteCDN} from './resolve-remote.js';
 import {rollupPluginEntrypointAlias} from './rollup-plugin-entrypoint-alias.js';
 import {rollupPluginDependencyCache} from './rollup-plugin-remote-cdn.js';
@@ -471,8 +470,8 @@ export async function cli(args: string[]) {
   // load config
   const config = loadAndValidateConfig(cliFlags, pkgManifest);
 
-  if (config.webDependencies) {
-    await clearCache();
+  if (config.devOptions.bundle) {
+    process.env.NODE_ENV = 'production';
   }
 
   // load lockfile
