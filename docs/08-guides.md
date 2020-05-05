@@ -2,6 +2,46 @@
 
 Below are a collection of guides for using different web frameworks and build tools with Snowpack. If you'd like to contribute a new recipe, feel free to edit the docs to add your own.
 
+### Supported Libraries
+
+All of the following frameworks have been tested and guaranteed to work in Snowpack without issues. Some libraries (ex: Vue)compile to JS, and do require a build script (see the related guide below for a code snippet).  If you encounter an issue using any of the following, please file an issue.
+
+- React
+- Preact
+- JSX
+- HTM
+- lit-html
+- Vue (see below)
+- Svelte (see below)
+- Tailwind CSS (see below)
+- [add more.](https://github.com/pikapkg/snowpack/edit/master/docs/08-guides.md)
+
+
+### JSX (React, Preact, etc.)
+
+To author code using JSX & `.jsx` files in your `src/` directory, [connect Babel](#babel) or any other JSX -> JS transpiler to your build.
+
+
+### Vue
+
+
+```js
+// snowpack.config.json
+"scripts": { 
+  "plugin:vue": "vue"
+}
+```
+
+### Svelte
+
+```js
+// snowpack.config.json
+"scripts": { 
+  "plugin:svelte": "svelte"
+}
+```
+
+
 ### Babel
 
 Babel will automatically read plugins & presets from your local project `babel.config.*` config file, if one exists.
@@ -47,53 +87,6 @@ Note that while TypeScript is a great type checker, we recommend using Babel to 
 }
 ```
 
-
-### Vue
-
-
-```js
-// snowpack.config.json
-"scripts": { 
-  "plugin:vue": "vue"
-}
-```
-
-### Svelte
-
-```js
-// snowpack.config.json
-"scripts": { 
-  "plugin:svelte": "svelte"
-}
-```
-
-### React
-
-For technical reasons, React & ReactDOM can't be installed as easily as other packages. [The React team is working on a fix](https://github.com/facebook/react/issues/11503), but until then you'll just need to make sure that you install these two packages with Snowpack via your "webDependency" configuration:
-
-```js
-// package.json
-"webDependencies": {
-  "react": "^16.13.0",
-  "react-dom": "^16.13.0"
-}
-```
-
-See our guide on [Fully-Managed Dependencies](#managed-dependencies) for more information.
-
-
-### JSX (React, Preact, etc.)
-
-JSX is handled by Snowpack by default. If you want to define your own build script for JS, you'll need to handle the JSX transformation by yourself (usually via Babel). Or you can use HTM, a JSX alternative that runs natively in the browser, no babel required.
-
-
-### lit-html
-
-[lit-html](https://lit-html.polymer-project.org/) is "an efficient, expressive, extensible HTML templating library for JavaScript." Similarly to [HTM](#htm), lit-html uses tagged template literals for JSX-like syntax in the browser without requiring any transpilation.
-
-
-**Important:** [lit-html directives](https://lit-html.polymer-project.org/guide/template-reference#built-in-directives) aren't exported by the main package. If you use these directives in your project, you'll need to have `lit-html` installed as a regular "dependencies" package (outside of your "webDependencies").
-
 ### PostCSS
 
 ```js
@@ -103,7 +96,6 @@ JSX is handled by Snowpack by default. If you want to define your own build scri
 }
 ```
 
- 
 ### Tailwind CSS
 
 Tailwind ships with first-class support for PostCSS. Copy the [PostCSS](#postcss) script above, and then grab the recommended PostCSS plugin from the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installation/#using-tailwind-with-postcss).
