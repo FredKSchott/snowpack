@@ -17,7 +17,7 @@ module.exports = babelJest.createTransformer({
   ],
   plugins: [
     [
-      "snowpack/assets/babel-plugin.js",
+      "@snowpack/babel-plugin-package-import",
       {
         webModulesUrl: "./web_modules",
         ignore: [

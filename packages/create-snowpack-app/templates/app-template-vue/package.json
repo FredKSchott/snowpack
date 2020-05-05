@@ -11,7 +11,7 @@
   "scripts": {
     "prepare": "snowpack",
     "start": "snowpack dev",
-    "build": "NODE_ENV=production snowpack build",
+    "build": "NODE_ENV=production snowpack build --bundle",
     "test": "jest"
   },
   "webDependencies": {

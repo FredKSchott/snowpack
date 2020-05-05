@@ -1,0 +1,17 @@
+{
+  "name": "@snowpack/plugin-vue",
+  "version": "0.1.5",
+  "main": "plugin.js",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@vue/compiler-sfc": "^3.0.0-beta.4",
+    "hash-sum": "^2.0.0"
+  },
+  "devDependencies": {
+    "vue": "^3.0.0-beta.4"
+  },
+  "gitHead": "0bf66ae9d3deb041bc048a475ce90828f93148a4"
+}

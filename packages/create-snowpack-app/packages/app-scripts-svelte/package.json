@@ -9,8 +9,13 @@
   "peerDependencies": {
     "svelte": "^3.21.0"
   },
+  "devDependencies": {
+    "svelte": "^3.21.0"
+  },
   "dependencies": {
     "@babel/core": "^7.9.0",
+    "@snowpack/babel-plugin-package-import": "^0.1.5",
+    "@snowpack/plugin-svelte": "^0.1.5",
     "babel-jest": "^25.4.0",
     "jest-transform-svelte": "^2.1.1"
   },

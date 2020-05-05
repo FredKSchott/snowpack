@@ -5,7 +5,7 @@
 const scripts = {
   "mount:public": "mount public --to /",
   "mount:web_modules": "mount web_modules --to /web_modules",
-  "plugin:svelte": require.resolve("./snowpack-svelte-plugin.js"),
+  "plugin:svelte": "@snowpack/plugin-svelte",
   "build:js": "cat",
 };
 

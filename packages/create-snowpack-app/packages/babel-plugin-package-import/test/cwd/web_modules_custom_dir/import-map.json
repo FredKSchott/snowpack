@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "example-dep": "./test_val/example-dep.js"
+  }
+}

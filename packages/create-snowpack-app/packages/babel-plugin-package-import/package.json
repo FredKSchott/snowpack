@@ -1,0 +1,19 @@
+{
+  "name": "@snowpack/babel-plugin-package-import",
+  "version": "0.1.5",
+  "main": "plugin.js",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "jest test/babel-plugin/runner.js --testMatch \"**/test/**/*.[jt]s?(x)\""
+  },
+  "dependencies": {
+    "enhanced-resolve": "^4.1.1"
+  },
+  "devDependencies": {
+    "babel-plugin-tester": "^9.0.0",
+    "jest": "^25.1.0"
+  }
+}

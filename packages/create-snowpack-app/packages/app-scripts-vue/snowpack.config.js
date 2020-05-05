@@ -1,11 +1,7 @@
-// const fs = require("fs");
-// const path = require("path");
-// const cwd = process.cwd();
-
 const scripts = {
   "mount:public": "mount public --to /",
   "mount:web_modules": "mount web_modules --to /web_modules",
-  "plugin:vue": require.resolve("./snowpack-vue-plugin.js"),
+  "plugin:vue": "@snowpack/plugin-vue",
   "build:js": "cat",
 };
 
