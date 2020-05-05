@@ -1,14 +1,12 @@
 ## Introduction
 
-Web developers are working on an outdated assumption: you can't build a website without a bundler. 
+Web developers are relying on an outdated assumption: you can't build a website without a bundler. 
 
 At some point in the last decade, bundling shifted from a production nice-to-have optimization to a full-on dev requirement. Configuration files, plugins, extra dependencies, tooling complexity, code-splitting, waiting around on every save... all of this suddenly became required just to build on the web.
 
-**Snowpack marks the start of a new generation of bundle-free dev tooling.** Native ESM [`import`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import)/[`export`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export) syntax can power complex applications without ever needing a bundler. Snowpack installs your npm dependencies so that they can run directly in the browser via ESM `import`, and then provides you a dev server + build workflow to manage your own application development.
-
 ### What is Snowpack?
 
-Snowpack is the fastest, easiest way to build a web application today. Our approach to web development is simple: **there is no need for bundling during development.**
+**Snowpack marks the start of a new generation of bundle-free dev tooling.** Native ESM [`import`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import)/[`export`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export) syntax can power complex applications without ever needing a bundler. Snowpack installs your npm dependencies so that they can run directly in the browser via ESM `import`, and then provides a dev server + build workflow for your entire application.
 
 - **On-Demand File Building:** Snowpack has zero upfront build time since files are only build individually, as they are requested by the browser.
 - **Instant Startup:** With no initial build to speak of, Snowpack's dev server starts up in less than 20ms on most machines.

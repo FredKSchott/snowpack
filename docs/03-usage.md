@@ -15,20 +15,20 @@ $ ls web_modules/
 ```
 
 
-Snowpack installs each package to a new `web_modules/` directory. From here, each package can be imported and run directly in the browser with zero addition bundling or tooling required. The ability to import npm packages natively in the browser (without a bundler) is at the foundation that all bundle-free development (and the rest of Snowpack) is built on top of.
+Snowpack installs each package to a new `web_modules/` directory. From here, each package can be imported and run directly in the browser with zero addition bundling or tooling required. The ability to import npm packages natively in the browser (without a bundler) is the foundation that all bundle-free development (and the rest of Snowpack) is built on top of.
 
 To avoid the extra step of having to install each frontend package twice (once with npm/yarn, and then again with Snowpack) you can have Snowpack fully manage your frontend dependencies via the package.json "webDependencies" config. Learn more about removing the unnecessary `npm install` step in the [Managed Dependencies](#managed-dependencies) section below.
 
 
 ### snowpack dev
 
-Snowpack's dev server is an instant dev environment for any web application. `snowpack dev` starts up instantly, regardless of how many files your project has. In bundle-free development each file is only build as requested by the browser, so there's almost no setup work to do at startup and no rebundling to wait for every time you change a single file. 
+Snowpack's dev server is an instant dev environment for any web application. `snowpack dev` starts up instantly, regardless of how many files your project has. In bundle-free development each file is only build as requested by the browser, so there's almost no work done at startup and no rebundling to wait for every time you change a single file. 
 
-To start, `snowpack dev` acts as a static file server for your project directory during development. Use this foundation to begin building out an entire web application build pipeline via Snowpack [build scripts](#build-scripts). Build scripts define how Snowpack should build each file in your application `src/` directory, allowing you to code whatever language you'd like (JSX, TypeScript, Vue, Svelte, etc.). Check out the [Build Scripts](#build-scripts) section below to learn more.
+At first, `snowpack dev` acts as a static file server for your project directory during development. Use this foundation to begin building out an entire web application build pipeline via Snowpack [build scripts](#build-scripts). Build scripts define how Snowpack should transform files in your application `src/` directory, allowing you to code whatever language you'd like (JSX, TypeScript, Vue, Svelte, etc.). Check out the [build scripts](#build-scripts) section below to learn more.
 
 ### snowpack build
 
-When you're ready to deploy your built application, run `snowpack build` to generate a static copy of your site for production. The build command is tightly integrated with your build scripts and the rest of your dev configuration, so you are guaranteed to get a working copy of the same code you saw during development.
+When you're ready to deploy your built application, run `snowpack build` to generate a static copy of your site for production. The build command is tightly integrated with your dev server so that you are guaranteed to get a working copy of the same code you saw during development.
 
 ### snowpack build --bundle
 
