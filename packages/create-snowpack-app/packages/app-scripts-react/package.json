@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-react",
-  "version": "0.1.10",
+  "version": "0.2.0",
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"
@@ -12,8 +12,8 @@
     "@babel/plugin-syntax-import-meta": "^7.8.3",
     "@babel/preset-env": "^7.9.5",
     "@babel/preset-react": "^7.9.4",
-    "@snowpack/babel-plugin-asset-import": "^0.1.5",
-    "@snowpack/babel-plugin-package-import": "^0.1.5",
+    "@snowpack/babel-plugin-asset-import": "^0.2.0",
+    "@snowpack/babel-plugin-package-import": "^0.2.0",
     "babel-plugin-macros": "^2.8.0",
     "babel-preset-react-app": "^9.1.2",
     "cssnano": "^4.1.10",

@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/plugin-svelte",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "main": "plugin.js",
   "license": "MIT",
   "publishConfig": {
@@ -9,6 +9,5 @@
   "peerDependencies": {
     "svelte": "^3.21.0"
   },
-  "dependencies": {},
   "gitHead": "0bf66ae9d3deb041bc048a475ce90828f93148a4"
 }
