@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+  },
+  "snowpack": {
+    "knownEntrypoints": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "dependencies": {
+    "react": "latest",
+    "react-dom": "latest"
+  }
+}
