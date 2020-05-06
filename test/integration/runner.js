@@ -1,7 +1,7 @@
 const assert = require('assert');
 const path = require('path');
 const fs = require('fs').promises;
-const {readdirSync, readFileSync, statSync} = require('fs');
+const {readdirSync, readFileSync, statSync, existsSync} = require('fs');
 const execa = require('execa');
 const rimraf = require('rimraf');
 const dircompare = require('dir-compare');
@@ -73,7 +73,16 @@ for (const testName of readdirSync(__dirname)) {
       all: true,
     });
     // Test Output
-    const expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
+    let expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
+    if (process.platform === 'win32') {
+      const expectedWinOutputLoc = expectedOutputLoc.resolve(
+        expectedOutputLoc,
+        '../expected-output.win.txt',
+      );
+      if (existsSync(expectedWinOutputLoc)) {
+        expectedOutputLoc = expectedWinOutputLoc;
+      }
+    }
     const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
     assert.strictEqual(
       stripWhitespace(
