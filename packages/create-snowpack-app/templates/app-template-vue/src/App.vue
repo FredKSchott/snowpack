@@ -1,6 +1,7 @@
 <template>
   <div class="App">
     <header class="App-header">
+      <h1>{{ message }}</h1>
       <img src="/logo.svg" class="App-logo" alt="logo" />
       <p>
         Edit
@@ -15,6 +16,16 @@
     </header>
   </div>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      message: 'Hello Vue!'
+    }
+  }
+};
+</script>
 
 <style>
 .App {
