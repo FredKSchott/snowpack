@@ -133,6 +133,10 @@ const installedTemplate = path.join(targetDirectory, "node_modules", template);
 
   console.log(`\n  - Initializing git repo.\n`);
   await execa("git", ["init"], { cwd: targetDirectory });
+  await execa("git", ["add", "-A"], { cwd: targetDirectory });
+  await execa("git", ["commit", "-m", "initial commit"], {
+    cwd: targetDirectory,
+  });
   console.log(`  - ${chalk.green("Success!")}`);
 
   console.log(``);
