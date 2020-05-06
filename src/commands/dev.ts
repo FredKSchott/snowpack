@@ -390,7 +390,7 @@ export async function command({cwd, port, config}: DevOptions) {
                 return spec;
               }
               if (dependencyImportMap.imports[spec]) {
-                return `/web_modules/${dependencyImportMap.imports[spec]}`;
+                return path.posix.resolve(`/web_modules`, dependencyImportMap.imports[spec]);
               }
               messageBus.emit('MISSING_WEB_MODULE', {specifier: spec});
               return `/web_modules/${spec}.js`;
