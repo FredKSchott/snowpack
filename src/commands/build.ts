@@ -206,8 +206,7 @@ export async function command({cwd, config}: DevOptions) {
               if (spec.startsWith('./') || spec.startsWith('../')) {
                 const ext = path.extname(spec).substr(1);
                 if (!ext) {
-                  console.error(`${f}: Import ${spec} is missing a required file extension.`);
-                  return spec;
+                  return spec + '.js';
                 }
                 const extToReplace = srcFileExtensionMapping[ext];
                 if (extToReplace) {
