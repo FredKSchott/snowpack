@@ -50,7 +50,7 @@ Babel will automatically read plugins & presets from your local project `babel.c
 
 ```js
 "scripts": { 
-  "plugin:js,jsx": "babel"
+  "plugin:js,jsx": "@snowpack/plugin-babel"
 }
 ```
 
@@ -81,7 +81,7 @@ Note that while TypeScript is a great type checker, we recommend using Babel to 
 
 ```js
 "scripts": { 
-  "plugin:ts,tsx": "babel",
+  "plugin:ts,tsx": "@snowpack/plugin-babel",
   "lintall:ts,tsx": "tsc --noEmit",
   "lintall:ts,tsx::watch": "$1 --watch"
 }
