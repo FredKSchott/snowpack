@@ -12,17 +12,14 @@
     "prepare": "snowpack",
     "start": "snowpack dev",
     "build": "snowpack build --bundle",
-    "test": "jest"
+    "test": "echo \"Vue 3.0 test support is still in progress.\" && exit 1"
   },
   "webDependencies": {},
   "devDependencies": {
     "@snowpack/app-scripts-vue": "^0.2.4",
-    "@testing-library/jest-dom": "^5.5.0",
-    "@testing-library/vue": "^5.0.2",
-    "jest": "^25.4.0",
     "parcel-bundler": "^1.12.4",
     "snowpack": "^2.0.0-0",
-    "vue": "^2.0.0"
+    "vue": "^3.0.0-0"
   },
   "gitHead": "YYY"
 }
