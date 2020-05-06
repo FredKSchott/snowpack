@@ -460,9 +460,20 @@ export async function command({cwd, port, config}: DevOptions) {
     startTimeMs: Date.now() - serverStart,
   });
 
-  const openCmd =
-    process.platform == 'darwin' ? 'open' : process.platform == 'win32' ? 'start' : 'xdg-open';
-  execa(openCmd, [`http://localhost:${port}`]);
+  openInBrowser(port);
 
   return new Promise(() => {});
+}
+
+function openInBrowser(port) {
+  const url = `http://localhost:${port}`;
+
+  let openCmd = 'xdg-open';
+  if (process.platform === 'darwin') openCmd = 'open';
+  if (process.platform === 'win32') openCmd = 'start';
+
+  execa(openCmd, [url]).catch((error) => {
+    console.log(chalk.red(`unable to open in browser: ${chalk.bold(error.message)}`));
+    console.log(`please enter "${url}" in your web browser`);
+  });
 }
