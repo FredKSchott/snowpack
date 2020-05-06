@@ -1,6 +1,6 @@
 {
   "name": "create-snowpack-app",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
