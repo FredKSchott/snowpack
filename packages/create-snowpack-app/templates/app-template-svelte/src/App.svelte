@@ -1,3 +1,7 @@
+<script>
+	const message = 'Hello Svelte!';
+</script>
+
 <style>
 	:global(body) {
 		margin: 0;
@@ -35,9 +39,9 @@
 	}
 </style>
 
-
 <div class="App">
 	<header class="App-header">
+		<h1>{message}</h1>
 		<img src="/logo.svg" class="App-logo" alt="logo" />
 		<p>
 			Edit <code>src/App.svelte</code> and save to reload.
