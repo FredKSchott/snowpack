@@ -13,7 +13,7 @@ If you've ever worked with `package.json` "scripts", creating your own build scr
 {
   "scripts": {
     // Pipe every .js & .jsx file through Babel CLI
-    "build:js,jsx": "babel",
+    "build:js,jsx": "babel --no-babelrc",
     // Pipe every .css file through PostCSS CLI
     "build:css": "postcss",
     // Pipe every .svg file through 'cat' (copies the file without transforming)
@@ -53,7 +53,7 @@ Snowpack supports several other script types in addition to the basic `"build"` 
 
 - `"build:*": "..."`
   - Pipe any matching file into this CLI command, and write it's output to disk.
-  - ex: `"build:js,jsx": "babel"`
+  - ex: `"build:js,jsx": "babel --no-babelrc"`
 - `"lint:*": "..."`
   - Pipe any matching file into this CLI command, and log any errors/output.
   - ex: `"lint:js": "eslint"`
