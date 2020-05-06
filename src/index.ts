@@ -459,10 +459,6 @@ export async function cli(args: string[]) {
   // load config
   const config = loadAndValidateConfig(cliFlags, pkgManifest);
 
-  if (config.devOptions.bundle) {
-    process.env.NODE_ENV = 'production';
-  }
-
   // load lockfile
   let lockfile = await readLockfile(cwd);
   let newLockfile: ImportMap | null = null;

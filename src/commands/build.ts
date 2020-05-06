@@ -22,6 +22,8 @@ interface DevOptions {
 }
 
 export async function command({cwd, config}: DevOptions) {
+  process.env.NODE_ENV = 'production';
+
   const messageBus = new EventEmitter();
   const allRegisteredWorkers = Object.entries(config.scripts);
   const relevantWorkers: [string, DevScript][] = [];
