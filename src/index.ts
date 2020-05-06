@@ -182,10 +182,10 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
     foundEntrypoint = depManifest.main || 'index.js';
   }
   if (dep === 'react' && (!foundEntrypoint || foundEntrypoint === 'index.js')) {
-    foundEntrypoint = 'cjs/react.production.min.js';
+    foundEntrypoint = 'umd/react.production.min.js';
   }
   if (dep === 'react-dom' && (!foundEntrypoint || foundEntrypoint === 'index.js')) {
-    foundEntrypoint = 'cjs/react-dom.production.min.js';
+    foundEntrypoint = 'umd/react-dom.production.min.js';
   }
   if (typeof foundEntrypoint !== 'string') {
     throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
