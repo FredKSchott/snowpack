@@ -102,7 +102,7 @@ There are a few reasons you may want to use a build plugin instead of a normal "
 ```js
 "scripts": {
   // Speed: The build plugin is ~10x faster than using the Babel CLI directly
-  "plugin:babel": "@snowpack/plugin-babel",
+  "plugin:js,jsx": "@snowpack/plugin-babel",
 }
 ```
 
