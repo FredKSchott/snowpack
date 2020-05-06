@@ -1,5 +1,5 @@
 <script>
-	const message = 'Hello Svelte!';
+	const message = 'Learn Svelte';
 </script>
 
 <style>
@@ -41,7 +41,6 @@
 
 <div class="App">
 	<header class="App-header">
-		<h1>{message}</h1>
 		<img src="/logo.svg" class="App-logo" alt="logo" />
 		<p>
 			Edit <code>src/App.svelte</code> and save to reload.
@@ -52,7 +51,7 @@
 			target="_blank"
 			rel="noopener noreferrer"
 		>
-			Learn Svelte
+			{message}
 		</a>
 	</header>
 </div>
