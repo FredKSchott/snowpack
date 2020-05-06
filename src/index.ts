@@ -30,6 +30,7 @@ import {
   resolveDependencyManifest,
   writeLockfile,
 } from './util.js';
+import {rollupPluginReactFix} from './rollup-plugin-react-fix';
 
 type InstallResult = 'SUCCESS' | 'ASSET' | 'FAIL';
 interface DependencyLoc {
@@ -180,12 +181,6 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
   // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
   if (!foundEntrypoint && isExplicit) {
     foundEntrypoint = depManifest.main || 'index.js';
-  }
-  if (dep === 'react' && (!foundEntrypoint || foundEntrypoint === 'index.js')) {
-    foundEntrypoint = 'umd/react.production.min.js';
-  }
-  if (dep === 'react-dom' && (!foundEntrypoint || foundEntrypoint === 'index.js')) {
-    foundEntrypoint = 'umd/react-dom.production.min.js';
   }
   if (typeof foundEntrypoint !== 'string') {
     throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
@@ -361,6 +356,7 @@ export async function install(
         namedExports: knownNamedExports,
       }),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
+      rollupPluginReactFix(),
       ...userDefinedRollup.plugins, // load user-defined plugins last
     ].filter(Boolean) as Plugin[],
     onwarn(warning, warn) {
