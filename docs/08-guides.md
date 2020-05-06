@@ -32,6 +32,16 @@ To author code using JSX & `.jsx` files in your `src/` directory, [connect Babel
 }
 ```
 
+**NOTE: Due to a bug, the "scripts" section must include at least one "build" script.** You can work around this issue by using a dummy build script, like this:
+
+```js
+"scripts": {
+  "build:dummy": "cat",
+  "plugin:vue": "vue"
+}
+
+```
+
 ### Svelte
 
 ```js
@@ -41,6 +51,15 @@ To author code using JSX & `.jsx` files in your `src/` directory, [connect Babel
 }
 ```
 
+**NOTE: Due to a bug, the "scripts" section must include at least one "build" script.** You can work around this issue by using a dummy build script, like this:
+
+```js
+"scripts": {
+  "build:dummy": "cat",
+  "plugin:svelte": "svelte"
+}
+
+```
 
 ### Babel
 
@@ -52,6 +71,16 @@ Babel will automatically read plugins & presets from your local project `babel.c
 "scripts": { 
   "plugin:js,jsx": "babel"
 }
+```
+
+**NOTE: Due to a bug, the "scripts" section must include at least one "build" script.** You can work around this issue by using a dummy build script, like this:
+
+```js
+"scripts": {
+  "build:dummy": "cat",
+  "plugin:js,jsx": "babel"
+}
+
 ```
 
 #### via @babel/cli
@@ -75,6 +104,15 @@ TypeScript will automatically read config from your local project `tsconfig.json
   "lintall:ts,tsx": "tsc --noEmit",
   "lintall:ts,tsx::watch": "$1 --watch"
 }
+```
+
+**NOTE: Due to a bug, the "scripts" section must include at least one "build" script.** You can work around this issue by using a dummy build script, like this:
+
+```js
+"scripts": {
+  "build:dummy": "cat",
+}
+
 ```
 
 Note that while TypeScript is a great type checker, we recommend using Babel to build TypeScript files to JavaScript. Babel supports much greater control over your build output.

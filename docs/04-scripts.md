@@ -95,6 +95,16 @@ Note that `$1` can be used with a script modifier to reference the original scri
 
 For a more powerful integration, you can also write build scripts using JavaScript to create *build plugins*. Each plugin is loaded as a JavaScript module that exports custom `build()` and `lint()` functions that are run on matching files.
 
+**NOTE: Due to a bug, the "scripts" section must include at least one "build" script.** You can work around this issue by using a dummy build script, like this:
+
+```js
+"scripts": {
+  "build:dummy": "cat",
+  "plugin:js,jsx": "@snowpack/plugin-babel",
+}
+
+```
+
 There are a few reasons you may want to use a build plugin instead of a normal "build:" or "lint:" CLI command script:
 
 **Speed:** Some CLIs may have a slower start-up time, which may become a problem as your site grows. Plugins can be faster across many files since they only need to be loaded & initialized once and not once for every file.
