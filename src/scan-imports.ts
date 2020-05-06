@@ -191,7 +191,14 @@ export async function scanImports({include, exclude}: ScanImportsParams): Promis
       }
       if (filePath.endsWith('.vue') || filePath.endsWith('.svelte')) {
         const result = await fs.promises.readFile(filePath, 'utf-8');
-        return [...result.matchAll(HTML_JS_REGEX)].map((full, code) => code).join('\n');
+        // TODO: Replace with matchAll once Node v10 is out of TLS.
+        // const allMatches = [...result.matchAll(HTML_JS_REGEX)];
+        const allMatches: string[] = [];
+        let match;
+        while ((match = HTML_JS_REGEX.exec(result))) {
+          allMatches.push(match);
+        }
+        return allMatches.map((full, code) => code).join('\n');
       }
       // If we don't recognize the file type, it could be source. Warn just in case.
       if (!mime.lookup(nodePath.extname(filePath))) {
