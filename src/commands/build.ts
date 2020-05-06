@@ -36,9 +36,12 @@ export async function command({cwd, config}: DevOptions) {
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
   const dependencyImportMap: ImportMap = require(dependencyImportMapLoc);
 
-  if (allRegisteredWorkers.filter(([id]) => id.startsWith('build')).length === 0) {
+  if (
+    allRegisteredWorkers.filter(([id]) => id.startsWith('build:') || id.startsWith('plugin:'))
+      .length === 0
+  ) {
     console.error(chalk.red(`No build scripts found, so nothing to build.`));
-    console.error(`See https://www.snowpack.dev/#build-scripts for help configuring your build.`);
+    console.error(`See https://www.snowpack.dev/#build-scripts for help getting started.`);
     return;
   }
 
