@@ -1,3 +1,21 @@
+<template>
+  <div class="App">
+    <header class="App-header">
+      <img src="/logo.svg" class="App-logo" alt="logo" />
+      <p>
+        Edit
+        <code>src/App.vue</code> and save to reload.
+      </p>
+      <a
+        class="App-link"
+        href="https://vuejs.org"
+        target="_blank"
+        rel="noopener noreferrer"
+      >Learn Vue</a>
+    </header>
+  </div>
+</template>
+
 <style>
 .App {
   text-align: center;
@@ -30,21 +48,3 @@
   }
 }
 </style>
-
-<template>
-  <div class="App">
-    <header class="App-header">
-      <img src="/logo.svg" class="App-logo" alt="logo" />
-      <p>
-        Edit
-        <code>src/App.vue</code> and save to reload.
-      </p>
-      <a
-        class="App-link"
-        href="https://vuejs.org"
-        target="_blank"
-        rel="noopener noreferrer"
-      >Learn Vue</a>
-    </header>
-  </div>
-</template>
