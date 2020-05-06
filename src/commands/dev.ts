@@ -472,8 +472,7 @@ function openInBrowser(port) {
   if (process.platform === 'darwin') openCmd = 'open';
   if (process.platform === 'win32') openCmd = 'start';
 
-  execa(openCmd, [url]).catch((error) => {
-    console.log(chalk.red(`unable to open in browser: ${chalk.bold(error.message)}`));
-    console.log(`please enter "${url}" in your web browser`);
+  execa(openCmd, [url]).catch(() => {
+    // couldn't open automatically, safe to ignore
   });
 }
