@@ -1,7 +1,6 @@
 <template>
   <div class="App">
     <header class="App-header">
-      <h1>{{ message }}</h1>
       <img src="/logo.svg" class="App-logo" alt="logo" />
       <p>
         Edit
@@ -12,7 +11,7 @@
         href="https://vuejs.org"
         target="_blank"
         rel="noopener noreferrer"
-      >Learn Vue</a>
+      >{{ message }}</a>
     </header>
   </div>
 </template>
@@ -21,8 +20,8 @@
 export default {
   data() {
     return {
-      message: 'Hello Vue!'
-    }
+      message: "Learn Vue"
+    };
   }
 };
 </script>
