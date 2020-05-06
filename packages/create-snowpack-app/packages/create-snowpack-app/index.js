@@ -105,6 +105,10 @@ const installedTemplate = path.join(targetDirectory, "node_modules", template);
   console.log(`  - Creating a new project in ${chalk.cyan(targetDirectory)}`);
 
   fs.mkdirSync(targetDirectory, { recursive: true });
+  await fs.promises.writeFile(
+    path.join(targetDirectory, "package.json"),
+    `{"name": "my-csa-app"}`
+  );
   await execa("npm", ["install", template, "--ignore-scripts"], {
     cwd: targetDirectory,
   });
