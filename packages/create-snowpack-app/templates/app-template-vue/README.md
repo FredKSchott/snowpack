@@ -14,8 +14,7 @@ You will also see any lint errors in the console.
 
 ### npm test
 
-Launches the test runner in the interactive watch mode.
-See the section about running tests for more information.
+**⚠️ NOTE:** Vue 3 testing support is still in progress. This template does not ship with a test runner.
 
 ### npm run build
 
