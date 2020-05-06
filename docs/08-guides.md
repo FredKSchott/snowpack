@@ -21,6 +21,7 @@ All of the following frameworks have been tested and guaranteed to work in Snowp
 
 To author code using JSX & `.jsx` files in your `src/` directory, [connect Babel](#babel) or any other JSX -> JS transpiler to your build.
 
+**NOTE: JSX is not allowed in files ending in `.js`.** If you include JSX in files ending with `.js`, `snowpack install` will fail with a parse error.
 
 ### Vue
 
@@ -45,6 +46,8 @@ To author code using JSX & `.jsx` files in your `src/` directory, [connect Babel
 ### Babel
 
 Babel will automatically read plugins & presets from your local project `babel.config.*` config file, if one exists.
+
+**NOTE: JSX is not allowed in files ending in `.js`.** If you include JSX in files ending with `.js`, `snowpack install` will fail with a parse error.
 
 #### via plugin (Recommended)
 
