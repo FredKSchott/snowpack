@@ -238,33 +238,16 @@ body {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
-body {
-  display: grid;
-  grid-template-columns: 360px minmax(auto, 720px) 1fr;
-  grid-template-rows: 44px 1fr;
-  grid-column-gap: 0px;
-  grid-row-gap: 0px;
-  grid-template-areas:
-        "c b d"
-        "a b d";
-}
-
-.grid-toc { grid-area: a; }
-.grid-body { grid-area:  b; }
-.grid-toc-buttons { grid-area: c; }
-.grid-extra-space { grid-area: d; }
-.grid-toc, .grid-body {
-  overflow-y: scroll;
-  overflow-x: hidden; 
-}
-
 .grid-extra-space {
   overflow: hidden;
   opacity:0.6;
   z-index: -1; 
   filter: blur(3px);
   background: #043456;
-  background: url('/img/extra-space-4.jpg') center; 
+  background: 
+    linear-gradient(to right, #0003, #0000 20px),
+    linear-gradient(to right, #94b1bf00, #94b1bf),
+    url('/img/extra-space-4.jpg') center; 
   background-size: cover;
   /*
     background: url('/img/extra-space.png') center; 
@@ -337,16 +320,36 @@ body {
 
 
 .grid-body {
+  margin-left: 360px;
+  max-width: 720px;
   background: white;
   padding: 1rem 3em;
-  overflow-y: scroll;
 }
 .grid-toc {
+  position: fixed;
+  width: 360px;
+  top: 0;
+  left: 0;
+  bottom: 0;
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
 }
+.grid-toc-buttons {
+  position: fixed;
+  width: 360px;
+  height: 44px;
+  top: 0;
+  left: 0;
+}
+.grid-extra-space { 
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 1080px;
+  right: 0;
+}
 .markdown-body,
-.grid-body-header {
+.fbody-header {
   max-width: 720px;
 }
 .grid-body-header {
@@ -460,14 +463,13 @@ body {
   }
 }
 @media (max-width: 740px) {
-  body { display: block; }
   .grid-toc  { 
     position: fixed;
     top: 44px;
     left: 0;
     right: 0;
     bottom: 0;
-  overflow: auto;
+    overflow: auto;
     z-index: 100;
    }
   .grid-toc-buttons { 
@@ -475,11 +477,13 @@ body {
     top: 0;
     left: 0;
     right: 0;
+    width: 100%;
     z-index: 100;
    }
   .grid-body {
     overflow: hidden;
     padding-top: 60px;
+    margin-left: 0;
   }
   .hidden-mobile {display: none; }
   .version-tag {display: none; }
