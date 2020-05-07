@@ -75,10 +75,7 @@ for (const testName of readdirSync(__dirname)) {
     // Test Output
     let expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
     if (process.platform === 'win32') {
-      const expectedWinOutputLoc = expectedOutputLoc.resolve(
-        expectedOutputLoc,
-        '../expected-output.win.txt',
-      );
+      const expectedWinOutputLoc = path.resolve(expectedOutputLoc, '../expected-output.win.txt');
       if (existsSync(expectedWinOutputLoc)) {
         expectedOutputLoc = expectedWinOutputLoc;
       }
