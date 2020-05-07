@@ -62,7 +62,7 @@ Babel will automatically read plugins & presets from your local project `babel.c
 ```js
 "scripts": {
   // NOTE: Not recommended, slower on large sites than the plugin.
-  "build:js,jsx": "babel --no-babelrc"
+  "build:js,jsx": "babel --filename $FILE"
 }
 ```
 

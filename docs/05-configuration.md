@@ -45,11 +45,8 @@ CLI flags will be merged with (and take priority over) your config file values. 
 
 - **`extends`** | `string`
   - Inherit from a separate "base" config. Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
-- **`include`** | `string`
-  - Your source directory, if one exists. Defaults to `"src/"` if a local `src/` directory exists in your project. 
-  - **This is a special directory for Snowpack.** Snowpack will scan for package imports and run custom build "scripts" on these source files. All `src/*` files will be re-written to `/_dist_/*` in the final build (see  `buildOptions.dist` option below for more info).
 - **`exclude`** | `string[]`
-  - Exclude any files from the `--include` directory. Defaults to exclude common test file locations: `['**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`
+  - Exclude any files from the `--include` directory. Defaults to exclude common test file locations: `['**/node_modules/**/*', **/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`
   - Useful for excluding tests and other unnecessary files from the final build. Supports glob pattern matching. 
 - **`knownEntrypoints`** | `string[]`
   - Known dependencies to install with Snowpack. Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
@@ -65,9 +62,6 @@ CLI flags will be merged with (and take priority over) your config file values. 
 - **`dest`** | `string`
   - *Default:`"web_modules"`*
   - Configure the install directory.
-- **`clean`** | `boolean`
-  - *Default:`true`*
-  - Delete the existing `dest` directory (any any outdated files) before installing.
 - **`sourceMap`** | `boolean`  
   - Emit source maps for installed packages.
 - **`env`** | `{[ENV_NAME: string]: (string | true)}`
