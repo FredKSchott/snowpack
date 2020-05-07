@@ -21,10 +21,10 @@ if (
   fs.existsSync(path.join(cwd, "babel.config.cjs")) ||
   fs.existsSync(path.join(cwd, "babel.config.mjs"))
 ) {
-  scripts[buildId] = "babel --no-babelrc";
+  scripts[buildId] = "babel --filename $FILE";
 } else {
   const bundledConfig = path.join(__dirname, "babel.config.json");
-  scripts[buildId] = `babel --no-babelrc --config-file ${bundledConfig}`;
+  scripts[buildId] = `babel --filename $FILE --config-file ${bundledConfig}`;
 }
 
 if (fs.existsSync(path.join(cwd, "postcss.config.js"))) {
