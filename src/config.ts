@@ -352,8 +352,8 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
 
   // validate against schema; throw helpful user if invalid
   const config: SnowpackConfig = result.config;
+  validateConfigAgainstV1(config, flags);
   const cliConfig = expandCliFlags(flags);
-  validateConfigAgainstV1(result.config, flags);
 
   const validation = validate(config, configSchema, {
     allowUnknownAttributes: false,
