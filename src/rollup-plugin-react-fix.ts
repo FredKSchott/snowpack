@@ -1,4 +1,5 @@
 import {Plugin} from 'rollup';
+import path from 'path';
 
 /**
  * rollup-plugin-react-fix
@@ -11,7 +12,7 @@ export function rollupPluginReactFix() {
   return {
     name: 'snowpack:rollup-plugin-react-fix',
     transform(code, id) {
-      if (id.endsWith('react/index.js')) {
+      if (id.endsWith(path.join('react', 'index.js'))) {
         return code + `\nexport { react as __moduleExports };`;
       }
     },
