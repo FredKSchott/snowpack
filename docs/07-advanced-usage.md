@@ -63,7 +63,7 @@ NOTE: TypeScript isn't yet aware of this new `/web_modules/.types/` location by 
 
 ### Managed Dependencies
 
-By default, Snowpack will install your `web_modules/` dependencies usinng the raw package code found in your `node_modules/` directory. This means that each packages is installed twice in your project: once in each directory.
+By default, Snowpack will install your `web_modules/` dependencies using the raw package code found in your `node_modules/` directory. This means that each packages is installed twice in your project: once in each directory.
 
 Snowpack can be configured to fully manage your frontend dependencies via the new "webDependencies" key in your `package.json` project manifest.
 
