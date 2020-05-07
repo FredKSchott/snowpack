@@ -428,10 +428,12 @@ export async function install(
 export async function cli(args: string[]) {
   // parse CLI flags
   const cliFlags = yargs(args, {array: ['env', 'exclude', 'externalPackage']}) as CLIFlags;
-
-  // if printing help, stop here
   if (cliFlags.help) {
     printHelp();
+    process.exit(0);
+  }
+  if (cliFlags.version) {
+    console.log(require('../package.json').version);
     process.exit(0);
   }
   if (cliFlags.reload) {

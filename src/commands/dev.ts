@@ -150,9 +150,9 @@ export async function command({cwd, port, config}: DevOptions) {
     if (workerConfig.watch) {
       cmd += workerConfig.watch.replace('$1', '');
     }
-    const tempBuildDir = await fs.mkdtemp(path.join(os.tmpdir(), `snowpack-${id}`));
-    workerDirectories.unshift(tempBuildDir);
-    cmd = cmd.replace(/\$DIST/g, tempBuildDir);
+    // const tempBuildDir = await fs.mkdtemp(path.join(os.tmpdir(), `snowpack-${id}`));
+    // workerDirectories.unshift(tempBuildDir);
+    // cmd = cmd.replace(/\$DIST/g, tempBuildDir);
     const workerPromise = execa.command(cmd, {env: npmRunPath.env(), extendEnv: true, shell: true});
     const {stdout, stderr} = workerPromise;
     stdout?.on('data', (b) => {
