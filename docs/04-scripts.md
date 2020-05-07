@@ -54,9 +54,6 @@ Snowpack supports several other script types in addition to the basic `"build"` 
 - `"build:*": "..."`
   - Pipe any matching file into this CLI command, and write it's output to disk.
   - ex: `"build:js,jsx": "babel --no-babelrc"`
-- `"lint:*": "..."`
-  - Pipe any matching file into this CLI command, and log any errors/output.
-  - ex: `"lint:js": "eslint"`
 - `"lintall:*": "..."`
   - Run a single command once, log any output/errors.
   - Useful for tools like TypeScript that lint multiple files / entire projects at once.
@@ -68,6 +65,18 @@ Snowpack supports several other script types in addition to the basic `"build"` 
   - ex: `"mount:web_modules": "mount web_modules"`
 - `"plugin:*": "..."`
   - Connect a custom Snowpack plugin. See the section below for more info.
+
+## Script Variables
+
+Snowpack provides a few variables that you can use to make your build scripts (and plugins) more dynamic:
+
+- `$1` - The original command.
+  - Used with script modifiers (see the next section).
+  - ex: `"lintall:ts,tsx::watch": "$1 --watch"`
+- `$FILE` - The absolute path of the source file.
+  - Especially useful when Babel plugins require it.
+  - ex: `"build:js": "babel --filename $FILE`
+
 
 ### "::" Script Modifiers
 
@@ -88,7 +97,8 @@ You can extend your build scripts via the `"::"` script modifier token. These ac
 }
 ```
 
-Note that `$1` can be used with a script modifier to reference the original script. This is useful so that you don't need to copy-paste a script in two places.
+Note that `$1` can be used with a script modifier to reference the original script. See section on [Script Variables](#script-variables) above.
+
 
 
 ### Build Script Plugins

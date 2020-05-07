@@ -182,6 +182,7 @@ export async function command({cwd, config}: DevOptions) {
 
         let {cmd} = workerConfig;
         if (id.startsWith('build:')) {
+          cmd = cmd.replace('$FILE', f);
           const {stdout, stderr} = await execa.command(cmd, {
             env: npmRunPath.env(),
             extendEnv: true,

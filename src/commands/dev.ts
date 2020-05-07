@@ -233,7 +233,7 @@ export async function command({cwd, port, config}: DevOptions) {
       let isRoute = false;
       let fileLoc: string | null = null;
       let fileContents: string | null = null;
-      let fileBuilder: ((code: string) => Promise<string>) | undefined;
+      let fileBuilder: ((code: string, {filename: string}) => Promise<string>) | undefined;
 
       for (const [id, workerConfig] of registeredWorkers) {
         if (
@@ -270,7 +270,7 @@ export async function command({cwd, port, config}: DevOptions) {
         if (id.startsWith('plugin:')) {
           const modulePath = require.resolve(cmd, {paths: [cwd]});
           const {build} = require(modulePath);
-          fileBuilder = async (code: string) => {
+          fileBuilder = async (code: string, options: {filename: string}) => {
             messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
             try {
               let {result} = await build(fileLoc);
@@ -286,9 +286,10 @@ export async function command({cwd, port, config}: DevOptions) {
           continue;
         }
         if (id.startsWith('build:')) {
-          fileBuilder = async (code: string) => {
+          fileBuilder = async (code: string, options: {filename: string}) => {
             messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-            const {stdout, stderr} = await execa.command(cmd, {
+            let cmdWithFile = cmd.replace('$FILE', options.filename);
+            const {stdout, stderr} = await execa.command(cmdWithFile, {
               env: npmRunPath.env(),
               extendEnv: true,
               shell: true,
@@ -368,7 +369,7 @@ export async function command({cwd, port, config}: DevOptions) {
         try {
           fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
           if (fileBuilder) {
-            fileContents = await fileBuilder(fileContents);
+            fileContents = await fileBuilder(fileContents, {filename: fileLoc});
           }
           if (isRoute) {
             fileContents += LIVE_RELOAD_SNIPPET;
