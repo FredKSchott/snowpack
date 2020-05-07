@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --clean --include 'dir'"
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^0.8.5",

@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js  --exclude 'exclude.js'"
+    "TEST": "node ../../../pkg/dist-node/index.bin.js  --exclude 'src/exclude.js'"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^0.8.5",

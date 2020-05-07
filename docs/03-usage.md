@@ -37,11 +37,9 @@ To start, `snowpack dev` acts as a static file server for your entire project di
 ``` js
 // File Input:
 import * as React from 'react';
-console.log(React);
 
 // Dev Server Output:
 import * as React from '/web_modules/react.js';
-console.log(React);
 ```
 
 Extend your build pipeline to handle more complex transformations via Snowpack [build scripts](#build-scripts). Build scripts define how Snowpack should transform files in your application `src/` directory, allowing you to code in whatever language you'd like (JSX, TypeScript, Vue, Svelte, etc.). Check out the [build scripts](#build-scripts) section below to learn more.

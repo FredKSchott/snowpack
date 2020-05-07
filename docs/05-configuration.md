@@ -89,11 +89,6 @@ CLI flags will be merged with (and take priority over) your config file values. 
   - The port number to run the dev server on.
 - **`out`** | `string` | Default: `"build"`
   - The local directory that we output your final build to.
-- **`dist`** | `string` | Default: `"/_dist_"`
-  - The final URL path location for your "include" (`src/`) directory.
-  - When Snowpack builds your application (or serves it during development) Snowpack will rewrite all `src/*` files to be hosted at the `/_dist_/*` URL path.
 - **`fallback`** | `string` | Default: `"index.html"`
   - When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
-- **`bundle`** | `string` | Default: `false`
-  - Bundle the build output. Useful for production builds when performance is important.
 

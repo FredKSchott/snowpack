@@ -472,7 +472,6 @@ export async function cli(args: string[]) {
   if (cliFlags['_'][2] === 'dev') {
     await devCommand({
       cwd,
-      port: (cliFlags as any).port || 3000,
       config,
     });
     return;
@@ -480,8 +479,8 @@ export async function cli(args: string[]) {
 
   const {
     exclude,
-    include,
-    installOptions: {clean, dest},
+    scripts,
+    installOptions: {dest},
     knownEntrypoints,
     webDependencies,
   } = config;
@@ -500,8 +499,8 @@ export async function cli(args: string[]) {
   if (webDependencies) {
     installTargets.push(...scanDepList(Object.keys(webDependencies), cwd));
   }
-  if (include) {
-    installTargets.push(...(await scanImports({include, exclude})));
+  {
+    installTargets.push(...(await scanImports(cwd, config)));
   }
   if (installTargets.length === 0) {
     logError('Nothing to install.');
@@ -517,9 +516,7 @@ export async function cli(args: string[]) {
     });
   }
 
-  if (clean) {
-    rimraf.sync(dest);
-  }
+  rimraf.sync(dest);
   await mkdirp(dest);
   const finalResult = await install(
     installTargets,
