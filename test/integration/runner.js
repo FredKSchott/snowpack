@@ -147,8 +147,12 @@ for (const testName of readdirSync(__dirname)) {
     });
     // If any diffs are detected, we'll assert the difference so that we get nice output.
     res.diffSet.forEach((entry) => {
+      // NOTE: We only compare files so that we give the test runner a more detailed diff.
       if (entry.type1 !== 'file') {
-        // NOTE: We only compare files so that we give the test runner a more detailed diff.
+        return;
+      }
+      // NOTE: common chunks are hashed, non-trivial to compare
+      if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) {
         return;
       }
 
