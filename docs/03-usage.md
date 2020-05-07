@@ -2,7 +2,9 @@
 
 ### snowpack install
 
-Unbundled development wouldn't be possible without Snowpack's install command. Snowpack will scan your `src/` directory to find every npm package used in your application and install them to a new `web_modules/` directory. You can also provide a list of package names manually via the ["knownEntrypoints"](#all-config-options) config.
+Unbundled development wouldn't be possible without Snowpack's install command. Snowpack will scan your project for ESM `import` statements to find every npm package used by your application. It then installs them to a new `web_modules/` directory. 
+
+You can also provide a list of package names manually via the ["knownEntrypoints"](#all-config-options) config.
 
 ``` bash
 # Example: Snowpack detects `import 'react'` & `import 'react-dom'` statements in your "src/" code.
@@ -14,8 +16,7 @@ $ ls web_modules/
 # react.js react-dom.js import.map.js
 ```
 
-
-Snowpack installs your packages to a new `web_modules/` directory. From here, any package can be imported and run directly in the browser with zero addition bundling or tooling required. This ability to import npm packages natively in the browser (without a bundler) is the foundation that all no-bundle development (and the rest of Snowpack) is built on top of.
+From here, any package can be imported and run directly in the browser with zero addition bundling or tooling required. This ability to import npm packages natively in the browser (without a bundler) is the foundation that all no-bundle development (and the rest of Snowpack) is built on top of.
 
 ``` html
 <!-- This runs directly in the browser! -->
@@ -42,7 +43,7 @@ import * as React from 'react';
 import * as React from '/web_modules/react.js';
 ```
 
-Extend your build pipeline to handle more complex transformations via Snowpack [build scripts](#build-scripts). Build scripts define how Snowpack should transform files in your application `src/` directory, allowing you to code in whatever language you'd like (JSX, TypeScript, Vue, Svelte, etc.). Check out the [build scripts](#build-scripts) section below to learn more.
+Extend your build pipeline to handle more complex transformations via Snowpack [build scripts](#build-scripts). Build scripts tellhow Snowpack how to transform your source files, allowing you to code in whatever language you'd like (JSX, TypeScript, Vue, Svelte, etc.). Check out the [build scripts](#build-scripts) section below to learn more.
 
 ### snowpack build
 

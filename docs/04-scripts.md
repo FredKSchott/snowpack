@@ -30,7 +30,7 @@ If you've ever worked with `package.json` "scripts", creating your own build scr
 <script type="module" src="/src/index.js"></script>
 ```
 
-**By default, build scripts are run against every file in your project.** If you prefer to keep your source code contained in 1+ subdirectories (`src/`, `public/`, etc.) check out the section on "mount:" scripts below.
+**By default, build scripts are run against every file in your project.** We recommend that you keep your source code contained in 1+ subdirectories (`src/`, `public/`, etc). Check out the section on "mount:" scripts below for more information.
 
 
  

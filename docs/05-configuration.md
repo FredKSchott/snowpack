@@ -28,7 +28,6 @@ CLI flags will be merged with (and take priority over) your config file values. 
 
 ```js
 {
-  "include": "src/",
   "knownEntrypoints": [
     "htm",
     "preact",
