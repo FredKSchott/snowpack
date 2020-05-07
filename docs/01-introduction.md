@@ -41,4 +41,4 @@ At some point in the last decade, JavaScript bundling shifted from being a produ
 
 **Snowpack builds your site for both modern and legacy browsers.** The only requirement is that  *during development* you use a [modern browser](http://caniuse.com/#feat=es6-module). Any recent release of Firefox, Chrome, or Edge will do. 
 
-When you build your site for production, Snowpack will automatically transpile your site to run on older browsers as well. You can control and customize this behavior with the ["browserlist" package.json property.](https://css-tricks.com/browserlist-good-idea/). As long as you use the `--bundle` optimization flag, your site will even run on ancient non-ESM browsers like IE11.
+When you build your site for production, Snowpack will automatically transpile your site to run on older browsers as well. You can control and customize this behavior with the ["browserlist" package.json property](https://css-tricks.com/browserlist-good-idea/). As long as you use the `--bundle` optimization flag, your site will even run on ancient non-ESM browsers like IE11.
