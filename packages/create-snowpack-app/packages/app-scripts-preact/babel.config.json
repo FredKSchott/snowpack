@@ -1,0 +1,7 @@
+{
+  "presets": [["@babel/preset-react", {
+    "pragma": "h",
+    "pragmaFrag": "Fragment"
+  }], "@babel/preset-typescript"],
+  "plugins": ["@babel/plugin-syntax-import-meta", "babel-plugin-macros"]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@snowpack/app-template-preact",
+  "version": "0.3.4",
+  "license": "MIT",
+  "keywords": [
+    "csa-template"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepare": "snowpack",
+    "start": "snowpack dev",
+    "build": "snowpack build",
+    "test": "jest"
+  },
+  "webDependencies": {},
+  "devDependencies": {
+    "@snowpack/app-scripts-preact": "^0.3.4",
+    "@testing-library/jest-dom": "^5.5.0",
+    "@testing-library/preact": "^1.0.2",
+    "jest": "^25.4.0",
+    "parcel-bundler": "^1.12.4",
+    "preact": "^10.4.1",
+    "snowpack": "^2.0.0-0"
+  },
+  "gitHead": "YYY"
+}
