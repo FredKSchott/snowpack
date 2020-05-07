@@ -11,7 +11,7 @@
   "scripts": {
     "prepare": "snowpack",
     "start": "snowpack dev",
-    "build": "snowpack build --bundle",
+    "build": "snowpack build",
     "test": "jest"
   },
   "webDependencies": {},

@@ -11,7 +11,7 @@
   "scripts": {
     "prepare": "snowpack",
     "start": "snowpack dev",
-    "build": "snowpack build --bundle",
+    "build": "snowpack build",
     "test": "echo \"Vue 3.0 test support is still in progress.\" && exit 1"
   },
   "webDependencies": {},
