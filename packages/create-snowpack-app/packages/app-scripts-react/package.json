@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-react",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"
