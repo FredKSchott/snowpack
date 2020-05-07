@@ -124,7 +124,7 @@ You can customize the set of browsers you'd like to support via the package.json
 Note: During development (`snowpack dev`) we preform no transpilation.
 
 
-### Non-Standard Packages
+### Installing Non-JS Packages
 
 When installing packages from npm, You may encounter some non-JS code that can only run with additional parsing/processing. Svelte packages, for example, commonly include `.svelte` files that will require additional tooling to parse and install for the browser.
 

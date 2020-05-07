@@ -79,7 +79,7 @@ CLI flags will be merged with (and take priority over) your config file values. 
   - Example: `"alias": {"react": "preact/compat", "react-dom": "preact/compat"}`
 - **`rollup`**
   - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use. 
-  - **`rollup.plugins`** - Specify [Custom Rollup plugins](#custom-rollup-plugins) if you are dealing with non-standard files.
+  - **`rollup.plugins`** - Specify [Custom Rollup plugins](#installing-non-js-packages) if you are dealing with non-standard files.
   - **`rollup.dedupe`** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation.
   - **`rollup.namedExports`** - If needed, you can explicitly define named exports for any dependency. You should only use this if you're getting `"'X' is not exported by Y"` errors without it. See [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs#usage) for more documentation.
 
