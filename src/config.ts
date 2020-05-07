@@ -44,11 +44,11 @@ export interface SnowpackConfig {
     sourceMap?: boolean | 'inline';
     externalPackage: string[];
     alias: {[key: string]: string};
-  };
-  rollup: {
-    plugins: Plugin[]; // for simplicity, only Rollup plugins are supported for now
-    dedupe?: string[];
-    namedExports?: {[filepath: string]: string[]};
+    rollup: {
+      plugins: Plugin[]; // for simplicity, only Rollup plugins are supported for now
+      dedupe?: string[];
+      namedExports?: {[filepath: string]: string[]};
+    };
   };
 }
 
@@ -72,6 +72,10 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     installTypes: false,
     env: {},
     alias: {},
+    rollup: {
+      plugins: [],
+      dedupe: [],
+    },
   },
   devOptions: {
     port: 8080,
@@ -79,10 +83,6 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     dist: '/_dist_',
     fallback: 'index.html',
     bundle: false,
-  },
-  rollup: {
-    plugins: [],
-    dedupe: [],
   },
 };
 
@@ -120,6 +120,20 @@ const configSchema = {
           },
         },
       },
+      rollup: {
+        type: 'object',
+        properties: {
+          plugins: {type: 'array', items: {type: 'object'}},
+          dedupe: {
+            type: 'array',
+            items: {type: 'string'},
+          },
+          namedExports: {
+            type: 'object',
+            additionalProperties: {type: 'array', items: {type: 'string'}},
+          },
+        },
+      },
     },
     devOptions: {
       type: 'object',
@@ -134,20 +148,6 @@ const configSchema = {
     scripts: {
       type: 'object',
       additionalProperties: {type: ['string']},
-    },
-    rollup: {
-      type: 'object',
-      properties: {
-        plugins: {type: 'array', items: {type: 'object'}},
-        dedupe: {
-          type: 'array',
-          items: {type: 'string'},
-        },
-        namedExports: {
-          type: 'object',
-          additionalProperties: {type: 'array', items: {type: 'string'}},
-        },
-      },
     },
   },
 };
@@ -258,10 +258,19 @@ function handleDeprecatedConfigError(msg: string) {
 function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   // Moved!
   if (rawConfig.dedupe || cliFlags.dedupe) {
-    handleDeprecatedConfigError('[Snowpack v1 -> v2] `dedupe` is now `rollup.dedupe`.');
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `dedupe` is now `installOptions.rollup.dedupe`.',
+    );
   }
   if (rawConfig.namedExports || cliFlags.namedExports) {
-    handleDeprecatedConfigError('[Snowpack v1 -> v2] `namedExports` is now `rollup.namedExports`.');
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `namedExports` is now `installOptions.rollup.namedExports`.',
+    );
+  }
+  if (rawConfig.rollup) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] top-level `rollup` config is now `installOptions.rollup`.',
+    );
   }
   if (rawConfig.installOptions?.include) {
     handleDeprecatedConfigError(

@@ -241,8 +241,8 @@ export async function install(
       alias: installAlias,
       sourceMap,
       env,
+      rollup: userDefinedRollup,
     },
-    rollup: userDefinedRollup,
   } = config;
 
   const knownNamedExports = {...userDefinedRollup.namedExports};
