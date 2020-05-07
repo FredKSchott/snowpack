@@ -119,18 +119,18 @@ const configSchema = {
             ],
           },
         },
-      },
-      rollup: {
-        type: 'object',
-        properties: {
-          plugins: {type: 'array', items: {type: 'object'}},
-          dedupe: {
-            type: 'array',
-            items: {type: 'string'},
-          },
-          namedExports: {
-            type: 'object',
-            additionalProperties: {type: 'array', items: {type: 'string'}},
+        rollup: {
+          type: 'object',
+          properties: {
+            plugins: {type: 'array', items: {type: 'object'}},
+            dedupe: {
+              type: 'array',
+              items: {type: 'string'},
+            },
+            namedExports: {
+              type: 'object',
+              additionalProperties: {type: 'array', items: {type: 'string'}},
+            },
           },
         },
       },
