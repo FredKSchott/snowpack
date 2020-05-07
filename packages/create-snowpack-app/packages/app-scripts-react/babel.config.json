@@ -1,8 +1,4 @@
 {
   "presets": ["@babel/preset-react", "@babel/preset-typescript"],
-  "plugins": [
-    "@babel/plugin-syntax-import-meta",
-    "@snowpack/babel-plugin-asset-import",
-    "babel-plugin-macros"
-  ]
+  "plugins": ["@babel/plugin-syntax-import-meta", "babel-plugin-macros"]
 }

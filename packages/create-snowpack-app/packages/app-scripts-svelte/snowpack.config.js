@@ -3,24 +3,16 @@
 // const cwd = process.cwd();
 
 const scripts = {
-  "mount:public": "mount public --to /",
-  "mount:web_modules": "mount web_modules --to /web_modules",
+  "mount:public": "mount public --to .",
+  "mount:web_modules": "mount web_modules",
+  "mount:src": "mount src --to _dist_",
   "plugin:svelte": "@snowpack/plugin-svelte",
   "build:js": "cat",
 };
 
 module.exports = {
-  installOptions: {
-    clean: true,
-  },
-  knownEntrypoints: ["svelte/internal"],
-  dev: {
-    port: 3000,
-    src: "src",
-    out: "build",
-    dist: "/_dist_",
-    fallback: "index.html",
-    bundle: process.env.NODE_ENV === "production",
-  },
   scripts,
+  knownEntrypoints: ["svelte/internal"],
+  installOptions: {},
+  devOptions: {},
 };

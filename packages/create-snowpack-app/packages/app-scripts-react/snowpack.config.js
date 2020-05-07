@@ -5,8 +5,9 @@ const cwd = process.cwd();
 const isTS = fs.existsSync(path.join(cwd, "tsconfig.json"));
 
 const scripts = {
-  "mount:public": "mount public --to /",
+  "mount:public": "mount public --to .",
   "mount:web_modules": "mount web_modules",
+  "mount:src": "mount src --to _dist_",
 };
 
 if (isTS) {
@@ -37,17 +38,9 @@ if (fs.existsSync(path.join(cwd, "postcss.config.js"))) {
 scripts["build:svg"] = "cat";
 
 module.exports = {
+  scripts,
+  devOptions: {},
   installOptions: {
-    clean: true,
     installTypes: isTS,
   },
-  dev: {
-    port: 3000,
-    src: "src",
-    out: "build",
-    dist: "/_dist_",
-    fallback: "index.html",
-    bundle: process.env.NODE_ENV === "production",
-  },
-  scripts,
 };
