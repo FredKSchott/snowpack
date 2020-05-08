@@ -14,9 +14,7 @@
     "build": "snowpack build",
     "test": "jest"
   },
-  "webDependencies": {
-    "csz": "^1.2.0"
-  },
+  "webDependencies": {},
   "devDependencies": {
     "@snowpack/app-scripts-react": "^0.3.3",
     "@testing-library/jest-dom": "^5.5.0",
