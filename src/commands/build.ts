@@ -196,6 +196,7 @@ export async function command({cwd, config}: DevOptions) {
       const allBuildNeededFiles: string[] = [];
       await Promise.all(
         allFiles.map((f) => {
+          f = path.resolve(f); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
           if (allBuildExtensions.includes(path.extname(f).substr(1))) {
             allBuildNeededFiles.push(f);
             return;
@@ -352,7 +353,7 @@ export async function command({cwd, config}: DevOptions) {
     );
     await fs.writeFile(
       path.join(buildDirectoryLoc, '.babelrc'),
-      `{"plugins": [["${require.resolve('@babel/plugin-syntax-import-meta')}"]]}`,
+      `{"plugins": [[${JSON.stringify(require.resolve('@babel/plugin-syntax-import-meta'))}]]}`, // JSON.stringify is needed because on windows, \ in paths need to be escaped
     );
   }
   await prepareBuildDirectoryForParcel();
