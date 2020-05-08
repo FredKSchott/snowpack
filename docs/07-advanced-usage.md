@@ -1,6 +1,6 @@
 ## Advanced Usage
 
-### CSS Import Support
+### Importing CSS
 
 Snowpack supports basic CSS imports inside of your JavaScript files. While this isn't natively supported by any browser today, Snowpack's dev server and build pipeline both handle this for you.
 
@@ -12,7 +12,7 @@ import './style.css' // loads '/src/style.css' on the page
 Snowpack also supports any popular CSS-in-JS library. If you prefer to avoid these non-standard CSS imports, check out [csz](https://github.com/lukejacksonn/csz). CSZ is a run-time CSS module library with support for SASS-like syntax/selectors.
 
 
-### Asset Import Support
+### Importing Images, Assets
 
 ``` js
 // /src/index.js
@@ -42,7 +42,7 @@ NOTE: TypeScript isn't yet aware of this new `/web_modules/.types/` location by 
 }
 ```
 
-### Managed Dependencies
+### webDependencies
 
 By default, Snowpack will install your `web_modules/` dependencies using the raw package code found in your `node_modules/` directory. This means that each packages is installed twice in your project: once in each directory.
 

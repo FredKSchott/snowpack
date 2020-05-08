@@ -240,14 +240,12 @@ body {
 
 .grid-extra-space {
   overflow: hidden;
-  opacity:0.6;
   z-index: -1; 
-  filter: blur(3px);
   background: #043456;
   background: 
-    linear-gradient(to right, #0003, #0000 20px),
-    linear-gradient(to right, #94b1bf00, #94b1bf),
-    url('/img/extra-space-4.jpg') center; 
+    linear-gradient(to right, #0002, #0000 10px),
+    linear-gradient(to right, #94b1bf00, #94b1bf);
+    /* url('/img/extra-space-4.jpg') center;  */
   background-size: cover;
   /*
     background: url('/img/extra-space.png') center; 
@@ -257,12 +255,31 @@ body {
     height: 114%;
     width: 100%;
     object-fit: cover;
+  opacity:0.35;
     z-index: -100;
     right: 0;
     top: 0;
     background: linear-gradient(#5cb0bd, #043456);
     overflow: hidden;
 }
+.grid-extra-space .image-attribution {
+    background: #FFF9;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    text-align: center;
+  text-align: right;
+    z-index: 100;
+    letter-spacing: 0;
+    padding: 0.5rem 0.75rem;
+    font-size: 15px;
+    border-radius: 4px;
+}
+.grid-extra-space .image-attribution a {
+    font-weight: 600;
+    color: black;
+}
+
 .markdown-body table td:nth-child(1) {
   white-space: nowrap;
 }
@@ -331,6 +348,7 @@ body {
   top: 0;
   left: 0;
   bottom: 0;
+  padding-top: 44px;
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
 }
@@ -508,7 +526,8 @@ body {
   </head>
   <body>
     <div class="grid-extra-space">
-      <!-- <video id="background-video" src="/img/extra-space-4.mp4" autoplay loop muted></video> -->
+      <video id="background-video" src="/img/extra-space-4.mp4" autoplay loop muted></video>
+      <div class="image-attribution">background by<br/> <a href="https://www.instagram.com/geographyofrobots/">@geographyofrobots</a></div>
     </div>
     <aside class="grid-toc hidden-mobile">
       {{ content | toc | safe }}
@@ -602,7 +621,7 @@ body {
     }
 
     function setActiveToc() {
-      // backgroundVideo.style.top = `-${(gridBodyEl.scrollTop/2000)}%`
+      backgroundVideo.style.top = `-${(window.scrollY/2000)}%`
       for (const el of document.querySelectorAll('h3, h2')) {
         if (!isScrolledIntoView(el)) {
           continue;
@@ -625,7 +644,7 @@ body {
       }
     }
 
-    // const backgroundVideo = document.getElementById('background-video');
+    const backgroundVideo = document.getElementById('background-video');
     const gridBodyEl = document.getElementById('grid-body');
     const tableOfContentsEl = document.querySelector('.toc');
     const gridTocEl = document.querySelector('.grid-toc');
