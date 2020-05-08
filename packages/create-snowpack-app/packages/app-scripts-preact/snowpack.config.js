@@ -38,17 +38,9 @@ if (fs.existsSync(path.join(cwd, "postcss.config.js"))) {
 scripts["build:svg"] = "cat";
 
 module.exports = {
+  scripts,
+  devOptions: {},
   installOptions: {
-    clean: true,
     installTypes: isTS,
   },
-  dev: {
-    port: 3000,
-    src: "src",
-    out: "build",
-    dist: "/_dist_",
-    fallback: "index.html",
-    bundle: process.env.NODE_ENV === "production",
-  },
-  scripts,
 };
