@@ -119,11 +119,15 @@ export function rollupPluginDependencyCache({
         const typesPackageName = url.parse(typesTarballUrl).pathname!.startsWith('/-/@')
           ? typesUrlParts[2] + '/' + typesUrlParts[3].split('@')[0]
           : typesUrlParts[2].split('@')[0];
-        fs.writeFileSync(path.join(tempDir, `${typesPackageName}.tgz`), tarballContents);
+        const typesPackageTarLoc = path.join(tempDir, `${typesPackageName}.tgz`);
+        if (typesPackageName.includes('/')) {
+          await mkdirp(path.dirname(typesPackageTarLoc));
+        }
+        fs.writeFileSync(typesPackageTarLoc, tarballContents);
         const typesPackageLoc = path.join(options.dir!, `.types/${typesPackageName}`);
         await mkdirp(typesPackageLoc);
         await tar.x({
-          file: path.join(tempDir, `${typesPackageName}.tgz`),
+          file: typesPackageTarLoc,
           cwd: typesPackageLoc,
         });
       }

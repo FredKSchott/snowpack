@@ -34,7 +34,7 @@ import npmRunPath from 'npm-run-path';
 import path from 'path';
 import url from 'url';
 import os from 'os';
-import {SnowpackConfig} from '../config';
+import {SnowpackConfig, DevScript} from '../config';
 import {paint} from './paint';
 import yargs from 'yargs-parser';
 import srcFileExtensionMapping from './src-file-extension-mapping';
@@ -77,12 +77,19 @@ function watch(fileLoc: string, notify: (event: string, filename: string) => voi
   }
 }
 
-const sendFile = (res, file, ext = '.html') => {
+const sendFile = (req: http.IncomingMessage, res: http.ServerResponse, body, ext = '.html') => {
   res.writeHead(200, {
     'Content-Type': mime.contentType(ext) || 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
   });
-  res.write(file, getEncodingType(ext));
+  res.write(body, getEncodingType(ext));
+  res.end();
+};
+
+const sendRedirect = (res: http.ServerResponse, url: string) => {
+  res.writeHead(301, {
+    Location: url,
+  });
   res.end();
 };
 
@@ -98,15 +105,15 @@ const sendMessage = (res, channel, data) => {
 
 interface DevOptions {
   cwd: string;
-  port: number;
   config: SnowpackConfig;
 }
 
-export async function command({cwd, port, config}: DevOptions) {
+export async function command({cwd, config}: DevOptions) {
   console.log(chalk.bold('Snowpack Dev Server (Beta)'));
   console.log('NOTE: Still experimental, default behavior may change.');
   console.log('Starting up...');
 
+  const {port} = config.devOptions;
   const fileBuildCache = new Map<string, string>();
   const liveReloadClients: http.ServerResponse[] = [];
   const messageBus = new EventEmitter();
@@ -115,26 +122,24 @@ export async function command({cwd, port, config}: DevOptions) {
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
   const dependencyImportMap: ImportMap = require(dependencyImportMapLoc);
   const registeredWorkers = Object.entries(config.scripts);
-  const workerDirectories: string[] = [];
+  // const workerDirectories: string[] = [];
   const mountedDirectories: [string, string][] = [];
 
   for (const [id, workerConfig] of registeredWorkers) {
     if (!id.startsWith('mount:')) {
       continue;
     }
-
     const cmdArr = workerConfig.cmd.split(/\s+/);
     if (cmdArr[0] !== 'mount') {
       throw new Error(`script[${id}] must use the mount command`);
     }
     cmdArr.shift();
     let dirUrl, dirDisk;
+    dirDisk = path.resolve(cwd, cmdArr[0]);
     if (cmdArr.length === 1) {
-      dirDisk = path.resolve(cwd, cmdArr[0]);
-      dirUrl = '/' + cmdArr[0];
+      dirUrl = cmdArr[0];
     } else {
       const {to} = yargs(cmdArr);
-      dirDisk = path.resolve(cwd, cmdArr[0]);
       dirUrl = to;
     }
     mountedDirectories.push([dirDisk, dirUrl]);
@@ -150,9 +155,9 @@ export async function command({cwd, port, config}: DevOptions) {
     if (workerConfig.watch) {
       cmd += workerConfig.watch.replace('$1', '');
     }
-    const tempBuildDir = await fs.mkdtemp(path.join(os.tmpdir(), `snowpack-${id}`));
-    workerDirectories.unshift(tempBuildDir);
-    cmd = cmd.replace(/\$DIST/g, tempBuildDir);
+    // const tempBuildDir = await fs.mkdtemp(path.join(os.tmpdir(), `snowpack-${id}`));
+    // workerDirectories.unshift(tempBuildDir);
+    // cmd = cmd.replace(/\$DIST/g, tempBuildDir);
     const workerPromise = execa.command(cmd, {env: npmRunPath.env(), extendEnv: true, shell: true});
     const {stdout, stderr} = workerPromise;
     stdout?.on('data', (b) => {
@@ -233,44 +238,94 @@ export async function command({cwd, port, config}: DevOptions) {
       let isRoute = false;
       let fileLoc: string | null = null;
       let fileContents: string | null = null;
-      let fileBuilder: ((code: string) => Promise<string>) | undefined;
+      let fileBuilder: ((code: string, {filename: string}) => Promise<string>) | undefined;
 
-      for (const [id, workerConfig] of registeredWorkers) {
-        if (
-          fileLoc ||
-          !resource.startsWith(config.devOptions.dist) ||
-          !requestedFileExt ||
-          !config.include ||
-          (!id.startsWith('build:') && !id.startsWith('plugin:'))
-        ) {
+      // for (const dirDisk of workerDirectories) {
+      //   if (fileLoc || !requestedFileExt) {
+      //     continue;
+      //   }
+      //   let requestedFile = path.join(dirDisk, resource.replace(`${config.devOptions.dist}`, ''));
+      //   fileLoc = await attemptLoadFile(requestedFile);
+      // }
+
+      let selectedWorker: [string, DevScript] | null = null;
+      let responseFileExt = requestedFileExt;
+      for (const [dirDisk, dirUrl] of mountedDirectories) {
+        if (fileLoc) {
           continue;
         }
-        if (!config.include) {
-          console.error('"include" directory required to build');
-          return;
+        let requestedFile: string;
+        if (dirUrl === '.') {
+          requestedFile = path.join(dirDisk, resource);
+        } else if (resource.startsWith('/' + dirUrl)) {
+          requestedFile = path.join(dirDisk, resource.replace(dirUrl, '.'));
+        } else {
+          continue;
         }
-        const srcExtMatchers = id.split(':')[1].split(',');
-        const {cmd} = workerConfig;
-        let requestedFile = path.join(
-          config.include,
-          resource.replace(`${config.devOptions.dist}`, ''),
-        );
-        for (const ext of srcExtMatchers) {
-          if (
-            !srcFileExtensionMapping[ext] ||
-            srcFileExtensionMapping[ext] === requestedFileExt.substr(1)
-          ) {
-            const srcFile = requestedFile.replace(requestedFileExt, `.${ext}`);
-            fileLoc = fileLoc || (await attemptLoadFile(srcFile));
+        fileLoc = await attemptLoadFile(requestedFile);
+
+        if (requestedFileExt) {
+          for (const [id, workerConfig] of registeredWorkers) {
+            if (fileLoc || (!id.startsWith('build:') && !id.startsWith('plugin:'))) {
+              continue;
+            }
+            const srcExtMatchers = id.split(':')[1].split(',');
+            for (const ext of srcExtMatchers) {
+              if (fileLoc) {
+                continue;
+              }
+              if (!srcFileExtensionMapping[ext]) {
+                continue;
+              }
+              if (srcFileExtensionMapping[ext] === requestedFileExt.substr(1)) {
+                const srcFile = requestedFile.replace(requestedFileExt, `.${ext}`);
+                fileLoc = await attemptLoadFile(srcFile);
+                if (fileLoc) {
+                  selectedWorker = [id, workerConfig];
+                }
+              }
+            }
           }
-        }
-        if (!fileLoc) {
           continue;
         }
+
+        fileLoc =
+          fileLoc ||
+          (await attemptLoadFile(requestedFile + '.html')) ||
+          (await attemptLoadFile(requestedFile + '/index.html')) ||
+          (await attemptLoadFile(requestedFile + 'index.html'));
+
+        if (!fileLoc && dirUrl === '.' && config.devOptions.fallback) {
+          const fallbackFile =
+            dirUrl === '.'
+              ? path.join(dirDisk, config.devOptions.fallback)
+              : path.join(cwd, config.devOptions.fallback);
+          fileLoc = await attemptLoadFile(fallbackFile);
+        }
+        if (fileLoc) {
+          responseFileExt = '.html';
+          isRoute = true;
+        }
+      }
+
+      if (isRoute) {
+        messageBus.emit('NEW_SESSION');
+      }
+
+      if (!fileLoc) {
+        const prefix = chalk.red('  ✘ ');
+        console.error(
+          `[404] ${reqUrl}\n${attemptedFileLoads.map((loc) => prefix + loc).join('\n')}`,
+        );
+        return sendError(res, 404);
+      }
+
+      if (selectedWorker) {
+        const [id, {cmd}] = selectedWorker;
         if (id.startsWith('plugin:')) {
           const modulePath = require.resolve(cmd, {paths: [cwd]});
           const {build} = require(modulePath);
-          fileBuilder = async (code: string) => {
+          fileBuilder = async (code: string, options: {filename: string}) => {
             messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
             try {
               let {result} = await build(fileLoc);
@@ -283,12 +338,12 @@ export async function command({cwd, port, config}: DevOptions) {
               messageBus.emit('WORKER_UPDATE', {id, state: null});
             }
           };
-          continue;
         }
         if (id.startsWith('build:')) {
-          fileBuilder = async (code: string) => {
+          fileBuilder = async (code: string, options: {filename: string}) => {
             messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-            const {stdout, stderr} = await execa.command(cmd, {
+            let cmdWithFile = cmd.replace('$FILE', options.filename);
+            const {stdout, stderr} = await execa.command(cmdWithFile, {
               env: npmRunPath.env(),
               extendEnv: true,
               shell: true,
@@ -303,89 +358,32 @@ export async function command({cwd, port, config}: DevOptions) {
         }
       }
 
-      for (const dirDisk of workerDirectories) {
-        if (fileLoc || !requestedFileExt || !resource.startsWith(config.devOptions.dist)) {
-          continue;
-        }
-        let requestedFile = path.join(dirDisk, resource.replace(`${config.devOptions.dist}`, ''));
-        fileLoc = await attemptLoadFile(requestedFile);
-      }
-
-      for (const [dirDisk, dirUrl] of mountedDirectories) {
-        if (fileLoc) {
-          continue;
-        }
-        if (resource.startsWith(config.devOptions.dist)) {
-          continue;
-        }
-        let requestedFile: string;
-        if (dirUrl === '/') {
-          requestedFile = path.join(dirDisk, resource);
-        } else if (resource.startsWith(dirUrl)) {
-          requestedFile = path.join(dirDisk, resource.replace(dirUrl, '/'));
-        } else {
-          continue;
-        }
-        fileLoc = fileLoc || (await attemptLoadFile(requestedFile));
-
-        if (requestedFileExt) {
-          continue;
-        }
-
-        fileLoc =
-          fileLoc ||
-          (await attemptLoadFile(requestedFile + '.html')) ||
-          (await attemptLoadFile(requestedFile + '/index.html')) ||
-          (await attemptLoadFile(requestedFile + 'index.html'));
-
-        if (!fileLoc && dirUrl === '/' && config.devOptions.fallback) {
-          const fallbackFile =
-            dirUrl === '/'
-              ? path.join(dirDisk, config.devOptions.fallback)
-              : path.join(cwd, config.devOptions.fallback);
-          fileLoc = await attemptLoadFile(fallbackFile);
-        }
-        if (fileLoc) {
-          requestedFileExt = '.html';
-          isRoute = true;
-        }
-      }
-
-      if (isRoute) {
-        messageBus.emit('NEW_SESSION');
-      }
-      if (!fileLoc) {
-        const prefix = chalk.red('  ✘ ');
-        console.error(
-          `[404] ${reqUrl}\n${attemptedFileLoads.map((loc) => prefix + loc).join('\n')}`,
-        );
-
-        return sendError(res, 404);
-      }
-
       fileContents = fileBuildCache.get(fileLoc) || null;
       if (!fileContents) {
         try {
           fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
           if (fileBuilder) {
-            fileContents = await fileBuilder(fileContents);
+            fileContents = await fileBuilder(fileContents, {filename: fileLoc});
           }
           if (isRoute) {
             fileContents += LIVE_RELOAD_SNIPPET;
           }
           if (requestedFileExt === '.js') {
             fileContents = await transformEsmImports(fileContents, (spec) => {
-              if (spec.startsWith('http') || spec.startsWith('/')) {
+              if (spec.startsWith('http')) {
                 return spec;
               }
-              if (spec.startsWith('./') || spec.startsWith('../')) {
+              if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
                 const ext = path.extname(spec).substr(1);
                 if (!ext) {
                   return spec + '.js';
                 }
                 const extToReplace = srcFileExtensionMapping[ext];
                 if (extToReplace) {
-                  return spec.replace(new RegExp(`${ext}$`), extToReplace);
+                  spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
+                }
+                if ((extToReplace || ext) !== 'js') {
+                  spec = spec + '?snowpack-esm-proxy';
                 }
                 return spec;
               }
@@ -401,14 +399,27 @@ export async function command({cwd, port, config}: DevOptions) {
           return sendError(res, 500);
         }
       }
-
       fileBuildCache.set(fileLoc, fileContents);
-      sendFile(res, fileContents, requestedFileExt);
+
+      if (req.url?.includes('?snowpack-esm-proxy')) {
+        responseFileExt = '.js';
+        if (requestedFileExt === '.css') {
+          fileContents = `
+            const styleEl = document.createElement("style");
+            styleEl.type = 'text/css';
+            styleEl.appendChild(document.createTextNode(${JSON.stringify(fileContents)}));
+            document.head.appendChild(styleEl);
+          `;
+        } else {
+          fileContents = `export default ${JSON.stringify(reqPath)};`;
+        }
+      }
+
+      sendFile(req, res, fileContents, responseFileExt);
     })
     .listen(port);
 
-  async function onWatchEvent(event, _fileLoc) {
-    const fileLoc = path.resolve(config.include!, _fileLoc);
+  async function onWatchEvent(event, fileLoc) {
     while (liveReloadClients.length > 0) {
       sendMessage(liveReloadClients.pop(), 'message', 'reload');
     }
@@ -428,8 +439,10 @@ export async function command({cwd, port, config}: DevOptions) {
     // }
   }
 
-  if (config.include) {
-    watch(config.include, onWatchEvent);
+  for (const [dirDisk] of mountedDirectories) {
+    watch(dirDisk, (event, partialFileName) =>
+      onWatchEvent(event, path.resolve(dirDisk, partialFileName)),
+    );
   }
 
   process.on('SIGINT', () => {

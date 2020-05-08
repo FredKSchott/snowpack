@@ -7,6 +7,7 @@ import mime from 'mime-types';
 import validatePackageName from 'validate-npm-package-name';
 import {init as initESModuleLexer, parse, ImportSpecifier} from 'es-module-lexer';
 import {isTruthy} from './util';
+import {DevScripts, SnowpackConfig} from './config';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -152,33 +153,57 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
     .reduce((flat, item) => flat.concat(item), []);
 }
 
-interface ScanImportsParams {
-  include: string;
-  exclude?: glob.IOptions['ignore'];
-}
-
-export async function scanImports({include, exclude}: ScanImportsParams): Promise<InstallTarget[]> {
+export async function scanImports(
+  cwd: string,
+  {scripts, exclude}: SnowpackConfig,
+): Promise<InstallTarget[]> {
   await initESModuleLexer;
-  const includeFiles = glob.sync(`**/*`, {
-    ignore: exclude,
-    cwd: include,
-    absolute: true,
-    nodir: true,
-  });
-  if (!includeFiles.length) {
-    console.warn(`[SCAN ERROR]: No files matching "${include}"`);
+  const includeFileSets = await Promise.all(
+    Object.entries(scripts).map(([id, scriptConfig]) => {
+      if (!id.startsWith('mount:')) {
+        return [];
+      }
+      const cmdArr = scriptConfig.cmd.split(/\s+/);
+      if (cmdArr[0] !== 'mount') {
+        throw new Error(`script[${id}] must use the mount command`);
+      }
+      cmdArr.shift();
+      if (cmdArr[0].includes('web_modules')) {
+        return [];
+      }
+      const dirDisk = nodePath.resolve(cwd, cmdArr[0]);
+      return glob.sync(`**/*`, {
+        ignore: exclude,
+        cwd: dirDisk,
+        absolute: true,
+        nodir: true,
+      });
+    }),
+  );
+  const includeFiles = Array.from(new Set(([] as string[]).concat.apply([], includeFileSets)));
+  if (includeFiles.length === 0) {
+    console.warn(`[ERROR]: No mouned files.`);
     return [];
   }
 
   // Scan every matched JS file for web dependency imports
   const loadedFiles = await Promise.all(
     includeFiles.map(async (filePath) => {
+      const ext = nodePath.extname(filePath);
+      // Always ignore dotfiles
+      if (filePath.startsWith('.')) {
+        return null;
+      }
+      // Probably a license, a README, etc
+      if (ext === '') {
+        return null;
+      }
       // Our import scanner can handle normal JS & even TypeScript without a problem.
-      if (filePath.endsWith('.js') || filePath.endsWith('.mjs') || filePath.endsWith('.ts')) {
+      if (ext === '.js' || ext === '.mjs' || ext === '.ts') {
         return fs.promises.readFile(filePath, 'utf-8');
       }
       // JSX breaks our import scanner, so we need to transform it before sending it to our scanner.
-      if (filePath.endsWith('.jsx') || filePath.endsWith('.tsx')) {
+      if (ext === '.jsx' || ext === '.tsx') {
         const result = await babel.transformFileAsync(filePath, {
           plugins: [
             [require('@babel/plugin-transform-react-jsx'), {runtime: 'classic'}],
@@ -189,7 +214,7 @@ export async function scanImports({include, exclude}: ScanImportsParams): Promis
         });
         return result && result.code;
       }
-      if (filePath.endsWith('.vue') || filePath.endsWith('.svelte')) {
+      if (ext === '.vue' || ext === '.svelte') {
         const result = await fs.promises.readFile(filePath, 'utf-8');
         // TODO: Replace with matchAll once Node v10 is out of TLS.
         // const allMatches = [...result.matchAll(HTML_JS_REGEX)];

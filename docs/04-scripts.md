@@ -6,14 +6,14 @@ Snowpack is more than just a static file server, it's a platform to power your e
 
 A build script is just a simple bash (CLI) command. Snowpack will  pipe your source files into matching script commands (via stdin) and then sending it's output (via stdout) to the browser or build directory.
 
-If you've ever worked with `package.json` "scripts", creating your own build scripts should feel very familiar.
+If you've ever worked with `package.json` "scripts", creating your own build scripts should hopefully feel familiar:
 
 ```js
 // snowpack.config.json
 {
   "scripts": {
     // Pipe every .js & .jsx file through Babel CLI
-    "build:js,jsx": "babel --no-babelrc",
+    "build:js,jsx": "babel --filename $FILE",
     // Pipe every .css file through PostCSS CLI
     "build:css": "postcss",
     // Pipe every .svg file through 'cat' (copies the file without transforming)
@@ -22,52 +22,48 @@ If you've ever worked with `package.json` "scripts", creating your own build scr
 }
 ```
 
-**The `"build"` script type is the basic building block for any Snowpack build pipeline.** In this example `babel`, `postcss`, and `cat` are all used to process a project's `src/` directory at dev time and then again when building for production. Each file is piped through the proper CLI to get the final build output.
+**The `"build"` script type is the basic building block of any Snowpack build pipeline.** In this example `babel`, `postcss`, and `cat` are all used to process your code at dev time and then again when building for production. Each file is piped through the proper CLI to get the final build output.
 
-**Build scripts are only run on your `src/` directory.** Svelte, Vue, and even React (via JSX) all need to be built or processed in some way (ex: passed through a Babel build script) before they can run in the browser.
-
-**Your built `src/` directory can be found at the `/_dist_/*` URL path.** Make sure that you load scripts and files from the correct `/_dist_/` URL to get the fully built output. For example, you would load a `/src/index.jsx` application entrypoint via the following script tag:
 
 ```html
-<!-- Example: Load your "src/index" file in the browser -->
-<script type="module" src="/_dist_/index.js"></script>
+<!-- Example: Load "src/index.jsx" in the browser -->
+<script type="module" src="/src/index.js"></script>
 ```
 
+**By default, build scripts are run against every file in your project.** We recommend that you keep your source code contained in 1+ subdirectories (`src/`, `public/`, etc). Check out the section on "mount:" scripts below for more information.
 
-<!--
 
-### Default Build Scripts 
-
-Snowpack provides some basic build scripts out of the box to help you get started. The following are enabled by default during both dev & build:
-
-- `build:jsx` - All `src/*.jsx` files are transpiled for basic React & Preact support. 
-- `build:ts` - All `src/*.ts` files are transpiled for basic TypeScript support.
-- `build:tsx` - All `src/*.tsx` files are transpiled for both JSX & TypeScript.
-
-Snowpack also rewrites your package imports automatically using your installed `web_modules/import-map.json` file. This way uou can import packages by name anywhere in your `src/` directory and Snowpack will automatically rewrite them to point to the proper `/web_modules/*` URL during dev/build.
--->
  
 ### All Script Types
 
 Snowpack supports several other script types in addition to the basic `"build"` type. These different script types serve different goals so that you can fully customize and control your dev environment:
 
+- `"mount:*": "mount DIR [--to URL]"`
+  - Copy a folder directly into the final build at the `--to` URL location.
+  - If no `--to` argument is provided, the directory will be hosted at the same relative location.
+  - ex: `"mount:public": "mount public --to ."`
+  - ex: `"mount:web_modules": "mount web_modules"`
 - `"build:*": "..."`
   - Pipe any matching file into this CLI command, and write it's output to disk.
-  - ex: `"build:js,jsx": "babel --no-babelrc"`
-- `"lint:*": "..."`
-  - Pipe any matching file into this CLI command, and log any errors/output.
-  - ex: `"lint:js": "eslint"`
+  - ex: `"build:js,jsx": "babel --filename $FILE"`
 - `"lintall:*": "..."`
   - Run a single command once, log any output/errors.
   - Useful for tools like TypeScript that lint multiple files / entire projects at once.
   - ex: `"lintall:ts,tsx": "tsc"`
-- `"mount:*": "mount DIR [--to URL]"`
-  - Copy a folder directly into the final build at the `--to` URL location.
-  - If no `--to` argument is provided, the folder will be copied to the same location relative to the project directory.
-  - ex: `"mount:public": "mount public --to /"`
-  - ex: `"mount:web_modules": "mount web_modules"`
 - `"plugin:*": "..."`
   - Connect a custom Snowpack plugin. See the section below for more info.
+
+## Script Variables
+
+Snowpack provides a few variables that you can use to make your build scripts (and plugins) more dynamic:
+
+- `$1` - The original command.
+  - Used with script modifiers (see the next section).
+  - ex: `"lintall:ts,tsx::watch": "$1 --watch"`
+- `$FILE` - The absolute path of the source file.
+  - Especially useful when Babel plugins require it.
+  - ex: `"build:js": "babel --filename $FILE`
+
 
 ### "::" Script Modifiers
 
@@ -88,10 +84,11 @@ You can extend your build scripts via the `"::"` script modifier token. These ac
 }
 ```
 
-Note that `$1` can be used with a script modifier to reference the original script. This is useful so that you don't need to copy-paste a script in two places.
+Note that `$1` can be used with a script modifier to reference the original script. See section on [Script Variables](#script-variables) above.
 
 
-### Build Script Plugins
+
+### Build Plugins
 
 For a more powerful integration, you can also write build scripts using JavaScript to create *build plugins*. Each plugin is loaded as a JavaScript module that exports custom `build()` and `lint()` functions that are run on matching files.
 

@@ -1,46 +1,27 @@
 ## Advanced Usage
 
-### JS + CSS Support
+### Importing CSS
 
-Most CSS-in-JS libraries work great with Snowpack. However, using the JavaScript `import` keyword to load a CSS inside of a JavaScript file isn't supported by any browser. If you'd still like to control your CSS loading inside of JavaScript, you can consider one of these alternatives:
+Snowpack supports basic CSS imports inside of your JavaScript files. While this isn't natively supported by any browser today, Snowpack's dev server and build pipeline both handle this for you.
 
-#### 1. @snowpack/babel-plugin-asset-import
-
-``` js
-import './style.css';
+```js
+// /src/index.js
+import './style.css' // loads '/src/style.css' on the page
 ```
 
-The [@snowpack/babel-plugin-asset-import](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/babel-plugin-asset-import) Babel plugin replaces every CSS import with a `<style>` element to inject the CSS file contents at build time. 
-
-We recommend this solution because unlike others this works with the `--bundle` flag so that you still get fully bundled application CSS in production.
-
-#### 2. CSZ
-
-``` js
-import csz from 'csz';
-const className = csz`/style.css`;
-```
-
-[csz](https://github.com/lukejacksonn/csz) supports run-time CSS modules with SASS-like selectors. No Babel plugin is needed for this one. Since CSZ runs directly in the browser, you can skip any sort of SASS build/watch step.
+Snowpack also supports any popular CSS-in-JS library. If you prefer to avoid these non-standard CSS imports, check out [csz](https://github.com/lukejacksonn/csz). CSZ is a run-time CSS module library with support for SASS-like syntax/selectors.
 
 
-### Asset Reference Support
+### Importing Images, Assets
 
 ``` js
-// Not recommended, see below.
-import img from './image.png'; // `img` is a URL pointing to this image
+// /src/index.js
+import img from './image.png'; // img === '/src/image.png'
+import svg from './image.svg'; // svg === '/src/image.svg'
 ```
 
-It's common in bundled applications to import non-JS assets as a URL reference to that final asset. However, we recommend not relying on this non-standard import behavior and keeping all non-source code files in the `public/` directory where it can be referenced by absolute URL.
+Bundlers also popularized the idea of importing general, non-JS assets to get back a guaranteed reference to the final, hosted URL. Snowpack supports this as well.
 
-If you must support this, then you can use the @snowpack/babel-plugin-asset-import Babel plugin (the same plugin referenced in the previous section). The plugin will transform any non-JS default import to a direct URL reference at build time.
-
-``` js
-// Input
-import img from './image.png';
-// @snowpack/babel-plugin-asset-import output
-const img = new URL('./image.png', import.meta.url).pathname;
-```
 
 ### TypeScript Support
 
@@ -61,9 +42,9 @@ NOTE: TypeScript isn't yet aware of this new `/web_modules/.types/` location by 
 }
 ```
 
-### Managed Dependencies
+### webDependencies
 
-By default, Snowpack will install your `web_modules/` dependencies usinng the raw package code found in your `node_modules/` directory. This means that each packages is installed twice in your project: once in each directory.
+By default, Snowpack will install your `web_modules/` dependencies using the raw package code found in your `node_modules/` directory. This means that each packages is installed twice in your project: once in each directory.
 
 Snowpack can be configured to fully manage your frontend dependencies via the new "webDependencies" key in your `package.json` project manifest.
 
@@ -124,7 +105,7 @@ You can customize the set of browsers you'd like to support via the package.json
 Note: During development (`snowpack dev`) we preform no transpilation.
 
 
-### Non-Standard Packages
+### Installing Non-JS Packages
 
 When installing packages from npm, You may encounter some non-JS code that can only run with additional parsing/processing. Svelte packages, for example, commonly include `.svelte` files that will require additional tooling to parse and install for the browser.
 

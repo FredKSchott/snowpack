@@ -241,8 +241,8 @@ export async function install(
       alias: installAlias,
       sourceMap,
       env,
+      rollup: userDefinedRollup,
     },
-    rollup: userDefinedRollup,
   } = config;
 
   const knownNamedExports = {...userDefinedRollup.namedExports};
@@ -433,10 +433,12 @@ export async function install(
 export async function cli(args: string[]) {
   // parse CLI flags
   const cliFlags = yargs(args, {array: ['env', 'exclude', 'externalPackage']}) as CLIFlags;
-
-  // if printing help, stop here
   if (cliFlags.help) {
     printHelp();
+    process.exit(0);
+  }
+  if (cliFlags.version) {
+    console.log(require('../package.json').version);
     process.exit(0);
   }
   if (cliFlags.reload) {
@@ -475,7 +477,6 @@ export async function cli(args: string[]) {
   if (cliFlags['_'][2] === 'dev') {
     await devCommand({
       cwd,
-      port: (cliFlags as any).port || 3000,
       config,
     });
     return;
@@ -483,8 +484,8 @@ export async function cli(args: string[]) {
 
   const {
     exclude,
-    include,
-    installOptions: {clean, dest},
+    scripts,
+    installOptions: {dest},
     knownEntrypoints,
     webDependencies,
   } = config;
@@ -503,8 +504,8 @@ export async function cli(args: string[]) {
   if (webDependencies) {
     installTargets.push(...scanDepList(Object.keys(webDependencies), cwd));
   }
-  if (include) {
-    installTargets.push(...(await scanImports({include, exclude})));
+  {
+    installTargets.push(...(await scanImports(cwd, config)));
   }
   if (installTargets.length === 0) {
     logError('Nothing to install.');
@@ -520,9 +521,7 @@ export async function cli(args: string[]) {
     });
   }
 
-  if (clean) {
-    rimraf.sync(dest);
-  }
+  rimraf.sync(dest);
   await mkdirp(dest);
   const finalResult = await install(
     installTargets,

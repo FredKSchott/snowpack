@@ -27,12 +27,11 @@ export async function command({cwd, config}: DevOptions) {
   const messageBus = new EventEmitter();
   const allRegisteredWorkers = Object.entries(config.scripts);
   const relevantWorkers: [string, DevScript][] = [];
+  const allBuildExtensions: string[] = [];
   const allWorkerPromises: Promise<any>[] = [];
 
-  const isBundled = config.devOptions.bundle;
+  const buildDirectoryLoc = path.join(cwd, `.build`);
   const finalDirectoryLoc = config.devOptions.out;
-  const buildDirectoryLoc = isBundled ? path.join(cwd, `.build`) : config.devOptions.out;
-  const distDirectoryLoc = path.join(buildDirectoryLoc, config.devOptions.dist);
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
   const dependencyImportMap: ImportMap = require(dependencyImportMapLoc);
 
@@ -52,7 +51,7 @@ export async function command({cwd, config}: DevOptions) {
     mkdirp.sync(buildDirectoryLoc);
   }
 
-  const extToWorkerMap: {[ext: string]: any[]} = {};
+  // const extToWorkerMap: {[ext: string]: any[]} = {};
   for (const [id, workerConfig] of allRegisteredWorkers) {
     if (
       id.startsWith('build:') ||
@@ -64,16 +63,14 @@ export async function command({cwd, config}: DevOptions) {
     }
     if (id.startsWith('build:') || id.startsWith('plugin:')) {
       const exts = id.split(':')[1].split(',');
-      for (const ext of exts) {
-        extToWorkerMap[ext] = extToWorkerMap[ext] || [];
-        extToWorkerMap[ext].push([id, workerConfig]);
-      }
+      allBuildExtensions.push(...exts); // for (const ext of exts) {
+      // extToWorkerMap[ext] = extToWorkerMap[ext] || [];
+      // extToWorkerMap[ext].push([id, workerConfig]);
+      // }
     }
   }
 
-  if (isBundled) {
-    relevantWorkers.push(['bundle:*', {cmd: 'NA', watch: undefined}]);
-  }
+  relevantWorkers.push(['bundle:*', {cmd: 'NA', watch: undefined}]);
 
   console.log = (...args) => {
     messageBus.emit('CONSOLE', {level: 'log', args});
@@ -134,46 +131,96 @@ export async function command({cwd, config}: DevOptions) {
     });
   }
 
-  for (const [id, workerConfig] of relevantWorkers) {
-    if (!id.startsWith('mount:')) {
-      continue;
-    }
-    const cmdArr = workerConfig.cmd.split(/\s+/);
-    if (cmdArr[0] !== 'mount') {
-      throw new Error(`script[${id}] must use the mount command`);
-    }
-    cmdArr.shift();
-    let dirUrl, dirDisk;
-    if (cmdArr.length === 1) {
-      dirDisk = path.resolve(cwd, cmdArr[0]);
-      dirUrl = '/' + cmdArr[0];
-    } else {
-      const {to} = yargs(cmdArr);
-      dirDisk = path.resolve(cwd, cmdArr[0]);
-      dirUrl = to;
-    }
+  // for (const [id, workerConfig] of relevantWorkers) {
+  //   if (!id.startsWith('mount:')) {
+  //     continue;
+  //   }
+  //   const cmdArr = workerConfig.cmd.split(/\s+/);
+  //   if (cmdArr[0] !== 'mount') {
+  //     throw new Error(`script[${id}] must use the mount command`);
+  //   }
+  //   cmdArr.shift();
+  //   let dirUrl, dirDisk;
+  //   if (cmdArr.length === 1) {
+  //     dirDisk = path.resolve(cwd, cmdArr[0]);
+  //     dirUrl = '/' + cmdArr[0];
+  //   } else {
+  //     const {to} = yargs(cmdArr);
+  //     dirDisk = path.resolve(cwd, cmdArr[0]);
+  //     dirUrl = to;
+  //   }
 
-    const destinationFile =
-      dirUrl === '/' ? buildDirectoryLoc : path.join(buildDirectoryLoc, dirUrl);
-    await copy(dirDisk, destinationFile).catch((err) => {
+  //   const destinationFile =
+  //     dirUrl === '/' ? buildDirectoryLoc : path.join(buildDirectoryLoc, dirUrl);
+  //   await copy(dirDisk, destinationFile).catch((err) => {
+  //     messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
+  //     messageBus.emit('WORKER_COMPLETE', {id, error: err});
+  //     throw err;
+  //   });
+  //   messageBus.emit('WORKER_COMPLETE', {id, error: null});
+  // }
+
+  const mountDirDetails: any[] = relevantWorkers
+    .map(([id, scriptConfig]) => {
+      if (!id.startsWith('mount:')) {
+        return false;
+      }
+      const cmdArr = scriptConfig.cmd.split(/\s+/);
+      if (cmdArr[0] !== 'mount') {
+        throw new Error(`script[${id}] must use the mount command`);
+      }
+      cmdArr.shift();
+      let dirDest, dirDisk;
+      dirDisk = path.resolve(cwd, cmdArr[0]);
+      if (cmdArr.length === 1) {
+        dirDest = path.resolve(buildDirectoryLoc, cmdArr[0]);
+      } else {
+        const {to} = yargs(cmdArr);
+        dirDest = path.resolve(buildDirectoryLoc, to);
+      }
+      return [id, dirDisk, dirDest];
+    })
+    .filter(Boolean);
+
+  const includeFileSets: [string, string, string[]][] = [];
+  for (const [id, dirDisk, dirDest] of mountDirDetails) {
+    messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+    let allFiles;
+    try {
+      allFiles = glob.sync(`**/*`, {
+        ignore: config.exclude,
+        cwd: dirDisk,
+        absolute: true,
+        nodir: true,
+      });
+      const allBuildNeededFiles: string[] = [];
+      await Promise.all(
+        allFiles.map((f) => {
+          f = path.resolve(f); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
+          if (allBuildExtensions.includes(path.extname(f).substr(1))) {
+            allBuildNeededFiles.push(f);
+            return;
+          }
+          const outPath = f.replace(dirDisk, dirDest);
+          mkdirp.sync(path.dirname(outPath));
+          return fs.copyFile(f, outPath);
+        }),
+      );
+      includeFileSets.push([dirDisk, dirDest, allBuildNeededFiles]);
+      messageBus.emit('WORKER_COMPLETE', {id});
+    } catch (err) {
       messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
       messageBus.emit('WORKER_COMPLETE', {id, error: err});
-      throw err;
-    });
-    messageBus.emit('WORKER_COMPLETE', {id, error: null});
+    }
   }
 
-  if (config.include) {
-    const allFiles = glob.sync(`${config.include}/**/*`, {
-      nodir: true,
-      ignore: [`${config.include}/**/__tests__`, `${config.include}/**/*.{spec,test}.*`],
-    });
-
-    for (const [id, workerConfig] of relevantWorkers) {
-      if (!id.startsWith('build:') && !id.startsWith('plugin:')) {
-        continue;
-      }
-      messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+  const allBuiltFromFiles = new Set();
+  for (const [id, workerConfig] of relevantWorkers) {
+    if (!id.startsWith('build:') && !id.startsWith('plugin:')) {
+      continue;
+    }
+    messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+    for (const [dirDisk, dirDest, allFiles] of includeFileSets) {
       for (const f of allFiles) {
         const fileExtension = path.extname(f).substr(1);
         if (!id.includes(`:${fileExtension}`) && !id.includes(`,${fileExtension}`)) {
@@ -182,6 +229,7 @@ export async function command({cwd, config}: DevOptions) {
 
         let {cmd} = workerConfig;
         if (id.startsWith('build:')) {
+          cmd = cmd.replace('$FILE', f);
           const {stdout, stderr} = await execa.command(cmd, {
             env: npmRunPath.env(),
             extendEnv: true,
@@ -194,7 +242,7 @@ export async function command({cwd, config}: DevOptions) {
           if (!stdout) {
             continue;
           }
-          let outPath = f.replace(config.include, distDirectoryLoc);
+          let outPath = f.replace(dirDisk, dirDest);
           const extToFind = path.extname(f).substr(1);
           const extToReplace = srcFileExtensionMapping[extToFind];
           if (extToReplace) {
@@ -203,17 +251,62 @@ export async function command({cwd, config}: DevOptions) {
           let code = stdout;
           if (path.extname(outPath) === '.js') {
             code = await transformEsmImports(code, (spec) => {
-              if (spec.startsWith('http') || spec.startsWith('/')) {
+              if (spec.startsWith('http')) {
                 return spec;
               }
-              if (spec.startsWith('./') || spec.startsWith('../')) {
+              if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
                 const ext = path.extname(spec).substr(1);
                 if (!ext) {
                   return spec + '.js';
                 }
                 const extToReplace = srcFileExtensionMapping[ext];
                 if (extToReplace) {
-                  return spec.replace(new RegExp(`${ext}$`), extToReplace);
+                  spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
+                }
+                return spec;
+              }
+              if (dependencyImportMap.imports[spec]) {
+                return path.posix.resolve(`/web_modules`, dependencyImportMap.imports[spec]);
+              }
+              messageBus.emit('MISSING_WEB_MODULE', {specifier: spec});
+              return `/web_modules/${spec}.js`;
+            });
+          }
+          await fs.mkdir(path.dirname(outPath), {recursive: true});
+          await fs.writeFile(outPath, code);
+          allBuiltFromFiles.add(f);
+        }
+        if (id.startsWith('plugin:')) {
+          const modulePath = require.resolve(cmd, {paths: [cwd]});
+          const {build} = require(modulePath);
+          try {
+            var {result} = await build(f);
+          } catch (err) {
+            err.message = `[${id}] ${err.message}`;
+            console.error(err);
+            messageBus.emit('WORKER_COMPLETE', {id, error: err});
+            continue;
+          }
+          let outPath = f.replace(dirDisk, dirDest);
+          const extToFind = path.extname(f).substr(1);
+          const extToReplace = srcFileExtensionMapping[extToFind];
+          if (extToReplace) {
+            outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace);
+          }
+          let code = result;
+          if (path.extname(outPath) === '.js') {
+            code = await transformEsmImports(code, (spec) => {
+              if (spec.startsWith('http')) {
+                return spec;
+              }
+              if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
+                const ext = path.extname(spec).substr(1);
+                if (!ext) {
+                  return spec + '.js';
+                }
+                const extToReplace = srcFileExtensionMapping[ext];
+                if (extToReplace) {
+                  spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
                 }
                 return spec;
               }
@@ -227,115 +320,69 @@ export async function command({cwd, config}: DevOptions) {
           await fs.mkdir(path.dirname(outPath), {recursive: true});
           await fs.writeFile(outPath, code);
         }
-        if (id.startsWith('plugin:')) {
-          const modulePath = require.resolve(cmd, {paths: [cwd]});
-          const {build} = require(modulePath);
-          try {
-            var {result} = await build(f);
-          } catch (err) {
-            err.message = `[${id}] ${err.message}`;
-            console.error(err);
-            messageBus.emit('WORKER_COMPLETE', {id, error: err});
-            continue;
-          }
-          let outPath = f.replace(config.include, distDirectoryLoc);
-          const extToFind = path.extname(f).substr(1);
-          const extToReplace = srcFileExtensionMapping[extToFind];
-          if (extToReplace) {
-            outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace);
-          }
-          let code = result;
-          if (path.extname(outPath) === '.js') {
-            code = await transformEsmImports(code, (spec) => {
-              if (spec.startsWith('http') || spec.startsWith('/')) {
-                return spec;
-              }
-              if (spec.startsWith('./') || spec.startsWith('../')) {
-                const ext = path.extname(spec).substr(1);
-                if (!ext) {
-                  console.error(`${f}: Import ${spec} is missing a required file extension.`);
-                  return spec;
-                }
-                const extToReplace = srcFileExtensionMapping[ext];
-                if (extToReplace) {
-                  return spec.replace(new RegExp(`${ext}$`), extToReplace);
-                }
-                return spec;
-              }
-              return `/web_modules/${spec}.js`;
-            });
-          }
-          await fs.mkdir(path.dirname(outPath), {recursive: true});
-          await fs.writeFile(outPath, code);
-        }
       }
-      messageBus.emit('WORKER_COMPLETE', {id, error: null});
     }
+    messageBus.emit('WORKER_COMPLETE', {id, error: null});
   }
 
   await Promise.all(allWorkerPromises);
 
-  if (isBundled) {
-    messageBus.emit('WORKER_UPDATE', {id: 'bundle:*', state: ['RUNNING', 'yellow']});
-    async function prepareBuildDirectoryForParcel() {
-      // Prepare the new build directory by copying over all static assets
-      // This is important since sometimes Parcel doesn't pick these up.
-      await copy(buildDirectoryLoc, finalDirectoryLoc, {
-        filter: (srcLoc) => {
-          return (
-            !srcLoc.startsWith(buildDirectoryLoc + path.sep + 'web_modules') &&
-            !srcLoc.startsWith(buildDirectoryLoc + path.sep + config.devOptions.dist.substr(1))
-          );
-        },
-      }).catch((err) => {
-        messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'error', msg: err.toString()});
-        messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: err});
-        throw err;
-      });
-      const tempBuildManifest = JSON.parse(
-        await fs.readFile(path.join(cwd, 'package.json'), {encoding: 'utf-8'}),
-      );
-      delete tempBuildManifest.name;
-      tempBuildManifest.devDependencies = tempBuildManifest.devDependencies || {};
-      tempBuildManifest.devDependencies['@babel/core'] =
-        tempBuildManifest.devDependencies['@babel/core'] || '^7.9.0';
-      await fs.writeFile(
-        path.join(buildDirectoryLoc, 'package.json'),
-        JSON.stringify(tempBuildManifest, null, 2),
-      );
-      await fs.writeFile(
-        path.join(buildDirectoryLoc, '.babelrc'),
-        `{"plugins": [["${require.resolve('@babel/plugin-syntax-import-meta')}"]]}`,
-      );
-    }
-    await prepareBuildDirectoryForParcel();
-
-    const bundleAppPromise = execa(
-      'parcel',
-      ['build', config.devOptions.fallback, '--out-dir', finalDirectoryLoc],
-      {
-        cwd: buildDirectoryLoc,
-        env: npmRunPath.env(),
-        extendEnv: true,
+  messageBus.emit('WORKER_UPDATE', {id: 'bundle:*', state: ['RUNNING', 'yellow']});
+  async function prepareBuildDirectoryForParcel() {
+    // Prepare the new build directory by copying over all static assets
+    // This is important since sometimes Parcel doesn't pick these up.
+    await copy(buildDirectoryLoc, finalDirectoryLoc, {
+      filter: (srcLoc) => {
+        return !allBuiltFromFiles.has(srcLoc);
       },
-    );
-    bundleAppPromise.stdout?.on('data', (b) => {
-      messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg: b.toString()});
-    });
-    bundleAppPromise.stderr?.on('data', (b) => {
-      messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg: b.toString()});
-    });
-    bundleAppPromise.catch((err) => {
+    }).catch((err) => {
       messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'error', msg: err.toString()});
       messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: err});
+      throw err;
     });
-    bundleAppPromise.then(() => {
-      messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
-    });
-    await bundleAppPromise;
+    const tempBuildManifest = JSON.parse(
+      await fs.readFile(path.join(cwd, 'package.json'), {encoding: 'utf-8'}),
+    );
+    delete tempBuildManifest.name;
+    tempBuildManifest.devDependencies = tempBuildManifest.devDependencies || {};
+    tempBuildManifest.devDependencies['@babel/core'] =
+      tempBuildManifest.devDependencies['@babel/core'] || '^7.9.0';
+    await fs.writeFile(
+      path.join(buildDirectoryLoc, 'package.json'),
+      JSON.stringify(tempBuildManifest, null, 2),
+    );
+    await fs.writeFile(
+      path.join(buildDirectoryLoc, '.babelrc'),
+      `{"plugins": [[${JSON.stringify(require.resolve('@babel/plugin-syntax-import-meta'))}]]}`, // JSON.stringify is needed because on windows, \ in paths need to be escaped
+    );
+  }
+  await prepareBuildDirectoryForParcel();
 
-    if (finalDirectoryLoc !== buildDirectoryLoc) {
-      rimraf.sync(buildDirectoryLoc);
-    }
+  const bundleAppPromise = execa(
+    'parcel',
+    ['build', config.devOptions.fallback, '--out-dir', finalDirectoryLoc],
+    {
+      cwd: buildDirectoryLoc,
+      env: npmRunPath.env(),
+      extendEnv: true,
+    },
+  );
+  bundleAppPromise.stdout?.on('data', (b) => {
+    messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg: b.toString()});
+  });
+  bundleAppPromise.stderr?.on('data', (b) => {
+    messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg: b.toString()});
+  });
+  bundleAppPromise.catch((err) => {
+    messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'error', msg: err.toString()});
+    messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: err});
+  });
+  bundleAppPromise.then(() => {
+    messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
+  });
+  await bundleAppPromise;
+
+  if (finalDirectoryLoc !== buildDirectoryLoc) {
+    rimraf.sync(buildDirectoryLoc);
   }
 }

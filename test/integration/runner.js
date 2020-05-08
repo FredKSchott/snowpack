@@ -75,10 +75,7 @@ for (const testName of readdirSync(__dirname)) {
     // Test Output
     let expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
     if (process.platform === 'win32') {
-      const expectedWinOutputLoc = expectedOutputLoc.resolve(
-        expectedOutputLoc,
-        '../expected-output.win.txt',
-      );
+      const expectedWinOutputLoc = path.resolve(expectedOutputLoc, '../expected-output.win.txt');
       if (existsSync(expectedWinOutputLoc)) {
         expectedOutputLoc = expectedWinOutputLoc;
       }
@@ -147,8 +144,12 @@ for (const testName of readdirSync(__dirname)) {
     });
     // If any diffs are detected, we'll assert the difference so that we get nice output.
     res.diffSet.forEach((entry) => {
+      // NOTE: We only compare files so that we give the test runner a more detailed diff.
       if (entry.type1 !== 'file') {
-        // NOTE: We only compare files so that we give the test runner a more detailed diff.
+        return;
+      }
+      // NOTE: common chunks are hashed, non-trivial to compare
+      if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) {
         return;
       }
 

@@ -7,6 +7,7 @@ import {all as merge} from 'deepmerge';
 import chalk from 'chalk';
 
 const CONFIG_NAME = 'snowpack';
+const ALWAYS_EXCLUDE = ['node_modules/**/*', '.*'];
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -24,7 +25,6 @@ export type DevScripts = {[id: string]: DevScript};
 // interface this library uses internally
 export interface SnowpackConfig {
   extends?: string;
-  include?: string;
   exclude: string[];
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
@@ -32,23 +32,20 @@ export interface SnowpackConfig {
   devOptions: {
     port: number;
     out: string;
-    dist: string;
     fallback: string;
-    bundle: boolean;
   };
   installOptions: {
     dest: string;
-    clean: boolean;
     env: EnvVarReplacements;
     installTypes: boolean;
     sourceMap?: boolean | 'inline';
     externalPackage: string[];
     alias: {[key: string]: string};
-  };
-  rollup: {
-    plugins: Plugin[]; // for simplicity, only Rollup plugins are supported for now
-    dedupe?: string[];
-    namedExports?: {[filepath: string]: string[]};
+    rollup: {
+      plugins: Plugin[]; // for simplicity, only Rollup plugins are supported for now
+      dedupe?: string[];
+      namedExports?: {[filepath: string]: string[]};
+    };
   };
 }
 
@@ -58,31 +55,27 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
   reload?: boolean;
   config?: string; // manual path to config file
   env?: string[]; // env vars
-  bundle?: boolean;
 }
 
 // default settings
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
-  exclude: ['__tests__/*', '**/*.@(spec|test).*'],
+  exclude: ['__tests__/**/*', '**/*.@(spec|test).*'],
   knownEntrypoints: [],
   installOptions: {
-    clean: false,
     dest: 'web_modules',
     externalPackage: [],
     installTypes: false,
     env: {},
     alias: {},
+    rollup: {
+      plugins: [],
+      dedupe: [],
+    },
   },
   devOptions: {
     port: 8080,
     out: 'build',
-    dist: '/_dist_',
     fallback: 'index.html',
-    bundle: false,
-  },
-  rollup: {
-    plugins: [],
-    dedupe: [],
   },
 };
 
@@ -91,7 +84,6 @@ const configSchema = {
   properties: {
     extends: {type: 'string'},
     knownEntrypoints: {type: 'array', items: {type: 'string'}},
-    include: {type: 'string'},
     exclude: {type: 'array', items: {type: 'string'}},
     webDependencies: {
       type: ['object'],
@@ -100,7 +92,6 @@ const configSchema = {
     installOptions: {
       type: 'object',
       properties: {
-        clean: {type: 'boolean'},
         dest: {type: 'string'},
         externalPackage: {type: 'array', items: {type: 'string'}},
         installTypes: {type: 'boolean'},
@@ -119,6 +110,20 @@ const configSchema = {
             ],
           },
         },
+        rollup: {
+          type: 'object',
+          properties: {
+            plugins: {type: 'array', items: {type: 'object'}},
+            dedupe: {
+              type: 'array',
+              items: {type: 'string'},
+            },
+            namedExports: {
+              type: 'object',
+              additionalProperties: {type: 'array', items: {type: 'string'}},
+            },
+          },
+        },
       },
     },
     devOptions: {
@@ -126,28 +131,12 @@ const configSchema = {
       properties: {
         port: {type: 'number'},
         out: {type: 'string'},
-        dist: {type: 'string'},
         fallback: {type: 'string'},
-        bundle: {type: 'boolean'},
       },
     },
     scripts: {
       type: 'object',
       additionalProperties: {type: ['string']},
-    },
-    rollup: {
-      type: 'object',
-      properties: {
-        plugins: {type: 'array', items: {type: 'object'}},
-        dedupe: {
-          type: 'array',
-          items: {type: 'string'},
-        },
-        namedExports: {
-          type: 'object',
-          additionalProperties: {type: 'array', items: {type: 'string'}},
-        },
-      },
     },
   },
 };
@@ -197,29 +186,14 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
 /** resolve --dest relative to cwd, etc. */
 function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const cwd = process.cwd();
-  if (config.include) {
-    config.include = path.resolve(cwd, config.include);
-  } else {
-    const potentialIncludeDir = path.resolve(cwd, 'src');
-    if (fs.existsSync(potentialIncludeDir)) {
-      config.include = potentialIncludeDir;
-    }
-  }
   config.installOptions.dest = path.resolve(cwd, config.installOptions.dest);
   config.devOptions.out = path.resolve(cwd, config.devOptions.out);
-  const scriptsBase = {
-    'mount:web_modules': 'mount web_modules',
-  };
   if (!config.scripts) {
-    scriptsBase['mount:/'] = 'mount . --to /';
-  } else if (fs.existsSync(path.resolve(cwd, 'public'))) {
-    scriptsBase['mount:public'] = scriptsBase['mount:public'] || 'mount public --to /';
+    config.scripts = {
+      'mount:*': 'mount . --to .' as any,
+    };
   }
-  // @ts-ignore
-  config.scripts = {
-    ...scriptsBase,
-    ...config.scripts,
-  };
+  config.exclude = Array.from(new Set([...ALWAYS_EXCLUDE, ...config.exclude]));
   for (const scriptId of Object.keys(config.scripts)) {
     if (scriptId.includes('::watch')) {
       continue;
@@ -249,8 +223,9 @@ function handleValidationErrors(filepath: string, errors: {toString: () => strin
   process.exit(1);
 }
 
-function handleDeprecatedConfigError(msg: string) {
-  console.error(chalk.red(msg));
+function handleDeprecatedConfigError(mainMsg: string, ...msgs: string[]) {
+  console.error(chalk.red(mainMsg));
+  msgs.forEach(console.error);
   console.error(`See https://www.snowpack.dev/#configuration for more info.`);
   process.exit(1);
 }
@@ -258,10 +233,19 @@ function handleDeprecatedConfigError(msg: string) {
 function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   // Moved!
   if (rawConfig.dedupe || cliFlags.dedupe) {
-    handleDeprecatedConfigError('[Snowpack v1 -> v2] `dedupe` is now `rollup.dedupe`.');
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `dedupe` is now `installOptions.rollup.dedupe`.',
+    );
   }
   if (rawConfig.namedExports || cliFlags.namedExports) {
-    handleDeprecatedConfigError('[Snowpack v1 -> v2] `namedExports` is now `rollup.namedExports`.');
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `namedExports` is now `installOptions.rollup.namedExports`.',
+    );
+  }
+  if (rawConfig.rollup) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] top-level `rollup` config is now `installOptions.rollup`.',
+    );
   }
   if (rawConfig.installOptions?.include) {
     handleDeprecatedConfigError(
@@ -279,6 +263,12 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   if (rawConfig.entrypoints) {
     handleDeprecatedConfigError('[Snowpack v1 -> v2] `entrypoints` is now `knownEntrypoints`.');
   }
+  if (rawConfig.include) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] All files are now included by default. "include" config is safe to remove.',
+      'Whitelist & include specific folders via "mount" build scripts.',
+    );
+  }
   // Replaced!
   if (rawConfig.source || cliFlags.source) {
     handleDeprecatedConfigError(
@@ -291,6 +281,18 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
     );
   }
   // Removed!
+  if (rawConfig.devOptions?.bundle || cliFlags.bundle) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `devOptions.bundle` is now the default build behavior. This config is safe to remove.',
+    );
+  }
+  if (rawConfig.devOptions?.dist) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `devOptions.dist` is no longer required. This config is safe to remove.',
+      `If you'd still like to host your src/ directory at the "/_dist/*" URL, create a mount script:',
+      '    {"scripts": {"mount:src": "mount src --to _dist_"}} `,
+    );
+  }
   if (rawConfig.hash || cliFlags.hash) {
     handleDeprecatedConfigError(
       '[Snowpack v1 -> v2] `installOptions.hash` has been replaced by `snowpack build`.',
@@ -298,22 +300,22 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   }
   if (rawConfig.installOptions?.nomodule || cliFlags.nomodule) {
     handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.nomodule` has been replaced by `snowpack build --bundle`.',
+      '[Snowpack v1 -> v2] `installOptions.nomodule` has been replaced by `snowpack build`.',
     );
   }
   if (rawConfig.installOptions?.nomoduleOutput || cliFlags.nomoduleOutput) {
     handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.nomoduleOutput` has been replaced by `snowpack build --bundle`.',
+      '[Snowpack v1 -> v2] `installOptions.nomoduleOutput` has been replaced by `snowpack build`.',
     );
   }
   if (rawConfig.installOptions?.babel || cliFlags.babel) {
     handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.babel` has been replaced by `snowpack build --bundle`.',
+      '[Snowpack v1 -> v2] `installOptions.babel` has been replaced by `snowpack build`.',
     );
   }
   if (rawConfig.installOptions?.optimize || cliFlags.optimize) {
     handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.optimize` has been replaced by `snowpack build --bundle`.',
+      '[Snowpack v1 -> v2] `installOptions.optimize` has been replaced by `snowpack build`.',
     );
   }
   if (rawConfig.installOptions?.strict || cliFlags.strict) {
@@ -350,8 +352,8 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
 
   // validate against schema; throw helpful user if invalid
   const config: SnowpackConfig = result.config;
+  validateConfigAgainstV1(config, flags);
   const cliConfig = expandCliFlags(flags);
-  validateConfigAgainstV1(result.config, flags);
 
   const validation = validate(config, configSchema, {
     allowUnknownAttributes: false,
