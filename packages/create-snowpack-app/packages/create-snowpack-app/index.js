@@ -101,7 +101,7 @@ const {
 const installedTemplate = path.join(targetDirectory, "node_modules", template);
 
 const currentVersion = process.versions.node;
-const requiredVersion = parseInt(ver.split(".")[0], 10);
+const requiredVersion = parseInt(currentVersion.split(".")[0], 10);
 
 if (requiredVersion < 10) {
   console.error(
