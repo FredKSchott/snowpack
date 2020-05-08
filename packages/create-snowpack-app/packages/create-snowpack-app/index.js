@@ -100,6 +100,17 @@ const {
 } = validateArgs(process.argv);
 const installedTemplate = path.join(targetDirectory, "node_modules", template);
 
+const currentVersion = process.versions.node;
+const requiredVersion = parseInt(ver.split(".")[0], 10);
+
+if (requiredVersion < 10) {
+  console.error(
+    chalk.red(`Node.js v${currentVersion} is out of date and not supported!`)
+  );
+  console.error(`Please use Node.js v10.16.0 or higher.`);
+  process.exit(1);
+}
+
 (async () => {
   console.log(`\n  - Using template ${chalk.cyan(template)}`);
   console.log(`  - Creating a new project in ${chalk.cyan(targetDirectory)}`);
