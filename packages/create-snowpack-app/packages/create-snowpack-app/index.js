@@ -142,6 +142,24 @@ if (requiredVersion < 10) {
   npmInstallProcess.stderr && npmInstallProcess.stderr.pipe(process.stderr);
   await npmInstallProcess;
 
+  const webModulesDirectory = path.resolve(targetDirectory, "web_modules");
+  if (!fs.existsSync(webModulesDirectory)) {
+    console.log(`\n  - Installing web dependencies.\n`);
+    const snowpackInstallProcess = execa(
+      useYarn ? "yarn" : "npm",
+      ["run", "prepare"],
+      {
+        cwd: targetDirectory,
+        stdio: "inherit",
+      }
+    );
+    snowpackInstallProcess.stdout &&
+      snowpackInstallProcess.stdout.pipe(process.stdout);
+    snowpackInstallProcess.stderr &&
+      snowpackInstallProcess.stderr.pipe(process.stderr);
+    await snowpackInstallProcess;
+  }
+
   console.log(`\n  - Initializing git repo.\n`);
   await execa("git", ["init"], { cwd: targetDirectory });
   await execa("git", ["add", "-A"], { cwd: targetDirectory });
@@ -160,7 +178,7 @@ if (requiredVersion < 10) {
   console.log(``);
   console.log(`  ${useYarn ? "yarn" : "npm"} install`);
   console.log(`  ${chalk.dim("Install all dependencies (npm + snowpack).")}`);
-  console.log(`  ${chalk.dim("We already ran this one for you.")}`);
+  console.log(`  ${chalk.dim("We already ran this one for you!")}`);
   console.log(`  ${useYarn ? "yarn" : "npm"} start`);
   console.log(`  ${chalk.dim("Starts the development server.")}`);
   console.log(`  ${useYarn ? "yarn" : "npm run"} build`);
