@@ -6,6 +6,7 @@ import cachedir from 'cachedir';
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const CACHE_DIR = cachedir('snowpack');
 export const RESOURCE_CACHE = path.join(CACHE_DIR, 'pkg-cache-1.4');
+export const BUILD_CACHE = path.join(CACHE_DIR, 'build-cache-1.4');
 export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
 export interface ImportMap {
   imports: {[packageName: string]: string};
