@@ -29,7 +29,7 @@ export interface SnowpackConfig {
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
   scripts: DevScripts;
-  homepage?: string,
+  homepage?: string;
   devOptions: {
     port: number;
     out: string;
