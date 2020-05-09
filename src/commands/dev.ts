@@ -35,7 +35,7 @@ import npmRunPath from 'npm-run-path';
 import path from 'path';
 import url from 'url';
 import os from 'os';
-import {SnowpackConfig, DevScript} from '../config';
+import {SnowpackConfig, DevScript, DevScripts} from '../config';
 import {paint} from './paint';
 import yargs from 'yargs-parser';
 import srcFileExtensionMapping from './src-file-extension-mapping';
@@ -125,6 +125,7 @@ export async function command({cwd, config}: DevOptions) {
   // WHY 2???
   let inMemoryBuildCache = new Map<string, Buffer>();
   const filesBeingDeleted = new Set<string>();
+  const filesBeingBuilt = new Map<string, Promise<string>>();
   const liveReloadClients: http.ServerResponse[] = [];
   const messageBus = new EventEmitter();
   const serverStart = Date.now();
@@ -228,16 +229,18 @@ export async function command({cwd, config}: DevOptions) {
     fileContents: string,
     fileLoc: string,
     fileBuilder: ((code: string, {filename: string}) => Promise<string>) | undefined,
-    isRoute: boolean,
-    requestedFileExt: string,
   ) {
     if (fileBuilder) {
-      fileContents = await fileBuilder(fileContents, {filename: fileLoc});
+      let fileBuilderPromise = filesBeingBuilt.get(fileLoc);
+      if (!fileBuilderPromise) {
+        fileBuilderPromise = fileBuilder(fileContents, {filename: fileLoc});
+        filesBeingBuilt.set(fileLoc, fileBuilderPromise);
+      }
+      fileContents = await fileBuilderPromise;
+      filesBeingBuilt.delete(fileLoc);
     }
-    if (isRoute) {
-      fileContents += `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
-    }
-    if (requestedFileExt === '.js') {
+    const ext = path.extname(fileLoc).substr(1);
+    if (ext === 'js' || srcFileExtensionMapping[ext] === 'js') {
       fileContents = await transformEsmImports(fileContents, (spec) => {
         if (spec.startsWith('http')) {
           return spec;
@@ -264,6 +267,44 @@ export async function command({cwd, config}: DevOptions) {
       });
     }
     return fileContents;
+  }
+
+  function getFileBuilderForWorker(fileLoc: string, selectedWorker: [string, DevScript]) {
+    const [id, {cmd}] = selectedWorker;
+    if (id.startsWith('plugin:')) {
+      const modulePath = require.resolve(cmd, {paths: [cwd]});
+      const {build} = require(modulePath);
+      return async (code: string, options: {filename: string}) => {
+        messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+        try {
+          let {result} = await build(fileLoc);
+          return result;
+        } catch (err) {
+          err.message = `[${id}] ${err.message}`;
+          console.error(err);
+          return '';
+        } finally {
+          messageBus.emit('WORKER_UPDATE', {id, state: null});
+        }
+      };
+    }
+    if (id.startsWith('build:')) {
+      return async (code: string, options: {filename: string}) => {
+        messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+        let cmdWithFile = cmd.replace('$FILE', options.filename);
+        const {stdout, stderr} = await execa.command(cmdWithFile, {
+          env: npmRunPath.env(),
+          extendEnv: true,
+          shell: true,
+          input: code,
+        });
+        if (stderr) {
+          console.error(stderr);
+        }
+        messageBus.emit('WORKER_UPDATE', {id, state: null});
+        return stdout;
+      };
+    }
   }
 
   http
@@ -401,46 +442,17 @@ export async function command({cwd, config}: DevOptions) {
       }
 
       if (selectedWorker) {
-        const [id, {cmd}] = selectedWorker;
-        if (id.startsWith('plugin:')) {
-          const modulePath = require.resolve(cmd, {paths: [cwd]});
-          const {build} = require(modulePath);
-          fileBuilder = async (code: string, options: {filename: string}) => {
-            messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-            try {
-              let {result} = await build(fileLoc);
-              return result;
-            } catch (err) {
-              err.message = `[${id}] ${err.message}`;
-              console.error(err);
-              return '';
-            } finally {
-              messageBus.emit('WORKER_UPDATE', {id, state: null});
-            }
-          };
-        }
-        if (id.startsWith('build:')) {
-          fileBuilder = async (code: string, options: {filename: string}) => {
-            messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-            let cmdWithFile = cmd.replace('$FILE', options.filename);
-            const {stdout, stderr} = await execa.command(cmdWithFile, {
-              env: npmRunPath.env(),
-              extendEnv: true,
-              shell: true,
-              input: code,
-            });
-            if (stderr) {
-              console.error(stderr);
-            }
-            messageBus.emit('WORKER_UPDATE', {id, state: null});
-            return stdout;
-          };
-        }
+        fileBuilder = getFileBuilderForWorker(fileLoc, selectedWorker);
       }
 
       // 1. Check the hot build cache. If it's already found, then just serve it.
       let hotCachedResponse: string | Buffer | undefined = inMemoryBuildCache.get(fileLoc);
       if (hotCachedResponse) {
+        if (isRoute) {
+          hotCachedResponse =
+            hotCachedResponse.toString() +
+            `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
+        }
         if (req.url?.includes('?snowpack-esm-proxy')) {
           responseFileExt = '.js';
           hotCachedResponse = wrapEsmProxyResponse(
@@ -475,6 +487,11 @@ export async function command({cwd, config}: DevOptions) {
           inMemoryBuildCache.set(fileLoc, cachedBuildData.data);
           const coldCachedResponse: Buffer = cachedBuildData.data;
           let serverResponse: Buffer | string = coldCachedResponse;
+          if (isRoute) {
+            serverResponse =
+              serverResponse.toString() +
+              `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
+          }
           if (req.url?.includes('?snowpack-esm-proxy')) {
             responseFileExt = '.js';
             serverResponse = wrapEsmProxyResponse(
@@ -487,13 +504,7 @@ export async function command({cwd, config}: DevOptions) {
           sendFile(req, res, serverResponse, responseFileExt);
           let checkFinalBuildAnyway: string | null = null;
           try {
-            checkFinalBuildAnyway = await buildFile(
-              fileContents,
-              fileLoc,
-              fileBuilder,
-              isRoute,
-              requestedFileExt,
-            );
+            checkFinalBuildAnyway = await buildFile(fileContents, fileLoc, fileBuilder);
           } catch (err) {
             // safe to ignore, it will be surfaced later anyway
           } finally {
@@ -516,21 +527,22 @@ export async function command({cwd, config}: DevOptions) {
       // 4. Final option: build the file, serve it, and cache it.
       let finalBuild: string;
       try {
-        finalBuild = await buildFile(fileContents, fileLoc, fileBuilder, isRoute, requestedFileExt);
-        if (req.url?.includes('?snowpack-esm-proxy')) {
-          responseFileExt = '.js';
-          finalBuild = wrapEsmProxyResponse(reqPath, finalBuild, requestedFileExt);
-        }
+        finalBuild = await buildFile(fileContents, fileLoc, fileBuilder);
       } catch (err) {
         console.error(fileLoc, err);
         return sendError(res, 500);
       }
-      sendFile(req, res, finalBuild, responseFileExt);
       inMemoryBuildCache.set(fileLoc, Buffer.from(finalBuild));
       const originalFileHash = etag(fileContents);
-      await cacache.put(BUILD_CACHE, fileLoc, finalBuild, {
-        metadata: {originalFileHash},
-      });
+      cacache.put(BUILD_CACHE, fileLoc, finalBuild, {metadata: {originalFileHash}});
+      if (isRoute) {
+        finalBuild += `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
+      }
+      if (req.url?.includes('?snowpack-esm-proxy')) {
+        responseFileExt = '.js';
+        finalBuild = wrapEsmProxyResponse(reqPath, finalBuild, requestedFileExt);
+      }
+      sendFile(req, res, finalBuild, responseFileExt);
     })
     .listen(port);
 
@@ -543,7 +555,6 @@ export async function command({cwd, config}: DevOptions) {
     filesBeingDeleted.add(fileLoc);
     await cacache.rm.entry(BUILD_CACHE, fileLoc);
     filesBeingDeleted.delete(fileLoc);
-
     // let requestId = fileLoc;
     // if (requestId.startsWith(cwd)) {
     //   requestId = requestId.replace(/\.(js|ts|jsx|tsx)$/, '.js');
