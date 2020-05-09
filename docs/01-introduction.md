@@ -1,20 +1,4 @@
-## Introduction
-
-Web developers are relying on an outdated assumption: you can't build websites without a bundler. 
-
-At some point in the last decade, JavaScript bundling shifted from being a production nice-to-have optimization to a full-on dev requirement. Configuration files, plugin ecosystems, extra dependencies, tooling complexity, code-splitting, waiting to rebundle every save... all of this suddenly became required overhead to do any level of web development.
-
-**Snowpack marks the start of a new generation of no-bundle dev tooling.** Snowpack installs your npm dependencies so that they can run directly in the browser (via native ESM `import`) and then provides additional dev + build tooling to run your entire application.
-
-### Key Highlights
-
-- **No More Bundling During Development:** Snowpack installs your npm dependencies so that they can be imported directly in the browser without an application bundler.
-- **Instant Dev Startup:** Snowpack's dev server starts up in less than 20ms on most machines. Files are only built on-demand, as requested by the browser.
-- **Instant Dev Rebuilding:** Never wait more than a few milliseconds when you hit save. Since there's no large app chunks to rebuild, changes are reflected in the browser instantly.
-- **Connect your Favorite Build Tools:**  Manage your build using a simple, familiar ["scripts" interface](#build-scripts) that replaces traditionally complex plugin ecosystems.
-- **Bundle for Production:** It's the best of both worlds: fast bundle-free development + optimized bundling in production. Choose between bundled (optimized) or unbundled build output without any additional config needed.
-
-### Who's Using Snowpack?
+#### Who's Using Snowpack?
 
 <div class="company-logos">
 {% for user in usersList %}
@@ -34,11 +18,44 @@ At some point in the last decade, JavaScript bundling shifted from being a produ
 </a>
 </div>
 
+## Overview
 
+### Key Features
 
+- **No More Bundling During Development:** Snowpack runs at near-instant speeds by avoiding all unnecessary bundling work during development.
+- **Instant Dev Startup:** Snowpack's dev server starts up in less than 20ms on most machines. Files are only built on-demand, as requested by the browser.
+- **Instant Dev Rebuilding:** Changes that you make are reflected in the browser instantly. Never wait more than a few milliseconds when you hit save.
+- **Scales as you Grow:** With zero upfront bundling work, Snowpack doesn't slow down as your application grows. Only build the files you need.
+- **1-Line Build Integrations:**  Snowpack replaces messy bundler configuration files with a  familiar ["scripts" interface](#build-scripts).
+- **Optimized Bundling for Production:** It's the best of both worlds: fast bundle-free development + optimized bundling in production. Choose between bundled (optimized) or unbundled build output without any additional config needed.
 
-### Supporting Old Browsers
+### Library Support
 
-**Snowpack builds your site for both modern and legacy browsers.** The only requirement is that  *during development* you use a [modern browser](http://caniuse.com/#feat=es6-module). Any recent release of Firefox, Chrome, or Edge will do. 
+<div class="grid-list">
 
-When you build your site for production, Snowpack will automatically transpile your site to run on older browsers as well. You can control and customize this behavior with the ["browserlist" package.json property](https://css-tricks.com/browserlist-good-idea/). As long as you use the `--bundle` optimization flag, your site will even run on ancient non-ESM browsers like IE11.
+- React
+- Preact
+- Svelte
+- Vue
+- lit-html
+- lit-element
+- and more!
+
+</div>
+
+### Tooling Support
+
+<div class="grid-list">
+
+- Babel
+- TypeScript
+- PostCSS
+- and more!
+
+</div>
+
+### Browser Support
+
+**Snowpack builds your site for both modern and legacy browsers (even IE11).** You can control and customize this behavior with the ["browserlist" package.json property](https://css-tricks.com/browserlist-good-idea/). 
+
+The only requirement is that *during development* you use a [modern browser](http://caniuse.com/#feat=es6-module). Any recent release of Firefox, Chrome, or Edge will do. This is required to support the modern, bundle-free ESM imports that load your application in the browser.

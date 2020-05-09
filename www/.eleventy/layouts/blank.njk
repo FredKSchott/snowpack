@@ -115,6 +115,7 @@ html, body, .markdown-body {
   margin: -0.5rem auto -0.5rem;
 }
 .header-snowpack-subtitle {
+  text-align: center;
   font-size: 2.73rem;
   font-weight: normal;
   line-height: 1.1;
@@ -425,7 +426,15 @@ img.company-logo {
   filter: grayscale(0);
   opacity: 1;
 }
+.grid-list ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    list-style: none;
+    font-family: Overpass;
+    font-size: 18px;
+    font-style: italic;
 
+}
 
 
     .highlight-container, .highlight {
@@ -564,9 +573,8 @@ body {
         <h1 class="header-snowpack">Snowpack</h1>
         <p class="header-snowpack-subtitle">
           The 
-          <span class="highlight-container highlight-red"><span class="highlight">fast,</span></span> 
-          <span class="highlight-container highlight-yellow"><span class="highlight">bundle-free</span></span> 
-          build tool for 
+          <span class="highlight-container highlight-red"><span class="highlight">fastest</span></span> 
+          dev environment for
           <span class="highlight-container highlight-green"><span class="highlight">modern</span></span> 
           web apps.
         </p>
