@@ -35,6 +35,7 @@ CLI flags will be merged with (and take priority over) your config file values. 
     "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
     "bulma/css/bulma.css" // A non-JS static asset (supports globs)
   ],
+  "homepage": "/your-project",
   "installOptions": { /* ... */ },
   "buildOptions": { /* ..... */ }
 }
@@ -49,6 +50,9 @@ CLI flags will be merged with (and take priority over) your config file values. 
   - Useful for excluding tests and other unnecessary files from the final build. Supports glob pattern matching. 
 - **`knownEntrypoints`** | `string[]`
   - Known dependencies to install with Snowpack. Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
+- **`homepage`** | `string`
+  - Add a prefix to where your project is deployed. Useful for things like github pages where your project is deployed in a folder: you.github.io/your-project
+  - This is similar to Create React App's [homepage](https://create-react-app.dev/docs/deployment/#building-for-relative-paths).
 - **`scripts`**
   - Set build scripts to transform your source files. See the section below for more info.
 - **`installOptions.*`**
