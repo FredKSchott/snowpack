@@ -53,7 +53,7 @@ Snowpack supports several other script types in addition to the basic `"build"` 
 - `"plugin:*": "..."`
   - Connect a custom Snowpack plugin. See the section below for more info.
 
-## Script Variables
+### Script Variables
 
 Snowpack provides a few variables that you can use to make your build scripts (and plugins) more dynamic:
 

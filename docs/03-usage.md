@@ -36,7 +36,7 @@ Snowpack's dev server is an instant dev environment for any web application. `sn
 To start, `snowpack dev` acts as a static file server for your entire project directory during development. You can import packages by name in any JS file and the dev server will automatically rewrite each import for you:
 
 ``` js
-// File Input:
+// Your Code:
 import * as React from 'react';
 
 // Dev Server Output:
