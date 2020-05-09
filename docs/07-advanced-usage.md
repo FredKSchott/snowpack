@@ -95,14 +95,14 @@ Note that Snowpack already performs these rewrites for you at both `dev` and `bu
 
 ### Legacy Browser Support
 
-You can customize the set of browsers you'd like to support via the package.json "browserslist" property. When running `snowpack build`, Snowpack will read this property and transpile all JavaScript files accordingly via @babel/preset-env.
+You can customize the set of browsers you'd like to support via the `package.json` "browserslist" property. When running `snowpack build`, Snowpack will have Parcel transpile all JavaScript files according to the browser targets you've defined.
 
 ```js
 /* package.json */
 "browserslist": ">0.75%, not ie 11, not UCAndroid >0, not OperaMini all",
 ```
 
-Note: During development (`snowpack dev`) we preform no transpilation.
+Note: During development (`snowpack dev`) we perform no transpilation for older browsers. Make sure that you're using a modern browser during development.
 
 
 ### Installing Non-JS Packages

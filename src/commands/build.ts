@@ -353,6 +353,8 @@ export async function command({cwd, config}: DevOptions) {
     tempBuildManifest.devDependencies = tempBuildManifest.devDependencies || {};
     tempBuildManifest.devDependencies['@babel/core'] =
       tempBuildManifest.devDependencies['@babel/core'] || '^7.9.0';
+    tempBuildManifest.browserslist =
+      tempBuildManifest.browserslist || '>0.75%, not ie 11, not UCAndroid >0, not OperaMini all';
     await fs.writeFile(
       path.join(buildDirectoryLoc, 'package.json'),
       JSON.stringify(tempBuildManifest, null, 2),
