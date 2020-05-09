@@ -391,7 +391,10 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     [
       DEFAULT_CONFIG,
       extendConfig,
-      {webDependencies: pkgManifest.webDependencies},
+      {
+        webDependencies: pkgManifest.webDependencies,
+        homepage: pkgManifest.homepage,
+      },
       config,
       cliConfig as any,
     ],

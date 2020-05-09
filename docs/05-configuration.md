@@ -52,7 +52,7 @@ CLI flags will be merged with (and take priority over) your config file values. 
   - Known dependencies to install with Snowpack. Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
 - **`homepage`** | `string`
   - Add a prefix to where your project is deployed. Useful for things like github pages where your project is deployed in a folder: you.github.io/your-project
-  - This is similar to Create React App's [homepage](https://create-react-app.dev/docs/deployment/#building-for-relative-paths).
+  - This can also be specified in your package.json for compatibility with [Create React App](https://create-react-app.dev/docs/deployment/#building-for-relative-paths).
 - **`scripts`**
   - Set build scripts to transform your source files. See the section below for more info.
 - **`installOptions.*`**
