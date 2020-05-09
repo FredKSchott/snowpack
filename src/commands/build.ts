@@ -364,15 +364,17 @@ export async function command({cwd, config}: DevOptions) {
   }
   await prepareBuildDirectoryForParcel();
 
-  const bundleAppPromise = execa(
-    'parcel',
-    ['build', config.devOptions.fallback, '--out-dir', finalDirectoryLoc],
-    {
-      cwd: buildDirectoryLoc,
-      env: npmRunPath.env(),
-      extendEnv: true,
-    },
-  );
+  const parcelOptions = ['build', config.devOptions.fallback, '--out-dir', finalDirectoryLoc];
+
+  if (config.homepage) {
+    parcelOptions.push('--public-url', config.homepage);
+  }
+
+  const bundleAppPromise = execa('parcel', parcelOptions, {
+    cwd: buildDirectoryLoc,
+    env: npmRunPath.env(),
+    extendEnv: true,
+  });
   bundleAppPromise.stdout?.on('data', (b) => {
     messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg: b.toString()});
   });
