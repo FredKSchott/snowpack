@@ -120,7 +120,13 @@ export async function command({cwd, config}: DevOptions) {
   const serverStart = Date.now();
 
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
-  const dependencyImportMap: ImportMap = require(dependencyImportMapLoc);
+  let dependencyImportMap: ImportMap = {imports: {}};
+  try {
+    dependencyImportMap = require(dependencyImportMapLoc);
+  } catch (err) {
+    // no import-map found, safe to ignore
+  }
+
   const registeredWorkers = Object.entries(config.scripts);
   // const workerDirectories: string[] = [];
   const mountedDirectories: [string, string][] = [];

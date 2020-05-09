@@ -33,7 +33,12 @@ export async function command({cwd, config}: DevOptions) {
   const buildDirectoryLoc = path.join(cwd, `.build`);
   const finalDirectoryLoc = config.devOptions.out;
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
-  const dependencyImportMap: ImportMap = require(dependencyImportMapLoc);
+  let dependencyImportMap: ImportMap = {imports: {}};
+  try {
+    dependencyImportMap = require(dependencyImportMapLoc);
+  } catch (err) {
+    // no import-map found, safe to ignore
+  }
 
   if (
     allRegisteredWorkers.filter(([id]) => id.startsWith('build:') || id.startsWith('plugin:'))
