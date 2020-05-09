@@ -41,18 +41,6 @@ import srcFileExtensionMapping from './src-file-extension-mapping';
 import {transformEsmImports} from '../rewrite-imports';
 import {ImportMap} from '../util';
 
-// const FILE_CACHE = new Map<string, string>();
-
-const LIVE_RELOAD_SNIPPET = `
-  <script>
-    const source = new EventSource('/livereload');
-    const reload = () => location.reload(true);
-    source.onmessage = reload;
-    source.onerror = () => (source.onopen = reload);
-    console.log('[snowpack] listening for file changes');
-  </script>
-`;
-
 function getEncodingType(ext: string): 'utf8' | 'binary' {
   if (ext === '.js' || ext === '.css' || ext === '.html') {
     return 'utf8';
@@ -115,9 +103,11 @@ export async function command({cwd, config}: DevOptions) {
 
   const {port} = config.devOptions;
   const fileBuildCache = new Map<string, string>();
+  // WHY 2???
   const liveReloadClients: http.ServerResponse[] = [];
   const messageBus = new EventEmitter();
   const serverStart = Date.now();
+  const hmrCode = await fs.readFile(path.join(__dirname, '../assets/hmr.js'));
 
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
   let dependencyImportMap: ImportMap = {imports: {}};
@@ -198,6 +188,21 @@ export async function command({cwd, config}: DevOptions) {
     });
   }
 
+  function getUrlFromFile(fileLoc: string): string | null {
+    for (const [dirDisk, dirUrl] of mountedDirectories) {
+      if (fileLoc.startsWith(dirDisk)) {
+        const fileExt = path.extname(fileLoc).substr(1);
+        return (
+          `/` +
+          fileLoc
+            .replace(dirDisk, dirUrl)
+            .replace(new RegExp(`${fileExt}$`), srcFileExtensionMapping[fileExt] || fileExt)
+        );
+      }
+    }
+    return null;
+  }
+
   http
     .createServer(async (req, res) => {
       const reqUrl = req.url!;
@@ -230,6 +235,11 @@ export async function command({cwd, config}: DevOptions) {
         return;
       }
 
+      if (reqPath === '/web_modules/@snowpack/hmr.js') {
+        sendFile(req, res, hmrCode, '.js');
+        return;
+      }
+
       const attemptedFileLoads: string[] = [];
       function attemptLoadFile(requestedFile) {
         attemptedFileLoads.push(requestedFile);
@@ -242,8 +252,6 @@ export async function command({cwd, config}: DevOptions) {
       const resource = decodeURI(reqPath);
       let requestedFileExt = path.parse(resource).ext.toLowerCase();
       let isRoute = false;
-      let fileLoc: string | null = null;
-      let fileContents: string | null = null;
       let fileBuilder: ((code: string, {filename: string}) => Promise<string>) | undefined;
 
       // for (const dirDisk of workerDirectories) {
@@ -254,65 +262,68 @@ export async function command({cwd, config}: DevOptions) {
       //   fileLoc = await attemptLoadFile(requestedFile);
       // }
 
-      let selectedWorker: [string, DevScript] | null = null;
       let responseFileExt = requestedFileExt;
-      for (const [dirDisk, dirUrl] of mountedDirectories) {
-        if (fileLoc) {
-          continue;
-        }
-        let requestedFile: string;
-        if (dirUrl === '.') {
-          requestedFile = path.join(dirDisk, resource);
-        } else if (resource.startsWith('/' + dirUrl)) {
-          requestedFile = path.join(dirDisk, resource.replace(dirUrl, '.'));
-        } else {
-          continue;
-        }
-        fileLoc = await attemptLoadFile(requestedFile);
 
-        if (requestedFileExt) {
-          for (const [id, workerConfig] of registeredWorkers) {
-            if (fileLoc || (!id.startsWith('build:') && !id.startsWith('plugin:'))) {
-              continue;
-            }
-            const srcExtMatchers = id.split(':')[1].split(',');
-            for (const ext of srcExtMatchers) {
-              if (fileLoc) {
+      async function getFileFromUrl(
+        resource: string,
+      ): Promise<[string | null, [string, DevScript] | null]> {
+        for (const [dirDisk, dirUrl] of mountedDirectories) {
+          let requestedFile: string;
+          if (dirUrl === '.') {
+            requestedFile = path.join(dirDisk, resource);
+          } else if (resource.startsWith('/' + dirUrl)) {
+            requestedFile = path.join(dirDisk, resource.replace(dirUrl, '.'));
+          } else {
+            continue;
+          }
+          const fileLoc = await attemptLoadFile(requestedFile);
+          if (fileLoc) {
+            return [fileLoc, null];
+          }
+
+          if (requestedFileExt) {
+            for (const [id, workerConfig] of registeredWorkers) {
+              if (!id.startsWith('build:') && !id.startsWith('plugin:')) {
                 continue;
               }
-              if (!srcFileExtensionMapping[ext]) {
-                continue;
-              }
-              if (srcFileExtensionMapping[ext] === requestedFileExt.substr(1)) {
-                const srcFile = requestedFile.replace(requestedFileExt, `.${ext}`);
-                fileLoc = await attemptLoadFile(srcFile);
-                if (fileLoc) {
-                  selectedWorker = [id, workerConfig];
+              const srcExtMatchers = id.split(':')[1].split(',');
+              for (const ext of srcExtMatchers) {
+                if (!srcFileExtensionMapping[ext]) {
+                  continue;
+                }
+                if (srcFileExtensionMapping[ext] === requestedFileExt.substr(1)) {
+                  const srcFile = requestedFile.replace(requestedFileExt, `.${ext}`);
+                  const fileLoc = await attemptLoadFile(srcFile);
+                  if (fileLoc) {
+                    return [fileLoc, [id, workerConfig]];
+                  }
                 }
               }
             }
+          } else {
+            let fileLoc =
+              (await attemptLoadFile(requestedFile + '.html')) ||
+              (await attemptLoadFile(requestedFile + '/index.html')) ||
+              (await attemptLoadFile(requestedFile + 'index.html'));
+
+            if (!fileLoc && dirUrl === '.' && config.devOptions.fallback) {
+              const fallbackFile =
+                dirUrl === '.'
+                  ? path.join(dirDisk, config.devOptions.fallback)
+                  : path.join(cwd, config.devOptions.fallback);
+              fileLoc = await attemptLoadFile(fallbackFile);
+            }
+            if (fileLoc) {
+              responseFileExt = '.html';
+              isRoute = true;
+            }
+            return [fileLoc, null];
           }
-          continue;
         }
-
-        fileLoc =
-          fileLoc ||
-          (await attemptLoadFile(requestedFile + '.html')) ||
-          (await attemptLoadFile(requestedFile + '/index.html')) ||
-          (await attemptLoadFile(requestedFile + 'index.html'));
-
-        if (!fileLoc && dirUrl === '.' && config.devOptions.fallback) {
-          const fallbackFile =
-            dirUrl === '.'
-              ? path.join(dirDisk, config.devOptions.fallback)
-              : path.join(cwd, config.devOptions.fallback);
-          fileLoc = await attemptLoadFile(fallbackFile);
-        }
-        if (fileLoc) {
-          responseFileExt = '.html';
-          isRoute = true;
-        }
+        return [null, null];
       }
+
+      const [fileLoc, selectedWorker] = await getFileFromUrl(resource);
 
       if (isRoute) {
         messageBus.emit('NEW_SESSION');
@@ -364,7 +375,7 @@ export async function command({cwd, config}: DevOptions) {
         }
       }
 
-      fileContents = fileBuildCache.get(fileLoc) || null;
+      let fileContents = fileBuildCache.get(fileLoc) || null;
       if (!fileContents) {
         try {
           fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
@@ -372,7 +383,7 @@ export async function command({cwd, config}: DevOptions) {
             fileContents = await fileBuilder(fileContents, {filename: fileLoc});
           }
           if (isRoute) {
-            fileContents += LIVE_RELOAD_SNIPPET;
+            fileContents += `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
           }
           if (requestedFileExt === '.js') {
             fileContents = await transformEsmImports(fileContents, (spec) => {
@@ -415,6 +426,13 @@ export async function command({cwd, config}: DevOptions) {
             styleEl.type = 'text/css';
             styleEl.appendChild(document.createTextNode(${JSON.stringify(fileContents)}));
             document.head.appendChild(styleEl);
+
+            import {apply} from '/web_modules/@snowpack/hmr.js';
+            console.log('apply', import.meta.url);
+            apply(import.meta.url, ({code}) => {
+              styleEl.innerHtml = '';
+              styleEl.appendChild(document.createTextNode(code));
+            });
           `;
         } else {
           fileContents = `export default ${JSON.stringify(reqPath)};`;
@@ -426,8 +444,9 @@ export async function command({cwd, config}: DevOptions) {
     .listen(port);
 
   async function onWatchEvent(event, fileLoc) {
-    while (liveReloadClients.length > 0) {
-      sendMessage(liveReloadClients.pop(), 'message', 'reload');
+    for (const client of liveReloadClients) {
+      const fileUrl = getUrlFromFile(fileLoc);
+      sendMessage(client, 'message', JSON.stringify({url: fileUrl}));
     }
     fileBuildCache.delete(fileLoc);
     // let requestId = fileLoc;

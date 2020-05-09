@@ -11,6 +11,11 @@ export async function scanCodeImportsExports(code: string): Promise<any[]> {
     if (imp.d === -2) {
       return false;
     }
+    // imp.d > -1 === dynamic import. skip for now
+    // TODO: if the entire value is a string, handle it
+    if (imp.d > -1) {
+      return false;
+    }
     return true;
   });
 }
