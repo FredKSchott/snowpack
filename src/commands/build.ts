@@ -358,9 +358,18 @@ export async function command({cwd, config}: DevOptions) {
   }
   await prepareBuildDirectoryForParcel();
 
+  const parcelOptions = [
+    'build', config.devOptions.fallback,
+    '--out-dir', finalDirectoryLoc,
+  ]
+
+  if (config.homepage) {
+    parcelOptions.push('--public-url', config.homepage)
+  }
+
   const bundleAppPromise = execa(
     'parcel',
-    ['build', config.devOptions.fallback, '--out-dir', finalDirectoryLoc],
+    parcelOptions,
     {
       cwd: buildDirectoryLoc,
       env: npmRunPath.env(),
