@@ -396,6 +396,18 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     ],
     {arrayMerge: overwriteMerge},
   );
+  for (const webDependencyName of Object.keys(mergedConfig.webDependencies || {})) {
+    if (pkgManifest.dependencies && pkgManifest.dependencies[webDependencyName]) {
+      handleConfigError(
+        `"${webDependencyName}" is included in "webDependencies". Please remove it from your package.json "dependencies" config.`,
+      );
+    }
+    if (pkgManifest.devDependencies && pkgManifest.devDependencies[webDependencyName]) {
+      handleConfigError(
+        `"${webDependencyName}" is included in "webDependencies". Please remove it from your package.json "devDependencies" config.`,
+      );
+    }
+  }
 
   // if CLI flags present, apply those as overrides
   return normalizeConfig(mergedConfig);
