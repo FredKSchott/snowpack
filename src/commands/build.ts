@@ -197,6 +197,7 @@ export async function command({cwd, config}: DevOptions) {
         cwd: dirDisk,
         absolute: true,
         nodir: true,
+        dot: true,
       });
       const allBuildNeededFiles: string[] = [];
       await Promise.all(
