@@ -77,20 +77,14 @@ export function paint(
           'web_modules/',
         )} directory is mounted correctly.\n`,
       );
-      if (deepPackagePathParts.length > 0) {
-        process.stdout.write(
-          `    2. Add ${chalk.bold(missingPackageName)} to your package.json "dependencies".\n`,
-        );
-        process.stdout.write(
-          `    3. Add ${chalk.bold(
-            '"' + missingWebModule + '"',
-          )} to your Snowpack "entrypoints".\n`,
-        );
-      } else {
-        process.stdout.write(
-          `    2. Add ${chalk.bold(missingPackageName)} to your Snowpack "webDependencies".\n`,
-        );
-      }
+      process.stdout.write(
+        `    2. Add ${chalk.bold(
+          missingPackageName,
+        )} to your package.json "dependencies" or "webDependencies".\n`,
+      );
+      process.stdout.write(
+        `    3. run ${chalk.bold('snowpack install')} to install your new dependency.\n`,
+      );
       process.stdout.write('\n');
     }
     for (const [workerId, config] of registeredWorkers) {
