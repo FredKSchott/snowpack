@@ -18,7 +18,6 @@
     "canvas-confetti": "^1.2.0"
   },
   "devDependencies": {
-    "parcel-bundler": "^1.12.4",
     "snowpack": "^2.0.0-0"
   }
 }

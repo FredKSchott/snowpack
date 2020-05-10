@@ -1,3 +1,5 @@
 {
-  "extends": "@snowpack/app-scripts-preact"
+  "extends": "@snowpack/app-scripts-preact",
+  "devOptions": {},
+  "installOptions": {}
 }

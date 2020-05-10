@@ -20,7 +20,6 @@
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/react": "^10.0.3",
     "jest": "^25.4.0",
-    "parcel-bundler": "^1.12.4",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
     "snowpack": "^2.0.0-0"
