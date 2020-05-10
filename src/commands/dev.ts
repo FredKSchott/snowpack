@@ -532,7 +532,6 @@ export async function command({cwd, config}: DevOptions) {
     .listen(port);
 
   async function onWatchEvent(fileLoc) {
-    console.log(fileLoc);
     for (const client of liveReloadClients) {
       const fileUrl = getUrlFromFile(fileLoc);
       sendMessage(client, 'message', JSON.stringify({url: fileUrl}));
