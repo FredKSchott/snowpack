@@ -1,0 +1,26 @@
+body {
+  background: #222;
+  color: #eee;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+}
+a {
+  color: #aaa;
+}
+.banner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.banner img,
+.banner svg {
+  display: block;
+  padding: 2rem;
+}
+
+#canvas {
+  display: block;
+  margin: 0rem auto;
+  width: 720px;
+  height: 420px;
+}

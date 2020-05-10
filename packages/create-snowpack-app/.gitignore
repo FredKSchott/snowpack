@@ -2,7 +2,9 @@
 node_modules
 .DS_Store
 
+
 templates/*/template/build
+templates/*/template/_site
 templates/*/template/package-lock.json
 templates/*/template/node_modules
 templates/*/template/web_modules
