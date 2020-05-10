@@ -103,7 +103,6 @@ export async function command({cwd, config}: DevOptions) {
   console.log('Starting up...');
 
   const {port} = config.devOptions;
-  const fileBuildCache = new Map<string, string>();
   // WHY 2???
   let inMemoryBuildCache = new Map<string, Buffer>();
   const filesBeingDeleted = new Set<string>();
@@ -472,8 +471,10 @@ export async function command({cwd, config}: DevOptions) {
         const {originalFileHash} = cachedBuildData.metadata;
         const newFileHash = etag(fileContents);
         if (originalFileHash === newFileHash) {
-          inMemoryBuildCache.set(fileLoc, cachedBuildData.data);
           const coldCachedResponse: Buffer = cachedBuildData.data;
+          if (!isProxyModule) {
+            inMemoryBuildCache.set(fileLoc, coldCachedResponse);
+          }
           let serverResponse: Buffer | string = coldCachedResponse;
           if (isRoute) {
             serverResponse =
@@ -491,27 +492,30 @@ export async function command({cwd, config}: DevOptions) {
           }
           // Trust... but verify.
           sendFile(req, res, serverResponse, responseFileExt);
-          let checkFinalBuildAnyway: string | null = null;
-          try {
-            checkFinalBuildAnyway = await buildFile(fileContents, fileLoc, fileBuilder);
-          } catch (err) {
-            // safe to ignore, it will be surfaced later anyway
-          } finally {
-            if (
-              !checkFinalBuildAnyway ||
-              !coldCachedResponse.equals(Buffer.from(checkFinalBuildAnyway))
-            ) {
-              inMemoryBuildCache = new Map();
-              await cacache.rm.all(BUILD_CACHE);
-              while (liveReloadClients.length > 0) {
-                sendMessage(liveReloadClients.pop(), 'message', 'reload');
+          if (!isProxyModule) {
+            let checkFinalBuildAnyway: string | null = null;
+            try {
+              checkFinalBuildAnyway = await buildFile(fileContents, fileLoc, fileBuilder);
+            } catch (err) {
+              // safe to ignore, it will be surfaced later anyway
+            } finally {
+              if (
+                !checkFinalBuildAnyway ||
+                !coldCachedResponse.equals(
+                  Buffer.from(checkFinalBuildAnyway, getEncodingType(requestedFileExt)),
+                )
+              ) {
+                inMemoryBuildCache.clear();
+                await cacache.rm.all(BUILD_CACHE);
+                while (liveReloadClients.length > 0) {
+                  sendMessage(liveReloadClients.pop(), 'message', 'reload');
+                }
               }
             }
           }
           return;
         }
       }
-      fileBuildCache.set(fileLoc, fileContents);
 
       // 4. Final option: build the file, serve it, and cache it.
       let finalBuild: string;
@@ -521,9 +525,16 @@ export async function command({cwd, config}: DevOptions) {
         console.error(fileLoc, err);
         return sendError(res, 500);
       }
-      inMemoryBuildCache.set(fileLoc, Buffer.from(finalBuild));
-      const originalFileHash = etag(fileContents);
-      cacache.put(BUILD_CACHE, fileLoc, finalBuild, {metadata: {originalFileHash}});
+      if (!isProxyModule) {
+        inMemoryBuildCache.set(fileLoc, Buffer.from(finalBuild, getEncodingType(requestedFileExt)));
+        const originalFileHash = etag(fileContents);
+        cacache.put(
+          BUILD_CACHE,
+          fileLoc,
+          Buffer.from(finalBuild, getEncodingType(requestedFileExt)),
+          {metadata: {originalFileHash}},
+        );
+      }
       if (isRoute) {
         finalBuild += `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
       }
@@ -544,19 +555,6 @@ export async function command({cwd, config}: DevOptions) {
     filesBeingDeleted.add(fileLoc);
     await cacache.rm.entry(BUILD_CACHE, fileLoc);
     filesBeingDeleted.delete(fileLoc);
-    // let requestId = fileLoc;
-    // if (requestId.startsWith(cwd)) {
-    //   requestId = requestId.replace(/\.(js|ts|jsx|tsx)$/, '.js');
-    // }
-    // FILE_CACHE.delete(requestId);
-    // if (babelFileErrors.has(fileLoc)) {
-    //   const fileContents = await fs.readFile(fileLoc, 'utf-8').catch((err) => null /* ignore */);
-    //   if (!fileContents) {
-    //     babelFileErrors.delete(fileLoc);
-    //   } else {
-    //     buildBabelFile(fileLoc, fileContents);
-    //   }
-    // }
   }
 
   for (const [dirDisk] of mountedDirectories) {
