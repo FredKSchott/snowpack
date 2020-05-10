@@ -253,16 +253,9 @@ export async function install(
     logError('no "node_modules" directory exists. Did you run "npm install" first?');
     return;
   }
-  const externalPackagesMap = externalPackages.reduce(
-    (prev, curr) => ({
-      ...prev,
-      [curr]: true,
-    }),
-    {},
-  );
   const allInstallSpecifiers = new Set(
     installTargets
-      .filter((dep) => !externalPackagesMap[dep.specifier])
+      .filter((dep) => !externalPackages.includes(dep.specifier))
       .map((dep) => dep.specifier)
       .map((specifier) => installAlias[specifier] || specifier)
       .sort(),
