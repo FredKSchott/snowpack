@@ -42,6 +42,7 @@ import srcFileExtensionMapping from './src-file-extension-mapping';
 import {transformEsmImports} from '../rewrite-imports';
 import {ImportMap, BUILD_CACHE} from '../util';
 import cacache from 'cacache';
+import {wrapEsmProxyResponse} from './build-util';
 
 function getEncodingType(ext: string): 'utf8' | 'binary' {
   if (ext === '.js' || ext === '.css' || ext === '.html') {
@@ -49,25 +50,6 @@ function getEncodingType(ext: string): 'utf8' | 'binary' {
   } else {
     return 'binary';
   }
-}
-
-function wrapEsmProxyResponse(url: string, code: string, ext: string) {
-  if (ext === '.css') {
-    return `
-    const styleEl = document.createElement("style");
-    styleEl.type = 'text/css';
-    styleEl.appendChild(document.createTextNode(${JSON.stringify(code)}));
-    document.head.appendChild(styleEl);
-
-    import {apply} from '/web_modules/@snowpack/hmr.js';
-    console.log('apply', import.meta.url);
-    apply(import.meta.url, ({code}) => {
-      styleEl.innerHtml = '';
-      styleEl.appendChild(document.createTextNode(code));
-    });
-  `;
-  }
-  return `export default ${JSON.stringify(url)};`;
 }
 
 function watch(fileLoc: string, notify: (event: string, filename: string) => void) {
@@ -255,7 +237,7 @@ export async function command({cwd, config}: DevOptions) {
             spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
           }
           if ((extToReplace || ext) !== 'js') {
-            spec = spec + '?snowpack-esm-proxy';
+            spec = spec + '.proxy.js';
           }
           return spec;
         }
@@ -310,7 +292,7 @@ export async function command({cwd, config}: DevOptions) {
   http
     .createServer(async (req, res) => {
       const reqUrl = req.url!;
-      let reqPath = url.parse(reqUrl).pathname!;
+      let reqPath = decodeURI(url.parse(reqUrl).pathname!);
 
       // const requestStart = Date.now();
       res.on('finish', () => {
@@ -353,8 +335,13 @@ export async function command({cwd, config}: DevOptions) {
           .catch(() => null /* ignore */);
       }
 
-      const resource = decodeURI(reqPath);
-      let requestedFileExt = path.parse(resource).ext.toLowerCase();
+      let isProxyModule = false;
+      if (reqPath.endsWith('.proxy.js')) {
+        isProxyModule = true;
+        reqPath = reqPath.replace('.proxy.js', '');
+      }
+
+      let requestedFileExt = path.parse(reqPath).ext.toLowerCase();
       let isRoute = false;
       let fileBuilder: ((code: string, {filename: string}) => Promise<string>) | undefined;
 
@@ -427,7 +414,7 @@ export async function command({cwd, config}: DevOptions) {
         return [null, null];
       }
 
-      const [fileLoc, selectedWorker] = await getFileFromUrl(resource);
+      const [fileLoc, selectedWorker] = await getFileFromUrl(reqPath);
 
       if (isRoute) {
         messageBus.emit('NEW_SESSION');
@@ -453,12 +440,13 @@ export async function command({cwd, config}: DevOptions) {
             hotCachedResponse.toString() +
             `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
         }
-        if (req.url?.includes('?snowpack-esm-proxy')) {
+        if (isProxyModule) {
           responseFileExt = '.js';
           hotCachedResponse = wrapEsmProxyResponse(
             reqPath,
             hotCachedResponse.toString(),
             requestedFileExt,
+            true,
           );
         }
         sendFile(req, res, hotCachedResponse, responseFileExt);
@@ -492,12 +480,13 @@ export async function command({cwd, config}: DevOptions) {
               serverResponse.toString() +
               `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
           }
-          if (req.url?.includes('?snowpack-esm-proxy')) {
+          if (isProxyModule) {
             responseFileExt = '.js';
             serverResponse = wrapEsmProxyResponse(
               reqPath,
               coldCachedResponse.toString(),
               requestedFileExt,
+              true,
             );
           }
           // Trust... but verify.
@@ -538,9 +527,9 @@ export async function command({cwd, config}: DevOptions) {
       if (isRoute) {
         finalBuild += `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
       }
-      if (req.url?.includes('?snowpack-esm-proxy')) {
+      if (isProxyModule) {
         responseFileExt = '.js';
-        finalBuild = wrapEsmProxyResponse(reqPath, finalBuild, requestedFileExt);
+        finalBuild = wrapEsmProxyResponse(reqPath, finalBuild, requestedFileExt, true);
       }
       sendFile(req, res, finalBuild, responseFileExt);
     })

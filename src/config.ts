@@ -7,7 +7,7 @@ import {all as merge} from 'deepmerge';
 import chalk from 'chalk';
 
 const CONFIG_NAME = 'snowpack';
-const ALWAYS_EXCLUDE = ['node_modules/**/*', '.*'];
+const ALWAYS_EXCLUDE = ['node_modules/**/*', '.*', '.types/**/*'];
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -34,6 +34,7 @@ export interface SnowpackConfig {
     port: number;
     out: string;
     fallback: string;
+    bundle: boolean | undefined;
   };
   installOptions: {
     dest: string;
@@ -77,6 +78,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     port: 8080,
     out: 'build',
     fallback: 'index.html',
+    bundle: undefined,
   },
 };
 
@@ -133,6 +135,7 @@ const configSchema = {
         port: {type: 'number'},
         out: {type: 'string'},
         fallback: {type: 'string'},
+        bundle: {type: 'boolean'},
       },
     },
     scripts: {
@@ -282,11 +285,6 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
     );
   }
   // Removed!
-  if (rawConfig.devOptions?.bundle || cliFlags.bundle) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `devOptions.bundle` is now the default build behavior. This config is safe to remove.',
-    );
-  }
   if (rawConfig.devOptions?.dist) {
     handleDeprecatedConfigError(
       '[Snowpack v1 -> v2] `devOptions.dist` is no longer required. This config is safe to remove.',
