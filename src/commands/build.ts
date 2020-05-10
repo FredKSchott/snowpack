@@ -282,7 +282,7 @@ export async function command({cwd, config}: DevOptions) {
                 if (extToReplace) {
                   spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
                 }
-                if ((extToReplace || ext) !== 'js') {
+                if (!isBundled && (extToReplace || ext) !== 'js') {
                   const resolvedUrl = path.resolve(path.dirname(outPath), spec);
                   allProxiedFiles.add(resolvedUrl);
                   spec = spec + '.proxy.js';
@@ -375,7 +375,7 @@ export async function command({cwd, config}: DevOptions) {
       messageBus.emit('WORKER_MSG', {
         id: 'bundle:*',
         level: 'log',
-        msg: `npm install --save-dev parcel@next \n\nInstall Parcel into your project to bundle for production.\nSet "devOptions.bundle = false" to remove this message.`,
+        msg: `npm install --save-dev parcel@^2.0.0-0 \n\nInstall Parcel into your project to bundle for production.\nSet "devOptions.bundle = false" to remove this message.`,
       });
     }
   } else {
@@ -410,10 +410,20 @@ export async function command({cwd, config}: DevOptions) {
         path.join(buildDirectoryLoc, '.babelrc'),
         `{"plugins": [[${JSON.stringify(require.resolve('@babel/plugin-syntax-import-meta'))}]]}`, // JSON.stringify is needed because on windows, \ in paths need to be escaped
       );
+      await fs.writeFile(
+        path.join(buildDirectoryLoc, '.parcelrc'),
+        `{
+        "extends": "@parcel/config-default",
+        "transformers": {
+          "*.{png,jpg,jpeg,svg}": ["@parcel/transformer-raw"]
+        },
+      }`,
+      );
     }
+
     await prepareBuildDirectoryForParcel();
 
-    const parcelOptions = ['build', config.devOptions.fallback, '--out-dir', finalDirectoryLoc];
+    const parcelOptions = ['build', config.devOptions.fallback, '--dist-dir', finalDirectoryLoc];
 
     if (config.homepage) {
       parcelOptions.push('--public-url', config.homepage);
