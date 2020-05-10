@@ -53,10 +53,7 @@ export async function command({cwd, config}: DevOptions) {
   const buildDirectoryLoc = isBundled ? path.join(cwd, `.build`) : config.devOptions.out;
   const finalDirectoryLoc = config.devOptions.out;
 
-  if (
-    allRegisteredWorkers.filter(([id]) => id.startsWith('build:') || id.startsWith('plugin:'))
-      .length === 0
-  ) {
+  if (allRegisteredWorkers.length === 0) {
     console.error(chalk.red(`No build scripts found, so nothing to build.`));
     console.error(`See https://www.snowpack.dev/#build-scripts for help getting started.`);
     return;
