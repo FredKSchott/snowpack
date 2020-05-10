@@ -14,6 +14,7 @@ import srcFileExtensionMapping from './src-file-extension-mapping';
 import {transformEsmImports} from '../rewrite-imports';
 import mkdirp from 'mkdirp';
 import {ImportMap} from '../util';
+import {wrapEsmProxyResponse} from './build-util';
 const {copy} = require('fs-extra');
 
 interface DevOptions {
@@ -30,8 +31,6 @@ export async function command({cwd, config}: DevOptions) {
   const allBuildExtensions: string[] = [];
   const allWorkerPromises: Promise<any>[] = [];
 
-  const buildDirectoryLoc = path.join(cwd, `.build`);
-  const finalDirectoryLoc = config.devOptions.out;
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
   let dependencyImportMap: ImportMap = {imports: {}};
   try {
@@ -40,6 +39,20 @@ export async function command({cwd, config}: DevOptions) {
     // no import-map found, safe to ignore
   }
 
+  let isBundled = config.devOptions.bundle;
+  const isBundledHardcoded = isBundled !== undefined;
+  if (!isBundledHardcoded) {
+    try {
+      require.resolve('parcel', {paths: [cwd]});
+      isBundled = true;
+    } catch (err) {
+      isBundled = false;
+    }
+  }
+
+  const buildDirectoryLoc = isBundled ? path.join(cwd, `.build`) : config.devOptions.out;
+  const finalDirectoryLoc = config.devOptions.out;
+
   if (
     allRegisteredWorkers.filter(([id]) => id.startsWith('build:') || id.startsWith('plugin:'))
       .length === 0
@@ -47,6 +60,27 @@ export async function command({cwd, config}: DevOptions) {
     console.error(chalk.red(`No build scripts found, so nothing to build.`));
     console.error(`See https://www.snowpack.dev/#build-scripts for help getting started.`);
     return;
+  }
+
+  const mountedDirectories: [string, string][] = [];
+  for (const [id, workerConfig] of allRegisteredWorkers) {
+    if (!id.startsWith('mount:')) {
+      continue;
+    }
+    const cmdArr = workerConfig.cmd.split(/\s+/);
+    if (cmdArr[0] !== 'mount') {
+      throw new Error(`script[${id}] must use the mount command`);
+    }
+    cmdArr.shift();
+    let dirUrl, dirDisk;
+    dirDisk = path.resolve(cwd, cmdArr[0]);
+    if (cmdArr.length === 1) {
+      dirUrl = cmdArr[0];
+    } else {
+      const {to} = yargs(cmdArr);
+      dirUrl = to;
+    }
+    mountedDirectories.push([dirDisk, dirUrl]);
   }
 
   rimraf.sync(finalDirectoryLoc);
@@ -92,6 +126,13 @@ export async function command({cwd, config}: DevOptions) {
   }
   paint(messageBus, relevantWorkers, {dest: relDest}, undefined);
 
+  if (!isBundled) {
+    messageBus.emit('WORKER_UPDATE', {
+      id: 'bundle:*',
+      state: ['SKIP', 'dim'],
+    });
+  }
+
   for (const [id, workerConfig] of relevantWorkers) {
     if (!id.startsWith('lintall:')) {
       continue;
@@ -135,35 +176,6 @@ export async function command({cwd, config}: DevOptions) {
       messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
     });
   }
-
-  // for (const [id, workerConfig] of relevantWorkers) {
-  //   if (!id.startsWith('mount:')) {
-  //     continue;
-  //   }
-  //   const cmdArr = workerConfig.cmd.split(/\s+/);
-  //   if (cmdArr[0] !== 'mount') {
-  //     throw new Error(`script[${id}] must use the mount command`);
-  //   }
-  //   cmdArr.shift();
-  //   let dirUrl, dirDisk;
-  //   if (cmdArr.length === 1) {
-  //     dirDisk = path.resolve(cwd, cmdArr[0]);
-  //     dirUrl = '/' + cmdArr[0];
-  //   } else {
-  //     const {to} = yargs(cmdArr);
-  //     dirDisk = path.resolve(cwd, cmdArr[0]);
-  //     dirUrl = to;
-  //   }
-
-  //   const destinationFile =
-  //     dirUrl === '/' ? buildDirectoryLoc : path.join(buildDirectoryLoc, dirUrl);
-  //   await copy(dirDisk, destinationFile).catch((err) => {
-  //     messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
-  //     messageBus.emit('WORKER_COMPLETE', {id, error: err});
-  //     throw err;
-  //   });
-  //   messageBus.emit('WORKER_COMPLETE', {id, error: null});
-  // }
 
   const mountDirDetails: any[] = relevantWorkers
     .map(([id, scriptConfig]) => {
@@ -221,6 +233,7 @@ export async function command({cwd, config}: DevOptions) {
   }
 
   const allBuiltFromFiles = new Set();
+  const allProxiedFiles = new Set<string>();
   for (const [id, workerConfig] of relevantWorkers) {
     if (!id.startsWith('build:') && !id.startsWith('plugin:')) {
       continue;
@@ -269,6 +282,11 @@ export async function command({cwd, config}: DevOptions) {
                 if (extToReplace) {
                   spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
                 }
+                if ((extToReplace || ext) !== 'js') {
+                  const resolvedUrl = path.resolve(path.dirname(outPath), spec);
+                  allProxiedFiles.add(resolvedUrl);
+                  spec = spec + '.proxy.js';
+                }
                 return spec;
               }
               if (dependencyImportMap.imports[spec]) {
@@ -314,6 +332,11 @@ export async function command({cwd, config}: DevOptions) {
                 if (extToReplace) {
                   spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
                 }
+                if ((extToReplace || ext) !== 'js') {
+                  const resolvedUrl = path.resolve(path.dirname(outPath), spec);
+                  allProxiedFiles.add(resolvedUrl);
+                  spec = spec + '.proxy.js';
+                }
                 return spec;
               }
               if (dependencyImportMap.imports[spec]) {
@@ -333,64 +356,89 @@ export async function command({cwd, config}: DevOptions) {
 
   await Promise.all(allWorkerPromises);
 
-  messageBus.emit('WORKER_UPDATE', {id: 'bundle:*', state: ['RUNNING', 'yellow']});
-  async function prepareBuildDirectoryForParcel() {
-    // Prepare the new build directory by copying over all static assets
-    // This is important since sometimes Parcel doesn't pick these up.
-    await copy(buildDirectoryLoc, finalDirectoryLoc, {
-      filter: (srcLoc) => {
-        return !allBuiltFromFiles.has(srcLoc);
-      },
-    }).catch((err) => {
+  for (const proxiedFileLoc of allProxiedFiles) {
+    const proxiedCode = await fs.readFile(proxiedFileLoc, {encoding: 'utf8'});
+    const proxiedExt = path.extname(proxiedFileLoc);
+    const proxiedUrl = proxiedFileLoc.substr(buildDirectoryLoc.length);
+    const proxyCode = wrapEsmProxyResponse(proxiedUrl, proxiedCode, proxiedExt);
+    const proxyFileLoc = proxiedFileLoc + '.proxy.js';
+    await fs.writeFile(proxyFileLoc, proxyCode, {encoding: 'utf8'});
+  }
+
+  if (!isBundled) {
+    messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
+    messageBus.emit('WORKER_UPDATE', {
+      id: 'bundle:*',
+      state: ['SKIP', isBundledHardcoded ? 'green' : 'yellow'],
+    });
+    if (!isBundledHardcoded) {
+      messageBus.emit('WORKER_MSG', {
+        id: 'bundle:*',
+        level: 'log',
+        msg: `npm install --save-dev parcel@next \n\nInstall Parcel into your project to bundle for production.\nSet "devOptions.bundle = false" to remove this message.`,
+      });
+    }
+  } else {
+    messageBus.emit('WORKER_UPDATE', {id: 'bundle:*', state: ['RUNNING', 'yellow']});
+
+    async function prepareBuildDirectoryForParcel() {
+      // Prepare the new build directory by copying over all static assets
+      // This is important since sometimes Parcel doesn't pick these up.
+      await copy(buildDirectoryLoc, finalDirectoryLoc, {
+        filter: (srcLoc) => {
+          return !allBuiltFromFiles.has(srcLoc);
+        },
+      }).catch((err) => {
+        messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'error', msg: err.toString()});
+        messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: err});
+        throw err;
+      });
+      const tempBuildManifest = JSON.parse(
+        await fs.readFile(path.join(cwd, 'package.json'), {encoding: 'utf-8'}),
+      );
+      delete tempBuildManifest.name;
+      tempBuildManifest.devDependencies = tempBuildManifest.devDependencies || {};
+      tempBuildManifest.devDependencies['@babel/core'] =
+        tempBuildManifest.devDependencies['@babel/core'] || '^7.9.0';
+      tempBuildManifest.browserslist =
+        tempBuildManifest.browserslist || '>0.75%, not ie 11, not UCAndroid >0, not OperaMini all';
+      await fs.writeFile(
+        path.join(buildDirectoryLoc, 'package.json'),
+        JSON.stringify(tempBuildManifest, null, 2),
+      );
+      await fs.writeFile(
+        path.join(buildDirectoryLoc, '.babelrc'),
+        `{"plugins": [[${JSON.stringify(require.resolve('@babel/plugin-syntax-import-meta'))}]]}`, // JSON.stringify is needed because on windows, \ in paths need to be escaped
+      );
+    }
+    await prepareBuildDirectoryForParcel();
+
+    const parcelOptions = ['build', config.devOptions.fallback, '--out-dir', finalDirectoryLoc];
+
+    if (config.homepage) {
+      parcelOptions.push('--public-url', config.homepage);
+    }
+
+    const bundleAppPromise = execa('parcel', parcelOptions, {
+      cwd: buildDirectoryLoc,
+      env: npmRunPath.env(),
+      extendEnv: true,
+    });
+    bundleAppPromise.stdout?.on('data', (b) => {
+      messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg: b.toString()});
+    });
+    bundleAppPromise.stderr?.on('data', (b) => {
+      messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg: b.toString()});
+    });
+    bundleAppPromise.catch((err) => {
       messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'error', msg: err.toString()});
       messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: err});
-      throw err;
     });
-    const tempBuildManifest = JSON.parse(
-      await fs.readFile(path.join(cwd, 'package.json'), {encoding: 'utf-8'}),
-    );
-    delete tempBuildManifest.name;
-    tempBuildManifest.devDependencies = tempBuildManifest.devDependencies || {};
-    tempBuildManifest.devDependencies['@babel/core'] =
-      tempBuildManifest.devDependencies['@babel/core'] || '^7.9.0';
-    tempBuildManifest.browserslist =
-      tempBuildManifest.browserslist || '>0.75%, not ie 11, not UCAndroid >0, not OperaMini all';
-    await fs.writeFile(
-      path.join(buildDirectoryLoc, 'package.json'),
-      JSON.stringify(tempBuildManifest, null, 2),
-    );
-    await fs.writeFile(
-      path.join(buildDirectoryLoc, '.babelrc'),
-      `{"plugins": [[${JSON.stringify(require.resolve('@babel/plugin-syntax-import-meta'))}]]}`, // JSON.stringify is needed because on windows, \ in paths need to be escaped
-    );
+    bundleAppPromise.then(() => {
+      messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
+    });
+    await bundleAppPromise;
   }
-  await prepareBuildDirectoryForParcel();
-
-  const parcelOptions = ['build', config.devOptions.fallback, '--out-dir', finalDirectoryLoc];
-
-  if (config.homepage) {
-    parcelOptions.push('--public-url', config.homepage);
-  }
-
-  const bundleAppPromise = execa('parcel', parcelOptions, {
-    cwd: buildDirectoryLoc,
-    env: npmRunPath.env(),
-    extendEnv: true,
-  });
-  bundleAppPromise.stdout?.on('data', (b) => {
-    messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg: b.toString()});
-  });
-  bundleAppPromise.stderr?.on('data', (b) => {
-    messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg: b.toString()});
-  });
-  bundleAppPromise.catch((err) => {
-    messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'error', msg: err.toString()});
-    messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: err});
-  });
-  bundleAppPromise.then(() => {
-    messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
-  });
-  await bundleAppPromise;
 
   if (finalDirectoryLoc !== buildDirectoryLoc) {
     rimraf.sync(buildDirectoryLoc);

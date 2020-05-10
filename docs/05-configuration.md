@@ -37,7 +37,7 @@ CLI flags will be merged with (and take priority over) your config file values. 
   ],
   "homepage": "/your-project",
   "installOptions": { /* ... */ },
-  "buildOptions": { /* ..... */ }
+  "devOptions": { /* ..... */ }
 }
 ```
 
@@ -58,7 +58,7 @@ CLI flags will be merged with (and take priority over) your config file values. 
   - Set build scripts to transform your source files. See the section below for more info.
 - **`installOptions.*`**
   - Configure how npm packages are installed. See the section below for all options.
-- **`buildOptions.*`**
+- **`devOptions.*`**
   - Configure your dev server and build workflows. See the section below for all options.
 
 #### Install Options
@@ -81,12 +81,16 @@ CLI flags will be merged with (and take priority over) your config file values. 
   - **`rollup.dedupe`** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation.
   - **`rollup.namedExports`** - If needed, you can explicitly define named exports for any dependency. You should only use this if you're getting `"'X' is not exported by Y"` errors without it. See [rollup-plugin-commonjs](https://github.com/rollup/rollup-plugin-commonjs#usage) for more documentation.
 
-#### Build Options
+#### Dev Options
 
 - **`port`** | `number` | Default: `3000`
   - The port number to run the dev server on.
 - **`out`** | `string` | Default: `"build"`
   - The local directory that we output your final build to.
+- **`bundle`** | `boolean`
+  - Create an optimized, bundled build for production. 
+  - You must have [Parcel](https://parceljs.org/) as a dev dependency in your project.
+  - If undefined, this option will be enabled if the `parcel` package is found.
 - **`fallback`** | `string` | Default: `"index.html"`
   - When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
 
