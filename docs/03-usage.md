@@ -26,7 +26,7 @@ From here, any package can be imported and run directly in the browser with zero
 </script>
 ```
 
-To avoid the extra step of having to install each frontend package twice (once with npm/yarn, and then again with Snowpack) you can have Snowpack fully manage your frontend dependencies via the package.json "webDependencies" config. Learn more about removing the unnecessary `npm install` step in the [Managed Dependencies](#managed-dependencies) section below.
+To avoid the extra step of having to install each frontend package twice (once with npm/yarn, and then again with Snowpack) you can have Snowpack fully manage your frontend dependencies via the package.json "webDependencies" config. Learn more about removing the unnecessary `npm install` step in the [webDependencies](#webdependencies) section below.
 
 
 ### snowpack dev
@@ -43,7 +43,7 @@ import * as React from 'react';
 import * as React from '/web_modules/react.js';
 ```
 
-Extend your build pipeline to handle more complex transformations via Snowpack [build scripts](#build-scripts). Build scripts tellhow Snowpack how to transform your source files, allowing you to code in whatever language you'd like (JSX, TypeScript, Vue, Svelte, etc.). Check out the [build scripts](#build-scripts) section below to learn more.
+Extend your build pipeline to handle more complex transformations via Snowpack [build scripts](#build-scripts). Build scripts tell Snowpack how to transform your source files, allowing you to code in whatever language you'd like (JSX, TypeScript, Vue, Svelte, etc.). Check out the [build scripts](#build-scripts) section below to learn more.
 
 ### snowpack build
 
