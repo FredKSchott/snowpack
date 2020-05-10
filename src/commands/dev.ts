@@ -30,6 +30,7 @@ import {EventEmitter} from 'events';
 import execa from 'execa';
 import {promises as fs, existsSync, readdirSync, statSync, watch as fsWatch} from 'fs';
 import http from 'http';
+import chokidar from 'chokidar';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
@@ -49,22 +50,6 @@ function getEncodingType(ext: string): 'utf8' | 'binary' {
     return 'utf8';
   } else {
     return 'binary';
-  }
-}
-
-function watch(fileLoc: string, notify: (event: string, filename: string) => void) {
-  if (process.platform !== 'linux') {
-    fsWatch(fileLoc, {recursive: true}, notify);
-    return;
-  }
-  // For performance: don't step into node_modules directories
-  if (fileLoc.endsWith('node_modules')) {
-    return;
-  }
-  if (statSync(fileLoc).isDirectory()) {
-    fsWatch(fileLoc, notify);
-  } else {
-    readdirSync(fileLoc).forEach((entry) => watch(path.join(fileLoc, entry), notify));
   }
 }
 
@@ -393,8 +378,8 @@ export async function command({cwd, config}: DevOptions) {
           } else {
             let fileLoc =
               (await attemptLoadFile(requestedFile + '.html')) ||
-              (await attemptLoadFile(requestedFile + '/index.html')) ||
-              (await attemptLoadFile(requestedFile + 'index.html'));
+              (await attemptLoadFile(requestedFile + 'index.html')) ||
+              (await attemptLoadFile(requestedFile + '/index.html'));
 
             if (!fileLoc && dirUrl === '.' && config.devOptions.fallback) {
               const fallbackFile =
@@ -546,7 +531,8 @@ export async function command({cwd, config}: DevOptions) {
     })
     .listen(port);
 
-  async function onWatchEvent(event, fileLoc) {
+  async function onWatchEvent(fileLoc) {
+    console.log(fileLoc);
     for (const client of liveReloadClients) {
       const fileUrl = getUrlFromFile(fileLoc);
       sendMessage(client, 'message', JSON.stringify({url: fileUrl}));
@@ -557,11 +543,15 @@ export async function command({cwd, config}: DevOptions) {
     filesBeingDeleted.delete(fileLoc);
   }
 
-  for (const [dirDisk] of mountedDirectories) {
-    watch(dirDisk, (event, partialFileName) =>
-      onWatchEvent(event, path.resolve(dirDisk, partialFileName)),
-    );
-  }
+  const watcher = chokidar.watch(
+    mountedDirectories.map(([dirDisk]) => dirDisk),
+    {
+      ignored: config.exclude,
+      persistent: true,
+    },
+  );
+
+  watcher.on('raw', (ev, fileLoc) => onWatchEvent(fileLoc));
 
   process.on('SIGINT', () => {
     for (const client of liveReloadClients) {
