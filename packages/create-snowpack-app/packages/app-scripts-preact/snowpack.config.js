@@ -35,8 +35,6 @@ if (fs.existsSync(path.join(cwd, "postcss.config.js"))) {
   scripts["build:css"] = `postcss --config ${bundledConfig}`;
 }
 
-scripts["build:svg"] = "cat";
-
 module.exports = {
   scripts,
   devOptions: {},
