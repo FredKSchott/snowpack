@@ -184,12 +184,13 @@ export async function command({cwd, config}: DevOptions) {
 
   function getUrlFromFile(fileLoc: string): string | null {
     for (const [dirDisk, dirUrl] of mountedDirectories) {
-      if (fileLoc.startsWith(dirDisk)) {
+      if (fileLoc.startsWith(dirDisk + path.sep)) {
         const fileExt = path.extname(fileLoc).substr(1);
+        const resolvedDirUrl = dirUrl === '.' ? '' : '/' + dirUrl
         return (
-          `/` +
           fileLoc
-            .replace(dirDisk, dirUrl)
+            .replace(dirDisk, resolvedDirUrl)
+            .replace(/[/\\]+/g, '/')
             .replace(new RegExp(`${fileExt}$`), srcFileExtensionMapping[fileExt] || fileExt)
         );
       }
@@ -552,10 +553,14 @@ export async function command({cwd, config}: DevOptions) {
     {
       ignored: config.exclude,
       persistent: true,
+      ignoreInitial: true,
+      disableGlobbing: false,
     },
   );
 
-  watcher.on('raw', (ev, fileLoc) => onWatchEvent(fileLoc));
+  ;['add', 'change', 'unlink'].forEach(event => {
+    watcher.on(event, (fileLoc) => onWatchEvent(fileLoc));
+  })
 
   process.on('SIGINT', () => {
     for (const client of liveReloadClients) {
