@@ -65,6 +65,11 @@ async function getEsbuildFileBuilder() {
   };
 }
 
+const hmrEnabledExtensions = {
+  css: true,
+  svelte: true,
+}
+
 function getEncodingType(ext: string): 'utf8' | 'binary' {
   if (ext === '.js' || ext === '.css' || ext === '.html') {
     return 'utf8';
