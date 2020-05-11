@@ -210,7 +210,7 @@ export async function command({cwd, config}: DevOptions) {
       });
       const allBuildNeededFiles: string[] = [];
       await Promise.all(
-        allFiles.map((f) => {
+        allFiles.map(async (f) => {
           f = path.resolve(f); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
           if (allBuildExtensions.includes(path.extname(f).substr(1))) {
             allBuildNeededFiles.push(f);
@@ -218,7 +218,38 @@ export async function command({cwd, config}: DevOptions) {
           }
           const outPath = f.replace(dirDisk, dirDest);
           mkdirp.sync(path.dirname(outPath));
-          return fs.copyFile(f, outPath);
+          if (path.extname(f) !== '.js') {
+            return fs.copyFile(f, outPath);
+          }
+
+          let code = await fs.readFile(f, {encoding: 'utf-8'});
+          code = await transformEsmImports(code, (spec) => {
+            if (spec.startsWith('http')) {
+              return spec;
+            }
+            if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
+              const ext = path.extname(spec).substr(1);
+              if (!ext) {
+                return spec + '.js';
+              }
+              const extToReplace = srcFileExtensionMapping[ext];
+              if (extToReplace) {
+                spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
+              }
+              if (!isBundled && (extToReplace || ext) !== 'js') {
+                const resolvedUrl = path.resolve(path.dirname(outPath), spec);
+                allProxiedFiles.add(resolvedUrl);
+                spec = spec + '.proxy.js';
+              }
+              return spec;
+            }
+            if (dependencyImportMap.imports[spec]) {
+              return path.posix.resolve(`/web_modules`, dependencyImportMap.imports[spec]);
+            }
+            messageBus.emit('MISSING_WEB_MODULE', {specifier: spec});
+            return `/web_modules/${spec}.js`;
+          });
+          return fs.writeFile(outPath, code);
         }),
       );
       includeFileSets.push([dirDisk, dirDest, allBuildNeededFiles]);
