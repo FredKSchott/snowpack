@@ -213,6 +213,21 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
       delete config.scripts[scriptId];
     }
   }
+  const foundExtensions = new Set();
+  for (const scriptId of Object.keys(config.scripts)) {
+    if (!scriptId.startsWith('build:') && !scriptId.startsWith('plugin:')) {
+      continue;
+    }
+    const exts = scriptId.split(':')[1].split(',');
+    for (const ext of exts) {
+      if (foundExtensions.has(ext)) {
+        handleConfigError(
+          `Multiple "scripts" match the "${ext}" file extension.\nCurrently, only one script per file type is supported.`,
+        );
+      }
+      foundExtensions.add(ext);
+    }
+  }
   return config;
 }
 

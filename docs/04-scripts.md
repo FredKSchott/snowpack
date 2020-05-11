@@ -12,17 +12,15 @@ If you've ever worked with `package.json` "scripts", creating your own build scr
 // snowpack.config.json
 {
   "scripts": {
-    // Pipe every .js & .jsx file through Babel CLI
-    "build:js,jsx": "babel --filename $FILE",
     // Pipe every .css file through PostCSS CLI
     "build:css": "postcss",
-    // Pipe every .svg file through 'cat' (copies the file without transforming)
-    "build:svg": "cat"
+    // Pipe every .js & .jsx file through Babel CLI
+    "build:js,jsx": "babel --filename $FILE"
   }
 }
 ```
 
-**The `"build"` script type is the basic building block of any Snowpack build pipeline.** In this example `babel`, `postcss`, and `cat` are all used to process your code at dev time and then again when building for production. Each file is piped through the proper CLI to get the final build output.
+**The `"build"` script type is the basic building block of any Snowpack build pipeline.** In this example `babel` & `postcss` are both used to process your code at dev time and then again when building for production. Each file is piped through the proper CLI to get the final build output.
 
 
 ```html
@@ -30,7 +28,7 @@ If you've ever worked with `package.json` "scripts", creating your own build scr
 <script type="module" src="/src/index.js"></script>
 ```
 
-**By default, build scripts are run against every file in your project.** We recommend that you keep your source code contained in 1+ subdirectories (`src/`, `public/`, etc). Check out the section on "mount:" scripts below for more information.
+**By default, build scripts are run against every matching file in your project.** For large/complex projects, we recommend that you organize your source code into subdirectories (`src/`, `public/`, etc). Check out the section on "mount:" scripts below for more information.
 
 
  
@@ -55,10 +53,10 @@ Snowpack supports several other script types in addition to the basic `"build"` 
 
 ### Script Variables
 
-Snowpack provides a few variables that you can use to make your build scripts (and plugins) more dynamic:
+Snowpack provides a few variables that you can use to make your build scripts (and plugins) more dynamic. Snowpack will replace these with the correct value when run:
 
-- `$1` - The original command.
-  - Used with script modifiers (see the next section).
+- `$1` - The original command of a script modifier.
+  - Useful to reduce copy-pasting in your scripts.
   - ex: `"lintall:ts,tsx::watch": "$1 --watch"`
 - `$FILE` - The absolute path of the source file.
   - Especially useful when Babel plugins require it.
