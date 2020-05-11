@@ -7,7 +7,7 @@ import {all as merge} from 'deepmerge';
 import chalk from 'chalk';
 
 const CONFIG_NAME = 'snowpack';
-const ALWAYS_EXCLUDE = ['node_modules/**/*', '.types/**/*'];
+const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -194,7 +194,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   config.devOptions.out = path.resolve(cwd, config.devOptions.out);
   config.exclude = Array.from(new Set([...ALWAYS_EXCLUDE, ...config.exclude]));
   if (!config.scripts) {
-    config.exclude.push('.*');
+    config.exclude.push('**/.*');
     config.scripts = {
       'mount:*': 'mount . --to .' as any,
     };
