@@ -109,11 +109,11 @@ export async function command({cwd, config}: DevOptions) {
   // const workerDirectories: string[] = [];
   const mountedDirectories: [string, string][] = [];
 
-  const broadcast = (channel: string, data: string) => {
+  const broadcastMessage = (channel: string, data: string) => {
     for (const client of liveReloadClients) {
-      sendMessage(client, channel, data)
+      sendMessage(client, channel, data);
     }
-  }
+  };
 
   for (const [id, workerConfig] of registeredWorkers) {
     if (!id.startsWith('mount:')) {
@@ -186,13 +186,11 @@ export async function command({cwd, config}: DevOptions) {
     for (const [dirDisk, dirUrl] of mountedDirectories) {
       if (fileLoc.startsWith(dirDisk + path.sep)) {
         const fileExt = path.extname(fileLoc).substr(1);
-        const resolvedDirUrl = dirUrl === '.' ? '' : '/' + dirUrl
-        return (
-          fileLoc
-            .replace(dirDisk, resolvedDirUrl)
-            .replace(/[/\\]+/g, '/')
-            .replace(new RegExp(`${fileExt}$`), srcFileExtensionMapping[fileExt] || fileExt)
-        );
+        const resolvedDirUrl = dirUrl === '.' ? '' : '/' + dirUrl;
+        return fileLoc
+          .replace(dirDisk, resolvedDirUrl)
+          .replace(/[/\\]+/g, '/')
+          .replace(new RegExp(`${fileExt}$`), srcFileExtensionMapping[fileExt] || fileExt);
       }
     }
     return null;
@@ -310,8 +308,8 @@ export async function command({cwd, config}: DevOptions) {
         setInterval(sendMessage, 60000, res, 'ping', 'waiting');
         liveReloadClients.push(res);
         req.on('close', () => {
-          liveReloadClients.splice(liveReloadClients.indexOf(res), 1)
-        })
+          liveReloadClients.splice(liveReloadClients.indexOf(res), 1);
+        });
         return;
       }
 
@@ -502,7 +500,7 @@ export async function command({cwd, config}: DevOptions) {
               ) {
                 inMemoryBuildCache.clear();
                 await cacache.rm.all(BUILD_CACHE);
-                broadcast('message', 'reload');
+                broadcastMessage('message', 'reload');
               }
             }
           }
@@ -541,7 +539,7 @@ export async function command({cwd, config}: DevOptions) {
 
   async function onWatchEvent(fileLoc) {
     const fileUrl = getUrlFromFile(fileLoc);
-    broadcast('message', JSON.stringify({url: fileUrl}));
+    broadcastMessage('message', JSON.stringify({url: fileUrl}));
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);
     await cacache.rm.entry(BUILD_CACHE, fileLoc);
@@ -558,9 +556,9 @@ export async function command({cwd, config}: DevOptions) {
     },
   );
 
-  ;['add', 'change', 'unlink'].forEach(event => {
-    watcher.on(event, (fileLoc) => onWatchEvent(fileLoc));
-  })
+  watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
+  watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
+  watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
 
   process.on('SIGINT', () => {
     for (const client of liveReloadClients) {

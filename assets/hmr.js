@@ -14,7 +14,7 @@ source.onmessage = async (e) => {
     reload();
     return;
   }
-  const fullUrl = window.location.origin + data.url.split('?')[0];
+  const fullUrl = data.url.split('?')[0];
   console.log(fullUrl, listeners);
   if (!listeners[fullUrl]) {
     reload();
