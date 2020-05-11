@@ -9,8 +9,7 @@ export function wrapEsmProxyResponse(url: string, code: string, ext: string, has
       hasHmr
         ? `
     import {apply} from '/web_modules/@snowpack/hmr.js';
-    console.log('apply', import.meta.url);
-    apply(import.meta.url, ({code}) => {
+    apply(window.location.origin + ${JSON.stringify(url)}, ({code}) => {
       styleEl.innerHtml = '';
       styleEl.appendChild(document.createTextNode(code));
     });
