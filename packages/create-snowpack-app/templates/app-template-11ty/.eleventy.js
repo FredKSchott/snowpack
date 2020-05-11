@@ -1,10 +1,23 @@
 module.exports = function (eleventyConfig) {
-  // Pass-through or process all the files that you use in your project
-  eleventyConfig.setTemplateFormats(["html", "js", "njk", "svg", "md", "css"]);
+  eleventyConfig.setTemplateFormats([
+    // Templates:
+    "html",
+    "njk",
+    "md",
+    // Static Assets:
+    "css",
+    "svg",
+    "png",
+    "jpg",
+    "jpeg",
+  ]);
+  eleventyConfig.addPassthroughCopy("static");
 
   return {
     dir: {
+      input: "_template",
       includes: "../_includes",
+      output: "_output",
     },
   };
 };
