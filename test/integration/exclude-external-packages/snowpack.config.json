@@ -1,0 +1,5 @@
+{
+  "installOptions": {
+    "externalPackage": [ "vue" ]
+  }
+}

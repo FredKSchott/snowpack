@@ -256,6 +256,7 @@ export async function install(
   }
   const allInstallSpecifiers = new Set(
     installTargets
+      .filter((dep) => !externalPackages.includes(dep.specifier))
       .map((dep) => dep.specifier)
       .map((specifier) => installAlias[specifier] || specifier)
       .sort(),
