@@ -109,6 +109,12 @@ export async function command({cwd, config}: DevOptions) {
   // const workerDirectories: string[] = [];
   const mountedDirectories: [string, string][] = [];
 
+  const broadcast = (channel: string, data: string) => {
+    for (const client of liveReloadClients) {
+      sendMessage(client, channel, data)
+    }
+  }
+
   for (const [id, workerConfig] of registeredWorkers) {
     if (!id.startsWith('mount:')) {
       continue;
@@ -178,12 +184,13 @@ export async function command({cwd, config}: DevOptions) {
 
   function getUrlFromFile(fileLoc: string): string | null {
     for (const [dirDisk, dirUrl] of mountedDirectories) {
-      if (fileLoc.startsWith(dirDisk)) {
+      if (fileLoc.startsWith(dirDisk + path.sep)) {
         const fileExt = path.extname(fileLoc).substr(1);
+        const resolvedDirUrl = dirUrl === '.' ? '' : '/' + dirUrl
         return (
-          `/` +
           fileLoc
-            .replace(dirDisk, dirUrl)
+            .replace(dirDisk, resolvedDirUrl)
+            .replace(/[/\\]+/g, '/')
             .replace(new RegExp(`${fileExt}$`), srcFileExtensionMapping[fileExt] || fileExt)
         );
       }
@@ -302,6 +309,9 @@ export async function command({cwd, config}: DevOptions) {
         sendMessage(res, 'connected', 'ready');
         setInterval(sendMessage, 60000, res, 'ping', 'waiting');
         liveReloadClients.push(res);
+        req.on('close', () => {
+          liveReloadClients.splice(liveReloadClients.indexOf(res), 1)
+        })
         return;
       }
 
@@ -492,9 +502,7 @@ export async function command({cwd, config}: DevOptions) {
               ) {
                 inMemoryBuildCache.clear();
                 await cacache.rm.all(BUILD_CACHE);
-                while (liveReloadClients.length > 0) {
-                  sendMessage(liveReloadClients.pop(), 'message', 'reload');
-                }
+                broadcast('message', 'reload');
               }
             }
           }
@@ -532,10 +540,8 @@ export async function command({cwd, config}: DevOptions) {
     .listen(port);
 
   async function onWatchEvent(fileLoc) {
-    for (const client of liveReloadClients) {
-      const fileUrl = getUrlFromFile(fileLoc);
-      sendMessage(client, 'message', JSON.stringify({url: fileUrl}));
-    }
+    const fileUrl = getUrlFromFile(fileLoc);
+    broadcast('message', JSON.stringify({url: fileUrl}));
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);
     await cacache.rm.entry(BUILD_CACHE, fileLoc);
@@ -547,10 +553,14 @@ export async function command({cwd, config}: DevOptions) {
     {
       ignored: config.exclude,
       persistent: true,
+      ignoreInitial: true,
+      disableGlobbing: false,
     },
   );
 
-  watcher.on('raw', (ev, fileLoc) => onWatchEvent(fileLoc));
+  ;['add', 'change', 'unlink'].forEach(event => {
+    watcher.on(event, (fileLoc) => onWatchEvent(fileLoc));
+  })
 
   process.on('SIGINT', () => {
     for (const client of liveReloadClients) {
