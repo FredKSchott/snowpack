@@ -425,6 +425,7 @@ export async function command({cwd, config}: DevOptions) {
         await fs.readFile(path.join(cwd, 'package.json'), {encoding: 'utf-8'}),
       );
       delete tempBuildManifest.name;
+      delete tempBuildManifest.babel;
       tempBuildManifest.devDependencies = tempBuildManifest.devDependencies || {};
       tempBuildManifest.devDependencies['@babel/core'] =
         tempBuildManifest.devDependencies['@babel/core'] || '^7.9.0';
