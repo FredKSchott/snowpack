@@ -19,7 +19,7 @@ const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
 const SPLIT_NAMED_IMPORTS_REGEX = /\bas\s+\w+|,/s;
 const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s]*\})?\s+from/s;
 
-const HTML_JS_REGEX = /<script.*?>(.*)<\/script>/gm;
+const HTML_JS_REGEX = /<script.*?>(.*)<\/script>/gms;
 
 /**
  * An install target represents information about a dependency to install.
