@@ -1,4 +1,4 @@
-## Contributions Welcome!
+# Contributions Welcome! 🎉
 
 Interested in contributing? We'd love your help!
 
@@ -11,7 +11,7 @@ cd ${REPO}
 yarn install
 ```
 
-### Editing an Existing Template
+## Editing an Existing Template
 
 After running `yarn install`, you can test a template by running npm scripts directly inside that template directory.
 
@@ -22,7 +22,7 @@ yarn build
 yarn test
 ```
 
-### Testing an Existing Template
+## Testing an Existing Template
 
 To test with a local copy of Snowpack, you can either use npm/yarn `link` OR just call the local CLI directly (recommended)
 
@@ -34,6 +34,6 @@ To test with a local copy of Snowpack, you can either use npm/yarn `link` OR jus
 snowpack install
 ```
 
-### Creating a New Template
+## Creating a New Template
 
 Check the issue tracker / README first to make sure the template has been requested. If not, start a discussion first to make that it fits into the vision for Create Snowpack App and is something that the team is willing to take on the maintainance of going forward.
