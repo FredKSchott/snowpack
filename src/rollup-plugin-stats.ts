@@ -6,7 +6,7 @@ import {OutputOptions, OutputBundle} from 'rollup';
 export type DependencyStats = {
   size: number;
   gzip: number;
-  brotli: number;
+  brotli?: number;
   delta?: number;
 };
 type DependencyStatsMap = {
@@ -42,7 +42,7 @@ export function rollupPluginDependencyStats(cb: (dependencyInfo: DependencyStats
       statsSummary[type][fileName] = {
         size: size,
         gzip: zlib.gzipSync(contents).byteLength,
-        brotli: zlib.brotliCompressSync(contents).byteLength,
+        brotli: zlib.brotliCompressSync ? zlib.brotliCompressSync(contents).byteLength : 0,
       };
       if (existingFileCache[fileName]) {
         const delta = (size - existingFileCache[fileName]) / 1000;
