@@ -18,7 +18,6 @@ const BARE_SPECIFIER_REGEX = /^[@\w](?!.*(:\/\/))/;
 const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
 const SPLIT_NAMED_IMPORTS_REGEX = /\bas\s+\w+|,/s;
 const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s]*\})?\s+from/s;
-
 const HTML_JS_REGEX = /<script.*?>(.*)<\/script>/gms;
 
 /**
@@ -223,7 +222,7 @@ export async function scanImports(
         while ((match = HTML_JS_REGEX.exec(result))) {
           allMatches.push(match);
         }
-        return allMatches.map((full, code) => code).join('\n');
+        return allMatches.map(([full, code]) => code).join('\n');
       }
       // If we don't recognize the file type, it could be source. Warn just in case.
       if (!mime.lookup(nodePath.extname(filePath))) {
