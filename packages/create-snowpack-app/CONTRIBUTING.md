@@ -2,28 +2,38 @@
 
 Interested in contributing? We'd love your help!
 
-Our [issue tracker](https://github.com/pikapkg/create-snowpack-app/issues) is always organized with a selection of high-proirity bugs, feature requests, and "help wanted!"/"good first issue" items. For general package troubleshooting and discussions, check out our [Package Community](https://www.pika.dev/npm/snowpack/discuss) discussion board.
+Our [issue tracker](https://github.com/pikapkg/create-snowpack-app/issues) is always organized with a selection of high-proirity bugs, feature requests, and "help wanted!"/"good first issue" items. For general package troubleshooting and discussions, check out ourr Snowpack [Package Community](https://www.pika.dev/npm/snowpack/discuss) discussion board.
 
 ```bash
-# Local Setup
+# Local Setup (we use yarn workspaces to manage dependencies)
 git clone ${REPO}
-npm install
+cd ${REPO}
+yarn install
 ```
 
-```bash
-# Build after changes
-npm run build
+### Editing an Existing Template
+
+After running `yarn install`, you can test a template by running npm scripts directly inside that template directory.
+
+```
+cd templates/app-template-react
+yarn start
+yarn build
+yarn test
 ```
 
-```bash
-# Run your tests
-npm test
+### Testing an Existing Template
+
+To test with a local copy of Snowpack, you can either use npm/yarn `link` OR just call the local CLI directly (recommended)
+
+```
+# Recommended
+~/Code/snowpack/pkg/dist-node/index.bin.js install
+
+# Also fine, after messing with npm/yarn link
+snowpack install
 ```
 
-```bash
-# Run snowpack locally by path, in some sibling project
-cd ../some-other-project && ../pkg/dist-node/index.bin.js
-# Or, link the built package to run anywhere via global CLI
-cd pkg && npm link
-snowpack
-```
+### Creating a New Template
+
+Check the issue tracker / README first to make sure the template has been requested. If not, start a discussion first to make that it fits into the vision for Create Snowpack App and is something that the team is willing to take on the maintainance of going forward.
