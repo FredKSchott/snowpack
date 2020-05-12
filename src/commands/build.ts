@@ -139,6 +139,7 @@ export async function command({cwd, config}: DevOptions) {
       env: npmRunPath.env(),
       extendEnv: true,
       shell: true,
+      cwd,
     });
     allWorkerPromises.push(workerPromise);
     workerPromise.catch((err) => {
@@ -281,6 +282,7 @@ export async function command({cwd, config}: DevOptions) {
             env: npmRunPath.env(),
             extendEnv: true,
             shell: true,
+            cwd,
             input: createReadStream(f),
           });
           if (stderr) {

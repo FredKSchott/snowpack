@@ -148,7 +148,12 @@ export async function command({cwd, config}: DevOptions) {
     // const tempBuildDir = await fs.mkdtemp(path.join(os.tmpdir(), `snowpack-${id}`));
     // workerDirectories.unshift(tempBuildDir);
     // cmd = cmd.replace(/\$DIST/g, tempBuildDir);
-    const workerPromise = execa.command(cmd, {env: npmRunPath.env(), extendEnv: true, shell: true});
+    const workerPromise = execa.command(cmd, {
+      env: npmRunPath.env(),
+      extendEnv: true,
+      shell: true,
+      cwd,
+    });
     const {stdout, stderr} = workerPromise;
     stdout?.on('data', (b) => {
       let stdOutput = b.toString();
@@ -268,6 +273,7 @@ export async function command({cwd, config}: DevOptions) {
           extendEnv: true,
           shell: true,
           input: code,
+          cwd,
         });
         if (stderr) {
           console.error(stderr);
@@ -359,10 +365,6 @@ export async function command({cwd, config}: DevOptions) {
           } else {
             continue;
           }
-          const fileLoc = await attemptLoadFile(requestedFile);
-          if (fileLoc) {
-            return [fileLoc, null];
-          }
 
           if (requestedFileExt) {
             for (const [id, workerConfig] of registeredWorkers) {
@@ -371,10 +373,10 @@ export async function command({cwd, config}: DevOptions) {
               }
               const srcExtMatchers = id.split(':')[1].split(',');
               for (const ext of srcExtMatchers) {
-                if (!srcFileExtensionMapping[ext]) {
-                  continue;
-                }
-                if (srcFileExtensionMapping[ext] === requestedFileExt.substr(1)) {
+                if (
+                  ext === requestedFileExt.substr(1) ||
+                  srcFileExtensionMapping[ext] === requestedFileExt.substr(1)
+                ) {
                   const srcFile = requestedFile.replace(requestedFileExt, `.${ext}`);
                   const fileLoc = await attemptLoadFile(srcFile);
                   if (fileLoc) {
@@ -382,6 +384,10 @@ export async function command({cwd, config}: DevOptions) {
                   }
                 }
               }
+            }
+            const fileLoc = await attemptLoadFile(requestedFile);
+            if (fileLoc) {
+              return [fileLoc, null];
             }
           } else {
             let fileLoc =
@@ -465,9 +471,7 @@ export async function command({cwd, config}: DevOptions) {
         const newFileHash = etag(fileContents);
         if (originalFileHash === newFileHash) {
           const coldCachedResponse: Buffer = cachedBuildData.data;
-          if (!isProxyModule) {
-            inMemoryBuildCache.set(fileLoc, coldCachedResponse);
-          }
+          inMemoryBuildCache.set(fileLoc, coldCachedResponse);
           let serverResponse: Buffer | string = coldCachedResponse;
           if (isRoute) {
             serverResponse =
@@ -485,23 +489,29 @@ export async function command({cwd, config}: DevOptions) {
           }
           // Trust... but verify.
           sendFile(req, res, serverResponse, responseFileExt);
-          if (!isProxyModule) {
-            let checkFinalBuildAnyway: string | null = null;
-            try {
-              checkFinalBuildAnyway = await buildFile(fileContents, fileLoc, fileBuilder);
-            } catch (err) {
-              // safe to ignore, it will be surfaced later anyway
-            } finally {
-              if (
-                !checkFinalBuildAnyway ||
-                !coldCachedResponse.equals(
-                  Buffer.from(checkFinalBuildAnyway, getEncodingType(requestedFileExt)),
-                )
-              ) {
-                inMemoryBuildCache.clear();
-                await cacache.rm.all(BUILD_CACHE);
-                broadcastMessage('message', 'reload');
-              }
+          let checkFinalBuildAnyway: string | null = null;
+          try {
+            checkFinalBuildAnyway = await buildFile(fileContents, fileLoc, fileBuilder);
+            if (checkFinalBuildAnyway && isProxyModule) {
+              checkFinalBuildAnyway = wrapEsmProxyResponse(
+                reqPath,
+                checkFinalBuildAnyway,
+                requestedFileExt,
+                true,
+              );
+            }
+          } catch (err) {
+            // safe to ignore, it will be surfaced later anyway
+          } finally {
+            if (
+              !checkFinalBuildAnyway ||
+              !coldCachedResponse.equals(
+                Buffer.from(checkFinalBuildAnyway, getEncodingType(requestedFileExt)),
+              )
+            ) {
+              inMemoryBuildCache.clear();
+              await cacache.rm.all(BUILD_CACHE);
+              broadcastMessage('message', 'reload');
             }
           }
           return;
@@ -516,16 +526,14 @@ export async function command({cwd, config}: DevOptions) {
         console.error(fileLoc, err);
         return sendError(res, 500);
       }
-      if (!isProxyModule) {
-        inMemoryBuildCache.set(fileLoc, Buffer.from(finalBuild, getEncodingType(requestedFileExt)));
-        const originalFileHash = etag(fileContents);
-        cacache.put(
-          BUILD_CACHE,
-          fileLoc,
-          Buffer.from(finalBuild, getEncodingType(requestedFileExt)),
-          {metadata: {originalFileHash}},
-        );
-      }
+      inMemoryBuildCache.set(fileLoc, Buffer.from(finalBuild, getEncodingType(requestedFileExt)));
+      const originalFileHash = etag(fileContents);
+      cacache.put(
+        BUILD_CACHE,
+        fileLoc,
+        Buffer.from(finalBuild, getEncodingType(requestedFileExt)),
+        {metadata: {originalFileHash}},
+      );
       if (isRoute) {
         finalBuild += `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
       }
