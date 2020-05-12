@@ -11,10 +11,11 @@ export async function scanCodeImportsExports(code: string): Promise<any[]> {
     if (imp.d === -2) {
       return false;
     }
-    // imp.d > -1 === dynamic import. skip for now
-    // TODO: if the entire value is a string, handle it
+    // imp.d > -1 === dynamic import
     if (imp.d > -1) {
-      return false;
+      const importStatement = code.substring(imp.s, imp.e);
+      const importSpecifierMatch = importStatement.match(/^\s*['"](.*)['"]\s*$/m);
+      return !!importSpecifierMatch;
     }
     return true;
   });
@@ -27,8 +28,15 @@ export async function transformEsmImports(
   const imports = await scanCodeImportsExports(_code);
   let rewrittenCode = _code;
   for (const imp of imports.reverse()) {
-    const spec = rewrittenCode.substring(imp.s, imp.e);
-    const rewrittenImport = replaceImport(spec);
+    let spec = rewrittenCode.substring(imp.s, imp.e);
+    if (imp.d > -1) {
+      const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
+      spec = importSpecifierMatch![1];
+    }
+    let rewrittenImport = replaceImport(spec);
+    if (imp.d > -1) {
+      rewrittenImport = JSON.stringify(rewrittenImport);
+    }
     rewrittenCode = spliceString(rewrittenCode, rewrittenImport, imp.s, imp.e);
   }
   return rewrittenCode;
