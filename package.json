@@ -51,11 +51,6 @@
     ]
   },
   "dependencies": {
-    "@babel/core": "^7.6.4",
-    "@babel/plugin-syntax-import-meta": "^7.8.3",
-    "@babel/plugin-syntax-typescript": "^7.8.3",
-    "@babel/plugin-transform-react-jsx": "^7.9.4",
-    "@babel/preset-env": "^7.6.3",
     "@rollup/plugin-alias": "^3.0.1",
     "@rollup/plugin-commonjs": "~11.0.0",
     "@rollup/plugin-json": "^4.0.0",
@@ -70,6 +65,7 @@
     "cosmiconfig": "^6.0.0",
     "deepmerge": "^4.2.2",
     "es-module-lexer": "^0.3.17",
+    "esbuild": "^0.3.0",
     "etag": "^1.8.1",
     "execa": "^4.0.0",
     "fs-extra": "^9.0.0",

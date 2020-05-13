@@ -1,13 +1,14 @@
-import babel from '@babel/core';
 import chalk from 'chalk';
 import nodePath from 'path';
 import fs from 'fs';
+import path from 'path';
 import glob from 'glob';
+import execa from 'execa';
 import mime from 'mime-types';
 import validatePackageName from 'validate-npm-package-name';
 import {init as initESModuleLexer, parse, ImportSpecifier} from 'es-module-lexer';
 import {isTruthy} from './util';
-import {DevScripts, SnowpackConfig} from './config';
+import {SnowpackConfig} from './config';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -181,7 +182,7 @@ export async function scanImports(
   );
   const includeFiles = Array.from(new Set(([] as string[]).concat.apply([], includeFileSets)));
   if (includeFiles.length === 0) {
-    console.warn(`[ERROR]: No mouned files.`);
+    console.warn(`[ERROR]: No mounted files.`);
     return [];
   }
 
@@ -203,15 +204,10 @@ export async function scanImports(
       }
       // JSX breaks our import scanner, so we need to transform it before sending it to our scanner.
       if (ext === '.jsx' || ext === '.tsx') {
-        const result = await babel.transformFileAsync(filePath, {
-          plugins: [
-            [require('@babel/plugin-transform-react-jsx'), {runtime: 'classic'}],
-            [require('@babel/plugin-syntax-typescript'), {isTSX: true}],
-          ],
-          babelrc: false,
-          configFile: false,
-        });
-        return result && result.code;
+        const esbuildPath = require.resolve('esbuild');
+        const esbuildBinPath = path.join(esbuildPath, '..', '..', 'bin', 'esbuild');
+        const {stdout, stderr} = await execa(esbuildBinPath, [filePath]);
+        return stdout;
       }
       if (ext === '.vue' || ext === '.svelte') {
         const result = await fs.promises.readFile(filePath, 'utf-8');
