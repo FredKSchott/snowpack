@@ -23,7 +23,9 @@
 ### What is Snowpack?
 
 <div class='notification'>
-Snowpack lets you build web apps faster by replacing your traditional app bundler during development. No bundling means instant startup time and faster updates on every save.
+Snowpack helps you build web apps faster by replacing your traditional app bundler during development. No bundling means less unnecessary tooling, instant dev startup time and faster updates on every save.
+<br/><br/>
+When you're ready to deploy your site, Snowpack automatically optimizes and bundles your assets for production.
 </div>
 
 ### Key Features
