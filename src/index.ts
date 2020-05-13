@@ -322,6 +322,7 @@ export async function install(
     return false;
   }
 
+  let isCircularImportFound = false;
   const inputOptions: InputOptions = {
     input: installEntrypoints,
     external: externalPackages,
@@ -362,6 +363,13 @@ export async function install(
       ...userDefinedRollup.plugins, // load user-defined plugins last
     ].filter(Boolean) as Plugin[],
     onwarn(warning, warn) {
+      if (warning.code === 'CIRCULAR_DEPENDENCY') {
+        if (!isCircularImportFound) {
+          isCircularImportFound = true;
+          logError(`Warning: 1+ circular dependencies found via "${warning.importer}".`);
+        }
+        return;
+      }
       if (warning.code === 'UNRESOLVED_IMPORT') {
         logError(
           `'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`,
