@@ -16,7 +16,7 @@ $ ls web_modules/
 # react.js react-dom.js import.map.js
 ```
 
-From here, any package can be imported and run directly in the browser with zero addition bundling or tooling required. This ability to import npm packages natively in the browser (without a bundler) is the foundation that all no-bundle development (and the rest of Snowpack) is built on top of.
+From here, any package can be imported and run directly in the browser with zero additional bundling or tooling required. This ability to import npm packages natively in the browser (without a bundler) is the foundation that all no-bundle development (and the rest of Snowpack) is built on top of.
 
 ``` html
 <!-- This runs directly in the browser! -->
