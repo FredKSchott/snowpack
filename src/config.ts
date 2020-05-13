@@ -232,7 +232,6 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     }
     delete config.scripts[scriptId];
   }
-  console.log(config.scripts);
   return config;
 }
 
