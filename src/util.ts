@@ -103,8 +103,6 @@ export function resolveDependencyManifest(dep: string, cwd: string) {
  * file extension (note: lowercase is fine).
  */
 export const MISSING_PLUGIN_SUGGESTIONS: {[ext: string]: string} = {
-  '.css':
-    'Try installing rollup-plugin-postcss and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)',
   '.svelte':
     'Try installing rollup-plugin-svelte and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)',
   '.vue':
