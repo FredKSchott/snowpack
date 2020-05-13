@@ -399,7 +399,7 @@ export async function command({cwd, config}: DevOptions) {
     messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
     messageBus.emit('WORKER_UPDATE', {
       id: 'bundle:*',
-      state: ['SKIP', isBundledHardcoded ? 'green' : 'yellow'],
+      state: ['SKIP', isBundledHardcoded ? 'dim' : 'yellow'],
     });
     if (!isBundledHardcoded) {
       messageBus.emit('WORKER_MSG', {
