@@ -22,7 +22,13 @@ export function rollupPluginEntrypointAlias({cwd}: {cwd: string}): Plugin {
       }
       const [, packageScope, packageName] = source.match(IS_DEEP_PACKAGE_IMPORT)!;
       const packageFullName = packageScope ? `${packageScope}${packageName}` : packageName;
-      const [, manifest] = resolveDependencyManifest(packageFullName, cwd);
+      let manifest: any;
+      try {
+        const [, _manifest] = resolveDependencyManifest(packageFullName, cwd);
+        manifest = _manifest;
+      } catch (err) {
+        return null;
+      }
       if (!manifest) {
         return null;
       }
