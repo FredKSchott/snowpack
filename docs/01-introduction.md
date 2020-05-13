@@ -45,6 +45,7 @@ Snowpack lets you build web apps faster by replacing your traditional app bundle
 - Vue
 - lit-html
 - lit-element
+- Styled Components
 - Tailwind CSS
 - and more!
 
@@ -57,6 +58,8 @@ Snowpack lets you build web apps faster by replacing your traditional app bundle
 - Babel
 - TypeScript
 - PostCSS
+- esbuild
+- 11ty
 - and more!
 
 </div>
