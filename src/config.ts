@@ -7,7 +7,7 @@ import {all as merge} from 'deepmerge';
 import chalk from 'chalk';
 
 const CONFIG_NAME = 'snowpack';
-const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
+const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*'];
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
