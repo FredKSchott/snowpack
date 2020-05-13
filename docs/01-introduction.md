@@ -20,14 +20,20 @@
 
 ## Overview
 
+### What is Snowpack?
+
+<div class='notification'>
+Snowpack lets you build web apps faster by replacing your traditional app bundler during development. No more bundling = less tooling & faster development. 
+</div>
+
 ### Key Features
 
-- **No More Bundling During Development:** Snowpack runs at near-instant speeds by avoiding all unnecessary bundling work during development.
-- **Instant Dev Startup:** Snowpack's dev server starts up in less than 20ms on most machines. Files are only built on-demand, as requested by the browser.
-- **Instant Dev Rebuilding:** Changes that you make are reflected in the browser instantly. Never wait more than a few milliseconds when you hit save.
-- **Scales as you Grow:** With zero upfront bundling work, Snowpack doesn't slow down as your application grows. Only build files as needed.
-- **1-Line Build Integrations:**  Snowpack replaces messy bundler configuration files with a  familiar ["scripts" interface](#build-scripts).
-- **Optimized Bundling for Production:** It's the best of both worlds: fast bundle-free development + optimized bundling in production (powered by Parcel).
+- 100ms Dev Server Startup
+- Instant Build Updates on Every Save
+- Built-in CSS Hot Module Replacement (HMR)
+- Stays Fast as Your Codebase Grows
+- Custom [Build Script](#build-scripts) Integrations
+- Bundled, Optimized Production Builds (Powered by Parcel)
 
 ### Library Support
 
@@ -39,6 +45,7 @@
 - Vue
 - lit-html
 - lit-element
+- Tailwind CSS
 - and more!
 
 </div>
