@@ -449,6 +449,10 @@ export async function command({cwd, config}: DevOptions) {
         path.join(buildDirectoryLoc, config.devOptions.fallback),
         fallbackFile.replace(/type\=\"module\"/g, ''),
       );
+      // Remove PostCSS config since it's no longer needed. Parcel does its own optimization.
+      rimraf.sync(path.join(buildDirectoryLoc, 'postcss.config.js'));
+      rimraf.sync(path.join(buildDirectoryLoc, '.postcssrc'));
+      rimraf.sync(path.join(buildDirectoryLoc, '.postcssrc.js'));
     }
 
     await prepareBuildDirectoryForParcel();
