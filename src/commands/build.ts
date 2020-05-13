@@ -98,8 +98,8 @@ export async function command({cwd, config}: DevOptions) {
       relevantWorkers.push([id, workerConfig]);
     }
     if (id.startsWith('build:') || id.startsWith('plugin:')) {
-      const exts = id.split(':')[1].split(',');
-      allBuildExtensions.push(...exts); // for (const ext of exts) {
+      const ext = id.split(':')[1];
+      allBuildExtensions.push(ext); // for (const ext of exts) {
       // extToWorkerMap[ext] = extToWorkerMap[ext] || [];
       // extToWorkerMap[ext].push([id, workerConfig]);
       // }

@@ -173,7 +173,7 @@ export async function scanImports(
       }
       const dirDisk = nodePath.resolve(cwd, cmdArr[0]);
       return glob.sync(`**/*`, {
-        ignore: exclude,
+        ignore: exclude.concat(['**/web_modules/**/*']),
         cwd: dirDisk,
         absolute: true,
         nodir: true,

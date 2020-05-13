@@ -7,7 +7,7 @@ import {all as merge} from 'deepmerge';
 import chalk from 'chalk';
 
 const CONFIG_NAME = 'snowpack';
-const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*'];
+const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -213,21 +213,26 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
       delete config.scripts[scriptId];
     }
   }
-  const foundExtensions = new Set();
   for (const scriptId of Object.keys(config.scripts)) {
     if (!scriptId.startsWith('build:') && !scriptId.startsWith('plugin:')) {
       continue;
     }
+    const scriptType = scriptId.split(':')[0];
     const exts = scriptId.split(':')[1].split(',');
+    if (exts.length === 1) {
+      continue;
+    }
     for (const ext of exts) {
-      if (foundExtensions.has(ext)) {
+      if (config.scripts[`build:${ext}`] || config.scripts[`plugin:${ext}`]) {
         handleConfigError(
           `Multiple "scripts" match the "${ext}" file extension.\nCurrently, only one script per file type is supported.`,
         );
       }
-      foundExtensions.add(ext);
+      config.scripts[`${scriptType}:${ext}`] = {...config.scripts[scriptId]};
     }
+    delete config.scripts[scriptId];
   }
+  console.log(config.scripts);
   return config;
 }
 

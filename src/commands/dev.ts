@@ -371,17 +371,15 @@ export async function command({cwd, config}: DevOptions) {
               if (!id.startsWith('build:') && !id.startsWith('plugin:')) {
                 continue;
               }
-              const srcExtMatchers = id.split(':')[1].split(',');
-              for (const ext of srcExtMatchers) {
-                if (
-                  ext === requestedFileExt.substr(1) ||
-                  srcFileExtensionMapping[ext] === requestedFileExt.substr(1)
-                ) {
-                  const srcFile = requestedFile.replace(requestedFileExt, `.${ext}`);
-                  const fileLoc = await attemptLoadFile(srcFile);
-                  if (fileLoc) {
-                    return [fileLoc, [id, workerConfig]];
-                  }
+              const extMatcher = id.split(':')[1];
+              if (
+                extMatcher === requestedFileExt.substr(1) ||
+                srcFileExtensionMapping[extMatcher] === requestedFileExt.substr(1)
+              ) {
+                const srcFile = requestedFile.replace(requestedFileExt, `.${extMatcher}`);
+                const fileLoc = await attemptLoadFile(srcFile);
+                if (fileLoc) {
+                  return [fileLoc, [id, workerConfig]];
                 }
               }
             }
