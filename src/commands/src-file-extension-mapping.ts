@@ -4,4 +4,5 @@ export default {
   tsx: 'js',
   vue: 'js',
   svelte: 'js',
+  php: 'html',
 };
