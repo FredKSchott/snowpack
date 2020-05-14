@@ -41,9 +41,7 @@ export function rollupPluginCss() {
         return null;
       }
       const code = await fs.readFile(id, {encoding: 'utf8'});
-      const humanReadableName = id
-        .replace(/.*node_modules[\/\\]/, '')
-        .replace(new RegExp(path.sep, 'g'), '/');
+      const humanReadableName = id.replace(/.*node_modules[\/\\]/, '').replace(/[\/\\]/g, '/');
       return getInjectorCode(humanReadableName, code);
     },
   } as Plugin;
