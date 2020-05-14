@@ -598,14 +598,37 @@ export async function command({cwd, config}: DevOptions) {
   return new Promise(() => {});
 }
 
-function openInBrowser(port) {
+async function openInBrowser(port) {
   const url = `http://localhost:${port}`;
+
+  // If we're on OS X, we can try opening
+  // Chrome with AppleScript. This lets us reuse an
+  // existing tab when possible instead of creating a new one.
+  if (process.platform === 'darwin') {
+    try {
+      // Try our best to reuse existing tab
+      // on OS X Google Chrome with AppleScript
+      await execa.command('ps cax | grep "Google Chrome"', {
+        shell: true,
+      });
+      await execa('osascript ../assets/openChrome.applescript "' + encodeURI(url) + '"', {
+        cwd: __dirname,
+        stdio: 'ignore',
+        shell: true,
+      });
+      return true;
+    } catch (err) {
+      // Ignore errors.
+    }
+  }
 
   let openCmd = 'xdg-open';
   if (process.platform === 'darwin') openCmd = 'open';
   if (process.platform === 'win32') openCmd = 'start';
 
-  execa(openCmd, [url]).catch(() => {
+  try {
+    await execa(openCmd, [url]);
+  } catch(e) {
     // couldn't open automatically, safe to ignore
-  });
+  }
 }
