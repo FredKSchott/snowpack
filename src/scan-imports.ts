@@ -1,9 +1,8 @@
 import chalk from 'chalk';
 import nodePath from 'path';
 import fs from 'fs';
-import path from 'path';
 import glob from 'glob';
-import execa from 'execa';
+import esbuild from 'esbuild';
 import mime from 'mime-types';
 import validatePackageName from 'validate-npm-package-name';
 import {init as initESModuleLexer, parse, ImportSpecifier} from 'es-module-lexer';
@@ -187,6 +186,7 @@ export async function scanImports(
   }
 
   // Scan every matched JS file for web dependency imports
+  const esbuildService = await esbuild.startService();
   const loadedFiles = await Promise.all(
     includeFiles.map(async (filePath) => {
       const ext = nodePath.extname(filePath);
@@ -199,15 +199,16 @@ export async function scanImports(
         return null;
       }
       // Our import scanner can handle normal JS & even TypeScript without a problem.
-      if (ext === '.js' || ext === '.mjs' || ext === '.ts') {
+      if (ext === '.js' || ext === '.mjs') {
         return fs.promises.readFile(filePath, 'utf-8');
       }
       // JSX breaks our import scanner, so we need to transform it before sending it to our scanner.
-      if (ext === '.jsx' || ext === '.tsx') {
-        const esbuildPath = require.resolve('esbuild');
-        const esbuildBinPath = path.join(esbuildPath, '..', '..', 'bin', 'esbuild');
-        const {stdout, stderr} = await execa(esbuildBinPath, [filePath]);
-        return stdout;
+      if (ext === '.jsx' || ext === '.ts' || ext === '.tsx') {
+        const code = await fs.promises.readFile(filePath, 'utf-8');
+        const {js} = await esbuildService.transform(code, {
+          loader: ext.substr(1) as 'js' | 'ts' | 'tsx',
+        });
+        return js;
       }
       if (ext === '.vue' || ext === '.svelte') {
         const result = await fs.promises.readFile(filePath, 'utf-8');
@@ -229,6 +230,7 @@ export async function scanImports(
       return null;
     }),
   );
+  esbuildService.stop();
   return (loadedFiles as string[])
     .filter((code) => !!code)
     .map((code) => getInstallTargetsForFile(code))
