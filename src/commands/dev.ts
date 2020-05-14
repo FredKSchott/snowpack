@@ -587,7 +587,10 @@ function openInBrowser(port) {
   if (process.platform === 'darwin') openCmd = 'open';
   if (process.platform === 'win32') openCmd = 'start';
 
-  execa(openCmd, [url]).catch(() => {
+  let args = [url];
+  if (process.platform === 'win32') args = ['', ...args];  
+ 
+  execa(openCmd, args).catch(() => {
     // couldn't open automatically, safe to ignore
   });
 }
