@@ -31,6 +31,7 @@ import {
   writeLockfile,
 } from './util.js';
 import {rollupPluginReactFix} from './rollup-plugin-react-fix';
+import {rollupPluginCss} from './rollup-plugin-css';
 
 type InstallResult = 'SUCCESS' | 'ASSET' | 'FAIL';
 interface DependencyLoc {
@@ -354,6 +355,7 @@ export async function install(
         compact: false,
         namedExports: true,
       }),
+      rollupPluginCss(),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'], // Default: [ '.js' ]
         namedExports: knownNamedExports,
