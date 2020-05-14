@@ -44,10 +44,10 @@ Snowpack supports several other script types in addition to the basic `"build"` 
 - `"build:*": "..."`
   - Pipe any matching file into this CLI command, and write it's output to disk.
   - ex: `"build:js,jsx": "babel --filename $FILE"`
-- `"lintall:*": "..."`
+- `"run:*": "..."`
   - Run a single command once, log any output/errors.
   - Useful for tools like TypeScript that lint multiple files / entire projects at once.
-  - ex: `"lintall:ts,tsx": "tsc"`
+  - ex: `"run:ts,tsx": "tsc"`
 - `"plugin:*": "..."`
   - Connect a custom Snowpack plugin. See the section below for more info.
 
@@ -57,7 +57,7 @@ Snowpack provides a few variables that you can use to make your build scripts (a
 
 - `$1` - The original command of a script modifier.
   - Useful to reduce copy-pasting in your scripts.
-  - ex: `"lintall:ts,tsx::watch": "$1 --watch"`
+  - ex: `"run:ts,tsx::watch": "$1 --watch"`
 - `$FILE` - The absolute path of the source file.
   - Especially useful when Babel plugins require it.
   - ex: `"build:js": "babel --filename $FILE`
@@ -67,17 +67,17 @@ Snowpack provides a few variables that you can use to make your build scripts (a
 
 You can extend your build scripts via the `"::"` script modifier token. These act as addons to a previous matching script that extend that script's behavior:
 
-- `"lintall:*::watch"`
-  - This adds a watch mode to a previous "lintall" script, so that you can turn any supported linter into a live-updating watch command during development. 
+- `"run:*::watch"`
+  - This adds a watch mode to a previous "run" script, so that you can turn any supported linter into a live-updating watch command during development. 
   
 ```js
 // snowpack.config.json
 {
   "scripts": {
     // During build, runs TypeScript to lint your project.
-    "lintall:ts,tsx": "tsc --noEmit",
+    "run:ts,tsx": "tsc --noEmit",
     // During dev, runs `tsc --noEmit --watch` for live feedback.
-    "lintall:ts,tsx::watch": "$1 --watch",
+    "run:ts,tsx::watch": "$1 --watch",
   }
 }
 ```

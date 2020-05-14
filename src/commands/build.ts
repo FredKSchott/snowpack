@@ -21,10 +21,8 @@ export async function command({cwd, config}: CommandOptions) {
   process.env.NODE_ENV = 'production';
 
   const messageBus = new EventEmitter();
-  const allRegisteredWorkers = Object.entries(config.scripts);
-  const relevantWorkers: [string, DevScript][] = [];
+  const relevantWorkers: DevScript[] = [];
   const allBuildExtensions: string[] = [];
-  const allWorkerPromises: Promise<any>[] = [];
 
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
   let dependencyImportMap: ImportMap = {imports: {}};
@@ -48,31 +46,10 @@ export async function command({cwd, config}: CommandOptions) {
   const buildDirectoryLoc = isBundled ? path.join(cwd, `.build`) : config.devOptions.out;
   const finalDirectoryLoc = config.devOptions.out;
 
-  if (allRegisteredWorkers.length === 0) {
+  if (config.scripts.length <= 1) {
     console.error(chalk.red(`No build scripts found, so nothing to build.`));
     console.error(`See https://www.snowpack.dev/#build-scripts for help getting started.`);
     return;
-  }
-
-  const mountedDirectories: [string, string][] = [];
-  for (const [id, workerConfig] of allRegisteredWorkers) {
-    if (!id.startsWith('mount:')) {
-      continue;
-    }
-    const cmdArr = workerConfig.cmd.split(/\s+/);
-    if (cmdArr[0] !== 'mount') {
-      throw new Error(`script[${id}] must use the mount command`);
-    }
-    cmdArr.shift();
-    let dirUrl, dirDisk;
-    dirDisk = path.resolve(cwd, cmdArr[0]);
-    if (cmdArr.length === 1) {
-      dirUrl = cmdArr[0];
-    } else {
-      const {to} = yargs(cmdArr);
-      dirUrl = to;
-    }
-    mountedDirectories.push([dirDisk, dirUrl]);
   }
 
   rimraf.sync(finalDirectoryLoc);
@@ -83,25 +60,20 @@ export async function command({cwd, config}: CommandOptions) {
   }
 
   // const extToWorkerMap: {[ext: string]: any[]} = {};
-  for (const [id, workerConfig] of allRegisteredWorkers) {
-    if (
-      id.startsWith('build:') ||
-      id.startsWith('plugin:') ||
-      id.startsWith('lintall:') ||
-      id.startsWith('mount:')
-    ) {
-      relevantWorkers.push([id, workerConfig]);
+  for (const workerConfig of config.scripts) {
+    const {type, match} = workerConfig;
+    if (type === 'build' || type === 'plugin' || type === 'run' || type === 'mount') {
+      relevantWorkers.push(workerConfig);
     }
-    if (id.startsWith('build:') || id.startsWith('plugin:')) {
-      const ext = id.split(':')[1];
-      allBuildExtensions.push(ext); // for (const ext of exts) {
+    if (type === 'build' || type === 'plugin') {
+      allBuildExtensions.push(...match); // for (const ext of exts) {
       // extToWorkerMap[ext] = extToWorkerMap[ext] || [];
       // extToWorkerMap[ext].push([id, workerConfig]);
       // }
     }
   }
 
-  relevantWorkers.push(['bundle:*', {cmd: 'NA', watch: undefined}]);
+  relevantWorkers.push({id: 'bundle:*', type: 'bundle', match: ['*'], cmd: 'NA', watch: undefined});
 
   console.log = (...args) => {
     messageBus.emit('CONSOLE', {level: 'log', args});
@@ -125,59 +97,14 @@ export async function command({cwd, config}: CommandOptions) {
     });
   }
 
-  for (const [id, workerConfig] of relevantWorkers) {
-    if (!id.startsWith('lintall:')) {
-      continue;
-    }
-    messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-    const workerPromise = execa.command(workerConfig.cmd, {
-      env: npmRunPath.env(),
-      extendEnv: true,
-      shell: true,
-      cwd,
-    });
-    allWorkerPromises.push(workerPromise);
-    workerPromise.catch((err) => {
-      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
-      messageBus.emit('WORKER_COMPLETE', {id, error: err});
-    });
-    workerPromise.then(() => {
-      messageBus.emit('WORKER_COMPLETE', {id, error: null});
-    });
-    const {stdout, stderr} = workerPromise;
-    stdout?.on('data', (b) => {
-      let stdOutput = b.toString();
-      if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
-        messageBus.emit('WORKER_RESET', {id});
-        stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
-      }
-      if (id.endsWith(':tsc')) {
-        if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
-          messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-        }
-        if (/Watching for file changes./gm.test(stdOutput)) {
-          messageBus.emit('WORKER_UPDATE', {id, state: 'WATCHING'});
-        }
-        const errorMatch = stdOutput.match(/Found (\d+) error/);
-        if (errorMatch && errorMatch[1] !== '0') {
-          messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
-        }
-      }
-      messageBus.emit('WORKER_MSG', {id, level: 'log', msg: stdOutput});
-    });
-    stderr?.on('data', (b) => {
-      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
-    });
-  }
-
   const mountDirDetails: any[] = relevantWorkers
-    .map(([id, scriptConfig]) => {
-      if (!id.startsWith('mount:')) {
+    .map((scriptConfig) => {
+      if (scriptConfig.type !== 'mount') {
         return false;
       }
       const cmdArr = scriptConfig.cmd.split(/\s+/);
       if (cmdArr[0] !== 'mount') {
-        throw new Error(`script[${id}] must use the mount command`);
+        throw new Error(`script[${scriptConfig.id}] must use the mount command`);
       }
       cmdArr.shift();
       let dirDest, dirDisk;
@@ -188,7 +115,7 @@ export async function command({cwd, config}: CommandOptions) {
         const {to} = yargs(cmdArr);
         dirDest = path.resolve(buildDirectoryLoc, to);
       }
-      return [id, dirDisk, dirDest];
+      return [scriptConfig.id, dirDisk, dirDest];
     })
     .filter(Boolean);
 
@@ -256,10 +183,57 @@ export async function command({cwd, config}: CommandOptions) {
     }
   }
 
+  for (const workerConfig of relevantWorkers) {
+    const {id, type, match} = workerConfig;
+    if (type !== 'run') {
+      continue;
+    }
+    messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+    const workerPromise = execa.command(workerConfig.cmd, {
+      env: npmRunPath.env(),
+      extendEnv: true,
+      shell: true,
+      cwd,
+    });
+    workerPromise.catch((err) => {
+      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
+      messageBus.emit('WORKER_COMPLETE', {id, error: err});
+    });
+    workerPromise.then(() => {
+      messageBus.emit('WORKER_COMPLETE', {id, error: null});
+    });
+    const {stdout, stderr} = workerPromise;
+    stdout?.on('data', (b) => {
+      let stdOutput = b.toString();
+      if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
+        messageBus.emit('WORKER_RESET', {id});
+        stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
+      }
+      if (id.endsWith(':tsc')) {
+        if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
+          messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+        }
+        if (/Watching for file changes./gm.test(stdOutput)) {
+          messageBus.emit('WORKER_UPDATE', {id, state: 'WATCHING'});
+        }
+        const errorMatch = stdOutput.match(/Found (\d+) error/);
+        if (errorMatch && errorMatch[1] !== '0') {
+          messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
+        }
+      }
+      messageBus.emit('WORKER_MSG', {id, level: 'log', msg: stdOutput});
+    });
+    stderr?.on('data', (b) => {
+      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
+    });
+    await workerPromise;
+  }
+
   const allBuiltFromFiles = new Set();
   const allProxiedFiles = new Set<string>();
-  for (const [id, workerConfig] of relevantWorkers) {
-    if (!id.startsWith('build:') && !id.startsWith('plugin:')) {
+  for (const workerConfig of relevantWorkers) {
+    const {id, type} = workerConfig;
+    if (type !== 'build' && type !== 'plugin') {
       continue;
     }
     messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
@@ -271,7 +245,7 @@ export async function command({cwd, config}: CommandOptions) {
         }
 
         let {cmd} = workerConfig;
-        if (id.startsWith('build:')) {
+        if (type === 'build') {
           cmd = cmd.replace('$FILE', f);
           const {stdout, stderr} = await execa.command(cmd, {
             env: npmRunPath.env(),
@@ -325,7 +299,7 @@ export async function command({cwd, config}: CommandOptions) {
           await fs.writeFile(outPath, code);
           allBuiltFromFiles.add(f);
         }
-        if (id.startsWith('plugin:')) {
+        if (type === 'plugin') {
           const modulePath = require.resolve(cmd, {paths: [cwd]});
           const {build} = require(modulePath);
           try {
@@ -378,8 +352,6 @@ export async function command({cwd, config}: CommandOptions) {
     }
     messageBus.emit('WORKER_COMPLETE', {id, error: null});
   }
-
-  await Promise.all(allWorkerPromises);
 
   for (const proxiedFileLoc of allProxiedFiles) {
     const proxiedCode = await fs.readFile(proxiedFileLoc, {encoding: 'utf8'});

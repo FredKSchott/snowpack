@@ -75,8 +75,8 @@ TypeScript will automatically read config from your local project `tsconfig.json
 
 ```js
 "scripts": { 
-  "lintall:ts,tsx": "tsc --noEmit",
-  "lintall:ts,tsx::watch": "$1 --watch"
+  "run:ts,tsx": "tsc --noEmit",
+  "run:ts,tsx::watch": "$1 --watch"
 }
 ```
 
@@ -85,8 +85,8 @@ Note that while TypeScript is a great type checker, we recommend using Babel to 
 ```js
 "scripts": { 
   "plugin:ts,tsx": "@snowpack/plugin-babel",
-  "lintall:ts,tsx": "tsc --noEmit",
-  "lintall:ts,tsx::watch": "$1 --watch"
+  "run:ts,tsx": "tsc --noEmit",
+  "run:ts,tsx::watch": "$1 --watch"
 }
 ```
 

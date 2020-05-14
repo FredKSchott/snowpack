@@ -24,26 +24,26 @@
  * SOFTWARE.
  */
 
+import cacache from 'cacache';
 import chalk from 'chalk';
+import chokidar from 'chokidar';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
-import {promises as fs, existsSync, readFileSync, watch as fsWatch} from 'fs';
+import {promises as fs, readFileSync} from 'fs';
 import http from 'http';
-import chokidar from 'chokidar';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
+import os from 'os';
 import path from 'path';
 import url from 'url';
-import os from 'os';
-import {SnowpackConfig, DevScript, DevScripts} from '../config';
-import {paint} from './paint';
 import yargs from 'yargs-parser';
-import srcFileExtensionMapping from './src-file-extension-mapping';
+import {DevScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
-import {ImportMap, BUILD_CACHE, CommandOptions} from '../util';
-import cacache from 'cacache';
+import {BUILD_CACHE, CommandOptions, ImportMap} from '../util';
 import {wrapEsmProxyResponse} from './build-util';
+import {paint} from './paint';
+import srcFileExtensionMapping from './src-file-extension-mapping';
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
 function getEncodingType(ext: string): 'utf8' | 'binary' {
@@ -92,9 +92,9 @@ function getUrlFromFile(mountedDirectories: [string, string][], fileLoc: string)
   return null;
 }
 
-function getMountedDirectory(cwd: string, registeredWorker: [string, DevScript]): [string, string] {
-  const [id, workerConfig] = registeredWorker;
-  const cmdArr = workerConfig.cmd.split(/\s+/);
+function getMountedDirectory(cwd: string, workerConfig: DevScript): [string, string] {
+  const {id, cmd} = workerConfig;
+  const cmdArr = cmd.split(/\s+/);
   if (cmdArr[0] !== 'mount') {
     throw new Error(`script[${id}] must use the mount command`);
   }
@@ -122,7 +122,6 @@ export async function command({cwd, config}: CommandOptions) {
   const filesBeingBuilt = new Map<string, Promise<string>>();
   const liveReloadClients: http.ServerResponse[] = [];
   const messageBus = new EventEmitter();
-  const registeredWorkers = Object.entries(config.scripts);
   const mountedDirectories: [string, string][] = [];
 
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
@@ -222,8 +221,8 @@ export async function command({cwd, config}: CommandOptions) {
     }
   }
 
-  function runLintAll(id: string, workerConfig: DevScript) {
-    let {cmd} = workerConfig;
+  function runLintAll(workerConfig: DevScript) {
+    let {id, cmd} = workerConfig;
     if (workerConfig.watch) {
       cmd += workerConfig.watch.replace('$1', '');
     }
@@ -266,13 +265,16 @@ export async function command({cwd, config}: CommandOptions) {
     });
   }
 
-  for (const [id, workerConfig] of registeredWorkers) {
-    if (id.startsWith('lintall:')) {
-      runLintAll(id, workerConfig);
+  for (const workerConfig of config.scripts) {
+    if (workerConfig.id.startsWith('run:')) {
+      runLintAll(workerConfig);
     }
-    if (id.startsWith('mount:')) {
-      mountedDirectories.push(getMountedDirectory(cwd, [id, workerConfig]));
-      setTimeout(() => messageBus.emit('WORKER_UPDATE', {id, state: ['DONE', 'green']}), 400);
+    if (workerConfig.id.startsWith('mount:')) {
+      mountedDirectories.push(getMountedDirectory(cwd, workerConfig));
+      setTimeout(
+        () => messageBus.emit('WORKER_UPDATE', {id: workerConfig.id, state: ['DONE', 'green']}),
+        400,
+      );
     }
   }
 
@@ -349,19 +351,21 @@ export async function command({cwd, config}: CommandOptions) {
           }
 
           if (requestedFileExt) {
-            for (const [id, workerConfig] of registeredWorkers) {
+            for (const workerConfig of config.scripts) {
+              const {id, match} = workerConfig;
               if (!id.startsWith('build:') && !id.startsWith('plugin:')) {
                 continue;
               }
-              const extMatcher = id.split(':')[1];
-              if (
-                extMatcher === requestedFileExt.substr(1) ||
-                srcFileExtensionMapping[extMatcher] === requestedFileExt.substr(1)
-              ) {
-                const srcFile = requestedFile.replace(requestedFileExt, `.${extMatcher}`);
-                const fileLoc = await attemptLoadFile(srcFile);
-                if (fileLoc) {
-                  return [fileLoc, [id, workerConfig]];
+              for (const extMatcher of match) {
+                if (
+                  extMatcher === requestedFileExt.substr(1) ||
+                  srcFileExtensionMapping[extMatcher] === requestedFileExt.substr(1)
+                ) {
+                  const srcFile = requestedFile.replace(requestedFileExt, `.${extMatcher}`);
+                  const fileLoc = await attemptLoadFile(srcFile);
+                  if (fileLoc) {
+                    return [fileLoc, [id, workerConfig]];
+                  }
                 }
               }
             }
@@ -569,7 +573,7 @@ export async function command({cwd, config}: CommandOptions) {
     .reduce((every: os.NetworkInterfaceInfo[], i) => [...every, ...(i || [])], [])
     .filter((i) => i.family === 'IPv4' && i.internal === false)
     .map((i) => i.address);
-  paint(messageBus, registeredWorkers, undefined, {
+  paint(messageBus, config.scripts, undefined, {
     port,
     ips,
     startTimeMs: Date.now() - serverStart,

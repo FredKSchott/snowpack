@@ -26,7 +26,7 @@ const WORKER_BASE_STATE = {done: false, error: null, output: ''};
 
 export function paint(
   bus: EventEmitter,
-  registeredWorkers: [string, DevScript][],
+  registeredWorkers: DevScript[],
   buildMode: {dest: string} | undefined,
   devMode: {port: number; ips: string[]; startTimeMs: number} | undefined,
 ) {
@@ -35,8 +35,8 @@ export function paint(
   let missingWebModule: null | string = null;
   const allWorkerStates: any = {};
 
-  for (const [workerId, config] of registeredWorkers) {
-    allWorkerStates[workerId] = {...WORKER_BASE_STATE, config};
+  for (const config of registeredWorkers) {
+    allWorkerStates[config.id] = {...WORKER_BASE_STATE, config};
   }
 
   function repaint() {
@@ -57,12 +57,12 @@ export function paint(
       process.stdout.write(chalk.dim(` Building your application...\n\n`));
     }
 
-    for (const [workerId, config] of registeredWorkers) {
-      const workerState = allWorkerStates[workerId];
-      const dotLength = 24 - workerId.length;
+    for (const config of registeredWorkers) {
+      const workerState = allWorkerStates[config.id];
+      const dotLength = 24 - config.id.length;
       const dots = ''.padEnd(dotLength, '.');
       const stateStr = getStateString(workerState, !!devMode);
-      process.stdout.write(`  ${workerId}${chalk.dim(dots)}[${stateStr}]\n`);
+      process.stdout.write(`  ${config.id}${chalk.dim(dots)}[${stateStr}]\n`);
     }
     process.stdout.write('\n');
     if (missingWebModule) {
@@ -87,11 +87,11 @@ export function paint(
       );
       process.stdout.write('\n');
     }
-    for (const [workerId, config] of registeredWorkers) {
-      const workerState = allWorkerStates[workerId];
+    for (const config of registeredWorkers) {
+      const workerState = allWorkerStates[config.id];
       if (workerState && workerState.output) {
         const chalkFn = Array.isArray(workerState.error) ? chalk.red : chalk;
-        process.stdout.write(`${chalkFn.underline.bold('▼ ' + workerId)}\n\n`);
+        process.stdout.write(`${chalkFn.underline.bold('▼ ' + config.id)}\n\n`);
         process.stdout.write(
           workerState.output
             ? '  ' + workerState.output.trim().replace(/\n/gm, '\n  ')

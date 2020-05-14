@@ -19,8 +19,13 @@ type DeepPartial<T> = {
 
 export type EnvVarReplacements = Record<string, string | number | true>;
 
-export type DevScript = {cmd: string; watch: string | undefined};
-export type DevScripts = {[id: string]: DevScript};
+export type DevScript = {
+  id: string;
+  match: string[];
+  type: string;
+  cmd: string;
+  watch?: string;
+};
 
 // interface this library uses internally
 export interface SnowpackConfig {
@@ -28,7 +33,7 @@ export interface SnowpackConfig {
   exclude: string[];
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
-  scripts: DevScripts;
+  scripts: DevScript[];
   homepage?: string;
   devOptions: {
     port: number;
@@ -187,6 +192,40 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
   return result;
 }
 
+type RawScripts = {[id: string]: string};
+function normalizeScripts(scripts: RawScripts): DevScript[] {
+  const processedScripts: DevScript[] = [];
+  for (const scriptId of Object.keys(scripts)) {
+    if (scriptId.includes('::watch')) {
+      continue;
+    }
+    const [scriptType, scriptMatch] = scriptId.split(':');
+    const newScriptConfig: DevScript = {
+      id: scriptId,
+      type: scriptType,
+      match: scriptMatch.split(','),
+      cmd: (scripts[scriptId] as any) as string,
+      watch: (scripts[`${scriptId}::watch`] as any) as string | undefined,
+    };
+    processedScripts.push(newScriptConfig);
+  }
+  const allBuildMatch = new Set<string>();
+  for (const {type, match} of processedScripts) {
+    if (type !== 'build:' && type !== 'plugin:') {
+      continue;
+    }
+    for (const ext of match) {
+      if (allBuildMatch.has(ext)) {
+        handleConfigError(
+          `Multiple "scripts" match the "${ext}" file extension.\nCurrently, only one script per file type is supported.`,
+        );
+      }
+      allBuildMatch.add(ext);
+    }
+  }
+  return processedScripts;
+}
+
 /** resolve --dest relative to cwd, etc. */
 function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const cwd = process.cwd();
@@ -196,42 +235,10 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   if (!config.scripts) {
     config.exclude.push('**/.*');
     config.scripts = {
-      'mount:*': 'mount . --to .' as any,
-    };
+      'mount:*': 'mount . --to .',
+    } as any;
   }
-  for (const scriptId of Object.keys(config.scripts)) {
-    if (scriptId.includes('::watch')) {
-      continue;
-    }
-    config.scripts[scriptId] = {
-      cmd: (config.scripts[scriptId] as any) as string,
-      watch: (config.scripts[`${scriptId}::watch`] as any) as string | undefined,
-    };
-  }
-  for (const scriptId of Object.keys(config.scripts)) {
-    if (scriptId.includes('::watch')) {
-      delete config.scripts[scriptId];
-    }
-  }
-  for (const scriptId of Object.keys(config.scripts)) {
-    if (!scriptId.startsWith('build:') && !scriptId.startsWith('plugin:')) {
-      continue;
-    }
-    const scriptType = scriptId.split(':')[0];
-    const exts = scriptId.split(':')[1].split(',');
-    if (exts.length === 1) {
-      continue;
-    }
-    for (const ext of exts) {
-      if (config.scripts[`build:${ext}`] || config.scripts[`plugin:${ext}`]) {
-        handleConfigError(
-          `Multiple "scripts" match the "${ext}" file extension.\nCurrently, only one script per file type is supported.`,
-        );
-      }
-      config.scripts[`${scriptType}:${ext}`] = {...config.scripts[scriptId]};
-    }
-    delete config.scripts[scriptId];
-  }
+  config.scripts = normalizeScripts(config.scripts as any);
   return config;
 }
 
