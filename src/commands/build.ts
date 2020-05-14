@@ -13,16 +13,11 @@ import yargs from 'yargs-parser';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 import {transformEsmImports} from '../rewrite-imports';
 import mkdirp from 'mkdirp';
-import {ImportMap} from '../util';
+import {ImportMap, CommandOptions} from '../util';
 import {wrapEsmProxyResponse} from './build-util';
 const {copy} = require('fs-extra');
 
-interface DevOptions {
-  cwd: string;
-  config: SnowpackConfig;
-}
-
-export async function command({cwd, config}: DevOptions) {
+export async function command({cwd, config}: CommandOptions) {
   process.env.NODE_ENV = 'production';
 
   const messageBus = new EventEmitter();

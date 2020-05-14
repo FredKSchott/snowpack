@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import got from 'got';
 import cachedir from 'cachedir';
+import {SnowpackConfig} from './config';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const CACHE_DIR = cachedir('snowpack');
@@ -10,6 +11,13 @@ export const BUILD_CACHE = path.join(CACHE_DIR, 'build-cache-1.4');
 export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
 export interface ImportMap {
   imports: {[packageName: string]: string};
+}
+
+export interface CommandOptions {
+  cwd: string;
+  config: SnowpackConfig;
+  lockfile: ImportMap | null;
+  pkgManifest: any;
 }
 
 export async function readLockfile(cwd: string): Promise<ImportMap | null> {
