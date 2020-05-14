@@ -34,11 +34,13 @@ NOTE: TypeScript isn't yet aware of this new `/web_modules/.types/` location by 
 ```js
 // tsconfig.json
 {
-  // 1. TypeScript needs to know about the new package types location
-  "baseUrl": "./",
-  "paths": { "*": ["web_modules/.types/*"] },
-  // 2. Don't fail if there are any errors inside community-provided type packages.
-  "skipLibCheck": true,
+  "compilerOptions": {
+    // 1. TypeScript needs to know about the new package types location
+    "baseUrl": "./",
+    "paths": { "*": ["web_modules/.types/*"] },
+    // 2. Don't fail if there are any errors inside community-provided type packages.
+    "skipLibCheck": true
+  }
 }
 ```
 
