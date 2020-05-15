@@ -181,7 +181,6 @@ export async function scanImports(
   );
   const includeFiles = Array.from(new Set(([] as string[]).concat.apply([], includeFileSets)));
   if (includeFiles.length === 0) {
-    console.warn(`[ERROR]: No mounted files.`);
     return [];
   }
 
