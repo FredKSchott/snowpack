@@ -15,9 +15,11 @@ import {transformEsmImports} from '../rewrite-imports';
 import mkdirp from 'mkdirp';
 import {ImportMap, CommandOptions} from '../util';
 import {wrapEsmProxyResponse, getFileBuilderForWorker} from './build-util';
+import {command as installCommand} from './install';
 const {copy} = require('fs-extra');
 
-export async function command({cwd, config}: CommandOptions) {
+export async function command(commandOptions: CommandOptions) {
+  const {cwd, config} = commandOptions;
   process.env.NODE_ENV = 'production';
 
   const messageBus = new EventEmitter();
@@ -186,7 +188,14 @@ export async function command({cwd, config}: CommandOptions) {
             if (dependencyImportMap.imports[spec]) {
               return path.posix.resolve(`/web_modules`, dependencyImportMap.imports[spec]);
             }
-            messageBus.emit('MISSING_WEB_MODULE', {specifier: spec});
+            let [missingPackageName, ...deepPackagePathParts] = spec.split('/');
+            if (missingPackageName.startsWith('@')) {
+              missingPackageName += '/' + deepPackagePathParts.shift();
+            }
+            messageBus.emit('MISSING_WEB_MODULE', {
+              spec: spec,
+              pkgName: missingPackageName,
+            });
             return `/web_modules/${spec}.js`;
           });
           return fs.writeFile(outPath, code);
@@ -300,7 +309,14 @@ export async function command({cwd, config}: CommandOptions) {
             if (dependencyImportMap.imports[spec]) {
               return path.posix.resolve(`/web_modules`, dependencyImportMap.imports[spec]);
             }
-            messageBus.emit('MISSING_WEB_MODULE', {specifier: spec});
+            let [missingPackageName, ...deepPackagePathParts] = spec.split('/');
+            if (missingPackageName.startsWith('@')) {
+              missingPackageName += '/' + deepPackagePathParts.shift();
+            }
+            messageBus.emit('MISSING_WEB_MODULE', {
+              spec: spec,
+              pkgName: missingPackageName,
+            });
             return `/web_modules/${spec}.js`;
           });
         }

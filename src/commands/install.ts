@@ -55,12 +55,12 @@ const PACKAGES_TO_AUTO_DETECT_EXPORTS = [
   'body-scroll-lock',
 ];
 
-const installResults: [string, InstallResult][] = [];
 const cwd = process.cwd();
-let dependencyStats: DependencyStatsOutput | null = null;
 const banner = chalk.bold(`snowpack`) + ` installing... `;
 let spinner = ora(banner);
 let spinnerHasError = false;
+let installResults: [string, InstallResult][] = [];
+let dependencyStats: DependencyStatsOutput | null = null;
 
 function defaultLogError(msg: string) {
   if (!spinnerHasError) {
@@ -152,7 +152,7 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
   const [depManifestLoc, depManifest] = resolveDependencyManifest(dep, cwd);
   if (!depManifest) {
     throw new ErrorWithHint(
-      `"${dep}" not found. Have you installed the package via npm?`,
+      `Package "${dep}" not found. Have you installed it?`,
       depManifestLoc && chalk.italic(depManifestLoc),
     );
   }
@@ -415,6 +415,12 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
     knownEntrypoints,
     webDependencies,
   } = config;
+
+  installResults = [];
+  dependencyStats = null;
+  spinner = ora(banner);
+  spinnerHasError = false;
+
   let newLockfile: ImportMap | null = null;
   const installTargets: InstallTarget[] = [];
 
@@ -476,12 +482,7 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
     await writeLockfile(path.join(cwd, 'snowpack.lock.json'), newLockfile);
   }
 
-  // If an error happened, set the exit code so that programmatic usage of the CLI knows.
-  // We were seeing race conditions here, so add a little buffer.
   if (spinnerHasError) {
-    setTimeout(() => {
-      spinner.warn(chalk(`Finished with warnings.`));
-      process.exitCode = 1;
-    }, 20);
+    process.exit(1);
   }
 }
