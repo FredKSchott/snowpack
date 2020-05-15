@@ -130,7 +130,7 @@ export async function command({cwd, config}: CommandOptions) {
         dirDest = path.resolve(buildDirectoryLoc, cmdArr[0]);
       } else {
         const {to} = yargs(cmdArr);
-        dirDest = path.resolve(buildDirectoryLoc, to);
+        dirDest = path.resolve(buildDirectoryLoc, to.replace(/^\//, ''));
       }
       return [scriptConfig.id, dirDisk, dirDest];
     })

@@ -83,7 +83,7 @@ function getUrlFromFile(mountedDirectories: [string, string][], fileLoc: string)
   for (const [dirDisk, dirUrl] of mountedDirectories) {
     if (fileLoc.startsWith(dirDisk + path.sep)) {
       const fileExt = path.extname(fileLoc).substr(1);
-      const resolvedDirUrl = dirUrl === '.' ? '' : '/' + dirUrl;
+      const resolvedDirUrl = dirUrl === '/' ? '' : dirUrl;
       return fileLoc
         .replace(dirDisk, resolvedDirUrl)
         .replace(/[/\\]+/g, '/')
@@ -100,14 +100,12 @@ function getMountedDirectory(cwd: string, workerConfig: DevScript): [string, str
     throw new Error(`script[${id}] must use the mount command`);
   }
   cmdArr.shift();
-  let dirUrl, dirDisk;
-  dirDisk = path.resolve(cwd, cmdArr[0]);
-  if (cmdArr.length === 1) {
-    dirUrl = cmdArr[0];
-  } else {
-    const {to} = yargs(cmdArr);
-    dirUrl = to;
+  const {to, _} = yargs(cmdArr);
+  if (_.length !== 1 || (to && to[0] !== '/')) {
+    throw new Error(`script[${id}] must use the format: "mount dir [--to /PATH]"`);
   }
+  const dirDisk = path.resolve(cwd, cmdArr[0]);
+  const dirUrl = to || `/${cmdArr[0]}`;
   return [dirDisk, dirUrl];
 }
 
@@ -119,7 +117,7 @@ function getProxyConfig(workerConfig: DevScript): [string, string] {
   }
   cmdArr.shift();
   const {to, _} = yargs(cmdArr);
-  if (!to || _.length !== 1) {
+  if (_.length !== 1 || !to || to[0] !== '/') {
     throw new Error(`script[${id}] must use the format: "proxy http://SOME.URL --to /PATH"`);
   }
   return [_[0], to];
@@ -340,13 +338,13 @@ export async function command({cwd, config}: CommandOptions) {
       let fileBuilder: ((code: string, {filename: string}) => Promise<string>) | undefined;
       let isRoute = false;
 
-      async function getFileFromUrl(resource: string): Promise<[string | null, DevScript | null]> {
+      async function getFileFromUrl(reqPath: string): Promise<[string | null, DevScript | null]> {
         for (const [dirDisk, dirUrl] of mountedDirectories) {
           let requestedFile: string;
-          if (dirUrl === '.') {
-            requestedFile = path.join(dirDisk, resource);
-          } else if (resource.startsWith('/' + dirUrl)) {
-            requestedFile = path.join(dirDisk, resource.replace(dirUrl, '.'));
+          if (dirUrl === '/') {
+            requestedFile = path.join(dirDisk, reqPath);
+          } else if (reqPath.startsWith(dirUrl)) {
+            requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, '.'));
           } else {
             continue;
           }
@@ -380,11 +378,8 @@ export async function command({cwd, config}: CommandOptions) {
               (await attemptLoadFile(requestedFile + 'index.html')) ||
               (await attemptLoadFile(requestedFile + '/index.html'));
 
-            if (!fileLoc && dirUrl === '.' && config.devOptions.fallback) {
-              const fallbackFile =
-                dirUrl === '.'
-                  ? path.join(dirDisk, config.devOptions.fallback)
-                  : path.join(cwd, config.devOptions.fallback);
+            if (!fileLoc && dirUrl === '/' && config.devOptions.fallback) {
+              const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
               fileLoc = await attemptLoadFile(fallbackFile);
             }
             if (fileLoc) {
