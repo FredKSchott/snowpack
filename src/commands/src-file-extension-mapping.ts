@@ -5,4 +5,5 @@ export default {
   vue: 'js',
   svelte: 'js',
   php: 'html',
+  md: 'html',
 };
