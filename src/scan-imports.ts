@@ -158,11 +158,11 @@ export async function scanImports(
 ): Promise<InstallTarget[]> {
   await initESModuleLexer;
   const includeFileSets = await Promise.all(
-    Object.entries(scripts).map(([id, scriptConfig]) => {
-      if (!id.startsWith('mount:')) {
+    scripts.map(({id, type, cmd}) => {
+      if (type !== 'mount') {
         return [];
       }
-      const cmdArr = scriptConfig.cmd.split(/\s+/);
+      const cmdArr = cmd.split(/\s+/);
       if (cmdArr[0] !== 'mount') {
         throw new Error(`script[${id}] must use the mount command`);
       }

@@ -14,7 +14,7 @@ import srcFileExtensionMapping from './src-file-extension-mapping';
 import {transformEsmImports} from '../rewrite-imports';
 import mkdirp from 'mkdirp';
 import {ImportMap, CommandOptions} from '../util';
-import {wrapEsmProxyResponse} from './build-util';
+import {wrapEsmProxyResponse, getFileBuilderForWorker} from './build-util';
 const {copy} = require('fs-extra');
 
 export async function command({cwd, config}: CommandOptions) {
@@ -232,122 +232,64 @@ export async function command({cwd, config}: CommandOptions) {
   const allBuiltFromFiles = new Set();
   const allProxiedFiles = new Set<string>();
   for (const workerConfig of relevantWorkers) {
-    const {id, type} = workerConfig;
-    if (type !== 'build' && type !== 'plugin') {
+    const {id, match, type} = workerConfig;
+    if (type !== 'build') {
       continue;
     }
+
     messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
     for (const [dirDisk, dirDest, allFiles] of includeFileSets) {
       for (const f of allFiles) {
         const fileExtension = path.extname(f).substr(1);
-        if (!id.includes(`:${fileExtension}`) && !id.includes(`,${fileExtension}`)) {
+        if (!match.includes(fileExtension)) {
           continue;
         }
-
-        let {cmd} = workerConfig;
-        if (type === 'build') {
-          cmd = cmd.replace('$FILE', f);
-          const {stdout, stderr} = await execa.command(cmd, {
-            env: npmRunPath.env(),
-            extendEnv: true,
-            shell: true,
-            cwd,
-            input: createReadStream(f),
+        const fileContents = await fs.readFile(f, {encoding: 'utf8'});
+        const fileBuilder = getFileBuilderForWorker(cwd, f, workerConfig, config, messageBus);
+        if (!fileBuilder) {
+          continue;
+        }
+        let code = await fileBuilder(fileContents, {filename: f});
+        if (!code) {
+          continue;
+        }
+        let outPath = f.replace(dirDisk, dirDest);
+        const extToFind = path.extname(f).substr(1);
+        const extToReplace = srcFileExtensionMapping[extToFind];
+        if (extToReplace) {
+          outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace!);
+        }
+        if (path.extname(outPath) === '.js') {
+          code = await transformEsmImports(code, (spec) => {
+            if (spec.startsWith('http')) {
+              return spec;
+            }
+            if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
+              const ext = path.extname(spec).substr(1);
+              if (!ext) {
+                return spec + '.js';
+              }
+              const extToReplace = srcFileExtensionMapping[ext];
+              if (extToReplace) {
+                spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
+              }
+              if (!isBundled && (extToReplace || ext) !== 'js') {
+                const resolvedUrl = path.resolve(path.dirname(outPath), spec);
+                allProxiedFiles.add(resolvedUrl);
+                spec = spec + '.proxy.js';
+              }
+              return spec;
+            }
+            if (dependencyImportMap.imports[spec]) {
+              return path.posix.resolve(`/web_modules`, dependencyImportMap.imports[spec]);
+            }
+            messageBus.emit('MISSING_WEB_MODULE', {specifier: spec});
+            return `/web_modules/${spec}.js`;
           });
-          if (stderr) {
-            console.error(stderr);
-          }
-          if (!stdout) {
-            continue;
-          }
-          let outPath = f.replace(dirDisk, dirDest);
-          const extToFind = path.extname(f).substr(1);
-          const extToReplace = srcFileExtensionMapping[extToFind];
-          if (extToReplace) {
-            outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace!);
-          }
-          let code = stdout;
-          if (path.extname(outPath) === '.js') {
-            code = await transformEsmImports(code, (spec) => {
-              if (spec.startsWith('http')) {
-                return spec;
-              }
-              if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
-                const ext = path.extname(spec).substr(1);
-                if (!ext) {
-                  return spec + '.js';
-                }
-                const extToReplace = srcFileExtensionMapping[ext];
-                if (extToReplace) {
-                  spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
-                }
-                if (!isBundled && (extToReplace || ext) !== 'js') {
-                  const resolvedUrl = path.resolve(path.dirname(outPath), spec);
-                  allProxiedFiles.add(resolvedUrl);
-                  spec = spec + '.proxy.js';
-                }
-                return spec;
-              }
-              if (dependencyImportMap.imports[spec]) {
-                return path.posix.resolve(`/web_modules`, dependencyImportMap.imports[spec]);
-              }
-              messageBus.emit('MISSING_WEB_MODULE', {specifier: spec});
-              return `/web_modules/${spec}.js`;
-            });
-          }
-          await fs.mkdir(path.dirname(outPath), {recursive: true});
-          await fs.writeFile(outPath, code);
-          allBuiltFromFiles.add(f);
         }
-        if (type === 'plugin') {
-          const modulePath = require.resolve(cmd, {paths: [cwd]});
-          const {build} = require(modulePath);
-          try {
-            var {result} = await build(f);
-          } catch (err) {
-            err.message = `[${id}] ${err.message}`;
-            console.error(err);
-            messageBus.emit('WORKER_COMPLETE', {id, error: err});
-            continue;
-          }
-          let outPath = f.replace(dirDisk, dirDest);
-          const extToFind = path.extname(f).substr(1);
-          const extToReplace = srcFileExtensionMapping[extToFind];
-          if (extToReplace) {
-            outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace);
-          }
-          let code = result;
-          if (path.extname(outPath) === '.js') {
-            code = await transformEsmImports(code, (spec) => {
-              if (spec.startsWith('http')) {
-                return spec;
-              }
-              if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
-                const ext = path.extname(spec).substr(1);
-                if (!ext) {
-                  return spec + '.js';
-                }
-                const extToReplace = srcFileExtensionMapping[ext];
-                if (extToReplace) {
-                  spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
-                }
-                if ((extToReplace || ext) !== 'js') {
-                  const resolvedUrl = path.resolve(path.dirname(outPath), spec);
-                  allProxiedFiles.add(resolvedUrl);
-                  spec = spec + '.proxy.js';
-                }
-                return spec;
-              }
-              if (dependencyImportMap.imports[spec]) {
-                return path.posix.resolve(`/web_modules`, dependencyImportMap.imports[spec]);
-              }
-              messageBus.emit('MISSING_WEB_MODULE', {specifier: spec});
-              return `/web_modules/${spec}.js`;
-            });
-          }
-          await fs.mkdir(path.dirname(outPath), {recursive: true});
-          await fs.writeFile(outPath, code);
-        }
+        await fs.mkdir(path.dirname(outPath), {recursive: true});
+        await fs.writeFile(outPath, code);
+        allBuiltFromFiles.add(f);
       }
     }
     messageBus.emit('WORKER_COMPLETE', {id, error: null});

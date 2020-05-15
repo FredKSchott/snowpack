@@ -38,10 +38,10 @@ import os from 'os';
 import path from 'path';
 import url from 'url';
 import yargs from 'yargs-parser';
-import {DevScript} from '../config';
+import {DevScript, SnowpackConfig} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
 import {BUILD_CACHE, CommandOptions, ImportMap} from '../util';
-import {wrapEsmProxyResponse} from './build-util';
+import {wrapEsmProxyResponse, getFileBuilderForWorker} from './build-util';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
@@ -182,45 +182,6 @@ export async function command({cwd, config}: CommandOptions) {
     return fileContents;
   }
 
-  function getFileBuilderForWorker(fileLoc: string, selectedWorker: [string, DevScript]) {
-    const [id, {cmd}] = selectedWorker;
-    if (id.startsWith('plugin:')) {
-      const modulePath = require.resolve(cmd, {paths: [cwd]});
-      const {build} = require(modulePath);
-      return async (code: string, options: {filename: string}) => {
-        messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-        try {
-          let {result} = await build(fileLoc);
-          return result;
-        } catch (err) {
-          err.message = `[${id}] ${err.message}`;
-          console.error(err);
-          return '';
-        } finally {
-          messageBus.emit('WORKER_UPDATE', {id, state: null});
-        }
-      };
-    }
-    if (id.startsWith('build:')) {
-      return async (code: string, options: {filename: string}) => {
-        messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-        let cmdWithFile = cmd.replace('$FILE', options.filename);
-        const {stdout, stderr} = await execa.command(cmdWithFile, {
-          env: npmRunPath.env(),
-          extendEnv: true,
-          shell: true,
-          input: code,
-          cwd,
-        });
-        if (stderr) {
-          console.error(stderr);
-        }
-        messageBus.emit('WORKER_UPDATE', {id, state: null});
-        return stdout;
-      };
-    }
-  }
-
   function runLintAll(workerConfig: DevScript) {
     let {id, cmd} = workerConfig;
     if (workerConfig.watch) {
@@ -337,9 +298,7 @@ export async function command({cwd, config}: CommandOptions) {
       let fileBuilder: ((code: string, {filename: string}) => Promise<string>) | undefined;
       let isRoute = false;
 
-      async function getFileFromUrl(
-        resource: string,
-      ): Promise<[string | null, [string, DevScript] | null]> {
+      async function getFileFromUrl(resource: string): Promise<[string | null, DevScript | null]> {
         for (const [dirDisk, dirUrl] of mountedDirectories) {
           let requestedFile: string;
           if (dirUrl === '.') {
@@ -352,8 +311,8 @@ export async function command({cwd, config}: CommandOptions) {
 
           if (requestedFileExt) {
             for (const workerConfig of config.scripts) {
-              const {id, match} = workerConfig;
-              if (!id.startsWith('build:') && !id.startsWith('plugin:')) {
+              const {id, type, match} = workerConfig;
+              if (type !== 'build') {
                 continue;
               }
               for (const extMatcher of match) {
@@ -364,7 +323,7 @@ export async function command({cwd, config}: CommandOptions) {
                   const srcFile = requestedFile.replace(requestedFileExt, `.${extMatcher}`);
                   const fileLoc = await attemptLoadFile(srcFile);
                   if (fileLoc) {
-                    return [fileLoc, [id, workerConfig]];
+                    return [fileLoc, workerConfig];
                   }
                 }
               }
@@ -411,7 +370,7 @@ export async function command({cwd, config}: CommandOptions) {
       }
 
       if (selectedWorker) {
-        fileBuilder = getFileBuilderForWorker(fileLoc, selectedWorker);
+        fileBuilder = getFileBuilderForWorker(cwd, fileLoc, selectedWorker, config, messageBus);
       }
 
       // 1. Check the hot build cache. If it's already found, then just serve it.

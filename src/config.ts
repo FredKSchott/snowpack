@@ -19,6 +19,7 @@ type DeepPartial<T> = {
 
 export type EnvVarReplacements = Record<string, string | number | true>;
 
+export type DevPlugin = {build: Function};
 export type DevScript = {
   id: string;
   match: string[];
@@ -34,6 +35,7 @@ export interface SnowpackConfig {
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
   scripts: DevScript[];
+  plugins: {[id: string]: DevPlugin};
   homepage?: string;
   devOptions: {
     port: number;
@@ -68,6 +70,7 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   exclude: ['__tests__/**/*', '**/*.@(spec|test).*'],
   knownEntrypoints: [],
+  plugins: {},
   installOptions: {
     dest: 'web_modules',
     externalPackage: [],
@@ -239,6 +242,11 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     } as any;
   }
   config.scripts = normalizeScripts(config.scripts as any);
+  config.plugins = (config.plugins as any).reduce((obj, id: string) => {
+    const modulePath = require.resolve(id, {paths: [cwd]});
+    obj[id] = require(modulePath);
+    return obj;
+  }, {});
   return config;
 }
 
