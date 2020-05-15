@@ -76,7 +76,7 @@ export function resolveDependencyManifest(dep: string, cwd: string) {
   } catch (err) {
     // if its an export map issue, move on to our manual resolver.
     if (err.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
-      throw new Error(`Cannot resolve "${dep}/package.json" via "${cwd}".`);
+      return [null, null];
     }
   }
 

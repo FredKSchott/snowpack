@@ -3,6 +3,7 @@ import path from 'path';
 import yargs from 'yargs-parser';
 import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
+import {addCommand, rmCommand} from './commands/add-rm';
 import {command as installCommand} from './commands/install';
 import {CLIFlags, loadAndValidateConfig} from './config.js';
 import {clearCache} from './resolve-remote.js';
@@ -52,10 +53,6 @@ export async function cli(args: string[]) {
     console.log(`${chalk.yellow('ℹ')} clearing CDN cache...`);
     await clearCache();
   }
-  if (cliFlags['_'].length > 3) {
-    console.log(`Unexpected multiple commands`);
-    process.exit(1);
-  }
 
   // Load the current package manifest
   let pkgManifest: any;
@@ -73,11 +70,24 @@ export async function cli(args: string[]) {
     pkgManifest,
   };
 
+  if (cliFlags['_'][2] === 'add') {
+    await addCommand(cliFlags['_'][3], commandOptions);
+    return;
+  }
+  if (cliFlags['_'][2] === 'rm') {
+    await rmCommand(cliFlags['_'][3], commandOptions);
+    return;
+  }
+
+  if (cliFlags['_'].length > 3) {
+    console.log(`Unexpected multiple commands`);
+    process.exit(1);
+  }
+
   if (cliFlags['_'][2] === 'build') {
     await buildCommand(commandOptions);
     return;
   }
-
   if (cliFlags['_'][2] === 'dev') {
     await devCommand(commandOptions);
     return;

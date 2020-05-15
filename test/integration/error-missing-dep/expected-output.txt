@@ -1,4 +1,3 @@
 - snowpack installing...
 ⠼ snowpack installing... preact
-✖ Cannot resolve "preact/package.json" via "XXX".
-⚠ Finished with warnings.
+✖ Package "preact" not found. Have you installed it?

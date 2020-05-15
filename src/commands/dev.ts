@@ -30,7 +30,7 @@ import chokidar from 'chokidar';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
-import {promises as fs, readFileSync} from 'fs';
+import {promises as fs, existsSync, readFileSync} from 'fs';
 import http from 'http';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
@@ -45,6 +45,8 @@ import {wrapEsmProxyResponse, getFileBuilderForWorker} from './build-util';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 import got from 'got';
+import {addCommand} from './add-rm';
+import {command as installCommand} from './install';
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
 function getEncodingType(ext: string): 'utf8' | 'binary' {
@@ -123,11 +125,13 @@ function getProxyConfig(workerConfig: DevScript): [string, string] {
   return [_[0], to];
 }
 
-export async function command({cwd, config}: CommandOptions) {
+let currentlyRunningCommand: any = null;
+
+export async function command(commandOptions: CommandOptions) {
+  const {cwd, config} = commandOptions;
   console.log(chalk.bold('Snowpack Dev Server (Beta)'));
   console.log('NOTE: Still experimental, default behavior may change.');
-  console.log('Starting up...');
-  const serverStart = Date.now();
+  console.log('Starting up...\n');
 
   const {port} = config.devOptions;
   let inMemoryBuildCache = new Map<string, Buffer>();
@@ -138,9 +142,20 @@ export async function command({cwd, config}: CommandOptions) {
   const mountedDirectories: [string, string][] = [];
   const proxyDetails: [string, string][] = [];
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
+  if (!existsSync(dependencyImportMapLoc)) {
+    messageBus.emit('INSTALLING');
+    currentlyRunningCommand = installCommand(commandOptions);
+    await currentlyRunningCommand;
+    currentlyRunningCommand = null;
+    messageBus.emit('INSTALL_COMPLETE');
+  }
+
+  const serverStart = Date.now();
   let dependencyImportMap: ImportMap = {imports: {}};
   try {
-    dependencyImportMap = require(dependencyImportMapLoc);
+    dependencyImportMap = JSON.parse(
+      await fs.readFile(dependencyImportMapLoc, {encoding: 'utf-8'}),
+    );
   } catch (err) {
     // no import-map found, safe to ignore
   }
@@ -188,7 +203,45 @@ export async function command({cwd, config}: CommandOptions) {
         if (dependencyImportMap.imports[spec]) {
           return path.posix.resolve(`/web_modules`, dependencyImportMap.imports[spec]);
         }
-        messageBus.emit('MISSING_WEB_MODULE', {specifier: spec});
+        let isMissingSpecInstalled = false;
+        try {
+          require.resolve(spec, {paths: [cwd]});
+          isMissingSpecInstalled = true;
+        } catch (err) {
+          // that's fine, ignore
+        }
+
+        let [missingPackageName, ...deepPackagePathParts] = spec.split('/');
+        if (missingPackageName.startsWith('@')) {
+          missingPackageName += '/' + deepPackagePathParts.shift();
+        }
+        let doesPackageExist = false;
+        try {
+          require.resolve(missingPackageName, {paths: [cwd]});
+          doesPackageExist = true;
+        } catch (err) {
+          // that's okay, it just doesn't exist
+        }
+        if (doesPackageExist && !currentlyRunningCommand) {
+          isLiveReloadPaused = true;
+          messageBus.emit('INSTALLING');
+          currentlyRunningCommand = installCommand(commandOptions);
+          currentlyRunningCommand.then(async () => {
+            dependencyImportMap = JSON.parse(
+              await fs
+                .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
+                .catch(() => `{"imports": {}}`),
+            );
+            messageBus.emit('INSTALL_COMPLETE');
+            isLiveReloadPaused = false;
+            currentlyRunningCommand = null;
+          });
+        } else if (!doesPackageExist) {
+          messageBus.emit('MISSING_WEB_MODULE', {
+            spec: spec,
+            pkgName: missingPackageName,
+          });
+        }
         return `/web_modules/${spec}.js`;
       });
     }
@@ -524,10 +577,12 @@ export async function command({cwd, config}: CommandOptions) {
       sendFile(req, res, finalBuild, responseFileExt);
     })
     .listen(port);
-
+  let isLiveReloadPaused = false;
   async function onWatchEvent(fileLoc) {
     const fileUrl = getUrlFromFile(mountedDirectories, fileLoc);
-    broadcastMessage('message', JSON.stringify({url: fileUrl}));
+    if (!isLiveReloadPaused) {
+      broadcastMessage('message', JSON.stringify({url: fileUrl}));
+    }
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);
     await cacache.rm.entry(BUILD_CACHE, fileLoc);
@@ -573,6 +628,20 @@ export async function command({cwd, config}: CommandOptions) {
     port,
     ips,
     startTimeMs: Date.now() - serverStart,
+    addPackage: async (pkgName) => {
+      isLiveReloadPaused = true;
+      messageBus.emit('INSTALLING');
+      currentlyRunningCommand = addCommand(pkgName, commandOptions);
+      await currentlyRunningCommand;
+      currentlyRunningCommand = null;
+      dependencyImportMap = JSON.parse(
+        await fs
+          .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
+          .catch(() => `{"imports": {}}`),
+      );
+      messageBus.emit('INSTALL_COMPLETE');
+      isLiveReloadPaused = false;
+    },
   });
 
   openInBrowser(port);
