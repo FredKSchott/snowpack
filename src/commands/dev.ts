@@ -628,7 +628,7 @@ async function openInBrowser(port) {
 
   try {
     await execa(openCmd, [url]);
-  } catch(e) {
+  } catch (e) {
     // couldn't open automatically, safe to ignore
   }
 }
