@@ -55,12 +55,12 @@ const PACKAGES_TO_AUTO_DETECT_EXPORTS = [
   'body-scroll-lock',
 ];
 
-const installResults: [string, InstallResult][] = [];
 const cwd = process.cwd();
-let dependencyStats: DependencyStatsOutput | null = null;
 const banner = chalk.bold(`snowpack`) + ` installing... `;
 let spinner = ora(banner);
 let spinnerHasError = false;
+let installResults: [string, InstallResult][] = [];
+let dependencyStats: DependencyStatsOutput | null = null;
 
 function defaultLogError(msg: string) {
   if (!spinnerHasError) {
@@ -415,6 +415,12 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
     knownEntrypoints,
     webDependencies,
   } = config;
+
+  installResults = [];
+  dependencyStats = null;
+  spinner = ora(banner);
+  spinnerHasError = false;
+
   let newLockfile: ImportMap | null = null;
   const installTargets: InstallTarget[] = [];
 
