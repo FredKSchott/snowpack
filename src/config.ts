@@ -70,7 +70,7 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   exclude: ['__tests__/**/*', '**/*.@(spec|test).*'],
   knownEntrypoints: [],
-  plugins: {},
+  plugins: [] as any,
   installOptions: {
     dest: 'web_modules',
     externalPackage: [],

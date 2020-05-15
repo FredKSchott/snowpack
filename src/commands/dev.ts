@@ -44,6 +44,7 @@ import {BUILD_CACHE, CommandOptions, ImportMap} from '../util';
 import {wrapEsmProxyResponse, getFileBuilderForWorker} from './build-util';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
+import got from 'got';
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
 function getEncodingType(ext: string): 'utf8' | 'binary' {
@@ -110,6 +111,20 @@ function getMountedDirectory(cwd: string, workerConfig: DevScript): [string, str
   return [dirDisk, dirUrl];
 }
 
+function getProxyConfig(workerConfig: DevScript): [string, string] {
+  const {id, cmd} = workerConfig;
+  const cmdArr = cmd.split(/\s+/);
+  if (cmdArr[0] !== 'proxy') {
+    throw new Error(`script[${id}] must use the proxy command`);
+  }
+  cmdArr.shift();
+  const {to, _} = yargs(cmdArr);
+  if (!to || _.length !== 1) {
+    throw new Error(`script[${id}] must use the format: "proxy http://SOME.URL --to /PATH"`);
+  }
+  return [_[0], to];
+}
+
 export async function command({cwd, config}: CommandOptions) {
   console.log(chalk.bold('Snowpack Dev Server (Beta)'));
   console.log('NOTE: Still experimental, default behavior may change.');
@@ -123,7 +138,7 @@ export async function command({cwd, config}: CommandOptions) {
   const liveReloadClients: http.ServerResponse[] = [];
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
-
+  const proxyDetails: [string, string][] = [];
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
   let dependencyImportMap: ImportMap = {imports: {}};
   try {
@@ -227,10 +242,17 @@ export async function command({cwd, config}: CommandOptions) {
   }
 
   for (const workerConfig of config.scripts) {
-    if (workerConfig.id.startsWith('run:')) {
+    if (workerConfig.type === 'run') {
       runLintAll(workerConfig);
     }
-    if (workerConfig.id.startsWith('mount:')) {
+    if (workerConfig.type === 'proxy') {
+      proxyDetails.push(getProxyConfig(workerConfig));
+      setTimeout(
+        () => messageBus.emit('WORKER_UPDATE', {id: workerConfig.id, state: ['DONE', 'green']}),
+        400,
+      );
+    }
+    if (workerConfig.type === 'mount') {
       mountedDirectories.push(getMountedDirectory(cwd, workerConfig));
       setTimeout(
         () => messageBus.emit('WORKER_UPDATE', {id: workerConfig.id, state: ['DONE', 'green']}),
@@ -282,6 +304,26 @@ export async function command({cwd, config}: CommandOptions) {
       if (reqPath === '/web_modules/@snowpack/hmr.js') {
         sendFile(req, res, HMR_DEV_CODE, '.js');
         return;
+      }
+
+      for (const [url, path] of proxyDetails) {
+        if (reqPath.startsWith(path)) {
+          const newPath = reqPath.substr(path.length);
+          try {
+            const response = await got(`${url}${newPath}`, {
+              headers: req.headers,
+              throwHttpErrors: false,
+            });
+            res.writeHead(response.statusCode, response.headers);
+            res.write(response.body);
+          } catch (err) {
+            console.error(`✘ ${reqUrl}\n${err.message}`);
+            sendError(res, 500);
+          } finally {
+            res.end();
+          }
+          return;
+        }
       }
 
       const attemptedFileLoads: string[] = [];

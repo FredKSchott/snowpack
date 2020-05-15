@@ -62,7 +62,13 @@ export async function command({cwd, config}: CommandOptions) {
   // const extToWorkerMap: {[ext: string]: any[]} = {};
   for (const workerConfig of config.scripts) {
     const {type, match} = workerConfig;
-    if (type === 'build' || type === 'plugin' || type === 'run' || type === 'mount') {
+    if (
+      type === 'build' ||
+      type === 'plugin' ||
+      type === 'run' ||
+      type === 'mount' ||
+      type === 'proxy'
+    ) {
       relevantWorkers.push(workerConfig);
     }
     if (type === 'build' || type === 'plugin') {
@@ -89,6 +95,17 @@ export async function command({cwd, config}: CommandOptions) {
     relDest = `.${path.sep}` + relDest;
   }
   paint(messageBus, relevantWorkers, {dest: relDest}, undefined);
+
+  for (const workerConfig of relevantWorkers) {
+    const {id, type} = workerConfig;
+    if (type !== 'proxy') {
+      continue;
+    }
+    messageBus.emit('WORKER_UPDATE', {
+      id,
+      state: ['SKIP', 'dim'],
+    });
+  }
 
   if (!isBundled) {
     messageBus.emit('WORKER_UPDATE', {
@@ -245,7 +262,7 @@ export async function command({cwd, config}: CommandOptions) {
           continue;
         }
         const fileContents = await fs.readFile(f, {encoding: 'utf8'});
-        const fileBuilder = getFileBuilderForWorker(cwd, f, workerConfig, config, messageBus);
+        const fileBuilder = getFileBuilderForWorker(cwd, f, workerConfig, config);
         if (!fileBuilder) {
           continue;
         }
