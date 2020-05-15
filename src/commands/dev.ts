@@ -581,15 +581,15 @@ export async function command({cwd, config}: CommandOptions) {
 }
 
 function openInBrowser(port) {
-  const url = `http://localhost:${port}`;
-
+  const args = [`http://localhost:${port}`];
   let openCmd = 'xdg-open';
-  if (process.platform === 'darwin') openCmd = 'open';
-  if (process.platform === 'win32') openCmd = 'start';
-
-  let args = [url];
-  if (process.platform === 'win32') args = ['', ...args];  
- 
+  if (process.platform === 'darwin') {
+    openCmd = 'open';
+  }
+  if (process.platform === 'win32') {
+    openCmd = 'start';
+    args.unshift('');
+  }
   execa(openCmd, args).catch(() => {
     // couldn't open automatically, safe to ignore
   });
