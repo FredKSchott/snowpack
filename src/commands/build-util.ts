@@ -2,6 +2,48 @@ import execa from 'execa';
 import npmRunPath from 'npm-run-path';
 import type {EventEmitter} from 'events';
 import {SnowpackConfig, DevScript} from '../config';
+import Core from 'css-modules-loader-core';
+
+export async function wrapCssModuleResponse(
+  url: string,
+  code: string,
+  ext: string,
+  hasHmr = false,
+) {
+  let core = new Core();
+  const {injectableSource, exportTokens} = await core.load(code, url, () => {
+    throw new Error('BOTHER');
+  });
+  return `
+const styleEl = document.createElement("style");
+styleEl.type = 'text/css';
+  
+export let code = ${JSON.stringify(injectableSource)};
+let json = ${JSON.stringify(exportTokens)};
+export default json;
+
+${
+  hasHmr
+    ? `
+const isMainAsset = !new URL(import.meta.url).search;
+if (isMainAsset) {
+  styleEl.appendChild(document.createTextNode(code));
+  document.head.appendChild(styleEl);
+}
+
+import {apply} from '/web_modules/@snowpack/hmr.js';
+if (isMainAsset) {
+  apply(import.meta.url, ({module}) => {
+    styleEl.removeChild(styleEl.lastChild);
+    styleEl.appendChild(document.createTextNode(module.code));
+    code = module.code;
+    json = module.default;
+  });
+}`
+    : `styleEl.appendChild(document.createTextNode(code));
+document.head.appendChild(styleEl);`
+}`;
+}
 
 export function wrapEsmProxyResponse(url: string, code: string, ext: string, hasHmr = false) {
   if (ext === '.json') {
@@ -12,7 +54,7 @@ ${
   hasHmr
     ? `
 import {apply} from '/web_modules/@snowpack/hmr.js';
-apply(${JSON.stringify(url)}, ({code}) => {
+apply(import.meta.url, ({code}) => {
   json = JSON.parse(JSON.stringify(JSON.parse(code)));
 });
 `
@@ -30,8 +72,8 @@ ${
   hasHmr
     ? `
 import {apply} from '/web_modules/@snowpack/hmr.js';
-apply(${JSON.stringify(url)}, ({code}) => {
-  styleEl.innerHtml = '';
+apply(import.meta.url, ({code}) => {
+  styleEl.removeChild(styleEl.lastChild);
   styleEl.appendChild(document.createTextNode(code));
 });
 `
