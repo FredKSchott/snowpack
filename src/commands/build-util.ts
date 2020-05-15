@@ -49,13 +49,10 @@ export function getFileBuilderForWorker(
   config: SnowpackConfig,
   messageBus?: EventEmitter,
 ): ((code: string, {filename: string}) => Promise<string>) | undefined {
-  const {id, type, cmd} = selectedWorker;
-  if (type !== 'build') {
-    return;
-  }
-  if (config.plugins[cmd]) {
+  const {id, type, cmd, plugin} = selectedWorker;
+  if (type === 'plugin') {
     return async (code: string, options: {filename: string}) => {
-      const {build} = config.plugins[cmd];
+      const {build} = plugin!;
       try {
         let {result} = await build(fileLoc);
         return result;
@@ -68,19 +65,21 @@ export function getFileBuilderForWorker(
       }
     };
   }
-  return async (code: string, options: {filename: string}) => {
-    let cmdWithFile = cmd.replace('$FILE', options.filename);
-    const {stdout, stderr} = await execa.command(cmdWithFile, {
-      env: npmRunPath.env(),
-      extendEnv: true,
-      shell: true,
-      input: code,
-      cwd,
-    });
-    if (stderr) {
-      console.error(stderr);
-    }
-    messageBus && messageBus.emit('WORKER_UPDATE', {id, state: null});
-    return stdout;
-  };
+  if (type === 'build') {
+    return async (code: string, options: {filename: string}) => {
+      let cmdWithFile = cmd.replace('$FILE', options.filename);
+      const {stdout, stderr} = await execa.command(cmdWithFile, {
+        env: npmRunPath.env(),
+        extendEnv: true,
+        shell: true,
+        input: code,
+        cwd,
+      });
+      if (stderr) {
+        console.error(stderr);
+      }
+      messageBus && messageBus.emit('WORKER_UPDATE', {id, state: null});
+      return stdout;
+    };
+  }
 }

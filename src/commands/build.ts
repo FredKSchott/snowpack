@@ -250,7 +250,7 @@ export async function command({cwd, config}: CommandOptions) {
   const allProxiedFiles = new Set<string>();
   for (const workerConfig of relevantWorkers) {
     const {id, match, type} = workerConfig;
-    if (type !== 'build') {
+    if (type !== 'build' && type !== 'plugin') {
       continue;
     }
 

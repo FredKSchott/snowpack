@@ -26,6 +26,7 @@ export type DevScript = {
   type: string;
   cmd: string;
   watch?: string;
+  plugin?: {build: (filepath: string) => {result: string} | Promise<{result: string}>};
 };
 
 // interface this library uses internally
@@ -35,7 +36,6 @@ export interface SnowpackConfig {
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
   scripts: DevScript[];
-  plugins: {[id: string]: DevPlugin};
   homepage?: string;
   devOptions: {
     port: number;
@@ -70,7 +70,6 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   exclude: ['__tests__/**/*', '**/*.@(spec|test).*'],
   knownEntrypoints: [],
-  plugins: [] as any,
   installOptions: {
     dest: 'web_modules',
     externalPackage: [],
@@ -196,7 +195,7 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
 }
 
 type RawScripts = {[id: string]: string};
-function normalizeScripts(scripts: RawScripts): DevScript[] {
+function normalizeScripts(cwd: string, scripts: RawScripts): DevScript[] {
   const processedScripts: DevScript[] = [];
   for (const scriptId of Object.keys(scripts)) {
     if (scriptId.includes('::watch')) {
@@ -210,6 +209,10 @@ function normalizeScripts(scripts: RawScripts): DevScript[] {
       cmd: (scripts[scriptId] as any) as string,
       watch: (scripts[`${scriptId}::watch`] as any) as string | undefined,
     };
+    if (scriptType === 'plugin') {
+      const modulePath = require.resolve(scripts[scriptId], {paths: [cwd]});
+      newScriptConfig.plugin = require(modulePath);
+    }
     processedScripts.push(newScriptConfig);
   }
   const allBuildMatch = new Set<string>();
@@ -241,12 +244,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
       'mount:*': 'mount . --to .',
     } as any;
   }
-  config.scripts = normalizeScripts(config.scripts as any);
-  config.plugins = (config.plugins as any).reduce((obj, id: string) => {
-    const modulePath = require.resolve(id, {paths: [cwd]});
-    obj[id] = require(modulePath);
-    return obj;
-  }, {});
+  config.scripts = normalizeScripts(cwd, config.scripts as any);
   return config;
 }
 

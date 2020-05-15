@@ -351,8 +351,8 @@ export async function command({cwd, config}: CommandOptions) {
 
           if (requestedFileExt) {
             for (const workerConfig of config.scripts) {
-              const {id, type, match} = workerConfig;
-              if (type !== 'build') {
+              const {type, match} = workerConfig;
+              if (type !== 'build' && type !== 'plugin') {
                 continue;
               }
               for (const extMatcher of match) {
