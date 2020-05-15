@@ -11,8 +11,8 @@ const scripts = {
 };
 
 if (isTS) {
-  scripts["lintall:tsc"] = "tsc --noEmit";
-  scripts["lintall:tsc::watch"] = "$1 --watch";
+  scripts["run:tsc"] = "tsc --noEmit";
+  scripts["run:tsc::watch"] = "$1 --watch";
 }
 
 const buildId = isTS ? "build:ts,tsx,js,jsx" : "build:js,jsx";
