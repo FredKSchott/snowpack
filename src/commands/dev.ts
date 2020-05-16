@@ -47,7 +47,24 @@ import srcFileExtensionMapping from './src-file-extension-mapping';
 import got from 'got';
 import {addCommand} from './add-rm';
 import {command as installCommand} from './install';
+import {startService, Service} from 'esbuild';
+
+const IS_PREACT = /from\s+['"]preact['"]/;
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
+
+let esbuildService: Service | null = null;
+async function getEsbuildFileBuilder() {
+  esbuildService = esbuildService || (await startService());
+  return async (code: string, {filename}) => {
+    const isPreact = IS_PREACT.test(code);
+    const {js} = await esbuildService!.transform(code, {
+      loader: path.extname(filename).substr(1) as 'jsx' | 'ts' | 'tsx',
+      jsxFactory: isPreact ? 'h' : undefined,
+      jsxFragment: isPreact ? 'Fragment' : undefined,
+    });
+    return js || '';
+  };
+}
 
 function getEncodingType(ext: string): 'utf8' | 'binary' {
   if (ext === '.js' || ext === '.css' || ext === '.html') {
@@ -171,6 +188,11 @@ export async function command(commandOptions: CommandOptions) {
     fileLoc: string,
     fileBuilder: ((code: string, {filename: string}) => Promise<string>) | undefined,
   ) {
+    if (!fileBuilder) {
+      if (fileLoc.endsWith('.jsx') || fileLoc.endsWith('.tsx') || fileLoc.endsWith('.ts')) {
+        fileBuilder = await getEsbuildFileBuilder();
+      }
+    }
     if (fileBuilder) {
       let fileBuilderPromise = filesBeingBuilt.get(fileLoc);
       if (!fileBuilderPromise) {
@@ -382,7 +404,10 @@ export async function command(commandOptions: CommandOptions) {
       }
 
       const attemptedFileLoads: string[] = [];
-      function attemptLoadFile(requestedFile) {
+      function attemptLoadFile(requestedFile): Promise<null | string> {
+        if (attemptedFileLoads.includes(requestedFile)) {
+          return Promise.resolve(null);
+        }
         attemptedFileLoads.push(requestedFile);
         return fs
           .stat(requestedFile)
@@ -425,7 +450,11 @@ export async function command(commandOptions: CommandOptions) {
                 }
               }
             }
-            const fileLoc = await attemptLoadFile(requestedFile);
+            const fileLoc =
+              (await attemptLoadFile(requestedFile)) ||
+              (await attemptLoadFile(requestedFile.replace(/\.js$/, '.jsx'))) ||
+              (await attemptLoadFile(requestedFile.replace(/\.js$/, '.ts'))) ||
+              (await attemptLoadFile(requestedFile.replace(/\.js$/, '.tsx')));
             if (fileLoc) {
               return [fileLoc, null];
             }

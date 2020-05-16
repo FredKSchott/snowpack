@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import {startService} from 'esbuild';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {promises as fs} from 'fs';
@@ -15,6 +16,8 @@ import {getFileBuilderForWorker, wrapCssModuleResponse, wrapEsmProxyResponse} fr
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 const {copy} = require('fs-extra');
+
+const IS_PREACT = /from\s+['"]preact['"]/;
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
@@ -136,7 +139,10 @@ export async function command(commandOptions: CommandOptions) {
     })
     .filter(Boolean);
 
+  const esbuildService = await startService();
   const includeFileSets: [string, string, string[]][] = [];
+  const allProxiedFiles = new Set<string>();
+  const allCssModules = new Set<string>();
   for (const [id, dirDisk, dirDest] of mountDirDetails) {
     messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
     let allFiles;
@@ -156,13 +162,34 @@ export async function command(commandOptions: CommandOptions) {
             allBuildNeededFiles.push(f);
             return;
           }
-          const outPath = f.replace(dirDisk, dirDest);
+          let outPath = f.replace(dirDisk, dirDest);
           mkdirp.sync(path.dirname(outPath));
-          if (path.extname(f) !== '.js') {
+
+          if (
+            path.extname(f) !== '.jsx' &&
+            path.extname(f) !== '.tsx' &&
+            path.extname(f) !== '.ts' &&
+            path.extname(f) !== '.js'
+          ) {
             return fs.copyFile(f, outPath);
           }
 
           let code = await fs.readFile(f, {encoding: 'utf-8'});
+          if (
+            path.extname(f) === '.jsx' ||
+            path.extname(f) === '.tsx' ||
+            path.extname(f) === '.ts'
+          ) {
+            outPath = outPath.replace(path.extname(f), '.js');
+            const isPreact = IS_PREACT.test(code);
+            const {js} = await esbuildService!.transform(code, {
+              loader: path.extname(f).substr(1) as 'jsx' | 'ts' | 'tsx',
+              jsxFactory: isPreact ? 'h' : undefined,
+              jsxFragment: isPreact ? 'Fragment' : undefined,
+            });
+            code = js!;
+          }
+
           code = await transformEsmImports(code, (spec) => {
             if (spec.startsWith('http')) {
               return spec;
@@ -210,6 +237,7 @@ export async function command(commandOptions: CommandOptions) {
       messageBus.emit('WORKER_COMPLETE', {id, error: err});
     }
   }
+  esbuildService.stop();
 
   for (const workerConfig of relevantWorkers) {
     const {id, type, match} = workerConfig;
@@ -258,8 +286,6 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const allBuiltFromFiles = new Set();
-  const allProxiedFiles = new Set<string>();
-  const allCssModules = new Set<string>();
   for (const workerConfig of relevantWorkers) {
     const {id, match, type} = workerConfig;
     if (type !== 'build' && type !== 'plugin') {
