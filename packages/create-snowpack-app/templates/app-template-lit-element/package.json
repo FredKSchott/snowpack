@@ -12,6 +12,8 @@
     "prepare": "snowpack",
     "start": "snowpack dev",
     "build": "snowpack build",
+    "format": "prettier --write 'src/**/*.js'",
+    "lint": "prettier --check 'src/**/*.js'",
     "test": "echo \"This template does not include a test runner by default.\" && exit 1"
   },
   "dependencies": {
@@ -20,6 +22,7 @@
   },
   "devDependencies": {
     "@snowpack/app-scripts-lit-element": "^0.3.4",
+    "prettier": "^2.0.0",
     "snowpack": "^2.0.0-0"
   }
 }

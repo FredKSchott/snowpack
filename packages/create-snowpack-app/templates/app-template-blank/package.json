@@ -12,12 +12,15 @@
     "prepare": "snowpack",
     "start": "snowpack dev",
     "build": "snowpack build",
+    "format": "prettier --write 'src/**/*.js'",
+    "lint": "prettier --check 'src/**/*.js'",
     "test": "echo \"This template does not include a test runner by default.\" && exit 1"
   },
   "webDependencies": {
     "canvas-confetti": "^1.2.0"
   },
   "devDependencies": {
+    "prettier": "^2.0.0",
     "snowpack": "^2.0.0-0"
   }
 }

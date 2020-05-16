@@ -12,6 +12,8 @@
     "prepare": "snowpack",
     "start": "snowpack dev",
     "build": "snowpack build",
+    "format": "prettier --write 'src/**/*.{js,jsx}'",
+    "lint": "prettier --check 'src/**/*.{js,jsx}'",
     "test": "jest"
   },
   "webDependencies": {},
@@ -21,6 +23,7 @@
     "@testing-library/preact": "^1.0.2",
     "jest": "^25.4.0",
     "preact": "^10.4.1",
+    "prettier": "^2.0.0",
     "snowpack": "^2.0.0-0"
   },
   "gitHead": "YYY"
