@@ -36,11 +36,6 @@ If you've ever worked with `package.json` "scripts", creating your own build scr
 
 Snowpack supports several other script types in addition to the basic `"build"` type. These different script types serve different goals so that you can fully customize and control your dev environment:
 
-- `"mount:*": "mount DIR [--to URL]"`
-  - Copy a folder directly into the final build at the `--to` URL location.
-  - If no `--to` argument is provided, the directory will be hosted at the same relative location.
-  - ex: `"mount:public": "mount public --to ."`
-  - ex: `"mount:web_modules": "mount web_modules"`
 - `"build:*": "..."`
   - Pipe any matching file into this CLI command, and write it's output to disk.
   - ex: `"build:js,jsx": "babel --filename $FILE"`
@@ -50,6 +45,15 @@ Snowpack supports several other script types in addition to the basic `"build"` 
   - ex: `"run:tsc": "tsc"`
 - `"plugin:*": "..."`
   - Connect a custom Snowpack plugin. See the section below for more info.
+- `"mount:*": "mount DIR [--to PATH]"`
+  - Copy a folder directly into the final build at the `--to` URL location.
+  - If no `--to` argument is provided, the directory will be hosted at the same relative location.
+  - ex: `"mount:public": "mount public --to /"`
+  - ex: `"mount:web_modules": "mount web_modules"`
+- `"proxy:*": "proxy URL --to PATH"`
+  - Proxy all requests that match the `--to` path to this URL. 
+  - Useful when you expect this path to exist in production.
+  - ex: `"proxy:api": "proxy https://pokeapi.co/api/v2 --to /api"`
 
 ### Script Variables
 

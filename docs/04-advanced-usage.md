@@ -15,7 +15,7 @@ Additionally, Snowpack's dev server provides a basic HMR API that anyone can tap
 More documentation on the HMR API is coming soon.
 
 
-### Importing CSS
+### Import CSS
 
 Snowpack supports basic CSS imports inside of your JavaScript files. While this isn't natively supported by any browser today, Snowpack's dev server and build pipeline both handle this for you.
 
@@ -26,7 +26,7 @@ import './style.css'
 
 Snowpack also supports any popular CSS-in-JS library. If you prefer to avoid these non-standard CSS imports, check out [csz](https://github.com/lukejacksonn/csz). CSZ is a run-time CSS module library with support for SASS-like syntax/selectors.
 
-### Importing CSS Modules
+### Import CSS Modules
 
 Snowpack supports CSS Modules for CSS files using the `[name].module.css` naming convention. CSS Modules allow you to scope your CSS to unique class names & identifiers. CSS Modules return a default export (`styles` in the example below) that maps the original identifier to it's new, scoped value.
 
@@ -46,7 +46,7 @@ import styles from './style.module.css'
 return <div className={styles.error}>Your Error Message</div>;
 ```
 
-### Importing JSON
+### Import JSON
 
 Snowpack supports importing JSON via ESM import. While this isn't yet supported in most browsers, it's a huge convenience over having vs. use fetch() directly.
 
@@ -56,7 +56,7 @@ Snowpack supports importing JSON via ESM import. While this isn't yet supported 
 import json from './data.json' 
 ```
 
-### Importing Images, Assets
+### Import Images, Assets
 
 ``` jsx
 import img from './image.png'; // img === '/src/image.png'
@@ -67,6 +67,25 @@ import svg from './image.svg'; // svg === '/src/image.svg'
 ```
 
 All other assets not explicitly mentioned above can be imported to get a URL reference to the asset. This can be useful for referencing assets inside of your JS, like creating an image element with a `src` attribute pointing to that image.
+
+
+### Proxy Requests
+
+Snowpack's dev server can proxy requests during development to match your production host environment. If you expect a certain API to be available on the same host as your web application, you can create a proxy via a `proxy` [Build Script](#build-scripts):
+
+```js
+// snowpack.config.json
+// Example: Proxy "/api/pokemon/ditto" -> "https://pokeapi.co/api/v2/pokemon/ditto"
+{
+  "scripts": {
+    "proxy:api": "proxy https://pokeapi.co/api/v2 --to /api"
+  }
+}
+```
+
+Learn more about [Build Script integrations](#build-scripts).
+
+
 
 
 ### JSX
