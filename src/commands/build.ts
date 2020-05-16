@@ -1,18 +1,18 @@
 import chalk from 'chalk';
-import { startService } from 'esbuild';
-import { EventEmitter } from 'events';
+import {startService} from 'esbuild';
+import {EventEmitter} from 'events';
 import execa from 'execa';
-import { promises as fs } from 'fs';
+import {promises as fs} from 'fs';
 import glob from 'glob';
 import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
 import rimraf from 'rimraf';
-import { DevScript } from '../config';
-import { transformEsmImports } from '../rewrite-imports';
-import { CommandOptions, ImportMap } from '../util';
-import { getFileBuilderForWorker, wrapCssModuleResponse, wrapEsmProxyResponse } from './build-util';
-import { paint } from './paint';
+import {DevScript} from '../config';
+import {transformEsmImports} from '../rewrite-imports';
+import {CommandOptions, ImportMap} from '../util';
+import {getFileBuilderForWorker, wrapCssModuleResponse, wrapEsmProxyResponse} from './build-util';
+import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 const {copy} = require('fs-extra');
 
