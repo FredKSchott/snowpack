@@ -13,6 +13,7 @@
     "enhanced-resolve": "^4.1.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.9.0",
     "babel-plugin-tester": "^9.0.0",
     "jest": "^25.1.0"
   }
