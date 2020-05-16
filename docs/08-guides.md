@@ -17,11 +17,26 @@ All of the following frameworks have been tested and guaranteed to work in Snowp
 - [add more.](https://github.com/pikapkg/snowpack/edit/master/docs/08-guides.md)
 
 
-### JSX (React, Preact, etc.)
+### Babel
 
-To author code using JSX & `.jsx` files in your `src/` directory, [connect Babel](#babel) or any other JSX -> JS transpiler to your build.
+Babel will automatically read plugins & presets from your local project `babel.config.*` config file, if one exists.
 
-**NOTE: JSX is not allowed in files ending in `.js`.** If you include JSX in files ending with `.js`, `snowpack install` will fail with a parse error.
+#### via plugin (Recommended)
+
+```js
+"scripts": { 
+  "plugin:js,jsx": "@snowpack/plugin-babel"
+}
+```
+
+#### via @babel/cli
+
+```js
+"scripts": {
+  // NOTE: Not recommended, slower on large sites than the plugin.
+  "build:js,jsx": "babel --filename $FILE"
+}
+```
 
 ### Vue
 
@@ -42,53 +57,6 @@ To author code using JSX & `.jsx` files in your `src/` directory, [connect Babel
 }
 ```
 
-
-### Babel
-
-Babel will automatically read plugins & presets from your local project `babel.config.*` config file, if one exists.
-
-**NOTE: JSX is not allowed in files ending in `.js`.** If you include JSX in files ending with `.js`, `snowpack install` will fail with a parse error.
-
-#### via plugin (Recommended)
-
-```js
-"scripts": { 
-  "plugin:js,jsx": "@snowpack/plugin-babel"
-}
-```
-
-#### via @babel/cli
-
-```js
-"scripts": {
-  // NOTE: Not recommended, slower on large sites than the plugin.
-  "build:js,jsx": "babel --filename $FILE"
-}
-```
-
-
-### TypeScript
-
-Note: If you're having trouble importing type declarations with your packages, see our section above on TypeScript Support.
-
-TypeScript will automatically read config from your local project `tsconfig.json` file. If you need to pass additional flags, you can do so via the command.
-
-```js
-"scripts": { 
-  "run:ts,tsx": "tsc --noEmit",
-  "run:ts,tsx::watch": "$1 --watch"
-}
-```
-
-Note that while TypeScript is a great type checker, we recommend using Babel to build TypeScript files to JavaScript. Babel supports much greater control over your build output.
-
-```js
-"scripts": { 
-  "plugin:ts,tsx": "@snowpack/plugin-babel",
-  "run:ts,tsx": "tsc --noEmit",
-  "run:ts,tsx::watch": "$1 --watch"
-}
-```
 
 ### PostCSS
 

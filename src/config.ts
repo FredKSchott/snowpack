@@ -5,6 +5,7 @@ import {Plugin} from 'rollup';
 import {validate, ValidationError} from 'jsonschema';
 import {all as merge} from 'deepmerge';
 import chalk from 'chalk';
+import yargs from 'yargs-parser';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -27,6 +28,7 @@ export type DevScript = {
   cmd: string;
   watch?: string;
   plugin?: {build: (filepath: string) => {result: string} | Promise<{result: string}>};
+  args?: any;
 };
 
 // interface this library uses internally
@@ -202,13 +204,52 @@ function normalizeScripts(cwd: string, scripts: RawScripts): DevScript[] {
       continue;
     }
     const [scriptType, scriptMatch] = scriptId.split(':');
+    const cmd = (scripts[scriptId] as any) as string;
     const newScriptConfig: DevScript = {
       id: scriptId,
       type: scriptType,
       match: scriptMatch.split(','),
-      cmd: (scripts[scriptId] as any) as string,
+      cmd,
       watch: (scripts[`${scriptId}::watch`] as any) as string | undefined,
     };
+    if (scriptType === 'mount') {
+      const cmdArr = cmd.split(/\s+/);
+      if (cmdArr[0] !== 'mount') {
+        handleConfigError(`scripts[${scriptId}] must use the mount command`);
+      }
+      cmdArr.shift();
+      const {to, _} = yargs(cmdArr);
+      if (_.length !== 1) {
+        handleConfigError(`scripts[${scriptId}] must use the format: "mount dir [--to /PATH]"`);
+      }
+      if (to && to[0] !== '/') {
+        handleConfigError(
+          `scripts[${scriptId}]: "--to ${to}" must be a URL path, and start with a "/"`,
+        );
+      }
+      const dirDisk = cmdArr[0];
+      const dirUrl = to || `/${cmdArr[0]}`;
+      newScriptConfig.args = {fromDisk: dirDisk, toUrl: dirUrl};
+    }
+    if (scriptType === 'proxy') {
+      const cmdArr = cmd.split(/\s+/);
+      if (cmdArr[0] !== 'proxy') {
+        handleConfigError(`scripts[${scriptId}] must use the proxy command`);
+      }
+      cmdArr.shift();
+      const {to, _} = yargs(cmdArr);
+      if (_.length !== 1) {
+        handleConfigError(
+          `scripts[${scriptId}] must use the format: "proxy http://SOME.URL --to /PATH"`,
+        );
+      }
+      if (to && to[0] !== '/') {
+        handleConfigError(
+          `scripts[${scriptId}]: "--to ${to}" must be a URL path, and start with a "/"`,
+        );
+      }
+      newScriptConfig.args = {fromUrl: _[0], toUrl: to};
+    }
     if (scriptType === 'plugin') {
       const modulePath = require.resolve(scripts[scriptId], {paths: [cwd]});
       newScriptConfig.plugin = require(modulePath);
@@ -241,7 +282,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   if (!config.scripts) {
     config.exclude.push('**/.*');
     config.scripts = {
-      'mount:*': 'mount . --to .',
+      'mount:*': 'mount . --to /',
     } as any;
   }
   config.scripts = normalizeScripts(cwd, config.scripts as any);
@@ -317,12 +358,20 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
       '[Snowpack v1 -> v2] `stat` is now the default output, this config is safe to remove.',
     );
   }
+  if (
+    rawConfig.scripts &&
+    Object.keys(rawConfig.scripts).filter((k) => k.startsWith('lintall')).length
+  ) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `scripts["lintall:..."]` has been renamed to scripts["run:..."]',
+    );
+  }
   // Removed!
   if (rawConfig.devOptions?.dist) {
     handleDeprecatedConfigError(
       '[Snowpack v1 -> v2] `devOptions.dist` is no longer required. This config is safe to remove.',
       `If you'd still like to host your src/ directory at the "/_dist/*" URL, create a mount script:',
-      '    {"scripts": {"mount:src": "mount src --to _dist_"}} `,
+      '    {"scripts": {"mount:src": "mount src --to /_dist_"}} `,
     );
   }
   if (rawConfig.hash || cliFlags.hash) {

@@ -1,8 +1,8 @@
 ## Features
 
-### Hot Module Reloading (HMR)
+### Hot Module Replacement
 
-Hot Module Reloading (HMR) is the ability to update your web app during development without refreshing the page. Imagine changing some CSS, hitting save, and then instantly seeing your change reflected on the page without a refresh. That's HMR.
+Hot Module Replacement (HMR) is the ability to update your web app during development without refreshing the page. Imagine changing some CSS, hitting save, and then instantly seeing your change reflected on the page without a refresh. That's HMR.
 
 Snowpack supports full HMR out-of-the-box for the following served files:
 
@@ -73,7 +73,9 @@ All other assets not explicitly mentioned above can be imported to get a URL ref
 
 #### COMPILING TO JAVASCRIPT
 
-When you write your web app with JSX, Snowpack will automatically build all `.jsx` & `.tsx` files to JavaScript during development and production builds. This wprks for both React & Preact as long as the file includes an import of React or Preact.
+When you write your web app with JSX, Snowpack will automatically build all `.jsx` & `.tsx` files to JavaScript during development and production builds. This works for both React & Preact as long as the file includes an import of React or Preact. 
+
+**Note: JSX must live in `.jsx` files.** JSX in `.js` files is not supported.
 
 If needed, you can optionally define your own JSX->JavaScript build step via a [Build Script integration](#build-scripts).
 

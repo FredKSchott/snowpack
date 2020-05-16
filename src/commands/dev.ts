@@ -27,27 +27,26 @@
 import cacache from 'cacache';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
+import {Service, startService} from 'esbuild';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
-import {promises as fs, existsSync, readFileSync} from 'fs';
+import {existsSync, promises as fs, readFileSync} from 'fs';
+import got from 'got';
 import http from 'http';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
 import os from 'os';
 import path from 'path';
 import url from 'url';
-import yargs from 'yargs-parser';
-import {DevScript, SnowpackConfig} from '../config';
+import {DevScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
 import {BUILD_CACHE, CommandOptions, ImportMap} from '../util';
-import {wrapEsmProxyResponse, getFileBuilderForWorker, wrapCssModuleResponse} from './build-util';
+import {addCommand} from './add-rm';
+import {getFileBuilderForWorker, wrapCssModuleResponse, wrapEsmProxyResponse} from './build-util';
+import {command as installCommand} from './install';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
-import got from 'got';
-import {addCommand} from './add-rm';
-import {command as installCommand} from './install';
-import {startService, Service} from 'esbuild';
 
 const IS_PREACT = /from\s+['"]preact['"]/;
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
@@ -113,33 +112,8 @@ function getUrlFromFile(mountedDirectories: [string, string][], fileLoc: string)
 }
 
 function getMountedDirectory(cwd: string, workerConfig: DevScript): [string, string] {
-  const {id, cmd} = workerConfig;
-  const cmdArr = cmd.split(/\s+/);
-  if (cmdArr[0] !== 'mount') {
-    throw new Error(`script[${id}] must use the mount command`);
-  }
-  cmdArr.shift();
-  const {to, _} = yargs(cmdArr);
-  if (_.length !== 1 || (to && to[0] !== '/')) {
-    throw new Error(`script[${id}] must use the format: "mount dir [--to /PATH]"`);
-  }
-  const dirDisk = path.resolve(cwd, cmdArr[0]);
-  const dirUrl = to || `/${cmdArr[0]}`;
-  return [dirDisk, dirUrl];
-}
-
-function getProxyConfig(workerConfig: DevScript): [string, string] {
-  const {id, cmd} = workerConfig;
-  const cmdArr = cmd.split(/\s+/);
-  if (cmdArr[0] !== 'proxy') {
-    throw new Error(`script[${id}] must use the proxy command`);
-  }
-  cmdArr.shift();
-  const {to, _} = yargs(cmdArr);
-  if (_.length !== 1 || !to || to[0] !== '/') {
-    throw new Error(`script[${id}] must use the format: "proxy http://SOME.URL --to /PATH"`);
-  }
-  return [_[0], to];
+  const {args} = workerConfig;
+  return [path.resolve(cwd, args.fromDisk), args.toUrl];
 }
 
 let currentlyRunningCommand: any = null;
@@ -157,7 +131,6 @@ export async function command(commandOptions: CommandOptions) {
   const liveReloadClients: http.ServerResponse[] = [];
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
-  const proxyDetails: [string, string][] = [];
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
   if (!existsSync(dependencyImportMapLoc)) {
     messageBus.emit('INSTALLING');
@@ -319,7 +292,6 @@ export async function command(commandOptions: CommandOptions) {
       runLintAll(workerConfig);
     }
     if (workerConfig.type === 'proxy') {
-      proxyDetails.push(getProxyConfig(workerConfig));
       setTimeout(
         () => messageBus.emit('WORKER_UPDATE', {id: workerConfig.id, state: ['DONE', 'green']}),
         400,
@@ -383,11 +355,14 @@ export async function command(commandOptions: CommandOptions) {
         return;
       }
 
-      for (const [url, path] of proxyDetails) {
-        if (reqPath.startsWith(path)) {
-          const newPath = reqPath.substr(path.length);
+      for (const workerConfig of config.scripts) {
+        if (workerConfig.type !== 'proxy') {
+          continue;
+        }
+        if (reqPath.startsWith(workerConfig.args.toUrl)) {
+          const newPath = reqPath.substr(workerConfig.args.toUrl);
           try {
-            const response = await got(`${url}${newPath}`, {
+            const response = await got(`${workerConfig.args.fromUrl}${newPath}`, {
               headers: req.headers,
               throwHttpErrors: false,
             });

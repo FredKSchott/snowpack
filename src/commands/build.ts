@@ -1,19 +1,18 @@
 import chalk from 'chalk';
-import {startService} from 'esbuild';
-import {EventEmitter} from 'events';
+import { startService } from 'esbuild';
+import { EventEmitter } from 'events';
 import execa from 'execa';
-import {promises as fs} from 'fs';
+import { promises as fs } from 'fs';
 import glob from 'glob';
 import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
 import rimraf from 'rimraf';
-import yargs from 'yargs-parser';
-import {DevScript} from '../config';
-import {transformEsmImports} from '../rewrite-imports';
-import {CommandOptions, ImportMap} from '../util';
-import {getFileBuilderForWorker, wrapCssModuleResponse, wrapEsmProxyResponse} from './build-util';
-import {paint} from './paint';
+import { DevScript } from '../config';
+import { transformEsmImports } from '../rewrite-imports';
+import { CommandOptions, ImportMap } from '../util';
+import { getFileBuilderForWorker, wrapCssModuleResponse, wrapEsmProxyResponse } from './build-util';
+import { paint } from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 const {copy} = require('fs-extra');
 
@@ -119,23 +118,13 @@ export async function command(commandOptions: CommandOptions) {
 
   const mountDirDetails: any[] = relevantWorkers
     .map((scriptConfig) => {
-      if (scriptConfig.type !== 'mount') {
+      const {id, type, args} = scriptConfig;
+      if (type !== 'mount') {
         return false;
       }
-      const cmdArr = scriptConfig.cmd.split(/\s+/);
-      if (cmdArr[0] !== 'mount') {
-        throw new Error(`script[${scriptConfig.id}] must use the mount command`);
-      }
-      cmdArr.shift();
-      let dirDest, dirDisk;
-      dirDisk = path.resolve(cwd, cmdArr[0]);
-      if (cmdArr.length === 1) {
-        dirDest = path.resolve(buildDirectoryLoc, cmdArr[0]);
-      } else {
-        const {to} = yargs(cmdArr);
-        dirDest = path.resolve(buildDirectoryLoc, to.replace(/^\//, ''));
-      }
-      return [scriptConfig.id, dirDisk, dirDest];
+      const dirDisk = path.resolve(cwd, args.fromDisk);
+      const dirDest = path.resolve(buildDirectoryLoc, args.toUrl.replace(/^\//, ''));
+      return [id, dirDisk, dirDest];
     })
     .filter(Boolean);
 

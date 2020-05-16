@@ -158,19 +158,14 @@ export async function scanImports(
 ): Promise<InstallTarget[]> {
   await initESModuleLexer;
   const includeFileSets = await Promise.all(
-    scripts.map(({id, type, cmd}) => {
+    scripts.map(({id, type, cmd, args}) => {
       if (type !== 'mount') {
         return [];
       }
-      const cmdArr = cmd.split(/\s+/);
-      if (cmdArr[0] !== 'mount') {
-        throw new Error(`script[${id}] must use the mount command`);
-      }
-      cmdArr.shift();
-      if (cmdArr[0].includes('web_modules')) {
+      if (args.fromDisk.includes('web_modules')) {
         return [];
       }
-      const dirDisk = nodePath.resolve(cwd, cmdArr[0]);
+      const dirDisk = nodePath.resolve(cwd, args.fromDisk);
       return glob.sync(`**/*`, {
         ignore: exclude.concat(['**/web_modules/**/*']),
         cwd: dirDisk,
