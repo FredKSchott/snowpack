@@ -1,0 +1,28 @@
+{
+  "name": "@snowpack/app-template-lit-element-typescript",
+  "version": "0.3.4",
+  "license": "MIT",
+  "keywords": [
+    "csa-template"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepare": "snowpack",
+    "start": "snowpack dev",
+    "build": "snowpack build",
+    "test": "echo \"This template does not include a test runner by default.\" && exit 1"
+  },
+  "dependencies": {
+    "lit-element": "^2.3.1",
+    "lit-html": "^1.2.1"
+  },
+  "devDependencies": {
+    "@snowpack/app-scripts-lit-element": "^0.3.4",
+    "deepmerge": "4.2.2",
+    "parcel-bundler": "^1.12.4",
+    "snowpack": "^2.0.0-0",
+    "typescript": "^3.8.3"
+  }
+}

@@ -1,6 +1,8 @@
 .build
 node_modules
 .DS_Store
+.idea
+.vscode
 
 
 templates/*/build

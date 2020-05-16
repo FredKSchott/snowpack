@@ -1,0 +1,11 @@
+{
+  "extends": "@snowpack/app-scripts-lit-element/tsconfig.base.json",
+  "include": ["src", "types"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": "./",
+    "paths": { "*": ["web_modules/.types/*"] }
+  }
+}
