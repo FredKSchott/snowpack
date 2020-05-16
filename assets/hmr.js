@@ -1,36 +1,36 @@
 const hotStates = {};
 
-const globalState = {
-  beforeUpdateCallbacks: {},
-  afterUpdateCallbacks: {},
-};
-
 class HotState {
   constructor(id) {
     this.id = id;
-    this.data = {}
+    this.data = {};
+    this.disposeCallbacks = [];
   }
-
+  lock() {
+    this.isLocked = true;
+  }
   dispose(cb) {
-    this.disposeCallback = cb;
+    this.disposeCallbacks.push(cb);
   }
-
   accept(cb = true) {
+    if (this.isLocked) {
+      return;
+    }
     this.acceptCallback = cb;
   }
-
-  beforeUpdate(cb) {
-    globalState.beforeUpdateCallbacks[this.id] = cb;
-  }
-
-  afterUpdate(cb) {
-    globalState.afterUpdateCallbacks[this.id] = cb;
-  }
+  // beforeUpdate(cb) {
+  //   globalState.beforeUpdateCallbacks[this.id] = cb;
+  // }
+  // afterUpdate(cb) {
+  //   globalState.afterUpdateCallbacks[this.id] = cb;
+  // }
 }
 
-const getHotState = id => {
+export const createHotContext = (fullUrl) => {
+  const id = new URL(fullUrl).pathname;
   const existing = hotStates[id];
   if (existing) {
+    existing.lock();
     return existing;
   }
   const state = new HotState(id);
@@ -38,58 +38,66 @@ const getHotState = id => {
   return state;
 };
 
-export const createHotContext = getHotState;
+const serial = (f) => {
+  let promise;
+  return (...args) => (promise = promise ? promise.then(() => f(...args)) : f(...args));
+};
 
-const serial = f => {
-  let promise
-  return (...args) => (promise = promise ? promise.then(() => f(...args)) : f(...args))
-}
-
-const applyUpdate = serial(async (event, id) => {
-  if (event === 'add') {
-    await import(id + `.proxy.js?mtime=${Date.now()}`);
-    return true
+const applyUpdate = serial(async (fullUrl) => {
+  let state = null;
+  const cssModuleState = hotStates[fullUrl];
+  if (cssModuleState && fullUrl.endsWith('.module.css')) {
+    // const response = await import(fullUrl + `?mtime=${Date.now()}`);
+    // cssModuleState({module: response});
+    state = cssModuleState;
+  }
+  const proxyModuleListener = hotStates[fullUrl + '.proxy.js'];
+  if (!state && proxyModuleListener) {
+    state = proxyModuleListener;
+    // const response = await fetch(fullUrl);
+    // const code = await response.text();
+    // proxyModuleListener({code});
   }
 
-  const state = getHotState(id);
+  const moduleListener = hotStates[fullUrl];
+  if (!state && moduleListener && fullUrl.endsWith('.js')) {
+    // const response = await import(fullUrl + `?mtime=${Date.now()}`);
+    // moduleListener({module: response});
+    state = moduleListener;
+  }
+
+  if (!state) {
+    return false;
+  }
+
   const acceptCallback = state.acceptCallback;
-  const disposeCallback = state.disposeCallback;
+  // const disposeCallback = state.disposeCallback;
+  // delete globalState.afterUpdateCallbacks[fileId];
+  // delete globalState.beforeUpdateCallbacks[fileId];
+  // delete state.acceptCallback;
 
-  delete globalState.afterUpdateCallbacks[id];
-  delete globalState.beforeUpdateCallbacks[id];
-  delete state.acceptCallback;
-  delete state.disposeCallback;
+  await Promise.all(state.disposeCallbacks.map((cb) => cb(state.data)));
+  state.disposeCallbacks = [];
 
-  if (typeof disposeCallback === 'function') {
-    await disposeCallback(state.data);
+  if (!acceptCallback) {
+    return false;
   }
-
-  if (event === 'change') {
-    if (!acceptCallback) return false;
-
-    await import(id + `.proxy.js?mtime=${Date.now()}`);
-
-    if (typeof acceptCallback === 'function') {
-      await acceptCallback();
-    }
+  if (acceptCallback === true) {
+    return true;
   }
-
+  if (fullUrl.endsWith('.js') || fullUrl.endsWith('.module.css')) {
+    const response = await import(fullUrl + `?mtime=${Date.now()}`);
+    await acceptCallback({module: response});
+  } else {
+    const response = await import(fullUrl + '.proxy.js' + `?mtime=${Date.now()}`);
+    await acceptCallback({module: response});
+  }
   return true;
-})
-
-
-const listeners = {};
-export function apply(url, callback) {
-  const fullUrl = new URL(url).pathname;
-  listeners[fullUrl] = callback;
-}
+});
 
 const source = new EventSource('/livereload');
-
 const reload = () => location.reload(true);
-
 source.onerror = () => (source.onopen = reload);
-
 source.onmessage = async (e) => {
   const data = JSON.parse(e.data);
   console.log(e.data);
@@ -98,30 +106,16 @@ source.onmessage = async (e) => {
     return;
   }
   const fullUrl = data.url.split('?')[0];
-  console.log(fullUrl, listeners);
-  const cssModuleListener = listeners[fullUrl];
-  if (cssModuleListener && fullUrl.endsWith('.module.css')) {
-    const response = await import(fullUrl + `?mtime=${Date.now()}`);
-    cssModuleListener({module: response});
-    return;
-  }
+  console.log(fullUrl, hotStates);
 
-  const proxyModuleListener = listeners[fullUrl + '.proxy.js'];
-  if (proxyModuleListener) {
-    const response = await fetch(fullUrl);
-    const code = await response.text();
-    proxyModuleListener({code});
-    return;
-  }
-
-  const moduleListener = listeners[fullUrl];
-  if (moduleListener && fullUrl.endsWith('.js')) {
-    const response = await import(fullUrl + `?mtime=${Date.now()}`);
-    moduleListener({module: response});
-    return;
-  }
-
-  reload();
+  applyUpdate(fullUrl)
+    .then((ok) => {
+      if (!ok) reload();
+    })
+    .catch((err) => {
+      console.error(err);
+      reload();
+    });
 };
 
 console.log('[snowpack] listening for file changes');

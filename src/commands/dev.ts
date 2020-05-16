@@ -43,7 +43,12 @@ import {DevScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
 import {BUILD_CACHE, CommandOptions, ImportMap} from '../util';
 import {addCommand} from './add-rm';
-import {getFileBuilderForWorker, wrapCssModuleResponse, wrapEsmProxyResponse} from './build-util';
+import {
+  getFileBuilderForWorker,
+  wrapCssModuleResponse,
+  wrapEsmProxyResponse,
+  wrapJSModuleResponse,
+} from './build-util';
 import {command as installCommand} from './install';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
@@ -492,8 +497,7 @@ export async function command(commandOptions: CommandOptions) {
             requestedFileExt,
             true,
           );
-        }
-        if (isCssModule) {
+        } else if (isCssModule) {
           responseFileExt = '.js';
           hotCachedResponse = await wrapCssModuleResponse(
             reqPath,
@@ -501,6 +505,8 @@ export async function command(commandOptions: CommandOptions) {
             requestedFileExt,
             true,
           );
+        } else if (responseFileExt === '.js') {
+          hotCachedResponse = await wrapJSModuleResponse(hotCachedResponse.toString());
         }
         sendFile(req, res, hotCachedResponse, responseFileExt);
         return;
@@ -541,8 +547,7 @@ export async function command(commandOptions: CommandOptions) {
               requestedFileExt,
               true,
             );
-          }
-          if (isCssModule) {
+          } else if (isCssModule) {
             responseFileExt = '.js';
             serverResponse = await wrapCssModuleResponse(
               reqPath,
@@ -550,6 +555,8 @@ export async function command(commandOptions: CommandOptions) {
               requestedFileExt,
               true,
             );
+          } else if (responseFileExt === '.js') {
+            serverResponse = await wrapJSModuleResponse(coldCachedResponse.toString());
           }
           // Trust... but verify.
           sendFile(req, res, serverResponse, responseFileExt);
@@ -563,8 +570,7 @@ export async function command(commandOptions: CommandOptions) {
                 requestedFileExt,
                 true,
               );
-            }
-            if (checkFinalBuildAnyway && isCssModule) {
+            } else if (checkFinalBuildAnyway && isCssModule) {
               responseFileExt = '.js';
               serverResponse = await wrapCssModuleResponse(
                 reqPath,
@@ -572,6 +578,9 @@ export async function command(commandOptions: CommandOptions) {
                 requestedFileExt,
                 true,
               );
+            }
+            if (checkFinalBuildAnyway && responseFileExt === '.js') {
+              serverResponse = await wrapJSModuleResponse(checkFinalBuildAnyway);
             }
           } catch (err) {
             // safe to ignore, it will be surfaced later anyway
@@ -613,10 +622,11 @@ export async function command(commandOptions: CommandOptions) {
       if (isProxyModule) {
         responseFileExt = '.js';
         finalBuild = wrapEsmProxyResponse(reqPath, finalBuild, requestedFileExt, true);
-      }
-      if (isCssModule) {
+      } else if (isCssModule) {
         responseFileExt = '.js';
         finalBuild = await wrapCssModuleResponse(reqPath, finalBuild, requestedFileExt, true);
+      } else if (responseFileExt === '.js') {
+        finalBuild = await wrapJSModuleResponse(finalBuild);
       }
       sendFile(req, res, finalBuild, responseFileExt);
     })

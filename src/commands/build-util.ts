@@ -4,6 +4,16 @@ import type {EventEmitter} from 'events';
 import {SnowpackConfig, DevScript} from '../config';
 import Core from 'css-modules-loader-core';
 
+export async function wrapJSModuleResponse(code: string) {
+  return (
+    code +
+    `
+import * as __SNOWPACK_HMR_API__ from '/web_modules/@snowpack/hmr.js';
+import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
+`
+  );
+}
+
 export async function wrapCssModuleResponse(
   url: string,
   code: string,
@@ -15,33 +25,30 @@ export async function wrapCssModuleResponse(
     throw new Error('BOTHER');
   });
   return `
-const styleEl = document.createElement("style");
-styleEl.type = 'text/css';
-  
 export let code = ${JSON.stringify(injectableSource)};
 let json = ${JSON.stringify(exportTokens)};
 export default json;
 
+const styleEl = document.createElement("style");
+const codeEl = document.createTextNode(code);
+styleEl.type = 'text/css';
+
+styleEl.appendChild(codeEl);
+document.head.appendChild(styleEl);
 ${
   hasHmr
     ? `
-const isMainAsset = !new URL(import.meta.url).search;
-if (isMainAsset) {
-  styleEl.appendChild(document.createTextNode(code));
-  document.head.appendChild(styleEl);
-}
-
-import {apply} from '/web_modules/@snowpack/hmr.js';
-if (isMainAsset) {
-  apply(import.meta.url, ({module}) => {
-    styleEl.removeChild(styleEl.lastChild);
-    styleEl.appendChild(document.createTextNode(module.code));
-    code = module.code;
-    json = module.default;
-  });
-}`
-    : `styleEl.appendChild(document.createTextNode(code));
-document.head.appendChild(styleEl);`
+import * as __SNOWPACK_HMR_API__ from '/web_modules/@snowpack/hmr.js';
+import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
+import.meta.hot.accept(({module}) => {
+  code = module.code;
+  json = module.default;
+});
+import.meta.hot.dispose(() => {
+  document.head.removeChild(styleEl);
+});
+`
+    : ``
 }`;
 }
 
@@ -53,9 +60,10 @@ export default json;
 ${
   hasHmr
     ? `
-import {apply} from '/web_modules/@snowpack/hmr.js';
-apply(import.meta.url, ({code}) => {
-  json = JSON.parse(JSON.stringify(JSON.parse(code)));
+import * as __SNOWPACK_HMR_API__ from '/web_modules/@snowpack/hmr.js';
+import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
+import.meta.hot.accept(({module}) => {
+  json = module.default;
 });
 `
     : ''
@@ -64,17 +72,22 @@ apply(import.meta.url, ({code}) => {
 
   if (ext === '.css') {
     return `
+const code = ${JSON.stringify(code)};
+
 const styleEl = document.createElement("style");
+const codeEl = document.createTextNode(code);
 styleEl.type = 'text/css';
-styleEl.appendChild(document.createTextNode(${JSON.stringify(code)}));
+
+styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);
 ${
   hasHmr
     ? `
-import {apply} from '/web_modules/@snowpack/hmr.js';
-apply(import.meta.url, ({code}) => {
-  styleEl.removeChild(styleEl.lastChild);
-  styleEl.appendChild(document.createTextNode(code));
+import * as __SNOWPACK_HMR_API__ from '/web_modules/@snowpack/hmr.js';
+import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
+import.meta.hot.accept();
+import.meta.hot.dispose(() => {
+  document.head.removeChild(styleEl);
 });
 `
     : ''
