@@ -101,7 +101,7 @@
     "cross-env": "^7.0.2",
     "dir-compare": "^2.2.0",
     "eleventy-plugin-nesting-toc": "^1.1.0",
-    "jest": "^25.1.0",
+    "jest": "^26.0.1",
     "markdown-it": "^10.0.0",
     "markdown-it-anchor": "^5.2.5",
     "prettier": "^2.0.2",
