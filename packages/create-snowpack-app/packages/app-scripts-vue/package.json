@@ -1,13 +1,13 @@
 {
   "name": "@snowpack/app-scripts-vue",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "main": "snowpack.config.js",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "@snowpack/plugin-vue": "^0.5.0"
+    "@snowpack/plugin-vue": "^0.5.1"
   },
   "gitHead": "YYY"
 }
