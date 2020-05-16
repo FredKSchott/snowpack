@@ -193,11 +193,11 @@ export async function scanImports(
         return null;
       }
       // Our import scanner can handle normal JS & even TypeScript without a problem.
-      if (ext === '.js' || ext === '.mjs') {
+      if (ext === '.js' || ext === '.mjs' || ext === '.ts') {
         return fs.promises.readFile(filePath, 'utf-8');
       }
       // JSX breaks our import scanner, so we need to transform it before sending it to our scanner.
-      if (ext === '.jsx' || ext === '.ts' || ext === '.tsx') {
+      if (ext === '.jsx' || ext === '.tsx') {
         const code = await fs.promises.readFile(filePath, 'utf-8');
         const {js} = await esbuildService.transform(code, {
           loader: ext.substr(1) as 'js' | 'ts' | 'tsx',
