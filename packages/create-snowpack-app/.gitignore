@@ -4,7 +4,6 @@ node_modules
 
 
 templates/*/build
-templates/*/_template
 templates/*/_output
 templates/*/package-lock.json
 templates/*/node_modules

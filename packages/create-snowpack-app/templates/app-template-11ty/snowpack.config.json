@@ -1,7 +1,6 @@
 {
   "scripts": {
     "mount:_site": "mount _output --to /",
-    "mount:static": "mount static",
     "mount:web_modules": "mount web_modules",
     "mount:src": "mount src --to /_dist_",
     "run:11ty": "eleventy",
