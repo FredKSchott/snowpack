@@ -41,7 +41,7 @@ import yargs from 'yargs-parser';
 import {DevScript, SnowpackConfig} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
 import {BUILD_CACHE, CommandOptions, ImportMap} from '../util';
-import {wrapEsmProxyResponse, getFileBuilderForWorker} from './build-util';
+import {wrapEsmProxyResponse, getFileBuilderForWorker, wrapCssModuleResponse} from './build-util';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 import got from 'got';
@@ -160,9 +160,9 @@ export async function command(commandOptions: CommandOptions) {
     // no import-map found, safe to ignore
   }
 
-  function broadcastMessage(channel: string, data: string) {
+  function broadcastMessage(channel: string, data: object) {
     for (const client of liveReloadClients) {
-      sendMessage(client, channel, data);
+      sendMessage(client, channel, JSON.stringify(data));
     }
   }
 
@@ -195,7 +195,7 @@ export async function command(commandOptions: CommandOptions) {
           if (extToReplace) {
             spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
           }
-          if ((extToReplace || ext) !== 'js') {
+          if (!spec.endsWith('.module.css') && (extToReplace || ext) !== 'js') {
             spec = spec + '.proxy.js';
           }
           return spec;
@@ -317,9 +317,13 @@ export async function command(commandOptions: CommandOptions) {
       const reqUrl = req.url!;
       let reqPath = decodeURI(url.parse(reqUrl).pathname!);
       let isProxyModule = false;
+      let isCssModule = false;
       if (reqPath.endsWith('.proxy.js')) {
         isProxyModule = true;
         reqPath = reqPath.replace('.proxy.js', '');
+      }
+      if (reqPath.endsWith('.module.css')) {
+        isCssModule = true;
       }
 
       // const requestStart = Date.now();
@@ -480,6 +484,15 @@ export async function command(commandOptions: CommandOptions) {
             true,
           );
         }
+        if (isCssModule) {
+          responseFileExt = '.js';
+          hotCachedResponse = await wrapCssModuleResponse(
+            reqPath,
+            hotCachedResponse.toString(),
+            requestedFileExt,
+            true,
+          );
+        }
         sendFile(req, res, hotCachedResponse, responseFileExt);
         return;
       }
@@ -520,6 +533,15 @@ export async function command(commandOptions: CommandOptions) {
               true,
             );
           }
+          if (isCssModule) {
+            responseFileExt = '.js';
+            serverResponse = await wrapCssModuleResponse(
+              reqPath,
+              coldCachedResponse.toString(),
+              requestedFileExt,
+              true,
+            );
+          }
           // Trust... but verify.
           sendFile(req, res, serverResponse, responseFileExt);
           let checkFinalBuildAnyway: string | null = null;
@@ -527,6 +549,15 @@ export async function command(commandOptions: CommandOptions) {
             checkFinalBuildAnyway = await buildFile(fileContents, fileLoc, fileBuilder);
             if (checkFinalBuildAnyway && isProxyModule) {
               checkFinalBuildAnyway = wrapEsmProxyResponse(
+                reqPath,
+                checkFinalBuildAnyway,
+                requestedFileExt,
+                true,
+              );
+            }
+            if (checkFinalBuildAnyway && isCssModule) {
+              responseFileExt = '.js';
+              serverResponse = await wrapCssModuleResponse(
                 reqPath,
                 checkFinalBuildAnyway,
                 requestedFileExt,
@@ -544,7 +575,7 @@ export async function command(commandOptions: CommandOptions) {
             ) {
               inMemoryBuildCache.clear();
               await cacache.rm.all(BUILD_CACHE);
-              broadcastMessage('message', 'reload');
+              broadcastMessage('message', {reload: true});
             }
           }
           return;
@@ -574,6 +605,10 @@ export async function command(commandOptions: CommandOptions) {
         responseFileExt = '.js';
         finalBuild = wrapEsmProxyResponse(reqPath, finalBuild, requestedFileExt, true);
       }
+      if (isCssModule) {
+        responseFileExt = '.js';
+        finalBuild = await wrapCssModuleResponse(reqPath, finalBuild, requestedFileExt, true);
+      }
       sendFile(req, res, finalBuild, responseFileExt);
     })
     .listen(port);
@@ -581,7 +616,7 @@ export async function command(commandOptions: CommandOptions) {
   async function onWatchEvent(fileLoc) {
     const fileUrl = getUrlFromFile(mountedDirectories, fileLoc);
     if (!isLiveReloadPaused) {
-      broadcastMessage('message', JSON.stringify({url: fileUrl}));
+      broadcastMessage('message', {url: fileUrl});
     }
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);
