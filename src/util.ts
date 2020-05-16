@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import got from 'got';
+import got, {CancelableRequest, Response} from 'got';
 import cachedir from 'cachedir';
 import {SnowpackConfig} from './config';
 
@@ -41,7 +41,10 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
   fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
 }
 
-export function fetchCDNResource(resourceUrl: string, responseType?: 'text' | 'json' | 'buffer') {
+export function fetchCDNResource(
+  resourceUrl: string,
+  responseType?: 'text' | 'json' | 'buffer',
+): Promise<CancelableRequest<Response>> {
   if (!resourceUrl.startsWith(PIKA_CDN)) {
     resourceUrl = PIKA_CDN + resourceUrl;
   }
