@@ -47,7 +47,7 @@ Snowpack supports several other script types in addition to the basic `"build"` 
 - `"run:*": "..."`
   - Run a single command once, log any output/errors.
   - Useful for tools like TypeScript that lint multiple files / entire projects at once.
-  - ex: `"run:ts,tsx": "tsc"`
+  - ex: `"run:tsc": "tsc"`
 - `"plugin:*": "..."`
   - Connect a custom Snowpack plugin. See the section below for more info.
 
@@ -63,9 +63,9 @@ Snowpack provides a few variables that you can use to make your build scripts (a
   - ex: `"build:js": "babel --filename $FILE`
 
 
-### "::" Script Modifiers
+### "::" Environment Modifiers
 
-You can extend your build scripts via the `"::"` script modifier token. These act as addons to a previous matching script that extend that script's behavior:
+You can customize your build scripts even further via the `"::"` script modifier token. These act as addons to a previous matching script that extend that script's behavior:
 
 - `"run:*::watch"`
   - This adds a watch mode to a previous "run" script, so that you can turn any supported linter into a live-updating watch command during development. 
@@ -82,15 +82,15 @@ You can extend your build scripts via the `"::"` script modifier token. These ac
 }
 ```
 
-Note that `$1` can be used with a script modifier to reference the original script. See section on [Script Variables](#script-variables) above.
+Note that `$1` can be used with a script modifier to reference the original script. See the section on [Script Variables](#script-variables) above.
 
 
 
 ### Build Plugins
 
-For a more powerful integration, you can also write build scripts using JavaScript to create *build plugins*. Each plugin is loaded as a JavaScript module that exports custom `build()` and `lint()` functions that are run on matching files.
+For a more powerful integration, you can also write build scripts using JavaScript to create *build plugins*. Each plugin is loaded as a JavaScript module that exports a custom `build()` function that gets run on every matching file.
 
-There are a few reasons you may want to use a build plugin instead of a normal "build:" or "lint:" CLI command script:
+There are a few reasons you may want to use a build plugin instead of a normal "build:" CLI command script:
 
 **Speed:** Some CLIs may have a slower start-up time, which may become a problem as your site grows. Plugins can be faster across many files since they only need to be loaded & initialized once and not once for every file.
 

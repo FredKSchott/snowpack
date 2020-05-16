@@ -25,17 +25,17 @@
 <div class='notification'>
 Snowpack helps you build web apps faster by replacing your traditional app bundler during development. No bundling means less unnecessary tooling, instant dev startup time and faster updates on every save.
 <br/><br/>
-When you're ready to deploy your site, Snowpack automatically optimizes and bundles your assets for production.
+When you're ready to deploy your site, Snowpack automatically optimizes and bundles your site for production.
 </div>
 
 ### Key Features
 
-- <100ms dev server startup
+- <50ms dev server startup
 - Stays fast as your codebase grows
 - Instant rebuilds on save (Nothing to rebundle!)
-- Built-in CSS Hot Module Replacement (HMR)
-- Custom [Build Script](#build-scripts) integrations
-- Bundled, optimized production builds (Powered by Parcel)
+- Hot Module Replacement (HMR)
+- One-line [Build Script](#build-scripts) integrations
+- Bundled production builds (Powered by Parcel)
 
 ### Library Support
 

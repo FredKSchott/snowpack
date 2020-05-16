@@ -30,7 +30,7 @@ To avoid the extra step of having to install each frontend package twice (once w
 
 ### snowpack add/rm
 
-`snowpack add package-name` & `snowpack rm package-name` are two helper commands for managing your "webDependencies". These are useful if you choose to manage your frontend dependencies with Snowpack instead of npm or yarn. 
+`snowpack add package-name` & `snowpack rm package-name` are two helper commands for managing your frontend dependencies via ["webDependencies"](#webdependencies) config. These are useful if you choose to manage your frontend dependencies with Snowpack instead of npm or yarn. 
 
 ### snowpack dev
 

@@ -1,8 +1,21 @@
 ## Features
 
-### Importing CSS
+### Hot Module Reloading (HMR)
 
-**HMR Support: Full**
+Hot Module Reloading (HMR) is the ability to update your web app during development without refreshing the page. Imagine changing some CSS, hitting save, and then instantly seeing your change reflected on the page without a refresh. That's HMR.
+
+Snowpack supports full HMR out-of-the-box for the following served files:
+
+- CSS
+- CSS Modules
+- JSON
+
+Additionally, Snowpack's dev server provides a basic HMR API that anyone can tap into, giving you (or more likely, a plugin author) the ability to add full HMR support for your favorite frameworks and languages. 
+
+More documentation on the HMR API is coming soon.
+
+
+### Importing CSS
 
 Snowpack supports basic CSS imports inside of your JavaScript files. While this isn't natively supported by any browser today, Snowpack's dev server and build pipeline both handle this for you.
 
@@ -14,8 +27,6 @@ import './style.css'
 Snowpack also supports any popular CSS-in-JS library. If you prefer to avoid these non-standard CSS imports, check out [csz](https://github.com/lukejacksonn/csz). CSZ is a run-time CSS module library with support for SASS-like syntax/selectors.
 
 ### Importing CSS Modules
-
-**HMR Support: Full**
 
 Snowpack supports CSS Modules for CSS files using the `[name].module.css` naming convention. CSS Modules allow you to scope your CSS to unique class names & identifiers. CSS Modules return a default export (`styles` in the example below) that maps the original identifier to it's new, scoped value.
 
@@ -36,8 +47,6 @@ return <div className={styles.error}>Your Error Message</div>;
 ```
 
 ### Importing JSON
-
-**HMR Support: Full**
 
 Snowpack supports importing JSON via ESM import. While this isn't yet supported in most browsers, it's a huge convenience over having vs. use fetch() directly.
 
@@ -60,13 +69,64 @@ import svg from './image.svg'; // svg === '/src/image.svg'
 All other assets not explicitly mentioned above can be imported to get a URL reference to the asset. This can be useful for referencing assets inside of your JS, like creating an image element with a `src` attribute pointing to that image.
 
 
+### JSX
+
+#### COMPILING TO JAVASCRIPT
+
+When you write your web app with JSX, Snowpack will automatically build all `.jsx` & `.tsx` files to JavaScript during development and production builds. This wprks for both React & Preact as long as the file includes an import of React or Preact.
+
+If needed, you can optionally define your own JSX->JavaScript build step via a [Build Script integration](#build-scripts).
+
+```js
+// snowpack.config.json
+// Optional: Build JSX files with Babel (must define your own babel.config.json)
+{
+  "scripts": {
+    "build:jsx": "babel --filename $FILE",
+  }
+}
+```
+
 ### TypeScript
 
-When you are working with TypeScript, Snowpack will automatically install all package type declarations into the `web_modules/.types/` directory. We default to this behavior when we find a `tsconfig.json` file inside of your project, but it can also be enabled via the `--installTypes` flag.
+#### Compiling to JavaScript
 
-Snowpack will automatically go out and fetch type declarations for every package you use: first looking for first-party declarations (provided by the package creator) OR falling back to community-provided `@types/*` declarations if no official types were found.
+Write your web app with TypeScript, and Snowpack will automatically build all `.ts` & `.tsx` files to JavaScript. Snowpack will not perform any type checking by default (see below), only building from TS->JS.
 
-NOTE: TypeScript isn't yet aware of this new `/web_modules/.types/` location by default. To use Snowpack with TypeScript, you'll want to add the following lines to your `tsconfig.json` so that your packages can continue to get type information:
+If needed, you can optionally define your ownTS->JS build step via a [Build Script integration](#build-scripts).
+
+```js
+// snowpack.config.json
+// Optional: Build TS & TSX files with Babel (must define your own babel.config.json)
+{
+  "scripts": {
+    "build:ts,tsx": "babel --filename $FILE",
+  }
+}
+```
+
+#### Type Checking During Development
+
+You can integrate TypeScript type checking with Snowpack via a [Build Script integration](#build-scripts). Just add the TypeScript compiler (`tsc`) as a build command that gets run during your build with a `--watch` mode for development.
+
+```js
+// snowpack.config.json
+// Example: Connect TypeScript CLI (tsc) reporting to Snowpack
+{
+  "scripts": {
+    "run:tsc": "tsc --noEmit",
+    "run:tsc::watch": "$1 --watch"
+  }
+}
+```
+
+#### Managing 3rd-Party Types
+
+If you are using npm or yarn to manage your frontend dependencies, there is nothing extra setup needed on your part. TypeScript already knows how to find those package type declarations inside your `node_modules/` directory. 
+
+If you are using Snowpack to manage your frontend dependencies, Snowpack will automatically install all type declarations to the `web_modules/.types/` directory. There are no `@types/` packages to manage in this case: Snowpack fetches the best type declarations for you automatically. 
+
+However, TypeScript isn't yet aware of this new `/web_modules/.types/` location by default. To properly load these package types with TypeScript, you'll want to add the following lines to your `tsconfig.json` so that your packages can continue to get type information:
 
 ```js
 // tsconfig.json
@@ -84,9 +144,9 @@ NOTE: TypeScript isn't yet aware of this new `/web_modules/.types/` location by 
 
 ### webDependencies
 
-By default, Snowpack will install your `web_modules/` dependencies using the raw package code found in your `node_modules/` directory. This means that each packages is installed twice in your project: once in each directory.
+By default, Snowpack will install your `web_modules/` dependencies by reading package code out of your `node_modules/` directory. This means that each packages is installed twice in your project: first with npm/yarn and then again with Snowpack.
 
-Snowpack can be configured to fully manage your frontend dependencies via the new "webDependencies" key in your `package.json` project manifest.
+You can simplify your dependencies by configuring Snowpack to fully manage your frontend dependencies via the new "webDependencies" key in your `package.json` project manifest.
 
 ```diff
 {
@@ -104,7 +164,9 @@ Snowpack can be configured to fully manage your frontend dependencies via the ne
 }
 ```
 
-In the example above, `npm` or `yarn` would no longer see React as a dependency to install. Instead, Snowpack would install this package directly from the web to your `"web_modules/"` directory without ever reading from `node_modules/`. Snowpack would do all the work upfront to convert each package into a web-ready, single JS file that runs natively in your browser.
+In the example above, `npm` or `yarn` would no longer see React as a dependency to install into `node_modules/`. Instead, Snowpack would install this package directly from the web to your `"web_modules/"` directory without ever reading from `node_modules/`. Snowpack would do all the work upfront to convert each package into a web-ready, single JS file that runs natively in your browser.
+
+If you use TypeScript, this will automatically install types for each package, even if the package author didn't provide their own types. See our section on [TypeScript](#typescript) for more.
 
 Snowpack also provides `add` & `rm` helper commands to help you manage your "webDependencies" config via the CLI.
 
