@@ -1,4 +1,4 @@
-## Basic Usage
+## Commands
 
 ### snowpack install
 
@@ -28,6 +28,9 @@ From here, any package can be imported and run directly in the browser with zero
 
 To avoid the extra step of having to install each frontend package twice (once with npm/yarn, and then again with Snowpack) you can have Snowpack fully manage your frontend dependencies via the package.json "webDependencies" config. Learn more about removing the unnecessary `npm install` step in the [webDependencies](#webdependencies) section below.
 
+### snowpack add/rm
+
+`snowpack add package-name` & `snowpack rm package-name` are two helper commands for managing your "webDependencies". These are useful if you choose to manage your frontend dependencies with Snowpack instead of npm or yarn. 
 
 ### snowpack dev
 

@@ -1,29 +1,66 @@
-## Advanced Usage
+## Features
 
 ### Importing CSS
+
+**HMR Support: Full**
 
 Snowpack supports basic CSS imports inside of your JavaScript files. While this isn't natively supported by any browser today, Snowpack's dev server and build pipeline both handle this for you.
 
 ```js
-// /src/index.js
-import './style.css' // loads '/src/style.css' on the page
+// Loads './style.css' onto the page
+import './style.css' 
 ```
 
 Snowpack also supports any popular CSS-in-JS library. If you prefer to avoid these non-standard CSS imports, check out [csz](https://github.com/lukejacksonn/csz). CSZ is a run-time CSS module library with support for SASS-like syntax/selectors.
 
+### Importing CSS Modules
+
+**HMR Support: Full**
+
+Snowpack supports CSS Modules for CSS files using the `[name].module.css` naming convention. CSS Modules allow you to scope your CSS to unique class names & identifiers. CSS Modules return a default export (`styles` in the example below) that maps the original identifier to it's new, scoped value.
+
+```css
+/* src/style.module.css */
+.error {
+  background-color: red;
+}
+```
+
+```js
+// 1. Converts './style.module.css' classnames to unique, scoped values.
+// 2. Returns an object mapping the original classnames to their final, scoped value.
+import styles from './style.module.css' 
+
+// This example uses JSX, but you can use CSS Modules with any framework.
+return <div className={styles.error}>Your Error Message</div>;
+```
+
+### Importing JSON
+
+**HMR Support: Full**
+
+Snowpack supports importing JSON via ESM import. While this isn't yet supported in most browsers, it's a huge convenience over having vs. use fetch() directly.
+
+
+```js
+// JSON is returned as parsed via the default export
+import json from './data.json' 
+```
 
 ### Importing Images, Assets
 
-``` js
-// /src/index.js
+``` jsx
 import img from './image.png'; // img === '/src/image.png'
 import svg from './image.svg'; // svg === '/src/image.svg'
+
+// This example uses JSX, but you can use these references with any framework.
+<img src={img} />;
 ```
 
-Bundlers also popularized the idea of importing general, non-JS assets to get back a guaranteed reference to the final, hosted URL. Snowpack supports this as well.
+All other assets not explicitly mentioned above can be imported to get a URL reference to the asset. This can be useful for referencing assets inside of your JS, like creating an image element with a `src` attribute pointing to that image.
 
 
-### TypeScript Support
+### TypeScript
 
 When you are working with TypeScript, Snowpack will automatically install all package type declarations into the `web_modules/.types/` directory. We default to this behavior when we find a `tsconfig.json` file inside of your project, but it can also be enabled via the `--installTypes` flag.
 
@@ -43,6 +80,7 @@ NOTE: TypeScript isn't yet aware of this new `/web_modules/.types/` location by 
   }
 }
 ```
+
 
 ### webDependencies
 
