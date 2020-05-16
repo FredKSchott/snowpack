@@ -3,7 +3,13 @@
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": { "*": ["web_modules/.types/*"] },
+
+    /* noEmit - TypeScript is not responsibile for compiling our JavaScript. */
     "noEmit": true,
+
+    /* Additional Options */
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true

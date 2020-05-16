@@ -1,5 +1,5 @@
 {
-  "name": "@snowpack/app-template-lit-element-typescript",
+  "name": "@snowpack/app-template-lit-element",
   "version": "0.3.4",
   "license": "MIT",
   "keywords": [
@@ -20,7 +20,6 @@
   },
   "devDependencies": {
     "@snowpack/app-scripts-lit-element": "^0.3.4",
-    "snowpack": "^2.0.0-0",
-    "typescript": "^3.8.3"
+    "snowpack": "^2.0.0-0"
   }
 }

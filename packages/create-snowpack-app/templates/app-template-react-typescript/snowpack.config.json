@@ -1,7 +1,5 @@
 {
   "extends": "@snowpack/app-scripts-react",
   "devOptions": {},
-  "installOptions": {
-    "installTypes": true
-  }
+  "installOptions": {}
 }

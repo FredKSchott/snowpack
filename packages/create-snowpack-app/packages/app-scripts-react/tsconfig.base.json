@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "module": "esnext",
+    "target": "esnext",
     "moduleResolution": "node",
     "jsx": "preserve",
     /* noEmit - We use Babel to compile to JavaScript. */
     "noEmit": true,
-
     /* Additional Options */
     "strict": true,
     "skipLibCheck": true,
