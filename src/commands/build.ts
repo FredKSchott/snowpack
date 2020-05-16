@@ -1,21 +1,19 @@
 import chalk from 'chalk';
 import {EventEmitter} from 'events';
 import execa from 'execa';
+import {promises as fs} from 'fs';
+import glob from 'glob';
+import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
-import {promises as fs, createReadStream, existsSync} from 'fs';
-import os from 'os';
-import glob from 'glob';
-import {SnowpackConfig, DevScript} from '../config';
-import {paint} from './paint';
 import rimraf from 'rimraf';
 import yargs from 'yargs-parser';
-import srcFileExtensionMapping from './src-file-extension-mapping';
+import {DevScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
-import mkdirp from 'mkdirp';
-import {ImportMap, CommandOptions} from '../util';
-import {wrapEsmProxyResponse, getFileBuilderForWorker} from './build-util';
-import {command as installCommand} from './install';
+import {CommandOptions, ImportMap} from '../util';
+import {getFileBuilderForWorker, wrapCssModuleResponse, wrapEsmProxyResponse} from './build-util';
+import {paint} from './paint';
+import srcFileExtensionMapping from './src-file-extension-mapping';
 const {copy} = require('fs-extra');
 
 export async function command(commandOptions: CommandOptions) {
@@ -178,7 +176,11 @@ export async function command(commandOptions: CommandOptions) {
               if (extToReplace) {
                 spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
               }
-              if (!isBundled && (extToReplace || ext) !== 'js') {
+              if (spec.endsWith('.module.css')) {
+                const resolvedUrl = path.resolve(path.dirname(outPath), spec);
+                allCssModules.add(resolvedUrl);
+                spec = spec.replace('.module.css', '.css.module.js');
+              } else if (!isBundled && (extToReplace || ext) !== 'js') {
                 const resolvedUrl = path.resolve(path.dirname(outPath), spec);
                 allProxiedFiles.add(resolvedUrl);
                 spec = spec + '.proxy.js';
@@ -257,6 +259,7 @@ export async function command(commandOptions: CommandOptions) {
 
   const allBuiltFromFiles = new Set();
   const allProxiedFiles = new Set<string>();
+  const allCssModules = new Set<string>();
   for (const workerConfig of relevantWorkers) {
     const {id, match, type} = workerConfig;
     if (type !== 'build' && type !== 'plugin') {
@@ -299,7 +302,11 @@ export async function command(commandOptions: CommandOptions) {
               if (extToReplace) {
                 spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
               }
-              if (!isBundled && (extToReplace || ext) !== 'js') {
+              if (spec.endsWith('.module.css')) {
+                const resolvedUrl = path.resolve(path.dirname(outPath), spec);
+                allCssModules.add(resolvedUrl);
+                spec = spec.replace('.module.css', '.css.module.js');
+              } else if (!isBundled && (extToReplace || ext) !== 'js') {
                 const resolvedUrl = path.resolve(path.dirname(outPath), spec);
                 allProxiedFiles.add(resolvedUrl);
                 spec = spec + '.proxy.js';
@@ -326,6 +333,15 @@ export async function command(commandOptions: CommandOptions) {
       }
     }
     messageBus.emit('WORKER_COMPLETE', {id, error: null});
+  }
+
+  for (const proxiedFileLoc of allCssModules) {
+    const proxiedCode = await fs.readFile(proxiedFileLoc, {encoding: 'utf8'});
+    const proxiedExt = path.extname(proxiedFileLoc);
+    const proxiedUrl = proxiedFileLoc.substr(buildDirectoryLoc.length);
+    const proxyCode = await wrapCssModuleResponse(proxiedUrl, proxiedCode, proxiedExt);
+    const proxyFileLoc = proxiedFileLoc.replace('.module.css', '.css.module.js');
+    await fs.writeFile(proxyFileLoc, proxyCode, {encoding: 'utf8'});
   }
 
   for (const proxiedFileLoc of allProxiedFiles) {

@@ -128,6 +128,7 @@ function getRollupReplaceKeys(env: EnvVarReplacements): Record<string, string> {
     },
     {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
+      'process.platform': JSON.stringify('browser'),
       'process.env.': '({}).',
     },
   );

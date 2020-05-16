@@ -64,6 +64,7 @@
     "chalk": "^3.0.0",
     "chokidar": "^3.4.0",
     "cosmiconfig": "^6.0.0",
+    "css-modules-loader-core": "^1.1.0",
     "deepmerge": "^4.2.2",
     "es-module-lexer": "^0.3.17",
     "esbuild": "^0.3.0",

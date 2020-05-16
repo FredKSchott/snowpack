@@ -1,6 +1,6 @@
 const listeners = {};
 export function apply(url, callback) {
-  const fullUrl = url.split('?')[0];
+  const fullUrl = new URL(url).pathname;
   listeners[fullUrl] = callback;
 }
 
@@ -16,19 +16,29 @@ source.onmessage = async (e) => {
   }
   const fullUrl = data.url.split('?')[0];
   console.log(fullUrl, listeners);
-  if (!listeners[fullUrl]) {
-    reload();
+  const cssModuleListener = listeners[fullUrl];
+  if (cssModuleListener && fullUrl.endsWith('.module.css')) {
+    const response = await import(fullUrl + `?mtime=${Date.now()}`);
+    cssModuleListener({module: response});
     return;
   }
-  const listener = listeners[fullUrl];
-  if (fullUrl.endsWith('.js')) {
-    const response = await import(fullUrl + `?mtime=${Date.now()}`);
-    listener({module: response});
-  } else {
+
+  const proxyModuleListener = listeners[fullUrl + '.proxy.js'];
+  if (proxyModuleListener) {
     const response = await fetch(fullUrl);
     const code = await response.text();
-    listener({code});
+    proxyModuleListener({code});
+    return;
   }
+
+  const moduleListener = listeners[fullUrl];
+  if (moduleListener && fullUrl.endsWith('.js')) {
+    const response = await import(fullUrl + `?mtime=${Date.now()}`);
+    moduleListener({module: response});
+    return;
+  }
+
+  reload();
 };
 
 console.log('[snowpack] listening for file changes');
