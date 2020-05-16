@@ -5,14 +5,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-"use strict";
+("use strict");
 
 const babelJest = require("babel-jest");
 
 module.exports = babelJest.createTransformer({
   presets: [
     [
-      require.resolve("@babel/preset-env"),
+      "@babel/preset-env",
       {
         targets: {
           node: "current",
@@ -20,17 +20,16 @@ module.exports = babelJest.createTransformer({
       },
     ],
     [
-      require.resolve("@babel/preset-react"),
+      "@babel/preset-react",
       {
         pragma: "h",
         pragmaFrag: "Fragment",
       },
     ],
-    require.resolve("@babel/preset-typescript"),
+    "@babel/preset-typescript",
   ],
   plugins: [
     "@babel/plugin-syntax-import-meta",
-    "babel-plugin-macros",
     [
       "@snowpack/babel-plugin-package-import",
       {

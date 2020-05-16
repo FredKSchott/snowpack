@@ -1,7 +1,3 @@
-// const fs = require("fs");
-// const path = require("path");
-// const cwd = process.cwd();
-
 const scripts = {
   "mount:public": "mount public --to /",
   "mount:web_modules": "mount web_modules",
