@@ -4,14 +4,18 @@ import type {EventEmitter} from 'events';
 import {SnowpackConfig, DevScript} from '../config';
 import Core from 'css-modules-loader-core';
 
-export async function wrapJSModuleResponse(code: string) {
-  return (
-    code +
-    `
-import * as __SNOWPACK_HMR_API__ from '/web_modules/@snowpack/hmr.js';
-import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
-`
-  );
+export async function wrapJSModuleResponse(code: string, hasHmr = false) {
+  if (!hasHmr) {
+    return code;
+  }
+  if (code.includes('import.meta.hot')) {
+    return `
+    import * as __SNOWPACK_HMR_API__ from '/livereload/hmr.js';
+    import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
+
+${code}`.trim();
+  }
+  return code;
 }
 
 export async function wrapCssModuleResponse(
@@ -22,7 +26,7 @@ export async function wrapCssModuleResponse(
 ) {
   let core = new Core();
   const {injectableSource, exportTokens} = await core.load(code, url, () => {
-    throw new Error('BOTHER');
+    throw new Error('Imports in CSS Modules are not yet supported.');
   });
   return `
 export let code = ${JSON.stringify(injectableSource)};
@@ -38,7 +42,7 @@ document.head.appendChild(styleEl);
 ${
   hasHmr
     ? `
-import * as __SNOWPACK_HMR_API__ from '/web_modules/@snowpack/hmr.js';
+import * as __SNOWPACK_HMR_API__ from '/livereload/hmr.js';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
 import.meta.hot.accept(({module}) => {
   code = module.code;
@@ -60,7 +64,7 @@ export default json;
 ${
   hasHmr
     ? `
-import * as __SNOWPACK_HMR_API__ from '/web_modules/@snowpack/hmr.js';
+import * as __SNOWPACK_HMR_API__ from '/livereload/hmr.js';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
 import.meta.hot.accept(({module}) => {
   json = module.default;
@@ -83,7 +87,7 @@ document.head.appendChild(styleEl);
 ${
   hasHmr
     ? `
-import * as __SNOWPACK_HMR_API__ from '/web_modules/@snowpack/hmr.js';
+import * as __SNOWPACK_HMR_API__ from '/livereload/hmr.js';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
 import.meta.hot.accept();
 import.meta.hot.dispose(() => {
