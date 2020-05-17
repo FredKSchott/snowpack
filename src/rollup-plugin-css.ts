@@ -30,11 +30,13 @@ __snowpack__injectStyle(${JSON.stringify(code)});\n`;
 export function rollupPluginCss() {
   return {
     name: 'snowpack:rollup-plugin-css',
-    resolveId(source) {
+    resolveId(source, importer) {
       if (!source.endsWith('.css')) {
         return null;
       }
-      return source;
+      return this.resolve(source, importer, {skipSelf: true}).then((resolved) => {
+        return resolved || null;
+      });
     },
     async load(id: string) {
       if (!id.endsWith('.css')) {
