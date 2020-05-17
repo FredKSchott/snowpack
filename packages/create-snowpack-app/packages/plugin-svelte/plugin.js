@@ -17,7 +17,8 @@ exports.build = async function build(fileLoc) {
   if (preprocessOptions) {
     ({ code: codeToCompile } = await svelte.preprocess(
       fileSource,
-      preprocessOptions
+      preprocessOptions,
+      { filename: fileLoc }
     ));
   }
   // COMPILE
