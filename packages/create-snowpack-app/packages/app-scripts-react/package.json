@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-react",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"
@@ -10,9 +10,10 @@
     "@babel/plugin-syntax-import-meta": "^7.8.3",
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
-    "@snowpack/babel-plugin-package-import": "^0.5.1",
+    "@snowpack/babel-plugin-package-import": "^0.6.0",
     "babel-jest": "^25.4.0",
     "babel-preset-react-app": "^9.1.2",
     "react-app-polyfill": "^1.0.6"
-  }
+  },
+  "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
 }

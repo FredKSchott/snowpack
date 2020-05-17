@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-svelte",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"
@@ -14,9 +14,10 @@
   },
   "dependencies": {
     "@babel/core": "^7.9.0",
-    "@snowpack/babel-plugin-package-import": "^0.5.1",
-    "@snowpack/plugin-svelte": "^0.5.1",
+    "@snowpack/babel-plugin-package-import": "^0.6.0",
+    "@snowpack/plugin-svelte": "^0.6.0",
     "babel-jest": "^25.4.0",
     "jest-transform-svelte": "^2.1.1"
-  }
+  },
+  "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
 }

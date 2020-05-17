@@ -1,9 +1,10 @@
 {
   "name": "@snowpack/hmr",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "main": "index.js",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
 }
