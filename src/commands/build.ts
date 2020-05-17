@@ -241,7 +241,9 @@ export async function command(commandOptions: CommandOptions) {
         const fileContents = await fs.readFile(f, {encoding: 'utf8'});
         let fileBuilder =
           workerConfig === defaultBuildWorkerConfig
-            ? await getEsbuildFileBuilder()
+            ? await getEsbuildFileBuilder(
+                config.devOptions.sourceMap ? {sourceMap: 'external'} : undefined,
+              )
             : getFileBuilderForWorker(cwd, workerConfig);
         if (!fileBuilder) {
           continue;
@@ -253,7 +255,7 @@ export async function command(commandOptions: CommandOptions) {
           outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace!);
         }
 
-        let {result: code, resources} = await fileBuilder({
+        let {result: code, sourceMap, resources} = await fileBuilder({
           contents: fileContents,
           filePath: f,
           isDev: false,
@@ -318,6 +320,11 @@ export async function command(commandOptions: CommandOptions) {
             return `/web_modules/${spec}.js`;
           });
           code = await wrapJSModuleResponse(code);
+        }
+        if (sourceMap) {
+          const sourceMapOutPath = `${outPath}.map`;
+          code += `\n//# sourceMappingURL=${path.basename(sourceMapOutPath)}`;
+          await fs.writeFile(sourceMapOutPath, sourceMap);
         }
         await fs.mkdir(path.dirname(outPath), {recursive: true});
         await fs.writeFile(outPath, code);

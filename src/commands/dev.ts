@@ -117,7 +117,7 @@ export async function command(commandOptions: CommandOptions) {
   console.log('NOTE: Still experimental, default behavior may change.');
   console.log('Starting up...\n');
 
-  const {port} = config.devOptions;
+  const {port, sourceMap} = config.devOptions;
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
   const filesBeingDeleted = new Set<string>();
@@ -158,7 +158,9 @@ export async function command(commandOptions: CommandOptions) {
   ): Promise<SnowpackPluginBuildResult> {
     if (!fileBuilder) {
       if (fileLoc.endsWith('.jsx') || fileLoc.endsWith('.tsx') || fileLoc.endsWith('.ts')) {
-        fileBuilder = await getEsbuildFileBuilder();
+        fileBuilder = await getEsbuildFileBuilder(
+          config.devOptions.sourceMap ? {sourceMap: 'inline'} : undefined,
+        );
       }
     }
     let builtFileResult: SnowpackPluginBuildResult;

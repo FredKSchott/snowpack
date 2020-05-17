@@ -19,6 +19,10 @@ type DeepPartial<T> = {
 
 export type EnvVarReplacements = Record<string, string | number | true>;
 
+export type SnowpackESBuildOptions = {
+  sourceMap: 'inline' | 'external';
+};
+
 export type SnowpackPluginBuildArgs = {
   contents: string;
   filePath: string;
@@ -31,6 +35,7 @@ export type SnowpackPluginTransformArgs = {
 };
 export type SnowpackPluginBuildResult = {
   result: string;
+  sourceMap?: string;
   resources?: {css?: string};
 };
 export type SnowpackPluginTransformResult = {
@@ -77,6 +82,7 @@ export interface SnowpackConfig {
     out: string;
     fallback: string;
     bundle: boolean | undefined;
+    sourceMap?: boolean;
   };
   installOptions: {
     dest: string;
@@ -147,6 +153,7 @@ const configSchema = {
         out: {type: 'string'},
         fallback: {type: 'string'},
         bundle: {type: 'boolean'},
+        sourceMap: {type: 'boolean'},
       },
     },
     installOptions: {

@@ -7,6 +7,7 @@ import {
   BuildScript,
   SnowpackPluginBuildResult,
   SnowpackPluginBuildArgs,
+  SnowpackESBuildOptions,
 } from '../config';
 import Core from 'css-modules-loader-core';
 import {Service, startService} from 'esbuild';
@@ -14,24 +15,30 @@ import chalk from 'chalk';
 
 const IS_PREACT = /from\s+['"]preact['"]/;
 export function checkIsPreact(filePath: string, contents: string) {
-  return filePath.endsWith('.jsx') && IS_PREACT.test(contents);
+  return (filePath.endsWith('.jsx') || filePath.endsWith('.tsx')) && IS_PREACT.test(contents);
 }
 
 let esbuildService: Service | null = null;
-export async function getEsbuildFileBuilder() {
+export async function getEsbuildFileBuilder(options?: SnowpackESBuildOptions) {
   esbuildService = esbuildService || (await startService());
   return async (args: SnowpackPluginBuildArgs) => {
     const isPreact = checkIsPreact(args.filePath, args.contents);
-    const {js, warnings} = await esbuildService!.transform(args.contents, {
+    const {js, jsSourceMap, warnings} = await esbuildService!.transform(args.contents, {
       loader: path.extname(args.filePath).substr(1) as 'jsx' | 'ts' | 'tsx',
       jsxFactory: isPreact ? 'h' : undefined,
       jsxFragment: isPreact ? 'Fragment' : undefined,
+      ...(options?.sourceMap
+        ? {
+            sourcemap: options.sourceMap,
+            sourcefile: path.basename(args.filePath),
+          }
+        : {}),
     });
     for (const warning of warnings) {
       console.error(chalk.bold('! ') + args.filePath);
       console.error('  ' + warning.text);
     }
-    return {result: js || ''} as SnowpackPluginBuildResult;
+    return {result: js || '', sourceMap: jsSourceMap} as SnowpackPluginBuildResult;
   };
 }
 
