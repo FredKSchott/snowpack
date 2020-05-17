@@ -8,7 +8,7 @@ const { copy, removeSync } = require("fs-extra");
 const chalk = require("chalk");
 
 function validateArgs(args) {
-  const { template, useYarn, _ } = yargs(args);
+  const { template, useYarn, force, _ } = yargs(args);
   if (_.length === 2) {
     console.error(
       `${chalk.red("[ERROR]")} Missing --target directory. ${chalk.dim(
@@ -35,8 +35,8 @@ function validateArgs(args) {
   }
   const targetDirectoryRelative = _[2];
   const targetDirectory = path.resolve(process.cwd(), targetDirectoryRelative);
-  if (fs.existsSync(targetDirectory)) {
-    console.error(`${chalk.red("[ERROR]")} ${targetDirectory} already exists`);
+  if (fs.existsSync(targetDirectory) && !force) {
+    console.error(`${chalk.red("[ERROR]")} ${targetDirectory} already exists. Use \`--force\` to overwrite this directory.`);
     process.exit(1);
   }
   return {
