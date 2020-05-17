@@ -15,15 +15,12 @@ import {
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
   wrapJSModuleResponse,
-  checkIsPreact,
   getEsbuildFileBuilder,
   stopEsbuild,
 } from './build-util';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
-const {copy} = require('fs-extra');
-
-const IS_PREACT = /from\s+['"]preact['"]/;
+import {parcelBundlePlugin} from './parcel-bundle-plugin';
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
@@ -82,7 +79,7 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
-  const allBuiltFromFiles = new Set();
+  const allBuiltFromFiles = new Set<string>();
   const defaultBuildMatch = ['js', 'jsx', 'ts', 'tsx'].filter(
     (ext) => !allBuildExtensions.includes(ext),
   );
@@ -362,79 +359,23 @@ export async function command(commandOptions: CommandOptions) {
       });
     }
   } else {
-    messageBus.emit('WORKER_UPDATE', {id: 'bundle:*', state: ['RUNNING', 'yellow']});
-
-    async function prepareBuildDirectoryForParcel() {
-      // Prepare the new build directory by copying over all static assets
-      // This is important since sometimes Parcel doesn't pick these up.
-      await copy(buildDirectoryLoc, finalDirectoryLoc, {
-        filter: (srcLoc) => {
-          return !allBuiltFromFiles.has(srcLoc);
+    const bundlePlugin =
+      config.scripts.find((s) => s.type === 'bundle')?.plugin || parcelBundlePlugin(config, {});
+    try {
+      messageBus.emit('WORKER_UPDATE', {id: 'bundle:*', state: ['RUNNING', 'yellow']});
+      await bundlePlugin.bundle!({
+        srcDirectory: buildDirectoryLoc,
+        destDirectory: finalDirectoryLoc,
+        jsFilePaths: allBuiltFromFiles,
+        log: (msg) => {
+          messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg});
         },
-      }).catch((err) => {
-        messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'error', msg: err.toString()});
-        messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: err});
-        throw err;
       });
-      const tempBuildManifest = JSON.parse(
-        await fs.readFile(path.join(cwd, 'package.json'), {encoding: 'utf-8'}),
-      );
-      delete tempBuildManifest.name;
-      delete tempBuildManifest.babel;
-      tempBuildManifest.devDependencies = tempBuildManifest.devDependencies || {};
-      tempBuildManifest.devDependencies['@babel/core'] =
-        tempBuildManifest.devDependencies['@babel/core'] || '^7.9.0';
-      tempBuildManifest.browserslist =
-        tempBuildManifest.browserslist || '>0.75%, not ie 11, not UCAndroid >0, not OperaMini all';
-      await fs.writeFile(
-        path.join(buildDirectoryLoc, 'package.json'),
-        JSON.stringify(tempBuildManifest, null, 2),
-      );
-      await fs.writeFile(
-        path.join(buildDirectoryLoc, '.babelrc'),
-        `{"plugins": [[${JSON.stringify(require.resolve('@babel/plugin-syntax-import-meta'))}]]}`, // JSON.stringify is needed because on windows, \ in paths need to be escaped
-      );
-      const fallbackFile = await fs.readFile(
-        path.join(buildDirectoryLoc, config.devOptions.fallback),
-        {encoding: 'utf-8'},
-      );
-      await fs.writeFile(
-        path.join(buildDirectoryLoc, config.devOptions.fallback),
-        fallbackFile.replace(/type\=\"module\"/g, ''),
-      );
-      // Remove PostCSS config since it's no longer needed. Parcel does its own optimization.
-      rimraf.sync(path.join(buildDirectoryLoc, 'postcss.config.js'));
-      rimraf.sync(path.join(buildDirectoryLoc, '.postcssrc'));
-      rimraf.sync(path.join(buildDirectoryLoc, '.postcssrc.js'));
-    }
-
-    await prepareBuildDirectoryForParcel();
-
-    const parcelOptions = ['build', config.devOptions.fallback, '--out-dir', finalDirectoryLoc];
-
-    if (config.homepage) {
-      parcelOptions.push('--public-url', config.homepage);
-    }
-
-    const bundleAppPromise = execa('parcel', parcelOptions, {
-      cwd: buildDirectoryLoc,
-      env: npmRunPath.env(),
-      extendEnv: true,
-    });
-    bundleAppPromise.stdout?.on('data', (b) => {
-      messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg: b.toString()});
-    });
-    bundleAppPromise.stderr?.on('data', (b) => {
-      messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg: b.toString()});
-    });
-    bundleAppPromise.catch((err) => {
+      messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
+    } catch (err) {
       messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'error', msg: err.toString()});
       messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: err});
-    });
-    bundleAppPromise.then(() => {
-      messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
-    });
-    await bundleAppPromise;
+    }
   }
 
   if (finalDirectoryLoc !== buildDirectoryLoc) {

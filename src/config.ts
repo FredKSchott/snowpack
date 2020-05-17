@@ -38,7 +38,7 @@ export type SnowpackPluginTransformResult = {
   resources?: {css?: string};
 };
 export type SnowpackPlugin = {
-  buildScript?: string;
+  defaultBuildScript?: string;
   knownEntrypoints?: string[];
   build?: (
     args: SnowpackPluginBuildArgs,
@@ -46,6 +46,12 @@ export type SnowpackPlugin = {
   transform?: (
     args: SnowpackPluginTransformArgs,
   ) => SnowpackPluginTransformResult | Promise<SnowpackPluginTransformResult>;
+  bundle?(args: {
+    srcDirectory: string;
+    destDirectory: string;
+    jsFilePaths: Set<string>;
+    log: (msg) => void;
+  }): Promise<void>;
 };
 export type BuildScript = {
   id: string;
@@ -228,6 +234,9 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
 type RawScripts = {[id: string]: string};
 function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
   const processedScripts: BuildScript[] = [];
+  if (Object.keys(scripts).filter((k) => k.startsWith('bundle:')).length > 1) {
+    handleConfigError(`scripts can only contain 1 script of type "bundle:".`);
+  }
   for (const scriptId of Object.keys(scripts)) {
     if (scriptId.includes('::watch')) {
       continue;
