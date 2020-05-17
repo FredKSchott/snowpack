@@ -43,7 +43,12 @@ import {DevScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
 import {BUILD_CACHE, CommandOptions, ImportMap} from '../util';
 import {addCommand} from './add-rm';
-import {getFileBuilderForWorker, wrapCssModuleResponse, wrapEsmProxyResponse} from './build-util';
+import {
+  getFileBuilderForWorker,
+  wrapCssModuleResponse,
+  wrapEsmProxyResponse,
+  wrapJSModuleResponse,
+} from './build-util';
 import {command as installCommand} from './install';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
@@ -64,6 +69,11 @@ async function getEsbuildFileBuilder() {
     return js || '';
   };
 }
+
+const hmrEnabledExtensions = {
+  css: true,
+  svelte: true,
+};
 
 function getEncodingType(ext: string): 'utf8' | 'binary' {
   if (ext === '.js' || ext === '.css' || ext === '.html') {
@@ -350,7 +360,7 @@ export async function command(commandOptions: CommandOptions) {
         return;
       }
 
-      if (reqPath === '/web_modules/@snowpack/hmr.js') {
+      if (reqPath === '/livereload/hmr.js') {
         sendFile(req, res, HMR_DEV_CODE, '.js');
         return;
       }
@@ -475,9 +485,7 @@ export async function command(commandOptions: CommandOptions) {
       let hotCachedResponse: string | Buffer | undefined = inMemoryBuildCache.get(fileLoc);
       if (hotCachedResponse) {
         if (isRoute) {
-          hotCachedResponse =
-            hotCachedResponse.toString() +
-            `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
+          hotCachedResponse = hotCachedResponse.toString();
         }
         if (isProxyModule) {
           responseFileExt = '.js';
@@ -487,8 +495,7 @@ export async function command(commandOptions: CommandOptions) {
             requestedFileExt,
             true,
           );
-        }
-        if (isCssModule) {
+        } else if (isCssModule) {
           responseFileExt = '.js';
           hotCachedResponse = await wrapCssModuleResponse(
             reqPath,
@@ -496,6 +503,8 @@ export async function command(commandOptions: CommandOptions) {
             requestedFileExt,
             true,
           );
+        } else if (responseFileExt === '.js') {
+          hotCachedResponse = await wrapJSModuleResponse(hotCachedResponse.toString(), true);
         }
         sendFile(req, res, hotCachedResponse, responseFileExt);
         return;
@@ -524,9 +533,7 @@ export async function command(commandOptions: CommandOptions) {
           inMemoryBuildCache.set(fileLoc, coldCachedResponse);
           let serverResponse: Buffer | string = coldCachedResponse;
           if (isRoute) {
-            serverResponse =
-              serverResponse.toString() +
-              `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
+            serverResponse = serverResponse.toString();
           }
           if (isProxyModule) {
             responseFileExt = '.js';
@@ -536,8 +543,7 @@ export async function command(commandOptions: CommandOptions) {
               requestedFileExt,
               true,
             );
-          }
-          if (isCssModule) {
+          } else if (isCssModule) {
             responseFileExt = '.js';
             serverResponse = await wrapCssModuleResponse(
               reqPath,
@@ -545,6 +551,8 @@ export async function command(commandOptions: CommandOptions) {
               requestedFileExt,
               true,
             );
+          } else if (responseFileExt === '.js') {
+            serverResponse = await wrapJSModuleResponse(coldCachedResponse.toString(), true);
           }
           // Trust... but verify.
           sendFile(req, res, serverResponse, responseFileExt);
@@ -558,8 +566,7 @@ export async function command(commandOptions: CommandOptions) {
                 requestedFileExt,
                 true,
               );
-            }
-            if (checkFinalBuildAnyway && isCssModule) {
+            } else if (checkFinalBuildAnyway && isCssModule) {
               responseFileExt = '.js';
               serverResponse = await wrapCssModuleResponse(
                 reqPath,
@@ -567,6 +574,9 @@ export async function command(commandOptions: CommandOptions) {
                 requestedFileExt,
                 true,
               );
+            }
+            if (checkFinalBuildAnyway && responseFileExt === '.js') {
+              serverResponse = await wrapJSModuleResponse(checkFinalBuildAnyway, true);
             }
           } catch (err) {
             // safe to ignore, it will be surfaced later anyway
@@ -603,15 +613,16 @@ export async function command(commandOptions: CommandOptions) {
         {metadata: {originalFileHash}},
       );
       if (isRoute) {
-        finalBuild += `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
+        // finalBuild += `<script type="module" src="/web_modules/@snowpack/hmr.js"></script>`;
       }
       if (isProxyModule) {
         responseFileExt = '.js';
         finalBuild = wrapEsmProxyResponse(reqPath, finalBuild, requestedFileExt, true);
-      }
-      if (isCssModule) {
+      } else if (isCssModule) {
         responseFileExt = '.js';
         finalBuild = await wrapCssModuleResponse(reqPath, finalBuild, requestedFileExt, true);
+      } else if (responseFileExt === '.js') {
+        finalBuild = await wrapJSModuleResponse(finalBuild, true);
       }
       sendFile(req, res, finalBuild, responseFileExt);
     })

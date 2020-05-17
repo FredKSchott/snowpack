@@ -1,7 +1,89 @@
-const listeners = {};
-export function apply(url, callback) {
-  const fullUrl = new URL(url).pathname;
-  listeners[fullUrl] = callback;
+const REGISTERED_MODULES = {};
+
+class HotModuleState {
+  constructor(id) {
+    this.id = id;
+    this.disposeCallbacks = [];
+  }
+  lock() {
+    this.isLocked = true;
+  }
+  dispose(cb) {
+    this.disposeCallbacks.push(cb);
+  }
+  accept(cb = true) {
+    if (!this.isLocked) {
+      this.acceptCallback = cb;
+    }
+  }
+}
+
+function debug(...args) {
+  console.log('[snowpack:hmr]', ...args);
+}
+
+export function createHotContext(fullUrl) {
+  const id = new URL(fullUrl).pathname;
+  const existing = REGISTERED_MODULES[id];
+  if (existing) {
+    existing.lock();
+    return existing;
+  }
+  const state = new HotModuleState(id);
+  REGISTERED_MODULES[id] = state;
+  return state;
+}
+
+async function applyUpdate(id) {
+  let state = null;
+  const cssModuleState = REGISTERED_MODULES[id];
+  if (cssModuleState && id.endsWith('.module.css')) {
+    // const response = await import(id + `?mtime=${Date.now()}`);
+    // cssModuleState({module: response});
+    state = cssModuleState;
+  }
+  const proxyModuleListener = REGISTERED_MODULES[id + '.proxy.js'];
+  if (!state && proxyModuleListener) {
+    state = proxyModuleListener;
+    // const response = await fetch(id);
+    // const code = await response.text();
+    // proxyModuleListener({code});
+  }
+
+  const moduleListener = REGISTERED_MODULES[id];
+  if (!state && moduleListener && id.endsWith('.js')) {
+    // const response = await import(id + `?mtime=${Date.now()}`);
+    // moduleListener({module: response});
+    state = moduleListener;
+  }
+
+  if (!state) {
+    return false;
+  }
+
+  const acceptCallback = state.acceptCallback;
+  const disposeCallbacks = state.disposeCallbacks;
+  state.disposeCallbacks = [];
+  // const disposeCallback = state.disposeCallback;
+  // delete globalState.afterUpdateCallbacks[fileId];
+  // delete globalState.beforeUpdateCallbacks[fileId];
+  // delete state.acceptCallback;
+
+  if (!acceptCallback) {
+    return false;
+  }
+  if (acceptCallback === true) {
+    return true;
+  }
+  if (id.endsWith('.js') || id.endsWith('.module.css')) {
+    const response = await import(id + `?mtime=${Date.now()}`);
+    await acceptCallback({module: response});
+  } else {
+    const response = await import(id + '.proxy.js' + `?mtime=${Date.now()}`);
+    await acceptCallback({module: response});
+  }
+  await Promise.all(disposeCallbacks.map((cb) => cb()));
+  return true;
 }
 
 const source = new EventSource('/livereload');
@@ -9,36 +91,22 @@ const reload = () => location.reload(true);
 source.onerror = () => (source.onopen = reload);
 source.onmessage = async (e) => {
   const data = JSON.parse(e.data);
-  console.log(e.data);
+  debug('message', e.data);
   if (!data.url) {
     reload();
     return;
   }
-  const fullUrl = data.url.split('?')[0];
-  console.log(fullUrl, listeners);
-  const cssModuleListener = listeners[fullUrl];
-  if (cssModuleListener && fullUrl.endsWith('.module.css')) {
-    const response = await import(fullUrl + `?mtime=${Date.now()}`);
-    cssModuleListener({module: response});
-    return;
-  }
+  const id = data.url.split('?')[0];
+  debug(id, Object.keys(REGISTERED_MODULES));
 
-  const proxyModuleListener = listeners[fullUrl + '.proxy.js'];
-  if (proxyModuleListener) {
-    const response = await fetch(fullUrl);
-    const code = await response.text();
-    proxyModuleListener({code});
-    return;
-  }
-
-  const moduleListener = listeners[fullUrl];
-  if (moduleListener && fullUrl.endsWith('.js')) {
-    const response = await import(fullUrl + `?mtime=${Date.now()}`);
-    moduleListener({module: response});
-    return;
-  }
-
-  reload();
+  applyUpdate(id)
+    .then((ok) => {
+      if (!ok) reload();
+    })
+    .catch((err) => {
+      console.error(err);
+      reload();
+    });
 };
 
-console.log('[snowpack] listening for file changes');
+debug('listening for file changes...');

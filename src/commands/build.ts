@@ -11,7 +11,12 @@ import rimraf from 'rimraf';
 import {DevScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
 import {CommandOptions, ImportMap} from '../util';
-import {getFileBuilderForWorker, wrapCssModuleResponse, wrapEsmProxyResponse} from './build-util';
+import {
+  getFileBuilderForWorker,
+  wrapCssModuleResponse,
+  wrapEsmProxyResponse,
+  wrapJSModuleResponse,
+} from './build-util';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 const {copy} = require('fs-extra');
@@ -341,6 +346,7 @@ export async function command(commandOptions: CommandOptions) {
             });
             return `/web_modules/${spec}.js`;
           });
+          code = await wrapJSModuleResponse(code);
         }
         await fs.mkdir(path.dirname(outPath), {recursive: true});
         await fs.writeFile(outPath, code);
@@ -358,7 +364,6 @@ export async function command(commandOptions: CommandOptions) {
     const proxyFileLoc = proxiedFileLoc.replace('.module.css', '.css.module.js');
     await fs.writeFile(proxyFileLoc, proxyCode, {encoding: 'utf8'});
   }
-
   for (const proxiedFileLoc of allProxiedFiles) {
     const proxiedCode = await fs.readFile(proxiedFileLoc, {encoding: 'utf8'});
     const proxiedExt = path.extname(proxiedFileLoc);
