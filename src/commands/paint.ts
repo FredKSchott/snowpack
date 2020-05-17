@@ -3,7 +3,7 @@ import ansiEscapes from 'ansi-escapes';
 import chalk from 'chalk';
 import util from 'util';
 import readline from 'readline';
-import {DevScript} from '../config';
+import {BuildScript} from '../config';
 import {addCommand} from './add-rm';
 
 function getStateString(workerState: any, isWatch: boolean) {
@@ -28,7 +28,7 @@ const WORKER_BASE_STATE = {done: false, error: null, output: ''};
 
 export function paint(
   bus: EventEmitter,
-  registeredWorkers: DevScript[],
+  registeredWorkers: BuildScript[],
   buildMode: {dest: string} | undefined,
   devMode:
     | {

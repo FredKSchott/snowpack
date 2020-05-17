@@ -1,5 +1,4 @@
 import chalk from 'chalk';
-import {startService} from 'esbuild';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {promises as fs} from 'fs';
@@ -8,7 +7,7 @@ import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
 import rimraf from 'rimraf';
-import {DevScript} from '../config';
+import {BuildScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
 import {CommandOptions, ImportMap} from '../util';
 import {
@@ -16,6 +15,9 @@ import {
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
   wrapJSModuleResponse,
+  checkIsPreact,
+  getEsbuildFileBuilder,
+  stopEsbuild,
 } from './build-util';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
@@ -28,7 +30,7 @@ export async function command(commandOptions: CommandOptions) {
   process.env.NODE_ENV = 'production';
 
   const messageBus = new EventEmitter();
-  const relevantWorkers: DevScript[] = [];
+  const relevantWorkers: BuildScript[] = [];
   const allBuildExtensions: string[] = [];
 
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
@@ -69,16 +71,10 @@ export async function command(commandOptions: CommandOptions) {
   // const extToWorkerMap: {[ext: string]: any[]} = {};
   for (const workerConfig of config.scripts) {
     const {type, match} = workerConfig;
-    if (
-      type === 'build' ||
-      type === 'plugin' ||
-      type === 'run' ||
-      type === 'mount' ||
-      type === 'proxy'
-    ) {
+    if (type === 'build' || type === 'run' || type === 'mount' || type === 'proxy') {
       relevantWorkers.push(workerConfig);
     }
-    if (type === 'build' || type === 'plugin') {
+    if (type === 'build') {
       allBuildExtensions.push(...match); // for (const ext of exts) {
       // extToWorkerMap[ext] = extToWorkerMap[ext] || [];
       // extToWorkerMap[ext].push([id, workerConfig]);
@@ -86,6 +82,18 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
+  const allBuiltFromFiles = new Set();
+  const defaultBuildMatch = ['js', 'jsx', 'ts', 'tsx'].filter(
+    (ext) => !allBuildExtensions.includes(ext),
+  );
+  const defaultBuildWorkerConfig = {
+    id: `build:${defaultBuildMatch.join(',')}`,
+    type: 'build',
+    match: defaultBuildMatch,
+    cmd: 'NA',
+  } as BuildScript;
+
+  relevantWorkers.push(defaultBuildWorkerConfig);
   relevantWorkers.push({id: 'bundle:*', type: 'bundle', match: ['*'], cmd: 'NA', watch: undefined});
 
   console.log = (...args) => {
@@ -133,7 +141,6 @@ export async function command(commandOptions: CommandOptions) {
     })
     .filter(Boolean);
 
-  const esbuildService = await startService();
   const includeFileSets: [string, string, string[]][] = [];
   const allProxiedFiles = new Set<string>();
   const allCssModules = new Set<string>();
@@ -152,76 +159,19 @@ export async function command(commandOptions: CommandOptions) {
       await Promise.all(
         allFiles.map(async (f) => {
           f = path.resolve(f); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
-          if (allBuildExtensions.includes(path.extname(f).substr(1))) {
+          if (
+            allBuildExtensions.includes(path.extname(f).substr(1)) ||
+            path.extname(f) === '.jsx' ||
+            path.extname(f) === '.tsx' ||
+            path.extname(f) === '.ts' ||
+            path.extname(f) === '.js'
+          ) {
             allBuildNeededFiles.push(f);
             return;
           }
-          let outPath = f.replace(dirDisk, dirDest);
+          const outPath = f.replace(dirDisk, dirDest);
           mkdirp.sync(path.dirname(outPath));
-
-          if (
-            path.extname(f) !== '.jsx' &&
-            path.extname(f) !== '.tsx' &&
-            path.extname(f) !== '.ts' &&
-            path.extname(f) !== '.js'
-          ) {
-            return fs.copyFile(f, outPath);
-          }
-
-          let code = await fs.readFile(f, {encoding: 'utf-8'});
-          if (
-            path.extname(f) === '.jsx' ||
-            path.extname(f) === '.tsx' ||
-            path.extname(f) === '.ts'
-          ) {
-            outPath = outPath.replace(path.extname(f), '.js');
-            const isPreact = IS_PREACT.test(code);
-            const {js} = await esbuildService!.transform(code, {
-              loader: path.extname(f).substr(1) as 'jsx' | 'ts' | 'tsx',
-              jsxFactory: isPreact ? 'h' : undefined,
-              jsxFragment: isPreact ? 'Fragment' : undefined,
-            });
-            code = js!;
-          }
-
-          code = await transformEsmImports(code, (spec) => {
-            if (spec.startsWith('http')) {
-              return spec;
-            }
-            if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
-              const ext = path.extname(spec).substr(1);
-              if (!ext) {
-                return spec + '.js';
-              }
-              const extToReplace = srcFileExtensionMapping[ext];
-              if (extToReplace) {
-                spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
-              }
-              if (spec.endsWith('.module.css')) {
-                const resolvedUrl = path.resolve(path.dirname(outPath), spec);
-                allCssModules.add(resolvedUrl);
-                spec = spec.replace('.module.css', '.css.module.js');
-              } else if (!isBundled && (extToReplace || ext) !== 'js') {
-                const resolvedUrl = path.resolve(path.dirname(outPath), spec);
-                allProxiedFiles.add(resolvedUrl);
-                spec = spec + '.proxy.js';
-              }
-              return spec;
-            }
-            if (dependencyImportMap.imports[spec]) {
-              return path.posix.resolve(`/web_modules`, dependencyImportMap.imports[spec]);
-            }
-            let [missingPackageName, ...deepPackagePathParts] = spec.split('/');
-            if (missingPackageName.startsWith('@')) {
-              missingPackageName += '/' + deepPackagePathParts.shift();
-            }
-            messageBus.emit('MISSING_WEB_MODULE', {
-              spec: spec,
-              pkgName: missingPackageName,
-            });
-            return `/web_modules/${spec}.js`;
-          });
-          return fs.writeFile(outPath, code);
+          return fs.copyFile(f, outPath);
         }),
       );
       includeFileSets.push([dirDisk, dirDest, allBuildNeededFiles]);
@@ -231,7 +181,6 @@ export async function command(commandOptions: CommandOptions) {
       messageBus.emit('WORKER_COMPLETE', {id, error: err});
     }
   }
-  esbuildService.stop();
 
   for (const workerConfig of relevantWorkers) {
     const {id, type, match} = workerConfig;
@@ -279,10 +228,9 @@ export async function command(commandOptions: CommandOptions) {
     await workerPromise;
   }
 
-  const allBuiltFromFiles = new Set();
   for (const workerConfig of relevantWorkers) {
     const {id, match, type} = workerConfig;
-    if (type !== 'build' && type !== 'plugin') {
+    if (type !== 'build' || match.length === 0) {
       continue;
     }
 
@@ -294,12 +242,11 @@ export async function command(commandOptions: CommandOptions) {
           continue;
         }
         const fileContents = await fs.readFile(f, {encoding: 'utf8'});
-        const fileBuilder = getFileBuilderForWorker(cwd, f, workerConfig, config);
+        let fileBuilder =
+          workerConfig === defaultBuildWorkerConfig
+            ? await getEsbuildFileBuilder()
+            : getFileBuilderForWorker(cwd, workerConfig);
         if (!fileBuilder) {
-          continue;
-        }
-        let code = await fileBuilder(fileContents, {filename: f});
-        if (!code) {
           continue;
         }
         let outPath = f.replace(dirDisk, dirDest);
@@ -308,7 +255,34 @@ export async function command(commandOptions: CommandOptions) {
         if (extToReplace) {
           outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace!);
         }
+
+        let {result: code, resources} = await fileBuilder({
+          contents: fileContents,
+          filePath: f,
+          isDev: false,
+        });
+        if (!code) {
+          continue;
+        }
+        const urlPath = outPath.substr(dirDest.length + 1);
+        for (const plugin of config.plugins) {
+          if (plugin.transform) {
+            code =
+              (await plugin.transform({contents: fileContents, urlPath, isDev: false}))?.result ||
+              code;
+          }
+        }
+        if (!code) {
+          continue;
+        }
+
         if (path.extname(outPath) === '.js') {
+          if (resources?.css) {
+            const cssOutPath = outPath.replace(/.js$/, '.css');
+            await fs.mkdir(path.dirname(cssOutPath), {recursive: true});
+            await fs.writeFile(cssOutPath, resources.css);
+            code = `import './${path.basename(cssOutPath)}';\n` + code;
+          }
           code = await transformEsmImports(code, (spec) => {
             if (spec.startsWith('http')) {
               return spec;
@@ -355,6 +329,7 @@ export async function command(commandOptions: CommandOptions) {
     }
     messageBus.emit('WORKER_COMPLETE', {id, error: null});
   }
+  stopEsbuild();
 
   for (const proxiedFileLoc of allCssModules) {
     const proxiedCode = await fs.readFile(proxiedFileLoc, {encoding: 'utf8'});

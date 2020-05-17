@@ -1,8 +1,43 @@
 import execa from 'execa';
+import path from 'path';
 import npmRunPath from 'npm-run-path';
 import type {EventEmitter} from 'events';
-import {SnowpackConfig, DevScript} from '../config';
+import {
+  SnowpackConfig,
+  BuildScript,
+  SnowpackPluginBuildResult,
+  SnowpackPluginBuildArgs,
+} from '../config';
 import Core from 'css-modules-loader-core';
+import {Service, startService} from 'esbuild';
+import chalk from 'chalk';
+
+const IS_PREACT = /from\s+['"]preact['"]/;
+export function checkIsPreact(filePath: string, contents: string) {
+  return filePath.endsWith('.jsx') && IS_PREACT.test(contents);
+}
+
+let esbuildService: Service | null = null;
+export async function getEsbuildFileBuilder() {
+  esbuildService = esbuildService || (await startService());
+  return async (args: SnowpackPluginBuildArgs) => {
+    const isPreact = checkIsPreact(args.filePath, args.contents);
+    const {js, warnings} = await esbuildService!.transform(args.contents, {
+      loader: path.extname(args.filePath).substr(1) as 'jsx' | 'ts' | 'tsx',
+      jsxFactory: isPreact ? 'h' : undefined,
+      jsxFragment: isPreact ? 'Fragment' : undefined,
+    });
+    for (const warning of warnings) {
+      console.error(chalk.bold('! ') + args.filePath);
+      console.error('  ' + warning.text);
+    }
+    return {result: js || ''} as SnowpackPluginBuildResult;
+  };
+}
+
+export function stopEsbuild() {
+  esbuildService && esbuildService.stop();
+}
 
 export async function wrapJSModuleResponse(code: string, hasHmr = false) {
   if (!hasHmr) {
@@ -56,6 +91,13 @@ import.meta.hot.dispose(() => {
 }`;
 }
 
+export function wrapHtmlResponse(code: string, hasHmr = false) {
+  if (hasHmr) {
+    code += `<script type="module" src="/livereload/hmr.js"></script>`;
+  }
+  return code;
+}
+
 export function wrapEsmProxyResponse(url: string, code: string, ext: string, hasHmr = false) {
   if (ext === '.json') {
     return `
@@ -101,44 +143,43 @@ import.meta.hot.dispose(() => {
   return `export default ${JSON.stringify(url)};`;
 }
 
+export type FileBuilder = (args: SnowpackPluginBuildArgs) => Promise<SnowpackPluginBuildResult>;
 export function getFileBuilderForWorker(
   cwd: string,
-  fileLoc: string,
-  selectedWorker: DevScript,
-  config: SnowpackConfig,
+  selectedWorker: BuildScript,
   messageBus?: EventEmitter,
-): ((code: string, {filename: string}) => Promise<string>) | undefined {
+): FileBuilder | undefined {
   const {id, type, cmd, plugin} = selectedWorker;
-  if (type === 'plugin') {
-    return async (code: string, options: {filename: string}) => {
-      const {build} = plugin!;
+  if (type !== 'build') {
+    throw new Error(`scripts[${id}] is not a build script.`);
+  }
+  if (plugin?.build) {
+    const buildFn = plugin.build;
+    return async (args: SnowpackPluginBuildArgs) => {
       try {
-        let {result} = await build(fileLoc);
-        return result;
+        return buildFn(args);
       } catch (err) {
         err.message = `[${id}] ${err.message}`;
         console.error(err);
-        return '';
+        return {result: ''};
       } finally {
         messageBus && messageBus.emit('WORKER_UPDATE', {id, state: null});
       }
     };
   }
-  if (type === 'build') {
-    return async (code: string, options: {filename: string}) => {
-      let cmdWithFile = cmd.replace('$FILE', options.filename);
-      const {stdout, stderr} = await execa.command(cmdWithFile, {
-        env: npmRunPath.env(),
-        extendEnv: true,
-        shell: true,
-        input: code,
-        cwd,
-      });
-      if (stderr) {
-        console.error(stderr);
-      }
-      messageBus && messageBus.emit('WORKER_UPDATE', {id, state: null});
-      return stdout;
-    };
-  }
+  return async ({contents, filePath}) => {
+    let cmdWithFile = cmd.replace('$FILE', filePath);
+    const {stdout, stderr} = await execa.command(cmdWithFile, {
+      env: npmRunPath.env(),
+      extendEnv: true,
+      shell: true,
+      input: contents,
+      cwd,
+    });
+    if (stderr) {
+      console.error(stderr);
+    }
+    messageBus && messageBus.emit('WORKER_UPDATE', {id, state: null});
+    return {result: stdout};
+  };
 }

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import execa from 'execa';
 import got, {CancelableRequest, Response} from 'got';
 import cachedir from 'cachedir';
 import {SnowpackConfig} from './config';
@@ -119,3 +120,35 @@ export const MISSING_PLUGIN_SUGGESTIONS: {[ext: string]: string} = {
   '.vue':
     'Try installing rollup-plugin-vue and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)',
 };
+
+export async function openInBrowser(port) {
+  const url = `http://localhost:${port}`;
+  const args = [url];
+  let openCmd = 'xdg-open';
+  if (process.platform === 'darwin') {
+    // If we're on OS X, we can try opening
+    // Chrome with AppleScript. This lets us reuse an
+    // existing tab when possible instead of creating a new one.
+    try {
+      await execa.command('ps cax | grep "Google Chrome"', {
+        shell: true,
+      });
+      await execa('osascript ../assets/openChrome.applescript "' + encodeURI(url) + '"', {
+        cwd: __dirname,
+        stdio: 'ignore',
+        shell: true,
+      });
+      return true;
+    } catch (err) {
+      // If OSX auto-reuse doesn't work, just open normally.
+      openCmd = 'open';
+    }
+  }
+  if (process.platform === 'win32') {
+    openCmd = 'start';
+    args.unshift('');
+  }
+  execa(openCmd, args).catch(() => {
+    // couldn't open automatically, safe to ignore
+  });
+}

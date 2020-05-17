@@ -1,7 +1,6 @@
 import path from 'path';
-import fs from 'fs';
 import {cosmiconfigSync} from 'cosmiconfig';
-import {Plugin} from 'rollup';
+import {Plugin as RollupPlugin} from 'rollup';
 import {validate, ValidationError} from 'jsonschema';
 import {all as merge} from 'deepmerge';
 import chalk from 'chalk';
@@ -20,14 +19,41 @@ type DeepPartial<T> = {
 
 export type EnvVarReplacements = Record<string, string | number | true>;
 
-export type DevPlugin = {build: Function};
-export type DevScript = {
+export type SnowpackPluginBuildArgs = {
+  contents: string;
+  filePath: string;
+  isDev: boolean;
+};
+export type SnowpackPluginTransformArgs = {
+  contents: string;
+  urlPath: string;
+  isDev: boolean;
+};
+export type SnowpackPluginBuildResult = {
+  result: string;
+  resources?: {css?: string};
+};
+export type SnowpackPluginTransformResult = {
+  result: string;
+  resources?: {css?: string};
+};
+export type SnowpackPlugin = {
+  buildScript?: string;
+  knownEntrypoints?: string[];
+  build?: (
+    args: SnowpackPluginBuildArgs,
+  ) => SnowpackPluginBuildResult | Promise<SnowpackPluginBuildResult>;
+  transform?: (
+    args: SnowpackPluginTransformArgs,
+  ) => SnowpackPluginTransformResult | Promise<SnowpackPluginTransformResult>;
+};
+export type BuildScript = {
   id: string;
   match: string[];
   type: string;
   cmd: string;
   watch?: string;
-  plugin?: {build: (filepath: string) => {result: string} | Promise<{result: string}>};
+  plugin?: SnowpackPlugin;
   args?: any;
 };
 
@@ -37,7 +63,8 @@ export interface SnowpackConfig {
   exclude: string[];
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
-  scripts: DevScript[];
+  scripts: BuildScript[];
+  plugins: SnowpackPlugin[];
   homepage?: string;
   devOptions: {
     port: number;
@@ -53,7 +80,7 @@ export interface SnowpackConfig {
     externalPackage: string[];
     alias: {[key: string]: string};
     rollup: {
-      plugins: Plugin[]; // for simplicity, only Rollup plugins are supported for now
+      plugins: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
       dedupe?: string[];
       namedExports?: {[filepath: string]: string[]};
     };
@@ -72,6 +99,7 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   exclude: ['__tests__/**/*', '**/*.@(spec|test).*'],
   knownEntrypoints: [],
+  plugins: [],
   installOptions: {
     dest: 'web_modules',
     externalPackage: [],
@@ -97,9 +125,23 @@ const configSchema = {
     extends: {type: 'string'},
     knownEntrypoints: {type: 'array', items: {type: 'string'}},
     exclude: {type: 'array', items: {type: 'string'}},
+    plugins: {type: 'array'},
     webDependencies: {
       type: ['object'],
       additionalProperties: {type: 'string'},
+    },
+    scripts: {
+      type: ['object'],
+      additionalProperties: {type: 'string'},
+    },
+    devOptions: {
+      type: 'object',
+      properties: {
+        port: {type: 'number'},
+        out: {type: 'string'},
+        fallback: {type: 'string'},
+        bundle: {type: 'boolean'},
+      },
     },
     installOptions: {
       type: 'object',
@@ -137,19 +179,6 @@ const configSchema = {
           },
         },
       },
-    },
-    devOptions: {
-      type: 'object',
-      properties: {
-        port: {type: 'number'},
-        out: {type: 'string'},
-        fallback: {type: 'string'},
-        bundle: {type: 'boolean'},
-      },
-    },
-    scripts: {
-      type: 'object',
-      additionalProperties: {type: ['string']},
     },
   },
 };
@@ -197,15 +226,15 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
 }
 
 type RawScripts = {[id: string]: string};
-function normalizeScripts(cwd: string, scripts: RawScripts): DevScript[] {
-  const processedScripts: DevScript[] = [];
+function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
+  const processedScripts: BuildScript[] = [];
   for (const scriptId of Object.keys(scripts)) {
     if (scriptId.includes('::watch')) {
       continue;
     }
     const [scriptType, scriptMatch] = scriptId.split(':');
     const cmd = (scripts[scriptId] as any) as string;
-    const newScriptConfig: DevScript = {
+    const newScriptConfig: BuildScript = {
       id: scriptId,
       type: scriptType,
       match: scriptMatch.split(','),
@@ -250,15 +279,11 @@ function normalizeScripts(cwd: string, scripts: RawScripts): DevScript[] {
       }
       newScriptConfig.args = {fromUrl: _[0], toUrl: to};
     }
-    if (scriptType === 'plugin') {
-      const modulePath = require.resolve(scripts[scriptId], {paths: [cwd]});
-      newScriptConfig.plugin = require(modulePath);
-    }
     processedScripts.push(newScriptConfig);
   }
   const allBuildMatch = new Set<string>();
   for (const {type, match} of processedScripts) {
-    if (type !== 'build:' && type !== 'plugin:') {
+    if (type !== 'build') {
       continue;
     }
     for (const ext of match) {
@@ -285,7 +310,37 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
       'mount:*': 'mount . --to /',
     } as any;
   }
+  const allPlugins = {};
+  config.plugins = (config.plugins as any).map((plugin: string | [string, any]) => {
+    const configPluginPath = Array.isArray(plugin) ? plugin[0] : plugin;
+    const configPluginOptions = (Array.isArray(plugin) && plugin[1]) || {};
+    const configPluginLoc = require.resolve(configPluginPath, {paths: [cwd]});
+    const configPlugin = require(configPluginLoc)(configPluginOptions);
+    allPlugins[configPluginPath] = configPlugin;
+    if (configPlugin.knownEntrypoints) {
+      config.knownEntrypoints.push(...configPlugin.knownEntrypoints);
+    }
+    if (
+      configPlugin.defaultBuildScript &&
+      !(config.scripts as any)[configPlugin.defaultBuildScript] &&
+      !Object.values(config.scripts as any).includes(configPluginPath)
+    ) {
+      (config.scripts as any)[configPlugin.defaultBuildScript] = configPluginPath;
+    }
+    return configPlugin;
+  });
   config.scripts = normalizeScripts(cwd, config.scripts as any);
+  config.scripts.forEach((script: BuildScript) => {
+    if (script.type === 'build') {
+      if (allPlugins[script.cmd]) {
+        script.plugin = allPlugins[script.cmd];
+      } else if (script.cmd.startsWith('@') || script.cmd.startsWith('.')) {
+        handleConfigError(
+          `scripts[${script.id}]: Register plugin "${script.cmd}" in your Snowpack "plugins" config.`,
+        );
+      }
+    }
+  });
   return config;
 }
 
@@ -364,6 +419,14 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   ) {
     handleDeprecatedConfigError(
       '[Snowpack v1 -> v2] `scripts["lintall:..."]` has been renamed to scripts["run:..."]',
+    );
+  }
+  if (
+    rawConfig.scripts &&
+    Object.keys(rawConfig.scripts).filter((k) => k.startsWith('plugin`')).length
+  ) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `scripts["plugin:..."]` has been renamed to scripts["build:..."].',
     );
   }
   // Removed!

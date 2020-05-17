@@ -92,7 +92,7 @@ source.onerror = () => (source.onopen = reload);
 source.onmessage = async (e) => {
   const data = JSON.parse(e.data);
   debug('message', e.data);
-  if (!data.url) {
+  if (data.reload || !data.url) {
     reload();
     return;
   }
