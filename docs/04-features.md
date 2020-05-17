@@ -10,9 +10,11 @@ Snowpack supports full HMR out-of-the-box for the following served files:
 - CSS Modules
 - JSON
 
-Additionally, Snowpack's dev server provides a basic HMR API that anyone can tap into, giving you (or more likely, a plugin author) the ability to add full HMR support for your favorite frameworks and languages. 
+Additionally, Snowpack's dev server provides a basic HMR API that plugins can use for automatic HMR. The following plugins enable HMR for your application:
 
-More documentation on the HMR API is coming soon.
+- Preact: @prefresh/snowpack (coming soon!) 
+
+If you'd like to use the HMR API directly (`import.meta.hot`), check out our [advanced overview of the HMR API](/extend/#hmr-api).
 
 
 ### Import CSS

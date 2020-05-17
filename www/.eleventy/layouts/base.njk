@@ -288,6 +288,7 @@ body {
 .toc {
   padding: 2rem 3rem 0.25rem;
   background: #2e5e82;
+  min-height: 100%;
 }
 .toc a {
   position: relative;
@@ -562,32 +563,7 @@ body {
       </a>
     </div>
     <div id="grid-body" class="grid-body">
-      <div class="grid-body-header">
-        <svg height="64px" style="padding-left: 8px;" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <g id="Page-1" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
-                <g id="mountain-solid" transform="translate(-1.000000, 0.000000)"fill-rule="nonzero">
-                    <path d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z" id="Shape"></path>
-                </g>
-            </g>
-        </svg>
-        <h1 class="header-snowpack">Snowpack</h1>
-        <p class="header-snowpack-subtitle">
-          The 
-          <span class="highlight-container highlight-red"><span class="highlight">fastest</span></span> 
-          dev environment for
-          <span class="highlight-container highlight-green"><span class="highlight">modern</span></span> 
-          web apps.
-        </p>
-        <div style="margin: 1.5rem auto; max-width: 424px;">
-          <a href="#get-started" class="button">Get Early Access</a>
-          <a href="https://legacy.snowpack.dev" class="subtitle">Take me to the v1.x docs</a>
-        </div>
-        <!-- <pre class="header-code"><code>npm install -D snowpack</pre></code> -->
-      </div>
-
-      <article class="markdown-body">
-        {{ content | safe }}
-      </article>
+      {{ content | safe }}
     </div>
   </body>
 

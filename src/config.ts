@@ -331,6 +331,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     }
     if (
       configPlugin.defaultBuildScript &&
+      configPlugin.build &&
       !(config.scripts as any)[configPlugin.defaultBuildScript] &&
       !Object.values(config.scripts as any).includes(configPluginPath)
     ) {
@@ -341,8 +342,10 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   config.scripts = normalizeScripts(cwd, config.scripts as any);
   config.scripts.forEach((script: BuildScript) => {
     if (script.type === 'build') {
-      if (allPlugins[script.cmd]) {
+      if (allPlugins[script.cmd]?.build) {
         script.plugin = allPlugins[script.cmd];
+      } else if (allPlugins[script.cmd] && !allPlugins[script.cmd].build) {
+        handleConfigError(`scripts[${script.id}]: Plugin "${script.cmd}" has no build script.`);
       } else if (script.cmd.startsWith('@') || script.cmd.startsWith('.')) {
         handleConfigError(
           `scripts[${script.id}]: Register plugin "${script.cmd}" in your Snowpack "plugins" config.`,
