@@ -72,15 +72,14 @@ async function applyUpdate(id) {
   if (!acceptCallback) {
     return false;
   }
-  if (acceptCallback === true) {
-    return true;
-  }
+  let module;
   if (id.endsWith('.js') || id.endsWith('.module.css')) {
-    const response = await import(id + `?mtime=${Date.now()}`);
-    await acceptCallback({module: response});
+    module = await import(id + `?mtime=${Date.now()}`);
   } else {
-    const response = await import(id + '.proxy.js' + `?mtime=${Date.now()}`);
-    await acceptCallback({module: response});
+    module = await import(id + '.proxy.js' + `?mtime=${Date.now()}`);
+  }
+  if (acceptCallback && acceptCallback !== true) {
+    await acceptCallback({module});
   }
   await Promise.all(disposeCallbacks.map((cb) => cb()));
   return true;
