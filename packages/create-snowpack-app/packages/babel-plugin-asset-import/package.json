@@ -8,6 +8,5 @@
   },
   "dependencies": {
     "@babel/parser": "^7.9.4"
-  },
-  "gitHead": "YYY"
+  }
 }

@@ -15,6 +15,5 @@
     "@snowpack/babel-plugin-package-import": "^0.5.1",
     "babel-jest": "^25.4.0",
     "react-app-polyfill": "^1.0.6"
-  },
-  "gitHead": "YYY"
+  }
 }

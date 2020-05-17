@@ -26,5 +26,8 @@
     "prettier": "^2.0.0",
     "snowpack": "^2.0.0-0"
   },
-  "gitHead": "YYY"
+  "gitHead": "YYY",
+  "dependencies": {
+    "@prefresh/core": "^0.6.1"
+  }
 }

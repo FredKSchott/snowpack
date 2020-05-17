@@ -18,6 +18,5 @@
     "@snowpack/plugin-svelte": "^0.5.1",
     "babel-jest": "^25.4.0",
     "jest-transform-svelte": "^2.1.1"
-  },
-  "gitHead": "YYY"
+  }
 }

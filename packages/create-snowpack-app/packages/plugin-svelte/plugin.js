@@ -2,29 +2,49 @@ const svelte = require("svelte/compiler");
 const fs = require("fs");
 const path = require("path");
 
-let userSvelteConfig = {};
-try {
-  userSvelteConfig = require(path.join(process.cwd(), "svelte.config.js"));
-} catch (err) {
-  // no user-provided config found, safe to ignore
-}
-
-exports.build = async function build(fileLoc) {
-  const { preprocess: preprocessOptions, ...svelteOptions } = userSvelteConfig;
-  const fileSource = fs.readFileSync(fileLoc, { encoding: "utf-8" });
-  let codeToCompile = fileSource;
-  // PRE-PROCESS
-  if (preprocessOptions) {
-    ({ code: codeToCompile } = await svelte.preprocess(
-      fileSource,
-      preprocessOptions,
-      { filename: fileLoc }
-    ));
+module.exports = function plugin(config, pluginOptions) {
+  let svelteOptions;
+  let preprocessOptions;
+  try {
+    const userSvelteConfigLoc = path.join(process.cwd(), "svelte.config.js");
+    const userSvelteConfig = require(userSvelteConfigLoc);
+    const { preprocess, ..._svelteOptions } = userSvelteConfig;
+    preprocessOptions = preprocess;
+    svelteOptions = _svelteOptions;
+  } catch (err) {
+    // no user-provided config found, safe to ignore
+  } finally {
+    svelteOptions = {
+      dev: process.env.NODE_ENV !== "production",
+      css: false,
+      ...svelteOptions,
+      ...pluginOptions,
+    };
   }
-  // COMPILE
-  const result = svelte.compile(codeToCompile, {
-    dev: process.env.NODE_ENV !== "production",
-    ...svelteOptions,
-  });
-  return { result: result.js.code };
+
+  return {
+    defaultBuildScript: "build:svelte",
+    async build({ contents, filePath }) {
+      let codeToCompile = contents;
+      // PRE-PROCESS
+      if (preprocessOptions) {
+        codeToCompile = (
+          await svelte.preprocess(codeToCompile, preprocessOptions, {
+            filename: fileLoc,
+          })
+        ).code;
+      }
+      // COMPILE
+      const { js, css } = svelte.compile(codeToCompile, {
+        ...svelteOptions,
+        filename: filePath,
+      });
+      return {
+        result: js && js.code,
+        resources: {
+          css: css && css.code,
+        },
+      };
+    },
+  };
 };

@@ -8,6 +8,5 @@
   },
   "peerDependencies": {
     "svelte": "^3.21.0"
-  },
-  "gitHead": "YYY"
+  }
 }

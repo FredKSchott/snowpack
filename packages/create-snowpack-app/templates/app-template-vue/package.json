@@ -19,6 +19,5 @@
     "@snowpack/app-scripts-vue": "^0.5.1",
     "snowpack": "^2.0.0-0",
     "vue": "^3.0.0-0"
-  },
-  "gitHead": "YYY"
+  }
 }

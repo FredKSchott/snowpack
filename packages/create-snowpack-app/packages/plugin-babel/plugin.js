@@ -1,8 +1,14 @@
 const babel = require("@babel/core");
 
-exports.build = async function build(fileLoc) {
-  const result = await babel.transformFileAsync(fileLoc, {
-    cwd: process.cwd(),
-  });
-  return { result: result.code };
+module.exports = function plugin(config, options) {
+  return {
+    defaultBuildScript: "build:js,jsx,ts,tsx",
+    async build({ fileContents, filePath }) {
+      const result = await babel.transformAsync(fileContents, {
+        filename: filePath,
+        cwd: process.cwd(),
+      });
+      return { result: result.code };
+    },
+  };
 };

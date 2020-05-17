@@ -8,6 +8,5 @@
   },
   "dependencies": {
     "@snowpack/plugin-vue": "^0.5.1"
-  },
-  "gitHead": "YYY"
+  }
 }
