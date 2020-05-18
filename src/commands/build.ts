@@ -64,28 +64,30 @@ export async function command(commandOptions: CommandOptions) {
     mkdirp.sync(buildDirectoryLoc);
   }
 
-  // const extToWorkerMap: {[ext: string]: any[]} = {};
   for (const workerConfig of config.scripts) {
     const {type, match} = workerConfig;
     if (type === 'build' || type === 'run' || type === 'mount' || type === 'proxy') {
       relevantWorkers.push(workerConfig);
     }
     if (type === 'build') {
-      allBuildExtensions.push(...match); // for (const ext of exts) {
-      // extToWorkerMap[ext] = extToWorkerMap[ext] || [];
-      // extToWorkerMap[ext].push([id, workerConfig]);
-      // }
+      allBuildExtensions.push(...match);
     }
   }
 
-  relevantWorkers.push({
+  let bundleWorker: BuildScript = {
     id: 'bundle:*',
     type: 'bundle',
     match: ['*'],
     cmd: '(default) parcel',
     watch: undefined,
-  });
-  const allBuiltFromFiles = new Set<string>();
+  };
+  for (const workerConfig of config.scripts) {
+    const {type} = workerConfig;
+    if (type === 'bundle') {
+      bundleWorker = workerConfig;
+    }
+  }
+  relevantWorkers.push(bundleWorker);
 
   console.log = (...args) => {
     messageBus.emit('CONSOLE', {level: 'log', args});
@@ -115,7 +117,7 @@ export async function command(commandOptions: CommandOptions) {
 
   if (!isBundled) {
     messageBus.emit('WORKER_UPDATE', {
-      id: 'bundle:*',
+      id: bundleWorker.id,
       state: ['SKIP', 'dim'],
     });
   }
@@ -219,6 +221,7 @@ export async function command(commandOptions: CommandOptions) {
     await workerPromise;
   }
 
+  const allBuiltFromFiles = new Set<string>();
   for (const workerConfig of relevantWorkers) {
     const {id, match, type} = workerConfig;
     if (type !== 'build' || match.length === 0) {
@@ -338,14 +341,14 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   if (!isBundled) {
-    messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
+    messageBus.emit('WORKER_COMPLETE', {id: bundleWorker.id, error: null});
     messageBus.emit('WORKER_UPDATE', {
-      id: 'bundle:*',
+      id: bundleWorker.id,
       state: ['SKIP', isBundledHardcoded ? 'dim' : 'yellow'],
     });
     if (!isBundledHardcoded) {
       messageBus.emit('WORKER_MSG', {
-        id: 'bundle:*',
+        id: bundleWorker.id,
         level: 'log',
         msg: `npm install --save-dev parcel-bundler \n\nInstall Parcel into your project to bundle for production.\nSet "devOptions.bundle = false" to remove this message.`,
       });
@@ -354,19 +357,23 @@ export async function command(commandOptions: CommandOptions) {
     const bundlePlugin =
       config.scripts.find((s) => s.type === 'bundle')?.plugin || parcelBundlePlugin(config, {});
     try {
-      messageBus.emit('WORKER_UPDATE', {id: 'bundle:*', state: ['RUNNING', 'yellow']});
+      messageBus.emit('WORKER_UPDATE', {id: bundleWorker.id, state: ['RUNNING', 'yellow']});
       await bundlePlugin.bundle!({
         srcDirectory: buildDirectoryLoc,
         destDirectory: finalDirectoryLoc,
         jsFilePaths: allBuiltFromFiles,
         log: (msg) => {
-          messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg});
+          messageBus.emit('WORKER_MSG', {id: bundleWorker.id, level: 'log', msg});
         },
       });
-      messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
+      messageBus.emit('WORKER_COMPLETE', {id: bundleWorker.id, error: null});
     } catch (err) {
-      messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'error', msg: err.toString()});
-      messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: err});
+      messageBus.emit('WORKER_MSG', {
+        id: bundleWorker.id,
+        level: 'error',
+        msg: err.toString(),
+      });
+      messageBus.emit('WORKER_COMPLETE', {id: bundleWorker.id, error: err});
     }
   }
 

@@ -366,6 +366,17 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
         );
       }
     }
+    if (script.type === 'bundle' && !script.plugin) {
+      if (allPlugins[script.cmd]?.bundle) {
+        script.plugin = allPlugins[script.cmd];
+      } else if (allPlugins[script.cmd] && !allPlugins[script.cmd].bundle) {
+        handleConfigError(`scripts[${script.id}]: Plugin "${script.cmd}" has no bundle script.`);
+      } else if (script.cmd.startsWith('@') || script.cmd.startsWith('.')) {
+        handleConfigError(
+          `scripts[${script.id}]: Register plugin "${script.cmd}" in your Snowpack "plugins" config.`,
+        );
+      }
+    }
   });
   return config;
 }
