@@ -127,6 +127,21 @@ if (import.meta.hot) {
 // TODO: More documentation coming soon.
 ```
 
+### install()
+```js
+// TODO: More documentation coming soon.
+```
+
+### build()
+```js
+// TODO: More documentation coming soon.
+```
+
+### build()
+```js
+// TODO: More documentation coming soon.
+```
+
 👉 **[Back to the main docs.](/)**
 
 ## Back to Main Docs
