@@ -15,7 +15,7 @@ Looking for help using Snowpack in your project?
 
 ## Plugin API
 
-### Overview
+### All Options
 
 ```ts
 // TODO: More documentation coming soon.
@@ -47,6 +47,7 @@ interface SnowpackPlugin {
 ```
 
 ### Example 
+
 ```js
 // Example: This plugin adds automatic HMR for Preact applications.
 module.exports = function plugin(snowpackConfig, pluginOptions) {
@@ -86,13 +87,20 @@ module.exports = function plugin(snowpackConfig, pluginOptions) {
 };
 ```
 
+👉 **[Back to the main docs.](/)**
+
 
 ## HMR API
 
 ### Overview
 
+Snowpack uses [ESM-HMR](https://github.com/pikapkg/esm-hot-module-replacement-spec), a standard HMR API for ESM-based dev environments. In fact, we created it! Any HMR integration built for ESM-HMR will run on Snowpack. 
+
+Most Snowpack users will never have to interact with the HMR API directly (via `import.meta.hot`). But, plugin authors may want to add HMR support for certain files automatically. If that's you, check out [the ESM-HMR spec](https://github.com/pikapkg/esm-hot-module-replacement-spec) to learn more.
+
+### Example
+
 ```js
-// TODO: More documentation coming soon.
 
 if (import.meta.hot) {
   import.meta.hot.accept(({module}) => {
@@ -108,14 +116,18 @@ if (import.meta.hot) {
 }
 ```
 
+👉 **[Back to the main docs.](/)**
+
+
 ## JavaScript API
 
 ### Overview
 
-
 ```js
 // TODO: More documentation coming soon.
 ```
+
+👉 **[Back to the main docs.](/)**
 
 ## Back to Main Docs
 
