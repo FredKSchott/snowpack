@@ -10,11 +10,12 @@ Snowpack supports full HMR out-of-the-box for the following served files:
 - CSS Modules
 - JSON
 
-Additionally, Snowpack's dev server provides a basic HMR API that plugins can use for automatic HMR. The following plugins enable HMR for your application:
+Snowpack also created and implemented [ESM-HMR](https://github.com/pikapkg/esm-hot-module-replacement-spec), a standard HMR API for ESM-based dev environments. Any HMR integration built for ESM-HMR will run on Snowpack. To use our HMR API directly (via `import.meta.hot`) check out [the ESM-HMR spec](https://github.com/pikapkg/esm-hot-module-replacement-spec) to learn more.
+
+The following Snowpack plugins will setup HMR support for your application automatically:
 
 - Preact: @prefresh/snowpack (coming soon!) 
 
-If you'd like to use the HMR API directly (`import.meta.hot`), check out our [advanced overview of the HMR API](/extend/#hmr-api).
 
 
 ### Import CSS

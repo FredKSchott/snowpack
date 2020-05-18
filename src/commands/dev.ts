@@ -590,7 +590,7 @@ export async function command(commandOptions: CommandOptions) {
             ) {
               inMemoryBuildCache.clear();
               await cacache.rm.all(BUILD_CACHE);
-              broadcastMessage('message', {reload: true});
+              broadcastMessage('message', {type: 'reload'});
             }
           }
           return;
@@ -630,7 +630,7 @@ export async function command(commandOptions: CommandOptions) {
   async function onWatchEvent(fileLoc) {
     const fileUrl = getUrlFromFile(mountedDirectories, fileLoc);
     if (!isLiveReloadPaused) {
-      broadcastMessage('message', {url: fileUrl});
+      broadcastMessage('message', {type: 'update', url: fileUrl});
     }
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);
