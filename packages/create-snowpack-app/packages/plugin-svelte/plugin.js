@@ -30,7 +30,7 @@ module.exports = function plugin(config, pluginOptions) {
       if (preprocessOptions) {
         codeToCompile = (
           await svelte.preprocess(codeToCompile, preprocessOptions, {
-            filename: fileLoc,
+            filename: filePath,
           })
         ).code;
       }
