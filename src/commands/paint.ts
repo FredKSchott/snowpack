@@ -4,24 +4,23 @@ import chalk from 'chalk';
 import util from 'util';
 import readline from 'readline';
 import {BuildScript} from '../config';
-import {addCommand} from './add-rm';
 
-function getStateString(workerState: any, isWatch: boolean) {
+function getStateString(workerState: any, isWatch: boolean): [chalk.ChalkFunction, string] {
   if (workerState.state) {
     if (Array.isArray(workerState.state)) {
-      return chalk[workerState.state[1]](workerState.state[0]);
+      return [chalk[workerState.state[1]], workerState.state[0]];
     }
-    return chalk.dim(workerState.state);
+    return [chalk.dim, workerState.state];
   }
   if (workerState.done) {
-    return workerState.error ? chalk.red('FAILED') : chalk.green('DONE');
+    return workerState.error ? [chalk.red, 'FAIL'] : [chalk.green, 'DONE'];
   }
   if (isWatch) {
     if (workerState.config.watch) {
-      return chalk.dim('WATCHING');
+      return [chalk.dim, 'WATCH'];
     }
   }
-  return chalk.dim('READY');
+  return [chalk.dim, 'READY'];
 }
 
 const WORKER_BASE_STATE = {done: false, error: null, output: ''};
@@ -71,9 +70,11 @@ export function paint(
     for (const config of registeredWorkers) {
       const workerState = allWorkerStates[config.id];
       const dotLength = 24 - config.id.length;
-      const dots = ''.padEnd(dotLength, '.');
-      const stateStr = getStateString(workerState, !!devMode);
-      process.stdout.write(`  ${config.id}${chalk.dim(dots)}[${stateStr}]\n`);
+      const dots = chalk.dim(''.padEnd(dotLength, '.'));
+      const [fmt, stateString] = getStateString(workerState, !!devMode);
+      const spacer = ''.padEnd(7 - stateString.length);
+      const cmdStr = stateString === 'FAIL' ? chalk.red(config.cmd) : chalk.dim(config.cmd);
+      process.stdout.write(`  ${config.id}${dots}[${fmt(stateString)}]${spacer}${cmdStr}\n`);
     }
     process.stdout.write('\n');
     if (isInstalling) {
