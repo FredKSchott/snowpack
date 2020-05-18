@@ -497,6 +497,8 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
+    padding: 0;
+    width: 100%;
     overflow: auto;
     z-index: 100;
    }
@@ -638,7 +640,7 @@ body {
 
     document.getElementById('toc-drawer-button').addEventListener('click', (e) => {
       e.preventDefault();
-      gridTocEl.classList.remove('hidden-mobile');
+      gridTocEl.classList.toggle('hidden-mobile');
     });
     gridTocEl.addEventListener('click', (e) => {
       gridTocEl.classList.add('hidden-mobile');

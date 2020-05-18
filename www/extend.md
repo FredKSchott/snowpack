@@ -94,9 +94,11 @@ module.exports = function plugin(snowpackConfig, pluginOptions) {
 
 ### Overview
 
-Snowpack uses [ESM-HMR](https://github.com/pikapkg/esm-hot-module-replacement-spec), a standard HMR API for ESM-based dev environments. In fact, we created it! Any HMR integration built for ESM-HMR will run on Snowpack. 
+Snowpack implements [ESM-HMR](https://github.com/pikapkg/esm-hot-module-replacement-spec), a standard HMR API for ESM-based dev environments. In fact, we created it! Any HMR integration built for ESM-HMR will run on Snowpack. 
 
-Most Snowpack users will never have to interact with the HMR API directly (via `import.meta.hot`). But, plugin authors may want to add HMR support for certain files automatically. If that's you, check out [the ESM-HMR spec](https://github.com/pikapkg/esm-hot-module-replacement-spec) to learn more.
+Most Snowpack users will never have to interact with the HMR API directly (via `import.meta.hot`). Instead, plugin authors can create plugins to add automatic HMR support (like [Prefresh](https://github.com/JoviDeCroock/prefresh) from Preact) to users projects. 
+
+Check out [the full ESM-HMR spec](https://github.com/pikapkg/esm-hot-module-replacement-spec) to learn more.
 
 ### Example
 
@@ -116,7 +118,8 @@ if (import.meta.hot) {
 }
 ```
 
-👉 **[Back to the main docs.](/)**
+- 👉 **[Check out the full spec.](https://github.com/pikapkg/esm-hot-module-replacement-spec)**
+- 👉 **[Back to the main docs.](/)**
 
 
 ## JavaScript API
