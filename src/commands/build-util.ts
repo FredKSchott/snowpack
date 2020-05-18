@@ -9,34 +9,11 @@ import {
   SnowpackPluginBuildArgs,
 } from '../config';
 import Core from 'css-modules-loader-core';
-import {Service, startService} from 'esbuild';
 import chalk from 'chalk';
 
 const IS_PREACT = /from\s+['"]preact['"]/;
 export function checkIsPreact(filePath: string, contents: string) {
   return filePath.endsWith('.jsx') && IS_PREACT.test(contents);
-}
-
-let esbuildService: Service | null = null;
-export async function getEsbuildFileBuilder() {
-  esbuildService = esbuildService || (await startService());
-  return async (args: SnowpackPluginBuildArgs) => {
-    const isPreact = checkIsPreact(args.filePath, args.contents);
-    const {js, warnings} = await esbuildService!.transform(args.contents, {
-      loader: path.extname(args.filePath).substr(1) as 'jsx' | 'ts' | 'tsx',
-      jsxFactory: isPreact ? 'h' : undefined,
-      jsxFragment: isPreact ? 'Fragment' : undefined,
-    });
-    for (const warning of warnings) {
-      console.error(chalk.bold('! ') + args.filePath);
-      console.error('  ' + warning.text);
-    }
-    return {result: js || ''} as SnowpackPluginBuildResult;
-  };
-}
-
-export function stopEsbuild() {
-  esbuildService && esbuildService.stop();
 }
 
 export async function wrapJSModuleResponse(code: string, hasHmr = false) {

@@ -15,12 +15,11 @@ import {
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
   wrapJSModuleResponse,
-  getEsbuildFileBuilder,
-  stopEsbuild,
 } from './build-util';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 import {parcelBundlePlugin} from './parcel-bundle-plugin';
+import {stopEsbuild} from './esbuildPlugin';
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
@@ -79,19 +78,14 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
+  relevantWorkers.push({
+    id: 'bundle:*',
+    type: 'bundle',
+    match: ['*'],
+    cmd: '(default) parcel',
+    watch: undefined,
+  });
   const allBuiltFromFiles = new Set<string>();
-  const defaultBuildMatch = ['js', 'jsx', 'ts', 'tsx'].filter(
-    (ext) => !allBuildExtensions.includes(ext),
-  );
-  const defaultBuildWorkerConfig = {
-    id: `build:${defaultBuildMatch.join(',')}`,
-    type: 'build',
-    match: defaultBuildMatch,
-    cmd: 'NA',
-  } as BuildScript;
-
-  relevantWorkers.push(defaultBuildWorkerConfig);
-  relevantWorkers.push({id: 'bundle:*', type: 'bundle', match: ['*'], cmd: 'NA', watch: undefined});
 
   console.log = (...args) => {
     messageBus.emit('CONSOLE', {level: 'log', args});
@@ -239,10 +233,7 @@ export async function command(commandOptions: CommandOptions) {
           continue;
         }
         const fileContents = await fs.readFile(f, {encoding: 'utf8'});
-        let fileBuilder =
-          workerConfig === defaultBuildWorkerConfig
-            ? await getEsbuildFileBuilder()
-            : getFileBuilderForWorker(cwd, workerConfig);
+        let fileBuilder = getFileBuilderForWorker(cwd, workerConfig);
         if (!fileBuilder) {
           continue;
         }
@@ -326,6 +317,7 @@ export async function command(commandOptions: CommandOptions) {
     }
     messageBus.emit('WORKER_COMPLETE', {id, error: null});
   }
+
   stopEsbuild();
 
   for (const proxiedFileLoc of allCssModules) {

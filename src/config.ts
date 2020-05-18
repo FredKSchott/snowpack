@@ -5,6 +5,7 @@ import {validate, ValidationError} from 'jsonschema';
 import {all as merge} from 'deepmerge';
 import chalk from 'chalk';
 import yargs from 'yargs-parser';
+import {esbuildPlugin} from './commands/esbuildPlugin';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -304,6 +305,19 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
       allBuildMatch.add(ext);
     }
   }
+
+  const defaultBuildMatch = ['js', 'jsx', 'ts', 'tsx'].filter((ext) => !allBuildMatch.has(ext));
+  if (defaultBuildMatch.length > 0) {
+    const defaultBuildWorkerConfig = {
+      id: `build:${defaultBuildMatch.join(',')}`,
+      type: 'build',
+      match: defaultBuildMatch,
+      cmd: '(default) esbuild',
+      plugin: esbuildPlugin(),
+    } as BuildScript;
+    processedScripts.push(defaultBuildWorkerConfig);
+  }
+
   return processedScripts;
 }
 
@@ -341,7 +355,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   });
   config.scripts = normalizeScripts(cwd, config.scripts as any);
   config.scripts.forEach((script: BuildScript) => {
-    if (script.type === 'build') {
+    if (script.type === 'build' && !script.plugin) {
       if (allPlugins[script.cmd]?.build) {
         script.plugin = allPlugins[script.cmd];
       } else if (allPlugins[script.cmd] && !allPlugins[script.cmd].build) {

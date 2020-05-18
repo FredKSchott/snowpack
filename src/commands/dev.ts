@@ -38,19 +38,17 @@ import npmRunPath from 'npm-run-path';
 import os from 'os';
 import path from 'path';
 import url from 'url';
-import {BuildScript, SnowpackPluginBuildResult, SnowpackPluginBuildArgs} from '../config';
+import {BuildScript, SnowpackPluginBuildResult} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
 import {BUILD_CACHE, CommandOptions, ImportMap, openInBrowser} from '../util';
 import {addCommand} from './add-rm';
 import {
+  FileBuilder,
   getFileBuilderForWorker,
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
-  wrapJSModuleResponse,
-  FileBuilder,
   wrapHtmlResponse,
-  checkIsPreact,
-  getEsbuildFileBuilder,
+  wrapJSModuleResponse,
 } from './build-util';
 import {command as installCommand} from './install';
 import {paint} from './paint';
@@ -156,11 +154,6 @@ export async function command(commandOptions: CommandOptions) {
     reqPath: string,
     fileBuilder: FileBuilder | undefined,
   ): Promise<SnowpackPluginBuildResult> {
-    if (!fileBuilder) {
-      if (fileLoc.endsWith('.jsx') || fileLoc.endsWith('.tsx') || fileLoc.endsWith('.ts')) {
-        fileBuilder = await getEsbuildFileBuilder();
-      }
-    }
     let builtFileResult: SnowpackPluginBuildResult;
     let fileBuilderPromise = filesBeingBuilt.get(fileLoc);
     if (fileBuilderPromise) {
@@ -284,7 +277,7 @@ export async function command(commandOptions: CommandOptions) {
           messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
         }
         if (/Watching for file changes./gm.test(stdOutput)) {
-          messageBus.emit('WORKER_UPDATE', {id, state: 'WATCHING'});
+          messageBus.emit('WORKER_UPDATE', {id, state: 'WATCH'});
         }
         const errorMatch = stdOutput.match(/Found (\d+) error/);
         if (errorMatch && errorMatch[1] !== '0') {
@@ -671,6 +664,7 @@ export async function command(commandOptions: CommandOptions) {
     .reduce((every: os.NetworkInterfaceInfo[], i) => [...every, ...(i || [])], [])
     .filter((i) => i.family === 'IPv4' && i.internal === false)
     .map((i) => i.address);
+
   paint(messageBus, config.scripts, undefined, {
     port,
     ips,

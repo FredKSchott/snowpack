@@ -72,7 +72,7 @@ export function paint(
       const dotLength = 24 - config.id.length;
       const dots = chalk.dim(''.padEnd(dotLength, '.'));
       const [fmt, stateString] = getStateString(workerState, !!devMode);
-      const spacer = ''.padEnd(7 - stateString.length);
+      const spacer = ' '; //.padEnd(8 - stateString.length);
       const cmdStr = stateString === 'FAIL' ? chalk.red(config.cmd) : chalk.dim(config.cmd);
       process.stdout.write(`  ${config.id}${dots}[${fmt(stateString)}]${spacer}${cmdStr}\n`);
     }
