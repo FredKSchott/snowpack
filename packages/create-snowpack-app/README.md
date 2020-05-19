@@ -18,6 +18,6 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 
 ## Featured Community Templates
 
-- None yet!
+- [snowpack-template-preset-env](https://github.com/argyleink/snowpack-template-preset-env) (PostCSS + Babel)
 - PRs that add a link to this list are welcome!
 - [See all templates on npm](https://www.npmjs.com/search?q=keywords%3Acsa-template)
