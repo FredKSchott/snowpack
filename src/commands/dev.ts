@@ -39,7 +39,7 @@ import os from 'os';
 import path from 'path';
 import url from 'url';
 import {BuildScript, SnowpackPluginBuildResult} from '../config';
-import {transformEsmImports} from '../rewrite-imports';
+import {transformEsmImports, scanCodeImportsExports} from '../rewrite-imports';
 import {BUILD_CACHE, CommandOptions, ImportMap, openInBrowser} from '../util';
 import {addCommand} from './add-rm';
 import {
@@ -198,9 +198,7 @@ export async function command(commandOptions: CommandOptions) {
         if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
           const ext = path.extname(spec).substr(1);
           if (!ext) {
-            const res = spec + '.js';
-            addToDependents(res, fileLoc);
-            return res;
+            return spec + '.js';
           }
           const extToReplace = srcFileExtensionMapping[ext];
           if (extToReplace) {
@@ -209,7 +207,6 @@ export async function command(commandOptions: CommandOptions) {
           if (!spec.endsWith('.module.css') && (extToReplace || ext) !== 'js') {
             spec = spec + '.proxy.js';
           }
-          addToDependents(spec, fileLoc);
           return spec;
         }
         if (dependencyImportMap.imports[spec]) {
@@ -256,6 +253,19 @@ export async function command(commandOptions: CommandOptions) {
         }
         return `/web_modules/${spec}.js`;
       });
+
+      if (!fileLoc.includes('web_modules') && !fileLoc.includes('node_modules')) {
+        const imports = await scanCodeImportsExports(builtFileResult.result);
+        for (const imp of imports.reverse()) {
+          let spec = builtFileResult.result.substring(imp.s, imp.e);
+          if (imp.d > -1) {
+            const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
+            spec = importSpecifierMatch![1];
+          }
+
+          addToDependents(spec, fileLoc);
+        }
+      }
     }
 
     return builtFileResult;
