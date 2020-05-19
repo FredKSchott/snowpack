@@ -15,53 +15,13 @@ Looking for help using Snowpack in your project?
 
 ## Plugin API
 
-### All Options
-
-```ts
-// TODO: More documentation coming soon.
-interface SnowpackPlugin {
-  // knownEntrypoints - additional web_modules to install in the project
-  knownEntrypoints?: string[],
-  // defaultBuildScript - a build script to configure for the user automatically
-  defaultBuildScript?: string,
-  // build() - Build any source file to web-ready JS, CSS, or HTML
-  build?: ({
-    filePath: string,
-    contents: string,
-    isDev: boolean,
-  }) => Promise<{result: string; resouces?: {css?: string}}>
-  // transform() - Transform JS, CSS, or HTML
-  transform?: ({
-    urlPath: string,
-    contents: string,
-    isDev: boolean,
-  }) => Promise<{result: string}>
-  // bundle() - Bundle the web application for production.
-  bundle?(args: {
-    srcDirectory: string;
-    destDirectory: string;
-    jsFilePaths: Set<string>;
-    log: (msg) => void;
-  }): Promise<void>;
-}
-```
-
-### Example 
+### Example
 
 ```js
 // Example: This plugin adds automatic HMR for Preact applications.
-module.exports = function plugin(snowpackConfig, pluginOptions) {
+module.exports = function createPlugin(snowpackConfig, pluginOptions) {
   return {
-    /**
-     * knownEntrypoints - Additional web_modules to install in the project
-     * that may not otherwise be picked up by the install command
-     */
     knownEntrypoints: ['@prefresh/core'],
-    /**
-     * build() - Build any source file to web-ready JS, CSS, or HTML.
-     * Not needed by this plugin, so really its safe to remove entirely.
-     */
-    async build({ contents, filePath, isDev }) {},
     /**
      * transform() - Transform web assets (JS, CSS, or HTML). Useful for 
      * post-processing or adding functionality into your web app.
@@ -86,6 +46,75 @@ module.exports = function plugin(snowpackConfig, pluginOptions) {
   };
 };
 ```
+
+### knownEntrypoints
+
+```
+knownEntrypoints?: string[]
+```
+
+Additional web_modules to install in the project that may not otherwise be picked up by the install command. If your plugin itself injects package imports, then put them here.
+
+### defaultBuildScript
+
+```
+defaultBuildScript?: string
+```
+
+### build()
+
+```
+build?: ({
+  filePath: string,
+  contents: string,
+  isDev: boolean,
+}) => Promise<{
+  result: string; 
+  resouces?: {css?: string}
+}>
+```
+
+
+Build any file from source. Files can be built from any source file type, but must be returned as their final file type. For example, a JSX file must be converted to JS at the build stage and not the transform stage.
+
+The build function is run on all files that match the file extensions in the build script (or `defaultBuildScript` if none is provided by the user). The build function must return a result, or an error will be thrown. You can validate the `filePath` ahead of time if you know that you can only handle a certain set of file extensions.
+
+Note that production optimizations like minification, dead code elimination, and legacy browser transpilation are all handled automatically by Snowpack and are not a concern for plugin authors. A plugin's output should always be modern code. 
+
+Use `resouces` if your build outputs multiple files from your one source file. For example, Svelte & Vue files output both JavaScript and CSS. Return the JS output as `result` and the CSS output as `resources.css`. Snowpack will make sure that they're handled together in your final build.  
+
+### transform()
+
+```
+transform?: ({
+  urlPath: string,
+  contents: string,
+  isDev: boolean,
+}) => Promise<false | {result: string}>
+```
+
+Transform an already-loaded file before it is sent to the browser. This is called for every file in your build, so be sure to test the `urlPath` extension to filter your transform by a certain file type. Return `false` to skip transforming this file.
+
+Note that production optimizations like minification, dead code elimination, and legacy browser transpilation are all handled automatically by Snowpack and are not a concern for plugin authors. A plugin's output should always be modern code. 
+
+#### Use Cases
+
+- Adding framework-specific HMR code, if a matching import is found. 
+
+
+### bundle()
+
+```  
+bundle?(args: {
+  srcDirectory: string;
+  destDirectory: string;
+  jsFilePaths: Set<string>;
+  log: (msg) => void;
+}): Promise<void>;
+```
+
+Bundle the web application for production.
+
 
 👉 **[Back to the main docs.](/)**
 
