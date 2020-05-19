@@ -270,21 +270,25 @@ export async function command(commandOptions: CommandOptions) {
       });
 
       if (!isModule(fileLoc)) {
-        const existingDependencies = [...(dependencyTree.get(reqPath) || { dependencies: [] }).dependencies];
+        const existingDependencies = new Set(dependencyTree.get(reqPath)?.dependencies || []);
         const imports = await scanCodeImportsExports(builtFileResult.result);
         for (const imp of imports) {
           const spec = builtFileResult.result.substring(imp.s, imp.e);
           addToDependencyTree(spec, reqPath);
-          const index = existingDependencies.indexOf(spec);
-          if (index !== -1) {
-            existingDependencies.splice(index, 1);
+          if (existingDependencies.has(spec)) {
+            existingDependencies.delete(spec);
           }
         }
 
-        const result = dependencyTree.get(reqPath) as Dependency;
-        if (existingDependencies.length > 0) {
+        let result = dependencyTree.get(reqPath);
+        if (!result) {
+          result = { dependencies: new Set(), dependents: new Set() };
+          dependencyTree.set(reqPath, result);
+        }
+
+        if (existingDependencies.size > 0) {
           existingDependencies.forEach(spec => {
-            result.dependencies.delete(spec);
+            (result as Dependency).dependencies.delete(spec);
             const specTree = dependencyTree.get(spec);
             if (specTree) {
               specTree.dependents.delete(reqPath);
@@ -297,8 +301,6 @@ export async function command(commandOptions: CommandOptions) {
           result.isHmrEnabled = true;
         }
       }
-
-      console.log(dependencyTree)
     }
 
     return builtFileResult;
@@ -661,7 +663,7 @@ export async function command(commandOptions: CommandOptions) {
   // Live Reload + File System Watching
   let isLiveReloadPaused = false;
   async function onWatchEvent(fileLoc) {
-    const fileUrl = getUrlFromFile(mountedDirectories, fileLoc);
+    const fileUrl = getUrlFromFile(mountedDirectories, fileLoc) as string;
     if (!isLiveReloadPaused) {
       hmrEngine.broadcastMessage('message', {type: 'update', url: fileUrl});
     }
