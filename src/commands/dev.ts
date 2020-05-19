@@ -58,7 +58,7 @@ import {EsmHmrEngine} from '../hmr-server-engine';
 interface Dependency {
   dependents: Set<string>;
   dependencies: Set<string>;
-  isHmrEnabled: boolean;
+  isHmrEnabled?: boolean;
 }
 
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
@@ -151,14 +151,14 @@ export async function command(commandOptions: CommandOptions) {
     if (!isModule(spec) && !isModule(fileUrl) && spec !== fileUrl) {
       let specResult = dependencyTree.get(spec);
       if (!specResult) {
-        specResult = { dependencies: new Set(), dependents: new Set(), isHmrEnabled: true };
+        specResult = { dependencies: new Set(), dependents: new Set() };
         dependencyTree.set(spec, specResult);
       }
       specResult.dependents.add(fileUrl);
 
       let fileResult = dependencyTree.get(fileUrl);
       if (!fileResult) {
-        fileResult = { dependencies: new Set(), dependents: new Set(), isHmrEnabled: true };
+        fileResult = { dependencies: new Set(), dependents: new Set() };
         dependencyTree.set(fileUrl, fileResult);
       }
       fileResult.dependencies.add(spec);
@@ -281,8 +281,8 @@ export async function command(commandOptions: CommandOptions) {
           }
         }
 
+        const result = dependencyTree.get(reqPath) as Dependency;
         if (existingDependencies.length > 0) {
-          const result = dependencyTree.get(reqPath) as Dependency;
           existingDependencies.forEach(spec => {
             result.dependencies.delete(spec);
             const specTree = dependencyTree.get(spec);
@@ -290,6 +290,11 @@ export async function command(commandOptions: CommandOptions) {
               specTree.dependents.delete(reqPath);
             }
           })
+        }
+
+
+        if (builtFileResult.result.includes('import.meta.hot')) {
+          result.isHmrEnabled = true;
         }
       }
 
