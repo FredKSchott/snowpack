@@ -338,7 +338,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     const configPluginPath = Array.isArray(plugin) ? plugin[0] : plugin;
     const configPluginOptions = (Array.isArray(plugin) && plugin[1]) || {};
     const configPluginLoc = require.resolve(configPluginPath, {paths: [cwd]});
-    const configPlugin = require(configPluginLoc)(configPluginOptions);
+    const configPlugin = require(configPluginLoc)(config, configPluginOptions);
     allPlugins[configPluginPath] = configPlugin;
     if (configPlugin.knownEntrypoints) {
       config.knownEntrypoints.push(...configPlugin.knownEntrypoints);
