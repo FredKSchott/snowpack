@@ -53,6 +53,7 @@ import {
 import {command as installCommand} from './install';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
+import {handleConnection, broadcastMessage} from '../hmr-server-engine';
 
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
@@ -81,11 +82,6 @@ const sendFile = (
 const sendError = (res, status) => {
   res.writeHead(status);
   res.end();
-};
-
-const sendMessage = (res, channel, data) => {
-  res.write(`event: ${channel}\nid: 0\ndata: ${data}\n`);
-  res.write('\n\n');
 };
 
 function getUrlFromFile(mountedDirectories: [string, string][], fileLoc: string): string | null {
@@ -120,7 +116,6 @@ export async function command(commandOptions: CommandOptions) {
   const inMemoryResourceCache = new Map<string, string>();
   const filesBeingDeleted = new Set<string>();
   const filesBeingBuilt = new Map<string, Promise<SnowpackPluginBuildResult>>();
-  const liveReloadClients: http.ServerResponse[] = [];
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
@@ -140,12 +135,6 @@ export async function command(commandOptions: CommandOptions) {
     );
   } catch (err) {
     // no import-map found, safe to ignore
-  }
-
-  function broadcastMessage(channel: string, data: object) {
-    for (const client of liveReloadClients) {
-      sendMessage(client, channel, JSON.stringify(data));
-    }
   }
 
   async function buildFile(
@@ -346,18 +335,7 @@ export async function command(commandOptions: CommandOptions) {
       });
 
       if (reqPath === '/livereload') {
-        res.writeHead(200, {
-          Connection: 'keep-alive',
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Access-Control-Allow-Origin': '*',
-        });
-        sendMessage(res, 'connected', 'ready');
-        setInterval(sendMessage, 60000, res, 'ping', 'waiting');
-        liveReloadClients.push(res);
-        req.on('close', () => {
-          liveReloadClients.splice(liveReloadClients.indexOf(res), 1);
-        });
+        handleConnection(req, res);
         return;
       }
 
@@ -642,13 +620,6 @@ export async function command(commandOptions: CommandOptions) {
   watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
-
-  process.on('SIGINT', () => {
-    for (const client of liveReloadClients) {
-      client.end();
-    }
-    process.exit(0);
-  });
 
   console.log = (...args) => {
     messageBus.emit('CONSOLE', {level: 'log', args});
