@@ -469,7 +469,7 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   }
   if (
     rawConfig.scripts &&
-    Object.keys(rawConfig.scripts).filter((k) => k.startsWith('lintall')).length
+    Object.keys(rawConfig.scripts).filter((k) => k.startsWith('lintall')).length > 0
   ) {
     handleDeprecatedConfigError(
       '[Snowpack v1 -> v2] `scripts["lintall:..."]` has been renamed to scripts["run:..."]',
@@ -477,10 +477,10 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   }
   if (
     rawConfig.scripts &&
-    Object.keys(rawConfig.scripts).filter((k) => k.startsWith('plugin`')).length
+    Object.keys(rawConfig.scripts).filter((k) => k.startsWith('plugin:`')).length > 0
   ) {
     handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `scripts["plugin:..."]` has been renamed to scripts["build:..."].',
+      '[Snowpack v1 -> v2] `scripts["plugin:..."]` have been renamed to scripts["build:..."].',
     );
   }
   // Removed!
