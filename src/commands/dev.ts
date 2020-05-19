@@ -112,15 +112,8 @@ export async function command(commandOptions: CommandOptions) {
   console.log('Starting up...\n');
 
   const {port} = config.devOptions;
-<<<<<<< HEAD
-<<<<<<< HEAD
   const hmrEngine = new EsmHmrEngine();
-=======
-  const tree = new Map<string, Set<string>>();
->>>>>>> cosntruct a dependency tree
-=======
   const dependentsTree = new Map<string, Set<string>>();
->>>>>>> cleanup
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
   const filesBeingDeleted = new Set<string>();
@@ -199,8 +192,6 @@ export async function command(commandOptions: CommandOptions) {
             } else {
               dependentsTree.set(spec, new Set([fileLoc]))
             }
-
-            console.log(tree);
           }
 
           const ext = path.extname(spec).substr(1);
