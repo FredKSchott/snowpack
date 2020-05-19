@@ -92,7 +92,7 @@ function formatInstallResults(): string {
     .join(', ');
 }
 
-function detectExports(filePath: string): string[] | undefined {
+function detectExports(filePath: string): string[] {
   try {
     const fileLoc = require.resolve(filePath, {paths: [cwd]});
     if (fs.existsSync(fileLoc)) {
@@ -101,6 +101,7 @@ function detectExports(filePath: string): string[] | undefined {
   } catch (err) {
     // ignore
   }
+  return [];
 }
 
 /**
@@ -220,7 +221,10 @@ export async function install(
 
   const knownNamedExports = {...userDefinedRollup.namedExports};
   for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
-    knownNamedExports[filePath] = knownNamedExports[filePath] || detectExports(filePath) || [];
+    knownNamedExports[filePath] = [
+      ...(knownNamedExports[filePath] || []),
+      ...detectExports(filePath),
+    ];
   }
   // @ts-ignore
   if (!webDependencies && !process.versions.pnp && !fs.existsSync(path.join(cwd, 'node_modules'))) {
