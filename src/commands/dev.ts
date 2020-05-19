@@ -147,7 +147,7 @@ export async function command(commandOptions: CommandOptions) {
 
   const isModule = (url) => url.includes('web_modules') || url.includes('node_modules');
 
-  function addToDependencyTree(spec: string, fileUrl: string) {
+  function addToDependencyTree(fileUrl: string, spec: string) {
     if (!isModule(spec) && !isModule(fileUrl) && spec !== fileUrl) {
       let specResult = dependencyTree.get(spec);
       if (!specResult) {
@@ -156,11 +156,7 @@ export async function command(commandOptions: CommandOptions) {
       }
       specResult.dependents.add(fileUrl);
 
-      let fileResult = dependencyTree.get(fileUrl);
-      if (!fileResult) {
-        fileResult = { dependencies: new Set(), dependents: new Set() };
-        dependencyTree.set(fileUrl, fileResult);
-      }
+      const fileResult = dependencyTree.get(fileUrl) as Dependency;
       fileResult.dependencies.add(spec);
     }
   }
@@ -270,20 +266,20 @@ export async function command(commandOptions: CommandOptions) {
       });
 
       if (!isModule(fileLoc)) {
-        const existingDependencies = new Set(dependencyTree.get(reqPath)?.dependencies || []);
-        const imports = await scanCodeImportsExports(builtFileResult.result);
-        for (const imp of imports) {
-          const spec = builtFileResult.result.substring(imp.s, imp.e);
-          addToDependencyTree(spec, reqPath);
-          if (existingDependencies.has(spec)) {
-            existingDependencies.delete(spec);
-          }
-        }
-
         let result = dependencyTree.get(reqPath);
         if (!result) {
           result = { dependencies: new Set(), dependents: new Set() };
           dependencyTree.set(reqPath, result);
+        }
+
+        const existingDependencies = new Set(dependencyTree.get(reqPath)?.dependencies || []);
+        const imports = await scanCodeImportsExports(builtFileResult.result);
+        for (const imp of imports) {
+          const spec = builtFileResult.result.substring(imp.s, imp.e);
+          addToDependencyTree(reqPath, spec);
+          if (existingDependencies.has(spec)) {
+            existingDependencies.delete(spec);
+          }
         }
 
         if (existingDependencies.size > 0) {
