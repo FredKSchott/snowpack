@@ -112,7 +112,11 @@ export async function command(commandOptions: CommandOptions) {
   console.log('Starting up...\n');
 
   const {port} = config.devOptions;
+<<<<<<< HEAD
   const hmrEngine = new EsmHmrEngine();
+=======
+  const tree = new Map<string, Set<string>>();
+>>>>>>> cosntruct a dependency tree
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
   const filesBeingDeleted = new Set<string>();
@@ -182,7 +186,19 @@ export async function command(commandOptions: CommandOptions) {
         if (spec.startsWith('http')) {
           return spec;
         }
+
         if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
+          if (!spec.includes('web_modules') && !spec.includes('node_modules') && !fileLoc.includes('web_modules') && !fileLoc.includes('node_modules')) {
+            const dependencies = tree.get(spec);
+            if (dependencies) {
+              tree.set(spec, dependencies.add(fileLoc));
+            } else {
+              tree.set(spec, new Set([fileLoc]))
+            }
+
+            console.log(tree);
+          }
+
           const ext = path.extname(spec).substr(1);
           if (!ext) {
             return spec + '.js';
@@ -194,6 +210,7 @@ export async function command(commandOptions: CommandOptions) {
           if (!spec.endsWith('.module.css') && (extToReplace || ext) !== 'js') {
             spec = spec + '.proxy.js';
           }
+
           return spec;
         }
         if (dependencyImportMap.imports[spec]) {
