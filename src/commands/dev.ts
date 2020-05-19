@@ -53,7 +53,7 @@ import {
 import {command as installCommand} from './install';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
-import {handleConnection, broadcastMessage} from '../hmr-server-engine';
+import {EsmHmrEngine} from '../hmr-server-engine';
 
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
@@ -112,6 +112,7 @@ export async function command(commandOptions: CommandOptions) {
   console.log('Starting up...\n');
 
   const {port} = config.devOptions;
+  const hmrEngine = new EsmHmrEngine();
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
   const filesBeingDeleted = new Set<string>();
@@ -335,7 +336,8 @@ export async function command(commandOptions: CommandOptions) {
       });
 
       if (reqPath === '/livereload') {
-        handleConnection(req, res);
+        hmrEngine.connectClient(res);
+        req.on('close', () => hmrEngine.disconnectClient(res));
         return;
       }
 
@@ -561,7 +563,7 @@ export async function command(commandOptions: CommandOptions) {
             ) {
               inMemoryBuildCache.clear();
               await cacache.rm.all(BUILD_CACHE);
-              broadcastMessage('message', {type: 'reload'});
+              hmrEngine.broadcastMessage('message', {type: 'reload'});
             }
           }
           return;
@@ -601,7 +603,7 @@ export async function command(commandOptions: CommandOptions) {
   async function onWatchEvent(fileLoc) {
     const fileUrl = getUrlFromFile(mountedDirectories, fileLoc);
     if (!isLiveReloadPaused) {
-      broadcastMessage('message', {type: 'update', url: fileUrl});
+      hmrEngine.broadcastMessage('message', {type: 'update', url: fileUrl});
     }
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);
@@ -620,6 +622,11 @@ export async function command(commandOptions: CommandOptions) {
   watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
+
+  process.on('SIGINT', () => {
+    hmrEngine.disconnectAllClients();
+    process.exit(0);
+  });
 
   console.log = (...args) => {
     messageBus.emit('CONSOLE', {level: 'log', args});
