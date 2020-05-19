@@ -270,10 +270,26 @@ export async function command(commandOptions: CommandOptions) {
       });
 
       if (!isModule(fileLoc)) {
+        const existingDependencies = [...(dependencyTree.get(reqPath) || { dependencies: [] }).dependencies];
         const imports = await scanCodeImportsExports(builtFileResult.result);
         for (const imp of imports) {
           const spec = builtFileResult.result.substring(imp.s, imp.e);
           addToDependencyTree(spec, reqPath);
+          const index = existingDependencies.indexOf(spec);
+          if (index !== -1) {
+            existingDependencies.splice(index, 1);
+          }
+        }
+
+        if (existingDependencies.length > 0) {
+          const result = dependencyTree.get(reqPath) as Dependency;
+          existingDependencies.forEach(spec => {
+            result.dependencies.delete(spec);
+            const specTree = dependencyTree.get(spec);
+            if (specTree) {
+              specTree.dependents.delete(reqPath);
+            }
+          })
         }
       }
 
