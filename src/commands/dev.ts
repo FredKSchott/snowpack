@@ -55,6 +55,12 @@ import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 import {EsmHmrEngine} from '../hmr-server-engine';
 
+interface Dependency {
+  dependents: Set<string>;
+  dependencies: Set<string>;
+  isHmrEnabled: boolean;
+}
+
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
 function getEncodingType(ext: string): 'utf8' | 'binary' {
@@ -113,7 +119,7 @@ export async function command(commandOptions: CommandOptions) {
 
   const {port} = config.devOptions;
   const hmrEngine = new EsmHmrEngine();
-  const dependentsTree = new Map<string, Set<string>>();
+  const dependencyTree = new Map<string, Dependency>();
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
   const filesBeingDeleted = new Set<string>();
@@ -139,14 +145,23 @@ export async function command(commandOptions: CommandOptions) {
     // no import-map found, safe to ignore
   }
 
-  function addToDependents(spec: string, fileLoc: string) {
-    if (!spec.includes('web_modules') && !spec.includes('node_modules') && !fileLoc.includes('web_modules') && !fileLoc.includes('node_modules')) {
-      const dependents = dependentsTree.get(spec);
-      if (dependents) {
-        dependentsTree.set(spec, dependents.add(fileLoc));
-      } else {
-        dependentsTree.set(spec, new Set([fileLoc]))
+  const isModule = (url) => url.includes('web_modules') || url.includes('node_modules');
+
+  function addToDependencyTree(spec: string, fileUrl: string) {
+    if (!isModule(spec) && !isModule(fileUrl) && spec !== fileUrl) {
+      let specResult = dependencyTree.get(spec);
+      if (!specResult) {
+        specResult = { dependencies: new Set(), dependents: new Set(), isHmrEnabled: true };
+        dependencyTree.set(spec, specResult);
       }
+      specResult.dependents.add(fileUrl);
+
+      let fileResult = dependencyTree.get(fileUrl);
+      if (!fileResult) {
+        fileResult = { dependencies: new Set(), dependents: new Set(), isHmrEnabled: true };
+        dependencyTree.set(fileUrl, fileResult);
+      }
+      fileResult.dependencies.add(spec);
     }
   }
 
@@ -254,18 +269,15 @@ export async function command(commandOptions: CommandOptions) {
         return `/web_modules/${spec}.js`;
       });
 
-      if (!fileLoc.includes('web_modules') && !fileLoc.includes('node_modules')) {
+      if (!isModule(fileLoc)) {
         const imports = await scanCodeImportsExports(builtFileResult.result);
-        for (const imp of imports.reverse()) {
-          let spec = builtFileResult.result.substring(imp.s, imp.e);
-          if (imp.d > -1) {
-            const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
-            spec = importSpecifierMatch![1];
-          }
-
-          addToDependents(spec, fileLoc);
+        for (const imp of imports) {
+          const spec = builtFileResult.result.substring(imp.s, imp.e);
+          addToDependencyTree(spec, reqPath);
         }
       }
+
+      console.log(dependencyTree)
     }
 
     return builtFileResult;
