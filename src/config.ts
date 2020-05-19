@@ -9,6 +9,15 @@ import {esbuildPlugin} from './commands/esbuildPlugin';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
+const SCRIPT_TYPES_WEIGHTED = {
+  proxy: 1,
+  mount: 2,
+  run: 3,
+  build: 4,
+  bundle: 100,
+} as {[type in ScriptType]: number};
+
+type ScriptType = 'proxy' | 'mount' | 'run' | 'build' | 'bundle';
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -57,7 +66,7 @@ export type SnowpackPlugin = {
 export type BuildScript = {
   id: string;
   match: string[];
-  type: string;
+  type: ScriptType;
   cmd: string;
   watch?: string;
   plugin?: SnowpackPlugin;
@@ -242,7 +251,10 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
     if (scriptId.includes('::watch')) {
       continue;
     }
-    const [scriptType, scriptMatch] = scriptId.split(':');
+    const [scriptType, scriptMatch] = scriptId.split(':') as [ScriptType, string];
+    if (!SCRIPT_TYPES_WEIGHTED[scriptType]) {
+      handleConfigError(`scripts[${scriptId}]: "${scriptType}" is not a known script type.`);
+    }
     const cmd = (scripts[scriptId] as any) as string;
     const newScriptConfig: BuildScript = {
       id: scriptId,
@@ -317,7 +329,12 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
     } as BuildScript;
     processedScripts.push(defaultBuildWorkerConfig);
   }
-
+  processedScripts.sort((a, b) => {
+    if (a.type === b.type) {
+      return a.id.localeCompare(b.id);
+    }
+    return SCRIPT_TYPES_WEIGHTED[a.type] - SCRIPT_TYPES_WEIGHTED[b.type];
+  });
   return processedScripts;
 }
 
