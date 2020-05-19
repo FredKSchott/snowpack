@@ -59,6 +59,7 @@ interface Dependency {
   dependents: Set<string>;
   dependencies: Set<string>;
   isHmrEnabled?: boolean;
+  needsUpdate?: boolean;
 }
 
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
@@ -664,6 +665,7 @@ export async function command(commandOptions: CommandOptions) {
     if (node && node.isHmrEnabled) {
       hmrEngine.broadcastMessage('message', {type: 'update', url});
     } else if (node && node.dependents.size > 0) {
+      node.needsUpdate = true;
       node.dependents.forEach(updateOrBubble);
     } else {
       // We've reached the top, trigger a full page refresh
