@@ -275,7 +275,8 @@ export async function command(commandOptions: CommandOptions) {
         const existingDependencies = new Set(dependencyTree.get(reqPath)?.dependencies || []);
         const imports = await scanCodeImportsExports(builtFileResult.result);
         for (const imp of imports) {
-          const spec = builtFileResult.result.substring(imp.s, imp.e);
+          const tempSpec = builtFileResult.result.substring(imp.s, imp.e);
+          const spec = path.posix.resolve(path.posix.dirname(reqPath), tempSpec);
           addToDependencyTree(reqPath, spec);
           if (existingDependencies.has(spec)) {
             existingDependencies.delete(spec);
@@ -291,7 +292,6 @@ export async function command(commandOptions: CommandOptions) {
             }
           })
         }
-
 
         if (builtFileResult.result.includes('import.meta.hot')) {
           result.isHmrEnabled = true;
@@ -658,10 +658,23 @@ export async function command(commandOptions: CommandOptions) {
 
   // Live Reload + File System Watching
   let isLiveReloadPaused = false;
+
+  function updateOrBubble(url: string) {
+    const node = dependencyTree.get(url);
+    if (node && node.isHmrEnabled) {
+      hmrEngine.broadcastMessage('message', {type: 'update', url});
+    } else if (node && node.dependents.size > 0) {
+      node.dependents.forEach(updateOrBubble);
+    } else {
+      // We've reached the top, trigger a full page refresh
+      // TODO: does this belong on the hmrEngine?
+      hmrEngine.broadcastMessage('message', {type: 'reload'});
+    }
+  }
   async function onWatchEvent(fileLoc) {
     const fileUrl = getUrlFromFile(mountedDirectories, fileLoc) as string;
     if (!isLiveReloadPaused) {
-      hmrEngine.broadcastMessage('message', {type: 'update', url: fileUrl});
+      updateOrBubble(fileUrl);
     }
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);
