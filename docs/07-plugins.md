@@ -9,7 +9,7 @@ A build plugin offers several different hooks into your application:
 - `build()` - Automatically connects a build script to your build pipeline.
 - `transform()` - Transform an already loaded resource before sending it to the browser.
 - `bundle()` - Connect your favorite bundler for production.
-- [Check out our advanced plugin guide for a full list of hooks.](/extend)
+- [Check out our advanced plugin guide for a full list of hooks.](/plugins)
 
 ### Connect a Plugin
 
@@ -36,7 +36,7 @@ This is all you need to connect the plugin into Snowpack. If a build script is p
 
 ### Create Your Own Plugin
 
-👉 **[Check out our advanced guide.](/extend)**
+👉 **[Check out our advanced guide.](/plugins)**
 
 
 ### Plugin vs Script?
@@ -77,12 +77,12 @@ But, there are a few reasons you may want to use a build plugin instead of a nor
 
 ### Custom Plugin API
 
-👉 **[Check out our advanced guide.](/extend)**
+👉 **[Check out our advanced guide.](/plugins)**
 
 ### Custom HMR API
 
-👉 **[Check out our advanced guide.](/extend)**
+👉 **[Check out our advanced guide.](/plugins)**
 
 ### Programmatic API
 
-👉 **[Check out our advanced guide.](/extend)**
+👉 **[Check out our advanced guide.](/plugins)**
