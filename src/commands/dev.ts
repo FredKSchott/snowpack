@@ -139,6 +139,17 @@ export async function command(commandOptions: CommandOptions) {
     // no import-map found, safe to ignore
   }
 
+  function addToDependents(spec: string, fileLoc: string) {
+    if (!spec.includes('web_modules') && !spec.includes('node_modules') && !fileLoc.includes('web_modules') && !fileLoc.includes('node_modules')) {
+      const dependents = dependentsTree.get(spec);
+      if (dependents) {
+        dependentsTree.set(spec, dependents.add(fileLoc));
+      } else {
+        dependentsTree.set(spec, new Set([fileLoc]))
+      }
+    }
+  }
+
   async function buildFile(
     fileContents: string,
     fileLoc: string,
@@ -185,18 +196,11 @@ export async function command(commandOptions: CommandOptions) {
         }
 
         if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
-          if (!spec.includes('web_modules') && !spec.includes('node_modules') && !fileLoc.includes('web_modules') && !fileLoc.includes('node_modules')) {
-            const dependents = dependentsTree.get(spec);
-            if (dependents) {
-              dependentsTree.set(spec, dependents.add(fileLoc));
-            } else {
-              dependentsTree.set(spec, new Set([fileLoc]))
-            }
-          }
-
           const ext = path.extname(spec).substr(1);
           if (!ext) {
-            return spec + '.js';
+            const res = spec + '.js';
+            addToDependents(res, fileLoc);
+            return res;
           }
           const extToReplace = srcFileExtensionMapping[ext];
           if (extToReplace) {
@@ -205,7 +209,7 @@ export async function command(commandOptions: CommandOptions) {
           if (!spec.endsWith('.module.css') && (extToReplace || ext) !== 'js') {
             spec = spec + '.proxy.js';
           }
-
+          addToDependents(spec, fileLoc);
           return spec;
         }
         if (dependencyImportMap.imports[spec]) {
@@ -253,6 +257,7 @@ export async function command(commandOptions: CommandOptions) {
         return `/web_modules/${spec}.js`;
       });
     }
+
     return builtFileResult;
   }
 
