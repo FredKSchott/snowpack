@@ -687,7 +687,6 @@ export async function command(commandOptions: CommandOptions) {
       node.dependents.forEach(updateOrBubble);
     } else {
       // We've reached the top, trigger a full page refresh
-      // TODO: does this belong on the hmrEngine?
       hmrEngine.broadcastMessage('message', {type: 'reload'});
     }
   }
