@@ -152,7 +152,7 @@ export async function command(commandOptions: CommandOptions) {
     if (!isModule(spec) && !isModule(fileUrl) && spec !== fileUrl) {
       let specResult = dependencyTree.get(spec);
       if (!specResult) {
-        specResult = { dependencies: new Set(), dependents: new Set() };
+        specResult = {dependencies: new Set(), dependents: new Set()};
         dependencyTree.set(spec, specResult);
       }
       specResult.dependents.add(fileUrl);
@@ -269,7 +269,7 @@ export async function command(commandOptions: CommandOptions) {
       if (!isModule(fileLoc)) {
         let result = dependencyTree.get(reqPath);
         if (!result) {
-          result = { dependencies: new Set(), dependents: new Set() };
+          result = {dependencies: new Set(), dependents: new Set()};
           dependencyTree.set(reqPath, result);
         }
 
@@ -285,13 +285,13 @@ export async function command(commandOptions: CommandOptions) {
         }
 
         if (existingDependencies.size > 0) {
-          existingDependencies.forEach(spec => {
+          existingDependencies.forEach((spec) => {
             (result as Dependency).dependencies.delete(spec);
             const specTree = dependencyTree.get(spec);
             if (specTree) {
               specTree.dependents.delete(reqPath);
             }
-          })
+          });
         }
 
         if (builtFileResult.result.includes('import.meta.hot')) {
@@ -562,7 +562,7 @@ export async function command(commandOptions: CommandOptions) {
       if (hotCachedResponse) {
         const isHot = reqUrl.includes('?mtime=');
         if (isHot) {
-          const [,mtime] = reqUrl.split('?');
+          const [, mtime] = reqUrl.split('?');
 
           // Transform when it's a buffer!
           if (hotCachedResponse.toString) hotCachedResponse = hotCachedResponse.toString();
@@ -572,7 +572,7 @@ export async function command(commandOptions: CommandOptions) {
             const result = dependencyTree.get(spec);
             if (result && result.needsUpdate) {
               result.needsUpdate = false;
-              return `${imp}?${mtime}`
+              return `${imp}?${mtime}`;
             }
             return imp;
           });
