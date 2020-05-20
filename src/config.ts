@@ -356,6 +356,16 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     const configPluginOptions = (Array.isArray(plugin) && plugin[1]) || {};
     const configPluginLoc = require.resolve(configPluginPath, {paths: [cwd]});
     const configPlugin = require(configPluginLoc)(config, configPluginOptions);
+    if (
+      (configPlugin.build ? 1 : 0) +
+        (configPlugin.transform ? 1 : 0) +
+        (configPlugin.bundle ? 1 : 0) >
+      1
+    ) {
+      handleConfigError(
+        `plugin[${configPluginLoc}]: A valid plugin can only have one build(), transform(), or bundle() function.`,
+      );
+    }
     allPlugins[configPluginPath] = configPlugin;
     if (configPlugin.knownEntrypoints) {
       config.knownEntrypoints.push(...configPlugin.knownEntrypoints);
