@@ -160,6 +160,7 @@ const configSchema = {
         out: {type: 'string'},
         fallback: {type: 'string'},
         bundle: {type: 'boolean'},
+        open: {type: 'boolean'}
       },
     },
     installOptions: {
