@@ -61,6 +61,11 @@ Additional web_modules to install in the project that may not otherwise be picke
 defaultBuildScript?: string
 ```
 
+The build script that will be used for this plugin, if none is provided by the user. If your plugin uses the `build()` method, this is what controls which files your build command will match against by default.
+
+If you don't include this, the user will need to define the build script themselves for the plugin to do anything.
+
+
 ### build()
 
 ```

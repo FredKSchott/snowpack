@@ -4,12 +4,13 @@ For more powerful integrations, Snowpack supports custom **build plugins**.  A b
 
 ### Overview
 
-A build plugin offers several different hooks into your application:
+A build plugin offers one of several different hooks into your application:
 
 - `build()` - Automatically connects a build script to your build pipeline.
 - `transform()` - Transform an already loaded resource before sending it to the browser.
 - `bundle()` - Connect your favorite bundler for production.
-- [Check out our advanced plugin guide for a full list of hooks.](/plugins)
+
+[Check out our advanced plugin guide](/plugins) for more details and instructions for how to write your own.
 
 ### Connect a Plugin
 
@@ -22,17 +23,16 @@ Connect a build plugin to Snowpack via the `"plugins"` array in your Snowpack co
 }
 ```
 
-This is all you need to connect the plugin into Snowpack. If a build script is provided, it will be automatically added to your "scripts" config. You can customize which files this script will match by defining the build script yourself. 
+This is all you need to connect the plugin. If a build script is provided by the plugin, it will be automatically added to your "scripts" config. You can customize that script (and which files it will match) by defining the build script yourself. 
 
 ```js
 // snowpack.config.json
+// Optional: Define your own build script for "@snowpack/plugin-babel".
 {
-  // Optional: Define your own build script for "@snowpack/plugin-babel".
-  "scripts": {"build:js,jsx": "@snowpack/plugin-babel"},
-  "plugins": ["@snowpack/plugin-babel"]
+  "plugins": ["@snowpack/plugin-babel"],
+  "scripts": {"build:js,jsx,mjs,cjs": "@snowpack/plugin-babel"}
 }
 ```
-
 
 ### Create Your Own Plugin
 
