@@ -23,7 +23,6 @@ import {stopEsbuild} from './esbuildPlugin';
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
-  process.env.NODE_ENV = 'production';
 
   const messageBus = new EventEmitter();
   const relevantWorkers: BuildScript[] = [];

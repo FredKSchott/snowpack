@@ -63,6 +63,11 @@ export async function cli(args: string[]) {
     process.exit(1);
   }
 
+  // Set this early - before config loading - so that plugins see it.
+  if (cliFlags['_'][2] === 'build') {
+    process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+  }
+
   const commandOptions = {
     cwd,
     config: loadAndValidateConfig(cliFlags, pkgManifest),
