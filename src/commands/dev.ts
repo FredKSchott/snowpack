@@ -560,6 +560,24 @@ export async function command(commandOptions: CommandOptions) {
       // 1. Check the hot build cache. If it's already found, then just serve it.
       let hotCachedResponse: string | Buffer | undefined = inMemoryBuildCache.get(fileLoc);
       if (hotCachedResponse) {
+        const isHot = reqUrl.includes('?mtime=');
+        if (isHot) {
+          const [,mtime] = reqUrl.split('?');
+
+          // Transform when it's a buffer!
+          if (hotCachedResponse.toString) hotCachedResponse = hotCachedResponse.toString();
+
+          hotCachedResponse = await transformEsmImports(hotCachedResponse as string, (imp) => {
+            const spec = path.posix.resolve(path.posix.dirname(reqPath), imp);
+            const result = dependencyTree.get(spec);
+            if (result && result.needsUpdate) {
+              result.needsUpdate = false;
+              return `${imp}?${mtime}`
+            }
+            return imp;
+          });
+        }
+
         const wrappedResponse = await wrapResponse(
           hotCachedResponse.toString(getEncodingType(requestedFileExt)),
           inMemoryResourceCache.get(reqPath.replace(/.js$/, '.css')),
