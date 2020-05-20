@@ -362,7 +362,6 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     }
     if (
       configPlugin.defaultBuildScript &&
-      configPlugin.build &&
       !(config.scripts as any)[configPlugin.defaultBuildScript] &&
       !Object.values(config.scripts as any).includes(configPluginPath)
     ) {
@@ -370,6 +369,9 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     }
     return configPlugin;
   });
+  if (config.devOptions.bundle === true && !allPlugins['bundle:*']) {
+    handleConfigError(`--bundle set to true, but no "bundle:*" script/plugin was provided.`);
+  }
   config.scripts = normalizeScripts(cwd, config.scripts as any);
   config.scripts.forEach((script: BuildScript) => {
     if (script.type === 'build' && !script.plugin) {

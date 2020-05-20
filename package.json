@@ -70,7 +70,6 @@
     "esbuild": "^0.3.0",
     "etag": "^1.8.1",
     "execa": "^4.0.0",
-    "fs-extra": "^9.0.0",
     "glob": "^7.1.4",
     "got": "^11.1.4",
     "is-builtin-module": "^3.0.0",
