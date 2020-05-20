@@ -24,6 +24,13 @@ module.exports = function plugin(config, args) {
       let homepage = config.homepage || "";
       let fallback = config.devOptions?.fallback || "index.html";
 
+      let extendConfig = (cfg) => cfg;
+      if (typeof args.extendConfig === "function") {
+        extendConfig = args.extendConfig;
+      } else if (typeof args.extendConfig === "object") {
+        extendConfig = (cfg) => ({ ...cfg, ...args.extendConfig });
+      }
+
       let dom = new JSDOM(
         fs.readFileSync(path.join(srcDirectory, config.devOptions.fallback))
       );
@@ -109,14 +116,16 @@ module.exports = function plugin(config, args) {
         ],
       };
 
-      const stats = await compilePromise({
-        ...webpackConfig,
-        entry: path.join(srcDirectory, entryPoint),
-        output: {
-          path: destDirectory,
-          filename: "js/bundle-[hash].js",
-        },
-      }).catch((err) => {
+      const stats = await compilePromise(
+        extendConfig({
+          ...webpackConfig,
+          entry: path.join(srcDirectory, entryPoint),
+          output: {
+            path: destDirectory,
+            filename: "js/bundle-[hash].js",
+          },
+        })
+      ).catch((err) => {
         console.log(err);
       });
 
