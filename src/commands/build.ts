@@ -18,7 +18,6 @@ import {
 } from './build-util';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
-import {parcelBundlePlugin} from './parcel-bundle-plugin';
 import {stopEsbuild} from './esbuildPlugin';
 
 export async function command(commandOptions: CommandOptions) {
@@ -36,15 +35,37 @@ export async function command(commandOptions: CommandOptions) {
     // no import-map found, safe to ignore
   }
 
+  for (const workerConfig of config.scripts) {
+    const {type, match} = workerConfig;
+    if (
+      type === 'build' ||
+      type === 'run' ||
+      type === 'mount' ||
+      type === 'proxy' ||
+      type === 'bundle'
+    ) {
+      relevantWorkers.push(workerConfig);
+    }
+    if (type === 'build') {
+      allBuildExtensions.push(...match);
+    }
+  }
+
   let isBundled = config.devOptions.bundle;
+  let bundleWorker = config.scripts.find((s) => s.type === 'bundle');
   const isBundledHardcoded = isBundled !== undefined;
   if (!isBundledHardcoded) {
-    try {
-      require.resolve('parcel-bundler', {paths: [cwd]});
-      isBundled = true;
-    } catch (err) {
-      isBundled = false;
-    }
+    isBundled = !!bundleWorker;
+  }
+  if (!bundleWorker) {
+    bundleWorker = {
+      id: 'bundle:*',
+      type: 'bundle',
+      match: ['*'],
+      cmd: '',
+      watch: undefined,
+    };
+    relevantWorkers.push(bundleWorker);
   }
 
   const buildDirectoryLoc = isBundled ? path.join(cwd, `.build`) : config.devOptions.out;
@@ -62,31 +83,6 @@ export async function command(commandOptions: CommandOptions) {
     rimraf.sync(buildDirectoryLoc);
     mkdirp.sync(buildDirectoryLoc);
   }
-
-  for (const workerConfig of config.scripts) {
-    const {type, match} = workerConfig;
-    if (type === 'build' || type === 'run' || type === 'mount' || type === 'proxy') {
-      relevantWorkers.push(workerConfig);
-    }
-    if (type === 'build') {
-      allBuildExtensions.push(...match);
-    }
-  }
-
-  let bundleWorker: BuildScript = {
-    id: 'bundle:*',
-    type: 'bundle',
-    match: ['*'],
-    cmd: '(default) parcel',
-    watch: undefined,
-  };
-  for (const workerConfig of config.scripts) {
-    const {type} = workerConfig;
-    if (type === 'bundle') {
-      bundleWorker = workerConfig;
-    }
-  }
-  relevantWorkers.push(bundleWorker);
 
   console.log = (...args) => {
     messageBus.emit('CONSOLE', {level: 'log', args});
@@ -349,20 +345,21 @@ export async function command(commandOptions: CommandOptions) {
       messageBus.emit('WORKER_MSG', {
         id: bundleWorker.id,
         level: 'log',
-        msg: `npm install --save-dev parcel-bundler \n\nInstall Parcel into your project to bundle for production.\nSet "devOptions.bundle = false" to remove this message.`,
+        msg:
+          `"plugins": ["@snowpack/plugin-parcel"]\n\n` +
+          `Connect a bundler plugin to optimize your build for production.\n` +
+          chalk.dim(`Set "devOptions.bundle" configuration to false to remove this message.`),
       });
     }
   } else {
-    const bundlePlugin =
-      config.scripts.find((s) => s.type === 'bundle')?.plugin || parcelBundlePlugin(config, {});
     try {
       messageBus.emit('WORKER_UPDATE', {id: bundleWorker.id, state: ['RUNNING', 'yellow']});
-      await bundlePlugin.bundle!({
+      await bundleWorker?.plugin!.bundle!({
         srcDirectory: buildDirectoryLoc,
         destDirectory: finalDirectoryLoc,
         jsFilePaths: allBuiltFromFiles,
         log: (msg) => {
-          messageBus.emit('WORKER_MSG', {id: bundleWorker.id, level: 'log', msg});
+          messageBus.emit('WORKER_MSG', {id: bundleWorker!.id, level: 'log', msg});
         },
       });
       messageBus.emit('WORKER_COMPLETE', {id: bundleWorker.id, error: null});

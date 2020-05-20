@@ -68,12 +68,16 @@ export function paint(
     }
 
     for (const config of registeredWorkers) {
+      if (devMode && config.type === 'bundle') {
+        continue;
+      }
       const workerState = allWorkerStates[config.id];
       const dotLength = 24 - config.id.length;
       const dots = chalk.dim(''.padEnd(dotLength, '.'));
       const [fmt, stateString] = getStateString(workerState, !!devMode);
       const spacer = ' '; //.padEnd(8 - stateString.length);
-      const cmdStr = stateString === 'FAIL' ? chalk.red(config.cmd) : chalk.dim(config.cmd);
+      const cmdMsg = `${config.plugin && config.cmd[0] !== '(' ? '(plugin) ' : ''}${config.cmd}`;
+      const cmdStr = stateString === 'FAIL' ? chalk.red(cmdMsg) : chalk.dim(cmdMsg);
       process.stdout.write(`  ${config.id}${dots}[${fmt(stateString)}]${spacer}${cmdStr}\n`);
     }
     process.stdout.write('\n');
