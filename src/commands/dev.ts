@@ -111,7 +111,7 @@ export async function command(commandOptions: CommandOptions) {
   console.log('NOTE: Still experimental, default behavior may change.');
   console.log('Starting up...\n');
 
-  const {port} = config.devOptions;
+  const {port, open} = config.devOptions;
   const hmrEngine = new EsmHmrEngine();
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
@@ -663,6 +663,6 @@ export async function command(commandOptions: CommandOptions) {
     },
   });
 
-  await openInBrowser(port);
+  if (open) await openInBrowser(port);
   return new Promise(() => {});
 }
