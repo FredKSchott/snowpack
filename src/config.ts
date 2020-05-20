@@ -131,7 +131,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   },
   devOptions: {
     port: 8080,
-    open: false,
+    open: true,
     out: 'build',
     fallback: 'index.html',
     bundle: undefined,
