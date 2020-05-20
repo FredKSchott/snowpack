@@ -34,6 +34,7 @@ ${chalk.bold('Options:')}
   --nomodule-output [path]  Filename for nomodule output (default: "app.nomodule.js")
     ${chalk.bold('Advanced:')}
   --external-package [val]  Internal use only, may be removed at any time.
+  --open                    Opens the application in a new browser-tab.
     `.trim(),
   );
 }

@@ -86,6 +86,7 @@ export interface SnowpackConfig {
     port: number;
     out: string;
     fallback: string;
+    open: boolean;
     bundle: boolean | undefined;
   };
   installOptions: {
@@ -109,6 +110,7 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
   reload?: boolean;
   config?: string; // manual path to config file
   env?: string[]; // env vars
+  open?: string[];
 }
 
 // default settings
@@ -129,6 +131,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   },
   devOptions: {
     port: 8080,
+    open: false,
     out: 'build',
     fallback: 'index.html',
     bundle: undefined,
