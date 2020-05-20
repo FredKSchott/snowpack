@@ -565,7 +565,7 @@ export async function command(commandOptions: CommandOptions) {
           const [, mtime] = reqUrl.split('?');
 
           // Transform when it's a buffer!
-          if (hotCachedResponse.toString) hotCachedResponse = hotCachedResponse.toString();
+          if (Buffer.isBuffer(hotCachedResponse)) hotCachedResponse = hotCachedResponse.toString();
 
           hotCachedResponse = await transformEsmImports(hotCachedResponse as string, (imp) => {
             const spec = path.posix.resolve(path.posix.dirname(reqPath), imp);
