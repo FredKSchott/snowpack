@@ -678,13 +678,16 @@ export async function command(commandOptions: CommandOptions) {
   // Live Reload + File System Watching
   let isLiveReloadPaused = false;
 
-  function updateOrBubble(url: string) {
+  function updateOrBubble(url: string, visited: Set<string>) {
+    if (visited.has(url)) return;
+
+    visited.add(url);
     const node = dependencyTree.get(url);
     if (node && node.isHmrEnabled) {
       hmrEngine.broadcastMessage('message', {type: 'update', url});
     } else if (node && node.dependents.size > 0) {
       node.needsUpdate = true;
-      node.dependents.forEach(updateOrBubble);
+      node.dependents.forEach((dep) => updateOrBubble(dep, visited));
     } else {
       // We've reached the top, trigger a full page refresh
       hmrEngine.broadcastMessage('message', {type: 'reload'});
@@ -693,7 +696,7 @@ export async function command(commandOptions: CommandOptions) {
   async function onWatchEvent(fileLoc) {
     const fileUrl = getUrlFromFile(mountedDirectories, fileLoc) as string;
     if (!isLiveReloadPaused) {
-      updateOrBubble(fileUrl);
+      updateOrBubble(fileUrl, new Set());
     }
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);
