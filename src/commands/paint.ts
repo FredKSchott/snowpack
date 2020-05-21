@@ -78,7 +78,10 @@ export function paint(
       const dots = chalk.dim(''.padEnd(dotLength, '.'));
       const [fmt, stateString] = getStateString(workerState, !!devMode);
       const spacer = ' '; //.padEnd(8 - stateString.length);
-      const cmdMsg = `${config.plugin && config.cmd[0] !== '(' ? '(plugin) ' : ''}${config.cmd}`;
+      let cmdMsg = `${config.plugin && config.cmd[0] !== '(' ? '(plugin) ' : ''}${config.cmd}`;
+      if (cmdMsg.length > 52) {
+        cmdMsg = cmdMsg.substr(0, 52) + '...';
+      }
       const cmdStr = stateString === 'FAIL' ? chalk.red(cmdMsg) : chalk.dim(cmdMsg);
       process.stdout.write(`  ${config.id}${dots}[${fmt(stateString)}]${spacer}${cmdStr}\n`);
     }

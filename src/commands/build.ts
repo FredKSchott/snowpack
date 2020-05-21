@@ -143,7 +143,7 @@ export async function command(commandOptions: CommandOptions) {
     let allFiles;
     try {
       allFiles = glob.sync(`**/*`, {
-        ignore: config.exclude,
+        ignore: id === 'mount:web_modules' ? [] : config.exclude,
         cwd: dirDisk,
         absolute: true,
         nodir: true,
