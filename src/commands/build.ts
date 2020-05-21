@@ -9,7 +9,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import {BuildScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
-import {CommandOptions, ImportMap} from '../util';
+import {CommandOptions, ImportMap, BUILD_DEPENDENCIES_DIR} from '../util';
 import {
   getFileBuilderForWorker,
   wrapCssModuleResponse,
@@ -19,9 +19,15 @@ import {
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 import {stopEsbuild} from './esbuildPlugin';
+import {command as installCommand} from './install';
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
+
+  // Start with a fresh install of your dependencies, for production
+  commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'production';
+  commandOptions.config.installOptions.dest = BUILD_DEPENDENCIES_DIR;
+  await installCommand(commandOptions);
 
   const messageBus = new EventEmitter();
   const relevantWorkers: BuildScript[] = [];
@@ -148,11 +154,12 @@ export async function command(commandOptions: CommandOptions) {
         allFiles.map(async (f) => {
           f = path.resolve(f); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
           if (
-            allBuildExtensions.includes(path.extname(f).substr(1)) ||
-            path.extname(f) === '.jsx' ||
-            path.extname(f) === '.tsx' ||
-            path.extname(f) === '.ts' ||
-            path.extname(f) === '.js'
+            !f.startsWith(commandOptions.config.installOptions.dest) &&
+            (allBuildExtensions.includes(path.extname(f).substr(1)) ||
+              path.extname(f) === '.jsx' ||
+              path.extname(f) === '.tsx' ||
+              path.extname(f) === '.ts' ||
+              path.extname(f) === '.js')
           ) {
             allBuildNeededFiles.push(f);
             return;
