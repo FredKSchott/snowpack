@@ -1,7 +1,18 @@
 {
-  "presets": [["@babel/preset-react", {
-    "pragma": "h",
-    "pragmaFrag": "Fragment"
-  }], "@babel/preset-typescript"],
-  "plugins": ["@babel/plugin-syntax-import-meta", "react-refresh/babel"]
+  "presets": [
+    [
+      "@babel/preset-react",
+      {
+        "pragma": "h",
+        "pragmaFrag": "Fragment"
+      }
+    ],
+    "@babel/preset-typescript"
+  ],
+  "plugins": ["@babel/plugin-syntax-import-meta"],
+  "env": {
+    "development": {
+      "plugins": ["react-refresh/babel"]
+    }
+  }
 }

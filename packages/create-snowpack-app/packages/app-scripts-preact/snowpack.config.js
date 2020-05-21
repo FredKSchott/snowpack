@@ -6,7 +6,6 @@ const isTS = fs.existsSync(path.join(cwd, "tsconfig.json"));
 
 const scripts = {
   "mount:public": "mount public --to /",
-  "mount:web_modules": "mount web_modules",
   "mount:src": "mount src --to /_dist_",
 };
 
