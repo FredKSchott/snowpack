@@ -8,6 +8,8 @@ const REGISTERED_MODULES = {};
 class HotModuleState {
   constructor(id) {
     this.isLocked = false;
+    this.isDeclined = false;
+    this.acceptCallbacks = [];
     this.disposeCallbacks = [];
     this.id = id;
   }
@@ -18,13 +20,16 @@ class HotModuleState {
     this.disposeCallbacks.push(callback);
   }
   accept(callback = true) {
-    if (!this.isLocked) {
-      this.acceptCallback = callback;
+    if (this.isLocked) {
+      return;
     }
-    this.isLocked = true;
+    this.acceptCallbacks.push(callback);
   }
   invalidate() {
     reload();
+  }
+  decline() {
+    this.isDeclined = true;
   }
 }
 export function createHotContext(fullUrl) {
@@ -43,18 +48,24 @@ async function applyUpdate(id) {
   if (!state) {
     return false;
   }
-  const acceptCallback = state.acceptCallback;
+  if (state.isDeclined) {
+    return false;
+  }
+  const data = {};
+  const acceptCallbacks = state.acceptCallbacks;
   const disposeCallbacks = state.disposeCallbacks;
   state.disposeCallbacks = [];
-  if (acceptCallback) {
-    const module = await import(state.id + `?mtime=${Date.now()}`);
-    if (acceptCallback === true) {
-      // Do nothing, importing the module side-effects was enough.
-    } else {
-      await acceptCallback({module});
-    }
+  disposeCallbacks.map((callback) => callback({data}));
+  if (acceptCallbacks.length > 0) {
+    const module = await import(id + `?mtime=${Date.now()}`);
+    acceptCallbacks.forEach((callback) => {
+      if (callback === true) {
+        // Do nothing, importing the module side-effects was enough.
+      } else {
+        callback({module, data});
+      }
+    });
   }
-  await Promise.all(disposeCallbacks.map((cb) => cb()));
   return true;
 }
 const source = new EventSource('/livereload');
