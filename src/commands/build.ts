@@ -9,17 +9,17 @@ import path from 'path';
 import rimraf from 'rimraf';
 import {BuildScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
-import {CommandOptions, ImportMap, BUILD_DEPENDENCIES_DIR} from '../util';
+import {BUILD_DEPENDENCIES_DIR, CommandOptions, ImportMap} from '../util';
 import {
   getFileBuilderForWorker,
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
   wrapJSModuleResponse,
 } from './build-util';
-import {paint} from './paint';
-import srcFileExtensionMapping from './src-file-extension-mapping';
 import {stopEsbuild} from './esbuildPlugin';
 import {command as installCommand} from './install';
+import {paint} from './paint';
+import srcFileExtensionMapping from './src-file-extension-mapping';
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;

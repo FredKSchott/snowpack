@@ -39,9 +39,16 @@ import os from 'os';
 import path from 'path';
 import url from 'url';
 import {BuildScript, SnowpackPluginBuildResult} from '../config';
-import {transformEsmImports, scanCodeImportsExports} from '../rewrite-imports';
-import {BUILD_CACHE, CommandOptions, ImportMap, openInBrowser, DEV_DEPENDENCIES_DIR} from '../util';
-import {addCommand} from './add-rm';
+import {EsmHmrEngine} from '../hmr-server-engine';
+import {scanCodeImportsExports, transformEsmImports} from '../rewrite-imports';
+import {
+  BUILD_CACHE,
+  CommandOptions,
+  DEV_DEPENDENCIES_DIR,
+  ImportMap,
+  isYarn,
+  openInBrowser,
+} from '../util';
 import {
   FileBuilder,
   getFileBuilderForWorker,
@@ -53,7 +60,6 @@ import {
 import {command as installCommand} from './install';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
-import {EsmHmrEngine} from '../hmr-server-engine';
 
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
@@ -178,6 +184,7 @@ export async function command(commandOptions: CommandOptions) {
     }
     const ext = path.extname(fileLoc).substr(1);
     if (ext === 'js' || srcFileExtensionMapping[ext] === 'js') {
+      let missingWebModule: {spec: string; pkgName: string} | null = null;
       builtFileResult.result = await transformEsmImports(builtFileResult.result, (spec) => {
         if (spec.startsWith('http')) {
           return spec;
@@ -226,14 +233,18 @@ export async function command(commandOptions: CommandOptions) {
             currentlyRunningCommand = null;
           });
         } else if (!doesPackageExist) {
-          messageBus.emit('MISSING_WEB_MODULE', {
+          missingWebModule = {
             spec: spec,
             pkgName: missingPackageName,
-          });
+          };
         }
         return `/web_modules/${spec}.js`;
       });
 
+      messageBus.emit('MISSING_WEB_MODULE', {
+        id: fileLoc,
+        data: missingWebModule,
+      });
       const isHmrEnabled = builtFileResult.result.includes('import.meta.hot');
       const rawImports = await scanCodeImportsExports(builtFileResult.result);
       const resolvedImports = rawImports.map((imp) => {
@@ -690,7 +701,20 @@ export async function command(commandOptions: CommandOptions) {
     addPackage: async (pkgName) => {
       isLiveReloadPaused = true;
       messageBus.emit('INSTALLING');
-      currentlyRunningCommand = addCommand(pkgName, commandOptions);
+      currentlyRunningCommand = execa(
+        isYarn(cwd) ? 'yarn' : 'npm',
+        isYarn(cwd) ? ['add', pkgName] : ['install', '--save', pkgName],
+        {
+          env: npmRunPath.env(),
+          extendEnv: true,
+          shell: true,
+          cwd,
+        },
+      );
+      currentlyRunningCommand.stdout.on('data', (data) => process.stdout.write(data));
+      currentlyRunningCommand.stderr.on('data', (data) => process.stderr.write(data));
+      await currentlyRunningCommand;
+      currentlyRunningCommand = installCommand(commandOptions);
       await currentlyRunningCommand;
       currentlyRunningCommand = null;
       dependencyImportMap = JSON.parse(

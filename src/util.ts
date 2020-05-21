@@ -28,6 +28,10 @@ export interface CommandOptions {
   pkgManifest: any;
 }
 
+export function isYarn(cwd: string) {
+  return fs.existsSync(path.join(cwd, 'yarn.lock'));
+}
+
 export async function readLockfile(cwd: string): Promise<ImportMap | null> {
   try {
     var lockfileContents = fs.readFileSync(path.join(cwd, 'snowpack.lock.json'), {

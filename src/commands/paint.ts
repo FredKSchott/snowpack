@@ -1,9 +1,11 @@
-import {EventEmitter} from 'events';
 import ansiEscapes from 'ansi-escapes';
 import chalk from 'chalk';
-import util from 'util';
+import {EventEmitter} from 'events';
 import readline from 'readline';
+import util from 'util';
 import {BuildScript} from '../config';
+import {isYarn} from '../util';
+const cwd = process.cwd();
 
 function getStateString(workerState: any, isWatch: boolean): [chalk.ChalkFunction, string] {
   if (workerState.state) {
@@ -42,7 +44,7 @@ export function paint(
   let installOutput = '';
   let isInstalling = false;
   let hasBeenCleared = false;
-  let missingWebModule: null | {spec: string; pkgName: string} = null;
+  let missingWebModule: null | {id: string; spec: string; pkgName: string} = null;
   const allWorkerStates: any = {};
 
   for (const config of registeredWorkers) {
@@ -88,23 +90,23 @@ export function paint(
       return;
     }
     if (missingWebModule) {
-      const {pkgName, spec} = missingWebModule;
+      const {id, pkgName, spec} = missingWebModule;
       process.stdout.write(`${chalk.red.underline.bold('▼ Snowpack')}\n\n`);
       if (devMode) {
         process.stdout.write(`  Package ${chalk.bold(pkgName)} not found!\n`);
-        process.stdout.write(chalk.dim(`  import '${spec}';`));
+        process.stdout.write(chalk.dim(`  in ${id}`));
         process.stdout.write(`\n\n`);
-        process.stdout.write(`  Exit Snowpack and install it with npm/yarn to continue.\n`);
         process.stdout.write(
-          `  Or, ${chalk.bold(
-            'Press Enter',
-          )} to automatically install the package to  "webDependencies".\n`,
+          `  ${chalk.bold('Press Enter')} to automatically run ${chalk.bold(
+            isYarn(cwd) ? `yarn add ${pkgName}` : `npm install --save ${pkgName}`,
+          )}.\n`,
         );
+        process.stdout.write(`  Or, Exit Snowpack and install manually to continue.\n`);
       } else {
         process.stdout.write(`  Dependency ${chalk.bold(spec)} not found!\n\n`);
-        process.stdout.write(
-          `  Run ${chalk.bold('snowpack install')} to install all required dependencies.\n\n`,
-        );
+        // process.stdout.write(
+        //   `  Run ${chalk.bold('snowpack install')} to install all required dependencies.\n\n`,
+        // );
         process.exit(1);
       }
       return;
@@ -189,7 +191,6 @@ export function paint(
       consoleOutput = ``;
       hasBeenCleared = true;
     }
-    missingWebModule = null;
     repaint();
   });
   bus.on('INSTALLING', () => {
@@ -199,13 +200,25 @@ export function paint(
   });
   bus.on('INSTALL_COMPLETE', () => {
     setTimeout(() => {
+      missingWebModule = null;
       isInstalling = false;
       installOutput = '';
+      consoleOutput = ``;
+      hasBeenCleared = true;
       repaint();
     }, 2000);
   });
-  bus.on('MISSING_WEB_MODULE', ({spec, pkgName}) => {
-    missingWebModule = {spec, pkgName};
+  bus.on('MISSING_WEB_MODULE', ({id, data}) => {
+    if (!missingWebModule && data) {
+      missingWebModule = {id, ...data};
+    }
+    if (missingWebModule && missingWebModule.id === id) {
+      if (!data) {
+        missingWebModule = null;
+      } else {
+        missingWebModule = {id, ...data};
+      }
+    }
     repaint();
   });
 
