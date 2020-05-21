@@ -93,4 +93,5 @@ CLI flags will be merged with (and take priority over) your config file values. 
   - If undefined, this option will be enabled if the `parcel` package is found.
 - **`fallback`** | `string` | Default: `"index.html"`
   - When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
-
+- **`open`** | `string` | Default: `"default"`
+  - Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave".
