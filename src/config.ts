@@ -86,7 +86,7 @@ export interface SnowpackConfig {
     port: number;
     out: string;
     fallback: string;
-    open: boolean;
+    open: string;
     bundle: boolean | undefined;
   };
   installOptions: {
@@ -131,7 +131,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   },
   devOptions: {
     port: 8080,
-    open: true,
+    open: 'default',
     out: 'build',
     fallback: 'index.html',
     bundle: undefined,
@@ -160,7 +160,7 @@ const configSchema = {
         out: {type: 'string'},
         fallback: {type: 'string'},
         bundle: {type: 'boolean'},
-        open: {type: 'boolean'},
+        open: {type: 'string'},
       },
     },
     installOptions: {
