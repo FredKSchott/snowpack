@@ -76,6 +76,7 @@
     "jsonschema": "^1.2.5",
     "mime-types": "^2.1.26",
     "mkdirp": "^1.0.3",
+    "open": "^7.0.4",
     "ora": "^4.0.4",
     "p-queue": "^6.2.1",
     "resolve-from": "^5.0.0",

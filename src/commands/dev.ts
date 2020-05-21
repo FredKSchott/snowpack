@@ -699,6 +699,6 @@ export async function command(commandOptions: CommandOptions) {
     },
   });
 
-  if (open) await openInBrowser(port);
+  if (open !== 'none') await openInBrowser(port, open);
   return new Promise(() => {});
 }

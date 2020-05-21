@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import execa from 'execa';
+import open from 'open';
 import got, {CancelableRequest, Response} from 'got';
 import cachedir from 'cachedir';
 import {SnowpackConfig} from './config';
@@ -121,13 +122,31 @@ export const MISSING_PLUGIN_SUGGESTIONS: {[ext: string]: string} = {
     'Try installing rollup-plugin-vue and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)',
 };
 
-export async function openInBrowser(port) {
+const appNames = {
+  win32: {
+    brave: 'brave',
+    chrome: 'chrome',
+  },
+  darwin: {
+    brave: 'Brave Browser',
+    chrome: 'Google Chrome',
+  },
+  linux: {
+    brave: 'brave',
+    chrome: 'google-chrome',
+  },
+};
+
+export async function openInBrowser(port: number, browser: string) {
   const url = `http://localhost:${port}`;
-  const args = [url];
-  let openCmd = 'xdg-open';
-  if (process.platform === 'darwin') {
-    // If we're on OS X, we can try opening
-    // Chrome with AppleScript. This lets us reuse an
+  browser = /chrome/i.test(browser)
+    ? appNames[process.platform]['chrome']
+    : /brave/i.test(browser)
+    ? appNames[process.platform]['brave']
+    : browser;
+  if (process.platform === 'darwin' && /chrome|default/i.test(browser)) {
+    // If we're on macOS, and we haven't requested a specific browser,
+    // we can try opening Chrome with AppleScript. This lets us reuse an
     // existing tab when possible instead of creating a new one.
     try {
       await execa.command('ps cax | grep "Google Chrome"', {
@@ -140,15 +159,10 @@ export async function openInBrowser(port) {
       });
       return true;
     } catch (err) {
-      // If OSX auto-reuse doesn't work, just open normally.
-      openCmd = 'open';
+      // If macOS auto-reuse doesn't work, just open normally, using default browser.
+      open(url);
     }
+  } else {
+    browser === 'default' ? open(url) : open(url, {app: browser});
   }
-  if (process.platform === 'win32') {
-    openCmd = 'start';
-    args.unshift('');
-  }
-  execa(openCmd, args).catch(() => {
-    // couldn't open automatically, safe to ignore
-  });
 }
