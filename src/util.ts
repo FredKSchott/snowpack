@@ -2,9 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import execa from 'execa';
 import open from 'open';
-import got, { CancelableRequest, Response } from 'got';
+import got, {CancelableRequest, Response} from 'got';
 import cachedir from 'cachedir';
-import { SnowpackConfig } from './config';
+import {SnowpackConfig} from './config';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const CACHE_DIR = cachedir('snowpack');
@@ -12,7 +12,7 @@ export const RESOURCE_CACHE = path.join(CACHE_DIR, 'pkg-cache-1.4');
 export const BUILD_CACHE = path.join(CACHE_DIR, 'build-cache-1.4');
 export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
 export interface ImportMap {
-  imports: { [packageName: string]: string };
+  imports: {[packageName: string]: string};
 }
 
 export interface CommandOptions {
@@ -36,11 +36,11 @@ export async function readLockfile(cwd: string): Promise<ImportMap | null> {
 }
 
 export async function writeLockfile(loc: string, importMap: ImportMap): Promise<void> {
-  const sortedImportMap: ImportMap = { imports: {} };
+  const sortedImportMap: ImportMap = {imports: {}};
   for (const key of Object.keys(importMap.imports).sort()) {
     sortedImportMap.imports[key] = importMap.imports[key];
   }
-  fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), { encoding: 'utf8' });
+  fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
 }
 
 export function fetchCDNResource(
@@ -53,7 +53,7 @@ export function fetchCDNResource(
   // @ts-ignore - TS doesn't like responseType being unknown amount three options
   return got(resourceUrl, {
     responseType: responseType,
-    headers: { 'user-agent': `snowpack/v1.4 (https://snowpack.dev)` },
+    headers: {'user-agent': `snowpack/v1.4 (https://snowpack.dev)`},
     throwHttpErrors: false,
   });
 }
@@ -76,7 +76,7 @@ export function resolveDependencyManifest(dep: string, cwd: string) {
   // include a package.json. If we detect that to be the reason for failure,
   // move on to our custom implementation.
   try {
-    const depManifest = require.resolve(`${dep}/package.json`, { paths: [cwd] });
+    const depManifest = require.resolve(`${dep}/package.json`, {paths: [cwd]});
     return [depManifest, require(depManifest)];
   } catch (err) {
     // if its an export map issue, move on to our manual resolver.
@@ -92,7 +92,7 @@ export function resolveDependencyManifest(dep: string, cwd: string) {
   // established & move out of experimental mode.
   let result = [null, null] as [string | null, any | null];
   try {
-    const fullPath = require.resolve(dep, { paths: [cwd] });
+    const fullPath = require.resolve(dep, {paths: [cwd]});
     // Strip everything after the package name to get the package root path
     // NOTE: This find-replace is very gross, replace with something like upath.
     const searchPath = `${path.sep}node_modules${path.sep}${dep.replace('/', path.sep)}`;
@@ -101,7 +101,7 @@ export function resolveDependencyManifest(dep: string, cwd: string) {
       const manifestPath =
         fullPath.substring(0, indexOfSearch + searchPath.length + 1) + 'package.json';
       result[0] = manifestPath;
-      const manifestStr = fs.readFileSync(manifestPath, { encoding: 'utf8' });
+      const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf8'});
       result[1] = JSON.parse(manifestStr);
     }
   } catch (err) {
@@ -115,7 +115,7 @@ export function resolveDependencyManifest(dep: string, cwd: string) {
  * If Rollup erred parsing a particular file, show suggestions based on its
  * file extension (note: lowercase is fine).
  */
-export const MISSING_PLUGIN_SUGGESTIONS: { [ext: string]: string } = {
+export const MISSING_PLUGIN_SUGGESTIONS: {[ext: string]: string} = {
   '.svelte':
     'Try installing rollup-plugin-svelte and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)',
   '.vue':
@@ -124,27 +124,27 @@ export const MISSING_PLUGIN_SUGGESTIONS: { [ext: string]: string } = {
 
 const appNames = {
   win32: {
-    brave: "brave",
-    chrome: "chrome"
+    brave: 'brave',
+    chrome: 'chrome',
   },
   darwin: {
-    brave: "Brave Browser",
-    chrome: "Google Chrome"
+    brave: 'Brave Browser',
+    chrome: 'Google Chrome',
   },
   linux: {
-    brave: "brave",
-    chrome: "google-chrome"
-  }
-}
+    brave: 'brave',
+    chrome: 'google-chrome',
+  },
+};
 
 export async function openInBrowser(port: number, browser: string) {
   const url = `http://localhost:${port}`;
   browser = /chrome/i.test(browser)
-    ? appNames[process.platform]["chrome"]
+    ? appNames[process.platform]['chrome']
     : /brave/i.test(browser)
-      ? appNames[process.platform]["brave"]
-      : browser;
-  if (process.platform === 'darwin' && /chrome|default/.test(browser)) {
+    ? appNames[process.platform]['brave']
+    : browser;
+  if (process.platform === 'darwin' && /chrome|default/i.test(browser)) {
     // If we're on macOS, and we haven't requested a specific browser,
     // we can try opening Chrome with AppleScript. This lets us reuse an
     // existing tab when possible instead of creating a new one.
@@ -163,6 +163,6 @@ export async function openInBrowser(port: number, browser: string) {
       open(url);
     }
   } else {
-    browser === 'default' ? open(url) : open(url, { app: browser });
+    browser === 'default' ? open(url) : open(url, {app: browser});
   }
 }
