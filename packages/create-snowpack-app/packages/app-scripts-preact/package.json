@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-preact",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"
@@ -13,8 +13,8 @@
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
     "@prefresh/snowpack": "0.1.0",
-    "@snowpack/babel-plugin-package-import": "^0.6.1",
-    "@snowpack/plugin-babel": "^0.6.1",
+    "@snowpack/babel-plugin-package-import": "^0.7.0",
+    "@snowpack/plugin-babel": "^0.7.0",
     "babel-jest": "^25.4.0",
     "react-app-polyfill": "^1.0.6",
     "react-refresh": "^0.8.2"

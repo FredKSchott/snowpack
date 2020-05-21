@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-blank",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "license": "MIT",
   "keywords": [
     "csa-template"
