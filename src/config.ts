@@ -330,7 +330,7 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
       id: 'mount:web_modules',
       type: 'mount',
       match: ['web_modules'],
-      cmd: `mount web_modules --to /web_modules`,
+      cmd: `mount $WEB_MODULES --to /web_modules`,
       args: {
         fromDisk,
         toUrl: '/web_modules',
