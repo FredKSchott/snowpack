@@ -1,0 +1,13 @@
+{
+  "name": "@snowpack/plugin-react-refresh",
+  "version": "0.6.2",
+  "main": "plugin.js",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "react-refresh": "^0.8.0"
+  },
+  "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
+}

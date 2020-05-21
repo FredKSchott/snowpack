@@ -17,12 +17,9 @@ if (isTS) {
 
 module.exports = {
   scripts,
+  plugins: ["@snowpack/plugin-babel", "@prefresh/snowpack"],
   devOptions: {},
   installOptions: {
     installTypes: isTS,
   },
-  plugins: [
-    "@snowpack/plugin-babel",
-    "@prefresh/snowpack"
-  ]
 };

@@ -4,9 +4,6 @@ module.exports = function plugin(config, options) {
   return {
     defaultBuildScript: "build:js,jsx,ts,tsx",
     async build({ contents, filePath, fileContents }) {
-      if (filePath.includes("web_modules")) {
-        return { result: contents };
-      }
       const result = await babel.transformAsync(contents || fileContents, {
         filename: filePath,
         cwd: process.cwd(),
