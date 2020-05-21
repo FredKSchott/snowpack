@@ -55,13 +55,6 @@ import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 import {EsmHmrEngine} from '../hmr-server-engine';
 
-interface Dependency {
-  dependents: Set<string>;
-  dependencies: Set<string>;
-  isHmrEnabled?: boolean;
-  needsUpdate?: boolean;
-}
-
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
 function getEncodingType(ext: string): 'utf8' | 'binary' {
@@ -120,7 +113,6 @@ export async function command(commandOptions: CommandOptions) {
 
   const {port, open} = config.devOptions;
   const hmrEngine = new EsmHmrEngine();
-  const dependencyTree = new Map<string, Dependency>();
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
   const filesBeingDeleted = new Set<string>();
@@ -144,22 +136,6 @@ export async function command(commandOptions: CommandOptions) {
     );
   } catch (err) {
     // no import-map found, safe to ignore
-  }
-
-  const isModule = (url) => url.includes('web_modules') || url.includes('node_modules');
-
-  function addToDependencyTree(fileUrl: string, spec: string) {
-    if (!isModule(spec) && !isModule(fileUrl) && spec !== fileUrl) {
-      let specResult = dependencyTree.get(spec);
-      if (!specResult) {
-        specResult = {dependencies: new Set(), dependents: new Set()};
-        dependencyTree.set(spec, specResult);
-      }
-      specResult.dependents.add(fileUrl);
-
-      const fileResult = dependencyTree.get(fileUrl) as Dependency;
-      fileResult.dependencies.add(spec);
-    }
   }
 
   async function buildFile(
@@ -224,14 +200,6 @@ export async function command(commandOptions: CommandOptions) {
         if (dependencyImportMap.imports[spec]) {
           return path.posix.resolve(`/web_modules`, dependencyImportMap.imports[spec]);
         }
-        let isMissingSpecInstalled = false;
-        try {
-          require.resolve(spec, {paths: [cwd]});
-          isMissingSpecInstalled = true;
-        } catch (err) {
-          // that's fine, ignore
-        }
-
         let [missingPackageName, ...deepPackagePathParts] = spec.split('/');
         if (missingPackageName.startsWith('@')) {
           missingPackageName += '/' + deepPackagePathParts.shift();
@@ -266,38 +234,13 @@ export async function command(commandOptions: CommandOptions) {
         return `/web_modules/${spec}.js`;
       });
 
-      if (!isModule(fileLoc)) {
-        let result = dependencyTree.get(reqPath);
-        if (!result) {
-          result = {dependencies: new Set(), dependents: new Set()};
-          dependencyTree.set(reqPath, result);
-        }
-
-        const existingDependencies = new Set(dependencyTree.get(reqPath)?.dependencies || []);
-        const imports = await scanCodeImportsExports(builtFileResult.result);
-        for (const imp of imports) {
-          const tempSpec = builtFileResult.result.substring(imp.s, imp.e);
-          const spec = path.posix.resolve(path.posix.dirname(reqPath), tempSpec);
-          addToDependencyTree(reqPath, spec);
-          if (existingDependencies.has(spec)) {
-            existingDependencies.delete(spec);
-          }
-        }
-
-        if (existingDependencies.size > 0) {
-          existingDependencies.forEach((spec) => {
-            (result as Dependency).dependencies.delete(spec);
-            const specTree = dependencyTree.get(spec);
-            if (specTree) {
-              specTree.dependents.delete(reqPath);
-            }
-          });
-        }
-
-        if (builtFileResult.result.includes('import.meta.hot')) {
-          result.isHmrEnabled = true;
-        }
-      }
+      const isHmrEnabled = builtFileResult.result.includes('import.meta.hot');
+      const rawImports = await scanCodeImportsExports(builtFileResult.result);
+      const resolvedImports = rawImports.map((imp) => {
+        const spec = builtFileResult.result.substring(imp.s, imp.e);
+        return path.posix.resolve(path.posix.dirname(reqPath), spec);
+      });
+      hmrEngine.setEntry(reqPath, resolvedImports, isHmrEnabled);
     }
 
     return builtFileResult;
@@ -560,18 +503,15 @@ export async function command(commandOptions: CommandOptions) {
       // 1. Check the hot build cache. If it's already found, then just serve it.
       let hotCachedResponse: string | Buffer | undefined = inMemoryBuildCache.get(fileLoc);
       if (hotCachedResponse) {
+        hotCachedResponse = hotCachedResponse.toString(getEncodingType(requestedFileExt));
         const isHot = reqUrl.includes('?mtime=');
         if (isHot) {
           const [, mtime] = reqUrl.split('?');
-
-          // Transform when it's a buffer!
-          if (Buffer.isBuffer(hotCachedResponse)) hotCachedResponse = hotCachedResponse.toString();
-
           hotCachedResponse = await transformEsmImports(hotCachedResponse as string, (imp) => {
-            const spec = path.posix.resolve(path.posix.dirname(reqPath), imp);
-            const result = dependencyTree.get(spec);
-            if (result && result.needsUpdate) {
-              result.needsUpdate = false;
+            const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
+            const node = hmrEngine.getEntry(importUrl);
+            if (node && node.needsReplacement) {
+              hmrEngine.markEntryForReplacement(node, false);
               return `${imp}?${mtime}`;
             }
             return imp;
@@ -579,7 +519,7 @@ export async function command(commandOptions: CommandOptions) {
         }
 
         const wrappedResponse = await wrapResponse(
-          hotCachedResponse.toString(getEncodingType(requestedFileExt)),
+          hotCachedResponse,
           inMemoryResourceCache.get(reqPath.replace(/.js$/, '.css')),
         );
         sendFile(req, res, wrappedResponse, responseFileExt);
@@ -682,11 +622,11 @@ export async function command(commandOptions: CommandOptions) {
     if (visited.has(url)) return;
 
     visited.add(url);
-    const node = dependencyTree.get(url);
+    const node = hmrEngine.getEntry(url);
     if (node && node.isHmrEnabled) {
       hmrEngine.broadcastMessage('message', {type: 'update', url});
     } else if (node && node.dependents.size > 0) {
-      node.needsUpdate = true;
+      hmrEngine.markEntryForReplacement(node, true);
       node.dependents.forEach((dep) => updateOrBubble(dep, visited));
     } else {
       // We've reached the top, trigger a full page refresh
@@ -694,7 +634,10 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
   async function onWatchEvent(fileLoc) {
-    const fileUrl = getUrlFromFile(mountedDirectories, fileLoc) as string;
+    const fileUrl = getUrlFromFile(mountedDirectories, fileLoc);
+    if (!fileUrl) {
+      return;
+    }
     if (!isLiveReloadPaused) {
       updateOrBubble(fileUrl, new Set());
     }
