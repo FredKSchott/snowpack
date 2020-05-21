@@ -3,5 +3,5 @@
     "pragma": "h",
     "pragmaFrag": "Fragment"
   }], "@babel/preset-typescript"],
-  "plugins": ["@babel/plugin-syntax-import-meta", "babel-plugin-macros"]
+  "plugins": ["@babel/plugin-syntax-import-meta", "react-refresh/babel"]
 }

@@ -21,4 +21,8 @@ module.exports = {
   installOptions: {
     installTypes: isTS,
   },
+  plugins: [
+    "@snowpack/plugin-babel",
+    "@prefresh/snowpack"
+  ]
 };

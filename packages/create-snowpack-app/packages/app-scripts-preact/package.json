@@ -12,9 +12,12 @@
     "@babel/preset-env": "^7.9.5",
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
+    "@prefresh/snowpack": "0.1.0",
     "@snowpack/babel-plugin-package-import": "^0.6.1",
+    "@snowpack/plugin-babel": "^0.6.1",
     "babel-jest": "^25.4.0",
-    "react-app-polyfill": "^1.0.6"
+    "react-app-polyfill": "^1.0.6",
+    "react-refresh": "^0.8.2"
   },
   "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
 }
