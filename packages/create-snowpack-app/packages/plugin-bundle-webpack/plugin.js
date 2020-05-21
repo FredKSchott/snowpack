@@ -18,11 +18,38 @@ async function compilePromise(webpackConfig) {
   });
 }
 
+function chain(object, keys) {
+  let cur = object;
+  for (const key of keys) {
+    if (Object.keys(cur).includes(key)) {
+      cur = cur[key];
+    } else {
+      return undefined;
+    }
+  }
+  return cur;
+}
+
 module.exports = function plugin(config, args) {
   return {
     async bundle({ srcDirectory, destDirectory, log, jsFilePaths }) {
-      let homepage = config.homepage || "";
-      let fallback = config.devOptions?.fallback || "index.html";
+      let homepage = config.homepage || "/";
+      let fallback = chain(config, ["devOptions", "fallback"]) || "index.html";
+
+      const jsOutputPattern =
+        chain(args, ["outputPatterns", "js"]) || "js/bundle-[hash].js";
+      const cssOutputPattern =
+        chain(args, ["outputPatterns", "css"]) || "css/style-[hash].css";
+      const assetsOutputPattern =
+        chain(args, ["outputPatterns", "assets"]) ||
+        "assets/[name]-[hash].[ext]";
+
+      if (!jsOutputPattern.endsWith(".js")) {
+        throw new Error("Output Pattern for JS must end in .js");
+      }
+      if (!cssOutputPattern.endsWith(".css")) {
+        throw new Error("Output Pattern for CSS must end in .css");
+      }
 
       let extendConfig = (cfg) => cfg;
       if (typeof args.extendConfig === "function") {
@@ -88,18 +115,24 @@ module.exports = function plugin(config, args) {
                 {
                   loader: "file-loader",
                   options: {
-                    name: "assets/[name]-[hash].[ext]",
+                    name: assetsOutputPattern,
                   },
                 },
               ],
             },
           ],
         },
-        mode: "production",
+        mode: args.mode || "production",
+        devtool: args.sourceMap ? "source-map" : undefined,
+        optimization: Object.keys(args).includes("minify")
+          ? {
+              minimize: args.minify,
+            }
+          : undefined,
         plugins: [
           //Extract a css file from imported css files
           new MiniCssExtractPlugin({
-            filename: "css/style-[hash].css",
+            filename: cssOutputPattern,
           }),
           //Copy other files to the destination, excluding ones that are no longer useful
           new CopyPlugin({
@@ -108,7 +141,11 @@ module.exports = function plugin(config, args) {
                 from: srcDirectory,
                 to: destDirectory,
                 globOptions: {
-                  ignore: [`/${fallback}`, "**/_dist_/**", "**/web_modules/**"],
+                  ignore: [
+                    path.join(srcDirectory, fallback),
+                    "**/_dist_/**",
+                    "**/web_modules/**",
+                  ],
                 },
               },
             ],
@@ -122,28 +159,39 @@ module.exports = function plugin(config, args) {
           entry: path.join(srcDirectory, entryPoint),
           output: {
             path: destDirectory,
-            filename: "js/bundle-[hash].js",
+            filename: jsOutputPattern,
           },
         })
       ).catch((err) => {
         console.log(err);
       });
 
-      //Now that webpack is done, modify the html file to point to the newly compiled resources
-      scriptEl.src = path.join(homepage, `/js/bundle-${stats.hash}.js`);
-      let hasCSS = Object.keys(stats.compilation.assets).some((d) =>
-        d.endsWith(".css")
-      );
+      if (!args.skipFallbackOutput) {
+        let assetFiles =
+          chain(
+            stats.toJson({
+              assets: false,
+              hash: true,
+            }),
+            ["entrypoints", "main", "assets"]
+          ) || [];
 
-      if (hasCSS) {
-        let csslink = dom.window.document.createElement("link");
-        csslink.setAttribute("rel", "stylesheet");
-        csslink.href = path.join(homepage, `/css/style-${stats.hash}.css`);
-        dom.window.document.querySelector("head").append(csslink);
+        let jsFile = assetFiles.find((d) => d.endsWith(".js"));
+        let cssFile = assetFiles.find((d) => d.endsWith(".css"));
+
+        //Now that webpack is done, modify the html file to point to the newly compiled resources
+        scriptEl.src = path.join(homepage, jsFile);
+
+        if (cssFile) {
+          let csslink = dom.window.document.createElement("link");
+          csslink.setAttribute("rel", "stylesheet");
+          csslink.href = path.join(homepage, cssFile);
+          dom.window.document.querySelector("head").append(csslink);
+        }
+
+        //And write our modified html file out to the destination
+        fs.writeFileSync(path.join(destDirectory, fallback), dom.serialize());
       }
-
-      //And write our modified html file out to the destination
-      fs.writeFileSync(path.join(destDirectory, fallback), dom.serialize());
     },
   };
 };
