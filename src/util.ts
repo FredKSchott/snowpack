@@ -3,13 +3,19 @@ import path from 'path';
 import execa from 'execa';
 import open from 'open';
 import got, {CancelableRequest, Response} from 'got';
-import cachedir from 'cachedir';
+import globalCacheDir from 'cachedir';
+import projectCacheDir from 'find-cache-dir';
 import {SnowpackConfig} from './config';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
-export const CACHE_DIR = cachedir('snowpack');
-export const RESOURCE_CACHE = path.join(CACHE_DIR, 'pkg-cache-1.4');
-export const BUILD_CACHE = path.join(CACHE_DIR, 'build-cache-1.4');
+export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
+export const RESOURCE_CACHE = path.join(GLOBAL_CACHE_DIR, 'pkg-cache-1.4');
+export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-1.4');
+
+export const PROJECT_CACHE_DIR = projectCacheDir({name: 'snowpack'});
+export const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'dev');
+export const BUILD_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'build');
+
 export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
 export interface ImportMap {
   imports: {[packageName: string]: string};

@@ -6,6 +6,7 @@ import {all as merge} from 'deepmerge';
 import chalk from 'chalk';
 import yargs from 'yargs-parser';
 import {esbuildPlugin} from './commands/esbuildPlugin';
+import {DEV_DEPENDENCIES_DIR, BUILD_DEPENDENCIES_DIR} from './util';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -322,6 +323,23 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
     }
   }
 
+  if (!scripts['mount:web_modules']) {
+    const fromDisk =
+      process.env.NODE_ENV === 'production' ? BUILD_DEPENDENCIES_DIR : DEV_DEPENDENCIES_DIR;
+    const fromDiskHumanReadable =
+      process.env.NODE_ENV === 'production' ? '.cache/snowpack/build' : '.cache/snowpack/dev';
+    processedScripts.push({
+      id: 'mount:web_modules',
+      type: 'mount',
+      match: ['web_modules'],
+      cmd: `mount ${fromDiskHumanReadable} --to /web_modules`,
+      args: {
+        fromDisk,
+        toUrl: '/web_modules',
+      },
+    });
+  }
+
   const defaultBuildMatch = ['js', 'jsx', 'ts', 'tsx'].filter((ext) => !allBuildMatch.has(ext));
   if (defaultBuildMatch.length > 0) {
     const defaultBuildWorkerConfig = {
@@ -335,6 +353,12 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
   }
   processedScripts.sort((a, b) => {
     if (a.type === b.type) {
+      if (a.id === 'mount:web_modules') {
+        return 1;
+      }
+      if (b.id === 'mount:web_modules') {
+        return -1;
+      }
       return a.id.localeCompare(b.id);
     }
     return SCRIPT_TYPES_WEIGHTED[a.type] - SCRIPT_TYPES_WEIGHTED[b.type];

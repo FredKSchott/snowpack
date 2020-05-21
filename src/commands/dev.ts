@@ -40,7 +40,7 @@ import path from 'path';
 import url from 'url';
 import {BuildScript, SnowpackPluginBuildResult} from '../config';
 import {transformEsmImports, scanCodeImportsExports} from '../rewrite-imports';
-import {BUILD_CACHE, CommandOptions, ImportMap, openInBrowser} from '../util';
+import {BUILD_CACHE, CommandOptions, ImportMap, openInBrowser, DEV_DEPENDENCIES_DIR} from '../util';
 import {addCommand} from './add-rm';
 import {
   FileBuilder,
@@ -119,13 +119,13 @@ export async function command(commandOptions: CommandOptions) {
   const filesBeingBuilt = new Map<string, Promise<SnowpackPluginBuildResult>>();
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
+
+  // Start with a fresh install of your dependencies, for development, if needed
+  commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
+  commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'development';
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
   if (!existsSync(dependencyImportMapLoc)) {
-    messageBus.emit('INSTALLING');
-    currentlyRunningCommand = installCommand(commandOptions);
-    await currentlyRunningCommand;
-    currentlyRunningCommand = null;
-    messageBus.emit('INSTALL_COMPLETE');
+    await installCommand(commandOptions);
   }
 
   const serverStart = Date.now();
@@ -397,6 +397,10 @@ export async function command(commandOptions: CommandOptions) {
             requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, '.'));
           } else {
             continue;
+          }
+
+          if (requestedFile.startsWith(commandOptions.config.installOptions.dest)) {
+            return [await attemptLoadFile(requestedFile), null];
           }
 
           if (requestedFileExt) {
