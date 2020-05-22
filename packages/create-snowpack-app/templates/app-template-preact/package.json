@@ -9,7 +9,6 @@
     "access": "public"
   },
   "scripts": {
-    "prepare": "snowpack",
     "start": "snowpack dev",
     "build": "snowpack build",
     "format": "prettier --write 'src/**/*.{js,jsx}'",
