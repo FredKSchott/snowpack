@@ -17,17 +17,5 @@ module.exports = babelJest.createTransformer({
   ],
   plugins: [
     ["@babel/plugin-syntax-import-meta"],
-    [
-      "@snowpack/babel-plugin-package-import",
-      {
-        webModulesUrl: "./web_modules",
-        ignore: [
-          "react",
-          "react-dom",
-          "@testing-library/react",
-          "@testing-library/jest-dom/extend-expect",
-        ],
-      },
-    ],
   ],
 });

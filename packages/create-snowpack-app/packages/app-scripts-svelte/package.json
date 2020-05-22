@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@babel/core": "^7.9.0",
-    "@snowpack/babel-plugin-package-import": "^0.7.0",
     "@snowpack/plugin-svelte": "^0.7.0",
     "babel-jest": "^25.4.0",
     "jest-transform-svelte": "^2.1.1"

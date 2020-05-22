@@ -28,21 +28,5 @@ module.exports = babelJest.createTransformer({
     ],
     "@babel/preset-typescript",
   ],
-  plugins: [
-    "@babel/plugin-syntax-import-meta",
-    [
-      "@snowpack/babel-plugin-package-import",
-      {
-        webModulesUrl: "./web_modules",
-        ignore: [
-          "preact",
-          "preact/hooks",
-          "preact/debug",
-          "preact/compat",
-          "@testing-library/preact",
-          "@testing-library/jest-dom/extend-expect",
-        ],
-      },
-    ],
-  ],
+  plugins: ["@babel/plugin-syntax-import-meta"],
 });

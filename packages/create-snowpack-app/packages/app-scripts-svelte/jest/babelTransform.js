@@ -20,16 +20,5 @@ module.exports = babelJest.createTransformer({
       },
     ],
   ],
-  plugins: [
-    [
-      "@snowpack/babel-plugin-package-import",
-      {
-        webModulesUrl: "./web_modules",
-        ignore: [
-          "@testing-library/svelte",
-          "@testing-library/jest-dom/extend-expect",
-        ],
-      },
-    ],
-  ],
+  plugins: [],
 });

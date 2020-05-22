@@ -10,7 +10,6 @@
     "@babel/plugin-syntax-import-meta": "^7.8.3",
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
-    "@snowpack/babel-plugin-package-import": "^0.7.0",
     "@snowpack/plugin-babel": "^0.7.0",
     "@snowpack/plugin-react-refresh": "^0.7.0",
     "babel-jest": "^25.4.0",
