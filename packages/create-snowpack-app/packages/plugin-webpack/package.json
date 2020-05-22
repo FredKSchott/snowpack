@@ -1,5 +1,5 @@
 {
-  "name": "@snowpack/plugin-bundle-webpack",
+  "name": "@snowpack/plugin-webpack",
   "version": "0.7.1",
   "main": "plugin.js",
   "license": "MIT",
