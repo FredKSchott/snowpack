@@ -364,7 +364,7 @@ export async function command(commandOptions: CommandOptions) {
           continue;
         }
         if (reqPath.startsWith(workerConfig.args.toUrl)) {
-          const newPath = reqPath.substr(workerConfig.args.toUrl);
+          const newPath = reqPath.substr(workerConfig.args.toUrl.length);
           try {
             const response = await got(`${workerConfig.args.fromUrl}${newPath}`, {
               headers: req.headers,
