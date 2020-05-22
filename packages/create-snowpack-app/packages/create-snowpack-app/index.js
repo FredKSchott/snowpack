@@ -8,8 +8,8 @@ const { copy, removeSync } = require("fs-extra");
 const chalk = require("chalk");
 
 function validateArgs(args) {
-  const { template, useYarn, force, _ } = yargs(args);
-  if (_.length === 2) {
+  const { template, useYarn, force, target, _ } = yargs(args);
+  if (!target && _.length === 2) {
     console.error(
       `${chalk.red("[ERROR]")} Missing --target directory. ${chalk.dim(
         chalk.underline("https://github.com/pikapkg/create-snowpack-app")
@@ -33,7 +33,7 @@ function validateArgs(args) {
     );
     process.exit(1);
   }
-  const targetDirectoryRelative = _[2];
+  const targetDirectoryRelative = target || _[2];
   const targetDirectory = path.resolve(process.cwd(), targetDirectoryRelative);
   if (fs.existsSync(targetDirectory) && !force) {
     console.error(
