@@ -124,38 +124,6 @@ Bundle the web application for production.
 👉 **[Back to the main docs.](/)**
 
 
-## HMR API
-
-### Overview
-
-Snowpack implements [ESM-HMR](https://github.com/pikapkg/esm-hot-module-replacement-spec), a standard HMR API for ESM-based dev environments. In fact, we created it! Any HMR integration built for ESM-HMR will run on Snowpack. 
-
-Most Snowpack users will never have to interact with the HMR API directly (via `import.meta.hot`). Instead, plugin authors can create plugins to add automatic HMR support (like [Prefresh](https://github.com/JoviDeCroock/prefresh) from Preact) to users projects. 
-
-Check out [the full ESM-HMR spec](https://github.com/pikapkg/esm-hot-module-replacement-spec) to learn more.
-
-### Example
-
-```js
-
-if (import.meta.hot) {
-  import.meta.hot.accept(({module}) => {
-    // All module updates are decoupled from the application to start.
-    // Do something here to connect new updated modules into the main,
-    // app-connected module. Usually, this involves updating your 
-    // exports to point to the exports of the new `module` object.
-  });
-  import.meta.hot.dispose(() => {
-    // Cleanup anything that could cause side-effects.
-    // Called once a new module version has been loaded.  
-  });
-}
-```
-
-- 👉 **[Check out the full spec.](https://github.com/pikapkg/esm-hot-module-replacement-spec)**
-- 👉 **[Back to the main docs.](/)**
-
-
 ## JavaScript API
 
 ### Overview

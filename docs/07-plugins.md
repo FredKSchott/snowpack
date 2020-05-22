@@ -12,6 +12,10 @@ A build plugin offers one of several different hooks into your application:
 
 [Check out our advanced plugin guide](/plugins) for more details and instructions for how to write your own.
 
+### Plugin API
+
+👉 **[Check out our advanced guide.](/plugins) on how to create your own plugin.**
+
 ### Connect a Plugin
 
 Connect a build plugin to Snowpack via the `"plugins"` array in your Snowpack config;
@@ -33,10 +37,6 @@ This is all you need to connect the plugin. If a build script is provided by the
   "scripts": {"build:js,jsx,mjs,cjs": "@snowpack/plugin-babel"}
 }
 ```
-
-### Create Your Own Plugin
-
-👉 **[Check out our advanced guide.](/plugins)**
 
 
 ### Plugin vs Script?
@@ -71,18 +71,3 @@ But, there are a few reasons you may want to use a build plugin instead of a nor
   "build:vue": "./my-custom-vue-plugin.js",
 }
 ```
-
-
-## Advanced Usage
-
-### Custom Plugin API
-
-👉 **[Check out our advanced guide.](/plugins)**
-
-### Custom HMR API
-
-👉 **[Check out our advanced guide.](/plugins)**
-
-### Programmatic API
-
-👉 **[Check out our advanced guide.](/plugins)**

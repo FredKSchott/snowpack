@@ -10,11 +10,28 @@ Snowpack supports full HMR out-of-the-box for the following served files:
 - CSS Modules
 - JSON
 
-The following plugins will add additional HMR support for your application:
+Popular frameworks can also be set up for HMR. **Create Snowpack App (CSA) ships with HMR enabled by default for all of the following frameworks.** If you're not using CSA, you can setup HMR in your own application with a simple plugin or a few lines of code:
 
-- Preact: @prefresh/snowpack (coming soon!) 
+- Preact: [@prefresh/snowpack](https://www.npmjs.com/package/@prefresh/snowpack)
+- React: [@snowpack/plugin-react-refresh](https://www.npmjs.com/package/@snowpack/plugin-react-refresh)
+- Svelte: [A few lines of code](https://github.com/pikapkg/create-snowpack-app/blob/master/templates/app-template-svelte/src/index.js#L9-L16)
+- Vue: [A few lines of code](https://github.com/pikapkg/create-snowpack-app/blob/master/templates/app-template-vue/src/index.js#L7-L14)
 
-Snowpack implements [ESM-HMR](https://github.com/pikapkg/esm-hot-module-replacement-spec), a standard HMR API for ESM-based dev environments. In fact, we created it! Any HMR integration built for ESM-HMR will run on Snowpack. To use the HMR API directly (via `import.meta.hot`) check out [the ESM-HMR spec](https://github.com/pikapkg/esm-hot-module-replacement-spec) to learn more.
+For more advanced, bare-metal HMR integrations, Snowpack created [ESM-HMR](https://github.com/pikapkg/esm-hot-module-replacement-spec), a standard HMR API for any ESM-based dev environment. Any HMR integration built for ESM-HMR will run on Snowpack and any other ESM-HMR-enabled dev server. To use the HMR API directly (via `import.meta.hot`) check out [the ESM-HMR spec](https://github.com/pikapkg/esm-hot-module-replacement-spec) to learn more.
+
+```js
+
+if (import.meta.hot) {
+  import.meta.hot.accept(({module}) => {
+    // Accept the module, apply it to your application.
+  });
+  import.meta.hot.dispose(() => {
+    // Cleanup any side-effects. Optional.
+  });
+}
+```
+
+- 👉 **[Check out the full ESM-HMR spec.](https://github.com/pikapkg/esm-hot-module-replacement-spec)**
 
 
 
@@ -59,7 +76,7 @@ Snowpack supports importing JSON via ESM import. While this isn't yet supported 
 import json from './data.json' 
 ```
 
-### Import Images, Assets
+### Import Images & Other Assets
 
 ``` jsx
 import img from './image.png'; // img === '/src/image.png'
@@ -89,11 +106,9 @@ Snowpack's dev server can proxy requests during development to match your produc
 Learn more about [Build Script integrations](#build-scripts).
 
 
-
-
 ### JSX
 
-#### COMPILING TO JAVASCRIPT
+#### Compile to JavaScript
 
 When you write your web app with JSX, Snowpack will automatically build all `.jsx` & `.tsx` files to JavaScript during development and production builds. This works for both React & Preact as long as the file includes an import of React or Preact. 
 
@@ -113,7 +128,7 @@ If needed, you can optionally define your own JSX->JavaScript build step via a [
 
 ### TypeScript
 
-#### Compiling to JavaScript
+#### Compile to JavaScript
 
 Write your web app with TypeScript, and Snowpack will automatically build all `.ts` & `.tsx` files to JavaScript. Snowpack will not perform any type checking by default (see below), only building from TS->JS.
 
@@ -143,64 +158,6 @@ You can integrate TypeScript type checking with Snowpack via a [Build Script int
   }
 }
 ```
-
-#### Managing 3rd-Party Types
-
-If you are using npm or yarn to manage your frontend dependencies, there is nothing extra setup needed on your part. TypeScript already knows how to find those package type declarations inside your `node_modules/` directory. 
-
-If you are using Snowpack to manage your frontend dependencies, Snowpack will automatically install all type declarations to the `web_modules/.types/` directory. There are no `@types/` packages to manage in this case: Snowpack fetches the best type declarations for you automatically. 
-
-However, TypeScript isn't yet aware of this new `/web_modules/.types/` location by default. To properly load these package types with TypeScript, you'll want to add the following lines to your `tsconfig.json` so that your packages can continue to get type information:
-
-```js
-// tsconfig.json
-{
-  "compilerOptions": {
-    // 1. TypeScript needs to know about the new package types location
-    "baseUrl": "./",
-    "paths": { "*": ["web_modules/.types/*"] },
-    // 2. Don't fail if there are any errors inside community-provided type packages.
-    "skipLibCheck": true
-  }
-}
-```
-
-
-### webDependencies
-
-By default, Snowpack will install your `web_modules/` dependencies by reading package code out of your `node_modules/` directory. This means that each packages is installed twice in your project: first with npm/yarn and then again with Snowpack.
-
-You can simplify your dependencies by configuring Snowpack to fully manage your frontend dependencies via the new "webDependencies" key in your `package.json` project manifest.
-
-```diff
-{
-  "dependencies": {
-    "@babel/core": "^1.2.3",
--   /* previously managed by npm */
--   "react": "^16.13.0",
--   "react-dom": "^16.13.0"
-  },
-+ /* now managed by Snowpack */
-+ "webDependencies": {
-+   "react": "^16.13.0",
-+   "react-dom": "^16.13.0"
-+ }
-}
-```
-
-In the example above, `npm` or `yarn` would no longer see React as a dependency to install into `node_modules/`. Instead, Snowpack would install this package directly from the web to your `"web_modules/"` directory without ever reading from `node_modules/`. Snowpack would do all the work upfront to convert each package into a web-ready, single JS file that runs natively in your browser.
-
-If you use TypeScript, this will automatically install types for each package, even if the package author didn't provide their own types. See our section on [TypeScript](#typescript) for more.
-
-Snowpack also provides `add` & `rm` helper commands to help you manage your "webDependencies" config via the CLI.
-
-
-### Lockfiles
-
-When Snowpack manages and installs your packages via `webDependencies`, it will also save a `snowpack.lock.json` file to your project directory. **This file is important, so don't delete it!** This lockfile locks down the installed versions of your entire dependency tree, including sub-dependencies. When you have this file, you are guarenteed to get a reproducible, deterministic installation every time that you run `snowpack install`.
-
-When it's time to update your dependencies. Delete this file and re-run `snowpack install`. This will generate an updated depenency tree and save an updated lockfile to your project.
-
 
 ### Import Maps
 

@@ -61,8 +61,11 @@ Snowpack provides a few variables that you can use to make your build scripts (a
 - `$FILE` - The absolute path of the source file.
   - Especially useful when Babel plugins require it.
   - ex: `"build:js": "babel --filename $FILE`
+- `$WEB_MODULES` - The location of your web_modules directory.
+  - Especially useful for Snowpack internally, but not very useful otherwise.
+  - ex: `"mount:web_modules": "mount $WEB_MODULES --to /web_modules`
 
-### "::" Script Modifiers
+### Script Modifiers ("::")
 
 You can customize your build scripts even further via the `"::"` script modifier token. These act as addons to a previous matching script that extend that script's behavior:
 
