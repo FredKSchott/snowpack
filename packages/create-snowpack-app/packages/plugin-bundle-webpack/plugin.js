@@ -33,6 +33,7 @@ function chain(object, keys) {
 
 module.exports = function plugin(config, args) {
   return {
+    defaultBuildScript: "bundle:*",
     async bundle({ srcDirectory, destDirectory, log, jsFilePaths }) {
       let homepage = config.homepage || "/";
       let fallback = chain(config, ["devOptions", "fallback"]) || "index.html";
@@ -94,9 +95,14 @@ module.exports = function plugin(config, args) {
             {
               test: /\.jsx?$/,
               exclude: ["/node_modules/"],
-              use: {
-                loader: "babel-loader",
-              },
+              use: [
+                {
+                  loader: "babel-loader",
+                },
+                {
+                  loader: require.resolve("./loader-fix-import-meta.js"),
+                },
+              ],
             },
             {
               test: /\.s?css$/,
