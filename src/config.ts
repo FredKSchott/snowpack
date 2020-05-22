@@ -405,7 +405,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     }
     return configPlugin;
   });
-  if (config.devOptions.bundle === true && !allPlugins['bundle:*']) {
+  if (config.devOptions.bundle === true && !config.scripts['bundle:*']) {
     handleConfigError(`--bundle set to true, but no "bundle:*" script/plugin was provided.`);
   }
   config.scripts = normalizeScripts(cwd, config.scripts as any);

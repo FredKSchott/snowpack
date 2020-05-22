@@ -10,7 +10,7 @@ Snowpack supports full HMR out-of-the-box for the following served files:
 - CSS Modules
 - JSON
 
-Popular frameworks can also be set up for HMR. **Create Snowpack App (CSA) ships with HMR enabled by default for all of the following frameworks.** If you're not using CSA, you can setup HMR in your own application with a simple plugin or a few lines of code:
+Popular frameworks can also be set up for HMR. **[Create Snowpack App (CSA)[(https://github.com/pikapkg/create-snowpack-app)] ships with HMR enabled by default for all of the following frameworks.** If you're not using CSA, you can setup HMR in your own application with a simple plugin or a few lines of code:
 
 - Preact: [@prefresh/snowpack](https://www.npmjs.com/package/@prefresh/snowpack)
 - React: [@snowpack/plugin-react-refresh](https://www.npmjs.com/package/@snowpack/plugin-react-refresh)
