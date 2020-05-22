@@ -96,7 +96,7 @@ function detectExports(filePath: string): string[] {
   try {
     const fileLoc = require.resolve(filePath, {paths: [cwd]});
     if (fs.existsSync(fileLoc)) {
-      return Object.keys(require(fileLoc)).filter((e) => e[0] !== '_');
+      return Object.keys(require(fileLoc));
     }
   } catch (err) {
     // ignore
