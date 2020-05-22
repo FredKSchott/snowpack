@@ -10,8 +10,9 @@ async function compilePromise(webpackConfig) {
   const compiler = webpack(webpackConfig);
   return new Promise((resolve, reject) => {
     compiler.run((err, stats) => {
-      if (stats.hasErrors()) {
-        reject(err);
+      if (stats.hasErrors() || err) {
+        const info = stats.toJson();
+        reject({ err, infoErrors: info.errors, infoWarnings: info.warning });
       }
       resolve(stats);
     });
@@ -162,8 +163,13 @@ module.exports = function plugin(config, args) {
             filename: jsOutputPattern,
           },
         })
-      ).catch((err) => {
-        console.log(err);
+      ).catch(({ err, infoErrors }) => {
+        if (err) {
+          console.error(err.stack || err);
+        }
+        if (infoErrors && infoErrors.length > 0) {
+          console.error(infoErrors.join("\n-----\n"));
+        }
       });
 
       if (!args.skipFallbackOutput) {
