@@ -246,13 +246,14 @@ export async function command(commandOptions: CommandOptions) {
         id: fileLoc,
         data: missingWebModule,
       });
-      const isHmrEnabled = builtFileResult.result.includes('import.meta.hot');
+
+      // const isHmrEnabled = builtFileResult.result.includes('import.meta.hot');
       const rawImports = await scanCodeImportsExports(builtFileResult.result);
       const resolvedImports = rawImports.map((imp) => {
         const spec = builtFileResult.result.substring(imp.s, imp.e);
         return path.posix.resolve(path.posix.dirname(reqPath), spec);
       });
-      hmrEngine.setEntry(reqPath, resolvedImports, isHmrEnabled);
+      hmrEngine.setEntry(reqPath, resolvedImports);
     }
 
     return builtFileResult;
@@ -351,6 +352,12 @@ export async function command(commandOptions: CommandOptions) {
 
       if (reqPath === '/livereload/hmr.js') {
         sendFile(req, res, HMR_DEV_CODE, '.js');
+        return;
+      }
+
+      if (reqPath.startsWith('/livereload/accept/')) {
+        const [, id] = reqPath.split('accept/')
+        hmrEngine.setHot(id);
         return;
       }
 
