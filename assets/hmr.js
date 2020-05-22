@@ -23,6 +23,7 @@ class HotModuleState {
     this.disposeCallbacks.push(callback);
   }
   accept(callback = true) {
+    fetch(`/livereload/accept/${this.id}`);
     if (this.isLocked) {
       return;
     }

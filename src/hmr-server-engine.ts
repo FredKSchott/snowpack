@@ -38,11 +38,9 @@ export class EsmHmrEngine {
     return null;
   }
 
-  setEntry(sourceUrl: string, imports: string[], isHmrEnabled: boolean) {
+  setEntry(sourceUrl: string, imports: string[]) {
     const result = this.getEntry(sourceUrl, true)!;
     const outdatedDependencies = new Set(result.dependencies);
-    result.isHmrEnabled = isHmrEnabled;
-
     for (const importUrl of imports) {
       this.addRelationship(sourceUrl, importUrl);
       outdatedDependencies.delete(importUrl);
@@ -51,6 +49,12 @@ export class EsmHmrEngine {
     for (const importUrl of outdatedDependencies) {
       this.removeRelationship(sourceUrl, importUrl);
     }
+  }
+
+  setHot(sourceUrl) {
+    const result = this.getEntry(sourceUrl, true)!;
+    result.isHmrEnabled = true;
+    this.dependencyTree.set(sourceUrl, result);
   }
 
   removeRelationship(sourceUrl: string, importUrl: string) {
