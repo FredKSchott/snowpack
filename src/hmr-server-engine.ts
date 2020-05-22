@@ -1,4 +1,5 @@
 import http from 'http';
+import ws from 'ws';
 
 interface Dependency {
   dependents: Set<string>;
@@ -13,8 +14,14 @@ function sendMessage(res: http.ServerResponse, channel: string, data: string) {
 }
 
 export class EsmHmrEngine {
-  clients: http.ServerResponse[] = [];
+  clients: WebSocket[] = [];
   dependencyTree = new Map<string, Dependency>();
+
+  constructor() {
+    const socket = new ws.Server({ port: 3001 });
+    socket.on('connection', this.connectClient);
+    // TODO: detect disconnect
+  }
 
   createEntry(sourceUrl: string) {
     const newEntry: Dependency = {
@@ -71,31 +78,24 @@ export class EsmHmrEngine {
     entry.needsReplacement = state;
   }
 
-  broadcastMessage(channel: string, data: object) {
-    for (const client of this.clients) {
-      sendMessage(client, channel, JSON.stringify(data));
-    }
+  broadcastMessage(data: object) {
+    this.clients.forEach(client => {
+      client.send(JSON.stringify(data));
+    })
   }
 
-  connectClient(res: http.ServerResponse) {
-    res.writeHead(200, {
-      Connection: 'keep-alive',
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Access-Control-Allow-Origin': '*',
-    });
-    sendMessage(res, 'connected', 'ready');
-    setInterval(sendMessage, 60000, res, 'ping', 'waiting');
+  connectClient(res) {
+    console.log('connecting');
     this.clients.push(res);
   }
 
-  disconnectClient(client: http.ServerResponse) {
+  disconnectClient(client: WebSocket) {
     this.clients.splice(this.clients.indexOf(client), 1);
   }
 
   disconnectAllClients() {
     for (const client of this.clients) {
-      client.end();
+      // TODO
     }
   }
 }

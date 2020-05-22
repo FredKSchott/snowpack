@@ -1,9 +1,11 @@
 function debug(...args) {
   console.log('[snowpack:hmr]', ...args);
 }
+
 function reload() {
   location.reload(true);
 }
+
 const REGISTERED_MODULES = {};
 class HotModuleState {
   constructor(id) {
@@ -13,25 +15,31 @@ class HotModuleState {
     this.disposeCallbacks = [];
     this.id = id;
   }
+
   lock() {
     this.isLocked = true;
   }
+
   dispose(callback) {
     this.disposeCallbacks.push(callback);
   }
+
   accept(callback = true) {
     if (this.isLocked) {
       return;
     }
     this.acceptCallbacks.push(callback);
   }
+
   invalidate() {
     reload();
   }
+
   decline() {
     this.isDeclined = true;
   }
 }
+
 export function createHotContext(fullUrl) {
   const id = new URL(fullUrl).pathname;
   const existing = REGISTERED_MODULES[id];
@@ -43,19 +51,24 @@ export function createHotContext(fullUrl) {
   REGISTERED_MODULES[id] = state;
   return state;
 }
+
 async function applyUpdate(id) {
   const state = REGISTERED_MODULES[id] || REGISTERED_MODULES[id + '.proxy.js'];
   if (!state) {
     return false;
   }
+
   if (state.isDeclined) {
     return false;
   }
+
   const data = {};
   const acceptCallbacks = state.acceptCallbacks;
   const disposeCallbacks = state.disposeCallbacks;
+
   state.disposeCallbacks = [];
   disposeCallbacks.map((callback) => callback({data}));
+
   if (acceptCallbacks.length > 0) {
     const module = await import(id + `?mtime=${Date.now()}`);
     acceptCallbacks.forEach((callback) => {
@@ -66,21 +79,25 @@ async function applyUpdate(id) {
       }
     });
   }
+
   return true;
 }
-const source = new EventSource('/livereload');
-source.onerror = () => (source.onopen = reload);
-source.onmessage = async (e) => {
-  const data = JSON.parse(e.data);
+
+const socket = new WebSocket('ws://localhost:3001');
+
+socket.addEventListener('message', function incoming(data) {
+  console.log('incoming', data);
   if (data.type === 'reload') {
     debug('message: reload');
     reload();
     return;
   }
+
   if (data.type !== 'update') {
     debug('message: unknown', data);
     return;
   }
+
   debug('message: update', data);
   debug(data.url, Object.keys(REGISTERED_MODULES));
   applyUpdate(data.url)
@@ -93,5 +110,6 @@ source.onmessage = async (e) => {
       console.error(err);
       reload();
     });
-};
+});
+
 debug('listening for file changes...');

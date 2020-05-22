@@ -31,6 +31,7 @@ import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
+import ws from 'ws';
 import got from 'got';
 import http from 'http';
 import mime from 'mime-types';
@@ -118,7 +119,10 @@ export async function command(commandOptions: CommandOptions) {
   console.log('Starting up...\n');
 
   const {port, open} = config.devOptions;
-  const hmrEngine = new EsmHmrEngine();
+
+  const websocket = new ws.Server({ port: 3001 });
+
+  const hmrEngine = new EsmHmrEngine(websocket);
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
   const filesBeingDeleted = new Set<string>();
@@ -350,7 +354,6 @@ export async function command(commandOptions: CommandOptions) {
 
       if (reqPath === '/livereload') {
         hmrEngine.connectClient(res);
-        req.on('close', () => hmrEngine.disconnectClient(res));
         return;
       }
 
@@ -595,7 +598,7 @@ export async function command(commandOptions: CommandOptions) {
             ) {
               inMemoryBuildCache.clear();
               await cacache.rm.all(BUILD_CACHE);
-              hmrEngine.broadcastMessage('message', {type: 'reload'});
+              hmrEngine.broadcastMessage({type: 'reload'});
             }
           }
           return;
@@ -639,13 +642,13 @@ export async function command(commandOptions: CommandOptions) {
     visited.add(url);
     const node = hmrEngine.getEntry(url);
     if (node && node.isHmrEnabled) {
-      hmrEngine.broadcastMessage('message', {type: 'update', url});
+      hmrEngine.broadcastMessage({type: 'update', url});
     } else if (node && node.dependents.size > 0) {
       hmrEngine.markEntryForReplacement(node, true);
       node.dependents.forEach((dep) => updateOrBubble(dep, visited));
     } else {
       // We've reached the top, trigger a full page refresh
-      hmrEngine.broadcastMessage('message', {type: 'reload'});
+      hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
   async function onWatchEvent(fileLoc) {
