@@ -31,7 +31,6 @@ import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
-import ws from 'ws';
 import got from 'got';
 import http from 'http';
 import mime from 'mime-types';
@@ -120,9 +119,7 @@ export async function command(commandOptions: CommandOptions) {
 
   const {port, open} = config.devOptions;
 
-  const websocket = new ws.Server({ port: 3001 });
-
-  const hmrEngine = new EsmHmrEngine(websocket);
+  const hmrEngine = new EsmHmrEngine();
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
   const filesBeingDeleted = new Set<string>();
@@ -351,11 +348,6 @@ export async function command(commandOptions: CommandOptions) {
           });
         }
       });
-
-      if (reqPath === '/livereload') {
-        hmrEngine.connectClient(res);
-        return;
-      }
 
       if (reqPath === '/livereload/hmr.js') {
         sendFile(req, res, HMR_DEV_CODE, '.js');

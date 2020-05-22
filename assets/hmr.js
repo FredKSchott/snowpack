@@ -83,9 +83,13 @@ async function applyUpdate(id) {
   return true;
 }
 
-const socket = new WebSocket('ws://localhost:3001');
+const socket = new WebSocket('ws://localhost:8000/');
 
-socket.addEventListener('message', function incoming(data) {
+socket.addEventListener('open', function (event) {
+  console.log('conenction opened');
+});
+
+socket.addEventListener('message', (data) => {
   console.log('incoming', data);
   if (data.type === 'reload') {
     debug('message: reload');
