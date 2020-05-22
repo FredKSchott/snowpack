@@ -247,7 +247,6 @@ export async function command(commandOptions: CommandOptions) {
         data: missingWebModule,
       });
 
-      // const isHmrEnabled = builtFileResult.result.includes('import.meta.hot');
       const rawImports = await scanCodeImportsExports(builtFileResult.result);
       const resolvedImports = rawImports.map((imp) => {
         const spec = builtFileResult.result.substring(imp.s, imp.e);
@@ -356,7 +355,7 @@ export async function command(commandOptions: CommandOptions) {
       }
 
       if (reqPath.startsWith('/livereload/accept/')) {
-        const [, id] = reqPath.split('accept/')
+        const [, id] = reqPath.split('livereload/accept');
         hmrEngine.setHot(id);
         return;
       }
