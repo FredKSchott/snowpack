@@ -354,12 +354,6 @@ export async function command(commandOptions: CommandOptions) {
         return;
       }
 
-      if (reqPath.startsWith('/livereload/accept/')) {
-        const [, id] = reqPath.split('livereload/accept');
-        hmrEngine.setHot(id);
-        return;
-      }
-
       for (const workerConfig of config.scripts) {
         if (workerConfig.type !== 'proxy') {
           continue;
