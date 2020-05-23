@@ -1,5 +1,4 @@
-import http from 'http';
-import ws from 'ws';
+import WebSocket from 'ws';
 
 interface Dependency {
   dependents: Set<string>;
@@ -13,9 +12,8 @@ export class EsmHmrEngine {
   dependencyTree = new Map<string, Dependency>();
 
   constructor() {
-    const socket = new ws.Server({ port: 8000 });
-    socket.on('connection', this.connectClient);
-    // TODO: detect disconnect
+    const socket = new WebSocket.Server({port: 12321});
+    socket.on('connection', (client) => this.connectClient(client));
   }
 
   createEntry(sourceUrl: string) {
@@ -67,7 +65,6 @@ export class EsmHmrEngine {
     if (importUrl !== sourceUrl) {
       let importResult = this.getEntry(importUrl, true)!;
       importResult.dependents.add(sourceUrl);
-
       const sourceResult = this.getEntry(sourceUrl, true)!;
       sourceResult.dependencies.add(importUrl);
     }
@@ -78,16 +75,27 @@ export class EsmHmrEngine {
   }
 
   broadcastMessage(data: object) {
-    this.clients.forEach(client => {
-      client.send(JSON.stringify(data));
-    })
+    this.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(data));
+      } else {
+        this.disconnectClient(client);
+      }
+    });
   }
 
-  connectClient(res) {
-    this.clients.add(res);
+  connectClient(client: WebSocket) {
+    this.clients.add(client);
   }
 
-  disconnectClient(client: WebSocket) {}
+  disconnectClient(client: WebSocket) {
+    client.terminate();
+    this.clients.delete(client);
+  }
 
-  disconnectAllClients() {}
+  disconnectAllClients() {
+    for (const client of this.clients) {
+      this.disconnectClient(client);
+    }
+  }
 }

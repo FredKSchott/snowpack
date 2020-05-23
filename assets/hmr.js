@@ -7,6 +7,7 @@ function reload() {
 }
 
 const REGISTERED_MODULES = {};
+
 class HotModuleState {
   constructor(id) {
     this.isLocked = false;
@@ -15,26 +16,21 @@ class HotModuleState {
     this.disposeCallbacks = [];
     this.id = id;
   }
-
   lock() {
     this.isLocked = true;
   }
-
   dispose(callback) {
     this.disposeCallbacks.push(callback);
   }
-
   accept(callback = true) {
     if (this.isLocked) {
       return;
     }
     this.acceptCallbacks.push(callback);
   }
-
   invalidate() {
     reload();
   }
-
   decline() {
     this.isDeclined = true;
   }
@@ -57,18 +53,14 @@ async function applyUpdate(id) {
   if (!state) {
     return false;
   }
-
   if (state.isDeclined) {
     return false;
   }
-
   const data = {};
   const acceptCallbacks = state.acceptCallbacks;
   const disposeCallbacks = state.disposeCallbacks;
-
   state.disposeCallbacks = [];
   disposeCallbacks.map((callback) => callback({data}));
-
   if (acceptCallbacks.length > 0) {
     const module = await import(id + `?mtime=${Date.now()}`);
     acceptCallbacks.forEach((callback) => {
@@ -79,29 +71,30 @@ async function applyUpdate(id) {
       }
     });
   }
-
   return true;
 }
 
-const socket = new WebSocket('ws://localhost:8000/');
+const socket = new WebSocket('ws://localhost:12321/');
 
 socket.addEventListener('open', function (event) {
   console.log('conenction opened');
 });
 
-socket.addEventListener('message', (data) => {
-  console.log('incoming', data);
+socket.addEventListener('message', ({data: _data}) => {
+  console.log('incoming', _data);
+  if (!_data) {
+    return;
+  }
+  const data = JSON.parse(_data);
   if (data.type === 'reload') {
     debug('message: reload');
     reload();
     return;
   }
-
   if (data.type !== 'update') {
     debug('message: unknown', data);
     return;
   }
-
   debug('message: update', data);
   debug(data.url, Object.keys(REGISTERED_MODULES));
   applyUpdate(data.url)
