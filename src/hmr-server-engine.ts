@@ -63,12 +63,6 @@ export class EsmHmrEngine {
     }
   }
 
-  setHot(sourceUrl) {
-    const result = this.getEntry(sourceUrl, true)!;
-    result.isHmrEnabled = true;
-    this.dependencyTree.set(sourceUrl, result);
-  }
-
   removeRelationship(sourceUrl: string, importUrl: string) {
     let importResult = this.getEntry(importUrl);
     importResult && importResult.dependents.delete(sourceUrl);
