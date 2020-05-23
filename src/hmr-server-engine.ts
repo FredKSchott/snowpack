@@ -1,4 +1,5 @@
 import http from 'http';
+import ws from 'ws';
 
 interface Dependency {
   dependents: Set<string>;
@@ -7,14 +8,15 @@ interface Dependency {
   needsReplacement: boolean;
 }
 
-function sendMessage(res: http.ServerResponse, channel: string, data: string) {
-  res.write(`event: ${channel}\nid: 0\ndata: ${data}\n`);
-  res.write('\n\n');
-}
-
 export class EsmHmrEngine {
-  clients: http.ServerResponse[] = [];
+  clients: Set<WebSocket> = new Set();
   dependencyTree = new Map<string, Dependency>();
+
+  constructor() {
+    const socket = new ws.Server({ port: 8000 });
+    socket.on('connection', this.connectClient);
+    // TODO: detect disconnect
+  }
 
   createEntry(sourceUrl: string) {
     const newEntry: Dependency = {
@@ -42,10 +44,12 @@ export class EsmHmrEngine {
     const result = this.getEntry(sourceUrl, true)!;
     const outdatedDependencies = new Set(result.dependencies);
     result.isHmrEnabled = isHmrEnabled;
+
     for (const importUrl of imports) {
       this.addRelationship(sourceUrl, importUrl);
       outdatedDependencies.delete(importUrl);
     }
+
     for (const importUrl of outdatedDependencies) {
       this.removeRelationship(sourceUrl, importUrl);
     }
@@ -54,6 +58,7 @@ export class EsmHmrEngine {
   removeRelationship(sourceUrl: string, importUrl: string) {
     let importResult = this.getEntry(importUrl);
     importResult && importResult.dependents.delete(sourceUrl);
+
     const sourceResult = this.getEntry(sourceUrl);
     sourceResult && sourceResult.dependencies.delete(importUrl);
   }
@@ -62,6 +67,7 @@ export class EsmHmrEngine {
     if (importUrl !== sourceUrl) {
       let importResult = this.getEntry(importUrl, true)!;
       importResult.dependents.add(sourceUrl);
+
       const sourceResult = this.getEntry(sourceUrl, true)!;
       sourceResult.dependencies.add(importUrl);
     }
@@ -71,31 +77,17 @@ export class EsmHmrEngine {
     entry.needsReplacement = state;
   }
 
-  broadcastMessage(channel: string, data: object) {
-    for (const client of this.clients) {
-      sendMessage(client, channel, JSON.stringify(data));
-    }
+  broadcastMessage(data: object) {
+    this.clients.forEach(client => {
+      client.send(JSON.stringify(data));
+    })
   }
 
-  connectClient(res: http.ServerResponse) {
-    res.writeHead(200, {
-      Connection: 'keep-alive',
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Access-Control-Allow-Origin': '*',
-    });
-    sendMessage(res, 'connected', 'ready');
-    setInterval(sendMessage, 60000, res, 'ping', 'waiting');
-    this.clients.push(res);
+  connectClient(res) {
+    this.clients.add(res);
   }
 
-  disconnectClient(client: http.ServerResponse) {
-    this.clients.splice(this.clients.indexOf(client), 1);
-  }
+  disconnectClient(client: WebSocket) {}
 
-  disconnectAllClients() {
-    for (const client of this.clients) {
-      client.end();
-    }
-  }
+  disconnectAllClients() {}
 }

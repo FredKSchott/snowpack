@@ -118,6 +118,7 @@ export async function command(commandOptions: CommandOptions) {
   console.log('Starting up...\n');
 
   const {port, open} = config.devOptions;
+
   const hmrEngine = new EsmHmrEngine();
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
@@ -347,12 +348,6 @@ export async function command(commandOptions: CommandOptions) {
           });
         }
       });
-
-      if (reqPath === '/livereload') {
-        hmrEngine.connectClient(res);
-        req.on('close', () => hmrEngine.disconnectClient(res));
-        return;
-      }
 
       if (reqPath === '/livereload/hmr.js') {
         sendFile(req, res, HMR_DEV_CODE, '.js');
@@ -595,7 +590,7 @@ export async function command(commandOptions: CommandOptions) {
             ) {
               inMemoryBuildCache.clear();
               await cacache.rm.all(BUILD_CACHE);
-              hmrEngine.broadcastMessage('message', {type: 'reload'});
+              hmrEngine.broadcastMessage({type: 'reload'});
             }
           }
           return;
@@ -639,13 +634,13 @@ export async function command(commandOptions: CommandOptions) {
     visited.add(url);
     const node = hmrEngine.getEntry(url);
     if (node && node.isHmrEnabled) {
-      hmrEngine.broadcastMessage('message', {type: 'update', url});
+      hmrEngine.broadcastMessage({type: 'update', url});
     } else if (node && node.dependents.size > 0) {
       hmrEngine.markEntryForReplacement(node, true);
       node.dependents.forEach((dep) => updateOrBubble(dep, visited));
     } else {
       // We've reached the top, trigger a full page refresh
-      hmrEngine.broadcastMessage('message', {type: 'reload'});
+      hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
   async function onWatchEvent(fileLoc) {
