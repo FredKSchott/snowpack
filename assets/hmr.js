@@ -15,7 +15,7 @@ class HotModuleState {
     this.acceptCallbacks = [];
     this.disposeCallbacks = [];
     this.id = id;
-    this.accepted = false;
+    this.isAccepted = false;
   }
   lock() {
     this.isLocked = true;
@@ -24,10 +24,9 @@ class HotModuleState {
     this.disposeCallbacks.push(callback);
   }
   accept(callback = true) {
-    console.log('accepting', this.id);
-    if (!this.accepted) {
-      fetch(`/livereload/accept${this.id}`);
-      this.accepted = true;
+    if (!this.isAccepted) {
+      socket.send(JSON.stringify({id: this.id, type: 'hotAccept'}));
+      this.isAccepted = true;
     }
     if (this.isLocked) {
       return;

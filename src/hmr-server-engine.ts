@@ -13,7 +13,19 @@ export class EsmHmrEngine {
 
   constructor() {
     const socket = new WebSocket.Server({port: 12321});
-    socket.on('connection', (client) => this.connectClient(client));
+    socket.on('connection', (client) => {
+      this.connectClient(client);
+      this.registerListener(client);
+    });
+  }
+
+  registerListener(client) {
+    client.on('message', (data) => {
+      if (data.type === 'hotAccept') {
+        const entry = this.getEntry(data.id, true) as Dependency;
+        entry.isHmrEnabled = true;
+      }
+    });
   }
 
   createEntry(sourceUrl: string) {
