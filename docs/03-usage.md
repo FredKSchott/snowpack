@@ -2,7 +2,7 @@
 
 ### snowpack dev
 
-Snowpack's dev server is an instant dev environment for any web application. `snowpack dev` stays fast by skipping all unecceary bundling during development and serving individual files directly to the browser. That means **zero** upfront startup cost: Snowpack only starts building your app when you make your first request. This scales especially well to large projects, where you'll commonly see 30+ second startup times with traditional dev bundlers.
+Snowpack's dev server is an instant dev environment for any web application. `snowpack dev` stays fast by skipping all unecceary bundling during development and serving individual files directly to the browser. That means **zero** upfront startup cost: Snowpack only starts building your app when you make your first request. This scales especially well to large projects, where you'd otherwise commonly see 30+ second dev startup times with a traditional bundler.
 
 This magic is all possible thanks to Snowpack's npm package installer, which installs your packages so that they can run directly in the browser. When you develop or build your application, Snowpack automatically rewrites your imports to point to your Snowpack-installed, ready-to-run web dependencies.
 
