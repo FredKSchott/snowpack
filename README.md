@@ -8,8 +8,6 @@
 
 The result is a developer experience that starts up fast, stays fast, and still bundles/optimizes your production builds.
 
-**💁 More info at the official [Snowpack website ➞](https://snowpack.dev)**
-
 ### Key Features
 
 - No bundling during development = **<50ms dev server startup**
