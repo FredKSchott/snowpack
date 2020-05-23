@@ -14,7 +14,7 @@ function __snowpack__injectStyle(css) {
   } else {
     styleEl.appendChild(document.createTextNode(css));
   }
-  headEl.appendChild(style);
+  headEl.appendChild(styleEl);
 }
 __snowpack__injectStyle(${JSON.stringify(code)});\n`;
 }
