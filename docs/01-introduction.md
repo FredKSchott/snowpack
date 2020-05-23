@@ -25,7 +25,7 @@ The result is a developer experience that starts up fast, stays fast, and still 
 
 ### Key Features
 
-- No bundling during development = **<50ms dev server startup**
+- No dev bundling = **<50ms dev server startup**
 - Instant rebuilds on save (Nothing to rebundle!)
 - Stays fast as your codebase grows
 - Built-in [Hot Module Replacement (HMR)](#hot-module-replacement)
