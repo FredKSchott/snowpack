@@ -53,6 +53,7 @@ export async function cli(args: string[]) {
   if (cliFlags.reload) {
     console.log(`${chalk.yellow('ℹ')} clearing CDN cache...`);
     await clearCache();
+    process.exit(0);
   }
 
   // Load the current package manifest
