@@ -344,7 +344,7 @@ export async function install(
       if (warning.code === 'CIRCULAR_DEPENDENCY') {
         if (!isCircularImportFound) {
           isCircularImportFound = true;
-          logError(`Warning: 1+ circular dependencies found via "${warning.importer}".`);
+          logUpdate(`Warning: 1+ circular dependencies found via "${warning.importer}".`);
         }
         return;
       }
