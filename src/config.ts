@@ -215,7 +215,7 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
     installOptions: {} as any,
     devOptions: {} as any,
   };
-  const {help, version, config, ...relevantFlags} = flags;
+  const {help, version, reload, config, ...relevantFlags} = flags;
   for (const [flag, val] of Object.entries(relevantFlags)) {
     if (flag === '_' || flag.includes('-')) {
       continue;
