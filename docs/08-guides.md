@@ -4,7 +4,7 @@ Below are a collection of guides for using different web frameworks and build to
 
 ### Supported Libraries
 
-All of the following frameworks have been tested and guaranteed to work in Snowpack without issues. Some libraries (ex: Vue)compile to JS, and do require a build script (see the related guide below for a code snippet).  If you encounter an issue using any of the following, please file an issue.
+All of the following frameworks have been tested and guaranteed to work in Snowpack without issues. If you encounter an issue using any of the following, please file an issue.
 
 - React
 - Preact
@@ -14,7 +14,10 @@ All of the following frameworks have been tested and guaranteed to work in Snowp
 - Vue (see below)
 - Svelte (see below)
 - Tailwind CSS (see below)
-- [add more.](https://github.com/pikapkg/snowpack/edit/master/docs/08-guides.md)
+- and many more!
+- Literally... every library should work with Snowpack!
+
+Some libraries use compile-to-JS file formats and do require a special build script or plugin. See the guidea below for examples.
 
 
 ### Babel

@@ -18,9 +18,9 @@
 
 ### What is Snowpack?
 
-**Snowpack serves your web app unbundled during development.** Thanks to ESM imports, Snowpack is able to remove the expensive (and unnecesary) bundling step from your dev workflow. That means no startup time spent waiting for your application to bundle PLUS no time wasted rebundling on every change.
+**Snowpack is a web app build tool that works without bundling.** Thanks to [ESM imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) Snowpack is able to remove the expensive (and unnecesary) bundling step from your dev workflow. That means no startup time spent waiting for your application to bundle PLUS no time wasted rebundling on every change.
 
-The result is a developer experience that starts up fast, stays fast, and still bundles for you when you're ready to build for production.
+The result is a developer experience that starts up fast, stays fast, and still bundles/optimizes your production builds.
 
 
 ### Key Features
@@ -30,7 +30,7 @@ The result is a developer experience that starts up fast, stays fast, and still 
 - Stays fast as your codebase grows
 - Built-in [Hot Module Replacement (HMR)](#hot-module-replacement)
 - [Custom build scripts](#build-scripts) & [third-party plugins](#build-plugins)
-- [Bundled production builds](#snowpack-build---bundle)
+- Bundled production builds
 
 ### Library Support
 
