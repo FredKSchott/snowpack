@@ -13,8 +13,8 @@ The result is a developer experience that starts up fast, stays fast, and still 
 - No bundling during development = **<50ms dev server startup**
 - Instant rebuilds on save (Nothing to rebundle!)
 - Stays fast as your codebase grows
-- Built-in [Hot Module Replacement (HMR)](#hot-module-replacement)
-- [Custom build scripts](#build-scripts) & [third-party plugins](#build-plugins)
+- Built-in [Hot Module Replacement (HMR)](https://snowpack.dev/#hot-module-replacement)
+- [Custom build scripts](https://snowpack.dev/#build-scripts) & [third-party plugins](https://snowpack.dev/#build-plugins)
 - Bundled production builds
 
 **💁 More info at the official [Snowpack website ➞](https://snowpack.dev)**
