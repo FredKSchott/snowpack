@@ -179,11 +179,9 @@ export async function command(commandOptions: CommandOptions) {
         }
         return _builtFileResult;
       })();
-      filesBeingBuilt.set(fileLoc, fileBuilderPromise);
       try {
+        filesBeingBuilt.set(fileLoc, fileBuilderPromise);
         builtFileResult = await fileBuilderPromise;
-      } catch (error) {
-        throw error;
       } finally {
         filesBeingBuilt.delete(fileLoc);
       }
@@ -195,7 +193,6 @@ export async function command(commandOptions: CommandOptions) {
         if (spec.startsWith('http')) {
           return spec;
         }
-
         if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
           const ext = path.extname(spec).substr(1);
           if (!ext) {
@@ -211,7 +208,15 @@ export async function command(commandOptions: CommandOptions) {
           return spec;
         }
         if (dependencyImportMap.imports[spec]) {
-          return path.posix.resolve(`/web_modules`, dependencyImportMap.imports[spec]);
+          let resolvedImport = path.posix.resolve(
+            `/web_modules`,
+            dependencyImportMap.imports[spec],
+          );
+          const extName = path.extname(resolvedImport);
+          if (extName && extName !== '.js') {
+            resolvedImport = resolvedImport + '.proxy.js';
+          }
+          return resolvedImport;
         }
         let [missingPackageName, ...deepPackagePathParts] = spec.split('/');
         if (missingPackageName.startsWith('@')) {
@@ -243,6 +248,10 @@ export async function command(commandOptions: CommandOptions) {
             spec: spec,
             pkgName: missingPackageName,
           };
+        }
+        const extName = path.extname(spec);
+        if (extName && extName !== '.js') {
+          spec = spec + '.proxy';
         }
         return `/web_modules/${spec}.js`;
       });

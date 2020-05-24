@@ -77,7 +77,7 @@ async function applyUpdate(id) {
 const socket = new WebSocket('ws://localhost:12321/');
 
 socket.addEventListener('open', function (event) {
-  console.log('conenction opened');
+  console.log('connection opened');
 });
 
 socket.addEventListener('message', ({data: _data}) => {
