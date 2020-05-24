@@ -21,8 +21,9 @@ export class EsmHmrEngine {
 
   registerListener(client) {
     client.on('message', (data) => {
-      if (data.type === 'hotAccept') {
-        const entry = this.getEntry(data.id, true) as Dependency;
+      const message = JSON.parse(data);
+      if (message.type === 'hotAccept') {
+        const entry = this.getEntry(message.id, true) as Dependency;
         entry.isHmrEnabled = true;
       }
     });
@@ -58,9 +59,9 @@ export class EsmHmrEngine {
       outdatedDependencies.delete(importUrl);
     }
 
-    for (const importUrl of outdatedDependencies) {
+    outdatedDependencies.forEach((importUrl) => {
       this.removeRelationship(sourceUrl, importUrl);
-    }
+    });
   }
 
   removeRelationship(sourceUrl: string, importUrl: string) {
@@ -104,8 +105,6 @@ export class EsmHmrEngine {
   }
 
   disconnectAllClients() {
-    for (const client of this.clients) {
-      this.disconnectClient(client);
-    }
+    this.clients.forEach((c) => this.disconnectClient(c));
   }
 }
