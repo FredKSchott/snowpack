@@ -5,6 +5,5 @@
     "run:11ty": "eleventy",
     "run:11ty::watch": "$1 --watch"
   },
-  "installOptions": {},
-  "devOptions": {}
+  "plugins": []
 }

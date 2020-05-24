@@ -1,5 +1,5 @@
 {
   "extends": "@snowpack/app-scripts-lit-element",
-  "installOptions": {},
-  "devOptions": {}
+  "scripts": {},
+  "plugins": []
 }
