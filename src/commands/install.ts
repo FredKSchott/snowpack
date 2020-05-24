@@ -152,6 +152,19 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
     };
   }
   const [depManifestLoc, depManifest] = resolveDependencyManifest(dep, cwd);
+  // Fix: import '@material-ui/icons/AddBox' could be a JS file w/o a file extension.
+  // Check Node's resolution logic in case this is actually a file.
+  if (!depManifest) {
+    try {
+      const maybeLoc = require.resolve(dep, {paths: [cwd]});
+      return {
+        type: 'JS',
+        loc: maybeLoc,
+      };
+    } catch (err) {
+      // Oh well, was worth a try
+    }
+  }
   if (!depManifest) {
     throw new ErrorWithHint(
       `Package "${dep}" not found. Have you installed it?`,
