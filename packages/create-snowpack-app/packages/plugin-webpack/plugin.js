@@ -97,6 +97,7 @@ module.exports = function plugin(config, args) {
 
       //Compile files using webpack
       let webpackConfig = {
+        context: srcDirectory,
         resolve: {
           alias: {
             "/web_modules": path.join(srcDirectory, "web_modules/"),
@@ -122,7 +123,9 @@ module.exports = function plugin(config, args) {
                   },
                 },
                 {
-                  loader: require.resolve("./loader-fix-import-meta.js"),
+                  // TODO: replace with "@open-wc/webpack-import-meta-loader"
+                  // https://github.com/open-wc/open-wc/pull/1677
+                  loader: require.resolve("./import-meta-plugin/plugin.js"),
                 },
               ],
             },

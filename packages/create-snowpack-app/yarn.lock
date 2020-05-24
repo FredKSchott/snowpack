@@ -2221,6 +2221,11 @@
   dependencies:
     "@types/node" ">= 8"
 
+"@open-wc/webpack-import-meta-loader@^0.4.6":
+  version "0.4.6"
+  resolved "https://registry.yarnpkg.com/@open-wc/webpack-import-meta-loader/-/webpack-import-meta-loader-0.4.6.tgz#63340313848a2b0868dabef92424758576511a22"
+  integrity sha512-rxALdSaqqWc5m6QUxXaeLCYkDO3X1m2bG5nad7oT41DPBycw4ZHn7fApjYht0sAdelHPCgscqxv4bR2HRn6vWg==
+
 "@parcel/fs@^1.11.0":
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/@parcel/fs/-/fs-1.11.0.tgz#fb8a2be038c454ad46a50dc0554c1805f13535cd"

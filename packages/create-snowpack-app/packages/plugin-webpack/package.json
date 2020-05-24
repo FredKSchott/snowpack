@@ -7,6 +7,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@open-wc/webpack-import-meta-loader": "^0.4.6",
     "babel-loader": "^8.1.0",
     "copy-webpack-plugin": "^6.0.1",
     "css-loader": "^3.5.3",
