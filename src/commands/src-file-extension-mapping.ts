@@ -7,4 +7,5 @@ export default {
   php: 'html',
   md: 'html',
   ejs: 'html',
+  njk: 'html',
 };
