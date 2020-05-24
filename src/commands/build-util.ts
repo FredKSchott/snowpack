@@ -144,7 +144,7 @@ export function getFileBuilderForWorker(
       }
     };
   }
-  return async ({contents, filePath}) => {
+  return async ({contents, filePath, isDev}) => {
     let cmdWithFile = cmd.replace('$FILE', filePath);
     try {
       messageBus && messageBus.emit('WORKER_RESET', {id});
@@ -157,14 +157,20 @@ export function getFileBuilderForWorker(
       });
       if (stderr) {
         let msg = `FILE: ${filePath}\n${stderr}`;
-        messageBus && messageBus.emit('WORKER_MSG', {id, msg});
+        messageBus && messageBus.emit('WORKER_MSG', {id, level: 'warning', msg});
       }
       return {result: stdout};
     } catch (error) {
       if (messageBus) {
         let msg = `FILE: ${filePath}\n${error.toString()}`;
-        messageBus.emit('WORKER_UPDATE', {id, state: 'FAIL'});
-        messageBus.emit('WORKER_MSG', {id, msg});
+        messageBus.emit('WORKER_MSG', {id, level: 'error', msg});
+        if (isDev) {
+          messageBus.emit('WORKER_UPDATE', {id, state: 'FAIL'});
+        } else {
+          messageBus.emit('WORKER_COMPLETE', {id, error: msg});
+        }
+      } else {
+        throw error;
       }
       return {result: ''};
     }

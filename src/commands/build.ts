@@ -238,7 +238,7 @@ export async function command(commandOptions: CommandOptions) {
           continue;
         }
         const fileContents = await fs.readFile(f, {encoding: 'utf8'});
-        let fileBuilder = getFileBuilderForWorker(cwd, workerConfig);
+        let fileBuilder = getFileBuilderForWorker(cwd, workerConfig, messageBus);
         if (!fileBuilder) {
           continue;
         }
