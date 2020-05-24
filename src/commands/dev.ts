@@ -208,7 +208,15 @@ export async function command(commandOptions: CommandOptions) {
           return spec;
         }
         if (dependencyImportMap.imports[spec]) {
-          return path.posix.resolve(`/web_modules`, dependencyImportMap.imports[spec]);
+          let resolvedImport = path.posix.resolve(
+            `/web_modules`,
+            dependencyImportMap.imports[spec],
+          );
+          const extName = path.extname(resolvedImport);
+          if (extName && extName !== '.js') {
+            resolvedImport = resolvedImport + '.proxy.js';
+          }
+          return resolvedImport;
         }
         let [missingPackageName, ...deepPackagePathParts] = spec.split('/');
         if (missingPackageName.startsWith('@')) {
