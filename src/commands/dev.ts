@@ -179,9 +179,12 @@ export async function command(commandOptions: CommandOptions) {
         }
         return _builtFileResult;
       })();
-      filesBeingBuilt.set(fileLoc, fileBuilderPromise);
-      builtFileResult = await fileBuilderPromise;
-      filesBeingBuilt.delete(fileLoc);
+      try {
+        filesBeingBuilt.set(fileLoc, fileBuilderPromise);
+        builtFileResult = await fileBuilderPromise;
+      } finally {
+        filesBeingBuilt.delete(fileLoc);
+      }
     }
     const ext = path.extname(fileLoc).substr(1);
     if (ext === 'js' || srcFileExtensionMapping[ext] === 'js') {
