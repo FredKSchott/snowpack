@@ -63,9 +63,9 @@ import srcFileExtensionMapping from './src-file-extension-mapping';
 
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
-function getEncodingType(ext: string): 'utf8' | 'binary' {
+function getEncodingType(ext: string): 'utf-8' | 'binary' {
   if (ext === '.js' || ext === '.css' || ext === '.html') {
-    return 'utf8';
+    return 'utf-8';
   } else {
     return 'binary';
   }
@@ -403,7 +403,7 @@ export async function command(commandOptions: CommandOptions) {
           .catch(() => null /* ignore */);
       }
 
-      let requestedFileExt = path.parse(reqPath).ext.toLowerCase();
+      let requestedFileExt = path.parse(reqPath).ext.toLowerCase() || '.html';
       let responseFileExt = requestedFileExt;
       let fileBuilder: FileBuilder | undefined;
       let isRoute = false;
