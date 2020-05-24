@@ -124,7 +124,7 @@ export type FileBuilder = (args: SnowpackPluginBuildArgs) => Promise<SnowpackPlu
 export function getFileBuilderForWorker(
   cwd: string,
   selectedWorker: BuildScript,
-  messageBus?: EventEmitter,
+  messageBus: EventEmitter,
 ): FileBuilder | undefined {
   const {id, type, cmd, plugin} = selectedWorker;
   if (type !== 'build') {
@@ -134,20 +134,18 @@ export function getFileBuilderForWorker(
     const buildFn = plugin.build;
     return async (args: SnowpackPluginBuildArgs) => {
       try {
-        return buildFn(args);
+        const result = await buildFn(args);
+        return result;
       } catch (err) {
-        err.message = `[${id}] ${err.message}`;
-        console.error(err);
+        messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.message});
+        messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
         return {result: ''};
-      } finally {
-        messageBus && messageBus.emit('WORKER_UPDATE', {id, state: null});
       }
     };
   }
-  return async ({contents, filePath, isDev}) => {
+  return async ({contents, filePath}: SnowpackPluginBuildArgs) => {
     let cmdWithFile = cmd.replace('$FILE', filePath);
     try {
-      messageBus && messageBus.emit('WORKER_RESET', {id});
       const {stdout, stderr} = await execa.command(cmdWithFile, {
         env: npmRunPath.env(),
         extendEnv: true,
@@ -156,22 +154,12 @@ export function getFileBuilderForWorker(
         cwd,
       });
       if (stderr) {
-        let msg = `FILE: ${filePath}\n${stderr}`;
-        messageBus && messageBus.emit('WORKER_MSG', {id, level: 'warning', msg});
+        messageBus.emit('WORKER_MSG', {id, level: 'warn', msg: `${filePath}\n${stderr}`});
       }
       return {result: stdout};
-    } catch (error) {
-      if (messageBus) {
-        let msg = `FILE: ${filePath}\n${error.toString()}`;
-        messageBus.emit('WORKER_MSG', {id, level: 'error', msg});
-        if (isDev) {
-          messageBus.emit('WORKER_UPDATE', {id, state: 'FAIL'});
-        } else {
-          messageBus.emit('WORKER_COMPLETE', {id, error: msg});
-        }
-      } else {
-        throw error;
-      }
+    } catch (err) {
+      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: `${filePath}\n${err.stderr}`});
+      messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
       return {result: ''};
     }
   };

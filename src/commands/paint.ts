@@ -194,6 +194,15 @@ export function paint(
       consoleOutput = ``;
       hasBeenCleared = true;
     }
+    // Reset all per-file build scripts
+    for (const config of registeredWorkers) {
+      if (config.type === 'build') {
+        allWorkerStates[config.id] = {
+          ...WORKER_BASE_STATE,
+          config: allWorkerStates[config.id].config,
+        };
+      }
+    }
     repaint();
   });
   bus.on('INSTALLING', () => {
