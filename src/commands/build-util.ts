@@ -146,17 +146,27 @@ export function getFileBuilderForWorker(
   }
   return async ({contents, filePath}) => {
     let cmdWithFile = cmd.replace('$FILE', filePath);
-    const {stdout, stderr} = await execa.command(cmdWithFile, {
-      env: npmRunPath.env(),
-      extendEnv: true,
-      shell: true,
-      input: contents,
-      cwd,
-    });
-    if (stderr) {
-      console.error(stderr);
+    try {
+      messageBus && messageBus.emit('WORKER_RESET', {id});
+      const {stdout, stderr} = await execa.command(cmdWithFile, {
+        env: npmRunPath.env(),
+        extendEnv: true,
+        shell: true,
+        input: contents,
+        cwd,
+      });
+      if (stderr) {
+        let msg = `FILE: ${filePath}\n${stderr}`;
+        messageBus && messageBus.emit('WORKER_MSG', {id, msg});
+      }
+      return {result: stdout};
+    } catch (error) {
+      if (messageBus) {
+        let msg = `FILE: ${filePath}\n${error.toString()}`;
+        messageBus.emit('WORKER_UPDATE', {id, state: 'FAIL'});
+        messageBus.emit('WORKER_MSG', {id, msg});
+      }
+      return {result: ''};
     }
-    messageBus && messageBus.emit('WORKER_UPDATE', {id, state: null});
-    return {result: stdout};
   };
 }
