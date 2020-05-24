@@ -17,7 +17,7 @@ All of the following frameworks have been tested and guaranteed to work in Snowp
 - and many more!
 - Literally... every library should work with Snowpack!
 
-Some libraries use compile-to-JS file formats and do require a special build script or plugin. See the guidea below for examples.
+Some libraries use compile-to-JS file formats and do require a special build script or plugin. See the guide below for examples.
 
 
 ### Babel
@@ -71,13 +71,43 @@ Babel will automatically read plugins & presets from your local project `babel.c
 }
 ```
 
+You can configure PostCSS with a `postcss.config.js` file in your current working directory. See [PostCSS CLI](https://github.com/postcss/postcss-cli) for more information.
+
+### CSS @import Support
+
+```js
+// postcss.config.js
+module.exports = {
+  plugins: [
+    // ...
+    require('postcss-import')({path: ['resources/css']}),
+    // ...
+  ]
+```
+
+To support `@import` statements in your CSS code, use PostCSS with the [postcss-import](https://github.com/postcss/postcss-import) plugin.
+
+
 ### Tailwind CSS
 
-Tailwind ships with first-class support for PostCSS. Copy the [PostCSS](#postcss) script above, and then grab the recommended PostCSS plugin from the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installation/#using-tailwind-with-postcss).
+```js
+// postcss.config.js
+// Taken from: https://tailwindcss.com/docs/installation#using-tailwind-with-postcss
+module.exports = {
+  plugins: [
+    // ...
+    require('tailwindcss'),
+    require('autoprefixer'),
+    // ...
+  ]
+}
+```
+
+Tailwind ships with first-class support for PostCSS. To use Tailwind in your Snowpack project, connect PostCSS ([see above](#postcss)) and add the recommended Tailwind PostCSS plugin to your snowpack configuration.
+
+Fo;low the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installation/#using-tailwind-with-postcss) for more info.
 
 ### SASS
-
-Make sure that you have Sass installed, and then add a "build:scss" script to convert your Sass files to CSS.
 
 ```js
 // snowpack.config.json
