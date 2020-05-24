@@ -364,7 +364,7 @@ export async function command(commandOptions: CommandOptions) {
         id: bundleWorker.id,
         level: 'log',
         msg:
-          `"plugins": ["@snowpack/plugin-parcel"]\n\n` +
+          `"plugins": ["@snowpack/plugin-webpack"]\n\n` +
           `Connect a bundler plugin to optimize your build for production.\n` +
           chalk.dim(`Set "devOptions.bundle" configuration to false to remove this message.`),
       });
