@@ -7,6 +7,7 @@ function reload() {
 }
 
 const REGISTERED_MODULES = {};
+const socket = new WebSocket('ws://localhost:12321/');
 
 class HotModuleState {
   constructor(id) {
@@ -25,12 +26,12 @@ class HotModuleState {
   }
   accept(callback = true) {
     if (!this.isAccepted) {
-      socket.send(JSON.stringify({id: this.id, type: 'hotAccept'}));
+      socket.addEventListener('open', () => {
+        socket.send(JSON.stringify({id: this.id, type: 'hotAccept'}));
+      });
       this.isAccepted = true;
     }
-    if (this.isLocked) {
-      return;
-    }
+
     this.acceptCallbacks.push(callback);
   }
   invalidate() {
@@ -79,14 +80,7 @@ async function applyUpdate(id) {
   return true;
 }
 
-const socket = new WebSocket('ws://localhost:12321/');
-
-socket.addEventListener('open', function (event) {
-  console.log('connection opened');
-});
-
 socket.addEventListener('message', ({data: _data}) => {
-  console.log('incoming', _data);
   if (!_data) {
     return;
   }
