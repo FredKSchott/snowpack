@@ -124,7 +124,7 @@ export type FileBuilder = (args: SnowpackPluginBuildArgs) => Promise<SnowpackPlu
 export function getFileBuilderForWorker(
   cwd: string,
   selectedWorker: BuildScript,
-  messageBus?: EventEmitter,
+  messageBus: EventEmitter,
 ): FileBuilder | undefined {
   const {id, type, cmd, plugin} = selectedWorker;
   if (type !== 'build') {
@@ -134,29 +134,33 @@ export function getFileBuilderForWorker(
     const buildFn = plugin.build;
     return async (args: SnowpackPluginBuildArgs) => {
       try {
-        return buildFn(args);
+        const result = await buildFn(args);
+        return result;
       } catch (err) {
-        err.message = `[${id}] ${err.message}`;
-        console.error(err);
+        messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.message});
+        messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
         return {result: ''};
-      } finally {
-        messageBus && messageBus.emit('WORKER_UPDATE', {id, state: null});
       }
     };
   }
-  return async ({contents, filePath}) => {
+  return async ({contents, filePath}: SnowpackPluginBuildArgs) => {
     let cmdWithFile = cmd.replace('$FILE', filePath);
-    const {stdout, stderr} = await execa.command(cmdWithFile, {
-      env: npmRunPath.env(),
-      extendEnv: true,
-      shell: true,
-      input: contents,
-      cwd,
-    });
-    if (stderr) {
-      console.error(stderr);
+    try {
+      const {stdout, stderr} = await execa.command(cmdWithFile, {
+        env: npmRunPath.env(),
+        extendEnv: true,
+        shell: true,
+        input: contents,
+        cwd,
+      });
+      if (stderr) {
+        messageBus.emit('WORKER_MSG', {id, level: 'warn', msg: `${filePath}\n${stderr}`});
+      }
+      return {result: stdout};
+    } catch (err) {
+      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: `${filePath}\n${err.stderr}`});
+      messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
+      return {result: ''};
     }
-    messageBus && messageBus.emit('WORKER_UPDATE', {id, state: null});
-    return {result: stdout};
   };
 }

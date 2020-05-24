@@ -612,14 +612,15 @@ export async function command(commandOptions: CommandOptions) {
       }
 
       // 4. Final option: build the file, serve it, and cache it.
-      let finalBuild: SnowpackPluginBuildResult;
+      let finalBuild: SnowpackPluginBuildResult | undefined;
       try {
         finalBuild = await buildFile(fileContents, fileLoc, reqPath, fileBuilder);
       } catch (err) {
         console.error(fileLoc, err);
+      }
+      if (!finalBuild || finalBuild.result === '') {
         return sendError(res, 500);
       }
-
       inMemoryBuildCache.set(
         fileLoc,
         Buffer.from(finalBuild.result, getEncodingType(requestedFileExt)),
