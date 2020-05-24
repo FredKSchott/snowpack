@@ -4,6 +4,9 @@ const execa = require("execa");
 const npmRunPath = require("npm-run-path");
 const { copy } = require("fs-extra");
 const cwd = process.cwd();
+const util = require("util");
+const glob = require("glob");
+const readFolderAsync = util.promisify(glob);
 
 module.exports = function parcelBundlePlugin(config, options) {
   return {
@@ -60,12 +63,11 @@ module.exports = function parcelBundlePlugin(config, options) {
         .unlink(path.join(srcDirectory, ".postcssrc.js"))
         .catch((/* ignore */) => null);
 
-      const parcelOptions = [
-        "build",
-        config.devOptions.fallback,
-        "--out-dir",
-        destDirectory,
-      ];
+      // Get all html files from the output folder
+      const pattern = config.devOptions.out + "/**/*.html";
+      const files = await readFolderAsync(pattern);
+
+      const parcelOptions = ["build", ...files, "--out-dir", destDirectory];
 
       if (config.homepage) {
         parcelOptions.push("--public-url", config.homepage);
