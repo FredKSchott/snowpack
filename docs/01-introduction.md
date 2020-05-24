@@ -18,20 +18,19 @@
 
 ### What is Snowpack?
 
-<div class='notification'>
-Snowpack is your near-instant web build tool. Snowpack replaces your dev bundler with a dev environment that only builds files as they are requested by the browser. That means instant dev startup times, less unnecessary work and faster updates on every save.
-<br/><br/>
-When you're ready to deploy your site, Snowpack automatically optimizes and bundles your site for production.
-</div>
+**Snowpack is a web app build tool that works without bundling.** Thanks to [ESM imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) Snowpack is able to remove the expensive (and unnecesary) bundling step from your dev workflow. That means no startup time spent waiting for your application to bundle PLUS no time wasted rebundling on every change.
+
+The result is a developer experience that starts up fast, stays fast, and still bundles/optimizes your production builds.
+
 
 ### Key Features
 
-- <50ms dev server startup
-- Stays fast as your codebase grows
+- No dev bundling = **<50ms dev server startup**
 - Instant rebuilds on save (Nothing to rebundle!)
-- [Hot Module Replacement (HMR)](#hot-module-replacement)
-- [One-line build scripts](#build-scripts) & [3rd-party plugins](#build-plugins)
-- [Bundled production builds](#snowpack-build---bundle) (Powered by Parcel)
+- Stays fast as your codebase grows
+- Built-in [Hot Module Replacement (HMR)](#hot-module-replacement)
+- [Custom build scripts](#build-scripts) & [third-party plugins](#build-plugins)
+- Bundled production builds
 
 ### Library Support
 

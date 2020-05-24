@@ -33,10 +33,9 @@ npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 - [@snowpack/app-template-preact](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-preact)
 - [@snowpack/app-template-svelte](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-svelte)
 - [@snowpack/app-template-vue](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-vue)
+- [@snowpack/app-template-lit-element](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-lit-element)
 - [@snowpack/app-template-11ty](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-11ty)
-- **More coming soon!** Got a favorite framework that you don't see here? [We'd love your help](https://github.com/pikapkg/create-snowpack-app) creating new templates for popular tools/frameworks before the official v2.0 launch.
-
-You can also find a full list of unofficial, community plugins by searching the ["csa-template"](https://www.npmjs.com/search?q=keywords%3Acsa-template) keyword on NPM.
+- **[See all community templates](https://github.com/pikapkg/create-snowpack-app)**
 
 <!--
 ### Tutorial: Starting from Scratch
@@ -52,4 +51,4 @@ Migrating an existing app to Snowpack is generally easy, since Snowpack supports
 
 CSA is a good starting point for existing applications because it has a few common tools (like Babel) built in by default to replicate the full feature set of a traditional bundled app. CSA is also meant to be a drop-in replacement for Create React App, so any existing Create React App project should run with zero changes needed.
 
-If you run into issues, check out our [Advanced Usage](#advanced-usage) section for guides on importing CSS, asset references, and more.
+If you run into issues, search the rest of our docs site for information about [importing CSS](#import-css), [asset references](#import-images-%26-other-assets), and more.

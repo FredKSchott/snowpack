@@ -14,7 +14,7 @@ A build plugin offers one of several different hooks into your application:
 
 ### Plugin API
 
-👉 **[Check out our advanced guide.](/plugins) on how to create your own plugin.**
+👉 **[Check out our advanced guide](/plugins) and learn how to create your own plugin.**
 
 ### Connect a Plugin
 
