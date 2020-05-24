@@ -242,7 +242,7 @@ export async function command(commandOptions: CommandOptions) {
           };
         }
         const extName = path.extname(spec);
-        if (!extName || extName !== '.js') {
+        if (extName && extName !== '.js') {
           spec = spec + '.proxy';
         }
         return `/web_modules/${spec}.js`;
