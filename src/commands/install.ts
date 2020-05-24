@@ -269,6 +269,7 @@ export async function install(
         installResults.push([installSpecifier, 'SUCCESS']);
       } else if (targetType === 'ASSET') {
         assetEntrypoints[targetName] = targetLoc;
+        importMap.imports[installSpecifier] = `./${targetName}`;
         installResults.push([installSpecifier, 'ASSET']);
       }
       logUpdate(formatInstallResults());

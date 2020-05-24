@@ -193,7 +193,6 @@ export async function command(commandOptions: CommandOptions) {
         if (spec.startsWith('http')) {
           return spec;
         }
-
         if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
           const ext = path.extname(spec).substr(1);
           if (!ext) {
@@ -241,6 +240,10 @@ export async function command(commandOptions: CommandOptions) {
             spec: spec,
             pkgName: missingPackageName,
           };
+        }
+        const extName = path.extname(spec);
+        if (!extName || extName !== '.js') {
+          spec = spec + '.proxy';
         }
         return `/web_modules/${spec}.js`;
       });
