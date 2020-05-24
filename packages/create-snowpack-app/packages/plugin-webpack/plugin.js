@@ -2,9 +2,12 @@ const fs = require("fs");
 const path = require("path");
 const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const TerserJSPlugin = require("terser-webpack-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const jsdom = require("jsdom");
 const CopyPlugin = require("copy-webpack-plugin");
 const { JSDOM } = jsdom;
+const cwd = process.cwd();
 
 async function compilePromise(webpackConfig) {
   const compiler = webpack(webpackConfig);
@@ -37,6 +40,15 @@ module.exports = function plugin(config, args) {
     async bundle({ srcDirectory, destDirectory, log, jsFilePaths }) {
       let homepage = config.homepage || "/";
       let fallback = chain(config, ["devOptions", "fallback"]) || "index.html";
+
+      const tempBuildManifest = JSON.parse(
+        await fs.readFileSync(path.join(cwd, "package.json"), {
+          encoding: "utf-8",
+        })
+      );
+      const presetEnvTargets =
+        tempBuildManifest.browserslist ||
+        ">0.75%, not ie 11, not UCAndroid >0, not OperaMini all";
 
       const jsOutputPattern =
         chain(args, ["outputPatterns", "js"]) || "js/bundle-[hash].js";
@@ -93,11 +105,21 @@ module.exports = function plugin(config, args) {
         module: {
           rules: [
             {
-              test: /\.jsx?$/,
-              exclude: ["/node_modules/"],
+              test: /\.js$/,
               use: [
                 {
                   loader: "babel-loader",
+                  options: {
+                    cwd: srcDirectory,
+                    configFile: false,
+                    babelrc: false,
+                    presets: [
+                      [
+                        "@babel/preset-env",
+                        { targets: presetEnvTargets, bugfixes: true },
+                      ],
+                    ],
+                  },
                 },
                 {
                   loader: require.resolve("./loader-fix-import-meta.js"),
@@ -105,7 +127,7 @@ module.exports = function plugin(config, args) {
               ],
             },
             {
-              test: /\.s?css$/,
+              test: /\.css$/,
               use: [
                 {
                   loader: MiniCssExtractPlugin.loader,
@@ -117,7 +139,7 @@ module.exports = function plugin(config, args) {
             },
             {
               test: /.*/,
-              exclude: [/\.jsx?$/, /\.s?css$/],
+              exclude: [/\.js?$/, /\.css$/],
               use: [
                 {
                   loader: "file-loader",
@@ -131,11 +153,9 @@ module.exports = function plugin(config, args) {
         },
         mode: args.mode || "production",
         devtool: args.sourceMap ? "source-map" : undefined,
-        optimization: Object.keys(args).includes("minify")
-          ? {
-              minimize: args.minify,
-            }
-          : undefined,
+        optimization: {
+          minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
+        },
         plugins: [
           //Extract a css file from imported css files
           new MiniCssExtractPlugin({
