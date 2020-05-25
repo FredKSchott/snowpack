@@ -261,13 +261,6 @@ export async function command(commandOptions: CommandOptions) {
         id: fileLoc,
         data: missingWebModule,
       });
-      const isHmrEnabled = builtFileResult.result.includes('import.meta.hot');
-      const rawImports = await scanCodeImportsExports(builtFileResult.result);
-      const resolvedImports = rawImports.map((imp) => {
-        const spec = builtFileResult.result.substring(imp.s, imp.e);
-        return path.posix.resolve(path.posix.dirname(reqPath), spec);
-      });
-      hmrEngine.setEntry(reqPath, resolvedImports, isHmrEnabled);
     }
 
     return builtFileResult;
@@ -340,6 +333,7 @@ export async function command(commandOptions: CommandOptions) {
     .createServer(async (req, res) => {
       const reqUrl = req.url!;
       let reqPath = decodeURI(url.parse(reqUrl).pathname!);
+      const originalReqPath = reqPath;
       let isProxyModule = false;
       let isCssModule = false;
       if (reqPath.endsWith('.proxy.js')) {
@@ -580,6 +574,17 @@ export async function command(commandOptions: CommandOptions) {
             coldCachedResponse.toString(getEncodingType(requestedFileExt)),
             resources?.css,
           );
+
+          if (responseFileExt === '.js') {
+            const isHmrEnabled = wrappedResponse.includes('import.meta.hot');
+            const rawImports = await scanCodeImportsExports(wrappedResponse);
+            const resolvedImports = rawImports.map((imp) => {
+              const spec = wrappedResponse.substring(imp.s, imp.e);
+              return path.posix.resolve(path.posix.dirname(reqPath), spec);
+            });
+            hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
+          }
+
           sendFile(req, res, wrappedResponse, responseFileExt);
           // ...but verify.
           let checkFinalBuildResult: string | null | undefined = null;
@@ -637,6 +642,17 @@ export async function command(commandOptions: CommandOptions) {
         {metadata: {originalFileHash, resources: finalBuild.resources}},
       );
       const wrappedResponse = await wrapResponse(finalBuild.result, finalBuild.resources?.css);
+
+      if (responseFileExt === '.js') {
+        const isHmrEnabled = wrappedResponse.includes('import.meta.hot');
+        const rawImports = await scanCodeImportsExports(wrappedResponse);
+        const resolvedImports = rawImports.map((imp) => {
+          const spec = wrappedResponse.substring(imp.s, imp.e);
+          return path.posix.resolve(path.posix.dirname(reqPath), spec);
+        });
+        hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
+      }
+
       sendFile(req, res, wrappedResponse, responseFileExt);
     })
     .listen(port);
@@ -648,7 +664,6 @@ export async function command(commandOptions: CommandOptions) {
     if (visited.has(url)) {
       return;
     }
-
     visited.add(url);
     const node = hmrEngine.getEntry(url);
     if (node && node.isHmrEnabled) {
@@ -665,12 +680,14 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
   async function onWatchEvent(fileLoc) {
-    const fileUrl = getUrlFromFile(mountedDirectories, fileLoc);
-    if (!fileUrl) {
-      return;
-    }
-    if (!isLiveReloadPaused) {
-      updateOrBubble(fileUrl, new Set());
+    let updateUrl = getUrlFromFile(mountedDirectories, fileLoc);
+    if (updateUrl) {
+      if (!updateUrl.endsWith('.js')) {
+        updateUrl += '.proxy.js';
+      }
+      if (!isLiveReloadPaused) {
+        updateOrBubble(updateUrl, new Set());
+      }
     }
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);
