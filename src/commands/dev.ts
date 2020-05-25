@@ -423,7 +423,7 @@ export async function command(commandOptions: CommandOptions) {
             return [await attemptLoadFile(requestedFile), null];
           }
 
-          if (requestedFileExt) {
+          if (requestedFileExt !== '.html') {
             for (const workerConfig of config.scripts) {
               const {type, match} = workerConfig;
               if (type !== 'build') {
