@@ -59,9 +59,9 @@ export class EsmHmrEngine {
       outdatedDependencies.delete(importUrl);
     }
 
-    outdatedDependencies.forEach((importUrl) => {
+    for (const importUrl of outdatedDependencies) {
       this.removeRelationship(sourceUrl, importUrl);
-    });
+    };
   }
 
   removeRelationship(sourceUrl: string, importUrl: string) {
@@ -105,6 +105,8 @@ export class EsmHmrEngine {
   }
 
   disconnectAllClients() {
-    this.clients.forEach((c) => this.disconnectClient(c));
+    for (const client of this.clients) {
+      this.disconnectClient(client)
+    }
   }
 }
