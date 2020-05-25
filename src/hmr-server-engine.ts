@@ -20,9 +20,9 @@ export class EsmHmrEngine {
     });
   }
 
-  registerListener(client) {
+  registerListener(client: WebSocket) {
     client.on('message', (data) => {
-      const message = JSON.parse(data);
+      const message = JSON.parse(data.toString());
       if (message.type === 'hotAccept') {
         const entry = this.getEntry(message.id, true) as Dependency;
         entry.isHmrAccepted = true;
@@ -56,12 +56,11 @@ export class EsmHmrEngine {
   setEntry(sourceUrl: string, imports: string[], isHmrEnabled = false) {
     const result = this.getEntry(sourceUrl, true)!;
     const outdatedDependencies = new Set(result.dependencies);
+    result.isHmrEnabled = isHmrEnabled;
     for (const importUrl of imports) {
       this.addRelationship(sourceUrl, importUrl);
       outdatedDependencies.delete(importUrl);
-      result.isHmrEnabled = isHmrEnabled;
     }
-
     for (const importUrl of outdatedDependencies) {
       this.removeRelationship(sourceUrl, importUrl);
     }
@@ -70,7 +69,6 @@ export class EsmHmrEngine {
   removeRelationship(sourceUrl: string, importUrl: string) {
     let importResult = this.getEntry(importUrl);
     importResult && importResult.dependents.delete(sourceUrl);
-
     const sourceResult = this.getEntry(sourceUrl);
     sourceResult && sourceResult.dependencies.delete(importUrl);
   }

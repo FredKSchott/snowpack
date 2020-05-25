@@ -7,11 +7,14 @@ function reload() {
 }
 
 const REGISTERED_MODULES = {};
-const SOCKET_MESSAGE_QUEUE = [];
+let SOCKET_MESSAGE_QUEUE = [];
+
 const socket = new WebSocket('ws://localhost:12321/');
 socket.addEventListener('open', () => {
   SOCKET_MESSAGE_QUEUE.forEach(_sendSocketMessage);
+  SOCKET_MESSAGE_QUEUE = [];
 });
+
 function _sendSocketMessage(msg) {
   socket.send(JSON.stringify(msg));
 }
@@ -27,10 +30,10 @@ class HotModuleState {
   constructor(id) {
     this.isLocked = false;
     this.isDeclined = false;
+    this.isAccepted = false;
     this.acceptCallbacks = [];
     this.disposeCallbacks = [];
     this.id = id;
-    this.isAccepted = false;
   }
   lock() {
     this.isLocked = true;
@@ -38,20 +41,21 @@ class HotModuleState {
   dispose(callback) {
     this.disposeCallbacks.push(callback);
   }
-  accept(callback = true) {
-    if (!this.isAccepted) {
-      if (socket.readyState !== socket.OPEN) {
-        sendSocketMessage({id: this.id, type: 'hotAccept'});
-      }
-      this.isAccepted = true;
-    }
-    this.acceptCallbacks.push(callback);
-  }
   invalidate() {
     reload();
   }
   decline() {
     this.isDeclined = true;
+  }
+  accept(callback = true) {
+    if (this.isLocked) {
+      return;
+    }
+    if (!this.isAccepted) {
+      sendSocketMessage({id: this.id, type: 'hotAccept'});
+      this.isAccepted = true;
+    }
+    this.acceptCallbacks.push(callback);
   }
 }
 
