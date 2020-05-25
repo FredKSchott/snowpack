@@ -404,10 +404,13 @@ export async function command(commandOptions: CommandOptions) {
           .catch(() => null /* ignore */);
       }
 
-      let requestedFileExt = path.parse(reqPath).ext.toLowerCase() || '.html';
+      let requestedFileExt = path.parse(reqPath).ext.toLowerCase();
       let responseFileExt = requestedFileExt;
       let fileBuilder: FileBuilder | undefined;
-      let isRoute = false;
+      let isRoute = !requestedFileExt;
+
+      // Now that we've set isRoute properly, give `requestedFileExt` a fallback
+      requestedFileExt = requestedFileExt || '.html';
 
       async function getFileFromUrl(reqPath: string): Promise<[string | null, BuildScript | null]> {
         for (const [dirDisk, dirUrl] of mountedDirectories) {
@@ -419,12 +422,24 @@ export async function command(commandOptions: CommandOptions) {
           } else {
             continue;
           }
-
           if (requestedFile.startsWith(commandOptions.config.installOptions.dest)) {
             return [await attemptLoadFile(requestedFile), null];
           }
+          if (isRoute) {
+            let fileLoc =
+              (await attemptLoadFile(requestedFile + '.html')) ||
+              (await attemptLoadFile(requestedFile + 'index.html')) ||
+              (await attemptLoadFile(requestedFile + '/index.html'));
 
-          if (requestedFileExt) {
+            if (!fileLoc && dirUrl === '/' && config.devOptions.fallback) {
+              const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
+              fileLoc = await attemptLoadFile(fallbackFile);
+            }
+            if (fileLoc) {
+              responseFileExt = '.html';
+            }
+            return [fileLoc, null];
+          } else {
             for (const workerConfig of config.scripts) {
               const {type, match} = workerConfig;
               if (type !== 'build') {
@@ -451,21 +466,6 @@ export async function command(commandOptions: CommandOptions) {
             if (fileLoc) {
               return [fileLoc, null];
             }
-          } else {
-            let fileLoc =
-              (await attemptLoadFile(requestedFile + '.html')) ||
-              (await attemptLoadFile(requestedFile + 'index.html')) ||
-              (await attemptLoadFile(requestedFile + '/index.html'));
-
-            if (!fileLoc && dirUrl === '/' && config.devOptions.fallback) {
-              const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
-              fileLoc = await attemptLoadFile(fallbackFile);
-            }
-            if (fileLoc) {
-              responseFileExt = '.html';
-              isRoute = true;
-            }
-            return [fileLoc, null];
           }
         }
         return [null, null];

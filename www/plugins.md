@@ -85,7 +85,7 @@ The build function is run on all files that match the file extensions in the bui
 
 Note that production optimizations like minification, dead code elimination, and legacy browser transpilation are all handled automatically by Snowpack and are not a concern for plugin authors. A plugin's output should always be modern code. 
 
-Use `resouces` if your build outputs multiple files from your one source file. For example, Svelte & Vue files output both JavaScript and CSS. Return the JS output as `result` and the CSS output as `resources.css`. Snowpack will make sure that they're handled together in your final build.  
+Use `resources` if your build outputs multiple files from your one source file. For example, Svelte & Vue files output both JavaScript and CSS. Return the JS output as `result` and the CSS output as `resources.css`. Snowpack will make sure that they're handled together in your final build.  
 
 ### transform()
 
