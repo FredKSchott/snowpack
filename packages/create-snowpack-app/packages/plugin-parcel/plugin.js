@@ -64,7 +64,7 @@ module.exports = function parcelBundlePlugin(config, options) {
         .catch((/* ignore */) => null);
 
       // Get all html files from the output folder
-      const pattern = config.devOptions.out + "/**/*.html";
+      const pattern = srcDirectory + "/**/*.html";
       const files = await readFolderAsync(pattern);
 
       const parcelOptions = ["build", ...files, "--out-dir", destDirectory];
