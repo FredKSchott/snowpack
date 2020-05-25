@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
     "module": "esnext",
+    "target": "esnext",
     "moduleResolution": "node",
     "jsx": "preserve",
     "baseUrl": "./",
     "paths": { "*": ["web_modules/.types/*"] },
-
-    /* noEmit - We use Babel to compile to JavaScript. */
+    "allowSyntheticDefaultImports": true,
+    /* noEmit - We only use TypeScript for type checking. */
     "noEmit": true,
-
     /* Additional Options */
     "strict": true,
     "skipLibCheck": true,

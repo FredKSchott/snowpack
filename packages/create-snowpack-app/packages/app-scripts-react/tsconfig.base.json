@@ -4,7 +4,10 @@
     "target": "esnext",
     "moduleResolution": "node",
     "jsx": "preserve",
-    /* noEmit - We use Babel to compile to JavaScript. */
+    "baseUrl": "./",
+    "paths": { "*": ["web_modules/.types/*"] },
+    "allowSyntheticDefaultImports": true,
+    /* noEmit - We only use TypeScript for type checking. */
     "noEmit": true,
     /* Additional Options */
     "strict": true,
