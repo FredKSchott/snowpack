@@ -159,11 +159,12 @@ export async function command(commandOptions: CommandOptions) {
       fileBuilderPromise = (async () => {
         let _builtFileResult: SnowpackPluginBuildResult = {result: fileContents};
         if (fileBuilder) {
-          _builtFileResult = await fileBuilder({
-            contents: fileContents,
-            filePath: fileLoc,
-            isDev: true,
-          });
+          _builtFileResult =
+            (await fileBuilder({
+              contents: fileContents,
+              filePath: fileLoc,
+              isDev: true,
+            })) || _builtFileResult;
         }
         for (const plugin of config.plugins) {
           if (plugin.transform) {

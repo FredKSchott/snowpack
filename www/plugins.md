@@ -69,16 +69,15 @@ If you don't include this, the user will need to define the build script themsel
 ### build()
 
 ```
-build?: ({
+build?: async ({
   filePath: string,
   contents: string,
   isDev: boolean,
-}) => Promise<{
-  result: string; 
-  resouces?: {css?: string}
-}>
+}) => null | {
+  result: string;
+  resources?: {css?: string};
+};
 ```
-
 
 Build any file from source. Files can be built from any source file type, but must be returned as their final file type. For example, a JSX file must be converted to JS at the build stage and not the transform stage.
 
@@ -91,11 +90,11 @@ Use `resouces` if your build outputs multiple files from your one source file. F
 ### transform()
 
 ```
-transform?: ({
+transform?: async ({
   urlPath: string,
   contents: string,
   isDev: boolean,
-}) => Promise<false | {result: string}>
+}) => null | {result: string};
 ```
 
 Transform an already-loaded file before it is sent to the browser. This is called for every file in your build, so be sure to test the `urlPath` extension to filter your transform by a certain file type. Return `false` to skip transforming this file.

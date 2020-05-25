@@ -120,7 +120,9 @@ import.meta.hot.dispose(() => {
   return `export default ${JSON.stringify(url)};`;
 }
 
-export type FileBuilder = (args: SnowpackPluginBuildArgs) => Promise<SnowpackPluginBuildResult>;
+export type FileBuilder = (
+  args: SnowpackPluginBuildArgs,
+) => null | SnowpackPluginBuildResult | Promise<null | SnowpackPluginBuildResult>;
 export function getFileBuilderForWorker(
   cwd: string,
   selectedWorker: BuildScript,
@@ -139,7 +141,7 @@ export function getFileBuilderForWorker(
       } catch (err) {
         messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.message});
         messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
-        return {result: ''};
+        return null;
       }
     };
   }
@@ -160,7 +162,7 @@ export function getFileBuilderForWorker(
     } catch (err) {
       messageBus.emit('WORKER_MSG', {id, level: 'error', msg: `${filePath}\n${err.stderr}`});
       messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
-      return {result: ''};
+      return null;
     }
   };
 }

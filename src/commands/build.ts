@@ -249,14 +249,15 @@ export async function command(commandOptions: CommandOptions) {
           outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace!);
         }
 
-        let {result: code, resources} = await fileBuilder({
+        const builtFile = await fileBuilder({
           contents: fileContents,
           filePath: f,
           isDev: false,
         });
-        if (!code) {
+        if (!builtFile) {
           continue;
         }
+        let {result: code, resources} = builtFile;
         const urlPath = outPath.substr(dirDest.length + 1);
         for (const plugin of config.plugins) {
           if (plugin.transform) {

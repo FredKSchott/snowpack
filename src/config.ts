@@ -53,10 +53,10 @@ export type SnowpackPlugin = {
   knownEntrypoints?: string[];
   build?: (
     args: SnowpackPluginBuildArgs,
-  ) => SnowpackPluginBuildResult | Promise<SnowpackPluginBuildResult>;
+  ) => null | SnowpackPluginBuildResult | Promise<null | SnowpackPluginBuildResult>;
   transform?: (
     args: SnowpackPluginTransformArgs,
-  ) => SnowpackPluginTransformResult | Promise<SnowpackPluginTransformResult>;
+  ) => null | SnowpackPluginTransformResult | Promise<null | SnowpackPluginTransformResult>;
   bundle?(args: {
     srcDirectory: string;
     destDirectory: string;
