@@ -260,13 +260,13 @@ export async function command(commandOptions: CommandOptions) {
         id: fileLoc,
         data: missingWebModule,
       });
-
+      const isHmrEnabled = builtFileResult.result.includes('import.meta.hot');
       const rawImports = await scanCodeImportsExports(builtFileResult.result);
       const resolvedImports = rawImports.map((imp) => {
         const spec = builtFileResult.result.substring(imp.s, imp.e);
         return path.posix.resolve(path.posix.dirname(reqPath), spec);
       });
-      hmrEngine.setEntry(reqPath, resolvedImports);
+      hmrEngine.setEntry(reqPath, resolvedImports, isHmrEnabled);
     }
 
     return builtFileResult;
@@ -644,12 +644,17 @@ export async function command(commandOptions: CommandOptions) {
   let isLiveReloadPaused = false;
 
   function updateOrBubble(url: string, visited: Set<string>) {
-    if (visited.has(url)) return;
+    if (visited.has(url)) {
+      return;
+    }
 
     visited.add(url);
     const node = hmrEngine.getEntry(url);
     if (node && node.isHmrEnabled) {
       hmrEngine.broadcastMessage({type: 'update', url});
+    }
+    if (node && node.isHmrAccepted) {
+      // Found a boundary, no bubbling needed
     } else if (node && node.dependents.size > 0) {
       hmrEngine.markEntryForReplacement(node, true);
       node.dependents.forEach((dep) => updateOrBubble(dep, visited));

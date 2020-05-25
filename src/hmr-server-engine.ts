@@ -4,6 +4,7 @@ interface Dependency {
   dependents: Set<string>;
   dependencies: Set<string>;
   isHmrEnabled: boolean;
+  isHmrAccepted: boolean;
   needsReplacement: boolean;
 }
 
@@ -24,7 +25,7 @@ export class EsmHmrEngine {
       const message = JSON.parse(data);
       if (message.type === 'hotAccept') {
         const entry = this.getEntry(message.id, true) as Dependency;
-        entry.isHmrEnabled = true;
+        entry.isHmrAccepted = true;
       }
     });
   }
@@ -35,6 +36,7 @@ export class EsmHmrEngine {
       dependents: new Set(),
       needsReplacement: false,
       isHmrEnabled: false,
+      isHmrAccepted: false,
     };
     this.dependencyTree.set(sourceUrl, newEntry);
     return newEntry;
@@ -51,17 +53,18 @@ export class EsmHmrEngine {
     return null;
   }
 
-  setEntry(sourceUrl: string, imports: string[]) {
+  setEntry(sourceUrl: string, imports: string[], isHmrEnabled = false) {
     const result = this.getEntry(sourceUrl, true)!;
     const outdatedDependencies = new Set(result.dependencies);
     for (const importUrl of imports) {
       this.addRelationship(sourceUrl, importUrl);
       outdatedDependencies.delete(importUrl);
+      result.isHmrEnabled = isHmrEnabled;
     }
 
     for (const importUrl of outdatedDependencies) {
       this.removeRelationship(sourceUrl, importUrl);
-    };
+    }
   }
 
   removeRelationship(sourceUrl: string, importUrl: string) {
@@ -106,7 +109,7 @@ export class EsmHmrEngine {
 
   disconnectAllClients() {
     for (const client of this.clients) {
-      this.disconnectClient(client)
+      this.disconnectClient(client);
     }
   }
 }

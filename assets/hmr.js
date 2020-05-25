@@ -7,7 +7,21 @@ function reload() {
 }
 
 const REGISTERED_MODULES = {};
+const SOCKET_MESSAGE_QUEUE = [];
 const socket = new WebSocket('ws://localhost:12321/');
+socket.addEventListener('open', () => {
+  SOCKET_MESSAGE_QUEUE.forEach(_sendSocketMessage);
+});
+function _sendSocketMessage(msg) {
+  socket.send(JSON.stringify(msg));
+}
+function sendSocketMessage(msg) {
+  if (socket.readyState !== socket.OPEN) {
+    SOCKET_MESSAGE_QUEUE.push(msg);
+  } else {
+    _sendSocketMessage(msg);
+  }
+}
 
 class HotModuleState {
   constructor(id) {
@@ -27,16 +41,10 @@ class HotModuleState {
   accept(callback = true) {
     if (!this.isAccepted) {
       if (socket.readyState !== socket.OPEN) {
-        socket.addEventListener('open', () => {
-          socket.send(JSON.stringify({id: this.id, type: 'hotAccept'}));
-        });
-      } else {
-        socket.send(JSON.stringify({id: this.id, type: 'hotAccept'}));
+        sendSocketMessage({id: this.id, type: 'hotAccept'});
       }
-
       this.isAccepted = true;
     }
-
     this.acceptCallbacks.push(callback);
   }
   invalidate() {
