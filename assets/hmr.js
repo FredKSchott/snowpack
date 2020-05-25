@@ -26,9 +26,14 @@ class HotModuleState {
   }
   accept(callback = true) {
     if (!this.isAccepted) {
-      socket.addEventListener('open', () => {
+      if (socket.readyState !== socket.OPEN) {
+        socket.addEventListener('open', () => {
+          socket.send(JSON.stringify({id: this.id, type: 'hotAccept'}));
+        });
+      } else {
         socket.send(JSON.stringify({id: this.id, type: 'hotAccept'}));
-      });
+      }
+
       this.isAccepted = true;
     }
 
@@ -85,6 +90,7 @@ socket.addEventListener('message', ({data: _data}) => {
     return;
   }
   const data = JSON.parse(_data);
+  debug('message', data);
   if (data.type === 'reload') {
     debug('message: reload');
     reload();
