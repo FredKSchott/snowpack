@@ -579,7 +579,11 @@ export async function command(commandOptions: CommandOptions) {
             const isHmrEnabled = wrappedResponse.includes('import.meta.hot');
             const rawImports = await scanCodeImportsExports(wrappedResponse);
             const resolvedImports = rawImports.map((imp) => {
-              const spec = wrappedResponse.substring(imp.s, imp.e);
+              let spec = wrappedResponse.substring(imp.s, imp.e);
+              if (imp.d > -1) {
+                const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
+                spec = importSpecifierMatch![1];
+              }
               return path.posix.resolve(path.posix.dirname(reqPath), spec);
             });
             hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
@@ -647,7 +651,11 @@ export async function command(commandOptions: CommandOptions) {
         const isHmrEnabled = wrappedResponse.includes('import.meta.hot');
         const rawImports = await scanCodeImportsExports(wrappedResponse);
         const resolvedImports = rawImports.map((imp) => {
-          const spec = wrappedResponse.substring(imp.s, imp.e);
+          let spec = wrappedResponse.substring(imp.s, imp.e);
+          if (imp.d > -1) {
+            const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
+            spec = importSpecifierMatch![1];
+          }
           return path.posix.resolve(path.posix.dirname(reqPath), spec);
         });
         hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
