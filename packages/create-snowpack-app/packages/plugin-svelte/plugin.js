@@ -16,7 +16,7 @@ module.exports = function plugin(config, pluginOptions) {
   } finally {
     svelteOptions = {
       dev: process.env.NODE_ENV !== "production",
-      css: false,
+      css: process.env.NODE_ENV !== "production",
       ...svelteOptions,
       ...pluginOptions,
     };
@@ -39,12 +39,11 @@ module.exports = function plugin(config, pluginOptions) {
         ...svelteOptions,
         filename: filePath,
       });
-      return {
-        result: js && js.code,
-        resources: {
-          css: css && css.code,
-        },
-      };
+      const result = { result: js && js.code };
+      if (!svelteOptions.css) {
+        result.resources = { css: css && css.code };
+      }
+      return result;
     },
   };
 };
