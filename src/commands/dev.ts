@@ -159,12 +159,15 @@ export async function command(commandOptions: CommandOptions) {
       fileBuilderPromise = (async () => {
         let _builtFileResult: SnowpackPluginBuildResult = {result: fileContents};
         if (fileBuilder) {
-          _builtFileResult =
-            (await fileBuilder({
-              contents: fileContents,
-              filePath: fileLoc,
-              isDev: true,
-            })) || _builtFileResult;
+          let result = await fileBuilder({
+            contents: fileContents,
+            filePath: fileLoc,
+            isDev: true,
+          });
+          if (!result) {
+            return Promise.reject();
+          }
+          _builtFileResult = result;
         }
         for (const plugin of config.plugins) {
           if (plugin.transform) {
@@ -626,7 +629,7 @@ export async function command(commandOptions: CommandOptions) {
       try {
         finalBuild = await buildFile(fileContents, fileLoc, reqPath, fileBuilder);
       } catch (err) {
-        console.error(fileLoc, err);
+        // safe to ignore, it will be surfaced later anyway through message bus
       }
       if (!finalBuild || finalBuild.result === '') {
         return sendError(res, 500);

@@ -132,6 +132,7 @@ export function getFileBuilderForWorker(
   if (type !== 'build') {
     throw new Error(`scripts[${id}] is not a build script.`);
   }
+  messageBus.emit('WORKER_RESET', {id});
   if (plugin?.build) {
     const buildFn = plugin.build;
     return async (args: SnowpackPluginBuildArgs) => {
