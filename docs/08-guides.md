@@ -8,8 +8,7 @@ All of the following frameworks have been tested and guaranteed to work in Snowp
 
 - React
 - Preact
-- JSX
-- HTML
+- JSX & HTM
 - lit-html
 - Vue (see below)
 - Svelte (see below)
