@@ -18,19 +18,18 @@
 
 ### What is Snowpack?
 
-**Snowpack is a web app build tool that works without bundling.** Thanks to [ESM imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) Snowpack is able to remove the expensive (and unnecesary) bundling step from your dev workflow. That means no startup time spent waiting for your application to bundle PLUS no time wasted rebundling on every change.
+**Snowpack is a build tool for modern web apps.** Developing your application with Snowpack gets you the fastest dev environment on the planet today. Snowpack leverages [ESM imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) in your application to remove all unnecessary bundling work from your dev workflow. The end result is a build tool that starts up instantly and wastes no time rebundling multiple files on every change.
 
-The result is a developer experience that starts up fast, stays fast, and still bundles/optimizes your production builds.
+<!--[Check out our launch post](/posts/2020-05-25-v2-release-day?utm_source=origin&utm_medium=banner&utm_campaign=2.0-launch) to learn more.-->
 
 
 ### Key Features
 
-- No dev bundling = **<50ms dev server startup**
-- Instant rebuilds on save (Nothing to rebundle!)
-- Stays fast as your codebase grows
-- Built-in [Hot Module Replacement (HMR)](#hot-module-replacement)
-- [Custom build scripts](#build-scripts) & [third-party plugins](#build-plugins)
-- Bundled production builds
+- A dev environment that starts up in **50ms or less.**
+- File changes are reflected in the browser [instantly.](/#hot-module-replacement) 
+- Integrates with your favorite bundler for [production builds](/#snowpack-build).
+- Out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](/#features)
+- [Custom build scripts](/#build-scripts) & [third-party plugins](/#build-plugins) to connect your favorite tools.
 
 ### Library Support
 

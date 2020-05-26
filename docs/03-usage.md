@@ -2,6 +2,8 @@
 
 ### snowpack dev
 
+![dev command output example](/img/snowpack-dev-startup-2.png)
+
 Snowpack's dev server is an instant dev environment for any web application. `snowpack dev` stays fast by skipping all unecceary bundling during development and serving individual files directly to the browser. That means **zero** upfront startup cost: Snowpack only starts building your app when you make your first request. This scales especially well to large projects, where you'd otherwise commonly see 30+ second dev startup times with a traditional bundler.
 
 This magic is all possible thanks to Snowpack's npm package installer, which installs your packages so that they can run directly in the browser. When you develop or build your application, Snowpack automatically rewrites your imports to point to your Snowpack-installed, ready-to-run web dependencies.
@@ -21,6 +23,8 @@ Snowpack supports JSX & TypeScript source code by default, compiling your files 
 
 ### snowpack build
 
+![build output example](/img/snowpack-build-example.png)
+
 When you're ready to deploy your application, run `snowpack build` to generate a static production build of your site. Building is tightly integrated with your dev setup so that you are guaranteed to get a working copy of the same code you saw during development.
 
 The default output of the `snowpack build` command is an exact copy of your unbundled dev site. Deploying unbundled code is fine for simple sites, but you may want to optimize your site even further by bundling your final deployment for production. 
@@ -30,12 +34,7 @@ The default output of the `snowpack build` command is an exact copy of your unbu
 
 ### snowpack install
 
-Snowpack originally became famous for it's npm package install. Since then, the installer has been integrated directly into the `dev` & `build` workflows so that you no longer need to run the Snowpack installer yourself. Feel free to skip this section and come back later: you probably won't ever need to run this command.
-
-But, if you want to run the installer yourself, `snowpack install` will install your dependencies into a new `web_modules/` directory. Snowpack will scan your project for ESM `import` statements to find every npm package used by your application. You can also provide a list of package names manually via the ["install"](#all-config-options) config.
-
 ``` bash
-# Example: Snowpack detects `import 'react'` & `import 'react-dom'` statements in your "src/" code.
 ✔ snowpack install complete. [0.88s]
 
   ⦿ web_modules/                 size       gzip       brotli   
@@ -45,7 +44,12 @@ But, if you want to run the installer yourself, `snowpack install` will install 
     └─ index-8961bd84.js         10.83 KB   3.96 KB    3.51 KB    
 ```
 
-From here, any `web_modules/` package can be imported and run directly in the browser with zero additional bundling or tooling required. This ability to import npm packages natively in the browser (without a bundler) is the foundation that all no-bundle development (and the rest of Snowpack) is built on top of.
+
+Snowpack originally became famous for it's npm package install. Since then, the installer has been integrated directly into the `dev` & `build` workflows so that you no longer need to run the Snowpack installer yourself. Feel free to skip this section and come back later: you probably won't ever need to run this command.
+
+You can run the installer yourself via `snowpack install`. This will install your dependencies into a new top-level `web_modules/` directory in your project. To figure out which dependencies you need, Snowpack will scan your project for ESM `import` statements to find every npm package used by your application. You can also provide a list of package names manually via the ["install"](#all-config-options) config.
+
+After installing, any `web_modules/` package can be imported and run directly in the browser with zero additional bundling or tooling required. This ability to import npm packages natively in the browser (without a bundler) is the foundation that all no-bundle development (and the rest of Snowpack) is built on top of.
 
 ``` html
 <!-- This runs directly in the browser! -->
@@ -55,4 +59,4 @@ From here, any `web_modules/` package can be imported and run directly in the br
 </script>
 ```
 
-Again, all of this is built into Snowpack `dev` & `build` commands by default. But, you can use the `install` command to install & manage web-ready npm packages for your own dev server or build pipeline.
+Again, all of this is built into Snowpack `dev` & `build` commands by default. But, you can use the `install` command to provide web-ready npm packages for your own dev server or build pipeline.

@@ -15,10 +15,18 @@ Looking for help using Snowpack in your project?
 
 ## Plugin API
 
+A Snowpack plugin is a JavaScript module that exports a function. That function takes Snowpack config & plugin options as it's function arguments and must return a valid Snowpack Plugin object.
+
+
 ### Example
 
 ```js
-// Example: This plugin adds automatic HMR for Preact applications.
+// snowpack.config.json
+"plugins": [["@prefresh/snowpack", { /* `pluginOptions` (optional) */ }]]
+```
+
+```js
+// "@prefresh/snowpack": This plugin adds automatic HMR for Preact applications.
 module.exports = function createPlugin(snowpackConfig, pluginOptions) {
   return {
     knownEntrypoints: ['@prefresh/core'],

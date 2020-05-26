@@ -10,12 +10,10 @@ If you've ever worked with `package.json` "scripts", creating your own build scr
 
 ```js
 // snowpack.config.json
-// 1. Pipe every .css file through PostCSS CLI
-// 2. Pipe every .js & .jsx file through Babel CLI
 {
   "scripts": {
+    // Pipe every .css file through PostCSS CLI
     "build:css": "postcss",
-    "build:js,jsx": "babel --filename $FILE"
   }
 }
 ```

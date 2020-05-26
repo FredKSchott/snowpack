@@ -110,15 +110,15 @@ Learn more about [Build Script integrations](#build-scripts).
 
 #### Compile to JavaScript
 
-When you write your web app with JSX, Snowpack will automatically build all `.jsx` & `.tsx` files to JavaScript during development and production builds. This works for both React & Preact as long as the file includes an import of React or Preact. 
+Snowpack automatically builds all `.jsx` & `.tsx` files to JavaScript during development and production builds. This works with both React & Preact as long as the file includes an import of React or Preact. 
 
-**Note: JSX must live in `.jsx` files.** JSX in `.js` files is not supported.
+**Note: JSX must live in `.jsx`/`.tsx` files.** JSX in a `.js` file is not currently supported.
 
-If needed, you can optionally define your own JSX->JavaScript build step via a [Build Script integration](#build-scripts).
+You could also choose to define your own JSX->JavaScript build step via a [Build Script integration](#build-scripts).
 
 ```js
 // snowpack.config.json
-// Optional: Build JSX files with Babel (must define your own babel.config.json)
+// Optional: You can define your own JSX build step if you'd like.
 {
   "scripts": {
     "build:jsx": "babel --filename $FILE",
@@ -130,13 +130,13 @@ If needed, you can optionally define your own JSX->JavaScript build step via a [
 
 #### Compile to JavaScript
 
-Write your web app with TypeScript, and Snowpack will automatically build all `.ts` & `.tsx` files to JavaScript. Snowpack will not perform any type checking by default (see below), only building from TS->JS.
+Snowpack automatically builds all `.ts` & `.tsx` files to JavaScript. Snowpack will not perform any type checking by default (see below), only building from TS->JS.
 
-If needed, you can optionally define your ownTS->JS build step via a [Build Script integration](#build-scripts).
+You could also choose to define your own JSX->JavaScript build step via a [Build Script integration](#build-scripts).
 
 ```js
 // snowpack.config.json
-// Optional: Build TS & TSX files with Babel (must define your own babel.config.json)
+// Optional: You can define your own TS build step if you'd like.
 {
   "scripts": {
     "build:ts,tsx": "babel --filename $FILE",
