@@ -9,16 +9,16 @@ All of the following frameworks have been tested and guaranteed to work in Snowp
 - React
 - Preact
 - JSX
-- HTM
+- HTML
 - lit-html
 - Vue (see below)
 - Svelte (see below)
 - Tailwind CSS (see below)
+- Sass (see below)
 - and many more!
 - Literally... every library should work with Snowpack!
 
 Some libraries use compile-to-JS file formats and do require a special build script or plugin. See the guide below for examples.
-
 
 ### Babel
 
@@ -87,7 +87,6 @@ module.exports = {
 
 To support `@import` statements in your CSS code, use PostCSS with the [postcss-import](https://github.com/postcss/postcss-import) plugin.
 
-
 ### Tailwind CSS
 
 ```js
@@ -105,9 +104,11 @@ module.exports = {
 
 Tailwind ships with first-class support for PostCSS. To use Tailwind in your Snowpack project, connect PostCSS ([see above](#postcss)) and add the recommended Tailwind PostCSS plugin to your snowpack configuration.
 
-Fo;low the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installation/#using-tailwind-with-postcss) for more info.
+Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installation/#using-tailwind-with-postcss) for more info.
 
-### SASS
+### Sass
+
+[Sass](https://www.sass-lang.com/) is a stylesheet language that’s compiled to CSS. It allows you to use variables, nested rules, mixins, functions, and more, all with a fully CSS-compatible syntax. Sass helps keep large stylesheets well-organized and makes it easy to share design within and across projects.
 
 ```js
 // snowpack.config.json
@@ -122,7 +123,6 @@ The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbo
 
 Remember that Workbox expects to be run every time you deploy, as a part of a production "build" process (similar to how Snowpack's [`--optimize`](#production-optimization) flag works). If you don't have one yet, create package.json [`"deploy"` and/or `"build"` scripts](https://michael-kuehnel.de/tooling/2018/03/22/helpers-and-tips-for-npm-run-scripts.html) to automate your production build process.
 
-
 ### Leaving Snowpack
 
 Snowpack is designed for zero lock-in. If you ever feel the need to add a traditional application bundler to your stack (for whatever reason!) you can do so in seconds.
@@ -130,4 +130,3 @@ Snowpack is designed for zero lock-in. If you ever feel the need to add a tradit
 Any application built with Snowpack should Just Work™️ when passed through Webpack/Rollup/Parcel. If you are already importing packages by name in your source code (ex: `import React from 'react'`) then you should be able to migrate to any popular bundler without issue. 
 
 If you are importing packages by full URL (ex: `import React from '/web_modules/react.js'`), then a simple Find & Replace should help you re-write them to the plain package name imports that most bundlers expect.
-
