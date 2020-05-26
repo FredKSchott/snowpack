@@ -117,7 +117,6 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
 // default settings
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   exclude: ['__tests__/**/*', '**/*.@(spec|test).*'],
-  knownEntrypoints: [],
   plugins: [],
   installOptions: {
     dest: 'web_modules',
@@ -143,7 +142,7 @@ const configSchema = {
   type: 'object',
   properties: {
     extends: {type: 'string'},
-    knownEntrypoints: {type: 'array', items: {type: 'string'}},
+    install: {type: 'array', items: {type: 'string'}},
     exclude: {type: 'array', items: {type: 'string'}},
     plugins: {type: 'array'},
     webDependencies: {
@@ -367,6 +366,7 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
 /** resolve --dest relative to cwd, etc. */
 function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const cwd = process.cwd();
+  config.knownEntrypoints = (config as any).install || [];
   config.installOptions.dest = path.resolve(cwd, config.installOptions.dest);
   config.devOptions.out = path.resolve(cwd, config.devOptions.out);
   config.exclude = Array.from(new Set([...ALWAYS_EXCLUDE, ...config.exclude]));
@@ -482,11 +482,14 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   }
   if (Array.isArray(rawConfig.webDependencies)) {
     handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] The `webDependencies` array is now `knownEntrypoints`.',
+      '[Snowpack v1 -> v2] The `webDependencies` array is now `install`.',
     );
   }
+  if (rawConfig.knownEntrypoints) {
+    handleDeprecatedConfigError('[Snowpack v1 -> v2] `knownEntrypoints` is now `install`.');
+  }
   if (rawConfig.entrypoints) {
-    handleDeprecatedConfigError('[Snowpack v1 -> v2] `entrypoints` is now `knownEntrypoints`.');
+    handleDeprecatedConfigError('[Snowpack v1 -> v2] `entrypoints` is now `install`.');
   }
   if (rawConfig.include) {
     handleDeprecatedConfigError(

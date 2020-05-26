@@ -28,7 +28,7 @@ CLI flags will be merged with (and take priority over) your config file values. 
 
 ```js
 {
-  "knownEntrypoints": [
+  "install": [
     "htm",
     "preact",
     "preact/hooks", // A package within a package
@@ -48,7 +48,7 @@ CLI flags will be merged with (and take priority over) your config file values. 
 - **`exclude`** | `string[]`
   - Exclude any files from the `--include` directory. Defaults to exclude common test file locations: `['**/node_modules/**/*', **/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`
   - Useful for excluding tests and other unnecessary files from the final build. Supports glob pattern matching. 
-- **`knownEntrypoints`** | `string[]`
+- **`install`** | `string[]`
   - Known dependencies to install with Snowpack. Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
 - **`homepage`** | `string`
   - By default, Snowpack's builds your app assuming it will be hosted at the server root.

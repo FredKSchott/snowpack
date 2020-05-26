@@ -32,7 +32,7 @@ The default output of the `snowpack build` command is an exact copy of your unbu
 
 Snowpack originally became famous for it's npm package install. Since then, the installer has been integrated directly into the `dev` & `build` workflows so that you no longer need to run the Snowpack installer yourself. Feel free to skip this section and come back later: you probably won't ever need to run this command.
 
-But, if you want to run the installer yourself, `snowpack install` will install your dependencies into a new `web_modules/` directory. Snowpack will scan your project for ESM `import` statements to find every npm package used by your application. You can also provide a list of package names manually via the ["knownEntrypoints"](#all-config-options) config.
+But, if you want to run the installer yourself, `snowpack install` will install your dependencies into a new `web_modules/` directory. Snowpack will scan your project for ESM `import` statements to find every npm package used by your application. You can also provide a list of package names manually via the ["install"](#all-config-options) config.
 
 ``` bash
 # Example: Snowpack detects `import 'react'` & `import 'react-dom'` statements in your "src/" code.

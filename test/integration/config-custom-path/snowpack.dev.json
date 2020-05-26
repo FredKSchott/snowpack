@@ -1,5 +1,5 @@
 {
-  "knownEntrypoints": [
+  "install": [
     "array-flatten"
   ]
 }

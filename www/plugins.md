@@ -53,7 +53,7 @@ module.exports = function createPlugin(snowpackConfig, pluginOptions) {
 knownEntrypoints?: string[]
 ```
 
-Additional web_modules to install in the project that may not otherwise be picked up by the install command. If your plugin itself injects package imports, then put them here.
+Additional web_modules to install in the project that may not otherwise be picked up by the install command. Similar to the "install" config value. If your plugin itself injects package imports, then put them here. 
 
 ### defaultBuildScript
 

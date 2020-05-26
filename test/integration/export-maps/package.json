@@ -3,7 +3,7 @@
     "TEST": "node --no-warnings ../../../pkg/dist-node/index.bin.js"
   },
   "snowpack": {
-    "knownEntrypoints": [
+    "install": [
       "preact"
     ]
   },

@@ -6,7 +6,7 @@
         "mock-test-package": "^1.2.3"
     },
     "snowpack": {
-        "knownEntrypoints": ["mock-test-package"],
+        "install": ["mock-test-package"],
         "installOptions": {
             "env": {
                 "CONF_A": true,

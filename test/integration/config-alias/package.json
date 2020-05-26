@@ -10,7 +10,7 @@
         "react-dom": "preact/compat"
       }
     },
-    "knownEntrypoints": [
+    "install": [
       "react",
       "react-dom"
     ]
