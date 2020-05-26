@@ -106,7 +106,7 @@ html, body, .markdown-body {
 .grid-body-header > svg {
   margin: auto;
   display: block;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 .header-snowpack {
   letter-spacing: -0.045em;
@@ -114,6 +114,7 @@ html, body, .markdown-body {
   font-weight: 900;
   max-width: 424px;
   margin: -0.5rem auto -0.5rem;
+  opacity: 0.9;
 }
 .header-snowpack-subtitle {
   text-align: center;
@@ -123,6 +124,7 @@ html, body, .markdown-body {
   letter-spacing: -1px;
   max-width: 400px;
   margin: auto;
+  opacity: .6;
 }
 .header-code {
   font-size: 1.6rem;
@@ -563,10 +565,10 @@ body {
       </a>
     </div>
     <div id="grid-body" class="grid-body">
-      <div class="notification">
+      <div class="notification" style="display: none">
         Snowpack 2.0 has been released!
         <a href="/posts/2020-05-25-v2-release-day?utm_source=origin&utm_medium=banner&utm_campaign=2.0-launch">
-          Read the blog post →
+          Read the launch post →
         </a>
       </div>
       {{ content | safe }}
