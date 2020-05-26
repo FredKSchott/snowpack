@@ -22,6 +22,8 @@
 
 The result is a developer experience that starts up fast, stays fast, and still bundles/optimizes your production builds.
 
+[Check out our launch post](/posts/2020-05-25-v2-release-day?utm_source=origin&utm_medium=banner&utm_campaign=2.0-launch) to learn more.
+
 
 ### Key Features
 

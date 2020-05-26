@@ -18,14 +18,14 @@
     <meta property="og:url" content="https://www.snowpack.dev/">
     <meta property="og:title" content="Snowpack">
     <meta property="og:description" content="Build web applications with less tooling and faster iteration.">
-    <meta property="og:image" content="https://www.snowpack.dev/img/social-3.jpg">
+    <meta property="og:image" content="https://www.snowpack.dev/img/social-4.jpg">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://metatags.io/">
     <meta property="twitter:title" content="Snowpack">
     <meta property="twitter:description" content="Build web applications with less tooling and faster iteration.">
-    <meta property="twitter:image" content="https://www.snowpack.dev/img/social-3.jpg">
+    <meta property="twitter:image" content="https://www.snowpack.dev/img/social-4.jpg">
 
     <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
 
@@ -41,7 +41,7 @@ html, body, .markdown-body {
   font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji; 
 }
 .header-logo, .header-snowpack,
-.header-snowpack-subtitle, .notification, .markdown-body h1, .markdown-body h2, .markdown-body h3, .pretty-font, .toc {
+.header-snowpack-subtitle, .markdown-body h1, .markdown-body h2, .markdown-body h3, .pretty-font, .toc {
   font-family: 'Overpass', sans-serif;
 }
 .markdown-body h2 {
@@ -87,6 +87,7 @@ html, body, .markdown-body {
   font-family: inherit;
   font-size: 100%;
   padding: .5em 1.5em;
+  margin-bottom: 1rem;
   text-decoration: none;
   border-radius: 2px;
   color: #fff;
@@ -116,10 +117,11 @@ html, body, .markdown-body {
 }
 .header-snowpack-subtitle {
   text-align: center;
-  font-size: 2.73rem;
-  font-weight: normal;
-  line-height: 1.1;
-  max-width: 424px;
+  font-size: 2.1rem;
+  font-weight: bold;
+  line-height: 1;
+  letter-spacing: -1px;
+  max-width: 400px;
   margin: auto;
 }
 .header-code {
@@ -174,14 +176,14 @@ html, body, .markdown-body {
   border-radius: 3px;
 }
 .notification {
-    padding: 1rem 1.5rem;
-    margin: 2rem 0;
-    position: relative;
-    border-left: 6px solid #2e5e82;
-    background:  #258ad622;
-    font-size: 20px;
-    line-height: 1.4;
-
+  flex-grow: 1;
+  background: #be2edd;
+  font-weight: bold;
+  color: white;
+  padding: 13px;
+}
+.notification a {
+  color: white;
 }
 .grid-toc-buttons {
   flex-grow: 1;
@@ -342,7 +344,6 @@ body {
   margin-left: 360px;
   max-width: 720px;
   background: white;
-  padding: 1rem 3em;
 }
 .grid-toc {
   position: fixed;
@@ -376,6 +377,7 @@ body {
   margin: 4rem 0 4rem;
 }
 .markdown-body {
+  padding: 0 3em;
   margin-bottom: 50vh;
 
 }
@@ -455,13 +457,13 @@ img.company-logo {
     border-radius: 4px;
 }
 */
-    .highlight-red {
+    .highlight-1 {
       color: #2ecc71;
     }
-    .highlight-yellow {
+    .highlight-2 {
       color: #be2edd;
     }
-    .highlight-green {
+    .highlight-3 {
       color: #0c8cec;
     }
 
@@ -482,8 +484,8 @@ body {
   grid-template-columns: 280px 1fr;
 }
   .grid-extra-space { display: none; }
-  .grid-body, .toc {
-    padding: 1em;
+  .markdown-body, .grid-body-header, .toc {
+    padding: 0 1em;
   }
 }
 @media (max-width: 740px) {
@@ -508,7 +510,7 @@ body {
    }
   .grid-body {
     overflow: hidden;
-    padding-top: 60px;
+    padding-top: 44px;
     margin-left: 0;
   }
   .hidden-mobile {display: none; }
@@ -561,6 +563,12 @@ body {
       </a>
     </div>
     <div id="grid-body" class="grid-body">
+      <div class="notification">
+        Snowpack 2.0 has been released!
+        <a href="/posts/2020-05-25-v2-release-day?utm_source=origin&utm_medium=banner&utm_campaign=2.0-launch">
+          Read the blog post →
+        </a>
+      </div>
       {{ content | safe }}
     </div>
   </body>
