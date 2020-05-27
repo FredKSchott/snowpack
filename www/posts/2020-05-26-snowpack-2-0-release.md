@@ -4,51 +4,52 @@ layout: layouts/post.njk
 
 After 40+ beta versions & release candidates we are excited to introduce **Snowpack 2.0**, featuring:
 
-- A dev environment that starts up in **50ms or less.**
-- File changes reflected in the browser [instantly.](/#hot-module-replacement) 
+- `snowpack dev` - A web dev environment that starts up in **50ms or less.**
+- `snowpack build` - A plugable optimized build pipeline.
 - Out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](/#features)
-- [Custom build scripts](/#build-scripts) & [third-party plugins](/#build-plugins) to connect your favorite tools.
+- [Near-instant updates](/#hot-module-replacement) in the browser when you make changes.
 - [Create Snowpack App (CSA)](/#create-snowpack-app-(csa)) starter templates.
 
 <br/>
 
-## Snowpack 2.0: Rethinking Best Practices
 
-The web has evolved over the last decade, but our build tools haven't kept up. The assumptions and limitations of the previous decade no longer apply to the world we live in today. **Most build tools are slowing you down unnecessarily.** 
+## The Road to Snowpack 2.0
 
-I'm talking about bundlers. Or, more specifically, the practice of bundling during development. Under the hood, bundlers like Webpack, Parcel and Next.js need to load, resolve, build and bundle your application before they can serve a single file. Smart caching speeds this up somewhat, but it's still common for a dev server to take 30  seconds or more to startup. And that's not even counting the time you spend re-bundling your application after you make a change, which can take another couple of seconds *per change*.
+Snowpack 1.0 was designed for a simple mission: install npm packages that can directly in the browser. The theory was that JavaScript packages are the only thing still ***requiring*** the use of a bundler during development. Remove that requirement, remove the bundler, and speed up web development for everyone.
 
-**Snowpack is a new approach to web development.** Instead of running your application through a bundler during development, Snowpack serves your built files directly. Thanks to [ES Module (ESM)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) support in the browser, Snowpack lets you skip [the unnecessary bundling work](https://twitter.com/pikapkg/status/1264245654970232832?ref_src=twsrc%5Etfw) during development.
+Guess what? It worked! Thousands of developers started using Snowpack to install their dependencies and build websites with less tooling. A whole new type of faster, lighter-weight development suddenly became possible.
+
+**Snowpack 2.0 is a build system designed for this new era of web development.** Snowpack removes the bundler from your dev environment, leveraging native [ES Module (ESM)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) syntax in the browser to serve built files directly. This isn't just a faster tool, it's a new approach to web build systems.
 
 
 
-## The Future: O(1) Build Tools
+## The Rise of O(1) Build Systems
 
 ![webpack vs. snowpack diagram](/img/snowpack-unbundled-example-3.png)
 
+**Bundling is a process of `O(n)` complexity.** As your project grows, your dev bundler takes longer to startup and react to changes. Some bundlers may even have `O(n^2)` complexity: as your project grows, your dev environment gets ***exponentially*** slower as it handles code splitting, tree-shaking, and other bundle permutations on startup and on every change. Neither scenario is ideal during development when you're working with hundreds or even thousands of files.
 
-**Traditional web bundling is a step of `O(n)` complexity.** That means that as your project grows, your dev environment takes longer to startup and react to changes. Some bundlers may even have `O(n^2)` complexity: as your project grows, your dev environment gets ***exponentially*** slower as it handles code splitting, tree-shaking, and other bundle permutations. Neither scenario is ideal when you're working with hundreds or even thousands of files. 
+**Snowpack introduces O(1) builds.**  This term was first coined by [Ives van Hoorne](https://www.youtube.com/watch?v=Yu9zcJJ4Uz0). It perfectly encapsulates our vision: Every file goes through a linear `input -> build -> output` build pipeline and then out to the browser (or the final build directory, if you're building for production). Mutli-file bundling becomes a single-file build step.
 
-**Snowpack is a platform for O(1) build tooling.**  This term was first coined by CodeSandbox's [Ives van Hoorne](https://www.youtube.com/watch?v=Yu9zcJJ4Uz0). It perfectly encapsulates our vision: Every file goes through a linear `input -> build -> output` build pipeline and then out to the browser. 
+This has several advantages over the traditional bundled dev approach:
 
-This has several advantages over the traditional bundled approach:
-
-- It's less work.
+- O(1) builds are faster.
 - O(1) builds are predictable.
 - O(1) builds are easy to reason about & configure.
-- O(1) builds stay fast in large projects.
+- Project size doesn't effect build time.
 - Individual files cache better.
 
+That last point is key: every built file is cached individually and reused indefinitely. **If you never change a file, you will never need to re-build it again.**
 
-## A Faster Dev Environment
+## `dev` A Faster Dev Environment
 
 ![dev command output example](/img/snowpack-dev-startup-2.png)
 
-Run `snowpack dev` to start your dev environment and the first thing you'll notice is **how flippin' fast it is.** Snowpack starts up instantly, usually in less than 50ms. That's no typo: 50 milliseconds or less.
+Run `snowpack dev` to start your new web dev environment and the first thing you'll notice is **how flippin' fast O(1) build tooling is.** Snowpack starts up in less than 50ms. That's no typo: 50 milliseconds or less.
 
-Snowpack's dev server is fast because it only builds files upon request. On your first page load, Snowpack builds each requested file and then caches it for future use. Files are cached individually and only re-built when changed. But with no work needed at initial start, your server spins up immediately.
+With no bundling work needed to start, your server spins up immediately. On your very first page load, Snowpack builds your first requested files and then caches them for future use. Even if your project contains a million different files, Snowpack will only every build files needed to load the current page. This is how Snowpack stays fast.
 
-`snowpack dev` includes a development server, a fully customizable build pipeline for building, and a bunch of familiar features right out of the box:
+`snowpack dev` includes a development server and a bunch of familiar features right out of the box:
 
 - TypeScript Support
 - JSX Support
@@ -77,14 +78,16 @@ Snowpack's dev server is fast because it only builds files upon request. On your
 
 If you've ever used your `package.json` "scripts" config, this format should feel familiar. We love the simplicity of using your CLIs directly without an unnecessary plugin system. We hope this pattern offers a similar intuitive design.
 
-[Check out docs](/#build-scripts) to learn more about customizing your build.
+If you want more control over your build (or want to write your own build tool) Snowpack also supports [third-party JavaScript plugins](/#build-plugins). [Check out our docs](/#build-scripts) to learn more about customizing your build.
 
 
-## Bundling for Production
+## `build` Bundling for Production
 
 ![build output example](/img/snowpack-build-example.png)
 
-To be clear, Snowpack isn't against bundling for production. In fact, we recommend it. File minification, compression, dead-code elimination and network optimizations can all make a bundled site run faster for your users, which should be the ultimate goal of any application. 
+To be clear, Snowpack isn't against bundling for production. In fact, we recommend it. File minification, compression, dead-code elimination and network optimizations can all make a bundled site run faster for your users, which is the ultimate goal of any build tool.
+
+Snowpack treats bundling as a final, production-only build optimization. By bundling as the final step, you avoid mixing build logic and bundle logic in the same huge configuration file. Instead, your bundler gets already-built files and can focus solely on what it does best: bundling.
 
 Snowpack maintains official plugins for both Webpack & Parcel. Connect your favorite, and then run `snowpack build` to build your site for production. 
 
@@ -101,7 +104,7 @@ If you don't want to use a bundler, that's okay too. Snowpack's default build wi
 
 ## Try Snowpack Today
 
-Download Snowpack today to experience the future of web development.
+We are so excited to share this all with you today. Download Snowpack to experience the future of web development.
 
 ```
 npm i snowpack@latest --save-dev
@@ -131,8 +134,9 @@ npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 - **[See all community templates](https://github.com/pikapkg/create-snowpack-app)**
 
 
-👋 Happy hacking!
+🐹 Happy hacking!
 
 ---
 
+*Thank you to all of our [80+ contributors](https://github.com/pikapkg/snowpack/graphs/contributors) for making this release possible.*  
 *Thanks to [Melissa McEwen](https://twitter.com/melissamcewen) & [@TheoOnTwitch](https://twitter.com/TheoOnTwitch) for helping to edit this post.*
