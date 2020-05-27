@@ -414,22 +414,24 @@ export async function command(commandOptions: CommandOptions) {
             continue;
           }
           if (requestedFile.startsWith(commandOptions.config.installOptions.dest)) {
-            return [await attemptLoadFile(requestedFile), null];
+            const fileLoc = await attemptLoadFile(requestedFile);
+            if (fileLoc) {
+              return [await attemptLoadFile(requestedFile), null];
+            }
           }
           if (isRoute) {
             let fileLoc =
               (await attemptLoadFile(requestedFile + '.html')) ||
               (await attemptLoadFile(requestedFile + 'index.html')) ||
               (await attemptLoadFile(requestedFile + '/index.html'));
-
             if (!fileLoc && dirUrl === '/' && config.devOptions.fallback) {
               const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
               fileLoc = await attemptLoadFile(fallbackFile);
             }
             if (fileLoc) {
               responseFileExt = '.html';
+              return [fileLoc, null];
             }
-            return [fileLoc, null];
           } else {
             for (const workerConfig of config.scripts) {
               const {type, match} = workerConfig;
