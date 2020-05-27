@@ -48,6 +48,7 @@ import {
   ImportMap,
   isYarn,
   openInBrowser,
+  resolveDependencyManifest,
 } from '../util';
 import {
   FileBuilder,
@@ -223,13 +224,8 @@ export async function command(commandOptions: CommandOptions) {
         if (missingPackageName.startsWith('@')) {
           missingPackageName += '/' + deepPackagePathParts.shift();
         }
-        let doesPackageExist = false;
-        try {
-          require.resolve(missingPackageName, {paths: [cwd]});
-          doesPackageExist = true;
-        } catch (err) {
-          // that's okay, it just doesn't exist
-        }
+        const [depManifestLoc] = resolveDependencyManifest(missingPackageName, cwd);
+        const doesPackageExist = !!depManifestLoc;
         if (doesPackageExist && !currentlyRunningCommand) {
           isLiveReloadPaused = true;
           messageBus.emit('INSTALLING');
