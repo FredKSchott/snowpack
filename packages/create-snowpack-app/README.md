@@ -16,9 +16,31 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 - [@snowpack/app-template-svelte](/templates/app-template-svelte)
 - [@snowpack/app-template-vue](/templates/app-template-vue)
 
-## Featured Community Templates
+### Featured Community Templates
 
 - [snowpack-template-preset-env](https://github.com/argyleink/snowpack-template-preset-env) (PostCSS + Babel)
 - [11st-Starter-Kit](https://github.com/stefanfrede/11st-starter-kit) (11ty +
   Snowpack + tailwindcss)
+- PRs that add a link to this list are welcome!
+
+## Official Plugins
+
+### Build
+
+- [@snowpack/plugin-babel](/packages/plugin-babel)
+- [@snowpack/plugin-svelte](/packages/plugin-svelte)
+- [@snowpack/plugin-vue](/packages/plugin-vue)
+
+### Transform
+
+- [@snowpack/plugin-react-refresh](/packages/plugin-react-refresh)
+
+### Bundle
+
+- [@snowpack/plugin-parcel](/packages/plugin-parcel)
+- [@snowpack/plugin-webpack](/packages/plugin-webpack)
+
+### Featured Community Plugins
+
+- [@prefresh/snowpack](https://github.com/JoviDeCroock/prefresh)
 - PRs that add a link to this list are welcome!
