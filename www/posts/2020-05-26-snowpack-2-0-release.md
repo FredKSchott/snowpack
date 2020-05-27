@@ -4,13 +4,10 @@ layout: layouts/post.njk
 
 After 40+ beta versions & release candidates we are excited to introduce **Snowpack 2.0**, featuring:
 
-- `snowpack dev` - A web dev environment that starts up in **50ms or less.**
-- `snowpack build` - A plugable optimized build pipeline.
-- Out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](/#features)
-- [Near-instant updates](/#hot-module-replacement) in the browser when you make changes.
+- `snowpack dev` - A modern dev environment that starts up in **50ms or less.**
+- [Near-instant updates](/#hot-module-replacement) in the browser as you make changes.
+- [Out-of-the-box support](/#features) for TypeScript, JSX, CSS Modules and more.
 - [Create Snowpack App (CSA)](/#create-snowpack-app-(csa)) starter templates.
-
-<br/>
 
 
 ## The Road to Snowpack 2.0
@@ -138,5 +135,5 @@ npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 
 ---
 
-*Thank you to all of our [80+ contributors](https://github.com/pikapkg/snowpack/graphs/contributors) for making this release possible.*  
+*Thank you to all of our [80+ contributors](https://github.com/pikapkg/snowpack/graphs/contributors) for making this release possible.*  ma
 *Thanks to [Melissa McEwen](https://twitter.com/melissamcewen) & [@TheoOnTwitch](https://twitter.com/TheoOnTwitch) for helping to edit this post.*
