@@ -4,10 +4,9 @@ layout: layouts/post.njk
 
 After 40+ beta versions & release candidates we are very excited to introduce **Snowpack 2.0: A build system for the modern web.**
 
-- Starts up in <50ms.
-- O(1) file builds.
-- Simplified tooling.
-- Supports TypeScript, JSX, CSS Modules and more.
+- A dev server that starts up in <50ms.
+- A build pipeline for O(1) file builds.
+- Built-in support for TypeScript, JSX, CSS Modules and more.
 - Works with your favorite production bundler.
 - [Create Snowpack App (CSA)](/#create-snowpack-app-(csa)) starter templates.
 
