@@ -9,4 +9,5 @@ export default {
   md: 'html',
   ejs: 'html',
   njk: 'html',
+  scss: 'css',
 };
