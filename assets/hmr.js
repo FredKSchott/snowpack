@@ -19,7 +19,8 @@ function sendSocketMessage(msg) {
     _sendSocketMessage(msg);
   }
 }
-const socket = new WebSocket('ws://localhost:12321/');
+const socketURL = window.HMR_WEBSOCKET_URL || 'ws://localhost:12321/';
+const socket = new WebSocket(socketURL);
 socket.addEventListener('open', () => {
   SOCKET_MESSAGE_QUEUE.forEach(_sendSocketMessage);
   SOCKET_MESSAGE_QUEUE = [];
@@ -27,6 +28,7 @@ socket.addEventListener('open', () => {
 const REGISTERED_MODULES = {};
 class HotModuleState {
   constructor(id) {
+    this.data = {};
     this.isLocked = false;
     this.isDeclined = false;
     this.isAccepted = false;
@@ -95,18 +97,18 @@ async function applyUpdate(id) {
   if (state.isDeclined) {
     return false;
   }
-  const data = {};
   const acceptCallbacks = state.acceptCallbacks;
   const disposeCallbacks = state.disposeCallbacks;
   state.disposeCallbacks = [];
-  disposeCallbacks.map((callback) => callback({data}));
+  state.data = {};
+  disposeCallbacks.map((callback) => callback());
   const updateID = Date.now();
   for (const {deps, callback: acceptCallback} of acceptCallbacks) {
     const [module, ...depModules] = await Promise.all([
       import(id + `?mtime=${updateID}`),
       ...deps.map((d) => import(d + `?mtime=${updateID}`)),
     ]);
-    acceptCallback({module, deps: depModules, data});
+    acceptCallback({module, deps: depModules});
   }
   return true;
 }
