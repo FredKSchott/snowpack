@@ -21,6 +21,10 @@ npm install --save-dev @snowpack/plugin-webpack
 }
 ```
 
+### Limitations
+
+Currently only works for Single Page Applications (SPA) with a single HTML entrypoint. See https://github.com/pikapkg/create-snowpack-app/issues/74 for more info.
+
 ### Plugin Options
 
 - `sourceMap: boolean` - Enable sourcemaps in the bundled output.
