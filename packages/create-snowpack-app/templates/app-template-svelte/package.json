@@ -13,7 +13,7 @@
     "build": "snowpack build",
     "test": "jest"
   },
-  "webDependencies": {},
+  "dependencies": {},
   "devDependencies": {
     "@snowpack/app-scripts-svelte": "^1.0.1",
     "@testing-library/jest-dom": "^5.5.0",

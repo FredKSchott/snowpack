@@ -15,7 +15,7 @@
     "lint": "prettier --check 'src/**/*.{js,jsx,ts,tsx}'",
     "test": "jest"
   },
-  "webDependencies": {},
+  "dependencies": {},
   "devDependencies": {
     "@snowpack/app-scripts-react": "^1.0.0",
     "@testing-library/jest-dom": "^5.5.0",
