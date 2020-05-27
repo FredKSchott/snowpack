@@ -19,4 +19,6 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 ## Featured Community Templates
 
 - [snowpack-template-preset-env](https://github.com/argyleink/snowpack-template-preset-env) (PostCSS + Babel)
+- [11st-Starter-Kit](https://github.com/stefanfrede/11st-starter-kit) (11ty +
+  Snowpack + tailwindcss)
 - PRs that add a link to this list are welcome!
