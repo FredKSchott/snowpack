@@ -26,7 +26,7 @@ Snowpack 1.0 was designed for a simple mission: install npm packages to run dire
 
 Guess what? It worked! Thousands of developers started using Snowpack to install their dependencies and build websites with less tooling. A whole new type of faster, lighter-weight development suddenly became possible.
 
-**Snowpack 2.0 is a build system designed for this new era of web development.** Snowpack removes the bundler from your dev environment, leveraging native [ES Module (ESM)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) syntax in the browser to serve built files directly. This isn't just a faster tool, it's a new approach to web build systems.
+**Snowpack 2.0 is a build system designed for this new era of web development.** Snowpack removes the bundler from your dev environment, leveraging native [ES Module (ESM)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) support to serve built files directly to the browser. This isn't just a faster tool, it's a new approach to web build systems.
 
 
 
@@ -36,7 +36,7 @@ Guess what? It worked! Thousands of developers started using Snowpack to install
 
 **Bundling is a process of `O(n)` complexity.** As your project grows, your dev bundler takes longer to startup and react to changes. Some bundlers may even have `O(n^2)` complexity: as your project grows, your dev environment gets ***exponentially*** slower as it handles code splitting, tree-shaking, and other bundle permutations on startup and on every change. Neither scenario is ideal during development when you're working with hundreds or even thousands of files.
 
-**Snowpack is a O(1) build system.**  The term was first coined by [Ives van Hoorne](https://www.youtube.com/watch?v=Yu9zcJJ4Uz0) and it perfectly encapsulates our vision: Every file goes through a linear `input -> build -> output` build pipeline and then out to the browser (or the final build directory, if you're building for production). Mutli-file bundling becomes a single-file build step.
+**Snowpack is the world's first O(1) build system designed for the modern web.**  The term was first coined by [Ives van Hoorne](https://www.youtube.com/watch?v=Yu9zcJJ4Uz0) and it perfectly encapsulates our vision: Every file goes through a linear `input -> build -> output` build pipeline and then out to the browser (or the final build directory, if you're building for production). Mutli-file bundling becomes a single-file build step.
 
 This has several advantages over the traditional bundled dev approach:
 
