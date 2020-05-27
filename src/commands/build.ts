@@ -255,6 +255,8 @@ export async function command(commandOptions: CommandOptions) {
           isDev: false,
         });
         if (!builtFile) {
+          let { id }  = workerConfig;
+          messageBus.emit("WORKER_COMPLETE", {id, error: "Build Failed!"})
           continue;
         }
         let {result: code, resources} = builtFile;
