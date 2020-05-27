@@ -31,7 +31,7 @@ import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
-import got from 'got';
+import got, { Method as RequestMethod } from 'got';
 import http from 'http';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
@@ -371,6 +371,7 @@ export async function command(commandOptions: CommandOptions) {
           const newPath = reqPath.substr(workerConfig.args.toUrl.length);
           try {
             const response = await got(`${workerConfig.args.fromUrl}${newPath}`, {
+              method: req.method as RequestMethod,
               headers: req.headers,
               throwHttpErrors: false,
             });
