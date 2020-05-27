@@ -4,9 +4,8 @@ const scripts = {
 };
 
 module.exports = {
-  scripts,
   plugins: ["@snowpack/plugin-svelte"],
-  knownEntrypoints: ["svelte/internal"],
+  scripts,
   installOptions: {},
   devOptions: {},
 };

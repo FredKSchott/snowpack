@@ -24,6 +24,7 @@ module.exports = function plugin(config, pluginOptions) {
 
   return {
     defaultBuildScript: "build:svelte",
+    knownEntrypoints: ["svelte/internal"],
     async build({ contents, filePath }) {
       let codeToCompile = contents;
       // PRE-PROCESS
