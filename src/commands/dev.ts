@@ -31,7 +31,7 @@ import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
-import got, { Method as RequestMethod } from 'got';
+import got, {Method as RequestMethod} from 'got';
 import http from 'http';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
