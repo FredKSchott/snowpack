@@ -27,9 +27,19 @@ Snowpack supports JSX & TypeScript source code by default, compiling your files 
 
 When you're ready to deploy your application, run `snowpack build` to generate a static production build of your site. Building is tightly integrated with your dev setup so that you are guaranteed to get a working copy of the same code you saw during development.
 
-The default output of the `snowpack build` command is an exact copy of your unbundled dev site. Deploying unbundled code is fine for simple sites, but you may want to optimize your site even further by bundling your final deployment for production. 
+The default output of the `snowpack build` command is an exact copy of the code that you saw during development. Deploying this basic build is fine for simple sites, but you may want to optimize your site even further by bundling your final deployment for production. Minification, code-splitting, tree-shaking, dead code elimination, and more optimizations can all happen at this stage via bundling.
 
-**Snowpack supports production bundling via a simple, zero-config `--bundle` flag.** `snowpack build --bundle` runs your final build through [Parcel](https://parceljs.org/), a popular web application bundler. By bundling together your JavaScript and CSS files into larger shared chunks, you may see a production speed up as your users have fewer files to download.
+Snowpack maintains official plugins for both [Webpack](https://www.npmjs.com/package/@snowpack/plugin-webpack) and [Parcel](https://www.npmjs.com/package/@snowpack/plugin-parcel). Connect your favorite, and then run `snowpack build` to get a bundled build of your site for production. 
+
+```js
+// snowpack.config.json
+{
+  // Optimize your production builds with Webpack
+  "plugins": [["@snowpack/plugin-webpack", {/* ... */}]]
+}
+```
+
+If you don't want to use a bundler, that's okay too. Snowpack's default build will give you an unbundled site that also runs just fine. This is what the Snowpack project has been all about from the start: **Use a bundler because you want to, and not because you need to.**
 
 
 ### snowpack install

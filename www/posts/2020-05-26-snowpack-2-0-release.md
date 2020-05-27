@@ -4,10 +4,10 @@ layout: layouts/post.njk
 
 After 40+ beta versions & release candidates we are very excited to introduce **Snowpack 2.0: A build system for the modern web.**
 
-- A dev server that starts up in <50ms.
-- A build pipeline for O(1) file builds.
+- Starts up in <50ms and stays fast in large projects.
+- Bundle-free development with bundled production builds.
 - Built-in support for TypeScript, JSX, CSS Modules and more.
-- Works with your favorite production bundler.
+- Works with React, Preact, Vue, Svelte, and all your favorite libraries.
 - [Create Snowpack App (CSA)](/#create-snowpack-app-(csa)) starter templates.
 
 <br/>
@@ -22,7 +22,7 @@ yarn add --dev snowpack
 
 ## The Road to Snowpack 2.0
 
-Snowpack 1.0 was designed for a simple mission: install npm packages that can directly in the browser. The theory was that JavaScript packages are the only thing still ***requiring*** the use of a bundler during development. Remove that requirement, remove the bundler, and speed up web development for everyone.
+Snowpack 1.0 was designed for a simple mission: install npm packages to run directly in the browser. The theory was that JavaScript packages are the only thing still ***requiring*** the use of a bundler during development. Remove that requirement, remove the bundler, and speed up web development for everyone.
 
 Guess what? It worked! Thousands of developers started using Snowpack to install their dependencies and build websites with less tooling. A whole new type of faster, lighter-weight development suddenly became possible.
 

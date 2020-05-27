@@ -188,7 +188,7 @@ You can customize the set of browsers you'd like to support via the `package.jso
 Note: During development (`snowpack dev`) we perform no transpilation for older browsers. Make sure that you're using a modern browser during development.
 
 
-### Installing Non-JS Packages
+### Install Non-JS Packages
 
 When installing packages from npm, You may encounter some non-JS code that can only run with additional parsing/processing. Svelte packages, for example, commonly include `.svelte` files that will require additional tooling to parse and install for the browser.
 
@@ -204,3 +204,7 @@ module.exports = {
 ```
 
 Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#using-plugins) for more information.
+
+### Bundle for Production
+
+You can bundle your application for production by connecting a bundler plugin like [@snowpack/plugin-webpack](https://www.npmjs.com/package/@snowpack/plugin-webpack) or [@snowpack/plugin-parcel](https://www.npmjs.com/package/@snowpack/plugin-parcel). Check out our [build documentation](#snowpack-build) to learn more.
