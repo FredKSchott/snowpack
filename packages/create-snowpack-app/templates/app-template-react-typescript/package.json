@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-react-typescript",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -15,7 +15,6 @@
     "lint": "prettier --check 'src/**/*.{js,jsx,ts,tsx}'",
     "test": "jest"
   },
-  "dependencies": {},
   "devDependencies": {
     "@snowpack/app-scripts-react": "^1.0.0",
     "@testing-library/jest-dom": "^5.5.0",
