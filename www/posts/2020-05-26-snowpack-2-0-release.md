@@ -36,7 +36,7 @@ Guess what? It worked! Thousands of developers started using Snowpack to install
 
 **Bundling is a process of `O(n)` complexity.** As your project grows, your dev bundler takes longer to startup and react to changes. Some bundlers may even have `O(n^2)` complexity: as your project grows, your dev environment gets ***exponentially*** slower as it handles code splitting, tree-shaking, and other bundle permutations on startup and on every change. Neither scenario is ideal during development when you're working with hundreds or even thousands of files.
 
-**Snowpack introduces O(1) builds.**  The term was first coined by [Ives van Hoorne](https://www.youtube.com/watch?v=Yu9zcJJ4Uz0) and it perfectly encapsulates our vision: Every file goes through a linear `input -> build -> output` build pipeline and then out to the browser (or the final build directory, if you're building for production). Mutli-file bundling becomes a single-file build step.
+**Snowpack is a O(1) build system.**  The term was first coined by [Ives van Hoorne](https://www.youtube.com/watch?v=Yu9zcJJ4Uz0) and it perfectly encapsulates our vision: Every file goes through a linear `input -> build -> output` build pipeline and then out to the browser (or the final build directory, if you're building for production). Mutli-file bundling becomes a single-file build step.
 
 This has several advantages over the traditional bundled dev approach:
 
