@@ -177,6 +177,7 @@ module.exports = function plugin(config, args) {
                     "**/web_modules/**",
                   ],
                 },
+                noErrorOnMissing: true,
               },
             ],
           }),
