@@ -35,12 +35,27 @@ function chain(object, keys) {
 }
 
 module.exports = function plugin(config, args) {
+  // Deprecated: args.mode
+  if (args.mode && args.mode !== "production") {
+    throw new Error("args.mode support has been removed.");
+  }
+  // Validate: args.outputPattern
+  args.outputPattern = args.outputPattern || {};
+  const jsOutputPattern = args.outputPattern.js || "js/bundle-[hash].js";
+  const cssOutputPattern = args.outputPattern.css || "css/style-[hash].css";
+  const assetsOutputPattern =
+    args.outputPattern.assets || "assets/[name]-[hash].[ext]";
+  if (!jsOutputPattern.endsWith(".js")) {
+    throw new Error("Output Pattern for JS must end in .js");
+  }
+  if (!cssOutputPattern.endsWith(".css")) {
+    throw new Error("Output Pattern for CSS must end in .css");
+  }
+
   return {
     defaultBuildScript: "bundle:*",
     async bundle({ srcDirectory, destDirectory, log, jsFilePaths }) {
       let homepage = config.homepage || "/";
-      let fallback = chain(config, ["devOptions", "fallback"]) || "index.html";
-
       const tempBuildManifest = JSON.parse(
         await fs.readFileSync(path.join(cwd, "package.json"), {
           encoding: "utf-8",
@@ -49,21 +64,6 @@ module.exports = function plugin(config, args) {
       const presetEnvTargets =
         tempBuildManifest.browserslist ||
         ">0.75%, not ie 11, not UCAndroid >0, not OperaMini all";
-
-      const jsOutputPattern =
-        chain(args, ["outputPatterns", "js"]) || "js/bundle-[hash].js";
-      const cssOutputPattern =
-        chain(args, ["outputPatterns", "css"]) || "css/style-[hash].css";
-      const assetsOutputPattern =
-        chain(args, ["outputPatterns", "assets"]) ||
-        "assets/[name]-[hash].[ext]";
-
-      if (!jsOutputPattern.endsWith(".js")) {
-        throw new Error("Output Pattern for JS must end in .js");
-      }
-      if (!cssOutputPattern.endsWith(".css")) {
-        throw new Error("Output Pattern for CSS must end in .css");
-      }
 
       let extendConfig = (cfg) => cfg;
       if (typeof args.extendConfig === "function") {
@@ -154,7 +154,7 @@ module.exports = function plugin(config, args) {
             },
           ],
         },
-        mode: args.mode || "production",
+        mode: "production",
         devtool: args.sourceMap ? "source-map" : undefined,
         optimization: {
           minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
@@ -172,7 +172,7 @@ module.exports = function plugin(config, args) {
                 to: destDirectory,
                 globOptions: {
                   ignore: [
-                    path.join(srcDirectory, fallback),
+                    path.join(srcDirectory, config.devOptions.fallback),
                     "**/_dist_/**",
                     "**/web_modules/**",
                   ],
@@ -225,7 +225,10 @@ module.exports = function plugin(config, args) {
         }
 
         //And write our modified html file out to the destination
-        fs.writeFileSync(path.join(destDirectory, fallback), dom.serialize());
+        fs.writeFileSync(
+          path.join(destDirectory, config.devOptions.fallback),
+          dom.serialize()
+        );
       }
     },
   };

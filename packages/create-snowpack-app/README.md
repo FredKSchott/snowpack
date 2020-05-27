@@ -23,7 +23,7 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
   Snowpack + tailwindcss)
 - PRs that add a link to this list are welcome!
 
-## Official Plugins
+## Official Snowpack Plugins
 
 ### Build
 
