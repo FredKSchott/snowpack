@@ -8,11 +8,12 @@ let esbuildService: Service | null = null;
 
 export function esbuildPlugin() {
   return {
-    async build({contents, filePath}) {
+    async build({contents, filePath, isDev}) {
       esbuildService = esbuildService || (await startService());
       const isPreact = checkIsPreact(filePath, contents);
       const {js, warnings} = await esbuildService!.transform(contents, {
         loader: path.extname(filePath).substr(1) as 'jsx' | 'ts' | 'tsx',
+        sourcemap: isDev && 'inline',
         jsxFactory: isPreact ? 'h' : undefined,
         jsxFragment: isPreact ? 'Fragment' : undefined,
       });
