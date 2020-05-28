@@ -34,16 +34,16 @@ Guess what? It worked! Thousands of developers started using Snowpack to install
 
 ![webpack vs. snowpack diagram](/img/snowpack-unbundled-example-3.png)
 
-**Bundling is a process of `O(n)` complexity.** As your project grows, your dev bundler takes longer to start up and react to changes. Some bundlers may even have `O(n^2)` complexity: as your project grows, your dev environment gets ***exponentially*** slower as it handles code splitting, tree-shaking, and other bundle permutations on startup and on every change. Neither scenario is ideal during development when you're working with hundreds or even thousands of files.
+**Bundling is a process of `O(n)` complexity.** As your project grows, your dev bundler takes longer to start up and react to changes. Some bundlers may even have `O(n^2)` complexity: as your project grows, your dev environment gets ***exponentially*** slower with code splitting, tree-shaking, and other bundle permutations. Neither scenario is ideal during development when you're working with hundreds or even thousands of files.
 
-**Snowpack is an O(1) build system.**  The term was first coined by [Ives van Hoorne](https://www.youtube.com/watch?v=Yu9zcJJ4Uz0) and it perfectly encapsulates our vision: Every file goes through a linear `input -> build -> output` build pipeline and then out to the browser (or the final build directory, if you're building for production). Mutli-file bundling becomes a single-file build step.
+**Snowpack is an O(1) build system.** The term was first coined by [Ives van Hoorne](https://www.youtube.com/watch?v=Yu9zcJJ4Uz0) and it perfectly encapsulates our vision for the future of web development. Every file built with Snowpack can be expressed as a function: `build(file) => result`. When a file is changed during development, only that file is rebuilt.
 
 This has several advantages over the traditional bundled dev approach:
 
 - O(1) builds are faster.
 - O(1) builds are predictable.
 - O(1) builds are easy to reason about & configure.
-- Project size doesn't effect build time.
+- Project size doesn't effect build time during development.
 - Individual files cache better.
 
 That last point is key: every built file is cached individually and reused indefinitely. **If you never change a file, you will never need to re-build it again.**
@@ -145,5 +145,5 @@ npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 
 ---
 
-*Thank you to all of our [80+ contributors](https://github.com/pikapkg/snowpack/graphs/contributors) for making this release possible.*  ma
+*Thank you to all of our [80+ contributors](https://github.com/pikapkg/snowpack/graphs/contributors) for making this release possible.*  
 *Thanks to [Melissa McEwen](https://twitter.com/melissamcewen) & [@TheoOnTwitch](https://twitter.com/TheoOnTwitch) for helping to edit this post.*
