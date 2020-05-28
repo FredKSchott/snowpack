@@ -24,7 +24,7 @@ yarn add --dev snowpack
 
 Snowpack 1.0 was designed for a simple mission: install npm packages to run directly in the browser. The theory was that JavaScript packages are the only thing still ***requiring*** the use of a bundler during development. Remove that requirement, remove the bundler, and speed up web development for everyone.
 
-Guess what? It worked! Thousands of developers started using Snowpack to install their dependencies and build websites with less tooling. A whole new type of faster, lighter-weight development suddenly became possible.
+Guess what? It worked! Thousands of developers started using Snowpack to install their dependencies and build websites with less tooling. A whole new type of faster, lighter-weight dev environment suddenly became possible.
 
 **Snowpack 2.0 is a build system designed for this new era of web development.** Snowpack removes the bundler from your dev environment, leveraging native [ES Module (ESM)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) support to serve built files directly to the browser. This isn't just a faster tool, it's a new approach to web build systems.
 
@@ -34,9 +34,9 @@ Guess what? It worked! Thousands of developers started using Snowpack to install
 
 ![webpack vs. snowpack diagram](/img/snowpack-unbundled-example-3.png)
 
-**Bundling is a process of `O(n)` complexity.** As your project grows, your dev bundler takes longer to start up and react to changes. Some bundlers may even have `O(n^2)` complexity: as your project grows, your dev environment gets ***exponentially*** slower with code splitting, tree-shaking, and other bundle permutations. Neither scenario is ideal during development when you're working with hundreds or even thousands of files.
+**Bundling is a process of `O(n)` complexity.** When you change a file, you can't just rebuild that one file. You often need to rebuild and rebundle an entire chunk of your application across multiple related files to properly accept the new changes.
 
-**Snowpack is an O(1) build system.** The term was first coined by [Ives van Hoorne](https://www.youtube.com/watch?v=Yu9zcJJ4Uz0) and it perfectly encapsulates our vision for the future of web development. Every file built with Snowpack can be expressed as a function: `build(file) => result`. When a file is changed during development, only that file is rebuilt.
+**Snowpack is an O(1) build system.** The term was first coined by [Ives van Hoorne](https://www.youtube.com/watch?v=Yu9zcJJ4Uz0) and it perfectly encapsulates our vision for the future of web development. Every file built with Snowpack can be expressed as a function: `build(file) => result`. When a file is changed during development, only that file is rebuilt. No more bundling during development.
 
 This has several advantages over the traditional bundled dev approach:
 
