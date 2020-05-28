@@ -416,7 +416,7 @@ export async function command(commandOptions: CommandOptions) {
           if (requestedFile.startsWith(commandOptions.config.installOptions.dest)) {
             const fileLoc = await attemptLoadFile(requestedFile);
             if (fileLoc) {
-              return [await attemptLoadFile(requestedFile), null];
+              return [fileLoc, null];
             }
           }
           if (isRoute) {
@@ -424,6 +424,7 @@ export async function command(commandOptions: CommandOptions) {
               (await attemptLoadFile(requestedFile + '.html')) ||
               (await attemptLoadFile(requestedFile + 'index.html')) ||
               (await attemptLoadFile(requestedFile + '/index.html'));
+
             if (!fileLoc && dirUrl === '/' && config.devOptions.fallback) {
               const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
               fileLoc = await attemptLoadFile(fallbackFile);
