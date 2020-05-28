@@ -1,8 +1,6 @@
 [![CI](https://github.com/pikapkg/snowpack/workflows/CI/badge.svg?event=push)](https://github.com/pikapkg/snowpack/actions)
 
-<p align="center">
-  <img height="420" src="https://imgur.com/uXHFm5y.jpg" alt="cover image">
-</p>
+![cover image](https://imgur.com/uXHFm5y.jpg) 
 
 **Snowpack is a web app build tool that works without bundling.** Thanks to [ESM imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) Snowpack is able to remove the expensive (and unnecesary) bundling step from your dev workflow. That means no startup time spent waiting for your application to bundle PLUS no time wasted rebundling on every change.
 
