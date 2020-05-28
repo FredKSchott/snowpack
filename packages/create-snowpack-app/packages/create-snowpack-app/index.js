@@ -147,12 +147,16 @@ if (requiredVersion < 10) {
   await npmInstallProcess;
 
   console.log(`\n  - Initializing git repo.\n`);
-  await execa("git", ["init"], { cwd: targetDirectory });
-  await execa("git", ["add", "-A"], { cwd: targetDirectory });
-  await execa("git", ["commit", "-m", "initial commit"], {
-    cwd: targetDirectory,
-  });
-  console.log(`  - ${chalk.green("Success!")}`);
+  try {
+    await execa("git", ["init"], { cwd: targetDirectory });
+    await execa("git", ["add", "-A"], { cwd: targetDirectory });
+    await execa("git", ["commit", "-m", "initial commit"], {
+      cwd: targetDirectory,
+    });
+    console.log(`  - ${chalk.green("Success!")}`);
+  } catch (err) {
+    console.log(`  - ${chalk.yellow("Could not complete.")}`);
+  }
 
   console.log(``);
   console.log(chalk.bold.underline(`Quickstart:`));
