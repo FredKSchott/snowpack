@@ -267,6 +267,9 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
       cmd,
       watch: (scripts[`${scriptId}::watch`] as any) as string | undefined,
     };
+    if (newScriptConfig.watch) {
+      newScriptConfig.watch = newScriptConfig.watch.replace('$1', newScriptConfig.cmd);
+    }
     if (scriptType === 'mount') {
       const cmdArr = cmd.split(/\s+/);
       if (cmdArr[0] !== 'mount') {

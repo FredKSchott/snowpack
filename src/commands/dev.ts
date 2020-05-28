@@ -263,11 +263,8 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   function runLintAll(workerConfig: BuildScript) {
-    let {id, cmd} = workerConfig;
-    if (workerConfig.watch) {
-      cmd += workerConfig.watch.replace('$1', '');
-    }
-    const workerPromise = execa.command(cmd, {
+    let {id, cmd, watch: watchCmd} = workerConfig;
+    const workerPromise = execa.command(watchCmd || cmd, {
       env: npmRunPath.env(),
       extendEnv: true,
       shell: true,
@@ -297,7 +294,6 @@ export async function command(commandOptions: CommandOptions) {
     stderr?.on('data', (b) => {
       messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
     });
-    stderr?.on('data', (b) => {});
     workerPromise.catch((err) => {
       messageBus.emit('WORKER_COMPLETE', {id, error: err});
     });
