@@ -36,7 +36,7 @@ Guess what? It worked! Thousands of developers started using Snowpack to install
 
 **Bundling is a process of `O(n)` complexity.** When you change a file, you can't just rebuild that one file. You often need to rebuild and rebundle an entire chunk of your application across multiple related files to properly accept the new changes.
 
-**Snowpack is an O(1) build system.** The term was first coined by [Ives van Hoorne](https://www.youtube.com/watch?v=Yu9zcJJ4Uz0) and it perfectly encapsulates our vision for the future of web development. Every file built with Snowpack can be expressed as a function: `build(file) => result`. When a file is changed during development, only that file is rebuilt. No more bundling during development.
+**Snowpack is an O(1) build system.** The term was first coined by [Ives van Hoorne](https://www.youtube.com/watch?v=Yu9zcJJ4Uz0) and it perfectly encapsulates our vision for the future of web development. Every file built with Snowpack can be expressed as a function: `build(file) => result`. When a file is changed during development, only that file is rebuilt.
 
 This has several advantages over the traditional bundled dev approach:
 
