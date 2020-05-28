@@ -9,19 +9,6 @@ const CopyPlugin = require("copy-webpack-plugin");
 const { JSDOM } = jsdom;
 const cwd = process.cwd();
 
-async function compilePromise(webpackConfig) {
-  const compiler = webpack(webpackConfig);
-  return new Promise((resolve, reject) => {
-    compiler.run((err, stats) => {
-      if (stats.hasErrors() || err) {
-        const info = stats.toJson();
-        reject({ err, infoErrors: info.errors, infoWarnings: info.warning });
-      }
-      resolve(stats);
-    });
-  });
-}
-
 function chain(object, keys) {
   let cur = object;
   for (const key of keys) {
@@ -184,7 +171,7 @@ module.exports = function plugin(config, args) {
         ],
       };
 
-      const stats = await compilePromise(
+      const compiler = webpack(
         extendConfig({
           ...webpackConfig,
           entry: path.join(srcDirectory, entryPoint),
@@ -193,13 +180,21 @@ module.exports = function plugin(config, args) {
             filename: jsOutputPattern,
           },
         })
-      ).catch(({ err, infoErrors }) => {
-        if (err) {
-          console.error(err.stack || err);
-        }
-        if (infoErrors && infoErrors.length > 0) {
-          console.error(infoErrors.join("\n-----\n"));
-        }
+      );
+
+      const stats = await new Promise((resolve, reject) => {
+        compiler.run((err, stats) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          if (stats.hasErrors()) {
+            const info = stats.toJson();
+            console.error(infoWarnings.join("\n-----\n"));
+            console.error(infoErrors.join("\n-----\n"));
+          }
+          resolve(stats);
+        });
       });
 
       if (!args.skipFallbackOutput) {
