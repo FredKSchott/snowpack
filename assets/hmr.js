@@ -103,13 +103,13 @@ async function applyUpdate(id) {
   const disposeCallbacks = state.disposeCallbacks;
   state.disposeCallbacks = [];
   state.data = {};
-  disposeCallbacks.map((callback) => callback());
   const updateID = Date.now();
   for (const {deps, callback: acceptCallback} of acceptCallbacks) {
     const [module, ...depModules] = await Promise.all([
       import(id + `?mtime=${updateID}`),
       ...deps.map((d) => import(d + `?mtime=${updateID}`)),
     ]);
+    disposeCallbacks.map((callback) => callback());
     acceptCallback({module, deps: depModules});
   }
   return true;
