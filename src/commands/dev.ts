@@ -127,18 +127,24 @@ export async function command(commandOptions: CommandOptions) {
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
 
-  const httpProxyRequired = config.scripts.reduce((count, workerConfig) => count + (workerConfig.type === 'proxy'?1:0), 0) > 0;
-  const proxy = httpProxyRequired?await function(){
-    return import('http-proxy').then(httpProxy => {
-      const proxy = httpProxy.createProxyServer({});
-      proxy.on('error', function(err, req, res) {
-        const reqUrl = req.url!;
-        console.error(`✘ ${reqUrl}\n${err.message}`);
-        sendError(res, 502);
-      });
-      return proxy;
-    });
-  }():null;
+  const httpProxyRequired =
+    config.scripts.reduce(
+      (count, workerConfig) => count + (workerConfig.type === 'proxy' ? 1 : 0),
+      0,
+    ) > 0;
+  const proxy = httpProxyRequired
+    ? await (function () {
+        return import('http-proxy').then((httpProxy) => {
+          const proxy = httpProxy.createProxyServer({});
+          proxy.on('error', function (err, req, res) {
+            const reqUrl = req.url!;
+            console.error(`✘ ${reqUrl}\n${err.message}`);
+            sendError(res, 502);
+          });
+          return proxy;
+        });
+      })()
+    : null;
 
   // Start with a fresh install of your dependencies, for development, if needed
   commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
@@ -377,11 +383,11 @@ export async function command(commandOptions: CommandOptions) {
         }
         if (reqPath.startsWith(workerConfig.args.toUrl)) {
           const newPath = reqPath.substr(workerConfig.args.toUrl.length);
-          proxy.web(req, res, { 
+          proxy.web(req, res, {
             target: `${workerConfig.args.fromUrl}${newPath}`,
             ignorePath: true,
             secure: false,
-            changeOrigin: true
+            changeOrigin: true,
           });
           return;
         }
@@ -667,7 +673,7 @@ export async function command(commandOptions: CommandOptions) {
 
       sendFile(req, res, wrappedResponse, responseFileExt);
     })
-    .on('upgrade', function(req, socket, head) {
+    .on('upgrade', function (req, socket, head) {
       const reqUrl = req.url!;
       let reqPath = decodeURI(url.parse(reqUrl).pathname!);
 
@@ -677,7 +683,10 @@ export async function command(commandOptions: CommandOptions) {
         }
         if (reqPath.startsWith(workerConfig.args.toUrl)) {
           const newPath = reqPath.substr(workerConfig.args.toUrl.length);
-          proxy.ws(req, socket, head, { target: `${workerConfig.args.fromUrl}${newPath}`, ignorePath: true });
+          proxy.ws(req, socket, head, {
+            target: `${workerConfig.args.fromUrl}${newPath}`,
+            ignorePath: true,
+          });
         }
       }
     })
