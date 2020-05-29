@@ -57,6 +57,7 @@
     "@rollup/plugin-json": "^4.0.0",
     "@rollup/plugin-node-resolve": "^7.1.0",
     "@rollup/plugin-replace": "^2.1.0",
+    "@types/http-proxy": "^1.17.4",
     "@types/tar": "^4.0.3",
     "ansi-escapes": "^4.3.1",
     "cacache": "^15.0.0",

@@ -27,6 +27,7 @@
 import cacache from 'cacache';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
+import httpProxy from 'http-proxy';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
@@ -127,18 +128,15 @@ export async function command(commandOptions: CommandOptions) {
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
 
-  const httpProxyRequired = config.scripts.reduce((count, workerConfig) => count + (workerConfig.type === 'proxy'?1:0), 0) > 0;
-  const proxy = httpProxyRequired?await function(){
-    return import('http-proxy').then(httpProxy => {
-      const proxy = httpProxy.createProxyServer({});
-      proxy.on('error', function(err, req, res) {
-        const reqUrl = req.url!;
-        console.error(`✘ ${reqUrl}\n${err.message}`);
-        sendError(res, 502);
-      });
-      return proxy;
+  let proxy: undefined | httpProxy;
+  if (config.scripts.findIndex(({type}) => type === 'proxy') > -1) {
+    proxy = httpProxy.createProxyServer({});
+    proxy.on('error', function (err, req, res) {
+      const reqUrl = req.url!;
+      console.error(`✘ ${reqUrl}\n${err.message}`);
+      sendError(res, 502);
     });
-  }():null;
+  }
 
   // Start with a fresh install of your dependencies, for development, if needed
   commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
@@ -367,17 +365,19 @@ export async function command(commandOptions: CommandOptions) {
         return;
       }
 
-      for (const workerConfig of config.scripts) {
-        if (workerConfig.type !== 'proxy') {
-          continue;
-        }
-        if (reqPath.startsWith(workerConfig.args.toUrl)) {
-          const newPath = reqPath.substr(workerConfig.args.toUrl.length);
-          proxy.web(req, res, { 
-            target: `${workerConfig.args.fromUrl}${newPath}`,
-            ignorePath: true,
-          });
-          return;
+      if (proxy) {
+        for (const workerConfig of config.scripts) {
+          if (workerConfig.type !== 'proxy') {
+            continue;
+          }
+          if (reqPath.startsWith(workerConfig.args.toUrl)) {
+            const newPath = reqPath.substr(workerConfig.args.toUrl.length);
+            proxy.web(req, res, {
+              target: `${workerConfig.args.fromUrl}${newPath}`,
+              ignorePath: true,
+            });
+            return;
+          }
         }
       }
 
@@ -661,17 +661,22 @@ export async function command(commandOptions: CommandOptions) {
 
       sendFile(req, res, wrappedResponse, responseFileExt);
     })
-    .on('upgrade', function(req, socket, head) {
+    .on('upgrade', (req, socket, head) => {
       const reqUrl = req.url!;
       let reqPath = decodeURI(url.parse(reqUrl).pathname!);
 
-      for (const workerConfig of config.scripts) {
-        if (workerConfig.type !== 'proxy') {
-          continue;
-        }
-        if (reqPath.startsWith(workerConfig.args.toUrl)) {
-          const newPath = reqPath.substr(workerConfig.args.toUrl.length);
-          proxy.ws(req, socket, head, { target: `${workerConfig.args.fromUrl}${newPath}`, ignorePath: true });
+      if (proxy) {
+        for (const workerConfig of config.scripts) {
+          if (workerConfig.type !== 'proxy') {
+            continue;
+          }
+          if (reqPath.startsWith(workerConfig.args.toUrl)) {
+            const newPath = reqPath.substr(workerConfig.args.toUrl.length);
+            proxy.ws(req, socket, head, {
+              target: `${workerConfig.args.fromUrl}${newPath}`,
+              ignorePath: true,
+            });
+          }
         }
       }
     })
