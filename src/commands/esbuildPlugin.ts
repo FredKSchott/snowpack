@@ -14,6 +14,7 @@ export function esbuildPlugin() {
       const {js, warnings} = await esbuildService!.transform(contents, {
         loader: path.extname(filePath).substr(1) as 'jsx' | 'ts' | 'tsx',
         sourcemap: isDev && 'inline',
+        sourcefile: filePath,
         jsxFactory: isPreact ? 'h' : undefined,
         jsxFragment: isPreact ? 'Fragment' : undefined,
       });
