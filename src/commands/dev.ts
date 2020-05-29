@@ -734,17 +734,17 @@ export async function command(commandOptions: CommandOptions) {
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
 
-  // Handle when user hits CTRL+C and raise the 'SIGINT' 
-  // event manually. Fixes #368: 'snowpack dev' requires 
+  // Handle when user hits CTRL+C and raise the 'SIGINT'
+  // event manually. Fixes #368: 'snowpack dev' requires
   // two CTRL-C to exit
   var rl = require('readline').createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
   });
-  
+
   rl.on('SIGINT', () => {
     // @ts-ignore: Argument of type '"SIGINT"' is not assignable to parameter of type '"disconnect"'.
-    process.emit("SIGINT");
+    process.emit('SIGINT');
   });
 
   process.on('SIGINT', () => {
