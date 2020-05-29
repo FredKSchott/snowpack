@@ -376,7 +376,7 @@ export async function command(commandOptions: CommandOptions) {
               target: `${workerConfig.args.fromUrl}${newPath}`,
               ignorePath: true,
               secure: false,
-              changeOrigin: true
+              changeOrigin: true,
             });
             return;
           }
