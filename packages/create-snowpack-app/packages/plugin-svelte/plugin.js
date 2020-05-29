@@ -5,22 +5,20 @@ const path = require("path");
 module.exports = function plugin(config, pluginOptions) {
   let svelteOptions;
   let preprocessOptions;
-  try {
-    const userSvelteConfigLoc = path.join(process.cwd(), "svelte.config.js");
+  const userSvelteConfigLoc = path.join(process.cwd(), "svelte.config.js");
+  if (fs.existsSync(userSvelteConfigLoc)) {
     const userSvelteConfig = require(userSvelteConfigLoc);
     const { preprocess, ..._svelteOptions } = userSvelteConfig;
     preprocessOptions = preprocess;
     svelteOptions = _svelteOptions;
-  } catch (err) {
-    // no user-provided config found, safe to ignore
-  } finally {
-    svelteOptions = {
-      dev: process.env.NODE_ENV !== "production",
-      css: process.env.NODE_ENV !== "production",
-      ...svelteOptions,
-      ...pluginOptions,
-    };
   }
+  // Generate svelte options from user provided config (if given)
+  svelteOptions = {
+    dev: process.env.NODE_ENV !== "production",
+    css: process.env.NODE_ENV !== "production",
+    ...svelteOptions,
+    ...pluginOptions,
+  };
 
   return {
     defaultBuildScript: "build:svelte",
