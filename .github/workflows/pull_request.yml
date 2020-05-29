@@ -25,7 +25,7 @@ jobs:
       run: |
         npm ci --no-optional
         npm run build --if-present
-        npm test
+        npm run test:ci
       env:
         CI: true
   lint:
@@ -34,4 +34,4 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
       - run: npm ci --no-optional
-      - run: npm run lint
+      - run: npm run test:lint
