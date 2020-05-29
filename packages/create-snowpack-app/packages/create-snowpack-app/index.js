@@ -124,18 +124,16 @@ if (requiredVersion < 10) {
     path.join(targetDirectory, "package.json"),
     `{"name": "my-csa-app"}`
   );
-  const templateInstallProcess = execa(
-    "npm",
-    ["install", template, "--ignore-scripts"],
-    {
+  try {
+    await execa("npm", ["install", template, "--ignore-scripts"], {
       cwd: targetDirectory,
-    }
-  );
-  templateInstallProcess.stdout &&
-    templateInstallProcess.stdout.pipe(process.stdout);
-  templateInstallProcess.stderr &&
-    templateInstallProcess.stderr.pipe(process.stderr);
-  await templateInstallProcess;
+      all: true,
+    });
+  } catch (err) {
+    // Only log output if the command failed
+    console.error(err.all);
+    throw err;
+  }
   await copy(installedTemplate, targetDirectory);
   await verifyProjectTemplate(targetDirectory);
   await cleanProject(targetDirectory);
