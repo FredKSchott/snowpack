@@ -190,8 +190,8 @@ module.exports = function plugin(config, args) {
           }
           if (stats.hasErrors()) {
             const info = stats.toJson();
-            console.error(infoWarnings.join("\n-----\n"));
-            console.error(infoErrors.join("\n-----\n"));
+            console.error(info.warnings.join("\n-----\n"));
+            console.error(info.errors.join("\n-----\n"));
           }
           resolve(stats);
         });
