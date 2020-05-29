@@ -32,7 +32,6 @@ import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
 import http from 'http';
-import httpProxy from 'http-proxy';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
 import os from 'os';
@@ -127,13 +126,19 @@ export async function command(commandOptions: CommandOptions) {
   const filesBeingBuilt = new Map<string, Promise<SnowpackPluginBuildResult>>();
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
-  
-  const proxy = httpProxy.createProxyServer({});
-  proxy.on('error', function(err, req, res) {
-    const reqUrl = req.url!;
-    console.error(`✘ ${reqUrl}\n${err.message}`);
-    sendError(res, 502);
-  });
+
+  const httpProxyRequired = config.scripts.reduce((count, workerConfig) => count + (workerConfig.type === 'proxy'?1:0), 0) > 0;
+  const proxy = httpProxyRequired?await function(){
+    return import('http-proxy').then(httpProxy => {
+      const proxy = httpProxy.createProxyServer({});
+      proxy.on('error', function(err, req, res) {
+        const reqUrl = req.url!;
+        console.error(`✘ ${reqUrl}\n${err.message}`);
+        sendError(res, 502);
+      });
+      return proxy;
+    });
+  }():null;
 
   // Start with a fresh install of your dependencies, for development, if needed
   commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
