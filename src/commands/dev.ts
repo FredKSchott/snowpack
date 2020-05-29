@@ -380,6 +380,8 @@ export async function command(commandOptions: CommandOptions) {
           proxy.web(req, res, { 
             target: `${workerConfig.args.fromUrl}${newPath}`,
             ignorePath: true,
+            secure: false,
+            changeOrigin: true
           });
           return;
         }
