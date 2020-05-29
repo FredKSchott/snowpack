@@ -1,19 +1,25 @@
+import Core from 'css-modules-loader-core';
+import type {EventEmitter} from 'events';
 import execa from 'execa';
 import path from 'path';
+import {statSync} from 'fs';
 import npmRunPath from 'npm-run-path';
-import type {EventEmitter} from 'events';
-import {
-  SnowpackConfig,
-  BuildScript,
-  SnowpackPluginBuildResult,
-  SnowpackPluginBuildArgs,
-} from '../config';
-import Core from 'css-modules-loader-core';
-import chalk from 'chalk';
+import {BuildScript, SnowpackPluginBuildArgs, SnowpackPluginBuildResult} from '../config';
 
 const IS_PREACT = /from\s+['"]preact['"]/;
 export function checkIsPreact(filePath: string, contents: string) {
   return filePath.endsWith('.jsx') && IS_PREACT.test(contents);
+}
+
+export function isDirectoryImport(fileLoc: string, spec: string): boolean {
+  const importedFileOnDisk = path.resolve(path.dirname(fileLoc), spec);
+  try {
+    const stat = statSync(importedFileOnDisk);
+    return stat.isDirectory();
+  } catch (err) {
+    // file doesn't exist, that's fine
+  }
+  return false;
 }
 
 export async function wrapJSModuleResponse(code: string, hasHmr = false) {
