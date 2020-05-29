@@ -27,11 +27,11 @@
 import cacache from 'cacache';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
+import httpProxy from 'http-proxy';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
-import got, {Method as RequestMethod} from 'got';
 import http from 'http';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
@@ -127,6 +127,16 @@ export async function command(commandOptions: CommandOptions) {
   const filesBeingBuilt = new Map<string, Promise<SnowpackPluginBuildResult>>();
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
+
+  let proxy: undefined | httpProxy;
+  if (config.scripts.findIndex(({type}) => type === 'proxy') > -1) {
+    proxy = httpProxy.createProxyServer({});
+    proxy.on('error', function (err, req, res) {
+      const reqUrl = req.url!;
+      console.error(`✘ ${reqUrl}\n${err.message}`);
+      sendError(res, 502);
+    });
+  }
 
   // Start with a fresh install of your dependencies, for development, if needed
   commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
@@ -355,27 +365,19 @@ export async function command(commandOptions: CommandOptions) {
         return;
       }
 
-      for (const workerConfig of config.scripts) {
-        if (workerConfig.type !== 'proxy') {
-          continue;
-        }
-        if (reqPath.startsWith(workerConfig.args.toUrl)) {
-          const newPath = reqPath.substr(workerConfig.args.toUrl.length);
-          try {
-            const response = await got(`${workerConfig.args.fromUrl}${newPath}`, {
-              method: req.method as RequestMethod,
-              headers: req.headers,
-              throwHttpErrors: false,
-            });
-            res.writeHead(response.statusCode, response.headers);
-            res.write(response.body);
-          } catch (err) {
-            console.error(`✘ ${reqUrl}\n${err.message}`);
-            sendError(res, 500);
-          } finally {
-            res.end();
+      if (proxy) {
+        for (const workerConfig of config.scripts) {
+          if (workerConfig.type !== 'proxy') {
+            continue;
           }
-          return;
+          if (reqPath.startsWith(workerConfig.args.toUrl)) {
+            const newPath = reqPath.substr(workerConfig.args.toUrl.length);
+            proxy.web(req, res, {
+              target: `${workerConfig.args.fromUrl}${newPath}`,
+              ignorePath: true,
+            });
+            return;
+          }
         }
       }
 
@@ -658,6 +660,25 @@ export async function command(commandOptions: CommandOptions) {
       }
 
       sendFile(req, res, wrappedResponse, responseFileExt);
+    })
+    .on('upgrade', (req, socket, head) => {
+      const reqUrl = req.url!;
+      let reqPath = decodeURI(url.parse(reqUrl).pathname!);
+
+      if (proxy) {
+        for (const workerConfig of config.scripts) {
+          if (workerConfig.type !== 'proxy') {
+            continue;
+          }
+          if (reqPath.startsWith(workerConfig.args.toUrl)) {
+            const newPath = reqPath.substr(workerConfig.args.toUrl.length);
+            proxy.ws(req, socket, head, {
+              target: `${workerConfig.args.fromUrl}${newPath}`,
+              ignorePath: true,
+            });
+          }
+        }
+      }
     })
     .listen(port);
 
