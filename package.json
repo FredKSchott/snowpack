@@ -73,6 +73,7 @@
     "find-cache-dir": "^3.3.1",
     "glob": "^7.1.4",
     "got": "^11.1.4",
+    "http-proxy": "^1.18.1",
     "is-builtin-module": "^3.0.0",
     "jsonschema": "^1.2.5",
     "mime-types": "^2.1.26",
