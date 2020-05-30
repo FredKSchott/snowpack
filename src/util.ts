@@ -10,6 +10,7 @@ import got, {CancelableRequest, Response} from 'got';
 import open from 'open';
 import path from 'path';
 import {SnowpackConfig} from './config';
+import mkdirp from 'mkdirp';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
@@ -198,6 +199,7 @@ export async function updateLockfileHash() {
     return;
   }
   const newLockHash = etag(await fs.promises.readFile(lockfileLoc));
+  await mkdirp(path.dirname(LOCKFILE_CACHE));
   await fs.promises.writeFile(LOCKFILE_CACHE, newLockHash);
 }
 
