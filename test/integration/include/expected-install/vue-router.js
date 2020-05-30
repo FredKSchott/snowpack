@@ -3,6 +3,19 @@
   * (c) 2019 Evan You
   * @license MIT
   */
+/*  */
+
+function assert (condition, message) {
+  if (!condition) {
+    throw new Error(("[vue-router] " + message))
+  }
+}
+
+function warn (condition, message) {
+  if ( !condition) {
+    typeof console !== 'undefined' && console.warn(("[vue-router] " + message));
+  }
+}
 
 function isError (err) {
   return Object.prototype.toString.call(err).indexOf('Error') > -1
@@ -139,6 +152,14 @@ function resolveProps (route, config) {
       return config(route)
     case 'boolean':
       return config ? route.params : undefined
+    default:
+      {
+        warn(
+          false,
+          "props in \"" + (route.path) + "\" is a " + (typeof config) + ", " +
+          "expecting an object, function or boolean."
+        );
+      }
   }
 }
 
@@ -169,6 +190,7 @@ function resolveQuery (
   try {
     parsedQuery = parse(query || '');
   } catch (e) {
+     warn(false, e.message);
     parsedQuery = {};
   }
   for (var key in extraQuery) {
@@ -899,6 +921,9 @@ function fillParams (
 
     return filler(params, { pretty: true })
   } catch (e) {
+    {
+      warn(false, ("missing param for " + routeMsg + ": " + (e.message)));
+    }
     return ''
   } finally {
     // delete the 0 if it was added
@@ -933,6 +958,8 @@ function normalizeLocation (
     } else if (current.matched.length) {
       var rawPath = current.matched[current.matched.length - 1].path;
       next.path = fillParams(rawPath, params, ("path " + (current.path)));
+    } else {
+      warn(false, "relative params navigation requires a current route.");
     }
     return next
   }
@@ -1067,6 +1094,12 @@ var Link = {
       if (scopedSlot.length === 1) {
         return scopedSlot[0]
       } else if (scopedSlot.length > 1 || !scopedSlot.length) {
+        {
+          warn(
+            false,
+            ("RouterLink with to=\"" + (this.props.to) + "\" is trying to use a scoped slot but it didn't provide exactly one child.")
+          );
+        }
         return scopedSlot.length === 0 ? h() : h('span', {}, scopedSlot)
       }
     }
@@ -1244,6 +1277,15 @@ function addRouteRecord (
 ) {
   var path = route.path;
   var name = route.name;
+  {
+    assert(path != null, "\"path\" is required in a route configuration.");
+    assert(
+      typeof route.component !== 'string',
+      "route config \"component\" for path: " + (String(
+        path || name
+      )) + " cannot be a " + "string id. Use an actual component instead."
+    );
+  }
 
   var pathToRegexpOptions =
     route.pathToRegexpOptions || {};
@@ -1273,6 +1315,25 @@ function addRouteRecord (
   };
 
   if (route.children) {
+    // Warn if route is named, does not redirect and has a default child route.
+    // If users navigate to this route by name, the default child will
+    // not be rendered (GH Issue #629)
+    {
+      if (
+        route.name &&
+        !route.redirect &&
+        route.children.some(function (child) { return /^\/?$/.test(child.path); })
+      ) {
+        warn(
+          false,
+          "Named Route '" + (route.name) + "' has a default child route. " +
+            "When navigating to this named route (:to=\"{name: '" + (route.name) + "'\"), " +
+            "the default child route will not be rendered. Remove the name from " +
+            "this route and use the name of the default child route for named " +
+            "links instead."
+        );
+      }
+    }
     route.children.forEach(function (child) {
       var childMatchAs = matchAs
         ? cleanPath((matchAs + "/" + (child.path)))
@@ -1290,6 +1351,14 @@ function addRouteRecord (
     var aliases = Array.isArray(route.alias) ? route.alias : [route.alias];
     for (var i = 0; i < aliases.length; ++i) {
       var alias = aliases[i];
+      if ( alias === path) {
+        warn(
+          false,
+          ("Found an alias with the same value as the path: \"" + path + "\". You have to remove that alias. It will be ignored in development.")
+        );
+        // skip in dev to make it work
+        continue
+      }
 
       var aliasRoute = {
         path: alias,
@@ -1309,6 +1378,12 @@ function addRouteRecord (
   if (name) {
     if (!nameMap[name]) {
       nameMap[name] = record;
+    } else if ( !matchAs) {
+      warn(
+        false,
+        "Duplicate named routes definition: " +
+          "{ name: \"" + name + "\", path: \"" + (record.path) + "\" }"
+      );
     }
   }
 }
@@ -1318,6 +1393,16 @@ function compileRouteRegex (
   pathToRegexpOptions
 ) {
   var regex = pathToRegexp_1(path, [], pathToRegexpOptions);
+  {
+    var keys = Object.create(null);
+    regex.keys.forEach(function (key) {
+      warn(
+        !keys[key.name],
+        ("Duplicate param keys in route with path: \"" + path + "\"")
+      );
+      keys[key.name] = true;
+    });
+  }
   return regex
 }
 
@@ -1359,6 +1444,9 @@ function createMatcher (
 
     if (name) {
       var record = nameMap[name];
+      {
+        warn(record, ("Route with name '" + name + "' does not exist"));
+      }
       if (!record) { return _createRoute(null, location) }
       var paramNames = record.regex.keys
         .filter(function (key) { return !key.optional; })
@@ -1376,7 +1464,7 @@ function createMatcher (
         }
       }
 
-      location.path = fillParams(record.path, location.params);
+      location.path = fillParams(record.path, location.params, ("named route \"" + name + "\""));
       return _createRoute(record, location, redirectedFrom)
     } else if (location.path) {
       location.params = {};
@@ -1406,6 +1494,11 @@ function createMatcher (
     }
 
     if (!redirect || typeof redirect !== 'object') {
+      {
+        warn(
+          false, ("invalid redirect option: " + (JSON.stringify(redirect)))
+        );
+      }
       return _createRoute(null, location)
     }
 
@@ -1422,6 +1515,9 @@ function createMatcher (
     if (name) {
       // resolved named direct
       var targetRecord = nameMap[name];
+      {
+        assert(targetRecord, ("redirect failed: named route \"" + name + "\" not found."));
+      }
       return match({
         _normalized: true,
         name: name,
@@ -1433,7 +1529,7 @@ function createMatcher (
       // 1. resolve relative redirect
       var rawPath = resolveRecordPath(path, record);
       // 2. resolve params
-      var resolvedPath = fillParams(rawPath, params);
+      var resolvedPath = fillParams(rawPath, params, ("redirect route with path \"" + rawPath + "\""));
       // 3. rematch with existing query and hash
       return match({
         _normalized: true,
@@ -1442,6 +1538,9 @@ function createMatcher (
         hash: hash
       }, undefined, location)
     } else {
+      {
+        warn(false, ("invalid redirect option: " + (JSON.stringify(redirect))));
+      }
       return _createRoute(null, location)
     }
   }
@@ -1451,7 +1550,7 @@ function createMatcher (
     location,
     matchAs
   ) {
-    var aliasedPath = fillParams(matchAs, location.params);
+    var aliasedPath = fillParams(matchAs, location.params, ("aliased route with path \"" + matchAs + "\""));
     var aliasedMatch = match({
       _normalized: true,
       path: aliasedPath
@@ -1572,6 +1671,10 @@ function handleScroll (
     return
   }
 
+  {
+    assert(typeof behavior === 'function', "scrollBehavior must be a function");
+  }
+
   // wait until re-render finishes before scrolling
   router.app.$nextTick(function () {
     var position = getScrollPosition();
@@ -1592,6 +1695,9 @@ function handleScroll (
           scrollToPosition((shouldScroll), position);
         })
         .catch(function (err) {
+          {
+            assert(false, err.toString());
+          }
         });
     } else {
       scrollToPosition(shouldScroll, position);
@@ -1771,6 +1877,7 @@ function resolveAsyncComponents (matched) {
 
         var reject = once(function (reason) {
           var msg = "Failed to resolve async component " + key + ": " + reason;
+           warn(false, msg);
           if (!error) {
             error = isError(reason)
               ? reason
@@ -1956,6 +2063,7 @@ History.prototype.confirmTransition = function confirmTransition (route, onCompl
           cb(err);
         });
       } else {
+        warn(false, 'uncaught error during route navigation:');
         console.error(err);
       }
     }
@@ -2557,6 +2665,10 @@ var VueRouter = function VueRouter (options) {
     case 'abstract':
       this.history = new AbstractHistory(this, options.base);
       break
+    default:
+      {
+        assert(false, ("invalid mode: " + mode));
+      }
   }
 };
 
@@ -2576,6 +2688,12 @@ prototypeAccessors.currentRoute.get = function () {
 
 VueRouter.prototype.init = function init (app /* Vue component instance */) {
     var this$1 = this;
+
+   assert(
+    install.installed,
+    "not installed. Make sure to call `Vue.use(VueRouter)` " +
+    "before creating root instance."
+  );
 
   this.apps.push(app);
 
