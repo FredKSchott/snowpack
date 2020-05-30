@@ -53,6 +53,7 @@ import {
 import {
   FileBuilder,
   getFileBuilderForWorker,
+  isDirectoryImport,
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
   wrapHtmlResponse,
@@ -208,7 +209,11 @@ export async function command(commandOptions: CommandOptions) {
         if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
           const ext = path.extname(spec).substr(1);
           if (!ext) {
-            return spec + '.js';
+            if (isDirectoryImport(fileLoc, spec)) {
+              return spec + '/index.js';
+            } else {
+              return spec + '.js';
+            }
           }
           const extToReplace = srcFileExtensionMapping[ext];
           if (extToReplace) {
