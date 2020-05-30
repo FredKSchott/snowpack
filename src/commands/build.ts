@@ -12,6 +12,7 @@ import {transformEsmImports} from '../rewrite-imports';
 import {BUILD_DEPENDENCIES_DIR, CommandOptions, ImportMap} from '../util';
 import {
   getFileBuilderForWorker,
+  isDirectoryImport,
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
   wrapJSModuleResponse,
@@ -284,7 +285,11 @@ export async function command(commandOptions: CommandOptions) {
             if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
               const ext = path.extname(spec).substr(1);
               if (!ext) {
-                return spec + '.js';
+                if (isDirectoryImport(f, spec)) {
+                  return spec + '/index.js';
+                } else {
+                  return spec + '.js';
+                }
               }
               const extToReplace = srcFileExtensionMapping[ext];
               if (extToReplace) {

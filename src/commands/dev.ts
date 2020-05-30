@@ -53,6 +53,7 @@ import {
 import {
   FileBuilder,
   getFileBuilderForWorker,
+  isDirectoryImport,
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
   wrapHtmlResponse,
@@ -208,7 +209,11 @@ export async function command(commandOptions: CommandOptions) {
         if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
           const ext = path.extname(spec).substr(1);
           if (!ext) {
-            return spec + '.js';
+            if (isDirectoryImport(fileLoc, spec)) {
+              return spec + '/index.js';
+            } else {
+              return spec + '.js';
+            }
           }
           const extToReplace = srcFileExtensionMapping[ext];
           if (extToReplace) {
@@ -733,6 +738,19 @@ export async function command(commandOptions: CommandOptions) {
   watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
+
+  // Handle when user hits CTRL+C and raise the 'SIGINT'
+  // event manually. Fixes #368: 'snowpack dev' requires
+  // two CTRL-C to exit
+  var rl = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  rl.on('SIGINT', () => {
+    // @ts-ignore: Argument of type '"SIGINT"' is not assignable to parameter of type '"disconnect"'.
+    process.emit('SIGINT');
+  });
 
   process.on('SIGINT', () => {
     hmrEngine.disconnectAllClients();

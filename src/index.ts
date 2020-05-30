@@ -64,8 +64,10 @@ export async function cli(args: string[]) {
     process.exit(1);
   }
 
+  const cmd = cliFlags['_'][2];
+
   // Set this early - before config loading - so that plugins see it.
-  if (cliFlags['_'][2] === 'build') {
+  if (cmd === 'build') {
     process.env.NODE_ENV = process.env.NODE_ENV || 'production';
   }
 
@@ -76,11 +78,11 @@ export async function cli(args: string[]) {
     pkgManifest,
   };
 
-  if (cliFlags['_'][2] === 'add') {
+  if (cmd === 'add') {
     await addCommand(cliFlags['_'][3], commandOptions);
     return;
   }
-  if (cliFlags['_'][2] === 'rm') {
+  if (cmd === 'rm') {
     await rmCommand(cliFlags['_'][3], commandOptions);
     return;
   }
@@ -90,19 +92,19 @@ export async function cli(args: string[]) {
     process.exit(1);
   }
 
-  if (cliFlags['_'][2] === 'build') {
+  if (cmd === 'build') {
     await buildCommand(commandOptions);
     return;
   }
-  if (cliFlags['_'][2] === 'dev') {
+  if (cmd === 'dev') {
     await devCommand(commandOptions);
     return;
   }
-  if (cliFlags['_'][2] === 'install' || !cliFlags['_'][2]) {
+  if (cmd === 'install' || !cmd) {
     await installCommand(commandOptions);
     return;
   }
 
-  console.log(`Unrecognized command: ${cliFlags['_'][2]}`);
+  console.log(`Unrecognized command: ${cmd}`);
   process.exit(1);
 }
