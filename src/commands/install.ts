@@ -22,12 +22,13 @@ import {DependencyStatsOutput, rollupPluginDependencyStats} from '../rollup-plug
 import {InstallTarget, scanDepList, scanImports} from '../scan-imports.js';
 import {printStats} from '../stats-formatter.js';
 import {
+  CommandOptions,
   ImportMap,
   isTruthy,
   MISSING_PLUGIN_SUGGESTIONS,
   resolveDependencyManifest,
+  updateLockfileHash,
   writeLockfile,
-  CommandOptions,
 } from '../util.js';
 
 type InstallResult = 'SUCCESS' | 'ASSET' | 'FAIL';
@@ -497,6 +498,7 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
     }
   }
 
+  await updateLockfileHash();
   if (newLockfile) {
     await writeLockfile(path.join(cwd, 'snowpack.lock.json'), newLockfile);
   }

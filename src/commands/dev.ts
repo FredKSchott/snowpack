@@ -43,6 +43,7 @@ import {EsmHmrEngine} from '../hmr-server-engine';
 import {scanCodeImportsExports, transformEsmImports} from '../rewrite-imports';
 import {
   BUILD_CACHE,
+  checkLockfileHash,
   CommandOptions,
   DEV_DEPENDENCIES_DIR,
   ImportMap,
@@ -114,13 +115,9 @@ function getMountedDirectory(cwd: string, workerConfig: BuildScript): [string, s
 let currentlyRunningCommand: any = null;
 
 export async function command(commandOptions: CommandOptions) {
+  let serverStart = Date.now();
   const {cwd, config} = commandOptions;
-  console.log(chalk.bold('Snowpack Dev Server (Beta)'));
-  console.log('NOTE: Still experimental, default behavior may change.');
-  console.log('Starting up...\n');
-
   const {port, open} = config.devOptions;
-
   const hmrEngine = new EsmHmrEngine();
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
@@ -128,6 +125,27 @@ export async function command(commandOptions: CommandOptions) {
   const filesBeingBuilt = new Map<string, Promise<SnowpackPluginBuildResult>>();
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
+
+  // Set the proper install options, in case an install is needed.
+  commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
+  commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'development';
+  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
+
+  // Start with a fresh install of your dependencies, if needed.
+  if (!(await checkLockfileHash()) || !existsSync(dependencyImportMapLoc)) {
+    console.log(chalk.yellow('! new dependencies detected...'));
+    await installCommand(commandOptions);
+    serverStart = Date.now();
+  }
+
+  let dependencyImportMap: ImportMap = {imports: {}};
+  try {
+    dependencyImportMap = JSON.parse(
+      await fs.readFile(dependencyImportMapLoc, {encoding: 'utf-8'}),
+    );
+  } catch (err) {
+    // no import-map found, safe to ignore
+  }
 
   let proxy: undefined | httpProxy;
   if (config.scripts.findIndex(({type}) => type === 'proxy') > -1) {
@@ -137,24 +155,6 @@ export async function command(commandOptions: CommandOptions) {
       console.error(`✘ ${reqUrl}\n${err.message}`);
       sendError(res, 502);
     });
-  }
-
-  // Start with a fresh install of your dependencies, for development, if needed
-  commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
-  commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'development';
-  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
-  if (!existsSync(dependencyImportMapLoc)) {
-    await installCommand(commandOptions);
-  }
-
-  const serverStart = Date.now();
-  let dependencyImportMap: ImportMap = {imports: {}};
-  try {
-    dependencyImportMap = JSON.parse(
-      await fs.readFile(dependencyImportMapLoc, {encoding: 'utf-8'}),
-    );
-  } catch (err) {
-    // no import-map found, safe to ignore
   }
 
   async function buildFile(
