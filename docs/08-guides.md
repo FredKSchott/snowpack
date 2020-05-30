@@ -71,21 +71,29 @@ Babel will automatically read plugins & presets from your local project `babel.c
 }
 ```
 
-You can configure PostCSS with a `postcss.config.js` file in your current working directory. See [PostCSS CLI](https://github.com/postcss/postcss-cli) for more information.
+The [`postcss-cli`](https://github.com/postcss/postcss-cli) package must be installed manually. You can configure PostCSS with a `postcss.config.js` file in your current working directory.
 
 ### CSS @import Support
 
-```js
-// postcss.config.js
-module.exports = {
-  plugins: [
-    // ...
-    require('postcss-import')({path: ['resources/css']}),
-    // ...
-  ]
-```
+The `@import` statements in CSS files [are not yet supported natively](https://github.com/pikapkg/snowpack/issues/389), meaning an `@import 'foo/bar.css'` (with a relative URL) will by default look for `foo/bar.css` in your app's `public/` directory only.
 
-To support `@import` statements in your CSS code, use PostCSS with the [postcss-import](https://github.com/postcss/postcss-import) plugin.
+To allow relative `@import`s from the CSS files in your `src/` directory and to import CSS from other `node_modules`:
+* Install PostCSS and add it to snowpack.config.json [as described above](#postcss)
+* Install the [postcss-import](https://github.com/postcss/postcss-import) package
+* Configure PostCSS to use the plugin, for example:
+    ```js
+    // postcss.config.js
+    module.exports = {
+      plugins: [
+        // ...
+        require('postcss-import')({path: ['resources/css']}),
+        // ...
+      ]
+    ```
+
+  If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With `postcss-import` you have to remove the `~` from your `@import`s.
+
+Alternatively [use `import 'path/to/css';` in your JS files without any configuration](#import-css).
 
 ### Tailwind CSS
 
