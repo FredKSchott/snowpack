@@ -352,13 +352,13 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
     processedScripts.push(defaultBuildWorkerConfig);
   }
   processedScripts.sort((a, b) => {
-    if (a.id === 'mount:web_modules') {
-      return -1;
-    }
-    if (b.id === 'mount:web_modules') {
-      return 1;
-    }
     if (a.type === b.type) {
+      if (a.id === 'mount:web_modules') {
+        return -1;
+      }
+      if (b.id === 'mount:web_modules') {
+        return 1;
+      }
       return a.id.localeCompare(b.id);
     }
     return SCRIPT_TYPES_WEIGHTED[a.type] - SCRIPT_TYPES_WEIGHTED[b.type];
