@@ -400,22 +400,20 @@ export async function install(
       const packageBundle = await rollup(inputOptions);
       logUpdate(formatInstallResults());
       await packageBundle.write(outputOptions);
-    } catch (err) {
-      const {loc} = err as RollupError;
-      if (!loc || !loc.file) {
+    } catch (_err) {
+      const err: RollupError = _err;
+      const errFilePath = err.loc?.file || err.id;
+      if (!errFilePath) {
         throw err;
       }
-      // NOTE: Rollup will fail instantly on error. Because of that, we can
+      // NOTE: Rollup will fail instantly on most errors. Therefore, we can
       // only report one error at a time. `err.watchFiles` also exists, but
-      // for now `err.loc.file` has all the information that we need.
-      const failedExtension = path.extname(loc.file);
-      const suggestion = MISSING_PLUGIN_SUGGESTIONS[failedExtension];
-      if (!suggestion) {
-        throw err;
-      }
+      // for now `err.loc.file` and `err.id` have all the info that we need.
+      const failedExtension = path.extname(errFilePath);
+      const suggestion = MISSING_PLUGIN_SUGGESTIONS[failedExtension] || err.message;
       // Display posix-style on all environments, mainly to help with CI :)
-      const fileName = loc.file.replace(cwd + path.sep, '').replace(/\\/g, '/');
-      logError(`${chalk.bold('snowpack')} could not import ${fileName}. ${suggestion}`);
+      const fileName = errFilePath.replace(cwd + path.sep, '').replace(/\\/g, '/');
+      logError(`${chalk.bold('snowpack')} failed to load ${chalk.bold(fileName)}\n  ${suggestion}`);
       return;
     }
   }
