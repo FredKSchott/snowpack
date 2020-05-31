@@ -290,7 +290,7 @@ export async function command(commandOptions: CommandOptions) {
             let mountScript = findImportSpecMountScript(config.scripts, spec);
             if (mountScript) {
               let {fromDisk, toUrl} = mountScript.args;
-              spec = spec.replace(fromDisk.replace('./', ''), toUrl.replace('/', ''));
+              spec = spec.replace(path.normalize(fromDisk + '/'), path.normalize(toUrl + '/'));
             }
             if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
               const ext = path.extname(spec).substr(1);

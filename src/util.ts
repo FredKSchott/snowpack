@@ -220,5 +220,5 @@ export async function clearCache() {
 export function findImportSpecMountScript(scripts: BuildScript[], spec: string) {
   return scripts
     .filter((x) => x.type === 'mount')
-    .find((x) => spec.startsWith(x.args.fromDisk.replace('./', '')));
+    .find((x) => spec.startsWith(path.normalize(x.args.fromDisk)));
 }
