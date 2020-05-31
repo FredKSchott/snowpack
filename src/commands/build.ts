@@ -17,6 +17,7 @@ import {
 } from '../util';
 import {
   getFileBuilderForWorker,
+  isDirectoryImport,
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
   wrapJSModuleResponse,
@@ -128,6 +129,52 @@ export async function command(commandOptions: CommandOptions) {
     });
   }
 
+  for (const workerConfig of relevantWorkers) {
+    const {id, type, match} = workerConfig;
+    if (type !== 'run') {
+      continue;
+    }
+    messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+    const workerPromise = execa.command(workerConfig.cmd, {
+      env: npmRunPath.env(),
+      extendEnv: true,
+      shell: true,
+      cwd,
+    });
+    workerPromise.catch((err) => {
+      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
+      messageBus.emit('WORKER_COMPLETE', {id, error: err});
+    });
+    workerPromise.then(() => {
+      messageBus.emit('WORKER_COMPLETE', {id, error: null});
+    });
+    const {stdout, stderr} = workerPromise;
+    stdout?.on('data', (b) => {
+      let stdOutput = b.toString();
+      if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
+        messageBus.emit('WORKER_RESET', {id});
+        stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
+      }
+      if (id.endsWith(':tsc')) {
+        if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
+          messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+        }
+        if (/Watching for file changes./gm.test(stdOutput)) {
+          messageBus.emit('WORKER_UPDATE', {id, state: 'WATCHING'});
+        }
+        const errorMatch = stdOutput.match(/Found (\d+) error/);
+        if (errorMatch && errorMatch[1] !== '0') {
+          messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
+        }
+      }
+      messageBus.emit('WORKER_MSG', {id, level: 'log', msg: stdOutput});
+    });
+    stderr?.on('data', (b) => {
+      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
+    });
+    await workerPromise;
+  }
+
   const mountDirDetails: any[] = relevantWorkers
     .map((scriptConfig) => {
       const {id, type, args} = scriptConfig;
@@ -180,52 +227,6 @@ export async function command(commandOptions: CommandOptions) {
       messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
       messageBus.emit('WORKER_COMPLETE', {id, error: err});
     }
-  }
-
-  for (const workerConfig of relevantWorkers) {
-    const {id, type, match} = workerConfig;
-    if (type !== 'run') {
-      continue;
-    }
-    messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-    const workerPromise = execa.command(workerConfig.cmd, {
-      env: npmRunPath.env(),
-      extendEnv: true,
-      shell: true,
-      cwd,
-    });
-    workerPromise.catch((err) => {
-      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
-      messageBus.emit('WORKER_COMPLETE', {id, error: err});
-    });
-    workerPromise.then(() => {
-      messageBus.emit('WORKER_COMPLETE', {id, error: null});
-    });
-    const {stdout, stderr} = workerPromise;
-    stdout?.on('data', (b) => {
-      let stdOutput = b.toString();
-      if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
-        messageBus.emit('WORKER_RESET', {id});
-        stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
-      }
-      if (id.endsWith(':tsc')) {
-        if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
-          messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-        }
-        if (/Watching for file changes./gm.test(stdOutput)) {
-          messageBus.emit('WORKER_UPDATE', {id, state: 'WATCHING'});
-        }
-        const errorMatch = stdOutput.match(/Found (\d+) error/);
-        if (errorMatch && errorMatch[1] !== '0') {
-          messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
-        }
-      }
-      messageBus.emit('WORKER_MSG', {id, level: 'log', msg: stdOutput});
-    });
-    stderr?.on('data', (b) => {
-      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
-    });
-    await workerPromise;
   }
 
   const allBuiltFromFiles = new Set<string>();
@@ -294,7 +295,11 @@ export async function command(commandOptions: CommandOptions) {
             if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
               const ext = path.extname(spec).substr(1);
               if (!ext) {
-                return spec + '.js';
+                if (isDirectoryImport(f, spec)) {
+                  return spec + '/index.js';
+                } else {
+                  return spec + '.js';
+                }
               }
               const extToReplace = srcFileExtensionMapping[ext];
               if (extToReplace) {

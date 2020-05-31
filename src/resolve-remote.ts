@@ -149,7 +149,3 @@ export async function resolveTargetsFromRemoteCDN(
 
   return newLockfile;
 }
-
-export function clearCache() {
-  return cacache.rm.all(RESOURCE_CACHE);
-}

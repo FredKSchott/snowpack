@@ -130,11 +130,22 @@ Learn more about [Build Script integrations](#build-scripts).
 
 #### Compile to JavaScript
 
-Snowpack automatically builds all `.jsx` & `.tsx` files to JavaScript during development and production builds. This works with both React & Preact as long as the file includes an import of React or Preact. 
 
-**Note: JSX must live in `.jsx`/`.tsx` files.** JSX in a `.js` file is not currently supported.
+Snowpack automatically builds all `.jsx` & `.tsx` files to JavaScript during development and production builds. 
 
-You could also choose to define your own JSX->JavaScript build step via a [Build Script integration](#build-scripts).
+**Note: Snowpack's default build supports JSX with both React & Preact as long as a React/Preact import exists somewhere in the file.** To set a custom JSX pragma, you can configure our default esbuild yourself:
+
+```js
+// snowpack.config.json
+// Optional: Define your own JSX factory/fragment
+{
+  "scripts": {
+    "build:tsx": "esbuild --jsx-factory=h --jsx-fragment=Fragment --loader=tsx"
+  }
+}
+```
+
+**Note: Snowpack's default build does not support JSX in  `.js`/`.ts` files.** You'll need to define your own build script to support this. You can define your own JSX->JavaScript build step via a [Build Script integration](#build-scripts).
 
 ```js
 // snowpack.config.json

@@ -29,7 +29,7 @@ Babel will automatically read plugins & presets from your local project `babel.c
 ```js
 // snowpack.config.json
 "plugins": ["@snowpack/plugin-babel"],
-"scripts": { 
+"scripts": {
   "build:js,jsx": "@snowpack/plugin-babel"
 }
 ```
@@ -66,26 +66,34 @@ Babel will automatically read plugins & presets from your local project `babel.c
 
 ```js
 // snowpack.config.json
-"scripts": { 
+"scripts": {
   "build:css": "postcss"
 }
 ```
 
-You can configure PostCSS with a `postcss.config.js` file in your current working directory. See [PostCSS CLI](https://github.com/postcss/postcss-cli) for more information.
+The [`postcss-cli`](https://github.com/postcss/postcss-cli) package must be installed manually. You can configure PostCSS with a `postcss.config.js` file in your current working directory.
 
 ### CSS @import Support
 
-```js
-// postcss.config.js
-module.exports = {
-  plugins: [
-    // ...
-    require('postcss-import')({path: ['resources/css']}),
-    // ...
-  ]
-```
+The `@import` statements in CSS files [are not yet supported natively](https://github.com/pikapkg/snowpack/issues/389), meaning an `@import 'foo/bar.css'` (with a relative URL) will by default look for `foo/bar.css` in your app's `public/` directory only.
 
-To support `@import` statements in your CSS code, use PostCSS with the [postcss-import](https://github.com/postcss/postcss-import) plugin.
+To allow relative `@import`s from the CSS files in your `src/` directory and to import CSS from other `node_modules`:
+* Install PostCSS and add it to snowpack.config.json [as described above](#postcss)
+* Install the [postcss-import](https://github.com/postcss/postcss-import) package
+* Configure PostCSS to use the plugin, for example:
+    ```js
+    // postcss.config.js
+    module.exports = {
+      plugins: [
+        // ...
+        require('postcss-import')({path: ['resources/css']}),
+        // ...
+      ]
+    ```
+
+  If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With `postcss-import` you have to remove the `~` from your `@import`s.
+
+Alternatively [use `import 'path/to/css';` in your JS files without any configuration](#import-css).
 
 ### Tailwind CSS
 
@@ -110,12 +118,14 @@ Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installatio
 
 ```js
 // snowpack.config.json
-"scripts": { 
+"scripts": {
   "build:scss": "sass $FILE"
 }
 ```
 
 [Sass](https://www.sass-lang.com/) is a stylesheet language that’s compiled to CSS. It allows you to use variables, nested rules, mixins, functions, and more, all with a fully CSS-compatible syntax. Sass helps keep large stylesheets well-organized and makes it easy to share design within and across projects.
+
+[Check out the official Sass CLI documentation](https://sass-lang.com/documentation/cli/dart-sass) for a list of all available arguments.
 
 ### Workbox
 
@@ -127,6 +137,6 @@ Remember that Workbox expects to be run every time you deploy, as a part of a pr
 
 Snowpack is designed for zero lock-in. If you ever feel the need to add a traditional application bundler to your stack (for whatever reason!) you can do so in seconds.
 
-Any application built with Snowpack should Just Work™️ when passed through Webpack/Rollup/Parcel. If you are already importing packages by name in your source code (ex: `import React from 'react'`) then you should be able to migrate to any popular bundler without issue. 
+Any application built with Snowpack should Just Work™️ when passed through Webpack/Rollup/Parcel. If you are already importing packages by name in your source code (ex: `import React from 'react'`) then you should be able to migrate to any popular bundler without issue.
 
 If you are importing packages by full URL (ex: `import React from '/web_modules/react.js'`), then a simple Find & Replace should help you re-write them to the plain package name imports that most bundlers expect.

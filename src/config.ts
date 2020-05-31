@@ -352,13 +352,13 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
     processedScripts.push(defaultBuildWorkerConfig);
   }
   processedScripts.sort((a, b) => {
-    if (a.id === 'mount:web_modules') {
-      return -1;
-    }
-    if (b.id === 'mount:web_modules') {
-      return 1;
-    }
     if (a.type === b.type) {
+      if (a.id === 'mount:web_modules') {
+        return -1;
+      }
+      if (b.id === 'mount:web_modules') {
+        return 1;
+      }
       return a.id.localeCompare(b.id);
     }
     return SCRIPT_TYPES_WEIGHTED[a.type] - SCRIPT_TYPES_WEIGHTED[b.type];
@@ -475,12 +475,12 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
       '[Snowpack v1 -> v2] top-level `rollup` config is now `installOptions.rollup`.',
     );
   }
-  if (rawConfig.installOptions?.include) {
+  if (rawConfig.installOptions?.include || cliFlags.include) {
     handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.include` is now `include` but its syntax has also changed!',
+      '[Snowpack v1 -> v2] `installOptions.include` is now handled via "mount" build scripts!',
     );
   }
-  if (rawConfig.installOptions?.exclude) {
+  if (rawConfig.installOptions?.exclude || cliFlags.exclude) {
     handleDeprecatedConfigError('[Snowpack v1 -> v2] `installOptions.exclude` is now `exclude`.');
   }
   if (Array.isArray(rawConfig.webDependencies)) {

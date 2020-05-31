@@ -6,8 +6,7 @@ import {command as devCommand} from './commands/dev';
 import {addCommand, rmCommand} from './commands/add-rm';
 import {command as installCommand} from './commands/install';
 import {CLIFlags, loadAndValidateConfig} from './config.js';
-import {clearCache} from './resolve-remote.js';
-import {readLockfile} from './util.js';
+import {readLockfile, clearCache} from './util.js';
 
 const cwd = process.cwd();
 
@@ -51,7 +50,7 @@ export async function cli(args: string[]) {
     process.exit(0);
   }
   if (cliFlags.reload) {
-    console.log(`${chalk.yellow('ℹ')} clearing CDN cache...`);
+    console.log(chalk.yellow('! clearing cache...'));
     await clearCache();
   }
 

@@ -22,12 +22,13 @@ import {DependencyStatsOutput, rollupPluginDependencyStats} from '../rollup-plug
 import {InstallTarget, scanDepList, scanImports} from '../scan-imports.js';
 import {printStats} from '../stats-formatter.js';
 import {
+  CommandOptions,
   ImportMap,
   isTruthy,
   MISSING_PLUGIN_SUGGESTIONS,
   resolveDependencyManifest,
+  updateLockfileHash,
   writeLockfile,
-  CommandOptions,
 } from '../util.js';
 
 type InstallResult = 'SUCCESS' | 'ASSET' | 'FAIL';
@@ -399,22 +400,20 @@ export async function install(
       const packageBundle = await rollup(inputOptions);
       logUpdate(formatInstallResults());
       await packageBundle.write(outputOptions);
-    } catch (err) {
-      const {loc} = err as RollupError;
-      if (!loc || !loc.file) {
+    } catch (_err) {
+      const err: RollupError = _err;
+      const errFilePath = err.loc?.file || err.id;
+      if (!errFilePath) {
         throw err;
       }
-      // NOTE: Rollup will fail instantly on error. Because of that, we can
+      // NOTE: Rollup will fail instantly on most errors. Therefore, we can
       // only report one error at a time. `err.watchFiles` also exists, but
-      // for now `err.loc.file` has all the information that we need.
-      const failedExtension = path.extname(loc.file);
-      const suggestion = MISSING_PLUGIN_SUGGESTIONS[failedExtension];
-      if (!suggestion) {
-        throw err;
-      }
+      // for now `err.loc.file` and `err.id` have all the info that we need.
+      const failedExtension = path.extname(errFilePath);
+      const suggestion = MISSING_PLUGIN_SUGGESTIONS[failedExtension] || err.message;
       // Display posix-style on all environments, mainly to help with CI :)
-      const fileName = loc.file.replace(cwd + path.sep, '').replace(/\\/g, '/');
-      logError(`${chalk.bold('snowpack')} could not import ${fileName}. ${suggestion}`);
+      const fileName = errFilePath.replace(cwd + path.sep, '').replace(/\\/g, '/');
+      logError(`${chalk.bold('snowpack')} failed to load ${chalk.bold(fileName)}\n  ${suggestion}`);
       return;
     }
   }
@@ -497,6 +496,7 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
     }
   }
 
+  await updateLockfileHash();
   if (newLockfile) {
     await writeLockfile(path.join(cwd, 'snowpack.lock.json'), newLockfile);
   }

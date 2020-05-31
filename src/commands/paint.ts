@@ -246,8 +246,10 @@ export function paint(
       devMode.addPackage(missingWebModule.pkgName);
       repaint();
     });
+    // readline can swallow CTRL-C exits, so pipe to the main process.
+    // @ts-ignore: @types/node doesn't seem to recognize the '"SIGINT"' event
+    rl.on('SIGINT', () => process.emit('SIGINT'));
   }
 
-  // unmountDashboard = render(<App bus={bus} registeredWorkers={registeredWorkers} />).unmount;
   repaint();
 }

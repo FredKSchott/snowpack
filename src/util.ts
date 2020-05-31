@@ -1,11 +1,16 @@
-import fs from 'fs';
-import path from 'path';
-import execa from 'execa';
-import open from 'open';
-import got, {CancelableRequest, Response} from 'got';
+import rimraf from 'rimraf';
+import cacache from 'cacache';
 import globalCacheDir from 'cachedir';
+import etag from 'etag';
+import execa from 'execa';
 import projectCacheDir from 'find-cache-dir';
+import findUp from 'find-up';
+import fs from 'fs';
+import got, {CancelableRequest, Response} from 'got';
+import open from 'open';
+import path from 'path';
 import {SnowpackConfig, BuildScript} from './config';
+import mkdirp from 'mkdirp';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
@@ -15,6 +20,7 @@ export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-1.4');
 export const PROJECT_CACHE_DIR = projectCacheDir({name: 'snowpack'});
 export const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'dev');
 export const BUILD_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'build');
+export const LOCKFILE_CACHE = path.join(PROJECT_CACHE_DIR, 'lockfile-cache-1.4');
 
 export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
 export interface ImportMap {
@@ -175,6 +181,34 @@ export async function openInBrowser(port: number, browser: string) {
   } else {
     browser === 'default' ? open(url) : open(url, {app: browser});
   }
+}
+
+export async function checkLockfileHash() {
+  const lockfileLoc = await findUp(['package-lock.json', 'yarn.lock']);
+  if (!lockfileLoc) {
+    return true;
+  }
+  const newLockHash = etag(await fs.promises.readFile(lockfileLoc, 'utf-8'));
+  const oldLockHash = await fs.promises.readFile(LOCKFILE_CACHE, 'utf-8').catch(() => '');
+  return newLockHash === oldLockHash;
+}
+
+export async function updateLockfileHash() {
+  const lockfileLoc = await findUp(['package-lock.json', 'yarn.lock']);
+  if (!lockfileLoc) {
+    return;
+  }
+  const newLockHash = etag(await fs.promises.readFile(lockfileLoc));
+  await mkdirp(path.dirname(LOCKFILE_CACHE));
+  await fs.promises.writeFile(LOCKFILE_CACHE, newLockHash);
+}
+
+export async function clearCache() {
+  return Promise.all([
+    cacache.rm.all(RESOURCE_CACHE),
+    cacache.rm.all(BUILD_CACHE),
+    rimraf.sync(PROJECT_CACHE_DIR),
+  ]);
 }
 
 /**
