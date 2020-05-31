@@ -6,7 +6,7 @@ import esbuild from 'esbuild';
 import mime from 'mime-types';
 import validatePackageName from 'validate-npm-package-name';
 import {init as initESModuleLexer, parse, ImportSpecifier} from 'es-module-lexer';
-import {isTruthy} from './util';
+import {isTruthy, findImportSpecMountScript} from './util';
 import {SnowpackConfig} from './config';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
@@ -225,9 +225,13 @@ export async function scanImports(
     }),
   );
   esbuildService.stop();
-  return (loadedFiles as string[])
-    .filter((code) => !!code)
-    .map((code) => getInstallTargetsForFile(code))
-    .reduce((flat, item) => flat.concat(item), [])
-    .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier));
+  return (
+    (loadedFiles as string[])
+      .filter((code) => !!code)
+      .map((code) => getInstallTargetsForFile(code))
+      .reduce((flat, item) => flat.concat(item), [])
+      // Ignore bare imports that match a mount directory. They're not package imports
+      .filter((target) => !findImportSpecMountScript(scripts, target.specifier))
+      .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier))
+  );
 }

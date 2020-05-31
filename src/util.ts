@@ -5,7 +5,7 @@ import open from 'open';
 import got, {CancelableRequest, Response} from 'got';
 import globalCacheDir from 'cachedir';
 import projectCacheDir from 'find-cache-dir';
-import {SnowpackConfig} from './config';
+import {SnowpackConfig, BuildScript} from './config';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
@@ -175,4 +175,16 @@ export async function openInBrowser(port: number, browser: string) {
   } else {
     browser === 'default' ? open(url) : open(url, {app: browser});
   }
+}
+
+/**
+ * Given an import string and a list of scripts, return the mount script that matches the import.
+ *
+ * `mount ./src --to /_dist_` and `mount src --to /_dist_` match `src/components/Button`
+ * `mount src --to /_dist_` does not match `package/components/Button`
+ */
+export function findImportSpecMountScript(scripts: BuildScript[], spec: string) {
+  return scripts
+    .filter((x) => x.type === 'mount')
+    .find((x) => spec.startsWith(x.args.fromDisk.replace('./', '')));
 }
