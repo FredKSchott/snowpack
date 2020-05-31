@@ -251,6 +251,8 @@ export async function command(commandOptions: CommandOptions) {
                 .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
                 .catch(() => `{"imports": {}}`),
             );
+            await cacache.rm.all(BUILD_CACHE);
+            inMemoryBuildCache.clear();
             messageBus.emit('INSTALL_COMPLETE');
             isLiveReloadPaused = false;
             currentlyRunningCommand = null;
@@ -781,7 +783,10 @@ export async function command(commandOptions: CommandOptions) {
       await currentlyRunningCommand;
       currentlyRunningCommand = installCommand(commandOptions);
       await currentlyRunningCommand;
+      await cacache.rm.all(BUILD_CACHE);
+      inMemoryBuildCache.clear();
       currentlyRunningCommand = null;
+
       dependencyImportMap = JSON.parse(
         await fs
           .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
