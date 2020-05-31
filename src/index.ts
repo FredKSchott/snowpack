@@ -60,9 +60,12 @@ export async function cli(args: string[]) {
 
   const cmd = cliFlags['_'][2];
 
-  // Set this early - before config loading - so that plugins see it.
+  // Set this early -- before config loading -- so that plugins see it.
   if (cmd === 'build') {
     process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+  }
+  if (cmd === 'dev') {
+    process.env.NODE_ENV = process.env.NODE_ENV || 'development';
   }
 
   const commandOptions = {
