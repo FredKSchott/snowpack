@@ -13,7 +13,7 @@ Snowpack supports configuration files in multiple formats, sorted by priority or
 
 ### CLI Flags
 
-``` bash
+```bash
 $ snowpack --help
 ```
 
@@ -36,8 +36,10 @@ CLI flags will be merged with (and take priority over) your config file values. 
     "bulma/css/bulma.css" // A non-JS static asset (supports globs)
   ],
   "homepage": "/your-project",
+  "scripts": { /* ... */ },
   "installOptions": { /* ... */ },
-  "devOptions": { /* ..... */ }
+  "devOptions": { /* ... */ },
+  "proxy": { /* ... */ },
 }
 ```
 
@@ -60,6 +62,8 @@ CLI flags will be merged with (and take priority over) your config file values. 
   - Configure how npm packages are installed. See the section below for all options.
 - **`devOptions.*`**
   - Configure your dev server and build workflows. See the section below for all options.
+- **`proxy.*`**
+  - Configure the dev server to proxy requests. See the section below for all options.
 
 #### Install Options
 
@@ -95,3 +99,7 @@ CLI flags will be merged with (and take priority over) your config file values. 
   - When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
 - **`open`** | `string` | Default: `"default"`
   - Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave".
+
+#### Proxy Options
+
+TODO: fill in

@@ -48,7 +48,8 @@ export async function command(commandOptions: CommandOptions) {
       type === 'build' ||
       type === 'run' ||
       type === 'mount' ||
-      type === 'proxy' ||
+      // FUTURE: Remove this on next major release
+      (type as any) === 'proxy' ||
       type === 'bundle'
     ) {
       relevantWorkers.push(workerConfig);
@@ -108,7 +109,8 @@ export async function command(commandOptions: CommandOptions) {
 
   for (const workerConfig of relevantWorkers) {
     const {id, type} = workerConfig;
-    if (type !== 'proxy') {
+    // FUTURE: Remove this conditional on next major release
+    if ((type as any) !== 'proxy') {
       continue;
     }
     messageBus.emit('WORKER_UPDATE', {

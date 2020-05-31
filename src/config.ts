@@ -18,7 +18,7 @@ const SCRIPT_TYPES_WEIGHTED = {
   bundle: 100,
 } as {[type in ScriptType]: number};
 
-type ScriptType = 'proxy' | 'mount' | 'run' | 'build' | 'bundle';
+type ScriptType = 'mount' | 'run' | 'build' | 'bundle';
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -74,6 +74,9 @@ export type BuildScript = {
   args?: any;
 };
 
+export type ProxyOptions = Record<string, any>;
+export type Proxy = [string, ProxyOptions];
+
 // interface this library uses internally
 export interface SnowpackConfig {
   extends?: string;
@@ -103,6 +106,7 @@ export interface SnowpackConfig {
       namedExports?: {[filepath: string]: string[]};
     };
   };
+  proxy: Proxy[];
 }
 
 export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>, 'env'> {
@@ -200,6 +204,12 @@ const configSchema = {
         },
       },
     },
+    proxy: {
+      type: 'object',
+      additionalProperties: {
+        oneOf: [{type: 'string'}, {type: 'object'}],
+      },
+    },
   },
 };
 
@@ -245,7 +255,7 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
   return result;
 }
 
-type RawScripts = {[id: string]: string};
+type RawScripts = Record<string, string>;
 function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
   const processedScripts: BuildScript[] = [];
   if (Object.keys(scripts).filter((k) => k.startsWith('bundle:')).length > 1) {
@@ -289,7 +299,8 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
       const dirUrl = to || `/${cmdArr[0]}`;
       newScriptConfig.args = {fromDisk: dirDisk, toUrl: dirUrl};
     }
-    if (scriptType === 'proxy') {
+    // FUTURE: Remove this on next major version
+    if ((scriptType as any) === 'proxy') {
       const cmdArr = cmd.split(/\s+/);
       if (cmdArr[0] !== 'proxy') {
         handleConfigError(`scripts[${scriptId}] must use the proxy command`);
@@ -366,6 +377,25 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
   return processedScripts;
 }
 
+type RawProxies = Record<string, string | ProxyOptions>;
+function normalizeProxies(proxies: RawProxies) {
+  return Object.entries(proxies).reduce<Proxy[]>((acc, [context, options]) => {
+    if (typeof options !== 'string') return [...acc, [context, options]];
+    return [
+      ...acc,
+      [
+        context,
+        {
+          target: options,
+          ignorePath: true,
+          secure: false,
+          changeOrigin: true,
+        },
+      ],
+    ];
+  }, []);
+}
+
 /** resolve --dest relative to cwd, etc. */
 function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const cwd = process.cwd();
@@ -378,6 +408,9 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     config.scripts = {
       'mount:*': 'mount . --to /',
     } as any;
+  }
+  if (!config.proxy) {
+    config.proxy = {} as any;
   }
   const allPlugins = {};
   config.plugins = (config.plugins as any).map((plugin: string | [string, any]) => {
@@ -412,30 +445,42 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     handleConfigError(`--bundle set to true, but no "bundle:*" script/plugin was provided.`);
   }
   config.scripts = normalizeScripts(cwd, config.scripts as any);
-  config.scripts.forEach((script: BuildScript) => {
-    if (script.type === 'build' && !script.plugin) {
-      if (allPlugins[script.cmd]?.build) {
+  config.scripts.forEach((script: BuildScript, i) => {
+    if (script.plugin) return;
+
+    // Ensure plugins are properly registered/configured
+    if (['build', 'bundle'].includes(script.type)) {
+      if (allPlugins[script.cmd]?.[script.type]) {
         script.plugin = allPlugins[script.cmd];
-      } else if (allPlugins[script.cmd] && !allPlugins[script.cmd].build) {
-        handleConfigError(`scripts[${script.id}]: Plugin "${script.cmd}" has no build script.`);
+      } else if (allPlugins[script.cmd] && !allPlugins[script.cmd][script.type]) {
+        handleConfigError(
+          `scripts[${script.id}]: Plugin "${script.cmd}" has no ${script.type} script.`,
+        );
       } else if (script.cmd.startsWith('@') || script.cmd.startsWith('.')) {
         handleConfigError(
           `scripts[${script.id}]: Register plugin "${script.cmd}" in your Snowpack "plugins" config.`,
         );
       }
     }
-    if (script.type === 'bundle' && !script.plugin) {
-      if (allPlugins[script.cmd]?.bundle) {
-        script.plugin = allPlugins[script.cmd];
-      } else if (allPlugins[script.cmd] && !allPlugins[script.cmd].bundle) {
-        handleConfigError(`scripts[${script.id}]: Plugin "${script.cmd}" has no bundle script.`);
-      } else if (script.cmd.startsWith('@') || script.cmd.startsWith('.')) {
-        handleConfigError(
-          `scripts[${script.id}]: Register plugin "${script.cmd}" in your Snowpack "plugins" config.`,
-        );
+
+    /**
+     * Convert to proxy options
+     * FUTURE: Remove this on next major release
+     */
+    if ((script.type as any) === 'proxy') {
+      const {toUrl, fromUrl} = script.args;
+      if (config.proxy[toUrl]) {
+        handleConfigError(`scripts[${script.id}]: Cannot overwrite proxy[${toUrl}].`);
+      } else {
+        config.proxy[toUrl] = fromUrl;
       }
+
+      config.scripts.splice(i, 1);
     }
   });
+
+  config.proxy = normalizeProxies(config.proxy as any);
+
   return config;
 }
 
