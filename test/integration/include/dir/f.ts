@@ -18,5 +18,6 @@ function g() {
 class C {
   @f()
   @g()
+  // @ts-ignore
   method() {}
 }
