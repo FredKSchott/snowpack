@@ -102,8 +102,8 @@ Say goodbye to long relative imports like `../../../../components/Button` and us
 }
 
 // File.jsx
-import img from 'public/image.png'; // Replaces 'public/' with '/'
-import Button from 'src/components/Button'; // Replaces 'src/' with '/_dist_/'
+import img from 'public/image.png'; // 'public/' is replaced with '/'
+import Button from 'src/components/Button'; // 'src/' is replaced with '/_dist_/'
 import Button from 'material-ui/core/Button'; // Still works
 ```
 
