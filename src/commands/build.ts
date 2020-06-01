@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import {EventEmitter} from 'events';
 import execa from 'execa';
-import {promises as fs} from 'fs';
+import {promises as fs, existsSync} from 'fs';
 import glob from 'glob';
 import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
@@ -9,7 +9,13 @@ import path from 'path';
 import rimraf from 'rimraf';
 import {BuildScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
-import {BUILD_DEPENDENCIES_DIR, CommandOptions, ImportMap} from '../util';
+import {
+  BUILD_DEPENDENCIES_DIR,
+  CommandOptions,
+  ImportMap,
+  checkLockfileHash,
+  updateLockfileHash,
+} from '../util';
 import {
   getFileBuilderForWorker,
   isDirectoryImport,
@@ -28,13 +34,19 @@ export async function command(commandOptions: CommandOptions) {
   // Start with a fresh install of your dependencies, for production
   commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'production';
   commandOptions.config.installOptions.dest = BUILD_DEPENDENCIES_DIR;
-  await installCommand(commandOptions);
+  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
+
+  // Start with a fresh install of your dependencies, if needed.
+  if (!(await checkLockfileHash(BUILD_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
+    console.log(chalk.yellow('! updating dependencies...'));
+    await installCommand(commandOptions);
+    await updateLockfileHash(BUILD_DEPENDENCIES_DIR);
+  }
 
   const messageBus = new EventEmitter();
   const relevantWorkers: BuildScript[] = [];
   const allBuildExtensions: string[] = [];
 
-  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
   let dependencyImportMap: ImportMap = {imports: {}};
   try {
     dependencyImportMap = require(dependencyImportMapLoc);

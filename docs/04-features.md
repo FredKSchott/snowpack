@@ -205,18 +205,22 @@ Note: During development (`snowpack dev`) we perform no transpilation for older 
 
 When installing packages from npm, You may encounter some non-JS code that can only run with additional parsing/processing. Svelte packages, for example, commonly include `.svelte` files that will require additional tooling to parse and install for the browser.
 
-Because our internal installer is powered by Rollup, you can add Rollup plugins to your [Snowpack config](#configuration-options) to handle these special, rare files:
+Because our internal installer is powered by Rollup, you can add Rollup plugins to your [Snowpack config](#configuration-options) to handle these special, rare files. 
 
 ```js
 /* snowpack.config.js */
 module.exports = {
-  rollup: {
-    plugins: [require('rollup-plugin-svelte')()]
+  installOptions: {
+    rollup: {
+      plugins: [require('rollup-plugin-svelte')()]
+    }
   }
 };
 ```
 
-Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#using-plugins) for more information.
+Note that this currently requires you use the `.js` format of our Snowpack config files, since JSON cannot require to load a Rollup plugin. 
+
+Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#using-plugins) for more information on adding Rollup plugins to our installer.
 
 ### Bundle for Production
 

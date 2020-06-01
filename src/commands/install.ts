@@ -27,7 +27,6 @@ import {
   isTruthy,
   MISSING_PLUGIN_SUGGESTIONS,
   resolveDependencyManifest,
-  updateLockfileHash,
   writeLockfile,
 } from '../util.js';
 
@@ -496,7 +495,6 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
     }
   }
 
-  await updateLockfileHash();
   if (newLockfile) {
     await writeLockfile(path.join(cwd, 'snowpack.lock.json'), newLockfile);
   }

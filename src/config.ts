@@ -520,9 +520,9 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
       '[Snowpack v1 -> v2] top-level `rollup` config is now `installOptions.rollup`.',
     );
   }
-  if (rawConfig.installOptions?.include) {
+  if (rawConfig.installOptions?.include || cliFlags.include) {
     handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.include` is now `include` but its syntax has also changed!',
+      '[Snowpack v1 -> v2] `installOptions.include` is now handled via "mount" build scripts!',
     );
   }
   if (rawConfig.installOptions?.exclude) {
