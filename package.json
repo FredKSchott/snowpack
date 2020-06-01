@@ -16,9 +16,7 @@
     "publish": "pika publish",
     "version": "npm run build",
     "format": "prettier --write \"src/**/*.ts\"",
-    "test": "npm run test:lint && npm run test:ci",
-    "test:lint": "prettier --check \"src/**/*.ts\"",
-    "test:ci": "jest test/integration/runner.js --test-timeout=15000 --testMatch \"**/test/**/*.[jt]s?(x)\" -i",
+    "test": "jest test/integration/runner.js --test-timeout=15000 --testMatch \"**/test/**/*.[jt]s?(x)\" -i",
     "docs:build": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js",
     "docs:watch": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js --serve",
     "docs:deploy": "npm run docs:build && cp now.json www/dist && cd www/dist && now"
