@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import {EventEmitter} from 'events';
 import execa from 'execa';
-import {promises as fs} from 'fs';
+import {promises as fs, existsSync} from 'fs';
 import glob from 'glob';
 import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
@@ -14,6 +14,8 @@ import {
   CommandOptions,
   ImportMap,
   findImportSpecMountScript,
+  checkLockfileHash,
+  updateLockfileHash,
 } from '../util';
 import {
   getFileBuilderForWorker,
@@ -33,13 +35,19 @@ export async function command(commandOptions: CommandOptions) {
   // Start with a fresh install of your dependencies, for production
   commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'production';
   commandOptions.config.installOptions.dest = BUILD_DEPENDENCIES_DIR;
-  await installCommand(commandOptions);
+  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
+
+  // Start with a fresh install of your dependencies, if needed.
+  if (!(await checkLockfileHash(BUILD_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
+    console.log(chalk.yellow('! updating dependencies...'));
+    await installCommand(commandOptions);
+    await updateLockfileHash(BUILD_DEPENDENCIES_DIR);
+  }
 
   const messageBus = new EventEmitter();
   const relevantWorkers: BuildScript[] = [];
   const allBuildExtensions: string[] = [];
 
-  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
   let dependencyImportMap: ImportMap = {imports: {}};
   try {
     dependencyImportMap = require(dependencyImportMapLoc);
@@ -49,13 +57,7 @@ export async function command(commandOptions: CommandOptions) {
 
   for (const workerConfig of config.scripts) {
     const {type, match} = workerConfig;
-    if (
-      type === 'build' ||
-      type === 'run' ||
-      type === 'mount' ||
-      type === 'proxy' ||
-      type === 'bundle'
-    ) {
+    if (type === 'build' || type === 'run' || type === 'mount' || type === 'bundle') {
       relevantWorkers.push(workerConfig);
     }
     if (type === 'build') {
@@ -110,17 +112,6 @@ export async function command(commandOptions: CommandOptions) {
     relDest = `.${path.sep}` + relDest;
   }
   paint(messageBus, relevantWorkers, {dest: relDest}, undefined);
-
-  for (const workerConfig of relevantWorkers) {
-    const {id, type} = workerConfig;
-    if (type !== 'proxy') {
-      continue;
-    }
-    messageBus.emit('WORKER_UPDATE', {
-      id,
-      state: ['SKIP', 'dim'],
-    });
-  }
 
   if (!isBundled) {
     messageBus.emit('WORKER_UPDATE', {

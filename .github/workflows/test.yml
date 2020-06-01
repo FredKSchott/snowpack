@@ -1,4 +1,4 @@
-name: CI
+name: Test Code
 
 on:
   push:
@@ -25,13 +25,6 @@ jobs:
       run: |
         npm ci --no-optional
         npm run build --if-present
-        npm run test:ci
+        npm run test
       env:
         CI: true
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-      - run: npm ci --no-optional
-      - run: npm run test:lint

@@ -4,5 +4,6 @@
     ├─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB
     ├─ http-vue-loader/src/httpVueLoader.js    XXXX KB    XXXX KB    XXXX KB
     ├─ package-01.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ package-02.js    XXXX KB    XXXX KB    XXXX KB
     ├─ vue-router.js    XXXX KB    XXXX KB    XXXX KB
     └─ vue/dist/vue.esm.browser.js    XXXX KB    XXXX KB    XXXX KB

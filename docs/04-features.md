@@ -109,21 +109,21 @@ import Button from 'material-ui/core/Button'; // Still works
 
 If a top-level import does not match a mount directory, it will be treated as a package and won't be transformed
 
-### Proxy Requests
+### Dev HTTP Proxy
 
-Snowpack's dev server can proxy requests during development to match your production host environment. If you expect a certain API to be available on the same host as your web application, you can create a proxy via a `proxy` [Build Script](#build-scripts):
+Snowpack can proxy requests from the dev server to external URLs and APIs. This can help you mimic your production environment during development.
 
 ```js
 // snowpack.config.json
 // Example: Proxy "/api/pokemon/ditto" -> "https://pokeapi.co/api/v2/pokemon/ditto"
 {
-  "scripts": {
-    "proxy:api": "proxy https://pokeapi.co/api/v2 --to /api"
+  "proxy": {
+    "/api": "https://pokeapi.co/api/v2",
   }
 }
 ```
 
-Learn more about [Build Script integrations](#build-scripts).
+See the [Proxy Options](#proxy-options) section for more information and full set of configuration options.
 
 
 ### JSX
@@ -225,18 +225,22 @@ Note: During development (`snowpack dev`) we perform no transpilation for older 
 
 When installing packages from npm, You may encounter some non-JS code that can only run with additional parsing/processing. Svelte packages, for example, commonly include `.svelte` files that will require additional tooling to parse and install for the browser.
 
-Because our internal installer is powered by Rollup, you can add Rollup plugins to your [Snowpack config](#configuration-options) to handle these special, rare files:
+Because our internal installer is powered by Rollup, you can add Rollup plugins to your [Snowpack config](#configuration-options) to handle these special, rare files. 
 
 ```js
 /* snowpack.config.js */
 module.exports = {
-  rollup: {
-    plugins: [require('rollup-plugin-svelte')()]
+  installOptions: {
+    rollup: {
+      plugins: [require('rollup-plugin-svelte')()]
+    }
   }
 };
 ```
 
-Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#using-plugins) for more information.
+Note that this currently requires you use the `.js` format of our Snowpack config files, since JSON cannot require to load a Rollup plugin. 
+
+Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#using-plugins) for more information on adding Rollup plugins to our installer.
 
 ### Bundle for Production
 

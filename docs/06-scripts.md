@@ -45,9 +45,7 @@ Snowpack supports several other script types in addition to the basic `"build"` 
   - If no `--to` argument is provided, the directory will be hosted at the same relative location.
   - ex: `"mount:public": "mount public --to /"`
   - ex: `"mount:web_modules": "mount web_modules"`
-- `"proxy:*": "proxy URL --to /PATH"`
-  - Proxy all requests that match the `--to` path to this URL, during development. Useful for making API calls to your current origin without having to mess with cross-origin CORS issues. Note that this has no affect on your production build.
-  - ex: `"proxy:api": "proxy https://pokeapi.co/api/v2 --to /api"`
+- **Deprecated** `"proxy:*": "proxy URL --to /PATH"`  (Use the `proxy` configuration object instead)
 
 ### Script Variables
 

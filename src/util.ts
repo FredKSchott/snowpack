@@ -20,7 +20,7 @@ export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-1.4');
 export const PROJECT_CACHE_DIR = projectCacheDir({name: 'snowpack'});
 export const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'dev');
 export const BUILD_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'build');
-export const LOCKFILE_CACHE = path.join(PROJECT_CACHE_DIR, 'lockfile-cache-1.4');
+const LOCKFILE_HASH_FILE = '.hash';
 
 export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
 export interface ImportMap {
@@ -183,24 +183,26 @@ export async function openInBrowser(port: number, browser: string) {
   }
 }
 
-export async function checkLockfileHash() {
+export async function checkLockfileHash(dir: string) {
   const lockfileLoc = await findUp(['package-lock.json', 'yarn.lock']);
   if (!lockfileLoc) {
     return true;
   }
+  const hashLoc = path.join(dir, LOCKFILE_HASH_FILE);
   const newLockHash = etag(await fs.promises.readFile(lockfileLoc, 'utf-8'));
-  const oldLockHash = await fs.promises.readFile(LOCKFILE_CACHE, 'utf-8').catch(() => '');
+  const oldLockHash = await fs.promises.readFile(hashLoc, 'utf-8').catch(() => '');
   return newLockHash === oldLockHash;
 }
 
-export async function updateLockfileHash() {
+export async function updateLockfileHash(dir: string) {
   const lockfileLoc = await findUp(['package-lock.json', 'yarn.lock']);
   if (!lockfileLoc) {
     return;
   }
+  const hashLoc = path.join(dir, LOCKFILE_HASH_FILE);
   const newLockHash = etag(await fs.promises.readFile(lockfileLoc));
-  await mkdirp(path.dirname(LOCKFILE_CACHE));
-  await fs.promises.writeFile(LOCKFILE_CACHE, newLockHash);
+  await mkdirp(path.dirname(hashLoc));
+  await fs.promises.writeFile(hashLoc, newLockHash);
 }
 
 export async function clearCache() {

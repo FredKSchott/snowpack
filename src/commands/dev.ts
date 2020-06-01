@@ -27,12 +27,12 @@
 import cacache from 'cacache';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
-import httpProxy from 'http-proxy';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
 import http from 'http';
+import HttpProxy from 'http-proxy';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
 import os from 'os';
@@ -51,6 +51,7 @@ import {
   openInBrowser,
   resolveDependencyManifest,
   findImportSpecMountScript,
+  updateLockfileHash,
 } from '../util';
 import {
   FileBuilder,
@@ -66,6 +67,21 @@ import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
+
+const DEFAULT_PROXY_ERROR_HANDLER = (
+  err: Error,
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+) => {
+  const reqUrl = req.url!;
+  console.error(`✘ ${reqUrl}\n${err.message}`);
+  sendError(res, 502);
+};
+
+function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
+  const reqPath = decodeURI(url.parse(req.url!).pathname!);
+  return reqPath.startsWith(pathPrefix);
+}
 
 function getEncodingType(ext: string): 'utf-8' | 'binary' {
   if (ext === '.js' || ext === '.css' || ext === '.html') {
@@ -133,9 +149,10 @@ export async function command(commandOptions: CommandOptions) {
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
 
   // Start with a fresh install of your dependencies, if needed.
-  if (!(await checkLockfileHash()) || !existsSync(dependencyImportMapLoc)) {
-    console.log(chalk.yellow('! new dependencies detected...'));
+  if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
+    console.log(chalk.yellow('! updating dependencies...'));
     await installCommand(commandOptions);
+    await updateLockfileHash(DEV_DEPENDENCIES_DIR);
     serverStart = Date.now();
   }
 
@@ -146,16 +163,6 @@ export async function command(commandOptions: CommandOptions) {
     );
   } catch (err) {
     // no import-map found, safe to ignore
-  }
-
-  let proxy: undefined | httpProxy;
-  if (config.scripts.findIndex(({type}) => type === 'proxy') > -1) {
-    proxy = httpProxy.createProxyServer({});
-    proxy.on('error', function (err, req, res) {
-      const reqUrl = req.url!;
-      console.error(`✘ ${reqUrl}\n${err.message}`);
-      sendError(res, 502);
-    });
   }
 
   async function buildFile(
@@ -257,6 +264,7 @@ export async function command(commandOptions: CommandOptions) {
                 .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
                 .catch(() => `{"imports": {}}`),
             );
+            await updateLockfileHash(DEV_DEPENDENCIES_DIR);
             await cacache.rm.all(BUILD_CACHE);
             inMemoryBuildCache.clear();
             messageBus.emit('INSTALL_COMPLETE');
@@ -329,12 +337,6 @@ export async function command(commandOptions: CommandOptions) {
     if (workerConfig.type === 'run') {
       runLintAll(workerConfig);
     }
-    if (workerConfig.type === 'proxy') {
-      setTimeout(
-        () => messageBus.emit('WORKER_UPDATE', {id: workerConfig.id, state: ['DONE', 'green']}),
-        400,
-      );
-    }
     if (workerConfig.type === 'mount') {
       mountedDirectories.push(getMountedDirectory(cwd, workerConfig));
       setTimeout(
@@ -343,6 +345,22 @@ export async function command(commandOptions: CommandOptions) {
       );
     }
   }
+
+  const devProxies = {};
+  config.proxy.forEach(([pathPrefix, proxyOptions]) => {
+    const proxyServer = (devProxies[pathPrefix] = HttpProxy.createProxyServer(proxyOptions));
+    for (const [onEventName, eventHandler] of Object.entries(proxyOptions.on)) {
+      proxyServer.on(onEventName, eventHandler as () => void);
+    }
+    if (!proxyOptions.on.error) {
+      proxyServer.on('error', DEFAULT_PROXY_ERROR_HANDLER);
+    }
+    console.log(
+      `Proxying: ${pathPrefix}  ->  ${proxyOptions.target}${
+        !proxyOptions.ignorePath ? pathPrefix : ''
+      }`,
+    );
+  });
 
   http
     .createServer(async (req, res) => {
@@ -378,22 +396,12 @@ export async function command(commandOptions: CommandOptions) {
         return;
       }
 
-      if (proxy) {
-        for (const workerConfig of config.scripts) {
-          if (workerConfig.type !== 'proxy') {
-            continue;
-          }
-          if (reqPath.startsWith(workerConfig.args.toUrl)) {
-            const newPath = reqPath.substr(workerConfig.args.toUrl.length);
-            proxy.web(req, res, {
-              target: `${workerConfig.args.fromUrl}${newPath}`,
-              ignorePath: true,
-              secure: false,
-              changeOrigin: true,
-            });
-            return;
-          }
+      for (const [pathPrefix] of config.proxy) {
+        if (!shouldProxy(pathPrefix, req)) {
+          continue;
         }
+        devProxies[pathPrefix].web(req, res);
+        return;
       }
 
       const attemptedFileLoads: string[] = [];
@@ -676,24 +684,14 @@ export async function command(commandOptions: CommandOptions) {
 
       sendFile(req, res, wrappedResponse, responseFileExt);
     })
-    .on('upgrade', (req, socket, head) => {
-      const reqUrl = req.url!;
-      let reqPath = decodeURI(url.parse(reqUrl).pathname!);
-
-      if (proxy) {
-        for (const workerConfig of config.scripts) {
-          if (workerConfig.type !== 'proxy') {
-            continue;
-          }
-          if (reqPath.startsWith(workerConfig.args.toUrl)) {
-            const newPath = reqPath.substr(workerConfig.args.toUrl.length);
-            proxy.ws(req, socket, head, {
-              target: `${workerConfig.args.fromUrl}${newPath}`,
-              ignorePath: true,
-            });
-          }
+    .on('upgrade', (req: http.IncomingMessage, socket, head) => {
+      config.proxy.forEach(([pathPrefix, proxyOptions]) => {
+        const isWebSocket = proxyOptions.ws || proxyOptions.target?.startsWith('ws');
+        if (isWebSocket && shouldProxy(pathPrefix, req)) {
+          devProxies[pathPrefix].ws(req, socket, head);
+          console.log('Upgrading to WebSocket');
         }
-      }
+      });
     })
     .listen(port);
 
@@ -789,6 +787,7 @@ export async function command(commandOptions: CommandOptions) {
       await currentlyRunningCommand;
       currentlyRunningCommand = installCommand(commandOptions);
       await currentlyRunningCommand;
+      await updateLockfileHash(DEV_DEPENDENCIES_DIR);
       await cacache.rm.all(BUILD_CACHE);
       inMemoryBuildCache.clear();
       currentlyRunningCommand = null;
