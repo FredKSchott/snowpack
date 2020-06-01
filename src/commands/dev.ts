@@ -135,7 +135,7 @@ export async function command(commandOptions: CommandOptions) {
   let serverStart = Date.now();
   const {cwd, config} = commandOptions;
   const {port, open} = config.devOptions;
-  const hmrEngine = new EsmHmrEngine();
+
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
   const filesBeingDeleted = new Set<string>();
@@ -357,7 +357,7 @@ export async function command(commandOptions: CommandOptions) {
     }
   });
 
-  http
+  const server = http
     .createServer(async (req, res) => {
       const reqUrl = req.url!;
       let reqPath = decodeURI(url.parse(reqUrl).pathname!);
@@ -689,6 +689,8 @@ export async function command(commandOptions: CommandOptions) {
       });
     })
     .listen(port);
+
+  const hmrEngine = new EsmHmrEngine(server);
 
   // Live Reload + File System Watching
   let isLiveReloadPaused = false;
