@@ -414,12 +414,12 @@ function normalizeProxies(proxies: RawProxies): Proxy[] {
       {
         on: {
           proxyReq: (proxyReq, req) => {
-            proxyReq.path = req.url.replace(pathPrefix, '')
-          }
+            proxyReq.path = req.url.replace(pathPrefix, '');
+          },
         },
         target: options,
         changeOrigin: true,
-        secure: false
+        secure: false,
       },
     ];
   });
