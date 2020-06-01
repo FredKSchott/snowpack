@@ -76,8 +76,6 @@ export type BuildScript = {
 };
 
 export type ProxyOptions = HttpProxy.ServerOptions & {
-  // Fix broken type that says target can't be a string
-  target?: string;
   // Custom on: {} event handlers
   on: Record<string, Function>;
 };

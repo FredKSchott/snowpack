@@ -681,7 +681,7 @@ export async function command(commandOptions: CommandOptions) {
     })
     .on('upgrade', (req: http.IncomingMessage, socket, head) => {
       config.proxy.forEach(([pathPrefix, proxyOptions]) => {
-        const isWebSocket = proxyOptions.ws || proxyOptions.target?.startsWith('ws');
+        const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
         if (isWebSocket && shouldProxy(pathPrefix, req)) {
           devProxies[pathPrefix].ws(req, socket, head);
           console.log('Upgrading to WebSocket');
