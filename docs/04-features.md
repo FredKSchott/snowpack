@@ -204,11 +204,11 @@ if (import.meta.env.MODE === 'development') {
 
 You can read environment variables directly in your web application via `import.meta.env`. If you've ever used `process.env` in Create React App or any Webpack application, this behaves exactly the same.
 
-Remember that these env variables are statically injected into your application for everyone at **build time**, and not runtime.
+For your safety, Snowpack only supports environment variables that begin with `PUBLIC_*`. We do this because everything in your web application is sent to the browser, and we don't want you to accidentally share sensitive keys/env variables with your public web application. Prefixing your frontend web env variables with `PUBLIC_` is a good reminder that they will be shared with the world. 
 
-For your safety, Snowpack only supports environment variables that begin with `PUBLIC_*`. We do this because everything in your web application is sent to the browser, and we don't want you to accidentally share sensitive keys/env variables with your public web application. Prefixing your frontend web env variables with `PUBLIC_` is a good reminder that they will be shared with the world.
+`import.meta.env.MODE` and `import.meta.env.NODE_ENV` are also both set to the current `process.env.NODE_ENV` value, so that you can change app behavior based on dev vs. build. The env value is set to `development` during `snowpack dev` and `production` during `snowpack build`. Use this in your application instead of `process.env.NODE_ENV`. 
 
-The one exception is `import.meta.env.MODE`, which is set to `development` during `snowpack dev` and `production` during `snowpack build`. This can be used instead of `process.env.NODE_ENV`. `import.meta.env.NODE_ENV` is also set for legacy reasons, but `import.meta.env.MODE` is recommended.
+**Remember:** that these env variables are statically injected into your application for everyone at **build time**, and not runtime.
 
 #### `.env` File Support
 
@@ -219,7 +219,7 @@ The one exception is `import.meta.env.MODE`, which is set to `development` durin
 }
 ```
 
-Add the `@snowpack/plugin-dotenv` plugin to your dev environment to automatically load environment variables from your project `.env` files. Visit the plugin package README to learn more.
+Add the `@snowpack/plugin-dotenv` plugin to your dev environment to automatically load environment variables from your project `.env` files. Visit the [plugin README](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-dotenv) to learn more.
 
 
 
