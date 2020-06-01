@@ -5,7 +5,7 @@ const scripts = {
 
 module.exports = {
   scripts,
-  plugins: ["@snowpack/plugin-vue"],
+  plugins: ["@snowpack/plugin-vue", "@snowpack/plugin-dotenv"],
   installOptions: {},
   devOptions: {},
 };

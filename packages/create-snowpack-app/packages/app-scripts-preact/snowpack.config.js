@@ -16,7 +16,11 @@ if (isTS) {
 
 module.exports = {
   scripts,
-  plugins: ["@snowpack/plugin-babel", "@prefresh/snowpack"],
+  plugins: [
+    "@snowpack/plugin-babel",
+    "@prefresh/snowpack",
+    "@snowpack/plugin-dotenv",
+  ],
   devOptions: {},
   installOptions: {
     installTypes: isTS,

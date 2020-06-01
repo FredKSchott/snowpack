@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 module.exports = function plugin(config, options) {
   const NODE_ENV = process.env.NODE_ENV;
   if (!NODE_ENV) {

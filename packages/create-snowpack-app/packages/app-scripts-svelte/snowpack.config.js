@@ -4,7 +4,7 @@ const scripts = {
 };
 
 module.exports = {
-  plugins: ["@snowpack/plugin-svelte"],
+  plugins: ["@snowpack/plugin-svelte", "@snowpack/plugin-dotenv"],
   scripts,
   installOptions: {},
   devOptions: {},

@@ -16,7 +16,7 @@ if (isTS) {
 
 module.exports = {
   scripts,
-  plugins: ["@snowpack/plugin-babel"],
+  plugins: ["@snowpack/plugin-babel", "@snowpack/plugin-dotenv"],
   devOptions: {},
   installOptions: {
     installTypes: isTS,

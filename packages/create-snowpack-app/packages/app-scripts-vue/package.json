@@ -7,7 +7,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@snowpack/plugin-vue": "^1.0.0"
+    "@snowpack/plugin-vue": "^1.0.0",
+    "@snowpack/plugin-dotenv": "^1.0.0"
   },
   "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
 }

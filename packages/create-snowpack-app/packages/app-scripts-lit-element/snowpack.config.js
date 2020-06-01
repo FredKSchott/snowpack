@@ -29,6 +29,7 @@ if (
 
 module.exports = {
   scripts,
+  plugins: ["@snowpack/plugin-dotenv"],
   devOptions: {},
   installOptions: {
     installTypes: isTS,
