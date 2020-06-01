@@ -50,6 +50,7 @@ import {
   isYarn,
   openInBrowser,
   resolveDependencyManifest,
+  updateLockfileHash,
 } from '../util';
 import {
   FileBuilder,
@@ -132,9 +133,10 @@ export async function command(commandOptions: CommandOptions) {
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
 
   // Start with a fresh install of your dependencies, if needed.
-  if (!(await checkLockfileHash()) || !existsSync(dependencyImportMapLoc)) {
-    console.log(chalk.yellow('! new dependencies detected...'));
+  if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
+    console.log(chalk.yellow('! updating dependencies...'));
     await installCommand(commandOptions);
+    await updateLockfileHash(DEV_DEPENDENCIES_DIR);
     serverStart = Date.now();
   }
 
@@ -251,6 +253,7 @@ export async function command(commandOptions: CommandOptions) {
                 .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
                 .catch(() => `{"imports": {}}`),
             );
+            await updateLockfileHash(DEV_DEPENDENCIES_DIR);
             await cacache.rm.all(BUILD_CACHE);
             inMemoryBuildCache.clear();
             messageBus.emit('INSTALL_COMPLETE');
@@ -783,6 +786,7 @@ export async function command(commandOptions: CommandOptions) {
       await currentlyRunningCommand;
       currentlyRunningCommand = installCommand(commandOptions);
       await currentlyRunningCommand;
+      await updateLockfileHash(DEV_DEPENDENCIES_DIR);
       await cacache.rm.all(BUILD_CACHE);
       inMemoryBuildCache.clear();
       currentlyRunningCommand = null;
