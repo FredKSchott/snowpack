@@ -14,14 +14,25 @@ Snowpack supports configuration files in multiple formats, sorted by priority or
 ### CLI Flags
 
 ``` bash
+# Show helpful info
 $ snowpack --help
+
+# {installOptions: {dest: 'CUSTOM_DIR/'}}
+$ snowpack install --dest CUSTOM_DIR/
+
+# {devOptions: {bundle: true}}
+$ snowpack dev --bundle
+
+# {devOptions: {bundle: false}}
+$ snowpack dev --no-bundle
 ```
 
-CLI flags will be merged with (and take priority over) your config file values. Every config value outlined below can also be passed as a CLI flag. Additionally, Snowpack also supports the following flags:
+**CLI flags will be merged with (and take priority over) your config file values.** Every config value outlined below can also be passed as a CLI flag. Additionally, Snowpack also supports the following flags:
 
+- **`--config [path]`** Set the path to your project config file.
 - **`--help`** Show this help.
 - **`--version`** Show the current version. 
-- **`--reload`** Clear the local CDN cache. Useful when troubleshooting installer issues.
+- **`--reload`** Clear the local cache. Useful for troubleshooting installer issues.
 
 
 ### All Config Options
