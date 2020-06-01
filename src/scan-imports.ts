@@ -16,7 +16,7 @@ const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
 // (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)
 const BARE_SPECIFIER_REGEX = /^[@\w](?!.*(:\/\/))/;
 
-const ESM_IMPORT_REGEX = /import(?:["'\s]*([\w*${}\n\r\t, ]+)["'\s]from\s*)?["'\s]["'\s](.*?)["'\s].*;$/gm;
+const ESM_IMPORT_REGEX = /import(?:["'\s]*([\w*${}\n\r\t, ]+)["'\s]from\s*)?["'\s]["'\s](.*?)["'\s].*(;?)$/gm;
 const ESM_DYNAMIC_IMPORT_REGEX = /import\((?:['"].+['"]|`[^$]+`)\)/gm;
 const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
 const SPLIT_NAMED_IMPORTS_REGEX = /\bas\s+\w+|,/s;
