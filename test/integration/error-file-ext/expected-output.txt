@@ -1,3 +1,4 @@
 - snowpack installing...
 ⠼ snowpack installing... dep-a
-✖ snowpack could not import node_modules/dep-b/index.vue. Try installing rollup-plugin-vue and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)
+✖ snowpack failed to load node_modules/dep-b/index.vue
+  Try installing rollup-plugin-vue and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)

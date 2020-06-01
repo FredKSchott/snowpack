@@ -13,15 +13,26 @@ Snowpack supports configuration files in multiple formats, sorted by priority or
 
 ### CLI Flags
 
-``` bash
+```bash
+# Show helpful info
 $ snowpack --help
+
+# {installOptions: {dest: 'CUSTOM_DIR/'}}
+$ snowpack install --dest CUSTOM_DIR/
+
+# {devOptions: {bundle: true}}
+$ snowpack dev --bundle
+
+# {devOptions: {bundle: false}}
+$ snowpack dev --no-bundle
 ```
 
-CLI flags will be merged with (and take priority over) your config file values. Every config value outlined below can also be passed as a CLI flag. Additionally, Snowpack also supports the following flags:
+**CLI flags will be merged with (and take priority over) your config file values.** Every config value outlined below can also be passed as a CLI flag. Additionally, Snowpack also supports the following flags:
 
+- **`--config [path]`** Set the path to your project config file.
 - **`--help`** Show this help.
 - **`--version`** Show the current version. 
-- **`--reload`** Clear the local CDN cache. Useful when troubleshooting installer issues.
+- **`--reload`** Clear the local cache. Useful for troubleshooting installer issues.
 
 
 ### All Config Options
@@ -36,8 +47,10 @@ CLI flags will be merged with (and take priority over) your config file values. 
     "bulma/css/bulma.css" // A non-JS static asset (supports globs)
   ],
   "homepage": "/your-project",
+  "scripts": { /* ... */ },
   "installOptions": { /* ... */ },
-  "devOptions": { /* ..... */ }
+  "devOptions": { /* ... */ },
+  "proxy": { /* ... */ },
 }
 ```
 
@@ -60,6 +73,8 @@ CLI flags will be merged with (and take priority over) your config file values. 
   - Configure how npm packages are installed. See the section below for all options.
 - **`devOptions.*`**
   - Configure your dev server and build workflows. See the section below for all options.
+- **`proxy.*`**
+  - Configure the dev server to proxy requests. See the section below for all options.
 
 #### Install Options
 
@@ -95,3 +110,28 @@ CLI flags will be merged with (and take priority over) your config file values. 
   - When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
 - **`open`** | `string` | Default: `"default"`
   - Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave".
+
+#### Proxy Options
+
+```js
+// snowpack.config.json
+{
+  "proxy": {
+    // Short form:
+    "/api/01": "https://pokeapi.co/api/v2/",
+    // Long form:
+    "/api/02": { 
+      on: { proxyReq: (p, req, res) => /* Custom event handlers (JS only) */ },
+      /* Custom http-proxy options */
+    }
+  }
+}
+```
+
+If desired, `"proxy"` is where you configure the proxy behavior of your dev server. Define different paths that should be proxied, and where they should be proxied to. 
+
+The short form of a full URL string is enough for general use. For advanced configuration, you can use the object format to set all options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
+
+`on` is a special property for setting event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
+
+This configuration has no effect on the final build.

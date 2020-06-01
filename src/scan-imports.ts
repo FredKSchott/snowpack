@@ -1,13 +1,13 @@
 import chalk from 'chalk';
-import nodePath from 'path';
+import {ImportSpecifier, init as initESModuleLexer, parse} from 'es-module-lexer';
 import fs from 'fs';
 import glob from 'glob';
-import esbuild from 'esbuild';
 import mime from 'mime-types';
+import nodePath from 'path';
+import stripComments from 'strip-comments';
 import validatePackageName from 'validate-npm-package-name';
-import {init as initESModuleLexer, parse, ImportSpecifier} from 'es-module-lexer';
-import {isTruthy} from './util';
 import {SnowpackConfig} from './config';
+import {isTruthy, findMatchingMountScript} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -15,6 +15,9 @@ const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
 // [@\w] - Match a word-character or @ (valid package name)
 // (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)
 const BARE_SPECIFIER_REGEX = /^[@\w](?!.*(:\/\/))/;
+
+const ESM_IMPORT_REGEX = /import(?:["'\s]*([\w*${}\n\r\t, ]+)\s*from\s*)?\s*["'](.*?)["']/gm;
+const ESM_DYNAMIC_IMPORT_REGEX = /import\((?:['"].+['"]|`[^$]+`)\)/gm;
 const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
 const SPLIT_NAMED_IMPORTS_REGEX = /\bas\s+\w+|,/s;
 const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s]*\})?\s+from/s;
@@ -131,11 +134,48 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
   };
 }
 
-function getInstallTargetsForFile(code: string): InstallTarget[] {
-  const [imports] = parse(code) || [];
+function cleanCodeForParsing(code: string): string {
+  code = stripComments(code);
+  const allMatches: string[] = [];
+  let match;
+  while ((match = ESM_IMPORT_REGEX.exec(code))) {
+    allMatches.push(match);
+  }
+  while ((match = ESM_DYNAMIC_IMPORT_REGEX.exec(code))) {
+    allMatches.push(match);
+  }
+  return allMatches.map(([full]) => full).join('\n');
+}
+
+function parseCodeForInstallTargets(fileLoc: string, code: string): InstallTarget[] {
+  let imports: ImportSpecifier[];
+  // Attempt #1: Parse the file as JavaScript. JSX and some decorator
+  // syntax will break this.
+  try {
+    if (fileLoc.endsWith('.jsx') || fileLoc.endsWith('.tsx')) {
+      // We know ahead of time that this will almost certainly fail.
+      // Just jump right to the secondary attempt.
+      throw new Error('JSX must be cleaned before parsing');
+    }
+    [imports] = parse(code) || [];
+  } catch (err) {
+    // Attempt #2: Parse only the import statements themselves.
+    // This lets us guarentee we aren't sending any broken syntax to our parser,
+    // but at the expense of possible false +/- caused by our regex extractor.
+    try {
+      code = cleanCodeForParsing(code);
+      [imports] = parse(code) || [];
+    } catch (err) {
+      // Another error! No hope left, just abort.
+      console.error(chalk.red(`! ${fileLoc}`));
+      throw err;
+    }
+  }
   const allImports: InstallTarget[] = imports
     .map((imp) => parseImportStatement(code, imp))
-    .filter(isTruthy);
+    .filter(isTruthy)
+    // Babel macros are not install targets!
+    .filter((imp) => !imp.specifier.endsWith('.macro'));
   return allImports;
 }
 
@@ -180,7 +220,6 @@ export async function scanImports(
   }
 
   // Scan every matched JS file for web dependency imports
-  const esbuildService = await esbuild.startService();
   const loadedFiles = await Promise.all(
     includeFiles.map(async (filePath) => {
       const ext = nodePath.extname(filePath);
@@ -193,16 +232,8 @@ export async function scanImports(
         return null;
       }
       // Our import scanner can handle normal JS & even TypeScript without a problem.
-      if (ext === '.js' || ext === '.mjs' || ext === '.ts') {
-        return fs.promises.readFile(filePath, 'utf-8');
-      }
-      // JSX breaks our import scanner, so we need to transform it before sending it to our scanner.
-      if (ext === '.jsx' || ext === '.tsx') {
-        const code = await fs.promises.readFile(filePath, 'utf-8');
-        const {js} = await esbuildService.transform(code, {
-          loader: ext.substr(1) as 'js' | 'ts' | 'tsx',
-        });
-        return js;
+      if (ext === '.js' || ext === '.mjs' || ext === '.ts' || ext === '.jsx' || ext === '.tsx') {
+        return [filePath, await fs.promises.readFile(filePath, 'utf-8')];
       }
       if (ext === '.vue' || ext === '.svelte') {
         const result = await fs.promises.readFile(filePath, 'utf-8');
@@ -213,7 +244,7 @@ export async function scanImports(
         while ((match = HTML_JS_REGEX.exec(result))) {
           allMatches.push(match);
         }
-        return allMatches.map(([full, code]) => code).join('\n');
+        return [filePath, allMatches.map(([full, code]) => code).join('\n')];
       }
       // If we don't recognize the file type, it could be source. Warn just in case.
       if (!mime.lookup(nodePath.extname(filePath))) {
@@ -224,10 +255,13 @@ export async function scanImports(
       return null;
     }),
   );
-  esbuildService.stop();
-  return (loadedFiles as string[])
-    .filter((code) => !!code)
-    .map((code) => getInstallTargetsForFile(code))
-    .reduce((flat, item) => flat.concat(item), [])
-    .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier));
+  return (
+    loadedFiles
+      .filter(isTruthy)
+      .map(([fileLoc, code]) => parseCodeForInstallTargets(fileLoc, code))
+      .reduce((flat, item) => flat.concat(item), [])
+      // Ignore source imports that match a mount directory.
+      .filter((target) => !findMatchingMountScript(scripts, target.specifier))
+      .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier))
+  );
 }

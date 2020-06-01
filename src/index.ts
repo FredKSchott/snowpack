@@ -6,35 +6,29 @@ import {command as devCommand} from './commands/dev';
 import {addCommand, rmCommand} from './commands/add-rm';
 import {command as installCommand} from './commands/install';
 import {CLIFlags, loadAndValidateConfig} from './config.js';
-import {clearCache} from './resolve-remote.js';
-import {readLockfile} from './util.js';
+import {readLockfile, clearCache} from './util.js';
 
 const cwd = process.cwd();
 
 function printHelp() {
   console.log(
     `
-${chalk.bold(`snowpack`)} - Install npm dependencies to run natively on the web.
-${chalk.bold('Options:')}
-  --dest [path]             Specify destination directory (default: "web_modules/").
-  --clean                   Clear out the destination directory before install.
-  --optimize                Transpile, minify, and optimize installed dependencies for production.
-  --env                     Set environment variable(s) inside dependencies:
-                                - if only NAME given, reads value from real env var
-                                - if \`NAME=value\`, uses given value
-                                - NODE_ENV defaults to "production" with "--optimize" (overridable)
-  --babel                   Transpile installed dependencies. Also enabled with "--optimize".
-  --include [glob]          Auto-detect imports from file(s). Supports glob.
-  --exclude [glob]          Exclude files from --include. Follows glob’s ignore pattern.
-  --config [path]           Location of Snowpack config file.
-  --strict                  Only install pure ESM dependency trees. Fail if a CJS module is encountered.
-  --no-source-map           Skip emitting source map files (.js.map) into dest
-  --stat                    Logs install statistics after installing, with information on install targets and file sizes. Useful for CI, performance review.
-  --nomodule [path]         Your app’s entry file for generating a <script nomodule> bundle
-  --nomodule-output [path]  Filename for nomodule output (default: "app.nomodule.js")
-    ${chalk.bold('Advanced:')}
-  --external-package [val]  Internal use only, may be removed at any time.
-  --open                    Opens the dev server in a new browser tab. Any installed browser may also be specified. E.g., chrome, firefox, brave. (default: default).
+${chalk.bold(`snowpack`)} - A faster build system for the modern web.
+
+  Snowpack is best configured via config file.
+  But, most configuration can also be passed via CLI flags.
+  📖 ${chalk.dim('https://www.snowpack.dev/#configuration')}
+
+${chalk.bold('Commands:')}
+  snowpack dev          Develop your app locally.
+  snowpack build        Build your app for production.
+  snowpack install      (Advanced) Install web-ready dependencies.
+
+${chalk.bold('Flags:')}
+  --config [path]       Set the location of your project config file.
+  --help                Show this help message.
+  --version             Show the current version.
+  --reload              Clear Snowpack's local cache (troubleshooting).
     `.trim(),
   );
 }
@@ -51,7 +45,7 @@ export async function cli(args: string[]) {
     process.exit(0);
   }
   if (cliFlags.reload) {
-    console.log(`${chalk.yellow('ℹ')} clearing CDN cache...`);
+    console.log(chalk.yellow('! clearing cache...'));
     await clearCache();
   }
 
@@ -64,8 +58,10 @@ export async function cli(args: string[]) {
     process.exit(1);
   }
 
+  const cmd = cliFlags['_'][2];
+
   // Set this early - before config loading - so that plugins see it.
-  if (cliFlags['_'][2] === 'build') {
+  if (cmd === 'build') {
     process.env.NODE_ENV = process.env.NODE_ENV || 'production';
   }
 
@@ -76,11 +72,11 @@ export async function cli(args: string[]) {
     pkgManifest,
   };
 
-  if (cliFlags['_'][2] === 'add') {
+  if (cmd === 'add') {
     await addCommand(cliFlags['_'][3], commandOptions);
     return;
   }
-  if (cliFlags['_'][2] === 'rm') {
+  if (cmd === 'rm') {
     await rmCommand(cliFlags['_'][3], commandOptions);
     return;
   }
@@ -90,19 +86,19 @@ export async function cli(args: string[]) {
     process.exit(1);
   }
 
-  if (cliFlags['_'][2] === 'build') {
+  if (cmd === 'build') {
     await buildCommand(commandOptions);
     return;
   }
-  if (cliFlags['_'][2] === 'dev') {
+  if (cmd === 'dev') {
     await devCommand(commandOptions);
     return;
   }
-  if (cliFlags['_'][2] === 'install' || !cliFlags['_'][2]) {
+  if (cmd === 'install' || !cmd) {
     await installCommand(commandOptions);
     return;
   }
 
-  console.log(`Unrecognized command: ${cliFlags['_'][2]}`);
+  console.log(`Unrecognized command: ${cmd}`);
   process.exit(1);
 }

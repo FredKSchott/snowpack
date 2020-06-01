@@ -31,8 +31,8 @@ import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
-import got, {Method as RequestMethod} from 'got';
 import http from 'http';
+import HttpProxy from 'http-proxy';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
 import os from 'os';
@@ -43,16 +43,20 @@ import {EsmHmrEngine} from '../hmr-server-engine';
 import {scanCodeImportsExports, transformEsmImports} from '../rewrite-imports';
 import {
   BUILD_CACHE,
+  checkLockfileHash,
   CommandOptions,
   DEV_DEPENDENCIES_DIR,
   ImportMap,
   isYarn,
   openInBrowser,
   resolveDependencyManifest,
+  findMatchingMountScript,
+  updateLockfileHash,
 } from '../util';
 import {
   FileBuilder,
   getFileBuilderForWorker,
+  isDirectoryImport,
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
   wrapHtmlResponse,
@@ -63,6 +67,21 @@ import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
+
+const DEFAULT_PROXY_ERROR_HANDLER = (
+  err: Error,
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+) => {
+  const reqUrl = req.url!;
+  console.error(`✘ ${reqUrl}\n${err.message}`);
+  sendError(res, 502);
+};
+
+function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
+  const reqPath = decodeURI(url.parse(req.url!).pathname!);
+  return reqPath.startsWith(pathPrefix);
+}
 
 function getEncodingType(ext: string): 'utf-8' | 'binary' {
   if (ext === '.js' || ext === '.css' || ext === '.html') {
@@ -113,11 +132,8 @@ function getMountedDirectory(cwd: string, workerConfig: BuildScript): [string, s
 let currentlyRunningCommand: any = null;
 
 export async function command(commandOptions: CommandOptions) {
+  let serverStart = Date.now();
   const {cwd, config} = commandOptions;
-  console.log(chalk.bold('Snowpack Dev Server (Beta)'));
-  console.log('NOTE: Still experimental, default behavior may change.');
-  console.log('Starting up...\n');
-
   const {port, open} = config.devOptions;
 
   const inMemoryBuildCache = new Map<string, Buffer>();
@@ -127,15 +143,19 @@ export async function command(commandOptions: CommandOptions) {
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
 
-  // Start with a fresh install of your dependencies, for development, if needed
+  // Set the proper install options, in case an install is needed.
   commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
   commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'development';
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
-  if (!existsSync(dependencyImportMapLoc)) {
+
+  // Start with a fresh install of your dependencies, if needed.
+  if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
+    console.log(chalk.yellow('! updating dependencies...'));
     await installCommand(commandOptions);
+    await updateLockfileHash(DEV_DEPENDENCIES_DIR);
+    serverStart = Date.now();
   }
 
-  const serverStart = Date.now();
   let dependencyImportMap: ImportMap = {imports: {}};
   try {
     dependencyImportMap = JSON.parse(
@@ -194,10 +214,19 @@ export async function command(commandOptions: CommandOptions) {
         if (spec.startsWith('http')) {
           return spec;
         }
+        let mountScript = findMatchingMountScript(config.scripts, spec);
+        if (mountScript) {
+          let {fromDisk, toUrl} = mountScript.args;
+          spec = spec.replace(fromDisk, toUrl);
+        }
         if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
           const ext = path.extname(spec).substr(1);
           if (!ext) {
-            return spec + '.js';
+            if (isDirectoryImport(fileLoc, spec)) {
+              return spec + '/index.js';
+            } else {
+              return spec + '.js';
+            }
           }
           const extToReplace = srcFileExtensionMapping[ext];
           if (extToReplace) {
@@ -235,6 +264,9 @@ export async function command(commandOptions: CommandOptions) {
                 .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
                 .catch(() => `{"imports": {}}`),
             );
+            await updateLockfileHash(DEV_DEPENDENCIES_DIR);
+            await cacache.rm.all(BUILD_CACHE);
+            inMemoryBuildCache.clear();
             messageBus.emit('INSTALL_COMPLETE');
             isLiveReloadPaused = false;
             currentlyRunningCommand = null;
@@ -262,11 +294,8 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   function runLintAll(workerConfig: BuildScript) {
-    let {id, cmd} = workerConfig;
-    if (workerConfig.watch) {
-      cmd += workerConfig.watch.replace('$1', '');
-    }
-    const workerPromise = execa.command(cmd, {
+    let {id, cmd, watch: watchCmd} = workerConfig;
+    const workerPromise = execa.command(watchCmd || cmd, {
       env: npmRunPath.env(),
       extendEnv: true,
       shell: true,
@@ -296,7 +325,6 @@ export async function command(commandOptions: CommandOptions) {
     stderr?.on('data', (b) => {
       messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
     });
-    stderr?.on('data', (b) => {});
     workerPromise.catch((err) => {
       messageBus.emit('WORKER_COMPLETE', {id, error: err});
     });
@@ -309,12 +337,6 @@ export async function command(commandOptions: CommandOptions) {
     if (workerConfig.type === 'run') {
       runLintAll(workerConfig);
     }
-    if (workerConfig.type === 'proxy') {
-      setTimeout(
-        () => messageBus.emit('WORKER_UPDATE', {id: workerConfig.id, state: ['DONE', 'green']}),
-        400,
-      );
-    }
     if (workerConfig.type === 'mount') {
       mountedDirectories.push(getMountedDirectory(cwd, workerConfig));
       setTimeout(
@@ -323,6 +345,17 @@ export async function command(commandOptions: CommandOptions) {
       );
     }
   }
+
+  const devProxies = {};
+  config.proxy.forEach(([pathPrefix, proxyOptions]) => {
+    const proxyServer = (devProxies[pathPrefix] = HttpProxy.createProxyServer(proxyOptions));
+    for (const [onEventName, eventHandler] of Object.entries(proxyOptions.on)) {
+      proxyServer.on(onEventName, eventHandler as () => void);
+    }
+    if (!proxyOptions.on.error) {
+      proxyServer.on('error', DEFAULT_PROXY_ERROR_HANDLER);
+    }
+  });
 
   const server = http
     .createServer(async (req, res) => {
@@ -358,28 +391,12 @@ export async function command(commandOptions: CommandOptions) {
         return;
       }
 
-      for (const workerConfig of config.scripts) {
-        if (workerConfig.type !== 'proxy') {
+      for (const [pathPrefix] of config.proxy) {
+        if (!shouldProxy(pathPrefix, req)) {
           continue;
         }
-        if (reqPath.startsWith(workerConfig.args.toUrl)) {
-          const newPath = reqPath.substr(workerConfig.args.toUrl.length);
-          try {
-            const response = await got(`${workerConfig.args.fromUrl}${newPath}`, {
-              method: req.method as RequestMethod,
-              headers: req.headers,
-              throwHttpErrors: false,
-            });
-            res.writeHead(response.statusCode, response.headers);
-            res.write(response.body);
-          } catch (err) {
-            console.error(`✘ ${reqUrl}\n${err.message}`);
-            sendError(res, 500);
-          } finally {
-            res.end();
-          }
-          return;
-        }
+        devProxies[pathPrefix].web(req, res);
+        return;
       }
 
       const attemptedFileLoads: string[] = [];
@@ -662,6 +679,15 @@ export async function command(commandOptions: CommandOptions) {
 
       sendFile(req, res, wrappedResponse, responseFileExt);
     })
+    .on('upgrade', (req: http.IncomingMessage, socket, head) => {
+      config.proxy.forEach(([pathPrefix, proxyOptions]) => {
+        const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
+        if (isWebSocket && shouldProxy(pathPrefix, req)) {
+          devProxies[pathPrefix].ws(req, socket, head);
+          console.log('Upgrading to WebSocket');
+        }
+      });
+    })
     .listen(port);
 
   const hmrEngine = new EsmHmrEngine(server);
@@ -758,7 +784,11 @@ export async function command(commandOptions: CommandOptions) {
       await currentlyRunningCommand;
       currentlyRunningCommand = installCommand(commandOptions);
       await currentlyRunningCommand;
+      await updateLockfileHash(DEV_DEPENDENCIES_DIR);
+      await cacache.rm.all(BUILD_CACHE);
+      inMemoryBuildCache.clear();
       currentlyRunningCommand = null;
+
       dependencyImportMap = JSON.parse(
         await fs
           .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})

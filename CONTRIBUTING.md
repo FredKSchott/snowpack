@@ -17,6 +17,12 @@ npm run build
 ```
 
 ```bash
+# Check formatting after changed
+npm run format
+npm run lint
+```
+
+```bash
 # Run your tests
 npm test
 ```

@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import {EventEmitter} from 'events';
 import execa from 'execa';
-import {promises as fs} from 'fs';
+import {promises as fs, existsSync} from 'fs';
 import glob from 'glob';
 import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
@@ -9,9 +9,17 @@ import path from 'path';
 import rimraf from 'rimraf';
 import {BuildScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
-import {BUILD_DEPENDENCIES_DIR, CommandOptions, ImportMap} from '../util';
+import {
+  BUILD_DEPENDENCIES_DIR,
+  CommandOptions,
+  ImportMap,
+  findMatchingMountScript,
+  checkLockfileHash,
+  updateLockfileHash,
+} from '../util';
 import {
   getFileBuilderForWorker,
+  isDirectoryImport,
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
   wrapJSModuleResponse,
@@ -27,13 +35,19 @@ export async function command(commandOptions: CommandOptions) {
   // Start with a fresh install of your dependencies, for production
   commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'production';
   commandOptions.config.installOptions.dest = BUILD_DEPENDENCIES_DIR;
-  await installCommand(commandOptions);
+  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
+
+  // Start with a fresh install of your dependencies, if needed.
+  if (!(await checkLockfileHash(BUILD_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
+    console.log(chalk.yellow('! updating dependencies...'));
+    await installCommand(commandOptions);
+    await updateLockfileHash(BUILD_DEPENDENCIES_DIR);
+  }
 
   const messageBus = new EventEmitter();
   const relevantWorkers: BuildScript[] = [];
   const allBuildExtensions: string[] = [];
 
-  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
   let dependencyImportMap: ImportMap = {imports: {}};
   try {
     dependencyImportMap = require(dependencyImportMapLoc);
@@ -43,13 +57,7 @@ export async function command(commandOptions: CommandOptions) {
 
   for (const workerConfig of config.scripts) {
     const {type, match} = workerConfig;
-    if (
-      type === 'build' ||
-      type === 'run' ||
-      type === 'mount' ||
-      type === 'proxy' ||
-      type === 'bundle'
-    ) {
+    if (type === 'build' || type === 'run' || type === 'mount' || type === 'bundle') {
       relevantWorkers.push(workerConfig);
     }
     if (type === 'build') {
@@ -105,22 +113,57 @@ export async function command(commandOptions: CommandOptions) {
   }
   paint(messageBus, relevantWorkers, {dest: relDest}, undefined);
 
-  for (const workerConfig of relevantWorkers) {
-    const {id, type} = workerConfig;
-    if (type !== 'proxy') {
-      continue;
-    }
-    messageBus.emit('WORKER_UPDATE', {
-      id,
-      state: ['SKIP', 'dim'],
-    });
-  }
-
   if (!isBundled) {
     messageBus.emit('WORKER_UPDATE', {
       id: bundleWorker.id,
       state: ['SKIP', 'dim'],
     });
+  }
+
+  for (const workerConfig of relevantWorkers) {
+    const {id, type, match} = workerConfig;
+    if (type !== 'run') {
+      continue;
+    }
+    messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+    const workerPromise = execa.command(workerConfig.cmd, {
+      env: npmRunPath.env(),
+      extendEnv: true,
+      shell: true,
+      cwd,
+    });
+    workerPromise.catch((err) => {
+      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
+      messageBus.emit('WORKER_COMPLETE', {id, error: err});
+    });
+    workerPromise.then(() => {
+      messageBus.emit('WORKER_COMPLETE', {id, error: null});
+    });
+    const {stdout, stderr} = workerPromise;
+    stdout?.on('data', (b) => {
+      let stdOutput = b.toString();
+      if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
+        messageBus.emit('WORKER_RESET', {id});
+        stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
+      }
+      if (id.endsWith(':tsc')) {
+        if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
+          messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+        }
+        if (/Watching for file changes./gm.test(stdOutput)) {
+          messageBus.emit('WORKER_UPDATE', {id, state: 'WATCHING'});
+        }
+        const errorMatch = stdOutput.match(/Found (\d+) error/);
+        if (errorMatch && errorMatch[1] !== '0') {
+          messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
+        }
+      }
+      messageBus.emit('WORKER_MSG', {id, level: 'log', msg: stdOutput});
+    });
+    stderr?.on('data', (b) => {
+      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
+    });
+    await workerPromise;
   }
 
   const mountDirDetails: any[] = relevantWorkers
@@ -175,52 +218,6 @@ export async function command(commandOptions: CommandOptions) {
       messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
       messageBus.emit('WORKER_COMPLETE', {id, error: err});
     }
-  }
-
-  for (const workerConfig of relevantWorkers) {
-    const {id, type, match} = workerConfig;
-    if (type !== 'run') {
-      continue;
-    }
-    messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-    const workerPromise = execa.command(workerConfig.cmd, {
-      env: npmRunPath.env(),
-      extendEnv: true,
-      shell: true,
-      cwd,
-    });
-    workerPromise.catch((err) => {
-      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
-      messageBus.emit('WORKER_COMPLETE', {id, error: err});
-    });
-    workerPromise.then(() => {
-      messageBus.emit('WORKER_COMPLETE', {id, error: null});
-    });
-    const {stdout, stderr} = workerPromise;
-    stdout?.on('data', (b) => {
-      let stdOutput = b.toString();
-      if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
-        messageBus.emit('WORKER_RESET', {id});
-        stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
-      }
-      if (id.endsWith(':tsc')) {
-        if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
-          messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-        }
-        if (/Watching for file changes./gm.test(stdOutput)) {
-          messageBus.emit('WORKER_UPDATE', {id, state: 'WATCHING'});
-        }
-        const errorMatch = stdOutput.match(/Found (\d+) error/);
-        if (errorMatch && errorMatch[1] !== '0') {
-          messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
-        }
-      }
-      messageBus.emit('WORKER_MSG', {id, level: 'log', msg: stdOutput});
-    });
-    stderr?.on('data', (b) => {
-      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
-    });
-    await workerPromise;
   }
 
   const allBuiltFromFiles = new Set<string>();
@@ -281,10 +278,19 @@ export async function command(commandOptions: CommandOptions) {
             if (spec.startsWith('http')) {
               return spec;
             }
+            let mountScript = findMatchingMountScript(config.scripts, spec);
+            if (mountScript) {
+              let {fromDisk, toUrl} = mountScript.args;
+              spec = spec.replace(fromDisk, toUrl);
+            }
             if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
               const ext = path.extname(spec).substr(1);
               if (!ext) {
-                return spec + '.js';
+                if (isDirectoryImport(f, spec)) {
+                  return spec + '/index.js';
+                } else {
+                  return spec + '.js';
+                }
               }
               const extToReplace = srcFileExtensionMapping[ext];
               if (extToReplace) {

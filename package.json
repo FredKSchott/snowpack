@@ -1,6 +1,6 @@
 {
   "name": "snowpack",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Run npm packages directly in the browser. No Webpack, Parcel, or bundlers required.",
   "author": "Fred K. Schott <fkschott@gmail.com>",
   "license": "MIT",
@@ -13,12 +13,10 @@
   },
   "scripts": {
     "build": "pika build",
-    "format": "prettier --write 'src/**/*.ts'",
-    "lint": "prettier --check 'src/**/*.ts'",
     "publish": "pika publish",
     "version": "npm run build",
-    "test": "npm run test:integration",
-    "test:integration": "jest test/integration/runner.js --test-timeout=15000 --testMatch \"**/test/**/*.[jt]s?(x)\" -i",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "test": "jest test/integration/runner.js --test-timeout=15000 --testMatch \"**/test/**/*.[jt]s?(x)\" -i",
     "docs:build": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js",
     "docs:watch": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js --serve",
     "docs:deploy": "npm run docs:build && cp now.json www/dist && cd www/dist && now"
@@ -57,8 +55,6 @@
     "@rollup/plugin-json": "^4.0.0",
     "@rollup/plugin-node-resolve": "^7.1.0",
     "@rollup/plugin-replace": "^2.1.0",
-    "@types/tar": "^4.0.3",
-    "ansi-escapes": "^4.3.1",
     "cacache": "^15.0.0",
     "cachedir": "^2.3.0",
     "chalk": "^4.0.0",
@@ -71,8 +67,10 @@
     "etag": "^1.8.1",
     "execa": "^4.0.0",
     "find-cache-dir": "^3.3.1",
+    "find-up": "^4.1.0",
     "glob": "^7.1.4",
     "got": "^11.1.4",
+    "http-proxy": "^1.18.1",
     "is-builtin-module": "^3.0.0",
     "jsonschema": "^1.2.5",
     "mime-types": "^2.1.26",
@@ -84,6 +82,7 @@
     "resolve-from": "^5.0.0",
     "rimraf": "^3.0.0",
     "rollup": "^2.3.0",
+    "strip-comments": "^2.0.1",
     "tar": "^6.0.1",
     "validate-npm-package-name": "^3.0.0",
     "ws": "^7.3.0",
@@ -100,7 +99,9 @@
     "@types/babel__traverse": "^7.0.7",
     "@types/cacache": "^12.0.1",
     "@types/es-module-lexer": "^0.3.0",
+    "@types/http-proxy": "^1.17.4",
     "@types/mkdirp": "^1.0.0",
+    "@types/tar": "^4.0.3",
     "@types/ws": "^7.2.4",
     "cross-env": "^7.0.2",
     "dir-compare": "^2.2.0",
@@ -109,6 +110,6 @@
     "markdown-it": "^10.0.0",
     "markdown-it-anchor": "^5.2.5",
     "prettier": "^2.0.2",
-    "typescript": "^3.6.4"
+    "typescript": "^3.9.3"
   }
 }

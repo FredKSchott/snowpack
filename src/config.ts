@@ -7,6 +7,7 @@ import {Plugin as RollupPlugin} from 'rollup';
 import yargs from 'yargs-parser';
 import {esbuildPlugin} from './commands/esbuildPlugin';
 import {BUILD_DEPENDENCIES_DIR, DEV_DEPENDENCIES_DIR} from './util';
+import type HttpProxy from 'http-proxy';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -18,7 +19,7 @@ const SCRIPT_TYPES_WEIGHTED = {
   bundle: 100,
 } as {[type in ScriptType]: number};
 
-type ScriptType = 'proxy' | 'mount' | 'run' | 'build' | 'bundle';
+type ScriptType = 'mount' | 'run' | 'build' | 'bundle';
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -74,6 +75,12 @@ export type BuildScript = {
   args?: any;
 };
 
+export type ProxyOptions = HttpProxy.ServerOptions & {
+  // Custom on: {} event handlers
+  on: Record<string, Function>;
+};
+export type Proxy = [string, ProxyOptions];
+
 // interface this library uses internally
 export interface SnowpackConfig {
   extends?: string;
@@ -103,6 +110,7 @@ export interface SnowpackConfig {
       namedExports?: {[filepath: string]: string[]};
     };
   };
+  proxy: Proxy[];
 }
 
 export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>, 'env'> {
@@ -200,6 +208,9 @@ const configSchema = {
         },
       },
     },
+    proxy: {
+      type: 'object',
+    },
   },
 };
 
@@ -245,7 +256,42 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
   return result;
 }
 
-type RawScripts = {[id: string]: string};
+/**
+ * Convert deprecated proxy scripts to
+ * FUTURE: Remove this on next major release
+ */
+function handleLegacyProxyScripts(config: any) {
+  for (const scriptId in config.scripts as any) {
+    if (!scriptId.startsWith('proxy:')) {
+      continue;
+    }
+    const cmdArr = config.scripts[scriptId]!.split(/\s+/);
+    if (cmdArr[0] !== 'proxy') {
+      handleConfigError(`scripts[${scriptId}] must use the proxy command`);
+    }
+    cmdArr.shift();
+    const {to, _} = yargs(cmdArr);
+    if (_.length !== 1) {
+      handleConfigError(
+        `scripts[${scriptId}] must use the format: "proxy http://SOME.URL --to /PATH"`,
+      );
+    }
+    if (to && to[0] !== '/') {
+      handleConfigError(
+        `scripts[${scriptId}]: "--to ${to}" must be a URL path, and start with a "/"`,
+      );
+    }
+    const {toUrl, fromUrl} = {fromUrl: _[0], toUrl: to};
+    if (config.proxy[toUrl]) {
+      handleConfigError(`scripts[${scriptId}]: Cannot overwrite proxy[${toUrl}].`);
+    }
+    (config.proxy as any)[toUrl] = fromUrl;
+    delete config.scripts[scriptId];
+  }
+  return config;
+}
+
+type RawScripts = Record<string, string>;
 function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
   const processedScripts: BuildScript[] = [];
   if (Object.keys(scripts).filter((k) => k.startsWith('bundle:')).length > 1) {
@@ -267,6 +313,9 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
       cmd,
       watch: (scripts[`${scriptId}::watch`] as any) as string | undefined,
     };
+    if (newScriptConfig.watch) {
+      newScriptConfig.watch = newScriptConfig.watch.replace('$1', newScriptConfig.cmd);
+    }
     if (scriptType === 'mount') {
       const cmdArr = cmd.split(/\s+/);
       if (cmdArr[0] !== 'mount') {
@@ -284,26 +333,10 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
       }
       const dirDisk = cmdArr[0];
       const dirUrl = to || `/${cmdArr[0]}`;
-      newScriptConfig.args = {fromDisk: dirDisk, toUrl: dirUrl};
-    }
-    if (scriptType === 'proxy') {
-      const cmdArr = cmd.split(/\s+/);
-      if (cmdArr[0] !== 'proxy') {
-        handleConfigError(`scripts[${scriptId}] must use the proxy command`);
-      }
-      cmdArr.shift();
-      const {to, _} = yargs(cmdArr);
-      if (_.length !== 1) {
-        handleConfigError(
-          `scripts[${scriptId}] must use the format: "proxy http://SOME.URL --to /PATH"`,
-        );
-      }
-      if (to && to[0] !== '/') {
-        handleConfigError(
-          `scripts[${scriptId}]: "--to ${to}" must be a URL path, and start with a "/"`,
-        );
-      }
-      newScriptConfig.args = {fromUrl: _[0], toUrl: to};
+      newScriptConfig.args = {
+        fromDisk: path.posix.normalize(dirDisk + '/'),
+        toUrl: path.posix.normalize(dirUrl + '/'),
+      };
     }
     processedScripts.push(newScriptConfig);
   }
@@ -349,18 +382,43 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
     processedScripts.push(defaultBuildWorkerConfig);
   }
   processedScripts.sort((a, b) => {
-    if (a.id === 'mount:web_modules') {
-      return -1;
-    }
-    if (b.id === 'mount:web_modules') {
-      return 1;
-    }
     if (a.type === b.type) {
+      if (a.id === 'mount:web_modules') {
+        return -1;
+      }
+      if (b.id === 'mount:web_modules') {
+        return 1;
+      }
       return a.id.localeCompare(b.id);
     }
     return SCRIPT_TYPES_WEIGHTED[a.type] - SCRIPT_TYPES_WEIGHTED[b.type];
   });
   return processedScripts;
+}
+
+type RawProxies = Record<string, string | ProxyOptions>;
+function normalizeProxies(proxies: RawProxies): Proxy[] {
+  return Object.entries(proxies).map(([pathPrefix, options]) => {
+    if (typeof options !== 'string') {
+      return [
+        pathPrefix,
+        {
+          //@ts-ignore - Seems to be a strange 3.9.x bug
+          on: {},
+          ...options,
+        },
+      ];
+    }
+    return [
+      pathPrefix,
+      {
+        on: {},
+        target: options,
+        ignorePath: true,
+        changeOrigin: true,
+      },
+    ];
+  });
 }
 
 /** resolve --dest relative to cwd, etc. */
@@ -375,6 +433,9 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     config.scripts = {
       'mount:*': 'mount . --to /',
     } as any;
+  }
+  if (!config.proxy) {
+    config.proxy = {} as any;
   }
   const allPlugins = {};
   config.plugins = (config.plugins as any).map((plugin: string | [string, any]) => {
@@ -408,24 +469,20 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   if (config.devOptions.bundle === true && !config.scripts['bundle:*']) {
     handleConfigError(`--bundle set to true, but no "bundle:*" script/plugin was provided.`);
   }
+  config = handleLegacyProxyScripts(config);
+  config.proxy = normalizeProxies(config.proxy as any);
   config.scripts = normalizeScripts(cwd, config.scripts as any);
-  config.scripts.forEach((script: BuildScript) => {
-    if (script.type === 'build' && !script.plugin) {
-      if (allPlugins[script.cmd]?.build) {
+  config.scripts.forEach((script: BuildScript, i) => {
+    if (script.plugin) return;
+
+    // Ensure plugins are properly registered/configured
+    if (['build', 'bundle'].includes(script.type)) {
+      if (allPlugins[script.cmd]?.[script.type]) {
         script.plugin = allPlugins[script.cmd];
-      } else if (allPlugins[script.cmd] && !allPlugins[script.cmd].build) {
-        handleConfigError(`scripts[${script.id}]: Plugin "${script.cmd}" has no build script.`);
-      } else if (script.cmd.startsWith('@') || script.cmd.startsWith('.')) {
+      } else if (allPlugins[script.cmd] && !allPlugins[script.cmd][script.type]) {
         handleConfigError(
-          `scripts[${script.id}]: Register plugin "${script.cmd}" in your Snowpack "plugins" config.`,
+          `scripts[${script.id}]: Plugin "${script.cmd}" has no ${script.type} script.`,
         );
-      }
-    }
-    if (script.type === 'bundle' && !script.plugin) {
-      if (allPlugins[script.cmd]?.bundle) {
-        script.plugin = allPlugins[script.cmd];
-      } else if (allPlugins[script.cmd] && !allPlugins[script.cmd].bundle) {
-        handleConfigError(`scripts[${script.id}]: Plugin "${script.cmd}" has no bundle script.`);
       } else if (script.cmd.startsWith('@') || script.cmd.startsWith('.')) {
         handleConfigError(
           `scripts[${script.id}]: Register plugin "${script.cmd}" in your Snowpack "plugins" config.`,
@@ -433,6 +490,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
       }
     }
   });
+
   return config;
 }
 
@@ -472,9 +530,9 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
       '[Snowpack v1 -> v2] top-level `rollup` config is now `installOptions.rollup`.',
     );
   }
-  if (rawConfig.installOptions?.include) {
+  if (rawConfig.installOptions?.include || cliFlags.include) {
     handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.include` is now `include` but its syntax has also changed!',
+      '[Snowpack v1 -> v2] `installOptions.include` is now handled via "mount" build scripts!',
     );
   }
   if (rawConfig.installOptions?.exclude) {
@@ -647,6 +705,5 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     }
   }
 
-  // if CLI flags present, apply those as overrides
   return normalizeConfig(mergedConfig);
 }

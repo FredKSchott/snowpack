@@ -1,11 +1,16 @@
-import fs from 'fs';
-import path from 'path';
-import execa from 'execa';
-import open from 'open';
-import got, {CancelableRequest, Response} from 'got';
+import rimraf from 'rimraf';
+import cacache from 'cacache';
 import globalCacheDir from 'cachedir';
+import etag from 'etag';
+import execa from 'execa';
 import projectCacheDir from 'find-cache-dir';
-import {SnowpackConfig} from './config';
+import findUp from 'find-up';
+import fs from 'fs';
+import got, {CancelableRequest, Response} from 'got';
+import open from 'open';
+import path from 'path';
+import {SnowpackConfig, BuildScript} from './config';
+import mkdirp from 'mkdirp';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
@@ -15,6 +20,7 @@ export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-1.4');
 export const PROJECT_CACHE_DIR = projectCacheDir({name: 'snowpack'});
 export const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'dev');
 export const BUILD_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'build');
+const LOCKFILE_HASH_FILE = '.hash';
 
 export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
 export interface ImportMap {
@@ -175,4 +181,46 @@ export async function openInBrowser(port: number, browser: string) {
   } else {
     browser === 'default' ? open(url) : open(url, {app: browser});
   }
+}
+
+export async function checkLockfileHash(dir: string) {
+  const lockfileLoc = await findUp(['package-lock.json', 'yarn.lock']);
+  if (!lockfileLoc) {
+    return true;
+  }
+  const hashLoc = path.join(dir, LOCKFILE_HASH_FILE);
+  const newLockHash = etag(await fs.promises.readFile(lockfileLoc, 'utf-8'));
+  const oldLockHash = await fs.promises.readFile(hashLoc, 'utf-8').catch(() => '');
+  return newLockHash === oldLockHash;
+}
+
+export async function updateLockfileHash(dir: string) {
+  const lockfileLoc = await findUp(['package-lock.json', 'yarn.lock']);
+  if (!lockfileLoc) {
+    return;
+  }
+  const hashLoc = path.join(dir, LOCKFILE_HASH_FILE);
+  const newLockHash = etag(await fs.promises.readFile(lockfileLoc));
+  await mkdirp(path.dirname(hashLoc));
+  await fs.promises.writeFile(hashLoc, newLockHash);
+}
+
+export async function clearCache() {
+  return Promise.all([
+    cacache.rm.all(RESOURCE_CACHE),
+    cacache.rm.all(BUILD_CACHE),
+    rimraf.sync(PROJECT_CACHE_DIR),
+  ]);
+}
+
+/**
+ * Given an import string and a list of scripts, return the mount script that matches the import.
+ *
+ * `mount ./src --to /_dist_` and `mount src --to /_dist_` match `src/components/Button`
+ * `mount src --to /_dist_` does not match `package/components/Button`
+ */
+export function findMatchingMountScript(scripts: BuildScript[], spec: string) {
+  return scripts
+    .filter((script) => script.type === 'mount')
+    .find(({args}) => spec.startsWith(args.fromDisk));
 }
