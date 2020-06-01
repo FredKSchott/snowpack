@@ -392,7 +392,7 @@ export async function command(commandOptions: CommandOptions) {
         return;
       }
       if (reqPath === '/__snowpack__/env.js') {
-        sendFile(req, res, generateEnvModule('development'));
+        sendFile(req, res, generateEnvModule('development'), '.js');
         return;
       }
 
@@ -430,7 +430,7 @@ export async function command(commandOptions: CommandOptions) {
           if (dirUrl === '/') {
             requestedFile = path.join(dirDisk, reqPath);
           } else if (reqPath.startsWith(dirUrl)) {
-            requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, '.'));
+            requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, './'));
           } else {
             continue;
           }
