@@ -213,6 +213,7 @@ module.exports = function plugin(config, args) {
 
         //Now that webpack is done, modify the html file to point to the newly compiled resources
         scriptEl.src = path.join(homepage, jsFile);
+        scriptEl.removeAttribute("type");
 
         if (cssFile) {
           let csslink = dom.window.document.createElement("link");
