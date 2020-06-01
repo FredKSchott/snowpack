@@ -25,6 +25,10 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 
 ## Official Snowpack Plugins
 
+### Dev Environment
+
+- [@snowpack/plugin-dotenv](/packages/plugin-dotenv)
+
 ### Build
 
 - [@snowpack/plugin-babel](/packages/plugin-babel)
