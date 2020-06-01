@@ -59,7 +59,7 @@ $ snowpack dev --no-bundle
 - **`extends`** | `string`
   - Inherit from a separate "base" config. Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
 - **`exclude`** | `string[]`
-  - Exclude any files from the `--include` directory. Defaults to exclude common test file locations: `['**/node_modules/**/*', **/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`
+  - Exclude any files from the `--include` directory. Defaults to exclude common test file locations: `['**/node_modules/**/*', '**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`
   - Useful for excluding tests and other unnecessary files from the final build. Supports glob pattern matching. 
 - **`install`** | `string[]`
   - Known dependencies to install with Snowpack. Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
