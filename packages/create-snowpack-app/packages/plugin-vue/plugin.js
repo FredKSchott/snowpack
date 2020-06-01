@@ -48,6 +48,7 @@ module.exports = function plugin(config, pluginOptions) {
         const templateCode = compiler.compileTemplate({
           filename: filePath,
           source: descriptor.template.content,
+          preprocessLang: descriptor.template.lang,
           compilerOptions: {
             scopeId: descriptor.styles.some((s) => s.scoped)
               ? `data-v-${id}`
