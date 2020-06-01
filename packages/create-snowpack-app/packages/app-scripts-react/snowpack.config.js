@@ -16,7 +16,7 @@ if (isTS) {
 
 module.exports = {
   scripts,
-  plugins: ["@snowpack/plugin-babel", "@snowpack/plugin-react-refresh"],
+  plugins: ["@snowpack/plugin-babel"],
   devOptions: {},
   installOptions: {
     installTypes: isTS,
