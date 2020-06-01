@@ -27,12 +27,12 @@
 import cacache from 'cacache';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
-import httpProxy from 'http-proxy';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
 import http from 'http';
+import HttpProxy from 'http-proxy';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
 import os from 'os';
@@ -147,16 +147,6 @@ export async function command(commandOptions: CommandOptions) {
     );
   } catch (err) {
     // no import-map found, safe to ignore
-  }
-
-  let proxy: undefined | httpProxy;
-  if (config.scripts.findIndex(({type}) => type === 'proxy') > -1) {
-    proxy = httpProxy.createProxyServer({});
-    proxy.on('error', function (err, req, res) {
-      const reqUrl = req.url!;
-      console.error(`✘ ${reqUrl}\n${err.message}`);
-      sendError(res, 502);
-    });
   }
 
   async function buildFile(
@@ -322,15 +312,25 @@ export async function command(commandOptions: CommandOptions) {
     });
   }
 
+  function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
+    const reqPath = decodeURI(url.parse(req.url!).pathname!);
+    return reqPath.startsWith(pathPrefix);
+  }
+
+  const defaultProxyEventHandlers = {
+    error: (err: Error, req: http.IncomingMessage, res: http.ServerResponse) => {
+      const reqUrl = req.url!;
+      console.error(`✘ ${reqUrl}\n${err.message}`);
+      sendError(res, 502);
+    },
+    close: (req: http.IncomingMessage, socket, head) => {
+      console.log('client disconnected');
+    },
+  };
+
   for (const workerConfig of config.scripts) {
     if (workerConfig.type === 'run') {
       runLintAll(workerConfig);
-    }
-    if (workerConfig.type === 'proxy') {
-      setTimeout(
-        () => messageBus.emit('WORKER_UPDATE', {id: workerConfig.id, state: ['DONE', 'green']}),
-        400,
-      );
     }
     if (workerConfig.type === 'mount') {
       mountedDirectories.push(getMountedDirectory(cwd, workerConfig));
@@ -340,6 +340,28 @@ export async function command(commandOptions: CommandOptions) {
       );
     }
   }
+
+  config.proxy.forEach(([pathPrefix, proxyOptions]) => {
+    if (proxyOptions.proxy) return;
+
+    proxyOptions.proxy = HttpProxy.createProxyServer(proxyOptions);
+
+    const proxyEvents = ['error', 'proxyReq', 'proxyReqWs', 'proxyRes', 'open', 'close'];
+    proxyEvents.forEach((eventName) => {
+      const optionName = `on${eventName.charAt(0).toUpperCase() + eventName.slice(1)}`;
+      const handler = proxyOptions[optionName] || defaultProxyEventHandlers[eventName];
+
+      if (typeof handler === 'function') {
+        proxyOptions.proxy.on(eventName, handler);
+      }
+    });
+
+    console.log(
+      `Proxying: ${pathPrefix}  ->  ${proxyOptions.target}${
+        !proxyOptions.ignorePath ? pathPrefix : ''
+      }`,
+    );
+  });
 
   http
     .createServer(async (req, res) => {
@@ -375,23 +397,17 @@ export async function command(commandOptions: CommandOptions) {
         return;
       }
 
-      if (proxy) {
-        for (const workerConfig of config.scripts) {
-          if (workerConfig.type !== 'proxy') {
-            continue;
+      const didProxy = config.proxy.some(([pathPrefix, proxyOptions]) => {
+        if (shouldProxy(pathPrefix, req)) {
+          try {
+            proxyOptions.proxy.web(req, res);
+          } catch (ex) {
+            console.log('error?', ex);
           }
-          if (reqPath.startsWith(workerConfig.args.toUrl)) {
-            const newPath = reqPath.substr(workerConfig.args.toUrl.length);
-            proxy.web(req, res, {
-              target: `${workerConfig.args.fromUrl}${newPath}`,
-              ignorePath: true,
-              secure: false,
-              changeOrigin: true,
-            });
-            return;
-          }
+          return true;
         }
-      }
+      });
+      if (didProxy) return;
 
       const attemptedFileLoads: string[] = [];
       function attemptLoadFile(requestedFile): Promise<null | string> {
@@ -673,24 +689,16 @@ export async function command(commandOptions: CommandOptions) {
 
       sendFile(req, res, wrappedResponse, responseFileExt);
     })
-    .on('upgrade', (req, socket, head) => {
-      const reqUrl = req.url!;
-      let reqPath = decodeURI(url.parse(reqUrl).pathname!);
-
-      if (proxy) {
-        for (const workerConfig of config.scripts) {
-          if (workerConfig.type !== 'proxy') {
-            continue;
-          }
-          if (reqPath.startsWith(workerConfig.args.toUrl)) {
-            const newPath = reqPath.substr(workerConfig.args.toUrl.length);
-            proxy.ws(req, socket, head, {
-              target: `${workerConfig.args.fromUrl}${newPath}`,
-              ignorePath: true,
-            });
-          }
+    .on('upgrade', (req: http.IncomingMessage, socket, head) => {
+      config.proxy.forEach(([pathPrefix, proxyOptions]) => {
+        if (
+          (proxyOptions.ws || proxyOptions.target.startsWith('ws')) &&
+          shouldProxy(pathPrefix, req)
+        ) {
+          proxyOptions.proxy.ws(req, socket, head);
+          console.log('Upgrading to WebSocket');
         }
-      }
+      });
     })
     .listen(port);
 
