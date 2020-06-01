@@ -87,7 +87,8 @@ module.exports = function plugin(config, args) {
         context: srcDirectory,
         resolve: {
           alias: {
-            "/web_modules": path.join(srcDirectory, "web_modules/"),
+            "/__snowpack__": path.join(srcDirectory, "__snowpack__"),
+            "/web_modules": path.join(srcDirectory, "web_modules"),
           },
         },
         module: {

@@ -57,26 +57,22 @@ module.exports = function (source) {
   let found = false;
   let rewrittenSource = source.replace(regex, () => {
     found = true;
-    return `({ url: getAbsoluteUrl('${browserPath}/${fileName}') })`;
+    return `({ url: getAbsoluteUrl('${browserPath}/${fileName}'), env: __SNOWPACK_ENV__ })`;
   });
 
   if (found) {
     return `
       function getAbsoluteUrl(relativeUrl) {
         const publicPath = __webpack_public_path__;
-
         let url = '';
-
         if (!publicPath || publicPath.indexOf('://') < 0) {
           url += window.location.protocol + '//' + window.location.host;
         }
-
         if (publicPath) {
           url += publicPath;
         } else {
           url += '/';
         }
-
         return url + relativeUrl;
       }
 ${rewrittenSource}`;
