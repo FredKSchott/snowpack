@@ -690,7 +690,7 @@ export async function command(commandOptions: CommandOptions) {
     })
     .listen(port);
 
-  const hmrEngine = new EsmHmrEngine(server);
+  const hmrEngine = new EsmHmrEngine({server});
 
   // Live Reload + File System Watching
   let isLiveReloadPaused = false;
