@@ -219,8 +219,8 @@ export async function clearCache() {
  * `mount ./src --to /_dist_` and `mount src --to /_dist_` match `src/components/Button`
  * `mount src --to /_dist_` does not match `package/components/Button`
  */
-export function findImportSpecMountScript(scripts: BuildScript[], spec: string) {
+export function findMatchingMountScript(scripts: BuildScript[], spec: string) {
   return scripts
-    .filter((x) => x.type === 'mount')
-    .find((x) => spec.startsWith(path.normalize(x.args.fromDisk)));
+    .filter((script) => script.type === 'mount')
+    .find(({args}) => spec.startsWith(args.fromDisk));
 }

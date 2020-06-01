@@ -37,18 +37,16 @@ if (import.meta.hot) {
 
 ### Import CSS
 
-Snowpack supports basic CSS imports inside of your JavaScript files. While this isn't natively supported by any browser today, Snowpack's dev server and build pipeline both handle this for you.
-
 ```js
 // Loads './style.css' onto the page
 import './style.css' 
 ```
 
+Snowpack supports basic CSS imports inside of your JavaScript files. While this isn't natively supported by any browser today, Snowpack's dev server and build pipeline both handle this for you.
+
 Snowpack also supports any popular CSS-in-JS library. If you prefer to avoid these non-standard CSS imports, check out [csz](https://github.com/lukejacksonn/csz). CSZ is a run-time CSS module library with support for SASS-like syntax/selectors.
 
 ### Import CSS Modules
-
-Snowpack supports CSS Modules for CSS files using the `[name].module.css` naming convention. CSS Modules allow you to scope your CSS to unique class names & identifiers. CSS Modules return a default export (`styles` in the example below) that maps the original identifier to it's new, scoped value.
 
 ```css
 /* src/style.module.css */
@@ -66,15 +64,17 @@ import styles from './style.module.css'
 return <div className={styles.error}>Your Error Message</div>;
 ```
 
+Snowpack supports CSS Modules for CSS files using the `[name].module.css` naming convention. CSS Modules allow you to scope your CSS to unique class names & identifiers. CSS Modules return a default export (`styles` in the example below) that maps the original identifier to it's new, scoped value.
+
 ### Import JSON
-
-Snowpack supports importing JSON via ESM import. While this isn't yet supported in most browsers, it's a huge convenience over having vs. use fetch() directly.
-
 
 ```js
 // JSON is returned as parsed via the default export
 import json from './data.json' 
 ```
+
+Snowpack supports importing JSON via ESM import. While this isn't yet supported in most browsers, it's a huge convenience over having vs. use fetch() directly.
+
 
 ### Import Images & Other Assets
 
@@ -88,30 +88,42 @@ import svg from './image.svg'; // svg === '/src/image.svg'
 
 All other assets not explicitly mentioned above can be imported to get a URL reference to the asset. This can be useful for referencing assets inside of your JS, like creating an image element with a `src` attribute pointing to that image.
 
-### Top-level Imports
+### Project-Relative Imports
 
-Say goodbye to long relative imports like `../../../../components/Button` and use mount directories to transform imports
 
-```jsx
-// snowpack.config.json
-{
-  "scripts": {
-    "mount:foo": "mount public --to /",
-    "mount:bar": "mount src --to /_dist_"
-  }
-}
+```js
+// Instead of this:
+import Button from `../../../../components/Button`;
 
-// File.jsx
-import img from 'public/image.png'; // 'public/' is replaced with '/'
-import Button from 'src/components/Button'; // 'src/' is replaced with '/_dist_/'
-import Button from 'material-ui/core/Button'; // Still works
+// You can do this:
+import Button from `src/components/Button`;
 ```
 
-If a top-level import does not match a mount directory, it will be treated as a package and won't be transformed
+Snowpack supports project-relative imports of any mounted directory. Both styles of imports are supported, so you are free to use whichever you prefer.
+
+Note that this only works for directories that have been mounted via a `mount:*` build script. If an import doesn't match a mounted directory, then it will be treated as a package. [Learn more about the "mount" script type.](#all-script-types)
+
+**TypeScript Users:** You'll need to configure your `tsconfig.json` `paths` to get proper types from project-relative imports. Learn more about ["path mappings"](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping).
+
+```js
+// tsconfig.json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      // Define either ONE of these...
+      // 1. General support: matches everything relative to the project directory
+      "*": ["*"],
+      // 2. Explicit support: match only your mounted directories (Recommended!)
+      "src/*": ["src/*"],
+      "public/*": ["public/*"],
+    }
+  }
+}
+```
+
 
 ### Dev HTTP Proxy
-
-Snowpack can proxy requests from the dev server to external URLs and APIs. This can help you mimic your production environment during development.
 
 ```js
 // snowpack.config.json
@@ -122,6 +134,8 @@ Snowpack can proxy requests from the dev server to external URLs and APIs. This 
   }
 }
 ```
+
+Snowpack can proxy requests from the dev server to external URLs and APIs. Making API requests directly the dev server can help you mimic your production environment during development.
 
 See the [Proxy Options](#proxy-options) section for more information and full set of configuration options.
 

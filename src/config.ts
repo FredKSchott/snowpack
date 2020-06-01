@@ -335,7 +335,10 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
       }
       const dirDisk = cmdArr[0];
       const dirUrl = to || `/${cmdArr[0]}`;
-      newScriptConfig.args = {fromDisk: dirDisk, toUrl: dirUrl};
+      newScriptConfig.args = {
+        fromDisk: path.posix.normalize(dirDisk + '/'),
+        toUrl: path.posix.normalize(dirUrl + '/'),
+      };
     }
     processedScripts.push(newScriptConfig);
   }
