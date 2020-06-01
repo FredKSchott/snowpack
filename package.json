@@ -110,6 +110,6 @@
     "markdown-it": "^10.0.0",
     "markdown-it-anchor": "^5.2.5",
     "prettier": "^2.0.2",
-    "typescript": "^3.6.4"
+    "typescript": "^3.9.3"
   }
 }

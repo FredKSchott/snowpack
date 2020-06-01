@@ -56,14 +56,7 @@ export async function command(commandOptions: CommandOptions) {
 
   for (const workerConfig of config.scripts) {
     const {type, match} = workerConfig;
-    if (
-      type === 'build' ||
-      type === 'run' ||
-      type === 'mount' ||
-      // FUTURE: Remove this on next major release
-      (type as any) === 'proxy' ||
-      type === 'bundle'
-    ) {
+    if (type === 'build' || type === 'run' || type === 'mount' || type === 'bundle') {
       relevantWorkers.push(workerConfig);
     }
     if (type === 'build') {
@@ -118,18 +111,6 @@ export async function command(commandOptions: CommandOptions) {
     relDest = `.${path.sep}` + relDest;
   }
   paint(messageBus, relevantWorkers, {dest: relDest}, undefined);
-
-  for (const workerConfig of relevantWorkers) {
-    const {id, type} = workerConfig;
-    // FUTURE: Remove this conditional on next major release
-    if ((type as any) !== 'proxy') {
-      continue;
-    }
-    messageBus.emit('WORKER_UPDATE', {
-      id,
-      state: ['SKIP', 'dim'],
-    });
-  }
 
   if (!isBundled) {
     messageBus.emit('WORKER_UPDATE', {

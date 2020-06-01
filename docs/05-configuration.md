@@ -113,4 +113,25 @@ $ snowpack dev --no-bundle
 
 #### Proxy Options
 
-TODO: fill in
+```js
+// snowpack.config.json
+{
+  "proxy": {
+    // Short form:
+    "/api/01": "https://pokeapi.co/api/v2/",
+    // Long form:
+    "/api/02": { 
+      on: { proxyReq: (p, req, res) => /* Custom event handlers (JS only) */ },
+      /* Custom http-proxy options */
+    }
+  }
+}
+```
+
+If desired, `"proxy"` is where you configure the proxy behavior of your dev server. Define different paths that should be proxied, and where they should be proxied to. 
+
+The short form of a full URL string is enough for general use. For advanced configuration, you can use the object format to set all options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
+
+`on` is a special Snowpack-only property for setting custom event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
+
+This configuration has no effect on the final build.

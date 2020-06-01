@@ -67,6 +67,21 @@ import srcFileExtensionMapping from './src-file-extension-mapping';
 
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
+const DEFAULT_PROXY_ERROR_HANDLER = (
+  err: Error,
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+) => {
+  const reqUrl = req.url!;
+  console.error(`✘ ${reqUrl}\n${err.message}`);
+  sendError(res, 502);
+};
+
+function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
+  const reqPath = decodeURI(url.parse(req.url!).pathname!);
+  return reqPath.startsWith(pathPrefix);
+}
+
 function getEncodingType(ext: string): 'utf-8' | 'binary' {
   if (ext === '.js' || ext === '.css' || ext === '.html') {
     return 'utf-8';
@@ -312,22 +327,6 @@ export async function command(commandOptions: CommandOptions) {
     });
   }
 
-  function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
-    const reqPath = decodeURI(url.parse(req.url!).pathname!);
-    return reqPath.startsWith(pathPrefix);
-  }
-
-  const defaultProxyEventHandlers = {
-    error: (err: Error, req: http.IncomingMessage, res: http.ServerResponse) => {
-      const reqUrl = req.url!;
-      console.error(`✘ ${reqUrl}\n${err.message}`);
-      sendError(res, 502);
-    },
-    close: (req: http.IncomingMessage, socket, head) => {
-      console.log('client disconnected');
-    },
-  };
-
   for (const workerConfig of config.scripts) {
     if (workerConfig.type === 'run') {
       runLintAll(workerConfig);
@@ -341,21 +340,15 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
+  const devProxies = {};
   config.proxy.forEach(([pathPrefix, proxyOptions]) => {
-    if (proxyOptions.proxy) return;
-
-    proxyOptions.proxy = HttpProxy.createProxyServer(proxyOptions);
-
-    const proxyEvents = ['error', 'proxyReq', 'proxyReqWs', 'proxyRes', 'open', 'close'];
-    proxyEvents.forEach((eventName) => {
-      const optionName = `on${eventName.charAt(0).toUpperCase() + eventName.slice(1)}`;
-      const handler = proxyOptions[optionName] || defaultProxyEventHandlers[eventName];
-
-      if (typeof handler === 'function') {
-        proxyOptions.proxy.on(eventName, handler);
-      }
-    });
-
+    const proxyServer = (devProxies[pathPrefix] = HttpProxy.createProxyServer(proxyOptions));
+    for (const [onEventName, eventHandler] of Object.entries(proxyOptions.on)) {
+      proxyServer.on(onEventName, eventHandler as () => void);
+    }
+    if (!proxyOptions.on.error) {
+      proxyServer.on('error', DEFAULT_PROXY_ERROR_HANDLER);
+    }
     console.log(
       `Proxying: ${pathPrefix}  ->  ${proxyOptions.target}${
         !proxyOptions.ignorePath ? pathPrefix : ''
@@ -397,17 +390,13 @@ export async function command(commandOptions: CommandOptions) {
         return;
       }
 
-      const didProxy = config.proxy.some(([pathPrefix, proxyOptions]) => {
-        if (shouldProxy(pathPrefix, req)) {
-          try {
-            proxyOptions.proxy.web(req, res);
-          } catch (ex) {
-            console.log('error?', ex);
-          }
-          return true;
+      for (const [pathPrefix] of config.proxy) {
+        if (!shouldProxy(pathPrefix, req)) {
+          continue;
         }
-      });
-      if (didProxy) return;
+        devProxies[pathPrefix].web(req, res);
+        return;
+      }
 
       const attemptedFileLoads: string[] = [];
       function attemptLoadFile(requestedFile): Promise<null | string> {
@@ -691,11 +680,9 @@ export async function command(commandOptions: CommandOptions) {
     })
     .on('upgrade', (req: http.IncomingMessage, socket, head) => {
       config.proxy.forEach(([pathPrefix, proxyOptions]) => {
-        if (
-          (proxyOptions.ws || proxyOptions.target.startsWith('ws')) &&
-          shouldProxy(pathPrefix, req)
-        ) {
-          proxyOptions.proxy.ws(req, socket, head);
+        const isWebSocket = proxyOptions.ws || proxyOptions.target?.startsWith('ws');
+        if (isWebSocket && shouldProxy(pathPrefix, req)) {
+          devProxies[pathPrefix].ws(req, socket, head);
           console.log('Upgrading to WebSocket');
         }
       });

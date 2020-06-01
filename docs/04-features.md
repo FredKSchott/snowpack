@@ -89,21 +89,21 @@ import svg from './image.svg'; // svg === '/src/image.svg'
 All other assets not explicitly mentioned above can be imported to get a URL reference to the asset. This can be useful for referencing assets inside of your JS, like creating an image element with a `src` attribute pointing to that image.
 
 
-### Proxy Requests
+### Dev HTTP Proxy
 
-Snowpack's dev server can proxy requests during development to match your production host environment. If you expect a certain API to be available on the same host as your web application, you can create a proxy via a `proxy` [Build Script](#build-scripts):
+Snowpack can proxy requests from the dev server to external URLs and APIs. This can help you mimic your production environment during development.
 
 ```js
 // snowpack.config.json
 // Example: Proxy "/api/pokemon/ditto" -> "https://pokeapi.co/api/v2/pokemon/ditto"
 {
-  "scripts": {
-    "proxy:api": "proxy https://pokeapi.co/api/v2 --to /api"
+  "proxy": {
+    "/api": "https://pokeapi.co/api/v2",
   }
 }
 ```
 
-Learn more about [Build Script integrations](#build-scripts).
+See the [Proxy Options](#proxy-options) section for more information and full set of configuration options.
 
 
 ### JSX

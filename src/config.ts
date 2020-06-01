@@ -7,6 +7,7 @@ import {Plugin as RollupPlugin} from 'rollup';
 import yargs from 'yargs-parser';
 import {esbuildPlugin} from './commands/esbuildPlugin';
 import {BUILD_DEPENDENCIES_DIR, DEV_DEPENDENCIES_DIR} from './util';
+import type HttpProxy from 'http-proxy';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -74,7 +75,12 @@ export type BuildScript = {
   args?: any;
 };
 
-export type ProxyOptions = Record<string, any>;
+export type ProxyOptions = HttpProxy.ServerOptions & {
+  // Fix broken type that says target can't be a string
+  target?: string;
+  // Custom on: {} event handlers
+  on: Record<string, Function>;
+};
 export type Proxy = [string, ProxyOptions];
 
 // interface this library uses internally
@@ -206,9 +212,6 @@ const configSchema = {
     },
     proxy: {
       type: 'object',
-      additionalProperties: {
-        oneOf: [{type: 'string'}, {type: 'object'}],
-      },
     },
   },
 };
@@ -255,6 +258,41 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
   return result;
 }
 
+/**
+ * Convert deprecated proxy scripts to
+ * FUTURE: Remove this on next major release
+ */
+function handleLegacyProxyScripts(config: any) {
+  for (const scriptId in config.scripts as any) {
+    if (!scriptId.startsWith('proxy:')) {
+      continue;
+    }
+    const cmdArr = config.scripts[scriptId]!.split(/\s+/);
+    if (cmdArr[0] !== 'proxy') {
+      handleConfigError(`scripts[${scriptId}] must use the proxy command`);
+    }
+    cmdArr.shift();
+    const {to, _} = yargs(cmdArr);
+    if (_.length !== 1) {
+      handleConfigError(
+        `scripts[${scriptId}] must use the format: "proxy http://SOME.URL --to /PATH"`,
+      );
+    }
+    if (to && to[0] !== '/') {
+      handleConfigError(
+        `scripts[${scriptId}]: "--to ${to}" must be a URL path, and start with a "/"`,
+      );
+    }
+    const {toUrl, fromUrl} = {fromUrl: _[0], toUrl: to};
+    if (config.proxy[toUrl]) {
+      handleConfigError(`scripts[${scriptId}]: Cannot overwrite proxy[${toUrl}].`);
+    }
+    (config.proxy as any)[toUrl] = fromUrl;
+    delete config.scripts[scriptId];
+  }
+  return config;
+}
+
 type RawScripts = Record<string, string>;
 function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
   const processedScripts: BuildScript[] = [];
@@ -298,26 +336,6 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
       const dirDisk = cmdArr[0];
       const dirUrl = to || `/${cmdArr[0]}`;
       newScriptConfig.args = {fromDisk: dirDisk, toUrl: dirUrl};
-    }
-    // FUTURE: Remove this on next major version
-    if ((scriptType as any) === 'proxy') {
-      const cmdArr = cmd.split(/\s+/);
-      if (cmdArr[0] !== 'proxy') {
-        handleConfigError(`scripts[${scriptId}] must use the proxy command`);
-      }
-      cmdArr.shift();
-      const {to, _} = yargs(cmdArr);
-      if (_.length !== 1) {
-        handleConfigError(
-          `scripts[${scriptId}] must use the format: "proxy http://SOME.URL --to /PATH"`,
-        );
-      }
-      if (to && to[0] !== '/') {
-        handleConfigError(
-          `scripts[${scriptId}]: "--to ${to}" must be a URL path, and start with a "/"`,
-        );
-      }
-      newScriptConfig.args = {fromUrl: _[0], toUrl: to};
     }
     processedScripts.push(newScriptConfig);
   }
@@ -378,22 +396,28 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
 }
 
 type RawProxies = Record<string, string | ProxyOptions>;
-function normalizeProxies(proxies: RawProxies) {
-  return Object.entries(proxies).reduce<Proxy[]>((acc, [context, options]) => {
-    if (typeof options !== 'string') return [...acc, [context, options]];
-    return [
-      ...acc,
-      [
-        context,
+function normalizeProxies(proxies: RawProxies): Proxy[] {
+  return Object.entries(proxies).map(([pathPrefix, options]) => {
+    if (typeof options !== 'string') {
+      return [
+        pathPrefix,
         {
-          target: options,
-          ignorePath: true,
-          secure: false,
-          changeOrigin: true,
+          //@ts-ignore - Seems to be a strange 3.9.x bug
+          on: {},
+          ...options,
         },
-      ],
+      ];
+    }
+    return [
+      pathPrefix,
+      {
+        on: {},
+        target: options,
+        ignorePath: true,
+        changeOrigin: true,
+      },
     ];
-  }, []);
+  });
 }
 
 /** resolve --dest relative to cwd, etc. */
@@ -444,6 +468,8 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   if (config.devOptions.bundle === true && !config.scripts['bundle:*']) {
     handleConfigError(`--bundle set to true, but no "bundle:*" script/plugin was provided.`);
   }
+  config = handleLegacyProxyScripts(config);
+  config.proxy = normalizeProxies(config.proxy as any);
   config.scripts = normalizeScripts(cwd, config.scripts as any);
   config.scripts.forEach((script: BuildScript, i) => {
     if (script.plugin) return;
@@ -462,24 +488,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
         );
       }
     }
-
-    /**
-     * Convert to proxy options
-     * FUTURE: Remove this on next major release
-     */
-    if ((script.type as any) === 'proxy') {
-      const {toUrl, fromUrl} = script.args;
-      if (config.proxy[toUrl]) {
-        handleConfigError(`scripts[${script.id}]: Cannot overwrite proxy[${toUrl}].`);
-      } else {
-        config.proxy[toUrl] = fromUrl;
-      }
-
-      config.scripts.splice(i, 1);
-    }
   });
-
-  config.proxy = normalizeProxies(config.proxy as any);
 
   return config;
 }
@@ -695,6 +704,5 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     }
   }
 
-  // if CLI flags present, apply those as overrides
   return normalizeConfig(mergedConfig);
 }
