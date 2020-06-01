@@ -123,23 +123,6 @@ Note that this only works for directories that have been mounted via a `mount:*`
 ```
 
 
-### Dev HTTP Proxy
-
-```js
-// snowpack.config.json
-// Example: Proxy "/api/pokemon/ditto" -> "https://pokeapi.co/api/v2/pokemon/ditto"
-{
-  "proxy": {
-    "/api": "https://pokeapi.co/api/v2",
-  }
-}
-```
-
-Snowpack can proxy requests from the dev server to external URLs and APIs. Making API requests directly the dev server can help you mimic your production environment during development.
-
-See the [Proxy Options](#proxy-options) section for more information and full set of configuration options.
-
-
 ### JSX
 
 #### Compile to JavaScript
@@ -203,6 +186,59 @@ You can integrate TypeScript type checking with Snowpack via a [Build Script int
   }
 }
 ```
+
+### Environment Variables
+
+```js
+// `import.meta.env` - Read process.env variables in your web app
+fetch(`${import.meta.env.PUBLIC_API_URL}/users`).then(...)
+
+// Supports destructuring as well:
+const {PUBLIC_API_URL} = import.meta.env;
+fetch(`${PUBLIC_API_URL}/users`).then(...)
+
+// Instead of `import.meta.env.NODE_ENV` use `import.meta.env.MODE`
+if (import.meta.env.MODE === 'development') {
+  // ...
+```
+
+You can read environment variables directly in your web application via `import.meta.env`. If you've ever used `process.env` in Create React App or any Webpack application, this behaves exactly the same.
+
+For your safety, Snowpack only supports environment variables that begin with `PUBLIC_*`. We do this because everything in your web application is sent to the browser, and we don't want you to accidentally share sensitive keys/env variables with your public web application. Prefixing your frontend web env variables with `PUBLIC_` is a good reminder that they will be shared with the world. 
+
+`import.meta.env.MODE` and `import.meta.env.NODE_ENV` are also both set to the current `process.env.NODE_ENV` value, so that you can change app behavior based on dev vs. build. The env value is set to `development` during `snowpack dev` and `production` during `snowpack build`. Use this in your application instead of `process.env.NODE_ENV`. 
+
+**Remember:** that these env variables are statically injected into your application for everyone at **build time**, and not runtime.
+
+#### `.env` File Support
+
+```js
+// snowpack.config.json
+{
+  "plugins": ["@snowpack/plugin-dotenv"]
+}
+```
+
+Add the `@snowpack/plugin-dotenv` plugin to your dev environment to automatically load environment variables from your project `.env` files. Visit the [plugin README](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-dotenv) to learn more.
+
+
+
+### Dev Request Proxy
+
+```js
+// snowpack.config.json
+// Example: Proxy "/api/pokemon/ditto" -> "https://pokeapi.co/api/v2/pokemon/ditto"
+{
+  "proxy": {
+    "/api": "https://pokeapi.co/api/v2",
+  }
+}
+```
+
+Snowpack can proxy requests from the dev server to external URLs and APIs. Making API requests directly the dev server can help you mimic your production environment during development.
+
+See the [Proxy Options](#proxy-options) section for more information and full set of configuration options.
+
 
 ### Import Maps
 

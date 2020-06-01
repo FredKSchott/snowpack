@@ -22,7 +22,8 @@ import {
   isDirectoryImport,
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
-  wrapJSModuleResponse,
+  wrapImportMeta,
+  generateEnvModule,
 } from './build-util';
 import {stopEsbuild} from './esbuildPlugin';
 import {command as installCommand} from './install';
@@ -83,6 +84,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const buildDirectoryLoc = isBundled ? path.join(cwd, `.build`) : config.devOptions.out;
+  const internalFilesBuildLoc = path.join(buildDirectoryLoc, '__snowpack__');
   const finalDirectoryLoc = config.devOptions.out;
 
   if (config.scripts.length <= 1) {
@@ -91,11 +93,12 @@ export async function command(commandOptions: CommandOptions) {
     return;
   }
 
-  rimraf.sync(finalDirectoryLoc);
-  mkdirp.sync(finalDirectoryLoc);
+  rimraf.sync(buildDirectoryLoc);
+  mkdirp.sync(buildDirectoryLoc);
+  mkdirp.sync(internalFilesBuildLoc);
   if (finalDirectoryLoc !== buildDirectoryLoc) {
-    rimraf.sync(buildDirectoryLoc);
-    mkdirp.sync(buildDirectoryLoc);
+    rimraf.sync(finalDirectoryLoc);
+    mkdirp.sync(finalDirectoryLoc);
   }
 
   console.log = (...args) => {
@@ -165,6 +168,9 @@ export async function command(commandOptions: CommandOptions) {
     });
     await workerPromise;
   }
+
+  // Write the `import.meta.env` contents file to disk
+  await fs.writeFile(path.join(internalFilesBuildLoc, 'env.js'), generateEnvModule('production'));
 
   const mountDirDetails: any[] = relevantWorkers
     .map((scriptConfig) => {
@@ -331,7 +337,7 @@ export async function command(commandOptions: CommandOptions) {
             });
             return `/web_modules/${spec}.js`;
           });
-          code = await wrapJSModuleResponse(code);
+          code = wrapImportMeta(code, {env: true, hmr: false});
         }
         await fs.mkdir(path.dirname(outPath), {recursive: true});
         await fs.writeFile(outPath, code);
