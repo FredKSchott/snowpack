@@ -11,8 +11,8 @@
   "scripts": {
     "start": "snowpack dev",
     "build": "snowpack build",
-    "format": "prettier --write 'src/**/*.ts'",
-    "lint": "prettier --check 'src/**/*.ts'",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "prettier --check \"src/**/*.ts\"",
     "test": "echo \"This template does not include a test runner by default.\" && exit 1"
   },
   "dependencies": {
