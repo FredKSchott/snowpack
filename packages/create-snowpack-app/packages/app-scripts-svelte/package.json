@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-svelte",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   "dependencies": {
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.0",
-    "@snowpack/plugin-dotenv": "^1.0.0",
+    "@snowpack/plugin-dotenv": "^1.1.0",
     "@snowpack/plugin-svelte": "^1.0.6",
     "babel-jest": "^25.4.0",
     "jest-transform-svelte": "^2.1.1"

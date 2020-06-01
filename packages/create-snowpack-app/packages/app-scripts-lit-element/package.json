@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-lit-element",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"
@@ -12,7 +12,7 @@
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-decorators": "^7.8.3",
     "@babel/preset-typescript": "7.9.0",
-    "@snowpack/plugin-dotenv": "^1.0.0"
+    "@snowpack/plugin-dotenv": "^1.1.0"
   },
   "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-react",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"
@@ -12,7 +12,7 @@
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
     "@snowpack/plugin-babel": "^1.0.0",
-    "@snowpack/plugin-dotenv": "^1.0.0",
+    "@snowpack/plugin-dotenv": "^1.1.0",
     "babel-jest": "^25.4.0",
     "babel-preset-react-app": "^9.1.2",
     "react-app-polyfill": "^1.0.6"
