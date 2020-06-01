@@ -58,7 +58,7 @@ async function verifyProjectTemplate(dir) {
     console.error(
       `\n${chalk.red(
         "[ERROR]"
-      )} Template is not properly marked as a CSA template (Missing "csa-template" keyword in package.json).`
+      )} The template is not a CSA template (missing "csa-template" keyword in package.json), check the template name to make sure you are using the current template name.`
     );
     console.error(`${chalk.red("[ERROR]")} Cannot continue safely. Exiting...`);
     process.exit(1);
