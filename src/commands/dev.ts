@@ -50,6 +50,7 @@ import {
   isYarn,
   openInBrowser,
   resolveDependencyManifest,
+  findImportSpecMountScript,
   updateLockfileHash,
 } from '../util';
 import {
@@ -212,6 +213,11 @@ export async function command(commandOptions: CommandOptions) {
       builtFileResult.result = await transformEsmImports(builtFileResult.result, (spec) => {
         if (spec.startsWith('http')) {
           return spec;
+        }
+        let mountScript = findImportSpecMountScript(config.scripts, spec);
+        if (mountScript) {
+          let {fromDisk, toUrl} = mountScript.args;
+          spec = spec.replace(path.normalize(fromDisk + '/'), path.normalize(toUrl + '/'));
         }
         if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
           const ext = path.extname(spec).substr(1);

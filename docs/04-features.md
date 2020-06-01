@@ -88,6 +88,26 @@ import svg from './image.svg'; // svg === '/src/image.svg'
 
 All other assets not explicitly mentioned above can be imported to get a URL reference to the asset. This can be useful for referencing assets inside of your JS, like creating an image element with a `src` attribute pointing to that image.
 
+### Top-level Imports
+
+Say goodbye to long relative imports like `../../../../components/Button` and use mount directories to transform imports
+
+```jsx
+// snowpack.config.json
+{
+  "scripts": {
+    "mount:foo": "mount public --to /",
+    "mount:bar": "mount src --to /_dist_"
+  }
+}
+
+// File.jsx
+import img from 'public/image.png'; // 'public/' is replaced with '/'
+import Button from 'src/components/Button'; // 'src/' is replaced with '/_dist_/'
+import Button from 'material-ui/core/Button'; // Still works
+```
+
+If a top-level import does not match a mount directory, it will be treated as a package and won't be transformed
 
 ### Dev HTTP Proxy
 

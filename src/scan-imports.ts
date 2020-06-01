@@ -7,7 +7,7 @@ import nodePath from 'path';
 import stripComments from 'strip-comments';
 import validatePackageName from 'validate-npm-package-name';
 import {SnowpackConfig} from './config';
-import {isTruthy} from './util';
+import {isTruthy, findImportSpecMountScript} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -255,9 +255,13 @@ export async function scanImports(
       return null;
     }),
   );
-  return loadedFiles
-    .filter(isTruthy)
-    .map(([fileLoc, code]) => parseCodeForInstallTargets(fileLoc, code))
-    .reduce((flat, item) => flat.concat(item), [])
-    .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier));
+  return (
+    loadedFiles
+      .filter(isTruthy)
+      .map(([fileLoc, code]) => parseCodeForInstallTargets(fileLoc, code))
+      .reduce((flat, item) => flat.concat(item), [])
+      // Ignore bare imports that match a mount directory. They're not package imports
+      .filter((target) => !findImportSpecMountScript(scripts, target.specifier))
+      .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier))
+  );
 }

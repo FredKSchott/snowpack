@@ -9,7 +9,7 @@ import fs from 'fs';
 import got, {CancelableRequest, Response} from 'got';
 import open from 'open';
 import path from 'path';
-import {SnowpackConfig} from './config';
+import {SnowpackConfig, BuildScript} from './config';
 import mkdirp from 'mkdirp';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
@@ -211,4 +211,16 @@ export async function clearCache() {
     cacache.rm.all(BUILD_CACHE),
     rimraf.sync(PROJECT_CACHE_DIR),
   ]);
+}
+
+/**
+ * Given an import string and a list of scripts, return the mount script that matches the import.
+ *
+ * `mount ./src --to /_dist_` and `mount src --to /_dist_` match `src/components/Button`
+ * `mount src --to /_dist_` does not match `package/components/Button`
+ */
+export function findImportSpecMountScript(scripts: BuildScript[], spec: string) {
+  return scripts
+    .filter((x) => x.type === 'mount')
+    .find((x) => spec.startsWith(path.normalize(x.args.fromDisk)));
 }
