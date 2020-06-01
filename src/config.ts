@@ -480,7 +480,7 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
       '[Snowpack v1 -> v2] `installOptions.include` is now handled via "mount" build scripts!',
     );
   }
-  if (rawConfig.installOptions?.exclude || cliFlags.exclude) {
+  if (rawConfig.installOptions?.exclude) {
     handleDeprecatedConfigError('[Snowpack v1 -> v2] `installOptions.exclude` is now `exclude`.');
   }
   if (Array.isArray(rawConfig.webDependencies)) {
