@@ -14,8 +14,12 @@ jobs:
           ref: ${{ github.head_ref }}
       - uses: actions/setup-node@v1
         with:
-          node-version: "12.x"
-      - name: Format
+          node-version: "12.x" 
+      - name: npm install
+        run: npm ci --no-optional
+        env:
+          CI: true
+      - name: npm run format
         run: npm run format
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
