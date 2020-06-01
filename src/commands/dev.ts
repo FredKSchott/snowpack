@@ -355,11 +355,6 @@ export async function command(commandOptions: CommandOptions) {
     if (!proxyOptions.on.error) {
       proxyServer.on('error', DEFAULT_PROXY_ERROR_HANDLER);
     }
-    console.log(
-      `Proxying: ${pathPrefix}  ->  ${proxyOptions.target}${
-        !proxyOptions.ignorePath ? pathPrefix : ''
-      }`,
-    );
   });
 
   http
