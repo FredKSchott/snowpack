@@ -38,6 +38,7 @@ import npmRunPath from 'npm-run-path';
 import os from 'os';
 import path from 'path';
 import url from 'url';
+import detectPort from 'detect-port';
 import {BuildScript, SnowpackPluginBuildResult} from '../config';
 import {EsmHmrEngine} from '../hmr-server-engine';
 import {scanCodeImportsExports, transformEsmImports} from '../rewrite-imports';
@@ -144,6 +145,23 @@ export async function command(commandOptions: CommandOptions) {
   const filesBeingBuilt = new Map<string, Promise<SnowpackPluginBuildResult>>();
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
+
+  // Check whether the port is available
+  const availablePort = await detectPort(port);
+  const isPortAvailable = port === availablePort;
+
+  if (!isPortAvailable) {
+    console.error();
+    console.error(
+      chalk.red(
+        `  ✘ port ${chalk.bold(port)} is not available. use ${chalk.bold(
+          '--port',
+        )} to specify a different port.`,
+      ),
+    );
+    console.error();
+    process.exit(1);
+  }
 
   // Set the proper install options, in case an install is needed.
   commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
