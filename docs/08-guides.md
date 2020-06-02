@@ -136,7 +136,7 @@ Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installatio
 
 [Sass](https://www.sass-lang.com/) is a stylesheet language that’s compiled to CSS. It allows you to use variables, nested rules, mixins, functions, and more, all with a fully CSS-compatible syntax. Sass helps keep large stylesheets well-organized and makes it easy to share design within and across projects.
 
-[Check out the official Sass CLI documentation](https://sass-lang.com/documentation/cli/dart-sass) for a list of all available arguments.
+[Check out the official Sass CLI documentation](https://sass-lang.com/documentation/cli/dart-sass) for a list of all available arguments. You can also use the [node-sass](https://www.npmjs.com/package/node-sass) CLI if you prefer to install Sass from npm.
 
 **Note:** Sass should be run as a "run:" script (see example above) to take advantage of the Sass CLI's partial handling. A ``"build:scss"` script would build each file individually as its served, but couldn't handle Sass partials via `@use` due to the fact that Sass bundles these into the importer file CSS.
 
