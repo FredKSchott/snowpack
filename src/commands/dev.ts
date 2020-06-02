@@ -726,7 +726,11 @@ export async function command(commandOptions: CommandOptions) {
       if (!updateUrl.endsWith('.js')) {
         updateUrl += '.proxy.js';
       }
-      if (!isLiveReloadPaused) {
+      if (isLiveReloadPaused) {
+        return;
+      }
+      // If no entry exists, file has never been loaded, safe to ignore
+      if (hmrEngine.getEntry(updateUrl)) {
         updateOrBubble(updateUrl, new Set());
       }
     }
