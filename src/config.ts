@@ -415,7 +415,7 @@ function normalizeProxies(proxies: RawProxies): Proxy[] {
       {
         on: {
           proxyReq: (proxyReq: http.ClientRequest, req: http.IncomingMessage) => {
-            const proxyPath = proxyReq.path.split(req.url!)[0]
+            const proxyPath = proxyReq.path.split(req.url!)[0];
             proxyReq.path = proxyPath + req.url!.replace(pathPrefix, '');
           },
         },
