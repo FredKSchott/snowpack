@@ -101,6 +101,7 @@ const sendFile = (
   res.writeHead(200, {
     'Content-Type': mime.contentType(ext) || 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
+    'ETag': etag(body)
   });
   res.write(body, getEncodingType(ext));
   res.end();
