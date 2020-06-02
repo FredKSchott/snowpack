@@ -98,15 +98,15 @@ const sendFile = (
   body: string | Buffer,
   ext = '.html',
 ) => {
-  const ETag = etag(body)
+  const ETag = etag(body);
   const headers = {
     'Content-Type': mime.contentType(ext) || 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
-    ETag
-  }
+    ETag,
+  };
 
-  if (req.headers["if-none-match"] === ETag) {
-    res.writeHead(304, headers)
+  if (req.headers['if-none-match'] === ETag) {
+    res.writeHead(304, headers);
   } else {
     res.writeHead(200, headers);
     res.write(body, getEncodingType(ext));
