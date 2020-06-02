@@ -2,12 +2,13 @@ import chalk from 'chalk';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
 import {validate} from 'jsonschema';
+import http from 'http';
+import type HttpProxy from 'http-proxy';
 import path from 'path';
 import {Plugin as RollupPlugin} from 'rollup';
 import yargs from 'yargs-parser';
 import {esbuildPlugin} from './commands/esbuildPlugin';
 import {BUILD_DEPENDENCIES_DIR, DEV_DEPENDENCIES_DIR} from './util';
-import type HttpProxy from 'http-proxy';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -413,8 +414,9 @@ function normalizeProxies(proxies: RawProxies): Proxy[] {
       pathPrefix,
       {
         on: {
-          proxyReq: (proxyReq, req) => {
-            proxyReq.path = req.url.replace(pathPrefix, '');
+          proxyReq: (proxyReq: http.ClientRequest, req: http.IncomingMessage) => {
+            const proxyPath = proxyReq.path.split(req.url!)[0]
+            proxyReq.path = proxyPath + req.url!.replace(pathPrefix, '');
           },
         },
         target: options,
