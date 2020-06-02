@@ -98,7 +98,7 @@ $ snowpack dev --no-bundle
 
 #### Dev Options
 
-- **`port`** | `number` | Default: `3000`
+- **`port`** | `number` | Default: `8080`
   - The port number to run the dev server on.
 - **`out`** | `string` | Default: `"build"`
   - The local directory that we output your final build to.
