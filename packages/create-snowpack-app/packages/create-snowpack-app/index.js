@@ -165,6 +165,10 @@ if (requiredVersion < 10) {
     console.log(`  - ${chalk.yellow("Could not complete.")}`);
   }
 
+  function formatCommand(command, description) {
+    return '  ' + command.padEnd(17) + chalk.dim(description)
+  }
+
   console.log(``);
   console.log(chalk.bold.underline(`Quickstart:`));
   console.log(``);
@@ -173,14 +177,9 @@ if (requiredVersion < 10) {
   console.log(``);
   console.log(chalk.bold.underline(`All Commands:`));
   console.log(``);
-  console.log(`  ${useYarn ? "yarn" : "npm"} install`);
-  console.log(`  ${chalk.dim("Install your dependencies.")}`);
-  console.log(`  ${chalk.dim("We already ran this one for you!")}`);
-  console.log(`  ${useYarn ? "yarn" : "npm"} start`);
-  console.log(`  ${chalk.dim("Start your development server.")}`);
-  console.log(`  ${useYarn ? "yarn" : "npm run"} build`);
-  console.log(`  ${chalk.dim("Build your website for production.")}`);
-  console.log(`  ${useYarn ? "yarn" : "npm"} test`);
-  console.log(`  ${chalk.dim("Run your tests.")}`);
+  console.log(formatCommand(`${useYarn ? "yarn" : "npm"} install`, "Install your dependencies. (We already ran this one for you!)"));
+  console.log(formatCommand(`${useYarn ? "yarn" : "npm"} start`, "Start your development server."));
+  console.log(formatCommand(`${useYarn ? "yarn" : "npm run"} build`, "Build your website for production."));
+  console.log(formatCommand(`${useYarn ? "yarn" : "npm"} test`, "Run your tests."));
   console.log(``);
 })();
