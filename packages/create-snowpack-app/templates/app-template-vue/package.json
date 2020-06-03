@@ -13,10 +13,12 @@
     "build": "snowpack build",
     "test": "echo \"Vue 3.0 test support is still in progress.\" && exit 1"
   },
+  "dependencies": {
+    "vue": "^3.0.0-0"
+  },
   "devDependencies": {
     "@snowpack/app-scripts-vue": "^1.1.0",
-    "snowpack": "^2.0.0",
-    "vue": "^3.0.0-0"
+    "snowpack": "^2.0.0"
   },
   "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
 }
