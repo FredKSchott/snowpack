@@ -38,6 +38,7 @@ import npmRunPath from 'npm-run-path';
 import os from 'os';
 import path from 'path';
 import url from 'url';
+import onProcessExit from 'signal-exit';
 import detectPort from 'detect-port';
 import {BuildScript, SnowpackPluginBuildResult} from '../config';
 import {EsmHmrEngine} from '../hmr-server-engine';
@@ -777,9 +778,8 @@ export async function command(commandOptions: CommandOptions) {
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
 
-  process.on('SIGINT', () => {
+  onProcessExit(() => {
     hmrEngine.disconnectAllClients();
-    process.exit(0);
   });
 
   console.log = (...args) => {
