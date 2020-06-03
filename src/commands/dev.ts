@@ -125,7 +125,12 @@ const sendFile = (
   function onError(err) {
     if (err) {
       res.end()
-      console.error('An error occurred:', err)
+      console.error(
+        chalk.red(
+          `  ✘ An error occurred while compressing ${chalk.bold(req.url)}`,
+        ),
+        err
+      );
     }
   }
 
@@ -134,14 +139,6 @@ const sendFile = (
     headers['Content-Encoding'] = 'gzip'
     res.writeHead(200, headers)
     stream.pipeline(raw, zlib.createGzip(), res, onError)
-  } else if (/\bbr\b/.test(acceptEncoding)) {
-    headers['Content-Encoding'] = 'br'
-    res.writeHead(200, headers)
-    stream.pipeline(raw, zlib.createBrotliCompress(), res, onError);
-  } else if (/\bdeflate\b/.test(acceptEncoding)) {
-    headers['Content-Encoding'] = 'deflate'
-    res.writeHead(200, headers);
-    stream.pipeline(raw, zlib.createDeflate(), res, onError);
   } else {
     res.writeHead(200, headers);
     res.write(body, getEncodingType(ext));
