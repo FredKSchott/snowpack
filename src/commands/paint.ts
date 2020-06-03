@@ -245,9 +245,9 @@ export function paint(
       devMode.addPackage(missingWebModule.pkgName);
       repaint();
     });
-    // readline can swallow CTRL-C exits, so pipe to the main process.
-    // @ts-ignore: @types/node doesn't seem to recognize the '"SIGINT"' event
-    rl.on('SIGINT', () => process.emit('SIGINT'));
+    rl.on('close', function () {
+      process.exit(0);
+    });
   }
 
   repaint();
