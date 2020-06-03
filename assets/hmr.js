@@ -22,7 +22,7 @@ function sendSocketMessage(msg) {
 const socketURL =
   window.HMR_WEBSOCKET_URL ||
   (location.protocol === 'http:' ? 'ws://' : 'wss://') + location.host + '/';
-const socket = new WebSocket(socketURL);
+const socket = new WebSocket(socketURL, 'snowpack-hmr');
 socket.addEventListener('open', () => {
   SOCKET_MESSAGE_QUEUE.forEach(_sendSocketMessage);
   SOCKET_MESSAGE_QUEUE = [];
