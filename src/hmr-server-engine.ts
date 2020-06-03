@@ -19,12 +19,13 @@ export class EsmHmrEngine {
       : new WebSocket.Server({port: 12321});
     if (options.server) {
       options.server.on('upgrade', (req, socket, head) => {
-        let isHmrRequest = req.headers['sec-websocket-protocol'] === 'snowpack-hmr';
-        if (isHmrRequest) {
-          wss.handleUpgrade(req, socket, head, (client) => {
-            wss.emit('connection', client, req);
-          });          
+        // Only handle upgrades to ESM-HMR requests, ignore others.
+        if (req.headers['sec-websocket-protocol'] !== 'esm-hmr') {
+          return;
         }
+        wss.handleUpgrade(req, socket, head, (client) => {
+          wss.emit('connection', client, req);
+        });
       });
     }
     wss.on('connection', (client) => {
