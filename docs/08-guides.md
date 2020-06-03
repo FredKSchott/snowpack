@@ -142,6 +142,17 @@ Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installatio
 
 To use Sass + PostCSS, check out [this guide](https://zellwk.com/blog/eleventy-snowpack-sass-postcss/).
 
+### ESLint
+
+```js
+// snowpack.config.json
+"scripts": {
+    "run:lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+    // Optional: Use npm package "watch" to run on every file change
+    "run:lint::watch": "watch \"$1\" src"
+}
+```
+
 ### Workbox
 
 The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbox-cli) integrates well with Snowpack. Run the wizard to bootstrap your first configuration file, and then run `workbox generateSW` to generate your service worker.
