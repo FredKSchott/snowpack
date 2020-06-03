@@ -220,7 +220,17 @@ export async function clearCache() {
  * `mount src --to /_dist_` does not match `package/components/Button`
  */
 export function findMatchingMountScript(scripts: BuildScript[], spec: string) {
+  // Only match bare module specifiers. relative and absolute imports should not match
+  if (
+    spec.startsWith('./') ||
+    spec.startsWith('../') ||
+    spec.startsWith('/') ||
+    spec.startsWith('http://') ||
+    spec.startsWith('https://')
+  ) {
+    return null;
+  }
   return scripts
-    .filter((script) => script.type === 'mount' && script.args.toUrl !== '/')
+    .filter((script) => script.type === 'mount')
     .find(({args}) => spec.startsWith(args.fromDisk));
 }
