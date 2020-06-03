@@ -27,6 +27,7 @@
 import cacache from 'cacache';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
+import isCompressible from 'compressible'
 import detectPort from 'detect-port';
 import etag from 'etag';
 import {EventEmitter} from 'events';
@@ -117,7 +118,7 @@ const sendFile = (
   }
 
   let acceptEncoding = (req.headers['accept-encoding'] as string) || ''
-  if (req.headers["cache-control"]?.includes('no-transform') || ['HEAD', 'OPTIONS'].includes(req.method!)) {
+  if (req.headers["cache-control"]?.includes('no-transform') || ['HEAD', 'OPTIONS'].includes(req.method!) || !isCompressible(mime.contentType(ext))) {
     acceptEncoding = ''
   }
 
