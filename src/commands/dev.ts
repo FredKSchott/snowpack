@@ -27,7 +27,7 @@
 import cacache from 'cacache';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
-import isCompressible from 'compressible'
+import isCompressible from 'compressible';
 import detectPort from 'detect-port';
 import etag from 'etag';
 import {EventEmitter} from 'events';
@@ -40,7 +40,7 @@ import npmRunPath from 'npm-run-path';
 import os from 'os';
 import path from 'path';
 import onProcessExit from 'signal-exit';
-import stream from 'stream'
+import stream from 'stream';
 import url from 'url';
 import zlib from 'zlib';
 import {BuildScript, SnowpackPluginBuildResult} from '../config';
@@ -108,41 +108,43 @@ const sendFile = (
     'Content-Type': mime.contentType(ext) || 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
     ETag,
-    Vary: 'Accept-Encoding'
+    Vary: 'Accept-Encoding',
   };
 
   if (req.headers['if-none-match'] === ETag) {
     res.writeHead(304, headers);
-    res.end()
-    return
+    res.end();
+    return;
   }
 
-  let acceptEncoding = (req.headers['accept-encoding'] as string) || ''
-  if (req.headers["cache-control"]?.includes('no-transform') || ['HEAD', 'OPTIONS'].includes(req.method!) || !isCompressible(mime.contentType(ext))) {
-    acceptEncoding = ''
+  let acceptEncoding = (req.headers['accept-encoding'] as string) || '';
+  if (
+    req.headers['cache-control']?.includes('no-transform') ||
+    ['HEAD', 'OPTIONS'].includes(req.method!) ||
+    !isCompressible(mime.contentType(ext))
+  ) {
+    acceptEncoding = '';
   }
 
   function onError(err) {
     if (err) {
-      res.end()
+      res.end();
       console.error(
-        chalk.red(
-          `  ✘ An error occurred while compressing ${chalk.bold(req.url)}`,
-        ),
-        err
+        chalk.red(`  ✘ An error occurred while compressing ${chalk.bold(req.url)}`),
+        err,
       );
     }
   }
 
-  const raw = stream.Readable.from([body])
+  const raw = stream.Readable.from([body]);
   if (/\bgzip\b/.test(acceptEncoding)) {
-    headers['Content-Encoding'] = 'gzip'
-    res.writeHead(200, headers)
-    stream.pipeline(raw, zlib.createGzip(), res, onError)
+    headers['Content-Encoding'] = 'gzip';
+    res.writeHead(200, headers);
+    stream.pipeline(raw, zlib.createGzip(), res, onError);
   } else {
     res.writeHead(200, headers);
     res.write(body, getEncodingType(ext));
-    res.end()
+    res.end();
   }
 };
 
