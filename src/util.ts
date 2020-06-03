@@ -221,6 +221,6 @@ export async function clearCache() {
  */
 export function findMatchingMountScript(scripts: BuildScript[], spec: string) {
   return scripts
-    .filter((script) => script.type === 'mount')
+    .filter((script) => script.type === 'mount' && script.args.toUrl !== '/')
     .find(({args}) => spec.startsWith(args.fromDisk));
 }
