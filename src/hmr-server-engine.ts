@@ -23,7 +23,7 @@ export class EsmHmrEngine {
         if (isHmrRequest) {
           wss.handleUpgrade(req, socket, head, (client) => {
             wss.emit('connection', client, req);
-          });          
+          });
         }
       });
     }
