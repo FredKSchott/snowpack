@@ -15,6 +15,10 @@
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
     "test": "jest"
   },
+  "dependencies": {
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0"
+  },
   "devDependencies": {
     "@snowpack/app-scripts-react": "^1.1.0",
     "@testing-library/jest-dom": "^5.5.0",
@@ -23,8 +27,6 @@
     "@types/react-dom": "^16.9.8",
     "jest": "^25.4.0",
     "prettier": "^2.0.0",
-    "react": "^16.13.0",
-    "react-dom": "^16.13.0",
     "snowpack": "^2.0.0",
     "typescript": "^3.8.0"
   },
