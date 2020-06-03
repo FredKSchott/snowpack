@@ -27,6 +27,8 @@
 import cacache from 'cacache';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
+import isCompressible from 'compressible';
+import detectPort from 'detect-port';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
@@ -37,9 +39,10 @@ import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
 import os from 'os';
 import path from 'path';
-import url from 'url';
 import onProcessExit from 'signal-exit';
-import detectPort from 'detect-port';
+import stream from 'stream';
+import url from 'url';
+import zlib from 'zlib';
 import {BuildScript, SnowpackPluginBuildResult} from '../config';
 import {EsmHmrEngine} from '../hmr-server-engine';
 import {scanCodeImportsExports, transformEsmImports} from '../rewrite-imports';
@@ -101,19 +104,48 @@ const sendFile = (
   ext = '.html',
 ) => {
   const ETag = etag(body);
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': mime.contentType(ext) || 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
     ETag,
+    Vary: 'Accept-Encoding',
   };
 
   if (req.headers['if-none-match'] === ETag) {
     res.writeHead(304, headers);
+    res.end();
+    return;
+  }
+
+  let acceptEncoding = (req.headers['accept-encoding'] as string) || '';
+  if (
+    req.headers['cache-control']?.includes('no-transform') ||
+    ['HEAD', 'OPTIONS'].includes(req.method!) ||
+    !isCompressible(mime.contentType(ext))
+  ) {
+    acceptEncoding = '';
+  }
+
+  function onError(err) {
+    if (err) {
+      res.end();
+      console.error(
+        chalk.red(`  ✘ An error occurred while compressing ${chalk.bold(req.url)}`),
+        err,
+      );
+    }
+  }
+
+  const raw = stream.Readable.from([body]);
+  if (/\bgzip\b/.test(acceptEncoding)) {
+    headers['Content-Encoding'] = 'gzip';
+    res.writeHead(200, headers);
+    stream.pipeline(raw, zlib.createGzip(), res, onError);
   } else {
     res.writeHead(200, headers);
     res.write(body, getEncodingType(ext));
+    res.end();
   }
-  res.end();
 };
 
 const sendError = (res, status) => {
