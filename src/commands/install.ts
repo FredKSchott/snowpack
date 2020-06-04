@@ -374,7 +374,14 @@ export async function install(
           );
           console.log(
             chalk.dim(
-              `  Find a more web-friendly alternative, or add the "rollup-plugin-node-polyfills" plugin to your Snowpack config file.`,
+              `  Search pika.dev for a web-friendly alternative to ${chalk.bold(warning.importer)}`,
+            ),
+          );
+          console.log(
+            chalk.dim(
+              `  Or, add ${chalk.bold(
+                '"rollup-plugin-node-polyfills"',
+              )} to installOptions.rollup.plugins in your Snowpack config file.`,
             ),
           );
         } else {
