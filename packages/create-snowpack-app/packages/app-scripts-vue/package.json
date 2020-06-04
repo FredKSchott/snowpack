@@ -1,13 +1,13 @@
 {
   "name": "@snowpack/app-scripts-vue",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "snowpack.config.js",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "@snowpack/plugin-dotenv": "^1.1.0",
+    "@snowpack/plugin-dotenv": "^1.1.1",
     "@snowpack/plugin-vue": "^1.1.0"
   },
   "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
