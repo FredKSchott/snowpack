@@ -136,16 +136,17 @@ const sendFile = (
     }
   }
 
-  const raw = stream.Readable.from([body]);
-  if (/\bgzip\b/.test(acceptEncoding)) {
+  if (/\bgzip\b/.test(acceptEncoding) && stream.Readable.from) {
+    const bodyStream = stream.Readable.from([body]);
     headers['Content-Encoding'] = 'gzip';
     res.writeHead(200, headers);
-    stream.pipeline(raw, zlib.createGzip(), res, onError);
-  } else {
-    res.writeHead(200, headers);
-    res.write(body, getEncodingType(ext));
-    res.end();
+    stream.pipeline(bodyStream, zlib.createGzip(), res, onError);
+    return;
   }
+
+  res.writeHead(200, headers);
+  res.write(body, getEncodingType(ext));
+  res.end();
 };
 
 const sendError = (res, status) => {
