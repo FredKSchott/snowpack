@@ -108,7 +108,6 @@ export interface SnowpackConfig {
     rollup: {
       plugins: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
       dedupe?: string[];
-      namedExports?: {[filepath: string]: string[]};
     };
   };
   proxy: Proxy[];
@@ -200,10 +199,6 @@ const configSchema = {
             dedupe: {
               type: 'array',
               items: {type: 'string'},
-            },
-            namedExports: {
-              type: 'object',
-              additionalProperties: {type: 'array', items: {type: 'string'}},
             },
           },
         },

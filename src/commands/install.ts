@@ -232,13 +232,6 @@ export async function install(
     },
   } = config;
 
-  const knownNamedExports = {...userDefinedRollup.namedExports};
-  for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
-    knownNamedExports[filePath] = [
-      ...(knownNamedExports[filePath] || []),
-      ...detectExports(filePath),
-    ];
-  }
   // @ts-ignore
   if (!webDependencies && !process.versions.pnp && !fs.existsSync(path.join(cwd, 'node_modules'))) {
     logError('no "node_modules" directory exists. Did you run "npm install" first?');
@@ -348,7 +341,6 @@ export async function install(
       rollupPluginCss(),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'], // Default: [ '.js' ]
-        namedExports: knownNamedExports,
       }),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       rollupPluginReactFix(),
