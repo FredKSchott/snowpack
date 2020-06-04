@@ -34,6 +34,7 @@ import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
 import http from 'http';
+import http2 from 'http2';
 import HttpProxy from 'http-proxy';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
@@ -103,7 +104,7 @@ const sendFile = (
   body: string | Buffer,
   ext = '.html',
 ) => {
-  const ETag = etag(body);
+  const ETag = etag(body, { weak: true });
   const headers: Record<string, string> = {
     'Content-Type': mime.contentType(ext) || 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
@@ -418,8 +419,42 @@ export async function command(commandOptions: CommandOptions) {
     }
   });
 
-  const server = http
-    .createServer(async (req, res) => {
+
+  const readCredentials = async () => {
+    const [cert, key] = await Promise.all([fs.readFile(__dirname + '/snowpack.crt'),fs.readFile(__dirname + '/snowpack.key')])
+    
+    return {
+      cert,
+      key,
+    }
+  };
+  
+  const certify = () =>
+  execa.sync(__dirname + '/certify.sh', {
+      cwd: __dirname,
+    });
+
+    
+  let credentials
+  if (config.devOptions.secure) {
+    try {
+      credentials = await readCredentials();
+    } catch (e) {
+      certify();
+      try {
+        credentials = await readCredentials();
+      } catch (e) {
+        console.log(
+          `\n  ${chalk.yellow('⚠️  There was a problem generating ssl credentials. Try removing `--secure`\n')}`
+        );
+        process.exit(1);
+      }
+    }
+  }
+
+  const createServer = credentials ? (requestHandler) => http2.createSecureServer(credentials, requestHandler) : (requestHandler) => http.createServer(requestHandler)
+
+  const server = createServer(async (req, res) => {
       const reqUrl = req.url!;
       let reqPath = decodeURI(url.parse(reqUrl).pathname!);
       const originalReqPath = reqPath;
@@ -755,6 +790,7 @@ export async function command(commandOptions: CommandOptions) {
     })
     .listen(port);
 
+    //@ts-ignore
   const hmrEngine = new EsmHmrEngine({server});
 
   // Live Reload + File System Watching
@@ -830,7 +866,10 @@ export async function command(commandOptions: CommandOptions) {
     .filter((i) => i.family === 'IPv4' && i.internal === false)
     .map((i) => i.address);
 
+  const protocol = config.devOptions.secure ? 'https:' : 'http:'
+
   paint(messageBus, config.scripts, undefined, {
+    protocol,
     port,
     ips,
     startTimeMs: Date.now() - serverStart,
@@ -867,6 +906,6 @@ export async function command(commandOptions: CommandOptions) {
     },
   });
 
-  if (open !== 'none') await openInBrowser(port, open);
+  if (open !== 'none') await openInBrowser(protocol, port, open);
   return new Promise(() => {});
 }
