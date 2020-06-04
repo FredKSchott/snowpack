@@ -790,7 +790,6 @@ export async function command(commandOptions: CommandOptions) {
     })
     .listen(port);
 
-    //@ts-ignore
   const hmrEngine = new EsmHmrEngine({server});
 
   // Live Reload + File System Watching
