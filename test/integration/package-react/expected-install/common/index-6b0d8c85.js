@@ -1,5 +1,15 @@
-function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
+function createCommonjsModule(fn, basedir, module) {
+	return module = {
+	  path: basedir,
+	  exports: {},
+	  require: function (path, base) {
+      return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
+    }
+	}, fn(module, module.exports), module.exports;
+}
+
+function commonjsRequire () {
+	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
 }
 
 /*
@@ -2134,33 +2144,5 @@ var react = createCommonjsModule(function (module) {
   module.exports = react_development;
 }
 });
-var react_1 = react.Children;
-var react_2 = react.Component;
-var react_3 = react.Fragment;
-var react_4 = react.Profiler;
-var react_5 = react.PureComponent;
-var react_6 = react.StrictMode;
-var react_7 = react.Suspense;
-var react_8 = react.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
-var react_9 = react.cloneElement;
-var react_10 = react.createContext;
-var react_11 = react.createElement;
-var react_12 = react.createFactory;
-var react_13 = react.createRef;
-var react_14 = react.forwardRef;
-var react_15 = react.isValidElement;
-var react_16 = react.lazy;
-var react_17 = react.memo;
-var react_18 = react.useCallback;
-var react_19 = react.useContext;
-var react_20 = react.useDebugValue;
-var react_21 = react.useEffect;
-var react_22 = react.useImperativeHandle;
-var react_23 = react.useLayoutEffect;
-var react_24 = react.useMemo;
-var react_25 = react.useReducer;
-var react_26 = react.useRef;
-var react_27 = react.useState;
-var react_28 = react.version;
 
-export { react_23 as A, react_24 as B, react_25 as C, react_26 as D, react_27 as E, react_28 as F, checkPropTypes_1 as a, react_1 as b, createCommonjsModule as c, react_2 as d, react_3 as e, react_4 as f, react_5 as g, react_6 as h, react_7 as i, react_8 as j, react_9 as k, react_10 as l, react_11 as m, react_12 as n, objectAssign as o, react_13 as p, react_14 as q, react as r, react_15 as s, react_16 as t, react_17 as u, react_18 as v, react_19 as w, react_20 as x, react_21 as y, react_22 as z };
+export { checkPropTypes_1 as a, createCommonjsModule as c, objectAssign as o, react as r };

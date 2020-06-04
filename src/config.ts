@@ -101,6 +101,7 @@ export interface SnowpackConfig {
   installOptions: {
     dest: string;
     env: EnvVarReplacements;
+    treeshake?: boolean;
     installTypes: boolean;
     sourceMap?: boolean | 'inline';
     externalPackage: string[];
@@ -177,6 +178,7 @@ const configSchema = {
       properties: {
         dest: {type: 'string'},
         externalPackage: {type: 'array', items: {type: 'string'}},
+        treeshake: {type: 'boolean'},
         installTypes: {type: 'boolean'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
         alias: {
