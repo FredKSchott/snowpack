@@ -446,6 +446,7 @@ export async function command(commandOptions: CommandOptions) {
       try {
         credentials = await readCredentials(assetsDir);
       } catch (e) {
+        console.log('Unable to detect SSL credentials. Attempting to generate SSL credentials...')
         certify(assetsDir);
         try {
           credentials = await readCredentials(assetsDir);
