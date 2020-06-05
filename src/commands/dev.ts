@@ -432,31 +432,22 @@ export async function command(commandOptions: CommandOptions) {
     }
   };
   
-  const certify = (cwd: string) => {
-    return execa.sync(path.join(cwd, 'certify.sh'), undefined, { cwd });
-  }
-
-    
   let credentials: { cert: Buffer, key: Buffer } | undefined
   if (config.devOptions.secure) {
     try {
       credentials = await readCredentials(cwd);
     } catch (e) {
-      const assetsDir = path.join(__dirname, '../assets')
-      try {
-        credentials = await readCredentials(assetsDir);
-      } catch (e) {
-        console.log('Unable to detect SSL credentials. Attempting to generate SSL credentials...')
-        certify(assetsDir);
-        try {
-          credentials = await readCredentials(assetsDir);
-        } catch (e) {
-          console.log(
-            `\n  ${chalk.red(`  ✘ There was a problem generating SSL credentials. Check out the documentation at https://snowpack.dev#HTTPS/HTTP2 or try removing ${chalk.bold(`--secure`)}\n`)}`
-          );
-          process.exit(1);
-        }
-      }
+      console.error(chalk.red(`✘ No HTTPS credentials found! Missing Files:  ${chalk.bold('snowpack.crt')}, ${chalk.bold('snowpack.key')}`))
+      console.log()
+      console.log('You can automatically generate credentials for your project via either:')
+      console.log()
+      console.log(`  - ${chalk.cyan('devcert')}: ${chalk.yellow('npx devcert-cli generate localhost')}`)
+      console.log('    https://github.com/davewasmer/devcert-cli (no install required)')
+      console.log()
+      console.log(`  - ${chalk.cyan('mkcert')}: ${chalk.yellow('mkcert -install && mkcert localhost')}`)
+      console.log('    https://github.com/FiloSottile/mkcert (install required)')
+      console.log()
+      process.exit(1);
     }
   }
 
