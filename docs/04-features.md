@@ -240,7 +240,7 @@ See the [Proxy Options](#proxy-options) section for more information and full se
 
 ### HTTPS/HTTP2
 
-Snowpack provides an easy way to use a local HTTPS server during development throught the use of the `--secure` flag. When enabled, Snowpack will automatically generate a private key and certificate file for your project.
+Snowpack provides an easy way to use a local HTTPS server during development throught the use of the `--secure` flag. When enabled, Snowpack will look for a `snowpack.key` and `snowpack.crt` file in the root directory.
 
 Usage:
 
@@ -248,12 +248,13 @@ Usage:
 npm start -- --secure
 ```
 
-**NOTE:** This process depends on the `openssl` command existing
+#### Generating SSL Certificates
 
-#### Custom Key and Certificate Files
+You can automatically generate credentials for your project via either: 
 
-If you wish to supply your own custom key and certicate file, you can do so by adding a `snowpack.key` and `snowpack.crt` file in the root directory. Then simply run the dev server using the `--secure` flag.
-
+- [devcert (no install required)](https://github.com/davewasmer/devcert-cli): `npx devcert-cli generate localhost`
+- [mkcert (install required)](https://github.com/FiloSottile/mkcert): `mkcert -install && mkcert localhost`
+   
 #### HTTP2 
 
 Not sure what to write here...
