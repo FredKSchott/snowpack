@@ -34,6 +34,7 @@ import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
 import http from 'http';
+import http2 from 'http2';
 import HttpProxy from 'http-proxy';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
@@ -103,7 +104,7 @@ const sendFile = (
   body: string | Buffer,
   ext = '.html',
 ) => {
-  const ETag = etag(body);
+  const ETag = etag(body, { weak: true });
   const headers: Record<string, string> = {
     'Content-Type': mime.contentType(ext) || 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
@@ -418,8 +419,41 @@ export async function command(commandOptions: CommandOptions) {
     }
   });
 
-  const server = http
-    .createServer(async (req, res) => {
+
+  const readCredentials = async (cwd: string) => {
+    const [cert, key] = await Promise.all([
+      fs.readFile(path.join(cwd, 'snowpack.crt')),
+      fs.readFile(path.join(cwd, 'snowpack.key')),
+    ]);
+    
+    return {
+      cert,
+      key,
+    }
+  };
+  
+  let credentials: { cert: Buffer, key: Buffer } | undefined
+  if (config.devOptions.secure) {
+    try {
+      credentials = await readCredentials(cwd);
+    } catch (e) {
+      console.error(chalk.red(`✘ No HTTPS credentials found! Missing Files:  ${chalk.bold('snowpack.crt')}, ${chalk.bold('snowpack.key')}`))
+      console.log()
+      console.log('You can automatically generate credentials for your project via either:')
+      console.log()
+      console.log(`  - ${chalk.cyan('devcert')}: ${chalk.yellow('npx devcert-cli generate localhost')}`)
+      console.log('    https://github.com/davewasmer/devcert-cli (no install required)')
+      console.log()
+      console.log(`  - ${chalk.cyan('mkcert')}: ${chalk.yellow('mkcert -install && mkcert localhost')}`)
+      console.log('    https://github.com/FiloSottile/mkcert (install required)')
+      console.log()
+      process.exit(1);
+    }
+  }
+
+  const createServer = credentials ? (requestHandler) => http2.createSecureServer(credentials!, requestHandler) : (requestHandler) => http.createServer(requestHandler)
+
+  const server = createServer(async (req, res) => {
       const reqUrl = req.url!;
       let reqPath = decodeURI(url.parse(reqUrl).pathname!);
       const originalReqPath = reqPath;
@@ -830,7 +864,10 @@ export async function command(commandOptions: CommandOptions) {
     .filter((i) => i.family === 'IPv4' && i.internal === false)
     .map((i) => i.address);
 
+  const protocol = config.devOptions.secure ? 'https:' : 'http:'
+
   paint(messageBus, config.scripts, undefined, {
+    protocol,
     port,
     ips,
     startTimeMs: Date.now() - serverStart,
@@ -867,6 +904,6 @@ export async function command(commandOptions: CommandOptions) {
     },
   });
 
-  if (open !== 'none') await openInBrowser(port, open);
+  if (open !== 'none') await openInBrowser(protocol, port, open);
   return new Promise(() => {});
 }

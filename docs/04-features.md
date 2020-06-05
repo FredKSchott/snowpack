@@ -222,7 +222,6 @@ For your safety, Snowpack only supports environment variables that begin with `S
 Add the `@snowpack/plugin-dotenv` plugin to your dev environment to automatically load environment variables from your project `.env` files. Visit the [plugin README](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-dotenv) to learn more.
 
 
-
 ### Dev Request Proxy
 
 ```js
@@ -239,6 +238,26 @@ Snowpack can proxy requests from the dev server to external URLs and APIs. Makin
 
 See the [Proxy Options](#proxy-options) section for more information and full set of configuration options.
 
+### HTTPS/HTTP2
+
+Snowpack provides an easy way to use a local HTTPS server during development throught the use of the `--secure` flag. When enabled, Snowpack will look for a `snowpack.key` and `snowpack.crt` file in the root directory.
+
+Usage:
+
+```
+npm start -- --secure
+```
+
+#### Generating SSL Certificates
+
+You can automatically generate credentials for your project via either: 
+
+- [devcert (no install required)](https://github.com/davewasmer/devcert-cli): `npx devcert-cli generate localhost`
+- [mkcert (install required)](https://github.com/FiloSottile/mkcert): `mkcert -install && mkcert localhost`
+   
+#### HTTP2 
+
+Not sure what to write here...
 
 ### Import Maps
 
