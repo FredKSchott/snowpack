@@ -222,7 +222,6 @@ For your safety, Snowpack only supports environment variables that begin with `S
 Add the `@snowpack/plugin-dotenv` plugin to your dev environment to automatically load environment variables from your project `.env` files. Visit the [plugin README](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-dotenv) to learn more.
 
 
-
 ### Dev Request Proxy
 
 ```js
@@ -238,6 +237,10 @@ Add the `@snowpack/plugin-dotenv` plugin to your dev environment to automaticall
 Snowpack can proxy requests from the dev server to external URLs and APIs. Making API requests directly the dev server can help you mimic your production environment during development.
 
 See the [Proxy Options](#proxy-options) section for more information and full set of configuration options.
+
+### HTTPS/HTTP2
+
+TODO:
 
 
 ### Import Maps
