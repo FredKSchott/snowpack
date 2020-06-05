@@ -529,8 +529,11 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
     );
   }
   if (rawConfig.installOptions?.rollup?.namedExports) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `namedExports` was removed in the latest version of Rollup, and should no longer be needed.',
+    delete rawConfig.installOptions.rollup.namedExports;
+    console.error(
+      chalk.yellow(
+        '[Snowpack v2.3.0] `namedExports` was removed in the latest version of Rollup, and is now safe to remove from your config.',
+      ),
     );
   }
   if (rawConfig.rollup) {
