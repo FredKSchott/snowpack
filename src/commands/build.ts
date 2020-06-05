@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import {EventEmitter} from 'events';
 import execa from 'execa';
-import {promises as fs, existsSync} from 'fs';
+import {promises as fs} from 'fs';
 import glob from 'glob';
 import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
@@ -9,21 +9,14 @@ import path from 'path';
 import rimraf from 'rimraf';
 import {BuildScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
+import {BUILD_DEPENDENCIES_DIR, CommandOptions, findMatchingMountScript, ImportMap} from '../util';
 import {
-  BUILD_DEPENDENCIES_DIR,
-  CommandOptions,
-  ImportMap,
-  findMatchingMountScript,
-  checkLockfileHash,
-  updateLockfileHash,
-} from '../util';
-import {
+  generateEnvModule,
   getFileBuilderForWorker,
   isDirectoryImport,
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
   wrapImportMeta,
-  generateEnvModule,
 } from './build-util';
 import {stopEsbuild} from './esbuildPlugin';
 import {command as installCommand} from './install';
@@ -36,14 +29,15 @@ export async function command(commandOptions: CommandOptions) {
   // Start with a fresh install of your dependencies, for production
   commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'production';
   commandOptions.config.installOptions.dest = BUILD_DEPENDENCIES_DIR;
+  commandOptions.config.installOptions.treeshake =
+    commandOptions.config.installOptions.treeshake !== undefined
+      ? commandOptions.config.installOptions.treeshake
+      : true;
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
 
-  // Start with a fresh install of your dependencies, if needed.
-  if (!(await checkLockfileHash(BUILD_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
-    console.log(chalk.yellow('! updating dependencies...'));
-    await installCommand(commandOptions);
-    await updateLockfileHash(BUILD_DEPENDENCIES_DIR);
-  }
+  // Start with a fresh install of your dependencies, always.
+  console.log(chalk.yellow('! rebuilding dependencies...'));
+  await installCommand(commandOptions);
 
   const messageBus = new EventEmitter();
   const relevantWorkers: BuildScript[] = [];

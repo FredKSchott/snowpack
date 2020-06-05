@@ -16,7 +16,7 @@ import {EnvVarReplacements, SnowpackConfig} from '../config.js';
 import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
 import {rollupPluginCss} from '../rollup-plugin-css';
 import {rollupPluginEntrypointAlias} from '../rollup-plugin-entrypoint-alias.js';
-import {rollupPluginReactFix} from '../rollup-plugin-react-fix';
+import {rollupPluginWrapInstallTargets} from '../rollup-plugin-wrap-install-targets';
 import {rollupPluginDependencyCache} from '../rollup-plugin-remote-cdn.js';
 import {DependencyStatsOutput, rollupPluginDependencyStats} from '../rollup-plugin-stats.js';
 import {InstallTarget, scanDepList, scanImports} from '../scan-imports.js';
@@ -43,16 +43,18 @@ class ErrorWithHint extends Error {
   }
 }
 
-// Add common, well-used non-esm packages here so that Rollup doesn't die trying to analyze them.
-const PACKAGES_TO_AUTO_DETECT_EXPORTS = [
-  path.join('react', 'index.js'),
-  path.join('react-dom', 'index.js'),
-  'react-is',
-  'prop-types',
-  'scheduler',
-  'rxjs',
-  'exenv',
-  'body-scroll-lock',
+// Add popular CJS packages here that use "synthetic" named imports in their documentation.
+// CJS packages should really only be imported via the default export:
+//   import React from 'react';
+// But, some large projects use named exports in their documentation:
+//   import {useState} from 'react';
+// Note that this is not a problem for ESM packages, only CJS.
+const CJS_PACKAGES_TO_AUTO_DETECT = [
+  'react/index.js',
+  'react-dom/index.js',
+  'react-is/index.js',
+  'prop-types/index.js',
+  'scheduler/index.js',
 ];
 
 const cwd = process.cwd();
@@ -90,18 +92,6 @@ function formatInstallResults(): string {
       return d;
     })
     .join(', ');
-}
-
-function detectExports(filePath: string): string[] {
-  try {
-    const fileLoc = require.resolve(filePath, {paths: [cwd]});
-    if (fs.existsSync(fileLoc)) {
-      return Object.keys(require(fileLoc));
-    }
-  } catch (err) {
-    // ignore
-  }
-  return [];
 }
 
 /**
@@ -229,16 +219,10 @@ export async function install(
       sourceMap,
       env,
       rollup: userDefinedRollup,
+      treeshake: isTreeshake,
     },
   } = config;
 
-  const knownNamedExports = {...userDefinedRollup.namedExports};
-  for (const filePath of PACKAGES_TO_AUTO_DETECT_EXPORTS) {
-    knownNamedExports[filePath] = [
-      ...(knownNamedExports[filePath] || []),
-      ...detectExports(filePath),
-    ];
-  }
   // @ts-ignore
   if (!webDependencies && !process.versions.pnp && !fs.existsSync(path.join(cwd, 'node_modules'))) {
     logError('no "node_modules" directory exists. Did you run "npm install" first?');
@@ -348,10 +332,9 @@ export async function install(
       rollupPluginCss(),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'], // Default: [ '.js' ]
-        namedExports: knownNamedExports,
       }),
+      rollupPluginWrapInstallTargets(!!isTreeshake, CJS_PACKAGES_TO_AUTO_DETECT, installTargets),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
-      rollupPluginReactFix(),
       ...userDefinedRollup.plugins, // load user-defined plugins last
     ].filter(Boolean) as Plugin[],
     onwarn(warning, warn) {

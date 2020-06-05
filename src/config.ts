@@ -101,6 +101,7 @@ export interface SnowpackConfig {
   installOptions: {
     dest: string;
     env: EnvVarReplacements;
+    treeshake?: boolean;
     installTypes: boolean;
     sourceMap?: boolean | 'inline';
     externalPackage: string[];
@@ -108,7 +109,6 @@ export interface SnowpackConfig {
     rollup: {
       plugins: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
       dedupe?: string[];
-      namedExports?: {[filepath: string]: string[]};
     };
   };
   proxy: Proxy[];
@@ -177,6 +177,7 @@ const configSchema = {
       properties: {
         dest: {type: 'string'},
         externalPackage: {type: 'array', items: {type: 'string'}},
+        treeshake: {type: 'boolean'},
         installTypes: {type: 'boolean'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
         alias: {
@@ -200,10 +201,6 @@ const configSchema = {
             dedupe: {
               type: 'array',
               items: {type: 'string'},
-            },
-            namedExports: {
-              type: 'object',
-              additionalProperties: {type: 'array', items: {type: 'string'}},
             },
           },
         },
@@ -526,9 +523,14 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
       '[Snowpack v1 -> v2] `dedupe` is now `installOptions.rollup.dedupe`.',
     );
   }
-  if (rawConfig.namedExports || cliFlags.namedExports) {
+  if (rawConfig.namedExports) {
     handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `namedExports` is now `installOptions.rollup.namedExports`.',
+      '[Snowpack v1 -> v2] `namedExports` was removed in the latest version of Rollup, and should no longer be needed.',
+    );
+  }
+  if (rawConfig.installOptions?.rollup?.namedExports) {
+    handleDeprecatedConfigError(
+      '[Snowpack v1 -> v2] `namedExports` was removed in the latest version of Rollup, and should no longer be needed.',
     );
   }
   if (rawConfig.rollup) {
