@@ -443,14 +443,18 @@ export async function command(commandOptions: CommandOptions) {
       credentials = await readCredentials(cwd);
     } catch (e) {
       const assetsDir = path.join(__dirname, '../assets')
-      certify(assetsDir);
       try {
         credentials = await readCredentials(assetsDir);
       } catch (e) {
-        console.log(
-          `\n  ${chalk.yellow('⚠️  There was a problem generating ssl credentials. Try removing `--secure`\n')}`
-        );
-        process.exit(1);
+        certify(assetsDir);
+        try {
+          credentials = await readCredentials(assetsDir);
+        } catch (e) {
+          console.log(
+            `\n  ${chalk.yellow('⚠️  There was a problem generating ssl credentials. Try removing `--secure`\n')}`
+          );
+          process.exit(1);
+        }
       }
     }
   }
