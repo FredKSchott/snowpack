@@ -18,7 +18,7 @@
 
 ### What is Snowpack?
 
-**Snowpack is a better build tool for modern web apps.** Snowpack leverages [ESM imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) in your application to remove all unnecessary bundling work from your dev workflow. The end result is a build tool that starts up instantly and wastes no time rebuilding on every change. See changes reflected in the browser instantly.
+**Snowpack is a faster build tool for modern web apps.** Snowpack leverages [ESM imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) in your application to remove unnecessary bundling work during development. The end result is a build tool that starts up instantly and wastes no time rebuilding on every change. See changes reflected in the browser instantly.
 
 [Check out our launch post](/posts/2020-05-26-snowpack-2-0-release/) to learn more.
 
@@ -26,7 +26,7 @@
 ### Key Features
 
 - A dev environment that starts up in **50ms or less.**
-- File changes are reflected in the browser [instantly.](/#hot-module-replacement) 
+- Changed files are rebuilt [instantly.](/#hot-module-replacement) 
 - Integrates with your favorite bundler for [production builds](/#snowpack-build).
 - Out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](/#features)
 - [Custom build scripts](/#build-scripts) & [third-party plugins](/#build-plugins) to connect your favorite tools.
