@@ -88,7 +88,7 @@ import svg from './image.svg'; // svg === '/src/image.svg'
 
 All other assets not explicitly mentioned above can be imported to get a URL reference to the asset. This can be useful for referencing assets inside of your JS, like creating an image element with a `src` attribute pointing to that image.
 
-### Project-Relative Imports
+### Top-Level Imports
 
 
 ```js
@@ -99,11 +99,11 @@ import Button from `../../../../components/Button`;
 import Button from `src/components/Button`;
 ```
 
-Snowpack supports project-relative imports of any mounted directory. Both styles of imports are supported, so you are free to use whichever you prefer.
+Snowpack lets you import files relative to any mounted directory. Both styles of imports are supported, so you are free to use whichever you prefer.
 
 Note that this only works for directories that have been mounted via a `mount:*` build script. If an import doesn't match a mounted directory, then it will be treated as a package. [Learn more about the "mount" script type.](#all-script-types)
 
-**TypeScript Users:** You'll need to configure your `tsconfig.json` `paths` to get proper types from project-relative imports. Learn more about ["path mappings"](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping).
+**TypeScript Users:** You'll need to configure your `tsconfig.json` `paths` to get proper types from top-level imports. Learn more about ["path mappings"](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping).
 
 ```js
 // tsconfig.json
