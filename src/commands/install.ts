@@ -5,7 +5,6 @@ import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
 import chalk from 'chalk';
 import fs from 'fs';
-import isNodeBuiltin from 'is-builtin-module';
 import mkdirp from 'mkdirp';
 import ora from 'ora';
 import path from 'path';
@@ -53,6 +52,7 @@ class ErrorWithHint extends Error {
 const CJS_PACKAGES_TO_AUTO_DETECT = [
   'react/index.js',
   'react-dom/index.js',
+  'react-table/index.js',
   'react-is/index.js',
   'prop-types/index.js',
   'scheduler/index.js',
