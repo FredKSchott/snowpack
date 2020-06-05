@@ -178,7 +178,7 @@ let currentlyRunningCommand: any = null;
 export async function command(commandOptions: CommandOptions) {
   let serverStart = Date.now();
   const {cwd, config} = commandOptions;
-  const {port, open} = config.devOptions;
+  const {port, open, hmr: isHmr} = config.devOptions;
 
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
@@ -584,15 +584,15 @@ export async function command(commandOptions: CommandOptions) {
 
       async function wrapResponse(code: string, cssResource: string | undefined) {
         if (isRoute) {
-          code = wrapHtmlResponse(code, true);
+          code = wrapHtmlResponse(code, isHmr);
         } else if (isProxyModule) {
           responseFileExt = '.js';
-          code = wrapEsmProxyResponse(reqPath, code, requestedFileExt, true);
+          code = wrapEsmProxyResponse(reqPath, code, requestedFileExt, isHmr);
         } else if (isCssModule) {
           responseFileExt = '.js';
-          code = await wrapCssModuleResponse(reqPath, code, requestedFileExt, true);
+          code = await wrapCssModuleResponse(reqPath, code, requestedFileExt, isHmr);
         } else if (responseFileExt === '.js') {
-          code = wrapImportMeta(code, {env: true, hmr: true});
+          code = wrapImportMeta(code, {env: true, hmr: isHmr});
         }
         if (responseFileExt === '.js' && cssResource) {
           code = `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;

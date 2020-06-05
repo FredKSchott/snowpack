@@ -97,6 +97,7 @@ export interface SnowpackConfig {
     fallback: string;
     open: string;
     bundle: boolean | undefined;
+    hmr: boolean;
   };
   installOptions: {
     dest: string;
@@ -143,6 +144,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     open: 'default',
     out: 'build',
     fallback: 'index.html',
+    hmr: true,
     bundle: undefined,
   },
 };
@@ -170,6 +172,7 @@ const configSchema = {
         fallback: {type: 'string'},
         bundle: {type: 'boolean'},
         open: {type: 'string'},
+        hmr: {type: 'boolean'},
       },
     },
     installOptions: {
