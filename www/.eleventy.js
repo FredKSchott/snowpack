@@ -6,9 +6,10 @@ const syntaxHighlight = require('@11ty/eleventy-plugin-syntaxhighlight');
 // const pluginRss = require("@11ty/eleventy-plugin-rss");
 // const pluginSyntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 
-module.exports = function(eleventyConfig) {
+module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy(path.join(__dirname, 'css'));
   eleventyConfig.addPassthroughCopy(path.join(__dirname, 'img'));
+  eleventyConfig.addPassthroughCopy(path.join(__dirname, 'assets'));
   eleventyConfig.addPassthroughCopy(path.join(__dirname, 'favicon'));
   // eleventyConfig.addPlugin(pluginRss);
   // eleventyConfig.addPlugin(pluginSyntaxHighlight);
