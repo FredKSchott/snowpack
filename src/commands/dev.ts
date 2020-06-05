@@ -432,8 +432,7 @@ export async function command(commandOptions: CommandOptions) {
     }
   };
   
-  const certify = () => {
-    const cwd = path.join(__dirname, '../assets/')
+  const certify = (cwd: string) => {
     return execa.sync(path.join(cwd, 'certify.sh'), undefined, { cwd });
   }
 
@@ -443,9 +442,10 @@ export async function command(commandOptions: CommandOptions) {
     try {
       credentials = await readCredentials(cwd);
     } catch (e) {
-      certify();
+      const assetsDir = path.join(__dirname, '../assets')
+      certify(assetsDir);
       try {
-        credentials = await readCredentials(path.join(__dirname, '../assets'));
+        credentials = await readCredentials(assetsDir);
       } catch (e) {
         console.log(
           `\n  ${chalk.yellow('⚠️  There was a problem generating ssl credentials. Try removing `--secure`\n')}`
