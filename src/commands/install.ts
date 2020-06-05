@@ -16,6 +16,7 @@ import {EnvVarReplacements, SnowpackConfig} from '../config.js';
 import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
 import {rollupPluginCss} from '../rollup-plugin-css';
 import {rollupPluginEntrypointAlias} from '../rollup-plugin-entrypoint-alias.js';
+import {rollupPluginCatchUnresolved} from '../rollup-plugin-catch-unresolved.js';
 import {rollupPluginWrapInstallTargets} from '../rollup-plugin-wrap-install-targets';
 import {rollupPluginDependencyCache} from '../rollup-plugin-remote-cdn.js';
 import {DependencyStatsOutput, rollupPluginDependencyStats} from '../rollup-plugin-stats.js';
@@ -337,41 +338,13 @@ export async function install(
       rollupPluginWrapInstallTargets(!!isTreeshake, CJS_PACKAGES_TO_AUTO_DETECT, installTargets),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
+      rollupPluginCatchUnresolved(),
     ].filter(Boolean) as Plugin[],
     onwarn(warning, warn) {
       if (warning.code === 'CIRCULAR_DEPENDENCY') {
         if (!isCircularImportFound) {
           isCircularImportFound = true;
           logUpdate(`Warning: 1+ circular dependencies found via "${warning.importer}".`);
-        }
-        return;
-      }
-      if (warning.code === 'UNRESOLVED_IMPORT') {
-        logError(
-          `'${warning.source}' is imported by '${warning.importer}', but could not be resolved.`,
-        );
-        if (isNodeBuiltin(warning.source)) {
-          console.log(
-            chalk.dim(
-              `  '${warning.source}' is a Node.js builtin module that won't exist in the browser.`,
-            ),
-          );
-          console.log(
-            chalk.dim(
-              `  Search pika.dev for a web-friendly alternative to ${chalk.bold(warning.importer)}`,
-            ),
-          );
-          console.log(
-            chalk.dim(
-              `  Or, add ${chalk.bold(
-                '"rollup-plugin-node-polyfills"',
-              )} to installOptions.rollup.plugins in your Snowpack config file.`,
-            ),
-          );
-        } else {
-          console.log(
-            chalk.dim(`  Make sure that the package is installed and that the file exists.`),
-          );
         }
         return;
       }
