@@ -14,59 +14,61 @@ function autoDetectExports(fileLoc: string): string[] | undefined {
 }
 
 /**
- * rollup-plugin-treeshake-inputs
+ * rollup-plugin-wrap-install-targets
  *
  * How it works:
  * 1. An array of "install targets" are passed in, describing all known imports + metadata.
- * 2. Known imports are marked for tree-shaking by appending 'pika-treeshake:' to the input value.
- * 3. On load, we return a false virtual file for all "pika-treeshake:" inputs.
+ * 2. If isTreeshake: Known imports are marked for tree-shaking by appending 'snowpack-wrap:' to the input value.
+ * 3. If autoDetectPackageExports match: Also mark for wrapping, and use automatic export detection.
+ * 4. On load, we return a false virtual file for all "snowpack-wrap:" inputs.
  *    a. That virtual file contains only `export ... from 'ACTUAL_FILE_PATH';` exports
  *    b. Rollup uses those exports to drive its tree-shaking algorithm.
+ *    c. Rollup uses those exports to inform its "namedExports" for Common.js entrypoints.
  */
-export function rollupPluginTreeshakeInputs(
+export function rollupPluginWrapInstallTargets(
   isTreeshake: boolean,
   autoDetectPackageExports: string[],
-  allImports: InstallTarget[],
+  installTargets: InstallTarget[],
 ): Plugin {
   const installTargetsByFile: {[loc: string]: InstallTarget[]} = {};
+
+  function isAutoDetect(normalizedFileLoc: string) {
+    return autoDetectPackageExports.some((p) => normalizedFileLoc.includes(`node_modules/${p}`));
+  }
   return {
-    name: 'snowpack:treeshake-inputs',
+    name: 'snowpack:wrap-install-targets',
     // Mark some inputs for tree-shaking.
     options(inputOptions) {
       const input = inputOptions.input as {[entryAlias: string]: string};
       for (const [key, val] of Object.entries(input)) {
-        installTargetsByFile[val] = allImports.filter((imp) => imp.specifier === key);
-        if (isTreeshake) {
-          // If an input has known install targets, and none of those have "all=true", mark for treeshaking.
-          if (
-            installTargetsByFile[val].length > 0 &&
-            !installTargetsByFile[val].some((imp) => imp.all)
-          ) {
-            input[key] = `pika-treeshake:${val}`;
-          }
-        } else {
+        installTargetsByFile[val] = installTargets.filter((imp) => imp.specifier === key);
+        if (
+          isTreeshake &&
+          installTargetsByFile[val].length > 0 &&
+          !installTargetsByFile[val].some((imp) => imp.all)
+        ) {
+          input[key] = `snowpack-wrap:${val}`;
+        }
+        if (!isTreeshake) {
           const normalizedFileLoc = val.split(path.win32.sep).join(path.posix.sep);
-          const isAutoDetect = autoDetectPackageExports.some((p) =>
-            normalizedFileLoc.includes(`node_modules/${p}`),
-          );
-          if (isAutoDetect) {
-            input[key] = `pika-treeshake:${val}`;
+          if (isAutoDetect(normalizedFileLoc)) {
+            input[key] = `snowpack-wrap:${val}`;
           }
         }
       }
       return inputOptions;
     },
     resolveId(source) {
-      if (source.startsWith('pika-treeshake:')) {
+      if (source.startsWith('snowpack-wrap:')) {
         return source;
       }
       return null;
     },
     load(id) {
-      if (!id.startsWith('pika-treeshake:')) {
+      if (!id.startsWith('snowpack-wrap:')) {
         return null;
       }
-      const fileLoc = id.substring('pika-treeshake:'.length);
+      const fileLoc = id.substring('snowpack-wrap:'.length);
       // Reduce all install targets into a single "summarized" install target.
       const treeshakeSummary = installTargetsByFile[fileLoc].reduce((summary, imp) => {
         summary.default = summary.default || imp.default;
@@ -76,10 +78,7 @@ export function rollupPluginTreeshakeInputs(
       });
       let uniqueNamedImports = Array.from(new Set(treeshakeSummary.named));
       const normalizedFileLoc = fileLoc.split(path.win32.sep).join(path.posix.sep);
-      const isAutoDetect = autoDetectPackageExports.some((p) =>
-        normalizedFileLoc.includes(`node_modules/${p}`),
-      );
-      if (isAutoDetect) {
+      if (!isTreeshake && isAutoDetect(normalizedFileLoc)) {
         uniqueNamedImports = autoDetectExports(fileLoc) || uniqueNamedImports;
       }
       const result = `

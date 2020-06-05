@@ -16,7 +16,7 @@ import {EnvVarReplacements, SnowpackConfig} from '../config.js';
 import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
 import {rollupPluginCss} from '../rollup-plugin-css';
 import {rollupPluginEntrypointAlias} from '../rollup-plugin-entrypoint-alias.js';
-import {rollupPluginTreeshakeInputs} from '../rollup-plugin-treeshake-inputs';
+import {rollupPluginWrapInstallTargets} from '../rollup-plugin-wrap-install-targets';
 import {rollupPluginDependencyCache} from '../rollup-plugin-remote-cdn.js';
 import {DependencyStatsOutput, rollupPluginDependencyStats} from '../rollup-plugin-stats.js';
 import {InstallTarget, scanDepList, scanImports} from '../scan-imports.js';
@@ -333,7 +333,7 @@ export async function install(
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'], // Default: [ '.js' ]
       }),
-      rollupPluginTreeshakeInputs(!!isTreeshake, CJS_PACKAGES_TO_AUTO_DETECT, installTargets),
+      rollupPluginWrapInstallTargets(!!isTreeshake, CJS_PACKAGES_TO_AUTO_DETECT, installTargets),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
     ].filter(Boolean) as Plugin[],
