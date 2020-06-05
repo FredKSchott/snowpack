@@ -451,7 +451,7 @@ export async function command(commandOptions: CommandOptions) {
           credentials = await readCredentials(assetsDir);
         } catch (e) {
           console.log(
-            `\n  ${chalk.yellow('⚠️  There was a problem generating ssl credentials. Try removing `--secure`\n')}`
+            `\n  ${chalk.red(`  ✘ There was a problem generating SSL credentials. Check out the documentation at https://snowpack.dev#HTTPS/HTTP2 or try removing ${chalk.bold(`--secure`)}\n`)}`
           );
           process.exit(1);
         }
