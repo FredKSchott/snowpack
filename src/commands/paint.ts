@@ -32,6 +32,7 @@ export function paint(
   buildMode: {dest: string} | undefined,
   devMode:
     | {
+        protocol: string;
         port: number;
         ips: string[];
         startTimeMs: number;
@@ -55,10 +56,12 @@ export function paint(
     process.stdout.write(`${chalk.bold('Snowpack')}\n\n`);
     // Dashboard
     if (devMode) {
-      process.stdout.write(`  ${chalk.bold.cyan(`http://localhost:${devMode.port}`)}`);
+      process.stdout.write(
+        `  ${chalk.bold.cyan(`${devMode.protocol}//localhost:${devMode.port}`)}`,
+      );
       for (const ip of devMode.ips) {
         process.stdout.write(
-          `${chalk.cyan(` > `)}${chalk.bold.cyan(`http://${ip}:${devMode.port}`)}`,
+          `${chalk.cyan(` > `)}${chalk.bold.cyan(`${devMode.protocol}//${ip}:${devMode.port}`)}`,
         );
       }
       process.stdout.write('\n' + chalk.dim(`  Server started in ${devMode.startTimeMs}ms.\n\n`));

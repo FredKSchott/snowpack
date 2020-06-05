@@ -1,5 +1,6 @@
 import WebSocket from 'ws';
 import type http from 'http';
+import type http2 from 'http2';
 
 interface Dependency {
   dependents: Set<string>;
@@ -13,7 +14,7 @@ export class EsmHmrEngine {
   clients: Set<WebSocket> = new Set();
   dependencyTree = new Map<string, Dependency>();
 
-  constructor(options: {server?: http.Server} = {}) {
+  constructor(options: {server?: http.Server | http2.Http2Server} = {}) {
     const wss = options.server
       ? new WebSocket.Server({noServer: true})
       : new WebSocket.Server({port: 12321});
