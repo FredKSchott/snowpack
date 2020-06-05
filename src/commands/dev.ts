@@ -104,7 +104,7 @@ const sendFile = (
   body: string | Buffer,
   ext = '.html',
 ) => {
-  const ETag = etag(body, { weak: true });
+  const ETag = etag(body, {weak: true});
   const headers: Record<string, string> = {
     'Content-Type': mime.contentType(ext) || 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
@@ -419,365 +419,374 @@ export async function command(commandOptions: CommandOptions) {
     }
   });
 
-
   const readCredentials = async (cwd: string) => {
     const [cert, key] = await Promise.all([
       fs.readFile(path.join(cwd, 'snowpack.crt')),
       fs.readFile(path.join(cwd, 'snowpack.key')),
     ]);
-    
+
     return {
       cert,
       key,
-    }
+    };
   };
-  
-  let credentials: { cert: Buffer, key: Buffer } | undefined
+
+  let credentials: {cert: Buffer; key: Buffer} | undefined;
   if (config.devOptions.secure) {
     try {
       credentials = await readCredentials(cwd);
     } catch (e) {
-      console.error(chalk.red(`✘ No HTTPS credentials found! Missing Files:  ${chalk.bold('snowpack.crt')}, ${chalk.bold('snowpack.key')}`))
-      console.log()
-      console.log('You can automatically generate credentials for your project via either:')
-      console.log()
-      console.log(`  - ${chalk.cyan('devcert')}: ${chalk.yellow('npx devcert-cli generate localhost')}`)
-      console.log('    https://github.com/davewasmer/devcert-cli (no install required)')
-      console.log()
-      console.log(`  - ${chalk.cyan('mkcert')}: ${chalk.yellow('mkcert -install && mkcert localhost')}`)
-      console.log('    https://github.com/FiloSottile/mkcert (install required)')
-      console.log()
+      console.error(
+        chalk.red(
+          `✘ No HTTPS credentials found! Missing Files:  ${chalk.bold(
+            'snowpack.crt',
+          )}, ${chalk.bold('snowpack.key')}`,
+        ),
+      );
+      console.log();
+      console.log('You can automatically generate credentials for your project via either:');
+      console.log();
+      console.log(
+        `  - ${chalk.cyan('devcert')}: ${chalk.yellow('npx devcert-cli generate localhost')}`,
+      );
+      console.log('    https://github.com/davewasmer/devcert-cli (no install required)');
+      console.log();
+      console.log(
+        `  - ${chalk.cyan('mkcert')}: ${chalk.yellow('mkcert -install && mkcert localhost')}`,
+      );
+      console.log('    https://github.com/FiloSottile/mkcert (install required)');
+      console.log();
       process.exit(1);
     }
   }
 
-  const createServer = credentials ? (requestHandler) => http2.createSecureServer(credentials!, requestHandler) : (requestHandler) => http.createServer(requestHandler)
+  const createServer = credentials
+    ? (requestHandler) => http2.createSecureServer(credentials!, requestHandler)
+    : (requestHandler) => http.createServer(requestHandler);
 
   const server = createServer(async (req, res) => {
-      const reqUrl = req.url!;
-      let reqPath = decodeURI(url.parse(reqUrl).pathname!);
-      const originalReqPath = reqPath;
-      let isProxyModule = false;
-      let isCssModule = false;
-      if (reqPath.endsWith('.proxy.js')) {
-        isProxyModule = true;
-        reqPath = reqPath.replace('.proxy.js', '');
-      }
-      if (reqPath.endsWith('.module.css')) {
-        isCssModule = true;
-      }
+    const reqUrl = req.url!;
+    let reqPath = decodeURI(url.parse(reqUrl).pathname!);
+    const originalReqPath = reqPath;
+    let isProxyModule = false;
+    let isCssModule = false;
+    if (reqPath.endsWith('.proxy.js')) {
+      isProxyModule = true;
+      reqPath = reqPath.replace('.proxy.js', '');
+    }
+    if (reqPath.endsWith('.module.css')) {
+      isCssModule = true;
+    }
 
-      // const requestStart = Date.now();
-      res.on('finish', () => {
-        const {method, url} = req;
-        const {statusCode} = res;
-        if (statusCode !== 200) {
-          messageBus.emit('SERVER_RESPONSE', {
-            method,
-            url,
-            statusCode,
-            // processingTime: Date.now() - requestStart,
-          });
-        }
-      });
-
-      if (reqPath === '/__snowpack__/hmr.js') {
-        sendFile(req, res, HMR_DEV_CODE, '.js');
-        return;
+    // const requestStart = Date.now();
+    res.on('finish', () => {
+      const {method, url} = req;
+      const {statusCode} = res;
+      if (statusCode !== 200) {
+        messageBus.emit('SERVER_RESPONSE', {
+          method,
+          url,
+          statusCode,
+          // processingTime: Date.now() - requestStart,
+        });
       }
-      if (reqPath === '/__snowpack__/env.js') {
-        sendFile(req, res, generateEnvModule('development'), '.js');
-        return;
-      }
+    });
 
-      for (const [pathPrefix] of config.proxy) {
-        if (!shouldProxy(pathPrefix, req)) {
+    if (reqPath === '/__snowpack__/hmr.js') {
+      sendFile(req, res, HMR_DEV_CODE, '.js');
+      return;
+    }
+    if (reqPath === '/__snowpack__/env.js') {
+      sendFile(req, res, generateEnvModule('development'), '.js');
+      return;
+    }
+
+    for (const [pathPrefix] of config.proxy) {
+      if (!shouldProxy(pathPrefix, req)) {
+        continue;
+      }
+      devProxies[pathPrefix].web(req, res);
+      return;
+    }
+
+    const attemptedFileLoads: string[] = [];
+    function attemptLoadFile(requestedFile): Promise<null | string> {
+      if (attemptedFileLoads.includes(requestedFile)) {
+        return Promise.resolve(null);
+      }
+      attemptedFileLoads.push(requestedFile);
+      return fs
+        .stat(requestedFile)
+        .then((stat) => (stat.isFile() ? requestedFile : null))
+        .catch(() => null /* ignore */);
+    }
+
+    let requestedFileExt = path.parse(reqPath).ext.toLowerCase();
+    let responseFileExt = requestedFileExt;
+    let fileBuilder: FileBuilder | undefined;
+    let isRoute = !requestedFileExt;
+
+    // Now that we've set isRoute properly, give `requestedFileExt` a fallback
+    requestedFileExt = requestedFileExt || '.html';
+
+    async function getFileFromUrl(reqPath: string): Promise<[string | null, BuildScript | null]> {
+      for (const [dirDisk, dirUrl] of mountedDirectories) {
+        let requestedFile: string;
+        if (dirUrl === '/') {
+          requestedFile = path.join(dirDisk, reqPath);
+        } else if (reqPath.startsWith(dirUrl)) {
+          requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, './'));
+        } else {
           continue;
         }
-        devProxies[pathPrefix].web(req, res);
-        return;
-      }
-
-      const attemptedFileLoads: string[] = [];
-      function attemptLoadFile(requestedFile): Promise<null | string> {
-        if (attemptedFileLoads.includes(requestedFile)) {
-          return Promise.resolve(null);
+        if (requestedFile.startsWith(commandOptions.config.installOptions.dest)) {
+          const fileLoc = await attemptLoadFile(requestedFile);
+          if (fileLoc) {
+            return [fileLoc, null];
+          }
         }
-        attemptedFileLoads.push(requestedFile);
-        return fs
-          .stat(requestedFile)
-          .then((stat) => (stat.isFile() ? requestedFile : null))
-          .catch(() => null /* ignore */);
-      }
+        if (isRoute) {
+          let fileLoc =
+            (await attemptLoadFile(requestedFile + '.html')) ||
+            (await attemptLoadFile(requestedFile + 'index.html')) ||
+            (await attemptLoadFile(requestedFile + '/index.html'));
 
-      let requestedFileExt = path.parse(reqPath).ext.toLowerCase();
-      let responseFileExt = requestedFileExt;
-      let fileBuilder: FileBuilder | undefined;
-      let isRoute = !requestedFileExt;
-
-      // Now that we've set isRoute properly, give `requestedFileExt` a fallback
-      requestedFileExt = requestedFileExt || '.html';
-
-      async function getFileFromUrl(reqPath: string): Promise<[string | null, BuildScript | null]> {
-        for (const [dirDisk, dirUrl] of mountedDirectories) {
-          let requestedFile: string;
-          if (dirUrl === '/') {
-            requestedFile = path.join(dirDisk, reqPath);
-          } else if (reqPath.startsWith(dirUrl)) {
-            requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, './'));
-          } else {
-            continue;
+          if (!fileLoc && dirUrl === '/' && config.devOptions.fallback) {
+            const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
+            fileLoc = await attemptLoadFile(fallbackFile);
           }
-          if (requestedFile.startsWith(commandOptions.config.installOptions.dest)) {
-            const fileLoc = await attemptLoadFile(requestedFile);
-            if (fileLoc) {
-              return [fileLoc, null];
-            }
+          if (fileLoc) {
+            responseFileExt = '.html';
+            return [fileLoc, null];
           }
-          if (isRoute) {
-            let fileLoc =
-              (await attemptLoadFile(requestedFile + '.html')) ||
-              (await attemptLoadFile(requestedFile + 'index.html')) ||
-              (await attemptLoadFile(requestedFile + '/index.html'));
-
-            if (!fileLoc && dirUrl === '/' && config.devOptions.fallback) {
-              const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
-              fileLoc = await attemptLoadFile(fallbackFile);
+        } else {
+          for (const workerConfig of config.scripts) {
+            const {type, match} = workerConfig;
+            if (type !== 'build') {
+              continue;
             }
-            if (fileLoc) {
-              responseFileExt = '.html';
-              return [fileLoc, null];
-            }
-          } else {
-            for (const workerConfig of config.scripts) {
-              const {type, match} = workerConfig;
-              if (type !== 'build') {
-                continue;
-              }
-              for (const extMatcher of match) {
-                if (
-                  extMatcher === requestedFileExt.substr(1) ||
-                  srcFileExtensionMapping[extMatcher] === requestedFileExt.substr(1)
-                ) {
-                  const srcFile = requestedFile.replace(requestedFileExt, `.${extMatcher}`);
-                  const fileLoc = await attemptLoadFile(srcFile);
-                  if (fileLoc) {
-                    return [fileLoc, workerConfig];
-                  }
+            for (const extMatcher of match) {
+              if (
+                extMatcher === requestedFileExt.substr(1) ||
+                srcFileExtensionMapping[extMatcher] === requestedFileExt.substr(1)
+              ) {
+                const srcFile = requestedFile.replace(requestedFileExt, `.${extMatcher}`);
+                const fileLoc = await attemptLoadFile(srcFile);
+                if (fileLoc) {
+                  return [fileLoc, workerConfig];
                 }
               }
             }
-            const fileLoc =
-              (await attemptLoadFile(requestedFile)) ||
-              (await attemptLoadFile(requestedFile.replace(/\.js$/, '.jsx'))) ||
-              (await attemptLoadFile(requestedFile.replace(/\.js$/, '.ts'))) ||
-              (await attemptLoadFile(requestedFile.replace(/\.js$/, '.tsx')));
-            if (fileLoc) {
-              return [fileLoc, null];
-            }
+          }
+          const fileLoc =
+            (await attemptLoadFile(requestedFile)) ||
+            (await attemptLoadFile(requestedFile.replace(/\.js$/, '.jsx'))) ||
+            (await attemptLoadFile(requestedFile.replace(/\.js$/, '.ts'))) ||
+            (await attemptLoadFile(requestedFile.replace(/\.js$/, '.tsx')));
+          if (fileLoc) {
+            return [fileLoc, null];
           }
         }
-        return [null, null];
       }
+      return [null, null];
+    }
 
-      // 0. Check if the request is for a virtual sub-resource. These are populated by some
-      // builders when a file compiles to multiple files. For example, Svelte & Vue files
-      // compile to a main JS file + related CSS to import with the JS.
-      let virtualResourceResponse: string | undefined = inMemoryResourceCache.get(reqPath);
-      if (virtualResourceResponse) {
-        if (isProxyModule) {
-          responseFileExt = '.js';
-          virtualResourceResponse = wrapEsmProxyResponse(
-            reqPath,
-            virtualResourceResponse,
-            requestedFileExt,
-            true,
-          );
-        }
-        sendFile(req, res, virtualResourceResponse, responseFileExt);
-        return;
+    // 0. Check if the request is for a virtual sub-resource. These are populated by some
+    // builders when a file compiles to multiple files. For example, Svelte & Vue files
+    // compile to a main JS file + related CSS to import with the JS.
+    let virtualResourceResponse: string | undefined = inMemoryResourceCache.get(reqPath);
+    if (virtualResourceResponse) {
+      if (isProxyModule) {
+        responseFileExt = '.js';
+        virtualResourceResponse = wrapEsmProxyResponse(
+          reqPath,
+          virtualResourceResponse,
+          requestedFileExt,
+          true,
+        );
       }
+      sendFile(req, res, virtualResourceResponse, responseFileExt);
+      return;
+    }
 
-      const [fileLoc, selectedWorker] = await getFileFromUrl(reqPath);
+    const [fileLoc, selectedWorker] = await getFileFromUrl(reqPath);
 
+    if (isRoute) {
+      messageBus.emit('NEW_SESSION');
+    }
+
+    if (!fileLoc) {
+      const prefix = chalk.red('  ✘ ');
+      console.error(`[404] ${reqUrl}\n${attemptedFileLoads.map((loc) => prefix + loc).join('\n')}`);
+      return sendError(res, 404);
+    }
+
+    if (selectedWorker) {
+      fileBuilder = getFileBuilderForWorker(cwd, selectedWorker, messageBus);
+    }
+
+    async function wrapResponse(code: string, cssResource: string | undefined) {
       if (isRoute) {
-        messageBus.emit('NEW_SESSION');
+        code = wrapHtmlResponse(code, isHmr);
+      } else if (isProxyModule) {
+        responseFileExt = '.js';
+        code = wrapEsmProxyResponse(reqPath, code, requestedFileExt, isHmr);
+      } else if (isCssModule) {
+        responseFileExt = '.js';
+        code = await wrapCssModuleResponse(reqPath, code, requestedFileExt, isHmr);
+      } else if (responseFileExt === '.js') {
+        code = wrapImportMeta(code, {env: true, hmr: isHmr});
+      }
+      if (responseFileExt === '.js' && cssResource) {
+        code = `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
+      }
+      return code;
+    }
+
+    // 1. Check the hot build cache. If it's already found, then just serve it.
+    let hotCachedResponse: string | Buffer | undefined = inMemoryBuildCache.get(fileLoc);
+    if (hotCachedResponse) {
+      hotCachedResponse = hotCachedResponse.toString(getEncodingType(requestedFileExt));
+      const isHot = reqUrl.includes('?mtime=');
+      if (isHot) {
+        const [, mtime] = reqUrl.split('?');
+        hotCachedResponse = await transformEsmImports(hotCachedResponse as string, (imp) => {
+          const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
+          const node = hmrEngine.getEntry(importUrl);
+          if (node && node.needsReplacement) {
+            hmrEngine.markEntryForReplacement(node, false);
+            return `${imp}?${mtime}`;
+          }
+          return imp;
+        });
       }
 
-      if (!fileLoc) {
-        const prefix = chalk.red('  ✘ ');
-        console.error(
-          `[404] ${reqUrl}\n${attemptedFileLoads.map((loc) => prefix + loc).join('\n')}`,
-        );
-        return sendError(res, 404);
-      }
+      const wrappedResponse = await wrapResponse(
+        hotCachedResponse,
+        inMemoryResourceCache.get(reqPath.replace(/.js$/, '.css')),
+      );
+      sendFile(req, res, wrappedResponse, responseFileExt);
+      return;
+    }
 
-      if (selectedWorker) {
-        fileBuilder = getFileBuilderForWorker(cwd, selectedWorker, messageBus);
-      }
+    // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
+    let fileContents: string;
+    try {
+      fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
+    } catch (err) {
+      console.error(fileLoc, err);
+      return sendError(res, 500);
+    }
 
-      async function wrapResponse(code: string, cssResource: string | undefined) {
-        if (isRoute) {
-          code = wrapHtmlResponse(code, isHmr);
-        } else if (isProxyModule) {
-          responseFileExt = '.js';
-          code = wrapEsmProxyResponse(reqPath, code, requestedFileExt, isHmr);
-        } else if (isCssModule) {
-          responseFileExt = '.js';
-          code = await wrapCssModuleResponse(reqPath, code, requestedFileExt, isHmr);
-        } else if (responseFileExt === '.js') {
-          code = wrapImportMeta(code, {env: true, hmr: isHmr});
+    // 3. Check the persistent cache. If found, serve it via a "trust-but-verify" strategy.
+    // Build it after sending, and if it no longer matches then assume the entire cache is suspect.
+    // In that case, clear the persistent cache and then force a live-reload of the page.
+    const cachedBuildData =
+      !filesBeingDeleted.has(fileLoc) &&
+      (await cacache.get(BUILD_CACHE, fileLoc).catch(() => null));
+    if (cachedBuildData) {
+      const {originalFileHash, resources} = cachedBuildData.metadata;
+      const newFileHash = etag(fileContents);
+      if (originalFileHash === newFileHash) {
+        const coldCachedResponse: Buffer = cachedBuildData.data;
+        inMemoryBuildCache.set(fileLoc, coldCachedResponse);
+        if (resources?.css) {
+          inMemoryResourceCache.set(reqPath.replace(/.js$/, '.css'), resources.css);
         }
-        if (responseFileExt === '.js' && cssResource) {
-          code = `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
-        }
-        return code;
-      }
-
-      // 1. Check the hot build cache. If it's already found, then just serve it.
-      let hotCachedResponse: string | Buffer | undefined = inMemoryBuildCache.get(fileLoc);
-      if (hotCachedResponse) {
-        hotCachedResponse = hotCachedResponse.toString(getEncodingType(requestedFileExt));
-        const isHot = reqUrl.includes('?mtime=');
-        if (isHot) {
-          const [, mtime] = reqUrl.split('?');
-          hotCachedResponse = await transformEsmImports(hotCachedResponse as string, (imp) => {
-            const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
-            const node = hmrEngine.getEntry(importUrl);
-            if (node && node.needsReplacement) {
-              hmrEngine.markEntryForReplacement(node, false);
-              return `${imp}?${mtime}`;
-            }
-            return imp;
-          });
-        }
-
+        // Trust...
         const wrappedResponse = await wrapResponse(
-          hotCachedResponse,
-          inMemoryResourceCache.get(reqPath.replace(/.js$/, '.css')),
+          coldCachedResponse.toString(getEncodingType(requestedFileExt)),
+          resources?.css,
         );
+
+        if (responseFileExt === '.js') {
+          const isHmrEnabled = wrappedResponse.includes('import.meta.hot');
+          const rawImports = await scanCodeImportsExports(wrappedResponse);
+          const resolvedImports = rawImports.map((imp) => {
+            let spec = wrappedResponse.substring(imp.s, imp.e);
+            if (imp.d > -1) {
+              const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
+              spec = importSpecifierMatch![1];
+            }
+            return path.posix.resolve(path.posix.dirname(reqPath), spec);
+          });
+          hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
+        }
+
         sendFile(req, res, wrappedResponse, responseFileExt);
+        // ...but verify.
+        let checkFinalBuildResult: string | null | undefined = null;
+        let checkFinalBuildCss: string | null | undefined = null;
+        try {
+          const checkFinalBuildAnyway = await buildFile(
+            fileContents,
+            fileLoc,
+            reqPath,
+            fileBuilder,
+          );
+          checkFinalBuildResult = checkFinalBuildAnyway && checkFinalBuildAnyway.result;
+          checkFinalBuildCss = checkFinalBuildAnyway && checkFinalBuildAnyway.resources?.css;
+        } catch (err) {
+          // safe to ignore, it will be surfaced later anyway
+        } finally {
+          if (
+            checkFinalBuildCss !== resources?.css ||
+            !checkFinalBuildResult ||
+            !coldCachedResponse.equals(
+              Buffer.from(checkFinalBuildResult, getEncodingType(requestedFileExt)),
+            )
+          ) {
+            inMemoryBuildCache.clear();
+            await cacache.rm.all(BUILD_CACHE);
+            hmrEngine.broadcastMessage({type: 'reload'});
+          }
+        }
         return;
       }
+    }
 
-      // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
-      let fileContents: string;
-      try {
-        fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
-      } catch (err) {
-        console.error(fileLoc, err);
-        return sendError(res, 500);
-      }
+    // 4. Final option: build the file, serve it, and cache it.
+    let finalBuild: SnowpackPluginBuildResult | undefined;
+    try {
+      finalBuild = await buildFile(fileContents, fileLoc, reqPath, fileBuilder);
+    } catch (err) {
+      console.error(fileLoc, err);
+    }
+    if (!finalBuild || finalBuild.result === '') {
+      return sendError(res, 500);
+    }
+    inMemoryBuildCache.set(
+      fileLoc,
+      Buffer.from(finalBuild.result, getEncodingType(requestedFileExt)),
+    );
+    if (finalBuild.resources?.css) {
+      inMemoryResourceCache.set(reqPath.replace(/.js$/, `.css`), finalBuild.resources.css);
+    }
+    const originalFileHash = etag(fileContents);
+    cacache.put(
+      BUILD_CACHE,
+      fileLoc,
+      Buffer.from(finalBuild.result, getEncodingType(requestedFileExt)),
+      {metadata: {originalFileHash, resources: finalBuild.resources}},
+    );
+    const wrappedResponse = await wrapResponse(finalBuild.result, finalBuild.resources?.css);
 
-      // 3. Check the persistent cache. If found, serve it via a "trust-but-verify" strategy.
-      // Build it after sending, and if it no longer matches then assume the entire cache is suspect.
-      // In that case, clear the persistent cache and then force a live-reload of the page.
-      const cachedBuildData =
-        !filesBeingDeleted.has(fileLoc) &&
-        (await cacache.get(BUILD_CACHE, fileLoc).catch(() => null));
-      if (cachedBuildData) {
-        const {originalFileHash, resources} = cachedBuildData.metadata;
-        const newFileHash = etag(fileContents);
-        if (originalFileHash === newFileHash) {
-          const coldCachedResponse: Buffer = cachedBuildData.data;
-          inMemoryBuildCache.set(fileLoc, coldCachedResponse);
-          if (resources?.css) {
-            inMemoryResourceCache.set(reqPath.replace(/.js$/, '.css'), resources.css);
-          }
-          // Trust...
-          const wrappedResponse = await wrapResponse(
-            coldCachedResponse.toString(getEncodingType(requestedFileExt)),
-            resources?.css,
-          );
-
-          if (responseFileExt === '.js') {
-            const isHmrEnabled = wrappedResponse.includes('import.meta.hot');
-            const rawImports = await scanCodeImportsExports(wrappedResponse);
-            const resolvedImports = rawImports.map((imp) => {
-              let spec = wrappedResponse.substring(imp.s, imp.e);
-              if (imp.d > -1) {
-                const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
-                spec = importSpecifierMatch![1];
-              }
-              return path.posix.resolve(path.posix.dirname(reqPath), spec);
-            });
-            hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
-          }
-
-          sendFile(req, res, wrappedResponse, responseFileExt);
-          // ...but verify.
-          let checkFinalBuildResult: string | null | undefined = null;
-          let checkFinalBuildCss: string | null | undefined = null;
-          try {
-            const checkFinalBuildAnyway = await buildFile(
-              fileContents,
-              fileLoc,
-              reqPath,
-              fileBuilder,
-            );
-            checkFinalBuildResult = checkFinalBuildAnyway && checkFinalBuildAnyway.result;
-            checkFinalBuildCss = checkFinalBuildAnyway && checkFinalBuildAnyway.resources?.css;
-          } catch (err) {
-            // safe to ignore, it will be surfaced later anyway
-          } finally {
-            if (
-              checkFinalBuildCss !== resources?.css ||
-              !checkFinalBuildResult ||
-              !coldCachedResponse.equals(
-                Buffer.from(checkFinalBuildResult, getEncodingType(requestedFileExt)),
-              )
-            ) {
-              inMemoryBuildCache.clear();
-              await cacache.rm.all(BUILD_CACHE);
-              hmrEngine.broadcastMessage({type: 'reload'});
-            }
-          }
-          return;
+    if (responseFileExt === '.js') {
+      const isHmrEnabled = wrappedResponse.includes('import.meta.hot');
+      const rawImports = await scanCodeImportsExports(wrappedResponse);
+      const resolvedImports = rawImports.map((imp) => {
+        let spec = wrappedResponse.substring(imp.s, imp.e);
+        if (imp.d > -1) {
+          const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
+          spec = importSpecifierMatch![1];
         }
-      }
+        return path.posix.resolve(path.posix.dirname(reqPath), spec);
+      });
+      hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
+    }
 
-      // 4. Final option: build the file, serve it, and cache it.
-      let finalBuild: SnowpackPluginBuildResult | undefined;
-      try {
-        finalBuild = await buildFile(fileContents, fileLoc, reqPath, fileBuilder);
-      } catch (err) {
-        console.error(fileLoc, err);
-      }
-      if (!finalBuild || finalBuild.result === '') {
-        return sendError(res, 500);
-      }
-      inMemoryBuildCache.set(
-        fileLoc,
-        Buffer.from(finalBuild.result, getEncodingType(requestedFileExt)),
-      );
-      if (finalBuild.resources?.css) {
-        inMemoryResourceCache.set(reqPath.replace(/.js$/, `.css`), finalBuild.resources.css);
-      }
-      const originalFileHash = etag(fileContents);
-      cacache.put(
-        BUILD_CACHE,
-        fileLoc,
-        Buffer.from(finalBuild.result, getEncodingType(requestedFileExt)),
-        {metadata: {originalFileHash, resources: finalBuild.resources}},
-      );
-      const wrappedResponse = await wrapResponse(finalBuild.result, finalBuild.resources?.css);
-
-      if (responseFileExt === '.js') {
-        const isHmrEnabled = wrappedResponse.includes('import.meta.hot');
-        const rawImports = await scanCodeImportsExports(wrappedResponse);
-        const resolvedImports = rawImports.map((imp) => {
-          let spec = wrappedResponse.substring(imp.s, imp.e);
-          if (imp.d > -1) {
-            const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
-            spec = importSpecifierMatch![1];
-          }
-          return path.posix.resolve(path.posix.dirname(reqPath), spec);
-        });
-        hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
-      }
-
-      sendFile(req, res, wrappedResponse, responseFileExt);
-    })
+    sendFile(req, res, wrappedResponse, responseFileExt);
+  })
     .on('upgrade', (req: http.IncomingMessage, socket, head) => {
       config.proxy.forEach(([pathPrefix, proxyOptions]) => {
         const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
@@ -864,7 +873,7 @@ export async function command(commandOptions: CommandOptions) {
     .filter((i) => i.family === 'IPv4' && i.internal === false)
     .map((i) => i.address);
 
-  const protocol = config.devOptions.secure ? 'https:' : 'http:'
+  const protocol = config.devOptions.secure ? 'https:' : 'http:';
 
   paint(messageBus, config.scripts, undefined, {
     protocol,

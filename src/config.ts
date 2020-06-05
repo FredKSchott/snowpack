@@ -170,7 +170,7 @@ const configSchema = {
     devOptions: {
       type: 'object',
       properties: {
-        secure: { type: 'boolean'},
+        secure: {type: 'boolean'},
         port: {type: 'number'},
         out: {type: 'string'},
         fallback: {type: 'string'},
