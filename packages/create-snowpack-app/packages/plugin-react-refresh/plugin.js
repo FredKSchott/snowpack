@@ -57,9 +57,13 @@ if (import.meta.hot) {
 }`;
 }
 
-module.exports = function reactRefreshTransform() {
+module.exports = function reactRefreshTransform(snowpackConfig, pluginOptions) {
   return {
     transform({ contents, urlPath, isDev }) {
+      // Use long-form "=== false" to handle older Snowpack versions
+      if (snowpackConfig.devOptions.hmr === false) {
+        return null;
+      }
       if (!isDev) {
         return null;
       }
