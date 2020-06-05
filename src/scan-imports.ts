@@ -235,7 +235,7 @@ export async function scanImports(
       if (ext === '.js' || ext === '.mjs' || ext === '.ts' || ext === '.jsx' || ext === '.tsx') {
         return [filePath, await fs.promises.readFile(filePath, 'utf-8')];
       }
-      if (ext === '.vue' || ext === '.svelte') {
+      if (ext === '.vue' || ext === '.svelte' || ext === '.html') {
         const result = await fs.promises.readFile(filePath, 'utf-8');
         // TODO: Replace with matchAll once Node v10 is out of TLS.
         // const allMatches = [...result.matchAll(HTML_JS_REGEX)];
