@@ -420,8 +420,11 @@ export async function command(commandOptions: CommandOptions) {
   });
 
 
-  const readCredentials = async () => {
-    const [cert, key] = await Promise.all([fs.readFile(__dirname + '/snowpack.crt'),fs.readFile(__dirname + '/snowpack.key')])
+  const readCredentials = async (cwd: string) => {
+    const [cert, key] = await Promise.all([
+      fs.readFile(path.join(cwd, 'snowpack.crt')),
+      fs.readFile(path.join(cwd, 'snowpack.key')),
+    ]);
     
     return {
       cert,
@@ -429,20 +432,20 @@ export async function command(commandOptions: CommandOptions) {
     }
   };
   
-  const certify = () =>
-  execa.sync(__dirname + '/certify.sh', {
-      cwd: __dirname,
-    });
+  const certify = () => {
+    const cwd = path.join(__dirname, '../assets/')
+    return execa.sync(path.join(cwd, 'certify.sh'), undefined, { cwd });
+  }
 
     
-  let credentials
+  let credentials: { cert: Buffer, key: Buffer } | undefined
   if (config.devOptions.secure) {
     try {
-      credentials = await readCredentials();
+      credentials = await readCredentials(cwd);
     } catch (e) {
       certify();
       try {
-        credentials = await readCredentials();
+        credentials = await readCredentials(path.join(__dirname, '../assets'));
       } catch (e) {
         console.log(
           `\n  ${chalk.yellow('⚠️  There was a problem generating ssl credentials. Try removing `--secure`\n')}`
@@ -452,7 +455,7 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
-  const createServer = credentials ? (requestHandler) => http2.createSecureServer(credentials, requestHandler) : (requestHandler) => http.createServer(requestHandler)
+  const createServer = credentials ? (requestHandler) => http2.createSecureServer(credentials!, requestHandler) : (requestHandler) => http.createServer(requestHandler)
 
   const server = createServer(async (req, res) => {
       const reqUrl = req.url!;
