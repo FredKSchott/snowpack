@@ -1,3 +1,4 @@
+import fs from 'fs';
 import chalk from 'chalk';
 import path from 'path';
 import yargs from 'yargs-parser';
@@ -6,7 +7,7 @@ import {command as devCommand} from './commands/dev';
 import {addCommand, rmCommand} from './commands/add-rm';
 import {command as installCommand} from './commands/install';
 import {CLIFlags, loadAndValidateConfig} from './config.js';
-import {readLockfile, clearCache} from './util.js';
+import {readLockfile, clearCache, readTsConfig} from './util.js';
 
 const cwd = process.cwd();
 
@@ -70,11 +71,49 @@ export async function cli(args: string[]) {
     process.env.NODE_ENV = process.env.NODE_ENV || 'development';
   }
 
+  const config = loadAndValidateConfig(cliFlags, pkgManifest);
+
+  const tsConfig = readTsConfig();
+  const baseUrl = tsConfig?.compilerOptions?.baseUrl;
+  const baseUrlEntries = baseUrl
+    ? fs
+        .readdirSync(baseUrl, {withFileTypes: true})
+        // Only reason we're using reduce is to include extension-less files as well. E.g. to include both
+        // `index.js` and `index`
+        .reduce((names: string[], dirent: fs.Dirent) => {
+          const {dir, name, ext} = path.parse(dirent.name);
+          return [...names, dirent.name].concat(ext ? [path.join(dir, name)] : []);
+        }, [])
+    : [];
+
+  // Ex: src/foo/bar => /_dist_/foo/bar
+  const expandBareImport = (spec) => {
+    // Relative and absolute imports should not match
+    if (
+      spec.startsWith('./') ||
+      spec.startsWith('../') ||
+      spec.startsWith('/') ||
+      spec.startsWith('http://') ||
+      spec.startsWith('https://') ||
+      spec.startsWith('file://')
+    )
+      return spec;
+    // Possibly prepend baseUrl
+    spec = path.join(baseUrlEntries.find((name) => spec.startsWith(name)) ? baseUrl : '', spec);
+    // Find a mount script for which `args.fromDisk` is a prefix of the import
+    const script = config.scripts
+      .filter(({type}) => type === 'mount')
+      .find(({args}) => spec.startsWith(args.fromDisk));
+    // Possibly replace import prefix with mounted directory
+    return script ? spec.replace(script.args.fromDisk, script.args.toUrl) : spec;
+  };
+
   const commandOptions = {
     cwd,
-    config: loadAndValidateConfig(cliFlags, pkgManifest),
+    config,
     lockfile: await readLockfile(cwd),
     pkgManifest,
+    expandBareImport,
   };
 
   if (cmd === 'add') {

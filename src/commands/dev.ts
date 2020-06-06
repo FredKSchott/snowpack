@@ -54,7 +54,6 @@ import {
   isYarn,
   openInBrowser,
   resolveDependencyManifest,
-  findMatchingMountScript,
   updateLockfileHash,
 } from '../util';
 import {
@@ -346,11 +345,7 @@ export async function command(commandOptions: CommandOptions) {
         if (spec.startsWith('http')) {
           return spec;
         }
-        let mountScript = findMatchingMountScript(config.scripts, spec);
-        if (mountScript) {
-          let {fromDisk, toUrl} = mountScript.args;
-          spec = spec.replace(fromDisk, toUrl);
-        }
+        spec = expandBareImport(spec);
         if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
           const ext = path.extname(spec).substr(1);
           if (!ext) {
