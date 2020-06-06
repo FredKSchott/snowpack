@@ -87,6 +87,7 @@
     "signal-exit": "^3.0.3",
     "strip-comments": "^2.0.1",
     "tar": "^6.0.1",
+    "tsconfig-paths": "^3.9.0",
     "validate-npm-package-name": "^3.0.0",
     "ws": "^7.3.0",
     "yargs-parser": "^18.1.3"

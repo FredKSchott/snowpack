@@ -1,4 +1,4 @@
-import fs from 'fs';
+import tsConfigPaths from 'tsconfig-paths';
 import chalk from 'chalk';
 import path from 'path';
 import yargs from 'yargs-parser';
@@ -7,7 +7,7 @@ import {command as devCommand} from './commands/dev';
 import {addCommand, rmCommand} from './commands/add-rm';
 import {command as installCommand} from './commands/install';
 import {CLIFlags, loadAndValidateConfig} from './config.js';
-import {readLockfile, clearCache, readTsConfig} from './util.js';
+import {readLockfile, clearCache} from './util.js';
 
 const cwd = process.cwd();
 
@@ -71,18 +71,11 @@ export async function cli(args: string[]) {
 
   const config = loadAndValidateConfig(cliFlags, pkgManifest);
 
-  const tsConfig = readTsConfig();
-  const baseUrl = tsConfig?.compilerOptions?.baseUrl;
-  const baseUrlEntries = baseUrl
-    ? fs
-        .readdirSync(baseUrl, {withFileTypes: true})
-        // Only reason we're using reduce is to include extension-less files as well. E.g. to include both
-        // `index.js` and `index`
-        .reduce((names: string[], dirent: fs.Dirent) => {
-          const {dir, name, ext} = path.parse(dirent.name);
-          return [...names, dirent.name].concat(ext ? [path.join(dir, name)] : []);
-        }, [])
-    : [];
+  const tsConfig = tsConfigPaths.loadConfig();
+  const matchTsConfigPath =
+    tsConfig.resultType === 'success'
+      ? tsConfigPaths.createMatchPath(tsConfig.absoluteBaseUrl, tsConfig.paths)
+      : () => undefined;
 
   // Ex: src/foo/bar => /_dist_/foo/bar
   const expandBareImport = (spec) => {
@@ -97,7 +90,8 @@ export async function cli(args: string[]) {
     )
       return spec;
     // Possibly prepend baseUrl
-    spec = path.join(baseUrlEntries.find((name) => spec.startsWith(name)) ? baseUrl : '', spec);
+    const matched = matchTsConfigPath(spec);
+    if (matched) spec = path.relative(cwd, matched);
     // Find a mount script for which `args.fromDisk` is a prefix of the import
     const script = config.scripts
       .filter(({type}) => type === 'mount')
