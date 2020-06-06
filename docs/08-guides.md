@@ -159,6 +159,21 @@ The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbo
 
 Remember that Workbox expects to be run every time you deploy, as a part of a production "build" process (similar to how Snowpack's [`--optimize`](#production-optimization) flag works). If you don't have one yet, create package.json [`"deploy"` and/or `"build"` scripts](https://michael-kuehnel.de/tooling/2018/03/22/helpers-and-tips-for-npm-run-scripts.html) to automate your production build process.
 
+### Server side rendering
+
+Snowpack dev can be configured to work with an existing server rendering environment. To ensure that snowpack dev can be proxied, set `HMR_WEBSOCKET_URL` to the snowpack dev server address:
+
+```
+<script>window.HMR_WEBSOCKET_URL = "ws://localhost:8080"</script>
+```
+
+Also include the scripts that are generated in the snowpack dev html:
+
+```
+<script type="module" src="http://localhost:8080/_dist_/index.js"></script>
+<script type="module" src="http://localhost:8080/__snowpack__/hmr.js"></script>
+```
+
 ### Leaving Snowpack
 
 Snowpack is designed for zero lock-in. If you ever feel the need to add a traditional application bundler to your stack (for whatever reason!) you can do so in seconds.
