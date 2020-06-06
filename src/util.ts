@@ -213,15 +213,3 @@ export async function clearCache() {
     rimraf.sync(PROJECT_CACHE_DIR),
   ]);
 }
-
-export const readTsConfig = () => {
-  try {
-    return JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8'));
-  } catch (e) {
-    try {
-      return JSON.parse(fs.readFileSync('./jsconfig.json', 'utf8'));
-    } catch (e) {
-      return {};
-    }
-  }
-};
