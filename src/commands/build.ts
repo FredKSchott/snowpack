@@ -21,7 +21,7 @@ import {
 import {stopEsbuild} from './esbuildPlugin';
 import {command as installCommand} from './install';
 import {paint} from './paint';
-import srcFileExtensionMapping from './src-file-extension-mapping';
+import {srcFileExtensionMapping} from '../files';
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
