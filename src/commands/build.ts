@@ -9,7 +9,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import {BuildScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
-import {BUILD_DEPENDENCIES_DIR, CommandOptions, findMatchingMountScript, ImportMap} from '../util';
+import {BUILD_DEPENDENCIES_DIR, CommandOptions, ImportMap} from '../util';
 import {
   generateEnvModule,
   getFileBuilderForWorker,
@@ -24,7 +24,7 @@ import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 export async function command(commandOptions: CommandOptions) {
-  const {cwd, config} = commandOptions;
+  const {cwd, config, expandBareImport} = commandOptions;
 
   // Start with a fresh install of your dependencies, for production
   commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'production';
@@ -278,11 +278,7 @@ export async function command(commandOptions: CommandOptions) {
             if (spec.startsWith('http')) {
               return spec;
             }
-            let mountScript = findMatchingMountScript(config.scripts, spec);
-            if (mountScript) {
-              let {fromDisk, toUrl} = mountScript.args;
-              spec = spec.replace(fromDisk, toUrl);
-            }
+            spec = expandBareImport(spec);
             if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
               const ext = path.extname(spec).substr(1);
               if (!ext) {
@@ -296,13 +292,15 @@ export async function command(commandOptions: CommandOptions) {
               if (extToReplace) {
                 spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
               }
+              const resolveUrl = (spec) =>
+                spec.startsWith('/')
+                  ? path.join(buildDirectoryLoc, spec)
+                  : path.resolve(path.dirname(outPath), spec);
               if (spec.endsWith('.module.css')) {
-                const resolvedUrl = path.resolve(path.dirname(outPath), spec);
-                allCssModules.add(resolvedUrl);
+                allCssModules.add(resolveUrl(spec));
                 spec = spec.replace('.module.css', '.css.module.js');
               } else if (!isBundled && (extToReplace || ext) !== 'js') {
-                const resolvedUrl = path.resolve(path.dirname(outPath), spec);
-                allProxiedFiles.add(resolvedUrl);
+                allProxiedFiles.add(resolveUrl(spec));
                 spec = spec + '.proxy.js';
               }
               return spec;

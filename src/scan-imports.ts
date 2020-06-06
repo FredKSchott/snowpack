@@ -7,7 +7,7 @@ import nodePath from 'path';
 import stripComments from 'strip-comments';
 import validatePackageName from 'validate-npm-package-name';
 import {SnowpackConfig} from './config';
-import {isTruthy, findMatchingMountScript} from './util';
+import {isTruthy} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -195,6 +195,7 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
 export async function scanImports(
   cwd: string,
   {scripts, exclude}: SnowpackConfig,
+  expandBareImport: Function,
 ): Promise<InstallTarget[]> {
   await initESModuleLexer;
   const includeFileSets = await Promise.all(
@@ -255,13 +256,14 @@ export async function scanImports(
       return null;
     }),
   );
+
   return (
     loadedFiles
       .filter(isTruthy)
       .map(([fileLoc, code]) => parseCodeForInstallTargets(fileLoc, code))
       .reduce((flat, item) => flat.concat(item), [])
-      // Ignore source imports that match a mount directory.
-      .filter((target) => !findMatchingMountScript(scripts, target.specifier))
+      // Filter out non-package imports
+      .filter(({specifier}) => specifier === expandBareImport(specifier))
       .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier))
   );
 }

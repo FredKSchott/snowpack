@@ -390,7 +390,13 @@ export async function install(
   return true;
 }
 
-export async function command({cwd, config, lockfile, pkgManifest}: CommandOptions) {
+export async function command({
+  cwd,
+  config,
+  lockfile,
+  pkgManifest,
+  expandBareImport,
+}: CommandOptions) {
   const {
     installOptions: {dest},
     knownEntrypoints,
@@ -412,7 +418,7 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
     installTargets.push(...scanDepList(Object.keys(webDependencies), cwd));
   }
   {
-    installTargets.push(...(await scanImports(cwd, config)));
+    installTargets.push(...(await scanImports(cwd, config, expandBareImport)));
   }
   if (installTargets.length === 0) {
     defaultLogError('Nothing to install.');

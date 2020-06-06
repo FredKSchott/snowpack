@@ -32,6 +32,7 @@ export interface CommandOptions {
   config: SnowpackConfig;
   lockfile: ImportMap | null;
   pkgManifest: any;
+  expandBareImport: (spec: string) => string;
 }
 
 export function isYarn(cwd: string) {
@@ -213,24 +214,14 @@ export async function clearCache() {
   ]);
 }
 
-/**
- * Given an import string and a list of scripts, return the mount script that matches the import.
- *
- * `mount ./src --to /_dist_` and `mount src --to /_dist_` match `src/components/Button`
- * `mount src --to /_dist_` does not match `package/components/Button`
- */
-export function findMatchingMountScript(scripts: BuildScript[], spec: string) {
-  // Only match bare module specifiers. relative and absolute imports should not match
-  if (
-    spec.startsWith('./') ||
-    spec.startsWith('../') ||
-    spec.startsWith('/') ||
-    spec.startsWith('http://') ||
-    spec.startsWith('https://')
-  ) {
-    return null;
+export const readTsConfig = () => {
+  try {
+    return JSON.parse(fs.readFileSync('./tsconfig.json', 'utf8'));
+  } catch (e) {
+    try {
+      return JSON.parse(fs.readFileSync('./jsconfig.json', 'utf8'));
+    } catch (e) {
+      return {};
+    }
   }
-  return scripts
-    .filter((script) => script.type === 'mount')
-    .find(({args}) => spec.startsWith(args.fromDisk));
-}
+};
