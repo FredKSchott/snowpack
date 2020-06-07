@@ -40,6 +40,7 @@ import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
 import os from 'os';
 import path from 'path';
+import readline from 'readline';
 import onProcessExit from 'signal-exit';
 import stream from 'stream';
 import url from 'url';
@@ -189,20 +190,32 @@ export async function command(commandOptions: CommandOptions) {
   const mountedDirectories: [string, string][] = [];
 
   // Check whether the port is available
-  const availablePort = await detectPort(port);
-  const isPortAvailable = port === availablePort;
+  let availablePort = await detectPort(port);
+  if (port !== availablePort) {
+    let useNextPort: boolean = false
+    if (process.stdout.isTTY) {
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+      });
+      rl.question(chalk.yellow(`port ${chalk.bold(port)} is not available. Would you like to run the app on port ${chalk.bold(availablePort)} instead? (Y/n)`), (answer) => {
+        useNextPort = !/n/i.test(answer)
+        rl.close()
+      })
+    }
 
-  if (!isPortAvailable) {
-    console.error();
-    console.error(
-      chalk.red(
-        `  ✘ port ${chalk.bold(port)} is not available. use ${chalk.bold(
-          '--port',
-        )} to specify a different port.`,
-      ),
-    );
-    console.error();
-    process.exit(1);
+    if (!useNextPort) {
+      console.error();
+      console.error(
+        chalk.red(
+          `  ✘ port ${chalk.bold(port)} is not available. Use ${chalk.bold(
+            '--port',
+          )} to specify a different port.`,
+        ),
+      );
+      console.error();
+      process.exit(1);
+    }
   }
 
   // Set the proper install options, in case an install is needed.
@@ -877,7 +890,7 @@ export async function command(commandOptions: CommandOptions) {
 
   paint(messageBus, config.scripts, undefined, {
     protocol,
-    port,
+    port: availablePort,
     ips,
     startTimeMs: Date.now() - serverStart,
     addPackage: async (pkgName) => {
@@ -913,6 +926,6 @@ export async function command(commandOptions: CommandOptions) {
     },
   });
 
-  if (open !== 'none') await openInBrowser(protocol, port, open);
+  if (open !== 'none') await openInBrowser(protocol, availablePort, open);
   return new Promise(() => {});
 }
