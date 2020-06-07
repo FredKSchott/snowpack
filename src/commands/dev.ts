@@ -28,7 +28,6 @@ import cacache from 'cacache';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
 import isCompressible from 'compressible';
-import detectPort from 'detect-port';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
@@ -36,8 +35,10 @@ import {existsSync, promises as fs, readFileSync} from 'fs';
 import http from 'http';
 import http2 from 'http2';
 import HttpProxy from 'http-proxy';
+import inquirer from 'inquirer';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
+import net from 'net';
 import os from 'os';
 import path from 'path';
 import onProcessExit from 'signal-exit';
@@ -174,12 +175,46 @@ function getMountedDirectory(cwd: string, workerConfig: BuildScript): [string, s
   return [path.resolve(cwd, args.fromDisk), args.toUrl];
 }
 
+const isPortAvailable = (port: number) =>
+  new Promise<number>((resolve, reject) => {
+    const server = net
+      .createServer()
+      .once('error', reject)
+      .once('listening', () => server.once('close', () => resolve(port)).close())
+      .listen(port);
+  });
+
+const getNextFreePort = (port: number, limit = 10) =>
+  new Promise<number>((resolve, reject) => {
+    let limitReached = false;
+    (function checkPort(currentPort) {
+      if (!limitReached) {
+        limitReached = currentPort >= port + limit;
+        isPortAvailable(currentPort)
+          .then(resolve)
+          .catch((err) => {
+            if (err.code === 'EADDRINUSE') {
+              // we have a EADDRINUSE error so we retry with the next port
+              checkPort(currentPort + 1);
+            } else {
+              reject('Network Error while starting');
+            }
+          });
+      } else {
+        reject(
+          `We have searched ${limit} next ports starting from ${port} and none was available.`,
+        );
+      }
+    })(port);
+  });
+
 let currentlyRunningCommand: any = null;
 
 export async function command(commandOptions: CommandOptions) {
   let serverStart = Date.now();
   const {cwd, config} = commandOptions;
-  const {port, open, hmr: isHmr} = config.devOptions;
+  const {port: defaultPort, open, hmr: isHmr} = config.devOptions;
+  let port = defaultPort;
 
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
@@ -188,21 +223,48 @@ export async function command(commandOptions: CommandOptions) {
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
 
-  // Check whether the port is available
-  const availablePort = await detectPort(port);
-  const isPortAvailable = port === availablePort;
+  // Check whether the default port is available
+  const isDefaultPortAvailable =
+    defaultPort ===
+    (await isPortAvailable(defaultPort).catch((err) => {
+      /* error while opening default port */
+    }));
 
-  if (!isPortAvailable) {
-    console.error();
-    console.error(
-      chalk.red(
-        `  ✘ port ${chalk.bold(port)} is not available. use ${chalk.bold(
-          '--port',
-        )} to specify a different port.`,
-      ),
-    );
-    console.error();
-    process.exit(1);
+  if (!isDefaultPortAvailable) {
+    const question = {
+      type: 'confirm',
+      name: 'nextPort',
+      message: 'Default port 8080 is not available. Would you like to run on another port instead?',
+      default: true,
+    };
+    const answer = await inquirer.prompt(question);
+    // because of the question, we will reset the starting time here
+    serverStart = Date.now();
+    if (answer.nextPort) {
+      try {
+        port = await getNextFreePort(port);
+      } catch (err) {
+        console.error(
+          '\n',
+          chalk.red(`  ✘ ${err}`),
+          '\n',
+          chalk.red(`    Use ${chalk.bold('--port')} to specify a different port.`),
+          '\n',
+        );
+        process.exit(1);
+      }
+    } else {
+      console.error(
+        '\n',
+        chalk.red(
+          `  ✘ port ${chalk.bold(port)} is not available. Use ${chalk.bold(
+            '--port',
+          )} to specify a different port.`,
+        ),
+        '\n',
+      );
+      process.exit(1);
+    }
   }
 
   // Set the proper install options, in case an install is needed.
