@@ -45,7 +45,7 @@ export function rollupPluginWrapInstallTargets(
         if (
           isTreeshake &&
           installTargetsByFile[val].length > 0 &&
-          !installTargetsByFile[val].some((imp) => imp.all)
+          !installTargetsByFile[val].some((imp) => imp.namespace || imp.all)
         ) {
           input[key] = `snowpack-wrap:${val}`;
         }
