@@ -1,4 +1,5 @@
 - snowpack installing...
+  The dependency svelte-routing only exports a CommonJS bundle. Search https://www.pika.dev for a web-friendly alternative to svelte-routing. Or, add it to installOptions.namedExports in your Snowpack config file.
 ✔ snowpack install complete.
   ⦿ web_modules/           size       gzip       brotli
     ├─ svelte-routing.js    XXXX KB    XXXX KB    XXXX KB
