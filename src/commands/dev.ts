@@ -226,6 +226,8 @@ export async function command(commandOptions: CommandOptions) {
       console.error();
       process.exit(1);
     }
+
+    port = availablePort
   }
 
   // Set the proper install options, in case an install is needed.
