@@ -56,9 +56,7 @@ export function paint(
     process.stdout.write(`${chalk.bold('Snowpack')}\n\n`);
     // Dashboard
     if (devMode) {
-      process.stdout.write(
-        `  ${chalk.bold.cyan(`${devMode.protocol}//localhost:${devMode.port}`)}`,
-      );
+      process.stdout.write(`  ${chalk.bold.cyan(`${devMode.protocol}//localhost:${devMode.port}`)}`);
       for (const ip of devMode.ips) {
         process.stdout.write(
           `${chalk.cyan(` > `)}${chalk.bold.cyan(`${devMode.protocol}//${ip}:${devMode.port}`)}`,

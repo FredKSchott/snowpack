@@ -190,17 +190,18 @@ export async function command(commandOptions: CommandOptions) {
   const mountedDirectories: [string, string][] = [];
 
   // Check whether the port is available
-  let availablePort = await detectPort(port);
+  const availablePort = await detectPort(port);
   if (port !== availablePort) {
     let useNextPort: boolean = false
     if (process.stdout.isTTY) {
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-      });
-      rl.question(chalk.yellow(`port ${chalk.bold(port)} is not available. Would you like to run the app on port ${chalk.bold(availablePort)} instead? (Y/n)`), (answer) => {
-        useNextPort = !/n/i.test(answer)
-        rl.close()
+      
+      useNextPort = await new Promise((resolve) => {
+        const rl = readline.createInterface({input: process.stdin, output: process.stdout})
+        rl.question(chalk.yellow(`port ${chalk.bold(port)} is not available. Would you like to run the app on port ${chalk.bold(availablePort)} instead? (Y/n) `), (answer) => {
+          console.log({answer})
+          rl.close()
+          resolve(!/^no?$/i.test(answer))
+        })
       })
     }
 
@@ -809,7 +810,7 @@ export async function command(commandOptions: CommandOptions) {
         }
       });
     })
-    .listen(port);
+    .listen(availablePort);
 
   const hmrEngine = new EsmHmrEngine({server});
 
