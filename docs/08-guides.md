@@ -20,6 +20,23 @@ All of the following frameworks have been tested and guaranteed to work in Snowp
 
 Some libraries use compile-to-JS file formats and do require a special build script or plugin. See the guide below for examples.
 
+### Preact
+
+Importing and using Preact works without any changes needed.
+
+**To use `preact/compat`:** (the Preact+React compatability layer) alias the "compat" package to React in your install options:
+
+```js
+// Example: Lets you Iiport "react" in your application, but uses preact internally
+// snowpack.config.json
+"installOptions": {
+  "alias": {
+    "react": "preact/compat",
+    "react-dom": "preact/compat"
+  }
+}
+```
+
 ### Babel
 
 Babel will automatically read plugins & presets from your local project `babel.config.*` config file, if one exists.
