@@ -332,7 +332,7 @@ export async function install(
         mainFields: ['browser:module', 'module', 'browser', 'main'].filter(isTruthy),
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
-        preferBuiltins: false, // Default: true
+        preferBuiltins: true, // Default: true
         dedupe: userDefinedRollup.dedupe,
       }),
       rollupPluginJson({
