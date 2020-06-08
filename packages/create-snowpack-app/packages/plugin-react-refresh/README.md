@@ -13,6 +13,17 @@ npm install --save-dev @snowpack/plugin-react-refresh
 }
 ```
 
+In addition, you have to add `react-refresh/babel` as a plugin to your babel configuration:
+
+```js
+// babel.config.json
+{
+  "plugins": [
+    "react-refresh/babel"
+  ]
+}
+```
+
 #### Default Build Script
 
 ```js
