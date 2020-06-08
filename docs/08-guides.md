@@ -22,7 +22,7 @@ Some libraries use compile-to-JS file formats and do require a special build scr
 
 ### Preact
 
-Importing and using Preact works without any changes needed.
+You can import and use Preact without any custom configuration needed.
 
 **To use `preact/compat`:** (the Preact+React compatability layer) alias the "compat" package to React in your install options:
 
