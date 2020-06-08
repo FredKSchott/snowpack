@@ -180,7 +180,8 @@ let currentlyRunningCommand: any = null;
 export async function command(commandOptions: CommandOptions) {
   let serverStart = Date.now();
   const {cwd, config} = commandOptions;
-  const {port, open, hmr: isHmr} = config.devOptions;
+  const {port: defaultPort, open, hmr: isHmr} = config.devOptions;
+  let port = defaultPort
 
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
@@ -201,6 +202,7 @@ export async function command(commandOptions: CommandOptions) {
         })
       })
       rl.close()
+      serverStart = Date.now();
     }
 
     if (!useNextPort) {
@@ -808,7 +810,7 @@ export async function command(commandOptions: CommandOptions) {
         }
       });
     })
-    .listen(availablePort);
+    .listen(port);
 
   const hmrEngine = new EsmHmrEngine({server});
 
@@ -889,7 +891,7 @@ export async function command(commandOptions: CommandOptions) {
 
   paint(messageBus, config.scripts, undefined, {
     protocol,
-    port: availablePort,
+    port,
     ips,
     startTimeMs: Date.now() - serverStart,
     addPackage: async (pkgName) => {
@@ -925,6 +927,6 @@ export async function command(commandOptions: CommandOptions) {
     },
   });
 
-  if (open !== 'none') await openInBrowser(protocol, availablePort, open);
+  if (open !== 'none') await openInBrowser(protocol, port, open);
   return new Promise(() => {});
 }
