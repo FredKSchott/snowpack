@@ -91,7 +91,7 @@ function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
 }
 
 function getEncodingType(ext: string): 'utf-8' | 'binary' {
-  if (ext === '.js' || ext === '.css' || ext === '.html') {
+  if (ext === '.js' || ext === '.css' || ext === '.html' || ext === '.json') {
     return 'utf-8';
   } else {
     return 'binary';
