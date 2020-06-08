@@ -825,7 +825,7 @@ export async function command(commandOptions: CommandOptions) {
   async function onWatchEvent(fileLoc) {
     let updateUrl = getUrlFromFile(mountedDirectories, fileLoc);
     if (updateUrl) {
-      if (!updateUrl.endsWith('.js')) {
+      if (!updateUrl.endsWith('.js') && !updateUrl.endsWith('.module.css')) {
         updateUrl += '.proxy.js';
       }
       if (isLiveReloadPaused) {
