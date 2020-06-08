@@ -194,15 +194,13 @@ export async function command(commandOptions: CommandOptions) {
   if (port !== availablePort) {
     let useNextPort: boolean = false
     if (process.stdout.isTTY) {
-      
+      const rl = readline.createInterface({input: process.stdin, output: process.stdout})
       useNextPort = await new Promise((resolve) => {
-        const rl = readline.createInterface({input: process.stdin, output: process.stdout})
         rl.question(chalk.yellow(`port ${chalk.bold(port)} is not available. Would you like to run the app on port ${chalk.bold(availablePort)} instead? (Y/n) `), (answer) => {
-          console.log({answer})
-          rl.close()
           resolve(!/^no?$/i.test(answer))
         })
       })
+      rl.close()
     }
 
     if (!useNextPort) {
