@@ -107,6 +107,7 @@ export interface SnowpackConfig {
     installTypes: boolean;
     sourceMap?: boolean | 'inline';
     externalPackage: string[];
+    namedExports: string[];
     alias: {[key: string]: string};
     rollup: {
       plugins: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
@@ -133,6 +134,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   installOptions: {
     dest: 'web_modules',
     externalPackage: [],
+    namedExports: [],
     installTypes: false,
     env: {},
     alias: {},

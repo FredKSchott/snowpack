@@ -49,14 +49,7 @@ class ErrorWithHint extends Error {
 // But, some large projects use named exports in their documentation:
 //   import {useState} from 'react';
 // Note that this is not a problem for ESM packages, only CJS.
-const CJS_PACKAGES_TO_AUTO_DETECT = [
-  'react/index.js',
-  'react-dom/index.js',
-  'react-table/index.js',
-  'react-is/index.js',
-  'prop-types/index.js',
-  'scheduler/index.js',
-];
+const CJS_PACKAGES_TO_AUTO_DETECT = ['react', 'react-dom', 'react-is', 'prop-types', 'scheduler'];
 
 const cwd = process.cwd();
 const banner = chalk.bold(`snowpack`) + ` installing... `;
@@ -134,7 +127,7 @@ function getRollupReplaceKeys(env: EnvVarReplacements): Record<string, string> {
  * Follows logic similar to Node's resolution logic, but using a package.json's ESM "module"
  * field instead of the CJS "main" field.
  */
-function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
+function resolveWebDependency(dep: string, namedExports: Record<string, string>): DependencyLoc {
   // if dep includes a file extension, check that dep isn't a package before returning
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
@@ -187,13 +180,28 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
       foundEntrypoint['./'] ||
       foundEntrypoint['.'];
   }
+
   // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
-  if (!foundEntrypoint && isExplicit) {
+  if (!foundEntrypoint) {
     foundEntrypoint = depManifest.main || 'index.js';
+    if (!(depManifest.name in namedExports)) {
+      console.log(
+        chalk.dim(`
+  The dependency ${depManifest.name} only exports a CommonJS bundle. Search ${chalk.underline(
+          'https://www.pika.dev',
+        )} for a web-friendly alternative to ${
+          depManifest.name
+        }. Or, add it to installOptions.namedExports in your Snowpack config file.`),
+      );
+    } else {
+      namedExports[depManifest.name] = `${depManifest.name}/${foundEntrypoint}`;
+    }
   }
+
   if (typeof foundEntrypoint !== 'string') {
     throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
   }
+
   return {
     type: 'JS',
     loc: path.join(depManifestLoc, '..', foundEntrypoint),
@@ -217,6 +225,7 @@ export async function install(
       installTypes,
       dest: destLoc,
       externalPackage: externalPackages,
+      namedExports,
       alias: installAlias,
       sourceMap,
       env,
@@ -242,6 +251,10 @@ export async function install(
   const importMap: ImportMap = {imports: {}};
   const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
   const skipFailures = false;
+  const namedExportsToEntrypoint = Object.assign(
+    {},
+    ...[...CJS_PACKAGES_TO_AUTO_DETECT, ...namedExports].map((key) => ({[key]: ''})),
+  );
 
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
@@ -253,7 +266,10 @@ export async function install(
       continue;
     }
     try {
-      const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, true);
+      const {type: targetType, loc: targetLoc} = resolveWebDependency(
+        installSpecifier,
+        namedExportsToEntrypoint,
+      );
       if (targetType === 'JS') {
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${targetName}.js`;
@@ -287,6 +303,17 @@ export async function install(
       return false;
     }
   }
+  const unusedNamedExports = namedExports.filter((dep) => namedExportsToEntrypoint[dep] === '');
+  if (unusedNamedExports.length > 0) {
+    console.log(
+      chalk.dim(
+        `  The following dependencies in installOptions.namedExports are not used: ${unusedNamedExports.join(
+          ', ',
+        )}.`,
+      ),
+    );
+  }
+
   if (Object.keys(installEntrypoints).length === 0 && Object.keys(assetEntrypoints).length === 0) {
     logError(`No ESM dependencies found!`);
     console.log(
@@ -335,7 +362,7 @@ export async function install(
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'], // Default: [ '.js' ]
       }),
-      rollupPluginWrapInstallTargets(!!isTreeshake, CJS_PACKAGES_TO_AUTO_DETECT, installTargets),
+      rollupPluginWrapInstallTargets(!!isTreeshake, Object.values(namedExports), installTargets),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),

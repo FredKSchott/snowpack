@@ -97,7 +97,8 @@ $ snowpack dev --no-bundle
   - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use. 
   - **`rollup.plugins`** - Specify [Custom Rollup plugins](#installing-non-js-packages) if you are dealing with non-standard files.
   - **`rollup.dedupe`** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation.
-  - **`rollup.namedExports`** - **DEPRECATED** Rollup has gotten good enough at Common.js<->ESM interop that it no longer needs this fallback, and will fail if you pass it. If you're currently using it, it should be safe to remove.
+  - **`namedExports`** - If needed, you can explicitly define named exports for any CommonJS dependency.
+  - **`rollup.namedExports`** - **DEPRECATED** Rollup has gotten good enough at CommonJS<->ESM interop that it no longer needs this fallback, and will fail if you pass it. If you're currently using it, it should be safe to remove.
 
 #### Dev Options
 
