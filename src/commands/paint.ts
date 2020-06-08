@@ -237,19 +237,16 @@ export function paint(
   });
 
   if (devMode) {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-    rl.on('line', (input) => {
+    readline.emitKeypressEvents(process.stdin);
+    process.stdin.on('keypress', (str, key) => {
+      if (key.name !== 'return' && key.name !== 'enter') {
+        return;
+      }
       if (!missingWebModule) {
         return;
       }
       devMode.addPackage(missingWebModule.pkgName);
       repaint();
-    });
-    rl.on('close', function () {
-      process.exit(0);
     });
   }
 
