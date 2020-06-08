@@ -9,7 +9,7 @@ import mkdirp from 'mkdirp';
 import ora from 'ora';
 import path from 'path';
 import rimraf from 'rimraf';
-import {InputOptions, OutputOptions, rollup, RollupError, Plugin as RollupPlugin} from 'rollup';
+import {InputOptions, OutputOptions, rollup, RollupError} from 'rollup';
 import validatePackageName from 'validate-npm-package-name';
 import {EnvVarReplacements, SnowpackConfig} from '../config.js';
 import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
@@ -65,13 +65,6 @@ let spinnerHasError = false;
 let installResults: [string, InstallResult][] = [];
 let dependencyStats: DependencyStatsOutput | null = null;
 
-function spliceRollupPlugin(plugins: RollupPlugin[], name: string): null | RollupPlugin {
-  const polyfillsPluginIndex = plugins.findIndex((p) => p.name === 'node-polyfills');
-  if (polyfillsPluginIndex) {
-    return plugins.splice(polyfillsPluginIndex, 1)[0];
-  }
-  return null;
-}
 function defaultLogError(msg: string) {
   if (!spinnerHasError) {
     spinner.stopAndPersist({symbol: chalk.cyan('⠼')});
@@ -306,15 +299,12 @@ export async function install(
     return false;
   }
 
-  // This common Rollup plugin must go first, so remove it from the list for early insertion
-  const polyfillsPlugin = spliceRollupPlugin(userDefinedRollup.plugins, 'node-polyfills');
   let isCircularImportFound = false;
   const inputOptions: InputOptions = {
     input: installEntrypoints,
     external: externalPackages,
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
-      polyfillsPlugin,
       rollupPluginReplace(getRollupReplaceKeys(env)),
       rollupPluginEntrypointAlias({cwd}),
       !!webDependencies &&
