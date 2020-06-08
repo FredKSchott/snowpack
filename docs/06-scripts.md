@@ -34,18 +34,18 @@ If you've ever worked with `package.json` "scripts", creating your own build scr
 
 Snowpack supports several other script types in addition to the basic `"build"` type. These different script types serve different goals so that you can fully customize and control your dev environment:
 
-- `"build:*": "..."`
+- `"build:...": "..."`
   - Build matching files for your application. Snowpack will pipe files into the given bash command (CLI) as input, and capture its output as the build result.
   - ex: `"build:js,jsx": "babel --filename $FILE"`
-- `"run:*": "..."`
+- `"run:...": "..."`
   - Run a single bash command once, log any output/errors. Useful for tools like TypeScript that lint multiple files / entire projects at once.
   - ex: `"run:tsc": "tsc"`
-- `"mount:*": "mount DIR [--to /PATH]"`
+- `"mount:...": "mount DIR [--to /PATH]"`
   - Copy a folder directly into the final build at the `--to` URL location.
   - If no `--to` argument is provided, the directory will be hosted at the same relative location.
   - ex: `"mount:public": "mount public --to /"`
   - ex: `"mount:web_modules": "mount web_modules"`
-- **Deprecated** `"proxy:*": "proxy URL --to /PATH"`  (Use the `proxy` configuration object instead)
+- **Deprecated** `"proxy:...": "proxy URL --to /PATH"`  (Use the `proxy` configuration object instead)
 
 ### Script Variables
 
