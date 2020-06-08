@@ -175,7 +175,7 @@ function parseCodeForInstallTargets(fileLoc: string, code: string): InstallTarge
     .map((imp) => parseImportStatement(code, imp))
     .filter(isTruthy)
     // Babel macros are not install targets!
-    .filter((imp) => !imp.specifier.endsWith('.macro'));
+    .filter((imp) => !/[./]macro(\.js)?$/.test(imp.specifier));
   return allImports;
 }
 
