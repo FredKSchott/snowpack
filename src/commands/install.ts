@@ -362,7 +362,11 @@ export async function install(
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'], // Default: [ '.js' ]
       }),
-      rollupPluginWrapInstallTargets(!!isTreeshake, Object.values(namedExports), installTargets),
+      rollupPluginWrapInstallTargets(
+        !!isTreeshake,
+        Object.values<string>(namedExportsToEntrypoint).filter(Boolean),
+        installTargets,
+      ),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
