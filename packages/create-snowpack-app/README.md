@@ -21,6 +21,7 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 - [snowpack-template-preset-env](https://github.com/argyleink/snowpack-template-preset-env) (PostCSS + Babel)
 - [11st-Starter-Kit](https://github.com/stefanfrede/11st-starter-kit) (11ty +
   Snowpack + tailwindcss)
+- [app-template-reason-react](https://github.com/jihchi/app-template-reason-react) (ReasonML (BuckleScript) & reason-react on top of [@snowpack/app-template-react](/templates/app-template-react))
 - PRs that add a link to this list are welcome!
 
 ## Official Snowpack Plugins
