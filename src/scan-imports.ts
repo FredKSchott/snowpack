@@ -35,6 +35,7 @@ export type InstallTarget = {
   default: boolean;
   namespace: boolean;
   named: string[];
+  esm: boolean;
 };
 
 function stripJsExtension(dep: string): string {
@@ -48,6 +49,7 @@ function createInstallTarget(specifier: string, all = true): InstallTarget {
     default: false,
     namespace: false,
     named: [],
+    esm: false,
   };
 }
 
@@ -83,7 +85,7 @@ function parseWebModuleSpecifier(specifier: string | null): null | string {
     return null;
   }
   // If specifier is a "bare module specifier" (ie: package name) just return it directly
-  if (BARE_SPECIFIER_REGEX.test(specifier)) {
+  if (new RegExp(BARE_SPECIFIER_REGEX).test(specifier)) {
     return specifier;
   }
   // Clean the specifier, remove any query params that may mess with matching
@@ -105,7 +107,7 @@ function parseWebModuleSpecifier(specifier: string | null): null | string {
   return resolvedSpecifier;
 }
 
-function parseImportStatement(code: string, imp: ImportSpecifier): null | InstallTarget {
+function parseImportStatement(code: string, imp: ImportSpecifier): null | InstallTarget {  
   const webModuleSpecifier = parseWebModuleSpecifier(getWebModuleSpecifierFromCode(code, imp));
   if (!webModuleSpecifier) {
     return null;
@@ -117,11 +119,12 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
   }
 
   const dynamicImport = imp.d > -1;
-  const defaultImport = !dynamicImport && DEFAULT_IMPORT_REGEX.test(importStatement);
+  const defaultImport = !dynamicImport && new RegExp(DEFAULT_IMPORT_REGEX).test(importStatement);
   const namespaceImport = !dynamicImport && importStatement.includes('*');
+  const esmImport = !dynamicImport && new RegExp(ESM_IMPORT_REGEX).test(importStatement);
 
-  const namedImports = (importStatement.match(HAS_NAMED_IMPORTS_REGEX)! || [, ''])[1]
-    .split(SPLIT_NAMED_IMPORTS_REGEX)
+  const namedImports = (importStatement.match(new RegExp(HAS_NAMED_IMPORTS_REGEX))! || [, ''])[1]
+    .split(new RegExp(SPLIT_NAMED_IMPORTS_REGEX))
     .map((name) => name.trim())
     .filter(isTruthy);
 
@@ -131,6 +134,7 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
     default: defaultImport,
     namespace: namespaceImport,
     named: namedImports,
+    esm: esmImport,
   };
 }
 
@@ -138,10 +142,12 @@ function cleanCodeForParsing(code: string): string {
   code = stripComments(code);
   const allMatches: string[] = [];
   let match;
-  while ((match = ESM_IMPORT_REGEX.exec(code))) {
+  const importRegex = new RegExp(ESM_IMPORT_REGEX)
+  while ((match = importRegex.exec(code))) {
     allMatches.push(match);
   }
-  while ((match = ESM_DYNAMIC_IMPORT_REGEX.exec(code))) {
+  const dynamicImportRegex = new RegExp(ESM_DYNAMIC_IMPORT_REGEX)
+  while ((match = dynamicImportRegex.exec(code))) {
     allMatches.push(match);
   }
   return allMatches.map(([full]) => full).join('\n');
@@ -238,10 +244,11 @@ export async function scanImports(
       if (ext === '.vue' || ext === '.svelte' || ext === '.html') {
         const result = await fs.promises.readFile(filePath, 'utf-8');
         // TODO: Replace with matchAll once Node v10 is out of TLS.
-        // const allMatches = [...result.matchAll(HTML_JS_REGEX)];
+        // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
         const allMatches: string[] = [];
         let match;
-        while ((match = HTML_JS_REGEX.exec(result))) {
+        const regex = new RegExp(HTML_JS_REGEX)
+        while ((match = regex.exec(result))) {
           allMatches.push(match);
         }
         return [filePath, allMatches.map(([full, code]) => code).join('\n')];

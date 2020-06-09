@@ -1,5 +1,4 @@
 - snowpack installing...
-  The dependency dep-a only exports a CommonJS bundle. Search https://www.pika.dev for a web-friendly alternative to dep-a. Or, add it to installOptions.namedExports in your Snowpack config file.
 ⠼ snowpack installing... dep-a
 ✖ snowpack failed to load node_modules/dep-b/index.vue
   Try installing rollup-plugin-vue and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)

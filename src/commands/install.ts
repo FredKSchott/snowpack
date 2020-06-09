@@ -35,6 +35,9 @@ type InstallResult = 'SUCCESS' | 'ASSET' | 'FAIL';
 interface DependencyLoc {
   type: 'JS' | 'ASSET';
   loc: string;
+  name: string;
+  entrypoint: string;
+  cjs: boolean;
 }
 
 class ErrorWithHint extends Error {
@@ -127,13 +130,16 @@ function getRollupReplaceKeys(env: EnvVarReplacements): Record<string, string> {
  * Follows logic similar to Node's resolution logic, but using a package.json's ESM "module"
  * field instead of the CJS "main" field.
  */
-function resolveWebDependency(dep: string, namedExports: Record<string, string>): DependencyLoc {
+function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
   // if dep includes a file extension, check that dep isn't a package before returning
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
     return {
       type: isJSFile ? 'JS' : 'ASSET',
       loc: require.resolve(dep, {paths: [cwd]}),
+      name: '',
+      entrypoint: '',
+      cjs: false,
     };
   }
   const [depManifestLoc, depManifest] = resolveDependencyManifest(dep, cwd);
@@ -145,6 +151,9 @@ function resolveWebDependency(dep: string, namedExports: Record<string, string>)
       return {
         type: 'JS',
         loc: maybeLoc,
+        name: '',
+        entrypoint: '',
+        cjs: false,
       };
     } catch (err) {
       // Oh well, was worth a try
@@ -164,6 +173,7 @@ function resolveWebDependency(dep: string, namedExports: Record<string, string>)
       `React workaround packages no longer needed! Revert back to the official React & React-DOM packages.`,
     );
   }
+  let isCjsImport = false;
   let foundEntrypoint: string =
     depManifest['browser:module'] ||
     depManifest.module ||
@@ -182,20 +192,9 @@ function resolveWebDependency(dep: string, namedExports: Record<string, string>)
   }
 
   // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
-  if (!foundEntrypoint) {
+  if (!foundEntrypoint && isExplicit) {
+    isCjsImport = true;
     foundEntrypoint = depManifest.main || 'index.js';
-    if (!(depManifest.name in namedExports)) {
-      console.log(
-        chalk.dim(`
-  The dependency ${depManifest.name} only exports a CommonJS bundle. Search ${chalk.underline(
-          'https://www.pika.dev',
-        )} for a web-friendly alternative to ${
-          depManifest.name
-        }. Or, add it to installOptions.namedExports in your Snowpack config file.`),
-      );
-    } else {
-      namedExports[depManifest.name] = `${depManifest.name}/${foundEntrypoint}`;
-    }
   }
 
   if (typeof foundEntrypoint !== 'string') {
@@ -205,6 +204,9 @@ function resolveWebDependency(dep: string, namedExports: Record<string, string>)
   return {
     type: 'JS',
     loc: path.join(depManifestLoc, '..', foundEntrypoint),
+    name: depManifest.name,
+    entrypoint: foundEntrypoint,
+    cjs: isCjsImport,
   };
 }
 
@@ -246,6 +248,7 @@ export async function install(
       .map((specifier) => installAlias[specifier] || specifier)
       .sort(),
   );
+  const staticEsmImports = new Set(installTargets.filter(dep => dep.esm).map(dep => dep.specifier).map((specifier) => installAlias[specifier] || specifier))
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
   const importMap: ImportMap = {imports: {}};
@@ -253,7 +256,8 @@ export async function install(
   const skipFailures = false;
   const namedExportsToEntrypoint = Object.assign(
     {},
-    ...[...CJS_PACKAGES_TO_AUTO_DETECT, ...namedExports].map((key) => ({[key]: ''})),
+    ...CJS_PACKAGES_TO_AUTO_DETECT.map((key) => ({[key]: `${key}/index.js`})),
+    ...namedExports.map((key) => ({[key]: ''})),
   );
 
   for (const installSpecifier of allInstallSpecifiers) {
@@ -266,11 +270,25 @@ export async function install(
       continue;
     }
     try {
-      const {type: targetType, loc: targetLoc} = resolveWebDependency(
+      const {type: targetType, loc: targetLoc, cjs: isCjsImport, name: depName, entrypoint } = resolveWebDependency(
         installSpecifier,
-        namedExportsToEntrypoint,
+        true,
       );
       if (targetType === 'JS') {
+        if (isCjsImport && staticEsmImports.has(depName)) {
+          if (depName in namedExportsToEntrypoint) {
+            namedExportsToEntrypoint[depName] = `${depName}/${entrypoint}`;
+          } else {
+            console.log(
+              chalk.dim(`
+  The dependency ${depName} only exports a CommonJS bundle. Search ${chalk.underline(
+                'https://www.pika.dev',
+              )} for a web-friendly alternative to ${
+                depName
+              }. Or, add it to installOptions.namedExports in your Snowpack config file.`),
+            );
+          }
+        }
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${targetName}.js`;
         Object.entries(installAlias)
