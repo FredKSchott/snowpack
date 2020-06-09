@@ -84,6 +84,7 @@ export type Proxy = [string, ProxyOptions];
 
 // interface this library uses internally
 export interface SnowpackConfig {
+  install: string[];
   extends?: string;
   exclude: string[];
   knownEntrypoints: string[];
@@ -640,7 +641,7 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   }
 }
 
-export function createConfiguration(config: SnowpackConfig) {
+export function createConfiguration(config: Partial<SnowpackConfig>): SnowpackConfig {
   const validation = validate(config, configSchema, {
     allowUnknownAttributes: false,
     propertyName: CONFIG_NAME,
