@@ -8,6 +8,7 @@
 "use strict";
 
 const babelJest = require("babel-jest");
+const importMetaBabelPlugin = require("./importMetaBabelPlugin");
 
 module.exports = babelJest.createTransformer({
   presets: [
@@ -20,5 +21,5 @@ module.exports = babelJest.createTransformer({
       },
     ],
   ],
-  plugins: [],
+  plugins: [[importMetaBabelPlugin]],
 });
