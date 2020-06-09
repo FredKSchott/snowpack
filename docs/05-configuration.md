@@ -93,11 +93,15 @@ $ snowpack dev --no-bundle
 - **`alias`** | `{[mapFromPackageName: string]: string}`
   - Alias an installed package name. This applies to imports within your application and within your installed dependency graph. 
   - Example: `"alias": {"react": "preact/compat", "react-dom": "preact/compat"}`
+- **`namedExports`** | `string[]` 
+  - Legacy Common.js (CJS) packages should only be imported by the default import (Example: `import reactTable from 'react-table'`)
+  - But, some packages use named exports in their documentation, which can cause confusion for users. (Example: `import {useTable} from 'react-table'`)
+  - You can enable "fake/synthetic" named exports for Common.js package by adding the package name under this configuration.
+  - Example: `"namedExports": ["react-table"]`
 - **`rollup`**
   - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use. 
   - **`rollup.plugins`** - Specify [Custom Rollup plugins](#installing-non-js-packages) if you are dealing with non-standard files.
   - **`rollup.dedupe`** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation.
-  - **`rollup.namedExports`** - **DEPRECATED** Rollup has gotten good enough at Common.js<->ESM interop that it no longer needs this fallback, and will fail if you pass it. If you're currently using it, it should be safe to remove.
 
 #### Dev Options
 

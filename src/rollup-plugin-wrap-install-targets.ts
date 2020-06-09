@@ -33,7 +33,9 @@ export function rollupPluginWrapInstallTargets(
   const installTargetsByFile: {[loc: string]: InstallTarget[]} = {};
 
   function isAutoDetect(normalizedFileLoc: string) {
-    return autoDetectPackageExports.some((p) => normalizedFileLoc.includes(`node_modules/${p}`));
+    return autoDetectPackageExports.some((p) =>
+      normalizedFileLoc.includes(`node_modules/${p}${p.endsWith('index.js') ? '' : '/'}`),
+    );
   }
   return {
     name: 'snowpack:wrap-install-targets',
