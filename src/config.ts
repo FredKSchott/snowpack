@@ -509,7 +509,7 @@ function handleConfigError(msg: string) {
   process.exit(1);
 }
 
-function handleValidationErrors(filepath: string, errors: {toString: () => string}[]) {
+function handleValidationErrors(filepath: string | null, errors: {toString: () => string}[]) {
   console.error(chalk.red(`! ${filepath || 'Configuration error'}`));
   console.error(errors.map((err) => `    - ${err.toString()}`).join('\n'));
   console.error(`    See https://www.snowpack.dev/#configuration for more info.`);
@@ -638,6 +638,21 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
       '[Snowpack v1 -> v2] `installOptions.strict` is no longer supported.',
     );
   }
+}
+
+export function createConfiguration(config: SnowpackConfig) {
+  const validation = validate(config, configSchema, {
+    allowUnknownAttributes: false,
+    propertyName: CONFIG_NAME,
+  });
+
+  if (validation.errors && validation.errors.length > 0) {
+    handleValidationErrors(null, validation.errors);
+    process.exit(1);
+  }
+
+  const mergedConfig = merge<SnowpackConfig>([DEFAULT_CONFIG, config]);
+  return normalizeConfig(mergedConfig);
 }
 
 export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
