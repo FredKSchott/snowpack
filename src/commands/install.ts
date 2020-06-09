@@ -243,12 +243,17 @@ export async function install(
   }
   const allInstallSpecifiers = new Set(
     installTargets
-      .filter((dep) => !externalPackages.includes(dep.specifier))
-      .map((dep) => dep.specifier)
-      .map((specifier) => installAlias[specifier] || specifier)
+      .filter(dep => !externalPackages.includes(dep.specifier))
+      .map(dep => dep.specifier)
+      .map(specifier => installAlias[specifier] || specifier)
       .sort(),
   );
-  const staticEsmImports = new Set(installTargets.filter(dep => dep.esm).map(dep => dep.specifier).map((specifier) => installAlias[specifier] || specifier))
+  const staticEsmImports = new Set(
+    installTargets
+      .filter(dep => dep.esm)
+      .map(dep => dep.specifier)
+      .map(specifier => installAlias[specifier] || specifier),
+  );
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
   const importMap: ImportMap = {imports: {}};
@@ -256,8 +261,8 @@ export async function install(
   const skipFailures = false;
   const namedExportsToEntrypoint = Object.assign(
     {},
-    ...CJS_PACKAGES_TO_AUTO_DETECT.map((key) => ({[key]: `${key}/index.js`})),
-    ...namedExports.map((key) => ({[key]: ''})),
+    ...CJS_PACKAGES_TO_AUTO_DETECT.map(key => ({[key]: `${key}/index.js`})),
+    ...namedExports.map(key => ({[key]: ''})),
   );
 
   for (const installSpecifier of allInstallSpecifiers) {
@@ -270,10 +275,13 @@ export async function install(
       continue;
     }
     try {
-      const {type: targetType, loc: targetLoc, cjs: isCjsImport, name: depName, entrypoint } = resolveWebDependency(
-        installSpecifier,
-        true,
-      );
+      const {
+        type: targetType,
+        loc: targetLoc,
+        cjs: isCjsImport,
+        name: depName,
+        entrypoint,
+      } = resolveWebDependency(installSpecifier, true);
       if (targetType === 'JS') {
         if (isCjsImport && staticEsmImports.has(depName)) {
           if (depName in namedExportsToEntrypoint) {
@@ -283,9 +291,7 @@ export async function install(
               chalk.dim(`
   The dependency ${depName} only exports a CommonJS bundle. Search ${chalk.underline(
                 'https://www.pika.dev',
-              )} for a web-friendly alternative to ${
-                depName
-              }. Or, add it to installOptions.namedExports in your Snowpack config file.`),
+              )} for a web-friendly alternative to ${depName}. Or, add it to installOptions.namedExports in your Snowpack config file.`),
             );
           }
         }
@@ -296,9 +302,7 @@ export async function install(
           .forEach(([key, value]) => {
             importMap.imports[key] = `./${targetName}.js`;
           });
-        installTargetsMap[targetLoc] = installTargets.filter(
-          (t) => installSpecifier === t.specifier,
-        );
+        installTargetsMap[targetLoc] = installTargets.filter(t => installSpecifier === t.specifier);
         installResults.push([installSpecifier, 'SUCCESS']);
       } else if (targetType === 'ASSET') {
         assetEntrypoints[targetName] = targetLoc;
@@ -321,7 +325,7 @@ export async function install(
       return false;
     }
   }
-  const unusedNamedExports = namedExports.filter((dep) => namedExportsToEntrypoint[dep] === '');
+  const unusedNamedExports = namedExports.filter(dep => namedExportsToEntrypoint[dep] === '');
   if (unusedNamedExports.length > 0) {
     console.log(
       chalk.dim(
@@ -355,7 +359,7 @@ export async function install(
       !!webDependencies &&
         rollupPluginDependencyCache({
           installTypes,
-          log: (url) => logUpdate(chalk.dim(url)),
+          log: url => logUpdate(chalk.dim(url)),
         }),
       rollupPluginAlias({
         entries: Object.entries(installAlias).map(([alias, mod]) => ({
@@ -385,7 +389,7 @@ export async function install(
         Object.values<string>(namedExportsToEntrypoint).filter(Boolean),
         installTargets,
       ),
-      rollupPluginDependencyStats((info) => (dependencyStats = info)),
+      rollupPluginDependencyStats(info => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
     ].filter(Boolean) as Plugin[],
@@ -471,7 +475,7 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
   spinner.start();
   const startTime = Date.now();
   if (webDependencies && Object.keys(webDependencies).length > 0) {
-    newLockfile = await resolveTargetsFromRemoteCDN(lockfile, pkgManifest, config).catch((err) => {
+    newLockfile = await resolveTargetsFromRemoteCDN(lockfile, pkgManifest, config).catch(err => {
       defaultLogError(err.message || err);
       process.exit(1);
     });
@@ -487,7 +491,7 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
       logUpdate: defaultLogUpdate,
     },
     config,
-  ).catch((err) => {
+  ).catch(err => {
     if (err.loc) {
       console.log('\n' + chalk.red.bold(`✘ ${err.loc.file}`));
     }

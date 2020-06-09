@@ -107,7 +107,7 @@ function parseWebModuleSpecifier(specifier: string | null): null | string {
   return resolvedSpecifier;
 }
 
-function parseImportStatement(code: string, imp: ImportSpecifier): null | InstallTarget {  
+function parseImportStatement(code: string, imp: ImportSpecifier): null | InstallTarget {
   const webModuleSpecifier = parseWebModuleSpecifier(getWebModuleSpecifierFromCode(code, imp));
   if (!webModuleSpecifier) {
     return null;
@@ -125,7 +125,7 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
 
   const namedImports = (importStatement.match(new RegExp(HAS_NAMED_IMPORTS_REGEX))! || [, ''])[1]
     .split(new RegExp(SPLIT_NAMED_IMPORTS_REGEX))
-    .map((name) => name.trim())
+    .map(name => name.trim())
     .filter(isTruthy);
 
   return {
@@ -142,11 +142,11 @@ function cleanCodeForParsing(code: string): string {
   code = stripComments(code);
   const allMatches: string[] = [];
   let match;
-  const importRegex = new RegExp(ESM_IMPORT_REGEX)
+  const importRegex = new RegExp(ESM_IMPORT_REGEX);
   while ((match = importRegex.exec(code))) {
     allMatches.push(match);
   }
-  const dynamicImportRegex = new RegExp(ESM_DYNAMIC_IMPORT_REGEX)
+  const dynamicImportRegex = new RegExp(ESM_DYNAMIC_IMPORT_REGEX);
   while ((match = dynamicImportRegex.exec(code))) {
     allMatches.push(match);
   }
@@ -178,16 +178,16 @@ function parseCodeForInstallTargets(fileLoc: string, code: string): InstallTarge
     }
   }
   const allImports: InstallTarget[] = imports
-    .map((imp) => parseImportStatement(code, imp))
+    .map(imp => parseImportStatement(code, imp))
     .filter(isTruthy)
     // Babel macros are not install targets!
-    .filter((imp) => !/[./]macro(\.js)?$/.test(imp.specifier));
+    .filter(imp => !/[./]macro(\.js)?$/.test(imp.specifier));
   return allImports;
 }
 
 export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
   return depList
-    .map((whitelistItem) => {
+    .map(whitelistItem => {
       if (!glob.hasMagic(whitelistItem)) {
         return [createInstallTarget(whitelistItem, true)];
       } else {
@@ -227,7 +227,7 @@ export async function scanImports(
 
   // Scan every matched JS file for web dependency imports
   const loadedFiles = await Promise.all(
-    includeFiles.map(async (filePath) => {
+    includeFiles.map(async filePath => {
       const ext = nodePath.extname(filePath);
       // Always ignore dotfiles
       if (filePath.startsWith('.')) {
@@ -247,7 +247,7 @@ export async function scanImports(
         // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
         const allMatches: string[] = [];
         let match;
-        const regex = new RegExp(HTML_JS_REGEX)
+        const regex = new RegExp(HTML_JS_REGEX);
         while ((match = regex.exec(result))) {
           allMatches.push(match);
         }
@@ -268,7 +268,7 @@ export async function scanImports(
       .map(([fileLoc, code]) => parseCodeForInstallTargets(fileLoc, code))
       .reduce((flat, item) => flat.concat(item), [])
       // Ignore source imports that match a mount directory.
-      .filter((target) => !findMatchingMountScript(scripts, target.specifier))
+      .filter(target => !findMatchingMountScript(scripts, target.specifier))
       .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier))
   );
 }
