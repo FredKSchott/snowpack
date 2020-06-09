@@ -108,6 +108,7 @@ export interface SnowpackConfig {
     sourceMap?: boolean | 'inline';
     externalPackage: string[];
     alias: {[key: string]: string};
+    namedExports: string[];
     rollup: {
       plugins: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
       dedupe?: string[];
@@ -136,6 +137,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     installTypes: false,
     env: {},
     alias: {},
+    namedExports: [],
     rollup: {
       plugins: [],
       dedupe: [],
@@ -532,14 +534,14 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   }
   if (rawConfig.namedExports) {
     handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `namedExports` was removed in the latest version of Rollup, and should no longer be needed.',
+      '[Snowpack v1 -> v2] `rollup.namedExports` is no longer required. See also: installOptions.namedExports',
     );
   }
   if (rawConfig.installOptions?.rollup?.namedExports) {
     delete rawConfig.installOptions.rollup.namedExports;
     console.error(
       chalk.yellow(
-        '[Snowpack v2.3.0] `namedExports` was removed in the latest version of Rollup, and is now safe to remove from your config.',
+        '[Snowpack v2.3.0] `rollup.namedExports` is no longer required. See also: installOptions.namedExports',
       ),
     );
   }
