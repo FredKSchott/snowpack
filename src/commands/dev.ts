@@ -834,6 +834,13 @@ export async function command(commandOptions: CommandOptions) {
       // If no entry exists, file has never been loaded, safe to ignore
       if (hmrEngine.getEntry(updateUrl)) {
         updateOrBubble(updateUrl, new Set());
+        return;
+      }
+      // HTML files don't support HMR, so just reload the current page
+      // NOTE: .html.proxy.js should be .html, but we naively add proxy.js above
+      if (updateUrl.endsWith('.html.proxy.js')) {
+        hmrEngine.broadcastMessage({type: 'reload'});
+        return;
       }
     }
     inMemoryBuildCache.delete(fileLoc);
