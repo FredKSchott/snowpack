@@ -2,7 +2,7 @@ var entrypoint = {
     export1: 'foo',
     export2: 'bar',
 };
-var entrypoint_1 = entrypoint.export1;
-var entrypoint_2 = entrypoint.export2;
 
-export { entrypoint_1 as export1, entrypoint_2 as export2 };
+var export1 = entrypoint.export1;
+var export2 = entrypoint.export2;
+export { export1, export2 };
