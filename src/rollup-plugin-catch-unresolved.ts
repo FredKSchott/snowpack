@@ -11,37 +11,17 @@ export function rollupPluginCatchUnresolved(): Plugin {
   return {
     name: 'snowpack:rollup-plugin-catch-unresolved',
     resolveId(id, importer) {
-      if (!isNodeBuiltin(id)) {
-        console.error(
-          chalk.red(
-            chalk.bold(`! ${id}`) + ` is imported by '${importer}', but could not be resolved.`,
-          ),
-        );
-        return false;
+      if (isNodeBuiltin(id)) {
+        this.warn({
+          id: importer,
+          message: `"${id}" (Node.js built-in) could not be resolved. (https://www.snowpack.dev/#node-built-in-could-not-be-resolved)`,
+        });
+      } else {
+        this.warn({
+          id: importer,
+          message: `"${id}" could not be resolved.`,
+        });
       }
-
-      console.error(
-        chalk.red(
-          chalk.bold(`! ${id}`) +
-            ` is a Node.js built-in module that does not exist in the browser.\n`,
-        ),
-      );
-      console.error(
-        `  1. Search pika.dev for a more web-friendly package alternative${
-          importer ? ` to ${chalk.bold(importer)}.` : '.'
-        }`,
-      );
-      console.error(
-        `  2. Or, add this rollup plugin to your installer to polyfill Node.js packages:\n\n` +
-          chalk.dim(
-            `      // snowpack.config.js\n` +
-              `      module.exports = {\n` +
-              `        installOptions: {\n` +
-              `          rollup: {plugins: [require("rollup-plugin-node-polyfills")()]}\n` +
-              `        }\n` +
-              `      };\n`,
-          ),
-      );
       return false;
     },
   };

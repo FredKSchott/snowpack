@@ -1,0 +1,11 @@
+{
+    "scripts": {
+        "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    },
+    "dependencies": {
+        "mock-test-package": "^1.2.3"
+    },
+    "snowpack": {
+        "install": ["mock-test-package"]
+    }
+}
