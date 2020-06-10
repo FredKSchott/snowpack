@@ -162,7 +162,7 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
   if (!depManifest) {
     throw new ErrorWithHint(
       `Package "${dep}" not found. Have you installed it?`,
-      depManifestLoc && chalk.italic(depManifestLoc),
+      depManifestLoc ? chalk.italic(depManifestLoc) : '',
     );
   }
   if (
@@ -198,7 +198,7 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
   }
   return {
     type: 'JS',
-    loc: path.join(depManifestLoc, '..', foundEntrypoint),
+    loc: path.join(depManifestLoc || '', '..', foundEntrypoint),
   };
 }
 
