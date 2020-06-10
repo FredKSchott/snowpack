@@ -4,7 +4,48 @@ import readline from 'readline';
 import util from 'util';
 import {BuildScript} from '../config';
 import {isYarn} from '../util';
+import detectPort from 'detect-port';
 const cwd = process.cwd();
+
+/**
+ * Get the actual port, based on the `defaultPort`.
+ * If the default port was not available, then we'll prompt the user if its okay
+ * to use the next available port.
+ */
+export async function getPort(defaultPort: number): Promise<number> {
+  const bestAvailablePort = await detectPort(defaultPort);
+  if (defaultPort !== bestAvailablePort) {
+    let useNextPort: boolean = false;
+    if (process.stdout.isTTY) {
+      const rl = readline.createInterface({input: process.stdin, output: process.stdout});
+      useNextPort = await new Promise((resolve) => {
+        rl.question(
+          chalk.yellow(
+            `! Port ${chalk.bold(defaultPort)} not available. Run on port ${chalk.bold(
+              bestAvailablePort,
+            )} instead? (Y/n) `,
+          ),
+          (answer) => {
+            resolve(!/^no?$/i.test(answer));
+          },
+        );
+      });
+      rl.close();
+    }
+    if (!useNextPort) {
+      console.error(
+        chalk.red(
+          `✘ Port ${chalk.bold(defaultPort)} not available. Use ${chalk.bold(
+            '--port',
+          )} to specify a different port.`,
+        ),
+      );
+      console.error();
+      process.exit(1);
+    }
+  }
+  return bestAvailablePort;
+}
 
 function getStateString(workerState: any, isWatch: boolean): [chalk.ChalkFunction, string] {
   if (workerState.state) {
