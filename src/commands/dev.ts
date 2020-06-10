@@ -448,7 +448,8 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const createServer = credentials
-    ? (requestHandler) => http2.createSecureServer(credentials!, requestHandler)
+    ? (requestHandler) =>
+        http2.createSecureServer({...credentials!, allowHTTP1: true}, requestHandler)
     : (requestHandler) => http.createServer(requestHandler);
 
   const server = createServer(async (req, res) => {
