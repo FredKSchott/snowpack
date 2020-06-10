@@ -28,7 +28,6 @@ import cacache from 'cacache';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
 import isCompressible from 'compressible';
-import detectPort from 'detect-port';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
@@ -70,7 +69,7 @@ import {
   generateEnvModule,
 } from './build-util';
 import {command as installCommand} from './install';
-import {paint} from './paint';
+import {paint, getPort} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
@@ -177,9 +176,14 @@ function getMountedDirectory(cwd: string, workerConfig: BuildScript): [string, s
 let currentlyRunningCommand: any = null;
 
 export async function command(commandOptions: CommandOptions) {
-  let serverStart = Date.now();
   const {cwd, config} = commandOptions;
-  const {port, open, hmr: isHmr} = config.devOptions;
+  const {port: defaultPort, open, hmr: isHmr} = config.devOptions;
+  let serverStart = Date.now();
+  const port = await getPort(defaultPort);
+  // Reset the clock if we had to wait for the user to select a new port.
+  if (port !== defaultPort) {
+    serverStart = Date.now();
+  }
 
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
@@ -187,23 +191,6 @@ export async function command(commandOptions: CommandOptions) {
   const filesBeingBuilt = new Map<string, Promise<SnowpackPluginBuildResult>>();
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
-
-  // Check whether the port is available
-  const availablePort = await detectPort(port);
-  const isPortAvailable = port === availablePort;
-
-  if (!isPortAvailable) {
-    console.error();
-    console.error(
-      chalk.red(
-        `  ✘ port ${chalk.bold(port)} is not available. use ${chalk.bold(
-          '--port',
-        )} to specify a different port.`,
-      ),
-    );
-    console.error();
-    process.exit(1);
-  }
 
   // Set the proper install options, in case an install is needed.
   commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
@@ -787,6 +774,11 @@ export async function command(commandOptions: CommandOptions) {
 
     sendFile(req, res, wrappedResponse, responseFileExt);
   })
+    .on('error', (err: Error) => {
+      console.error(chalk.red(`  ✘ Failed to start server at port ${chalk.bold(port)}.`), err);
+      server.close();
+      process.exit(1);
+    })
     .on('upgrade', (req: http.IncomingMessage, socket, head) => {
       config.proxy.forEach(([pathPrefix, proxyOptions]) => {
         const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
