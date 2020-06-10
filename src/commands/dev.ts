@@ -201,9 +201,7 @@ export async function command(commandOptions: CommandOptions) {
           chalk.yellow(
             `port ${chalk.bold(
               port,
-            )} is not available. Would you like to run the app on port ${chalk.bold(
-              availablePort,
-            )} instead? (Y/n) `,
+            )} is not available. Would you like to run the app on another port instead? (Y/n) `,
           ),
           (answer) => {
             resolve(!/^no?$/i.test(answer));
@@ -227,7 +225,7 @@ export async function command(commandOptions: CommandOptions) {
       process.exit(1);
     }
 
-    port = availablePort
+    port = await detectPort(availablePort);
   }
 
   // Set the proper install options, in case an install is needed.
@@ -812,6 +810,16 @@ export async function command(commandOptions: CommandOptions) {
 
     sendFile(req, res, wrappedResponse, responseFileExt);
   })
+    .on('error', (err: Error) => {
+      console.error(
+        chalk.red(
+          `  ✘ Failed to start server at port ${chalk.bold(port)}.`,
+        ),
+        err
+      );
+      server.close();
+      process.exit(1);
+    })
     .on('upgrade', (req: http.IncomingMessage, socket, head) => {
       config.proxy.forEach(([pathPrefix, proxyOptions]) => {
         const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
