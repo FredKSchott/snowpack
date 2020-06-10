@@ -48,4 +48,5 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 ### Featured Community Plugins
 
 - [@prefresh/snowpack](https://github.com/JoviDeCroock/prefresh)
+- [snowpack-plugin-import-map](https://github.com/zhoukekestar/snowpack-plugin-import-map) A more easy way to map your imports to Pika CDN instead of [import-maps.json](https://github.com/WICG/import-maps).
 - PRs that add a link to this list are welcome!
