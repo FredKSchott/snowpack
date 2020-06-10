@@ -628,7 +628,7 @@ export async function command(commandOptions: CommandOptions) {
       if (responseFileExt === '.js' && cssResource) {
         code = `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
       }
-      if (reqUrlHmrParam) {
+      if (responseFileExt === '.js' && reqUrlHmrParam) {
         code = await transformEsmImports(code as string, (imp) => {
           const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
           const node = hmrEngine.getEntry(importUrl);
