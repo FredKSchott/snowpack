@@ -250,14 +250,13 @@ npm start -- --secure
 
 #### Generating SSL Certificates
 
-You can automatically generate credentials for your project via either: 
+You can automatically generate credentials for your project via: 
 
-- [devcert (no install required)](https://github.com/davewasmer/devcert-cli): `npx devcert-cli generate localhost`
-- [mkcert (install required)](https://github.com/FiloSottile/mkcert): `mkcert -install && mkcert localhost`
+- [mkcert](https://github.com/FiloSottile/mkcert): `mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt localhost`
    
 #### HTTP2 
 
-Not sure what to write here...
+If you use snowpack's proxy settings to forward your API requests, you'll need to make sure the API server can handle HTTP/2 requests.
 
 ### Import Maps
 

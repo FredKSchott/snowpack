@@ -431,17 +431,14 @@ export async function command(commandOptions: CommandOptions) {
         ),
       );
       console.log();
-      console.log('You can automatically generate credentials for your project via either:');
+      console.log('You can automatically generate credentials for your project via:');
       console.log();
       console.log(
-        `  - ${chalk.cyan('devcert')}: ${chalk.yellow('npx devcert-cli generate localhost')}`,
+        `  - ${chalk.cyan('mkcert')}: ${chalk.yellow(
+          'mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt',
+        )} localhost`,
       );
-      console.log('    https://github.com/davewasmer/devcert-cli (no install required)');
-      console.log();
-      console.log(
-        `  - ${chalk.cyan('mkcert')}: ${chalk.yellow('mkcert -install && mkcert localhost')}`,
-      );
-      console.log('    https://github.com/FiloSottile/mkcert (install required)');
+      console.log('    https://github.com/FiloSottile/mkcert');
       console.log();
       process.exit(1);
     }
