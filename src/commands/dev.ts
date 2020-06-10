@@ -453,6 +453,7 @@ export async function command(commandOptions: CommandOptions) {
 
   const server = createServer(async (req, res) => {
     const reqUrl = req.url!;
+    const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const originalReqPath = reqPath;
     let isProxyModule = false;
@@ -627,6 +628,17 @@ export async function command(commandOptions: CommandOptions) {
       if (responseFileExt === '.js' && cssResource) {
         code = `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
       }
+      if (reqUrlHmrParam) {
+        code = await transformEsmImports(code as string, (imp) => {
+          const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
+          const node = hmrEngine.getEntry(importUrl);
+          if (node && node.needsReplacement) {
+            hmrEngine.markEntryForReplacement(node, false);
+            return `${imp}?${reqUrlHmrParam}`;
+          }
+          return imp;
+        });
+      }
       return code;
     }
 
@@ -634,20 +646,6 @@ export async function command(commandOptions: CommandOptions) {
     let hotCachedResponse: string | Buffer | undefined = inMemoryBuildCache.get(fileLoc);
     if (hotCachedResponse) {
       hotCachedResponse = hotCachedResponse.toString(getEncodingType(requestedFileExt));
-      const isHot = reqUrl.includes('?mtime=');
-      if (isHot) {
-        const [, mtime] = reqUrl.split('?');
-        hotCachedResponse = await transformEsmImports(hotCachedResponse as string, (imp) => {
-          const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
-          const node = hmrEngine.getEntry(importUrl);
-          if (node && node.needsReplacement) {
-            hmrEngine.markEntryForReplacement(node, false);
-            return `${imp}?${mtime}`;
-          }
-          return imp;
-        });
-      }
-
       const wrappedResponse = await wrapResponse(
         hotCachedResponse,
         inMemoryResourceCache.get(reqPath.replace(/.js$/, '.css')),
@@ -814,27 +812,40 @@ export async function command(commandOptions: CommandOptions) {
       hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
-  async function onWatchEvent(fileLoc) {
-    let updateUrl = getUrlFromFile(mountedDirectories, fileLoc);
-    if (updateUrl) {
-      if (!updateUrl.endsWith('.js') && !updateUrl.endsWith('.module.css')) {
-        updateUrl += '.proxy.js';
-      }
-      if (isLiveReloadPaused) {
-        return;
-      }
-      // If no entry exists, file has never been loaded, safe to ignore
-      if (hmrEngine.getEntry(updateUrl)) {
-        updateOrBubble(updateUrl, new Set());
-        return;
-      }
-      // HTML files don't support HMR, so just reload the current page
-      // NOTE: .html.proxy.js should be .html, but we naively add proxy.js above
-      if (updateUrl.endsWith('.html.proxy.js')) {
-        hmrEngine.broadcastMessage({type: 'reload'});
-        return;
-      }
+  function handleHmrUpdate(fileLoc: string) {
+    if (isLiveReloadPaused) {
+      return;
     }
+    let updateUrl = getUrlFromFile(mountedDirectories, fileLoc);
+    if (!updateUrl) {
+      return;
+    }
+    // HTML files don't support HMR, so just reload the current page.
+    if (updateUrl.endsWith('.html')) {
+      hmrEngine.broadcastMessage({type: 'reload'});
+      return;
+    }
+    // Append ".proxy.js" to Non-JS files to match their registered URL in the client app.
+    if (!updateUrl.endsWith('.js') && !updateUrl.endsWith('.module.css')) {
+      updateUrl += '.proxy.js';
+    }
+    // Check if a virtual file exists in the resource cache (ex: CSS from a Svelte file)
+    // If it does, mark it for HMR replacement but DONT trigger a separate HMR update event.
+    // This is because a virtual resource doesn't actually exist on disk, so we need the main
+    // resource (the JS) to load first. Only after that happens will the CSS exist.
+    const virtualCssFileUrl = updateUrl.replace(/.js$/, '.css');
+    const virtualNode = hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
+    if (virtualNode && inMemoryResourceCache.has(virtualCssFileUrl)) {
+      inMemoryResourceCache.delete(virtualCssFileUrl);
+      hmrEngine.markEntryForReplacement(virtualNode, true);
+    }
+    // If the changed file exists on the page, trigger a new HMR update.
+    if (hmrEngine.getEntry(updateUrl)) {
+      updateOrBubble(updateUrl, new Set());
+    }
+  }
+  async function onWatchEvent(fileLoc) {
+    handleHmrUpdate(fileLoc);
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);
     await cacache.rm.entry(BUILD_CACHE, fileLoc);
