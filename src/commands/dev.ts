@@ -439,7 +439,9 @@ export async function command(commandOptions: CommandOptions) {
       console.log('    https://github.com/davewasmer/devcert-cli (no install required)');
       console.log();
       console.log(
-        `  - ${chalk.cyan('mkcert')}: ${chalk.yellow('mkcert -install && mkcert localhost')}`,
+        `  - ${chalk.cyan('mkcert')}: ${chalk.yellow(
+          'mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt localhost',
+        )}`,
       );
       console.log('    https://github.com/FiloSottile/mkcert (install required)');
       console.log();
