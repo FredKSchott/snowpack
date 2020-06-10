@@ -40,6 +40,7 @@ import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
 import os from 'os';
 import path from 'path';
+import readline from 'readline';
 import onProcessExit from 'signal-exit';
 import stream from 'stream';
 import url from 'url';
@@ -179,7 +180,8 @@ let currentlyRunningCommand: any = null;
 export async function command(commandOptions: CommandOptions) {
   let serverStart = Date.now();
   const {cwd, config} = commandOptions;
-  const {port, open, hmr: isHmr} = config.devOptions;
+  const {port: defaultPort, open, hmr: isHmr} = config.devOptions;
+  let port = defaultPort;
 
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
@@ -190,19 +192,40 @@ export async function command(commandOptions: CommandOptions) {
 
   // Check whether the port is available
   const availablePort = await detectPort(port);
-  const isPortAvailable = port === availablePort;
+  if (port !== availablePort) {
+    let useNextPort: boolean = false;
+    if (process.stdout.isTTY) {
+      const rl = readline.createInterface({input: process.stdin, output: process.stdout});
+      useNextPort = await new Promise((resolve) => {
+        rl.question(
+          chalk.yellow(
+            `port ${chalk.bold(
+              port,
+            )} is not available. Would you like to run the app on another port instead? (Y/n) `,
+          ),
+          (answer) => {
+            resolve(!/^no?$/i.test(answer));
+          },
+        );
+      });
+      rl.close();
+      serverStart = Date.now();
+    }
 
-  if (!isPortAvailable) {
-    console.error();
-    console.error(
-      chalk.red(
-        `  ✘ port ${chalk.bold(port)} is not available. use ${chalk.bold(
-          '--port',
-        )} to specify a different port.`,
-      ),
-    );
-    console.error();
-    process.exit(1);
+    if (!useNextPort) {
+      console.error();
+      console.error(
+        chalk.red(
+          `  ✘ port ${chalk.bold(port)} is not available. Use ${chalk.bold(
+            '--port',
+          )} to specify a different port.`,
+        ),
+      );
+      console.error();
+      process.exit(1);
+    }
+
+    port = await detectPort(availablePort);
   }
 
   // Set the proper install options, in case an install is needed.
@@ -787,6 +810,16 @@ export async function command(commandOptions: CommandOptions) {
 
     sendFile(req, res, wrappedResponse, responseFileExt);
   })
+    .on('error', (err: Error) => {
+      console.error(
+        chalk.red(
+          `  ✘ Failed to start server at port ${chalk.bold(port)}.`,
+        ),
+        err
+      );
+      server.close();
+      process.exit(1);
+    })
     .on('upgrade', (req: http.IncomingMessage, socket, head) => {
       config.proxy.forEach(([pathPrefix, proxyOptions]) => {
         const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
