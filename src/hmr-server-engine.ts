@@ -41,6 +41,7 @@ export class EsmHmrEngine {
       if (message.type === 'hotAccept') {
         const entry = this.getEntry(message.id, true) as Dependency;
         entry.isHmrAccepted = true;
+        entry.isHmrEnabled = true;
       }
     });
   }
