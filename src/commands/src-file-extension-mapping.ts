@@ -1,4 +1,5 @@
 export default {
+  mjs: 'js',
   jsx: 'js',
   ts: 'js',
   tsx: 'js',
