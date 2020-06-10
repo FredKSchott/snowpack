@@ -114,6 +114,9 @@ export interface SnowpackConfig {
       dedupe?: string[];
     };
   };
+  buildOptions: {
+    metaDir: string;
+  };
   proxy: Proxy[];
 }
 
@@ -151,6 +154,9 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     fallback: 'index.html',
     hmr: true,
     bundle: undefined,
+  },
+  buildOptions: {
+    metaDir: '__snowpack__',
   },
 };
 
@@ -215,6 +221,12 @@ const configSchema = {
         },
       },
     },
+    buildOptions: {
+      type: ['object'],
+      properties: {
+        metaDir: {type: 'string'},
+      },
+    },
     proxy: {
       type: 'object',
     },
@@ -231,6 +243,7 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
   const result = {
     installOptions: {} as any,
     devOptions: {} as any,
+    buildOptions: {} as any,
   };
   const {help, version, reload, config, ...relevantFlags} = flags;
   for (const [flag, val] of Object.entries(relevantFlags)) {
@@ -450,6 +463,10 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     config.proxy = {} as any;
   }
   const allPlugins = {};
+  // remove leading/trailing slashes
+  config.buildOptions.metaDir = config.buildOptions.metaDir
+    .replace(/^(\/|\\)/g, '') // replace leading slash
+    .replace(/(\/|\\)$/g, ''); // replace trailing slash
   config.plugins = (config.plugins as any).map((plugin: string | [string, any]) => {
     const configPluginPath = Array.isArray(plugin) ? plugin[0] : plugin;
     const configPluginOptions = (Array.isArray(plugin) && plugin[1]) || {};

@@ -2109,34 +2109,6 @@ exports.version = ReactVersion;
   })();
 }
 });
-var react_development_1 = react_development.Children;
-var react_development_2 = react_development.Component;
-var react_development_3 = react_development.Fragment;
-var react_development_4 = react_development.Profiler;
-var react_development_5 = react_development.PureComponent;
-var react_development_6 = react_development.StrictMode;
-var react_development_7 = react_development.Suspense;
-var react_development_8 = react_development.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
-var react_development_9 = react_development.cloneElement;
-var react_development_10 = react_development.createContext;
-var react_development_11 = react_development.createElement;
-var react_development_12 = react_development.createFactory;
-var react_development_13 = react_development.createRef;
-var react_development_14 = react_development.forwardRef;
-var react_development_15 = react_development.isValidElement;
-var react_development_16 = react_development.lazy;
-var react_development_17 = react_development.memo;
-var react_development_18 = react_development.useCallback;
-var react_development_19 = react_development.useContext;
-var react_development_20 = react_development.useDebugValue;
-var react_development_21 = react_development.useEffect;
-var react_development_22 = react_development.useImperativeHandle;
-var react_development_23 = react_development.useLayoutEffect;
-var react_development_24 = react_development.useMemo;
-var react_development_25 = react_development.useReducer;
-var react_development_26 = react_development.useRef;
-var react_development_27 = react_development.useState;
-var react_development_28 = react_development.version;
 
 var react = createCommonjsModule(function (module) {
 

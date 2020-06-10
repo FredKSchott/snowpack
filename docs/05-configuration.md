@@ -50,6 +50,7 @@ $ snowpack dev --no-bundle
   "scripts": { /* ... */ },
   "installOptions": { /* ... */ },
   "devOptions": { /* ... */ },
+  "buildOptions": { /* ... */ },
   "proxy": { /* ... */ },
 }
 ```
@@ -119,6 +120,11 @@ $ snowpack dev --no-bundle
   - Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
 - **`hmr`** | `boolean` | Default: `true`
   - Toggles whether or not Snowpack dev server should have HMR enabled.
+
+#### Build Options
+
+- **`metaDir`** | `string` | Default: `__snowpack__`
+  - By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
 
 #### Proxy Options
 
