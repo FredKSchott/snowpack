@@ -6,6 +6,7 @@ export default {
   svelte: 'js',
   mdx: 'js',
   svx: 'js',
+  elm: 'js',
   php: 'html',
   md: 'html',
   ejs: 'html',
