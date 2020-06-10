@@ -480,11 +480,11 @@ export async function command(commandOptions: CommandOptions) {
       }
     });
 
-    if (reqPath === '/__snowpack__/hmr.js') {
+    if (reqPath === `/${config.buildOptions.metaDir}/hmr.js`) {
       sendFile(req, res, HMR_DEV_CODE, '.js');
       return;
     }
-    if (reqPath === '/__snowpack__/env.js') {
+    if (reqPath === `/${config.buildOptions.metaDir}/env.js`) {
       sendFile(req, res, generateEnvModule('development'), '.js');
       return;
     }
@@ -586,12 +586,13 @@ export async function command(commandOptions: CommandOptions) {
     if (virtualResourceResponse) {
       if (isProxyModule) {
         responseFileExt = '.js';
-        virtualResourceResponse = wrapEsmProxyResponse(
-          reqPath,
-          virtualResourceResponse,
-          requestedFileExt,
-          true,
-        );
+        virtualResourceResponse = wrapEsmProxyResponse({
+          url: reqPath,
+          code: virtualResourceResponse,
+          ext: requestedFileExt,
+          hasHmr: true,
+          config,
+        });
       }
       sendFile(req, res, virtualResourceResponse, responseFileExt);
       return;
@@ -615,15 +616,27 @@ export async function command(commandOptions: CommandOptions) {
 
     async function wrapResponse(code: string, cssResource: string | undefined) {
       if (isRoute) {
-        code = wrapHtmlResponse(code, isHmr);
+        code = wrapHtmlResponse({code: code, hasHmr: isHmr, buildOptions: config.buildOptions});
       } else if (isProxyModule) {
         responseFileExt = '.js';
-        code = wrapEsmProxyResponse(reqPath, code, requestedFileExt, isHmr);
+        code = wrapEsmProxyResponse({
+          url: reqPath,
+          code,
+          ext: requestedFileExt,
+          hasHmr: isHmr,
+          config,
+        });
       } else if (isCssModule) {
         responseFileExt = '.js';
-        code = await wrapCssModuleResponse(reqPath, code, requestedFileExt, isHmr);
+        code = await wrapCssModuleResponse({
+          url: reqPath,
+          code,
+          ext: requestedFileExt,
+          hasHmr: isHmr,
+          config,
+        });
       } else if (responseFileExt === '.js') {
-        code = wrapImportMeta(code, {env: true, hmr: isHmr});
+        code = wrapImportMeta({code, env: true, hmr: isHmr, config});
       }
       if (responseFileExt === '.js' && cssResource) {
         code = `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
