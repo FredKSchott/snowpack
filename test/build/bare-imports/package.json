@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "TEST": "../../../pkg/dist-node/index.bin.js build"
+  },
+  "dependencies": {
+    "array-flatten": "^3.0.0"
+  }
+}
