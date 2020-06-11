@@ -228,6 +228,10 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const allBuiltFromFiles = new Set<string>();
+
+  const webModulesScript = config.scripts.find(script => script.id === 'mount:web_modules');
+  const webModulesLoc = webModulesScript ? webModulesScript.args.toUrl as string : '/web_modules';
+
   for (const workerConfig of relevantWorkers) {
     const {id, match, type} = workerConfig;
     if (type !== 'build' || match.length === 0) {
@@ -317,7 +321,7 @@ export async function command(commandOptions: CommandOptions) {
             if (dependencyImportMap.imports[spec]) {
               let resolvedImport = path.posix.join(
                 config.buildOptions.baseUrl,
-                `/web_modules`,
+                webModulesLoc,
                 dependencyImportMap.imports[spec],
               );
               const extName = path.extname(resolvedImport);
@@ -337,7 +341,7 @@ export async function command(commandOptions: CommandOptions) {
                 pkgName: missingPackageName,
               },
             });
-            return path.posix.join(config.buildOptions.baseUrl, `/web_modules`, `${spec}.js`);
+            return path.posix.join(config.buildOptions.baseUrl, webModulesLoc, `${spec}.js`);
           });
           code = wrapImportMeta({code, env: true, hmr: false, config});
         }
