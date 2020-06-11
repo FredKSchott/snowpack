@@ -462,12 +462,7 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
-  const createServer = credentials
-    ? (requestHandler) =>
-        http2.createSecureServer({...credentials!, allowHTTP1: true}, requestHandler)
-    : (requestHandler) => http.createServer(requestHandler);
-
-  const server = createServer(async (req, res) => {
+  async function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
     const reqUrl = req.url!;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
@@ -800,6 +795,20 @@ export async function command(commandOptions: CommandOptions) {
     }
 
     sendFile(req, res, wrappedResponse, responseFileExt);
+  }
+
+  const createServer = credentials
+    ? (requestHandler) =>
+        http2.createSecureServer({...credentials!, allowHTTP1: true}, requestHandler)
+    : (requestHandler) => http.createServer(requestHandler);
+
+  const server = createServer(async (req, res) => {
+    try {
+      return await requestHandler(req, res);
+    } catch (err) {
+      console.error(`[500] ${req.url}\n${err.message}`);
+      return sendError(res, 500);
+    }
   })
     .on('error', (err: Error) => {
       console.error(chalk.red(`  ✘ Failed to start server at port ${chalk.bold(port)}.`), err);
