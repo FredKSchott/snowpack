@@ -97,6 +97,15 @@ function getEncodingType(ext: string): 'utf-8' | 'binary' {
   }
 }
 
+/** Find disk location from specifier string */
+function getPackageNameFromSpecifier(specifier: string): string {
+  let [packageName, ...deepPackagePathParts] = specifier.split('/');
+  if (packageName.startsWith('@')) {
+    packageName += '/' + deepPackagePathParts.shift();
+  }
+  return packageName;
+}
+
 const sendFile = (
   req: http.IncomingMessage,
   res: http.ServerResponse,
@@ -214,6 +223,28 @@ export async function command(commandOptions: CommandOptions) {
     // no import-map found, safe to ignore
   }
 
+  /** Rerun `snowpack install` while dev server is running */
+  async function reinstallDependencies() {
+    if (!currentlyRunningCommand) {
+      isLiveReloadPaused = true;
+      messageBus.emit('INSTALLING');
+      currentlyRunningCommand = installCommand(commandOptions);
+      await currentlyRunningCommand.then(async () => {
+        dependencyImportMap = JSON.parse(
+          await fs
+            .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
+            .catch(() => `{"imports": {}}`),
+        );
+        await updateLockfileHash(DEV_DEPENDENCIES_DIR);
+        await cacache.rm.all(BUILD_CACHE);
+        inMemoryBuildCache.clear();
+        messageBus.emit('INSTALL_COMPLETE');
+        isLiveReloadPaused = false;
+        currentlyRunningCommand = null;
+      });
+    }
+  }
+
   async function buildFile(
     fileContents: string,
     fileLoc: string,
@@ -297,33 +328,15 @@ export async function command(commandOptions: CommandOptions) {
           }
           return resolvedImport;
         }
-        let [missingPackageName, ...deepPackagePathParts] = spec.split('/');
-        if (missingPackageName.startsWith('@')) {
-          missingPackageName += '/' + deepPackagePathParts.shift();
-        }
-        const [depManifestLoc] = resolveDependencyManifest(missingPackageName, cwd);
+        const packageName = getPackageNameFromSpecifier(spec);
+        const [depManifestLoc] = resolveDependencyManifest(packageName, cwd);
         const doesPackageExist = !!depManifestLoc;
-        if (doesPackageExist && !currentlyRunningCommand) {
-          isLiveReloadPaused = true;
-          messageBus.emit('INSTALLING');
-          currentlyRunningCommand = installCommand(commandOptions);
-          currentlyRunningCommand.then(async () => {
-            dependencyImportMap = JSON.parse(
-              await fs
-                .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
-                .catch(() => `{"imports": {}}`),
-            );
-            await updateLockfileHash(DEV_DEPENDENCIES_DIR);
-            await cacache.rm.all(BUILD_CACHE);
-            inMemoryBuildCache.clear();
-            messageBus.emit('INSTALL_COMPLETE');
-            isLiveReloadPaused = false;
-            currentlyRunningCommand = null;
-          });
-        } else if (!doesPackageExist) {
+        if (doesPackageExist) {
+          reinstallDependencies();
+        } else {
           missingWebModule = {
             spec: spec,
-            pkgName: missingPackageName,
+            pkgName: packageName,
           };
         }
         const extName = path.extname(spec);
@@ -860,6 +873,8 @@ export async function command(commandOptions: CommandOptions) {
       updateOrBubble(updateUrl, new Set());
     }
   }
+
+  // Watch src files
   async function onWatchEvent(fileLoc) {
     handleHmrUpdate(fileLoc);
     inMemoryBuildCache.delete(fileLoc);
@@ -879,6 +894,29 @@ export async function command(commandOptions: CommandOptions) {
   watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
+
+  // Watch node_modules & rerun snowpack install if symlinked dep updates
+  const symlinkedFileLocs = new Set(
+    Object.keys(dependencyImportMap.imports)
+      .map((specifier) => {
+        const packageName = getPackageNameFromSpecifier(specifier);
+        return resolveDependencyManifest(packageName, cwd);
+      }) // resolve symlink src location
+      .filter(([_, packageManifest]) => packageManifest && !packageManifest['_id']) // only watch symlinked deps for now
+      .map(([fileLoc]) => `${path.dirname(fileLoc!)}/**`),
+  );
+  function onDepWatchEvent() {
+    reinstallDependencies().then(() => hmrEngine.broadcastMessage({type: 'reload'}));
+  }
+  const depWatcher = chokidar.watch([...symlinkedFileLocs], {
+    cwd: '/', // we’re using absolute paths, so watch from root
+    persistent: true,
+    ignoreInitial: true,
+    disableGlobbing: false,
+  });
+  depWatcher.on('add', onDepWatchEvent);
+  depWatcher.on('change', onDepWatchEvent);
+  depWatcher.on('unlink', onDepWatchEvent);
 
   onProcessExit(() => {
     hmrEngine.disconnectAllClients();
