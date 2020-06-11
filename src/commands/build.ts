@@ -315,7 +315,8 @@ export async function command(commandOptions: CommandOptions) {
               return spec;
             }
             if (dependencyImportMap.imports[spec]) {
-              let resolvedImport = path.posix.resolve(
+              let resolvedImport = path.posix.join(
+                config.buildOptions.baseUrl,
                 `/web_modules`,
                 dependencyImportMap.imports[spec],
               );
@@ -336,7 +337,7 @@ export async function command(commandOptions: CommandOptions) {
                 pkgName: missingPackageName,
               },
             });
-            return `/web_modules/${spec}.js`;
+            return path.posix.join(config.buildOptions.baseUrl, `/web_modules`, `${spec}.js`);
           });
           code = wrapImportMeta({code, env: true, hmr: false, config});
         }
