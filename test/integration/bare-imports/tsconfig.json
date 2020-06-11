@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "paths": {
+      "array-flatten": ["../node_modules/array-flatten/dist/index.js"],
+      "@title": ["../public/title"]
+    }
   }
 }
