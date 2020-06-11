@@ -104,6 +104,7 @@
     "@types/babel__traverse": "^7.0.7",
     "@types/cacache": "^12.0.1",
     "@types/compressible": "^2.0.0",
+    "@types/css-modules-loader-core": "^1.1.0",
     "@types/es-module-lexer": "^0.3.0",
     "@types/etag": "^1.8.0",
     "@types/http-proxy": "^1.17.4",
