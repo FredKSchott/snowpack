@@ -54,6 +54,7 @@ import {
   isYarn,
   openInBrowser,
   resolveDependencyManifest,
+  expandBareImport,
   updateLockfileHash,
 } from '../util';
 import {
@@ -345,7 +346,7 @@ export async function command(commandOptions: CommandOptions) {
         if (spec.startsWith('http')) {
           return spec;
         }
-        spec = expandBareImport(spec);
+        spec = expandBareImport(cwd, config.scripts, spec);
         if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
           const ext = path.extname(spec).substr(1);
           if (!ext) {

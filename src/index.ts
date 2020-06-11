@@ -1,4 +1,3 @@
-import tsConfigPaths from 'tsconfig-paths';
 import chalk from 'chalk';
 import path from 'path';
 import yargs from 'yargs-parser';
@@ -71,43 +70,11 @@ export async function cli(args: string[]) {
     process.env.NODE_ENV = process.env.NODE_ENV || 'development';
   }
 
-  const config = loadAndValidateConfig(cliFlags, pkgManifest);
-
-  const tsConfig = tsConfigPaths.loadConfig();
-  const matchTsConfigPath =
-    tsConfig.resultType === 'success'
-      ? tsConfigPaths.createMatchPath(tsConfig.absoluteBaseUrl, tsConfig.paths)
-      : () => undefined;
-
-  // Ex: src/foo/bar => /_dist_/foo/bar
-  const expandBareImport = (spec) => {
-    // Relative and absolute imports should not match
-    if (
-      spec.startsWith('./') ||
-      spec.startsWith('../') ||
-      spec.startsWith('/') ||
-      spec.startsWith('http://') ||
-      spec.startsWith('https://') ||
-      spec.startsWith('file://')
-    )
-      return spec;
-    // Possibly prepend baseUrl
-    const matched = matchTsConfigPath(spec);
-    if (matched) spec = path.relative(cwd, matched);
-    // Find a mount script for which `args.fromDisk` is a prefix of the import
-    const script = config.scripts
-      .filter(({type}) => type === 'mount')
-      .find(({args}) => spec.startsWith(args.fromDisk));
-    // Possibly replace import prefix with mounted directory
-    return script ? spec.replace(script.args.fromDisk, script.args.toUrl) : spec;
-  };
-
   const commandOptions = {
     cwd,
-    config,
+    config: loadAndValidateConfig(cliFlags, pkgManifest),
     lockfile: await readLockfile(cwd),
     pkgManifest,
-    expandBareImport,
   };
 
   if (cmd === 'add') {

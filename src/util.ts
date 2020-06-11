@@ -11,6 +11,7 @@ import open from 'open';
 import path from 'path';
 import {SnowpackConfig, BuildScript} from './config';
 import mkdirp from 'mkdirp';
+import tsConfigPaths from 'tsconfig-paths';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
@@ -32,7 +33,6 @@ export interface CommandOptions {
   config: SnowpackConfig;
   lockfile: ImportMap | null;
   pkgManifest: any;
-  expandBareImport: (spec: string) => string;
 }
 
 export function isYarn(cwd: string) {
@@ -212,4 +212,38 @@ export async function clearCache() {
     cacache.rm.all(BUILD_CACHE),
     rimraf.sync(PROJECT_CACHE_DIR),
   ]);
+}
+
+let tsConfig;
+let matchTsConfigPath;
+
+// Ex: src/foo/bar => /_dist_/foo/bar
+export function expandBareImport(cwd, scripts, spec) {
+  // Initialize state
+  tsConfig = tsConfig || tsConfigPaths.loadConfig();
+  matchTsConfigPath =
+    matchTsConfigPath ||
+    (tsConfig.resultType === 'success'
+      ? tsConfigPaths.createMatchPath(tsConfig.absoluteBaseUrl, tsConfig.paths)
+      : () => undefined);
+
+  // Relative and absolute imports should not match
+  if (
+    spec.startsWith('./') ||
+    spec.startsWith('../') ||
+    spec.startsWith('/') ||
+    spec.startsWith('http://') ||
+    spec.startsWith('https://') ||
+    spec.startsWith('file://')
+  )
+    return spec;
+  // Possibly prepend baseUrl
+  const matched = matchTsConfigPath(spec);
+  if (matched) spec = path.relative(cwd, matched);
+  // Find a mount script for which `args.fromDisk` is a prefix of the import
+  const script = scripts
+    .filter(({type}) => type === 'mount')
+    .find(({args}) => spec.startsWith(args.fromDisk));
+  // Possibly replace import prefix with mounted directory
+  return script ? spec.replace(script.args.fromDisk, script.args.toUrl) : spec;
 }
