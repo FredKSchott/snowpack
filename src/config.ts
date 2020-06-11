@@ -220,6 +220,24 @@ const configSchema = {
   },
 };
 
+function validateConfigOnce() {
+  let validated = false;
+  return function (config: object, errorHandler?: (errors) => void) {
+    if (!validated) {
+      const validation = validate(config, configSchema, {
+        allowUnknownAttributes: false,
+        propertyName: CONFIG_NAME,
+      });
+
+      validated = true;
+
+      errorHandler && errorHandler(validation.errors);
+    }
+  };
+}
+
+const validateOnce = validateConfigOnce();
+
 /**
  * Convert CLI flags to an incomplete Snowpack config representation.
  * We need to be careful about setting properties here if the flag value
@@ -642,15 +660,7 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
 }
 
 export function createConfiguration(config: Partial<SnowpackConfig>): SnowpackConfig {
-  const validation = validate(config, configSchema, {
-    allowUnknownAttributes: false,
-    propertyName: CONFIG_NAME,
-  });
-
-  if (validation.errors && validation.errors.length > 0) {
-    handleValidationErrors(null, validation.errors);
-    process.exit(1);
-  }
+  validateOnce(config);
 
   const mergedConfig = merge<SnowpackConfig>([DEFAULT_CONFIG, config]);
   return normalizeConfig(mergedConfig);
@@ -686,14 +696,14 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
   validateConfigAgainstV1(config, flags);
   const cliConfig = expandCliFlags(flags);
 
-  const validation = validate(config, configSchema, {
-    allowUnknownAttributes: false,
-    propertyName: CONFIG_NAME,
-  });
-  if (validation.errors && validation.errors.length > 0) {
-    handleValidationErrors(result.filepath, validation.errors);
-    process.exit(1);
+  function errorHandler(errors) {
+    if (errors && errors.length > 0) {
+      handleValidationErrors(result.filepath, errors);
+      process.exit(1);
+    }
   }
+
+  validateOnce(config, errorHandler);
 
   let extendConfig: SnowpackConfig | {} = {};
   if (config.extends) {
@@ -717,7 +727,6 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
   }
   // if valid, apply config over defaults
   const mergedConfig = merge<SnowpackConfig>([
-    DEFAULT_CONFIG,
     extendConfig,
     {
       webDependencies: pkgManifest.webDependencies,
@@ -739,5 +748,5 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     }
   }
 
-  return normalizeConfig(mergedConfig);
+  return createConfiguration(mergedConfig);
 }
