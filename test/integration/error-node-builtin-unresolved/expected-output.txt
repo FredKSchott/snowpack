@@ -1,0 +1,8 @@
+- snowpack installing...
+⠼ snowpack installing... mock-test-package
+✖ node_modules/mock-test-package/entrypoint.js
+   "http" (Node.js built-in) could not be resolved. (https://www.snowpack.dev/#node-built-in-could-not-be-resolved)
+✔ snowpack install complete with errors.
+
+  ⦿ web_modules/             size       gzip       brotli   
+    └─ mock-test-package.js    XXXX KB    XXXX KB    XXXX KB

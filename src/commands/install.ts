@@ -347,11 +347,22 @@ export async function install(
       rollupPluginCatchUnresolved(),
     ].filter(Boolean) as Plugin[],
     onwarn(warning, warn) {
+      // Warn about the first circular dependency, but then ignore the rest.
       if (warning.code === 'CIRCULAR_DEPENDENCY') {
         if (!isCircularImportFound) {
           isCircularImportFound = true;
           logUpdate(`Warning: 1+ circular dependencies found via "${warning.importer}".`);
         }
+        return;
+      }
+      // Log "unresolved" import warnings as an error, causing Snowpack to fail at the end.
+      if (
+        warning.code === 'PLUGIN_WARNING' &&
+        warning.plugin === 'snowpack:rollup-plugin-catch-unresolved'
+      ) {
+        // Display posix-style on all environments, mainly to help with CI :)
+        const fileName = warning.id!.replace(cwd + path.sep, '').replace(/\\/g, '/');
+        logError(`${fileName}\n   ${warning.message}`);
         return;
       }
       warn(warning);
@@ -457,7 +468,7 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
   if (finalResult) {
     spinner.succeed(
       chalk.bold(`snowpack`) +
-        ` install complete.` +
+        ` install complete${spinnerHasError ? ' with errors.' : '.'}` +
         chalk.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
     if (!!dependencyStats) {
