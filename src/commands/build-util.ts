@@ -107,6 +107,9 @@ export function wrapHtmlResponse({
   hasHmr?: boolean;
   buildOptions: SnowpackConfig['buildOptions'];
 }) {
+  // replace %PUBLIC_URL% in HTML files (along with surrounding slashes, if any)
+  code = code.replace(/\/?%PUBLIC_URL%\/?/g, '/');
+
   if (hasHmr) {
     code += `<script type="module" src="/${buildOptions.metaDir}/hmr.js"></script>`;
   }

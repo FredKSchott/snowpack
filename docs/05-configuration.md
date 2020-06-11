@@ -123,6 +123,8 @@ $ snowpack dev --no-bundle
 
 #### Build Options
 
+- **`baseUrl`** | `string` | Default: `/`
+  - Prefix all URLs with this string at build time (useful if your app lives in a subdirectory)
 - **`metaDir`** | `string` | Default: `__snowpack__`
   - By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
 

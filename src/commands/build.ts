@@ -209,6 +209,13 @@ export async function command(commandOptions: CommandOptions) {
           }
           const outPath = f.replace(dirDisk, dirDest);
           mkdirp.sync(path.dirname(outPath));
+
+          // replace %PUBLIC_URL% in HTML files
+          if (path.extname(f) === '.html') {
+            let code = await fs.readFile(f, 'utf8');
+            code = code.replace(/%PUBLIC_URL%\/?/g, config.buildOptions.baseUrl);
+            return fs.writeFile(outPath, code, 'utf8');
+          }
           return fs.copyFile(f, outPath);
         }),
       );
