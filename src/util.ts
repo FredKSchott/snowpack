@@ -11,6 +11,7 @@ import open from 'open';
 import path from 'path';
 import {SnowpackConfig, BuildScript} from './config';
 import mkdirp from 'mkdirp';
+import tsConfigPaths from 'tsconfig-paths';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
@@ -213,24 +214,36 @@ export async function clearCache() {
   ]);
 }
 
-/**
- * Given an import string and a list of scripts, return the mount script that matches the import.
- *
- * `mount ./src --to /_dist_` and `mount src --to /_dist_` match `src/components/Button`
- * `mount src --to /_dist_` does not match `package/components/Button`
- */
-export function findMatchingMountScript(scripts: BuildScript[], spec: string) {
-  // Only match bare module specifiers. relative and absolute imports should not match
+let tsConfig;
+let matchTsConfigPath;
+
+// Ex: src/foo/bar => /_dist_/foo/bar
+export function expandBareImport(cwd, scripts, spec) {
+  // Initialize state
+  tsConfig = tsConfig || tsConfigPaths.loadConfig();
+  matchTsConfigPath =
+    matchTsConfigPath ||
+    (tsConfig.resultType === 'success'
+      ? tsConfigPaths.createMatchPath(tsConfig.absoluteBaseUrl, tsConfig.paths)
+      : () => undefined);
+
+  // Relative and absolute imports should not match
   if (
     spec.startsWith('./') ||
     spec.startsWith('../') ||
     spec.startsWith('/') ||
     spec.startsWith('http://') ||
-    spec.startsWith('https://')
-  ) {
-    return null;
-  }
-  return scripts
-    .filter((script) => script.type === 'mount')
+    spec.startsWith('https://') ||
+    spec.startsWith('file://')
+  )
+    return spec;
+  // Possibly prepend baseUrl
+  const matched = matchTsConfigPath(spec);
+  if (matched) spec = path.relative(cwd, matched);
+  // Find a mount script for which `args.fromDisk` is a prefix of the import
+  const script = scripts
+    .filter(({type}) => type === 'mount')
     .find(({args}) => spec.startsWith(args.fromDisk));
+  // Possibly replace import prefix with mounted directory
+  return script ? spec.replace(script.args.fromDisk, script.args.toUrl) : spec;
 }
