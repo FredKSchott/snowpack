@@ -20,6 +20,23 @@ All of the following frameworks have been tested and guaranteed to work in Snowp
 
 Some libraries use compile-to-JS file formats and do require a special build script or plugin. See the guide below for examples.
 
+### Preact
+
+You can import and use Preact without any custom configuration needed.
+
+**To use `preact/compat`:** (the Preact+React compatability layer) alias the "compat" package to React in your install options:
+
+```js
+// Example: Lets you Iiport "react" in your application, but uses preact internally
+// snowpack.config.json
+"installOptions": {
+  "alias": {
+    "react": "preact/compat",
+    "react-dom": "preact/compat"
+  }
+}
+```
+
 ### Babel
 
 Babel will automatically read plugins & presets from your local project `babel.config.*` config file, if one exists.
@@ -158,6 +175,23 @@ To use Sass + PostCSS, check out [this guide](https://zellwk.com/blog/eleventy-s
 The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbox-cli) integrates well with Snowpack. Run the wizard to bootstrap your first configuration file, and then run `workbox generateSW` to generate your service worker.
 
 Remember that Workbox expects to be run every time you deploy, as a part of a production "build" process (similar to how Snowpack's [`--optimize`](#production-optimization) flag works). If you don't have one yet, create package.json [`"deploy"` and/or `"build"` scripts](https://michael-kuehnel.de/tooling/2018/03/22/helpers-and-tips-for-npm-run-scripts.html) to automate your production build process.
+
+### Server Side Rendering (SSR)
+
+To connect your own server to `snowpack dev` for SSR, there are a few things that you'll need to set up. Make sure that you include any Snowpack-built resources via script tags in your server's HTML response:
+
+```html
+<!-- Example: Create Snowpack App builds your src/ directory to the /_dist_/* directory -->
+<script type="module" src="http://localhost:8080/_dist_/index.js"></script>
+```
+
+And make sure that your HTML response also includes code to configure HMR to talk to Snowpack's dev server:
+
+```html
+<!-- Configure Snowpack's HMR connection yourself, somewhere on your page HTML -->
+<script>window.HMR_WEBSOCKET_URL = "ws://localhost:8080"</script>
+```
+
 
 ### Leaving Snowpack
 

@@ -48,14 +48,16 @@ class ErrorWithHint extends Error {
 //   import React from 'react';
 // But, some large projects use named exports in their documentation:
 //   import {useState} from 'react';
-// Note that this is not a problem for ESM packages, only CJS.
+//
+// We use "/index.js here to match the official package, but not any ESM aliase packages
+// that the user may have installed instead (ex: react-esm).
 const CJS_PACKAGES_TO_AUTO_DETECT = [
   'react/index.js',
   'react-dom/index.js',
-  'react-table/index.js',
   'react-is/index.js',
   'prop-types/index.js',
   'scheduler/index.js',
+  'react-table',
 ];
 
 const cwd = process.cwd();
@@ -322,7 +324,7 @@ export async function install(
         mainFields: ['browser:module', 'module', 'browser', 'main'].filter(isTruthy),
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
-        preferBuiltins: false, // Default: true
+        preferBuiltins: true, // Default: true
         dedupe: userDefinedRollup.dedupe,
       }),
       rollupPluginJson({
@@ -335,7 +337,11 @@ export async function install(
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'], // Default: [ '.js' ]
       }),
-      rollupPluginWrapInstallTargets(!!isTreeshake, CJS_PACKAGES_TO_AUTO_DETECT, installTargets),
+      rollupPluginWrapInstallTargets(
+        !!isTreeshake,
+        [...CJS_PACKAGES_TO_AUTO_DETECT, ...config.installOptions.namedExports],
+        installTargets,
+      ),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),

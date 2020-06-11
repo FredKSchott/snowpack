@@ -138,10 +138,12 @@ function cleanCodeForParsing(code: string): string {
   code = stripComments(code);
   const allMatches: string[] = [];
   let match;
-  while ((match = ESM_IMPORT_REGEX.exec(code))) {
+  const importRegex = new RegExp(ESM_IMPORT_REGEX);
+  while ((match = importRegex.exec(code))) {
     allMatches.push(match);
   }
-  while ((match = ESM_DYNAMIC_IMPORT_REGEX.exec(code))) {
+  const dynamicImportRegex = new RegExp(ESM_DYNAMIC_IMPORT_REGEX);
+  while ((match = dynamicImportRegex.exec(code))) {
     allMatches.push(match);
   }
   return allMatches.map(([full]) => full).join('\n');
@@ -175,7 +177,7 @@ function parseCodeForInstallTargets(fileLoc: string, code: string): InstallTarge
     .map((imp) => parseImportStatement(code, imp))
     .filter(isTruthy)
     // Babel macros are not install targets!
-    .filter((imp) => !imp.specifier.endsWith('.macro'));
+    .filter((imp) => !/[./]macro(\.js)?$/.test(imp.specifier));
   return allImports;
 }
 
@@ -239,10 +241,11 @@ export async function scanImports(
       if (ext === '.vue' || ext === '.svelte' || ext === '.html') {
         const result = await fs.promises.readFile(filePath, 'utf-8');
         // TODO: Replace with matchAll once Node v10 is out of TLS.
-        // const allMatches = [...result.matchAll(HTML_JS_REGEX)];
+        // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
         const allMatches: string[] = [];
         let match;
-        while ((match = HTML_JS_REGEX.exec(result))) {
+        const regex = new RegExp(HTML_JS_REGEX);
+        while ((match = regex.exec(result))) {
           allMatches.push(match);
         }
         return [filePath, allMatches.map(([full, code]) => code).join('\n')];

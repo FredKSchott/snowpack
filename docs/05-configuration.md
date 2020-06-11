@@ -50,6 +50,7 @@ $ snowpack dev --no-bundle
   "scripts": { /* ... */ },
   "installOptions": { /* ... */ },
   "devOptions": { /* ... */ },
+  "buildOptions": { /* ... */ },
   "proxy": { /* ... */ },
 }
 ```
@@ -59,7 +60,7 @@ $ snowpack dev --no-bundle
 - **`extends`** | `string`
   - Inherit from a separate "base" config. Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
 - **`exclude`** | `string[]`
-  - Exclude any files from the `--include` directory. Defaults to exclude common test file locations: `['**/node_modules/**/*', '**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`
+  - Exclude any files from scanning, building, etc. Defaults to exclude common test file locations: `['**/node_modules/**/*', '**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`
   - Useful for excluding tests and other unnecessary files from the final build. Supports glob pattern matching. 
 - **`install`** | `string[]`
   - Known dependencies to install with Snowpack. Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
@@ -93,11 +94,15 @@ $ snowpack dev --no-bundle
 - **`alias`** | `{[mapFromPackageName: string]: string}`
   - Alias an installed package name. This applies to imports within your application and within your installed dependency graph. 
   - Example: `"alias": {"react": "preact/compat", "react-dom": "preact/compat"}`
+- **`namedExports`** | `string[]` 
+  - Legacy Common.js (CJS) packages should only be imported by the default import (Example: `import reactTable from 'react-table'`)
+  - But, some packages use named exports in their documentation, which can cause confusion for users. (Example: `import {useTable} from 'react-table'`)
+  - You can enable "fake/synthetic" named exports for Common.js package by adding the package name under this configuration.
+  - Example: `"namedExports": ["react-table"]`
 - **`rollup`**
   - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use. 
   - **`rollup.plugins`** - Specify [Custom Rollup plugins](#installing-non-js-packages) if you are dealing with non-standard files.
   - **`rollup.dedupe`** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation.
-  - **`rollup.namedExports`** - **DEPRECATED** Rollup has gotten good enough at Common.js<->ESM interop that it no longer needs this fallback, and will fail if you pass it. If you're currently using it, it should be safe to remove.
 
 #### Dev Options
 
@@ -112,9 +117,14 @@ $ snowpack dev --no-bundle
 - **`fallback`** | `string` | Default: `"index.html"`
   - When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
 - **`open`** | `string` | Default: `"default"`
-  - Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave".
+  - Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
 - **`hmr`** | `boolean` | Default: `true`
   - Toggles whether or not Snowpack dev server should have HMR enabled.
+
+#### Build Options
+
+- **`metaDir`** | `string` | Default: `__snowpack__`
+  - By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
 
 #### Proxy Options
 

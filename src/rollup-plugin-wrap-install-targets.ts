@@ -33,7 +33,9 @@ export function rollupPluginWrapInstallTargets(
   const installTargetsByFile: {[loc: string]: InstallTarget[]} = {};
 
   function isAutoDetect(normalizedFileLoc: string) {
-    return autoDetectPackageExports.some((p) => normalizedFileLoc.includes(`node_modules/${p}`));
+    return autoDetectPackageExports.some((p) =>
+      normalizedFileLoc.includes(`node_modules/${p}${p.endsWith('index.js') ? '' : '/'}`),
+    );
   }
   return {
     name: 'snowpack:wrap-install-targets',
@@ -45,7 +47,7 @@ export function rollupPluginWrapInstallTargets(
         if (
           isTreeshake &&
           installTargetsByFile[val].length > 0 &&
-          !installTargetsByFile[val].some((imp) => imp.all)
+          !installTargetsByFile[val].some((imp) => imp.namespace || imp.all)
         ) {
           input[key] = `snowpack-wrap:${val}`;
         }

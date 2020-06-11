@@ -78,7 +78,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const buildDirectoryLoc = isBundled ? path.join(cwd, `.build`) : config.devOptions.out;
-  const internalFilesBuildLoc = path.join(buildDirectoryLoc, '__snowpack__');
+  const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaDir);
   const finalDirectoryLoc = config.devOptions.out;
 
   if (config.scripts.length <= 1) {
@@ -329,7 +329,7 @@ export async function command(commandOptions: CommandOptions) {
             });
             return `/web_modules/${spec}.js`;
           });
-          code = wrapImportMeta(code, {env: true, hmr: false});
+          code = wrapImportMeta({code, env: true, hmr: false, config});
         }
         await fs.mkdir(path.dirname(outPath), {recursive: true});
         await fs.writeFile(outPath, code);
@@ -345,7 +345,12 @@ export async function command(commandOptions: CommandOptions) {
     const proxiedCode = await fs.readFile(proxiedFileLoc, {encoding: 'utf8'});
     const proxiedExt = path.extname(proxiedFileLoc);
     const proxiedUrl = proxiedFileLoc.substr(buildDirectoryLoc.length);
-    const proxyCode = await wrapCssModuleResponse(proxiedUrl, proxiedCode, proxiedExt);
+    const proxyCode = await wrapCssModuleResponse({
+      url: proxiedUrl,
+      code: proxiedCode,
+      ext: proxiedExt,
+      config,
+    });
     const proxyFileLoc = proxiedFileLoc.replace('.module.css', '.css.module.js');
     await fs.writeFile(proxyFileLoc, proxyCode, {encoding: 'utf8'});
   }
@@ -353,7 +358,12 @@ export async function command(commandOptions: CommandOptions) {
     const proxiedCode = await fs.readFile(proxiedFileLoc, {encoding: 'utf8'});
     const proxiedExt = path.extname(proxiedFileLoc);
     const proxiedUrl = proxiedFileLoc.substr(buildDirectoryLoc.length);
-    const proxyCode = wrapEsmProxyResponse(proxiedUrl, proxiedCode, proxiedExt);
+    const proxyCode = wrapEsmProxyResponse({
+      url: proxiedUrl,
+      code: proxiedCode,
+      ext: proxiedExt,
+      config,
+    });
     const proxyFileLoc = proxiedFileLoc + '.proxy.js';
     await fs.writeFile(proxyFileLoc, proxyCode, {encoding: 'utf8'});
   }

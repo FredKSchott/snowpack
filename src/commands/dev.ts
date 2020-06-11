@@ -28,7 +28,6 @@ import cacache from 'cacache';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
 import isCompressible from 'compressible';
-import detectPort from 'detect-port';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
@@ -69,7 +68,7 @@ import {
   generateEnvModule,
 } from './build-util';
 import {command as installCommand} from './install';
-import {paint} from './paint';
+import {paint, getPort} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
@@ -90,7 +89,7 @@ function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
 }
 
 function getEncodingType(ext: string): 'utf-8' | 'binary' {
-  if (ext === '.js' || ext === '.css' || ext === '.html') {
+  if (ext === '.js' || ext === '.css' || ext === '.html' || ext === '.json') {
     return 'utf-8';
   } else {
     return 'binary';
@@ -176,9 +175,14 @@ function getMountedDirectory(cwd: string, workerConfig: BuildScript): [string, s
 let currentlyRunningCommand: any = null;
 
 export async function command(commandOptions: CommandOptions) {
-  let serverStart = Date.now();
   const {cwd, config, expandBareImport} = commandOptions;
-  const {port, open, hmr: isHmr} = config.devOptions;
+  const {port: defaultPort, open, hmr: isHmr} = config.devOptions;
+  let serverStart = Date.now();
+  const port = await getPort(defaultPort);
+  // Reset the clock if we had to wait for the user to select a new port.
+  if (port !== defaultPort) {
+    serverStart = Date.now();
+  }
 
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
@@ -186,23 +190,6 @@ export async function command(commandOptions: CommandOptions) {
   const filesBeingBuilt = new Map<string, Promise<SnowpackPluginBuildResult>>();
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
-
-  // Check whether the port is available
-  const availablePort = await detectPort(port);
-  const isPortAvailable = port === availablePort;
-
-  if (!isPortAvailable) {
-    console.error();
-    console.error(
-      chalk.red(
-        `  ✘ port ${chalk.bold(port)} is not available. use ${chalk.bold(
-          '--port',
-        )} to specify a different port.`,
-      ),
-    );
-    console.error();
-    process.exit(1);
-  }
 
   // Set the proper install options, in case an install is needed.
   commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
@@ -447,7 +434,9 @@ export async function command(commandOptions: CommandOptions) {
       console.log('    https://github.com/davewasmer/devcert-cli (no install required)');
       console.log();
       console.log(
-        `  - ${chalk.cyan('mkcert')}: ${chalk.yellow('mkcert -install && mkcert localhost')}`,
+        `  - ${chalk.cyan('mkcert')}: ${chalk.yellow(
+          'mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt localhost',
+        )}`,
       );
       console.log('    https://github.com/FiloSottile/mkcert (install required)');
       console.log();
@@ -456,11 +445,13 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const createServer = credentials
-    ? (requestHandler) => http2.createSecureServer(credentials!, requestHandler)
+    ? (requestHandler) =>
+        http2.createSecureServer({...credentials!, allowHTTP1: true}, requestHandler)
     : (requestHandler) => http.createServer(requestHandler);
 
   const server = createServer(async (req, res) => {
     const reqUrl = req.url!;
+    const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const originalReqPath = reqPath;
     let isProxyModule = false;
@@ -487,11 +478,11 @@ export async function command(commandOptions: CommandOptions) {
       }
     });
 
-    if (reqPath === '/__snowpack__/hmr.js') {
+    if (reqPath === `/${config.buildOptions.metaDir}/hmr.js`) {
       sendFile(req, res, HMR_DEV_CODE, '.js');
       return;
     }
-    if (reqPath === '/__snowpack__/env.js') {
+    if (reqPath === `/${config.buildOptions.metaDir}/env.js`) {
       sendFile(req, res, generateEnvModule('development'), '.js');
       return;
     }
@@ -593,12 +584,13 @@ export async function command(commandOptions: CommandOptions) {
     if (virtualResourceResponse) {
       if (isProxyModule) {
         responseFileExt = '.js';
-        virtualResourceResponse = wrapEsmProxyResponse(
-          reqPath,
-          virtualResourceResponse,
-          requestedFileExt,
-          true,
-        );
+        virtualResourceResponse = wrapEsmProxyResponse({
+          url: reqPath,
+          code: virtualResourceResponse,
+          ext: requestedFileExt,
+          hasHmr: true,
+          config,
+        });
       }
       sendFile(req, res, virtualResourceResponse, responseFileExt);
       return;
@@ -622,18 +614,41 @@ export async function command(commandOptions: CommandOptions) {
 
     async function wrapResponse(code: string, cssResource: string | undefined) {
       if (isRoute) {
-        code = wrapHtmlResponse(code, isHmr);
+        code = wrapHtmlResponse({code: code, hasHmr: isHmr, buildOptions: config.buildOptions});
       } else if (isProxyModule) {
         responseFileExt = '.js';
-        code = wrapEsmProxyResponse(reqPath, code, requestedFileExt, isHmr);
+        code = wrapEsmProxyResponse({
+          url: reqPath,
+          code,
+          ext: requestedFileExt,
+          hasHmr: isHmr,
+          config,
+        });
       } else if (isCssModule) {
         responseFileExt = '.js';
-        code = await wrapCssModuleResponse(reqPath, code, requestedFileExt, isHmr);
+        code = await wrapCssModuleResponse({
+          url: reqPath,
+          code,
+          ext: requestedFileExt,
+          hasHmr: isHmr,
+          config,
+        });
       } else if (responseFileExt === '.js') {
-        code = wrapImportMeta(code, {env: true, hmr: isHmr});
+        code = wrapImportMeta({code, env: true, hmr: isHmr, config});
       }
       if (responseFileExt === '.js' && cssResource) {
         code = `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
+      }
+      if (responseFileExt === '.js' && reqUrlHmrParam) {
+        code = await transformEsmImports(code as string, (imp) => {
+          const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
+          const node = hmrEngine.getEntry(importUrl);
+          if (node && node.needsReplacement) {
+            hmrEngine.markEntryForReplacement(node, false);
+            return `${imp}?${reqUrlHmrParam}`;
+          }
+          return imp;
+        });
       }
       return code;
     }
@@ -642,20 +657,6 @@ export async function command(commandOptions: CommandOptions) {
     let hotCachedResponse: string | Buffer | undefined = inMemoryBuildCache.get(fileLoc);
     if (hotCachedResponse) {
       hotCachedResponse = hotCachedResponse.toString(getEncodingType(requestedFileExt));
-      const isHot = reqUrl.includes('?mtime=');
-      if (isHot) {
-        const [, mtime] = reqUrl.split('?');
-        hotCachedResponse = await transformEsmImports(hotCachedResponse as string, (imp) => {
-          const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
-          const node = hmrEngine.getEntry(importUrl);
-          if (node && node.needsReplacement) {
-            hmrEngine.markEntryForReplacement(node, false);
-            return `${imp}?${mtime}`;
-          }
-          return imp;
-        });
-      }
-
       const wrappedResponse = await wrapResponse(
         hotCachedResponse,
         inMemoryResourceCache.get(reqPath.replace(/.js$/, '.css')),
@@ -782,6 +783,11 @@ export async function command(commandOptions: CommandOptions) {
 
     sendFile(req, res, wrappedResponse, responseFileExt);
   })
+    .on('error', (err: Error) => {
+      console.error(chalk.red(`  ✘ Failed to start server at port ${chalk.bold(port)}.`), err);
+      server.close();
+      process.exit(1);
+    })
     .on('upgrade', (req: http.IncomingMessage, socket, head) => {
       config.proxy.forEach(([pathPrefix, proxyOptions]) => {
         const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
@@ -817,20 +823,40 @@ export async function command(commandOptions: CommandOptions) {
       hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
-  async function onWatchEvent(fileLoc) {
-    let updateUrl = getUrlFromFile(mountedDirectories, fileLoc);
-    if (updateUrl) {
-      if (!updateUrl.endsWith('.js')) {
-        updateUrl += '.proxy.js';
-      }
-      if (isLiveReloadPaused) {
-        return;
-      }
-      // If no entry exists, file has never been loaded, safe to ignore
-      if (hmrEngine.getEntry(updateUrl)) {
-        updateOrBubble(updateUrl, new Set());
-      }
+  function handleHmrUpdate(fileLoc: string) {
+    if (isLiveReloadPaused) {
+      return;
     }
+    let updateUrl = getUrlFromFile(mountedDirectories, fileLoc);
+    if (!updateUrl) {
+      return;
+    }
+    // HTML files don't support HMR, so just reload the current page.
+    if (updateUrl.endsWith('.html')) {
+      hmrEngine.broadcastMessage({type: 'reload'});
+      return;
+    }
+    // Append ".proxy.js" to Non-JS files to match their registered URL in the client app.
+    if (!updateUrl.endsWith('.js') && !updateUrl.endsWith('.module.css')) {
+      updateUrl += '.proxy.js';
+    }
+    // Check if a virtual file exists in the resource cache (ex: CSS from a Svelte file)
+    // If it does, mark it for HMR replacement but DONT trigger a separate HMR update event.
+    // This is because a virtual resource doesn't actually exist on disk, so we need the main
+    // resource (the JS) to load first. Only after that happens will the CSS exist.
+    const virtualCssFileUrl = updateUrl.replace(/.js$/, '.css');
+    const virtualNode = hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
+    if (virtualNode && inMemoryResourceCache.has(virtualCssFileUrl)) {
+      inMemoryResourceCache.delete(virtualCssFileUrl);
+      hmrEngine.markEntryForReplacement(virtualNode, true);
+    }
+    // If the changed file exists on the page, trigger a new HMR update.
+    if (hmrEngine.getEntry(updateUrl)) {
+      updateOrBubble(updateUrl, new Set());
+    }
+  }
+  async function onWatchEvent(fileLoc) {
+    handleHmrUpdate(fileLoc);
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);
     await cacache.rm.entry(BUILD_CACHE, fileLoc);

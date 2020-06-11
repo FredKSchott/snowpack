@@ -108,10 +108,14 @@ export interface SnowpackConfig {
     sourceMap?: boolean | 'inline';
     externalPackage: string[];
     alias: {[key: string]: string};
+    namedExports: string[];
     rollup: {
       plugins: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
       dedupe?: string[];
     };
+  };
+  buildOptions: {
+    metaDir: string;
   };
   proxy: Proxy[];
 }
@@ -136,6 +140,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     installTypes: false,
     env: {},
     alias: {},
+    namedExports: [],
     rollup: {
       plugins: [],
       dedupe: [],
@@ -149,6 +154,9 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     fallback: 'index.html',
     hmr: true,
     bundle: undefined,
+  },
+  buildOptions: {
+    metaDir: '__snowpack__',
   },
 };
 
@@ -213,6 +221,12 @@ const configSchema = {
         },
       },
     },
+    buildOptions: {
+      type: ['object'],
+      properties: {
+        metaDir: {type: 'string'},
+      },
+    },
     proxy: {
       type: 'object',
     },
@@ -229,6 +243,7 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
   const result = {
     installOptions: {} as any,
     devOptions: {} as any,
+    buildOptions: {} as any,
   };
   const {help, version, reload, config, ...relevantFlags} = flags;
   for (const [flag, val] of Object.entries(relevantFlags)) {
@@ -448,6 +463,10 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     config.proxy = {} as any;
   }
   const allPlugins = {};
+  // remove leading/trailing slashes
+  config.buildOptions.metaDir = config.buildOptions.metaDir
+    .replace(/^(\/|\\)/g, '') // replace leading slash
+    .replace(/(\/|\\)$/g, ''); // replace trailing slash
   config.plugins = (config.plugins as any).map((plugin: string | [string, any]) => {
     const configPluginPath = Array.isArray(plugin) ? plugin[0] : plugin;
     const configPluginOptions = (Array.isArray(plugin) && plugin[1]) || {};
@@ -532,14 +551,14 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   }
   if (rawConfig.namedExports) {
     handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `namedExports` was removed in the latest version of Rollup, and should no longer be needed.',
+      '[Snowpack v1 -> v2] `rollup.namedExports` is no longer required. See also: installOptions.namedExports',
     );
   }
   if (rawConfig.installOptions?.rollup?.namedExports) {
     delete rawConfig.installOptions.rollup.namedExports;
     console.error(
       chalk.yellow(
-        '[Snowpack v2.3.0] `namedExports` was removed in the latest version of Rollup, and is now safe to remove from your config.',
+        '[Snowpack v2.3.0] `rollup.namedExports` is no longer required. See also: installOptions.namedExports',
       ),
     );
   }

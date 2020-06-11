@@ -1,0 +1,13 @@
+{
+  "snowpack": {
+    "buildOptions": {
+      "metaDir": "/static/snowpack"
+    }
+  },
+  "scripts": {
+    "TEST": "../../../pkg/dist-node/index.bin.js build"
+  },
+  "dependencies": {
+    "shallow-equal": "^1.2.1"
+  }
+}

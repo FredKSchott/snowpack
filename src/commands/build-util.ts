@@ -4,7 +4,12 @@ import execa from 'execa';
 import path from 'path';
 import {statSync} from 'fs';
 import npmRunPath from 'npm-run-path';
-import {BuildScript, SnowpackPluginBuildArgs, SnowpackPluginBuildResult} from '../config';
+import {
+  SnowpackConfig,
+  BuildScript,
+  SnowpackPluginBuildArgs,
+  SnowpackPluginBuildResult,
+} from '../config';
 
 const IS_PREACT = /from\s+['"]preact['"]/;
 export function checkIsPreact(filePath: string, contents: string) {
@@ -22,28 +27,45 @@ export function isDirectoryImport(fileLoc: string, spec: string): boolean {
   return false;
 }
 
-export function wrapImportMeta(code: string, {hmr, env}: {hmr: boolean; env: boolean}) {
+export function wrapImportMeta({
+  code,
+  hmr,
+  env,
+  config: {buildOptions},
+}: {
+  code: string;
+  hmr: boolean;
+  env: boolean;
+  config: SnowpackConfig;
+}) {
   if (!code.includes('import.meta')) {
     return code;
   }
   return (
     (hmr
-      ? `import * as  __SNOWPACK_HMR__ from '/__snowpack__/hmr.js';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`
+      ? `import * as  __SNOWPACK_HMR__ from '/${buildOptions.metaDir}/hmr.js';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`
       : ``) +
     (env
-      ? `import __SNOWPACK_ENV__ from '/__snowpack__/env.js';\nimport.meta.env = __SNOWPACK_ENV__;\n`
+      ? `import __SNOWPACK_ENV__ from '/${buildOptions.metaDir}/env.js';\nimport.meta.env = __SNOWPACK_ENV__;\n`
       : ``) +
     '\n' +
     code
   );
 }
 
-export async function wrapCssModuleResponse(
-  url: string,
-  code: string,
-  ext: string,
+export async function wrapCssModuleResponse({
+  url,
+  code,
+  ext,
   hasHmr = false,
-) {
+  config: {buildOptions},
+}: {
+  url: string;
+  code: string;
+  ext: string;
+  hasHmr?: boolean;
+  config: SnowpackConfig;
+}) {
   let core = new Core();
   const {injectableSource, exportTokens} = await core.load(code, url, () => {
     throw new Error('Imports in CSS Modules are not yet supported.');
@@ -62,7 +84,7 @@ document.head.appendChild(styleEl);
 ${
   hasHmr
     ? `
-import * as __SNOWPACK_HMR_API__ from '/__snowpack__/hmr.js';
+import * as __SNOWPACK_HMR_API__ from '/${buildOptions.metaDir}/hmr.js';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
 import.meta.hot.accept(({module}) => {
   code = module.code;
@@ -76,14 +98,34 @@ import.meta.hot.dispose(() => {
 }`;
 }
 
-export function wrapHtmlResponse(code: string, hasHmr = false) {
+export function wrapHtmlResponse({
+  code,
+  hasHmr = false,
+  buildOptions,
+}: {
+  code: string;
+  hasHmr?: boolean;
+  buildOptions: SnowpackConfig['buildOptions'];
+}) {
   if (hasHmr) {
-    code += `<script type="module" src="/__snowpack__/hmr.js"></script>`;
+    code += `<script type="module" src="/${buildOptions.metaDir}/hmr.js"></script>`;
   }
   return code;
 }
 
-export function wrapEsmProxyResponse(url: string, code: string, ext: string, hasHmr = false) {
+export function wrapEsmProxyResponse({
+  url,
+  code,
+  ext,
+  hasHmr = false,
+  config: {buildOptions},
+}: {
+  url: string;
+  code: string;
+  ext: string;
+  hasHmr?: boolean;
+  config: SnowpackConfig;
+}) {
   if (ext === '.json') {
     return `
 let json = ${JSON.stringify(JSON.parse(code))};
@@ -91,7 +133,7 @@ export default json;
 ${
   hasHmr
     ? `
-import * as __SNOWPACK_HMR_API__ from '/__snowpack__/hmr.js';
+import * as __SNOWPACK_HMR_API__ from '/${buildOptions.metaDir}/hmr.js';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
 import.meta.hot.accept(({module}) => {
   json = module.default;
@@ -114,7 +156,7 @@ document.head.appendChild(styleEl);
 ${
   hasHmr
     ? `
-import * as __SNOWPACK_HMR_API__ from '/__snowpack__/hmr.js';
+import * as __SNOWPACK_HMR_API__ from '/${buildOptions.metaDir}/hmr.js';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
 import.meta.hot.accept();
 import.meta.hot.dispose(() => {

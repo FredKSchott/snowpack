@@ -2,8 +2,9 @@
  * esm-hmr/runtime.ts
  * A client-side implementation of the ESM-HMR spec, for reference.
  */
+
 function debug(...args) {
-  console.log('[ESM-HMR]', ...args);
+  console.debug('[ESM-HMR]', ...args);
 }
 function reload() {
   location.reload(true);
