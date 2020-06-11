@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+  },
+  "dependencies": {
+    "shallow-equal": "^1.2.1"
+  },
+  "snowpack": {
+    "homepage": "/static",
+    "scripts": {
+      "mount:src": "mount src --to /dist"
+    }
+  }
+}

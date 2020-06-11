@@ -307,9 +307,13 @@ export async function command(commandOptions: CommandOptions) {
               }
               return spec;
             }
+            const webModulesDir = path.posix.join(
+              config.homepage ? config.homepage : '',
+              `/web_modules`,
+            );
             if (dependencyImportMap.imports[spec]) {
               let resolvedImport = path.posix.resolve(
-                `/web_modules`,
+                webModulesDir,
                 dependencyImportMap.imports[spec],
               );
               const extName = path.extname(resolvedImport);
@@ -329,7 +333,7 @@ export async function command(commandOptions: CommandOptions) {
                 pkgName: missingPackageName,
               },
             });
-            return `/web_modules/${spec}.js`;
+            return path.posix.resolve(webModulesDir, `${spec}.js`);
           });
           code = wrapImportMeta({code, env: true, hmr: false, config});
         }
