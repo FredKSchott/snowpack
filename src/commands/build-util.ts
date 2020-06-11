@@ -1,12 +1,12 @@
-import Core from 'css-modules-loader-core';
+import type CSSModuleLoader from 'css-modules-loader-core';
 import type {EventEmitter} from 'events';
 import execa from 'execa';
-import path from 'path';
 import {statSync} from 'fs';
 import npmRunPath from 'npm-run-path';
+import path from 'path';
 import {
-  SnowpackConfig,
   BuildScript,
+  SnowpackConfig,
   SnowpackPluginBuildArgs,
   SnowpackPluginBuildResult,
 } from '../config';
@@ -53,6 +53,7 @@ export function wrapImportMeta({
   );
 }
 
+let _cssModuleLoader: CSSModuleLoader;
 export async function wrapCssModuleResponse({
   url,
   code,
@@ -66,8 +67,8 @@ export async function wrapCssModuleResponse({
   hasHmr?: boolean;
   config: SnowpackConfig;
 }) {
-  let core = new Core();
-  const {injectableSource, exportTokens} = await core.load(code, url, () => {
+  _cssModuleLoader = _cssModuleLoader || new (require('css-modules-loader-core'))();
+  const {injectableSource, exportTokens} = await _cssModuleLoader.load(code, url, undefined, () => {
     throw new Error('Imports in CSS Modules are not yet supported.');
   });
   return `

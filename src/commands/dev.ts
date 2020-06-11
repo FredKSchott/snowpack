@@ -26,7 +26,6 @@
 
 import cacache from 'cacache';
 import chalk from 'chalk';
-import chokidar from 'chokidar';
 import isCompressible from 'compressible';
 import etag from 'etag';
 import {EventEmitter} from 'events';
@@ -874,50 +873,6 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
-  // Watch src files
-  async function onWatchEvent(fileLoc) {
-    handleHmrUpdate(fileLoc);
-    inMemoryBuildCache.delete(fileLoc);
-    filesBeingDeleted.add(fileLoc);
-    await cacache.rm.entry(BUILD_CACHE, fileLoc);
-    filesBeingDeleted.delete(fileLoc);
-  }
-  const watcher = chokidar.watch(
-    mountedDirectories.map(([dirDisk]) => dirDisk),
-    {
-      ignored: config.exclude,
-      persistent: true,
-      ignoreInitial: true,
-      disableGlobbing: false,
-    },
-  );
-  watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
-  watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
-  watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
-
-  // Watch node_modules & rerun snowpack install if symlinked dep updates
-  const symlinkedFileLocs = new Set(
-    Object.keys(dependencyImportMap.imports)
-      .map((specifier) => {
-        const packageName = getPackageNameFromSpecifier(specifier);
-        return resolveDependencyManifest(packageName, cwd);
-      }) // resolve symlink src location
-      .filter(([_, packageManifest]) => packageManifest && !packageManifest['_id']) // only watch symlinked deps for now
-      .map(([fileLoc]) => `${path.dirname(fileLoc!)}/**`),
-  );
-  function onDepWatchEvent() {
-    reinstallDependencies().then(() => hmrEngine.broadcastMessage({type: 'reload'}));
-  }
-  const depWatcher = chokidar.watch([...symlinkedFileLocs], {
-    cwd: '/', // we’re using absolute paths, so watch from root
-    persistent: true,
-    ignoreInitial: true,
-    disableGlobbing: false,
-  });
-  depWatcher.on('add', onDepWatchEvent);
-  depWatcher.on('change', onDepWatchEvent);
-  depWatcher.on('unlink', onDepWatchEvent);
-
   onProcessExit(() => {
     hmrEngine.disconnectAllClients();
   });
@@ -977,6 +932,56 @@ export async function command(commandOptions: CommandOptions) {
     },
   });
 
+  // Open the user's browser
   if (open !== 'none') await openInBrowser(protocol, port, open);
+
+  // Start watching the file system.
+  // Defer "chokidar" loading to here, to reduce impact on overall startup time
+  const chokidar = await import('chokidar');
+
+  // Watch src files
+  async function onWatchEvent(fileLoc) {
+    handleHmrUpdate(fileLoc);
+    inMemoryBuildCache.delete(fileLoc);
+    filesBeingDeleted.add(fileLoc);
+    await cacache.rm.entry(BUILD_CACHE, fileLoc);
+    filesBeingDeleted.delete(fileLoc);
+  }
+  const watcher = chokidar.watch(
+    mountedDirectories.map(([dirDisk]) => dirDisk),
+    {
+      ignored: config.exclude,
+      persistent: true,
+      ignoreInitial: true,
+      disableGlobbing: false,
+    },
+  );
+  watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
+  watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
+  watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
+
+  // Watch node_modules & rerun snowpack install if symlinked dep updates
+  const symlinkedFileLocs = new Set(
+    Object.keys(dependencyImportMap.imports)
+      .map((specifier) => {
+        const packageName = getPackageNameFromSpecifier(specifier);
+        return resolveDependencyManifest(packageName, cwd);
+      }) // resolve symlink src location
+      .filter(([_, packageManifest]) => packageManifest && !packageManifest['_id']) // only watch symlinked deps for now
+      .map(([fileLoc]) => `${path.dirname(fileLoc!)}/**`),
+  );
+  function onDepWatchEvent() {
+    reinstallDependencies().then(() => hmrEngine.broadcastMessage({type: 'reload'}));
+  }
+  const depWatcher = chokidar.watch([...symlinkedFileLocs], {
+    cwd: '/', // we’re using absolute paths, so watch from root
+    persistent: true,
+    ignoreInitial: true,
+    disableGlobbing: false,
+  });
+  depWatcher.on('add', onDepWatchEvent);
+  depWatcher.on('change', onDepWatchEvent);
+  depWatcher.on('unlink', onDepWatchEvent);
+
   return new Promise(() => {});
 }
