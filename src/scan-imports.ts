@@ -7,7 +7,7 @@ import nodePath from 'path';
 import stripComments from 'strip-comments';
 import validatePackageName from 'validate-npm-package-name';
 import {SnowpackConfig} from './config';
-import {isTruthy} from './util';
+import {isTruthy, expandBareImport} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -197,7 +197,6 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
 export async function scanImports(
   cwd: string,
   {scripts, exclude}: SnowpackConfig,
-  expandBareImport: Function,
 ): Promise<InstallTarget[]> {
   await initESModuleLexer;
   const includeFileSets = await Promise.all(
@@ -267,7 +266,7 @@ export async function scanImports(
       .reduce((flat, item) => flat.concat(item), [])
       // Filter out non-package imports
       .filter(({specifier}) => {
-        let expanded = expandBareImport(specifier);
+        let expanded = expandBareImport(cwd, scripts, specifier);
         return expanded.startsWith('node_modules') || specifier === expanded;
       })
       .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier))

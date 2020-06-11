@@ -55,6 +55,7 @@ import {
   isYarn,
   openInBrowser,
   resolveDependencyManifest,
+  expandBareImport,
   updateLockfileHash,
 } from '../util';
 import {
@@ -175,7 +176,7 @@ function getMountedDirectory(cwd: string, workerConfig: BuildScript): [string, s
 let currentlyRunningCommand: any = null;
 
 export async function command(commandOptions: CommandOptions) {
-  const {cwd, config, expandBareImport} = commandOptions;
+  const {cwd, config} = commandOptions;
   const {port: defaultPort, open, hmr: isHmr} = config.devOptions;
   let serverStart = Date.now();
   const port = await getPort(defaultPort);
@@ -262,7 +263,7 @@ export async function command(commandOptions: CommandOptions) {
         if (spec.startsWith('http')) {
           return spec;
         }
-        spec = expandBareImport(spec);
+        spec = expandBareImport(cwd, config.scripts, spec);
         if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
           const ext = path.extname(spec).substr(1);
           if (!ext) {

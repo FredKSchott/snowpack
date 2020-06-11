@@ -9,7 +9,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import {BuildScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
-import {BUILD_DEPENDENCIES_DIR, CommandOptions, ImportMap} from '../util';
+import {BUILD_DEPENDENCIES_DIR, CommandOptions, expandBareImport, ImportMap} from '../util';
 import {
   generateEnvModule,
   getFileBuilderForWorker,
@@ -24,7 +24,7 @@ import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 export async function command(commandOptions: CommandOptions) {
-  const {cwd, config, expandBareImport} = commandOptions;
+  const {cwd, config} = commandOptions;
 
   // Start with a fresh install of your dependencies, for production
   commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'production';
@@ -278,7 +278,7 @@ export async function command(commandOptions: CommandOptions) {
             if (spec.startsWith('http')) {
               return spec;
             }
-            spec = expandBareImport(spec);
+            spec = expandBareImport(cwd, config.scripts, spec);
             if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
               const ext = path.extname(spec).substr(1);
               if (!ext) {
