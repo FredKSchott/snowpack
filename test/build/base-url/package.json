@@ -12,5 +12,7 @@
       "baseUrl": "/static/"
     }
   },
-  "dependencies": {}
+  "dependencies": {
+    "array-flatten": "^3.0.0"
+  }
 }

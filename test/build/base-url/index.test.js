@@ -15,4 +15,9 @@ it('buildOptions.baseUrl', () => {
   expect(iconMatch).toBe('/static/favicon.ico');
   expect(cssMatch).toBe('/static/index.css');
   expect(jsMatch).toBe('/static/_dist_/index.js');
+
+  // web_modules imports should be rewritten to add baseUrl
+  const outputJS = fs.readFileSync(path.resolve(__dirname, 'build', '_dist_', 'index.js'), 'utf8');
+
+  expect(outputJS).toContain('/static/web_modules/array-flatten.js');
 });
