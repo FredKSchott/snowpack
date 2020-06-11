@@ -123,6 +123,8 @@ $ snowpack dev --no-bundle
 
 #### Build Options
 
+- **`baseUrl`** | `string` | Default: `/`
+  - In your HTML, replace all instances of `%PUBLIC_URL%` with this (inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept). This is useful if your app will be deployed to a subdirectory.
 - **`metaDir`** | `string` | Default: `__snowpack__`
   - By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
 

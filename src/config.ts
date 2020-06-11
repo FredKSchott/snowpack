@@ -115,6 +115,7 @@ export interface SnowpackConfig {
     };
   };
   buildOptions: {
+    baseUrl: string;
     metaDir: string;
   };
   proxy: Proxy[];
@@ -156,6 +157,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     bundle: undefined,
   },
   buildOptions: {
+    baseUrl: '/',
     metaDir: '__snowpack__',
   },
 };
@@ -224,6 +226,7 @@ const configSchema = {
     buildOptions: {
       type: ['object'],
       properties: {
+        baseUrl: {type: 'string'},
         metaDir: {type: 'string'},
       },
     },
