@@ -200,6 +200,57 @@ export async function command(commandOptions: CommandOptions) {
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
 
+  onProcessExit(() => {
+    hmrEngine.disconnectAllClients();
+  });
+
+  console.log = (...args) => {
+    messageBus.emit('CONSOLE', {level: 'log', args});
+  };
+  console.warn = (...args) => {
+    messageBus.emit('CONSOLE', {level: 'warn', args});
+  };
+  console.error = (...args) => {
+    messageBus.emit('CONSOLE', {level: 'error', args});
+  };
+
+  // Start painting immediately, so we can surface errors & warnings to the
+  // user, and they can watch the server starting up. Search for ”SERVER_START”
+  // for the actual start event below.
+  paint(messageBus, config.scripts, undefined, {
+    addPackage: async (pkgName: string) => {
+      isLiveReloadPaused = true;
+      messageBus.emit('INSTALLING');
+      currentlyRunningCommand = execa(
+        isYarn(cwd) ? 'yarn' : 'npm',
+        isYarn(cwd) ? ['add', pkgName] : ['install', '--save', pkgName],
+        {
+          env: npmRunPath.env(),
+          extendEnv: true,
+          shell: true,
+          cwd,
+        },
+      );
+      currentlyRunningCommand.stdout.on('data', (data) => process.stdout.write(data));
+      currentlyRunningCommand.stderr.on('data', (data) => process.stderr.write(data));
+      await currentlyRunningCommand;
+      currentlyRunningCommand = installCommand(commandOptions);
+      await currentlyRunningCommand;
+      await updateLockfileHash(DEV_DEPENDENCIES_DIR);
+      await cacache.rm.all(BUILD_CACHE);
+      inMemoryBuildCache.clear();
+      currentlyRunningCommand = null;
+
+      dependencyImportMap = JSON.parse(
+        await fs
+          .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
+          .catch(() => `{"imports": {}}`),
+      );
+      messageBus.emit('INSTALL_COMPLETE');
+      isLiveReloadPaused = false;
+    },
+  });
+
   // Set the proper install options, in case an install is needed.
   commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
   commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'development';
@@ -877,63 +928,17 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
-  onProcessExit(() => {
-    hmrEngine.disconnectAllClients();
-  });
-
-  console.log = (...args) => {
-    messageBus.emit('CONSOLE', {level: 'log', args});
-  };
-  console.warn = (...args) => {
-    messageBus.emit('CONSOLE', {level: 'warn', args});
-  };
-  console.error = (...args) => {
-    messageBus.emit('CONSOLE', {level: 'error', args});
-  };
-
+  // Announce server has started
   const ips = Object.values(os.networkInterfaces())
     .reduce((every: os.NetworkInterfaceInfo[], i) => [...every, ...(i || [])], [])
     .filter((i) => i.family === 'IPv4' && i.internal === false)
     .map((i) => i.address);
-
   const protocol = config.devOptions.secure ? 'https:' : 'http:';
-
-  paint(messageBus, config.scripts, undefined, {
+  messageBus.emit('SERVER_START', {
     protocol,
     port,
     ips,
     startTimeMs: Date.now() - serverStart,
-    addPackage: async (pkgName) => {
-      isLiveReloadPaused = true;
-      messageBus.emit('INSTALLING');
-      currentlyRunningCommand = execa(
-        isYarn(cwd) ? 'yarn' : 'npm',
-        isYarn(cwd) ? ['add', pkgName] : ['install', '--save', pkgName],
-        {
-          env: npmRunPath.env(),
-          extendEnv: true,
-          shell: true,
-          cwd,
-        },
-      );
-      currentlyRunningCommand.stdout.on('data', (data) => process.stdout.write(data));
-      currentlyRunningCommand.stderr.on('data', (data) => process.stderr.write(data));
-      await currentlyRunningCommand;
-      currentlyRunningCommand = installCommand(commandOptions);
-      await currentlyRunningCommand;
-      await updateLockfileHash(DEV_DEPENDENCIES_DIR);
-      await cacache.rm.all(BUILD_CACHE);
-      inMemoryBuildCache.clear();
-      currentlyRunningCommand = null;
-
-      dependencyImportMap = JSON.parse(
-        await fs
-          .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
-          .catch(() => `{"imports": {}}`),
-      );
-      messageBus.emit('INSTALL_COMPLETE');
-      isLiveReloadPaused = false;
-    },
   });
 
   // Open the user's browser

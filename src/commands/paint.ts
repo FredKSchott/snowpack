@@ -73,14 +73,14 @@ export function paint(
   buildMode: {dest: string} | undefined,
   devMode:
     | {
-        protocol: string;
-        port: number;
-        ips: string[];
-        startTimeMs: number;
         addPackage: (pkgName: string) => void;
       }
     | undefined,
 ) {
+  let port: number;
+  let protocol = '';
+  let startTimeMs: number;
+  let ips: string[] = [];
   let consoleOutput = '';
   let installOutput = '';
   let isInstalling = false;
@@ -97,15 +97,25 @@ export function paint(
     process.stdout.write(`${chalk.bold('Snowpack')}\n\n`);
     // Dashboard
     if (devMode) {
-      process.stdout.write(
-        `  ${chalk.bold.cyan(`${devMode.protocol}//localhost:${devMode.port}`)}`,
-      );
-      for (const ip of devMode.ips) {
+      const isServerStarted = startTimeMs > 0 && port > 0 && protocol;
+      if (isServerStarted) {
+        process.stdout.write(`  ${chalk.bold.cyan(`${protocol}//localhost:${port}`)}`);
+        for (const ip of ips) {
+          process.stdout.write(
+            `${chalk.cyan(` > `)}${chalk.bold.cyan(`${protocol}//${ip}:${port}`)}`,
+          );
+        }
         process.stdout.write(
-          `${chalk.cyan(` > `)}${chalk.bold.cyan(`${devMode.protocol}//${ip}:${devMode.port}`)}`,
+          '\n' +
+            chalk.dim(
+              startTimeMs < 1000
+                ? `  Server started in ${startTimeMs}ms.\n\n`
+                : `  Server started.`, // Not to hide slow startup times, but likely there were extraneous factors (prompts, etc.) where the speed isn’t accurate
+            ),
         );
+      } else {
+        process.stdout.write(chalk.dim(`  Server starting…`) + '\n\n');
       }
-      process.stdout.write('\n' + chalk.dim(`  Server started in ${devMode.startTimeMs}ms.\n\n`));
     }
     if (buildMode) {
       process.stdout.write('  ' + chalk.bold.cyan(buildMode.dest));
@@ -274,6 +284,13 @@ export function paint(
         missingWebModule = {id, ...data};
       }
     }
+    repaint();
+  });
+  bus.on('SERVER_START', (info) => {
+    startTimeMs = info.startTimeMs;
+    port = info.port;
+    protocol = info.protocol;
+    ips = info.ips;
     repaint();
   });
 
