@@ -357,9 +357,13 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
       }
       let dirDisk = cmdArr[0];
       const dirUrl = to || `/${cmdArr[0]}`;
+
+      // mount:web_modules is a special case script where the fromDisk
+      // arg is harcoded to match the internal dependency dir
       if (scriptId === 'mount:web_modules') {
         dirDisk = dependenciesLoc;
       }
+
       newScriptConfig.args = {
         fromDisk: path.posix.normalize(dirDisk + '/'),
         toUrl: path.posix.normalize(dirUrl + '/'),
