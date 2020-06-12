@@ -229,8 +229,8 @@ export async function command(commandOptions: CommandOptions) {
 
   const allBuiltFromFiles = new Set<string>();
 
-  const webModulesScript = config.scripts.find(script => script.id === 'mount:web_modules');
-  const webModulesLoc = webModulesScript ? webModulesScript.args.toUrl as string : '/web_modules';
+  const webModulesScript = config.scripts.find((script) => script.id === 'mount:web_modules');
+  const webModulesLoc = webModulesScript ? (webModulesScript.args.toUrl as string) : '/web_modules';
 
   for (const workerConfig of relevantWorkers) {
     const {id, match, type} = workerConfig;

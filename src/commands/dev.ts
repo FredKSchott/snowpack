@@ -286,7 +286,7 @@ export async function command(commandOptions: CommandOptions) {
         filesBeingBuilt.delete(fileLoc);
       }
     }
-    const webModulesScript = config.scripts.find(script => script.id === 'mount:web_modules');
+    const webModulesScript = config.scripts.find((script) => script.id === 'mount:web_modules');
     const webModulesLoc = webModulesScript ? webModulesScript.args.toUrl : '/web_modules';
 
     const ext = path.extname(fileLoc).substr(1);
@@ -320,10 +320,7 @@ export async function command(commandOptions: CommandOptions) {
           return spec;
         }
         if (dependencyImportMap.imports[spec]) {
-          let resolvedImport = path.posix.resolve(
-            webModulesLoc,
-            dependencyImportMap.imports[spec],
-          );
+          let resolvedImport = path.posix.resolve(webModulesLoc, dependencyImportMap.imports[spec]);
           const extName = path.extname(resolvedImport);
           if (extName && extName !== '.js') {
             resolvedImport = resolvedImport + '.proxy.js';
