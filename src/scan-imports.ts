@@ -265,10 +265,7 @@ export async function scanImports(
       .map(([fileLoc, code]) => parseCodeForInstallTargets(fileLoc, code))
       .reduce((flat, item) => flat.concat(item), [])
       // Filter out non-package imports
-      .filter(({specifier}) => {
-        let expanded = expandBareImport(cwd, scripts, specifier);
-        return expanded.startsWith('node_modules') || specifier === expanded;
-      })
+      .filter(({specifier}) => specifier === expandBareImport(cwd, scripts, specifier))
       .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier))
   );
 }

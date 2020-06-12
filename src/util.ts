@@ -237,9 +237,13 @@ export function expandBareImport(cwd, scripts, spec) {
     spec.startsWith('file://')
   )
     return spec;
-  // Possibly prepend baseUrl
+  // Handle baseUrl and paths from tsconfig.json.
+  // Ignore imports starting with node_modules since we handle packages differently
   const matched = matchTsConfigPath(spec);
-  if (matched) spec = path.relative(cwd, matched);
+  if (matched) {
+    const relative = path.relative(cwd, matched);
+    if (!relative.startsWith('node_modules')) spec = relative;
+  }
   // Find a mount script for which `args.fromDisk` is a prefix of the import
   const script = scripts
     .filter(({type}) => type === 'mount')
