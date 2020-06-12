@@ -5,7 +5,7 @@ import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {addCommand, rmCommand} from './commands/add-rm';
 import {command as installCommand} from './commands/install';
-import {CLIFlags, loadAndValidateConfig, createConfiguration} from './config.js';
+import {CLIFlags, loadAndValidateConfig} from './config.js';
 import {readLockfile, clearCache} from './util.js';
 
 const cwd = process.cwd();
@@ -32,8 +32,6 @@ ${chalk.bold('Flags:')}
     `.trim(),
   );
 }
-
-export {createConfiguration};
 
 export async function cli(args: string[]) {
   // parse CLI flags
