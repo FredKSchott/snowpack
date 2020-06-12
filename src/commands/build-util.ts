@@ -144,7 +144,8 @@ export default json;`;
   }
 
   if (ext === '.css') {
-    return `${hasHmr
+    return `${
+      hasHmr
         ? `
 import * as __SNOWPACK_HMR_API__ from '/${buildOptions.metaDir}/hmr.js';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
