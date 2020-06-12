@@ -105,14 +105,13 @@ export function paint(
             `${chalk.cyan(` > `)}${chalk.bold.cyan(`${protocol}//${ip}:${port}`)}`,
           );
         }
+        process.stdout.write('\n');
         process.stdout.write(
-          '\n' +
-            chalk.dim(
-              startTimeMs < 1000
-                ? `  Server started in ${startTimeMs}ms.\n\n`
-                : `  Server started.`, // Not to hide slow startup times, but likely there were extraneous factors (prompts, etc.) where the speed isn’t accurate
-            ),
+          chalk.dim(
+            startTimeMs < 1000 ? `  Server started in ${startTimeMs}ms.` : `  Server started.`, // Not to hide slow startup times, but likely there were extraneous factors (prompts, etc.) where the speed isn’t accurate
+          ),
         );
+        process.stdout.write('\n\n');
       } else {
         process.stdout.write(chalk.dim(`  Server starting…`) + '\n\n');
       }
