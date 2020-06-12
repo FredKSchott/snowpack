@@ -4,7 +4,7 @@ www/dist
 /node_modules
 /web_modules
 test/build/**/build
-test/integration/*/web_modules
-test/integration/*/node_modules/.cache
+test/**/node_modules/.cache
+test/integration/**/web_modules
 .DS_Store
 .idea

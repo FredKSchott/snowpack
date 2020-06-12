@@ -1,7 +1,10 @@
 {
+  "description": "A test that makes sure that `npm link`-ed packages build",
   "scripts": {
+    "prepare": "node ../../../pkg/dist-node/index.bin.js",
     "start": "node ../../../pkg/dist-node/index.bin.js dev",
-    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+    "setupTest": "cd packages && cd test-link && npm link && cd .. && cd .. && npm link @snowpack/test-link && npm install",
+    "TEST": "npm run setupTest && node ../../../pkg/dist-node/index.bin.js build"
   },
   "snowpack": {
     "scripts": {

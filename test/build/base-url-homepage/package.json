@@ -1,7 +1,9 @@
 {
+  "description": "Test to make sure that the `homepage` key works (should see `/static/` in index.html)",
   "homepage": "/static/",
   "scripts": {
     "start": "node ../../../pkg/dist-node/index.bin.js dev",
+    "prepare": "node ../../../pkg/dist-node/index.bin.js",
     "TEST": "node ../../../pkg/dist-node/index.bin.js build"
   },
   "snowpack": {
