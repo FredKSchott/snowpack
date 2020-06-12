@@ -261,7 +261,6 @@ export async function command(commandOptions: CommandOptions) {
     console.log(chalk.yellow('! updating dependencies...'));
     await installCommand(commandOptions);
     await updateLockfileHash(DEV_DEPENDENCIES_DIR);
-    serverStart = Date.now();
   }
 
   let dependencyImportMap: ImportMap = {imports: {}};
