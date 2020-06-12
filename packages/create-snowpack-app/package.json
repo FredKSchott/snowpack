@@ -5,8 +5,12 @@
     "packages/*",
     "templates/*"
   ],
-  "scripts": {},
+  "scripts": {
+    "test": "cd test && rm -rf testdata && jest test/runner.test.js --testTimeout 30000"
+  },
   "devDependencies": {
+    "execa": "^4.0.2",
+    "jest": "^26.0.1",
     "lerna": "^3.20.2",
     "parcel-bundler": "^1.12.4"
   }

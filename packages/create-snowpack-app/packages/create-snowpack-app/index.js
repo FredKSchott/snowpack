@@ -102,7 +102,10 @@ const {
   targetDirectoryRelative,
   targetDirectory,
 } = validateArgs(process.argv);
-const installedTemplate = path.join(targetDirectory, "node_modules", template);
+const isLocalTemplate = template.startsWith("."); // must start with a `.` to be considered local
+const installedTemplate = isLocalTemplate
+  ? path.resolve(targetDirectory, template) // handle local template
+  : path.join(targetDirectory, "node_modules", template); // handle template from npm/yarn
 
 const currentVersion = process.versions.node;
 const requiredVersion = parseInt(currentVersion.split(".")[0], 10);
@@ -124,15 +127,18 @@ if (requiredVersion < 10) {
     path.join(targetDirectory, "package.json"),
     `{"name": "my-csa-app"}`
   );
-  try {
-    await execa("npm", ["install", template, "--ignore-scripts"], {
-      cwd: targetDirectory,
-      all: true,
-    });
-  } catch (err) {
-    // Only log output if the command failed
-    console.error(err.all);
-    throw err;
+  // fetch from npm or GitHub if not local (which will be most of the time)
+  if (!isLocalTemplate) {
+    try {
+      await execa("npm", ["install", template, "--ignore-scripts"], {
+        cwd: targetDirectory,
+        all: true,
+      });
+    } catch (err) {
+      // Only log output if the command failed
+      console.error(err.all);
+      throw err;
+    }
   }
   await copy(installedTemplate, targetDirectory);
   await verifyProjectTemplate(targetDirectory);
@@ -141,14 +147,13 @@ if (requiredVersion < 10) {
   console.log(
     `  - Installing package dependencies. This might take a couple of minutes.\n`
   );
-  const npmInstallProcess = execa(
-    useYarn ? "yarn" : "npm",
-    ["install", "--loglevel", "error"],
-    {
-      cwd: targetDirectory,
-      stdio: "inherit",
-    }
-  );
+  const npmInstallOptions = {
+    cwd: targetDirectory,
+    stdio: "inherit",
+  };
+  const npmInstallProcess = useYarn
+    ? execa("yarn", ["--silent"], npmInstallOptions)
+    : execa("npm", ["install", "--loglevel", "error"], npmInstallOptions);
   npmInstallProcess.stdout && npmInstallProcess.stdout.pipe(process.stdout);
   npmInstallProcess.stderr && npmInstallProcess.stderr.pipe(process.stderr);
   await npmInstallProcess;
@@ -166,7 +171,7 @@ if (requiredVersion < 10) {
   }
 
   function formatCommand(command, description) {
-    return '  ' + command.padEnd(17) + chalk.dim(description)
+    return "  " + command.padEnd(17) + chalk.dim(description);
   }
 
   console.log(``);
@@ -177,9 +182,26 @@ if (requiredVersion < 10) {
   console.log(``);
   console.log(chalk.bold.underline(`All Commands:`));
   console.log(``);
-  console.log(formatCommand(`${useYarn ? "yarn" : "npm"} install`, "Install your dependencies. (We already ran this one for you!)"));
-  console.log(formatCommand(`${useYarn ? "yarn" : "npm"} start`, "Start your development server."));
-  console.log(formatCommand(`${useYarn ? "yarn" : "npm run"} build`, "Build your website for production."));
-  console.log(formatCommand(`${useYarn ? "yarn" : "npm"} test`, "Run your tests."));
+  console.log(
+    formatCommand(
+      useYarn ? "yarn add" : "npm install",
+      "Install your dependencies. (We already ran this one for you!)"
+    )
+  );
+  console.log(
+    formatCommand(
+      `${useYarn ? "yarn" : "npm"} start`,
+      "Start your development server."
+    )
+  );
+  console.log(
+    formatCommand(
+      `${useYarn ? "yarn" : "npm run"} build`,
+      "Build your website for production."
+    )
+  );
+  console.log(
+    formatCommand(`${useYarn ? "yarn" : "npm"} test`, "Run your tests.")
+  );
   console.log(``);
 })();

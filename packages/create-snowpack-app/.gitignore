@@ -10,3 +10,4 @@ templates/*/_output
 templates/*/package-lock.json
 templates/*/node_modules
 snowpack.lock.json
+/test/testdata
