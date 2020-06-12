@@ -1,6 +1,6 @@
 import {ImportSpecifier, init as initESModuleLexer, parse} from 'es-module-lexer';
 import rollupPluginAlias from '@rollup/plugin-alias';
-import rollupPluginCommonjs from '@rollup/plugin-commonjs';
+import rollupPluginCommonjs, { RollupCommonJSOptions } from '@rollup/plugin-commonjs';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
@@ -259,6 +259,13 @@ export async function install(
   const importMap: ImportMap = {imports: {}};
   const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
   const skipFailures = false;
+  const autoDetectNamedExports = [
+    ...CJS_PACKAGES_TO_AUTO_DETECT,
+    ...config.installOptions.namedExports,
+  ];
+  // We run some special processing steps when installing a single package.
+  // Example: namedExports support by default, if package is CJS.
+  const isSinglePackageMode = allInstallSpecifiers.size === 1;
 
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
@@ -272,6 +279,9 @@ export async function install(
     try {
       const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier);
       if (targetType === 'JS') {
+        if (isSinglePackageMode && !checkIsEsModule(targetLoc)) {
+          autoDetectNamedExports.push(installSpecifier);
+        }
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${targetName}.js`;
         Object.entries(installAlias)
@@ -355,14 +365,9 @@ export async function install(
         // Workaround: CJS -> ESM isn't supported yet by the plugin, so we needed
         // to add our own custom workaround here. Requires a fork of
         // rollupPluginCommonjs that supports the "externalEsm" option.
-        // @ts-ignore
-        externalEsm: filterPackageIsEsModule(externalPackages),
-      }),
-      rollupPluginWrapInstallTargets(
-        !!isTreeshake,
-        [...CJS_PACKAGES_TO_AUTO_DETECT, ...config.installOptions.namedExports],
-        installTargets,
-      ),
+        externalEsm: isSinglePackageMode && filterPackageIsEsModule(externalPackages),
+      } as RollupCommonJSOptions),
+      rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
