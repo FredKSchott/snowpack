@@ -316,6 +316,7 @@ function handleLegacyProxyScripts(config: any) {
 
 type RawScripts = Record<string, string>;
 function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
+  const dependenciesLoc = process.env.NODE_ENV === 'production' ? BUILD_DEPENDENCIES_DIR : DEV_DEPENDENCIES_DIR;
   const processedScripts: BuildScript[] = [];
   if (Object.keys(scripts).filter((k) => k.startsWith('bundle:')).length > 1) {
     handleConfigError(`scripts can only contain 1 script of type "bundle:".`);
@@ -354,8 +355,15 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
           `scripts[${scriptId}]: "--to ${to}" must be a URL path, and start with a "/"`,
         );
       }
-      const dirDisk = cmdArr[0];
+      let dirDisk = cmdArr[0];
       const dirUrl = to || `/${cmdArr[0]}`;
+
+      // mount:web_modules is a special case script where the fromDisk
+      // arg is harcoded to match the internal dependency dir
+      if (scriptId === 'mount:web_modules') {
+        dirDisk = dependenciesLoc;
+      }
+
       newScriptConfig.args = {
         fromDisk: path.posix.normalize(dirDisk + '/'),
         toUrl: path.posix.normalize(dirUrl + '/'),
@@ -379,15 +387,13 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
   }
 
   if (!scripts['mount:web_modules']) {
-    const fromDisk =
-      process.env.NODE_ENV === 'production' ? BUILD_DEPENDENCIES_DIR : DEV_DEPENDENCIES_DIR;
     processedScripts.push({
       id: 'mount:web_modules',
       type: 'mount',
       match: ['web_modules'],
       cmd: `mount $WEB_MODULES --to /web_modules`,
       args: {
-        fromDisk,
+        fromDisk: dependenciesLoc,
         toUrl: '/web_modules',
       },
     });

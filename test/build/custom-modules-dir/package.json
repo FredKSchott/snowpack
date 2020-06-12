@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+  },
+  "snowpack": {
+    "scripts": {
+      "mount:src": "mount src --to /_dist_",
+      "mount:web_modules": "mount $WEB_MODULES --to /my_modules"
+    }
+  },
+  "dependencies": {
+    "array-flatten": "^3.0.0"
+  }
+}

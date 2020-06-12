@@ -286,6 +286,9 @@ export async function command(commandOptions: CommandOptions) {
         filesBeingBuilt.delete(fileLoc);
       }
     }
+    const webModulesScript = config.scripts.find(script => script.id === 'mount:web_modules');
+    const webModulesLoc = webModulesScript ? webModulesScript.args.toUrl : '/web_modules';
+
     const ext = path.extname(fileLoc).substr(1);
     if (ext === 'js' || srcFileExtensionMapping[ext] === 'js') {
       let missingWebModule: {spec: string; pkgName: string} | null = null;
@@ -318,7 +321,7 @@ export async function command(commandOptions: CommandOptions) {
         }
         if (dependencyImportMap.imports[spec]) {
           let resolvedImport = path.posix.resolve(
-            `/web_modules`,
+            webModulesLoc,
             dependencyImportMap.imports[spec],
           );
           const extName = path.extname(resolvedImport);
@@ -342,7 +345,7 @@ export async function command(commandOptions: CommandOptions) {
         if (extName && extName !== '.js') {
           spec = spec + '.proxy';
         }
-        return `/web_modules/${spec}.js`;
+        return path.posix.join(webModulesLoc, `${spec}.js`);
       });
 
       messageBus.emit('MISSING_WEB_MODULE', {
