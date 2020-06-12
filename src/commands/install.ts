@@ -259,6 +259,13 @@ export async function install(
   const importMap: ImportMap = {imports: {}};
   const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
   const skipFailures = false;
+  const autoDetectNamedExports = [
+    ...CJS_PACKAGES_TO_AUTO_DETECT,
+    ...config.installOptions.namedExports,
+  ];
+  // We run some special processing steps when installing a single package.
+  // Example: namedExports support by default, if package is CJS.
+  const isSinglePackageMode = allInstallSpecifiers.size === 1;
 
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
@@ -272,6 +279,9 @@ export async function install(
     try {
       const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier);
       if (targetType === 'JS') {
+        if (isSinglePackageMode && !checkIsEsModule(targetLoc)) {
+          autoDetectNamedExports.push(installSpecifier);
+        }
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${targetName}.js`;
         Object.entries(installAlias)
@@ -358,11 +368,7 @@ export async function install(
         // @ts-ignore
         externalEsm: filterPackageIsEsModule(externalPackages),
       }),
-      rollupPluginWrapInstallTargets(
-        !!isTreeshake,
-        [...CJS_PACKAGES_TO_AUTO_DETECT, ...config.installOptions.namedExports],
-        installTargets,
-      ),
+      rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
