@@ -86,13 +86,16 @@ export function createHotContext(fullUrl) {
   const existing = REGISTERED_MODULES[id];
   if (existing) {
     existing.lock();
+    runModuleDispose(id);
     return existing;
   }
   const state = new HotModuleState(id);
   REGISTERED_MODULES[id] = state;
   return state;
 }
-async function applyUpdate(id) {
+
+/** Called when a new module is loaded, to pass the updated module to the "active" module */
+async function runModuleAccept(id) {
   const state = REGISTERED_MODULES[id];
   if (!state) {
     return false;
@@ -101,10 +104,6 @@ async function applyUpdate(id) {
     return false;
   }
   const acceptCallbacks = state.acceptCallbacks;
-  const disposeCallbacks = state.disposeCallbacks;
-  state.disposeCallbacks = [];
-  state.data = {};
-  disposeCallbacks.map((callback) => callback());
   const updateID = Date.now();
   for (const {deps, callback: acceptCallback} of acceptCallbacks) {
     const [module, ...depModules] = await Promise.all([
@@ -113,6 +112,22 @@ async function applyUpdate(id) {
     ]);
     acceptCallback({module, deps: depModules});
   }
+  return true;
+}
+
+/** Called when a new module is loaded, to run cleanup on the old module (if needed) */
+async function runModuleDispose(id) {
+  const state = REGISTERED_MODULES[id];
+  if (!state) {
+    return false;
+  }
+  if (state.isDeclined) {
+    return false;
+  }
+  const disposeCallbacks = state.disposeCallbacks;
+  state.disposeCallbacks = [];
+  state.data = {};
+  disposeCallbacks.map((callback) => callback());
   return true;
 }
 socket.addEventListener('message', ({data: _data}) => {
@@ -132,7 +147,7 @@ socket.addEventListener('message', ({data: _data}) => {
   }
   debug('message: update', data);
   debug(data.url, Object.keys(REGISTERED_MODULES));
-  applyUpdate(data.url)
+  runModuleAccept(data.url)
     .then((ok) => {
       if (!ok) {
         reload();
