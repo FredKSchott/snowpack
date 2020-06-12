@@ -84,6 +84,7 @@ export type Proxy = [string, ProxyOptions];
 
 // interface this library uses internally
 export interface SnowpackConfig {
+  install: string[];
   extends?: string;
   exclude: string[];
   knownEntrypoints: string[];
@@ -235,6 +236,24 @@ const configSchema = {
     },
   },
 };
+
+function validateConfigOnce() {
+  let validated = false;
+  return function (config: object, errorHandler?: (errors) => void) {
+    if (!validated) {
+      const validation = validate(config, configSchema, {
+        allowUnknownAttributes: false,
+        propertyName: CONFIG_NAME,
+      });
+
+      validated = true;
+
+      errorHandler && errorHandler(validation.errors);
+    }
+  };
+}
+
+const validateOnce = validateConfigOnce();
 
 /**
  * Convert CLI flags to an incomplete Snowpack config representation.
@@ -538,7 +557,7 @@ function handleConfigError(msg: string) {
   process.exit(1);
 }
 
-function handleValidationErrors(filepath: string, errors: {toString: () => string}[]) {
+function handleValidationErrors(filepath: string | null, errors: {toString: () => string}[]) {
   console.error(chalk.red(`! ${filepath || 'Configuration error'}`));
   console.error(errors.map((err) => `    - ${err.toString()}`).join('\n'));
   console.error(`    See https://www.snowpack.dev/#configuration for more info.`);
@@ -669,6 +688,13 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   }
 }
 
+export function createConfiguration(config: Partial<SnowpackConfig>): SnowpackConfig {
+  validateOnce(config);
+
+  const mergedConfig = merge<SnowpackConfig>([DEFAULT_CONFIG, config]);
+  return normalizeConfig(mergedConfig);
+}
+
 export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
   const explorerSync = cosmiconfigSync(CONFIG_NAME, {
     // only support these 3 types of config for now
@@ -699,14 +725,14 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
   validateConfigAgainstV1(config, flags);
   const cliConfig = expandCliFlags(flags);
 
-  const validation = validate(config, configSchema, {
-    allowUnknownAttributes: false,
-    propertyName: CONFIG_NAME,
-  });
-  if (validation.errors && validation.errors.length > 0) {
-    handleValidationErrors(result.filepath, validation.errors);
-    process.exit(1);
+  function errorHandler(errors) {
+    if (errors && errors.length > 0) {
+      handleValidationErrors(result.filepath, errors);
+      process.exit(1);
+    }
   }
+
+  validateOnce(config, errorHandler);
 
   let extendConfig: SnowpackConfig | {} = {};
   if (config.extends) {
@@ -730,7 +756,6 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
   }
   // if valid, apply config over defaults
   const mergedConfig = merge<SnowpackConfig>([
-    DEFAULT_CONFIG,
     extendConfig,
     {
       webDependencies: pkgManifest.webDependencies,
@@ -752,5 +777,5 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     }
   }
 
-  return normalizeConfig(mergedConfig);
+  return createConfiguration(mergedConfig);
 }
