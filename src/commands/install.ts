@@ -1,3 +1,4 @@
+import {ImportSpecifier, init as initESModuleLexer, parse} from 'es-module-lexer';
 import rollupPluginAlias from '@rollup/plugin-alias';
 import rollupPluginCommonjs from '@rollup/plugin-commonjs';
 import rollupPluginJson from '@rollup/plugin-json';
@@ -136,7 +137,7 @@ function getRollupReplaceKeys(env: EnvVarReplacements): Record<string, string> {
  * Follows logic similar to Node's resolution logic, but using a package.json's ESM "module"
  * field instead of the CJS "main" field.
  */
-function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
+function resolveWebDependency(dep: string): DependencyLoc {
   // if dep includes a file extension, check that dep isn't a package before returning
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
@@ -190,7 +191,7 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
       foundEntrypoint['.'];
   }
   // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
-  if (!foundEntrypoint && isExplicit) {
+  if (!foundEntrypoint) {
     foundEntrypoint = depManifest.main || 'index.js';
   }
   if (typeof foundEntrypoint !== 'string') {
@@ -200,6 +201,20 @@ function resolveWebDependency(dep: string, isExplicit: boolean): DependencyLoc {
     type: 'JS',
     loc: path.join(depManifestLoc || '', '..', foundEntrypoint),
   };
+}
+
+function checkIsEsModule(fileLoc: string) {
+  const code = fs.readFileSync(fileLoc, 'utf8');
+  const result = parse(code);
+  return result[0].length > 0 || result[1].length > 0;
+}
+
+function filterPackageIsEsModule(externalPackages: string[]) {
+  return externalPackages
+    .map((spec) => [spec, resolveWebDependency(spec)] as [string, DependencyLoc])
+    .filter(([spec, {type, loc}]) => type === 'JS')
+    .filter(([spec, {type, loc}]) => checkIsEsModule(loc))
+    .map(([spec]) => spec);
 }
 
 interface InstallOptions {
@@ -255,7 +270,7 @@ export async function install(
       continue;
     }
     try {
-      const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, true);
+      const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier);
       if (targetType === 'JS') {
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${targetName}.js`;
@@ -301,6 +316,7 @@ export async function install(
     return false;
   }
 
+  await initESModuleLexer;
   let isCircularImportFound = false;
   const inputOptions: InputOptions = {
     input: installEntrypoints,
@@ -335,7 +351,12 @@ export async function install(
       }),
       rollupPluginCss(),
       rollupPluginCommonjs({
-        extensions: ['.js', '.cjs'], // Default: [ '.js' ]
+        extensions: ['.js', '.cjs'],
+        // Workaround: CJS -> ESM isn't supported yet by the plugin, so we needed
+        // to add our own custom workaround here. Requires a fork of
+        // rollupPluginCommonjs that supports the "externalEsm" option.
+        // @ts-ignore
+        externalEsm: filterPackageIsEsModule(externalPackages),
       }),
       rollupPluginWrapInstallTargets(
         !!isTreeshake,
