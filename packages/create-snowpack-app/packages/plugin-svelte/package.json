@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/plugin-svelte",
-  "version": "1.0.6",
+  "version": "1.2.0",
   "main": "plugin.js",
   "license": "MIT",
   "publishConfig": {
