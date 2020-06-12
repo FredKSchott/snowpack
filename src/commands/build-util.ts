@@ -71,7 +71,20 @@ export async function wrapCssModuleResponse({
   const {injectableSource, exportTokens} = await _cssModuleLoader.load(code, url, undefined, () => {
     throw new Error('Imports in CSS Modules are not yet supported.');
   });
-  return `
+  return `${
+    hasHmr
+      ? `
+import * as __SNOWPACK_HMR_API__ from '/${buildOptions.metaDir}/hmr.js';
+import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
+import.meta.hot.accept(({module}) => {
+  code = module.code;
+  json = module.default;
+});
+import.meta.hot.dispose(() => {
+  document.head.removeChild(styleEl);
+});\n`
+      : ``
+  }
 export let code = ${JSON.stringify(injectableSource)};
 let json = ${JSON.stringify(exportTokens)};
 export default json;
@@ -81,22 +94,7 @@ const codeEl = document.createTextNode(code);
 styleEl.type = 'text/css';
 
 styleEl.appendChild(codeEl);
-document.head.appendChild(styleEl);
-${
-  hasHmr
-    ? `
-import * as __SNOWPACK_HMR_API__ from '/${buildOptions.metaDir}/hmr.js';
-import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
-import.meta.hot.accept(({module}) => {
-  code = module.code;
-  json = module.default;
-});
-import.meta.hot.dispose(() => {
-  document.head.removeChild(styleEl);
-});
-`
-    : ``
-}`;
+document.head.appendChild(styleEl);`;
 }
 
 export function wrapHtmlResponse({
@@ -131,24 +129,31 @@ export function wrapEsmProxyResponse({
   config: SnowpackConfig;
 }) {
   if (ext === '.json') {
-    return `
+    return `${
+      hasHmr
+        ? `
+    import * as __SNOWPACK_HMR_API__ from '/${buildOptions.metaDir}/hmr.js';
+    import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
+    import.meta.hot.accept(({module}) => {
+      json = module.default;
+    });`
+        : ''
+    }
 let json = ${JSON.stringify(JSON.parse(code))};
-export default json;
-${
-  hasHmr
-    ? `
-import * as __SNOWPACK_HMR_API__ from '/${buildOptions.metaDir}/hmr.js';
-import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
-import.meta.hot.accept(({module}) => {
-  json = module.default;
-});
-`
-    : ''
-}`;
+export default json;`;
   }
 
   if (ext === '.css') {
-    return `
+    return `${hasHmr
+        ? `
+import * as __SNOWPACK_HMR_API__ from '/${buildOptions.metaDir}/hmr.js';
+import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
+import.meta.hot.accept();
+import.meta.hot.dispose(() => {
+  document.head.removeChild(styleEl);
+});\n`
+        : ''
+    }
 const code = ${JSON.stringify(code)};
 
 const styleEl = document.createElement("style");
@@ -156,19 +161,7 @@ const codeEl = document.createTextNode(code);
 styleEl.type = 'text/css';
 
 styleEl.appendChild(codeEl);
-document.head.appendChild(styleEl);
-${
-  hasHmr
-    ? `
-import * as __SNOWPACK_HMR_API__ from '/${buildOptions.metaDir}/hmr.js';
-import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
-import.meta.hot.accept();
-import.meta.hot.dispose(() => {
-  document.head.removeChild(styleEl);
-});
-`
-    : ''
-}`;
+document.head.appendChild(styleEl);`;
   }
 
   return `export default ${JSON.stringify(url)};`;
