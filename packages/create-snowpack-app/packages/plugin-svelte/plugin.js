@@ -15,7 +15,7 @@ module.exports = function plugin(config, pluginOptions) {
   // Generate svelte options from user provided config (if given)
   svelteOptions = {
     dev: process.env.NODE_ENV !== "production",
-    css: process.env.NODE_ENV !== "production",
+    css: false,
     ...svelteOptions,
     ...pluginOptions,
   };
