@@ -90,7 +90,6 @@ export interface SnowpackConfig {
   webDependencies?: {[packageName: string]: string};
   scripts: BuildScript[];
   plugins: SnowpackPlugin[];
-  homepage?: string;
   devOptions: {
     secure: boolean;
     port: number;
@@ -731,11 +730,9 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
   // if valid, apply config over defaults
   const mergedConfig = merge<SnowpackConfig>([
     DEFAULT_CONFIG,
+    pkgManifest.homepage ? {buildOptions: {baseUrl: pkgManifest.homepage}} : {},
     extendConfig,
-    {
-      webDependencies: pkgManifest.webDependencies,
-      homepage: pkgManifest.homepage,
-    },
+    {webDependencies: pkgManifest.webDependencies},
     config,
     cliConfig as any,
   ]);
