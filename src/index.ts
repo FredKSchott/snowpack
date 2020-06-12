@@ -35,7 +35,9 @@ ${chalk.bold('Flags:')}
 
 export async function cli(args: string[]) {
   // parse CLI flags
-  const cliFlags = yargs(args, {array: ['install', 'env', 'exclude', 'externalPackage']}) as CLIFlags;
+  const cliFlags = yargs(args, {
+    array: ['install', 'env', 'exclude', 'externalPackage'],
+  }) as CLIFlags;
   if (cliFlags.help) {
     printHelp();
     process.exit(0);

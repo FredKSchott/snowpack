@@ -1,6 +1,6 @@
 import {ImportSpecifier, init as initESModuleLexer, parse} from 'es-module-lexer';
 import rollupPluginAlias from '@rollup/plugin-alias';
-import rollupPluginCommonjs, { RollupCommonJSOptions } from '@rollup/plugin-commonjs';
+import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-commonjs';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
