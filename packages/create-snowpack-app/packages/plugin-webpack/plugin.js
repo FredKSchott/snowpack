@@ -130,7 +130,7 @@ module.exports = function plugin(config, args) {
             },
             {
               test: /.*/,
-              exclude: [/\.js?$/, /\.css$/],
+              exclude: [/\.js?$/,/\.json?$/, /\.css$/],
               use: [
                 {
                   loader: "file-loader",
