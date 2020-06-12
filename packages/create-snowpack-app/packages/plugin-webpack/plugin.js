@@ -42,7 +42,8 @@ module.exports = function plugin(config, args) {
   return {
     defaultBuildScript: "bundle:*",
     async bundle({ srcDirectory, destDirectory, log, jsFilePaths }) {
-      let homepage = config.homepage || "/";
+      // config.homepage is legacy, remove in future version
+      let baseUrl = config.buildOptions.baseUrl || config.homepage || "/";
       const tempBuildManifest = JSON.parse(
         await fs.readFileSync(path.join(cwd, "package.json"), {
           encoding: "utf-8",
@@ -212,13 +213,13 @@ module.exports = function plugin(config, args) {
         let cssFile = assetFiles.find((d) => d.endsWith(".css"));
 
         //Now that webpack is done, modify the html file to point to the newly compiled resources
-        scriptEl.src = path.posix.join(homepage, jsFile);
+        scriptEl.src = path.posix.join(baseUrl, jsFile);
         scriptEl.removeAttribute("type");
 
         if (cssFile) {
           let csslink = dom.window.document.createElement("link");
           csslink.setAttribute("rel", "stylesheet");
-          csslink.href = path.posix.join(homepage, cssFile);
+          csslink.href = path.posix.join(baseUrl, cssFile);
           dom.window.document.querySelector("head").append(csslink);
         }
 

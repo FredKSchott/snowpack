@@ -69,8 +69,10 @@ module.exports = function parcelBundlePlugin(config, options) {
 
       const parcelOptions = ["build", ...files, "--out-dir", destDirectory];
 
-      if (config.homepage) {
-        parcelOptions.push("--public-url", config.homepage);
+      // config.homepage is legacy, remove in future version
+      const baseUrl = config.buildOptions.baseUrl || config.homepage;
+      if (baseUrl) {
+        parcelOptions.push("--public-url", baseUrl);
       }
 
       const bundleAppPromise = execa("parcel", parcelOptions, {
