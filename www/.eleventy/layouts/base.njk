@@ -492,16 +492,12 @@ body {
 }
 @media (max-width: 740px) {
   .grid-toc  { 
-    position: fixed;
     top: 44px;
-    left: 0;
-    right: 0;
-    bottom: 0;
     padding: 0;
     width: 100%;
     overflow: auto;
     z-index: 100;
-   }
+   }  
   .grid-toc-buttons { 
     position: fixed;
     top: 0;
@@ -514,6 +510,12 @@ body {
     overflow: hidden;
     padding-top: 44px;
     margin-left: 0;
+  }
+  .toc ol{
+    margin-bottom:0;
+  }
+  .toc > ol > li{
+    padding-bottom:3rem;
   }
   .hidden-mobile {display: none; }
   .version-tag {display: none; }
@@ -646,10 +648,24 @@ body {
 
     document.getElementById('toc-drawer-button').addEventListener('click', (e) => {
       e.preventDefault();
-      gridTocEl.classList.toggle('hidden-mobile');
+      /*If hidden-mobile class is enabled that means we are on desktop do overflow normal but we 
+      if we are at mobile fixed body position, so that its not scrollable(which currently causing bug) and navbar  handling its
+      owns scroll. Case to consider there are chance use can open navbar using toggle button and user when click on any link
+      body postion should be unset
+      */
+      const ishiddenMobileClassEnabled = gridTocEl.classList.toggle('hidden-mobile');
+      if(ishiddenMobileClassEnabled){
+        document.body.style.position = "";
+        }
+      else{
+        document.body.style.position = 'fixed';
+      }
+      
+
     });
     gridTocEl.addEventListener('click', (e) => {
       gridTocEl.classList.add('hidden-mobile');
+      document.body.style.position = '';
     });
     /* May not be needed:
     window.addEventListener('DOMContentLoaded', (event) => {
