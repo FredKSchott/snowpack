@@ -2,6 +2,7 @@
   "name": "yarn-workspace-snowpack",
   "version": "0.0.1",
   "scripts": {
+    "prepare": "node ../../../../../pkg/dist-node/index.bin.js",
     "start": "node ../../../../../pkg/dist-node/index.bin.js dev",
     "TEST": "node ../../../../../pkg/dist-node/index.bin.js build"
   },

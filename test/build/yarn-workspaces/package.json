@@ -1,5 +1,8 @@
 {
+  "description": "Test that makes sure that Yarn Workspaces work properly",
   "private": true,
   "version": "0.0.1",
-  "workspaces": ["packages/snowpack"]
+  "workspaces": [
+    "packages/snowpack"
+  ]
 }

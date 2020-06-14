@@ -17,7 +17,7 @@
     "version": "npm run build",
     "format": "prettier --write \"src/**/*.ts\"",
     "test": "npm run test:integration && npm run test:build",
-    "test:build": "jest test/build",
+    "test:build": "jest test/build/runner.js --test-timeout=15000 --testMatch \"**/test/**/*.[jt]s?(x)\" -i",
     "test:integration": "jest test/integration/runner.js --test-timeout=15000 --testMatch \"**/test/**/*.[jt]s?(x)\" -i",
     "docs:build": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js",
     "docs:watch": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js --serve",
