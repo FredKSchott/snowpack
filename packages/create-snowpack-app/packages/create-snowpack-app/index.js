@@ -184,7 +184,7 @@ if (requiredVersion < 10) {
   console.log(``);
   console.log(
     formatCommand(
-      useYarn ? "yarn add" : "npm install",
+      `${useYarn ? "yarn" : "npm"} install`,
       "Install your dependencies. (We already ran this one for you!)"
     )
   );
