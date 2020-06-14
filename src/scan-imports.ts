@@ -116,9 +116,9 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
     return null;
   }
 
-  const dynamicImport = imp.d > -1;
-  const defaultImport = !dynamicImport && DEFAULT_IMPORT_REGEX.test(importStatement);
-  const namespaceImport = !dynamicImport && importStatement.includes('*');
+  const isDynamicImport = imp.d > -1;
+  const hasdDefaultImport = !isDynamicImport && DEFAULT_IMPORT_REGEX.test(importStatement);
+  const hasNamespaceImport = !isDynamicImport && importStatement.includes('*');
 
   const namedImports = (importStatement.match(HAS_NAMED_IMPORTS_REGEX)! || [, ''])[1]
     .split(SPLIT_NAMED_IMPORTS_REGEX)
@@ -127,9 +127,9 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
 
   return {
     specifier: webModuleSpecifier,
-    all: dynamicImport,
-    default: defaultImport,
-    namespace: namespaceImport,
+    all: isDynamicImport || (!hasdDefaultImport && !hasNamespaceImport && namedImports.length === 0),
+    default: hasdDefaultImport,
+    namespace: hasNamespaceImport,
     named: namedImports,
   };
 }
