@@ -200,10 +200,6 @@ export async function command(commandOptions: CommandOptions) {
   const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = [];
 
-  onProcessExit(() => {
-    hmrEngine.disconnectAllClients();
-  });
-
   console.log = (...args) => {
     messageBus.emit('CONSOLE', {level: 'log', args});
   };
@@ -871,6 +867,9 @@ export async function command(commandOptions: CommandOptions) {
     .listen(port);
 
   const hmrEngine = new EsmHmrEngine({server});
+  onProcessExit(() => {
+    hmrEngine.disconnectAllClients();
+  });
 
   // Live Reload + File System Watching
   let isLiveReloadPaused = false;
