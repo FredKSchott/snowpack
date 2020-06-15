@@ -1,11 +1,12 @@
 {
   "name": "WORKSPACE",
-  "private": "true",
+  "private": true,
   "workspaces": [
     "packages/*",
     "templates/*"
   ],
   "scripts": {
+    "publish": "npx lerna publish",
     "test": "cd test && rm -rf testdata && jest test/runner.test.js --testTimeout 30000"
   },
   "devDependencies": {
