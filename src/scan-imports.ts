@@ -117,7 +117,7 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
   }
 
   const isDynamicImport = imp.d > -1;
-  const hasdDefaultImport = !isDynamicImport && DEFAULT_IMPORT_REGEX.test(importStatement);
+  const hasDefaultImport = !isDynamicImport && DEFAULT_IMPORT_REGEX.test(importStatement);
   const hasNamespaceImport = !isDynamicImport && importStatement.includes('*');
 
   const namedImports = (importStatement.match(HAS_NAMED_IMPORTS_REGEX)! || [, ''])[1]
@@ -127,8 +127,8 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
 
   return {
     specifier: webModuleSpecifier,
-    all: isDynamicImport || (!hasdDefaultImport && !hasNamespaceImport && namedImports.length === 0),
-    default: hasdDefaultImport,
+    all: isDynamicImport || (!hasDefaultImport && !hasNamespaceImport && namedImports.length === 0),
+    default: hasDefaultImport,
     namespace: hasNamespaceImport,
     named: namedImports,
   };
