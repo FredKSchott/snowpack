@@ -4,6 +4,7 @@
     "target": "esnext",
     "moduleResolution": "node",
     "jsx": "preserve",
+    "jsxFactory": "h",
     "baseUrl": "./",
     "paths": { "*": ["web_modules/.types/*"] },
     "allowSyntheticDefaultImports": true,

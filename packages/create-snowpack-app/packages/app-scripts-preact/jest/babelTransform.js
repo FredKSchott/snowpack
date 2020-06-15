@@ -26,7 +26,12 @@ module.exports = babelJest.createTransformer({
         pragmaFrag: "Fragment",
       },
     ],
-    "@babel/preset-typescript",
+    [
+      "@babel/preset-typescript",
+      {
+        jsxPragma: "h",
+      },
+    ],
   ],
   plugins: ["@babel/plugin-syntax-import-meta"],
 });
