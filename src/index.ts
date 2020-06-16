@@ -8,6 +8,8 @@ import {command as installCommand} from './commands/install';
 import {CLIFlags, loadAndValidateConfig} from './config.js';
 import {readLockfile, clearCache} from './util.js';
 
+export {createConfiguration} from './config.js';
+
 const cwd = process.cwd();
 
 function printHelp() {
