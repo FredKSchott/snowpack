@@ -2,6 +2,8 @@
 
 For more powerful integrations, Snowpack supports custom **build plugins**.  A build plugin is more than just a bash script: it's loaded via Node.js to customize and extend your Snowpack dev environment & build process. 
 
+[👀 **See supported plugins**](https://github.com/pikapkg/create-snowpack-app#official-snowpack-plugins)
+
 ### Overview
 
 A build plugin offers one of several different hooks into your application:
