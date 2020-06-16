@@ -160,7 +160,7 @@ function resolveWebDependency(dep: string): DependencyLoc {
       // Oh well, was worth a try
     }
   }
-  if (!depManifest) {
+  if (!depManifestLoc || !depManifest) {
     throw new ErrorWithHint(
       `Package "${dep}" not found. Have you installed it?`,
       depManifestLoc ? chalk.italic(depManifestLoc) : '',
@@ -199,7 +199,7 @@ function resolveWebDependency(dep: string): DependencyLoc {
   }
   return {
     type: 'JS',
-    loc: path.join(depManifestLoc || '', '..', foundEntrypoint),
+    loc: require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
   };
 }
 
@@ -279,9 +279,6 @@ export async function install(
     try {
       const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier);
       if (targetType === 'JS') {
-        if (isSinglePackageMode && !checkIsEsModule(targetLoc)) {
-          autoDetectNamedExports.push(installSpecifier);
-        }
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${targetName}.js`;
         Object.entries(installAlias)
