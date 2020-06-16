@@ -2,7 +2,24 @@
 
 For more powerful integrations, Snowpack supports custom **build plugins**.  A build plugin is more than just a bash script: it's loaded via Node.js to customize and extend your Snowpack dev environment & build process. 
 
-[👀 **See supported plugins**](https://github.com/pikapkg/create-snowpack-app#official-snowpack-plugins)
+### Supported plugins
+
+#### Official plugins
+- [@snowpack/plugin-babel](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-babel)
+- [@snowpack/plugin-dotenv](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-dotenv)
+- [@snowpack/plugin-parcel](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-parcel)
+- [@snowpack/plugin-react-refresh](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-react-refresh)
+- [@snowpack/plugin-svelte](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-svelte)
+- [@snowpack/plugin-vue](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-vue)
+- [@snowpack/plugin-webpack](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-webpack)
+
+#### Featured third-party plugins
+
+- [@prefresh/snowpack](https://github.com/JoviDeCroock/prefresh)
+- [snowpack-plugin-import-map](https://github.com/zhoukekestar/snowpack-plugin-import-map)
+
+Don’t see your plugin in this list? [Add yours](https://github.com/pikapkg/snowpack/pulls)!
+
 
 ### Overview
 
