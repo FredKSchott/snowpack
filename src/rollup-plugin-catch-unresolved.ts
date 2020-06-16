@@ -19,7 +19,7 @@ export function rollupPluginCatchUnresolved(): Plugin {
       } else {
         this.warn({
           id: importer,
-          message: `"${id}" could not be resolved.`,
+          message: `"${id}" could not be resolved. (Is it installed?)`,
         });
       }
       return false;
