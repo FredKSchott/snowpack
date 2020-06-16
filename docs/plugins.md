@@ -103,6 +103,22 @@ If you don't include this, the user will need to define the build script themsel
 defaultBuildScript: "build:vue", // hooks into the user’s build:vue script automatically unless they manually override this
 ```
 
+### extensionMap
+
+```ts
+extensionMap?: {[ext: string]: 'js'|'html'|'css'}
+```
+
+Additional extension mappings to use during module resolution. Allows this plugin to add additional extensions that translate to formats that snowpack will rewrite to appropriate import statements.
+
+#### Example
+
+```ts
+mapping: {
+  foo: 'js'
+} // Resolves *.foo files as javascript files
+```
+
 ### build()
 
 ```ts

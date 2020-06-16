@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import {all as merge} from 'deepmerge';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {promises as fs} from 'fs';
@@ -25,6 +26,12 @@ import srcFileExtensionMapping from './src-file-extension-mapping';
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
+
+  const configSrcFileExtensionMapping = merge<{[ext: string]: string}>([
+    {},
+    srcFileExtensionMapping,
+    config.extensionMap || {},
+  ]);
 
   // Start with a fresh install of your dependencies, for production
   commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'production';
@@ -252,7 +259,7 @@ export async function command(commandOptions: CommandOptions) {
         }
         let outPath = f.replace(dirDisk, dirDest);
         const extToFind = path.extname(f).substr(1);
-        const extToReplace = srcFileExtensionMapping[extToFind];
+        const extToReplace = configSrcFileExtensionMapping[extToFind];
         if (extToReplace) {
           outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace!);
         }
@@ -303,7 +310,7 @@ export async function command(commandOptions: CommandOptions) {
                   return spec + '.js';
                 }
               }
-              const extToReplace = srcFileExtensionMapping[ext];
+              const extToReplace = configSrcFileExtensionMapping[ext];
               if (extToReplace) {
                 spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
               }

@@ -89,6 +89,7 @@ export interface SnowpackConfig {
   exclude: string[];
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
+  extensionMap?: {[ext: string]: 'js' | 'html' | 'css'};
   scripts: BuildScript[];
   plugins: SnowpackPlugin[];
   devOptions: {
@@ -169,6 +170,10 @@ const configSchema = {
     install: {type: 'array', items: {type: 'string'}},
     exclude: {type: 'array', items: {type: 'string'}},
     plugins: {type: 'array'},
+    extensionMap: {
+      type: 'object',
+      additionalProperties: {type: 'string'},
+    },
     webDependencies: {
       type: ['object'],
       additionalProperties: {type: 'string'},
@@ -495,6 +500,13 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     allPlugins[configPluginPath] = configPlugin;
     if (configPlugin.knownEntrypoints) {
       config.knownEntrypoints.push(...configPlugin.knownEntrypoints);
+    }
+    if (configPlugin.extensionMap) {
+      config.extensionMap = merge<{[ext: string]: 'js' | 'html' | 'css'}>([
+        {},
+        config.extensionMap || {},
+        configPlugin.extensionMap,
+      ]);
     }
     if (
       configPlugin.defaultBuildScript &&

@@ -27,6 +27,7 @@
 import cacache from 'cacache';
 import chalk from 'chalk';
 import isCompressible from 'compressible';
+import {all as merge} from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
@@ -162,7 +163,11 @@ const sendError = (res, status) => {
   res.end();
 };
 
-function getUrlFromFile(mountedDirectories: [string, string][], fileLoc: string): string | null {
+function getUrlFromFile(
+  mountedDirectories: [string, string][],
+  fileLoc: string,
+  extensionMapping: {[ext: string]: string},
+): string | null {
   for (const [dirDisk, dirUrl] of mountedDirectories) {
     if (fileLoc.startsWith(dirDisk + path.sep)) {
       const fileExt = path.extname(fileLoc).substr(1);
@@ -170,7 +175,7 @@ function getUrlFromFile(mountedDirectories: [string, string][], fileLoc: string)
       return fileLoc
         .replace(dirDisk, resolvedDirUrl)
         .replace(/[/\\]+/g, '/')
-        .replace(new RegExp(`${fileExt}$`), srcFileExtensionMapping[fileExt] || fileExt);
+        .replace(new RegExp(`${fileExt}$`), extensionMapping[fileExt] || fileExt);
     }
   }
   return null;
@@ -192,6 +197,12 @@ export async function command(commandOptions: CommandOptions) {
   if (port !== defaultPort) {
     serverStart = Date.now();
   }
+
+  const configSrcFileExtensionMapping = merge<{[ext: string]: string}>([
+    {},
+    srcFileExtensionMapping,
+    config.extensionMap || {},
+  ]);
 
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
@@ -336,7 +347,7 @@ export async function command(commandOptions: CommandOptions) {
     const webModulesLoc = webModulesScript ? webModulesScript.args.toUrl : '/web_modules';
 
     const ext = path.extname(fileLoc).substr(1);
-    if (ext === 'js' || srcFileExtensionMapping[ext] === 'js') {
+    if (ext === 'js' || configSrcFileExtensionMapping[ext] === 'js') {
       let missingWebModule: {spec: string; pkgName: string} | null = null;
       builtFileResult.result = await transformEsmImports(builtFileResult.result, (spec) => {
         if (spec.startsWith('http')) {
@@ -356,7 +367,7 @@ export async function command(commandOptions: CommandOptions) {
               return spec + '.js';
             }
           }
-          const extToReplace = srcFileExtensionMapping[ext];
+          const extToReplace = configSrcFileExtensionMapping[ext];
           if (extToReplace) {
             spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
           }
@@ -612,7 +623,7 @@ export async function command(commandOptions: CommandOptions) {
             for (const extMatcher of match) {
               if (
                 extMatcher === requestedFileExt.substr(1) ||
-                srcFileExtensionMapping[extMatcher] === requestedFileExt.substr(1)
+                configSrcFileExtensionMapping[extMatcher] === requestedFileExt.substr(1)
               ) {
                 const srcFile = requestedFile.replace(requestedFileExt, `.${extMatcher}`);
                 const fileLoc = await attemptLoadFile(srcFile);
@@ -897,7 +908,7 @@ export async function command(commandOptions: CommandOptions) {
     if (isLiveReloadPaused) {
       return;
     }
-    let updateUrl = getUrlFromFile(mountedDirectories, fileLoc);
+    let updateUrl = getUrlFromFile(mountedDirectories, fileLoc, configSrcFileExtensionMapping);
     if (!updateUrl) {
       return;
     }
