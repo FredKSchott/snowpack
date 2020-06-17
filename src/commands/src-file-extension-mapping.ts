@@ -13,5 +13,6 @@ export default {
   ejs: 'html',
   njk: 'html',
   scss: 'css',
+  sass: 'css',
   less: 'css',
 };
