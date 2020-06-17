@@ -116,7 +116,7 @@ module.exports = function (eleventyConfig) {
       input: path.join(__dirname, '.'),
       includes: '.eleventy',
       // data: path.join(__dirname, 'data'),
-      output: path.join(__dirname, 'dist'),
+      output: path.join(__dirname, '_site'),
     },
   };
 };

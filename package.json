@@ -18,10 +18,7 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "test": "npm run test:integration && npm run test:build",
     "test:build": "jest test/build/runner.js --test-timeout=15000 --testMatch \"**/test/**/*.[jt]s?(x)\" -i",
-    "test:integration": "jest test/integration/runner.js --test-timeout=15000 --testMatch \"**/test/**/*.[jt]s?(x)\" -i",
-    "docs:build": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js",
-    "docs:watch": "cat docs/* > www/index.md && npx @11ty/eleventy --config www/.eleventy.js --serve",
-    "docs:deploy": "npm run docs:build && cp vercel.json www/dist && cd www/dist && vercel"
+    "test:integration": "jest test/integration/runner.js --test-timeout=15000 --testMatch \"**/test/**/*.[jt]s?(x)\" -i"
   },
   "@pika/pack": {
     "pipeline": [
@@ -94,8 +91,6 @@
     "yargs-parser": "^18.1.3"
   },
   "devDependencies": {
-    "@11ty/eleventy": "^0.11.0",
-    "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.1",
     "@pika/pack": "^0.5.0",
     "@pika/plugin-build-node": "^0.9.1",
     "@pika/plugin-copy-assets": "^0.9.1",
@@ -113,10 +108,7 @@
     "@types/ws": "^7.2.4",
     "cross-env": "^7.0.2",
     "dir-compare": "^2.2.0",
-    "eleventy-plugin-nesting-toc": "^1.1.0",
     "jest": "^26.0.1",
-    "markdown-it": "^10.0.0",
-    "markdown-it-anchor": "^5.2.5",
     "prettier": "^2.0.2",
     "typescript": "^3.9.3"
   }

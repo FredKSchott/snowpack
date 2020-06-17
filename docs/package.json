@@ -1,0 +1,14 @@
+{
+  "name": "snowpack-www",
+  "scripts": {
+    "docs:build": "cat docs/* > index.md && npx @11ty/eleventy --config .eleventy.js",
+    "docs:watch": "cat docs/* > index.md && npx @11ty/eleventy --config .eleventy.js --serve"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^0.11.0",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.1",
+    "eleventy-plugin-nesting-toc": "^1.1.0",
+    "markdown-it": "^10.0.0",
+    "markdown-it-anchor": "^5.2.5"
+  }
+}
