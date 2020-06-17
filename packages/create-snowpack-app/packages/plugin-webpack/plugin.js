@@ -28,8 +28,8 @@ module.exports = function plugin(config, args) {
   }
   // Validate: args.outputPattern
   args.outputPattern = args.outputPattern || {};
-  const jsOutputPattern = args.outputPattern.js || "js/bundle-[hash].js";
-  const cssOutputPattern = args.outputPattern.css || "css/style-[hash].css";
+  const jsOutputPattern = args.outputPattern.js || "js/[name].[contenthash].js";
+  const cssOutputPattern = args.outputPattern.css || "css/[name].[contenthash].css";
   const assetsOutputPattern =
     args.outputPattern.assets || "assets/[name]-[hash].[ext]";
   if (!jsOutputPattern.endsWith(".js")) {
@@ -43,7 +43,8 @@ module.exports = function plugin(config, args) {
     defaultBuildScript: "bundle:*",
     async bundle({ srcDirectory, destDirectory, log, jsFilePaths }) {
       // config.homepage is legacy, remove in future version
-      let baseUrl = config.buildOptions.baseUrl || config.homepage || "/";
+      const buildOptions = config.buildOptions || {};
+      let baseUrl = buildOptions.baseUrl || config.homepage || "/";
       const tempBuildManifest = JSON.parse(
         await fs.readFileSync(path.join(cwd, "package.json"), {
           encoding: "utf-8",
@@ -64,24 +65,25 @@ module.exports = function plugin(config, args) {
         fs.readFileSync(path.join(srcDirectory, config.devOptions.fallback))
       );
 
-      //Find the first local script, assume it's the entrypoint
-      let scriptEl;
-      for (const el of Array.from(
-        dom.window.document.querySelectorAll("script")
-      )) {
-        let src = el.src.trim();
-        if (
-          el.type.trim().toLowerCase() === "module" &&
-          !src.trim().match(/[a-zA-Z+]+:\/\//g)
-        ) {
-          scriptEl = el;
-          break;
-        }
-      }
-      if (!scriptEl) {
+      //Find all local script, use it as the entrypoint
+      const scripts = Array.from(dom.window.document.querySelectorAll("script"))
+        .filter(el => el.type.trim().toLowerCase() === "module")
+        .filter(el => !/^[a-zA-Z]+:\/\//.test(el.src));
+
+      if (scripts.length === 0) {
         throw new Error("Can't bundle without script tag in html");
+        }
+
+      const entries = {};
+      for (const el of scripts) {
+        const src = el.src.trim();
+        const parsedPath = path.parse(src);
+        const name = parsedPath.name;
+        if (entries.name !== undefined) {
+          throw new Error(`Duplicate script with name ${name}.`);
       }
-      let entryPoint = scriptEl.src;
+        entries[name] = {path: path.join(srcDirectory, src), script: el};
+      }
 
       //Compile files using webpack
       let webpackConfig = {
@@ -131,7 +133,7 @@ module.exports = function plugin(config, args) {
             },
             {
               test: /.*/,
-              exclude: [/\.js?$/,/\.json?$/, /\.css$/],
+              exclude: [/\.js?$/, /\.json?$/, /\.css$/],
               use: [
                 {
                   loader: "file-loader",
@@ -172,11 +174,14 @@ module.exports = function plugin(config, args) {
           }),
         ],
       };
-
+      let entry = {};
+      for (name in entries) {
+        entry[name] = entries[name].path;
+      }
       const compiler = webpack(
         extendConfig({
           ...webpackConfig,
-          entry: path.join(srcDirectory, entryPoint),
+          entry,
           output: {
             path: destDirectory,
             filename: jsOutputPattern,
@@ -200,28 +205,26 @@ module.exports = function plugin(config, args) {
       });
 
       if (!args.skipFallbackOutput) {
-        let assetFiles =
-          chain(
-            stats.toJson({
-              assets: false,
-              hash: true,
-            }),
-            ["entrypoints", "main", "assets"]
-          ) || [];
-
-        let jsFile = assetFiles.find((d) => d.endsWith(".js"));
-        let cssFile = assetFiles.find((d) => d.endsWith(".css"));
+        const entrypoints = stats.toJson({assets: false, hash: true}).entrypoints;
 
         //Now that webpack is done, modify the html file to point to the newly compiled resources
-        scriptEl.src = path.posix.join(baseUrl, jsFile);
-        scriptEl.removeAttribute("type");
+        Object.keys(entries).forEach(name => {
 
-        if (cssFile) {
-          let csslink = dom.window.document.createElement("link");
-          csslink.setAttribute("rel", "stylesheet");
-          csslink.href = path.posix.join(baseUrl, cssFile);
-          dom.window.document.querySelector("head").append(csslink);
-        }
+          if (entrypoints[name] !== undefined) {
+            const assetFiles = chain(entrypoints, [name, "assets"]);
+            const script = entries[name].script;
+            const jsFile = assetFiles.find((d) => d.endsWith(".js"));
+            const cssFile = assetFiles.find((d) => d.endsWith(".css"));
+            script.removeAttribute("type");
+            script.src = path.posix.join(baseUrl, jsFile);
+            if (cssFile) {
+              let csslink = dom.window.document.createElement("link");
+              csslink.setAttribute("rel", "stylesheet");
+              csslink.href = path.posix.join(baseUrl, cssFile);
+              dom.window.document.querySelector("head").append(csslink);
+            }
+          }
+        });
 
         //And write our modified html file out to the destination
         fs.writeFileSync(
