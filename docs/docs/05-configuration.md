@@ -120,8 +120,6 @@ $ snowpack dev --no-bundle
   - Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
 - **`hmr`** | `boolean` | Default: `true`
   - Toggles whether or not Snowpack dev server should have HMR enabled.
-- **`secure`** | `boolean`
-  - Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
 
 #### Build Options
 
