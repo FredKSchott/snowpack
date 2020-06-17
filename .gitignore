@@ -1,8 +1,8 @@
 pkg
-www/index.md
-www/dist
 /node_modules
 docs/node_modules
+docs/_site
+docs/index.md
 /web_modules
 test/build/**/build
 test/**/node_modules/.cache

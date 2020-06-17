@@ -18,18 +18,19 @@
 
 ### What is Snowpack?
 
-**Snowpack is a faster build tool for modern web apps.** Snowpack leverages [ESM imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) in your application to remove unnecessary bundling work during development. The end result is a build tool that starts up instantly and wastes no time rebuilding on every change. See changes reflected in the browser instantly.
+**Snowpack leverages native [ESM JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) to create a dev environment that reacts to changes instantly.** Traditional dev bundlers -- like Webpack or Parcel -- need to rebuild & rebundle large chunks of your application every time you save a single file. This introduces lag between making a change and seeing it reflected in the browser, sometimes several seconds long in larger applications.
 
-[Check out our launch post](/posts/2020-05-26-snowpack-2-0-release/) to learn more.
+Snowpack solves this problem by serving your application **unbundled in development.** Any time you change a file, Snowpack never rebuilds more than a single file. There's no bundling to speak of, just a few milliseconds of single-file rebuilding and then an instant update in the browser via HMR. We call this new approach "O(1) Build Tooling", and you can read more about it in our [Snowpack 2.0 Release Post.](/posts/2020-05-26-snowpack-2-0-release/) 
 
+When you're ready to deploy your web application to users, you can add back a traditional bundler like Webpack or Parcel. With Snowpack you get bundled & optimized production performance without sacrificing dev speed by adding an unnecessary bundler, 
 
 ### Key Features
 
 - A dev environment that starts up in **50ms or less.**
-- Changed files are rebuilt [instantly.](/#hot-module-replacement) 
-- Integrates with your favorite bundler for [production builds](/#snowpack-build).
+- Changes are reflected [instantly in the browser.](/#hot-module-replacement)
+- Integrates your favorite bundler for [production-optimized builds.](/#snowpack-build)
 - Out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](/#features)
-- [Custom build scripts](/#build-scripts) & [third-party plugins](/#build-plugins) to connect your favorite tools.
+- Connect your favorite tools with custom [build scripts](/#build-scripts) & [third-party plugins.](/#build-plugins)
 
 ### Library Support
 
@@ -44,6 +45,7 @@
 - Styled Components
 - Tailwind CSS
 - and more!
+<!-- Missing something? Feel free to add your own! -->
 
 </div>
 
@@ -54,15 +56,16 @@
 - Babel
 - TypeScript
 - PostCSS
-- SASS
+- Sass
 - esbuild
 - 11ty
 - and more!
+<!-- Missing something? Feel free to add your own! -->
 
 </div>
 
 ### Browser Support
 
-**Snowpack builds your site for both modern and legacy browsers (even IE11).** You can control and customize this behavior with the ["browserlist" package.json property](https://css-tricks.com/browserlist-good-idea/). 
+**Snowpack builds your site for both modern and legacy browsers. Even IE11 is supported.** You can control and customize this behavior with the ["browserlist" package.json property](https://css-tricks.com/browserlist-good-idea/). 
 
 The only requirement is that *during development* you use a [modern browser](http://caniuse.com/#feat=es6-module). Any recent release of Firefox, Chrome, or Edge will do. This is required to support the modern, bundle-free ESM imports that load your application in the browser.
