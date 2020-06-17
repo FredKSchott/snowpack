@@ -4,7 +4,8 @@
     "prepare": "node ../../../pkg/dist-node/index.bin.js",
     "start": "node ../../../pkg/dist-node/index.bin.js dev",
     "setupTest": "cd packages && cd test-link && npm link && cd .. && cd .. && npm link @snowpack/test-link && npm install",
-    "TEST": "npm run setupTest && node ../../../pkg/dist-node/index.bin.js build"
+    "teardownTest": "rm -rf node_modules",
+    "TEST": "npm run setupTest && node ../../../pkg/dist-node/index.bin.js build && npm run teardownTest"
   },
   "snowpack": {
     "scripts": {
