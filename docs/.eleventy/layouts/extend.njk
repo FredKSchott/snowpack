@@ -15,6 +15,47 @@ layout: layouts/base.njk
 .toc, .grid-toc-buttons, .grid-extra-space video {
   filter: hue-rotate(45deg);
 }
+.font-heading {
+  font-family: "Overpass", sans-serif;
+}
+.tc-blue { color: #267dd6; }
+.tc-green { color: #24bd65; }
+.tc-magenta { color: #b224d0; }
+.tc-text { color: #24292e; }
+.ol {
+  counter-reset: ol;
+  list-style: none;
+  padding: 0;
+}
+.ol li {
+  margin: 1em 0;
+  counter-increment: ol;
+  position: relative;
+  padding-left: 0.75rem;
+}
+.ol .ol-title {
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  font-family: "Overpass", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.0625em;
+}
+.ol li::before {
+  top: -0.125em;
+  right: 100%;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  font-size: 14px;
+  font-family: "Overpass", sans-serif;
+  font-weight: 700;
+  width: 1.625em;
+  height: 1.625em;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  content: counter(ol);
+}
 </style>
 
 <div class="grid-body-header">
