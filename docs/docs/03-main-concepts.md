@@ -11,13 +11,13 @@ The alternative is **bundled development.** Almost every popular JavaScript buil
 
 Unbundled development has several advantages over the traditional bundled development approach:
 
-- Builds are faster.
-- Builds are predictable.
-- Builds are easy to reason about & debug: `build(input) -> output`
+- Single-file builds are fast.
+- Single-file builds are deterministic.
+- Single-file builds are easier to debug.
 - Project size doesn’t affect dev speed.
 - Individual files cache better.
 
-That last point is key: **Every file is built individually and cached indefinitely.** Your dev environment will never build a file more than once and your browser will never download a file twice (until it changes). This is the real power of unbundled development
+That last point is key: **Every file is built individually and cached indefinitely.** Your dev environment will never build a file more than once and your browser will never download a file twice (until it changes). This is the real power of unbundled development.
 
 ### Using NPM Dependencies
 
