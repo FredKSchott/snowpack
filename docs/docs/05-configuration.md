@@ -46,7 +46,6 @@ $ snowpack dev --no-bundle
     "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
     "bulma/css/bulma.css" // A non-JS static asset (supports globs)
   ],
-  "homepage": "/your-project",
   "scripts": { /* ... */ },
   "installOptions": { /* ... */ },
   "devOptions": { /* ... */ },
@@ -64,10 +63,6 @@ $ snowpack dev --no-bundle
   - Useful for excluding tests and other unnecessary files from the final build. Supports glob pattern matching. 
 - **`install`** | `string[]`
   - Known dependencies to install with Snowpack. Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
-- **`homepage`** | `string`
-  - By default, Snowpack's builds your app assuming it will be hosted at the server root.
-  - You can set the "homepage" whenever your project is deployed anywhere other than the domain's root URL.
-  - Note: Snowpack will also read this value from your `package.json` manifest.
 - **`scripts`**
   - Set build scripts to transform your source files. See the section below for more info.
 - **`installOptions.*`**
@@ -126,7 +121,7 @@ $ snowpack dev --no-bundle
 #### Build Options
 
 - **`baseUrl`** | `string` | Default: `/`
-  - In your HTML, replace all instances of `%PUBLIC_URL%` with this (inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept). This is useful if your app will be deployed to a subdirectory.
+  - In your HTML, replace all instances of `%PUBLIC_URL%` with this (inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept). This is useful if your app will be deployed to a subdirectory. _Note: if you have `homepage` in your `package.json`, Snowpack will actually pick up on that, too._
 - **`metaDir`** | `string` | Default: `__snowpack__`
   - By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
 
