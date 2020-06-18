@@ -63,9 +63,16 @@ Snowpack supports JSX & TypeScript source code by default, compiling your files 
 
 `snowpack build` - When you're ready to deploy your application, run the build command to generate a static production build of your site. Building is tightly integrated with your dev setup so that you are guaranteed to get a near-exact copy of the same code that you saw during development.
 
-Deploying this basic build is fine for simple sites, but you may want to optimize your site even further by bundling your site for production. Minification, code-splitting, tree-shaking, dead code elimination, and more optimizations can all happen at this stage by adding back a traditional bundler to your build process.
 
-Snowpack recommends using the official [Webpack plugin](https://www.npmjs.com/package/@snowpack/plugin-webpack). [Parcel](https://www.npmjs.com/package/@snowpack/plugin-parcel) is also supported. Connect your favorite, and then run `snowpack build` to get a bundled build of your site for production. 
+### Bundle for Production
+
+**You should be able to use a bundler because you want to, but not because you need to.** That was the single premise that Snowpack was originally built to solve.
+
+By default, `snowpack build` will build your site using the same unbundled approach as the `dev` command. This is fine for most project, but you also may still want to bundle for production. Legacy browser support, code minification, code-splitting, tree-shaking, dead code elimination, and other performance optimizations are all handled in Snowpack via bundling.
+
+**You can connect your favorite bundler to Snowpack to optimize production builds.** Bundlers normally require dozens or even hundreds of lines of configuration, but with Snowpack it's just a one-line change to your project config file. Snowpack builds your application *before* sending it to the bundler, so that all the bundler needs to do is worry about bundling the final JavaScript & CSS. No custom configuration required.
+
+Snowpack ships with official support for [Webpack](https://www.npmjs.com/package/@snowpack/plugin-webpack). Connect the `"@snowpack/plugin-webpack"` plugin in your Snowpack configuration file and then run `snowpack build` to create optimized, bundled builds.
 
 ```js
 // snowpack.config.json
@@ -75,5 +82,4 @@ Snowpack recommends using the official [Webpack plugin](https://www.npmjs.com/pa
 }
 ```
 
-If you don't want to use a bundler, that's okay too. By default, Snowpack generates a build for you that runs just fine without a bundler. This is what the Snowpack project has been all about from the start: **Use a bundler because you want to, and not because you need to.**
-
+If you don't want to use a bundler, that's fine too! Just skip the plugin and/or set `devOptions.bundle: false` in your Snowpack configuration.

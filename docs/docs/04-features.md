@@ -306,7 +306,3 @@ module.exports = {
 Note that this currently requires you use the `.js` format of our Snowpack config files, since JSON cannot require to load a Rollup plugin. 
 
 Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#using-plugins) for more information on adding Rollup plugins to our installer.
-
-### Bundle for Production
-
-You can bundle your application for production by connecting a bundler plugin like [@snowpack/plugin-webpack](https://www.npmjs.com/package/@snowpack/plugin-webpack) or [@snowpack/plugin-parcel](https://www.npmjs.com/package/@snowpack/plugin-parcel). Check out our [build documentation](#snowpack-build) to learn more.
