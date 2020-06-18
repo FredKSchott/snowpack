@@ -384,8 +384,12 @@ export async function install(
         warning.plugin === 'snowpack:rollup-plugin-catch-unresolved'
       ) {
         // Display posix-style on all environments, mainly to help with CI :)
-        const fileName = warning.id!.replace(cwd + path.sep, '').replace(/\\/g, '/');
-        logError(`${fileName}\n   ${warning.message}`);
+        if (warning.id) {
+          const fileName = warning.id.replace(cwd + path.sep, '').replace(/\\/g, '/');
+          logError(`${fileName}\n   ${warning.message}`);
+        } else {
+          logError(`${warning.message}. See https://www.snowpack.dev/#troubleshooting`);
+        }
         return;
       }
       warn(warning);
