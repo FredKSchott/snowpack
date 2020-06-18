@@ -68,7 +68,7 @@ Snowpack supports JSX & TypeScript source code by default, compiling your files 
 
 **You should be able to use a bundler because you want to, but not because you need to.** That was the single premise that Snowpack was originally built to solve.
 
-By default, `snowpack build` will build your site using the same unbundled approach as the `dev` command. This is fine for most project, but you also may still want to bundle for production. Legacy browser support, code minification, code-splitting, tree-shaking, dead code elimination, and other performance optimizations are all handled in Snowpack via bundling.
+By default, `snowpack build` will build your site using the same unbundled approach as the `dev` command. This is fine for most projects, but you also may still want to bundle for production. Legacy browser support, code minification, code-splitting, tree-shaking, dead code elimination, and other performance optimizations are all handled in Snowpack via bundling.
 
 **You can connect your favorite bundler to Snowpack to optimize production builds.** Bundlers normally require dozens or even hundreds of lines of configuration, but with Snowpack it's just a one-line change to your project config file. Snowpack builds your application *before* sending it to the bundler, so that all the bundler needs to do is worry about bundling the final JavaScript & CSS. No custom configuration required.
 
