@@ -32,8 +32,8 @@ import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
 import http from 'http';
-import http2 from 'http2';
 import HttpProxy from 'http-proxy';
+import http2 from 'http2';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
 import os from 'os';
@@ -54,23 +54,21 @@ import {
   isYarn,
   openInBrowser,
   resolveDependencyManifest,
-  findMatchingMountScript,
   updateLockfileHash,
 } from '../util';
 import {
   FileBuilder,
+  generateEnvModule,
   getFileBuilderForWorker,
-  isDirectoryImport,
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
   wrapHtmlResponse,
   wrapImportMeta,
-  generateEnvModule,
 } from './build-util';
+import {createImportResolver} from './import-resolver';
 import {command as installCommand} from './install';
-import {paint, getPort} from './paint';
+import {getPort, paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
-
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
 const DEFAULT_PROXY_ERROR_HANDLER = (
@@ -332,47 +330,23 @@ export async function command(commandOptions: CommandOptions) {
         filesBeingBuilt.delete(fileLoc);
       }
     }
-    const webModulesScript = config.scripts.find((script) => script.id === 'mount:web_modules');
-    const webModulesLoc = webModulesScript ? webModulesScript.args.toUrl : '/web_modules';
-
     const ext = path.extname(fileLoc).substr(1);
     if (ext === 'js' || srcFileExtensionMapping[ext] === 'js') {
       let missingWebModule: {spec: string; pkgName: string} | null = null;
+      const resolveImportSpecifier = createImportResolver({
+        fileLoc,
+        dependencyImportMap,
+        isBuild: false,
+        isBundled: false,
+        config,
+      });
       builtFileResult.result = await transformEsmImports(builtFileResult.result, (spec) => {
-        if (spec.startsWith('http')) {
-          return spec;
+        // Try to resolve the specifier to a known URL in the project
+        const resolvedImportUrl = resolveImportSpecifier(spec);
+        if (resolvedImportUrl) {
+          return resolvedImportUrl;
         }
-        let mountScript = findMatchingMountScript(config.scripts, spec);
-        if (mountScript) {
-          let {fromDisk, toUrl} = mountScript.args;
-          spec = spec.replace(fromDisk, toUrl);
-        }
-        if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
-          const ext = path.extname(spec).substr(1);
-          if (!ext) {
-            if (isDirectoryImport(fileLoc, spec)) {
-              return spec + '/index.js';
-            } else {
-              return spec + '.js';
-            }
-          }
-          const extToReplace = srcFileExtensionMapping[ext];
-          if (extToReplace) {
-            spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
-          }
-          if (!spec.endsWith('.module.css') && (extToReplace || ext) !== 'js') {
-            spec = spec + '.proxy.js';
-          }
-          return spec;
-        }
-        if (dependencyImportMap.imports[spec]) {
-          let resolvedImport = path.posix.resolve(webModulesLoc, dependencyImportMap.imports[spec]);
-          const extName = path.extname(resolvedImport);
-          if (extName && extName !== '.js') {
-            resolvedImport = resolvedImport + '.proxy.js';
-          }
-          return resolvedImport;
-        }
+        // If that fails, return a placeholder import and attempt to resolve.
         const packageName = getPackageNameFromSpecifier(spec);
         const [depManifestLoc] = resolveDependencyManifest(packageName, cwd);
         const doesPackageExist = !!depManifestLoc;
@@ -384,13 +358,10 @@ export async function command(commandOptions: CommandOptions) {
             pkgName: packageName,
           };
         }
-        const extName = path.extname(spec);
-        if (extName && extName !== '.js') {
-          spec = spec + '.proxy';
-        }
-        return path.posix.join(webModulesLoc, `${spec}.js`);
+        // Return a placeholder while Snowpack goes out and tries to re-install (or warn)
+        // on the missing package.
+        return spec;
       });
-
       messageBus.emit('MISSING_WEB_MODULE', {
         id: fileLoc,
         data: missingWebModule,
@@ -673,18 +644,18 @@ export async function command(commandOptions: CommandOptions) {
     async function wrapResponse(code: string, cssResource: string | undefined) {
       if (isRoute) {
         code = wrapHtmlResponse({code: code, hasHmr: isHmr, buildOptions: config.buildOptions});
-      } else if (isProxyModule) {
+      } else if (isCssModule) {
         responseFileExt = '.js';
-        code = wrapEsmProxyResponse({
+        code = await wrapCssModuleResponse({
           url: reqPath,
           code,
           ext: requestedFileExt,
           hasHmr: isHmr,
           config,
         });
-      } else if (isCssModule) {
+      } else if (isProxyModule) {
         responseFileExt = '.js';
-        code = await wrapCssModuleResponse({
+        code = wrapEsmProxyResponse({
           url: reqPath,
           code,
           ext: requestedFileExt,
