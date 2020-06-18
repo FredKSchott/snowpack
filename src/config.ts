@@ -50,6 +50,7 @@ export type SnowpackPluginTransformResult = {
   result: string;
   resources?: {css?: string};
 };
+/** A plugin that controls transformations of files through Snowpack */
 export type SnowpackPlugin = {
   defaultBuildScript?: string;
   knownEntrypoints?: string[];
@@ -76,13 +77,27 @@ export type BuildScript = {
   args?: any;
 };
 
+/** Snowpack’s snapshot of a file at any given point through a pipeline (keep in mind that a file may be in an intermediary phase, between initial input & final output) */
+export interface SnowpackFile {
+  /** Original location on disk */
+  filePath: string;
+  /** The code of the file in memory (keep in mind this may differ from the contents on disk) */
+  code: string;
+  /** Full import path of the file */
+  importPath: string;
+}
+
 export type ProxyOptions = HttpProxy.ServerOptions & {
   // Custom on: {} event handlers
   on: Record<string, Function>;
 };
 export type Proxy = [string, ProxyOptions];
+/** Pipeline step **/
+export type SnowpackPipelineStep = string | [string, any]; // Snowpack plugins may be in [plugin, options] tuple format
+/** Transform steps for files, separated by file extension */
+export type SnowpackPipeline = {[ext: string]: SnowpackPipelineStep[]};
 
-// interface this library uses internally
+/** Full shape of Snowpack configuration */
 export interface SnowpackConfig {
   install: string[];
   extends?: string;
@@ -119,6 +134,8 @@ export interface SnowpackConfig {
     metaDir: string;
   };
   proxy: Proxy[];
+  /** Array of commands to run for each file type */
+  pipeline?: SnowpackPipeline;
 }
 
 export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>, 'env'> {
@@ -159,6 +176,9 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   buildOptions: {
     baseUrl: '/',
     metaDir: '__snowpack__',
+  },
+  pipeline: {
+    '.proxy.js': ['@snowpack/plugin-proxy'], // TODO: release this externally?
   },
 };
 
@@ -232,6 +252,10 @@ const configSchema = {
     },
     proxy: {
       type: 'object',
+    },
+    pipeline: {
+      type: ['object'],
+      additionalProperties: {type: 'array', items: {oneOf: [{type: 'string'}, {type: 'array'}]}}, // chained commands and/or Snowpack plugins (Snowpack plugins may be in tuple format to pass options)
     },
   },
 };
