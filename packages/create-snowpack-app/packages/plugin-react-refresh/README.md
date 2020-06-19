@@ -18,9 +18,13 @@ In addition, you have to add `react-refresh/babel` as a plugin to your babel con
 ```js
 // babel.config.json
 {
-  "plugins": [
-    "react-refresh/babel"
-  ]
+  "env": {
+    "development": {
+      "plugins": [
+        "react-refresh/babel"
+      ]
+    }
+  }
 }
 ```
 
