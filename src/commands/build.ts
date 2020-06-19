@@ -1,15 +1,22 @@
 import chalk from 'chalk';
 import {EventEmitter} from 'events';
 import execa from 'execa';
-import {promises as fs} from 'fs';
+import {existsSync, promises as fs} from 'fs';
 import glob from 'glob';
 import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
 import rimraf from 'rimraf';
-import {BuildScript} from '../config';
+import {BuildScript, normalizeScripts} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
-import {BUILD_DEPENDENCIES_DIR, CommandOptions, ImportMap} from '../util';
+import {
+  BUILD_DEPENDENCIES_DIR,
+  CommandOptions,
+  ImportMap,
+  checkLockfileHash,
+  DEV_DEPENDENCIES_DIR,
+  updateLockfileHash,
+} from '../util';
 import {
   generateEnvModule,
   getFileBuilderForWorker,
@@ -26,29 +33,13 @@ import srcFileExtensionMapping from './src-file-extension-mapping';
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
 
-  // Start with a fresh install of your dependencies, for production
-  commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'production';
-  commandOptions.config.installOptions.dest = BUILD_DEPENDENCIES_DIR;
-  commandOptions.config.installOptions.treeshake =
-    commandOptions.config.installOptions.treeshake !== undefined
-      ? commandOptions.config.installOptions.treeshake
-      : true;
-  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
-
-  // Start with a fresh install of your dependencies, always.
-  console.log(chalk.yellow('! rebuilding dependencies...'));
-  await installCommand(commandOptions);
+  // Set the proper install options, in case an install is needed.
+  commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
+  commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
   const messageBus = new EventEmitter();
   const relevantWorkers: BuildScript[] = [];
   const allBuildExtensions: string[] = [];
-
-  let dependencyImportMap: ImportMap = {imports: {}};
-  try {
-    dependencyImportMap = require(dependencyImportMapLoc);
-  } catch (err) {
-    // no import-map found, safe to ignore
-  }
 
   for (const workerConfig of config.scripts) {
     const {type, match} = workerConfig;
@@ -106,6 +97,20 @@ export async function command(commandOptions: CommandOptions) {
     relDest = `.${path.sep}` + relDest;
   }
   paint(messageBus, relevantWorkers, {dest: relDest}, undefined);
+
+  // Start with a fresh install of your dependencies, if needed.
+  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
+  if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
+    console.log(chalk.yellow('! updating dependencies...'));
+    await installCommand(commandOptions);
+    await updateLockfileHash(DEV_DEPENDENCIES_DIR);
+  }
+  let dependencyImportMap: ImportMap = {imports: {}};
+  try {
+    dependencyImportMap = require(dependencyImportMapLoc);
+  } catch (err) {
+    // no import-map found, safe to ignore
+  }
 
   if (!isBundled) {
     messageBus.emit('WORKER_UPDATE', {
@@ -179,10 +184,14 @@ export async function command(commandOptions: CommandOptions) {
   const allProxiedFiles = new Set<string>();
   for (const [id, dirDisk, dirDest] of mountDirDetails) {
     messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
+    if (id === 'mount:web_modules') {
+      messageBus.emit('WORKER_COMPLETE', {id});
+      continue;
+    }
     let allFiles;
     try {
       allFiles = glob.sync(`**/*`, {
-        ignore: id === 'mount:web_modules' ? [] : config.exclude,
+        ignore: config.exclude,
         cwd: dirDisk,
         absolute: true,
         nodir: true,
@@ -346,6 +355,20 @@ export async function command(commandOptions: CommandOptions) {
     const proxyFileLoc = proxiedFileLoc + '.proxy.js';
     await fs.writeFile(proxyFileLoc, proxyCode, {encoding: 'utf8'});
   }
+
+  // Start with a fresh install of your dependencies, for production
+  commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'production';
+  commandOptions.config.installOptions.dest = path.join(buildDirectoryLoc, 'web_modules');
+  commandOptions.config.installOptions.treeshake =
+    commandOptions.config.installOptions.treeshake !== undefined
+      ? commandOptions.config.installOptions.treeshake
+      : true;
+      commandOptions.config.scripts = normalizeScripts(buildDirectoryLoc, {
+        'mount:*': 'mount . --to /',
+      });
+  console.log('optimizing dependencies...');
+  await installCommand({...commandOptions, cwd: buildDirectoryLoc});
+  console.log('done...');
 
   if (!isBundled) {
     messageBus.emit('WORKER_COMPLETE', {id: bundleWorker.id, error: null});

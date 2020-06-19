@@ -315,7 +315,7 @@ function handleLegacyProxyScripts(config: any) {
 }
 
 type RawScripts = Record<string, string>;
-function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
+export function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
   const dependenciesLoc =
     process.env.NODE_ENV === 'production' ? BUILD_DEPENDENCIES_DIR : DEV_DEPENDENCIES_DIR;
   const processedScripts: BuildScript[] = [];
