@@ -110,8 +110,9 @@ const sendFile = (
   ext = '.html',
 ) => {
   const ETag = etag(body, {weak: true});
+  const contentType = mime.contentType(ext)
   const headers: Record<string, string> = {
-    'Content-Type': mime.contentType(ext) || 'application/octet-stream',
+    'Content-Type': contentType || 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
     ETag,
     Vary: 'Accept-Encoding',
@@ -127,7 +128,8 @@ const sendFile = (
   if (
     req.headers['cache-control']?.includes('no-transform') ||
     ['HEAD', 'OPTIONS'].includes(req.method!) ||
-    !isCompressible(mime.contentType(ext) as string)
+    !contentType ||
+    !isCompressible(contentType)
   ) {
     acceptEncoding = '';
   }
