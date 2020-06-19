@@ -4,6 +4,8 @@ import {findMatchingMountScript} from '../util';
 import {isDirectoryImport} from './build-util';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
+const URL_HAS_PROTOCOL_REGEX = /^\w:\/\./;
+
 interface ImportResolverOptions {
   fileLoc: string;
   dependencyImportMap: any;
@@ -28,7 +30,7 @@ export function createImportResolver({
   const webModulesLoc = webModulesScript ? webModulesScript.args.toUrl : '/web_modules';
 
   return function importResolver(spec: string): string | false {
-    if (spec.startsWith('http')) {
+    if (URL_HAS_PROTOCOL_REGEX.test(spec)) {
       return spec;
     }
     let mountScript = findMatchingMountScript(config.scripts, spec);
