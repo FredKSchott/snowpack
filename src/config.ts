@@ -9,6 +9,7 @@ import {Plugin as RollupPlugin} from 'rollup';
 import yargs from 'yargs-parser';
 import {esbuildPlugin} from './commands/esbuildPlugin';
 import {BUILD_DEPENDENCIES_DIR, DEV_DEPENDENCIES_DIR} from './util';
+import tsConfigPaths from 'tsconfig-paths';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -117,6 +118,8 @@ export interface SnowpackConfig {
   buildOptions: {
     baseUrl: string;
     metaDir: string;
+    paths?: {[key: string]: string[]};
+    pathsBaseDirectory?: string;
   };
   proxy: Proxy[];
 }
@@ -228,6 +231,8 @@ const configSchema = {
       properties: {
         baseUrl: {type: 'string'},
         metaDir: {type: 'string'},
+        paths: {type: 'object'},
+        pathsBaseDirectory: {type: 'string'}
       },
     },
     proxy: {
@@ -752,6 +757,13 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
         `"${webDependencyName}" is included in "webDependencies". Please remove it from your package.json "devDependencies" config.`,
       );
     }
+  }
+
+  const tsConfig = tsConfigPaths.loadConfig();
+  if (tsConfig.resultType === 'success') {
+    mergedConfig.buildOptions = mergedConfig.buildOptions || {};
+    mergedConfig.buildOptions.paths = tsConfig.paths;
+    mergedConfig.buildOptions.pathsBaseDirectory = tsConfig.absoluteBaseUrl;
   }
 
   const [validationErrors, configResult] = createConfiguration(mergedConfig);

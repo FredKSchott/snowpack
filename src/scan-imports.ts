@@ -8,6 +8,7 @@ import stripComments from 'strip-comments';
 import validatePackageName from 'validate-npm-package-name';
 import {SnowpackConfig} from './config';
 import {isTruthy, findMatchingMountScript} from './util';
+import tsConfigPaths from 'tsconfig-paths';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -196,7 +197,7 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
 
 export async function scanImports(
   cwd: string,
-  {scripts, exclude}: SnowpackConfig,
+  {scripts, exclude, buildOptions}: SnowpackConfig,
 ): Promise<InstallTarget[]> {
   await initESModuleLexer;
   const includeFileSets = await Promise.all(
@@ -258,13 +259,21 @@ export async function scanImports(
       return null;
     }),
   );
+
+  const matchTsConfigPath = buildOptions.paths
+    ? tsConfigPaths.createMatchPath(buildOptions.pathsBaseDirectory || cwd, buildOptions.paths, [])
+    : () => false;
+
   return (
     loadedFiles
       .filter(isTruthy)
       .map(([fileLoc, code]) => parseCodeForInstallTargets(fileLoc, code))
       .reduce((flat, item) => flat.concat(item), [])
       // Ignore source imports that match a mount directory.
-      .filter((target) => !findMatchingMountScript(scripts, target.specifier))
+      .filter((target) => {
+        console.log(matchTsConfigPath(target.specifier));
+        return !matchTsConfigPath(target.specifier);
+      })
       .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier))
   );
 }

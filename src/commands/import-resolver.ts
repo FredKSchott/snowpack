@@ -3,6 +3,8 @@ import {SnowpackConfig} from '../config';
 import {findMatchingMountScript} from '../util';
 import {isDirectoryImport} from './build-util';
 import srcFileExtensionMapping from './src-file-extension-mapping';
+import tsConfigPaths from 'tsconfig-paths';
+const cwd = process.cwd();
 
 const URL_HAS_PROTOCOL_REGEX = /^\w:\/\./;
 
@@ -38,6 +40,7 @@ export function createImportResolver({
       let {fromDisk, toUrl} = mountScript.args;
       spec = spec.replace(fromDisk, toUrl);
     }
+
     if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
       const ext = path.extname(spec).substr(1);
       if (!ext) {
@@ -70,6 +73,19 @@ export function createImportResolver({
       }
       return resolvedImport;
     }
+
+    if (config.buildOptions.paths) {
+      const matchTsConfigPath = tsConfigPaths.createMatchPath(
+        config.buildOptions.pathsBaseDirectory || cwd,
+        config.buildOptions.paths,
+        [],
+      );
+      const matched = matchTsConfigPath(spec, undefined, undefined, ['js', 'jsx', 'ts', 'tsx']);
+      if (matched) {
+        return path.relative(cwd, matched);
+      }
+    }
+
     return false;
   };
 }
