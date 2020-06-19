@@ -8,7 +8,7 @@ const URL_HAS_PROTOCOL_REGEX = /^\w:\/\./;
 
 interface ImportResolverOptions {
   fileLoc: string;
-  dependencyImportMap: any;
+  dependencyImportMap: any | null;
   isDev: boolean;
   isBundled: boolean;
   config: SnowpackConfig;
@@ -76,7 +76,7 @@ export function createImportResolver({
       spec = resolveSourceSpecifier(spec, importStats, isBundled);
       return spec;
     }
-    if (dependencyImportMap.imports[spec]) {
+    if (dependencyImportMap && dependencyImportMap.imports[spec]) {
       let resolvedImport = isDev
         ? path.posix.resolve(webModulesLoc, dependencyImportMap.imports[spec])
         : path.posix.join(

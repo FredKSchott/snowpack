@@ -511,3 +511,60 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
     process.exit(1);
   }
 }
+
+
+
+export async function installRunner({cwd, config, lockfile, pkgManifest}: CommandOptions, scannedInstallTargets?:InstallTarget[] ) {
+  const {
+    installOptions: {dest},
+    knownEntrypoints,
+    webDependencies,
+  } = config;
+
+  installResults = [];
+  dependencyStats = null;
+  spinner = ora(banner);
+  spinnerHasError = false;
+
+  let newLockfile: ImportMap | null = null;
+  const installTargets: InstallTarget[] = [];
+
+  if (knownEntrypoints) {
+    installTargets.push(...scanDepList(knownEntrypoints, cwd));
+  }
+  if (webDependencies) {
+    installTargets.push(...scanDepList(Object.keys(webDependencies), cwd));
+  }
+  if (scannedInstallTargets) {
+    installTargets.push(...scannedInstallTargets);
+  } else {
+    installTargets.push(...(await scanImports(cwd, config)));
+  }
+  if (installTargets.length === 0) {
+    throw new Error('Nothing to install.')
+  }
+  if (webDependencies && Object.keys(webDependencies).length > 0) {
+    newLockfile = await resolveTargetsFromRemoteCDN(lockfile, pkgManifest, config).catch((err) => {
+      defaultLogError(err.message || err);
+      process.exit(1);
+    });
+  }
+
+  rimraf.sync(dest);
+  await mkdirp(dest);
+  const finalResult = await install(
+    installTargets,
+    {
+      lockfile: newLockfile,
+      logError: defaultLogError,
+      logUpdate: defaultLogUpdate,
+    },
+    config,
+  );
+
+  return {
+    success: !!finalResult,
+    newLockfile,
+    stats: dependencyStats!
+  }
+}
