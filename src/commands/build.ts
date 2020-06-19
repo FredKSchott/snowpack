@@ -280,7 +280,7 @@ export async function command(commandOptions: CommandOptions) {
           const resolveImportSpecifier = createImportResolver({
             fileLoc,
             dependencyImportMap,
-            isBuild: true,
+            isDev: false,
             isBundled,
             config,
           });

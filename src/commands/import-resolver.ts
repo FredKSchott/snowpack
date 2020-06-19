@@ -9,7 +9,7 @@ const URL_HAS_PROTOCOL_REGEX = /^\w:\/\./;
 interface ImportResolverOptions {
   fileLoc: string;
   dependencyImportMap: any;
-  isBuild: boolean;
+  isDev: boolean;
   isBundled: boolean;
   config: SnowpackConfig;
 }
@@ -22,7 +22,7 @@ interface ImportResolverOptions {
 export function createImportResolver({
   fileLoc,
   dependencyImportMap,
-  isBuild,
+  isDev,
   isBundled,
   config,
 }: ImportResolverOptions) {
@@ -57,13 +57,13 @@ export function createImportResolver({
       return spec;
     }
     if (dependencyImportMap.imports[spec]) {
-      let resolvedImport = isBuild
-        ? path.posix.join(
+      let resolvedImport = isDev
+        ? path.posix.resolve(webModulesLoc, dependencyImportMap.imports[spec])
+        : path.posix.join(
             config.buildOptions.baseUrl,
             webModulesLoc,
             dependencyImportMap.imports[spec],
-          )
-        : path.posix.resolve(webModulesLoc, dependencyImportMap.imports[spec]);
+          );
       const extName = path.extname(resolvedImport);
       if (!isBundled && extName && extName !== '.js') {
         resolvedImport = resolvedImport + '.proxy.js';
