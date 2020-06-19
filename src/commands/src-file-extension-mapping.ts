@@ -8,6 +8,8 @@ export default {
   mdx: 'js',
   svx: 'js',
   elm: 'js',
+  yaml: 'json',
+  toml: 'json',
   php: 'html',
   md: 'html',
   ejs: 'html',
