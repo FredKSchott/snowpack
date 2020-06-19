@@ -291,8 +291,11 @@ export async function command(commandOptions: CommandOptions) {
               // We treat ".proxy.js" files special: we need to make sure that they exist on disk
               // in the final build, so we mark them to be written to disk at the next step.
               if (resolvedImportUrl.endsWith('.proxy.js')) {
-                const resolvedUrl = path.resolve(path.dirname(outPath), spec);
-                allProxiedFiles.add(resolvedUrl);
+                allProxiedFiles.add(
+                  resolvedImportUrl.startsWith('/')
+                    ? path.resolve(cwd, spec)
+                    : path.resolve(path.dirname(outPath), spec),
+                );
               }
               return resolvedImportUrl;
             }

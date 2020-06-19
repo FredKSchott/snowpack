@@ -1,9 +1,7 @@
 import type CSSModuleLoader from 'css-modules-loader-core';
 import type {EventEmitter} from 'events';
 import execa from 'execa';
-import {statSync} from 'fs';
 import npmRunPath from 'npm-run-path';
-import path from 'path';
 import {
   BuildScript,
   SnowpackConfig,
@@ -14,17 +12,6 @@ import {
 const IS_PREACT = /from\s+['"]preact['"]/;
 export function checkIsPreact(filePath: string, contents: string) {
   return filePath.endsWith('.jsx') && IS_PREACT.test(contents);
-}
-
-export function isDirectoryImport(fileLoc: string, spec: string): boolean {
-  const importedFileOnDisk = path.resolve(path.dirname(fileLoc), spec);
-  try {
-    const stat = statSync(importedFileOnDisk);
-    return stat.isDirectory();
-  } catch (err) {
-    // file doesn't exist, that's fine
-  }
-  return false;
 }
 
 export function wrapImportMeta({

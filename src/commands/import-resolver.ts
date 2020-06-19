@@ -1,9 +1,9 @@
+import {Stats, statSync} from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../config';
 import {findMatchingMountScript} from '../util';
-import {isDirectoryImport} from './build-util';
 import srcFileExtensionMapping from './src-file-extension-mapping';
-
+const cwd = process.cwd();
 const URL_HAS_PROTOCOL_REGEX = /^\w:\/\./;
 
 interface ImportResolverOptions {
@@ -12,6 +12,36 @@ interface ImportResolverOptions {
   isDev: boolean;
   isBundled: boolean;
   config: SnowpackConfig;
+}
+
+/** Perform a file disk lookup for the requested import specifier. */
+export function getImportStats(dirLoc: string, spec: string): Stats | false {
+  const importedFileOnDisk = path.resolve(dirLoc, spec);
+  try {
+    return statSync(importedFileOnDisk);
+  } catch (err) {
+    // file doesn't exist, that's fine
+  }
+  return false;
+}
+
+/** Resolve an import based on the state of the file/folder found on disk. */
+function resolveSourceSpecifier(spec: string, stats: Stats | false, isBundled: boolean) {
+  if (stats && stats.isDirectory()) {
+    spec = spec + '/index.js';
+  } else if (!stats && !spec.endsWith('.js')) {
+    spec = spec + '.js';
+  }
+  const ext = path.extname(spec).substr(1);
+  const extToReplace = srcFileExtensionMapping[ext];
+  if (extToReplace) {
+    spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
+  }
+  if (!isBundled && (extToReplace || ext) !== 'js') {
+    spec = spec + '.proxy.js';
+  }
+
+  return spec;
 }
 
 /**
@@ -36,24 +66,14 @@ export function createImportResolver({
     let mountScript = findMatchingMountScript(config.scripts, spec);
     if (mountScript) {
       let {fromDisk, toUrl} = mountScript.args;
+      const importStats = getImportStats(cwd, spec);
+      spec = resolveSourceSpecifier(spec, importStats, isBundled);
       spec = spec.replace(fromDisk, toUrl);
+      return spec;
     }
     if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
-      const ext = path.extname(spec).substr(1);
-      if (!ext) {
-        if (isDirectoryImport(fileLoc, spec)) {
-          return spec + '/index.js';
-        } else {
-          return spec + '.js';
-        }
-      }
-      const extToReplace = srcFileExtensionMapping[ext];
-      if (extToReplace) {
-        spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
-      }
-      if (!isBundled && (extToReplace || ext) !== 'js') {
-        spec = spec + '.proxy.js';
-      }
+      const importStats = getImportStats(path.dirname(fileLoc), spec);
+      spec = resolveSourceSpecifier(spec, importStats, isBundled);
       return spec;
     }
     if (dependencyImportMap.imports[spec]) {
