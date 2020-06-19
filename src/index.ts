@@ -9,6 +9,7 @@ import {CLIFlags, loadAndValidateConfig} from './config.js';
 import {readLockfile, clearCache} from './util.js';
 
 export {createConfiguration} from './config.js';
+export {install} from './commands/install';
 
 const cwd = process.cwd();
 
