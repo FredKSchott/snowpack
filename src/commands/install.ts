@@ -34,7 +34,7 @@ import {
 type InstallResult = 'SUCCESS' | 'ASSET' | 'FAIL';
 
 interface DependencyLoc {
-  type: 'JS' | 'ASSET';
+  type: 'JS' | 'ASSET' | 'IGNORE';
   loc: string;
 }
 
@@ -178,7 +178,8 @@ function resolveWebDependency(dep: string): DependencyLoc {
     depManifest['browser:module'] ||
     depManifest.module ||
     depManifest['main:esnext'] ||
-    depManifest.browser;
+    depManifest.browser ||
+    depManifest.main;
   // Some packages define "browser" as an object. We'll do our best to find the
   // right entrypoint in an entrypoint object, or fail otherwise.
   // See: https://github.com/defunctzombie/package-browser-field-spec
@@ -190,17 +191,29 @@ function resolveWebDependency(dep: string): DependencyLoc {
       foundEntrypoint['./'] ||
       foundEntrypoint['.'];
   }
-  // If the package was a part of the explicit whitelist, fallback to it's main CJS entrypoint.
-  if (!foundEntrypoint) {
-    foundEntrypoint = depManifest.main || 'index.js';
+  // Sometimes packages don't give an entrypoint, assuming you'll fall back to "index.js".
+  const isImplicitEntrypoint = !foundEntrypoint;
+  if (isImplicitEntrypoint) {
+    foundEntrypoint = 'index.js';
   }
   if (typeof foundEntrypoint !== 'string') {
     throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
   }
-  return {
-    type: 'JS',
-    loc: require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
-  };
+  try {
+    return {
+      type: 'JS',
+      loc: require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
+    };
+  } catch (err) {
+    // Type only packages! Some packages are purely for TypeScript (ex: csstypes).
+    // If no JS entrypoint was given or found, but a TS "types"/"typings" entrypoint
+    // was given, assume a TS-types only package and ignore.
+    if (isImplicitEntrypoint && (depManifest.types || depManifest.typings)) {
+      return {type: 'IGNORE', loc: ''};
+    }
+    // Otherwise, file truly doesn't exist.
+    throw err;
+  }
 }
 
 function checkIsEsModule(fileLoc: string) {
@@ -473,7 +486,6 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
   }
 
   rimraf.sync(dest);
-  await mkdirp(dest);
   const finalResult = await install(
     installTargets,
     {
