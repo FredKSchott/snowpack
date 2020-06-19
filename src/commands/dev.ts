@@ -127,7 +127,7 @@ const sendFile = (
   if (
     req.headers['cache-control']?.includes('no-transform') ||
     ['HEAD', 'OPTIONS'].includes(req.method!) ||
-    !isCompressible(mime.contentType(ext))
+    !isCompressible(mime.contentType(ext) as string)
   ) {
     acceptEncoding = '';
   }

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import zlib from 'zlib';
 import {OutputOptions, OutputBundle} from 'rollup';
+import zlib from 'zlib';
 
 export type DependencyStats = {
   size: number;
