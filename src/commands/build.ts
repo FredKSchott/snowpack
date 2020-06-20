@@ -60,6 +60,9 @@ export async function command(commandOptions: CommandOptions) {
 
   for (const workerConfig of config.scripts) {
     const {id, type, match} = workerConfig;
+    // web_modules dependencies are now installed directly into the build directory,
+    // instead of being copied like a traditional mount. This is required until we
+    // move the "web_modules" destination configuration out of the "scripts" config.
     if (id === 'mount:web_modules') {
       continue;
     }

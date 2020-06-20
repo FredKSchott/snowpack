@@ -315,7 +315,7 @@ function handleLegacyProxyScripts(config: any) {
 }
 
 type RawScripts = Record<string, string>;
-export function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
+function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
   const processedScripts: BuildScript[] = [];
   if (Object.keys(scripts).filter((k) => k.startsWith('bundle:')).length > 1) {
     handleConfigError(`scripts can only contain 1 script of type "bundle:".`);
