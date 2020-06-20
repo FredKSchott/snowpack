@@ -19,7 +19,6 @@ export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-1.4');
 
 export const PROJECT_CACHE_DIR = projectCacheDir({name: 'snowpack'});
 export const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'dev');
-export const BUILD_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'build');
 const LOCKFILE_HASH_FILE = '.hash';
 
 export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;

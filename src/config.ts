@@ -8,7 +8,7 @@ import path from 'path';
 import {Plugin as RollupPlugin} from 'rollup';
 import yargs from 'yargs-parser';
 import {esbuildPlugin} from './commands/esbuildPlugin';
-import {BUILD_DEPENDENCIES_DIR, DEV_DEPENDENCIES_DIR} from './util';
+import {DEV_DEPENDENCIES_DIR} from './util';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -315,9 +315,7 @@ function handleLegacyProxyScripts(config: any) {
 }
 
 type RawScripts = Record<string, string>;
-function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
-  const dependenciesLoc =
-    process.env.NODE_ENV === 'production' ? BUILD_DEPENDENCIES_DIR : DEV_DEPENDENCIES_DIR;
+export function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
   const processedScripts: BuildScript[] = [];
   if (Object.keys(scripts).filter((k) => k.startsWith('bundle:')).length > 1) {
     handleConfigError(`scripts can only contain 1 script of type "bundle:".`);
@@ -360,9 +358,9 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
       const dirUrl = to || `/${cmdArr[0]}`;
 
       // mount:web_modules is a special case script where the fromDisk
-      // arg is harcoded to match the internal dependency dir
+      // arg is hard-coded to match the internal dependency directory.
       if (scriptId === 'mount:web_modules') {
-        dirDisk = dependenciesLoc;
+        dirDisk = DEV_DEPENDENCIES_DIR;
       }
 
       newScriptConfig.args = {
@@ -394,7 +392,7 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
       match: ['web_modules'],
       cmd: `mount $WEB_MODULES --to /web_modules`,
       args: {
-        fromDisk: dependenciesLoc,
+        fromDisk: DEV_DEPENDENCIES_DIR,
         toUrl: '/web_modules',
       },
     });
