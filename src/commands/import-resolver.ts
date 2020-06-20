@@ -1,14 +1,15 @@
 import {Stats, statSync} from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../config';
-import {findMatchingMountScript} from '../util';
+import {findMatchingMountScript, ImportMap} from '../util';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 const cwd = process.cwd();
 const URL_HAS_PROTOCOL_REGEX = /^\w:\/\./;
 
 interface ImportResolverOptions {
   fileLoc: string;
-  dependencyImportMap: any;
+  webModulesPath: string;
+  dependencyImportMap: ImportMap | null | undefined;
   isDev: boolean;
   isBundled: boolean;
   config: SnowpackConfig;
@@ -51,14 +52,12 @@ function resolveSourceSpecifier(spec: string, stats: Stats | false, isBundled: b
  */
 export function createImportResolver({
   fileLoc,
+  webModulesPath,
   dependencyImportMap,
   isDev,
   isBundled,
   config,
 }: ImportResolverOptions) {
-  const webModulesScript = config.scripts.find((script) => script.id === 'mount:web_modules');
-  const webModulesLoc = webModulesScript ? webModulesScript.args.toUrl : '/web_modules';
-
   return function importResolver(spec: string): string | false {
     if (URL_HAS_PROTOCOL_REGEX.test(spec)) {
       return spec;
@@ -76,12 +75,12 @@ export function createImportResolver({
       spec = resolveSourceSpecifier(spec, importStats, isBundled);
       return spec;
     }
-    if (dependencyImportMap.imports[spec]) {
+    if (dependencyImportMap && dependencyImportMap.imports[spec]) {
       let resolvedImport = isDev
-        ? path.posix.resolve(webModulesLoc, dependencyImportMap.imports[spec])
+        ? path.posix.resolve(webModulesPath, dependencyImportMap.imports[spec])
         : path.posix.join(
             config.buildOptions.baseUrl,
-            webModulesLoc,
+            webModulesPath,
             dependencyImportMap.imports[spec],
           );
       const extName = path.extname(resolvedImport);
