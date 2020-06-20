@@ -45,7 +45,11 @@ import url from 'url';
 import zlib from 'zlib';
 import {BuildScript, SnowpackPluginBuildResult} from '../config';
 import {EsmHmrEngine} from '../hmr-server-engine';
-import {scanCodeImportsExports, transformEsmImports} from '../rewrite-imports';
+import {
+  scanCodeImportsExports,
+  transformFileImports,
+  transformEsmImports,
+} from '../rewrite-imports';
 import {
   BUILD_CACHE,
   checkLockfileHash,
@@ -341,7 +345,12 @@ export async function command(commandOptions: CommandOptions) {
       }
     }
     const ext = path.extname(fileLoc).substr(1);
-    if (ext === 'js' || srcFileExtensionMapping[ext] === 'js') {
+    if (
+      ext === 'js' ||
+      srcFileExtensionMapping[ext] === 'js' ||
+      ext === 'html' ||
+      srcFileExtensionMapping[ext] === 'html'
+    ) {
       let missingWebModule: {spec: string; pkgName: string} | null = null;
       const webModulesScript = config.scripts.find((script) => script.id === 'mount:web_modules');
       const webModulesPath = webModulesScript ? webModulesScript.args.toUrl : '/web_modules';
@@ -353,28 +362,34 @@ export async function command(commandOptions: CommandOptions) {
         isBundled: false,
         config,
       });
-      builtFileResult.result = await transformEsmImports(builtFileResult.result, (spec) => {
-        // Try to resolve the specifier to a known URL in the project
-        const resolvedImportUrl = resolveImportSpecifier(spec);
-        if (resolvedImportUrl) {
-          return resolvedImportUrl;
-        }
-        // If that fails, return a placeholder import and attempt to resolve.
-        const packageName = getPackageNameFromSpecifier(spec);
-        const [depManifestLoc] = resolveDependencyManifest(packageName, cwd);
-        const doesPackageExist = !!depManifestLoc;
-        if (doesPackageExist) {
-          reinstallDependencies();
-        } else {
-          missingWebModule = {
-            spec: spec,
-            pkgName: packageName,
-          };
-        }
-        // Return a placeholder while Snowpack goes out and tries to re-install (or warn)
-        // on the missing package.
-        return spec;
-      });
+      builtFileResult.result = await transformFileImports(
+        builtFileResult.result,
+        // This is lame: because routes don't have a file extension, we create
+        // a fake file name with the correct extension, which is the important bit.
+        'file.' + (srcFileExtensionMapping[ext] || ext),
+        (spec) => {
+          // Try to resolve the specifier to a known URL in the project
+          const resolvedImportUrl = resolveImportSpecifier(spec);
+          if (resolvedImportUrl) {
+            return resolvedImportUrl;
+          }
+          // If that fails, return a placeholder import and attempt to resolve.
+          const packageName = getPackageNameFromSpecifier(spec);
+          const [depManifestLoc] = resolveDependencyManifest(packageName, cwd);
+          const doesPackageExist = !!depManifestLoc;
+          if (doesPackageExist) {
+            reinstallDependencies();
+          } else {
+            missingWebModule = {
+              spec: spec,
+              pkgName: packageName,
+            };
+          }
+          // Return a placeholder while Snowpack goes out and tries to re-install (or warn)
+          // on the missing package.
+          return spec;
+        },
+      );
       messageBus.emit('MISSING_WEB_MODULE', {
         id: fileLoc,
         data: missingWebModule,

@@ -5,8 +5,10 @@
   },
   "snowpack": {
     "scripts": {
-      "mount:public": "mount public --to /",
       "mount:src": "mount src --to /_dist_"
+    },
+    "devOptions": {
+      "fallback": "_dist_/index.html"
     }
   },
   "dependencies": {
