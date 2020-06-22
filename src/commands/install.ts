@@ -442,7 +442,9 @@ export async function install(
       const suggestion = MISSING_PLUGIN_SUGGESTIONS[failedExtension] || err.message;
       // Display posix-style on all environments, mainly to help with CI :)
       const fileName = errFilePath.replace(cwd + path.sep, '').replace(/\\/g, '/');
-      logError(`${colors.bold('snowpack')} failed to load ${colors.bold(fileName)}\n  ${suggestion}`);
+      logError(
+        `${colors.bold('snowpack')} failed to load ${colors.bold(fileName)}\n  ${suggestion}`,
+      );
       return FAILED_INSTALL_RETURN;
     }
   }
