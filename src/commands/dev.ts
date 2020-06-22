@@ -110,7 +110,7 @@ const sendFile = (
   ext = '.html',
 ) => {
   const ETag = etag(body, {weak: true});
-  const contentType = mime.contentType(ext)
+  const contentType = mime.contentType(ext);
   const headers: Record<string, string> = {
     'Content-Type': contentType || 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
