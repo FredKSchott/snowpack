@@ -178,8 +178,7 @@ function resolveWebDependency(dep: string): DependencyLoc {
     depManifest['browser:module'] ||
     depManifest.module ||
     depManifest['main:esnext'] ||
-    depManifest.browser ||
-    depManifest.main;
+    depManifest.browser;
   // Some packages define "browser" as an object. We'll do our best to find the
   // right entrypoint in an entrypoint object, or fail otherwise.
   // See: https://github.com/defunctzombie/package-browser-field-spec
@@ -190,6 +189,10 @@ function resolveWebDependency(dep: string): DependencyLoc {
       foundEntrypoint['./index'] ||
       foundEntrypoint['./'] ||
       foundEntrypoint['.'];
+  }
+  // If browser object is set but no relevant entrypoint is found, fall back to "main".
+  if (!foundEntrypoint) {
+    foundEntrypoint = depManifest.main;
   }
   // Sometimes packages don't give an entrypoint, assuming you'll fall back to "index.js".
   const isImplicitEntrypoint = !foundEntrypoint;

@@ -1,5 +1,6 @@
 {
   "imports": {
-    "mock-test-package": "./mock-test-package.js"
+    "package-has-valid": "./package-has-valid.js",
+    "package-no-valid": "./package-no-valid.js"
   }
 }

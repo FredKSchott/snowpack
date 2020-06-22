@@ -1,4 +1,5 @@
 - snowpack installing...
 ✔ snowpack install complete.
   ⦿ web_modules/             size       gzip       brotli
-    └─ mock-test-package.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ package-has-valid.js    XXXX KB    XXXX KB    XXXX KB
+    └─ package-no-valid.js    XXXX KB    XXXX KB    XXXX KB
