@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import isNodeBuiltin from 'is-builtin-module';
 import {Plugin} from 'rollup';
 

@@ -1,10 +1,10 @@
-import chalk from 'chalk';
+import detectPort from 'detect-port';
 import {EventEmitter} from 'events';
+import * as colors from 'kleur/colors';
 import readline from 'readline';
 import util from 'util';
 import {BuildScript} from '../config';
 import {isYarn} from '../util';
-import detectPort from 'detect-port';
 const cwd = process.cwd();
 
 /**
@@ -20,8 +20,8 @@ export async function getPort(defaultPort: number): Promise<number> {
       const rl = readline.createInterface({input: process.stdin, output: process.stdout});
       useNextPort = await new Promise((resolve) => {
         rl.question(
-          chalk.yellow(
-            `! Port ${chalk.bold(defaultPort)} not available. Run on port ${chalk.bold(
+          colors.yellow(
+            `! Port ${colors.bold(defaultPort)} not available. Run on port ${colors.bold(
               bestAvailablePort,
             )} instead? (Y/n) `,
           ),
@@ -34,8 +34,8 @@ export async function getPort(defaultPort: number): Promise<number> {
     }
     if (!useNextPort) {
       console.error(
-        chalk.red(
-          `✘ Port ${chalk.bold(defaultPort)} not available. Use ${chalk.bold(
+        colors.red(
+          `✘ Port ${colors.bold(defaultPort)} not available. Use ${colors.bold(
             '--port',
           )} to specify a different port.`,
         ),
@@ -47,22 +47,22 @@ export async function getPort(defaultPort: number): Promise<number> {
   return bestAvailablePort;
 }
 
-function getStateString(workerState: any, isWatch: boolean): [chalk.ChalkFunction, string] {
+function getStateString(workerState: any, isWatch: boolean): [colors.Colorize, string] {
   if (workerState.state) {
     if (Array.isArray(workerState.state)) {
-      return [chalk[workerState.state[1]], workerState.state[0]];
+      return [colors[workerState.state[1]], workerState.state[0]];
     }
-    return [chalk.dim, workerState.state];
+    return [colors.dim, workerState.state];
   }
   if (workerState.done) {
-    return workerState.error ? [chalk.red, 'FAIL'] : [chalk.green, 'DONE'];
+    return workerState.error ? [colors.red, 'FAIL'] : [colors.green, 'DONE'];
   }
   if (isWatch) {
     if (workerState.config.watch) {
-      return [chalk.dim, 'WATCH'];
+      return [colors.dim, 'WATCH'];
     }
   }
-  return [chalk.dim, 'READY'];
+  return [colors.dim, 'READY'];
 }
 
 const WORKER_BASE_STATE = {done: false, error: null, output: ''};
@@ -94,31 +94,31 @@ export function paint(
 
   function repaint() {
     process.stdout.write(process.platform === 'win32' ? '\x1B[2J\x1B[0f' : '\x1B[2J\x1B[3J\x1B[H');
-    process.stdout.write(`${chalk.bold('Snowpack')}\n\n`);
+    process.stdout.write(`${colors.bold('Snowpack')}\n\n`);
     // Dashboard
     if (devMode) {
       const isServerStarted = startTimeMs > 0 && port > 0 && protocol;
       if (isServerStarted) {
-        process.stdout.write(`  ${chalk.bold.cyan(`${protocol}//localhost:${port}`)}`);
+        process.stdout.write(`  ${colors.bold(colors.cyan(`${protocol}//localhost:${port}`))}`);
         for (const ip of ips) {
           process.stdout.write(
-            `${chalk.cyan(` > `)}${chalk.bold.cyan(`${protocol}//${ip}:${port}`)}`,
+            `${colors.cyan(` > `)}${colors.bold(colors.cyan(`${protocol}//${ip}:${port}`))}`,
           );
         }
         process.stdout.write('\n');
         process.stdout.write(
-          chalk.dim(
+          colors.dim(
             startTimeMs < 1000 ? `  Server started in ${startTimeMs}ms.` : `  Server started.`, // Not to hide slow startup times, but likely there were extraneous factors (prompts, etc.) where the speed isn’t accurate
           ),
         );
         process.stdout.write('\n\n');
       } else {
-        process.stdout.write(chalk.dim(`  Server starting…`) + '\n\n');
+        process.stdout.write(colors.dim(`  Server starting…`) + '\n\n');
       }
     }
     if (buildMode) {
-      process.stdout.write('  ' + chalk.bold.cyan(buildMode.dest));
-      process.stdout.write(chalk.dim(` Building your application...\n\n`));
+      process.stdout.write('  ' + colors.bold(colors.cyan(buildMode.dest)));
+      process.stdout.write(colors.dim(` Building your application...\n\n`));
     }
 
     for (const config of registeredWorkers) {
@@ -127,40 +127,40 @@ export function paint(
       }
       const workerState = allWorkerStates[config.id];
       const dotLength = 24 - config.id.length;
-      const dots = chalk.dim(''.padEnd(dotLength, '.'));
+      const dots = colors.dim(''.padEnd(dotLength, '.'));
       const [fmt, stateString] = getStateString(workerState, !!devMode);
       const spacer = ' '; //.padEnd(8 - stateString.length);
       let cmdMsg = `${config.plugin && config.cmd[0] !== '(' ? '(plugin) ' : ''}${config.cmd}`;
       if (cmdMsg.length > 52) {
         cmdMsg = cmdMsg.substr(0, 52) + '...';
       }
-      const cmdStr = stateString === 'FAIL' ? chalk.red(cmdMsg) : chalk.dim(cmdMsg);
+      const cmdStr = stateString === 'FAIL' ? colors.red(cmdMsg) : colors.dim(cmdMsg);
       process.stdout.write(`  ${config.id}${dots}[${fmt(stateString)}]${spacer}${cmdStr}\n`);
     }
     process.stdout.write('\n');
     if (isInstalling) {
-      process.stdout.write(`${chalk.underline.bold('▼ snowpack install')}\n\n`);
+      process.stdout.write(`${colors.underline(colors.bold('▼ snowpack install'))}\n\n`);
       process.stdout.write('  ' + installOutput.trim().replace(/\n/gm, '\n  '));
       process.stdout.write('\n\n');
       return;
     }
     if (missingWebModule) {
       const {id, pkgName, spec} = missingWebModule;
-      process.stdout.write(`${chalk.red.underline.bold('▼ Snowpack')}\n\n`);
+      process.stdout.write(`${colors.red(colors.underline(colors.bold('▼ Snowpack')))}\n\n`);
       if (devMode) {
-        process.stdout.write(`  Package ${chalk.bold(pkgName)} not found!\n`);
-        process.stdout.write(chalk.dim(`  in ${id}`));
+        process.stdout.write(`  Package ${colors.bold(pkgName)} not found!\n`);
+        process.stdout.write(colors.dim(`  in ${id}`));
         process.stdout.write(`\n\n`);
         process.stdout.write(
-          `  ${chalk.bold('Press Enter')} to automatically run ${chalk.bold(
+          `  ${colors.bold('Press Enter')} to automatically run ${colors.bold(
             isYarn(cwd) ? `yarn add ${pkgName}` : `npm install --save ${pkgName}`,
           )}.\n`,
         );
         process.stdout.write(`  Or, Exit Snowpack and install manually to continue.\n`);
       } else {
-        process.stdout.write(`  Dependency ${chalk.bold(spec)} not found!\n\n`);
+        process.stdout.write(`  Dependency ${colors.bold(spec)} not found!\n\n`);
         // process.stdout.write(
-        //   `  Run ${chalk.bold('snowpack install')} to install all required dependencies.\n\n`,
+        //   `  Run ${colors.bold('snowpack install')} to install all required dependencies.\n\n`,
         // );
         process.exit(1);
       }
@@ -169,26 +169,26 @@ export function paint(
     for (const config of registeredWorkers) {
       const workerState = allWorkerStates[config.id];
       if (workerState && workerState.output) {
-        const chalkFn = Array.isArray(workerState.error) ? chalk.red : chalk;
-        process.stdout.write(`${chalkFn.underline.bold('▼ ' + config.id)}\n\n`);
+        const colorsFn = Array.isArray(workerState.error) ? colors.red : colors.reset;
+        process.stdout.write(`${colorsFn(colors.underline(colors.bold('▼ ' + config.id)))}\n\n`);
         process.stdout.write(
           workerState.output
             ? '  ' + workerState.output.trim().replace(/\n/gm, '\n  ')
             : hasBeenCleared
-            ? chalk.dim('  Output cleared.')
-            : chalk.dim('  No output, yet.'),
+            ? colors.dim('  Output cleared.')
+            : colors.dim('  No output, yet.'),
         );
         process.stdout.write('\n\n');
       }
     }
     if (consoleOutput) {
-      process.stdout.write(`${chalk.underline.bold('▼ Console')}\n\n`);
+      process.stdout.write(`${colors.underline(colors.bold('▼ Console'))}\n\n`);
       process.stdout.write(
         consoleOutput
           ? '  ' + consoleOutput.trim().replace(/\n/gm, '\n  ')
           : hasBeenCleared
-          ? chalk.dim('  Output cleared.')
-          : chalk.dim('  No output, yet.'),
+          ? colors.dim('  Output cleared.')
+          : colors.dim('  No output, yet.'),
       );
       process.stdout.write('\n\n');
     }
@@ -201,12 +201,12 @@ export function paint(
       },
     );
     if (overallStatus.error) {
-      process.stdout.write(`${chalk.underline.red.bold('▼ Result')}\n\n`);
+      process.stdout.write(`${colors.underline(colors.red(colors.bold('▼ Result')))}\n\n`);
       process.stdout.write('  ⚠️  Finished, with errors.');
       process.stdout.write('\n\n');
       process.exit(1);
     } else if (overallStatus.done) {
-      process.stdout.write(`${chalk.underline.green.bold('▶ Build Complete!')}\n\n`);
+      process.stdout.write(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
     }
   }
 

@@ -4,8 +4,8 @@ import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-common
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
-import chalk from 'chalk';
 import fs from 'fs';
+import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import ora from 'ora';
 import path from 'path';
@@ -62,7 +62,7 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
 ];
 
 const cwd = process.cwd();
-const banner = chalk.bold(`snowpack`) + ` installing... `;
+const banner = colors.bold(`snowpack`) + ` installing... `;
 let spinner = ora(banner);
 let spinnerHasError = false;
 let installResults: [string, InstallResult][] = [];
@@ -70,10 +70,10 @@ let dependencyStats: DependencyStatsOutput | null = null;
 
 function defaultLogError(msg: string) {
   if (!spinnerHasError) {
-    spinner.stopAndPersist({symbol: chalk.cyan('⠼')});
+    spinner.stopAndPersist({symbol: colors.cyan('⠼')});
   }
   spinnerHasError = true;
-  spinner = ora(chalk.red(msg));
+  spinner = ora(colors.red(msg));
   spinner.fail();
 }
 
@@ -85,13 +85,13 @@ function formatInstallResults(): string {
   return installResults
     .map(([d, result]) => {
       if (result === 'SUCCESS') {
-        return chalk.green(d);
+        return colors.green(d);
       }
       if (result === 'ASSET') {
-        return chalk.yellow(d);
+        return colors.yellow(d);
       }
       if (result === 'FAIL') {
-        return chalk.red(d);
+        return colors.red(d);
       }
       return d;
     })
@@ -163,7 +163,7 @@ function resolveWebDependency(dep: string): DependencyLoc {
   if (!depManifestLoc || !depManifest) {
     throw new ErrorWithHint(
       `Package "${dep}" not found. Have you installed it?`,
-      depManifestLoc ? chalk.italic(depManifestLoc) : '',
+      depManifestLoc ? colors.italic(depManifestLoc) : '',
     );
   }
   if (
@@ -327,8 +327,8 @@ export async function install(
   if (Object.keys(installEntrypoints).length === 0 && Object.keys(assetEntrypoints).length === 0) {
     logError(`No ESM dependencies found!`);
     console.log(
-      chalk.dim(
-        `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${chalk.underline(
+      colors.dim(
+        `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${colors.underline(
           'https://www.pika.dev',
         )}`,
       ),
@@ -348,7 +348,7 @@ export async function install(
       !!webDependencies &&
         rollupPluginDependencyCache({
           installTypes,
-          log: (url) => logUpdate(chalk.dim(url)),
+          log: (url) => logUpdate(colors.dim(url)),
         }),
       rollupPluginAlias({
         entries: Object.entries(installAlias).map(([alias, mod]) => ({
@@ -433,7 +433,7 @@ export async function install(
       const suggestion = MISSING_PLUGIN_SUGGESTIONS[failedExtension] || err.message;
       // Display posix-style on all environments, mainly to help with CI :)
       const fileName = errFilePath.replace(cwd + path.sep, '').replace(/\\/g, '/');
-      logError(`${chalk.bold('snowpack')} failed to load ${chalk.bold(fileName)}\n  ${suggestion}`);
+      logError(`${colors.bold('snowpack')} failed to load ${colors.bold(fileName)}\n  ${suggestion}`);
       return;
     }
   }
@@ -496,19 +496,19 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
     config,
   ).catch((err) => {
     if (err.loc) {
-      console.log('\n' + chalk.red.bold(`✘ ${err.loc.file}`));
+      console.log('\n' + colors.red(colors.bold(`✘ ${err.loc.file}`)));
     }
     if (err.url) {
-      console.log(chalk.dim(`👉 ${err.url}`));
+      console.log(colors.dim(`👉 ${err.url}`));
     }
     throw err;
   });
 
   if (finalResult) {
     spinner.succeed(
-      chalk.bold(`snowpack`) +
+      colors.bold(`snowpack`) +
         ` install complete${spinnerHasError ? ' with errors.' : '.'}` +
-        chalk.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
+        colors.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
     if (!!dependencyStats) {
       console.log(printStats(dependencyStats));
