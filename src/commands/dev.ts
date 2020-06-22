@@ -25,7 +25,6 @@
  */
 
 import cacache from 'cacache';
-import chalk from 'chalk';
 import isCompressible from 'compressible';
 import etag from 'etag';
 import {EventEmitter} from 'events';
@@ -34,6 +33,7 @@ import {existsSync, promises as fs, readFileSync} from 'fs';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
+import * as colors from 'kleur/colors';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
 import os from 'os';
@@ -110,8 +110,9 @@ const sendFile = (
   ext = '.html',
 ) => {
   const ETag = etag(body, {weak: true});
+  const contentType = mime.contentType(ext)
   const headers: Record<string, string> = {
-    'Content-Type': mime.contentType(ext) || 'application/octet-stream',
+    'Content-Type': contentType || 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
     ETag,
     Vary: 'Accept-Encoding',
@@ -127,7 +128,8 @@ const sendFile = (
   if (
     req.headers['cache-control']?.includes('no-transform') ||
     ['HEAD', 'OPTIONS'].includes(req.method!) ||
-    !isCompressible(mime.contentType(ext))
+    !contentType ||
+    !isCompressible(contentType)
   ) {
     acceptEncoding = '';
   }
@@ -136,7 +138,7 @@ const sendFile = (
     if (err) {
       res.end();
       console.error(
-        chalk.red(`  ✘ An error occurred while compressing ${chalk.bold(req.url)}`),
+        colors.red(`  ✘ An error occurred while compressing ${colors.bold(req.url)}`),
         err,
       );
     }
@@ -252,7 +254,7 @@ export async function command(commandOptions: CommandOptions) {
 
   // Start with a fresh install of your dependencies, if needed.
   if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
-    console.log(chalk.yellow('! updating dependencies...'));
+    console.log(colors.yellow('! updating dependencies...'));
     await installCommand(commandOptions);
     await updateLockfileHash(DEV_DEPENDENCIES_DIR);
   }
@@ -453,22 +455,22 @@ export async function command(commandOptions: CommandOptions) {
       credentials = await readCredentials(cwd);
     } catch (e) {
       console.error(
-        chalk.red(
-          `✘ No HTTPS credentials found! Missing Files:  ${chalk.bold(
+        colors.red(
+          `✘ No HTTPS credentials found! Missing Files:  ${colors.bold(
             'snowpack.crt',
-          )}, ${chalk.bold('snowpack.key')}`,
+          )}, ${colors.bold('snowpack.key')}`,
         ),
       );
       console.log();
       console.log('You can automatically generate credentials for your project via either:');
       console.log();
       console.log(
-        `  - ${chalk.cyan('devcert')}: ${chalk.yellow('npx devcert-cli generate localhost')}`,
+        `  - ${colors.cyan('devcert')}: ${colors.yellow('npx devcert-cli generate localhost')}`,
       );
       console.log('    https://github.com/davewasmer/devcert-cli (no install required)');
       console.log();
       console.log(
-        `  - ${chalk.cyan('mkcert')}: ${chalk.yellow(
+        `  - ${colors.cyan('mkcert')}: ${colors.yellow(
           'mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt localhost',
         )}`,
       );
@@ -632,7 +634,7 @@ export async function command(commandOptions: CommandOptions) {
     }
 
     if (!fileLoc) {
-      const prefix = chalk.red('  ✘ ');
+      const prefix = colors.red('  ✘ ');
       console.error(`[404] ${reqUrl}\n${attemptedFileLoads.map((loc) => prefix + loc).join('\n')}`);
       return sendError(res, 404);
     }
@@ -822,7 +824,7 @@ export async function command(commandOptions: CommandOptions) {
     }
   })
     .on('error', (err: Error) => {
-      console.error(chalk.red(`  ✘ Failed to start server at port ${chalk.bold(port)}.`), err);
+      console.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);
       server.close();
       process.exit(1);
     })

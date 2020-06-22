@@ -1,7 +1,7 @@
-import chalk from 'chalk';
 import {ImportSpecifier, init as initESModuleLexer, parse} from 'es-module-lexer';
 import fs from 'fs';
 import glob from 'glob';
+import * as colors from 'kleur/colors';
 import mime from 'mime-types';
 import nodePath from 'path';
 import stripComments from 'strip-comments';
@@ -169,7 +169,7 @@ function parseCodeForInstallTargets(fileLoc: string, code: string): InstallTarge
       [imports] = parse(code) || [];
     } catch (err) {
       // Another error! No hope left, just abort.
-      console.error(chalk.red(`! ${fileLoc}`));
+      console.error(colors.red(`! ${fileLoc}`));
       throw err;
     }
   }
@@ -252,7 +252,7 @@ export async function scanImports(
       // If we don't recognize the file type, it could be source. Warn just in case.
       if (!mime.lookup(nodePath.extname(filePath))) {
         console.warn(
-          chalk.dim(`ignoring unsupported file "${nodePath.relative(process.cwd(), filePath)}"`),
+          colors.dim(`ignoring unsupported file "${nodePath.relative(process.cwd(), filePath)}"`),
         );
       }
       return null;

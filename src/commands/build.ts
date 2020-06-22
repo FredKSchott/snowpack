@@ -1,8 +1,8 @@
-import chalk from 'chalk';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {promises as fs} from 'fs';
 import glob from 'glob';
+import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
@@ -36,7 +36,7 @@ export async function command(commandOptions: CommandOptions) {
   const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
 
   // Start with a fresh install of your dependencies, always.
-  console.log(chalk.yellow('! rebuilding dependencies...'));
+  console.log(colors.yellow('! rebuilding dependencies...'));
   await installCommand(commandOptions);
 
   const messageBus = new EventEmitter();
@@ -79,7 +79,7 @@ export async function command(commandOptions: CommandOptions) {
   const finalDirectoryLoc = config.devOptions.out;
 
   if (config.scripts.length <= 1) {
-    console.error(chalk.red(`No build scripts found, so nothing to build.`));
+    console.error(colors.red(`No build scripts found, so nothing to build.`));
     console.error(`See https://www.snowpack.dev/#build-scripts for help getting started.`);
     return;
   }
@@ -360,7 +360,7 @@ export async function command(commandOptions: CommandOptions) {
         msg:
           `"plugins": ["@snowpack/plugin-webpack"]\n\n` +
           `Connect a bundler plugin to optimize your build for production.\n` +
-          chalk.dim(`Set "devOptions.bundle" configuration to false to remove this message.`),
+          colors.dim(`Set "devOptions.bundle" configuration to false to remove this message.`),
       });
     }
   } else {

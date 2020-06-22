@@ -1,6 +1,6 @@
 import cacache from 'cacache';
+import * as colors from 'kleur/colors';
 import PQueue from 'p-queue';
-import chalk from 'chalk';
 import validatePackageName from 'validate-npm-package-name';
 import {SnowpackConfig} from './config.js';
 import {fetchCDNResource, ImportMap, PIKA_CDN, RESOURCE_CACHE} from './util.js';
@@ -106,7 +106,7 @@ async function resolveDependency(
     return null;
   }
   console.log(
-    chalk.cyan(
+    colors.cyan(
       `Building ${installSpecifier}@${packageSemver}... (This takes a moment, but will be cached for future use)`,
     ),
   );

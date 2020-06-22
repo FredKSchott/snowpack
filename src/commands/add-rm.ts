@@ -1,8 +1,8 @@
-import {CommandOptions} from '../util';
-import {command as installCommand} from './install';
+import {promises as fs} from 'fs';
 import got from 'got';
 import path from 'path';
-import {promises as fs} from 'fs';
+import {CommandOptions} from '../util';
+import {command as installCommand} from './install';
 
 export async function addCommand(addValue: string, commandOptions: CommandOptions) {
   const {cwd, config, pkgManifest} = commandOptions;

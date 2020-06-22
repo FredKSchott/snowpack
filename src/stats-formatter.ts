@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import * as colors from 'kleur/colors';
 import {DependencyStats, DependencyStatsOutput} from './rollup-plugin-stats';
 
 /** The minimum width, in characters, of each size column */
@@ -23,13 +23,13 @@ function formatSize(size) {
   } else {
     color = 'red';
   }
-  return chalk[color](`${kb} KB`.padEnd(SIZE_COLUMN_WIDTH));
+  return colors[color](`${kb} KB`.padEnd(SIZE_COLUMN_WIDTH));
 }
 
 function formatDelta(delta) {
   const kb = Math.round(delta * 100) / 100;
   const color = delta > 0 ? 'red' : 'green';
-  return chalk[color](`Δ ${delta > 0 ? '+' : ''}${kb} KB`);
+  return colors[color](`Δ ${delta > 0 ? '+' : ''}${kb} KB`);
 }
 
 function formatFileInfo(
@@ -38,7 +38,7 @@ function formatFileInfo(
   padEnd: number,
   isLastFile: boolean,
 ): string {
-  const lineGlyph = chalk.dim(isLastFile ? '└─' : '├─');
+  const lineGlyph = colors.dim(isLastFile ? '└─' : '├─');
   const lineName = filename.padEnd(padEnd);
   const fileStat = formatSize(stats.size);
   const gzipStat = formatSize(stats.gzip);
@@ -46,7 +46,7 @@ function formatFileInfo(
   const lineStat = fileStat + gzipStat + brotliStat;
   let lineDelta = '';
   if (stats.delta) {
-    lineDelta = chalk.dim('[') + formatDelta(stats.delta) + chalk.dim(']');
+    lineDelta = colors.dim('[') + formatDelta(stats.delta) + colors.dim(']');
   }
   // Trim trailing whitespace (can mess with formatting), but keep indentation.
   return `    ` + `${lineGlyph} ${lineName} ${lineStat} ${lineDelta}`.trim();
@@ -75,16 +75,16 @@ export function printStats(dependencyStats: DependencyStatsOutput): string {
       'web_modules/'.length,
     ) + 1;
   output +=
-    `  ⦿ ${chalk.bold('web_modules/'.padEnd(maxFileNameLength + 4))}` +
-    chalk.bold.underline('size'.padEnd(SIZE_COLUMN_WIDTH - 2)) +
+    `  ⦿ ${colors.bold('web_modules/'.padEnd(maxFileNameLength + 4))}` +
+    colors.bold(colors.underline('size'.padEnd(SIZE_COLUMN_WIDTH - 2))) +
     '  ' +
-    chalk.bold.underline('gzip'.padEnd(SIZE_COLUMN_WIDTH - 2)) +
+    colors.bold(colors.underline('gzip'.padEnd(SIZE_COLUMN_WIDTH - 2))) +
     '  ' +
-    chalk.bold.underline('brotli'.padEnd(SIZE_COLUMN_WIDTH - 2)) +
+    colors.bold(colors.underline('brotli'.padEnd(SIZE_COLUMN_WIDTH - 2))) +
     `\n`;
   output += `${formatFiles(allDirect, maxFileNameLength)}\n`;
   if (Object.values(common).length > 0) {
-    output += `  ⦿ ${chalk.bold('web_modules/common/ (Shared)')}\n`;
+    output += `  ⦿ ${colors.bold('web_modules/common/ (Shared)')}\n`;
     output += `${formatFiles(allCommon, maxFileNameLength)}\n`;
   }
   return `\n${output}\n`;

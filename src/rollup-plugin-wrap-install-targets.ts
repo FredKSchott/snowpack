@@ -1,14 +1,14 @@
+import * as colors from 'kleur/colors';
+import path from 'path';
 import {Plugin} from 'rollup';
 import {InstallTarget} from './scan-imports';
-import path from 'path';
-import chalk from 'chalk';
 
 function autoDetectExports(fileLoc: string): string[] | undefined {
   try {
     return Object.keys(require(fileLoc));
   } catch (err) {
     console.error(
-      chalk.red(`✘ Could not auto-detect exports for ${chalk.bold(fileLoc)}\n${err.message}`),
+      colors.red(`✘ Could not auto-detect exports for ${colors.bold(fileLoc)}\n${err.message}`),
     );
   }
 }
