@@ -1,12 +1,13 @@
 {
-  "description": "Test that we can handle a package.json 'browser' object entrypoint",
+  "description": "Test that we properly handle a package.json 'browser' object.",
   "scripts": {
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
   "snowpack": {
-    "install": ["mock-test-package"]
+    "install": ["package-has-valid", "package-no-valid"]
   },
   "dependencies": {
-    "mock-test-package": "^1.2.3"
+    "package-has-valid": "^1.2.3",
+    "package-no-valid": "^1.2.3"
   }
 }

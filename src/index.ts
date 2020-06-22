@@ -1,5 +1,5 @@
-import chalk from 'chalk';
 import path from 'path';
+import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
@@ -9,24 +9,25 @@ import {CLIFlags, loadAndValidateConfig} from './config.js';
 import {readLockfile, clearCache} from './util.js';
 
 export {createConfiguration} from './config.js';
+export {install as unstable_installCommand} from './commands/install';
 
 const cwd = process.cwd();
 
 function printHelp() {
   console.log(
     `
-${chalk.bold(`snowpack`)} - A faster build system for the modern web.
+${colors.bold(`snowpack`)} - A faster build system for the modern web.
 
   Snowpack is best configured via config file.
   But, most configuration can also be passed via CLI flags.
-  📖 ${chalk.dim('https://www.snowpack.dev/#configuration')}
+  📖 ${colors.dim('https://www.snowpack.dev/#configuration')}
 
-${chalk.bold('Commands:')}
+${colors.bold('Commands:')}
   snowpack dev          Develop your app locally.
   snowpack build        Build your app for production.
   snowpack install      (Advanced) Install web-ready dependencies.
 
-${chalk.bold('Flags:')}
+${colors.bold('Flags:')}
   --config [path]       Set the location of your project config file.
   --help                Show this help message.
   --version             Show the current version.
@@ -49,7 +50,7 @@ export async function cli(args: string[]) {
     process.exit(0);
   }
   if (cliFlags.reload) {
-    console.log(chalk.yellow('! clearing cache...'));
+    console.log(colors.yellow('! clearing cache...'));
     await clearCache();
   }
 
@@ -58,7 +59,7 @@ export async function cli(args: string[]) {
   try {
     pkgManifest = require(path.join(cwd, 'package.json'));
   } catch (err) {
-    console.log(chalk.red('[ERROR] package.json required but no file was found.'));
+    console.log(colors.red('[ERROR] package.json required but no file was found.'));
     process.exit(1);
   }
 

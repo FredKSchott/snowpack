@@ -1,6 +1,5 @@
 import {Plugin} from 'rollup';
 import {promises as fs} from 'fs';
-import path from 'path';
 
 function getInjectorCode(name: string, code: string) {
   return `

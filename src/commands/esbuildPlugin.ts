@@ -1,8 +1,8 @@
 import {Service, startService} from 'esbuild';
+import * as colors from 'kleur/colors';
 import path from 'path';
-import {checkIsPreact} from './build-util';
 import {SnowpackPluginBuildResult} from '../config';
-import chalk from 'chalk';
+import {checkIsPreact} from './build-util';
 
 let esbuildService: Service | null = null;
 
@@ -17,7 +17,7 @@ export function esbuildPlugin() {
         jsxFragment: isPreact ? 'Fragment' : undefined,
       });
       for (const warning of warnings) {
-        console.error(chalk.bold('! ') + filePath);
+        console.error(colors.bold('! ') + filePath);
         console.error('  ' + warning.text);
       }
       return {result: js || ''} as SnowpackPluginBuildResult;

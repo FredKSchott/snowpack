@@ -3,9 +3,9 @@ import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-common
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
-import chalk from 'chalk';
 import {init as initESModuleLexer, parse} from 'es-module-lexer';
 import fs from 'fs';
+import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import ora from 'ora';
 import path from 'path';
@@ -62,7 +62,7 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
 ];
 
 const cwd = process.cwd();
-const banner = chalk.bold(`snowpack`) + ` installing... `;
+const banner = colors.bold(`snowpack`) + ` installing... `;
 let spinner;
 let spinnerHasError = false;
 let installResults: [string, InstallResultCode][] = [];
@@ -70,10 +70,10 @@ let dependencyStats: DependencyStatsOutput | null = null;
 
 function defaultLogError(msg: string) {
   if (spinner && !spinnerHasError) {
-    spinner.stopAndPersist({symbol: chalk.cyan('⠼')});
+    spinner.stopAndPersist({symbol: colors.cyan('⠼')});
   }
   spinnerHasError = true;
-  spinner = ora(chalk.red(msg));
+  spinner = ora(colors.red(msg));
   spinner.fail();
 }
 
@@ -85,13 +85,13 @@ function formatInstallResults(): string {
   return installResults
     .map(([d, result]) => {
       if (result === 'SUCCESS') {
-        return chalk.green(d);
+        return colors.green(d);
       }
       if (result === 'ASSET') {
-        return chalk.yellow(d);
+        return colors.yellow(d);
       }
       if (result === 'FAIL') {
-        return chalk.red(d);
+        return colors.red(d);
       }
       return d;
     })
@@ -163,7 +163,7 @@ function resolveWebDependency(dep: string): DependencyLoc {
   if (!depManifestLoc || !depManifest) {
     throw new ErrorWithHint(
       `Package "${dep}" not found. Have you installed it?`,
-      depManifestLoc ? chalk.italic(depManifestLoc) : '',
+      depManifestLoc ? colors.italic(depManifestLoc) : '',
     );
   }
   if (
@@ -178,8 +178,7 @@ function resolveWebDependency(dep: string): DependencyLoc {
     depManifest['browser:module'] ||
     depManifest.module ||
     depManifest['main:esnext'] ||
-    depManifest.browser ||
-    depManifest.main;
+    depManifest.browser;
   // Some packages define "browser" as an object. We'll do our best to find the
   // right entrypoint in an entrypoint object, or fail otherwise.
   // See: https://github.com/defunctzombie/package-browser-field-spec
@@ -190,6 +189,10 @@ function resolveWebDependency(dep: string): DependencyLoc {
       foundEntrypoint['./index'] ||
       foundEntrypoint['./'] ||
       foundEntrypoint['.'];
+  }
+  // If browser object is set but no relevant entrypoint is found, fall back to "main".
+  if (!foundEntrypoint) {
+    foundEntrypoint = depManifest.main;
   }
   // Sometimes packages don't give an entrypoint, assuming you'll fall back to "index.js".
   const isImplicitEntrypoint = !foundEntrypoint;
@@ -333,8 +336,8 @@ export async function install(
   if (Object.keys(installEntrypoints).length === 0 && Object.keys(assetEntrypoints).length === 0) {
     logError(`No ESM dependencies found!`);
     console.log(
-      chalk.dim(
-        `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${chalk.underline(
+      colors.dim(
+        `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${colors.underline(
           'https://www.pika.dev',
         )}`,
       ),
@@ -354,7 +357,7 @@ export async function install(
       !!webDependencies &&
         rollupPluginDependencyCache({
           installTypes,
-          log: (url) => logUpdate(chalk.dim(url)),
+          log: (url) => logUpdate(colors.dim(url)),
         }),
       rollupPluginAlias({
         entries: Object.entries(installAlias).map(([alias, mod]) => ({
@@ -439,7 +442,7 @@ export async function install(
       const suggestion = MISSING_PLUGIN_SUGGESTIONS[failedExtension] || err.message;
       // Display posix-style on all environments, mainly to help with CI :)
       const fileName = errFilePath.replace(cwd + path.sep, '').replace(/\\/g, '/');
-      logError(`${chalk.bold('snowpack')} failed to load ${chalk.bold(fileName)}\n  ${suggestion}`);
+      logError(`${colors.bold('snowpack')} failed to load ${colors.bold(fileName)}\n  ${suggestion}`);
       return FAILED_INSTALL_RETURN;
     }
   }
@@ -541,10 +544,10 @@ export async function run(
     config,
   ).catch((err) => {
     if (err.loc) {
-      console.log('\n' + chalk.red.bold(`✘ ${err.loc.file}`));
+      console.log('\n' + colors.red(colors.bold(`✘ ${err.loc.file}`)));
     }
     if (err.url) {
-      console.log(chalk.dim(`👉 ${err.url}`));
+      console.log(colors.dim(`👉 ${err.url}`));
     }
     spinner.stop();
     throw err;
@@ -552,9 +555,9 @@ export async function run(
 
   if (finalResult.success) {
     spinner.succeed(
-      chalk.bold(`snowpack`) +
+      colors.bold(`snowpack`) +
         ` install complete${spinnerHasError ? ' with errors.' : '.'}` +
-        chalk.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
+        colors.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
   } else {
     spinner.stop();

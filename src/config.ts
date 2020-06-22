@@ -1,9 +1,9 @@
-import chalk from 'chalk';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
 import {validate, ValidatorResult} from 'jsonschema';
 import http from 'http';
 import type HttpProxy from 'http-proxy';
+import * as colors from 'kleur/colors';
 import path from 'path';
 import {Plugin as RollupPlugin} from 'rollup';
 import yargs from 'yargs-parser';
@@ -539,14 +539,14 @@ function handleConfigError(msg: string) {
 }
 
 function handleValidationErrors(filepath: string, errors: {toString: () => string}[]) {
-  console.error(chalk.red(`! ${filepath || 'Configuration error'}`));
+  console.error(colors.red(`! ${filepath || 'Configuration error'}`));
   console.error(errors.map((err) => `    - ${err.toString()}`).join('\n'));
   console.error(`    See https://www.snowpack.dev/#configuration for more info.`);
   process.exit(1);
 }
 
 function handleDeprecatedConfigError(mainMsg: string, ...msgs: string[]) {
-  console.error(chalk.red(mainMsg));
+  console.error(colors.red(mainMsg));
   msgs.forEach(console.error);
   console.error(`See https://www.snowpack.dev/#configuration for more info.`);
   process.exit(1);
@@ -567,7 +567,7 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   if (rawConfig.installOptions?.rollup?.namedExports) {
     delete rawConfig.installOptions.rollup.namedExports;
     console.error(
-      chalk.yellow(
+      colors.yellow(
         '[Snowpack v2.3.0] `rollup.namedExports` is no longer required. See also: installOptions.namedExports',
       ),
     );

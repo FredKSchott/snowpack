@@ -40,6 +40,9 @@ function stripConfigErrorPath(stdout) {
 function stripResolveErrorPath(stdout) {
   return stdout.replace(/" via "(.*)"/g, '" via "XXX"');
 }
+function stripAnsiEscapes(stdout) {
+  return stdout.replace(/[\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~]))/g, '');
+}
 
 function removeLockfile(testName) {
   const lockfileLoc = path.join(__dirname, testName, 'snowpack.lock.json');
@@ -84,7 +87,7 @@ for (const testName of readdirSync(__dirname)) {
     assert.strictEqual(
       stripWhitespace(
         stripConfigErrorPath(
-          stripResolveErrorPath(stripBenchmark(stripChunkHash(stripStats(all)))),
+          stripResolveErrorPath(stripBenchmark(stripChunkHash(stripStats(stripAnsiEscapes(all))))),
         ),
       ),
       stripWhitespace(expectedOutput),
