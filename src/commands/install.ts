@@ -14,13 +14,13 @@ import {InputOptions, OutputOptions, rollup, RollupError} from 'rollup';
 import validatePackageName from 'validate-npm-package-name';
 import {EnvVarReplacements, SnowpackConfig} from '../config.js';
 import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
+import {rollupPluginCatchUnresolved} from '../rollup-plugin-catch-unresolved.js';
 import {rollupPluginCss} from '../rollup-plugin-css';
 import {rollupPluginEntrypointAlias} from '../rollup-plugin-entrypoint-alias.js';
-import {rollupPluginCatchUnresolved} from '../rollup-plugin-catch-unresolved.js';
-import {rollupPluginWrapInstallTargets} from '../rollup-plugin-wrap-install-targets';
 import {rollupPluginDependencyCache} from '../rollup-plugin-remote-cdn.js';
 import {DependencyStatsOutput, rollupPluginDependencyStats} from '../rollup-plugin-stats.js';
-import {InstallTarget, scanDepList, scanImports} from '../scan-imports.js';
+import {rollupPluginWrapInstallTargets} from '../rollup-plugin-wrap-install-targets';
+import {InstallTarget, scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
 import {printStats} from '../stats-formatter.js';
 import {
   CommandOptions,
@@ -31,7 +31,7 @@ import {
   writeLockfile,
 } from '../util.js';
 
-type InstallResult = 'SUCCESS' | 'ASSET' | 'FAIL';
+type InstallResultCode = 'SUCCESS' | 'ASSET' | 'FAIL';
 
 interface DependencyLoc {
   type: 'JS' | 'ASSET' | 'IGNORE';
@@ -63,13 +63,13 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
 
 const cwd = process.cwd();
 const banner = colors.bold(`snowpack`) + ` installing... `;
-let spinner = ora(banner);
+let spinner;
 let spinnerHasError = false;
-let installResults: [string, InstallResult][] = [];
+let installResults: [string, InstallResultCode][] = [];
 let dependencyStats: DependencyStatsOutput | null = null;
 
 function defaultLogError(msg: string) {
-  if (!spinnerHasError) {
+  if (spinner && !spinnerHasError) {
     spinner.stopAndPersist({symbol: colors.cyan('⠼')});
   }
   spinnerHasError = true;
@@ -239,11 +239,17 @@ interface InstallOptions {
   logUpdate: (msg: string) => void;
 }
 
+type InstallResult = {success: false; importMap: null} | {success: true; importMap: ImportMap};
+
+const FAILED_INSTALL_RETURN: InstallResult = {
+  success: false,
+  importMap: null,
+};
 export async function install(
   installTargets: InstallTarget[],
   {lockfile, logError, logUpdate}: InstallOptions,
   config: SnowpackConfig,
-) {
+): Promise<InstallResult> {
   const {
     webDependencies,
     installOptions: {
@@ -261,7 +267,7 @@ export async function install(
   // @ts-ignore
   if (!webDependencies && !process.versions.pnp && !fs.existsSync(path.join(cwd, 'node_modules'))) {
     logError('no "node_modules" directory exists. Did you run "npm install" first?');
-    return;
+    return FAILED_INSTALL_RETURN;
   }
   const allInstallSpecifiers = new Set(
     installTargets
@@ -324,7 +330,7 @@ export async function install(
         // Note: Wait 1ms to guarantee a log message after the spinner
         setTimeout(() => console.log(err.hint), 1);
       }
-      return false;
+      return FAILED_INSTALL_RETURN;
     }
   }
   if (Object.keys(installEntrypoints).length === 0 && Object.keys(assetEntrypoints).length === 0) {
@@ -336,7 +342,7 @@ export async function install(
         )}`,
       ),
     );
-    return false;
+    return FAILED_INSTALL_RETURN;
   }
 
   await initESModuleLexer;
@@ -439,7 +445,7 @@ export async function install(
       logError(
         `${colors.bold('snowpack')} failed to load ${colors.bold(fileName)}\n  ${suggestion}`,
       );
-      return;
+      return FAILED_INSTALL_RETURN;
     }
   }
 
@@ -449,13 +455,59 @@ export async function install(
     fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
   });
 
-  return true;
+  return {success: true, importMap};
 }
 
-export async function command({cwd, config, lockfile, pkgManifest}: CommandOptions) {
+export async function getInstallTargets(config: SnowpackConfig, scannedFiles?: [string, string][]) {
+  const {knownEntrypoints, webDependencies} = config;
+  const installTargets: InstallTarget[] = [];
+  if (knownEntrypoints) {
+    installTargets.push(...scanDepList(knownEntrypoints, cwd));
+  }
+  if (webDependencies) {
+    installTargets.push(...scanDepList(Object.keys(webDependencies), cwd));
+  }
+  if (scannedFiles) {
+    installTargets.push(...(await scanImportsFromFiles(scannedFiles, config)));
+  } else {
+    installTargets.push(...(await scanImports(cwd, config)));
+  }
+  return installTargets;
+}
+
+export async function command(commandOptions: CommandOptions) {
+  const {cwd, config} = commandOptions;
+  const installTargets = await getInstallTargets(config);
+  if (installTargets.length === 0) {
+    defaultLogError('Nothing to install.');
+    return;
+  }
+  const finalResult = await run(commandOptions, installTargets);
+  if (finalResult.newLockfile) {
+    await writeLockfile(path.join(cwd, 'snowpack.lock.json'), finalResult.newLockfile);
+  }
+  if (finalResult.stats) {
+    console.log(printStats(finalResult.stats));
+  }
+  if (!finalResult.success || finalResult.hasError) {
+    process.exit(1);
+  }
+}
+
+interface InstallRunResult {
+  success: boolean;
+  hasError: boolean;
+  importMap: ImportMap | null;
+  newLockfile: ImportMap | null;
+  stats: DependencyStatsOutput | null;
+}
+
+export async function run(
+  {config, lockfile, pkgManifest}: CommandOptions,
+  installTargets: InstallTarget[],
+): Promise<InstallRunResult> {
   const {
     installOptions: {dest},
-    knownEntrypoints,
     webDependencies,
   } = config;
 
@@ -464,25 +516,17 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
   spinner = ora(banner);
   spinnerHasError = false;
 
-  let newLockfile: ImportMap | null = null;
-  const installTargets: InstallTarget[] = [];
-
-  if (knownEntrypoints) {
-    installTargets.push(...scanDepList(knownEntrypoints, cwd));
-  }
-  if (webDependencies) {
-    installTargets.push(...scanDepList(Object.keys(webDependencies), cwd));
-  }
-  {
-    installTargets.push(...(await scanImports(cwd, config)));
-  }
   if (installTargets.length === 0) {
-    defaultLogError('Nothing to install.');
-    return;
+    return {
+      success: true,
+      hasError: false,
+      importMap: {imports: {}} as ImportMap,
+      newLockfile: null,
+      stats: null,
+    };
   }
 
-  spinner.start();
-  const startTime = Date.now();
+  let newLockfile: ImportMap | null = null;
   if (webDependencies && Object.keys(webDependencies).length > 0) {
     newLockfile = await resolveTargetsFromRemoteCDN(lockfile, pkgManifest, config).catch((err) => {
       defaultLogError(err.message || err);
@@ -491,6 +535,7 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
   }
 
   rimraf.sync(dest);
+  const startTime = Date.now();
   const finalResult = await install(
     installTargets,
     {
@@ -506,25 +551,25 @@ export async function command({cwd, config, lockfile, pkgManifest}: CommandOptio
     if (err.url) {
       console.log(colors.dim(`👉 ${err.url}`));
     }
+    spinner.stop();
     throw err;
   });
 
-  if (finalResult) {
+  if (finalResult.success) {
     spinner.succeed(
       colors.bold(`snowpack`) +
         ` install complete${spinnerHasError ? ' with errors.' : '.'}` +
         colors.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
-    if (!!dependencyStats) {
-      console.log(printStats(dependencyStats));
-    }
+  } else {
+    spinner.stop();
   }
 
-  if (newLockfile) {
-    await writeLockfile(path.join(cwd, 'snowpack.lock.json'), newLockfile);
-  }
-
-  if (spinnerHasError) {
-    process.exit(1);
-  }
+  return {
+    success: finalResult.success,
+    hasError: spinnerHasError,
+    importMap: finalResult.importMap,
+    newLockfile,
+    stats: dependencyStats!,
+  };
 }

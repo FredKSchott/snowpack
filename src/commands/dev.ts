@@ -27,6 +27,7 @@
 import cacache from 'cacache';
 import isCompressible from 'compressible';
 import etag from 'etag';
+import merge from 'deepmerge';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
@@ -230,7 +231,7 @@ export async function command(commandOptions: CommandOptions) {
       currentlyRunningCommand.stdout.on('data', (data) => process.stdout.write(data));
       currentlyRunningCommand.stderr.on('data', (data) => process.stderr.write(data));
       await currentlyRunningCommand;
-      currentlyRunningCommand = installCommand(commandOptions);
+      currentlyRunningCommand = installCommand(installCommandOptions);
       await currentlyRunningCommand;
       await updateLockfileHash(DEV_DEPENDENCIES_DIR);
       await cacache.rm.all(BUILD_CACHE);
@@ -248,14 +249,21 @@ export async function command(commandOptions: CommandOptions) {
   });
 
   // Set the proper install options, in case an install is needed.
-  commandOptions.config.installOptions.dest = DEV_DEPENDENCIES_DIR;
-  commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'development';
-  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
+  const dependencyImportMapLoc = path.join(DEV_DEPENDENCIES_DIR, 'import-map.json');
+  const installCommandOptions = merge(commandOptions, {
+    config: {
+      installOptions: {
+        dest: DEV_DEPENDENCIES_DIR,
+        env: {NODE_ENV: process.env.NODE_ENV || 'development'},
+        treeshake: false,
+      },
+    },
+  });
 
   // Start with a fresh install of your dependencies, if needed.
   if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
     console.log(colors.yellow('! updating dependencies...'));
-    await installCommand(commandOptions);
+    await installCommand(installCommandOptions);
     await updateLockfileHash(DEV_DEPENDENCIES_DIR);
   }
 
@@ -273,7 +281,7 @@ export async function command(commandOptions: CommandOptions) {
     if (!currentlyRunningCommand) {
       isLiveReloadPaused = true;
       messageBus.emit('INSTALLING');
-      currentlyRunningCommand = installCommand(commandOptions);
+      currentlyRunningCommand = installCommand(installCommandOptions);
       await currentlyRunningCommand.then(async () => {
         dependencyImportMap = JSON.parse(
           await fs
@@ -335,8 +343,11 @@ export async function command(commandOptions: CommandOptions) {
     const ext = path.extname(fileLoc).substr(1);
     if (ext === 'js' || srcFileExtensionMapping[ext] === 'js') {
       let missingWebModule: {spec: string; pkgName: string} | null = null;
+      const webModulesScript = config.scripts.find((script) => script.id === 'mount:web_modules');
+      const webModulesPath = webModulesScript ? webModulesScript.args.toUrl : '/web_modules';
       const resolveImportSpecifier = createImportResolver({
         fileLoc,
+        webModulesPath,
         dependencyImportMap,
         isDev: true,
         isBundled: false,

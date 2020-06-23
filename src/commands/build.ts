@@ -1,3 +1,4 @@
+import merge from 'deepmerge';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {promises as fs} from 'fs';
@@ -27,17 +28,20 @@ export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
 
   // Start with a fresh install of your dependencies, for production
-  commandOptions.config.installOptions.env.NODE_ENV = process.env.NODE_ENV || 'production';
-  commandOptions.config.installOptions.dest = BUILD_DEPENDENCIES_DIR;
-  commandOptions.config.installOptions.treeshake =
-    commandOptions.config.installOptions.treeshake !== undefined
-      ? commandOptions.config.installOptions.treeshake
-      : true;
-  const dependencyImportMapLoc = path.join(config.installOptions.dest, 'import-map.json');
+  const installCommandOptions = merge(commandOptions, {
+    config: {
+      installOptions: {
+        dest: BUILD_DEPENDENCIES_DIR,
+        env: {NODE_ENV: process.env.NODE_ENV || 'production'},
+        treeshake: config.installOptions.treeshake ?? true,
+      },
+    },
+  });
+  const dependencyImportMapLoc = path.join(BUILD_DEPENDENCIES_DIR, 'import-map.json');
 
   // Start with a fresh install of your dependencies, always.
   console.log(colors.yellow('! rebuilding dependencies...'));
-  await installCommand(commandOptions);
+  await installCommand(installCommandOptions);
 
   const messageBus = new EventEmitter();
   const relevantWorkers: BuildScript[] = [];
@@ -193,7 +197,7 @@ export async function command(commandOptions: CommandOptions) {
         allFiles.map(async (f) => {
           f = path.resolve(f); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
           if (
-            !f.startsWith(commandOptions.config.installOptions.dest) &&
+            !f.startsWith(BUILD_DEPENDENCIES_DIR) &&
             (allBuildExtensions.includes(path.extname(f).substr(1)) ||
               path.extname(f) === '.jsx' ||
               path.extname(f) === '.tsx' ||
@@ -223,6 +227,8 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
+  const webModulesScript = config.scripts.find((script) => script.id === 'mount:web_modules')!;
+  const webModulesPath = webModulesScript.args.toUrl;
   const allBuiltFromFiles = new Set<string>();
   for (const workerConfig of relevantWorkers) {
     const {id, match, type} = workerConfig;
@@ -279,6 +285,7 @@ export async function command(commandOptions: CommandOptions) {
           }
           const resolveImportSpecifier = createImportResolver({
             fileLoc,
+            webModulesPath,
             dependencyImportMap,
             isDev: false,
             isBundled,

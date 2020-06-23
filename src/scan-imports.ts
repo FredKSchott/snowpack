@@ -194,13 +194,10 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
     .reduce((flat, item) => flat.concat(item), []);
 }
 
-export async function scanImports(
-  cwd: string,
-  {scripts, exclude}: SnowpackConfig,
-): Promise<InstallTarget[]> {
+export async function scanImports(cwd: string, config: SnowpackConfig): Promise<InstallTarget[]> {
   await initESModuleLexer;
   const includeFileSets = await Promise.all(
-    scripts.map(({id, type, cmd, args}) => {
+    config.scripts.map(({id, type, cmd, args}) => {
       if (type !== 'mount') {
         return [];
       }
@@ -209,7 +206,7 @@ export async function scanImports(
       }
       const dirDisk = nodePath.resolve(cwd, args.fromDisk);
       return glob.sync(`**/*`, {
-        ignore: exclude.concat(['**/web_modules/**/*']),
+        ignore: config.exclude.concat(['**/web_modules/**/*']),
         cwd: dirDisk,
         absolute: true,
         nodir: true,
@@ -235,7 +232,7 @@ export async function scanImports(
       }
       // Our import scanner can handle normal JS & even TypeScript without a problem.
       if (ext === '.js' || ext === '.mjs' || ext === '.ts' || ext === '.jsx' || ext === '.tsx') {
-        return [filePath, await fs.promises.readFile(filePath, 'utf-8')];
+        return [filePath, await fs.promises.readFile(filePath, 'utf-8')] as [string, string];
       }
       if (ext === '.vue' || ext === '.svelte' || ext === '.html') {
         const result = await fs.promises.readFile(filePath, 'utf-8');
@@ -247,7 +244,7 @@ export async function scanImports(
         while ((match = regex.exec(result))) {
           allMatches.push(match);
         }
-        return [filePath, allMatches.map(([full, code]) => code).join('\n')];
+        return [filePath, allMatches.map(([full, code]) => code).join('\n')] as [string, string];
       }
       // If we don't recognize the file type, it could be source. Warn just in case.
       if (!mime.lookup(nodePath.extname(filePath))) {
@@ -258,9 +255,15 @@ export async function scanImports(
       return null;
     }),
   );
+  return scanImportsFromFiles(loadedFiles.filter(isTruthy), config);
+}
+
+export async function scanImportsFromFiles(
+  loadedFiles: [string, string][],
+  {scripts, exclude}: SnowpackConfig,
+): Promise<InstallTarget[]> {
   return (
     loadedFiles
-      .filter(isTruthy)
       .map(([fileLoc, code]) => parseCodeForInstallTargets(fileLoc, code))
       .reduce((flat, item) => flat.concat(item), [])
       // Ignore source imports that match a mount directory.
