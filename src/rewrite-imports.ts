@@ -72,6 +72,6 @@ export async function transformFileImports(
     return transformHtmlImports(code, replaceImport);
   }
   throw new Error(
-    `Incompatible file: Cannot ESM imports for file "${baseExt}". This is most likely an error within Snowpack.`,
+    `Incompatible filetype: cannot scan ${baseExt} files for ESM imports. This is most likely an error within Snowpack.`,
   );
 }
