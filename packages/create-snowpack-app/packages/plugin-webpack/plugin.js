@@ -29,7 +29,8 @@ module.exports = function plugin(config, args) {
   // Validate: args.outputPattern
   args.outputPattern = args.outputPattern || {};
   const jsOutputPattern = args.outputPattern.js || "js/[name].[contenthash].js";
-  const cssOutputPattern = args.outputPattern.css || "css/[name].[contenthash].css";
+  const cssOutputPattern =
+    args.outputPattern.css || "css/[name].[contenthash].css";
   const assetsOutputPattern =
     args.outputPattern.assets || "assets/[name]-[hash].[ext]";
   if (!jsOutputPattern.endsWith(".js")) {
@@ -67,12 +68,12 @@ module.exports = function plugin(config, args) {
 
       //Find all local script, use it as the entrypoint
       const scripts = Array.from(dom.window.document.querySelectorAll("script"))
-        .filter(el => el.type.trim().toLowerCase() === "module")
-        .filter(el => !/^[a-zA-Z]+:\/\//.test(el.src));
+        .filter((el) => el.type.trim().toLowerCase() === "module")
+        .filter((el) => !/^[a-zA-Z]+:\/\//.test(el.src));
 
       if (scripts.length === 0) {
         throw new Error("Can't bundle without script tag in html");
-        }
+      }
 
       const entries = {};
       for (const el of scripts) {
@@ -81,8 +82,8 @@ module.exports = function plugin(config, args) {
         const name = parsedPath.name;
         if (entries.name !== undefined) {
           throw new Error(`Duplicate script with name ${name}.`);
-      }
-        entries[name] = {path: path.join(srcDirectory, src), script: el};
+        }
+        entries[name] = { path: path.join(srcDirectory, src), script: el };
       }
 
       //Compile files using webpack
@@ -108,7 +109,11 @@ module.exports = function plugin(config, args) {
                     presets: [
                       [
                         "@babel/preset-env",
-                        { targets: presetEnvTargets, bugfixes: true },
+                        {
+                          targets: presetEnvTargets,
+                          bugfixes: true,
+                          modules: false,
+                        },
                       ],
                     ],
                   },
@@ -204,12 +209,20 @@ module.exports = function plugin(config, args) {
         });
       });
 
+      console.log(
+        stats.toString({
+          colors: true,
+          all: false,
+          assets: true,
+        })
+      );
+
       if (!args.skipFallbackOutput) {
-        const entrypoints = stats.toJson({assets: false, hash: true}).entrypoints;
+        const entrypoints = stats.toJson({ assets: false, hash: true })
+          .entrypoints;
 
         //Now that webpack is done, modify the html file to point to the newly compiled resources
-        Object.keys(entries).forEach(name => {
-
+        Object.keys(entries).forEach((name) => {
           if (entrypoints[name] !== undefined) {
             const assetFiles = chain(entrypoints, [name, "assets"]);
             const script = entries[name].script;
