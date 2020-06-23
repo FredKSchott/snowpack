@@ -4,7 +4,7 @@ import {SnowpackConfig} from '../config';
 import {findMatchingMountScript, ImportMap} from '../util';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 const cwd = process.cwd();
-const URL_HAS_PROTOCOL_REGEX = /^\w:\/\./;
+const URL_HAS_PROTOCOL_REGEX = /^(\w+:)?\/\//;
 
 interface ImportResolverOptions {
   fileLoc: string;
@@ -77,13 +77,18 @@ export function createImportResolver({
       return spec;
     }
     if (dependencyImportMap && dependencyImportMap.imports[spec]) {
+      // if baseURL is remote, handle that outside of path.posix.join()
+      const protocolMatch = config.buildOptions.baseUrl.match(URL_HAS_PROTOCOL_REGEX);
+      const protocol = (protocolMatch && protocolMatch[0]) || '';
+      const baseUrl = config.buildOptions.baseUrl.replace(URL_HAS_PROTOCOL_REGEX, '');
+
       let resolvedImport = isDev
         ? path.posix.resolve(webModulesPath, dependencyImportMap.imports[spec])
-        : path.posix.join(
-            config.buildOptions.baseUrl,
+        : `${protocol}${path.posix.join(
+            baseUrl,
             webModulesPath,
             dependencyImportMap.imports[spec],
-          );
+          )}`;
       const extName = path.extname(resolvedImport);
       if (!isBundled && extName && extName !== '.js') {
         resolvedImport = resolvedImport + '.proxy.js';
