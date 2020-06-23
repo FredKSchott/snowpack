@@ -1,7 +1,7 @@
 import {Stats, statSync} from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../config';
-import {findMatchingMountScript, ImportMap} from '../util';
+import {findMatchingMountScript, getExt, ImportMap} from '../util';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 const cwd = process.cwd();
 const URL_HAS_PROTOCOL_REGEX = /^(\w+:)?\/\//;
@@ -34,12 +34,12 @@ function resolveSourceSpecifier(spec: string, stats: Stats | false, isBundled: b
   } else if (!stats && !spec.endsWith('.js')) {
     spec = spec + '.js';
   }
-  const ext = path.extname(spec).substr(1);
-  const extToReplace = srcFileExtensionMapping[ext];
+  const {baseExt} = getExt(spec);
+  const extToReplace = srcFileExtensionMapping[baseExt];
   if (extToReplace) {
-    spec = spec.replace(new RegExp(`${ext}$`), extToReplace);
+    spec = spec.replace(new RegExp(`\\${baseExt}$`), extToReplace);
   }
-  if (!isBundled && (extToReplace || ext) !== 'js') {
+  if (!isBundled && (extToReplace || baseExt) !== '.js') {
     spec = spec + '.proxy.js';
   }
 
