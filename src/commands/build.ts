@@ -8,7 +8,7 @@ import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
 import rimraf from 'rimraf';
-import {BuildScript, SnowpackBuildMap, SnowpackFile} from '../config';
+import {BuildScript, SnowpackBuildMap, SnowpackSourceFile} from '../config';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
 import {CommandOptions, getExt} from '../util';
@@ -256,10 +256,7 @@ export async function command(commandOptions: CommandOptions) {
     for (const [dirDisk, dirDest, allFiles] of includeFileSets) {
       for (const locOnDisk of allFiles) {
         const inputExt = getExt(locOnDisk);
-        if (
-          !match.includes(inputExt.baseExt.substr(1)) &&
-          !match.includes(inputExt.expandedExt.substr(1))
-        ) {
+        if (!match.includes(inputExt.baseExt) && !match.includes(inputExt.expandedExt)) {
           continue;
         }
         const fileContents = await fs.readFile(locOnDisk, {encoding: 'utf8'});
@@ -340,7 +337,7 @@ export async function command(commandOptions: CommandOptions) {
   const allProxiedFiles = new Set<string>();
   for (const [outLoc, file] of Object.entries(allFilesToResolveImports)) {
     const resolveImportSpecifier = createImportResolver({
-      fileLoc: file.locOnDisk as string, // we’re confident these are reading from disk because we just read them
+      fileLoc: file.locOnDisk!, // we’re confident these are reading from disk because we just read them
       webModulesPath,
       dependencyImportMap: installResult.importMap,
       isDev: false,

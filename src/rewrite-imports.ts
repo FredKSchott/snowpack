@@ -1,4 +1,4 @@
-import {SnowpackFile} from './config';
+import {SnowpackSourceFile} from './config';
 import {HTML_JS_REGEX} from './util';
 
 const {parse} = require('es-module-lexer');
@@ -62,7 +62,7 @@ async function transformHtmlImports(code: string, replaceImport: (specifier: str
 }
 
 export async function transformFileImports(
-  {baseExt, code}: SnowpackFile,
+  {baseExt, code}: SnowpackSourceFile,
   replaceImport: (specifier: string) => string,
 ) {
   if (baseExt === '.js') {
