@@ -29,7 +29,8 @@ export function getImportStats(dirLoc: string, spec: string): Stats | false {
 /** Resolve an import based on the state of the file/folder found on disk. */
 function resolveSourceSpecifier(spec: string, stats: Stats | false, isBundled: boolean) {
   if (stats && stats.isDirectory()) {
-    spec = spec + '/index.js';
+    const trailingSlash = spec.endsWith('/') ? '' : '/';
+    spec = spec + trailingSlash + 'index.js';
   } else if (!stats && !spec.endsWith('.js')) {
     spec = spec + '.js';
   }

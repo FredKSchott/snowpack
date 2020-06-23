@@ -26,7 +26,7 @@ import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 async function installOptimizedDependencies(
-allFilesToResolveImports: {outLoc: string, code: string}[],
+  allFilesToResolveImports: {outLoc: string; code: string}[],
   installDest: string,
   commandOptions: CommandOptions,
 ) {
@@ -39,7 +39,10 @@ allFilesToResolveImports: {outLoc: string, code: string}[],
     },
   });
   // 1. Scan imports from your final built JS files.
-  const installTargets = await getInstallTargets(installConfig, allFilesToResolveImports.map(({outLoc, code})=> [outLoc, code]));
+  const installTargets = await getInstallTargets(
+    installConfig,
+    allFilesToResolveImports.map(({outLoc, code}) => [outLoc, code]),
+  );
   // 2. Install dependencies, based on the scan of your final build.
   const installResult = await installRunner(
     {...commandOptions, config: installConfig},
@@ -240,7 +243,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const allBuiltFromFiles = new Set<string>();
-  const allFilesToResolveImports: {outLoc: string, code: string, fileLoc: string}[] = [];
+  const allFilesToResolveImports: {outLoc: string; code: string; fileLoc: string}[] = [];
   for (const workerConfig of relevantWorkers) {
     const {id, match, type} = workerConfig;
     if (type !== 'build' || match.length === 0) {
