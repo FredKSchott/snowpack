@@ -494,6 +494,10 @@ export async function command(commandOptions: CommandOptions) {
   }
 }
 
+interface InstalllRunOptions extends CommandOptions {
+  installTargets: InstallTarget[];
+}
+
 interface InstallRunResult {
   success: boolean;
   hasError: boolean;
@@ -502,10 +506,12 @@ interface InstallRunResult {
   stats: DependencyStatsOutput | null;
 }
 
-export async function run(
-  {config, lockfile, pkgManifest}: CommandOptions,
-  installTargets: InstallTarget[],
-): Promise<InstallRunResult> {
+export async function run({
+  config,
+  lockfile,
+  pkgManifest,
+  installTargets,
+}: InstalllRunOptions): Promise<InstallRunResult> {
   const {
     installOptions: {dest},
     webDependencies,
