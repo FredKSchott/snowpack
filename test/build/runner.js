@@ -19,10 +19,6 @@ for (const testName of readdirSync(__dirname)) {
   if (testName === 'node_modules' || testName.includes('.')) {
     continue;
   }
-  // TODO: not working on CI, because packages/snowpack/node_modules doesn't exist?
-  if (testName === 'yarn-workspaces') {
-    continue;
-  }
 
   test(testName, async () => {
     let cwd = path.join(__dirname, testName);

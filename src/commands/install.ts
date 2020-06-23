@@ -4,6 +4,7 @@ import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
 import {init as initESModuleLexer, parse} from 'es-module-lexer';
+import findUp from 'find-up';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
@@ -264,8 +265,8 @@ export async function install(
     },
   } = config;
 
-  // @ts-ignore
-  if (!webDependencies && !process.versions.pnp && !fs.existsSync(path.join(cwd, 'node_modules'))) {
+  const nodeModulesInstalled = findUp.sync('node_modules', {cwd, type: 'directory'});
+  if (!webDependencies && !(process.versions as any).pnp && !nodeModulesInstalled) {
     logError('no "node_modules" directory exists. Did you run "npm install" first?');
     return FAILED_INSTALL_RETURN;
   }
