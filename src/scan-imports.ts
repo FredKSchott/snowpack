@@ -6,7 +6,7 @@ import mime from 'mime-types';
 import nodePath from 'path';
 import stripComments from 'strip-comments';
 import validatePackageName from 'validate-npm-package-name';
-import {SnowpackConfig, SnowpackFile} from './config';
+import {SnowpackConfig, SnowpackSourceFile} from './config';
 import {isTruthy, findMatchingMountScript, HTML_JS_REGEX, getExt} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
@@ -148,7 +148,11 @@ function cleanCodeForParsing(code: string): string {
   return allMatches.map(([full]) => full).join('\n');
 }
 
-function parseCodeForInstallTargets({locOnDisk, baseExt, code}: SnowpackFile): InstallTarget[] {
+function parseCodeForInstallTargets({
+  locOnDisk,
+  baseExt,
+  code,
+}: SnowpackSourceFile): InstallTarget[] {
   let imports: ImportSpecifier[];
   // Attempt #1: Parse the file as JavaScript. JSX and some decorator
   // syntax will break this.
@@ -218,7 +222,7 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
   }
 
   // Scan every matched JS file for web dependency imports
-  const loadedFiles: (SnowpackFile | null)[] = await Promise.all(
+  const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
     includeFiles.map(async (filePath) => {
       const {baseExt, expandedExt} = getExt(filePath);
       // Always ignore dotfiles
@@ -278,7 +282,7 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
 }
 
 export async function scanImportsFromFiles(
-  loadedFiles: SnowpackFile[],
+  loadedFiles: SnowpackSourceFile[],
   {scripts}: SnowpackConfig,
 ): Promise<InstallTarget[]> {
   return (
