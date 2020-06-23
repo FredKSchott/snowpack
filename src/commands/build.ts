@@ -9,7 +9,7 @@ import npmRunPath from 'npm-run-path';
 import path from 'path';
 import rimraf from 'rimraf';
 import {BuildScript} from '../config';
-import {transformEsmImports} from '../rewrite-imports';
+import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
 import {CommandOptions} from '../util';
 import {
@@ -26,7 +26,7 @@ import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 async function installOptimizedDependencies(
-  allBuiltJsFiles: {outLoc: string; code: string}[],
+  allFilesToResolveImports: {outLoc: string; code: string}[],
   installDest: string,
   commandOptions: CommandOptions,
 ) {
@@ -41,7 +41,7 @@ async function installOptimizedDependencies(
   // 1. Scan imports from your final built JS files.
   const installTargets = await getInstallTargets(
     installConfig,
-    allBuiltJsFiles.map(({outLoc, code}) => [outLoc, code]),
+    allFilesToResolveImports.map(({outLoc, code}) => [outLoc, code]),
   );
   // 2. Install dependencies, based on the scan of your final build.
   const installResult = await installRunner(
@@ -243,7 +243,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const allBuiltFromFiles = new Set<string>();
-  const allBuiltJsFiles: {outLoc: string; code: string; fileLoc: string}[] = [];
+  const allFilesToResolveImports: {outLoc: string; code: string; fileLoc: string}[] = [];
   for (const workerConfig of relevantWorkers) {
     const {id, match, type} = workerConfig;
     if (type !== 'build' || match.length === 0) {
@@ -299,7 +299,9 @@ export async function command(commandOptions: CommandOptions) {
             code = `import './${path.basename(cssOutPath)}';\n` + code;
           }
           code = wrapImportMeta({code, env: true, hmr: false, config});
-          allBuiltJsFiles.push({outLoc, code, fileLoc});
+          allFilesToResolveImports.push({outLoc, code, fileLoc});
+        } else if (path.extname(outLoc) === '.html') {
+          allFilesToResolveImports.push({outLoc, code, fileLoc});
         } else {
           await fs.mkdir(path.dirname(outLoc), {recursive: true});
           await fs.writeFile(outLoc, code);
@@ -314,7 +316,7 @@ export async function command(commandOptions: CommandOptions) {
   const webModulesPath = installWorker.args.toUrl;
   const installDest = path.join(buildDirectoryLoc, webModulesPath);
   const installResult = await installOptimizedDependencies(
-    allBuiltJsFiles,
+    allFilesToResolveImports,
     installDest,
     commandOptions,
   );
@@ -323,7 +325,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const allProxiedFiles = new Set<string>();
-  for (const {outLoc, code, fileLoc} of allBuiltJsFiles) {
+  for (const {outLoc, code, fileLoc} of allFilesToResolveImports) {
     const resolveImportSpecifier = createImportResolver({
       fileLoc,
       webModulesPath,
@@ -332,7 +334,7 @@ export async function command(commandOptions: CommandOptions) {
       isBundled,
       config,
     });
-    const resolvedCode = await transformEsmImports(code, (spec) => {
+    const resolvedCode = await transformFileImports(code, path.extname(outLoc), (spec) => {
       // Try to resolve the specifier to a known URL in the project
       const resolvedImportUrl = resolveImportSpecifier(spec);
       if (resolvedImportUrl) {
