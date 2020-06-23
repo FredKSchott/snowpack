@@ -26,7 +26,7 @@ import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 async function installOptimizedDependencies(
-  allFilesToResolveImports: [string, string][],
+allFilesToResolveImports: {outLoc: string, code: string}[],
   installDest: string,
   commandOptions: CommandOptions,
 ) {
@@ -39,7 +39,7 @@ async function installOptimizedDependencies(
     },
   });
   // 1. Scan imports from your final built JS files.
-  const installTargets = await getInstallTargets(installConfig, allFilesToResolveImports);
+  const installTargets = await getInstallTargets(installConfig, allFilesToResolveImports.map(({outLoc, code})=> [outLoc, code]));
   // 2. Install dependencies, based on the scan of your final build.
   const installResult = await installRunner(
     {...commandOptions, config: installConfig},
@@ -240,7 +240,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const allBuiltFromFiles = new Set<string>();
-  const allFilesToResolveImports: [string, string, string][] = [];
+  const allFilesToResolveImports: {outLoc: string, code: string, fileLoc: string}[] = [];
   for (const workerConfig of relevantWorkers) {
     const {id, match, type} = workerConfig;
     if (type !== 'build' || match.length === 0) {
@@ -259,11 +259,11 @@ export async function command(commandOptions: CommandOptions) {
         if (!fileBuilder) {
           continue;
         }
-        let outPath = fileLoc.replace(dirDisk, dirDest);
+        let outLoc = fileLoc.replace(dirDisk, dirDest);
         const extToFind = path.extname(fileLoc).substr(1);
         const extToReplace = srcFileExtensionMapping[extToFind];
         if (extToReplace) {
-          outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace!);
+          outLoc = outLoc.replace(new RegExp(`${extToFind}$`), extToReplace!);
         }
 
         const builtFile = await fileBuilder({
@@ -275,7 +275,7 @@ export async function command(commandOptions: CommandOptions) {
           continue;
         }
         let {result: code, resources} = builtFile;
-        const urlPath = outPath.substr(dirDest.length + 1);
+        const urlPath = outLoc.substr(dirDest.length + 1);
         for (const plugin of config.plugins) {
           if (plugin.transform) {
             code =
@@ -288,20 +288,20 @@ export async function command(commandOptions: CommandOptions) {
         }
 
         allBuiltFromFiles.add(fileLoc);
-        if (path.extname(outPath) === '.js') {
+        if (path.extname(outLoc) === '.js') {
           if (resources?.css) {
-            const cssOutPath = outPath.replace(/.js$/, '.css');
+            const cssOutPath = outLoc.replace(/.js$/, '.css');
             await fs.mkdir(path.dirname(cssOutPath), {recursive: true});
             await fs.writeFile(cssOutPath, resources.css);
             code = `import './${path.basename(cssOutPath)}';\n` + code;
           }
           code = wrapImportMeta({code, env: true, hmr: false, config});
-          allFilesToResolveImports.push([outPath, code, fileLoc]);
-        } else if (path.extname(outPath) === '.html') {
-          allFilesToResolveImports.push([outPath, code, fileLoc]);
+          allFilesToResolveImports.push({outLoc, code, fileLoc});
+        } else if (path.extname(outLoc) === '.html') {
+          allFilesToResolveImports.push({outLoc, code, fileLoc});
         } else {
-          await fs.mkdir(path.dirname(outPath), {recursive: true});
-          await fs.writeFile(outPath, code);
+          await fs.mkdir(path.dirname(outLoc), {recursive: true});
+          await fs.writeFile(outLoc, code);
         }
       }
     }
@@ -313,7 +313,7 @@ export async function command(commandOptions: CommandOptions) {
   const webModulesPath = installWorker.args.toUrl;
   const installDest = path.join(buildDirectoryLoc, webModulesPath);
   const installResult = await installOptimizedDependencies(
-    (allFilesToResolveImports as any) as [string, string][],
+    allFilesToResolveImports,
     installDest,
     commandOptions,
   );
@@ -322,7 +322,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const allProxiedFiles = new Set<string>();
-  for (const [outLoc, code, fileLoc] of allFilesToResolveImports) {
+  for (const {outLoc, code, fileLoc} of allFilesToResolveImports) {
     const resolveImportSpecifier = createImportResolver({
       fileLoc,
       webModulesPath,
