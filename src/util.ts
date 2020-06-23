@@ -235,3 +235,13 @@ export function findMatchingMountScript(scripts: BuildScript[], spec: string) {
     .filter((script) => script.type === 'mount')
     .find(({args}) => spec.startsWith(args.fromDisk));
 }
+
+/** Get full extensions of files */
+export function getExt(fileName: string) {
+  return {
+    /** base extension (e.g. `.js`) */
+    baseExt: path.extname(fileName),
+    /** full extension, if applicable (e.g. `.proxy.js`) */
+    expandedExt: path.basename(fileName).replace(/[^.]+/, ''),
+  };
+}
