@@ -10,7 +10,8 @@ import path from 'path';
 import rimraf from 'rimraf';
 import {BuildScript} from '../config';
 import {transformEsmImports} from '../rewrite-imports';
-import {BUILD_DEPENDENCIES_DIR, CommandOptions, ImportMap} from '../util';
+import {printStats} from '../stats-formatter';
+import {CommandOptions} from '../util';
 import {
   generateEnvModule,
   getFileBuilderForWorker,
@@ -20,42 +21,51 @@ import {
 } from './build-util';
 import {stopEsbuild} from './esbuildPlugin';
 import {createImportResolver} from './import-resolver';
-import {command as installCommand} from './install';
+import {getInstallTargets, run as installRunner} from './install';
 import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
-export async function command(commandOptions: CommandOptions) {
-  const {cwd, config} = commandOptions;
-
-  // Start with a fresh install of your dependencies, for production
-  const installCommandOptions = merge(commandOptions, {
-    config: {
-      installOptions: {
-        dest: BUILD_DEPENDENCIES_DIR,
-        env: {NODE_ENV: process.env.NODE_ENV || 'production'},
-        treeshake: config.installOptions.treeshake ?? true,
-      },
+async function installOptimizedDependencies(
+  allBuiltJsFiles: {outLoc: string, code: string}[],
+  installDest: string,
+  commandOptions: CommandOptions,
+) {
+  console.log(colors.yellow('! optimizing dependencies...'));
+  const installConfig = merge(commandOptions.config, {
+    installOptions: {
+      dest: installDest,
+      env: {NODE_ENV: process.env.NODE_ENV || 'production'},
+      treeshake: commandOptions.config.installOptions.treeshake ?? true,
     },
   });
-  const dependencyImportMapLoc = path.join(BUILD_DEPENDENCIES_DIR, 'import-map.json');
+  // 1. Scan imports from your final built JS files.
+  const installTargets = await getInstallTargets(installConfig, allBuiltJsFiles.map(({outLoc, code})=> [outLoc, code]));
+  // 2. Install dependencies, based on the scan of your final build.
+  const installResult = await installRunner(
+    {...commandOptions, config: installConfig},
+    installTargets,
+  );
+  // 3. Print stats immediate after install output.
+  if (installResult.stats) {
+    console.log(printStats(installResult.stats));
+  }
+  return installResult;
+}
 
-  // Start with a fresh install of your dependencies, always.
-  console.log(colors.yellow('! rebuilding dependencies...'));
-  await installCommand(installCommandOptions);
-
+export async function command(commandOptions: CommandOptions) {
+  const {cwd, config} = commandOptions;
   const messageBus = new EventEmitter();
   const relevantWorkers: BuildScript[] = [];
   const allBuildExtensions: string[] = [];
 
-  let dependencyImportMap: ImportMap = {imports: {}};
-  try {
-    dependencyImportMap = require(dependencyImportMapLoc);
-  } catch (err) {
-    // no import-map found, safe to ignore
-  }
-
   for (const workerConfig of config.scripts) {
-    const {type, match} = workerConfig;
+    const {id, type, match} = workerConfig;
+    // web_modules dependencies are now installed directly into the build directory,
+    // instead of being copied like a traditional mount. This is required until we
+    // move the "web_modules" destination configuration out of the "scripts" config.
+    if (id === 'mount:web_modules') {
+      continue;
+    }
     if (type === 'build' || type === 'run' || type === 'mount' || type === 'bundle') {
       relevantWorkers.push(workerConfig);
     }
@@ -65,6 +75,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   let bundleWorker = config.scripts.find((s) => s.type === 'bundle');
+  let installWorker = config.scripts.find((s) => s.id === 'mount:web_modules')!;
   const isBundledHardcoded = config.devOptions.bundle !== undefined;
   const isBundled = isBundledHardcoded ? !!config.devOptions.bundle : !!bundleWorker;
   if (!bundleWorker) {
@@ -170,6 +181,9 @@ export async function command(commandOptions: CommandOptions) {
   const mountDirDetails: any[] = relevantWorkers
     .map((scriptConfig) => {
       const {id, type, args} = scriptConfig;
+      if (id === 'mount:web_modules') {
+        return false;
+      }
       if (type !== 'mount') {
         return false;
       }
@@ -180,13 +194,12 @@ export async function command(commandOptions: CommandOptions) {
     .filter(Boolean);
 
   const includeFileSets: [string, string, string[]][] = [];
-  const allProxiedFiles = new Set<string>();
   for (const [id, dirDisk, dirDest] of mountDirDetails) {
     messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
     let allFiles;
     try {
       allFiles = glob.sync(`**/*`, {
-        ignore: id === 'mount:web_modules' ? [] : config.exclude,
+        ignore: config.exclude,
         cwd: dirDisk,
         absolute: true,
         nodir: true,
@@ -197,12 +210,11 @@ export async function command(commandOptions: CommandOptions) {
         allFiles.map(async (f) => {
           f = path.resolve(f); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
           if (
-            !f.startsWith(BUILD_DEPENDENCIES_DIR) &&
-            (allBuildExtensions.includes(path.extname(f).substr(1)) ||
-              path.extname(f) === '.jsx' ||
-              path.extname(f) === '.tsx' ||
-              path.extname(f) === '.ts' ||
-              path.extname(f) === '.js')
+            allBuildExtensions.includes(path.extname(f).substr(1)) ||
+            path.extname(f) === '.jsx' ||
+            path.extname(f) === '.tsx' ||
+            path.extname(f) === '.ts' ||
+            path.extname(f) === '.js'
           ) {
             allBuildNeededFiles.push(f);
             return;
@@ -227,9 +239,8 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
-  const webModulesScript = config.scripts.find((script) => script.id === 'mount:web_modules')!;
-  const webModulesPath = webModulesScript.args.toUrl;
   const allBuiltFromFiles = new Set<string>();
+  const allBuiltJsFiles: {outLoc: string, code: string, fileLoc: string}[] = [];
   for (const workerConfig of relevantWorkers) {
     const {id, match, type} = workerConfig;
     if (type !== 'build' || match.length === 0) {
@@ -248,11 +259,11 @@ export async function command(commandOptions: CommandOptions) {
         if (!fileBuilder) {
           continue;
         }
-        let outPath = fileLoc.replace(dirDisk, dirDest);
+        let outLoc = fileLoc.replace(dirDisk, dirDest);
         const extToFind = path.extname(fileLoc).substr(1);
         const extToReplace = srcFileExtensionMapping[extToFind];
         if (extToReplace) {
-          outPath = outPath.replace(new RegExp(`${extToFind}$`), extToReplace!);
+          outLoc = outLoc.replace(new RegExp(`${extToFind}$`), extToReplace!);
         }
 
         const builtFile = await fileBuilder({
@@ -264,7 +275,7 @@ export async function command(commandOptions: CommandOptions) {
           continue;
         }
         let {result: code, resources} = builtFile;
-        const urlPath = outPath.substr(dirDest.length + 1);
+        const urlPath = outLoc.substr(dirDest.length + 1);
         for (const plugin of config.plugins) {
           if (plugin.transform) {
             code =
@@ -276,63 +287,69 @@ export async function command(commandOptions: CommandOptions) {
           continue;
         }
 
-        if (path.extname(outPath) === '.js') {
+        allBuiltFromFiles.add(fileLoc);
+        if (path.extname(outLoc) === '.js') {
           if (resources?.css) {
-            const cssOutPath = outPath.replace(/.js$/, '.css');
+            const cssOutPath = outLoc.replace(/.js$/, '.css');
             await fs.mkdir(path.dirname(cssOutPath), {recursive: true});
             await fs.writeFile(cssOutPath, resources.css);
             code = `import './${path.basename(cssOutPath)}';\n` + code;
           }
-          const resolveImportSpecifier = createImportResolver({
-            fileLoc,
-            webModulesPath,
-            dependencyImportMap,
-            isDev: false,
-            isBundled,
-            config,
-          });
-          code = await transformEsmImports(code, (spec) => {
-            // Try to resolve the specifier to a known URL in the project
-            const resolvedImportUrl = resolveImportSpecifier(spec);
-            if (resolvedImportUrl) {
-              // We treat ".proxy.js" files special: we need to make sure that they exist on disk
-              // in the final build, so we mark them to be written to disk at the next step.
-              if (resolvedImportUrl.endsWith('.proxy.js')) {
-                allProxiedFiles.add(
-                  resolvedImportUrl.startsWith('/')
-                    ? path.resolve(cwd, spec)
-                    : path.resolve(path.dirname(outPath), spec),
-                );
-              }
-              return resolvedImportUrl;
-            }
-            // If that fails, return a placeholder import and attempt to resolve.
-            let [missingPackageName, ...deepPackagePathParts] = spec.split('/');
-            if (missingPackageName.startsWith('@')) {
-              missingPackageName += '/' + deepPackagePathParts.shift();
-            }
-            messageBus.emit('MISSING_WEB_MODULE', {
-              id: fileLoc,
-              data: {
-                spec: spec,
-                pkgName: missingPackageName,
-              },
-            });
-            // Sort of lazy, but we expect "MISSING_WEB_MODULE" to exit the build with an error.
-            // So, just return the original import here since it will never be seen.
-            return spec;
-          });
           code = wrapImportMeta({code, env: true, hmr: false, config});
+          allBuiltJsFiles.push({outLoc, code, fileLoc});
+        } else {
+          await fs.mkdir(path.dirname(outLoc), {recursive: true});
+          await fs.writeFile(outLoc, code);
         }
-        await fs.mkdir(path.dirname(outPath), {recursive: true});
-        await fs.writeFile(outPath, code);
-        allBuiltFromFiles.add(fileLoc);
       }
     }
     messageBus.emit('WORKER_COMPLETE', {id, error: null});
   }
 
   stopEsbuild();
+
+  const webModulesPath = installWorker.args.toUrl;
+  const installDest = path.join(buildDirectoryLoc, webModulesPath);
+  const installResult = await installOptimizedDependencies(
+    allBuiltJsFiles,
+    installDest,
+    commandOptions,
+  );
+  if (!installResult.success || installResult.hasError) {
+    process.exit(1);
+  }
+
+  const allProxiedFiles = new Set<string>();
+  for (const {outLoc, code, fileLoc} of allBuiltJsFiles) {
+    const resolveImportSpecifier = createImportResolver({
+      fileLoc,
+      webModulesPath,
+      dependencyImportMap: installResult.importMap,
+      isDev: false,
+      isBundled,
+      config,
+    });
+    const resolvedCode = await transformEsmImports(code, (spec) => {
+      // Try to resolve the specifier to a known URL in the project
+      const resolvedImportUrl = resolveImportSpecifier(spec);
+      if (resolvedImportUrl) {
+        // We treat ".proxy.js" files special: we need to make sure that they exist on disk
+        // in the final build, so we mark them to be written to disk at the next step.
+        if (resolvedImportUrl.endsWith('.proxy.js')) {
+          allProxiedFiles.add(
+            resolvedImportUrl.startsWith('/')
+              ? path.resolve(cwd, spec)
+              : path.resolve(path.dirname(outLoc), spec),
+          );
+        }
+        return resolvedImportUrl;
+      }
+      return spec;
+    });
+    await fs.mkdir(path.dirname(outLoc), {recursive: true});
+    await fs.writeFile(outLoc, resolvedCode);
+  }
+
   for (const proxiedFileLoc of allProxiedFiles) {
     const proxiedCode = await fs.readFile(proxiedFileLoc, {encoding: 'utf8'});
     const proxiedExt = path.extname(proxiedFileLoc);
