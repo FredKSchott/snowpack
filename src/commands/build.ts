@@ -44,9 +44,11 @@ async function installOptimizedDependencies(
     allFilesToResolveImports.map(({outLoc, code}) => [outLoc, code]),
   );
   // 2. Install dependencies, based on the scan of your final build.
-  const installResult = await installRunner(
-    {...commandOptions, installTargets, config: installConfig},
-  );
+  const installResult = await installRunner({
+    ...commandOptions,
+    installTargets,
+    config: installConfig,
+  });
   // 3. Print stats immediate after install output.
   if (installResult.stats) {
     console.log(printStats(installResult.stats));
