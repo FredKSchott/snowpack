@@ -482,7 +482,7 @@ export async function command(commandOptions: CommandOptions) {
     defaultLogError('Nothing to install.');
     return;
   }
-  const finalResult = await run(commandOptions, installTargets);
+  const finalResult = await run({...commandOptions, installTargets});
   if (finalResult.newLockfile) {
     await writeLockfile(path.join(cwd, 'snowpack.lock.json'), finalResult.newLockfile);
   }

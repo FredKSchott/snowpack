@@ -45,8 +45,7 @@ async function installOptimizedDependencies(
   );
   // 2. Install dependencies, based on the scan of your final build.
   const installResult = await installRunner(
-    {...commandOptions, config: installConfig},
-    installTargets,
+    {...commandOptions, installTargets, config: installConfig},
   );
   // 3. Print stats immediate after install output.
   if (installResult.stats) {
