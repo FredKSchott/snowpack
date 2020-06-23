@@ -98,6 +98,10 @@ function formatInstallResults(): string {
     .join(', ');
 }
 
+function isImportOfPackage(importUrl: string, packageName: string) {
+  return packageName === importUrl || importUrl.startsWith(packageName + '/');
+}
+
 /**
  * Formats the snowpack dependency name from a "webDependencies" input value:
  * 2. Remove any ".js"/".mjs" extension (will be added automatically by Rollup)
@@ -271,7 +275,10 @@ export async function install(
   }
   const allInstallSpecifiers = new Set(
     installTargets
-      .filter((dep) => !externalPackages.includes(dep.specifier))
+      .filter(
+        (dep) =>
+          !externalPackages.some((packageName) => isImportOfPackage(dep.specifier, packageName)),
+      )
       .map((dep) => dep.specifier)
       .map((specifier) => installAlias[specifier] || specifier)
       .sort(),
@@ -349,7 +356,7 @@ export async function install(
   let isCircularImportFound = false;
   const inputOptions: InputOptions = {
     input: installEntrypoints,
-    external: externalPackages,
+    external: (id) => externalPackages.some((packageName) => isImportOfPackage(id, packageName)),
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
       rollupPluginReplace(getRollupReplaceKeys(env)),

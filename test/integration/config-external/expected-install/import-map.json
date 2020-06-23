@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "mock-test-package-a": "./mock-test-package-a.js"
+  }
+}
