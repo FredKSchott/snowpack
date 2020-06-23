@@ -8,10 +8,10 @@ import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
 import rimraf from 'rimraf';
-import {BuildScript} from '../config';
+import {BuildScript, SnowpackBuildMap, SnowpackFile} from '../config';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
-import {CommandOptions} from '../util';
+import {CommandOptions, getExt} from '../util';
 import {
   generateEnvModule,
   getFileBuilderForWorker,
@@ -26,7 +26,7 @@ import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 async function installOptimizedDependencies(
-  allFilesToResolveImports: {outLoc: string; code: string}[],
+  allFilesToResolveImports: SnowpackBuildMap,
   installDest: string,
   commandOptions: CommandOptions,
 ) {
@@ -41,7 +41,7 @@ async function installOptimizedDependencies(
   // 1. Scan imports from your final built JS files.
   const installTargets = await getInstallTargets(
     installConfig,
-    allFilesToResolveImports.map(({outLoc, code}) => [outLoc, code]),
+    Object.values(allFilesToResolveImports),
   );
   // 2. Install dependencies, based on the scan of your final build.
   const installResult = await installRunner({
@@ -213,12 +213,13 @@ export async function command(commandOptions: CommandOptions) {
       await Promise.all(
         allFiles.map(async (f) => {
           f = path.resolve(f); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
+          const {baseExt} = getExt(f);
           if (
-            allBuildExtensions.includes(path.extname(f).substr(1)) ||
-            path.extname(f) === '.jsx' ||
-            path.extname(f) === '.tsx' ||
-            path.extname(f) === '.ts' ||
-            path.extname(f) === '.js'
+            allBuildExtensions.includes(baseExt.substr(1)) ||
+            baseExt === '.jsx' ||
+            baseExt === '.tsx' ||
+            baseExt === '.ts' ||
+            baseExt === '.js'
           ) {
             allBuildNeededFiles.push(f);
             return;
@@ -227,7 +228,7 @@ export async function command(commandOptions: CommandOptions) {
           mkdirp.sync(path.dirname(outPath));
 
           // replace %PUBLIC_URL% in HTML files
-          if (path.extname(f) === '.html') {
+          if (baseExt === '.html') {
             let code = await fs.readFile(f, 'utf8');
             code = code.replace(/%PUBLIC_URL%\/?/g, config.buildOptions.baseUrl);
             return fs.writeFile(outPath, code, 'utf8');
@@ -244,7 +245,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const allBuiltFromFiles = new Set<string>();
-  const allFilesToResolveImports: {outLoc: string; code: string; fileLoc: string}[] = [];
+  const allFilesToResolveImports: SnowpackBuildMap = {};
   for (const workerConfig of relevantWorkers) {
     const {id, match, type} = workerConfig;
     if (type !== 'build' || match.length === 0) {
@@ -253,26 +254,28 @@ export async function command(commandOptions: CommandOptions) {
 
     messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
     for (const [dirDisk, dirDest, allFiles] of includeFileSets) {
-      for (const fileLoc of allFiles) {
-        const fileExtension = path.extname(fileLoc).substr(1);
-        if (!match.includes(fileExtension)) {
+      for (const locOnDisk of allFiles) {
+        const inputExt = getExt(locOnDisk);
+        if (
+          !match.includes(inputExt.baseExt.substr(1)) &&
+          !match.includes(inputExt.expandedExt.substr(1))
+        ) {
           continue;
         }
-        const fileContents = await fs.readFile(fileLoc, {encoding: 'utf8'});
+        const fileContents = await fs.readFile(locOnDisk, {encoding: 'utf8'});
         let fileBuilder = getFileBuilderForWorker(cwd, workerConfig, messageBus);
         if (!fileBuilder) {
           continue;
         }
-        let outLoc = fileLoc.replace(dirDisk, dirDest);
-        const extToFind = path.extname(fileLoc).substr(1);
-        const extToReplace = srcFileExtensionMapping[extToFind];
+        let outLoc = locOnDisk.replace(dirDisk, dirDest);
+        const extToReplace = srcFileExtensionMapping[inputExt.baseExt];
         if (extToReplace) {
-          outLoc = outLoc.replace(new RegExp(`${extToFind}$`), extToReplace!);
+          outLoc = outLoc.replace(new RegExp(`\\${inputExt.baseExt}$`), extToReplace!);
         }
 
         const builtFile = await fileBuilder({
           contents: fileContents,
-          filePath: fileLoc,
+          filePath: locOnDisk,
           isDev: false,
         });
         if (!builtFile) {
@@ -291,21 +294,30 @@ export async function command(commandOptions: CommandOptions) {
           continue;
         }
 
-        allBuiltFromFiles.add(fileLoc);
-        if (path.extname(outLoc) === '.js') {
-          if (resources?.css) {
-            const cssOutPath = outLoc.replace(/.js$/, '.css');
-            await fs.mkdir(path.dirname(cssOutPath), {recursive: true});
-            await fs.writeFile(cssOutPath, resources.css);
-            code = `import './${path.basename(cssOutPath)}';\n` + code;
+        allBuiltFromFiles.add(locOnDisk);
+
+        const {baseExt, expandedExt} = getExt(outLoc);
+        switch (baseExt) {
+          case '.js': {
+            if (resources?.css) {
+              const cssOutPath = outLoc.replace(/.js$/, '.css');
+              await fs.mkdir(path.dirname(cssOutPath), {recursive: true});
+              await fs.writeFile(cssOutPath, resources.css);
+              code = `import './${path.basename(cssOutPath)}';\n` + code;
+            }
+            code = wrapImportMeta({code, env: true, hmr: false, config});
+            allFilesToResolveImports[outLoc] = {baseExt, expandedExt, code, locOnDisk};
+            break;
           }
-          code = wrapImportMeta({code, env: true, hmr: false, config});
-          allFilesToResolveImports.push({outLoc, code, fileLoc});
-        } else if (path.extname(outLoc) === '.html') {
-          allFilesToResolveImports.push({outLoc, code, fileLoc});
-        } else {
-          await fs.mkdir(path.dirname(outLoc), {recursive: true});
-          await fs.writeFile(outLoc, code);
+          case '.html': {
+            allFilesToResolveImports[outLoc] = {baseExt, expandedExt, code, locOnDisk};
+            break;
+          }
+          default: {
+            await fs.mkdir(path.dirname(outLoc), {recursive: true});
+            await fs.writeFile(outLoc, code);
+            break;
+          }
         }
       }
     }
@@ -326,16 +338,16 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const allProxiedFiles = new Set<string>();
-  for (const {outLoc, code, fileLoc} of allFilesToResolveImports) {
+  for (const [outLoc, file] of Object.entries(allFilesToResolveImports)) {
     const resolveImportSpecifier = createImportResolver({
-      fileLoc,
+      fileLoc: file.locOnDisk as string, // we’re confident these are reading from disk because we just read them
       webModulesPath,
       dependencyImportMap: installResult.importMap,
       isDev: false,
       isBundled,
       config,
     });
-    const resolvedCode = await transformFileImports(code, path.extname(outLoc), (spec) => {
+    const resolvedCode = await transformFileImports(file, (spec) => {
       // Try to resolve the specifier to a known URL in the project
       const resolvedImportUrl = resolveImportSpecifier(spec);
       if (resolvedImportUrl) {

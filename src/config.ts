@@ -32,6 +32,20 @@ type DeepPartial<T> = {
 
 export type EnvVarReplacements = Record<string, string | number | true>;
 
+/** Snowpack export map */
+export type SnowpackBuildMap = {[outputLoc: string]: SnowpackFile};
+
+/** Standard file interface */
+export interface SnowpackFile {
+  /** base extension (e.g. `.js`) */
+  baseExt: string;
+  /** file contents */
+  code: string;
+  /** expanded extension (e.g. `.proxy.js` or `.module.css`) */
+  expandedExt: string;
+  /** if no location on disk, assume this exists in memory */
+  locOnDisk?: string;
+}
 export type SnowpackPluginBuildArgs = {
   contents: string;
   filePath: string;
