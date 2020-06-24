@@ -840,23 +840,20 @@ export async function command(commandOptions: CommandOptions) {
     request: http2.Http2ServerRequest,
     response: http2.Http2ServerResponse,
   ) => void;
-  const createServer = async (requestHandler: http.RequestListener | Http2RequestListener) => {
+  const createServer = (requestHandler: http.RequestListener | Http2RequestListener) => {
     if (credentials && config.proxy.length === 0) {
-      const {createSecureServer} = http2;
-      return createSecureServer(
+      return http2.createSecureServer(
         {...credentials!, allowHTTP1: true},
         requestHandler as Http2RequestListener,
       );
     } else if (credentials) {
-      const {createServer} = https;
-      return createServer(credentials, requestHandler as http.RequestListener);
+      return https.createServer(credentials, requestHandler as http.RequestListener);
     }
 
-    const {createServer} = http;
-    return createServer(requestHandler as http.RequestListener);
+    return http.createServer(requestHandler as http.RequestListener);
   };
 
-  const server = await createServer(async (req, res) => {
+  const server = createServer(async (req, res) => {
     try {
       return await requestHandler(req, res);
     } catch (err) {
@@ -864,9 +861,7 @@ export async function command(commandOptions: CommandOptions) {
       console.error(err);
       return sendError(res, 500);
     }
-  });
-
-  server
+  })
     .on('error', (err: Error) => {
       console.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);
       server.close();
