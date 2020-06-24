@@ -908,11 +908,7 @@ export async function command(commandOptions: CommandOptions) {
     if (!updateUrl) {
       return;
     }
-    // HTML files don't support HMR, so just reload the current page.
-    if (updateUrl.endsWith('.html')) {
-      hmrEngine.broadcastMessage({type: 'reload'});
-      return;
-    }
+
     // Append ".proxy.js" to Non-JS files to match their registered URL in the client app.
     if (!updateUrl.endsWith('.js') && !updateUrl.endsWith('.module.css')) {
       updateUrl += '.proxy.js';
@@ -930,6 +926,14 @@ export async function command(commandOptions: CommandOptions) {
     // If the changed file exists on the page, trigger a new HMR update.
     if (hmrEngine.getEntry(updateUrl)) {
       updateOrBubble(updateUrl, new Set());
+      return;
+    }
+
+    // Otherwise, reload the page if the file exists in our hot cache (which means that the
+    // file likely exists on the current page, but is not supported by HMR (HTML, image, etc)).
+    if (inMemoryBuildCache.has(fileLoc)) {
+      hmrEngine.broadcastMessage({type: 'reload'});
+      return;
     }
   }
 
