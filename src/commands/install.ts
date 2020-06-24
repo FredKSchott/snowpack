@@ -30,7 +30,7 @@ import {
   MISSING_PLUGIN_SUGGESTIONS,
   resolveDependencyManifest,
   writeLockfile,
-  getPackageNameFromSpecifier,
+  parsePackageImportSpecifier,
 } from '../util.js';
 
 type InstallResultCode = 'SUCCESS' | 'ASSET' | 'FAIL';
@@ -153,15 +153,19 @@ function resolveWebDependency(dep: string): DependencyLoc {
       loc: require.resolve(dep, {paths: [cwd]}),
     };
   }
-  // If dep is a path within a package (but without an extension), we first need 
+  // If dep is a path within a package (but without an extension), we first need
   // to check for an export map in the package.json. If one exists, resolve to it.
-  const packageName = getPackageNameFromSpecifier(dep);
-  if (packageName !== dep) {
+  const [packageName, packageEntrypoint] = parsePackageImportSpecifier(dep);
+  if (packageEntrypoint) {
     const [packageManifestLoc, packageManifest] = resolveDependencyManifest(packageName, cwd);
     if (packageManifestLoc && packageManifest && packageManifest.exports) {
-      const packageEntrypoint = `./${dep.replace(packageName + '/', '')}`;
-      const exportMapEntry = packageManifest.exports[packageEntrypoint];
-      const exportMapValue = exportMapEntry?.browser || exportMapEntry?.import || exportMapEntry?.default || exportMapEntry?.require || exportMapEntry;
+      const exportMapEntry = packageManifest.exports['./' + packageEntrypoint];
+      const exportMapValue =
+        exportMapEntry?.browser ||
+        exportMapEntry?.import ||
+        exportMapEntry?.default ||
+        exportMapEntry?.require ||
+        exportMapEntry;
       if (typeof exportMapValue !== 'string') {
         throw new Error(
           `Package "${packageName}" exists but explicit package.json "exports" does not include valid "${packageEntrypoint}" entry.`,

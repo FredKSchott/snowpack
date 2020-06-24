@@ -62,7 +62,7 @@ import {
   resolveDependencyManifest,
   updateLockfileHash,
   getExt,
-  getPackageNameFromSpecifier,
+  parsePackageImportSpecifier,
 } from '../util';
 import {
   FileBuilder,
@@ -370,7 +370,7 @@ export async function command(commandOptions: CommandOptions) {
             return resolvedImportUrl;
           }
           // If that fails, return a placeholder import and attempt to resolve.
-          const packageName = getPackageNameFromSpecifier(spec);
+          const [packageName] = parsePackageImportSpecifier(spec);
           const [depManifestLoc] = resolveDependencyManifest(packageName, cwd);
           const doesPackageExist = !!depManifestLoc;
           if (doesPackageExist) {
@@ -978,7 +978,7 @@ export async function command(commandOptions: CommandOptions) {
   const symlinkedFileLocs = new Set(
     Object.keys(dependencyImportMap.imports)
       .map((specifier) => {
-        const packageName = getPackageNameFromSpecifier(specifier);
+        const [packageName] = parsePackageImportSpecifier(specifier);
         return resolveDependencyManifest(packageName, cwd);
       }) // resolve symlink src location
       .filter(([_, packageManifest]) => packageManifest && !packageManifest['_id']) // only watch symlinked deps for now

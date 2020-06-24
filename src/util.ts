@@ -79,14 +79,15 @@ export function isTruthy<T>(item: T | false | null | undefined): item is T {
   return Boolean(item);
 }
 
-
-/** Get the package name from a given import specifier (ex: "preact" from "preact/hooks") */
-export function getPackageNameFromSpecifier(specifier: string): string {
-  let [packageName, ...deepPackagePathParts] = specifier.split('/');
-  if (packageName.startsWith('@')) {
-    packageName += '/' + deepPackagePathParts.shift();
+/** Get the package name + an entrypoint within that package (if given). */
+export function parsePackageImportSpecifier(imp: string): [string, string | null] {
+  const impParts = imp.split('/');
+  if (imp.startsWith('@')) {
+    const [scope, name, ...rest] = impParts;
+    return [`${scope}/${name}`, rest.join('/') || null];
   }
-  return packageName;
+  const [name, ...rest] = impParts;
+  return [name, rest.join('/') || null];
 }
 
 /**
