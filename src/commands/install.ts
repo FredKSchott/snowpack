@@ -224,20 +224,6 @@ function resolveWebDependency(dep: string): DependencyLoc {
   }
 }
 
-function checkIsEsModule(fileLoc: string) {
-  const code = fs.readFileSync(fileLoc, 'utf8');
-  const result = parse(code);
-  return result[0].length > 0 || result[1].length > 0;
-}
-
-function filterPackageIsEsModule(externalPackages: string[]) {
-  return externalPackages
-    .map((spec) => [spec, resolveWebDependency(spec)] as [string, DependencyLoc])
-    .filter(([spec, {type, loc}]) => type === 'JS')
-    .filter(([spec, {type, loc}]) => checkIsEsModule(loc))
-    .map(([spec]) => spec);
-}
-
 interface InstallOptions {
   lockfile: ImportMap | null;
   logError: (msg: string) => void;
@@ -392,7 +378,7 @@ export async function install(
         // Workaround: CJS -> ESM isn't supported yet by the plugin, so we needed
         // to add our own custom workaround here. Requires a fork of
         // rollupPluginCommonjs that supports the "externalEsm" option.
-        externalEsm: isSinglePackageMode && filterPackageIsEsModule(externalPackages),
+        externalEsm: process.env.EXTERNAL_ESM_PACKAGES || [],
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
