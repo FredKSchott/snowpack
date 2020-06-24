@@ -240,8 +240,8 @@ export function findMatchingMountScript(scripts: BuildScript[], spec: string) {
 export function getExt(fileName: string) {
   return {
     /** base extension (e.g. `.js`) */
-    baseExt: path.extname(fileName),
+    baseExt: path.extname(fileName).toLocaleLowerCase(),
     /** full extension, if applicable (e.g. `.proxy.js`) */
-    expandedExt: path.basename(fileName).replace(/[^.]+/, ''),
+    expandedExt: path.basename(fileName).replace(/[^.]+/, '').toLocaleLowerCase(),
   };
 }

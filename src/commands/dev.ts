@@ -617,7 +617,7 @@ export async function command(commandOptions: CommandOptions) {
                 extMatcher === requestedFileExt ||
                 srcFileExtensionMapping[extMatcher] === requestedFileExt
               ) {
-                const srcFile = requestedFile.replace(requestedFileExt, `.${extMatcher}`);
+                const srcFile = requestedFile.replace(requestedFileExt, extMatcher);
                 const fileLoc = await attemptLoadFile(srcFile);
                 if (fileLoc) {
                   return [fileLoc, workerConfig];
