@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {OutputOptions, OutputBundle} from 'rollup';
+import {OutputBundle, Plugin} from 'rollup';
 import zlib from 'zlib';
 
 export type DependencyStats = {
@@ -15,7 +15,9 @@ type DependencyStatsMap = {
 type DependencyType = 'direct' | 'common';
 export type DependencyStatsOutput = Record<DependencyType, DependencyStatsMap>;
 
-export function rollupPluginDependencyStats(cb: (dependencyInfo: DependencyStatsOutput) => void) {
+export function rollupPluginDependencyStats(
+  cb: (dependencyInfo: DependencyStatsOutput) => void,
+): Plugin {
   let outputDir: string;
   let existingFileCache: {[fileName: string]: number} = {};
   let statsSummary: DependencyStatsOutput = {
@@ -53,11 +55,11 @@ export function rollupPluginDependencyStats(cb: (dependencyInfo: DependencyStats
 
   return {
     name: 'snowpack:rollup-plugin-stats',
-    generateBundle(options: OutputOptions, bundle: OutputBundle) {
+    generateBundle(options, bundle) {
       outputDir = options.dir!;
       buildExistingFileCache(bundle);
     },
-    writeBundle(options: OutputOptions, bundle: OutputBundle) {
+    writeBundle(_, bundle) {
       const directDependencies: {fileName: string; contents: Buffer}[] = [];
       const commonDependencies: {fileName: string; contents: Buffer}[] = [];
       for (const [fileName, assetOrChunk] of Object.entries(bundle)) {

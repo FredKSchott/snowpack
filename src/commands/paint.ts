@@ -297,7 +297,7 @@ export function paint(
 
   if (devMode) {
     readline.emitKeypressEvents(process.stdin);
-    process.stdin.on('keypress', (str, key) => {
+    process.stdin.on('keypress', (_, key) => {
       if (key.name !== 'return' && key.name !== 'enter') {
         return;
       }
