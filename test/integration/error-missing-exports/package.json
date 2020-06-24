@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+  },
+  "snowpack": {
+    "install": ["preact/debug/src/check-props"]
+  },
+  "dependencies": {
+    "preact": "^10.4.4"
+  } 
+}

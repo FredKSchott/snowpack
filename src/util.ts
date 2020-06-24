@@ -79,6 +79,16 @@ export function isTruthy<T>(item: T | false | null | undefined): item is T {
   return Boolean(item);
 }
 
+
+/** Get the package name from a given import specifier (ex: "preact" from "preact/hooks") */
+export function getPackageNameFromSpecifier(specifier: string): string {
+  let [packageName, ...deepPackagePathParts] = specifier.split('/');
+  if (packageName.startsWith('@')) {
+    packageName += '/' + deepPackagePathParts.shift();
+  }
+  return packageName;
+}
+
 /**
  * Given a package name, look for that package's package.json manifest.
  * Return both the manifest location (if believed to exist) and the

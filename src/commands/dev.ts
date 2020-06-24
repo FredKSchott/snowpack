@@ -62,6 +62,7 @@ import {
   resolveDependencyManifest,
   updateLockfileHash,
   getExt,
+  getPackageNameFromSpecifier,
 } from '../util';
 import {
   FileBuilder,
@@ -99,15 +100,6 @@ function getEncodingType(ext: string): 'utf-8' | 'binary' {
   } else {
     return 'binary';
   }
-}
-
-/** Find disk location from specifier string */
-function getPackageNameFromSpecifier(specifier: string): string {
-  let [packageName, ...deepPackagePathParts] = specifier.split('/');
-  if (packageName.startsWith('@')) {
-    packageName += '/' + deepPackagePathParts.shift();
-  }
-  return packageName;
 }
 
 const sendFile = (
