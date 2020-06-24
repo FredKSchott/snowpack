@@ -571,6 +571,8 @@ interface InstalllRunOptions extends CommandOptions {
 
 interface InstallRunResult {
   success: boolean;
+  message: string | null;
+  error: string | null;
   hasError: boolean;
   importMap: ImportMap | null;
   newLockfile: ImportMap | null;
@@ -599,6 +601,8 @@ export async function run({
       importMap: {imports: {}} as ImportMap,
       newLockfile: null,
       stats: null,
+      message: null,
+      error: null,
     };
   }
 
@@ -643,6 +647,8 @@ export async function run({
 
   return {
     success: finalResult.success,
+    error: ("error" in finalResult && finalResult.error) || null,
+    message: ("message" in finalResult && finalResult.message) || null,
     hasError: spinnerHasError,
     importMap: finalResult.importMap,
     newLockfile,
