@@ -31,9 +31,10 @@ import merge from 'deepmerge';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
-import type http from 'http';
+import http from 'http';
+import https from 'https';
 import HttpProxy from 'http-proxy';
-import type http2 from 'http2';
+import http2 from 'http2';
 import * as colors from 'kleur/colors';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
@@ -841,17 +842,17 @@ export async function command(commandOptions: CommandOptions) {
   ) => void;
   const createServer = async (requestHandler: http.RequestListener | Http2RequestListener) => {
     if (credentials && config.proxy.length === 0) {
-      const {createSecureServer} = await import('http2');
+      const {createSecureServer} = http2;
       return createSecureServer(
         {...credentials!, allowHTTP1: true},
         requestHandler as Http2RequestListener,
       );
     } else if (credentials) {
-      const {createServer} = await import('https');
+      const {createServer} = https;
       return createServer(credentials, requestHandler as http.RequestListener);
     }
 
-    const {createServer} = await import('http');
+    const {createServer} = http;
     return createServer(requestHandler as http.RequestListener);
   };
 
