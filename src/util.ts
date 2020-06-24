@@ -79,6 +79,17 @@ export function isTruthy<T>(item: T | false | null | undefined): item is T {
   return Boolean(item);
 }
 
+/** Get the package name + an entrypoint within that package (if given). */
+export function parsePackageImportSpecifier(imp: string): [string, string | null] {
+  const impParts = imp.split('/');
+  if (imp.startsWith('@')) {
+    const [scope, name, ...rest] = impParts;
+    return [`${scope}/${name}`, rest.join('/') || null];
+  }
+  const [name, ...rest] = impParts;
+  return [name, rest.join('/') || null];
+}
+
 /**
  * Given a package name, look for that package's package.json manifest.
  * Return both the manifest location (if believed to exist) and the

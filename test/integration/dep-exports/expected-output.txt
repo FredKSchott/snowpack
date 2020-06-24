@@ -1,0 +1,5 @@
+✔ snowpack install complete.
+  ⦿ web_modules/        size       gzip       brotli
+    ├─ preact.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ preact/debug.js    XXXX KB    XXXX KB    XXXX KB
+    └─ preact/hooks.js    XXXX KB    XXXX KB    XXXX KB

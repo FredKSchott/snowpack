@@ -30,6 +30,7 @@ import {
   MISSING_PLUGIN_SUGGESTIONS,
   resolveDependencyManifest,
   writeLockfile,
+  parsePackageImportSpecifier,
 } from '../util.js';
 
 type InstallResultCode = 'SUCCESS' | 'ASSET' | 'FAIL';
@@ -143,7 +144,8 @@ function getRollupReplaceKeys(env: EnvVarReplacements): Record<string, string> {
  * field instead of the CJS "main" field.
  */
 function resolveWebDependency(dep: string): DependencyLoc {
-  // if dep includes a file extension, check that dep isn't a package before returning
+  // if dep points directly to a file within a package, return that reference.
+  // No other lookup required.
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
     return {
@@ -151,9 +153,36 @@ function resolveWebDependency(dep: string): DependencyLoc {
       loc: require.resolve(dep, {paths: [cwd]}),
     };
   }
+  // If dep is a path within a package (but without an extension), we first need
+  // to check for an export map in the package.json. If one exists, resolve to it.
+  const [packageName, packageEntrypoint] = parsePackageImportSpecifier(dep);
+  if (packageEntrypoint) {
+    const [packageManifestLoc, packageManifest] = resolveDependencyManifest(packageName, cwd);
+    if (packageManifestLoc && packageManifest && packageManifest.exports) {
+      const exportMapEntry = packageManifest.exports['./' + packageEntrypoint];
+      const exportMapValue =
+        exportMapEntry?.browser ||
+        exportMapEntry?.import ||
+        exportMapEntry?.default ||
+        exportMapEntry?.require ||
+        exportMapEntry;
+      if (typeof exportMapValue !== 'string') {
+        throw new Error(
+          `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".`,
+        );
+      }
+      return {
+        type: 'JS',
+        loc: path.join(packageManifestLoc, '..', exportMapValue),
+      };
+    }
+  }
+
+  // Otherwise, resolve directly to the dep specifier. Note that this supports both
+  // "package-name" & "package-name/some/path" where "package-name/some/path/package.json"
+  // exists at that lower path, that must be used to resolve. In that case, export
+  // maps should not be supported.
   const [depManifestLoc, depManifest] = resolveDependencyManifest(dep, cwd);
-  // Fix: import '@material-ui/icons/AddBox' could be a JS file w/o a file extension.
-  // Check Node's resolution logic in case this is actually a file.
   if (!depManifest) {
     try {
       const maybeLoc = require.resolve(dep, {paths: [cwd]});

@@ -1,0 +1,2 @@
+⠼ snowpack installing... preact/debug/src/check-props
+✖ Package "preact" exists but package.json "exports" does not include entry for "./debug/src/check-props".
