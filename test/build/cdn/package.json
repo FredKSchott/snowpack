@@ -1,0 +1,14 @@
+{
+  "name": "snowpack-test-cdn",
+  "description": "This test simulates a build from the Pika CDN",
+  "scripts": {
+    "start": "node ../../../pkg/dist-node/index.bin.js dev",
+    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+  },
+  "snowpack": {
+    "scripts": {
+      "mount:public": "mount public --to /",
+      "mount:src": "mount src --to /_dist_"
+    }
+  }
+}
