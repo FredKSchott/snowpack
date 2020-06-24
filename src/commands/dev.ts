@@ -835,20 +835,25 @@ export async function command(commandOptions: CommandOptions) {
     sendFile(req, res, wrappedResponse, responseFileExt);
   }
 
-
-  type Http2RequestListener = (request: http2.Http2ServerRequest, response: http2.Http2ServerResponse) => void
+  type Http2RequestListener = (
+    request: http2.Http2ServerRequest,
+    response: http2.Http2ServerResponse,
+  ) => void;
   const createServer = async (requestHandler: http.RequestListener | Http2RequestListener) => {
     if (credentials && config.proxy.length === 0) {
-      const {createSecureServer} = await (import('http2'));
-      return createSecureServer({...credentials!, allowHTTP1: true}, requestHandler as Http2RequestListener);
+      const {createSecureServer} = await import('http2');
+      return createSecureServer(
+        {...credentials!, allowHTTP1: true},
+        requestHandler as Http2RequestListener,
+      );
     } else if (credentials) {
-      const {createServer} = await (import('https'));
+      const {createServer} = await import('https');
       return createServer(credentials, requestHandler as http.RequestListener);
     }
 
-    const {createServer} = await (import('http'));
+    const {createServer} = await import('http');
     return createServer(requestHandler as http.RequestListener);
-  }
+  };
 
   const server = await createServer(async (req, res) => {
     try {
@@ -858,23 +863,24 @@ export async function command(commandOptions: CommandOptions) {
       console.error(err);
       return sendError(res, 500);
     }
-  })
-  
-  server.on('error', (err: Error) => {
-    console.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);
-    server.close();
-    process.exit(1);
-  })
-  .on('upgrade', (req: http.IncomingMessage, socket, head) => {
-    config.proxy.forEach(([pathPrefix, proxyOptions]) => {
-      const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
-      if (isWebSocket && shouldProxy(pathPrefix, req)) {
-        devProxies[pathPrefix].ws(req, socket, head);
-        console.log('Upgrading to WebSocket');
-      }
-    });
-  })
-  .listen(port);
+  });
+
+  server
+    .on('error', (err: Error) => {
+      console.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);
+      server.close();
+      process.exit(1);
+    })
+    .on('upgrade', (req: http.IncomingMessage, socket, head) => {
+      config.proxy.forEach(([pathPrefix, proxyOptions]) => {
+        const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
+        if (isWebSocket && shouldProxy(pathPrefix, req)) {
+          devProxies[pathPrefix].ws(req, socket, head);
+          console.log('Upgrading to WebSocket');
+        }
+      });
+    })
+    .listen(port);
 
   const hmrEngine = new EsmHmrEngine({server});
   onProcessExit(() => {
