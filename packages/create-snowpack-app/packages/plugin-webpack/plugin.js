@@ -9,16 +9,8 @@ const CopyPlugin = require("copy-webpack-plugin");
 const { JSDOM } = jsdom;
 const cwd = process.cwd();
 
-function chain(object, keys) {
-  let cur = object;
-  for (const key of keys) {
-    if (Object.keys(cur).includes(key)) {
-      cur = cur[key];
-    } else {
-      return undefined;
-    }
-  }
-  return cur;
+function insertAfter(newNode, existingNode) {
+  existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
 }
 
 module.exports = function plugin(config, args) {
@@ -99,6 +91,7 @@ module.exports = function plugin(config, args) {
           rules: [
             {
               test: /\.js$/,
+              exclude: /node_modules/,
               use: [
                 {
                   loader: "babel-loader",
@@ -113,6 +106,8 @@ module.exports = function plugin(config, args) {
                           targets: presetEnvTargets,
                           bugfixes: true,
                           modules: false,
+                          useBuiltIns: "usage",
+                          corejs: 3,
                         },
                       ],
                     ],
@@ -189,6 +184,7 @@ module.exports = function plugin(config, args) {
           entry,
           output: {
             path: destDirectory,
+            publicPath: baseUrl,
             filename: jsOutputPattern,
           },
         })
@@ -223,19 +219,23 @@ module.exports = function plugin(config, args) {
 
         //Now that webpack is done, modify the html file to point to the newly compiled resources
         Object.keys(entries).forEach((name) => {
-          if (entrypoints[name] !== undefined) {
-            const assetFiles = chain(entrypoints, [name, "assets"]);
-            const script = entries[name].script;
-            const jsFile = assetFiles.find((d) => d.endsWith(".js"));
-            const cssFile = assetFiles.find((d) => d.endsWith(".css"));
-            script.removeAttribute("type");
-            script.src = path.posix.join(baseUrl, jsFile);
-            if (cssFile) {
-              let csslink = dom.window.document.createElement("link");
-              csslink.setAttribute("rel", "stylesheet");
-              csslink.href = path.posix.join(baseUrl, cssFile);
-              dom.window.document.querySelector("head").append(csslink);
+          const originalScriptEl = entries[name].script;
+          if (entrypoints[name] !== undefined && entrypoints[name]) {
+            const assetFiles = entrypoints[name].assets || [];
+            const jsFiles = assetFiles.filter((d) => d.endsWith(".js"));
+            const cssFiles = assetFiles.filter((d) => d.endsWith(".css"));
+            for (const jsFile of jsFiles) {
+              const scriptEl = dom.window.document.createElement("script");
+              scriptEl.src = path.posix.join(baseUrl, jsFile);
+              insertAfter(scriptEl, originalScriptEl);
             }
+            for (const cssFile of cssFiles) {
+              const linkEl = dom.window.document.createElement("link");
+              linkEl.setAttribute("rel", "stylesheet");
+              linkEl.href = path.posix.join(baseUrl, cssFile);
+              dom.window.document.querySelector("head").append(linkEl);
+            }
+            originalScriptEl.remove();
           }
         });
 
