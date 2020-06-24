@@ -54,3 +54,9 @@ If Snowpack still is having trouble with certain packages, you can manually set 
 ```
 
 This isn’t ideal because now you have to maintain this list, and omit the packages that are giving you trouble. However, sometimes this is the quickest way to fix the issue.
+
+### Package exists but package.json "exports" does not include entry
+
+Node.js recently added support for a package.json "exports" entry that defines which files you can and cannot import from within a package. Preact, for example, defines an "exports" map that allows you to to import "preact/hooks" but not "preact/some/custom/file-path.js". This allows packages to control their "public" interface.
+
+If you see this error message, that means that you've imported a file path not allowed in the export map. If you believe this to be an error, reach out to the package author to request the file be added to their export map.

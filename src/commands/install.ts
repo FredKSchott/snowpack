@@ -168,7 +168,7 @@ function resolveWebDependency(dep: string): DependencyLoc {
         exportMapEntry;
       if (typeof exportMapValue !== 'string') {
         throw new Error(
-          `Package "${packageName}" exists but explicit package.json "exports" does not include valid "${packageEntrypoint}" entry.`,
+          `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".`,
         );
       }
       return {
