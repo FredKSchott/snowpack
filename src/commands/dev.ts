@@ -32,6 +32,7 @@ import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
 import http from 'http';
+import https from 'https';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
 import * as colors from 'kleur/colors';
@@ -835,10 +836,22 @@ export async function command(commandOptions: CommandOptions) {
     sendFile(req, res, wrappedResponse, responseFileExt);
   }
 
-  const createServer = credentials
-    ? (requestHandler) =>
-        http2.createSecureServer({...credentials!, allowHTTP1: true}, requestHandler)
-    : (requestHandler) => http.createServer(requestHandler);
+  type Http2RequestListener = (
+    request: http2.Http2ServerRequest,
+    response: http2.Http2ServerResponse,
+  ) => void;
+  const createServer = (requestHandler: http.RequestListener | Http2RequestListener) => {
+    if (credentials && config.proxy.length === 0) {
+      return http2.createSecureServer(
+        {...credentials!, allowHTTP1: true},
+        requestHandler as Http2RequestListener,
+      );
+    } else if (credentials) {
+      return https.createServer(credentials, requestHandler as http.RequestListener);
+    }
+
+    return http.createServer(requestHandler as http.RequestListener);
+  };
 
   const server = createServer(async (req, res) => {
     try {
