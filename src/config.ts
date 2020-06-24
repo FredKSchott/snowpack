@@ -32,20 +32,6 @@ type DeepPartial<T> = {
 
 export type EnvVarReplacements = Record<string, string | number | true>;
 
-/** Snowpack export map */
-export type SnowpackBuildMap = {[outputLoc: string]: SnowpackSourceFile};
-
-/** Standard file interface */
-export interface SnowpackSourceFile {
-  /** base extension (e.g. `.js`) */
-  baseExt: string;
-  /** file contents */
-  code: string;
-  /** expanded extension (e.g. `.proxy.js` or `.module.css`) */
-  expandedExt: string;
-  /** if no location on disk, assume this exists in memory */
-  locOnDisk?: string;
-}
 export type SnowpackPluginBuildArgs = {
   contents: string;
   filePath: string;
@@ -330,10 +316,6 @@ function handleLegacyProxyScripts(config: any) {
 
 type RawScripts = Record<string, string>;
 function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
-  function prefixDot(file: string): string {
-    return `.${file}`.replace(/^\.+/, '.'); // prefix with dot, and make sure only one sticks
-  }
-
   const processedScripts: BuildScript[] = [];
   if (Object.keys(scripts).filter((k) => k.startsWith('bundle:')).length > 1) {
     handleConfigError(`scripts can only contain 1 script of type "bundle:".`);
@@ -350,7 +332,7 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
     const newScriptConfig: BuildScript = {
       id: scriptId,
       type: scriptType,
-      match: scriptMatch.split(',').map(prefixDot),
+      match: scriptMatch.split(','),
       cmd,
       watch: (scripts[`${scriptId}::watch`] as any) as string | undefined,
     };
@@ -399,7 +381,7 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
           `Multiple "scripts" match the "${ext}" file extension.\nCurrently, only one script per file type is supported.`,
         );
       }
-      allBuildMatch.add(prefixDot(ext));
+      allBuildMatch.add(ext);
     }
   }
 
@@ -416,7 +398,7 @@ function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
     });
   }
 
-  const defaultBuildMatch = ['.js', '.jsx', '.ts', '.tsx'].filter((ext) => !allBuildMatch.has(ext));
+  const defaultBuildMatch = ['js', 'jsx', 'ts', 'tsx'].filter((ext) => !allBuildMatch.has(ext));
   if (defaultBuildMatch.length > 0) {
     const defaultBuildWorkerConfig = {
       id: `build:${defaultBuildMatch.join(',')}`,

@@ -60,7 +60,6 @@ import {
   openInBrowser,
   resolveDependencyManifest,
   updateLockfileHash,
-  getExt,
 } from '../util';
 import {
   FileBuilder,
@@ -171,12 +170,12 @@ const sendError = (res, status) => {
 function getUrlFromFile(mountedDirectories: [string, string][], fileLoc: string): string | null {
   for (const [dirDisk, dirUrl] of mountedDirectories) {
     if (fileLoc.startsWith(dirDisk + path.sep)) {
-      const {baseExt} = getExt(fileLoc);
+      const fileExt = path.extname(fileLoc).substr(1);
       const resolvedDirUrl = dirUrl === '/' ? '' : dirUrl;
       return fileLoc
         .replace(dirDisk, resolvedDirUrl)
         .replace(/[/\\]+/g, '/')
-        .replace(new RegExp(`\\${baseExt}$`), srcFileExtensionMapping[baseExt] || baseExt);
+        .replace(new RegExp(`${fileExt}$`), srcFileExtensionMapping[fileExt] || fileExt);
     }
   }
   return null;
@@ -345,12 +344,12 @@ export async function command(commandOptions: CommandOptions) {
         filesBeingBuilt.delete(fileLoc);
       }
     }
-    const {baseExt, expandedExt} = getExt(fileLoc);
+    const ext = path.extname(fileLoc).substr(1);
     if (
-      baseExt === '.js' ||
-      srcFileExtensionMapping[baseExt] === '.js' ||
-      baseExt === '.html' ||
-      srcFileExtensionMapping[baseExt] === '.html'
+      ext === 'js' ||
+      srcFileExtensionMapping[ext] === 'js' ||
+      ext === 'html' ||
+      srcFileExtensionMapping[ext] === 'html'
     ) {
       let missingWebModule: {spec: string; pkgName: string} | null = null;
       const webModulesScript = config.scripts.find((script) => script.id === 'mount:web_modules');
@@ -364,12 +363,10 @@ export async function command(commandOptions: CommandOptions) {
         config,
       });
       builtFileResult.result = await transformFileImports(
-        {
-          locOnDisk: fileLoc,
-          code: builtFileResult.result,
-          baseExt: srcFileExtensionMapping[baseExt] || baseExt,
-          expandedExt,
-        },
+        builtFileResult.result,
+        // This is lame: because routes don't have a file extension, we create
+        // a fake file name with the correct extension, which is the important bit.
+        'file.' + (srcFileExtensionMapping[ext] || ext),
         (spec) => {
           // Try to resolve the specifier to a known URL in the project
           const resolvedImportUrl = resolveImportSpecifier(spec);
@@ -613,8 +610,8 @@ export async function command(commandOptions: CommandOptions) {
             }
             for (const extMatcher of match) {
               if (
-                extMatcher === requestedFileExt ||
-                srcFileExtensionMapping[extMatcher] === requestedFileExt
+                extMatcher === requestedFileExt.substr(1) ||
+                srcFileExtensionMapping[extMatcher] === requestedFileExt.substr(1)
               ) {
                 const srcFile = requestedFile.replace(requestedFileExt, `.${extMatcher}`);
                 const fileLoc = await attemptLoadFile(srcFile);

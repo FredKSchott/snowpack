@@ -6,8 +6,8 @@ import mime from 'mime-types';
 import nodePath from 'path';
 import stripComments from 'strip-comments';
 import validatePackageName from 'validate-npm-package-name';
-import {SnowpackConfig, SnowpackSourceFile} from './config';
-import {isTruthy, findMatchingMountScript, HTML_JS_REGEX, getExt} from './util';
+import {SnowpackConfig} from './config';
+import {isTruthy, findMatchingMountScript, HTML_JS_REGEX} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -148,16 +148,12 @@ function cleanCodeForParsing(code: string): string {
   return allMatches.map(([full]) => full).join('\n');
 }
 
-function parseCodeForInstallTargets({
-  locOnDisk,
-  baseExt,
-  code,
-}: SnowpackSourceFile): InstallTarget[] {
+function parseCodeForInstallTargets(fileLoc: string, code: string): InstallTarget[] {
   let imports: ImportSpecifier[];
   // Attempt #1: Parse the file as JavaScript. JSX and some decorator
   // syntax will break this.
   try {
-    if (baseExt === '.jsx' || baseExt === '.tsx') {
+    if (fileLoc.endsWith('.jsx') || fileLoc.endsWith('.tsx')) {
       // We know ahead of time that this will almost certainly fail.
       // Just jump right to the secondary attempt.
       throw new Error('JSX must be cleaned before parsing');
@@ -172,7 +168,7 @@ function parseCodeForInstallTargets({
       [imports] = parse(code) || [];
     } catch (err) {
       // Another error! No hope left, just abort.
-      console.error(colors.red(`! ${locOnDisk}`));
+      console.error(colors.red(`! ${fileLoc}`));
       throw err;
     }
   }
@@ -222,55 +218,38 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
   }
 
   // Scan every matched JS file for web dependency imports
-  const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
+  const loadedFiles = await Promise.all(
     includeFiles.map(async (filePath) => {
-      const {baseExt, expandedExt} = getExt(filePath);
+      const ext = nodePath.extname(filePath);
       // Always ignore dotfiles
       if (filePath.startsWith('.')) {
         return null;
       }
-
-      switch (baseExt) {
-        // Probably a license, a README, etc
-        case '': {
-          return null;
-        }
-        // Our import scanner can handle normal JS & even TypeScript without a problem.
-        case '.js':
-        case '.jsx':
-        case '.mjs':
-        case '.ts':
-        case '.tsx': {
-          return {
-            baseExt,
-            expandedExt,
-            locOnDisk: filePath,
-            code: await fs.promises.readFile(filePath, 'utf-8'),
-          };
-        }
-        case '.html':
-        case '.vue':
-        case '.svelte': {
-          const result = await fs.promises.readFile(filePath, 'utf-8');
-          // TODO: Replace with matchAll once Node v10 is out of TLS.
-          // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
-          const allMatches: string[] = [];
-          let match;
-          const regex = new RegExp(HTML_JS_REGEX);
-          while ((match = regex.exec(result))) {
-            allMatches.push(match);
-          }
-          return {
-            baseExt,
-            expandedExt,
-            locOnDisk: filePath,
-            code: allMatches.map(([full, scriptTag, scriptCode]) => scriptCode).join('\n'),
-          };
-        }
+      // Probably a license, a README, etc
+      if (ext === '') {
+        return null;
       }
-
+      // Our import scanner can handle normal JS & even TypeScript without a problem.
+      if (ext === '.js' || ext === '.mjs' || ext === '.ts' || ext === '.jsx' || ext === '.tsx') {
+        return [filePath, await fs.promises.readFile(filePath, 'utf-8')] as [string, string];
+      }
+      if (ext === '.vue' || ext === '.svelte' || ext === '.html') {
+        const result = await fs.promises.readFile(filePath, 'utf-8');
+        // TODO: Replace with matchAll once Node v10 is out of TLS.
+        // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
+        const allMatches: string[] = [];
+        let match;
+        const regex = new RegExp(HTML_JS_REGEX);
+        while ((match = regex.exec(result))) {
+          allMatches.push(match);
+        }
+        return [
+          filePath,
+          allMatches.map(([full, scriptTag, scriptCode]) => scriptCode).join('\n'),
+        ] as [string, string];
+      }
       // If we don't recognize the file type, it could be source. Warn just in case.
-      if (!mime.lookup(baseExt)) {
+      if (!mime.lookup(nodePath.extname(filePath))) {
         console.warn(
           colors.dim(`ignoring unsupported file "${nodePath.relative(process.cwd(), filePath)}"`),
         );
@@ -282,12 +261,12 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
 }
 
 export async function scanImportsFromFiles(
-  loadedFiles: SnowpackSourceFile[],
-  {scripts}: SnowpackConfig,
+  loadedFiles: [string, string][],
+  {scripts, exclude}: SnowpackConfig,
 ): Promise<InstallTarget[]> {
   return (
     loadedFiles
-      .map(parseCodeForInstallTargets)
+      .map(([fileLoc, code]) => parseCodeForInstallTargets(fileLoc, code))
       .reduce((flat, item) => flat.concat(item), [])
       // Ignore source imports that match a mount directory.
       .filter((target) => !findMatchingMountScript(scripts, target.specifier))

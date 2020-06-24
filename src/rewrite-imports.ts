@@ -1,4 +1,3 @@
-import {SnowpackSourceFile} from './config';
 import {HTML_JS_REGEX} from './util';
 
 const {parse} = require('es-module-lexer');
@@ -62,16 +61,17 @@ async function transformHtmlImports(code: string, replaceImport: (specifier: str
 }
 
 export async function transformFileImports(
-  {baseExt, code}: SnowpackSourceFile,
+  code: string,
+  fileName: string,
   replaceImport: (specifier: string) => string,
 ) {
-  if (baseExt === '.js') {
+  if (fileName.endsWith('.js')) {
     return transformEsmImports(code, replaceImport);
   }
-  if (baseExt === '.html') {
+  if (fileName.endsWith('.html')) {
     return transformHtmlImports(code, replaceImport);
   }
   throw new Error(
-    `Incompatible filetype: cannot scan ${baseExt} files for ESM imports. This is most likely an error within Snowpack.`,
+    `Incompatible file: Cannot ESM imports for file "${fileName}". This is most likely an error within Snowpack.`,
   );
 }

@@ -13,7 +13,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import {InputOptions, OutputOptions, rollup, RollupError} from 'rollup';
 import validatePackageName from 'validate-npm-package-name';
-import {EnvVarReplacements, SnowpackConfig, SnowpackSourceFile} from '../config.js';
+import {EnvVarReplacements, SnowpackConfig} from '../config.js';
 import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
 import {rollupPluginCatchUnresolved} from '../rollup-plugin-catch-unresolved.js';
 import {rollupPluginCss} from '../rollup-plugin-css';
@@ -466,10 +466,7 @@ export async function install(
   return {success: true, importMap};
 }
 
-export async function getInstallTargets(
-  config: SnowpackConfig,
-  scannedFiles?: SnowpackSourceFile[],
-) {
+export async function getInstallTargets(config: SnowpackConfig, scannedFiles?: [string, string][]) {
   const {knownEntrypoints, webDependencies} = config;
   const installTargets: InstallTarget[] = [];
   if (knownEntrypoints) {
