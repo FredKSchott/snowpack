@@ -576,7 +576,7 @@ export async function command(commandOptions: CommandOptions) {
 
 interface InstalllRunOptions extends CommandOptions {
   installTargets: InstallTarget[];
-  onMessage: InstallOptions['onMessage'];
+  onMessage?: InstallOptions['onMessage'];
 }
 
 interface InstallRunResult {
