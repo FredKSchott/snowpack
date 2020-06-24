@@ -283,11 +283,15 @@ function report(opts: {code: string; message: string}): SnowpackLog {
   };
 }
 
-type InstallResult = {success: false; importMap: null} | {success: true; importMap: ImportMap};
+type InstallResult =
+  | {success: false; importMap: null; error: string; message: string}
+  | {success: true; importMap: ImportMap};
 
 const FAILED_INSTALL_RETURN: InstallResult = {
   success: false,
   importMap: null,
+  message: 'no "node_modules" directory exists. Did you run "npm install" first?',
+  error: 'NO_NODE_MODULES',
 };
 export async function install(
   installTargets: InstallTarget[],
@@ -310,12 +314,6 @@ export async function install(
 
   const nodeModulesInstalled = findUp.sync('node_modules', {cwd, type: 'directory'});
   if (!webDependencies && !(process.versions as any).pnp && !nodeModulesInstalled) {
-    onError(
-      report({
-        message: 'no "node_modules" directory exists. Did you run "npm install" first?',
-        code: 'NO_NODE_MODULES',
-      }),
-    );
     return FAILED_INSTALL_RETURN;
   }
   const allInstallSpecifiers = new Set(
