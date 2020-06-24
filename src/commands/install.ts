@@ -76,12 +76,12 @@ let spinnerHasError = false;
 let installResults: [string, InstallResultCode][] = [];
 let dependencyStats: DependencyStatsOutput | null = null;
 
-function defaultLogError(log: SnowpackLog) {
+function defaultLogError(msg: string) {
   if (spinner && !spinnerHasError) {
     spinner.stopAndPersist({symbol: colors.cyan('⠼')});
   }
   spinnerHasError = true;
-  spinner = ora(colors.red(log.message));
+  spinner = ora(colors.red(msg));
   spinner.fail();
 }
 
@@ -270,11 +270,21 @@ interface SnowpackLog {
 
 interface InstallOptions {
   lockfile: ImportMap | null;
-  onError: (msg: SnowpackLog) => void;
   onMessage: (msg: SnowpackLog) => void;
 }
 
-function report(opts: {code: string; message: string}): SnowpackLog {
+function reportError(opts: {error: string; message: string}): InstallResult {
+  return {
+    ...opts,
+    success: false,
+    importMap: null,
+    toString() {
+      return this.message;
+    },
+  };
+}
+
+function reportUpdate(opts: {code: string; message: string}): SnowpackLog {
   return {
     ...opts,
     toString() {
@@ -284,18 +294,26 @@ function report(opts: {code: string; message: string}): SnowpackLog {
 }
 
 type InstallResult =
-  | {success: false; importMap: null; error: string; message: string}
+  | {success: false; importMap: null; error: string; message: string; toString: () => string}
   | {success: true; importMap: ImportMap};
 
-const FAILED_INSTALL_RETURN: InstallResult = {
-  success: false,
-  importMap: null,
+const FAILED_INSTALL_NO_NODE_MODULES = {
   message: 'no "node_modules" directory exists. Did you run "npm install" first?',
   error: 'NO_NODE_MODULES',
 };
+
+const FAILED_INSTALL_NO_ESM = {
+  error: 'NO_ESM_DEPENDENCIES',
+  message: `No ESM dependencies found!\n${colors.dim(
+    `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${colors.underline(
+      'https://www.pika.dev',
+    )}`,
+  )}`,
+};
+
 export async function install(
   installTargets: InstallTarget[],
-  {lockfile, onError, onMessage}: InstallOptions,
+  {lockfile, onMessage}: InstallOptions,
   config: SnowpackConfig,
 ): Promise<InstallResult> {
   const {
@@ -314,7 +332,7 @@ export async function install(
 
   const nodeModulesInstalled = findUp.sync('node_modules', {cwd, type: 'directory'});
   if (!webDependencies && !(process.versions as any).pnp && !nodeModulesInstalled) {
-    return FAILED_INSTALL_RETURN;
+    return reportError(FAILED_INSTALL_NO_NODE_MODULES);
   }
   const allInstallSpecifiers = new Set(
     installTargets
@@ -343,7 +361,7 @@ export async function install(
       installEntrypoints[targetName] = lockfile.imports[installSpecifier];
       importMap.imports[installSpecifier] = `./${proxiedName}.js`;
       installResults.push([targetName, 'SUCCESS']);
-      onMessage(report({code: 'INSTALL_PROGRESS', message: formatInstallResults()}));
+      onMessage(reportUpdate({code: 'INSTALL_PROGRESS', message: formatInstallResults()}));
       continue;
     }
     try {
@@ -365,32 +383,23 @@ export async function install(
         importMap.imports[installSpecifier] = `./${proxiedName}`;
         installResults.push([installSpecifier, 'ASSET']);
       }
-      onMessage(report({code: 'INSTALL_PROGRESS', message: formatInstallResults()}));
+      onMessage(reportUpdate({code: 'INSTALL_PROGRESS', message: formatInstallResults()}));
     } catch (err) {
       installResults.push([installSpecifier, 'FAIL']);
-      onMessage(report({code: 'INSTALL_PROGRESS', message: formatInstallResults()}));
+      onMessage(reportUpdate({code: 'INSTALL_PROGRESS', message: formatInstallResults()}));
       if (skipFailures) {
         continue;
       }
       // An error occurred! Log it.
-      onError(report({code: 'INSTALL_ERROR', message: err.message || err}));
       if (err.hint) {
         // Note: Wait 1ms to guarantee a log message after the spinner
         setTimeout(() => console.log(err.hint), 1);
       }
-      return FAILED_INSTALL_RETURN;
+      return reportError({error: 'INSTALL_ERROR', message: err.message || err});
     }
   }
   if (Object.keys(installEntrypoints).length === 0 && Object.keys(assetEntrypoints).length === 0) {
-    onError(report({code: 'NO_ESM_DEPENDENCIES', message: `No ESM dependencies found!`}));
-    console.log(
-      colors.dim(
-        `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${colors.underline(
-          'https://www.pika.dev',
-        )}`,
-      ),
-    );
-    return FAILED_INSTALL_RETURN;
+    return reportError(FAILED_INSTALL_NO_ESM);
   }
 
   await initESModuleLexer;
@@ -405,7 +414,9 @@ export async function install(
         rollupPluginDependencyCache({
           installTypes,
           log: (url) =>
-            onMessage(report({code: 'ROLLUP_PLUGIN_DEPENDENCY_CACHE', message: colors.dim(url)})),
+            onMessage(
+              reportUpdate({code: 'ROLLUP_PLUGIN_DEPENDENCY_CACHE', message: colors.dim(url)}),
+            ),
         }),
       rollupPluginAlias({
         entries: Object.entries(installAlias).map(([alias, mod]) => ({
@@ -447,7 +458,7 @@ export async function install(
         if (!isCircularImportFound) {
           isCircularImportFound = true;
           onMessage(
-            report({
+            reportUpdate({
               code: 'CIRCULAR_DEPENDENCY',
               message: `Warning: 1+ circular dependencies found via "${warning.importer}".`,
             }),
@@ -463,16 +474,15 @@ export async function install(
         // Display posix-style on all environments, mainly to help with CI :)
         if (warning.id) {
           const fileName = warning.id.replace(cwd + path.sep, '').replace(/\\/g, '/');
-          onError(
-            report({code: 'UNRESOLVED_IMPORT', message: `${fileName}\n   ${warning.message}`}),
-          );
+          return reportError({
+            error: 'UNRESOLVED_IMPORT',
+            message: `${fileName}\n   ${warning.message}`,
+          });
         } else {
-          onError(
-            report({
-              code: 'UNRESOLVED_IMPORT',
-              message: `${warning.message}. See https://www.snowpack.dev/#troubleshooting`,
-            }),
-          );
+          return reportError({
+            error: 'UNRESOLVED_IMPORT',
+            message: `${warning.message}. See https://www.snowpack.dev/#troubleshooting`,
+          });
         }
         return;
       }
@@ -489,7 +499,7 @@ export async function install(
   if (Object.keys(installEntrypoints).length > 0) {
     try {
       const packageBundle = await rollup(inputOptions);
-      onMessage(report({code: 'ROLLUP_BUNDLE_FINISHED', message: formatInstallResults()}));
+      onMessage(reportUpdate({code: 'ROLLUP_BUNDLE_FINISHED', message: formatInstallResults()}));
       await packageBundle.write(outputOptions);
     } catch (_err) {
       const err: RollupError = _err;
@@ -504,15 +514,13 @@ export async function install(
       const suggestion = MISSING_PLUGIN_SUGGESTIONS[failedExtension] || err.message;
       // Display posix-style on all environments, mainly to help with CI :)
       const fileName = errFilePath.replace(cwd + path.sep, '').replace(/\\/g, '/');
-      onError(
-        report({
-          code: 'LOAD_FAIL',
-          message: `${colors.bold('snowpack')} failed to load ${colors.bold(
-            fileName,
-          )}\n  ${suggestion}`,
-        }),
-      );
-      return FAILED_INSTALL_RETURN;
+
+      return reportError({
+        error: 'LOAD_FAIL',
+        message: `${colors.bold('snowpack')} failed to load ${colors.bold(
+          fileName,
+        )}\n  ${suggestion}`,
+      });
     }
   }
 
@@ -550,10 +558,10 @@ export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
   const installTargets = await getInstallTargets(config);
   if (installTargets.length === 0) {
-    defaultLogError(report({code: 'NOTHING_TO_INSTALL', message: 'Nothing to install.'}));
+    defaultLogError('Nothing to install.');
     return;
   }
-  const finalResult = await run({...commandOptions, installTargets});
+  const finalResult = await run({...commandOptions, installTargets, onMessage: defaultLogUpdate});
   if (finalResult.newLockfile) {
     await writeLockfile(path.join(cwd, 'snowpack.lock.json'), finalResult.newLockfile);
   }
@@ -561,12 +569,14 @@ export async function command(commandOptions: CommandOptions) {
     console.log(printStats(finalResult.stats));
   }
   if (!finalResult.success || finalResult.hasError) {
+    finalResult.message && defaultLogError(finalResult.message);
     process.exit(1);
   }
 }
 
 interface InstalllRunOptions extends CommandOptions {
   installTargets: InstallTarget[];
+  onMessage: InstallOptions['onMessage'];
 }
 
 interface InstallRunResult {
@@ -583,6 +593,7 @@ export async function run({
   config,
   lockfile,
   installTargets,
+  onMessage = defaultLogUpdate,
 }: InstalllRunOptions): Promise<InstallRunResult> {
   const {
     installOptions: {dest},
@@ -608,7 +619,7 @@ export async function run({
 
   let newLockfile: ImportMap | null = null;
   if (webDependencies && Object.keys(webDependencies).length > 0) {
-    newLockfile = await resolveTargetsFromRemoteCDN(lockfile, config).catch((err) => {
+    newLockfile = await resolveTargetsFromRemoteCDN(lockfile, pkgManifest, config).catch((err) => {
       defaultLogError(report({code: 'RESOLVE_FROM_CDN', message: err.message || err}));
       process.exit(1);
     });
@@ -620,8 +631,7 @@ export async function run({
     installTargets,
     {
       lockfile: newLockfile,
-      onError: defaultLogError,
-      onMessage: defaultLogUpdate,
+      onMessage,
     },
     config,
   ).catch((err) => {
@@ -647,8 +657,8 @@ export async function run({
 
   return {
     success: finalResult.success,
-    error: ("error" in finalResult && finalResult.error) || null,
-    message: ("message" in finalResult && finalResult.message) || null,
+    error: ('error' in finalResult && finalResult.error) || null,
+    message: ('message' in finalResult && finalResult.message) || null,
     hasError: spinnerHasError,
     importMap: finalResult.importMap,
     newLockfile,
