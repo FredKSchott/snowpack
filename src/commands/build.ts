@@ -8,7 +8,7 @@ import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
 import rimraf from 'rimraf';
-import {BuildScript, SnowpackBuildMap, SnowpackSourceFile} from '../config';
+import {BuildScript, SnowpackBuildMap} from '../config';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
 import {CommandOptions, getExt} from '../util';
@@ -134,7 +134,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   for (const workerConfig of relevantWorkers) {
-    const {id, type, match} = workerConfig;
+    const {id, type} = workerConfig;
     if (type !== 'run') {
       continue;
     }

@@ -44,7 +44,6 @@ let _cssModuleLoader: CSSModuleLoader;
 export async function wrapCssModuleResponse({
   url,
   code,
-  ext,
   hasHmr = false,
   config: {buildOptions},
 }: {

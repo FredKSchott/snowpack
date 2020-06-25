@@ -200,7 +200,7 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
 export async function scanImports(cwd: string, config: SnowpackConfig): Promise<InstallTarget[]> {
   await initESModuleLexer;
   const includeFileSets = await Promise.all(
-    config.scripts.map(({id, type, cmd, args}) => {
+    config.scripts.map(({type, args}) => {
       if (type !== 'mount') {
         return [];
       }
@@ -254,7 +254,7 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
           const result = await fs.promises.readFile(filePath, 'utf-8');
           // TODO: Replace with matchAll once Node v10 is out of TLS.
           // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
-          const allMatches: string[] = [];
+          const allMatches: string[][] = [];
           let match;
           const regex = new RegExp(HTML_JS_REGEX);
           while ((match = regex.exec(result))) {
@@ -264,7 +264,7 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
             baseExt,
             expandedExt,
             locOnDisk: filePath,
-            code: allMatches.map(([full, scriptTag, scriptCode]) => scriptCode).join('\n'),
+            code: allMatches.map((script) => script[2]).join('\n'), // 3rd match is the code inside <script></script>
           };
         }
       }

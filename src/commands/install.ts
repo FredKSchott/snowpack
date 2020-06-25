@@ -3,7 +3,7 @@ import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-common
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
-import {init as initESModuleLexer, parse} from 'es-module-lexer';
+import {init as initESModuleLexer} from 'es-module-lexer';
 import findUp from 'find-up';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
@@ -308,9 +308,6 @@ export async function install(
     ...CJS_PACKAGES_TO_AUTO_DETECT,
     ...config.installOptions.namedExports,
   ];
-  // We run some special processing steps when installing a single package.
-  // Example: namedExports support by default, if package is CJS.
-  const isSinglePackageMode = allInstallSpecifiers.size === 1;
 
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
@@ -327,8 +324,8 @@ export async function install(
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${targetName}.js`;
         Object.entries(installAlias)
-          .filter(([key, value]) => value === installSpecifier)
-          .forEach(([key, value]) => {
+          .filter(([, value]) => value === installSpecifier)
+          .forEach(([key]) => {
             importMap.imports[key] = `./${targetName}.js`;
           });
         installTargetsMap[targetLoc] = installTargets.filter(
@@ -535,7 +532,6 @@ interface InstallRunResult {
 export async function run({
   config,
   lockfile,
-  pkgManifest,
   installTargets,
 }: InstalllRunOptions): Promise<InstallRunResult> {
   const {
@@ -560,7 +556,7 @@ export async function run({
 
   let newLockfile: ImportMap | null = null;
   if (webDependencies && Object.keys(webDependencies).length > 0) {
-    newLockfile = await resolveTargetsFromRemoteCDN(lockfile, pkgManifest, config).catch((err) => {
+    newLockfile = await resolveTargetsFromRemoteCDN(lockfile, config).catch((err) => {
       defaultLogError(err.message || err);
       process.exit(1);
     });

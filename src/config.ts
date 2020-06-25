@@ -329,7 +329,7 @@ function handleLegacyProxyScripts(config: any) {
 }
 
 type RawScripts = Record<string, string>;
-function normalizeScripts(cwd: string, scripts: RawScripts): BuildScript[] {
+function normalizeScripts(scripts: RawScripts): BuildScript[] {
   function prefixDot(file: string): string {
     return `.${file}`.replace(/^\.+/, '.'); // prefix with dot, and make sure only one sticks
   }
@@ -526,8 +526,8 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   }
   config = handleLegacyProxyScripts(config);
   config.proxy = normalizeProxies(config.proxy as any);
-  config.scripts = normalizeScripts(cwd, config.scripts as any);
-  config.scripts.forEach((script: BuildScript, i) => {
+  config.scripts = normalizeScripts(config.scripts as any);
+  config.scripts.forEach((script: BuildScript) => {
     if (script.plugin) return;
 
     // Ensure plugins are properly registered/configured

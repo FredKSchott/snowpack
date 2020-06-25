@@ -122,7 +122,6 @@ async function resolveDependency(
 
 export async function resolveTargetsFromRemoteCDN(
   lockfile: ImportMap | null,
-  pkgManifest: any,
   config: SnowpackConfig,
 ) {
   const downloadQueue = new PQueue({concurrency: 16});
