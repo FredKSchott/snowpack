@@ -1,17 +1,30 @@
 import {Service, startService} from 'esbuild';
 import * as colors from 'kleur/colors';
 import path from 'path';
-import {SnowpackPluginBuildResult} from '../config';
-import {checkIsPreact} from './build-util';
 
 let esbuildService: Service | null = null;
 
-export function esbuildPlugin() {
+// Note: duplicated here to avoid circular dep
+export interface SnowpackPlugin {
+  name: string;
+  input: string | string[];
+  output: string | string[];
+  build?(BuildOptions): Promise<Record<string, string>>;
+}
+const IS_PREACT = /from\s+['"]preact['"]/;
+export function checkIsPreact(filePath: string, contents: string) {
+  return filePath.endsWith('.jsx') && IS_PREACT.test(contents);
+}
+
+export function esbuildPlugin(): SnowpackPlugin {
   return {
-    async build({contents, filePath}) {
+    name: '@snowpack/plugin-esbuild',
+    input: ['.js', '.jsx', '.ts', '.tsx'],
+    output: '.js',
+    async build({code, filePath}) {
       esbuildService = esbuildService || (await startService());
-      const isPreact = checkIsPreact(filePath, contents);
-      const {js, warnings} = await esbuildService!.transform(contents, {
+      const isPreact = checkIsPreact(filePath, code);
+      const {js, warnings} = await esbuildService!.transform(code, {
         loader: path.extname(filePath).substr(1) as 'jsx' | 'ts' | 'tsx',
         jsxFactory: isPreact ? 'h' : undefined,
         jsxFragment: isPreact ? 'Fragment' : undefined,
@@ -20,7 +33,7 @@ export function esbuildPlugin() {
         console.error(colors.bold('! ') + filePath);
         console.error('  ' + warning.text);
       }
-      return {result: js || ''} as SnowpackPluginBuildResult;
+      return {'.js': js || ''};
     },
   };
 }

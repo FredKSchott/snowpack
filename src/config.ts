@@ -8,19 +8,9 @@ import path from 'path';
 import {Plugin as RollupPlugin} from 'rollup';
 import yargs from 'yargs-parser';
 import {esbuildPlugin} from './commands/esbuildPlugin';
-import {DEV_DEPENDENCIES_DIR} from './util';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
-const SCRIPT_TYPES_WEIGHTED = {
-  proxy: 1,
-  mount: 2,
-  run: 3,
-  build: 4,
-  bundle: 100,
-} as {[type in ScriptType]: number};
-
-type ScriptType = 'mount' | 'run' | 'build' | 'bundle';
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -31,6 +21,8 @@ type DeepPartial<T> = {
 };
 
 export type EnvVarReplacements = Record<string, string | number | true>;
+
+type RunCmd = {id: string; cmd: string};
 
 /** Snowpack export map */
 export type SnowpackBuildMap = {[outputLoc: string]: SnowpackSourceFile};
@@ -46,49 +38,51 @@ export interface SnowpackSourceFile {
   /** if no location on disk, assume this exists in memory */
   locOnDisk?: string;
 }
-export type SnowpackPluginBuildArgs = {
-  contents: string;
+
+export interface BuildOptions {
+  code: string;
+  contents?: string; // deprecated in favor of “code“
   filePath: string;
   isDev: boolean;
-};
-export type SnowpackPluginTransformArgs = {
+}
+
+/** DEPRECATED */
+export type __OldBuildResult = {result: string; resources?: {css?: string}};
+
+/** map of extensions -> code (e.g. { ".js": "[code]", ".css": "[code]" }) */
+export type BuildResult = string | {[fileExtension: string]: string} | __OldBuildResult;
+
+export interface BundleOptions {
+  srcDirectory: string;
+  destDirectory: string;
+  jsFilePaths: Set<string>;
+  log: (msg, level?: 'INFO' | 'WARN' | 'ERROR') => void;
+}
+
+export interface __OldTransformOptions {
   contents: string;
   urlPath: string;
   isDev: boolean;
-};
-export type SnowpackPluginBuildResult = {
-  result: string;
-  resources?: {css?: string};
-};
-export type SnowpackPluginTransformResult = {
-  result: string;
-  resources?: {css?: string};
-};
-export type SnowpackPlugin = {
+}
+
+export interface SnowpackPlugin {
+  /** name of the plugin */
+  name: string;
+  /** file extensions this plugin takes as input (e.g. [".jsx", ".js", …]) */
+  input: string | string[];
+  /** file extensions this plugin outputs (e.g. [".js", ".css"]) */
+  output: string | string[];
+  /** transform input to output */
+  build?(BuildOptions): Promise<BuildResult>;
+  /** bundle  */
+  bundle?(BundleOptions): Promise<void>;
+  /** DEPRECATED */
+  transform?(__OldTransformOptions): Promise<__OldBuildResult>;
+  /** DEPRECATED */
   defaultBuildScript?: string;
+  /** DEPRECATED */
   knownEntrypoints?: string[];
-  build?: (
-    args: SnowpackPluginBuildArgs,
-  ) => null | SnowpackPluginBuildResult | Promise<null | SnowpackPluginBuildResult>;
-  transform?: (
-    args: SnowpackPluginTransformArgs,
-  ) => null | SnowpackPluginTransformResult | Promise<null | SnowpackPluginTransformResult>;
-  bundle?(args: {
-    srcDirectory: string;
-    destDirectory: string;
-    jsFilePaths: Set<string>;
-    log: (msg) => void;
-  }): Promise<void>;
-};
-export type BuildScript = {
-  id: string;
-  match: string[];
-  type: ScriptType;
-  cmd: string;
-  watch?: string;
-  plugin?: SnowpackPlugin;
-  args?: any;
-};
+}
 
 export type ProxyOptions = HttpProxy.ServerOptions & {
   // Custom on: {} event handlers
@@ -103,7 +97,7 @@ export interface SnowpackConfig {
   exclude: string[];
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
-  scripts: BuildScript[];
+  scripts: Record<string, string>;
   plugins: SnowpackPlugin[];
   devOptions: {
     secure: boolean;
@@ -133,6 +127,13 @@ export interface SnowpackConfig {
     metaDir: string;
   };
   proxy: Proxy[];
+  // experimental API; don’t expose to external config
+  __buildPipeline: Record<string, SnowpackPlugin[]>;
+  __runCommands: RunCmd[];
+  __buildCommands: Record<string, RunCmd>;
+  __mountedDirs: Record<string, string>;
+  __bundler: SnowpackPlugin | undefined;
+  __webModulesDir: string; // TODO: delete this once mount:web_modules no longer supported
 }
 
 export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>, 'env'> {
@@ -161,6 +162,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
       dedupe: [],
     },
   },
+  scripts: {},
   devOptions: {
     secure: false,
     port: 8080,
@@ -293,6 +295,192 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
   return result;
 }
 
+/** ensure extensions all have preceding dots */
+function parseScript(script: string): {scriptType: string; extensions: string[]} {
+  const [scriptType, extMatch] = script.toLowerCase().split(':');
+  return {
+    scriptType,
+    extensions: [...new Set(extMatch.split(',').map((ext) => `.${ext}`.replace(/^\./, '').trim()))], // only keep unique extensions
+  };
+}
+
+/** load and normalize plugins from config */
+function loadPlugins(
+  config: SnowpackConfig,
+): {
+  plugins: SnowpackPlugin[];
+  bundler: SnowpackPlugin | undefined;
+  mountedDirs: Record<string, string>;
+  runCommands: RunCmd[];
+  buildCommands: Record<string, RunCmd>;
+  webModulesDir: string;
+} {
+  const plugins: SnowpackPlugin[] = [];
+  const mountedDirs: Record<string, string> = {};
+  const runCommands: RunCmd[] = [];
+  let webModulesDir = config.installOptions.dest || '/web_modules';
+  let bundler: SnowpackPlugin | undefined;
+
+  function loadPluginFromScript(specifier: string): SnowpackPlugin | undefined {
+    try {
+      const pluginLoc = require.resolve(specifier, {paths: [process.cwd()]});
+      return require(pluginLoc)(config); // no plugin options to load because we’re loading from a string
+    } catch (err) {
+      // ignore
+    }
+  }
+
+  function loadPluginFromConfig(name: string, options?: any): SnowpackPlugin {
+    const pluginLoc = require.resolve(name, {paths: [process.cwd()]});
+    return require(pluginLoc)(config, options);
+  }
+
+  // 1. require & load config.scripts
+  // TODO: deprecate scripts and move out of this function
+  const scriptPlugins: {[pluginName: string]: SnowpackPlugin} = {};
+  const buildCommands: Record<string, RunCmd> = {};
+  Object.entries(config.scripts).forEach(([target, cmd]) => {
+    const {scriptType, extensions} = parseScript(target);
+
+    switch (scriptType) {
+      case 'run': {
+        runCommands.push({id: target, cmd});
+        break;
+      }
+      case 'build': {
+        const pluginName = cmd;
+        const plugin = loadPluginFromScript(pluginName);
+        if (plugin) {
+          // path a: plugin
+          if (!scriptPlugins[pluginName]) {
+            // if plugin not loaded, add it (copying extensions -> input/output)
+            scriptPlugins[pluginName] = {...plugin};
+          }
+        } else {
+          // path b: command
+          extensions.forEach((ext) => {
+            buildCommands[ext] = {id: target, cmd};
+          });
+        }
+        break;
+      }
+      case 'mount': {
+        const cmdArr = cmd.split(/\s+/);
+        if (cmdArr[0] !== 'mount') {
+          handleConfigError(`scripts[${target}] must use the mount command`);
+        }
+        cmdArr.shift();
+        const {to, _} = yargs(cmdArr);
+        if (_.length !== 1) {
+          handleConfigError(`scripts[${target}] must use the format: "mount dir [--to /PATH]"`);
+        }
+        if (to && to[0] !== '/') {
+          handleConfigError(
+            `scripts[${target}]: "--to ${to}" must be a URL path, and start with a "/"`,
+          );
+        }
+
+        const fromDisk = path.posix.normalize(cmdArr[0] + '/');
+        const dirUrl = to || `/${cmdArr[0]}`;
+        const toUrl = path.posix.normalize(dirUrl + '/');
+
+        // TODO: skip this once mount:web_modules no longer supported
+        if (target === 'mount:web_modules') {
+          webModulesDir = toUrl;
+          break;
+        }
+
+        mountedDirs[fromDisk] = toUrl;
+        break;
+      }
+      case 'bundle': {
+        const bundlerName = cmd;
+        bundler = loadPluginFromScript(bundlerName);
+        if (!bundler) {
+          handleConfigError(
+            `Failed to load plugin "${bundlerName}". Only installed Snowpack Plugins are supported for bundle:*`,
+          );
+          return;
+        }
+        // TODO: remove with new bundler API
+        if (!bundler.name) bundler.name = bundlerName;
+        break;
+      }
+    }
+  });
+
+  plugins.push(...Object.values(scriptPlugins));
+
+  // 2. config.plugins
+  config.plugins.forEach((ref) => {
+    const pluginName = Array.isArray(ref) ? ref[0] : ref;
+    const pluginOptions = Array.isArray(ref) ? ref[1] : {};
+
+    if (scriptPlugins[pluginName]) {
+      handleConfigError(
+        `[${pluginName}]: loaded in both \`scripts\` and \`plugins\`. Please choose one (preferably \`plugins\`).`,
+      );
+      return;
+    }
+
+    const plugin = loadPluginFromConfig(pluginName, pluginOptions);
+
+    // TODO: remove this transition code when all plugins use new API
+    if (!plugin.defaultBuildScript && !plugin.input) {
+      handleConfigError(`[${pluginName}]: missing input options (see snowpack.dev/plugins)`);
+      return;
+    }
+
+    if (plugin.defaultBuildScript && !plugin.input) {
+      const {extensions} = parseScript(plugin.defaultBuildScript);
+      // TODO: remove these when plugins are updated
+      if (extensions[0] === '.svelte') {
+        plugin.input = ['.svelte'];
+        plugin.output = ['.js', '.css'];
+      } else if (extensions[0] === '.vue') {
+        plugin.input = ['.vue'];
+        plugin.output = ['.js', '.css'];
+      } else {
+        plugin.input = extensions;
+        plugin.output = extensions;
+      }
+    }
+
+    if (!name) {
+      plugin.name = pluginName;
+    }
+    // END transition code
+
+    plugins.push(plugin);
+  });
+
+  // if no mounted directories, mount root
+  if (!Object.keys(mountedDirs).length) mountedDirs['.'] = '/';
+
+  return {
+    plugins,
+    bundler,
+    mountedDirs,
+    runCommands, // TODO: handle this elsewhere (in config?)
+    buildCommands, // TODO: remove this when plugins handle building
+    webModulesDir, // TODO: remove this when mount:web_modules no longer supported
+  };
+}
+
+/** create build pipeline from plugin array */
+export function createBuildPipeline(plugins: SnowpackPlugin[]): Record<string, SnowpackPlugin[]> {
+  const pipeline: Record<string, SnowpackPlugin[]> = {};
+  [...plugins, esbuildPlugin()].forEach((plugin) => {
+    const inputs = Array.isArray(plugin.input) ? plugin.input : [plugin.input]; // builds only care about inputs (outputs are handled during build)
+    inputs.forEach((ext) => {
+      if (pipeline[ext]) pipeline[ext].push(plugin);
+      else pipeline[ext] = [plugin];
+    });
+  });
+
+  return pipeline;
+}
+
 /**
  * Convert deprecated proxy scripts to
  * FUTURE: Remove this on next major release
@@ -326,120 +514,6 @@ function handleLegacyProxyScripts(config: any) {
     delete config.scripts[scriptId];
   }
   return config;
-}
-
-type RawScripts = Record<string, string>;
-function normalizeScripts(scripts: RawScripts): BuildScript[] {
-  function prefixDot(file: string): string {
-    return `.${file}`.replace(/^\.+/, '.'); // prefix with dot, and make sure only one sticks
-  }
-
-  const processedScripts: BuildScript[] = [];
-  if (Object.keys(scripts).filter((k) => k.startsWith('bundle:')).length > 1) {
-    handleConfigError(`scripts can only contain 1 script of type "bundle:".`);
-  }
-  for (const scriptId of Object.keys(scripts)) {
-    if (scriptId.includes('::watch')) {
-      continue;
-    }
-    const [scriptType, scriptMatch] = scriptId.split(':') as [ScriptType, string];
-    if (!SCRIPT_TYPES_WEIGHTED[scriptType]) {
-      handleConfigError(`scripts[${scriptId}]: "${scriptType}" is not a known script type.`);
-    }
-    const cmd = (scripts[scriptId] as any) as string;
-    const newScriptConfig: BuildScript = {
-      id: scriptId,
-      type: scriptType,
-      match: scriptMatch.split(',').map(prefixDot),
-      cmd,
-      watch: (scripts[`${scriptId}::watch`] as any) as string | undefined,
-    };
-    if (newScriptConfig.watch) {
-      newScriptConfig.watch = newScriptConfig.watch.replace('$1', newScriptConfig.cmd);
-    }
-    if (scriptType === 'mount') {
-      const cmdArr = cmd.split(/\s+/);
-      if (cmdArr[0] !== 'mount') {
-        handleConfigError(`scripts[${scriptId}] must use the mount command`);
-      }
-      cmdArr.shift();
-      const {to, _} = yargs(cmdArr);
-      if (_.length !== 1) {
-        handleConfigError(`scripts[${scriptId}] must use the format: "mount dir [--to /PATH]"`);
-      }
-      if (to && to[0] !== '/') {
-        handleConfigError(
-          `scripts[${scriptId}]: "--to ${to}" must be a URL path, and start with a "/"`,
-        );
-      }
-      let dirDisk = cmdArr[0];
-      const dirUrl = to || `/${cmdArr[0]}`;
-
-      // mount:web_modules is a special case script where the fromDisk
-      // arg is hard-coded to match the internal dependency directory.
-      if (scriptId === 'mount:web_modules') {
-        dirDisk = DEV_DEPENDENCIES_DIR;
-      }
-
-      newScriptConfig.args = {
-        fromDisk: path.posix.normalize(dirDisk + '/'),
-        toUrl: path.posix.normalize(dirUrl + '/'),
-      };
-    }
-    processedScripts.push(newScriptConfig);
-  }
-  const allBuildMatch = new Set<string>();
-  for (const {type, match} of processedScripts) {
-    if (type !== 'build') {
-      continue;
-    }
-    for (const ext of match) {
-      if (allBuildMatch.has(ext)) {
-        handleConfigError(
-          `Multiple "scripts" match the "${ext}" file extension.\nCurrently, only one script per file type is supported.`,
-        );
-      }
-      allBuildMatch.add(prefixDot(ext));
-    }
-  }
-
-  if (!scripts['mount:web_modules']) {
-    processedScripts.push({
-      id: 'mount:web_modules',
-      type: 'mount',
-      match: ['web_modules'],
-      cmd: `mount $WEB_MODULES --to /web_modules`,
-      args: {
-        fromDisk: DEV_DEPENDENCIES_DIR,
-        toUrl: '/web_modules',
-      },
-    });
-  }
-
-  const defaultBuildMatch = ['.js', '.jsx', '.ts', '.tsx'].filter((ext) => !allBuildMatch.has(ext));
-  if (defaultBuildMatch.length > 0) {
-    const defaultBuildWorkerConfig = {
-      id: `build:${defaultBuildMatch.join(',')}`,
-      type: 'build',
-      match: defaultBuildMatch,
-      cmd: '(default) esbuild',
-      plugin: esbuildPlugin(),
-    } as BuildScript;
-    processedScripts.push(defaultBuildWorkerConfig);
-  }
-  processedScripts.sort((a, b) => {
-    if (a.type === b.type) {
-      if (a.id === 'mount:web_modules') {
-        return -1;
-      }
-      if (b.id === 'mount:web_modules') {
-        return 1;
-      }
-      return a.id.localeCompare(b.id);
-    }
-    return SCRIPT_TYPES_WEIGHTED[a.type] - SCRIPT_TYPES_WEIGHTED[b.type];
-  });
-  return processedScripts;
 }
 
 type RawProxies = Record<string, string | ProxyOptions>;
@@ -476,75 +550,40 @@ function normalizeProxies(proxies: RawProxies): Proxy[] {
 function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const cwd = process.cwd();
   config.knownEntrypoints = (config as any).install || [];
-  config.installOptions.dest = path.resolve(cwd, config.installOptions.dest);
   config.devOptions.out = path.resolve(cwd, config.devOptions.out);
   config.exclude = Array.from(new Set([...ALWAYS_EXCLUDE, ...config.exclude]));
-  if (!config.scripts) {
-    config.exclude.push('**/.*');
-    config.scripts = {
-      'mount:*': 'mount . --to /',
-    } as any;
-  }
+
   if (!config.proxy) {
     config.proxy = {} as any;
   }
-  const allPlugins = {};
+
   // remove leading/trailing slashes
   config.buildOptions.metaDir = config.buildOptions.metaDir
     .replace(/^(\/|\\)/g, '') // replace leading slash
     .replace(/(\/|\\)$/g, ''); // replace trailing slash
-  config.plugins = (config.plugins as any).map((plugin: string | [string, any]) => {
-    const configPluginPath = Array.isArray(plugin) ? plugin[0] : plugin;
-    const configPluginOptions = (Array.isArray(plugin) && plugin[1]) || {};
-    const configPluginLoc = require.resolve(configPluginPath, {paths: [cwd]});
-    const configPlugin = require(configPluginLoc)(config, configPluginOptions);
-    if (
-      (configPlugin.build ? 1 : 0) +
-        (configPlugin.transform ? 1 : 0) +
-        (configPlugin.bundle ? 1 : 0) >
-      1
-    ) {
-      handleConfigError(
-        `plugin[${configPluginLoc}]: A valid plugin can only have one build(), transform(), or bundle() function.`,
-      );
-    }
-    allPlugins[configPluginPath] = configPlugin;
-    if (configPlugin.knownEntrypoints) {
-      config.knownEntrypoints.push(...configPlugin.knownEntrypoints);
-    }
-    if (
-      configPlugin.defaultBuildScript &&
-      !(config.scripts as any)[configPlugin.defaultBuildScript] &&
-      !Object.values(config.scripts as any).includes(configPluginPath)
-    ) {
-      (config.scripts as any)[configPlugin.defaultBuildScript] = configPluginPath;
-    }
-    return configPlugin;
-  });
+
   if (config.devOptions.bundle === true && !config.scripts['bundle:*']) {
     handleConfigError(`--bundle set to true, but no "bundle:*" script/plugin was provided.`);
   }
+
   config = handleLegacyProxyScripts(config);
   config.proxy = normalizeProxies(config.proxy as any);
-  config.scripts = normalizeScripts(config.scripts as any);
-  config.scripts.forEach((script: BuildScript) => {
-    if (script.plugin) return;
 
-    // Ensure plugins are properly registered/configured
-    if (['build', 'bundle'].includes(script.type)) {
-      if (allPlugins[script.cmd]?.[script.type]) {
-        script.plugin = allPlugins[script.cmd];
-      } else if (allPlugins[script.cmd] && !allPlugins[script.cmd][script.type]) {
-        handleConfigError(
-          `scripts[${script.id}]: Plugin "${script.cmd}" has no ${script.type} script.`,
-        );
-      } else if (script.cmd.startsWith('@') || script.cmd.startsWith('.')) {
-        handleConfigError(
-          `scripts[${script.id}]: Register plugin "${script.cmd}" in your Snowpack "plugins" config.`,
-        );
-      }
-    }
-  });
+  // new pipeline
+  const {plugins, runCommands, mountedDirs, buildCommands, bundler, webModulesDir} = loadPlugins(
+    config,
+  );
+  const buildPipeline = createBuildPipeline(plugins);
+  config.plugins = plugins;
+  config.__buildPipeline = buildPipeline;
+  config.__mountedDirs = mountedDirs;
+  config.__runCommands = runCommands;
+  config.__buildCommands = buildCommands;
+  config.__bundler = bundler;
+  config.__webModulesDir = webModulesDir;
+
+  // resolve webModulesDir to absolute dir as last step
+  config.installOptions.dest = path.resolve(cwd, config.installOptions.dest);
 
   return config;
 }

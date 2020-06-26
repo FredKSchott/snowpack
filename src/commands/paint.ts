@@ -3,7 +3,6 @@ import {EventEmitter} from 'events';
 import * as colors from 'kleur/colors';
 import readline from 'readline';
 import util from 'util';
-import {BuildScript} from '../config';
 import {isYarn} from '../util';
 const cwd = process.cwd();
 
@@ -69,7 +68,7 @@ const WORKER_BASE_STATE = {done: false, error: null, output: ''};
 
 export function paint(
   bus: EventEmitter,
-  registeredWorkers: BuildScript[],
+  scripts: string[],
   buildMode: {dest: string} | undefined,
   devMode:
     | {
@@ -88,8 +87,14 @@ export function paint(
   let missingWebModule: null | {id: string; spec: string; pkgName: string} = null;
   const allWorkerStates: any = {};
 
-  for (const config of registeredWorkers) {
-    allWorkerStates[config.id] = {...WORKER_BASE_STATE, config};
+  for (const script of scripts) {
+    allWorkerStates[script] = {...WORKER_BASE_STATE};
+  }
+
+  function setupWorker(id: string) {
+    if (!allWorkerStates[id]) {
+      allWorkerStates[id] = {...WORKER_BASE_STATE};
+    }
   }
 
   function repaint() {
@@ -121,21 +126,18 @@ export function paint(
       process.stdout.write(colors.dim(` Building your application...\n\n`));
     }
 
-    for (const config of registeredWorkers) {
-      if (devMode && config.type === 'bundle') {
+    for (const script of scripts) {
+      if (devMode && script.startsWith('bundle')) {
         continue;
       }
-      const workerState = allWorkerStates[config.id];
-      const dotLength = 24 - config.id.length;
+      const workerState = allWorkerStates[script];
+      const dotLength = 24 - script.length;
       const dots = colors.dim(''.padEnd(dotLength, '.'));
       const [fmt, stateString] = getStateString(workerState, !!devMode);
       const spacer = ' '; //.padEnd(8 - stateString.length);
-      let cmdMsg = `${config.plugin && config.cmd[0] !== '(' ? '(plugin) ' : ''}${config.cmd}`;
-      if (cmdMsg.length > 52) {
-        cmdMsg = cmdMsg.substr(0, 52) + '...';
-      }
+      let cmdMsg = script;
       const cmdStr = stateString === 'FAIL' ? colors.red(cmdMsg) : colors.dim(cmdMsg);
-      process.stdout.write(`  ${config.id}${dots}[${fmt(stateString)}]${spacer}${cmdStr}\n`);
+      process.stdout.write(`  ${script}${dots}[${fmt(stateString)}]${spacer}${cmdStr}\n`);
     }
     process.stdout.write('\n');
     if (isInstalling) {
@@ -166,11 +168,11 @@ export function paint(
       }
       return;
     }
-    for (const config of registeredWorkers) {
-      const workerState = allWorkerStates[config.id];
+    for (const script of scripts) {
+      const workerState = allWorkerStates[script];
       if (workerState && workerState.output) {
         const colorsFn = Array.isArray(workerState.error) ? colors.red : colors.reset;
-        process.stdout.write(`${colorsFn(colors.underline(colors.bold('▼ ' + config.id)))}\n\n`);
+        process.stdout.write(`${colorsFn(colors.underline(colors.bold('▼ ' + script)))}\n\n`);
         process.stdout.write(
           workerState.output
             ? '  ' + workerState.output.trim().replace(/\n/gm, '\n  ')
@@ -213,22 +215,26 @@ export function paint(
   }
 
   bus.on('WORKER_MSG', ({id, msg}) => {
+    setupWorker(id);
     allWorkerStates[id].output += msg;
     repaint();
   });
   bus.on('WORKER_UPDATE', ({id, state}) => {
     if (typeof state !== undefined) {
+      setupWorker(id);
       allWorkerStates[id].state = state;
     }
     repaint();
   });
   bus.on('WORKER_COMPLETE', ({id, error}) => {
+    setupWorker(id);
     allWorkerStates[id].state = null;
     allWorkerStates[id].done = true;
     allWorkerStates[id].error = allWorkerStates[id].error || error;
     repaint();
   });
   bus.on('WORKER_RESET', ({id}) => {
+    setupWorker(id);
     allWorkerStates[id] = {...WORKER_BASE_STATE, config: allWorkerStates[id].config};
     repaint();
   });
@@ -249,11 +255,12 @@ export function paint(
       hasBeenCleared = true;
     }
     // Reset all per-file build scripts
-    for (const config of registeredWorkers) {
-      if (config.type === 'build') {
-        allWorkerStates[config.id] = {
+    for (const script of scripts) {
+      if (script.startsWith('build')) {
+        setupWorker(script);
+        allWorkerStates[script] = {
           ...WORKER_BASE_STATE,
-          config: allWorkerStates[config.id].config,
+          config: allWorkerStates[script].config,
         };
       }
     }

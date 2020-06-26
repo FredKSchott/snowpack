@@ -8,22 +8,20 @@ import mkdirp from 'mkdirp';
 import npmRunPath from 'npm-run-path';
 import path from 'path';
 import rimraf from 'rimraf';
-import {BuildScript, SnowpackBuildMap} from '../config';
+import {SnowpackBuildMap} from '../config';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
-import {CommandOptions, getExt} from '../util';
+import {CommandOptions} from '../util';
 import {
+  buildFile,
   generateEnvModule,
-  getFileBuilderForWorker,
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
-  wrapImportMeta,
 } from './build-util';
 import {stopEsbuild} from './esbuildPlugin';
 import {createImportResolver} from './import-resolver';
 import {getInstallTargets, run as installRunner} from './install';
 import {paint} from './paint';
-import srcFileExtensionMapping from './src-file-extension-mapping';
 
 async function installOptimizedDependencies(
   allFilesToResolveImports: SnowpackBuildMap,
@@ -59,49 +57,13 @@ async function installOptimizedDependencies(
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
   const messageBus = new EventEmitter();
-  const relevantWorkers: BuildScript[] = [];
-  const allBuildExtensions: string[] = [];
 
-  for (const workerConfig of config.scripts) {
-    const {id, type, match} = workerConfig;
-    // web_modules dependencies are now installed directly into the build directory,
-    // instead of being copied like a traditional mount. This is required until we
-    // move the "web_modules" destination configuration out of the "scripts" config.
-    if (id === 'mount:web_modules') {
-      continue;
-    }
-    if (type === 'build' || type === 'run' || type === 'mount' || type === 'bundle') {
-      relevantWorkers.push(workerConfig);
-    }
-    if (type === 'build') {
-      allBuildExtensions.push(...match);
-    }
-  }
-
-  let bundleWorker = config.scripts.find((s) => s.type === 'bundle');
-  let installWorker = config.scripts.find((s) => s.id === 'mount:web_modules')!;
   const isBundledHardcoded = config.devOptions.bundle !== undefined;
-  const isBundled = isBundledHardcoded ? !!config.devOptions.bundle : !!bundleWorker;
-  if (!bundleWorker) {
-    bundleWorker = {
-      id: 'bundle:*',
-      type: 'bundle',
-      match: ['*'],
-      cmd: '',
-      watch: undefined,
-    };
-    relevantWorkers.push(bundleWorker);
-  }
+  const isBundled = isBundledHardcoded ? !!config.devOptions.bundle : !!config.__bundler;
 
   const buildDirectoryLoc = isBundled ? path.join(cwd, `.build`) : config.devOptions.out;
   const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaDir);
   const finalDirectoryLoc = config.devOptions.out;
-
-  if (config.scripts.length <= 1) {
-    console.error(colors.red(`No build scripts found, so nothing to build.`));
-    console.error(`See https://www.snowpack.dev/#build-scripts for help getting started.`);
-    return;
-  }
 
   rimraf.sync(buildDirectoryLoc);
   mkdirp.sync(buildDirectoryLoc);
@@ -124,22 +86,16 @@ export async function command(commandOptions: CommandOptions) {
   if (!relDest.startsWith(`..${path.sep}`)) {
     relDest = `.${path.sep}` + relDest;
   }
-  paint(messageBus, relevantWorkers, {dest: relDest}, undefined);
+  paint(messageBus, Object.keys(config.scripts), {dest: relDest}, undefined);
 
   if (!isBundled) {
-    messageBus.emit('WORKER_UPDATE', {
-      id: bundleWorker.id,
-      state: ['SKIP', 'dim'],
-    });
+    messageBus.emit('WORKER_UPDATE', {id: 'bundle*', state: ['SKIP', 'dim']});
   }
 
-  for (const workerConfig of relevantWorkers) {
-    const {id, type} = workerConfig;
-    if (type !== 'run') {
-      continue;
-    }
+  // 1. run scripts
+  for (const {id, cmd} of config.__runCommands) {
     messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-    const workerPromise = execa.command(workerConfig.cmd, {
+    const workerPromise = execa.command(cmd, {
       env: npmRunPath.env(),
       extendEnv: true,
       shell: true,
@@ -179,154 +135,71 @@ export async function command(commandOptions: CommandOptions) {
     await workerPromise;
   }
 
-  // Write the `import.meta.env` contents file to disk
+  // 2. Write the `import.meta.env` contents file to disk
   await fs.writeFile(path.join(internalFilesBuildLoc, 'env.js'), generateEnvModule('production'));
 
-  const mountDirDetails: any[] = relevantWorkers
-    .map((scriptConfig) => {
-      const {id, type, args} = scriptConfig;
-      if (id === 'mount:web_modules') {
-        return false;
-      }
-      if (type !== 'mount') {
-        return false;
-      }
-      const dirDisk = path.resolve(cwd, args.fromDisk);
-      const dirDest = path.resolve(buildDirectoryLoc, args.toUrl.replace(/^\//, ''));
-      return [id, dirDisk, dirDest];
-    })
-    .filter(Boolean);
+  // 3. identify files to be built
+  const simpleOutputMap: {[src: string]: string} = {}; // input -> output mapping
+  for (const [fromDisk, toUrl] of Object.entries(config.__mountedDirs)) {
+    const src = path.resolve(cwd, fromDisk);
+    const dest = path.resolve(buildDirectoryLoc, toUrl.replace(/^\//, ''));
 
-  const includeFileSets: [string, string, string[]][] = [];
-  for (const [id, dirDisk, dirDest] of mountDirDetails) {
+    const id = `mount:${fromDisk}`;
     messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
     let allFiles;
     try {
       allFiles = glob.sync(`**/*`, {
         ignore: config.exclude,
-        cwd: dirDisk,
+        cwd: src,
         absolute: true,
         nodir: true,
         dot: true,
       });
-      const allBuildNeededFiles: string[] = [];
-      await Promise.all(
-        allFiles.map(async (f) => {
-          f = path.resolve(f); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
-          const {baseExt} = getExt(f);
-          if (
-            allBuildExtensions.includes(baseExt) ||
-            baseExt === '.jsx' ||
-            baseExt === '.tsx' ||
-            baseExt === '.ts' ||
-            baseExt === '.js'
-          ) {
-            allBuildNeededFiles.push(f);
-            return;
-          }
-          const outPath = f.replace(dirDisk, dirDest);
-          mkdirp.sync(path.dirname(outPath));
-
-          // replace %PUBLIC_URL% in HTML files
-          if (baseExt === '.html') {
-            let code = await fs.readFile(f, 'utf8');
-            code = code.replace(/%PUBLIC_URL%\/?/g, config.buildOptions.baseUrl);
-            return fs.writeFile(outPath, code, 'utf8');
-          }
-          return fs.copyFile(f, outPath);
-        }),
-      );
-      includeFileSets.push([dirDisk, dirDest, allBuildNeededFiles]);
-      messageBus.emit('WORKER_COMPLETE', {id});
+      allFiles.forEach((f) => {
+        simpleOutputMap[f] = f.replace(src, dest);
+      });
     } catch (err) {
       messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.toString()});
       messageBus.emit('WORKER_COMPLETE', {id, error: err});
     }
   }
 
-  const allBuiltFromFiles = new Set<string>();
-  const allFilesToResolveImports: SnowpackBuildMap = {};
-  for (const workerConfig of relevantWorkers) {
-    const {id, match, type} = workerConfig;
-    if (type !== 'build' || match.length === 0) {
-      continue;
-    }
+  // 4. transform files with plugins, and write to disk
+  const jsFilesToScan: SnowpackBuildMap = {};
+  messageBus.emit('WORKER_UPDATE', {id: 'build', state: ['RUNNING', 'yellow']});
 
-    messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-    for (const [dirDisk, dirDest, allFiles] of includeFileSets) {
-      for (const locOnDisk of allFiles) {
-        const inputExt = getExt(locOnDisk);
-        if (!match.includes(inputExt.baseExt) && !match.includes(inputExt.expandedExt)) {
-          continue;
-        }
-        const fileContents = await fs.readFile(locOnDisk, {encoding: 'utf8'});
-        let fileBuilder = getFileBuilderForWorker(cwd, workerConfig, messageBus);
-        if (!fileBuilder) {
-          continue;
-        }
-        let outLoc = locOnDisk.replace(dirDisk, dirDest);
-        const extToReplace = srcFileExtensionMapping[inputExt.baseExt];
-        if (extToReplace) {
-          outLoc = outLoc.replace(new RegExp(`\\${inputExt.baseExt}$`), extToReplace!);
+  for (const [src, dest] of Object.entries(simpleOutputMap)) {
+    // where all the magic happens
+    const output = await buildFile(src, dest, {config, messageBus});
+
+    // TODO: move this CSS handling into Svelte/Vue plugins
+    const hasCSSOutput =
+      Object.keys(output).findIndex((filePath) => filePath.endsWith('.css')) !== -1;
+
+    for (const [outputPath, file] of Object.entries(output)) {
+      if (file.baseExt === '.js') {
+        // TODO: move Svelte/Vue CSS handling into official plugins
+        if (hasCSSOutput) {
+          file.code = file.code = `import './${path.basename(outputPath)}';\n` + file.code;
         }
 
-        const builtFile = await fileBuilder({
-          contents: fileContents,
-          filePath: locOnDisk,
-          isDev: false,
-        });
-        if (!builtFile) {
-          continue;
-        }
-        let {result: code, resources} = builtFile;
-        const urlPath = outLoc.substr(dirDest.length + 1);
-        for (const plugin of config.plugins) {
-          if (plugin.transform) {
-            code =
-              (await plugin.transform({contents: fileContents, urlPath, isDev: false}))?.result ||
-              code;
-          }
-        }
-        if (!code) {
-          continue;
-        }
-
-        allBuiltFromFiles.add(locOnDisk);
-
-        const {baseExt, expandedExt} = getExt(outLoc);
-        switch (baseExt) {
-          case '.js': {
-            if (resources?.css) {
-              const cssOutPath = outLoc.replace(/.js$/, '.css');
-              await fs.mkdir(path.dirname(cssOutPath), {recursive: true});
-              await fs.writeFile(cssOutPath, resources.css);
-              code = `import './${path.basename(cssOutPath)}';\n` + code;
-            }
-            code = wrapImportMeta({code, env: true, hmr: false, config});
-            allFilesToResolveImports[outLoc] = {baseExt, expandedExt, code, locOnDisk};
-            break;
-          }
-          case '.html': {
-            allFilesToResolveImports[outLoc] = {baseExt, expandedExt, code, locOnDisk};
-            break;
-          }
-          default: {
-            await fs.mkdir(path.dirname(outLoc), {recursive: true});
-            await fs.writeFile(outLoc, code);
-            break;
-          }
-        }
+        jsFilesToScan[outputPath] = file; // add JS files to import scanner
       }
+
+      // write to disk
+      await fs.mkdir(path.dirname(outputPath), {recursive: true});
+      await fs.writeFile(outputPath, file.code);
     }
-    messageBus.emit('WORKER_COMPLETE', {id, error: null});
   }
+
+  messageBus.emit('WORKER_COMPLETE', {id: 'build', error: null});
 
   stopEsbuild();
 
-  const webModulesPath = installWorker.args.toUrl;
+  const webModulesPath = config.__webModulesDir;
   const installDest = path.join(buildDirectoryLoc, webModulesPath);
   const installResult = await installOptimizedDependencies(
-    allFilesToResolveImports,
+    jsFilesToScan,
     installDest,
     commandOptions,
   );
@@ -335,7 +208,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const allProxiedFiles = new Set<string>();
-  for (const [outLoc, file] of Object.entries(allFilesToResolveImports)) {
+  for (const [outLoc, file] of Object.entries(jsFilesToScan)) {
     const resolveImportSpecifier = createImportResolver({
       fileLoc: file.locOnDisk!, // we’re confident these are reading from disk because we just read them
       webModulesPath,
@@ -387,14 +260,14 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   if (!isBundled) {
-    messageBus.emit('WORKER_COMPLETE', {id: bundleWorker.id, error: null});
+    messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
     messageBus.emit('WORKER_UPDATE', {
-      id: bundleWorker.id,
+      id: 'bundle:*',
       state: ['SKIP', isBundledHardcoded ? 'dim' : 'yellow'],
     });
     if (!isBundledHardcoded) {
       messageBus.emit('WORKER_MSG', {
-        id: bundleWorker.id,
+        id: 'bundle:*',
         level: 'log',
         msg:
           `"plugins": ["@snowpack/plugin-webpack"]\n\n` +
@@ -404,23 +277,19 @@ export async function command(commandOptions: CommandOptions) {
     }
   } else {
     try {
-      messageBus.emit('WORKER_UPDATE', {id: bundleWorker.id, state: ['RUNNING', 'yellow']});
-      await bundleWorker?.plugin!.bundle!({
+      messageBus.emit('WORKER_UPDATE', {id: 'bundle:*', state: ['RUNNING', 'yellow']});
+      await config.__bundler!.bundle!({
         srcDirectory: buildDirectoryLoc,
         destDirectory: finalDirectoryLoc,
-        jsFilePaths: allBuiltFromFiles,
+        jsFilePaths: jsFilesToScan,
         log: (msg) => {
-          messageBus.emit('WORKER_MSG', {id: bundleWorker!.id, level: 'log', msg});
+          messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'log', msg});
         },
       });
-      messageBus.emit('WORKER_COMPLETE', {id: bundleWorker.id, error: null});
+      messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: null});
     } catch (err) {
-      messageBus.emit('WORKER_MSG', {
-        id: bundleWorker.id,
-        level: 'error',
-        msg: err.toString(),
-      });
-      messageBus.emit('WORKER_COMPLETE', {id: bundleWorker.id, error: err});
+      messageBus.emit('WORKER_MSG', {id: 'bundle:*', level: 'error', msg: err.toString()});
+      messageBus.emit('WORKER_COMPLETE', {id: 'bundle:*', error: err});
     }
   }
 

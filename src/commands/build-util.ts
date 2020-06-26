@@ -1,17 +1,131 @@
+import {promises as fs} from 'fs';
 import type CSSModuleLoader from 'css-modules-loader-core';
-import type {EventEmitter} from 'events';
 import execa from 'execa';
+import {EventEmitter} from 'events';
 import npmRunPath from 'npm-run-path';
-import {
-  BuildScript,
-  SnowpackConfig,
-  SnowpackPluginBuildArgs,
-  SnowpackPluginBuildResult,
-} from '../config';
+import {BuildResult, SnowpackConfig, SnowpackSourceFile, SnowpackBuildMap} from '../config';
+import {getExt, replaceExt} from '../util';
 
 const IS_PREACT = /from\s+['"]preact['"]/;
 export function checkIsPreact(filePath: string, contents: string) {
   return filePath.endsWith('.jsx') && IS_PREACT.test(contents);
+}
+
+interface BuildFileOptions {
+  config: SnowpackConfig;
+  dest?: string;
+  messageBus?: EventEmitter;
+}
+
+/** Core Snowpack file pipeline builder */
+export async function buildFile(
+  srcPath: string,
+  destPath = srcPath,
+  options: BuildFileOptions,
+): Promise<SnowpackBuildMap> {
+  const {config, messageBus} = options;
+  const srcExt = getExt(srcPath);
+  const output: SnowpackBuildMap = {}; // important: clear output for each src file to keep memory low
+  output[destPath] = {...srcExt, code: await fs.readFile(srcPath, 'utf8'), locOnDisk: srcPath}; // this is the object we’ll mutate through transformations
+
+  // 1. transform with build CLI commands
+  const buildCmd =
+    config.__buildCommands[srcExt.expandedExt] || config.__buildCommands[srcExt.baseExt];
+  if (buildCmd) {
+    const {id, cmd} = buildCmd;
+    let cmdWithFile = cmd.replace('$FILE', srcPath);
+    try {
+      const {stdout, stderr} = await execa.command(cmdWithFile, {
+        env: npmRunPath.env(),
+        extendEnv: true,
+        shell: true,
+        input: output[destPath].code,
+        cwd: process.cwd(),
+      });
+      if (stderr && messageBus) {
+        messageBus.emit('WORKER_MSG', {id, level: 'warn', msg: `${srcPath}\n${stderr}`});
+      }
+      output[destPath].code = stdout;
+    } catch (err) {
+      if (messageBus) {
+        messageBus.emit('WORKER_MSG', {id, level: 'error', msg: `${srcPath}\n${err.stderr}`});
+        messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
+      }
+    }
+  }
+
+  // 2. transform with Snowpack plugins (main build pipeline)
+  for (const step of config.__buildPipeline[srcExt.expandedExt || srcExt.baseExt] || []) {
+    // TODO: remove transform() from plugin API when no longer used
+    if (step.transform) {
+      const urlPath = destPath.substr(destPath.length + 1);
+      const {result} = await step.transform({
+        contents: output[destPath].code,
+        urlPath,
+        isDev: false,
+      });
+      output[destPath].code = result;
+    }
+
+    if (step.build) {
+      let result: BuildResult;
+      try {
+        result = await step.build({
+          code: output[destPath].code,
+          contents: output[destPath].code,
+          filePath: srcPath,
+          isDev: false,
+        });
+      } catch (err) {
+        if (messageBus) {
+          messageBus.emit('WORKER_MSG', {id: step.name, level: 'error', msg: err.message});
+          messageBus.emit('WORKER_UPDATE', {id: step.name, state: ['ERROR', 'red']});
+        }
+        process.exit(1);
+      }
+
+      if (typeof result === 'string') {
+        // Path A: single-output (assume extension is same)
+        output[destPath].code = result;
+      } else if (typeof result === 'object' && !result.result) {
+        // Path B: multi-file output ({ js: [string], css: [string], … })
+        Object.entries(result as {[ext: string]: string}).forEach(([ext, code]) => {
+          const newDest = replaceExt(destPath, ext);
+          output[newDest] = {baseExt: ext, expandedExt: ext, code, locOnDisk: srcPath};
+        });
+      } else if (typeof result === 'object' && result.result) {
+        // Path C: DEPRECATED output ({ result, resources })
+        output[destPath].code = result.result;
+
+        // handle CSS output for Svelte/Vue
+        if (typeof result.resources === 'object' && result.resources.css) {
+          const cssFile = replaceExt(destPath, '.css');
+          output[cssFile] = {
+            baseExt: '.css',
+            expandedExt: '.css',
+            code: result.resources.css,
+            locOnDisk: srcPath,
+          };
+        }
+      }
+
+      // filter out unused extensions (i.e. don’t emit source files to build)
+      const outputs = Array.isArray(step.output) ? step.output : [step.output];
+      Object.keys(output).forEach((key) => {
+        const {baseExt} = getExt(key);
+        if (!outputs.includes(baseExt)) {
+          delete output[key];
+        }
+      });
+    }
+  }
+
+  // 3. final transformations (proxies, shims, etc.)
+  for (let [outputPath, file] of Object.entries(output)) {
+    output[outputPath] = snowpackTransformations(file, config);
+  }
+
+  return output;
 }
 
 export function wrapImportMeta({
@@ -154,53 +268,6 @@ document.head.appendChild(styleEl);`;
   return `export default ${JSON.stringify(url)};`;
 }
 
-export type FileBuilder = (
-  args: SnowpackPluginBuildArgs,
-) => null | SnowpackPluginBuildResult | Promise<null | SnowpackPluginBuildResult>;
-export function getFileBuilderForWorker(
-  cwd: string,
-  selectedWorker: BuildScript,
-  messageBus: EventEmitter,
-): FileBuilder | undefined {
-  const {id, type, cmd, plugin} = selectedWorker;
-  if (type !== 'build') {
-    throw new Error(`scripts[${id}] is not a build script.`);
-  }
-  if (plugin?.build) {
-    const buildFn = plugin.build;
-    return async (args: SnowpackPluginBuildArgs) => {
-      try {
-        const result = await buildFn(args);
-        return result;
-      } catch (err) {
-        messageBus.emit('WORKER_MSG', {id, level: 'error', msg: err.message});
-        messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
-        return null;
-      }
-    };
-  }
-  return async ({contents, filePath}: SnowpackPluginBuildArgs) => {
-    let cmdWithFile = cmd.replace('$FILE', filePath);
-    try {
-      const {stdout, stderr} = await execa.command(cmdWithFile, {
-        env: npmRunPath.env(),
-        extendEnv: true,
-        shell: true,
-        input: contents,
-        cwd,
-      });
-      if (stderr) {
-        messageBus.emit('WORKER_MSG', {id, level: 'warn', msg: `${filePath}\n${stderr}`});
-      }
-      return {result: stdout};
-    } catch (err) {
-      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: `${filePath}\n${err.stderr}`});
-      messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
-      return null;
-    }
-  };
-}
-
 const PUBLIC_ENV_REGEX = /^SNOWPACK_PUBLIC_/;
 export function generateEnvModule(mode: 'development' | 'production') {
   const envObject = {...process.env};
@@ -212,4 +279,25 @@ export function generateEnvModule(mode: 'development' | 'production') {
   envObject.MODE = mode;
   envObject.NODE_ENV = mode;
   return `export default ${JSON.stringify(envObject)};`;
+}
+
+/** Snowpack-specific file transformations */
+export function snowpackTransformations(
+  input: SnowpackSourceFile,
+  config: SnowpackConfig,
+): SnowpackSourceFile {
+  switch (input.baseExt) {
+    case '.js': {
+      input.code = wrapImportMeta({code: input.code, env: true, hmr: false, config});
+      return input;
+    }
+    case '.html': {
+      // replace %PUBLIC_URL% with baseUrl
+      input.code = input.code.replace(/%PUBLIC_URL%\/?/g, config.buildOptions.baseUrl);
+      return input;
+    }
+    default: {
+      return input;
+    }
+  }
 }

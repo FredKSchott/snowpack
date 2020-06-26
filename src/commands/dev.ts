@@ -44,13 +44,8 @@ import onProcessExit from 'signal-exit';
 import stream from 'stream';
 import url from 'url';
 import zlib from 'zlib';
-import {BuildScript, SnowpackPluginBuildResult} from '../config';
+import {SnowpackBuildMap} from '../config';
 import {EsmHmrEngine} from '../hmr-server-engine';
-import {
-  scanCodeImportsExports,
-  transformFileImports,
-  transformEsmImports,
-} from '../rewrite-imports';
 import {
   BUILD_CACHE,
   checkLockfileHash,
@@ -64,19 +59,10 @@ import {
   getExt,
   parsePackageImportSpecifier,
 } from '../util';
-import {
-  FileBuilder,
-  generateEnvModule,
-  getFileBuilderForWorker,
-  wrapCssModuleResponse,
-  wrapEsmProxyResponse,
-  wrapHtmlResponse,
-  wrapImportMeta,
-} from './build-util';
-import {createImportResolver} from './import-resolver';
+import {generateEnvModule, buildFile} from './build-util';
 import {command as installCommand} from './install';
+import {fileToURLs, urlToFile} from './import-resolver';
 import {getPort, paint} from './paint';
-import srcFileExtensionMapping from './src-file-extension-mapping';
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
 const DEFAULT_PROXY_ERROR_HANDLER = (
@@ -95,11 +81,8 @@ function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
 }
 
 function getEncodingType(ext: string): 'utf-8' | 'binary' {
-  if (ext === '.js' || ext === '.css' || ext === '.html' || ext === '.json') {
-    return 'utf-8';
-  } else {
-    return 'binary';
-  }
+  const UTF8_FORMATS = ['.css', '.html', '.js', '.json', '.svg', '.txt', '.xml'];
+  return UTF8_FORMATS.includes(ext) ? 'utf-8' : 'binary';
 }
 
 const sendFile = (
@@ -161,30 +144,11 @@ const sendError = (res, status) => {
   res.end();
 };
 
-function getUrlFromFile(mountedDirectories: [string, string][], fileLoc: string): string | null {
-  for (const [dirDisk, dirUrl] of mountedDirectories) {
-    if (fileLoc.startsWith(dirDisk + path.sep)) {
-      const {baseExt} = getExt(fileLoc);
-      const resolvedDirUrl = dirUrl === '/' ? '' : dirUrl;
-      return fileLoc
-        .replace(dirDisk, resolvedDirUrl)
-        .replace(/[/\\]+/g, '/')
-        .replace(new RegExp(`\\${baseExt}$`), srcFileExtensionMapping[baseExt] || baseExt);
-    }
-  }
-  return null;
-}
-
-function getMountedDirectory(cwd: string, workerConfig: BuildScript): [string, string] {
-  const {args} = workerConfig;
-  return [path.resolve(cwd, args.fromDisk), args.toUrl];
-}
-
 let currentlyRunningCommand: any = null;
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
-  const {port: defaultPort, open, hmr: isHmr} = config.devOptions;
+  const {port: defaultPort, open} = config.devOptions;
   let serverStart = Date.now();
   const port = await getPort(defaultPort);
   // Reset the clock if we had to wait for the user to select a new port.
@@ -195,9 +159,7 @@ export async function command(commandOptions: CommandOptions) {
   const inMemoryBuildCache = new Map<string, Buffer>();
   const inMemoryResourceCache = new Map<string, string>();
   const filesBeingDeleted = new Set<string>();
-  const filesBeingBuilt = new Map<string, Promise<SnowpackPluginBuildResult>>();
   const messageBus = new EventEmitter();
-  const mountedDirectories: [string, string][] = [];
 
   console.log = (...args) => {
     messageBus.emit('CONSOLE', {level: 'log', args});
@@ -212,7 +174,7 @@ export async function command(commandOptions: CommandOptions) {
   // Start painting immediately, so we can surface errors & warnings to the
   // user, and they can watch the server starting up. Search for ”SERVER_START”
   // for the actual start event below.
-  paint(messageBus, config.scripts, undefined, {
+  paint(messageBus, Object.keys(config.scripts), undefined, {
     addPackage: async (pkgName: string) => {
       isLiveReloadPaused = true;
       messageBus.emit('INSTALLING');
@@ -296,158 +258,6 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
-  async function buildFile(
-    fileContents: string,
-    fileLoc: string,
-    reqPath: string,
-    fileBuilder: FileBuilder | undefined,
-  ): Promise<SnowpackPluginBuildResult> {
-    let builtFileResult: SnowpackPluginBuildResult;
-    let fileBuilderPromise = filesBeingBuilt.get(fileLoc);
-    if (fileBuilderPromise) {
-      builtFileResult = await fileBuilderPromise;
-    } else {
-      fileBuilderPromise = (async () => {
-        let _builtFileResult: SnowpackPluginBuildResult = {result: fileContents};
-        if (fileBuilder) {
-          _builtFileResult =
-            (await fileBuilder({
-              contents: fileContents,
-              filePath: fileLoc,
-              isDev: true,
-            })) || _builtFileResult;
-        }
-        for (const plugin of config.plugins) {
-          if (plugin.transform) {
-            _builtFileResult.result =
-              (
-                await plugin.transform({
-                  contents: _builtFileResult.result,
-                  urlPath: reqPath,
-                  isDev: true,
-                })
-              )?.result || _builtFileResult.result;
-          }
-        }
-        return _builtFileResult;
-      })();
-      try {
-        filesBeingBuilt.set(fileLoc, fileBuilderPromise);
-        builtFileResult = await fileBuilderPromise;
-      } finally {
-        filesBeingBuilt.delete(fileLoc);
-      }
-    }
-    const {baseExt, expandedExt} = getExt(fileLoc);
-    if (
-      baseExt === '.js' ||
-      srcFileExtensionMapping[baseExt] === '.js' ||
-      baseExt === '.html' ||
-      srcFileExtensionMapping[baseExt] === '.html'
-    ) {
-      let missingWebModule: {spec: string; pkgName: string} | null = null;
-      const webModulesScript = config.scripts.find((script) => script.id === 'mount:web_modules');
-      const webModulesPath = webModulesScript ? webModulesScript.args.toUrl : '/web_modules';
-      const resolveImportSpecifier = createImportResolver({
-        fileLoc,
-        webModulesPath,
-        dependencyImportMap,
-        isDev: true,
-        isBundled: false,
-        config,
-      });
-      builtFileResult.result = await transformFileImports(
-        {
-          locOnDisk: fileLoc,
-          code: builtFileResult.result,
-          baseExt: srcFileExtensionMapping[baseExt] || baseExt,
-          expandedExt,
-        },
-        (spec) => {
-          // Try to resolve the specifier to a known URL in the project
-          const resolvedImportUrl = resolveImportSpecifier(spec);
-          if (resolvedImportUrl) {
-            return resolvedImportUrl;
-          }
-          // If that fails, return a placeholder import and attempt to resolve.
-          const [packageName] = parsePackageImportSpecifier(spec);
-          const [depManifestLoc] = resolveDependencyManifest(packageName, cwd);
-          const doesPackageExist = !!depManifestLoc;
-          if (doesPackageExist) {
-            reinstallDependencies();
-          } else {
-            missingWebModule = {
-              spec: spec,
-              pkgName: packageName,
-            };
-          }
-          // Return a placeholder while Snowpack goes out and tries to re-install (or warn)
-          // on the missing package.
-          return spec;
-        },
-      );
-      messageBus.emit('MISSING_WEB_MODULE', {
-        id: fileLoc,
-        data: missingWebModule,
-      });
-    }
-
-    return builtFileResult;
-  }
-
-  function runLintAll(workerConfig: BuildScript) {
-    let {id, cmd, watch: watchCmd} = workerConfig;
-    const workerPromise = execa.command(watchCmd || cmd, {
-      env: npmRunPath.env(),
-      extendEnv: true,
-      shell: true,
-      cwd,
-    });
-    const {stdout, stderr} = workerPromise;
-    stdout?.on('data', (b) => {
-      let stdOutput = b.toString();
-      if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
-        messageBus.emit('WORKER_RESET', {id});
-        stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
-      }
-      if (id.endsWith(':tsc')) {
-        if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
-          messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-        }
-        if (/Watching for file changes./gm.test(stdOutput)) {
-          messageBus.emit('WORKER_UPDATE', {id, state: 'WATCH'});
-        }
-        const errorMatch = stdOutput.match(/Found (\d+) error/);
-        if (errorMatch && errorMatch[1] !== '0') {
-          messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
-        }
-      }
-      messageBus.emit('WORKER_MSG', {id, level: 'log', msg: stdOutput});
-    });
-    stderr?.on('data', (b) => {
-      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
-    });
-    workerPromise.catch((err) => {
-      messageBus.emit('WORKER_COMPLETE', {id, error: err});
-    });
-    workerPromise.then(() => {
-      messageBus.emit('WORKER_COMPLETE', {id, error: null});
-    });
-  }
-
-  for (const workerConfig of config.scripts) {
-    if (workerConfig.type === 'run') {
-      runLintAll(workerConfig);
-    }
-    if (workerConfig.type === 'mount') {
-      mountedDirectories.push(getMountedDirectory(cwd, workerConfig));
-      setTimeout(
-        () => messageBus.emit('WORKER_UPDATE', {id: workerConfig.id, state: ['DONE', 'green']}),
-        400,
-      );
-    }
-  }
-
   const devProxies = {};
   config.proxy.forEach(([pathPrefix, proxyOptions]) => {
     const proxyServer = (devProxies[pathPrefix] = HttpProxy.createProxyServer(proxyOptions));
@@ -504,18 +314,7 @@ export async function command(commandOptions: CommandOptions) {
 
   async function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
     const reqUrl = req.url!;
-    const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
-    let reqPath = decodeURI(url.parse(reqUrl).pathname!);
-    const originalReqPath = reqPath;
-    let isProxyModule = false;
-    let isCssModule = false;
-    if (reqPath.endsWith('.proxy.js')) {
-      isProxyModule = true;
-      reqPath = reqPath.replace('.proxy.js', '');
-    }
-    if (reqPath.endsWith('.module.css')) {
-      isCssModule = true;
-    }
+    const reqPath = decodeURI(url.parse(reqUrl).pathname!);
 
     // const requestStart = Date.now();
     res.on('finish', () => {
@@ -531,6 +330,7 @@ export async function command(commandOptions: CommandOptions) {
       }
     });
 
+    // 1. handle internal URLs
     if (reqPath === `/${config.buildOptions.metaDir}/hmr.js`) {
       sendFile(req, res, HMR_DEV_CODE, '.js');
       return;
@@ -540,301 +340,75 @@ export async function command(commandOptions: CommandOptions) {
       return;
     }
 
-    for (const [pathPrefix] of config.proxy) {
-      if (!shouldProxy(pathPrefix, req)) {
-        continue;
-      }
-      devProxies[pathPrefix].web(req, res);
-      return;
-    }
-
-    const attemptedFileLoads: string[] = [];
-    function attemptLoadFile(requestedFile): Promise<null | string> {
-      if (attemptedFileLoads.includes(requestedFile)) {
-        return Promise.resolve(null);
-      }
-      attemptedFileLoads.push(requestedFile);
-      return fs
-        .stat(requestedFile)
-        .then((stat) => (stat.isFile() ? requestedFile : null))
-        .catch(() => null /* ignore */);
-    }
-
-    let requestedFileExt = path.parse(reqPath).ext.toLowerCase();
-    let responseFileExt = requestedFileExt;
-    let fileBuilder: FileBuilder | undefined;
-    let isRoute = !requestedFileExt;
-
-    // Now that we've set isRoute properly, give `requestedFileExt` a fallback
-    requestedFileExt = requestedFileExt || '.html';
-
-    async function getFileFromUrl(reqPath: string): Promise<[string | null, BuildScript | null]> {
-      for (const [dirDisk, dirUrl] of mountedDirectories) {
-        let requestedFile: string;
-        if (dirUrl === '/') {
-          requestedFile = path.join(dirDisk, reqPath);
-        } else if (reqPath.startsWith(dirUrl)) {
-          requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, './'));
-        } else {
-          continue;
-        }
-        if (requestedFile.startsWith(commandOptions.config.installOptions.dest)) {
-          const fileLoc = await attemptLoadFile(requestedFile);
-          if (fileLoc) {
-            return [fileLoc, null];
-          }
-        }
-        if (isRoute) {
-          let fileLoc =
-            (await attemptLoadFile(requestedFile + '.html')) ||
-            (await attemptLoadFile(requestedFile + 'index.html')) ||
-            (await attemptLoadFile(requestedFile + '/index.html'));
-
-          if (!fileLoc && dirUrl === '/' && config.devOptions.fallback) {
-            const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
-            fileLoc = await attemptLoadFile(fallbackFile);
-          }
-          if (fileLoc) {
-            responseFileExt = '.html';
-            return [fileLoc, null];
-          }
-        } else {
-          for (const workerConfig of config.scripts) {
-            const {type, match} = workerConfig;
-            if (type !== 'build') {
-              continue;
-            }
-            for (const extMatcher of match) {
-              if (
-                extMatcher === requestedFileExt ||
-                srcFileExtensionMapping[extMatcher] === requestedFileExt
-              ) {
-                const srcFile = requestedFile.replace(requestedFileExt, extMatcher);
-                const fileLoc = await attemptLoadFile(srcFile);
-                if (fileLoc) {
-                  return [fileLoc, workerConfig];
-                }
-              }
-            }
-          }
-          const fileLoc =
-            (await attemptLoadFile(requestedFile)) ||
-            (await attemptLoadFile(requestedFile.replace(/\.js$/, '.jsx'))) ||
-            (await attemptLoadFile(requestedFile.replace(/\.js$/, '.ts'))) ||
-            (await attemptLoadFile(requestedFile.replace(/\.js$/, '.tsx')));
-          if (fileLoc) {
-            return [fileLoc, null];
-          }
-        }
-      }
-      return [null, null];
-    }
-
-    // 0. Check if the request is for a virtual sub-resource. These are populated by some
-    // builders when a file compiles to multiple files. For example, Svelte & Vue files
-    // compile to a main JS file + related CSS to import with the JS.
-    let virtualResourceResponse: string | undefined = inMemoryResourceCache.get(reqPath);
-    if (virtualResourceResponse) {
-      if (isProxyModule) {
-        responseFileExt = '.js';
-        virtualResourceResponse = wrapEsmProxyResponse({
-          url: reqPath,
-          code: virtualResourceResponse,
-          ext: requestedFileExt,
-          hasHmr: true,
-          config,
-        });
-      }
-      sendFile(req, res, virtualResourceResponse, responseFileExt);
-      return;
-    }
-
-    const [fileLoc, selectedWorker] = await getFileFromUrl(reqPath);
-
-    if (isRoute) {
+    // 2. if route change (no file extension), restart dev server
+    const reqExt = getExt(reqUrl);
+    if (!reqExt.baseExt) {
       messageBus.emit('NEW_SESSION');
     }
 
-    if (!fileLoc) {
+    // 3. resolve URL request using plugins’ input/output options
+    const {locOnDisk, lookups} = urlToFile(reqUrl, {config, dependencyImportMap});
+
+    // 4. handle 404
+    if (!locOnDisk) {
       const prefix = colors.red('  ✘ ');
-      console.error(`[404] ${reqUrl}\n${attemptedFileLoads.map((loc) => prefix + loc).join('\n')}`);
+      console.error(`[404] ${reqUrl}\n${lookups.map((loc) => `${prefix}${loc}`).join('\n')}`);
       return sendError(res, 404);
     }
 
-    if (selectedWorker) {
-      fileBuilder = getFileBuilderForWorker(cwd, selectedWorker, messageBus);
-    }
-
-    async function wrapResponse(code: string, cssResource: string | undefined) {
-      if (isRoute) {
-        code = wrapHtmlResponse({code: code, hasHmr: isHmr, buildOptions: config.buildOptions});
-      } else if (isCssModule) {
-        responseFileExt = '.js';
-        code = await wrapCssModuleResponse({
-          url: reqPath,
-          code,
-          ext: requestedFileExt,
-          hasHmr: isHmr,
-          config,
-        });
-      } else if (isProxyModule) {
-        responseFileExt = '.js';
-        code = wrapEsmProxyResponse({
-          url: reqPath,
-          code,
-          ext: requestedFileExt,
-          hasHmr: isHmr,
-          config,
-        });
-      } else if (responseFileExt === '.js') {
-        code = wrapImportMeta({code, env: true, hmr: isHmr, config});
-      }
-      if (responseFileExt === '.js' && cssResource) {
-        code = `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
-      }
-      if (responseFileExt === '.js' && reqUrlHmrParam) {
-        code = await transformEsmImports(code as string, (imp) => {
-          const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
-          const node = hmrEngine.getEntry(importUrl);
-          if (node && node.needsReplacement) {
-            hmrEngine.markEntryForReplacement(node, false);
-            return `${imp}?${reqUrlHmrParam}`;
-          }
-          return imp;
-        });
-      }
-      return code;
-    }
-
-    // 1. Check the hot build cache. If it's already found, then just serve it.
-    let hotCachedResponse: string | Buffer | undefined = inMemoryBuildCache.get(fileLoc);
+    // 5. Check the hot build cache. If it's already found, then just serve it.
+    let hotCachedResponse: string | Buffer | undefined = inMemoryBuildCache.get(reqUrl);
     if (hotCachedResponse) {
-      hotCachedResponse = hotCachedResponse.toString(getEncodingType(requestedFileExt));
-      const wrappedResponse = await wrapResponse(
-        hotCachedResponse,
-        inMemoryResourceCache.get(reqPath.replace(/.js$/, '.css')),
-      );
-      sendFile(req, res, wrappedResponse, responseFileExt);
+      hotCachedResponse = hotCachedResponse.toString(getEncodingType(reqExt.baseExt));
+      sendFile(req, res, hotCachedResponse, reqExt.baseExt);
       return;
     }
 
-    // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
-    const fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
-
-    // 3. Check the persistent cache. If found, serve it via a "trust-but-verify" strategy.
-    // Build it after sending, and if it no longer matches then assume the entire cache is suspect.
-    // In that case, clear the persistent cache and then force a live-reload of the page.
+    // 6. Check the persistent cache. If found, serve it via a
+    // "trust-but-verify" strategy. Build it after sending, and if it no longer
+    // matches then assume the entire cache is suspect. In that case, clear the
+    // persistent cache and then force a live-reload of the page.
     const cachedBuildData =
-      !filesBeingDeleted.has(fileLoc) &&
-      (await cacache.get(BUILD_CACHE, fileLoc).catch(() => null));
+      !filesBeingDeleted.has(reqUrl) && (await cacache.get(BUILD_CACHE, reqUrl).catch(() => null));
+
     if (cachedBuildData) {
-      const {originalFileHash, resources} = cachedBuildData.metadata;
-      const newFileHash = etag(fileContents);
-      if (originalFileHash === newFileHash) {
-        const coldCachedResponse: Buffer = cachedBuildData.data;
-        inMemoryBuildCache.set(fileLoc, coldCachedResponse);
-        if (resources?.css) {
-          inMemoryResourceCache.set(reqPath.replace(/.js$/, '.css'), resources.css);
-        }
-        // Trust...
-        const wrappedResponse = await wrapResponse(
-          coldCachedResponse.toString(getEncodingType(requestedFileExt)),
-          resources?.css,
-        );
-
-        if (responseFileExt === '.js') {
-          const isHmrEnabled = wrappedResponse.includes('import.meta.hot');
-          const rawImports = await scanCodeImportsExports(wrappedResponse);
-          const resolvedImports = rawImports.map((imp) => {
-            let spec = wrappedResponse.substring(imp.s, imp.e);
-            if (imp.d > -1) {
-              const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
-              spec = importSpecifierMatch![1];
-            }
-            return path.posix.resolve(path.posix.dirname(reqPath), spec);
-          });
-          hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
-        }
-
-        sendFile(req, res, wrappedResponse, responseFileExt);
-        // ...but verify.
-        let checkFinalBuildResult: string | null | undefined = null;
-        let checkFinalBuildCss: string | null | undefined = null;
-        try {
-          const checkFinalBuildAnyway = await buildFile(
-            fileContents,
-            fileLoc,
-            reqPath,
-            fileBuilder,
-          );
-          checkFinalBuildResult = checkFinalBuildAnyway && checkFinalBuildAnyway.result;
-          checkFinalBuildCss = checkFinalBuildAnyway && checkFinalBuildAnyway.resources?.css;
-        } catch (err) {
-          // safe to ignore, it will be surfaced later anyway
-        } finally {
-          if (
-            checkFinalBuildCss !== resources?.css ||
-            !checkFinalBuildResult ||
-            !coldCachedResponse.equals(
-              Buffer.from(checkFinalBuildResult, getEncodingType(requestedFileExt)),
-            )
-          ) {
-            inMemoryBuildCache.clear();
-            await cacache.rm.all(BUILD_CACHE);
-            hmrEngine.broadcastMessage({type: 'reload'});
-          }
-        }
-        return;
-      }
+      // Trust...
+      // ...but verify.
     }
 
-    // 4. Final option: build the file, serve it, and cache it.
-    let finalBuild: SnowpackPluginBuildResult | undefined;
+    // 7. Final option: build the file, serve it, and cache it.
+    let output: SnowpackBuildMap = {};
     try {
-      finalBuild = await buildFile(fileContents, fileLoc, reqPath, fileBuilder);
+      output = await buildFile(locOnDisk, reqUrl, {config});
     } catch (err) {
-      console.error(fileLoc, err);
+      console.error(reqPath, err);
     }
-    if (!finalBuild || finalBuild.result === '') {
+    if (!output[reqExt.baseExt] || !Object.keys(output)) {
       return sendError(res, 500);
     }
-    inMemoryBuildCache.set(
-      fileLoc,
-      Buffer.from(finalBuild.result, getEncodingType(requestedFileExt)),
-    );
-    if (finalBuild.resources?.css) {
-      inMemoryResourceCache.set(reqPath.replace(/.js$/, `.css`), finalBuild.resources.css);
-    }
-    const originalFileHash = etag(fileContents);
-    cacache.put(
-      BUILD_CACHE,
-      fileLoc,
-      Buffer.from(finalBuild.result, getEncodingType(requestedFileExt)),
-      {metadata: {originalFileHash, resources: finalBuild.resources}},
-    );
-    const wrappedResponse = await wrapResponse(finalBuild.result, finalBuild.resources?.css);
 
-    if (responseFileExt === '.js') {
-      const isHmrEnabled = wrappedResponse.includes('import.meta.hot');
-      const rawImports = await scanCodeImportsExports(wrappedResponse);
-      const resolvedImports = rawImports.map((imp) => {
-        let spec = wrappedResponse.substring(imp.s, imp.e);
-        if (imp.d > -1) {
-          const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
-          spec = importSpecifierMatch![1];
-        }
-        return path.posix.resolve(path.posix.dirname(reqPath), spec);
-      });
-      hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
-    }
+    Object.entries(output).forEach(([outputPath, response]) => {
+      inMemoryBuildCache.set(
+        outputPath,
+        Buffer.from(response.code, getEncodingType(response.baseExt)),
+      );
+      const originalFileHash = etag(locOnDisk as string);
+      cacache.put(
+        BUILD_CACHE,
+        reqUrl,
+        Buffer.from(response.code, getEncodingType(response.baseExt)),
+        {metadata: {originalFileHash}},
+      );
+    });
 
-    sendFile(req, res, wrappedResponse, responseFileExt);
+    sendFile(req, res, output[reqExt.baseExt].code, reqExt.baseExt);
   }
 
   type Http2RequestListener = (
     request: http2.Http2ServerRequest,
     response: http2.Http2ServerResponse,
   ) => void;
+
   const createServer = (requestHandler: http.RequestListener | Http2RequestListener) => {
     if (credentials && config.proxy.length === 0) {
       return http2.createSecureServer(
@@ -900,40 +474,40 @@ export async function command(commandOptions: CommandOptions) {
       hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
+
   function handleHmrUpdate(fileLoc: string) {
     if (isLiveReloadPaused) {
       return;
     }
-    let updateUrl = getUrlFromFile(mountedDirectories, fileLoc);
-    if (!updateUrl) {
-      return;
-    }
 
-    // Append ".proxy.js" to Non-JS files to match their registered URL in the client app.
-    if (!updateUrl.endsWith('.js') && !updateUrl.endsWith('.module.css')) {
-      updateUrl += '.proxy.js';
-    }
-    // Check if a virtual file exists in the resource cache (ex: CSS from a Svelte file)
-    // If it does, mark it for HMR replacement but DONT trigger a separate HMR update event.
-    // This is because a virtual resource doesn't actually exist on disk, so we need the main
-    // resource (the JS) to load first. Only after that happens will the CSS exist.
-    const virtualCssFileUrl = updateUrl.replace(/.js$/, '.css');
-    const virtualNode = hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
-    if (virtualNode && inMemoryResourceCache.has(virtualCssFileUrl)) {
-      inMemoryResourceCache.delete(virtualCssFileUrl);
-      hmrEngine.markEntryForReplacement(virtualNode, true);
-    }
-    // If the changed file exists on the page, trigger a new HMR update.
-    if (hmrEngine.getEntry(updateUrl)) {
-      updateOrBubble(updateUrl, new Set());
-      return;
-    }
+    // iterate through all the possible extensions this file will build and update
+    for (let updateUrl of fileToURLs(fileLoc, {config})) {
+      // Append ".proxy.js" to Non-JS files to match their registered URL in the client app.
+      if (!updateUrl.endsWith('.js') && !updateUrl.endsWith('.module.css')) {
+        updateUrl += '.proxy.js';
+      }
+      // Check if a virtual file exists in the resource cache (ex: CSS from a Svelte file)
+      // If it does, mark it for HMR replacement but DONT trigger a separate HMR update event.
+      // This is because a virtual resource doesn't actually exist on disk, so we need the main
+      // resource (the JS) to load first. Only after that happens will the CSS exist.
+      const virtualCssFileUrl = updateUrl.replace(/.js$/, '.css');
+      const virtualNode = hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
+      if (virtualNode && inMemoryResourceCache.has(virtualCssFileUrl)) {
+        inMemoryResourceCache.delete(virtualCssFileUrl);
+        hmrEngine.markEntryForReplacement(virtualNode, true);
+      }
+      // If the changed file exists on the page, trigger a new HMR update.
+      if (hmrEngine.getEntry(updateUrl)) {
+        updateOrBubble(updateUrl, new Set());
+        return;
+      }
 
-    // Otherwise, reload the page if the file exists in our hot cache (which means that the
-    // file likely exists on the current page, but is not supported by HMR (HTML, image, etc)).
-    if (inMemoryBuildCache.has(fileLoc)) {
-      hmrEngine.broadcastMessage({type: 'reload'});
-      return;
+      // Otherwise, reload the page if the file exists in our hot cache (which means that the
+      // file likely exists on the current page, but is not supported by HMR (HTML, image, etc)).
+      if (inMemoryBuildCache.has(fileLoc)) {
+        hmrEngine.broadcastMessage({type: 'reload'});
+        return;
+      }
     }
   }
 
@@ -965,15 +539,12 @@ export async function command(commandOptions: CommandOptions) {
     await cacache.rm.entry(BUILD_CACHE, fileLoc);
     filesBeingDeleted.delete(fileLoc);
   }
-  const watcher = chokidar.watch(
-    mountedDirectories.map(([dirDisk]) => dirDisk),
-    {
-      ignored: config.exclude,
-      persistent: true,
-      ignoreInitial: true,
-      disableGlobbing: false,
-    },
-  );
+  const watcher = chokidar.watch(Object.keys(config.__mountedDirs), {
+    ignored: config.exclude,
+    persistent: true,
+    ignoreInitial: true,
+    disableGlobbing: false,
+  });
   watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
