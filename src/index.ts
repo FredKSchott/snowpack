@@ -9,7 +9,7 @@ import {CLIFlags, loadAndValidateConfig} from './config.js';
 import {readLockfile, clearCache} from './util.js';
 
 export {createConfiguration} from './config.js';
-export {install as unstable_installCommand} from './commands/install';
+export {run as unstable_installCommand} from './commands/install';
 
 const cwd = process.cwd();
 
