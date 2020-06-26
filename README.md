@@ -1,16 +1,19 @@
 [![CI](https://github.com/pikapkg/snowpack/workflows/CI/badge.svg?event=push)](https://github.com/pikapkg/snowpack/actions)
 
-**Snowpack is a web app build tool that works without bundling.** Thanks to [ESM imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) Snowpack is able to remove the expensive (and unnecesary) bundling step from your dev workflow. That means no startup time spent waiting for your application to bundle PLUS no time wasted rebundling on every change.
+### What is Snowpack?
 
-The result is a developer experience that starts up fast, stays fast, and still bundles/optimizes your production builds.
+**Snowpack is a modern, lightweight toolchain for web application development.** Traditional dev bundlers like webpack or Parcel need to rebuild & rebundle entire chunks of your application every time you save a single file. This introduces lag between changing a file and seeing those changes reflected in the browser, sometimes as slow as several seconds.
+
+Snowpack solves this problem by serving your application **unbundled in development.** Any time you change a file, Snowpack never rebuilds more than a single file. There's no bundling to speak of, just a few milliseconds of single-file rebuilding and then an instant update in the browser via HMR. We call this new approach **O(1) Build Tooling.** You can read more about it in our [Snowpack 2.0 Release Post.](/posts/2020-05-26-snowpack-2-0-release/) 
+
+When you're ready to deploy your web application to users, you can add back a traditional bundler like Webpack or Parcel. With Snowpack you get bundled & optimized production performance without sacrificing dev speed by adding an unnecessary bundler, 
 
 ### Key Features
 
-- No bundling during development = **<50ms dev server startup**
-- Instant rebuilds on save (Nothing to rebundle!)
-- Stays fast as your codebase grows
-- Built-in [Hot Module Replacement (HMR)](https://snowpack.dev/#hot-module-replacement)
-- [Custom build scripts](https://snowpack.dev/#build-scripts) & [third-party plugins](https://snowpack.dev/#build-plugins)
-- Bundled production builds
+- A dev environment that starts up in **50ms or less.**
+- Changes are reflected [instantly in the browser.](/#hot-module-replacement)
+- Integrates your favorite bundler for [production-optimized builds.](/#snowpack-build)
+- Out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](/#features)
+- Connect your favorite tools with custom [build scripts](/#build-scripts) & [third-party plugins.](/#build-plugins)
 
 **💁 More info at the official [Snowpack website ➞](https://snowpack.dev)**
