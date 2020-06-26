@@ -1,7 +1,5 @@
 [![CI](https://github.com/pikapkg/snowpack/workflows/CI/badge.svg?event=push)](https://github.com/pikapkg/snowpack/actions)
 
-![cover image](https://imgur.com/uXHFm5y.jpg) 
-
 **Snowpack is a web app build tool that works without bundling.** Thanks to [ESM imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) Snowpack is able to remove the expensive (and unnecesary) bundling step from your dev workflow. That means no startup time spent waiting for your application to bundle PLUS no time wasted rebundling on every change.
 
 The result is a developer experience that starts up fast, stays fast, and still bundles/optimizes your production builds.
