@@ -25,35 +25,14 @@ module.exports = {
 
 ### No such file or directory
 
-If you encounter a warning message such as this:
-
 ```
 ENOENT: no such file or directory, open …/node_modules/csstype/index.js
 ```
 
-That may be due to the fact that there was nothing Snowpack could bundle. In the case of `csstype`, it only emits a TypeScript definition (`.d.ts`) file, so Snowpack can’t bundle it!
+This error message would sometimes occur in older versions of Snowpack. 
 
-There are 2 ways to solve this:
+**To solve this issue:** Upgrade to Snowpack `v2.6.0` or higher. If you continue to see this unexpected error in newer versions of Snowpack, please file an issue.
 
-##### Option 1: importing `type`
-
-```ts
-import type { something } from 'csstype';
-```
-
-Using the `import type` keyword is friendlier in most cases. Sometimes Snowpack can correctly determine when you’re importing TypeScript types, but sometimes it has trouble—mostly it depends on how each package is configured (and no 2 packages are alike!). Using `import type` helps.
-
-##### Option 2: manual `install`
-
-If Snowpack still is having trouble with certain packages, you can manually set `install` in `snowpack.config.js` like so:
-
-```json
-{
-  "install": ["package-one", "package-two", "package-three"]
-}
-```
-
-This isn’t ideal because now you have to maintain this list, and omit the packages that are giving you trouble. However, sometimes this is the quickest way to fix the issue.
 
 ### Package exists but package.json "exports" does not include entry
 
