@@ -20,7 +20,10 @@ import {rollupPluginCatchFetch} from '../rollup-plugins/rollup-plugin-catch-fetc
 import {rollupPluginCss} from '../rollup-plugins/rollup-plugin-css';
 import {rollupPluginEntrypointAlias} from '../rollup-plugins/rollup-plugin-entrypoint-alias.js';
 import {rollupPluginDependencyCache} from '../rollup-plugins/rollup-plugin-remote-cdn.js';
-import {DependencyStatsOutput, rollupPluginDependencyStats} from '../rollup-plugins/rollup-plugin-stats.js';
+import {
+  DependencyStatsOutput,
+  rollupPluginDependencyStats,
+} from '../rollup-plugins/rollup-plugin-stats.js';
 import {rollupPluginWrapInstallTargets} from '../rollup-plugins/rollup-plugin-wrap-install-targets';
 import {InstallTarget, scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
 import {printStats} from '../stats-formatter.js';
