@@ -1,0 +1,12 @@
+{
+  "description": "Handle specific node.js fetch polyfill packages",
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+  },
+  "snowpack": {
+    "install": ["mock-test-package-a"]
+  },
+  "dependencies": {
+    "mock-test-package-a": "^1.0.0"
+  }
+}

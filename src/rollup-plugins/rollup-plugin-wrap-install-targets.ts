@@ -1,7 +1,7 @@
 import * as colors from 'kleur/colors';
 import path from 'path';
 import {Plugin} from 'rollup';
-import {InstallTarget} from './scan-imports';
+import {InstallTarget} from '../scan-imports';
 
 function autoDetectExports(fileLoc: string): string[] | undefined {
   try {

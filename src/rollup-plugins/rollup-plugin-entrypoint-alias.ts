@@ -1,6 +1,6 @@
 import path from 'path';
 import {Plugin} from 'rollup';
-import {resolveDependencyManifest} from './util';
+import {resolveDependencyManifest} from '../util';
 
 const IS_DEEP_PACKAGE_IMPORT = /^(@[\w-]+\/)?([\w-]+)\/(.*)/;
 /**

@@ -1,5 +1,5 @@
 import * as colors from 'kleur/colors';
-import {DependencyStats, DependencyStatsOutput} from './rollup-plugin-stats';
+import {DependencyStats, DependencyStatsOutput} from './rollup-plugins/rollup-plugin-stats';
 
 /** The minimum width, in characters, of each size column */
 const SIZE_COLUMN_WIDTH = 11;

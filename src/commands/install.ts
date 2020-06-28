@@ -15,12 +15,13 @@ import {InputOptions, OutputOptions, rollup, RollupError} from 'rollup';
 import validatePackageName from 'validate-npm-package-name';
 import {EnvVarReplacements, SnowpackConfig, SnowpackSourceFile} from '../config.js';
 import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
-import {rollupPluginCatchUnresolved} from '../rollup-plugin-catch-unresolved.js';
-import {rollupPluginCss} from '../rollup-plugin-css';
-import {rollupPluginEntrypointAlias} from '../rollup-plugin-entrypoint-alias.js';
-import {rollupPluginDependencyCache} from '../rollup-plugin-remote-cdn.js';
-import {DependencyStatsOutput, rollupPluginDependencyStats} from '../rollup-plugin-stats.js';
-import {rollupPluginWrapInstallTargets} from '../rollup-plugin-wrap-install-targets';
+import {rollupPluginCatchUnresolved} from '../rollup-plugins/rollup-plugin-catch-unresolved.js';
+import {rollupPluginCatchFetch} from '../rollup-plugins/rollup-plugin-catch-fetch';
+import {rollupPluginCss} from '../rollup-plugins/rollup-plugin-css';
+import {rollupPluginEntrypointAlias} from '../rollup-plugins/rollup-plugin-entrypoint-alias.js';
+import {rollupPluginDependencyCache} from '../rollup-plugins/rollup-plugin-remote-cdn.js';
+import {DependencyStatsOutput, rollupPluginDependencyStats} from '../rollup-plugins/rollup-plugin-stats.js';
+import {rollupPluginWrapInstallTargets} from '../rollup-plugins/rollup-plugin-wrap-install-targets';
 import {InstallTarget, scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
 import {printStats} from '../stats-formatter.js';
 import {
@@ -385,6 +386,7 @@ export async function install(
           replacement: mod,
         })),
       }),
+      rollupPluginCatchFetch(),
       rollupPluginNodeResolve({
         mainFields: ['browser:module', 'module', 'browser', 'main'].filter(isTruthy),
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
