@@ -28,7 +28,7 @@ Currently only works for Single Page Applications (SPA) with a single HTML entry
 ### Plugin Options
 
 - `sourceMap: boolean` - Enable sourcemaps in the bundled output.
-- `outputPatterns: {css: string, js: string, assets: string}` - Set the URL for your final bundled files. This is where they will be written to disk in the `build/` directory. See Webpack's [`output.filename`](https://webpack.js.org/configuration/output/#outputfilename) documentation for examples of valid values.
+- `outputPattern: {css: string, js: string, assets: string}` - Set the URL for your final bundled files. This is where they will be written to disk in the `build/` directory. See Webpack's [`output.filename`](https://webpack.js.org/configuration/output/#outputfilename) documentation for examples of valid values.
 - `extendConfig: (config: WebpackConfig) => WebpackConfig` - extend your webpack config, see below.
 
 #### Extending The Default Webpack Config
