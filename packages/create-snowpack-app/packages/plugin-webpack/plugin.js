@@ -178,17 +178,16 @@ module.exports = function plugin(config, args) {
       for (name in entries) {
         entry[name] = entries[name].path;
       }
-      const compiler = webpack(
-        extendConfig({
-          ...webpackConfig,
-          entry,
-          output: {
-            path: destDirectory,
-            publicPath: baseUrl,
-            filename: jsOutputPattern,
-          },
-        })
-      );
+      const extendedConfig = extendConfig({
+        ...webpackConfig,
+        entry,
+        output: {
+          path: destDirectory,
+          publicPath: baseUrl,
+          filename: jsOutputPattern,
+        },
+      });
+      const compiler = webpack(extendedConfig);
 
       const stats = await new Promise((resolve, reject) => {
         compiler.run((err, stats) => {
@@ -197,7 +196,7 @@ module.exports = function plugin(config, args) {
             return;
           }
           if (stats.hasErrors()) {
-            const info = stats.toJson();
+            const info = stats.toJson(extendedConfig.stats);
             console.error(info.warnings.join("\n-----\n"));
             console.error(info.errors.join("\n-----\n"));
           }
@@ -205,13 +204,19 @@ module.exports = function plugin(config, args) {
         });
       });
 
-      console.log(
-        stats.toString({
-          colors: true,
-          all: false,
-          assets: true,
-        })
-      );
+      if (extendedConfig.stats !== "none") {
+        console.log(
+          stats.toString(
+            extendedConfig.stats
+            ? extendedConfig.stats
+            : {
+              colors: true,
+              all: false,
+              assets: true,
+            }
+          )
+        );
+      }
 
       if (!args.skipFallbackOutput) {
         const entrypoints = stats.toJson({ assets: false, hash: true })
