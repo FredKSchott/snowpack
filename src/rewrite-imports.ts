@@ -51,12 +51,15 @@ async function transformHtmlImports(code: string, replaceImport: (specifier: str
   const importRegex = new RegExp(HTML_JS_REGEX);
   while ((match = importRegex.exec(rewrittenCode))) {
     const [, scriptTag, scriptCode] = match;
-    rewrittenCode = spliceString(
-      rewrittenCode,
-      await transformEsmImports(scriptCode, replaceImport),
-      match.index + scriptTag.length,
-      match.index + scriptTag.length + scriptCode.length,
-    );
+    // Only transform a script element if it contains inlined code / is not empty.
+    if (scriptCode.trim()) {
+      rewrittenCode = spliceString(
+        rewrittenCode,
+        await transformEsmImports(scriptCode, replaceImport),
+        match.index + scriptTag.length,
+        match.index + scriptTag.length + scriptCode.length,
+      );
+    }
   }
   return rewrittenCode;
 }
