@@ -215,7 +215,7 @@ export async function command(commandOptions: CommandOptions) {
           f = path.resolve(f); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
           const {baseExt} = getExt(f);
           if (
-            allBuildExtensions.includes(baseExt.substr(1)) ||
+            allBuildExtensions.includes(baseExt) ||
             baseExt === '.jsx' ||
             baseExt === '.tsx' ||
             baseExt === '.ts' ||
