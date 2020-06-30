@@ -264,7 +264,11 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
             baseExt,
             expandedExt,
             locOnDisk: filePath,
-            code: allMatches.map((script) => script[2]).join('\n'), // 3rd match is the code inside <script></script>
+            // match[2] is the code inside the <script></script> element
+            code: allMatches
+              .map((match) => match[2])
+              .filter((s) => s.trim())
+              .join('\n'),
           };
         }
       }

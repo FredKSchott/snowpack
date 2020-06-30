@@ -22,7 +22,8 @@ export const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'dev');
 const LOCKFILE_HASH_FILE = '.hash';
 
 export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
-export const HTML_JS_REGEX = /(<script.*?>)(.+?)<\/script>/gms;
+// NOTE(fks): Must match empty script elements to work properly.
+export const HTML_JS_REGEX = /(<script.*?>)(.*?)<\/script>/gms;
 
 export interface ImportMap {
   imports: {[packageName: string]: string};
