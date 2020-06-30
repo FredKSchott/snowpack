@@ -31,7 +31,7 @@ function resolveSourceSpecifier(spec: string, stats: Stats | false, isBundled: b
   if (stats && stats.isDirectory()) {
     const trailingSlash = spec.endsWith('/') ? '' : '/';
     spec = spec + trailingSlash + 'index.js';
-  } else if (!stats && !spec.endsWith('.js')) {
+  } else if (!stats && !spec.endsWith('.js') && !spec.endsWith('.css')) {
     spec = spec + '.js';
   }
   const {baseExt} = getExt(spec);
