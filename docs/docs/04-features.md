@@ -73,7 +73,7 @@ Snowpack supports CSS Modules for CSS files using the `[name].module.css` naming
 import json from './data.json' 
 ```
 
-Snowpack supports importing JSON via ESM import. While this isn't yet supported in most browsers, it's a huge convenience over having vs. use fetch() directly.
+Snowpack supports importing JSON via ESM import. While this isn't yet supported in most browsers, it's a huge convenience over having to use fetch() directly.
 
 
 ### Import Images & Other Assets
