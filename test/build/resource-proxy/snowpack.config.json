@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "mount:src": "mount src --to /_dist_/"
+  }
+}
