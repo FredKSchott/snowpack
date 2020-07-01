@@ -1,8 +1,9 @@
-import {Stats, statSync} from 'fs';
+import fs from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../config';
-import {findMatchingMountScript, getExt, ImportMap} from '../util';
+import {findMatchingMountScript, getExt, ImportMap, replaceExt} from '../util';
 import srcFileExtensionMapping from './src-file-extension-mapping';
+
 const cwd = process.cwd();
 const URL_HAS_PROTOCOL_REGEX = /^(\w+:)?\/\//;
 
@@ -16,10 +17,10 @@ interface ImportResolverOptions {
 }
 
 /** Perform a file disk lookup for the requested import specifier. */
-export function getImportStats(dirLoc: string, spec: string): Stats | false {
+export function getImportStats(dirLoc: string, spec: string): fs.Stats | false {
   const importedFileOnDisk = path.resolve(dirLoc, spec);
   try {
-    return statSync(importedFileOnDisk);
+    return fs.statSync(importedFileOnDisk);
   } catch (err) {
     // file doesn't exist, that's fine
   }
@@ -27,7 +28,7 @@ export function getImportStats(dirLoc: string, spec: string): Stats | false {
 }
 
 /** Resolve an import based on the state of the file/folder found on disk. */
-function resolveSourceSpecifier(spec: string, stats: Stats | false, isBundled: boolean) {
+function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, isBundled: boolean) {
   if (stats && stats.isDirectory()) {
     const trailingSlash = spec.endsWith('/') ? '' : '/';
     spec = spec + trailingSlash + 'index.js';
@@ -37,7 +38,7 @@ function resolveSourceSpecifier(spec: string, stats: Stats | false, isBundled: b
   const {baseExt} = getExt(spec);
   const extToReplace = srcFileExtensionMapping[baseExt];
   if (extToReplace) {
-    spec = spec.replace(new RegExp(`\\${baseExt}$`), extToReplace);
+    spec = replaceExt(spec, extToReplace);
   }
   if (!isBundled && (extToReplace || baseExt) !== '.js') {
     spec = spec + '.proxy.js';
@@ -63,9 +64,9 @@ export function createImportResolver({
     if (URL_HAS_PROTOCOL_REGEX.test(spec)) {
       return spec;
     }
-    let mountScript = findMatchingMountScript(config.scripts, spec);
+    let mountScript = findMatchingMountScript(config._mountedDirs, spec);
     if (mountScript) {
-      let {fromDisk, toUrl} = mountScript.args;
+      const [fromDisk, toUrl] = mountScript;
       const importStats = getImportStats(cwd, spec);
       spec = resolveSourceSpecifier(spec, importStats, isBundled);
       spec = spec.replace(fromDisk, toUrl);

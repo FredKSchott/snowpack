@@ -1,4 +1,3 @@
-import rimraf from 'rimraf';
 import cacache from 'cacache';
 import globalCacheDir from 'cachedir';
 import etag from 'etag';
@@ -7,15 +6,22 @@ import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import fs from 'fs';
 import got, {CancelableRequest, Response} from 'got';
+import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
-import {SnowpackConfig, BuildScript} from './config';
-import mkdirp from 'mkdirp';
+import rimraf from 'rimraf';
+import {SnowpackConfig} from './config';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
+
+// A note on cache naming/versioning: We currently version our global caches
+// with the version of the last breaking change. This allows us to re-use the
+// same cache across versions until something in the data structure changes.
+// At that point, bump the version in the cache name to create a new unique
+// cache name.
 export const RESOURCE_CACHE = path.join(GLOBAL_CACHE_DIR, 'pkg-cache-1.4');
-export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-1.4');
+export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-2.6');
 
 export const PROJECT_CACHE_DIR = projectCacheDir({name: 'snowpack'});
 export const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'dev');
@@ -38,6 +44,11 @@ export interface CommandOptions {
 
 export function isYarn(cwd: string) {
   return fs.existsSync(path.join(cwd, 'yarn.lock'));
+}
+
+const UTF8_FORMATS = ['.css', '.html', '.js', '.json', '.svg', '.txt', '.xml'];
+export function getEncodingType(ext: string): 'utf-8' | 'binary' {
+  return UTF8_FORMATS.includes(ext) ? 'utf-8' : 'binary';
 }
 
 export async function readLockfile(cwd: string): Promise<ImportMap | null> {
@@ -232,7 +243,10 @@ export async function clearCache() {
  * `mount ./src --to /_dist_` and `mount src --to /_dist_` match `src/components/Button`
  * `mount src --to /_dist_` does not match `package/components/Button`
  */
-export function findMatchingMountScript(scripts: BuildScript[], spec: string) {
+export function findMatchingMountScript(
+  scripts: Record<string, string>,
+  spec: string,
+): [string, string] | null | undefined {
   // Only match bare module specifiers. relative and absolute imports should not match
   if (
     spec.startsWith('./') ||
@@ -243,9 +257,7 @@ export function findMatchingMountScript(scripts: BuildScript[], spec: string) {
   ) {
     return null;
   }
-  return scripts
-    .filter((script) => script.type === 'mount')
-    .find(({args}) => spec.startsWith(args.fromDisk));
+  return Object.entries(scripts).find(([fromDisk]) => spec.startsWith(fromDisk));
 }
 
 /** Get full extensions of files */
@@ -256,4 +268,15 @@ export function getExt(fileName: string) {
     /** full extension, if applicable (e.g. `.proxy.js`) */
     expandedExt: path.basename(fileName).replace(/[^.]+/, '').toLocaleLowerCase(),
   };
+}
+
+/** Replace file extensions */
+export function replaceExt(
+  fileName: string,
+  newExtension: string,
+  replaceExpandedExt: boolean = false,
+): string {
+  const {baseExt, expandedExt} = getExt(fileName);
+  const extToReplace = new RegExp(`\\${replaceExpandedExt ? expandedExt : baseExt}$`, 'i');
+  return fileName.replace(extToReplace, newExtension);
 }

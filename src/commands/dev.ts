@@ -26,15 +26,15 @@
 
 import cacache from 'cacache';
 import isCompressible from 'compressible';
-import etag from 'etag';
 import merge from 'deepmerge';
+import etag from 'etag';
 import {EventEmitter} from 'events';
 import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
 import http from 'http';
-import https from 'https';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
+import https from 'https';
 import * as colors from 'kleur/colors';
 import mime from 'mime-types';
 import npmRunPath from 'npm-run-path';
@@ -44,30 +44,32 @@ import onProcessExit from 'signal-exit';
 import stream from 'stream';
 import url from 'url';
 import zlib from 'zlib';
-import {BuildScript, SnowpackPluginBuildResult} from '../config';
+import {SnowpackBuildMap} from '../config';
 import {EsmHmrEngine} from '../hmr-server-engine';
 import {
   scanCodeImportsExports,
-  transformFileImports,
   transformEsmImports,
+  transformFileImports,
 } from '../rewrite-imports';
 import {
   BUILD_CACHE,
   checkLockfileHash,
   CommandOptions,
   DEV_DEPENDENCIES_DIR,
+  getEncodingType,
+  getExt,
   ImportMap,
   isYarn,
   openInBrowser,
+  parsePackageImportSpecifier,
+  replaceExt,
   resolveDependencyManifest,
   updateLockfileHash,
-  getExt,
-  parsePackageImportSpecifier,
 } from '../util';
 import {
-  FileBuilder,
+  buildFile as _buildFile,
   generateEnvModule,
-  getFileBuilderForWorker,
+  getInputsFromOutput,
   wrapCssModuleResponse,
   wrapEsmProxyResponse,
   wrapHtmlResponse,
@@ -92,14 +94,6 @@ const DEFAULT_PROXY_ERROR_HANDLER = (
 function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
   const reqPath = decodeURI(url.parse(req.url!).pathname!);
   return reqPath.startsWith(pathPrefix);
-}
-
-function getEncodingType(ext: string): 'utf-8' | 'binary' {
-  if (ext === '.js' || ext === '.css' || ext === '.html' || ext === '.json') {
-    return 'utf-8';
-  } else {
-    return 'binary';
-  }
 }
 
 const sendFile = (
@@ -166,18 +160,13 @@ function getUrlFromFile(mountedDirectories: [string, string][], fileLoc: string)
     if (fileLoc.startsWith(dirDisk + path.sep)) {
       const {baseExt} = getExt(fileLoc);
       const resolvedDirUrl = dirUrl === '/' ? '' : dirUrl;
-      return fileLoc
-        .replace(dirDisk, resolvedDirUrl)
-        .replace(/[/\\]+/g, '/')
-        .replace(new RegExp(`\\${baseExt}$`), srcFileExtensionMapping[baseExt] || baseExt);
+      return replaceExt(
+        fileLoc.replace(dirDisk, resolvedDirUrl).replace(/[/\\]+/g, '/'),
+        srcFileExtensionMapping[baseExt] || baseExt,
+      );
     }
   }
   return null;
-}
-
-function getMountedDirectory(cwd: string, workerConfig: BuildScript): [string, string] {
-  const {args} = workerConfig;
-  return [path.resolve(cwd, args.fromDisk), args.toUrl];
 }
 
 let currentlyRunningCommand: any = null;
@@ -192,12 +181,15 @@ export async function command(commandOptions: CommandOptions) {
     serverStart = Date.now();
   }
 
-  const inMemoryBuildCache = new Map<string, Buffer>();
-  const inMemoryResourceCache = new Map<string, string>();
+  const inMemoryBuildCache = new Map<string, SnowpackBuildMap>();
   const filesBeingDeleted = new Set<string>();
-  const filesBeingBuilt = new Map<string, Promise<SnowpackPluginBuildResult>>();
+  const filesBeingBuilt = new Map<string, Promise<SnowpackBuildMap>>();
   const messageBus = new EventEmitter();
-  const mountedDirectories: [string, string][] = [];
+  const mountedDirectories: [string, string][] = Object.entries(config._mountedDirs).map(
+    ([fromDisk, toUrl]) => {
+      return [path.resolve(cwd, fromDisk), toUrl];
+    },
+  );
 
   console.log = (...args) => {
     messageBus.emit('CONSOLE', {level: 'log', args});
@@ -212,39 +204,44 @@ export async function command(commandOptions: CommandOptions) {
   // Start painting immediately, so we can surface errors & warnings to the
   // user, and they can watch the server starting up. Search for ”SERVER_START”
   // for the actual start event below.
-  paint(messageBus, config.scripts, undefined, {
-    addPackage: async (pkgName: string) => {
-      isLiveReloadPaused = true;
-      messageBus.emit('INSTALLING');
-      currentlyRunningCommand = execa(
-        isYarn(cwd) ? 'yarn' : 'npm',
-        isYarn(cwd) ? ['add', pkgName] : ['install', '--save', pkgName],
-        {
-          env: npmRunPath.env(),
-          extendEnv: true,
-          shell: true,
-          cwd,
-        },
-      );
-      currentlyRunningCommand.stdout.on('data', (data) => process.stdout.write(data));
-      currentlyRunningCommand.stderr.on('data', (data) => process.stderr.write(data));
-      await currentlyRunningCommand;
-      currentlyRunningCommand = installCommand(installCommandOptions);
-      await currentlyRunningCommand;
-      await updateLockfileHash(DEV_DEPENDENCIES_DIR);
-      await cacache.rm.all(BUILD_CACHE);
-      inMemoryBuildCache.clear();
-      currentlyRunningCommand = null;
+  paint(
+    messageBus,
+    config.plugins.map((p) => p.name),
+    undefined,
+    {
+      addPackage: async (pkgName: string) => {
+        isLiveReloadPaused = true;
+        messageBus.emit('INSTALLING');
+        currentlyRunningCommand = execa(
+          isYarn(cwd) ? 'yarn' : 'npm',
+          isYarn(cwd) ? ['add', pkgName] : ['install', '--save', pkgName],
+          {
+            env: npmRunPath.env(),
+            extendEnv: true,
+            shell: true,
+            cwd,
+          },
+        );
+        currentlyRunningCommand.stdout.on('data', (data) => process.stdout.write(data));
+        currentlyRunningCommand.stderr.on('data', (data) => process.stderr.write(data));
+        await currentlyRunningCommand;
+        currentlyRunningCommand = installCommand(installCommandOptions);
+        await currentlyRunningCommand;
+        await updateLockfileHash(DEV_DEPENDENCIES_DIR);
+        await cacache.rm.all(BUILD_CACHE);
+        inMemoryBuildCache.clear();
+        currentlyRunningCommand = null;
 
-      dependencyImportMap = JSON.parse(
-        await fs
-          .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
-          .catch(() => `{"imports": {}}`),
-      );
-      messageBus.emit('INSTALL_COMPLETE');
-      isLiveReloadPaused = false;
+        dependencyImportMap = JSON.parse(
+          await fs
+            .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
+            .catch(() => `{"imports": {}}`),
+        );
+        messageBus.emit('INSTALL_COMPLETE');
+        isLiveReloadPaused = false;
+      },
     },
-  });
+  );
 
   // Set the proper install options, in case an install is needed.
   const dependencyImportMapLoc = path.join(DEV_DEPENDENCIES_DIR, 'import-map.json');
@@ -293,158 +290,6 @@ export async function command(commandOptions: CommandOptions) {
         isLiveReloadPaused = false;
         currentlyRunningCommand = null;
       });
-    }
-  }
-
-  async function buildFile(
-    fileContents: string,
-    fileLoc: string,
-    reqPath: string,
-    fileBuilder: FileBuilder | undefined,
-  ): Promise<SnowpackPluginBuildResult> {
-    let builtFileResult: SnowpackPluginBuildResult;
-    let fileBuilderPromise = filesBeingBuilt.get(fileLoc);
-    if (fileBuilderPromise) {
-      builtFileResult = await fileBuilderPromise;
-    } else {
-      fileBuilderPromise = (async () => {
-        let _builtFileResult: SnowpackPluginBuildResult = {result: fileContents};
-        if (fileBuilder) {
-          _builtFileResult =
-            (await fileBuilder({
-              contents: fileContents,
-              filePath: fileLoc,
-              isDev: true,
-            })) || _builtFileResult;
-        }
-        for (const plugin of config.plugins) {
-          if (plugin.transform) {
-            _builtFileResult.result =
-              (
-                await plugin.transform({
-                  contents: _builtFileResult.result,
-                  urlPath: reqPath,
-                  isDev: true,
-                })
-              )?.result || _builtFileResult.result;
-          }
-        }
-        return _builtFileResult;
-      })();
-      try {
-        filesBeingBuilt.set(fileLoc, fileBuilderPromise);
-        builtFileResult = await fileBuilderPromise;
-      } finally {
-        filesBeingBuilt.delete(fileLoc);
-      }
-    }
-    const {baseExt, expandedExt} = getExt(fileLoc);
-    if (
-      baseExt === '.js' ||
-      srcFileExtensionMapping[baseExt] === '.js' ||
-      baseExt === '.html' ||
-      srcFileExtensionMapping[baseExt] === '.html'
-    ) {
-      let missingWebModule: {spec: string; pkgName: string} | null = null;
-      const webModulesScript = config.scripts.find((script) => script.id === 'mount:web_modules');
-      const webModulesPath = webModulesScript ? webModulesScript.args.toUrl : '/web_modules';
-      const resolveImportSpecifier = createImportResolver({
-        fileLoc,
-        webModulesPath,
-        dependencyImportMap,
-        isDev: true,
-        isBundled: false,
-        config,
-      });
-      builtFileResult.result = await transformFileImports(
-        {
-          locOnDisk: fileLoc,
-          code: builtFileResult.result,
-          baseExt: srcFileExtensionMapping[baseExt] || baseExt,
-          expandedExt,
-        },
-        (spec) => {
-          // Try to resolve the specifier to a known URL in the project
-          const resolvedImportUrl = resolveImportSpecifier(spec);
-          if (resolvedImportUrl) {
-            return resolvedImportUrl;
-          }
-          // If that fails, return a placeholder import and attempt to resolve.
-          const [packageName] = parsePackageImportSpecifier(spec);
-          const [depManifestLoc] = resolveDependencyManifest(packageName, cwd);
-          const doesPackageExist = !!depManifestLoc;
-          if (doesPackageExist) {
-            reinstallDependencies();
-          } else {
-            missingWebModule = {
-              spec: spec,
-              pkgName: packageName,
-            };
-          }
-          // Return a placeholder while Snowpack goes out and tries to re-install (or warn)
-          // on the missing package.
-          return spec;
-        },
-      );
-      messageBus.emit('MISSING_WEB_MODULE', {
-        id: fileLoc,
-        data: missingWebModule,
-      });
-    }
-
-    return builtFileResult;
-  }
-
-  function runLintAll(workerConfig: BuildScript) {
-    let {id, cmd, watch: watchCmd} = workerConfig;
-    const workerPromise = execa.command(watchCmd || cmd, {
-      env: npmRunPath.env(),
-      extendEnv: true,
-      shell: true,
-      cwd,
-    });
-    const {stdout, stderr} = workerPromise;
-    stdout?.on('data', (b) => {
-      let stdOutput = b.toString();
-      if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
-        messageBus.emit('WORKER_RESET', {id});
-        stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
-      }
-      if (id.endsWith(':tsc')) {
-        if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
-          messageBus.emit('WORKER_UPDATE', {id, state: ['RUNNING', 'yellow']});
-        }
-        if (/Watching for file changes./gm.test(stdOutput)) {
-          messageBus.emit('WORKER_UPDATE', {id, state: 'WATCH'});
-        }
-        const errorMatch = stdOutput.match(/Found (\d+) error/);
-        if (errorMatch && errorMatch[1] !== '0') {
-          messageBus.emit('WORKER_UPDATE', {id, state: ['ERROR', 'red']});
-        }
-      }
-      messageBus.emit('WORKER_MSG', {id, level: 'log', msg: stdOutput});
-    });
-    stderr?.on('data', (b) => {
-      messageBus.emit('WORKER_MSG', {id, level: 'error', msg: b.toString()});
-    });
-    workerPromise.catch((err) => {
-      messageBus.emit('WORKER_COMPLETE', {id, error: err});
-    });
-    workerPromise.then(() => {
-      messageBus.emit('WORKER_COMPLETE', {id, error: null});
-    });
-  }
-
-  for (const workerConfig of config.scripts) {
-    if (workerConfig.type === 'run') {
-      runLintAll(workerConfig);
-    }
-    if (workerConfig.type === 'mount') {
-      mountedDirectories.push(getMountedDirectory(cwd, workerConfig));
-      setTimeout(
-        () => messageBus.emit('WORKER_UPDATE', {id: workerConfig.id, state: ['DONE', 'green']}),
-        400,
-      );
     }
   }
 
@@ -499,6 +344,25 @@ export async function command(commandOptions: CommandOptions) {
       console.log('    https://github.com/FiloSottile/mkcert (install required)');
       console.log();
       process.exit(1);
+    }
+  }
+
+  for (const runPlugin of config.plugins) {
+    if (runPlugin.run) {
+      messageBus.emit('WORKER_START', {id: runPlugin.name});
+      runPlugin
+        .run({
+          isDev: true,
+          log: (msg, data) => {
+            messageBus.emit(msg, {...data, id: runPlugin.name});
+          },
+        })
+        .then(() => {
+          messageBus.emit('WORKER_COMPLETE', {id: runPlugin.name, error: null});
+        })
+        .catch((err) => {
+          messageBus.emit('WORKER_COMPLETE', {id: runPlugin.name, error: err});
+        });
     }
   }
 
@@ -562,13 +426,20 @@ export async function command(commandOptions: CommandOptions) {
 
     let requestedFileExt = path.parse(reqPath).ext.toLowerCase();
     let responseFileExt = requestedFileExt;
-    let fileBuilder: FileBuilder | undefined;
     let isRoute = !requestedFileExt;
 
     // Now that we've set isRoute properly, give `requestedFileExt` a fallback
     requestedFileExt = requestedFileExt || '.html';
 
-    async function getFileFromUrl(reqPath: string): Promise<[string | null, BuildScript | null]> {
+    async function getFileFromUrl(reqPath: string): Promise<string | null> {
+      if (reqPath.startsWith(config._webModulesPath)) {
+        const fileLoc = await attemptLoadFile(
+          reqPath.replace(config._webModulesPath, DEV_DEPENDENCIES_DIR),
+        );
+        if (fileLoc) {
+          return fileLoc;
+        }
+      }
       for (const [dirDisk, dirUrl] of mountedDirectories) {
         let requestedFile: string;
         if (dirUrl === '/') {
@@ -577,12 +448,6 @@ export async function command(commandOptions: CommandOptions) {
           requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, './'));
         } else {
           continue;
-        }
-        if (requestedFile.startsWith(commandOptions.config.installOptions.dest)) {
-          const fileLoc = await attemptLoadFile(requestedFile);
-          if (fileLoc) {
-            return [fileLoc, null];
-          }
         }
         if (isRoute) {
           let fileLoc =
@@ -596,60 +461,21 @@ export async function command(commandOptions: CommandOptions) {
           }
           if (fileLoc) {
             responseFileExt = '.html';
-            return [fileLoc, null];
+            return fileLoc;
           }
         } else {
-          for (const workerConfig of config.scripts) {
-            const {type, match} = workerConfig;
-            if (type !== 'build') {
-              continue;
+          for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
+            const fileLoc = await attemptLoadFile(potentialSourceFile);
+            if (fileLoc) {
+              return fileLoc;
             }
-            for (const extMatcher of match) {
-              if (
-                extMatcher === requestedFileExt ||
-                srcFileExtensionMapping[extMatcher] === requestedFileExt
-              ) {
-                const srcFile = requestedFile.replace(requestedFileExt, extMatcher);
-                const fileLoc = await attemptLoadFile(srcFile);
-                if (fileLoc) {
-                  return [fileLoc, workerConfig];
-                }
-              }
-            }
-          }
-          const fileLoc =
-            (await attemptLoadFile(requestedFile)) ||
-            (await attemptLoadFile(requestedFile.replace(/\.js$/, '.jsx'))) ||
-            (await attemptLoadFile(requestedFile.replace(/\.js$/, '.ts'))) ||
-            (await attemptLoadFile(requestedFile.replace(/\.js$/, '.tsx')));
-          if (fileLoc) {
-            return [fileLoc, null];
           }
         }
       }
-      return [null, null];
+      return null;
     }
 
-    // 0. Check if the request is for a virtual sub-resource. These are populated by some
-    // builders when a file compiles to multiple files. For example, Svelte & Vue files
-    // compile to a main JS file + related CSS to import with the JS.
-    let virtualResourceResponse: string | undefined = inMemoryResourceCache.get(reqPath);
-    if (virtualResourceResponse) {
-      if (isProxyModule) {
-        responseFileExt = '.js';
-        virtualResourceResponse = wrapEsmProxyResponse({
-          url: reqPath,
-          code: virtualResourceResponse,
-          ext: requestedFileExt,
-          hasHmr: true,
-          config,
-        });
-      }
-      sendFile(req, res, virtualResourceResponse, responseFileExt);
-      return;
-    }
-
-    const [fileLoc, selectedWorker] = await getFileFromUrl(reqPath);
+    const fileLoc = await getFileFromUrl(reqPath);
 
     if (isRoute) {
       messageBus.emit('NEW_SESSION');
@@ -661,11 +487,41 @@ export async function command(commandOptions: CommandOptions) {
       return sendError(res, 404);
     }
 
-    if (selectedWorker) {
-      fileBuilder = getFileBuilderForWorker(cwd, selectedWorker, messageBus);
+    /**
+     * Given a file, build it. Building a file sends it through our internal file builder
+     * pipeline, and outputs a build map representing the final build. A Build Map is used
+     * because one source file can result in multiple built files (Example: .svelte -> .js & .css).
+     */
+    async function buildFile(fileLoc: string, fileContents: string): Promise<SnowpackBuildMap> {
+      const existingBuilderPromise = filesBeingBuilt.get(fileLoc);
+      if (existingBuilderPromise) {
+        return existingBuilderPromise;
+      }
+      const fileBuilderPromise = (async () => {
+        const builtFileOutput = await _buildFile(fileLoc, fileContents, {
+          buildPipeline: config.plugins,
+          messageBus,
+          isDev: true,
+        });
+        inMemoryBuildCache.set(fileLoc, builtFileOutput);
+        return builtFileOutput;
+      })();
+      filesBeingBuilt.set(fileLoc, fileBuilderPromise);
+      try {
+        messageBus.emit('BUILD_FILE', {id: fileLoc, isBuilding: true});
+        return await fileBuilderPromise;
+      } finally {
+        filesBeingBuilt.delete(fileLoc);
+        messageBus.emit('BUILD_FILE', {id: fileLoc, isBuilding: false});
+      }
     }
 
-    async function wrapResponse(code: string, cssResource: string | undefined) {
+    /**
+     * Wrap Response: The same build result can be expressed in different ways based on
+     * the URL. For example, "App.css" should return CSS but "App.css.proxy.js" should
+     * return a JS representation of that CSS. This is handled in the wrap step.
+     */
+    async function wrapResponse(code: string, hasCssResource: boolean) {
       if (isRoute) {
         code = wrapHtmlResponse({code: code, hasHmr: isHmr, buildOptions: config.buildOptions});
       } else if (isCssModule) {
@@ -689,7 +545,7 @@ export async function command(commandOptions: CommandOptions) {
       } else if (responseFileExt === '.js') {
         code = wrapImportMeta({code, env: true, hmr: isHmr, config});
       }
-      if (responseFileExt === '.js' && cssResource) {
+      if (responseFileExt === '.js' && hasCssResource) {
         code = `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
       }
       if (responseFileExt === '.js' && reqUrlHmrParam) {
@@ -703,81 +559,160 @@ export async function command(commandOptions: CommandOptions) {
           return imp;
         });
       }
+      if (responseFileExt === '.js') {
+        const isHmrEnabled = code.includes('import.meta.hot');
+        const rawImports = await scanCodeImportsExports(code);
+        const resolvedImports = rawImports.map((imp) => {
+          let spec = code.substring(imp.s, imp.e);
+          if (imp.d > -1) {
+            const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
+            spec = importSpecifierMatch![1];
+          }
+          return path.posix.resolve(path.posix.dirname(reqPath), spec);
+        });
+        hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
+      }
       return code;
     }
 
-    // 1. Check the hot build cache. If it's already found, then just serve it.
-    let hotCachedResponse: string | Buffer | undefined = inMemoryBuildCache.get(fileLoc);
-    if (hotCachedResponse) {
-      hotCachedResponse = hotCachedResponse.toString(getEncodingType(requestedFileExt));
-      const wrappedResponse = await wrapResponse(
-        hotCachedResponse,
-        inMemoryResourceCache.get(reqPath.replace(/.js$/, '.css')),
+    /**
+     * Resolve Imports: Resolved imports are based on the state of the file system, so
+     * they can't be cached long-term with the build.
+     */
+    async function resolveResponseImports(
+      fileLoc: string,
+      responseExt: string,
+      wrappedResponse: string,
+    ): Promise<string> {
+      let missingWebModule: {spec: string; pkgName: string} | null = null;
+      const resolveImportSpecifier = createImportResolver({
+        fileLoc,
+        webModulesPath: config._webModulesPath,
+        dependencyImportMap,
+        isDev: true,
+        isBundled: false,
+        config,
+      });
+      wrappedResponse = await transformFileImports(
+        {
+          locOnDisk: fileLoc,
+          contents: wrappedResponse,
+          baseExt: responseExt,
+          expandedExt: getExt(fileLoc).expandedExt,
+        },
+        (spec) => {
+          // Try to resolve the specifier to a known URL in the project
+          const resolvedImportUrl = resolveImportSpecifier(spec);
+          if (resolvedImportUrl) {
+            return resolvedImportUrl;
+          }
+          // If that fails, return a placeholder import and attempt to resolve.
+          const [packageName] = parsePackageImportSpecifier(spec);
+          const [depManifestLoc] = resolveDependencyManifest(packageName, cwd);
+          const doesPackageExist = !!depManifestLoc;
+          if (doesPackageExist) {
+            reinstallDependencies();
+          } else {
+            missingWebModule = {
+              spec: spec,
+              pkgName: packageName,
+            };
+          }
+          // Return a placeholder while Snowpack goes out and tries to re-install (or warn)
+          // on the missing package.
+          return spec;
+        },
       );
-      sendFile(req, res, wrappedResponse, responseFileExt);
+      messageBus.emit('MISSING_WEB_MODULE', {
+        id: fileLoc,
+        data: missingWebModule,
+      });
+      return wrappedResponse;
+    }
+
+    /**
+     * Given a build, finalize it for the response. This involves running individual steps
+     * needed to go from build result to sever response, including:
+     *   - wrapResponse(): Wrap responses
+     *   - resolveResponseImports(): Resolve all ESM imports
+     */
+    async function finalizeResponse(
+      fileLoc: string,
+      requestedFileExt: string,
+      output: SnowpackBuildMap,
+    ): Promise<string | null> {
+      // Verify that the requested file exists in the build output map.
+      const resultLoc = replaceExt(fileLoc, requestedFileExt);
+      const {baseExt: responseExt} = getExt(resultLoc);
+      if (!output[resultLoc] || !Object.keys(output)) {
+        return null;
+      }
+      // Wrap the response.
+      const hasAttachedCss = responseExt === '.js' && !!output[replaceExt(fileLoc, '.css')];
+      let wrappedResponse = await wrapResponse(output[resultLoc].contents, hasAttachedCss);
+
+      // Resolve imports.
+      if (responseExt === '.js' || responseExt === '.html') {
+        wrappedResponse = await resolveResponseImports(fileLoc, responseExt, wrappedResponse);
+      }
+      // Return the finalized response.
+      return wrappedResponse;
+    }
+
+    // 1. Check the hot build cache. If it's already found, then just serve it.
+    let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(fileLoc);
+    if (hotCachedResponse) {
+      const responseContent = await finalizeResponse(fileLoc, requestedFileExt, hotCachedResponse);
+      if (!responseContent) {
+        sendError(res, 404);
+        return;
+      }
+      sendFile(req, res, responseContent, responseFileExt);
       return;
     }
 
     // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
     const fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
 
-    // 3. Check the persistent cache. If found, serve it via a "trust-but-verify" strategy.
+    // 3. Send dependencies directly, since they were already build & resolved at install time.
+    if (reqPath.startsWith(config._webModulesPath)) {
+      sendFile(req, res, fileContents, responseFileExt);
+      return;
+    }
+
+    // 4. Check the persistent cache. If found, serve it via a "trust-but-verify" strategy.
     // Build it after sending, and if it no longer matches then assume the entire cache is suspect.
     // In that case, clear the persistent cache and then force a live-reload of the page.
     const cachedBuildData =
       !filesBeingDeleted.has(fileLoc) &&
       (await cacache.get(BUILD_CACHE, fileLoc).catch(() => null));
     if (cachedBuildData) {
-      const {originalFileHash, resources} = cachedBuildData.metadata;
+      const {originalFileHash} = cachedBuildData.metadata;
       const newFileHash = etag(fileContents);
       if (originalFileHash === newFileHash) {
-        const coldCachedResponse: Buffer = cachedBuildData.data;
+        const coldCachedResponse: SnowpackBuildMap = JSON.parse(cachedBuildData.data.toString());
         inMemoryBuildCache.set(fileLoc, coldCachedResponse);
-        if (resources?.css) {
-          inMemoryResourceCache.set(reqPath.replace(/.js$/, '.css'), resources.css);
-        }
         // Trust...
-        const wrappedResponse = await wrapResponse(
-          coldCachedResponse.toString(getEncodingType(requestedFileExt)),
-          resources?.css,
+        const wrappedResponse = await finalizeResponse(
+          fileLoc,
+          requestedFileExt,
+          coldCachedResponse,
         );
-
-        if (responseFileExt === '.js') {
-          const isHmrEnabled = wrappedResponse.includes('import.meta.hot');
-          const rawImports = await scanCodeImportsExports(wrappedResponse);
-          const resolvedImports = rawImports.map((imp) => {
-            let spec = wrappedResponse.substring(imp.s, imp.e);
-            if (imp.d > -1) {
-              const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
-              spec = importSpecifierMatch![1];
-            }
-            return path.posix.resolve(path.posix.dirname(reqPath), spec);
-          });
-          hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
+        if (!wrappedResponse) {
+          sendError(res, 404);
+          return;
         }
-
         sendFile(req, res, wrappedResponse, responseFileExt);
         // ...but verify.
-        let checkFinalBuildResult: string | null | undefined = null;
-        let checkFinalBuildCss: string | null | undefined = null;
+        let checkFinalBuildResult: SnowpackBuildMap | null = null;
         try {
-          const checkFinalBuildAnyway = await buildFile(
-            fileContents,
-            fileLoc,
-            reqPath,
-            fileBuilder,
-          );
-          checkFinalBuildResult = checkFinalBuildAnyway && checkFinalBuildAnyway.result;
-          checkFinalBuildCss = checkFinalBuildAnyway && checkFinalBuildAnyway.resources?.css;
+          checkFinalBuildResult = await buildFile(fileLoc, fileContents);
         } catch (err) {
           // safe to ignore, it will be surfaced later anyway
         } finally {
           if (
-            checkFinalBuildCss !== resources?.css ||
             !checkFinalBuildResult ||
-            !coldCachedResponse.equals(
-              Buffer.from(checkFinalBuildResult, getEncodingType(requestedFileExt)),
-            )
+            !cachedBuildData.data.equals(Buffer.from(JSON.stringify(checkFinalBuildResult)))
           ) {
             inMemoryBuildCache.clear();
             await cacache.rm.all(BUILD_CACHE);
@@ -788,47 +723,32 @@ export async function command(commandOptions: CommandOptions) {
       }
     }
 
-    // 4. Final option: build the file, serve it, and cache it.
-    let finalBuild: SnowpackPluginBuildResult | undefined;
+    // 5. Final option: build the file, serve it, and cache it.
+    let responseContent: string | null;
+    let responseOutput: SnowpackBuildMap;
     try {
-      finalBuild = await buildFile(fileContents, fileLoc, reqPath, fileBuilder);
+      responseOutput = await buildFile(fileLoc, fileContents);
     } catch (err) {
-      console.error(fileLoc, err);
+      sendError(res, 500);
+      return;
     }
-    if (!finalBuild || finalBuild.result === '') {
-      return sendError(res, 500);
+    try {
+      responseContent = await finalizeResponse(fileLoc, requestedFileExt, responseOutput);
+    } catch (err) {
+      console.error(reqPath, err);
+      sendError(res, 500);
+      return;
     }
-    inMemoryBuildCache.set(
-      fileLoc,
-      Buffer.from(finalBuild.result, getEncodingType(requestedFileExt)),
-    );
-    if (finalBuild.resources?.css) {
-      inMemoryResourceCache.set(reqPath.replace(/.js$/, `.css`), finalBuild.resources.css);
+    if (!responseContent) {
+      sendError(res, 404);
+      return;
     }
+
+    sendFile(req, res, responseContent, responseFileExt);
     const originalFileHash = etag(fileContents);
-    cacache.put(
-      BUILD_CACHE,
-      fileLoc,
-      Buffer.from(finalBuild.result, getEncodingType(requestedFileExt)),
-      {metadata: {originalFileHash, resources: finalBuild.resources}},
-    );
-    const wrappedResponse = await wrapResponse(finalBuild.result, finalBuild.resources?.css);
-
-    if (responseFileExt === '.js') {
-      const isHmrEnabled = wrappedResponse.includes('import.meta.hot');
-      const rawImports = await scanCodeImportsExports(wrappedResponse);
-      const resolvedImports = rawImports.map((imp) => {
-        let spec = wrappedResponse.substring(imp.s, imp.e);
-        if (imp.d > -1) {
-          const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
-          spec = importSpecifierMatch![1];
-        }
-        return path.posix.resolve(path.posix.dirname(reqPath), spec);
-      });
-      hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
-    }
-
-    sendFile(req, res, wrappedResponse, responseFileExt);
+    cacache.put(BUILD_CACHE, fileLoc, Buffer.from(JSON.stringify(responseOutput)), {
+      metadata: {originalFileHash},
+    });
   }
 
   type Http2RequestListener = (
@@ -919,8 +839,7 @@ export async function command(commandOptions: CommandOptions) {
     // resource (the JS) to load first. Only after that happens will the CSS exist.
     const virtualCssFileUrl = updateUrl.replace(/.js$/, '.css');
     const virtualNode = hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
-    if (virtualNode && inMemoryResourceCache.has(virtualCssFileUrl)) {
-      inMemoryResourceCache.delete(virtualCssFileUrl);
+    if (virtualNode) {
       hmrEngine.markEntryForReplacement(virtualNode, true);
     }
     // If the changed file exists on the page, trigger a new HMR update.
