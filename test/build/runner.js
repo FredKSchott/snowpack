@@ -5,14 +5,16 @@ const {readdirSync, readFileSync, statSync, existsSync} = require('fs');
 const execa = require('execa');
 const dircompare = require('dir-compare');
 
-function stripWhitespace(stdout) {
-  return stdout.replace(/((\s+$)|((\\r\\n)|(\\n)))/gm, '');
-}
-function stripRev(code) {
-  return code.replace(/\?rev=\w+/gm, '?rev=XXXXXXXXXX');
-}
-function stripChunkHash(stdout) {
-  return stdout.replace(/([\w\-]+\-)[a-z0-9]{8}(\.js)/g, '$1XXXXXXXX$2');
+const STRIP_WHITESPACE = /((\s+$)|((\\r\\n)|(\\n)))/gm;
+const STRIP_REV = /\?rev=\w+/gm;
+const STRIP_CHUNKHASH = /([\w\-]+\-)[a-z0-9]{8}(\.js)/g;
+
+/** format diffs to be meaningful */
+function format(stdout) {
+  return stdout
+    .replace(STRIP_REV, '?rev=XXXXXXXXXX')
+    .replace(STRIP_CHUNKHASH, '$1XXXXXXXX$2')
+    .replace(STRIP_WHITESPACE, '');
 }
 
 for (const testName of readdirSync(__dirname)) {
@@ -66,16 +68,8 @@ for (const testName of readdirSync(__dirname)) {
       }
 
       return assert.strictEqual(
-        stripWhitespace(
-          stripChunkHash(
-            stripRev(readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'})),
-          ),
-        ),
-        stripWhitespace(
-          stripChunkHash(
-            stripRev(readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'})),
-          ),
-        ),
+        format(readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'})),
+        format(readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'})),
       );
     });
   });

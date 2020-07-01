@@ -368,7 +368,7 @@ export async function command(commandOptions: CommandOptions) {
   for (const proxiedFileLoc of allProxiedFiles) {
     const proxiedCode = await fs.readFile(proxiedFileLoc, {encoding: 'utf8'});
     const proxiedExt = path.extname(proxiedFileLoc);
-    const proxiedUrl = proxiedFileLoc.substr(buildDirectoryLoc.length);
+    const proxiedUrl = proxiedFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/'); // replace backslashes on Windows
     const proxyCode = proxiedFileLoc.endsWith('.module.css')
       ? await wrapCssModuleResponse({
           url: proxiedUrl,
