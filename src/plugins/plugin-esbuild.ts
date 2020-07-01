@@ -1,13 +1,19 @@
 import {Service, startService} from 'esbuild';
 import * as colors from 'kleur/colors';
 import path from 'path';
-import {SnowpackPluginBuildResult} from '../config';
-import {checkIsPreact} from './build-util';
 
 let esbuildService: Service | null = null;
 
-export function esbuildPlugin() {
+const IS_PREACT = /from\s+['"]preact['"]/;
+export function checkIsPreact(filePath: string, contents: string) {
+  return filePath.endsWith('.jsx') && IS_PREACT.test(contents);
+}
+
+export function esbuildPlugin({input}: {input: string[]}) {
   return {
+    name: '@snowpack/plugin-esbuild',
+    input,
+    output: ['.js'],
     async build({contents, filePath}) {
       esbuildService = esbuildService || (await startService());
       const isPreact = checkIsPreact(filePath, contents);
@@ -20,7 +26,7 @@ export function esbuildPlugin() {
         console.error(colors.bold('! ') + filePath);
         console.error('  ' + warning.text);
       }
-      return {result: js || ''} as SnowpackPluginBuildResult;
+      return {'.js': js || ''};
     },
   };
 }

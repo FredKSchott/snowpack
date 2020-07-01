@@ -1,15 +1,15 @@
-import path from 'path';
 import * as colors from 'kleur/colors';
+import path from 'path';
 import yargs from 'yargs-parser';
+import {addCommand, rmCommand} from './commands/add-rm';
 import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
-import {addCommand, rmCommand} from './commands/add-rm';
 import {command as installCommand} from './commands/install';
 import {CLIFlags, loadAndValidateConfig} from './config.js';
-import {readLockfile, clearCache} from './util.js';
+import {clearCache, readLockfile} from './util.js';
 
-export {createConfiguration} from './config.js';
 export {install as unstable_installCommand} from './commands/install';
+export {createConfiguration} from './config.js';
 
 const cwd = process.cwd();
 

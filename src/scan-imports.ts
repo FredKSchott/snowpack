@@ -7,7 +7,7 @@ import nodePath from 'path';
 import stripComments from 'strip-comments';
 import validatePackageName from 'validate-npm-package-name';
 import {SnowpackConfig, SnowpackSourceFile} from './config';
-import {isTruthy, findMatchingMountScript, HTML_JS_REGEX, getExt} from './util';
+import {findMatchingMountScript, getExt, HTML_JS_REGEX, isTruthy} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -151,7 +151,7 @@ function cleanCodeForParsing(code: string): string {
 function parseCodeForInstallTargets({
   locOnDisk,
   baseExt,
-  code,
+  contents,
 }: SnowpackSourceFile): InstallTarget[] {
   let imports: ImportSpecifier[];
   // Attempt #1: Parse the file as JavaScript. JSX and some decorator
@@ -162,14 +162,14 @@ function parseCodeForInstallTargets({
       // Just jump right to the secondary attempt.
       throw new Error('JSX must be cleaned before parsing');
     }
-    [imports] = parse(code) || [];
+    [imports] = parse(contents) || [];
   } catch (err) {
     // Attempt #2: Parse only the import statements themselves.
     // This lets us guarentee we aren't sending any broken syntax to our parser,
     // but at the expense of possible false +/- caused by our regex extractor.
     try {
-      code = cleanCodeForParsing(code);
-      [imports] = parse(code) || [];
+      contents = cleanCodeForParsing(contents);
+      [imports] = parse(contents) || [];
     } catch (err) {
       // Another error! No hope left, just abort.
       console.error(colors.red(`! ${locOnDisk}`));
@@ -177,7 +177,7 @@ function parseCodeForInstallTargets({
     }
   }
   const allImports: InstallTarget[] = imports
-    .map((imp) => parseImportStatement(code, imp))
+    .map((imp) => parseImportStatement(contents, imp))
     .filter(isTruthy)
     // Babel macros are not install targets!
     .filter((imp) => !/[./]macro(\.js)?$/.test(imp.specifier));
@@ -200,14 +200,8 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
 export async function scanImports(cwd: string, config: SnowpackConfig): Promise<InstallTarget[]> {
   await initESModuleLexer;
   const includeFileSets = await Promise.all(
-    config.scripts.map(({type, args}) => {
-      if (type !== 'mount') {
-        return [];
-      }
-      if (args.fromDisk.includes('web_modules')) {
-        return [];
-      }
-      const dirDisk = nodePath.resolve(cwd, args.fromDisk);
+    Object.keys(config._mountedDirs).map((fromDisk) => {
+      const dirDisk = nodePath.resolve(cwd, fromDisk);
       return glob.sync(`**/*`, {
         ignore: config.exclude.concat(['**/web_modules/**/*']),
         cwd: dirDisk,
@@ -245,7 +239,7 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
             baseExt,
             expandedExt,
             locOnDisk: filePath,
-            code: await fs.promises.readFile(filePath, 'utf-8'),
+            contents: await fs.promises.readFile(filePath, 'utf-8'),
           };
         }
         case '.html':
@@ -265,7 +259,7 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
             expandedExt,
             locOnDisk: filePath,
             // match[2] is the code inside the <script></script> element
-            code: allMatches
+            contents: allMatches
               .map((match) => match[2])
               .filter((s) => s.trim())
               .join('\n'),
@@ -287,14 +281,14 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
 
 export async function scanImportsFromFiles(
   loadedFiles: SnowpackSourceFile[],
-  {scripts}: SnowpackConfig,
+  config: SnowpackConfig,
 ): Promise<InstallTarget[]> {
   return (
     loadedFiles
       .map(parseCodeForInstallTargets)
       .reduce((flat, item) => flat.concat(item), [])
       // Ignore source imports that match a mount directory.
-      .filter((target) => !findMatchingMountScript(scripts, target.specifier))
+      .filter((target) => !findMatchingMountScript(config._mountedDirs, target.specifier))
       .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier))
   );
 }
