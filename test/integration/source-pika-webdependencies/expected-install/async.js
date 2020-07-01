@@ -55,7 +55,6 @@ function initialParams (fn) {
 }
 
 var hasSetImmediate = typeof setImmediate === 'function' && setImmediate;
-var hasNextTick = typeof process === 'object' && typeof process.nextTick === 'function';
 
 function fallback(fn) {
     setTimeout(fn, 0);
@@ -69,8 +68,6 @@ var _defer;
 
 if (hasSetImmediate) {
     _defer = setImmediate;
-} else if (hasNextTick) {
-    _defer = process.nextTick;
 } else {
     _defer = fallback;
 }
@@ -2909,9 +2906,7 @@ function memoize(fn, hasher = v => v) {
  */
 var _defer$1;
 
-if (hasNextTick) {
-    _defer$1 = process.nextTick;
-} else if (hasSetImmediate) {
+if (hasSetImmediate) {
     _defer$1 = setImmediate;
 } else {
     _defer$1 = fallback;
