@@ -67,11 +67,11 @@ export async function command(commandOptions: CommandOptions) {
   const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaDir);
   const finalDirectoryLoc = config.devOptions.out;
 
-  rimraf.sync(buildDirectoryLoc);
+  if (config.buildOptions.clean) rimraf.sync(buildDirectoryLoc);
   mkdirp.sync(buildDirectoryLoc);
   mkdirp.sync(internalFilesBuildLoc);
   if (finalDirectoryLoc !== buildDirectoryLoc) {
-    rimraf.sync(finalDirectoryLoc);
+    if (config.buildOptions.clean) rimraf.sync(finalDirectoryLoc);
     mkdirp.sync(finalDirectoryLoc);
   }
 

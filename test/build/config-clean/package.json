@@ -1,0 +1,14 @@
+{
+  "description": "Test for buildOptions.clean",
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+  },
+  "snowpack": {
+    "buildOptions": {
+      "clean": false
+    },
+    "scripts": {
+      "mount:src": "mount src --to /_dist_"
+    }
+  }
+}
