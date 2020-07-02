@@ -642,18 +642,16 @@ export async function command(commandOptions: CommandOptions) {
       output: SnowpackBuildMap,
     ): Promise<string | null> {
       // Verify that the requested file exists in the build output map.
-      const resultLoc = replaceExt(fileLoc, requestedFileExt);
-      const {baseExt: responseExt} = getExt(resultLoc);
-      if (!output[resultLoc] || !Object.keys(output)) {
+      if (!output[requestedFileExt] || !Object.keys(output)) {
         return null;
       }
       // Wrap the response.
-      const hasAttachedCss = responseExt === '.js' && !!output[replaceExt(fileLoc, '.css')];
-      let wrappedResponse = await wrapResponse(output[resultLoc].contents, hasAttachedCss);
+      const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
+      let wrappedResponse = await wrapResponse(output[requestedFileExt], hasAttachedCss);
 
       // Resolve imports.
-      if (responseExt === '.js' || responseExt === '.html') {
-        wrappedResponse = await resolveResponseImports(fileLoc, responseExt, wrappedResponse);
+      if (requestedFileExt === '.js' || requestedFileExt === '.html') {
+        wrappedResponse = await resolveResponseImports(fileLoc, requestedFileExt, wrappedResponse);
       }
       // Return the finalized response.
       return wrappedResponse;
