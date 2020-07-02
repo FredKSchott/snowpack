@@ -6,7 +6,7 @@ import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import rimraf from 'rimraf';
-import {SnowpackBuildMap} from '../config';
+import {SnowpackSourceFile} from '../config';
 import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
@@ -25,7 +25,7 @@ import {paint} from './paint';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 async function installOptimizedDependencies(
-  allFilesToResolveImports: SnowpackBuildMap,
+  allFilesToResolveImports: SnowpackSourceFile[],
   installDest: string,
   commandOptions: CommandOptions,
 ) {
@@ -38,10 +38,7 @@ async function installOptimizedDependencies(
     },
   });
   // 1. Scan imports from your final built JS files.
-  const installTargets = await getInstallTargets(
-    installConfig,
-    Object.values(allFilesToResolveImports),
-  );
+  const installTargets = await getInstallTargets(installConfig, allFilesToResolveImports);
   // 2. Install dependencies, based on the scan of your final build.
   const installResult = await installRunner({
     ...commandOptions,
@@ -146,7 +143,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const allBuiltFromFiles = new Set<string>();
-  const allFilesToResolveImports: SnowpackBuildMap = {};
+  const allFilesToResolveImports: SnowpackSourceFile[] = [];
 
   for (const [dirDisk, dirDest, allFiles] of includeFileSets) {
     for (const locOnDisk of allFiles) {
@@ -166,22 +163,21 @@ export async function command(commandOptions: CommandOptions) {
       });
       allBuiltFromFiles.add(locOnDisk);
       const {baseExt, expandedExt} = getExt(outLoc);
-      let contents = builtFileOutput[builtLocOnDisk]?.contents;
+      let contents = builtFileOutput[srcFileExtensionMapping[fileExt] || fileExt];
       if (!contents) {
         continue;
       }
-      const cssBuildPath = builtLocOnDisk.replace(/.js$/, '.css');
       const cssOutPath = outLoc.replace(/.js$/, '.css');
       mkdirp.sync(path.dirname(outLoc));
       switch (baseExt) {
         case '.js': {
-          if (builtFileOutput[cssBuildPath]) {
+          if (builtFileOutput['.css']) {
             await fs.mkdir(path.dirname(cssOutPath), {recursive: true});
-            await fs.writeFile(cssOutPath, builtFileOutput[cssBuildPath].contents, 'utf8');
+            await fs.writeFile(cssOutPath, builtFileOutput['.css'], 'utf8');
             contents = `import './${path.basename(cssOutPath)}';\n` + contents;
           }
           contents = wrapImportMeta({code: contents, env: true, hmr: false, config});
-          allFilesToResolveImports[outLoc] = {baseExt, expandedExt, contents, locOnDisk};
+          allFilesToResolveImports.push({baseExt, expandedExt, contents, locOnDisk});
           break;
         }
         case '.html': {
@@ -190,7 +186,7 @@ export async function command(commandOptions: CommandOptions) {
             hasHmr: false,
             buildOptions: config.buildOptions,
           });
-          allFilesToResolveImports[outLoc] = {baseExt, expandedExt, contents, locOnDisk};
+          allFilesToResolveImports.push({baseExt, expandedExt, contents, locOnDisk});
           break;
         }
       }

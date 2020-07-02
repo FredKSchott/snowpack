@@ -25,8 +25,7 @@ type DeepPartial<T> = {
 
 export type EnvVarReplacements = Record<string, string | number | true>;
 
-/** Snowpack export map */
-export type SnowpackBuildMap = {[outputLoc: string]: SnowpackSourceFile};
+export type SnowpackBuildMap = Record<string, string>;
 
 /** Standard file interface */
 export interface SnowpackSourceFile {
@@ -443,7 +442,7 @@ function loadPlugins(
     if (plugin.bundle) {
       bundler = plugin;
     }
-      plugins.push(plugin);
+    plugins.push(plugin);
   });
 
   // if no mounted directories, mount root
