@@ -61,6 +61,7 @@ class ErrorWithHint extends Error {
 const CJS_PACKAGES_TO_AUTO_DETECT = [
   'react/index.js',
   'react-dom/index.js',
+  'react-dom/server.js',
   'react-is/index.js',
   'prop-types/index.js',
   'scheduler/index.js',
