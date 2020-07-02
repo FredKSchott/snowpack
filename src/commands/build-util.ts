@@ -2,7 +2,7 @@ import type CSSModuleLoader from 'css-modules-loader-core';
 import {EventEmitter} from 'events';
 import path from 'path';
 import {SnowpackBuildMap, SnowpackConfig, SnowpackPlugin} from '../config';
-import {getExt, replaceExt} from '../util';
+import {getExt} from '../util';
 
 export interface BuildFileOptions {
   buildPipeline: SnowpackPlugin[];
@@ -32,9 +32,11 @@ export async function buildFile(
   srcContents: string,
   {buildPipeline, messageBus, isDev}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
-  const srcExt = getExt(srcPath);
-  const output: SnowpackBuildMap = {}; // important: clear output for each src file to keep memory low
-  output[srcPath] = {...srcExt, contents: srcContents, locOnDisk: srcPath}; // this is the object we’ll mutate through transformations
+  const srcExt = getExt(srcPath).baseExt;
+  const rootFileName = path.basename(srcPath).replace(srcExt, '');
+  const output: SnowpackBuildMap = {
+    [srcExt]: srcContents,
+  };
 
   // Run the file through the Snowpack build pipeline:
   for (const step of buildPipeline) {
@@ -44,70 +46,52 @@ export async function buildFile(
       continue;
     }
     const staleOutputs = new Set<string>();
-    for (const destPath of Object.keys(output)) {
+    for (const destExt of Object.keys(output)) {
       // If the current output file extension doesn't match a plugin input, skip it.
-      if (!step.input.includes(getExt(destPath).baseExt)) {
+      if (!step.input.includes(destExt)) {
         continue;
       }
-      const destBuildFile = output[destPath];
+      const destBuildFile = output[destExt];
       const result = await step.build({
-        contents: destBuildFile.contents,
-        filePath: destPath,
+        contents: destBuildFile,
+        filePath: rootFileName + destExt,
         isDev,
         log: (msg, data) => {
           messageBus.emit(msg, {
             ...data,
             id: step.name,
-            msg: data.msg && `[${destPath}] ${data.msg}`,
+            msg: data.msg && `[${srcPath}] ${data.msg}`,
           });
         },
         // Deprecated
-        urlPath: `./${path.basename(destPath)}`,
+        urlPath: `./${path.basename(rootFileName + destExt)}`,
       });
       if (!result) {
         continue;
       }
       if (typeof result === 'string') {
         // Path A: single-output (assume extension is same)
-        destBuildFile.contents = result;
+        output[destExt] = result;
       } else if (typeof result === 'object' && !result.result) {
         // Path B: multi-file output ({ js: [string], css: [string], … })
-        Object.entries(result as Record<string, string>).forEach(([ext, contents]) => {
+        Object.entries(result as SnowpackBuildMap).forEach(([ext, contents]) => {
           if (!contents) {
             return;
           }
-          const newDest = replaceExt(destPath, ext);
-          output[newDest] = {
-            baseExt: ext,
-            expandedExt: ext,
-            contents,
-            locOnDisk: destBuildFile.locOnDisk,
-          };
-          staleOutputs.add(destPath);
-          staleOutputs.delete(newDest);
+          output[ext] = contents;
+          staleOutputs.add(destExt);
+          staleOutputs.delete(ext);
         });
       } else if (typeof result === 'object' && result.result) {
         // Path C: DEPRECATED output ({ result, resources })
         const ext = step.output[0];
-        const newDest = replaceExt(destPath, ext);
-        output[newDest] = {
-          baseExt: ext,
-          expandedExt: ext,
-          contents: result.result,
-          locOnDisk: destBuildFile.locOnDisk,
-        };
-        staleOutputs.add(destPath);
-        staleOutputs.delete(newDest);
+        output[ext] = result.result;
+        staleOutputs.add(destExt);
+        staleOutputs.delete(ext);
         // handle CSS output for Svelte/Vue
         if (typeof result.resources === 'object' && result.resources.css) {
-          const cssFile = replaceExt(destPath, '.css');
-          output[cssFile] = {
-            baseExt: '.css',
-            expandedExt: '.css',
-            contents: result.resources.css,
-            locOnDisk: destBuildFile.locOnDisk,
-          };
-          staleOutputs.delete(cssFile);
+          output['.css'] = result.resources.css;
+          staleOutputs.delete('.css');
         }
       }
 
