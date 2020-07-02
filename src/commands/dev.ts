@@ -62,7 +62,6 @@ import {
   isYarn,
   openInBrowser,
   parsePackageImportSpecifier,
-  replaceExt,
   resolveDependencyManifest,
   updateLockfileHash,
 } from '../util';
@@ -160,10 +159,11 @@ function getUrlFromFile(mountedDirectories: [string, string][], fileLoc: string)
     if (fileLoc.startsWith(dirDisk + path.sep)) {
       const {baseExt} = getExt(fileLoc);
       const resolvedDirUrl = dirUrl === '/' ? '' : dirUrl;
-      return replaceExt(
-        fileLoc.replace(dirDisk, resolvedDirUrl).replace(/[/\\]+/g, '/'),
-        srcFileExtensionMapping[baseExt] || baseExt,
-      );
+      const extToReplace = srcFileExtensionMapping[baseExt];
+      if (extToReplace) {
+        fileLoc += extToReplace;
+      }
+      return fileLoc.replace(dirDisk, resolvedDirUrl).replace(/[/\\]+/g, '/');
     }
   }
   return null;
@@ -464,7 +464,7 @@ export async function command(commandOptions: CommandOptions) {
             return fileLoc;
           }
         } else {
-          for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
+          for (const potentialSourceFile of getInputsFromOutput(requestedFile)) {
             const fileLoc = await attemptLoadFile(potentialSourceFile);
             if (fileLoc) {
               return fileLoc;

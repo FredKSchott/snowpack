@@ -269,14 +269,3 @@ export function getExt(fileName: string) {
     expandedExt: path.basename(fileName).replace(/[^.]+/, '').toLocaleLowerCase(),
   };
 }
-
-/** Replace file extensions */
-export function replaceExt(
-  fileName: string,
-  newExtension: string,
-  replaceExpandedExt: boolean = false,
-): string {
-  const {baseExt, expandedExt} = getExt(fileName);
-  const extToReplace = new RegExp(`\\${replaceExpandedExt ? expandedExt : baseExt}$`, 'i');
-  return fileName.replace(extToReplace, newExtension);
-}

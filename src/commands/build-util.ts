@@ -15,13 +15,11 @@ export function checkIsPreact(filePath: string, contents: string) {
   return filePath.endsWith('.jsx') && IS_PREACT.test(contents);
 }
 
-export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
-  const {baseExt} = getExt(fileLoc);
-  const potentialInputs = new Set([fileLoc]);
-  for (const plugin of plugins) {
-    if (plugin.output.includes(baseExt)) {
-      plugin.input.forEach((inp) => potentialInputs.add(fileLoc.replace(baseExt, inp)));
-    }
+export function getInputsFromOutput(fileLoc: string) {
+  const potentialInputs = new Set<string>();
+  while (path.extname(fileLoc)) {
+    potentialInputs.add(fileLoc);
+    fileLoc = fileLoc.substring(0, fileLoc.length - path.extname(fileLoc).length);
   }
   return Array.from(potentialInputs);
 }

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../config';
-import {findMatchingMountScript, getExt, ImportMap, replaceExt} from '../util';
+import {findMatchingMountScript, getExt, ImportMap} from '../util';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 const cwd = process.cwd();
@@ -38,10 +38,10 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, isBundled
   const {baseExt} = getExt(spec);
   const extToReplace = srcFileExtensionMapping[baseExt];
   if (extToReplace) {
-    spec = replaceExt(spec, extToReplace);
+    spec += extToReplace;
   }
   if (!isBundled && (extToReplace || baseExt) !== '.js') {
-    spec = spec + '.proxy.js';
+    spec += '.proxy.js';
   }
 
   return spec;

@@ -10,7 +10,7 @@ import {SnowpackSourceFile} from '../config';
 import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
-import {CommandOptions, getEncodingType, getExt, replaceExt} from '../util';
+import {CommandOptions, getEncodingType, getExt} from '../util';
 import {
   buildFile,
   generateEnvModule,
@@ -149,11 +149,9 @@ export async function command(commandOptions: CommandOptions) {
     for (const locOnDisk of allFiles) {
       const {baseExt: fileExt} = getExt(locOnDisk);
       let outLoc = locOnDisk.replace(dirDisk, dirDest);
-      let builtLocOnDisk = locOnDisk;
       const extToReplace = srcFileExtensionMapping[fileExt];
       if (extToReplace) {
-        outLoc = replaceExt(outLoc, extToReplace);
-        builtLocOnDisk = replaceExt(builtLocOnDisk, extToReplace);
+        outLoc += extToReplace;
       }
       const fileContents = await fs.readFile(locOnDisk, getEncodingType(extToReplace || fileExt));
       const builtFileOutput = await buildFile(locOnDisk, fileContents, {
@@ -163,7 +161,7 @@ export async function command(commandOptions: CommandOptions) {
       });
       allBuiltFromFiles.add(locOnDisk);
       const {baseExt, expandedExt} = getExt(outLoc);
-      let contents = builtFileOutput[srcFileExtensionMapping[fileExt] || fileExt];
+      let contents = builtFileOutput[extToReplace || fileExt];
       if (!contents) {
         continue;
       }
