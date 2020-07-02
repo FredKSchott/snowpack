@@ -439,7 +439,11 @@ function loadPlugins(
   config.plugins.forEach((ref) => {
     const pluginName = Array.isArray(ref) ? ref[0] : ref;
     const pluginOptions = Array.isArray(ref) ? ref[1] : {};
-    plugins.push(loadPluginFromConfig(pluginName, pluginOptions));
+    const plugin = loadPluginFromConfig(pluginName, pluginOptions);
+    if (plugin.bundle) {
+      bundler = plugin;
+    }
+      plugins.push(plugin);
   });
 
   // if no mounted directories, mount root
