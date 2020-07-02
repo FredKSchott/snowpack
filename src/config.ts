@@ -442,7 +442,7 @@ function loadPlugins(
     if (plugin.bundle) {
       bundler = plugin;
     }
-      plugins.push(plugin);
+    plugins.push(plugin);
   });
 
   // if no mounted directories, mount root
