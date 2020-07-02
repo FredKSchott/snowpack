@@ -7,45 +7,45 @@ const yargs = require("yargs-parser");
 const { copy, removeSync } = require("fs-extra");
 const chalk = require("chalk");
 
+const errorAlert = `${chalk.red("[ERROR]")}`;
+const errorLink = `${chalk.dim(
+  chalk.underline("https://github.com/pikapkg/create-snowpack-app")
+)}`;
+
+let installer = "npm";
+
 function validateArgs(args) {
-  const { template, useYarn, force, target, _ } = yargs(args);
-  if (!target && _.length === 2) {
+  const { template, useYarn, usePnpm, force, target, _ } = yargs(args);
+  if (useYarn && usePnpm) {
     console.error(
-      `${chalk.red("[ERROR]")} Missing --target directory. ${chalk.dim(
-        chalk.underline("https://github.com/pikapkg/create-snowpack-app")
-      )}`
+      `${errorAlert} You can not use Yarn and pnpm at the same time. ${errorLink}`
     );
+    process.exit(1);
+  }
+  if (!target && _.length === 2) {
+    console.error(`${errorAlert} Missing --target directory. ${errorLink}`);
     process.exit(1);
   }
   if (typeof template !== "string") {
-    console.error(
-      `${chalk.red("[ERROR]")} Missing --template argument. ${chalk.dim(
-        chalk.underline("https://github.com/pikapkg/create-snowpack-app")
-      )}`
-    );
+    console.error(`${errorAlert} Missing --template argument. ${errorLink}`);
     process.exit(1);
   }
   if (_.length > 3) {
-    console.error(
-      `${chalk.red("[ERROR]")} Unexpected extra arguments. ${chalk.dim(
-        chalk.underline("https://github.com/pikapkg/create-snowpack-app")
-      )}`
-    );
+    console.error(`${errorAlert} Unexpected extra arguments. ${errorLink}`);
     process.exit(1);
   }
   const targetDirectoryRelative = target || _[2];
   const targetDirectory = path.resolve(process.cwd(), targetDirectoryRelative);
   if (fs.existsSync(targetDirectory) && !force) {
     console.error(
-      `${chalk.red(
-        "[ERROR]"
-      )} ${targetDirectory} already exists. Use \`--force\` to overwrite this directory.`
+      `${errorAlert} ${targetDirectory} already exists. Use \`--force\` to overwrite this directory.`
     );
     process.exit(1);
   }
   return {
     template,
     useYarn,
+    usePnpm,
     targetDirectoryRelative,
     targetDirectory,
   };
@@ -56,11 +56,9 @@ async function verifyProjectTemplate(dir) {
   const { keywords } = require(packageManifest);
   if (!keywords || !keywords.includes("csa-template")) {
     console.error(
-      `\n${chalk.red(
-        "[ERROR]"
-      )} The template is not a CSA template (missing "csa-template" keyword in package.json), check the template name to make sure you are using the current template name.`
+      `\n${errorAlert} The template is not a CSA template (missing "csa-template" keyword in package.json), check the template name to make sure you are using the current template name.`
     );
-    console.error(`${chalk.red("[ERROR]")} Cannot continue safely. Exiting...`);
+    console.error(`${errorAlert} Cannot continue safely. Exiting...`);
     process.exit(1);
   }
 }
@@ -99,9 +97,17 @@ async function cleanProject(dir) {
 const {
   template,
   useYarn,
+  usePnpm,
   targetDirectoryRelative,
   targetDirectory,
 } = validateArgs(process.argv);
+
+if (useYarn) {
+  installer = "yarn";
+} else if (usePnpm) {
+  installer = "pnpm";
+}
+
 const isLocalTemplate = template.startsWith("."); // must start with a `.` to be considered local
 const installedTemplate = isLocalTemplate
   ? path.resolve(targetDirectory, template) // handle local template
@@ -151,9 +157,29 @@ if (requiredVersion < 10) {
     cwd: targetDirectory,
     stdio: "inherit",
   };
-  const npmInstallProcess = useYarn
-    ? execa("yarn", ["--silent"], npmInstallOptions)
-    : execa("npm", ["install", "--loglevel", "error"], npmInstallOptions);
+
+  function installProcess(packageManager) {
+    switch (packageManager) {
+      case "npm":
+        return execa(
+          "npm",
+          ["install", "--loglevel", "error"],
+          npmInstallOptions
+        );
+      case "yarn":
+        return execa("yarn", ["--silent"], npmInstallOptions);
+      case "pnpm":
+        return execa(
+          "pnpm",
+          ["install", "--reporter=silent"],
+          npmInstallOptions
+        );
+      default:
+        throw new Error("Unspecified package installer.");
+    }
+  }
+
+  const npmInstallProcess = installProcess(installer);
   npmInstallProcess.stdout && npmInstallProcess.stdout.pipe(process.stdout);
   npmInstallProcess.stderr && npmInstallProcess.stderr.pipe(process.stderr);
   await npmInstallProcess;
@@ -178,30 +204,25 @@ if (requiredVersion < 10) {
   console.log(chalk.bold.underline(`Quickstart:`));
   console.log(``);
   console.log(`  cd ${targetDirectoryRelative}`);
-  console.log(`  ${useYarn ? "yarn" : "npm"} start`);
+  console.log(`  ${installer} start`);
   console.log(``);
   console.log(chalk.bold.underline(`All Commands:`));
   console.log(``);
   console.log(
     formatCommand(
-      `${useYarn ? "yarn" : "npm"} install`,
+      `${installer} install`,
       "Install your dependencies. (We already ran this one for you!)"
     )
   );
   console.log(
-    formatCommand(
-      `${useYarn ? "yarn" : "npm"} start`,
-      "Start your development server."
-    )
+    formatCommand(`${installer} start`, "Start your development server.")
   );
   console.log(
     formatCommand(
-      `${useYarn ? "yarn" : "npm run"} build`,
+      `${installer} run build`,
       "Build your website for production."
     )
   );
-  console.log(
-    formatCommand(`${useYarn ? "yarn" : "npm"} test`, "Run your tests.")
-  );
+  console.log(formatCommand(`${installer} test`, "Run your tests."));
   console.log(``);
 })();
