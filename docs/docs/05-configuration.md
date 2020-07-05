@@ -31,7 +31,7 @@ $ snowpack dev --no-bundle
 
 - **`--config [path]`** Set the path to your project config file.
 - **`--help`** Show this help.
-- **`--version`** Show the current version. 
+- **`--version`** Show the current version.
 - **`--reload`** Clear the local cache. Useful for troubleshooting installer issues.
 
 
@@ -60,7 +60,7 @@ $ snowpack dev --no-bundle
   - Inherit from a separate "base" config. Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
 - **`exclude`** | `string[]`
   - Exclude any files from scanning, building, etc. Defaults to exclude common test file locations: `['**/node_modules/**/*', '**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`
-  - Useful for excluding tests and other unnecessary files from the final build. Supports glob pattern matching. 
+  - Useful for excluding tests and other unnecessary files from the final build. Supports glob pattern matching.
 - **`install`** | `string[]`
   - Known dependencies to install with Snowpack. Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
 - **`scripts`**
@@ -77,7 +77,7 @@ $ snowpack dev --no-bundle
 - **`dest`** | `string`
   - *Default:`"web_modules"`*
   - Configure the install directory.
-- **`sourceMap`** | `boolean`  
+- **`sourceMap`** | `boolean`
   - Emit source maps for installed packages.
 - **`env`** | `{[ENV_NAME: string]: (string | true)}`
   - Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
@@ -85,17 +85,17 @@ $ snowpack dev --no-bundle
   - *Default:`false`, or `true` when run with `snowpack build`*
   - Treeshake your dependencies to optimize your installed files. Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
 - **`installTypes`** | `boolean`
-  - Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#TypeScript) to pick up these types. 
+  - Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#TypeScript) to pick up these types.
 - **`alias`** | `{[mapFromPackageName: string]: string}`
-  - Alias an installed package name. This applies to imports within your application and within your installed dependency graph. 
+  - Alias an installed package name. This applies to imports within your application and within your installed dependency graph.
   - Example: `"alias": {"react": "preact/compat", "react-dom": "preact/compat"}`
-- **`namedExports`** | `string[]` 
+- **`namedExports`** | `string[]`
   - Legacy Common.js (CJS) packages should only be imported by the default import (Example: `import reactTable from 'react-table'`)
   - But, some packages use named exports in their documentation, which can cause confusion for users. (Example: `import {useTable} from 'react-table'`)
   - You can enable "fake/synthetic" named exports for Common.js package by adding the package name under this configuration.
   - Example: `"namedExports": ["react-table"]`
 - **`rollup`**
-  - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use. 
+  - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use.
   - **`rollup.plugins`** - Specify [Custom Rollup plugins](#installing-non-js-packages) if you are dealing with non-standard files.
   - **`rollup.dedupe`** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation.
 
@@ -106,13 +106,15 @@ $ snowpack dev --no-bundle
 - **`out`** | `string` | Default: `"build"`
   - The local directory that we output your final build to.
 - **`bundle`** | `boolean`
-  - Create an optimized, bundled build for production. 
+  - Create an optimized, bundled build for production.
   - You must have [Parcel](https://parceljs.org/) as a dev dependency in your project.
   - If undefined, this option will be enabled if the `parcel` package is found.
 - **`fallback`** | `string` | Default: `"index.html"`
   - When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
 - **`open`** | `string` | Default: `"default"`
   - Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
+- **`hostname`** | `string` | Default: `localhost`
+  - The hostname where the browser tab will be open.
 - **`hmr`** | `boolean` | Default: `true`
   - Toggles whether or not Snowpack dev server should have HMR enabled.
 - **`secure`** | `boolean`
@@ -136,7 +138,7 @@ $ snowpack dev --no-bundle
     // Short form:
     "/api/01": "https://pokeapi.co/api/v2/",
     // Long form:
-    "/api/02": { 
+    "/api/02": {
       on: { proxyReq: (p, req, res) => /* Custom event handlers (JS only) */ },
       /* Custom http-proxy options */
     }
@@ -144,7 +146,7 @@ $ snowpack dev --no-bundle
 }
 ```
 
-If desired, `"proxy"` is where you configure the proxy behavior of your dev server. Define different paths that should be proxied, and where they should be proxied to. 
+If desired, `"proxy"` is where you configure the proxy behavior of your dev server. Define different paths that should be proxied, and where they should be proxied to.
 
 The short form of a full URL string is enough for general use. For advanced configuration, you can use the object format to set all options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
 

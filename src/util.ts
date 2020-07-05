@@ -177,8 +177,13 @@ const appNames = {
   },
 };
 
-export async function openInBrowser(protocol: string, port: number, browser: string) {
-  const url = `${protocol}//localhost:${port}`;
+export async function openInBrowser(
+  protocol: string,
+  hostname: string,
+  port: number,
+  browser: string,
+) {
+  const url = `${protocol}//${hostname}:${port}`;
   browser = /chrome/i.test(browser)
     ? appNames[process.platform]['chrome']
     : /brave/i.test(browser)
