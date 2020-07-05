@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "mount:public": "mount public --to /",
+    "mount:src": "mount src --to /_dist_",
+    "run:tsc": "tsc --noEmit",
+    "run:tsc::watch": "$1 --watch"
+  },
+  "plugins": [],
+  "installOptions": {
+    "installTypes": true
+  }
+}

@@ -2762,6 +2762,11 @@
     "@types/node" "*"
     "@types/responselike" "*"
 
+"@types/canvas-confetti@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/canvas-confetti/-/canvas-confetti-1.0.0.tgz#784fca12934ae3a8b50213672e7747b2efb0ffa7"
+  integrity sha512-Z3Eh7qlYdi9cvotmreZjqxaUSwpUYu/s2uzSvnGgktuHhpj8FHq6JSJLVYP3R4YNZN/d8nNOG5y2cKmautyDCQ==
+
 "@types/color-name@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
@@ -5032,15 +5037,15 @@ core-js-pure@^3.0.0:
   resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.6.5.tgz#c79e75f5e38dbc85a662d91eea52b8256d53b813"
   integrity sha512-lacdXOimsiD0QyNf9BC/mxivNJ/ybBGJXQFKzRekp1WTHoVUWsUHEn+2T8GJAzzIhyOuXA+gOxCVN3l+5PLPUA==
 
-core-js@^3.5.0:
-  version "3.6.5"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.6.5.tgz#7395dc273af37fb2e50e9bd3d9fe841285231d1a"
-  integrity sha512-vZVEEwZoIsI+vPEuoF9Iqf5H7/M3eeQqWlQnYa8FSKKePuYTf5MWnxb5SDAzCa60b3JBRS5g9b+Dq7b1y/RCrA==
-
 core-js@^2.4.0, core-js@^2.6.5:
   version "2.6.11"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.11.tgz#38831469f9922bded8ee21c9dc46985e0399308c"
   integrity sha512-5wjnpaT/3dV+XB4borEsnAYQchn00XSgTAWKDkEqv+K8KevjbzmofK6hfJ9TZIlpj2N0xQpazy7PiRQiWHqzWg==
+
+core-js@^3.5.0:
+  version "3.6.5"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.6.5.tgz#7395dc273af37fb2e50e9bd3d9fe841285231d1a"
+  integrity sha512-vZVEEwZoIsI+vPEuoF9Iqf5H7/M3eeQqWlQnYa8FSKKePuYTf5MWnxb5SDAzCa60b3JBRS5g9b+Dq7b1y/RCrA==
 
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
@@ -13661,6 +13666,11 @@ typescript@^3.8.0, typescript@^3.8.3:
   version "3.9.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.5.tgz#586f0dba300cde8be52dd1ac4f7e1009c1b13f36"
   integrity sha512-hSAifV3k+i6lEoCJ2k6R2Z/rp/H3+8sdmcn5NrS3/3kE7+RyZXm9aqvxWqjEXHAd8b0pShatpcdMTvEdvAJltQ==
+
+typescript@^3.9.6:
+  version "3.9.6"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.6.tgz#8f3e0198a34c3ae17091b35571d3afd31999365a"
+  integrity sha512-Pspx3oKAPJtjNwE92YS05HQoY7z2SFyOpHo9MqJor3BXAGNaPUs83CuVp9VISFkSjyRfiTpmKuAYGJB7S7hOxw==
 
 ua-parser-js@0.7.17:
   version "0.7.17"

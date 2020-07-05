@@ -7,6 +7,7 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 ## Official App Templates
 
 - [@snowpack/app-template-blank](/templates/app-template-blank)
+- [@snowpack/app-template-blank-typescript](/templates/app-template-blank-typescript)
 - [@snowpack/app-template-11ty](/templates/app-template-11ty)
 - [@snowpack/app-template-lit-element-typescript](/templates/app-template-lit-element-typescript)
 - [@snowpack/app-template-lit-element](/templates/app-template-lit-element)
