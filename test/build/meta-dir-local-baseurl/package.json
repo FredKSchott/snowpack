@@ -10,7 +10,8 @@
     },
     "buildOptions": {
       "baseUrl": "/builds",
-      "metaDir": "/static/snowpack"
+      "metaDir": "/static/snowpack",
+      "optimize": false
     }
   },
   "dependencies": {

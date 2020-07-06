@@ -3,7 +3,7 @@ import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-common
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
-import {terser} from 'rollup-plugin-terser';
+import esbuild from 'rollup-plugin-esbuild';
 import {init as initESModuleLexer} from 'es-module-lexer';
 import findUp from 'find-up';
 import fs from 'fs';
@@ -418,9 +418,7 @@ export async function install(
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
-      ...(process.env.NODE_ENV === 'production' && config.buildOptions.optimize
-        ? [terser({compress: false, mangle: true})]
-        : []), // https://github.com/terser/terser#terser-fast-minify-mode
+      ...(config.buildOptions.optimize ? [esbuild({minify: true})] : []),
     ].filter(Boolean) as Plugin[],
     onwarn(warning, warn) {
       // Warn about the first circular dependency, but then ignore the rest.

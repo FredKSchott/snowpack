@@ -5,5 +5,10 @@
   },
   "webDependencies": {
     "async": "3.1.0"
+  },
+  "snowpack": {
+    "buildOptions": {
+      "optimize": false
+    }
   }
 }

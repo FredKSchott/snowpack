@@ -3,9 +3,10 @@
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
   "snowpack": {
-    "install": [
-      "dep-a"
-    ]
+    "install": ["dep-a"],
+    "buildOptions": {
+      "optimize": false
+    }
   },
   "dependencies": {
     "dep-a": "1.0.0",

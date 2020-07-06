@@ -1,5 +1,10 @@
 {
   "scripts": {
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
+  },
+  "snowpack": {
+    "buildOptions": {
+      "optimize": false
+    }
   }
 }

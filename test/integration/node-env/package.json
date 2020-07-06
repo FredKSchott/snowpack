@@ -1,18 +1,21 @@
 {
-    "scripts": {
-        "TEST": "cross-env CLI_A=cli CONF_A=alpha node ../../../pkg/dist-node/index.bin.js --env NODE_ENV=FOOBAR --env CLI_A"
+  "scripts": {
+    "TEST": "cross-env CLI_A=cli CONF_A=alpha node ../../../pkg/dist-node/index.bin.js --env NODE_ENV=FOOBAR --env CLI_A"
+  },
+  "dependencies": {
+    "mock-test-package": "^1.2.3"
+  },
+  "snowpack": {
+    "install": ["mock-test-package"],
+    "installOptions": {
+      "env": {
+        "CONF_A": true,
+        "CONF_B": "beta",
+        "NODE_ENV": "should be overridden"
+      }
     },
-    "dependencies": {
-        "mock-test-package": "^1.2.3"
-    },
-    "snowpack": {
-        "install": ["mock-test-package"],
-        "installOptions": {
-            "env": {
-                "CONF_A": true,
-                "CONF_B": "beta",
-                "NODE_ENV": "should be overridden"
-            }
-        }
+    "buildOptions": {
+      "optimize": false
     }
+  }
 }

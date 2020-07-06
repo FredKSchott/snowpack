@@ -4,4 +4,7 @@ module.exports = {
       plugins: [require('rollup-plugin-svelte')()],
     },
   },
+  buildOptions: {
+    optimize: false,
+  },
 };

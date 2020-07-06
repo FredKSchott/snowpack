@@ -1,1 +1,5 @@
-function o(){console.log("local")}export default o;
+function test() {
+  console.log('local');
+}
+
+export default test;

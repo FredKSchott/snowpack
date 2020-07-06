@@ -3,6 +3,11 @@
   "scripts": {
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
+  "snowpack": {
+    "buildOptions": {
+      "optimize": false
+    }
+  },
   "dependencies": {
     "@emotion/is-prop-valid": "^0.8.5",
     "array-flatten": "^3.0.0",

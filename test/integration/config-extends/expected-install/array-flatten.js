@@ -22,3 +22,4 @@ function $flatten(array, result) {
 }
 
 export { flatten };
+//# sourceMappingURL=array-flatten.js.map

@@ -10,7 +10,8 @@
     },
     "buildOptions": {
       "baseUrl": "https://www.cdn.com/sub_path/",
-      "metaDir": "/static/snowpack"
+      "metaDir": "/static/snowpack",
+      "optimize": false
     }
   },
   "dependencies": {

@@ -9,7 +9,8 @@
       "mount:src": "mount src --to /_dist_"
     },
     "buildOptions": {
-      "metaDir": "/static/snowpack"
+      "metaDir": "/static/snowpack",
+      "optimize": false
     }
   },
   "dependencies": {

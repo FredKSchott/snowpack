@@ -1,1 +1,5 @@
-function o(){console.log("link")}export default o;
+function test() {
+  console.log('link');
+}
+
+export default test;

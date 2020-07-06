@@ -4,7 +4,10 @@
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
   "snowpack": {
-    "install": ["package-has-valid", "package-no-valid"]
+    "install": ["package-has-valid", "package-no-valid"],
+    "buildOptions": {
+      "optimize": false
+    }
   },
   "dependencies": {
     "package-has-valid": "^1.2.3",

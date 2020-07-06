@@ -13,7 +13,10 @@
     "install": [
       "react",
       "react-dom"
-    ]
+    ],
+    "buildOptions": {
+      "optimize": false
+    }
   },
   "dependencies": {
     "preact": "^10.0.0"
