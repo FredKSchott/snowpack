@@ -1,5 +1,1 @@
-function test() {
-  console.log('deeplink-change');
-}
-
-export default test;
+function e(){console.log("deeplink-change")}export default e;

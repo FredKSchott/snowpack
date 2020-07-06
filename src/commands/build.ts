@@ -6,6 +6,7 @@ import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import rimraf from 'rimraf';
+import Terser from 'terser';
 import {SnowpackSourceFile} from '../config';
 import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
@@ -180,6 +181,13 @@ export async function command(commandOptions: CommandOptions) {
             contents = `import './${path.basename(cssOutPath)}';\n` + contents;
           }
           contents = wrapImportMeta({code: contents, env: true, hmr: false, config});
+          if (config.buildOptions.optimize) {
+            try {
+              contents = Terser.minify(contents, {compress: false, mangle: true}).code as string; // https://github.com/terser/terser#terser-fast-minify-mode
+            } catch (err) {
+              console.error(err);
+            }
+          }
           allFilesToResolveImports[outLoc] = {baseExt, expandedExt, contents, locOnDisk};
           break;
         }
