@@ -42,7 +42,7 @@ After Snowpack builds your dependencies, any package can be imported and run dir
 <!-- This runs directly in the browser with `snowpack dev` -->
 <body>
   <script type='module'>
-    import * as React from 'react';
+    import React from 'react';
     console.log(React);
   </script>
 </body>
