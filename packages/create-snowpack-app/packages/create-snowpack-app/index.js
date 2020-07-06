@@ -51,12 +51,30 @@ function validateArgs(args) {
   };
 }
 
-async function verifyProjectTemplate(dir) {
-  const packageManifest = path.join(dir, "package.json");
-  const { keywords } = require(packageManifest);
+async function verifyProjectTemplate(isLocalTemplate, { template, dir}) {
+  let keywords
+  if (isLocalTemplate) {
+    const packageManifest = path.join(dir, "package.json");
+    keywords = require(packageManifest).keywords
+  } else {
+    try {
+      const {stdout} = await execa("npm", ["info", template, "keywords", '--json']);
+      keywords = JSON.parse(stdout)
+    } catch (err) {
+      console.log()
+      if (err.stderr) {
+        console.error(`${errorAlert} Unable to find "${chalk.cyan(template)}" in the npm registry.`)
+      } else {
+        console.log(err)
+      }
+      console.error(`${errorAlert} Cannot continue safely. Exiting...`);
+      process.exit(1);
+    }
+  }
+  
   if (!keywords || !keywords.includes("csa-template")) {
     console.error(
-      `\n${errorAlert} The template is not a CSA template (missing "csa-template" keyword in package.json), check the template name to make sure you are using the current template name.`
+      `\n${errorAlert} The template is not a CSA template (missing "${chalk.yellow('csa-template')}" keyword in package.json), check the template name to make sure you are using the current template name.`
     );
     console.error(`${errorAlert} Cannot continue safely. Exiting...`);
     process.exit(1);
@@ -125,6 +143,8 @@ if (requiredVersion < 10) {
 }
 
 (async () => {
+  await verifyProjectTemplate(isLocalTemplate, { dir: installedTemplate, template })
+
   console.log(`\n  - Using template ${chalk.cyan(template)}`);
   console.log(`  - Creating a new project in ${chalk.cyan(targetDirectory)}`);
 
@@ -147,7 +167,6 @@ if (requiredVersion < 10) {
     }
   }
   await copy(installedTemplate, targetDirectory);
-  await verifyProjectTemplate(targetDirectory);
   await cleanProject(targetDirectory);
 
   console.log(
