@@ -26,8 +26,8 @@
     "@types/react": "^16.9.35",
     "@types/react-dom": "^16.9.8",
     "jest": "^25.4.0",
-    "prettier": "^2.0.0",
-    "snowpack": "^2.5.0",
+    "prettier": "^2.0.5",
+    "snowpack": "^2.6.4",
     "typescript": "^3.8.0"
   },
   "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"

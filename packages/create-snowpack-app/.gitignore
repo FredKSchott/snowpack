@@ -3,11 +3,11 @@ node_modules
 .DS_Store
 .idea
 .vscode
-
+yarn-error.log
 
 templates/*/build
 templates/*/_output
 templates/*/package-lock.json
 templates/*/node_modules
 snowpack.lock.json
-/test/testdata
+/test/test-install

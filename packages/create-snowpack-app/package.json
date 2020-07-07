@@ -1,5 +1,6 @@
 {
   "name": "WORKSPACE",
+  "npmClient": "yarn",
   "private": true,
   "workspaces": [
     "packages/*",
@@ -7,9 +8,10 @@
   ],
   "scripts": {
     "publish": "npx lerna publish",
-    "test": "cd test && rm -rf testdata && jest test/runner.test.js --testTimeout 30000"
+    "test": "cd test && rm -rf test-install && jest test/runner.test.js --testTimeout 60000"
   },
   "devDependencies": {
+    "dir-compare": "^2.3.0",
     "execa": "^4.0.2",
     "jest": "^26.0.1",
     "lerna": "^3.20.2",
