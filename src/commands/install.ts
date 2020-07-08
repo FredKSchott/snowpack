@@ -617,8 +617,8 @@ export async function run({
 
   let newLockfile: ImportMap | null = null;
   if (webDependencies && Object.keys(webDependencies).length > 0) {
-    newLockfile = await resolveTargetsFromRemoteCDN(lockfile, pkgManifest, config).catch((err) => {
-      defaultLogError(report({code: 'RESOLVE_FROM_CDN', message: err.message || err}));
+    newLockfile = await resolveTargetsFromRemoteCDN(lockfile, config).catch((err) => {
+      defaultLogError(err.message || err);
       process.exit(1);
     });
   }
