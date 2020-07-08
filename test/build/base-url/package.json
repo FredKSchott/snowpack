@@ -1,6 +1,6 @@
 {
   "name": "snowpack-test-base-url",
-  "description": "This test makes sure that %PUBLIC_URL% present in src/index.html doesn’t exist in the final build",
+  "description": "This test makes sure that %PUBLIC_URL% present in src/index.html doesn’t exist in the final build. It also makes sure that the paths to the meta dir is respecting the baseUrl configuration.",
   "scripts": {
     "start": "node ../../../pkg/dist-node/index.bin.js dev",
     "prepare": "node ../../../pkg/dist-node/index.bin.js",
