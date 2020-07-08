@@ -100,6 +100,7 @@ export interface SnowpackConfig {
   plugins: SnowpackPlugin[];
   devOptions: {
     secure: boolean;
+    hostname: string;
     port: number;
     out: string;
     fallback: string;
@@ -162,6 +163,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   scripts: {},
   devOptions: {
     secure: false,
+    hostname: 'localhost',
     port: 8080,
     open: 'default',
     out: 'build',

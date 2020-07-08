@@ -84,6 +84,7 @@ export function paint(
     | undefined,
 ) {
   let port: number;
+  let hostname: string;
   let protocol = '';
   let startTimeMs: number;
   let ips: string[] = [];
@@ -113,7 +114,7 @@ export function paint(
       const isServerStarted = startTimeMs > 0 && port > 0 && protocol;
 
       if (isServerStarted) {
-        process.stdout.write(`  ${colors.bold(colors.cyan(`${protocol}//localhost:${port}`))}`);
+        process.stdout.write(`  ${colors.bold(colors.cyan(`${protocol}//${hostname}:${port}`))}`);
         for (const ip of ips) {
           process.stdout.write(
             `${colors.cyan(` • `)}${colors.bold(colors.cyan(`${protocol}//${ip}:${port}`))}`,
@@ -318,6 +319,7 @@ export function paint(
   });
   bus.on('SERVER_START', (info) => {
     startTimeMs = info.startTimeMs;
+    hostname = info.hostname;
     port = info.port;
     protocol = info.protocol;
     ips = info.ips;

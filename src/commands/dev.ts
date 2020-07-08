@@ -173,7 +173,7 @@ let currentlyRunningCommand: any = null;
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
-  const {port: defaultPort, open, hmr: isHmr} = config.devOptions;
+  const {port: defaultPort, hostname, open, hmr: isHmr} = config.devOptions;
   let serverStart = Date.now();
   const port = await getPort(defaultPort);
   // Reset the clock if we had to wait for the user to select a new port.
@@ -862,13 +862,14 @@ export async function command(commandOptions: CommandOptions) {
   const protocol = config.devOptions.secure ? 'https:' : 'http:';
   messageBus.emit('SERVER_START', {
     protocol,
+    hostname,
     port,
     ips,
     startTimeMs: Date.now() - serverStart,
   });
 
   // Open the user's browser
-  if (open !== 'none') await openInBrowser(protocol, port, open);
+  if (open !== 'none') await openInBrowser(protocol, hostname, port, open);
 
   // Start watching the file system.
   // Defer "chokidar" loading to here, to reduce impact on overall startup time
