@@ -390,12 +390,8 @@ export async function install(
       if (skipFailures) {
         continue;
       }
-      // An error occurred! Log it.
-      if (err.hint) {
-        // Note: Wait 1ms to guarantee a log message after the spinner
-        setTimeout(() => console.log(err.hint), 1);
-      }
-      return reportError({error: 'INSTALL_ERROR', message: err.message || err});
+      let hint = `\n` + err.hint || '';
+      return reportError({error: 'INSTALL_ERROR', message: err.message + hint || err});
     }
   }
   if (Object.keys(installEntrypoints).length === 0 && Object.keys(assetEntrypoints).length === 0) {
