@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-preact",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "license": "MIT",
   "keywords": [
     "csa-template"
