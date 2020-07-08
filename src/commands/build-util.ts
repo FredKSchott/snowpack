@@ -121,10 +121,10 @@ export function wrapImportMeta({
   }
   return (
     (hmr
-      ? `import * as  __SNOWPACK_HMR__ from '/${buildOptions.metaDir}/hmr.js';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`
+      ? `import * as  __SNOWPACK_HMR__ from '${buildOptions.baseUrl.replace(/\/$/, '')}/${buildOptions.metaDir}/hmr.js';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`
       : ``) +
     (env
-      ? `import __SNOWPACK_ENV__ from '/${buildOptions.metaDir}/env.js';\nimport.meta.env = __SNOWPACK_ENV__;\n`
+      ? `import __SNOWPACK_ENV__ from '${buildOptions.baseUrl.replace(/\/$/, '')}/${buildOptions.metaDir}/env.js';\nimport.meta.env = __SNOWPACK_ENV__;\n`
       : ``) +
     '\n' +
     code
@@ -151,7 +151,7 @@ export async function wrapCssModuleResponse({
   return `${
     hasHmr
       ? `
-import * as __SNOWPACK_HMR_API__ from '/${buildOptions.metaDir}/hmr.js';
+import * as __SNOWPACK_HMR_API__ from '${buildOptions.baseUrl.replace(/\/$/, '')}/${buildOptions.metaDir}/hmr.js';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
 import.meta.hot.accept(({module}) => {
   code = module.code;
@@ -187,7 +187,7 @@ export function wrapHtmlResponse({
   code = code.replace(/\/?%PUBLIC_URL%\/?/g, buildOptions.baseUrl);
 
   if (hasHmr) {
-    code += `<script type="module" src="/${buildOptions.metaDir}/hmr.js"></script>`;
+    code += `<script type="module" src="${buildOptions.baseUrl.replace(/\/$/, '')}/${buildOptions.metaDir}/hmr.js"></script>`;
   }
   return code;
 }
@@ -209,7 +209,7 @@ export function wrapEsmProxyResponse({
     return `${
       hasHmr
         ? `
-    import * as __SNOWPACK_HMR_API__ from '/${buildOptions.metaDir}/hmr.js';
+    import * as __SNOWPACK_HMR_API__ from '${buildOptions.baseUrl.replace(/\/$/, '')}/${buildOptions.metaDir}/hmr.js';
     import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
     import.meta.hot.accept(({module}) => {
       json = module.default;
@@ -224,7 +224,7 @@ export default json;`;
     return `${
       hasHmr
         ? `
-import * as __SNOWPACK_HMR_API__ from '/${buildOptions.metaDir}/hmr.js';
+import * as __SNOWPACK_HMR_API__ from '${buildOptions.baseUrl.replace(/\/$/, '')}/${buildOptions.metaDir}/hmr.js';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
 import.meta.hot.accept();
 import.meta.hot.dispose(() => {
