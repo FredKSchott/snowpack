@@ -643,6 +643,10 @@ export async function run({
     throw err;
   });
 
+  if ('error' in finalResult) {
+    spinnerHasError = true;
+  }
+
   if (finalResult.success) {
     spinner.succeed(
       colors.bold(`snowpack`) +
