@@ -103,8 +103,6 @@ $ snowpack dev --no-bundle
 
 - **`port`** | `number` | Default: `8080`
   - The port number to run the dev server on.
-- **`out`** | `string` | Default: `"build"`
-  - The local directory that we output your final build to.
 - **`bundle`** | `boolean`
   - Create an optimized, bundled build for production.
   - You must have [Parcel](https://parceljs.org/) as a dev dependency in your project.
@@ -128,6 +126,8 @@ $ snowpack dev --no-bundle
   - Set to `true` if Snowpack should erase the build folder before each build.
 - **`metaDir`** | `string` | Default: `__snowpack__`
   - By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
+- **`out`** | `string` | Default: `"build"`
+  - The local directory that we output your final build to.
 
 #### Proxy Options
 
