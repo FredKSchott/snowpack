@@ -505,7 +505,10 @@ export async function install(
       const err: RollupError = _err;
       const errFilePath = err.loc?.file || err.id;
       if (!errFilePath) {
-        throw err;
+        return reportError({
+          error: 'LOAD_FAIL',
+          message: `${colors.bold('snowpack')} failed to load an install entrypoint`,
+        });
       }
       // NOTE: Rollup will fail instantly on most errors. Therefore, we can
       // only report one error at a time. `err.watchFiles` also exists, but
