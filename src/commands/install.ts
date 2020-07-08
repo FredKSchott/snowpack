@@ -484,7 +484,6 @@ export async function install(
             message: `${warning.message}. See https://www.snowpack.dev/#troubleshooting`,
           });
         }
-        return;
       }
       warn(warning);
     },
