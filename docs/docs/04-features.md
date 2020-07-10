@@ -160,7 +160,7 @@ Snowpack automatically builds all `.jsx` & `.tsx` files to JavaScript during dev
 
 Snowpack automatically builds all `.ts` & `.tsx` files to JavaScript. Snowpack will not perform any type checking by default (see below), only building from TS->JS.
 
-You could also choose to define your own JSX->JavaScript build step via a [Build Script integration](#build-scripts).
+You could also choose to define your own TSX->JavaScript build step via a [Build Script integration](#build-scripts).
 
 ```js
 // snowpack.config.json
