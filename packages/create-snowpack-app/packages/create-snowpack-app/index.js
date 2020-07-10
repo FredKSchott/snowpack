@@ -5,11 +5,11 @@ const path = require("path");
 const execa = require("execa");
 const yargs = require("yargs-parser");
 const { copy, removeSync } = require("fs-extra");
-const chalk = require("chalk");
+const colors = require("kleur");
 
-const errorAlert = `${chalk.red("[ERROR]")}`;
-const errorLink = `${chalk.dim(
-  chalk.underline("https://github.com/pikapkg/create-snowpack-app")
+const errorAlert = `${colors.red("[ERROR]")}`;
+const errorLink = `${colors.dim(
+  colors.underline("https://github.com/pikapkg/create-snowpack-app")
 )}`;
 
 let installer = "npm";
@@ -63,7 +63,7 @@ async function verifyProjectTemplate(isLocalTemplate, { template, dir}) {
     } catch (err) {
       console.log()
       if (err.stderr) {
-        console.error(`${errorAlert} Unable to find "${chalk.cyan(template)}" in the npm registry.`)
+        console.error(`${errorAlert} Unable to find "${colors.cyan(template)}" in the npm registry.`)
       } else {
         console.log(err)
       }
@@ -74,7 +74,7 @@ async function verifyProjectTemplate(isLocalTemplate, { template, dir}) {
   
   if (!keywords || !keywords.includes("csa-template")) {
     console.error(
-      `\n${errorAlert} The template is not a CSA template (missing "${chalk.yellow('csa-template')}" keyword in package.json), check the template name to make sure you are using the current template name.`
+      `\n${errorAlert} The template is not a CSA template (missing "${colors.yellow('csa-template')}" keyword in package.json), check the template name to make sure you are using the current template name.`
     );
     console.error(`${errorAlert} Cannot continue safely. Exiting...`);
     process.exit(1);
@@ -136,7 +136,7 @@ const requiredVersion = parseInt(currentVersion.split(".")[0], 10);
 
 if (requiredVersion < 10) {
   console.error(
-    chalk.red(`Node.js v${currentVersion} is out of date and not supported!`)
+    colors.red(`Node.js v${currentVersion} is out of date and not supported!`)
   );
   console.error(`Please use Node.js v10.16.0 or higher.`);
   process.exit(1);
@@ -145,8 +145,8 @@ if (requiredVersion < 10) {
 (async () => {
   await verifyProjectTemplate(isLocalTemplate, { dir: installedTemplate, template })
 
-  console.log(`\n  - Using template ${chalk.cyan(template)}`);
-  console.log(`  - Creating a new project in ${chalk.cyan(targetDirectory)}`);
+  console.log(`\n  - Using template ${colors.cyan(template)}`);
+  console.log(`  - Creating a new project in ${colors.cyan(targetDirectory)}`);
 
   fs.mkdirSync(targetDirectory, { recursive: true });
   await fs.promises.writeFile(
@@ -210,22 +210,22 @@ if (requiredVersion < 10) {
     await execa("git", ["commit", "-m", "initial commit"], {
       cwd: targetDirectory,
     });
-    console.log(`  - ${chalk.green("Success!")}`);
+    console.log(`  - ${colors.green("Success!")}`);
   } catch (err) {
-    console.log(`  - ${chalk.yellow("Could not complete.")}`);
+    console.log(`  - ${colors.yellow("Could not complete.")}`);
   }
 
   function formatCommand(command, description) {
-    return "  " + command.padEnd(17) + chalk.dim(description);
+    return "  " + command.padEnd(17) + colors.dim(description);
   }
 
   console.log(``);
-  console.log(chalk.bold.underline(`Quickstart:`));
+  console.log(colors.bold(colors.underline(`Quickstart:`)));
   console.log(``);
   console.log(`  cd ${targetDirectoryRelative}`);
   console.log(`  ${installer} start`);
   console.log(``);
-  console.log(chalk.bold.underline(`All Commands:`));
+  console.log(colors.bold(colors.underline(`All Commands:`)));
   console.log(``);
   console.log(
     formatCommand(
