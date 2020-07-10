@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "useDefineForClassFields": true,
     
     // You can't currently define paths in your 'extends' config,
     // so we have to set 'baseUrl' & 'paths' here.
