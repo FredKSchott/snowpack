@@ -13,6 +13,13 @@ npm install --save-dev @snowpack/plugin-dotenv
 }
 ```
 
+```
+# .env
+SNOWPACK_PUBLIC_ENABLE_FEATURE=true
+```
+
+**NOTE:** Snowpack requires the `SNOWPACK_PUBLIC_` prefix to recognize environment variables. This is to prevent accidental exposure of keys and secrets.
+
 #### What is Supported?
 
 - [dotenv-expand](https://github.com/motdotla/dotenv-expand)
