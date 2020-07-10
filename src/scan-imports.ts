@@ -19,7 +19,7 @@ const BARE_SPECIFIER_REGEX = /^[@\w](?!.*(:\/\/))/;
 const ESM_IMPORT_REGEX = /import(?:["'\s]*([\w*${}\n\r\t, ]+)\s*from\s*)?\s*["'](.*?)["']/gm;
 const ESM_DYNAMIC_IMPORT_REGEX = /import\((?:['"].+['"]|`[^$]+`)\)/gm;
 const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
-const SPLIT_NAMED_IMPORTS_REGEX = /\bas\s+\w+|,/s;
+const STRIP_AS = /\s+as\s+.*/; // for `import { foo as bar }`, strips “as bar”
 const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s]*\})?\s+from/s;
 
 /**
@@ -120,8 +120,8 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
   const hasNamespaceImport = !isDynamicImport && importStatement.includes('*');
 
   const namedImports = (importStatement.match(HAS_NAMED_IMPORTS_REGEX)! || [, ''])[1]
-    .split(SPLIT_NAMED_IMPORTS_REGEX)
-    .map((name) => name.trim())
+    .split(',') // split `import { a, b, c }` by comma
+    .map((name) => name.replace(STRIP_AS, '').trim()) // remove “ as …” and trim
     .filter(isTruthy);
 
   return {
