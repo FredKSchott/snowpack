@@ -1,0 +1,19 @@
+{
+  "description": "Test that makes sure that the metaDir can be configured and still build",
+  "scripts": {
+    "prepare": "node ../../../pkg/dist-node/index.bin.js",
+    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+  },
+  "snowpack": {
+    "scripts": {
+      "mount:src": "mount src --to /_dist_"
+    },
+    "buildOptions": {
+      "baseUrl": "https://www.cdn.com/sub_path/",
+      "metaDir": "/static/snowpack"
+    }
+  },
+  "dependencies": {
+    "shallow-equal": "^1.2.1"
+  }
+}
