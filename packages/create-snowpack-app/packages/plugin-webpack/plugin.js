@@ -1,4 +1,5 @@
 const fs = require("fs");
+const glob = require("glob");
 const path = require("path");
 const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -54,28 +55,38 @@ module.exports = function plugin(config, args) {
         extendConfig = (cfg) => ({ ...cfg, ...args.extendConfig });
       }
 
-      let dom = new JSDOM(
-        fs.readFileSync(path.join(srcDirectory, config.devOptions.fallback))
-      );
+      // Get all html files from the output folder
+      const pattern = srcDirectory + "/**/*.html";
+      const htmlFiles = glob.sync(pattern)
+          .map(htmlPath => path.relative(srcDirectory, htmlPath));
 
-      //Find all local script, use it as the entrypoint
-      const scripts = Array.from(dom.window.document.querySelectorAll("script"))
-        .filter((el) => el.type.trim().toLowerCase() === "module")
-        .filter((el) => !/^[a-zA-Z]+:\/\//.test(el.src));
+      const doms = {};
+      const entries = {};
+      for (const htmlFile of htmlFiles) {
+          const dom = new JSDOM(
+            fs.readFileSync(path.join(srcDirectory, htmlFile))
+          );
 
-      if (scripts.length === 0) {
-        throw new Error("Can't bundle without script tag in html");
+          //Find all local script, use it as the entrypoint
+          const scripts = Array.from(dom.window.document.querySelectorAll("script"))
+            .filter((el) => el.type.trim().toLowerCase() === "module")
+            .filter((el) => !/^[a-zA-Z]+:\/\//.test(el.src));
+
+          for (const el of scripts) {
+            const src = el.src.trim();
+            const parsedPath = path.parse(src);
+            const name = parsedPath.name;
+            if (!(name in entries)) {
+                entries[name] = { path: path.join(srcDirectory, src), occurrences: [] };
+            }
+            entries[name].occurrences.push({ script: el, dom });
+          }
+
+          doms[htmlFile] = dom;
       }
 
-      const entries = {};
-      for (const el of scripts) {
-        const src = el.src.trim();
-        const parsedPath = path.parse(src);
-        const name = parsedPath.name;
-        if (entries.name !== undefined) {
-          throw new Error(`Duplicate script with name ${name}.`);
-        }
-        entries[name] = { path: path.join(srcDirectory, src), script: el };
+      if (Object.keys(entries).length === 0) {
+        throw new Error("Can't bundle without script tag in html");
       }
 
       //Compile files using webpack
@@ -218,17 +229,21 @@ module.exports = function plugin(config, args) {
         );
       }
 
-      if (!args.skipFallbackOutput) {
-        const entrypoints = stats.toJson({ assets: false, hash: true })
-          .entrypoints;
+      const entrypoints = stats.toJson({ assets: false, hash: true })
+        .entrypoints;
 
-        //Now that webpack is done, modify the html file to point to the newly compiled resources
-        Object.keys(entries).forEach((name) => {
-          const originalScriptEl = entries[name].script;
-          if (entrypoints[name] !== undefined && entrypoints[name]) {
-            const assetFiles = entrypoints[name].assets || [];
-            const jsFiles = assetFiles.filter((d) => d.endsWith(".js"));
-            const cssFiles = assetFiles.filter((d) => d.endsWith(".css"));
+      //Now that webpack is done, modify the html files to point to the newly compiled resources
+      Object.keys(entries).forEach((name) => {
+        if (entrypoints[name] !== undefined && entrypoints[name]) {
+          const assetFiles = entrypoints[name].assets || [];
+          const jsFiles = assetFiles.filter((d) => d.endsWith(".js"));
+          const cssFiles = assetFiles.filter((d) => d.endsWith(".css"));
+
+          for (const occurrence of entries[name].occurrences) {
+            const originalScriptEl = occurrence.script;
+            const dom = occurrence.dom;
+            const head = dom.window.document.querySelector("head");
+
             for (const jsFile of jsFiles) {
               const scriptEl = dom.window.document.createElement("script");
               scriptEl.src = path.posix.join(baseUrl, jsFile);
@@ -238,17 +253,19 @@ module.exports = function plugin(config, args) {
               const linkEl = dom.window.document.createElement("link");
               linkEl.setAttribute("rel", "stylesheet");
               linkEl.href = path.posix.join(baseUrl, cssFile);
-              dom.window.document.querySelector("head").append(linkEl);
+              head.append(linkEl);
             }
             originalScriptEl.remove();
           }
-        });
+        }
+      });
 
-        //And write our modified html file out to the destination
-        fs.writeFileSync(
-          path.join(destDirectory, config.devOptions.fallback),
-          dom.serialize()
-        );
+      //And write our modified html files out to the destination
+      for (const [htmlFile, dom] of Object.entries(doms)) {
+          fs.writeFileSync(
+            path.join(destDirectory, htmlFile),
+            dom.serialize()
+          );
       }
     },
   };
