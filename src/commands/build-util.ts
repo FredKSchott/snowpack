@@ -106,12 +106,13 @@ export async function buildFile(
 }
 
 export function getMetaDir(config: SnowpackConfig) {
-  let {baseUrl, metaDir} = config?.buildOptions || {};
-  metaDir = metaDir?.replace(/^\/?((.*[^/])\/?$)?/, '$2');
+  let {baseUrl, metaDir} = config.buildOptions || {};
+  metaDir = metaDir.replace(/^\/?((.*[^/])\/?$)?/, '$2');
   if (URL_HAS_PROTOCOL_REGEX.test(baseUrl)) {
     return metaDir;
   }
-  return path.join(baseUrl, metaDir).replace(/^\//, '');
+  baseUrl = baseUrl.replace(/^\/?((.*[^/])\/?$)?/, '$2');
+  return baseUrl ? baseUrl + '/' + metaDir : metaDir;
 }
 
 export function wrapImportMeta({
