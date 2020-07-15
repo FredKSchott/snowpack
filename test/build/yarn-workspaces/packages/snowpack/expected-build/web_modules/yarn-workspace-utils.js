@@ -21,4 +21,6 @@ function $flatten(array, result) {
     }
 }
 
-export { flatten };
+const makeFlat = flatten;
+
+export { makeFlat };

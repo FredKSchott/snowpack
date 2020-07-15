@@ -1,3 +1,3 @@
-import {flatten} from 'array-flatten';
+import {makeFlat} from 'yarn-workspace-utils';
 
-console.log(flatten([1, [2, [3, [4, [5], 6], 7], 8], 9]));
+console.log(makeFlat([1, [2, [3, [4, [5], 6], 7], 8], 9]));
