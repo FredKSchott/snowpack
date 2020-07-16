@@ -5,7 +5,7 @@ import execa from 'execa';
 import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import fs from 'fs';
-import got, {CancelableRequest, Response} from 'got';
+import bent, { ValidResponse, Options } from 'bent';
 import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
@@ -42,6 +42,10 @@ export interface CommandOptions {
   pkgManifest: any;
 }
 
+export function getSnowpackVersion() {
+  return require('../package.json').version
+}
+
 export function isYarn(cwd: string) {
   return fs.existsSync(path.join(cwd, 'yarn.lock'));
 }
@@ -72,19 +76,19 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
   fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
 }
 
-export function fetchCDNResource(
+export async function fetchCDNResource(
   resourceUrl: string,
-  responseType?: 'text' | 'json' | 'buffer',
-): Promise<CancelableRequest<Response>> {
-  if (!resourceUrl.startsWith(PIKA_CDN)) {
-    resourceUrl = PIKA_CDN + resourceUrl;
+  responseType?: 'string' | 'json' | 'buffer',
+): Promise<ValidResponse> {
+  if (resourceUrl.startsWith(PIKA_CDN)) {
+    resourceUrl = resourceUrl.split(PIKA_CDN)[1];
   }
-  // @ts-ignore - TS doesn't like responseType being unknown amount three options
-  return got(resourceUrl, {
-    responseType: responseType,
-    headers: {'user-agent': `snowpack/v1.4 (https://snowpack.dev)`},
-    throwHttpErrors: false,
-  });
+
+  const options = [
+    {'user-agent': `snowpack/v${getSnowpackVersion()} (https://snowpack.dev)`}, 200, responseType
+  ].filter(Boolean)
+  const request = bent(PIKA_CDN, ...(options as Options[]))
+  return request(resourceUrl)
 }
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {

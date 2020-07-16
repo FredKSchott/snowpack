@@ -1,5 +1,5 @@
 import {promises as fs} from 'fs';
-import got from 'got';
+import bent from 'bent';
 import path from 'path';
 import {CommandOptions} from '../util';
 import {command as installCommand} from './install';
@@ -8,7 +8,8 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
   const {cwd, config, pkgManifest} = commandOptions;
   let [pkgName, pkgSemver] = addValue.split('@');
   if (!pkgSemver) {
-    const body = (await got(`http://registry.npmjs.org/${pkgName}/latest`).json()) as any;
+    const getJson = bent('https://registry.npmjs.org', 'json', 200);
+    const body = await getJson(`${pkgName}/latest`) as { version: string };
     pkgSemver = `^${body.version}`;
   }
   pkgManifest.webDependencies = pkgManifest.webDependencies || {};

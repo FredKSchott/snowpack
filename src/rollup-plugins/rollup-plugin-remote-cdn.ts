@@ -6,6 +6,7 @@ import {OutputOptions, Plugin, ResolvedId} from 'rollup';
 import tar from 'tar';
 import url from 'url';
 import {fetchCDNResource, HAS_CDN_HASH_REGEX, PIKA_CDN, RESOURCE_CACHE} from '../util';
+import { BentResponse } from 'bent';
 
 const CACHED_FILE_ID_PREFIX = 'snowpack-pkg-cache:';
 const PIKA_CDN_TRIM_LENGTH = PIKA_CDN.length;
@@ -53,17 +54,19 @@ export function rollupPluginDependencyCache({
       }
 
       // Otherwise, make the remote request and cache the file on success.
-      const response = await fetchCDNResource(cacheKey);
-      if (response.statusCode === 200) {
+      try {
+        const response = await fetchCDNResource(cacheKey) as BentResponse;
         const typesUrlPath = response.headers['x-typescript-types'] as string | undefined;
         const pinnedUrlPath = response.headers['x-pinned-url'] as string;
         const typesUrl = typesUrlPath && `${PIKA_CDN}${typesUrlPath}`;
         const pinnedUrl = pinnedUrlPath && `${PIKA_CDN}${pinnedUrlPath}`;
-        await cacache.put(RESOURCE_CACHE, cacheKey, response.body, {
+        // @ts-ignore
+        const body = await response.text()
+        await cacache.put(RESOURCE_CACHE, cacheKey, body, {
           metadata: {pinnedUrl, typesUrl},
         });
         return CACHED_FILE_ID_PREFIX + cacheKey;
-      }
+      } catch (ex) {}
 
       // If lookup failed, skip this plugin and resolve the import locally instead.
       // TODO: Log that this has happened (if some sort of verbose mode is enabled).
@@ -108,11 +111,12 @@ export function rollupPluginDependencyCache({
         if (cachedTarball) {
           tarballContents = cachedTarball.data;
         } else {
-          const tarballResponse = await fetchCDNResource(typesTarballUrl, 'buffer');
-          if (tarballResponse.statusCode !== 200) {
-            continue;
+          try {
+            const tarballResponse = await fetchCDNResource(typesTarballUrl, 'buffer') as Buffer;
+            tarballContents = tarballResponse;
+          } catch (ex) {
+            continue
           }
-          tarballContents = (tarballResponse.body as any) as Buffer;
           await cacache.put(RESOURCE_CACHE, typesTarballUrl, tarballContents);
         }
         const typesUrlParts = url.parse(typesTarballUrl).pathname!.split('/');

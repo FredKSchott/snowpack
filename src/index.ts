@@ -6,7 +6,7 @@ import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {command as installCommand} from './commands/install';
 import {CLIFlags, loadAndValidateConfig} from './config.js';
-import {clearCache, readLockfile} from './util.js';
+import {clearCache, readLockfile, getSnowpackVersion} from './util.js';
 
 export {install as unstable_installCommand} from './commands/install';
 export {createConfiguration} from './config.js';
@@ -46,7 +46,7 @@ export async function cli(args: string[]) {
     process.exit(0);
   }
   if (cliFlags.version) {
-    console.log(require('../package.json').version);
+    console.log(getSnowpackVersion());
     process.exit(0);
   }
   if (cliFlags.reload) {
