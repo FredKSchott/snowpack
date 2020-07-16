@@ -9,7 +9,7 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
   let [pkgName, pkgSemver] = addValue.split('@');
   if (!pkgSemver) {
     const getJson = bent('https://registry.npmjs.org', 'json', 200);
-    const body = await getJson(`${pkgName}/latest`) as { version: string };
+    const body = (await getJson(`${pkgName}/latest`)) as {version: string};
     pkgSemver = `^${body.version}`;
   }
   pkgManifest.webDependencies = pkgManifest.webDependencies || {};

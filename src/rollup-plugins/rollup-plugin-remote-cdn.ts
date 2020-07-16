@@ -60,7 +60,7 @@ export function rollupPluginDependencyCache({
         const typesUrl = typesUrlPath && `${PIKA_CDN}${typesUrlPath}`;
         const pinnedUrl = pinnedUrlPath && `${PIKA_CDN}${pinnedUrlPath}`;
         // @ts-ignore - text is missing from type definition
-        const body = await response.text()
+        const body = await response.text();
         await cacache.put(RESOURCE_CACHE, cacheKey, body, {
           metadata: {pinnedUrl, typesUrl},
         });

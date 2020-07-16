@@ -70,7 +70,7 @@ async function resolveDependency(
   // Otherwise, resolve from the CDN remotely.
   // @ts-ignore - text is missing in type definition
   const {statusCode, headers, text} = await fetchCDNResource(installUrl);
-  const body = await text()
+  const body = await text();
   if (statusCode !== 200) {
     console.warn(`Failed to resolve [${statusCode}]: ${installUrl} (${body})`);
     console.warn(`Falling back to local copy...`);
@@ -115,7 +115,7 @@ async function resolveDependency(
   if (!importUrlPath) {
     throw new Error('X-Import-URL header expected, but none received.');
   }
-  const {statusCode: lookupStatusCode } = await fetchCDNResource(importUrlPath);
+  const {statusCode: lookupStatusCode} = await fetchCDNResource(importUrlPath);
   if (lookupStatusCode !== 200) {
     throw new Error(`Unexpected response [${lookupStatusCode}]: ${PIKA_CDN}${importUrlPath}`);
   }

@@ -5,7 +5,7 @@ import execa from 'execa';
 import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import fs from 'fs';
-import bent, { BentResponse } from 'bent';
+import bent, {BentResponse} from 'bent';
 import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
@@ -43,7 +43,7 @@ export interface CommandOptions {
 }
 
 export function getSnowpackVersion() {
-  return require('../package.json').version
+  return require('../package.json').version;
 }
 
 export function isYarn(cwd: string) {
@@ -76,19 +76,21 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
   fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
 }
 
-export async function fetchCDNResource(
-  resourceUrl: string,
-): Promise<BentResponse> {
+export async function fetchCDNResource(resourceUrl: string): Promise<BentResponse> {
   if (resourceUrl.startsWith(PIKA_CDN)) {
     resourceUrl = resourceUrl.split(PIKA_CDN)[1];
   }
 
-  const request = bent(PIKA_CDN, {'user-agent': `snowpack/v${getSnowpackVersion()} (https://snowpack.dev)`}, 200)
+  const request = bent(
+    PIKA_CDN,
+    {'user-agent': `snowpack/v${getSnowpackVersion()} (https://snowpack.dev)`},
+    200,
+  );
 
   try {
-    return await request(resourceUrl) as BentResponse
+    return (await request(resourceUrl)) as BentResponse;
   } catch (ex) {
-    return ex
+    return ex;
   }
 }
 
