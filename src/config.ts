@@ -566,7 +566,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   config.plugins = plugins;
   config._mountedDirs = mountedDirs;
   config._bundler = bundler;
-  config._webModulesPath = webModulesDir;
+  config._webModulesPath = webModulesDir.replace(/^[/\\]/, ''); // strip leading `/` if any
 
   // If any plugins defined knownEntrypoints, add them here
   for (const {knownEntrypoints} of config.plugins) {

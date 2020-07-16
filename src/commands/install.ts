@@ -33,9 +33,10 @@ import {
   ImportMap,
   isTruthy,
   MISSING_PLUGIN_SUGGESTIONS,
-  resolveDependencyManifest,
-  writeLockfile,
   parsePackageImportSpecifier,
+  resolveDependencyManifest,
+  sanitizePackageName,
+  writeLockfile,
 } from '../util.js';
 
 type InstallResultCode = 'SUCCESS' | 'ASSET' | 'FAIL';
@@ -115,7 +116,9 @@ function isImportOfPackage(importUrl: string, packageName: string) {
  * 2. Remove any ".js"/".mjs" extension (will be added automatically by Rollup)
  */
 function getWebDependencyName(dep: string): string {
-  return dep.replace(/\.m?js$/i, '');
+  return validatePackageName(dep).validForNewPackages
+    ? dep.replace(/\.js$/i, 'js') // if this is a top-level package ending in .js, replace with js (e.g. tippy.js -> tippyjs)
+    : dep.replace(/\.m?js$/i, ''); // otherwise simply strip the extension (Rollup will resolve it)
 }
 
 /**
@@ -318,9 +321,10 @@ export async function install(
 
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
+    const proxiedName = sanitizePackageName(targetName); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
     if (lockfile && lockfile.imports[installSpecifier]) {
       installEntrypoints[targetName] = lockfile.imports[installSpecifier];
-      importMap.imports[installSpecifier] = `./${targetName}.js`;
+      importMap.imports[installSpecifier] = `./${proxiedName}.js`;
       installResults.push([targetName, 'SUCCESS']);
       logUpdate(formatInstallResults());
       continue;
@@ -329,7 +333,7 @@ export async function install(
       const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier);
       if (targetType === 'JS') {
         installEntrypoints[targetName] = targetLoc;
-        importMap.imports[installSpecifier] = `./${targetName}.js`;
+        importMap.imports[installSpecifier] = `./${proxiedName}.js`;
         Object.entries(installAlias)
           .filter(([, value]) => value === installSpecifier)
           .forEach(([key]) => {
@@ -341,7 +345,7 @@ export async function install(
         installResults.push([installSpecifier, 'SUCCESS']);
       } else if (targetType === 'ASSET') {
         assetEntrypoints[targetName] = targetLoc;
-        importMap.imports[installSpecifier] = `./${targetName}`;
+        importMap.imports[installSpecifier] = `./${proxiedName}`;
         installResults.push([installSpecifier, 'ASSET']);
       }
       logUpdate(formatInstallResults());
@@ -479,10 +483,11 @@ export async function install(
   }
 
   await writeLockfile(path.join(destLoc, 'import-map.json'), importMap);
-  Object.entries(assetEntrypoints).forEach(([assetName, assetLoc]) => {
-    mkdirp.sync(path.dirname(`${destLoc}/${assetName}`));
-    fs.copyFileSync(assetLoc, `${destLoc}/${assetName}`);
-  });
+  for (const [assetName, assetLoc] of Object.entries(assetEntrypoints)) {
+    const assetDest = `${destLoc}/${sanitizePackageName(assetName)}`;
+    mkdirp.sync(path.dirname(assetDest));
+    fs.copyFileSync(assetLoc, assetDest);
+  }
 
   return {success: true, importMap};
 }
