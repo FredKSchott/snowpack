@@ -1,0 +1,7 @@
+{
+  "name": "yarn-workspace-utils",
+  "version": "0.0.1",
+  "dependencies": {
+    "array-flatten": "^3.0.0"
+  }
+}
