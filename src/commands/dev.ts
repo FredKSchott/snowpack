@@ -74,6 +74,7 @@ import {
   wrapEsmProxyResponse,
   wrapHtmlResponse,
   wrapImportMeta,
+  getMetaDir,
 } from './build-util';
 import {createImportResolver} from './import-resolver';
 import {command as installCommand} from './install';
@@ -395,11 +396,13 @@ export async function command(commandOptions: CommandOptions) {
       }
     });
 
-    if (reqPath === `/${config.buildOptions.metaDir}/hmr.js`) {
+    const metaDir = getMetaDir(config);
+
+    if (reqPath === `${metaDir}/hmr.js`) {
       sendFile(req, res, HMR_DEV_CODE, '.js');
       return;
     }
-    if (reqPath === `/${config.buildOptions.metaDir}/env.js`) {
+    if (reqPath === `${metaDir}/env.js`) {
       sendFile(req, res, generateEnvModule('development'), '.js');
       return;
     }
@@ -523,7 +526,7 @@ export async function command(commandOptions: CommandOptions) {
      */
     async function wrapResponse(code: string, hasCssResource: boolean) {
       if (isRoute) {
-        code = wrapHtmlResponse({code: code, hasHmr: isHmr, buildOptions: config.buildOptions});
+        code = wrapHtmlResponse({code: code, hasHmr: isHmr, config});
       } else if (isCssModule) {
         responseFileExt = '.js';
         code = await wrapCssModuleResponse({

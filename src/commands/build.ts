@@ -187,7 +187,7 @@ export async function command(commandOptions: CommandOptions) {
           contents = wrapHtmlResponse({
             code: contents,
             hasHmr: false,
-            buildOptions: config.buildOptions,
+            config,
           });
           allFilesToResolveImports[outLoc] = {baseExt, expandedExt, contents, locOnDisk};
           break;

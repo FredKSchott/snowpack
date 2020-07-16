@@ -1,11 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../config';
-import {findMatchingMountScript, getExt, ImportMap, replaceExt} from '../util';
+import {
+  findMatchingMountScript,
+  getExt,
+  ImportMap,
+  replaceExt,
+  URL_HAS_PROTOCOL_REGEX,
+} from '../util';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 const cwd = process.cwd();
-const URL_HAS_PROTOCOL_REGEX = /^(\w+:)?\/\//;
 
 interface ImportResolverOptions {
   fileLoc: string;
