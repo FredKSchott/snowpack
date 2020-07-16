@@ -351,12 +351,6 @@ function loadPlugins(
       plugin.input = input;
       plugin.output = output;
     }
-    // Backwards compatibility for the deprecated transform() function
-    if (plugin.transform) {
-      plugin.input = ['.js', '.css', '.html'];
-      plugin.output = ['.js', '.css', '.html'];
-      plugin.build = plugin.transform;
-    }
     plugin.input = plugin.input
       ? Array.isArray(plugin.input)
         ? plugin.input
