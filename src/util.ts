@@ -5,7 +5,7 @@ import execa from 'execa';
 import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import fs from 'fs';
-import bent, { ValidResponse, Options, BentResponse } from 'bent';
+import bent, { BentResponse } from 'bent';
 import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';

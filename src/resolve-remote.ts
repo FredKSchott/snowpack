@@ -4,7 +4,6 @@ import PQueue from 'p-queue';
 import validatePackageName from 'validate-npm-package-name';
 import {SnowpackConfig} from './config.js';
 import {fetchCDNResource, ImportMap, PIKA_CDN, RESOURCE_CACHE} from './util.js';
-import { BentResponse } from 'bent';
 
 /**
  * Given an install specifier, attempt to resolve it from the CDN.

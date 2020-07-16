@@ -6,7 +6,6 @@ import {OutputOptions, Plugin, ResolvedId} from 'rollup';
 import tar from 'tar';
 import url from 'url';
 import {fetchCDNResource, HAS_CDN_HASH_REGEX, PIKA_CDN, RESOURCE_CACHE} from '../util';
-import { BentResponse } from 'bent';
 
 const CACHED_FILE_ID_PREFIX = 'snowpack-pkg-cache:';
 const PIKA_CDN_TRIM_LENGTH = PIKA_CDN.length;
