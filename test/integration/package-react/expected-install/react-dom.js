@@ -26218,6 +26218,7 @@ var reactDom = createCommonjsModule(function (module) {
 
 var __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = reactDom.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
 var createPortal = reactDom.createPortal;
+export default reactDom;
 var findDOMNode = reactDom.findDOMNode;
 var flushSync = reactDom.flushSync;
 var hydrate = reactDom.hydrate;

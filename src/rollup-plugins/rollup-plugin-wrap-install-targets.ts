@@ -82,6 +82,7 @@ export function rollupPluginWrapInstallTargets(
       const normalizedFileLoc = fileLoc.split(path.win32.sep).join(path.posix.sep);
       if (!isTreeshake && isAutoDetect(normalizedFileLoc)) {
         uniqueNamedImports = autoDetectExports(fileLoc) || uniqueNamedImports;
+        treeshakeSummary.default = true;
       }
       const result = `
         ${treeshakeSummary.namespace ? `export * from '${normalizedFileLoc}';` : ''}
