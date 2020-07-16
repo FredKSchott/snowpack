@@ -10,6 +10,10 @@ export function rollupPluginCatchUnresolved(): Plugin {
   return {
     name: 'snowpack:rollup-plugin-catch-unresolved',
     resolveId(id, importer) {
+      // Ignore remote http/https imports
+      if (id.startsWith('http://') || id.startsWith('https://')) {
+        return false;
+      }
       if (isNodeBuiltin(id)) {
         this.warn({
           id: importer,
