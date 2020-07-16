@@ -1,0 +1,7 @@
+{
+  "extends": "./base/snowpack.config.json",
+  "scripts": {
+    "mount:public": "mount public --to /",
+    "mount:src": "mount src --to /_dist_"
+  }
+}

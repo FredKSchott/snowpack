@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "@snowpack/plugin-dotenv": "^1.6.0-alpha.0"
+  }
+}

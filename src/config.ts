@@ -755,7 +755,7 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
   validateConfigAgainstV1(config, flags);
   const cliConfig = expandCliFlags(flags);
 
-  let extendConfig: SnowpackConfig | {} = {};
+  let extendConfig: SnowpackConfig = {} as SnowpackConfig;
   if (config.extends) {
     const extendConfigLoc = config.extends.startsWith('.')
       ? path.resolve(path.dirname(result.filepath), config.extends)
@@ -773,6 +773,16 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     if (extendValidation.errors && extendValidation.errors.length > 0) {
       handleValidationErrors(result.filepath, extendValidation.errors);
       process.exit(1);
+    }
+    if (extendConfig.plugins) {
+      const extendConfgDir = path.dirname(extendConfigLoc);
+      extendConfig.plugins = extendConfig.plugins.map((plugin) => {
+        const name = Array.isArray(plugin) ? plugin[0] : plugin;
+        const absName = path.isAbsolute(name)
+          ? name
+          : require.resolve(name, {paths: [extendConfgDir]});
+        return Array.isArray(plugin) ? plugin.splice(0, 1, absName) : absName;
+      });
     }
   }
   // if valid, apply config over defaults
