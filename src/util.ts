@@ -5,7 +5,7 @@ import execa from 'execa';
 import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import fs from 'fs';
-import bent, { ValidResponse, Options } from 'bent';
+import bent, { ValidResponse, Options, BentResponse } from 'bent';
 import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
@@ -78,17 +78,18 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
 
 export async function fetchCDNResource(
   resourceUrl: string,
-  responseType?: 'string' | 'json' | 'buffer',
-): Promise<ValidResponse> {
+): Promise<BentResponse> {
   if (resourceUrl.startsWith(PIKA_CDN)) {
     resourceUrl = resourceUrl.split(PIKA_CDN)[1];
   }
 
-  const options = [
-    {'user-agent': `snowpack/v${getSnowpackVersion()} (https://snowpack.dev)`}, 200, responseType
-  ].filter(Boolean)
-  const request = bent(PIKA_CDN, ...(options as Options[]))
-  return request(resourceUrl)
+  const request = bent(PIKA_CDN, {'user-agent': `snowpack/v${getSnowpackVersion()} (https://snowpack.dev)`}, 200)
+
+  try {
+    return await request(resourceUrl) as BentResponse
+  } catch (ex) {
+    return ex
+  }
 }
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {

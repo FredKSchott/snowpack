@@ -54,19 +54,19 @@ export function rollupPluginDependencyCache({
       }
 
       // Otherwise, make the remote request and cache the file on success.
-      try {
-        const response = await fetchCDNResource(cacheKey) as BentResponse;
+      const response = await fetchCDNResource(cacheKey);
+      if (response.statusCode === 200) {
         const typesUrlPath = response.headers['x-typescript-types'] as string | undefined;
         const pinnedUrlPath = response.headers['x-pinned-url'] as string;
         const typesUrl = typesUrlPath && `${PIKA_CDN}${typesUrlPath}`;
         const pinnedUrl = pinnedUrlPath && `${PIKA_CDN}${pinnedUrlPath}`;
-        // @ts-ignore
+        // @ts-ignore - text is missing from type definition
         const body = await response.text()
         await cacache.put(RESOURCE_CACHE, cacheKey, body, {
           metadata: {pinnedUrl, typesUrl},
         });
         return CACHED_FILE_ID_PREFIX + cacheKey;
-      } catch (ex) {}
+      }
 
       // If lookup failed, skip this plugin and resolve the import locally instead.
       // TODO: Log that this has happened (if some sort of verbose mode is enabled).
@@ -111,12 +111,12 @@ export function rollupPluginDependencyCache({
         if (cachedTarball) {
           tarballContents = cachedTarball.data;
         } else {
-          try {
-            const tarballResponse = await fetchCDNResource(typesTarballUrl, 'buffer') as Buffer;
-            tarballContents = tarballResponse;
-          } catch (ex) {
-            continue
+          const tarballResponse = await fetchCDNResource(typesTarballUrl);
+          if (tarballResponse.statusCode !== 200) {
+            continue;
           }
+          // @ts-ignore - arrayBuffer is missing from type definition
+          tarballContents = await tarballResponse.arrayBuffer();
           await cacache.put(RESOURCE_CACHE, typesTarballUrl, tarballContents);
         }
         const typesUrlParts = url.parse(typesTarballUrl).pathname!.split('/');

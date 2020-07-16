@@ -69,65 +69,56 @@ async function resolveDependency(
   }
 
   // Otherwise, resolve from the CDN remotely.
-  let importUrlPath: string
-  try {
-    // @ts-ignore
-    const {statusCode, headers, text} = await fetchCDNResource(installUrl) as BentResponse;
-    const body = await text()
-
-    importUrlPath = headers['x-import-url'] as string;
-    let pinnedUrlPath = headers['x-pinned-url'] as string;
-    const buildStatus = headers['x-import-status'] as string;
-    const typesUrlPath = headers['x-typescript-types'] as string | undefined;
-    const typesUrl = typesUrlPath && `${PIKA_CDN}${typesUrlPath}`;
-  
-    if (installUrlType === 'pin') {
-      const pinnedUrl = installUrl;
-      await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
-        metadata: {pinnedUrl, typesUrl},
-      });
-      return pinnedUrl;
-    }
-    if (pinnedUrlPath) {
-      const pinnedUrl = `${PIKA_CDN}${pinnedUrlPath}`;
-      await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
-        metadata: {pinnedUrl, typesUrl},
-      });
-      return pinnedUrl;
-    }
-    if (buildStatus === 'SUCCESS') {
-      console.warn(`Failed to lookup [${statusCode}]: ${installUrl}`);
-      console.warn(`Falling back to local copy...`);
-      return null;
-    }
-    if (!canRetry || buildStatus === 'FAIL') {
-      console.warn(`Failed to build: ${installSpecifier}@${packageSemver}`);
-      console.warn(`Falling back to local copy...`);
-      return null;
-    }
-  } catch (ex) {
-    try {
-      const body = await ex.text()
-      console.warn(`Failed to resolve [${ex.statusCode}]: ${installUrl} (${body})`);
-      console.warn(`Falling back to local copy...`);
-    } catch (ex) {}
+  // @ts-ignore - text is missing in type definition
+  const {statusCode, headers, text} = await fetchCDNResource(installUrl);
+  const body = await text()
+  if (statusCode !== 200) {
+    console.warn(`Failed to resolve [${statusCode}]: ${installUrl} (${body})`);
+    console.warn(`Falling back to local copy...`);
     return null;
   }
 
+  let importUrlPath = headers['x-import-url'] as string;
+  let pinnedUrlPath = headers['x-pinned-url'] as string;
+  const buildStatus = headers['x-import-status'] as string;
+  const typesUrlPath = headers['x-typescript-types'] as string | undefined;
+  const typesUrl = typesUrlPath && `${PIKA_CDN}${typesUrlPath}`;
+
+  if (installUrlType === 'pin') {
+    const pinnedUrl = installUrl;
+    await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
+      metadata: {pinnedUrl, typesUrl},
+    });
+    return pinnedUrl;
+  }
+  if (pinnedUrlPath) {
+    const pinnedUrl = `${PIKA_CDN}${pinnedUrlPath}`;
+    await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
+      metadata: {pinnedUrl, typesUrl},
+    });
+    return pinnedUrl;
+  }
+  if (buildStatus === 'SUCCESS') {
+    console.warn(`Failed to lookup [${statusCode}]: ${installUrl}`);
+    console.warn(`Falling back to local copy...`);
+    return null;
+  }
+  if (!canRetry || buildStatus === 'FAIL') {
+    console.warn(`Failed to build: ${installSpecifier}@${packageSemver}`);
+    console.warn(`Falling back to local copy...`);
+    return null;
+  }
   console.log(
     colors.cyan(
       `Building ${installSpecifier}@${packageSemver}... (This takes a moment, but will be cached for future use)`,
     ),
   );
-
   if (!importUrlPath) {
     throw new Error('X-Import-URL header expected, but none received.');
   }
-
-  try {
-    await fetchCDNResource(importUrlPath);
-  } catch (ex) {
-    throw new Error(`Unexpected response [${ex.statusCode}]: ${PIKA_CDN}${importUrlPath}`);
+  const {statusCode: lookupStatusCode } = await fetchCDNResource(importUrlPath);
+  if (lookupStatusCode !== 200) {
+    throw new Error(`Unexpected response [${lookupStatusCode}]: ${PIKA_CDN}${importUrlPath}`);
   }
   return resolveDependency(installSpecifier, packageSemver, lockfile, false);
 }
