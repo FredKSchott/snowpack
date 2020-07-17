@@ -133,14 +133,12 @@ export async function buildFile(
   return output;
 }
 
-export function getMetaDir(config: SnowpackConfig) {
+export function getMetaUrlPath(urlPath: string, config: SnowpackConfig): string {
   let {baseUrl, metaDir} = config.buildOptions || {};
-  metaDir = metaDir.replace(/^\/?((.*[^/])\/?$)?/, '$2');
   if (URL_HAS_PROTOCOL_REGEX.test(baseUrl)) {
-    return metaDir;
+    return baseUrl + path.posix.normalize(path.posix.join(metaDir, urlPath));
   }
-  baseUrl = baseUrl.replace(/^\/?((.*[^/])\/?$)?/, '$2');
-  return baseUrl ? baseUrl + '/' + metaDir : metaDir;
+  return path.posix.normalize(path.posix.join(baseUrl, metaDir, urlPath));
 }
 
 export function wrapImportMeta({
@@ -157,13 +155,18 @@ export function wrapImportMeta({
   if (!code.includes('import.meta')) {
     return code;
   }
-  const metaDir = getMetaDir(config);
   return (
     (hmr
-      ? `import * as  __SNOWPACK_HMR__ from '/${metaDir}/hmr.js';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`
+      ? `import * as  __SNOWPACK_HMR__ from '${getMetaUrlPath(
+          'hmr.js',
+          config,
+        )}';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`
       : ``) +
     (env
-      ? `import __SNOWPACK_ENV__ from '/${metaDir}/env.js';\nimport.meta.env = __SNOWPACK_ENV__;\n`
+      ? `import __SNOWPACK_ENV__ from '${getMetaUrlPath(
+          'env.js',
+          config,
+        )}';\nimport.meta.env = __SNOWPACK_ENV__;\n`
       : ``) +
     '\n' +
     code
@@ -190,7 +193,7 @@ export async function wrapCssModuleResponse({
   return `${
     hasHmr
       ? `
-import * as __SNOWPACK_HMR_API__ from '/${getMetaDir(config)}/hmr.js';
+import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr.js', config)}';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
 import.meta.hot.accept(({module}) => {
   code = module.code;
@@ -226,7 +229,7 @@ export function wrapHtmlResponse({
   code = code.replace(/\/?%PUBLIC_URL%\/?/g, config.buildOptions.baseUrl);
 
   if (hasHmr) {
-    code += `<script type="module" src="/${getMetaDir(config)}/hmr.js"></script>`;
+    code += `<script type="module" src="${getMetaUrlPath('hmr.js', config)}"></script>`;
   }
   return code;
 }
@@ -248,7 +251,7 @@ export function wrapEsmProxyResponse({
     return `${
       hasHmr
         ? `
-    import * as __SNOWPACK_HMR_API__ from '/${getMetaDir(config)}/hmr.js';
+    import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr.js', config)}';
     import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
     import.meta.hot.accept(({module}) => {
       json = module.default;
@@ -263,7 +266,7 @@ export default json;`;
     return `${
       hasHmr
         ? `
-import * as __SNOWPACK_HMR_API__ from '/${getMetaDir(config)}/hmr.js';
+import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr.js', config)}';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
 import.meta.hot.accept();
 import.meta.hot.dispose(() => {

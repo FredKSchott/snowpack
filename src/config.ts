@@ -542,7 +542,9 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   if (!config.proxy) {
     config.proxy = {} as any;
   }
-
+  
+  // force trailing slash
+  config.buildOptions.baseUrl = config.buildOptions.baseUrl.replace(/\/?$/, '/');
   // remove leading/trailing slashes
   config.buildOptions.metaDir = removeLeadingSlash(
     removeTrailingSlash(config.buildOptions.metaDir),
