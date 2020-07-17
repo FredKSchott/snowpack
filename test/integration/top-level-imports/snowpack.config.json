@@ -1,9 +1,0 @@
-{
-  "mount": {
-    "./public": "/",
-    "./src": "/_dist_"
-  },
-  "buildOptions": {
-    "minify": false
-  }
-}

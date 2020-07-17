@@ -36,6 +36,8 @@ import {
   resolveDependencyManifest,
   sanitizePackageName,
   writeLockfile,
+  isPackageAliasEntry,
+  findMatchingAliasEntry,
 } from '../util.js';
 
 type InstallResultCode = 'SUCCESS' | 'ASSET' | 'FAIL';
@@ -281,11 +283,11 @@ export async function install(
 ): Promise<InstallResult> {
   const {
     webDependencies,
+    alias: installAlias,
     installOptions: {
       installTypes,
       dest: destLoc,
       externalPackage: externalPackages,
-      alias: installAlias,
       sourceMap,
       env,
       rollup: userDefinedRollup,
@@ -305,7 +307,10 @@ export async function install(
           !externalPackages.some((packageName) => isImportOfPackage(dep.specifier, packageName)),
       )
       .map((dep) => dep.specifier)
-      .map((specifier) => installAlias[specifier] || specifier)
+      .map((specifier) => {
+        const aliasEntry = findMatchingAliasEntry(config, specifier);
+        return aliasEntry && aliasEntry.type === 'package' ? aliasEntry.to : specifier;
+      })
       .sort(),
   );
   const installEntrypoints: {[targetName: string]: string} = {};
@@ -389,10 +394,12 @@ export async function install(
           log: (url) => logUpdate(colors.dim(url)),
         }),
       rollupPluginAlias({
-        entries: Object.entries(installAlias).map(([alias, mod]) => ({
-          find: alias,
-          replacement: mod,
-        })),
+        entries: Object.entries(installAlias)
+          .filter(([, val]) => isPackageAliasEntry(val))
+          .map(([key, val]) => ({
+            find: key,
+            replacement: val,
+          })),
       }),
       rollupPluginCatchFetch(),
       rollupPluginNodeResolve({

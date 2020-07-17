@@ -109,6 +109,7 @@ export interface SnowpackConfig {
   webDependencies?: {[packageName: string]: string};
   proxy: Proxy[];
   mount: Record<string, string>;
+  alias: Record<string, string>;
   scripts: Record<string, string>;
   plugins: SnowpackPlugin[];
   devOptions: {
@@ -128,7 +129,6 @@ export interface SnowpackConfig {
     installTypes: boolean;
     sourceMap?: boolean | 'inline';
     externalPackage: string[];
-    alias: {[key: string]: string};
     namedExports: string[];
     rollup: {
       plugins: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
@@ -161,12 +161,12 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   exclude: ['__tests__/**/*', '**/*.@(spec|test).*'],
   plugins: [],
+  alias: {},
   installOptions: {
     dest: 'web_modules',
     externalPackage: [],
     installTypes: false,
     env: {},
-    alias: {},
     namedExports: [],
     rollup: {
       plugins: [],
@@ -208,6 +208,10 @@ const configSchema = {
       type: ['object'],
       additionalProperties: {type: 'string'},
     },
+    alias: {
+      type: 'object',
+      additionalProperties: {type: 'string'},
+    },
     devOptions: {
       type: 'object',
       properties: {
@@ -228,10 +232,6 @@ const configSchema = {
         treeshake: {type: 'boolean'},
         installTypes: {type: 'boolean'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
-        alias: {
-          type: 'object',
-          additionalProperties: {type: 'string'},
-        },
         env: {
           type: 'object',
           additionalProperties: {
@@ -564,6 +564,28 @@ function normalizeMount(config: SnowpackConfig) {
   return mountedDirs;
 }
 
+function normalizeAlias(config: SnowpackConfig, createMountAlias: boolean) {
+  const cwd = process.cwd();
+  const cleanAlias: Record<string, string> = config.alias || {};
+  if (createMountAlias) {
+    for (const mountDir of Object.keys(config.mount)) {
+      if (mountDir !== '.') {
+        cleanAlias[removeTrailingSlash(mountDir)] = `./${mountDir}`;
+      }
+    }
+  }
+  for (const [target, replacement] of Object.entries(config.alias)) {
+    if (
+      replacement.startsWith('./') ||
+      replacement.startsWith('../') ||
+      replacement.startsWith('/')
+    ) {
+      cleanAlias[target] = path.resolve(cwd, replacement);
+    }
+  }
+  return cleanAlias;
+}
+
 /** resolve --dest relative to cwd, etc. */
 function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const cwd = process.cwd();
@@ -587,9 +609,11 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     handleConfigError(`--bundle set to true, but no "bundle:*" script/plugin was provided.`);
   }
 
+  const isLegacyMountConfig = !config.mount;
   config = handleLegacyProxyScripts(config);
   config.proxy = normalizeProxies(config.proxy as any);
   config.mount = normalizeMount(config);
+  config.alias = normalizeAlias(config, isLegacyMountConfig);
 
   // new pipeline
   const {plugins, bundler, extensionMap} = loadPlugins(config);
