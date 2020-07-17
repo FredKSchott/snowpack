@@ -128,6 +128,8 @@ $ snowpack dev --no-bundle
   - Set to `true` if Snowpack should erase the build folder before each build.
 - **`metaDir`** | `string` | Default: `__snowpack__`
   - By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
+- **`minify`** | `boolean` | Default: `true`
+  - By default, Snowpack will minify your dependencies on `snowpack build`. Disable this by setting this config option to `minify: false`.
 
 #### Proxy Options
 

@@ -12,7 +12,8 @@
       "mount:src": "mount src --to /_dist_"
     },
     "buildOptions": {
-      "baseUrl": "https://www.example.com/"
+      "baseUrl": "https://www.example.com/",
+      "minify": false
     }
   },
   "dependencies": {

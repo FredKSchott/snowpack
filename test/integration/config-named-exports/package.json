@@ -7,6 +7,9 @@
     "install": ["mock-test-package"],
     "installOptions": {
       "namedExports": ["mock-test-package"]
+    },
+    "buildOptions": {
+      "minify": false
     }
   },
   "dependencies": {

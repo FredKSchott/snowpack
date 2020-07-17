@@ -8,6 +8,9 @@
     "scripts": {
       "mount:src": "mount src --to /_dist_",
       "mount:web_modules": "mount $WEB_MODULES --to /my_modules"
+    },
+    "buildOptions": {
+      "minify": false
     }
   },
   "dependencies": {

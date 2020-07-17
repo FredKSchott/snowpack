@@ -5,7 +5,10 @@
   "snowpack": {
     "install": [
       "solid-js/dom"
-    ]
+    ],
+    "buildOptions": {
+      "minify": false
+    }
   },
   "dependencies": {
     "solid-js": "^0.16.7"

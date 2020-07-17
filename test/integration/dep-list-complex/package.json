@@ -4,9 +4,10 @@
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
   "snowpack": {
-    "install": [
-      "dat.gui"
-    ]
+    "install": ["dat.gui"],
+    "buildOptions": {
+      "minify": false
+    }
   },
   "dependencies": {
     "dat.gui": "^0.7.6"

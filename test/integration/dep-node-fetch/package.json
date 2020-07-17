@@ -4,7 +4,10 @@
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
   "snowpack": {
-    "install": ["mock-test-package-a"]
+    "install": ["mock-test-package-a"],
+    "buildOptions": {
+      "minify": false
+    }
   },
   "dependencies": {
     "mock-test-package-a": "^1.0.0"

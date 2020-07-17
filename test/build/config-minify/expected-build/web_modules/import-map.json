@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "array-flatten": "./array-flatten.js"
+  }
+}

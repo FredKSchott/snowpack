@@ -4,6 +4,11 @@
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
   "webDependencies": {
-      "async": "3.1.0"
+    "async": "3.1.0"
+  },
+  "snowpack": {
+    "buildOptions": {
+      "minify": false
+    }
   }
 }

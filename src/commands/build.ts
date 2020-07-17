@@ -1,4 +1,5 @@
 import merge from 'deepmerge';
+import {startService as esbuildStartService} from 'esbuild';
 import {EventEmitter} from 'events';
 import {promises as fs} from 'fs';
 import glob from 'glob';
@@ -121,6 +122,8 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
+  let minifierService = await esbuildStartService(); // create esbuild process for minifying (there may or may not be one in plugins)
+
   // Write the `import.meta.env` contents file to disk
   await fs.writeFile(path.join(internalFilesBuildLoc, 'env.js'), generateEnvModule('production'));
 
@@ -180,6 +183,13 @@ export async function command(commandOptions: CommandOptions) {
             contents = `import './${path.basename(cssOutPath)}';\n` + contents;
           }
           contents = wrapImportMeta({code: contents, env: true, hmr: false, config});
+
+          // minify install if enabled and there’s no bundler
+          if (config.buildOptions.minify && !config._bundler) {
+            const {js} = await minifierService.transform(contents, {minify: true});
+            if (js) contents = js;
+          }
+
           allFilesToResolveImports[outLoc] = {baseExt, expandedExt, contents, locOnDisk};
           break;
         }
@@ -197,6 +207,7 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
   stopEsbuild();
+  minifierService.stop();
 
   const installDest = path.join(buildDirectoryLoc, config._webModulesPath);
   const installResult = await installOptimizedDependencies(

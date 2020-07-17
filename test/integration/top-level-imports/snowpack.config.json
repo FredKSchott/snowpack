@@ -2,5 +2,8 @@
   "scripts": {
     "mount:app": "mount ./src/ --to /_dist_",
     "mount:root": "mount ./public --to /"
+  },
+  "buildOptions": {
+    "minify": false
   }
 }

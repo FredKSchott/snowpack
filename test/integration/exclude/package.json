@@ -2,6 +2,11 @@
   "scripts": {
     "TEST": "node ../../../pkg/dist-node/index.bin.js  --exclude 'src/exclude.js'"
   },
+  "snowpack": {
+    "buildOptions": {
+      "minify": false
+    }
+  },
   "dependencies": {
     "@emotion/is-prop-valid": "^0.8.5",
     "vue": "^2.6.10",

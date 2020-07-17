@@ -1,0 +1,18 @@
+{
+  "description": "This test ensures that buildOptions.optimize: false disables minification",
+  "scripts": {
+    "prepare": "node ../../../pkg/dist-node/index.bin.js",
+    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+  },
+  "snowpack": {
+    "buildOptions": {
+      "minify": true
+    },
+    "scripts": {
+      "mount:src": "mount src --to /_dist_"
+    }
+  },
+  "dependencies": {
+    "array-flatten": "^3.0.0"
+  }
+}

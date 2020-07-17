@@ -41,7 +41,10 @@ function stripResolveErrorPath(stdout) {
   return stdout.replace(/" via "(.*)"/g, '" via "XXX"');
 }
 function stripAnsiEscapes(stdout) {
-  return stdout.replace(/[\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~]))/g, '');
+  return stdout.replace(
+    /[\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~]))/g,
+    '',
+  );
 }
 
 function removeLockfile(testName) {
@@ -156,17 +159,12 @@ for (const testName of readdirSync(__dirname)) {
         return;
       }
 
+      const f1 = readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'});
+      const f2 = readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'});
+
       return assert.strictEqual(
-        stripWhitespace(
-          stripChunkHash(
-            stripRev(readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'})),
-          ),
-        ),
-        stripWhitespace(
-          stripChunkHash(
-            stripRev(readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'})),
-          ),
-        ),
+        stripWhitespace(stripChunkHash(stripRev(f1))),
+        stripWhitespace(stripChunkHash(stripRev(f2))),
       );
     });
   });

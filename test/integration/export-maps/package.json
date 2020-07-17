@@ -5,7 +5,10 @@
   "snowpack": {
     "install": [
       "preact"
-    ]
+    ],
+    "buildOptions": {
+      "minify": false
+    }
   },
   "dependencies": {
     "preact": "10.3.1"

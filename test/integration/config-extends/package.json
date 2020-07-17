@@ -2,9 +2,6 @@
   "scripts": {
     "TEST": "node ../../../pkg/dist-node/index.bin.js"
   },
-  "snowpack": {
-  "install": ["array-flatten"]
-  },
   "dependencies": {
     "array-flatten": "^3.0.0"
   }

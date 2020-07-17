@@ -9,6 +9,9 @@
     },
     "devOptions": {
       "fallback": "_dist_/index.html"
+    },
+    "buildOptions": {
+      "minify": false
     }
   },
   "dependencies": {
