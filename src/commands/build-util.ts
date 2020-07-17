@@ -1,7 +1,7 @@
 import type CSSModuleLoader from 'css-modules-loader-core';
 import {EventEmitter} from 'events';
 import path from 'path';
-import {SnowpackBuildMap, SnowpackConfig, SnowpackPlugin} from '../config';
+import {BuildOptions, SnowpackBuildMap, SnowpackConfig, SnowpackPlugin} from '../config';
 import {getExt, URL_HAS_PROTOCOL_REGEX} from '../util';
 
 export interface BuildFileOptions {
@@ -26,6 +26,12 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
   return Array.from(potentialInputs);
 }
 
+/** SnowpackPlugin interface + legacy support for Snowpack v1 plugin system. */
+interface SnowpackPluginWithLegacy extends SnowpackPlugin {
+  /** DEPRECATED */
+  transform?(options: BuildOptions): Promise<{result: string} | null>;
+}
+
 /** Core Snowpack file pipeline builder */
 export async function buildFile(
   srcPath: string,
@@ -39,7 +45,34 @@ export async function buildFile(
   };
 
   // Run the file through the Snowpack build pipeline:
-  for (const step of buildPipeline) {
+  for (const step of buildPipeline as SnowpackPluginWithLegacy[]) {
+    // DEPRECATED: Plugin legacy transform() support. If a plugin defines a transform() function,
+    // call it. Transform cannot change the file extension, and was designed to run on every file
+    // type and return null if no change was needed.
+    if (step.transform) {
+      for (const destExt of Object.keys(output)) {
+        const destBuildFile = output[destExt];
+        const result = await step.transform({
+          contents: destBuildFile,
+          filePath: rootFileName + destExt,
+          isDev,
+          log: (msg, data) => {
+            messageBus.emit(msg, {
+              ...data,
+              id: step.name,
+              msg: data.msg && `[${srcPath}] ${data.msg}`,
+            });
+          },
+          // Deprecated
+          urlPath: `./${path.basename(rootFileName + destExt)}`,
+        });
+        if (result) {
+          output[destExt] = result.result;
+        }
+      }
+      continue;
+    }
+
     // For now, we only run through build plugins that match at least one file extension.
     // All other plugins are ignored.
     if (!step.build || step.input.length === 0) {
