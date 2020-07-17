@@ -1,0 +1,3 @@
+✔ snowpack install complete.
+  ⦿ web_modules/     size       gzip       brotli   
+    └─ dep-a.js    XXXX KB    XXXX KB    XXXX KB
