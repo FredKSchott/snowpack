@@ -6,7 +6,7 @@
   "snowpack": {
     "install": ["mock-test-package-a"],
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

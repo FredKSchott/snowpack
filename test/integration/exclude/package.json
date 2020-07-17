@@ -4,7 +4,7 @@
   },
   "snowpack": {
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

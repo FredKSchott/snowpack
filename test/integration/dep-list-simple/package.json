@@ -5,7 +5,7 @@
   "snowpack": {
     "install": ["async"],
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

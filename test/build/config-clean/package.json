@@ -6,7 +6,7 @@
   "snowpack": {
     "buildOptions": {
       "clean": false,
-      "optimize": false
+      "minify": false
     },
     "scripts": {
       "mount:src": "mount src --to /_dist_"

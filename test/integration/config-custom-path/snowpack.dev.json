@@ -3,6 +3,6 @@
     "array-flatten"
   ],
   "buildOptions": {
-    "optimize": false
+    "minify": false
   }
 }

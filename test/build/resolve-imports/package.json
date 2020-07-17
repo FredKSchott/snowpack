@@ -11,7 +11,7 @@
       "fallback": "_dist_/index.html"
     },
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

@@ -126,7 +126,7 @@ export interface SnowpackConfig {
     baseUrl: string;
     clean: boolean;
     metaDir: string;
-    optimize: boolean;
+    minify: boolean;
   };
   proxy: Proxy[];
   // experimental API; to convert to supported config values in the future
@@ -176,7 +176,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     baseUrl: '/',
     clean: false,
     metaDir: '__snowpack__',
-    optimize: true,
+    minify: true,
   },
 };
 
@@ -247,7 +247,7 @@ const configSchema = {
         baseUrl: {type: 'string'},
         clean: {type: 'boolean'},
         metaDir: {type: 'string'},
-        optimize: {type: 'boolean'},
+        minify: {type: 'boolean'},
       },
     },
     proxy: {

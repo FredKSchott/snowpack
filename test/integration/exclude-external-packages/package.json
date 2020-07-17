@@ -5,7 +5,7 @@
   "snowpack": {
     "install": ["array-flatten"],
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

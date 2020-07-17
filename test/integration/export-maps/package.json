@@ -7,7 +7,7 @@
       "preact"
     ],
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

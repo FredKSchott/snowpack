@@ -10,7 +10,7 @@
       "mount:web_modules": "mount $WEB_MODULES --to /my_modules"
     },
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

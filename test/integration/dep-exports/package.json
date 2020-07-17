@@ -5,7 +5,7 @@
   "snowpack": {
     "install": ["preact", "preact/hooks", "preact/debug"],
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

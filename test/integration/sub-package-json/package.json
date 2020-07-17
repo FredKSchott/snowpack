@@ -7,7 +7,7 @@
       "solid-js/dom"
     ],
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

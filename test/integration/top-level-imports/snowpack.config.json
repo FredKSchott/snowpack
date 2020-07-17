@@ -4,6 +4,6 @@
     "mount:root": "mount ./public --to /"
   },
   "buildOptions": {
-    "optimize": false
+    "minify": false
   }
 }

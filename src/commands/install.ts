@@ -418,7 +418,7 @@ export async function install(
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
-      ...(config.buildOptions.optimize ? [esbuild({minify: true})] : []),
+      ...(config.buildOptions.minify ? [esbuild({minify: true})] : []),
     ].filter(Boolean) as Plugin[],
     onwarn(warning, warn) {
       // Warn about the first circular dependency, but then ignore the rest.

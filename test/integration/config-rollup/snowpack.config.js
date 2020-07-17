@@ -5,6 +5,6 @@ module.exports = {
     },
   },
   buildOptions: {
-    optimize: false,
+    minify: false,
   },
 };

@@ -13,7 +13,7 @@
     },
     "buildOptions": {
       "baseUrl": "/static/",
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

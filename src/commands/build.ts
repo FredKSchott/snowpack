@@ -185,7 +185,7 @@ export async function command(commandOptions: CommandOptions) {
           contents = wrapImportMeta({code: contents, env: true, hmr: false, config});
 
           // minify install if enabled and there’s no bundler
-          if (config.buildOptions.optimize && !config._bundler) {
+          if (config.buildOptions.minify && !config._bundler) {
             const {js} = await minifierService.transform(contents, {minify: true});
             if (js) contents = js;
           }

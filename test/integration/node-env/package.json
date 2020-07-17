@@ -15,7 +15,7 @@
       }
     },
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   }
 }

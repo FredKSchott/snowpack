@@ -9,7 +9,7 @@
       "react-dom"
     ],
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

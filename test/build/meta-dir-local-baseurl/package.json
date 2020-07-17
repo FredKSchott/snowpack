@@ -11,7 +11,7 @@
     "buildOptions": {
       "baseUrl": "/builds",
       "metaDir": "/static/snowpack",
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

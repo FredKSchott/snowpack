@@ -7,7 +7,7 @@
     "install": ["shallow-equal"],
     "sourceMap": true,
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

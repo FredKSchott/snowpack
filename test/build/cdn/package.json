@@ -11,7 +11,7 @@
       "mount:src": "mount src --to /_dist_"
     },
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   }
 }

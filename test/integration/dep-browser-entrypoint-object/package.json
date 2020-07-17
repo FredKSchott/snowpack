@@ -6,7 +6,7 @@
   "snowpack": {
     "install": ["package-has-valid", "package-no-valid"],
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

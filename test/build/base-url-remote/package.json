@@ -13,7 +13,7 @@
     },
     "buildOptions": {
       "baseUrl": "https://www.example.com/",
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

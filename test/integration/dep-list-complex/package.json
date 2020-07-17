@@ -6,7 +6,7 @@
   "snowpack": {
     "install": ["dat.gui"],
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {

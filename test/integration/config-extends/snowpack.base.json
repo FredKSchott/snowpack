@@ -4,6 +4,6 @@
     "sourceMap": true
   },
   "buildOptions": {
-    "optimize": false
+    "minify": false
   }
 }

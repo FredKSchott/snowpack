@@ -9,7 +9,7 @@
       "namedExports": ["mock-test-package"]
     },
     "buildOptions": {
-      "optimize": false
+      "minify": false
     }
   },
   "dependencies": {
