@@ -5,9 +5,18 @@ import path from 'path';
 let esbuildService: Service | null = null;
 
 const IS_PREACT = /from\s+['"]preact['"]/;
-export function checkIsPreact(filePath: string, contents: string) {
+function checkIsPreact(filePath: string, contents: string) {
   return filePath.endsWith('.jsx') && IS_PREACT.test(contents);
 }
+
+function getLoader(filePath: string): 'js' | 'jsx' | 'ts' | 'tsx' {
+  const ext = path.extname(filePath);
+  if (ext === '.js' || ext === '.mjs') {
+    return 'js';
+  }
+  return ext.substr(1) as  'jsx' | 'ts' | 'tsx';
+}
+
 
 export function esbuildPlugin({input}: {input: string[]}) {
   return {
@@ -18,7 +27,7 @@ export function esbuildPlugin({input}: {input: string[]}) {
       esbuildService = esbuildService || (await startService());
       const isPreact = checkIsPreact(filePath, contents);
       const {js, warnings} = await esbuildService!.transform(contents, {
-        loader: path.extname(filePath).substr(1) as 'jsx' | 'ts' | 'tsx',
+        loader: getLoader(filePath),
         jsxFactory: isPreact ? 'h' : undefined,
         jsxFragment: isPreact ? 'Fragment' : undefined,
       });
