@@ -19,7 +19,6 @@ import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
 import {rollupPluginCatchUnresolved} from '../rollup-plugins/rollup-plugin-catch-unresolved.js';
 import {rollupPluginCatchFetch} from '../rollup-plugins/rollup-plugin-catch-fetch';
 import {rollupPluginCss} from '../rollup-plugins/rollup-plugin-css';
-import {rollupPluginEntrypointAlias} from '../rollup-plugins/rollup-plugin-entrypoint-alias.js';
 import {rollupPluginDependencyCache} from '../rollup-plugins/rollup-plugin-remote-cdn.js';
 import {
   DependencyStatsOutput,
@@ -380,7 +379,6 @@ export async function install(
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
       rollupPluginReplace(getRollupReplaceKeys(env)),
-      rollupPluginEntrypointAlias({cwd}),
       !!webDependencies &&
         rollupPluginDependencyCache({
           installTypes,
