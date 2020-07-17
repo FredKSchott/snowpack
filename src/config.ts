@@ -450,7 +450,7 @@ function loadPlugins(
   // if no mounted directories, mount root
   if (!Object.keys(mountedDirs).length) mountedDirs['.'] = '/';
 
-  const needsDefaultPlugin = new Set(['.js', '.jsx', '.ts', '.tsx']);
+  const needsDefaultPlugin = new Set(['.js', '.mjs', '.jsx', '.ts', '.tsx']);
   plugins
     .reduce((arr, a) => arr.concat(a.input), [] as string[])
     .forEach((ext) => needsDefaultPlugin.delete(ext));

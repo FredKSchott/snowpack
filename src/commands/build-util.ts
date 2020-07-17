@@ -10,11 +10,6 @@ export interface BuildFileOptions {
   isDev: boolean;
 }
 
-const IS_PREACT = /from\s+['"]preact['"]/;
-export function checkIsPreact(filePath: string, contents: string) {
-  return filePath.endsWith('.jsx') && IS_PREACT.test(contents);
-}
-
 export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
   const {baseExt} = getExt(fileLoc);
   const potentialInputs = new Set([fileLoc]);
