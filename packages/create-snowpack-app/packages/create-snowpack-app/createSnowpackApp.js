@@ -10,33 +10,46 @@ const errorLink = `${colors.dim(
   colors.underline("https://github.com/pikapkg/create-snowpack-app")
 )}`;
 
+function logError(msg) {
+  console.error(`${errorAlert} ${msg} ${errorLink}`)
+  process.exit(1)
+}
+
+function hasPmInstalled(packageManager) {
+  try {
+    execa.commandSync(`${packageManager} --version`)
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 function validateArgs(args) {
   const { template, useYarn, usePnpm, force, target, _ } = yargs(args);
   if (useYarn && usePnpm) {
-    console.error(
-      `${errorAlert} You can not use Yarn and pnpm at the same time. ${errorLink}`
-    );
-    process.exit(1);
+    logError('You can not use Yarn and pnpm at the same time.')
+  }
+  if (useYarn && !hasPmInstalled('yarn')) {
+    logError(`Yarn doesn't seem to be installed.`)
+  }
+  if (usePnpm && !hasPmInstalled('pnpm')) {
+    logError(`pnpm doesn't seem to be installed.`)
   }
   if (!target && _.length === 2) {
-    console.error(`${errorAlert} Missing --target directory. ${errorLink}`);
-    process.exit(1);
+    logError('Missing --target directory.');
   }
   if (typeof template !== "string") {
-    console.error(`${errorAlert} Missing --template argument. ${errorLink}`);
-    process.exit(1);
+    logError('Missing --template argument.');
   }
   if (_.length > 3) {
-    console.error(`${errorAlert} Unexpected extra arguments. ${errorLink}`);
-    process.exit(1);
+    logError('Unexpected extra arguments.');
   }
   const targetDirectoryRelative = target || _[2];
   const targetDirectory = path.resolve(process.cwd(), targetDirectoryRelative);
   if (fs.existsSync(targetDirectory) && !force) {
-    console.error(
-      `${errorAlert} ${targetDirectory} already exists. Use \`--force\` to overwrite this directory.`
+    logError(
+      `${targetDirectory} already exists. Use \`--force\` to overwrite this directory.`
     );
-    process.exit(1);
   }
   return {
     template,
