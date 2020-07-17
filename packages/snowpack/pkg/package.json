@@ -4,8 +4,8 @@
   "version": "2.6.3",
   "license": "MIT",
   "bin": {
-    "sp": "dist-node/index.bin.js",
-    "snowpack": "dist-node/index.bin.js"
+    "snowpack": "dist-node/index.bin.js",
+    "sp": "dist-node/index.bin.js"
   },
   "files": [
     "dist-*/",

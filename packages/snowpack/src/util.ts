@@ -249,10 +249,10 @@ export async function clearCache() {
  * `mount ./src --to /_dist_` and `mount src --to /_dist_` match `src/components/Button`
  * `mount src --to /_dist_` does not match `package/components/Button`
  */
-export function findMatchingMountScript(
-  scripts: Record<string, string>,
+export function findMatchingAliasEntry(
+  config: SnowpackConfig,
   spec: string,
-): [string, string] | null | undefined {
+): [string, string] | undefined {
   // Only match bare module specifiers. relative and absolute imports should not match
   if (
     spec.startsWith('./') ||
@@ -261,9 +261,9 @@ export function findMatchingMountScript(
     spec.startsWith('http://') ||
     spec.startsWith('https://')
   ) {
-    return null;
+    return undefined;
   }
-  return Object.entries(scripts).find(([fromDisk]) => spec.startsWith(fromDisk));
+  return Object.entries(config.alias).find(([fromDisk]) => spec.startsWith(fromDisk));
 }
 
 /** Get full extensions of files */

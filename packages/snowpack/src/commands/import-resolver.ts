@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../config';
 import {
-  findMatchingMountScript,
+  findMatchingAliasEntry,
   getExt,
   ImportMap,
   replaceExt,
@@ -72,13 +72,17 @@ export function createImportResolver({
     if (URL_HAS_PROTOCOL_REGEX.test(spec)) {
       return spec;
     }
-    let mountScript = findMatchingMountScript(config.mount, spec);
-    if (mountScript) {
-      const [fromDisk, toUrl] = mountScript;
-      const importStats = getImportStats(cwd, spec);
-      spec = resolveSourceSpecifier(spec, importStats, isBundled, config);
-      spec = spec.replace(fromDisk, toUrl);
-      return spec;
+    let aliasEntry = findMatchingAliasEntry(config, spec);
+    if (aliasEntry) {
+      const [fromDisk, toUrl] = aliasEntry;
+      let result = spec.replace(fromDisk, toUrl);
+      const importStats = getImportStats(cwd, result);
+      result = resolveSourceSpecifier(result, importStats, isBundled, config);
+      result = path.posix.relative(path.dirname(fileLoc), result);
+      if (!result.startsWith('.')) {
+        result = './' + result;
+      }
+      return result;
     }
     if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
       const importStats = getImportStats(path.dirname(fileLoc), spec);

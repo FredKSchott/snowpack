@@ -256,8 +256,8 @@ export async function command(commandOptions: CommandOptions) {
             // handle local proxied files
             allProxiedFiles.add(
               resolvedImportUrl.startsWith('/')
-                ? path.resolve(cwd, spec)
-                : path.resolve(path.dirname(outLoc), spec),
+                ? resolvedImportUrl
+                : path.resolve(path.dirname(outLoc), resolvedImportUrl),
             );
           }
         }

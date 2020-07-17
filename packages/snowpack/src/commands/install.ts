@@ -281,11 +281,11 @@ export async function install(
 ): Promise<InstallResult> {
   const {
     webDependencies,
+    alias: installAlias,
     installOptions: {
       installTypes,
       dest: destLoc,
       externalPackage: externalPackages,
-      alias: installAlias,
       sourceMap,
       env,
       rollup: userDefinedRollup,
@@ -389,9 +389,9 @@ export async function install(
           log: (url) => logUpdate(colors.dim(url)),
         }),
       rollupPluginAlias({
-        entries: Object.entries(installAlias).map(([alias, mod]) => ({
-          find: alias,
-          replacement: mod,
+        entries: Object.entries(installAlias).map(([key, val]) => ({
+          find: key,
+          replacement: val,
         })),
       }),
       rollupPluginCatchFetch(),
