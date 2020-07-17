@@ -14,9 +14,8 @@ function getLoader(filePath: string): 'js' | 'jsx' | 'ts' | 'tsx' {
   if (ext === '.js' || ext === '.mjs') {
     return 'js';
   }
-  return ext.substr(1) as  'jsx' | 'ts' | 'tsx';
+  return ext.substr(1) as 'jsx' | 'ts' | 'tsx';
 }
-
 
 export function esbuildPlugin({input}: {input: string[]}) {
   return {
