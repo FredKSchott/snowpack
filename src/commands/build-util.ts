@@ -49,9 +49,10 @@ export async function buildFile(
         const destBuildFile = output[destExt];
         const result = await step.transform({
           contents: destBuildFile,
+          extension: destExt,
           filePath: rootFileName + destExt,
           isDev,
-          log: (msg, data) => {
+          log: (msg, data = {}) => {
             messageBus.emit(msg, {
               ...data,
               id: step.name,
@@ -82,9 +83,10 @@ export async function buildFile(
       const destBuildFile = output[destExt];
       const result = await step.build({
         contents: destBuildFile,
+        extension: destExt,
         filePath: rootFileName + destExt,
         isDev,
-        log: (msg, data) => {
+        log: (msg, data = {}) => {
           messageBus.emit(msg, {
             ...data,
             id: step.name,

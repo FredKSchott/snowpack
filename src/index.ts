@@ -9,7 +9,7 @@ import {CLIFlags, loadAndValidateConfig} from './config.js';
 import {clearCache, readLockfile} from './util.js';
 
 export {install as unstable_installCommand} from './commands/install';
-export {createConfiguration} from './config.js';
+export {createConfiguration, SnowpackPlugin} from './config.js';
 
 const cwd = process.cwd();
 

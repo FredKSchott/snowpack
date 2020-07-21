@@ -249,9 +249,23 @@
   border-spacing: 0;
 }
 
-.markdown-body td,
-.markdown-body th {
-  padding: 0;
+.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+}
+
+.markdown-body table td,
+.markdown-body table th {
+  padding: 6px 13px;
+}
+
+.markdown-body table tr {
+  background-color: #fff;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f6f8fa;
 }
 
 .markdown-body details summary {

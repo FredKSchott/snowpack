@@ -42,6 +42,7 @@ export interface SnowpackSourceFile {
 export interface BuildOptions {
   contents: string;
   filePath: string;
+  extension: string;
   isDev: boolean;
   log: (msg, data) => void;
   /** DEPRECATED */
