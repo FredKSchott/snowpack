@@ -7,7 +7,7 @@ import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import rimraf from 'rimraf';
-import {SnowpackSourceFile} from '../config';
+import {SnowpackSourceFile, removeLeadingSlash} from '../config';
 import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
@@ -130,7 +130,7 @@ export async function command(commandOptions: CommandOptions) {
   const includeFileSets: [string, string, string[]][] = [];
   for (const [fromDisk, toUrl] of Object.entries(config._mountedDirs)) {
     const dirDisk = path.resolve(cwd, fromDisk);
-    const dirDest = path.resolve(buildDirectoryLoc, toUrl.replace(/^\//, ''));
+    const dirDest = path.resolve(buildDirectoryLoc, removeLeadingSlash(toUrl));
     const allFiles = glob.sync(`**/*`, {
       ignore: config.exclude,
       cwd: dirDisk,
@@ -237,12 +237,15 @@ export async function command(commandOptions: CommandOptions) {
         // in the final build, so we mark them to be written to disk at the next step.
         if (resolvedImportUrl.endsWith('.proxy.js')) {
           // handle proxied files from web_modules
-          if (resolvedImportUrl.startsWith(config._webModulesPath)) {
+          const isWebModule = removeLeadingSlash(resolvedImportUrl).startsWith(
+            removeLeadingSlash(config._webModulesPath),
+          );
+          if (isWebModule) {
             allProxiedFiles.add(
               path.resolve(
                 cwd,
                 config.devOptions.out,
-                config._webModulesPath,
+                removeLeadingSlash(config._webModulesPath),
                 sanitizePackageName(spec),
               ),
             );

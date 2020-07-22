@@ -544,9 +544,9 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   }
 
   // remove leading/trailing slashes
-  config.buildOptions.metaDir = config.buildOptions.metaDir
-    .replace(/^(\/|\\)/g, '') // replace leading slash
-    .replace(/(\/|\\)$/g, ''); // replace trailing slash
+  config.buildOptions.metaDir = removeLeadingSlash(
+    removeTrailingSlash(config.buildOptions.metaDir),
+  );
 
   if (config.devOptions.bundle === true && !config.scripts['bundle:*']) {
     handleConfigError(`--bundle set to true, but no "bundle:*" script/plugin was provided.`);
@@ -560,7 +560,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   config.plugins = plugins;
   config._mountedDirs = mountedDirs;
   config._bundler = bundler;
-  config._webModulesPath = webModulesDir.replace(/^[/\\]/, ''); // strip leading `/` if any
+  config._webModulesPath = webModulesDir;
 
   // If any plugins defined knownEntrypoints, add them here
   for (const {knownEntrypoints} of config.plugins) {
@@ -809,4 +809,12 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     process.exit(1);
   }
   return configResult!;
+}
+
+export function removeLeadingSlash(path: string) {
+  return path.replace(/^[/\\]+/, '');
+}
+
+export function removeTrailingSlash(path: string) {
+  return path.replace(/[/\\]+$/, '');
 }
