@@ -182,7 +182,7 @@ export async function command(commandOptions: CommandOptions) {
             await fs.writeFile(cssOutPath, builtFileOutput['.css'], 'utf8');
             contents = `import './${path.basename(cssOutPath)}';\n` + contents;
           }
-          contents = wrapImportMeta({code: contents, env: true, hmr: false, config});
+          contents = wrapImportMeta({code: contents, env: true, isDev: false, hmr: false, config});
 
           // minify install if enabled and there’s no bundler
           if (config.buildOptions.minify && !config._bundler) {
@@ -196,7 +196,9 @@ export async function command(commandOptions: CommandOptions) {
         case '.html': {
           contents = wrapHtmlResponse({
             code: contents,
-            hasHmr: false,
+            isDev: false,
+
+            hmr: false,
             config,
           });
           allFilesToResolveImports[outLoc] = {baseExt, expandedExt, contents, locOnDisk};
@@ -275,12 +277,16 @@ export async function command(commandOptions: CommandOptions) {
           url: proxiedUrl,
           code: proxiedCode,
           ext: proxiedExt,
+          isDev: false,
+          hmr: false,
           config,
         })
       : wrapEsmProxyResponse({
           url: proxiedUrl,
           code: proxiedCode,
           ext: proxiedExt,
+          isDev: false,
+          hmr: false,
           config,
         });
     const proxyFileLoc = proxiedFileLoc + '.proxy.js';
