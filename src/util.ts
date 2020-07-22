@@ -286,3 +286,14 @@ export function replaceExt(
   const extToReplace = new RegExp(`\\${replaceExpandedExt ? expandedExt : baseExt}$`, 'i');
   return fileName.replace(extToReplace, newExtension);
 }
+
+/**
+ * Sanitizes npm packages that end in .js (e.g `tippy.js` -> `tippyjs`).
+ * This is necessary because Snowpack can’t create both a file and directory
+ * that end in .js.
+ */
+export function sanitizePackageName(filepath: string): string {
+  const dirs = filepath.split('/');
+  const file = dirs.pop() as string;
+  return [...dirs.map((path) => path.replace(/\.js$/i, 'js')), file].join('/');
+}

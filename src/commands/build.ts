@@ -11,7 +11,7 @@ import {SnowpackSourceFile} from '../config';
 import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
-import {CommandOptions, getEncodingType, getExt, replaceExt} from '../util';
+import {CommandOptions, getEncodingType, getExt, replaceExt, sanitizePackageName} from '../util';
 import {
   buildFile,
   generateEnvModule,
@@ -236,11 +236,24 @@ export async function command(commandOptions: CommandOptions) {
         // We treat ".proxy.js" files special: we need to make sure that they exist on disk
         // in the final build, so we mark them to be written to disk at the next step.
         if (resolvedImportUrl.endsWith('.proxy.js')) {
-          allProxiedFiles.add(
-            resolvedImportUrl.startsWith('/')
-              ? path.resolve(cwd, spec)
-              : path.resolve(path.dirname(outLoc), spec),
-          );
+          // handle proxied files from web_modules
+          if (resolvedImportUrl.startsWith(config._webModulesPath)) {
+            allProxiedFiles.add(
+              path.resolve(
+                cwd,
+                config.devOptions.out,
+                config._webModulesPath,
+                sanitizePackageName(spec),
+              ),
+            );
+          } else {
+            // handle local proxied files
+            allProxiedFiles.add(
+              resolvedImportUrl.startsWith('/')
+                ? path.resolve(cwd, spec)
+                : path.resolve(path.dirname(outLoc), spec),
+            );
+          }
         }
         return resolvedImportUrl;
       }
