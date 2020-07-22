@@ -1,0 +1,8 @@
+{
+  "extends": "@snowpack/app-scripts-preact",
+  "scripts": {},
+  "buildOptions": {
+    "minify": false
+  },
+  "plugins": []
+}
