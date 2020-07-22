@@ -45,8 +45,18 @@ describe("npx create-snowpack-app", () => {
     it(`--template @snowpack/${template}`, async () => {
       const cwd = path.join(TEMPLATES_DIR, template);
 
-      // run yarn build
+      // pre-build: minify output
+      const snowpackConfig = path.join(cwd, "snowpack.config.json");
+      const originalConfig = fs.readFileSync(snowpackConfig, "utf8");
+      const config = JSON.parse(originalConfig);
+      config.buildOptions = { ...(config.buildOptions || {}), minify: false };
+      fs.writeFileSync(snowpackConfig, JSON.stringify(config), "utf8");
+
+      // build
       await execa("yarn", ["build"], { cwd, env: { NODE_ENV: "production" } });
+
+      // post-build: restore original config
+      fs.writeFileSync(snowpackConfig, originalConfig, "utf8");
 
       const expected = path.join(__dirname, "snapshots", template);
       const actual = path.join(cwd, "build");
@@ -63,6 +73,20 @@ describe("npx create-snowpack-app", () => {
           return;
         }
 
+        if (!entry.path2)
+          throw new Error(
+            `File failed to generate: ${entry.path1.replace(expected, "")}/${
+              entry.name1
+            }`
+          );
+        if (!entry.path1)
+          throw new Error(
+            `File not found in snapshot: ${entry.path2.replace(actual, "")}/${
+              entry.name2
+            }`
+          );
+
+        // compare contents
         const f1 = fs.readFileSync(path.join(entry.path1, entry.name1), "utf8");
         const f2 = fs.readFileSync(path.join(entry.path2, entry.name2), "utf8");
 
