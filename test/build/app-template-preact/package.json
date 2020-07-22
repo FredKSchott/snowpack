@@ -1,0 +1,10 @@
+{
+  "description": "tests app-template-preact build",
+  "scripts": {
+    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+  },
+  "dependencies": {
+    "@snowpack/app-scripts-preact": "^1.6.0-alpha.0",
+    "preact": "^10.4.6"
+  }
+}
