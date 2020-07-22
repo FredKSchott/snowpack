@@ -9,16 +9,22 @@ const path = require("path");
 const setupTestsFile = true;
 
 module.exports = function () {
+
+  const userSvelteConfig = getUserSvelteConfig();
+
   return {
     testMatch: [
       "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
       "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}",
     ],
     transform: {
-      "^.+\\.svelte$": "jest-transform-svelte",
-      "^.+\\.js$": path.resolve(__dirname, "jest/babelTransform.js"),
+      "^.+\\.svelte$": [
+        "jest-transform-svelte",
+        { preprocess: userSvelteConfig.preprocess },
+      ],
+      "^.+\\.(js|ts)$": path.resolve(__dirname, "jest/babelTransform.js"),
     },
-    moduleFileExtensions: ["js", "svelte"],
+    moduleFileExtensions: ["js", "ts", "svelte"],
     testPathIgnorePatterns: ["node_modules"],
     transformIgnorePatterns: ["node_modules"],
     bail: false,
@@ -26,3 +32,12 @@ module.exports = function () {
     setupFilesAfterEnv: setupTestsFile ? ["<rootDir>/jest.setup.js"] : [],
   };
 };
+
+function getUserSvelteConfig() {
+   const userSvelteConfigLoc = path.join(process.cwd(), "svelte.config.js");
+   if (fs.existsSync(userSvelteConfigLoc)) {
+     return require(userSvelteConfigLoc);
+   }
+
+   return {};
+}

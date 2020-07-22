@@ -1,0 +1,14 @@
+{
+  "extends": "@snowpack/app-scripts-svelte",
+  "scripts": {
+    "mount:public": "mount public --to /",
+    "mount:src": "mount src --to /_dist_",
+    "run:tsc": "tsc --noEmit",
+    "run:tsc::watch": "$1 --watch",
+    "run:svelte-check": "svelte-check"
+  },
+  "plugins": [],
+  "installOptions": {
+    "installTypes": true
+  }
+}

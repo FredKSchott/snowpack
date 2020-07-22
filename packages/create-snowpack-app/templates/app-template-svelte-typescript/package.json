@@ -1,0 +1,31 @@
+{
+  "name": "@snowpack/app-template-svelte-typescript",
+  "version": "1.6.0-alpha.0",
+  "license": "MIT",
+  "keywords": [
+    "csa-template"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "start": "snowpack dev",
+    "build": "snowpack build",
+    "test": "jest"
+  },
+  "dependencies": {
+    "svelte": "^3.21.0"
+  },
+  "devDependencies": {
+    "@snowpack/app-scripts-svelte": "^1.6.0-alpha.0",
+    "@testing-library/jest-dom": "^5.5.0",
+    "@testing-library/svelte": "^3.0.0",
+    "@types/jest": "^26.0.4",
+    "jest": "^25.4.0",
+    "snowpack": "^2.6.4",
+    "svelte-check": "^0.1.53",
+    "svelte-preprocess": "^4.0.8",
+    "typescript": "^3.9.6"
+  },
+  "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
+}
