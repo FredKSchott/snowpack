@@ -364,7 +364,7 @@ function loadPlugins(
       ? Array.isArray(plugin.output)
         ? plugin.output
         : [plugin.output]
-      : [];
+      : plugin.input; // if no plugin.output, use input
     return plugin;
   }
 
