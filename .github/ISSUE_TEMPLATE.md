@@ -1,5 +1,5 @@
-To create a new issue or search existing discussions, start here:  
-👉 **https://www.pika.dev/packages/snowpack/discuss** 👈
+❗️ To start a new discussion, go here:  
+https://github.com/pikapkg/snowpack/discussions/new
 
-All new issues created directly through GitHub will be closed.  
-Learn more: https://www.pika.dev/discussions
+**All issues created directly through GitHub will be closed!**
+For more information, read this: https://github.com/pikapkg/snowpack/discussions/613#discussioncomment-41103
