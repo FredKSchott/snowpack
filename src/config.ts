@@ -42,6 +42,7 @@ export interface SnowpackSourceFile {
 export interface BuildOptions {
   contents: string;
   filePath: string;
+  fileExt: string;
   isDev: boolean;
   log: (msg, data) => void;
   /** DEPRECATED */
@@ -363,7 +364,7 @@ function loadPlugins(
       ? Array.isArray(plugin.output)
         ? plugin.output
         : [plugin.output]
-      : [];
+      : plugin.input; // if no plugin.output, use input
     return plugin;
   }
 
