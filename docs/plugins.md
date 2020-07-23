@@ -64,8 +64,7 @@ module.exports = (snowpackConfig, pluginOptions) => ({
   input: ['.js', '.mjs', '.jsx', '.ts', '.tsx'],
   output: ['.js', '.mjs', '.jsx', '.ts', '.tsx'],
   async build({ contents, extension }) {
-    return `/* I’m a comment! */
-${contents}`;
+    return `/* I’m a comment! */ ${contents}`;
   }
 })
 ```
