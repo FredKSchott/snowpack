@@ -123,7 +123,7 @@ All options available:
 module.exports = (snowpackConfig, pluginOptions) => ({
   async build({
     contents, // file contents (could be UTF-8 or binary depending on the file)
-    extension, // file extension (e.g. '.js')
+    fileExt, // file extension (e.g. '.js')
     filePath, // complete file path (⚠️ Warning! This may not exist on disk, so don’t try and perform file operations on)
     isDev, // is this the Snowpack dev server?
   }) {
