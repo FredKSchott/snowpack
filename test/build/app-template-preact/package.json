@@ -1,10 +1,16 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-app-template-preact",
   "description": "tests app-template-preact build",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+    "testbuild": "snowpack build"
   },
   "dependencies": {
     "@snowpack/app-scripts-preact": "^1.6.0-alpha.0",
     "preact": "^10.4.6"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

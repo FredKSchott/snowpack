@@ -1,7 +1,7 @@
 {
-    "singleQuote": true,
-    "trailingComma": "all",
-    "bracketSpacing": false,
-    "printWidth": 100,
-    "parser": "typescript"
-  }
+  "singleQuote": true,
+  "trailingComma": "all",
+  "bracketSpacing": false,
+  "printWidth": 100,
+  "parser": "typescript"
+}

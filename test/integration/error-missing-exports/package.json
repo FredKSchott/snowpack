@@ -1,11 +1,19 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-error-missing-exports",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
-    "install": ["preact/debug/src/check-props"]
+    "install": [
+      "preact/debug/src/check-props"
+    ]
   },
   "dependencies": {
-    "preact": "^10.4.4"
-  } 
+    "preact": "^10.4.6"
+  },
+  "devDependencies": {
+    "snowpack": "*"
+  }
 }

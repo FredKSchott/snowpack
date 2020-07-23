@@ -1,0 +1,157 @@
+//
+// Copyright 2020 Google Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+@use "sass:map";
+@use "sass:meta";
+@use "./gss";
+
+/// When true, add an additional property/value declaration before a custom
+/// property's `var()` to support IE. Configure
+/// `@material/theme/custom-properties` with this variable set to false to
+/// disable IE fallback values for custom properties.
+$ie-fallback: true !default;
+
+/// Returns true if the parameter is a custom property Map.
+///
+/// @param {*} $value - the value to test.
+/// @return true if the value is a custom property Map, or false if not.
+@function is-custom-prop($value) {
+  @return meta.type-of($value) == 'map' and map.has-key($value, 'varname');
+}
+
+/// Returns true if $prop1's varname and fallback values are deeply equal to
+/// $prop2's varname and fallback values.
+///
+/// @param {Map} $prop1 - the first value to test.
+/// @param {Map} $prop2 - the second value to test.
+/// @return true if both properties are deeply equal
+@function are-equal($prop1, $prop2) {
+  @return create-var($prop1) == create-var($prop2);
+}
+
+/// Creates a custom property Map.
+///
+/// @param {String} $varname - the custom property name.
+/// @param {String | Number | Map} - the fallback value (may be another custom
+///     property Map). May be null.
+/// @return a custom property Map.
+@function create($varname, $fallback: null) {
+  @return (varname: $varname, fallback: $fallback);
+}
+
+/// Returns the custom property variable name of a custom property Map.
+///
+/// @param {Map} $custom-prop - a custom property Map.
+/// @return the custom property variable name defined by the Map.
+@function get-varname($custom-prop) {
+  @return map.get($custom-prop, 'varname');
+}
+
+/// Returns the fallback value of a custom property Map. May be null if the
+/// custom property does not have a fallback.
+///
+/// @param {Map} $custom-prop - a custom property Map.
+/// @param {Bool} $shallow - if true, return the first fallback value, which
+///     may be another custom property Map. Defaults to false, which will return
+///     the deep final fallback value.
+/// @return the fallback value of a custom property Map. May be null.
+@function get-fallback($custom-prop, $shallow: false) {
+  $fallback: map.get($custom-prop, 'fallback');
+  @if is-custom-prop($fallback) and not $shallow {
+    @return get-fallback($fallback);
+  }
+
+  @return $fallback;
+}
+
+/// Creates a new custom property Map and returns it with the specified new
+/// fallback value.
+///
+/// @param {Map} $custom-prop - the custom property Map to copy.
+/// @param {String | Number | Map} $new-fallback - the new fallback value of the
+///     custom property Map. May be null.
+/// @param {Bool} $shallow - if true, set the first fallback value. Defaults to
+///     false, which will set the deep final fallback value.
+/// @return a new custom property Map with the new fallback value.
+@function set-fallback($custom-prop, $new-fallback, $shallow: false) {
+  $varname: get-varname($custom-prop);
+  $first-fallback: get-fallback($custom-prop, $shallow: true);
+
+  @if is-custom-prop($first-fallback) and not $shallow {
+    // The first fallback is a custom property and $shallow is false. Deeply
+    // set the fallback value of the custom property and get the new custom
+    // property Map returned.
+    $new-fallback: set-fallback($first-fallback, $new-fallback);
+  }
+
+  @return create($varname, $new-fallback);
+}
+
+/// Creates and returns a `var()` function declaration represented by the
+/// provided custom property Map.
+///
+/// @param {Map} $custom-prop - a custom property Map.
+/// @return a `var()` function declaration using the custom property Map's
+///     varname and fallback value.
+@function create-var($custom-prop) {
+  $varname: get-varname($custom-prop);
+  $fallback: get-fallback($custom-prop, $shallow: true);
+
+  @if is-custom-prop($fallback) {
+    @return var($varname, create-var($fallback));
+  } @else if $fallback != null {
+    @return var($varname, $fallback);
+  } @else {
+    @return var($varname);
+  }
+}
+
+/// Applies a custom property value to the specified property.
+///
+/// @param {String} $property - the name of the CSS property.
+/// @param {Map} $custom-prop - a custom property Map for the property's value.
+/// @param {Map} $gss - optional Map of GSS annotations to set.
+/// @param {Bool} $important - set to true to add an `!important` rule. Defaults
+///     to false.
+@mixin apply($property, $custom-prop, $gss: (), $important: false) {
+  @if not is-custom-prop($custom-prop) {
+    @error "mdc-theme: Invalid custom property: #{$custom-prop}. Must be a Map with 'varname' and 'fallback'.";
+  }
+
+  $important-rule: if($important, '!important', '');
+
+  $fallback: get-fallback($custom-prop);
+  @if $ie-fallback and $fallback != null {
+    @include gss.annotate($gss);
+    #{$property}: #{$fallback} #{$important-rule};
+
+    // add @alternate to annotations
+    $gss: map.merge(
+      $gss,
+      (
+        alternate: true,
+      )
+    );
+  }
+
+  @include gss.annotate($gss);
+  #{$property}: create-var($custom-prop) #{$important-rule};
+}

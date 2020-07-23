@@ -1,7 +1,10 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-source-pika-types",
   "description": "Test that --install-types works as expected.",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --install-types"
+    "testinstall": "snowpack --install-types"
   },
   "webDependencies": {
     "async": "3.1.0"
@@ -10,5 +13,8 @@
     "buildOptions": {
       "minify": false
     }
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

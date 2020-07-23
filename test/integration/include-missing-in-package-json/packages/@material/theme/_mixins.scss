@@ -1,0 +1,129 @@
+//
+// Copyright 2017 Google Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+@use "sass:map";
+@use "@material/feature-targeting/functions" as feature-targeting-functions;
+@use "@material/feature-targeting/mixins";
+@use "./custom-properties";
+@use "./gss";
+@use "./variables";
+
+@mixin core-styles($query: feature-targeting-functions.all()) {
+  $feat-color: feature-targeting-functions.create-target($query, color);
+
+  :root {
+    @include mixins.targets($feat-color) {
+      @each $style in map.keys(variables.$property-values) {
+        --mdc-theme-#{$style}: #{map.get(variables.$property-values, $style)};
+      }
+    }
+  }
+
+  @each $style in map.keys(variables.$property-values) {
+    @if $style != 'background' and $style != 'surface' {
+      .mdc-theme--#{$style} {
+        @include mixins.targets($feat-color) {
+          @include prop(color, $style, true);
+        }
+      }
+    } @else {
+      .mdc-theme--#{$style} {
+        @include mixins.targets($feat-color) {
+          @include prop(background-color, $style);
+        }
+      }
+    }
+  }
+
+  // CSS rules for using primary and secondary (plus light/dark variants) as background colors.
+  @each $style in ('primary', 'secondary') {
+    .mdc-theme--#{$style}-bg {
+      @include mixins.targets($feat-color) {
+        @include prop(background-color, $style, true);
+      }
+    }
+  }
+}
+
+/// Applies a dynamic value to the specified property. This mixin should be used
+/// in theme style mixins when setting properties.
+///
+/// The value may be any of the following:
+/// - a standard CSS value
+/// - a custom property Map, e.g. (varname: --mdc-foo, fallback: blue)
+/// - a Material theme key String, e.g. "primary", "on-primary"
+///
+/// @param {String} $property - the name of the CSS property.
+/// @param {String | Number | Color | List | Map} $value - the property's value.
+/// @param {Map} $gss - optional Map of GSS annotations to set.
+/// @param {Bool} $important - set to true to add an `!important` rule. Defaults
+///     to false.
+@mixin property($property, $value, $gss: (), $important: false) {
+  $important-rule: if($important, '!important', '');
+
+  @if custom-properties.is-custom-prop($value) {
+    // $value is a custom property Map
+    @include custom-properties.apply(
+      $property,
+      $value,
+      $gss: $gss,
+      $important: $important
+    );
+  } @else if map.has-key(variables.$property-values, $value) {
+    // $value is a theme property String
+    $fallback: map.get(variables.$property-values, $value);
+    $custom-prop: custom-properties.create(--mdc-theme-#{$style}, $fallback);
+    @include custom-properties.apply(
+      $property,
+      $custom-prop,
+      $gss: $gss,
+      $important: $important
+    );
+  } @else {
+    // $value is a standard CSS value
+    @include gss.annotate($gss);
+    #{$property}: $value #{$important-rule};
+  }
+}
+
+// Applies the correct theme color style to the specified property.
+// $property is typically color or background-color, but can be any CSS property that accepts color values.
+// $style should be one of the map keys in $mdc-theme-property-values (_variables.scss), or a color value.
+// @deprecated use the `property()` mixin instead
+@mixin prop($property, $style, $important: false) {
+  $important-rule: if($important, '!important', '');
+
+  @if custom-properties.is-custom-prop($style) {
+    @include custom-properties.apply($property, $style, $important: $important);
+  } @else if variables.is-valid-theme-prop-value_($style) {
+    #{$property}: $style #{$important-rule};
+  } @else {
+    @if not map.has-key(variables.$property-values, $style) {
+      @error "Invalid style: '#{$style}'. Choose one of: #{map.keys(variables.$property-values)}";
+    }
+    $value: map.get(variables.$property-values, $style);
+
+    #{$property}: $value #{$important-rule};
+    /* @alternate */
+    #{$property}: var(--mdc-theme-#{$style}, $value) #{$important-rule};
+  }
+}

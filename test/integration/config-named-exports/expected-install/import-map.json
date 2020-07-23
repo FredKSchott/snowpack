@@ -1,5 +1,5 @@
 {
   "imports": {
-    "mock-test-package": "./mock-test-package.js"
+    "cjs-named-export-pkg": "./cjs-named-export-pkg.js"
   }
 }

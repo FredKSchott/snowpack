@@ -1,6 +1,9 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-include",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
     "buildOptions": {
@@ -11,7 +14,12 @@
     "@emotion/is-prop-valid": "^0.8.5",
     "array-flatten": "^3.0.0",
     "http-vue-loader": "^1.4.1",
-    "vue": "^2.6.10",
-    "vue-router": "^3.1.3"
+    "package-01": "file:./packages/package-01",
+    "package-02": "file:./packages/package-02",
+    "vue": "^2.0.0",
+    "vue-router": "^3.0.0"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

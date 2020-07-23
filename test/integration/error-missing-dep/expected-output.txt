@@ -1,2 +1,2 @@
-⠼ snowpack installing... preact
-✖ Package "preact" not found. Have you installed it?
+⠼ snowpack installing... fake-module
+✖ Package "fake-module" not found. Have you installed it?

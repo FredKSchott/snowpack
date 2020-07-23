@@ -1,19 +1,29 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-config-external",
   "description": "Handle external packages",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
     "installOptions": {
-      "externalPackage": ["mock-test-package-b"]
+      "externalPackage": [
+        "config-external-pkg-b"
+      ]
     },
-    "install": ["mock-test-package-a"],
+    "install": [
+      "config-external-pkg-a"
+    ],
     "buildOptions": {
       "minify": false
     }
   },
   "dependencies": {
-    "mock-test-package-a": "^1.0.0",
-    "mock-test-package-b": "^1.0.0"
+    "config-external-pkg-a": "file:./packages/config-external-pkg-a",
+    "config-external-pkg-b": "file:./packages/config-external-pkg-b"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

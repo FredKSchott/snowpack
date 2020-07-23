@@ -1,6 +1,9 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-export-maps",
   "scripts": {
-    "TEST": "node --no-warnings ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
     "install": [
@@ -11,6 +14,9 @@
     }
   },
   "dependencies": {
-    "preact": "10.3.1"
+    "preact": "^10.4.6"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

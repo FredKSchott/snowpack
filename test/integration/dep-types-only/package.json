@@ -1,13 +1,19 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-dep-types-only",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
     "install": [
-      "dep-a"
+      "type-only-pkg"
     ]
   },
   "dependencies": {
-    "dep-a": "1.0.0"
+    "type-only-pkg": "file:./packages/type-only-pkg"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

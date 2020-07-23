@@ -1,15 +1,23 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-dep-node-fetch",
   "description": "Handle specific node.js fetch polyfill packages",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
-    "install": ["mock-test-package-a"],
+    "install": [
+      "dep-node-fetch-mock-pkg"
+    ],
     "buildOptions": {
       "minify": false
     }
   },
   "dependencies": {
-    "mock-test-package-a": "^1.0.0"
+    "dep-node-fetch-mock-pkg": "file:./packages/dep-node-fetch-mock-pkg"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

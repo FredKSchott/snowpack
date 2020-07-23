@@ -1,8 +1,10 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-custom-modules-dir",
   "description": "This test ensures that Snowpack can build when /my_modules is the web modules dir",
   "scripts": {
-    "prepare": "node ../../../pkg/dist-node/index.bin.js",
-    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+    "testbuild": "snowpack build"
   },
   "snowpack": {
     "scripts": {
@@ -15,5 +17,8 @@
   },
   "dependencies": {
     "array-flatten": "^3.0.0"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

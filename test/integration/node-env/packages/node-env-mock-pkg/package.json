@@ -1,0 +1,8 @@
+{
+  "version": "1.2.3",
+  "name": "node-env-mock-pkg",
+  "browser": {
+    "./index.js": "entrypoint.js",
+    "./bad": "bad"
+  }
+}

@@ -1,1 +1,0 @@
-export { compile, parse, preprocess, VERSION } from './types/compiler/index';

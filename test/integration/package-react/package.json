@@ -1,7 +1,10 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-package-react",
   "description": "Ensures React still works",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
     "install": [
@@ -15,5 +18,8 @@
   "dependencies": {
     "react": "latest",
     "react-dom": "latest"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

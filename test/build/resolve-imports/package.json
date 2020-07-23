@@ -1,7 +1,10 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-resolve-imports",
   "scripts": {
-    "start": "node ../../../pkg/dist-node/index.bin.js dev",
-    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+    "start": "snowpack dev",
+    "testbuild": "snowpack build"
   },
   "snowpack": {
     "scripts": {
@@ -15,6 +18,7 @@
     }
   },
   "dependencies": {
-    "array-flatten": "^3.0.0"
+    "array-flatten": "^3.0.0",
+    "snowpack": "*"
   }
 }

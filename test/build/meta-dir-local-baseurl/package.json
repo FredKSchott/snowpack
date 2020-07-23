@@ -1,8 +1,11 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-meta-dir-local-baseurl",
   "description": "Test that makes sure that the metaDir can be configured and still build",
   "scripts": {
-    "prepare": "node ../../../pkg/dist-node/index.bin.js",
-    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+    "prepare": "snowpack",
+    "testbuild": "snowpack build"
   },
   "snowpack": {
     "scripts": {
@@ -16,5 +19,8 @@
   },
   "dependencies": {
     "shallow-equal": "^1.2.1"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

@@ -1,7 +1,10 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-config-clean",
   "description": "Test for buildOptions.clean",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+    "testbuild": "snowpack build"
   },
   "snowpack": {
     "buildOptions": {
@@ -11,5 +14,8 @@
     "scripts": {
       "mount:src": "mount src --to /_dist_"
     }
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

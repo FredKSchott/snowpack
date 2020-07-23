@@ -1,3 +1,3 @@
 ✔ snowpack install complete.
-  ⦿ web_modules/             size       gzip       brotli   
-    └─ mock-test-package.js    XXXX KB    XXXX KB    XXXX KB
+  ⦿ web_modules/                size       gzip       brotli   
+    └─ cjs-named-export-pkg.js    XXXX KB    XXXX KB    XXXX KB

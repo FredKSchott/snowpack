@@ -1,6 +1,12 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-config-extends-plugins",
   "scripts": {
-    "prepare": "node ../../../pkg/dist-node/index.bin.js",
-    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+    "prepare": "snowpack",
+    "testbuild": "snowpack build"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

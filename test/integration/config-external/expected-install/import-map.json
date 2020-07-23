@@ -1,5 +1,5 @@
 {
   "imports": {
-    "mock-test-package-a": "./mock-test-package-a.js"
+    "config-external-pkg-a": "./config-external-pkg-a.js"
   }
 }

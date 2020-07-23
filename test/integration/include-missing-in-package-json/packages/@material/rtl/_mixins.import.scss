@@ -1,0 +1,2 @@
+@forward "./index" as mdc-rtl-* hide mdc-rtl-rtl;
+@forward "./index" as mdc-* show mdc-rtl;

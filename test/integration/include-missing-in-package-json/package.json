@@ -1,10 +1,16 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-include-missing-in-package-json",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "cp -r packages/* node_modules && snowpack"
   },
   "snowpack": {
     "buildOptions": {
       "minify": false
     }
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

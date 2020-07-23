@@ -1,5 +1,5 @@
 {
   "imports": {
-    "dep-a": "./dep-a.js"
+    "remote-url-pkg": "./remote-url-pkg.js"
   }
 }

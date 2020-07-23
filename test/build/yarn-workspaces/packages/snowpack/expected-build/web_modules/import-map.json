@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "yarn-workspace-utils": "./yarn-workspace-utils.js"
-  }
-}

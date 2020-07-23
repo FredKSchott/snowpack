@@ -1,15 +1,23 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-dep-list-css",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
-    "install": ["dep-a"],
+    "install": [
+      "css-mock-pkg-a"
+    ],
     "buildOptions": {
       "minify": false
     }
   },
   "dependencies": {
-    "dep-a": "1.0.0",
-    "dep-b": "1.0.0"
+    "css-mock-pkg-a": "file:./packages/css-mock-pkg-a",
+    "css-mock-pkg-b": "file:./packages/css-mock-pkg-b"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

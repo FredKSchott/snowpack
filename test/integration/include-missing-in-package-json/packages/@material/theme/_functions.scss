@@ -1,0 +1,93 @@
+//
+// Copyright 2017 Google Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+@use "sass:color";
+@use "sass:list";
+@use "sass:math";
+@use "sass:meta";
+@use "sass:string";
+@use "./constants";
+@use "./custom-properties";
+
+// Calculate the luminance for a color.
+// See https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
+@function luminance($color) {
+  $red: list.nth(constants.$linear-channel-values, color.red($color) + 1);
+  $green: list.nth(constants.$linear-channel-values, color.green($color) + 1);
+  $blue: list.nth(constants.$linear-channel-values, color.blue($color) + 1);
+
+  @return 0.2126 * $red + 0.7152 * $green + 0.0722 * $blue;
+}
+
+// Calculate the contrast ratio between two colors.
+// See https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
+@function contrast($back, $front) {
+  $backLum: luminance($back) + 0.05;
+  $foreLum: luminance($front) + 0.05;
+
+  @return math.max($backLum, $foreLum) / math.min($backLum, $foreLum);
+}
+
+// Determine whether the color is "light" or "dark".
+@function tone($color) {
+  @if $color == 'dark' or $color == 'light' {
+    @return $color;
+  }
+
+  $minimumContrast: 3.1;
+
+  $lightContrast: contrast($color, white);
+  $darkContrast: contrast($color, rgba(black, 0.87));
+
+  @if ($lightContrast < $minimumContrast) and ($darkContrast > $lightContrast) {
+    @return 'light';
+  } @else {
+    @return 'dark';
+  }
+}
+
+// Determine whether to use dark or light text on top of given color to meet accessibility standards for contrast.
+// Returns "dark" if the given color is light and "light" if the given color is dark.
+@function contrast-tone($color) {
+  @return if(tone($color) == 'dark', 'light', 'dark');
+}
+
+///
+/// @param $color Target color in any color format.
+/// @return Returns hash in string format that uniquely represents
+///     any given color format. Useful for generating unique keyframe names.
+/// @example
+///   `color-hash(#6200ee)` => "6200ee"
+///   `color-hash(rgb(255, 112, 112))` => "ff7070"
+///   `color-hash((varname: --my-fancy-color, fallback: teal))` => "--my-fancy-color"
+///
+@function color-hash($color) {
+  @if custom-properties.is-custom-prop($color) {
+    @return custom-properties.get-varname($color);
+  }
+
+  @if meta.type-of($color) == 'string' {
+    @return $color;
+  }
+
+  @return string.slice(color.ie-hex-str($color), 2); // Index starts at 1
+}

@@ -1,8 +1,14 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "snowpack-install-test-top-level-imports",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "dependencies": {
     "array-flatten": "^3.0.0"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

@@ -1,5 +1,5 @@
 {
   "imports": {
-    "dep-a": "./dep-a.js"
+    "css-mock-pkg-a": "./css-mock-pkg-a.js"
   }
 }

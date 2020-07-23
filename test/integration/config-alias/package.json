@@ -1,7 +1,10 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-config-alias",
   "description": "Handle deep imports to package entrypoints",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
     "installOptions": {
@@ -19,6 +22,9 @@
     }
   },
   "dependencies": {
-    "preact": "^10.0.0"
+    "preact": "^10.4.6"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }
