@@ -15,6 +15,7 @@
   "scripts": {
     "build": "pika build"
   },
+  "bin": "pkg/dist-node/index.bin.js",
   "@pika/pack": {
     "pipeline": [
       [
