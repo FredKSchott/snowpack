@@ -88,7 +88,7 @@ import svg from './image.svg'; // svg === '/src/image.svg'
 
 All other assets not explicitly mentioned above can be imported to get a URL reference to the asset. This can be useful for referencing assets inside of your JS, like creating an image element with a `src` attribute pointing to that image.
 
-### Top-Level Imports
+### Import Aliases
 
 
 ```js
@@ -96,12 +96,10 @@ All other assets not explicitly mentioned above can be imported to get a URL ref
 import Button from `../../../../components/Button`;
 
 // You can do this:
-import Button from `src/components/Button`;
+import Button from `@app/components/Button`;
 ```
 
-Snowpack lets you import files relative to any mounted directory. Both styles of imports are supported, so you are free to use whichever you prefer.
-
-Note that this only works for directories that have been mounted via a `mount:*` build script. If an import doesn't match a mounted directory, then it will be treated as a package. [Learn more about the "mount" script type.](#all-script-types)
+Snowpack supports setting custom import aliases for your project via the top-level `alias` property. This can be used to define an alias for either a local source directory (like aliasing `@app` to `./src`) or a package (like aliasing `react` to `preact/compat`). See the full documentation for `alias` below.
 
 **TypeScript Users:** You'll need to configure your `tsconfig.json` `paths` to get proper types from top-level imports. Learn more about ["path mappings"](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping).
 
@@ -125,32 +123,15 @@ Note that this only works for directories that have been mounted via a `mount:*`
 
 ### JSX
 
-#### Compile to JavaScript
+Snowpack has built-in support to handle `.jsx` & `.tsx` source files in your application. 
 
-
-Snowpack automatically builds all `.jsx` & `.tsx` files to JavaScript during development and production builds. 
-
-**Note: Snowpack's default build supports JSX with both React & Preact as long as a React/Preact import exists somewhere in the file.** To set a custom JSX pragma, you can configure our default esbuild yourself:
+**Note: Snowpack's default build does not support JSX in  `.js`/`.ts` files.** If you can't use the `.jsx`/`.tsx` file extension, you'll need to manually add a build plugin to support this:
 
 ```js
 // snowpack.config.json
-// Optional: Define your own JSX factory/fragment
+// Optional: Babel supports JSX in .js & .ts files.
 {
-  "scripts": {
-    "build:tsx": "esbuild --jsx-factory=h --jsx-fragment=Fragment --loader=tsx"
-  }
-}
-```
-
-**Note: Snowpack's default build does not support JSX in  `.js`/`.ts` files.** You'll need to define your own build script to support this. You can define your own JSX->JavaScript build step via a [Build Script integration](#build-scripts).
-
-```js
-// snowpack.config.json
-// Optional: You can define your own JSX build step if you'd like.
-{
-  "scripts": {
-    "build:jsx": "babel --filename $FILE",
-  }
+  "plugins": ["@snowpack/plugin-babel"]
 }
 ```
 
@@ -158,23 +139,19 @@ Snowpack automatically builds all `.jsx` & `.tsx` files to JavaScript during dev
 
 #### Compile to JavaScript
 
-Snowpack automatically builds all `.ts` & `.tsx` files to JavaScript. Snowpack will not perform any type checking by default (see below), only building from TS->JS.
-
-You could also choose to define your own TSX->JavaScript build step via a [Build Script integration](#build-scripts).
+Snowpack has built-in support to handle `.ts` & `.tsx` source files in your application. If you prefer to use Babel, you can connect your own TS->JavaScript build plugin:
 
 ```js
 // snowpack.config.json
-// Optional: You can define your own TS build step if you'd like.
+// Optional: Babel is another popular build tool that supports TS.
 {
-  "scripts": {
-    "build:ts,tsx": "babel --filename $FILE",
-  }
+  "plugins": ["@snowpack/plugin-babel"]
 }
 ```
 
-#### Type Checking During Development
+#### Type-Checking During Development
 
-You can integrate TypeScript type checking with Snowpack via a [Build Script integration](#build-scripts). Just add the TypeScript compiler (`tsc`) as a build command that gets run during your build with a `--watch` mode for development.
+You can integrate TypeScript type checking with Snowpack via a "build script". Just add the TypeScript compiler (`tsc`) as a build command that gets run during your build with a `--watch` mode for development.
 
 ```js
 // snowpack.config.json

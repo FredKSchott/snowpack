@@ -46,19 +46,6 @@ Babel will automatically read plugins & presets from your local project `babel.c
 ```js
 // snowpack.config.json
 "plugins": ["@snowpack/plugin-babel"],
-"scripts": {
-  "build:js,jsx": "@snowpack/plugin-babel"
-}
-```
-
-#### via @babel/cli
-
-```js
-// snowpack.config.json
-// NOTE: Not recommended, Babel CLI is slower than the plugin on large sites.
-"scripts": {
-  "build:js,jsx": "babel --filename $FILE"
-}
 ```
 
 ### Vue
@@ -66,7 +53,6 @@ Babel will automatically read plugins & presets from your local project `babel.c
 
 ```js
 // snowpack.config.json
-// Note: The plugin will add a default build script automatically
 "plugins": ["@snowpack/plugin-vue"]
 ```
 
@@ -74,7 +60,6 @@ Babel will automatically read plugins & presets from your local project `babel.c
 
 ```js
 // snowpack.config.json
-// Note: The plugin will add a default build script automatically
 "plugins": ["@snowpack/plugin-svelte"]
 ```
 

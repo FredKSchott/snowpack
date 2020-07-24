@@ -46,11 +46,12 @@ $ snowpack dev --no-bundle
     "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
     "bulma/css/bulma.css" // A non-JS static asset (supports globs)
   ],
-  "scripts": { /* ... */ },
+  "mount": { /* ... */ },
+  "proxy": { /* ... */ },
+  "plugins": [ /* ... */ ],
   "installOptions": { /* ... */ },
   "devOptions": { /* ... */ },
   "buildOptions": { /* ... */ },
-  "proxy": { /* ... */ },
 }
 ```
 
@@ -63,14 +64,20 @@ $ snowpack dev --no-bundle
   - Useful for excluding tests and other unnecessary files from the final build. Supports glob pattern matching.
 - **`install`** | `string[]`
   - Known dependencies to install with Snowpack. Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
-- **`scripts`**
-  - Set build scripts to transform your source files. See the section below for more info.
+- **`mount.*`**
+  - Mount local directories to custom URLs in your built application.
+- **`alias.*`**
+  - Configure import aliases for directories and packages. See the section below for all options.
+- **`proxy.*`**
+  - Configure the dev server to proxy requests. See the section below for all options.
+- **`plugins`**
+  - Extend Snowpack with 3rd party tools and plugins. See the section below for more info.
 - **`installOptions.*`**
   - Configure how npm packages are installed. See the section below for all options.
 - **`devOptions.*`**
-  - Configure your dev server and build workflows. See the section below for all options.
-- **`proxy.*`**
-  - Configure the dev server to proxy requests. See the section below for all options.
+  - Configure your dev server. See the section below for all options.
+- **`buildOptions.*`**
+  - Configure your build. See the section below for all options.
 
 #### Install Options
 
@@ -155,3 +162,41 @@ The short form of a full URL string is enough for general use. For advanced conf
 `on` is a special property for setting event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
 
 This configuration has no effect on the final build.
+
+#### Mount Options
+
+
+```js
+// snowpack.config.json
+{
+  "mount": {
+    // Files in the local src directory are written to `/_dist_/*` in the final build.
+    "src": "/_dist_",
+    // Files in the local public directory are written to `/*` in the final build.
+    "public": "/"
+  }
+}
+```
+
+The `mount` configuration lets you map local files to their location in the final build. If no mount configuration is given, then the entire current working directory (minus excluded files) will be built and mounted to the Root URL (Default: `/`, respects `baseUrl`).
+
+#### Alias Options
+
+
+```js
+// snowpack.config.json
+{
+  alias: {
+    // Type 1: Package Import Alias
+    "lodash": "lodash-es",
+    "react": "preact/compat",
+    // Type 2: Local Directory Import Alias (relative to cwd)
+    "components": "./src/components"
+    "@root": "./src"
+  }
+}
+```
+
+The `alias` configuration lets you define an alias in your source code imports to a package or local directory. 
+
+In an older version of Snowpack, all mounted directories were also available as aliases. As of Snowpack 2.7, this is no longer the case and no aliases are defined by default.
