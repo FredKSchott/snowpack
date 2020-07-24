@@ -107,6 +107,8 @@ export interface SnowpackConfig {
   exclude: string[];
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
+  proxy: Proxy[];
+  mount: Record<string, string>;
   scripts: Record<string, string>;
   plugins: SnowpackPlugin[];
   devOptions: {
@@ -135,16 +137,14 @@ export interface SnowpackConfig {
   };
   buildOptions: {
     baseUrl: string;
+    webModulesUrl: string;
     clean: boolean;
     metaDir: string;
     minify: boolean;
   };
-  proxy: Proxy[];
   // experimental API; to convert to supported config values in the future
-  _mountedDirs: Record<string, string>;
   _extensionMap: Record<string, string>;
   _bundler: SnowpackPlugin | undefined;
-  _webModulesPath: string;
 }
 
 export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>, 'env'> {
@@ -186,6 +186,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   },
   buildOptions: {
     baseUrl: '/',
+    webModulesUrl: '/web_modules',
     clean: false,
     metaDir: '__snowpack__',
     minify: true,
@@ -340,13 +341,9 @@ function loadPlugins(
 ): {
   plugins: SnowpackPlugin[];
   bundler: SnowpackPlugin | undefined;
-  mountedDirs: Record<string, string>;
-  webModulesDir: string;
   extensionMap: Record<string, string>;
 } {
   const plugins: SnowpackPlugin[] = [];
-  const mountedDirs: Record<string, string> = {};
-  let webModulesDir = '/web_modules';
   let bundler: SnowpackPlugin | undefined;
 
   function loadPluginFromScript(specifier: string): SnowpackPlugin | undefined {
@@ -412,35 +409,7 @@ function loadPlugins(
         plugins.push(buildScriptPlugin(config, {input, output, cmd}));
         break;
       }
-      case 'mount': {
-        const cmdArr = cmd.split(/\s+/);
-        if (cmdArr[0] !== 'mount') {
-          handleConfigError(`scripts[${target}] must use the mount command`);
-        }
-        cmdArr.shift();
-        const {to, _} = yargs(cmdArr);
-        if (_.length !== 1) {
-          handleConfigError(`scripts[${target}] must use the format: "mount dir [--to /PATH]"`);
-        }
-        if (to && to[0] !== '/') {
-          handleConfigError(
-            `scripts[${target}]: "--to ${to}" must be a URL path, and start with a "/"`,
-          );
-        }
 
-        const fromDisk = path.posix.normalize(cmdArr[0] + '/');
-        const dirUrl = to || `/${cmdArr[0]}`;
-        const toUrl = path.posix.normalize(dirUrl + '/');
-
-        // TODO: skip this once mount:web_modules no longer supported
-        if (target === 'mount:web_modules') {
-          webModulesDir = toUrl;
-          break;
-        }
-
-        mountedDirs[fromDisk] = toUrl;
-        break;
-      }
       case 'bundle': {
         const bundlerName = cmd;
         bundler = loadPluginFromScript(bundlerName);
@@ -468,9 +437,6 @@ function loadPlugins(
     plugins.push(plugin);
   });
 
-  // if no mounted directories, mount root
-  if (!Object.keys(mountedDirs).length) mountedDirs['.'] = '/';
-
   const needsDefaultPlugin = new Set(['.mjs', '.jsx', '.ts', '.tsx']);
   plugins
     .filter(({resolve}) => !!resolve)
@@ -480,20 +446,18 @@ function loadPlugins(
     plugins.unshift(esbuildPlugin(config, {input: [...needsDefaultPlugin]}));
   }
 
-  const extensionMap = plugins.reduce((map: Record<string, string>, {resolve}) => {
+  const extensionMap = plugins.reduce((map, {resolve}) => {
     if (resolve) {
       for (const inputExt of resolve.input) {
         map[inputExt] = resolve.output[0];
       }
     }
     return map;
-  }, {});
+  }, {} as Record<string, string>);
 
   return {
     plugins,
     bundler,
-    mountedDirs,
-    webModulesDir, // TODO: remove this when mount:web_modules no longer supported
     extensionMap,
   };
 }
@@ -563,6 +527,43 @@ function normalizeProxies(proxies: RawProxies): Proxy[] {
   });
 }
 
+function normalizeMount(config: SnowpackConfig) {
+  const mountedDirs: Record<string, string> = config.mount || {};
+  for (const [target, cmd] of Object.entries(config.scripts)) {
+    if (target.startsWith('mount:')) {
+      const cmdArr = cmd.split(/\s+/);
+      if (cmdArr[0] !== 'mount') {
+        handleConfigError(`scripts[${target}] must use the mount command`);
+      }
+      cmdArr.shift();
+      const {to, _} = yargs(cmdArr);
+      if (_.length !== 1) {
+        handleConfigError(`scripts[${target}] must use the format: "mount dir [--to /PATH]"`);
+      }
+      if (target === 'mount:web_modules') {
+        config.buildOptions.webModulesUrl = to;
+      } else {
+        mountedDirs[cmdArr[0]] = to || `/${cmdArr[0]}`;
+      }
+    }
+  }
+  for (const [mountDir, mountUrl] of Object.entries(mountedDirs)) {
+    const fromDisk = path.posix.normalize(mountDir + '/');
+    delete mountedDirs[mountDir];
+    mountedDirs[fromDisk] = mountUrl;
+    if (mountUrl[0] !== '/') {
+      handleConfigError(
+        `mount[${mountDir}]: Value "${mountUrl}" must be a URL path, and start with a "/"`,
+      );
+    }
+  }
+  // if no mounted directories, mount the root directory to the base URL
+  if (!Object.keys(mountedDirs).length) {
+    mountedDirs['.'] = '/';
+  }
+  return mountedDirs;
+}
+
 /** resolve --dest relative to cwd, etc. */
 function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const cwd = process.cwd();
@@ -575,9 +576,9 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     config.proxy = {} as any;
   }
 
-  // force trailing slash
-  config.buildOptions.baseUrl = config.buildOptions.baseUrl.replace(/\/?$/, '/');
-  // remove leading/trailing slashes
+  // normalize config URL/path values
+  config.buildOptions.baseUrl = addTrailingSlash(config.buildOptions.baseUrl);
+  config.buildOptions.webModulesUrl = addLeadingSlash(config.buildOptions.webModulesUrl);
   config.buildOptions.metaDir = removeLeadingSlash(
     removeTrailingSlash(config.buildOptions.metaDir),
   );
@@ -588,13 +589,12 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
 
   config = handleLegacyProxyScripts(config);
   config.proxy = normalizeProxies(config.proxy as any);
+  config.mount = normalizeMount(config);
 
   // new pipeline
-  const {plugins, mountedDirs, bundler, webModulesDir, extensionMap} = loadPlugins(config);
+  const {plugins, bundler, extensionMap} = loadPlugins(config);
   config.plugins = plugins;
-  config._mountedDirs = mountedDirs;
   config._bundler = bundler;
-  config._webModulesPath = webModulesDir;
   config._extensionMap = extensionMap;
 
   // If any plugins defined knownEntrypoints, add them here
@@ -852,4 +852,12 @@ export function removeLeadingSlash(path: string) {
 
 export function removeTrailingSlash(path: string) {
   return path.replace(/[/\\]+$/, '');
+}
+
+export function addLeadingSlash(path: string) {
+  return path.replace(/^\/?/, '/');
+}
+
+export function addTrailingSlash(path: string) {
+  return path.replace(/\/?$/, '/');
 }

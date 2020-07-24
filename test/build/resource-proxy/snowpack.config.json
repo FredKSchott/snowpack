@@ -1,6 +1,6 @@
 {
-  "scripts": {
-    "mount:src": "mount src --to /_dist_/"
+  "mount": {
+    "./src": "/_dist_"
   },
   "buildOptions": {
     "minify": false
