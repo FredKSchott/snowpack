@@ -566,7 +566,7 @@ export async function command(commandOptions: CommandOptions) {
   if (finalResult.stats) {
     console.log(printStats(finalResult.stats));
   }
-  if (!finalResult.success || finalResult.hasError) {
+  if (!finalResult.success || finalResult.error) {
     finalResult.message && defaultLogError(finalResult.message);
     process.exit(1);
   }
