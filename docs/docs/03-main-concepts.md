@@ -54,7 +54,7 @@ After Snowpack builds your dependencies, any package can be imported and run dir
 
 `snowpack dev` - Snowpack's dev server is an instant dev environment for [unbundled development.](#unbundled-development) The dev server will only build a file when it's requested by the browser. That means that Snowpack can start up instantly (usually in **<50ms**) and scale to infinitely large projects without slowing down. In contrast, it's common to see 30+ second dev startup times when building large apps with a traditional bundler.
 
-Snowpack supports JSX & TypeScript source code by default, compiling your files to JavaScript before sending them to the browser. You can extend this even further with custom [Build Scripts](#build-scripts) & [Plugins](#build-plugins) to connect your favorite build tools to Snowpack: TypeScript, Babel, Vue, Svelte, PostCSS, Sass... go wild!
+Snowpack supports JSX & TypeScript source code by default. You can extend your build even further with [custom plugins](#build-plugins) that connect Snowpack with your favorite build tools: TypeScript, Babel, Vue, Svelte, PostCSS, Sass... go wild!
 
 
 ### Snowpack's Build Pipeline

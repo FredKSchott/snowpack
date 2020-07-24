@@ -30,7 +30,7 @@ When you're ready to deploy your web application to users, you can add back a tr
 - Changes are reflected [instantly in the browser.](/#hot-module-replacement)
 - Integrates your favorite bundler for [production-optimized builds.](/#snowpack-build)
 - Out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](/#features)
-- Connect your favorite tools with custom [build scripts](/#build-scripts) & [third-party plugins.](/#build-plugins)
+- Connect your favorite tools with [third-party plugins.](/#build-plugins)
 
 ### Library Support
 
