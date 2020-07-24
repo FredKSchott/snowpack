@@ -362,9 +362,21 @@ function loadPlugins(
     const pluginLoc = require.resolve(name, {paths: [process.cwd()]});
     const plugin = require(pluginLoc)(config, options);
     plugin.name = plugin.name || name;
+    // Legacy support: Map the new load() interface to the old build() interface
     if (plugin.build) {
-      plugin.load = (options: LoadOptions) =>
-        plugin.build({...options, contents: fs.readFileSync(options.filePath, 'utf-8')});
+      plugin.load = async (options: LoadOptions) => {
+        const result = await plugin.build({
+          ...options,
+          contents: fs.readFileSync(options.filePath, 'utf-8'),
+        });
+        if (!result) {
+          return null;
+        }
+        if (result.resources) {
+          return {'.js': result.result, '.css': result.resources.css};
+        }
+        return result.result;
+      };
     }
     if (plugin.defaultBuildScript && !plugin.resolve) {
       const {input, output} = parseScript(plugin.defaultBuildScript);
