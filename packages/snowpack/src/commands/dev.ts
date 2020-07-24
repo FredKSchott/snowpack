@@ -192,7 +192,7 @@ export async function command(commandOptions: CommandOptions) {
   const filesBeingDeleted = new Set<string>();
   const filesBeingBuilt = new Map<string, Promise<SnowpackBuildMap>>();
   const messageBus = new EventEmitter();
-  const mountedDirectories: [string, string][] = Object.entries(config._mountedDirs).map(
+  const mountedDirectories: [string, string][] = Object.entries(config.mount).map(
     ([fromDisk, toUrl]) => {
       return [path.resolve(cwd, fromDisk), toUrl];
     },
@@ -439,9 +439,9 @@ export async function command(commandOptions: CommandOptions) {
     requestedFileExt = requestedFileExt || '.html';
 
     async function getFileFromUrl(reqPath: string): Promise<string | null> {
-      if (reqPath.startsWith(config._webModulesPath)) {
+      if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
         const fileLoc = await attemptLoadFile(
-          reqPath.replace(config._webModulesPath, DEV_DEPENDENCIES_DIR),
+          reqPath.replace(config.buildOptions.webModulesUrl, DEV_DEPENDENCIES_DIR),
         );
         if (fileLoc) {
           return fileLoc;
@@ -596,7 +596,6 @@ export async function command(commandOptions: CommandOptions) {
       let missingWebModule: {spec: string; pkgName: string} | null = null;
       const resolveImportSpecifier = createImportResolver({
         fileLoc,
-        webModulesPath: config._webModulesPath,
         dependencyImportMap,
         isDev: true,
         isBundled: false,
@@ -682,7 +681,7 @@ export async function command(commandOptions: CommandOptions) {
     const fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
 
     // 3. Send dependencies directly, since they were already build & resolved at install time.
-    if (reqPath.startsWith(config._webModulesPath)) {
+    if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
       sendFile(req, res, fileContents, responseFileExt);
       return;
     }

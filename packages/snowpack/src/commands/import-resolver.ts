@@ -14,7 +14,6 @@ const cwd = process.cwd();
 
 interface ImportResolverOptions {
   fileLoc: string;
-  webModulesPath: string;
   dependencyImportMap: ImportMap | null | undefined;
   isDev: boolean;
   isBundled: boolean;
@@ -64,7 +63,6 @@ function resolveSourceSpecifier(
  */
 export function createImportResolver({
   fileLoc,
-  webModulesPath,
   dependencyImportMap,
   isDev,
   isBundled,
@@ -74,7 +72,7 @@ export function createImportResolver({
     if (URL_HAS_PROTOCOL_REGEX.test(spec)) {
       return spec;
     }
-    let mountScript = findMatchingMountScript(config._mountedDirs, spec);
+    let mountScript = findMatchingMountScript(config.mount, spec);
     if (mountScript) {
       const [fromDisk, toUrl] = mountScript;
       const importStats = getImportStats(cwd, spec);
@@ -94,10 +92,10 @@ export function createImportResolver({
       const baseUrl = config.buildOptions.baseUrl.replace(URL_HAS_PROTOCOL_REGEX, '');
 
       let resolvedImport = isDev
-        ? path.posix.resolve(webModulesPath, dependencyImportMap.imports[spec])
+        ? path.posix.resolve(config.buildOptions.webModulesUrl, dependencyImportMap.imports[spec])
         : `${protocol}${path.posix.join(
             baseUrl,
-            webModulesPath,
+            config.buildOptions.webModulesUrl,
             dependencyImportMap.imports[spec],
           )}`;
       const extName = path.extname(resolvedImport);

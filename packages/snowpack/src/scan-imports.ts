@@ -200,7 +200,7 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
 export async function scanImports(cwd: string, config: SnowpackConfig): Promise<InstallTarget[]> {
   await initESModuleLexer;
   const includeFileSets = await Promise.all(
-    Object.keys(config._mountedDirs).map((fromDisk) => {
+    Object.keys(config.mount).map((fromDisk) => {
       const dirDisk = nodePath.resolve(cwd, fromDisk);
       return glob.sync(`**/*`, {
         ignore: config.exclude.concat(['**/web_modules/**/*']),
@@ -288,7 +288,7 @@ export async function scanImportsFromFiles(
       .map(parseCodeForInstallTargets)
       .reduce((flat, item) => flat.concat(item), [])
       // Ignore source imports that match a mount directory.
-      .filter((target) => !findMatchingMountScript(config._mountedDirs, target.specifier))
+      .filter((target) => !findMatchingMountScript(config.mount, target.specifier))
       .sort((impA, impB) => impA.specifier.localeCompare(impB.specifier))
   );
 }

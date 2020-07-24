@@ -1,8 +1,8 @@
 {
   "extends": "./base/snowpack.config.json",
-  "scripts": {
-    "mount:public": "mount public --to /",
-    "mount:src": "mount src --to /_dist_"
+  "mount": {
+    "./public": "/",
+    "./src": "/_dist_"
   },
   "buildOptions": {
     "minify": false

@@ -1,8 +1,8 @@
 {
   "private": true,
   "version": "1.0.0",
-  "name": "@snowpack/test-cdn",
-  "description": "This test simulates a build from the Pika CDN",
+  "name": "@snowpack/test-legacy-mount-scripts",
+  "description": "This tests the old scripts mount:* configuration format",
   "scripts": {
     "start": "snowpack dev",
     "testbuild": "snowpack build"
@@ -13,8 +13,12 @@
       "./src": "/_dist_"
     },
     "buildOptions": {
+      "baseUrl": "/static/",
       "minify": false
     }
+  },
+  "dependencies": {
+    "array-flatten": "^3.0.0"
   },
   "devDependencies": {
     "snowpack": "*"

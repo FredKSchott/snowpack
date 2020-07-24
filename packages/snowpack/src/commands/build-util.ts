@@ -58,8 +58,6 @@ async function runPipelineLoadStep(
     const mainOutputExt = step.resolve.output[0];
     if (typeof result === 'string') {
       return {[mainOutputExt]: result};
-    } else if (result && typeof result === 'object' && result.result) {
-      return {[mainOutputExt]: result.result};
     } else if (result && typeof result === 'object') {
       return result;
     } else {

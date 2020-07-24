@@ -128,7 +128,7 @@ export async function command(commandOptions: CommandOptions) {
   await fs.writeFile(path.join(internalFilesBuildLoc, 'env.js'), generateEnvModule('production'));
 
   const includeFileSets: [string, string, string[]][] = [];
-  for (const [fromDisk, toUrl] of Object.entries(config._mountedDirs)) {
+  for (const [fromDisk, toUrl] of Object.entries(config.mount)) {
     const dirDisk = path.resolve(cwd, fromDisk);
     const dirDest = path.resolve(buildDirectoryLoc, removeLeadingSlash(toUrl));
     const allFiles = glob.sync(`**/*`, {
@@ -213,7 +213,7 @@ export async function command(commandOptions: CommandOptions) {
   stopEsbuild();
   minifierService.stop();
 
-  const installDest = path.join(buildDirectoryLoc, config._webModulesPath);
+  const installDest = path.join(buildDirectoryLoc, config.buildOptions.webModulesUrl);
   const installResult = await installOptimizedDependencies(
     allFilesToResolveImports,
     installDest,
@@ -227,7 +227,6 @@ export async function command(commandOptions: CommandOptions) {
   for (const [outLoc, file] of Object.entries(allFilesToResolveImports)) {
     const resolveImportSpecifier = createImportResolver({
       fileLoc: file.locOnDisk!, // we’re confident these are reading from disk because we just read them
-      webModulesPath: config._webModulesPath,
       dependencyImportMap: installResult.importMap,
       isDev: false,
       isBundled,
@@ -242,14 +241,14 @@ export async function command(commandOptions: CommandOptions) {
         if (resolvedImportUrl.endsWith('.proxy.js')) {
           // handle proxied files from web_modules
           const isWebModule = removeLeadingSlash(resolvedImportUrl).startsWith(
-            removeLeadingSlash(config._webModulesPath),
+            removeLeadingSlash(config.buildOptions.webModulesUrl),
           );
           if (isWebModule) {
             allProxiedFiles.add(
               path.resolve(
                 cwd,
                 config.devOptions.out,
-                removeLeadingSlash(config._webModulesPath),
+                removeLeadingSlash(config.buildOptions.webModulesUrl),
                 sanitizePackageName(spec),
               ),
             );
