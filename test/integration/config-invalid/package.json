@@ -1,12 +1,18 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-config-invalid",
   "description": "Test invalid configuration (install should be array)",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
     "install": "shallow-equal"
   },
   "dependencies": {
     "shallow-equal": "^1.2.1"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

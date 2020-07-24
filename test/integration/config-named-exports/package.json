@@ -1,18 +1,28 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-config-named-exports",
   "description": "Handle installOptions.namedExports",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
-    "install": ["mock-test-package"],
+    "install": [
+      "cjs-named-export-pkg"
+    ],
     "installOptions": {
-      "namedExports": ["mock-test-package"]
+      "namedExports": [
+        "cjs-named-export-pkg"
+      ]
     },
     "buildOptions": {
       "minify": false
     }
   },
   "dependencies": {
-    "mock-test-package": "^1.0.0"
+    "cjs-named-export-pkg": "file:./packages/cjs-named-export-pkg"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

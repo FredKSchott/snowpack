@@ -1,0 +1,5 @@
+{
+  "version": "1.2.3",
+  "name": "bad-node-builtin-pkg",
+  "module": "entrypoint.js"
+}

@@ -1,7 +1,0 @@
-{
-  "imports": {
-    "@snowpack/test-link": "./@snowpack/test-link.js",
-    "@snowpack/test-link/deep": "./@snowpack/test-link/deep.js",
-    "@snowpack/test-local": "./@snowpack/test-local.js"
-  }
-}

@@ -1,6 +1,9 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-sub-package-json",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
     "install": [
@@ -12,5 +15,8 @@
   },
   "dependencies": {
     "solid-js": "^0.16.7"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

@@ -1,3 +1,11 @@
+Generated an empty chunk: "@material/base/types"
 ✔ snowpack install complete.
-  ⦿ web_modules/          size       gzip       brotli
-    └─ @material/list.js    XXXX KB    XXXX KB    XXXX KB
+  ⦿ web_modules/                     size       gzip       brotli
+    ├─ @material/base/component.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ @material/base/foundation.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ @material/base/types.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ @material/dom/events.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ @material/dom/keyboard.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ @material/dom/ponyfill.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ @material/list.js    XXXX KB    XXXX KB    XXXX KB
+    └─ tslib.js    XXXX KB    XXXX KB    XXXX KB

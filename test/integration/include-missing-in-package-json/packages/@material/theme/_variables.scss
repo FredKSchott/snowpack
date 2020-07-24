@@ -1,0 +1,184 @@
+//
+// Copyright 2017 Google Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+@use "sass:map";
+@use "sass:meta";
+@use "./functions";
+@use "./custom-properties";
+
+//
+// Main theme colors for your brand.
+//
+// If you're a user customizing your color scheme in SASS, these are probably the only variables you need to change.
+//
+
+$primary: #6200ee !default; // baseline purple, 500 tone
+$on-primary: if(
+  functions.contrast-tone($primary) == 'dark',
+  #000,
+  #fff
+) !default;
+
+// The $mdc-theme-accent variable is DEPRECATED - it exists purely for backward compatibility.
+// The $mdc-theme-secondary* variables should be used for all new projects.
+$accent: #018786 !default; // baseline teal, 600 tone
+$secondary: $accent !default;
+$on-secondary: if(
+  functions.contrast-tone($secondary) == 'dark',
+  #000,
+  #fff
+) !default;
+$background: #fff !default; // White
+
+$surface: #fff !default;
+$on-surface: if(
+  functions.contrast-tone($surface) == 'dark',
+  #000,
+  #fff
+) !default;
+
+$error: #b00020 !default;
+$on-error: if(functions.contrast-tone($error) == 'dark', #000, #fff) !default;
+
+//
+// Text colors according to light vs dark and text type.
+//
+
+$text-colors: (
+  dark: (
+    primary: rgba(black, 0.87),
+    secondary: rgba(black, 0.54),
+    hint: rgba(black, 0.38),
+    disabled: rgba(black, 0.38),
+    icon: rgba(black, 0.38),
+  ),
+  light: (
+    primary: white,
+    secondary: rgba(white, 0.7),
+    hint: rgba(white, 0.5),
+    disabled: rgba(white, 0.5),
+    icon: rgba(white, 0.5),
+  ),
+) !default;
+
+$text-emphasis: (
+  high: 0.87,
+  medium: 0.6,
+  disabled: 0.38,
+) !default;
+
+@function ink-color-for-fill_($text-style, $fill-color) {
+  $contrast-tone: functions.contrast-tone($fill-color);
+
+  @return map.get(map.get($text-colors, $contrast-tone), $text-style);
+}
+
+//
+// Primary text colors for each of the theme colors.
+//
+
+$property-values: (
+  primary: $primary,
+  secondary: $secondary,
+  background: $background,
+  surface: $surface,
+  error: $error,
+  on-primary: $on-primary,
+  on-secondary: $on-secondary,
+  on-surface: $on-surface,
+  on-error: $on-error,
+  text-primary-on-background: ink-color-for-fill_(primary, $background),
+  text-secondary-on-background: ink-color-for-fill_(secondary, $background),
+  text-hint-on-background: ink-color-for-fill_(hint, $background),
+  text-disabled-on-background: ink-color-for-fill_(disabled, $background),
+  text-icon-on-background: ink-color-for-fill_(icon, $background),
+  text-primary-on-light: ink-color-for-fill_(primary, light),
+  text-secondary-on-light: ink-color-for-fill_(secondary, light),
+  text-hint-on-light: ink-color-for-fill_(hint, light),
+  text-disabled-on-light: ink-color-for-fill_(disabled, light),
+  text-icon-on-light: ink-color-for-fill_(icon, light),
+  text-primary-on-dark: ink-color-for-fill_(primary, dark),
+  text-secondary-on-dark: ink-color-for-fill_(secondary, dark),
+  text-hint-on-dark: ink-color-for-fill_(hint, dark),
+  text-disabled-on-dark: ink-color-for-fill_(disabled, dark),
+  text-icon-on-dark: ink-color-for-fill_(icon, dark),
+) !default;
+
+// @deprecated use theme.property(). If you need to ensure the value is not a
+// custom property, use custom-properties.is-custom-prop() to check if the value
+// is a custom prop, then custom-properties.get-fallback() to get its value.
+// If `$style` is a color (a literal color value, `currentColor`, or a CSS custom property), it is returned verbatim.
+// Otherwise, `$style` is treated as a theme property name, and the corresponding value from
+// `$mdc-theme-property-values` is returned. If this also fails, an error is thrown.
+//
+// This is mainly useful in situations where `mdc-theme-prop` cannot be used directly (e.g., `box-shadow`).
+//
+// Examples:
+//
+// 1. mdc-theme-prop-value(primary) => "#6200ee"
+// 2. mdc-theme-prop-value(blue)    => "blue"
+//
+// NOTE: This function must be defined in _variables.scss instead of _functions.scss to avoid circular imports.
+@function prop-value($style) {
+  @if custom-properties.is-custom-prop($style) {
+    @return custom-properties.get-fallback($style);
+  }
+
+  @if is-valid-theme-prop-value_($style) {
+    @return $style;
+  }
+
+  @if not map.has-key($property-values, $style) {
+    @error "Invalid theme property: '#{$style}'. Choose one of: #{map.keys($property-values)}";
+  }
+
+  @return map.get($property-values, $style);
+}
+
+// NOTE: This function must be defined in _variables.scss instead of _functions.scss to avoid circular imports.
+@function accessible-ink-color($fill-color, $text-style: primary) {
+  $fill-color-value: prop-value($fill-color);
+  $color-map-for-tone: map.get(
+    $text-colors,
+    functions.contrast-tone($fill-color-value)
+  );
+
+  @if not map.has-key($color-map-for-tone, $text-style) {
+    @error "Invalid $text-style: '#{$text-style}'. Choose one of: #{map.keys($color-map-for-tone)}";
+  }
+
+  @return map.get($color-map-for-tone, $text-style);
+}
+
+// NOTE: This function is depended upon by mdc-theme-prop-value (above) and thus must be defined in this file.
+@function is-valid-theme-prop-value_($style) {
+  @return meta.type-of($style) == 'color' or $style == 'currentColor' or
+    str_slice($style, 1, 4) == 'var(' or $style == 'inherit' or $style ==
+    'transparent' or
+    // NOTE: `GrayText` is deprecated, but is the only feasible way to convey the
+    // correct high-contrast mode colors in alignment with Windows system colors.
+    $style == 'GrayText';
+}
+
+@function text-emphasis($emphasis) {
+  @return map.get($text-emphasis, $emphasis);
+}

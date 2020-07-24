@@ -1,12 +1,14 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-node-env",
   "scripts": {
-    "TEST": "cross-env CLI_A=cli CONF_A=alpha node ../../../pkg/dist-node/index.bin.js --env NODE_ENV=FOOBAR --env CLI_A"
-  },
-  "dependencies": {
-    "mock-test-package": "^1.2.3"
+    "testinstall": "cross-env CLI_A=cli CONF_A=alpha ./node_modules/.bin/snowpack --env NODE_ENV=FOOBAR --env CLI_A"
   },
   "snowpack": {
-    "install": ["mock-test-package"],
+    "install": [
+      "node-env-mock-pkg"
+    ],
     "installOptions": {
       "env": {
         "CONF_A": true,
@@ -17,5 +19,11 @@
     "buildOptions": {
       "minify": false
     }
+  },
+  "dependencies": {
+    "node-env-mock-pkg": "file:./packages/node-env-mock-pkg"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

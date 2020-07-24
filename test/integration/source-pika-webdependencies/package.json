@@ -1,7 +1,10 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-source-pika-webdependencies",
   "description": "Test that the lockfile import URLs & version info are used",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "webDependencies": {
     "async": "~3.0.0",
@@ -12,5 +15,8 @@
     "buildOptions": {
       "minify": false
     }
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

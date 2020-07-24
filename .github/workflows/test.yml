@@ -2,7 +2,7 @@ name: Test Code
 
 on:
   push:
-    branches: 
+    branches:
       - master
   pull_request:
 
@@ -19,10 +19,9 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install, build, and test
+    - name: build and test
       run: |
-        npm ci --no-optional
-        npm run build --if-present
-        npm run test
+        yarn --ignore-engines
+        yarn test
       env:
         CI: true

@@ -1,10 +1,16 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-config-rollup",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "dependencies": {
     "rollup-plugin-svelte": "^5.1.1",
     "svelte": "^3.18.2",
     "svelte-routing": "^1.4.0"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

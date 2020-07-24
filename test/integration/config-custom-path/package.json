@@ -1,9 +1,15 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-config-custom-path",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js --config snowpack.dev.json"
+    "testinstall": "snowpack --config snowpack.dev.json"
   },
   "dependencies": {
     "array-flatten": "^3.0.0",
     "deepmerge": "^4.2.2"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

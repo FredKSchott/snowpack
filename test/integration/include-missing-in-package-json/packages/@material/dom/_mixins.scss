@@ -1,0 +1,75 @@
+// Copyright 2020 Google Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+@use "@material/feature-targeting/functions" as feature-targeting-functions;
+@use "@material/feature-targeting/mixins" as feature-targeting-mixins;
+
+///
+/// Emits necessary layout styles to set a transparent border around an element
+/// without interfering with the rest of its component layout. The border is
+/// only visible in high-contrast mode. The target element should be a child of
+/// a relatively positioned top-level element (i.e. a ::before pseudo-element).
+///
+/// @param {number} $border-width - The width of the transparent border.
+/// @param {string} $border-style - The style of the transparent border.
+///
+@mixin transparent-border($border-width: 1px, $border-style: solid, $query: feature-targeting-functions.all()) {
+  $feat-structure: feature-targeting-functions.create-target($query, structure);
+
+  @include feature-targeting-mixins.targets($feat-structure) {
+    position: absolute;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border: $border-width $border-style transparent;
+    border-radius: inherit;
+    content: '';
+  }
+}
+
+///
+/// Visually hides text content for accessibility. This text should only be
+/// visible to screen reader users.
+/// See https://a11yproject.com/posts/how-to-hide-content/
+///
+@mixin visually-hidden($query: feature-targeting-functions.all()) {
+  $feat-structure: feature-targeting-functions.create-target($query, structure);
+
+  @include feature-targeting-mixins.targets($feat-structure) {
+    clip: rect(1px, 1px, 1px, 1px);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap; /* added line */
+    width: 1px;
+  }
+}
+
+///
+/// Selects for high-contrast mode. Currently this only detects high-contrast
+/// mode in IE and Edge.
+///
+@mixin ie-high-contrast-mode {
+  @media screen and (-ms-high-contrast: active) {
+    @content;
+  }
+}

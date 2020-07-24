@@ -1,14 +1,20 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-error-file-ext",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
     "install": [
-      "dep-a"
+      "error-file-ext-dep-a"
     ]
   },
   "dependencies": {
-    "dep-a": "1.0.0",
-    "dep-b": "1.0.0"
+    "error-file-ext-dep-a": "file:./packages/error-file-ext-dep-a",
+    "error-file-ext-dep-b": "file:./packages/error-file-ext-dep-b"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

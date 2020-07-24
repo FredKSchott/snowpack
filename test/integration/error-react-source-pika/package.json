@@ -1,11 +1,17 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-error-react-source-pika",
   "description": "Test that error is reported when React workaround package is used.",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "webDependencies": {
     "async": "~3.0.0",
     "react": "npm:@reactesm/react",
     "react-dom": "npm:@reactesm/react-dom"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

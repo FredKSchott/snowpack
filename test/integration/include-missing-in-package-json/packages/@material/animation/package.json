@@ -1,0 +1,54 @@
+{
+  "_from": "@material/animation@^7.0.0",
+  "_id": "@material/animation@7.0.0",
+  "_inBundle": false,
+  "_integrity": "sha512-h0Ge337zBQk8FRin0xnO2fkFkxhidgUhekEtjrDf8F6m39WFr+VTw7hm7MrF1TejW5wdf+V+app7bvRYICMu1A==",
+  "_location": "/@material/animation",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@material/animation@^7.0.0",
+    "name": "@material/animation",
+    "escapedName": "@material%2fanimation",
+    "scope": "@material",
+    "rawSpec": "^7.0.0",
+    "saveSpec": null,
+    "fetchSpec": "^7.0.0"
+  },
+  "_requiredBy": [
+    "/@material/ripple"
+  ],
+  "_resolved": "https://registry.npmjs.org/@material/animation/-/animation-7.0.0.tgz",
+  "_shasum": "77758cb2bc02595bf5f97fb1c08ff10bcdbe9fc6",
+  "_spec": "@material/animation@^7.0.0",
+  "_where": "/Users/drew/Sites/pikapkg/snowpack/tests/snowpack-install/include-missing-in-package-json/node_modules/@material/ripple",
+  "bugs": {
+    "url": "https://github.com/material-components/material-components-web/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "tslib": "^1.9.3"
+  },
+  "deprecated": false,
+  "description": "Animation Variables and Mixins used by Material Components for the web",
+  "gitHead": "a3212b2099765947f2a41d71af2cd95fcbca4b97",
+  "homepage": "https://github.com/material-components/material-components-web#readme",
+  "keywords": [
+    "material components",
+    "material design",
+    "animation"
+  ],
+  "license": "MIT",
+  "main": "dist/mdc.animation.js",
+  "module": "index.js",
+  "name": "@material/animation",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/material-components/material-components-web.git",
+    "directory": "packages/mdc-animation"
+  },
+  "sideEffects": false,
+  "types": "dist/mdc.animation.d.ts",
+  "version": "7.0.0"
+}

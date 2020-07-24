@@ -1,3 +1,17 @@
-✔ snowpack install complete.
-  ⦿ web_modules/               size       gzip       brotli
-    └─ mock-test-package-a.js    XXXX KB    XXXX KB    XXXX KB
+The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+⠼ snowpack installing... dep-node-fetch-mock-pkg, node-fetch, whatwg-fetch
+✖ ../../../node_modules/node-fetch/lib/index.mjs
+   "XXXX" (Node.js built-in) could not be resolved. (https://www.snowpack.dev/#node-built-in-could-not-be-resolved)
+✖ ../../../node_modules/node-fetch/lib/index.mjs
+   "XXXX" (Node.js built-in) could not be resolved. (https://www.snowpack.dev/#node-built-in-could-not-be-resolved)
+✖ ../../../node_modules/node-fetch/lib/index.mjs
+   "XXXX" (Node.js built-in) could not be resolved. (https://www.snowpack.dev/#node-built-in-could-not-be-resolved)
+✖ ../../../node_modules/node-fetch/lib/index.mjs
+   "XXXX" (Node.js built-in) could not be resolved. (https://www.snowpack.dev/#node-built-in-could-not-be-resolved)
+✖ ../../../node_modules/node-fetch/lib/index.mjs
+   "XXXX" (Node.js built-in) could not be resolved. (https://www.snowpack.dev/#node-built-in-could-not-be-resolved)
+✔ snowpack install complete with errors.
+  ⦿ web_modules/                   size       gzip       brotli
+    ├─ dep-node-fetch-mock-pkg.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ node-fetch.js    XXXX KB    XXXX KB    XXXX KB
+    └─ whatwg-fetch.js    XXXX KB    XXXX KB    XXXX KB

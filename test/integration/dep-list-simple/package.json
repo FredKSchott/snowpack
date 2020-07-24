@@ -1,14 +1,20 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-dep-list-simple",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
-    "install": ["async"],
+    "install": [
+      "async"
+    ],
     "buildOptions": {
       "minify": false
     }
   },
   "dependencies": {
-    "async": "3.1.0"
+    "async": "3.1.0",
+    "snowpack": "*"
   }
 }

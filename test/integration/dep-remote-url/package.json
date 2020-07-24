@@ -1,13 +1,19 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-dep-remote-url",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
     "install": [
-      "dep-a"
+      "remote-url-pkg"
     ]
   },
   "dependencies": {
-    "dep-a": "1.0.0"
+    "remote-url-pkg": "file:./packages/remote-url-pkg"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

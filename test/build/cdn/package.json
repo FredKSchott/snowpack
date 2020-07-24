@@ -1,9 +1,11 @@
 {
-  "name": "snowpack-test-cdn",
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-cdn",
   "description": "This test simulates a build from the Pika CDN",
   "scripts": {
-    "start": "node ../../../pkg/dist-node/index.bin.js dev",
-    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+    "start": "snowpack dev",
+    "testbuild": "snowpack build"
   },
   "snowpack": {
     "scripts": {
@@ -13,5 +15,8 @@
     "buildOptions": {
       "minify": false
     }
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

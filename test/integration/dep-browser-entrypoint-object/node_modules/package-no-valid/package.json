@@ -1,8 +1,0 @@
-{
-  "name": "package-no-valid",
-  "version": "1.2.3",
-  "main": "entrypoint.js",
-  "browser": {
-    "./bad": "bad"
-  }
-}

@@ -1,3 +1,3 @@
 ✔ snowpack install complete.
-  ⦿ web_modules/     size       gzip       brotli   
-    └─ dep-a.js    XXXX KB    XXXX KB    XXXX KB
+  ⦿ web_modules/          size       gzip       brotli   
+    └─ remote-url-pkg.js    XXXX KB    XXXX KB    XXXX KB

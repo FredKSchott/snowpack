@@ -1,14 +1,24 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-dep-exports",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
-    "install": ["preact", "preact/hooks", "preact/debug"],
+    "install": [
+      "preact",
+      "preact/hooks",
+      "preact/debug"
+    ],
     "buildOptions": {
       "minify": false
     }
   },
   "dependencies": {
-    "preact": "^10.4.4"
+    "preact": "^10.4.6"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

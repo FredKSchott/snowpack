@@ -1,7 +1,10 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-package-tippy-js",
   "description": "Tests that npm modules that end in .js work",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+    "testbuild": "snowpack build"
   },
   "snowpack": {
     "scripts": {
@@ -13,5 +16,8 @@
   },
   "dependencies": {
     "tippy.js": "^6.2.5"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

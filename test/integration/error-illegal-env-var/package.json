@@ -1,20 +1,26 @@
 {
-    "scripts": {
-        "TEST": "node ../../../pkg/dist-node/index.bin.js"
-    },
-    "dependencies": {
-        "mock-test-package": "^1.2.3"
-    },
-    "snowpack": {
-        "installOptions": {
-            "env": {
-                "A": "a",
-                "B": 1,
-                "C": true,
-                "FOO": [
-                    1
-                ]
-            }
-        }
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-error-illegal-env-var",
+  "scripts": {
+    "testinstall": "snowpack"
+  },
+  "snowpack": {
+    "installOptions": {
+      "env": {
+        "A": "a",
+        "B": 1,
+        "C": true,
+        "FOO": [
+          1
+        ]
+      }
     }
+  },
+  "dependencies": {
+    "illegal-env-var-pkg": "file:./packages/illegal-env-var-pkg"
+  },
+  "devDependencies": {
+    "snowpack": "*"
+  }
 }

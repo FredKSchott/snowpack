@@ -1,0 +1,103 @@
+// Copyright 2016 Google Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+@use "@material/density/variables" as density-variables;
+@use "@material/theme/variables" as theme-variables;
+
+$ripple-target: '.mdc-list-item__ripple';
+
+$divider-color-on-light-bg: rgba(0, 0, 0, .12) !default;
+$divider-color-on-dark-bg: rgba(255, 255, 255, .2) !default;
+$side-padding: 16px !default;
+$trailing-padding: 16px !default;
+$text-offset: 72px !default;
+$text-disabled-opacity: theme-variables.text-emphasis(disabled) !default;
+$text-disabled-color: on-surface !default;
+$text-selected-color: primary !default;
+
+$single-line-height: 48px !default;
+$single-line-minimum-height: 24px !default;
+$single-line-maximum-height: $single-line-height !default;
+$single-line-density-scale: density-variables.$default-scale !default;
+$single-line-density-config: (
+  height: (
+    default: $single-line-height,
+    maximum: $single-line-maximum-height,
+    minimum: $single-line-minimum-height,
+  ),
+) !default;
+
+$item-primary-text-baseline-height: 28px !default;
+$item-primary-text-baseline-height-with-graphic: 32px !default;
+$item-secondary-text-baseline-height: 20px !default;
+$dense-item-primary-text-baseline-height: 24px !default;
+
+$two-line-height: 64px !default;
+$two-line-graphic-height: 72px !default;
+$two-line-icon-top-margin: 16px !default;
+
+// TODO(b/156624966): this is used to support legacy usage of embedded graphics.
+$deprecated-graphic-config: (
+  graphic-size: (width: 24px, height: 24px),
+  leading-padding: 16px,
+  text-offset: 72px
+) !default;
+
+$textual-variant-config: (
+  single-line-height: $single-line-height,
+  graphic-size: (width: 24px, height: 24px),
+  leading-padding: 16px,
+  text-offset: 16px
+) !default;
+
+$icon-variant-config: (
+  single-line-height: 56px,
+  graphic-size: (width: 24px, height: 24px),
+  leading-padding: 16px,
+  text-offset: 72px
+) !default;
+
+$avatar-variant-config: (
+  single-line-height: 56px,
+  graphic-size: (width: 40px, height: 40px),
+  leading-padding: 16px,
+  text-offset: 72px
+) !default;
+
+$thumbnail-variant-config: (
+  single-line-height: 56px,
+  graphic-size: (width: 40px, height: 40px),
+  leading-padding: 16px,
+  text-offset: 72px
+) !default;
+
+$image-variant-config: (
+  single-line-height: 72px,
+  graphic-size: (width: 56px, height: 56px),
+  leading-padding: 16px,
+  text-offset: 88px
+) !default;
+
+$video-variant-config: (
+  single-line-height: 72px,
+  graphic-size: (width: 100px, height: 56px),
+  leading-padding: 0px,
+  text-offset: 116px
+) !default;

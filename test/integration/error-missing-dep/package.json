@@ -1,11 +1,16 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-error-missing-dep",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
-    "install": ["preact"]
+    "install": [
+      "fake-module"
+    ]
   },
-  "dependencies": {
-    "preact": "latest"
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

@@ -1,5 +1,5 @@
 {
   "imports": {
-    "mock-test-package-a": "./mock-test-package-a.js"
+    "dep-node-fetch-pkg": "./dep-node-fetch-pkg.js"
   }
 }

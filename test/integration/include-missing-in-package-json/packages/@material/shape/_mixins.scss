@@ -1,0 +1,108 @@
+//
+// Copyright 2018 Google Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+@use "sass:list";
+@use "sass:meta";
+@use "@material/feature-targeting/functions" as feature-targeting-functions;
+@use "@material/feature-targeting/mixins" as feature-targeting-mixins;
+@use "@material/rtl/mixins" as rtl-mixins;
+@use "@material/theme/mixins" as theme;
+@use "./variables";
+@use "./functions";
+
+@mixin radius(
+  $radius,
+  $rtl-reflexive: false,
+  $component-height: null,
+  $query: feature-targeting-functions.all()
+) {
+  $feat-structure: feature-targeting-functions.create-target($query, structure);
+
+  @include feature-targeting-mixins.targets($feat-structure) {
+    $has-multiple-corners: meta.type-of($radius) == 'list' and
+      list.length($radius) > 1;
+    // Even if $rtl-reflexive is true, only emit RTL styles if we can't easily tell that the given radius is symmetrical
+    $needs-flip: $rtl-reflexive and $has-multiple-corners;
+    $radius: functions.resolve-radius(
+      $radius,
+      $component-height: $component-height
+    );
+    @if not $has-multiple-corners {
+      @include theme.property(border-radius, $radius);
+    } @else {
+      $gss: (
+        noflip: $needs-flip,
+      );
+      $radii: functions.unpack-radius($radius);
+      @include theme.property(
+        border-top-left-radius,
+        list.nth($radii, 1),
+        $gss: $gss
+      );
+      @include theme.property(
+        border-top-right-radius,
+        list.nth($radii, 2),
+        $gss: $gss
+      );
+      @include theme.property(
+        border-bottom-right-radius,
+        list.nth($radii, 3),
+        $gss: $gss
+      );
+      @include theme.property(
+        border-bottom-left-radius,
+        list.nth($radii, 4),
+        $gss: $gss
+      );
+    }
+
+    @if ($needs-flip) {
+      @include rtl-mixins.rtl {
+        // If it needs to be flipped, it will always have multiple corners
+        $gss: (
+          noflip: true,
+        );
+        $radii: functions.flip-radius(functions.unpack-radius($radius));
+        @include theme.property(
+          border-top-left-radius,
+          list.nth($radii, 1),
+          $gss: $gss
+        );
+        @include theme.property(
+          border-top-right-radius,
+          list.nth($radii, 2),
+          $gss: $gss
+        );
+        @include theme.property(
+          border-bottom-right-radius,
+          list.nth($radii, 3),
+          $gss: $gss
+        );
+        @include theme.property(
+          border-bottom-left-radius,
+          list.nth($radii, 4),
+          $gss: $gss
+        );
+      }
+    }
+  }
+}

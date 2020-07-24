@@ -1,8 +1,10 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-config-minify",
   "description": "This test ensures that buildOptions.optimize: false disables minification",
   "scripts": {
-    "prepare": "node ../../../pkg/dist-node/index.bin.js",
-    "TEST": "node ../../../pkg/dist-node/index.bin.js build"
+    "testbuild": "snowpack build"
   },
   "snowpack": {
     "buildOptions": {
@@ -14,5 +16,8 @@
   },
   "dependencies": {
     "array-flatten": "^3.0.0"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

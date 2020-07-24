@@ -1,7 +1,10 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-include-with-package-name",
   "description": "Test that 'include' import scanner supports package name imports",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
     "buildOptions": {
@@ -12,7 +15,10 @@
     "@emotion/is-prop-valid": "^0.8.5",
     "array-flatten": "^3.0.0",
     "http-vue-loader": "^1.4.1",
-    "vue": "^2.6.10",
-    "vue-router": "^3.1.3"
+    "vue": "^2.0.0",
+    "vue-router": "^3.0.0"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

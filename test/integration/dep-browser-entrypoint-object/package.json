@@ -1,16 +1,25 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-dep-browser-entrypoint-object",
   "description": "Test that we properly handle a package.json 'browser' object.",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
-    "install": ["package-has-valid", "package-no-valid"],
+    "install": [
+      "package-has-valid",
+      "package-no-valid"
+    ],
     "buildOptions": {
       "minify": false
     }
   },
   "dependencies": {
-    "package-has-valid": "^1.2.3",
-    "package-no-valid": "^1.2.3"
+    "package-has-valid": "file:./package-has-valid",
+    "package-no-valid": "file:./package-no-valid"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }

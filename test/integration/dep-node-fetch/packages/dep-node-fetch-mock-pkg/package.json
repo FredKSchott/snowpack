@@ -1,0 +1,5 @@
+{
+  "version": "1.0.0",
+  "name": "dep-node-fetch-mock-pkg",
+  "module": "entrypoint.js"
+}

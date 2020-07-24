@@ -1,15 +1,21 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-dep-list-complex",
   "description": "Test packages with tricky names",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
+    "testinstall": "snowpack"
   },
   "snowpack": {
-    "install": ["dat.gui"],
+    "install": [
+      "dat.gui"
+    ],
     "buildOptions": {
       "minify": false
     }
   },
   "dependencies": {
-    "dat.gui": "^0.7.6"
+    "dat.gui": "^0.7.6",
+    "snowpack": "*"
   }
 }

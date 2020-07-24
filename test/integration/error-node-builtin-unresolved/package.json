@@ -1,11 +1,19 @@
 {
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-error-node-builtin-unresolved",
   "scripts": {
-    "TEST": "node ../../../pkg/dist-node/index.bin.js"
-  },
-  "dependencies": {
-    "mock-test-package": "^1.2.3"
+    "testinstall": "snowpack"
   },
   "snowpack": {
-    "install": ["mock-test-package"]
+    "install": [
+      "bad-node-builtin-pkg"
+    ]
+  },
+  "dependencies": {
+    "bad-node-builtin-pkg": "file:./packages/bad-node-builtin-pkg"
+  },
+  "devDependencies": {
+    "snowpack": "*"
   }
 }
