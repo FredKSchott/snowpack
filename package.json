@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "build": "lerna run build",
+    "publish": "lerna publish",
+    "format": "prettier --write \"packages/*/src/**/*.ts\"",
     "setupTest": "yarn build && yarn --force --ignore-engines && lerna run testbuild",
     "test": "npm run setupTest && jest --test-timeout=15000"
   },
