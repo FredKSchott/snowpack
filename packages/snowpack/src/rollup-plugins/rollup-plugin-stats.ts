@@ -67,7 +67,7 @@ export function rollupPluginDependencyStats(
         const contents = Buffer.isBuffer(raw)
           ? raw
           : typeof raw === 'string'
-          ? Buffer.from(raw, 'utf8')
+          ? Buffer.from(raw, 'utf-8')
           : Buffer.from(raw);
         if (fileName.startsWith('common')) {
           commonDependencies.push({fileName, contents});

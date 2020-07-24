@@ -92,7 +92,7 @@ export function rollupPluginDependencyCache({
         const typesTarballUrl = typesUrl.replace(/(mode=types.*?)\/.*/, '$1/all.tgz');
         allTypesToInstall.add(typesTarballUrl);
       }
-      return cachedResult.data.toString('utf8');
+      return cachedResult.data.toString('utf-8');
     },
     async writeBundle(options: OutputOptions) {
       if (!installTypes) {

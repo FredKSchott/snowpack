@@ -1,8 +1,9 @@
 import type CSSModuleLoader from 'css-modules-loader-core';
 import {EventEmitter} from 'events';
+import {promises as fs} from 'fs';
 import path from 'path';
-import {BuildOptions, SnowpackBuildMap, SnowpackConfig, SnowpackPlugin} from '../config';
-import {getExt, URL_HAS_PROTOCOL_REGEX} from '../util';
+import {SnowpackBuildMap, SnowpackConfig, SnowpackPlugin} from '../config';
+import {getEncodingType, getExt, URL_HAS_PROTOCOL_REGEX} from '../util';
 
 export interface BuildFileOptions {
   buildPipeline: SnowpackPlugin[];
@@ -14,74 +15,81 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
   const {baseExt} = getExt(fileLoc);
   const potentialInputs = new Set([fileLoc]);
   for (const plugin of plugins) {
-    if (plugin.output.includes(baseExt)) {
-      plugin.input.forEach((inp) => potentialInputs.add(fileLoc.replace(baseExt, inp)));
+    if (plugin.resolve && plugin.resolve.output.includes(baseExt)) {
+      plugin.resolve.input.forEach((inp) => potentialInputs.add(fileLoc.replace(baseExt, inp)));
     }
   }
   return Array.from(potentialInputs);
 }
 
-/** SnowpackPlugin interface + legacy support for Snowpack v1 plugin system. */
-interface SnowpackPluginWithLegacy extends SnowpackPlugin {
-  /** DEPRECATED */
-  transform?(options: BuildOptions): Promise<{result: string} | null>;
+/**
+ * Build Plugin First Pass: If a plugin defines a
+ * `resolve` object, check it against the current
+ * file's extension. If it matches, call the load()
+ * functon and return it's result.
+ *
+ * If no match is found, fall back to just reading
+ * the file from disk and return it.
+ */
+async function runPipelineLoadStep(
+  srcPath: string,
+  {buildPipeline, messageBus, isDev}: BuildFileOptions,
+) {
+  const srcExt = getExt(srcPath).baseExt;
+  for (const step of buildPipeline) {
+    if (!step.resolve || !step.resolve.input.includes(srcExt)) {
+      continue;
+    }
+    if (!step.load) {
+      continue;
+    }
+    const result = await step.load({
+      fileExt: srcExt,
+      filePath: srcPath,
+      isDev,
+      log: (msg, data = {}) => {
+        messageBus.emit(msg, {
+          ...data,
+          id: step.name,
+          msg: data.msg && `[${srcPath}] ${data.msg}`,
+        });
+      },
+    });
+    const mainOutputExt = step.resolve.output[0];
+    if (typeof result === 'string') {
+      return {[mainOutputExt]: result};
+    } else if (result && typeof result === 'object' && result.result) {
+      return {[mainOutputExt]: result.result};
+    } else if (result && typeof result === 'object') {
+      return result;
+    } else {
+      continue;
+    }
+  }
+  return {[srcExt]: await fs.readFile(srcPath, getEncodingType(srcExt))};
 }
 
-/** Core Snowpack file pipeline builder */
-export async function buildFile(
+/**
+ * Build Plugin Second Pass: If a plugin defines a
+ * transform() method,call it. Transform cannot change
+ * the file extension, and was designed to run on
+ * every file type and return null/undefined if no
+ * change needed.
+ */
+async function runPipelineTransformStep(
+  output: Record<string, string>,
   srcPath: string,
-  srcContents: string,
   {buildPipeline, messageBus, isDev}: BuildFileOptions,
-): Promise<SnowpackBuildMap> {
+) {
   const srcExt = getExt(srcPath).baseExt;
   const rootFileName = path.basename(srcPath).replace(srcExt, '');
-  const output: SnowpackBuildMap = {
-    [srcExt]: srcContents,
-  };
-
-  // Run the file through the Snowpack build pipeline:
-  for (const step of buildPipeline as SnowpackPluginWithLegacy[]) {
-    // DEPRECATED: Plugin legacy transform() support. If a plugin defines a transform() function,
-    // call it. Transform cannot change the file extension, and was designed to run on every file
-    // type and return null if no change was needed.
-    if (step.transform) {
-      for (const destExt of Object.keys(output)) {
-        const destBuildFile = output[destExt];
-        const result = await step.transform({
-          contents: destBuildFile,
-          fileExt: destExt,
-          filePath: rootFileName + destExt,
-          isDev,
-          log: (msg, data = {}) => {
-            messageBus.emit(msg, {
-              ...data,
-              id: step.name,
-              msg: data.msg && `[${srcPath}] ${data.msg}`,
-            });
-          },
-          // Deprecated
-          urlPath: `./${path.basename(rootFileName + destExt)}`,
-        });
-        if (result) {
-          output[destExt] = result.result;
-        }
-      }
+  for (const step of buildPipeline) {
+    if (!step.transform) {
       continue;
     }
-
-    // For now, we only run through build plugins that match at least one file extension.
-    // All other plugins are ignored.
-    if (!step.build || step.input.length === 0) {
-      continue;
-    }
-    const staleOutputs = new Set<string>();
     for (const destExt of Object.keys(output)) {
-      // If the current output file extension doesn't match a plugin input, skip it.
-      if (!step.input.includes(destExt)) {
-        continue;
-      }
       const destBuildFile = output[destExt];
-      const result = await step.build({
+      const result = await step.transform({
         contents: destBuildFile,
         fileExt: destExt,
         filePath: rootFileName + destExt,
@@ -93,46 +101,29 @@ export async function buildFile(
             msg: data.msg && `[${srcPath}] ${data.msg}`,
           });
         },
-        // Deprecated
+        // @ts-ignore: Deprecated
         urlPath: `./${path.basename(rootFileName + destExt)}`,
       });
-      if (!result) {
-        continue;
-      }
       if (typeof result === 'string') {
-        // Path A: single-output (assume extension is same)
-        output[destExt] = result;
-      } else if (typeof result === 'object' && !result.result) {
-        // Path B: multi-file output ({ js: [string], css: [string], … })
-        Object.entries(result as SnowpackBuildMap).forEach(([ext, contents]) => {
-          if (!contents) {
-            return;
-          }
-          output[ext] = contents;
-          staleOutputs.add(destExt);
-          staleOutputs.delete(ext);
-        });
-      } else if (typeof result === 'object' && result.result) {
-        // Path C: DEPRECATED output ({ result, resources })
-        const ext = step.output[0];
-        output[ext] = result.result;
-        staleOutputs.add(destExt);
-        staleOutputs.delete(ext);
-        // handle CSS output for Svelte/Vue
-        if (typeof result.resources === 'object' && result.resources.css) {
-          output['.css'] = result.resources.css;
-          staleOutputs.delete('.css');
-        }
-      }
-
-      // filter out unused extensions (i.e. don’t emit source files to build)
-      for (const staleOutput of staleOutputs) {
-        delete output[staleOutput];
+        output[srcExt] = result;
+      } else if (result && typeof result === 'object' && result.result) {
+        output[srcExt] = result.result;
       }
     }
   }
-
   return output;
+}
+/** Core Snowpack file pipeline builder */
+export async function buildFile(
+  srcPath: string,
+  buildFileOptions: BuildFileOptions,
+): Promise<SnowpackBuildMap> {
+  // Pass 1: Find the first plugin to load this file, and return the result
+  const loadResult = await runPipelineLoadStep(srcPath, buildFileOptions);
+  // Pass 2: Pass that result through every plugin transfomr() method.
+  const transformResult = await runPipelineTransformStep(loadResult, srcPath, buildFileOptions);
+  // Return the final build result.
+  return transformResult;
 }
 
 export function getMetaUrlPath(urlPath: string, isDev: boolean, config: SnowpackConfig): string {

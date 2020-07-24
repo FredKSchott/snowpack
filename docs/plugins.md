@@ -12,85 +12,106 @@ layout: layouts/extend.njk
 Looking for help using Snowpack in your project?
 👉 **[Check out our main docs.](/)**
 
-## Overview
+## Plugin Overview
 
-There are two types of Snowpack plugins: **build plugins** and **bundler plugins.** Unless you are making a plugin specifically for a bundler like Rollup, Parcel, or webpack, you’re probably making a build plugin.
+A **Snowpack Plugin** is an object interface that lets you customize Snowpack's behavior. Snowpack provides different hooks for your plugin to connect to. For example, you can add a plugin to handle Svelte files, optimize CSS, convert SVGs to React components, run TypeScript during development, and much more.
 
-## Build Plugins
+Snowpack's plugin interface is inspired by Rollup. If you've ever written a Rollup plugin before, then hopefully these concepts and terms feel familiar.
 
-Build plugins run on single files that pass through Snowpack. They listen for particular file extensions, and when a match is found, transform that code.
+### Build Plugins
 
-In order to keep operations speedy, Snowpack’s build system is **single pass,** meaning each file is only transformed by a set of plugins once. We’ll talk more about that later.
+Snowpack uses an internal **Build Pipeline** to build files in your application for development and production. Every source file passes through the build pipeline, which means that Snowpack can build more than just JavaScript. Images, CSS, SVGs and more can all be built by Snowpack.
 
-### The Basics
+Snowpack runs each file through the build pipeline in two separate steps:
 
-To create a Snowpack plugin, you may start with the following template:
+1. **Load:** Snowpack finds the first plugin that claims to `resolve` the given file. It then calls that plugin's `load()` method to load the file into your application. This is where compiled languages (TypeScript, Sass, JSX, etc.) are loaded and compiled to something that can run on the web (JS, CSS, etc).
+2. **Transform:** Once loaded, every file passes through the build pipeline again to run through matching `transform()` methods. Plugins can transform a file to modify or augment its contents before finishing the file build.
+
+### Command Line Plugins
+
+Snowpack plugins support a `run()` method which lets you run any CLI tool and connect its output into Snowpack. You can use this to run your favorite dev tools (linters, TypeScript, etc.) with Snowpack and automatically report their output back through the Snowpack developer console. If the command fails, you can optionally fail your production build.
+
+### Bundler Plugins
+
+Snowpack builds you a runnable, unbundled website by default, but you can optimize this final build with your favorite bundler (webpack, Rollup, Parcel, etc.) through the plugin `bundle()` method. When a bundler plugin is used, Snowpack will run the bundler on your build automatically to optimize it.  
+
+Snowpack’s bundler plugin API is the one part of the API that is still marked as experimental and may change in a future release. See our official bundler plugins for an example of using the current interface:
+
+- [@snowpack/plugin-parcel](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-parcel)
+- [@snowpack/plugin-webpack](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-webpack)
+
+
+## How to Write a Plugin
+
+### Getting Started
+
+To create a Snowpack plugin, you can start with the following file template:
 
 ```js
 // my-snowpack-plugin.js
-
 module.exports = function(snowpackConfig, pluginOptions) {
-  name: 'my-snowpack-plugin', // plugin name
-  input: ['.js', '.ts'], // extensions to listen for
-  output: ['.js'], // extensions that will be output
-  async build(buildOptions) { /* … */ } // code transformations
+  return {
+    name: 'my-snowpack-plugin',
+    // ...
+  }
+};
+```
+
+```json
+// snowpack.config.json
+{
+  "plugins": [
+    ["./my-snowpack-plugin.js", { "optionA": "foo", "optionB": "bar" }]
+  ]
 }
 ```
 
-We start with a **function** that accepts 2 parameters, in this order:
+A Snowpack plugin should be distributed as a function that can be called with plugin-specific options to return a plugin object.
+Snowpack will automatically call this function to load your plugin. That function accepts 2 parameters, in this order:
 
   1. the [Snowpack configuration object](/#all-config-options) (`snowpackConfig`)
-  1. (optional) custom plugin options (`pluginOptions`)
+  1. (optional) user-provided config options (`pluginOptions`)
 
-That single function should return a Snowpack Plugin **object** with the following properties:
 
-| Key                |    Type    | Description                                                                               |
-|:-------------------|:----------:|:------------------------------------------------------------------------------------------|
-| `name`             |  `string`  | The plugin name. This will be shown whenever there are errors or messages.                |
-| `input`            | `string[]` | An array of file extensions this plugin listens for (e.g. `['.js', '.jsx', '.ts']`)       |
-| `output`           | `string[]` | An array of file extensions this plugin may output (e.g. `['.js', '.css']`)               |
-| `knownEntrypoints` | `string[]` | Array of npm dependencies this plugin needs to include all of (e.g. `['svelte/internal']` |
-| `build()`          | `function` | An async function that takes file info and returns transformed code.                      |
+### Transform a File
 
-Let’s look at some examples to see the basics in action:
-
-#### Single file transformation
-
-For our first example, we’ll look at transforming files 1:1.
+For our first example, we’ll look at transforming a file.
 
 ```js
 module.exports = (snowpackConfig, pluginOptions) => ({
   name: 'my-commenter-plugin',
-  input: ['.js', '.mjs', '.jsx', '.ts', '.tsx'],
-  async build({ contents }) {
-    return `/* I’m a comment! */ ${contents}`;
+  async transform({ fileExt, filePath, contents, isDev }) {
+    if (fileExt === '.js') {
+      return `/* I’m a comment! */ ${contents}`;
+    }
   }
 })
 ```
 
-This simple plugin takes all JavaScript & TypeScript files (`['.js', '.mjs', '.jsx', '.ts', '.tsx']`), and prepends a simple comment (`/* I’m a comment */`) to the beginning of each file. Even though this is a contrived example, it introduces us to the plugin API.
+This simple plugin takes all JavaScript files and prepends a simple comment (`/* I’m a comment */`) to the beginning of each file. Even though this is a contrived example, it introduces us to the plugin API.
 
-Our plugin **name** should be the same as name as the package (or if it’s a local plugin, give it a name).
+- The **name** property should be the name of your plugin. This is usually the same as your package name if published to npm.
+- The **transform** method is the function that transforms your file and returns the new file contents to use in the build. Notice that this gets called on every file, so it's up to you to check the file path & extension before performing your transformation.
 
-The **input** of the plugin is an array of file extensions we want to listen to. Notice we could have only specified `['.js']` if we wanted to, but in our example we wanted to listen for JSX and TypeScript files as well.
+This covers the basics of single-file transformations. In our next example, we’ll show how to compile a source file and change the file extension in the process.
 
-And lastly, the meat of our plugin lives in `build()`. We took the `contents` of the original file, and added our comment to the beginning. And that’s it! That string turns back into JavaScript. ✨ Magic! 🦄
-
-This covers the basics of single-file transformations. In our next example, we’ll see how to do complex transformations on multiple files at once.
-
-#### Multi-file transformation
+### File Loading & Building
 
 For a more complicated example, we’ll take one input file (`.svelte`) and use it to generate 2 output files (`.js` and `.css`).
 
 ```js
+const fs = require("fs").promises;
 const svelte = require("svelte/compiler");
 
 module.exports = (snowpackConfig, pluginOptions) => ({
   name: 'my-svelte-plugin',
-  input: ['.svelte'],
-  output: ['.js', '.css'],
   knownEntrypoints: ['svelte/internal'],
-  async build({ contents, filePath }) {
+  resolve: {
+    input: ['.svelte'],
+    output: ['.js', '.css'],
+  }
+  async load({ filePath }) {
+    const fileContents = await fs.readFile(filePath, 'utf-8');
     const { js, css } = svelte.compile(codeToCompile, { filename: filePath });
 
     return {
@@ -101,82 +122,93 @@ module.exports = (snowpackConfig, pluginOptions) => ({
 })
 ```
 
-This is a simplified version of the official Snowpack Svelte plugin, simplified to make the intent clearer.
+This is a simplified version of the official Snowpack Svelte plugin.
 
-You don’t need to be familiar with Svelte, but in this example just know we want to take in Svelte files (`.svelte`) and generate JS & CSS from them. We can see how that’s reflected in the **input** (`['.svelte']`) and **output** (`['.js', '.css']`). When we run `svelte.compile()` we get back our CSS and JS, and pass that back as an object to Snowpack: `{ '.js': …, '.css': … }`.
+You don’t need to be familiar with Svelte, but in this example just know we want to take in Svelte files (`.svelte`) and generate JS & CSS for our final build. We can see how that’s reflected in the **resolve** input (`['.svelte']`) and output (`['.js', '.css']`). When we run `svelte.compile()` we get back our CSS and JS, and return an object with entries that match those **resolve** output entries: `{ '.js': …, '.css': … }`.
 
-Say the original input file was `src/components/App.svelte`. Because `.svelte` is in `input`, that file will trigger this plugin. `build()` will then execute, and Snowpack will take the `.js` and `.css` from the return object to generate 2 files: `src/components/App.js` and `src/components/App.css`. Snowpack kept the `App` filename and only changed the extension. Because your plugin only has to worry about individual files, and not the system at large, plugins are easier to write and maintain and easier to chain together.
+To see this in action, let's say that we have a source file at `src/components/App.svelte`. Because the `.svelte` file extension is in our plugin `resolve.input` array, Snowpack knows that this plugin is responsible for loading that file in our build. `load()` will then execute, and Snowpack will take the `.js` and `.css` results from the return object to generate the 2 build results: `src/components/App.js` and `src/components/App.css`. Snowpack will always keep the original file name (`App`) and only ever change the extension in the build. 
 
-Also notice that `.svelte` is missing from `output`. That tells Snowpack the original `.svelte` file isn’t needed for output, so it’s left in source and not copied to production. However, if we wanted to pass that through, we could simply add `{ '.svelte': contents }` to the return object.
+Your plugin only ever needs to load & build individual source files. Hopefully, this makes plugins easier to write, maintain, and chain together in your build.
+
+Also notice that `.svelte` is missing from `output`. That tells Snowpack the original `.svelte` file isn’t needed in the final build once it's been compiled to JS & CSS. If we wanted to keep the original source file in the final build, we could simply add `{ '.svelte': contents }` to the return object.
 
 ⚠️ _Note: if your plugin returns different `input`s and `output`s, make sure you’re not deleting files that other plugins may need! Likewise, make sure you’re outputting necessary files for the final build._
 
-#### Complete Build Plugin API
+### Tips / Gotchas
 
-All options available:
+- Remember: A source file will always be loaded by the first `load()` plugin to claim it, but the build result will be run through every `transform` function.
+- Extensions in Snowpack always have a leading `.` character (e.g. `.js`, `.ts`). This is to match Node’s `path.extname()` behavior, as well as make sure we’re not matching extension substrings (e.g. if we matched `js` at the end of a file, we also don’t want to match `.mjs` files by accident; we want to be explicit there).
+- The `resolve.input` and `resolve.output` file extension arrays are vital to how Snowpack understands your build pipeline, and are always required for `load()` to run correctly.
+- If `load()` or `transform()` don't return anything, the file isn’t transformed. 
+- If you want to build a plugin that only runs some code on initialization (such as `@snowpack/plugin-dotenv`), put your side-effect code inside the function that returns your plugin. But be sure to still return a plugin object. A simple `{ name }` object will do.
 
-```js
-module.exports = (snowpackConfig, pluginOptions) => ({
-  async build({
-    contents, // file contents (could be UTF-8 or binary depending on the file)
-    fileExt, // file extension (e.g. '.js')
-    filePath, // complete file path (⚠️ Warning! This may not exist on disk, so don’t try and perform file operations on)
-    isDev, // is this the Snowpack dev server?
-  }) {
+## Plugin API
 
-    /* Option A: transform file 1:1 */
-    // return string;
+Check out our ["SnowpackPlugin" TypeScript definition](https://unpkg.com/browse/snowpack@2.6.4/dist-types/config.d.ts) for a fully documented and up-to-date summary of the Plugin API and all supported options.
 
-    /* Option B: transform and rename file, or generate other files */
-    // return {
-    //   '.js': jsFileContents,
-    //   '.js.map': jsMapContents,
-    //   '.css': cssFileContents'
-    //   …
-    // };
-  }
-})
+### knownEntrypoints
+
+```
+// Example: Svelte plugin needs to make sure this dependency can be loaded.
+knownEntrypoints: ["svelte/internal"]
 ```
 
-### Build your own
+An list of any npm dependencies that are added as a part of `load()` or `transform()` that Snowpack will need to know about. Snowpack analyzes most dependency imports automatically when it scans the source code of a project, but some imports are added as a part of a `load()` or `transform()` step, which means that Snowpack would never see them. If your plugin does this, add them here.
 
-#### Local plugin
+### resolve
 
-If you need a local plugin just for your own needs, add it in your `snowpack.config.json`:
+```
+// Example: Sass plugin compiles Sass files to CSS.
+resolve: {input: [".sass"], output: [".css"]}
 
-```json
-{
-  "plugins": [
-    ["../path-to-my-plugin", { "optionA": "foo", "optionB": "bar" }]
-  ]
-}
+// Example: Svelte plugin compiles Svelte files to JS & CSS.
+resolve: {input: [".svelte"], output: [".js",[".css"]}
 ```
 
-#### npm plugin
+If your plugin defines a `load()` method, Snowpack will need to know what files your plugin is responsible to load and what its output will look like. **`resolve` is only needed if you also define a `load()` method.**
 
-To release a plugin to npm, take a look at [snowpack-plugin-starter-template](https://github.com/pikapkg/snowpack-plugin-starter-template) which can get you up-and-running quickly. You can either copy this outright or simply take what you need.
+- `input`: An array of file extensions that this plugin will load.
+- `output`: The set of all file extensions that this plugin's `load()` method will output.
+- [Full TypeScript definition](https://unpkg.com/browse/snowpack@2.6.4/dist-types/config.d.ts).
+
+### load()
+
+Load a file from disk and build it for your application. This is most useful for taking a file type that can't run in the browser (TypeScript, Sass, Vue, Svelte) and returning JS and/or CSS. It can even be used to load JS/CSS files directly from disk with a build step like Babel or PostCSS.
+
+- See above for an example of how to use this method.
+- [Full TypeScript definition](https://unpkg.com/browse/snowpack@2.6.4/dist-types/config.d.ts).
+
+### transform()
+
+Transform a file's contents. Useful for making changes to all types of output (JS, CSS, etc.) regardless of how they were loaded from disk.
+
+- See above for an example of how to use this method.
+- [Full TypeScript definition](https://unpkg.com/browse/snowpack@2.6.4/dist-types/config.d.ts).
+
+### run()
+
+Run a CLI command, and connect it's output into the Snowpack console. Useful for connecting tools like TypeScript.
+
+- [Full TypeScript definition](https://unpkg.com/browse/snowpack@2.6.4/dist-types/config.d.ts).
+
+### bundle()
+
+Snowpack’s bundler plugin API is still experimental and may change in a future release. See our official bundler plugins for an example of using the current interface:
+
+- Example: [@snowpack/plugin-parcel](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-parcel)
+- Example: [@snowpack/plugin-webpack](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-webpack)
+- [Full TypeScript definition](https://unpkg.com/browse/snowpack@2.6.4/dist-types/config.d.ts).
+
+
+## Publishing a Plugin
+
+To share a plugin with the world, you can publish it to npm. For example, take a look at [snowpack-plugin-starter-template](https://github.com/pikapkg/snowpack-plugin-starter-template) which can get you up-and-running quickly. You can either copy this outright or simply take what you need.
 
 In general, make sure to mind the following checklist:
 
 - ✔️ Your `package.json` file has a `main` entry pointing to the final build
 - ✔️ Your code is compiled to run on Node >= 10
 - ✔️ Your package README contains a list of custom options, if your plugin is configurable
-
-### Tips / Gotchas
-
-- Snowpack’s plugin system is **single-pass** to keep things speedy and avoid infinite loops. That means if you generate a new `.css` file, that file won’t be run back through another CSS plugin.
-- Extensions in Snowpack always have a leading `.` character (e.g. `.js`, `.ts`). This is to match Node’s `path.extname()` behavior, as well as make sure we’re not matching extension substrings (e.g. if we matched `js` at the end of a file, we also don’t want to match `.mjs` files by accident; we want to be explicit there).
-- You may have seen a `transform()` function in previous versions of the plugin API. Though that’ll be supported throughout Snowpack `2.x`, it’s now deprecated and will be removed in the next major release. Instead, please use `build()`.
-- The `input` and `output` file extension arrays are the keys to their simplicity. In other plugin systems, you have to parse out the filename to determine whether you want to transform it or not. But with Snowpack, you only have to declare file extensions you’d like to listen for, and Snowpack handles the rest.
-- If `build()` doesn’t return anything, the file isn’t transformed. In this way, you can build pure side-effect plugins if needed.
-- If you want to build a plugin that only runs some code on initialization (such as `@snowpack/plugin-dotenv`), put your side-effect code inside your main plugin function to execute when initialized. But be sure to return a `{ name }` so that users know what went wrong in the case of an error.
-
-## Bundler Plugin
-
-Snowpack’s bundler plugin API is still experimental and may change in a future release. See our official bundler plugins for an example of using the current interface:
-
-- [@snowpack/plugin-parcel](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-parcel)
-- [@snowpack/plugin-webpack](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-webpack)
 
 
 ## Back to Main Docs

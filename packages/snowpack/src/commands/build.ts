@@ -156,20 +156,22 @@ export async function command(commandOptions: CommandOptions) {
       const {baseExt: fileExt} = getExt(locOnDisk);
       let outLoc = locOnDisk.replace(dirDisk, dirDest);
       let builtLocOnDisk = locOnDisk;
-      const extToReplace = srcFileExtensionMapping[fileExt];
+      const extToReplace = config._extensionMap[fileExt] || srcFileExtensionMapping[fileExt];
       if (extToReplace) {
         outLoc = replaceExt(outLoc, extToReplace);
         builtLocOnDisk = replaceExt(builtLocOnDisk, extToReplace);
       }
-      const fileContents = await fs.readFile(locOnDisk, getEncodingType(extToReplace || fileExt));
-      const builtFileOutput = await buildFile(locOnDisk, fileContents, {
+      const builtFileOutput = await buildFile(locOnDisk, {
         buildPipeline: config.plugins,
         messageBus,
         isDev: false,
       });
       allBuiltFromFiles.add(locOnDisk);
       const {baseExt, expandedExt} = getExt(outLoc);
-      let contents = builtFileOutput[srcFileExtensionMapping[fileExt] || fileExt];
+      let contents =
+        builtFileOutput[
+          config._extensionMap[fileExt] || srcFileExtensionMapping[fileExt] || fileExt
+        ];
       if (!contents) {
         continue;
       }
@@ -179,7 +181,7 @@ export async function command(commandOptions: CommandOptions) {
         case '.js': {
           if (builtFileOutput['.css']) {
             await fs.mkdir(path.dirname(cssOutPath), {recursive: true});
-            await fs.writeFile(cssOutPath, builtFileOutput['.css'], 'utf8');
+            await fs.writeFile(cssOutPath, builtFileOutput['.css'], 'utf-8');
             contents = `import './${path.basename(cssOutPath)}';\n` + contents;
           }
           contents = wrapImportMeta({code: contents, env: true, isDev: false, hmr: false, config});

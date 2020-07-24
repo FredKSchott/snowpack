@@ -33,7 +33,12 @@ export function getImportStats(dirLoc: string, spec: string): fs.Stats | false {
 }
 
 /** Resolve an import based on the state of the file/folder found on disk. */
-function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, isBundled: boolean) {
+function resolveSourceSpecifier(
+  spec: string,
+  stats: fs.Stats | false,
+  isBundled: boolean,
+  config: SnowpackConfig,
+) {
   if (stats && stats.isDirectory()) {
     const trailingSlash = spec.endsWith('/') ? '' : '/';
     spec = spec + trailingSlash + 'index.js';
@@ -41,7 +46,7 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, isBundled
     spec = spec + '.js';
   }
   const {baseExt} = getExt(spec);
-  const extToReplace = srcFileExtensionMapping[baseExt];
+  const extToReplace = config._extensionMap[baseExt] || srcFileExtensionMapping[baseExt];
   if (extToReplace) {
     spec = replaceExt(spec, extToReplace);
   }
@@ -73,13 +78,13 @@ export function createImportResolver({
     if (mountScript) {
       const [fromDisk, toUrl] = mountScript;
       const importStats = getImportStats(cwd, spec);
-      spec = resolveSourceSpecifier(spec, importStats, isBundled);
+      spec = resolveSourceSpecifier(spec, importStats, isBundled, config);
       spec = spec.replace(fromDisk, toUrl);
       return spec;
     }
     if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
       const importStats = getImportStats(path.dirname(fileLoc), spec);
-      spec = resolveSourceSpecifier(spec, importStats, isBundled);
+      spec = resolveSourceSpecifier(spec, importStats, isBundled, config);
       return spec;
     }
     if (dependencyImportMap && dependencyImportMap.imports[spec]) {
