@@ -1,20 +1,18 @@
 {
-  "name": "WORKSPACE",
-  "npmClient": "yarn",
-  "private": true,
-  "workspaces": [
-    "packages/*",
-    "templates/*"
-  ],
-  "scripts": {
-    "publish": "npx lerna publish",
-    "test": "cd test && rm -rf test-install && jest test/runner.test.js --testTimeout 60000"
+  "name": "create-snowpack-app",
+  "version": "1.6.0",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
   },
-  "devDependencies": {
-    "dir-compare": "^2.3.0",
-    "execa": "^4.0.2",
-    "jest": "^26.0.1",
-    "lerna": "^3.20.2",
-    "parcel-bundler": "^1.12.4"
-  }
+  "bin": {
+    "create-snowpack-app": "./index.js"
+  },
+  "dependencies": {
+    "execa": "^4.0.0",
+    "fs-extra": "^9.0.0",
+    "kleur": "^4.0.2",
+    "yargs-parser": "^18.1.3"
+  },
+  "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
 }
