@@ -21,7 +21,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: build and test
       run: |
-        yarn --ignore-engines
+        yarn --force --ignore-engines
         yarn test
       env:
         CI: true
