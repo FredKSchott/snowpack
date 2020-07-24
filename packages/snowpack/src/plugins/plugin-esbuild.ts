@@ -11,7 +11,7 @@ function checkIsPreact(filePath: string, contents: string) {
 
 function getLoader(filePath: string): 'js' | 'jsx' | 'ts' | 'tsx' {
   const ext = path.extname(filePath);
-  if (ext === '.js' || ext === '.mjs') {
+  if (ext === '.mjs') {
     return 'js';
   }
   return ext.substr(1) as 'jsx' | 'ts' | 'tsx';

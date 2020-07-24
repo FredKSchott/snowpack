@@ -1,1 +1,1 @@
-console.log("I’m a console log! 🌲");
+console.log('I’m a console log! 🌲');
