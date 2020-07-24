@@ -55,7 +55,7 @@ export function getEncodingType(ext: string): 'utf-8' | 'binary' {
 export async function readLockfile(cwd: string): Promise<ImportMap | null> {
   try {
     var lockfileContents = fs.readFileSync(path.join(cwd, 'snowpack.lock.json'), {
-      encoding: 'utf8',
+      encoding: 'utf-8',
     });
   } catch (err) {
     // no lockfile found, ignore and continue
@@ -70,7 +70,7 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
   for (const key of Object.keys(importMap.imports).sort()) {
     sortedImportMap.imports[key] = importMap.imports[key];
   }
-  fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
+  fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf-8'});
 }
 
 export function fetchCDNResource(
@@ -142,7 +142,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
       const manifestPath =
         fullPath.substring(0, indexOfSearch + searchPath.length + 1) + 'package.json';
       result[0] = manifestPath;
-      const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf8'});
+      const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
       result[1] = JSON.parse(manifestStr);
     }
   } catch (err) {

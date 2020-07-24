@@ -1,5 +1,6 @@
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
+import fs from 'fs';
 import http from 'http';
 import type HttpProxy from 'http-proxy';
 import {validate, ValidatorResult} from 'jsonschema';
@@ -39,14 +40,19 @@ export interface SnowpackSourceFile {
   locOnDisk: string;
 }
 
-export interface BuildOptions {
-  contents: string;
+export interface LoadOptions {
   filePath: string;
   fileExt: string;
   isDev: boolean;
   log: (msg, data) => void;
-  /** DEPRECATED */
-  urlPath: string;
+}
+
+export interface TransformOptions {
+  filePath: string;
+  fileExt: string;
+  contents: string;
+  isDev: boolean;
+  log: (msg, data) => void;
 }
 
 export interface RunOptions {
@@ -58,7 +64,7 @@ export interface RunOptions {
 export type __OldBuildResult = {result: string; resources?: {css?: string}};
 
 /** map of extensions -> code (e.g. { ".js": "[code]", ".css": "[code]" }) */
-export type BuildResult = string | {[fileExtension: string]: string} | __OldBuildResult;
+export type LoadResult = string | {[fileExtension: string]: string};
 
 export interface BundleOptions {
   srcDirectory: string;
@@ -70,12 +76,16 @@ export interface BundleOptions {
 export interface SnowpackPlugin {
   /** name of the plugin */
   name: string;
-  /** file extensions this plugin takes as input (e.g. [".jsx", ".js", …]) */
-  input: string[];
-  /** file extensions this plugin output (e.g. [".js", ".css"]) */
-  output: string[];
-  /** transform input to output */
-  build?(options: BuildOptions): Promise<BuildResult | null>;
+  resolve?: {
+    /** file extensions that this load function takes as input (e.g. [".jsx", ".js", …]) */
+    input: string[];
+    /** file extensions that this load function outputs (e.g. [".js", ".css"]) */
+    output: string[];
+  };
+  /** load a file that matches resolve.input */
+  load?(options: LoadOptions): Promise<LoadResult | null>;
+  /** transform a file that matches resolve.input */
+  transform?(options: TransformOptions): Promise<string | {result: string} | null>;
   /** runs a command, unrelated to file building (e.g. TypeScript, ESLint) */
   run?(options: RunOptions): Promise<unknown>;
   /** bundle the entire built application */
@@ -132,6 +142,7 @@ export interface SnowpackConfig {
   proxy: Proxy[];
   // experimental API; to convert to supported config values in the future
   _mountedDirs: Record<string, string>;
+  _extensionMap: Record<string, string>;
   _bundler: SnowpackPlugin | undefined;
   _webModulesPath: string;
 }
@@ -331,6 +342,7 @@ function loadPlugins(
   bundler: SnowpackPlugin | undefined;
   mountedDirs: Record<string, string>;
   webModulesDir: string;
+  extensionMap: Record<string, string>;
 } {
   const plugins: SnowpackPlugin[] = [];
   const mountedDirs: Record<string, string> = {};
@@ -350,21 +362,17 @@ function loadPlugins(
     const pluginLoc = require.resolve(name, {paths: [process.cwd()]});
     const plugin = require(pluginLoc)(config, options);
     plugin.name = plugin.name || name;
-    if (plugin.defaultBuildScript && !plugin.input) {
-      const {input, output} = parseScript(plugin.defaultBuildScript);
-      plugin.input = input;
-      plugin.output = output;
+    if (plugin.build) {
+      plugin.load = (options: LoadOptions) =>
+        plugin.build({...options, contents: fs.readFileSync(options.filePath, 'utf-8')});
     }
-    plugin.input = plugin.input
-      ? Array.isArray(plugin.input)
-        ? plugin.input
-        : [plugin.input]
-      : [];
-    plugin.output = plugin.output
-      ? Array.isArray(plugin.output)
-        ? plugin.output
-        : [plugin.output]
-      : plugin.input; // if no plugin.output, use input
+    if (plugin.defaultBuildScript && !plugin.resolve) {
+      const {input, output} = parseScript(plugin.defaultBuildScript);
+      plugin.resolve = {input, output};
+    } else if (plugin.resolve) {
+      const {input, output} = plugin.resolve;
+      plugin.resolve = {input, output};
+    }
     return plugin;
   }
 
@@ -384,12 +392,12 @@ function loadPlugins(
           break;
         }
         const watchCmd = config.scripts[target + '::watch'];
-        plugins.push(runScriptPlugin({cmd, watch: watchCmd || cmd}));
+        plugins.push(runScriptPlugin(config, {cmd, watch: watchCmd || cmd}));
         break;
       }
 
       case 'build': {
-        plugins.push(buildScriptPlugin({input, output, cmd}));
+        plugins.push(buildScriptPlugin(config, {input, output, cmd}));
         break;
       }
       case 'mount': {
@@ -453,17 +461,28 @@ function loadPlugins(
 
   const needsDefaultPlugin = new Set(['.mjs', '.jsx', '.ts', '.tsx']);
   plugins
-    .reduce((arr, a) => arr.concat(a.input), [] as string[])
+    .filter(({resolve}) => !!resolve)
+    .reduce((arr, a) => arr.concat(a.resolve!.input), [] as string[])
     .forEach((ext) => needsDefaultPlugin.delete(ext));
   if (needsDefaultPlugin.size > 0) {
-    plugins.unshift(esbuildPlugin({input: [...needsDefaultPlugin]}));
+    plugins.unshift(esbuildPlugin(config, {input: [...needsDefaultPlugin]}));
   }
+
+  const extensionMap = plugins.reduce((map: Record<string, string>, {resolve}) => {
+    if (resolve) {
+      for (const inputExt of resolve.input) {
+        map[inputExt] = resolve.output[0];
+      }
+    }
+    return map;
+  }, {});
 
   return {
     plugins,
     bundler,
     mountedDirs,
     webModulesDir, // TODO: remove this when mount:web_modules no longer supported
+    extensionMap,
   };
 }
 
@@ -559,11 +578,12 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   config.proxy = normalizeProxies(config.proxy as any);
 
   // new pipeline
-  const {plugins, mountedDirs, bundler, webModulesDir} = loadPlugins(config);
+  const {plugins, mountedDirs, bundler, webModulesDir, extensionMap} = loadPlugins(config);
   config.plugins = plugins;
   config._mountedDirs = mountedDirs;
   config._bundler = bundler;
   config._webModulesPath = webModulesDir;
+  config._extensionMap = extensionMap;
 
   // If any plugins defined knownEntrypoints, add them here
   for (const {knownEntrypoints} of config.plugins) {

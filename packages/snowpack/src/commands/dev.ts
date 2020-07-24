@@ -44,7 +44,7 @@ import onProcessExit from 'signal-exit';
 import stream from 'stream';
 import url from 'url';
 import zlib from 'zlib';
-import {SnowpackBuildMap} from '../config';
+import {SnowpackBuildMap, SnowpackConfig} from '../config';
 import {EsmHmrEngine} from '../hmr-server-engine';
 import {
   scanCodeImportsExports,
@@ -156,14 +156,18 @@ const sendError = (res, status) => {
   res.end();
 };
 
-function getUrlFromFile(mountedDirectories: [string, string][], fileLoc: string): string | null {
+function getUrlFromFile(
+  mountedDirectories: [string, string][],
+  fileLoc: string,
+  config: SnowpackConfig,
+): string | null {
   for (const [dirDisk, dirUrl] of mountedDirectories) {
     if (fileLoc.startsWith(dirDisk + path.sep)) {
       const {baseExt} = getExt(fileLoc);
       const resolvedDirUrl = dirUrl === '/' ? '' : dirUrl;
       return replaceExt(
         fileLoc.replace(dirDisk, resolvedDirUrl).replace(/[/\\]+/g, '/'),
-        srcFileExtensionMapping[baseExt] || baseExt,
+        config._extensionMap[baseExt] || srcFileExtensionMapping[baseExt] || baseExt,
       );
     }
   }
@@ -495,13 +499,13 @@ export async function command(commandOptions: CommandOptions) {
      * pipeline, and outputs a build map representing the final build. A Build Map is used
      * because one source file can result in multiple built files (Example: .svelte -> .js & .css).
      */
-    async function buildFile(fileLoc: string, fileContents: string): Promise<SnowpackBuildMap> {
+    async function buildFile(fileLoc: string): Promise<SnowpackBuildMap> {
       const existingBuilderPromise = filesBeingBuilt.get(fileLoc);
       if (existingBuilderPromise) {
         return existingBuilderPromise;
       }
       const fileBuilderPromise = (async () => {
-        const builtFileOutput = await _buildFile(fileLoc, fileContents, {
+        const builtFileOutput = await _buildFile(fileLoc, {
           buildPipeline: config.plugins,
           messageBus,
           isDev: true,
@@ -709,7 +713,7 @@ export async function command(commandOptions: CommandOptions) {
         // ...but verify.
         let checkFinalBuildResult: SnowpackBuildMap | null = null;
         try {
-          checkFinalBuildResult = await buildFile(fileLoc, fileContents);
+          checkFinalBuildResult = await buildFile(fileLoc);
         } catch (err) {
           // safe to ignore, it will be surfaced later anyway
         } finally {
@@ -730,7 +734,7 @@ export async function command(commandOptions: CommandOptions) {
     let responseContent: string | null;
     let responseOutput: SnowpackBuildMap;
     try {
-      responseOutput = await buildFile(fileLoc, fileContents);
+      responseOutput = await buildFile(fileLoc);
     } catch (err) {
       sendError(res, 500);
       return;
@@ -827,7 +831,7 @@ export async function command(commandOptions: CommandOptions) {
     if (isLiveReloadPaused) {
       return;
     }
-    let updateUrl = getUrlFromFile(mountedDirectories, fileLoc);
+    let updateUrl = getUrlFromFile(mountedDirectories, fileLoc, config);
     if (!updateUrl) {
       return;
     }

@@ -41,7 +41,7 @@ export function rollupPluginCss() {
       if (!id.endsWith('.css')) {
         return null;
       }
-      const code = await fs.readFile(id, {encoding: 'utf8'});
+      const code = await fs.readFile(id, {encoding: 'utf-8'});
       const humanReadableName = id.replace(/.*node_modules[\/\\]/, '').replace(/[\/\\]/g, '/');
       return getInjectorCode(humanReadableName, code);
     },

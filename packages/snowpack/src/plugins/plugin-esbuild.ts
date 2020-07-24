@@ -1,6 +1,8 @@
 import {Service, startService} from 'esbuild';
 import * as colors from 'kleur/colors';
 import path from 'path';
+import {promises as fs} from 'fs';
+import {SnowpackPlugin, SnowpackConfig} from '../config';
 
 let esbuildService: Service | null = null;
 
@@ -17,13 +19,16 @@ function getLoader(filePath: string): 'js' | 'jsx' | 'ts' | 'tsx' {
   return ext.substr(1) as 'jsx' | 'ts' | 'tsx';
 }
 
-export function esbuildPlugin({input}: {input: string[]}) {
+export function esbuildPlugin(_: SnowpackConfig, {input}: {input: string[]}): SnowpackPlugin {
   return {
     name: '@snowpack/plugin-esbuild',
-    input,
-    output: ['.js'],
-    async build({contents, filePath}) {
+    resolve: {
+      input,
+      output: ['.js'],
+    },
+    async load({filePath}) {
       esbuildService = esbuildService || (await startService());
+      const contents = await fs.readFile(filePath, 'utf-8');
       const isPreact = checkIsPreact(filePath, contents);
       const {js, warnings} = await esbuildService!.transform(contents, {
         loader: getLoader(filePath),
