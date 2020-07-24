@@ -632,20 +632,7 @@ export async function run({
       onMessage,
     },
     config,
-  ).catch((err) => {
-    if (err.loc) {
-      console.log('\n' + colors.red(colors.bold(`✘ ${err.loc.file}`)));
-    }
-    if (err.url) {
-      console.log(colors.dim(`👉 ${err.url}`));
-    }
-    spinner.stop();
-    throw err;
-  });
-
-  if ('error' in finalResult) {
-    spinnerHasError = true;
-  }
+  );
 
   if (finalResult.success) {
     spinner.succeed(
@@ -653,8 +640,6 @@ export async function run({
         ` install complete${spinnerHasError ? ' with errors.' : '.'}` +
         colors.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
     );
-  } else {
-    spinner.stop();
   }
 
   return {
