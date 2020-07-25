@@ -289,6 +289,7 @@ export async function command(commandOptions: CommandOptions) {
           isDev: false,
           hmr: false,
           config,
+          messageBus,
         });
     const proxyFileLoc = proxiedFileLoc + '.proxy.js';
     await fs.writeFile(proxyFileLoc, proxyCode, getEncodingType('.js'));

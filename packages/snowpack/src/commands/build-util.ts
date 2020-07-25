@@ -111,6 +111,35 @@ async function runPipelineTransformStep(
   }
   return output;
 }
+
+function runPipelineProxyStep(
+  fileUrl: string,
+  contents: string,
+  {buildPipeline, messageBus, isDev}: BuildFileOptions,
+) {
+  for (const step of buildPipeline) {
+    if (!step.proxy) {
+      continue;
+    }
+    const result = step.proxy({
+      contents,
+      fileUrl,
+      isDev,
+      log: (msg, data = {}) => {
+        messageBus.emit(msg, {
+          ...data,
+          id: step.name,
+          msg: data.msg && `[${fileUrl}] ${data.msg}`,
+        });
+      },
+    });
+    if (typeof result === 'string') {
+      return result;
+    }
+  }
+  return null;
+}
+
 /** Core Snowpack file pipeline builder */
 export async function buildFile(
   srcPath: string,
@@ -243,6 +272,7 @@ export function wrapEsmProxyResponse({
   isDev,
   hmr,
   config,
+  messageBus,
 }: {
   url: string;
   code: string;
@@ -250,7 +280,21 @@ export function wrapEsmProxyResponse({
   isDev: boolean;
   hmr: boolean;
   config: SnowpackConfig;
+  messageBus: EventEmitter;
 }) {
+  const wrappedResult = runPipelineProxyStep(url, code, {
+    buildPipeline: config.plugins,
+    messageBus,
+    isDev,
+  });
+  if (wrappedResult) {
+    return `${
+      hmr && wrappedResult.includes('import.meta.hot')
+        ? `import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr.js', isDev, config)}';\n` +
+          `import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);\n`
+        : ''
+    }${wrappedResult}`;
+  }
   if (ext === '.json') {
     return `${
       hmr
