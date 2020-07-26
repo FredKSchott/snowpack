@@ -111,6 +111,34 @@ async function runPipelineTransformStep(
   return output;
 }
 
+export function runPipelineProxyStep(
+  fileUrl: string,
+  contents: string,
+  {buildPipeline, messageBus, isDev}: BuildFileOptions,
+) {
+  for (const step of buildPipeline) {
+    if (!step.proxy) {
+      continue;
+    }
+    const result = step.proxy({
+      contents,
+      fileUrl,
+      isDev,
+      log: (msg, data = {}) => {
+        messageBus.emit(msg, {
+          ...data,
+          id: step.name,
+          msg: data.msg && `[${fileUrl}] ${data.msg}`,
+        });
+      },
+    });
+    if (typeof result === 'string') {
+      return result;
+    }
+  }
+  return null;
+}
+
 /** Core Snowpack file pipeline builder */
 export async function buildFile(
   srcPath: string,

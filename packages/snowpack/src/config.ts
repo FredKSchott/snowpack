@@ -93,6 +93,8 @@ export interface SnowpackPlugin {
   load?(options: LoadOptions): Promise<LoadResult | null | undefined | void>;
   /** transform a file that matches resolve.input */
   transform?(options: TransformOptions): Promise<string | null | undefined | void>;
+  /** controls how a non-JS file should be imported into JS. */
+  proxy?(options: PluginProxyOptions): string | null | undefined | void;
   /** runs a command, unrelated to file building (e.g. TypeScript, ESLint) */
   run?(options: RunOptions): Promise<unknown>;
   /** bundle the entire built application */

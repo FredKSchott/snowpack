@@ -1,0 +1,9 @@
+{
+  "mount": {
+    "./src": "/_dist_"
+  },
+  "buildOptions": {
+    "minify": false
+  },
+  "plugins": ["./custom-proxy-plugin.js"]
+}

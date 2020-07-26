@@ -276,6 +276,7 @@ export async function command(commandOptions: CommandOptions) {
       isDev: false,
       hmr: false,
       config,
+      messageBus,
     });
     await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
   }

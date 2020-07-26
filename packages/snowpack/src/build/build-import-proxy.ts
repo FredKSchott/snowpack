@@ -1,7 +1,9 @@
 import type CSSModuleLoader from 'css-modules-loader-core';
+import {EventEmitter} from 'events';
 import path from 'path';
 import {SnowpackConfig} from '../config';
 import {getExt, URL_HAS_PROTOCOL_REGEX} from '../util';
+import {runPipelineProxyStep} from './build-pipeline';
 
 export function getMetaUrlPath(urlPath: string, isDev: boolean, config: SnowpackConfig): string {
   let {baseUrl, metaDir} = config.buildOptions || {};
@@ -174,14 +176,24 @@ export async function wrapImportProxy({
   isDev,
   hmr,
   config,
+  messageBus,
 }: {
   url: string;
   code: string;
   isDev: boolean;
   hmr: boolean;
   config: SnowpackConfig;
+  messageBus: EventEmitter;
 }) {
   const {baseExt, expandedExt} = getExt(url);
+  const importProxyCode = runPipelineProxyStep(url, code, {
+    buildPipeline: config.plugins,
+    messageBus,
+    isDev,
+  });
+  if (importProxyCode) {
+    return wrapImportMeta({code: importProxyCode, hmr, env: true, isDev, config});
+  }
   if (baseExt === '.json') {
     return generateJsonImportProxy({code, hmr, isDev, config});
   }

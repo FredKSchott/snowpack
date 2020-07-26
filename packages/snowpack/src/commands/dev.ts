@@ -533,6 +533,7 @@ export async function command(commandOptions: CommandOptions) {
           isDev: true,
           hmr: isHmr,
           config,
+          messageBus,
         });
       } else if (responseFileExt === '.js') {
         code = wrapImportMeta({code, env: true, isDev: true, hmr: isHmr, config});
