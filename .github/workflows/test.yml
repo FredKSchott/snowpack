@@ -22,6 +22,8 @@ jobs:
     - name: build and test
       run: |
         yarn --ignore-engines
+        yarn build
+        yarn --ignore-engines --force
         yarn test
       env:
         CI: true

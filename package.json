@@ -5,17 +5,15 @@
     "build": "lerna run build",
     "publish": "lerna publish",
     "format": "prettier --write \"packages/*/src/**/*.ts\"",
-    "setupTest": "yarn build && yarn --force --ignore-engines && lerna run testbuild",
-    "test": "npm run setupTest && jest --test-timeout=15000"
+    "test:build": "lerna run testbuild",
+    "test:all": "jest --test-timeout=15000",
+    "test": "yarn test:build && yarn test:all"
   },
   "workspaces": [
     "packages/*",
     "test/build/*",
     "test/integration/*"
   ],
-  "dependencies": {
-    "snowpack": "file:packages/snowpack/pkg"
-  },
   "devDependencies": {
     "@pika/pack": "^0.5.0",
     "@pika/plugin-build-node": "^0.9.1",
