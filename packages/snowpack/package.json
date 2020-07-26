@@ -15,6 +15,10 @@
   "scripts": {
     "build": "pika build"
   },
+  "bin": {
+    "sp": "pkg/dist-node/index.bin.js",
+    "snowpack": "pkg/dist-node/index.bin.js"
+  },
   "@pika/pack": {
     "pipeline": [
       [
