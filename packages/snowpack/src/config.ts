@@ -8,7 +8,7 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import {Plugin as RollupPlugin} from 'rollup';
 import yargs from 'yargs-parser';
-import srcFileExtensionMapping from './commands/src-file-extension-mapping';
+import srcFileExtensionMapping from './build/src-file-extension-mapping';
 import {buildScriptPlugin} from './plugins/plugin-build-script';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {runScriptPlugin} from './plugins/plugin-run-script';
@@ -55,6 +55,13 @@ export interface TransformOptions {
   log: (msg, data) => void;
 }
 
+export interface PluginProxyOptions {
+  fileUrl: string;
+  contents: string;
+  isDev: boolean;
+  log: (msg, data) => void;
+}
+
 export interface RunOptions {
   isDev: boolean;
   log: (msg, data) => void;
@@ -83,9 +90,9 @@ export interface SnowpackPlugin {
     output: string[];
   };
   /** load a file that matches resolve.input */
-  load?(options: LoadOptions): Promise<LoadResult | null>;
+  load?(options: LoadOptions): Promise<LoadResult | null | undefined | void>;
   /** transform a file that matches resolve.input */
-  transform?(options: TransformOptions): Promise<string | {result: string} | null>;
+  transform?(options: TransformOptions): Promise<string | null | undefined | void>;
   /** runs a command, unrelated to file building (e.g. TypeScript, ESLint) */
   run?(options: RunOptions): Promise<unknown>;
   /** bundle the entire built application */

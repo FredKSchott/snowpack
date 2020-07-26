@@ -7,23 +7,22 @@ import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import rimraf from 'rimraf';
+import {
+  generateEnvModule,
+  wrapHtmlResponse,
+  wrapImportMeta,
+  wrapImportProxy,
+} from '../build/build-import-proxy';
+import {buildFile} from '../build/build-pipeline';
+import {createImportResolver} from '../build/import-resolver';
+import srcFileExtensionMapping from '../build/src-file-extension-mapping';
 import {removeLeadingSlash, SnowpackSourceFile} from '../config';
 import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
 import {CommandOptions, getEncodingType, getExt, replaceExt} from '../util';
-import {
-  buildFile,
-  generateEnvModule,
-  wrapCssModuleResponse,
-  wrapEsmProxyResponse,
-  wrapHtmlResponse,
-  wrapImportMeta,
-} from './build-util';
-import {createImportResolver} from './import-resolver';
 import {getInstallTargets, run as installRunner} from './install';
 import {paint} from './paint';
-import srcFileExtensionMapping from './src-file-extension-mapping';
 
 async function installOptimizedDependencies(
   allFilesToResolveImports: Record<string, SnowpackSourceFile>,
@@ -271,23 +270,13 @@ export async function command(commandOptions: CommandOptions) {
     const proxiedExt = path.extname(originalFileLoc);
     const proxiedCode = await fs.readFile(originalFileLoc, getEncodingType(proxiedExt));
     const proxiedUrl = originalFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/');
-    const proxyCode = originalFileLoc.endsWith('.module.css')
-      ? await wrapCssModuleResponse({
-          url: proxiedUrl,
-          code: proxiedCode,
-          ext: proxiedExt,
-          isDev: false,
-          hmr: false,
-          config,
-        })
-      : wrapEsmProxyResponse({
-          url: proxiedUrl,
-          code: proxiedCode,
-          ext: proxiedExt,
-          isDev: false,
-          hmr: false,
-          config,
-        });
+    const proxyCode = await wrapImportProxy({
+      url: proxiedUrl,
+      code: proxiedCode,
+      isDev: false,
+      hmr: false,
+      config,
+    });
     await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
   }
 

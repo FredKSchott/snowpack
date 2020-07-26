@@ -44,6 +44,16 @@ import onProcessExit from 'signal-exit';
 import stream from 'stream';
 import url from 'url';
 import zlib from 'zlib';
+import {
+  generateEnvModule,
+  getMetaUrlPath,
+  wrapHtmlResponse,
+  wrapImportMeta,
+  wrapImportProxy,
+} from '../build/build-import-proxy';
+import {buildFile as _buildFile, getInputsFromOutput} from '../build/build-pipeline';
+import {createImportResolver} from '../build/import-resolver';
+import srcFileExtensionMapping from '../build/src-file-extension-mapping';
 import {SnowpackBuildMap, SnowpackConfig} from '../config';
 import {EsmHmrEngine} from '../hmr-server-engine';
 import {
@@ -66,20 +76,8 @@ import {
   resolveDependencyManifest,
   updateLockfileHash,
 } from '../util';
-import {
-  buildFile as _buildFile,
-  generateEnvModule,
-  getInputsFromOutput,
-  wrapCssModuleResponse,
-  wrapEsmProxyResponse,
-  wrapHtmlResponse,
-  wrapImportMeta,
-  getMetaUrlPath,
-} from './build-util';
-import {createImportResolver} from './import-resolver';
 import {command as installCommand} from './install';
 import {getPort, paint} from './paint';
-import srcFileExtensionMapping from './src-file-extension-mapping';
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
 const DEFAULT_PROXY_ERROR_HANDLER = (
@@ -379,13 +377,9 @@ export async function command(commandOptions: CommandOptions) {
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const originalReqPath = reqPath;
     let isProxyModule = false;
-    let isCssModule = false;
     if (reqPath.endsWith('.proxy.js')) {
       isProxyModule = true;
       reqPath = reqPath.replace('.proxy.js', '');
-    }
-    if (reqPath.endsWith('.module.css')) {
-      isCssModule = true;
     }
 
     // const requestStart = Date.now();
@@ -531,22 +525,11 @@ export async function command(commandOptions: CommandOptions) {
     async function wrapResponse(code: string, hasCssResource: boolean) {
       if (isRoute) {
         code = wrapHtmlResponse({code: code, isDev: true, hmr: isHmr, config});
-      } else if (isCssModule) {
-        responseFileExt = '.js';
-        code = await wrapCssModuleResponse({
-          url: reqPath,
-          code,
-          ext: requestedFileExt,
-          isDev: true,
-          hmr: isHmr,
-          config,
-        });
       } else if (isProxyModule) {
         responseFileExt = '.js';
-        code = wrapEsmProxyResponse({
+        code = await wrapImportProxy({
           url: reqPath,
           code,
-          ext: requestedFileExt,
           isDev: true,
           hmr: isHmr,
           config,
