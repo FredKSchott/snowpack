@@ -15,7 +15,6 @@
   "scripts": {
     "build": "pika build"
   },
-  "bin": {"snowpack": "pkg/dist-node/index.bin.js"},
   "@pika/pack": {
     "pipeline": [
       [
