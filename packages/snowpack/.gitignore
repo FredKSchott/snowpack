@@ -1,3 +1,4 @@
 node_modules
 pkg/*
 !pkg/package.json
+!pkg/dist-node/index.bin.js
