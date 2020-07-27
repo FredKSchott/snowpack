@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-import-proxy",
+  "description": "A test to make sure that the plugin proxy() hook is working as expected",
+  "scripts": {
+    "start": "snowpack dev",
+    "testbuild": "snowpack build"
+  },
+  "devDependencies": {
+    "snowpack": "*"
+  }
+}
