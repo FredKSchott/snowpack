@@ -125,11 +125,12 @@ Snowpack supports setting custom import aliases for your project via the top-lev
 
 Snowpack has built-in support to handle `.jsx` & `.tsx` source files in your application. 
 
-**Note: Snowpack's default build does not support JSX in  `.js`/`.ts` files.** If you can't use the `.jsx`/`.tsx` file extension, you'll need to manually add a build plugin to support this:
+**Note: Snowpack's default build does not support JSX in  `.js`/`.ts` files.** If you can't use the `.jsx`/`.tsx` file extension, you can create a Babel config file and use the official Babel plugin to build your application:
+
 
 ```js
 // snowpack.config.json
-// Optional: Babel supports JSX in .js & .ts files.
+// [npm install --save-dev @snowpack/plugin-babel]
 {
   "plugins": ["@snowpack/plugin-babel"]
 }
@@ -139,11 +140,11 @@ Snowpack has built-in support to handle `.jsx` & `.tsx` source files in your app
 
 #### Compile to JavaScript
 
-Snowpack has built-in support to handle `.ts` & `.tsx` source files in your application. If you prefer to use Babel, you can connect your own TS->JavaScript build plugin:
+Snowpack has built-in support to handle `.ts` & `.tsx` source files in your application. If you prefer to use Babel, you can instead create a Babel config file and use the official Babel plugin to build your application:
 
 ```js
 // snowpack.config.json
-// Optional: Babel is another popular build tool that supports TS.
+// [npm install --save-dev @snowpack/plugin-babel]
 {
   "plugins": ["@snowpack/plugin-babel"]
 }

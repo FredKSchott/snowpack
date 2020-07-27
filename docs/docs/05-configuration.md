@@ -182,6 +182,7 @@ The `mount` configuration lets you map local files to their location in the fina
 
 #### Alias Options
 
+> Note: In an older version of Snowpack, all mounted directories were also available as aliases by default. As of Snowpack 2.7, this is no longer the case and no aliases are defined by default.
 
 ```js
 // snowpack.config.json
@@ -192,11 +193,17 @@ The `mount` configuration lets you map local files to their location in the fina
     "react": "preact/compat",
     // Type 2: Local Directory Import Alias (relative to cwd)
     "components": "./src/components"
-    "@root": "./src"
+    "@app": "./src"
   }
 }
 ```
 
-The `alias` configuration lets you define an alias in your source code imports to a package or local directory. 
+The `alias` config option lets you define an import alias in your application. When aliasing a package, this allows you to import that package by another name in your application. This applies to imports inside of your dependencies as well, essentially replacing all references to the aliased package. 
 
-In an older version of Snowpack, all mounted directories were also available as aliases. As of Snowpack 2.7, this is no longer the case and no aliases are defined by default.
+Aliasing a local directory (any path that starts with "./") creates a shortcut to import that file or directory. While we don't necessarily recommend this pattern, some projects do enjoy using these instead of relative paths:
+
+```diff
+-import '../../../../../Button.js';
++import '@app/Button.js';
+```
+
