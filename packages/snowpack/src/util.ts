@@ -244,15 +244,12 @@ export async function clearCache() {
 }
 
 /**
- * Given an import string and a list of scripts, return the mount script that matches the import.
- *
- * `mount ./src --to /_dist_` and `mount src --to /_dist_` match `src/components/Button`
- * `mount src --to /_dist_` does not match `package/components/Button`
+ * For the given import specifier, return an alias entry if one is matched.
  */
-export function findMatchingMountScript(
-  scripts: Record<string, string>,
+export function findMatchingAliasEntry(
+  config: SnowpackConfig,
   spec: string,
-): [string, string] | null | undefined {
+): {from: string; to: string; type: 'package' | 'path'} | undefined {
   // Only match bare module specifiers. relative and absolute imports should not match
   if (
     spec.startsWith('./') ||
@@ -261,9 +258,24 @@ export function findMatchingMountScript(
     spec.startsWith('http://') ||
     spec.startsWith('https://')
   ) {
-    return null;
+    return undefined;
   }
-  return Object.entries(scripts).find(([fromDisk]) => spec.startsWith(fromDisk));
+  const foundEntry = Object.entries(config.alias).find(([fromAlias]) => spec.startsWith(fromAlias));
+  if (!foundEntry) {
+    return undefined;
+  }
+  return {
+    from: foundEntry[0],
+    to: foundEntry[1],
+    type: isPackageAliasEntry(foundEntry[1]) ? 'package' : 'path',
+  };
+}
+
+/**
+ * For the given import specifier, return an alias entry if one is matched.
+ */
+export function isPackageAliasEntry(val: string): boolean {
+  return !path.isAbsolute(val);
 }
 
 /** Get full extensions of files */

@@ -597,7 +597,6 @@ export async function command(commandOptions: CommandOptions) {
       const resolveImportSpecifier = createImportResolver({
         fileLoc,
         dependencyImportMap,
-        isDev: true,
         isBundled: false,
         config,
       });

@@ -7,11 +7,11 @@ import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import rimraf from 'rimraf';
-import {SnowpackSourceFile, removeLeadingSlash} from '../config';
+import {removeLeadingSlash, SnowpackSourceFile} from '../config';
 import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
-import {CommandOptions, getEncodingType, getExt, replaceExt, sanitizePackageName} from '../util';
+import {CommandOptions, getEncodingType, getExt, replaceExt} from '../util';
 import {
   buildFile,
   generateEnvModule,
@@ -223,57 +223,55 @@ export async function command(commandOptions: CommandOptions) {
     process.exit(1);
   }
 
-  const allProxiedFiles = new Set<string>();
+  const allImportProxyFiles = new Set<string>();
   for (const [outLoc, file] of Object.entries(allFilesToResolveImports)) {
     const resolveImportSpecifier = createImportResolver({
       fileLoc: file.locOnDisk!, // we’re confident these are reading from disk because we just read them
       dependencyImportMap: installResult.importMap,
-      isDev: false,
       isBundled,
       config,
     });
     const resolvedCode = await transformFileImports(file, (spec) => {
       // Try to resolve the specifier to a known URL in the project
-      const resolvedImportUrl = resolveImportSpecifier(spec);
-      if (resolvedImportUrl) {
-        // We treat ".proxy.js" files special: we need to make sure that they exist on disk
-        // in the final build, so we mark them to be written to disk at the next step.
-        if (resolvedImportUrl.endsWith('.proxy.js')) {
-          // handle proxied files from web_modules
-          const isWebModule = removeLeadingSlash(resolvedImportUrl).startsWith(
-            removeLeadingSlash(config.buildOptions.webModulesUrl),
-          );
-          if (isWebModule) {
-            allProxiedFiles.add(
-              path.resolve(
-                cwd,
-                config.devOptions.out,
-                removeLeadingSlash(config.buildOptions.webModulesUrl),
-                sanitizePackageName(spec),
-              ),
-            );
-          } else {
-            // handle local proxied files
-            allProxiedFiles.add(
-              resolvedImportUrl.startsWith('/')
-                ? path.resolve(cwd, spec)
-                : path.resolve(path.dirname(outLoc), spec),
-            );
-          }
-        }
-        return resolvedImportUrl;
+      let resolvedImportUrl = resolveImportSpecifier(spec);
+      if (!resolvedImportUrl) {
+        return spec;
       }
-      return spec;
+
+      // We treat ".proxy.js" files special: we need to make sure that they exist on disk
+      // in the final build, so we mark them to be written to disk at the next step.
+      const isAbsoluteUrlPath = resolvedImportUrl.startsWith('/');
+      const isProxyImport = resolvedImportUrl.endsWith('.proxy.js');
+      if (isProxyImport) {
+        if (isAbsoluteUrlPath) {
+          allImportProxyFiles.add(
+            path.resolve(buildDirectoryLoc, removeLeadingSlash(resolvedImportUrl)),
+          );
+        } else {
+          allImportProxyFiles.add(path.resolve(path.dirname(outLoc), resolvedImportUrl));
+        }
+      }
+
+      // When dealing with an absolute import path, we need to honor the baseUrl
+      if (isAbsoluteUrlPath) {
+        return path.posix.relative(
+          path.dirname(outLoc),
+          path.resolve(buildDirectoryLoc, removeLeadingSlash(resolvedImportUrl)),
+        );
+      }
+
+      return resolvedImportUrl;
     });
     await fs.mkdir(path.dirname(outLoc), {recursive: true});
     await fs.writeFile(outLoc, resolvedCode);
   }
 
-  for (const proxiedFileLoc of allProxiedFiles) {
-    const proxiedExt = path.extname(proxiedFileLoc);
-    const proxiedCode = await fs.readFile(proxiedFileLoc, getEncodingType(proxiedExt));
-    const proxiedUrl = proxiedFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/');
-    const proxyCode = proxiedFileLoc.endsWith('.module.css')
+  for (const importProxyFileLoc of allImportProxyFiles) {
+    const originalFileLoc = importProxyFileLoc.replace('.proxy.js', '');
+    const proxiedExt = path.extname(originalFileLoc);
+    const proxiedCode = await fs.readFile(originalFileLoc, getEncodingType(proxiedExt));
+    const proxiedUrl = originalFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/');
+    const proxyCode = originalFileLoc.endsWith('.module.css')
       ? await wrapCssModuleResponse({
           url: proxiedUrl,
           code: proxiedCode,
@@ -290,8 +288,7 @@ export async function command(commandOptions: CommandOptions) {
           hmr: false,
           config,
         });
-    const proxyFileLoc = proxiedFileLoc + '.proxy.js';
-    await fs.writeFile(proxyFileLoc, proxyCode, getEncodingType('.js'));
+    await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
   }
 
   if (!isBundled) {

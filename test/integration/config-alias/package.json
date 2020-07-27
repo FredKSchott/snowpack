@@ -7,11 +7,9 @@
     "testinstall": "snowpack"
   },
   "snowpack": {
-    "installOptions": {
-      "alias": {
-        "react": "preact/compat",
-        "react-dom": "preact/compat"
-      }
+    "alias": {
+      "react": "preact/compat",
+      "react-dom": "preact/compat"
     },
     "install": [
       "react",
