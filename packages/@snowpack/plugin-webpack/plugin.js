@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const fs = require("fs");
 const glob = require("glob");
 const path = require("path");
@@ -10,8 +11,8 @@ const CopyPlugin = require("copy-webpack-plugin");
 const { JSDOM } = jsdom;
 const cwd = process.cwd();
 
-function insertAfter(newNode, existingNode) {
-  existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
+function insertBefore(newNode, existingNode) {
+  existingNode.parentNode.insertBefore(newNode, existingNode);
 }
 
 function parseHTMLFiles({ srcDirectory }) {
@@ -67,7 +68,8 @@ function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, destDirectory }) {
         for (const jsFile of jsFiles) {
           const scriptEl = dom.window.document.createElement("script");
           scriptEl.src = path.posix.join(baseUrl, jsFile);
-          insertAfter(scriptEl, originalScriptEl);
+          // insert _before_ so the relative order of these scripts is maintained
+          insertBefore(scriptEl, originalScriptEl);
         }
         for (const cssFile of cssFiles) {
           const linkEl = dom.window.document.createElement("link");
@@ -84,6 +86,55 @@ function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, destDirectory }) {
   for (const [htmlFile, dom] of Object.entries(doms)) {
     fs.writeFileSync(path.join(destDirectory, htmlFile), dom.serialize());
   }
+}
+
+function getSplitChunksConfig({ numEntries }) {
+  return {
+    chunks: "all",
+    maxInitialRequests: 25,
+    minSize: 20000,
+    cacheGroups: {
+      default: false,
+      vendors: false,
+      // NPM libraries larger than 150KB are pulled into their own chunk
+      lib: {
+        test(module) {
+          return (
+            module.size() > 150000 &&
+            /node_modules[/\\]/.test(module.identifier())
+          );
+        },
+        name(module) {
+          const hash = crypto.createHash(`sha1`);
+          hash.update(module.libIdent({ context: "dir" }));
+          return "lib-" + hash.digest(`hex`).substring(0, 8);
+        },
+        priority: 30,
+        minChunks: 1,
+        reuseExistingChunk: true,
+      },
+      // modules used by all entrypoints end up in commons
+      commons: {
+        name: "commons",
+        minChunks: numEntries,
+        priority: 20,
+      },
+      // modules used by multiple chunks can be pulled into shared chunks
+      shared: {
+        name(module, chunks) {
+          const hash = crypto
+            .createHash(`sha1`)
+            .update(chunks.reduce((acc, chunk) => acc + chunk.name, ``))
+            .digest(`hex`);
+
+          return hash;
+        },
+        priority: 10,
+        minChunks: 2,
+        reuseExistingChunk: true,
+      },
+    },
+  };
 }
 
 module.exports = function plugin(config, args) {
@@ -203,6 +254,11 @@ module.exports = function plugin(config, args) {
         mode: "production",
         devtool: args.sourceMap ? "source-map" : undefined,
         optimization: {
+          // extract webpack runtime to its own chunk: https://webpack.js.org/concepts/manifest/#runtime
+          runtimeChunk: {
+            name: `webpack-runtime`,
+          },
+          splitChunks: getSplitChunksConfig({ numEntries: jsEntries.length }),
           minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
         },
         plugins: [
