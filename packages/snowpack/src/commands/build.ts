@@ -7,7 +7,7 @@ import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import rimraf from 'rimraf';
-import {removeLeadingSlash, SnowpackSourceFile, removeTrailingSlash} from '../config';
+import {removeLeadingSlash, SnowpackSourceFile} from '../config';
 import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
@@ -245,7 +245,7 @@ export async function command(commandOptions: CommandOptions) {
       if (isProxyImport) {
         if (isAbsoluteUrlPath) {
           allImportProxyFiles.add(
-            path.resolve(cwd, config.devOptions.out, removeLeadingSlash(resolvedImportUrl)),
+            path.resolve(buildDirectoryLoc, removeLeadingSlash(resolvedImportUrl)),
           );
         } else {
           allImportProxyFiles.add(path.resolve(path.dirname(outLoc), resolvedImportUrl));
@@ -254,7 +254,10 @@ export async function command(commandOptions: CommandOptions) {
 
       // When dealing with an absolute import path, we need to honor the baseUrl
       if (isAbsoluteUrlPath) {
-        return removeTrailingSlash(config.buildOptions.baseUrl) + resolvedImportUrl;
+        return path.posix.relative(
+          path.dirname(outLoc),
+          path.resolve(buildDirectoryLoc, removeLeadingSlash(resolvedImportUrl)),
+        );
       }
 
       return resolvedImportUrl;

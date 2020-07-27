@@ -1,2 +1,2 @@
-import {flatten} from "https://example.com/foo/TEST_WMU/array-flatten.js";
+import {flatten} from "../TEST_WMU/array-flatten.js";
 console.log(flatten);

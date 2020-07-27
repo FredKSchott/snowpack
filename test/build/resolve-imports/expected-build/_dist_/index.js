@@ -1,6 +1,6 @@
 // Path aliases
-import {flatten} from 'https://example.com/foo/TEST_WMU/array-flatten.js';
-import * as aliasedDep from 'https://example.com/foo/TEST_WMU/array-flatten.js';
+import {flatten} from '../TEST_WMU/array-flatten.js';
+import * as aliasedDep from '../TEST_WMU/array-flatten.js';
 console.log(flatten, aliasedDep);
 
 // Importing a file

@@ -232,6 +232,10 @@ const configSchema = {
         treeshake: {type: 'boolean'},
         installTypes: {type: 'boolean'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
+        alias: {
+          type: 'object',
+          additionalProperties: {type: 'string'},
+        },
         env: {
           type: 'object',
           additionalProperties: {
@@ -763,6 +767,11 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   if (rawConfig.installOptions?.strict || cliFlags.strict) {
     handleDeprecatedConfigError(
       '[Snowpack v1 -> v2] `installOptions.strict` is no longer supported.',
+    );
+  }
+  if (rawConfig.installOptions?.alias) {
+    handleDeprecatedConfigError(
+      '[New in v2.7] `installOptions.alias` has been moved to a top-level `alias` config. (https://snowpack.dev#all-config-options)',
     );
   }
 }
