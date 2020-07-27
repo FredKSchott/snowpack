@@ -1,0 +1,27 @@
+{
+  "name": "@snowpack/app-template-11ty",
+  "version": "1.6.0",
+  "license": "MIT",
+  "keywords": [
+    "csa-template"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "start": "snowpack dev",
+    "build": "snowpack build",
+    "format": "prettier --write \"src/**/*.js\"",
+    "lint": "prettier --check \"src/**/*.js\"",
+    "test": "echo \"This template does not include a test runner by default.\" && exit 1"
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.2.0"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^0.10.0",
+    "prettier": "^2.0.5",
+    "snowpack": "^2.6.4"
+  },
+  "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
+}

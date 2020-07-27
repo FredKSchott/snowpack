@@ -1,0 +1,15 @@
+{
+  "include": ["src", "types"],
+  "exclude": ["node_modules"],
+  "extends": "@snowpack/app-scripts-react/tsconfig.base.json",
+  "compilerOptions": {
+    // You can't currently define paths in your 'extends' config,
+    // so we have to set 'baseUrl' & 'paths' here.
+    // Don't change these unless you know what you're doing.
+    // See: https://github.com/microsoft/TypeScript/issues/25430
+    "baseUrl": "./",
+    "paths": { "*": ["web_modules/.types/*"] }
+    // Feel free to add/edit new config options below:
+    // ...
+  }
+}

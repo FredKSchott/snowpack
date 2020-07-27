@@ -1,0 +1,28 @@
+{
+  "name": "@snowpack/app-template-lit-element",
+  "version": "1.6.0-alpha.0",
+  "license": "MIT",
+  "keywords": [
+    "csa-template"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "start": "snowpack dev",
+    "build": "snowpack build",
+    "format": "prettier --write \"src/**/*.js\"",
+    "lint": "prettier --check \"src/**/*.js\"",
+    "test": "echo \"This template does not include a test runner by default.\" && exit 1"
+  },
+  "dependencies": {
+    "lit-element": "^2.3.1",
+    "lit-html": "^1.2.1"
+  },
+  "devDependencies": {
+    "@snowpack/app-scripts-lit-element": "^1.6.0-alpha.0",
+    "prettier": "^2.0.5",
+    "snowpack": "^2.6.4"
+  },
+  "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
+}

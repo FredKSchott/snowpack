@@ -1,0 +1,24 @@
+{
+  "name": "@snowpack/app-scripts-svelte",
+  "version": "1.7.0",
+  "main": "snowpack.config.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "svelte": "^3.21.0"
+  },
+  "devDependencies": {
+    "svelte": "^3.21.0"
+  },
+  "dependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "@snowpack/plugin-dotenv": "^1.6.0-alpha.0",
+    "@snowpack/plugin-svelte": "^1.2.0",
+    "babel-jest": "^25.4.0",
+    "jest-transform-svelte": "^2.1.1"
+  },
+  "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
+}

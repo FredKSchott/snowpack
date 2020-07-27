@@ -1,0 +1,23 @@
+{
+  "name": "@snowpack/plugin-webpack",
+  "version": "1.6.0-alpha.0",
+  "main": "plugin.js",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@open-wc/webpack-import-meta-loader": "^0.4.6",
+    "babel-loader": "^8.1.0",
+    "copy-webpack-plugin": "^6.0.1",
+    "core-js": "^3.5.0",
+    "css-loader": "^3.5.3",
+    "file-loader": "^6.0.0",
+    "glob": "^7.1.6",
+    "jsdom": "^16.2.2",
+    "mini-css-extract-plugin": "^0.9.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "terser-webpack-plugin": "^3.0.1",
+    "webpack": "^4.43.0"
+  }
+}

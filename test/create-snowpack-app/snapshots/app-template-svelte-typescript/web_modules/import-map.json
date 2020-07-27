@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "svelte/internal": "./svelte/internal.js"
+  }
+}

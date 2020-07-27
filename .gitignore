@@ -1,10 +1,13 @@
 .DS_Store
+.build
 .idea
 .vercel
 docs/_site
 docs/index.md
 node_modules
 package-lock.json
+packages/**/build
 test/build/**/build
 test/integration/**/web_modules
+test/create-snowpack-app/test-install
 yarn-error.log

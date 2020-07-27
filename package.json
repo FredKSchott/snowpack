@@ -6,11 +6,12 @@
     "publish": "lerna publish",
     "format": "prettier --write \"packages/*/src/**/*.ts\"",
     "test:build": "lerna run testbuild",
-    "test:all": "jest --test-timeout=15000",
+    "test:all": "jest --test-timeout=30000",
     "test": "yarn test:build && yarn test:all"
   },
   "workspaces": [
     "packages/*",
+    "packages/@snowpack/*",
     "test/build/*",
     "test/integration/*"
   ],
