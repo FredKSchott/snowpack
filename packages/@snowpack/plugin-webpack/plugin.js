@@ -89,6 +89,9 @@ function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, destDirectory }) {
 }
 
 function getSplitChunksConfig({ numEntries }) {
+  /**
+   * Implements a version of granular chunking, as described at https://web.dev/granular-chunking-nextjs/.
+   */
   return {
     chunks: "all",
     maxInitialRequests: 25,
