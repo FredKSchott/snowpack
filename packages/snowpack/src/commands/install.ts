@@ -142,6 +142,8 @@ function getRollupReplaceKeys(env: EnvVarReplacements): Record<string, string> {
       'process.versions.node': 'undefined',
       'process.platform': JSON.stringify('browser'),
       'process.env.': '({}).',
+      'typeof process.versions.node': JSON.stringify('undefined'),
+      'typeof process.versions': JSON.stringify('undefined'),
       'typeof process': JSON.stringify('undefined'),
     },
   );
