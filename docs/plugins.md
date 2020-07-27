@@ -27,7 +27,7 @@ Snowpack runs each file through the build pipeline in two separate steps:
 1. **Load:** Snowpack finds the first plugin that claims to `resolve` the given file. It then calls that plugin's `load()` method to load the file into your application. This is where compiled languages (TypeScript, Sass, JSX, etc.) are loaded and compiled to something that can run on the web (JS, CSS, etc).
 2. **Transform:** Once loaded, every file passes through the build pipeline again to run through matching `transform()` methods. Plugins can transform a file to modify or augment its contents before finishing the file build.
 
-### Command Line Plugins
+### Dev Tooling Plugins
 
 Snowpack plugins support a `run()` method which lets you run any CLI tool and connect its output into Snowpack. You can use this to run your favorite dev tools (linters, TypeScript, etc.) with Snowpack and automatically report their output back through the Snowpack developer console. If the command fails, you can optionally fail your production build.
 
@@ -95,7 +95,34 @@ This simple plugin takes all JavaScript files and prepends a simple comment (`/*
 
 This covers the basics of single-file transformations. In our next example, we’ll show how to compile a source file and change the file extension in the process.
 
-### File Loading & Building
+### Build From Source
+
+For a more complicated example, we’ll take one input file (`.svelte`) and use it to generate 2 output files (`.js` and `.css`).
+
+```js
+const babel = require("@babel/core");
+
+module.exports = (snowpackConfig, pluginOptions) => ({
+  name: 'my-babel-plugin',
+  resolve: {
+    input: ['.js', '.jsx', '.ts', '.tsx'],
+    output: ['.js'],
+  },
+  async load({ filePath }) {
+    const result = await babel.transformFileAsync(filePath);
+    return result.code;
+  }
+})
+```
+
+This is a simplified version of the official Snowpack Babel plugin.
+
+In this example, we have a plugin that uses Babel to load & build all JavaScript, TypeScript, and JSX files in your application. JavaScript, the single `resolve.output` format, is returned in the final build.
+
+To see this in action, let's say that we have a source file at `src/components/App.jsx`. Because the `.jsx` file extension is in our plugin `resolve.input` array, Snowpack knows that this plugin is responsible for loading this file type. `load()` executes, the JSX is built with Babel, and JavaScript is returned by the function and sent through to the final build.
+
+
+### Multi-File Building
 
 For a more complicated example, we’ll take one input file (`.svelte`) and use it to generate 2 output files (`.js` and `.css`).
 
@@ -105,7 +132,6 @@ const svelte = require("svelte/compiler");
 
 module.exports = (snowpackConfig, pluginOptions) => ({
   name: 'my-svelte-plugin',
-  knownEntrypoints: ['svelte/internal'],
   resolve: {
     input: ['.svelte'],
     output: ['.js', '.css'],
@@ -113,7 +139,6 @@ module.exports = (snowpackConfig, pluginOptions) => ({
   async load({ filePath }) {
     const fileContents = await fs.readFile(filePath, 'utf-8');
     const { js, css } = svelte.compile(codeToCompile, { filename: filePath });
-
     return {
       '.js': js && js.code,
       '.css': css && css.code,
@@ -128,11 +153,37 @@ You don’t need to be familiar with Svelte, but in this example just know we wa
 
 To see this in action, let's say that we have a source file at `src/components/App.svelte`. Because the `.svelte` file extension is in our plugin `resolve.input` array, Snowpack knows that this plugin is responsible for loading that file in our build. `load()` will then execute, and Snowpack will take the `.js` and `.css` results from the return object to generate the 2 build results: `src/components/App.js` and `src/components/App.css`. Snowpack will always keep the original file name (`App`) and only ever change the extension in the build. 
 
-Your plugin only ever needs to load & build individual source files. Hopefully, this makes plugins easier to write, maintain, and chain together in your build.
-
 Also notice that `.svelte` is missing from `output`. That tells Snowpack the original `.svelte` file isn’t needed in the final build once it's been compiled to JS & CSS. If we wanted to keep the original source file in the final build, we could simply add `{ '.svelte': contents }` to the return object.
 
-⚠️ _Note: if your plugin returns different `input`s and `output`s, make sure you’re not deleting files that other plugins may need! Likewise, make sure you’re outputting necessary files for the final build._
+⚠️ _Note: if your plugin returns different `input`s and `output`s, make sure you’re outputting only the files that should exist in the final build! Anything not included in the return result will be excluded from the final build._
+
+
+### Import Proxying
+
+Snowpack supports importing several non-JS file types by default (`.json`, `.css`, and `.module.css` for CSS Modules). You can customize this default behavior or add support for new file types via **import proxying**. An import proxy is the JS representation of a non-JS file. When you import a non-JS file into your JavaScript application, an import proxy is created to represent that file as JavaScript.
+
+Here is an example of how you could customize Snowpack's default CSS import proxy:
+
+```js
+module.exports = (snowpackConfig, pluginOptions) => ({
+  name: 'my-custom-css-import-proxy-plugin',
+  async proxy({ fileUrl, contents }) {
+    if (fileUrl.endsWith('.css')) {
+      // NOTE: JSON.stringify() safely encodes the string for the code.
+      return `export default ${JSON.stringify(contents)};`;
+    }
+  }
+})
+```
+
+By default, Snowpack will load and apply CSS styling to the page when you import a CSS file in your application. However, this plugin changes that behavior so that it only exports the file contents back as the default export. Below is an example of how this changes your application:
+
+```js
+// Default behavior: style loaded and applied to page automatically
+import './styles.css';
+// 'my-custom-css-import-proxy-plugin' behavior: styles not applied, just returned as a string
+import cssFileContents from './styles.css'; 
+```
 
 ### Tips / Gotchas
 
