@@ -14,6 +14,78 @@ function insertAfter(newNode, existingNode) {
   existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
 }
 
+function parseHTMLFiles({ srcDirectory }) {
+  // Get all html files from the output folder
+  const pattern = srcDirectory + "/**/*.html";
+  const htmlFiles = glob
+    .sync(pattern)
+    .map((htmlPath) => path.relative(srcDirectory, htmlPath));
+
+  const doms = {};
+  const jsEntries = {};
+  for (const htmlFile of htmlFiles) {
+    const dom = new JSDOM(fs.readFileSync(path.join(srcDirectory, htmlFile)));
+
+    //Find all local script, use it as the entrypoint
+    const scripts = Array.from(dom.window.document.querySelectorAll("script"))
+      .filter((el) => el.type.trim().toLowerCase() === "module")
+      .filter((el) => !/^[a-zA-Z]+:\/\//.test(el.src));
+
+    for (const el of scripts) {
+      const src = el.src.trim();
+      const parsedPath = path.parse(src);
+      const name = parsedPath.name;
+      if (!(name in jsEntries)) {
+        jsEntries[name] = {
+          path: path.join(srcDirectory, src),
+          occurrences: [],
+        };
+      }
+      jsEntries[name].occurrences.push({ script: el, dom });
+    }
+
+    doms[htmlFile] = dom;
+  }
+  return { doms, jsEntries };
+}
+
+function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, destDirectory }) {
+  const entrypoints = stats.toJson({ assets: false, hash: true }).entrypoints;
+
+  //Now that webpack is done, modify the html files to point to the newly compiled resources
+  Object.keys(jsEntries).forEach((name) => {
+    if (entrypoints[name] !== undefined && entrypoints[name]) {
+      const assetFiles = entrypoints[name].assets || [];
+      const jsFiles = assetFiles.filter((d) => d.endsWith(".js"));
+      const cssFiles = assetFiles.filter((d) => d.endsWith(".css"));
+
+      for (const occurrence of jsEntries[name].occurrences) {
+        const originalScriptEl = occurrence.script;
+        const dom = occurrence.dom;
+        const head = dom.window.document.querySelector("head");
+
+        for (const jsFile of jsFiles) {
+          const scriptEl = dom.window.document.createElement("script");
+          scriptEl.src = path.posix.join(baseUrl, jsFile);
+          insertAfter(scriptEl, originalScriptEl);
+        }
+        for (const cssFile of cssFiles) {
+          const linkEl = dom.window.document.createElement("link");
+          linkEl.setAttribute("rel", "stylesheet");
+          linkEl.href = path.posix.join(baseUrl, cssFile);
+          head.append(linkEl);
+        }
+        originalScriptEl.remove();
+      }
+    }
+  });
+
+  //And write our modified html files out to the destination
+  for (const [htmlFile, dom] of Object.entries(doms)) {
+    fs.writeFileSync(path.join(destDirectory, htmlFile), dom.serialize());
+  }
+}
+
 module.exports = function plugin(config, args) {
   // Deprecated: args.mode
   if (args.mode && args.mode !== "production") {
@@ -55,37 +127,9 @@ module.exports = function plugin(config, args) {
         extendConfig = (cfg) => ({ ...cfg, ...args.extendConfig });
       }
 
-      // Get all html files from the output folder
-      const pattern = srcDirectory + "/**/*.html";
-      const htmlFiles = glob.sync(pattern)
-          .map(htmlPath => path.relative(srcDirectory, htmlPath));
+      const { doms, jsEntries } = parseHTMLFiles({ srcDirectory });
 
-      const doms = {};
-      const entries = {};
-      for (const htmlFile of htmlFiles) {
-          const dom = new JSDOM(
-            fs.readFileSync(path.join(srcDirectory, htmlFile))
-          );
-
-          //Find all local script, use it as the entrypoint
-          const scripts = Array.from(dom.window.document.querySelectorAll("script"))
-            .filter((el) => el.type.trim().toLowerCase() === "module")
-            .filter((el) => !/^[a-zA-Z]+:\/\//.test(el.src));
-
-          for (const el of scripts) {
-            const src = el.src.trim();
-            const parsedPath = path.parse(src);
-            const name = parsedPath.name;
-            if (!(name in entries)) {
-                entries[name] = { path: path.join(srcDirectory, src), occurrences: [] };
-            }
-            entries[name].occurrences.push({ script: el, dom });
-          }
-
-          doms[htmlFile] = dom;
-      }
-
-      if (Object.keys(entries).length === 0) {
+      if (Object.keys(jsEntries).length === 0) {
         throw new Error("Can't bundle without script tag in html");
       }
 
@@ -186,8 +230,8 @@ module.exports = function plugin(config, args) {
         ],
       };
       let entry = {};
-      for (name in entries) {
-        entry[name] = entries[name].path;
+      for (name in jsEntries) {
+        entry[name] = jsEntries[name].path;
       }
       const extendedConfig = extendConfig({
         ...webpackConfig,
@@ -219,54 +263,17 @@ module.exports = function plugin(config, args) {
         console.log(
           stats.toString(
             extendedConfig.stats
-            ? extendedConfig.stats
-            : {
-              colors: true,
-              all: false,
-              assets: true,
-            }
+              ? extendedConfig.stats
+              : {
+                  colors: true,
+                  all: false,
+                  assets: true,
+                }
           )
         );
       }
 
-      const entrypoints = stats.toJson({ assets: false, hash: true })
-        .entrypoints;
-
-      //Now that webpack is done, modify the html files to point to the newly compiled resources
-      Object.keys(entries).forEach((name) => {
-        if (entrypoints[name] !== undefined && entrypoints[name]) {
-          const assetFiles = entrypoints[name].assets || [];
-          const jsFiles = assetFiles.filter((d) => d.endsWith(".js"));
-          const cssFiles = assetFiles.filter((d) => d.endsWith(".css"));
-
-          for (const occurrence of entries[name].occurrences) {
-            const originalScriptEl = occurrence.script;
-            const dom = occurrence.dom;
-            const head = dom.window.document.querySelector("head");
-
-            for (const jsFile of jsFiles) {
-              const scriptEl = dom.window.document.createElement("script");
-              scriptEl.src = path.posix.join(baseUrl, jsFile);
-              insertAfter(scriptEl, originalScriptEl);
-            }
-            for (const cssFile of cssFiles) {
-              const linkEl = dom.window.document.createElement("link");
-              linkEl.setAttribute("rel", "stylesheet");
-              linkEl.href = path.posix.join(baseUrl, cssFile);
-              head.append(linkEl);
-            }
-            originalScriptEl.remove();
-          }
-        }
-      });
-
-      //And write our modified html files out to the destination
-      for (const [htmlFile, dom] of Object.entries(doms)) {
-          fs.writeFileSync(
-            path.join(destDirectory, htmlFile),
-            dom.serialize()
-          );
-      }
+      emitHTMLFiles({ doms, jsEntries, stats, baseUrl, destDirectory });
     },
   };
 };
