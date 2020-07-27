@@ -43,7 +43,7 @@ This has several advantages over the traditional bundled dev approach:
 - O(1) builds are faster.
 - O(1) builds are predictable.
 - O(1) builds are easy to reason about & configure.
-- Project size doesn't effect build time during development.
+- Project size doesn't affect build time during development.
 - Individual files cache better.
 
 That last point is key: every built file is cached individually and reused indefinitely. **If you never change a file, you will never need to re-build it again.**
