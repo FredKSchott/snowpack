@@ -15,8 +15,8 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: "12.x" 
-      - name: npm install
-        run: npm ci --no-optional
+      - name: yarn install
+        run: yarn
         env:
           CI: true
       - name: yarn format
