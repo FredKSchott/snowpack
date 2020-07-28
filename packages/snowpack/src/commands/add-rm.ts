@@ -1,7 +1,7 @@
 import {promises as fs} from 'fs';
 import got from 'got';
 import path from 'path';
-import {CommandOptions} from '../util';
+import {CommandOptions} from '../types/snowpack';
 import {command as installCommand} from './install';
 
 export async function addCommand(addValue: string, commandOptions: CommandOptions) {

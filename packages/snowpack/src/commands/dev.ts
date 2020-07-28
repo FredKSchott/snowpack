@@ -54,21 +54,19 @@ import {
 import {buildFile as _buildFile, getInputsFromOutput} from '../build/build-pipeline';
 import {createImportResolver} from '../build/import-resolver';
 import srcFileExtensionMapping from '../build/src-file-extension-mapping';
-import {SnowpackBuildMap, SnowpackConfig} from '../config';
 import {EsmHmrEngine} from '../hmr-server-engine';
 import {
   scanCodeImportsExports,
   transformEsmImports,
   transformFileImports,
 } from '../rewrite-imports';
+import {CommandOptions, ImportMap, SnowpackBuildMap, SnowpackConfig} from '../types/snowpack';
 import {
   BUILD_CACHE,
   checkLockfileHash,
-  CommandOptions,
   DEV_DEPENDENCIES_DIR,
   getEncodingType,
   getExt,
-  ImportMap,
   isYarn,
   openInBrowser,
   parsePackageImportSpecifier,

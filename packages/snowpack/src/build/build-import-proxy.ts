@@ -1,6 +1,6 @@
 import type CSSModuleLoader from 'css-modules-loader-core';
 import path from 'path';
-import {SnowpackConfig} from '../config';
+import {SnowpackConfig} from '../types/snowpack';
 import {getExt, URL_HAS_PROTOCOL_REGEX} from '../util';
 
 export function getMetaUrlPath(urlPath: string, isDev: boolean, config: SnowpackConfig): string {

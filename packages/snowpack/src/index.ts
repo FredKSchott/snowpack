@@ -5,11 +5,13 @@ import {addCommand, rmCommand} from './commands/add-rm';
 import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {command as installCommand} from './commands/install';
-import {CLIFlags, loadAndValidateConfig, SnowpackConfig, SnowpackPlugin} from './config.js';
+import {loadAndValidateConfig} from './config.js';
+import {CLIFlags} from './types/snowpack';
 import {clearCache, readLockfile} from './util.js';
 
 export {install as unstable_installCommand} from './commands/install';
 export {createConfiguration} from './config.js';
+export * from './types/snowpack';
 
 const cwd = process.cwd();
 
@@ -110,9 +112,3 @@ export async function cli(args: string[]) {
   console.log(`Unrecognized command: ${cmd}`);
   process.exit(1);
 }
-
-/** Snowpack Build Plugin type */
-export type SnowpackPluginFactory<PluginOptions = object> = (
-  snowpackConfig: SnowpackConfig,
-  pluginOptions?: PluginOptions,
-) => SnowpackPlugin;
