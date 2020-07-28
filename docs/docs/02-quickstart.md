@@ -14,7 +14,7 @@ Snowpack can also be installed globally via `npm install -g snowpack`. But, we r
 
 ### Create Snowpack App (CSA)
 
-The easiest way to get started with Snowpack is via [Create Snowpack App (CSA)](https://github.com/pikapkg/create-snowpack-app). CSA automatically initializes a starter application for you with a pre-configured, Snowpack-powered dev environment.
+The easiest way to get started with Snowpack is via [Create Snowpack App (CSA)](https://github.com/pikapkg/snowpack/tree/master/packages/create-snowpack-app). CSA automatically initializes a starter application for you with a pre-configured, Snowpack-powered dev environment.
 
 If you've ever used Create React App, this is a lot like that!
 
