@@ -433,7 +433,7 @@ export async function command(commandOptions: CommandOptions) {
 
     let requestedFileExt = path.parse(reqPath).ext.toLowerCase();
     let responseFileExt = requestedFileExt;
-    let isRoute = !requestedFileExt;
+    let isRoute = !requestedFileExt || requestedFileExt === '.html';
 
     // Now that we've set isRoute properly, give `requestedFileExt` a fallback
     requestedFileExt = requestedFileExt || '.html';
