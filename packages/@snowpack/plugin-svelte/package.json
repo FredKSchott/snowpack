@@ -9,5 +9,8 @@
   "peerDependencies": {
     "svelte": "^3.21.0"
   },
-  "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
+  "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17",
+  "dependencies": {
+    "rollup-plugin-svelte": "^5.2.3"
+  }
 }
