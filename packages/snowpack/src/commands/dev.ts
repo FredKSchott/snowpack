@@ -87,7 +87,7 @@ const DEFAULT_PROXY_ERROR_HANDLER = (
 ) => {
   const reqUrl = req.url!;
   console.error(`✘ ${reqUrl}\n${err.message}`);
-  sendError(res, 502);
+  sendError(req, res, 502);
 };
 
 function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
@@ -149,8 +149,14 @@ const sendFile = (
   res.end();
 };
 
-const sendError = (res, status) => {
-  res.writeHead(status);
+const sendError = (req: http.IncomingMessage, res: http.ServerResponse, status: number) => {
+  const contentType = mime.contentType(path.extname(req.url!) || '.html');
+  const headers: Record<string, string> = {
+    'Content-Type': contentType || 'application/octet-stream',
+    'Access-Control-Allow-Origin': '*',
+    Vary: 'Accept-Encoding',
+  };
+  res.writeHead(status, headers);
   res.end();
 };
 
@@ -485,7 +491,7 @@ export async function command(commandOptions: CommandOptions) {
     if (!fileLoc) {
       const prefix = colors.red('  ✘ ');
       console.error(`[404] ${reqUrl}\n${attemptedFileLoads.map((loc) => prefix + loc).join('\n')}`);
-      return sendError(res, 404);
+      return sendError(req, res, 404);
     }
 
     /**
@@ -653,7 +659,7 @@ export async function command(commandOptions: CommandOptions) {
     if (hotCachedResponse) {
       const responseContent = await finalizeResponse(fileLoc, requestedFileExt, hotCachedResponse);
       if (!responseContent) {
-        sendError(res, 404);
+        sendError(req, res, 404);
         return;
       }
       sendFile(req, res, responseContent, responseFileExt);
@@ -688,7 +694,7 @@ export async function command(commandOptions: CommandOptions) {
           coldCachedResponse,
         );
         if (!wrappedResponse) {
-          sendError(res, 404);
+          sendError(req, res, 404);
           return;
         }
         sendFile(req, res, wrappedResponse, responseFileExt);
@@ -718,18 +724,18 @@ export async function command(commandOptions: CommandOptions) {
     try {
       responseOutput = await buildFile(fileLoc);
     } catch (err) {
-      sendError(res, 500);
+      sendError(req, res, 500);
       return;
     }
     try {
       responseContent = await finalizeResponse(fileLoc, requestedFileExt, responseOutput);
     } catch (err) {
       console.error(reqPath, err);
-      sendError(res, 500);
+      sendError(req, res, 500);
       return;
     }
     if (!responseContent) {
-      sendError(res, 404);
+      sendError(req, res, 404);
       return;
     }
 
@@ -763,7 +769,7 @@ export async function command(commandOptions: CommandOptions) {
     } catch (err) {
       console.error(`[500] ${req.url}`);
       console.error(err);
-      return sendError(res, 500);
+      return sendError(req, res, 500);
     }
   })
     .on('error', (err: Error) => {
