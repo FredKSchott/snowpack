@@ -1,7 +1,7 @@
 import {EventEmitter} from 'events';
 import {promises as fs} from 'fs';
 import path from 'path';
-import {SnowpackBuildMap, SnowpackPlugin} from '../config';
+import {SnowpackBuildMap, SnowpackPlugin} from '../types/snowpack';
 import {getEncodingType, getExt} from '../util';
 
 export interface BuildFileOptions {

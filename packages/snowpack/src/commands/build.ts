@@ -17,11 +17,12 @@ import {
 import {buildFile, runPipelineOptimizeStep} from '../build/build-pipeline';
 import {createImportResolver} from '../build/import-resolver';
 import srcFileExtensionMapping from '../build/src-file-extension-mapping';
-import {removeLeadingSlash, SnowpackSourceFile} from '../config';
+import {removeLeadingSlash} from '../config';
 import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
-import {CommandOptions, getEncodingType, getExt, replaceExt} from '../util';
+import {CommandOptions, SnowpackSourceFile} from '../types/snowpack';
+import {getEncodingType, getExt, replaceExt} from '../util';
 import {getInstallTargets, run as installRunner} from './install';
 import {paint} from './paint';
 

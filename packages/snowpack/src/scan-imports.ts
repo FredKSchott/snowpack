@@ -6,7 +6,7 @@ import mime from 'mime-types';
 import nodePath from 'path';
 import stripComments from 'strip-comments';
 import validatePackageName from 'validate-npm-package-name';
-import {SnowpackConfig, SnowpackSourceFile} from './config';
+import {InstallTarget, SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
 import {findMatchingAliasEntry, getExt, HTML_JS_REGEX, isTruthy} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
@@ -21,20 +21,6 @@ const ESM_DYNAMIC_IMPORT_REGEX = /import\((?:['"].+['"]|`[^$]+`)\)/gm;
 const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
 const STRIP_AS = /\s+as\s+.*/; // for `import { foo as bar }`, strips “as bar”
 const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s]*\})?\s+from/s;
-
-/**
- * An install target represents information about a dependency to install.
- * The specifier is the key pointing to the dependency, either as a package
- * name or as an actual file path within node_modules. All other properties
- * are metadata about what is actually being imported.
- */
-export type InstallTarget = {
-  specifier: string;
-  all: boolean;
-  default: boolean;
-  namespace: boolean;
-  named: string[];
-};
 
 function stripJsExtension(dep: string): string {
   return dep.replace(/\.m?js$/i, '');

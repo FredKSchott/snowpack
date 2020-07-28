@@ -1,4 +1,4 @@
-import {SnowpackSourceFile} from './config';
+import {SnowpackSourceFile} from './types/snowpack';
 import {HTML_JS_REGEX} from './util';
 
 const {parse} = require('es-module-lexer');

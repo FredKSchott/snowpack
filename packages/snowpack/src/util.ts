@@ -10,7 +10,7 @@ import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
-import {SnowpackConfig} from './config';
+import {ImportMap, SnowpackConfig} from './types/snowpack';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
@@ -31,17 +31,6 @@ export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
 // NOTE(fks): Must match empty script elements to work properly.
 export const HTML_JS_REGEX = /(<script.*?type="?module"?.*?>)(.*?)<\/script>/gms;
 export const URL_HAS_PROTOCOL_REGEX = /^(\w+:)?\/\//;
-
-export interface ImportMap {
-  imports: {[packageName: string]: string};
-}
-
-export interface CommandOptions {
-  cwd: string;
-  config: SnowpackConfig;
-  lockfile: ImportMap | null;
-  pkgManifest: any;
-}
 
 export function isYarn(cwd: string) {
   return fs.existsSync(path.join(cwd, 'yarn.lock'));

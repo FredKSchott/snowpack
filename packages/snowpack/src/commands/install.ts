@@ -13,22 +13,25 @@ import path from 'path';
 import rimraf from 'rimraf';
 import {InputOptions, OutputOptions, rollup, RollupError} from 'rollup';
 import validatePackageName from 'validate-npm-package-name';
-import {EnvVarReplacements, SnowpackConfig, SnowpackSourceFile} from '../config.js';
 import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
 import {rollupPluginCatchUnresolved} from '../rollup-plugins/rollup-plugin-catch-unresolved.js';
 import {rollupPluginCatchFetch} from '../rollup-plugins/rollup-plugin-catch-fetch';
 import {rollupPluginCss} from '../rollup-plugins/rollup-plugin-css';
 import {rollupPluginDependencyCache} from '../rollup-plugins/rollup-plugin-remote-cdn.js';
-import {
-  DependencyStatsOutput,
-  rollupPluginDependencyStats,
-} from '../rollup-plugins/rollup-plugin-stats.js';
+import {rollupPluginDependencyStats} from '../rollup-plugins/rollup-plugin-stats.js';
 import {rollupPluginWrapInstallTargets} from '../rollup-plugins/rollup-plugin-wrap-install-targets';
-import {InstallTarget, scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
+import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
 import {printStats} from '../stats-formatter.js';
 import {
   CommandOptions,
+  DependencyStatsOutput,
+  EnvVarReplacements,
   ImportMap,
+  InstallTarget,
+  SnowpackConfig,
+  SnowpackSourceFile,
+} from '../types/snowpack';
+import {
   isTruthy,
   MISSING_PLUGIN_SUGGESTIONS,
   parsePackageImportSpecifier,
