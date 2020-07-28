@@ -86,6 +86,17 @@ export interface SnowpackPlugin {
   knownEntrypoints?: string[];
 }
 
+export interface LegacySnowpackPlugin {
+  defaultBuildScript: string;
+  build?(options: LoadOptions & {contents: string}): Promise<any>;
+  bundle?(options: {
+    srcDirectory: string;
+    destDirectory: string;
+    log: (string, any) => void;
+    jsFilePaths: string[];
+  }): Promise<any>;
+}
+
 /** Snowpack Build Plugin type */
 export type SnowpackPluginFactory<PluginOptions = object> = (
   snowpackConfig: SnowpackConfig,

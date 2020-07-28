@@ -1,11 +1,14 @@
 {
-  "scripts": {
-    "mount:public": "mount public --to /",
-    "mount:src": "mount src --to /_dist_",
-    "run:tsc": "tsc --noEmit",
-    "run:tsc::watch": "$1 --watch"
+  "mount": {
+    "public": "/",
+    "src": "/_dist_"
   },
-  "plugins": [],
+  "plugins": [
+    [
+      "@snowpack/plugin-run-script",
+      { "cmd": "tsc --noEmit", "watch": "$1 --watch" }
+    ]
+  ],
   "installOptions": {
     "installTypes": true
   }

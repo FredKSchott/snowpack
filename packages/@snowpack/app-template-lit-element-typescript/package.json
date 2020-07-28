@@ -20,6 +20,8 @@
     "lit-html": "^1.2.1"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-proposal-decorators": "^7.10.5",
     "@snowpack/app-scripts-lit-element": "^1.6.0-alpha.0",
     "prettier": "^2.0.5",
     "snowpack": "*",

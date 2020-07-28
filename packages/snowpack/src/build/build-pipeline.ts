@@ -54,8 +54,8 @@ async function runPipelineLoadStep(
         });
       },
     });
-    const mainOutputExt = step.resolve.output[0];
     if (typeof result === 'string') {
+      const mainOutputExt = step.resolve.output[0];
       return {[mainOutputExt]: result};
     } else if (result && typeof result === 'object') {
       return result;
@@ -77,7 +77,7 @@ async function runPipelineTransformStep(
   output: Record<string, string>,
   srcPath: string,
   {buildPipeline, messageBus, isDev}: BuildFileOptions,
-) {
+): Promise<Record<string, string>> {
   const srcExt = getExt(srcPath).baseExt;
   const rootFileName = path.basename(srcPath).replace(srcExt, '');
   for (const step of buildPipeline) {

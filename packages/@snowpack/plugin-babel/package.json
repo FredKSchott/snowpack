@@ -7,7 +7,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@babel/core": "^7.9.6"
+    "@babel/core": "^7.10.5"
   },
   "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
 }

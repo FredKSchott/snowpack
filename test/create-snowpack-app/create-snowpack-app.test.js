@@ -42,7 +42,7 @@ describe('create-snowpack-app', () => {
 
   // template snapshots
   templates.forEach((template) => {
-    it(`--template @snowpack/${template}`, async () => {
+    it(template, async () => {
       const cwd = path.join(TEMPLATES_DIR, template);
 
       // 1. build

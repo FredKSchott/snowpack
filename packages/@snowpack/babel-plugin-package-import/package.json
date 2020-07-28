@@ -6,16 +6,12 @@
   "publishConfig": {
     "access": "public"
   },
-  "scripts": {
-    "test": "jest test/babel-plugin/runner.js --testMatch \"**/test/**/*.[jt]s?(x)\""
-  },
   "dependencies": {
     "enhanced-resolve": "^4.1.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.0",
-    "babel-plugin-tester": "^9.0.0",
-    "jest": "^25.1.0"
+    "@babel/core": "^7.10.5",
+    "babel-plugin-tester": "^9.2.0"
   },
   "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
 }

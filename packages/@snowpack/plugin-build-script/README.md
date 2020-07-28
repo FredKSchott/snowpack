@@ -23,16 +23,16 @@ module.exports = {
         input: ['.tsx'], // files to watch
         output: ['.tsx'], // files to export
         cmd: 'babel --filename $FILE', // cmd to run
-      }
-    ]
-  ]
-}
+      },
+    ],
+  ],
+};
 ```
 
 ## Plugin Options
 
-| Name     |     Type    | Description                                                                 |
-|:---------|:-----------:|:----------------------------------------------------------------------------|
-| `input`  |  `string[]` | Array of extensions to watch for.                                           |
-| `output` |  `string[]` | Array of extensions this plugin will output.                                |
-| `cmd`    |  `string`   | Command to run on every file matching `input`. Accepts the `$FILE` env var. |
+| Name     |    Type    | Description                                                                 |
+| :------- | :--------: | :-------------------------------------------------------------------------- |
+| `input`  | `string[]` | Array of extensions to watch for.                                           |
+| `output` | `string[]` | Array of extensions this plugin will output.                                |
+| `cmd`    |  `string`  | Command to run on every file matching `input`. Accepts the `$FILE` env var. |

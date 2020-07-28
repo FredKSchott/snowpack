@@ -1,11 +1,27 @@
-const babel = require("@babel/core");
+const fs = require('fs');
+const babel = require('@babel/core');
 
-module.exports = function plugin(config, options) {
+module.exports = function plugin(_, options) {
+  // options validation
+  if (options) {
+    if (typeof options !== 'object') throw new Error(`options isn’t an object. Please see README.`);
+    if (options.input && !Array.isArray(options.input))
+      throw new Error(
+        `options.input must be an array (e.g. ['.js', '.mjs', '.jsx', '.ts', '.tsx'])`,
+      );
+    if (options.input && !options.input.length)
+      throw new Error(`options.input must specify at least one filetype`);
+  }
+
   return {
-    defaultBuildScript: "build:js,jsx,ts,tsx",
-    async build({ contents, filePath, fileContents }) {
-      const result = await babel.transformAsync(contents || fileContents, {
-        filename: filePath,
+    name: '@snowpack/plugin-babel',
+    resolve: {
+      input: options.input || ['.js', '.mjs', '.jsx', '.ts', '.tsx'],
+      output: ['.js'], // always export JS
+    },
+    async load({filePath}) {
+      if (!filePath) return;
+      const result = await babel.transformFileAsync(filePath, {
         cwd: process.cwd(),
         ast: false,
         compact: false,
@@ -18,7 +34,7 @@ module.exports = function plugin(config, options) {
         // See: https://www.pika.dev/npm/snowpack/discuss/496
         code = code.replace(/process\.env/g, 'import.meta.env');
       }
-      return { result: code };
+      return {'.js': code};
     },
   };
 };

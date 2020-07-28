@@ -19,6 +19,7 @@
     "canvas-confetti": "^1.2.0"
   },
   "devDependencies": {
+    "@snowpack/plugin-run-script": "*",
     "@types/canvas-confetti": "^1.0.0",
     "prettier": "^2.0.5",
     "snowpack": "*",
