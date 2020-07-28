@@ -111,30 +111,20 @@ async function runPipelineTransformStep(
   return output;
 }
 
-export function runPipelineProxyStep(
-  fileUrl: string,
-  contents: string,
-  {buildPipeline, messageBus, isDev}: BuildFileOptions,
+export async function runPipelineOptimizeStep(
+  buildDirectory: string,
+  {buildPipeline, messageBus}: BuildFileOptions,
 ) {
   for (const step of buildPipeline) {
-    if (!step.proxy) {
+    if (!step.optimize) {
       continue;
     }
-    const result = step.proxy({
-      contents,
-      fileUrl,
-      isDev,
-      log: (msg, data = {}) => {
-        messageBus.emit(msg, {
-          ...data,
-          id: step.name,
-          msg: data.msg && `[${fileUrl}] ${data.msg}`,
-        });
+    await step.optimize({
+      buildDirectory,
+      log: (msg) => {
+        messageBus.emit('WORKER_MSG', {id: step.name, level: 'log', msg});
       },
     });
-    if (typeof result === 'string') {
-      return result;
-    }
   }
   return null;
 }

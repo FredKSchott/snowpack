@@ -3,7 +3,6 @@ import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-common
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
-import esbuild from 'rollup-plugin-esbuild';
 import {init as initESModuleLexer} from 'es-module-lexer';
 import findUp from 'find-up';
 import fs from 'fs';
@@ -429,7 +428,6 @@ export async function install(
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
-      ...(config.buildOptions.minify ? [esbuild({minify: true})] : []),
     ].filter(Boolean) as Plugin[],
     onwarn(warning, warn) {
       // Warn about the first circular dependency, but then ignore the rest.
