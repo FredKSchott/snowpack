@@ -170,10 +170,11 @@ This configuration has no effect on the final build.
 // snowpack.config.json
 {
   "mount": {
-    // Files in the local src directory are written to `/_dist_/*` in the final build.
+    // Files in the local "src/" directory are written to `/_dist_/*` in the final build.
     "src": "/_dist_",
-    // Files in the local public directory are written to `/*` in the final build.
+    // Files in the local "public/" directory are written to `/*` in the final build.
     "public": "/"
+    // … add other folders here
   }
 }
 ```
