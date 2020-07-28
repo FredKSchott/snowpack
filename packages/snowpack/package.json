@@ -82,7 +82,6 @@
     "resolve-from": "^5.0.0",
     "rimraf": "^3.0.0",
     "rollup": "^2.13.1",
-    "rollup-plugin-esbuild": "^2.3.0",
     "signal-exit": "^3.0.3",
     "strip-comments": "^2.0.1",
     "tar": "^6.0.1",

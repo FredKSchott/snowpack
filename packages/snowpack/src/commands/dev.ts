@@ -539,7 +539,6 @@ export async function command(commandOptions: CommandOptions) {
           isDev: true,
           hmr: isHmr,
           config,
-          messageBus,
         });
       } else if (responseFileExt === '.js') {
         code = wrapImportMeta({code, env: true, isDev: true, hmr: isHmr, config});
@@ -587,7 +586,6 @@ export async function command(commandOptions: CommandOptions) {
       const resolveImportSpecifier = createImportResolver({
         fileLoc,
         dependencyImportMap,
-        isBundled: false,
         config,
       });
       wrappedResponse = await transformFileImports(
@@ -601,6 +599,10 @@ export async function command(commandOptions: CommandOptions) {
           // Try to resolve the specifier to a known URL in the project
           const resolvedImportUrl = resolveImportSpecifier(spec);
           if (resolvedImportUrl) {
+            const extName = path.extname(resolvedImportUrl);
+            if (extName && extName !== '.js') {
+              return resolvedImportUrl + '.proxy.js';
+            }
             return resolvedImportUrl;
           }
           // If that fails, return a placeholder import and attempt to resolve.

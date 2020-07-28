@@ -15,7 +15,6 @@ const cwd = process.cwd();
 interface ImportResolverOptions {
   fileLoc: string;
   dependencyImportMap: ImportMap | null | undefined;
-  isBundled: boolean;
   config: SnowpackConfig;
 }
 
@@ -31,12 +30,7 @@ export function getImportStats(dirLoc: string, spec: string): fs.Stats | false {
 }
 
 /** Resolve an import based on the state of the file/folder found on disk. */
-function resolveSourceSpecifier(
-  spec: string,
-  stats: fs.Stats | false,
-  isBundled: boolean,
-  config: SnowpackConfig,
-) {
+function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: SnowpackConfig) {
   if (stats && stats.isDirectory()) {
     const trailingSlash = spec.endsWith('/') ? '' : '/';
     spec = spec + trailingSlash + 'index.js';
@@ -48,10 +42,6 @@ function resolveSourceSpecifier(
   if (extToReplace) {
     spec = replaceExt(spec, extToReplace);
   }
-  if (!isBundled && (extToReplace || baseExt) !== '.js') {
-    spec = spec + '.proxy.js';
-  }
-
   return spec;
 }
 
@@ -63,7 +53,6 @@ function resolveSourceSpecifier(
 export function createImportResolver({
   fileLoc,
   dependencyImportMap,
-  isBundled,
   config,
 }: ImportResolverOptions) {
   return function importResolver(spec: string): string | false {
@@ -72,7 +61,7 @@ export function createImportResolver({
     }
     if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
       const importStats = getImportStats(path.dirname(fileLoc), spec);
-      spec = resolveSourceSpecifier(spec, importStats, isBundled, config);
+      spec = resolveSourceSpecifier(spec, importStats, config);
       return spec;
     }
     const aliasEntry = findMatchingAliasEntry(config, spec);
@@ -80,7 +69,7 @@ export function createImportResolver({
       const {from, to} = aliasEntry;
       let result = spec.replace(from, to);
       const importStats = getImportStats(cwd, result);
-      result = resolveSourceSpecifier(result, importStats, isBundled, config);
+      result = resolveSourceSpecifier(result, importStats, config);
       result = path.posix.relative(path.dirname(fileLoc), result);
       if (!result.startsWith('.')) {
         result = './' + result;
@@ -92,12 +81,7 @@ export function createImportResolver({
       // is already the key in the import map. The aliased "to" value is also an entry.
       const importMapEntry = dependencyImportMap.imports[spec];
       if (importMapEntry) {
-        let resolvedImport = path.posix.resolve(config.buildOptions.webModulesUrl, importMapEntry);
-        const extName = path.extname(resolvedImport);
-        if (!isBundled && extName && extName !== '.js') {
-          resolvedImport = resolvedImport + '.proxy.js';
-        }
-        return resolvedImport;
+        return path.posix.resolve(config.buildOptions.webModulesUrl, importMapEntry);
       }
     }
     return false;

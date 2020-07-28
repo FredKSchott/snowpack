@@ -7,13 +7,14 @@ import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import rimraf from 'rimraf';
+import url from 'url';
 import {
   generateEnvModule,
   wrapHtmlResponse,
   wrapImportMeta,
   wrapImportProxy,
 } from '../build/build-import-proxy';
-import {buildFile} from '../build/build-pipeline';
+import {buildFile, runPipelineOptimizeStep} from '../build/build-pipeline';
 import {createImportResolver} from '../build/import-resolver';
 import srcFileExtensionMapping from '../build/src-file-extension-mapping';
 import {removeLeadingSlash, SnowpackSourceFile} from '../config';
@@ -59,21 +60,14 @@ export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
   const messageBus = new EventEmitter();
 
-  const isBundledHardcoded = config.devOptions.bundle !== undefined;
-  const bundlerPlugin = config._bundler;
-  const isBundled = isBundledHardcoded ? !!config.devOptions.bundle : !!bundlerPlugin;
-  const bundlerDashboardId = bundlerPlugin ? bundlerPlugin.name : 'bundle';
-  const buildDirectoryLoc = isBundled ? path.join(cwd, `.build`) : config.devOptions.out;
+  const buildDirectoryLoc = config.devOptions.out;
   const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaDir);
-  const finalDirectoryLoc = config.devOptions.out;
 
-  if (config.buildOptions.clean) rimraf.sync(buildDirectoryLoc);
+  if (config.buildOptions.clean) {
+    rimraf.sync(buildDirectoryLoc);
+  }
   mkdirp.sync(buildDirectoryLoc);
   mkdirp.sync(internalFilesBuildLoc);
-  if (finalDirectoryLoc !== buildDirectoryLoc) {
-    if (config.buildOptions.clean) rimraf.sync(finalDirectoryLoc);
-    mkdirp.sync(finalDirectoryLoc);
-  }
 
   console.log = (...args) => {
     messageBus.emit('CONSOLE', {level: 'log', args});
@@ -95,13 +89,6 @@ export async function command(commandOptions: CommandOptions) {
     undefined,
   );
 
-  if (!isBundled) {
-    messageBus.emit('WORKER_UPDATE', {
-      id: bundlerDashboardId,
-      state: ['SKIP', 'dim'],
-    });
-  }
-
   for (const runPlugin of config.plugins) {
     if (runPlugin.run) {
       messageBus.emit('WORKER_START', {id: runPlugin.name});
@@ -120,8 +107,6 @@ export async function command(commandOptions: CommandOptions) {
         });
     }
   }
-
-  let minifierService = await esbuildStartService(); // create esbuild process for minifying (there may or may not be one in plugins)
 
   // Write the `import.meta.env` contents file to disk
   await fs.writeFile(path.join(internalFilesBuildLoc, 'env.js'), generateEnvModule('production'));
@@ -184,13 +169,6 @@ export async function command(commandOptions: CommandOptions) {
             contents = `import './${path.basename(cssOutPath)}';\n` + contents;
           }
           contents = wrapImportMeta({code: contents, env: true, isDev: false, hmr: false, config});
-
-          // minify install if enabled and there’s no bundler
-          if (config.buildOptions.minify && !config._bundler) {
-            const {js} = await minifierService.transform(contents, {minify: true});
-            if (js) contents = js;
-          }
-
           allFilesToResolveImports[outLoc] = {baseExt, expandedExt, contents, locOnDisk};
           break;
         }
@@ -210,7 +188,6 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
   stopEsbuild();
-  minifierService.stop();
 
   const installDest = path.join(buildDirectoryLoc, config.buildOptions.webModulesUrl);
   const installResult = await installOptimizedDependencies(
@@ -227,21 +204,22 @@ export async function command(commandOptions: CommandOptions) {
     const resolveImportSpecifier = createImportResolver({
       fileLoc: file.locOnDisk!, // we’re confident these are reading from disk because we just read them
       dependencyImportMap: installResult.importMap,
-      isBundled,
       config,
     });
     const resolvedCode = await transformFileImports(file, (spec) => {
       // Try to resolve the specifier to a known URL in the project
       let resolvedImportUrl = resolveImportSpecifier(spec);
-      if (!resolvedImportUrl) {
+      if (!resolvedImportUrl || url.parse(resolvedImportUrl).protocol) {
         return spec;
       }
+      const extName = path.extname(resolvedImportUrl);
+      const isProxyImport = extName && extName !== '.js';
 
       // We treat ".proxy.js" files special: we need to make sure that they exist on disk
       // in the final build, so we mark them to be written to disk at the next step.
       const isAbsoluteUrlPath = resolvedImportUrl.startsWith('/');
-      const isProxyImport = resolvedImportUrl.endsWith('.proxy.js');
       if (isProxyImport) {
+        resolvedImportUrl = resolvedImportUrl + '.proxy.js';
         if (isAbsoluteUrlPath) {
           allImportProxyFiles.add(
             path.resolve(buildDirectoryLoc, removeLeadingSlash(resolvedImportUrl)),
@@ -276,55 +254,27 @@ export async function command(commandOptions: CommandOptions) {
       isDev: false,
       hmr: false,
       config,
-      messageBus,
     });
     await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
   }
 
-  if (!isBundled) {
-    messageBus.emit('WORKER_COMPLETE', {id: bundlerDashboardId, error: null});
-    messageBus.emit('WORKER_UPDATE', {
-      id: bundlerDashboardId,
-      state: ['SKIP', isBundledHardcoded ? 'dim' : 'yellow'],
-    });
-    if (!isBundledHardcoded) {
-      messageBus.emit('WORKER_MSG', {
-        id: bundlerDashboardId,
-        level: 'log',
-        msg:
-          `"plugins": ["@snowpack/plugin-webpack"]\n\n` +
-          `Connect a bundler plugin to optimize your build for production.\n` +
-          colors.dim(`Set "devOptions.bundle" configuration to false to remove this message.`),
-      });
+  await runPipelineOptimizeStep(buildDirectoryLoc, {
+    buildPipeline: config.plugins,
+    messageBus,
+    isDev: false,
+  });
+
+  if (config.buildOptions.minify) {
+    console.log(colors.yellow('! minifying javascript...'));
+    let minifierService = await esbuildStartService();
+    const allJsFiles = glob.sync(path.join(buildDirectoryLoc, '**/*.js'));
+    for (const jsFile of allJsFiles) {
+      const jsFileContents = await fs.readFile(jsFile, 'utf-8');
+      const {js} = await minifierService.transform(jsFileContents, {minify: true});
+      js && (await fs.writeFile(jsFile, js, 'utf-8'));
     }
-  } else if (!bundlerPlugin) {
-    messageBus.emit('WORKER_COMPLETE', {
-      id: bundlerDashboardId,
-      error: new Error('No bundler plugin connected.'),
-    });
-  } else {
-    try {
-      messageBus.emit('WORKER_UPDATE', {id: bundlerDashboardId, state: ['RUNNING', 'yellow']});
-      await bundlerPlugin.bundle!({
-        srcDirectory: buildDirectoryLoc,
-        destDirectory: finalDirectoryLoc,
-        jsFilePaths: allBuiltFromFiles,
-        log: (msg) => {
-          messageBus.emit('WORKER_MSG', {id: bundlerDashboardId, level: 'log', msg});
-        },
-      });
-      messageBus.emit('WORKER_COMPLETE', {id: bundlerDashboardId, error: null});
-    } catch (err) {
-      messageBus.emit('WORKER_MSG', {
-        id: bundlerDashboardId,
-        level: 'error',
-        msg: err.toString(),
-      });
-      messageBus.emit('WORKER_COMPLETE', {id: bundlerDashboardId, error: err});
-    }
+    minifierService.stop();
   }
 
-  if (finalDirectoryLoc !== buildDirectoryLoc) {
-    rimraf.sync(buildDirectoryLoc);
-  }
+  process.stdout.write(`\n${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
 }

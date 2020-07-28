@@ -5,5 +5,5 @@
   "buildOptions": {
     "minify": false
   },
-  "plugins": ["./custom-proxy-plugin.js"]
+  "plugins": ["./custom-optimize-plugin.js"]
 }

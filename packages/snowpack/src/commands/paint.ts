@@ -220,10 +220,6 @@ export function paint(
       process.stdout.write('  ⚠️  Finished, with errors.');
       process.stdout.write('\n\n');
       process.exit(1);
-    } else if (overallStatus.done) {
-      process.stdout.write(
-        `${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`,
-      );
     }
   }
 
