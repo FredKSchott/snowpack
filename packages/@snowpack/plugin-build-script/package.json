@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "name": "@snowpack/plugin-build-script",
+  "main": "plugin.js",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "execa": "^4.0.3",
+    "npm-run-path": "^4.0.1"
+  },
+  "devDependencies": {
+    "snowpack": "*"
+  },
+  "peerDependencies": {
+    "snowpack": "*"
+  }
+}

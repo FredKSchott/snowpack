@@ -4,10 +4,11 @@
 .vercel
 docs/_site
 docs/index.md
+lerna-debug.log
 node_modules
 package-lock.json
 packages/**/build
 test/build/**/build
-test/integration/**/web_modules
 test/create-snowpack-app/test-install
+test/integration/**/web_modules
 yarn-error.log

@@ -89,5 +89,9 @@
     "validate-npm-package-name": "^3.0.0",
     "ws": "^7.3.0",
     "yargs-parser": "^18.1.3"
+  },
+  "devDependencies": {
+    "@snowpack/plugin-build-script": "*",
+    "@snowpack/plugin-run-script": "*"
   }
 }

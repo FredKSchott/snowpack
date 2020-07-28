@@ -1,3 +1,5 @@
+import buildScriptPlugin from '@snowpack/plugin-build-script';
+import runScriptPlugin from '@snowpack/plugin-run-script';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
 import fs from 'fs';
@@ -9,9 +11,7 @@ import path from 'path';
 import {Plugin as RollupPlugin} from 'rollup';
 import yargs from 'yargs-parser';
 import srcFileExtensionMapping from './build/src-file-extension-mapping';
-import {buildScriptPlugin} from './plugins/plugin-build-script';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
-import {runScriptPlugin} from './plugins/plugin-run-script';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -370,7 +370,10 @@ function loadPlugins(
 
   function loadPluginFromConfig(name: string, options?: any): SnowpackPlugin {
     const pluginLoc = require.resolve(name, {paths: [process.cwd()]});
-    const plugin = require(pluginLoc)(config, options);
+    const pluginRef = require(pluginLoc);
+    const plugin = pluginRef.default
+      ? pluginRef.default(config, options)
+      : pluginRef(config, options);
     plugin.name = plugin.name || name;
     // Legacy support: Map the new load() interface to the old build() interface
     if (plugin.build) {

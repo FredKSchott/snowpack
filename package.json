@@ -10,8 +10,8 @@
     "test": "yarn test:build && yarn test:all"
   },
   "workspaces": [
-    "packages/*",
     "packages/@snowpack/*",
+    "packages/*",
     "test/build/*",
     "test/integration/*"
   ],
@@ -42,6 +42,6 @@
     "jest": "^26.1.0",
     "lerna": "^3.22.1",
     "prettier": "^2.0.5",
-    "typescript": "^3.9.3"
+    "typescript": "^3.9.7"
   }
 }

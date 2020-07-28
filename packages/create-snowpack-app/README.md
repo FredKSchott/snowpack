@@ -6,16 +6,16 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 
 ## Official App Templates
 
-- [@snowpack/app-template-blank](/templates/app-template-blank)
-- [@snowpack/app-template-blank-typescript](/templates/app-template-blank-typescript)
-- [@snowpack/app-template-11ty](/templates/app-template-11ty)
-- [@snowpack/app-template-lit-element-typescript](/templates/app-template-lit-element-typescript)
-- [@snowpack/app-template-lit-element](/templates/app-template-lit-element)
-- [@snowpack/app-template-preact](/templates/app-template-preact)
-- [@snowpack/app-template-react-typescript](/templates/app-template-react-typescript)
-- [@snowpack/app-template-react](/templates/app-template-react)
-- [@snowpack/app-template-svelte](/templates/app-template-svelte)
-- [@snowpack/app-template-vue](/templates/app-template-vue)
+- [@snowpack/app-template-blank](../@snowpack/app-template-blank)
+- [@snowpack/app-template-blank-typescript](../@snowpack/app-template-blank-typescript)
+- [@snowpack/app-template-11ty](../@snowpack/app-template-11ty)
+- [@snowpack/app-template-lit-element-typescript](../@snowpack/app-template-lit-element-typescript)
+- [@snowpack/app-template-lit-element](../@snowpack/app-template-lit-element)
+- [@snowpack/app-template-preact](../@snowpack/app-template-preact)
+- [@snowpack/app-template-react-typescript](../@snowpack/app-template-react-typescript)
+- [@snowpack/app-template-react](../@snowpack/app-template-react)
+- [@snowpack/app-template-svelte](../@snowpack/app-template-svelte)
+- [@snowpack/app-template-vue](../@snowpack/app-template-vue)
 
 ### Featured Community Templates
 
@@ -31,22 +31,27 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 
 ### Dev Environment
 
-- [@snowpack/plugin-dotenv](/packages/plugin-dotenv)
+- [@snowpack/plugin-dotenv](../@snowpack/plugin-dotenv)
 
 ### Build
 
-- [@snowpack/plugin-babel](/packages/plugin-babel)
-- [@snowpack/plugin-svelte](/packages/plugin-svelte)
-- [@snowpack/plugin-vue](/packages/plugin-vue)
+- [@snowpack/plugin-babel](../@snowpack/plugin-babel)
+- [@snowpack/plugin-svelte](../@snowpack/plugin-svelte)
+- [@snowpack/plugin-vue](../@snowpack/plugin-vue)
 
 ### Transform
 
-- [@snowpack/plugin-react-refresh](/packages/plugin-react-refresh)
+- [@snowpack/plugin-react-refresh](../@snowpack/plugin-react-refresh)
 
 ### Bundle
 
-- [@snowpack/plugin-parcel](/packages/plugin-parcel)
-- [@snowpack/plugin-webpack](/packages/plugin-webpack)
+- [@snowpack/plugin-parcel](../@snowpack/plugin-parcel)
+- [@snowpack/plugin-webpack](../@snowpack/plugin-webpack)
+
+### Advanced Plugins
+
+- [@snowpack/plugin-build-script](../@snowpack/plugin-build-script)
+- [@snowpack/plugin-run-script](../@snowpack/plugin-run-script)
 
 ### Featured Community Plugins
 
