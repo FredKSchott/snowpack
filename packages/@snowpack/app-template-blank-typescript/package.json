@@ -21,7 +21,7 @@
   "devDependencies": {
     "@types/canvas-confetti": "^1.0.0",
     "prettier": "^2.0.5",
-    "snowpack": "^2.6.4",
+    "snowpack": "*",
     "typescript": "^3.9.7"
   },
   "gitHead": "055b8b935bb387c1ff0b6356680a303de9eeb36e"

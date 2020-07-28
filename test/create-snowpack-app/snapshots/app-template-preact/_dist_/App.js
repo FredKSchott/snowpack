@@ -1,4 +1,4 @@
-import { h } from '/web_modules/preact.js';
+import { h } from '../web_modules/preact.js';
 import logo from './logo.png.proxy.js';
 import './App.css.proxy.js';
 

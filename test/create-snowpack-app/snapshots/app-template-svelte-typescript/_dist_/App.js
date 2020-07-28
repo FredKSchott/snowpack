@@ -11,7 +11,7 @@ import {
 	noop,
 	safe_not_equal,
 	space
-} from "/web_modules/svelte/internal.js";
+} from "../web_modules/svelte/internal.js";
 
 function create_fragment(ctx) {
 	let div;

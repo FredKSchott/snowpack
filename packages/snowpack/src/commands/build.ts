@@ -218,7 +218,7 @@ export async function command(commandOptions: CommandOptions) {
 
       // We treat ".proxy.js" files special: we need to make sure that they exist on disk
       // in the final build, so we mark them to be written to disk at the next step.
-      const isAbsoluteUrlPath = resolvedImportUrl.startsWith('/');
+      const isAbsoluteUrlPath = path.isAbsolute(resolvedImportUrl);
       if (isProxyImport) {
         resolvedImportUrl = resolvedImportUrl + '.proxy.js';
         if (isAbsoluteUrlPath) {
@@ -232,10 +232,12 @@ export async function command(commandOptions: CommandOptions) {
 
       // When dealing with an absolute import path, we need to honor the baseUrl
       if (isAbsoluteUrlPath) {
-        return path.posix.relative(
-          path.dirname(outLoc),
-          path.resolve(buildDirectoryLoc, removeLeadingSlash(resolvedImportUrl)),
-        );
+        return path
+          .relative(
+            path.dirname(outLoc),
+            path.resolve(buildDirectoryLoc, removeLeadingSlash(resolvedImportUrl)),
+          )
+          .replace(/\\/g, '/'); // replace Windows backslashes at the end, after resolution
       }
 
       return resolvedImportUrl;
