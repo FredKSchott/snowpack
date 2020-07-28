@@ -11,7 +11,7 @@
     "@babel/core": "^7.8.3",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-decorators": "^7.8.3",
-    "@babel/preset-typescript": "7.9.0",
+    "@babel/preset-typescript": "7.10.4",
     "@snowpack/plugin-dotenv": "^1.6.0-alpha.0"
   },
   "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"

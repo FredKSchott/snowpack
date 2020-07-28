@@ -1,21 +1,10 @@
-import execa from 'execa';
-import npmRunPath from 'npm-run-path';
-import {promises as fs} from 'fs';
-import {SnowpackPlugin, SnowpackConfig} from '../config';
+const execa = require('execa');
+const npmRunPath = require('npm-run-path');
+const {promises: fs} = require('fs');
+
 const cwd = process.cwd();
 
-export function buildScriptPlugin(
-  _: SnowpackConfig,
-  {
-    input,
-    output,
-    cmd,
-  }: {
-    input: string[];
-    output: string[];
-    cmd: string;
-  },
-): SnowpackPlugin {
+function buildScriptPlugin(_, {input, output, cmd}) {
   if (output.length !== 1) {
     throw new Error('Requires one output.');
   }
@@ -48,3 +37,5 @@ export function buildScriptPlugin(
     },
   };
 }
+
+module.exports = buildScriptPlugin;
