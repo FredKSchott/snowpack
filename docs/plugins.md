@@ -158,32 +158,21 @@ Also notice that `.svelte` is missing from `output`. That tells Snowpack the ori
 ⚠️ _Note: if your plugin returns different `input`s and `output`s, make sure you’re outputting only the files that should exist in the final build! Anything not included in the return result will be excluded from the final build._
 
 
-### Import Proxying
+### Optimizing & Bundling
 
-Snowpack supports importing several non-JS file types by default (`.json`, `.css`, and `.module.css` for CSS Modules). You can customize this default behavior or add support for new file types via **import proxying**. An import proxy is the JS representation of a non-JS file. When you import a non-JS file into your JavaScript application, an import proxy is created to represent that file as JavaScript.
-
-Here is an example of how you could customize Snowpack's default CSS import proxy:
+Snowpack supports pluggable bundlers and other build optimizations via the `optimize()` hook. This method runs after the build, and gives plugins a chance to optimize the final build directory. Webpack, Rollup, and other build-only optimizations should use this hook.
 
 ```js
 module.exports = (snowpackConfig, pluginOptions) => ({
-  name: 'my-custom-css-import-proxy-plugin',
-  async proxy({ fileUrl, contents }) {
-    if (fileUrl.endsWith('.css')) {
-      // NOTE: JSON.stringify() safely encodes the string for the code.
-      return `export default ${JSON.stringify(contents)};`;
-    }
+  name: 'my-custom-webpack-plugin',
+  async optimize({ buildDirectory, log }) {
+    await webpack.run({...});
   }
 })
 ```
 
-By default, Snowpack will load and apply CSS styling to the page when you import a CSS file in your application. However, this plugin changes that behavior so that it only exports the file contents back as the default export. Below is an example of how this changes your application:
+This is an (obviously) simplified version of the `@snowpack/plugin-webpack` plugin. When the build command has finished building your application, this plugin hook is called with the `buildDirectory` path as an argument. It's up to the plugin to read build files from this directory, and write any changes back to the directory. Changes should be made in place, so only write files at the end and be sure to clean up after yourself (if a file is no longer needed after optimizing/bundling, it is safe to remove).
 
-```js
-// Default behavior: style loaded and applied to page automatically
-import './styles.css';
-// 'my-custom-css-import-proxy-plugin' behavior: styles not applied, just returned as a string
-import cssFileContents from './styles.css'; 
-```
 
 ### Tips / Gotchas
 
@@ -242,7 +231,7 @@ Run a CLI command, and connect it's output into the Snowpack console. Useful for
 
 - [Full TypeScript definition](https://unpkg.com/browse/snowpack@2.6.4/dist-types/config.d.ts).
 
-### bundle()
+### optimize()
 
 Snowpack’s bundler plugin API is still experimental and may change in a future release. See our official bundler plugins for an example of using the current interface:
 
