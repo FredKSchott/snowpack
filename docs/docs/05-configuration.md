@@ -71,7 +71,7 @@ $ snowpack dev --no-bundle
 - **`proxy.*`**
   - Configure the dev server to proxy requests. See the section below for all options.
 - **`plugins`**
-  - Extend Snowpack with 3rd party tools and plugins. See the section below for more info.
+  - Extend Snowpack with third-party tools and plugins. See the section below for more info.
 - **`installOptions.*`**
   - Configure how npm packages are installed. See the section below for all options.
 - **`devOptions.*`**
