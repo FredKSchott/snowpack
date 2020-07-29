@@ -14,7 +14,7 @@ When you're ready to deploy your web application to users, you can add back a tr
 - Changes are reflected [instantly in the browser.](https://www.snowpack.dev/posts/2020-05-26-snowpack-2-0-release/#hot-module-replacement)
 - Integrates your favorite bundler for [production-optimized builds.](https://www.snowpack.dev/posts/2020-05-26-snowpack-2-0-release/#snowpack-build)
 - Out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](https://www.snowpack.dev/posts/2020-05-26-snowpack-2-0-release/#features)
-- Connect your favorite tools with custom [build scripts](https://www.snowpack.dev/posts/2020-05-26-snowpack-2-0-release/#build-scripts) & [third-party plugins.](https://www.snowpack.dev/posts/2020-05-26-snowpack-2-0-release/#build-plugins)
+- Connect your favorite tools with [third-party plugins.](https://www.snowpack.dev/posts/2020-05-26-snowpack-2-0-release/#build-plugins)
 
 **💁 More info at the official [Snowpack website ➞](https://snowpack.dev)**
 

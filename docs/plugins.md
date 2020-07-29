@@ -160,7 +160,7 @@ Also notice that `.svelte` is missing from `output`. That tells Snowpack the ori
 
 ### Optimizing & Bundling
 
-Snowpack supports pluggable bundlers and other build optimizations via the `optimize()` hook. This method runs after the build, and gives plugins a chance to optimize the final build directory. Webpack, Rollup, and other build-only optimizations should use this hook.
+Snowpack supports pluggable bundlers and other build optimizations via the `optimize()` hook. This method runs after the build and gives plugins a chance to optimize the final build directory. Webpack, Rollup, and other build-only optimizations should use this hook.
 
 ```js
 module.exports = (snowpackConfig, pluginOptions) => ({
@@ -171,7 +171,7 @@ module.exports = (snowpackConfig, pluginOptions) => ({
 })
 ```
 
-This is an (obviously) simplified version of the `@snowpack/plugin-webpack` plugin. When the build command has finished building your application, this plugin hook is called with the `buildDirectory` path as an argument. It's up to the plugin to read build files from this directory, and write any changes back to the directory. Changes should be made in place, so only write files at the end and be sure to clean up after yourself (if a file is no longer needed after optimizing/bundling, it is safe to remove).
+This is an (obviously) simplified version of the `@snowpack/plugin-webpack` plugin. When the build command has finished building your application, this plugin hook is called with the `buildDirectory` path as an argument. It's up to the plugin to read build files from this directory and write any changes back to the directory. Changes should be made in place, so only write files at the end and be sure to clean up after yourself (if a file is no longer needed after optimizing/bundling, it is safe to remove).
 
 
 ### Tips / Gotchas

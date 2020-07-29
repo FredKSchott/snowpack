@@ -1,6 +1,6 @@
 ## Features
 
-Snowpack supports the following filetypes with no configuration:
+Snowpack supports the following file types with no configuration:
 
 - JavaScript (`.js`, `.mjs`)
 - TypeScript (`.ts`, `.tsx`)

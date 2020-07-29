@@ -22,7 +22,7 @@ Connect a build plugin to Snowpack via the `"plugins"` array in your Snowpack co
 }
 ```
 
-This is all you need to connect the plugin. If the plugin supports it, you can also pass options to the plugin to configure it's behavior:
+This is all you need to connect the plugin. If the plugin supports it, you can also pass options to the plugin to configure its behavior:
 
 ```js
 // snowpack.config.json
