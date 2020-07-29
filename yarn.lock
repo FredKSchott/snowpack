@@ -2842,6 +2842,11 @@
   dependencies:
     "@testing-library/dom" "^7.0.3"
 
+"@tsconfig/svelte@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@tsconfig/svelte/-/svelte-1.0.3.tgz#7e29c4fd771af94faa3e5dde4b717a1ad8625583"
+  integrity sha512-rk+BuV7fNAE33bywtzgNCbPSVEITOeR9zFPeHHJaD9lTcmjZQQRe5fOGJtsdyG3JJKoAZ4JSYVbll4CvWhC3sA==
+
 "@types/aria-query@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@types/aria-query/-/aria-query-4.2.0.tgz#14264692a9d6e2fa4db3df5e56e94b5e25647ac0"
@@ -14371,10 +14376,10 @@ supports-hyperlinks@^2.0.0:
     has-flag "^4.0.0"
     supports-color "^7.0.0"
 
-svelte-check@^0.1.53:
-  version "0.1.55"
-  resolved "https://registry.yarnpkg.com/svelte-check/-/svelte-check-0.1.55.tgz#7e5261123302db4d6ed54a4ab2ed3f4d3cc9fd82"
-  integrity sha512-jdTmpMe1WLQyciNLZ3/8ApwPmpbKbF0RLu480GDapLp+eAjtVMY1j1afWSUgkc6aeTEvoMA29MnICz+rI6mrYA==
+svelte-check@^0.1.59:
+  version "0.1.59"
+  resolved "https://registry.yarnpkg.com/svelte-check/-/svelte-check-0.1.59.tgz#c318a4d9b517b9e4d161bd8f4aa526e5351c09f5"
+  integrity sha512-6nK3fAB7wUYd1NwusIO1Gts12dKMA8asynC4mRJaHfB7CQDO7/vLeYx4DLdS/VkHuq6io1INzYNsdsjlEHMuoQ==
   dependencies:
     chalk "^4.0.0"
     glob "^7.1.6"
@@ -14441,7 +14446,7 @@ svelte2tsx@*:
     dedent-js "^1.0.1"
     pascal-case "^3.1.1"
 
-svelte@3.24.0, svelte@^3.18.2, svelte@^3.21.0:
+svelte@3.24.0, svelte@^3.18.2, svelte@^3.21.0, svelte@^3.24.0:
   version "3.24.0"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.24.0.tgz#6565a42c9705796fa66c6abb4fedc09f4323a4a8"
   integrity sha512-VFXom6EP2DK83kxy4ZlBbaZklSbZIrpNH3oNXlPYHJUuW4q1OuAr3ZoYbfIVTVYPDgrI7Yq0gQcOhDlAtO4qfw==

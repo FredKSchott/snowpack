@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	let message:string = 'Learn Svelte with Typescript';
 </script>
 
