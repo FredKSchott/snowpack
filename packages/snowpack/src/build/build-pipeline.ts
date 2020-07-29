@@ -50,7 +50,7 @@ async function runPipelineLoadStep(
         messageBus.emit(msg, {
           ...data,
           id: step.name,
-          msg: data.msg && `[${srcPath}] ${data.msg}`,
+          msg: data.msg && `${data.msg} [${path.relative(process.cwd(), srcPath)}]`,
         });
       },
     });

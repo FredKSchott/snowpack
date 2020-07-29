@@ -72,6 +72,11 @@ describe('snowpack install', () => {
       continue;
     }
 
+    // TODO: remove when ora is replaced
+    if (testName === 'error-node-builtin-unresolved') {
+      continue; // this test is skipped because the ora failure message causes the output to flake depending on Node version + OS
+    }
+
     it(testName, async () => {
       // Cleanup
       if (!KEEP_LOCKFILE.includes(testName)) {
