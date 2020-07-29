@@ -13,10 +13,10 @@
     "svelte": "^3.21.0"
   },
   "dependencies": {
-    "@babel/core": "^7.9.0",
-    "@babel/preset-env": "^7.9.0",
+    "@babel/core": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
     "@snowpack/plugin-dotenv": "^1.6.0-alpha.0",
-    "@snowpack/plugin-svelte": "^1.2.0",
+    "@snowpack/plugin-svelte": "*",
     "babel-jest": "^25.4.0",
     "jest-transform-svelte": "^2.1.1"
   },

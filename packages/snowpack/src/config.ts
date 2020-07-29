@@ -19,6 +19,7 @@ import {
   ProxyOptions,
   SnowpackConfig,
   SnowpackPlugin,
+  LegacySnowpackPlugin,
 } from './types/snowpack';
 
 const CONFIG_NAME = 'snowpack';
@@ -230,24 +231,28 @@ function loadPlugins(
   function loadPluginFromConfig(name: string, options?: any): SnowpackPlugin {
     const pluginLoc = require.resolve(name, {paths: [process.cwd()]});
     const pluginRef = require(pluginLoc);
-    const plugin = pluginRef.default
-      ? pluginRef.default(config, options)
-      : pluginRef(config, options);
+    let plugin: SnowpackPlugin & LegacySnowpackPlugin;
+    try {
+      plugin = pluginRef.default ? pluginRef.default(config, options) : pluginRef(config, options);
+    } catch (err) {
+      console.error(`[${name}] ${err}`);
+      throw err;
+    }
     plugin.name = plugin.name || name;
+
     // Legacy support: Map the new load() interface to the old build() interface
-    if (plugin.build) {
+    const {build, bundle} = plugin;
+    if (build) {
       plugin.load = async (options: LoadOptions) => {
-        const result = await plugin
-          .build({
-            ...options,
-            contents: fs.readFileSync(options.filePath, 'utf-8'),
-          })
-          .catch((err) => {
-            console.error(
-              `[${plugin.name}] ERROR: There was a problem running this older plugin. Please update the plugin to the latest version.`,
-            );
-            throw err;
-          });
+        const result = await build({
+          ...options,
+          contents: fs.readFileSync(options.filePath, 'utf-8'),
+        }).catch((err) => {
+          console.error(
+            `[${plugin.name}] ERROR: There was a problem running this older plugin. Please update the plugin to the latest version.`,
+          );
+          throw err;
+        });
         if (!result) {
           return null;
         }
@@ -258,23 +263,21 @@ function loadPlugins(
       };
     }
     // Legacy support: Map the new optimize() interface to the old bundle() interface
-    if (plugin.bundle) {
+    if (bundle) {
       plugin.optimize = async (options: OptimizeOptions) => {
-        return plugin
-          .bundle({
-            srcDirectory: options.buildDirectory,
-            destDirectory: options.buildDirectory,
-            log: options.log,
-            // It turns out, this was more or less broken (included all files, not just JS).
-            // Confirmed no plugins are using this now, so safe to use an empty array.
-            jsFilePaths: [],
-          })
-          .catch((err) => {
-            console.error(
-              `[${plugin.name}] ERROR: There was a problem running this older plugin. Please update the plugin to the latest version.`,
-            );
-            throw err;
-          });
+        return bundle({
+          srcDirectory: options.buildDirectory,
+          destDirectory: options.buildDirectory,
+          log: options.log,
+          // It turns out, this was more or less broken (included all files, not just JS).
+          // Confirmed no plugins are using this now, so safe to use an empty array.
+          jsFilePaths: [],
+        }).catch((err) => {
+          console.error(
+            `[${plugin.name}] ERROR: There was a problem running this older plugin. Please update the plugin to the latest version.`,
+          );
+          throw err;
+        });
       };
     }
     if (plugin.defaultBuildScript && !plugin.resolve) {

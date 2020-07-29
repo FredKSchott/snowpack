@@ -47,7 +47,7 @@
     ]
   },
   "dependencies": {
-    "@babel/plugin-syntax-import-meta": "^7.8.3",
+    "@babel/plugin-syntax-import-meta": "^7.10.4",
     "@rollup/plugin-alias": "^3.0.1",
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-json": "^4.0.0",

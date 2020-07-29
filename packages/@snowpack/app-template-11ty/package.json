@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.10.0",
+    "@snowpack/plugin-run-script": "*",
     "prettier": "^2.0.5",
     "snowpack": "*"
   },
