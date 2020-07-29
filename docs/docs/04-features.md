@@ -1,6 +1,6 @@
 ## Features
 
-Snowpack supports the following file types with no configuration:
+Snowpack ships with built-in support for the following file types, no configuration required:
 
 - JavaScript (`.js`, `.mjs`)
 - TypeScript (`.ts`, `.tsx`)
@@ -9,59 +9,7 @@ Snowpack supports the following file types with no configuration:
 - CSS Modules (`.module.css`)
 - Images (`.svg`, `.jpg`, `.png`, etc.)
 
-To customize build behavior and support new file types (`.scss`, `.svelte`, `.vue`), keep reading.
-
-### Import CSS
-
-```js
-// Loads './style.css' onto the page
-import './style.css' 
-```
-
-Snowpack supports basic CSS imports inside of your JavaScript files. While this isn't natively supported by any browser today, Snowpack's dev server and build pipeline both handle this for you. You can also use any popular CSS-in-JS library with Snowpack.
-
-### Import CSS Modules
-
-```css
-/* src/style.module.css */
-.error {
-  background-color: red;
-}
-```
-
-```js
-// 1. Converts './style.module.css' classnames to unique, scoped values.
-// 2. Returns an object mapping the original classnames to their final, scoped value.
-import styles from './style.module.css' 
-
-// This example uses JSX, but you can use CSS Modules with any framework.
-return <div className={styles.error}>Your Error Message</div>;
-```
-
-Snowpack supports CSS Modules using the `[name].module.css` naming convention. CSS Modules allow you to scope your CSS to unique class names & identifiers. CSS Modules return a default export (`styles` in the example below) that maps the original identifier to it's new, scoped value.
-
-### Import JSON
-
-```js
-// JSON is returned as parsed via the default import
-import json from './data.json' 
-```
-
-Snowpack supports importing JSON via an ESM import, returning the full object in the default import.
-
-
-### Import Images & Other Assets
-
-``` jsx
-import img from './image.png'; // img === '/src/image.png'
-import svg from './image.svg'; // svg === '/src/image.svg'
-
-// This example uses JSX, but you can use these references with any framework.
-<img src={img} />;
-```
-
-All other assets not explicitly mentioned above can be imported and will return a URL reference to the asset. This can be useful for referencing assets inside of your JS, like creating an image element with a `src` attribute pointing to that image.
-
+To customize build behavior and support new languages (`.scss`, `.svelte`, `.vue`), keep reading.
 
 ### Hot Module Replacement
 
@@ -73,7 +21,7 @@ Snowpack supports full HMR out-of-the-box for the following served files:
 - CSS Modules
 - JSON
 
-Popular frameworks can also be set up for HMR. **[Create Snowpack App (CSA)](https://github.com/pikapkg/create-snowpack-app) ships with HMR enabled by default for all of the following frameworks.** If you're not using CSA, you can setup HMR in your own application with a simple plugin or a few lines of code:
+Popular frameworks can also be set up for HMR. **[Create Snowpack App (CSA)](https://github.com/pikapkg/create-snowpack-app) ships with HMR enabled by default for all of the following frameworks.** If you're not using CSA, you can setup HMR in your application with a simple plugin or a few lines of code:
 
 - Preact: [@prefresh/snowpack](https://www.npmjs.com/package/@prefresh/snowpack)
 - React: [@snowpack/plugin-react-refresh](https://www.npmjs.com/package/@snowpack/plugin-react-refresh)
@@ -164,6 +112,100 @@ You can automatically generate credentials for your project via either:
 - [devcert (no install required)](https://github.com/davewasmer/devcert-cli): `npx devcert-cli generate localhost`
 - [mkcert (install required)](https://github.com/FiloSottile/mkcert): `mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt localhost`
    
+### Legacy Browser Support
+
+You can customize the set of browsers you'd like to support via the `package.json` "browserslist" property, going all the way back to IE11. This will be picked up when you run `snowpack build` to build for production.
+
+```js
+/* package.json */
+"browserslist": ">0.75%, not ie 11, not UCAndroid >0, not OperaMini all",
+```
+
+If you're worried about legacy browsers, you should also add a bundler to your production build. Check out our [section on bundling for production](#bundle-for-production) for more info.
+
+Note: During development (`snowpack dev`) we perform no transpilation for older browsers. Make sure that you're using a modern browser during development.
+
+
+## JavaScript Development
+
+### Import JavaScript
+
+```js
+// src/user.js
+export function getUser() { /* ... */ 
+
+// src/index.js
+import {getUser} from './user.js';
+```
+
+Snowpack supports importing JSON via an ESM import, returning the full object in the default import.
+
+
+### Import JSON
+
+```js
+// JSON is returned as parsed via the default import
+import json from './data.json' 
+```
+
+Snowpack supports importing JSON via an ESM import, returning the full object in the default import.
+
+
+### Import CSS
+
+```js
+// Loads './style.css' onto the page
+import './style.css' 
+```
+
+Snowpack supports basic CSS imports inside of your JavaScript files. When you import a CSS file via the `import` keyword, Snowpack will automatically apply those styles to the page. This works for CSS and compile-to-CSS languages like Sass & Less.
+
+If you prefer, Snowpack also supports any popular CSS-in-JS library for styling.
+
+### Import CSS Modules
+
+```css
+/* src/style.module.css */
+.error {
+  background-color: red;
+}
+```
+
+```js
+// 1. Converts './style.module.css' classnames to unique, scoped values.
+// 2. Returns an object mapping the original classnames to their final, scoped value.
+import styles from './style.module.css' 
+
+// This example uses JSX, but you can use CSS Modules with any framework.
+return <div className={styles.error}>Your Error Message</div>;
+```
+
+Snowpack supports CSS Modules using the `[name].module.css` naming convention. CSS Modules work just like normal CSS imports, but with a special default `styles` export that maps your original classnames to unique identifiers.
+
+
+### Import NPM Packages
+
+```js
+// JSON is returned as parsed via the default import
+import json from './data.json' 
+```
+
+Snowpack supports importing JSON via an ESM import, returning the full object in the default import.
+
+
+### Import Images & Other Assets
+
+``` jsx
+import img from './image.png'; // img === '/src/image.png'
+import svg from './image.svg'; // svg === '/src/image.svg'
+
+// This example uses JSX, but you can use these references with any framework.
+<img src={img} />;
+```
+
+All other assets not explicitly mentioned above can be imported and will return a URL reference to the final built asset. This can be useful for referencing non-JS assets by URL, like creating an image element with a `src` attribute pointing to that image.
+
+
 ### Import Aliases
 
 ```js
@@ -194,36 +236,3 @@ Snowpack supports setting custom import aliases for your project via the top-lev
   }
 }
 ```
-
-### Import Maps
-
-> Note [Import Maps](https://github.com/WICG/import-maps) are an experimental web technology that is not supported in every browser. For polyfilling import maps, [check out es-module-shims](https://github.com/guybedford/es-module-shims#import-maps).
-
-Snowpack generates an [Import Map](https://github.com/WICG/import-maps) with every installation to `web_modules/import-map.json`. If your browser supports Import Maps, you can load the import map somewhere in your application and unlock the ability to import packages by name natively in the browser (no Babel step required).
-
-``` markdown
-<!-- Include this in your application HTML... -->
-<script type="importmap" src="/web_modules/import-map.json"></script>
-
-<!-- ... to enable browser-native package name imports. -->
-import * as _ from 'lodash';
-```
-
-Note that Snowpack already performs these rewrites for you at both `dev` and `build` time, so this is only useful for experimentation and 3rd-party tooling integrations. As a general rule: if you don't care about this file, keep it but feel free to ignore it.
-
-
-### Legacy Browser Support
-
-You can customize the set of browsers you'd like to support via the `package.json` "browserslist" property, going all the way back to IE11. This will be picked up when you run `snowpack build` to build for production.
-
-```js
-/* package.json */
-"browserslist": ">0.75%, not ie 11, not UCAndroid >0, not OperaMini all",
-```
-
-If you're worried about legacy browsers, you should also add a bundler to your production build. Check out our [build documentation](https://www.snowpack.dev/#snowpack-build) for more info.
-
-Note: During development (`snowpack dev`) we perform no transpilation for older browsers. Make sure that you're using a modern browser during development.
-
-
-

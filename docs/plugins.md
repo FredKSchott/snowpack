@@ -165,7 +165,7 @@ Snowpack supports pluggable bundlers and other build optimizations via the `opti
 ```js
 module.exports = (snowpackConfig, pluginOptions) => ({
   name: 'my-custom-webpack-plugin',
-  async optimize({ buildDirectory, log }) {
+  async optimize({ buildDirectory }) {
     await webpack.run({...});
   }
 })

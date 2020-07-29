@@ -180,6 +180,19 @@ To use Sass + PostCSS, check out [this guide](https://zellwk.com/blog/eleventy-s
 ]
 ```
 
+### Webpack
+
+```js
+// snowpack.config.json
+{
+  // Optimize your production builds with Webpack
+  "plugins": [["@snowpack/plugin-webpack", {/* ... */}]]
+}
+```
+
+Snowpack ships an official [webpack plugin](https://www.npmjs.com/package/@snowpack/plugin-webpack) for optimizing your build. Connect the `"@snowpack/plugin-webpack"` plugin into your Snowpack configuration file and then run `snowpack build` to see your optimized, bundled build.
+
+
 ### Workbox
 
 The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbox-cli) integrates well with Snowpack. Run the wizard to bootstrap your first configuration file, and then run `workbox generateSW` to generate your service worker.
