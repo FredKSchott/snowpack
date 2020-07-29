@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const execa = require('execa');
+const rimraf = require('rimraf');
 const dircompare = require('dir-compare');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'packages', '@snowpack');
@@ -15,11 +16,14 @@ const format = (stdout) =>
 
 describe('create-snowpack-app', () => {
   // test npx create-snowpack-app bin
-  it('npx create-snowpack-app', async () => {
+  it('npx create-snowpack-app', () => {
     const template = 'app-template-preact'; // any template will do
+    const installDir = path.resolve(__dirname, 'test-install');
+
+    rimraf.sync(installDir);
 
     // run the local create-snowpack-app bin
-    await execa(
+    execa.sync(
       'node',
       [
         './packages/create-snowpack-app',
@@ -27,16 +31,13 @@ describe('create-snowpack-app', () => {
         '--template',
         `../../../packages/@snowpack/${template}`,
         '--use-yarn', // we use Yarn for this repo
-        '--force', // saves you from having to manually delete things
       ],
       {cwd: path.resolve(__dirname, '..', '..')},
     );
 
     // snowpack.config.json is a file we can test for to assume successful
     // install, since it’s added at the end.
-    const snowpackConfigExists = fs.existsSync(
-      path.resolve(__dirname, 'test-install', 'snowpack.config.json'),
-    );
+    const snowpackConfigExists = fs.existsSync(path.join(installDir, 'snowpack.config.json'));
     expect(snowpackConfigExists).toBe(true);
   });
 

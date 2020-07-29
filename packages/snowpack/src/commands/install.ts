@@ -10,6 +10,7 @@ import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import ora from 'ora';
 import path from 'path';
+import {performance} from 'perf_hooks';
 import rimraf from 'rimraf';
 import {InputOptions, OutputOptions, rollup, RollupError} from 'rollup';
 import validatePackageName from 'validate-npm-package-name';
@@ -585,7 +586,7 @@ export async function run({
   }
 
   rimraf.sync(dest);
-  const startTime = Date.now();
+  const installStart = performance.now();
   const finalResult = await install(
     installTargets,
     {
@@ -606,10 +607,11 @@ export async function run({
   });
 
   if (finalResult.success) {
+    const installEnd = performance.now();
     spinner.succeed(
       colors.bold(`snowpack`) +
         ` install complete${spinnerHasError ? ' with errors.' : '.'}` +
-        colors.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
+        colors.dim(` [${((installEnd - installStart) / 1000).toFixed(2)}s]`),
     );
   } else {
     spinner.stop();

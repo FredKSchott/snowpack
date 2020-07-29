@@ -6,8 +6,10 @@ import glob from 'glob';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import path from 'path';
+import {performance} from 'perf_hooks';
 import rimraf from 'rimraf';
 import url from 'url';
+import util from 'util';
 import {
   generateEnvModule,
   wrapHtmlResponse,
@@ -24,14 +26,13 @@ import {printStats} from '../stats-formatter';
 import {CommandOptions, SnowpackSourceFile} from '../types/snowpack';
 import {getEncodingType, getExt, replaceExt} from '../util';
 import {getInstallTargets, run as installRunner} from './install';
-import {paint} from './paint';
 
 async function installOptimizedDependencies(
   allFilesToResolveImports: Record<string, SnowpackSourceFile>,
   installDest: string,
   commandOptions: CommandOptions,
 ) {
-  console.log(colors.yellow('! optimizing dependencies...'));
+  console.log(colors.yellow('! installing dependencies...'));
   const installConfig = merge(commandOptions.config, {
     installOptions: {
       dest: installDest,
@@ -61,6 +62,28 @@ export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
   const messageBus = new EventEmitter();
 
+  // TODO: update this with a more robust / typed log event
+  function logEvent({level, id, msg, args}) {
+    let logger = console.log;
+    let color = (stdout: string) => stdout;
+    if (level === 'warn') {
+      logger = console.warn;
+      color = colors.yellow;
+    }
+    if (level === 'error') {
+      color = colors.red;
+      logger = console.error;
+    }
+    const output = msg || util.format.apply(util, args);
+    logger(`${id ? colors.blue(`[${id}] `) : ''}${color(output)}`);
+  }
+  messageBus.on('CONSOLE', logEvent);
+  messageBus.on('WORKER_COMPLETE', logEvent);
+  messageBus.on('WORKER_MSG', logEvent);
+  messageBus.on('WORKER_RESET', logEvent);
+  messageBus.on('WORKER_START', logEvent);
+  messageBus.on('WORKER_UPDATE', logEvent);
+
   const buildDirectoryLoc = config.devOptions.out;
   const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaDir);
 
@@ -70,41 +93,22 @@ export async function command(commandOptions: CommandOptions) {
   mkdirp.sync(buildDirectoryLoc);
   mkdirp.sync(internalFilesBuildLoc);
 
-  console.log = (...args) => {
-    messageBus.emit('CONSOLE', {level: 'log', args});
-  };
-  console.warn = (...args) => {
-    messageBus.emit('CONSOLE', {level: 'warn', args});
-  };
-  console.error = (...args) => {
-    messageBus.emit('CONSOLE', {level: 'error', args});
-  };
   let relDest = path.relative(cwd, config.devOptions.out);
   if (!relDest.startsWith(`..${path.sep}`)) {
     relDest = `.${path.sep}` + relDest;
   }
-  paint(
-    messageBus,
-    config.plugins.map((p) => p.name),
-    {dest: relDest},
-    undefined,
-  );
 
   for (const runPlugin of config.plugins) {
     if (runPlugin.run) {
-      messageBus.emit('WORKER_START', {id: runPlugin.name});
       runPlugin
         .run({
           isDev: false,
-          log: (msg, data) => {
+          log: (msg, data = {}) => {
             messageBus.emit(msg, {...data, id: runPlugin.name});
           },
         })
-        .then(() => {
-          messageBus.emit('WORKER_COMPLETE', {id: runPlugin.name, error: null});
-        })
         .catch((err) => {
-          messageBus.emit('WORKER_COMPLETE', {id: runPlugin.name, error: err});
+          messageBus.emit('CONSOLE', {level: 'error', id: runPlugin.name, ...err});
         });
     }
   }
@@ -135,6 +139,9 @@ export async function command(commandOptions: CommandOptions) {
 
   const allBuiltFromFiles = new Set<string>();
   const allFilesToResolveImports: Record<string, SnowpackSourceFile> = {};
+
+  console.log(colors.yellow('! building source...'));
+  const buildStart = performance.now();
 
   for (const [dirDisk, dirDest, allFiles] of includeFileSets) {
     for (const locOnDisk of allFiles) {
@@ -189,6 +196,13 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
   stopEsbuild();
+
+  const buildEnd = performance.now();
+  console.log(
+    `${colors.green('✔')} ${colors.bold('snowpack')} build complete ${colors.dim(
+      `[${((buildEnd - buildStart) / 1000).toFixed(2)}s]`,
+    )}`,
+  );
 
   const installDest = path.join(buildDirectoryLoc, config.buildOptions.webModulesUrl);
   const installResult = await installOptimizedDependencies(
@@ -268,6 +282,7 @@ export async function command(commandOptions: CommandOptions) {
   });
 
   if (config.buildOptions.minify) {
+    const minifierStart = performance.now();
     console.log(colors.yellow('! minifying javascript...'));
     let minifierService = await esbuildStartService();
     const allJsFiles = glob.sync(path.join(buildDirectoryLoc, '**/*.js'));
@@ -276,6 +291,12 @@ export async function command(commandOptions: CommandOptions) {
       const {js} = await minifierService.transform(jsFileContents, {minify: true});
       js && (await fs.writeFile(jsFile, js, 'utf-8'));
     }
+    const minifierEnd = performance.now();
+    console.log(
+      `${colors.green('✔')} ${colors.bold('snowpack')} minification complete ${colors.dim(
+        `[${((minifierEnd - minifierStart) / 1000).toFixed(2)}s]`,
+      )}`,
+    );
     minifierService.stop();
   }
 

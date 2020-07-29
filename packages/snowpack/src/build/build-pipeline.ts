@@ -34,7 +34,7 @@ async function runPipelineLoadStep(
   srcPath: string,
   {buildPipeline, messageBus, isDev}: BuildFileOptions,
 ) {
-  const srcExt = getExt(srcPath).expandedExt;
+  const srcExt = getExt(srcPath).baseExt;
   for (const step of buildPipeline) {
     if (!step.resolve || !step.resolve.input.includes(srcExt)) {
       continue;
@@ -50,7 +50,7 @@ async function runPipelineLoadStep(
         messageBus.emit(msg, {
           ...data,
           id: step.name,
-          msg: data.msg && `[${srcPath}] ${data.msg}`,
+          msg: data.msg && `${data.msg} [${path.relative(process.cwd(), srcPath)}]`,
         });
       },
     });
