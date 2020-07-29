@@ -617,7 +617,7 @@ export async function command(commandOptions: CommandOptions) {
       responseExt: string,
       wrappedResponse: string,
     ): Promise<string> {
-      let missingWebModule: {spec: string; pkgName: string} | null = null;
+      let missingWebModule: {spec: string; pkgName: string; pkgExists: boolean} | null = null;
       const resolveImportSpecifier = createImportResolver({
         fileLoc,
         dependencyImportMap,
@@ -643,24 +643,20 @@ export async function command(commandOptions: CommandOptions) {
           // If that fails, return a placeholder import and attempt to resolve.
           const [packageName] = parsePackageImportSpecifier(spec);
           const [depManifestLoc] = resolveDependencyManifest(packageName, cwd);
-          const doesPackageExist = !!depManifestLoc;
-          if (doesPackageExist) {
-            reinstallDependencies();
-          } else {
-            missingWebModule = {
-              spec: spec,
-              pkgName: packageName,
-            };
-          }
-          // Return a placeholder while Snowpack goes out and tries to re-install (or warn)
-          // on the missing package.
+          missingWebModule = {
+            spec: spec,
+            pkgName: packageName,
+            pkgExists: !!depManifestLoc,
+          };
           return spec;
         },
       );
-      messageBus.emit('MISSING_WEB_MODULE', {
-        id: fileLoc,
-        data: missingWebModule,
-      });
+      if (missingWebModule) {
+        messageBus.emit('MISSING_WEB_MODULE', {
+          id: fileLoc,
+          data: missingWebModule,
+        });
+      }
       return wrappedResponse;
     }
 

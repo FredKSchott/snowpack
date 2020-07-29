@@ -92,7 +92,12 @@ export function paint(
   let installOutput = '';
   let isInstalling = false;
   let hasBeenCleared = false;
-  let missingWebModule: null | {id: string; spec: string; pkgName: string} = null;
+  let missingWebModule: null | {
+    id: string;
+    spec: string;
+    pkgName: string;
+    pkgExists?: boolean;
+  } = null;
   const allWorkerStates: Record<string, WorkerState> = {};
   const allFileBuilds = new Set<string>();
 
@@ -163,18 +168,28 @@ export function paint(
       return;
     }
     if (missingWebModule) {
-      const {id, pkgName, spec} = missingWebModule;
-      process.stdout.write(`${colors.red(colors.underline(colors.bold('▼ Snowpack')))}\n\n`);
+      const {id, pkgName, spec, pkgExists} = missingWebModule;
+      process.stdout.write(
+        `${colors[pkgExists ? 'yellow' : 'red'](colors.underline(colors.bold('▼ Snowpack')))}\n\n`,
+      );
       if (devMode) {
         process.stdout.write(`  Package ${colors.bold(pkgName)} not found!\n`);
         process.stdout.write(colors.dim(`  in ${id}`));
         process.stdout.write(`\n\n`);
-        process.stdout.write(
-          `  ${colors.bold('Press Enter')} to automatically run ${colors.bold(
-            isYarn(cwd) ? `yarn add ${pkgName}` : `npm install --save ${pkgName}`,
-          )}.\n`,
-        );
-        process.stdout.write(`  Or, Exit Snowpack and install manually to continue.\n`);
+        if (pkgExists) {
+          process.stdout.write(
+            `Please add ${colors.bold(pkgName)} in ${colors.bold(
+              'config.install',
+            )} to avoid Snowpack reinstall the dependencies.`,
+          );
+        } else {
+          process.stdout.write(
+            `  ${colors.bold('Press Enter')} to automatically run ${colors.bold(
+              isYarn(cwd) ? `yarn add ${pkgName}` : `npm install --save ${pkgName}`,
+            )}.\n`,
+          );
+          process.stdout.write(`  Or, Exit Snowpack and install manually to continue.\n`);
+        }
       } else {
         process.stdout.write(`  Dependency ${colors.bold(spec)} not found!\n\n`);
         // process.stdout.write(
