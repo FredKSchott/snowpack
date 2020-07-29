@@ -1,4 +1,4 @@
-import React, { useState } from '/web_modules/react.js';
+import React, { useState } from '../web_modules/react.js';
 import logo from './logo.svg.proxy.js';
 import './App.css.proxy.js';
 
