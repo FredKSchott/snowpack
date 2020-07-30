@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-react-typescript",
-  "version": "1.6.0-alpha.0",
+  "version": "1.7.0",
   "license": "MIT",
   "keywords": [
     "csa-template"
