@@ -1,92 +1,87 @@
-## Build Plugins
+## Plugins
 
-For more powerful integrations, Snowpack supports custom **build plugins**.  A build plugin is more than just a bash script: it's loaded via Node.js to customize and extend your Snowpack dev environment & build process. 
+Snowpack isn't just a build tool for JavaScript, it is a build tool for your entire website. Babel, TypeScript, PostCSS, SVGR and any favorite build tool can be connected directly into Snowpack via 1-line plugins.
 
-### Supported plugins
-
-#### Official plugins
-- [@snowpack/plugin-babel](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-babel)
-- [@snowpack/plugin-dotenv](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-dotenv)
-- [@snowpack/plugin-parcel](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-parcel)
-- [@snowpack/plugin-react-refresh](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-react-refresh)
-- [@snowpack/plugin-svelte](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-svelte)
-- [@snowpack/plugin-vue](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-vue)
-- [@snowpack/plugin-webpack](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-webpack)
-
-#### Featured third-party plugins
-
-- [@prefresh/snowpack](https://github.com/JoviDeCroock/prefresh)
-- [snowpack-plugin-import-map](https://github.com/zhoukekestar/snowpack-plugin-import-map)
-
-Don’t see your plugin in this list? [Add yours](https://github.com/pikapkg/snowpack/pulls)!
-
-
-### Overview
-
-A build plugin offers one of several different hooks into your application:
-
-- `build()` - Automatically connects a build script to your build pipeline.
-- `transform()` - Transform an already loaded resource before sending it to the browser.
-- `bundle()` - Connect your favorite bundler for production.
-
-[Check out our advanced plugin guide](/plugins) for more details and instructions for how to write your own.
-
-### Plugin API
+Snowpack plugins can be added to:
+- Customize your build with new language/framework support (Svelte, Vue)
+- Customize your build with new build tools (Babel, PostCSS)
+- Run CLI commands during build and development (TypeScript, ESLint)
+- Create custom transformations, specific to your exact application.
 
 👉 **[Check out our advanced guide](/plugins) and learn how to create your own plugin.**
 
+
 ### Connect a Plugin
 
-Connect a build plugin to Snowpack via the `"plugins"` array in your Snowpack config;
+Connect a build plugin to Snowpack via the `"plugins"` array in your Snowpack config:
 
 ```js
 // snowpack.config.json
+// [npm install @snowpack/plugin-babel]
 {
   "plugins": ["@snowpack/plugin-babel"]
 }
 ```
 
-This is all you need to connect the plugin. If a build script is provided by the plugin, it will be automatically added to your "scripts" config. You can customize that script (and which files it will match) by defining the build script yourself. 
+This is all you need to add Babel to your application build pipeline. If the plugin supports it, you can also pass options to the plugin to configure its behavior:
 
 ```js
 // snowpack.config.json
-// Optional: Define your own build script for "@snowpack/plugin-babel".
+// [npm install @snowpack/plugin-babel]
 {
-  "plugins": ["@snowpack/plugin-babel"],
-  "scripts": {"build:js,jsx,mjs,cjs": "@snowpack/plugin-babel"}
+  "plugins": [
+    ["@snowpack/plugin-babel", { /* ... */}]
+  ],
 }
 ```
 
+### Connect any Script/CLI
 
-### Plugin vs Script?
+If you can't find a plugin that fits your needs and don't want to write your own, you can also run CLI commands directly as a part of your build using one of our two utility plugins: `@snowpack/plugin-build-script` & `@snowpack/plugin-run-script`.
 
-You can get pretty far with build scripts alone. If you just want to convert your source code to JavaScript/CSS and you have a CLI that can make that transformation for you, then a build script is probably fine. 
-
-But, there are a few reasons you may want to use a build plugin instead of a normal build script:
-
-**Speed:** Some CLIs may have a slower start-up time, which may become a problem as your site grows. Plugins can be faster across many files since they only need to be loaded & initialized once and not once for every file.
+#### @snowpack/plugin-build-script
 
 ```js
-"scripts": {
-  // Speed: The Babel plugin is ~10x faster than using the Babel CLI directly
-  "build:js,jsx": "@snowpack/plugin-babel",
+// snowpack.config.json
+// [npm install @snowpack/plugin-build-script]
+{
+  "plugins": [
+    ["@snowpack/plugin-build-script", { "cmd": "postcss", "input": [".css"], "output": [".css"]}]
+  ],
 }
 ```
 
-**Lack of CLI:** Some frameworks, like Svelte, don't maintain dedicated CLIs. Snowpack Plugins allow you to tap into a tool's JS interface directly without building a whole new CLI interface.
+This plugin allows you to connect any CLI into your build process. Just give it a `cmd` CLI command that can take input from `stdin` and emit the build result via `stdout`. Check out the README for more information.
+
+#### @snowpack/plugin-run-script
 
 ```js
-"scripts": {
-  // Lack of CLI: There is no Svelte CLI. Our plugin taps directly into the Svelte compiler 
-  "build:svelte": "@snowpack/plugin-svelte",
+// snowpack.config.json
+// [npm install @snowpack/plugin-build-script]
+{
+  "plugins": [
+    ["@snowpack/plugin-run-script", { "cmd": "tsc --noEmit", "watch": "$1 --watch"}]
+  ],
 }
 ```
 
-**Custom Control:** You can write your own project-specific plugins easily, and load them via relative path without ever needing to publish them.
+This plugin allows you to run any CLI command as a part of your dev and build workflow. This plugin doesn't affect your build output, but it is useful for connecting developer tooling directly into Snowpack. Use this to add meaningful feedback to your dev console as you type, like TypeScript type-checking and ESLint lint errors.
 
-```js
-"scripts": {
-  // Custom Behavior: Feel free to build your own!
-  "build:vue": "./my-custom-vue-plugin.js",
-}
-```
+
+### Official Plugins
+- [@snowpack/plugin-babel](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-babel)
+- [@snowpack/plugin-svelte](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-svelte)
+- [@snowpack/plugin-vue](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-vue)
+- [@snowpack/plugin-dotenv](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-dotenv)
+- [@snowpack/plugin-parcel](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-parcel)
+- [@snowpack/plugin-react-refresh](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-react-refresh)
+- [@snowpack/plugin-webpack](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-webpack)
+
+👉 **[Check out our full list](/plugins) of official plugins.**
+
+### Community Plugins
+
+- [@prefresh/snowpack](https://github.com/JoviDeCroock/prefresh)
+- [snowpack-plugin-import-map](https://github.com/zhoukekestar/snowpack-plugin-import-map)
+
+Don’t see your plugin in this list? [Add yours](https://github.com/pikapkg/snowpack/pulls)!

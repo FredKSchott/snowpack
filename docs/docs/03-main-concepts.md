@@ -54,7 +54,7 @@ After Snowpack builds your dependencies, any package can be imported and run dir
 
 `snowpack dev` - Snowpack's dev server is an instant dev environment for [unbundled development.](#unbundled-development) The dev server will only build a file when it's requested by the browser. That means that Snowpack can start up instantly (usually in **<50ms**) and scale to infinitely large projects without slowing down. In contrast, it's common to see 30+ second dev startup times when building large apps with a traditional bundler.
 
-Snowpack supports JSX & TypeScript source code by default, compiling your files to JavaScript before sending them to the browser. You can extend this even further with custom [Build Scripts](#build-scripts) & [Plugins](#build-plugins) to connect your favorite build tools to Snowpack: TypeScript, Babel, Vue, Svelte, PostCSS, Sass... go wild!
+Snowpack supports JSX & TypeScript source code by default. You can extend your build even further with [custom plugins](#build-plugins) that connect Snowpack with your favorite build tools: TypeScript, Babel, Vue, Svelte, PostCSS, Sass... go wild!
 
 
 ### Snowpack's Build Pipeline
@@ -66,20 +66,19 @@ Snowpack supports JSX & TypeScript source code by default, compiling your files 
 
 ### Bundle for Production
 
-**You should be able to use a bundler because you want to, but not because you need to.** That was the single premise that Snowpack was originally built to solve.
+**You should be able to use a bundler because you want to, and not because you need to.** That was the original concept that Snowpack was designed to address. Snowpack treats bundling as an optional production optimization, which means you're free to skip over the extra complexity of bunling until you need it.
 
 By default, `snowpack build` will build your site using the same unbundled approach as the `dev` command. This is fine for most projects, but you also may still want to bundle for production. Legacy browser support, code minification, code-splitting, tree-shaking, dead code elimination, and other performance optimizations are all handled in Snowpack via bundling.
 
-**You can connect your favorite bundler to Snowpack to optimize production builds.** Bundlers normally require dozens or even hundreds of lines of configuration, but with Snowpack it's just a one-line change to your project config file. Snowpack builds your application *before* sending it to the bundler, so that all the bundler needs to do is worry about bundling the final JavaScript & CSS. No custom configuration required.
+**Connect your favorite bundler to Snowpack via a one-line plugin .** Bundlers normally require dozens or even hundreds of lines of configuration, but with Snowpack it's just a one-line change to your project config file. Snowpack builds your application *before* sending it to the bundler, so that all the bundler needs to do is worry about bundling the final JavaScript & CSS. No custom configuration required.
 
-Snowpack ships with official support for [Webpack](https://www.npmjs.com/package/@snowpack/plugin-webpack). Connect the `"@snowpack/plugin-webpack"` plugin in your Snowpack configuration file and then run `snowpack build` to create optimized, bundled builds.
+Snowpack ships with official support for [webpack](https://www.npmjs.com/package/@snowpack/plugin-webpack). Connect the `"@snowpack/plugin-webpack"` plugin in your Snowpack configuration file and then run `snowpack build` to see your optimized, bundled build.
 
 ```js
 // snowpack.config.json
+// [npm install @snowpack/plugin-webpack]
 {
   // Optimize your production builds with Webpack
   "plugins": [["@snowpack/plugin-webpack", {/* ... */}]]
 }
 ```
-
-If you don't want to use a bundler, that's fine too! Just skip the plugin and/or set `devOptions.bundle: false` in your Snowpack configuration.

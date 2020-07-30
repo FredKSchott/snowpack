@@ -1,6 +1,6 @@
 # @snowpack/plugin-build-script
 
-A Snowpack plugin to build files in your application using any CLI tool. This plugin passes matching files as input to a custom CLI command, and returns the output response as the build result. This is useful for connecting a custom CLI or when no Snowpack plugin exists for a favorite build tool.
+A Snowpack plugin to build files in your application using any CLI tool. This plugin passes matching files as input to a custom CLI command and returns the output response as the build result. This is useful for connecting a custom CLI or when no Snowpack plugin exists for a favorite build tool.
 
 Note: All Snowpack < v2.6 `build:*` scripts now use this plugin behind the scenes.
 

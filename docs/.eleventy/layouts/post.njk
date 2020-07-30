@@ -107,13 +107,14 @@ h2 code, h3 code, h4 code {
   padding-left: 2px;
 }
 .grid-body-header {
-  margin: 6rem 1rem;
+  margin: 5rem 1rem;
   color: white;
   text-align: center;
   font-size: 18px;
 }
 .grid-body-header > p {
-  color: #daebf7;
+  color: white;
+  font-weight: bold;
 }
 .grid-body-header a {
   color: white;
@@ -257,7 +258,8 @@ body {
   background-size: cover;
   background: url('/img/extra-space.png') center; 
 }
-.grid-extra-space video {
+.grid-extra-space video,
+.grid-extra-space img {
   position: absolute;
     width: 100%;
     height: 100%;
@@ -379,8 +381,9 @@ body {
 #toc-drawer-button {
   display: none;
 }
-#background-video {
-  image-rendering: crisp-edges;
+#background-image {
+  image-rendering: pixelated;
+  filter: brightness(0.72);
 }
   .visible-mobile {display: none; }
 
@@ -455,20 +458,28 @@ body {
       </a>
     </div>
     <div class="grid-extra-space">
-      <video id="background-video" src="/img/extra-space-4.mp4" autoplay loop muted></video>
+      {% if bannerImage %}
+        <img id="background-image" src="{{ bannerImage }}" alt="" />
+      {% endif %}
+      {% if bannerVideo %}
+        <video id="background-video" src="{{ bannerVideo }}" autoplay loop muted></video>
+      {% endif %}
+
+
+      
 
       <div class="grid-body-header">
-        <svg height="64px" style="padding-left: 8px;" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <svg height="80px" style="padding-left: 8px;" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
             <g id="Page-1" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
                 <g id="mountain-solid" transform="translate(-1.000000, 0.000000)"fill-rule="nonzero">
                     <path d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z" id="Shape"></path>
                 </g>
             </g>
         </svg>
-        <h1 class="header-snowpack">Snowpack 2.0</h1>
-        <p>v2.0.0 release post <br /> Published <a href='#published-at'>Tuesday, May 27th 2020</a> by <a href="https://twitter.com/FredKSchott">Fred K. Schott<a></p>
+        <h1 class="header-snowpack">{{title}}</h1>
+        <p>{{tagline}}<br /> Published <a href='#published-at'>{{page.date | readableDate }}</a> by <a href="https://twitter.com/FredKSchott">Fred K. Schott<a></p>
         <!-- Place this tag where you want the button to render. -->
-        <div class="hidden-mobile" style="text-align: center; margin-top: 0.5rem;">
+        <div class="hidden-mobile" style="text-align: center; margin-top: 0.5rem; filter: scale(2);">
             <a class="github-button" href="https://github.com/pikapkg/snowpack" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star pikapkg/snowpack on GitHub">Star</a>
         </div>
         <!-- Place this tag in your head or just before your close body tag. -->

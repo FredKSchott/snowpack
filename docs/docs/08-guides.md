@@ -20,6 +20,40 @@ All of the following frameworks have been tested and guaranteed to work in Snowp
 
 Some libraries use compile-to-JS file formats and do require a special build script or plugin. See the guide below for examples.
 
+### JSX
+
+Snowpack has built-in support to handle `.jsx` & `.tsx` source files in your application. 
+
+**Note: Snowpack's default build does not support JSX in  `.js`/`.ts` files.** If you can't use the `.jsx`/`.tsx` file extension, you can use [Babel](#babel) to build your application instead.
+
+### TypeScript
+
+Snowpack has built-in support to handle `.ts` & `.tsx` source files in your application.
+
+Snowpack supports live TypeScript type checking right in the Snowpack CLI dev console. Connect the TypeScript compiler (`tsc`) into your workflow using the snippet below.
+
+```js
+// snowpack.config.json
+// Example: Connect TypeScript CLI (tsc) reporting to Snowpack
+{
+  "plugins": [
+    ["@snowpack/plugin-run-script", {"cmd": "tsc --noEmit", "watch": "$1 --watch"}]
+  ]
+}
+```
+
+### Babel
+
+Snowpack already comes with built-in support for building JavaScript, TypeScript, and JSX. However, If you would like to run your build through Babel instead, you can replace our default file builder with the official Snowpack Babel plugin.
+
+The plugin will automatically read plugins & presets from your local project `babel.config.*` config file, if one exists.
+
+```js
+// snowpack.config.json
+"plugins": ["@snowpack/plugin-babel"],
+```
+
+
 ### Preact
 
 You can import and use Preact without any custom configuration needed.
@@ -37,36 +71,12 @@ You can import and use Preact without any custom configuration needed.
 }
 ```
 
-### Babel
-
-Babel will automatically read plugins & presets from your local project `babel.config.*` config file, if one exists.
-
-#### via plugin (Recommended)
-
-```js
-// snowpack.config.json
-"plugins": ["@snowpack/plugin-babel"],
-"scripts": {
-  "build:js,jsx": "@snowpack/plugin-babel"
-}
-```
-
-#### via @babel/cli
-
-```js
-// snowpack.config.json
-// NOTE: Not recommended, Babel CLI is slower than the plugin on large sites.
-"scripts": {
-  "build:js,jsx": "babel --filename $FILE"
-}
-```
 
 ### Vue
 
 
 ```js
 // snowpack.config.json
-// Note: The plugin will add a default build script automatically
 "plugins": ["@snowpack/plugin-vue"]
 ```
 
@@ -74,7 +84,6 @@ Babel will automatically read plugins & presets from your local project `babel.c
 
 ```js
 // snowpack.config.json
-// Note: The plugin will add a default build script automatically
 "plugins": ["@snowpack/plugin-svelte"]
 ```
 
@@ -83,9 +92,9 @@ Babel will automatically read plugins & presets from your local project `babel.c
 
 ```js
 // snowpack.config.json
-"scripts": {
-  "build:css": "postcss"
-}
+"plugins": [
+  ["@snowpack/plugin-build-script", {"cmd": "postcss", "input": [".css"], "output": [".css"]}]
+]
 ```
 
 The [`postcss-cli`](https://github.com/postcss/postcss-cli) package must be installed manually. You can configure PostCSS with a `postcss.config.js` file in your current working directory.
@@ -136,10 +145,9 @@ Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installatio
 ```js
 // snowpack.config.json
 // Example: Build all src/css/*.scss files to public/css/*
-"scripts": {
-  "run:sass": "sass src/css:public/css --no-source-map",
-  "run:sass::watch": "$1 --watch"
-}
+"plugins": [
+  ["@snowpack/plugin-run-script", {"cmd": "sass src/css:public/css --no-source-map", "watch": "$1 --watch"}]
+]
 
 // You can configure this to match your preferred layout:
 //
@@ -163,18 +171,33 @@ To use Sass + PostCSS, check out [this guide](https://zellwk.com/blog/eleventy-s
 
 ```js
 // snowpack.config.json
-"scripts": {
-    "run:lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+"plugins": [
+  ["@snowpack/plugin-run-script", {
+    "cmd": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     // Optional: Use npm package "watch" to run on every file change
-    "run:lint::watch": "watch \"$1\" src"
+    "watch": "watch \"$1\" src"
+  }]
+]
+```
+
+### Webpack
+
+```js
+// snowpack.config.json
+{
+  // Optimize your production builds with Webpack
+  "plugins": [["@snowpack/plugin-webpack", {/* ... */}]]
 }
 ```
+
+Snowpack ships an official [webpack plugin](https://www.npmjs.com/package/@snowpack/plugin-webpack) for optimizing your build. Connect the `"@snowpack/plugin-webpack"` plugin into your Snowpack configuration file and then run `snowpack build` to see your optimized, bundled build.
+
 
 ### Workbox
 
 The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbox-cli) integrates well with Snowpack. Run the wizard to bootstrap your first configuration file, and then run `workbox generateSW` to generate your service worker.
 
-Remember that Workbox expects to be run every time you deploy, as a part of a production "build" process (similar to how Snowpack's [`--optimize`](#production-optimization) flag works). If you don't have one yet, create package.json [`"deploy"` and/or `"build"` scripts](https://michael-kuehnel.de/tooling/2018/03/22/helpers-and-tips-for-npm-run-scripts.html) to automate your production build process.
+Remember that Workbox expects to be run every time you deploy, as a part of a production build process. If you don't have one yet, create package.json [`"deploy"` and/or `"build"` scripts](https://michael-kuehnel.de/tooling/2018/03/22/helpers-and-tips-for-npm-run-scripts.html) to automate your production build process.
 
 ### Server Side Rendering (SSR)
 

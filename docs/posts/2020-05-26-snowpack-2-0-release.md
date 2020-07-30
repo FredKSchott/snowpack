@@ -1,5 +1,9 @@
 ---
 layout: layouts/post.njk
+bannerVideo: "/img/extra-space-4.mp4"
+title: Snowpack 2.0
+tagline: v2.0.0 release post
+date: 2020-05-26
 ---
 
 After 40+ beta versions & release candidates we are very excited to introduce **Snowpack 2.0: A build system for the modern web.**

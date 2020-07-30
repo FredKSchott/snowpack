@@ -1,38 +1,43 @@
-## Features
 
-### Hot Module Replacement
+## JavaScript
 
-Hot Module Replacement (HMR) is the ability to update your web app during development without refreshing the page. Imagine changing some CSS, hitting save, and then instantly seeing your change reflected on the page without a refresh. That's HMR.
+### ES Modules (ESM)
 
-Snowpack supports full HMR out-of-the-box for the following served files:
-
-- CSS
-- CSS Modules
-- JSON
-
-Popular frameworks can also be set up for HMR. **[Create Snowpack App (CSA)](https://github.com/pikapkg/create-snowpack-app) ships with HMR enabled by default for all of the following frameworks.** If you're not using CSA, you can setup HMR in your own application with a simple plugin or a few lines of code:
-
-- Preact: [@prefresh/snowpack](https://www.npmjs.com/package/@prefresh/snowpack)
-- React: [@snowpack/plugin-react-refresh](https://www.npmjs.com/package/@snowpack/plugin-react-refresh)
-- Svelte: [A few lines of code](https://github.com/pikapkg/create-snowpack-app/blob/master/templates/app-template-svelte/src/index.js#L9-L16)
-- Vue: [A few lines of code](https://github.com/pikapkg/create-snowpack-app/blob/master/templates/app-template-vue/src/index.js#L7-L14)
-
-For more advanced, bare-metal HMR integrations, Snowpack created [ESM-HMR](https://github.com/pikapkg/esm-hot-module-replacement-spec), a standard HMR API for any ESM-based dev environment. Any HMR integration built for ESM-HMR will run on Snowpack and any other ESM-HMR-enabled dev server. To use the HMR API directly (via `import.meta.hot`) check out [the ESM-HMR spec](https://github.com/pikapkg/esm-hot-module-replacement-spec) to learn more.
+Snowpack was designed to support JavaScript's native ES Module (ESM) syntax. ESM lets you define explicit imports & exports that browsers and build tools can better understand and optimize for. If you're familiar with the `import` and `export` keywords in JavaScript, then you already know ESM! 
 
 ```js
+// ESM Example - src/user.js
+export function getUser() { /* ... */ 
 
-if (import.meta.hot) {
-  import.meta.hot.accept(({module}) => {
-    // Accept the module, apply it to your application.
-  });
-  import.meta.hot.dispose(() => {
-    // Cleanup any side-effects. Optional.
-  });
-}
+// src/index.js
+import {getUser} from './user.js';
 ```
 
-- 👉 **[Check out the full ESM-HMR spec.](https://github.com/pikapkg/esm-hot-module-replacement-spec)**
+All modern browsers support ESM, so Snowpack is able to ship this code directly to the browser during development. This is what makes Snowpack's **unbundled development** workflow possible. 
 
+Snowpack also lets you import non-JavaScript files directly in your application. Snowpack handles all this for you automatically so there's nothing to configure, using the following logic:
+
+### Import NPM Packages
+
+```js
+// Returns the React & React-DOM npm packages
+import React from 'react' 
+import ReactDOM from 'react-dom' 
+```
+
+Snowpack lets you import npm packages directly in the browser. Even if a package was published using a legacy format, Snowpack will up-convert the package to ESM before serving it to the browser.
+
+When you start up your dev server or run a new build, you may see a message that Snowpack is "installing dependencies". This means that Snowpack is converting your dependencies to run in the browser.
+
+
+### Import JSON
+
+```js
+// Returns the JSON object via the default import
+import json from './data.json' 
+```
+
+Snowpack supports importing JSON files, which return the full JSON object in the default import.
 
 
 ### Import CSS
@@ -42,9 +47,9 @@ if (import.meta.hot) {
 import './style.css' 
 ```
 
-Snowpack supports basic CSS imports inside of your JavaScript files. While this isn't natively supported by any browser today, Snowpack's dev server and build pipeline both handle this for you.
+Snowpack supports basic CSS imports inside of your JavaScript files. When you import a CSS file via the `import` keyword, Snowpack will automatically apply those styles to the page. This works for CSS and compile-to-CSS languages like Sass & Less.
 
-Snowpack also supports any popular CSS-in-JS library. If you prefer to avoid these non-standard CSS imports, check out [csz](https://github.com/lukejacksonn/csz). CSZ is a run-time CSS module library with support for SASS-like syntax/selectors.
+If you prefer, Snowpack also supports any popular CSS-in-JS library for styling.
 
 ### Import CSS Modules
 
@@ -64,16 +69,7 @@ import styles from './style.module.css'
 return <div className={styles.error}>Your Error Message</div>;
 ```
 
-Snowpack supports CSS Modules for CSS files using the `[name].module.css` naming convention. CSS Modules allow you to scope your CSS to unique class names & identifiers. CSS Modules return a default export (`styles` in the example below) that maps the original identifier to it's new, scoped value.
-
-### Import JSON
-
-```js
-// JSON is returned as parsed via the default export
-import json from './data.json' 
-```
-
-Snowpack supports importing JSON via ESM import. While this isn't yet supported in most browsers, it's a huge convenience over having to use fetch() directly.
+Snowpack supports CSS Modules using the `[name].module.css` naming convention. CSS Modules work just like normal CSS imports, but with a special default `styles` export that maps your original classnames to unique identifiers.
 
 
 ### Import Images & Other Assets
@@ -86,22 +82,34 @@ import svg from './image.svg'; // svg === '/src/image.svg'
 <img src={img} />;
 ```
 
-All other assets not explicitly mentioned above can be imported to get a URL reference to the asset. This can be useful for referencing assets inside of your JS, like creating an image element with a `src` attribute pointing to that image.
+All other assets not explicitly mentioned above can be imported and will return a URL reference to the final built asset. This can be useful for referencing non-JS assets by URL, like creating an image element with a `src` attribute pointing to that image.
 
-### Top-Level Imports
 
+
+## Features
+
+Snowpack ships with built-in support for the following file types, no configuration required:
+
+- JavaScript (`.js`, `.mjs`)
+- TypeScript (`.ts`, `.tsx`)
+- JSX (`.jsx`, `.tsx`)
+- CSS (`.css`)
+- CSS Modules (`.module.css`)
+- Images (`.svg`, `.jpg`, `.png`, etc.)
+
+To customize build behavior and support new languages (`.scss`, `.svelte`, `.vue`), keep reading.
+
+### Import Aliases
 
 ```js
 // Instead of this:
 import Button from `../../../../components/Button`;
 
 // You can do this:
-import Button from `src/components/Button`;
+import Button from `@app/components/Button`;
 ```
 
-Snowpack lets you import files relative to any mounted directory. Both styles of imports are supported, so you are free to use whichever you prefer.
-
-Note that this only works for directories that have been mounted via a `mount:*` build script. If an import doesn't match a mounted directory, then it will be treated as a package. [Learn more about the "mount" script type.](#all-script-types)
+Snowpack supports setting custom import aliases for your project via the top-level `alias` property. This can be used to define an alias for either a local source directory (like aliasing `@app` to `./src`) or a package (like aliasing `react` to `preact/compat`). See the full documentation for `alias` below.
 
 **TypeScript Users:** You'll need to configure your `tsconfig.json` `paths` to get proper types from top-level imports. Learn more about ["path mappings"](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping).
 
@@ -121,72 +129,7 @@ Note that this only works for directories that have been mounted via a `mount:*`
   }
 }
 ```
-
-
-### JSX
-
-#### Compile to JavaScript
-
-
-Snowpack automatically builds all `.jsx` & `.tsx` files to JavaScript during development and production builds. 
-
-**Note: Snowpack's default build supports JSX with both React & Preact as long as a React/Preact import exists somewhere in the file.** To set a custom JSX pragma, you can configure our default esbuild yourself:
-
-```js
-// snowpack.config.json
-// Optional: Define your own JSX factory/fragment
-{
-  "scripts": {
-    "build:tsx": "esbuild --jsx-factory=h --jsx-fragment=Fragment --loader=tsx"
-  }
-}
-```
-
-**Note: Snowpack's default build does not support JSX in  `.js`/`.ts` files.** You'll need to define your own build script to support this. You can define your own JSX->JavaScript build step via a [Build Script integration](#build-scripts).
-
-```js
-// snowpack.config.json
-// Optional: You can define your own JSX build step if you'd like.
-{
-  "scripts": {
-    "build:jsx": "babel --filename $FILE",
-  }
-}
-```
-
-### TypeScript
-
-#### Compile to JavaScript
-
-Snowpack automatically builds all `.ts` & `.tsx` files to JavaScript. Snowpack will not perform any type checking by default (see below), only building from TS->JS.
-
-You could also choose to define your own TSX->JavaScript build step via a [Build Script integration](#build-scripts).
-
-```js
-// snowpack.config.json
-// Optional: You can define your own TS build step if you'd like.
-{
-  "scripts": {
-    "build:ts,tsx": "babel --filename $FILE",
-  }
-}
-```
-
-#### Type Checking During Development
-
-You can integrate TypeScript type checking with Snowpack via a [Build Script integration](#build-scripts). Just add the TypeScript compiler (`tsc`) as a build command that gets run during your build with a `--watch` mode for development.
-
-```js
-// snowpack.config.json
-// Example: Connect TypeScript CLI (tsc) reporting to Snowpack
-{
-  "scripts": {
-    "run:tsc": "tsc --noEmit",
-    "run:tsc::watch": "$1 --watch"
-  }
-}
-```
-
+  
 ### Environment Variables
 
 ```js
@@ -222,6 +165,41 @@ For your safety, Snowpack only supports environment variables that begin with `S
 Add the `@snowpack/plugin-dotenv` plugin to your dev environment to automatically load environment variables from your project `.env` files. Visit the [plugin README](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-dotenv) to learn more.
 
 
+### Hot Module Replacement
+
+Hot Module Replacement (HMR) is the ability to update your web app during development without refreshing the page. Imagine changing some CSS, hitting save, and then instantly seeing your change reflected on the page without a refresh. That's HMR.
+
+Snowpack supports full HMR out-of-the-box for the following served files:
+
+- CSS
+- CSS Modules
+- JSON
+
+Popular frameworks can also be set up for HMR. **[Create Snowpack App (CSA)](https://github.com/pikapkg/create-snowpack-app) ships with HMR enabled by default for all of the following frameworks.** If you're not using CSA, you can setup HMR in your application with a simple plugin or a few lines of code:
+
+- Preact: [@prefresh/snowpack](https://www.npmjs.com/package/@prefresh/snowpack)
+- React: [@snowpack/plugin-react-refresh](https://www.npmjs.com/package/@snowpack/plugin-react-refresh)
+- Svelte: [A few lines of code](https://github.com/pikapkg/create-snowpack-app/blob/master/templates/app-template-svelte/src/index.js#L9-L16)
+- Vue: [A few lines of code](https://github.com/pikapkg/create-snowpack-app/blob/master/templates/app-template-vue/src/index.js#L7-L14)
+
+For more advanced, bare-metal HMR integrations, Snowpack created [ESM-HMR](https://github.com/pikapkg/esm-hot-module-replacement-spec), a standard HMR API for any ESM-based dev environment. Any HMR integration built for ESM-HMR will run on Snowpack and any other ESM-HMR-enabled dev server. To use the HMR API directly (via `import.meta.hot`) check out [the ESM-HMR spec](https://github.com/pikapkg/esm-hot-module-replacement-spec) to learn more.
+
+```js
+
+if (import.meta.hot) {
+  import.meta.hot.accept(({module}) => {
+    // Accept the module, apply it to your application.
+  });
+  import.meta.hot.dispose(() => {
+    // Cleanup any side-effects. Optional.
+  });
+}
+```
+
+- 👉 **[Check out the full ESM-HMR spec.](https://github.com/pikapkg/esm-hot-module-replacement-spec)**
+
+
+
 ### Dev Request Proxy
 
 ```js
@@ -254,24 +232,6 @@ You can automatically generate credentials for your project via either:
 - [devcert (no install required)](https://github.com/davewasmer/devcert-cli): `npx devcert-cli generate localhost`
 - [mkcert (install required)](https://github.com/FiloSottile/mkcert): `mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt localhost`
    
-
-### Import Maps
-
-> Note [Import Maps](https://github.com/WICG/import-maps) are an experimental web technology that is not supported in every browser. For polyfilling import maps, [check out es-module-shims](https://github.com/guybedford/es-module-shims#import-maps).
-
-Snowpack generates an [Import Map](https://github.com/WICG/import-maps) with every installation to `web_modules/import-map.json`. If your browser supports Import Maps, you can load the import map somewhere in your application and unlock the ability to import packages by name natively in the browser (no Babel step required).
-
-``` markdown
-<!-- Include this in your application HTML... -->
-<script type="importmap" src="/web_modules/import-map.json"></script>
-
-<!-- ... to enable browser-native package name imports. -->
-import * as _ from 'lodash';
-```
-
-Note that Snowpack already performs these rewrites for you at both `dev` and `build` time, so this is only useful for experimentation and 3rd-party tooling integrations. As a general rule: if you don't care about this file, keep it but feel free to ignore it.
-
-
 ### Legacy Browser Support
 
 You can customize the set of browsers you'd like to support via the `package.json` "browserslist" property, going all the way back to IE11. This will be picked up when you run `snowpack build` to build for production.
@@ -281,28 +241,7 @@ You can customize the set of browsers you'd like to support via the `package.jso
 "browserslist": ">0.75%, not ie 11, not UCAndroid >0, not OperaMini all",
 ```
 
-If you're worried about legacy browsers, you should also add a bundler to your production build. Check out our [build documentation](https://www.snowpack.dev/#snowpack-build) for more info.
+If you're worried about legacy browsers, you should also add a bundler to your production build. Check out our [section on bundling for production](#bundle-for-production) for more info.
 
 Note: During development (`snowpack dev`) we perform no transpilation for older browsers. Make sure that you're using a modern browser during development.
 
-
-### Install Non-JS Packages
-
-When installing packages from npm, You may encounter some non-JS code that can only run with additional parsing/processing. Svelte packages, for example, commonly include `.svelte` files that will require additional tooling to parse and install for the browser.
-
-Because our internal installer is powered by Rollup, you can add Rollup plugins to your [Snowpack config](#configuration-options) to handle these special, rare files. 
-
-```js
-/* snowpack.config.js */
-module.exports = {
-  installOptions: {
-    rollup: {
-      plugins: [require('rollup-plugin-svelte')()]
-    }
-  }
-};
-```
-
-Note that this currently requires you use the `.js` format of our Snowpack config files, since JSON cannot require to load a Rollup plugin. 
-
-Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#using-plugins) for more information on adding Rollup plugins to our installer.

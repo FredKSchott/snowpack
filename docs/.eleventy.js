@@ -2,7 +2,7 @@ const path = require('path');
 const pluginTOC = require('eleventy-plugin-nesting-toc');
 const syntaxHighlight = require('@11ty/eleventy-plugin-syntaxhighlight');
 
-// const { DateTime } = require("luxon");
+const { DateTime } = require("luxon");
 // const pluginRss = require("@11ty/eleventy-plugin-rss");
 // const pluginSyntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 
@@ -21,9 +21,9 @@ module.exports = function (eleventyConfig) {
   //   return 'https://www.pika.dev' + url;
   // });
 
-  // eleventyConfig.addFilter("readableDate", dateObj => {
-  //   return DateTime.fromJSDate(dateObj, {zone: 'utc'}).toFormat("dd LLL yyyy");
-  // });
+  eleventyConfig.addFilter("readableDate", dateObj => {
+    return DateTime.fromJSDate(dateObj, {zone: 'utc'}).toFormat("LLLL dd, yyyy");
+  });
 
   // // https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#valid-date-string
   // eleventyConfig.addFilter('htmlDateString', (dateObj) => {

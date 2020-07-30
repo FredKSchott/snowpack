@@ -18,19 +18,21 @@
 
 ### What is Snowpack?
 
-**Snowpack is a modern, lightweight toolchain for web application development.** Traditional dev bundlers like webpack or Parcel need to rebuild & rebundle entire chunks of your application every time you save a single file. This introduces lag between changing a file and seeing those changes reflected in the browser, sometimes as slow as several seconds.
+**Snowpack is a modern, lightweight toolchain for faster web development.** Traditional JavaScript build tools like webpack and Parcel need to rebuild & rebundle entire chunks of your application every time you save a single file. This rebundling step introduces lag between hitting save on your changes and seeing them reflected in the browser.
 
-Snowpack solves this problem by serving your application **unbundled in development.** Any time you change a file, Snowpack never rebuilds more than a single file. There's no bundling to speak of, just a few milliseconds of single-file rebuilding and then an instant update in the browser via HMR. We call this new approach **O(1) Build Tooling.** You can read more about it in our [Snowpack 2.0 Release Post.](/posts/2020-05-26-snowpack-2-0-release/) 
+Snowpack serves your application **unbundled during development.**  Every file only needs to be built once and then is cached forever. When a file changes, Snowpack rebuilds that single file. There's no time wasted re-bundling every change, just instant updates in the browser (made even faster via [Hot-Module Replacement (HMR)](#hot-module-replacement)). You can read more about this approach in our [Snowpack 2.0 Release Post.](/posts/2020-05-26-snowpack-2-0-release/) 
 
-When you're ready to deploy your web application to users, you can add back a traditional bundler like Webpack or Parcel. With Snowpack you get bundled & optimized production performance without sacrificing dev speed by adding an unnecessary bundler, 
+Snowpack's **unbundled development** still supports the same **bundled builds** that you're used to for production. When you go to build your application for production, you can plug in your favorite bundler via an official Snowpack plugin for Webpack or Rollup (coming soon). With Snowpack already handling your build, there's no complex bundler config required.
+
+**Snowpack gets you the best of both worlds:** fast, unbundled development with optimized performance in your bundled production builds.
 
 ### Key Features
 
-- A dev environment that starts up in **50ms or less.**
-- Changes are reflected [instantly in the browser.](/#hot-module-replacement)
+- A frontend dev environment that starts up in **50ms or less.** 
+- Changes reflected [instantly in the browser.](/#hot-module-replacement)
 - Integrates your favorite bundler for [production-optimized builds.](/#snowpack-build)
 - Out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](/#features)
-- Connect your favorite tools with custom [build scripts](/#build-scripts) & [third-party plugins.](/#build-plugins)
+- Connect your favorite tools with [third-party plugins.](/#build-plugins)
 
 ### Library Support
 
