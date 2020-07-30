@@ -1,7 +1,8 @@
 ---
 layout: layouts/post.njk
 bannerVideo: "/img/extra-space-4.mp4"
-title: Snowpack 2.0
+permalink: "/posts/2020-05-26-snowpack-2-0-release/"
+title: Introducing Snowpack 2.0
 tagline: v2.0.0 release post
 date: 2020-05-26
 ---
