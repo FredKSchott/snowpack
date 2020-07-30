@@ -1,7 +1,7 @@
 import {EventEmitter} from 'events';
 import {promises as fs} from 'fs';
 import path from 'path';
-import {SnowpackBuildMap, SnowpackPlugin} from '../config';
+import {SnowpackBuildMap, SnowpackPlugin} from '../types/snowpack';
 import {getEncodingType, getExt} from '../util';
 
 export interface BuildFileOptions {
@@ -50,12 +50,12 @@ async function runPipelineLoadStep(
         messageBus.emit(msg, {
           ...data,
           id: step.name,
-          msg: data.msg && `[${srcPath}] ${data.msg}`,
+          msg: data.msg && `${data.msg} [${path.relative(process.cwd(), srcPath)}]`,
         });
       },
     });
-    const mainOutputExt = step.resolve.output[0];
     if (typeof result === 'string') {
+      const mainOutputExt = step.resolve.output[0];
       return {[mainOutputExt]: result};
     } else if (result && typeof result === 'object') {
       return result;
@@ -77,7 +77,7 @@ async function runPipelineTransformStep(
   output: Record<string, string>,
   srcPath: string,
   {buildPipeline, messageBus, isDev}: BuildFileOptions,
-) {
+): Promise<Record<string, string>> {
   const srcExt = getExt(srcPath).baseExt;
   const rootFileName = path.basename(srcPath).replace(srcExt, '');
   for (const step of buildPipeline) {
@@ -111,30 +111,20 @@ async function runPipelineTransformStep(
   return output;
 }
 
-export function runPipelineProxyStep(
-  fileUrl: string,
-  contents: string,
-  {buildPipeline, messageBus, isDev}: BuildFileOptions,
+export async function runPipelineOptimizeStep(
+  buildDirectory: string,
+  {buildPipeline, messageBus}: BuildFileOptions,
 ) {
   for (const step of buildPipeline) {
-    if (!step.proxy) {
+    if (!step.optimize) {
       continue;
     }
-    const result = step.proxy({
-      contents,
-      fileUrl,
-      isDev,
-      log: (msg, data = {}) => {
-        messageBus.emit(msg, {
-          ...data,
-          id: step.name,
-          msg: data.msg && `[${fileUrl}] ${data.msg}`,
-        });
+    await step.optimize({
+      buildDirectory,
+      log: (msg) => {
+        messageBus.emit('WORKER_MSG', {id: step.name, level: 'log', msg});
       },
     });
-    if (typeof result === 'string') {
-      return result;
-    }
   }
   return null;
 }

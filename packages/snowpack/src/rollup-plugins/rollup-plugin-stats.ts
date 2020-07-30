@@ -2,18 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {OutputBundle, Plugin} from 'rollup';
 import zlib from 'zlib';
-
-export type DependencyStats = {
-  size: number;
-  gzip: number;
-  brotli?: number;
-  delta?: number;
-};
-type DependencyStatsMap = {
-  [filePath: string]: DependencyStats;
-};
-type DependencyType = 'direct' | 'common';
-export type DependencyStatsOutput = Record<DependencyType, DependencyStatsMap>;
+import {DependencyType, DependencyStatsOutput} from '../types/snowpack';
 
 export function rollupPluginDependencyStats(
   cb: (dependencyInfo: DependencyStatsOutput) => void,

@@ -1,26 +1,26 @@
-const fs = require("fs");
-const hashsum = require("hash-sum");
-const compiler = require("@vue/compiler-sfc");
+const fs = require('fs');
+const hashsum = require('hash-sum');
+const compiler = require('@vue/compiler-sfc');
 
-module.exports = function plugin(config, pluginOptions) {
+module.exports = function plugin() {
   return {
-    defaultBuildScript: "build:vue",
-    async build({ contents, filePath }) {
+    name: '@snowpack/plugin-vue',
+    resolve: {
+      input: ['.vue'],
+      output: ['.js', '.css'],
+    },
+    async load({filePath}) {
       const id = hashsum(filePath);
-      const { descriptor, errors } = compiler.parse(contents, {
-        filename: filePath,
-      });
+      const contents = fs.readFileSync(filePath, 'utf-8');
+      const {descriptor, errors} = compiler.parse(contents, {filename: filePath});
 
       if (errors && errors.length > 0) {
         console.error(JSON.stringify(errors));
       }
 
-      let jsResult = "";
+      let jsResult = '';
       if (descriptor.script) {
-        jsResult += descriptor.script.content.replace(
-          `export default`,
-          "const defaultExport ="
-        );
+        jsResult += descriptor.script.content.replace(`export default`, 'const defaultExport =');
       } else {
         jsResult += `const defaultExport = {};`;
       }
@@ -40,7 +40,7 @@ module.exports = function plugin(config, pluginOptions) {
         if (styleCode.errors && styleCode.errors.length > 0) {
           console.error(JSON.stringify(styleCode.errors));
         }
-        cssResult = cssResult || "";
+        cssResult = cssResult || '';
         cssResult += styleCode.code;
       }
 
@@ -50,10 +50,8 @@ module.exports = function plugin(config, pluginOptions) {
           source: descriptor.template.content,
           preprocessLang: descriptor.template.lang,
           compilerOptions: {
-            scopeId: descriptor.styles.some((s) => s.scoped)
-              ? `data-v-${id}`
-              : null,
-            runtimeModuleName: "/web_modules/vue.js",
+            scopeId: descriptor.styles.some((s) => s.scoped) ? `data-v-${id}` : null,
+            runtimeModuleName: '/web_modules/vue.js',
           },
         });
         if (templateCode.errors && templateCode.errors.length > 0) {
@@ -64,7 +62,10 @@ module.exports = function plugin(config, pluginOptions) {
         jsResult += `\nexport default defaultExport`;
       }
 
-      return { result: jsResult, resources: { css: cssResult } };
+      return {
+        '.js': jsResult,
+        '.css': cssResult,
+      };
     },
   };
 };

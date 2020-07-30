@@ -8,7 +8,7 @@ const defaultExport = {
   }
 };
 
-import { createVNode as _createVNode, createTextVNode as _createTextVNode, toDisplayString as _toDisplayString, openBlock as _openBlock, createBlock as _createBlock } from "/web_modules/vue.js"
+import { createVNode as _createVNode, createTextVNode as _createTextVNode, toDisplayString as _toDisplayString, openBlock as _openBlock, createBlock as _createBlock } from "../web_modules/vue.js"
 
 const _hoisted_1 = { class: "App" }
 const _hoisted_2 = { class: "App-header" }

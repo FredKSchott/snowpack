@@ -1,6 +1,6 @@
-const fs = require("fs");
+const fs = require('fs');
 
-module.exports = function plugin(config, options) {
+module.exports = function plugin() {
   const NODE_ENV = process.env.NODE_ENV;
 
   // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
@@ -9,9 +9,9 @@ module.exports = function plugin(config, options) {
     // Don't include `.env.local` for `test` environment
     // since normally you expect tests to produce the same
     // results for everyone
-    NODE_ENV !== "test" && `.env.local`,
+    NODE_ENV !== 'test' && `.env.local`,
     NODE_ENV && `.env.${NODE_ENV}`,
-    ".env",
+    '.env',
   ].filter(Boolean);
 
   // Load environment variables from .env* files. Suppress warnings using silent
@@ -21,13 +21,15 @@ module.exports = function plugin(config, options) {
   // https://github.com/motdotla/dotenv-expand
   dotenvFiles.forEach((dotenvFile) => {
     if (fs.existsSync(dotenvFile)) {
-      require("dotenv-expand")(
-        require("dotenv").config({
+      require('dotenv-expand')(
+        require('dotenv').config({
           path: dotenvFile,
-        })
+        }),
       );
     }
   });
 
-  return {};
+  return {
+    name: '@snowpack/plugin-dotenv',
+  };
 };

@@ -3,7 +3,6 @@ import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-common
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
-import esbuild from 'rollup-plugin-esbuild';
 import {init as initESModuleLexer} from 'es-module-lexer';
 import findUp from 'find-up';
 import fs from 'fs';
@@ -11,25 +10,29 @@ import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import ora from 'ora';
 import path from 'path';
+import {performance} from 'perf_hooks';
 import rimraf from 'rimraf';
 import {InputOptions, OutputOptions, rollup, RollupError} from 'rollup';
 import validatePackageName from 'validate-npm-package-name';
-import {EnvVarReplacements, SnowpackConfig, SnowpackSourceFile} from '../config.js';
 import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
 import {rollupPluginCatchUnresolved} from '../rollup-plugins/rollup-plugin-catch-unresolved.js';
 import {rollupPluginCatchFetch} from '../rollup-plugins/rollup-plugin-catch-fetch';
 import {rollupPluginCss} from '../rollup-plugins/rollup-plugin-css';
 import {rollupPluginDependencyCache} from '../rollup-plugins/rollup-plugin-remote-cdn.js';
-import {
-  DependencyStatsOutput,
-  rollupPluginDependencyStats,
-} from '../rollup-plugins/rollup-plugin-stats.js';
+import {rollupPluginDependencyStats} from '../rollup-plugins/rollup-plugin-stats.js';
 import {rollupPluginWrapInstallTargets} from '../rollup-plugins/rollup-plugin-wrap-install-targets';
-import {InstallTarget, scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
+import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
 import {printStats} from '../stats-formatter.js';
 import {
   CommandOptions,
+  DependencyStatsOutput,
+  EnvVarReplacements,
   ImportMap,
+  InstallTarget,
+  SnowpackConfig,
+  SnowpackSourceFile,
+} from '../types/snowpack';
+import {
   isTruthy,
   MISSING_PLUGIN_SUGGESTIONS,
   parsePackageImportSpecifier,
@@ -429,7 +432,6 @@ export async function install(
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
-      ...(config.buildOptions.minify ? [esbuild({minify: true})] : []),
     ].filter(Boolean) as Plugin[],
     onwarn(warning, warn) {
       // Warn about the first circular dependency, but then ignore the rest.
@@ -584,7 +586,7 @@ export async function run({
   }
 
   rimraf.sync(dest);
-  const startTime = Date.now();
+  const installStart = performance.now();
   const finalResult = await install(
     installTargets,
     {
@@ -605,10 +607,11 @@ export async function run({
   });
 
   if (finalResult.success) {
+    const installEnd = performance.now();
     spinner.succeed(
       colors.bold(`snowpack`) +
         ` install complete${spinnerHasError ? ' with errors.' : '.'}` +
-        colors.dim(` [${((Date.now() - startTime) / 1000).toFixed(2)}s]`),
+        colors.dim(` [${((installEnd - installStart) / 1000).toFixed(2)}s]`),
     );
   } else {
     spinner.stop();

@@ -2,8 +2,8 @@ import cacache from 'cacache';
 import * as colors from 'kleur/colors';
 import PQueue from 'p-queue';
 import validatePackageName from 'validate-npm-package-name';
-import {SnowpackConfig} from './config.js';
-import {fetchCDNResource, ImportMap, PIKA_CDN, RESOURCE_CACHE} from './util.js';
+import {SnowpackConfig, ImportMap} from './types/snowpack';
+import {fetchCDNResource, PIKA_CDN, RESOURCE_CACHE} from './util.js';
 
 /**
  * Given an install specifier, attempt to resolve it from the CDN.

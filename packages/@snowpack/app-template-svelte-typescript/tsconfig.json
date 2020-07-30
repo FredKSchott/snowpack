@@ -1,11 +1,10 @@
-{
+{ 
+  "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "module": "esnext",
     "target": "esnext",
-    "moduleResolution": "node",
     "jsx": "preserve",
     "allowSyntheticDefaultImports": true,
-    "importsNotUsedAsValues": "error",
     /* noEmit - We only use TypeScript for type checking. */
     "noEmit": true,
     /* Additional Options */

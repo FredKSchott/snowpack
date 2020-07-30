@@ -5,16 +5,14 @@
  * - https://github.com/vitejs/vite-plugin-react (see LICENSE)
  */
 
-const fs = require("fs");
+const fs = require('fs');
 
-const reactRefreshLoc = require.resolve(
-  "react-refresh/cjs/react-refresh-runtime.development.js"
-);
+const reactRefreshLoc = require.resolve('react-refresh/cjs/react-refresh-runtime.development.js');
 const reactRefreshCode = fs
-  .readFileSync(reactRefreshLoc, { encoding: "utf-8" })
-  .replace(`process.env.NODE_ENV`, JSON.stringify("development"));
+  .readFileSync(reactRefreshLoc, {encoding: 'utf-8'})
+  .replace(`process.env.NODE_ENV`, JSON.stringify('development'));
 
-function transformHtml(contents, urlPath) {
+function transformHtml(contents) {
   return contents.replace(
     /<body.*?>/,
     `$&
@@ -27,20 +25,18 @@ function transformHtml(contents, urlPath) {
   window.$RefreshRuntime$.injectIntoGlobalHook(window);
   window.$RefreshReg$ = () => {};
   window.$RefreshSig$ = () => (type) => type;
-</script>`
+</script>`,
   );
 }
 
-function transformJs(contents, urlPath) {
+function transformJs(contents, filePath) {
   return `
 /** React Refresh: Setup **/
 if (import.meta.hot) {
   var prevRefreshReg = window.$RefreshReg$;
   var prevRefreshSig = window.$RefreshSig$;
   window.$RefreshReg$ = (type, id) => {
-    window.$RefreshRuntime$.register(type, ${JSON.stringify(
-      urlPath
-    )} + " " + id);
+    window.$RefreshRuntime$.register(type, ${JSON.stringify(filePath)} + " " + id);
   }
   window.$RefreshSig$ = window.$RefreshRuntime$.createSignatureFunctionForTransform;
 }
@@ -57,21 +53,22 @@ if (import.meta.hot) {
 }`;
 }
 
-module.exports = function reactRefreshTransform(snowpackConfig, pluginOptions) {
+module.exports = function reactRefreshTransform(snowpackConfig) {
   return {
-    transform({ contents, urlPath, isDev }) {
+    name: '@snowpack/plugin-react-refresh',
+    transform({contents, fileExt, isDev}) {
       // Use long-form "=== false" to handle older Snowpack versions
       if (snowpackConfig.devOptions.hmr === false) {
-        return null;
+        return;
       }
       if (!isDev) {
-        return null;
+        return;
       }
-      if (urlPath.endsWith(".js") && /\$RefreshReg\$\(/.test(contents)) {
-        return { result: transformJs(contents, urlPath) };
+      if (fileExt === '.js' && /\$RefreshReg\$\(/.test(contents)) {
+        return transformJs(contents, filePath);
       }
-      if (urlPath.endsWith("/") || urlPath.endsWith(".html")) {
-        return { result: transformHtml(contents, urlPath) };
+      if (fileExt === '.html') {
+        return transformHtml(contents);
       }
     },
   };
