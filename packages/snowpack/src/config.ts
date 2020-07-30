@@ -13,13 +13,14 @@ import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
   CLIFlags,
   DeepPartial,
-  LoadOptions,
-  OptimizeOptions,
+  PluginLoadOptions,
+  PluginOptimizeOptions,
   Proxy,
   ProxyOptions,
   SnowpackConfig,
   SnowpackPlugin,
   LegacySnowpackPlugin,
+  PluginLoadResult,
 } from './types/snowpack';
 
 const CONFIG_NAME = 'snowpack';
@@ -243,7 +244,7 @@ function loadPlugins(
     // Legacy support: Map the new load() interface to the old build() interface
     const {build, bundle} = plugin;
     if (build) {
-      plugin.load = async (options: LoadOptions) => {
+      plugin.load = async (options: PluginLoadOptions) => {
         const result = await build({
           ...options,
           contents: fs.readFileSync(options.filePath, 'utf-8'),
@@ -264,10 +265,11 @@ function loadPlugins(
     }
     // Legacy support: Map the new optimize() interface to the old bundle() interface
     if (bundle) {
-      plugin.optimize = async (options: OptimizeOptions) => {
+      plugin.optimize = async (options: PluginOptimizeOptions) => {
         return bundle({
           srcDirectory: options.buildDirectory,
           destDirectory: options.buildDirectory,
+          // @ts-ignore internal API only
           log: options.log,
           // It turns out, this was more or less broken (included all files, not just JS).
           // Confirmed no plugins are using this now, so safe to use an empty array.
@@ -287,6 +289,7 @@ function loadPlugins(
       const {input, output} = plugin.resolve;
       plugin.resolve = {input, output};
     }
+    validatePlugin(plugin);
     return plugin;
   }
 
@@ -655,6 +658,51 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   if (rawConfig.installOptions?.alias) {
     handleDeprecatedConfigError(
       '[New in v2.7] `installOptions.alias` has been moved to a top-level `alias` config. (https://snowpack.dev#all-config-options)',
+    );
+  }
+}
+
+function validatePlugin(plugin: SnowpackPlugin) {
+  const pluginName = plugin.name;
+  if (plugin.resolve && !plugin.load) {
+    handleConfigError(`[plugin=${pluginName}] "resolve" config found but "load()" method missing.`);
+  }
+  if (!plugin.resolve && plugin.load) {
+    handleConfigError(`[plugin=${pluginName}] "load" method found but "resolve()" config missing.`);
+  }
+  if (plugin.resolve && !Array.isArray(plugin.resolve.input)) {
+    handleConfigError(
+      `[plugin=${pluginName}] "resolve.input" should be an array of input file extensions.`,
+    );
+  }
+  if (plugin.resolve && !Array.isArray(plugin.resolve.output)) {
+    handleConfigError(
+      `[plugin=${pluginName}] "resolve.output" should be an array of output file extensions.`,
+    );
+  }
+}
+
+export function validatePluginLoadResult(
+  plugin: SnowpackPlugin,
+  result: PluginLoadResult | void | undefined | null,
+) {
+  const pluginName = plugin.name;
+  if (!result) {
+    return;
+  }
+  if (typeof result === 'string' && plugin.resolve!.output.length !== 1) {
+    handleConfigError(
+      `[plugin=${pluginName}] "load()" returned a string, but "resolve.output" contains multiple possible outputs. If multiple outputs are expected, the object return format is required.`,
+    );
+  }
+  const unexpectedOutput =
+    typeof result === 'object' &&
+    Object.keys(result).find((fileExt) => !plugin.resolve!.output.includes(fileExt));
+  if (unexpectedOutput) {
+    handleConfigError(
+      `[plugin=${pluginName}] "load()" returned entry "${unexpectedOutput}" not found in "resolve.output": ${
+        plugin.resolve!.output
+      }`,
     );
   }
 }

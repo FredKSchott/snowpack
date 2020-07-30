@@ -103,6 +103,8 @@ export async function command(commandOptions: CommandOptions) {
       runPlugin
         .run({
           isDev: false,
+          isHmrEnabled: false,
+          // @ts-ignore: internal API only
           log: (msg, data = {}) => {
             messageBus.emit(msg, {...data, id: runPlugin.name});
           },
@@ -154,9 +156,10 @@ export async function command(commandOptions: CommandOptions) {
         builtLocOnDisk = replaceExt(builtLocOnDisk, extToReplace);
       }
       const builtFileOutput = await buildFile(locOnDisk, {
-        buildPipeline: config.plugins,
+        plugins: config.plugins,
         messageBus,
         isDev: false,
+        isHmrEnabled: false,
       });
       allBuiltFromFiles.add(locOnDisk);
       const {baseExt, expandedExt} = getExt(outLoc);
@@ -276,9 +279,10 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   await runPipelineOptimizeStep(buildDirectoryLoc, {
-    buildPipeline: config.plugins,
+    plugins: config.plugins,
     messageBus,
     isDev: false,
+    isHmrEnabled: false,
   });
 
   if (config.buildOptions.minify) {

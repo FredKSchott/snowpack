@@ -362,6 +362,8 @@ export async function command(commandOptions: CommandOptions) {
       runPlugin
         .run({
           isDev: true,
+          isHmrEnabled: isHmr,
+          // @ts-ignore: internal API only
           log: (msg, data) => {
             messageBus.emit(msg, {...data, id: runPlugin.name});
           },
@@ -504,9 +506,10 @@ export async function command(commandOptions: CommandOptions) {
       }
       const fileBuilderPromise = (async () => {
         const builtFileOutput = await _buildFile(fileLoc, {
-          buildPipeline: config.plugins,
+          plugins: config.plugins,
           messageBus,
           isDev: true,
+          isHmrEnabled: isHmr,
         });
         inMemoryBuildCache.set(fileLoc, builtFileOutput);
         return builtFileOutput;
