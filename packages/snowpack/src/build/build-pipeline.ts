@@ -3,11 +3,13 @@ import {promises as fs} from 'fs';
 import path from 'path';
 import {SnowpackBuildMap, SnowpackPlugin} from '../types/snowpack';
 import {getEncodingType, getExt} from '../util';
+import {validatePluginLoadResult} from '../config';
 
 export interface BuildFileOptions {
-  buildPipeline: SnowpackPlugin[];
+  plugins: SnowpackPlugin[];
   messageBus: EventEmitter;
   isDev: boolean;
+  isHmrEnabled: boolean;
 }
 
 export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
@@ -32,10 +34,10 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
  */
 async function runPipelineLoadStep(
   srcPath: string,
-  {buildPipeline, messageBus, isDev}: BuildFileOptions,
-) {
+  {plugins, messageBus, isDev, isHmrEnabled}: BuildFileOptions,
+): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
-  for (const step of buildPipeline) {
+  for (const step of plugins) {
     if (!step.resolve || !step.resolve.input.includes(srcExt)) {
       continue;
     }
@@ -46,7 +48,9 @@ async function runPipelineLoadStep(
       fileExt: srcExt,
       filePath: srcPath,
       isDev,
-      log: (msg, data = {}) => {
+      isHmrEnabled,
+      // @ts-ignore: internal API only
+      log: (msg, data: any = {}) => {
         messageBus.emit(msg, {
           ...data,
           id: step.name,
@@ -54,6 +58,7 @@ async function runPipelineLoadStep(
         });
       },
     });
+    validatePluginLoadResult(step, result);
     if (typeof result === 'string') {
       const mainOutputExt = step.resolve.output[0];
       return {[mainOutputExt]: result};
@@ -74,13 +79,13 @@ async function runPipelineLoadStep(
  * change needed.
  */
 async function runPipelineTransformStep(
-  output: Record<string, string>,
+  output: SnowpackBuildMap,
   srcPath: string,
-  {buildPipeline, messageBus, isDev}: BuildFileOptions,
-): Promise<Record<string, string>> {
+  {plugins, messageBus, isDev}: BuildFileOptions,
+): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   const rootFileName = path.basename(srcPath).replace(srcExt, '');
-  for (const step of buildPipeline) {
+  for (const step of plugins) {
     if (!step.transform) {
       continue;
     }
@@ -91,7 +96,8 @@ async function runPipelineTransformStep(
         fileExt: destExt,
         filePath: rootFileName + destExt,
         isDev,
-        log: (msg, data = {}) => {
+        // @ts-ignore: internal API only
+        log: (msg, data: any = {}) => {
           messageBus.emit(msg, {
             ...data,
             id: step.name,
@@ -113,14 +119,15 @@ async function runPipelineTransformStep(
 
 export async function runPipelineOptimizeStep(
   buildDirectory: string,
-  {buildPipeline, messageBus}: BuildFileOptions,
+  {plugins, messageBus}: BuildFileOptions,
 ) {
-  for (const step of buildPipeline) {
+  for (const step of plugins) {
     if (!step.optimize) {
       continue;
     }
     await step.optimize({
       buildDirectory,
+      // @ts-ignore: internal API only
       log: (msg) => {
         messageBus.emit('WORKER_MSG', {id: step.name, level: 'log', msg});
       },

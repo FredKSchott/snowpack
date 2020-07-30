@@ -25,47 +25,37 @@ export interface SnowpackSourceFile {
   locOnDisk: string;
 }
 
-export interface LoadOptions {
+export interface PluginLoadOptions {
   filePath: string;
   fileExt: string;
   isDev: boolean;
-  log: (msg, data) => void;
+  isHmrEnabled: boolean;
 }
 
-export interface TransformOptions {
+export interface PluginTransformOptions {
   filePath: string;
   fileExt: string;
-  contents: string;
+  contents: string | Buffer;
   isDev: boolean;
-  log: (msg, data) => void;
+  isHmrEnabled: boolean;
 }
 
-export interface PluginProxyOptions {
-  fileUrl: string;
-  contents: string;
+export interface PluginRunOptions {
   isDev: boolean;
-  log: (msg, data) => void;
+  isHmrEnabled: boolean;
 }
-
-export interface RunOptions {
-  isDev: boolean;
-  log: (msg, data) => void;
-}
-
-/** DEPRECATED */
-export type __OldBuildResult = {result: string; resources?: {css?: string}};
 
 /** map of extensions -> code (e.g. { ".js": "[code]", ".css": "[code]" }) */
-export type LoadResult = string | {[fileExtension: string]: string};
+export type PluginLoadResult = string | {[fileExtension: string]: string};
 
-export interface OptimizeOptions {
+export interface PluginOptimizeOptions {
   buildDirectory: string;
-  log: (msg, level?: 'INFO' | 'WARN' | 'ERROR') => void;
 }
 
 export interface SnowpackPlugin {
   /** name of the plugin */
   name: string;
+  /** Tell Snowpack how the load() function will resolve files. */
   resolve?: {
     /** file extensions that this load function takes as input (e.g. [".jsx", ".js", …]) */
     input: string[];
@@ -73,26 +63,23 @@ export interface SnowpackPlugin {
     output: string[];
   };
   /** load a file that matches resolve.input */
-  load?(options: LoadOptions): Promise<LoadResult | null | undefined | void>;
+  load?(options: PluginLoadOptions): Promise<PluginLoadResult | null | undefined | void>;
   /** transform a file that matches resolve.input */
-  transform?(options: TransformOptions): Promise<string | null | undefined | void>;
-  /** controls how a non-JS file should be imported into JS. */
-  proxy?(options: PluginProxyOptions): string | null | undefined | void;
+  transform?(options: PluginTransformOptions): Promise<string | null | undefined | void>;
   /** runs a command, unrelated to file building (e.g. TypeScript, ESLint) */
-  run?(options: RunOptions): Promise<unknown>;
+  run?(options: PluginRunOptions): Promise<unknown>;
   /** optimize the entire built application */
-  optimize?(options: OptimizeOptions): Promise<void>;
+  optimize?(options: PluginOptimizeOptions): Promise<void>;
   /** Known dependencies that should be installed */
   knownEntrypoints?: string[];
 }
 
 export interface LegacySnowpackPlugin {
   defaultBuildScript: string;
-  build?(options: LoadOptions & {contents: string}): Promise<any>;
+  build?(options: PluginLoadOptions & {contents: string}): Promise<any>;
   bundle?(options: {
     srcDirectory: string;
     destDirectory: string;
-    log: (string, any) => void;
     jsFilePaths: string[];
   }): Promise<any>;
 }
