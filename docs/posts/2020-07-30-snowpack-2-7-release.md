@@ -1,6 +1,7 @@
 ---
 layout: layouts/post.njk
 title: Snowpack 2.7
+description: "A new plugin API plus smaller, faster production builds."
 tagline: v2.7.0 release post
 permalink: "/posts/2020-07-30-snowpack-2-7-release/"
 date: 2020-07-30
