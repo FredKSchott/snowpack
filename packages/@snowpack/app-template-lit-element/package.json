@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-lit-element",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -22,7 +22,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/plugin-proposal-decorators": "^7.10.5",
-    "@snowpack/app-scripts-lit-element": "^1.8.0",
+    "@snowpack/app-scripts-lit-element": "^1.8.1",
     "prettier": "^2.0.5",
     "snowpack": "^2.7.0"
   },
