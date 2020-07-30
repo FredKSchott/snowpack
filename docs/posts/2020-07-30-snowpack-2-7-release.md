@@ -6,11 +6,11 @@ date: 2020-07-30
 bannerImage: '/img/banner-2.jpg'
 ---
 
-Happy release day! We are excited to announce Snowpack v2.7 with a handful of new features focused on stability and ease-of-use:
+Happy release day! We are excited to announce Snowpack v2.7 with a handful of new features improving stability and the overall developer experience:
 
-- **Redesigned plugin API** plus [new guides](/plugins) for plugin authors
+- **Redesigned plugin API** plus [new guides for plugin authors](/plugins)
 - **Import aliasing** and new ways to customize Snowpack
-- **Improved performance** with smaller, faster builds
+- **Improved build performance** with smaller, faster builds
 - **New Svelte + TypeScript** app templates
 - **Bug fixes, usability improvements & more!**
 
@@ -19,13 +19,13 @@ Happy release day! We are excited to announce Snowpack v2.7 with a handful of ne
 Plus, we hit some VERY exciting project milestones last month:
 
 - ❤️ **150** [open source contributors](https://github.com/pikapkg/snowpack/graphs/contributors) (and growing!)
-- 🏆 **1000+** opened discussions, issues, and pull requests
+- 🏆 **1000+** discussions, issues, and pull requests
 - ⭐️ **10,000+** stars on GitHub
 - 👋 **New companies using Snowpack:** [Alibaba](https://www.1688.com/) & [Airhacks](https://airhacks.com/)
 
 <br/>
 
-If you've been waiting for an ~~excuse~~ reason to give Snowpack a try, now is a great time to start. Try out a Create Snowpack App (CSA) template or install Snowpack into any existing project:
+If you've been waiting for an excuse to give Snowpack a try, now is a great time to start! Try out a Create Snowpack App (CSA) template or install Snowpack into any existing project:
 
 ```bash
 # install with npm
@@ -37,13 +37,13 @@ yarn add --dev snowpack
 
 ## Redesigned Plugin API
 
-Snowpack v2.7 features an major rewrite of our internal build pipeline to support a more reliable and expressive plugin API. Completely new use cases around file loading and application optimizations are unlocked with the redesigned `load()`, `transform()`, `run()` and `optimize()` plugin hooks (with more on the way in future versions).
+Snowpack v2.7 features an major rewrite of our internal build pipeline to support a more reliable and expressive plugin API. New optimizations and file type builders are unlocked with the redesigned `load()`, `transform()`, `run()` and `optimize()` plugin hooks (with more on the way in future versions).
 
 ![snowpack screenshot](/img/snowpack-27-screenshot-1.png)
 
-Every hook is documented in our new [Plugins Guide](/plugins) for plugin authors. The new API is heavily inspired by [Rollup](https://rollupjs.org/), so we hope it already feels familiar to many of you. 
-
 Snowpack 2.7 is fully backwards compatible with older plugins, so you can upgrade Snowpack without worrying about version mismatches.
+
+Every hook is documented in our new [Plugins Guide](/plugins) for plugin authors. The new API is heavily inspired by [Rollup](https://rollupjs.org/), so we hope it already feels familiar to many of you. 
 
 
 ## Simplified Configuration
@@ -52,26 +52,28 @@ Snowpack 2.7 is fully backwards compatible with older plugins, so you can upgrad
 
 Snowpack v2.0 originally introduced the concept of build `"scripts"` as a way to configure anything from file building to HTTP request proxying. Scripts were flexible, but hard to document and frustrating to debug. 
 
-Our internal plugin rewrite presented an opportunity to combine the flexibility of third-party CLI tooling with new, more explicit interface for common configuration. `mount`, `proxy`, and `alias` (see below) are all examples of new options to customize how files are built and served by Snowpack. 
+Our internal plugin rewrite presented an opportunity to improve the developer experience while keeping the flexibility of direct CLI tooling. You can now connect third-party tooling directly into Snowpack's build pipeline using one of two new utility plugins:
 
-We've also created two new utility plugins to make it easier to connect third-party tooling without needing to write a custom plugin from scratch:
-
-- `@snowpack/plugin-build-script`: Use any CLI to build files for Snowpack.
+- `@snowpack/plugin-build-script`: Use any CLI directly to build files for Snowpack.
 - `@snowpack/plugin-run-script`: Run arbitrary CLI commands during dev/build.
+
+Other options like `mount`, `proxy`, and `alias` (see below) are now easier to customize as well with top-level config options that take the guesswork out of common configuration.
+
+The `"scripts"` configuration format will continue to be supported in Snowpack v2, but we recommend migrating any custom scripts to `"plugins"` and plan to remove support in a future major release.
 
 
 ## New: Import Aliasing
 
 ![snowpack screenshot](/img/snowpack-27-screenshot-2.png)
 
-In previous versions of Snowpack, import aliasing was hard to understand and configure (and it didn’t support all types of aliasing). Starting in Snowpack v2.7, [Import Aliases](/#import-aliases) gets a new top-level config so that you can define as many custom aliases as you'd like. Package import aliases are also supported.
+In previous versions of Snowpack, import aliasing was hard to understand and configure (and it didn’t support all types of aliasing). Starting in Snowpack v2.7, [Import Aliases](/#import-aliases) gets a new top-level `alias` config so that you can define as many custom aliases as you'd like. Package import aliases are also supported.
 
 
 ## Improved Build Performance
 
 Snowpack's official webpack plugin is now more powerful than ever, with new support for multi-page website bundling and better default performance settings (based on the [latest research from Google](https://web.dev/granular-chunking-nextjs/)). Special shout out to [@mxmul](https://github.com/mxmul) (Yelp) for these community contributions!
 
-If you don't connect a bundler, that's fine too. Your site still gets faster in Snowpack v2.7, with minification now on by default. We plan to keep improving the unbundled production build story over the next few releases, so stay tuned.
+If you don't use a bundler in production, that's fine too. Your site still gets faster in Snowpack v2.7 thanks to new minification defaults. We plan to keep improving the unbundled production build story over the next few releases, so stay tuned.
 
 
 ## Svelte + TypeScript Support
@@ -85,7 +87,7 @@ Visit [Create Snowpack App](https://github.com/pikapkg/snowpack/tree/master/pack
 
 ## Thank You, Contributors!
 
-Snowpack wouldn't be possible without the [150+ contributors](https://github.com/pikapkg/snowpack/graphs/contributors) who contributed features, fixes, and documentation improvements. Thanks again for all of your help.
+Finally, Snowpack wouldn't be possible without the [150+ contributors](https://github.com/pikapkg/snowpack/graphs/contributors) who contributed features, fixes, and documentation improvements. Thanks again for all of your help.
 
 -- Snowpack Maintainers
 
