@@ -25,6 +25,7 @@ module.exports = function plugin(_, options) {
         cwd: process.cwd(),
         ast: false,
         compact: false,
+        ...(options.transformOptions || {}),
       });
       let code = result.code;
       if (code) {
