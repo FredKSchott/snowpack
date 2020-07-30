@@ -1,5 +1,9 @@
 ---
 layout: layouts/extend.njk
+permalink: "/plugins/"
+title: Snowpack Plugin Guide
+description: "Documentation and guides for building Snowpack plugins."
+date: 2020-07-30
 ---
 
 #### Who is this page for?
