@@ -73,9 +73,9 @@ In previous versions of Snowpack, import aliasing was hard to understand and con
 
 ## Improved Build Performance
 
-Snowpack's official webpack plugin is now more powerful than ever, with new support for multi-page website bundling and better default performance settings (based on the [latest research from Google](https://web.dev/granular-chunking-nextjs/)). Special shout out to [@mxmul](https://github.com/mxmul) (Yelp) for these community contributions!
+Snowpack's official webpack plugin is now more powerful than ever, with new support for multi-page website bundling and better default performance settings (based on the [latest research from Google](https://web.dev/granular-chunking-nextjs/)). Special shout out to [@mxmul](https://github.com/mxmul) (Yelp) for leading these community contributions!
 
-If you don't use a bundler in production, that's fine too. Your site still gets faster in Snowpack v2.7 thanks to new minification defaults. We plan to keep improving the unbundled production build story over the next few releases, so stay tuned.
+If you don't use a bundler in production, you'll still see a smaller build. That's because Snowpack v2.7 now ships with minification on by default. We plan to keep improving the default unbundled build performance story over the next few releases, so stay tuned.
 
 
 ## Svelte + TypeScript Support
