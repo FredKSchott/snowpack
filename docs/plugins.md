@@ -103,7 +103,7 @@ This covers the basics of single-file transformations. In our next example, weâ€
 
 ### Build From Source
 
-For a more complicated example, weâ€™ll take one input file (`.svelte`) and use it to generate 2 output files (`.js` and `.css`).
+When you build files from source, you also have the ability to transform the file type from source code to web code. In this example, we'll use Babel to load several types of files as input and output JavaScript in the final build:
 
 ```js
 const babel = require("@babel/core");
