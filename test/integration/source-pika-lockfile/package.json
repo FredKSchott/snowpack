@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-source-pika-lockfile",
   "description": "Test that the lockfile import URLs & version info are used",
   "scripts": {
@@ -15,6 +15,6 @@
     }
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

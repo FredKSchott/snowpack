@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-base-url",
   "description": "This test makes sure that %PUBLIC_URL% present in src/index.html doesn’t exist in the final build",
   "scripts": {
@@ -21,6 +21,6 @@
     "array-flatten": "^3.0.0"
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

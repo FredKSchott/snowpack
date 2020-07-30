@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-blank",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "prettier": "^2.0.5",
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   },
   "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
 }

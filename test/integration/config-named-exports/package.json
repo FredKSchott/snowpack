@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-config-named-exports",
   "description": "Handle installOptions.namedExports",
   "scripts": {
@@ -23,6 +23,6 @@
     "cjs-named-export-pkg": "file:./packages/cjs-named-export-pkg"
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

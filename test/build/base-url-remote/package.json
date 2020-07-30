@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-base-url-remote",
   "description": "This tests that you can have a remote URL for buildOptions.baseUrl and it’s preserved.",
   "scripts": {
@@ -21,6 +21,6 @@
     "array-flatten": "^3.0.0"
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

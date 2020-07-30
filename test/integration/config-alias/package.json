@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-config-alias",
   "description": "Handle deep imports to package entrypoints",
   "scripts": {
@@ -23,6 +23,6 @@
     "preact": "^10.4.6"
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

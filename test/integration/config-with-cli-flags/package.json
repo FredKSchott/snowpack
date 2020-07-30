@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-config-with-cli-flags",
   "description": "Test that the --optimize flag overrides the config",
   "scripts": {
@@ -17,6 +17,6 @@
   },
   "dependencies": {
     "shallow-equal": "^1.2.1",
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

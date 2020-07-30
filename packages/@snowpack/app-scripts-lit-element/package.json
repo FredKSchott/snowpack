@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-lit-element",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"
@@ -8,7 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "@babel/core": "^7.10.5",
-    "@snowpack/plugin-dotenv": "^1.6.0-alpha.0"
+    "@snowpack/plugin-dotenv": "^2.0.0"
   },
   "gitHead": "795f4311d79a70cc9f19f21b512b7f8675d73f17"
 }

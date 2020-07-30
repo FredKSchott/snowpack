@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-plugin-build-script",
   "description": "A test to make sure @snowpack/plugin-build-script works",
   "scripts": {
@@ -8,8 +8,8 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
-    "@snowpack/plugin-build-script": "*",
-    "snowpack": "*"
+    "@snowpack/plugin-build-script": "^2.0.0",
+    "snowpack": "^2.7.0"
   },
   "dependencies": {
     "@babel/preset-typescript": "^7.10.4"

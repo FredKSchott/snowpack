@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-include-missing-in-package-json",
   "scripts": {
     "testinstall": "cp -r packages/* node_modules && snowpack"
@@ -11,6 +11,6 @@
     }
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-dep-list-complex",
   "description": "Test packages with tricky names",
   "scripts": {
@@ -16,6 +16,6 @@
   },
   "dependencies": {
     "dat.gui": "^0.7.6",
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

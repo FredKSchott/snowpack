@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-bugfix-named-import",
   "description": "Tests for the _$v4 named import bug (https://github.com/pikapkg/snowpack/issues/560)",
   "snowpack": {
@@ -18,6 +18,6 @@
     "array-flatten": "^3.0.0"
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

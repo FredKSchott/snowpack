@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-dep-types-only",
   "scripts": {
     "testinstall": "snowpack"
@@ -14,6 +14,6 @@
     "type-only-pkg": "file:./packages/type-only-pkg"
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

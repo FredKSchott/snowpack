@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-config-rollup",
   "scripts": {
     "testinstall": "snowpack"
@@ -11,6 +11,6 @@
     "svelte-routing": "^1.4.0"
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-dep-list-css",
   "scripts": {
     "testinstall": "snowpack"
@@ -18,6 +18,6 @@
     "css-mock-pkg-b": "file:./packages/css-mock-pkg-b"
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

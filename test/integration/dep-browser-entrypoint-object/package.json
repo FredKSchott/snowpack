@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-dep-browser-entrypoint-object",
   "description": "Test that we properly handle a package.json 'browser' object.",
   "scripts": {
@@ -20,6 +20,6 @@
     "package-no-valid": "file:./package-no-valid"
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

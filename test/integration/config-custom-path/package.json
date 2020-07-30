@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-config-custom-path",
   "scripts": {
     "testinstall": "snowpack --config snowpack.dev.json"
@@ -10,6 +10,6 @@
     "deepmerge": "^4.2.2"
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

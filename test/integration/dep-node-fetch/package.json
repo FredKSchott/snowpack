@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-dep-node-fetch",
   "description": "Handle specific node.js fetch polyfill packages",
   "scripts": {
@@ -18,6 +18,6 @@
     "dep-node-fetch-mock-pkg": "file:./packages/dep-node-fetch-mock-pkg"
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

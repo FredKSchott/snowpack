@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-package-react",
   "description": "Ensures React still works",
   "scripts": {
@@ -20,6 +20,6 @@
     "react-dom": "16.13.1"
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }

@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "@snowpack/test-package-tippy-js",
   "description": "Tests that npm modules that end in .js work",
   "scripts": {
@@ -18,6 +18,6 @@
     "tippy.js": "^6.2.5"
   },
   "devDependencies": {
-    "snowpack": "*"
+    "snowpack": "^2.7.0"
   }
 }
