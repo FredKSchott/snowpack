@@ -13,7 +13,8 @@
     "directory": "pkg"
   },
   "scripts": {
-    "build": "pika build"
+    "build": "pika build",
+    "version": "pika build"
   },
   "bin": {
     "sp": "pkg/dist-node/index.bin.js",
