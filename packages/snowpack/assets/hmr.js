@@ -20,9 +20,8 @@ function sendSocketMessage(msg) {
     _sendSocketMessage(msg);
   }
 }
-const socketURL =
-  window.HMR_WEBSOCKET_URL ||
-  (location.protocol === 'http:' ? 'ws://' : 'wss://') + location.host + '/';
+const socketURL = typeof window !== 'undefined' &&  window.HMR_WEBSOCKET_URL || (location.protocol === 'http:' ? 'ws://' : 'wss://') + location.host + '/';
+
 const socket = new WebSocket(socketURL, 'esm-hmr');
 socket.addEventListener('open', () => {
   SOCKET_MESSAGE_QUEUE.forEach(_sendSocketMessage);
