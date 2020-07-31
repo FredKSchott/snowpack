@@ -100,7 +100,7 @@ export async function command(commandOptions: CommandOptions) {
 
   for (const runPlugin of config.plugins) {
     if (runPlugin.run) {
-      runPlugin
+      await runPlugin
         .run({
           isDev: false,
           isHmrEnabled: false,
