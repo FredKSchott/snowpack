@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-vue",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@snowpack/app-scripts-vue": "^1.8.1",
-    "snowpack": "^2.7.0"
+    "snowpack": "^2.7.4"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }
