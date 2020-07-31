@@ -108,9 +108,9 @@ async function runPipelineTransformStep(
         urlPath: `./${path.basename(rootFileName + destExt)}`,
       });
       if (typeof result === 'string') {
-        output[srcExt] = result;
+        output[destExt] = result;
       } else if (result && typeof result === 'object' && (result as {result: string}).result) {
-        output[srcExt] = (result as {result: string}).result;
+        output[destExt] = (result as {result: string}).result;
       }
     }
   }
