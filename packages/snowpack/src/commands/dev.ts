@@ -673,7 +673,7 @@ export async function command(commandOptions: CommandOptions) {
     const fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
 
     // 3. Send dependencies directly, since they were already build & resolved at install time.
-    if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
+    if (reqPath.startsWith(config.buildOptions.webModulesUrl) && reqPath.endsWith('.js')) {
       sendFile(req, res, fileContents, responseFileExt);
       return;
     }
