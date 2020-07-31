@@ -11,9 +11,7 @@
   },
   "workspaces": [
     "packages/@snowpack/*",
-    "packages/*",
-    "test/build/*",
-    "test/integration/*"
+    "packages/*"
   ],
   "devDependencies": {
     "@pika/pack": "^0.5.0",
