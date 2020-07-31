@@ -7,7 +7,6 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserJSPlugin = require("terser-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const jsdom = require("jsdom");
-const CopyPlugin = require("copy-webpack-plugin");
 const { JSDOM } = jsdom;
 const cwd = process.cwd();
 
@@ -15,17 +14,17 @@ function insertBefore(newNode, existingNode) {
   existingNode.parentNode.insertBefore(newNode, existingNode);
 }
 
-function parseHTMLFiles({ srcDirectory }) {
+function parseHTMLFiles({ buildDirectory }) {
   // Get all html files from the output folder
-  const pattern = srcDirectory + "/**/*.html";
+  const pattern = buildDirectory + "/**/*.html";
   const htmlFiles = glob
     .sync(pattern)
-    .map((htmlPath) => path.relative(srcDirectory, htmlPath));
+    .map((htmlPath) => path.relative(buildDirectory, htmlPath));
 
   const doms = {};
   const jsEntries = {};
   for (const htmlFile of htmlFiles) {
-    const dom = new JSDOM(fs.readFileSync(path.join(srcDirectory, htmlFile)));
+    const dom = new JSDOM(fs.readFileSync(path.join(buildDirectory, htmlFile)));
 
     //Find all local script, use it as the entrypoint
     const scripts = Array.from(dom.window.document.querySelectorAll("script"))
@@ -38,7 +37,7 @@ function parseHTMLFiles({ srcDirectory }) {
       const name = parsedPath.name;
       if (!(name in jsEntries)) {
         jsEntries[name] = {
-          path: path.join(srcDirectory, src),
+          path: path.join(buildDirectory, src),
           occurrences: [],
         };
       }
@@ -50,7 +49,7 @@ function parseHTMLFiles({ srcDirectory }) {
   return { doms, jsEntries };
 }
 
-function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, destDirectory }) {
+function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, buildDirectory }) {
   const entrypoints = stats.toJson({ assets: false, hash: true }).entrypoints;
 
   //Now that webpack is done, modify the html files to point to the newly compiled resources
@@ -84,7 +83,7 @@ function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, destDirectory }) {
 
   //And write our modified html files out to the destination
   for (const [htmlFile, dom] of Object.entries(doms)) {
-    fs.writeFileSync(path.join(destDirectory, htmlFile), dom.serialize());
+    fs.writeFileSync(path.join(buildDirectory, htmlFile), dom.serialize());
   }
 }
 
@@ -168,8 +167,8 @@ module.exports = function plugin(config, args) {
   config.buildOptions.clean = true;
 
   return {
-    defaultBuildScript: "bundle:*",
-    async bundle({ srcDirectory, destDirectory, log }) {
+    name: '@snowpack/plugin-webpack',
+    async optimize({ buildDirectory, log }) {
 
       // config.homepage is legacy, remove in future version
       const buildOptions = config.buildOptions || {};
@@ -190,7 +189,7 @@ module.exports = function plugin(config, args) {
         extendConfig = (cfg) => ({ ...cfg, ...args.extendConfig });
       }
 
-      const { doms, jsEntries } = parseHTMLFiles({ srcDirectory });
+      const { doms, jsEntries } = parseHTMLFiles({ buildDirectory });
 
       if (Object.keys(jsEntries).length === 0) {
         throw new Error("Can't bundle without script tag in html");
@@ -198,11 +197,11 @@ module.exports = function plugin(config, args) {
 
       //Compile files using webpack
       let webpackConfig = {
-        context: srcDirectory,
+        context: buildDirectory,
         resolve: {
           alias: {
-            "/__snowpack__": path.join(srcDirectory, "__snowpack__"),
-            "/web_modules": path.join(srcDirectory, "web_modules"),
+            "/__snowpack__": path.join(buildDirectory, "__snowpack__"),
+            "/web_modules": path.join(buildDirectory, "web_modules"),
           },
         },
         module: {
@@ -214,7 +213,7 @@ module.exports = function plugin(config, args) {
                 {
                   loader: "babel-loader",
                   options: {
-                    cwd: srcDirectory,
+                    cwd: buildDirectory,
                     configFile: false,
                     babelrc: false,
                     presets: [
@@ -281,23 +280,6 @@ module.exports = function plugin(config, args) {
           new MiniCssExtractPlugin({
             filename: cssOutputPattern,
           }),
-          //Copy other files to the destination, excluding ones that are no longer useful
-          new CopyPlugin({
-            patterns: [
-              {
-                from: srcDirectory,
-                to: destDirectory,
-                globOptions: {
-                  ignore: [
-                    path.join(srcDirectory, config.devOptions.fallback),
-                    "**/_dist_/**",
-                    "**/web_modules/**",
-                  ],
-                },
-                noErrorOnMissing: true,
-              },
-            ],
-          }),
         ],
       };
       let entry = {};
@@ -308,7 +290,7 @@ module.exports = function plugin(config, args) {
         ...webpackConfig,
         entry,
         output: {
-          path: destDirectory,
+          path: buildDirectory,
           publicPath: baseUrl,
           filename: jsOutputPattern,
         },
@@ -344,7 +326,7 @@ module.exports = function plugin(config, args) {
         );
       }
 
-      emitHTMLFiles({ doms, jsEntries, stats, baseUrl, destDirectory });
+      emitHTMLFiles({ doms, jsEntries, stats, baseUrl, buildDirectory });
     },
   };
 };
