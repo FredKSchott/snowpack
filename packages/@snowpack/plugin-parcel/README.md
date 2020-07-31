@@ -1,5 +1,7 @@
 # @snowpack/plugin-parcel
 
+> NOTE: This plugin only works on Snowpack v2.6 or earlier. For bundling with the latest version of Snowpack, we recommend [@snowpack/plugin-webpack](../plugin-webpack/) for a smaller build.
+
 Use Parcel to bundle your application for production. Uses Parcel v1.
 
 ```
