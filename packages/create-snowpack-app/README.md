@@ -42,6 +42,7 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 
 ### Transform
 
+- [@snowpack/plugin-postcss](../@snowpack/plugin-postcss)
 - [@snowpack/plugin-react-refresh](../@snowpack/plugin-react-refresh)
 
 ### Bundle

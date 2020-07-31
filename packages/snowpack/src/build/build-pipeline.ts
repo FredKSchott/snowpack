@@ -120,8 +120,7 @@ async function runPipelineTransformStep(
     }
     for (const destExt of Object.keys(output)) {
       const destBuildFile = output[destExt];
-      const {code, map} =
-        typeof destBuildFile === 'string' ? {code: destBuildFile, map: undefined} : destBuildFile;
+      const {code} = typeof destBuildFile === 'string' ? {code: destBuildFile} : destBuildFile;
       const result = await step.transform({
         contents: code,
         fileExt: destExt,
@@ -138,10 +137,12 @@ async function runPipelineTransformStep(
         // @ts-ignore: Deprecated
         urlPath: `./${path.basename(rootFileName + destExt)}`,
       });
+
+      // if step returned a value, only update code (don’t touch .map)
       if (typeof result === 'string') {
-        output[destExt] = {code: result, map};
+        output[destExt].code = result;
       } else if (result && typeof result === 'object' && (result as {result: string}).result) {
-        output[destExt] = {code: (result as {result: string}).result, map};
+        output[destExt].code = (result as {result: string}).result;
       }
 
       // if source maps disabled, don’t return any
