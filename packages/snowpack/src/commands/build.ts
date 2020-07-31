@@ -249,15 +249,16 @@ export async function command(commandOptions: CommandOptions) {
 
       // When dealing with an absolute import path, we need to honor the baseUrl
       if (isAbsoluteUrlPath) {
-        return path
-          .relative(
-            path.dirname(outLoc),
-            path.resolve(buildDirectoryLoc, removeLeadingSlash(resolvedImportUrl)),
-          )
-          .replace(/\\/g, '/'); // replace Windows backslashes at the end, after resolution
+        resolvedImportUrl = path.relative(
+          path.dirname(outLoc),
+          path.resolve(buildDirectoryLoc, removeLeadingSlash(resolvedImportUrl)),
+        );
       }
 
-      return resolvedImportUrl;
+      if (!resolvedImportUrl.startsWith('.'))
+        resolvedImportUrl = './' + removeLeadingSlash(resolvedImportUrl);
+
+      return resolvedImportUrl.replace(/\\/g, '/'); // replace Windows backslashes at the end, after resolution
     });
     await fs.mkdir(path.dirname(outLoc), {recursive: true});
     await fs.writeFile(outLoc, resolvedCode);
