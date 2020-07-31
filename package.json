@@ -10,7 +10,10 @@
     "test": "yarn test:build && yarn test:all"
   },
   "workspaces": [
-    "packages/*"
+    "packages/@snowpack/*",
+    "packages/*",
+    "test/build/*",
+    "test/integration/*"
   ],
   "devDependencies": {
     "@pika/pack": "^0.5.0",
