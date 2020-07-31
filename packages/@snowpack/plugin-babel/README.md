@@ -13,7 +13,10 @@ npm install --save-dev @snowpack/plugin-babel
     [
       "@snowpack/plugin-babel",
       {
-        "input": ['.js', '.mjs', '.jsx', '.ts', '.tsx'] // (optional) specify files for Babel to transform
+        "input": ['.js', '.mjs', '.jsx', '.ts', '.tsx'], // (optional) specify files for Babel to transform
+        transformOptions: {
+          // babel transform options
+        }
       }
     ]
   ]
@@ -25,3 +28,4 @@ npm install --save-dev @snowpack/plugin-babel
 | Name    | Type       | Description                                                                                                                                        |
 | :------ | :--------- | :------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `input` | `string[]` | (optional) By default, Babel scans & transfoms these extensions: `['.js', '.jsx', '.ts', '.tsx']`. Modify this array if you’d like to change this. |
+| `transformOptions` | `object` | (optional) See [https://babeljs.io/docs/en/options](https://babeljs.io/docs/en/options) |
