@@ -682,7 +682,7 @@ body {
       document.querySelectorAll('.markdown-body h3').forEach((headerEl) => {
         const linkEl = document.createElement("a"); 
         // linkEl.setAttribute('target', "_blank");
-        linkEl.setAttribute('href', window.location.protocol  + '/#' + headerEl.id);
+        linkEl.setAttribute('href', '#' + headerEl.id);
         linkEl.classList.add('header-link');
         linkEl.innerText = '#';
         headerEl.appendChild(linkEl);
