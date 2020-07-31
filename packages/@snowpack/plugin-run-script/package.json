@@ -1,5 +1,5 @@
 {
-  "version": "2.0.1",
+  "version": "2.0.2",
   "name": "@snowpack/plugin-run-script",
   "main": "plugin.js",
   "license": "MIT",
@@ -11,6 +11,6 @@
     "npm-run-path": "^4.0.1"
   },
   "devDependencies": {
-    "snowpack": "^2.7.4"
+    "snowpack": "^2.7.5"
   }
 }

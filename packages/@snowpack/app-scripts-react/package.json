@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-react",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"
@@ -11,7 +11,7 @@
     "@babel/plugin-syntax-import-meta": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
     "@babel/preset-typescript": "^7.10.4",
-    "@snowpack/plugin-babel": "^2.0.1",
+    "@snowpack/plugin-babel": "^2.0.2",
     "@snowpack/plugin-dotenv": "^2.0.0",
     "babel-jest": "^25.4.0",
     "babel-preset-react-app": "^9.1.2",
