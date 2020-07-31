@@ -182,21 +182,17 @@ export async function wrapImportProxy({
   config: SnowpackConfig;
 }) {
   const {baseExt, expandedExt} = getExt(url);
+
   if (baseExt === '.json') {
     return generateJsonImportProxy({code, hmr, isDev, config});
   }
-  if (expandedExt.endsWith('.module.css')) {
-    return await generateCssModuleImportProxy({
-      url,
-      code,
-      isDev,
-      hmr,
-      config,
-    });
-  }
+
   if (baseExt === '.css') {
-    return generateCssImportProxy({code, hmr, isDev, config});
+    return expandedExt.endsWith('.module.css')
+      ? generateCssModuleImportProxy({url, code, isDev, hmr, config})
+      : generateCssImportProxy({code, hmr, isDev, config});
   }
+
   return generateDefaultImportProxy(url);
 }
 

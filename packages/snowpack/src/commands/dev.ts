@@ -431,7 +431,13 @@ export async function command(commandOptions: CommandOptions) {
         .catch(() => null /* ignore */);
     }
 
-    let requestedFileExt = path.parse(reqPath).ext.toLowerCase();
+    let {baseExt: requestedFileExt} = getExt(reqPath.replace(/\.map$/i, ''));
+
+    // handle source map requests
+    if (reqPath.endsWith('.map')) {
+      requestedFileExt += '.map';
+    }
+
     let responseFileExt = requestedFileExt;
     let isRoute = !requestedFileExt || requestedFileExt === '.html';
 
@@ -646,8 +652,10 @@ export async function command(commandOptions: CommandOptions) {
         return null;
       }
       // Wrap the response.
+      const requestedFile = output[requestedFileExt];
+      const contents = typeof requestedFile === 'string' ? requestedFile : requestedFile.code;
       const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
-      let wrappedResponse = await wrapResponse(output[requestedFileExt], hasAttachedCss);
+      let wrappedResponse = await wrapResponse(contents, hasAttachedCss);
 
       // Resolve imports.
       if (requestedFileExt === '.js' || requestedFileExt === '.html') {

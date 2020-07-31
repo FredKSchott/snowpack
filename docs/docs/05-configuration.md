@@ -136,6 +136,8 @@ $ snowpack dev --no-bundle
   - By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
 - **`minify`** | `boolean` | Default: `true`
   - By default, Snowpack will minify your dependencies on `snowpack build`. Disable this by setting this config option to `minify: false`.
+- **`sourceMaps`** | `boolean` | Default: `true`
+  - Enable or disable JS source maps (_Note: this option will only apply if `minify: true` is enabled_)
 - **`webModulesUrl`** | `string` | Default: `web_modules`
   - Rename your web modules directory.
 

@@ -7,6 +7,8 @@ module.exports = function plugin(config, pluginOptions) {
   // Support importing Svelte files when you install dependencies.
   config.installOptions.rollup.plugins.push(svelteRollupPlugin({include: '**/node_modules/**'}));
 
+  const {sourceMaps = true, ...svelteCompilerOptions} = pluginOptions;
+
   let svelteOptions;
   let preprocessOptions;
   const userSvelteConfigLoc = path.join(process.cwd(), 'svelte.config.js');
@@ -21,7 +23,7 @@ module.exports = function plugin(config, pluginOptions) {
     dev: process.env.NODE_ENV !== 'production',
     css: false,
     ...svelteOptions,
-    ...pluginOptions,
+    ...svelteCompilerOptions,
   };
 
   return {
@@ -44,13 +46,24 @@ module.exports = function plugin(config, pluginOptions) {
       // COMPILE
       const {js, css} = svelte.compile(codeToCompile, {
         ...svelteOptions,
+        outputFilename: filePath,
         filename: filePath,
       });
+
+      if (!js) return;
+
       const output = {
-        '.js': js && js.code,
+        '.js': {
+          code: js.code,
+          map: sourceMaps ? JSON.stringify(js.map) : undefined,
+        },
       };
+
       if (!svelteOptions.css && css) {
-        output['.css'] = css.code;
+        output['.css'] = {
+          code: css.code,
+          map: sourceMaps ? JSON.stringify(css.map) : undefined,
+        };
       }
       return output;
     },

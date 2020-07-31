@@ -14,10 +14,14 @@ export interface BuildFileOptions {
 
 export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
   const {baseExt} = getExt(fileLoc);
+  const extReplace = new RegExp(baseExt + '$'); // only replace ending extensions
+
   const potentialInputs = new Set([fileLoc]);
   for (const plugin of plugins) {
     if (plugin.resolve && plugin.resolve.output.includes(baseExt)) {
-      plugin.resolve.input.forEach((inp) => potentialInputs.add(fileLoc.replace(baseExt, inp)));
+      plugin.resolve.input.forEach((input) =>
+        potentialInputs.add(fileLoc.replace(extReplace, input)),
+      );
     }
   }
   return Array.from(potentialInputs);
@@ -63,12 +67,38 @@ async function runPipelineLoadStep(
       const mainOutputExt = step.resolve.output[0];
       return {[mainOutputExt]: result};
     } else if (result && typeof result === 'object') {
+      result;
+
+      // handle source maps
+      Object.keys(result).forEach((ext) => {
+        const output = result[ext];
+        if (typeof output !== 'object' || !output.code) return;
+
+        if (output.map) {
+          result[ext + '.map'] = output.map;
+
+          const sourceMapFile = path
+            .basename(srcPath)
+            .replace(new RegExp(srcExt + '$', 'i'), ext + '.map');
+
+          // Source Map Spec v3: https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit#heading=h.lmz475t4mvbx
+          if (ext === '.css') {
+            output.code += `/*# sourceMappingURL=${sourceMapFile} */`;
+          } else {
+            output.code += `\n//# sourceMappingURL=${sourceMapFile}\n`; // add newline at beginning & end
+            output.code = output.code.replace(/\n*$/, '\n'); // remove extra lines at EOF
+          }
+        }
+      });
+
       return result;
     } else {
       continue;
     }
   }
-  return {[srcExt]: await fs.readFile(srcPath, getEncodingType(srcExt))};
+  return {
+    [srcExt]: await fs.readFile(srcPath, getEncodingType(srcExt)),
+  };
 }
 
 /**
@@ -91,8 +121,9 @@ async function runPipelineTransformStep(
     }
     for (const destExt of Object.keys(output)) {
       const destBuildFile = output[destExt];
+      const contents = typeof destBuildFile === 'string' ? destBuildFile : destBuildFile.code;
       const result = await step.transform({
-        contents: destBuildFile,
+        contents,
         fileExt: destExt,
         filePath: rootFileName + destExt,
         isDev,

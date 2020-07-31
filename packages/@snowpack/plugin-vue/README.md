@@ -9,21 +9,14 @@ npm install --save-dev @snowpack/plugin-vue
 ```js
 // snowpack.config.json
 {
-  "plugins": [["@snowpack/plugin-vue", { /* see "Plugin Options" below */}]]
+  "plugins": [
+    ["@snowpack/plugin-vue", {/* see “Plugin Options” below */}]
+  ]
 }
 ```
-
-#### Default Build Script
-
-```js
-{
-  // Matches all ".vue" files
-  "scripts": {"build:vue": "@snowpack/plugin-vue"}
-}
-```
-
-You can override this by setting your own `"@snowpack/plugin-vue"` build script.
 
 #### Plugin Options
 
-None (but we should add support to pass options to the compiler).
+| Name         |   Type    | Description                                                       |
+| :----------- | :-------: | :---------------------------------------------------------------- |
+| `sourceMaps` | `boolean` | Set to `false` to disable source map generation (default: `true`) |

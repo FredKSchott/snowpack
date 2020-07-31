@@ -58,6 +58,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     clean: false,
     metaDir: '__snowpack__',
     minify: true,
+    sourceMaps: true,
   },
 };
 
@@ -133,6 +134,7 @@ const configSchema = {
         clean: {type: 'boolean'},
         metaDir: {type: 'string'},
         minify: {type: 'boolean'},
+        sourceMaps: {type: 'boolean'},
       },
     },
     proxy: {
@@ -293,6 +295,14 @@ function loadPlugins(
       const {input, output} = plugin.resolve;
       plugin.resolve = {input, output};
     }
+
+    // add source maps (*.map) as potential outputs
+    plugin.resolve?.output.forEach((ext) => {
+      const mappedExt = ext + '.map';
+      if (!ext.endsWith('.map') && plugin.resolve?.output.includes(mappedExt))
+        plugin.resolve.output.push(mappedExt);
+    });
+
     validatePlugin(plugin);
     return plugin;
   }
@@ -701,10 +711,12 @@ export function validatePluginLoadResult(
   }
   const unexpectedOutput =
     typeof result === 'object' &&
-    Object.keys(result).find((fileExt) => !plugin.resolve!.output.includes(fileExt));
+    Object.keys(result).find(
+      (fileExt) => !fileExt.endsWith('.map') && !plugin.resolve!.output.includes(fileExt),
+    );
   if (unexpectedOutput) {
     handleConfigError(
-      `[plugin=${pluginName}] "load()" returned entry "${unexpectedOutput}" not found in "resolve.output": ${
+      `[${pluginName}] "load()" returned entry "${unexpectedOutput}" not found in "resolve.output": ${
         plugin.resolve!.output
       }`,
     );

@@ -36,7 +36,7 @@ export function isYarn(cwd: string) {
   return fs.existsSync(path.join(cwd, 'yarn.lock'));
 }
 
-const UTF8_FORMATS = ['.css', '.html', '.js', '.mjs', '.json', '.svg', '.txt', '.xml'];
+const UTF8_FORMATS = ['.css', '.html', '.js', '.map', '.mjs', '.json', '.svg', '.txt', '.xml'];
 export function getEncodingType(ext: string): 'utf-8' | 'binary' {
   return UTF8_FORMATS.includes(ext) ? 'utf-8' : 'binary';
 }

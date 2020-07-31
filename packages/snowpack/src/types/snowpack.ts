@@ -11,7 +11,8 @@ export type DeepPartial<T> = {
 
 export type EnvVarReplacements = Record<string, string | number | true>;
 
-export type SnowpackBuildMap = Record<string, string>;
+export type SourceMappedCode = {code: string; map?: string};
+export type SnowpackBuildMap = Record<string, string | SourceMappedCode>;
 
 /** Standard file interface */
 export interface SnowpackSourceFile {
@@ -46,7 +47,7 @@ export interface PluginRunOptions {
 }
 
 /** map of extensions -> code (e.g. { ".js": "[code]", ".css": "[code]" }) */
-export type PluginLoadResult = string | {[fileExtension: string]: string};
+export type PluginLoadResult = string | SnowpackBuildMap;
 
 export interface PluginOptimizeOptions {
   buildDirectory: string;
@@ -136,6 +137,7 @@ export interface SnowpackConfig {
     clean: boolean;
     metaDir: string;
     minify: boolean;
+    sourceMaps: boolean;
   };
   _extensionMap: Record<string, string>;
 }

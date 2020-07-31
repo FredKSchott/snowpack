@@ -2,7 +2,7 @@ const fs = require('fs');
 const hashsum = require('hash-sum');
 const compiler = require('@vue/compiler-sfc');
 
-module.exports = function plugin() {
+module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   return {
     name: '@snowpack/plugin-vue',
     resolve: {
@@ -10,6 +10,8 @@ module.exports = function plugin() {
       output: ['.js', '.css'],
     },
     async load({filePath}) {
+      const {sourceMaps = true} = pluginOptions;
+
       const id = hashsum(filePath);
       const contents = fs.readFileSync(filePath, 'utf-8');
       const {descriptor, errors} = compiler.parse(contents, {filename: filePath});
@@ -18,34 +20,42 @@ module.exports = function plugin() {
         console.error(JSON.stringify(errors));
       }
 
-      let jsResult = '';
+      const output = {
+        '.js': {code: '', map: ''},
+        '.css': {code: '', map: ''},
+      };
+
       if (descriptor.script) {
-        jsResult += descriptor.script.content.replace(`export default`, 'const defaultExport =');
+        output['.js'].code += descriptor.script.content.replace(
+          `export default`,
+          'const defaultExport =',
+        );
       } else {
-        jsResult += `const defaultExport = {};`;
+        output['.js'].code += `const defaultExport = {};`;
       }
 
-      let cssResult;
-      for (const stylePart of descriptor.styles) {
-        const styleCode = await compiler.compileStyleAsync({
-          filename: filePath,
-          source: stylePart.content,
-          id: `data-v-${id}`,
-          scoped: stylePart.scoped != null,
-          modules: stylePart.module != null,
-          preprocessLang: stylePart.lang,
-          // preprocessCustomRequire: (id: string) => require(resolve(root, id))
-          // TODO load postcss config if present
-        });
-        if (styleCode.errors && styleCode.errors.length > 0) {
-          console.error(JSON.stringify(styleCode.errors));
-        }
-        cssResult = cssResult || '';
-        cssResult += styleCode.code;
-      }
+      await Promise.all(
+        descriptor.styles.map((stylePart) => {
+          const css = compiler.compileStyle({
+            filename: filePath,
+            source: stylePart.content,
+            id: `data-v-${id}`,
+            scoped: stylePart.scoped != null,
+            modules: stylePart.module != null,
+            preprocessLang: stylePart.lang,
+            // preprocessCustomRequire: (id: string) => require(resolve(root, id))
+            // TODO load postcss config if present
+          });
+          if (css.errors && css.errors.length > 0) {
+            console.error(JSON.stringify(css.errors));
+          }
+          output['.css'].code += css.code;
+          if (sourceMaps && css.map) output['.css'].map += JSON.stringify(css.map);
+        }),
+      );
 
       if (descriptor.template) {
-        const templateCode = compiler.compileTemplate({
+        const js = compiler.compileTemplate({
           filename: filePath,
           source: descriptor.template.content,
           preprocessLang: descriptor.template.lang,
@@ -54,18 +64,17 @@ module.exports = function plugin() {
             runtimeModuleName: '/web_modules/vue.js',
           },
         });
-        if (templateCode.errors && templateCode.errors.length > 0) {
-          console.error(JSON.stringify(templateCode.errors));
+        if (js.errors && js.errors.length > 0) {
+          console.error(JSON.stringify(js.errors));
         }
-        jsResult += `\n${templateCode.code}\n`;
-        jsResult += `\ndefaultExport.render = render`;
-        jsResult += `\nexport default defaultExport`;
+        output['.js'].code += `\n${js.code}\n`;
+        output['.js'].code += `\ndefaultExport.render = render`;
+        output['.js'].code += `\nexport default defaultExport`;
+
+        if (sourceMaps && js.map) output['.js'].map += JSON.stringify(js.map);
       }
 
-      return {
-        '.js': jsResult,
-        '.css': cssResult,
-      };
+      return output;
     },
   };
 };
