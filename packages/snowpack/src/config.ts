@@ -282,7 +282,7 @@ function loadPlugins(
         });
       };
     }
-    if (plugin.defaultBuildScript && !plugin.resolve) {
+    if (!plugin.resolve && plugin.defaultBuildScript && plugin.defaultBuildScript.startsWith('build:')) {
       const {input, output} = parseScript(plugin.defaultBuildScript);
       plugin.resolve = {input, output};
     } else if (plugin.resolve) {
