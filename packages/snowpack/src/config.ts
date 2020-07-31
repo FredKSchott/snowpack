@@ -171,7 +171,7 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
       continue;
     }
     if (configSchema.properties.buildOptions.properties[flag]) {
-      result.devOptions[flag] = val;
+      result.buildOptions[flag] = val;
       continue;
     }
     console.error(`Unknown CLI flag: "${flag}"`);
