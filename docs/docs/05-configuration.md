@@ -34,7 +34,6 @@ $ snowpack dev --no-bundle
 - **`--version`** Show the current version.
 - **`--reload`** Clear the local cache. Useful for troubleshooting installer issues.
 
-
 ### All Config Options
 
 ```js
@@ -82,14 +81,14 @@ $ snowpack dev --no-bundle
 #### Install Options
 
 - **`dest`** | `string`
-  - *Default:`"web_modules"`*
+  - _Default:`"web_modules"`_
   - Configure the install directory.
 - **`sourceMap`** | `boolean`
   - Emit source maps for installed packages.
 - **`env`** | `{[ENV_NAME: string]: (string | true)}`
   - Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
 - **`treeshake`** | `boolean`
-  - *Default:`false`, or `true` when run with `snowpack build`*
+  - _Default:`false`, or `true` when run with `snowpack build`_
   - Treeshake your dependencies to optimize your installed files. Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
 - **`installTypes`** | `boolean`
   - Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#TypeScript) to pick up these types.
@@ -137,6 +136,8 @@ $ snowpack dev --no-bundle
   - By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
 - **`minify`** | `boolean` | Default: `true`
   - By default, Snowpack will minify your dependencies on `snowpack build`. Disable this by setting this config option to `minify: false`.
+- **`webModulesUrl`** | `string` | Default: `web_modules`
+  - Rename your web modules directory.
 
 #### Proxy Options
 
@@ -164,7 +165,6 @@ The short form of a full URL string is enough for general use. For advanced conf
 This configuration has no effect on the final build.
 
 #### Mount Options
-
 
 ```js
 // snowpack.config.json
@@ -199,7 +199,7 @@ The `mount` configuration lets you map local files to their location in the fina
 }
 ```
 
-The `alias` config option lets you define an import alias in your application. When aliasing a package, this allows you to import that package by another name in your application. This applies to imports inside of your dependencies as well, essentially replacing all references to the aliased package. 
+The `alias` config option lets you define an import alias in your application. When aliasing a package, this allows you to import that package by another name in your application. This applies to imports inside of your dependencies as well, essentially replacing all references to the aliased package.
 
 Aliasing a local directory (any path that starts with "./") creates a shortcut to import that file or directory. While we don't necessarily recommend this pattern, some projects do enjoy using these instead of relative paths:
 
@@ -207,4 +207,3 @@ Aliasing a local directory (any path that starts with "./") creates a shortcut t
 -import '../../../../../Button.js';
 +import '@app/Button.js';
 ```
-
