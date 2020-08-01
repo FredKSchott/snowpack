@@ -5,9 +5,7 @@
   "description": "This test makes sure that %PUBLIC_URL% present in src/index.html doesn’t exist in the final build",
   "scripts": {
     "start": "snowpack dev",
-    "testbuild": "snowpack build",
-    "start:ts": "snowpack-ts dev",
-    "testbuild:ts": "snowpack-ts build"
+    "testbuild": "snowpack build"
   },
   "snowpack": {
     "mount": {
