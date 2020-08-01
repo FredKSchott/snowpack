@@ -14,15 +14,15 @@ import {performance} from 'perf_hooks';
 import rimraf from 'rimraf';
 import {InputOptions, OutputOptions, rollup, RollupError} from 'rollup';
 import validatePackageName from 'validate-npm-package-name';
-import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
-import {rollupPluginCatchUnresolved} from '../rollup-plugins/rollup-plugin-catch-unresolved.js';
+import {resolveTargetsFromRemoteCDN} from '../resolve-remote';
+import {rollupPluginCatchUnresolved} from '../rollup-plugins/rollup-plugin-catch-unresolved';
 import {rollupPluginCatchFetch} from '../rollup-plugins/rollup-plugin-catch-fetch';
 import {rollupPluginCss} from '../rollup-plugins/rollup-plugin-css';
-import {rollupPluginDependencyCache} from '../rollup-plugins/rollup-plugin-remote-cdn.js';
-import {rollupPluginDependencyStats} from '../rollup-plugins/rollup-plugin-stats.js';
+import {rollupPluginDependencyCache} from '../rollup-plugins/rollup-plugin-remote-cdn';
+import {rollupPluginDependencyStats} from '../rollup-plugins/rollup-plugin-stats';
 import {rollupPluginWrapInstallTargets} from '../rollup-plugins/rollup-plugin-wrap-install-targets';
-import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
-import {printStats} from '../stats-formatter.js';
+import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports';
+import {printStats} from '../stats-formatter';
 import {
   CommandOptions,
   DependencyStatsOutput,
@@ -41,7 +41,7 @@ import {
   writeLockfile,
   isPackageAliasEntry,
   findMatchingAliasEntry,
-} from '../util.js';
+} from '../util';
 
 type InstallResultCode = 'SUCCESS' | 'ASSET' | 'FAIL';
 

@@ -76,7 +76,9 @@ import {
 } from '../util';
 import {command as installCommand} from './install';
 import {getPort, paint} from './paint';
-const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
+
+const srcPath = __dirname.slice(0, __dirname.indexOf('/src/'))
+const HMR_DEV_CODE = readFileSync(path.join(srcPath, './assets/hmr.js'));
 
 const DEFAULT_PROXY_ERROR_HANDLER = (
   err: Error,

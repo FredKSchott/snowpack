@@ -18,7 +18,8 @@
   },
   "bin": {
     "sp": "pkg/dist-node/index.bin.js",
-    "snowpack": "pkg/dist-node/index.bin.js"
+    "snowpack": "pkg/dist-node/index.bin.js",
+    "snowpack-ts": "./scripts/ts-node.js"
   },
   "@pika/pack": {
     "pipeline": [
@@ -91,5 +92,8 @@
     "validate-npm-package-name": "^3.0.0",
     "ws": "^7.3.0",
     "yargs-parser": "^18.1.3"
+  },
+  "devDependencies": {
+    "ts-node": "^8.10.2"
   }
 }

@@ -1,0 +1,18 @@
+{
+  "ts-node": {
+    "transpileOnly": true
+  },
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "jsx": "react"
+  },
+  "include": ["src/**/*", "@types/**/*", "scripts/ts-node.bin.ts"],
+  "exclude": ["node_modules"]
+}

@@ -5,12 +5,12 @@ import {addCommand, rmCommand} from './commands/add-rm';
 import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {command as installCommand} from './commands/install';
-import {loadAndValidateConfig} from './config.js';
+import {loadAndValidateConfig} from './config';
 import {CLIFlags} from './types/snowpack';
-import {clearCache, readLockfile} from './util.js';
+import {clearCache, readLockfile} from './util';
 
 export {install as unstable_installCommand} from './commands/install';
-export {createConfiguration} from './config.js';
+export {createConfiguration} from './config';
 export * from './types/snowpack';
 
 const cwd = process.cwd();
