@@ -14,6 +14,7 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 - [@snowpack/app-template-preact](../@snowpack/app-template-preact)
 - [@snowpack/app-template-react-typescript](../@snowpack/app-template-react-typescript)
 - [@snowpack/app-template-react](../@snowpack/app-template-react)
+- [@snowpack/app-template-svelte-typescript](../@snowpack/app-template-svelte-typescript)
 - [@snowpack/app-template-svelte](../@snowpack/app-template-svelte)
 - [@snowpack/app-template-vue](../@snowpack/app-template-vue)
 
