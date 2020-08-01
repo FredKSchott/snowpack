@@ -19,7 +19,7 @@
   "bin": {
     "sp": "pkg/dist-node/index.bin.js",
     "snowpack": "pkg/dist-node/index.bin.js",
-    "snowpack-ts": "./scripts/ts-node.js"
+    "snowpack-ts": "scripts/ts-node.js"
   },
   "@pika/pack": {
     "pipeline": [
