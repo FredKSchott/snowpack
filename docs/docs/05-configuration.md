@@ -1,6 +1,6 @@
 ## Configuration
 
-Snowpack's behavior can be configured by CLI flags, a custom Snowpack config file, or both. [See the table below for the full list of supported options](#configuration-options).
+Snowpack's behavior can be configured by CLI flags, a custom Snowpack config file, or both. [See the table below for the full list of supported options](#all-config-options).
 
 ### Config Files
 
@@ -92,7 +92,7 @@ $ snowpack dev --no-bundle
   - *Default:`false`, or `true` when run with `snowpack build`*
   - Treeshake your dependencies to optimize your installed files. Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
 - **`installTypes`** | `boolean`
-  - Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#TypeScript) to pick up these types.
+  - Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#typescript) to pick up these types.
 - **`alias`** | `{[mapFromPackageName: string]: string}`
   - Alias an installed package name. This applies to imports within your application and within your installed dependency graph.
   - Example: `"alias": {"react": "preact/compat", "react-dom": "preact/compat"}`
