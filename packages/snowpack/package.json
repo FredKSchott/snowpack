@@ -20,6 +20,9 @@
     "sp": "pkg/dist-node/index.bin.js",
     "snowpack": "pkg/dist-node/index.bin.js"
   },
+  "engines": {
+    "node": ">=10.19.0"
+  },
   "@pika/pack": {
     "pipeline": [
       [
