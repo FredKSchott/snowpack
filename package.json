@@ -5,9 +5,7 @@
     "build": "cd packages/snowpack && yarn build",
     "publish": "lerna publish",
     "format": "prettier --write \"packages/*/src/**/*.ts\"",
-    "test:build": "lerna run testbuild",
-    "test:all": "jest --test-timeout=30000",
-    "test": "yarn test:build && yarn test:all"
+    "test": "jest --test-timeout=30000"
   },
   "workspaces": [
     "packages/@snowpack/*",

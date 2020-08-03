@@ -1,4 +1,5 @@
 const path = require('path');
+const execa = require('execa');
 const {readdirSync, readFileSync, statSync, existsSync} = require('fs');
 const dircompare = require('dir-compare');
 
@@ -28,8 +29,8 @@ describe('snowpack build', () => {
         cwd = path.join(cwd, 'packages', 'snowpack');
       }
 
-      // By this point, `npm run setupTests` should have been run, which means these directories
-      // we’re comparing should be recently-built
+      // build test
+      execa.sync('yarn', ['testbuild'], {cwd});
 
       const expected = path.join(cwd, 'expected-build');
       const actual = path.join(cwd, 'build');
