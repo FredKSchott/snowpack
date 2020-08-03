@@ -7,7 +7,9 @@
     "testbuild": "snowpack build --no-treeshake --no-minify"
   },
   "devDependencies": {
-    "preact": "^10.4.6",
     "snowpack": "^2.7.0"
+  },
+  "dependencies": {
+    "@snowpack/plugin-svelte": "^2.0.1"
   }
 }

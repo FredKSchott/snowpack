@@ -1,5 +1,6 @@
 {
   "imports": {
-    "preact": "./preact.js"
+    "preact": "./preact.js",
+    "svelte/internal": "./svelte/internal.js"
   }
 }

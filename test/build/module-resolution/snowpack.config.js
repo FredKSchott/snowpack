@@ -1,3 +1,6 @@
 module.exports = {
-  mount: {public: '/'},
+  mount: {
+    public: '/',
+  },
+  plugins: ['@snowpack/plugin-svelte'],
 };
