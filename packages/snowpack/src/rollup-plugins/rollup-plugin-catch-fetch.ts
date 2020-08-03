@@ -1,3 +1,4 @@
+import path from 'path';
 import {Plugin} from 'rollup';
 
 const FETCH_POLYFILL = `
@@ -26,20 +27,23 @@ export const Response = global.Response;
  *
  * This still allows you to polyfill fetch in older browsers, if you desire.
  */
+function isNodeFetch(id: string): boolean {
+  return (
+    id === 'node-fetch' ||
+    id === 'whatwg-fetch' ||
+    id.includes(path.join('node_modules', 'node-fetch')) || // note: sometimes Snowpack has found the entry file already
+    id.includes(path.join('node_modules', 'whatwg-fetch'))
+  );
+}
+
 export function rollupPluginCatchFetch(): Plugin {
   return {
     name: 'snowpack:fetch-handler',
     resolveId(id) {
-      if (id !== 'node-fetch' && id !== 'whatwg-fetch') {
-        return null;
-      }
-      return id;
+      return isNodeFetch(id) ? id : null;
     },
     load(id) {
-      if (id !== 'node-fetch' && id !== 'whatwg-fetch') {
-        return null;
-      }
-      return FETCH_POLYFILL;
+      return isNodeFetch(id) ? FETCH_POLYFILL : null;
     },
   };
 }
