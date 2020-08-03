@@ -73,7 +73,7 @@ describe('snowpack install', () => {
     }
 
     // TODO: remove when ora is replaced
-    if (testName === 'error-node-builtin-unresolved') {
+    if (['dep-types-only', 'error-node-builtin-unresolved'].includes(testName)) {
       continue; // this test is skipped because the ora failure message causes the output to flake depending on Node version + OS
     }
 
