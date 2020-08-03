@@ -46,20 +46,8 @@ describe('create-snowpack-app', () => {
     it(template, async () => {
       const cwd = path.join(TEMPLATES_DIR, template);
 
-      // 1. build
-
-      // pre-build: set config to minify output
-      const snowpackConfig = path.join(cwd, 'snowpack.config.json');
-      const originalConfig = fs.readFileSync(snowpackConfig, 'utf8');
-      const config = JSON.parse(originalConfig);
-      config.buildOptions = {...(config.buildOptions || {}), minify: false};
-      fs.writeFileSync(snowpackConfig, JSON.stringify(config), 'utf8');
-
       // build
-      await execa('yarn', ['build'], {cwd, env: {NODE_ENV: 'production'}});
-
-      // post-build: restore original config
-      fs.writeFileSync(snowpackConfig, originalConfig, 'utf8');
+      await execa('yarn', ['build', '--no-minify'], {cwd, env: {NODE_ENV: 'production'}});
 
       const expected = path.join(__dirname, 'snapshots', template);
       const actual = path.join(cwd, 'build');
@@ -68,12 +56,7 @@ describe('create-snowpack-app', () => {
       const res = dircompare.compareSync(expected, actual);
       res.diffSet.forEach((entry) => {
         // NOTE: We only compare files so that we give the test runner a more detailed diff.
-        if (entry.type1 !== 'file') {
-          return;
-        }
-
-        // NOTE: common chunks are hashed, non-trivial to compare
-        if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) {
+        if (entry.type1 === 'directory' && entry.type2 === 'directory') {
           return;
         }
 
@@ -85,6 +68,11 @@ describe('create-snowpack-app', () => {
           throw new Error(
             `File not found in snapshot: ${entry.path2.replace(actual, '')}/${entry.name2}`,
           );
+
+        // NOTE: common chunks are hashed, non-trivial to compare
+        if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) {
+          return;
+        }
 
         // compare contents
         const f1 = fs.readFileSync(path.join(entry.path1, entry.name1), 'utf8');

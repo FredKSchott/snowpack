@@ -84,7 +84,7 @@ describe('snowpack install', () => {
       }
 
       // Run Test
-      const {all} = await execa('npm', ['run', 'testinstall', '--silent'], {
+      const {all} = await execa('yarn', ['--silent', 'run', 'testinstall'], {
         cwd: path.join(__dirname, testName),
         reject: false,
         all: true,
@@ -162,11 +162,7 @@ describe('snowpack install', () => {
       // If any diffs are detected, we'll assert the difference so that we get nice output.
       for (const entry of res.diffSet) {
         // NOTE: We only compare files so that we give the test runner a more detailed diff.
-        if (entry.type1 !== 'file') {
-          return;
-        }
-        // NOTE: common chunks are hashed, non-trivial to compare
-        if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) {
+        if (entry.type1 === 'directory' && entry.type2 === 'directory') {
           return;
         }
 
@@ -178,6 +174,11 @@ describe('snowpack install', () => {
           throw new Error(
             `File not found in snapshot: ${entry.path2.replace(actual, '')}/${entry.name2}`,
           );
+
+        // NOTE: common chunks are hashed, non-trivial to compare
+        if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) {
+          return;
+        }
 
         const f1 = readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'});
         const f2 = readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'});
