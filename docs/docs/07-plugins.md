@@ -57,7 +57,7 @@ This plugin allows you to connect any CLI into your build process. Just give it 
 
 ```js
 // snowpack.config.json
-// [npm install @snowpack/plugin-build-script]
+// [npm install @snowpack/plugin-run-script]
 {
   "plugins": [
     ["@snowpack/plugin-run-script", { "cmd": "tsc --noEmit", "watch": "$1 --watch"}]
