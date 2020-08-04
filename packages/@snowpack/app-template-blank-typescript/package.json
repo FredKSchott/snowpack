@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-blank-typescript",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -19,10 +19,10 @@
     "canvas-confetti": "^1.2.0"
   },
   "devDependencies": {
-    "@snowpack/plugin-run-script": "^2.0.2",
+    "@snowpack/plugin-run-script": "^2.0.3",
     "@types/canvas-confetti": "^1.0.0",
     "prettier": "^2.0.5",
-    "snowpack": "^2.7.5",
+    "snowpack": "^2.7.6",
     "typescript": "^3.9.7"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"

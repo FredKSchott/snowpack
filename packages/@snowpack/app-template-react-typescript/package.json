@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-react-typescript",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -20,14 +20,14 @@
     "react-dom": "^16.13.1"
   },
   "devDependencies": {
-    "@snowpack/app-scripts-react": "^1.8.2",
+    "@snowpack/app-scripts-react": "^1.8.3",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/react": "^10.0.3",
     "@types/react": "^16.9.35",
     "@types/react-dom": "^16.9.8",
     "jest": "^25.4.0",
     "prettier": "^2.0.5",
-    "snowpack": "^2.7.5",
+    "snowpack": "^2.7.6",
     "typescript": "^3.9.7"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
