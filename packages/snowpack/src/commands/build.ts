@@ -1,6 +1,5 @@
 import merge from 'deepmerge';
 import * as esbuild from 'esbuild';
-import {EventEmitter} from 'events';
 import {promises as fs} from 'fs';
 import glob from 'glob';
 import * as colors from 'kleur/colors';
@@ -9,7 +8,6 @@ import path from 'path';
 import {performance} from 'perf_hooks';
 import rimraf from 'rimraf';
 import url from 'url';
-import util from 'util';
 import {
   generateEnvModule,
   wrapHtmlResponse,
@@ -19,19 +17,20 @@ import {
 import {buildFile, runPipelineOptimizeStep} from '../build/build-pipeline';
 import {createImportResolver} from '../build/import-resolver';
 import {removeLeadingSlash} from '../config';
+import createLogger from '../logger';
 import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
-import {printStats} from '../stats-formatter';
 import {CommandOptions, SnowpackSourceFile} from '../types/snowpack';
 import {getEncodingType, replaceExt, jsSourceMappingURL, cssSourceMappingURL} from '../util';
 import {getInstallTargets, run as installRunner} from './install';
+
+const logger = createLogger({name: 'snowpack'});
 
 async function installOptimizedDependencies(
   allFilesToResolveImports: Record<string, SnowpackSourceFile>,
   installDest: string,
   commandOptions: CommandOptions,
 ) {
-  console.log(colors.yellow('! installing dependencies...'));
   const installConfig = merge(commandOptions.config, {
     installOptions: {
       dest: installDest,
@@ -50,38 +49,13 @@ async function installOptimizedDependencies(
     installTargets,
     config: installConfig,
   });
-  // 3. Print stats immediate after install output.
-  if (installResult.stats) {
-    console.log(printStats(installResult.stats));
-  }
   return installResult;
 }
 
 export async function command(commandOptions: CommandOptions) {
-  const {cwd, config} = commandOptions;
-  const messageBus = new EventEmitter();
+  const {cwd, config, logLevel = 'info'} = commandOptions;
 
-  // TODO: update this with a more robust / typed log event
-  function logEvent({level, id, msg, args}) {
-    let logger = console.log;
-    let color = (stdout: string) => stdout;
-    if (level === 'warn') {
-      logger = console.warn;
-      color = colors.yellow;
-    }
-    if (level === 'error') {
-      color = colors.red;
-      logger = console.error;
-    }
-    const output = msg || util.format.apply(util, args);
-    logger(`${id ? colors.blue(`[${id}] `) : ''}${color(output)}`);
-  }
-  messageBus.on('CONSOLE', logEvent);
-  messageBus.on('WORKER_COMPLETE', logEvent);
-  messageBus.on('WORKER_MSG', logEvent);
-  messageBus.on('WORKER_RESET', logEvent);
-  messageBus.on('WORKER_START', logEvent);
-  messageBus.on('WORKER_UPDATE', logEvent);
+  logger.level = logLevel;
 
   const buildDirectoryLoc = config.devOptions.out;
   const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaDir);
@@ -105,11 +79,11 @@ export async function command(commandOptions: CommandOptions) {
           isHmrEnabled: false,
           // @ts-ignore: internal API only
           log: (msg, data = {}) => {
-            messageBus.emit(msg, {...data, id: runPlugin.name});
+            logger.info(`[${runPlugin.name}] ${msg}`);
           },
         })
         .catch((err) => {
-          messageBus.emit('CONSOLE', {level: 'error', id: runPlugin.name, ...err});
+          logger.error(`[${runPlugin.name}] ${err}`);
         });
     }
   }
@@ -141,7 +115,7 @@ export async function command(commandOptions: CommandOptions) {
   const allBuiltFromFiles = new Set<string>();
   const allFilesToResolveImports: Record<string, SnowpackSourceFile> = {};
 
-  console.log(colors.yellow('! building source...'));
+  logger.info(colors.yellow('! building source…'));
   const buildStart = performance.now();
 
   for (const [dirDisk, dirDest, allFiles] of includeFileSets) {
@@ -149,7 +123,6 @@ export async function command(commandOptions: CommandOptions) {
       const srcExt = path.extname(locOnDisk);
       const builtFileOutput = await buildFile(locOnDisk, {
         plugins: config.plugins,
-        messageBus,
         isDev: false,
         isHmrEnabled: false,
         sourceMaps: config.buildOptions.sourceMaps,
@@ -217,18 +190,18 @@ export async function command(commandOptions: CommandOptions) {
   stopEsbuild();
 
   const buildEnd = performance.now();
-  console.log(
-    `${colors.green('✔')} ${colors.bold('snowpack')} build complete ${colors.dim(
+  logger.info(
+    `${colors.green('✔')} build complete ${colors.dim(
       `[${((buildEnd - buildStart) / 1000).toFixed(2)}s]`,
     )}`,
   );
 
+  // install
   const installDest = path.join(buildDirectoryLoc, config.buildOptions.webModulesUrl);
-  const installResult = await installOptimizedDependencies(
-    allFilesToResolveImports,
-    installDest,
-    commandOptions,
-  );
+  const installResult = await installOptimizedDependencies(allFilesToResolveImports, installDest, {
+    ...commandOptions,
+    logLevel: 'error',
+  });
   if (!installResult.success || installResult.hasError) {
     process.exit(1);
   }
@@ -296,7 +269,6 @@ export async function command(commandOptions: CommandOptions) {
 
   await runPipelineOptimizeStep(buildDirectoryLoc, {
     plugins: config.plugins,
-    messageBus,
     isDev: false,
     isHmrEnabled: false,
     sourceMaps: config.buildOptions.sourceMaps,
@@ -305,7 +277,7 @@ export async function command(commandOptions: CommandOptions) {
   // minify
   if (config.buildOptions.minify) {
     const minifierStart = performance.now();
-    console.log(colors.yellow('! minifying javascript...'));
+    logger.info(colors.yellow('! minifying javascript...'));
     const minifierService = await esbuild.startService();
     const allJsFiles = glob.sync(path.join(buildDirectoryLoc, '**/*.js'), {
       ignore: [`**/${config.buildOptions.metaDir}/**/*`], // don’t minify meta dir
@@ -318,13 +290,13 @@ export async function command(commandOptions: CommandOptions) {
       }),
     );
     const minifierEnd = performance.now();
-    console.log(
-      `${colors.green('✔')} ${colors.bold('snowpack')} minification complete ${colors.dim(
+    logger.info(
+      `${colors.green('✔')} minification complete ${colors.dim(
         `[${((minifierEnd - minifierStart) / 1000).toFixed(2)}s]`,
       )}`,
     );
     minifierService.stop();
   }
 
-  process.stdout.write(`\n${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
+  logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
 }

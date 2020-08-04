@@ -237,7 +237,7 @@ export async function command(commandOptions: CommandOptions) {
         currentlyRunningCommand.stdout.on('data', (data) => process.stdout.write(data));
         currentlyRunningCommand.stderr.on('data', (data) => process.stderr.write(data));
         await currentlyRunningCommand;
-        currentlyRunningCommand = installCommand(installCommandOptions);
+        currentlyRunningCommand = installCommand({...installCommandOptions, logLevel: 'error'});
         await currentlyRunningCommand;
         await updateLockfileHash(DEV_DEPENDENCIES_DIR);
         await cacache.rm.all(BUILD_CACHE);
@@ -288,7 +288,7 @@ export async function command(commandOptions: CommandOptions) {
     if (!currentlyRunningCommand) {
       isLiveReloadPaused = true;
       messageBus.emit('INSTALLING');
-      currentlyRunningCommand = installCommand(installCommandOptions);
+      currentlyRunningCommand = installCommand({...installCommandOptions, logLevel: 'error'});
       await currentlyRunningCommand.then(async () => {
         dependencyImportMap = JSON.parse(
           await fs
@@ -515,7 +515,6 @@ export async function command(commandOptions: CommandOptions) {
       const fileBuilderPromise = (async () => {
         const builtFileOutput = await _buildFile(fileLoc, {
           plugins: config.plugins,
-          messageBus,
           isDev: true,
           isHmrEnabled: isHmr,
           sourceMaps: config.buildOptions.sourceMaps,

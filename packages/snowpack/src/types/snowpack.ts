@@ -1,4 +1,5 @@
 import type HttpProxy from 'http-proxy';
+import pino from 'pino';
 import {Plugin as RollupPlugin} from 'rollup';
 
 export type DeepPartial<T> = {
@@ -150,6 +151,7 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
   env?: string[]; // env vars
   open?: string[];
   secure?: boolean;
+  logLevel?: pino.Level;
 }
 
 export interface ImportMap {
@@ -161,6 +163,7 @@ export interface CommandOptions {
   config: SnowpackConfig;
   lockfile: ImportMap | null;
   pkgManifest: any;
+  logLevel?: pino.Level;
 }
 
 /**

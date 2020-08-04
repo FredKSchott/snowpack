@@ -1,1 +1,1 @@
-✖ Nothing to install.
+[snowpack] Nothing to install.

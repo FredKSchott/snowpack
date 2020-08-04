@@ -4,6 +4,9 @@ import PQueue from 'p-queue';
 import validatePackageName from 'validate-npm-package-name';
 import {SnowpackConfig, ImportMap} from './types/snowpack';
 import {fetchCDNResource, PIKA_CDN, RESOURCE_CACHE} from './util.js';
+import createLogger from './logger';
+
+const logger = createLogger({name: 'snowpack'});
 
 /**
  * Given an install specifier, attempt to resolve it from the CDN.
@@ -36,17 +39,18 @@ async function resolveDependency(
     installUrlType = 'pin';
   } else {
     if (packageSemver === 'latest') {
-      console.warn(
+      logger.warn(
         `warn(${installSpecifier}): Not found in "dependencies". Using latest package version...`,
       );
     }
     if (packageSemver.startsWith('npm:@reactesm') || packageSemver.startsWith('npm:@pika/react')) {
-      throw new Error(
+      logger.fatal(
         `React workaround packages no longer needed! Revert to the official React & React-DOM packages.`,
       );
+      process.exit(1);
     }
     if (packageSemver.includes(' ') || packageSemver.includes(':')) {
-      console.warn(
+      logger.warn(
         `warn(${installSpecifier}): Can't fetch complex semver "${packageSemver}" from remote CDN.`,
       );
       return null;
@@ -70,8 +74,8 @@ async function resolveDependency(
   // Otherwise, resolve from the CDN remotely.
   const {statusCode, headers, body} = await fetchCDNResource(installUrl);
   if (statusCode !== 200) {
-    console.warn(`Failed to resolve [${statusCode}]: ${installUrl} (${body})`);
-    console.warn(`Falling back to local copy...`);
+    logger.warn(`Failed to resolve [${statusCode}]: ${installUrl} (${body})`);
+    logger.warn(`Falling back to local copy...`);
     return null;
   }
 
@@ -96,26 +100,28 @@ async function resolveDependency(
     return pinnedUrl;
   }
   if (buildStatus === 'SUCCESS') {
-    console.warn(`Failed to lookup [${statusCode}]: ${installUrl}`);
-    console.warn(`Falling back to local copy...`);
+    logger.warn(`Failed to lookup [${statusCode}]: ${installUrl}`);
+    logger.warn(`Falling back to local copy...`);
     return null;
   }
   if (!canRetry || buildStatus === 'FAIL') {
-    console.warn(`Failed to build: ${installSpecifier}@${packageSemver}`);
-    console.warn(`Falling back to local copy...`);
+    logger.warn(`Failed to build: ${installSpecifier}@${packageSemver}`);
+    logger.warn(`Falling back to local copy...`);
     return null;
   }
-  console.log(
+  logger.info(
     colors.cyan(
       `Building ${installSpecifier}@${packageSemver}... (This takes a moment, but will be cached for future use)`,
     ),
   );
   if (!importUrlPath) {
-    throw new Error('X-Import-URL header expected, but none received.');
+    logger.fatal('X-Import-URL header expected, but none received.');
+    process.exit(1);
   }
   const {statusCode: lookupStatusCode} = await fetchCDNResource(importUrlPath);
   if (lookupStatusCode !== 200) {
-    throw new Error(`Unexpected response [${lookupStatusCode}]: ${PIKA_CDN}${importUrlPath}`);
+    logger.fatal(`Unexpected response [${lookupStatusCode}]: ${PIKA_CDN}${importUrlPath}`);
+    process.exit(1);
   }
   return resolveDependency(installSpecifier, packageSemver, lockfile, false);
 }
