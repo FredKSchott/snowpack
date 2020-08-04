@@ -9,8 +9,5 @@
   "dependencies": {
     "execa": "^4.0.3",
     "npm-run-path": "^4.0.1"
-  },
-  "devDependencies": {
-    "snowpack": "^2.7.6"
   }
 }
