@@ -56,7 +56,7 @@ if (import.meta.hot) {
 module.exports = function reactRefreshTransform(snowpackConfig) {
   return {
     name: '@snowpack/plugin-react-refresh',
-    transform({contents, fileExt, isDev}) {
+    transform({contents, fileExt, filePath, isDev}) {
       // Use long-form "=== false" to handle older Snowpack versions
       if (snowpackConfig.devOptions.hmr === false) {
         return;
