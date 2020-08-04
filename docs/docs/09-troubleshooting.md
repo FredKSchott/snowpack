@@ -17,9 +17,9 @@ Some packages are written with dependencies on Node.js built-in modules. This is
 module.exports = {
   installOptions: {
     rollup: {
-      plugins: [require("rollup-plugin-node-polyfills")()]
-    }
-  }
+      plugins: [require('rollup-plugin-node-polyfills')()],
+    },
+  },
 };
 ```
 
@@ -29,10 +29,9 @@ module.exports = {
 ENOENT: no such file or directory, open …/node_modules/csstype/index.js
 ```
 
-This error message would sometimes occur in older versions of Snowpack. 
+This error message would sometimes occur in older versions of Snowpack.
 
 **To solve this issue:** Upgrade to Snowpack `v2.6.0` or higher. If you continue to see this unexpected error in newer versions of Snowpack, please file an issue.
-
 
 ### Package exists but package.json "exports" does not include entry
 
