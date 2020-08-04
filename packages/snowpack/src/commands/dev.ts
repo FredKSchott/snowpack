@@ -730,6 +730,7 @@ export async function command(commandOptions: CommandOptions) {
     try {
       responseOutput = await buildFile(fileLoc);
     } catch (err) {
+      console.error(reqPath, err);
       sendError(req, res, 500);
       return;
     }
