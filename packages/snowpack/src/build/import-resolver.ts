@@ -75,12 +75,7 @@ export function createImportResolver({
       // is already the key in the import map. The aliased "to" value is also an entry.
       const importMapEntry = dependencyImportMap.imports[spec];
       if (importMapEntry) {
-        let resolved = path.posix.resolve(config.buildOptions.webModulesUrl, importMapEntry);
-        // Windows fix: temporarily use backslashes until fully resolved (will be transformed to forward slashes later)
-        if (path.sep === '\\') {
-          resolved = resolved.replace(/\//g, '\\');
-        }
-        return resolved;
+        return path.posix.resolve(config.buildOptions.webModulesUrl, importMapEntry);
       }
     }
     return false;

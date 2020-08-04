@@ -232,33 +232,32 @@ export async function command(commandOptions: CommandOptions) {
       }
       const extName = path.extname(resolvedImportUrl);
       const isProxyImport = extName && extName !== '.js';
+      if (isProxyImport) {
+        resolvedImportUrl = resolvedImportUrl + '.proxy.js';
+      }
+      const isAbsoluteUrlPath = path.posix.isAbsolute(resolvedImportUrl);
+      const resolvedImportPath = removeLeadingSlash(path.normalize(resolvedImportUrl));
 
       // We treat ".proxy.js" files special: we need to make sure that they exist on disk
       // in the final build, so we mark them to be written to disk at the next step.
-      const isAbsoluteUrlPath = path.isAbsolute(resolvedImportUrl);
       if (isProxyImport) {
-        resolvedImportUrl = resolvedImportUrl + '.proxy.js';
         if (isAbsoluteUrlPath) {
-          allImportProxyFiles.add(
-            path.resolve(buildDirectoryLoc, removeLeadingSlash(resolvedImportUrl)),
-          );
+          allImportProxyFiles.add(path.resolve(buildDirectoryLoc, resolvedImportPath));
         } else {
-          allImportProxyFiles.add(path.resolve(path.dirname(outLoc), resolvedImportUrl));
+          allImportProxyFiles.add(path.resolve(path.dirname(outLoc), resolvedImportPath));
         }
       }
-
       // When dealing with an absolute import path, we need to honor the baseUrl
       if (isAbsoluteUrlPath) {
-        resolvedImportUrl = path.relative(
-          path.dirname(outLoc),
-          path.resolve(buildDirectoryLoc, removeLeadingSlash(resolvedImportUrl)),
-        );
+        return path
+          .relative(path.dirname(outLoc), path.resolve(buildDirectoryLoc, resolvedImportPath))
+          .replace(/\\/g, '/'); // replace Windows backslashes at the end, after resolution
       }
-
-      if (!resolvedImportUrl.startsWith('.'))
-        resolvedImportUrl = './' + removeLeadingSlash(resolvedImportUrl);
-
-      return resolvedImportUrl.replace(/\\/g, '/'); // replace Windows backslashes at the end, after resolution
+      // Make sure that a relative URL always starts with "./"
+      if (!resolvedImportUrl.startsWith('.') && !resolvedImportUrl.startsWith('/')) {
+        resolvedImportUrl = './' + resolvedImportUrl;
+      }
+      return resolvedImportUrl;
     });
     await fs.mkdir(path.dirname(outLoc), {recursive: true});
     await fs.writeFile(outLoc, resolvedCode);
