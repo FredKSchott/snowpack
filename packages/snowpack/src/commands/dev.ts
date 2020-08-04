@@ -598,7 +598,10 @@ export async function command(commandOptions: CommandOptions) {
         },
         (spec) => {
           // Try to resolve the specifier to a known URL in the project
-          const resolvedImportUrl = resolveImportSpecifier(spec);
+          let resolvedImportUrl = resolveImportSpecifier(spec);
+          if (resolvedImportUrl && path.sep === '\\') {
+            resolvedImportUrl = resolvedImportUrl.replace(/\\/g, '/');
+          }
           if (resolvedImportUrl) {
             const extName = path.extname(resolvedImportUrl);
             if (extName && extName !== '.js') {
