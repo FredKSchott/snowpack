@@ -1,7 +1,6 @@
-const fs = require('fs');
 const babel = require('@babel/core');
 
-module.exports = function plugin(_, options) {
+module.exports = function plugin(_, options = {}) {
   // options validation
   if (options) {
     if (typeof options !== 'object') throw new Error(`options isn’t an object. Please see README.`);
@@ -21,13 +20,18 @@ module.exports = function plugin(_, options) {
     },
     async load({filePath}) {
       if (!filePath) return;
-      const result = await babel.transformFileAsync(filePath, {
+
+      // set default Babel options w/o overriding user-defined options
+      const {transformOptions = {}} = options;
+      const {sourceMaps = true, ...babelOptions} = transformOptions;
+
+      let {code, map} = await babel.transformFileAsync(filePath, {
         cwd: process.cwd(),
         ast: false,
         compact: false,
-        ...(options.transformOptions || {}),
+        sourceMaps,
+        ...babelOptions,
       });
-      let code = result.code;
       if (code) {
         // Some Babel plugins assume process.env exists, but Snowpack
         // uses import.meta.env instead. Handle this here since it
@@ -35,7 +39,12 @@ module.exports = function plugin(_, options) {
         // See: https://www.pika.dev/npm/snowpack/discuss/496
         code = code.replace(/process\.env/g, 'import.meta.env');
       }
-      return {'.js': code};
+      return {
+        '.js': {
+          code,
+          map,
+        },
+      };
     },
   };
 };

@@ -47,10 +47,7 @@ describe('create-snowpack-app', () => {
       const cwd = path.join(TEMPLATES_DIR, template);
 
       // build
-      await execa('yarn', ['build', '--no-minify', '--no-source-maps'], {
-        cwd,
-        env: {NODE_ENV: 'production'},
-      });
+      await execa('yarn', ['build', '--no-minify'], {cwd, env: {NODE_ENV: 'production'}});
 
       const expected = path.join(__dirname, 'snapshots', template);
       const actual = path.join(cwd, 'build');
@@ -72,6 +69,9 @@ describe('create-snowpack-app', () => {
           throw new Error(
             `File not found in snapshot: ${entry.path2.replace(actual, '')}/${entry.name2}`,
           );
+
+        // don’t compare source map contents, so long as they exist
+        if (entry.name1.endsWith('.map')) return;
 
         // NOTE: common chunks are hashed, non-trivial to compare
         if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) {

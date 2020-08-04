@@ -1,7 +1,7 @@
 import merge from 'deepmerge';
 import * as esbuild from 'esbuild';
 import {EventEmitter} from 'events';
-import {promises as fs, existsSync} from 'fs';
+import {promises as fs} from 'fs';
 import glob from 'glob';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
@@ -285,25 +285,28 @@ export async function command(commandOptions: CommandOptions) {
     isHmrEnabled: false,
   });
 
+  // minify
   if (config.buildOptions.minify) {
     const minifierStart = performance.now();
     console.log(colors.yellow('! minifying javascript...'));
     const minifierService = await esbuild.startService();
-    const allJsFiles = glob.sync(path.join(buildDirectoryLoc, '**/*.js'));
+    const allJsFiles = glob.sync(path.join(buildDirectoryLoc, '**/*.js'), {
+      ignore: [`**/${config.buildOptions.metaDir}/**/*`], // don’t minify meta dir
+    });
     await Promise.all(
       allJsFiles.map(async (jsFile) => {
         let js = await fs.readFile(jsFile, 'utf-8');
         const sourceMappingURL = jsFile + '.map';
-        const shouldSourceMap = config.buildOptions.sourceMaps && !existsSync(sourceMappingURL); // only write source map if needed (don’t overwrite)
 
+        // run esbuild
         let {js: minifiedJS, jsSourceMap} = await minifierService.transform(js, {
           minify: config.buildOptions.minify,
           sourcefile: jsFile,
-          sourcemap: shouldSourceMap,
+          sourcemap: config.buildOptions.sourceMaps,
         });
 
         // write source maps
-        if (shouldSourceMap && jsSourceMap) {
+        if (config.buildOptions.sourceMaps && jsSourceMap) {
           minifiedJS += `//# sourceMappingURL=${path.basename(sourceMappingURL)}\n`; // note: this will be on its own line
           await fs.writeFile(sourceMappingURL, jsSourceMap, 'utf-8');
         }

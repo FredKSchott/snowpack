@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const hashsum = require('hash-sum');
 const compiler = require('@vue/compiler-sfc');
 
@@ -37,7 +38,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       await Promise.all(
         descriptor.styles.map((stylePart) => {
           const css = compiler.compileStyle({
-            filename: filePath,
+            filename: path.relative(process.cwd(), filePath),
             source: stylePart.content,
             id: `data-v-${id}`,
             scoped: stylePart.scoped != null,
@@ -56,7 +57,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
 
       if (descriptor.template) {
         const js = compiler.compileTemplate({
-          filename: filePath,
+          filename: path.relative(process.cwd(), filePath),
           source: descriptor.template.content,
           preprocessLang: descriptor.template.lang,
           compilerOptions: {

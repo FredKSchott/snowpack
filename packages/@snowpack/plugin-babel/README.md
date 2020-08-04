@@ -25,7 +25,7 @@ npm install --save-dev @snowpack/plugin-babel
 
 #### Plugin Options
 
-| Name    | Type       | Description                                                                                                                                        |
-| :------ | :--------- | :------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `input` | `string[]` | (optional) By default, Babel scans & transfoms these extensions: `['.js', '.jsx', '.ts', '.tsx']`. Modify this array if you’d like to change this. |
-| `transformOptions` | `object` | (optional) See [https://babeljs.io/docs/en/options](https://babeljs.io/docs/en/options) |
+| Name               | Type       | Description                                                                                                                                        |
+| :----------------- | :--------- | :------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `input`            | `string[]` | (optional) By default, Babel scans & transfoms these extensions: `['.js', '.jsx', '.ts', '.tsx']`. Modify this array if you’d like to change this. |
+| `transformOptions` | `object`   | (optional) See [https://babeljs.io/docs/en/options](https://babeljs.io/docs/en/options)                                                            |

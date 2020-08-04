@@ -13,14 +13,15 @@ export interface BuildFileOptions {
 }
 
 export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
-  const {baseExt} = getExt(fileLoc);
+  const srcFile = fileLoc.replace(/\.map$/i, ''); // if this is a .map file, try loading source
+  const {baseExt} = getExt(srcFile);
   const extReplace = new RegExp(baseExt + '$'); // only replace ending extensions
 
-  const potentialInputs = new Set([fileLoc]);
+  const potentialInputs = new Set([srcFile]);
   for (const plugin of plugins) {
     if (plugin.resolve && plugin.resolve.output.includes(baseExt)) {
       plugin.resolve.input.forEach((input) =>
-        potentialInputs.add(fileLoc.replace(extReplace, input)),
+        potentialInputs.add(srcFile.replace(extReplace, input)),
       );
     }
   }
@@ -48,7 +49,7 @@ async function runPipelineLoadStep(
     if (!step.load) {
       continue;
     }
-    const result = await step.load({
+    const rawResult = await step.load({
       fileExt: srcExt,
       filePath: srcPath,
       isDev,
@@ -62,7 +63,9 @@ async function runPipelineLoadStep(
         });
       },
     });
-    validatePluginLoadResult(step, result);
+
+    validatePluginLoadResult(step, rawResult);
+
     if (typeof result === 'string') {
       const mainOutputExt = step.resolve.output[0];
       return {[mainOutputExt]: result};
@@ -75,7 +78,9 @@ async function runPipelineLoadStep(
         if (typeof output !== 'object' || !output.code) return;
 
         if (output.map) {
-          result[ext + '.map'] = output.map;
+          // some plugins return map as an object; others as a string. handle both cases
+          result[ext + '.map'] =
+            typeof output.map === 'object' ? JSON.stringify(output.map) : output.map;
 
           const sourceMapFile = path
             .basename(srcPath)

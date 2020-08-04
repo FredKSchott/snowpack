@@ -55,14 +55,14 @@ module.exports = function plugin(config, pluginOptions) {
       const output = {
         '.js': {
           code: js.code,
-          map: sourceMaps ? JSON.stringify(js.map) : undefined,
+          map: sourceMaps ? js.map : undefined,
         },
       };
 
       if (!svelteOptions.css && css) {
         output['.css'] = {
           code: css.code,
-          map: sourceMaps ? JSON.stringify(css.map) : undefined,
+          map: sourceMaps ? css.map : undefined,
         };
       }
       return output;

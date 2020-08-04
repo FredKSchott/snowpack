@@ -299,8 +299,8 @@ function loadPlugins(
     // add source maps (*.map) as potential outputs
     plugin.resolve?.output.forEach((ext) => {
       const mappedExt = ext + '.map';
-      if (!ext.endsWith('.map') && plugin.resolve?.output.includes(mappedExt))
-        plugin.resolve.output.push(mappedExt);
+      if (!ext.endsWith('.map') && !plugin.resolve?.output.includes(mappedExt))
+        plugin.resolve?.output.push(mappedExt);
     });
 
     validatePlugin(plugin);
@@ -711,9 +711,7 @@ export function validatePluginLoadResult(
   }
   const unexpectedOutput =
     typeof result === 'object' &&
-    Object.keys(result).find(
-      (fileExt) => !fileExt.endsWith('.map') && !plugin.resolve!.output.includes(fileExt),
-    );
+    Object.keys(result).find((fileExt) => !plugin.resolve!.output.includes(fileExt));
   if (unexpectedOutput) {
     handleConfigError(
       `[${pluginName}] "load()" returned entry "${unexpectedOutput}" not found in "resolve.output": ${
