@@ -23,7 +23,7 @@ import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
 import {CommandOptions, SnowpackSourceFile} from '../types/snowpack';
-import {getEncodingType} from '../util';
+import {getEncodingType, replaceExt, jsSourceMappingURL, cssSourceMappingURL} from '../util';
 import {getInstallTargets, run as installRunner} from './install';
 
 async function installOptimizedDependencies(
@@ -146,33 +146,43 @@ export async function command(commandOptions: CommandOptions) {
 
   for (const [dirDisk, dirDest, allFiles] of includeFileSets) {
     for (const locOnDisk of allFiles) {
-      const replaceSrcExt = new RegExp(path.extname(locOnDisk) + '$');
+      const srcExt = path.extname(locOnDisk);
       const builtFileOutput = await buildFile(locOnDisk, {
         plugins: config.plugins,
         messageBus,
         isDev: false,
         isHmrEnabled: false,
+        sourceMaps: config.buildOptions.sourceMaps,
       });
       allBuiltFromFiles.add(locOnDisk);
 
       for (const [fileExt, buildResult] of Object.entries(builtFileOutput)) {
-        let {code} = typeof buildResult === 'object' ? buildResult : {code: buildResult};
+        let {code, map} = buildResult;
         if (!code) {
           continue;
         }
 
         const outDir = path.dirname(locOnDisk.replace(dirDisk, dirDest));
-        const outFilename = path.basename(locOnDisk).replace(replaceSrcExt, fileExt);
+        const outFilename = replaceExt(path.basename(locOnDisk), srcExt, fileExt);
         const outLoc = path.join(outDir, outFilename);
+        const sourceMappingURL = outFilename + '.map';
 
         switch (fileExt) {
+          case '.css': {
+            if (map) code = cssSourceMappingURL(code, sourceMappingURL);
+            break;
+          }
           case '.js': {
             if (builtFileOutput['.css']) {
               // inject CSS if imported directly
               const cssFilename = outFilename.replace(/\.js$/i, '.css');
               code = `import './${cssFilename}';\n` + code;
             }
+
             code = wrapImportMeta({code, env: true, isDev: false, hmr: false, config});
+
+            if (map) code = jsSourceMappingURL(code, sourceMappingURL);
+
             allFilesToResolveImports[outLoc] = {
               baseExt: fileExt,
               expandedExt: fileExt,
@@ -193,7 +203,13 @@ export async function command(commandOptions: CommandOptions) {
           }
         }
 
+        // make directory if doesn’t exist
         mkdirp.sync(outDir);
+
+        // write source map
+        if (map) await fs.writeFile(path.join(outDir, sourceMappingURL), map, 'utf-8');
+
+        // write file
         await fs.writeFile(outLoc, code, getEncodingType(fileExt));
       }
     }
@@ -283,6 +299,7 @@ export async function command(commandOptions: CommandOptions) {
     messageBus,
     isDev: false,
     isHmrEnabled: false,
+    sourceMaps: config.buildOptions.sourceMaps,
   });
 
   // minify
@@ -295,23 +312,9 @@ export async function command(commandOptions: CommandOptions) {
     });
     await Promise.all(
       allJsFiles.map(async (jsFile) => {
-        let js = await fs.readFile(jsFile, 'utf-8');
-        const sourceMappingURL = jsFile + '.map';
-
-        // run esbuild
-        let {js: minifiedJS, jsSourceMap} = await minifierService.transform(js, {
-          minify: config.buildOptions.minify,
-          sourcefile: jsFile,
-          sourcemap: config.buildOptions.sourceMaps,
-        });
-
-        // write source maps
-        if (config.buildOptions.sourceMaps && jsSourceMap) {
-          minifiedJS += `//# sourceMappingURL=${path.basename(sourceMappingURL)}\n`; // note: this will be on its own line
-          await fs.writeFile(sourceMappingURL, jsSourceMap, 'utf-8');
-        }
-
-        return fs.writeFile(jsFile, minifiedJS, 'utf-8');
+        const jsFileContents = await fs.readFile(jsFile, 'utf-8');
+        const {js} = await minifierService.transform(jsFileContents, {minify: true});
+        return fs.writeFile(jsFile, js, 'utf-8');
       }),
     );
     const minifierEnd = performance.now();

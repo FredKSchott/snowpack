@@ -64,10 +64,12 @@ import {CommandOptions, ImportMap, SnowpackBuildMap, SnowpackConfig} from '../ty
 import {
   BUILD_CACHE,
   checkLockfileHash,
+  cssSourceMappingURL,
   DEV_DEPENDENCIES_DIR,
   getEncodingType,
   getExt,
   isYarn,
+  jsSourceMappingURL,
   openInBrowser,
   parsePackageImportSpecifier,
   replaceExt,
@@ -169,6 +171,7 @@ function getUrlFromFile(
       const resolvedDirUrl = dirUrl === '/' ? '' : dirUrl;
       return replaceExt(
         fileLoc.replace(dirDisk, resolvedDirUrl).replace(/[/\\]+/g, '/'),
+        baseExt,
         config._extensionMap[baseExt] || srcFileExtensionMapping[baseExt] || baseExt,
       );
     }
@@ -383,9 +386,13 @@ export async function command(commandOptions: CommandOptions) {
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const originalReqPath = reqPath;
     let isProxyModule = false;
+    let isSourceMap = false;
     if (reqPath.endsWith('.proxy.js')) {
       isProxyModule = true;
-      reqPath = reqPath.replace('.proxy.js', '');
+      reqPath = replaceExt(reqPath, '.proxy.js', '');
+    } else if (reqPath.endsWith('.map')) {
+      isSourceMap = true;
+      reqPath = replaceExt(reqPath, '.map', '');
     }
 
     // const requestStart = Date.now();
@@ -431,13 +438,8 @@ export async function command(commandOptions: CommandOptions) {
         .catch(() => null /* ignore */);
     }
 
-    let {baseExt: requestedFileExt} = getExt(reqPath.replace(/\.map$/i, ''));
-
-    // handle source map requests
-    if (reqPath.endsWith('.map')) {
-      requestedFileExt += '.map';
-    }
-
+    let requestedFile = path.parse(reqPath);
+    let requestedFileExt = requestedFile.ext.toLowerCase();
     let responseFileExt = requestedFileExt;
     let isRoute = !requestedFileExt || requestedFileExt === '.html';
 
@@ -516,6 +518,7 @@ export async function command(commandOptions: CommandOptions) {
           messageBus,
           isDev: true,
           isHmrEnabled: isHmr,
+          sourceMaps: config.buildOptions.sourceMaps,
         });
         inMemoryBuildCache.set(fileLoc, builtFileOutput);
         return builtFileOutput;
@@ -535,48 +538,73 @@ export async function command(commandOptions: CommandOptions) {
      * the URL. For example, "App.css" should return CSS but "App.css.proxy.js" should
      * return a JS representation of that CSS. This is handled in the wrap step.
      */
-    async function wrapResponse(code: string, hasCssResource: boolean) {
+    async function wrapResponse(
+      code: string,
+      {
+        hasCssResource,
+        sourceMap,
+        sourceMappingURL,
+      }: {hasCssResource: boolean; sourceMap?: string; sourceMappingURL: string},
+    ) {
+      // transform special requests
       if (isRoute) {
         code = wrapHtmlResponse({code: code, isDev: true, hmr: isHmr, config});
       } else if (isProxyModule) {
         responseFileExt = '.js';
-        code = await wrapImportProxy({
-          url: reqPath,
-          code,
-          isDev: true,
-          hmr: isHmr,
-          config,
-        });
-      } else if (responseFileExt === '.js') {
-        code = wrapImportMeta({code, env: true, isDev: true, hmr: isHmr, config});
+      } else if (isSourceMap && sourceMap) {
+        responseFileExt = '.map';
+        code = sourceMap;
       }
-      if (responseFileExt === '.js' && hasCssResource) {
-        code = `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
-      }
-      if (responseFileExt === '.js' && reqUrlHmrParam) {
-        code = await transformEsmImports(code as string, (imp) => {
-          const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
-          const node = hmrEngine.getEntry(importUrl);
-          if (node && node.needsReplacement) {
-            hmrEngine.markEntryForReplacement(node, false);
-            return `${imp}?${reqUrlHmrParam}`;
+
+      // transform other files
+      switch (responseFileExt) {
+        case '.css': {
+          if (sourceMap) code = cssSourceMappingURL(code, sourceMappingURL);
+          break;
+        }
+        case '.js': {
+          if (isProxyModule) {
+            code = await wrapImportProxy({url: reqPath, code, isDev: true, hmr: isHmr, config});
+          } else {
+            code = wrapImportMeta({code, env: true, isDev: true, hmr: isHmr, config});
           }
-          return imp;
-        });
+
+          if (hasCssResource)
+            code =
+              `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
+
+          if (reqUrlHmrParam)
+            code = await transformEsmImports(code as string, (imp) => {
+              const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
+              const node = hmrEngine.getEntry(importUrl);
+              if (node && node.needsReplacement) {
+                hmrEngine.markEntryForReplacement(node, false);
+                return `${imp}?${reqUrlHmrParam}`;
+              }
+              return imp;
+            });
+
+          // hmr
+          const isHmrEnabled = code.includes('import.meta.hot');
+          const rawImports = await scanCodeImportsExports(code);
+          const resolvedImports = rawImports.map((imp) => {
+            let spec = code.substring(imp.s, imp.e);
+            if (imp.d > -1) {
+              const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
+              spec = importSpecifierMatch![1];
+            }
+            return path.posix.resolve(path.posix.dirname(reqPath), spec);
+          });
+          hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
+
+          // source mapping
+          if (sourceMap) code = jsSourceMappingURL(code, sourceMappingURL);
+
+          break;
+        }
       }
-      if (responseFileExt === '.js') {
-        const isHmrEnabled = code.includes('import.meta.hot');
-        const rawImports = await scanCodeImportsExports(code);
-        const resolvedImports = rawImports.map((imp) => {
-          let spec = code.substring(imp.s, imp.e);
-          if (imp.d > -1) {
-            const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
-            spec = importSpecifierMatch![1];
-          }
-          return path.posix.resolve(path.posix.dirname(reqPath), spec);
-        });
-        hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
-      }
+
+      // by default, return file from disk
       return code;
     }
 
@@ -652,10 +680,13 @@ export async function command(commandOptions: CommandOptions) {
         return null;
       }
       // Wrap the response.
-      const requestedFile = output[requestedFileExt];
-      const contents = typeof requestedFile === 'string' ? requestedFile : requestedFile.code;
+      const {code, map} = output[requestedFileExt];
       const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
-      let wrappedResponse = await wrapResponse(contents, hasAttachedCss);
+      let wrappedResponse = await wrapResponse(code, {
+        hasCssResource: hasAttachedCss,
+        sourceMap: map,
+        sourceMappingURL: path.basename(requestedFile.base) + '.map',
+      });
 
       // Resolve imports.
       if (requestedFileExt === '.js' || requestedFileExt === '.html') {

@@ -278,14 +278,9 @@ export function getExt(fileName: string) {
 }
 
 /** Replace file extensions */
-export function replaceExt(
-  fileName: string,
-  newExtension: string,
-  replaceExpandedExt: boolean = false,
-): string {
-  const {baseExt, expandedExt} = getExt(fileName);
-  const extToReplace = new RegExp(`\\${replaceExpandedExt ? expandedExt : baseExt}$`, 'i');
-  return fileName.replace(extToReplace, newExtension);
+export function replaceExt(fileName: string, oldExt: string, newExt: string): string {
+  const extToReplace = new RegExp(`\\${oldExt}$`, 'i');
+  return fileName.replace(extToReplace, newExt);
 }
 
 /**
@@ -297,4 +292,16 @@ export function sanitizePackageName(filepath: string): string {
   const dirs = filepath.split('/');
   const file = dirs.pop() as string;
   return [...dirs.map((path) => path.replace(/\.js$/i, 'js')), file].join('/');
+}
+
+// Source Map spec v3: https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit#heading=h.lmz475t4mvbx
+
+/** CSS sourceMappingURL */
+export function cssSourceMappingURL(code: string, sourceMappingURL: string) {
+  return code + `/*# sourceMappingURL=${sourceMappingURL} */`;
+}
+
+/** JS sourceMappingURL */
+export function jsSourceMappingURL(code: string, sourceMappingURL: string) {
+  return code.replace(/\n*$/, '') + `\n//# sourceMappingURL=${sourceMappingURL}\n`; // strip ending lines & append source map (with linebreaks for safety)
 }

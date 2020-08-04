@@ -22,7 +22,7 @@
   "_resolved": "https://registry.npmjs.org/@material/typography/-/typography-7.0.0.tgz",
   "_shasum": "55203f746b46b6a0797ccca277f5b58e98278d7f",
   "_spec": "@material/typography@^7.0.0",
-  "_where": "/Users/drew/Sites/pikapkg/snowpack/tests/snowpack-install/include-missing-in-package-json/node_modules/@material/list",
+  "_where": "tests/snowpack-install/include-missing-in-package-json/node_modules/@material/list",
   "bugs": {
     "url": "https://github.com/material-components/material-components-web/issues"
   },

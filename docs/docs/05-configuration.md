@@ -137,7 +137,7 @@ $ snowpack dev --no-bundle
 - **`minify`** | `boolean` | Default: `true`
   - By default, Snowpack will minify your dependencies on `snowpack build`. Disable this by setting this config option to `minify: false`.
 - **`sourceMaps`** | `boolean` | Default: `true`
-  - Enable or disable JS source maps (_Note: this option will only apply if `minify: true` is enabled_)
+  - Set to `false` to disable source maps
 - **`webModulesUrl`** | `string` | Default: `web_modules`
   - Rename your web modules directory.
 

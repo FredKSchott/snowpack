@@ -34,7 +34,7 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: S
   const {baseExt} = getExt(spec);
   const extToReplace = config._extensionMap[baseExt] || srcFileExtensionMapping[baseExt];
   if (extToReplace) {
-    spec = replaceExt(spec, extToReplace);
+    spec = replaceExt(spec, baseExt, extToReplace);
   }
   return spec;
 }

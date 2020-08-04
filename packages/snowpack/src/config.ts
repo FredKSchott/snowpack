@@ -296,13 +296,6 @@ function loadPlugins(
       plugin.resolve = {input, output};
     }
 
-    // add source maps (*.map) as potential outputs
-    plugin.resolve?.output.forEach((ext) => {
-      const mappedExt = ext + '.map';
-      if (!ext.endsWith('.map') && !plugin.resolve?.output.includes(mappedExt))
-        plugin.resolve?.output.push(mappedExt);
-    });
-
     validatePlugin(plugin);
     return plugin;
   }
@@ -714,7 +707,7 @@ export function validatePluginLoadResult(
     Object.keys(result).find((fileExt) => !plugin.resolve!.output.includes(fileExt));
   if (unexpectedOutput) {
     handleConfigError(
-      `[${pluginName}] "load()" returned entry "${unexpectedOutput}" not found in "resolve.output": ${
+      `[plugin=${pluginName}] "load()" returned entry "${unexpectedOutput}" not found in "resolve.output": ${
         plugin.resolve!.output
       }`,
     );

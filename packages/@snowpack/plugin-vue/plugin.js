@@ -3,7 +3,7 @@ const path = require('path');
 const hashsum = require('hash-sum');
 const compiler = require('@vue/compiler-sfc');
 
-module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
+module.exports = function plugin(snowpackConfig) {
   return {
     name: '@snowpack/plugin-vue',
     resolve: {
@@ -11,7 +11,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       output: ['.js', '.css'],
     },
     async load({filePath}) {
-      const {sourceMaps = true} = pluginOptions;
+      const {sourceMaps} = snowpackConfig.buildOptions;
 
       const id = hashsum(filePath);
       const contents = fs.readFileSync(filePath, 'utf-8');

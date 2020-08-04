@@ -10,13 +10,11 @@ npm install --save-dev @snowpack/plugin-vue
 // snowpack.config.json
 {
   "plugins": [
-    ["@snowpack/plugin-vue", {/* see “Plugin Options” below */}]
+    "@snowpack/plugin-vue"
   ]
 }
 ```
 
 #### Plugin Options
 
-| Name         |   Type    | Description                                                       |
-| :----------- | :-------: | :---------------------------------------------------------------- |
-| `sourceMaps` | `boolean` | Set to `false` to disable source map generation (default: `true`) |
+(none)

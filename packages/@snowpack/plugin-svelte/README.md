@@ -17,8 +17,4 @@ npm install --save-dev @snowpack/plugin-svelte
 
 #### Plugin Options
 
-| Name         |   Type    | Description                                                       |
-| :----------- | :-------: | :---------------------------------------------------------------- |
-| `sourceMaps` | `boolean` | Set to `false` to disable source map generation (default: `true`) |
-
 This plugin also supports all Svelte compiler options. See [here](https://svelte.dev/docs#svelte_compile) for a list of supported options.

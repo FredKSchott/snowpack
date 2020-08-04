@@ -311,11 +311,7 @@ function trigger(target, type, key, newValue, oldValue, oldTarget) {
     const effects = new Set();
     const add = (effectsToAdd) => {
         if (effectsToAdd) {
-            effectsToAdd.forEach(effect => {
-                if (effect !== activeEffect || !shouldTrack) {
-                    effects.add(effect);
-                }
-            });
+            effectsToAdd.forEach(effect => effects.add(effect));
         }
     };
     if (type === "clear" /* CLEAR */) {
@@ -463,7 +459,9 @@ function deleteProperty(target, key) {
 }
 function has(target, key) {
     const result = Reflect.has(target, key);
-    track(target, "has" /* HAS */, key);
+    if (!isSymbol(key) || !builtInSymbols.has(key)) {
+        track(target, "has" /* HAS */, key);
+    }
     return result;
 }
 function ownKeys(target) {
@@ -784,6 +782,27 @@ function toRaw(observed) {
 function isRef(r) {
     return r ? r.__v_isRef === true : false;
 }
+function unref(ref) {
+    return isRef(ref) ? ref.value : ref;
+}
+const shallowUnwrapHandlers = {
+    get: (target, key, receiver) => unref(Reflect.get(target, key, receiver)),
+    set: (target, key, value, receiver) => {
+        const oldValue = target[key];
+        if (isRef(oldValue) && !isRef(value)) {
+            oldValue.value = value;
+            return true;
+        }
+        else {
+            return Reflect.set(target, key, value, receiver);
+        }
+    }
+};
+function proxyRefs(objectWithRefs) {
+    return isReactive(objectWithRefs)
+        ? objectWithRefs
+        : new Proxy(objectWithRefs, shallowUnwrapHandlers);
+}
 
 function computed(getterOrOptions) {
     let getter;
@@ -990,25 +1009,27 @@ function handleError(err, instance, type) {
     logError(err);
 }
 function logError(err, type, contextVNode) {
-    // default behavior is crash in prod & test, recover in dev.
     {
-        throw err;
+        // recover in prod to reduce the impact on end-user
+        console.error(err);
     }
 }
 
 const queue = [];
 const postFlushCbs = [];
-const p = Promise.resolve();
+const resolvedPromise = Promise.resolve();
+let currentFlushPromise = null;
 let isFlushing = false;
 let isFlushPending = false;
-let flushIndex = 0;
+let flushIndex = -1;
 let pendingPostFlushCbs = null;
 let pendingPostFlushIndex = 0;
 function nextTick(fn) {
+    const p = currentFlushPromise || resolvedPromise;
     return fn ? p.then(fn) : p;
 }
 function queueJob(job) {
-    if (!queue.includes(job, flushIndex)) {
+    if (!queue.includes(job, flushIndex + 1)) {
         queue.push(job);
         queueFlush();
     }
@@ -1022,7 +1043,7 @@ function invalidateJob(job) {
 function queuePostFlushCb(cb) {
     if (!isArray(cb)) {
         if (!pendingPostFlushCbs ||
-            !pendingPostFlushCbs.includes(cb, pendingPostFlushIndex)) {
+            !pendingPostFlushCbs.includes(cb, pendingPostFlushIndex + 1)) {
             postFlushCbs.push(cb);
         }
     }
@@ -1037,7 +1058,7 @@ function queuePostFlushCb(cb) {
 function queueFlush() {
     if (!isFlushing && !isFlushPending) {
         isFlushPending = true;
-        nextTick(flushJobs);
+        currentFlushPromise = resolvedPromise.then(flushJobs);
     }
 }
 function flushPostFlushCbs(seen) {
@@ -1071,10 +1092,11 @@ function flushJobs(seen) {
             callWithErrorHandling(job, null, 14 /* SCHEDULER */);
         }
     }
-    flushIndex = 0;
+    flushIndex = -1;
     queue.length = 0;
     flushPostFlushCbs();
     isFlushing = false;
+    currentFlushPromise = null;
     // some postFlushCb queued jobs!
     // keep flushing until it drains.
     if (queue.length || postFlushCbs.length) {
@@ -1245,7 +1267,9 @@ const getChildRoot = (vnode) => {
     const rawChildren = vnode.children;
     const dynamicChildren = vnode.dynamicChildren;
     const children = rawChildren.filter(child => {
-        return !(isVNode(child) && child.type === Comment);
+        return !(isVNode(child) &&
+            child.type === Comment &&
+            child.children !== 'v-if');
     });
     if (children.length !== 1) {
         return [vnode, undefined];
@@ -1545,11 +1569,7 @@ function _createVNode(type, props = null, children = null, patchFlag = 0, dynami
         // the EVENTS flag is only for hydration and if it is the only flag, the
         // vnode should not be considered dynamic due to handler caching.
         patchFlag !== 32 /* HYDRATE_EVENTS */ &&
-        (patchFlag > 0 ||
-            shapeFlag & 128 /* SUSPENSE */ ||
-            shapeFlag & 64 /* TELEPORT */ ||
-            shapeFlag & 4 /* STATEFUL_COMPONENT */ ||
-            shapeFlag & 2 /* FUNCTIONAL_COMPONENT */)) {
+        (patchFlag > 0 || shapeFlag & 6 /* COMPONENT */)) {
         currentBlock.push(vnode);
     }
     return vnode;
@@ -2549,8 +2569,11 @@ function baseCreateRenderer(options, createHydrationFns) {
             }
         }
         hostInsert(el, container, anchor);
-        // #1583 For inside suspense case, enter hook should call when suspense resolved
-        const needCallTransitionHooks = !parentSuspense && transition && !transition.persisted;
+        // #1583 For inside suspense + suspense not resolved case, enter hook should call when suspense resolved
+        // #1689 For inside suspense + suspense resolved case, just call it
+        const needCallTransitionHooks = (!parentSuspense || (parentSuspense && parentSuspense.isResolved)) &&
+            transition &&
+            !transition.persisted;
         if ((vnodeHook = props && props.onVnodeMounted) ||
             needCallTransitionHooks ||
             dirs) {
@@ -2667,7 +2690,8 @@ function baseCreateRenderer(options, createHydrationFns) {
                 // which also requires the correct parent container
                 !isSameVNodeType(oldVNode, newVNode) ||
                 // - In the case of a component, it could contain anything.
-                oldVNode.shapeFlag & 6 /* COMPONENT */
+                oldVNode.shapeFlag & 6 /* COMPONENT */ ||
+                oldVNode.shapeFlag & 64 /* TELEPORT */
                 ? hostParentNode(oldVNode.el)
                 : // In other cases, the parent container is not actually used so we
                     // just pass the block element here to avoid a DOM parentNode call.
@@ -3635,14 +3659,14 @@ function applyOptions(instance, options, deferredData = [], deferredWatch = [], 
     mixins, extends: extendsOptions, 
     // state
     data: dataOptions, computed: computedOptions, methods, watch: watchOptions, provide: provideOptions, inject: injectOptions, 
-    // assets
-    components, directives, 
     // lifecycle
-    beforeMount, mounted, beforeUpdate, updated, activated, deactivated, beforeUnmount, unmounted, renderTracked, renderTriggered, errorCaptured } = options;
+    beforeMount, mounted, beforeUpdate, updated, activated, deactivated, beforeUnmount, unmounted, render, renderTracked, renderTriggered, errorCaptured } = options;
     const publicThis = instance.proxy;
     const ctx = instance.ctx;
     const globalMixins = instance.appContext.mixins;
-    // call it only during dev
+    if (asMixin && render && instance.render === NOOP) {
+        instance.render = render;
+    }
     // applyOptions is called non-as-mixin once per instance
     if (!asMixin) {
         callSyncHook('beforeCreate', options, publicThis, globalMixins);
@@ -3744,13 +3768,6 @@ function applyOptions(instance, options, deferredData = [], deferredWatch = [], 
         for (const key in provides) {
             provide(key, provides[key]);
         }
-    }
-    // asset options
-    if (components) {
-        extend(instance.components, components);
-    }
-    if (directives) {
-        extend(instance.directives, directives);
     }
     // lifecycle options
     if (!asMixin) {
@@ -4022,14 +4039,15 @@ const RuntimeCompiledPublicInstanceProxyHandlers = extend({}, PublicInstanceProx
 const emptyAppContext = createAppContext();
 let uid$1 = 0;
 function createComponentInstance(vnode, parent, suspense) {
+    const type = vnode.type;
     // inherit parent app context - or - if root, adopt from root vnode
     const appContext = (parent ? parent.appContext : vnode.appContext) || emptyAppContext;
     const instance = {
         uid: uid$1++,
         vnode,
+        type,
         parent,
         appContext,
-        type: vnode.type,
         root: null,
         next: null,
         subTree: null,
@@ -4050,9 +4068,6 @@ function createComponentInstance(vnode, parent, suspense) {
         refs: EMPTY_OBJ,
         setupState: EMPTY_OBJ,
         setupContext: null,
-        // per-instance asset storage (mutable during options resolution)
-        components: Object.create(appContext.components),
-        directives: Object.create(appContext.directives),
         // suspense related
         suspense,
         asyncDep: null,
@@ -4149,7 +4164,7 @@ function handleSetupResult(instance, setupResult, isSSR) {
     else if (isObject(setupResult)) {
         // setup returned bindings.
         // assuming a render function compiled from template is present.
-        instance.setupState = reactive(setupResult);
+        instance.setupState = proxyRefs(setupResult);
     }
     finishComponentSetup(instance);
 }
@@ -4202,14 +4217,16 @@ function formatComponentName(instance, Component, isRoot = false) {
         }
     }
     if (!name && instance && instance.parent) {
-        // try to infer the name based on local resolution
-        const registry = instance.parent.components;
-        for (const key in registry) {
-            if (registry[key] === Component) {
-                name = key;
-                break;
+        // try to infer the name based on reverse resolution
+        const inferFromRegistry = (registry) => {
+            for (const key in registry) {
+                if (registry[key] === Component) {
+                    return key;
+                }
             }
-        }
+        };
+        name =
+            inferFromRegistry(instance.parent.type.components) || inferFromRegistry(instance.appContext.components);
     }
     return name ? classify(name) : isRoot ? `App` : `Anonymous`;
 }
@@ -4221,7 +4238,7 @@ function computed$1(getterOrOptions) {
 }
 
 // Core API ------------------------------------------------------------------
-const version = "3.0.0-rc.3";
+const version = "3.0.0-rc.5";
 
 const svgNS = 'http://www.w3.org/2000/svg';
 const doc = (typeof document !== 'undefined' ? document : null);
@@ -4442,11 +4459,11 @@ if (typeof document !== 'undefined' &&
 // To avoid the overhead of repeatedly calling performance.now(), we cache
 // and use the same timestamp for all event listeners attached in the same tick.
 let cachedNow = 0;
-const p$1 = Promise.resolve();
+const p = Promise.resolve();
 const reset = () => {
     cachedNow = 0;
 };
-const getNow = () => cachedNow || (p$1.then(reset), (cachedNow = _getNow()));
+const getNow = () => cachedNow || (p.then(reset), (cachedNow = _getNow()));
 function addEventListener(el, event, handler, options) {
     el.addEventListener(event, handler, options);
 }
