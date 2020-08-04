@@ -11,6 +11,8 @@
     // Don't change these unless you know what you're doing.
     // See: https://github.com/microsoft/TypeScript/issues/25430
     "baseUrl": "./",
+    /* more strict checking for errors that per-file transpilers like `esbuild` would crash */
+    "isolatedModules": true,
     "paths": { "*": ["web_modules/.types/*"] }
     // Feel free to add/edit new config options below:
     // ...
