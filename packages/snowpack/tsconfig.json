@@ -8,6 +8,7 @@
     "noImplicitAny": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "skipLibCheck": true,
     "jsx": "react"
   },
   "include": ["src/**/*", "@types/**/*"],
