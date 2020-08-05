@@ -35,6 +35,11 @@ This is all you need to add Babel to your application build pipeline. If the plu
 }
 ```
 
+The **order** of plugins is important, as for example, if there are multiple plugins that load/build particular type of file, the first matching will take precedence.
+
+To make a plugin available, you have to put it in your project `devDependency` list which will install it locally and make it available to snowpack.
+
+
 ### Connect any Script/CLI
 
 If you can't find a plugin that fits your needs and don't want to write your own, you can also run CLI commands directly as a part of your build using one of our two utility plugins: `@snowpack/plugin-build-script` & `@snowpack/plugin-run-script`.
