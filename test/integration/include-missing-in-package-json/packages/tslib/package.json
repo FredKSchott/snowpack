@@ -25,7 +25,7 @@
   "_resolved": "https://registry.npmjs.org/tslib/-/tslib-1.13.0.tgz",
   "_shasum": "c881e13cc7015894ed914862d276436fa9a47043",
   "_spec": "tslib@^1.9.3",
-  "_where": "/Users/drew/Sites/pikapkg/snowpack/tests/snowpack-install/include-missing-in-package-json/node_modules/@material/list",
+  "_where": "tests/snowpack-install/include-missing-in-package-json/node_modules/@material/list",
   "author": {
     "name": "Microsoft Corp."
   },

@@ -58,6 +58,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     clean: false,
     metaDir: '__snowpack__',
     minify: true,
+    sourceMaps: true,
   },
 };
 
@@ -133,6 +134,7 @@ const configSchema = {
         clean: {type: 'boolean'},
         metaDir: {type: 'string'},
         minify: {type: 'boolean'},
+        sourceMaps: {type: 'boolean'},
       },
     },
     proxy: {
@@ -293,6 +295,7 @@ function loadPlugins(
       const {input, output} = plugin.resolve;
       plugin.resolve = {input, output};
     }
+
     validatePlugin(plugin);
     return plugin;
   }

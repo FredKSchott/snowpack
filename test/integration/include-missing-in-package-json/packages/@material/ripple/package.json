@@ -22,7 +22,7 @@
   "_resolved": "https://registry.npmjs.org/@material/ripple/-/ripple-7.0.0.tgz",
   "_shasum": "957af9c25bfeb96e6d3a3fb920be8dd234801103",
   "_spec": "@material/ripple@^7.0.0",
-  "_where": "/Users/drew/Sites/pikapkg/snowpack/tests/snowpack-install/include-missing-in-package-json/node_modules/@material/list",
+  "_where": "tests/snowpack-install/include-missing-in-package-json/node_modules/@material/list",
   "bugs": {
     "url": "https://github.com/material-components/material-components-web/issues"
   },

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/index.ts"],
+  "sourcesContent": ["/**\n * This file is just a silly example to show everything working in the browser.\n * When you're ready to start on your site, clear the file. Happy hacking!\n **/\n\nimport confetti from 'canvas-confetti';\n\nconfetti.create(document.getElementById('canvas') as HTMLCanvasElement, {\n  resize: true,\n  useWorker: true,\n})({ particleCount: 200, spread: 200 });\n"],
+  "mappings": "AAKA;AAEA,SAAS,OAAO,SAAS,eAAe,WAAgC;AAAA,EACtE,QAAQ;AAAA,EACR,WAAW;AAAA,GACV,CAAE,eAAe,KAAK,QAAQ;",
+  "names": []
+}

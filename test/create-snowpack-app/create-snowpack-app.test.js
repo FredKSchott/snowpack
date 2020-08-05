@@ -47,27 +47,34 @@ describe('create-snowpack-app', () => {
       const cwd = path.join(TEMPLATES_DIR, template);
 
       // build
-      await execa('yarn', ['build', '--no-minify'], {cwd, env: {NODE_ENV: 'production'}});
+      await execa('yarn', ['build', '--clean', '--no-minify'], {
+        cwd,
+        env: {NODE_ENV: 'production'},
+      });
 
       const expected = path.join(__dirname, 'snapshots', template);
       const actual = path.join(cwd, 'build');
 
       // 2. compare
       const res = dircompare.compareSync(expected, actual);
+
       res.diffSet.forEach((entry) => {
         // NOTE: We only compare files so that we give the test runner a more detailed diff.
         if (entry.type1 === 'directory' && entry.type2 === 'directory') {
           return;
         }
 
-        if (!entry.path2)
+        if (!entry.path2 || !entry.name2)
           throw new Error(
             `File failed to generate: ${entry.path1.replace(expected, '')}/${entry.name1}`,
           );
-        if (!entry.path1)
+        if (!entry.path1 || !entry.name1)
           throw new Error(
             `File not found in snapshot: ${entry.path2.replace(actual, '')}/${entry.name2}`,
           );
+
+        // don’t compare source .map contents, so long as they exist
+        if (path.extname(entry.name1) === '.map') return;
 
         // NOTE: common chunks are hashed, non-trivial to compare
         if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) {

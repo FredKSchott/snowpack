@@ -35,14 +35,14 @@ function create_fragment(ctx) {
 			a = element("a");
 			a.textContent = `${message}`;
 			if (img.src !== (img_src_value = "/logo.svg")) attr(img, "src", img_src_value);
-			attr(img, "class", "App-logo svelte-12f0jfw");
+			attr(img, "class", "App-logo svelte-1wibndw");
 			attr(img, "alt", "logo");
-			attr(a, "class", "App-link svelte-12f0jfw");
+			attr(a, "class", "App-link svelte-1wibndw");
 			attr(a, "href", "https://svelte.dev");
 			attr(a, "target", "_blank");
 			attr(a, "rel", "noopener noreferrer");
-			attr(header, "class", "App-header svelte-12f0jfw");
-			attr(div, "class", "App svelte-12f0jfw");
+			attr(header, "class", "App-header svelte-1wibndw");
+			attr(div, "class", "App svelte-1wibndw");
 		},
 		m(target, anchor) {
 			insert(target, div, anchor);
@@ -77,3 +77,4 @@ class App extends SvelteComponent {
 }
 
 export default App;
+//# sourceMappingURL=App.js.map

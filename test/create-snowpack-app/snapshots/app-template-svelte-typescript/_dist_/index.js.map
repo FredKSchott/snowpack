@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["packages/@snowpack/app-template-svelte-typescript/src/index.ts"],
+  "sourcesContent": ["import App from \"./App.svelte\";\n\nvar app = new App({\n  target: document.body,\n});\n\nexport default app;\n\n// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.\n// Learn more: https://www.snowpack.dev/#hot-module-replacement\nif (import.meta.hot) {\n  import.meta.hot.accept();\n  import.meta.hot.dispose(() => {\n    app.$destroy();\n  });\n}\n"],
+  "mappings": "AAAA;AAEA,IAAI,MAAM,IAAI,KAAI;AAAA,EAChB,QAAQ,SAAS;AAAA;AAGnB,eAAe;AAIf,IAAI,YAAY;AACd,cAAY,IAAI;AAChB,cAAY,IAAI,QAAQ;AACtB,QAAI;AAAA;AAAA;",
+  "names": []
+}

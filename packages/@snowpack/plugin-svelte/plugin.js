@@ -3,9 +3,11 @@ const svelteRollupPlugin = require('rollup-plugin-svelte');
 const fs = require('fs');
 const path = require('path');
 
-module.exports = function plugin(config, pluginOptions) {
+module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   // Support importing Svelte files when you install dependencies.
-  config.installOptions.rollup.plugins.push(svelteRollupPlugin({include: '**/node_modules/**'}));
+  snowpackConfig.installOptions.rollup.plugins.push(
+    svelteRollupPlugin({include: '**/node_modules/**'}),
+  );
 
   let svelteOptions;
   let preprocessOptions;
@@ -44,13 +46,25 @@ module.exports = function plugin(config, pluginOptions) {
       // COMPILE
       const {js, css} = svelte.compile(codeToCompile, {
         ...svelteOptions,
+        outputFilename: filePath,
         filename: filePath,
       });
+
+      if (!js) return;
+
+      const {sourceMaps} = snowpackConfig.buildOptions;
       const output = {
-        '.js': js && js.code,
+        '.js': {
+          code: js.code,
+          map: sourceMaps ? js.map : undefined,
+        },
       };
+
       if (!svelteOptions.css && css) {
-        output['.css'] = css.code;
+        output['.css'] = {
+          code: css.code,
+          map: sourceMaps ? css.map : undefined,
+        };
       }
       return output;
     },

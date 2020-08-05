@@ -98,3 +98,4 @@ export let AppRoot = _decorate([customElement('app-root')], function (_initializ
     }]
   };
 }, LitElement);
+//# sourceMappingURL=app-root.js.map

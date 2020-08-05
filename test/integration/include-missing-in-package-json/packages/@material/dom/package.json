@@ -23,7 +23,7 @@
   "_resolved": "https://registry.npmjs.org/@material/dom/-/dom-7.0.0.tgz",
   "_shasum": "0011f2c29d78facc67b9c32468f2f98afa6a609a",
   "_spec": "@material/dom@^7.0.0",
-  "_where": "/Users/drew/Sites/pikapkg/snowpack/tests/snowpack-install/include-missing-in-package-json/node_modules/@material/list",
+  "_where": "tests/snowpack-install/include-missing-in-package-json/node_modules/@material/list",
   "bugs": {
     "url": "https://github.com/material-components/material-components-web/issues"
   },

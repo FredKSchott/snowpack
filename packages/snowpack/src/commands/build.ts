@@ -1,5 +1,5 @@
 import merge from 'deepmerge';
-import {startService as esbuildStartService} from 'esbuild';
+import * as esbuild from 'esbuild';
 import {EventEmitter} from 'events';
 import {promises as fs} from 'fs';
 import glob from 'glob';
@@ -18,13 +18,12 @@ import {
 } from '../build/build-import-proxy';
 import {buildFile, runPipelineOptimizeStep} from '../build/build-pipeline';
 import {createImportResolver} from '../build/import-resolver';
-import srcFileExtensionMapping from '../build/src-file-extension-mapping';
 import {removeLeadingSlash} from '../config';
 import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
 import {printStats} from '../stats-formatter';
 import {CommandOptions, SnowpackSourceFile} from '../types/snowpack';
-import {getEncodingType, getExt, replaceExt} from '../util';
+import {getEncodingType, replaceExt, jsSourceMappingURL, cssSourceMappingURL} from '../util';
 import {getInstallTargets, run as installRunner} from './install';
 
 async function installOptimizedDependencies(
@@ -147,55 +146,72 @@ export async function command(commandOptions: CommandOptions) {
 
   for (const [dirDisk, dirDest, allFiles] of includeFileSets) {
     for (const locOnDisk of allFiles) {
-      const {baseExt: fileExt} = getExt(locOnDisk);
-      let outLoc = locOnDisk.replace(dirDisk, dirDest);
-      let builtLocOnDisk = locOnDisk;
-      const extToReplace = config._extensionMap[fileExt] || srcFileExtensionMapping[fileExt];
-      if (extToReplace) {
-        outLoc = replaceExt(outLoc, extToReplace);
-        builtLocOnDisk = replaceExt(builtLocOnDisk, extToReplace);
-      }
+      const srcExt = path.extname(locOnDisk);
       const builtFileOutput = await buildFile(locOnDisk, {
         plugins: config.plugins,
         messageBus,
         isDev: false,
         isHmrEnabled: false,
+        sourceMaps: config.buildOptions.sourceMaps,
       });
       allBuiltFromFiles.add(locOnDisk);
-      const {baseExt, expandedExt} = getExt(outLoc);
-      let contents =
-        builtFileOutput[
-          config._extensionMap[fileExt] || srcFileExtensionMapping[fileExt] || fileExt
-        ];
-      if (!contents) {
-        continue;
-      }
-      const cssOutPath = outLoc.replace(/.js$/, '.css');
-      mkdirp.sync(path.dirname(outLoc));
-      switch (baseExt) {
-        case '.js': {
-          if (builtFileOutput['.css']) {
-            await fs.mkdir(path.dirname(cssOutPath), {recursive: true});
-            await fs.writeFile(cssOutPath, builtFileOutput['.css'], 'utf-8');
-            contents = `import './${path.basename(cssOutPath)}';\n` + contents;
-          }
-          contents = wrapImportMeta({code: contents, env: true, isDev: false, hmr: false, config});
-          allFilesToResolveImports[outLoc] = {baseExt, expandedExt, contents, locOnDisk};
-          break;
-        }
-        case '.html': {
-          contents = wrapHtmlResponse({
-            code: contents,
-            isDev: false,
 
-            hmr: false,
-            config,
-          });
-          allFilesToResolveImports[outLoc] = {baseExt, expandedExt, contents, locOnDisk};
-          break;
+      for (const [fileExt, buildResult] of Object.entries(builtFileOutput)) {
+        let {code, map} = buildResult;
+        if (!code) {
+          continue;
         }
+
+        const outDir = path.dirname(locOnDisk.replace(dirDisk, dirDest));
+        const outFilename = replaceExt(path.basename(locOnDisk), srcExt, fileExt);
+        const outLoc = path.join(outDir, outFilename);
+        const sourceMappingURL = outFilename + '.map';
+
+        switch (fileExt) {
+          case '.css': {
+            if (map) code = cssSourceMappingURL(code, sourceMappingURL);
+            break;
+          }
+          case '.js': {
+            if (builtFileOutput['.css']) {
+              // inject CSS if imported directly
+              const cssFilename = outFilename.replace(/\.js$/i, '.css');
+              code = `import './${cssFilename}';\n` + code;
+            }
+
+            code = wrapImportMeta({code, env: true, isDev: false, hmr: false, config});
+
+            if (map) code = jsSourceMappingURL(code, sourceMappingURL);
+
+            allFilesToResolveImports[outLoc] = {
+              baseExt: fileExt,
+              expandedExt: fileExt,
+              contents: code,
+              locOnDisk,
+            };
+            break;
+          }
+          case '.html': {
+            code = wrapHtmlResponse({code, isDev: false, hmr: false, config});
+            allFilesToResolveImports[outLoc] = {
+              baseExt: fileExt,
+              expandedExt: fileExt,
+              contents: code,
+              locOnDisk,
+            };
+            break;
+          }
+        }
+
+        // make directory if doesn’t exist
+        mkdirp.sync(outDir);
+
+        // write source map
+        if (map) await fs.writeFile(path.join(outDir, sourceMappingURL), map, 'utf-8');
+
+        // write file
+        await fs.writeFile(outLoc, code, getEncodingType(fileExt));
       }
-      await fs.writeFile(outLoc, contents, getEncodingType(baseExt));
     }
   }
   stopEsbuild();
@@ -283,18 +299,24 @@ export async function command(commandOptions: CommandOptions) {
     messageBus,
     isDev: false,
     isHmrEnabled: false,
+    sourceMaps: config.buildOptions.sourceMaps,
   });
 
+  // minify
   if (config.buildOptions.minify) {
     const minifierStart = performance.now();
     console.log(colors.yellow('! minifying javascript...'));
-    let minifierService = await esbuildStartService();
-    const allJsFiles = glob.sync(path.join(buildDirectoryLoc, '**/*.js'));
-    for (const jsFile of allJsFiles) {
-      const jsFileContents = await fs.readFile(jsFile, 'utf-8');
-      const {js} = await minifierService.transform(jsFileContents, {minify: true});
-      js && (await fs.writeFile(jsFile, js, 'utf-8'));
-    }
+    const minifierService = await esbuild.startService();
+    const allJsFiles = glob.sync(path.join(buildDirectoryLoc, '**/*.js'), {
+      ignore: [`**/${config.buildOptions.metaDir}/**/*`], // don’t minify meta dir
+    });
+    await Promise.all(
+      allJsFiles.map(async (jsFile) => {
+        const jsFileContents = await fs.readFile(jsFile, 'utf-8');
+        const {js} = await minifierService.transform(jsFileContents, {minify: true});
+        return fs.writeFile(jsFile, js, 'utf-8');
+      }),
+    );
     const minifierEnd = performance.now();
     console.log(
       `${colors.green('✔')} ${colors.bold('snowpack')} minification complete ${colors.dim(
