@@ -29,7 +29,7 @@ Snowpack uses an internal **Build Pipeline** to build files in your application 
 Snowpack runs each file through the build pipeline in two separate steps:
 
 1. **Load:** Snowpack finds the first plugin that claims to `resolve` the given file. It then calls that plugin's `load()` method to load the file into your application. This is where compiled languages (TypeScript, Sass, JSX, etc.) are loaded and compiled to something that can run on the web (JS, CSS, etc).
-2. **Transform:** Once loaded, every file passes through the build pipeline again to run through matching `transform()` methods. Plugins can transform a file to modify or augment its contents before finishing the file build.
+2. **Transform:** Once loaded, every file passes through the build pipeline again to run through matching `transform()` methods of all plugins that offer the method. Plugins can transform a file to modify or augment its contents before finishing the file build.
 
 ### Dev Tooling Plugins
 
@@ -75,6 +75,15 @@ Snowpack will automatically call this function to load your plugin. That functio
 
   1. the [Snowpack configuration object](/#all-config-options) (`snowpackConfig`)
   1. (optional) user-provided config options (`pluginOptions`)
+
+
+### Develop and Test
+
+To develop and test plugin, the strategy is the same as with other npm packages
+
+1. use `npm link` to make global the plugin with the future npm name `<plugin-name>`, and 
+2. use `npm link <plugin-name>` in the project you want to test it and
+3. in the project's `snowpack.config.json` under the plugins name provide the same `<plugin-name>` and optional plugin options
 
 
 ### Transform a File
@@ -190,7 +199,8 @@ This is an (obviously) simplified version of the `@snowpack/plugin-webpack` plug
 - Snowpack will always keep the original file name (`App`) and only ever change the extension in the build. 
 - Extensions in Snowpack always have a leading `.` character (e.g. `.js`, `.ts`). This is to match Node’s `path.extname()` behavior, as well as make sure we’re not matching extension substrings (e.g. if we matched `js` at the end of a file, we also don’t want to match `.mjs` files by accident; we want to be explicit there).
 - The `resolve.input` and `resolve.output` file extension arrays are vital to how Snowpack understands your build pipeline, and are always required for `load()` to run correctly.
-- If `load()` or `transform()` don't return anything, the file isn’t transformed. 
+- If `load()` doesn't return anything, the file isn’t loaded and the `load()` of the next suitable plugin is called.
+- If `transform()` doesn't return anything, the file isn’t transformed. 
 - If you want to build a plugin that only runs some code on initialization (such as `@snowpack/plugin-dotenv`), put your side-effect code inside the function that returns your plugin. But be sure to still return a plugin object. A simple `{ name }` object will do.
 
 ## Plugin API
