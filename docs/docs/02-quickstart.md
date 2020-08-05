@@ -2,7 +2,7 @@
 
 ### Install Snowpack
 
-``` bash
+```bash
 # using npm
 npm install --save-dev snowpack
 
@@ -18,21 +18,23 @@ The easiest way to get started with Snowpack is via [Create Snowpack App (CSA)](
 
 If you've ever used Create React App, this is a lot like that!
 
-``` bash
+```bash
 npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 ```
 
 ### Official App Templates
 
-- [@snowpack/app-template-blank](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-blank)
-- [@snowpack/app-template-react](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-react)
-- [@snowpack/app-template-react-typescript](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-react-typescript)
-- [@snowpack/app-template-preact](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-preact)
-- [@snowpack/app-template-svelte](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-svelte)
-- [@snowpack/app-template-vue](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-vue)
-- [@snowpack/app-template-lit-element](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-lit-element)
-- [@snowpack/app-template-11ty](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-11ty)
-- **[See all community templates](https://github.com/pikapkg/create-snowpack-app)**
+- [@snowpack/app-template-blank](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-blank)
+- [@snowpack/app-template-blank-typescript](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-blank-typescript)
+- [@snowpack/app-template-react](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-react)
+- [@snowpack/app-template-react-typescript](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-react-typescript)
+- [@snowpack/app-template-preact](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-preact)
+- [@snowpack/app-template-svelte](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-svelte)
+- [@snowpack/app-template-vue](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-vue)
+- [@snowpack/app-template-lit-element](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-lit-element)
+- [@snowpack/app-template-lit-element-typescript](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-lit-element-typescript)
+- [@snowpack/app-template-11ty](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-11ty)
+- **[See all community templates](https://github.com/pikapkg/snowpack/tree/master/packages/create-snowpack-app)**
 
 <!--
 ### Tutorial: Starting from Scratch

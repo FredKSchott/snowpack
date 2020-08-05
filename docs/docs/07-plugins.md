@@ -3,13 +3,13 @@
 Snowpack isn't just a build tool for JavaScript, it is a build tool for your entire website. Babel, TypeScript, PostCSS, SVGR and any favorite build tool can be connected directly into Snowpack via 1-line plugins.
 
 Snowpack plugins can be added to:
+
 - Customize your build with new language/framework support (Svelte, Vue)
 - Customize your build with new build tools (Babel, PostCSS)
 - Run CLI commands during build and development (TypeScript, ESLint)
 - Create custom transformations, specific to your exact application.
 
 👉 **[Check out our advanced guide](/plugins) and learn how to create your own plugin.**
-
 
 ### Connect a Plugin
 
@@ -67,15 +67,16 @@ This plugin allows you to connect any CLI into your build process. Just give it 
 
 This plugin allows you to run any CLI command as a part of your dev and build workflow. This plugin doesn't affect your build output, but it is useful for connecting developer tooling directly into Snowpack. Use this to add meaningful feedback to your dev console as you type, like TypeScript type-checking and ESLint lint errors.
 
-
 ### Official Plugins
-- [@snowpack/plugin-babel](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-babel)
-- [@snowpack/plugin-svelte](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-svelte)
-- [@snowpack/plugin-vue](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-vue)
-- [@snowpack/plugin-dotenv](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-dotenv)
-- [@snowpack/plugin-parcel](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-parcel)
-- [@snowpack/plugin-react-refresh](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-react-refresh)
-- [@snowpack/plugin-webpack](https://github.com/pikapkg/create-snowpack-app/tree/master/packages/plugin-webpack)
+
+- [@snowpack/plugin-babel](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-babel)
+- [@snowpack/plugin-dotenv](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-dotenv)
+- [@snowpack/plugin-parcel](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-parcel)
+- [@snowpack/plugin-postcss](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-postcss)
+- [@snowpack/plugin-react-refresh](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-react-refresh)
+- [@snowpack/plugin-svelte](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-svelte)
+- [@snowpack/plugin-vue](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-vue)
+- [@snowpack/plugin-webpack](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-webpack)
 
 👉 **[Check out our full list](/plugins) of official plugins.**
 
