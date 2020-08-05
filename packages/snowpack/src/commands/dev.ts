@@ -182,7 +182,7 @@ function getUrlFromFile(
 let currentlyRunningCommand: any = null;
 
 export async function command(commandOptions: CommandOptions) {
-  const {cwd, config} = commandOptions;
+  const {cwd, config, logLevel = 'info'} = commandOptions;
   const {port: defaultPort, hostname, open, hmr: isHmr} = config.devOptions;
 
   // Start the startup timer!
@@ -518,6 +518,7 @@ export async function command(commandOptions: CommandOptions) {
           isDev: true,
           isHmrEnabled: isHmr,
           sourceMaps: config.buildOptions.sourceMaps,
+          logLevel,
         });
         inMemoryBuildCache.set(fileLoc, builtFileOutput);
         return builtFileOutput;

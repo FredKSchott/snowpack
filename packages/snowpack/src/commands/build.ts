@@ -126,6 +126,7 @@ export async function command(commandOptions: CommandOptions) {
         isDev: false,
         isHmrEnabled: false,
         sourceMaps: config.buildOptions.sourceMaps,
+        logLevel,
       });
       allBuiltFromFiles.add(locOnDisk);
 

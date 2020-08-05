@@ -14,7 +14,7 @@ export interface BuildFileOptions {
   isDev: boolean;
   isHmrEnabled: boolean;
   sourceMaps: boolean;
-  silent?: boolean;
+  logLevel?: pino.Level;
 }
 
 export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
@@ -43,7 +43,7 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
  */
 async function runPipelineLoadStep(
   srcPath: string,
-  {plugins, isDev, isHmrEnabled, silent, sourceMaps}: BuildFileOptions,
+  {plugins, isDev, isHmrEnabled, logLevel = 'info', sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   for (const step of plugins) {
@@ -54,7 +54,7 @@ async function runPipelineLoadStep(
       continue;
     }
     const pluginLogger =
-      pluginLoggers[step.name] || createLogger({name: step.name, level: silent ? 'error' : 'info'});
+      pluginLoggers[step.name] || createLogger({name: step.name, level: logLevel});
     pluginLoggers[step.name] = pluginLogger;
 
     try {
@@ -121,7 +121,7 @@ async function runPipelineLoadStep(
 async function runPipelineTransformStep(
   output: SnowpackBuildMap,
   srcPath: string,
-  {plugins, isDev, silent, sourceMaps}: BuildFileOptions,
+  {plugins, isDev, logLevel = 'info', sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   const rootFileName = path.basename(srcPath).replace(srcExt, '');
@@ -131,7 +131,7 @@ async function runPipelineTransformStep(
     }
 
     const pluginLogger =
-      pluginLoggers[step.name] || createLogger({name: step.name, level: silent ? 'error' : 'info'});
+      pluginLoggers[step.name] || createLogger({name: step.name, level: logLevel});
     pluginLoggers[step.name] = pluginLogger;
 
     try {
@@ -176,7 +176,7 @@ async function runPipelineTransformStep(
 
 export async function runPipelineOptimizeStep(
   buildDirectory: string,
-  {plugins, silent}: BuildFileOptions,
+  {plugins, logLevel = 'info'}: BuildFileOptions,
 ) {
   for (const step of plugins) {
     if (!step.optimize) {
@@ -184,7 +184,7 @@ export async function runPipelineOptimizeStep(
     }
 
     const pluginLogger =
-      pluginLoggers[step.name] || createLogger({name: step.name, level: silent ? 'error' : 'info'});
+      pluginLoggers[step.name] || createLogger({name: step.name, level: logLevel});
     pluginLoggers[step.name] = pluginLogger;
 
     try {
