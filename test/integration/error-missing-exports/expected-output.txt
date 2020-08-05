@@ -1,3 +1,2 @@
 [snowpack] ! installing dependencies…
 [snowpack] Package "preact" exists but package.json "exports" does not include entry for "./debug/src/check-props".
-[snowpack] install skipped (nothing to install)

@@ -148,9 +148,10 @@ function resolveWebDependency(dep: string): DependencyLoc {
         exportMapEntry?.require ||
         exportMapEntry;
       if (typeof exportMapValue !== 'string') {
-        throw new Error(
+        logger.fatal(
           `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".`,
         );
+        process.exit(1);
       }
       return {
         type: 'JS',

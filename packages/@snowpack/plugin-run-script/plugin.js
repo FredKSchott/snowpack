@@ -33,7 +33,7 @@ function runScriptPlugin(_, {cmd, watch}) {
               if (errorMatch[1] === '0') {
                 log('WORKER_UPDATE', {state: ['OK', 'green']});
               } else {
-                throw new Error(stdOutput);
+                log('WORKER_UPDATE', {state: ['ERROR', 'red']});
               }
             }
           }
@@ -41,7 +41,7 @@ function runScriptPlugin(_, {cmd, watch}) {
         });
       stderr &&
         stderr.on('data', (err) => {
-          throw new Error(err);
+          log('WORKER_MSG', {level: 'error', msg: err.toString()});
         });
       return workerPromise;
     },

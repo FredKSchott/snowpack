@@ -260,10 +260,9 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
       if (!mime.lookup(baseExt)) {
         logger.warn(
           colors.dim(
-            `ignoring unsupported file "${path.posix.relative(
-              process.cwd(),
-              filePath.replace(/\\/g, '/'),
-            )}"`,
+            `ignoring unsupported file "${path
+              .relative(process.cwd(), filePath)
+              .replace(/\\/g, '/')}"`,
           ),
         );
       }

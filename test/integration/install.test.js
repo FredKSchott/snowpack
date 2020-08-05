@@ -75,6 +75,12 @@ describe('snowpack install', () => {
       });
       // Test Output
       let expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
+      if (process.platform === 'win32') {
+        const expectedWinOutputLoc = path.resolve(expectedOutputLoc, '../expected-output.win.txt');
+        if (existsSync(expectedWinOutputLoc)) {
+          expectedOutputLoc = expectedWinOutputLoc;
+        }
+      }
       const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
       expect(
         stripWhitespace(
