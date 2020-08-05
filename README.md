@@ -21,3 +21,36 @@ When you're ready to deploy your web application to users, you can add back a tr
 ## Create Snowpack App (CSA)
 
 For starter apps and templates, see [create-snowpack-app](./packages/create-snowpack-app).
+
+## Official Snowpack Plugins
+
+### Dev Environment
+
+- [@snowpack/plugin-dotenv](./packages/plugin-dotenv)
+
+### Build
+
+- [@snowpack/plugin-babel](./packages/plugin-babel)
+- [@snowpack/plugin-svelte](./packages/plugin-svelte)
+- [@snowpack/plugin-vue](./packages/plugin-vue)
+
+### Transform
+
+- [@snowpack/plugin-postcss](./packages/plugin-postcss)
+- [@snowpack/plugin-react-refresh](./packages/plugin-react-refresh)
+
+### Bundle
+
+- [@snowpack/plugin-parcel](./packages/plugin-parcel)
+- [@snowpack/plugin-webpack](./packages/plugin-webpack)
+
+### Advanced Plugins
+
+- [@snowpack/plugin-build-script](./packages/plugin-build-script)
+- [@snowpack/plugin-run-script](./packages/plugin-run-script)
+
+### Featured Community Plugins
+
+- [@prefresh/snowpack](https://github.com/JoviDeCroock/prefresh)
+- [snowpack-plugin-import-map](https://github.com/zhoukekestar/snowpack-plugin-import-map) A more easy way to map your imports to Pika CDN instead of [import-maps.json](https://github.com/WICG/import-maps).
+- PRs that add a link to this list are welcome!
