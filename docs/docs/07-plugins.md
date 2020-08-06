@@ -13,7 +13,7 @@ Snowpack plugins can be added to:
 
 ### Connect a Plugin
 
-To make a plugin available, you have to put it in your project `devDependency` list (`package.json`) which will install it locally (in your project) and make it available to snowpack.
+To make a plugin available, you have to put it in your project `devDependencies` list (`package.json`) which will install it locally (in your project) and make it available to snowpack.
 
 For the official snowpack plugins, command would look like:
 
