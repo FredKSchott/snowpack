@@ -83,7 +83,23 @@ To develop and test a Snowpack plugin, the strategy is the same as with other np
 
 1. use `npm link` to make global the plugin with the future npm name `<plugin-name>`, and 
 2. use `npm link <plugin-name>` in the project you want to test it and
-3. in the project's `snowpack.config.json` under the plugins name provide the same `<plugin-name>` and optional plugin options
+<ol>
+  <li>run <code>npm link<code> in your plugin’s project folder.</li>
+  <li>create a new, example Snowpack project in a different location for testing</li>
+  <li>in your example Snowpack project, run <code>npm link my-snowpack-plugin && npm install</code> (use the name from your plugin’s <code>package.json</code>)</li>
+  <li>
+    in your example Snowpack project, add your plugin to the <code>snowpack.config.json</code> along with any plugin options you’d like to test:
+    <pre>
+      <code class="json">
+{
+  "plugins": [
+    ["my-snowpack-plugin", { "option-1": "testing", "another-option": false }]
+  "
+}
+      </code>
+    </pre>
+  </li>
+</ol>
 
 
 ### Transform a File
