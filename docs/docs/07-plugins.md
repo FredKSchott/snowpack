@@ -17,7 +17,7 @@ To make a plugin available, you have to put it in your project `devDependency` l
 
 For the official snowpack plugins, command would look like:
 
-```sh
+```bash
 # for npm
 npm install --save-dev @snowpack/[plugin-name]
 # for yarn
