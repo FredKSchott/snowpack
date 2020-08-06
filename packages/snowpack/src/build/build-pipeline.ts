@@ -1,3 +1,4 @@
+import {EventEmitter} from 'events';
 import {promises as fs} from 'fs';
 import path from 'path';
 import pino from 'pino';
@@ -10,11 +11,12 @@ const logger = createLogger({name: 'snowpack'});
 const pluginLoggers: Record<string, pino.Logger> = {}; // save created loggers
 
 export interface BuildFileOptions {
-  plugins: SnowpackPlugin[];
+  devMessageBus?: EventEmitter;
   isDev: boolean;
   isHmrEnabled: boolean;
-  sourceMaps: boolean;
   logLevel?: pino.Level;
+  plugins: SnowpackPlugin[];
+  sourceMaps: boolean;
 }
 
 export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
@@ -43,7 +45,7 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
  */
 async function runPipelineLoadStep(
   srcPath: string,
-  {plugins, isDev, isHmrEnabled, logLevel = 'info', sourceMaps}: BuildFileOptions,
+  {devMessageBus, isDev, isHmrEnabled, logLevel = 'info', plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   for (const step of plugins) {
@@ -67,7 +69,9 @@ async function runPipelineLoadStep(
         isHmrEnabled,
         // @ts-ignore: internal API only
         log: (msg, data: any = {}) => {
-          if (data && data.msg) pluginLogger.info(`${data.msg} [${debugPath}]`);
+          if (data && data.msg) {
+            pluginLogger.info(`${data.msg} [${debugPath}]`);
+          }
         },
       });
       pluginLogger.debug(`load() successful [${debugPath}]`);
@@ -76,6 +80,9 @@ async function runPipelineLoadStep(
 
       if (typeof result === 'string') {
         const mainOutputExt = step.resolve.output[0];
+        if (devMessageBus && isDev) {
+          devMessageBus.emit('SUCCESS', {id: step.name});
+        }
         return {
           [mainOutputExt]: {
             code: result,
@@ -95,12 +102,22 @@ async function runPipelineLoadStep(
           // if source maps disabled, don’t return any
           if (!sourceMaps) result[ext].map = undefined;
         });
+        if (devMessageBus && isDev) {
+          devMessageBus.emit('SUCCESS', {id: step.name});
+        }
         return result;
       } else {
+        if (devMessageBus && isDev) {
+          devMessageBus.emit('SUCCESS', {id: step.name});
+        }
         continue;
       }
     } catch (err) {
-      pluginLogger.error(err);
+      if (devMessageBus && isDev) {
+        devMessageBus.emit('ERROR', {id: step.name, msg: err.toString() || err});
+      } else {
+        pluginLogger.error(err);
+      }
     }
   }
 
@@ -121,7 +138,7 @@ async function runPipelineLoadStep(
 async function runPipelineTransformStep(
   output: SnowpackBuildMap,
   srcPath: string,
-  {plugins, isDev, logLevel = 'info', sourceMaps}: BuildFileOptions,
+  {devMessageBus, isDev, logLevel = 'info', plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   const rootFileName = path.basename(srcPath).replace(srcExt, '');
@@ -148,8 +165,9 @@ async function runPipelineTransformStep(
           isDev,
           // @ts-ignore: internal API only
           log: (msg, data: any = {}) => {
-            if (data && data.msg)
+            if (data && data.msg) {
               pluginLogger.info(`${data.msg} [${path.relative(process.cwd(), filePath)}]`);
+            }
           },
           // @ts-ignore: Deprecated
           urlPath: `./${path.basename(rootFileName + destExt)}`,
@@ -165,9 +183,17 @@ async function runPipelineTransformStep(
 
         // if source maps disabled, don’t return any
         if (!sourceMaps) output[destExt].map = undefined;
+
+        if (devMessageBus && isDev) {
+          devMessageBus.emit('SUCCESS', {id: step.name});
+        }
       }
     } catch (err) {
-      pluginLogger.error(err);
+      if (devMessageBus && isDev) {
+        devMessageBus.emit('ERROR', {id: step.name, msg: err.toString() || err});
+      } else {
+        pluginLogger.error(err);
+      }
     }
   }
 

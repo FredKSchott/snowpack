@@ -29,7 +29,6 @@ import isCompressible from 'compressible';
 import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
-import execa from 'execa';
 import {existsSync, promises as fs, readFileSync} from 'fs';
 import http from 'http';
 import HttpProxy from 'http-proxy';
@@ -37,9 +36,9 @@ import http2 from 'http2';
 import https from 'https';
 import * as colors from 'kleur/colors';
 import mime from 'mime-types';
-import npmRunPath from 'npm-run-path';
 import os from 'os';
 import path from 'path';
+import {performance} from 'perf_hooks';
 import onProcessExit from 'signal-exit';
 import stream from 'stream';
 import url from 'url';
@@ -69,7 +68,6 @@ import {
   DEV_DEPENDENCIES_DIR,
   getEncodingType,
   getExt,
-  isYarn,
   jsSourceMappingURL,
   openInBrowser,
   parsePackageImportSpecifier,
@@ -78,7 +76,7 @@ import {
   updateLockfileHash,
 } from '../util';
 import {command as installCommand} from './install';
-import {getPort, paint} from './paint';
+import {getPort, paint, paintEvent} from './paint';
 const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
 const DEFAULT_PROXY_ERROR_HANDLER = (
@@ -137,6 +135,8 @@ const sendFile = (
     }
   }
 
+  messageBus.emit(paintEvent.SUCCESS, {id: 'snowpack'});
+
   if (/\bgzip\b/.test(acceptEncoding) && stream.Readable.from) {
     const bodyStream = stream.Readable.from([body]);
     headers['Content-Encoding'] = 'gzip';
@@ -180,79 +180,42 @@ function getUrlFromFile(
   return null;
 }
 
-let currentlyRunningCommand: any = null;
+// Important! this must be shimmed before command() fires
+const messageBus = new EventEmitter();
+console.log = (...args) => {
+  args.forEach((msg) => {
+    messageBus.emit(paintEvent.INFO, {msg});
+  });
+};
+console.warn = (...args) => {
+  args.forEach((msg) => {
+    messageBus.emit(paintEvent.WARN, {msg});
+  });
+};
+console.error = (...args) => {
+  args.forEach((msg) => {
+    messageBus.emit(paintEvent.ERROR, {msg});
+  });
+};
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config, logLevel = 'info'} = commandOptions;
   const {port: defaultPort, hostname, open, hmr: isHmr} = config.devOptions;
 
   // Start the startup timer!
-  let serverStart = Date.now();
+  let serverStart = performance.now();
   const port = await getPort(defaultPort);
   // Reset the clock if we had to wait for the user to select a new port.
   if (port !== defaultPort) {
-    serverStart = Date.now();
+    serverStart = performance.now();
   }
 
   const inMemoryBuildCache = new Map<string, SnowpackBuildMap>();
   const filesBeingDeleted = new Set<string>();
   const filesBeingBuilt = new Map<string, Promise<SnowpackBuildMap>>();
-  const messageBus = new EventEmitter();
   const mountedDirectories: [string, string][] = Object.entries(config.mount).map(
     ([fromDisk, toUrl]) => {
       return [path.resolve(cwd, fromDisk), toUrl];
-    },
-  );
-
-  console.log = (...args) => {
-    messageBus.emit('CONSOLE', {level: 'log', args});
-  };
-  console.warn = (...args) => {
-    messageBus.emit('CONSOLE', {level: 'warn', args});
-  };
-  console.error = (...args) => {
-    messageBus.emit('CONSOLE', {level: 'error', args});
-  };
-
-  // Start painting immediately, so we can surface errors & warnings to the
-  // user, and they can watch the server starting up. Search for ”SERVER_START”
-  // for the actual start event below.
-  paint(
-    messageBus,
-    config.plugins.map((p) => p.name),
-    undefined,
-    {
-      addPackage: async (pkgName: string) => {
-        isLiveReloadPaused = true;
-        messageBus.emit('INSTALLING');
-        currentlyRunningCommand = execa(
-          isYarn(cwd) ? 'yarn' : 'npm',
-          isYarn(cwd) ? ['add', pkgName] : ['install', '--save', pkgName],
-          {
-            env: npmRunPath.env(),
-            extendEnv: true,
-            shell: true,
-            cwd,
-          },
-        );
-        currentlyRunningCommand.stdout.on('data', (data) => process.stdout.write(data));
-        currentlyRunningCommand.stderr.on('data', (data) => process.stderr.write(data));
-        await currentlyRunningCommand;
-        currentlyRunningCommand = installCommand({...installCommandOptions, logLevel: 'error'});
-        await currentlyRunningCommand;
-        await updateLockfileHash(DEV_DEPENDENCIES_DIR);
-        await cacache.rm.all(BUILD_CACHE);
-        inMemoryBuildCache.clear();
-        currentlyRunningCommand = null;
-
-        dependencyImportMap = JSON.parse(
-          await fs
-            .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
-            .catch(() => `{"imports": {}}`),
-        );
-        messageBus.emit('INSTALL_COMPLETE');
-        isLiveReloadPaused = false;
-      },
     },
   );
 
@@ -275,6 +238,12 @@ export async function command(commandOptions: CommandOptions) {
     await updateLockfileHash(DEV_DEPENDENCIES_DIR);
   }
 
+  // Start painting dev dashboard after successful install
+  paint(
+    messageBus,
+    config.plugins.map((p) => p.name),
+  );
+
   let dependencyImportMap: ImportMap = {imports: {}};
   try {
     dependencyImportMap = JSON.parse(
@@ -282,28 +251,6 @@ export async function command(commandOptions: CommandOptions) {
     );
   } catch (err) {
     // no import-map found, safe to ignore
-  }
-
-  /** Rerun `snowpack install` while dev server is running */
-  async function reinstallDependencies() {
-    if (!currentlyRunningCommand) {
-      isLiveReloadPaused = true;
-      messageBus.emit('INSTALLING');
-      currentlyRunningCommand = installCommand({...installCommandOptions, logLevel: 'error'});
-      await currentlyRunningCommand.then(async () => {
-        dependencyImportMap = JSON.parse(
-          await fs
-            .readFile(dependencyImportMapLoc, {encoding: 'utf-8'})
-            .catch(() => `{"imports": {}}`),
-        );
-        await updateLockfileHash(DEV_DEPENDENCIES_DIR);
-        await cacache.rm.all(BUILD_CACHE);
-        inMemoryBuildCache.clear();
-        messageBus.emit('INSTALL_COMPLETE');
-        isLiveReloadPaused = false;
-        currentlyRunningCommand = null;
-      });
-    }
   }
 
   const devProxies = {};
@@ -362,22 +309,19 @@ export async function command(commandOptions: CommandOptions) {
 
   for (const runPlugin of config.plugins) {
     if (runPlugin.run) {
-      messageBus.emit('WORKER_START', {id: runPlugin.name});
-      runPlugin
-        .run({
+      try {
+        await runPlugin.run({
           isDev: true,
           isHmrEnabled: isHmr,
           // @ts-ignore: internal API only
           log: (msg, data) => {
             messageBus.emit(msg, {...data, id: runPlugin.name});
           },
-        })
-        .then(() => {
-          messageBus.emit('WORKER_COMPLETE', {id: runPlugin.name, error: null});
-        })
-        .catch((err) => {
-          messageBus.emit('WORKER_COMPLETE', {id: runPlugin.name, error: err});
         });
+        messageBus.emit(paintEvent.SUCCESS, {id: runPlugin.name});
+      } catch (err) {
+        messageBus.emit(paintEvent.ERROR, {id: runPlugin.name, msg: err.toString() || err});
+      }
     }
   }
 
@@ -396,16 +340,14 @@ export async function command(commandOptions: CommandOptions) {
       reqPath = replaceExt(reqPath, '.map', '');
     }
 
-    // const requestStart = Date.now();
     res.on('finish', () => {
       const {method, url} = req;
       const {statusCode} = res;
       if (statusCode !== 200) {
-        messageBus.emit('SERVER_RESPONSE', {
+        messageBus.emit(paintEvent.SERVER_RESPONSE, {
           method,
           url,
           statusCode,
-          // processingTime: Date.now() - requestStart,
         });
       }
     });
@@ -493,10 +435,6 @@ export async function command(commandOptions: CommandOptions) {
 
     const fileLoc = await getFileFromUrl(reqPath);
 
-    if (isRoute) {
-      messageBus.emit('NEW_SESSION');
-    }
-
     if (!fileLoc) {
       const prefix = colors.red('  ✘ ');
       console.error(`[404] ${reqUrl}\n${attemptedFileLoads.map((loc) => prefix + loc).join('\n')}`);
@@ -515,6 +453,7 @@ export async function command(commandOptions: CommandOptions) {
       }
       const fileBuilderPromise = (async () => {
         const builtFileOutput = await _buildFile(fileLoc, {
+          devMessageBus: messageBus,
           plugins: config.plugins,
           isDev: true,
           isHmrEnabled: isHmr,
@@ -526,11 +465,11 @@ export async function command(commandOptions: CommandOptions) {
       })();
       filesBeingBuilt.set(fileLoc, fileBuilderPromise);
       try {
-        messageBus.emit('BUILD_FILE', {id: fileLoc, isBuilding: true});
+        messageBus.emit(paintEvent.BUILD_FILE, {id: fileLoc, isBuilding: true});
         return await fileBuilderPromise;
       } finally {
         filesBeingBuilt.delete(fileLoc);
-        messageBus.emit('BUILD_FILE', {id: fileLoc, isBuilding: false});
+        messageBus.emit(paintEvent.BUILD_FILE, {id: fileLoc, isBuilding: false});
       }
     }
 
@@ -617,7 +556,6 @@ export async function command(commandOptions: CommandOptions) {
       responseExt: string,
       wrappedResponse: string,
     ): Promise<string> {
-      let missingWebModule: {spec: string; pkgName: string} | null = null;
       const resolveImportSpecifier = createImportResolver({
         fileLoc,
         dependencyImportMap,
@@ -640,27 +578,9 @@ export async function command(commandOptions: CommandOptions) {
             }
             return resolvedImportUrl;
           }
-          // If that fails, return a placeholder import and attempt to resolve.
-          const [packageName] = parsePackageImportSpecifier(spec);
-          const [depManifestLoc] = resolveDependencyManifest(packageName, cwd);
-          const doesPackageExist = !!depManifestLoc;
-          if (doesPackageExist) {
-            reinstallDependencies();
-          } else {
-            missingWebModule = {
-              spec: spec,
-              pkgName: packageName,
-            };
-          }
-          // Return a placeholder while Snowpack goes out and tries to re-install (or warn)
-          // on the missing package.
           return spec;
         },
       );
-      messageBus.emit('MISSING_WEB_MODULE', {
-        id: fileLoc,
-        data: missingWebModule,
-      });
       return wrappedResponse;
     }
 
@@ -905,12 +825,12 @@ export async function command(commandOptions: CommandOptions) {
     .filter((i) => i.family === 'IPv4' && i.internal === false)
     .map((i) => i.address);
   const protocol = config.devOptions.secure ? 'https:' : 'http:';
-  messageBus.emit('SERVER_START', {
+  messageBus.emit(paintEvent.SERVER_START, {
     protocol,
     hostname,
     port,
     ips,
-    startTimeMs: Date.now() - serverStart,
+    startTimeMs: performance.now() - serverStart,
   });
 
   // Open the user's browser
@@ -952,7 +872,7 @@ export async function command(commandOptions: CommandOptions) {
       .map(([fileLoc]) => `${path.dirname(fileLoc!)}/**`),
   );
   function onDepWatchEvent() {
-    reinstallDependencies().then(() => hmrEngine.broadcastMessage({type: 'reload'}));
+    hmrEngine.broadcastMessage({type: 'reload'});
   }
   const depWatcher = chokidar.watch([...symlinkedFileLocs], {
     cwd: '/', // we’re using absolute paths, so watch from root

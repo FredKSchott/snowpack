@@ -3,11 +3,11 @@ const npmRunPath = require('npm-run-path');
 const cwd = process.cwd();
 
 function runScriptPlugin(_, {cmd, watch}) {
-  const cmdProgram = cmd.split(' ')[0];
+  const [cmdProgram] = cmd.split(' ');
   const watchCmd = watch && watch.replace('$1', cmd);
 
   return {
-    name: `run:${cmdProgram}`,
+    name: cmdProgram,
     async run({isDev, log}) {
       const workerPromise = execa.command(isDev ? watchCmd || cmd : cmd, {
         env: npmRunPath.env(),
