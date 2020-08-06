@@ -26,28 +26,28 @@ For starter apps and templates, see [create-snowpack-app](./packages/create-snow
 
 ### Dev Environment
 
-- [@snowpack/plugin-dotenv](./packages/plugin-dotenv)
+- [@snowpack/plugin-dotenv](./packages/@snowpack/plugin-dotenv)
 
 ### Build
 
-- [@snowpack/plugin-babel](./packages/plugin-babel)
-- [@snowpack/plugin-svelte](./packages/plugin-svelte)
-- [@snowpack/plugin-vue](./packages/plugin-vue)
+- [@snowpack/plugin-babel](./packages/@snowpack/plugin-babel)
+- [@snowpack/plugin-svelte](./packages/@snowpack/plugin-svelte)
+- [@snowpack/plugin-vue](./packages/@snowpack/plugin-vue)
 
 ### Transform
 
-- [@snowpack/plugin-postcss](./packages/plugin-postcss)
-- [@snowpack/plugin-react-refresh](./packages/plugin-react-refresh)
+- [@snowpack/plugin-postcss](./packages/@snowpack/plugin-postcss)
+- [@snowpack/plugin-react-refresh](./packages/@snowpack/plugin-react-refresh)
 
 ### Bundle
 
-- [@snowpack/plugin-parcel](./packages/plugin-parcel)
-- [@snowpack/plugin-webpack](./packages/plugin-webpack)
+- [@snowpack/plugin-parcel](./packages/@snowpack/plugin-parcel)
+- [@snowpack/plugin-webpack](./packages/@snowpack/plugin-webpack)
 
 ### Advanced Plugins
 
-- [@snowpack/plugin-build-script](./packages/plugin-build-script)
-- [@snowpack/plugin-run-script](./packages/plugin-run-script)
+- [@snowpack/plugin-build-script](./packages/@snowpack/plugin-build-script)
+- [@snowpack/plugin-run-script](./packages/@snowpack/plugin-run-script)
 
 ### Featured Community Plugins
 
