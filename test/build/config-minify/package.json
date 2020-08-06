@@ -4,12 +4,9 @@
   "name": "@snowpack/test-config-minify",
   "description": "This test ensures that buildOptions.optimize: false disables minification",
   "scripts": {
-    "testbuild": "snowpack build"
+    "testbuild": "snowpack build --minify"
   },
   "snowpack": {
-    "buildOptions": {
-      "minify": true
-    },
     "mount": {
       "./src": "/_dist_"
     }

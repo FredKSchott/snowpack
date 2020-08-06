@@ -1,5 +1,6 @@
 {
   "imports": {
-    "css-mock-pkg-a": "./css-mock-pkg-a.js"
+    "css-mock-pkg-a": "./css-mock-pkg-a.js",
+    "css-mock-pkg-b/index.css": "./css-mock-pkg-b/index.css"
   }
 }

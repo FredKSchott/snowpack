@@ -352,6 +352,103 @@ function debounce(fn) {
   };
 }
 
+function format(str) {
+  for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
+  }
+
+  return [].concat(args).reduce(function (p, c) {
+    return p.replace(/%s/, c);
+  }, str);
+}
+
+var INVALID_MODIFIER_ERROR = 'Popper: modifier "%s" provided an invalid %s property, expected %s but got %s';
+var MISSING_DEPENDENCY_ERROR = 'Popper: modifier "%s" requires "%s", but "%s" modifier is not available';
+var VALID_PROPERTIES = ['name', 'enabled', 'phase', 'fn', 'effect', 'requires', 'options'];
+function validateModifiers(modifiers) {
+  modifiers.forEach(function (modifier) {
+    Object.keys(modifier).forEach(function (key) {
+      switch (key) {
+        case 'name':
+          if (typeof modifier.name !== 'string') {
+            console.error(format(INVALID_MODIFIER_ERROR, String(modifier.name), '"name"', '"string"', "\"" + String(modifier.name) + "\""));
+          }
+
+          break;
+
+        case 'enabled':
+          if (typeof modifier.enabled !== 'boolean') {
+            console.error(format(INVALID_MODIFIER_ERROR, modifier.name, '"enabled"', '"boolean"', "\"" + String(modifier.enabled) + "\""));
+          }
+
+        case 'phase':
+          if (modifierPhases.indexOf(modifier.phase) < 0) {
+            console.error(format(INVALID_MODIFIER_ERROR, modifier.name, '"phase"', "either " + modifierPhases.join(', '), "\"" + String(modifier.phase) + "\""));
+          }
+
+          break;
+
+        case 'fn':
+          if (typeof modifier.fn !== 'function') {
+            console.error(format(INVALID_MODIFIER_ERROR, modifier.name, '"fn"', '"function"', "\"" + String(modifier.fn) + "\""));
+          }
+
+          break;
+
+        case 'effect':
+          if (typeof modifier.effect !== 'function') {
+            console.error(format(INVALID_MODIFIER_ERROR, modifier.name, '"effect"', '"function"', "\"" + String(modifier.fn) + "\""));
+          }
+
+          break;
+
+        case 'requires':
+          if (!Array.isArray(modifier.requires)) {
+            console.error(format(INVALID_MODIFIER_ERROR, modifier.name, '"requires"', '"array"', "\"" + String(modifier.requires) + "\""));
+          }
+
+          break;
+
+        case 'requiresIfExists':
+          if (!Array.isArray(modifier.requiresIfExists)) {
+            console.error(format(INVALID_MODIFIER_ERROR, modifier.name, '"requiresIfExists"', '"array"', "\"" + String(modifier.requiresIfExists) + "\""));
+          }
+
+          break;
+
+        case 'options':
+        case 'data':
+          break;
+
+        default:
+          console.error("PopperJS: an invalid property has been provided to the \"" + modifier.name + "\" modifier, valid properties are " + VALID_PROPERTIES.map(function (s) {
+            return "\"" + s + "\"";
+          }).join(', ') + "; but \"" + key + "\" was provided.");
+      }
+
+      modifier.requires && modifier.requires.forEach(function (requirement) {
+        if (modifiers.find(function (mod) {
+          return mod.name === requirement;
+        }) == null) {
+          console.error(format(MISSING_DEPENDENCY_ERROR, String(modifier.name), requirement, requirement));
+        }
+      });
+    });
+  });
+}
+
+function uniqueBy(arr, fn) {
+  var identifiers = new Set();
+  return arr.filter(function (item) {
+    var identifier = fn(item);
+
+    if (!identifiers.has(identifier)) {
+      identifiers.add(identifier);
+      return true;
+    }
+  });
+}
+
 function getBasePlacement(placement) {
   return placement.split('-')[0];
 }
@@ -669,6 +766,8 @@ function detectOverflow(state, options) {
   return overflowOffsets;
 }
 
+var INVALID_ELEMENT_ERROR = 'Popper: Invalid reference or popper argument provided. They must be either a DOM element or virtual element.';
+var INFINITE_LOOP_ERROR = 'Popper: An infinite loop in the modifiers cycle has been detected! The cycle has been interrupted to prevent a browser crash.';
 var DEFAULT_OPTIONS = {
   placement: 'bottom',
   modifiers: [],
@@ -730,6 +829,40 @@ function popperGenerator(generatorOptions) {
         state.orderedModifiers = orderedModifiers.filter(function (m) {
           return m.enabled;
         }); // Validate the provided modifiers so that the consumer will get warned
+        // if one of the modifiers is invalid for any reason
+
+        {
+          var modifiers = uniqueBy([].concat(orderedModifiers, state.options.modifiers), function (_ref) {
+            var name = _ref.name;
+            return name;
+          });
+          validateModifiers(modifiers);
+
+          if (getBasePlacement(state.options.placement) === auto) {
+            var flipModifier = state.orderedModifiers.find(function (_ref2) {
+              var name = _ref2.name;
+              return name === 'flip';
+            });
+
+            if (!flipModifier) {
+              console.error(['Popper: "auto" placements require the "flip" modifier be', 'present and enabled to work.'].join(' '));
+            }
+          }
+
+          var _getComputedStyle = getComputedStyle(popper),
+              marginTop = _getComputedStyle.marginTop,
+              marginRight = _getComputedStyle.marginRight,
+              marginBottom = _getComputedStyle.marginBottom,
+              marginLeft = _getComputedStyle.marginLeft; // We no longer take into account `margins` on the popper, and it can
+          // cause bugs with positioning, so we'll warn the consumer
+
+
+          if ([marginTop, marginRight, marginBottom, marginLeft].some(function (margin) {
+            return parseFloat(margin);
+          })) {
+            console.warn(['Popper: CSS "margin" styles cannot be used to apply padding', 'between the popper and its reference element or boundary.', 'To replicate margin, use the `offset` modifier, as well as', 'the `padding` option in the `preventOverflow` and `flip`', 'modifiers.'].join(' '));
+          }
+        }
 
         runModifierEffects();
         return instance.update();
@@ -750,6 +883,9 @@ function popperGenerator(generatorOptions) {
         // anymore
 
         if (!areValidElements(reference, popper)) {
+          {
+            console.error(INVALID_ELEMENT_ERROR);
+          }
 
           return;
         } // Store the reference and popper rects to be read by modifiers
@@ -773,8 +909,17 @@ function popperGenerator(generatorOptions) {
         state.orderedModifiers.forEach(function (modifier) {
           return state.modifiersData[modifier.name] = Object.assign({}, modifier.data);
         });
+        var __debug_loops__ = 0;
 
         for (var index = 0; index < state.orderedModifiers.length; index++) {
+          {
+            __debug_loops__ += 1;
+
+            if (__debug_loops__ > 100) {
+              console.error(INFINITE_LOOP_ERROR);
+              break;
+            }
+          }
 
           if (state.reset === true) {
             state.reset = false;
@@ -813,6 +958,9 @@ function popperGenerator(generatorOptions) {
     };
 
     if (!areValidElements(reference, popper)) {
+      {
+        console.error(INVALID_ELEMENT_ERROR);
+      }
 
       return instance;
     }
@@ -1016,6 +1164,16 @@ function computeStyles(_ref3) {
       gpuAcceleration = _options$gpuAccelerat === void 0 ? true : _options$gpuAccelerat,
       _options$adaptive = options.adaptive,
       adaptive = _options$adaptive === void 0 ? true : _options$adaptive;
+
+  {
+    var transitionProperty = getComputedStyle(state.elements.popper).transitionProperty || '';
+
+    if (adaptive && ['transform', 'top', 'right', 'bottom', 'left'].some(function (property) {
+      return transitionProperty.indexOf(property) >= 0;
+    })) {
+      console.warn(['Popper: Detected CSS transitions on at least one of the following', 'CSS properties: "transform", "top", "right", "bottom", "left".', '\n\n', 'Disable the "computeStyles" modifier\'s `adaptive` option to allow', 'for smooth transitions, or remove these properties from the CSS', 'transition declaration on the popper element if only transitioning', 'opacity or background-color for example.', '\n\n', 'We recommend using the popper element as a wrapper around an inner', 'element that can have any CSS property transitioned for animations.'].join(' '));
+    }
+  }
 
   var commonStyles = {
     placement: getBasePlacement(state.placement),
@@ -1240,6 +1398,10 @@ function computeAutoPlacement(state, options) {
 
   if (allowedPlacements.length === 0) {
     allowedPlacements = placements$1;
+
+    {
+      console.error(['Popper: The `allowedAutoPlacements` option did not allow any', 'placements. Ensure the `placement` option matches the variation', 'of the allowed placements.', 'For example, "auto" cannot be used to allow "bottom-start".', 'Use "auto-start" instead.'].join(' '));
+    }
   } // $FlowFixMe: Flow seems to have problems with two array unions...
 
 
@@ -1572,7 +1734,16 @@ function effect$2(_ref2) {
     }
   }
 
+  {
+    if (!isHTMLElement(arrowElement)) {
+      console.error(['Popper: "arrow" element must be an HTMLElement (not an SVGElement).', 'To use an SVG arrow, wrap it in an HTMLElement that will be used as', 'the arrow.'].join(' '));
+    }
+  }
+
   if (!contains(state.elements.popper, arrowElement)) {
+    {
+      console.error(['Popper: "arrow" modifier\'s `element` must be a child of the popper', 'element.'].join(' '));
+    }
 
     return;
   }
@@ -1659,7 +1830,7 @@ var createPopper = /*#__PURE__*/popperGenerator({
 }); // eslint-disable-next-line import/no-unused-modules
 
 /**!
-* tippy.js v6.2.5
+* tippy.js v6.2.6
 * (c) 2017-2020 atomiks
 * MIT License
 */
@@ -1674,6 +1845,10 @@ var TOUCH_OPTIONS = {
   passive: true,
   capture: true
 };
+
+function hasOwnProperty(obj, key) {
+  return {}.hasOwnProperty.call(obj, key);
+}
 function getValueAtIndexOrReturn(value, index, defaultValue) {
   if (Array.isArray(value)) {
     var v = value[index];
@@ -1894,6 +2069,61 @@ var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined'
 var ua = isBrowser ? navigator.userAgent : '';
 var isIE = /MSIE |Trident\//.test(ua);
 
+function createMemoryLeakWarning(method) {
+  var txt = method === 'destroy' ? 'n already-' : ' ';
+  return [method + "() was called on a" + txt + "destroyed instance. This is a no-op but", 'indicates a potential memory leak.'].join(' ');
+}
+function clean(value) {
+  var spacesAndTabs = /[ \t]{2,}/g;
+  var lineStartWithSpaces = /^[ \t]*/gm;
+  return value.replace(spacesAndTabs, ' ').replace(lineStartWithSpaces, '').trim();
+}
+
+function getDevMessage(message) {
+  return clean("\n  %ctippy.js\n\n  %c" + clean(message) + "\n\n  %c\uD83D\uDC77\u200D This is a development-only message. It will be removed in production.\n  ");
+}
+
+function getFormattedMessage(message) {
+  return [getDevMessage(message), // title
+  'color: #00C584; font-size: 1.3em; font-weight: bold;', // message
+  'line-height: 1.5', // footer
+  'color: #a6a095;'];
+} // Assume warnings and errors never have the same message
+
+var visitedMessages;
+
+{
+  resetVisitedMessages();
+}
+
+function resetVisitedMessages() {
+  visitedMessages = new Set();
+}
+function warnWhen(condition, message) {
+  if (condition && !visitedMessages.has(message)) {
+    var _console;
+
+    visitedMessages.add(message);
+
+    (_console = console).warn.apply(_console, getFormattedMessage(message));
+  }
+}
+function errorWhen(condition, message) {
+  if (condition && !visitedMessages.has(message)) {
+    var _console2;
+
+    visitedMessages.add(message);
+
+    (_console2 = console).error.apply(_console2, getFormattedMessage(message));
+  }
+}
+function validateTargets(targets) {
+  var didPassFalsyValue = !targets;
+  var didPassPlainObject = Object.prototype.toString.call(targets) === '[object Object]' && !targets.addEventListener;
+  errorWhen(didPassFalsyValue, ['tippy() was passed', '`' + String(targets) + '`', 'as its targets (first) argument. Valid types are: String, Element,', 'Element[], or NodeList.'].join(' '));
+  errorWhen(didPassPlainObject, ['tippy() was passed a plain object which is not supported as an argument', 'for virtual positioning. Use props.getReferenceClientRect instead.'].join(' '));
+}
+
 var pluginProps = {
   animateFill: false,
   followCursor: false,
@@ -1952,6 +2182,10 @@ var defaultProps = Object.assign({
 }, pluginProps, {}, renderProps);
 var defaultKeys = Object.keys(defaultProps);
 var setDefaultProps = function setDefaultProps(partialProps) {
+  /* istanbul ignore else */
+  {
+    validateProps(partialProps, []);
+  }
 
   var keys = Object.keys(partialProps);
   keys.forEach(function (key) {
@@ -2007,6 +2241,29 @@ function evaluateProps(reference, props) {
     content: out.aria.content === 'auto' ? props.interactive ? null : 'describedby' : out.aria.content
   };
   return out;
+}
+function validateProps(partialProps, plugins) {
+  if (partialProps === void 0) {
+    partialProps = {};
+  }
+
+  if (plugins === void 0) {
+    plugins = [];
+  }
+
+  var keys = Object.keys(partialProps);
+  keys.forEach(function (prop) {
+    var nonPluginProps = removeProperties(defaultProps, Object.keys(pluginProps));
+    var didPassUnknownProp = !hasOwnProperty(nonPluginProps, prop); // Check if the prop exists in `plugins`
+
+    if (didPassUnknownProp) {
+      didPassUnknownProp = plugins.filter(function (plugin) {
+        return plugin.name === prop;
+      }).length === 0;
+    }
+
+    warnWhen(didPassUnknownProp, ["`" + prop + "`", "is not a valid prop. You may have spelled it incorrectly, or if it's", 'a plugin, forgot to pass it in an array as props.plugins.', '\n\n', 'All props: https://atomiks.github.io/tippyjs/v6/all-props/\n', 'Plugins: https://atomiks.github.io/tippyjs/v6/plugins/'].join(' '));
+  });
 }
 
 var innerHTML = function innerHTML() {
@@ -2201,6 +2458,9 @@ function createTippy(reference, passedProps) {
   /* istanbul ignore if */
 
   if (!props.render) {
+    {
+      errorWhen(true, 'render() function has not been supplied.');
+    }
 
     return instance;
   } // ===========================================================================
@@ -2381,7 +2641,6 @@ function createTippy(reference, passedProps) {
     }
 
     if (instance.props.hideOnClick === true) {
-      isVisibleFromClick = false;
       instance.clearDelayTimeouts();
       instance.hide(); // `mousedown` event is fired right before `focus` if pressing the
       // currentTarget. This lets a tippy with `focus` trigger know that it
@@ -2558,7 +2817,7 @@ function createTippy(reference, passedProps) {
 
   function onMouseMove(event) {
     var target = event.target;
-    var isCursorOverReferenceOrPopper = reference.contains(target) || popper.contains(target);
+    var isCursorOverReferenceOrPopper = getCurrentTarget().contains(target) || popper.contains(target);
 
     if (event.type === 'mousemove' && isCursorOverReferenceOrPopper) {
       return;
@@ -2734,6 +2993,12 @@ function createTippy(reference, passedProps) {
     }
 
     createPopperInstance();
+    /* istanbul ignore else */
+
+    {
+      // Accessibility check
+      warnWhen(instance.props.interactive && appendTo === defaultProps.appendTo && node.nextElementSibling !== popper, ['Interactive tippy element may not be accessible via keyboard', 'navigation because it is not directly after the reference element', 'in the DOM source order.', '\n\n', 'Using a wrapper <div> or <span> tag around the reference element', 'solves this by creating a new parentNode context.', '\n\n', 'Specifying `appendTo: document.body` silences this warning, but it', 'assumes you are using a focus management solution to handle', 'keyboard navigation.', '\n\n', 'See: https://atomiks.github.io/tippyjs/v6/accessibility/#interactivity'].join(' '));
+    }
   }
 
   function getNestedPopperTree() {
@@ -2822,6 +3087,10 @@ function createTippy(reference, passedProps) {
   }
 
   function setProps(partialProps) {
+    /* istanbul ignore else */
+    {
+      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning('setProps'));
+    }
 
     if (instance.state.isDestroyed) {
       return;
@@ -2880,6 +3149,10 @@ function createTippy(reference, passedProps) {
   }
 
   function show() {
+    /* istanbul ignore else */
+    {
+      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning('show'));
+    } // Early bail-out
 
 
     var isAlreadyVisible = instance.state.isVisible;
@@ -2965,6 +3238,10 @@ function createTippy(reference, passedProps) {
   }
 
   function hide() {
+    /* istanbul ignore else */
+    {
+      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning('hide'));
+    } // Early bail-out
 
 
     var isAlreadyHidden = !instance.state.isVisible;
@@ -2985,6 +3262,7 @@ function createTippy(reference, passedProps) {
     instance.state.isVisible = false;
     instance.state.isShown = false;
     ignoreOnFirstUpdate = false;
+    isVisibleFromClick = false;
 
     if (getIsDefaultRenderFn()) {
       popper.style.visibility = 'hidden';
@@ -3018,6 +3296,10 @@ function createTippy(reference, passedProps) {
   }
 
   function hideWithInteractivity(event) {
+    /* istanbul ignore else */
+    {
+      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning('hideWithInteractivity'));
+    }
 
     doc.addEventListener('mousemove', debouncedOnMouseMove);
     pushIfUnique(mouseMoveListeners, debouncedOnMouseMove);
@@ -3025,6 +3307,10 @@ function createTippy(reference, passedProps) {
   }
 
   function unmount() {
+    /* istanbul ignore else */
+    {
+      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning('unmount'));
+    }
 
     if (instance.state.isVisible) {
       instance.hide();
@@ -3054,6 +3340,10 @@ function createTippy(reference, passedProps) {
   }
 
   function destroy() {
+    /* istanbul ignore else */
+    {
+      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning('destroy'));
+    }
 
     if (instance.state.isDestroyed) {
       return;
@@ -3074,12 +3364,25 @@ function tippy(targets, optionalProps) {
   }
 
   var plugins = defaultProps.plugins.concat(optionalProps.plugins || []);
+  /* istanbul ignore else */
+
+  {
+    validateTargets(targets);
+    validateProps(optionalProps, plugins);
+  }
 
   bindGlobalEventListeners();
   var passedProps = Object.assign({}, optionalProps, {
     plugins: plugins
   });
   var elements = getArrayOfElements(targets);
+  /* istanbul ignore else */
+
+  {
+    var isSingleContentElement = isElement$1(passedProps.content);
+    var isMoreThanOneReferenceElement = elements.length > 1;
+    warnWhen(isSingleContentElement && isMoreThanOneReferenceElement, ['tippy() was passed an Element as the `content` prop, but more than', 'one tippy instance was created by this invocation. This means the', 'content element will only be appended to the last tippy instance.', '\n\n', 'Instead, pass the .innerHTML of the element, or use a function that', 'returns a cloned version of the element instead.', '\n\n', '1) content: element.innerHTML\n', '2) content: () => element.cloneNode(true)'].join(' '));
+  }
 
   var instances = elements.reduce(function (acc, reference) {
     var instance = reference && createTippy(reference, passedProps);
@@ -3127,6 +3430,11 @@ var hideAll = function hideAll(_temp) {
 var createSingleton = function createSingleton(tippyInstances, optionalProps) {
   if (optionalProps === void 0) {
     optionalProps = {};
+  }
+
+  /* istanbul ignore else */
+  {
+    errorWhen(!Array.isArray(tippyInstances), ['The first argument passed to createSingleton() must be an array of', 'tippy instances. The passed value was', String(tippyInstances)].join(' '));
   }
 
   var mutTippyInstances = tippyInstances;
@@ -3215,6 +3523,10 @@ var BUBBLING_EVENTS_MAP = {
  */
 
 function delegate(targets, props) {
+  /* istanbul ignore else */
+  {
+    errorWhen(!(props && props.target), ['You must specity a `target` prop indicating a CSS selector string matching', 'the target elements that should receive a tippy.'].join(' '));
+  }
 
   var listeners = [];
   var childTippyInstances = [];
@@ -3255,7 +3567,7 @@ function delegate(targets, props) {
       return;
     }
 
-    if (event.type !== 'touchstart' && trigger.indexOf(BUBBLING_EVENTS_MAP[event.type])) {
+    if (event.type !== 'touchstart' && trigger.indexOf(BUBBLING_EVENTS_MAP[event.type]) < 0) {
       return;
     }
 
@@ -3333,6 +3645,9 @@ var animateFill = {
 
     // @ts-ignore
     if (!((_instance$props$rende = instance.props.render) == null ? void 0 : _instance$props$rende.$$tippy)) {
+      {
+        errorWhen(instance.props.animateFill, 'The `animateFill` plugin requires the default render function.');
+      }
 
       return {};
     }
@@ -3532,20 +3847,26 @@ var followCursor = {
         }
       },
       onMount: function onMount() {
-        if (instance.props.followCursor) {
+        if (instance.props.followCursor && !wasFocusEvent) {
           if (isUnmounted) {
             onMouseMove(mouseCoords);
             isUnmounted = false;
           }
 
-          if (!wasFocusEvent && !getIsInitialBehavior()) {
+          if (!getIsInitialBehavior()) {
             addListener();
           }
         }
       },
-      onTrigger: function onTrigger(_, _ref3) {
-        var type = _ref3.type;
-        wasFocusEvent = type === 'focus';
+      onTrigger: function onTrigger(_, event) {
+        if (isMouseEvent(event)) {
+          mouseCoords = {
+            clientX: event.clientX,
+            clientY: event.clientY
+          };
+        }
+
+        wasFocusEvent = event.type === 'focus';
       },
       onHidden: function onHidden() {
         if (instance.props.followCursor) {

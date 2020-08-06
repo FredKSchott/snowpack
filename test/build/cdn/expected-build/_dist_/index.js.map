@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["test/build/cdn/src/index.jsx"],
+  "sourcesContent": ["import React from 'https://cdn.pika.dev/react@^16.13.1';\nimport ReactDOM from 'https://cdn.pika.dev/react-dom@^16.13.1';\n\nconst App = () => <div>I\u2019m an app!</div>;\n\nReactDOM.render(<App />, document.getElementById('root'));\n\nif (import.meta.hot) {\n  import.meta.hot.accept();\n}\n"],
+  "mappings": "AAAA;AACA;AAEA,MAAM,MAAM,MAAM,oCAAC,OAAD,MAAK;AAEvB,SAAS,OAAO,oCAAC,KAAD,OAAS,SAAS,eAAe;AAEjD,IAAI,YAAY;AACd,cAAY,IAAI;AAAA;",
+  "names": []
+}

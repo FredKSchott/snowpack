@@ -24,11 +24,6 @@ describe('snowpack build', () => {
     it(testName, () => {
       let cwd = path.join(__dirname, testName);
 
-      // add exception for yarn-workspaces test
-      if (testName === 'yarn-workspaces') {
-        cwd = path.join(cwd, 'packages', 'snowpack');
-      }
-
       // build test
       execa.sync('yarn', ['testbuild'], {cwd});
 
@@ -42,11 +37,12 @@ describe('snowpack build', () => {
         // differently on windows & linux and cause CI tests to fail
         excludeFilter: 'common',
       });
+
       // If any diffs are detected, we'll assert the difference so that we get nice output.
       for (const entry of res.diffSet) {
         // NOTE: We only compare files so that we give the test runner a more detailed diff.
         if (entry.type1 === 'directory' && entry.type2 === 'directory') {
-          return;
+          continue;
         }
 
         if (!entry.path2)
@@ -58,14 +54,18 @@ describe('snowpack build', () => {
             `File not found in snapshot: ${entry.path2.replace(actual, '')}/${entry.name2}`,
           );
 
+        // don’t compare CSS or .map files.
+        if (entry.name1.endsWith('.css') || entry.name1.endsWith('.map')) continue;
+
         // NOTE: common chunks are hashed, non-trivial to compare
         if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) {
-          return;
+          continue;
         }
 
-        expect(format(readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'}))).toBe(
-          format(readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'})),
-        );
+        const f1 = readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'});
+        const f2 = readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'});
+
+        expect(format(f1)).toBe(format(f2));
       }
     });
   }

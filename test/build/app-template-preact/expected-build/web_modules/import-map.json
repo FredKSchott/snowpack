@@ -1,7 +1,0 @@
-{
-  "imports": {
-    "@prefresh/core": "./@prefresh/core.js",
-    "preact": "./preact.js",
-    "preact/devtools": "./preact/devtools.js"
-  }
-}
