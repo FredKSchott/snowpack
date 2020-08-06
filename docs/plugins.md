@@ -78,7 +78,7 @@ Snowpack will automatically call this function to load your plugin. That functio
 To develop and test a Snowpack plugin, the strategy is the same as with other npm packages:
 
 <ol>
-  <li>Create your new plugin project (either with <code>npm init</code> or <code>yarn init</code>) with, for example, npm name: `my-snowpack-plugin` and paste in it the above-mentioned code snipped</li>
+  <li>Create your new plugin project (either with <code>npm init</code> or <code>yarn init</code>) with, for example, npm name: <code>my-snowpack-plugin</code> and paste in it the above-mentioned code snipped</li>
   <li>Run <code>npm link</code> in your plugin’s project folder to expose the plugin globally (in regard to your development machine).</li>
   <li>Create a new, example Snowpack project in a different location for testing</li>
   <li>
