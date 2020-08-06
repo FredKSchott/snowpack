@@ -81,14 +81,18 @@ Snowpack will automatically call this function to load your plugin. That functio
 
 To develop and test a Snowpack plugin, the strategy is the same as with other npm packages:
 
-1. use `npm link` to make global the plugin with the future npm name `<plugin-name>`, and 
-2. use `npm link <plugin-name>` in the project you want to test it and
 <ol>
-  <li>run <code>npm link<code> in your plugin’s project folder.</li>
-  <li>create a new, example Snowpack project in a different location for testing</li>
-  <li>in your example Snowpack project, run <code>npm link my-snowpack-plugin && npm install</code> (use the name from your plugin’s <code>package.json</code>)</li>
+  <li>Create your new plugin project (either with <code>npm init</code> or <code>yarn init</code>) with, for example, npm name: `my-snowpack-plugin` and paste in it the above-mentioned code snipped</li>
+  <li>Run <code>npm link</code> in your plugin’s project folder to expose the plugin globally (in regard to your development machine).</li>
+  <li>Create a new, example Snowpack project in a different location for testing</li>
   <li>
-    in your example Snowpack project, add your plugin to the <code>snowpack.config.json</code> along with any plugin options you’d like to test:
+    In your example Snowpack project, run <code>npm install && npm link my-snowpack-plugin</code> (use the name from your plugin’s <code>package.json</code>). 
+    <ul>
+      <li>Be aware that <code>npm install</code> will remove your linked plugin, so on any install, you will need to redo the <code>npm link my-snowpack-plugin</code>. </li>
+      <li>(The alternative would be to use <code>npm install --save-dev &lt;folder_to_your_plugin_project&gt;</code>, which would create the "symlink-like" entry in your example Snowpack project’s <code>package.json</code>)</li>
+    </ul>
+  </li>
+  <li>In your example Snowpack project, add your plugin to the <code>snowpack.config.json</code> along with any plugin options you’d like to test:
     <pre>
       <code class="json">
 {
