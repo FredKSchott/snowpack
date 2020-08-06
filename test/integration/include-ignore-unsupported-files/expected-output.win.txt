@@ -1,2 +1,0 @@
-ignoring unsupported file "src\c.abcdefg"
-✖ Nothing to install.

@@ -8,12 +8,13 @@ import findUp from 'find-up';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
-import ora from 'ora';
 import path from 'path';
+import pino from 'pino';
 import {performance} from 'perf_hooks';
 import rimraf from 'rimraf';
 import {InputOptions, OutputOptions, rollup, RollupError} from 'rollup';
 import validatePackageName from 'validate-npm-package-name';
+import createLogger from '../logger';
 import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
 import {rollupPluginCatchUnresolved} from '../rollup-plugins/rollup-plugin-catch-unresolved.js';
 import {rollupPluginCatchFetch} from '../rollup-plugins/rollup-plugin-catch-fetch';
@@ -43,17 +44,13 @@ import {
   findMatchingAliasEntry,
 } from '../util.js';
 
+const logger = createLogger({name: 'snowpack'});
+
 type InstallResultCode = 'SUCCESS' | 'ASSET' | 'FAIL';
 
 interface DependencyLoc {
   type: 'JS' | 'ASSET' | 'IGNORE';
   loc: string;
-}
-
-class ErrorWithHint extends Error {
-  constructor(message: string, public readonly hint: string) {
-    super(message);
-  }
 }
 
 // Add popular CJS packages here that use "synthetic" named imports in their documentation.
@@ -75,41 +72,9 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
 ];
 
 const cwd = process.cwd();
-const banner = colors.bold(`snowpack`) + ` installing... `;
-let spinner;
-let spinnerHasError = false;
+
 let installResults: [string, InstallResultCode][] = [];
 let dependencyStats: DependencyStatsOutput | null = null;
-
-function defaultLogError(msg: string) {
-  if (spinner && !spinnerHasError) {
-    spinner.stopAndPersist({symbol: colors.cyan('⠼')});
-  }
-  spinnerHasError = true;
-  spinner = ora(colors.red(msg));
-  spinner.fail();
-}
-
-function defaultLogUpdate(msg: string) {
-  spinner.text = banner + msg;
-}
-
-function formatInstallResults(): string {
-  return installResults
-    .map(([d, result]) => {
-      if (result === 'SUCCESS') {
-        return colors.green(d);
-      }
-      if (result === 'ASSET') {
-        return colors.yellow(d);
-      }
-      if (result === 'FAIL') {
-        return colors.red(d);
-      }
-      return d;
-    })
-    .join(', ');
-}
 
 function isImportOfPackage(importUrl: string, packageName: string) {
   return packageName === importUrl || importUrl.startsWith(packageName + '/');
@@ -183,9 +148,10 @@ function resolveWebDependency(dep: string): DependencyLoc {
         exportMapEntry?.require ||
         exportMapEntry;
       if (typeof exportMapValue !== 'string') {
-        throw new Error(
+        logger.fatal(
           `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".`,
         );
+        process.exit(1);
       }
       return {
         type: 'JS',
@@ -211,18 +177,18 @@ function resolveWebDependency(dep: string): DependencyLoc {
     }
   }
   if (!depManifestLoc || !depManifest) {
-    throw new ErrorWithHint(
-      `Package "${dep}" not found. Have you installed it?`,
-      depManifestLoc ? colors.italic(depManifestLoc) : '',
+    throw new Error(
+      `Package "${dep}" not found. Have you installed it? ${depManifestLoc ? depManifestLoc : ''}`,
     );
   }
   if (
     depManifest.name &&
     (depManifest.name.startsWith('@reactesm') || depManifest.name.startsWith('@pika/react'))
   ) {
-    throw new Error(
+    logger.fatal(
       `React workaround packages no longer needed! Revert back to the official React & React-DOM packages.`,
     );
+    process.exit(1);
   }
   let foundEntrypoint: string =
     depManifest['browser:module'] ||
@@ -271,8 +237,8 @@ function resolveWebDependency(dep: string): DependencyLoc {
 
 interface InstallOptions {
   lockfile: ImportMap | null;
-  logError: (msg: string) => void;
-  logUpdate: (msg: string) => void;
+  config: SnowpackConfig;
+  logLevel?: pino.Level;
 }
 
 type InstallResult = {success: false; importMap: null} | {success: true; importMap: ImportMap};
@@ -281,10 +247,10 @@ const FAILED_INSTALL_RETURN: InstallResult = {
   success: false,
   importMap: null,
 };
+
 export async function install(
   installTargets: InstallTarget[],
-  {lockfile, logError, logUpdate}: InstallOptions,
-  config: SnowpackConfig,
+  {lockfile, config}: InstallOptions,
 ): Promise<InstallResult> {
   const {
     webDependencies,
@@ -302,7 +268,7 @@ export async function install(
 
   const nodeModulesInstalled = findUp.sync('node_modules', {cwd, type: 'directory'});
   if (!webDependencies && !(process.versions as any).pnp && !nodeModulesInstalled) {
-    logError('no "node_modules" directory exists. Did you run "npm install" first?');
+    logger.error('No "node_modules" directory exists. Did you run "npm install" first?');
     return FAILED_INSTALL_RETURN;
   }
   const allInstallSpecifiers = new Set(
@@ -335,7 +301,6 @@ export async function install(
       installEntrypoints[targetName] = lockfile.imports[installSpecifier];
       importMap.imports[installSpecifier] = `./${proxiedName}.js`;
       installResults.push([targetName, 'SUCCESS']);
-      logUpdate(formatInstallResults());
       continue;
     }
     try {
@@ -357,31 +322,23 @@ export async function install(
         importMap.imports[installSpecifier] = `./${proxiedName}`;
         installResults.push([installSpecifier, 'ASSET']);
       }
-      logUpdate(formatInstallResults());
     } catch (err) {
       installResults.push([installSpecifier, 'FAIL']);
-      logUpdate(formatInstallResults());
       if (skipFailures) {
         continue;
       }
-      // An error occurred! Log it.
-      logError(err.message || err);
-      if (err.hint) {
-        // Note: Wait 1ms to guarantee a log message after the spinner
-        setTimeout(() => console.log(err.hint), 1);
-      }
+      logger.error(err.message || err);
+
       return FAILED_INSTALL_RETURN;
     }
   }
   if (Object.keys(installEntrypoints).length === 0 && Object.keys(assetEntrypoints).length === 0) {
-    logError(`No ESM dependencies found!`);
-    console.log(
-      colors.dim(
-        `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${colors.underline(
-          'https://www.pika.dev',
-        )}`,
-      ),
-    );
+    logger.error(`No ESM dependencies found!
+${colors.dim(
+  `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${colors.underline(
+    'https://www.pika.dev',
+  )}`,
+)}`);
     return FAILED_INSTALL_RETURN;
   }
 
@@ -396,7 +353,9 @@ export async function install(
       !!webDependencies &&
         rollupPluginDependencyCache({
           installTypes,
-          log: (url) => logUpdate(colors.dim(url)),
+          log: (url) => {
+            logger.debug(`installing ${colors.dim(url)}…`);
+          },
         }),
       rollupPluginAlias({
         entries: Object.entries(installAlias)
@@ -438,7 +397,7 @@ export async function install(
       if (warning.code === 'CIRCULAR_DEPENDENCY') {
         if (!isCircularImportFound) {
           isCircularImportFound = true;
-          logUpdate(`Warning: 1+ circular dependencies found via "${warning.importer}".`);
+          logger.warn(`Warning: 1+ circular dependencies found via "${warning.importer}".`);
         }
         return;
       }
@@ -450,9 +409,9 @@ export async function install(
         // Display posix-style on all environments, mainly to help with CI :)
         if (warning.id) {
           const fileName = path.relative(cwd, warning.id).replace(/\\/g, '/');
-          logError(`${fileName}\n   ${warning.message}`);
+          logger.error(`${fileName}\n   ${warning.message}`);
         } else {
-          logError(`${warning.message}. See https://www.snowpack.dev/#troubleshooting`);
+          logger.error(`${warning.message}. See https://www.snowpack.dev/#troubleshooting`);
         }
         return;
       }
@@ -469,7 +428,9 @@ export async function install(
   if (Object.keys(installEntrypoints).length > 0) {
     try {
       const packageBundle = await rollup(inputOptions);
-      logUpdate(formatInstallResults());
+      logger.debug(
+        `installing npm packages:\n    ${Object.keys(installEntrypoints).join('\n    ')}`,
+      );
       await packageBundle.write(outputOptions);
     } catch (_err) {
       const err: RollupError = _err;
@@ -484,9 +445,7 @@ export async function install(
       const suggestion = MISSING_PLUGIN_SUGGESTIONS[failedExtension] || err.message;
       // Display posix-style on all environments, mainly to help with CI :)
       const fileName = path.relative(cwd, errFilePath).replace(/\\/g, '/');
-      logError(
-        `${colors.bold('snowpack')} failed to load ${colors.bold(fileName)}\n  ${suggestion}`,
-      );
+      logger.error(`Failed to load ${colors.bold(fileName)}\n  ${suggestion}`);
       return FAILED_INSTALL_RETURN;
     }
   }
@@ -498,7 +457,10 @@ export async function install(
     fs.copyFileSync(assetLoc, assetDest);
   }
 
-  return {success: true, importMap};
+  return {
+    success: true,
+    importMap,
+  };
 }
 
 export async function getInstallTargets(
@@ -522,10 +484,14 @@ export async function getInstallTargets(
 }
 
 export async function command(commandOptions: CommandOptions) {
-  const {cwd, config} = commandOptions;
+  const {cwd, config, logLevel = 'info'} = commandOptions;
+
+  // adjust logging level
+  logger.level = logLevel;
+
   const installTargets = await getInstallTargets(config);
   if (installTargets.length === 0) {
-    defaultLogError('Nothing to install.');
+    logger.error('Nothing to install.');
     return;
   }
   const finalResult = await run({...commandOptions, installTargets});
@@ -533,14 +499,15 @@ export async function command(commandOptions: CommandOptions) {
     await writeLockfile(path.join(cwd, 'snowpack.lock.json'), finalResult.newLockfile);
   }
   if (finalResult.stats) {
-    console.log(printStats(finalResult.stats));
+    logger.info(printStats(finalResult.stats));
   }
+
   if (!finalResult.success || finalResult.hasError) {
     process.exit(1);
   }
 }
 
-interface InstalllRunOptions extends CommandOptions {
+interface InstallRunOptions extends CommandOptions {
   installTargets: InstallTarget[];
 }
 
@@ -556,16 +523,22 @@ export async function run({
   config,
   lockfile,
   installTargets,
-}: InstalllRunOptions): Promise<InstallRunResult> {
+  logLevel = 'info',
+}: InstallRunOptions): Promise<InstallRunResult> {
   const {
     installOptions: {dest},
     webDependencies,
   } = config;
 
+  // adjust logging level
+  logger.level = logLevel;
+
+  // start
+  const installStart = performance.now();
+  logger.info(colors.yellow('! installing dependencies…'));
+
   installResults = [];
   dependencyStats = null;
-  spinner = ora(banner);
-  spinnerHasError = false;
 
   if (installTargets.length === 0) {
     return {
@@ -580,46 +553,41 @@ export async function run({
   let newLockfile: ImportMap | null = null;
   if (webDependencies && Object.keys(webDependencies).length > 0) {
     newLockfile = await resolveTargetsFromRemoteCDN(lockfile, config).catch((err) => {
-      defaultLogError(err.message || err);
+      logger.fatal('\n' + err.message || err);
       process.exit(1);
     });
   }
 
   rimraf.sync(dest);
-  const installStart = performance.now();
-  const finalResult = await install(
-    installTargets,
-    {
-      lockfile: newLockfile,
-      logError: defaultLogError,
-      logUpdate: defaultLogUpdate,
-    },
+  const finalResult = await install(installTargets, {
+    lockfile: newLockfile,
     config,
-  ).catch((err) => {
+    logLevel,
+  }).catch((err) => {
     if (err.loc) {
-      console.log('\n' + colors.red(colors.bold(`✘ ${err.loc.file}`)));
+      logger.error(colors.red(colors.bold(`✘ ${err.loc.file}`)));
     }
     if (err.url) {
-      console.log(colors.dim(`👉 ${err.url}`));
+      logger.error(colors.dim(`👉 ${err.url}`));
     }
-    spinner.stop();
-    throw err;
+    logger.fatal(err.message || err);
+    return FAILED_INSTALL_RETURN;
   });
 
-  if (finalResult.success) {
-    const installEnd = performance.now();
-    spinner.succeed(
-      colors.bold(`snowpack`) +
-        ` install complete${spinnerHasError ? ' with errors.' : '.'}` +
-        colors.dim(` [${((installEnd - installStart) / 1000).toFixed(2)}s]`),
-    );
-  } else {
-    spinner.stop();
-  }
+  // finish
+  const installEnd = performance.now();
+  const depList = (finalResult.importMap && Object.keys(finalResult.importMap.imports)) || [];
+  logger.info(
+    `${
+      depList.length
+        ? colors.green(`✔`) + ' install complete'
+        : 'install skipped (nothing to install)'
+    } ${colors.dim(`[${((installEnd - installStart) / 1000).toFixed(2)}s]`)}`,
+  );
 
   return {
-    success: finalResult.success,
-    hasError: spinnerHasError,
+    success: true,
+    hasError: false,
     importMap: finalResult.importMap,
     newLockfile,
     stats: dependencyStats!,

@@ -17,6 +17,9 @@ Snowpack supports configuration files in multiple formats, sorted by priority or
 # Show helpful info
 $ snowpack --help
 
+# Show additional debugging logs
+$ snowpack --log-level=debug
+
 # {installOptions: {dest: 'CUSTOM_DIR/'}}
 $ snowpack install --dest CUSTOM_DIR/
 
@@ -25,6 +28,12 @@ $ snowpack dev --bundle
 
 # {devOptions: {bundle: false}}
 $ snowpack dev --no-bundle
+
+# {buildOptions: {minify: false}}
+$ snowpack build --no-minify
+
+# {buildOptions: {sourceMap: false}}
+$ snowpack build --no-sourcemaps
 ```
 
 **CLI flags will be merged with (and take priority over) your config file values.** Every config value outlined below can also be passed as a CLI flag. Additionally, Snowpack also supports the following flags:

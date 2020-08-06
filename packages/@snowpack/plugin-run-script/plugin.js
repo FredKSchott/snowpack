@@ -40,8 +40,8 @@ function runScriptPlugin(_, {cmd, watch}) {
           log('WORKER_MSG', {level: 'log', msg: stdOutput});
         });
       stderr &&
-        stderr.on('data', (b) => {
-          log('WORKER_MSG', {level: 'error', msg: b.toString()});
+        stderr.on('data', (err) => {
+          log('WORKER_MSG', {level: 'error', msg: err.toString()});
         });
       return workerPromise;
     },

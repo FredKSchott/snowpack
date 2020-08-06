@@ -1,3 +1,4 @@
-⠼ snowpack installing...
-✖ No ESM dependencies found!
+[snowpack] ! installing dependencies…
+[snowpack] No ESM dependencies found!
   At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at https://www.pika.dev
+[snowpack] install skipped (nothing to install)

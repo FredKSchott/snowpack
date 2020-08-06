@@ -1,3 +1,5 @@
-✔ snowpack install complete.
+[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
   ⦿ web_modules/                size       gzip       brotli   
     └─ cjs-named-export-pkg.js    XXXX KB    XXXX KB    XXXX KB
