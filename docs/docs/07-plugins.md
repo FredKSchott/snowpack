@@ -13,21 +13,30 @@ Snowpack plugins can be added to:
 
 ### Connect a Plugin
 
-Connect a build plugin to Snowpack via the `"plugins"` array in your Snowpack config:
+To make a plugin available, you have to put it in your project `devDependency` list (`package.json`) which will install it locally (in your project) and make it available to snowpack.
+
+For the official snowpack plugins, command would look like:
+
+```sh
+# for npm
+npm install --save-dev @snowpack/[plugin-name]
+# for yarn
+yarn add --dev @snowpack/[plugin-name]
+```
+
+After that, you can connect the plugin to Snowpack via the `"plugins"` array in your Snowpack config. For example,
 
 ```js
 // snowpack.config.json
-// [npm install @snowpack/plugin-babel]
 {
   "plugins": ["@snowpack/plugin-babel"]
 }
 ```
 
-This is all you need to add Babel to your application build pipeline. If the plugin supports it, you can also pass options to the plugin to configure its behavior:
+This is all you need to add Babel to your application build pipeline. If the plugin supports it, you can also pass **options** to the plugin to configure its behavior:
 
 ```js
 // snowpack.config.json
-// [npm install @snowpack/plugin-babel]
 {
   "plugins": [
     ["@snowpack/plugin-babel", { /* ... */}]
@@ -35,10 +44,7 @@ This is all you need to add Babel to your application build pipeline. If the plu
 }
 ```
 
-The **order** of plugins is important, as for example, if there are multiple plugins that load/build particular type of file, the first matching will take precedence.
-
-To make a plugin available, you have to put it in your project `devDependency` list which will install it locally and make it available to snowpack.
-
+NOTE: The **order** of plugins is important, for example, if there are multiple plugins that load/build particular type of file, the first matching will take precedence. If it succeeds in the build task for the file, others will not be called for that particular build task.
 
 ### Connect any Script/CLI
 
