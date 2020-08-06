@@ -129,22 +129,22 @@ If you already have an existing Snowpack application, Snowpack 2.0 will walk you
 
 #### Create Snowpack App
 
-The easiest way to get started with Snowpack is with [Create Snowpack App (CSA)](https://github.com/pikapkg/create-snowpack-app). CSA automatically initializes a starter application for you with a pre-configured, Snowpack-powered dev environment. 
+The easiest way to get started with Snowpack is with [Create Snowpack App (CSA)](https://github.com/pikapkg/snowpack). CSA automatically initializes a starter application for you with a pre-configured, Snowpack-powered dev environment. 
 
 ``` bash
 npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 ```
 
 
-- [@snowpack/app-template-blank](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-blank)
-- [@snowpack/app-template-react](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-react)
-- [@snowpack/app-template-react-typescript](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-react-typescript)
-- [@snowpack/app-template-preact](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-preact)
-- [@snowpack/app-template-svelte](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-svelte)
-- [@snowpack/app-template-vue](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-vue)
-- [@snowpack/app-template-lit-element](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-lit-element)
-- [@snowpack/app-template-11ty](https://github.com/pikapkg/create-snowpack-app/tree/master/templates/app-template-11ty)
-- **[See all community templates](https://github.com/pikapkg/create-snowpack-app)**
+- [@snowpack/app-template-blank](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-blank)
+- [@snowpack/app-template-react](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-react)
+- [@snowpack/app-template-react-typescript](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-react-typescript)
+- [@snowpack/app-template-preact](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-preact)
+- [@snowpack/app-template-svelte](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-svelte)
+- [@snowpack/app-template-vue](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-vue)
+- [@snowpack/app-template-lit-element](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-lit-element)
+- [@snowpack/app-template-11ty](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/app-template-11ty)
+- **[See all community templates](https://github.com/pikapkg/snowpack/tree/master/packages/create-snowpack-app)**
 
 
 🐹 Happy hacking!
