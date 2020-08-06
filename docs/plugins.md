@@ -79,7 +79,7 @@ Snowpack will automatically call this function to load your plugin. That functio
 
 ### Develop and Test
 
-To develop and test plugin, the strategy is the same as with other npm packages
+To develop and test a Snowpack plugin, the strategy is the same as with other npm packages:
 
 1. use `npm link` to make global the plugin with the future npm name `<plugin-name>`, and 
 2. use `npm link <plugin-name>` in the project you want to test it and
