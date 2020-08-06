@@ -6,19 +6,15 @@
     "access": "public"
   },
   "license": "MIT",
-  "peerDependencies": {
-    "svelte": "^3.21.0"
-  },
   "devDependencies": {
-    "svelte": "^3.21.0"
+    "svelte": "^3.24.1"
+  },
+  "peerDependencies": {
+    "svelte": "^3.0.0"
   },
   "dependencies": {
-    "@babel/core": "^7.10.5",
-    "@babel/preset-env": "^7.10.4",
     "@snowpack/plugin-dotenv": "^2.0.0",
-    "@snowpack/plugin-svelte": "^2.0.1",
-    "babel-jest": "^25.4.0",
-    "jest-transform-svelte": "^2.1.1"
+    "@snowpack/plugin-svelte": "^2.0.1"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

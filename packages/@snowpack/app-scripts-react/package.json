@@ -7,15 +7,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@babel/core": "^7.10.5",
-    "@babel/plugin-syntax-import-meta": "^7.10.4",
-    "@babel/preset-react": "^7.10.4",
-    "@babel/preset-typescript": "^7.10.4",
     "@snowpack/plugin-babel": "^2.0.2",
-    "@snowpack/plugin-dotenv": "^2.0.0",
-    "babel-jest": "^25.4.0",
-    "babel-preset-react-app": "^9.1.2",
-    "react-app-polyfill": "^1.0.6"
+    "@snowpack/plugin-dotenv": "^2.0.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

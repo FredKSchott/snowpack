@@ -16,17 +16,26 @@
     "test": "jest"
   },
   "dependencies": {
+    "babel-jest": "^26.2.2",
+    "jest": "^26.2.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.10.5",
+    "@babel/plugin-syntax-import-meta": "^7.10.4",
+    "@babel/preset-react": "^7.10.4",
+    "@babel/preset-typescript": "^7.10.4",
     "@snowpack/app-scripts-react": "^1.8.3",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/react": "^10.0.3",
     "@types/react": "^16.9.35",
     "@types/react-dom": "^16.9.8",
-    "jest": "^25.4.0",
+    "babel-jest": "^26.2.2",
+    "babel-preset-react-app": "^9.1.2",
+    "jest": "^26.2.2",
     "prettier": "^2.0.5",
+    "react-app-polyfill": "^1.0.6",
     "snowpack": "^2.7.6",
     "typescript": "^3.9.7"
   },

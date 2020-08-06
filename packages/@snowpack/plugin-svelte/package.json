@@ -7,7 +7,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "svelte": "^3.21.0"
+    "svelte": "^3.24.1"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4",
   "dependencies": {

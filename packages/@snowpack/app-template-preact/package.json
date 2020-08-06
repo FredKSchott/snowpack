@@ -16,14 +16,22 @@
     "test": "jest"
   },
   "dependencies": {
-    "preact": "^10.4.6"
+    "preact": "^10.4.7"
   },
   "devDependencies": {
+    "@babel/core": "^7.10.5",
+    "@babel/plugin-syntax-import-meta": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/preset-react": "^7.10.4",
+    "@babel/preset-typescript": "^7.10.4",
+    "@prefresh/snowpack": "^0.3.3",
     "@snowpack/app-scripts-preact": "^1.8.3",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/preact": "^1.0.2",
-    "jest": "^25.4.0",
+    "babel-jest": "^26.2.2",
+    "jest": "^26.2.2",
     "prettier": "^2.0.5",
+    "react-app-polyfill": "^1.0.6",
     "snowpack": "^2.7.6"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"

@@ -14,16 +14,20 @@
     "test": "jest"
   },
   "dependencies": {
-    "svelte": "^3.24.0"
+    "svelte": "^3.24.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.10.5",
+    "@babel/preset-env": "^7.11.0",
+    "@babel/preset-typescript": "^7.10.4",
     "@snowpack/app-scripts-svelte": "^1.8.1",
     "@snowpack/plugin-run-script": "^2.0.3",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/svelte": "^3.0.0",
     "@tsconfig/svelte": "^1.0.3",
     "@types/jest": "^26.0.4",
-    "jest": "^25.4.0",
+    "jest": "^26.2.2",
+    "jest-transform-svelte": "^2.1.1",
     "snowpack": "^2.7.6",
     "svelte-check": "^0.1.59",
     "svelte-preprocess": "^4.0.8",
