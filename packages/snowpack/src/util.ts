@@ -21,7 +21,7 @@ export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
 // At that point, bump the version in the cache name to create a new unique
 // cache name.
 export const RESOURCE_CACHE = path.join(GLOBAL_CACHE_DIR, 'pkg-cache-1.4');
-export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-2.6');
+export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-2.7');
 
 export const PROJECT_CACHE_DIR = projectCacheDir({name: 'snowpack'});
 export const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'dev');
