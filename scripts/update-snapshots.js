@@ -14,7 +14,7 @@ function isDir(dir) {
 }
 
 const env = {
-  NODE_ENV: 'test',
+  NODE_ENV: 'production',
 };
 
 console.warn(bold(`Updating snapshots…`));
