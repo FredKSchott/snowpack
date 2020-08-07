@@ -1,9 +1,11 @@
 {
   "imports": {
     "array-flatten": "./array-flatten.js",
+    "deepmerge": "./deepmerge.js",
     "http-vue-loader/src/httpVueLoader.js": "./http-vue-loader/src/httpVueLoader.js",
     "package-01": "./package-01.js",
     "package-02": "./package-02.js",
+    "svelte": "./svelte.js",
     "vue-router": "./vue-router.js",
     "vue/dist/vue.esm.browser.js": "./vue/dist/vue.esm.browser.js"
   }

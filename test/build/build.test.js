@@ -58,9 +58,7 @@ describe('snowpack build', () => {
         if (entry.name1.endsWith('.css') || entry.name1.endsWith('.map')) continue;
 
         // NOTE: common chunks are hashed, non-trivial to compare
-        if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) {
-          continue;
-        }
+        if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) continue;
 
         const f1 = readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'});
         const f2 = readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'});
