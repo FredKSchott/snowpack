@@ -31,9 +31,6 @@ $ snowpack dev --no-bundle
 
 # {buildOptions: {minify: false}}
 $ snowpack build --no-minify
-
-# {buildOptions: {sourceMap: false}}
-$ snowpack build --no-sourcemaps
 ```
 
 **CLI flags will be merged with (and take priority over) your config file values.** Every config value outlined below can also be passed as a CLI flag. Additionally, Snowpack also supports the following flags:
@@ -145,8 +142,8 @@ $ snowpack build --no-sourcemaps
   - By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
 - **`minify`** | `boolean` | Default: `true`
   - By default, Snowpack will minify your dependencies on `snowpack build`. Disable this by setting this config option to `minify: false`.
-- **`sourceMaps`** | `boolean` | Default: `true`
-  - Set to `false` to disable source maps
+- **`sourceMaps`** | `boolean` | Default: `false`
+  - ***Experimental:*** Set to `true` to enable source maps
 - **`webModulesUrl`** | `string` | Default: `web_modules`
   - Rename your web modules directory.
 

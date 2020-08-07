@@ -60,7 +60,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     clean: false,
     metaDir: '__snowpack__',
     minify: true,
-    sourceMaps: true,
+    sourceMaps: false,
   },
 };
 

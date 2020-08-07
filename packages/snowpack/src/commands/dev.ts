@@ -712,7 +712,7 @@ export async function command(commandOptions: CommandOptions) {
     const fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
 
     // 3. Send dependencies directly, since they were already build & resolved at install time.
-    if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
+    if (reqPath.startsWith(config.buildOptions.webModulesUrl) && !isProxyModule) {
       sendFile(req, res, fileContents, responseFileExt);
       return;
     }
@@ -727,7 +727,12 @@ export async function command(commandOptions: CommandOptions) {
       const {originalFileHash} = cachedBuildData.metadata;
       const newFileHash = etag(fileContents);
       if (originalFileHash === newFileHash) {
-        const coldCachedResponse: SnowpackBuildMap = JSON.parse(cachedBuildData.data.toString());
+        // IF THIS FAILS TS CHECK: If you are changing the structure of SnowpackBuildMap, be sure to
+        // also update `BUILD_CACHE` in util.ts to a new unique name, to guarantee a clean cache for
+        // our users.
+        const coldCachedResponse: SnowpackBuildMap = JSON.parse(
+          cachedBuildData.data.toString(),
+        ) as Record<string, {code: string; map?: string}>;
         inMemoryBuildCache.set(fileLoc, coldCachedResponse);
         // Trust...
         const wrappedResponse = await finalizeResponse(
