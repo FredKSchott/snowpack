@@ -23,7 +23,7 @@
     "@testing-library/svelte": "^3.0.0",
     "@tsconfig/svelte": "^1.0.3",
     "@types/jest": "^26.0.4",
-    "jest": "^25.4.0",
+    "jest": "^26.2.2",
     "snowpack": "^2.7.6",
     "svelte-check": "^0.1.59",
     "svelte-preprocess": "^4.0.8",
