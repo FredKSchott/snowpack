@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "name": "@snowpack/svelte-import",
+  "version": "1.0.0",
+  "scripts": {
+    "testbuild": "snowpack build --no-minify"
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.2.0"
+  },
+  "devDependencies": {
+    "@snowpack/plugin-svelte": "2.0.1",
+    "snowpack": "2.7.6"
+  }
+}

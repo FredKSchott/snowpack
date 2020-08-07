@@ -8,7 +8,7 @@ import stripComments from 'strip-comments';
 import validatePackageName from 'validate-npm-package-name';
 import {InstallTarget, SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
 import createLogger from './logger';
-import {findMatchingAliasEntry, getExt, HTML_JS_REGEX, isTruthy} from './util';
+import {findMatchingAliasEntry, getExt, HTML_JS_REGEX, isTruthy, SVELTE_VUE_REGEX} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
@@ -239,7 +239,8 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
           // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
           const allMatches: string[][] = [];
           let match;
-          const regex = new RegExp(HTML_JS_REGEX);
+          let regex = new RegExp(HTML_JS_REGEX);
+          if (baseExt === '.svelte' || baseExt === '.vue') regex = SVELTE_VUE_REGEX; // scan <script> tags, not <script type="module">
           while ((match = regex.exec(result))) {
             allMatches.push(match);
           }

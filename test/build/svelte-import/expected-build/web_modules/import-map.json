@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "canvas-confetti": "./canvas-confetti.js",
+    "svelte": "./svelte.js",
+    "svelte/internal": "./svelte/internal.js"
+  }
+}
