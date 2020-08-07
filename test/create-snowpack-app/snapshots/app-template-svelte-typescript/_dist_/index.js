@@ -12,4 +12,3 @@ if (import.meta.hot) {
     app.$destroy();
   });
 }
-//# sourceMappingURL=index.js.map

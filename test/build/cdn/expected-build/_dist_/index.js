@@ -8,4 +8,3 @@ ReactDOM.render(/* @__PURE__ */ React.createElement(App, null), document.getElem
 if (import.meta.hot) {
   import.meta.hot.accept();
 }
-//# sourceMappingURL=index.js.map

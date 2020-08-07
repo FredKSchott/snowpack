@@ -72,4 +72,3 @@ class App extends SvelteComponent {
 }
 
 export default App;
-//# sourceMappingURL=App.js.map
