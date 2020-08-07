@@ -8,6 +8,12 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script>
+      import 'foo'; // don’t scan this
+    </script>
+    <script type="module">
+      import 'deepmerge';
+    </script>
     <script type="module" src="/_dist_/index.js"></script>
     <!--
       This HTML file is a template.

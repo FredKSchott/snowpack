@@ -1,9 +1,7 @@
 <script>
-  import { onMount } from "svelte"; // load util from Svelte
-  import confetti from "canvas-confetti"; // load non-Svelte pkg
+  import { onMount } from "svelte";
   const message = "Learn Svelte";
 
-	confetti();
   onMount(() => {
     console.log("MOUNTED");
   });

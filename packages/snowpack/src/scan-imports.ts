@@ -240,7 +240,9 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
           const allMatches: string[][] = [];
           let match;
           let regex = new RegExp(HTML_JS_REGEX);
-          if (baseExt === '.svelte' || baseExt === '.vue') regex = SVELTE_VUE_REGEX; // scan <script> tags, not <script type="module">
+          if (baseExt === '.svelte' || baseExt === '.vue') {
+            regex = new RegExp(SVELTE_VUE_REGEX); // scan <script> tags, not <script type="module">
+          }
           while ((match = regex.exec(result))) {
             allMatches.push(match);
           }
