@@ -78,8 +78,10 @@ export async function command(commandOptions: CommandOptions) {
           isDev: false,
           isHmrEnabled: false,
           // @ts-ignore: internal API only
-          log: (msg, data = {}) => {
-            logger.info(`[${runPlugin.name}] ${msg}`);
+          log: (msg, data: {msg: string} = {}) => {
+            if (msg === 'WORKER_MSG') {
+              logger.info(`[${runPlugin.name}] ${data.msg.trim()}`);
+            }
           },
         })
         .catch((err) => {
