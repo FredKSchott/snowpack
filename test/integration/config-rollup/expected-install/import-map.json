@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "svelte-routing": "./svelte-routing.js",
+    "svelte/internal": "./svelte/internal.js"
+  }
+}

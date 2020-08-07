@@ -1,16 +1,20 @@
-import {EventEmitter} from 'events';
 import {promises as fs} from 'fs';
 import path from 'path';
+import pino from 'pino';
 import {SnowpackBuildMap, SnowpackPlugin} from '../types/snowpack';
 import {getEncodingType, getExt, replaceExt} from '../util';
 import {validatePluginLoadResult} from '../config';
+import createLogger from '../logger';
+
+const logger = createLogger({name: 'snowpack'});
+const pluginLoggers: Record<string, pino.Logger> = {}; // save created loggers
 
 export interface BuildFileOptions {
   plugins: SnowpackPlugin[];
-  messageBus: EventEmitter;
   isDev: boolean;
   isHmrEnabled: boolean;
   sourceMaps: boolean;
+  logLevel?: pino.Level;
 }
 
 export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
@@ -39,7 +43,7 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
  */
 async function runPipelineLoadStep(
   srcPath: string,
-  {plugins, messageBus, isDev, isHmrEnabled, sourceMaps}: BuildFileOptions,
+  {plugins, isDev, isHmrEnabled, logLevel = 'info', sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   for (const step of plugins) {
@@ -49,47 +53,54 @@ async function runPipelineLoadStep(
     if (!step.load) {
       continue;
     }
-    const result = await step.load({
-      fileExt: srcExt,
-      filePath: srcPath,
-      isDev,
-      isHmrEnabled,
-      // @ts-ignore: internal API only
-      log: (msg, data: any = {}) => {
-        messageBus.emit(msg, {
-          ...data,
-          id: step.name,
-          msg: data.msg && `${data.msg} [${path.relative(process.cwd(), srcPath)}]`,
-        });
-      },
-    });
+    const pluginLogger =
+      pluginLoggers[step.name] || createLogger({name: step.name, level: logLevel});
+    pluginLoggers[step.name] = pluginLogger;
 
-    validatePluginLoadResult(step, result);
-
-    if (typeof result === 'string') {
-      const mainOutputExt = step.resolve.output[0];
-      return {
-        [mainOutputExt]: {
-          code: result,
+    try {
+      const debugPath = path.relative(process.cwd(), srcPath);
+      pluginLogger.debug(`load() starting: [${debugPath}]`);
+      const result = await step.load({
+        fileExt: srcExt,
+        filePath: srcPath,
+        isDev,
+        isHmrEnabled,
+        // @ts-ignore: internal API only
+        log: (msg, data: any = {}) => {
+          if (data && data.msg) pluginLogger.info(`${data.msg} [${debugPath}]`);
         },
-      };
-    } else if (result && typeof result === 'object') {
-      Object.keys(result).forEach((ext) => {
-        const output = result[ext];
-
-        // normalize to {code, map} format
-        if (typeof output === 'string') result[ext] = {code: output};
-
-        // ensure source maps are strings (it’s easy for plugins to pass back a JSON object)
-        if (result[ext].map && typeof result[ext].map === 'object')
-          result[ext].map = JSON.stringify(result[ext].map);
-
-        // if source maps disabled, don’t return any
-        if (!sourceMaps) result[ext].map = undefined;
       });
-      return result;
-    } else {
-      continue;
+      pluginLogger.debug(`load() successful [${debugPath}]`);
+
+      validatePluginLoadResult(step, result);
+
+      if (typeof result === 'string') {
+        const mainOutputExt = step.resolve.output[0];
+        return {
+          [mainOutputExt]: {
+            code: result,
+          },
+        };
+      } else if (result && typeof result === 'object') {
+        Object.keys(result).forEach((ext) => {
+          const output = result[ext];
+
+          // normalize to {code, map} format
+          if (typeof output === 'string') result[ext] = {code: output};
+
+          // ensure source maps are strings (it’s easy for plugins to pass back a JSON object)
+          if (result[ext].map && typeof result[ext].map === 'object')
+            result[ext].map = JSON.stringify(result[ext].map);
+
+          // if source maps disabled, don’t return any
+          if (!sourceMaps) result[ext].map = undefined;
+        });
+        return result;
+      } else {
+        continue;
+      }
+    } catch (err) {
+      pluginLogger.error(err);
     }
   }
 
@@ -110,7 +121,7 @@ async function runPipelineLoadStep(
 async function runPipelineTransformStep(
   output: SnowpackBuildMap,
   srcPath: string,
-  {plugins, messageBus, isDev, sourceMaps}: BuildFileOptions,
+  {plugins, isDev, logLevel = 'info', sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   const rootFileName = path.basename(srcPath).replace(srcExt, '');
@@ -118,35 +129,45 @@ async function runPipelineTransformStep(
     if (!step.transform) {
       continue;
     }
-    for (const destExt of Object.keys(output)) {
-      const destBuildFile = output[destExt];
-      const {code} = typeof destBuildFile === 'string' ? {code: destBuildFile} : destBuildFile;
-      const result = await step.transform({
-        contents: code,
-        fileExt: destExt,
-        filePath: rootFileName + destExt,
-        isDev,
-        // @ts-ignore: internal API only
-        log: (msg, data: any = {}) => {
-          messageBus.emit(msg, {
-            ...data,
-            id: step.name,
-            msg: data.msg && `[${srcPath}] ${data.msg}`,
-          });
-        },
-        // @ts-ignore: Deprecated
-        urlPath: `./${path.basename(rootFileName + destExt)}`,
-      });
 
-      // if step returned a value, only update code (don’t touch .map)
-      if (typeof result === 'string') {
-        output[destExt].code = result;
-      } else if (result && typeof result === 'object' && (result as {result: string}).result) {
-        output[destExt].code = (result as {result: string}).result;
+    const pluginLogger =
+      pluginLoggers[step.name] || createLogger({name: step.name, level: logLevel});
+    pluginLoggers[step.name] = pluginLogger;
+
+    try {
+      for (const destExt of Object.keys(output)) {
+        const destBuildFile = output[destExt];
+        const {code} = typeof destBuildFile === 'string' ? {code: destBuildFile} : destBuildFile;
+        const filePath = rootFileName + destExt;
+        const debugPath = path.relative(process.cwd(), filePath);
+        pluginLogger.debug(`transform() starting… [${debugPath}]`);
+        const result = await step.transform({
+          contents: code,
+          fileExt: destExt,
+          filePath,
+          isDev,
+          // @ts-ignore: internal API only
+          log: (msg, data: any = {}) => {
+            if (data && data.msg)
+              pluginLogger.info(`${data.msg} [${path.relative(process.cwd(), filePath)}]`);
+          },
+          // @ts-ignore: Deprecated
+          urlPath: `./${path.basename(rootFileName + destExt)}`,
+        });
+        pluginLogger.debug(`transform() successful [${debugPath}]`);
+
+        // if step returned a value, only update code (don’t touch .map)
+        if (typeof result === 'string') {
+          output[destExt].code = result;
+        } else if (result && typeof result === 'object' && (result as {result: string}).result) {
+          output[destExt].code = (result as {result: string}).result;
+        }
+
+        // if source maps disabled, don’t return any
+        if (!sourceMaps) output[destExt].map = undefined;
       }
-
-      // if source maps disabled, don’t return any
-      if (!sourceMaps) output[destExt].map = undefined;
+    } catch (err) {
+      pluginLogger.error(err);
     }
   }
 
@@ -155,19 +176,30 @@ async function runPipelineTransformStep(
 
 export async function runPipelineOptimizeStep(
   buildDirectory: string,
-  {plugins, messageBus}: BuildFileOptions,
+  {plugins, logLevel = 'info'}: BuildFileOptions,
 ) {
   for (const step of plugins) {
     if (!step.optimize) {
       continue;
     }
-    await step.optimize({
-      buildDirectory,
-      // @ts-ignore: internal API only
-      log: (msg) => {
-        messageBus.emit('WORKER_MSG', {id: step.name, level: 'log', msg});
-      },
-    });
+
+    const pluginLogger =
+      pluginLoggers[step.name] || createLogger({name: step.name, level: logLevel});
+    pluginLoggers[step.name] = pluginLogger;
+
+    try {
+      pluginLogger.debug('optimize() starting…');
+      await step.optimize({
+        buildDirectory,
+        // @ts-ignore: internal API only
+        log: (msg) => {
+          pluginLogger.info(msg);
+        },
+      });
+      pluginLogger.debug('optimize() successful');
+    } catch (err) {
+      logger.error(`[${step.name}] ${err}`);
+    }
   }
   return null;
 }

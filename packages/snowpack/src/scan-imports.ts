@@ -3,14 +3,17 @@ import fs from 'fs';
 import glob from 'glob';
 import * as colors from 'kleur/colors';
 import mime from 'mime-types';
-import nodePath from 'path';
+import path from 'path';
 import stripComments from 'strip-comments';
 import validatePackageName from 'validate-npm-package-name';
 import {InstallTarget, SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
+import createLogger from './logger';
 import {findMatchingAliasEntry, getExt, HTML_JS_REGEX, isTruthy} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
+
+const logger = createLogger({name: 'snowpack'});
 
 // [@\w] - Match a word-character or @ (valid package name)
 // (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)
@@ -158,7 +161,7 @@ function parseCodeForInstallTargets({
       [imports] = parse(contents) || [];
     } catch (err) {
       // Another error! No hope left, just abort.
-      console.error(colors.red(`! ${locOnDisk}`));
+      logger.fatal(`! ${locOnDisk}`);
       throw err;
     }
   }
@@ -176,7 +179,7 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
       if (!glob.hasMagic(whitelistItem)) {
         return [createInstallTarget(whitelistItem, true)];
       } else {
-        const nodeModulesLoc = nodePath.join(cwd, 'node_modules');
+        const nodeModulesLoc = path.join(cwd, 'node_modules');
         return scanDepList(glob.sync(whitelistItem, {cwd: nodeModulesLoc, nodir: true}), cwd);
       }
     })
@@ -187,7 +190,7 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
   await initESModuleLexer;
   const includeFileSets = await Promise.all(
     Object.keys(config.mount).map((fromDisk) => {
-      const dirDisk = nodePath.resolve(cwd, fromDisk);
+      const dirDisk = path.resolve(cwd, fromDisk);
       return glob.sync(`**/*`, {
         ignore: config.exclude.concat(['**/web_modules/**/*']),
         cwd: dirDisk,
@@ -255,8 +258,12 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
 
       // If we don't recognize the file type, it could be source. Warn just in case.
       if (!mime.lookup(baseExt)) {
-        console.warn(
-          colors.dim(`ignoring unsupported file "${nodePath.relative(process.cwd(), filePath)}"`),
+        logger.warn(
+          colors.dim(
+            `ignoring unsupported file "${path
+              .relative(process.cwd(), filePath)
+              .replace(/\\/g, '/')}"`,
+          ),
         );
       }
       return null;

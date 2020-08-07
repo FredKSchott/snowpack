@@ -9,11 +9,6 @@ const KEEP_LOCKFILE = [
   'source-pika-lockfile', // We explicitly want to test the lockfile in this test
 ];
 
-const SKIP_FILE_CHECK = [
-  'config-rollup', // only expected-output.txt is needed for the test, and Windows comparison fails because of backslashes
-  'include-ignore-unsupported-files', // no output expected
-];
-
 function stripBenchmark(stdout) {
   return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
 }
@@ -34,7 +29,7 @@ function stripUrlHash(stdout) {
   return stdout.replace(/\-[A-Za-z0-9]{20}\//g, 'XXXXXXXX');
 }
 function stripConfigErrorPath(stdout) {
-  return stdout.replace(/^! (.*)package\.json$/gm, '! XXX/package.json');
+  return stdout.replace(/^\[snowpack\] ! (.*)package\.json$/gm, '! XXX/package.json');
 }
 function stripResolveErrorPath(stdout) {
   return stdout.replace(/" via "(.*)"/g, '" via "XXX"');
@@ -44,12 +39,6 @@ function stripNodeBuiltIn(stdout) {
 }
 function stripStacktrace(stdout) {
   return stdout.replace(/^\s+at\s+.*/gm, ''); // this is OK to show to the user but annoying to have in a test
-}
-function stripAnsiEscapes(stdout) {
-  return stdout.replace(
-    /[\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~]))/g,
-    '',
-  );
 }
 
 function removeLockfile(testName) {
@@ -70,11 +59,6 @@ describe('snowpack install', () => {
   for (const testName of readdirSync(__dirname)) {
     if (testName === 'node_modules' || testName.includes('.')) {
       continue;
-    }
-
-    // TODO: remove when ora is replaced
-    if (['dep-types-only', 'error-node-builtin-unresolved'].includes(testName)) {
-      continue; // this test is skipped because the ora failure message causes the output to flake depending on Node version + OS
     }
 
     it(testName, async () => {
@@ -102,11 +86,7 @@ describe('snowpack install', () => {
         stripWhitespace(
           stripConfigErrorPath(
             stripResolveErrorPath(
-              stripBenchmark(
-                stripChunkHash(
-                  stripStats(stripAnsiEscapes(stripStacktrace(stripNodeBuiltIn(all)))),
-                ),
-              ),
+              stripBenchmark(stripChunkHash(stripStats(stripStacktrace(stripNodeBuiltIn(all))))),
             ),
           ),
         ),
@@ -137,10 +117,6 @@ describe('snowpack install', () => {
       const actual = path.join(__dirname, testName, 'web_modules');
       const expectedWebDependencies = await fs.readdir(expected).catch(() => {});
       if (!expectedWebDependencies) {
-        // skip web_modules/ comparison for specific tests
-        if (SKIP_FILE_CHECK.includes(testName)) {
-          return;
-        }
         // skip web_modules/ comparison for tests that start with error-*
         if (testName.startsWith('error-')) {
           return;

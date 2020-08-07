@@ -50,8 +50,6 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
         filename: filePath,
       });
 
-      if (!js) return;
-
       const {sourceMaps} = snowpackConfig.buildOptions;
       const output = {
         '.js': {

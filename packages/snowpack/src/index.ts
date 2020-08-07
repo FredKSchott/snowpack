@@ -6,6 +6,7 @@ import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {command as installCommand} from './commands/install';
 import {loadAndValidateConfig} from './config.js';
+import createLogger from './logger';
 import {CLIFlags} from './types/snowpack';
 import {clearCache, readLockfile} from './util.js';
 
@@ -14,9 +15,10 @@ export {createConfiguration} from './config.js';
 export * from './types/snowpack';
 
 const cwd = process.cwd();
+const logger = createLogger({name: 'snowpack'});
 
 function printHelp() {
-  console.log(
+  logger.info(
     `
 ${colors.bold(`snowpack`)} - A faster build system for the modern web.
 
@@ -34,6 +36,7 @@ ${colors.bold('Flags:')}
   --help                Show this help message.
   --version             Show the current version.
   --reload              Clear Snowpack's local cache (troubleshooting).
+  --log-level=[level]   Adjust log level (default: info) (options: trace | debug | info | warn | error | silent)
     `.trim(),
   );
 }
@@ -48,11 +51,11 @@ export async function cli(args: string[]) {
     process.exit(0);
   }
   if (cliFlags.version) {
-    console.log(require('../package.json').version);
+    logger.info(require('../package.json').version);
     process.exit(0);
   }
   if (cliFlags.reload) {
-    console.log(colors.yellow('! clearing cache...'));
+    logger.info(colors.yellow('! clearing cache...'));
     await clearCache();
   }
 
@@ -61,7 +64,7 @@ export async function cli(args: string[]) {
   try {
     pkgManifest = require(path.join(cwd, 'package.json'));
   } catch (err) {
-    console.log(colors.red('[ERROR] package.json required but no file was found.'));
+    logger.fatal(`package.json not found in directory: ${cwd}. Run \`npm init -y\` to create one.`);
     process.exit(1);
   }
 
@@ -80,7 +83,10 @@ export async function cli(args: string[]) {
     config: loadAndValidateConfig(cliFlags, pkgManifest),
     lockfile: await readLockfile(cwd),
     pkgManifest,
+    logLevel: cliFlags.logLevel || 'info',
   };
+
+  logger.level = cliFlags.logLevel || 'info';
 
   if (cmd === 'add') {
     await addCommand(cliFlags['_'][3], commandOptions);
@@ -92,7 +98,7 @@ export async function cli(args: string[]) {
   }
 
   if (cliFlags['_'].length > 3) {
-    console.log(`Unexpected multiple commands`);
+    logger.fatal(`Unexpected multiple commands`);
     process.exit(1);
   }
 
@@ -109,6 +115,6 @@ export async function cli(args: string[]) {
     return;
   }
 
-  console.log(`Unrecognized command: ${cmd}`);
+  logger.fatal(`Unrecognized command: ${cmd}`);
   process.exit(1);
 }

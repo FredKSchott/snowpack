@@ -1,2 +1,3 @@
-⠼ snowpack installing... fake-module
-✖ Package "fake-module" not found. Have you installed it?
+[snowpack] ! installing dependencies…
+[snowpack] Package "fake-module" not found. Have you installed it?
+[snowpack] install skipped (nothing to install)

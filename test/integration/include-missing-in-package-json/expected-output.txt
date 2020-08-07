@@ -1,5 +1,7 @@
+[snowpack] ! installing dependencies…
 Generated an empty chunk: "@material/base/types"
-✔ snowpack install complete.
+[snowpack] ✔ install complete
+[snowpack]
   ⦿ web_modules/                     size       gzip       brotli
     ├─ @material/base/component.js    XXXX KB    XXXX KB    XXXX KB
     ├─ @material/base/foundation.js    XXXX KB    XXXX KB    XXXX KB

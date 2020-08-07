@@ -5,9 +5,9 @@ import {all as merge} from 'deepmerge';
 import fs from 'fs';
 import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
-import * as colors from 'kleur/colors';
 import path from 'path';
 import yargs from 'yargs-parser';
+import createLogger from './logger';
 import srcFileExtensionMapping from './build/src-file-extension-mapping';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
@@ -25,6 +25,8 @@ import {
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
+
+const logger = createLogger({name: 'snowpack'});
 
 // default settings
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
@@ -176,7 +178,7 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
       result.buildOptions[flag] = val;
       continue;
     }
-    console.error(`Unknown CLI flag: "${flag}"`);
+    logger.error(`Unknown CLI flag: "${flag}"`);
     process.exit(1);
   }
   if (result.installOptions.env) {
@@ -236,9 +238,11 @@ function loadPlugins(
     const pluginRef = require(pluginLoc);
     let plugin: SnowpackPlugin & LegacySnowpackPlugin;
     try {
-      plugin = pluginRef.default ? pluginRef.default(config, options) : pluginRef(config, options);
+      plugin = typeof pluginRef.default === 'function' ? pluginRef.default : pluginRef;
+      if (typeof plugin !== 'function') logger.error(`plugin ${name} doesn’t return function`);
+      plugin = (plugin as any)(config, options);
     } catch (err) {
-      console.error(`[${name}] ${err}`);
+      logger.error(err);
       throw err;
     }
     plugin.name = plugin.name || name;
@@ -251,8 +255,8 @@ function loadPlugins(
           ...options,
           contents: fs.readFileSync(options.filePath, 'utf-8'),
         }).catch((err) => {
-          console.error(
-            `[${plugin.name}] ERROR: There was a problem running this older plugin. Please update the plugin to the latest version.`,
+          logger.error(
+            `[${plugin.name}] There was a problem running this older plugin. Please update the plugin to the latest version.`,
           );
           throw err;
         });
@@ -260,7 +264,10 @@ function loadPlugins(
           return null;
         }
         if (result.resources) {
-          return {'.js': result.result, '.css': result.resources.css};
+          return {
+            '.js': result.result,
+            '.css': result.resources.css,
+          };
         }
         return result.result;
       };
@@ -277,8 +284,8 @@ function loadPlugins(
           // Confirmed no plugins are using this now, so safe to use an empty array.
           jsFilePaths: [],
         }).catch((err) => {
-          console.error(
-            `[${plugin.name}] ERROR: There was a problem running this older plugin. Please update the plugin to the latest version.`,
+          logger.fatal(
+            `[${plugin.name}] There was a problem running this older plugin. Please update the plugin to the latest version.`,
           );
           throw err;
         });
@@ -337,6 +344,7 @@ function loadPlugins(
     const pluginName = Array.isArray(ref) ? ref[0] : ref;
     const pluginOptions = Array.isArray(ref) ? ref[1] : {};
     const plugin = loadPluginFromConfig(pluginName, pluginOptions);
+    logger.debug(`loaded plugin: ${pluginName}`);
     plugins.push(plugin);
   });
 
@@ -529,21 +537,21 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
 }
 
 function handleConfigError(msg: string) {
-  console.error(`[error]: ${msg}`);
+  logger.fatal(msg);
   process.exit(1);
 }
 
 function handleValidationErrors(filepath: string, errors: {toString: () => string}[]) {
-  console.error(colors.red(`! ${filepath || 'Configuration error'}`));
-  console.error(errors.map((err) => `    - ${err.toString()}`).join('\n'));
-  console.error(`    See https://www.snowpack.dev/#configuration for more info.`);
+  logger.fatal(`! ${filepath || 'Configuration error'}
+${errors.map((err) => `    - ${err.toString()}`).join('\n')}
+    See https://www.snowpack.dev/#configuration for more info.`);
   process.exit(1);
 }
 
 function handleDeprecatedConfigError(mainMsg: string, ...msgs: string[]) {
-  console.error(colors.red(mainMsg));
-  msgs.forEach(console.error);
-  console.error(`See https://www.snowpack.dev/#configuration for more info.`);
+  logger.fatal(`${mainMsg}
+${msgs.join('\n')}
+See https://www.snowpack.dev/#configuration for more info.`);
   process.exit(1);
 }
 
@@ -561,10 +569,8 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   }
   if (rawConfig.installOptions?.rollup?.namedExports) {
     delete rawConfig.installOptions.rollup.namedExports;
-    console.error(
-      colors.yellow(
-        '[Snowpack v2.3.0] `rollup.namedExports` is no longer required. See also: installOptions.namedExports',
-      ),
+    logger.error(
+      '[Snowpack v2.3.0] `rollup.namedExports` is no longer required. See also: installOptions.namedExports',
     );
   }
   if (rawConfig.rollup) {
@@ -672,19 +678,19 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
 function validatePlugin(plugin: SnowpackPlugin) {
   const pluginName = plugin.name;
   if (plugin.resolve && !plugin.load) {
-    handleConfigError(`[plugin=${pluginName}] "resolve" config found but "load()" method missing.`);
+    handleConfigError(`[${pluginName}] "resolve" config found but "load()" method missing.`);
   }
   if (!plugin.resolve && plugin.load) {
-    handleConfigError(`[plugin=${pluginName}] "load" method found but "resolve()" config missing.`);
+    handleConfigError(`[${pluginName}] "load" method found but "resolve()" config missing.`);
   }
   if (plugin.resolve && !Array.isArray(plugin.resolve.input)) {
     handleConfigError(
-      `[plugin=${pluginName}] "resolve.input" should be an array of input file extensions.`,
+      `[${pluginName}] "resolve.input" should be an array of input file extensions.`,
     );
   }
   if (plugin.resolve && !Array.isArray(plugin.resolve.output)) {
     handleConfigError(
-      `[plugin=${pluginName}] "resolve.output" should be an array of output file extensions.`,
+      `[${pluginName}] "resolve.output" should be an array of output file extensions.`,
     );
   }
 }
