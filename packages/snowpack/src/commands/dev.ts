@@ -712,11 +712,9 @@ export async function command(commandOptions: CommandOptions) {
     const fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
 
     // 3. Send dependencies directly, since they were already build & resolved at install time.
-    if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
-      if (!isProxyModule) {
-        sendFile(req, res, fileContents, responseFileExt);
-        return;
-      }
+    if (reqPath.startsWith(config.buildOptions.webModulesUrl) && !isProxyModule) {
+      sendFile(req, res, fileContents, responseFileExt);
+      return;
     }
 
     // 4. Check the persistent cache. If found, serve it via a "trust-but-verify" strategy.
