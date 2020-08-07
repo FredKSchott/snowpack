@@ -1,5 +1,12 @@
 {
   "imports": {
-    "@material/list": "./@material/list.js"
+    "@material/base/component": "./@material/base/component.js",
+    "@material/base/foundation": "./@material/base/foundation.js",
+    "@material/base/types": "./@material/base/types.js",
+    "@material/dom/events": "./@material/dom/events.js",
+    "@material/dom/keyboard": "./@material/dom/keyboard.js",
+    "@material/dom/ponyfill": "./@material/dom/ponyfill.js",
+    "@material/list": "./@material/list.js",
+    "tslib": "./tslib.js"
   }
 }

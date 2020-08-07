@@ -22,7 +22,7 @@ function createRoot(fn, detachedOwner) {
     if (!fns) throw err;
     fns.forEach(f => f(err));
   } finally {
-    Owner && afterNode(Owner);
+    RootClock.afters.run(f => f());
     Listener = listener;
     Owner = owner;
   }
@@ -148,8 +148,7 @@ function createComputationNode(fn, value) {
     owned: null,
     log: null,
     context: null,
-    cleanups: null,
-    afters: null
+    cleanups: null
   };
   if (fn === null) return node;
   let owner = Owner,
@@ -158,10 +157,7 @@ function createComputationNode(fn, value) {
   Owner = Listener = node;
   if (RunningClock === null) {
     toplevelComputation(node);
-  } else {
-    node.value = node.fn(node.value);
-    afterNode(node);
-  }
+  } else node.value = node.fn(node.value);
   if (owner && owner !== UNOWNED) {
     if (owner.owned === null) owner.owned = [node];else owner.owned.push(node);
   }
@@ -174,7 +170,8 @@ function createClock() {
     time: 0,
     changes: new Queue(),
     updates: new Queue(),
-    disposes: new Queue()
+    disposes: new Queue(),
+    afters: new Queue()
   };
 }
 function createLog() {
@@ -292,7 +289,6 @@ function event() {
   try {
     run(RootClock);
   } finally {
-    Owner && afterNode(Owner);
     RunningClock = Listener = null;
     Owner = owner;
   }
@@ -312,7 +308,6 @@ function toplevelComputation(node) {
     if (!fns) throw err;
     fns.forEach(f => f(err));
   } finally {
-    Owner && afterNode(Owner);
     RunningClock = Owner = Listener = null;
   }
 }
@@ -331,6 +326,7 @@ function run(clock) {
       throw new Error("Runaway clock detected");
     }
   }
+  clock.afters.run(f => f());
   RunningClock = running;
 }
 function applyDataChange(data) {
@@ -518,13 +514,6 @@ function cleanupSource(source, slot) {
         last.sourceslots[lastslot] = slot;
       }
     }
-  }
-}
-function afterNode(node) {
-  const afters = node.afters;
-  if (afters !== null) {
-    for (let i = 0; i < afters.length; i++) afters[i]();
-    node.afters = null;
   }
 }
 function resetComputation(node, flags) {
@@ -926,7 +915,7 @@ const config = runtimeConfig;
 function template(html, isSVG) {
   const t = document.createElement('template');
   t.innerHTML = html;
-  if (t.innerHTML !== html) throw new Error(`Template html does not match input:\n${t.innerHTML}\n${html}`);
+  if (t.innerHTML !== html) console.warn(`Template html does not match input:\n${t.innerHTML}\n\n${html}`);
   let node = t.content.firstChild;
   if (isSVG) node = node.firstChild;
   return node;
@@ -972,7 +961,7 @@ function insert(parent, accessor, marker, initial) {
 }
 function renderToString(code, options = {}) {
   options = {
-    timeoutMs: 10000,
+    timeoutMs: 30000,
     ...options
   };
   config.hydrate = {
@@ -980,12 +969,15 @@ function renderToString(code, options = {}) {
     count: 0
   };
   const container = document.createElement("div");
-  return new Promise(resolve => {
-    setTimeout(() => resolve(container.innerHTML), options.timeoutMs);
-    if (!code.length) {
-      insert(container, code());
+  document.body.appendChild(container);
+  return new Promise((resolve, reject) => {
+    setTimeout(() => reject("renderToString timed out"), options.timeoutMs);
+    function render(rendered) {
+      insert(container, rendered);
       resolve(container.innerHTML);
-    } else insert(container, code(() => resolve(container.innerHTML)));
+      document.body.removeChild(container);
+    }
+    !code.length ? render(code()) : code(render);
   });
 }
 function hydrate(code, root) {
@@ -1520,10 +1512,9 @@ function renderToString$1(code, options) {
     createEffect(() => {
       if (!SuspenseContext.active()) {
         dispose();
-        done();
+        done(rendered);
       }
     });
-    return rendered;
   }, options));
 }
 function hydrate$1(code, element) {

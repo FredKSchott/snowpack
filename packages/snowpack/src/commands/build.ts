@@ -239,7 +239,7 @@ export async function command(commandOptions: CommandOptions) {
       }
       // When dealing with an absolute import path, we need to honor the baseUrl
       if (isAbsoluteUrlPath) {
-        return path
+        resolvedImportUrl = path
           .relative(path.dirname(outLoc), path.resolve(buildDirectoryLoc, resolvedImportPath))
           .replace(/\\/g, '/'); // replace Windows backslashes at the end, after resolution
       }

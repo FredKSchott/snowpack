@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["test/build/resolve-imports/src/test-mjs.mjs"],
+  "sourcesContent": ["// Path aliases\nimport {flatten} from 'array-flatten';\nconsole.log(flatten);"],
+  "mappings": "AACA;AACA,QAAQ,IAAI;",
+  "names": []
+}

@@ -7,12 +7,12 @@
     "testbuild": "snowpack build"
   },
   "snowpack": {
-    "webModulesUrl": "/my_modules",
     "mount": {
       "./src": "/_dist_"
     },
     "buildOptions": {
-      "minify": false
+      "minify": false,
+      "webModulesUrl": "/my_modules"
     }
   },
   "dependencies": {

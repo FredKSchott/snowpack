@@ -1,4 +1,4 @@
-import __SNOWPACK_ENV__ from '/__snowpack__/env.js';
+import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 
 import React from "https://cdn.pika.dev/react@^16.13.1";
@@ -8,3 +8,4 @@ ReactDOM.render(/* @__PURE__ */ React.createElement(App, null), document.getElem
 if (import.meta.hot) {
   import.meta.hot.accept();
 }
+//# sourceMappingURL=index.js.map
