@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-svelte-typescript",
-  "version": "1.8.5",
+  "version": "1.8.6",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -17,7 +17,7 @@
     "svelte": "^3.24.0"
   },
   "devDependencies": {
-    "@snowpack/app-scripts-svelte": "^1.8.2",
+    "@snowpack/app-scripts-svelte": "^1.8.3",
     "@snowpack/plugin-run-script": "^2.0.4",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/svelte": "^3.0.0",
