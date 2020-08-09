@@ -8,6 +8,7 @@ Our [issue tracker](https://github.com/pikapkg/snowpack/issues) is always organi
 # Local Setup
 git clone ${REPO}
 yarn
+yarn lerna bootstrap
 ```
 
 ```bash
