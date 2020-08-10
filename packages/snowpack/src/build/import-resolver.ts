@@ -64,7 +64,10 @@ export function createImportResolver({
       let result = spec.replace(from, to);
       const importStats = getImportStats(cwd, result);
       result = resolveSourceSpecifier(result, importStats, config);
-      result = path.posix.relative(path.dirname(fileLoc), result);
+      // Replacing separators in relative path instead of using path.posix.relative
+      // Since path.posix.relative will return ../C:\\some\\path when given a Windows
+      // absolute path in the form of C:\\some\\path (result)
+      result = path.relative(path.dirname(fileLoc), result).split(path.sep).join(path.posix.sep);
       if (!result.startsWith('.')) {
         result = './' + result;
       }
