@@ -6,8 +6,6 @@
     "esModuleInterop": true,
     "strict": true,
     "noImplicitAny": false,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "skipLibCheck": true,
     "jsx": "react"
   },
