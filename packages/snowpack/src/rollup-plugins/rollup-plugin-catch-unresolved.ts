@@ -17,7 +17,7 @@ export function rollupPluginCatchUnresolved(): Plugin {
       if (isNodeBuiltin(id)) {
         this.warn({
           id: importer,
-          message: `"${id}" (Node.js built-in) could not be resolved. (https://www.snowpack.dev/#node-built-in-could-not-be-resolved)`,
+          message: `Import "${id}" (Node.js built-in) is not available in the browser. Run with --polyfill-node to fix.`,
         });
       } else {
         this.warn({

@@ -1,18 +1,21 @@
 {
   "private": true,
   "version": "1.0.1",
-  "name": "@snowpack/test-error-node-builtin-unresolved",
+  "name": "@snowpack/test-config-polyfill-node",
   "scripts": {
     "testinstall": "snowpack"
   },
   "snowpack": {
     "exclude": ["packages/**/*"],
     "install": [
-      "bad-node-builtin-pkg"
-    ]
+      "node-builtin-pkg"
+    ],
+    "installOptions": {
+      "polyfillNode": true
+    }
   },
   "dependencies": {
-    "bad-node-builtin-pkg": "file:./packages/bad-node-builtin-pkg"
+    "node-builtin-pkg": "file:./packages/node-builtin-pkg"
   },
   "devDependencies": {
     "snowpack": "^2.7.0"

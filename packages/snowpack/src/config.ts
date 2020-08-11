@@ -37,6 +37,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     dest: 'web_modules',
     externalPackage: [],
     installTypes: false,
+    polyfillNode: false,
     env: {},
     namedExports: [],
     rollup: {
@@ -102,6 +103,7 @@ const configSchema = {
         externalPackage: {type: 'array', items: {type: 'string'}},
         treeshake: {type: 'boolean'},
         installTypes: {type: 'boolean'},
+        polyfillNode: {type: 'boolean'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
         alias: {
           type: 'object',
