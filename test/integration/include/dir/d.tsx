@@ -1,5 +1,6 @@
 // test 4: dynamic export
 import(`bad:${'template'}-string`);
+import('single quote -' + 'bad:template-string');
 
 const badVariable = 'bad:cant-scan-a-variable';
 import(badVariable);

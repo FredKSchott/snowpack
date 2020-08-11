@@ -60,6 +60,7 @@ import {
   transformEsmImports,
   transformFileImports,
 } from '../rewrite-imports';
+import {matchImportSpecifier} from '../scan-imports';
 import {CommandOptions, ImportMap, SnowpackBuildMap, SnowpackConfig} from '../types/snowpack';
 import {
   BUILD_CACHE,
@@ -590,8 +591,7 @@ export async function command(commandOptions: CommandOptions) {
           const resolvedImports = rawImports.map((imp) => {
             let spec = code.substring(imp.s, imp.e);
             if (imp.d > -1) {
-              const importSpecifierMatch = spec.match(/^\s*['"](.*)['"]\s*$/m);
-              spec = importSpecifierMatch![1];
+              spec = matchImportSpecifier(spec) || '';
             }
             return path.posix.resolve(path.posix.dirname(reqPath), spec);
           });
