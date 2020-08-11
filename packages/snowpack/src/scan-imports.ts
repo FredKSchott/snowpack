@@ -47,6 +47,11 @@ function removeSpecifierQueryString(specifier: string) {
   return specifier;
 }
 
+export function matchImportSpecifier(importStatement: string) {
+  const matched = importStatement.match(/^\s*('([^']+)'|"([^"]+)")\s*$/m);
+  return matched?.[2] || matched?.[3] || null;
+}
+
 function getWebModuleSpecifierFromCode(code: string, imp: ImportSpecifier) {
   // import.meta: we can ignore
   if (imp.d === -2) {
@@ -58,8 +63,7 @@ function getWebModuleSpecifierFromCode(code: string, imp: ImportSpecifier) {
   }
   // Dynamic imports: a bit trickier to parse. Today, we only support string literals.
   const importStatement = code.substring(imp.s, imp.e);
-  const importSpecifierMatch = importStatement.match(/^\s*['"](.*)['"]\s*$/m);
-  return importSpecifierMatch ? importSpecifierMatch[1] : null;
+  return matchImportSpecifier(importStatement);
 }
 
 /**
