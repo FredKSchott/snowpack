@@ -64,7 +64,8 @@ export function createImportResolver({
       let result = spec.replace(from, to);
       const importStats = getImportStats(cwd, result);
       result = resolveSourceSpecifier(result, importStats, config);
-      result = path.posix.relative(path.dirname(fileLoc), result);
+      // replace Windows backslashes at the end, after resolution
+      result = path.relative(path.dirname(fileLoc), result).replace(/\\/g, '/');
       if (!result.startsWith('.')) {
         result = './' + result;
       }
