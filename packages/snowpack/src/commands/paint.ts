@@ -7,30 +7,21 @@ const cwd = process.cwd();
 
 export const paintEvent = {
   BUILD_FILE: 'BUILD_FILE',
-  ERROR: 'ERROR',
   LOAD_ERROR: 'LOAD_ERROR',
-  INFO: 'INFO',
+  CONSOLE_INFO: 'CONSOLE_INFO',
+  CONSOLE_WARN: 'CONSOLE_WARN',
+  CONSOLE_ERROR: 'CONSOLE_ERROR',
   SERVER_RESPONSE: 'SERVER_RESPONSE',
   SERVER_START: 'SERVER_START',
-  SUCCESS: 'SUCCESS',
-  WARN: 'WARN',
   WORKER_COMPLETE: 'WORKER_COMPLETE',
   WORKER_MSG: 'WORKER_MSG',
   WORKER_RESET: 'WORKER_RESET',
   WORKER_UPDATE: 'WORKER_UPDATE',
 };
 
-let consoleOutput: string[] = [];
-type DevServerState = 'READY' | 'LOADING' | 'ERROR';
-const STATE_DISPLAY: Record<DevServerState, string> = {
-  READY: colors.bgGreen(colors.black(' READY ')),
-  LOADING: colors.bgYellow(colors.black(' LOADING ')),
-  ERROR: colors.bgRed(colors.black(' ERROR ')),
-};
-const errorMap: Record<string, boolean> = {};
-let devServerState: DevServerState = 'LOADING';
-
+const MAX_CONSOLE_LENGTH = 500;
 const NO_COLOR_ENABLED = process.env.FORCE_COLOR === '0' || process.env.NO_COLOR;
+let consoleOutput: string[] = [];
 
 /**
  * Get the actual port, based on the `defaultPort`.
@@ -102,29 +93,48 @@ export function paint(bus: EventEmitter, plugins: string[]) {
   function repaint() {
     // Clear Page
     process.stdout.write(process.platform === 'win32' ? '\x1B[2J\x1B[0f' : '\x1B[2J\x1B[3J\x1B[H');
-
-    // Print the Console
+    // Header
+    process.stdout.write(`${colors.bold(`snowpack`)}\n\n`);
+    // Server Stats
+    const isServerStarted = startTimeMs > 0 && port > 0 && protocol;
+    if (isServerStarted) {
+      process.stdout.write(`  ${colors.bold(colors.cyan(`${protocol}//${hostname}:${port}`))}`);
+      for (const ip of ips) {
+        process.stdout.write(
+          `  ${colors.cyan(` • `)}${colors.bold(colors.cyan(`${protocol}//${ip}:${port}`))}`,
+        );
+      }
+      process.stdout.write('\n');
+      process.stdout.write(
+        colors.dim(
+          startTimeMs < 1000 ? `  Server started in ${startTimeMs}ms.` : `  Server started.`, // Not to hide slow startup times, but likely there were extraneous factors (prompts, etc.) where the speed isn’t accurate
+        ),
+      );
+      if (allFileBuilds.size > 0) {
+        process.stdout.write(colors.dim(` Building...`));
+      }
+      process.stdout.write('\n\n');
+    } else {
+      process.stdout.write(colors.dim(`  Server starting…`) + '\n\n');
+    }
+    // Console Output
     if (consoleOutput.length) {
       process.stdout.write(`${colors.underline(colors.bold('▼ Console'))}\n\n`);
+      if (consoleOutput.length >= MAX_CONSOLE_LENGTH) {
+        process.stdout.write(`${colors.dim('<Previous messages trimmed>')}\n`);
+      }
       process.stdout.write(consoleOutput.join('\n'));
       process.stdout.write('\n\n');
     }
-
-    // Dashboard
-    const isServerStarted = startTimeMs > 0 && port > 0 && protocol;
-    if (isServerStarted) {
-      if (allFileBuilds.size > 0) {
-        process.stdout.write(colors.dim(` Building…\n`));
+    // Worker Dashboards
+    for (const [script, workerState] of Object.entries(allWorkerStates)) {
+      if (!workerState.output) {
+        continue;
       }
-      process.stdout.write(
-        `${colors.bgBlue(colors.white(' SNOWPACK '))}${
-          STATE_DISPLAY[devServerState]
-        } ${hostname}:${port} › ${ips[0]}`,
-      );
-    } else {
-      process.stdout.write(
-        `${colors.bgBlue(colors.white(' SNOWPACK '))}${STATE_DISPLAY[devServerState]}`,
-      );
+      const colorsFn = Array.isArray(workerState.error) ? colors.red : colors.reset;
+      process.stdout.write(`${colorsFn(colors.underline(colors.bold('▼ ' + script)))}\n\n`);
+      process.stdout.write('  ' + workerState.output.trim().replace(/\n/gm, '\n  '));
+      process.stdout.write('\n\n');
     }
   }
 
@@ -158,37 +168,49 @@ export function paint(bus: EventEmitter, plugins: string[]) {
     allWorkerStates[id] = {...WORKER_BASE_STATE};
     repaint();
   });
-  bus.on(paintEvent.INFO, ({id = 'snowpack', msg}) => {
-    const formatted = NO_COLOR_ENABLED ? `[${id}] ${msg}` : `${colors.dim(`[${id}]`)} ${msg}`;
-    consoleOutput.push(formatted);
-    repaint();
-  });
-  bus.on(paintEvent.WARN, ({id = 'snowpack', msg}) => {
-    const formatted = NO_COLOR_ENABLED
-      ? `[${id}] ${msg}`
-      : `${colors.dim(`[${id}]`)} ${colors.yellow(`${msg}`)}`;
-    consoleOutput.push(formatted);
-    repaint();
-  });
-  bus.on(paintEvent.ERROR, ({id = 'snowpack', msg}) => {
-    errorMap[id] = true;
-    devServerState = 'ERROR'; // mark server state as erred until all errors resolved
-    const formatted = NO_COLOR_ENABLED
-      ? `[${id}] ${msg}`
-      : `${colors.dim(`[${id}]`)} ${colors.red(`${msg}`)}`;
-    consoleOutput.push(formatted);
-    repaint();
-  });
-  bus.on(paintEvent.SUCCESS, ({id}) => {
-    if (id && errorMap[id]) {
-      delete errorMap[id];
+  bus.on(paintEvent.CONSOLE_INFO, ({id = 'snowpack', msg}) => {
+    for (const msgLine of msg
+      .split('\n')
+      .filter(Boolean)) {
+      const formatted = NO_COLOR_ENABLED
+        ? `[${id}] ${msgLine}`
+        : `${colors.dim(`[${id}]`)} ${msgLine}`;
+      consoleOutput.push(formatted);
+      if (consoleOutput.length > MAX_CONSOLE_LENGTH) {
+        consoleOutput.shift();
+      }
     }
-    if (!Object.keys(errorMap).length) {
-      devServerState = 'READY'; // if no errors left, mark dev server as error-free
+    repaint();
+  });
+  bus.on(paintEvent.CONSOLE_WARN, ({id = 'snowpack', msg}) => {
+    for (const msgLine of msg
+      .split('\n')
+      .filter(Boolean)) {
+      const formatted = NO_COLOR_ENABLED
+        ? `[${id}] ${msgLine}`
+        : `${colors.dim(`[${id}]`)} ${colors.yellow(`${msgLine}`)}`;
+      consoleOutput.push(formatted);
+      if (consoleOutput.length > MAX_CONSOLE_LENGTH) {
+        consoleOutput.shift();
+      }
     }
+    repaint();
+  });
+  bus.on(paintEvent.CONSOLE_ERROR, ({id = 'snowpack', msg}) => {
+    for (const msgLine of msg
+      .split('\n')
+      .filter(Boolean)) {
+      const formatted = NO_COLOR_ENABLED
+        ? `[${id}] ${msgLine}`
+        : `${colors.dim(`[${id}]`)} ${colors.red(`${msgLine}`)}`;
+      consoleOutput.push(formatted);
+      if (consoleOutput.length > MAX_CONSOLE_LENGTH) {
+        consoleOutput.shift();
+      }
+    }
+    repaint();
   });
   bus.on(paintEvent.SERVER_START, (info) => {
-    devServerState = 'READY';
     startTimeMs = info.startTimeMs;
     hostname = info.hostname;
     port = info.port;

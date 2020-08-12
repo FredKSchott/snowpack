@@ -135,8 +135,6 @@ const sendFile = (
     }
   }
 
-  messageBus.emit(paintEvent.SUCCESS, {id: 'snowpack'});
-
   if (/\bgzip\b/.test(acceptEncoding) && stream.Readable.from) {
     const bodyStream = stream.Readable.from([body]);
     headers['Content-Encoding'] = 'gzip';
@@ -184,17 +182,17 @@ function getUrlFromFile(
 const messageBus = new EventEmitter();
 console.log = (...args) => {
   args.forEach((msg) => {
-    messageBus.emit(paintEvent.INFO, {msg});
+    messageBus.emit(paintEvent.CONSOLE_INFO, {msg});
   });
 };
 console.warn = (...args) => {
   args.forEach((msg) => {
-    messageBus.emit(paintEvent.WARN, {msg});
+    messageBus.emit(paintEvent.CONSOLE_WARN, {msg});
   });
 };
 console.error = (...args) => {
   args.forEach((msg) => {
-    messageBus.emit(paintEvent.ERROR, {msg});
+    messageBus.emit(paintEvent.CONSOLE_ERROR, {msg});
   });
 };
 
@@ -238,12 +236,6 @@ export async function command(commandOptions: CommandOptions) {
     await updateLockfileHash(DEV_DEPENDENCIES_DIR);
   }
 
-  // Start painting dev dashboard after successful install
-  paint(
-    messageBus,
-    config.plugins.map((p) => p.name),
-  );
-
   let dependencyImportMap: ImportMap = {imports: {}};
   try {
     dependencyImportMap = JSON.parse(
@@ -252,6 +244,12 @@ export async function command(commandOptions: CommandOptions) {
   } catch (err) {
     // no import-map found, safe to ignore
   }
+
+  // Start painting dev dashboard after successful install
+  paint(
+    messageBus,
+    config.plugins.map((p) => p.name),
+  );
 
   const devProxies = {};
   config.proxy.forEach(([pathPrefix, proxyOptions]) => {
@@ -309,19 +307,25 @@ export async function command(commandOptions: CommandOptions) {
 
   for (const runPlugin of config.plugins) {
     if (runPlugin.run) {
-      try {
-        await runPlugin.run({
+      runPlugin
+        .run({
           isDev: true,
           isHmrEnabled: isHmr,
           // @ts-ignore: internal API only
           log: (msg, data) => {
             messageBus.emit(msg, {...data, id: runPlugin.name});
           },
+        })
+        .then(() => {
+          messageBus.emit(paintEvent.CONSOLE_INFO, {id: runPlugin.name, msg: `Command completed.`});
+        })
+        .catch((err) => {
+          messageBus.emit(paintEvent.CONSOLE_ERROR, {
+            id: runPlugin.name,
+            msg: `Command exited with error code: ${err}`,
+          });
+          process.exit(1);
         });
-        messageBus.emit(paintEvent.SUCCESS, {id: runPlugin.name});
-      } catch (err) {
-        messageBus.emit(paintEvent.ERROR, {id: runPlugin.name, msg: err.toString() || err});
-      }
     }
   }
 
@@ -830,7 +834,7 @@ export async function command(commandOptions: CommandOptions) {
     hostname,
     port,
     ips,
-    startTimeMs: performance.now() - serverStart,
+    startTimeMs: Math.round(performance.now() - serverStart),
   });
 
   // Open the user's browser
@@ -842,6 +846,7 @@ export async function command(commandOptions: CommandOptions) {
 
   // Watch src files
   async function onWatchEvent(fileLoc) {
+    console.log(colors.cyan('File changed...'));
     handleHmrUpdate(fileLoc);
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);

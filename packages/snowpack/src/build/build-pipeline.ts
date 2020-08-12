@@ -67,12 +67,6 @@ async function runPipelineLoadStep(
         filePath: srcPath,
         isDev,
         isHmrEnabled,
-        // @ts-ignore: internal API only
-        log: (msg, data: any = {}) => {
-          if (data && data.msg) {
-            pluginLogger.info(`${data.msg} [${debugPath}]`);
-          }
-        },
       });
       pluginLogger.debug(`load() successful [${debugPath}]`);
 
@@ -80,9 +74,6 @@ async function runPipelineLoadStep(
 
       if (typeof result === 'string') {
         const mainOutputExt = step.resolve.output[0];
-        if (devMessageBus && isDev) {
-          devMessageBus.emit('SUCCESS', {id: step.name});
-        }
         return {
           [mainOutputExt]: {
             code: result,
@@ -102,19 +93,11 @@ async function runPipelineLoadStep(
           // if source maps disabled, don’t return any
           if (!sourceMaps) result[ext].map = undefined;
         });
-        if (devMessageBus && isDev) {
-          devMessageBus.emit('SUCCESS', {id: step.name});
-        }
         return result;
-      } else {
-        if (devMessageBus && isDev) {
-          devMessageBus.emit('SUCCESS', {id: step.name});
-        }
-        continue;
       }
     } catch (err) {
       if (devMessageBus && isDev) {
-        devMessageBus.emit('ERROR', {id: step.name, msg: err.toString() || err});
+        devMessageBus.emit('CONSOLE_ERROR', {id: step.name, msg: err.toString() || err});
       } else {
         pluginLogger.error(err);
       }
@@ -163,34 +146,22 @@ async function runPipelineTransformStep(
           fileExt: destExt,
           filePath,
           isDev,
-          // @ts-ignore: internal API only
-          log: (msg, data: any = {}) => {
-            if (data && data.msg) {
-              pluginLogger.info(`${data.msg} [${path.relative(process.cwd(), filePath)}]`);
-            }
-          },
           // @ts-ignore: Deprecated
           urlPath: `./${path.basename(rootFileName + destExt)}`,
         });
         pluginLogger.debug(`transform() successful [${debugPath}]`);
-
         // if step returned a value, only update code (don’t touch .map)
         if (typeof result === 'string') {
           output[destExt].code = result;
         } else if (result && typeof result === 'object' && (result as {result: string}).result) {
           output[destExt].code = (result as {result: string}).result;
         }
-
         // if source maps disabled, don’t return any
         if (!sourceMaps) output[destExt].map = undefined;
-
-        if (devMessageBus && isDev) {
-          devMessageBus.emit('SUCCESS', {id: step.name});
-        }
       }
     } catch (err) {
       if (devMessageBus && isDev) {
-        devMessageBus.emit('ERROR', {id: step.name, msg: err.toString() || err});
+        devMessageBus.emit('CONSOLE_ERROR', {id: step.name, msg: err.toString() || err});
       } else {
         pluginLogger.error(err);
       }

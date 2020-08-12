@@ -14000,12 +14000,13 @@ supports-hyperlinks@^2.0.0:
     has-flag "^4.0.0"
     supports-color "^7.0.0"
 
-svelte-check@^0.1.59:
-  version "0.1.59"
-  resolved "https://registry.yarnpkg.com/svelte-check/-/svelte-check-0.1.59.tgz#c318a4d9b517b9e4d161bd8f4aa526e5351c09f5"
-  integrity sha512-6nK3fAB7wUYd1NwusIO1Gts12dKMA8asynC4mRJaHfB7CQDO7/vLeYx4DLdS/VkHuq6io1INzYNsdsjlEHMuoQ==
+svelte-check@^1.0.0:
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/svelte-check/-/svelte-check-1.0.13.tgz#19acb1e895dc43286f28575e8d2e85eb0f191885"
+  integrity sha512-5dDd1q6f3qauGinsmR9oJ7lrc2JXU+fBUdwUaaBmNw9jsDizlLw4GhMZg6+Rq1JMsx3e6gnBSMzv7/tfsrF8Zw==
   dependencies:
     chalk "^4.0.0"
+    chokidar "^3.4.1"
     glob "^7.1.6"
     minimist "^1.2.5"
     svelte-language-server "*"
