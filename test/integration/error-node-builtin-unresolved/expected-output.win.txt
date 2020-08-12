@@ -1,6 +1,0 @@
-[snowpack] ! installing dependencies…
-[snowpack] "XXXX" (Node.js built-in) could not be resolved. (https://www.snowpack.dev/#node-built-in-could-not-be-resolved). See https://www.snowpack.dev/#troubleshooting
-[snowpack] Entry module cannot be external (http).
-[snowpack] install skipped (nothing to install)
-[snowpack] ../../../node_modules/bad-node-builtin-pkg/entrypoint.js
-   "XXXX" (Node.js built-in) could not be resolved. (https://www.snowpack.dev/#node-built-in-could-not-be-resolved)

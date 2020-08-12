@@ -124,6 +124,7 @@ export interface SnowpackConfig {
     env: EnvVarReplacements;
     treeshake?: boolean;
     installTypes: boolean;
+    polyfillNode: boolean;
     sourceMap?: boolean | 'inline';
     externalPackage: string[];
     namedExports: string[];

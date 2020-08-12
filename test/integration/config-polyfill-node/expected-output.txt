@@ -1,0 +1,5 @@
+[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack] 
+  ⦿ web_modules/            size       gzip       brotli   
+    └─ node-builtin-pkg.js    XXXX KB    XXXX KB    XXXX KB

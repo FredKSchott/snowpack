@@ -34,9 +34,6 @@ function stripConfigErrorPath(stdout) {
 function stripResolveErrorPath(stdout) {
   return stdout.replace(/" via "(.*)"/g, '" via "XXX"');
 }
-function stripNodeBuiltIn(stdout) {
-  return stdout.replace(/"[^"]+"(\s+\(Node.js built-in\))/g, '"XXXX"$1'); // these errors don’t throw in the same order each time, so test quantity, not order
-}
 function stripStacktrace(stdout) {
   return stdout.replace(/^\s+at\s+.*/gm, ''); // this is OK to show to the user but annoying to have in a test
 }
@@ -89,7 +86,7 @@ describe('snowpack install', () => {
         stripWhitespace(
           stripConfigErrorPath(
             stripResolveErrorPath(
-              stripBenchmark(stripChunkHash(stripStats(stripStacktrace(stripNodeBuiltIn(all))))),
+              stripBenchmark(stripChunkHash(stripStats(stripStacktrace((all))))),
             ),
           ),
         ),

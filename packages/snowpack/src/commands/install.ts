@@ -3,6 +3,7 @@ import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-common
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginReplace from '@rollup/plugin-replace';
+import rollupPluginNodePolyfills from 'rollup-plugin-node-polyfills';
 import {init as initESModuleLexer} from 'es-module-lexer';
 import findUp from 'find-up';
 import fs from 'fs';
@@ -243,7 +244,8 @@ interface InstallOptions {
 
 type InstallResult = {success: false; importMap: null} | {success: true; importMap: ImportMap};
 
-const FAILED_INSTALL_RETURN: InstallResult = {
+const FAILED_INSTALL_MESSAGE = 'Install failed.';
+const EMPTY_INSTALL_RETURN: InstallResult = {
   success: false,
   importMap: null,
 };
@@ -263,13 +265,14 @@ export async function install(
       env,
       rollup: userDefinedRollup,
       treeshake: isTreeshake,
+      polyfillNode,
     },
   } = config;
 
   const nodeModulesInstalled = findUp.sync('node_modules', {cwd, type: 'directory'});
   if (!webDependencies && !(process.versions as any).pnp && !nodeModulesInstalled) {
     logger.error('No "node_modules" directory exists. Did you run "npm install" first?');
-    return FAILED_INSTALL_RETURN;
+    return EMPTY_INSTALL_RETURN;
   }
   const allInstallSpecifiers = new Set(
     installTargets
@@ -328,8 +331,7 @@ export async function install(
         continue;
       }
       logger.error(err.message || err);
-
-      return FAILED_INSTALL_RETURN;
+      throw new Error(FAILED_INSTALL_MESSAGE);
     }
   }
   if (Object.keys(installEntrypoints).length === 0 && Object.keys(assetEntrypoints).length === 0) {
@@ -339,11 +341,12 @@ ${colors.dim(
     'https://www.pika.dev',
   )}`,
 )}`);
-    return FAILED_INSTALL_RETURN;
+    return EMPTY_INSTALL_RETURN;
   }
 
   await initESModuleLexer;
   let isCircularImportFound = false;
+  let isFatalWarningFound = false;
   const inputOptions: InputOptions = {
     input: installEntrypoints,
     external: (id) => externalPackages.some((packageName) => isImportOfPackage(id, packageName)),
@@ -389,6 +392,7 @@ ${colors.dim(
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
+      polyfillNode && rollupPluginNodePolyfills(),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
     ].filter(Boolean) as Plugin[],
@@ -406,6 +410,7 @@ ${colors.dim(
         warning.code === 'PLUGIN_WARNING' &&
         warning.plugin === 'snowpack:rollup-plugin-catch-unresolved'
       ) {
+        isFatalWarningFound = true;
         // Display posix-style on all environments, mainly to help with CI :)
         if (warning.id) {
           const fileName = path.relative(cwd, warning.id).replace(/\\/g, '/');
@@ -431,6 +436,9 @@ ${colors.dim(
       logger.debug(
         `installing npm packages:\n    ${Object.keys(installEntrypoints).join('\n    ')}`,
       );
+      if (isFatalWarningFound) {
+        throw new Error(FAILED_INSTALL_MESSAGE);
+      }
       await packageBundle.write(outputOptions);
     } catch (_err) {
       const err: RollupError = _err;
@@ -446,7 +454,7 @@ ${colors.dim(
       // Display posix-style on all environments, mainly to help with CI :)
       const fileName = path.relative(cwd, errFilePath).replace(/\\/g, '/');
       logger.error(`Failed to load ${colors.bold(fileName)}\n  ${suggestion}`);
-      return FAILED_INSTALL_RETURN;
+      throw new Error(FAILED_INSTALL_MESSAGE);
     }
   }
 
@@ -572,7 +580,7 @@ export async function run({
       logger.error(colors.dim(`👉 ${err.url}`));
     }
     logger.fatal(err.message || err);
-    return FAILED_INSTALL_RETURN;
+    process.exit(1);
   });
 
   // finish
