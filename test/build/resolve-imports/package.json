@@ -9,7 +9,8 @@
   "snowpack": {
     "alias": {
       "aliased-dep": "array-flatten",
-      "@app": "./src"
+      "@app": "./src",
+      "@/": "./src/"
     },
     "mount": {
       "./src": "/_dist_"
