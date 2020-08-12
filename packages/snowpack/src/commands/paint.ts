@@ -101,7 +101,7 @@ export function paint(bus: EventEmitter, plugins: string[]) {
       process.stdout.write(`  ${colors.bold(colors.cyan(`${protocol}//${hostname}:${port}`))}`);
       for (const ip of ips) {
         process.stdout.write(
-          `  ${colors.cyan(` • `)}${colors.bold(colors.cyan(`${protocol}//${ip}:${port}`))}`,
+          `${colors.cyan(` • `)}${colors.bold(colors.cyan(`${protocol}//${ip}:${port}`))}`,
         );
       }
       process.stdout.write('\n');
