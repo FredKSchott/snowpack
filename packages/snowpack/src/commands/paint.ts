@@ -169,9 +169,7 @@ export function paint(bus: EventEmitter, plugins: string[]) {
     repaint();
   });
   bus.on(paintEvent.CONSOLE_INFO, ({id = 'snowpack', msg}) => {
-    for (const msgLine of msg
-      .split('\n')
-      .filter(Boolean)) {
+    for (const msgLine of msg.split('\n').filter(Boolean)) {
       const formatted = NO_COLOR_ENABLED
         ? `[${id}] ${msgLine}`
         : `${colors.dim(`[${id}]`)} ${msgLine}`;
@@ -183,9 +181,7 @@ export function paint(bus: EventEmitter, plugins: string[]) {
     repaint();
   });
   bus.on(paintEvent.CONSOLE_WARN, ({id = 'snowpack', msg}) => {
-    for (const msgLine of msg
-      .split('\n')
-      .filter(Boolean)) {
+    for (const msgLine of msg.split('\n').filter(Boolean)) {
       const formatted = NO_COLOR_ENABLED
         ? `[${id}] ${msgLine}`
         : `${colors.dim(`[${id}]`)} ${colors.yellow(`${msgLine}`)}`;
@@ -197,9 +193,7 @@ export function paint(bus: EventEmitter, plugins: string[]) {
     repaint();
   });
   bus.on(paintEvent.CONSOLE_ERROR, ({id = 'snowpack', msg}) => {
-    for (const msgLine of msg
-      .split('\n')
-      .filter(Boolean)) {
+    for (const msgLine of msg.split('\n').filter(Boolean)) {
       const formatted = NO_COLOR_ENABLED
         ? `[${id}] ${msgLine}`
         : `${colors.dim(`[${id}]`)} ${colors.red(`${msgLine}`)}`;

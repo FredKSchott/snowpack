@@ -214,7 +214,9 @@ class FileBuilder {
   async writeProxyToDisk(originalFileLoc: string) {
     const proxiedCode = this.output[originalFileLoc];
     const importProxyFileLoc = originalFileLoc + '.proxy.js';
-    const proxiedUrl = originalFileLoc.substr(this.config.devOptions.out.length).replace(/\\/g, '/');
+    const proxiedUrl = originalFileLoc
+      .substr(this.config.devOptions.out.length)
+      .replace(/\\/g, '/');
     const proxyCode = await wrapImportProxy({
       url: proxiedUrl,
       code: proxiedCode,
@@ -404,6 +406,7 @@ export async function command(commandOptions: CommandOptions) {
 
   // "--watch" mode - Start watching the file system.
   // Defer "chokidar" loading to here, to reduce impact on overall startup time
+  logger.info(colors.cyan('Watching for changes...'));
   const chokidar = await import('chokidar');
 
   function onDeleteEvent(fileLoc: string) {
