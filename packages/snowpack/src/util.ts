@@ -34,10 +34,6 @@ export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gms;
 
 export const URL_HAS_PROTOCOL_REGEX = /^(\w+:)?\/\//;
 
-export function isYarn(cwd: string) {
-  return fs.existsSync(path.join(cwd, 'yarn.lock'));
-}
-
 const UTF8_FORMATS = ['.css', '.html', '.js', '.map', '.mjs', '.json', '.svg', '.txt', '.xml'];
 export function getEncodingType(ext: string): 'utf-8' | 'binary' {
   return UTF8_FORMATS.includes(ext) ? 'utf-8' : 'binary';

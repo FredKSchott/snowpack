@@ -406,12 +406,14 @@ export async function command(commandOptions: CommandOptions) {
 
   // "--watch" mode - Start watching the file system.
   // Defer "chokidar" loading to here, to reduce impact on overall startup time
+  logger.info(colors.cyan('Watching for changes...'));
   const chokidar = await import('chokidar');
 
   function onDeleteEvent(fileLoc: string) {
     delete buildPipelineFiles[fileLoc];
   }
   async function onWatchEvent(fileLoc: string) {
+    logger.info(colors.cyan('File changed...'));
     const [fromDisk, dirDest] =
       mountedDirectories.find(([fromDisk]) => fileLoc.startsWith(fromDisk)) || [];
     if (!fromDisk || !dirDest) {
