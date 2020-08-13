@@ -268,7 +268,7 @@ export async function command(commandOptions: CommandOptions) {
     const scannedFiles = Object.values(buildPipelineFiles)
       .map((f) => Object.values(f.filesToResolve))
       .filter(Boolean)
-      .flat();
+      .reduce((flat, item) => flat.concat(item), []);
     const installDest = path.join(buildDirectoryLoc, config.buildOptions.webModulesUrl);
     const installResult = await installOptimizedDependencies(scannedFiles, installDest, {
       ...commandOptions,
@@ -338,7 +338,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   // 4. Write files to disk.
-  const allImportProxyFiles = new Set(allBuildPipelineFiles.map((b) => b.filesToProxy).flat());
+  const allImportProxyFiles = new Set(allBuildPipelineFiles.map((b) => b.filesToProxy).reduce((flat, item) => flat.concat(item), []));
   for (const buildPipelineFile of allBuildPipelineFiles) {
     await buildPipelineFile.writeToDisk();
     for (const builtFile of Object.keys(buildPipelineFile.output)) {
@@ -418,7 +418,7 @@ export async function command(commandOptions: CommandOptions) {
     // 3. Write to disk. If any proxy imports are needed, write those as well.
     await changedPipelineFile.writeToDisk();
     const allBuildPipelineFiles = Object.values(buildPipelineFiles);
-    const allImportProxyFiles = new Set(allBuildPipelineFiles.map((b) => b.filesToProxy).flat());
+    const allImportProxyFiles = new Set(allBuildPipelineFiles.map((b) => b.filesToProxy).reduce((flat, item) => flat.concat(item), []));
     for (const builtFile of Object.keys(changedPipelineFile.output)) {
       if (allImportProxyFiles.has(builtFile)) {
         await changedPipelineFile.writeProxyToDisk(builtFile);
