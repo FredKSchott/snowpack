@@ -35,7 +35,9 @@ async function installOptimizedDependencies(
     installOptions: {
       dest: installDest,
       env: {NODE_ENV: process.env.NODE_ENV || 'production'},
-      treeshake: commandOptions.config.installOptions.treeshake ?? true,
+      treeshake: commandOptions.config.buildOptions.watch
+        ? false
+        : commandOptions.config.installOptions.treeshake ?? true,
     },
   });
   // 1. Scan imports from your final built JS files.
@@ -49,10 +51,15 @@ async function installOptimizedDependencies(
   return installResult;
 }
 
-class BuildPipelineFile {
+/**
+ * FileBuilder - This class is responsible for building a file. It is broken into
+ * individual stages so that the entire application build process can be tackled
+ * in stages (build -> resolve -> write to disk).
+ */
+class FileBuilder {
   output: Record<string, string> = {};
-  allFilesToResolveImports: Record<string, SnowpackSourceFile> = {};
-  allImportProxyFiles: string[] = [];
+  filesToResolve: Record<string, SnowpackSourceFile> = {};
+  filesToProxy: string[] = [];
 
   constructor(
     readonly filepath: string,
@@ -62,6 +69,7 @@ class BuildPipelineFile {
   ) {}
 
   async buildFile() {
+    this.filesToResolve = {};
     const srcExt = path.extname(this.filepath);
     const builtFileOutput = await buildFile(this.filepath, {
       plugins: this.config.plugins,
@@ -70,7 +78,6 @@ class BuildPipelineFile {
       sourceMaps: this.config.buildOptions.sourceMaps,
       logLevel: 'info',
     });
-
     for (const [fileExt, buildResult] of Object.entries(builtFileOutput)) {
       let {code, map} = buildResult;
       if (!code) {
@@ -80,24 +87,21 @@ class BuildPipelineFile {
       const outFilename = replaceExt(path.basename(this.filepath), srcExt, fileExt);
       const outLoc = path.join(this.outDir, outFilename);
       const sourceMappingURL = outFilename + '.map';
-
       switch (fileExt) {
         case '.css': {
           if (map) code = cssSourceMappingURL(code, sourceMappingURL);
           break;
         }
+
         case '.js': {
           if (builtFileOutput['.css']) {
             // inject CSS if imported directly
             const cssFilename = outFilename.replace(/\.js$/i, '.css');
             code = `import './${cssFilename}';\n` + code;
           }
-
           code = wrapImportMeta({code, env: true, isDev: false, hmr: false, config: this.config});
-
           if (map) code = jsSourceMappingURL(code, sourceMappingURL);
-
-          this.allFilesToResolveImports[outLoc] = {
+          this.filesToResolve[outLoc] = {
             baseExt: fileExt,
             expandedExt: fileExt,
             contents: code,
@@ -105,9 +109,10 @@ class BuildPipelineFile {
           };
           break;
         }
+
         case '.html': {
           code = wrapHtmlResponse({code, isDev: false, hmr: false, config: this.config});
-          this.allFilesToResolveImports[outLoc] = {
+          this.filesToResolve[outLoc] = {
             baseExt: fileExt,
             expandedExt: fileExt,
             contents: code,
@@ -125,7 +130,9 @@ class BuildPipelineFile {
   }
 
   async resolveImports(importMap: ImportMap) {
-    for (const [outLoc, file] of Object.entries(this.allFilesToResolveImports)) {
+    let isSuccess = true;
+    this.filesToProxy = [];
+    for (const [outLoc, file] of Object.entries(this.filesToResolve)) {
       const resolveImportSpecifier = createImportResolver({
         fileLoc: file.locOnDisk!, // we’re confident these are reading from disk because we just read them
         dependencyImportMap: importMap,
@@ -134,26 +141,38 @@ class BuildPipelineFile {
       const resolvedCode = await transformFileImports(file, (spec) => {
         // Try to resolve the specifier to a known URL in the project
         let resolvedImportUrl = resolveImportSpecifier(spec);
-        if (!resolvedImportUrl || url.parse(resolvedImportUrl).protocol) {
+        // NOTE: If the import cannot be resolved, we'll need to re-install
+        // your dependencies. We don't support this yet, but we will.
+        // Until supported, just exit here.
+        if (!resolvedImportUrl) {
+          isSuccess = false;
+          console.error(`${file.locOnDisk} - Could not resolve unkonwn import "${spec}".`);
           return spec;
         }
+        // Ignore "http://*" imports
+        if (url.parse(resolvedImportUrl).protocol) {
+          return spec;
+        }
+        // Handle normal "./" & "../" import specifiers
         const extName = path.extname(resolvedImportUrl);
         const isProxyImport = extName && extName !== '.js';
-        if (isProxyImport) {
-          resolvedImportUrl = resolvedImportUrl + '.proxy.js';
-        }
         const isAbsoluteUrlPath = path.posix.isAbsolute(resolvedImportUrl);
-        const resolvedImportPath = removeLeadingSlash(path.normalize(resolvedImportUrl));
-
+        let resolvedImportPath = removeLeadingSlash(path.normalize(resolvedImportUrl));
         // We treat ".proxy.js" files special: we need to make sure that they exist on disk
         // in the final build, so we mark them to be written to disk at the next step.
         if (isProxyImport) {
           if (isAbsoluteUrlPath) {
-            this.allImportProxyFiles.push(path.resolve(this.buildDirectoryLoc, resolvedImportPath));
+            this.filesToProxy.push(path.resolve(this.buildDirectoryLoc, resolvedImportPath));
           } else {
-            this.allImportProxyFiles.push(path.resolve(path.dirname(outLoc), resolvedImportPath));
+            this.filesToProxy.push(path.resolve(path.dirname(outLoc), resolvedImportPath));
           }
         }
+
+        if (isProxyImport) {
+          resolvedImportPath = resolvedImportPath + '.proxy.js';
+          resolvedImportUrl = resolvedImportUrl + '.proxy.js';
+        }
+
         // When dealing with an absolute import path, we need to honor the baseUrl
         if (isAbsoluteUrlPath) {
           resolvedImportUrl = path
@@ -171,56 +190,28 @@ class BuildPipelineFile {
       });
       this.output[outLoc] = resolvedCode;
     }
+    return isSuccess;
   }
 
   async writeToDisk() {
     mkdirp.sync(this.outDir);
     for (const [outLoc, code] of Object.entries(this.output)) {
-      console.log('writeToDisk', outLoc);
       await fs.writeFile(outLoc, code, getEncodingType(path.extname(outLoc)));
     }
   }
 
-  async buildProxy() {
-    for (const importProxyFileLoc of this.allImportProxyFiles) {
-      if (existsSync(importProxyFileLoc)) {
-        // ignore
-        continue;
-      }
-      const originalFileLoc = importProxyFileLoc.replace('.proxy.js', '');
-      const proxiedExt = path.extname(originalFileLoc);
-      const proxiedCode = await fs.readFile(originalFileLoc, getEncodingType(proxiedExt));
-      const proxiedUrl = originalFileLoc.substr(this.buildDirectoryLoc.length).replace(/\\/g, '/');
-      const proxyCode = await wrapImportProxy({
-        url: proxiedUrl,
-        code: proxiedCode,
-        isDev: false,
-        hmr: false,
-        config: this.config,
-      });
-      await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
-      console.log('buildProxy', importProxyFileLoc);
-    }
-  }
-
-  async buildProxyMyself() {
-    for (const [originalFileLoc, proxiedCode] of Object.entries(this.output)) {
-      const importProxyFileLoc = originalFileLoc + '.proxy.js';
-      if (!existsSync(importProxyFileLoc)) {
-        // ignore
-        continue;
-      }
-      const proxiedUrl = originalFileLoc.substr(this.buildDirectoryLoc.length).replace(/\\/g, '/');
-      const proxyCode = await wrapImportProxy({
-        url: proxiedUrl,
-        code: proxiedCode,
-        isDev: false,
-        hmr: false,
-        config: this.config,
-      });
-      await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
-      console.log('buildProxyMyself', importProxyFileLoc);
-    }
+  async writeProxyToDisk(originalFileLoc: string) {
+    const proxiedCode = this.output[originalFileLoc];
+    const importProxyFileLoc = originalFileLoc + '.proxy.js';
+    const proxiedUrl = originalFileLoc.substr(this.buildDirectoryLoc.length).replace(/\\/g, '/');
+    const proxyCode = await wrapImportProxy({
+      url: proxiedUrl,
+      code: proxiedCode,
+      isDev: false,
+      hmr: false,
+      config: this.config,
+    });
+    await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
   }
 }
 
@@ -270,8 +261,48 @@ export async function command(commandOptions: CommandOptions) {
 
   logger.info(colors.yellow('! building source…'));
   const buildStart = performance.now();
+  const buildPipelineFiles: Record<string, FileBuilder> = {};
 
-  const buildPipelineFiles: BuildPipelineFile[] = [];
+  /** Install all needed dependencies, based on the master buildPipelineFiles list.  */
+  async function installDependencies() {
+    const scannedFiles = Object.values(buildPipelineFiles)
+      .map((f) => Object.values(f.filesToResolve))
+      .filter(Boolean)
+      .flat();
+    const installDest = path.join(buildDirectoryLoc, config.buildOptions.webModulesUrl);
+    const installResult = await installOptimizedDependencies(scannedFiles, installDest, {
+      ...commandOptions,
+      logLevel: 'error',
+    });
+    if (!installResult.success || installResult.hasError || !installResult.importMap) {
+      process.exit(1);
+    }
+    const allFiles = glob.sync(`**/*`, {
+      ignore: config.exclude,
+      cwd: installDest,
+      absolute: true,
+      nodir: true,
+      dot: true,
+    });
+    for (const installedFileLoc of allFiles) {
+      if (!installedFileLoc.endsWith('import-map.json') && path.extname(installedFileLoc) !== '.js') {
+      const proxiedCode = await fs.readFile(installedFileLoc, {encoding: 'utf-8'});
+      const importProxyFileLoc = installedFileLoc + '.proxy.js';
+      const proxiedUrl = installedFileLoc.substr(installDest.length).replace(/\\/g, '/');
+      const proxyCode = await wrapImportProxy({
+        url: proxiedUrl,
+        code: proxiedCode,
+        isDev: false,
+        hmr: false,
+        config: config,
+      });
+      await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
+      }
+    }
+    return installResult;
+  }
+
+  // 1. Load & build all files for the first time, from source.
   for (const [fromDisk, dirDest] of mountedDirectories) {
     const allFiles = glob.sync(`**/*`, {
       ignore: config.exclude,
@@ -284,8 +315,8 @@ export async function command(commandOptions: CommandOptions) {
       const locOnDisk = path.resolve(rawLocOnDisk); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
       const finalDest = locOnDisk.replace(fromDisk, dirDest);
       const outDir = path.dirname(finalDest);
-      const buildPipelineFile = new BuildPipelineFile(locOnDisk, outDir, buildDirectoryLoc, config);
-      buildPipelineFiles.push(buildPipelineFile);
+      const buildPipelineFile = new FileBuilder(locOnDisk, outDir, buildDirectoryLoc, config);
+      buildPipelineFiles[locOnDisk] = buildPipelineFile;
       await buildPipelineFile.buildFile();
     }
   }
@@ -297,28 +328,27 @@ export async function command(commandOptions: CommandOptions) {
     )}`,
   );
 
-  // install
-  const scannedFiles = buildPipelineFiles
-    .map((f) => Object.values(f.allFilesToResolveImports))
-    .filter(Boolean)
-    .flat();
-  const installDest = path.join(buildDirectoryLoc, config.buildOptions.webModulesUrl);
-  const installResult = await installOptimizedDependencies(scannedFiles, installDest, {
-    ...commandOptions,
-    logLevel: 'error',
-  });
-  if (!installResult.success || installResult.hasError || !installResult.importMap) {
-    process.exit(1);
+  // 2. Install all dependencies. This gets us the import map we need to resolve imports.
+  let installResult = await installDependencies();
+
+  // 3. Resolve all built file imports.
+  const allBuildPipelineFiles = Object.values(buildPipelineFiles);
+  for (const buildPipelineFile of allBuildPipelineFiles) {
+    await buildPipelineFile.resolveImports(installResult.importMap!);
   }
 
-  for (const buildPipelineFile of buildPipelineFiles) {
-    await buildPipelineFile.resolveImports(installResult.importMap);
+  // 4. Write files to disk.
+  const allImportProxyFiles = new Set(allBuildPipelineFiles.map((b) => b.filesToProxy).flat());
+  for (const buildPipelineFile of allBuildPipelineFiles) {
     await buildPipelineFile.writeToDisk();
-  }
-  for (const buildPipelineFile of buildPipelineFiles) {
-    await buildPipelineFile.buildProxy();
+    for (const builtFile of Object.keys(buildPipelineFile.output)) {
+      if (allImportProxyFiles.has(builtFile)) {
+        await buildPipelineFile.writeProxyToDisk(builtFile);
+      }
+    }
   }
 
+  // 5. Optimize the build.
   if (!config.buildOptions.watch) {
     stopEsbuild();
     await runPipelineOptimizeStep(buildDirectoryLoc, {
@@ -356,11 +386,13 @@ export async function command(commandOptions: CommandOptions) {
     return;
   }
 
-  // Start watching the file system.
+  // "--watch" mode - Start watching the file system.
   // Defer "chokidar" loading to here, to reduce impact on overall startup time
   const chokidar = await import('chokidar');
 
-  // Watch src files
+  function onDeleteEvent(fileLoc: string) {
+    delete buildPipelineFiles[fileLoc];
+  }
   async function onWatchEvent(fileLoc: string) {
     const [fromDisk, dirDest] =
       mountedDirectories.find(([fromDisk]) => fileLoc.startsWith(fromDisk)) || [];
@@ -369,12 +401,29 @@ export async function command(commandOptions: CommandOptions) {
     }
     const finalDest = fileLoc.replace(fromDisk, dirDest);
     const outDir = path.dirname(finalDest);
-    const changedPipelineFile = new BuildPipelineFile(fileLoc, outDir, buildDirectoryLoc, config);
+    const changedPipelineFile = new FileBuilder(fileLoc, outDir, buildDirectoryLoc, config);
+    buildPipelineFiles[fileLoc] = changedPipelineFile;
+    // 1. Build the file.
     await changedPipelineFile.buildFile();
-    await changedPipelineFile.resolveImports(installResult.importMap!);
+    // 2. Resolve any ESM imports. Handle new imports by triggering a re-install.
+    let resolveSuccess = await changedPipelineFile.resolveImports(installResult.importMap!);
+    if (!resolveSuccess) {
+      await installDependencies();
+      resolveSuccess = await changedPipelineFile.resolveImports(installResult.importMap!);
+      if (!resolveSuccess) {
+        console.error('Exiting...');
+        process.exit(1);
+      }
+    }
+    // 3. Write to disk. If any proxy imports are needed, write those as well.
     await changedPipelineFile.writeToDisk();
-    await changedPipelineFile.buildProxy();
-    await changedPipelineFile.buildProxyMyself();
+    const allBuildPipelineFiles = Object.values(buildPipelineFiles);
+    const allImportProxyFiles = new Set(allBuildPipelineFiles.map((b) => b.filesToProxy).flat());
+    for (const builtFile of Object.keys(changedPipelineFile.output)) {
+      if (allImportProxyFiles.has(builtFile)) {
+        await changedPipelineFile.writeProxyToDisk(builtFile);
+      }
+    }
   }
   const watcher = chokidar.watch(
     mountedDirectories.map(([dirDisk]) => dirDisk),
@@ -387,7 +436,7 @@ export async function command(commandOptions: CommandOptions) {
   );
   watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
-  watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
+  watcher.on('unlink', (fileLoc) => onDeleteEvent(fileLoc));
 
   return new Promise(() => {});
 }
