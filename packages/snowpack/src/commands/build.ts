@@ -410,6 +410,7 @@ export async function command(commandOptions: CommandOptions) {
     delete buildPipelineFiles[fileLoc];
   }
   async function onWatchEvent(fileLoc: string) {
+    logger.info(colors.cyan('File changed...'));
     const [fromDisk, dirDest] =
       mountedDirectories.find(([fromDisk]) => fileLoc.startsWith(fromDisk)) || [];
     if (!fromDisk || !dirDest) {
