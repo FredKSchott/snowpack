@@ -260,6 +260,7 @@ export async function command(commandOptions: CommandOptions) {
     if (!proxyOptions.on.error) {
       proxyServer.on('error', DEFAULT_PROXY_ERROR_HANDLER);
     }
+    console.log(`Proxy created: ${pathPrefix} -> ${proxyOptions.target || proxyOptions.forward}`)
   });
 
   const readCredentials = async (cwd: string) => {
