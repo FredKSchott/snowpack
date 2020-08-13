@@ -214,7 +214,9 @@ class FileBuilder {
   async writeProxyToDisk(originalFileLoc: string) {
     const proxiedCode = this.output[originalFileLoc];
     const importProxyFileLoc = originalFileLoc + '.proxy.js';
-    const proxiedUrl = originalFileLoc.substr(this.config.devOptions.out.length).replace(/\\/g, '/');
+    const proxiedUrl = originalFileLoc
+      .substr(this.config.devOptions.out.length)
+      .replace(/\\/g, '/');
     const proxyCode = await wrapImportProxy({
       url: proxiedUrl,
       code: proxiedCode,
