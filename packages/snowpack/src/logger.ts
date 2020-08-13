@@ -1,8 +1,5 @@
 import * as colors from 'kleur/colors';
 import pino, {LoggerOptions} from 'pino';
-import ansiRegex from 'ansi-regex';
-
-const NO_COLOR_ENABLED = process.env.FORCE_COLOR === '0' || process.env.NO_COLOR;
 
 const LEVEL = {
   TRACE: 10,
@@ -12,11 +9,6 @@ const LEVEL = {
   ERROR: 50,
   FATAL: 60,
 };
-
-// @see https://no-color.org
-function stripColor(msg: string) {
-  return msg.replace(ansiRegex(), '');
-}
 
 /** http://getpino.io/#/docs/pretty */
 export function prettifier(options: LoggerOptions) {
@@ -28,7 +20,7 @@ export function prettifier(options: LoggerOptions) {
     if (inputData.level === LEVEL.ERROR || inputData.level === LEVEL.FATAL) msg = colors.red(msg);
     if (inputData.level === LEVEL.WARN) msg = colors.yellow(msg);
 
-    return NO_COLOR_ENABLED ? stripColor(msg) : msg;
+    return msg;
   };
 }
 
