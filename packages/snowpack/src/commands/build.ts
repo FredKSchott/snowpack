@@ -1,6 +1,6 @@
 import merge from 'deepmerge';
 import * as esbuild from 'esbuild';
-import {existsSync, promises as fs} from 'fs';
+import {promises as fs} from 'fs';
 import glob from 'glob';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
@@ -61,12 +61,23 @@ class FileBuilder {
   filesToResolve: Record<string, SnowpackSourceFile> = {};
   filesToProxy: string[] = [];
 
-  constructor(
-    readonly filepath: string,
-    readonly outDir: string,
-    readonly buildDirectoryLoc: string,
-    readonly config: SnowpackConfig,
-  ) {}
+  readonly filepath: string;
+  readonly outDir: string;
+  readonly config: SnowpackConfig;
+
+  constructor({
+    filepath,
+    outDir,
+    config,
+  }: {
+    filepath: string;
+    outDir: string;
+    config: SnowpackConfig;
+  }) {
+    this.filepath = filepath;
+    this.outDir = outDir;
+    this.config = config;
+  }
 
   async buildFile() {
     this.filesToResolve = {};
@@ -162,7 +173,7 @@ class FileBuilder {
         // in the final build, so we mark them to be written to disk at the next step.
         if (isProxyImport) {
           if (isAbsoluteUrlPath) {
-            this.filesToProxy.push(path.resolve(this.buildDirectoryLoc, resolvedImportPath));
+            this.filesToProxy.push(path.resolve(this.config.devOptions.out, resolvedImportPath));
           } else {
             this.filesToProxy.push(path.resolve(path.dirname(outLoc), resolvedImportPath));
           }
@@ -178,7 +189,7 @@ class FileBuilder {
           resolvedImportUrl = path
             .relative(
               path.dirname(outLoc),
-              path.resolve(this.buildDirectoryLoc, resolvedImportPath),
+              path.resolve(this.config.devOptions.out, resolvedImportPath),
             )
             .replace(/\\/g, '/'); // replace Windows backslashes at the end, after resolution
         }
@@ -203,7 +214,7 @@ class FileBuilder {
   async writeProxyToDisk(originalFileLoc: string) {
     const proxiedCode = this.output[originalFileLoc];
     const importProxyFileLoc = originalFileLoc + '.proxy.js';
-    const proxiedUrl = originalFileLoc.substr(this.buildDirectoryLoc.length).replace(/\\/g, '/');
+    const proxiedUrl = originalFileLoc.substr(this.config.devOptions.out.length).replace(/\\/g, '/');
     const proxyCode = await wrapImportProxy({
       url: proxiedUrl,
       code: proxiedCode,
@@ -285,18 +296,21 @@ export async function command(commandOptions: CommandOptions) {
       dot: true,
     });
     for (const installedFileLoc of allFiles) {
-      if (!installedFileLoc.endsWith('import-map.json') && path.extname(installedFileLoc) !== '.js') {
-      const proxiedCode = await fs.readFile(installedFileLoc, {encoding: 'utf-8'});
-      const importProxyFileLoc = installedFileLoc + '.proxy.js';
-      const proxiedUrl = installedFileLoc.substr(installDest.length).replace(/\\/g, '/');
-      const proxyCode = await wrapImportProxy({
-        url: proxiedUrl,
-        code: proxiedCode,
-        isDev: false,
-        hmr: false,
-        config: config,
-      });
-      await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
+      if (
+        !installedFileLoc.endsWith('import-map.json') &&
+        path.extname(installedFileLoc) !== '.js'
+      ) {
+        const proxiedCode = await fs.readFile(installedFileLoc, {encoding: 'utf-8'});
+        const importProxyFileLoc = installedFileLoc + '.proxy.js';
+        const proxiedUrl = installedFileLoc.substr(installDest.length).replace(/\\/g, '/');
+        const proxyCode = await wrapImportProxy({
+          url: proxiedUrl,
+          code: proxiedCode,
+          isDev: false,
+          hmr: false,
+          config: config,
+        });
+        await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
       }
     }
     return installResult;
@@ -315,7 +329,7 @@ export async function command(commandOptions: CommandOptions) {
       const locOnDisk = path.resolve(rawLocOnDisk); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
       const finalDest = locOnDisk.replace(fromDisk, dirDest);
       const outDir = path.dirname(finalDest);
-      const buildPipelineFile = new FileBuilder(locOnDisk, outDir, buildDirectoryLoc, config);
+      const buildPipelineFile = new FileBuilder({filepath: locOnDisk, outDir, config});
       buildPipelineFiles[locOnDisk] = buildPipelineFile;
       await buildPipelineFile.buildFile();
     }
@@ -338,7 +352,9 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   // 4. Write files to disk.
-  const allImportProxyFiles = new Set(allBuildPipelineFiles.map((b) => b.filesToProxy).reduce((flat, item) => flat.concat(item), []));
+  const allImportProxyFiles = new Set(
+    allBuildPipelineFiles.map((b) => b.filesToProxy).reduce((flat, item) => flat.concat(item), []),
+  );
   for (const buildPipelineFile of allBuildPipelineFiles) {
     await buildPipelineFile.writeToDisk();
     for (const builtFile of Object.keys(buildPipelineFile.output)) {
@@ -401,7 +417,7 @@ export async function command(commandOptions: CommandOptions) {
     }
     const finalDest = fileLoc.replace(fromDisk, dirDest);
     const outDir = path.dirname(finalDest);
-    const changedPipelineFile = new FileBuilder(fileLoc, outDir, buildDirectoryLoc, config);
+    const changedPipelineFile = new FileBuilder({filepath: fileLoc, outDir, config});
     buildPipelineFiles[fileLoc] = changedPipelineFile;
     // 1. Build the file.
     await changedPipelineFile.buildFile();
@@ -418,7 +434,11 @@ export async function command(commandOptions: CommandOptions) {
     // 3. Write to disk. If any proxy imports are needed, write those as well.
     await changedPipelineFile.writeToDisk();
     const allBuildPipelineFiles = Object.values(buildPipelineFiles);
-    const allImportProxyFiles = new Set(allBuildPipelineFiles.map((b) => b.filesToProxy).reduce((flat, item) => flat.concat(item), []));
+    const allImportProxyFiles = new Set(
+      allBuildPipelineFiles
+        .map((b) => b.filesToProxy)
+        .reduce((flat, item) => flat.concat(item), []),
+    );
     for (const builtFile of Object.keys(changedPipelineFile.output)) {
       if (allImportProxyFiles.has(builtFile)) {
         await changedPipelineFile.writeProxyToDisk(builtFile);
