@@ -583,6 +583,8 @@ export async function command(commandOptions: CommandOptions) {
             }
             return resolvedImportUrl;
           }
+          console.error(`Import "${spec}" could not be resolved.`);
+          console.error(`If this is a new package, restart your dev server to rebuild your dependencies.`);
           return spec;
         },
       );
