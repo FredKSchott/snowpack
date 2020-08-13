@@ -60,4 +60,5 @@ For starter apps and templates, see [create-snowpack-app](./packages/create-snow
 - [snowpack-plugin-sass](https://github.com/fansenze/snowpack-plugin-sass) Use the [node-sass](https://github.com/sass/node-sass) to build `.sass/.scss` files from source.
 - [snowpack-plugin-svgr](https://github.com/jaredLunde/snowpack-plugin-svgr) Use [SVGR](https://github.com/gregberge/svgr) to transform `.svg` files into React components.
 - [snowpack-plugin-stylus](https://github.com/fansenze/snowpack-plugin-stylus) Use the [Stylus](https://github.com/stylus/stylus) compiler to build `.styl` files from source.
+- [snowpack-plugin-inliner](https://github.com/fansenze/snowpack-plugin-inliner) A plugin for snowpack which transforms files into base64 URIs.
 - PRs that add a link to this list are welcome!
