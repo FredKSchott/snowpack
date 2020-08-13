@@ -492,10 +492,8 @@ function normalizeAlias(config: SnowpackConfig, createMountAlias: boolean) {
       replacement.startsWith('../') ||
       replacement.startsWith('/')
     ) {
-      cleanAlias[target] = path.resolve(cwd, replacement);
-      if (hasTrailingSlash(replacement)) {
-        cleanAlias[target] = addTrailingSlash(cleanAlias[target]);
-      }
+      delete cleanAlias[target];
+      cleanAlias[addTrailingSlash(target)] = addTrailingSlash(path.resolve(cwd, replacement));
     }
   }
   return cleanAlias;
@@ -834,10 +832,6 @@ export function removeLeadingSlash(path: string) {
 
 export function removeTrailingSlash(path: string) {
   return path.replace(/[/\\]+$/, '');
-}
-
-export function hasTrailingSlash(path: string) {
-  return path.match(/\/$/);
 }
 
 export function addLeadingSlash(path: string) {
