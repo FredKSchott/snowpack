@@ -178,24 +178,6 @@ function getUrlFromFile(
   return null;
 }
 
-// Important! this must be shimmed before command() fires
-const messageBus = new EventEmitter();
-console.log = (...args) => {
-  args.forEach((msg) => {
-    messageBus.emit(paintEvent.CONSOLE_INFO, {msg});
-  });
-};
-console.warn = (...args) => {
-  args.forEach((msg) => {
-    messageBus.emit(paintEvent.CONSOLE_WARN, {msg});
-  });
-};
-console.error = (...args) => {
-  args.forEach((msg) => {
-    messageBus.emit(paintEvent.CONSOLE_ERROR, {msg});
-  });
-};
-
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config, logLevel = 'info'} = commandOptions;
   const {port: defaultPort, hostname, open, hmr: isHmr} = config.devOptions;
@@ -207,6 +189,24 @@ export async function command(commandOptions: CommandOptions) {
   if (port !== defaultPort) {
     serverStart = performance.now();
   }
+
+  // Important! this must be shimmed before command() fires
+  const messageBus = new EventEmitter();
+  console.log = (...args) => {
+      messageBus.emit(paintEvent.CONSOLE_INFO, {msg: args.join(' ')});
+  };
+  console.warn = (...args) => {
+      messageBus.emit(paintEvent.CONSOLE_WARN, {msg: args.join(' ')});
+  };
+  console.error = (...args) => {
+      messageBus.emit(paintEvent.CONSOLE_ERROR, {msg: args.join(' ')});
+  };
+
+  // Start painting dev dashboard after successful install
+  paint(
+    messageBus,
+    config.plugins.map((p) => p.name),
+  );
 
   const inMemoryBuildCache = new Map<string, SnowpackBuildMap>();
   const filesBeingDeleted = new Set<string>();
@@ -244,12 +244,6 @@ export async function command(commandOptions: CommandOptions) {
   } catch (err) {
     // no import-map found, safe to ignore
   }
-
-  // Start painting dev dashboard after successful install
-  paint(
-    messageBus,
-    config.plugins.map((p) => p.name),
-  );
 
   const devProxies = {};
   config.proxy.forEach(([pathPrefix, proxyOptions]) => {

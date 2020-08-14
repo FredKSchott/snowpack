@@ -21,8 +21,20 @@ export const paintEvent = {
 
 const MAX_CONSOLE_LENGTH = 500;
 const NO_COLOR_ENABLED = process.env.FORCE_COLOR === '0' || process.env.NO_COLOR;
-let consoleOutput: string[] = [];
 
+function formatConsoleMessage(id: string, msg: string, color?: string) {
+  const consoleOutput: string[] = [];
+  for (const msgLine of msg.split('\n').filter(Boolean)) {
+    const formatted = NO_COLOR_ENABLED
+      ? `[${id}] ${msgLine}`
+      : `${colors.dim(`[${id}]`)} ${color ? colors[color](msgLine) : msgLine}`;
+    consoleOutput.push(formatted);
+    if (consoleOutput.length > MAX_CONSOLE_LENGTH) {
+      consoleOutput.shift();
+    }
+  }
+  return consoleOutput;
+}
 /**
  * Get the actual port, based on the `defaultPort`.
  * If the default port was not available, then we'll prompt the user if its okay
@@ -77,6 +89,7 @@ export function paint(bus: EventEmitter, plugins: string[]) {
   let protocol = '';
   let startTimeMs: number;
   let ips: string[] = [];
+  let consoleOutput: string[] = [];
   const allWorkerStates: Record<string, WorkerState> = {};
   const allFileBuilds = new Set<string>();
 
@@ -169,39 +182,15 @@ export function paint(bus: EventEmitter, plugins: string[]) {
     repaint();
   });
   bus.on(paintEvent.CONSOLE_INFO, ({id = 'snowpack', msg}) => {
-    for (const msgLine of msg.split('\n').filter(Boolean)) {
-      const formatted = NO_COLOR_ENABLED
-        ? `[${id}] ${msgLine}`
-        : `${colors.dim(`[${id}]`)} ${msgLine}`;
-      consoleOutput.push(formatted);
-      if (consoleOutput.length > MAX_CONSOLE_LENGTH) {
-        consoleOutput.shift();
-      }
-    }
+    consoleOutput = consoleOutput.concat(formatConsoleMessage(id, msg));
     repaint();
   });
   bus.on(paintEvent.CONSOLE_WARN, ({id = 'snowpack', msg}) => {
-    for (const msgLine of msg.split('\n').filter(Boolean)) {
-      const formatted = NO_COLOR_ENABLED
-        ? `[${id}] ${msgLine}`
-        : `${colors.dim(`[${id}]`)} ${colors.yellow(`${msgLine}`)}`;
-      consoleOutput.push(formatted);
-      if (consoleOutput.length > MAX_CONSOLE_LENGTH) {
-        consoleOutput.shift();
-      }
-    }
+    consoleOutput = consoleOutput.concat(formatConsoleMessage(id, msg, 'yellow'));
     repaint();
   });
   bus.on(paintEvent.CONSOLE_ERROR, ({id = 'snowpack', msg}) => {
-    for (const msgLine of msg.split('\n').filter(Boolean)) {
-      const formatted = NO_COLOR_ENABLED
-        ? `[${id}] ${msgLine}`
-        : `${colors.dim(`[${id}]`)} ${colors.red(`${msgLine}`)}`;
-      consoleOutput.push(formatted);
-      if (consoleOutput.length > MAX_CONSOLE_LENGTH) {
-        consoleOutput.shift();
-      }
-    }
+    consoleOutput = consoleOutput.concat(formatConsoleMessage(id, msg, 'red'));
     repaint();
   });
   bus.on(paintEvent.SERVER_START, (info) => {
