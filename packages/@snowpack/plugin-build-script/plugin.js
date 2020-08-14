@@ -14,26 +14,25 @@ function buildScriptPlugin(_, {input, output, cmd}) {
       input: input,
       output: output,
     },
-    async load({filePath, log}) {
+    async load({filePath}) {
       const cmdWithFile = cmd.replace('$FILE', filePath);
       const contents = await fs.readFile(filePath, 'utf-8');
-      try {
-        const {stdout, stderr} = await execa.command(cmdWithFile, {
-          env: npmRunPath.env(),
-          extendEnv: true,
-          shell: true,
-          input: contents,
-          cwd,
-        });
-        if (stderr) {
-          log('WORKER_MSG', {level: 'warn', msg: stderr});
-        }
-        return {[output[0]]: stdout};
-      } catch (err) {
-        log('WORKER_MSG', {level: 'error', msg: err.stderr});
-        log('WORKER_UPDATE', {state: ['ERROR', 'red']});
-        return null;
+      const {stdout, stderr, exitCode} = await execa.command(cmdWithFile, {
+        env: npmRunPath.env(),
+        extendEnv: true,
+        shell: true,
+        input: contents,
+        cwd,
+      });
+      // If the command failed, fail the plugin as well.
+      if (exitCode !== 0) {
+        throw new Error(stderr || stdout);
       }
+      // If the plugin output tp stderr, how it to the user.
+      if (stderr) {
+        throw new Error(stderr);
+      }
+      return {[output[0]]: stdout};
     },
   };
 }

@@ -37,6 +37,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     dest: 'web_modules',
     externalPackage: [],
     installTypes: false,
+    polyfillNode: false,
     env: {},
     namedExports: [],
     rollup: {
@@ -61,6 +62,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     metaDir: '__snowpack__',
     minify: true,
     sourceMaps: false,
+    watch: false,
   },
 };
 
@@ -102,6 +104,7 @@ const configSchema = {
         externalPackage: {type: 'array', items: {type: 'string'}},
         treeshake: {type: 'boolean'},
         installTypes: {type: 'boolean'},
+        polyfillNode: {type: 'boolean'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
         alias: {
           type: 'object',
@@ -137,6 +140,7 @@ const configSchema = {
         metaDir: {type: 'string'},
         minify: {type: 'boolean'},
         sourceMaps: {type: 'boolean'},
+        watch: {type: 'boolean'},
       },
     },
     proxy: {
@@ -480,7 +484,7 @@ function normalizeAlias(config: SnowpackConfig, createMountAlias: boolean) {
   if (createMountAlias) {
     for (const mountDir of Object.keys(config.mount)) {
       if (mountDir !== '.') {
-        cleanAlias[removeTrailingSlash(mountDir)] = `./${mountDir}`;
+        cleanAlias[addTrailingSlash(mountDir)] = addTrailingSlash(`./${mountDir}`);
       }
     }
   }
@@ -490,7 +494,8 @@ function normalizeAlias(config: SnowpackConfig, createMountAlias: boolean) {
       replacement.startsWith('../') ||
       replacement.startsWith('/')
     ) {
-      cleanAlias[target] = path.resolve(cwd, replacement);
+      delete cleanAlias[target];
+      cleanAlias[addTrailingSlash(target)] = addTrailingSlash(path.resolve(cwd, replacement));
     }
   }
   return cleanAlias;

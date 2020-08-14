@@ -3,6 +3,34 @@ const path = require('path');
 const hashsum = require('hash-sum');
 const compiler = require('@vue/compiler-sfc');
 
+/** Friendly error display */
+function displayError({contents, filePath, error}) {
+  const pad = (number, pad) => `${Array.from(new Array(pad + 1)).join(' ')}${number}`;
+
+  let output = [`${error.toString()}`, `[${filePath}]`];
+  if (error.loc) {
+    output[1] += ` Line ${error.loc.start.line}, Column ${error.loc.start.column}`;
+    const lineNo = (number) =>
+      ' ' +
+      pad(number, (error.loc.end.line + 1).toString().length - number.toString().length) +
+      ' | ';
+    output.push('');
+    const allLines = ['', ...contents.split('\n')];
+    let currentLine = error.loc.start.line;
+    output.push(lineNo(currentLine - 1) + allLines[currentLine - 1]);
+    while (currentLine <= error.loc.end.line) {
+      output.push(lineNo(currentLine) + allLines[currentLine]);
+      currentLine++;
+    }
+    output.push(
+      Array.from(new Array(error.loc.start.column + lineNo(currentLine - 1).length)).join(' ') +
+        '^',
+    );
+    output.push(lineNo(currentLine) + allLines[currentLine]);
+  }
+  return output.join('\n');
+}
+
 module.exports = function plugin(snowpackConfig) {
   return {
     name: '@snowpack/plugin-vue',
@@ -17,8 +45,9 @@ module.exports = function plugin(snowpackConfig) {
       const contents = fs.readFileSync(filePath, 'utf-8');
       const {descriptor, errors} = compiler.parse(contents, {filename: filePath});
 
+      // display errors
       if (errors && errors.length > 0) {
-        console.error(JSON.stringify(errors));
+        throw new Error(displayError({error: errors[0], contents, filePath}));
       }
 
       const output = {

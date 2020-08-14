@@ -30,7 +30,8 @@ Supply any CLI command in `cmd`. Note that this is the same as running the comma
 
 ## Plugin Options
 
-| Name    |   Type   | Description                                                                 |
-| :------ | :------: | :-------------------------------------------------------------------------- |
-| `cmd`   | `string` | The CLI command to run. Note that this will run **before** Snowpack builds. |
-| `watch` | `string` | (optional) A watch command to run during the dev server.                    |
+| Name    |   Type   | Description                                                                   |
+| :------ | :------: | :---------------------------------------------------------------------------- |
+| `cmd`   | `string` | The CLI command to run. Note that this will run **before** Snowpack builds.   |
+| `watch` | `string` | (optional) A watch command to run during the dev server.                      |
+| `output` | `"stream" | "dashboard"` | (optional) Set how the output should be recorded during dev. |

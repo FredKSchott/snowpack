@@ -52,10 +52,13 @@ For starter apps and templates, see [create-snowpack-app](./packages/create-snow
 ### Featured Community Plugins
 
 - [@prefresh/snowpack](https://github.com/JoviDeCroock/prefresh)
+- [snowpack-plugin-imagemin](https://github.com/jaredLunde/snowpack-plugin-imagemin) Use [imagemin](https://github.com/imagemin/imagemin) to optimize your build images.
 - [snowpack-plugin-import-map](https://github.com/zhoukekestar/snowpack-plugin-import-map) A more easy way to map your imports to Pika CDN instead of [import-maps.json](https://github.com/WICG/import-maps).
 - [snowpack-plugin-less](https://github.com/fansenze/snowpack-plugin-less) Use the [Less](https://github.com/less/less.js) compiler to build `.less` files from source.
 - [snowpack-plugin-mdx](https://github.com/jaredLunde/snowpack-plugin-mdx) Use the [MDX](https://github.com/mdx-js/mdx/tree/master/packages/mdx) compiler to build `.mdx` and `.md` files from source.
+- [snowpack-plugin-resize-images](https://github.com/jaredLunde/snowpack-plugin-resize-images) Resize and process your build images with [Sharp](https://sharp.pixelplumbing.com/api-constructor).
 - [snowpack-plugin-sass](https://github.com/fansenze/snowpack-plugin-sass) Use the [node-sass](https://github.com/sass/node-sass) to build `.sass/.scss` files from source.
 - [snowpack-plugin-svgr](https://github.com/jaredLunde/snowpack-plugin-svgr) Use [SVGR](https://github.com/gregberge/svgr) to transform `.svg` files into React components.
 - [snowpack-plugin-stylus](https://github.com/fansenze/snowpack-plugin-stylus) Use the [Stylus](https://github.com/stylus/stylus) compiler to build `.styl` files from source.
+- [snowpack-plugin-inliner](https://github.com/fansenze/snowpack-plugin-inliner) A plugin for snowpack which transforms files into base64 URIs.
 - PRs that add a link to this list are welcome!

@@ -1,3 +1,4 @@
+import {EventEmitter} from 'events';
 import {promises as fs} from 'fs';
 import path from 'path';
 import pino from 'pino';
@@ -10,11 +11,12 @@ const logger = createLogger({name: 'snowpack'});
 const pluginLoggers: Record<string, pino.Logger> = {}; // save created loggers
 
 export interface BuildFileOptions {
-  plugins: SnowpackPlugin[];
+  devMessageBus?: EventEmitter;
   isDev: boolean;
   isHmrEnabled: boolean;
-  sourceMaps: boolean;
   logLevel?: pino.Level;
+  plugins: SnowpackPlugin[];
+  sourceMaps: boolean;
 }
 
 export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
@@ -43,7 +45,7 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
  */
 async function runPipelineLoadStep(
   srcPath: string,
-  {plugins, isDev, isHmrEnabled, logLevel = 'info', sourceMaps}: BuildFileOptions,
+  {devMessageBus, isDev, isHmrEnabled, logLevel = 'info', plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   for (const step of plugins) {
@@ -65,10 +67,6 @@ async function runPipelineLoadStep(
         filePath: srcPath,
         isDev,
         isHmrEnabled,
-        // @ts-ignore: internal API only
-        log: (msg, data: any = {}) => {
-          if (data && data.msg) pluginLogger.info(`${data.msg} [${debugPath}]`);
-        },
       });
       pluginLogger.debug(`load() successful [${debugPath}]`);
 
@@ -96,11 +94,13 @@ async function runPipelineLoadStep(
           if (!sourceMaps) result[ext].map = undefined;
         });
         return result;
-      } else {
-        continue;
       }
     } catch (err) {
-      pluginLogger.error(err);
+      if (devMessageBus && isDev) {
+        devMessageBus.emit('CONSOLE_ERROR', {id: step.name, msg: err.toString() || err});
+      } else {
+        pluginLogger.error(err);
+      }
     }
   }
 
@@ -121,7 +121,7 @@ async function runPipelineLoadStep(
 async function runPipelineTransformStep(
   output: SnowpackBuildMap,
   srcPath: string,
-  {plugins, isDev, logLevel = 'info', sourceMaps}: BuildFileOptions,
+  {devMessageBus, isDev, logLevel = 'info', plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   const rootFileName = path.basename(srcPath).replace(srcExt, '');
@@ -146,28 +146,25 @@ async function runPipelineTransformStep(
           fileExt: destExt,
           filePath,
           isDev,
-          // @ts-ignore: internal API only
-          log: (msg, data: any = {}) => {
-            if (data && data.msg)
-              pluginLogger.info(`${data.msg} [${path.relative(process.cwd(), filePath)}]`);
-          },
           // @ts-ignore: Deprecated
           urlPath: `./${path.basename(rootFileName + destExt)}`,
         });
         pluginLogger.debug(`transform() successful [${debugPath}]`);
-
         // if step returned a value, only update code (don’t touch .map)
         if (typeof result === 'string') {
           output[destExt].code = result;
         } else if (result && typeof result === 'object' && (result as {result: string}).result) {
           output[destExt].code = (result as {result: string}).result;
         }
-
         // if source maps disabled, don’t return any
         if (!sourceMaps) output[destExt].map = undefined;
       }
     } catch (err) {
-      pluginLogger.error(err);
+      if (devMessageBus && isDev) {
+        devMessageBus.emit('CONSOLE_ERROR', {id: step.name, msg: err.toString() || err});
+      } else {
+        pluginLogger.error(err);
+      }
     }
   }
 

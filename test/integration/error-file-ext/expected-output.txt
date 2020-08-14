@@ -1,4 +1,4 @@
 [snowpack] ! installing dependencies…
 [snowpack] Failed to load ../../../node_modules/error-file-ext-dep-b/index.vue
   Try installing rollup-plugin-vue and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)
-[snowpack] install skipped (nothing to install)
+[snowpack] Install failed.

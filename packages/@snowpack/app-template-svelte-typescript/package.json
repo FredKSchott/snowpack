@@ -25,7 +25,7 @@
     "@types/jest": "^26.0.4",
     "jest": "^26.2.2",
     "snowpack": "^2.7.7",
-    "svelte-check": "^0.1.59",
+    "svelte-check": "^1.0.0",
     "svelte-preprocess": "^4.0.8",
     "typescript": "^3.9.7"
   },
