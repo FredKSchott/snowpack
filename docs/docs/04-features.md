@@ -233,3 +233,12 @@ You can customize the set of browsers you'd like to support via the `package.jso
 If you're worried about legacy browsers, you should also add a bundler to your production build. Check out our [section on bundling for production](#bundle-for-production) for more info.
 
 Note: During development (`snowpack dev`) we perform no transpilation for older browsers. Make sure that you're using a modern browser during development.
+
+### CSS @import Support
+
+Snowpack supports native CSS "@import" behavior. This behaves slightly differently from JavaScript's `import` behavior. In CSS, `@import 'foo/bar.css'` points to the relative file `./foo/bar.css` and not some package "foo". There is no currently no way to use the native `@import` statement to import from a package by name.
+
+If you'd like to use `@import` to import from a package by name, you can use [PostCSS](#postcss) with the [postcss-import](https://github.com/postcss/postcss-import) plugin. Alternatively, you can use a JavaScript import to import a CSS file by package name (`import 'foo/bar.css';`).
+
+**Note for webpack users:** If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With `postcss-import` you have to remove the `~` from your `@import`s.
+
