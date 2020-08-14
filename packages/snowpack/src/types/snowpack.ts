@@ -165,7 +165,6 @@ export interface CommandOptions {
   config: SnowpackConfig;
   lockfile: ImportMap | null;
   pkgManifest: any;
-  logLevel?: pino.Level;
 }
 
 /**

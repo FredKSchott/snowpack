@@ -6,7 +6,7 @@ import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {command as installCommand} from './commands/install';
 import {loadAndValidateConfig} from './config.js';
-import createLogger from './logger';
+import logger from './logger';
 import {CLIFlags} from './types/snowpack';
 import {clearCache, readLockfile} from './util.js';
 
@@ -15,7 +15,6 @@ export {createConfiguration} from './config.js';
 export * from './types/snowpack';
 
 const cwd = process.cwd();
-const logger = createLogger({name: 'snowpack'});
 
 function printHelp() {
   logger.info(
@@ -83,7 +82,7 @@ export async function cli(args: string[]) {
     config: loadAndValidateConfig(cliFlags, pkgManifest),
     lockfile: await readLockfile(cwd),
     pkgManifest,
-    logLevel: cliFlags.logLevel || 'info',
+    logger,
   };
 
   logger.level = cliFlags.logLevel || 'info';

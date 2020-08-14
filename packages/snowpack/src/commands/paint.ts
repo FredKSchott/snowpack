@@ -3,6 +3,7 @@ import {EventEmitter} from 'events';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import readline from 'readline';
+
 const cwd = process.cwd();
 
 export const paintEvent = {

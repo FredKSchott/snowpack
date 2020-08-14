@@ -7,7 +7,7 @@ import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
 import path from 'path';
 import yargs from 'yargs-parser';
-import createLogger from './logger';
+import logger from './logger';
 import srcFileExtensionMapping from './build/src-file-extension-mapping';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
@@ -25,8 +25,6 @@ import {
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
-
-const logger = createLogger({name: 'snowpack'});
 
 // default settings
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
@@ -85,6 +83,7 @@ const configSchema = {
       type: 'object',
       additionalProperties: {type: 'string'},
     },
+    logLevel: {type: 'string'},
     devOptions: {
       type: 'object',
       properties: {

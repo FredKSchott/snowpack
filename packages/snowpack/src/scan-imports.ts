@@ -7,13 +7,11 @@ import path from 'path';
 import stripComments from 'strip-comments';
 import validatePackageName from 'validate-npm-package-name';
 import {InstallTarget, SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
-import createLogger from './logger';
+import logger from './logger';
 import {findMatchingAliasEntry, getExt, HTML_JS_REGEX, isTruthy, SVELTE_VUE_REGEX} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';
 const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
-
-const logger = createLogger({name: 'snowpack'});
 
 // [@\w] - Match a word-character or @ (valid package name)
 // (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)

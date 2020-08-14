@@ -1,5 +1,7 @@
 import * as colors from 'kleur/colors';
-import pino, {LoggerOptions} from 'pino';
+import pino from 'pino';
+
+const NAME_REGEX = /^\[[^\]]+\s*\]/; // select [somename] at beginning of line
 
 const LEVEL = {
   TRACE: 10,
@@ -11,11 +13,12 @@ const LEVEL = {
 };
 
 /** http://getpino.io/#/docs/pretty */
-export function prettifier(options: LoggerOptions) {
+function prettifier() {
   return (inputData: pino.LogDescriptor) => {
     // if the log starts with brackets, use that (e.g. [@snowpack/plugin-babel]); otherwise, use [snowpack]
-    const name = options.name ? `[${options.name}]` : '[snowpack]';
-    let msg = `${colors.dim(name)} ${inputData.msg}\n`; // add newline at end
+    const nameMatch = inputData.msg.match(NAME_REGEX);
+    let name = (nameMatch && nameMatch[0]) || '[snowpack]';
+    let msg = `${colors.dim(name.trim())} ${inputData.msg.replace(NAME_REGEX, '')}\n`; // add newline at end
 
     if (inputData.level === LEVEL.ERROR || inputData.level === LEVEL.FATAL) msg = colors.red(msg);
     if (inputData.level === LEVEL.WARN) msg = colors.yellow(msg);
@@ -24,12 +27,9 @@ export function prettifier(options: LoggerOptions) {
   };
 }
 
-/** use Pino, a tiny logging library */
-export default function createLogger(opts: pino.LoggerOptions = {}) {
-  return pino({
-    ...opts,
-    name: opts.name || 'snowpack',
-    prettyPrint: {suppressFlushSyncWarning: true},
-    prettifier,
-  });
-}
+/** export one Pino logger to rest of app, a tiny logging library */
+export default pino({
+  name: 'snowpack',
+  prettyPrint: {suppressFlushSyncWarning: true},
+  prettifier,
+});
