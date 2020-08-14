@@ -190,7 +190,6 @@ export async function command(commandOptions: CommandOptions) {
     serverStart = performance.now();
   }
 
-  // Important! this must be shimmed before command() fires
   const messageBus = new EventEmitter();
   console.log = (...args) => {
     messageBus.emit(paintEvent.CONSOLE_INFO, {msg: args.join(' ')});
@@ -202,7 +201,6 @@ export async function command(commandOptions: CommandOptions) {
     messageBus.emit(paintEvent.CONSOLE_ERROR, {msg: args.join(' ')});
   };
 
-  // Start painting dev dashboard after successful install
   paint(
     messageBus,
     config.plugins.map((p) => p.name),
