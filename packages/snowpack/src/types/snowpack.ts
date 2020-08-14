@@ -1,5 +1,4 @@
 import type HttpProxy from 'http-proxy';
-import pino from 'pino';
 import {Plugin as RollupPlugin} from 'rollup';
 
 export type DeepPartial<T> = {
@@ -153,7 +152,7 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
   env?: string[]; // env vars
   open?: string[];
   secure?: boolean;
-  logLevel?: pino.Level;
+  logLevel?: LoggerLevel;
   debug?: boolean;
   silent?: boolean;
 }
@@ -197,3 +196,10 @@ export type DependencyStatsMap = {
 };
 
 export type DependencyStatsOutput = Record<DependencyType, DependencyStatsMap>;
+
+export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
+export type LoggerEvent = 'debug' | 'info' | 'warn' | 'error';
+export interface LoggerOptions {
+  /** (optional) change name at beginning of line */
+  name?: string;
+}

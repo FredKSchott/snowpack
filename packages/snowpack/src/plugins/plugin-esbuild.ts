@@ -3,6 +3,7 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import {promises as fs} from 'fs';
 import {SnowpackPlugin, SnowpackConfig} from '../types/snowpack';
+import logger from '../logger';
 
 let esbuildService: Service | null = null;
 
@@ -38,8 +39,8 @@ export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}
         sourcemap: config.buildOptions.sourceMaps,
       });
       for (const warning of warnings) {
-        console.error(colors.bold('! ') + filePath);
-        console.error('  ' + warning.text);
+        logger.error(`${colors.bold('!')} ${filePath}
+  ${warning.text}`);
       }
       return {
         '.js': {

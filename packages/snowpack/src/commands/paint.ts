@@ -3,15 +3,13 @@ import {EventEmitter} from 'events';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import readline from 'readline';
+import logger from '../logger';
 
 const cwd = process.cwd();
 
 export const paintEvent = {
   BUILD_FILE: 'BUILD_FILE',
   LOAD_ERROR: 'LOAD_ERROR',
-  CONSOLE_INFO: 'CONSOLE_INFO',
-  CONSOLE_WARN: 'CONSOLE_WARN',
-  CONSOLE_ERROR: 'CONSOLE_ERROR',
   SERVER_RESPONSE: 'SERVER_RESPONSE',
   SERVER_START: 'SERVER_START',
   WORKER_COMPLETE: 'WORKER_COMPLETE',
@@ -21,22 +19,6 @@ export const paintEvent = {
 };
 
 const MAX_CONSOLE_LENGTH = 500;
-const NO_COLOR_ENABLED = process.env.FORCE_COLOR === '0' || process.env.NO_COLOR;
-
-function formatConsoleMessage(id: string, msg: string, color?: string) {
-  const consoleOutput: string[] = [];
-  for (const msgLine of msg.split('\n').filter(Boolean)) {
-    const formatted = NO_COLOR_ENABLED
-      ? `[${id}] ${msgLine}`
-      : `${colors.dim(`[${id}]`)} ${color ? colors[color](msgLine) : msgLine}`;
-    consoleOutput.push(formatted);
-    if (consoleOutput.length > MAX_CONSOLE_LENGTH) {
-      consoleOutput.shift();
-    }
-  }
-  return consoleOutput;
-}
-
 /**
  * Get the actual port, based on the `defaultPort`.
  * If the default port was not available, then we'll prompt the user if its okay
@@ -63,14 +45,11 @@ export async function getPort(defaultPort: number): Promise<number> {
       rl.close();
     }
     if (!useNextPort) {
-      console.error(
-        colors.red(
-          `✘ Port ${colors.bold(defaultPort)} not available. Use ${colors.bold(
-            '--port',
-          )} to specify a different port.`,
-        ),
+      logger.error(
+        `✘ Port ${colors.bold(defaultPort)} not available. Use ${colors.bold(
+          '--port',
+        )} to specify a different port.`,
       );
-      console.error();
       process.exit(1);
     }
   }
@@ -91,7 +70,6 @@ export function paint(bus: EventEmitter, plugins: string[]) {
   let protocol = '';
   let startTimeMs: number;
   let ips: string[] = [];
-  let consoleOutput: string[] = [];
   const allWorkerStates: Record<string, WorkerState> = {};
   const allFileBuilds = new Set<string>();
 
@@ -133,12 +111,16 @@ export function paint(bus: EventEmitter, plugins: string[]) {
       process.stdout.write(colors.dim(`  Server starting…`) + '\n\n');
     }
     // Console Output
-    if (consoleOutput.length) {
+    let history = logger.getHistory();
+    if (history.length > MAX_CONSOLE_LENGTH) {
+      history = [
+        colors.dim('<Previous messages trimmed>'),
+        ...history.slice(history.length - MAX_CONSOLE_LENGTH),
+      ];
+    }
+    if (history.length) {
       process.stdout.write(`${colors.underline(colors.bold('▼ Console'))}\n\n`);
-      if (consoleOutput.length >= MAX_CONSOLE_LENGTH) {
-        process.stdout.write(`${colors.dim('<Previous messages trimmed>')}\n`);
-      }
-      process.stdout.write(consoleOutput.join('\n'));
+      process.stdout.write(history.join('\n'));
       process.stdout.write('\n\n');
     }
     // Worker Dashboards
@@ -183,24 +165,25 @@ export function paint(bus: EventEmitter, plugins: string[]) {
     allWorkerStates[id] = {...WORKER_BASE_STATE};
     repaint();
   });
-  bus.on(paintEvent.CONSOLE_INFO, ({id = 'snowpack', msg}) => {
-    consoleOutput = consoleOutput.concat(formatConsoleMessage(id, msg));
-    repaint();
-  });
-  bus.on(paintEvent.CONSOLE_WARN, ({id = 'snowpack', msg}) => {
-    consoleOutput = consoleOutput.concat(formatConsoleMessage(id, msg, 'yellow'));
-    repaint();
-  });
-  bus.on(paintEvent.CONSOLE_ERROR, ({id = 'snowpack', msg}) => {
-    consoleOutput = consoleOutput.concat(formatConsoleMessage(id, msg, 'red'));
-    repaint();
-  });
   bus.on(paintEvent.SERVER_START, (info) => {
     startTimeMs = info.startTimeMs;
     hostname = info.hostname;
     port = info.port;
     protocol = info.protocol;
     ips = info.ips;
+    repaint();
+  });
+
+  logger.on('debug', () => {
+    repaint();
+  });
+  logger.on('info', () => {
+    repaint();
+  });
+  logger.on('warn', () => {
+    repaint();
+  });
+  logger.on('error', () => {
     repaint();
   });
 

@@ -54,6 +54,7 @@ import {buildFile as _buildFile, getInputsFromOutput} from '../build/build-pipel
 import {createImportResolver} from '../build/import-resolver';
 import srcFileExtensionMapping from '../build/src-file-extension-mapping';
 import {EsmHmrEngine} from '../hmr-server-engine';
+import logger from '../logger';
 import {
   scanCodeImportsExports,
   transformEsmImports,
@@ -85,7 +86,7 @@ const DEFAULT_PROXY_ERROR_HANDLER = (
   res: http.ServerResponse,
 ) => {
   const reqUrl = req.url!;
-  console.error(`✘ ${reqUrl}\n${err.message}`);
+  logger.error(`✘ ${reqUrl}\n${err.message}`);
   sendError(req, res, 502);
 };
 
@@ -128,10 +129,8 @@ const sendFile = (
   function onError(err) {
     if (err) {
       res.end();
-      console.error(
-        colors.red(`  ✘ An error occurred while compressing ${colors.bold(req.url)}`),
-        err,
-      );
+      logger.error(`✘ An error occurred while compressing ${colors.bold(req.url)}`);
+      logger.error(err);
     }
   }
 
@@ -191,16 +190,6 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   const messageBus = new EventEmitter();
-  console.log = (...args) => {
-    messageBus.emit(paintEvent.CONSOLE_INFO, {msg: args.join(' ')});
-  };
-  console.warn = (...args) => {
-    messageBus.emit(paintEvent.CONSOLE_WARN, {msg: args.join(' ')});
-  };
-  console.error = (...args) => {
-    messageBus.emit(paintEvent.CONSOLE_ERROR, {msg: args.join(' ')});
-  };
-
   paint(
     messageBus,
     config.plugins.map((p) => p.name),
@@ -229,7 +218,7 @@ export async function command(commandOptions: CommandOptions) {
 
   // Start with a fresh install of your dependencies, if needed.
   if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
-    console.log(colors.yellow('! updating dependencies...'));
+    logger.info(colors.yellow('! updating dependencies...'));
     await installCommand(installCommandOptions);
     await updateLockfileHash(DEV_DEPENDENCIES_DIR);
   }
@@ -252,7 +241,7 @@ export async function command(commandOptions: CommandOptions) {
     if (!proxyOptions.on.error) {
       proxyServer.on('error', DEFAULT_PROXY_ERROR_HANDLER);
     }
-    console.log(`Proxy created: ${pathPrefix} -> ${proxyOptions.target || proxyOptions.forward}`);
+    logger.info(`Proxy created: ${pathPrefix} -> ${proxyOptions.target || proxyOptions.forward}`);
   });
 
   const readCredentials = async (cwd: string) => {
@@ -272,28 +261,21 @@ export async function command(commandOptions: CommandOptions) {
     try {
       credentials = await readCredentials(cwd);
     } catch (e) {
-      console.error(
-        colors.red(
-          `✘ No HTTPS credentials found! Missing Files:  ${colors.bold(
-            'snowpack.crt',
-          )}, ${colors.bold('snowpack.key')}`,
-        ),
+      logger.error(
+        `✘ No HTTPS credentials found! Missing Files:  ${colors.bold(
+          'snowpack.crt',
+        )}, ${colors.bold('snowpack.key')}`,
       );
-      console.log();
-      console.log('You can automatically generate credentials for your project via either:');
-      console.log();
-      console.log(
-        `  - ${colors.cyan('devcert')}: ${colors.yellow('npx devcert-cli generate localhost')}`,
-      );
-      console.log('    https://github.com/davewasmer/devcert-cli (no install required)');
-      console.log();
-      console.log(
-        `  - ${colors.cyan('mkcert')}: ${colors.yellow(
-          'mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt localhost',
-        )}`,
-      );
-      console.log('    https://github.com/FiloSottile/mkcert (install required)');
-      console.log();
+      logger.info(`You can automatically generate credentials for your project via either:
+
+  - ${colors.cyan('devcert')}: ${colors.yellow('npx devcert-cli generate localhost')}
+    https://github.com/davewasmer/devcert-cli (no install required)
+
+  - ${colors.cyan('mkcert')}: ${colors.yellow(
+        'mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt localhost',
+      )}
+
+    https://github.com/FiloSottile/mkcert (install required)`);
       process.exit(1);
     }
   }
@@ -310,13 +292,10 @@ export async function command(commandOptions: CommandOptions) {
           },
         })
         .then(() => {
-          messageBus.emit(paintEvent.CONSOLE_INFO, {id: runPlugin.name, msg: `Command completed.`});
+          logger.info('Command completed.', {name: runPlugin.name});
         })
         .catch((err) => {
-          messageBus.emit(paintEvent.CONSOLE_ERROR, {
-            id: runPlugin.name,
-            msg: `Command exited with error code: ${err}`,
-          });
+          logger.error(`Command exited with error code: ${err}`, {name: runPlugin.name});
           process.exit(1);
         });
     }
@@ -434,7 +413,7 @@ export async function command(commandOptions: CommandOptions) {
 
     if (!fileLoc) {
       const prefix = colors.red('  ✘ ');
-      console.error(`[404] ${reqUrl}\n${attemptedFileLoads.map((loc) => prefix + loc).join('\n')}`);
+      logger.error(`[404] ${reqUrl}\n${attemptedFileLoads.map((loc) => prefix + loc).join('\n')}`);
       return sendError(req, res, 404);
     }
 
@@ -450,7 +429,6 @@ export async function command(commandOptions: CommandOptions) {
       }
       const fileBuilderPromise = (async () => {
         const builtFileOutput = await _buildFile(fileLoc, {
-          devMessageBus: messageBus,
           plugins: config.plugins,
           isDev: true,
           isHmrEnabled: isHmr,
@@ -574,15 +552,11 @@ export async function command(commandOptions: CommandOptions) {
             }
             return resolvedImportUrl;
           }
-          console.error(`Import "${spec}" could not be resolved.`);
-          console.error(
-            `If this is a new package, restart your dev server to rebuild your dependencies.`,
-          );
-          console.error(
-            `If you think this is an error, add "${spec}" to ${colors.bold(
-              'config.install',
-            )} and Snowpack will include this dependency.`,
-          );
+          logger.error(`Import "${spec}" could not be resolved.
+If this is a new package, restart your dev server to rebuild your dependencies.
+If you think this is an error, add "${spec}" to ${colors.bold(
+            'config.install',
+          )} and Snowpack will include this dependency.`);
           return spec;
         },
       );
@@ -696,14 +670,16 @@ export async function command(commandOptions: CommandOptions) {
     try {
       responseOutput = await buildFile(fileLoc);
     } catch (err) {
-      console.error(reqPath, err);
+      logger.error(`${reqPath}
+${err}`);
       sendError(req, res, 500);
       return;
     }
     try {
       responseContent = await finalizeResponse(fileLoc, requestedFileExt, responseOutput);
     } catch (err) {
-      console.error(reqPath, err);
+      logger.error(`${reqPath}
+${err}`);
       sendError(req, res, 500);
       return;
     }
@@ -740,13 +716,13 @@ export async function command(commandOptions: CommandOptions) {
     try {
       return await requestHandler(req, res);
     } catch (err) {
-      console.error(`[500] ${req.url}`);
-      console.error(err);
+      logger.error(`[500] ${req.url}`);
+      logger.error(err);
       return sendError(req, res, 500);
     }
   })
     .on('error', (err: Error) => {
-      console.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);
+      logger.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);
       server.close();
       process.exit(1);
     })
@@ -755,7 +731,7 @@ export async function command(commandOptions: CommandOptions) {
         const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
         if (isWebSocket && shouldProxy(pathPrefix, req)) {
           devProxies[pathPrefix].ws(req, socket, head);
-          console.log('Upgrading to WebSocket');
+          logger.info('Upgrading to WebSocket');
         }
       });
     })
@@ -847,7 +823,7 @@ export async function command(commandOptions: CommandOptions) {
 
   // Watch src files
   async function onWatchEvent(fileLoc) {
-    console.log(colors.cyan('File changed...'));
+    logger.info(colors.cyan('File changed...'));
     handleHmrUpdate(fileLoc);
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);

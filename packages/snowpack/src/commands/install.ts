@@ -146,7 +146,7 @@ function resolveWebDependency(dep: string): DependencyLoc {
         exportMapEntry?.require ||
         exportMapEntry;
       if (typeof exportMapValue !== 'string') {
-        logger.fatal(
+        logger.error(
           `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".`,
         );
         process.exit(1);
@@ -183,7 +183,7 @@ function resolveWebDependency(dep: string): DependencyLoc {
     depManifest.name &&
     (depManifest.name.startsWith('@reactesm') || depManifest.name.startsWith('@pika/react'))
   ) {
-    logger.fatal(
+    logger.error(
       `React workaround packages no longer needed! Revert back to the official React & React-DOM packages.`,
     );
     process.exit(1);
@@ -549,7 +549,7 @@ export async function run({
   let newLockfile: ImportMap | null = null;
   if (webDependencies && Object.keys(webDependencies).length > 0) {
     newLockfile = await resolveTargetsFromRemoteCDN(lockfile, config).catch((err) => {
-      logger.fatal('\n' + err.message || err);
+      logger.error('\n' + err.message || err);
       process.exit(1);
     });
   }
@@ -565,7 +565,7 @@ export async function run({
     if (err.url) {
       logger.error(colors.dim(`👉 ${err.url}`));
     }
-    logger.fatal(err.message || err);
+    logger.error(err.message || err);
     process.exit(1);
   });
 

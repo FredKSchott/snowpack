@@ -1,4 +1,3 @@
-import {EventEmitter} from 'events';
 import {promises as fs} from 'fs';
 import path from 'path';
 import {SnowpackBuildMap, SnowpackPlugin} from '../types/snowpack';
@@ -7,7 +6,6 @@ import {validatePluginLoadResult} from '../config';
 import logger from '../logger';
 
 export interface BuildFileOptions {
-  devMessageBus?: EventEmitter;
   isDev: boolean;
   isHmrEnabled: boolean;
   plugins: SnowpackPlugin[];
@@ -40,7 +38,7 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
  */
 async function runPipelineLoadStep(
   srcPath: string,
-  {devMessageBus, isDev, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
+  {isDev, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   for (const step of plugins) {
@@ -53,14 +51,14 @@ async function runPipelineLoadStep(
 
     try {
       const debugPath = path.relative(process.cwd(), srcPath);
-      logger.debug(`[${step.name}] load() starting… [${debugPath}]`);
+      logger.debug(`load() starting… [${debugPath}]`, {name: step.name});
       const result = await step.load({
         fileExt: srcExt,
         filePath: srcPath,
         isDev,
         isHmrEnabled,
       });
-      logger.debug(`[${step.name}] ✔ load() success [${debugPath}]`);
+      logger.debug(`✔ load() success [${debugPath}]`, {name: step.name});
 
       validatePluginLoadResult(step, result);
 
@@ -88,11 +86,7 @@ async function runPipelineLoadStep(
         return result;
       }
     } catch (err) {
-      if (devMessageBus && isDev) {
-        devMessageBus.emit('CONSOLE_ERROR', {id: step.name, msg: err.toString() || err});
-      } else {
-        logger.error(`[${step.name}]` + err);
-      }
+      logger.error(err, {name: step.name});
     }
   }
 
@@ -113,7 +107,7 @@ async function runPipelineLoadStep(
 async function runPipelineTransformStep(
   output: SnowpackBuildMap,
   srcPath: string,
-  {devMessageBus, isDev, plugins, sourceMaps}: BuildFileOptions,
+  {isDev, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   const rootFileName = path.basename(srcPath).replace(srcExt, '');
@@ -128,7 +122,7 @@ async function runPipelineTransformStep(
         const {code} = typeof destBuildFile === 'string' ? {code: destBuildFile} : destBuildFile;
         const filePath = rootFileName + destExt;
         const debugPath = path.relative(process.cwd(), filePath);
-        logger.debug(`[${step.name}] transform() starting… [${debugPath}]`);
+        logger.debug(`transform() starting… [${debugPath}]`, {name: step.name});
         const result = await step.transform({
           contents: code,
           fileExt: destExt,
@@ -137,7 +131,7 @@ async function runPipelineTransformStep(
           // @ts-ignore: Deprecated
           urlPath: `./${path.basename(rootFileName + destExt)}`,
         });
-        logger.debug(`[${step.name}] ✔ transform() success [${debugPath}]`);
+        logger.debug(`✔ transform() success [${debugPath}]`, {name: step.name});
         // if step returned a value, only update code (don’t touch .map)
         if (typeof result === 'string') {
           output[destExt].code = result;
@@ -148,11 +142,7 @@ async function runPipelineTransformStep(
         if (!sourceMaps) output[destExt].map = undefined;
       }
     } catch (err) {
-      if (devMessageBus && isDev) {
-        devMessageBus.emit('CONSOLE_ERROR', {id: step.name, msg: err.toString() || err});
-      } else {
-        logger.error(`[${step.name}] ${err}`);
-      }
+      logger.error(err, {name: step.name});
     }
   }
 
@@ -166,17 +156,17 @@ export async function runPipelineOptimizeStep(buildDirectory: string, {plugins}:
     }
 
     try {
-      logger.debug(`[${step.name}] optimize() starting…`);
+      logger.debug('optimize() starting…', {name: step.name});
       await step.optimize({
         buildDirectory,
         // @ts-ignore: internal API only
         log: (msg) => {
-          logger.info(msg);
+          logger.info(msg, {name: step.name});
         },
       });
-      logger.debug(`[${step.name}] ✔ optimize() success`);
+      logger.debug('✔ optimize() success', {name: step.name});
     } catch (err) {
-      logger.error(`[${step.name}] ${err}`);
+      logger.error(err, {name: step.name});
     }
   }
   return null;

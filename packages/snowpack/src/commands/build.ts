@@ -154,7 +154,7 @@ class FileBuilder {
         // Until supported, just exit here.
         if (!resolvedImportUrl) {
           isSuccess = false;
-          console.error(`${file.locOnDisk} - Could not resolve unkonwn import "${spec}".`);
+          logger.error(`${file.locOnDisk} - Could not resolve unkonwn import "${spec}".`);
           return spec;
         }
         // Ignore "http://*" imports
@@ -425,7 +425,7 @@ export async function command(commandOptions: CommandOptions) {
       await installDependencies();
       resolveSuccess = await changedPipelineFile.resolveImports(installResult.importMap!);
       if (!resolveSuccess) {
-        console.error('Exiting...');
+        logger.error('Exiting...');
         process.exit(1);
       }
     }

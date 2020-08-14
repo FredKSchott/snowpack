@@ -163,7 +163,7 @@ function parseCodeForInstallTargets({
       [imports] = parse(contents) || [];
     } catch (err) {
       // Another error! No hope left, just abort.
-      logger.fatal(`! ${locOnDisk}`);
+      logger.error(`! ${locOnDisk}`);
       throw err;
     }
   }

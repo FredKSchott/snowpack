@@ -83,7 +83,6 @@ const configSchema = {
       type: 'object',
       additionalProperties: {type: 'string'},
     },
-    logLevel: {type: 'string'},
     devOptions: {
       type: 'object',
       properties: {
@@ -162,7 +161,7 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
   };
   const {help, version, reload, config, ...relevantFlags} = flags;
 
-  const CLI_ONLY_FLAGS = ['debug', 'silent'];
+  const CLI_ONLY_FLAGS = ['logLevel', 'debug', 'silent'];
 
   for (const [flag, val] of Object.entries(relevantFlags)) {
     if (flag === '_' || flag.includes('-')) {
@@ -293,7 +292,7 @@ function loadPlugins(
           // Confirmed no plugins are using this now, so safe to use an empty array.
           jsFilePaths: [],
         }).catch((err) => {
-          logger.fatal(
+          logger.error(
             `[${plugin.name}] There was a problem running this older plugin. Please update the plugin to the latest version.`,
           );
           throw err;
@@ -547,19 +546,19 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
 }
 
 function handleConfigError(msg: string) {
-  logger.fatal(msg);
+  logger.error(msg);
   process.exit(1);
 }
 
 function handleValidationErrors(filepath: string, errors: {toString: () => string}[]) {
-  logger.fatal(`! ${filepath || 'Configuration error'}
+  logger.error(`! ${filepath || 'Configuration error'}
 ${errors.map((err) => `    - ${err.toString()}`).join('\n')}
     See https://www.snowpack.dev/#configuration for more info.`);
   process.exit(1);
 }
 
 function handleDeprecatedConfigError(mainMsg: string, ...msgs: string[]) {
-  logger.fatal(`${mainMsg}
+  logger.error(`${mainMsg}
 ${msgs.join('\n')}
 See https://www.snowpack.dev/#configuration for more info.`);
   process.exit(1);

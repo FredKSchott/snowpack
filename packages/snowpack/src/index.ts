@@ -35,7 +35,7 @@ ${colors.bold('Flags:')}
   --help                Show this help message.
   --version             Show the current version.
   --reload              Clear Snowpack's local cache (troubleshooting).
-  --log-level=[level]   Adjust log level (default: info) (options: silent | error | warn | info | debug | trace)
+  --log-level=[level]   Adjust lowest level to log (default: info) (options: silent | error | warn | info | debug | trace)
   --debug               See normal logs + debug info. Alias for --log-level=debug.
   --silent              Don’t output anything (dev server will still log minimally). Alias for --log-level=silent.
     `.trim(),
@@ -65,7 +65,7 @@ export async function cli(args: string[]) {
   try {
     pkgManifest = require(path.join(cwd, 'package.json'));
   } catch (err) {
-    logger.fatal(`package.json not found in directory: ${cwd}. Run \`npm init -y\` to create one.`);
+    logger.error(`package.json not found in directory: ${cwd}. Run \`npm init -y\` to create one.`);
     process.exit(1);
   }
 
@@ -101,7 +101,7 @@ export async function cli(args: string[]) {
   }
 
   if (cliFlags['_'].length > 3) {
-    logger.fatal(`Unexpected multiple commands`);
+    logger.error(`Unexpected multiple commands`);
     process.exit(1);
   }
 
@@ -118,6 +118,6 @@ export async function cli(args: string[]) {
     return;
   }
 
-  logger.fatal(`Unrecognized command: ${cmd}`);
+  logger.error(`Unrecognized command: ${cmd}`);
   process.exit(1);
 }
