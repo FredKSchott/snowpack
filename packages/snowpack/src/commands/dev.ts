@@ -193,13 +193,13 @@ export async function command(commandOptions: CommandOptions) {
   // Important! this must be shimmed before command() fires
   const messageBus = new EventEmitter();
   console.log = (...args) => {
-      messageBus.emit(paintEvent.CONSOLE_INFO, {msg: args.join(' ')});
+    messageBus.emit(paintEvent.CONSOLE_INFO, {msg: args.join(' ')});
   };
   console.warn = (...args) => {
-      messageBus.emit(paintEvent.CONSOLE_WARN, {msg: args.join(' ')});
+    messageBus.emit(paintEvent.CONSOLE_WARN, {msg: args.join(' ')});
   };
   console.error = (...args) => {
-      messageBus.emit(paintEvent.CONSOLE_ERROR, {msg: args.join(' ')});
+    messageBus.emit(paintEvent.CONSOLE_ERROR, {msg: args.join(' ')});
   };
 
   // Start painting dev dashboard after successful install
