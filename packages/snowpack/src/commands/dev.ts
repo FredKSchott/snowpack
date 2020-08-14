@@ -587,6 +587,9 @@ export async function command(commandOptions: CommandOptions) {
           console.error(
             `If this is a new package, restart your dev server to rebuild your dependencies.`,
           );
+          console.error(
+            `If you think this is an error, add "${spec}" to ${colors.bold('config.install')} and Snowpack will include this dependency.`,
+          );
           return spec;
         },
       );
