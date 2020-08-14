@@ -4,10 +4,11 @@ import {SnowpackConfig} from '../types/snowpack';
 import {getExt, URL_HAS_PROTOCOL_REGEX} from '../util';
 
 export function getMetaUrlPath(urlPath: string, isDev: boolean, config: SnowpackConfig): string {
+
+  let {baseUrl, metaDir} = config.buildOptions || {};
   if (isDev) {
     return path.posix.normalize(path.posix.join('/', metaDir, urlPath));
   }
-  let {baseUrl, metaDir} = config.buildOptions || {};
   if (URL_HAS_PROTOCOL_REGEX.test(baseUrl)) {
     return baseUrl + path.posix.normalize(path.posix.join(metaDir, urlPath));
   }
