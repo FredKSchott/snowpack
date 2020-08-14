@@ -1,7 +1,7 @@
 import * as colors from 'kleur/colors';
 import pino from 'pino';
 
-const NAME_REGEX = /^\[[^\]]+\s*\]/; // select [somename] at beginning of line
+const NAME_REGEX = /^\[[^\]]+\]\s*/; // select [somename] at beginning of line
 
 const LEVEL = {
   TRACE: 10,

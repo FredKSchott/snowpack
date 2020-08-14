@@ -53,14 +53,14 @@ async function runPipelineLoadStep(
 
     try {
       const debugPath = path.relative(process.cwd(), srcPath);
-      logger.debug(`[${step.name}] load() starting: [${debugPath}]`);
+      logger.debug(`[${step.name}] load() starting… [${debugPath}]`);
       const result = await step.load({
         fileExt: srcExt,
         filePath: srcPath,
         isDev,
         isHmrEnabled,
       });
-      logger.debug(`[${step.name}] load() successful [${debugPath}]`);
+      logger.debug(`[${step.name}] ✔ load() success [${debugPath}]`);
 
       validatePluginLoadResult(step, result);
 
@@ -137,7 +137,7 @@ async function runPipelineTransformStep(
           // @ts-ignore: Deprecated
           urlPath: `./${path.basename(rootFileName + destExt)}`,
         });
-        logger.debug(`[${step.name}] transform() successful [${debugPath}]`);
+        logger.debug(`[${step.name}] ✔ transform() success [${debugPath}]`);
         // if step returned a value, only update code (don’t touch .map)
         if (typeof result === 'string') {
           output[destExt].code = result;
@@ -174,7 +174,7 @@ export async function runPipelineOptimizeStep(buildDirectory: string, {plugins}:
           logger.info(msg);
         },
       });
-      logger.debug(`[${step.name}] optimize() successful`);
+      logger.debug(`[${step.name}] ✔ optimize() success`);
     } catch (err) {
       logger.error(`[${step.name}] ${err}`);
     }
