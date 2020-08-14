@@ -2,7 +2,7 @@ import {EventEmitter} from 'events';
 import {promises as fs} from 'fs';
 import path from 'path';
 import pino from 'pino';
-import {SnowpackBuildMap, SnowpackPlugin} from '../types/snowpack';
+import {SnowpackBuildMap, SnowpackPlugin, SnowpackConfig} from '../types/snowpack';
 import {getEncodingType, getExt, replaceExt} from '../util';
 import {validatePluginLoadResult} from '../config';
 import createLogger from '../logger';
@@ -199,6 +199,17 @@ export async function runPipelineOptimizeStep(
     }
   }
   return null;
+}
+
+export async function runPipelineCleanupStep(
+  {plugins}: SnowpackConfig,
+) {
+  for (const step of plugins) {
+    if (!step.cleanup) {
+      continue;
+    }
+    await step.cleanup();
+  }
 }
 
 /** Core Snowpack file pipeline builder */

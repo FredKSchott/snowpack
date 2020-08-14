@@ -1,4 +1,5 @@
-const babel = require('@babel/core');
+const workerpool = require('workerpool');
+let worker, pool;
 
 module.exports = function plugin(snowpackConfig, options = {}) {
   // options validation
@@ -19,16 +20,19 @@ module.exports = function plugin(snowpackConfig, options = {}) {
       output: ['.js'], // always export JS
     },
     async load({filePath}) {
-      if (!filePath) return;
-      const {transformOptions = {}} = options;
-
-      let {code, map} = await babel.transformFileAsync(filePath, {
+      if (!filePath) {
+        return;
+      }
+      pool = pool || workerpool.pool(require.resolve('./worker.js'));
+      worker = worker || (await pool.proxy());
+      let encodedResult = await worker.transformFileAsync(filePath, {
         cwd: process.cwd(),
         ast: false,
         compact: false,
         sourceMaps: snowpackConfig.buildOptions.sourceMaps,
-        ...transformOptions,
+        ...(options.transformOptions || {}),
       });
+      let {code, map} = JSON.parse(encodedResult);
 
       if (code) {
         // Some Babel plugins assume process.env exists, but Snowpack
@@ -43,6 +47,9 @@ module.exports = function plugin(snowpackConfig, options = {}) {
           map,
         },
       };
+    },
+    cleanup() {
+      pool && pool.terminate();
     },
   };
 };
