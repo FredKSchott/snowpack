@@ -11,7 +11,7 @@ export function getMetaUrlPath(urlPath: string, isDev: boolean, config: Snowpack
   if (URL_HAS_PROTOCOL_REGEX.test(baseUrl)) {
     return baseUrl + path.posix.normalize(path.posix.join(metaDir, urlPath));
   }
-  return path.posix.normalize(path.posix.join(baseUrl, metaDir, urlPath));
+  return path.posix.normalize(path.posix.join('/', metaDir, urlPath));
 }
 
 export function wrapImportMeta({
