@@ -35,7 +35,6 @@ function formatConsoleMessage(id: string, msg: string, color?: string) {
   }
   return consoleOutput;
 }
-
 /**
  * Get the actual port, based on the `defaultPort`.
  * If the default port was not available, then we'll prompt the user if its okay
