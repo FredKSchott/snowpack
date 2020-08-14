@@ -624,23 +624,26 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       if (!output[requestedFileExt] || !Object.keys(output)) {
         return null;
       }
-      // Wrap the response.
+
       const {code, map} = output[requestedFileExt];
       if (typeof code !== 'string') return code; // return binary files as-is
+      let finalResponse = code;
 
+      // Resolve imports.
+      if (requestedFileExt === '.js' || requestedFileExt === '.html' || requestedFileExt === '.css') {
+        finalResponse = await resolveResponseImports(fileLoc, requestedFileExt, finalResponse);
+      }
+
+      // Wrap the response.
       const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
-      let wrappedResponse = await wrapResponse(code, {
+      finalResponse = await wrapResponse(finalResponse, {
         hasCssResource: hasAttachedCss,
         sourceMap: map,
         sourceMappingURL: path.basename(requestedFile.base) + '.map',
       });
 
-      // Resolve imports.
-      if (requestedFileExt === '.js' || requestedFileExt === '.html') {
-        wrappedResponse = await resolveResponseImports(fileLoc, requestedFileExt, wrappedResponse);
-      }
       // Return the finalized response.
-      return wrappedResponse;
+      return finalResponse;
     }
 
     // 1. Check the hot build cache. If it's already found, then just serve it.

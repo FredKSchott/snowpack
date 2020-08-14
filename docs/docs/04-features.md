@@ -254,11 +254,19 @@ module.exports = {
 };
 ```
 
+### CSS Imports (@import)
 
-### CSS @import Support
+```css
+/* Import a local CSS file */
+@import './style1.css';
+/* Import a local Sass file (Sass build plugin still needed to compile file contents) */
+@import './style2.scss';
+/* Import a package CSS file */
+@import 'bootstrap/dist/css/bootstrap.css';
+```
 
-Snowpack supports native CSS "@import" behavior. This behaves slightly differently from JavaScript's `import` behavior. In CSS, `@import 'foo/bar.css'` points to the relative file `./foo/bar.css` and not some package "foo". There is no currently no way to use the native `@import` statement to import from a package by name.
+Snowpack supports [native CSS "@import" behavior](https://developer.mozilla.org/en-US/docs/Web/CSS/@import) with additional support for importing CSS from within packages.
 
-If you'd like to use `@import` to import from a package by name, you can use [PostCSS](#postcss) with the [postcss-import](https://github.com/postcss/postcss-import) plugin. Alternatively, you can use a JavaScript import to import a CSS file by package name (`import 'foo/bar.css';`).
+**Note:** The actual CSS spec dictates that a "bare" import specifier like `@import "package/style.css"` should be treated as a relative path, equivalent to `@import "./package/style.css"`. We intentionally break from the spec to match the same package import behavior as JavaScript imports. If you prefer the strictly native behavior with no package resolution support, use the form `@import url("package/style.css")` instead. Snowpack will not resolve `url()` imports and will leave them as-is in the final build.
 
-**Note for webpack users:** If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With `postcss-import` you have to remove the `~` from your `@import`s.
+**Note for webpack users:** If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With Snowpack you remove the `~` from your `@import`s.

@@ -28,6 +28,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.14.0",
     "array-flatten": "^3.0.0",
-    "snowpack": "^2.7.0"
+    "snowpack": "^2.7.0",
+    "bootstrap": "^4.5.2"
   }
 }
