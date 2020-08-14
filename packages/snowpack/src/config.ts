@@ -161,6 +161,9 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
     buildOptions: {} as any,
   };
   const {help, version, reload, config, ...relevantFlags} = flags;
+
+  const CLI_ONLY_FLAGS = ['debug', 'silent'];
+
   for (const [flag, val] of Object.entries(relevantFlags)) {
     if (flag === '_' || flag.includes('-')) {
       continue;
@@ -179,6 +182,9 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
     }
     if (configSchema.properties.buildOptions.properties[flag]) {
       result.buildOptions[flag] = val;
+      continue;
+    }
+    if (CLI_ONLY_FLAGS.includes(flag)) {
       continue;
     }
     logger.error(`Unknown CLI flag: "${flag}"`);

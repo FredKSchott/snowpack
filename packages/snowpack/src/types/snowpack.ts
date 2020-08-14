@@ -154,6 +154,8 @@ export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>
   open?: string[];
   secure?: boolean;
   logLevel?: pino.Level;
+  debug?: boolean;
+  silent?: boolean;
 }
 
 export interface ImportMap {

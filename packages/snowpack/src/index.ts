@@ -35,7 +35,9 @@ ${colors.bold('Flags:')}
   --help                Show this help message.
   --version             Show the current version.
   --reload              Clear Snowpack's local cache (troubleshooting).
-  --log-level=[level]   Adjust log level (default: info) (options: trace | debug | info | warn | error | silent)
+  --log-level=[level]   Adjust log level (default: info) (options: silent | error | warn | info | debug | trace)
+  --debug               See normal logs + debug info. Alias for --log-level=debug.
+  --silent              Don’t output anything (dev server will still log minimally). Alias for --log-level=silent.
     `.trim(),
   );
 }
@@ -86,6 +88,8 @@ export async function cli(args: string[]) {
   };
 
   logger.level = cliFlags.logLevel || 'info';
+  if (cliFlags.debug) logger.level = 'debug';
+  if (cliFlags.silent) logger.level = 'silent';
 
   if (cmd === 'add') {
     await addCommand(cliFlags['_'][3], commandOptions);
