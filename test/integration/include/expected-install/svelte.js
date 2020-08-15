@@ -5,6 +5,9 @@ function run(fn) {
 function run_all(fns) {
     fns.forEach(run);
 }
+function is_empty(obj) {
+    return Object.keys(obj).length === 0;
+}
 function custom_event(type, detail) {
     const e = document.createEvent('CustomEvent');
     e.initCustomEvent(type, false, false, detail);
@@ -144,8 +147,12 @@ class SvelteComponent {
                 callbacks.splice(index, 1);
         };
     }
-    $set() {
-        // overridden by instance, if it has props
+    $set($$props) {
+        if (this.$$set && !is_empty($$props)) {
+            this.$$.skip_bound = true;
+            this.$$set($$props);
+            this.$$.skip_bound = false;
+        }
     }
 }
 class SvelteComponentDev extends SvelteComponent {
