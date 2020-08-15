@@ -55,6 +55,12 @@ describe('create-snowpack-app', () => {
       const expected = path.join(__dirname, 'snapshots', template);
       const actual = path.join(cwd, 'build');
 
+      if (process.env.UPDATE_SNAPSHOTS) {
+        rimraf.sync(expected);
+        fs.renameSync(actual, expected);
+        return;
+      }
+
       // 2. compare
       const res = dircompare.compareSync(expected, actual);
 

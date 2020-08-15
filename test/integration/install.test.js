@@ -73,7 +73,6 @@ describe('snowpack install', () => {
         reject: false,
         all: true,
       });
-      // Test Output
       let expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
       if (process.platform === 'win32') {
         const expectedWinOutputLoc = path.resolve(expectedOutputLoc, '../expected-output.win.txt');
@@ -82,21 +81,31 @@ describe('snowpack install', () => {
         }
       }
       const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
-      expect(
-        stripWhitespace(
-          stripConfigErrorPath(
-            stripResolveErrorPath(
-              stripBenchmark(stripChunkHash(stripStats(stripStacktrace((all))))),
-            ),
-          ),
+      const actualOutput = stripWhitespace(
+        stripConfigErrorPath(
+          stripResolveErrorPath(stripBenchmark(stripChunkHash(stripStats(stripStacktrace(all))))),
         ),
-      ).toBe(stripWhitespace(expectedOutput));
-
+      );
       // Test Lockfile (if one exists)
       const expectedLockLoc = path.join(__dirname, testName, 'expected-lock.json');
       const expectedLock = await fs
         .readFile(expectedLockLoc, {encoding: 'utf8'})
         .catch((/* ignore */) => null);
+      const expectedInstallLoc = path.join(__dirname, testName, 'expected-install');
+      const actualInstallLoc = path.join(__dirname, testName, 'web_modules');
+
+      if (process.env.UPDATE_SNAPSHOTS) {
+        if (existsSync(actualInstallLoc)) {
+          rimraf.sync(expectedInstallLoc);
+          await fs.rename(actualInstallLoc, expectedInstallLoc);
+        }
+        await fs.writeFile(expectedOutputLoc, actualOutput);
+        return;
+      }
+
+      // Test Output
+      expect(actualOutput).toBe(stripWhitespace(expectedOutput));
+
       if (expectedLock) {
         const actualLockLoc = path.join(__dirname, testName, 'snowpack.lock.json');
         const actualLock = await fs.readFile(actualLockLoc, {encoding: 'utf8'});
@@ -113,23 +122,21 @@ describe('snowpack install', () => {
         removeLockfile(testName);
       }
 
-      const expected = path.join(__dirname, testName, 'expected-install');
-      const actual = path.join(__dirname, testName, 'web_modules');
-      const expectedWebDependencies = await fs.readdir(expected).catch(() => {});
+      const expectedWebDependencies = await fs.readdir(expectedInstallLoc).catch(() => {});
       if (!expectedWebDependencies) {
         // skip web_modules/ comparison for tests that start with error-*
         if (testName.startsWith('error-')) {
           return;
         }
         // throw error if web_modules/ is generated but expected-install/ is missing
-        if (existsSync(actual)) throw new Error(`${actual} exists`);
+        if (existsSync(actualInstallLoc)) throw new Error(`${actualInstallLoc} exists`);
 
         // otherwise, stop test here
         return;
       }
 
       // Test That all files match
-      var res = dircompare.compareSync(expected, actual, {
+      var res = dircompare.compareSync(expectedInstallLoc, actualInstallLoc, {
         compareSize: true,
         // Chunk hashes created in common dependency file names are generated
         // differently on windows & linux and cause CI tests to fail
@@ -144,11 +151,15 @@ describe('snowpack install', () => {
 
         if (!entry.path2)
           throw new Error(
-            `File failed to generate: ${entry.path1.replace(expected, '')}/${entry.name1}`,
+            `File failed to generate: ${entry.path1.replace(expectedInstallloc, '')}/${
+              entry.name1
+            }`,
           );
         if (!entry.path1)
           throw new Error(
-            `File not found in snapshot: ${entry.path2.replace(actual, '')}/${entry.name2}`,
+            `File not found in snapshot: ${entry.path2.replace(actualInstallLoc, '')}/${
+              entry.name2
+            }`,
           );
 
         // NOTE: common chunks are hashed, non-trivial to compare

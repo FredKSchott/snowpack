@@ -6,7 +6,7 @@
     "publish": "lerna publish",
     "format": "prettier --write \"packages/*/src/**/*.ts\"",
     "test": "jest --test-timeout=30000",
-    "update-snapshots": "node ./scripts/update-snapshots.js"
+    "update-snapshots": "UPDATE_SNAPSHOTS=1 yarn test"
   },
   "workspaces": [
     "packages/@snowpack/*",

@@ -1,6 +1,7 @@
+const rimraf = require('rimraf');
 const path = require('path');
 const execa = require('execa');
-const {readdirSync, readFileSync, statSync, existsSync} = require('fs');
+const {readdirSync, readFileSync, statSync, existsSync, renameSync} = require('fs');
 const dircompare = require('dir-compare');
 
 const STRIP_WHITESPACE = /((\s+$)|((\\r\\n)|(\\n)))/gm;
@@ -29,6 +30,13 @@ describe('snowpack build', () => {
 
       const expected = path.join(cwd, 'expected-build');
       const actual = path.join(cwd, 'build');
+
+
+      if (process.env.UPDATE_SNAPSHOTS) {
+        rimraf.sync(expected);
+      renameSync(actual, expected);
+      return;
+      }
 
       // Test That all files match
       var res = dircompare.compareSync(expected, actual, {
