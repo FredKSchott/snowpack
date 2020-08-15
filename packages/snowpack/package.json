@@ -53,9 +53,9 @@
   "dependencies": {
     "@babel/plugin-syntax-import-meta": "^7.10.4",
     "@rollup/plugin-alias": "^3.0.1",
-    "@rollup/plugin-commonjs": "^14.0.0",
+    "@rollup/plugin-commonjs": "^15.0.0",
     "@rollup/plugin-json": "^4.0.0",
-    "@rollup/plugin-node-resolve": "^8.4.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-replace": "^2.1.0",
     "@snowpack/plugin-build-script": "^2.0.4",
     "@snowpack/plugin-run-script": "^2.0.4",

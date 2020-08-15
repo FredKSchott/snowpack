@@ -1,5 +1,5 @@
 [snowpack] ! installing dependencies…
 [snowpack] ✔ install complete
 [snowpack]
-  ⦿ web_modules/          size       gzip       brotli   
+  ⦿ web_modules/          size       gzip       brotli
     └─ remote-url-pkg.js    XXXX KB    XXXX KB    XXXX KB

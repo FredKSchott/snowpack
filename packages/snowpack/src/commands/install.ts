@@ -385,10 +385,8 @@ ${colors.dim(
       rollupPluginCss(),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
-        // Workaround: CJS -> ESM isn't supported yet by the plugin, so we needed
-        // to add our own custom workaround here. Requires a fork of
-        // rollupPluginCommonjs that supports the "externalEsm" option.
         externalEsm: process.env.EXTERNAL_ESM_PACKAGES || [],
+        requireReturnsDefault: 'auto',
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
