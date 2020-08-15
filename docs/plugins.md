@@ -218,7 +218,7 @@ This is an (obviously) simplified version of the `@snowpack/plugin-webpack` plug
 
 ## Plugin API
 
-Check out our ["SnowpackPlugin" TypeScript definition](https://unpkg.com/browse/snowpack@2.6.4/dist-types/config.d.ts) for a fully documented and up-to-date summary of the Plugin API and all supported options.
+Check out our ["SnowpackPlugin" TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts#L57) for a fully documented and up-to-date summary of the Plugin API and all supported options.
 
 ### knownEntrypoints
 
@@ -243,14 +243,14 @@ If your plugin defines a `load()` method, Snowpack will need to know what files 
 
 - `input`: An array of file extensions that this plugin will load.
 - `output`: The set of all file extensions that this plugin's `load()` method will output.
-- [Full TypeScript definition](https://unpkg.com/browse/snowpack@2.6.4/dist-types/config.d.ts).
+- [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts#L57).
 
 ### load()
 
 Load a file from disk and build it for your application. This is most useful for taking a file type that can't run in the browser (TypeScript, Sass, Vue, Svelte) and returning JS and/or CSS. It can even be used to load JS/CSS files directly from disk with a build step like Babel or PostCSS.
 
 - See above for an example of how to use this method.
-- [Full TypeScript definition](https://unpkg.com/browse/snowpack@2.6.4/dist-types/config.d.ts).
+- [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts#L57).
 
 ### transform()
 
@@ -258,13 +258,13 @@ Transform a file's contents. Useful for making changes to all types of output (J
 
 - See above for an example of how to use this method.
 - Example: [@snowpack/plugin-postcss](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-postcss)
-- [Full TypeScript definition](https://unpkg.com/browse/snowpack@2.6.4/dist-types/config.d.ts).
+- [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts#L57).
 
 ### run()
 
 Run a CLI command, and connect it's output into the Snowpack console. Useful for connecting tools like TypeScript.
 
-- [Full TypeScript definition](https://unpkg.com/browse/snowpack@2.6.4/dist-types/config.d.ts).
+- [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts#L57).
 
 ### optimize()
 
@@ -272,7 +272,7 @@ Snowpack’s bundler plugin API is still experimental and may change in a future
 
 - Example: [@snowpack/plugin-parcel](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-parcel)
 - Example: [@snowpack/plugin-webpack](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-webpack)
-- [Full TypeScript definition](https://unpkg.com/browse/snowpack@2.6.4/dist-types/config.d.ts).
+- [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts#L57).
 
 ## Publishing a Plugin
 
