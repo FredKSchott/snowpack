@@ -93,7 +93,8 @@ This plugin allows you to run any CLI command as a part of your dev and build wo
 
 ### Community Plugins
 
-- [@prefresh/snowpack](https://github.com/JoviDeCroock/prefresh)
+- [snowpack-plugin-mdx](https://www.npmjs.com/package/snowpack-plugin-mdx)
+- [snowpack-plugin-stylus](https://www.npmjs.com/package/snowpack-plugin-stylus)
 - [snowpack-plugin-import-map](https://github.com/zhoukekestar/snowpack-plugin-import-map)
 
-Don’t see your plugin in this list? [Add yours](https://github.com/pikapkg/snowpack/pulls)!
+👉 **[Find your community plugin on npm.](https://www.npmjs.com/search?q=keywords:snowpack%20plugin)**
