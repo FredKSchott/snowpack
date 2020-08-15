@@ -4,7 +4,7 @@ import PQueue from 'p-queue';
 import validatePackageName from 'validate-npm-package-name';
 import {SnowpackConfig, ImportMap} from './types/snowpack';
 import {fetchCDNResource, PIKA_CDN, RESOURCE_CACHE} from './util.js';
-import logger from './logger';
+import {logger} from './logger';
 
 /**
  * Given an install specifier, attempt to resolve it from the CDN.

@@ -7,7 +7,7 @@ import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
 import path from 'path';
 import yargs from 'yargs-parser';
-import logger from './logger';
+import {logger} from './logger';
 import srcFileExtensionMapping from './build/src-file-extension-mapping';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
@@ -161,7 +161,7 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
   };
   const {help, version, reload, config, ...relevantFlags} = flags;
 
-  const CLI_ONLY_FLAGS = ['logLevel', 'debug', 'silent'];
+  const CLI_ONLY_FLAGS = ['quiet', 'verbose'];
 
   for (const [flag, val] of Object.entries(relevantFlags)) {
     if (flag === '_' || flag.includes('-')) {

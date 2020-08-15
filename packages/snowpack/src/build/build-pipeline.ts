@@ -3,7 +3,7 @@ import path from 'path';
 import {SnowpackBuildMap, SnowpackPlugin} from '../types/snowpack';
 import {getEncodingType, getExt, replaceExt} from '../util';
 import {validatePluginLoadResult} from '../config';
-import logger from '../logger';
+import {logger} from '../logger';
 
 export interface BuildFileOptions {
   isDev: boolean;

@@ -7,7 +7,7 @@ import path from 'path';
 import stripComments from 'strip-comments';
 import validatePackageName from 'validate-npm-package-name';
 import {InstallTarget, SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
-import logger from './logger';
+import {logger} from './logger';
 import {findMatchingAliasEntry, getExt, HTML_JS_REGEX, isTruthy, SVELTE_VUE_REGEX} from './util';
 
 const WEB_MODULES_TOKEN = 'web_modules/';

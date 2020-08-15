@@ -13,13 +13,23 @@ const levels: Record<LoggerLevel, number> = {
 class SnowpackLogger {
   /** set the log level (can be changed after init) */
   public level: LoggerLevel = 'info';
+  /** configure maximum number of logs to keep (default: 500) */
+  public logCount = 500;
 
   private history: string[] = []; // this is immutable; must be accessed with Logger.getHistory()
   private callbacks: Record<LoggerEvent, (message: string) => void> = {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
+    debug: (message: string) => {
+      console.log(message);
+    },
+    info: (message: string) => {
+      console.log(message);
+    },
+    warn: (message: string) => {
+      console.warn(message);
+    },
+    error: (message: string) => {
+      console.error(message);
+    },
   };
 
   private log({level, name, message}: {level: LoggerEvent; name: string; message: string}) {
@@ -34,18 +44,17 @@ class SnowpackLogger {
     if (level === 'error') text = colors.red(text);
     const log = `${colors.dim(`[${name}]`)} ${text}`;
 
-    // add to log history
-    this.history = this.history.concat(log);
+    // add to log history and remove old logs to keep memory low
+    this.history.push(log);
+    while (this.history.length > this.logCount) {
+      this.history.shift();
+    }
 
     // log
-    let logFn = console.log;
-    if (level === 'warn') logFn = console.warn;
-    if (level === 'error') logFn = console.error;
-    logFn(log);
-
-    // fire callback, if any
     if (typeof this.callbacks[level] === 'function') {
       this.callbacks[level](log);
+    } else {
+      throw new Error(`No logging method defined for ${level}`);
     }
   }
 
@@ -74,8 +83,8 @@ class SnowpackLogger {
   }
 
   /** get full logging history */
-  public getHistory() {
-    return [...this.history];
+  public getHistory(): ReadonlyArray<string> {
+    return this.history;
   }
 
   /** listen for events */
@@ -85,4 +94,4 @@ class SnowpackLogger {
 }
 
 /** export one logger to rest of app */
-export default new SnowpackLogger();
+export const logger = new SnowpackLogger();

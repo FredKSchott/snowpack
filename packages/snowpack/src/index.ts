@@ -6,7 +6,7 @@ import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {command as installCommand} from './commands/install';
 import {loadAndValidateConfig} from './config.js';
-import logger from './logger';
+import {logger} from './logger';
 import {CLIFlags} from './types/snowpack';
 import {clearCache, readLockfile} from './util.js';
 
@@ -35,9 +35,8 @@ ${colors.bold('Flags:')}
   --help                Show this help message.
   --version             Show the current version.
   --reload              Clear Snowpack's local cache (troubleshooting).
-  --log-level=[level]   Adjust lowest level to log (default: info) (options: silent | error | warn | info | debug | trace)
-  --debug               See normal logs + debug info. Alias for --log-level=debug.
-  --silent              Don’t output anything (dev server will still log minimally). Alias for --log-level=silent.
+  --verbose             View debug info (where available)
+  --quiet               Don’t output anything (dev server will still log minimally)
     `.trim(),
   );
 }
@@ -87,9 +86,8 @@ export async function cli(args: string[]) {
     logger,
   };
 
-  logger.level = cliFlags.logLevel || 'info';
-  if (cliFlags.debug) logger.level = 'debug';
-  if (cliFlags.silent) logger.level = 'silent';
+  if (cliFlags.verbose) logger.level = 'debug';
+  if (cliFlags.quiet) logger.level = 'silent';
 
   if (cmd === 'add') {
     await addCommand(cliFlags['_'][3], commandOptions);

@@ -3,7 +3,7 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import {promises as fs} from 'fs';
 import {SnowpackPlugin, SnowpackConfig} from '../types/snowpack';
-import logger from '../logger';
+import {logger} from '../logger';
 
 let esbuildService: Service | null = null;
 

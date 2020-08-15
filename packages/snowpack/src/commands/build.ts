@@ -17,7 +17,7 @@ import {
 import {buildFile, runPipelineOptimizeStep} from '../build/build-pipeline';
 import {createImportResolver} from '../build/import-resolver';
 import {removeLeadingSlash} from '../config';
-import logger from '../logger';
+import {logger} from '../logger';
 import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
 import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
