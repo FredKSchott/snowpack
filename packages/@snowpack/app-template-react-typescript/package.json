@@ -25,6 +25,7 @@
     "@testing-library/react": "^10.0.3",
     "@types/react": "^16.9.35",
     "@types/react-dom": "^16.9.8",
+    "@types/snowpack-env": "^2.3.0",
     "jest": "^26.2.2",
     "prettier": "^2.0.5",
     "snowpack": "^2.7.7",
