@@ -5,4 +5,5 @@
 
 ## Testing
 
-<!-- For someone unfamiliar with the issue, how should this be tested? -->
+<!-- How was this change tested? -->
+<!-- DON'T DELETE THIS SECTION! If no tests were added, explain why. -->
