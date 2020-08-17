@@ -3,8 +3,9 @@
  * A client-side implementation of the ESM-HMR spec, for reference.
  */
 
+ const ESM_PREFIX = '[ESM-HMR]'
 function debug(...args) {
-  console.debug('[ESM-HMR]', ...args);
+  console.debug(ESM_PREFIX, ...args);
 }
 function reload() {
   location.reload(true);
@@ -138,6 +139,7 @@ socket.addEventListener('message', ({data: _data}) => {
   if (data.type === 'reload') {
     debug('message: reload');
     reload();
+    console.log(`${ESM_PREFIX} Reloaded`);
     return;
   }
   if (data.type !== 'update') {
@@ -146,6 +148,7 @@ socket.addEventListener('message', ({data: _data}) => {
   }
   debug('message: update', data);
   debug(data.url, Object.keys(REGISTERED_MODULES));
+  console.log(`${ESM_PREFIX} Updated`);
   runModuleAccept(data.url)
     .then((ok) => {
       if (!ok) {
