@@ -177,22 +177,44 @@ export async function openInBrowser(
     : /brave/i.test(browser)
     ? appNames[process.platform]['brave']
     : browser;
-  if (process.platform === 'darwin' && /chrome|default/i.test(browser)) {
+  const isMac = process.platform === 'darwin';
+  const isOpeningInChrome = /chrome|default/i.test(browser);
+  if (isMac && isOpeningInChrome) {
     // If we're on macOS, and we haven't requested a specific browser,
     // we can try opening Chrome with AppleScript. This lets us reuse an
     // existing tab when possible instead of creating a new one.
     try {
+      // see if Chrome process is open; fail if not
       await execa.command('ps cax | grep "Google Chrome"', {
         shell: true,
       });
-      await execa('osascript ../assets/openChrome.applescript "' + encodeURI(url) + '"', {
-        cwd: __dirname,
-        stdio: 'ignore',
-        shell: true,
-      });
+      // use open Chrome tab if exists; create new Chrome tab if not
+      const openChrome = execa(
+        'osascript ../assets/openChrome.applescript "' + encodeURI(url) + '"',
+        {
+          cwd: __dirname,
+          stdio: 'ignore',
+          shell: true,
+        },
+      );
+      // if Chrome doesn’t respond within 3s, fall back to opening new tab in default browser
+      let isChromeStalled = setTimeout(() => {
+        openChrome.cancel();
+        console.warn(`Chrome not responding to Snowpack after 3s. Opening dev server in new tab.`);
+        open(url);
+      }, 3000);
+
+      try {
+        await openChrome;
+        clearTimeout(isChromeStalled);
+      } catch (err) {
+        console.error(err.toString() || err);
+        open(url);
+      }
       return true;
     } catch (err) {
-      // If macOS auto-reuse doesn't work, just open normally, using default browser.
+      // if no open Chrome process, open default browser
+      // no error message needed here
       open(url);
     }
   } else {
