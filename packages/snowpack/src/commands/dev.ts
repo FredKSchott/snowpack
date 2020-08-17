@@ -130,7 +130,7 @@ const sendFile = (
     if (err) {
       res.end();
       logger.error(`✘ An error occurred while compressing ${colors.bold(req.url)}`);
-      logger.error(err);
+      logger.error(err.toString() || err);
     }
   }
 
@@ -729,7 +729,7 @@ ${err}`);
       return await requestHandler(req, res);
     } catch (err) {
       logger.error(`[500] ${req.url}`);
-      logger.error(err);
+      logger.error(err.toString() || err);
       return sendError(req, res, 500);
     }
   })

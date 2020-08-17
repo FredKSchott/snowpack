@@ -250,7 +250,7 @@ function loadPlugins(
       if (typeof plugin !== 'function') logger.error(`plugin ${name} doesn’t return function`);
       plugin = (plugin as any)(config, options);
     } catch (err) {
-      logger.error(err);
+      logger.error(err.toString() || err);
       throw err;
     }
     plugin.name = plugin.name || name;

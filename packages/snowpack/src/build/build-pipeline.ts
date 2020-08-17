@@ -86,7 +86,9 @@ async function runPipelineLoadStep(
         return result;
       }
     } catch (err) {
-      logger.error(err, {name: step.name});
+      // note: for many plugins like Babel, `err.toString()` is needed to display full output
+      logger.error(err.toString() || err, {name: step.name});
+      if (!isDev) process.exit(1); // exit in build
     }
   }
 
@@ -142,7 +144,9 @@ async function runPipelineTransformStep(
         if (!sourceMaps) output[destExt].map = undefined;
       }
     } catch (err) {
-      logger.error(err, {name: step.name});
+      // note: for many plugins like Babel, `err.toString()` is needed to display full output
+      logger.error(err.toString() || err, {name: step.name});
+      if (!isDev) process.exit(1); // exit in build
     }
   }
 
@@ -166,7 +170,8 @@ export async function runPipelineOptimizeStep(buildDirectory: string, {plugins}:
       });
       logger.debug('✔ optimize() success', {name: step.name});
     } catch (err) {
-      logger.error(err, {name: step.name});
+      logger.error(err.toString() || err, {name: step.name});
+      process.exit(1); // exit on error
     }
   }
   return null;
