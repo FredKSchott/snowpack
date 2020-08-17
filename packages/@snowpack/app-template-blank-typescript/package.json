@@ -21,6 +21,7 @@
   "devDependencies": {
     "@snowpack/plugin-run-script": "^2.0.4",
     "@types/canvas-confetti": "^1.0.0",
+    "@types/snowpack-env": "^2.3.0",
     "prettier": "^2.0.5",
     "snowpack": "^2.7.7",
     "typescript": "^3.9.7"
