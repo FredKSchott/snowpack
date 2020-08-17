@@ -8,6 +8,7 @@ interface Dependency {
   isHmrEnabled: boolean;
   isHmrAccepted: boolean;
   needsReplacement: boolean;
+  needsReplacementCount: number;
 }
 
 export class EsmHmrEngine {
@@ -51,6 +52,7 @@ export class EsmHmrEngine {
       dependencies: new Set(),
       dependents: new Set(),
       needsReplacement: false,
+      needsReplacementCount: 0,
       isHmrEnabled: false,
       isHmrAccepted: false,
     };
@@ -99,7 +101,12 @@ export class EsmHmrEngine {
   }
 
   markEntryForReplacement(entry: Dependency, state: boolean) {
-    entry.needsReplacement = state;
+    if (state) {
+      entry.needsReplacementCount++;
+    } else {
+      entry.needsReplacementCount--;
+    }
+    entry.needsReplacement = !!entry.needsReplacementCount;
   }
 
   broadcastMessage(data: object) {
