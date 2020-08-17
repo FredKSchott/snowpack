@@ -827,7 +827,9 @@ ${err}`);
   });
 
   // Open the user's browser
-  if (open !== 'none') await openInBrowser(protocol, hostname, port, open);
+  if (open !== 'none') {
+    await openInBrowser(protocol, hostname, port, open);
+  }
 
   // Start watching the file system.
   // Defer "chokidar" loading to here, to reduce impact on overall startup time
