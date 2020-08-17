@@ -135,7 +135,6 @@ socket.addEventListener('message', ({data: _data}) => {
     return;
   }
   const data = JSON.parse(_data);
-  debug('message', data);
   if (data.type === 'reload') {
     debug('message: reload');
     reload();
@@ -147,7 +146,6 @@ socket.addEventListener('message', ({data: _data}) => {
     return;
   }
   debug('message: update', data);
-  debug(data.url, Object.keys(REGISTERED_MODULES));
   console.log(`${ESM_PREFIX} Updated`);
   runModuleAccept(data.url)
     .then((ok) => {
