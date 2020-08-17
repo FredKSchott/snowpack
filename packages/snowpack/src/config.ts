@@ -7,7 +7,7 @@ import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
 import path from 'path';
 import yargs from 'yargs-parser';
-import createLogger from './logger';
+import {logger} from './logger';
 import srcFileExtensionMapping from './build/src-file-extension-mapping';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
@@ -25,8 +25,6 @@ import {
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
-
-const logger = createLogger({name: 'snowpack'});
 
 // default settings
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
@@ -162,6 +160,9 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
     buildOptions: {} as any,
   };
   const {help, version, reload, config, ...relevantFlags} = flags;
+
+  const CLI_ONLY_FLAGS = ['quiet', 'verbose'];
+
   for (const [flag, val] of Object.entries(relevantFlags)) {
     if (flag === '_' || flag.includes('-')) {
       continue;
@@ -180,6 +181,9 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
     }
     if (configSchema.properties.buildOptions.properties[flag]) {
       result.buildOptions[flag] = val;
+      continue;
+    }
+    if (CLI_ONLY_FLAGS.includes(flag)) {
       continue;
     }
     logger.error(`Unknown CLI flag: "${flag}"`);
@@ -246,7 +250,7 @@ function loadPlugins(
       if (typeof plugin !== 'function') logger.error(`plugin ${name} doesn’t return function`);
       plugin = (plugin as any)(config, options);
     } catch (err) {
-      logger.error(err);
+      logger.error(err.toString() || err);
       throw err;
     }
     plugin.name = plugin.name || name;
@@ -288,7 +292,7 @@ function loadPlugins(
           // Confirmed no plugins are using this now, so safe to use an empty array.
           jsFilePaths: [],
         }).catch((err) => {
-          logger.fatal(
+          logger.error(
             `[${plugin.name}] There was a problem running this older plugin. Please update the plugin to the latest version.`,
           );
           throw err;
@@ -542,19 +546,19 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
 }
 
 function handleConfigError(msg: string) {
-  logger.fatal(msg);
+  logger.error(msg);
   process.exit(1);
 }
 
 function handleValidationErrors(filepath: string, errors: {toString: () => string}[]) {
-  logger.fatal(`! ${filepath || 'Configuration error'}
+  logger.error(`! ${filepath || 'Configuration error'}
 ${errors.map((err) => `    - ${err.toString()}`).join('\n')}
     See https://www.snowpack.dev/#configuration for more info.`);
   process.exit(1);
 }
 
 function handleDeprecatedConfigError(mainMsg: string, ...msgs: string[]) {
-  logger.fatal(`${mainMsg}
+  logger.error(`${mainMsg}
 ${msgs.join('\n')}
 See https://www.snowpack.dev/#configuration for more info.`);
   process.exit(1);

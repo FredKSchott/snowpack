@@ -17,14 +17,12 @@ import {
 import {buildFile, runPipelineOptimizeStep} from '../build/build-pipeline';
 import {createImportResolver} from '../build/import-resolver';
 import {removeLeadingSlash} from '../config';
-import createLogger from '../logger';
+import {logger} from '../logger';
 import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
 import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
 import {cssSourceMappingURL, getEncodingType, jsSourceMappingURL, replaceExt} from '../util';
 import {getInstallTargets, run as installRunner} from './install';
-
-const logger = createLogger({name: 'snowpack'});
 
 async function installOptimizedDependencies(
   scannedFiles: SnowpackSourceFile[],
@@ -87,7 +85,6 @@ class FileBuilder {
       isDev: false,
       isHmrEnabled: false,
       sourceMaps: this.config.buildOptions.sourceMaps,
-      logLevel: 'info',
     });
     for (const [fileExt, buildResult] of Object.entries(builtFileOutput)) {
       let {code, map} = buildResult;
@@ -157,7 +154,7 @@ class FileBuilder {
         // Until supported, just exit here.
         if (!resolvedImportUrl) {
           isSuccess = false;
-          console.error(`${file.locOnDisk} - Could not resolve unkonwn import "${spec}".`);
+          logger.error(`${file.locOnDisk} - Could not resolve unkonwn import "${spec}".`);
           return spec;
         }
         // Ignore "http://*" imports
@@ -229,9 +226,7 @@ class FileBuilder {
 }
 
 export async function command(commandOptions: CommandOptions) {
-  const {cwd, config, logLevel = 'info'} = commandOptions;
-
-  logger.level = logLevel;
+  const {cwd, config} = commandOptions;
 
   const buildDirectoryLoc = config.devOptions.out;
   const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaDir);
@@ -285,7 +280,6 @@ export async function command(commandOptions: CommandOptions) {
     const installDest = path.join(buildDirectoryLoc, config.buildOptions.webModulesUrl);
     const installResult = await installOptimizedDependencies(scannedFiles, installDest, {
       ...commandOptions,
-      logLevel: 'error',
     });
     if (!installResult.success || installResult.hasError || !installResult.importMap) {
       process.exit(1);
@@ -431,7 +425,7 @@ export async function command(commandOptions: CommandOptions) {
       await installDependencies();
       resolveSuccess = await changedPipelineFile.resolveImports(installResult.importMap!);
       if (!resolveSuccess) {
-        console.error('Exiting...');
+        logger.error('Exiting...');
         process.exit(1);
       }
     }

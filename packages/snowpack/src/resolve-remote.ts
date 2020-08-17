@@ -4,9 +4,7 @@ import PQueue from 'p-queue';
 import validatePackageName from 'validate-npm-package-name';
 import {SnowpackConfig, ImportMap} from './types/snowpack';
 import {fetchCDNResource, PIKA_CDN, RESOURCE_CACHE} from './util.js';
-import createLogger from './logger';
-
-const logger = createLogger({name: 'snowpack'});
+import {logger} from './logger';
 
 /**
  * Given an install specifier, attempt to resolve it from the CDN.
@@ -44,7 +42,7 @@ async function resolveDependency(
       );
     }
     if (packageSemver.startsWith('npm:@reactesm') || packageSemver.startsWith('npm:@pika/react')) {
-      logger.fatal(
+      logger.error(
         `React workaround packages no longer needed! Revert to the official React & React-DOM packages.`,
       );
       process.exit(1);
@@ -115,12 +113,12 @@ async function resolveDependency(
     ),
   );
   if (!importUrlPath) {
-    logger.fatal('X-Import-URL header expected, but none received.');
+    logger.error('X-Import-URL header expected, but none received.');
     process.exit(1);
   }
   const {statusCode: lookupStatusCode} = await fetchCDNResource(importUrlPath);
   if (lookupStatusCode !== 200) {
-    logger.fatal(`Unexpected response [${lookupStatusCode}]: ${PIKA_CDN}${importUrlPath}`);
+    logger.error(`Unexpected response [${lookupStatusCode}]: ${PIKA_CDN}${importUrlPath}`);
     process.exit(1);
   }
   return resolveDependency(installSpecifier, packageSemver, lockfile, false);

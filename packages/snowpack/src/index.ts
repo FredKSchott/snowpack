@@ -6,7 +6,7 @@ import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {command as installCommand} from './commands/install';
 import {loadAndValidateConfig} from './config.js';
-import createLogger from './logger';
+import {logger} from './logger';
 import {CLIFlags} from './types/snowpack';
 import {clearCache, readLockfile} from './util.js';
 
@@ -15,7 +15,6 @@ export {createConfiguration} from './config.js';
 export * from './types/snowpack';
 
 const cwd = process.cwd();
-const logger = createLogger({name: 'snowpack'});
 
 function printHelp() {
   logger.info(
@@ -36,7 +35,8 @@ ${colors.bold('Flags:')}
   --help                Show this help message.
   --version             Show the current version.
   --reload              Clear Snowpack's local cache (troubleshooting).
-  --log-level=[level]   Adjust log level (default: info) (options: trace | debug | info | warn | error | silent)
+  --verbose             View debug info (where available)
+  --quiet               Don’t output anything (dev server will still log minimally)
     `.trim(),
   );
 }
@@ -64,7 +64,7 @@ export async function cli(args: string[]) {
   try {
     pkgManifest = require(path.join(cwd, 'package.json'));
   } catch (err) {
-    logger.fatal(`package.json not found in directory: ${cwd}. Run \`npm init -y\` to create one.`);
+    logger.error(`package.json not found in directory: ${cwd}. Run \`npm init -y\` to create one.`);
     process.exit(1);
   }
 
@@ -83,10 +83,11 @@ export async function cli(args: string[]) {
     config: loadAndValidateConfig(cliFlags, pkgManifest),
     lockfile: await readLockfile(cwd),
     pkgManifest,
-    logLevel: cliFlags.logLevel || 'info',
+    logger,
   };
 
-  logger.level = cliFlags.logLevel || 'info';
+  if (cliFlags.verbose) logger.level = 'debug';
+  if (cliFlags.quiet) logger.level = 'silent';
 
   if (cmd === 'add') {
     await addCommand(cliFlags['_'][3], commandOptions);
@@ -98,7 +99,7 @@ export async function cli(args: string[]) {
   }
 
   if (cliFlags['_'].length > 3) {
-    logger.fatal(`Unexpected multiple commands`);
+    logger.error(`Unexpected multiple commands`);
     process.exit(1);
   }
 
@@ -115,6 +116,6 @@ export async function cli(args: string[]) {
     return;
   }
 
-  logger.fatal(`Unrecognized command: ${cmd}`);
+  logger.error(`Unrecognized command: ${cmd}`);
   process.exit(1);
 }
