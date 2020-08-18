@@ -321,7 +321,7 @@ function loadPlugins(
     const {scriptType, input, output} = parseScript(target);
     if ((config.plugins as any).some((p) => (Array.isArray(p) ? p[0] : p) === cmd)) {
       handleConfigError(
-        `[${name}]: loaded in both \`scripts\` and \`plugins\`. Please choose one (preferably \`plugins\`).`,
+        `[${cmd}]: loaded in both \`scripts\` and \`plugins\`. Please choose one (preferably \`plugins\`).`,
       );
     }
 
