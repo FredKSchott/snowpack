@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-lit-element-typescript",
-  "version": "1.8.5",
+  "version": "1.8.6",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -23,10 +23,10 @@
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/plugin-proposal-decorators": "^7.10.5",
     "@babel/preset-typescript": "^7.10.4",
-    "@snowpack/app-scripts-lit-element": "^1.8.2",
+    "@snowpack/app-scripts-lit-element": "^1.8.3",
     "@types/snowpack-env": "^2.3.0",
     "prettier": "^2.0.5",
-    "snowpack": "^2.7.7",
+    "snowpack": "^2.8.0",
     "typescript": "^3.9.7"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
