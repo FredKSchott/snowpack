@@ -1,5 +1,6 @@
 {
   "version": "independent",
   "packages": ["packages/@snowpack/*", "packages/*"],
-  "npmClient": "yarn"
+  "npmClient": "yarn",
+  "useWorkspaces": true
 }

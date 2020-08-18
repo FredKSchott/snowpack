@@ -2,8 +2,9 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "build": "cd packages/snowpack && yarn build",
-    "publish": "lerna publish",
+    "bootstrap": "lerna bootstrap",
+    "build": "lerna run build --scope=snowpack",
+    "publish": "lerna publish --no-private",
     "format": "prettier --write \"packages/*/src/**/*.ts\"",
     "test": "jest --test-timeout=30000",
     "update-snapshots": "node ./scripts/update-snapshots.js"
