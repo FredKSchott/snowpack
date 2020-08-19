@@ -110,7 +110,7 @@ For our first example, we’ll look at transforming a file.
 module.exports = function (snowpackConfig, pluginOptions) {
   return {
     name: 'my-commenter-plugin',
-    async transform({fileExt, filePath, contents, isDev}) {
+    async transform({id, contents, isDev}) {
       if (fileExt === '.js') {
         return `/* I’m a comment! */ ${contents}`;
       }

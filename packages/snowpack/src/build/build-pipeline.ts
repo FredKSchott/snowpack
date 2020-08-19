@@ -112,7 +112,8 @@ async function runPipelineTransformStep(
   {isDev, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
-  const rootFileName = path.basename(srcPath).replace(srcExt, '');
+  const rootFilePath = srcPath.replace(srcExt, '');
+  const rootFileName = path.basename(rootFilePath);
   for (const step of plugins) {
     if (!step.transform) {
       continue;
@@ -122,14 +123,17 @@ async function runPipelineTransformStep(
       for (const destExt of Object.keys(output)) {
         const destBuildFile = output[destExt];
         const {code} = typeof destBuildFile === 'string' ? {code: destBuildFile} : destBuildFile;
-        const filePath = rootFileName + destExt;
+        const fileName = rootFileName + destExt;
+        const filePath = rootFilePath + destExt;
         const debugPath = path.relative(process.cwd(), filePath);
         logger.debug(`transform() starting… [${debugPath}]`, {name: step.name});
         const result = await step.transform({
           contents: code,
-          fileExt: destExt,
-          filePath,
           isDev,
+          fileExt: destExt,
+          id: filePath,
+          // @ts-ignore: Deprecated
+          filePath: fileName,
           // @ts-ignore: Deprecated
           urlPath: `./${path.basename(rootFileName + destExt)}`,
         });

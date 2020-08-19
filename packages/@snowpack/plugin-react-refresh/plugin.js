@@ -29,14 +29,14 @@ function transformHtml(contents) {
   );
 }
 
-function transformJs(contents, filePath) {
+function transformJs(contents, id) {
   return `
 /** React Refresh: Setup **/
 if (import.meta.hot) {
   var prevRefreshReg = window.$RefreshReg$;
   var prevRefreshSig = window.$RefreshSig$;
   window.$RefreshReg$ = (type, id) => {
-    window.$RefreshRuntime$.register(type, ${JSON.stringify(filePath)} + " " + id);
+    window.$RefreshRuntime$.register(type, ${JSON.stringify(id)} + " " + id);
   }
   window.$RefreshSig$ = window.$RefreshRuntime$.createSignatureFunctionForTransform;
 }
@@ -56,7 +56,7 @@ if (import.meta.hot) {
 module.exports = function reactRefreshTransform(snowpackConfig) {
   return {
     name: '@snowpack/plugin-react-refresh',
-    transform({contents, fileExt, filePath, isDev}) {
+    transform({contents, fileExt, id, isDev}) {
       // Use long-form "=== false" to handle older Snowpack versions
       if (snowpackConfig.devOptions.hmr === false) {
         return;
@@ -65,7 +65,7 @@ module.exports = function reactRefreshTransform(snowpackConfig) {
         return;
       }
       if (fileExt === '.js' && /\$RefreshReg\$\(/.test(contents)) {
-        return transformJs(contents, filePath);
+        return transformJs(contents, id);
       }
       if (fileExt === '.html') {
         return transformHtml(contents);
