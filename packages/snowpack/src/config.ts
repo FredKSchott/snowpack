@@ -793,13 +793,17 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
       process.exit(1);
     }
     if (extendConfig.plugins) {
-      const extendConfgDir = path.dirname(extendConfigLoc);
+      const extendConfigDir = path.dirname(extendConfigLoc);
       extendConfig.plugins = extendConfig.plugins.map((plugin) => {
         const name = Array.isArray(plugin) ? plugin[0] : plugin;
         const absName = path.isAbsolute(name)
           ? name
-          : require.resolve(name, {paths: [extendConfgDir]});
-        return Array.isArray(plugin) ? plugin.splice(0, 1, absName) : absName;
+          : require.resolve(name, {paths: [extendConfigDir]});
+        if (Array.isArray(plugin)) {
+          plugin.splice(0, 1, absName);
+          return plugin;
+        }
+        return absName;
       });
     }
   }
