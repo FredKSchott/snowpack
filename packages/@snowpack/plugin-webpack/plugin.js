@@ -231,9 +231,7 @@ module.exports = function plugin(config, args) {
                   },
                 },
                 {
-                  // TODO: replace with "@open-wc/webpack-import-meta-loader"
-                  // https://github.com/open-wc/open-wc/pull/1677
-                  loader: require.resolve("./plugins/import-meta-fix.js"),
+                  loader: require.resolve('@open-wc/webpack-import-meta-loader'),
                 },
                 {
                   loader: require.resolve("./plugins/proxy-import-resolve.js"),
