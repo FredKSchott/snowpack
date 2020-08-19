@@ -1,4 +1,12 @@
-[![CI](https://github.com/pikapkg/snowpack/workflows/CI/badge.svg?event=push)](https://github.com/pikapkg/snowpack/actions)
+<p align="center"><img src="/docs/img/logo.png" alt="logo" width="20%" /></p>
+<h1 align="center">Snowpack</h1>
+<p align="center">
+  <a href="https://github.com/pikapkg/snowpack/actions">
+    <img src="https://github.com/pikapkg/snowpack/workflows/CI/badge.svg?event=push" alt="CI" />
+  </a>
+</p>
+
+---------------
 
 ### What is Snowpack?
 
