@@ -1,0 +1,13 @@
+{
+  "name": "@snowpack/plugin-workbox",
+  "version": "0.0.0",
+  "main": "plugin.js",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "snowpack": "^2.8.0",
+    "workbox-build": "^5.1.3"
+  }
+}
