@@ -6,8 +6,7 @@
     "build": "lerna run build --scope=snowpack",
     "publish": "lerna publish --no-private",
     "format": "prettier --write \"packages/*/src/**/*.ts\"",
-    "test": "jest --test-timeout=30000",
-    "update-snapshots": "UPDATE_SNAPSHOTS=1 yarn test"
+    "test": "jest --test-timeout=30000"
   },
   "workspaces": [
     "packages/@snowpack/*",
@@ -37,7 +36,6 @@
     "@types/validate-npm-package-name": "^3.0.0",
     "@types/ws": "^7.2.4",
     "cross-env": "^7.0.2",
-    "dir-compare": "^2.3.0",
     "execa": "^4.0.3",
     "jest": "^26.2.2",
     "lerna": "^3.22.1",

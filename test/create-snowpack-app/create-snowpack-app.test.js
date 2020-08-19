@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const execa = require('execa');
 const rimraf = require('rimraf');
-const dircompare = require('dir-compare');
+const glob = require('glob');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'packages', '@snowpack');
 
@@ -52,47 +52,28 @@ describe('create-snowpack-app', () => {
         env: {NODE_ENV: 'production'},
       });
 
-      const expected = path.join(__dirname, 'snapshots', template);
       const actual = path.join(cwd, 'build');
+      const allFiles = glob.sync(`**/*`, {
+        ignore: ['**/common/**/*'],
+        cwd: actual,
+        nodir: true,
+      });
 
-      if (process.env.UPDATE_SNAPSHOTS) {
-        rimraf.sync(expected);
-        fs.renameSync(actual, expected);
-        return;
+      if (allFiles.length === 0) {
+        throw new Error('Empty build directory!');
       }
 
-      // 2. compare
-      const res = dircompare.compareSync(expected, actual);
+      expect(allFiles.map(f => f.replace(/\\/g, '/'))).toMatchSnapshot('allFiles');
 
-      res.diffSet.forEach((entry) => {
-        // NOTE: We only compare files so that we give the test runner a more detailed diff.
-        if (entry.type1 === 'directory' && entry.type2 === 'directory') {
-          return;
+      // If any diffs are detected, we'll assert the difference so that we get nice output.
+      for (const entry of allFiles) {
+        // don’t compare CSS or .map files.
+        if (entry.endsWith('.css') || entry.endsWith('.map')) {
+          continue;
         }
-
-        if (!entry.path2 || !entry.name2)
-          throw new Error(
-            `File failed to generate: ${entry.path1.replace(expected, '')}/${entry.name1}`,
-          );
-        if (!entry.path1 || !entry.name1)
-          throw new Error(
-            `File not found in snapshot: ${entry.path2.replace(actual, '')}/${entry.name2}`,
-          );
-
-        // don’t compare source .map contents, so long as they exist
-        if (path.extname(entry.name1) === '.map') return;
-
-        // NOTE: common chunks are hashed, non-trivial to compare
-        if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) {
-          return;
-        }
-
-        // compare contents
-        const f1 = fs.readFileSync(path.join(entry.path1, entry.name1), 'utf8');
-        const f2 = fs.readFileSync(path.join(entry.path2, entry.name2), 'utf8');
-
-        expect(format(f2)).toBe(format(f1));
-      });
+        const f1 = fs.readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
+        expect(format(f1)).toMatchSnapshot(entry.replace(/\\/g, '/'));
+      }
     });
   });
 });
