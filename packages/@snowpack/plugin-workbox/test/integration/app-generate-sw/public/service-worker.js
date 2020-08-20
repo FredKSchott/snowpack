@@ -1,0 +1,1 @@
+console.log('Service Worker is disabled in development')

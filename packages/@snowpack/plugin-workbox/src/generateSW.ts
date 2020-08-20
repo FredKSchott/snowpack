@@ -1,9 +1,10 @@
 import { generateSW as _generateSW, GenerateSWConfig } from 'workbox-build';
+import {resolve } from 'path'
 import type { SnowpackPluginFactory } from 'snowpack'
 import { pluginName, report } from './utils'
 
 export const generateSW: SnowpackPluginFactory<GenerateSWConfig> = (_, pluginOptions = {} as GenerateSWConfig) => {
-  const { swDest } = pluginOptions;
+  const { swDest, globDirectory, ...generateSWConfig } = pluginOptions;
 
   if (!swDest) throw new Error('No service worker destination specified');
 
@@ -11,8 +12,10 @@ export const generateSW: SnowpackPluginFactory<GenerateSWConfig> = (_, pluginOpt
   return {
     name: `${pluginName}/generateSW`,
     async optimize({ buildDirectory }) {
+      console.log(buildDirectory)
       const result = await _generateSW({
-        ...pluginOptions,
+        ...generateSWConfig,
+        swDest: resolve(buildDirectory, swDest),
         globDirectory: buildDirectory
       })
       reportResult(result)

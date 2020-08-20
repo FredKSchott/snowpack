@@ -1,0 +1,27 @@
+{
+  "name": "@snowpack/app-template-blank",
+  "private": true,
+  "version": "1.6.6",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "snowpack build"
+  },
+  "devDependencies": {
+    "snowpack": "^2.8.0"
+  },
+  "snowpack": {
+    "mount": {
+      "public": "/",
+      "src": "/_dist_"
+    },
+    "plugins": [
+      ["../../../dist/injectManifest.js", {
+        "swSrc": "service-worker.js",
+        "swDest": "service-worker.js"
+      }]
+    ]
+  }
+}
