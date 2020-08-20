@@ -12,7 +12,6 @@ export const generateSW: SnowpackPluginFactory<GenerateSWConfig> = (_, pluginOpt
   return {
     name: `${pluginName}/generateSW`,
     async optimize({ buildDirectory }) {
-      console.log(buildDirectory)
       const result = await _generateSW({
         ...generateSWConfig,
         swDest: resolve(buildDirectory, swDest),

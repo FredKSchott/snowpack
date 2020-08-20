@@ -13,7 +13,6 @@ export const injectManifest: SnowpackPluginFactory<InjectManifestConfig> = (_, p
   return {
     name: `${pluginName}/injectManifest`,
     async optimize({ buildDirectory }) {
-      console.log(buildDirectory)
       const result = await _injectManifest({...injectManifestConfig, swSrc: resolve(buildDirectory, swSrc), swDest: resolve(buildDirectory, swDest),  globDirectory: buildDirectory})
       reportResult(result)
     }
