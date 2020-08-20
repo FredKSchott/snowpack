@@ -1,17 +1,23 @@
-import { generateSW, GenerateSWConfig } from 'workbox-build';
+import { generateSW as _generateSW, GenerateSWConfig } from 'workbox-build';
 import type { SnowpackPluginFactory } from 'snowpack'
+import { pluginName, report } from './utils'
 
-const generate: SnowpackPluginFactory<GenerateSWConfig> = function WorkboxPlugin(_, pluginOptions) {
+export const generateSW: SnowpackPluginFactory<GenerateSWConfig> = (_, pluginOptions = {} as GenerateSWConfig) => {
+  const { swDest } = pluginOptions;
+
+  if (!swDest) throw new Error('No service worker destination specified');
+
+  const reportResult = report(swDest)
   return {
-    name: '@snowpack/plugin-workbox/generateSW',
+    name: `${pluginName}/generateSW`,
     async optimize({ buildDirectory }) {
-      const result = await generateSW({
+      const result = await _generateSW({
         ...pluginOptions,
         globDirectory: buildDirectory
       })
-      console.log(result)
+      reportResult(result)
     }
   }
 }
 
-export default generate
+export default generateSW

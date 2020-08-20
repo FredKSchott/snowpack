@@ -1,10 +1,10 @@
 {
   "name": "@snowpack/plugin-workbox",
   "version": "0.0.0",
-  "main": "plugin.js",
   "license": "MIT",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "directory": "pkg"
   },
   "scripts": {
     "build": "pika build"
@@ -16,26 +16,19 @@
     "snowpack": "^2.8.0"
   },
   "devDependencies": {
+    "snowpack": "^2.8.0",
     "@types/workbox-build": "^5.0.0"
   },
   "@pika/pack": {
     "pipeline": [
       [
-        "@pika/plugin-ts-standard-pkg",
-        {
-          "exclude": [
-            "__tests__/**/*"
-          ]
-        }
+        "@pika/plugin-ts-standard-pkg"
       ],
       [
         "@pika/plugin-build-node",
         {
           "minNodeVersion": "10"
         }
-      ],
-      [
-        "@pika/plugin-build-types"
       ]
     ]
   }
