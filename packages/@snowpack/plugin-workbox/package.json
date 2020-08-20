@@ -6,8 +6,37 @@
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "build": "pika build"
+  },
   "dependencies": {
-    "snowpack": "^2.8.0",
     "workbox-build": "^5.1.3"
+  },
+  "peerDependencies": {
+    "snowpack": "^2.8.0"
+  },
+  "devDependencies": {
+    "@types/workbox-build": "^5.0.0"
+  },
+  "@pika/pack": {
+    "pipeline": [
+      [
+        "@pika/plugin-ts-standard-pkg",
+        {
+          "exclude": [
+            "__tests__/**/*"
+          ]
+        }
+      ],
+      [
+        "@pika/plugin-build-node",
+        {
+          "minNodeVersion": "10"
+        }
+      ],
+      [
+        "@pika/plugin-build-types"
+      ]
+    ]
   }
 }

@@ -3122,6 +3122,18 @@
   resolved "https://registry.yarnpkg.com/@types/validate-npm-package-name/-/validate-npm-package-name-3.0.0.tgz#0bc835adc7d6f41cf96a59b591fe8699468f6fab"
   integrity sha512-iFNNIrEaJH1lbPiyX+O/QyxSbKxrTjdNBVZGckt+iEL9So0hdZNBL68sOfHnt2txuUD8UJXvmKv/1DkgkebgUg==
 
+"@types/workbox-build@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@types/workbox-build/-/workbox-build-5.0.0.tgz#62a819f8ad0314dc75213dfc567f9e447ea0fcae"
+  integrity sha512-6hn6W63+U1zaTRCaHIwJTVx1FaZbXZDA9dOE/txsQk8D0nRDZLxtnTwhfyvhtxnWb+zY7nH7psuJXv4oUDZyMA==
+  dependencies:
+    "@types/workbox-routing" "*"
+
+"@types/workbox-routing@*":
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/@types/workbox-routing/-/workbox-routing-4.3.0.tgz#617e00b18806630cffff550b3d2ab09866f89411"
+  integrity sha512-op5P/f6n+9g5X4a+sYONp9EALnNxpoU3oXuB/BjeQv9d+k0bNE4LYSF06K6tXYL4PeCIZVJOi4yMCUCOi2NaqQ==
+
 "@types/ws@^7.2.4":
   version "7.2.6"
   resolved "https://registry.yarnpkg.com/@types/ws/-/ws-7.2.6.tgz#516cbfb818310f87b43940460e065eb912a4178d"
