@@ -6,7 +6,7 @@
   </a>
 </p>
 
----------------
+---
 
 ### What is Snowpack?
 
@@ -25,6 +25,10 @@ When you're ready to deploy your web application to users, you can add back a tr
 - Connect your favorite tools with [third-party plugins.](https://www.snowpack.dev/posts/2020-05-26-snowpack-2-0-release/#build-plugins)
 
 **💁 More info at the official [Snowpack website ➞](https://snowpack.dev)**
+
+## Community
+
+[Join the Pika Discord](https://discord.gg/rS8SnRk) for discussion, questions about Snowpack or related Pika projects, or to show off what you’re working on!
 
 ## Create Snowpack App (CSA)
 
