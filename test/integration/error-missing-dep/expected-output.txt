@@ -1,3 +1,4 @@
 [snowpack] ! installing dependencies…
 [snowpack] Package "fake-module" not found. Have you installed it?
 [snowpack] Install failed.
+[2K[1G[31merror[39m Command failed with exit code 1.

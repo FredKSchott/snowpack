@@ -1,3 +1,4 @@
 ! XXX/package.json
     - snowpack.install is not of a type(s) array
     See https://www.snowpack.dev/#configuration for more info.
+[2K[1G[31merror[39m Command failed with exit code 1.

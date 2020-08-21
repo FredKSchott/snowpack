@@ -10,7 +10,7 @@ function __snowpack__injectStyle(css) {
   }
   headEl.appendChild(styleEl);
 }
-__snowpack__injectStyle("body { background-color: red; }\n");
+__snowpack__injectStyle("body { background-color: red; }\r\n");
 
 var index = 'THIS SHOULD BE BUNDLED + CSS';
 

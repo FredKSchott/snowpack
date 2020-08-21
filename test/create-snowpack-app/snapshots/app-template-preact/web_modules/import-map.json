@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@prefresh/core": "./@prefresh/core.js",
+    "@prefresh/snowpack/runtime": "./@prefresh/snowpack/runtime.js",
     "preact": "./preact.js",
     "preact/devtools": "./preact/devtools.js"
   }
