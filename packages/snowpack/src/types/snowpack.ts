@@ -71,6 +71,8 @@ export interface SnowpackPlugin {
   run?(options: PluginRunOptions): Promise<unknown>;
   /** optimize the entire built application */
   optimize?(options: PluginOptimizeOptions): Promise<void>;
+  /** cleanup any long-running instances/services before exiting.  */
+  cleanup?(): void | Promise<void>;
   /** Known dependencies that should be installed */
   knownEntrypoints?: string[];
 }

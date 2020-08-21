@@ -49,9 +49,8 @@ export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}
         },
       };
     },
+    cleanup() {
+      esbuildService && esbuildService.stop();
+    },
   };
-}
-
-export function stopEsbuild() {
-  esbuildService && esbuildService.stop();
 }

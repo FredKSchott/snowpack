@@ -4,6 +4,7 @@ import {promises as fs} from 'fs';
 import glob from 'glob';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
+import PQueue from 'p-queue';
 import path from 'path';
 import {performance} from 'perf_hooks';
 import rimraf from 'rimraf';
@@ -14,15 +15,16 @@ import {
   wrapImportMeta,
   wrapImportProxy,
 } from '../build/build-import-proxy';
-import {buildFile, runPipelineOptimizeStep} from '../build/build-pipeline';
+import {buildFile, runPipelineCleanupStep, runPipelineOptimizeStep} from '../build/build-pipeline';
 import {createImportResolver} from '../build/import-resolver';
 import {removeLeadingSlash} from '../config';
 import {logger} from '../logger';
-import {stopEsbuild} from '../plugins/plugin-esbuild';
 import {transformFileImports} from '../rewrite-imports';
 import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
 import {cssSourceMappingURL, getEncodingType, jsSourceMappingURL, replaceExt} from '../util';
 import {getInstallTargets, run as installRunner} from './install';
+
+const CONCURRENT_WORKERS = require('os').cpus().length;
 
 async function installOptimizedDependencies(
   scannedFiles: SnowpackSourceFile[],
@@ -312,7 +314,7 @@ export async function command(commandOptions: CommandOptions) {
     return installResult;
   }
 
-  // 1. Load & build all files for the first time, from source.
+  // 0. Find all source files.
   for (const [fromDisk, dirDest] of mountedDirectories) {
     const allFiles = glob.sync(`**/*`, {
       ignore: config.exclude,
@@ -327,9 +329,16 @@ export async function command(commandOptions: CommandOptions) {
       const outDir = path.dirname(finalDest);
       const buildPipelineFile = new FileBuilder({filepath: locOnDisk, outDir, config});
       buildPipelineFiles[locOnDisk] = buildPipelineFile;
-      await buildPipelineFile.buildFile();
     }
   }
+
+  // 1. Build all files for the first time, from source.
+  const parallelWorkQueue = new PQueue({concurrency: CONCURRENT_WORKERS});
+  const allBuildPipelineFiles = Object.values(buildPipelineFiles);
+  for (const buildPipelineFile of allBuildPipelineFiles) {
+    parallelWorkQueue.add(() => buildPipelineFile.buildFile());
+  }
+  await parallelWorkQueue.onIdle();
 
   const buildEnd = performance.now();
   logger.info(
@@ -342,27 +351,28 @@ export async function command(commandOptions: CommandOptions) {
   let installResult = await installDependencies();
 
   // 3. Resolve all built file imports.
-  const allBuildPipelineFiles = Object.values(buildPipelineFiles);
   for (const buildPipelineFile of allBuildPipelineFiles) {
-    await buildPipelineFile.resolveImports(installResult.importMap!);
+    parallelWorkQueue.add(() => buildPipelineFile.resolveImports(installResult.importMap!));
   }
+  await parallelWorkQueue.onIdle();
 
   // 4. Write files to disk.
   const allImportProxyFiles = new Set(
     allBuildPipelineFiles.map((b) => b.filesToProxy).reduce((flat, item) => flat.concat(item), []),
   );
   for (const buildPipelineFile of allBuildPipelineFiles) {
-    await buildPipelineFile.writeToDisk();
+    parallelWorkQueue.add(() => buildPipelineFile.writeToDisk());
     for (const builtFile of Object.keys(buildPipelineFile.output)) {
       if (allImportProxyFiles.has(builtFile)) {
-        await buildPipelineFile.writeProxyToDisk(builtFile);
+        parallelWorkQueue.add(() => buildPipelineFile.writeProxyToDisk(builtFile));
       }
     }
   }
+  await parallelWorkQueue.onIdle();
 
   // 5. Optimize the build.
   if (!config.buildOptions.watch) {
-    stopEsbuild();
+    await runPipelineCleanupStep(config);
     await runPipelineOptimizeStep(buildDirectoryLoc, {
       plugins: config.plugins,
       isDev: false,

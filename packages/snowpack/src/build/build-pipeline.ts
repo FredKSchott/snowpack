@@ -1,9 +1,9 @@
 import {promises as fs} from 'fs';
 import path from 'path';
-import {SnowpackBuildMap, SnowpackPlugin} from '../types/snowpack';
-import {getEncodingType, getExt, replaceExt} from '../util';
 import {validatePluginLoadResult} from '../config';
 import {logger} from '../logger';
+import {SnowpackBuildMap, SnowpackConfig, SnowpackPlugin} from '../types/snowpack';
+import {getEncodingType, getExt, replaceExt} from '../util';
 
 export interface BuildFileOptions {
   isDev: boolean;
@@ -179,6 +179,15 @@ export async function runPipelineOptimizeStep(buildDirectory: string, {plugins}:
     }
   }
   return null;
+}
+
+export async function runPipelineCleanupStep({plugins}: SnowpackConfig) {
+  for (const step of plugins) {
+    if (!step.cleanup) {
+      continue;
+    }
+    await step.cleanup();
+  }
 }
 
 /** Core Snowpack file pipeline builder */
