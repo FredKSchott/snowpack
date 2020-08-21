@@ -397,6 +397,7 @@ export async function command(commandOptions: CommandOptions) {
         }
         if (isRoute) {
           let fileLoc =
+            (await attemptLoadFile(requestedFile)) ||
             (await attemptLoadFile(requestedFile + '.html')) ||
             (await attemptLoadFile(requestedFile + 'index.html')) ||
             (await attemptLoadFile(requestedFile + '/index.html'));
