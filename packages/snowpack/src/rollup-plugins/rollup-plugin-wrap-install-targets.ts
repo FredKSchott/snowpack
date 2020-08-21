@@ -6,7 +6,7 @@ import {InstallTarget} from '../types/snowpack';
 
 function autoDetectExports(fileLoc: string): string[] | undefined {
   try {
-    return Object.keys(require(fileLoc));
+    return Object.keys(require(fileLoc)).filter((imp) => imp !== 'default');
   } catch (err) {
     logger.error(`✘ Could not auto-detect exports for ${colors.bold(fileLoc)}
 ${err.message}`);
@@ -82,9 +82,6 @@ export function rollupPluginWrapInstallTargets(
       const normalizedFileLoc = fileLoc.split(path.win32.sep).join(path.posix.sep);
       if (!isTreeshake && isAutoDetect(normalizedFileLoc)) {
         uniqueNamedImports = autoDetectExports(fileLoc) || uniqueNamedImports;
-        if (uniqueNamedImports.includes('default')) {
-          uniqueNamedImports.splice(uniqueNamedImports.indexOf('default'), 1);
-        }
         treeshakeSummary.default = true;
       }
       const result = `
