@@ -73,6 +73,8 @@ export interface SnowpackPlugin {
   optimize?(options: PluginOptimizeOptions): Promise<void>;
   /** Known dependencies that should be installed */
   knownEntrypoints?: string[];
+  /** passing snowpackConfig to plugin, see: https://github.com/pikapkg/snowpack/issues/621 */
+  config?(snowpackConfig: SnowpackConfig): void;
 }
 
 export interface LegacySnowpackPlugin {

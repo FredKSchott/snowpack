@@ -542,6 +542,12 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     }
   }
 
+  plugins.forEach((plugin) => {
+    if (plugin.config) {
+      plugin.config(config);
+    }
+  });
+
   return config;
 }
 
