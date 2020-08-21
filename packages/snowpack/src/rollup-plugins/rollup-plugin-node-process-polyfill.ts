@@ -35,7 +35,7 @@ function createProcessPolyfill(vars: EnvVarReplacements = {}) {
     };
   }, {});
 
-  return `// Snowpack node process polyfill
+  return `/* SNOWPACK POLYFILL - process */
 export default {
   title: 'browser',
   browser: true,
