@@ -1,4 +1,40 @@
-import { n, d } from '../common/preact.module-2401a697.js';
+import { n, d } from '../../common/preact.module-2401a697.js';
+
+const VNODE_COMPONENT = '__c';
+const NAMESPACE = '__PREFRESH__';
+const COMPONENT_HOOKS = '__H';
+const HOOKS_LIST = '__';
+const EFFECTS_LIST = '__h';
+const RERENDER_COUNT = '__r';
+const CATCH_ERROR_OPTION = '__e';
+const COMPONENT_DIRTY = '__d';
+const VNODE_DOM = '__e';
+const VNODE_CHILDREN = '__k';
+
+const oldCatchError = n[CATCH_ERROR_OPTION];
+n[CATCH_ERROR_OPTION] = (error, vnode) => {
+	if (vnode[VNODE_COMPONENT] && vnode[VNODE_COMPONENT][COMPONENT_DIRTY]) {
+		vnode[VNODE_COMPONENT][COMPONENT_DIRTY] = false;
+	}
+
+	if (oldCatchError) oldCatchError(error, vnode);
+};
+
+const defer =
+	typeof Promise == 'function'
+		? Promise.prototype.then.bind(Promise.resolve())
+		: setTimeout;
+
+n.debounceRendering = process => {
+	defer(() => {
+		try {
+			process();
+		} catch (e) {
+			process[RERENDER_COUNT] = 0;
+			throw e;
+		}
+	});
+};
 
 // all vnodes referencing a given constructor
 const vnodesForComponent = new WeakMap();
@@ -17,37 +53,23 @@ n.vnode = vnode => {
 	if (oldVnode) oldVnode(vnode);
 };
 
-const VNODE_COMPONENT = '__c';
-const DIFF_OPTION = '__b';
-const NAMESPACE = '__PREFRESH__';
-const COMPONENT_HOOKS = '__H';
-const HOOKS_LIST = '__';
-const EFFECTS_LIST = '__h';
-
-const oldDiff = n[DIFF_OPTION];
-n[DIFF_OPTION] = newVNode => {
-	if (newVNode[VNODE_COMPONENT]) {
-		newVNode[VNODE_COMPONENT].constructor = newVNode.type;
-	}
-
-	if (oldDiff) oldDiff(newVNode);
-};
-
 const oldUnmount = n.unmount;
 n.unmount = vnode => {
 	const type = (vnode || {}).type;
 	if (typeof type === 'function' && vnodesForComponent.has(type)) {
 		const vnodes = vnodesForComponent.get(type);
-		const index = vnodes.indexOf(vnode);
-		if (index !== -1) {
-			vnodes.splice(index, 1);
+		if (vnodes) {
+			const index = vnodes.indexOf(vnode);
+			if (index !== -1) {
+				vnodes.splice(index, 1);
+			}
 		}
 	}
+
 	if (oldUnmount) oldUnmount(vnode);
 };
 
-// Options for Preact.
-
+// Signatures for functional components and custom hooks.
 const signaturesForType = new WeakMap();
 
 /**
@@ -85,6 +107,11 @@ const computeKey = signature => {
 	return fullKey;
 };
 
+// Options for Preact.
+
+let typesById = new Map();
+let pendingUpdates = [];
+
 function sign(type, key, forceReset, getCustomHooks, status) {
 	if (type) {
 		let signature = signaturesForType.get(type);
@@ -110,6 +137,8 @@ function replaceComponent(OldType, NewType, resetHookState) {
 	// migrate the list to our new constructor reference
 	vnodesForComponent.delete(OldType);
 	vnodesForComponent.set(NewType, vnodes);
+
+	pendingUpdates = pendingUpdates.filter(p => p[0] !== OldType);
 
 	vnodes.forEach(vnode => {
 		// update the type in-place to reference the new component
@@ -152,6 +181,7 @@ function replaceComponent(OldType, NewType, resetHookState) {
 				}
 			} catch (e) {
 				/* Functional component */
+				vnode[VNODE_COMPONENT].constructor = NewType;
 			}
 
 			if (resetHookState) {
@@ -161,18 +191,45 @@ function replaceComponent(OldType, NewType, resetHookState) {
 				};
 			}
 
+			// Cleanup when an async component has thrown.
+			if (
+				(vnode[VNODE_DOM] && !document.contains(vnode[VNODE_DOM])) ||
+				(!vnode[VNODE_DOM] && !vnode[VNODE_CHILDREN])
+			) {
+				location.reload();
+			}
+
 			d.prototype.forceUpdate.call(vnode[VNODE_COMPONENT]);
 		}
 	});
 }
 
-function register(type, id) {
-	// Unused atm
-}
-
 self[NAMESPACE] = {
 	getSignature: type => signaturesForType.get(type),
-	register,
+	register: (type, id) => {
+		if (!id.includes('%exports%')) {
+			if (typesById.has(id)) {
+				const existing = typesById.get(id);
+				if (existing !== type) {
+					pendingUpdates.push([existing, type]);
+					typesById.set(id, type);
+				}
+			} else {
+				typesById.set(id, type);
+			}
+		}
+
+		if (!signaturesForType.has(type)) {
+			signaturesForType.set(type, {
+				getCustomHooks: () => [],
+				type
+			});
+		}
+	},
+	getPendingUpdates: () => pendingUpdates,
+	flush: () => {
+		pendingUpdates = [];
+	},
 	replaceComponent,
 	sign,
 	computeKey
