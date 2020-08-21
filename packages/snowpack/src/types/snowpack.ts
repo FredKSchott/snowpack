@@ -34,7 +34,7 @@ export interface PluginLoadOptions {
 }
 
 export interface PluginTransformOptions {
-  filePath: string;
+  id: string;
   fileExt: string;
   contents: string | Buffer;
   isDev: boolean;
