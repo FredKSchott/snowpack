@@ -14,5 +14,12 @@
       }
     ]
   ],
-  "plugins": ["@babel/plugin-syntax-import-meta"]
+  "plugins": ["@babel/plugin-syntax-import-meta"],
+  "env": {
+    "development": {
+      "plugins": [
+        "react-refresh/babel"
+      ]
+    }
+  }
 }
