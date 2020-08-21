@@ -1,4 +1,4 @@
-// Snowpack node process polyfill
+/* SNOWPACK POLYFILL - process */
 var process = {
   title: 'browser',
   browser: true,
