@@ -1,3 +1,2 @@
 [snowpack] ! installing dependencies…
 [snowpack] React workaround packages no longer needed! Revert back to the official React & React-DOM packages.
-[2K[1G[31merror[39m Command failed with exit code 1.

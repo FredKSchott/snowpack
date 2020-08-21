@@ -1,5 +1,5 @@
 
-const code = "body {\r\n  font-family: fantasy;\r\n}\r\n";
+const code = "body {\n  font-family: fantasy;\n}\n";
 
 const styleEl = document.createElement("style");
 const codeEl = document.createTextNode(code);
