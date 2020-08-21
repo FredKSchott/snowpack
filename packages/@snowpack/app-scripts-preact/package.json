@@ -16,7 +16,8 @@
     "@snowpack/plugin-babel": "^2.0.3",
     "@snowpack/plugin-dotenv": "^2.0.0",
     "babel-jest": "^26.2.2",
-    "react-app-polyfill": "^1.0.6"
+    "react-app-polyfill": "^1.0.6",
+    "react-refresh": "^0.8.3"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }
