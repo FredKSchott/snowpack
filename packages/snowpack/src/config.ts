@@ -232,10 +232,44 @@ function loadPlugins(
 } {
   const plugins: SnowpackPlugin[] = [];
 
+  function execPluginFactory(pluginFactory: any, pluginOptions?: any): SnowpackPlugin {
+    let needWarnAfterCreated = false;
+    let warned = false;
+    let plugin: SnowpackPlugin | null = null;
+    let name: string;
+    const logWarn = () => {
+      if (!warned) {
+        warned = true;
+        logger.warn(
+          `plugin ${name} references the snowpackConfig in it's factory function, use \`config\` hook instead.`,
+        );
+      }
+    };
+
+    const configProxy = new Proxy(config, {
+      get(obj, prop) {
+        if (!plugin) {
+          needWarnAfterCreated = true;
+        } else {
+          logWarn();
+        }
+        return obj[prop];
+      },
+    });
+
+    plugin = pluginFactory(configProxy, pluginOptions) as SnowpackPlugin;
+    name = plugin.name || pluginFactory.name;
+    if (needWarnAfterCreated) {
+      logWarn();
+    }
+
+    return plugin;
+  }
+
   function loadPluginFromScript(specifier: string): SnowpackPlugin | undefined {
     try {
       const pluginLoc = require.resolve(specifier, {paths: [process.cwd()]});
-      return require(pluginLoc)(config); // no plugin options to load because we’re loading from a string
+      return execPluginFactory(require(pluginLoc)); // no plugin options to load because we’re loading from a string
     } catch (err) {
       // ignore
     }
@@ -248,7 +282,7 @@ function loadPlugins(
     try {
       plugin = typeof pluginRef.default === 'function' ? pluginRef.default : pluginRef;
       if (typeof plugin !== 'function') logger.error(`plugin ${name} doesn’t return function`);
-      plugin = (plugin as any)(config, options);
+      plugin = execPluginFactory(plugin, options) as SnowpackPlugin & LegacySnowpackPlugin;
     } catch (err) {
       logger.error(err.toString() || err);
       throw err;
@@ -331,12 +365,12 @@ function loadPlugins(
           break;
         }
         const watchCmd = config.scripts[target + '::watch'];
-        plugins.push(runScriptPlugin(config, {cmd, watch: watchCmd || cmd}));
+        plugins.push(execPluginFactory(runScriptPlugin, {cmd, watch: watchCmd || cmd}));
         break;
       }
 
       case 'build': {
-        plugins.push(buildScriptPlugin(config, {input, output, cmd}));
+        plugins.push(execPluginFactory(buildScriptPlugin, {input, output, cmd}));
         break;
       }
 
@@ -362,7 +396,7 @@ function loadPlugins(
     .reduce((arr, a) => arr.concat(a.resolve!.input), [] as string[])
     .forEach((ext) => needsDefaultPlugin.delete(ext));
   if (needsDefaultPlugin.size > 0) {
-    plugins.unshift(esbuildPlugin(config, {input: [...needsDefaultPlugin]}));
+    plugins.unshift(execPluginFactory(esbuildPlugin, {input: [...needsDefaultPlugin]}));
   }
 
   const extensionMap = plugins.reduce((map, {resolve}) => {
