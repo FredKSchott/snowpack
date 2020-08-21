@@ -567,7 +567,9 @@ export async function command(commandOptions: CommandOptions) {
           }
           logger.error(`Import "${spec}" could not be resolved.
 If this is a new package, re-run Snowpack with the ${colors.bold('--reload')} flag to rebuild.
-If Snowpack is having trouble detecting the import, add ${colors.bold(`"install": ["${spec}"]`)} to your Snowpack config file.`);
+If Snowpack is having trouble detecting the import, add ${colors.bold(
+            `"install": ["${spec}"]`,
+          )} to your Snowpack config file.`);
           return spec;
         },
       );
