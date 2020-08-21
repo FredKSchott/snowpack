@@ -6,7 +6,7 @@ import {InstallTarget} from '../types/snowpack';
 
 function autoDetectExports(fileLoc: string): string[] | undefined {
   try {
-    return Object.keys(require(fileLoc));
+    return Object.keys(require(fileLoc)).filter((imp) => imp !== 'default');
   } catch (err) {
     logger.error(`✘ Could not auto-detect exports for ${colors.bold(fileLoc)}
 ${err.message}`);
