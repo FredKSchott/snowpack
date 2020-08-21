@@ -1,3 +1,16 @@
+// Snowpack node process polyfill
+var process = {
+  title: 'browser',
+  browser: true,
+  env: {"NODE_ENV":"production"},
+  argv: [],
+  version: '',
+  versions: {},
+  platform: 'browser',
+  release: {},
+  config: {}
+};
+
 /**
  * Make a map and return a function for checking if a key
  * is in that map.
@@ -1134,11 +1147,11 @@ function renderComponentRoot(instance) {
             // functional
             const render = Component;
             // in dev, mark attrs accessed if optional props (attrs === props)
-            if (("production" !== 'production') && attrs === props) {
+            if ((process.env.NODE_ENV !== 'production') && attrs === props) {
                 markAttrsAccessed();
             }
             result = normalizeVNode(render.length > 1
-                ? render(props, ("production" !== 'production')
+                ? render(props, (process.env.NODE_ENV !== 'production')
                     ? {
                         get attrs() {
                             markAttrsAccessed();
@@ -1158,7 +1171,7 @@ function renderComponentRoot(instance) {
         // to have comments along side the root element which makes it a fragment
         let root = result;
         let setRoot = undefined;
-        if (("production" !== 'production')) {
+        if ((process.env.NODE_ENV !== 'production')) {
             ;
             [root, setRoot] = getChildRoot(result);
         }
@@ -1176,7 +1189,7 @@ function renderComponentRoot(instance) {
                     }
                     root = cloneVNode(root, fallthroughAttrs);
                 }
-                else if (("production" !== 'production') && !accessedAttrs && root.type !== Comment) {
+                else if ((process.env.NODE_ENV !== 'production') && !accessedAttrs && root.type !== Comment) {
                     const allAttrs = Object.keys(attrs);
                     const eventAttrs = [];
                     const extraAttrs = [];
@@ -1229,7 +1242,7 @@ function renderComponentRoot(instance) {
         }
         // inherit directives
         if (vnode.dirs) {
-            if (("production" !== 'production') && !isElementRoot(root)) {
+            if ((process.env.NODE_ENV !== 'production') && !isElementRoot(root)) {
                 warn(`Runtime directive used on component with non-element root node. ` +
                     `The directives will not function as intended.`);
             }
@@ -1237,13 +1250,13 @@ function renderComponentRoot(instance) {
         }
         // inherit transition data
         if (vnode.transition) {
-            if (("production" !== 'production') && !isElementRoot(root)) {
+            if ((process.env.NODE_ENV !== 'production') && !isElementRoot(root)) {
                 warn(`Component inside <Transition> renders non-element root node ` +
                     `that cannot be animated.`);
             }
             root.transition = vnode.transition;
         }
-        if (("production" !== 'production') && setRoot) {
+        if ((process.env.NODE_ENV !== 'production') && setRoot) {
             setRoot(root);
         }
         else {
