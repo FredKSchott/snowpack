@@ -2524,23 +2524,23 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.4.4.tgz#11d5db19bd178936ec89cd84519c4de439574398"
   integrity sha512-1oO6+dN5kdIA3sKPZhRGJTfGVP4SWV6KqlMOwry4J3HfyD68sl/3KmG7DeYUzvN+RbhXDnv/D8vNNB8168tAMg==
 
-"@prefresh/core@0.6.1":
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/@prefresh/core/-/core-0.6.1.tgz#3a2be2303a0726a10e76a9f572751ae47526a054"
-  integrity sha512-VOri+qPL/6k8n7b3O29nKeIRVfBEw0Ol3k8hwQxb1Q2nVQ3uyiLP0nhsFDKiit/cLUd9HqLn00061gqZwOdkRQ==
+"@prefresh/core@^0.8.1":
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/@prefresh/core/-/core-0.8.1.tgz#d4f15d9e3ee9c16bf420405e2b422774e807a594"
+  integrity sha512-woho+Ja8w3pxnZwq68MnWzH9ffdidrpJsV6PDTNIsJOpsLYmfCNxqxGsxIqYw40d1yjg4h6HFGbb6Y9lhyTPNA==
 
-"@prefresh/snowpack@0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@prefresh/snowpack/-/snowpack-0.1.0.tgz#bae53074cdee0275490ee746714caf5f11362252"
-  integrity sha512-8c51BX9DstVzxgjuPblTs89L1LprrbYRHuUFSo54sqT9pF32VedWScLylS/X30Dlw66NAsNE4+CODxvB+mljiw==
+"@prefresh/snowpack@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@prefresh/snowpack/-/snowpack-1.1.1.tgz#a492074a2ca008b2a87be9bcff9a51f1aee545e3"
+  integrity sha512-6/U4tlAzWiY6ntgfLfCS3jezrIY2xIWntiLBusdJdbHHvXDsoA1n4tPp1rEX5EZ3Ro8BSUCO4MMMpYtYd9rVLg==
   dependencies:
-    "@prefresh/core" "0.6.1"
-    "@prefresh/utils" "0.1.1"
+    "@prefresh/core" "^0.8.1"
+    "@prefresh/utils" "^0.3.1"
 
-"@prefresh/utils@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@prefresh/utils/-/utils-0.1.1.tgz#35b7f7bd9a5248458c1ee4ccd7d1b10b05c370bd"
-  integrity sha512-x5pPJBlDss8o3OeK+uNHaBiKev+/6IWfTv1e7+a1NcvtxIgNxTlNWezWEW4JfLJIf+7Gi3FSqGVRTCKRAzT05g==
+"@prefresh/utils@^0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@prefresh/utils/-/utils-0.3.1.tgz#f9e1a5e1fa4bc02989980733950e60520f0f9869"
+  integrity sha512-9kLzPWN4teeiKuc+Rle3SF/hyx5lzo35X4rHr+kQXnJT+BaEb1ymDWIHGkv85xjnw8+l6I1r1H7JB4BHOMJfmg==
 
 "@rollup/plugin-alias@^3.0.1":
   version "3.1.1"
