@@ -1,3 +1,16 @@
+/* SNOWPACK POLYFILL - process */
+var process = {
+  title: 'browser',
+  browser: true,
+  env: {"NODE_ENV":"test"},
+  argv: [],
+  version: '',
+  versions: {},
+  platform: 'browser',
+  release: {},
+  config: {}
+};
+
 /*!
  * Vue.js v2.6.11
  * (c) 2014-2019 Evan You
@@ -380,12 +393,12 @@ var config = ({
   /**
    * Show production mode tip message on boot?
    */
-  productionTip: "test" !== 'production',
+  productionTip: process.env.NODE_ENV !== 'production',
 
   /**
    * Whether to enable devtools
    */
-  devtools: "test" !== 'production',
+  devtools: process.env.NODE_ENV !== 'production',
 
   /**
    * Whether to record perf
@@ -1367,7 +1380,7 @@ strats.computed = function (
   vm,
   key
 ) {
-  if (childVal && "test" !== 'production') {
+  if (childVal && process.env.NODE_ENV !== 'production') {
     assertObjectType(key, childVal, vm);
   }
   if (!parentVal) { return childVal }

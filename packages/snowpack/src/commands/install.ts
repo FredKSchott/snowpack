@@ -2,7 +2,6 @@ import rollupPluginAlias from '@rollup/plugin-alias';
 import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-commonjs';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
-import rollupPluginReplace from '@rollup/plugin-replace';
 import rollupPluginNodePolyfills from 'rollup-plugin-node-polyfills';
 import {init as initESModuleLexer} from 'es-module-lexer';
 import findUp from 'find-up';
@@ -22,12 +21,12 @@ import {rollupPluginCss} from '../rollup-plugins/rollup-plugin-css';
 import {rollupPluginDependencyCache} from '../rollup-plugins/rollup-plugin-remote-cdn.js';
 import {rollupPluginDependencyStats} from '../rollup-plugins/rollup-plugin-stats.js';
 import {rollupPluginWrapInstallTargets} from '../rollup-plugins/rollup-plugin-wrap-install-targets';
+import {rollupPluginNodeProcessPolyfill} from '../rollup-plugins/rollup-plugin-node-process-polyfill';
 import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
 import {printStats} from '../stats-formatter.js';
 import {
   CommandOptions,
   DependencyStatsOutput,
-  EnvVarReplacements,
   ImportMap,
   InstallTarget,
   SnowpackConfig,
@@ -86,34 +85,6 @@ function getWebDependencyName(dep: string): string {
   return validatePackageName(dep).validForNewPackages
     ? dep.replace(/\.js$/i, 'js') // if this is a top-level package ending in .js, replace with js (e.g. tippy.js -> tippyjs)
     : dep.replace(/\.m?js$/i, ''); // otherwise simply strip the extension (Rollup will resolve it)
-}
-
-/**
- * Takes object of env var mappings and converts it to actual
- * replacement specs as expected by @rollup/plugin-replace. The
- * `optimize` arg is used to derive NODE_ENV default.
- *
- * @param env
- * @param optimize
- */
-function getRollupReplaceKeys(env: EnvVarReplacements): Record<string, string> {
-  const result = Object.keys(env).reduce(
-    (acc, id) => {
-      const val = env[id];
-      acc[`process.env.${id}`] = `${JSON.stringify(val === true ? process.env[id] : val)}`;
-      return acc;
-    },
-    {
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
-      'process.versions.node': 'undefined',
-      'process.platform': JSON.stringify('browser'),
-      'process.env.': '({}).',
-      'typeof process.versions.node': JSON.stringify('undefined'),
-      'typeof process.versions': JSON.stringify('undefined'),
-      'typeof process': JSON.stringify('undefined'),
-    },
-  );
-  return result;
 }
 
 /**
@@ -348,7 +319,6 @@ ${colors.dim(
     external: (id) => externalPackages.some((packageName) => isImportOfPackage(id, packageName)),
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
-      rollupPluginReplace(getRollupReplaceKeys(env)),
       !!webDependencies &&
         rollupPluginDependencyCache({
           installTypes,
@@ -386,6 +356,10 @@ ${colors.dim(
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
+      rollupPluginNodeProcessPolyfill({
+        NODE_ENV: process.env.NODE_ENV || 'production',
+        ...env,
+      }),
       polyfillNode && rollupPluginNodePolyfills(),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),

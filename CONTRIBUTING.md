@@ -35,3 +35,7 @@ cd ../some-other-project && ../pkg/dist-node/index.bin.js
 cd pkg && npm link
 snowpack
 ```
+
+### Discussion
+
+[Join the Pika Discord](https://discord.gg/rS8SnRk)
