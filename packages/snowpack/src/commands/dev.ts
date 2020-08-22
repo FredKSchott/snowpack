@@ -784,12 +784,7 @@ export async function command(commandOptions: CommandOptions) {
     if (node && node.isHmrEnabled) {
       hmrEngine.broadcastMessage({type: 'update', url});
     }
-    if (
-      node &&
-      node.isHmrAccepted &&
-      // width isHmrAccepted but also need bubble
-      !(url.endsWith('.json.proxy.js') || url.endsWith('.module.css.proxy.js'))
-    ) {
+    if (node && node.isHmrAccepted) {
       // Found a boundary, no bubbling needed
     } else if (node && node.dependents.size > 0) {
       node.dependents.forEach((dep) => {
