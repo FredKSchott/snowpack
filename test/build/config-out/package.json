@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-config-out",
+  "description": "Test for devOptions.out",
+  "scripts": {
+    "testbuild": "snowpack build"
+  },
+  "snowpack": {
+    "devOptions": {
+      "out": "TEST_BUILD_OUT"
+    }
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.2",
+    "snowpack": "^2.7.0"
+  }
+}

@@ -26,7 +26,7 @@ describe('snowpack build', () => {
 
       // build test
       execa.sync('yarn', ['testbuild'], {cwd});
-      const actual = path.join(cwd, 'build');
+      const actual = testName === 'config-out' ? path.join(cwd, 'TEST_BUILD_OUT') : path.join(cwd, 'build');
 
       // Test That all files match
       const allFiles = glob.sync(`**/*`, {
