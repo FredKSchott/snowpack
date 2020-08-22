@@ -241,7 +241,8 @@ function loadPlugins(
       if (!warned) {
         warned = true;
         logger.warn(
-          `plugin ${name} references the snowpackConfig in it's factory function, use \`config\` hook instead.`,
+          `The function "config" argument has been deprecated. Use the "config()" plugin hook to read and/or modify the Snowpack config object.`,
+          {name: name},
         );
       }
     };
