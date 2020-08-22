@@ -1,10 +1,12 @@
 # @snowpack/plugin-react-refresh
 
-Transforms JavaScript files containing React components automatically to enable React Fast Refresh. Connects to Snowpack's Hot Module Replacement (HMR) API.
+Transforms JavaScript files containing React components automatically to enable React Fast Refresh via Snowpack's HMR API. 
 
 ```
 npm install --save-dev @snowpack/plugin-react-refresh
 ```
+
+## Setup
 
 ```js
 // snowpack.config.json
@@ -28,14 +30,13 @@ In addition, you have to add `react-refresh/babel` as a plugin to your babel con
 }
 ```
 
-#### Default Build Script
 
-```js
-{
-  "scripts": {"bundle:*": "@snowpack/plugin-react-refresh"}
-}
-```
-
-#### Plugin Options
+## Plugin Options
 
 None
+
+## How it Works
+
+This plugin will automatically inject HMR event handlers into any file containing a React component. 
+
+In most applications, you'll still want some top-level `import.meta.hot` handling code in your application for any non-React file updates. In our Create Snowpack App templates, this would be the HMR handling snippet found in `src/index.js`.
