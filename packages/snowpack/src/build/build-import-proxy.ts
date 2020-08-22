@@ -96,10 +96,7 @@ function generateJsonImportProxy({
   isDev: boolean;
   config: SnowpackConfig;
 }) {
-  const jsonImportProxyCode = `${
-    hmr ? `import.meta.hot.accept(({module}) => { json = module.default; });` : ''
-  }
-let json = ${JSON.stringify(JSON.parse(code))};
+  const jsonImportProxyCode = `let json = ${JSON.stringify(JSON.parse(code))};
 export default json;`;
   return wrapImportMeta({code: jsonImportProxyCode, hmr, env: false, isDev, config});
 }
@@ -158,10 +155,6 @@ async function generateCssModuleImportProxy({
       ? `
 import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr.js', isDev, config)}';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
-import.meta.hot.accept(({module}) => {
-  code = module.code;
-  json = module.default;
-});
 import.meta.hot.dispose(() => {
   document.head.removeChild(styleEl);
 });\n`
