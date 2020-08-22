@@ -500,29 +500,6 @@ export async function command(commandOptions: CommandOptions) {
             code =
               `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
 
-          if (reqUrlHmrParam)
-            code = await transformEsmImports(code as string, (imp) => {
-              const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
-              const node = hmrEngine.getEntry(importUrl);
-              if (node && node.needsReplacement) {
-                hmrEngine.markEntryForReplacement(node, false);
-                return `${imp}?${reqUrlHmrParam}`;
-              }
-              return imp;
-            });
-
-          // hmr
-          const isHmrEnabled = code.includes('import.meta.hot');
-          const rawImports = await scanCodeImportsExports(code);
-          const resolvedImports = rawImports.map((imp) => {
-            let spec = code.substring(imp.s, imp.e);
-            if (imp.d > -1) {
-              spec = matchImportSpecifier(spec) || '';
-            }
-            return path.posix.resolve(path.posix.dirname(reqPath), spec);
-          });
-          hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
-
           // source mapping
           if (sourceMap) code = jsSourceMappingURL(code, sourceMappingURL);
 
@@ -573,6 +550,34 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
           return spec;
         },
       );
+
+      let code = wrappedResponse;
+      if (responseFileExt === '.js' && reqUrlHmrParam)
+        code = await transformEsmImports(code as string, (imp) => {
+          const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
+          const node = hmrEngine.getEntry(importUrl);
+          if (node && node.needsReplacement) {
+            hmrEngine.markEntryForReplacement(node, false);
+            return `${imp}?${reqUrlHmrParam}`;
+          }
+          return imp;
+        });
+
+      if (responseFileExt === '.js') {
+        const isHmrEnabled = code.includes('import.meta.hot');
+        const rawImports = await scanCodeImportsExports(code);
+        const resolvedImports = rawImports.map((imp) => {
+          let spec = code.substring(imp.s, imp.e);
+          if (imp.d > -1) {
+            spec = matchImportSpecifier(spec) || '';
+          }
+          spec = spec.replace(/\?mtime=[0-9]+$/, '');
+          return path.posix.resolve(path.posix.dirname(reqPath), spec);
+        });
+        hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
+      }
+
+      wrappedResponse = code;
       return wrappedResponse;
     }
 
@@ -770,8 +775,10 @@ ${err}`);
     if (node && node.isHmrAccepted) {
       // Found a boundary, no bubbling needed
     } else if (node && node.dependents.size > 0) {
-      hmrEngine.markEntryForReplacement(node, true);
-      node.dependents.forEach((dep) => updateOrBubble(dep, visited));
+      node.dependents.forEach((dep) => {
+        hmrEngine.markEntryForReplacement(node, true);
+        updateOrBubble(dep, visited);
+      });
     } else {
       // We've reached the top, trigger a full page refresh
       hmrEngine.broadcastMessage({type: 'reload'});
@@ -787,7 +794,7 @@ ${err}`);
     }
 
     // Append ".proxy.js" to Non-JS files to match their registered URL in the client app.
-    if (!updateUrl.endsWith('.js') && !updateUrl.endsWith('.module.css')) {
+    if (!updateUrl.endsWith('.js')) {
       updateUrl += '.proxy.js';
     }
     // Check if a virtual file exists in the resource cache (ex: CSS from a Svelte file)
