@@ -1,8 +1,7 @@
-const rimraf = require('rimraf');
 const path = require('path');
 const execa = require('execa');
-const {readdirSync, readFileSync, statSync, existsSync, renameSync} = require('fs');
-const dircompare = require('dir-compare');
+const {readdirSync, readFileSync, statSync, existsSync} = require('fs');
+const glob = require('glob');
 
 const STRIP_WHITESPACE = /((\s+$)|((\\r\\n)|(\\n)))/gm;
 const STRIP_REV = /\?rev=\w+/gm;
@@ -18,7 +17,7 @@ function format(stdout) {
 
 describe('snowpack build', () => {
   for (const testName of readdirSync(__dirname)) {
-    if (testName === 'node_modules' || testName.includes('.')) {
+    if (testName === 'node_modules' || testName === '__snapshots__' || testName.includes('.')) {
       continue;
     }
 
@@ -27,51 +26,29 @@ describe('snowpack build', () => {
 
       // build test
       execa.sync('yarn', ['testbuild'], {cwd});
-
-      const expected = path.join(cwd, 'expected-build');
       const actual = path.join(cwd, 'build');
 
-
-      if (process.env.UPDATE_SNAPSHOTS) {
-        rimraf.sync(expected);
-      renameSync(actual, expected);
-      return;
-      }
-
       // Test That all files match
-      var res = dircompare.compareSync(expected, actual, {
-        compareSize: true,
-        // Chunk hashes created in common dependency file names are generated
-        // differently on windows & linux and cause CI tests to fail
-        excludeFilter: 'common',
+      const allFiles = glob.sync(`**/*`, {
+        ignore: ['**/common/**/*'],
+        cwd: actual,
+        nodir: true,
       });
 
+      if (allFiles.length === 0) {
+        throw new Error('Empty build directory!');
+      }
+
+      expect(allFiles.map(f => f.replace(/\\/g, '/'))).toMatchSnapshot('allFiles');
+
       // If any diffs are detected, we'll assert the difference so that we get nice output.
-      for (const entry of res.diffSet) {
-        // NOTE: We only compare files so that we give the test runner a more detailed diff.
-        if (entry.type1 === 'directory' && entry.type2 === 'directory') {
+      for (const entry of allFiles) {
+        // don’t compare CSS or .map files.
+        if (entry.endsWith('.css') || entry.endsWith('.map')) {
           continue;
         }
-
-        if (!entry.path2)
-          throw new Error(
-            `File failed to generate: ${entry.path1.replace(expected, '')}/${entry.name1}`,
-          );
-        if (!entry.path1)
-          throw new Error(
-            `File not found in snapshot: ${entry.path2.replace(actual, '')}/${entry.name2}`,
-          );
-
-        // don’t compare CSS or .map files.
-        if (entry.name1.endsWith('.css') || entry.name1.endsWith('.map')) continue;
-
-        // NOTE: common chunks are hashed, non-trivial to compare
-        if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) continue;
-
-        const f1 = readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'});
-        const f2 = readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'});
-
-        expect(format(f1)).toBe(format(f2));
+        const f1 = readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
+        expect(format(f1)).toMatchSnapshot(entry.replace(/\\/g, '/'));
       }
     });
   }

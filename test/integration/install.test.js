@@ -3,7 +3,7 @@ const fs = require('fs').promises;
 const {readdirSync, readFileSync, existsSync} = require('fs');
 const execa = require('execa');
 const rimraf = require('rimraf');
-const dircompare = require('dir-compare');
+const glob = require('glob');
 
 const KEEP_LOCKFILE = [
   'source-pika-lockfile', // We explicitly want to test the lockfile in this test
@@ -57,7 +57,7 @@ describe('snowpack install', () => {
   });
 
   for (const testName of readdirSync(__dirname)) {
-    if (testName === 'node_modules' || testName.includes('.')) {
+    if (testName === 'node_modules' || testName === '__snapshots__' || testName.includes('.')) {
       continue;
     }
 
@@ -73,6 +73,7 @@ describe('snowpack install', () => {
         reject: false,
         all: true,
       });
+      // Test Output
       let expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
       if (process.platform === 'win32') {
         const expectedWinOutputLoc = path.resolve(expectedOutputLoc, '../expected-output.win.txt');
@@ -81,31 +82,19 @@ describe('snowpack install', () => {
         }
       }
       const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
-      const actualOutput = stripWhitespace(
-        stripConfigErrorPath(
-          stripResolveErrorPath(stripBenchmark(stripChunkHash(stripStats(stripStacktrace(all))))),
+      expect(
+        stripWhitespace(
+          stripConfigErrorPath(
+            stripResolveErrorPath(stripBenchmark(stripChunkHash(stripStats(stripStacktrace(all))))),
+          ),
         ),
-      );
+      ).toBe(stripWhitespace(expectedOutput));
+
       // Test Lockfile (if one exists)
       const expectedLockLoc = path.join(__dirname, testName, 'expected-lock.json');
       const expectedLock = await fs
         .readFile(expectedLockLoc, {encoding: 'utf8'})
         .catch((/* ignore */) => null);
-      const expectedInstallLoc = path.join(__dirname, testName, 'expected-install');
-      const actualInstallLoc = path.join(__dirname, testName, 'web_modules');
-
-      if (process.env.UPDATE_SNAPSHOTS) {
-        if (existsSync(actualInstallLoc)) {
-          rimraf.sync(expectedInstallLoc);
-          await fs.rename(actualInstallLoc, expectedInstallLoc);
-        }
-        await fs.writeFile(expectedOutputLoc, actualOutput);
-        return;
-      }
-
-      // Test Output
-      expect(actualOutput).toBe(stripWhitespace(expectedOutput));
-
       if (expectedLock) {
         const actualLockLoc = path.join(__dirname, testName, 'snowpack.lock.json');
         const actualLock = await fs.readFile(actualLockLoc, {encoding: 'utf8'});
@@ -122,56 +111,32 @@ describe('snowpack install', () => {
         removeLockfile(testName);
       }
 
-      const expectedWebDependencies = await fs.readdir(expectedInstallLoc).catch(() => {});
-      if (!expectedWebDependencies) {
+      const actual = path.join(__dirname, testName, 'web_modules');
+      const allFiles = glob.sync(`**/*`, {
+        ignore: ['**/common/**/*'],
+        cwd: actual,
+        nodir: true,
+      });
+
+      if (allFiles.length === 0) {
         // skip web_modules/ comparison for tests that start with error-*
         if (testName.startsWith('error-')) {
           return;
         }
-        // throw error if web_modules/ is generated but expected-install/ is missing
-        if (existsSync(actualInstallLoc)) throw new Error(`${actualInstallLoc} exists`);
-
-        // otherwise, stop test here
-        return;
+        throw new Error('Empty build directory!');
       }
 
-      // Test That all files match
-      var res = dircompare.compareSync(expectedInstallLoc, actualInstallLoc, {
-        compareSize: true,
-        // Chunk hashes created in common dependency file names are generated
-        // differently on windows & linux and cause CI tests to fail
-        excludeFilter: 'common',
-      });
+      expect(allFiles.map(f => f.replace(/\\/g, '/'))).toMatchSnapshot('allFiles');
+
       // If any diffs are detected, we'll assert the difference so that we get nice output.
-      for (const entry of res.diffSet) {
-        // NOTE: We only compare files so that we give the test runner a more detailed diff.
-        if (entry.type1 === 'directory' && entry.type2 === 'directory') {
+      for (const entry of allFiles) {
+        // don’t compare CSS or .map files.
+        if (entry.endsWith('.css') || entry.endsWith('.map')) {
           continue;
         }
-
-        if (!entry.path2)
-          throw new Error(
-            `File failed to generate: ${entry.path1.replace(expectedInstallloc, '')}/${
-              entry.name1
-            }`,
-          );
-        if (!entry.path1)
-          throw new Error(
-            `File not found in snapshot: ${entry.path2.replace(actualInstallLoc, '')}/${
-              entry.name2
-            }`,
-          );
-
-        // NOTE: common chunks are hashed, non-trivial to compare
-        if (entry.path1.endsWith('common') && entry.path2.endsWith('common')) {
-          continue;
-        }
-
-        const f1 = readFileSync(path.join(entry.path1, entry.name1), {encoding: 'utf8'});
-        const f2 = readFileSync(path.join(entry.path2, entry.name2), {encoding: 'utf8'});
-
-        expect(stripWhitespace(stripSvelteComment(stripChunkHash(stripRev(f1))))).toBe(
-          stripWhitespace(stripSvelteComment(stripChunkHash(stripRev(f2)))),
+        const f1 = readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
+        expect(stripWhitespace(stripSvelteComment(stripChunkHash(stripRev(f1))))).toMatchSnapshot(
+          entry.replace(/\\/g, '/'),
         );
       }
     });

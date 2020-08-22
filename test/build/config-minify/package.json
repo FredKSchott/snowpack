@@ -2,7 +2,7 @@
   "private": true,
   "version": "1.0.1",
   "name": "@snowpack/test-config-minify",
-  "description": "This test ensures that buildOptions.optimize: false disables minification",
+  "description": "This test ensures that --minify enables minification",
   "scripts": {
     "testbuild": "snowpack build --minify"
   },
