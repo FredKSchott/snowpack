@@ -75,6 +75,8 @@ export interface SnowpackPlugin {
   cleanup?(): void | Promise<void>;
   /** Known dependencies that should be installed */
   knownEntrypoints?: string[];
+  /** read and modify the Snowpack config object */
+  config?(snowpackConfig: SnowpackConfig): void;
 }
 
 export interface LegacySnowpackPlugin {
