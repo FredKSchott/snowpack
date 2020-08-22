@@ -233,37 +233,8 @@ function loadPlugins(
   const plugins: SnowpackPlugin[] = [];
 
   function execPluginFactory(pluginFactory: any, pluginOptions?: any): SnowpackPlugin {
-    let needWarnAfterCreated = false;
-    let warned = false;
     let plugin: SnowpackPlugin | null = null;
-    let name: string;
-    const logWarn = () => {
-      if (!warned) {
-        warned = true;
-        logger.warn(
-          `The function "config" argument has been deprecated. Use the "config()" plugin hook to read and/or modify the Snowpack config object.`,
-          {name: name},
-        );
-      }
-    };
-
-    const configProxy = new Proxy(config, {
-      get(obj, prop) {
-        if (!plugin) {
-          needWarnAfterCreated = true;
-        } else {
-          logWarn();
-        }
-        return obj[prop];
-      },
-    });
-
-    plugin = pluginFactory(configProxy, pluginOptions) as SnowpackPlugin;
-    name = plugin.name || pluginFactory.name;
-    if (needWarnAfterCreated) {
-      logWarn();
-    }
-
+    plugin = pluginFactory(config, pluginOptions) as SnowpackPlugin;
     return plugin;
   }
 
