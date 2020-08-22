@@ -40,6 +40,9 @@ async function installOptimizedDependencies(
         : commandOptions.config.installOptions.treeshake ?? true,
     },
   });
+  // Unlike dev (where we scan from source code) the built output guarantees that we
+  // will can scan all used entrypoints. Set to `[]` to improve tree-shaking performance.
+  installConfig.knownEntrypoints = [];
   // 1. Scan imports from your final built JS files.
   const installTargets = await getInstallTargets(installConfig, scannedFiles);
   // 2. Install dependencies, based on the scan of your final build.

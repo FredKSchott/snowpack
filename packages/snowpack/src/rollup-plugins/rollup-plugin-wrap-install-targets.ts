@@ -30,7 +30,7 @@ export function rollupPluginWrapInstallTargets(
   autoDetectPackageExports: string[],
   installTargets: InstallTarget[],
 ): Plugin {
-  const installTargetsByFile: {[loc: string]: InstallTarget[]} = {};
+  const installTargetSummaries: {[loc: string]: InstallTarget} = {};
 
   function isAutoDetect(normalizedFileLoc: string) {
     return autoDetectPackageExports.some((p) =>
@@ -40,25 +40,28 @@ export function rollupPluginWrapInstallTargets(
   return {
     name: 'snowpack:wrap-install-targets',
     // Mark some inputs for tree-shaking.
-    options(inputOptions) {
+    buildStart(inputOptions) {
       const input = inputOptions.input as {[entryAlias: string]: string};
       for (const [key, val] of Object.entries(input)) {
-        installTargetsByFile[val] = installTargets.filter((imp) => imp.specifier === key);
-        if (
-          isTreeshake &&
-          installTargetsByFile[val].length > 0 &&
-          !installTargetsByFile[val].some((imp) => imp.namespace || imp.all)
-        ) {
+        const allInstallTargets = installTargets.filter(
+          (imp) => imp.specifier.replace(/\.js$/, 'js') === key,
+        );
+        const installTargetSummary = allInstallTargets.reduce((summary, imp) => {
+          summary.all = summary.all || imp.all;
+          summary.default = summary.default || imp.default || imp.all;
+          summary.namespace = summary.namespace || imp.namespace || imp.all;
+          summary.named = [...(summary.named || []), ...imp.named];
+          return summary;
+        }, {} as any);
+        installTargetSummaries[val] = installTargetSummary;
+        const normalizedFileLoc = val.split(path.win32.sep).join(path.posix.sep);
+        if (isAutoDetect(normalizedFileLoc)) {
           input[key] = `snowpack-wrap:${val}`;
         }
-        if (!isTreeshake) {
-          const normalizedFileLoc = val.split(path.win32.sep).join(path.posix.sep);
-          if (isAutoDetect(normalizedFileLoc)) {
-            input[key] = `snowpack-wrap:${val}`;
-          }
+        if (isTreeshake && !installTargetSummary.all) {
+          input[key] = `snowpack-wrap:${val}`;
         }
       }
-      return inputOptions;
     },
     resolveId(source) {
       if (source.startsWith('snowpack-wrap:')) {
@@ -72,22 +75,17 @@ export function rollupPluginWrapInstallTargets(
       }
       const fileLoc = id.substring('snowpack-wrap:'.length);
       // Reduce all install targets into a single "summarized" install target.
-      const treeshakeSummary = installTargetsByFile[fileLoc].reduce((summary, imp) => {
-        summary.default = summary.default || imp.default;
-        summary.namespace = summary.namespace || imp.namespace;
-        summary.named = [...summary.named, ...imp.named];
-        return summary;
-      });
-      let uniqueNamedImports = Array.from(new Set(treeshakeSummary.named));
+      const installTargetSummary = installTargetSummaries[fileLoc];
+      let uniqueNamedImports = Array.from(new Set(installTargetSummary.named));
       const normalizedFileLoc = fileLoc.split(path.win32.sep).join(path.posix.sep);
-      if (!isTreeshake && isAutoDetect(normalizedFileLoc)) {
+      if ((!isTreeshake || installTargetSummary.namespace) && isAutoDetect(normalizedFileLoc)) {
         uniqueNamedImports = autoDetectExports(fileLoc) || uniqueNamedImports;
-        treeshakeSummary.default = true;
+        installTargetSummary.default = true;
       }
       const result = `
-        ${treeshakeSummary.namespace ? `export * from '${normalizedFileLoc}';` : ''}
+        ${installTargetSummary.namespace ? `export * from '${normalizedFileLoc}';` : ''}
         ${
-          treeshakeSummary.default
+          installTargetSummary.default
             ? `import __pika_web_default_export_for_treeshaking__ from '${normalizedFileLoc}'; export default __pika_web_default_export_for_treeshaking__;`
             : ''
         }

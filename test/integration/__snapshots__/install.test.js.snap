@@ -145,7 +145,7 @@ exports[`snowpack install config-named-exports: cjs-named-export-pkg.js 1`] = `
 export default entrypoint;
 var export1 = entrypoint.export1;
 var export2 = entrypoint.export2;
-export { export1, export2 };"
+export { entrypoint as __moduleExports, export1, export2 };"
 `;
 
 exports[`snowpack install config-named-exports: import-map.json 1`] = `
@@ -64460,7 +64460,7 @@ exports[`snowpack install package-react: import-map.json 1`] = `
 
 exports[`snowpack install package-react: react.js 1`] = `
 "import { r as react } from './common/index-XXXXXXXX.js';
-export { r as default } from './common/index-XXXXXXXX.js';
+export { r as __moduleExports, r as default } from './common/index-XXXXXXXX.js';
 var Children = react.Children;
 var Component = react.Component;
 var Fragment = react.Fragment;
@@ -86242,7 +86242,7 @@ var unstable_batchedUpdates = reactDom.unstable_batchedUpdates;
 var unstable_createPortal = reactDom.unstable_createPortal;
 var unstable_renderSubtreeIntoContainer = reactDom.unstable_renderSubtreeIntoContainer;
 var version = reactDom.version;
-export { __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED, createPortal, findDOMNode, flushSync, hydrate, render, unmountComponentAtNode, unstable_batchedUpdates, unstable_createPortal, unstable_renderSubtreeIntoContainer, version };"
+export { __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED, reactDom as __moduleExports, createPortal, findDOMNode, flushSync, hydrate, render, unmountComponentAtNode, unstable_batchedUpdates, unstable_createPortal, unstable_renderSubtreeIntoContainer, version };"
 `;
 
 exports[`snowpack install source-pika: allFiles 1`] = `
