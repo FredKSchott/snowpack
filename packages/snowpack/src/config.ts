@@ -546,7 +546,9 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   config.knownEntrypoints = (config as any).install || [];
   config.installOptions.dest = path.resolve(cwd, config.installOptions.dest);
   config.devOptions.out = path.resolve(cwd, config.devOptions.out);
-  config.exclude = Array.from(new Set([...ALWAYS_EXCLUDE, `${config.devOptions.out}/**/*`, ...config.exclude]));
+  config.exclude = Array.from(
+    new Set([...ALWAYS_EXCLUDE, `${config.devOptions.out}/**/*`, ...config.exclude]),
+  );
 
   if (!config.proxy) {
     config.proxy = {} as any;
