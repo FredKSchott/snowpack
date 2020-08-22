@@ -23,7 +23,7 @@
     "baseUrl": "./",
     "paths": { "*": ["web_modules/.types/*"] },
 
-    "types": ["svelte", "jest", "@testing-library/jest-dom"]
+    "types": ["snowpack-env", "svelte", "jest", "@testing-library/jest-dom"]
   },
   "include": ["src", "types"],
   "exclude": ["node_modules"]
