@@ -69,6 +69,7 @@ exports[`create-snowpack-app app-template-11ty: index.html 1`] = `
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/static/index.css\\" />
     <title>Snowpack App</title>
+    <link rel=\\"modulepreload\\" href=\\"/web_modules/canvas-XXXXXXXX.js\\" />
   </head>
   <body>
     <div class=\\"banner\\">
@@ -85,6 +86,7 @@ exports[`create-snowpack-app app-template-11ty: index.html 1`] = `
 <canvas id=\\"canvas\\"></canvas>
 <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
 <a href=\\"/about\\">About Page</a>
+    <script type=\\"module\\" src=\\"/web_modules/canvas-XXXXXXXX.js\\"></script>
   </body>
 </html>"
 `;
@@ -664,6 +666,7 @@ exports[`create-snowpack-app app-template-blank: index.html 1`] = `
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/index.css\\" />
     <title>Snowpack App</title>
+    <link rel=\\"modulepreload\\" href=\\"/web_modules/canvas-XXXXXXXX.js\\" />
   </head>
   <body>
     <img id=\\"img\\" src=\\"/logo.svg\\" />
@@ -678,6 +681,7 @@ exports[`create-snowpack-app app-template-blank: index.html 1`] = `
       To begin the development, run \`npm start\` or \`yarn start\`.
       To create a production bundle, use \`npm run build\` or \`yarn build\`.
     -->
+    <script type=\\"module\\" src=\\"/web_modules/canvas-XXXXXXXX.js\\"></script>
   </body>
 </html>"
 `;
@@ -1225,6 +1229,7 @@ exports[`create-snowpack-app app-template-blank-typescript: index.html 1`] = `
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/index.css\\" />
     <title>Snowpack App</title>
+    <link rel=\\"modulepreload\\" href=\\"/web_modules/canvas-XXXXXXXX.js\\" />
   </head>
   <body>
     <img id=\\"img\\" src=\\"/logo.svg\\" />
@@ -1239,6 +1244,7 @@ exports[`create-snowpack-app app-template-blank-typescript: index.html 1`] = `
       To begin the development, run \`npm start\` or \`yarn start\`.
       To create a production bundle, use \`npm run build\` or \`yarn build\`.
     -->
+    <script type=\\"module\\" src=\\"/web_modules/canvas-XXXXXXXX.js\\"></script>
   </body>
 </html>"
 `;
@@ -1855,6 +1861,7 @@ exports[`create-snowpack-app app-template-lit-element: index.html 1`] = `
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/index.css\\" />
     <title>Snowpack App</title>
+    <link rel=\\"modulepreload\\" href=\\"/_dist_/app-root.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/lit-element.js\\" />
   </head>
   <body>
     <app-root></app-root>
@@ -1868,6 +1875,7 @@ exports[`create-snowpack-app app-template-lit-element: index.html 1`] = `
       To begin the development, run \`npm start\` or \`yarn start\`.
       To create a production bundle, use \`npm run build\` or \`yarn build\`.
     -->
+    <script type=\\"module\\" src=\\"/_dist_/app-root.js\\"></script><script type=\\"module\\" src=\\"/web_modules/lit-element.js\\"></script>
   </body>
 </html>"
 `;
@@ -4639,6 +4647,7 @@ exports[`create-snowpack-app app-template-lit-element-typescript: index.html 1`]
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/index.css\\" />
     <title>Snowpack App</title>
+    <link rel=\\"modulepreload\\" href=\\"/_dist_/app-root.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/lit-element.js\\" />
   </head>
   <body>
     <app-root></app-root>
@@ -4652,6 +4661,7 @@ exports[`create-snowpack-app app-template-lit-element-typescript: index.html 1`]
       To begin the development, run \`npm start\` or \`yarn start\`.
       To create a production bundle, use \`npm run build\` or \`yarn build\`.
     -->
+    <script type=\\"module\\" src=\\"/_dist_/app-root.js\\"></script><script type=\\"module\\" src=\\"/web_modules/lit-element.js\\"></script>
   </body>
 </html>"
 `;
@@ -7436,6 +7446,7 @@ exports[`create-snowpack-app app-template-preact: index.html 1`] = `
     <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <title>Snowpack App</title>
+    <link rel=\\"modulepreload\\" href=\\"/_dist_/App.css.proxy.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/App.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/index.css.proxy.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/logo.png.proxy.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/common/preact.module-XXXXXXXX.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/preact.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/preact/devtools.js\\" />
   </head>
   <body>
     <div id=\\"root\\"></div>
@@ -7449,6 +7460,7 @@ exports[`create-snowpack-app app-template-preact: index.html 1`] = `
       To begin the development, run \`npm start\` or \`yarn start\`.
       To create a production bundle, use \`npm run build\` or \`yarn build\`.
     -->
+    <script type=\\"module\\" src=\\"/_dist_/App.css.proxy.js\\"></script><script type=\\"module\\" src=\\"/_dist_/App.js\\"></script><script type=\\"module\\" src=\\"/_dist_/index.css.proxy.js\\"></script><script type=\\"module\\" src=\\"/_dist_/logo.png.proxy.js\\"></script><script type=\\"module\\" src=\\"/web_modules/common/preact.module-XXXXXXXX.js\\"></script><script type=\\"module\\" src=\\"/web_modules/preact.js\\"></script><script type=\\"module\\" src=\\"/web_modules/preact/devtools.js\\"></script>
   </body>
 </html>"
 `;
@@ -7610,6 +7622,7 @@ exports[`create-snowpack-app app-template-react: index.html 1`] = `
     <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <title>Snowpack App</title>
+    <link rel=\\"modulepreload\\" href=\\"/__snowpack__/env.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/App.css.proxy.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/App.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/index.css.proxy.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/logo.svg.proxy.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/common/index-XXXXXXXX.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/react-dom.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/react.js\\" />
   </head>
   <body>
     <div id=\\"root\\"></div>
@@ -7623,6 +7636,7 @@ exports[`create-snowpack-app app-template-react: index.html 1`] = `
       To begin the development, run \`npm start\` or \`yarn start\`.
       To create a production bundle, use \`npm run build\` or \`yarn build\`.
     -->
+    <script type=\\"module\\" src=\\"/__snowpack__/env.js\\"></script><script type=\\"module\\" src=\\"/_dist_/App.css.proxy.js\\"></script><script type=\\"module\\" src=\\"/_dist_/App.js\\"></script><script type=\\"module\\" src=\\"/_dist_/index.css.proxy.js\\"></script><script type=\\"module\\" src=\\"/_dist_/logo.svg.proxy.js\\"></script><script type=\\"module\\" src=\\"/web_modules/common/index-XXXXXXXX.js\\"></script><script type=\\"module\\" src=\\"/web_modules/react-dom.js\\"></script><script type=\\"module\\" src=\\"/web_modules/react.js\\"></script>
   </body>
 </html>"
 `;
@@ -8156,6 +8170,7 @@ exports[`create-snowpack-app app-template-react-typescript: index.html 1`] = `
     <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <title>Snowpack App</title>
+    <link rel=\\"modulepreload\\" href=\\"/__snowpack__/env.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/App.css.proxy.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/App.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/index.css.proxy.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/logo.svg.proxy.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/common/index-XXXXXXXX.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/react-dom.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/react.js\\" />
   </head>
   <body>
     <div id=\\"root\\"></div>
@@ -8169,6 +8184,7 @@ exports[`create-snowpack-app app-template-react-typescript: index.html 1`] = `
       To begin the development, run \`npm start\` or \`yarn start\`.
       To create a production bundle, use \`npm run build\` or \`yarn build\`.
     -->
+    <script type=\\"module\\" src=\\"/__snowpack__/env.js\\"></script><script type=\\"module\\" src=\\"/_dist_/App.css.proxy.js\\"></script><script type=\\"module\\" src=\\"/_dist_/App.js\\"></script><script type=\\"module\\" src=\\"/_dist_/index.css.proxy.js\\"></script><script type=\\"module\\" src=\\"/_dist_/logo.svg.proxy.js\\"></script><script type=\\"module\\" src=\\"/web_modules/common/index-XXXXXXXX.js\\"></script><script type=\\"module\\" src=\\"/web_modules/react-dom.js\\"></script><script type=\\"module\\" src=\\"/web_modules/react.js\\"></script>
   </body>
 </html>"
 `;
@@ -8687,6 +8703,7 @@ exports[`create-snowpack-app app-template-svelte: index.html 1`] = `
     <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <title>Snowpack App</title>
+    <link rel=\\"modulepreload\\" href=\\"/__snowpack__/env.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/App.css.proxy.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/App.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/svelte/internal.js\\" />
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -8699,6 +8716,7 @@ exports[`create-snowpack-app app-template-svelte: index.html 1`] = `
       To begin the development, run \`npm start\` or \`yarn start\`.
       To create a production bundle, use \`npm run build\` or \`yarn build\`.
     -->
+    <script type=\\"module\\" src=\\"/__snowpack__/env.js\\"></script><script type=\\"module\\" src=\\"/_dist_/App.css.proxy.js\\"></script><script type=\\"module\\" src=\\"/_dist_/App.js\\"></script><script type=\\"module\\" src=\\"/web_modules/svelte/internal.js\\"></script>
   </body>
 </html>"
 `;
@@ -9082,6 +9100,7 @@ exports[`create-snowpack-app app-template-svelte-typescript: index.html 1`] = `
     <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <title>Snowpack App</title>
+    <link rel=\\"modulepreload\\" href=\\"/__snowpack__/env.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/App.css.proxy.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/App.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/svelte/internal.js\\" />
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -9094,6 +9113,7 @@ exports[`create-snowpack-app app-template-svelte-typescript: index.html 1`] = `
       To begin the development, run \`npm start\` or \`yarn start\`.
       To create a production bundle, use \`npm run build\` or \`yarn build\`.
     -->
+    <script type=\\"module\\" src=\\"/__snowpack__/env.js\\"></script><script type=\\"module\\" src=\\"/_dist_/App.css.proxy.js\\"></script><script type=\\"module\\" src=\\"/_dist_/App.js\\"></script><script type=\\"module\\" src=\\"/web_modules/svelte/internal.js\\"></script>
   </body>
 </html>"
 `;
@@ -9477,6 +9497,7 @@ exports[`create-snowpack-app app-template-vue: index.html 1`] = `
     <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <title>Snowpack App</title>
+    <link rel=\\"modulepreload\\" href=\\"/__snowpack__/env.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/App.css.proxy.js\\" /><link rel=\\"modulepreload\\" href=\\"/_dist_/App.js\\" /><link rel=\\"modulepreload\\" href=\\"/web_modules/vue.js\\" />
   </head>
   <body>
     <div id=\\"app\\"></div>
@@ -9490,6 +9511,7 @@ exports[`create-snowpack-app app-template-vue: index.html 1`] = `
       To begin the development, run \`npm start\` or \`yarn start\`.
       To create a production bundle, use \`npm run build\` or \`yarn build\`.
     -->
+    <script type=\\"module\\" src=\\"/__snowpack__/env.js\\"></script><script type=\\"module\\" src=\\"/_dist_/App.css.proxy.js\\"></script><script type=\\"module\\" src=\\"/_dist_/App.js\\"></script><script type=\\"module\\" src=\\"/web_modules/vue.js\\"></script>
   </body>
 </html>"
 `;

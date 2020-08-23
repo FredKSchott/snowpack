@@ -12,7 +12,6 @@ import path from 'path';
 import rimraf from 'rimraf';
 import validatePackageName from 'validate-npm-package-name';
 import {ImportMap, SnowpackConfig} from './types/snowpack';
-import {removeTrailingSlash, addTrailingSlash} from './config';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
@@ -348,4 +347,65 @@ export function getWebDependencyName(dep: string): string {
   return validatePackageName(dep).validForNewPackages
     ? dep.replace(/\.js$/i, 'js') // if this is a top-level package ending in .js, replace with js (e.g. tippy.js -> tippyjs)
     : dep.replace(/\.m?js$/i, ''); // otherwise simply strip the extension (Rollup will resolve it)
+}
+
+/** URL relative */
+export function relativeURL(path1: string, path2: string): string {
+  let url = path.relative(path1, path2).replace(/\\/g, '/');
+  if (!url.startsWith('.')) {
+    url = './' + url;
+  }
+  return url;
+}
+
+const CLOSING_HEAD_TAG = /<\s*\/\s*head\s*>/gi;
+
+/** Append HTML before closing </head> tag */
+export function appendHTMLToHead(doc: string, htmlToAdd: string) {
+  const closingHeadMatch = doc.match(CLOSING_HEAD_TAG);
+  // if no <head> tag found, throw an error (we can’t load your app properly)
+  if (!closingHeadMatch) {
+    throw new Error(`No <head> tag found in HTML (this is needed to optimize your app):\n${doc}`);
+  }
+  // if multiple <head> tags found, also freak out
+  if (closingHeadMatch.length > 1) {
+    throw new Error(`Multiple <head> tags found in HTML (perhaps commented out?):\n${doc}`);
+  }
+  return doc.replace(new RegExp(`(${closingHeadMatch[0]})`), `${htmlToAdd}$1`);
+}
+
+const CLOSING_BODY_TAG = /<\s*\/\s*body\s*>/gi;
+
+/** Append HTML before closing </body> tag */
+export function appendHTMLToBody(doc: string, htmlToAdd: string) {
+  const closingBodyMatch = doc.match(CLOSING_BODY_TAG);
+  // if no <body> tag found, throw an error (we can’t load your app properly)
+  if (!closingBodyMatch) {
+    throw new Error(`No <body> tag found in HTML (this is needed to load your app):\n\n${doc}`);
+  }
+  // if multiple <body> tags found, also freak out
+  if (closingBodyMatch.length > 1) {
+    throw new Error(`Multiple <body> tags found in HTML (perhaps commented out?):\n\n${doc}`);
+  }
+  return doc.replace(new RegExp(`(${closingBodyMatch[0]})`), `${htmlToAdd}$1`);
+}
+
+/** Add / to beginning of string (but don’t double-up) */
+export function addLeadingSlash(path: string) {
+  return path.replace(/^\/?/, '/');
+}
+
+/** Add / to the end of string (but don’t double-up) */
+export function addTrailingSlash(path: string) {
+  return path.replace(/\/?$/, '/');
+}
+
+/** Remove \ and / from beginning of string */
+export function removeLeadingSlash(path: string) {
+  return path.replace(/^[/\\]+/, '');
+}
+
+/** Remove \ and / from end of string */
+export function removeTrailingSlash(path: string) {
+  return path.replace(/[/\\]+$/, '');
 }

@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-module-preload",
+  "description": "Tests that __snowpack__/module-preload.mjs is generated and preloads only necessary files",
+  "scripts": {
+    "testbuild": "snowpack build"
+  }
+}

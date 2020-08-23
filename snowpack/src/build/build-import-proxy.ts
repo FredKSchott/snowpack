@@ -1,10 +1,8 @@
 import type CSSModuleLoader from 'css-modules-loader-core';
 import path from 'path';
 import {SnowpackConfig} from '../types/snowpack';
-import {getExt} from '../util';
+import {appendHTMLToBody, getExt} from '../util';
 import {logger} from '../logger';
-
-const CLOSING_BODY_TAG = /<\s*\/\s*body\s*>/gi;
 
 export function getMetaUrlPath(urlPath: string, config: SnowpackConfig): string {
   let {metaDir} = config.buildOptions || {};
@@ -78,15 +76,7 @@ export function wrapHtmlResponse({
 
   if (hmr) {
     const hmrScript = `<script type="module" src="${getMetaUrlPath('hmr.js', config)}"></script>`;
-
-    const closingBodyMatch = code.match(CLOSING_BODY_TAG);
-    if (closingBodyMatch && closingBodyMatch.length === 1) {
-      // if </body> tag (and there’s only one), append before that ends
-      code = code.replace(new RegExp(`(${closingBodyMatch[0]})`), `${hmrScript}$1`);
-    } else {
-      // if no </body> tag (technically not required), or there’s something weird going on (multiple </body> tags), append to end of code
-      code += hmrScript;
-    }
+    code = appendHTMLToBody(code, hmrScript);
   }
   return code;
 }

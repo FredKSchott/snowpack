@@ -10,6 +10,7 @@ import yargs from 'yargs-parser';
 import {logger} from './logger';
 import srcFileExtensionMapping from './build/src-file-extension-mapping';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
+import {optimize as optimizePlugin} from './plugins/plugin-optimize';
 import {
   CLIFlags,
   DeepPartial,
@@ -22,6 +23,7 @@ import {
   LegacySnowpackPlugin,
   PluginLoadResult,
 } from './types/snowpack';
+import {addLeadingSlash, addTrailingSlash, removeLeadingSlash, removeTrailingSlash} from './util';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -362,6 +364,7 @@ function loadPlugins(
     plugins.push(plugin);
   });
 
+  // add internal JS handler plugin if none specified
   const needsDefaultPlugin = new Set(['.mjs', '.jsx', '.ts', '.tsx']);
   plugins
     .filter(({resolve}) => !!resolve)
@@ -369,6 +372,18 @@ function loadPlugins(
     .forEach((ext) => needsDefaultPlugin.delete(ext));
   if (needsDefaultPlugin.size > 0) {
     plugins.unshift(execPluginFactory(esbuildPlugin, {input: [...needsDefaultPlugin]}));
+  }
+
+  // add internal optimize plugin if none specified
+  const needsOptimizePlugin =
+    plugins.findIndex(({optimize}) => typeof optimize === 'function') === -1;
+  if (needsOptimizePlugin) {
+    const defaultOptimizePlugin = optimizePlugin(config, {
+      minifyCSS: config.buildOptions.minify,
+      minifyHTML: config.buildOptions.minify,
+      minifyJS: config.buildOptions.minify,
+    });
+    plugins.push(defaultOptimizePlugin);
   }
 
   const extensionMap = plugins.reduce((map, {resolve}) => {
@@ -856,20 +871,4 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     process.exit(1);
   }
   return configResult!;
-}
-
-export function removeLeadingSlash(path: string) {
-  return path.replace(/^[/\\]+/, '');
-}
-
-export function removeTrailingSlash(path: string) {
-  return path.replace(/[/\\]+$/, '');
-}
-
-export function addLeadingSlash(path: string) {
-  return path.replace(/^\/?/, '/');
-}
-
-export function addTrailingSlash(path: string) {
-  return path.replace(/\/?$/, '/');
 }

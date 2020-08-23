@@ -1,5 +1,4 @@
 import merge from 'deepmerge';
-import * as esbuild from 'esbuild';
 import {promises as fs} from 'fs';
 import glob from 'glob';
 import * as colors from 'kleur/colors';
@@ -17,11 +16,17 @@ import {
 } from '../build/build-import-proxy';
 import {buildFile, runPipelineCleanupStep, runPipelineOptimizeStep} from '../build/build-pipeline';
 import {createImportResolver} from '../build/import-resolver';
-import {removeLeadingSlash} from '../config';
 import {logger} from '../logger';
 import {transformFileImports} from '../rewrite-imports';
 import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
-import {cssSourceMappingURL, getEncodingType, jsSourceMappingURL, replaceExt} from '../util';
+import {
+  cssSourceMappingURL,
+  getEncodingType,
+  jsSourceMappingURL,
+  relativeURL,
+  removeLeadingSlash,
+  replaceExt,
+} from '../util';
 import {getInstallTargets, run as installRunner} from './install';
 
 const CONCURRENT_WORKERS = require('os').cpus().length;
@@ -202,12 +207,10 @@ class FileBuilder {
 
         // When dealing with an absolute import path, we need to honor the baseUrl
         if (isAbsoluteUrlPath) {
-          resolvedImportUrl = path
-            .relative(
-              path.dirname(outLoc),
-              path.resolve(this.config.devOptions.out, resolvedImportPath),
-            )
-            .replace(/\\/g, '/'); // replace Windows backslashes at the end, after resolution
+          resolvedImportUrl = relativeURL(
+            path.dirname(outLoc),
+            path.resolve(this.config.devOptions.out, resolvedImportPath),
+          );
         }
         // Make sure that a relative URL always starts with "./"
         if (!resolvedImportUrl.startsWith('.') && !resolvedImportUrl.startsWith('/')) {
@@ -392,30 +395,6 @@ export async function command(commandOptions: CommandOptions) {
       isHmrEnabled: false,
       sourceMaps: config.buildOptions.sourceMaps,
     });
-
-    // minify
-    if (config.buildOptions.minify) {
-      const minifierStart = performance.now();
-      logger.info(colors.yellow('! minifying javascript...'));
-      const minifierService = await esbuild.startService();
-      const allJsFiles = glob.sync(path.join(buildDirectoryLoc, '**/*.js'), {
-        ignore: [`**/${config.buildOptions.metaDir}/**/*`], // don’t minify meta dir
-      });
-      await Promise.all(
-        allJsFiles.map(async (jsFile) => {
-          const jsFileContents = await fs.readFile(jsFile, 'utf-8');
-          const {js} = await minifierService.transform(jsFileContents, {minify: true});
-          return fs.writeFile(jsFile, js, 'utf-8');
-        }),
-      );
-      const minifierEnd = performance.now();
-      logger.info(
-        `${colors.green('✔')} minification complete ${colors.dim(
-          `[${((minifierEnd - minifierStart) / 1000).toFixed(2)}s]`,
-        )}`,
-      );
-      minifierService.stop();
-    }
 
     logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
     return;
