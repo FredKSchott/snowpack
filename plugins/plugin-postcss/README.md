@@ -16,7 +16,7 @@ Then add this plugin to your Snowpack config:
 // snowpack.config.json
 {
   "plugins": [
-    "@snowpack/plugin-postcss-transform"
+    "@snowpack/plugin-postcss"
   ]
 }
 ```
