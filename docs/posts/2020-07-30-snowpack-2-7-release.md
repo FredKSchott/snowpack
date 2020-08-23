@@ -45,14 +45,14 @@ Snowpack v2.7 features an major rewrite of our internal build pipeline to suppo
 
 Snowpack 2.7 is fully backwards compatible with older plugins, so you can upgrade Snowpack without worrying about version mismatches.
 
-Every hook is documented in our new [Plugins Guide](/plugins) for plugin authors. The new API is heavily inspired by [Rollup](https://rollupjs.org/), so we hope it already feels familiar to many of you. 
+Every hook is documented in our new [Plugins Guide](/plugins) for plugin authors. The new API is heavily inspired by [Rollup](https://rollupjs.org/), so we hope it already feels familiar to many of you.
 
 
 ## Simplified Configuration
 
 ![snowpack screenshot](/img/snowpack-27-screenshot-3.png)
 
-Snowpack v2.0 originally introduced the concept of build `"scripts"` as a way to configure anything from file building to HTTP request proxying. Scripts were flexible, but hard to document and frustrating to debug. 
+Snowpack v2.0 originally introduced the concept of build `"scripts"` as a way to configure anything from file building to HTTP request proxying. Scripts were flexible, but hard to document and frustrating to debug.
 
 Our internal plugin rewrite presented an opportunity to improve the developer experience while keeping the flexibility of direct CLI tooling. You can now connect third-party tooling directly into Snowpack's build pipeline using one of two new utility plugins:
 
@@ -84,7 +84,7 @@ If you don't use a bundler in production, you'll still see a smaller build. That
 
 Last week, [Svelte announced official support for TypeScript](https://svelte.dev/blog/svelte-and-typescript). We're huge fans of both projects and couldn't pass up the chance to test the new support out in a brand new Svelte + TypeScript app template for Snowpack.
 
-Visit [Create Snowpack App](https://github.com/pikapkg/snowpack/tree/master/packages/create-snowpack-app) for a list of all of our new app templates.
+Visit [Create Snowpack App](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app) for a list of all of our new app templates.
 
 
 ## Thank You, Contributors!
