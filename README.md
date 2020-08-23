@@ -32,7 +32,7 @@ When you're ready to deploy your web application to users, you can add back a tr
 
 ## Create Snowpack App (CSA)
 
-For starter apps and templates, see [create-snowpack-app](./packages/create-snowpack-app).
+For starter apps and templates, see [create-snowpack-app](./create-snowpack-app).
 
 ## Official Snowpack Plugins
 

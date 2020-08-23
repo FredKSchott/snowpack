@@ -102,7 +102,7 @@ To be clear, Snowpack isn't against bundling for production. In fact, we recomme
 
 Snowpack treats bundling as a final, production-only build optimization. By bundling as the final step, you avoid mixing build logic and bundle logic in the same huge configuration file. Instead, your bundler gets already-built files and can focus solely on what it does best: bundling.
 
-Snowpack maintains official plugins for both Webpack & Parcel. Connect your favorite, and then run `snowpack build` to build your site for production. 
+Snowpack maintains official plugins for both Webpack & Parcel. Connect your favorite, and then run `snowpack build` to build your site for production.
 
 ```js
 // snowpack.config.json
@@ -129,7 +129,7 @@ If you already have an existing Snowpack application, Snowpack 2.0 will walk you
 
 #### Create Snowpack App
 
-The easiest way to get started with Snowpack is with [Create Snowpack App (CSA)](https://github.com/pikapkg/snowpack). CSA automatically initializes a starter application for you with a pre-configured, Snowpack-powered dev environment. 
+The easiest way to get started with Snowpack is with [Create Snowpack App (CSA)](https://github.com/pikapkg/snowpack). CSA automatically initializes a starter application for you with a pre-configured, Snowpack-powered dev environment.
 
 ``` bash
 npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
@@ -144,12 +144,12 @@ npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 - [@snowpack/app-template-vue](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-vue)
 - [@snowpack/app-template-lit-element](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-lit-element)
 - [@snowpack/app-template-11ty](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-11ty)
-- **[See all community templates](https://github.com/pikapkg/snowpack/tree/master/packages/create-snowpack-app)**
+- **[See all community templates](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app)**
 
 
 🐹 Happy hacking!
 
 ---
 
-*Thank you to all of our [80+ contributors](https://github.com/pikapkg/snowpack/graphs/contributors) for making this release possible.*  
+*Thank you to all of our [80+ contributors](https://github.com/pikapkg/snowpack/graphs/contributors) for making this release possible.*
 *Thanks to [Melissa McEwen](https://twitter.com/melissamcewen) & [@TheoOnTwitch](https://twitter.com/TheoOnTwitch) for helping to edit this post.*

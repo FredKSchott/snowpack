@@ -35,7 +35,7 @@ snowpack --help
 
 ### Create Snowpack App (CSA)
 
-The easiest way to get started with Snowpack is via [Create Snowpack App (CSA)](https://github.com/pikapkg/snowpack/tree/master/packages/create-snowpack-app). CSA automatically initializes a starter application for you with a pre-configured, Snowpack-powered dev environment.
+The easiest way to get started with Snowpack is via [Create Snowpack App (CSA)](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app). CSA automatically initializes a starter application for you with a pre-configured, Snowpack-powered dev environment.
 
 If you've ever used Create React App, this is a lot like that!
 
@@ -55,7 +55,7 @@ npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 - [@snowpack/app-template-lit-element](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-lit-element)
 - [@snowpack/app-template-lit-element-typescript](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-lit-element-typescript)
 - [@snowpack/app-template-11ty](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-11ty)
-- **[See all community templates](https://github.com/pikapkg/snowpack/tree/master/packages/create-snowpack-app)**
+- **[See all community templates](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app)**
 
 <!--
 ### Tutorial: Starting from Scratch
