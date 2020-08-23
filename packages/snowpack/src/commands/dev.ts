@@ -536,6 +536,11 @@ export async function command(commandOptions: CommandOptions) {
           // Try to resolve the specifier to a known URL in the project
           const resolvedImportUrl = resolveImportSpecifier(spec);
           if (resolvedImportUrl) {
+            // Ignore "http://*" imports
+            if (url.parse(resolvedImportUrl).protocol) {
+              return resolvedImportUrl;
+            }
+            // Support proxy file imports
             const extName = path.extname(resolvedImportUrl);
             if (extName && extName !== '.js') {
               return resolvedImportUrl + '.proxy.js';
