@@ -143,7 +143,7 @@ const sendFile = (
   }
 
   res.writeHead(200, headers);
-  res.write(body, getEncodingType(ext));
+  res.write(body, getEncodingType(ext) as BufferEncoding);
   res.end();
 };
 
@@ -596,13 +596,15 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       fileLoc: string,
       requestedFileExt: string,
       output: SnowpackBuildMap,
-    ): Promise<string | null> {
+    ): Promise<string | Buffer | null> {
       // Verify that the requested file exists in the build output map.
       if (!output[requestedFileExt] || !Object.keys(output)) {
         return null;
       }
       // Wrap the response.
       const {code, map} = output[requestedFileExt];
+      if (typeof code !== 'string') return code; // return binary files as-is
+
       const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
       let wrappedResponse = await wrapResponse(code, {
         hasCssResource: hasAttachedCss,
@@ -688,7 +690,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
     }
 
     // 5. Final option: build the file, serve it, and cache it.
-    let responseContent: string | null;
+    let responseContent: string | Buffer | null;
     let responseOutput: SnowpackBuildMap;
     try {
       responseOutput = await buildFile(fileLoc);

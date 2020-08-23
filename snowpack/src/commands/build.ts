@@ -60,7 +60,7 @@ async function installOptimizedDependencies(
  * in stages (build -> resolve -> write to disk).
  */
 class FileBuilder {
-  output: Record<string, string> = {};
+  output: Record<string, string | Buffer> = {};
   filesToResolve: Record<string, SnowpackSourceFile> = {};
   filesToProxy: string[] = [];
 
@@ -100,38 +100,40 @@ class FileBuilder {
       const outFilename = replaceExt(path.basename(this.filepath), srcExt, fileExt);
       const outLoc = path.join(this.outDir, outFilename);
       const sourceMappingURL = outFilename + '.map';
-      switch (fileExt) {
-        case '.css': {
-          if (map) code = cssSourceMappingURL(code, sourceMappingURL);
-          break;
-        }
-
-        case '.js': {
-          if (builtFileOutput['.css']) {
-            // inject CSS if imported directly
-            const cssFilename = outFilename.replace(/\.js$/i, '.css');
-            code = `import './${cssFilename}';\n` + code;
+      if (typeof code === 'string') {
+        switch (fileExt) {
+          case '.css': {
+            if (map) code = cssSourceMappingURL(code, sourceMappingURL);
+            break;
           }
-          code = wrapImportMeta({code, env: true, isDev: false, hmr: false, config: this.config});
-          if (map) code = jsSourceMappingURL(code, sourceMappingURL);
-          this.filesToResolve[outLoc] = {
-            baseExt: fileExt,
-            expandedExt: fileExt,
-            contents: code,
-            locOnDisk: this.filepath,
-          };
-          break;
-        }
 
-        case '.html': {
-          code = wrapHtmlResponse({code, isDev: false, hmr: false, config: this.config});
-          this.filesToResolve[outLoc] = {
-            baseExt: fileExt,
-            expandedExt: fileExt,
-            contents: code,
-            locOnDisk: this.filepath,
-          };
-          break;
+          case '.js': {
+            if (builtFileOutput['.css']) {
+              // inject CSS if imported directly
+              const cssFilename = outFilename.replace(/\.js$/i, '.css');
+              code = `import './${cssFilename}';\n` + code;
+            }
+            code = wrapImportMeta({code, env: true, isDev: false, hmr: false, config: this.config});
+            if (map) code = jsSourceMappingURL(code, sourceMappingURL);
+            this.filesToResolve[outLoc] = {
+              baseExt: fileExt,
+              expandedExt: fileExt,
+              contents: code,
+              locOnDisk: this.filepath,
+            };
+            break;
+          }
+
+          case '.html': {
+            code = wrapHtmlResponse({code, isDev: false, hmr: false, config: this.config});
+            this.filesToResolve[outLoc] = {
+              baseExt: fileExt,
+              expandedExt: fileExt,
+              contents: code,
+              locOnDisk: this.filepath,
+            };
+            break;
+          }
         }
       }
 

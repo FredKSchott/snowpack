@@ -35,8 +35,8 @@ export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gms;
 export const URL_HAS_PROTOCOL_REGEX = /^(\w+:)?\/\//;
 
 const UTF8_FORMATS = ['.css', '.html', '.js', '.map', '.mjs', '.json', '.svg', '.txt', '.xml'];
-export function getEncodingType(ext: string): 'utf-8' | 'binary' {
-  return UTF8_FORMATS.includes(ext) ? 'utf-8' : 'binary';
+export function getEncodingType(ext: string): 'utf-8' | undefined {
+  return UTF8_FORMATS.includes(ext) ? 'utf-8' : undefined;
 }
 
 export async function readLockfile(cwd: string): Promise<ImportMap | null> {
