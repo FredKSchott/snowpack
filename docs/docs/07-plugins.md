@@ -80,14 +80,14 @@ This plugin allows you to run any CLI command as a part of your dev and build wo
 
 ### Official Plugins
 
-- [@snowpack/plugin-babel](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-babel)
-- [@snowpack/plugin-dotenv](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-dotenv)
-- [@snowpack/plugin-parcel](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-parcel)
-- [@snowpack/plugin-postcss](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-postcss)
-- [@snowpack/plugin-react-refresh](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-react-refresh)
-- [@snowpack/plugin-svelte](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-svelte)
-- [@snowpack/plugin-vue](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-vue)
-- [@snowpack/plugin-webpack](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-webpack)
+- [@snowpack/plugin-babel](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-babel)
+- [@snowpack/plugin-dotenv](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-dotenv)
+- [@snowpack/plugin-parcel](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-parcel)
+- [@snowpack/plugin-postcss](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-postcss)
+- [@snowpack/plugin-react-refresh](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-react-refresh)
+- [@snowpack/plugin-svelte](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-svelte)
+- [@snowpack/plugin-vue](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-vue)
+- [@snowpack/plugin-webpack](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-webpack)
 
 👉 **[Check out our full list](/plugins) of official plugins.**
 

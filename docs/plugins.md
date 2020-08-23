@@ -41,8 +41,8 @@ Snowpack builds you a runnable, unbundled website by default, but you can optimi
 
 Snowpack’s bundler plugin API is the one part of the API that is still marked as experimental and may change in a future release. See our official bundler plugins for an example of using the current interface:
 
-- [@snowpack/plugin-parcel](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-parcel)
-- [@snowpack/plugin-webpack](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-webpack)
+- [@snowpack/plugin-parcel](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-parcel)
+- [@snowpack/plugin-webpack](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-webpack)
 
 ## How to Write a Plugin
 
@@ -270,7 +270,7 @@ Load a file from disk and build it for your application. This is most useful for
 Transform a file's contents. Useful for making changes to all types of output (JS, CSS, etc.) regardless of how they were loaded from disk.
 
 - See above for an example of how to use this method.
-- Example: [@snowpack/plugin-postcss](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-postcss)
+- Example: [@snowpack/plugin-postcss](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-postcss)
 - [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts).
 
 ### run()
@@ -283,8 +283,8 @@ Run a CLI command, and connect it's output into the Snowpack console. Useful for
 
 Snowpack’s bundler plugin API is still experimental and may change in a future release. See our official bundler plugins for an example of using the current interface:
 
-- Example: [@snowpack/plugin-parcel](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-parcel)
-- Example: [@snowpack/plugin-webpack](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-webpack)
+- Example: [@snowpack/plugin-parcel](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-parcel)
+- Example: [@snowpack/plugin-webpack](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-webpack)
 - [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts).
 
 ## Publishing a Plugin

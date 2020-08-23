@@ -4,8 +4,7 @@ const execa = require('execa');
 const rimraf = require('rimraf');
 const glob = require('glob');
 
-const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'packages', '@snowpack');
-
+const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'create-snowpack-app');
 const templates = fs.readdirSync(TEMPLATES_DIR).filter((dir) => dir.startsWith('app-template-'));
 
 const format = (stdout) =>
@@ -26,10 +25,10 @@ describe('create-snowpack-app', () => {
     execa.sync(
       'node',
       [
-        './packages/create-snowpack-app',
+        './create-snowpack-app/cli',
         `./test/create-snowpack-app/test-install`,
         '--template',
-        `../../../packages/@snowpack/${template}`,
+        `./create-snowpack-app/${template}`,
         '--use-yarn', // we use Yarn for this repo
       ],
       {cwd: path.resolve(__dirname, '..', '..')},

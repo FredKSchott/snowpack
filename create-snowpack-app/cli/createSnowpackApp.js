@@ -129,7 +129,7 @@ if (useYarn) {
 
 const isLocalTemplate = template.startsWith('.'); // must start with a `.` to be considered local
 const installedTemplate = isLocalTemplate
-  ? path.resolve(targetDirectory, template) // handle local template
+  ? path.resolve(process.cwd(), template) // handle local template
   : path.join(targetDirectory, 'node_modules', template); // handle template from npm/yarn
 
 (async () => {

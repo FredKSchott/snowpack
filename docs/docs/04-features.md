@@ -156,7 +156,7 @@ For your safety, Snowpack only supports environment variables that begin with `S
 }
 ```
 
-Add the `@snowpack/plugin-dotenv` plugin to your dev environment to automatically load environment variables from your project `.env` files. Visit the [plugin README](https://github.com/pikapkg/snowpack/tree/master/packages/@snowpack/plugin-dotenv) to learn more.
+Add the `@snowpack/plugin-dotenv` plugin to your dev environment to automatically load environment variables from your project `.env` files. Visit the [plugin README](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-dotenv) to learn more.
 
 ### Hot Module Replacement
 
@@ -172,8 +172,8 @@ Popular frameworks can also be set up for HMR. **[Create Snowpack App (CSA)](htt
 
 - Preact: [@prefresh/snowpack](https://www.npmjs.com/package/@prefresh/snowpack)
 - React: [@snowpack/plugin-react-refresh](https://www.npmjs.com/package/@snowpack/plugin-react-refresh)
-- Svelte: [A few lines of code](https://github.com/pikapkg/snowpack/blob/master/packages/@snowpack/app-template-svelte/src/index.js#L9-L16)
-- Vue: [A few lines of code](https://github.com/pikapkg/snowpack/blob/master/packages/@snowpack/app-template-vue/src/index.js#L7-L14)
+- Svelte: [A few lines of code](https://github.com/pikapkg/snowpack/blob/master/create-snowpack-app/app-template-svelte/src/index.js#L9-L16)
+- Vue: [A few lines of code](https://github.com/pikapkg/snowpack/blob/master/create-snowpack-app/app-template-vue/src/index.js#L7-L14)
 
 For more advanced, bare-metal HMR integrations, Snowpack created [ESM-HMR](https://github.com/pikapkg/esm-hot-module-replacement-spec), a standard HMR API for any ESM-based dev environment. Any HMR integration built for ESM-HMR will run on Snowpack and any other ESM-HMR-enabled dev server. To use the HMR API directly (via `import.meta.hot`) check out [the ESM-HMR spec](https://github.com/pikapkg/esm-hot-module-replacement-spec) to learn more.
 
