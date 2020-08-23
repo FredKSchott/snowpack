@@ -63,16 +63,19 @@ describe('create-snowpack-app', () => {
         throw new Error('Empty build directory!');
       }
 
-      expect(allFiles.map(f => f.replace(/\\/g, '/'))).toMatchSnapshot('allFiles');
+      expect(allFiles.map((f) => f.replace(/\\/g, '/'))).toMatchSnapshot('allFiles');
 
       // If any diffs are detected, we'll assert the difference so that we get nice output.
       for (const entry of allFiles) {
-        // don’t compare CSS or .map files.
-        if (entry.endsWith('.css') || entry.endsWith('.map')) {
-          continue;
+        if (
+          entry.endsWith('.css') ||
+          entry.endsWith('.html') ||
+          entry.endsWith('.js') ||
+          entry.endsWith('.json')
+        ) {
+          const f1 = fs.readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
+          expect(format(f1)).toMatchSnapshot(entry.replace(/\\/g, '/'));
         }
-        const f1 = fs.readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
-        expect(format(f1)).toMatchSnapshot(entry.replace(/\\/g, '/'));
       }
     });
   });
