@@ -34,7 +34,7 @@ export function rollupPluginWrapInstallTargets(
 
   function isAutoDetect(normalizedFileLoc: string) {
     return autoDetectPackageExports.some((p) =>
-      normalizedFileLoc.includes(`node_modules/${p}${p.endsWith('index.js') ? '' : '/'}`),
+      normalizedFileLoc.includes(`node_modules/${p}${p.endsWith('.js') ? '' : '/'}`),
     );
   }
   return {
