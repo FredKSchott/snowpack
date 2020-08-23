@@ -18,10 +18,12 @@ import components__ from './components/index.js'; // relative import with index 
 import components___ from '@app/components'; // bare import using alias
 import components____ from '@app/components/index'; // bare import using alias and index appended
 import components_____ from '@app/components/index.js'; // bare import using alias and index.js appended
-console.log(components, components_, components__, components___, components____, components_____, components______);
+import components_______ from '@comp'; // relative import with trailing slash
+console.log(components, components_, components__, components___, components____, components_____, components______, , components_______);
 
 
 // Importing something that isn't JS
 import styles from './components/style.css'; // relative import
 import styles_ from '@app/components/style.css'; // relative import
-console.log(styles, styles_);
+import styles__ from '@comp/style.css'; // relative import
+console.log(styles, styles_, styles__);

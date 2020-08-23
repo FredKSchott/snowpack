@@ -21,18 +21,20 @@
       console.log(sort, sort_, sort__);
 
       // Importing a directory index.js file
-      import components from './components'; // relative import 
+      import components from './components'; // relative import
       import components_ from './components/index'; // relative import with index appended
       import components__ from './components/index.js'; // relative import with index appended
       import components___ from '@app/components'; // bare import using alias
       import components____ from '@app/components/index'; // bare import using alias and index appended
       import components_____ from '@app/components/index.js'; // bare import using alias and index.js appended
-      console.log(components, components_, components__, components___, components____, components_____);
+      import components_______ from '@comp'; // bare import using short alias
+console.log(components, components_, components__, components___, components____, components_____, components______);
 
       // Importing something that isn't JS
-      import styles from './components/style.css'; // relative import 
-      import styles_ from '@app/components/style.css'; // relative import 
-      console.log(styles, styles_);
+      import styles from './components/style.css'; // relative import
+      import styles_ from '@app/components/style.css'; // bare import using alias
+      import styles__ from '@comp/style.css'; // bare import using short alias
+      console.log(styles, styles_, styles__);
     </script>
   </body>
 </html>
