@@ -1,1 +1,1 @@
-## 👉 [`create-snowpack-app`](./create-snowpack-app/cli)
+## 👉 [`create-snowpack-app`](./cli)
