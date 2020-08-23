@@ -5,7 +5,7 @@
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build --scope=snowpack",
     "publish": "lerna publish --no-private",
-    "format": "prettier --write \"packages/*/src/**/*.ts\"",
+    "format": "prettier --write \"snowpack/src/**/*.ts\"",
     "test": "jest --test-timeout=30000"
   },
   "workspaces": [
