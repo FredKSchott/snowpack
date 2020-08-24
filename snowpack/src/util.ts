@@ -206,10 +206,12 @@ export async function openInBrowser(
         await openChrome;
       } catch (err) {
         if (err.isCanceled) {
-          console.warn(`Chrome not responding to Snowpack after 3s. Opening dev server in new tab.`);
+          console.warn(
+            `Chrome not responding to Snowpack after 3s. Opening dev server in new tab.`,
+          );
         } else {
           console.error(err.toString() || err);
-        } 
+        }
         open(url);
       } finally {
         clearTimeout(isChromeStalled);
