@@ -2,8 +2,9 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "bootstrap": "lerna bootstrap",
-    "build": "lerna run build --scope=snowpack",
+    "install": "yarn build:snowpack && lerna link --force-local",
+    "build": "yarn build:snowpack",
+    "build:snowpack": "lerna run build --scope=snowpack",
     "publish": "lerna publish --no-private",
     "format": "prettier --write \"snowpack/src/**/*.ts\"",
     "test": "jest --test-timeout=30000"
