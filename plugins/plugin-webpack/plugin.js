@@ -16,7 +16,7 @@ function insertBefore(newNode, existingNode) {
 
 function parseHTMLFiles({ buildDirectory }) {
   // Get all html files from the output folder
-  const pattern = buildDirectory + "/**/*.html";
+  const pattern = buildDirectory + "/**/**.html";
   const htmlFiles = glob
     .sync(pattern)
     .map((htmlPath) => path.relative(buildDirectory, htmlPath));
