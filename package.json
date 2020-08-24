@@ -2,7 +2,7 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "install": "yarn build:snowpack && lerna link --force-local",
+    "install": "yarn build:snowpack && lerna link --force-local && lerna link --force-local",
     "build": "yarn build:snowpack",
     "build:snowpack": "lerna run build --scope=snowpack",
     "publish": "lerna publish --no-private",
