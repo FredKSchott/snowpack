@@ -206,10 +206,13 @@ export async function openInBrowser(
 
       try {
         await openChrome;
-        clearTimeout(isChromeStalled);
       } catch (err) {
-        console.error(err.toString() || err);
-        open(url);
+        if (!err.isCanceled) {
+          console.error(err.toString() || err);
+          open(url);
+        }
+      } finally {
+        clearTimeout(isChromeStalled);
       }
       return true;
     } catch (err) {
