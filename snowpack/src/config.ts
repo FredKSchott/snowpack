@@ -863,5 +863,5 @@ export function addLeadingSlash(path: string) {
 }
 
 export function addTrailingSlash(path: string) {
-  return path.replace(/\/?$/, '/');
+  return path.replace(/\/+$/, '/');
 }
