@@ -200,17 +200,17 @@ export async function openInBrowser(
       // if Chrome doesn’t respond within 3s, fall back to opening new tab in default browser
       let isChromeStalled = setTimeout(() => {
         openChrome.cancel();
-        console.warn(`Chrome not responding to Snowpack after 3s. Opening dev server in new tab.`);
-        open(url);
       }, 3000);
 
       try {
         await openChrome;
       } catch (err) {
-        if (!err.isCanceled) {
+        if (err.isCanceled) {
+          console.warn(`Chrome not responding to Snowpack after 3s. Opening dev server in new tab.`);
+        } else {
           console.error(err.toString() || err);
-          open(url);
-        }
+        } 
+        open(url);
       } finally {
         clearTimeout(isChromeStalled);
       }
