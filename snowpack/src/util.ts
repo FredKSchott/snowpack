@@ -261,6 +261,8 @@ export function findMatchingAliasEntry(
 ): {from: string; to: string; type: 'package' | 'path'} | undefined {
   // Only match bare module specifiers. relative and absolute imports should not match
   if (
+    spec === '.' ||
+    spec === '..' ||
     spec.startsWith('./') ||
     spec.startsWith('../') ||
     spec.startsWith('/') ||
@@ -269,15 +271,27 @@ export function findMatchingAliasEntry(
   ) {
     return undefined;
   }
-  const foundEntry = Object.entries(config.alias).find(([fromAlias]) => spec.startsWith(fromAlias));
-  if (!foundEntry) {
-    return undefined;
+
+  for (const [from, to] of Object.entries(config.alias)) {
+    let foundType: 'package' | 'path' | '' = '';
+    if (isPackageAliasEntry(to)) {
+      if (spec === from || spec.startsWith(`${from}/`)) {
+        foundType = 'package';
+      }
+    } else {
+      if (spec.startsWith(from)) {
+        foundType = 'path';
+      }
+    }
+
+    if (foundType) {
+      return {
+        from,
+        to,
+        type: foundType,
+      };
+    }
   }
-  return {
-    from: foundEntry[0],
-    to: foundEntry[1],
-    type: isPackageAliasEntry(foundEntry[1]) ? 'package' : 'path',
-  };
 }
 
 /**

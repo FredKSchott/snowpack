@@ -10,7 +10,8 @@
     "alias": {
       "aliased-dep": "array-flatten",
       "@app": "./src",
-      "@/": "./src/"
+      "@/": "./src/",
+      "%": "."
     },
     "mount": {
       "./src": "/_dist_"

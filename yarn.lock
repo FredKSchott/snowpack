@@ -14626,6 +14626,11 @@ vscode-uri@^2.1.1:
   resolved "https://registry.yarnpkg.com/vscode-uri/-/vscode-uri-2.1.2.tgz#c8d40de93eb57af31f3c715dd650e2ca2c096f1c"
   integrity sha512-8TEXQxlldWAuIODdukIb+TR5s+9Ds40eSJrw+1iDDA9IFORPjMELarNQE3myz5XIkWWpdprmJjm1/SxMlWOC8A==
 
+vue-currency-input@^1.21.0:
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/vue-currency-input/-/vue-currency-input-1.21.0.tgz#b886584e08ef3840875ff9125abff29fa7b3517d"
+  integrity sha512-MSMPj/ASZ1ZeovJs+hc59Xw9ST0BlYSkxF1SuOPkkX2eOPLp3/a/Qrbd/IpC0Oke+zlT4P1/2gL9U0sSivh2aQ==
+
 vue-router@^3.0.0:
   version "3.4.3"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.4.3.tgz#fa93768616ee338aa174f160ac965167fa572ffa"
@@ -14635,6 +14640,11 @@ vue@*, vue@^2.0.0:
   version "2.6.11"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.11.tgz#76594d877d4b12234406e84e35275c6d514125c5"
   integrity sha512-VfPwgcGABbGAue9+sfrD4PuwFar7gPb1yl1UK1MwXoQPAw0BKSqWfoYCT/ThFrdEVWoI51dBuyCoiNU9bZDZxQ==
+
+vue@^2.6.12:
+  version "2.6.12"
+  resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.12.tgz#f5ebd4fa6bd2869403e29a896aed4904456c9123"
+  integrity sha512-uhmLFETqPPNyuLLbsKz6ioJ4q7AZHzD8ZVFNATNyICSZouqP2Sz0rotWQC8UNBF6VGSCs5abnKJoStA6JbCbfg==
 
 vue@^3.0.0-rc.4:
   version "3.0.0-rc.5"

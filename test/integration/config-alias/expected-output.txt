@@ -1,5 +1,6 @@
 [snowpack] ! installing dependencies…
 [snowpack] ✔ install complete
 [snowpack]
-  ⦿ web_modules/         size       gzip       brotli
-    └─ preact/compat.js    XXXX KB    XXXX KB    XXXX KB
+  ⦿ web_modules/                                          size       gzip       brotli
+    ├─ preact/compat.js    XXXX KB    XXXX KB    XXXX KB
+    └─ vue-currency-input/dist/vue-currency-input.esm.js    XXXX KB    XXXX KB    XXXX KB

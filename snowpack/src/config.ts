@@ -500,6 +500,8 @@ function normalizeAlias(config: SnowpackConfig, createMountAlias: boolean) {
   }
   for (const [target, replacement] of Object.entries(config.alias)) {
     if (
+      replacement === '.' ||
+      replacement === '..' ||
       replacement.startsWith('./') ||
       replacement.startsWith('../') ||
       replacement.startsWith('/')
