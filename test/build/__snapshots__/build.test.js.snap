@@ -592,7 +592,13 @@ exports[`snowpack build html-environment-variables: index.css 1`] = `
 
 exports[`snowpack build html-environment-variables: index.html 1`] = `
 "<!DOCTYPE html>
-<html lang=\\"en\\" data-build-time=\\"build-time-replacement-configured-in-package.json\\" data-undefined=\\"%SNOWPACK_PUBLIC_BUILD_UNDEFINED%\\">
+<html
+  lang=\\"en\\"
+  data-mode=\\"production\\"
+  data-public-url=\\"/\\"
+  data-build-time=\\"build-time-replacement-configured-in-package.json\\"
+  data-undefined=\\"%SNOWPACK_PUBLIC_BUILD_UNDEFINED%\\"
+>
   <head>
     <meta charset=\\"utf-8\\" />
     <link rel=\\"icon\\" href=\\"/favicon.ico\\" />
@@ -601,16 +607,7 @@ exports[`snowpack build html-environment-variables: index.html 1`] = `
     <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/index.css\\" />
     <title>Snowpack App</title>
   </head>
-  <body>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-      To begin the development, run \`npm start\` or \`yarn start\`.
-      To create a production bundle, use \`npm run build\` or \`yarn build\`.
-    -->
-  </body>
+  <body></body>
 </html>"
 `;
 
