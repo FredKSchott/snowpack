@@ -119,4 +119,3 @@ export function normalizeKey(evt) {
 export function isNavigationEvent(evt) {
     return navigationKeys.has(normalizeKey(evt));
 }
-//# sourceMappingURL=keyboard.js.map

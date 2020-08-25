@@ -308,4 +308,3 @@ var MDCList = /** @class */ (function (_super) {
     return MDCList;
 }(MDCComponent));
 export { MDCList };
-//# sourceMappingURL=component.js.map

@@ -589,4 +589,3 @@ exports.estimateScrollWidth = estimateScrollWidth;
 
 /******/ });
 });
-//# sourceMappingURL=mdc.dom.js.map

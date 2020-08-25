@@ -25,4 +25,3 @@ export { util };
 export * from './component';
 export * from './constants';
 export * from './foundation';
-//# sourceMappingURL=index.js.map

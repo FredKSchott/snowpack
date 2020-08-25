@@ -130,4 +130,3 @@ var FocusTrap = /** @class */ (function () {
     return FocusTrap;
 }());
 export { FocusTrap };
-//# sourceMappingURL=focus-trap.js.map

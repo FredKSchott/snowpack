@@ -119,4 +119,3 @@ var MDCRipple = /** @class */ (function (_super) {
     return MDCRipple;
 }(MDCComponent));
 export { MDCRipple };
-//# sourceMappingURL=component.js.map

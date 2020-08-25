@@ -767,7 +767,6 @@ function handleKeydown(opts, state) {
     }
     return -1;
 }
-//# sourceMappingURL=typeahead.js.map
 
 /**
  * @license

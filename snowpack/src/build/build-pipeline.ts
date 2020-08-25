@@ -81,7 +81,7 @@ async function runPipelineLoadStep(
             result[ext].map = JSON.stringify(result[ext].map);
 
           // if source maps disabled, don’t return any
-          if (!sourceMaps) result[ext].map = undefined;
+          if (sourceMaps !== true) result[ext].map = undefined;
         });
         return result;
       }
@@ -144,8 +144,9 @@ async function runPipelineTransformStep(
         } else if (result && typeof result === 'object' && (result as {result: string}).result) {
           output[destExt].code = (result as {result: string}).result;
         }
+
         // if source maps disabled, don’t return any
-        if (!sourceMaps) output[destExt].map = undefined;
+        if (sourceMaps !== true) output[destExt].map = undefined;
       }
     } catch (err) {
       // note: for many plugins like Babel, `err.toString()` is needed to display full output

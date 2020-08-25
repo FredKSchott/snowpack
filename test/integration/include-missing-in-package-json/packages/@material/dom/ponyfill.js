@@ -68,4 +68,3 @@ export function estimateScrollWidth(element) {
     document.documentElement.removeChild(clone);
     return scrollWidth;
 }
-//# sourceMappingURL=ponyfill.js.map

@@ -51,4 +51,3 @@ var numbers = {
     TYPEAHEAD_BUFFER_CLEAR_TIMEOUT_MS: 300
 };
 export { strings, cssClasses, numbers };
-//# sourceMappingURL=constants.js.map

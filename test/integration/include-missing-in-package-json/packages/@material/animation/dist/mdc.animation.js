@@ -257,4 +257,3 @@ exports.getCorrectEventName = getCorrectEventName;
 
 /******/ });
 });
-//# sourceMappingURL=mdc.animation.js.map

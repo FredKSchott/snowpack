@@ -380,4 +380,3 @@ __export(__webpack_require__(/*! ./foundation */ "./packages/mdc-base/foundation
 
 /******/ });
 });
-//# sourceMappingURL=mdc.base.js.map

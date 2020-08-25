@@ -1420,4 +1420,3 @@ exports.getNormalizedEventCoords = getNormalizedEventCoords;
 
 /******/ });
 });
-//# sourceMappingURL=mdc.ripple.js.map

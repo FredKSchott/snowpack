@@ -561,4 +561,3 @@ var MDCListFoundation = /** @class */ (function (_super) {
 export { MDCListFoundation };
 // tslint:disable-next-line:no-default-export Needed for backward compatibility with MDC Web v0.44.0 and earlier.
 export default MDCListFoundation;
-//# sourceMappingURL=foundation.js.map

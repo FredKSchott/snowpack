@@ -37,4 +37,3 @@ export var preventDefaultEvent = function (evt) {
         evt.preventDefault();
     }
 };
-//# sourceMappingURL=events.js.map

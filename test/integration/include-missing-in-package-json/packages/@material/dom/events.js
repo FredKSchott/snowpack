@@ -53,4 +53,3 @@ function supportsPassiveOption(globalObj) {
     }
     return passiveSupported;
 }
-//# sourceMappingURL=events.js.map

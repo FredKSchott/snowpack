@@ -85,6 +85,7 @@ class FileBuilder {
   async buildFile() {
     this.filesToResolve = {};
     const srcExt = path.extname(this.filepath);
+    const sourceMaps = this.config.buildOptions.sourceMaps;
     const builtFileOutput = await buildFile(this.filepath, {
       plugins: this.config.plugins,
       isDev: false,
@@ -103,7 +104,9 @@ class FileBuilder {
       if (typeof code === 'string') {
         switch (fileExt) {
           case '.css': {
-            if (map) code = cssSourceMappingURL(code, sourceMappingURL);
+            if (sourceMaps && map) {
+              code = cssSourceMappingURL(code, sourceMappingURL);
+            }
             break;
           }
 
@@ -114,7 +117,9 @@ class FileBuilder {
               code = `import './${cssFilename}';\n` + code;
             }
             code = wrapImportMeta({code, env: true, isDev: false, hmr: false, config: this.config});
-            if (map) code = jsSourceMappingURL(code, sourceMappingURL);
+            if (sourceMaps && map) {
+              code = jsSourceMappingURL(code, sourceMappingURL);
+            }
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
               expandedExt: fileExt,
