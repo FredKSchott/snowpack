@@ -352,7 +352,7 @@ export function getWebDependencyName(dep: string): string {
 /** URL relative */
 export function relativeURL(path1: string, path2: string): string {
   let url = path.relative(path1, path2).replace(/\\/g, '/');
-  if (!url.startsWith('.')) {
+  if (!url.startsWith('./') && !url.startsWith('../')) {
     url = './' + url;
   }
   return url;
@@ -371,7 +371,7 @@ export function appendHTMLToHead(doc: string, htmlToAdd: string) {
   if (closingHeadMatch.length > 1) {
     throw new Error(`Multiple <head> tags found in HTML (perhaps commented out?):\n${doc}`);
   }
-  return doc.replace(new RegExp(`(${closingHeadMatch[0]})`), `${htmlToAdd}$1`);
+  return doc.replace(closingHeadMatch[0], htmlToAdd + closingHeadMatch[0]);
 }
 
 const CLOSING_BODY_TAG = /<\s*\/\s*body\s*>/gi;
@@ -387,7 +387,7 @@ export function appendHTMLToBody(doc: string, htmlToAdd: string) {
   if (closingBodyMatch.length > 1) {
     throw new Error(`Multiple <body> tags found in HTML (perhaps commented out?):\n\n${doc}`);
   }
-  return doc.replace(new RegExp(`(${closingBodyMatch[0]})`), `${htmlToAdd}$1`);
+  return doc.replace(closingBodyMatch[0], htmlToAdd + closingBodyMatch[0]);
 }
 
 /** Add / to beginning of string (but don’t double-up) */

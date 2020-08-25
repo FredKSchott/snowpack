@@ -190,6 +190,7 @@ export function optimize(config: SnowpackConfig, options: OptimizePluginOptions)
         .sync('**/*', {
           cwd: buildDirectory,
           ignore: [`${config.buildOptions.metaDir}/*`, ...((options && options.exclude) || [])],
+          nodir: true,
         })
         .map((file) => path.join(buildDirectory, file)); // resolve to root dir
 
