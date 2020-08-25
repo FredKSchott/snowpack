@@ -4,6 +4,7 @@ import glob from 'glob';
 import * as colors from 'kleur/colors';
 import * as esbuild from 'esbuild';
 import {init, parse} from 'es-module-lexer';
+import PQueue from 'p-queue';
 import {SnowpackConfig, SnowpackPlugin} from '../types/snowpack';
 import {
   appendHTMLToBody,
@@ -25,6 +26,8 @@ interface OptimizePluginOptions {
  * Default optimizer for Snawpack, unless another one is given
  */
 export function optimize(config: SnowpackConfig, options: OptimizePluginOptions): SnowpackPlugin {
+  const CONCURRENT_WORKERS = require('os').cpus().length;
+
   function isRemoteModule(specifier: string): boolean {
     return (
       specifier.startsWith('//') ||
@@ -87,29 +90,28 @@ export function optimize(config: SnowpackConfig, options: OptimizePluginOptions)
 
   /** Given a set of HTML files, trace the imported JS */
   function preloadModulesInHTML(htmlFile, rootDir: string) {
-    const scannedFiles = new Set<string>(); // entries scanned from this HTML file
-    const originalEntries = new Set<string>(); // original entry files
+    const originalEntries = new Set<string>(); // original entry files in HTML
     const allModules = new Set<string>(); // all modules required by this HTML file
 
     let code = fs.readFileSync(htmlFile, 'utf-8');
     const scriptMatches = code.match(new RegExp(HTML_JS_REGEX));
-    if (!scriptMatches || !scriptMatches.length) return code; // if nothing matched, skip file
+    if (!scriptMatches || !scriptMatches.length) return code; // if nothing matched, exit
 
     // 1. identify all entries in HTML
     scriptMatches
       .filter((script) => script.toLowerCase().includes('src')) // we only need to preload external "src" scripts; on-page scripts are already exposed
       .forEach((script) => {
         const scriptSrc = script.replace(/.*src="([^"]+).*/i, '$1');
-        if (!scriptSrc || isRemoteModule(scriptSrc)) return; // if no src, or remote, skip this tag
+        if (!scriptSrc || isRemoteModule(scriptSrc)) return; // if no src, or it’s remote, skip this tag
         const entry = scriptSrc.startsWith('/')
           ? path.join(rootDir, removeLeadingSlash(scriptSrc))
           : path.normalize(path.join(path.dirname(htmlFile), scriptSrc));
-        scannedFiles.add(entry);
-        originalEntries.add(entry); // keep track of original scripts in HTML so we don’t double-up below
+        originalEntries.add(entry);
       });
 
     // 2. scan entries for additional imports
-    scannedFiles.forEach((entry) => {
+    const scannedFiles = new Set<string>(); // keep track of files scanned so we don’t get stuck in a circular dependency
+    originalEntries.forEach((entry) => {
       scanForStaticImports({
         file: entry,
         rootDir,
@@ -120,7 +122,7 @@ export function optimize(config: SnowpackConfig, options: OptimizePluginOptions)
 
     // 3. add module preload to HTML (https://developers.google.com/web/updates/2017/12/modulepreload)
     const resolvedModules = [...allModules]
-      .filter((m) => !originalEntries.has(m)) // don’t double-up on the scripts that were already in the HTML
+      .filter((m) => !originalEntries.has(m)) // don’t double-up preloading scripts that were already in the HTML
       .map((src) => relativeURL(rootDir, src).replace(/^\./, ''));
     if (!resolvedModules.length) return code; // don’t add useless whitespace
 
@@ -182,6 +184,7 @@ export function optimize(config: SnowpackConfig, options: OptimizePluginOptions)
   return {
     name: '@snowpack/plugin-optimize',
     async optimize({buildDirectory}) {
+      // 0. setup
       const esbuildService = await esbuild.startService();
       await init;
 
@@ -195,9 +198,11 @@ export function optimize(config: SnowpackConfig, options: OptimizePluginOptions)
         .map((file) => path.join(buildDirectory, file)); // resolve to root dir
 
       // 2. optimize all files in parallel
-      await Promise.all(
-        allFiles.map((file) => optimizeFile({file, esbuildService, rootDir: buildDirectory})),
-      );
+      const parallelWorkQueue = new PQueue({concurrency: CONCURRENT_WORKERS});
+      for (const file of allFiles) {
+        parallelWorkQueue.add(() => optimizeFile({file, esbuildService, rootDir: buildDirectory}));
+      }
+      await parallelWorkQueue.onIdle();
 
       // 3. clean up
       esbuildService.stop();
