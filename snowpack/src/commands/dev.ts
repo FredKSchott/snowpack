@@ -475,7 +475,7 @@ export async function command(commandOptions: CommandOptions) {
     ) {
       // transform special requests
       if (isRoute) {
-        code = wrapHtmlResponse({code: code, isDev: true, hmr: isHmr, config});
+        code = wrapHtmlResponse({code: code, isDev: true, hmr: isHmr, config, mode: 'development'});
       } else if (isProxyModule) {
         responseFileExt = '.js';
       } else if (isSourceMap && sourceMap) {

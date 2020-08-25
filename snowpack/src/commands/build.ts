@@ -125,7 +125,13 @@ class FileBuilder {
           }
 
           case '.html': {
-            code = wrapHtmlResponse({code, isDev: false, hmr: false, config: this.config});
+            code = wrapHtmlResponse({
+              code,
+              isDev: false,
+              hmr: false,
+              config: this.config,
+              mode: 'production',
+            });
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
               expandedExt: fileExt,
