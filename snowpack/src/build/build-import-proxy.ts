@@ -69,7 +69,7 @@ export function wrapHtmlResponse({
 
   const snowpackPublicEnv = getSnowpackPublicEnvVariables();
 
-  code = code.replace(/%SNOWPACK_PUBLIC_[a-z0-9_]+%/gi, (match: string) => {
+  code = code.replace(/%SNOWPACK_PUBLIC_.+?%/gi, (match: string) => {
     const envVariableName = match.slice(1, -1);
 
     if (envVariableName in snowpackPublicEnv) {
