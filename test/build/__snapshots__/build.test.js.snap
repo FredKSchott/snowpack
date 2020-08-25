@@ -3858,7 +3858,17 @@ import components__ from './components/index.js'; // relative import with index 
 import components___ from './components/index.js'; // bare import using alias
 import components____ from './components/index.js'; // bare import using alias and index appended
 import components_____ from './components/index.js'; // bare import using alias and index.js appended
-console.log(components, components_, components__, components___, components____, components_____, components______);
+import components2 from './components/index.js'; // alias % to '.'
+console.log(
+  components,
+  components_,
+  components__,
+  components___,
+  components____,
+  components_____,
+  components______,
+  components2,
+);
 // Importing something that isn't JS
 import styles from './components/style.css.proxy.js'; // relative import
 import styles_ from './components/style.css.proxy.js'; // relative import
