@@ -290,7 +290,6 @@ export async function command(commandOptions: CommandOptions) {
       process.exit(1);
     }
     const allFiles = glob.sync(`**/*`, {
-      ignore: config.exclude,
       cwd: installDest,
       absolute: true,
       nodir: true,
