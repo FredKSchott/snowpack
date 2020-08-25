@@ -145,6 +145,8 @@ For your safety, Snowpack only supports environment variables that begin with `S
 
 `import.meta.env.MODE` and `import.meta.env.NODE_ENV` are also both set to the current `process.env.NODE_ENV` value, so that you can change app behavior based on dev vs. build. The env value is set to `development` during `snowpack dev` and `production` during `snowpack build`. Use this in your application instead of `process.env.NODE_ENV`.
 
+You can use environment variables in HTML files. All occurrences of `%SNOWPACK_PUBLIC_*%`, `%BASE_URL%`, and `%MODE%` will be replaced at build time.
+
 **Remember:** that these env variables are statically injected into your application for everyone at **build time**, and not runtime.
 
 #### `.env` File Support
@@ -241,4 +243,3 @@ Snowpack supports native CSS "@import" behavior. This behaves slightly different
 If you'd like to use `@import` to import from a package by name, you can use [PostCSS](#postcss) with the [postcss-import](https://github.com/postcss/postcss-import) plugin. Alternatively, you can use a JavaScript import to import a CSS file by package name (`import 'foo/bar.css';`).
 
 **Note for webpack users:** If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With `postcss-import` you have to remove the `~` from your `@import`s.
-
