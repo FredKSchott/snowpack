@@ -38,3 +38,19 @@ This error message would sometimes occur in older versions of Snowpack.
 Node.js recently added support for a package.json "exports" entry that defines which files you can and cannot import from within a package. Preact, for example, defines an "exports" map that allows you to to import "preact/hooks" but not "preact/some/custom/file-path.js". This allows packages to control their "public" interface.
 
 If you see this error message, that means that you've imported a file path not allowed in the export map. If you believe this to be an error, reach out to the package author to request the file be added to their export map.
+
+### Uncaught SyntaxError: The requested module '/web_modules/someModule.js' does not provide an export named 'someNamedExport'
+
+**To solve this issue:** Upgrade to Snowpack `v2.9.0` or higher and add namedExports to installOptions.
+
+```json
+// snowpack.config.json
+{
+
+  "installOptions": {
+
+      "namedExports": ["someModule"]
+  },
+  
+}
+
