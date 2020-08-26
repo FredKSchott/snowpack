@@ -29,7 +29,7 @@ import isCompressible from 'compressible';
 import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
-import {existsSync, promises as fs, readFileSync} from 'fs';
+import {existsSync, promises as fs, readFileSync, statSync, createReadStream } from 'fs';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
@@ -99,13 +99,16 @@ const sendFile = (
   req: http.IncomingMessage,
   res: http.ServerResponse,
   body: string | Buffer,
+  fileLoc: string,
   ext = '.html',
 ) => {
+  body = Buffer.from(body)
   const ETag = etag(body, {weak: true});
   const contentType = mime.contentType(ext);
   const headers: Record<string, string> = {
-    'Content-Type': contentType || 'application/octet-stream',
+    'Accept-Ranges': 'bytes',
     'Access-Control-Allow-Origin': '*',
+    'Content-Type': contentType || 'application/octet-stream',
     ETag,
     Vary: 'Accept-Encoding',
   };
@@ -126,20 +129,39 @@ const sendFile = (
     acceptEncoding = '';
   }
 
-  function onError(err) {
-    if (err) {
-      res.end();
-      logger.error(`✘ An error occurred while compressing ${colors.bold(req.url)}`);
-      logger.error(err.toString() || err);
-    }
-  }
-
+  // Handle gzip compression
   if (/\bgzip\b/.test(acceptEncoding) && stream.Readable.from) {
     const bodyStream = stream.Readable.from([body]);
     headers['Content-Encoding'] = 'gzip';
     res.writeHead(200, headers);
-    stream.pipeline(bodyStream, zlib.createGzip(), res, onError);
+    stream.pipeline(bodyStream, zlib.createGzip(), res, function onError(err) {
+      if (err) {
+        res.end();
+        logger.error(`✘ An error occurred serving ${colors.bold(req.url)}`);
+        logger.error(typeof err !== 'string' ? err.toString() : err);
+      }
+    });
     return;
+  }
+
+  // Handle partial requests
+  const {range} = req.headers
+  if (range) {
+      const { size: fileSize } =  statSync(fileLoc)
+      const [rangeStart, rangeEnd] = range.replace(/bytes=/, '').split('-')
+
+      const start = parseInt(rangeStart, 10)
+      const end = rangeEnd ? parseInt(rangeEnd, 10) : fileSize - 1
+      const chunkSize = (end - start) + 1
+
+      const fileStream = createReadStream(fileLoc, { start, end })
+      res.writeHead(206, {
+        ...headers,
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Content-Length': chunkSize
+      })
+      fileStream.pipe(res)
+      return
   }
 
   res.writeHead(200, headers);
@@ -150,8 +172,9 @@ const sendFile = (
 const sendError = (req: http.IncomingMessage, res: http.ServerResponse, status: number) => {
   const contentType = mime.contentType(path.extname(req.url!) || '.html');
   const headers: Record<string, string> = {
-    'Content-Type': contentType || 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
+    'Accept-Ranges': 'bytes',
+    'Content-Type': contentType || 'application/octet-stream',
     Vary: 'Accept-Encoding',
   };
   res.writeHead(status, headers);
@@ -341,11 +364,11 @@ export async function command(commandOptions: CommandOptions) {
     });
 
     if (reqPath === getMetaUrlPath('/hmr.js', true, config)) {
-      sendFile(req, res, HMR_DEV_CODE, '.js');
+      sendFile(req, res, HMR_DEV_CODE, reqPath, '.js');
       return;
     }
     if (reqPath === getMetaUrlPath('/env.js', true, config)) {
-      sendFile(req, res, generateEnvModule('development'), '.js');
+      sendFile(req, res, generateEnvModule('development'), reqPath, '.js');
       return;
     }
 
@@ -628,7 +651,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
         sendError(req, res, 404);
         return;
       }
-      sendFile(req, res, responseContent, responseFileExt);
+      sendFile(req, res, responseContent, fileLoc, responseFileExt);
       return;
     }
 
@@ -637,7 +660,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
 
     // 3. Send dependencies directly, since they were already build & resolved at install time.
     if (reqPath.startsWith(config.buildOptions.webModulesUrl) && !isProxyModule) {
-      sendFile(req, res, fileContents, responseFileExt);
+      sendFile(req, res, fileContents, fileLoc, responseFileExt);
       return;
     }
 
@@ -668,7 +691,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
           sendError(req, res, 404);
           return;
         }
-        sendFile(req, res, wrappedResponse, responseFileExt);
+        sendFile(req, res, wrappedResponse, fileLoc, responseFileExt);
         // ...but verify.
         let checkFinalBuildResult: SnowpackBuildMap | null = null;
         try {
@@ -713,7 +736,7 @@ ${err}`);
       return;
     }
 
-    sendFile(req, res, responseContent, responseFileExt);
+    sendFile(req, res, responseContent, fileLoc, responseFileExt);
     const originalFileHash = etag(fileContents);
     cacache.put(BUILD_CACHE, fileLoc, Buffer.from(JSON.stringify(responseOutput)), {
       metadata: {originalFileHash},
