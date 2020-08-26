@@ -563,7 +563,7 @@ exports[`snowpack build custom-modules-dir: my_modules/import-map.json 1`] = `
 }"
 `;
 
-exports[`snowpack build html-environment-variables: __snowpack__/env.js 1`] = `"export default {\\"SNOWPACK_PUBLIC_BUILD_TIME\\":\\"build-time-replacement-configured-in-package.json\\",\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build html-environment-variables: __snowpack__/env.js 1`] = `"export default {\\"SNOWPACK_PUBLIC_MY_ENV_VAR\\":\\"my-var-replacement-configured-in-package.json\\",\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build html-environment-variables: allFiles 1`] = `
 Array [
@@ -596,7 +596,7 @@ exports[`snowpack build html-environment-variables: index.html 1`] = `
   lang=\\"en\\"
   data-mode=\\"production\\"
   data-public-url=\\"/\\"
-  data-build-time=\\"build-time-replacement-configured-in-package.json\\"
+  data-my-env-var=\\"my-var-replacement-configured-in-package.json\\"
   data-undefined=\\"%SNOWPACK_PUBLIC_BUILD_UNDEFINED%\\"
 >
   <head>
