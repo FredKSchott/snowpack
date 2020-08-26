@@ -7,7 +7,7 @@
     "directory": "pkg"
   },
   "scripts": {
-    "build": "tsc --outDir dist",
+    "build": "pika build",
     "test": "jest --test-timeout=30000"
   },
   "dependencies": {

@@ -1,5 +1,6 @@
 import { resolve } from 'path'
 import { injectManifest as _injectManifest, InjectManifestConfig } from 'workbox-build';
+// @ts-ignore
 import type { SnowpackPluginFactory } from 'snowpack'
 import { pluginName, report } from './utils'
 

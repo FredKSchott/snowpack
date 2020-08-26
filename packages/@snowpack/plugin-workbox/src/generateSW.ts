@@ -1,5 +1,6 @@
 import { generateSW as _generateSW, GenerateSWConfig } from 'workbox-build';
 import {resolve } from 'path'
+// @ts-ignore
 import type { SnowpackPluginFactory } from 'snowpack'
 import { pluginName, report } from './utils'
 
