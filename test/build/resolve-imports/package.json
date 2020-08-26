@@ -9,6 +9,7 @@
   "snowpack": {
     "alias": {
       "aliased-dep": "array-flatten",
+      "fasvgs": "@fortawesome/fontawesome-free/svgs",
       "@app": "./src",
       "@/": "./src/",
       "%": "."
@@ -26,6 +27,7 @@
     }
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.14.0",
     "array-flatten": "^3.0.0",
     "snowpack": "^2.7.0"
   }

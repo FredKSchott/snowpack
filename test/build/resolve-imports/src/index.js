@@ -34,3 +34,6 @@ console.log(
 import styles from './components/style.css'; // relative import
 import styles_ from '@app/components/style.css'; // relative import
 console.log(styles, styles_);
+
+import adSvg from 'fasvgs/solid/ad.svg';
+console.log(adSvg);

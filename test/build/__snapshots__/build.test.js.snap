@@ -3872,7 +3872,9 @@ console.log(
 // Importing something that isn't JS
 import styles from './components/style.css.proxy.js'; // relative import
 import styles_ from './components/style.css.proxy.js'; // relative import
-console.log(styles, styles_);"
+console.log(styles, styles_);
+import adSvg from '../TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg.proxy.js';
+console.log(adSvg);"
 `;
 
 exports[`snowpack build resolve-imports: _dist_/sort.js 1`] = `"export default (arr) => arr.sort();"`;
@@ -3881,6 +3883,8 @@ exports[`snowpack build resolve-imports: _dist_/test-mjs.js 1`] = `
 "import {flatten} from \\"../TEST_WMU/array-flatten.js\\";
 console.log(flatten);"
 `;
+
+exports[`snowpack build resolve-imports: TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg.proxy.js 1`] = `"export default \\"/TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg\\";"`;
 
 exports[`snowpack build resolve-imports: TEST_WMU/array-flatten.js 1`] = `
 "/**
@@ -3911,8 +3915,10 @@ export { flatten };"
 exports[`snowpack build resolve-imports: TEST_WMU/import-map.json 1`] = `
 "{
   \\"imports\\": {
+    \\"@fortawesome/fontawesome-free/svgs/solid/ad.svg\\": \\"./@fortawesome/fontawesome-free/svgs/solid/ad.svg\\",
     \\"aliased-dep\\": \\"./array-flatten.js\\",
-    \\"array-flatten\\": \\"./array-flatten.js\\"
+    \\"array-flatten\\": \\"./array-flatten.js\\",
+    \\"fasvgs/solid/ad.svg\\": \\"./@fortawesome/fontawesome-free/svgs/solid/ad.svg\\"
   }
 }"
 `;
@@ -3927,6 +3933,8 @@ Array [
   "_dist_/index.js",
   "_dist_/sort.js",
   "_dist_/test-mjs.js",
+  "TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg",
+  "TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg.proxy.js",
   "TEST_WMU/array-flatten.js",
   "TEST_WMU/import-map.json",
 ]
