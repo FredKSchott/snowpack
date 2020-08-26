@@ -32,6 +32,8 @@ When you're ready to deploy your web application to users, you can add back a tr
 
 ## Create Snowpack App (CSA)
 
+### Starter Templates
+
 For starter apps and templates, see [create-snowpack-app](./create-snowpack-app).
 
 ## Official Snowpack Plugins
@@ -61,7 +63,7 @@ For starter apps and templates, see [create-snowpack-app](./create-snowpack-app)
 - [@snowpack/plugin-build-script](./plugins/plugin-build-script)
 - [@snowpack/plugin-run-script](./plugins/plugin-run-script)
 
-### Featured Community Plugins
+## Featured Community Plugins
 
 - [@prefresh/snowpack](https://github.com/JoviDeCroock/prefresh)
 - [snowpack-plugin-imagemin](https://github.com/jaredLunde/snowpack-plugin-imagemin) Use [imagemin](https://github.com/imagemin/imagemin) to optimize your build images.
