@@ -17,12 +17,12 @@ export function rollupPluginCatchUnresolved(): Plugin {
       if (isNodeBuiltin(id)) {
         this.warn({
           id: importer,
-          message: `Import "${id}" (Node.js built-in) is not available in the browser. Run with --polyfill-node to fix.`,
+          message: `Module "${id}" (Node.js built-in) is not available in the browser. Run Snowpack with --polyfill-node to fix.`,
         });
       } else {
         this.warn({
           id: importer,
-          message: `"${id}" could not be resolved. (Is it installed?)`,
+          message: `Module "${id}" could not be resolved by Snowpack (Is it installed?).`,
         });
       }
       return false;
