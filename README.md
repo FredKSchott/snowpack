@@ -32,8 +32,6 @@ When you're ready to deploy your web application to users, you can add back a tr
 
 ## Create Snowpack App (CSA)
 
-### Starter Templates
-
 For starter apps and templates, see [create-snowpack-app](./create-snowpack-app).
 
 ## Official Snowpack Plugins
