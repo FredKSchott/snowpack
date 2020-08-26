@@ -1,24 +1,26 @@
 import inject from '@rollup/plugin-inject';
 import {Plugin} from 'rollup';
 import {EnvVarReplacements} from '../types/snowpack';
+import generateProcessPolyfill from './generateProcessPolyfill';
 
+const PROCESS_MODULE_NAME = 'process';
 export function rollupPluginNodeProcessPolyfill(vars: EnvVarReplacements = {}): Plugin {
   const injectPlugin = inject({
-    process: 'process',
+    process: PROCESS_MODULE_NAME,
   });
 
   return {
     ...injectPlugin,
     name: 'snowpack:rollup-plugin-node-process-polyfill',
     resolveId(source) {
-      if (source === 'process') {
-        return 'process';
+      if (source === PROCESS_MODULE_NAME) {
+        return PROCESS_MODULE_NAME;
       }
 
       return null;
     },
     load(id) {
-      if (id === 'process') {
+      if (id === PROCESS_MODULE_NAME) {
         return createProcessPolyfill(vars);
       }
 
@@ -35,16 +37,5 @@ function createProcessPolyfill(vars: EnvVarReplacements = {}) {
     };
   }, {});
 
-  return `/* SNOWPACK POLYFILL - process */
-export default {
-  title: 'browser',
-  browser: true,
-  env: ${JSON.stringify(env)},
-  argv: [],
-  version: '',
-  versions: {},
-  platform: 'browser',
-  release: {},
-  config: {}
-};`;
+  return {code: generateProcessPolyfill(env), moduleSideEffects: false};
 }
