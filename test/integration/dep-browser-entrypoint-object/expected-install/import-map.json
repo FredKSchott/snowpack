@@ -1,6 +1,0 @@
-{
-  "imports": {
-    "package-has-valid": "./package-has-valid.js",
-    "package-no-valid": "./package-no-valid.js"
-  }
-}

@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "node-env-mock-pkg": "./node-env-mock-pkg.js"
-  }
-}
