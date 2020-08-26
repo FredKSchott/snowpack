@@ -78,7 +78,7 @@ import {
 } from '../util';
 import {command as installCommand} from './install';
 import {getPort, paint, paintEvent} from './paint';
-const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
+const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'), 'utf-8');
 
 const DEFAULT_PROXY_ERROR_HANDLER = (
   err: Error,
@@ -102,6 +102,7 @@ const sendFile = (
   fileLoc: string,
   ext = '.html',
 ) => {
+  body = Buffer.from(body)
   const ETag = etag(body, {weak: true});
   const contentType = mime.contentType(ext);
   const headers: Record<string, string> = {
@@ -128,26 +129,6 @@ const sendFile = (
     acceptEncoding = '';
   }
 
-  // Handle partial requests
-  const {range} = req.headers
-  if (range) {
-    const { size: fileSize } =  statSync(fileLoc)
-    const [rangeStart, rangeEnd] = range.replace(/bytes=/, '').split('-')
-
-    const start = parseInt(rangeStart, 10)
-    const end = rangeEnd ? parseInt(rangeEnd, 10) : fileSize - 1
-    const chunkSize = (end - start) + 1
-
-    const fileStream = createReadStream(fileLoc, { start, end })
-    res.writeHead(206, {
-      ...headers,
-      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-      'Content-Length': chunkSize
-    })
-    fileStream.pipe(res)
-    return
-  }
-
   // Handle gzip compression
   if (/\bgzip\b/.test(acceptEncoding) && stream.Readable.from) {
     const bodyStream = stream.Readable.from([body]);
@@ -161,6 +142,26 @@ const sendFile = (
       }
     });
     return;
+  }
+
+  // Handle partial requests
+  const {range} = req.headers
+  if (range) {
+      const { size: fileSize } =  statSync(fileLoc)
+      const [rangeStart, rangeEnd] = range.replace(/bytes=/, '').split('-')
+
+      const start = parseInt(rangeStart, 10)
+      const end = rangeEnd ? parseInt(rangeEnd, 10) : fileSize - 1
+      const chunkSize = (end - start) + 1
+
+      const fileStream = createReadStream(fileLoc, { start, end })
+      res.writeHead(206, {
+        ...headers,
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Content-Length': chunkSize
+      })
+      fileStream.pipe(res)
+      return
   }
 
   res.writeHead(200, headers);
