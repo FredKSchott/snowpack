@@ -5,13 +5,9 @@ import * as colors from 'kleur/colors';
 import mime from 'mime-types';
 import path from 'path';
 import stripComments from 'strip-comments';
-import validatePackageName from 'validate-npm-package-name';
 import {InstallTarget, SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
 import {logger} from './logger';
 import {findMatchingAliasEntry, getExt, HTML_JS_REGEX, isTruthy, SVELTE_VUE_REGEX} from './util';
-
-const WEB_MODULES_TOKEN = 'web_modules/';
-const WEB_MODULES_TOKEN_LENGTH = WEB_MODULES_TOKEN.length;
 
 // [@\w] - Match a word-character or @ (valid package name)
 // (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)
@@ -23,10 +19,6 @@ const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
 const STRIP_AS = /\s+as\s+.*/; // for `import { foo as bar }`, strips “as bar”
 const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s]*\})?\s+from/s;
 
-function stripJsExtension(dep: string): string {
-  return dep.replace(/\.m?js$/i, '');
-}
-
 function createInstallTarget(specifier: string, all = true): InstallTarget {
   return {
     specifier,
@@ -37,13 +29,6 @@ function createInstallTarget(specifier: string, all = true): InstallTarget {
   };
 }
 
-function removeSpecifierQueryString(specifier: string) {
-  const queryStringIndex = specifier.indexOf('?');
-  if (queryStringIndex >= 0) {
-    specifier = specifier.substring(0, queryStringIndex);
-  }
-  return specifier;
-}
 
 export function matchImportSpecifier(importStatement: string) {
   const matched = importStatement.match(/^\s*('([^']+)'|"([^"]+)")\s*$/m);
@@ -76,23 +61,7 @@ function parseWebModuleSpecifier(specifier: string | null): null | string {
   if (BARE_SPECIFIER_REGEX.test(specifier)) {
     return specifier;
   }
-  // Clean the specifier, remove any query params that may mess with matching
-  const cleanedSpecifier = removeSpecifierQueryString(specifier);
-  // Otherwise, check that it includes the "web_modules/" directory
-  const webModulesIndex = cleanedSpecifier.indexOf(WEB_MODULES_TOKEN);
-  if (webModulesIndex === -1) {
-    return null;
-  }
-
-  // Check if this matches `@scope/package.js` or `package.js` format.
-  // If it is, assume that this is a top-level pcakage that should be installed without the “.js”
-  const resolvedSpecifier = cleanedSpecifier.substring(webModulesIndex + WEB_MODULES_TOKEN_LENGTH);
-  const resolvedSpecifierWithoutExtension = stripJsExtension(resolvedSpecifier);
-  if (validatePackageName(resolvedSpecifierWithoutExtension).validForNewPackages) {
-    return resolvedSpecifierWithoutExtension;
-  }
-  // Otherwise, this is an explicit import to a file within a package.
-  return resolvedSpecifier;
+  return null;
 }
 
 function parseImportStatement(code: string, imp: ImportSpecifier): null | InstallTarget {

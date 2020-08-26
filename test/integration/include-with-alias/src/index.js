@@ -1,2 +1,2 @@
-import {flatten as f} from '/web_modules/array-flatten.js';
+import {flatten as f} from 'array-flatten';
 f([1, [2, [3, [4, [5], 6], 7], 8], 9]);

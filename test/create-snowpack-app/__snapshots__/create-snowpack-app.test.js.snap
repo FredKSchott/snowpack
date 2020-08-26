@@ -9412,36 +9412,6 @@ function normalizeClass(value) {
     }
     return res.trim();
 }
-/**
- * For converting {{ interpolation }} values to displayed strings.
- * @private
- */
-const toDisplayString = (val) => {
-    return val == null
-        ? ''
-        : isObject(val)
-            ? JSON.stringify(val, replacer, 2)
-            : String(val);
-};
-const replacer = (_key, val) => {
-    if (val instanceof Map) {
-        return {
-            [\`Map(\${val.size})\`]: [...val.entries()].reduce((entries, [key, val]) => {
-                entries[\`\${key} =>\`] = val;
-                return entries;
-            }, {})
-        };
-    }
-    else if (val instanceof Set) {
-        return {
-            [\`Set(\${val.size})\`]: [...val.values()]
-        };
-    }
-    else if (isObject(val) && !isArray(val) && !isPlainObject(val)) {
-        return String(val);
-    }
-    return val;
-};
 const EMPTY_OBJ =  {};
 const EMPTY_ARR = [];
 const NOOP = () => { };
@@ -9474,7 +9444,6 @@ const toTypeString = (value) => objectToString.call(value);
 const toRawType = (value) => {
     return toTypeString(value).slice(8, -1);
 };
-const isPlainObject = (val) => toTypeString(val) === '[object Object]';
 const isReservedProp = /*#__PURE__*/ makeMap('key,ref,' +
     'onVnodeBeforeMount,onVnodeMounted,' +
     'onVnodeBeforeUpdate,onVnodeUpdated,' +
@@ -10737,53 +10706,7 @@ const Fragment = Symbol( undefined);
 const Text = Symbol( undefined);
 const Comment = Symbol( undefined);
 const Static = Symbol( undefined);
-// Since v-if and v-for are the two possible ways node structure can dynamically
-// change, once we consider v-if branches and each v-for fragment a block, we
-// can divide a template into nested blocks, and within each block the node
-// structure would be stable. This allows us to skip most children diffing
-// and only worry about the dynamic nodes (indicated by patch flags).
-const blockStack = [];
 let currentBlock = null;
-/**
- * Open a block.
- * This must be called before \`createBlock\`. It cannot be part of \`createBlock\`
- * because the children of the block are evaluated before \`createBlock\` itself
- * is called. The generated code typically looks like this:
- *
- * \`\`\`js
- * function render() {
- *   return (openBlock(),createBlock('div', null, [...]))
- * }
- * \`\`\`
- * disableTracking is true when creating a v-for fragment block, since a v-for
- * fragment always diffs its children.
- *
- * @private
- */
-function openBlock(disableTracking = false) {
-    blockStack.push((currentBlock = disableTracking ? null : []));
-}
-/**
- * Create a block root vnode. Takes the same exact arguments as \`createVNode\`.
- * A block root keeps track of dynamic nodes within the block in the
- * \`dynamicChildren\` array.
- *
- * @private
- */
-function createBlock(type, props, children, patchFlag, dynamicProps) {
-    const vnode = createVNode(type, props, children, patchFlag, dynamicProps, true /* isBlock: prevent a block from tracking itself */);
-    // save current block children on the block vnode
-    vnode.dynamicChildren = currentBlock || EMPTY_ARR;
-    // close block
-    blockStack.pop();
-    currentBlock = blockStack[blockStack.length - 1] || null;
-    // a block is always going to be patched, so track it as a child of its
-    // parent block
-    if (currentBlock) {
-        currentBlock.push(vnode);
-    }
-    return vnode;
-}
 function isVNode(value) {
     return value ? value.__v_isVNode === true : false;
 }
@@ -13927,5 +13850,5 @@ function normalizeContainer(container) {
     }
     return container;
 }
-export { createApp, createBlock, createTextVNode, createVNode, openBlock, toDisplayString };"
+export { createApp };"
 `;
