@@ -1340,8 +1340,8 @@
 
 "@fortawesome/fontawesome-free@^5.14.0":
   version "5.14.0"
-  resolved "https://bnpm.byted.org/@fortawesome/fontawesome-free/download/@fortawesome/fontawesome-free-5.14.0.tgz#a371e91029ebf265015e64f81bfbf7d228c9681f"
-  integrity sha1-o3HpECnr8mUBXmT4G/v30ijJaB8=
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-5.14.0.tgz#a371e91029ebf265015e64f81bfbf7d228c9681f"
+  integrity sha512-OfdMsF+ZQgdKHP9jUbmDcRrP0eX90XXrsXIdyjLbkmSBzmMXPABB8eobUJtivaupucYaByz6WNe1PI1JuYm3qA==
 
 "@iarna/toml@^2.2.0":
   version "2.2.5"
