@@ -3,10 +3,14 @@
 exports[`snowpack build base-url: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build base-url: _dist_/index.js 1`] = `
-"import {flatten} from '../web_modules/array-flatten.js';
+"import __SNOWPACK_ENV__ from '../static/__snowpack__/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+import {flatten} from '../web_modules/array-flatten.js';
 export default function doNothing() {
   // I do nothing 🎉
-}"
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
 `;
 
 exports[`snowpack build base-url: allFiles 1`] = `
@@ -99,10 +103,14 @@ exports[`snowpack build base-url: web_modules/import-map.json 1`] = `
 exports[`snowpack build base-url-homepage: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build base-url-homepage: _dist_/index.js 1`] = `
-"import {flatten} from '../web_modules/array-flatten.js';
+"import __SNOWPACK_ENV__ from '../static/__snowpack__/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+import {flatten} from '../web_modules/array-flatten.js';
 export default function doNothing() {
   // I do nothing 🎉
-}"
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
 `;
 
 exports[`snowpack build base-url-homepage: allFiles 1`] = `
@@ -195,10 +203,14 @@ exports[`snowpack build base-url-homepage: web_modules/import-map.json 1`] = `
 exports[`snowpack build base-url-remote: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build base-url-remote: _dist_/index.js 1`] = `
-"import {flatten} from 'https://www.example.com/web_modules/array-flatten.js';
+"import __SNOWPACK_ENV__ from 'https://www.example.com/__snowpack__/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+import {flatten} from 'https://www.example.com/web_modules/array-flatten.js';
 export default function doNothing() {
   // I do nothing 🎉
-}"
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
 `;
 
 exports[`snowpack build base-url-remote: allFiles 1`] = `
