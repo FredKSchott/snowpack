@@ -27,4 +27,5 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 - [svelte-tailwind](https://github.com/agneym/svelte-tailwind-snowpack) (Adds PostCSS and TailwindCSS using [svelte-preprocess](https://github.com/sveltejs/svelte-preprocess))
 - [snowpack-react-tailwind](https://github.com/mrkldshv/snowpack-react-tailwind) (React + Snowpack + Tailwindcss)
 - [hyperapp-snowpack](https://github.com/bmartel/hyperapp-snowpack) (Hyperapp + Snowpack + TailwindCSS)
+- [snowpack-vue-capacitor-2-demo](https://github.com/brodybits/snowpack-vue-capacitor-2-demo) Demo of Snowpack with Vue and [Capacitor mobile app framework](https://capacitorjs.com/) version 2, originally generated from `@snowpack/vue-template` template, see [discussion #905](https://github.com/pikapkg/snowpack/discussions/905)
 - PRs that add a link to this list are welcome!
