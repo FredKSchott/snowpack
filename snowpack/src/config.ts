@@ -247,19 +247,30 @@ function loadPlugins(
     }
   }
 
-  function loadPluginFromConfig(name: string, options?: any): SnowpackPlugin {
-    const pluginLoc = require.resolve(name, {paths: [process.cwd()]});
-    const pluginRef = require(pluginLoc);
-    let plugin: SnowpackPlugin & LegacySnowpackPlugin;
+  function loadPluginFromConfig(name: string | Function, options?: any): SnowpackPlugin {
+    let pluginFn: Function;
+    if (typeof name === 'string') {
+      const pluginLoc = require.resolve(name, {paths: [process.cwd()]});
+      const pluginRef = require(pluginLoc);
+      pluginFn = typeof pluginRef.default === 'function' ? pluginRef.default : pluginRef;
+    } else {
+      pluginFn = name
+    }
+    
+    let plugin: SnowpackPlugin & LegacySnowpackPlugin
     try {
-      plugin = typeof pluginRef.default === 'function' ? pluginRef.default : pluginRef;
-      if (typeof plugin !== 'function') logger.error(`plugin ${name} doesn’t return function`);
-      plugin = execPluginFactory(plugin, options) as SnowpackPlugin & LegacySnowpackPlugin;
+      if (typeof pluginFn !== 'function') logger.error(`plugin ${name} doesn’t return function`);
+      plugin = execPluginFactory(pluginFn, options) as SnowpackPlugin & LegacySnowpackPlugin;
     } catch (err) {
       logger.error(err.toString() || err);
       throw err;
     }
-    plugin.name = plugin.name || name;
+
+    // Provide a plugin name fallback
+    if (!plugin.name) {
+      plugin.name = typeof name === 'function' ? name.name : name
+      logger.warn(`plugin doesn't return a name. Falling back to "${plugin.name}"`)
+    }
 
     // Legacy support: Map the new load() interface to the old build() interface
     const {build, bundle} = plugin;
