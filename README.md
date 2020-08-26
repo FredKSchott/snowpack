@@ -73,5 +73,5 @@ For starter apps and templates, see [create-snowpack-app](./create-snowpack-app)
 - [snowpack-plugin-svgr](https://github.com/jaredLunde/snowpack-plugin-svgr) Use [SVGR](https://github.com/gregberge/svgr) to transform `.svg` files into React components.
 - [snowpack-plugin-stylus](https://github.com/fansenze/snowpack-plugin-stylus) Use the [Stylus](https://github.com/stylus/stylus) compiler to build `.styl` files from source.
 - [snowpack-plugin-inliner](https://github.com/fansenze/snowpack-plugin-inliner) A plugin for snowpack which transforms files into base64 URIs.
-- [snowpack-vue-capacitor-2-demo](https://github.com/brodybits/snowpack-vue-capacitor-2-demo) Demo of Snowpack with Vue and [Capacitor mobile app framework](https://capacitorjs.com/) version 2, originally generated from `@snowpack/vue-template` template
+- [snowpack-vue-capacitor-2-demo](https://github.com/brodybits/snowpack-vue-capacitor-2-demo) Demo of Snowpack with Vue and [Capacitor mobile app framework](https://capacitorjs.com/) version 2, originally generated from `@snowpack/vue-template` template, see [discussion #905](https://github.com/pikapkg/snowpack/discussions/905)
 - PRs that add a link to this list are welcome!
