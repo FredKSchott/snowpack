@@ -597,6 +597,7 @@ exports[`snowpack build html-environment-variables: index.html 1`] = `
   data-mode=\\"production\\"
   data-public-url=\\"/\\"
   data-my-env-var=\\"my-var-replacement-configured-in-package.json\\"
+  data-edge-case-test=\\"%SNOWPACK_PUBLIC_%\\"
   data-undefined=\\"%SNOWPACK_PUBLIC_BUILD_UNDEFINED%\\"
 >
   <head>
