@@ -29,7 +29,7 @@ import isCompressible from 'compressible';
 import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
-import {existsSync, promises as fs, readFileSync, statSync, createReadStream } from 'fs';
+import {existsSync, promises as fs, readFileSync, statSync, createReadStream} from 'fs';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
@@ -102,7 +102,7 @@ const sendFile = (
   fileLoc: string,
   ext = '.html',
 ) => {
-  body = Buffer.from(body)
+  body = Buffer.from(body);
   const ETag = etag(body, {weak: true});
   const contentType = mime.contentType(ext);
   const headers: Record<string, string> = {
@@ -145,23 +145,23 @@ const sendFile = (
   }
 
   // Handle partial requests
-  const {range} = req.headers
+  const {range} = req.headers;
   if (range) {
-      const { size: fileSize } =  statSync(fileLoc)
-      const [rangeStart, rangeEnd] = range.replace(/bytes=/, '').split('-')
+    const {size: fileSize} = statSync(fileLoc);
+    const [rangeStart, rangeEnd] = range.replace(/bytes=/, '').split('-');
 
-      const start = parseInt(rangeStart, 10)
-      const end = rangeEnd ? parseInt(rangeEnd, 10) : fileSize - 1
-      const chunkSize = (end - start) + 1
+    const start = parseInt(rangeStart, 10);
+    const end = rangeEnd ? parseInt(rangeEnd, 10) : fileSize - 1;
+    const chunkSize = end - start + 1;
 
-      const fileStream = createReadStream(fileLoc, { start, end })
-      res.writeHead(206, {
-        ...headers,
-        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-        'Content-Length': chunkSize
-      })
-      fileStream.pipe(res)
-      return
+    const fileStream = createReadStream(fileLoc, {start, end});
+    res.writeHead(206, {
+      ...headers,
+      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+      'Content-Length': chunkSize,
+    });
+    fileStream.pipe(res);
+    return;
   }
 
   res.writeHead(200, headers);
