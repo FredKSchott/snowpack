@@ -2,6 +2,7 @@ import type CSSModuleLoader from 'css-modules-loader-core';
 import path from 'path';
 import {SnowpackConfig} from '../types/snowpack';
 import {getExt, URL_HAS_PROTOCOL_REGEX} from '../util';
+import {logger} from '../logger';
 
 const CLOSING_BODY_TAG = /<\s*\/\s*body\s*>/gi;
 
@@ -57,14 +58,33 @@ export function wrapHtmlResponse({
   isDev,
   hmr,
   config,
+  mode,
 }: {
   code: string;
   isDev: boolean;
   hmr: boolean;
   config: SnowpackConfig;
+  mode: 'development' | 'production';
 }) {
-  // replace %PUBLIC_URL% in HTML files (along with surrounding slashes, if any)
+  // replace %PUBLIC_URL% (along with surrounding slashes, if any)
   code = code.replace(/\/?%PUBLIC_URL%\/?/g, config.buildOptions.baseUrl);
+
+  // replace %MODE%
+  code = code.replace(/%MODE%/g, mode);
+
+  const snowpackPublicEnv = getSnowpackPublicEnvVariables();
+
+  code = code.replace(/%SNOWPACK_PUBLIC_.+?%/gi, (match: string) => {
+    const envVariableName = match.slice(1, -1);
+
+    if (envVariableName in snowpackPublicEnv) {
+      return snowpackPublicEnv[envVariableName] || '';
+    }
+
+    logger.warn(`Environment variable "${envVariableName}" is not set`);
+
+    return match;
+  });
 
   if (hmr) {
     const hmrScript = `<script type="module" src="${getMetaUrlPath(
@@ -208,15 +228,20 @@ export async function wrapImportProxy({
   return generateDefaultImportProxy(url);
 }
 
-const PUBLIC_ENV_REGEX = /^SNOWPACK_PUBLIC_/;
 export function generateEnvModule(mode: 'development' | 'production') {
+  const envObject = getSnowpackPublicEnvVariables();
+  envObject.MODE = mode;
+  envObject.NODE_ENV = mode;
+  return `export default ${JSON.stringify(envObject)};`;
+}
+
+const PUBLIC_ENV_REGEX = /^SNOWPACK_PUBLIC_/;
+function getSnowpackPublicEnvVariables() {
   const envObject = {...process.env};
   for (const env of Object.keys(envObject)) {
     if (!PUBLIC_ENV_REGEX.test(env)) {
       delete envObject[env];
     }
   }
-  envObject.MODE = mode;
-  envObject.NODE_ENV = mode;
-  return `export default ${JSON.stringify(envObject)};`;
+  return envObject;
 }

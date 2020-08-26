@@ -197,7 +197,7 @@ export async function buildFile(
 ): Promise<SnowpackBuildMap> {
   // Pass 1: Find the first plugin to load this file, and return the result
   const loadResult = await runPipelineLoadStep(srcPath, buildFileOptions);
-  // Pass 2: Pass that result through every plugin transfomr() method.
+  // Pass 2: Pass that result through every plugin transform() method.
   const transformResult = await runPipelineTransformStep(loadResult, srcPath, buildFileOptions);
   // Return the final build result.
   return transformResult;
