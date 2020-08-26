@@ -234,6 +234,25 @@ If you're worried about legacy browsers, you should also add a bundler to your p
 
 Note: During development (`snowpack dev`) we perform no transpilation for older browsers. Make sure that you're using a modern browser during development.
 
+### Node.js Polyfills
+
+If you depend on packages that depend on Node.js built-in modules (`"fs"`, `"path"`, `"url"`, etc.) you can run Snowpack with `--polyfill-node` (or `installOptions.polyfillNode: true` in your config file). This will automatically polyfill any Node.js dependencies as much as possible for the browser. You can see the full list of supported polyfills here: https://github.com/ionic-team/rollup-plugin-node-polyfills
+
+If you'd like to customize this polyfill behavior, skip the `--polyfill-node` flag and instead provide your own Rollup plugin for the installer:
+
+```js
+// Example: If `--polyfill-node` doesn't support your use-case, you can provide your own custom Node.js polyfill behavior
+module.exports = {
+  installOptions: {
+    polyfillNode: false,
+    rollup: {
+      plugins: [require('rollup-plugin-node-polyfills')({crypto: true, ...})],
+    },
+  },
+};
+```
+
+
 ### CSS @import Support
 
 Snowpack supports native CSS "@import" behavior. This behaves slightly differently from JavaScript's `import` behavior. In CSS, `@import 'foo/bar.css'` points to the relative file `./foo/bar.css` and not some package "foo". There is no currently no way to use the native `@import` statement to import from a package by name.
