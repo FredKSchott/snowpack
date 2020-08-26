@@ -7,7 +7,7 @@ import { pluginName, report } from './utils'
 export const generateSW: SnowpackPluginFactory<GenerateSWConfig> = (_, pluginOptions = {} as GenerateSWConfig) => {
   const { swDest, globDirectory, ...generateSWConfig } = pluginOptions;
 
-  if (!swDest) throw new Error('No service worker destination specified');
+  if (!swDest) throw new Error('Missing `swDest` property');
 
   const reportResult = report(swDest)
   return {

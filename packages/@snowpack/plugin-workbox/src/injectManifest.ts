@@ -7,8 +7,8 @@ import { pluginName, report } from './utils'
 export const injectManifest: SnowpackPluginFactory<InjectManifestConfig> = (_, pluginOptions = {} as InjectManifestConfig) => {
   const { swSrc, swDest, globDirectory, ...injectManifestConfig } = pluginOptions;
 
-  if (!swSrc) throw new Error('No service worker source specified');
-  if (!swDest) throw new Error('No service worker destination specified');
+  if (!swSrc) throw new Error('Missing `swSrc` property');
+  if (!swDest) throw new Error('Missing `swDest` property');
 
   const reportResult = report(swDest)
   return {
