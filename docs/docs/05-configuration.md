@@ -18,7 +18,7 @@ Snowpack supports configuration files in multiple formats, sorted by priority or
 $ snowpack --help
 
 # Show additional debugging logs
-$ snowpack --log-level=debug
+$ snowpack --verbose
 
 # {installOptions: {dest: 'CUSTOM_DIR/'}}
 $ snowpack install --dest CUSTOM_DIR/

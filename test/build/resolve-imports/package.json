@@ -12,6 +12,7 @@
       "@app": "./src",
       "@/": "./src/",
       "@comp": "./src/components"
+      "%": "."
     },
     "mount": {
       "./src": "/_dist_"

@@ -9,7 +9,9 @@
   "snowpack": {
     "alias": {
       "react": "preact/compat",
-      "react-dom": "preact/compat"
+      "react-dom": "preact/compat",
+      "vue": "vue/dist/vue.esm.browser.js",
+      "vue-currency-input": "vue-currency-input/dist/vue-currency-input.esm.js"
     },
     "install": [
       "react",
@@ -20,7 +22,9 @@
     }
   },
   "dependencies": {
-    "preact": "^10.4.6"
+    "preact": "^10.4.6",
+    "vue": "^2.6.12",
+    "vue-currency-input": "^1.21.0"
   },
   "devDependencies": {
     "snowpack": "^2.7.0"

@@ -35,8 +35,8 @@ export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gms;
 export const URL_HAS_PROTOCOL_REGEX = /^(\w+:)?\/\//;
 
 const UTF8_FORMATS = ['.css', '.html', '.js', '.map', '.mjs', '.json', '.svg', '.txt', '.xml'];
-export function getEncodingType(ext: string): 'utf-8' | 'binary' {
-  return UTF8_FORMATS.includes(ext) ? 'utf-8' : 'binary';
+export function getEncodingType(ext: string): 'utf-8' | undefined {
+  return UTF8_FORMATS.includes(ext) ? 'utf-8' : undefined;
 }
 
 export async function readLockfile(cwd: string): Promise<ImportMap | null> {
@@ -200,16 +200,21 @@ export async function openInBrowser(
       // if Chrome doesn’t respond within 3s, fall back to opening new tab in default browser
       let isChromeStalled = setTimeout(() => {
         openChrome.cancel();
-        console.warn(`Chrome not responding to Snowpack after 3s. Opening dev server in new tab.`);
-        open(url);
       }, 3000);
 
       try {
         await openChrome;
-        clearTimeout(isChromeStalled);
       } catch (err) {
-        console.error(err.toString() || err);
+        if (err.isCanceled) {
+          console.warn(
+            `Chrome not responding to Snowpack after 3s. Opening dev server in new tab.`,
+          );
+        } else {
+          console.error(err.toString() || err);
+        }
         open(url);
+      } finally {
+        clearTimeout(isChromeStalled);
       }
       return true;
     } catch (err) {
@@ -261,6 +266,8 @@ export function findMatchingAliasEntry(
 ): {from: string; to: string; type: 'package' | 'path'} | undefined {
   // Only match bare module specifiers. relative and absolute imports should not match
   if (
+    spec === '.' ||
+    spec === '..' ||
     spec.startsWith('./') ||
     spec.startsWith('../') ||
     spec.startsWith('/') ||
@@ -269,15 +276,27 @@ export function findMatchingAliasEntry(
   ) {
     return undefined;
   }
-  const foundEntry = Object.entries(config.alias).find(([fromAlias]) => spec.startsWith(fromAlias));
-  if (!foundEntry) {
-    return undefined;
+
+  for (const [from, to] of Object.entries(config.alias)) {
+    let foundType: 'package' | 'path' | '' = '';
+    if (isPackageAliasEntry(to)) {
+      if (spec === from || spec.startsWith(`${from}/`)) {
+        foundType = 'package';
+      }
+    } else {
+      if (spec.startsWith(from)) {
+        foundType = 'path';
+      }
+    }
+
+    if (foundType) {
+      return {
+        from,
+        to,
+        type: foundType,
+      };
+    }
   }
-  return {
-    from: foundEntry[0],
-    to: foundEntry[1],
-    type: isPackageAliasEntry(foundEntry[1]) ? 'package' : 'path',
-  };
 }
 
 /**

@@ -12,6 +12,27 @@ yarn add --dev snowpack
 
 Snowpack can also be installed globally via `npm install -g snowpack`. But, we recommend installing locally in every project via `--save-dev`/`--dev`. You can run the Snowpack CLI locally via package.json "scripts", npm's `npx snowpack`, or via `yarn snowpack`.
 
+
+### Quick Start
+
+Here's a short list of what you can do with Snowpack:
+
+```bash
+# Start your dev server, load your site locally
+snowpack dev
+
+# Build your site for production
+snowpack build
+
+# Build your site, but watch the file system and rebuild when files change.
+# Great for local development with your own dev server (ex: Rails)
+snowpack build --watch
+
+# See more helpful info
+snowpack --help
+```
+
+
 ### Create Snowpack App (CSA)
 
 The easiest way to get started with Snowpack is via [Create Snowpack App (CSA)](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app). CSA automatically initializes a starter application for you with a pre-configured, Snowpack-powered dev environment.

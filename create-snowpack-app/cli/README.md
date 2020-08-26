@@ -26,4 +26,5 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 - [app-template-reason-react](https://github.com/jihchi/app-template-reason-react) (ReasonML (BuckleScript) & reason-react on top of [@snowpack/app-template-react](/templates/app-template-react))
 - [svelte-tailwind](https://github.com/agneym/svelte-tailwind-snowpack) (Adds PostCSS and TailwindCSS using [svelte-preprocess](https://github.com/sveltejs/svelte-preprocess))
 - [snowpack-react-tailwind](https://github.com/mrkldshv/snowpack-react-tailwind) (React + Snowpack + Tailwindcss)
+- [hyperapp-snowpack](https://github.com/bmartel/hyperapp-snowpack) (Hyperapp + Snowpack + TailwindCSS)
 - PRs that add a link to this list are welcome!
