@@ -2,9 +2,10 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "install": "lerna link",
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build --scope=\"{snowpack,@snowpack/plugin-workbox}\"",
+    "build": "yarn build:snowpack && yarn build:plugins",
+    "build:snowpack": "lerna run build --scope=snowpack",
+    "build:plugins": "lerna run build --scope=@snowpack/plugin-*",
     "publish": "lerna publish --no-private",
     "format": "prettier --write \"packages/*/src/**/*.ts\"",
     "test": "jest --test-timeout=30000 && lerna run test --scope=@snowpack/plugin-workbox",
