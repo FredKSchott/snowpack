@@ -3,7 +3,7 @@
 exports[`snowpack build base-url: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build base-url: _dist_/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../static/__snowpack__/env.js';
+"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 // src/index.js - Test import URLs from the \\"/_dist_/\\" directory
 import {flatten} from '../web_modules/array-flatten.js';
@@ -69,7 +69,7 @@ exports[`snowpack build base-url: index.html 1`] = `
 `;
 
 exports[`snowpack build base-url: index.js 1`] = `
-"import __SNOWPACK_ENV__ from './static/__snowpack__/env.js';
+"import __SNOWPACK_ENV__ from './__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 // public/index.js - Test import URLs from the \\"/\\" directory
 import {flatten} from './web_modules/array-flatten.js';
@@ -117,7 +117,7 @@ exports[`snowpack build base-url: web_modules/import-map.json 1`] = `
 exports[`snowpack build base-url-homepage: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build base-url-homepage: _dist_/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../static/__snowpack__/env.js';
+"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 // src/index.js - Test import URLs from the \\"/_dist_/\\" directory
 import {flatten} from '../web_modules/array-flatten.js';
@@ -183,7 +183,7 @@ exports[`snowpack build base-url-homepage: index.html 1`] = `
 `;
 
 exports[`snowpack build base-url-homepage: index.js 1`] = `
-"import __SNOWPACK_ENV__ from './static/__snowpack__/env.js';
+"import __SNOWPACK_ENV__ from './__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 // public/index.js - Test import URLs from the \\"/\\" directory
 import {flatten} from './web_modules/array-flatten.js';
@@ -773,7 +773,7 @@ Array [
 exports[`snowpack build meta-dir: static/snowpack/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build meta-dir-local-baseurl: _dist_/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../builds/static/snowpack/env.js';
+"import __SNOWPACK_ENV__ from '../static/snowpack/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import React from 'https://cdn.pika.dev/react@^16.13.1';
 if (import.meta.hot) {

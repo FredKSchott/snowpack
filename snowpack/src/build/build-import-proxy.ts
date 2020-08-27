@@ -1,8 +1,7 @@
 import type CSSModuleLoader from 'css-modules-loader-core';
 import path from 'path';
 import {SnowpackConfig} from '../types/snowpack';
-import {addTrailingSlash} from '../config';
-import {getExt} from '../util';
+import {getExt, URL_HAS_PROTOCOL_REGEX} from '../util';
 import {logger} from '../logger';
 
 const CLOSING_BODY_TAG = /<\s*\/\s*body\s*>/gi;
@@ -12,7 +11,10 @@ export function getMetaUrlPath(urlPath: string, isDev: boolean, config: Snowpack
   if (isDev) {
     return path.posix.normalize(path.posix.join('/', metaDir, urlPath));
   }
-  return addTrailingSlash(baseUrl) + path.posix.normalize(path.posix.join(metaDir, urlPath));
+  if (URL_HAS_PROTOCOL_REGEX.test(baseUrl)) {
+    return baseUrl + path.posix.normalize(path.posix.join(metaDir, urlPath));
+  }
+  return path.posix.normalize(path.posix.join('/', metaDir, urlPath));
 }
 
 export function wrapImportMeta({
