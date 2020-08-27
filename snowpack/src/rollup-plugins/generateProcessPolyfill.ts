@@ -24,9 +24,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 export function generateProcessPolyfill(env) {
-  return `/* SNOWPACK POLYFILL - process */
-// shim for using process in browser
-// based off https://github.com/ionic-team/rollup-plugin-node-polyfills/blob/master/polyfills/process-es6.js
+  return `/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
 function defaultSetTimout() {
     throw new Error('setTimeout has not been defined');
 }
