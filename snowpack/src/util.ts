@@ -11,6 +11,7 @@ import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
 import {ImportMap, SnowpackConfig} from './types/snowpack';
+import {removeTrailingSlash, addTrailingSlash} from './config';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
@@ -278,18 +279,10 @@ export function findMatchingAliasEntry(
   }
 
   for (const [from, to] of Object.entries(config.alias)) {
-    let foundType: 'package' | 'path' | '' = '';
-    if (isPackageAliasEntry(to)) {
-      if (spec === from || spec.startsWith(`${from}/`)) {
-        foundType = 'package';
-      }
-    } else {
-      if (spec.startsWith(from)) {
-        foundType = 'path';
-      }
-    }
-
-    if (foundType) {
+    let foundType: 'package' | 'path' = isPackageAliasEntry(to) ? 'package' : 'path';
+    const isExactMatch = spec === removeTrailingSlash(from);
+    const isDeepMatch = spec.startsWith(addTrailingSlash(from));
+    if (isExactMatch || isDeepMatch) {
       return {
         from,
         to,
