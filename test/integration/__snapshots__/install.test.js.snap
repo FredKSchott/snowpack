@@ -6411,17 +6411,206 @@ Array [
 `;
 
 exports[`snowpack install dep-list-simple: async.js 1`] = `
-"/* SNOWPACK POLYFILL - process */
+"/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+var cachedSetTimeout = defaultSetTimout;
+var cachedClearTimeout = defaultClearTimeout;
+if (typeof window.setTimeout === 'function') {
+    cachedSetTimeout = setTimeout;
+}
+if (typeof window.clearTimeout === 'function') {
+    cachedClearTimeout = clearTimeout;
+}
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+function nextTick(fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+}
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+var title = 'browser';
+var platform = 'browser';
+var browser = true;
+var argv = [];
+var version = ''; // empty string to avoid regexp issues
+var versions = {};
+var release = {};
+var config = {};
+function noop() {}
+var on = noop;
+var addListener = noop;
+var once = noop;
+var off = noop;
+var removeListener = noop;
+var removeAllListeners = noop;
+var emit = noop;
+function binding(name) {
+    throw new Error('process.binding is not supported');
+}
+function cwd () { return '/' }
+function chdir (dir) {
+    throw new Error('process.chdir is not supported');
+}function umask() { return 0; }
+// from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
+var performance = window.performance || {};
+var performanceNow =
+  performance.now        ||
+  performance.mozNow     ||
+  performance.msNow      ||
+  performance.oNow       ||
+  performance.webkitNow  ||
+  function(){ return (new Date()).getTime() };
+// generate timestamp or delta
+// see http://nodejs.org/api/process.html#process_process_hrtime
+function hrtime(previousTimestamp){
+  var clocktime = performanceNow.call(performance)*1e-3;
+  var seconds = Math.floor(clocktime);
+  var nanoseconds = Math.floor((clocktime%1)*1e9);
+  if (previousTimestamp) {
+    seconds = seconds - previousTimestamp[0];
+    nanoseconds = nanoseconds - previousTimestamp[1];
+    if (nanoseconds<0) {
+      seconds--;
+      nanoseconds += 1e9;
+    }
+  }
+  return [seconds,nanoseconds]
+}
+var startTime = new Date();
+function uptime() {
+  var currentTime = new Date();
+  var dif = currentTime - startTime;
+  return dif / 1000;
+}
 var process = {
-  title: 'browser',
-  browser: true,
+  nextTick: nextTick,
+  title: title,
+  browser: browser,
   env: {\\"NODE_ENV\\":\\"test\\"},
-  argv: [],
-  version: '',
-  versions: {},
-  platform: 'browser',
-  release: {},
-  config: {}
+  argv: argv,
+  version: version,
+  versions: versions,
+  on: on,
+  addListener: addListener,
+  once: once,
+  off: off,
+  removeListener: removeListener,
+  removeAllListeners: removeAllListeners,
+  emit: emit,
+  binding: binding,
+  cwd: cwd,
+  chdir: chdir,
+  umask: umask,
+  hrtime: hrtime,
+  platform: platform,
+  release: release,
+  config: config,
+  uptime: uptime
 };
 /**
  * Creates a continuation function with some arguments already applied.
@@ -6657,7 +6846,7 @@ function isArrayLike(value) {
 // A temporary value used to identify if the loop should be broken.
 // See #1064, #1293
 const breakLoop = {};
-function once(fn) {
+function once$1(fn) {
     function wrapper (...args) {
         if (fn === null) return;
         var callFn = fn;
@@ -6768,7 +6957,7 @@ function asyncEachOfLimit(generator, limit, iteratee, callback) {
 }
 var eachOfLimit = (limit) => {
     return (obj, iteratee, callback) => {
-        callback = once(callback);
+        callback = once$1(callback);
         if (limit <= 0) {
             throw new RangeError('concurrency limit cannot be less than 1')
         }
@@ -6851,7 +7040,7 @@ function eachOfLimit$1(coll, limit, iteratee, callback) {
 var eachOfLimit$2 = awaitify(eachOfLimit$1, 4);
 // eachOf implementation optimized for array-likes
 function eachOfArrayLike(coll, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var index = 0,
         completed = 0,
         {length} = coll,
@@ -7167,7 +7356,7 @@ function auto(tasks, concurrency, callback) {
         callback = concurrency;
         concurrency = null;
     }
-    callback = once(callback || promiseCallback());
+    callback = once$1(callback || promiseCallback());
     var numTasks = Object.keys(tasks).length;
     if (!numTasks) {
         return callback(null);
@@ -7522,7 +7711,7 @@ function setInitial(dll, node) {
     dll.length = 1;
     dll.head = dll.tail = node;
 }
-function queue(worker, concurrency, payload) {
+function queue$1(worker, concurrency, payload) {
     if (concurrency == null) {
         concurrency = 1;
     }
@@ -7809,7 +7998,7 @@ function queue(worker, concurrency, payload) {
  * console.log('finished processing baz');
  */
 function cargo(worker, payload) {
-    return queue(worker, 1, payload);
+    return queue$1(worker, 1, payload);
 }
 /**
  * Creates a \`cargoQueue\` object with the specified payload. Tasks added to the
@@ -7866,7 +8055,7 @@ function cargo(worker, payload) {
  * });
  */
 function cargo$1(worker, concurrency, payload) {
-    return queue(worker, concurrency, payload);
+    return queue$1(worker, concurrency, payload);
 }
 /**
  * Reduces \`coll\` into a single value using an async \`iteratee\` to return each
@@ -7910,7 +8099,7 @@ function cargo$1(worker, concurrency, payload) {
  * });
  */
 function reduce(coll, memo, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var _iteratee = wrapAsync(iteratee);
     return eachOfSeries$1(coll, (x, i, iterCb) => {
         _iteratee(memo, x, (err, v) => {
@@ -8972,7 +9161,7 @@ var log = consoleFunc('log');
  * @returns {Promise} a promise, if no callback is passed
  */
 function mapValuesLimit(obj, limit, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var newObj = {};
     var _iteratee = wrapAsync(iteratee);
     return eachOfLimit(limit)(obj, (val, key, next) => {
@@ -9163,7 +9352,7 @@ if (hasNextTick) {
 } else {
     _defer$1 = fallback;
 }
-var nextTick = wrap(_defer$1);
+var nextTick$1 = wrap(_defer$1);
 var _parallel = awaitify((eachfn, tasks, callback) => {
     var results = isArrayLike(tasks) ? [] : {};
     eachfn(tasks, (task, key, taskCb) => {
@@ -9413,9 +9602,9 @@ function parallelLimit(tasks, limit, callback) {
  *     console.log('finished processing bar');
  * });
  */
-function queue$1 (worker, concurrency) {
+function queue$1$1 (worker, concurrency) {
     var _worker = wrapAsync(worker);
-    return queue((items, cb) => {
+    return queue$1((items, cb) => {
         _worker(items[0], cb);
     }, concurrency, 1);
 }
@@ -9534,7 +9723,7 @@ function smaller(x, y) {
  */
 function priorityQueue(worker, concurrency) {
     // Start with a normal queue
-    var q = queue$1(worker, concurrency);
+    var q = queue$1$1(worker, concurrency);
     q._tasks = new Heap();
     // Override push to accept second parameter representing priority
     q.push = function(data, priority = 0, callback = () => {}) {
@@ -9600,7 +9789,7 @@ function priorityQueue(worker, concurrency) {
  * });
  */
 function race(tasks, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     if (!Array.isArray(tasks)) return callback(new TypeError('First argument to race must be an array of functions'));
     if (!tasks.length) return callback();
     for (var i = 0, l = tasks.length; i < l; i++) {
@@ -10465,7 +10654,7 @@ function transform (coll, accumulator, iteratee, callback) {
         iteratee = accumulator;
         accumulator = Array.isArray(coll) ? [] : {};
     }
-    callback = once(callback || promiseCallback());
+    callback = once$1(callback || promiseCallback());
     var _iteratee = wrapAsync(iteratee);
     eachOf$1(coll, (v, k, cb) => {
         _iteratee(accumulator, v, k, cb);
@@ -10698,7 +10887,7 @@ function until(test, iteratee, callback) {
  * }
  */
 function waterfall (tasks, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     if (!Array.isArray(tasks)) return callback(new Error('First argument to waterfall must be an array of functions'));
     if (!tasks.length) return callback();
     var taskIndex = 0;
@@ -10799,11 +10988,11 @@ var index = {
     mapValuesLimit: mapValuesLimit$1,
     mapValuesSeries,
     memoize,
-    nextTick,
+    nextTick: nextTick$1,
     parallel,
     parallelLimit,
     priorityQueue,
-    queue: queue$1,
+    queue: queue$1$1,
     race: race$1,
     reduce: reduce$1,
     reduceRight,
@@ -10861,7 +11050,7 @@ var index = {
     doDuring: doWhilst$1
 };
 export default index;
-export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick, parallel, parallelLimit, priorityQueue, queue$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
+export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick$1 as nextTick, parallel, parallelLimit, priorityQueue, queue$1$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
 `;
 
 exports[`snowpack install dep-list-simple: import-map.json 1`] = `
@@ -11012,17 +11201,206 @@ exports[`snowpack install exclude: import-map.json 1`] = `
 `;
 
 exports[`snowpack install exclude: vue.js 1`] = `
-"/* SNOWPACK POLYFILL - process */
+"/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+var cachedSetTimeout = defaultSetTimout;
+var cachedClearTimeout = defaultClearTimeout;
+if (typeof window.setTimeout === 'function') {
+    cachedSetTimeout = setTimeout;
+}
+if (typeof window.clearTimeout === 'function') {
+    cachedClearTimeout = clearTimeout;
+}
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+function nextTick(fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+}
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+var title = 'browser';
+var platform = 'browser';
+var browser = true;
+var argv = [];
+var version = ''; // empty string to avoid regexp issues
+var versions = {};
+var release = {};
+var config = {};
+function noop() {}
+var on = noop;
+var addListener = noop;
+var once = noop;
+var off = noop;
+var removeListener = noop;
+var removeAllListeners = noop;
+var emit = noop;
+function binding(name) {
+    throw new Error('process.binding is not supported');
+}
+function cwd () { return '/' }
+function chdir (dir) {
+    throw new Error('process.chdir is not supported');
+}function umask() { return 0; }
+// from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
+var performance = window.performance || {};
+var performanceNow =
+  performance.now        ||
+  performance.mozNow     ||
+  performance.msNow      ||
+  performance.oNow       ||
+  performance.webkitNow  ||
+  function(){ return (new Date()).getTime() };
+// generate timestamp or delta
+// see http://nodejs.org/api/process.html#process_process_hrtime
+function hrtime(previousTimestamp){
+  var clocktime = performanceNow.call(performance)*1e-3;
+  var seconds = Math.floor(clocktime);
+  var nanoseconds = Math.floor((clocktime%1)*1e9);
+  if (previousTimestamp) {
+    seconds = seconds - previousTimestamp[0];
+    nanoseconds = nanoseconds - previousTimestamp[1];
+    if (nanoseconds<0) {
+      seconds--;
+      nanoseconds += 1e9;
+    }
+  }
+  return [seconds,nanoseconds]
+}
+var startTime = new Date();
+function uptime() {
+  var currentTime = new Date();
+  var dif = currentTime - startTime;
+  return dif / 1000;
+}
 var process = {
-  title: 'browser',
-  browser: true,
+  nextTick: nextTick,
+  title: title,
+  browser: browser,
   env: {\\"NODE_ENV\\":\\"test\\"},
-  argv: [],
-  version: '',
-  versions: {},
-  platform: 'browser',
-  release: {},
-  config: {}
+  argv: argv,
+  version: version,
+  versions: versions,
+  on: on,
+  addListener: addListener,
+  once: once,
+  off: off,
+  removeListener: removeListener,
+  removeAllListeners: removeAllListeners,
+  emit: emit,
+  binding: binding,
+  cwd: cwd,
+  chdir: chdir,
+  umask: umask,
+  hrtime: hrtime,
+  platform: platform,
+  release: release,
+  config: config,
+  uptime: uptime
 };
 /*!
  * Vue.js v2.6.11
@@ -11252,7 +11630,7 @@ function toObject (arr) {
  * Stubbing args to make Flow happy without leaving useless transpiled code
  * with ...rest (https://flow.org/blog/2017/05/07/Strict-Function-Call-Arity/).
  */
-function noop (a, b, c) {}
+function noop$1 (a, b, c) {}
 /**
  * Always return false.
  */
@@ -11314,7 +11692,7 @@ function looseIndexOf (arr, val) {
 /**
  * Ensure a function is called only once.
  */
-function once (fn) {
+function once$1 (fn) {
   var called = false;
   return function () {
     if (!called) {
@@ -11344,7 +11722,7 @@ var LIFECYCLE_HOOKS = [
   'serverPrefetch'
 ];
 /*  */
-var config = ({
+var config$1 = ({
   /**
    * Option merge strategies (used in core/util/options)
    */
@@ -11401,7 +11779,7 @@ var config = ({
   /**
    * Get the namespace of an element
    */
-  getTagNamespace: noop,
+  getTagNamespace: noop$1,
   /**
    * Parse the real tag name for the specific platform.
    */
@@ -11543,10 +11921,10 @@ if (typeof Set !== 'undefined' && isNative(Set)) {
   }());
 }
 /*  */
-var warn = noop;
-var tip = noop;
-var generateComponentTrace = (noop); // work around flow check
-var formatComponentName = (noop);
+var warn = noop$1;
+var tip = noop$1;
+var generateComponentTrace = (noop$1); // work around flow check
+var formatComponentName = (noop$1);
 {
   var hasConsole = typeof console !== 'undefined';
   var classifyRE = /(?:^|[-_])(\\\\w)/g;
@@ -11555,14 +11933,14 @@ var formatComponentName = (noop);
     .replace(/[-_]/g, ''); };
   warn = function (msg, vm) {
     var trace = vm ? generateComponentTrace(vm) : '';
-    if (config.warnHandler) {
-      config.warnHandler.call(null, msg, vm, trace);
-    } else if (hasConsole && (!config.silent)) {
+    if (config$1.warnHandler) {
+      config$1.warnHandler.call(null, msg, vm, trace);
+    } else if (hasConsole && (!config$1.silent)) {
       console.error((\\"[Vue warn]: \\" + msg + trace));
     }
   };
   tip = function (msg, vm) {
-    if (hasConsole && (!config.silent)) {
+    if (hasConsole && (!config$1.silent)) {
       console.warn(\\"[Vue tip]: \\" + msg + (
         vm ? generateComponentTrace(vm) : ''
       ));
@@ -11650,7 +12028,7 @@ Dep.prototype.depend = function depend () {
 Dep.prototype.notify = function notify () {
   // stabilize the subscriber list first
   var subs = this.subs.slice();
-  if ( !config.async) {
+  if ( !config$1.async) {
     // subs aren't sorted in scheduler if not running async
     // we need to sort them now to make sure they fire in correct
     // order
@@ -12039,7 +12417,7 @@ function dependArray (value) {
  * how to merge a parent option value and a child option
  * value into the final value.
  */
-var strats = config.optionMergeStrategies;
+var strats = config$1.optionMergeStrategies;
 /**
  * Options with restrictions
  */
@@ -12278,7 +12656,7 @@ function validateComponentName (name) {
       'should conform to valid custom element name in html5 specification.'
     );
   }
-  if (isBuiltInTag(name) || config.isReservedTag(name)) {
+  if (isBuiltInTag(name) || config$1.isReservedTag(name)) {
     warn(
       'Do not use built-in or reserved HTML elements as component ' +
       'id: ' + name
@@ -12705,9 +13083,9 @@ function invokeWithErrorHandling (
   return res
 }
 function globalHandleError (err, vm, info) {
-  if (config.errorHandler) {
+  if (config$1.errorHandler) {
     try {
-      return config.errorHandler.call(null, err, vm, info)
+      return config$1.errorHandler.call(null, err, vm, info)
     } catch (e) {
       // if the user intentionally throws the original error in the handler,
       // do not log it twice
@@ -12769,7 +13147,7 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
     // microtask queue but the queue isn't being flushed, until the browser
     // needs to do some other work, e.g. handle a timer. Therefore we can
     // \\"force\\" the microtask queue to be flushed by adding an empty timer.
-    if (isIOS) { setTimeout(noop); }
+    if (isIOS) { setTimeout(noop$1); }
   };
   isUsingMicroTask = true;
 } else if (!isIE && typeof MutationObserver !== 'undefined' && (
@@ -12804,7 +13182,7 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
     setTimeout(flushCallbacks, 0);
   };
 }
-function nextTick (cb, ctx) {
+function nextTick$1 (cb, ctx) {
   var _resolve;
   callbacks.push(function () {
     if (cb) {
@@ -12861,7 +13239,7 @@ var initProxy;
     typeof Proxy !== 'undefined' && isNative(Proxy);
   if (hasProxy) {
     var isBuiltInModifier = makeMap('stop,prevent,self,ctrl,shift,alt,meta,exact');
-    config.keyCodes = new Proxy(config.keyCodes, {
+    config$1.keyCodes = new Proxy(config$1.keyCodes, {
       set: function set (target, key, value) {
         if (isBuiltInModifier(key)) {
           warn((\\"Avoid overwriting built-in modifier in config.keyCodes: .\\" + key));
@@ -13497,8 +13875,8 @@ function checkKeyCodes (
   eventKeyName,
   builtInKeyName
 ) {
-  var mappedKeyCode = config.keyCodes[key] || builtInKeyCode;
-  if (builtInKeyName && eventKeyName && !config.keyCodes[key]) {
+  var mappedKeyCode = config$1.keyCodes[key] || builtInKeyCode;
+  if (builtInKeyName && eventKeyName && !config$1.keyCodes[key]) {
     return isKeyNotMatch(builtInKeyName, eventKeyName)
   } else if (mappedKeyCode) {
     return isKeyNotMatch(mappedKeyCode, eventKeyCode)
@@ -13537,7 +13915,7 @@ function bindObjectProps (
           hash = data;
         } else {
           var type = data.attrs && data.attrs.type;
-          hash = asProp || config.mustUseProp(tag, type, key)
+          hash = asProp || config$1.mustUseProp(tag, type, key)
             ? data.domProps || (data.domProps = {})
             : data.attrs || (data.attrs = {});
         }
@@ -14109,8 +14487,8 @@ function _createElement (
   var vnode, ns;
   if (typeof tag === 'string') {
     var Ctor;
-    ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag);
-    if (config.isReservedTag(tag)) {
+    ns = (context.$vnode && context.$vnode.ns) || config$1.getTagNamespace(tag);
+    if (config$1.isReservedTag(tag)) {
       // platform built-in elements
       if ( isDef(data) && isDef(data.nativeOn)) {
         warn(
@@ -14119,7 +14497,7 @@ function _createElement (
         );
       }
       vnode = new VNode(
-        config.parsePlatformTagName(tag), data, children,
+        config$1.parsePlatformTagName(tag), data, children,
         undefined, undefined, context
       );
     } else if ((!data || !data.pre) && isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
@@ -14211,7 +14589,7 @@ function renderMixin (Vue) {
   // install runtime convenience helpers
   installRenderHelpers(Vue.prototype);
   Vue.prototype.$nextTick = function (fn) {
-    return nextTick(fn, this)
+    return nextTick$1(fn, this)
   };
   Vue.prototype._render = function () {
     var vm = this;
@@ -14338,7 +14716,7 @@ function resolveAsyncComponent (
         }
       }
     };
-    var resolve = once(function (res) {
+    var resolve = once$1(function (res) {
       // cache resolved
       factory.resolved = ensureCtor(res, baseCtor);
       // invoke callbacks only if this is not a synchronous resolve
@@ -14349,7 +14727,7 @@ function resolveAsyncComponent (
         owners.length = 0;
       }
     });
-    var reject = once(function (reason) {
+    var reject = once$1(function (reason) {
        warn(
         \\"Failed to resolve async component: \\" + (String(factory)) +
         (reason ? (\\"Reason: \\" + reason) : '')
@@ -14684,7 +15062,7 @@ function mountComponent (
   callHook(vm, 'beforeMount');
   var updateComponent;
   /* istanbul ignore if */
-  if ( config.performance && mark) {
+  if ( config$1.performance && mark) {
     updateComponent = function () {
       var name = vm._name;
       var id = vm._uid;
@@ -14707,7 +15085,7 @@ function mountComponent (
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
-  new Watcher(vm, updateComponent, noop, {
+  new Watcher(vm, updateComponent, noop$1, {
     before: function before () {
       if (vm._isMounted && !vm._isDestroyed) {
         callHook(vm, 'beforeUpdate');
@@ -14847,7 +15225,7 @@ function callHook (vm, hook) {
 }
 /*  */
 var MAX_UPDATE_COUNT = 100;
-var queue = [];
+var queue$1 = [];
 var activatedChildren = [];
 var has = {};
 var circular = {};
@@ -14858,7 +15236,7 @@ var index = 0;
  * Reset the scheduler's state.
  */
 function resetSchedulerState () {
-  index = queue.length = activatedChildren.length = 0;
+  index = queue$1.length = activatedChildren.length = 0;
   has = {};
   {
     circular = {};
@@ -14880,17 +15258,17 @@ var getNow = Date.now;
 // All IE versions use low-res event timestamps, and have problematic clock
 // implementations (#9632)
 if (inBrowser && !isIE) {
-  var performance = window.performance;
+  var performance$1 = window.performance;
   if (
-    performance &&
-    typeof performance.now === 'function' &&
+    performance$1 &&
+    typeof performance$1.now === 'function' &&
     getNow() > document.createEvent('Event').timeStamp
   ) {
     // if the event timestamp, although evaluated AFTER the Date.now(), is
     // smaller than it, it means the event is using a hi-res timestamp,
     // and we need to use the hi-res version for event listener timestamps as
     // well.
-    getNow = function () { return performance.now(); };
+    getNow = function () { return performance$1.now(); };
   }
 }
 /**
@@ -14908,11 +15286,11 @@ function flushSchedulerQueue () {
   //    user watchers are created before the render watcher)
   // 3. If a component is destroyed during a parent component's watcher run,
   //    its watchers can be skipped.
-  queue.sort(function (a, b) { return a.id - b.id; });
+  queue$1.sort(function (a, b) { return a.id - b.id; });
   // do not cache length because more watchers might be pushed
   // as we run existing watchers
-  for (index = 0; index < queue.length; index++) {
-    watcher = queue[index];
+  for (index = 0; index < queue$1.length; index++) {
+    watcher = queue$1[index];
     if (watcher.before) {
       watcher.before();
     }
@@ -14937,14 +15315,14 @@ function flushSchedulerQueue () {
   }
   // keep copies of post queues before resetting state
   var activatedQueue = activatedChildren.slice();
-  var updatedQueue = queue.slice();
+  var updatedQueue = queue$1.slice();
   resetSchedulerState();
   // call component updated and activated hooks
   callActivatedHooks(activatedQueue);
   callUpdatedHooks(updatedQueue);
   // devtool hook
   /* istanbul ignore if */
-  if (devtools && config.devtools) {
+  if (devtools && config$1.devtools) {
     devtools.emit('flush');
   }
 }
@@ -14984,24 +15362,24 @@ function queueWatcher (watcher) {
   if (has[id] == null) {
     has[id] = true;
     if (!flushing) {
-      queue.push(watcher);
+      queue$1.push(watcher);
     } else {
       // if already flushing, splice the watcher based on its id
       // if already past its id, it will be run next immediately.
-      var i = queue.length - 1;
-      while (i > index && queue[i].id > watcher.id) {
+      var i = queue$1.length - 1;
+      while (i > index && queue$1[i].id > watcher.id) {
         i--;
       }
-      queue.splice(i + 1, 0, watcher);
+      queue$1.splice(i + 1, 0, watcher);
     }
     // queue the flush
     if (!waiting) {
       waiting = true;
-      if ( !config.async) {
+      if ( !config$1.async) {
         flushSchedulerQueue();
         return
       }
-      nextTick(flushSchedulerQueue);
+      nextTick$1(flushSchedulerQueue);
     }
   }
 }
@@ -15050,7 +15428,7 @@ var Watcher = function Watcher (
   } else {
     this.getter = parsePath(expOrFn);
     if (!this.getter) {
-      this.getter = noop;
+      this.getter = noop$1;
        warn(
         \\"Failed watching path: \\\\\\"\\" + expOrFn + \\"\\\\\\" \\" +
         'Watcher only accepts simple dot-delimited paths. ' +
@@ -15205,8 +15583,8 @@ Watcher.prototype.teardown = function teardown () {
 var sharedPropertyDefinition = {
   enumerable: true,
   configurable: true,
-  get: noop,
-  set: noop
+  get: noop$1,
+  set: noop$1
 };
 function proxy (target, sourceKey, key) {
   sharedPropertyDefinition.get = function proxyGetter () {
@@ -15250,7 +15628,7 @@ function initProps (vm, propsOptions) {
     {
       var hyphenatedKey = hyphenate(key);
       if (isReservedAttribute(hyphenatedKey) ||
-          config.isReservedAttr(hyphenatedKey)) {
+          config$1.isReservedAttr(hyphenatedKey)) {
         warn(
           (\\"\\\\\\"\\" + hyphenatedKey + \\"\\\\\\" is a reserved attribute and cannot be used as component prop.\\"),
           vm
@@ -15350,8 +15728,8 @@ function initComputed (vm, computed) {
       // create internal watcher for the computed property.
       watchers[key] = new Watcher(
         vm,
-        getter || noop,
-        noop,
+        getter || noop$1,
+        noop$1,
         computedWatcherOptions
       );
     }
@@ -15379,17 +15757,17 @@ function defineComputed (
     sharedPropertyDefinition.get = shouldCache
       ? createComputedGetter(key)
       : createGetterInvoker(userDef);
-    sharedPropertyDefinition.set = noop;
+    sharedPropertyDefinition.set = noop$1;
   } else {
     sharedPropertyDefinition.get = userDef.get
       ? shouldCache && userDef.cache !== false
         ? createComputedGetter(key)
         : createGetterInvoker(userDef.get)
-      : noop;
-    sharedPropertyDefinition.set = userDef.set || noop;
+      : noop$1;
+    sharedPropertyDefinition.set = userDef.set || noop$1;
   }
   if (
-      sharedPropertyDefinition.set === noop) {
+      sharedPropertyDefinition.set === noop$1) {
     sharedPropertyDefinition.set = function () {
       warn(
         (\\"Computed property \\\\\\"\\" + key + \\"\\\\\\" was assigned to but it has no setter.\\"),
@@ -15442,7 +15820,7 @@ function initMethods (vm, methods) {
         );
       }
     }
-    vm[key] = typeof methods[key] !== 'function' ? noop : bind(methods[key], vm);
+    vm[key] = typeof methods[key] !== 'function' ? noop$1 : bind(methods[key], vm);
   }
 }
 function initWatch (vm, watch) {
@@ -15529,7 +15907,7 @@ function initMixin (Vue) {
     vm._uid = uid$3++;
     var startTag, endTag;
     /* istanbul ignore if */
-    if ( config.performance && mark) {
+    if ( config$1.performance && mark) {
       startTag = \\"vue-perf-start:\\" + (vm._uid);
       endTag = \\"vue-perf-end:\\" + (vm._uid);
       mark(startTag);
@@ -15564,7 +15942,7 @@ function initMixin (Vue) {
     initProvide(vm); // resolve provide after data/props
     callHook(vm, 'created');
     /* istanbul ignore if */
-    if ( config.performance && mark) {
+    if ( config$1.performance && mark) {
       vm._name = formatComponentName(vm, false);
       mark(endTag);
       measure((\\"vue \\" + (vm._name) + \\" init\\"), startTag, endTag);
@@ -15894,7 +16272,7 @@ var builtInComponents = {
 function initGlobalAPI (Vue) {
   // config
   var configDef = {};
-  configDef.get = function () { return config; };
+  configDef.get = function () { return config$1; };
   {
     configDef.set = function () {
       warn(
@@ -15914,7 +16292,7 @@ function initGlobalAPI (Vue) {
   };
   Vue.set = set;
   Vue.delete = del;
-  Vue.nextTick = nextTick;
+  Vue.nextTick = nextTick$1;
   // 2.6 explicit observable API
   Vue.observable = function (obj) {
     observe(obj);
@@ -16327,14 +16705,14 @@ function createPatchFunction (backend) {
       !inVPre &&
       !vnode.ns &&
       !(
-        config.ignoredElements.length &&
-        config.ignoredElements.some(function (ignore) {
+        config$1.ignoredElements.length &&
+        config$1.ignoredElements.some(function (ignore) {
           return isRegExp(ignore)
             ? ignore.test(vnode.tag)
             : ignore === vnode.tag
         })
       ) &&
-      config.isUnknownElement(vnode.tag)
+      config$1.isUnknownElement(vnode.tag)
     )
   }
   var creatingElmInVPre = 0;
@@ -17855,7 +18233,7 @@ function enter (vnode, toggleDisplay) {
   }
   var expectsCSS = css !== false && !isIE9;
   var userWantsControl = getHookArgumentsLength(enterHook);
-  var cb = el._enterCb = once(function () {
+  var cb = el._enterCb = once$1(function () {
     if (expectsCSS) {
       removeTransitionClass(el, toClass);
       removeTransitionClass(el, activeClass);
@@ -17947,7 +18325,7 @@ function leave (vnode, rm) {
   if ( isDef(explicitLeaveDuration)) {
     checkDuration(explicitLeaveDuration, 'leave', vnode);
   }
-  var cb = el._leaveCb = once(function () {
+  var cb = el._leaveCb = once$1(function () {
     if (el.parentNode && el.parentNode._pending) {
       el.parentNode._pending[vnode.key] = null;
     }
@@ -18595,7 +18973,7 @@ Vue.config.isUnknownElement = isUnknownElement;
 extend(Vue.options.directives, platformDirectives);
 extend(Vue.options.components, platformComponents);
 // install platform patch function
-Vue.prototype.__patch__ = inBrowser ? patch : noop;
+Vue.prototype.__patch__ = inBrowser ? patch : noop$1;
 // public mount method
 Vue.prototype.$mount = function (
   el,
@@ -18608,7 +18986,7 @@ Vue.prototype.$mount = function (
 /* istanbul ignore next */
 if (inBrowser) {
   setTimeout(function () {
-    if (config.devtools) {
+    if (config$1.devtools) {
       if (devtools) {
         devtools.emit('init', Vue);
       }
@@ -90204,17 +90582,206 @@ Array [
 `;
 
 exports[`snowpack install source-pika: async.js 1`] = `
-"/* SNOWPACK POLYFILL - process */
+"/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+var cachedSetTimeout = defaultSetTimout;
+var cachedClearTimeout = defaultClearTimeout;
+if (typeof window.setTimeout === 'function') {
+    cachedSetTimeout = setTimeout;
+}
+if (typeof window.clearTimeout === 'function') {
+    cachedClearTimeout = clearTimeout;
+}
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+function nextTick(fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+}
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+var title = 'browser';
+var platform = 'browser';
+var browser = true;
+var argv = [];
+var version = ''; // empty string to avoid regexp issues
+var versions = {};
+var release = {};
+var config = {};
+function noop() {}
+var on = noop;
+var addListener = noop;
+var once = noop;
+var off = noop;
+var removeListener = noop;
+var removeAllListeners = noop;
+var emit = noop;
+function binding(name) {
+    throw new Error('process.binding is not supported');
+}
+function cwd () { return '/' }
+function chdir (dir) {
+    throw new Error('process.chdir is not supported');
+}function umask() { return 0; }
+// from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
+var performance = window.performance || {};
+var performanceNow =
+  performance.now        ||
+  performance.mozNow     ||
+  performance.msNow      ||
+  performance.oNow       ||
+  performance.webkitNow  ||
+  function(){ return (new Date()).getTime() };
+// generate timestamp or delta
+// see http://nodejs.org/api/process.html#process_process_hrtime
+function hrtime(previousTimestamp){
+  var clocktime = performanceNow.call(performance)*1e-3;
+  var seconds = Math.floor(clocktime);
+  var nanoseconds = Math.floor((clocktime%1)*1e9);
+  if (previousTimestamp) {
+    seconds = seconds - previousTimestamp[0];
+    nanoseconds = nanoseconds - previousTimestamp[1];
+    if (nanoseconds<0) {
+      seconds--;
+      nanoseconds += 1e9;
+    }
+  }
+  return [seconds,nanoseconds]
+}
+var startTime = new Date();
+function uptime() {
+  var currentTime = new Date();
+  var dif = currentTime - startTime;
+  return dif / 1000;
+}
 var process = {
-  title: 'browser',
-  browser: true,
+  nextTick: nextTick,
+  title: title,
+  browser: browser,
   env: {\\"NODE_ENV\\":\\"test\\"},
-  argv: [],
-  version: '',
-  versions: {},
-  platform: 'browser',
-  release: {},
-  config: {}
+  argv: argv,
+  version: version,
+  versions: versions,
+  on: on,
+  addListener: addListener,
+  once: once,
+  off: off,
+  removeListener: removeListener,
+  removeAllListeners: removeAllListeners,
+  emit: emit,
+  binding: binding,
+  cwd: cwd,
+  chdir: chdir,
+  umask: umask,
+  hrtime: hrtime,
+  platform: platform,
+  release: release,
+  config: config,
+  uptime: uptime
 };
 /**
  * Creates a continuation function with some arguments already applied.
@@ -90450,7 +91017,7 @@ function isArrayLike(value) {
 // A temporary value used to identify if the loop should be broken.
 // See #1064, #1293
 const breakLoop = {};
-function once(fn) {
+function once$1(fn) {
     function wrapper (...args) {
         if (fn === null) return;
         var callFn = fn;
@@ -90561,7 +91128,7 @@ function asyncEachOfLimit(generator, limit, iteratee, callback) {
 }
 var eachOfLimit = (limit) => {
     return (obj, iteratee, callback) => {
-        callback = once(callback);
+        callback = once$1(callback);
         if (limit <= 0) {
             throw new RangeError('concurrency limit cannot be less than 1')
         }
@@ -90644,7 +91211,7 @@ function eachOfLimit$1(coll, limit, iteratee, callback) {
 var eachOfLimit$2 = awaitify(eachOfLimit$1, 4);
 // eachOf implementation optimized for array-likes
 function eachOfArrayLike(coll, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var index = 0,
         completed = 0,
         {length} = coll,
@@ -90960,7 +91527,7 @@ function auto(tasks, concurrency, callback) {
         callback = concurrency;
         concurrency = null;
     }
-    callback = once(callback || promiseCallback());
+    callback = once$1(callback || promiseCallback());
     var numTasks = Object.keys(tasks).length;
     if (!numTasks) {
         return callback(null);
@@ -91315,7 +91882,7 @@ function setInitial(dll, node) {
     dll.length = 1;
     dll.head = dll.tail = node;
 }
-function queue(worker, concurrency, payload) {
+function queue$1(worker, concurrency, payload) {
     if (concurrency == null) {
         concurrency = 1;
     }
@@ -91602,7 +92169,7 @@ function queue(worker, concurrency, payload) {
  * console.log('finished processing baz');
  */
 function cargo(worker, payload) {
-    return queue(worker, 1, payload);
+    return queue$1(worker, 1, payload);
 }
 /**
  * Creates a \`cargoQueue\` object with the specified payload. Tasks added to the
@@ -91659,7 +92226,7 @@ function cargo(worker, payload) {
  * });
  */
 function cargo$1(worker, concurrency, payload) {
-    return queue(worker, concurrency, payload);
+    return queue$1(worker, concurrency, payload);
 }
 /**
  * Reduces \`coll\` into a single value using an async \`iteratee\` to return each
@@ -91703,7 +92270,7 @@ function cargo$1(worker, concurrency, payload) {
  * });
  */
 function reduce(coll, memo, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var _iteratee = wrapAsync(iteratee);
     return eachOfSeries$1(coll, (x, i, iterCb) => {
         _iteratee(memo, x, (err, v) => {
@@ -92765,7 +93332,7 @@ var log = consoleFunc('log');
  * @returns {Promise} a promise, if no callback is passed
  */
 function mapValuesLimit(obj, limit, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var newObj = {};
     var _iteratee = wrapAsync(iteratee);
     return eachOfLimit(limit)(obj, (val, key, next) => {
@@ -92956,7 +93523,7 @@ if (hasNextTick) {
 } else {
     _defer$1 = fallback;
 }
-var nextTick = wrap(_defer$1);
+var nextTick$1 = wrap(_defer$1);
 var _parallel = awaitify((eachfn, tasks, callback) => {
     var results = isArrayLike(tasks) ? [] : {};
     eachfn(tasks, (task, key, taskCb) => {
@@ -93206,9 +93773,9 @@ function parallelLimit(tasks, limit, callback) {
  *     console.log('finished processing bar');
  * });
  */
-function queue$1 (worker, concurrency) {
+function queue$1$1 (worker, concurrency) {
     var _worker = wrapAsync(worker);
-    return queue((items, cb) => {
+    return queue$1((items, cb) => {
         _worker(items[0], cb);
     }, concurrency, 1);
 }
@@ -93327,7 +93894,7 @@ function smaller(x, y) {
  */
 function priorityQueue(worker, concurrency) {
     // Start with a normal queue
-    var q = queue$1(worker, concurrency);
+    var q = queue$1$1(worker, concurrency);
     q._tasks = new Heap();
     // Override push to accept second parameter representing priority
     q.push = function(data, priority = 0, callback = () => {}) {
@@ -93393,7 +93960,7 @@ function priorityQueue(worker, concurrency) {
  * });
  */
 function race(tasks, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     if (!Array.isArray(tasks)) return callback(new TypeError('First argument to race must be an array of functions'));
     if (!tasks.length) return callback();
     for (var i = 0, l = tasks.length; i < l; i++) {
@@ -94258,7 +94825,7 @@ function transform (coll, accumulator, iteratee, callback) {
         iteratee = accumulator;
         accumulator = Array.isArray(coll) ? [] : {};
     }
-    callback = once(callback || promiseCallback());
+    callback = once$1(callback || promiseCallback());
     var _iteratee = wrapAsync(iteratee);
     eachOf$1(coll, (v, k, cb) => {
         _iteratee(accumulator, v, k, cb);
@@ -94491,7 +95058,7 @@ function until(test, iteratee, callback) {
  * }
  */
 function waterfall (tasks, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     if (!Array.isArray(tasks)) return callback(new Error('First argument to waterfall must be an array of functions'));
     if (!tasks.length) return callback();
     var taskIndex = 0;
@@ -94592,11 +95159,11 @@ var index = {
     mapValuesLimit: mapValuesLimit$1,
     mapValuesSeries,
     memoize,
-    nextTick,
+    nextTick: nextTick$1,
     parallel,
     parallelLimit,
     priorityQueue,
-    queue: queue$1,
+    queue: queue$1$1,
     race: race$1,
     reduce: reduce$1,
     reduceRight,
@@ -94654,7 +95221,7 @@ var index = {
     doDuring: doWhilst$1
 };
 export default index;
-export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick, parallel, parallelLimit, priorityQueue, queue$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
+export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick$1 as nextTick, parallel, parallelLimit, priorityQueue, queue$1$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
 `;
 
 exports[`snowpack install source-pika: import-map.json 1`] = `
@@ -94673,17 +95240,206 @@ Array [
 `;
 
 exports[`snowpack install source-pika-lockfile: async.js 1`] = `
-"/* SNOWPACK POLYFILL - process */
+"/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+var cachedSetTimeout = defaultSetTimout;
+var cachedClearTimeout = defaultClearTimeout;
+if (typeof window.setTimeout === 'function') {
+    cachedSetTimeout = setTimeout;
+}
+if (typeof window.clearTimeout === 'function') {
+    cachedClearTimeout = clearTimeout;
+}
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+function nextTick(fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+}
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+var title = 'browser';
+var platform = 'browser';
+var browser = true;
+var argv = [];
+var version = ''; // empty string to avoid regexp issues
+var versions = {};
+var release = {};
+var config = {};
+function noop() {}
+var on = noop;
+var addListener = noop;
+var once = noop;
+var off = noop;
+var removeListener = noop;
+var removeAllListeners = noop;
+var emit = noop;
+function binding(name) {
+    throw new Error('process.binding is not supported');
+}
+function cwd () { return '/' }
+function chdir (dir) {
+    throw new Error('process.chdir is not supported');
+}function umask() { return 0; }
+// from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
+var performance = window.performance || {};
+var performanceNow =
+  performance.now        ||
+  performance.mozNow     ||
+  performance.msNow      ||
+  performance.oNow       ||
+  performance.webkitNow  ||
+  function(){ return (new Date()).getTime() };
+// generate timestamp or delta
+// see http://nodejs.org/api/process.html#process_process_hrtime
+function hrtime(previousTimestamp){
+  var clocktime = performanceNow.call(performance)*1e-3;
+  var seconds = Math.floor(clocktime);
+  var nanoseconds = Math.floor((clocktime%1)*1e9);
+  if (previousTimestamp) {
+    seconds = seconds - previousTimestamp[0];
+    nanoseconds = nanoseconds - previousTimestamp[1];
+    if (nanoseconds<0) {
+      seconds--;
+      nanoseconds += 1e9;
+    }
+  }
+  return [seconds,nanoseconds]
+}
+var startTime = new Date();
+function uptime() {
+  var currentTime = new Date();
+  var dif = currentTime - startTime;
+  return dif / 1000;
+}
 var process = {
-  title: 'browser',
-  browser: true,
+  nextTick: nextTick,
+  title: title,
+  browser: browser,
   env: {\\"NODE_ENV\\":\\"test\\"},
-  argv: [],
-  version: '',
-  versions: {},
-  platform: 'browser',
-  release: {},
-  config: {}
+  argv: argv,
+  version: version,
+  versions: versions,
+  on: on,
+  addListener: addListener,
+  once: once,
+  off: off,
+  removeListener: removeListener,
+  removeAllListeners: removeAllListeners,
+  emit: emit,
+  binding: binding,
+  cwd: cwd,
+  chdir: chdir,
+  umask: umask,
+  hrtime: hrtime,
+  platform: platform,
+  release: release,
+  config: config,
+  uptime: uptime
 };
 /**
  * Creates a continuation function with some arguments already applied.
@@ -94916,7 +95672,7 @@ function isArrayLike(value) {
 // A temporary value used to identify if the loop should be broken.
 // See #1064, #1293
 const breakLoop = {};
-function once(fn) {
+function once$1(fn) {
     function wrapper (...args) {
         if (fn === null) return;
         var callFn = fn;
@@ -95027,7 +95783,7 @@ function asyncEachOfLimit(generator, limit, iteratee, callback) {
 }
 var eachOfLimit = (limit) => {
     return (obj, iteratee, callback) => {
-        callback = once(callback);
+        callback = once$1(callback);
         if (limit <= 0) {
             throw new RangeError('concurrency limit cannot be less than 1')
         }
@@ -95110,7 +95866,7 @@ function eachOfLimit$1(coll, limit, iteratee, callback) {
 var eachOfLimit$2 = awaitify(eachOfLimit$1, 4);
 // eachOf implementation optimized for array-likes
 function eachOfArrayLike(coll, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var index = 0,
         completed = 0,
         {length} = coll,
@@ -95426,7 +96182,7 @@ function auto(tasks, concurrency, callback) {
         callback = concurrency;
         concurrency = null;
     }
-    callback = once(callback || promiseCallback());
+    callback = once$1(callback || promiseCallback());
     var numTasks = Object.keys(tasks).length;
     if (!numTasks) {
         return callback(null);
@@ -95781,7 +96537,7 @@ function setInitial(dll, node) {
     dll.length = 1;
     dll.head = dll.tail = node;
 }
-function queue(worker, concurrency, payload) {
+function queue$1(worker, concurrency, payload) {
     if (concurrency == null) {
         concurrency = 1;
     }
@@ -96068,7 +96824,7 @@ function queue(worker, concurrency, payload) {
  * console.log('finished processing baz');
  */
 function cargo(worker, payload) {
-    return queue(worker, 1, payload);
+    return queue$1(worker, 1, payload);
 }
 /**
  * Creates a \`cargoQueue\` object with the specified payload. Tasks added to the
@@ -96125,7 +96881,7 @@ function cargo(worker, payload) {
  * });
  */
 function cargo$1(worker, concurrency, payload) {
-    return queue(worker, concurrency, payload);
+    return queue$1(worker, concurrency, payload);
 }
 /**
  * Reduces \`coll\` into a single value using an async \`iteratee\` to return each
@@ -96169,7 +96925,7 @@ function cargo$1(worker, concurrency, payload) {
  * });
  */
 function reduce(coll, memo, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var _iteratee = wrapAsync(iteratee);
     return eachOfSeries$1(coll, (x, i, iterCb) => {
         _iteratee(memo, x, (err, v) => {
@@ -97231,7 +97987,7 @@ var log = consoleFunc('log');
  * @returns {Promise} a promise, if no callback is passed
  */
 function mapValuesLimit(obj, limit, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var newObj = {};
     var _iteratee = wrapAsync(iteratee);
     return eachOfLimit(limit)(obj, (val, key, next) => {
@@ -97422,7 +98178,7 @@ if (hasNextTick) {
 } else {
     _defer$1 = fallback;
 }
-var nextTick = wrap(_defer$1);
+var nextTick$1 = wrap(_defer$1);
 var _parallel = awaitify((eachfn, tasks, callback) => {
     var results = isArrayLike(tasks) ? [] : {};
     eachfn(tasks, (task, key, taskCb) => {
@@ -97672,9 +98428,9 @@ function parallelLimit(tasks, limit, callback) {
  *     console.log('finished processing bar');
  * });
  */
-function queue$1 (worker, concurrency) {
+function queue$1$1 (worker, concurrency) {
     var _worker = wrapAsync(worker);
-    return queue((items, cb) => {
+    return queue$1((items, cb) => {
         _worker(items[0], cb);
     }, concurrency, 1);
 }
@@ -97793,7 +98549,7 @@ function smaller(x, y) {
  */
 function priorityQueue(worker, concurrency) {
     // Start with a normal queue
-    var q = queue$1(worker, concurrency);
+    var q = queue$1$1(worker, concurrency);
     q._tasks = new Heap();
     // Override push to accept second parameter representing priority
     q.push = function(data, priority = 0, callback = () => {}) {
@@ -97859,7 +98615,7 @@ function priorityQueue(worker, concurrency) {
  * });
  */
 function race(tasks, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     if (!Array.isArray(tasks)) return callback(new TypeError('First argument to race must be an array of functions'));
     if (!tasks.length) return callback();
     for (var i = 0, l = tasks.length; i < l; i++) {
@@ -98724,7 +99480,7 @@ function transform (coll, accumulator, iteratee, callback) {
         iteratee = accumulator;
         accumulator = Array.isArray(coll) ? [] : {};
     }
-    callback = once(callback || promiseCallback());
+    callback = once$1(callback || promiseCallback());
     var _iteratee = wrapAsync(iteratee);
     eachOf$1(coll, (v, k, cb) => {
         _iteratee(accumulator, v, k, cb);
@@ -98959,7 +99715,7 @@ function until(test, iteratee, callback) {
  * }
  */
 function waterfall (tasks, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     if (!Array.isArray(tasks)) return callback(new Error('First argument to waterfall must be an array of functions'));
     if (!tasks.length) return callback();
     var taskIndex = 0;
@@ -99060,11 +99816,11 @@ var index = {
     mapValuesLimit: mapValuesLimit$1,
     mapValuesSeries,
     memoize,
-    nextTick,
+    nextTick: nextTick$1,
     parallel,
     parallelLimit,
     priorityQueue,
-    queue: queue$1,
+    queue: queue$1$1,
     race: race$1,
     reduce: reduce$1,
     reduceRight,
@@ -99122,7 +99878,7 @@ var index = {
     doDuring: doWhilst$1
 };
 export default index;
-export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick, parallel, parallelLimit, priorityQueue, queue$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
+export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick$1 as nextTick, parallel, parallelLimit, priorityQueue, queue$1$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
 `;
 
 exports[`snowpack install source-pika-lockfile: import-map.json 1`] = `
@@ -99141,17 +99897,206 @@ Array [
 `;
 
 exports[`snowpack install source-pika-types: async.js 1`] = `
-"/* SNOWPACK POLYFILL - process */
+"/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+var cachedSetTimeout = defaultSetTimout;
+var cachedClearTimeout = defaultClearTimeout;
+if (typeof window.setTimeout === 'function') {
+    cachedSetTimeout = setTimeout;
+}
+if (typeof window.clearTimeout === 'function') {
+    cachedClearTimeout = clearTimeout;
+}
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+function nextTick(fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+}
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+var title = 'browser';
+var platform = 'browser';
+var browser = true;
+var argv = [];
+var version = ''; // empty string to avoid regexp issues
+var versions = {};
+var release = {};
+var config = {};
+function noop() {}
+var on = noop;
+var addListener = noop;
+var once = noop;
+var off = noop;
+var removeListener = noop;
+var removeAllListeners = noop;
+var emit = noop;
+function binding(name) {
+    throw new Error('process.binding is not supported');
+}
+function cwd () { return '/' }
+function chdir (dir) {
+    throw new Error('process.chdir is not supported');
+}function umask() { return 0; }
+// from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
+var performance = window.performance || {};
+var performanceNow =
+  performance.now        ||
+  performance.mozNow     ||
+  performance.msNow      ||
+  performance.oNow       ||
+  performance.webkitNow  ||
+  function(){ return (new Date()).getTime() };
+// generate timestamp or delta
+// see http://nodejs.org/api/process.html#process_process_hrtime
+function hrtime(previousTimestamp){
+  var clocktime = performanceNow.call(performance)*1e-3;
+  var seconds = Math.floor(clocktime);
+  var nanoseconds = Math.floor((clocktime%1)*1e9);
+  if (previousTimestamp) {
+    seconds = seconds - previousTimestamp[0];
+    nanoseconds = nanoseconds - previousTimestamp[1];
+    if (nanoseconds<0) {
+      seconds--;
+      nanoseconds += 1e9;
+    }
+  }
+  return [seconds,nanoseconds]
+}
+var startTime = new Date();
+function uptime() {
+  var currentTime = new Date();
+  var dif = currentTime - startTime;
+  return dif / 1000;
+}
 var process = {
-  title: 'browser',
-  browser: true,
+  nextTick: nextTick,
+  title: title,
+  browser: browser,
   env: {\\"NODE_ENV\\":\\"test\\"},
-  argv: [],
-  version: '',
-  versions: {},
-  platform: 'browser',
-  release: {},
-  config: {}
+  argv: argv,
+  version: version,
+  versions: versions,
+  on: on,
+  addListener: addListener,
+  once: once,
+  off: off,
+  removeListener: removeListener,
+  removeAllListeners: removeAllListeners,
+  emit: emit,
+  binding: binding,
+  cwd: cwd,
+  chdir: chdir,
+  umask: umask,
+  hrtime: hrtime,
+  platform: platform,
+  release: release,
+  config: config,
+  uptime: uptime
 };
 /**
  * Creates a continuation function with some arguments already applied.
@@ -99387,7 +100332,7 @@ function isArrayLike(value) {
 // A temporary value used to identify if the loop should be broken.
 // See #1064, #1293
 const breakLoop = {};
-function once(fn) {
+function once$1(fn) {
     function wrapper (...args) {
         if (fn === null) return;
         var callFn = fn;
@@ -99498,7 +100443,7 @@ function asyncEachOfLimit(generator, limit, iteratee, callback) {
 }
 var eachOfLimit = (limit) => {
     return (obj, iteratee, callback) => {
-        callback = once(callback);
+        callback = once$1(callback);
         if (limit <= 0) {
             throw new RangeError('concurrency limit cannot be less than 1')
         }
@@ -99581,7 +100526,7 @@ function eachOfLimit$1(coll, limit, iteratee, callback) {
 var eachOfLimit$2 = awaitify(eachOfLimit$1, 4);
 // eachOf implementation optimized for array-likes
 function eachOfArrayLike(coll, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var index = 0,
         completed = 0,
         {length} = coll,
@@ -99897,7 +100842,7 @@ function auto(tasks, concurrency, callback) {
         callback = concurrency;
         concurrency = null;
     }
-    callback = once(callback || promiseCallback());
+    callback = once$1(callback || promiseCallback());
     var numTasks = Object.keys(tasks).length;
     if (!numTasks) {
         return callback(null);
@@ -100252,7 +101197,7 @@ function setInitial(dll, node) {
     dll.length = 1;
     dll.head = dll.tail = node;
 }
-function queue(worker, concurrency, payload) {
+function queue$1(worker, concurrency, payload) {
     if (concurrency == null) {
         concurrency = 1;
     }
@@ -100539,7 +101484,7 @@ function queue(worker, concurrency, payload) {
  * console.log('finished processing baz');
  */
 function cargo(worker, payload) {
-    return queue(worker, 1, payload);
+    return queue$1(worker, 1, payload);
 }
 /**
  * Creates a \`cargoQueue\` object with the specified payload. Tasks added to the
@@ -100596,7 +101541,7 @@ function cargo(worker, payload) {
  * });
  */
 function cargo$1(worker, concurrency, payload) {
-    return queue(worker, concurrency, payload);
+    return queue$1(worker, concurrency, payload);
 }
 /**
  * Reduces \`coll\` into a single value using an async \`iteratee\` to return each
@@ -100640,7 +101585,7 @@ function cargo$1(worker, concurrency, payload) {
  * });
  */
 function reduce(coll, memo, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var _iteratee = wrapAsync(iteratee);
     return eachOfSeries$1(coll, (x, i, iterCb) => {
         _iteratee(memo, x, (err, v) => {
@@ -101702,7 +102647,7 @@ var log = consoleFunc('log');
  * @returns {Promise} a promise, if no callback is passed
  */
 function mapValuesLimit(obj, limit, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var newObj = {};
     var _iteratee = wrapAsync(iteratee);
     return eachOfLimit(limit)(obj, (val, key, next) => {
@@ -101893,7 +102838,7 @@ if (hasNextTick) {
 } else {
     _defer$1 = fallback;
 }
-var nextTick = wrap(_defer$1);
+var nextTick$1 = wrap(_defer$1);
 var _parallel = awaitify((eachfn, tasks, callback) => {
     var results = isArrayLike(tasks) ? [] : {};
     eachfn(tasks, (task, key, taskCb) => {
@@ -102143,9 +103088,9 @@ function parallelLimit(tasks, limit, callback) {
  *     console.log('finished processing bar');
  * });
  */
-function queue$1 (worker, concurrency) {
+function queue$1$1 (worker, concurrency) {
     var _worker = wrapAsync(worker);
-    return queue((items, cb) => {
+    return queue$1((items, cb) => {
         _worker(items[0], cb);
     }, concurrency, 1);
 }
@@ -102264,7 +103209,7 @@ function smaller(x, y) {
  */
 function priorityQueue(worker, concurrency) {
     // Start with a normal queue
-    var q = queue$1(worker, concurrency);
+    var q = queue$1$1(worker, concurrency);
     q._tasks = new Heap();
     // Override push to accept second parameter representing priority
     q.push = function(data, priority = 0, callback = () => {}) {
@@ -102330,7 +103275,7 @@ function priorityQueue(worker, concurrency) {
  * });
  */
 function race(tasks, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     if (!Array.isArray(tasks)) return callback(new TypeError('First argument to race must be an array of functions'));
     if (!tasks.length) return callback();
     for (var i = 0, l = tasks.length; i < l; i++) {
@@ -103195,7 +104140,7 @@ function transform (coll, accumulator, iteratee, callback) {
         iteratee = accumulator;
         accumulator = Array.isArray(coll) ? [] : {};
     }
-    callback = once(callback || promiseCallback());
+    callback = once$1(callback || promiseCallback());
     var _iteratee = wrapAsync(iteratee);
     eachOf$1(coll, (v, k, cb) => {
         _iteratee(accumulator, v, k, cb);
@@ -103428,7 +104373,7 @@ function until(test, iteratee, callback) {
  * }
  */
 function waterfall (tasks, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     if (!Array.isArray(tasks)) return callback(new Error('First argument to waterfall must be an array of functions'));
     if (!tasks.length) return callback();
     var taskIndex = 0;
@@ -103529,11 +104474,11 @@ var index = {
     mapValuesLimit: mapValuesLimit$1,
     mapValuesSeries,
     memoize,
-    nextTick,
+    nextTick: nextTick$1,
     parallel,
     parallelLimit,
     priorityQueue,
-    queue: queue$1,
+    queue: queue$1$1,
     race: race$1,
     reduce: reduce$1,
     reduceRight,
@@ -103591,7 +104536,7 @@ var index = {
     doDuring: doWhilst$1
 };
 export default index;
-export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick, parallel, parallelLimit, priorityQueue, queue$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
+export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick$1 as nextTick, parallel, parallelLimit, priorityQueue, queue$1$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
 `;
 
 exports[`snowpack install source-pika-types: import-map.json 1`] = `
@@ -103612,17 +104557,206 @@ Array [
 `;
 
 exports[`snowpack install source-pika-webdependencies: async.js 1`] = `
-"/* SNOWPACK POLYFILL - process */
+"/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+var cachedSetTimeout = defaultSetTimout;
+var cachedClearTimeout = defaultClearTimeout;
+if (typeof window.setTimeout === 'function') {
+    cachedSetTimeout = setTimeout;
+}
+if (typeof window.clearTimeout === 'function') {
+    cachedClearTimeout = clearTimeout;
+}
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+function nextTick(fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+}
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+var title = 'browser';
+var platform = 'browser';
+var browser = true;
+var argv = [];
+var version = ''; // empty string to avoid regexp issues
+var versions = {};
+var release = {};
+var config = {};
+function noop() {}
+var on = noop;
+var addListener = noop;
+var once = noop;
+var off = noop;
+var removeListener = noop;
+var removeAllListeners = noop;
+var emit = noop;
+function binding(name) {
+    throw new Error('process.binding is not supported');
+}
+function cwd () { return '/' }
+function chdir (dir) {
+    throw new Error('process.chdir is not supported');
+}function umask() { return 0; }
+// from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
+var performance = window.performance || {};
+var performanceNow =
+  performance.now        ||
+  performance.mozNow     ||
+  performance.msNow      ||
+  performance.oNow       ||
+  performance.webkitNow  ||
+  function(){ return (new Date()).getTime() };
+// generate timestamp or delta
+// see http://nodejs.org/api/process.html#process_process_hrtime
+function hrtime(previousTimestamp){
+  var clocktime = performanceNow.call(performance)*1e-3;
+  var seconds = Math.floor(clocktime);
+  var nanoseconds = Math.floor((clocktime%1)*1e9);
+  if (previousTimestamp) {
+    seconds = seconds - previousTimestamp[0];
+    nanoseconds = nanoseconds - previousTimestamp[1];
+    if (nanoseconds<0) {
+      seconds--;
+      nanoseconds += 1e9;
+    }
+  }
+  return [seconds,nanoseconds]
+}
+var startTime = new Date();
+function uptime() {
+  var currentTime = new Date();
+  var dif = currentTime - startTime;
+  return dif / 1000;
+}
 var process = {
-  title: 'browser',
-  browser: true,
+  nextTick: nextTick,
+  title: title,
+  browser: browser,
   env: {\\"NODE_ENV\\":\\"test\\"},
-  argv: [],
-  version: '',
-  versions: {},
-  platform: 'browser',
-  release: {},
-  config: {}
+  argv: argv,
+  version: version,
+  versions: versions,
+  on: on,
+  addListener: addListener,
+  once: once,
+  off: off,
+  removeListener: removeListener,
+  removeAllListeners: removeAllListeners,
+  emit: emit,
+  binding: binding,
+  cwd: cwd,
+  chdir: chdir,
+  umask: umask,
+  hrtime: hrtime,
+  platform: platform,
+  release: release,
+  config: config,
+  uptime: uptime
 };
 /**
  * Creates a continuation function with some arguments already applied.
@@ -103857,7 +104991,7 @@ function isArrayLike(value) {
 // A temporary value used to identify if the loop should be broken.
 // See #1064, #1293
 const breakLoop = {};
-function once(fn) {
+function once$1(fn) {
     function wrapper (...args) {
         if (fn === null) return;
         var callFn = fn;
@@ -103968,7 +105102,7 @@ function asyncEachOfLimit(generator, limit, iteratee, callback) {
 }
 var eachOfLimit = (limit) => {
     return (obj, iteratee, callback) => {
-        callback = once(callback);
+        callback = once$1(callback);
         if (limit <= 0) {
             throw new RangeError('concurrency limit cannot be less than 1')
         }
@@ -104051,7 +105185,7 @@ function eachOfLimit$1(coll, limit, iteratee, callback) {
 var eachOfLimit$2 = awaitify(eachOfLimit$1, 4);
 // eachOf implementation optimized for array-likes
 function eachOfArrayLike(coll, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var index = 0,
         completed = 0,
         {length} = coll,
@@ -104366,7 +105500,7 @@ function auto(tasks, concurrency, callback) {
         callback = concurrency;
         concurrency = null;
     }
-    callback = once(callback || promiseCallback());
+    callback = once$1(callback || promiseCallback());
     var numTasks = Object.keys(tasks).length;
     if (!numTasks) {
         return callback(null);
@@ -104721,7 +105855,7 @@ function setInitial(dll, node) {
     dll.length = 1;
     dll.head = dll.tail = node;
 }
-function queue(worker, concurrency, payload) {
+function queue$1(worker, concurrency, payload) {
     if (concurrency == null) {
         concurrency = 1;
     }
@@ -104991,7 +106125,7 @@ function queue(worker, concurrency, payload) {
  * console.log('finished processing baz');
  */
 function cargo(worker, payload) {
-    return queue(worker, 1, payload);
+    return queue$1(worker, 1, payload);
 }
 /**
  * Creates a \`cargoQueue\` object with the specified payload. Tasks added to the
@@ -105048,7 +106182,7 @@ function cargo(worker, payload) {
  * });
  */
 function cargo$1(worker, concurrency, payload) {
-    return queue(worker, concurrency, payload);
+    return queue$1(worker, concurrency, payload);
 }
 /**
  * Reduces \`coll\` into a single value using an async \`iteratee\` to return each
@@ -105092,7 +106226,7 @@ function cargo$1(worker, concurrency, payload) {
  * });
  */
 function reduce(coll, memo, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var _iteratee = wrapAsync(iteratee);
     return eachOfSeries$1(coll, (x, i, iterCb) => {
         _iteratee(memo, x, (err, v) => {
@@ -106154,7 +107288,7 @@ var log = consoleFunc('log');
  * @returns {Promise} a promise, if no callback is passed
  */
 function mapValuesLimit(obj, limit, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var newObj = {};
     var _iteratee = wrapAsync(iteratee);
     return eachOfLimit(limit)(obj, (val, key, next) => {
@@ -106345,7 +107479,7 @@ if (hasNextTick) {
 } else {
     _defer$1 = fallback;
 }
-var nextTick = wrap(_defer$1);
+var nextTick$1 = wrap(_defer$1);
 var _parallel = awaitify((eachfn, tasks, callback) => {
     var results = isArrayLike(tasks) ? [] : {};
     eachfn(tasks, (task, key, taskCb) => {
@@ -106591,9 +107725,9 @@ function parallelLimit(tasks, limit, callback) {
  *     console.log('finished processing bar');
  * });
  */
-function queue$1 (worker, concurrency) {
+function queue$1$1 (worker, concurrency) {
     var _worker = wrapAsync(worker);
-    return queue((items, cb) => {
+    return queue$1((items, cb) => {
         _worker(items[0], cb);
     }, concurrency, 1);
 }
@@ -106712,7 +107846,7 @@ function smaller(x, y) {
  */
 function priorityQueue(worker, concurrency) {
     // Start with a normal queue
-    var q = queue$1(worker, concurrency);
+    var q = queue$1$1(worker, concurrency);
     q._tasks = new Heap();
     // Override push to accept second parameter representing priority
     q.push = function(data, priority = 0, callback = () => {}) {
@@ -106778,7 +107912,7 @@ function priorityQueue(worker, concurrency) {
  * });
  */
 function race(tasks, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     if (!Array.isArray(tasks)) return callback(new TypeError('First argument to race must be an array of functions'));
     if (!tasks.length) return callback();
     for (var i = 0, l = tasks.length; i < l; i++) {
@@ -107643,7 +108777,7 @@ function transform (coll, accumulator, iteratee, callback) {
         iteratee = accumulator;
         accumulator = Array.isArray(coll) ? [] : {};
     }
-    callback = once(callback || promiseCallback());
+    callback = once$1(callback || promiseCallback());
     var _iteratee = wrapAsync(iteratee);
     eachOf$1(coll, (v, k, cb) => {
         _iteratee(accumulator, v, k, cb);
@@ -107876,7 +109010,7 @@ function until(test, iteratee, callback) {
  * }
  */
 function waterfall (tasks, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     if (!Array.isArray(tasks)) return callback(new Error('First argument to waterfall must be an array of functions'));
     if (!tasks.length) return callback();
     var taskIndex = 0;
@@ -107977,11 +109111,11 @@ var index = {
     mapValuesLimit: mapValuesLimit$1,
     mapValuesSeries,
     memoize,
-    nextTick,
+    nextTick: nextTick$1,
     parallel,
     parallelLimit,
     priorityQueue,
-    queue: queue$1,
+    queue: queue$1$1,
     race: race$1,
     reduce: reduce$1,
     reduceRight,
@@ -108039,7 +109173,7 @@ var index = {
     doDuring: doWhilst$1
 };
 export default index;
-export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick, parallel, parallelLimit, priorityQueue, queue$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
+export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick$1 as nextTick, parallel, parallelLimit, priorityQueue, queue$1$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
 `;
 
 exports[`snowpack install source-pika-webdependencies: import-map.json 1`] = `
