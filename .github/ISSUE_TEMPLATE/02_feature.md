@@ -13,6 +13,12 @@ labels: feature
   Discussion already exists? Please replace all <!-- placeholders --\> below
 -->
 
+This is a follow up to
+
+- <!-- add URLs to discussion(s) / issue(s) / pull request(s) -->
+
+ping <!-- mention all authors and others who engaged in the thread(s) linked above -->
+
 **What’s missing?**
 
 <!-- Describe your feature idea  -->
