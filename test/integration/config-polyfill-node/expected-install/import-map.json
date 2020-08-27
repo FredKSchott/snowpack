@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "node-builtin-pkg": "./node-builtin-pkg.js"
-  }
-}

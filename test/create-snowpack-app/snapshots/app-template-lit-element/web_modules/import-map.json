@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "lit-element": "./lit-element.js"
-  }
-}
