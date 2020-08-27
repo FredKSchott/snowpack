@@ -1,4 +1,4 @@
-import Vue from '/web_modules/vue';
-import VueRouter from '/web_modules/vue-router';
+import Vue from 'vue';
+import VueRouter from 'vue-router';
 
 Vue.use(VueRouter);
