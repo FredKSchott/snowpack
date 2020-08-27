@@ -310,7 +310,7 @@ export async function command(commandOptions: CommandOptions) {
       ) {
         const proxiedCode = await fs.readFile(installedFileLoc, {encoding: 'utf-8'});
         const importProxyFileLoc = installedFileLoc + '.proxy.js';
-        const proxiedUrl = installedFileLoc.substr(installDest.length).replace(/\\/g, '/');
+        const proxiedUrl = installedFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/');
         const proxyCode = await wrapImportProxy({
           url: proxiedUrl,
           code: proxiedCode,
