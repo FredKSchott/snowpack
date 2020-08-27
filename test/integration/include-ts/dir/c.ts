@@ -1,9 +1,7 @@
-import Vue from '/web_modules/vue/dist/vue.esm.browser.js';
+import Vue from 'vue/dist/vue.esm.browser.js';
 
 // test 5: dynamic export
-import('/web_modules/http-vue-loader/src/httpVueLoader.js').then(httpVueLoader => {
-  Vue.use(httpVueLoader);
-
+import('http-vue-loader/src/httpVueLoader.js').then(httpVueLoader => {
   new Vue({
     el: '#app',
     components: {

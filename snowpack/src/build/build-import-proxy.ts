@@ -214,7 +214,7 @@ export function generateEnvModule(mode: 'development' | 'production') {
   return `export default ${JSON.stringify(envObject)};`;
 }
 
-const PUBLIC_ENV_REGEX = /^SNOWPACK_PUBLIC_/;
+const PUBLIC_ENV_REGEX = /^SNOWPACK_PUBLIC_.+/;
 function getSnowpackPublicEnvVariables() {
   const envObject = {...process.env};
   for (const env of Object.keys(envObject)) {

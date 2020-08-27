@@ -617,7 +617,7 @@ exports[`snowpack build custom-modules-dir: my_modules/import-map.json 1`] = `
 }"
 `;
 
-exports[`snowpack build html-environment-variables: __snowpack__/env.js 1`] = `"export default {\\"SNOWPACK_PUBLIC_BUILD_TIME\\":\\"build-time-replacement-configured-in-package.json\\",\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build html-environment-variables: __snowpack__/env.js 1`] = `"export default {\\"SNOWPACK_PUBLIC_MY_ENV_VAR\\":\\"my-var-replacement-configured-in-package.json\\",\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build html-environment-variables: allFiles 1`] = `
 Array [
@@ -650,7 +650,8 @@ exports[`snowpack build html-environment-variables: index.html 1`] = `
   lang=\\"en\\"
   data-mode=\\"production\\"
   data-public-url=\\"/\\"
-  data-build-time=\\"build-time-replacement-configured-in-package.json\\"
+  data-my-env-var=\\"my-var-replacement-configured-in-package.json\\"
+  data-edge-case-test=\\"%SNOWPACK_PUBLIC_%\\"
   data-undefined=\\"%SNOWPACK_PUBLIC_BUILD_UNDEFINED%\\"
 >
   <head>
@@ -761,8 +762,11 @@ exports[`snowpack build legacy-mount-scripts: web_modules/import-map.json 1`] = 
 }"
 `;
 
+exports[`snowpack build meta-dir: _dist_/index.js 1`] = `"console.log('I’m a console log! 🌲');"`;
+
 exports[`snowpack build meta-dir: allFiles 1`] = `
 Array [
+  "_dist_/index.js",
   "index.js",
   "static/snowpack/env.js",
   "sub/index.js",
@@ -793,8 +797,18 @@ export default function doNothing() {
 console.log(import.meta.env)"
 `;
 
+exports[`snowpack build meta-dir-local-baseurl: _dist_/index.js 1`] = `
+"import __SNOWPACK_ENV__ from '../builds/static/snowpack/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+import React from 'https://cdn.pika.dev/react@^16.13.1';
+if (import.meta.hot) {
+  import.meta.hot.accept();
+}"
+`;
+
 exports[`snowpack build meta-dir-local-baseurl: allFiles 1`] = `
 Array [
+  "_dist_/index.js",
   "index.js",
   "static/snowpack/env.js",
   "sub/index.js",
@@ -825,8 +839,18 @@ export default function doNothing() {
 console.log(import.meta.env)"
 `;
 
+exports[`snowpack build meta-dir-remote-baseurl: _dist_/index.js 1`] = `
+"import __SNOWPACK_ENV__ from 'https://www.cdn.com/sub_path/static/snowpack/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+import React from 'https://cdn.pika.dev/react@^16.13.1';
+if (import.meta.hot) {
+  import.meta.hot.accept();
+}"
+`;
+
 exports[`snowpack build meta-dir-remote-baseurl: allFiles 1`] = `
 Array [
+  "_dist_/index.js",
   "index.js",
   "static/snowpack/env.js",
   "sub/index.js",

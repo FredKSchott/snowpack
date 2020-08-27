@@ -5,7 +5,7 @@
   "description": "This test makes sure that %SNOWPACK_PUBLIC_*% present in src/index.html are replaced correctly and removed if no value is set",
   "scripts": {
     "start": "snowpack dev",
-    "testbuild": "cross-env SNOWPACK_PUBLIC_BUILD_TIME='build-time-replacement-configured-in-package.json' snowpack build"
+    "testbuild": "cross-env SNOWPACK_PUBLIC_MY_ENV_VAR='my-var-replacement-configured-in-package.json' SNOWPACK_PUBLIC_='ignoreme' snowpack build"
   },
   "snowpack": {
     "mount": {

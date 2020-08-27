@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "solid-js/dom": "./solid-js/dom.js"
-  }
-}

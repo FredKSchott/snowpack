@@ -5,7 +5,7 @@ import('single quote -' + 'bad:template-string');
 const badVariable = 'bad:cant-scan-a-variable';
 import(badVariable);
 
-import('/web_modules/http-vue-loader/src/httpVueLoader.js').then((httpVueLoader) => {
+import('http-vue-loader/src/httpVueLoader.js').then((httpVueLoader) => {
   Vue.use(httpVueLoader);
 
   new Vue({

@@ -9319,17 +9319,206 @@ exports[`create-snowpack-app app-template-vue: web_modules/import-map.json 1`] =
 `;
 
 exports[`create-snowpack-app app-template-vue: web_modules/vue.js 1`] = `
-"/* SNOWPACK POLYFILL - process */
+"/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+var cachedSetTimeout = defaultSetTimout;
+var cachedClearTimeout = defaultClearTimeout;
+if (typeof window.setTimeout === 'function') {
+    cachedSetTimeout = setTimeout;
+}
+if (typeof window.clearTimeout === 'function') {
+    cachedClearTimeout = clearTimeout;
+}
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+function nextTick(fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+}
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+var title = 'browser';
+var platform = 'browser';
+var browser = true;
+var argv = [];
+var version = ''; // empty string to avoid regexp issues
+var versions = {};
+var release = {};
+var config = {};
+function noop() {}
+var on = noop;
+var addListener = noop;
+var once = noop;
+var off = noop;
+var removeListener = noop;
+var removeAllListeners = noop;
+var emit = noop;
+function binding(name) {
+    throw new Error('process.binding is not supported');
+}
+function cwd () { return '/' }
+function chdir (dir) {
+    throw new Error('process.chdir is not supported');
+}function umask() { return 0; }
+// from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
+var performance$1 = window.performance || {};
+var performanceNow =
+  performance$1.now        ||
+  performance$1.mozNow     ||
+  performance$1.msNow      ||
+  performance$1.oNow       ||
+  performance$1.webkitNow  ||
+  function(){ return (new Date()).getTime() };
+// generate timestamp or delta
+// see http://nodejs.org/api/process.html#process_process_hrtime
+function hrtime(previousTimestamp){
+  var clocktime = performanceNow.call(performance$1)*1e-3;
+  var seconds = Math.floor(clocktime);
+  var nanoseconds = Math.floor((clocktime%1)*1e9);
+  if (previousTimestamp) {
+    seconds = seconds - previousTimestamp[0];
+    nanoseconds = nanoseconds - previousTimestamp[1];
+    if (nanoseconds<0) {
+      seconds--;
+      nanoseconds += 1e9;
+    }
+  }
+  return [seconds,nanoseconds]
+}
+var startTime = new Date();
+function uptime() {
+  var currentTime = new Date();
+  var dif = currentTime - startTime;
+  return dif / 1000;
+}
 var process = {
-  title: 'browser',
-  browser: true,
+  nextTick: nextTick,
+  title: title,
+  browser: browser,
   env: {\\"NODE_ENV\\":\\"production\\"},
-  argv: [],
-  version: '',
-  versions: {},
-  platform: 'browser',
-  release: {},
-  config: {}
+  argv: argv,
+  version: version,
+  versions: versions,
+  on: on,
+  addListener: addListener,
+  once: once,
+  off: off,
+  removeListener: removeListener,
+  removeAllListeners: removeAllListeners,
+  emit: emit,
+  binding: binding,
+  cwd: cwd,
+  chdir: chdir,
+  umask: umask,
+  hrtime: hrtime,
+  platform: platform,
+  release: release,
+  config: config,
+  uptime: uptime
 };
 /**
  * Make a map and return a function for checking if a key
@@ -9412,36 +9601,6 @@ function normalizeClass(value) {
     }
     return res.trim();
 }
-/**
- * For converting {{ interpolation }} values to displayed strings.
- * @private
- */
-const toDisplayString = (val) => {
-    return val == null
-        ? ''
-        : isObject(val)
-            ? JSON.stringify(val, replacer, 2)
-            : String(val);
-};
-const replacer = (_key, val) => {
-    if (val instanceof Map) {
-        return {
-            [\`Map(\${val.size})\`]: [...val.entries()].reduce((entries, [key, val]) => {
-                entries[\`\${key} =>\`] = val;
-                return entries;
-            }, {})
-        };
-    }
-    else if (val instanceof Set) {
-        return {
-            [\`Set(\${val.size})\`]: [...val.values()]
-        };
-    }
-    else if (isObject(val) && !isArray(val) && !isPlainObject(val)) {
-        return String(val);
-    }
-    return val;
-};
 const EMPTY_OBJ =  {};
 const EMPTY_ARR = [];
 const NOOP = () => { };
@@ -9474,7 +9633,6 @@ const toTypeString = (value) => objectToString.call(value);
 const toRawType = (value) => {
     return toTypeString(value).slice(8, -1);
 };
-const isPlainObject = (val) => toTypeString(val) === '[object Object]';
 const isReservedProp = /*#__PURE__*/ makeMap('key,ref,' +
     'onVnodeBeforeMount,onVnodeMounted,' +
     'onVnodeBeforeUpdate,onVnodeUpdated,' +
@@ -10333,7 +10491,7 @@ function logError(err, type, contextVNode) {
         console.error(err);
     }
 }
-const queue = [];
+const queue$1 = [];
 const postFlushCbs = [];
 const resolvedPromise = Promise.resolve();
 let currentFlushPromise = null;
@@ -10342,20 +10500,20 @@ let isFlushPending = false;
 let flushIndex = -1;
 let pendingPostFlushCbs = null;
 let pendingPostFlushIndex = 0;
-function nextTick(fn) {
+function nextTick$1(fn) {
     const p = currentFlushPromise || resolvedPromise;
     return fn ? p.then(fn) : p;
 }
 function queueJob(job) {
-    if (!queue.includes(job, flushIndex + 1)) {
-        queue.push(job);
+    if (!queue$1.includes(job, flushIndex + 1)) {
+        queue$1.push(job);
         queueFlush();
     }
 }
 function invalidateJob(job) {
-    const i = queue.indexOf(job);
+    const i = queue$1.indexOf(job);
     if (i > -1) {
-        queue[i] = null;
+        queue$1[i] = null;
     }
 }
 function queuePostFlushCb(cb) {
@@ -10403,21 +10561,21 @@ function flushJobs(seen) {
     //    its update can be skipped.
     // Jobs can never be null before flush starts, since they are only invalidated
     // during execution of another flushed job.
-    queue.sort((a, b) => getId(a) - getId(b));
-    for (flushIndex = 0; flushIndex < queue.length; flushIndex++) {
-        const job = queue[flushIndex];
+    queue$1.sort((a, b) => getId(a) - getId(b));
+    for (flushIndex = 0; flushIndex < queue$1.length; flushIndex++) {
+        const job = queue$1[flushIndex];
         if (job) {
             callWithErrorHandling(job, null, 14 /* SCHEDULER */);
         }
     }
     flushIndex = -1;
-    queue.length = 0;
+    queue$1.length = 0;
     flushPostFlushCbs();
     isFlushing = false;
     currentFlushPromise = null;
     // some postFlushCb queued jobs!
     // keep flushing until it drains.
-    if (queue.length || postFlushCbs.length) {
+    if (queue$1.length || postFlushCbs.length) {
         flushJobs();
     }
 }
@@ -10737,53 +10895,7 @@ const Fragment = Symbol( undefined);
 const Text = Symbol( undefined);
 const Comment = Symbol( undefined);
 const Static = Symbol( undefined);
-// Since v-if and v-for are the two possible ways node structure can dynamically
-// change, once we consider v-if branches and each v-for fragment a block, we
-// can divide a template into nested blocks, and within each block the node
-// structure would be stable. This allows us to skip most children diffing
-// and only worry about the dynamic nodes (indicated by patch flags).
-const blockStack = [];
 let currentBlock = null;
-/**
- * Open a block.
- * This must be called before \`createBlock\`. It cannot be part of \`createBlock\`
- * because the children of the block are evaluated before \`createBlock\` itself
- * is called. The generated code typically looks like this:
- *
- * \`\`\`js
- * function render() {
- *   return (openBlock(),createBlock('div', null, [...]))
- * }
- * \`\`\`
- * disableTracking is true when creating a v-for fragment block, since a v-for
- * fragment always diffs its children.
- *
- * @private
- */
-function openBlock(disableTracking = false) {
-    blockStack.push((currentBlock = disableTracking ? null : []));
-}
-/**
- * Create a block root vnode. Takes the same exact arguments as \`createVNode\`.
- * A block root keeps track of dynamic nodes within the block in the
- * \`dynamicChildren\` array.
- *
- * @private
- */
-function createBlock(type, props, children, patchFlag, dynamicProps) {
-    const vnode = createVNode(type, props, children, patchFlag, dynamicProps, true /* isBlock: prevent a block from tracking itself */);
-    // save current block children on the block vnode
-    vnode.dynamicChildren = currentBlock || EMPTY_ARR;
-    // close block
-    blockStack.pop();
-    currentBlock = blockStack[blockStack.length - 1] || null;
-    // a block is always going to be patched, so track it as a child of its
-    // parent block
-    if (currentBlock) {
-        currentBlock.push(vnode);
-    }
-    return vnode;
-}
 function isVNode(value) {
     return value ? value.__v_isVNode === true : false;
 }
@@ -11043,7 +11155,7 @@ function mergeProps(...args) {
     }
     return ret;
 }
-function emit(instance, event, ...args) {
+function emit$1(instance, event, ...args) {
     const props = instance.vnode.props || EMPTY_OBJ;
     let handlerName = \`on\${capitalize(event)}\`;
     let handler = props[handlerName];
@@ -11572,7 +11684,7 @@ function createAppAPI(render, hydrate) {
             _props: rootProps,
             _container: null,
             _context: context,
-            version,
+            version: version$1,
             get config() {
                 return context.config;
             },
@@ -13208,7 +13320,7 @@ const publicPropertiesMap = extend(Object.create(null), {
     $emit: i => i.emit,
     $options: i => (__VUE_OPTIONS_API__ ? resolveMergedOptions(i) : i.type),
     $forceUpdate: i => () => queueJob(i.update),
-    $nextTick: () => nextTick,
+    $nextTick: () => nextTick$1,
     $watch: i => (__VUE_OPTIONS_API__ ? instanceWatch.bind(i) : NOOP)
 });
 const PublicInstanceProxyHandlers = {
@@ -13398,7 +13510,7 @@ function createComponentInstance(vnode, parent, suspense) {
         instance.ctx = { _: instance };
     }
     instance.root = parent ? parent.root : instance;
-    instance.emit = emit.bind(null, instance);
+    instance.emit = emit$1.bind(null, instance);
     if ( __VUE_PROD_DEVTOOLS__) ;
     return instance;
 }
@@ -13536,7 +13648,7 @@ function computed$1(getterOrOptions) {
     return c;
 }
 // Core API ------------------------------------------------------------------
-const version = \\"3.0.0-rc.5\\";
+const version$1 = \\"3.0.0-rc.5\\";
 const svgNS = 'http://www.w3.org/2000/svg';
 const doc = (typeof document !== 'undefined' ? document : null);
 let tempContainer;
@@ -13927,5 +14039,5 @@ function normalizeContainer(container) {
     }
     return container;
 }
-export { createApp, createBlock, createTextVNode, createVNode, openBlock, toDisplayString };"
+export { createApp };"
 `;
