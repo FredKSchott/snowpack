@@ -1,3 +1,5 @@
+// src/index.js - Test import URLs from the "/_dist_/" directory
+
 import {flatten} from 'array-flatten';
 
 export default function doNothing() {
