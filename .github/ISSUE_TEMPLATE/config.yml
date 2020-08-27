@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🤔 Ask a Question
+    url: https://github.com/pikapkg/snowpack/discussions/new?category_id=16417352
+    about: How does X work? Something is not right? Got an idea? Start here! 👉
