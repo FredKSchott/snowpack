@@ -9319,9 +9319,7 @@ exports[`create-snowpack-app app-template-vue: web_modules/import-map.json 1`] =
 `;
 
 exports[`create-snowpack-app app-template-vue: web_modules/vue.js 1`] = `
-"/* SNOWPACK POLYFILL - process */
-// shim for using process in browser
-// based off https://github.com/ionic-team/rollup-plugin-node-polyfills/blob/master/polyfills/process-es6.js
+"/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
 function defaultSetTimout() {
     throw new Error('setTimeout has not been defined');
 }
