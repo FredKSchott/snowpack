@@ -75,10 +75,7 @@ export function wrapHtmlResponse({
   });
 
   if (hmr) {
-    const hmrScript = `<script type="module" src="${getMetaUrlPath(
-      'hmr.js',
-      config,
-    )}"></script>`;
+    const hmrScript = `<script type="module" src="${getMetaUrlPath('hmr.js', config)}"></script>`;
 
     const closingBodyMatch = code.match(CLOSING_BODY_TAG);
     if (closingBodyMatch && closingBodyMatch.length === 1) {
