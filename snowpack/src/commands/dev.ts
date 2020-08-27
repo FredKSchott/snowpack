@@ -630,7 +630,11 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       let finalResponse = code;
 
       // Resolve imports.
-      if (requestedFileExt === '.js' || requestedFileExt === '.html' || requestedFileExt === '.css') {
+      if (
+        requestedFileExt === '.js' ||
+        requestedFileExt === '.html' ||
+        requestedFileExt === '.css'
+      ) {
         finalResponse = await resolveResponseImports(fileLoc, requestedFileExt, finalResponse);
       }
 
