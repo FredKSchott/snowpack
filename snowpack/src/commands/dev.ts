@@ -626,20 +626,6 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       }
       // Wrap the response.
       const {code, map} = output[requestedFileExt];
-      let finalResponse = code;
-
-      // Resolve imports.
-      if (
-        requestedFileExt === '.js' ||
-        requestedFileExt === '.html' ||
-        requestedFileExt === '.css'
-      ) {
-        finalResponse = await resolveResponseImports(
-          fileLoc,
-          requestedFileExt,
-          finalResponse as string,
-        );
-      }
 
       const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
       let wrappedResponse = await wrapResponse(code, {
