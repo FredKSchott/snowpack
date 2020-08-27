@@ -3,10 +3,15 @@
 exports[`snowpack build base-url: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build base-url: _dist_/index.js 1`] = `
-"import {flatten} from '../web_modules/array-flatten.js';
+"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// src/index.js - Test import URLs from the \\"/_dist_/\\" directory
+import {flatten} from '../web_modules/array-flatten.js';
 export default function doNothing() {
   // I do nothing 🎉
-}"
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
 `;
 
 exports[`snowpack build base-url: allFiles 1`] = `
@@ -16,6 +21,7 @@ Array [
   "favicon.ico",
   "index.css",
   "index.html",
+  "index.js",
   "web_modules/array-flatten.js",
   "web_modules/import-map.json",
 ]
@@ -62,6 +68,18 @@ exports[`snowpack build base-url: index.html 1`] = `
 </html>"
 `;
 
+exports[`snowpack build base-url: index.js 1`] = `
+"import __SNOWPACK_ENV__ from './__snowpack__/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// public/index.js - Test import URLs from the \\"/\\" directory
+import {flatten} from './web_modules/array-flatten.js';
+export default function doNothing() {
+  // I do nothing 🎉
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
+`;
+
 exports[`snowpack build base-url: web_modules/array-flatten.js 1`] = `
 "/**
  * Flatten an array indefinitely.
@@ -99,10 +117,15 @@ exports[`snowpack build base-url: web_modules/import-map.json 1`] = `
 exports[`snowpack build base-url-homepage: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build base-url-homepage: _dist_/index.js 1`] = `
-"import {flatten} from '../web_modules/array-flatten.js';
+"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// src/index.js - Test import URLs from the \\"/_dist_/\\" directory
+import {flatten} from '../web_modules/array-flatten.js';
 export default function doNothing() {
   // I do nothing 🎉
-}"
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
 `;
 
 exports[`snowpack build base-url-homepage: allFiles 1`] = `
@@ -112,6 +135,7 @@ Array [
   "favicon.ico",
   "index.css",
   "index.html",
+  "index.js",
   "web_modules/array-flatten.js",
   "web_modules/import-map.json",
 ]
@@ -158,6 +182,18 @@ exports[`snowpack build base-url-homepage: index.html 1`] = `
 </html>"
 `;
 
+exports[`snowpack build base-url-homepage: index.js 1`] = `
+"import __SNOWPACK_ENV__ from './__snowpack__/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// public/index.js - Test import URLs from the \\"/\\" directory
+import {flatten} from './web_modules/array-flatten.js';
+export default function doNothing() {
+  // I do nothing 🎉
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
+`;
+
 exports[`snowpack build base-url-homepage: web_modules/array-flatten.js 1`] = `
 "/**
  * Flatten an array indefinitely.
@@ -195,10 +231,15 @@ exports[`snowpack build base-url-homepage: web_modules/import-map.json 1`] = `
 exports[`snowpack build base-url-remote: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build base-url-remote: _dist_/index.js 1`] = `
-"import {flatten} from 'https://www.example.com/web_modules/array-flatten.js';
+"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// src/index.js - Test import URLs from the \\"/_dist_/\\" directory
+import {flatten} from 'https://www.example.com/web_modules/array-flatten.js';
 export default function doNothing() {
   // I do nothing 🎉
-}"
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
 `;
 
 exports[`snowpack build base-url-remote: allFiles 1`] = `
@@ -208,6 +249,9 @@ Array [
   "favicon.ico",
   "index.css",
   "index.html",
+  "index.js",
+  "web_modules/array-flatten.js",
+  "web_modules/import-map.json",
 ]
 `;
 
@@ -250,6 +294,52 @@ exports[`snowpack build base-url-remote: index.html 1`] = `
     -->
   </body>
 </html>"
+`;
+
+exports[`snowpack build base-url-remote: index.js 1`] = `
+"import __SNOWPACK_ENV__ from './__snowpack__/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// public/index.js - Test import URLs from the \\"/\\" directory
+import {flatten} from './web_modules/array-flatten.js';
+export default function doNothing() {
+  // I do nothing 🎉
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
+`;
+
+exports[`snowpack build base-url-remote: web_modules/array-flatten.js 1`] = `
+"/**
+ * Flatten an array indefinitely.
+ */
+function flatten(array) {
+    var result = [];
+    $flatten(array, result);
+    return result;
+}
+/**
+ * Internal flatten function recursively passes \`result\`.
+ */
+function $flatten(array, result) {
+    for (var i = 0; i < array.length; i++) {
+        var value = array[i];
+        if (Array.isArray(value)) {
+            $flatten(value, result);
+        }
+        else {
+            result.push(value);
+        }
+    }
+}
+export { flatten };"
+`;
+
+exports[`snowpack build base-url-remote: web_modules/import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"array-flatten\\": \\"./array-flatten.js\\"
+  }
+}"
 `;
 
 exports[`snowpack build bugfix-named-import: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
@@ -677,11 +767,35 @@ exports[`snowpack build meta-dir: _dist_/index.js 1`] = `"console.log('I’m a c
 exports[`snowpack build meta-dir: allFiles 1`] = `
 Array [
   "_dist_/index.js",
+  "index.js",
   "static/snowpack/env.js",
+  "sub/index.js",
 ]
 `;
 
+exports[`snowpack build meta-dir: index.js 1`] = `
+"import __SNOWPACK_ENV__ from './static/snowpack/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// public/index.js - Test import URLs from the \\"/\\" directory
+export default function doNothing() {
+  // I do nothing 🎉
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
+`;
+
 exports[`snowpack build meta-dir: static/snowpack/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+
+exports[`snowpack build meta-dir: sub/index.js 1`] = `
+"import __SNOWPACK_ENV__ from '../static/snowpack/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// public/sub/index.js - Test import URLs from the \\"/sub/\\" directory
+export default function doNothing() {
+  // I do nothing 🎉
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
+`;
 
 exports[`snowpack build meta-dir-local-baseurl: _dist_/index.js 1`] = `
 "import __SNOWPACK_ENV__ from '../builds/static/snowpack/env.js';
@@ -695,11 +809,35 @@ if (import.meta.hot) {
 exports[`snowpack build meta-dir-local-baseurl: allFiles 1`] = `
 Array [
   "_dist_/index.js",
+  "index.js",
   "static/snowpack/env.js",
+  "sub/index.js",
 ]
 `;
 
+exports[`snowpack build meta-dir-local-baseurl: index.js 1`] = `
+"import __SNOWPACK_ENV__ from './static/snowpack/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// public/index.js - Test import URLs from the \\"/\\" directory
+export default function doNothing() {
+  // I do nothing 🎉
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
+`;
+
 exports[`snowpack build meta-dir-local-baseurl: static/snowpack/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+
+exports[`snowpack build meta-dir-local-baseurl: sub/index.js 1`] = `
+"import __SNOWPACK_ENV__ from '../static/snowpack/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// public/sub/index.js - Test import URLs from the \\"/sub/\\" directory
+export default function doNothing() {
+  // I do nothing 🎉
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
+`;
 
 exports[`snowpack build meta-dir-remote-baseurl: _dist_/index.js 1`] = `
 "import __SNOWPACK_ENV__ from 'https://www.cdn.com/sub_path/static/snowpack/env.js';
@@ -713,11 +851,35 @@ if (import.meta.hot) {
 exports[`snowpack build meta-dir-remote-baseurl: allFiles 1`] = `
 Array [
   "_dist_/index.js",
+  "index.js",
   "static/snowpack/env.js",
+  "sub/index.js",
 ]
 `;
 
+exports[`snowpack build meta-dir-remote-baseurl: index.js 1`] = `
+"import __SNOWPACK_ENV__ from './static/snowpack/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// public/index.js - Test import URLs from the \\"/\\" directory
+export default function doNothing() {
+  // I do nothing 🎉
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
+`;
+
 exports[`snowpack build meta-dir-remote-baseurl: static/snowpack/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+
+exports[`snowpack build meta-dir-remote-baseurl: sub/index.js 1`] = `
+"import __SNOWPACK_ENV__ from '../static/snowpack/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// public/sub/index.js - Test import URLs from the \\"/sub/\\" directory
+export default function doNothing() {
+  // I do nothing 🎉
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
+`;
 
 exports[`snowpack build module-resolution: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 

@@ -1,4 +1,4 @@
-// src/index.js - Test import URLs from the "/_dist_/" directory
+// public/index.js - Test import URLs from the "/" directory
 
 import {flatten} from 'array-flatten';
 

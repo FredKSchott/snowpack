@@ -1,33 +1,25 @@
 import type CSSModuleLoader from 'css-modules-loader-core';
 import path from 'path';
 import {SnowpackConfig} from '../types/snowpack';
-import {getExt, URL_HAS_PROTOCOL_REGEX} from '../util';
+import {getExt} from '../util';
 import {logger} from '../logger';
 
 const CLOSING_BODY_TAG = /<\s*\/\s*body\s*>/gi;
 
-export function getMetaUrlPath(urlPath: string, isDev: boolean, config: SnowpackConfig): string {
-  let {baseUrl, metaDir} = config.buildOptions || {};
-  if (isDev) {
-    return path.posix.normalize(path.posix.join('/', metaDir, urlPath));
-  }
-  if (URL_HAS_PROTOCOL_REGEX.test(baseUrl)) {
-    return baseUrl + path.posix.normalize(path.posix.join(metaDir, urlPath));
-  }
-  return path.posix.normalize(path.posix.join(baseUrl, metaDir, urlPath));
+export function getMetaUrlPath(urlPath: string, config: SnowpackConfig): string {
+  let {metaDir} = config.buildOptions || {};
+  return path.posix.normalize(path.posix.join('/', metaDir, urlPath));
 }
 
 export function wrapImportMeta({
   code,
   hmr,
   env,
-  isDev,
   config,
 }: {
   code: string;
   hmr: boolean;
   env: boolean;
-  isDev: boolean;
   config: SnowpackConfig;
 }) {
   if (!code.includes('import.meta')) {
@@ -37,14 +29,12 @@ export function wrapImportMeta({
     (hmr
       ? `import * as  __SNOWPACK_HMR__ from '${getMetaUrlPath(
           'hmr.js',
-          isDev,
           config,
         )}';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`
       : ``) +
     (env
       ? `import __SNOWPACK_ENV__ from '${getMetaUrlPath(
           'env.js',
-          isDev,
           config,
         )}';\nimport.meta.env = __SNOWPACK_ENV__;\n`
       : ``) +
@@ -55,13 +45,11 @@ export function wrapImportMeta({
 
 export function wrapHtmlResponse({
   code,
-  isDev,
   hmr,
   config,
   mode,
 }: {
   code: string;
-  isDev: boolean;
   hmr: boolean;
   config: SnowpackConfig;
   mode: 'development' | 'production';
@@ -89,7 +77,6 @@ export function wrapHtmlResponse({
   if (hmr) {
     const hmrScript = `<script type="module" src="${getMetaUrlPath(
       'hmr.js',
-      isDev,
       config,
     )}"></script>`;
 
@@ -108,28 +95,24 @@ export function wrapHtmlResponse({
 function generateJsonImportProxy({
   code,
   hmr,
-  isDev,
   config,
 }: {
   code: string;
   hmr: boolean;
-  isDev: boolean;
   config: SnowpackConfig;
 }) {
   const jsonImportProxyCode = `let json = ${JSON.stringify(JSON.parse(code))};
 export default json;`;
-  return wrapImportMeta({code: jsonImportProxyCode, hmr, env: false, isDev, config});
+  return wrapImportMeta({code: jsonImportProxyCode, hmr, env: false, config});
 }
 
 function generateCssImportProxy({
   code,
   hmr,
-  isDev,
   config,
 }: {
   code: string;
   hmr: boolean;
-  isDev: boolean;
   config: SnowpackConfig;
 }) {
   const cssImportProxyCode = `${
@@ -149,20 +132,18 @@ styleEl.type = 'text/css';
 
 styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);`;
-  return wrapImportMeta({code: cssImportProxyCode, hmr, env: false, isDev, config});
+  return wrapImportMeta({code: cssImportProxyCode, hmr, env: false, config});
 }
 
 let _cssModuleLoader: CSSModuleLoader;
 async function generateCssModuleImportProxy({
   url,
   code,
-  isDev,
   hmr,
   config,
 }: {
   url: string;
   code: string;
-  isDev: boolean;
   hmr: boolean;
   config: SnowpackConfig;
 }) {
@@ -173,7 +154,7 @@ async function generateCssModuleImportProxy({
   return `${
     hmr
       ? `
-import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr.js', isDev, config)}';
+import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr.js', config)}';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
 import.meta.hot.dispose(() => {
   document.head.removeChild(styleEl);
@@ -199,13 +180,11 @@ function generateDefaultImportProxy(url: string) {
 export async function wrapImportProxy({
   url,
   code,
-  isDev,
   hmr,
   config,
 }: {
   url: string;
   code: string | Buffer;
-  isDev: boolean;
   hmr: boolean;
   config: SnowpackConfig;
 }) {
@@ -213,15 +192,15 @@ export async function wrapImportProxy({
 
   if (typeof code === 'string') {
     if (baseExt === '.json') {
-      return generateJsonImportProxy({code, hmr, isDev, config});
+      return generateJsonImportProxy({code, hmr, config});
     }
 
     if (baseExt === '.css') {
       // if proxying a CSS file, remove its source map (the path no longer applies)
       const sanitized = code.replace(/\/\*#\s*sourceMappingURL=[^/]+\//gm, '');
       return expandedExt.endsWith('.module.css')
-        ? generateCssModuleImportProxy({url, code: sanitized, isDev, hmr, config})
-        : generateCssImportProxy({code: sanitized, hmr, isDev, config});
+        ? generateCssModuleImportProxy({url, code: sanitized, hmr, config})
+        : generateCssImportProxy({code: sanitized, hmr, config});
     }
   }
 

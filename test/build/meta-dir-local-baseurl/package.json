@@ -9,7 +9,7 @@
   },
   "snowpack": {
     "mount": {
-      "./src": "/_dist_"
+      "./public": "/"
     },
     "buildOptions": {
       "baseUrl": "/builds",
