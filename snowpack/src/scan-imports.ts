@@ -29,7 +29,6 @@ function createInstallTarget(specifier: string, all = true): InstallTarget {
   };
 }
 
-
 export function matchImportSpecifier(importStatement: string) {
   const matched = importStatement.match(/^\s*('([^']+)'|"([^"]+)")\s*$/m);
   return matched?.[2] || matched?.[3] || null;
