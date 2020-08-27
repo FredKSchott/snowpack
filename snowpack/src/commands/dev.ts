@@ -489,7 +489,7 @@ export async function command(commandOptions: CommandOptions) {
      * return a JS representation of that CSS. This is handled in the wrap step.
      */
     async function wrapResponse(
-      code: string,
+      code: string | Buffer,
       {
         hasCssResource,
         sourceMap,
@@ -497,8 +497,9 @@ export async function command(commandOptions: CommandOptions) {
       }: {hasCssResource: boolean; sourceMap?: string; sourceMappingURL: string},
     ) {
       // transform special requests
+      const stringCode = code as string;
       if (isRoute) {
-        code = wrapHtmlResponse({code: code, hmr: isHmr, config, mode: 'development'});
+        code = wrapHtmlResponse({code: stringCode, hmr: isHmr, config, mode: 'development'});
       } else if (isProxyModule) {
         responseFileExt = '.js';
       } else if (isSourceMap && sourceMap) {
@@ -509,14 +510,14 @@ export async function command(commandOptions: CommandOptions) {
       // transform other files
       switch (responseFileExt) {
         case '.css': {
-          if (sourceMap) code = cssSourceMappingURL(code, sourceMappingURL);
+          if (sourceMap) code = cssSourceMappingURL(stringCode, sourceMappingURL);
           break;
         }
         case '.js': {
           if (isProxyModule) {
             code = await wrapImportProxy({url: reqPath, code, hmr: isHmr, config});
           } else {
-            code = wrapImportMeta({code, env: true, hmr: isHmr, config});
+            code = wrapImportMeta({code: stringCode, env: true, hmr: isHmr, config});
           }
 
           if (hasCssResource)
@@ -626,7 +627,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       }
 
       const {code, map} = output[requestedFileExt];
-      if (typeof code !== 'string') return code; // return binary files as-is
+      if (typeof code !== 'string' && !isProxyModule) return code; // return binary files as-is
       let finalResponse = code;
 
       // Resolve imports.
@@ -635,7 +636,11 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
         requestedFileExt === '.html' ||
         requestedFileExt === '.css'
       ) {
-        finalResponse = await resolveResponseImports(fileLoc, requestedFileExt, finalResponse);
+        finalResponse = await resolveResponseImports(
+          fileLoc,
+          requestedFileExt,
+          finalResponse as string,
+        );
       }
 
       // Wrap the response.
