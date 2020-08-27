@@ -363,11 +363,11 @@ export async function command(commandOptions: CommandOptions) {
       }
     });
 
-    if (reqPath === getMetaUrlPath('/hmr.js', true, config)) {
+    if (reqPath === getMetaUrlPath('/hmr.js', config)) {
       sendFile(req, res, HMR_DEV_CODE, reqPath, '.js');
       return;
     }
-    if (reqPath === getMetaUrlPath('/env.js', true, config)) {
+    if (reqPath === getMetaUrlPath('/env.js', config)) {
       sendFile(req, res, generateEnvModule('development'), reqPath, '.js');
       return;
     }
@@ -498,7 +498,7 @@ export async function command(commandOptions: CommandOptions) {
     ) {
       // transform special requests
       if (isRoute) {
-        code = wrapHtmlResponse({code: code, isDev: true, hmr: isHmr, config, mode: 'development'});
+        code = wrapHtmlResponse({code: code, hmr: isHmr, config, mode: 'development'});
       } else if (isProxyModule) {
         responseFileExt = '.js';
       } else if (isSourceMap && sourceMap) {
@@ -514,9 +514,9 @@ export async function command(commandOptions: CommandOptions) {
         }
         case '.js': {
           if (isProxyModule) {
-            code = await wrapImportProxy({url: reqPath, code, isDev: true, hmr: isHmr, config});
+            code = await wrapImportProxy({url: reqPath, code, hmr: isHmr, config});
           } else {
-            code = wrapImportMeta({code, env: true, isDev: true, hmr: isHmr, config});
+            code = wrapImportMeta({code, env: true, hmr: isHmr, config});
           }
 
           if (hasCssResource)

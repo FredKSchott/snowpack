@@ -113,7 +113,7 @@ class FileBuilder {
               const cssFilename = outFilename.replace(/\.js$/i, '.css');
               code = `import './${cssFilename}';\n` + code;
             }
-            code = wrapImportMeta({code, env: true, isDev: false, hmr: false, config: this.config});
+            code = wrapImportMeta({code, env: true, hmr: false, config: this.config});
             if (map) code = jsSourceMappingURL(code, sourceMappingURL);
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
@@ -127,7 +127,6 @@ class FileBuilder {
           case '.html': {
             code = wrapHtmlResponse({
               code,
-              isDev: false,
               hmr: false,
               config: this.config,
               mode: 'production',
@@ -230,7 +229,6 @@ class FileBuilder {
     const proxyCode = await wrapImportProxy({
       url: proxiedUrl,
       code: proxiedCode,
-      isDev: false,
       hmr: false,
       config: this.config,
     });
@@ -314,7 +312,6 @@ export async function command(commandOptions: CommandOptions) {
         const proxyCode = await wrapImportProxy({
           url: proxiedUrl,
           code: proxiedCode,
-          isDev: false,
           hmr: false,
           config: config,
         });
