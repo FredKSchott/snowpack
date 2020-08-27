@@ -145,7 +145,7 @@ For your safety, Snowpack only supports environment variables that begin with `S
 
 `import.meta.env.MODE` and `import.meta.env.NODE_ENV` are also both set to the current `process.env.NODE_ENV` value, so that you can change app behavior based on dev vs. build. The env value is set to `development` during `snowpack dev` and `production` during `snowpack build`. Use this in your application instead of `process.env.NODE_ENV`.
 
-You can use environment variables in HTML files. All occurrences of `%SNOWPACK_PUBLIC_*%`, `%BASE_URL%`, and `%MODE%` will be replaced at build time.
+You can use environment variables in HTML files. All occurrences of `%SNOWPACK_PUBLIC_*%`, `%PUBLIC_URL%`, and `%MODE%` will be replaced at build time.
 
 **Remember:** that these env variables are statically injected into your application for everyone at **build time**, and not runtime.
 
