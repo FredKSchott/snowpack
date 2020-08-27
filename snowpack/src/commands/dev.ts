@@ -497,9 +497,8 @@ export async function command(commandOptions: CommandOptions) {
       }: {hasCssResource: boolean; sourceMap?: string; sourceMappingURL: string},
     ) {
       // transform special requests
-      const stringCode = code as string;
       if (isRoute) {
-        code = wrapHtmlResponse({code: stringCode, hmr: isHmr, config, mode: 'development'});
+        code = wrapHtmlResponse({code: code as string, hmr: isHmr, config, mode: 'development'});
       } else if (isProxyModule) {
         responseFileExt = '.js';
       } else if (isSourceMap && sourceMap) {
@@ -510,14 +509,14 @@ export async function command(commandOptions: CommandOptions) {
       // transform other files
       switch (responseFileExt) {
         case '.css': {
-          if (sourceMap) code = cssSourceMappingURL(stringCode, sourceMappingURL);
+          if (sourceMap) code = cssSourceMappingURL(code as string, sourceMappingURL);
           break;
         }
         case '.js': {
           if (isProxyModule) {
             code = await wrapImportProxy({url: reqPath, code, hmr: isHmr, config});
           } else {
-            code = wrapImportMeta({code: stringCode, env: true, hmr: isHmr, config});
+            code = wrapImportMeta({code: code as string, env: true, hmr: isHmr, config});
           }
 
           if (hasCssResource)
@@ -627,7 +626,6 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       }
       // Wrap the response.
       const {code, map} = output[requestedFileExt];
-      if (typeof code !== 'string' && !isProxyModule) return code; // return binary files as-is
       let finalResponse = code;
 
       // Resolve imports.
@@ -652,7 +650,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
 
       // Resolve imports.
       if (requestedFileExt === '.js' || requestedFileExt === '.html') {
-        wrappedResponse = await resolveResponseImports(fileLoc, requestedFileExt, wrappedResponse);
+        wrappedResponse = await resolveResponseImports(fileLoc, requestedFileExt, wrappedResponse as string);
       }
       // Return the finalized response.
       return wrappedResponse;
