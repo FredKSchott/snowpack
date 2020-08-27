@@ -1,5 +1,5 @@
 
-const code = "body { color: red }";
+const code = "@import \"../../TEST_WMU/bootstrap/dist/css/bootstrap.min.css.proxy.js\"";
 
 const styleEl = document.createElement("style");
 const codeEl = document.createTextNode(code);

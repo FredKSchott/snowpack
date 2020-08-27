@@ -1,5 +1,5 @@
 import {SnowpackSourceFile} from './types/snowpack';
-import {HTML_JS_REGEX} from './util';
+import {HTML_JS_REGEX, CSS_REGEX} from './util';
 import {matchImportSpecifier} from './scan-imports';
 
 const {parse} = require('es-module-lexer');
@@ -63,6 +63,23 @@ async function transformHtmlImports(code: string, replaceImport: (specifier: str
   return rewrittenCode;
 }
 
+async function transformCssImports(code: string, replaceImport: (specifier: string) => string) {
+  let rewrittenCode = code;
+  let match;
+  const importRegex = new RegExp(CSS_REGEX);
+  while ((match = importRegex.exec(rewrittenCode))) {
+    const [fullMatch, spec] = match;
+    // Only transform a script element if it contains inlined code / is not empty.
+    rewrittenCode = spliceString(
+      rewrittenCode,
+      `@import "${replaceImport(spec)}"`,
+      match.index,
+      match.index + fullMatch.length,
+    );
+  }
+  return rewrittenCode;
+}
+
 export async function transformFileImports(
   {baseExt, contents}: SnowpackSourceFile,
   replaceImport: (specifier: string) => string,
@@ -72,6 +89,9 @@ export async function transformFileImports(
   }
   if (baseExt === '.html') {
     return transformHtmlImports(contents, replaceImport);
+  }
+  if (baseExt === '.css') {
+    return transformCssImports(contents, replaceImport);
   }
   throw new Error(
     `Incompatible filetype: cannot scan ${baseExt} files for ESM imports. This is most likely an error within Snowpack.`,

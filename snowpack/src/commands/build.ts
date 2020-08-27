@@ -104,6 +104,12 @@ class FileBuilder {
         switch (fileExt) {
           case '.css': {
             if (map) code = cssSourceMappingURL(code, sourceMappingURL);
+            this.filesToResolve[outLoc] = {
+              baseExt: fileExt,
+              expandedExt: fileExt,
+              contents: code,
+              locOnDisk: this.filepath,
+            };
             break;
           }
 
