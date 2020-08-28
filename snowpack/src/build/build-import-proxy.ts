@@ -46,16 +46,18 @@ export function wrapImportMeta({
 export function wrapHtmlResponse({
   code,
   hmr,
+  isDev,
   config,
   mode,
 }: {
   code: string;
   hmr: boolean;
+  isDev: boolean;
   config: SnowpackConfig;
   mode: 'development' | 'production';
 }) {
   // replace %PUBLIC_URL% (along with surrounding slashes, if any)
-  code = code.replace(/\/?%PUBLIC_URL%\/?/g, config.buildOptions.baseUrl);
+  code = code.replace(/\/?%PUBLIC_URL%\/?/g, isDev ? '/' : config.buildOptions.baseUrl);
 
   // replace %MODE%
   code = code.replace(/%MODE%/g, mode);
