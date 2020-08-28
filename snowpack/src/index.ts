@@ -91,11 +91,11 @@ export async function cli(args: string[]) {
 
   if (cmd === 'add') {
     await addCommand(cliFlags['_'][3], commandOptions);
-    return;
+    return process.exit(0);
   }
   if (cmd === 'rm') {
     await rmCommand(cliFlags['_'][3], commandOptions);
-    return;
+    return process.exit(0);
   }
 
   if (cliFlags['_'].length > 3) {
@@ -105,15 +105,15 @@ export async function cli(args: string[]) {
 
   if (cmd === 'build') {
     await buildCommand(commandOptions);
-    return;
+    return process.exit(0);
   }
   if (cmd === 'dev') {
     await devCommand(commandOptions);
-    return;
+    return process.exit(0);
   }
   if (cmd === 'install' || !cmd) {
     await installCommand(commandOptions);
-    return;
+    return process.exit(0);
   }
 
   logger.error(`Unrecognized command: ${cmd}`);
