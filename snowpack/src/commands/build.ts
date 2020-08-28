@@ -134,6 +134,7 @@ class FileBuilder {
             code = wrapHtmlResponse({
               code,
               hmr: false,
+              isDev: false,
               config: this.config,
               mode: 'production',
             });

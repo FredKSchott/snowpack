@@ -499,7 +499,13 @@ export async function command(commandOptions: CommandOptions) {
     ) {
       // transform special requests
       if (isRoute) {
-        code = wrapHtmlResponse({code: code as string, hmr: isHmr, config, mode: 'development'});
+        code = wrapHtmlResponse({
+          code: code as string,
+          hmr: isHmr,
+          isDev: true,
+          config,
+          mode: 'development',
+        });
       } else if (isProxyModule) {
         responseFileExt = '.js';
       } else if (isSourceMap && sourceMap) {
