@@ -257,7 +257,6 @@ export async function install(
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
   const importMap: ImportMap = {imports: {}};
-  const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
   const skipFailures = false;
   const autoDetectNamedExports = [
     ...CJS_PACKAGES_TO_AUTO_DETECT,
@@ -283,9 +282,6 @@ export async function install(
           .forEach(([key]) => {
             importMap.imports[key] = `./${targetName}.js`;
           });
-        installTargetsMap[targetLoc] = installTargets.filter(
-          (t) => installSpecifier === t.specifier,
-        );
         installResults.push([installSpecifier, 'SUCCESS']);
       } else if (targetType === 'ASSET') {
         assetEntrypoints[targetName] = targetLoc;
