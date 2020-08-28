@@ -122,7 +122,7 @@ async function runPipelineTransformStep(
     try {
       for (const destExt of Object.keys(output)) {
         const destBuildFile = output[destExt];
-        const {code} = typeof destBuildFile === 'string' ? {code: destBuildFile} : destBuildFile;
+        const {code} = destBuildFile;
         const fileName = rootFileName + destExt;
         const filePath = rootFilePath + destExt;
         const debugPath = path.relative(process.cwd(), filePath);
@@ -141,9 +141,12 @@ async function runPipelineTransformStep(
         // if step returned a value, only update code (don’t touch .map)
         if (typeof result === 'string') {
           output[destExt].code = result;
+          output[destExt].map = undefined;
         } else if (result && typeof result === 'object' && (result as {result: string}).result) {
           output[destExt].code = (result as {result: string}).result;
+          output[destExt].map = undefined;
         }
+
         // if source maps disabled, don’t return any
         if (!sourceMaps) output[destExt].map = undefined;
       }

@@ -292,7 +292,6 @@ export async function command(commandOptions: CommandOptions) {
   async function installDependencies() {
     const scannedFiles = Object.values(buildPipelineFiles)
       .map((f) => Object.values(f.filesToResolve))
-      .filter(Boolean)
       .reduce((flat, item) => flat.concat(item), []);
     const installDest = path.join(buildDirectoryLoc, config.buildOptions.webModulesUrl);
     const installResult = await installOptimizedDependencies(scannedFiles, installDest, {
@@ -478,6 +477,4 @@ export async function command(commandOptions: CommandOptions) {
   watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onDeleteEvent(fileLoc));
-
-  return new Promise(() => {});
 }
