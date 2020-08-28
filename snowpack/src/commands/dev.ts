@@ -29,7 +29,7 @@ import isCompressible from 'compressible';
 import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
-import {existsSync, promises as fs, readFileSync, statSync, createReadStream} from 'fs';
+import {createReadStream, existsSync, promises as fs, readFileSync, statSync} from 'fs';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
