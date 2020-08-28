@@ -42,6 +42,7 @@ import {performance} from 'perf_hooks';
 import onProcessExit from 'signal-exit';
 import stream from 'stream';
 import url from 'url';
+import util from 'util';
 import zlib from 'zlib';
 import {
   generateEnvModule,
@@ -215,14 +216,14 @@ export async function command(commandOptions: CommandOptions) {
   const messageBus = new EventEmitter();
 
   // note: this would cause an infinite loop if not for the logger.on(…) in `paint.ts`.
-  console.log = (...args) => {
-    logger.info(args[0]);
+  console.log = (...args: [any, ...any[]]) => {
+    logger.info(util.format(...args));
   };
-  console.warn = (...args) => {
-    logger.warn(args[0]);
+  console.warn = (...args: [any, ...any[]]) => {
+    logger.warn(util.format(...args));
   };
-  console.error = (...args) => {
-    logger.error(args[0]);
+  console.error = (...args: [any, ...any[]]) => {
+    logger.error(util.format(...args));
   };
 
   paint(
