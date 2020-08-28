@@ -1,15 +1,21 @@
 ---
 name: '🔒 Prioritized Issue (Core Team Only)'
-about: Only maintainers can create issues. Instead, create a discussion! 👇
+about: Issues are reserved for work that's already been prioritized. Create a new discussion instead! 👇
 ---
 
 <!--
-  ⛔ STOP!
+---- ⛔ STOP!
+---- 
+---- This project supports GitHub's new Discussions feature. 
+---- Issues are handled a little differently than you might be used to.
+----
+---- ❗️ Don't start by creating an issue. Instead, create a discussion:
+----   🔎 Search Existing:   https://github.com/pikapkg/snowpack/discussions
+----   📝 Create New:        https://github.com/pikapkg/snowpack/discussions/category_choices
+---- 
+---- More information on how our team manages issues & discussions: 
+----   https://github.com/pikapkg/snowpack/discussions/613#discussioncomment-41103
+--->
 
-  The Snowpack project reserves issues for confirmed/triaged bugs and prioritized feature requests ONLY.
-  Please start by creating a discussion at https://github.com/pikapkg/snowpack/discussions/new?category_id=16417352
--->
-
-Follow up to <!-- URL to discussion -->
-
-/cc <!-- @mention everyone from discussion -->
+**Original Discussion:** <!-- URL to discussion -->
+**/cc** <!-- @mention everyone from discussion -->
