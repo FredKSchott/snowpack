@@ -76,7 +76,7 @@ function parseImportStatement(code: string, imp: ImportSpecifier): null | Instal
     return null;
   }
 
-  const importStatement = code.substring(imp.ss, imp.se);
+  const importStatement = stripComments(code.substring(imp.ss, imp.se));
   if (/^import\s+type/.test(importStatement)) {
     return null;
   }
