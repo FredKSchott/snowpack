@@ -23,7 +23,8 @@ function hasPmInstalled(packageManager) {
 }
 
 function validateArgs(args) {
-  const {template, useYarn, usePnpm, force, target, _} = yargs(args);
+  const {template, useYarn, usePnpm, force, target, install, _} = yargs(args);
+  const toInstall = install !== undefined ? install : true;
   if (useYarn && usePnpm) {
     logError('You can not use Yarn and pnpm at the same time.');
   }
@@ -53,6 +54,7 @@ function validateArgs(args) {
     usePnpm,
     targetDirectoryRelative,
     targetDirectory,
+    toInstall,
   };
 }
 
@@ -116,7 +118,7 @@ async function cleanProject(dir) {
   );
 }
 
-const {template, useYarn, usePnpm, targetDirectoryRelative, targetDirectory} = validateArgs(
+const {template, useYarn, usePnpm, toInstall, targetDirectoryRelative, targetDirectory} = validateArgs(
   process.argv,
 );
 
@@ -156,29 +158,34 @@ const installedTemplate = isLocalTemplate
   await copy(installedTemplate, targetDirectory);
   await cleanProject(targetDirectory);
 
-  console.log(`  - Installing package dependencies. This might take a couple of minutes.\n`);
-  const npmInstallOptions = {
-    cwd: targetDirectory,
-    stdio: 'inherit',
-  };
+  if (toInstall) {
+    console.log(`  - Installing package dependencies. This might take a couple of minutes.\n`);
 
-  function installProcess(packageManager) {
-    switch (packageManager) {
-      case 'npm':
-        return execa('npm', ['install', '--loglevel', 'error'], npmInstallOptions);
-      case 'yarn':
-        return execa('yarn', ['--silent'], npmInstallOptions);
-      case 'pnpm':
-        return execa('pnpm', ['install', '--reporter=silent'], npmInstallOptions);
-      default:
-        throw new Error('Unspecified package installer.');
+    const npmInstallOptions = {
+      cwd: targetDirectory,
+      stdio: 'inherit',
+    };
+
+    function installProcess(packageManager) {
+      switch (packageManager) {
+        case 'npm':
+          return execa('npm', ['install', '--loglevel', 'error'], npmInstallOptions);
+        case 'yarn':
+          return execa('yarn', ['--silent'], npmInstallOptions);
+        case 'pnpm':
+          return execa('pnpm', ['install', '--reporter=silent'], npmInstallOptions);
+        default:
+          throw new Error('Unspecified package installer.');
+      }
     }
-  }
 
-  const npmInstallProcess = installProcess(installer);
-  npmInstallProcess.stdout && npmInstallProcess.stdout.pipe(process.stdout);
-  npmInstallProcess.stderr && npmInstallProcess.stderr.pipe(process.stderr);
-  await npmInstallProcess;
+    const npmInstallProcess = installProcess(installer);
+    npmInstallProcess.stdout && npmInstallProcess.stdout.pipe(process.stdout);
+    npmInstallProcess.stderr && npmInstallProcess.stderr.pipe(process.stderr);
+    await npmInstallProcess;
+  } else {
+    console.log(`  - Skipping "${installer} install" step\n`);
+  }
 
   console.log(`\n  - Initializing git repo.\n`);
   try {
@@ -207,7 +214,11 @@ const installedTemplate = isLocalTemplate
   console.log(
     formatCommand(
       `${installer} install`,
-      'Install your dependencies. (We already ran this one for you!)',
+      `Install your dependencies. ${
+        toInstall
+        ? '(We already ran this one for you!)'
+        : '(You asked us to skip this step!)'
+      }`
     ),
   );
   console.log(formatCommand(`${installer} start`, 'Start your development server.'));
