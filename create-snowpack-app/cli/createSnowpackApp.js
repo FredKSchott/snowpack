@@ -24,7 +24,7 @@ function hasPmInstalled(packageManager) {
 
 function validateArgs(args) {
   const {template, useYarn, usePnpm, force, target, install, _} = yargs(args);
-  const toInstall = install == null || install && install !== 'false';
+  const toInstall = install !== undefined ? install : true;
   if (useYarn && usePnpm) {
     logError('You can not use Yarn and pnpm at the same time.');
   }
