@@ -51,12 +51,13 @@ $ snowpack build --no-minify
     "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
     "bulma/css/bulma.css" // A non-JS static asset (supports globs)
   ],
-  "mount": { /* ... */ },
-  "proxy": { /* ... */ },
   "plugins": [ /* ... */ ],
   "installOptions": { /* ... */ },
   "devOptions": { /* ... */ },
   "buildOptions": { /* ... */ },
+  "proxy": { /* ... */ },
+  "mount": { /* ... */ },
+  "alias": { /* ... */ }
 }
 ```
 
@@ -86,65 +87,65 @@ $ snowpack build --no-minify
 
 #### Install Options
 
-- **`dest`** | `string`
+- **`installOptions.dest`** | `string`
   - _Default:`"web_modules"`_
   - Configure the install directory.
-- **`sourceMap`** | `boolean`
+- **`installOptions.sourceMap`** | `boolean`
   - Emit source maps for installed packages.
-- **`env`** | `{[ENV_NAME: string]: (string | true)}`
+- **`installOptions.env`** | `{[ENV_NAME: string]: (string | true)}`
   - Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
-- **`treeshake`** | `boolean`
+- **`installOptions.treeshake`** | `boolean`
   - _Default:`false`, or `true` when run with `snowpack build`_
   - Treeshake your dependencies to optimize your installed files. Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
-- **`installTypes`** | `boolean`
+- **`installOptions.installTypes`** | `boolean`
   - Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#typescript) to pick up these types.
-- **`alias`** | `{[mapFromPackageName: string]: string}`
+- **`installOptions.alias`** | `{[mapFromPackageName: string]: string}`
   - Alias an installed package name. This applies to imports within your application and within your installed dependency graph.
   - Example: `"alias": {"react": "preact/compat", "react-dom": "preact/compat"}`
-- **`namedExports`** | `string[]`
+- **`installOptions.namedExports`** | `string[]`
   - Legacy Common.js (CJS) packages should only be imported by the default import (Example: `import reactTable from 'react-table'`)
   - But, some packages use named exports in their documentation, which can cause confusion for users. (Example: `import {useTable} from 'react-table'`)
   - You can enable "fake/synthetic" named exports for Common.js package by adding the package name under this configuration.
   - Example: `"namedExports": ["react-table"]`
-- **`rollup`**
+- **`installOptions.rollup`** | `Object`
   - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use.
-  - **`rollup.plugins`** - Specify [Custom Rollup plugins](#installing-non-js-packages) if you are dealing with non-standard files.
-  - **`rollup.dedupe`** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation.
+  - **`installOptions.rollup.plugins`** - Specify [Custom Rollup plugins](#installing-non-js-packages) if you are dealing with non-standard files.
+  - **`installOptions.rollup.dedupe`** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation.
 
 #### Dev Options
 
-- **`port`** | `number` | Default: `8080`
+- **`devOptions.port`** | `number` | Default: `8080`
   - The port number to run the dev server on.
-- **`out`** | `string` | Default: `"build"`
+- **`devOptions.out`** | `string` | Default: `"build"`
   - The local directory that we output your final build to.
-- **`bundle`** | `boolean`
+- **`devOptions.bundle`** | `boolean`
   - Create an optimized, bundled build for production.
   - You must have [Parcel](https://parceljs.org/) as a dev dependency in your project.
   - If undefined, this option will be enabled if the `parcel` package is found.
-- **`fallback`** | `string` | Default: `"index.html"`
+- **`devOptions.fallback`** | `string` | Default: `"index.html"`
   - When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
-- **`open`** | `string` | Default: `"default"`
+- **`devOptions.open`** | `string` | Default: `"default"`
   - Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
-- **`hostname`** | `string` | Default: `localhost`
+- **`devOptions.hostname`** | `string` | Default: `localhost`
   - The hostname where the browser tab will be open.
-- **`hmr`** | `boolean` | Default: `true`
+- **`devOptions.hmr`** | `boolean` | Default: `true`
   - Toggles whether or not Snowpack dev server should have HMR enabled.
-- **`secure`** | `boolean`
+- **`devOptions.secure`** | `boolean`
   - Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
 
 #### Build Options
 
-- **`baseUrl`** | `string` | Default: `/`
+- **`buildOptions.baseUrl`** | `string` | Default: `/`
   - In your HTML, replace all instances of `%PUBLIC_URL%` with this (inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept). This is useful if your app will be deployed to a subdirectory. _Note: if you have `homepage` in your `package.json`, Snowpack will actually pick up on that, too._
-- **`clean`** | `boolean` | Default: `false`
+- **`buildOptions.clean`** | `boolean` | Default: `false`
   - Set to `true` if Snowpack should erase the build folder before each build.
-- **`metaDir`** | `string` | Default: `__snowpack__`
+- **`buildOptions.metaDir`** | `string` | Default: `__snowpack__`
   - By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
-- **`minify`** | `boolean` | Default: `true`
+- **`buildOptions.minify`** | `boolean` | Default: `true`
   - By default, Snowpack will minify your dependencies on `snowpack build`. Disable this by setting this config option to `minify: false`.
-- **`sourceMaps`** | `boolean` | Default: `false`
+- **`buildOptions.sourceMaps`** | `boolean` | Default: `false`
   - ***Experimental:*** Set to `true` to enable source maps
-- **`webModulesUrl`** | `string` | Default: `web_modules`
+- **`buildOptions.webModulesUrl`** | `string` | Default: `web_modules`
   - Rename your web modules directory.
 
 #### Proxy Options
