@@ -3,4 +3,5 @@ module.exports = {
     public: '/',
     './src': '/_dist_',
   },
+  plugins: ['@snowpack/plugin-optimize'],
 };

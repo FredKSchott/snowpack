@@ -1,53 +1,33 @@
-import fs from 'fs';
-import path from 'path';
-import glob from 'glob';
-import * as colors from 'kleur/colors';
-import * as esbuild from 'esbuild';
-import {init, parse} from 'es-module-lexer';
-import PQueue from 'p-queue';
-import {SnowpackConfig, SnowpackPlugin} from '../types/snowpack';
-import {
+const fs = require('fs');
+const path = require('path');
+const glob = require('glob');
+const colors = require('kleur/colors');
+const esbuild = require('esbuild');
+const {init, parse} = require('es-module-lexer');
+const PQueue = require('p-queue').default;
+const {
   appendHTMLToBody,
   appendHTMLToHead,
-  getExt,
   HTML_JS_REGEX,
+  isRemoteModule,
   relativeURL,
   removeLeadingSlash,
-} from '../util';
-
-interface OptimizePluginOptions {
-  exclude?: string | string[];
-  minifyCSS?: boolean;
-  minifyHTML?: boolean;
-  minifyJS?: boolean;
-}
+} = require('./util');
 
 /**
  * Default optimizer for Snawpack, unless another one is given
  */
-export function optimize(config: SnowpackConfig, options: OptimizePluginOptions): SnowpackPlugin {
+exports.default = function plugin(config, userDefinedOptions) {
+  const options = {
+    minifyJS: true,
+    preloadModules: true,
+    ...(userDefinedOptions || {}),
+  };
+
   const CONCURRENT_WORKERS = require('os').cpus().length;
 
-  function isRemoteModule(specifier: string): boolean {
-    return (
-      specifier.startsWith('//') ||
-      specifier.startsWith('http://') ||
-      specifier.startsWith('https://')
-    );
-  }
-
   /** Scan a JS file for static imports */
-  function scanForStaticImports({
-    file,
-    rootDir,
-    scannedFiles,
-    importList,
-  }: {
-    file: string;
-    rootDir: string;
-    scannedFiles: Set<string>;
-    importList: Set<string>;
-  }): Set<string> {
+  function scanForStaticImports({file, rootDir, scannedFiles, importList}) {
     try {
       // 1. scan file for static imports
       scannedFiles.add(file); // mark file as scanned
@@ -89,9 +69,9 @@ export function optimize(config: SnowpackConfig, options: OptimizePluginOptions)
   }
 
   /** Given a set of HTML files, trace the imported JS */
-  function preloadModulesInHTML(htmlFile, rootDir: string) {
-    const originalEntries = new Set<string>(); // original entry files in HTML
-    const allModules = new Set<string>(); // all modules required by this HTML file
+  function preloadModulesInHTML(htmlFile, rootDir) {
+    const originalEntries = new Set(); // original entry files in HTML
+    const allModules = new Set(); // all modules required by this HTML file
 
     let code = fs.readFileSync(htmlFile, 'utf-8');
     const scriptMatches = code.match(new RegExp(HTML_JS_REGEX));
@@ -110,7 +90,7 @@ export function optimize(config: SnowpackConfig, options: OptimizePluginOptions)
       });
 
     // 2. scan entries for additional imports
-    const scannedFiles = new Set<string>(); // keep track of files scanned so we don’t get stuck in a circular dependency
+    const scannedFiles = new Set(); // keep track of files scanned so we don’t get stuck in a circular dependency
     originalEntries.forEach((entry) => {
       scanForStaticImports({
         file: entry,
@@ -144,16 +124,8 @@ export function optimize(config: SnowpackConfig, options: OptimizePluginOptions)
     return code;
   }
 
-  async function optimizeFile({
-    esbuildService,
-    file,
-    rootDir,
-  }: {
-    esbuildService: esbuild.Service;
-    file: string;
-    rootDir: string;
-  }) {
-    const {baseExt} = getExt(file);
+  async function optimizeFile({esbuildService, file, rootDir}) {
+    const baseExt = path.extname(file).toLowerCase();
 
     // optimize based on extension. if it’s not here, leave as-is
     switch (baseExt) {
@@ -173,9 +145,11 @@ export function optimize(config: SnowpackConfig, options: OptimizePluginOptions)
         break;
       }
       case '.html': {
-        let code = preloadModulesInHTML(file, rootDir);
-        // TODO: minify HTML
-        fs.writeFileSync(file, code, 'utf-8');
+        if (options.preloadModules) {
+          let code = preloadModulesInHTML(file, rootDir);
+          // TODO: minify HTML
+          fs.writeFileSync(file, code, 'utf-8');
+        }
         break;
       }
     }
@@ -208,4 +182,4 @@ export function optimize(config: SnowpackConfig, options: OptimizePluginOptions)
       esbuildService.stop();
     },
   };
-}
+};

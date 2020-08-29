@@ -1,13 +1,12 @@
 ## Main Concepts
 
-
 ### Unbundled Development
 
 ![webpack vs. snowpack diagram](/img/snowpack-unbundled-example-3.png)
 
 **Unbundled development** is the idea of shipping individual files to the browser during development. Files can still be built with your favorite tools (like Babel, TypeScript, Sass) and then loaded individually in the browser with dependencies thanks to ESM `import` and `export` syntax. Any time you change a file, Snowpack only ever needs to rebuild that single file.
 
-The alternative is **bundled development.** Almost every popular JavaScript build tool today focuses on bundled development. Running your entire application through a bundler introduces additional work and complexity to your dev workflow that is unnecessary now that ESM is widely supported. Every change -- on every save -- must be rebundled with the rest of your application before your changes can be reflected in your browser. 
+The alternative is **bundled development.** Almost every popular JavaScript build tool today focuses on bundled development. Running your entire application through a bundler introduces additional work and complexity to your dev workflow that is unnecessary now that ESM is widely supported. Every change -- on every save -- must be rebundled with the rest of your application before your changes can be reflected in your browser.
 
 Unbundled development has several advantages over the traditional bundled development approach:
 
@@ -38,10 +37,10 @@ node_modules/react-dom/**/* -> http://localhost:3000/web_modules/react-dom.js
 
 After Snowpack builds your dependencies, any package can be imported and run directly in the browser with zero additional bundling or tooling required. This ability to import npm packages natively in the browser (without a bundler) is the foundation that all unbundled development and the rest of Snowpack is built on top of.
 
-``` html
+```html
 <!-- This runs directly in the browser with `snowpack dev` -->
 <body>
-  <script type='module'>
+  <script type="module">
     import React from 'react';
     console.log(React);
   </script>
@@ -56,13 +55,11 @@ After Snowpack builds your dependencies, any package can be imported and run dir
 
 Snowpack supports JSX & TypeScript source code by default. You can extend your build even further with [custom plugins](#build-plugins) that connect Snowpack with your favorite build tools: TypeScript, Babel, Vue, Svelte, PostCSS, Sass... go wild!
 
-
 ### Snowpack's Build Pipeline
 
 ![build output example](/img/snowpack-build-example.png)
 
 `snowpack build` - When you're ready to deploy your application, run the build command to generate a static production build of your site. Building is tightly integrated with your dev setup so that you are guaranteed to get a near-exact copy of the same code that you saw during development.
-
 
 ### Bundle for Production
 
@@ -70,7 +67,9 @@ Snowpack supports JSX & TypeScript source code by default. You can extend your b
 
 By default, `snowpack build` will build your site using the same unbundled approach as the `dev` command. This is fine for most projects, but you also may still want to bundle for production. Legacy browser support, code minification, code-splitting, tree-shaking, dead code elimination, and other performance optimizations are all handled in Snowpack via bundling.
 
-**Connect your favorite bundler to Snowpack via a one-line plugin .** Bundlers normally require dozens or even hundreds of lines of configuration, but with Snowpack it's just a one-line change to your project config file. Snowpack builds your application *before* sending it to the bundler, so that all the bundler needs to do is worry about bundling the final JavaScript & CSS. No custom configuration required.
+#### Bundled optimization
+
+**Connect your favorite bundler to Snowpack via a one-line plugin.** Bundlers normally require dozens or even hundreds of lines of configuration, but with Snowpack it's just a one-line change to your project config file. Snowpack builds your application _before_ sending it to the bundler, so that all the bundler needs to do is worry about bundling the final JavaScript & CSS. No custom configuration required.
 
 Snowpack ships with official support for [webpack](https://www.npmjs.com/package/@snowpack/plugin-webpack). Connect the `"@snowpack/plugin-webpack"` plugin in your Snowpack configuration file and then run `snowpack build` to see your optimized, bundled build.
 
@@ -80,5 +79,18 @@ Snowpack ships with official support for [webpack](https://www.npmjs.com/package
 {
   // Optimize your production builds with Webpack
   "plugins": [["@snowpack/plugin-webpack", {/* ... */}]]
+}
+```
+
+#### Unbundled optimization (experimental)
+
+To try Snowpack’s unbundled optimization including JS minification and JS [module preloading](https://developers.google.com/web/updates/2017/12/modulepreload), check out `@snowpack/plugin-optimize`. The goal of this plugin is to optimize an unbundled application for production. Note that this is experimental, so the API/plugin options may change as features stabilize.
+
+```js
+// snowpack.config.json
+// [npm install @snowpack/plugin-optimize]
+{
+  // Optimize your unbundled app
+  "plugins": [["@snowpack/plugin-optimize"]]
 }
 ```
