@@ -763,7 +763,12 @@ export function createConfiguration(
 export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
   const explorerSync = cosmiconfigSync(CONFIG_NAME, {
     // only support these 4 types of config for now
-    searchPlaces: ['package.json', 'snowpack.config.cjs', 'snowpack.config.js', 'snowpack.config.json'],
+    searchPlaces: [
+      'package.json',
+      'snowpack.config.cjs',
+      'snowpack.config.js',
+      'snowpack.config.json',
+    ],
     // don't support crawling up the folder tree:
     stopDir: path.dirname(process.cwd()),
   });
