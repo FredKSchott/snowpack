@@ -138,7 +138,7 @@ const sendFile = (
     stream.pipeline(bodyStream, zlib.createGzip(), res, function onError(err) {
       if (err) {
         res.end();
-        logger.error(`✘ An error occurred serving ${colors.bold(req.url)}`);
+        logger.error(`✘ An error occurred serving ${colors.bold(req.url!)}`);
         logger.error(typeof err !== 'string' ? err.toString() : err);
       }
     });
