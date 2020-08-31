@@ -10,6 +10,7 @@ import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
+import validatePackageName from 'validate-npm-package-name';
 import {ImportMap, SnowpackConfig} from './types/snowpack';
 import {removeTrailingSlash, addTrailingSlash} from './config';
 
@@ -337,4 +338,14 @@ export function cssSourceMappingURL(code: string, sourceMappingURL: string) {
 /** JS sourceMappingURL */
 export function jsSourceMappingURL(code: string, sourceMappingURL: string) {
   return code.replace(/\n*$/, '') + `\n//# sourceMappingURL=${sourceMappingURL}\n`; // strip ending lines & append source map (with linebreaks for safety)
+}
+
+/**
+ * Formats the snowpack dependency name from a "webDependencies" input value:
+ * 2. Remove any ".js"/".mjs" extension (will be added automatically by Rollup)
+ */
+export function getWebDependencyName(dep: string): string {
+  return validatePackageName(dep).validForNewPackages
+    ? dep.replace(/\.js$/i, 'js') // if this is a top-level package ending in .js, replace with js (e.g. tippy.js -> tippyjs)
+    : dep.replace(/\.m?js$/i, ''); // otherwise simply strip the extension (Rollup will resolve it)
 }
