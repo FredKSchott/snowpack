@@ -62,7 +62,7 @@ async function runPipelineLoadStep(
 
       validatePluginLoadResult(step, result);
 
-      if (typeof result === 'string') {
+      if (typeof result === 'string' || Buffer.isBuffer(result)) {
         const mainOutputExt = step.resolve.output[0];
         return {
           [mainOutputExt]: {
@@ -139,7 +139,7 @@ async function runPipelineTransformStep(
         });
         logger.debug(`✔ transform() success [${debugPath}]`, {name: step.name});
         // if step returned a value, only update code (don’t touch .map)
-        if (typeof result === 'string') {
+        if (typeof result === 'string' || Buffer.isBuffer(result)) {
           output[destExt].code = result;
           output[destExt].map = undefined;
         } else if (result && typeof result === 'object' && (result as {result: string}).result) {

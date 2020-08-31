@@ -728,7 +728,8 @@ export function validatePluginLoadResult(
   if (!result) {
     return;
   }
-  if (typeof result === 'string' && plugin.resolve!.output.length !== 1) {
+  const isValidSingleResultType = typeof result === 'string' || Buffer.isBuffer(result);
+  if (isValidSingleResultType && plugin.resolve!.output.length !== 1) {
     handleConfigError(
       `[plugin=${pluginName}] "load()" returned a string, but "resolve.output" contains multiple possible outputs. If multiple outputs are expected, the object return format is required.`,
     );
