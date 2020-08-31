@@ -4,7 +4,7 @@
   "name": "@snowpack/test-module-resolution",
   "description": "Tests that relative web_modules directories work",
   "scripts": {
-    "testbuild": "snowpack build --no-treeshake --no-minify"
+    "testbuild": "snowpack build --no-treeshake"
   },
   "devDependencies": {
     "preact": "^10.4.6",

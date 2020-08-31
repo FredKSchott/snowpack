@@ -509,29 +509,6 @@ exports[`snowpack build config-extends-plugins: index.html 1`] = `
 </html>"
 `;
 
-exports[`snowpack build config-minify: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
-
-exports[`snowpack build config-minify: _dist_/index.js 1`] = `"import{flatten as o}from\\"../web_modules/array-flatten.js\\";console.log(o);"`;
-
-exports[`snowpack build config-minify: allFiles 1`] = `
-Array [
-  "__snowpack__/env.js",
-  "_dist_/index.js",
-  "web_modules/array-flatten.js",
-  "web_modules/import-map.json",
-]
-`;
-
-exports[`snowpack build config-minify: web_modules/array-flatten.js 1`] = `"function s(t){var n=[];return f(t,n),n}function f(t,n){for(var r=0;r<t.length;r++){var e=t[r];Array.isArray(e)?f(e,n):n.push(e)}}export{s as flatten};"`;
-
-exports[`snowpack build config-minify: web_modules/import-map.json 1`] = `
-"{
-  \\"imports\\": {
-    \\"array-flatten\\": \\"./array-flatten.js\\"
-  }
-}"
-`;
-
 exports[`snowpack build config-out: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build config-out: allFiles 1`] = `
@@ -563,7 +540,7 @@ exports[`snowpack build config-out: package.json 1`] = `
 }"
 `;
 
-exports[`snowpack build config-out: src/index.js 1`] = `"console.log(\\"fooey\\");"`;
+exports[`snowpack build config-out: src/index.js 1`] = `"console.log('fooey');"`;
 
 exports[`snowpack build config-treeshake: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
@@ -6323,7 +6300,10 @@ export { animateFill, createSingleton, delegate, followCursor, hideAll, inlinePo
 
 exports[`snowpack build plugin-build-script: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`snowpack build plugin-build-script: _dist_/index.js 1`] = `"const msg=\\"I’m a TypeScript file\\";console.log(msg);"`;
+exports[`snowpack build plugin-build-script: _dist_/index.js 1`] = `
+"const msg = 'I’m a TypeScript file';
+console.log(msg);"
+`;
 
 exports[`snowpack build plugin-build-script: allFiles 1`] = `
 Array [

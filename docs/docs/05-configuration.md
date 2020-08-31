@@ -30,8 +30,8 @@ $ snowpack dev --bundle
 # {devOptions: {bundle: false}}
 $ snowpack dev --no-bundle
 
-# {buildOptions: {minify: false}}
-$ snowpack build --no-minify
+# {buildOptions: {clean: true}}
+$ snowpack build --clean
 ```
 
 **CLI flags will be merged with (and take priority over) your config file values.** Every config value outlined below can also be passed as a CLI flag. Additionally, Snowpack also supports the following flags:
@@ -142,10 +142,8 @@ $ snowpack build --no-minify
   - Set to `true` if Snowpack should erase the build folder before each build.
 - **`buildOptions.metaDir`** | `string` | Default: `__snowpack__`
   - By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
-- **`buildOptions.minify`** | `boolean` | Default: `true`
-  - By default, Snowpack will minify your dependencies on `snowpack build`. Disable this by setting this config option to `minify: false`.
 - **`buildOptions.sourceMaps`** | `boolean` | Default: `false`
-  - ***Experimental:*** Set to `true` to enable source maps
+  - **_Experimental:_** Set to `true` to enable source maps
 - **`buildOptions.webModulesUrl`** | `string` | Default: `web_modules`
   - Rename your web modules directory.
 

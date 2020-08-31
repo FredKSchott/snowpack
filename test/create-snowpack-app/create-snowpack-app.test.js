@@ -60,7 +60,7 @@ describe('create-snowpack-app', () => {
         '--template',
         `./create-snowpack-app/${template}`,
         '--use-yarn', // we use Yarn for this repo
-        '--no-install'
+        '--no-install',
       ],
       {cwd: path.resolve(__dirname, '..', '..')},
     );
@@ -81,7 +81,7 @@ describe('create-snowpack-app', () => {
       const cwd = path.join(TEMPLATES_DIR, template);
 
       // build
-      await execa('yarn', ['build', '--clean', '--no-minify'], {
+      await execa('yarn', ['build', '--clean'], {
         cwd,
         env: {NODE_ENV: 'production'},
       });

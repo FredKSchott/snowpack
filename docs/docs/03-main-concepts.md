@@ -84,13 +84,23 @@ Snowpack ships with official support for [webpack](https://www.npmjs.com/package
 
 #### Unbundled optimization (experimental)
 
-To try Snowpack’s unbundled optimization including JS minification and JS [module preloading](https://developers.google.com/web/updates/2017/12/modulepreload), check out `@snowpack/plugin-optimize`. The goal of this plugin is to optimize an unbundled application for production. Note that this is experimental, so the API/plugin options may change as features stabilize.
+To try Snowpack’s unbundled optimization including JS minification and JS [module preloading](https://developers.google.com/web/updates/2017/12/modulepreload), check out `@snowpack/plugin-optimize`. The goal of this plugin is to optimize an unbundled application for production, and provide better configuration all in one place. Note that this is experimental, so the API/plugin options may change slightly as features stabilize.
+
+_Note: this replaces `buildOptions.minify`._
 
 ```js
 // snowpack.config.json
 // [npm install @snowpack/plugin-optimize]
 {
   // Optimize your unbundled app
-  "plugins": [["@snowpack/plugin-optimize"]]
+  "plugins": [
+    [
+      "@snowpack/plugin-optimize",
+      {
+        "minifyJS": true, // default
+        "modulePreload": true // default
+      }
+    ]
+  ]
 }
 ```

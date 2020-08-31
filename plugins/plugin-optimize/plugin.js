@@ -137,10 +137,17 @@ exports.default = function plugin(config, userDefinedOptions) {
       case '.mjs': {
         // minify if enabled
         if (options.minifyJS) {
-          let code = fs.readFileSync(file, 'utf-8');
-          const minified = await esbuildService.transform(code, {minify: true});
-          code = minified.js;
-          fs.writeFileSync(file, code);
+          try {
+            let code = fs.readFileSync(file, 'utf-8');
+            const minified = await esbuildService.transform(code, {minify: true});
+            code = minified.js;
+            fs.writeFileSync(file, code);
+          } catch (err) {
+            console.error(
+              colors.dim('[@snowpack/plugin-optimize]') +
+                `Error minifying JS [${file}]\n${err.toString()}`,
+            );
+          }
         }
         break;
       }
