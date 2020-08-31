@@ -8,6 +8,7 @@ Snowpack supports configuration files in multiple formats, sorted by priority or
 
 1. `--config [path]`: If provided.
 1. `package.json`: A namespaced config object (`"snowpack": {...}`).
+1. `snowpack.config.cjs`: (`module.exports = {...}`) for projects using `"type": "module"`.
 1. `snowpack.config.js`: (`module.exports = {...}`).
 1. `snowpack.config.json`: (`{...}`).
 
