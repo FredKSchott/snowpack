@@ -61,7 +61,7 @@ import {
   transformEsmImports,
   transformFileImports,
 } from '../rewrite-imports';
-import {matchImportSpecifier} from '../scan-imports';
+import {matchDynamicImportValue} from '../scan-imports';
 import {CommandOptions, ImportMap, SnowpackBuildMap, SnowpackConfig} from '../types/snowpack';
 import {
   BUILD_CACHE,
@@ -604,7 +604,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
         const resolvedImports = rawImports.map((imp) => {
           let spec = code.substring(imp.s, imp.e);
           if (imp.d > -1) {
-            spec = matchImportSpecifier(spec) || '';
+            spec = matchDynamicImportValue(spec) || '';
           }
           spec = spec.replace(/\?mtime=[0-9]+$/, '');
           return path.posix.resolve(path.posix.dirname(reqPath), spec);

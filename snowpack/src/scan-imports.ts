@@ -36,8 +36,8 @@ function createInstallTarget(specifier: string, all = true): InstallTarget {
   };
 }
 
-export function matchImportSpecifier(importStatement: string) {
-  const matched = importStatement.match(/^\s*('([^']+)'|"([^"]+)")\s*$/m);
+export function matchDynamicImportValue(importStatement: string) {
+  const matched = stripComments(importStatement).match(/^\s*('([^']+)'|"([^"]+)")\s*$/m);
   return matched?.[2] || matched?.[3] || null;
 }
 
@@ -52,7 +52,7 @@ function getWebModuleSpecifierFromCode(code: string, imp: ImportSpecifier) {
   }
   // Dynamic imports: a bit trickier to parse. Today, we only support string literals.
   const importStatement = code.substring(imp.s, imp.e);
-  return matchImportSpecifier(importStatement);
+  return matchDynamicImportValue(importStatement);
 }
 
 /**

@@ -574,16 +574,44 @@ import def, {
     /* map, */
     all/* , */,
 } from '../web_modules/async.js';
-console.log(def, waterfall, all);"
+console.log(def, waterfall, all);
+import(\\"../web_modules/array-flatten.js\\")"
 `;
 
 exports[`snowpack build config-treeshake: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/index.js",
+  "web_modules/array-flatten.js",
   "web_modules/async.js",
   "web_modules/import-map.json",
 ]
+`;
+
+exports[`snowpack build config-treeshake: web_modules/array-flatten.js 1`] = `
+"/**
+ * Flatten an array indefinitely.
+ */
+function flatten(array) {
+    var result = [];
+    $flatten(array, result);
+    return result;
+}
+/**
+ * Internal flatten function recursively passes \`result\`.
+ */
+function $flatten(array, result) {
+    for (var i = 0; i < array.length; i++) {
+        var value = array[i];
+        if (Array.isArray(value)) {
+            $flatten(value, result);
+        }
+        else {
+            result.push(value);
+        }
+    }
+}
+export { flatten };"
 `;
 
 exports[`snowpack build config-treeshake: web_modules/async.js 1`] = `
@@ -2645,6 +2673,7 @@ export { every$1 as all, waterfall$1 as waterfall };"
 exports[`snowpack build config-treeshake: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
+    \\"array-flatten\\": \\"./array-flatten.js\\",
     \\"async\\": \\"./async.js\\"
   }
 }"

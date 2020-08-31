@@ -1,6 +1,6 @@
 import {SnowpackSourceFile} from './types/snowpack';
 import {HTML_JS_REGEX, CSS_REGEX} from './util';
-import {matchImportSpecifier} from './scan-imports';
+import {matchDynamicImportValue} from './scan-imports';
 
 const {parse} = require('es-module-lexer');
 
@@ -18,7 +18,7 @@ export async function scanCodeImportsExports(code: string): Promise<any[]> {
     // imp.d > -1 === dynamic import
     if (imp.d > -1) {
       const importStatement = code.substring(imp.s, imp.e);
-      return !!matchImportSpecifier(importStatement);
+      return !!matchDynamicImportValue(importStatement);
     }
     return true;
   });
@@ -33,7 +33,7 @@ export async function transformEsmImports(
   for (const imp of imports.reverse()) {
     let spec = rewrittenCode.substring(imp.s, imp.e);
     if (imp.d > -1) {
-      spec = matchImportSpecifier(spec) || '';
+      spec = matchDynamicImportValue(spec) || '';
     }
     let rewrittenImport = replaceImport(spec);
     if (imp.d > -1) {

@@ -12,6 +12,7 @@
     }
   },
   "dependencies": {
+    "array-flatten": "^3.0.0",
     "async": "^3.2.0"
   },
   "devDependencies": {
