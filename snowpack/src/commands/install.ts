@@ -41,6 +41,7 @@ import {
   writeLockfile,
   isPackageAliasEntry,
   findMatchingAliasEntry,
+  getWebDependencyName,
 } from '../util.js';
 
 type InstallResultCode = 'SUCCESS' | 'ASSET' | 'FAIL';
@@ -75,16 +76,6 @@ let dependencyStats: DependencyStatsOutput | null = null;
 
 function isImportOfPackage(importUrl: string, packageName: string) {
   return packageName === importUrl || importUrl.startsWith(packageName + '/');
-}
-
-/**
- * Formats the snowpack dependency name from a "webDependencies" input value:
- * 2. Remove any ".js"/".mjs" extension (will be added automatically by Rollup)
- */
-function getWebDependencyName(dep: string): string {
-  return validatePackageName(dep).validForNewPackages
-    ? dep.replace(/\.js$/i, 'js') // if this is a top-level package ending in .js, replace with js (e.g. tippy.js -> tippyjs)
-    : dep.replace(/\.m?js$/i, ''); // otherwise simply strip the extension (Rollup will resolve it)
 }
 
 /**
@@ -392,6 +383,11 @@ ${colors.dim(
     format: 'esm',
     sourcemap: sourceMap,
     exports: 'named',
+    entryFileNames: (chunk) => {
+      const targetName = getWebDependencyName(chunk.name);
+      const proxiedName = sanitizePackageName(targetName);
+      return `${proxiedName}.js`;
+    },
     chunkFileNames: 'common/[name]-[hash].js',
   };
   if (Object.keys(installEntrypoints).length > 0) {

@@ -3,6 +3,7 @@ import path from 'path';
 import {Plugin} from 'rollup';
 import {logger} from '../logger';
 import {InstallTarget} from '../types/snowpack';
+import {getWebDependencyName} from '../util.js';
 
 function autoDetectExports(fileLoc: string): string[] | undefined {
   try {
@@ -44,7 +45,7 @@ export function rollupPluginWrapInstallTargets(
       const input = inputOptions.input as {[entryAlias: string]: string};
       for (const [key, val] of Object.entries(input)) {
         const allInstallTargets = installTargets.filter(
-          (imp) => imp.specifier.replace(/\.js$/, 'js') === key,
+          (imp) => getWebDependencyName(imp.specifier) === key,
         );
         const installTargetSummary = allInstallTargets.reduce((summary, imp) => {
           summary.all = summary.all || imp.all;
