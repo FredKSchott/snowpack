@@ -2433,6 +2433,16 @@ class TemplateInstance {
  * subject to an additional IP rights grant found at
  * http://polymer.github.io/PATENTS.txt
  */
+/**
+ * Our TrustedTypePolicy for HTML which is declared using the html template
+ * tag function.
+ *
+ * That HTML is a developer-authored constant, and is parsed with innerHTML
+ * before any untrusted expressions have been mixed in. Therefor it is
+ * considered safe by construction.
+ */
+const policy = window.trustedTypes &&
+    trustedTypes.createPolicy('lit-html', { createHTML: (s) => s });
 const commentMarker = \` \${marker} \`;
 /**
  * The return type of \`html\`, which holds a Template and the values from
@@ -2503,7 +2513,15 @@ class TemplateResult {
     }
     getTemplateElement() {
         const template = document.createElement('template');
-        template.innerHTML = this.getHTML();
+        let value = this.getHTML();
+        if (policy !== undefined) {
+            // this is secure because \`this.strings\` is a TemplateStringsArray.
+            // TODO: validate this when
+            // https://github.com/tc39/proposal-array-is-template-object is
+            // implemented.
+            value = policy.createHTML(value);
+        }
+        template.innerHTML = value;
         return template;
     }
 }
@@ -2555,10 +2573,33 @@ class AttributeCommitter {
     _getValue() {
         const strings = this.strings;
         const l = strings.length - 1;
+        const parts = this.parts;
+        // If we're assigning an attribute via syntax like:
+        //    attr=\\"\${foo}\\"  or  attr=\${foo}
+        // but not
+        //    attr=\\"\${foo} \${bar}\\" or attr=\\"\${foo} baz\\"
+        // then we don't want to coerce the attribute value into one long
+        // string. Instead we want to just return the value itself directly,
+        // so that sanitizeDOMValue can get the actual value rather than
+        // String(value)
+        // The exception is if v is an array, in which case we do want to smash
+        // it together into a string without calling String() on the array.
+        //
+        // This also allows trusted values (when using TrustedTypes) being
+        // assigned to DOM sinks without being stringified in the process.
+        if (l === 1 && strings[0] === '' && strings[1] === '') {
+            const v = parts[0].value;
+            if (typeof v === 'symbol') {
+                return String(v);
+            }
+            if (typeof v === 'string' || !isIterable(v)) {
+                return v;
+            }
+        }
         let text = '';
         for (let i = 0; i < l; i++) {
             text += strings[i];
-            const part = this.parts[i];
+            const part = parts[i];
             if (part !== undefined) {
                 const v = part.value;
                 if (isPrimitive(v) || !isIterable(v)) {
@@ -3108,7 +3149,7 @@ const defaultTemplateProcessor = new DefaultTemplateProcessor();
 // This line will be used in regexes to search for lit-html usage.
 // TODO(justinfagnani): inject version number at build time
 if (typeof window !== 'undefined') {
-    (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.2.1');
+    (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.3.0');
 }
 /**
  * Interprets a template literal as an HTML template that can efficiently
@@ -3399,6 +3440,11 @@ const render$1 = (result, container, options) => {
  */
 var _a;
 /**
+ * Use this module if you want to create your own base class extending
+ * [[UpdatingElement]].
+ * @packageDocumentation
+ */
+/*
  * When using Closure Compiler, JSCompiler_renameProperty(property, object) is
  * replaced at compile time by the munged name for object[property]. We cannot
  * alias this function, so we have to use a small shim that has the same
@@ -3462,24 +3508,11 @@ const finalized = 'finalized';
  * Base element class which manages element properties and attributes. When
  * properties change, the \`update\` method is asynchronously called. This method
  * should be supplied by subclassers to render updates as desired.
+ * @noInheritDoc
  */
 class UpdatingElement extends HTMLElement {
     constructor() {
         super();
-        this._updateState = 0;
-        this._instanceProperties = undefined;
-        // Initialize to an unresolved Promise so we can make sure the element has
-        // connected before first update.
-        this._updatePromise = new Promise((res) => this._enableUpdatingResolver = res);
-        /**
-         * Map with keys for any properties that have changed since the last
-         * update cycle with previous values.
-         */
-        this._changedProperties = new Map();
-        /**
-         * Map with keys of properties that should be reflected when updated.
-         */
-        this._reflectingProperties = undefined;
         this.initialize();
     }
     /**
@@ -3584,7 +3617,7 @@ class UpdatingElement extends HTMLElement {
      *
      * @nocollapse
      */
-    static getPropertyDescriptor(name, key, _options) {
+    static getPropertyDescriptor(name, key, options) {
         return {
             // tslint:disable-next-line:no-any no symbol in index
             get() {
@@ -3593,7 +3626,8 @@ class UpdatingElement extends HTMLElement {
             set(value) {
                 const oldValue = this[name];
                 this[key] = value;
-                this._requestUpdate(name, oldValue);
+                this
+                    .requestUpdateInternal(name, oldValue, options);
             },
             configurable: true,
             enumerable: true
@@ -3708,10 +3742,14 @@ class UpdatingElement extends HTMLElement {
      * registered properties.
      */
     initialize() {
+        this._updateState = 0;
+        this._updatePromise =
+            new Promise((res) => this._enableUpdatingResolver = res);
+        this._changedProperties = new Map();
         this._saveInstanceProperties();
         // ensures first update will be caught by an early access of
         // \`updateComplete\`
-        this._requestUpdate();
+        this.requestUpdateInternal();
     }
     /**
      * Fixes any properties set on the instance before upgrade time.
@@ -3827,16 +3865,16 @@ class UpdatingElement extends HTMLElement {
         }
     }
     /**
-     * This private version of \`requestUpdate\` does not access or return the
+     * This protected version of \`requestUpdate\` does not access or return the
      * \`updateComplete\` promise. This promise can be overridden and is therefore
      * not free to access.
      */
-    _requestUpdate(name, oldValue) {
+    requestUpdateInternal(name, oldValue, options) {
         let shouldRequestUpdate = true;
         // If we have a property key, perform property update steps.
         if (name !== undefined) {
             const ctor = this.constructor;
-            const options = ctor.getPropertyOptions(name);
+            options = options || ctor.getPropertyOptions(name);
             if (ctor._valueHasChanged(this[name], oldValue, options.hasChanged)) {
                 if (!this._changedProperties.has(name)) {
                     this._changedProperties.set(name, oldValue);
@@ -3876,7 +3914,7 @@ class UpdatingElement extends HTMLElement {
      * @returns {Promise} A Promise that is resolved when the update completes.
      */
     requestUpdate(name, oldValue) {
-        this._requestUpdate(name, oldValue);
+        this.requestUpdateInternal(name, oldValue);
         return this.updateComplete;
     }
     /**
@@ -3925,6 +3963,12 @@ class UpdatingElement extends HTMLElement {
      * \`\`\`
      */
     performUpdate() {
+        // Abort any update if one is not pending when this is called.
+        // This can happen if \`performUpdate\` is called early to \\"flush\\"
+        // the update.
+        if (!this._hasRequestedUpdate) {
+            return;
+        }
         // Mixin instance properties once, if they exist.
         if (this._instanceProperties) {
             this._applyInstanceProperties();
@@ -4099,7 +4143,7 @@ const standardCustomElement = (tagName, descriptor) => {
  *   }
  * }
  * \`\`\`
- *
+ * @category Decorator
  * @param tagName The name of the custom element to define.
  */
 const customElement = (tagName) => (classOrDescriptor) => (typeof classOrDescriptor === 'function') ?
@@ -4150,19 +4194,20 @@ const legacyProperty = (options, proto, name) => {
 };
 /**
  * A property decorator which creates a LitElement property which reflects a
- * corresponding attribute value. A \`PropertyDeclaration\` may optionally be
+ * corresponding attribute value. A [[\`PropertyDeclaration\`]] may optionally be
  * supplied to configure property features.
  *
  * This decorator should only be used for public fields. Private or protected
- * fields should use the internalProperty decorator.
+ * fields should use the [[\`internalProperty\`]] decorator.
  *
  * @example
- *
- *     class MyElement {
- *       @property({ type: Boolean })
- *       clicked = false;
- *     }
- *
+ * \`\`\`ts
+ * class MyElement {
+ *   @property({ type: Boolean })
+ *   clicked = false;
+ * }
+ * \`\`\`
+ * @category Decorator
  * @ExportDecoratedItems
  */
 function property(options) {
@@ -4181,7 +4226,12 @@ found at http://polymer.github.io/CONTRIBUTORS.txt Code distributed by Google as
 part of the polymer project is also subject to an additional IP rights grant
 found at http://polymer.github.io/PATENTS.txt
 */
-const supportsAdoptingStyleSheets = ('adoptedStyleSheets' in Document.prototype) &&
+/**
+ * Whether the current browser supports \`adoptedStyleSheets\`.
+ */
+const supportsAdoptingStyleSheets = (window.ShadowRoot) &&
+    (window.ShadyCSS === undefined || window.ShadyCSS.nativeShadow) &&
+    ('adoptedStyleSheets' in Document.prototype) &&
     ('replace' in CSSStyleSheet.prototype);
 const constructionToken = Symbol();
 class CSSResult {
@@ -4195,8 +4245,8 @@ class CSSResult {
     // stylesheets are not created until the first element instance is made.
     get styleSheet() {
         if (this._styleSheet === undefined) {
-            // Note, if \`adoptedStyleSheets\` is supported then we assume CSSStyleSheet
-            // is constructable.
+            // Note, if \`supportsAdoptingStyleSheets\` is true then we assume
+            // CSSStyleSheet is constructable.
             if (supportsAdoptingStyleSheets) {
                 this._styleSheet = new CSSStyleSheet();
                 this._styleSheet.replaceSync(this.cssText);
@@ -4211,6 +4261,16 @@ class CSSResult {
         return this.cssText;
     }
 }
+/**
+ * Wrap a value for interpolation in a [[\`css\`]] tagged template literal.
+ *
+ * This is unsafe because untrusted CSS text can be used to phone home
+ * or exfiltrate data to an attacker controlled site. Take care to only use
+ * this with trusted input.
+ */
+const unsafeCSS = (value) => {
+    return new CSSResult(String(value), constructionToken);
+};
 const textFromCSSResult = (value) => {
     if (value instanceof CSSResult) {
         return value.cssText;
@@ -4224,10 +4284,10 @@ const textFromCSSResult = (value) => {
     }
 };
 /**
- * Template tag which which can be used with LitElement's \`style\` property to
- * set element styles. For security reasons, only literal string values may be
- * used. To incorporate non-literal values \`unsafeCSS\` may be used inside a
- * template string part.
+ * Template tag which which can be used with LitElement's [[LitElement.styles |
+ * \`styles\`]] property to set element styles. For security reasons, only literal
+ * string values may be used. To incorporate non-literal values [[\`unsafeCSS\`]]
+ * may be used inside a template string part.
  */
 const css = (strings, ...values) => {
     const cssText = values.reduce((acc, v, idx) => acc + textFromCSSResult(v) + strings[idx + 1], strings[0]);
@@ -4250,12 +4310,20 @@ const css = (strings, ...values) => {
 // This line will be used in regexes to search for LitElement usage.
 // TODO(justinfagnani): inject version number at build time
 (window['litElementVersions'] || (window['litElementVersions'] = []))
-    .push('2.3.1');
+    .push('2.4.0');
 /**
  * Sentinal value used to avoid calling lit-html's render function when
  * subclasses do not implement \`render\`
  */
 const renderNotImplemented = {};
+/**
+ * Base element class that manages element properties and attributes, and
+ * renders a lit-html template.
+ *
+ * To define a component, subclass \`LitElement\` and implement a
+ * \`render\` method to provide the component's template. Define properties
+ * using the [[\`properties\`]] property or the [[\`property\`]] decorator.
+ */
 class LitElement extends UpdatingElement {
     /**
      * Return the array of styles to apply to the element.
@@ -4279,10 +4347,7 @@ class LitElement extends UpdatingElement {
         // This should be addressed when a browser ships constructable
         // stylesheets.
         const userStyles = this.getStyles();
-        if (userStyles === undefined) {
-            this._styles = [];
-        }
-        else if (Array.isArray(userStyles)) {
+        if (Array.isArray(userStyles)) {
             // De-duplicate styles preserving the _last_ instance in the set.
             // This is a performance optimization to avoid duplicated styles that can
             // occur especially when composing via subclassing.
@@ -4300,19 +4365,36 @@ class LitElement extends UpdatingElement {
             this._styles = styles;
         }
         else {
-            this._styles = [userStyles];
+            this._styles = userStyles === undefined ? [] : [userStyles];
         }
+        // Ensure that there are no invalid CSSStyleSheet instances here. They are
+        // invalid in two conditions.
+        // (1) the sheet is non-constructible (\`sheet\` of a HTMLStyleElement), but
+        //     this is impossible to check except via .replaceSync or use
+        // (2) the ShadyCSS polyfill is enabled (:. supportsAdoptingStyleSheets is
+        //     false)
+        this._styles = this._styles.map((s) => {
+            if (s instanceof CSSStyleSheet && !supportsAdoptingStyleSheets) {
+                // Flatten the cssText from the passed constructible stylesheet (or
+                // undetectable non-constructible stylesheet). The user might have
+                // expected to update their stylesheets over time, but the alternative
+                // is a crash.
+                const cssText = Array.prototype.slice.call(s.cssRules)
+                    .reduce((css, rule) => css + rule.cssText, '');
+                return unsafeCSS(cssText);
+            }
+            return s;
+        });
     }
     /**
-     * Performs element initialization. By default this calls \`createRenderRoot\`
-     * to create the element \`renderRoot\` node and captures any pre-set values for
-     * registered properties.
+     * Performs element initialization. By default this calls
+     * [[\`createRenderRoot\`]] to create the element [[\`renderRoot\`]] node and
+     * captures any pre-set values for registered properties.
      */
     initialize() {
         super.initialize();
         this.constructor._getUniqueStyles();
-        this.renderRoot =
-            this.createRenderRoot();
+        this.renderRoot = this.createRenderRoot();
         // Note, if renderRoot is not a shadowRoot, styles would/could apply to the
         // element's getRootNode(). While this could be done, we're choosing not to
         // support this now since it would require different logic around de-duping.
@@ -4331,7 +4413,7 @@ class LitElement extends UpdatingElement {
         return this.attachShadow({ mode: 'open' });
     }
     /**
-     * Applies styling to the element shadowRoot using the \`static get styles\`
+     * Applies styling to the element shadowRoot using the [[\`styles\`]]
      * property. Styling will apply using \`shadowRoot.adoptedStyleSheets\` where
      * available and will fallback otherwise. When Shadow DOM is polyfilled,
      * ShadyCSS scopes styles and adds them to the document. When Shadow DOM
@@ -4346,7 +4428,7 @@ class LitElement extends UpdatingElement {
         }
         // There are three separate cases here based on Shadow DOM support.
         // (1) shadowRoot polyfilled: use ShadyCSS
-        // (2) shadowRoot.adoptedStyleSheets available: use it.
+        // (2) shadowRoot.adoptedStyleSheets available: use it
         // (3) shadowRoot.adoptedStyleSheets polyfilled: append styles after
         // rendering
         if (window.ShadyCSS !== undefined && !window.ShadyCSS.nativeShadow) {
@@ -4354,7 +4436,7 @@ class LitElement extends UpdatingElement {
         }
         else if (supportsAdoptingStyleSheets) {
             this.renderRoot.adoptedStyleSheets =
-                styles.map((s) => s.styleSheet);
+                styles.map((s) => s instanceof CSSStyleSheet ? s : s.styleSheet);
         }
         else {
             // This must be done after rendering so the actual style insertion is done
@@ -4401,9 +4483,9 @@ class LitElement extends UpdatingElement {
     }
     /**
      * Invoked on each update to perform rendering tasks. This method may return
-     * any value renderable by lit-html's NodePart - typically a TemplateResult.
-     * Setting properties inside this method will *not* trigger the element to
-     * update.
+     * any value renderable by lit-html's \`NodePart\` - typically a
+     * \`TemplateResult\`. Setting properties inside this method will *not* trigger
+     * the element to update.
      */
     render() {
         return renderNotImplemented;
@@ -4418,10 +4500,20 @@ class LitElement extends UpdatingElement {
  */
 LitElement['finalized'] = true;
 /**
- * Render method used to render the value to the element's DOM.
- * @param result The value to render.
- * @param container Node into which to render.
- * @param options Element name.
+ * Reference to the underlying library method used to render the element's
+ * DOM. By default, points to the \`render\` method from lit-html's shady-render
+ * module.
+ *
+ * **Most users will never need to touch this property.**
+ *
+ * This  property should not be confused with the \`render\` instance method,
+ * which should be overridden to define a template for the element.
+ *
+ * Advanced users creating a new base class based on LitElement can override
+ * this property to point to a custom render method with a signature that
+ * matches [shady-render's \`render\`
+ * method](https://lit-html.polymer-project.org/api/modules/shady_render.html#render).
+ *
  * @nocollapse
  */
 LitElement.render = render$1;
@@ -5125,6 +5217,16 @@ class TemplateInstance {
  * subject to an additional IP rights grant found at
  * http://polymer.github.io/PATENTS.txt
  */
+/**
+ * Our TrustedTypePolicy for HTML which is declared using the html template
+ * tag function.
+ *
+ * That HTML is a developer-authored constant, and is parsed with innerHTML
+ * before any untrusted expressions have been mixed in. Therefor it is
+ * considered safe by construction.
+ */
+const policy = window.trustedTypes &&
+    trustedTypes.createPolicy('lit-html', { createHTML: (s) => s });
 const commentMarker = \` \${marker} \`;
 /**
  * The return type of \`html\`, which holds a Template and the values from
@@ -5195,7 +5297,15 @@ class TemplateResult {
     }
     getTemplateElement() {
         const template = document.createElement('template');
-        template.innerHTML = this.getHTML();
+        let value = this.getHTML();
+        if (policy !== undefined) {
+            // this is secure because \`this.strings\` is a TemplateStringsArray.
+            // TODO: validate this when
+            // https://github.com/tc39/proposal-array-is-template-object is
+            // implemented.
+            value = policy.createHTML(value);
+        }
+        template.innerHTML = value;
         return template;
     }
 }
@@ -5247,10 +5357,33 @@ class AttributeCommitter {
     _getValue() {
         const strings = this.strings;
         const l = strings.length - 1;
+        const parts = this.parts;
+        // If we're assigning an attribute via syntax like:
+        //    attr=\\"\${foo}\\"  or  attr=\${foo}
+        // but not
+        //    attr=\\"\${foo} \${bar}\\" or attr=\\"\${foo} baz\\"
+        // then we don't want to coerce the attribute value into one long
+        // string. Instead we want to just return the value itself directly,
+        // so that sanitizeDOMValue can get the actual value rather than
+        // String(value)
+        // The exception is if v is an array, in which case we do want to smash
+        // it together into a string without calling String() on the array.
+        //
+        // This also allows trusted values (when using TrustedTypes) being
+        // assigned to DOM sinks without being stringified in the process.
+        if (l === 1 && strings[0] === '' && strings[1] === '') {
+            const v = parts[0].value;
+            if (typeof v === 'symbol') {
+                return String(v);
+            }
+            if (typeof v === 'string' || !isIterable(v)) {
+                return v;
+            }
+        }
         let text = '';
         for (let i = 0; i < l; i++) {
             text += strings[i];
-            const part = this.parts[i];
+            const part = parts[i];
             if (part !== undefined) {
                 const v = part.value;
                 if (isPrimitive(v) || !isIterable(v)) {
@@ -5800,7 +5933,7 @@ const defaultTemplateProcessor = new DefaultTemplateProcessor();
 // This line will be used in regexes to search for lit-html usage.
 // TODO(justinfagnani): inject version number at build time
 if (typeof window !== 'undefined') {
-    (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.2.1');
+    (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.3.0');
 }
 /**
  * Interprets a template literal as an HTML template that can efficiently
@@ -6091,6 +6224,11 @@ const render$1 = (result, container, options) => {
  */
 var _a;
 /**
+ * Use this module if you want to create your own base class extending
+ * [[UpdatingElement]].
+ * @packageDocumentation
+ */
+/*
  * When using Closure Compiler, JSCompiler_renameProperty(property, object) is
  * replaced at compile time by the munged name for object[property]. We cannot
  * alias this function, so we have to use a small shim that has the same
@@ -6154,24 +6292,11 @@ const finalized = 'finalized';
  * Base element class which manages element properties and attributes. When
  * properties change, the \`update\` method is asynchronously called. This method
  * should be supplied by subclassers to render updates as desired.
+ * @noInheritDoc
  */
 class UpdatingElement extends HTMLElement {
     constructor() {
         super();
-        this._updateState = 0;
-        this._instanceProperties = undefined;
-        // Initialize to an unresolved Promise so we can make sure the element has
-        // connected before first update.
-        this._updatePromise = new Promise((res) => this._enableUpdatingResolver = res);
-        /**
-         * Map with keys for any properties that have changed since the last
-         * update cycle with previous values.
-         */
-        this._changedProperties = new Map();
-        /**
-         * Map with keys of properties that should be reflected when updated.
-         */
-        this._reflectingProperties = undefined;
         this.initialize();
     }
     /**
@@ -6276,7 +6401,7 @@ class UpdatingElement extends HTMLElement {
      *
      * @nocollapse
      */
-    static getPropertyDescriptor(name, key, _options) {
+    static getPropertyDescriptor(name, key, options) {
         return {
             // tslint:disable-next-line:no-any no symbol in index
             get() {
@@ -6285,7 +6410,8 @@ class UpdatingElement extends HTMLElement {
             set(value) {
                 const oldValue = this[name];
                 this[key] = value;
-                this._requestUpdate(name, oldValue);
+                this
+                    .requestUpdateInternal(name, oldValue, options);
             },
             configurable: true,
             enumerable: true
@@ -6400,10 +6526,14 @@ class UpdatingElement extends HTMLElement {
      * registered properties.
      */
     initialize() {
+        this._updateState = 0;
+        this._updatePromise =
+            new Promise((res) => this._enableUpdatingResolver = res);
+        this._changedProperties = new Map();
         this._saveInstanceProperties();
         // ensures first update will be caught by an early access of
         // \`updateComplete\`
-        this._requestUpdate();
+        this.requestUpdateInternal();
     }
     /**
      * Fixes any properties set on the instance before upgrade time.
@@ -6519,16 +6649,16 @@ class UpdatingElement extends HTMLElement {
         }
     }
     /**
-     * This private version of \`requestUpdate\` does not access or return the
+     * This protected version of \`requestUpdate\` does not access or return the
      * \`updateComplete\` promise. This promise can be overridden and is therefore
      * not free to access.
      */
-    _requestUpdate(name, oldValue) {
+    requestUpdateInternal(name, oldValue, options) {
         let shouldRequestUpdate = true;
         // If we have a property key, perform property update steps.
         if (name !== undefined) {
             const ctor = this.constructor;
-            const options = ctor.getPropertyOptions(name);
+            options = options || ctor.getPropertyOptions(name);
             if (ctor._valueHasChanged(this[name], oldValue, options.hasChanged)) {
                 if (!this._changedProperties.has(name)) {
                     this._changedProperties.set(name, oldValue);
@@ -6568,7 +6698,7 @@ class UpdatingElement extends HTMLElement {
      * @returns {Promise} A Promise that is resolved when the update completes.
      */
     requestUpdate(name, oldValue) {
-        this._requestUpdate(name, oldValue);
+        this.requestUpdateInternal(name, oldValue);
         return this.updateComplete;
     }
     /**
@@ -6617,6 +6747,12 @@ class UpdatingElement extends HTMLElement {
      * \`\`\`
      */
     performUpdate() {
+        // Abort any update if one is not pending when this is called.
+        // This can happen if \`performUpdate\` is called early to \\"flush\\"
+        // the update.
+        if (!this._hasRequestedUpdate) {
+            return;
+        }
         // Mixin instance properties once, if they exist.
         if (this._instanceProperties) {
             this._applyInstanceProperties();
@@ -6791,7 +6927,7 @@ const standardCustomElement = (tagName, descriptor) => {
  *   }
  * }
  * \`\`\`
- *
+ * @category Decorator
  * @param tagName The name of the custom element to define.
  */
 const customElement = (tagName) => (classOrDescriptor) => (typeof classOrDescriptor === 'function') ?
@@ -6842,19 +6978,20 @@ const legacyProperty = (options, proto, name) => {
 };
 /**
  * A property decorator which creates a LitElement property which reflects a
- * corresponding attribute value. A \`PropertyDeclaration\` may optionally be
+ * corresponding attribute value. A [[\`PropertyDeclaration\`]] may optionally be
  * supplied to configure property features.
  *
  * This decorator should only be used for public fields. Private or protected
- * fields should use the internalProperty decorator.
+ * fields should use the [[\`internalProperty\`]] decorator.
  *
  * @example
- *
- *     class MyElement {
- *       @property({ type: Boolean })
- *       clicked = false;
- *     }
- *
+ * \`\`\`ts
+ * class MyElement {
+ *   @property({ type: Boolean })
+ *   clicked = false;
+ * }
+ * \`\`\`
+ * @category Decorator
  * @ExportDecoratedItems
  */
 function property(options) {
@@ -6873,7 +7010,12 @@ found at http://polymer.github.io/CONTRIBUTORS.txt Code distributed by Google as
 part of the polymer project is also subject to an additional IP rights grant
 found at http://polymer.github.io/PATENTS.txt
 */
-const supportsAdoptingStyleSheets = ('adoptedStyleSheets' in Document.prototype) &&
+/**
+ * Whether the current browser supports \`adoptedStyleSheets\`.
+ */
+const supportsAdoptingStyleSheets = (window.ShadowRoot) &&
+    (window.ShadyCSS === undefined || window.ShadyCSS.nativeShadow) &&
+    ('adoptedStyleSheets' in Document.prototype) &&
     ('replace' in CSSStyleSheet.prototype);
 const constructionToken = Symbol();
 class CSSResult {
@@ -6887,8 +7029,8 @@ class CSSResult {
     // stylesheets are not created until the first element instance is made.
     get styleSheet() {
         if (this._styleSheet === undefined) {
-            // Note, if \`adoptedStyleSheets\` is supported then we assume CSSStyleSheet
-            // is constructable.
+            // Note, if \`supportsAdoptingStyleSheets\` is true then we assume
+            // CSSStyleSheet is constructable.
             if (supportsAdoptingStyleSheets) {
                 this._styleSheet = new CSSStyleSheet();
                 this._styleSheet.replaceSync(this.cssText);
@@ -6903,6 +7045,16 @@ class CSSResult {
         return this.cssText;
     }
 }
+/**
+ * Wrap a value for interpolation in a [[\`css\`]] tagged template literal.
+ *
+ * This is unsafe because untrusted CSS text can be used to phone home
+ * or exfiltrate data to an attacker controlled site. Take care to only use
+ * this with trusted input.
+ */
+const unsafeCSS = (value) => {
+    return new CSSResult(String(value), constructionToken);
+};
 const textFromCSSResult = (value) => {
     if (value instanceof CSSResult) {
         return value.cssText;
@@ -6916,10 +7068,10 @@ const textFromCSSResult = (value) => {
     }
 };
 /**
- * Template tag which which can be used with LitElement's \`style\` property to
- * set element styles. For security reasons, only literal string values may be
- * used. To incorporate non-literal values \`unsafeCSS\` may be used inside a
- * template string part.
+ * Template tag which which can be used with LitElement's [[LitElement.styles |
+ * \`styles\`]] property to set element styles. For security reasons, only literal
+ * string values may be used. To incorporate non-literal values [[\`unsafeCSS\`]]
+ * may be used inside a template string part.
  */
 const css = (strings, ...values) => {
     const cssText = values.reduce((acc, v, idx) => acc + textFromCSSResult(v) + strings[idx + 1], strings[0]);
@@ -6942,12 +7094,20 @@ const css = (strings, ...values) => {
 // This line will be used in regexes to search for LitElement usage.
 // TODO(justinfagnani): inject version number at build time
 (window['litElementVersions'] || (window['litElementVersions'] = []))
-    .push('2.3.1');
+    .push('2.4.0');
 /**
  * Sentinal value used to avoid calling lit-html's render function when
  * subclasses do not implement \`render\`
  */
 const renderNotImplemented = {};
+/**
+ * Base element class that manages element properties and attributes, and
+ * renders a lit-html template.
+ *
+ * To define a component, subclass \`LitElement\` and implement a
+ * \`render\` method to provide the component's template. Define properties
+ * using the [[\`properties\`]] property or the [[\`property\`]] decorator.
+ */
 class LitElement extends UpdatingElement {
     /**
      * Return the array of styles to apply to the element.
@@ -6971,10 +7131,7 @@ class LitElement extends UpdatingElement {
         // This should be addressed when a browser ships constructable
         // stylesheets.
         const userStyles = this.getStyles();
-        if (userStyles === undefined) {
-            this._styles = [];
-        }
-        else if (Array.isArray(userStyles)) {
+        if (Array.isArray(userStyles)) {
             // De-duplicate styles preserving the _last_ instance in the set.
             // This is a performance optimization to avoid duplicated styles that can
             // occur especially when composing via subclassing.
@@ -6992,19 +7149,36 @@ class LitElement extends UpdatingElement {
             this._styles = styles;
         }
         else {
-            this._styles = [userStyles];
+            this._styles = userStyles === undefined ? [] : [userStyles];
         }
+        // Ensure that there are no invalid CSSStyleSheet instances here. They are
+        // invalid in two conditions.
+        // (1) the sheet is non-constructible (\`sheet\` of a HTMLStyleElement), but
+        //     this is impossible to check except via .replaceSync or use
+        // (2) the ShadyCSS polyfill is enabled (:. supportsAdoptingStyleSheets is
+        //     false)
+        this._styles = this._styles.map((s) => {
+            if (s instanceof CSSStyleSheet && !supportsAdoptingStyleSheets) {
+                // Flatten the cssText from the passed constructible stylesheet (or
+                // undetectable non-constructible stylesheet). The user might have
+                // expected to update their stylesheets over time, but the alternative
+                // is a crash.
+                const cssText = Array.prototype.slice.call(s.cssRules)
+                    .reduce((css, rule) => css + rule.cssText, '');
+                return unsafeCSS(cssText);
+            }
+            return s;
+        });
     }
     /**
-     * Performs element initialization. By default this calls \`createRenderRoot\`
-     * to create the element \`renderRoot\` node and captures any pre-set values for
-     * registered properties.
+     * Performs element initialization. By default this calls
+     * [[\`createRenderRoot\`]] to create the element [[\`renderRoot\`]] node and
+     * captures any pre-set values for registered properties.
      */
     initialize() {
         super.initialize();
         this.constructor._getUniqueStyles();
-        this.renderRoot =
-            this.createRenderRoot();
+        this.renderRoot = this.createRenderRoot();
         // Note, if renderRoot is not a shadowRoot, styles would/could apply to the
         // element's getRootNode(). While this could be done, we're choosing not to
         // support this now since it would require different logic around de-duping.
@@ -7023,7 +7197,7 @@ class LitElement extends UpdatingElement {
         return this.attachShadow({ mode: 'open' });
     }
     /**
-     * Applies styling to the element shadowRoot using the \`static get styles\`
+     * Applies styling to the element shadowRoot using the [[\`styles\`]]
      * property. Styling will apply using \`shadowRoot.adoptedStyleSheets\` where
      * available and will fallback otherwise. When Shadow DOM is polyfilled,
      * ShadyCSS scopes styles and adds them to the document. When Shadow DOM
@@ -7038,7 +7212,7 @@ class LitElement extends UpdatingElement {
         }
         // There are three separate cases here based on Shadow DOM support.
         // (1) shadowRoot polyfilled: use ShadyCSS
-        // (2) shadowRoot.adoptedStyleSheets available: use it.
+        // (2) shadowRoot.adoptedStyleSheets available: use it
         // (3) shadowRoot.adoptedStyleSheets polyfilled: append styles after
         // rendering
         if (window.ShadyCSS !== undefined && !window.ShadyCSS.nativeShadow) {
@@ -7046,7 +7220,7 @@ class LitElement extends UpdatingElement {
         }
         else if (supportsAdoptingStyleSheets) {
             this.renderRoot.adoptedStyleSheets =
-                styles.map((s) => s.styleSheet);
+                styles.map((s) => s instanceof CSSStyleSheet ? s : s.styleSheet);
         }
         else {
             // This must be done after rendering so the actual style insertion is done
@@ -7093,9 +7267,9 @@ class LitElement extends UpdatingElement {
     }
     /**
      * Invoked on each update to perform rendering tasks. This method may return
-     * any value renderable by lit-html's NodePart - typically a TemplateResult.
-     * Setting properties inside this method will *not* trigger the element to
-     * update.
+     * any value renderable by lit-html's \`NodePart\` - typically a
+     * \`TemplateResult\`. Setting properties inside this method will *not* trigger
+     * the element to update.
      */
     render() {
         return renderNotImplemented;
@@ -7110,10 +7284,20 @@ class LitElement extends UpdatingElement {
  */
 LitElement['finalized'] = true;
 /**
- * Render method used to render the value to the element's DOM.
- * @param result The value to render.
- * @param container Node into which to render.
- * @param options Element name.
+ * Reference to the underlying library method used to render the element's
+ * DOM. By default, points to the \`render\` method from lit-html's shady-render
+ * module.
+ *
+ * **Most users will never need to touch this property.**
+ *
+ * This  property should not be confused with the \`render\` instance method,
+ * which should be overridden to define a template for the element.
+ *
+ * Advanced users creating a new base class based on LitElement can override
+ * this property to point to a custom render method with a signature that
+ * matches [shady-render's \`render\`
+ * method](https://lit-html.polymer-project.org/api/modules/shady_render.html#render).
+ *
  * @nocollapse
  */
 LitElement.render = render$1;
@@ -7282,7 +7466,7 @@ exports[`create-snowpack-app app-template-preact: web_modules/preact.js 1`] = `"
 
 exports[`create-snowpack-app app-template-preact: web_modules/preact/devtools.js 1`] = `
 "import { n, p, d } from '../common/preact.module-XXXXXXXX.js';
-\\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.4.7\\",n,{Fragment:p,Component:d});"
+\\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.4.8\\",n,{Fragment:p,Component:d});"
 `;
 
 exports[`create-snowpack-app app-template-react: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
@@ -9633,6 +9817,7 @@ const toTypeString = (value) => objectToString.call(value);
 const toRawType = (value) => {
     return toTypeString(value).slice(8, -1);
 };
+const isIntegerKey = (key) => isString(key) && key[0] !== '-' && '' + parseInt(key, 10) === key;
 const isReservedProp = /*#__PURE__*/ makeMap('key,ref,' +
     'onVnodeBeforeMount,onVnodeMounted,' +
     'onVnodeBeforeUpdate,onVnodeUpdated,' +
@@ -9797,7 +9982,11 @@ function trigger(target, type, key, newValue, oldValue, oldTarget) {
     const effects = new Set();
     const add = (effectsToAdd) => {
         if (effectsToAdd) {
-            effectsToAdd.forEach(effect => effects.add(effect));
+            effectsToAdd.forEach(effect => {
+                if (effect !== activeEffect) {
+                    effects.add(effect);
+                }
+            });
         }
     };
     if (type === \\"clear\\" /* CLEAR */) {
@@ -9818,13 +10007,14 @@ function trigger(target, type, key, newValue, oldValue, oldTarget) {
             add(depsMap.get(key));
         }
         // also run for iteration key on ADD | DELETE | Map.SET
-        const isAddOrDelete = type === \\"add\\" /* ADD */ ||
+        const shouldTriggerIteration = (type === \\"add\\" /* ADD */ &&
+            (!isArray(target) || isIntegerKey(key))) ||
             (type === \\"delete\\" /* DELETE */ && !isArray(target));
-        if (isAddOrDelete ||
+        if (shouldTriggerIteration ||
             (type === \\"set\\" /* SET */ && target instanceof Map)) {
             add(depsMap.get(isArray(target) ? 'length' : ITERATE_KEY));
         }
-        if (isAddOrDelete && target instanceof Map) {
+        if (shouldTriggerIteration && target instanceof Map) {
             add(depsMap.get(MAP_KEY_ITERATE_KEY));
         }
     }
@@ -9872,10 +10062,7 @@ function createGetter(isReadonly = false, shallow = false) {
             return isReadonly;
         }
         else if (key === \\"__v_raw\\" /* RAW */ &&
-            receiver ===
-                (isReadonly
-                    ? target[\\"__v_readonly\\" /* READONLY */]
-                    : target[\\"__v_reactive\\" /* REACTIVE */])) {
+            receiver === (isReadonly ? readonlyMap : reactiveMap).get(target)) {
             return target;
         }
         const targetIsArray = isArray(target);
@@ -9883,7 +10070,8 @@ function createGetter(isReadonly = false, shallow = false) {
             return Reflect.get(arrayInstrumentations, key, receiver);
         }
         const res = Reflect.get(target, key, receiver);
-        if (isSymbol(key)
+        const keyIsSymbol = isSymbol(key);
+        if (keyIsSymbol
             ? builtInSymbols.has(key)
             : key === \`__proto__\` || key === \`__v_isRef\`) {
             return res;
@@ -9895,8 +10083,9 @@ function createGetter(isReadonly = false, shallow = false) {
             return res;
         }
         if (isRef(res)) {
-            // ref unwrapping, only for Objects, not for Arrays.
-            return targetIsArray ? res : res.value;
+            // ref unwrapping - does not apply for Array + integer key.
+            const shouldUnwrap = !targetIsArray || !isIntegerKey(key);
+            return shouldUnwrap ? res.value : res;
         }
         if (isObject(res)) {
             // Convert returned value into a proxy as well. we do the isObject check
@@ -9919,7 +10108,9 @@ function createSetter(shallow = false) {
                 return true;
             }
         }
-        const hadKey = hasOwn(target, key);
+        const hadKey = isArray(target) && isIntegerKey(key)
+            ? Number(key) < target.length
+            : hasOwn(target, key);
         const result = Reflect.set(target, key, value, receiver);
         // don't trigger if target is something up in the prototype chain of original
         if (target === toRaw(receiver)) {
@@ -9985,35 +10176,41 @@ const toReactive = (value) => isObject(value) ? reactive(value) : value;
 const toReadonly = (value) => isObject(value) ? readonly(value) : value;
 const toShallow = (value) => value;
 const getProto = (v) => Reflect.getPrototypeOf(v);
-function get$1(target, key, wrap) {
-    target = toRaw(target);
+function get$1(target, key, isReadonly = false, isShallow = false) {
+    // #1772: readonly(reactive(Map)) should return readonly + reactive version
+    // of the value
+    target = target[\\"__v_raw\\" /* RAW */];
+    const rawTarget = toRaw(target);
     const rawKey = toRaw(key);
     if (key !== rawKey) {
-        track(target, \\"get\\" /* GET */, key);
+        !isReadonly && track(rawTarget, \\"get\\" /* GET */, key);
     }
-    track(target, \\"get\\" /* GET */, rawKey);
-    const { has, get } = getProto(target);
-    if (has.call(target, key)) {
-        return wrap(get.call(target, key));
+    !isReadonly && track(rawTarget, \\"get\\" /* GET */, rawKey);
+    const { has } = getProto(rawTarget);
+    const wrap = isReadonly ? toReadonly : isShallow ? toShallow : toReactive;
+    if (has.call(rawTarget, key)) {
+        return wrap(target.get(key));
     }
-    else if (has.call(target, rawKey)) {
-        return wrap(get.call(target, rawKey));
+    else if (has.call(rawTarget, rawKey)) {
+        return wrap(target.get(rawKey));
     }
 }
-function has$1(key) {
-    const target = toRaw(this);
+function has$1(key, isReadonly = false) {
+    const target = this[\\"__v_raw\\" /* RAW */];
+    const rawTarget = toRaw(target);
     const rawKey = toRaw(key);
     if (key !== rawKey) {
-        track(target, \\"has\\" /* HAS */, key);
+        !isReadonly && track(rawTarget, \\"has\\" /* HAS */, key);
     }
-    track(target, \\"has\\" /* HAS */, rawKey);
-    const has = getProto(target).has;
-    return has.call(target, key) || has.call(target, rawKey);
+    !isReadonly && track(rawTarget, \\"has\\" /* HAS */, rawKey);
+    return key === rawKey
+        ? target.has(key)
+        : target.has(key) || target.has(rawKey);
 }
-function size(target) {
-    target = toRaw(target);
-    track(target, \\"iterate\\" /* ITERATE */, ITERATE_KEY);
-    return Reflect.get(getProto(target), 'size', target);
+function size(target, isReadonly = false) {
+    target = target[\\"__v_raw\\" /* RAW */];
+    !isReadonly && track(toRaw(target), \\"iterate\\" /* ITERATE */, ITERATE_KEY);
+    return Reflect.get(target, 'size', target);
 }
 function add(value) {
     value = toRaw(value);
@@ -10071,31 +10268,32 @@ function clear() {
     }
     return result;
 }
-function createForEach(isReadonly, shallow) {
+function createForEach(isReadonly, isShallow) {
     return function forEach(callback, thisArg) {
         const observed = this;
-        const target = toRaw(observed);
-        const wrap = isReadonly ? toReadonly : shallow ? toShallow : toReactive;
-        !isReadonly && track(target, \\"iterate\\" /* ITERATE */, ITERATE_KEY);
-        // important: create sure the callback is
-        // 1. invoked with the reactive map as \`this\` and 3rd arg
-        // 2. the value received should be a corresponding reactive/readonly.
-        function wrappedCallback(value, key) {
+        const target = observed[\\"__v_raw\\" /* RAW */];
+        const rawTarget = toRaw(target);
+        const wrap = isReadonly ? toReadonly : isShallow ? toShallow : toReactive;
+        !isReadonly && track(rawTarget, \\"iterate\\" /* ITERATE */, ITERATE_KEY);
+        return target.forEach((value, key) => {
+            // important: make sure the callback is
+            // 1. invoked with the reactive map as \`this\` and 3rd arg
+            // 2. the value received should be a corresponding reactive/readonly.
             return callback.call(thisArg, wrap(value), wrap(key), observed);
-        }
-        return getProto(target).forEach.call(target, wrappedCallback);
+        });
     };
 }
-function createIterableMethod(method, isReadonly, shallow) {
+function createIterableMethod(method, isReadonly, isShallow) {
     return function (...args) {
-        const target = toRaw(this);
-        const isMap = target instanceof Map;
+        const target = this[\\"__v_raw\\" /* RAW */];
+        const rawTarget = toRaw(target);
+        const isMap = rawTarget instanceof Map;
         const isPair = method === 'entries' || (method === Symbol.iterator && isMap);
         const isKeyOnly = method === 'keys' && isMap;
-        const innerIterator = getProto(target)[method].apply(target, args);
-        const wrap = isReadonly ? toReadonly : shallow ? toShallow : toReactive;
+        const innerIterator = target[method](...args);
+        const wrap = isReadonly ? toReadonly : isShallow ? toShallow : toReactive;
         !isReadonly &&
-            track(target, \\"iterate\\" /* ITERATE */, isKeyOnly ? MAP_KEY_ITERATE_KEY : ITERATE_KEY);
+            track(rawTarget, \\"iterate\\" /* ITERATE */, isKeyOnly ? MAP_KEY_ITERATE_KEY : ITERATE_KEY);
         // return a wrapped iterator which returns observed versions of the
         // values emitted from the real iterator
         return {
@@ -10123,7 +10321,7 @@ function createReadonlyMethod(type) {
 }
 const mutableInstrumentations = {
     get(key) {
-        return get$1(this, key, toReactive);
+        return get$1(this, key);
     },
     get size() {
         return size(this);
@@ -10137,7 +10335,7 @@ const mutableInstrumentations = {
 };
 const shallowInstrumentations = {
     get(key) {
-        return get$1(this, key, toShallow);
+        return get$1(this, key, false, true);
     },
     get size() {
         return size(this);
@@ -10151,12 +10349,14 @@ const shallowInstrumentations = {
 };
 const readonlyInstrumentations = {
     get(key) {
-        return get$1(this, key, toReadonly);
+        return get$1(this, key, true);
     },
     get size() {
-        return size(this);
+        return size(this, true);
     },
-    has: has$1,
+    has(key) {
+        return has$1.call(this, key, true);
+    },
     add: createReadonlyMethod(\\"add\\" /* ADD */),
     set: createReadonlyMethod(\\"set\\" /* SET */),
     delete: createReadonlyMethod(\\"delete\\" /* DELETE */),
@@ -10199,13 +10399,27 @@ const shallowCollectionHandlers = {
 const readonlyCollectionHandlers = {
     get: createInstrumentationGetter(true, false)
 };
-const collectionTypes = new Set([Set, Map, WeakMap, WeakSet]);
-const isObservableType = /*#__PURE__*/ makeMap('Object,Array,Map,Set,WeakMap,WeakSet');
-const canObserve = (value) => {
-    return (!value[\\"__v_skip\\" /* SKIP */] &&
-        isObservableType(toRawType(value)) &&
-        !Object.isFrozen(value));
-};
+const reactiveMap = new WeakMap();
+const readonlyMap = new WeakMap();
+function targetTypeMap(rawType) {
+    switch (rawType) {
+        case 'Object':
+        case 'Array':
+            return 1 /* COMMON */;
+        case 'Map':
+        case 'Set':
+        case 'WeakMap':
+        case 'WeakSet':
+            return 2 /* COLLECTION */;
+        default:
+            return 0 /* INVALID */;
+    }
+}
+function getTargetType(value) {
+    return value[\\"__v_skip\\" /* SKIP */] || !Object.isExtensible(value)
+        ? 0 /* INVALID */
+        : targetTypeMap(toRawType(value));
+}
 function reactive(target) {
     // if trying to observe a readonly proxy, return the readonly version.
     if (target && target[\\"__v_isReadonly\\" /* IS_READONLY */]) {
@@ -10233,19 +10447,19 @@ function createReactiveObject(target, isReadonly, baseHandlers, collectionHandle
         return target;
     }
     // target already has corresponding Proxy
-    const reactiveFlag = isReadonly
-        ? \\"__v_readonly\\" /* READONLY */
-        : \\"__v_reactive\\" /* REACTIVE */;
-    if (hasOwn(target, reactiveFlag)) {
-        return target[reactiveFlag];
+    const proxyMap = isReadonly ? readonlyMap : reactiveMap;
+    const existingProxy = proxyMap.get(target);
+    if (existingProxy) {
+        return existingProxy;
     }
     // only a whitelist of value types can be observed.
-    if (!canObserve(target)) {
+    const targetType = getTargetType(target);
+    if (targetType === 0 /* INVALID */) {
         return target;
     }
-    const observed = new Proxy(target, collectionTypes.has(target.constructor) ? collectionHandlers : baseHandlers);
-    def(target, reactiveFlag, observed);
-    return observed;
+    const proxy = new Proxy(target, targetType === 2 /* COLLECTION */ ? collectionHandlers : baseHandlers);
+    proxyMap.set(target, proxy);
+    return proxy;
 }
 function isReactive(value) {
     if (isReadonly(value)) {
@@ -10263,7 +10477,7 @@ function toRaw(observed) {
     return ((observed && toRaw(observed[\\"__v_raw\\" /* RAW */])) || observed);
 }
 function isRef(r) {
-    return r ? r.__v_isRef === true : false;
+    return Boolean(r && r.__v_isRef === true);
 }
 function unref(ref) {
     return isRef(ref) ? ref.value : ref;
@@ -10286,6 +10500,34 @@ function proxyRefs(objectWithRefs) {
         ? objectWithRefs
         : new Proxy(objectWithRefs, shallowUnwrapHandlers);
 }
+class ComputedRefImpl {
+    constructor(getter, _setter, isReadonly) {
+        this._setter = _setter;
+        this._dirty = true;
+        this.__v_isRef = true;
+        this.effect = effect(getter, {
+            lazy: true,
+            scheduler: () => {
+                if (!this._dirty) {
+                    this._dirty = true;
+                    trigger(toRaw(this), \\"set\\" /* SET */, 'value');
+                }
+            }
+        });
+        this[\\"__v_isReadonly\\" /* IS_READONLY */] = isReadonly;
+    }
+    get value() {
+        if (this._dirty) {
+            this._value = this.effect();
+            this._dirty = false;
+        }
+        track(toRaw(this), \\"get\\" /* GET */, 'value');
+        return this._value;
+    }
+    set value(newValue) {
+        this._setter(newValue);
+    }
+}
 function computed(getterOrOptions) {
     let getter;
     let setter;
@@ -10297,36 +10539,7 @@ function computed(getterOrOptions) {
         getter = getterOrOptions.get;
         setter = getterOrOptions.set;
     }
-    let dirty = true;
-    let value;
-    let computed;
-    const runner = effect(getter, {
-        lazy: true,
-        scheduler: () => {
-            if (!dirty) {
-                dirty = true;
-                trigger(computed, \\"set\\" /* SET */, 'value');
-            }
-        }
-    });
-    computed = {
-        __v_isRef: true,
-        [\\"__v_isReadonly\\" /* IS_READONLY */]: isFunction(getterOrOptions) || !getterOrOptions.set,
-        // expose effect so computed can be stopped
-        effect: runner,
-        get value() {
-            if (dirty) {
-                value = runner();
-                dirty = false;
-            }
-            track(computed, \\"get\\" /* GET */, 'value');
-            return value;
-        },
-        set value(newValue) {
-            setter(newValue);
-        }
-    };
-    return computed;
+    return new ComputedRefImpl(getter, setter, isFunction(getterOrOptions) || !getterOrOptions.set);
 }
 const stack = [];
 function warn(msg, ...args) {
@@ -10491,23 +10704,42 @@ function logError(err, type, contextVNode) {
         console.error(err);
     }
 }
-const queue$1 = [];
-const postFlushCbs = [];
-const resolvedPromise = Promise.resolve();
-let currentFlushPromise = null;
 let isFlushing = false;
 let isFlushPending = false;
-let flushIndex = -1;
-let pendingPostFlushCbs = null;
-let pendingPostFlushIndex = 0;
+const queue$1 = [];
+let flushIndex = 0;
+const pendingPreFlushCbs = [];
+let activePreFlushCbs = null;
+let preFlushIndex = 0;
+const pendingPostFlushCbs = [];
+let activePostFlushCbs = null;
+let postFlushIndex = 0;
+const resolvedPromise = Promise.resolve();
+let currentFlushPromise = null;
+let currentPreFlushParentJob = null;
+const RECURSION_LIMIT = 100;
 function nextTick$1(fn) {
     const p = currentFlushPromise || resolvedPromise;
     return fn ? p.then(fn) : p;
 }
 function queueJob(job) {
-    if (!queue$1.includes(job, flushIndex + 1)) {
+    // the dedupe search uses the startIndex argument of Array.includes()
+    // by default the search index includes the current job that is being run
+    // so it cannot recursively trigger itself again.
+    // if the job is a watch() callback, the search will start with a +1 index to
+    // allow it recursively trigger itself - it is the user's responsibility to
+    // ensure it doesn't end up in an infinite loop.
+    if ((!queue$1.length ||
+        !queue$1.includes(job, isFlushing && job.allowRecurse ? flushIndex + 1 : flushIndex)) &&
+        job !== currentPreFlushParentJob) {
         queue$1.push(job);
         queueFlush();
+    }
+}
+function queueFlush() {
+    if (!isFlushing && !isFlushPending) {
+        isFlushPending = true;
+        currentFlushPromise = resolvedPromise.then(flushJobs);
     }
 }
 function invalidateJob(job) {
@@ -10516,42 +10748,65 @@ function invalidateJob(job) {
         queue$1[i] = null;
     }
 }
-function queuePostFlushCb(cb) {
+function queueCb(cb, activeQueue, pendingQueue, index) {
     if (!isArray(cb)) {
-        if (!pendingPostFlushCbs ||
-            !pendingPostFlushCbs.includes(cb, pendingPostFlushIndex + 1)) {
-            postFlushCbs.push(cb);
+        if (!activeQueue ||
+            !activeQueue.includes(cb, cb.allowRecurse ? index + 1 : index)) {
+            pendingQueue.push(cb);
         }
     }
     else {
         // if cb is an array, it is a component lifecycle hook which can only be
         // triggered by a job, which is already deduped in the main queue, so
-        // we can skip dupicate check here to improve perf
-        postFlushCbs.push(...cb);
+        // we can skip duplicate check here to improve perf
+        pendingQueue.push(...cb);
     }
     queueFlush();
 }
-function queueFlush() {
-    if (!isFlushing && !isFlushPending) {
-        isFlushPending = true;
-        currentFlushPromise = resolvedPromise.then(flushJobs);
+function queuePreFlushCb(cb) {
+    queueCb(cb, activePreFlushCbs, pendingPreFlushCbs, preFlushIndex);
+}
+function queuePostFlushCb(cb) {
+    queueCb(cb, activePostFlushCbs, pendingPostFlushCbs, postFlushIndex);
+}
+function flushPreFlushCbs(seen, parentJob = null) {
+    if (pendingPreFlushCbs.length) {
+        currentPreFlushParentJob = parentJob;
+        activePreFlushCbs = [...new Set(pendingPreFlushCbs)];
+        pendingPreFlushCbs.length = 0;
+        for (preFlushIndex = 0; preFlushIndex < activePreFlushCbs.length; preFlushIndex++) {
+            activePreFlushCbs[preFlushIndex]();
+        }
+        activePreFlushCbs = null;
+        preFlushIndex = 0;
+        currentPreFlushParentJob = null;
+        // recursively flush until it drains
+        flushPreFlushCbs(seen, parentJob);
     }
 }
 function flushPostFlushCbs(seen) {
-    if (postFlushCbs.length) {
-        pendingPostFlushCbs = [...new Set(postFlushCbs)];
-        postFlushCbs.length = 0;
-        for (pendingPostFlushIndex = 0; pendingPostFlushIndex < pendingPostFlushCbs.length; pendingPostFlushIndex++) {
-            pendingPostFlushCbs[pendingPostFlushIndex]();
+    if (pendingPostFlushCbs.length) {
+        const deduped = [...new Set(pendingPostFlushCbs)];
+        pendingPostFlushCbs.length = 0;
+        // #1947 already has active queue, nested flushPostFlushCbs call
+        if (activePostFlushCbs) {
+            activePostFlushCbs.push(...deduped);
+            return;
         }
-        pendingPostFlushCbs = null;
-        pendingPostFlushIndex = 0;
+        activePostFlushCbs = deduped;
+        activePostFlushCbs.sort((a, b) => getId(a) - getId(b));
+        for (postFlushIndex = 0; postFlushIndex < activePostFlushCbs.length; postFlushIndex++) {
+            activePostFlushCbs[postFlushIndex]();
+        }
+        activePostFlushCbs = null;
+        postFlushIndex = 0;
     }
 }
-const getId = (job) => (job.id == null ? Infinity : job.id);
+const getId = (job) => job.id == null ? Infinity : job.id;
 function flushJobs(seen) {
     isFlushPending = false;
     isFlushing = true;
+    flushPreFlushCbs(seen);
     // Sort queue before flush.
     // This ensures that:
     // 1. Components are updated from parent to child. (because parent is always
@@ -10562,21 +10817,44 @@ function flushJobs(seen) {
     // Jobs can never be null before flush starts, since they are only invalidated
     // during execution of another flushed job.
     queue$1.sort((a, b) => getId(a) - getId(b));
-    for (flushIndex = 0; flushIndex < queue$1.length; flushIndex++) {
-        const job = queue$1[flushIndex];
-        if (job) {
-            callWithErrorHandling(job, null, 14 /* SCHEDULER */);
+    try {
+        for (flushIndex = 0; flushIndex < queue$1.length; flushIndex++) {
+            const job = queue$1[flushIndex];
+            if (job) {
+                if ((process.env.NODE_ENV !== 'production')) ;
+                callWithErrorHandling(job, null, 14 /* SCHEDULER */);
+            }
         }
     }
-    flushIndex = -1;
-    queue$1.length = 0;
-    flushPostFlushCbs();
-    isFlushing = false;
-    currentFlushPromise = null;
-    // some postFlushCb queued jobs!
-    // keep flushing until it drains.
-    if (queue$1.length || postFlushCbs.length) {
-        flushJobs();
+    finally {
+        flushIndex = 0;
+        queue$1.length = 0;
+        flushPostFlushCbs();
+        isFlushing = false;
+        currentFlushPromise = null;
+        // some postFlushCb queued jobs!
+        // keep flushing until it drains.
+        if (queue$1.length || pendingPostFlushCbs.length) {
+            flushJobs(seen);
+        }
+    }
+}
+function checkRecursiveUpdates(seen, fn) {
+    if (!seen.has(fn)) {
+        seen.set(fn, 1);
+    }
+    else {
+        const count = seen.get(fn);
+        if (count > RECURSION_LIMIT) {
+            throw new Error(\`Maximum recursive updates exceeded. \` +
+                \`This means you have a reactive effect that is mutating its own \` +
+                \`dependencies and thus recursively triggering itself. Possible sources \` +
+                \`include component template, render function, updated hook or \` +
+                \`watcher source function.\`);
+        }
+        else {
+            seen.set(fn, count + 1);
+        }
     }
 }
 // mark the current rendering instance for asset resolution (e.g.
@@ -10609,9 +10887,7 @@ function renderComponentRoot(instance) {
             // functional
             const render = Component;
             // in dev, mark attrs accessed if optional props (attrs === props)
-            if ((process.env.NODE_ENV !== 'production') && attrs === props) {
-                markAttrsAccessed();
-            }
+            if ((process.env.NODE_ENV !== 'production') && attrs === props) ;
             result = normalizeVNode(render.length > 1
                 ? render(props, (process.env.NODE_ENV !== 'production')
                     ? {
@@ -10633,10 +10909,7 @@ function renderComponentRoot(instance) {
         // to have comments along side the root element which makes it a fragment
         let root = result;
         let setRoot = undefined;
-        if ((process.env.NODE_ENV !== 'production')) {
-            ;
-            [root, setRoot] = getChildRoot(result);
-        }
+        if ((process.env.NODE_ENV !== 'production')) ;
         if (Component.inheritAttrs !== false && fallthroughAttrs) {
             const keys = Object.keys(fallthroughAttrs);
             const { shapeFlag } = root;
@@ -10651,39 +10924,7 @@ function renderComponentRoot(instance) {
                     }
                     root = cloneVNode(root, fallthroughAttrs);
                 }
-                else if ((process.env.NODE_ENV !== 'production') && !accessedAttrs && root.type !== Comment) {
-                    const allAttrs = Object.keys(attrs);
-                    const eventAttrs = [];
-                    const extraAttrs = [];
-                    for (let i = 0, l = allAttrs.length; i < l; i++) {
-                        const key = allAttrs[i];
-                        if (isOn(key)) {
-                            // ignore v-model handlers when they fail to fallthrough
-                            if (!isModelListener(key)) {
-                                // remove \`on\`, lowercase first letter to reflect event casing
-                                // accurately
-                                eventAttrs.push(key[2].toLowerCase() + key.slice(3));
-                            }
-                        }
-                        else {
-                            extraAttrs.push(key);
-                        }
-                    }
-                    if (extraAttrs.length) {
-                        warn(\`Extraneous non-props attributes (\` +
-                            \`\${extraAttrs.join(', ')}) \` +
-                            \`were passed to component but could not be automatically inherited \` +
-                            \`because component renders fragment or text root nodes.\`);
-                    }
-                    if (eventAttrs.length) {
-                        warn(\`Extraneous non-emits event listeners (\` +
-                            \`\${eventAttrs.join(', ')}) \` +
-                            \`were passed to component but could not be automatically inherited \` +
-                            \`because component renders fragment or text root nodes. \` +
-                            \`If the listener is intended to be a component custom event listener only, \` +
-                            \`declare it using the \\"emits\\" option.\`);
-                    }
-                }
+                else if ((process.env.NODE_ENV !== 'production') && !accessedAttrs && root.type !== Comment) ;
             }
         }
         // inherit scopeId
@@ -10704,23 +10945,15 @@ function renderComponentRoot(instance) {
         }
         // inherit directives
         if (vnode.dirs) {
-            if ((process.env.NODE_ENV !== 'production') && !isElementRoot(root)) {
-                warn(\`Runtime directive used on component with non-element root node. \` +
-                    \`The directives will not function as intended.\`);
-            }
+            if ((process.env.NODE_ENV !== 'production') && !isElementRoot(root)) ;
             root.dirs = vnode.dirs;
         }
         // inherit transition data
         if (vnode.transition) {
-            if ((process.env.NODE_ENV !== 'production') && !isElementRoot(root)) {
-                warn(\`Component inside <Transition> renders non-element root node \` +
-                    \`that cannot be animated.\`);
-            }
+            if ((process.env.NODE_ENV !== 'production') && !isElementRoot(root)) ;
             root.transition = vnode.transition;
         }
-        if ((process.env.NODE_ENV !== 'production') && setRoot) {
-            setRoot(root);
-        }
+        if ((process.env.NODE_ENV !== 'production') && setRoot) ;
         else {
             result = root;
         }
@@ -10872,6 +11105,7 @@ function queueEffectWithSuspense(fn, suspense) {
         queuePostFlushCb(fn);
     }
 }
+let isRenderingCompiledSlot = 0;
 /**
  * Wrap a slot function to memoize current rendering instance
  * @private
@@ -10880,10 +11114,19 @@ function withCtx(fn, ctx = currentRenderingInstance) {
     if (!ctx)
         return fn;
     return function renderFnWithContext() {
+        // If a user calls a compiled slot inside a template expression (#1745), it
+        // can mess up block tracking, so by default we need to push a null block to
+        // avoid that. This isn't necessary if rendering a compiled \`<slot>\`.
+        if (!isRenderingCompiledSlot) {
+            openBlock(true /* null block that disables tracking */);
+        }
         const owner = currentRenderingInstance;
         setCurrentRenderingInstance(ctx);
         const res = fn.apply(null, arguments);
         setCurrentRenderingInstance(owner);
+        if (!isRenderingCompiledSlot) {
+            closeBlock();
+        }
         return res;
     };
 }
@@ -10895,7 +11138,36 @@ const Fragment = Symbol( undefined);
 const Text = Symbol( undefined);
 const Comment = Symbol( undefined);
 const Static = Symbol( undefined);
+// Since v-if and v-for are the two possible ways node structure can dynamically
+// change, once we consider v-if branches and each v-for fragment a block, we
+// can divide a template into nested blocks, and within each block the node
+// structure would be stable. This allows us to skip most children diffing
+// and only worry about the dynamic nodes (indicated by patch flags).
+const blockStack = [];
 let currentBlock = null;
+/**
+ * Open a block.
+ * This must be called before \`createBlock\`. It cannot be part of \`createBlock\`
+ * because the children of the block are evaluated before \`createBlock\` itself
+ * is called. The generated code typically looks like this:
+ *
+ * \`\`\`js
+ * function render() {
+ *   return (openBlock(),createBlock('div', null, [...]))
+ * }
+ * \`\`\`
+ * disableTracking is true when creating a v-for fragment block, since a v-for
+ * fragment always diffs its children.
+ *
+ * @private
+ */
+function openBlock(disableTracking = false) {
+    blockStack.push((currentBlock = disableTracking ? null : []));
+}
+function closeBlock() {
+    blockStack.pop();
+    currentBlock = blockStack[blockStack.length - 1] || null;
+}
 function isVNode(value) {
     return value ? value.__v_isVNode === true : false;
 }
@@ -10960,7 +11232,7 @@ function _createVNode(type, props = null, children = null, patchFlag = 0, dynami
                         : 0;
     const vnode = {
         __v_isVNode: true,
-        __v_skip: true,
+        [\\"__v_skip\\" /* SKIP */]: true,
         type,
         props,
         key: props && normalizeKey(props),
@@ -10983,17 +11255,19 @@ function _createVNode(type, props = null, children = null, patchFlag = 0, dynami
         appContext: null
     };
     normalizeChildren(vnode, children);
-    // presence of a patch flag indicates this node needs patching on updates.
-    // component nodes also should always be patched, because even if the
-    // component doesn't need to update, it needs to persist the instance on to
-    // the next vnode so that it can be properly unmounted later.
     if (
+        // avoid a block node from tracking itself
         !isBlockNode &&
+        // has current parent block
         currentBlock &&
+        // presence of a patch flag indicates this node needs patching on updates.
+        // component nodes also should always be patched, because even if the
+        // component doesn't need to update, it needs to persist the instance on to
+        // the next vnode so that it can be properly unmounted later.
+        (patchFlag > 0 || shapeFlag & 6 /* COMPONENT */) &&
         // the EVENTS flag is only for hydration and if it is the only flag, the
         // vnode should not be considered dynamic due to handler caching.
-        patchFlag !== 32 /* HYDRATE_EVENTS */ &&
-        (patchFlag > 0 || shapeFlag & 6 /* COMPONENT */)) {
+        patchFlag !== 32 /* HYDRATE_EVENTS */) {
         currentBlock.push(vnode);
     }
     return vnode;
@@ -11002,14 +11276,10 @@ function cloneVNode(vnode, extraProps) {
     // This is intentionally NOT using spread or extend to avoid the runtime
     // key enumeration cost.
     const { props, patchFlag } = vnode;
-    const mergedProps = extraProps
-        ? props
-            ? mergeProps(props, extraProps)
-            : extend({}, extraProps)
-        : props;
+    const mergedProps = extraProps ? mergeProps(props || {}, extraProps) : props;
     return {
         __v_isVNode: true,
-        __v_skip: true,
+        [\\"__v_skip\\" /* SKIP */]: true,
         type: vnode.type,
         props: mergedProps,
         key: mergedProps && normalizeKey(mergedProps),
@@ -11157,6 +11427,7 @@ function mergeProps(...args) {
 }
 function emit$1(instance, event, ...args) {
     const props = instance.vnode.props || EMPTY_OBJ;
+    if ( __VUE_PROD_DEVTOOLS__) ;
     let handlerName = \`on\${capitalize(event)}\`;
     let handler = props[handlerName];
     // for v-model update:xxx events, also trigger kebab-case equivalent
@@ -11245,7 +11516,10 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
     const { props, attrs, vnode: { patchFlag } } = instance;
     const rawCurrentProps = toRaw(props);
     const [options] = normalizePropsOptions(instance.type);
-    if ((optimized || patchFlag > 0) && !(patchFlag & 16 /* FULL_PROPS */)) {
+    if (
+    // always force full diff if hmr is enabled
+        (optimized || patchFlag > 0) &&
+        !(patchFlag & 16 /* FULL_PROPS */)) {
         if (patchFlag & 8 /* PROPS */) {
             // Compiler-generated props & no keys change, just set the updated
             // the props.
@@ -11351,7 +11625,7 @@ function resolvePropValue(options, props, key, value) {
             const defaultValue = opt.default;
             value =
                 opt.type !== Function && isFunction(defaultValue)
-                    ? defaultValue()
+                    ? defaultValue(props)
                     : defaultValue;
         }
         // boolean casting
@@ -11488,6 +11762,7 @@ function injectHook(type, hook, target = currentInstance, prepend = false) {
         else {
             hooks.push(wrappedHook);
         }
+        return wrappedHook;
     }
 }
 const createHook = (lifecycle) => (hook, target = currentInstance) =>
@@ -11544,9 +11819,11 @@ function registerKeepAliveHook(hook, type, target = currentInstance) {
     }
 }
 function injectToKeepAliveRoot(hook, type, target, keepAliveRoot) {
-    injectHook(type, hook, keepAliveRoot, true /* prepend */);
+    // injectHook wraps the original for error handling, so make sure to remove
+    // the wrapped version.
+    const injected = injectHook(type, hook, keepAliveRoot, true /* prepend */);
     onUnmounted(() => {
-        remove(keepAliveRoot[type], hook);
+        remove(keepAliveRoot[type], injected);
     }, target);
 }
 const isInternalKey = (key) => key[0] === '_' || key === '$stable';
@@ -11700,6 +11977,7 @@ function createAppAPI(render, hydrate) {
                     installedPlugins.add(plugin);
                     plugin(app, ...options);
                 }
+                else ;
                 return app;
             },
             mixin(mixin) {
@@ -11746,6 +12024,7 @@ function createAppAPI(render, hydrate) {
             unmount() {
                 if (isMounted) {
                     render(null, app._container);
+                    if ( __VUE_PROD_DEVTOOLS__) ;
                 }
             },
             provide(key, value) {
@@ -11800,9 +12079,7 @@ const setRef = (rawRef, oldRawRef, parentComponent, parentSuspense, vnode) => {
         if (isString(oldRef)) {
             refs[oldRef] = null;
             if (hasOwn(setupState, oldRef)) {
-                queuePostRenderEffect(() => {
-                    setupState[oldRef] = null;
-                }, parentSuspense);
+                setupState[oldRef] = null;
             }
         }
         else if (isRef(oldRef)) {
@@ -11810,15 +12087,34 @@ const setRef = (rawRef, oldRawRef, parentComponent, parentSuspense, vnode) => {
         }
     }
     if (isString(ref)) {
-        refs[ref] = value;
-        if (hasOwn(setupState, ref)) {
-            queuePostRenderEffect(() => {
+        const doSet = () => {
+            refs[ref] = value;
+            if (hasOwn(setupState, ref)) {
                 setupState[ref] = value;
-            }, parentSuspense);
+            }
+        };
+        // #1789: for non-null values, set them after render
+        // null values means this is unmount and it should not overwrite another
+        // ref with the same key
+        if (value) {
+            doSet.id = -1;
+            queuePostRenderEffect(doSet, parentSuspense);
+        }
+        else {
+            doSet();
         }
     }
     else if (isRef(ref)) {
-        ref.value = value;
+        const doSet = () => {
+            ref.value = value;
+        };
+        if (value) {
+            doSet.id = -1;
+            queuePostRenderEffect(doSet, parentSuspense);
+        }
+        else {
+            doSet();
+        }
     }
     else if (isFunction(ref)) {
         callWithErrorHandling(ref, parentComponent, 12 /* FUNCTION_REF */, [
@@ -11826,6 +12122,7 @@ const setRef = (rawRef, oldRawRef, parentComponent, parentSuspense, vnode) => {
             refs
         ]);
     }
+    else ;
 };
 /**
  * The createRenderer function accepts two generic arguments:
@@ -11894,6 +12191,7 @@ function baseCreateRenderer(options, createHydrationFns) {
                 else if ( shapeFlag & 128 /* SUSPENSE */) {
                     type.process(n1, n2, container, anchor, parentComponent, parentSuspense, isSVG, optimized, internals);
                 }
+                else ;
         }
         // set ref
         if (ref != null && parentComponent) {
@@ -11956,6 +12254,9 @@ function baseCreateRenderer(options, createHydrationFns) {
             else if (shapeFlag & 16 /* ARRAY_CHILDREN */) {
                 mountChildren(vnode.children, el, null, parentComponent, parentSuspense, isSVG && type !== 'foreignObject', optimized || !!vnode.dynamicChildren);
             }
+            if (dirs) {
+                invokeDirectiveHook(vnode, null, parentComponent, 'created');
+            }
             // props
             if (props) {
                 for (const key in props) {
@@ -11967,9 +12268,6 @@ function baseCreateRenderer(options, createHydrationFns) {
                     invokeVNodeHook(vnodeHook, parentComponent, vnode);
                 }
             }
-            if (dirs) {
-                invokeDirectiveHook(vnode, null, parentComponent, 'beforeMount');
-            }
             // scopeId
             if (scopeId) {
                 hostSetScopeId(el, scopeId);
@@ -11980,16 +12278,19 @@ function baseCreateRenderer(options, createHydrationFns) {
             if (treeOwnerId && treeOwnerId !== scopeId) {
                 hostSetScopeId(el, treeOwnerId + '-s');
             }
-            if (transition && !transition.persisted) {
-                transition.beforeEnter(el);
-            }
         }
-        hostInsert(el, container, anchor);
+        if (dirs) {
+            invokeDirectiveHook(vnode, null, parentComponent, 'beforeMount');
+        }
         // #1583 For inside suspense + suspense not resolved case, enter hook should call when suspense resolved
         // #1689 For inside suspense + suspense resolved case, just call it
         const needCallTransitionHooks = (!parentSuspense || (parentSuspense && parentSuspense.isResolved)) &&
             transition &&
             !transition.persisted;
+        if (needCallTransitionHooks) {
+            transition.beforeEnter(el);
+        }
+        hostInsert(el, container, anchor);
         if ((vnodeHook = props && props.onVnodeMounted) ||
             needCallTransitionHooks ||
             dirs) {
@@ -12236,8 +12537,7 @@ function baseCreateRenderer(options, createHydrationFns) {
             if (!instance.isMounted) {
                 let vnodeHook;
                 const { el, props } = initialVNode;
-                const { bm, m, a, parent } = instance;
-                const subTree = (instance.subTree = renderComponentRoot(instance));
+                const { bm, m, parent } = instance;
                 // beforeMount hook
                 if (bm) {
                     invokeArrayFns(bm);
@@ -12246,6 +12546,7 @@ function baseCreateRenderer(options, createHydrationFns) {
                 if ((vnodeHook = props && props.onVnodeBeforeMount)) {
                     invokeVNodeHook(vnodeHook, parent, initialVNode);
                 }
+                const subTree = (instance.subTree = renderComponentRoot(instance));
                 if (el && hydrateNode) {
                     // vnode has adopted host node - perform hydration instead of mount.
                     hydrateNode(initialVNode.el, subTree, instance, parentSuspense);
@@ -12265,6 +12566,9 @@ function baseCreateRenderer(options, createHydrationFns) {
                     }, parentSuspense);
                 }
                 // activated hook for keep-alive roots.
+                // #1742 activated hook must be accessed after first render
+                // since the hook may be injected by a child keep-alive
+                const { a } = instance;
                 if (a &&
                     initialVNode.shapeFlag & 256 /* COMPONENT_SHOULD_KEEP_ALIVE */) {
                     queuePostRenderEffect(a, parentSuspense);
@@ -12284,9 +12588,6 @@ function baseCreateRenderer(options, createHydrationFns) {
                 else {
                     next = vnode;
                 }
-                const nextTree = renderComponentRoot(instance);
-                const prevTree = instance.subTree;
-                instance.subTree = nextTree;
                 next.el = vnode.el;
                 // beforeUpdate hook
                 if (bu) {
@@ -12296,6 +12597,9 @@ function baseCreateRenderer(options, createHydrationFns) {
                 if ((vnodeHook = next.props && next.props.onVnodeBeforeUpdate)) {
                     invokeVNodeHook(vnodeHook, parent, next, vnode);
                 }
+                const nextTree = renderComponentRoot(instance);
+                const prevTree = instance.subTree;
+                instance.subTree = nextTree;
                 // reset refs
                 // only needed if previous patch had refs
                 if (instance.refs !== EMPTY_OBJ) {
@@ -12326,6 +12630,7 @@ function baseCreateRenderer(options, createHydrationFns) {
                 if ( __VUE_PROD_DEVTOOLS__) ;
             }
         },  prodEffectOptions);
+        instance.update.allowRecurse = true;
     };
     const updateComponentPreRender = (instance, nextVNode, optimized) => {
         nextVNode.component = instance;
@@ -12334,6 +12639,9 @@ function baseCreateRenderer(options, createHydrationFns) {
         instance.next = null;
         updateProps(instance, nextVNode.props, prevProps, optimized);
         updateSlots(instance, nextVNode.children);
+        // props update may have triggered pre-flush watchers.
+        // flush them before the render update.
+        flushPreFlushCbs(undefined, instance.update);
     };
     const patchChildren = (n1, n2, container, anchor, parentComponent, parentSuspense, isSVG, optimized = false) => {
         const c1 = n1 && n1.children;
@@ -12875,7 +13183,8 @@ function watch(source, cb, options) {
 }
 function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EMPTY_OBJ, instance = currentInstance) {
     let getter;
-    if (isRef(source)) {
+    const isRefSource = isRef(source);
+    if (isRefSource) {
         getter = () => source.value;
     }
     else if (isReactive(source)) {
@@ -12893,6 +13202,7 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
             else if (isFunction(s)) {
                 return callWithErrorHandling(s, instance, 2 /* WATCH_GETTER */);
             }
+            else ;
         });
     }
     else if (isFunction(source)) {
@@ -12934,7 +13244,7 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
         if (cb) {
             // watch(source, cb)
             const newValue = runner();
-            if (deep || hasChanged(newValue, oldValue)) {
+            if (deep || isRefSource || hasChanged(newValue, oldValue)) {
                 // cleanup before running cb again
                 if (cleanup) {
                     cleanup();
@@ -12953,6 +13263,9 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
             runner();
         }
     };
+    // important: mark the job as a watcher callback so that scheduler knows it
+    // it is allowed to self-trigger (#1727)
+    job.allowRecurse = !!cb;
     let scheduler;
     if (flush === 'sync') {
         scheduler = job;
@@ -12962,7 +13275,7 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
         job.id = -1;
         scheduler = () => {
             if (!instance || instance.isMounted) {
-                queueJob(job);
+                queuePreFlushCb(job);
             }
             else {
                 // with 'pre' option, the first call must happen before
@@ -13013,7 +13326,10 @@ function traverse(value, seen = new Set()) {
         return value;
     }
     seen.add(value);
-    if (isArray(value)) {
+    if (isRef(value)) {
+        traverse(value.value, seen);
+    }
+    else if (isArray(value)) {
         for (let i = 0; i < value.length; i++) {
             traverse(value[i], seen);
         }
@@ -13066,14 +13382,18 @@ function inject(key, defaultValue) {
         else if (arguments.length > 1) {
             return defaultValue;
         }
+        else ;
     }
 }
+let isInBeforeCreate = false;
 function applyOptions(instance, options, deferredData = [], deferredWatch = [], asMixin = false) {
     const {
     // composition
     mixins, extends: extendsOptions,
     // state
     data: dataOptions, computed: computedOptions, methods, watch: watchOptions, provide: provideOptions, inject: injectOptions,
+    // assets
+    components, directives,
     // lifecycle
     beforeMount, mounted, beforeUpdate, updated, activated, deactivated, beforeUnmount, unmounted, render, renderTracked, renderTriggered, errorCaptured } = options;
     const publicThis = instance.proxy;
@@ -13084,7 +13404,9 @@ function applyOptions(instance, options, deferredData = [], deferredWatch = [], 
     }
     // applyOptions is called non-as-mixin once per instance
     if (!asMixin) {
+        isInBeforeCreate = true;
         callSyncHook('beforeCreate', options, publicThis, globalMixins);
+        isInBeforeCreate = false;
         // global mixins are applied first
         applyMixins(instance, globalMixins, deferredData, deferredWatch);
     }
@@ -13130,18 +13452,16 @@ function applyOptions(instance, options, deferredData = [], deferredWatch = [], 
             }
         }
     }
-    if (dataOptions) {
-        if (asMixin) {
-            deferredData.push(dataOptions);
-        }
-        else {
-            resolveData(instance, dataOptions, publicThis);
-        }
-    }
     if (!asMixin) {
         if (deferredData.length) {
             deferredData.forEach(dataFn => resolveData(instance, dataFn, publicThis));
         }
+        if (dataOptions) {
+            resolveData(instance, dataOptions, publicThis);
+        }
+    }
+    else if (dataOptions) {
+        deferredData.push(dataOptions);
     }
     if (computedOptions) {
         for (const key in computedOptions) {
@@ -13184,6 +13504,19 @@ function applyOptions(instance, options, deferredData = [], deferredWatch = [], 
             provide(key, provides[key]);
         }
     }
+    // asset options.
+    // To reduce memory usage, only components with mixins or extends will have
+    // resolved asset registry attached to instance.
+    if (asMixin) {
+        if (components) {
+            extend(instance.components ||
+                (instance.components = extend({}, instance.type.components)), components);
+        }
+        if (directives) {
+            extend(instance.directives ||
+                (instance.directives = extend({}, instance.type.directives)), directives);
+        }
+    }
     // lifecycle options
     if (!asMixin) {
         callSyncHook('created', options, publicThis, globalMixins);
@@ -13224,11 +13557,10 @@ function applyOptions(instance, options, deferredData = [], deferredWatch = [], 
 }
 function callSyncHook(name, options, ctx, globalMixins) {
     callHookFromMixins(name, globalMixins, ctx);
-    const baseHook = options.extends && options.extends[name];
-    if (baseHook) {
-        baseHook.call(ctx);
+    const { extends: base, mixins } = options;
+    if (base) {
+        callHookFromExtends(name, base, ctx);
     }
-    const mixins = options.mixins;
     if (mixins) {
         callHookFromMixins(name, mixins, ctx);
     }
@@ -13237,8 +13569,21 @@ function callSyncHook(name, options, ctx, globalMixins) {
         selfHook.call(ctx);
     }
 }
+function callHookFromExtends(name, base, ctx) {
+    if (base.extends) {
+        callHookFromExtends(name, base.extends, ctx);
+    }
+    const baseHook = base[name];
+    if (baseHook) {
+        baseHook.call(ctx);
+    }
+}
 function callHookFromMixins(name, mixins, ctx) {
     for (let i = 0; i < mixins.length; i++) {
+        const chainedMixins = mixins[i].mixins;
+        if (chainedMixins) {
+            callHookFromMixins(name, chainedMixins, ctx);
+        }
         const fn = mixins[i][name];
         if (fn) {
             fn.call(ctx);
@@ -13277,9 +13622,15 @@ function createWatcher(raw, ctx, publicThis, key) {
             raw.forEach(r => createWatcher(r, ctx, publicThis, key));
         }
         else {
-            watch(getter, raw.handler.bind(publicThis), raw);
+            const handler = isFunction(raw.handler)
+                ? raw.handler.bind(publicThis)
+                : ctx[raw.handler];
+            if (isFunction(handler)) {
+                watch(getter, handler, raw);
+            }
         }
     }
+    else ;
 }
 function resolveMergedOptions(instance) {
     const raw = instance.type;
@@ -13372,7 +13723,7 @@ const PublicInstanceProxyHandlers = {
                 accessCache[key] = 3 /* CONTEXT */;
                 return ctx[key];
             }
-            else {
+            else if (!__VUE_OPTIONS_API__ || !isInBeforeCreate) {
                 accessCache[key] = 4 /* OTHER */;
             }
         }
@@ -13402,6 +13753,7 @@ const PublicInstanceProxyHandlers = {
             hasOwn(globalProperties, key))) {
             return globalProperties[key];
         }
+        else ;
     },
     set({ _: instance }, key, value) {
         const { data, setupState, ctx } = instance;
@@ -13472,6 +13824,9 @@ function createComponentInstance(vnode, parent, suspense) {
         provides: parent ? parent.provides : Object.create(appContext.provides),
         accessCache: null,
         renderCache: [],
+        // local resovled assets
+        components: null,
+        directives: null,
         // state
         ctx: EMPTY_OBJ,
         data: EMPTY_OBJ,
@@ -13577,8 +13932,12 @@ function handleSetupResult(instance, setupResult, isSSR) {
     else if (isObject(setupResult)) {
         // setup returned bindings.
         // assuming a render function compiled from template is present.
+        if ( __VUE_PROD_DEVTOOLS__) {
+            instance.devtoolsRawSetupState = setupResult;
+        }
         instance.setupState = proxyRefs(setupResult);
     }
+    else ;
     finishComponentSetup(instance);
 }
 function finishComponentSetup(instance, isSSR) {
@@ -13638,7 +13997,8 @@ function formatComponentName(instance, Component, isRoot = false) {
             }
         };
         name =
-            inferFromRegistry(instance.parent.type.components) || inferFromRegistry(instance.appContext.components);
+            inferFromRegistry(instance.components ||
+                instance.parent.type.components) || inferFromRegistry(instance.appContext.components);
     }
     return name ? classify(name) : isRoot ? \`App\` : \`Anonymous\`;
 }
@@ -13648,7 +14008,7 @@ function computed$1(getterOrOptions) {
     return c;
 }
 // Core API ------------------------------------------------------------------
-const version$1 = \\"3.0.0-rc.5\\";
+const version$1 = \\"3.0.0-rc.9\\";
 const svgNS = 'http://www.w3.org/2000/svg';
 const doc = (typeof document !== 'undefined' ? document : null);
 let tempContainer;
@@ -13751,18 +14111,23 @@ function patchStyle(el, prev, next) {
 }
 const importantRE = /\\\\s*!important$/;
 function setStyle(style, name, val) {
-    if (name.startsWith('--')) {
-        // custom property definition
-        style.setProperty(name, val);
+    if (isArray(val)) {
+        val.forEach(v => setStyle(style, name, v));
     }
     else {
-        const prefixed = autoPrefix(style, name);
-        if (importantRE.test(val)) {
-            // !important
-            style.setProperty(hyphenate(prefixed), val.replace(importantRE, ''), 'important');
+        if (name.startsWith('--')) {
+            // custom property definition
+            style.setProperty(name, val);
         }
         else {
-            style[prefixed] = val;
+            const prefixed = autoPrefix(style, name);
+            if (importantRE.test(val)) {
+                // !important
+                style.setProperty(hyphenate(prefixed), val.replace(importantRE, ''), 'important');
+            }
+            else {
+                style[prefixed] = val;
+            }
         }
     }
 }
@@ -13826,7 +14191,10 @@ prevChildren, parentComponent, parentSuspense, unmountChildren) {
         // store value as _value as well since
         // non-string values will be stringified.
         el._value = value;
-        el.value = value == null ? '' : value;
+        const newValue = value == null ? '' : value;
+        if (el.value !== newValue) {
+            el.value = newValue;
+        }
         return;
     }
     if (value === '' && typeof el[key] === 'boolean') {
@@ -13875,20 +14243,24 @@ function removeEventListener(el, event, handler, options) {
     el.removeEventListener(event, handler, options);
 }
 function patchEvent(el, rawName, prevValue, nextValue, instance = null) {
-    const invoker = prevValue && prevValue.invoker;
-    if (nextValue && invoker) {
-        prevValue.invoker = null;
-        invoker.value = nextValue;
-        nextValue.invoker = invoker;
+    // vei = vue event invokers
+    const invokers = el._vei || (el._vei = {});
+    const existingInvoker = invokers[rawName];
+    if (nextValue && existingInvoker) {
+        // patch
+        existingInvoker.value = nextValue;
     }
     else {
         const [name, options] = parseName(rawName);
         if (nextValue) {
-            addEventListener(el, name, createInvoker(nextValue, instance), options);
+            // add
+            const invoker = (invokers[rawName] = createInvoker(nextValue, instance));
+            addEventListener(el, name, invoker, options);
         }
-        else if (invoker) {
+        else if (existingInvoker) {
             // remove
-            removeEventListener(el, name, invoker, options);
+            removeEventListener(el, name, existingInvoker, options);
+            invokers[rawName] = undefined;
         }
     }
 }
@@ -13919,7 +14291,6 @@ function createInvoker(initialValue, instance) {
         }
     };
     invoker.value = initialValue;
-    initialValue.invoker = invoker;
     invoker.attached = getNow();
     return invoker;
 }
@@ -13993,6 +14364,11 @@ function shouldSetAsProp(el, key, value, isSVG) {
     // Note that \`contentEditable\` doesn't have this problem: its DOM
     // property is also enumerated string values.
     if (key === 'spellcheck' || key === 'draggable') {
+        return false;
+    }
+    // #1787 form as an attribute must be a string, while it accepts an Element as
+    // a prop
+    if (key === 'form' && typeof value === 'string') {
         return false;
     }
     // #1526 <input list> must be set as attribute
