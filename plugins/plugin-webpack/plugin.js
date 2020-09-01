@@ -12,6 +12,14 @@ const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const cwd = process.cwd();
 
+function removeTrailingSlash(path) {
+  return path.replace(/[/\\]+$/, '');
+}
+
+function addLeadingSlash(path) {
+  return path.replace(/^\/?/, '/');
+}
+
 function insertBefore(newNode, existingNode) {
   existingNode.parentNode.insertBefore(newNode, existingNode);
 }
@@ -177,6 +185,9 @@ module.exports = function plugin(config, args) {
   // build artifacts.
   config.buildOptions.clean = true;
 
+  const webModulesUrl = addLeadingSlash(removeTrailingSlash(config.buildOptions.webModulesUrl));
+  const metaDir = addLeadingSlash(removeTrailingSlash(config.buildOptions.metaDir));
+
   return {
     name: '@snowpack/plugin-webpack',
     async optimize({ buildDirectory, log }) {
@@ -211,8 +222,8 @@ module.exports = function plugin(config, args) {
         context: buildDirectory,
         resolve: {
           alias: {
-            "/__snowpack__": path.join(buildDirectory, "__snowpack__"),
-            "/web_modules": path.join(buildDirectory, "web_modules"),
+            [metaDir]: path.join(buildDirectory, metaDir),
+            [webModulesUrl]: path.join(buildDirectory, webModulesUrl),
           },
         },
         module: {
