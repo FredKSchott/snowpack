@@ -29,4 +29,5 @@ Snowpack follow's Node.js's CJS-ESM interoperability strategy, where Common.js p
     "namedExports": ["someModule"]
   }
 }
+```
 
