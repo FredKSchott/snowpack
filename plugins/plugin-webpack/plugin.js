@@ -6,6 +6,7 @@ const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserJSPlugin = require("terser-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const ManifestPlugin = require('webpack-manifest-plugin');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const cwd = process.cwd();
@@ -157,6 +158,8 @@ module.exports = function plugin(config, args) {
   if (!cssOutputPattern.endsWith(".css")) {
     throw new Error("Output Pattern for CSS must end in .css");
   }
+  const manifest = !args.manifest ? false :
+    args.manifest === true ? './asset-manifest.json' : `${args.manifest}`;
 
   // Webpack handles minification for us, so its safe to always
   // disable Snowpack's default minifier.
@@ -288,19 +291,24 @@ module.exports = function plugin(config, args) {
           splitChunks: getSplitChunksConfig({ numEntries: jsEntries.length }),
           minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
         },
-        plugins: [
-          //Extract a css file from imported css files
-          new MiniCssExtractPlugin({
-            filename: cssOutputPattern,
-          }),
-        ],
       };
+      const plugins = [	
+        //Extract a css file from imported css files	
+        new MiniCssExtractPlugin({	
+          filename: cssOutputPattern,	
+        }),	
+      ];
+      if (manifest) {
+        plugins.push(new ManifestPlugin({ fileName: manifest }))
+      }
+
       let entry = {};
       for (name in jsEntries) {
         entry[name] = jsEntries[name].path;
       }
       const extendedConfig = extendConfig({
         ...webpackConfig,
+        plugins,
         entry,
         output: {
           path: buildDirectory,
