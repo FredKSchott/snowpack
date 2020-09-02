@@ -5,6 +5,7 @@ import * as colors from 'kleur/colors';
 import mime from 'mime-types';
 import path from 'path';
 import stripComments from 'strip-comments';
+import srcFileExtensionMapping from './build/src-file-extension-mapping';
 import {logger} from './logger';
 import {InstallTarget, SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
 import {
@@ -156,16 +157,47 @@ function parseFileForInstallTargets({
   contents,
 }: SnowpackSourceFile): InstallTarget[] {
   try {
-    if (baseExt === '.css' || baseExt === '.scss' || baseExt === '.sass' || baseExt === '.less') {
-      return parseCssForInstallTargets(contents);
-    } else {
-      return parseJsForInstallTargets(contents);
+    switch (baseExt) {
+      case '.css':
+      case '.less':
+      case '.sass':
+      case '.scss': {
+        return parseCssForInstallTargets(contents);
+      }
+      case '.html':
+      case '.svelte':
+      case '.vue': {
+        return parseJsForInstallTargets(extractJSFromHTML({contents, baseExt}));
+      }
+      default: {
+        return parseJsForInstallTargets(contents);
+      }
     }
   } catch (err) {
     // Another error! No hope left, just abort.
     logger.error(`! ${locOnDisk}`);
     throw err;
   }
+}
+
+/** Extract only JS within <script type="module"> tags (works for .svelte and .vue files, too) */
+function extractJSFromHTML({contents, baseExt}: {contents: string; baseExt: string}): string {
+  // TODO: Replace with matchAll once Node v10 is out of TLS.
+  // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
+  const allMatches: string[][] = [];
+  let match;
+  let regex = new RegExp(HTML_JS_REGEX);
+  if (baseExt === '.svelte' || baseExt === '.vue') {
+    regex = new RegExp(SVELTE_VUE_REGEX); // scan <script> tags, not <script type="module">
+  }
+  while ((match = regex.exec(contents))) {
+    allMatches.push(match);
+  }
+
+  return allMatches
+    .map((match) => match[2]) // match[2] is the code inside the <script></script> element
+    .filter((s) => s.trim())
+    .join('\n');
 }
 
 export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
@@ -208,55 +240,13 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
         return null;
       }
 
-      switch (baseExt) {
-        // Probably a license, a README, etc
-        case '': {
-          return null;
-        }
-        // Our import scanner can handle normal JS & even TypeScript without a problem.
-        case '.js':
-        case '.jsx':
-        case '.mjs':
-        case '.ts':
-        case '.css':
-        case '.tsx': {
-          return {
-            baseExt,
-            expandedExt,
-            locOnDisk: filePath,
-            contents: await fs.promises.readFile(filePath, 'utf-8'),
-          };
-        }
-        case '.html':
-        case '.vue':
-        case '.svelte': {
-          const result = await fs.promises.readFile(filePath, 'utf-8');
-          // TODO: Replace with matchAll once Node v10 is out of TLS.
-          // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
-          const allMatches: string[][] = [];
-          let match;
-          let regex = new RegExp(HTML_JS_REGEX);
-          if (baseExt === '.svelte' || baseExt === '.vue') {
-            regex = new RegExp(SVELTE_VUE_REGEX); // scan <script> tags, not <script type="module">
-          }
-          while ((match = regex.exec(result))) {
-            allMatches.push(match);
-          }
-          return {
-            baseExt,
-            expandedExt,
-            locOnDisk: filePath,
-            // match[2] is the code inside the <script></script> element
-            contents: allMatches
-              .map((match) => match[2])
-              .filter((s) => s.trim())
-              .join('\n'),
-          };
-        }
+      // Probably a license, a README, etc
+      if (baseExt === '') {
+        return null;
       }
 
       // If we don't recognize the file type, it could be source. Warn just in case.
-      if (!mime.lookup(baseExt)) {
+      if (!Object.keys(srcFileExtensionMapping).includes(baseExt) && !mime.lookup(baseExt)) {
         logger.warn(
           colors.dim(
             `ignoring unsupported file "${path
@@ -265,9 +255,16 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
           ),
         );
       }
-      return null;
+
+      return {
+        baseExt,
+        expandedExt,
+        locOnDisk: filePath,
+        contents: await fs.promises.readFile(filePath, 'utf-8'),
+      };
     }),
   );
+
   return scanImportsFromFiles(loadedFiles.filter(isTruthy), config);
 }
 
