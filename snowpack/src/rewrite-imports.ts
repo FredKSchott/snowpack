@@ -85,13 +85,13 @@ export async function transformFileImports(
   replaceImport: (specifier: string) => string,
 ) {
   if (baseExt === '.js') {
-    return transformEsmImports(contents, replaceImport);
+    return transformEsmImports(contents as string, replaceImport);
   }
   if (baseExt === '.html') {
-    return transformHtmlImports(contents, replaceImport);
+    return transformHtmlImports(contents as string, replaceImport);
   }
   if (baseExt === '.css') {
-    return transformCssImports(contents, replaceImport);
+    return transformCssImports(contents as string, replaceImport);
   }
   throw new Error(
     `Incompatible filetype: cannot scan ${baseExt} files for ESM imports. This is most likely an error within Snowpack.`,

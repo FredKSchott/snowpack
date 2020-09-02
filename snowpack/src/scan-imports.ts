@@ -157,9 +157,9 @@ function parseFileForInstallTargets({
 }: SnowpackSourceFile): InstallTarget[] {
   try {
     if (baseExt === '.css' || baseExt === '.scss' || baseExt === '.sass' || baseExt === '.less') {
-      return parseCssForInstallTargets(contents);
+      return parseCssForInstallTargets(contents as string);
     } else {
-      return parseJsForInstallTargets(contents);
+      return parseJsForInstallTargets(contents as string);
     }
   } catch (err) {
     // Another error! No hope left, just abort.

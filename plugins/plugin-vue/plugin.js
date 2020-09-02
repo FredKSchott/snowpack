@@ -81,7 +81,7 @@ module.exports = function plugin(snowpackConfig) {
           if (css.errors && css.errors.length > 0) {
             console.error(JSON.stringify(css.errors));
           }
-          output['.css'].contents += css.contents;
+          output['.css'].contents += css.code;
           // QUESTION: Should this be here?
           output['.css'].code = output['.css'].contents;
           if (sourceMaps && css.map) output['.css'].map += JSON.stringify(css.map);
