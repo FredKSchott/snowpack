@@ -9,11 +9,7 @@
     "test": "jest --test-timeout=30000"
   },
   "workspaces": [
-    "create-snowpack-app/*",
-    "plugins/*",
-    "snowpack",
-    "test/build/*",
-    "test/integration/*"
+    "snowpack"
   ],
   "devDependencies": {
     "@pika/pack": "^0.5.0",
