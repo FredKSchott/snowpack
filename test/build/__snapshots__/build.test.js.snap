@@ -509,29 +509,6 @@ exports[`snowpack build config-extends-plugins: index.html 1`] = `
 </html>"
 `;
 
-exports[`snowpack build config-minify: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
-
-exports[`snowpack build config-minify: _dist_/index.js 1`] = `"import{flatten as o}from\\"../web_modules/array-flatten.js\\";console.log(o);"`;
-
-exports[`snowpack build config-minify: allFiles 1`] = `
-Array [
-  "__snowpack__/env.js",
-  "_dist_/index.js",
-  "web_modules/array-flatten.js",
-  "web_modules/import-map.json",
-]
-`;
-
-exports[`snowpack build config-minify: web_modules/array-flatten.js 1`] = `"function s(t){var n=[];return f(t,n),n}function f(t,n){for(var r=0;r<t.length;r++){var e=t[r];Array.isArray(e)?f(e,n):n.push(e)}}export{s as flatten};"`;
-
-exports[`snowpack build config-minify: web_modules/import-map.json 1`] = `
-"{
-  \\"imports\\": {
-    \\"array-flatten\\": \\"./array-flatten.js\\"
-  }
-}"
-`;
-
 exports[`snowpack build config-out: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build config-out: allFiles 1`] = `
@@ -563,7 +540,7 @@ exports[`snowpack build config-out: package.json 1`] = `
 }"
 `;
 
-exports[`snowpack build config-out: src/index.js 1`] = `"console.log(\\"fooey\\");"`;
+exports[`snowpack build config-out: src/index.js 1`] = `"console.log('fooey');"`;
 
 exports[`snowpack build config-treeshake: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
@@ -2970,6 +2947,67 @@ export default function doNothing() {
 }
 // Triggers a snowpack meta import URL
 console.log(import.meta.env)"
+`;
+
+exports[`snowpack build module-preload: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+
+exports[`snowpack build module-preload: _dist_/about.js 1`] = `"console.log(\\"about page\\");"`;
+
+exports[`snowpack build module-preload: _dist_/home.js 1`] = `"import\\"./should-be-preloaded.js\\";import(\\"./should-not-be-preloaded.js\\"),console.log(\\"home page\\");"`;
+
+exports[`snowpack build module-preload: _dist_/should-be-preloaded.js 1`] = `"console.log(\\"I should be preloaded\\");"`;
+
+exports[`snowpack build module-preload: _dist_/should-not-be-preloaded.js 1`] = `"console.log(\\"I should not be preloaded\\");"`;
+
+exports[`snowpack build module-preload: _dist_/unlinked-file.js 1`] = `"console.log(\\"I’m not imported by anything; I should be in the final build but not preloaded\\");"`;
+
+exports[`snowpack build module-preload: about/index.html 1`] = `
+"<!doctype html>
+<html>
+  <head>
+    <title>My App</title>
+  </head>
+  <body>
+    <script type=\\"module\\" src=\\"/_dist_/about.js\\"></script>
+  </body>
+</html>"
+`;
+
+exports[`snowpack build module-preload: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "_dist_/about.js",
+  "_dist_/home.js",
+  "_dist_/should-be-preloaded.js",
+  "_dist_/should-not-be-preloaded.js",
+  "_dist_/unlinked-file.js",
+  "about/index.html",
+  "index.html",
+]
+`;
+
+exports[`snowpack build module-preload: index.html 1`] = `
+"<!DOCTYPE html>
+<html>
+  <head>
+    <title>My App</title>
+    <!-- @snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance
+         More info: https://developers.google.com/web/updates/2017/12/modulepreload -->
+    <link rel=\\"modulepreload\\" href=\\"/_dist_/should-be-preloaded.js\\" />
+  </head>
+  <body>
+    <script type=\\"module\\" src=\\"/_dist_/home.js\\"></script>
+    <script>
+      // some arbitrary JS; this tests that the scanner ignores this
+      const src = 'foo.js';
+      console.log(foo);
+    </script>
+    <!-- skip this because it’s not type=\\"module\\" -->
+    <script src=\\"/_dist_/should-not-be-preloaded.js\\"></script>
+    <!-- [@snowpack/plugin-optimize] modulepreload fallback for browsers that do not support it yet -->
+    <script type=\\"module\\" src=\\"/_dist_/should-be-preloaded.js\\"></script>
+  </body>
+</html>"
 `;
 
 exports[`snowpack build module-resolution: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
@@ -6272,7 +6310,10 @@ export { animateFill, createSingleton, delegate, followCursor, hideAll, inlinePo
 
 exports[`snowpack build plugin-build-script: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`snowpack build plugin-build-script: _dist_/index.js 1`] = `"const msg=\\"I’m a TypeScript file\\";console.log(msg);"`;
+exports[`snowpack build plugin-build-script: _dist_/index.js 1`] = `
+"const msg = 'I’m a TypeScript file';
+console.log(msg);"
+`;
 
 exports[`snowpack build plugin-build-script: allFiles 1`] = `
 Array [

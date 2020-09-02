@@ -22,6 +22,7 @@ import {
   LegacySnowpackPlugin,
   PluginLoadResult,
 } from './types/snowpack';
+import {addLeadingSlash, addTrailingSlash, removeLeadingSlash, removeTrailingSlash} from './util';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -58,7 +59,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     webModulesUrl: '/web_modules',
     clean: false,
     metaDir: '__snowpack__',
-    minify: true,
+    minify: false,
     sourceMaps: false,
     watch: false,
   },
@@ -362,6 +363,7 @@ function loadPlugins(
     plugins.push(plugin);
   });
 
+  // add internal JS handler plugin if none specified
   const needsDefaultPlugin = new Set(['.mjs', '.jsx', '.ts', '.tsx']);
   plugins
     .filter(({resolve}) => !!resolve)
@@ -550,6 +552,13 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     if (knownEntrypoints) {
       config.knownEntrypoints = config.knownEntrypoints.concat(knownEntrypoints);
     }
+  }
+
+  // warn for minify: true
+  if (config.buildOptions.minify) {
+    logger.warn(
+      '[snowpack] buildOptions.minify is deprecated. Please install @snowpack/plugin-optimize instead: https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-optimize',
+    );
   }
 
   plugins.forEach((plugin) => {
@@ -856,20 +865,4 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     process.exit(1);
   }
   return configResult!;
-}
-
-export function removeLeadingSlash(path: string) {
-  return path.replace(/^[/\\]+/, '');
-}
-
-export function removeTrailingSlash(path: string) {
-  return path.replace(/[/\\]+$/, '');
-}
-
-export function addLeadingSlash(path: string) {
-  return path.replace(/^\/?/, '/');
-}
-
-export function addTrailingSlash(path: string) {
-  return path.replace(/\/?$/, '/');
 }

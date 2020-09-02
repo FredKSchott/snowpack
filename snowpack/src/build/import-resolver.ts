@@ -1,7 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import {ImportMap, SnowpackConfig} from '../types/snowpack';
-import {findMatchingAliasEntry, getExt, replaceExt, URL_HAS_PROTOCOL_REGEX} from '../util';
+import {
+  findMatchingAliasEntry,
+  getExt,
+  relativeURL,
+  replaceExt,
+  URL_HAS_PROTOCOL_REGEX,
+} from '../util';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
 const cwd = process.cwd();
@@ -65,10 +71,7 @@ export function createImportResolver({
       const importStats = getImportStats(cwd, result);
       result = resolveSourceSpecifier(result, importStats, config);
       // replace Windows backslashes at the end, after resolution
-      result = path.relative(path.dirname(fileLoc), result).replace(/\\/g, '/');
-      if (!result.startsWith('.')) {
-        result = './' + result;
-      }
+      result = relativeURL(path.dirname(fileLoc), result);
       return result;
     }
     if (dependencyImportMap) {
