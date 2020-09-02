@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const hashsum = require('hash-sum');
 const compiler = require('@vue/compiler-sfc');
+const scriptCompilers = require('./src/script-compilers');
 
 /** Friendly error display */
 function displayError({contents, filePath, error}) {
@@ -31,7 +32,10 @@ function displayError({contents, filePath, error}) {
   return output.join('\n');
 }
 
-module.exports = function plugin(snowpackConfig) {
+module.exports = function plugin(snowpackConfig, pluginOptions) {
+  const curPluginOptions = pluginOptions || {};
+  const tsconfigFilePath = curPluginOptions.tsconfig;
+
   return {
     name: '@snowpack/plugin-vue',
     resolve: {
@@ -56,14 +60,22 @@ module.exports = function plugin(snowpackConfig) {
       };
 
       if (descriptor.script) {
-        output['.js'].code += descriptor.script.content.replace(
-          `export default`,
-          'const defaultExport =',
-        );
+        const scriptLang = descriptor.script.lang;
+        let scriptContent = descriptor.script.content;
+        if (['jsx', 'ts', 'tsx'].includes(scriptLang)) {
+          scriptContent = scriptCompilers.esbuildCompile(
+            scriptContent,
+            scriptLang,
+            tsconfigFilePath,
+          );
+        }
+        if (['js', 'ts'].includes(scriptLang) || !scriptLang) {
+          scriptContent = scriptContent.replace(`export default`, 'const defaultExport =');
+        }
+        output['.js'].code += scriptContent;
       } else {
         output['.js'].code += `const defaultExport = {};`;
       }
-
       await Promise.all(
         descriptor.styles.map((stylePart) => {
           const css = compiler.compileStyle({
