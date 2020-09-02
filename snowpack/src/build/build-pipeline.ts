@@ -8,6 +8,7 @@ import {getEncodingType, getExt, replaceExt} from '../util';
 export interface BuildFileOptions {
   isDev: boolean;
   isHmrEnabled: boolean;
+  isExitOnBuild: boolean;
   plugins: SnowpackPlugin[];
   sourceMaps: boolean;
 }
@@ -38,7 +39,7 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
  */
 async function runPipelineLoadStep(
   srcPath: string,
-  {isDev, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
+  {isDev, isHmrEnabled, isExitOnBuild, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   for (const step of plugins) {
@@ -88,7 +89,9 @@ async function runPipelineLoadStep(
     } catch (err) {
       // note: for many plugins like Babel, `err.toString()` is needed to display full output
       logger.error(err.toString() || err, {name: step.name});
-      if (!isDev) process.exit(1); // exit in build
+      if (isExitOnBuild) {
+        process.exit(1);
+      }
     }
   }
 
@@ -109,7 +112,7 @@ async function runPipelineLoadStep(
 async function runPipelineTransformStep(
   output: SnowpackBuildMap,
   srcPath: string,
-  {isDev, plugins, sourceMaps}: BuildFileOptions,
+  {isDev, isExitOnBuild, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   const rootFilePath = srcPath.replace(srcExt, '');
@@ -153,7 +156,9 @@ async function runPipelineTransformStep(
     } catch (err) {
       // note: for many plugins like Babel, `err.toString()` is needed to display full output
       logger.error(err.toString() || err, {name: step.name});
-      if (!isDev) process.exit(1); // exit in build
+      if (isExitOnBuild) {
+        process.exit(1);
+      }
     }
   }
 

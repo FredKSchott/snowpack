@@ -468,6 +468,7 @@ export async function command(commandOptions: CommandOptions) {
         const builtFileOutput = await _buildFile(fileLoc, {
           plugins: config.plugins,
           isDev: true,
+          isExitOnBuild: false,
           isHmrEnabled: isHmr,
           sourceMaps: config.buildOptions.sourceMaps,
         });
