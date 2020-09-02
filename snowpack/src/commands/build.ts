@@ -82,12 +82,13 @@ class FileBuilder {
     this.config = config;
   }
 
-  async buildFile() {
+  async buildFile(isExitOnBuild: boolean) {
     this.filesToResolve = {};
     const srcExt = path.extname(this.filepath);
     const builtFileOutput = await buildFile(this.filepath, {
       plugins: this.config.plugins,
       isDev: false,
+      isExitOnBuild,
       isHmrEnabled: false,
       sourceMaps: this.config.buildOptions.sourceMaps,
     });
@@ -277,7 +278,8 @@ export async function command(commandOptions: CommandOptions) {
           },
         })
         .catch((err) => {
-          logger.error(`[${runPlugin.name}] ${err}`);
+          logger.error(err.toString(), {name: runPlugin.name});
+          process.exit(1);
         });
     }
   }
@@ -349,7 +351,7 @@ export async function command(commandOptions: CommandOptions) {
   const parallelWorkQueue = new PQueue({concurrency: CONCURRENT_WORKERS});
   const allBuildPipelineFiles = Object.values(buildPipelineFiles);
   for (const buildPipelineFile of allBuildPipelineFiles) {
-    parallelWorkQueue.add(() => buildPipelineFile.buildFile());
+    parallelWorkQueue.add(() => buildPipelineFile.buildFile(true));
   }
   await parallelWorkQueue.onIdle();
 
@@ -389,6 +391,7 @@ export async function command(commandOptions: CommandOptions) {
     await runPipelineOptimizeStep(buildDirectoryLoc, {
       plugins: config.plugins,
       isDev: false,
+      isExitOnBuild: false,
       isHmrEnabled: false,
       sourceMaps: config.buildOptions.sourceMaps,
     });
@@ -441,7 +444,9 @@ export async function command(commandOptions: CommandOptions) {
     const changedPipelineFile = new FileBuilder({filepath: fileLoc, outDir, config});
     buildPipelineFiles[fileLoc] = changedPipelineFile;
     // 1. Build the file.
-    await changedPipelineFile.buildFile();
+    await changedPipelineFile.buildFile(false).catch((err) => {
+      logger.error(err.message, {name: changedPipelineFile.filepath});
+    });
     // 2. Resolve any ESM imports. Handle new imports by triggering a re-install.
     let resolveSuccess = await changedPipelineFile.resolveImports(installResult.importMap!);
     if (!resolveSuccess) {
@@ -478,4 +483,7 @@ export async function command(commandOptions: CommandOptions) {
   watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onDeleteEvent(fileLoc));
+
+  // We intentionally never want to exit in watch mode!
+  return new Promise(() => {});
 }
