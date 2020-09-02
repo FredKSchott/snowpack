@@ -32,22 +32,20 @@ module.exports = function plugin(snowpackConfig, options = {}) {
         sourceMaps: snowpackConfig.buildOptions.sourceMaps,
         ...(options.transformOptions || {}),
       });
-      let {contents, code, map} = JSON.parse(encodedResult);
+      let {code, map} = JSON.parse(encodedResult);
 
-      let fileContents = contents || code
-
-      if (fileContents) {
+      if (code) {
         // Some Babel plugins assume process.env exists, but Snowpack
         // uses import.meta.env instead. Handle this here since it
         // seems to be pretty common.
         // See: https://www.pika.dev/npm/snowpack/discuss/496
-        fileContents = fileContents.replace(/process\.env/g, 'import.meta.env');
+        code = code.replace(/process\.env/g, 'import.meta.env');
       }
       return {
         '.js': {
-          contents: fileContents,
+          contents: code,
           // QUESTION: Do I need this?
-          code: fileContents,
+          code,
           map,
         },
       };
