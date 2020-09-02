@@ -2,7 +2,7 @@
 
 Interested in contributing? We'd love your help!
 
-If you run into problems, or find something confusing, please share it with us in [this discussion](https://github.com/pikapkg/snowpack/discussions/958). A great experience for (new) contributors is very important to us.
+If you run into problems or find something confusing, please share it with us in [this discussion](https://github.com/pikapkg/snowpack/discussions/958). A great experience for new contributors is very important to us!
 
 Please note that Snowpack is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating you agree to abide by its terms.
 
