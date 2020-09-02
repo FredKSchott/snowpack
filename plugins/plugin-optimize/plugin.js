@@ -110,12 +110,18 @@ exports.default = function plugin(config, userDefinedOptions) {
     code = appendHTMLToHead(
       code,
       `  ` +
-        resolvedModules.map((src) => `<link rel="modulepreload" href="${src}" />`).join('') +
+        resolvedModules
+          .map(
+            (src) =>
+              `<!-- @snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance
+         More info: https://developers.google.com/web/updates/2017/12/modulepreload -->\n    <link rel="modulepreload" href="${src}" />`,
+          )
+          .join('') +
         '\n  ',
     );
     code = appendHTMLToBody(
       code,
-      `  ` +
+      `  <!-- [@snowpack/plugin-optimize] modulepreload fallback for browsers that do not support it yet -->\n    ` +
         resolvedModules.map((src) => `<script type="module" src="${src}"></script>`).join('') +
         '\n  ',
     );

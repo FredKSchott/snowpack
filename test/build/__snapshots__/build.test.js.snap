@@ -2991,10 +2991,13 @@ exports[`snowpack build module-preload: index.html 1`] = `
 <html>
   <head>
     <title>My App</title>
+    <!-- @snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance
+         More info: https://developers.google.com/web/updates/2017/12/modulepreload -->
     <link rel=\\"modulepreload\\" href=\\"/_dist_/should-be-preloaded.js\\" />
   </head>
   <body>
     <script type=\\"module\\" src=\\"/_dist_/home.js\\"></script>
+    <!-- [@snowpack/plugin-optimize] modulepreload fallback for browsers that do not support it yet -->
     <script type=\\"module\\" src=\\"/_dist_/should-be-preloaded.js\\"></script>
   </body>
 </html>"
