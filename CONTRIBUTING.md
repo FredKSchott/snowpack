@@ -1,4 +1,4 @@
-## Contributions Welcome!
+# Contributions Welcome!
 
 Interested in contributing? We'd love your help!
 
@@ -8,38 +8,54 @@ Please note that all activity on the [`pikapkg/snowpack` repository](https://git
 
 Our [issue tracker](https://github.com/pikapkg/snowpack/issues) is always organized with a selection of high-priority bugs, feature requests, and ["help wanted!"](https://github.com/pikapkg/snowpack/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)/["good first issue"](https://github.com/pikapkg/snowpack/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) items. For general package troubleshooting and discussions, check out our [Package Community](https://www.pika.dev/npm/snowpack/discuss) discussion board.
 
+## Requirements
+
+You need [yarn](https://classic.yarnpkg.com/en/docs/install) to setup the `snowpack` repository locally on your machine
+
+## Initial setup
+
 ```bash
-# Local Setup
-git clone ${REPO}
+git clone https://github.com/pikapkg/snowpack.git
+cd snowpack
 yarn
 ```
 
+## Build after changes
+
+Note: you will see warnings about `__dirname` and `require()` not being "a valid ESM global" when running `yarn build`. You can ignore these warnings.
+
 ```bash
-# Build after changes
 yarn build
 yarn --force
 ```
 
-```bash
-# Check formatting after changed
-yarn format
-```
+## Run tests
 
 ```bash
-# Run your tests
 yarn build
 yarn --force
 yarn test
 ```
 
+## Run local snowpack in another project
+
+You can run your local snowpack by path
+
 ```bash
-# Run snowpack locally by path, in some sibling project
-cd ../some-other-project && ../pkg/dist-node/index.bin.js
-# Or, link the built package to run anywhere via global CLI
-cd pkg && npm link
-snowpack
+yarn build
+cd path/to/some-other-project
+/path/to/snowpack/pkg/dist-node/index.bin.js dev
 ```
 
-### Discussion
+Or by linking the global `snowpack` library to your local clone
+
+```bash
+cd pkg
+npm link
+cd path/to/some-other-project
+snowpack dev
+```
+
+## Discussion
 
 [Join the Pika Discord](https://discord.gg/rS8SnRk)
