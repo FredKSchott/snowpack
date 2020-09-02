@@ -3,7 +3,7 @@
  */
 const path = require('path');
 
-exports.HTML_JS_REGEX = /(<script.*?type="?module"?.*?>)(.*?)<\/script>/gms;
+exports.HTML_JS_REGEX = /<script[^>]+type="?module"?[^>]*>/gims;
 
 /** determine if remote package or not */
 exports.isRemoteModule = function isRemoteModule(specifier) {
