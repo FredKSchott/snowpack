@@ -8,7 +8,7 @@ const esbuildPath = require.resolve("esbuild");
 const esbuildBin = path.resolve(esbuildPath, "..", "..", "bin", "esbuild");
 
 module.exports = {
-  process(code, filename) {
+  process(contents, filename) {
     const result = execa.sync(
       esbuildBin,
       [
@@ -17,8 +17,9 @@ module.exports = {
         "--platform=node",
         "--target=es2019",
       ],
-      { input: code }
+      { input: contents }
     );
+    // QUESTION: Should this be `contents`?
     return { code: result.stdout };
   },
 };

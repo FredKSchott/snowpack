@@ -66,6 +66,8 @@ async function runPipelineLoadStep(
         const mainOutputExt = step.resolve.output[0];
         return {
           [mainOutputExt]: {
+            contents: result,
+            // @ts-ignore: Deprecated
             code: result,
           },
         };
@@ -73,8 +75,12 @@ async function runPipelineLoadStep(
         Object.keys(result).forEach((ext) => {
           const output = result[ext];
 
-          // normalize to {code, map} format
-          if (typeof output === 'string') result[ext] = {code: output};
+          // normalize to {contents, map} format
+          if (typeof output === 'string') result[ext] = {
+            contents: output,
+            // @ts-ignore: Deprecated
+            code: output,
+          };
 
           // ensure source maps are strings (it’s easy for plugins to pass back a JSON object)
           if (result[ext].map && typeof result[ext].map === 'object')
@@ -92,9 +98,12 @@ async function runPipelineLoadStep(
     }
   }
 
+  const contents = await fs.readFile(srcPath, getEncodingType(srcExt))
   return {
     [srcExt]: {
-      code: await fs.readFile(srcPath, getEncodingType(srcExt)),
+      contents,
+      // @ts-ignore: Deprecated
+      code: contents,
     },
   };
 }
@@ -122,13 +131,17 @@ async function runPipelineTransformStep(
     try {
       for (const destExt of Object.keys(output)) {
         const destBuildFile = output[destExt];
-        const {code} = destBuildFile;
+        const {
+          contents,
+          // @ts-ignore: Deprecated
+          code
+        } = destBuildFile;
         const fileName = rootFileName + destExt;
         const filePath = rootFilePath + destExt;
         const debugPath = path.relative(process.cwd(), filePath);
         logger.debug(`transform() starting… [${debugPath}]`, {name: step.name});
         const result = await step.transform({
-          contents: code,
+          contents: contents || code,
           isDev,
           fileExt: destExt,
           id: filePath,
@@ -138,11 +151,15 @@ async function runPipelineTransformStep(
           urlPath: `./${path.basename(rootFileName + destExt)}`,
         });
         logger.debug(`✔ transform() success [${debugPath}]`, {name: step.name});
-        // if step returned a value, only update code (don’t touch .map)
+        // if step returned a value, only update contents (don’t touch .map)
         if (typeof result === 'string' || Buffer.isBuffer(result)) {
+          output[destExt].contents = result;
+          // @ts-ignore: Deprecated
           output[destExt].code = result;
           output[destExt].map = undefined;
         } else if (result && typeof result === 'object' && (result as {result: string}).result) {
+          output[destExt].contents = (result as {result: string}).result;
+          // @ts-ignore: Deprecated
           output[destExt].code = (result as {result: string}).result;
           output[destExt].map = undefined;
         }

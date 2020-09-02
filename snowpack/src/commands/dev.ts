@@ -62,7 +62,7 @@ import {
   transformFileImports,
 } from '../rewrite-imports';
 import {matchDynamicImportValue} from '../scan-imports';
-import {CommandOptions, ImportMap, SnowpackBuildMap, SnowpackConfig} from '../types/snowpack';
+import {CommandOptions, ImportMap, SnowpackBuildMap, SnowpackConfig, FileContents} from '../types/snowpack';
 import {
   BUILD_CACHE,
   checkLockfileHash,
@@ -99,7 +99,7 @@ function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
 const sendFile = (
   req: http.IncomingMessage,
   res: http.ServerResponse,
-  body: string | Buffer,
+  body: FileContents,
   fileLoc: string,
   ext = '.html',
 ) => {
@@ -490,7 +490,7 @@ export async function command(commandOptions: CommandOptions) {
      * return a JS representation of that CSS. This is handled in the wrap step.
      */
     async function wrapResponse(
-      code: string | Buffer,
+      contents: FileContents,
       {
         hasCssResource,
         sourceMap,
@@ -499,8 +499,8 @@ export async function command(commandOptions: CommandOptions) {
     ) {
       // transform special requests
       if (isRoute) {
-        code = wrapHtmlResponse({
-          code: code as string,
+        contents = wrapHtmlResponse({
+          code: contents as string,
           hmr: isHmr,
           isDev: true,
           config,
@@ -510,35 +510,35 @@ export async function command(commandOptions: CommandOptions) {
         responseFileExt = '.js';
       } else if (isSourceMap && sourceMap) {
         responseFileExt = '.map';
-        code = sourceMap;
+        contents = sourceMap;
       }
 
       // transform other files
       switch (responseFileExt) {
         case '.css': {
-          if (sourceMap) code = cssSourceMappingURL(code as string, sourceMappingURL);
+          if (sourceMap) contents = cssSourceMappingURL(contents as string, sourceMappingURL);
           break;
         }
         case '.js': {
           if (isProxyModule) {
-            code = await wrapImportProxy({url: reqPath, code, hmr: isHmr, config});
+            contents = await wrapImportProxy({url: reqPath, code: contents, hmr: isHmr, config});
           } else {
-            code = wrapImportMeta({code: code as string, env: true, hmr: isHmr, config});
+            contents = wrapImportMeta({code: contents as string, env: true, hmr: isHmr, config});
           }
 
           if (hasCssResource)
-            code =
-              `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
+          contents =
+              `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + contents;
 
           // source mapping
-          if (sourceMap) code = jsSourceMappingURL(code, sourceMappingURL);
+          if (sourceMap) contents = jsSourceMappingURL(contents, sourceMappingURL);
 
           break;
         }
       }
 
       // by default, return file from disk
-      return code;
+      return contents;
     }
 
     /**
@@ -586,9 +586,9 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
         },
       );
 
-      let code = wrappedResponse;
+      let contents = wrappedResponse;
       if (responseFileExt === '.js' && reqUrlHmrParam)
-        code = await transformEsmImports(code as string, (imp) => {
+      contents = await transformEsmImports(contents as string, (imp) => {
           const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
           const node = hmrEngine.getEntry(importUrl);
           if (node && node.needsReplacement) {
@@ -599,10 +599,10 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
         });
 
       if (responseFileExt === '.js') {
-        const isHmrEnabled = code.includes('import.meta.hot');
-        const rawImports = await scanCodeImportsExports(code);
+        const isHmrEnabled = contents.includes('import.meta.hot');
+        const rawImports = await scanCodeImportsExports(contents);
         const resolvedImports = rawImports.map((imp) => {
-          let spec = code.substring(imp.s, imp.e);
+          let spec = contents.substring(imp.s, imp.e);
           if (imp.d > -1) {
             spec = matchDynamicImportValue(spec) || '';
           }
@@ -612,7 +612,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
         hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
       }
 
-      wrappedResponse = code;
+      wrappedResponse = contents;
       return wrappedResponse;
     }
 
@@ -626,14 +626,14 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       fileLoc: string,
       requestedFileExt: string,
       output: SnowpackBuildMap,
-    ): Promise<string | Buffer | null> {
+    ): Promise<FileContents | null> {
       // Verify that the requested file exists in the build output map.
       if (!output[requestedFileExt] || !Object.keys(output)) {
         return null;
       }
 
-      const {code, map} = output[requestedFileExt];
-      let finalResponse = code;
+      const {contents, map} = output[requestedFileExt];
+      let finalResponse = contents;
 
       // Resolve imports.
       if (
@@ -696,7 +696,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
         // our users.
         const coldCachedResponse: SnowpackBuildMap = JSON.parse(
           cachedBuildData.data.toString(),
-        ) as Record<string, {code: string; map?: string}>;
+        ) as SnowpackBuildMap;
         inMemoryBuildCache.set(fileLoc, coldCachedResponse);
         // Trust...
         const wrappedResponse = await finalizeResponse(
@@ -730,7 +730,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
     }
 
     // 5. Final option: build the file, serve it, and cache it.
-    let responseContent: string | Buffer | null;
+    let responseContent: FileContents | null;
     let responseOutput: SnowpackBuildMap;
     try {
       responseOutput = await buildFile(fileLoc);

@@ -11,7 +11,12 @@ export type DeepPartial<T> = {
 
 export type EnvVarReplacements = Record<string, string | number | true>;
 
-export type SnowpackBuiltFile = {code: string | Buffer; map?: string};
+export type FileContents = string | Buffer
+
+export type SnowpackBuiltFile = {
+  contents: FileContents;
+  map?: string
+};
 export type SnowpackBuildMap = Record<string, SnowpackBuiltFile>;
 
 /** Standard file interface */
@@ -19,7 +24,7 @@ export interface SnowpackSourceFile {
   /** base extension (e.g. `.js`) */
   baseExt: string;
   /** file contents */
-  contents: string;
+  contents: FileContents;
   /** expanded extension (e.g. `.proxy.js` or `.module.css`) */
   expandedExt: string;
   /** if no location on disk, assume this exists in memory */
@@ -36,7 +41,7 @@ export interface PluginLoadOptions {
 export interface PluginTransformOptions {
   id: string;
   fileExt: string;
-  contents: string | Buffer;
+  contents: FileContents;
   isDev: boolean;
   isHmrEnabled: boolean;
 }
@@ -46,7 +51,7 @@ export interface PluginRunOptions {
   isHmrEnabled: boolean;
 }
 
-/** map of extensions -> code (e.g. { ".js": "[code]", ".css": "[code]" }) */
+/** map of extensions -> contents (e.g. { ".js": "[contents]", ".css": "[contents]" }) */
 export type PluginLoadResult = string | SnowpackBuildMap;
 
 export interface PluginOptimizeOptions {

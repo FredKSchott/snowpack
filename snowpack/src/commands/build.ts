@@ -20,7 +20,7 @@ import {createImportResolver} from '../build/import-resolver';
 import {removeLeadingSlash} from '../config';
 import {logger} from '../logger';
 import {transformFileImports} from '../rewrite-imports';
-import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
+import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile, FileContents} from '../types/snowpack';
 import {cssSourceMappingURL, getEncodingType, jsSourceMappingURL, replaceExt} from '../util';
 import {getInstallTargets, run as installRunner} from './install';
 
@@ -60,7 +60,7 @@ async function installOptimizedDependencies(
  * in stages (build -> resolve -> write to disk).
  */
 class FileBuilder {
-  output: Record<string, string | Buffer> = {};
+  output: Record<string, FileContents> = {};
   filesToResolve: Record<string, SnowpackSourceFile> = {};
   filesToProxy: string[] = [];
 
@@ -92,24 +92,25 @@ class FileBuilder {
       sourceMaps: this.config.buildOptions.sourceMaps,
     });
     for (const [fileExt, buildResult] of Object.entries(builtFileOutput)) {
-      let {code, map} = buildResult;
-      if (!code) {
+      // QUESTION: Do I need to handle `code` here as well?
+      let {contents, map} = buildResult;
+      if (!contents) {
         continue;
       }
 
       const outFilename = replaceExt(path.basename(this.filepath), srcExt, fileExt);
       const outLoc = path.join(this.outDir, outFilename);
       const sourceMappingURL = outFilename + '.map';
-      if (typeof code === 'string') {
+      if (typeof contents === 'string') {
         switch (fileExt) {
           case '.css': {
-            if (map) code = cssSourceMappingURL(code, sourceMappingURL);
-            this.filesToResolve[outLoc] = {
-              baseExt: fileExt,
-              expandedExt: fileExt,
-              contents: code,
-              locOnDisk: this.filepath,
-            };
+            if (map) contents = cssSourceMappingURL(contents, sourceMappingURL);
+            // this.filesToResolve[outLoc] = {
+            //   baseExt: fileExt,
+            //   expandedExt: fileExt,
+            //   contents: contents,
+            //   locOnDisk: this.filepath,
+            // };
             break;
           }
 
@@ -117,39 +118,46 @@ class FileBuilder {
             if (builtFileOutput['.css']) {
               // inject CSS if imported directly
               const cssFilename = outFilename.replace(/\.js$/i, '.css');
-              code = `import './${cssFilename}';\n` + code;
+              contents = `import './${cssFilename}';\n` + contents;
             }
-            code = wrapImportMeta({code, env: true, hmr: false, config: this.config});
-            if (map) code = jsSourceMappingURL(code, sourceMappingURL);
-            this.filesToResolve[outLoc] = {
-              baseExt: fileExt,
-              expandedExt: fileExt,
-              contents: code,
-              locOnDisk: this.filepath,
-            };
+            contents = wrapImportMeta({code: contents, env: true, hmr: false, config: this.config});
+            if (map) contents = jsSourceMappingURL(contents, sourceMappingURL);
+            // this.filesToResolve[outLoc] = {
+            //   baseExt: fileExt,
+            //   expandedExt: fileExt,
+            //   contents,
+            //   locOnDisk: this.filepath,
+            // };
             break;
           }
 
           case '.html': {
-            code = wrapHtmlResponse({
-              code,
+            contents = wrapHtmlResponse({
+              code: contents,
               hmr: false,
               isDev: false,
               config: this.config,
               mode: 'production',
             });
-            this.filesToResolve[outLoc] = {
-              baseExt: fileExt,
-              expandedExt: fileExt,
-              contents: code,
-              locOnDisk: this.filepath,
-            };
+            // this.filesToResolve[outLoc] = {
+            //   baseExt: fileExt,
+            //   expandedExt: fileExt,
+            //   contents,
+            //   locOnDisk: this.filepath,
+            // };
             break;
           }
         }
+
+        this.filesToResolve[outLoc] = {
+          baseExt: fileExt,
+          expandedExt: fileExt,
+          contents,
+          locOnDisk: this.filepath,
+        };
       }
 
-      this.output[outLoc] = code;
+      this.output[outLoc] = contents;
       if (map) {
         this.output[path.join(this.outDir, sourceMappingURL)] = map;
       }
@@ -222,8 +230,8 @@ class FileBuilder {
 
   async writeToDisk() {
     mkdirp.sync(this.outDir);
-    for (const [outLoc, code] of Object.entries(this.output)) {
-      await fs.writeFile(outLoc, code, getEncodingType(path.extname(outLoc)));
+    for (const [outLoc, contents] of Object.entries(this.output)) {
+      await fs.writeFile(outLoc, contents, getEncodingType(path.extname(outLoc)));
     }
   }
 

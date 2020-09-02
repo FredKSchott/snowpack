@@ -53,12 +53,16 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       const {sourceMaps} = snowpackConfig.buildOptions;
       const output = {
         '.js': {
+          contents: js.code,
+          // QUESTION: Should this be here?
           code: js.code,
           map: sourceMaps ? js.map : undefined,
         },
       };
       if (!svelteOptions.css && css && css.code) {
         output['.css'] = {
+          contents: css.code,
+          // QUESTION: Should this be here?
           code: css.code,
           map: sourceMaps ? css.map : undefined,
         };

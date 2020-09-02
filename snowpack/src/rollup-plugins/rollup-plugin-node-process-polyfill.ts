@@ -37,5 +37,7 @@ function createProcessPolyfill(vars: EnvVarReplacements = {}) {
     };
   }, {});
 
-  return {code: generateProcessPolyfill(env), moduleSideEffects: false};
+  const code = generateProcessPolyfill(env)
+  // QUESTION: Do I need `code` here?
+  return { code, contents: code, moduleSideEffects: false};
 }

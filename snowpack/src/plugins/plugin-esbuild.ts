@@ -42,9 +42,12 @@ export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}
         logger.error(`${colors.bold('!')} ${filePath}
   ${warning.text}`);
       }
+      const fileContents = js || ''
       return {
         '.js': {
-          code: js || '',
+          contents: fileContents,
+          // QUESTION: Do I need this?
+          code: fileContents,
           map: jsSourceMap,
         },
       };

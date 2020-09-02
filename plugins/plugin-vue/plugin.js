@@ -51,18 +51,20 @@ module.exports = function plugin(snowpackConfig) {
       }
 
       const output = {
-        '.js': {code: '', map: ''},
-        '.css': {code: '', map: ''},
+        '.js': {contents: '', code: '', map: ''},
+        '.css': {contents: '', code: '', map: ''},
       };
 
       if (descriptor.script) {
-        output['.js'].code += descriptor.script.content.replace(
+        output['.js'].contents += descriptor.script.content.replace(
           `export default`,
           'const defaultExport =',
         );
       } else {
-        output['.js'].code += `const defaultExport = {};`;
+        output['.js'].contents += `const defaultExport = {};`;
       }
+      // QUESTION: Should this be here?
+      output['.js'].code = output['.js'].contents
 
       await Promise.all(
         descriptor.styles.map((stylePart) => {
@@ -79,7 +81,9 @@ module.exports = function plugin(snowpackConfig) {
           if (css.errors && css.errors.length > 0) {
             console.error(JSON.stringify(css.errors));
           }
-          output['.css'].code += css.code;
+          output['.css'].contents += css.contents;
+          // QUESTION: Should this be here?
+          output['.css'].code = output['.css'].contents;
           if (sourceMaps && css.map) output['.css'].map += JSON.stringify(css.map);
         }),
       );
@@ -97,9 +101,12 @@ module.exports = function plugin(snowpackConfig) {
         if (js.errors && js.errors.length > 0) {
           console.error(JSON.stringify(js.errors));
         }
-        output['.js'].code += `\n${js.code}\n`;
-        output['.js'].code += `\ndefaultExport.render = render`;
-        output['.js'].code += `\nexport default defaultExport`;
+        output['.js'].contents += `\n${js.code}\n`;
+        output['.js'].contents += `\ndefaultExport.render = render`;
+        output['.js'].contents += `\nexport default defaultExport`;
+
+        // QUESTION: Should this be here?
+        output['.js'].code = output['.js'].contents
 
         if (sourceMaps && js.map) output['.js'].map += JSON.stringify(js.map);
       }
