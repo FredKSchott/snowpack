@@ -1,6 +1,7 @@
 const path = require('path');
 const pluginTOC = require('eleventy-plugin-nesting-toc');
 const syntaxHighlight = require('@11ty/eleventy-plugin-syntaxhighlight');
+const child_process = require('child_process');
 
 const { DateTime } = require("luxon");
 // const pluginRss = require("@11ty/eleventy-plugin-rss");
@@ -76,6 +77,10 @@ module.exports = function (eleventyConfig) {
   //   }
   // });
 
+
+  eleventyConfig.on('beforeWatch', () => {
+    child_process.execSync('cat docs/* > index.md', { encoding: 'utf8'} )
+  });
   eleventyConfig.addPlugin(syntaxHighlight);
   eleventyConfig.addPlugin(pluginTOC, {
     tags: ['h2', 'h3'],
