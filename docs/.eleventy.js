@@ -77,8 +77,9 @@ module.exports = function (eleventyConfig) {
   //   }
   // });
 
+
   eleventyConfig.on('beforeWatch', () => {
-    child_process.execSync('cat docs/* > index.md').toString('UTF-8')
+    child_process.execSync('cat docs/* > index.md', { encoding: 'utf8'} )
   });
   eleventyConfig.addPlugin(syntaxHighlight);
   eleventyConfig.addPlugin(pluginTOC, {
