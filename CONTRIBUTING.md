@@ -10,7 +10,7 @@ Our [issue tracker](https://github.com/pikapkg/snowpack/issues) is always organi
 
 ## Requirements
 
-You need [yarn](https://classic.yarnpkg.com/en/docs/install) to setup the `snowpack` repository locally on your machine
+Snowpack uses [yarn workspaces](https://classic.yarnpkg.com/) to manage multiple packages contained in this repository. To contribute, [make sure that you have Yarn installed on your machine](https://classic.yarnpkg.com/en/docs/install).
 
 ## Initial setup
 
