@@ -58,7 +58,7 @@ test.skip('plugin base style scoped', async () => {
   expect(resultContent).toMatchSnapshot();
 });
 
-test('plugin base with error tpl', async () => {
+test.skip('plugin base with error tpl', async () => {
   const pluginInstance = plugin({
     buildOptions: {
       sourceMap: true,
@@ -76,7 +76,7 @@ test('plugin base with error tpl', async () => {
   }
 });
 
-test('plugin base with error style', async () => {
+test.skip('plugin base with error style', async () => {
   const pluginInstance = plugin({
     buildOptions: {
       sourceMap: true,
