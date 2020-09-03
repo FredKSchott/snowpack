@@ -636,6 +636,14 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       const {code, map} = output[requestedFileExt];
       let finalResponse = code;
 
+      // Wrap the response.
+      const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
+      finalResponse = await wrapResponse(finalResponse, {
+        hasCssResource: hasAttachedCss,
+        sourceMap: map,
+        sourceMappingURL: path.basename(requestedFile.base) + '.map',
+      });
+
       // Resolve imports.
       if (
         requestedFileExt === '.js' ||
@@ -648,14 +656,6 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
           finalResponse as string,
         );
       }
-
-      // Wrap the response.
-      const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
-      finalResponse = await wrapResponse(finalResponse, {
-        hasCssResource: hasAttachedCss,
-        sourceMap: map,
-        sourceMappingURL: path.basename(requestedFile.base) + '.map',
-      });
 
       // Return the finalized response.
       return finalResponse;
