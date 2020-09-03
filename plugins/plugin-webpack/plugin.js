@@ -158,8 +158,13 @@ module.exports = function plugin(config, args) {
   if (!cssOutputPattern.endsWith(".css")) {
     throw new Error("Output Pattern for CSS must end in .css");
   }
-  const manifest = !args.manifest ? false :
-    args.manifest === true ? './asset-manifest.json' : `${args.manifest}`;
+  
+  const manifest =
+    typeof args.manifest === string
+      ? args.manifest
+      : !!args.manifest
+      ? './asset-manifest.json'
+      : undefined;
 
   // Webpack handles minification for us, so its safe to always
   // disable Snowpack's default minifier.
