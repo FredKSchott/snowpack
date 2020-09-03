@@ -2532,10 +2532,10 @@
   resolved "https://registry.yarnpkg.com/@prefresh/core/-/core-0.8.1.tgz#d4f15d9e3ee9c16bf420405e2b422774e807a594"
   integrity sha512-woho+Ja8w3pxnZwq68MnWzH9ffdidrpJsV6PDTNIsJOpsLYmfCNxqxGsxIqYw40d1yjg4h6HFGbb6Y9lhyTPNA==
 
-"@prefresh/snowpack@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@prefresh/snowpack/-/snowpack-1.1.1.tgz#a492074a2ca008b2a87be9bcff9a51f1aee545e3"
-  integrity sha512-6/U4tlAzWiY6ntgfLfCS3jezrIY2xIWntiLBusdJdbHHvXDsoA1n4tPp1rEX5EZ3Ro8BSUCO4MMMpYtYd9rVLg==
+"@prefresh/snowpack@~1.1.1":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@prefresh/snowpack/-/snowpack-1.1.3.tgz#ee2dfca955a863a0236b5d2877a8669e92050fec"
+  integrity sha512-SS2UbRTISpHgqs4LPGyRDPe0vfAQRcng5CGTCApjGDa4gp3rjq+Jq2q0NFOh5PZFxu52bL372qGbEmn3qigCcg==
   dependencies:
     "@prefresh/core" "^0.8.1"
     "@prefresh/utils" "^0.3.1"
