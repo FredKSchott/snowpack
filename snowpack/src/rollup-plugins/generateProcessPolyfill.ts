@@ -28,7 +28,6 @@ THIS IS A MODIFIED VERSION OF https://github.com/calvinmetcalf/node-process-es6
 ORIGIANL ADDED IN COMMIT 6304406e065f356aeaa623a878d02be419b316d8 (good to know for diffing) 
 */
 
-
 export function generateProcessPolyfill(env) {
   return `/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
 function defaultSetTimout() {
