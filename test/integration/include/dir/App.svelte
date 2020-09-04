@@ -1,6 +1,9 @@
 <script>
   import { onMount } from "svelte";
-  const message = "Learn Svelte";
+	const message = "Learn Svelte";
+
+	// comments shouldn’t be included
+	// import bootstrap from 'bootstrap';
 
   onMount(() => {
     console.log("MOUNTED");
@@ -58,5 +61,11 @@
 		>
 			{message}
 		</a>
+
+		<!-- test that this comment isn’t imported: -->
+		<!-- import preact from 'preact' -->
+
+		<!-- this also shouldn’t be imported: -->
+		<pre><code>import { derived } from 'svelte/store';</code></pre>
 	</header>
 </div>

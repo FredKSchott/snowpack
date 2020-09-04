@@ -6428,12 +6428,26 @@ exports[`snowpack build resolve-imports: _dist_/index.html 1`] = `
       import components___ from './components/index.js'; // bare import using alias
       import components____ from './components/index.js'; // bare import using alias and index appended
       import components_____ from './components/index.js'; // bare import using alias and index.js appended
-      console.log(components, components_, components__, components___, components____, components_____);
+      console.log(
+        components,
+        components_,
+        components__,
+        components___,
+        components____,
+        components_____,
+      );
       // Importing something that isn't JS
       import styles from './components/style.css.proxy.js'; // relative import
       import styles_ from './components/style.css.proxy.js'; // relative import
       console.log(styles, styles_);
     </script>
+    <!-- exception test 1: comments should be ignored -->
+    <!-- <script type=\\"module\\" src=\\"preact\\"></script> -->
+    <!-- exception test 2: ignore script tags that aren’t type=\\"module\\" -->
+    <script src=\\"svelte\\"></script>
+    <!-- exception test 3: obviously ignore HTML (this tests our RegEx) -->
+    <pre><code>import React from 'react';</code></pre>
+    <script></script>
   </body>
 </html>"
 `;
