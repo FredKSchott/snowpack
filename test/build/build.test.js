@@ -22,7 +22,11 @@ describe('snowpack build', () => {
     }
 
     it(testName, () => {
-      let cwd = path.join(__dirname, testName);
+      const cwd = path.join(__dirname, testName);
+      if (!existsSync(path.join(cwd, 'package.json'))) {
+        console.error(testName, 'no longer exists, skipping...');
+        return;
+      }
 
       // build test
       execa.sync('yarn', ['testbuild'], {cwd});
