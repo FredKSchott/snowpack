@@ -67,9 +67,15 @@ describe('snowpack install', () => {
         removeLockfile(testName);
       }
 
+      const cwd = path.join(__dirname, testName);
+      if (!existsSync(path.join(cwd, 'package.json'))) {
+        console.error(testName, 'no longer exists, skipping...');
+        return;
+      }
+
       // Run Test
       const {all} = await execa('yarn', ['--silent', 'run', 'testinstall'], {
-        cwd: path.join(__dirname, testName),
+        cwd,
         reject: false,
         all: true,
       });
@@ -126,7 +132,7 @@ describe('snowpack install', () => {
         throw new Error('Empty build directory!');
       }
 
-      expect(allFiles.map(f => f.replace(/\\/g, '/'))).toMatchSnapshot('allFiles');
+      expect(allFiles.map((f) => f.replace(/\\/g, '/'))).toMatchSnapshot('allFiles');
 
       // If any diffs are detected, we'll assert the difference so that we get nice output.
       for (const entry of allFiles) {
