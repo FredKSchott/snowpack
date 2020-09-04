@@ -37,6 +37,12 @@ yarn --force
 yarn test
 ```
 
+You can filter the tests that are being run using Jest's [`--testNamePattern`](https://jestjs.io/docs/en/cli#--testnamepatternregex) CLI option. You can ignore the `123 snapshots obsolete` messages.
+
+```bash
+yarn test --testNamePattern treeshake
+```
+
 ## Run local snowpack in another project
 
 You can run your local snowpack by path
