@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const glob = require("glob");
 const path = require("path");
+const url = require("url");
 const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserJSPlugin = require("terser-webpack-plugin");
@@ -67,7 +68,9 @@ function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, buildDirectory }) {
 
         for (const jsFile of jsFiles) {
           const scriptEl = dom.window.document.createElement("script");
-          scriptEl.src = path.posix.join(baseUrl, jsFile);
+          scriptEl.src = baseUrl.startsWith('http')
+            ? url.resolve(baseUrl, jsFile)
+            : path.posix.join(baseUrl, jsFile);
           // insert _before_ so the relative order of these scripts is maintained
           insertBefore(scriptEl, originalScriptEl);
         }
