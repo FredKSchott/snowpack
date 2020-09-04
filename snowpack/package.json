@@ -88,6 +88,7 @@
     "rimraf": "^3.0.0",
     "rollup": "^2.23.0",
     "rollup-plugin-node-polyfills": "^0.2.1",
+    "rollup-plugin-re": "^1.0.7",
     "signal-exit": "^3.0.3",
     "strip-comments": "^2.0.1",
     "tar": "^6.0.1",

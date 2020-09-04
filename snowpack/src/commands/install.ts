@@ -3,6 +3,7 @@ import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-common
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginNodePolyfills from 'rollup-plugin-node-polyfills';
+import rollupPluginRe from 'rollup-plugin-re';
 import {init as initESModuleLexer} from 'es-module-lexer';
 import findUp from 'find-up';
 import fs from 'fs';
@@ -336,6 +337,14 @@ ${colors.dim(
         namedExports: true,
       }),
       rollupPluginCss(),
+      rollupPluginRe({
+        patterns: [
+          {
+            test: /\/\/+#\s*sourceMappingURL=.+$/gm,
+            replace: ''
+          }
+        ]
+      }),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
         externalEsm: process.env.EXTERNAL_ESM_PACKAGES || [],
