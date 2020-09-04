@@ -31,7 +31,7 @@ const LOCKFILE_HASH_FILE = '.hash';
 export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
 // NOTE(fks): Must match empty script elements to work properly.
 export const HTML_JS_REGEX = /(<script[^>]*?type="module".*?>)(.*?)<\/script>/gims;
-export const CSS_REGEX = /@import\s*['"](.*)['"];/gs;
+export const CSS_REGEX = /@import\s*['"](.*?)['"];/gs;
 export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
 
 export const URL_HAS_PROTOCOL_REGEX = /^(\w+:)?\/\//;
