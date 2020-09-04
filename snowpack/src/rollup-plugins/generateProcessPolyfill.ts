@@ -33,10 +33,18 @@ function defaultClearTimeout () {
 }
 var cachedSetTimeout = defaultSetTimout;
 var cachedClearTimeout = defaultClearTimeout;
-if (typeof window.setTimeout === 'function') {
+var globalContext;
+if (typeof window !== 'undefined') {
+    globalContext = window;
+} else if (typeof self !== 'undefined') {
+    globalContext = self;
+} else {
+    globalContext = {};
+}
+if (typeof globalContext.setTimeout === 'function') {
     cachedSetTimeout = setTimeout;
 }
-if (typeof window.clearTimeout === 'function') {
+if (typeof globalContext.clearTimeout === 'function') {
     cachedClearTimeout = clearTimeout;
 }
 
@@ -185,7 +193,7 @@ function chdir (dir) {
 }function umask() { return 0; }
 
 // from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
-var performance = window.performance || {};
+var performance = globalContext.performance || {};
 var performanceNow =
   performance.now        ||
   performance.mozNow     ||
