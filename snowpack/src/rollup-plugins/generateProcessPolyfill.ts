@@ -23,6 +23,12 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/*
+THIS IS A MODIFIED VERSION OF https://github.com/calvinmetcalf/node-process-es6
+ORIGIANL ADDED IN COMMIT 6304406e065f356aeaa623a878d02be419b316d8 (good to know for diffing) 
+*/
+
+
 export function generateProcessPolyfill(env) {
   return `/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
 function defaultSetTimout() {
@@ -33,10 +39,18 @@ function defaultClearTimeout () {
 }
 var cachedSetTimeout = defaultSetTimout;
 var cachedClearTimeout = defaultClearTimeout;
-if (typeof window.setTimeout === 'function') {
+var globalContext;
+if (typeof window !== 'undefined') {
+    globalContext = window;
+} else if (typeof self !== 'undefined') {
+    globalContext = self;
+} else {
+    globalContext = {};
+}
+if (typeof globalContext.setTimeout === 'function') {
     cachedSetTimeout = setTimeout;
 }
-if (typeof window.clearTimeout === 'function') {
+if (typeof globalContext.clearTimeout === 'function') {
     cachedClearTimeout = clearTimeout;
 }
 
@@ -185,7 +199,7 @@ function chdir (dir) {
 }function umask() { return 0; }
 
 // from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
-var performance = window.performance || {};
+var performance = globalContext.performance || {};
 var performanceNow =
   performance.now        ||
   performance.mozNow     ||
