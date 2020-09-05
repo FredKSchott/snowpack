@@ -22,6 +22,7 @@ import {rollupPluginDependencyCache} from '../rollup-plugins/rollup-plugin-remot
 import {rollupPluginDependencyStats} from '../rollup-plugins/rollup-plugin-stats.js';
 import {rollupPluginWrapInstallTargets} from '../rollup-plugins/rollup-plugin-wrap-install-targets';
 import {rollupPluginNodeProcessPolyfill} from '../rollup-plugins/rollup-plugin-node-process-polyfill';
+import {rollupPluginStripSourceMapping} from '../rollup-plugins/rollup-plugin-strip-source-mapping';
 import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
 import {printStats} from '../stats-formatter.js';
 import {
@@ -350,6 +351,7 @@ ${colors.dim(
       polyfillNode && rollupPluginNodePolyfills(),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
+      rollupPluginStripSourceMapping(),
     ].filter(Boolean) as Plugin[],
     onwarn(warning, warn) {
       // Warn about the first circular dependency, but then ignore the rest.
