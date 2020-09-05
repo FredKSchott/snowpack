@@ -14,8 +14,13 @@ interface Dependency {
 export class EsmHmrEngine {
   clients: Set<WebSocket> = new Set();
   dependencyTree = new Map<string, Dependency>();
+  private liveReloadDelayMs: number = 0;
+  private currentBatch: object[] = [];
+  private currentBatchTimeout: NodeJS.Timer | null = null;
 
-  constructor(options: {server?: http.Server | http2.Http2Server} = {}) {
+  constructor(
+    options: {server?: http.Server | http2.Http2Server; liveReloadDelayMs?: number} = {},
+  ) {
     const wss = options.server
       ? new WebSocket.Server({noServer: true})
       : new WebSocket.Server({port: 12321});
@@ -34,6 +39,9 @@ export class EsmHmrEngine {
       this.connectClient(client);
       this.registerListener(client);
     });
+    if (options.liveReloadDelayMs) {
+      this.liveReloadDelayMs = options.liveReloadDelayMs;
+    }
   }
 
   registerListener(client: WebSocket) {
@@ -110,9 +118,33 @@ export class EsmHmrEngine {
   }
 
   broadcastMessage(data: object) {
+    if (this.liveReloadDelayMs > 0) {
+      if (this.currentBatchTimeout) {
+        clearTimeout(this.currentBatchTimeout);
+      }
+      this.currentBatch.push(data);
+      this.currentBatchTimeout = setTimeout(() => this.broadcastBatch(), this.liveReloadDelayMs);
+    } else {
+      this.internalBroadcastMessage([data]);
+    }
+  }
+
+  broadcastBatch() {
+    if (this.currentBatchTimeout) {
+      clearTimeout(this.currentBatchTimeout);
+    }
+    if (this.currentBatch.length > 0) {
+      this.internalBroadcastMessage(this.currentBatch);
+      this.currentBatch = [];
+    }
+  }
+
+  private internalBroadcastMessage(dataArr: object[]) {
     this.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(data));
+        dataArr.forEach((data) => {
+          client.send(JSON.stringify(data));
+        });
       } else {
         this.disconnectClient(client);
       }

@@ -11,7 +11,10 @@ export type DeepPartial<T> = {
 
 export type EnvVarReplacements = Record<string, string | number | true>;
 
-export type SnowpackBuiltFile = {code: string | Buffer; map?: string};
+export type SnowpackBuiltFile = {
+  code: string | Buffer;
+  map?: string;
+};
 export type SnowpackBuildMap = Record<string, SnowpackBuiltFile>;
 
 /** Standard file interface */
@@ -58,9 +61,14 @@ export interface SnowpackPlugin {
   name: string;
   /** Tell Snowpack how the load() function will resolve files. */
   resolve?: {
-    /** file extensions that this load function takes as input (e.g. [".jsx", ".js", …]) */
+    /**
+       file extensions that this load function takes as input (e.g. [".jsx",
+       ".js", …])
+     */
     input: string[];
-    /** file extensions that this load function outputs (e.g. [".js", ".css"]) */
+    /**
+       file extensions that this load function outputs (e.g. [".js", ".css"])
+     */
     output: string[];
   };
   /** load a file that matches resolve.input */
@@ -121,6 +129,7 @@ export interface SnowpackConfig {
     fallback: string;
     open: string;
     hmr: boolean;
+    liveReloadDelayMs: number;
   };
   installOptions: {
     dest: string;
@@ -132,7 +141,8 @@ export interface SnowpackConfig {
     externalPackage: string[];
     namedExports: string[];
     rollup: {
-      plugins: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
+      plugins: RollupPlugin[]; // for simplicity, only Rollup plugins are
+      // supported for now
       dedupe?: string[];
     };
   };
