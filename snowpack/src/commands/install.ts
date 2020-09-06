@@ -92,7 +92,7 @@ function resolveWebDependency(dep: string): DependencyLoc {
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
     return {
       type: isJSFile ? 'JS' : 'ASSET',
-      loc: require.resolve(dep, {paths: [cwd]}),
+      loc: fs.realpathSync.native(require.resolve(dep, {paths: [cwd]})),
     };
   }
   // If dep is a path within a package (but without an extension), we first need
@@ -128,7 +128,7 @@ function resolveWebDependency(dep: string): DependencyLoc {
   const [depManifestLoc, depManifest] = resolveDependencyManifest(dep, cwd);
   if (!depManifest) {
     try {
-      const maybeLoc = require.resolve(dep, {paths: [cwd]});
+      const maybeLoc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
       return {
         type: 'JS',
         loc: maybeLoc,
@@ -182,7 +182,7 @@ function resolveWebDependency(dep: string): DependencyLoc {
   try {
     return {
       type: 'JS',
-      loc: require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
+      loc: fs.realpathSync.native(require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint))),
     };
   } catch (err) {
     // Type only packages! Some packages are purely for TypeScript (ex: csstypes).
