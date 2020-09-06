@@ -187,8 +187,11 @@ class FileBuilder {
           return spec;
         }
         // Handle normal "./" & "../" import specifiers
-        const extName = path.extname(resolvedImportUrl);
-        const isProxyImport = extName && extName !== '.js';
+        const importExtName = path.extname(resolvedImportUrl);
+        const isProxyImport =
+          importExtName &&
+          (file.baseExt === '.js' || file.baseExt === '.html') &&
+          importExtName !== '.js';
         const isAbsoluteUrlPath = path.posix.isAbsolute(resolvedImportUrl);
         let resolvedImportPath = removeLeadingSlash(path.normalize(resolvedImportUrl));
         // We treat ".proxy.js" files special: we need to make sure that they exist on disk
