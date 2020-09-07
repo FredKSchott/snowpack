@@ -160,7 +160,7 @@ module.exports = function plugin(config, args) {
   }
   
   const manifest =
-    typeof args.manifest === string
+    typeof args.manifest === 'string'
       ? args.manifest
       : !!args.manifest
       ? './asset-manifest.json'
