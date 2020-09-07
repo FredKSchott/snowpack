@@ -120,7 +120,7 @@ export interface SnowpackConfig {
     out: string;
     fallback: string;
     open: string;
-    hmr: boolean;
+    hmr?: boolean;
   };
   installOptions: {
     dest: string;

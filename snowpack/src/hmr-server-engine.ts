@@ -11,14 +11,17 @@ interface Dependency {
   needsReplacementCount: number;
 }
 
+const DEFAULT_PORT = 12321;
+
 export class EsmHmrEngine {
   clients: Set<WebSocket> = new Set();
   dependencyTree = new Map<string, Dependency>();
+  wsUrl = `ws://localhost:${DEFAULT_PORT}`;
 
   constructor(options: {server?: http.Server | http2.Http2Server} = {}) {
     const wss = options.server
       ? new WebSocket.Server({noServer: true})
-      : new WebSocket.Server({port: 12321});
+      : new WebSocket.Server({port: DEFAULT_PORT});
     if (options.server) {
       options.server.on('upgrade', (req, socket, head) => {
         // Only handle upgrades to ESM-HMR requests, ignore others.
