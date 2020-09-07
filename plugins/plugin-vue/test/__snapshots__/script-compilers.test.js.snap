@@ -50,15 +50,3 @@ export default defineComponent({
   }
 });"
 `;
-
-exports[`esbuildCompile tsx with tsconfig 1`] = `
-"import { h, Fragment } from '/web_modules/vue.js';
-import {defineComponent} from \\"vue\\";
-export default defineComponent({
-  name: \\"TsxContent\\",
-  setup() {
-    const name = \\"TsxContent\\";
-    return () => /* @__PURE__ */ h(Fragment, null, /* @__PURE__ */ h(\\"h1\\", null, \\"TsxContent\\"));
-  }
-});"
-`;

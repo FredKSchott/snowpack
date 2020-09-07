@@ -22,12 +22,3 @@ test('esbuildCompile jsx', () => {
   const resultContent = esbuildCompile(codeContent, 'jsx');
   expect(resultContent).toMatchSnapshot();
 });
-
-// BUG: https://github.com/evanw/esbuild/issues/366
-test.skip('esbuildCompile tsx with tsconfig', () => {
-  const { esbuildCompile } = scriptCompilers;
-  const tsconfigFilePath = path.join(__dirname, './stubs/tsconfig.json');
-  const codeContent = fs.readFileSync(path.resolve(__dirname, './stubs/TsxContent.tsx')).toString();
-  const resultContent = esbuildCompile(codeContent, 'tsx', tsconfigFilePath);
-  expect(resultContent).toMatchSnapshot();
-});

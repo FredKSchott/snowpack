@@ -32,10 +32,7 @@ function displayError({contents, filePath, error}) {
   return output.join('\n');
 }
 
-module.exports = function plugin(snowpackConfig, pluginOptions) {
-  const curPluginOptions = pluginOptions || {};
-  const tsconfigFilePath = curPluginOptions.tsconfig;
-
+module.exports = function plugin(snowpackConfig) {
   return {
     name: '@snowpack/plugin-vue',
     resolve: {
@@ -66,7 +63,6 @@ module.exports = function plugin(snowpackConfig, pluginOptions) {
           scriptContent = scriptCompilers.esbuildCompile(
             scriptContent,
             scriptLang,
-            tsconfigFilePath,
           );
         }
         if (['js', 'ts'].includes(scriptLang) || !scriptLang) {
