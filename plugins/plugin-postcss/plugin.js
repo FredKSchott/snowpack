@@ -5,7 +5,7 @@ module.exports = function postcssPlugin(_, options) {
     name: '@snowpack/postcss-transform',
     async transform({fileExt, contents}) {
       const {input = ['.css'], config} = options;
-      if (!input.includes(fileExt)) return;
+      if (!input.includes(fileExt) || !contents) return;
 
       const flags = [];
       if (config) flags.push(`--config ${config}`);
