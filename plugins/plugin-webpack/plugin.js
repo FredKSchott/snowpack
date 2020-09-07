@@ -68,7 +68,7 @@ function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, buildDirectory }) {
 
         for (const jsFile of jsFiles) {
           const scriptEl = dom.window.document.createElement("script");
-          scriptEl.src = baseUrl.startsWith('http')
+          scriptEl.src = url.parse(baseUrl).protocol
             ? url.resolve(baseUrl, jsFile)
             : path.posix.join(baseUrl, jsFile);
           // insert _before_ so the relative order of these scripts is maintained
