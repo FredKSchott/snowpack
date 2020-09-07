@@ -11,7 +11,7 @@ export type DeepPartial<T> = {
 
 export type EnvVarReplacements = Record<string, string | number | true>;
 
-export type SnowpackBuiltFile = {code: string; map?: string};
+export type SnowpackBuiltFile = {code: string | Buffer; map?: string};
 export type SnowpackBuildMap = Record<string, SnowpackBuiltFile>;
 
 /** Standard file interface */

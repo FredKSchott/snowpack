@@ -22,6 +22,7 @@ import {rollupPluginDependencyCache} from '../rollup-plugins/rollup-plugin-remot
 import {rollupPluginDependencyStats} from '../rollup-plugins/rollup-plugin-stats.js';
 import {rollupPluginWrapInstallTargets} from '../rollup-plugins/rollup-plugin-wrap-install-targets';
 import {rollupPluginNodeProcessPolyfill} from '../rollup-plugins/rollup-plugin-node-process-polyfill';
+import {rollupPluginStripSourceMapping} from '../rollup-plugins/rollup-plugin-strip-source-mapping';
 import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
 import {printStats} from '../stats-formatter.js';
 import {
@@ -41,6 +42,7 @@ import {
   writeLockfile,
   isPackageAliasEntry,
   findMatchingAliasEntry,
+  getWebDependencyName,
 } from '../util.js';
 
 type InstallResultCode = 'SUCCESS' | 'ASSET' | 'FAIL';
@@ -75,16 +77,6 @@ let dependencyStats: DependencyStatsOutput | null = null;
 
 function isImportOfPackage(importUrl: string, packageName: string) {
   return packageName === importUrl || importUrl.startsWith(packageName + '/');
-}
-
-/**
- * Formats the snowpack dependency name from a "webDependencies" input value:
- * 2. Remove any ".js"/".mjs" extension (will be added automatically by Rollup)
- */
-function getWebDependencyName(dep: string): string {
-  return validatePackageName(dep).validForNewPackages
-    ? dep.replace(/\.js$/i, 'js') // if this is a top-level package ending in .js, replace with js (e.g. tippy.js -> tippyjs)
-    : dep.replace(/\.m?js$/i, ''); // otherwise simply strip the extension (Rollup will resolve it)
 }
 
 /**
@@ -257,7 +249,6 @@ export async function install(
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
   const importMap: ImportMap = {imports: {}};
-  const installTargetsMap: {[targetLoc: string]: InstallTarget[]} = {};
   const skipFailures = false;
   const autoDetectNamedExports = [
     ...CJS_PACKAGES_TO_AUTO_DETECT,
@@ -283,9 +274,6 @@ export async function install(
           .forEach(([key]) => {
             importMap.imports[key] = `./${targetName}.js`;
           });
-        installTargetsMap[targetLoc] = installTargets.filter(
-          (t) => installSpecifier === t.specifier,
-        );
         installResults.push([installSpecifier, 'SUCCESS']);
       } else if (targetType === 'ASSET') {
         assetEntrypoints[targetName] = targetLoc;
@@ -363,6 +351,7 @@ ${colors.dim(
       polyfillNode && rollupPluginNodePolyfills(),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
+      rollupPluginStripSourceMapping(),
     ].filter(Boolean) as Plugin[],
     onwarn(warning, warn) {
       // Warn about the first circular dependency, but then ignore the rest.
@@ -396,6 +385,11 @@ ${colors.dim(
     format: 'esm',
     sourcemap: sourceMap,
     exports: 'named',
+    entryFileNames: (chunk) => {
+      const targetName = getWebDependencyName(chunk.name);
+      const proxiedName = sanitizePackageName(targetName);
+      return `${proxiedName}.js`;
+    },
     chunkFileNames: 'common/[name]-[hash].js',
   };
   if (Object.keys(installEntrypoints).length > 0) {

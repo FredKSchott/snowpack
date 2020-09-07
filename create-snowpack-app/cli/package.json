@@ -1,6 +1,6 @@
 {
   "name": "create-snowpack-app",
-  "version": "1.7.3",
+  "version": "1.8.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -11,7 +11,7 @@
   "dependencies": {
     "execa": "^4.0.0",
     "fs-extra": "^9.0.0",
-    "kleur": "^4.0.2",
+    "kleur": "^4.1.1",
     "yargs-parser": "^18.1.3"
   }
 }

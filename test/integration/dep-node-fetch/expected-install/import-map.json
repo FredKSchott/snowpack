@@ -1,7 +1,0 @@
-{
-  "imports": {
-    "dep-node-fetch-mock-pkg": "./dep-node-fetch-mock-pkg.js",
-    "node-fetch": "./node-fetch.js",
-    "whatwg-fetch": "./whatwg-fetch.js"
-  }
-}

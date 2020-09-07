@@ -22,6 +22,7 @@ import {
   LegacySnowpackPlugin,
   PluginLoadResult,
 } from './types/snowpack';
+import {addLeadingSlash, addTrailingSlash, removeLeadingSlash, removeTrailingSlash} from './util';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -58,7 +59,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     webModulesUrl: '/web_modules',
     clean: false,
     metaDir: '__snowpack__',
-    minify: true,
+    minify: false,
     sourceMaps: false,
     watch: false,
   },
@@ -362,6 +363,7 @@ function loadPlugins(
     plugins.push(plugin);
   });
 
+  // add internal JS handler plugin if none specified
   const needsDefaultPlugin = new Set(['.mjs', '.jsx', '.ts', '.tsx']);
   plugins
     .filter(({resolve}) => !!resolve)
@@ -500,6 +502,8 @@ function normalizeAlias(config: SnowpackConfig, createMountAlias: boolean) {
   }
   for (const [target, replacement] of Object.entries(config.alias)) {
     if (
+      replacement === '.' ||
+      replacement === '..' ||
       replacement.startsWith('./') ||
       replacement.startsWith('../') ||
       replacement.startsWith('/')
@@ -548,6 +552,13 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     if (knownEntrypoints) {
       config.knownEntrypoints = config.knownEntrypoints.concat(knownEntrypoints);
     }
+  }
+
+  // warn for minify: true
+  if (config.buildOptions.minify) {
+    logger.warn(
+      '[snowpack] buildOptions.minify is deprecated. Please install @snowpack/plugin-optimize instead: https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-optimize',
+    );
   }
 
   plugins.forEach((plugin) => {
@@ -726,7 +737,8 @@ export function validatePluginLoadResult(
   if (!result) {
     return;
   }
-  if (typeof result === 'string' && plugin.resolve!.output.length !== 1) {
+  const isValidSingleResultType = typeof result === 'string' || Buffer.isBuffer(result);
+  if (isValidSingleResultType && plugin.resolve!.output.length !== 1) {
     handleConfigError(
       `[plugin=${pluginName}] "load()" returned a string, but "resolve.output" contains multiple possible outputs. If multiple outputs are expected, the object return format is required.`,
     );
@@ -759,8 +771,13 @@ export function createConfiguration(
 
 export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
   const explorerSync = cosmiconfigSync(CONFIG_NAME, {
-    // only support these 3 types of config for now
-    searchPlaces: ['package.json', 'snowpack.config.js', 'snowpack.config.json'],
+    // only support these 4 types of config for now
+    searchPlaces: [
+      'package.json',
+      'snowpack.config.cjs',
+      'snowpack.config.js',
+      'snowpack.config.json',
+    ],
     // don't support crawling up the folder tree:
     stopDir: path.dirname(process.cwd()),
   });
@@ -848,20 +865,4 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     process.exit(1);
   }
   return configResult!;
-}
-
-export function removeLeadingSlash(path: string) {
-  return path.replace(/^[/\\]+/, '');
-}
-
-export function removeTrailingSlash(path: string) {
-  return path.replace(/[/\\]+$/, '');
-}
-
-export function addLeadingSlash(path: string) {
-  return path.replace(/^\/?/, '/');
-}
-
-export function addTrailingSlash(path: string) {
-  return path.replace(/\/+$/, '/');
 }

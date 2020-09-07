@@ -8,6 +8,7 @@ import {getEncodingType, getExt, replaceExt} from '../util';
 export interface BuildFileOptions {
   isDev: boolean;
   isHmrEnabled: boolean;
+  isExitOnBuild: boolean;
   plugins: SnowpackPlugin[];
   sourceMaps: boolean;
 }
@@ -38,7 +39,7 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
  */
 async function runPipelineLoadStep(
   srcPath: string,
-  {isDev, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
+  {isDev, isHmrEnabled, isExitOnBuild, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   for (const step of plugins) {
@@ -62,7 +63,7 @@ async function runPipelineLoadStep(
 
       validatePluginLoadResult(step, result);
 
-      if (typeof result === 'string') {
+      if (typeof result === 'string' || Buffer.isBuffer(result)) {
         const mainOutputExt = step.resolve.output[0];
         return {
           [mainOutputExt]: {
@@ -88,7 +89,9 @@ async function runPipelineLoadStep(
     } catch (err) {
       // note: for many plugins like Babel, `err.toString()` is needed to display full output
       logger.error(err.toString() || err, {name: step.name});
-      if (!isDev) process.exit(1); // exit in build
+      if (isExitOnBuild) {
+        process.exit(1);
+      }
     }
   }
 
@@ -109,7 +112,7 @@ async function runPipelineLoadStep(
 async function runPipelineTransformStep(
   output: SnowpackBuildMap,
   srcPath: string,
-  {isDev, plugins, sourceMaps}: BuildFileOptions,
+  {isDev, isExitOnBuild, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   const rootFilePath = srcPath.replace(srcExt, '');
@@ -122,7 +125,7 @@ async function runPipelineTransformStep(
     try {
       for (const destExt of Object.keys(output)) {
         const destBuildFile = output[destExt];
-        const {code} = typeof destBuildFile === 'string' ? {code: destBuildFile} : destBuildFile;
+        const {code} = destBuildFile;
         const fileName = rootFileName + destExt;
         const filePath = rootFilePath + destExt;
         const debugPath = path.relative(process.cwd(), filePath);
@@ -139,18 +142,23 @@ async function runPipelineTransformStep(
         });
         logger.debug(`✔ transform() success [${debugPath}]`, {name: step.name});
         // if step returned a value, only update code (don’t touch .map)
-        if (typeof result === 'string') {
+        if (typeof result === 'string' || Buffer.isBuffer(result)) {
           output[destExt].code = result;
+          output[destExt].map = undefined;
         } else if (result && typeof result === 'object' && (result as {result: string}).result) {
           output[destExt].code = (result as {result: string}).result;
+          output[destExt].map = undefined;
         }
+
         // if source maps disabled, don’t return any
         if (!sourceMaps) output[destExt].map = undefined;
       }
     } catch (err) {
       // note: for many plugins like Babel, `err.toString()` is needed to display full output
       logger.error(err.toString() || err, {name: step.name});
-      if (!isDev) process.exit(1); // exit in build
+      if (isExitOnBuild) {
+        process.exit(1);
+      }
     }
   }
 
@@ -197,7 +205,7 @@ export async function buildFile(
 ): Promise<SnowpackBuildMap> {
   // Pass 1: Find the first plugin to load this file, and return the result
   const loadResult = await runPipelineLoadStep(srcPath, buildFileOptions);
-  // Pass 2: Pass that result through every plugin transfomr() method.
+  // Pass 2: Pass that result through every plugin transform() method.
   const transformResult = await runPipelineTransformStep(loadResult, srcPath, buildFileOptions);
   // Return the final build result.
   return transformResult;

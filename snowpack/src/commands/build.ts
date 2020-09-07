@@ -1,5 +1,4 @@
 import merge from 'deepmerge';
-import * as esbuild from 'esbuild';
 import {promises as fs} from 'fs';
 import glob from 'glob';
 import * as colors from 'kleur/colors';
@@ -17,11 +16,17 @@ import {
 } from '../build/build-import-proxy';
 import {buildFile, runPipelineCleanupStep, runPipelineOptimizeStep} from '../build/build-pipeline';
 import {createImportResolver} from '../build/import-resolver';
-import {removeLeadingSlash} from '../config';
 import {logger} from '../logger';
 import {transformFileImports} from '../rewrite-imports';
 import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
-import {cssSourceMappingURL, getEncodingType, jsSourceMappingURL, replaceExt} from '../util';
+import {
+  cssSourceMappingURL,
+  getEncodingType,
+  jsSourceMappingURL,
+  relativeURL,
+  removeLeadingSlash,
+  replaceExt,
+} from '../util';
 import {getInstallTargets, run as installRunner} from './install';
 
 const CONCURRENT_WORKERS = require('os').cpus().length;
@@ -60,7 +65,7 @@ async function installOptimizedDependencies(
  * in stages (build -> resolve -> write to disk).
  */
 class FileBuilder {
-  output: Record<string, string> = {};
+  output: Record<string, string | Buffer> = {};
   filesToResolve: Record<string, SnowpackSourceFile> = {};
   filesToProxy: string[] = [];
 
@@ -82,12 +87,13 @@ class FileBuilder {
     this.config = config;
   }
 
-  async buildFile() {
+  async buildFile(isExitOnBuild: boolean) {
     this.filesToResolve = {};
     const srcExt = path.extname(this.filepath);
     const builtFileOutput = await buildFile(this.filepath, {
       plugins: this.config.plugins,
       isDev: false,
+      isExitOnBuild,
       isHmrEnabled: false,
       sourceMaps: this.config.buildOptions.sourceMaps,
     });
@@ -100,38 +106,52 @@ class FileBuilder {
       const outFilename = replaceExt(path.basename(this.filepath), srcExt, fileExt);
       const outLoc = path.join(this.outDir, outFilename);
       const sourceMappingURL = outFilename + '.map';
-      switch (fileExt) {
-        case '.css': {
-          if (map) code = cssSourceMappingURL(code, sourceMappingURL);
-          break;
-        }
-
-        case '.js': {
-          if (builtFileOutput['.css']) {
-            // inject CSS if imported directly
-            const cssFilename = outFilename.replace(/\.js$/i, '.css');
-            code = `import './${cssFilename}';\n` + code;
+      if (typeof code === 'string') {
+        switch (fileExt) {
+          case '.css': {
+            if (map) code = cssSourceMappingURL(code, sourceMappingURL);
+            this.filesToResolve[outLoc] = {
+              baseExt: fileExt,
+              expandedExt: fileExt,
+              contents: code,
+              locOnDisk: this.filepath,
+            };
+            break;
           }
-          code = wrapImportMeta({code, env: true, isDev: false, hmr: false, config: this.config});
-          if (map) code = jsSourceMappingURL(code, sourceMappingURL);
-          this.filesToResolve[outLoc] = {
-            baseExt: fileExt,
-            expandedExt: fileExt,
-            contents: code,
-            locOnDisk: this.filepath,
-          };
-          break;
-        }
 
-        case '.html': {
-          code = wrapHtmlResponse({code, isDev: false, hmr: false, config: this.config});
-          this.filesToResolve[outLoc] = {
-            baseExt: fileExt,
-            expandedExt: fileExt,
-            contents: code,
-            locOnDisk: this.filepath,
-          };
-          break;
+          case '.js': {
+            if (builtFileOutput['.css']) {
+              // inject CSS if imported directly
+              const cssFilename = outFilename.replace(/\.js$/i, '.css');
+              code = `import './${cssFilename}';\n` + code;
+            }
+            code = wrapImportMeta({code, env: true, hmr: false, config: this.config});
+            if (map) code = jsSourceMappingURL(code, sourceMappingURL);
+            this.filesToResolve[outLoc] = {
+              baseExt: fileExt,
+              expandedExt: fileExt,
+              contents: code,
+              locOnDisk: this.filepath,
+            };
+            break;
+          }
+
+          case '.html': {
+            code = wrapHtmlResponse({
+              code,
+              hmr: false,
+              isDev: false,
+              config: this.config,
+              mode: 'production',
+            });
+            this.filesToResolve[outLoc] = {
+              baseExt: fileExt,
+              expandedExt: fileExt,
+              contents: code,
+              locOnDisk: this.filepath,
+            };
+            break;
+          }
         }
       }
 
@@ -188,12 +208,10 @@ class FileBuilder {
 
         // When dealing with an absolute import path, we need to honor the baseUrl
         if (isAbsoluteUrlPath) {
-          resolvedImportUrl = path
-            .relative(
-              path.dirname(outLoc),
-              path.resolve(this.config.devOptions.out, resolvedImportPath),
-            )
-            .replace(/\\/g, '/'); // replace Windows backslashes at the end, after resolution
+          resolvedImportUrl = relativeURL(
+            path.dirname(outLoc),
+            path.resolve(this.config.devOptions.out, resolvedImportPath),
+          );
         }
         // Make sure that a relative URL always starts with "./"
         if (!resolvedImportUrl.startsWith('.') && !resolvedImportUrl.startsWith('/')) {
@@ -222,7 +240,6 @@ class FileBuilder {
     const proxyCode = await wrapImportProxy({
       url: proxiedUrl,
       code: proxiedCode,
-      isDev: false,
       hmr: false,
       config: this.config,
     });
@@ -264,7 +281,8 @@ export async function command(commandOptions: CommandOptions) {
           },
         })
         .catch((err) => {
-          logger.error(`[${runPlugin.name}] ${err}`);
+          logger.error(err.toString(), {name: runPlugin.name});
+          process.exit(1);
         });
     }
   }
@@ -280,7 +298,6 @@ export async function command(commandOptions: CommandOptions) {
   async function installDependencies() {
     const scannedFiles = Object.values(buildPipelineFiles)
       .map((f) => Object.values(f.filesToResolve))
-      .filter(Boolean)
       .reduce((flat, item) => flat.concat(item), []);
     const installDest = path.join(buildDirectoryLoc, config.buildOptions.webModulesUrl);
     const installResult = await installOptimizedDependencies(scannedFiles, installDest, {
@@ -290,7 +307,6 @@ export async function command(commandOptions: CommandOptions) {
       process.exit(1);
     }
     const allFiles = glob.sync(`**/*`, {
-      ignore: config.exclude,
       cwd: installDest,
       absolute: true,
       nodir: true,
@@ -303,11 +319,10 @@ export async function command(commandOptions: CommandOptions) {
       ) {
         const proxiedCode = await fs.readFile(installedFileLoc, {encoding: 'utf-8'});
         const importProxyFileLoc = installedFileLoc + '.proxy.js';
-        const proxiedUrl = installedFileLoc.substr(installDest.length).replace(/\\/g, '/');
+        const proxiedUrl = installedFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/');
         const proxyCode = await wrapImportProxy({
           url: proxiedUrl,
           code: proxiedCode,
-          isDev: false,
           hmr: false,
           config: config,
         });
@@ -339,7 +354,7 @@ export async function command(commandOptions: CommandOptions) {
   const parallelWorkQueue = new PQueue({concurrency: CONCURRENT_WORKERS});
   const allBuildPipelineFiles = Object.values(buildPipelineFiles);
   for (const buildPipelineFile of allBuildPipelineFiles) {
-    parallelWorkQueue.add(() => buildPipelineFile.buildFile());
+    parallelWorkQueue.add(() => buildPipelineFile.buildFile(true));
   }
   await parallelWorkQueue.onIdle();
 
@@ -379,33 +394,10 @@ export async function command(commandOptions: CommandOptions) {
     await runPipelineOptimizeStep(buildDirectoryLoc, {
       plugins: config.plugins,
       isDev: false,
+      isExitOnBuild: false,
       isHmrEnabled: false,
       sourceMaps: config.buildOptions.sourceMaps,
     });
-
-    // minify
-    if (config.buildOptions.minify) {
-      const minifierStart = performance.now();
-      logger.info(colors.yellow('! minifying javascript...'));
-      const minifierService = await esbuild.startService();
-      const allJsFiles = glob.sync(path.join(buildDirectoryLoc, '**/*.js'), {
-        ignore: [`**/${config.buildOptions.metaDir}/**/*`], // don’t minify meta dir
-      });
-      await Promise.all(
-        allJsFiles.map(async (jsFile) => {
-          const jsFileContents = await fs.readFile(jsFile, 'utf-8');
-          const {js} = await minifierService.transform(jsFileContents, {minify: true});
-          return fs.writeFile(jsFile, js, 'utf-8');
-        }),
-      );
-      const minifierEnd = performance.now();
-      logger.info(
-        `${colors.green('✔')} minification complete ${colors.dim(
-          `[${((minifierEnd - minifierStart) / 1000).toFixed(2)}s]`,
-        )}`,
-      );
-      minifierService.stop();
-    }
 
     logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
     return;
@@ -431,7 +423,9 @@ export async function command(commandOptions: CommandOptions) {
     const changedPipelineFile = new FileBuilder({filepath: fileLoc, outDir, config});
     buildPipelineFiles[fileLoc] = changedPipelineFile;
     // 1. Build the file.
-    await changedPipelineFile.buildFile();
+    await changedPipelineFile.buildFile(false).catch((err) => {
+      logger.error(err.message, {name: changedPipelineFile.filepath});
+    });
     // 2. Resolve any ESM imports. Handle new imports by triggering a re-install.
     let resolveSuccess = await changedPipelineFile.resolveImports(installResult.importMap!);
     if (!resolveSuccess) {
@@ -469,5 +463,6 @@ export async function command(commandOptions: CommandOptions) {
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onDeleteEvent(fileLoc));
 
+  // We intentionally never want to exit in watch mode!
   return new Promise(() => {});
 }

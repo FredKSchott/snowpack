@@ -29,7 +29,7 @@ import isCompressible from 'compressible';
 import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
-import {existsSync, promises as fs, readFileSync} from 'fs';
+import {createReadStream, existsSync, promises as fs, readFileSync, statSync} from 'fs';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
@@ -42,6 +42,7 @@ import {performance} from 'perf_hooks';
 import onProcessExit from 'signal-exit';
 import stream from 'stream';
 import url from 'url';
+import util from 'util';
 import zlib from 'zlib';
 import {
   generateEnvModule,
@@ -60,7 +61,7 @@ import {
   transformEsmImports,
   transformFileImports,
 } from '../rewrite-imports';
-import {matchImportSpecifier} from '../scan-imports';
+import {matchDynamicImportValue} from '../scan-imports';
 import {CommandOptions, ImportMap, SnowpackBuildMap, SnowpackConfig} from '../types/snowpack';
 import {
   BUILD_CACHE,
@@ -99,13 +100,16 @@ const sendFile = (
   req: http.IncomingMessage,
   res: http.ServerResponse,
   body: string | Buffer,
+  fileLoc: string,
   ext = '.html',
 ) => {
+  body = Buffer.from(body);
   const ETag = etag(body, {weak: true});
   const contentType = mime.contentType(ext);
   const headers: Record<string, string> = {
-    'Content-Type': contentType || 'application/octet-stream',
+    'Accept-Ranges': 'bytes',
     'Access-Control-Allow-Origin': '*',
+    'Content-Type': contentType || 'application/octet-stream',
     ETag,
     Vary: 'Accept-Encoding',
   };
@@ -126,32 +130,52 @@ const sendFile = (
     acceptEncoding = '';
   }
 
-  function onError(err) {
-    if (err) {
-      res.end();
-      logger.error(`✘ An error occurred while compressing ${colors.bold(req.url)}`);
-      logger.error(err.toString() || err);
-    }
-  }
-
+  // Handle gzip compression
   if (/\bgzip\b/.test(acceptEncoding) && stream.Readable.from) {
     const bodyStream = stream.Readable.from([body]);
     headers['Content-Encoding'] = 'gzip';
     res.writeHead(200, headers);
-    stream.pipeline(bodyStream, zlib.createGzip(), res, onError);
+    stream.pipeline(bodyStream, zlib.createGzip(), res, function onError(err) {
+      if (err) {
+        res.end();
+        logger.error(`✘ An error occurred serving ${colors.bold(req.url!)}`);
+        logger.error(typeof err !== 'string' ? err.toString() : err);
+      }
+    });
+    return;
+  }
+
+  // Handle partial requests
+  const {range} = req.headers;
+  if (range) {
+    const {size: fileSize} = statSync(fileLoc);
+    const [rangeStart, rangeEnd] = range.replace(/bytes=/, '').split('-');
+
+    const start = parseInt(rangeStart, 10);
+    const end = rangeEnd ? parseInt(rangeEnd, 10) : fileSize - 1;
+    const chunkSize = end - start + 1;
+
+    const fileStream = createReadStream(fileLoc, {start, end});
+    res.writeHead(206, {
+      ...headers,
+      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+      'Content-Length': chunkSize,
+    });
+    fileStream.pipe(res);
     return;
   }
 
   res.writeHead(200, headers);
-  res.write(body, getEncodingType(ext));
+  res.write(body, getEncodingType(ext) as BufferEncoding);
   res.end();
 };
 
 const sendError = (req: http.IncomingMessage, res: http.ServerResponse, status: number) => {
   const contentType = mime.contentType(path.extname(req.url!) || '.html');
   const headers: Record<string, string> = {
-    'Content-Type': contentType || 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
+    'Accept-Ranges': 'bytes',
+    'Content-Type': contentType || 'application/octet-stream',
     Vary: 'Accept-Encoding',
   };
   res.writeHead(status, headers);
@@ -192,14 +216,14 @@ export async function command(commandOptions: CommandOptions) {
   const messageBus = new EventEmitter();
 
   // note: this would cause an infinite loop if not for the logger.on(…) in `paint.ts`.
-  console.log = (...args) => {
-    logger.info(args[0]);
+  console.log = (...args: [any, ...any[]]) => {
+    logger.info(util.format(...args));
   };
-  console.warn = (...args) => {
-    logger.warn(args[0]);
+  console.warn = (...args: [any, ...any[]]) => {
+    logger.warn(util.format(...args));
   };
-  console.error = (...args) => {
-    logger.error(args[0]);
+  console.error = (...args: [any, ...any[]]) => {
+    logger.error(util.format(...args));
   };
 
   paint(
@@ -340,12 +364,12 @@ export async function command(commandOptions: CommandOptions) {
       }
     });
 
-    if (reqPath === getMetaUrlPath('/hmr.js', true, config)) {
-      sendFile(req, res, HMR_DEV_CODE, '.js');
+    if (reqPath === getMetaUrlPath('/hmr.js', config)) {
+      sendFile(req, res, HMR_DEV_CODE, reqPath, '.js');
       return;
     }
-    if (reqPath === getMetaUrlPath('/env.js', true, config)) {
-      sendFile(req, res, generateEnvModule('development'), '.js');
+    if (reqPath === getMetaUrlPath('/env.js', config)) {
+      sendFile(req, res, generateEnvModule('development'), reqPath, '.js');
       return;
     }
 
@@ -444,6 +468,7 @@ export async function command(commandOptions: CommandOptions) {
         const builtFileOutput = await _buildFile(fileLoc, {
           plugins: config.plugins,
           isDev: true,
+          isExitOnBuild: false,
           isHmrEnabled: isHmr,
           sourceMaps: config.buildOptions.sourceMaps,
         });
@@ -466,7 +491,7 @@ export async function command(commandOptions: CommandOptions) {
      * return a JS representation of that CSS. This is handled in the wrap step.
      */
     async function wrapResponse(
-      code: string,
+      code: string | Buffer,
       {
         hasCssResource,
         sourceMap,
@@ -475,7 +500,13 @@ export async function command(commandOptions: CommandOptions) {
     ) {
       // transform special requests
       if (isRoute) {
-        code = wrapHtmlResponse({code: code, isDev: true, hmr: isHmr, config});
+        code = wrapHtmlResponse({
+          code: code as string,
+          hmr: isHmr,
+          isDev: true,
+          config,
+          mode: 'development',
+        });
       } else if (isProxyModule) {
         responseFileExt = '.js';
       } else if (isSourceMap && sourceMap) {
@@ -486,14 +517,14 @@ export async function command(commandOptions: CommandOptions) {
       // transform other files
       switch (responseFileExt) {
         case '.css': {
-          if (sourceMap) code = cssSourceMappingURL(code, sourceMappingURL);
+          if (sourceMap) code = cssSourceMappingURL(code as string, sourceMappingURL);
           break;
         }
         case '.js': {
           if (isProxyModule) {
-            code = await wrapImportProxy({url: reqPath, code, isDev: true, hmr: isHmr, config});
+            code = await wrapImportProxy({url: reqPath, code, hmr: isHmr, config});
           } else {
-            code = wrapImportMeta({code, env: true, isDev: true, hmr: isHmr, config});
+            code = wrapImportMeta({code: code as string, env: true, hmr: isHmr, config});
           }
 
           if (hasCssResource)
@@ -574,7 +605,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
         const resolvedImports = rawImports.map((imp) => {
           let spec = code.substring(imp.s, imp.e);
           if (imp.d > -1) {
-            spec = matchImportSpecifier(spec) || '';
+            spec = matchDynamicImportValue(spec) || '';
           }
           spec = spec.replace(/\?mtime=[0-9]+$/, '');
           return path.posix.resolve(path.posix.dirname(reqPath), spec);
@@ -596,26 +627,38 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       fileLoc: string,
       requestedFileExt: string,
       output: SnowpackBuildMap,
-    ): Promise<string | null> {
+    ): Promise<string | Buffer | null> {
       // Verify that the requested file exists in the build output map.
       if (!output[requestedFileExt] || !Object.keys(output)) {
         return null;
       }
-      // Wrap the response.
+
       const {code, map} = output[requestedFileExt];
+      let finalResponse = code;
+
+      // Resolve imports.
+      if (
+        requestedFileExt === '.js' ||
+        requestedFileExt === '.html' ||
+        requestedFileExt === '.css'
+      ) {
+        finalResponse = await resolveResponseImports(
+          fileLoc,
+          requestedFileExt,
+          finalResponse as string,
+        );
+      }
+
+      // Wrap the response.
       const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
-      let wrappedResponse = await wrapResponse(code, {
+      finalResponse = await wrapResponse(finalResponse, {
         hasCssResource: hasAttachedCss,
         sourceMap: map,
         sourceMappingURL: path.basename(requestedFile.base) + '.map',
       });
 
-      // Resolve imports.
-      if (requestedFileExt === '.js' || requestedFileExt === '.html') {
-        wrappedResponse = await resolveResponseImports(fileLoc, requestedFileExt, wrappedResponse);
-      }
       // Return the finalized response.
-      return wrappedResponse;
+      return finalResponse;
     }
 
     // 1. Check the hot build cache. If it's already found, then just serve it.
@@ -626,7 +669,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
         sendError(req, res, 404);
         return;
       }
-      sendFile(req, res, responseContent, responseFileExt);
+      sendFile(req, res, responseContent, fileLoc, responseFileExt);
       return;
     }
 
@@ -635,7 +678,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
 
     // 3. Send dependencies directly, since they were already build & resolved at install time.
     if (reqPath.startsWith(config.buildOptions.webModulesUrl) && !isProxyModule) {
-      sendFile(req, res, fileContents, responseFileExt);
+      sendFile(req, res, fileContents, fileLoc, responseFileExt);
       return;
     }
 
@@ -666,7 +709,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
           sendError(req, res, 404);
           return;
         }
-        sendFile(req, res, wrappedResponse, responseFileExt);
+        sendFile(req, res, wrappedResponse, fileLoc, responseFileExt);
         // ...but verify.
         let checkFinalBuildResult: SnowpackBuildMap | null = null;
         try {
@@ -688,7 +731,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
     }
 
     // 5. Final option: build the file, serve it, and cache it.
-    let responseContent: string | null;
+    let responseContent: string | Buffer | null;
     let responseOutput: SnowpackBuildMap;
     try {
       responseOutput = await buildFile(fileLoc);
@@ -711,7 +754,7 @@ ${err}`);
       return;
     }
 
-    sendFile(req, res, responseContent, responseFileExt);
+    sendFile(req, res, responseContent, fileLoc, responseFileExt);
     const originalFileHash = etag(fileContents);
     cacache.put(BUILD_CACHE, fileLoc, Buffer.from(JSON.stringify(responseOutput)), {
       metadata: {originalFileHash},

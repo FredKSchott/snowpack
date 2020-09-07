@@ -21,18 +21,36 @@
       console.log(sort, sort_, sort__);
 
       // Importing a directory index.js file
-      import components from './components'; // relative import 
+      import components from './components'; // relative import
       import components_ from './components/index'; // relative import with index appended
       import components__ from './components/index.js'; // relative import with index appended
       import components___ from '@app/components'; // bare import using alias
       import components____ from '@app/components/index'; // bare import using alias and index appended
       import components_____ from '@app/components/index.js'; // bare import using alias and index.js appended
-      console.log(components, components_, components__, components___, components____, components_____);
+      console.log(
+        components,
+        components_,
+        components__,
+        components___,
+        components____,
+        components_____,
+      );
 
       // Importing something that isn't JS
-      import styles from './components/style.css'; // relative import 
-      import styles_ from '@app/components/style.css'; // relative import 
+      import styles from './components/style.css'; // relative import
+      import styles_ from '@app/components/style.css'; // relative import
       console.log(styles, styles_);
     </script>
+
+    <!-- exception test 1: comments should be ignored -->
+    <!-- <script type="module" src="preact"></script> -->
+
+    <!-- exception test 2: ignore script tags that aren’t type="module" -->
+    <script src="svelte"></script>
+
+    <!-- exception test 3: obviously ignore HTML (this tests our RegEx) -->
+    <pre><code>import React from 'react';</code></pre>
+
+    <script></script>
   </body>
 </html>

@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "config-external-pkg-a": "./config-external-pkg-a.js"
-  }
-}

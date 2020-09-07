@@ -10,7 +10,8 @@
     "alias": {
       "aliased-dep": "array-flatten",
       "@app": "./src",
-      "@/": "./src/"
+      "@/": "./src/",
+      "%": "."
     },
     "mount": {
       "./src": "/_dist_"
@@ -25,7 +26,11 @@
     }
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.14.0",
     "array-flatten": "^3.0.0",
-    "snowpack": "^2.7.0"
+    "snowpack": "^2.7.0",
+    "css-package-a": "file:./packages/css-package-a",
+    "@css/package-b": "file:./packages/css-package-b"
+
   }
 }

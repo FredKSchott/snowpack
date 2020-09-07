@@ -1,6 +1,6 @@
 import {SnowpackSourceFile} from './types/snowpack';
-import {HTML_JS_REGEX} from './util';
-import {matchImportSpecifier} from './scan-imports';
+import {HTML_JS_REGEX, CSS_REGEX} from './util';
+import {matchDynamicImportValue} from './scan-imports';
 
 const {parse} = require('es-module-lexer');
 
@@ -18,7 +18,7 @@ export async function scanCodeImportsExports(code: string): Promise<any[]> {
     // imp.d > -1 === dynamic import
     if (imp.d > -1) {
       const importStatement = code.substring(imp.s, imp.e);
-      return !!matchImportSpecifier(importStatement);
+      return !!matchDynamicImportValue(importStatement);
     }
     return true;
   });
@@ -33,7 +33,7 @@ export async function transformEsmImports(
   for (const imp of imports.reverse()) {
     let spec = rewrittenCode.substring(imp.s, imp.e);
     if (imp.d > -1) {
-      spec = matchImportSpecifier(spec) || '';
+      spec = matchDynamicImportValue(spec) || '';
     }
     let rewrittenImport = replaceImport(spec);
     if (imp.d > -1) {
@@ -63,6 +63,23 @@ async function transformHtmlImports(code: string, replaceImport: (specifier: str
   return rewrittenCode;
 }
 
+async function transformCssImports(code: string, replaceImport: (specifier: string) => string) {
+  let rewrittenCode = code;
+  let match;
+  const importRegex = new RegExp(CSS_REGEX);
+  while ((match = importRegex.exec(rewrittenCode))) {
+    const [fullMatch, spec] = match;
+    // Only transform a script element if it contains inlined code / is not empty.
+    rewrittenCode = spliceString(
+      rewrittenCode,
+      `@import "${replaceImport(spec)}"`,
+      match.index,
+      match.index + fullMatch.length,
+    );
+  }
+  return rewrittenCode;
+}
+
 export async function transformFileImports(
   {baseExt, contents}: SnowpackSourceFile,
   replaceImport: (specifier: string) => string,
@@ -72,6 +89,9 @@ export async function transformFileImports(
   }
   if (baseExt === '.html') {
     return transformHtmlImports(contents, replaceImport);
+  }
+  if (baseExt === '.css') {
+    return transformCssImports(contents, replaceImport);
   }
   throw new Error(
     `Incompatible filetype: cannot scan ${baseExt} files for ESM imports. This is most likely an error within Snowpack.`,

@@ -1,6 +1,0 @@
-{
-  "imports": {
-    "tippy.js": "./tippyjs.js",
-    "tippy.js/dist/tippy.css": "./tippyjs/dist/tippy.css"
-  }
-}

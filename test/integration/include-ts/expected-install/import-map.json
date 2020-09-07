@@ -1,8 +1,0 @@
-{
-  "imports": {
-    "array-flatten": "./array-flatten.js",
-    "http-vue-loader/src/httpVueLoader.js": "./http-vue-loader/src/httpVueLoader.js",
-    "vue-router": "./vue-router.js",
-    "vue/dist/vue.esm.browser.js": "./vue/dist/vue.esm.browser.js"
-  }
-}

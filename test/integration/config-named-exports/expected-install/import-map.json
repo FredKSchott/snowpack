@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "cjs-named-export-pkg": "./cjs-named-export-pkg.js"
-  }
-}

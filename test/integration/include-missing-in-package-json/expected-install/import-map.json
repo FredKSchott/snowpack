@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "@material/list": "./@material/list.js"
-  }
-}

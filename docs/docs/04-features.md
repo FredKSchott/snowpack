@@ -145,6 +145,8 @@ For your safety, Snowpack only supports environment variables that begin with `S
 
 `import.meta.env.MODE` and `import.meta.env.NODE_ENV` are also both set to the current `process.env.NODE_ENV` value, so that you can change app behavior based on dev vs. build. The env value is set to `development` during `snowpack dev` and `production` during `snowpack build`. Use this in your application instead of `process.env.NODE_ENV`.
 
+You can use environment variables in HTML files. All occurrences of `%SNOWPACK_PUBLIC_*%`, `%PUBLIC_URL%`, and `%MODE%` will be replaced at build time.
+
 **Remember:** that these env variables are statically injected into your application for everyone at **build time**, and not runtime.
 
 #### `.env` File Support
@@ -234,11 +236,37 @@ If you're worried about legacy browsers, you should also add a bundler to your p
 
 Note: During development (`snowpack dev`) we perform no transpilation for older browsers. Make sure that you're using a modern browser during development.
 
-### CSS @import Support
+### Node.js Polyfills
 
-Snowpack supports native CSS "@import" behavior. This behaves slightly differently from JavaScript's `import` behavior. In CSS, `@import 'foo/bar.css'` points to the relative file `./foo/bar.css` and not some package "foo". There is no currently no way to use the native `@import` statement to import from a package by name.
+If you depend on packages that depend on Node.js built-in modules (`"fs"`, `"path"`, `"url"`, etc.) you can run Snowpack with `--polyfill-node` (or `installOptions.polyfillNode: true` in your config file). This will automatically polyfill any Node.js dependencies as much as possible for the browser. You can see the full list of supported polyfills here: https://github.com/ionic-team/rollup-plugin-node-polyfills
 
-If you'd like to use `@import` to import from a package by name, you can use [PostCSS](#postcss) with the [postcss-import](https://github.com/postcss/postcss-import) plugin. Alternatively, you can use a JavaScript import to import a CSS file by package name (`import 'foo/bar.css';`).
+If you'd like to customize this polyfill behavior, skip the `--polyfill-node` flag and instead provide your own Rollup plugin for the installer:
 
-**Note for webpack users:** If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With `postcss-import` you have to remove the `~` from your `@import`s.
+```js
+// Example: If `--polyfill-node` doesn't support your use-case, you can provide your own custom Node.js polyfill behavior
+module.exports = {
+  installOptions: {
+    polyfillNode: false,
+    rollup: {
+      plugins: [require('rollup-plugin-node-polyfills')({crypto: true, ...})],
+    },
+  },
+};
+```
 
+### CSS Imports (@import)
+
+```css
+/* Import a local CSS file */
+@import './style1.css';
+/* Import a local Sass file (Sass build plugin still needed to compile file contents) */
+@import './style2.scss';
+/* Import a package CSS file */
+@import 'bootstrap/dist/css/bootstrap.css';
+```
+
+Snowpack supports [native CSS "@import" behavior](https://developer.mozilla.org/en-US/docs/Web/CSS/@import) with additional support for importing CSS from within packages.
+
+**Note:** The actual CSS spec dictates that a "bare" import specifier like `@import "package/style.css"` should be treated as a relative path, equivalent to `@import "./package/style.css"`. We intentionally break from the spec to match the same package import behavior as JavaScript imports. If you prefer the strictly native behavior with no package resolution support, use the form `@import url("package/style.css")` instead. Snowpack will not resolve `url()` imports and will leave them as-is in the final build.
+
+**Note for webpack users:** If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With Snowpack you remove the `~` from your `@import`s.
