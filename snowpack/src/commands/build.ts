@@ -1,6 +1,7 @@
 import merge from 'deepmerge';
 import {promises as fs} from 'fs';
 import glob from 'glob';
+import {isBinaryFileSync} from 'isbinaryfile';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import PQueue from 'p-queue';
@@ -166,62 +167,70 @@ class FileBuilder {
     let isSuccess = true;
     this.filesToProxy = [];
     for (const [outLoc, file] of Object.entries(this.filesToResolve)) {
+      // don’t scan binary files for imports
+      if (isBinaryFileSync(file.contents)) {
+        continue;
+      }
+
       const resolveImportSpecifier = createImportResolver({
         fileLoc: file.locOnDisk!, // we’re confident these are reading from disk because we just read them
         dependencyImportMap: importMap,
         config: this.config,
       });
-      const resolvedCode = await transformFileImports(file, (spec) => {
-        // Try to resolve the specifier to a known URL in the project
-        let resolvedImportUrl = resolveImportSpecifier(spec);
-        // NOTE: If the import cannot be resolved, we'll need to re-install
-        // your dependencies. We don't support this yet, but we will.
-        // Until supported, just exit here.
-        if (!resolvedImportUrl) {
-          isSuccess = false;
-          logger.error(`${file.locOnDisk} - Could not resolve unkonwn import "${spec}".`);
-          return spec;
-        }
-        // Ignore "http://*" imports
-        if (url.parse(resolvedImportUrl).protocol) {
-          return spec;
-        }
-        // Handle normal "./" & "../" import specifiers
-        const importExtName = path.extname(resolvedImportUrl);
-        const isProxyImport =
-          importExtName &&
-          (file.baseExt === '.js' || file.baseExt === '.html') &&
-          importExtName !== '.js';
-        const isAbsoluteUrlPath = path.posix.isAbsolute(resolvedImportUrl);
-        let resolvedImportPath = removeLeadingSlash(path.normalize(resolvedImportUrl));
-        // We treat ".proxy.js" files special: we need to make sure that they exist on disk
-        // in the final build, so we mark them to be written to disk at the next step.
-        if (isProxyImport) {
-          if (isAbsoluteUrlPath) {
-            this.filesToProxy.push(path.resolve(this.config.devOptions.out, resolvedImportPath));
-          } else {
-            this.filesToProxy.push(path.resolve(path.dirname(outLoc), resolvedImportPath));
+      const resolvedCode = await transformFileImports(
+        file as SnowpackSourceFile<string>,
+        (spec) => {
+          // Try to resolve the specifier to a known URL in the project
+          let resolvedImportUrl = resolveImportSpecifier(spec);
+          // NOTE: If the import cannot be resolved, we'll need to re-install
+          // your dependencies. We don't support this yet, but we will.
+          // Until supported, just exit here.
+          if (!resolvedImportUrl) {
+            isSuccess = false;
+            logger.error(`${file.locOnDisk} - Could not resolve unkonwn import "${spec}".`);
+            return spec;
           }
-        }
+          // Ignore "http://*" imports
+          if (url.parse(resolvedImportUrl).protocol) {
+            return spec;
+          }
+          // Handle normal "./" & "../" import specifiers
+          const importExtName = path.extname(resolvedImportUrl);
+          const isProxyImport =
+            importExtName &&
+            (file.baseExt === '.js' || file.baseExt === '.html') &&
+            importExtName !== '.js';
+          const isAbsoluteUrlPath = path.posix.isAbsolute(resolvedImportUrl);
+          let resolvedImportPath = removeLeadingSlash(path.normalize(resolvedImportUrl));
+          // We treat ".proxy.js" files special: we need to make sure that they exist on disk
+          // in the final build, so we mark them to be written to disk at the next step.
+          if (isProxyImport) {
+            if (isAbsoluteUrlPath) {
+              this.filesToProxy.push(path.resolve(this.config.devOptions.out, resolvedImportPath));
+            } else {
+              this.filesToProxy.push(path.resolve(path.dirname(outLoc), resolvedImportPath));
+            }
 
-        if (isProxyImport) {
-          resolvedImportPath = resolvedImportPath + '.proxy.js';
-          resolvedImportUrl = resolvedImportUrl + '.proxy.js';
-        }
+            if (isProxyImport) {
+              resolvedImportPath = resolvedImportPath + '.proxy.js';
+              resolvedImportUrl = resolvedImportUrl + '.proxy.js';
+            }
 
-        // When dealing with an absolute import path, we need to honor the baseUrl
-        if (isAbsoluteUrlPath) {
-          resolvedImportUrl = relativeURL(
-            path.dirname(outLoc),
-            path.resolve(this.config.devOptions.out, resolvedImportPath),
-          );
-        }
-        // Make sure that a relative URL always starts with "./"
-        if (!resolvedImportUrl.startsWith('.') && !resolvedImportUrl.startsWith('/')) {
-          resolvedImportUrl = './' + resolvedImportUrl;
-        }
-        return resolvedImportUrl;
-      });
+            // When dealing with an absolute import path, we need to honor the baseUrl
+            if (isAbsoluteUrlPath) {
+              resolvedImportUrl = relativeURL(
+                path.dirname(outLoc),
+                path.resolve(this.config.devOptions.out, resolvedImportPath),
+              );
+            }
+            // Make sure that a relative URL always starts with "./"
+            if (!resolvedImportUrl.startsWith('.') && !resolvedImportUrl.startsWith('/')) {
+              resolvedImportUrl = './' + resolvedImportUrl;
+            }
+          }
+          return resolvedImportUrl;
+        },
+      );
       this.output[outLoc] = resolvedCode;
     }
     return isSuccess;

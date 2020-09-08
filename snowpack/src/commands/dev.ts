@@ -242,6 +242,7 @@ export async function command(commandOptions: CommandOptions) {
 
   // Set the proper install options, in case an install is needed.
   const dependencyImportMapLoc = path.join(DEV_DEPENDENCIES_DIR, 'import-map.json');
+  logger.debug(`Using cache folder: ${path.relative(cwd, DEV_DEPENDENCIES_DIR)}`);
   const installCommandOptions = merge(commandOptions, {
     config: {
       installOptions: {
@@ -254,9 +255,12 @@ export async function command(commandOptions: CommandOptions) {
 
   // Start with a fresh install of your dependencies, if needed.
   if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
+    logger.debug('Cache out of date or missing. Updating…');
     logger.info(colors.yellow('! updating dependencies...'));
     await installCommand(installCommandOptions);
     await updateLockfileHash(DEV_DEPENDENCIES_DIR);
+  } else {
+    logger.debug(`Cache up-to-date. Using existing cache`);
   }
 
   let dependencyImportMap: ImportMap = {imports: {}};

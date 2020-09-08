@@ -446,6 +446,7 @@ export async function getInstallTargets(
   if (webDependencies) {
     installTargets.push(...scanDepList(Object.keys(webDependencies), cwd));
   }
+  // TODO: remove this if block; move logic inside scanImports
   if (scannedFiles) {
     installTargets.push(...(await scanImportsFromFiles(scannedFiles, config)));
   } else {
@@ -457,17 +458,23 @@ export async function getInstallTargets(
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
 
+  logger.debug('Starting install');
   const installTargets = await getInstallTargets(config);
+  logger.debug('Received install targets');
   if (installTargets.length === 0) {
     logger.error('Nothing to install.');
     return;
   }
+  logger.debug('Running install command');
   const finalResult = await run({...commandOptions, installTargets});
+  logger.debug('Install command successfully ran');
   if (finalResult.newLockfile) {
     await writeLockfile(path.join(cwd, 'snowpack.lock.json'), finalResult.newLockfile);
+    logger.debug('Successfully wrote lockfile');
   }
   if (finalResult.stats) {
     logger.info(printStats(finalResult.stats));
+    logger.debug('Stats printed');
   }
 
   if (!finalResult.success || finalResult.hasError) {

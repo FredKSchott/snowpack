@@ -1,11 +1,9 @@
 import {ImportSpecifier, init as initESModuleLexer, parse} from 'es-module-lexer';
 import fs from 'fs';
 import glob from 'glob';
-import * as colors from 'kleur/colors';
-import mime from 'mime-types';
 import path from 'path';
 import stripComments from 'strip-comments';
-import srcFileExtensionMapping from './build/src-file-extension-mapping';
+import {isBinaryFileSync} from 'isbinaryfile';
 import {logger} from './logger';
 import {InstallTarget, SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
 import {
@@ -155,22 +153,37 @@ function parseFileForInstallTargets({
   locOnDisk,
   baseExt,
   contents,
-}: SnowpackSourceFile): InstallTarget[] {
+}: SnowpackSourceFile<string>): InstallTarget[] {
+  const relativeLoc = path.relative(process.cwd(), locOnDisk);
+
   try {
     switch (baseExt) {
       case '.css':
       case '.less':
       case '.sass':
       case '.scss': {
+        logger.debug(`Scanning ${relativeLoc} for imports as CSS`);
         return parseCssForInstallTargets(contents);
       }
       case '.html':
       case '.svelte':
       case '.vue': {
+        logger.debug(`Scanning ${relativeLoc} for imports as HTML`);
         return parseJsForInstallTargets(extractJSFromHTML({contents, baseExt}));
       }
-      default: {
+      case '.js':
+      case '.jsx':
+      case '.mjs':
+      case '.ts':
+      case '.tsx': {
+        logger.debug(`Scanning ${relativeLoc} for imports as JS`);
         return parseJsForInstallTargets(contents);
+      }
+      default: {
+        logger.debug(
+          `Skip scanning ${relativeLoc} for imports (unknown file extension ${baseExt})`,
+        );
+        return [];
       }
     }
   } catch (err) {
@@ -234,28 +247,13 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
   // Scan every matched JS file for web dependency imports
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
     includeFiles.map(async (filePath) => {
+      // ignore binary files
+      const isBinary = isBinaryFileSync(filePath);
+      if (isBinary) {
+        return null;
+      }
+
       const {baseExt, expandedExt} = getExt(filePath);
-      // Always ignore dotfiles
-      if (filePath.startsWith('.')) {
-        return null;
-      }
-
-      // Probably a license, a README, etc
-      if (baseExt === '') {
-        return null;
-      }
-
-      // If we don't recognize the file type, it could be source. Warn just in case.
-      if (!Object.keys(srcFileExtensionMapping).includes(baseExt) && !mime.lookup(baseExt)) {
-        logger.warn(
-          colors.dim(
-            `ignoring unsupported file "${path
-              .relative(process.cwd(), filePath)
-              .replace(/\\/g, '/')}"`,
-          ),
-        );
-      }
-
       return {
         baseExt,
         expandedExt,
@@ -273,7 +271,7 @@ export async function scanImportsFromFiles(
   config: SnowpackConfig,
 ): Promise<InstallTarget[]> {
   return loadedFiles
-    .map(parseFileForInstallTargets)
+    .map((sourceFile) => parseFileForInstallTargets(sourceFile as SnowpackSourceFile<string>))
     .reduce((flat, item) => flat.concat(item), [])
     .filter((target) => {
       const aliasEntry = findMatchingAliasEntry(config, target.specifier);
