@@ -6398,13 +6398,13 @@ export default 'Button';"
 
 exports[`snowpack build resolve-imports: _dist_/components/style.css 1`] = `
 "/* Include 2+ imports to make sure regex isn't borked. */
-@import \\"../../TEST_WMU/css-package-a/style.css.proxy.js\\"
-@import \\"../../TEST_WMU/@css/package-b/style.css.proxy.js\\""
+@import \\"../../TEST_WMU/css-package-a/style.css\\";
+@import \\"../../TEST_WMU/@css/package-b/style.css\\";"
 `;
 
 exports[`snowpack build resolve-imports: _dist_/components/style.css.proxy.js 1`] = `
 "
-const code = \\"/* Include 2+ imports to make sure regex isn't borked. */@import \\\\\\"../../TEST_WMU/css-package-a/style.css.proxy.js\\\\\\"@import \\\\\\"../../TEST_WMU/@css/package-b/style.css.proxy.js\\\\\\"\\";
+const code = \\"/* Include 2+ imports to make sure regex isn't borked. */@import \\\\\\"../../TEST_WMU/css-package-a/style.css\\\\\\";@import \\\\\\"../../TEST_WMU/@css/package-b/style.css\\\\\\";\\";
 const styleEl = document.createElement(\\"style\\");
 const codeEl = document.createTextNode(code);
 styleEl.type = 'text/css';
