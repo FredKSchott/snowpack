@@ -68,11 +68,11 @@ import {
   checkLockfileHash,
   cssSourceMappingURL,
   DEV_DEPENDENCIES_DIR,
-  getEncodingType,
   getExt,
   jsSourceMappingURL,
   openInBrowser,
   parsePackageImportSpecifier,
+  readFile,
   replaceExt,
   resolveDependencyManifest,
   updateLockfileHash,
@@ -166,7 +166,7 @@ const sendFile = (
   }
 
   res.writeHead(200, headers);
-  res.write(body, getEncodingType(ext) as BufferEncoding);
+  res.write(body);
   res.end();
 };
 
@@ -242,6 +242,7 @@ export async function command(commandOptions: CommandOptions) {
 
   // Set the proper install options, in case an install is needed.
   const dependencyImportMapLoc = path.join(DEV_DEPENDENCIES_DIR, 'import-map.json');
+  logger.debug(`Using cache folder: ${path.relative(cwd, DEV_DEPENDENCIES_DIR)}`);
   const installCommandOptions = merge(commandOptions, {
     config: {
       installOptions: {
@@ -254,9 +255,12 @@ export async function command(commandOptions: CommandOptions) {
 
   // Start with a fresh install of your dependencies, if needed.
   if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
+    logger.debug('Cache out of date or missing. Updating…');
     logger.info(colors.yellow('! updating dependencies...'));
     await installCommand(installCommandOptions);
     await updateLockfileHash(DEV_DEPENDENCIES_DIR);
+  } else {
+    logger.debug(`Cache up-to-date. Using existing cache`);
   }
 
   let dependencyImportMap: ImportMap = {imports: {}};
@@ -678,7 +682,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
     }
 
     // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
-    const fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
+    const fileContents = await readFile(fileLoc);
 
     // 3. Send dependencies directly, since they were already build & resolved at install time.
     if (reqPath.startsWith(config.buildOptions.webModulesUrl) && !isProxyModule) {

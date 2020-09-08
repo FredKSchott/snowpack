@@ -21,8 +21,8 @@ import {transformFileImports} from '../rewrite-imports';
 import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
 import {
   cssSourceMappingURL,
-  getEncodingType,
   jsSourceMappingURL,
+  readFile,
   relativeURL,
   removeLeadingSlash,
   replaceExt,
@@ -165,7 +165,12 @@ class FileBuilder {
   async resolveImports(importMap: ImportMap) {
     let isSuccess = true;
     this.filesToProxy = [];
-    for (const [outLoc, file] of Object.entries(this.filesToResolve)) {
+    for (const [outLoc, rawFile] of Object.entries(this.filesToResolve)) {
+      // don’t transform binary file contents
+      if (Buffer.isBuffer(rawFile.contents)) {
+        continue;
+      }
+      const file = rawFile as SnowpackSourceFile<string>;
       const resolveImportSpecifier = createImportResolver({
         fileLoc: file.locOnDisk!, // we’re confident these are reading from disk because we just read them
         dependencyImportMap: importMap,
@@ -179,7 +184,7 @@ class FileBuilder {
         // Until supported, just exit here.
         if (!resolvedImportUrl) {
           isSuccess = false;
-          logger.error(`${file.locOnDisk} - Could not resolve unkonwn import "${spec}".`);
+          logger.error(`${file.locOnDisk} - Could not resolve unknown import "${spec}".`);
           return spec;
         }
         // Ignore "http://*" imports
@@ -230,7 +235,8 @@ class FileBuilder {
   async writeToDisk() {
     mkdirp.sync(this.outDir);
     for (const [outLoc, code] of Object.entries(this.output)) {
-      await fs.writeFile(outLoc, code, getEncodingType(path.extname(outLoc)));
+      const encoding = typeof code === 'string' ? 'utf-8' : undefined;
+      await fs.writeFile(outLoc, code, encoding);
     }
   }
 
@@ -246,7 +252,7 @@ class FileBuilder {
       hmr: false,
       config: this.config,
     });
-    await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
+    await fs.writeFile(importProxyFileLoc, proxyCode, 'utf-8');
   }
 }
 
@@ -320,7 +326,7 @@ export async function command(commandOptions: CommandOptions) {
         !installedFileLoc.endsWith('import-map.json') &&
         path.extname(installedFileLoc) !== '.js'
       ) {
-        const proxiedCode = await fs.readFile(installedFileLoc, {encoding: 'utf-8'});
+        const proxiedCode = await readFile(installedFileLoc);
         const importProxyFileLoc = installedFileLoc + '.proxy.js';
         const proxiedUrl = installedFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/');
         const proxyCode = await wrapImportProxy({
@@ -329,7 +335,7 @@ export async function command(commandOptions: CommandOptions) {
           hmr: false,
           config: config,
         });
-        await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
+        await fs.writeFile(importProxyFileLoc, proxyCode, 'utf-8');
       }
     }
     return installResult;

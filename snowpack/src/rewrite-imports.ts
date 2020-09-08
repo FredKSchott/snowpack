@@ -81,7 +81,7 @@ async function transformCssImports(code: string, replaceImport: (specifier: stri
 }
 
 export async function transformFileImports(
-  {baseExt, contents}: SnowpackSourceFile,
+  {baseExt, contents}: SnowpackSourceFile<string>,
   replaceImport: (specifier: string) => string,
 ) {
   if (baseExt === '.js') {
