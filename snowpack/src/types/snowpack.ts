@@ -15,11 +15,11 @@ export type SnowpackBuiltFile = {code: string | Buffer; map?: string};
 export type SnowpackBuildMap = Record<string, SnowpackBuiltFile>;
 
 /** Standard file interface */
-export interface SnowpackSourceFile {
+export interface SnowpackSourceFile<Type = string | Buffer> {
   /** base extension (e.g. `.js`) */
   baseExt: string;
   /** file contents */
-  contents: string;
+  contents: Type;
   /** expanded extension (e.g. `.proxy.js` or `.module.css`) */
   expandedExt: string;
   /** if no location on disk, assume this exists in memory */
@@ -81,7 +81,7 @@ export interface SnowpackPlugin {
 
 export interface LegacySnowpackPlugin {
   defaultBuildScript: string;
-  build?(options: PluginLoadOptions & {contents: string}): Promise<any>;
+  build?(options: PluginLoadOptions & {contents: string | Buffer}): Promise<any>;
   bundle?(options: {
     srcDirectory: string;
     destDirectory: string;

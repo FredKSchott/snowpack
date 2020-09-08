@@ -6,6 +6,7 @@ import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import fs from 'fs';
 import got, {CancelableRequest, Response} from 'got';
+import {isBinaryFile} from 'isbinaryfile';
 import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
@@ -37,9 +38,11 @@ export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
 
 export const URL_HAS_PROTOCOL_REGEX = /^(\w+:)?\/\//;
 
-const UTF8_FORMATS = ['.css', '.html', '.js', '.map', '.mjs', '.json', '.svg', '.txt', '.xml'];
-export function getEncodingType(ext: string): 'utf-8' | undefined {
-  return UTF8_FORMATS.includes(ext) ? 'utf-8' : undefined;
+/** Read file from disk; return a string if it’s a code file */
+export async function readFile(filepath: string): Promise<string | Buffer> {
+  const data = await fs.promises.readFile(filepath);
+  const isBinary = await isBinaryFile(data);
+  return isBinary ? data : data.toString('utf-8');
 }
 
 export async function readLockfile(cwd: string): Promise<ImportMap | null> {
