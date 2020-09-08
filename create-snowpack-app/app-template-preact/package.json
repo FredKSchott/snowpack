@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-preact",
-  "version": "1.8.8",
+  "version": "1.8.9",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -19,12 +19,12 @@
     "preact": "^10.4.6"
   },
   "devDependencies": {
-    "@snowpack/app-scripts-preact": "^1.8.5",
+    "@snowpack/app-scripts-preact": "^1.8.6",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/preact": "^1.0.2",
     "jest": "^26.2.2",
     "prettier": "^2.0.5",
-    "snowpack": "^2.10.0"
+    "snowpack": "^2.10.2"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }
