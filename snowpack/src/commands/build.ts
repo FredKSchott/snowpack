@@ -184,7 +184,7 @@ class FileBuilder {
         // Until supported, just exit here.
         if (!resolvedImportUrl) {
           isSuccess = false;
-          logger.error(`${file.locOnDisk} - Could not resolve unkonwn import "${spec}".`);
+          logger.error(`${file.locOnDisk} - Could not resolve unknown import "${spec}".`);
           return spec;
         }
         // Ignore "http://*" imports
