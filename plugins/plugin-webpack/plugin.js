@@ -11,6 +11,7 @@ const ManifestPlugin = require('webpack-manifest-plugin');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const cwd = process.cwd();
+const minify = require('html-minifier').minify;
 
 function insertBefore(newNode, existingNode) {
   existingNode.parentNode.insertBefore(newNode, existingNode);
@@ -87,7 +88,19 @@ function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, buildDirectory }) {
 
   //And write our modified html files out to the destination
   for (const [htmlFile, dom] of Object.entries(doms)) {
-    fs.writeFileSync(path.join(buildDirectory, htmlFile), dom.serialize());
+    const html = dom.serialize();
+    // HTMLMinifier
+    // https://github.com/kangax/html-minifier#options-quick-reference
+    const htmlMinified = minify(html, {
+      collapseWhitespace: true,
+      removeComments: true,
+      removeEmptyAttributes: true,
+      removeRedundantAttributes: true,
+      removeScriptTypeAttributes: true,
+      removeStyleLinkTypeAttributes: true,
+    });
+
+    fs.writeFileSync(path.join(buildDirectory, htmlFile), htmlMinified);
   }
 }
 
