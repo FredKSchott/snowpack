@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-react-typescript",
-  "version": "1.10.2",
+  "version": "1.10.3",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -28,7 +28,7 @@
     "@types/snowpack-env": "^2.3.0",
     "jest": "^26.2.2",
     "prettier": "^2.0.5",
-    "snowpack": "^2.10.2",
+    "snowpack": "^2.10.3",
     "typescript": "^3.9.7"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
