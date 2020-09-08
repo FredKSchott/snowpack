@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-lit-element-typescript",
-  "version": "1.8.8",
+  "version": "1.8.9",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -26,7 +26,7 @@
     "@snowpack/app-scripts-lit-element": "^1.8.4",
     "@types/snowpack-env": "^2.3.0",
     "prettier": "^2.0.5",
-    "snowpack": "^2.10.0",
+    "snowpack": "^2.10.2",
     "typescript": "^3.9.7"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"

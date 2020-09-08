@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-11ty",
-  "version": "1.7.8",
+  "version": "1.7.9",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -22,7 +22,7 @@
     "@11ty/eleventy": "^0.10.0",
     "@snowpack/plugin-run-script": "^2.1.1",
     "prettier": "^2.0.5",
-    "snowpack": "^2.10.0"
+    "snowpack": "^2.10.2"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }
