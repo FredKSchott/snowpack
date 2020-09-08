@@ -474,7 +474,6 @@ export async function command(commandOptions: CommandOptions) {
   }
   if (finalResult.stats) {
     logger.info(printStats(finalResult.stats));
-    logger.debug('Stats printed');
   }
 
   if (!finalResult.success || finalResult.hasError) {
