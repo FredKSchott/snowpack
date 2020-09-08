@@ -207,23 +207,23 @@ class FileBuilder {
           } else {
             this.filesToProxy.push(path.resolve(path.dirname(outLoc), resolvedImportPath));
           }
+        }
 
-          if (isProxyImport) {
-            resolvedImportPath = resolvedImportPath + '.proxy.js';
-            resolvedImportUrl = resolvedImportUrl + '.proxy.js';
-          }
+        if (isProxyImport) {
+          resolvedImportPath = resolvedImportPath + '.proxy.js';
+          resolvedImportUrl = resolvedImportUrl + '.proxy.js';
+        }
 
-          // When dealing with an absolute import path, we need to honor the baseUrl
-          if (isAbsoluteUrlPath) {
-            resolvedImportUrl = relativeURL(
-              path.dirname(outLoc),
-              path.resolve(this.config.devOptions.out, resolvedImportPath),
-            );
-          }
-          // Make sure that a relative URL always starts with "./"
-          if (!resolvedImportUrl.startsWith('.') && !resolvedImportUrl.startsWith('/')) {
-            resolvedImportUrl = './' + resolvedImportUrl;
-          }
+        // When dealing with an absolute import path, we need to honor the baseUrl
+        if (isAbsoluteUrlPath) {
+          resolvedImportUrl = relativeURL(
+            path.dirname(outLoc),
+            path.resolve(this.config.devOptions.out, resolvedImportPath),
+          );
+        }
+        // Make sure that a relative URL always starts with "./"
+        if (!resolvedImportUrl.startsWith('.') && !resolvedImportUrl.startsWith('/')) {
+          resolvedImportUrl = './' + resolvedImportUrl;
         }
         return resolvedImportUrl;
       });
