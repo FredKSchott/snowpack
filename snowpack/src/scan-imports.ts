@@ -1,9 +1,7 @@
 import {ImportSpecifier, init as initESModuleLexer, parse} from 'es-module-lexer';
-import fs from 'fs';
 import glob from 'glob';
 import path from 'path';
 import stripComments from 'strip-comments';
-import {isBinaryFileSync} from 'isbinaryfile';
 import {logger} from './logger';
 import {InstallTarget, SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
 import {
@@ -12,6 +10,7 @@ import {
   getExt,
   HTML_JS_REGEX,
   isTruthy,
+  readFile,
   SVELTE_VUE_REGEX,
 } from './util';
 
@@ -247,18 +246,12 @@ export async function scanImports(cwd: string, config: SnowpackConfig): Promise<
   // Scan every matched JS file for web dependency imports
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
     includeFiles.map(async (filePath) => {
-      // ignore binary files
-      const isBinary = isBinaryFileSync(filePath);
-      if (isBinary) {
-        return null;
-      }
-
       const {baseExt, expandedExt} = getExt(filePath);
       return {
         baseExt,
         expandedExt,
         locOnDisk: filePath,
-        contents: await fs.promises.readFile(filePath, 'utf-8'),
+        contents: await readFile(filePath),
       };
     }),
   );
@@ -271,6 +264,7 @@ export async function scanImportsFromFiles(
   config: SnowpackConfig,
 ): Promise<InstallTarget[]> {
   return loadedFiles
+    .filter((sourceFile) => !Buffer.isBuffer(sourceFile.contents)) // filter out binary files from import scanning
     .map((sourceFile) => parseFileForInstallTargets(sourceFile as SnowpackSourceFile<string>))
     .reduce((flat, item) => flat.concat(item), [])
     .filter((target) => {

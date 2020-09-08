@@ -68,11 +68,11 @@ import {
   checkLockfileHash,
   cssSourceMappingURL,
   DEV_DEPENDENCIES_DIR,
-  getEncodingType,
   getExt,
   jsSourceMappingURL,
   openInBrowser,
   parsePackageImportSpecifier,
+  readFile,
   replaceExt,
   resolveDependencyManifest,
   updateLockfileHash,
@@ -166,7 +166,7 @@ const sendFile = (
   }
 
   res.writeHead(200, headers);
-  res.write(body, getEncodingType(ext) as BufferEncoding);
+  res.write(body);
   res.end();
 };
 
@@ -682,7 +682,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
     }
 
     // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
-    const fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
+    const fileContents = await readFile(fileLoc);
 
     // 3. Send dependencies directly, since they were already build & resolved at install time.
     if (reqPath.startsWith(config.buildOptions.webModulesUrl) && !isProxyModule) {

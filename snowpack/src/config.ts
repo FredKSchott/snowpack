@@ -2,7 +2,6 @@ import buildScriptPlugin from '@snowpack/plugin-build-script';
 import runScriptPlugin from '@snowpack/plugin-run-script';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
-import fs from 'fs';
 import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
 import path from 'path';
@@ -22,7 +21,13 @@ import {
   LegacySnowpackPlugin,
   PluginLoadResult,
 } from './types/snowpack';
-import {addLeadingSlash, addTrailingSlash, removeLeadingSlash, removeTrailingSlash} from './util';
+import {
+  addLeadingSlash,
+  addTrailingSlash,
+  readFile,
+  removeLeadingSlash,
+  removeTrailingSlash,
+} from './util';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -268,7 +273,7 @@ function loadPlugins(
       plugin.load = async (options: PluginLoadOptions) => {
         const result = await build({
           ...options,
-          contents: fs.readFileSync(options.filePath, 'utf-8'),
+          contents: await readFile(options.filePath),
         }).catch((err) => {
           logger.error(
             `[${plugin.name}] There was a problem running this older plugin. Please update the plugin to the latest version.`,

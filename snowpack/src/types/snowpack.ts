@@ -81,7 +81,7 @@ export interface SnowpackPlugin {
 
 export interface LegacySnowpackPlugin {
   defaultBuildScript: string;
-  build?(options: PluginLoadOptions & {contents: string}): Promise<any>;
+  build?(options: PluginLoadOptions & {contents: string | Buffer}): Promise<any>;
   bundle?(options: {
     srcDirectory: string;
     destDirectory: string;
