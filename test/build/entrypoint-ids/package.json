@@ -1,0 +1,24 @@
+{
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-entrypoint-ids",
+  "description": "Tests that a non-canonical cwd works on case-insensitive file systems",
+  "scripts": {
+    "testbuild": "snowpack build"
+  },
+  "snowpack": {
+    "mount": {
+      "./src": "/_dist_"
+    },
+    "buildOptions": {
+      "minify": false
+    }
+  },
+  "dependencies": {
+    "chalk": "4.1.0",
+    "ansi-styles": "*"
+  },
+  "devDependencies": {
+    "snowpack": "^2.7.0"
+  }
+}
