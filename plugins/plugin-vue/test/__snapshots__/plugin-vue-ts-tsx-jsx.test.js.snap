@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`plugin vue with jsx 1`] = `
+Object {
+  ".css": Object {
+    "code": "",
+    "map": "",
+  },
+  ".js": Object {
+    "code": "import { Fragment } from '/web_modules/vue.js';
+import {createVNode, isVNode} from '/web_modules/vue.js';
+const slice = Array.prototype.slice;
+export function jsx(tag, props = null, children = null) {
+  if (arguments.length > 3 || isVNode(children)) {
+    children = slice.call(arguments, 2);
+  }
+  return createVNode(tag, props, children);
+}
+
+import {defineComponent} from \\"vue\\";
+export default defineComponent({
+  name: \\"VueContentJsx\\",
+  setup() {
+    return () => /* @__PURE__ */ jsx(Fragment, null, /* @__PURE__ */ jsx(\\"h1\\", null, \\"VueContentJsx\\"));
+  }
+});",
+    "map": "",
+  },
+}
+`;
+
+exports[`plugin vue with ts 1`] = `
+Object {
+  ".css": Object {
+    "code": "",
+    "map": "",
+  },
+  ".js": Object {
+    "code": "import {defineComponent} from \\"vue\\";
+const defaultExport = defineComponent({
+  name: \\"VueContentTs\\",
+  setup() {
+    const name = \\"VueContentTs\\";
+  }
+});
+import { createVNode as _createVNode, openBlock as _openBlock, createBlock as _createBlock } from \\"/web_modules/vue.js\\"
+
+export function render(_ctx, _cache) {
+  return (_openBlock(), _createBlock(\\"h1\\", null, \\"Vue Content Ts\\"))
+}
+
+defaultExport.render = render
+export default defaultExport",
+    "map": "",
+  },
+}
+`;
+
+exports[`plugin vue with tsx 1`] = `
+Object {
+  ".css": Object {
+    "code": "",
+    "map": "",
+  },
+  ".js": Object {
+    "code": "import { Fragment } from '/web_modules/vue.js';
+import {createVNode, isVNode} from '/web_modules/vue.js';
+const slice = Array.prototype.slice;
+export function jsx(tag, props = null, children = null) {
+  if (arguments.length > 3 || isVNode(children)) {
+    children = slice.call(arguments, 2);
+  }
+  return createVNode(tag, props, children);
+}
+
+import {defineComponent} from \\"vue\\";
+export default defineComponent({
+  name: \\"VueContentTsx\\",
+  setup() {
+    const name = \\"VueContentTsx\\";
+    return () => /* @__PURE__ */ jsx(Fragment, null, /* @__PURE__ */ jsx(\\"h1\\", null, \\"VueContentTsx\\"));
+  }
+});",
+    "map": "",
+  },
+}
+`;

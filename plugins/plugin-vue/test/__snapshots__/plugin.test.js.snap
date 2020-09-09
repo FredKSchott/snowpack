@@ -1,0 +1,192 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`plugin base 1`] = `
+Object {
+  ".css": Object {
+    "code": "
+.App {
+  text-align: center;
+}
+.App-header {
+  background-color: #f9f6f6;
+  color: #32485f;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+}
+.App-link {
+  color: #00c185;
+}
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+  margin-bottom: 1rem;
+  animation: App-logo-spin infinite 1.6s ease-in-out alternate;
+}
+@keyframes App-logo-spin {
+from {
+    transform: scale(1);
+}
+to {
+    transform: scale(1.06);
+}
+}
+",
+    "map": "",
+  },
+  ".js": Object {
+    "code": "
+const defaultExport = {
+  data() {
+    return {
+      message: \\"Learn Vue\\"
+    };
+  }
+};
+
+import { createVNode as _createVNode, createTextVNode as _createTextVNode, toDisplayString as _toDisplayString, openBlock as _openBlock, createBlock as _createBlock } from \\"/web_modules/vue.js\\"
+
+const _hoisted_1 = { class: \\"App\\" }
+const _hoisted_2 = { class: \\"App-header\\" }
+const _hoisted_3 = /*#__PURE__*/_createVNode(\\"img\\", {
+  src: \\"/logo.svg\\",
+  class: \\"App-logo\\",
+  alt: \\"logo\\"
+}, null, -1 /* HOISTED */)
+const _hoisted_4 = /*#__PURE__*/_createVNode(\\"p\\", null, [
+  /*#__PURE__*/_createTextVNode(\\" Edit \\"),
+  /*#__PURE__*/_createVNode(\\"code\\", null, \\"src/App.vue\\"),
+  /*#__PURE__*/_createTextVNode(\\" and save to reload. \\")
+], -1 /* HOISTED */)
+const _hoisted_5 = {
+  class: \\"App-link\\",
+  href: \\"https://vuejs.org\\",
+  target: \\"_blank\\",
+  rel: \\"noopener noreferrer\\"
+}
+
+export function render(_ctx, _cache) {
+  return (_openBlock(), _createBlock(\\"div\\", _hoisted_1, [
+    _createVNode(\\"header\\", _hoisted_2, [
+      _hoisted_3,
+      _hoisted_4,
+      _createVNode(\\"a\\", _hoisted_5, _toDisplayString(_ctx.message), 1 /* TEXT */)
+    ])
+  ]))
+}
+
+defaultExport.render = render
+export default defaultExport",
+    "map": "",
+  },
+}
+`;
+
+exports[`plugin base only tpl 1`] = `
+Object {
+  ".css": Object {
+    "code": "",
+    "map": "",
+  },
+  ".js": Object {
+    "code": "const defaultExport = {};
+import { createVNode as _createVNode, openBlock as _openBlock, createBlock as _createBlock } from \\"/web_modules/vue.js\\"
+
+export function render(_ctx, _cache) {
+  return (_openBlock(), _createBlock(\\"h1\\", null, \\"Vue Content Only Tpl\\"))
+}
+
+defaultExport.render = render
+export default defaultExport",
+    "map": "",
+  },
+}
+`;
+
+exports[`plugin base with sourceMap 1`] = `
+Object {
+  ".css": Object {
+    "code": "
+.App {
+  text-align: center;
+}
+.App-header {
+  background-color: #f9f6f6;
+  color: #32485f;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+}
+.App-link {
+  color: #00c185;
+}
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+  margin-bottom: 1rem;
+  animation: App-logo-spin infinite 1.6s ease-in-out alternate;
+}
+@keyframes App-logo-spin {
+from {
+    transform: scale(1);
+}
+to {
+    transform: scale(1.06);
+}
+}
+",
+    "map": "",
+  },
+  ".js": Object {
+    "code": "
+const defaultExport = {
+  data() {
+    return {
+      message: \\"Learn Vue\\"
+    };
+  }
+};
+
+import { createVNode as _createVNode, createTextVNode as _createTextVNode, toDisplayString as _toDisplayString, openBlock as _openBlock, createBlock as _createBlock } from \\"/web_modules/vue.js\\"
+
+const _hoisted_1 = { class: \\"App\\" }
+const _hoisted_2 = { class: \\"App-header\\" }
+const _hoisted_3 = /*#__PURE__*/_createVNode(\\"img\\", {
+  src: \\"/logo.svg\\",
+  class: \\"App-logo\\",
+  alt: \\"logo\\"
+}, null, -1 /* HOISTED */)
+const _hoisted_4 = /*#__PURE__*/_createVNode(\\"p\\", null, [
+  /*#__PURE__*/_createTextVNode(\\" Edit \\"),
+  /*#__PURE__*/_createVNode(\\"code\\", null, \\"src/App.vue\\"),
+  /*#__PURE__*/_createTextVNode(\\" and save to reload. \\")
+], -1 /* HOISTED */)
+const _hoisted_5 = {
+  class: \\"App-link\\",
+  href: \\"https://vuejs.org\\",
+  target: \\"_blank\\",
+  rel: \\"noopener noreferrer\\"
+}
+
+export function render(_ctx, _cache) {
+  return (_openBlock(), _createBlock(\\"div\\", _hoisted_1, [
+    _createVNode(\\"header\\", _hoisted_2, [
+      _hoisted_3,
+      _hoisted_4,
+      _createVNode(\\"a\\", _hoisted_5, _toDisplayString(_ctx.message), 1 /* TEXT */)
+    ])
+  ]))
+}
+
+defaultExport.render = render
+export default defaultExport",
+    "map": "",
+  },
+}
+`;
