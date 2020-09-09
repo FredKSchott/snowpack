@@ -52,7 +52,13 @@ function parseHTMLFiles({ buildDirectory }) {
   return { doms, jsEntries };
 }
 
-function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, buildDirectory }) {
+function emitHTMLFiles({
+  doms,
+  jsEntries,
+  stats, baseUrl,
+  buildDirectory,
+  htmlMinifierOptions,
+}) {
   const entrypoints = stats.toJson({ assets: false, hash: true }).entrypoints;
 
   //Now that webpack is done, modify the html files to point to the newly compiled resources
@@ -88,19 +94,11 @@ function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, buildDirectory }) {
 
   //And write our modified html files out to the destination
   for (const [htmlFile, dom] of Object.entries(doms)) {
-    const html = dom.serialize();
-    // HTMLMinifier
-    // https://github.com/kangax/html-minifier#options-quick-reference
-    const htmlMinified = minify(html, {
-      collapseWhitespace: true,
-      removeComments: true,
-      removeEmptyAttributes: true,
-      removeRedundantAttributes: true,
-      removeScriptTypeAttributes: true,
-      removeStyleLinkTypeAttributes: true,
-    });
+    const html = htmlMinifierOptions
+      ? minify(dom.serialize(), htmlMinifierOptions)
+      : dom.serialize();
 
-    fs.writeFileSync(path.join(buildDirectory, htmlFile), htmlMinified);
+    fs.writeFileSync(path.join(buildDirectory, htmlFile), html);
   }
 }
 
@@ -174,7 +172,22 @@ module.exports = function plugin(config, args) {
   if (!cssOutputPattern.endsWith(".css")) {
     throw new Error("Output Pattern for CSS must end in .css");
   }
-  
+
+  // Default options for HTMLMinifier
+  // https://github.com/kangax/html-minifier#options-quick-reference
+  let htmlMinifierOptions = {
+    collapseWhitespace: true,
+    removeComments: true,
+    removeEmptyAttributes: true,
+    removeRedundantAttributes: true,
+    removeScriptTypeAttributes: true,
+    removeStyleLinkTypeAttributes: true,
+  };
+
+  if (typeof args.htmlMinifierOptions !== 'undefined') {
+    htmlMinifierOptions = args.htmlMinifierOptions;
+  }
+
   const manifest =
     typeof args.manifest === 'string'
       ? args.manifest
@@ -368,7 +381,14 @@ module.exports = function plugin(config, args) {
         );
       }
 
-      emitHTMLFiles({ doms, jsEntries, stats, baseUrl, buildDirectory });
+      emitHTMLFiles({
+        doms,
+        jsEntries,
+        stats,
+        baseUrl,
+        buildDirectory,
+        htmlMinifierOptions,
+      });
     },
   };
 };
