@@ -175,7 +175,7 @@ module.exports = function plugin(config, args) {
 
   // Default options for HTMLMinifier
   // https://github.com/kangax/html-minifier#options-quick-reference
-  let htmlMinifierOptions = {
+  const defaultHtmlMinifierOptions = {
     collapseWhitespace: true,
     removeComments: true,
     removeEmptyAttributes: true,
@@ -184,9 +184,7 @@ module.exports = function plugin(config, args) {
     removeStyleLinkTypeAttributes: true,
   };
 
-  if (typeof args.htmlMinifierOptions !== 'undefined') {
-    htmlMinifierOptions = args.htmlMinifierOptions;
-  }
+  const htmlMinifierOptions = args.htmlMinifierOptions === false ? defaultHtmlMinifierOptions : Object.assign({}, defaultHtmlMinifierOptions, args.htmlMinifierOptions)
 
   const manifest =
     typeof args.manifest === 'string'
