@@ -27,6 +27,7 @@ npm install --save-dev @snowpack/plugin-webpack
 - `outputPattern: {css: string, js: string, assets: string}` - Set the URL for your final bundled files. This is where they will be written to disk in the `build/` directory. See Webpack's [`output.filename`](https://webpack.js.org/configuration/output/#outputfilename) documentation for examples of valid values.
 - `extendConfig: (config: WebpackConfig) => WebpackConfig` - extend your webpack config, see below.
 - `manifest: boolean | string` - Enable generating a manifest file. The default value is `false`, the default file name is `./asset-manifest.json` if setting manifest to `true`. The relative path is resolved from the output directory.
+- `htmlMinifierOptions: boolean | object` - [See below](#minify-html).
 
 #### Extending The Default Webpack Config
 
@@ -49,4 +50,35 @@ module.exports = {
     ],
   ],
 };
+```
+
+#### Minify HTML
+
+With `htmlMinifierOptions` you can either disable the minification entirely or provide your own [options](https://github.com/kangax/html-minifier#options-quick-reference).
+
+```js
+// snowpack.config.js
+module.exports = {
+  plugins: [
+    [
+      "@snowpack/plugin-webpack",
+      {
+        htmlMinifierOptions: false // disabled entirely,
+      },
+    ],
+  ],
+};
+```
+
+The default options are:
+
+```js
+{
+  collapseWhitespace: true,
+  removeComments: true,
+  removeEmptyAttributes: true,
+  removeRedundantAttributes: true,
+  removeScriptTypeAttributes: true,
+  removeStyleLinkTypeAttributes: true,
+}
 ```
