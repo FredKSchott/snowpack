@@ -266,7 +266,7 @@ module.exports = function plugin(config, args) {
                   },
                 },
                 {
-                  loader: require.resolve('@open-wc/webpack-import-meta-loader'),
+                  loader: require.resolve("./plugins/import-meta-fix.js"),
                 },
                 {
                   loader: require.resolve("./plugins/proxy-import-resolve.js"),
