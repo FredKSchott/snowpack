@@ -184,7 +184,7 @@ module.exports = function plugin(config, args) {
     removeStyleLinkTypeAttributes: true,
   };
 
-  const htmlMinifierOptions = args.htmlMinifierOptions === false ? defaultHtmlMinifierOptions : Object.assign({}, defaultHtmlMinifierOptions, args.htmlMinifierOptions)
+  const htmlMinifierOptions = args.htmlMinifierOptions === false ? false : Object.assign({}, defaultHtmlMinifierOptions, args.htmlMinifierOptions)
 
   const manifest =
     typeof args.manifest === 'string'
