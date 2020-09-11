@@ -109,7 +109,9 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
   // include a package.json. If we detect that to be the reason for failure,
   // move on to our custom implementation.
   try {
-    const depManifest = fs.realpathSync.native(require.resolve(`${dep}/package.json`, {paths: [cwd]}));
+    const depManifest = fs.realpathSync.native(
+      require.resolve(`${dep}/package.json`, {paths: [cwd]}),
+    );
     return [depManifest, require(depManifest)];
   } catch (err) {
     // if its an export map issue, move on to our manual resolver.

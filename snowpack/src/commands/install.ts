@@ -184,7 +184,9 @@ function resolveWebDependency(dep: string): DependencyLoc {
   try {
     return {
       type: 'JS',
-      loc: fs.realpathSync.native(require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint))),
+      loc: fs.realpathSync.native(
+        require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
+      ),
     };
   } catch (err) {
     // Type only packages! Some packages are purely for TypeScript (ex: csstypes).
