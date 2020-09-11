@@ -1,5 +1,0 @@
-[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
-[snowpack]
-  ⦿ web_modules/             size       gzip       brotli
-    └─ node-env-mock-pkg.js    XXXX KB    XXXX KB    XXXX KB

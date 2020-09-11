@@ -1,3 +1,0 @@
-! XXX/package.json
-    - snowpack.install is not of a type(s) array
-    See https://www.snowpack.dev/#configuration for more info.

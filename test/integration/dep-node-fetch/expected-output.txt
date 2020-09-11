@@ -1,7 +1,0 @@
-[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
-[snowpack]
-  ⦿ web_modules/                   size       gzip       brotli
-    ├─ dep-node-fetch-mock-pkg.js    XXXX KB    XXXX KB    XXXX KB
-    ├─ node-fetch.js    XXXX KB    XXXX KB    XXXX KB
-    └─ whatwg-fetch.js    XXXX KB    XXXX KB    XXXX KB
