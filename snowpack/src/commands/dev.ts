@@ -29,7 +29,7 @@ import isCompressible from 'compressible';
 import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
-import {createReadStream, existsSync, promises as fs, readFileSync, statSync} from 'fs';
+import {createReadStream, existsSync, promises as fs, statSync} from 'fs';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
@@ -76,10 +76,10 @@ import {
   replaceExt,
   resolveDependencyManifest,
   updateLockfileHash,
+  HMR_CLIENT_CODE,
 } from '../util';
 import {command as installCommand} from './install';
 import {getPort, paint, paintEvent} from './paint';
-const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
 const DEFAULT_PROXY_ERROR_HANDLER = (
   err: Error,
@@ -203,7 +203,8 @@ function getUrlFromFile(
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
-  const {port: defaultPort, hostname, open, hmr: isHmr} = config.devOptions;
+  const {port: defaultPort, hostname, open } = config.devOptions;
+  const isHmr = typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true;
 
   // Start the startup timer!
   let serverStart = performance.now();
@@ -369,7 +370,7 @@ export async function command(commandOptions: CommandOptions) {
     });
 
     if (reqPath === getMetaUrlPath('/hmr.js', config)) {
-      sendFile(req, res, HMR_DEV_CODE, reqPath, '.js');
+      sendFile(req, res, HMR_CLIENT_CODE, reqPath, '.js');
       return;
     }
     if (reqPath === getMetaUrlPath('/env.js', config)) {

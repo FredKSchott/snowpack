@@ -57,7 +57,6 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     open: 'default',
     out: 'build',
     fallback: 'index.html',
-    hmr: true,
   },
   buildOptions: {
     baseUrl: '/',

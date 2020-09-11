@@ -26,10 +26,17 @@ import {
   relativeURL,
   removeLeadingSlash,
   replaceExt,
+  HMR_CLIENT_CODE,
 } from '../util';
 import {getInstallTargets, run as installRunner} from './install';
+import { EsmHmrEngine } from '../hmr-server-engine';
 
 const CONCURRENT_WORKERS = require('os').cpus().length;
+
+let hmrEngine: EsmHmrEngine | null = null;
+function getIsHmrEnabled(config: SnowpackConfig) {
+  return config.buildOptions.watch && !!config.devOptions.hmr;
+}
 
 async function installOptimizedDependencies(
   scannedFiles: SnowpackSourceFile[],
@@ -139,7 +146,7 @@ class FileBuilder {
           case '.html': {
             code = wrapHtmlResponse({
               code,
-              hmr: false,
+              hmr: getIsHmrEnabled(this.config),
               isDev: false,
               config: this.config,
               mode: 'production',
@@ -298,6 +305,11 @@ export async function command(commandOptions: CommandOptions) {
 
   // Write the `import.meta.env` contents file to disk
   await fs.writeFile(path.join(internalFilesBuildLoc, 'env.js'), generateEnvModule('production'));
+  if (getIsHmrEnabled(config)) {
+    await fs.writeFile(path.resolve(internalFilesBuildLoc, 'hmr.js'), HMR_CLIENT_CODE);
+    hmrEngine = new EsmHmrEngine();
+    logger.info(`[ESM-HMR] web socket's url is ${colors.cyan(`${hmrEngine.wsUrl}`)}`);
+  }
 
   logger.info(colors.yellow('! building source…'));
   const buildStart = performance.now();
@@ -457,6 +469,10 @@ export async function command(commandOptions: CommandOptions) {
       if (allImportProxyFiles.has(builtFile)) {
         await changedPipelineFile.writeProxyToDisk(builtFile);
       }
+    }
+
+    if (hmrEngine) {
+      hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
   const watcher = chokidar.watch(
