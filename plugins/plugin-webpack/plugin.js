@@ -258,6 +258,7 @@ module.exports = function plugin(config, args) {
                           targets: presetEnvTargets,
                           bugfixes: true,
                           modules: false,
+                          compat: true,
                           useBuiltIns: "usage",
                           corejs: 3,
                         },
