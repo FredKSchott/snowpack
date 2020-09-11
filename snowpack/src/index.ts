@@ -1,5 +1,6 @@
 import * as colors from 'kleur/colors';
 import path from 'path';
+import util from 'util';
 import yargs from 'yargs-parser';
 import {addCommand, rmCommand} from './commands/add-rm';
 import {command as buildCommand} from './commands/build';
@@ -46,6 +47,13 @@ export async function cli(args: string[]) {
   const cliFlags = yargs(args, {
     array: ['install', 'env', 'exclude', 'externalPackage'],
   }) as CLIFlags;
+
+  if (cliFlags.verbose) {
+    logger.level = 'debug';
+  }
+  if (cliFlags.quiet) {
+    logger.level = 'silent';
+  }
   if (cliFlags.help) {
     printHelp();
     process.exit(0);
@@ -58,7 +66,6 @@ export async function cli(args: string[]) {
     logger.info(colors.yellow('! clearing cache...'));
     await clearCache();
   }
-
   // Load the current package manifest
   let pkgManifest: any;
   try {
@@ -68,7 +75,8 @@ export async function cli(args: string[]) {
     process.exit(1);
   }
 
-  const cmd = cliFlags['_'][2];
+  const cmd = cliFlags['_'][2] || 'install';
+  logger.debug(`run command: ${cmd}`);
 
   // Set this early -- before config loading -- so that plugins see it.
   if (cmd === 'build') {
@@ -78,16 +86,17 @@ export async function cli(args: string[]) {
     process.env.NODE_ENV = process.env.NODE_ENV || 'development';
   }
 
+  const config = loadAndValidateConfig(cliFlags, pkgManifest);
+  logger.debug(`config loaded: ${util.format(config)}`);
+  const lockfile = await readLockfile(cwd);
+  logger.debug(`lockfile ${lockfile ? 'loaded.' : 'not loaded'}`);
   const commandOptions = {
     cwd,
-    config: loadAndValidateConfig(cliFlags, pkgManifest),
-    lockfile: await readLockfile(cwd),
+    config,
+    lockfile,
     pkgManifest,
     logger,
   };
-
-  if (cliFlags.verbose) logger.level = 'debug';
-  if (cliFlags.quiet) logger.level = 'silent';
 
   if (cmd === 'add') {
     await addCommand(cliFlags['_'][3], commandOptions);
@@ -111,7 +120,7 @@ export async function cli(args: string[]) {
     await devCommand(commandOptions);
     return process.exit(0);
   }
-  if (cmd === 'install' || !cmd) {
+  if (cmd === 'install') {
     await installCommand(commandOptions);
     return process.exit(0);
   }
