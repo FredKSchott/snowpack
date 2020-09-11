@@ -227,6 +227,7 @@ module.exports = function plugin(config, args) {
                     cwd: buildDirectory,
                     configFile: false,
                     babelrc: false,
+                    compact: true,
                     presets: [
                       [
                         "@babel/preset-env",
@@ -234,7 +235,6 @@ module.exports = function plugin(config, args) {
                           targets: presetEnvTargets,
                           bugfixes: true,
                           modules: false,
-                          compat: true,
                           useBuiltIns: "usage",
                           corejs: 3,
                         },
