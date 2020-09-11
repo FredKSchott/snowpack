@@ -398,6 +398,7 @@ ${colors.dim(
   };
   if (Object.keys(installEntrypoints).length > 0) {
     try {
+      logger.debug(`building Rollup with options:\n    ${JSON.stringify(inputOptions)}`);
       const packageBundle = await rollup(inputOptions);
       logger.debug(
         `installing npm packages:\n    ${Object.keys(installEntrypoints).join('\n    ')}`,
@@ -405,6 +406,7 @@ ${colors.dim(
       if (isFatalWarningFound) {
         throw new Error(FAILED_INSTALL_MESSAGE);
       }
+      logger.debug(`writing Rollup bundle with options:\n    ${JSON.stringify(outputOptions)}`);
       await packageBundle.write(outputOptions);
     } catch (_err) {
       const err: RollupError = _err;
