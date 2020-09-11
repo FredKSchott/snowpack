@@ -258,6 +258,7 @@ module.exports = function plugin(config, args) {
                           targets: presetEnvTargets,
                           bugfixes: true,
                           modules: false,
+                          compat: true,
                           useBuiltIns: "usage",
                           corejs: 3,
                         },
@@ -266,7 +267,7 @@ module.exports = function plugin(config, args) {
                   },
                 },
                 {
-                  loader: require.resolve('@open-wc/webpack-import-meta-loader'),
+                  loader: require.resolve("./plugins/import-meta-fix.js"),
                 },
                 {
                   loader: require.resolve("./plugins/proxy-import-resolve.js"),
