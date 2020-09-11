@@ -9,7 +9,7 @@ module.exports = {
     public: '/',
     src: '/_dist_',
   },
-  plugins: ['@snowpack/plugin-react-refresh', '@snowpack/plugin-babel', '@snowpack/plugin-dotenv'],
+  plugins: ['@snowpack/plugin-babel', '@snowpack/plugin-dotenv'],
   devOptions: {},
   installOptions: {
     installTypes: isTS,

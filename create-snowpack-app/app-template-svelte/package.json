@@ -10,8 +10,8 @@
   },
   "scripts": {
     "start": "snowpack dev",
-    "build": "snowpack build",
-    "test": "jest"
+    "build": "snowpack build",    
+    "test": "web-test-runner \"src/**/*.test.js\""
   },
   "dependencies": {
     "svelte": "^3.24.0"
@@ -20,6 +20,7 @@
     "@snowpack/app-scripts-svelte": "^1.8.4",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/svelte": "^3.0.0",
+    "@web/test-runner": "^0.7.21",
     "jest": "^26.2.2",
     "snowpack": "^2.10.0",
     "svelte-check": "^1.0.0"
