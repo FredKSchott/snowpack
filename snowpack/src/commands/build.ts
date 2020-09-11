@@ -29,7 +29,7 @@ import {
   HMR_CLIENT_CODE,
 } from '../util';
 import {getInstallTargets, run as installRunner} from './install';
-import { EsmHmrEngine } from '../hmr-server-engine';
+import {EsmHmrEngine} from '../hmr-server-engine';
 
 const CONCURRENT_WORKERS = require('os').cpus().length;
 

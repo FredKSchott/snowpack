@@ -203,7 +203,7 @@ function getUrlFromFile(
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
-  const {port: defaultPort, hostname, open } = config.devOptions;
+  const {port: defaultPort, hostname, open} = config.devOptions;
   const isHmr = typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true;
 
   // Start the startup timer!
