@@ -21,6 +21,7 @@ function buildScriptPlugin(_, {input, output, cmd}) {
         env: npmRunPath.env(),
         extendEnv: true,
         shell: true,
+        windowsHide: false,
         input: contents,
         cwd,
       });
