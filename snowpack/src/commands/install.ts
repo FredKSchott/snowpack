@@ -5,6 +5,7 @@ import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginNodePolyfills from 'rollup-plugin-node-polyfills';
 import {init as initESModuleLexer} from 'es-module-lexer';
 import findUp from 'find-up';
+import util from 'util';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
@@ -398,6 +399,7 @@ ${colors.dim(
   };
   if (Object.keys(installEntrypoints).length > 0) {
     try {
+      logger.debug(`running installer with options: ${util.format(inputOptions)}`);
       const packageBundle = await rollup(inputOptions);
       logger.debug(
         `installing npm packages:\n    ${Object.keys(installEntrypoints).join('\n    ')}`,
@@ -405,6 +407,7 @@ ${colors.dim(
       if (isFatalWarningFound) {
         throw new Error(FAILED_INSTALL_MESSAGE);
       }
+      logger.debug(`writing install results to disk`);
       await packageBundle.write(outputOptions);
     } catch (_err) {
       const err: RollupError = _err;
