@@ -2,6 +2,7 @@ const path = require('path');
 const execa = require('execa');
 const {readdirSync, readFileSync, statSync, existsSync} = require('fs');
 const glob = require('glob');
+const os = require('os');
 
 const STRIP_WHITESPACE = /((\s+$)|((\\r\\n)|(\\n)))/gm;
 const STRIP_REV = /\?rev=\w+/gm;
@@ -29,7 +30,8 @@ describe('snowpack build', () => {
       }
 
       // build test
-      execa.sync('yarn', ['testbuild'], {cwd});
+      const capitalize = testName === 'entrypoint-ids' && os.platform() === 'win32';
+      execa.sync('yarn', ['testbuild'], {cwd: capitalize ? cwd.toUpperCase() : cwd});
       const actual =
         testName === 'config-out' ? path.join(cwd, 'TEST_BUILD_OUT') : path.join(cwd, 'build');
 
