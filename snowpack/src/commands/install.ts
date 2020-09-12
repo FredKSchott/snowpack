@@ -30,6 +30,7 @@ import {printStats} from '../stats-formatter.js';
 import {
   CommandOptions,
   DependencyStatsOutput,
+  EnvVarReplacements,
   ImportMap,
   InstallTarget,
   SnowpackConfig,
@@ -202,6 +203,24 @@ function resolveWebDependency(dep: string): DependencyLoc {
   }
 }
 
+function generateEnvObject(userEnv: EnvVarReplacements) : Object {
+  return {
+    NODE_ENV: process.env.NODE_ENV || 'production',
+    ...Object.keys(userEnv).reduce((acc, key) => {
+      const value = userEnv[key];
+      acc[key] = value === true ? process.env[key] : value;
+      return acc;
+    }, {})
+  };
+}
+
+function generateEnvReplacements(env: Object) : {[key: string]: string} {
+  return Object.keys(env).reduce((acc, key) => {
+    acc[`process.env.${key}`] = JSON.stringify(env[key]);
+    return acc;
+  }, {});
+}
+
 interface InstallOptions {
   lockfile: ImportMap | null;
   config: SnowpackConfig;
@@ -234,14 +253,7 @@ export async function install(
     },
   } = config;
 
-  const env = {
-    NODE_ENV: process.env.NODE_ENV || 'production',
-    ...Object.keys(userEnv).reduce((acc, key) => {
-      const value = userEnv[key];
-      acc[key] = value === true ? process.env[key] : value;
-      return acc;
-    }, {})
-  };
+  const env = generateEnvObject(userEnv);
 
   const nodeModulesInstalled = findUp.sync('node_modules', {cwd, type: 'directory'});
   if (!webDependencies && !(process.versions as any).pnp && !nodeModulesInstalled) {
@@ -352,12 +364,7 @@ ${colors.dim(
         namedExports: true,
       }),
       rollupPluginCss(),
-      rollupPluginReplace(
-        Object.keys(env).reduce((acc, key) => {
-          acc[`process.env.${key}`] = JSON.stringify(env[key]);
-          return acc;
-        }, {})
-      ),
+      rollupPluginReplace(generateEnvReplacements(env)),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
         externalEsm: process.env.EXTERNAL_ESM_PACKAGES || [],
