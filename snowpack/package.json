@@ -16,6 +16,8 @@
     "build": "pika build",
     "version": "pika build"
   },
+  "types": "pkg/dist-types/index.d.ts",
+  "main": "pkg/dist-node/index.js",
   "bin": {
     "sp": "pkg/dist-node/index.bin.js",
     "snowpack": "pkg/dist-node/index.bin.js"
