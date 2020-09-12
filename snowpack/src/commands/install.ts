@@ -203,18 +203,18 @@ function resolveWebDependency(dep: string): DependencyLoc {
   }
 }
 
-function generateEnvObject(userEnv: EnvVarReplacements) : Object {
+function generateEnvObject(userEnv: EnvVarReplacements): Object {
   return {
     NODE_ENV: process.env.NODE_ENV || 'production',
     ...Object.keys(userEnv).reduce((acc, key) => {
       const value = userEnv[key];
       acc[key] = value === true ? process.env[key] : value;
       return acc;
-    }, {})
+    }, {}),
   };
 }
 
-function generateEnvReplacements(env: Object) : {[key: string]: string} {
+function generateEnvReplacements(env: Object): {[key: string]: string} {
   return Object.keys(env).reduce((acc, key) => {
     acc[`process.env.${key}`] = JSON.stringify(env[key]);
     return acc;
