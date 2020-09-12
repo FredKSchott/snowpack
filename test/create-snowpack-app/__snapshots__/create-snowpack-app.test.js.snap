@@ -10546,7 +10546,7 @@ function flushJobs(seen) {
         for (flushIndex = 0; flushIndex < queue.length; flushIndex++) {
             const job = queue[flushIndex];
             if (job) {
-                if (('production' !== 'production')) ;
+                if ((\\"production\\" !== 'production')) ;
                 callWithErrorHandling(job, null, 14 /* SCHEDULER */);
             }
         }
@@ -10612,9 +10612,9 @@ function renderComponentRoot(instance) {
             // functional
             const render = Component;
             // in dev, mark attrs accessed if optional props (attrs === props)
-            if (('production' !== 'production') && attrs === props) ;
+            if ((\\"production\\" !== 'production') && attrs === props) ;
             result = normalizeVNode(render.length > 1
-                ? render(props, ('production' !== 'production')
+                ? render(props, (\\"production\\" !== 'production')
                     ? {
                         get attrs() {
                             markAttrsAccessed();
@@ -10634,7 +10634,7 @@ function renderComponentRoot(instance) {
         // to have comments along side the root element which makes it a fragment
         let root = result;
         let setRoot = undefined;
-        if (('production' !== 'production')) ;
+        if ((\\"production\\" !== 'production')) ;
         if (Component.inheritAttrs !== false && fallthroughAttrs) {
             const keys = Object.keys(fallthroughAttrs);
             const { shapeFlag } = root;
@@ -10649,7 +10649,7 @@ function renderComponentRoot(instance) {
                     }
                     root = cloneVNode(root, fallthroughAttrs);
                 }
-                else if (('production' !== 'production') && !accessedAttrs && root.type !== Comment) ;
+                else if ((\\"production\\" !== 'production') && !accessedAttrs && root.type !== Comment) ;
             }
         }
         // inherit scopeId
@@ -10670,15 +10670,15 @@ function renderComponentRoot(instance) {
         }
         // inherit directives
         if (vnode.dirs) {
-            if (('production' !== 'production') && !isElementRoot(root)) ;
+            if ((\\"production\\" !== 'production') && !isElementRoot(root)) ;
             root.dirs = vnode.dirs;
         }
         // inherit transition data
         if (vnode.transition) {
-            if (('production' !== 'production') && !isElementRoot(root)) ;
+            if ((\\"production\\" !== 'production') && !isElementRoot(root)) ;
             root.transition = vnode.transition;
         }
-        if (('production' !== 'production') && setRoot) ;
+        if ((\\"production\\" !== 'production') && setRoot) ;
         else {
             result = root;
         }

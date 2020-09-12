@@ -11707,11 +11707,11 @@ var config = ({
   /**
    * Show production mode tip message on boot?
    */
-  productionTip: 'test' !== 'production',
+  productionTip: \\"test\\" !== 'production',
   /**
    * Whether to enable devtools
    */
-  devtools: 'test' !== 'production',
+  devtools: \\"test\\" !== 'production',
   /**
    * Whether to record perf
    */
@@ -12595,7 +12595,7 @@ strats.computed = function (
   vm,
   key
 ) {
-  if (childVal && 'test' !== 'production') {
+  if (childVal && \\"test\\" !== 'production') {
     assertObjectType(key, childVal, vm);
   }
   if (!parentVal) { return childVal }

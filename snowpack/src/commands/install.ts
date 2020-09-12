@@ -238,7 +238,8 @@ export async function install(
     NODE_ENV: process.env.NODE_ENV || 'production',
     ...Object.keys(userEnv).reduce((acc, key) => {
       const value = userEnv[key];
-      return {...acc, [key]: value === true ? process.env[key] : value};
+      acc[key] = value === true ? process.env[key] : value;
+      return acc;
     }, {})
   };
 
@@ -352,7 +353,10 @@ ${colors.dim(
       }),
       rollupPluginCss(),
       rollupPluginReplace(
-        Object.keys(env).reduce((acc, key) => ({...acc, [`process.env.${key}`]: `'${env[key]}'`}), {})
+        Object.keys(env).reduce((acc, key) => {
+          acc[`process.env.${key}`] = JSON.stringify(env[key]);
+          return acc;
+        }, {})
       ),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
