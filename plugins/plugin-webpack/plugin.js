@@ -154,7 +154,7 @@ function getSplitChunksConfig({ numEntries }) {
   };
 }
 
-module.exports = function plugin(config, args) {
+module.exports = function plugin(config, args = {}) {
   // Deprecated: args.mode
   if (args.mode && args.mode !== "production") {
     throw new Error("args.mode support has been removed.");

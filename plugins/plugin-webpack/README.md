@@ -2,20 +2,35 @@
 
 Use Webpack to bundle your application for production.
 
+### Install
+
 ```
 npm install --save-dev @snowpack/plugin-webpack
 ```
 
-```js
-// snowpack.config.json
+### Usage
+
+Add `@snowpack/plugin-webpack` to `snowpack.config.json`:
+
+```json
 {
-  "plugins": [["@snowpack/plugin-webpack", { /* see "Plugin Options" below */}]]
+  "plugins": [["@snowpack/plugin-webpack", { /* see "Plugin Options" below */ }]]
 }
 ```
 
-#### Default Build Script
+or to `snowpack.config.js`:
 
 ```js
+module.exports = {
+  plugins: [["@snowpack/plugin-webpack", { /* see "Plugin Options" below */ }]]
+}
+```
+
+The options object is optional.
+
+### Default Build Script
+
+```json
 {
   "scripts": {"bundle:*": "@snowpack/plugin-webpack"}
 }
