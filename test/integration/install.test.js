@@ -79,22 +79,14 @@ describe('snowpack install', () => {
         reject: false,
         all: true,
       });
-      // Test Output
-      let expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
-      if (process.platform === 'win32') {
-        const expectedWinOutputLoc = path.resolve(expectedOutputLoc, '../expected-output.win.txt');
-        if (existsSync(expectedWinOutputLoc)) {
-          expectedOutputLoc = expectedWinOutputLoc;
-        }
-      }
-      const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
-      expect(
-        stripWhitespace(
-          stripConfigErrorPath(
-            stripResolveErrorPath(stripBenchmark(stripChunkHash(stripStats(stripStacktrace(all))))),
-          ),
+      const actualOutput = stripWhitespace(
+        stripConfigErrorPath(
+          stripResolveErrorPath(stripBenchmark(stripChunkHash(stripStats(stripStacktrace(all))))),
         ),
-      ).toBe(stripWhitespace(expectedOutput));
+      );
+
+      // Test output
+      expect(actualOutput).toMatchSnapshot('output');
 
       // Test Lockfile (if one exists)
       const expectedLockLoc = path.join(__dirname, testName, 'expected-lock.json');

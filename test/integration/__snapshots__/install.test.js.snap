@@ -20,6 +20,15 @@ exports[`snowpack install config-alias: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install config-alias: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/                                          size       gzip       brotli
+    ├─ preact/compat.js    XXXX KB    XXXX KB    XXXX KB
+    └─ vue-currency-input/dist/vue-currency-input.esm.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install config-alias: preact/compat.js 1`] = `
 "var n,u,i,t,o,r,f={},e=[],c=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;function s(n,l){for(var u in l)n[u]=l[u];return n}function a(n){var l=n.parentNode;l&&l.removeChild(n);}function v(n,l,u){var i,t,o,r=arguments,f={};for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);if(null!=u&&(f.children=u),\\"function\\"==typeof n&&null!=n.defaultProps)for(o in n.defaultProps)void 0===f[o]&&(f[o]=n.defaultProps[o]);return h(n,f,i,t,null)}function h(l,u,i,t,o){var r={type:l,props:u,key:i,ref:t,__k:null,__:null,__b:0,__e:null,__d:void 0,__c:null,constructor:void 0,__v:o};return null==o&&(r.__v=r),null!=n.vnode&&n.vnode(r),r}function y(){return {current:null}}function p(n){return n.children}function d(n,l){this.props=n,this.context=l;}function _(n,l){if(null==l)return n.__?_(n.__,n.__.__k.indexOf(n)+1):null;for(var u;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e)return u.__e;return \\"function\\"==typeof n.type?_(n):null}function w(n){var l,u;if(null!=(n=n.__)&&null!=n.__c){for(n.__e=n.__c.base=null,l=0;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e){n.__e=n.__c.base=u.__e;break}return w(n)}}function k(l){(!l.__d&&(l.__d=!0)&&u.push(l)&&!m.__r++||t!==n.debounceRendering)&&((t=n.debounceRendering)||i)(m);}function m(){for(var n;m.__r=u.length;)n=u.sort(function(n,l){return n.__v.__b-l.__v.__b}),u=[],n.some(function(n){var l,u,i,t,o,r,f;n.__d&&(r=(o=(l=n).__v).__e,(f=l.__P)&&(u=[],(i=s({},o)).__v=i,t=T(f,o,i,l.__n,void 0!==f.ownerSVGElement,null,u,null==r?_(o):r),$(u,o),t!=r&&w(o)));});}function g(n,l,u,i,t,o,r,c,s,v){var y,d,w,k,m,g,b,A=i&&i.__k||e,P=A.length;for(s==f&&(s=null!=r?r[0]:P?_(i,0):null),u.__k=[],y=0;y<l.length;y++)if(null!=(k=u.__k[y]=null==(k=l[y])||\\"boolean\\"==typeof k?null:\\"string\\"==typeof k||\\"number\\"==typeof k?h(null,k,null,null,k):Array.isArray(k)?h(p,{children:k},null,null,null):null!=k.__e||null!=k.__c?h(k.type,k.props,k.key,null,k.__v):k)){if(k.__=u,k.__b=u.__b+1,null===(w=A[y])||w&&k.key==w.key&&k.type===w.type)A[y]=void 0;else for(d=0;d<P;d++){if((w=A[d])&&k.key==w.key&&k.type===w.type){A[d]=void 0;break}w=null;}m=T(n,k,w=w||f,t,o,r,c,s,v),(d=k.ref)&&w.ref!=d&&(b||(b=[]),w.ref&&b.push(w.ref,null,k),b.push(d,k.__c||m,k)),null!=m?(null==g&&(g=m),s=x(n,k,w,A,r,m,s),v||\\"option\\"!=u.type?\\"function\\"==typeof u.type&&(u.__d=s):n.value=\\"\\"):s&&w.__e==s&&s.parentNode!=n&&(s=_(w));}if(u.__e=g,null!=r&&\\"function\\"!=typeof u.type)for(y=r.length;y--;)null!=r[y]&&a(r[y]);for(y=P;y--;)null!=A[y]&&I(A[y],A[y]);if(b)for(y=0;y<b.length;y++)H(b[y],b[++y],b[++y]);}function b(n,l){return l=l||[],null==n||\\"boolean\\"==typeof n||(Array.isArray(n)?n.some(function(n){b(n,l);}):l.push(n)),l}function x(n,l,u,i,t,o,r){var f,e,c;if(void 0!==l.__d)f=l.__d,l.__d=void 0;else if(t==u||o!=r||null==o.parentNode)n:if(null==r||r.parentNode!==n)n.appendChild(o),f=null;else {for(e=r,c=0;(e=e.nextSibling)&&c<i.length;c+=2)if(e==o)break n;n.insertBefore(o,r),f=r;}return void 0!==f?f:o.nextSibling}function A(n,l,u,i,t){var o;for(o in u)\\"children\\"===o||\\"key\\"===o||o in l||C(n,o,null,u[o],i);for(o in l)t&&\\"function\\"!=typeof l[o]||\\"children\\"===o||\\"key\\"===o||\\"value\\"===o||\\"checked\\"===o||u[o]===l[o]||C(n,o,l[o],u[o],i);}function P(n,l,u){\\"-\\"===l[0]?n.setProperty(l,u):n[l]=null==u?\\"\\":\\"number\\"!=typeof u||c.test(l)?u:u+\\"px\\";}function C(n,l,u,i,t){var o,r;if(t&&\\"className\\"==l&&(l=\\"class\\"),\\"style\\"===l)if(\\"string\\"==typeof u)n.style=u;else {if(\\"string\\"==typeof i&&(n.style=i=\\"\\"),i)for(l in i)u&&l in u||P(n.style,l,\\"\\");if(u)for(l in u)i&&u[l]===i[l]||P(n.style,l,u[l]);}else \\"o\\"===l[0]&&\\"n\\"===l[1]?(o=l!==(l=l.replace(/Capture$/,\\"\\")),(r=l.toLowerCase())in n&&(l=r),l=l.slice(2),n.l||(n.l={}),n.l[l]=u,u?i||n.addEventListener(l,z,o):n.removeEventListener(l,z,o)):\\"list\\"!==l&&\\"tagName\\"!==l&&\\"form\\"!==l&&\\"type\\"!==l&&\\"size\\"!==l&&\\"download\\"!==l&&\\"href\\"!==l&&!t&&l in n?n[l]=null==u?\\"\\":u:\\"function\\"!=typeof u&&\\"dangerouslySetInnerHTML\\"!==l&&(l!==(l=l.replace(/xlink:?/,\\"\\"))?null==u||!1===u?n.removeAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase()):n.setAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase(),u):null==u||!1===u&&!/^ar/.test(l)?n.removeAttribute(l):n.setAttribute(l,u));}function z(l){this.l[l.type](n.event?n.event(l):l);}function N(n,l,u){var i,t;for(i=0;i<n.__k.length;i++)(t=n.__k[i])&&(t.__=n,t.__e&&(\\"function\\"==typeof t.type&&t.__k.length>1&&N(t,l,u),l=x(u,t,t,n.__k,null,t.__e,l),\\"function\\"==typeof n.type&&(n.__d=l)));}function T(l,u,i,t,o,r,f,e,c){var a,v,h,y,_,w,k,m,b,x,A,P=u.type;if(void 0!==u.constructor)return null;(a=n.__b)&&a(u);try{n:if(\\"function\\"==typeof P){if(m=u.props,b=(a=P.contextType)&&t[a.__c],x=a?b?b.props.value:a.__:t,i.__c?k=(v=u.__c=i.__c).__=v.__E:(\\"prototype\\"in P&&P.prototype.render?u.__c=v=new P(m,x):(u.__c=v=new d(m,x),v.constructor=P,v.render=L),b&&b.sub(v),v.props=m,v.state||(v.state={}),v.context=x,v.__n=t,h=v.__d=!0,v.__h=[]),null==v.__s&&(v.__s=v.state),null!=P.getDerivedStateFromProps&&(v.__s==v.state&&(v.__s=s({},v.__s)),s(v.__s,P.getDerivedStateFromProps(m,v.__s))),y=v.props,_=v.state,h)null==P.getDerivedStateFromProps&&null!=v.componentWillMount&&v.componentWillMount(),null!=v.componentDidMount&&v.__h.push(v.componentDidMount);else {if(null==P.getDerivedStateFromProps&&m!==y&&null!=v.componentWillReceiveProps&&v.componentWillReceiveProps(m,x),!v.__e&&null!=v.shouldComponentUpdate&&!1===v.shouldComponentUpdate(m,v.__s,x)||u.__v===i.__v){v.props=m,v.state=v.__s,u.__v!==i.__v&&(v.__d=!1),v.__v=u,u.__e=i.__e,u.__k=i.__k,v.__h.length&&f.push(v),N(u,e,l);break n}null!=v.componentWillUpdate&&v.componentWillUpdate(m,v.__s,x),null!=v.componentDidUpdate&&v.__h.push(function(){v.componentDidUpdate(y,_,w);});}v.context=x,v.props=m,v.state=v.__s,(a=n.__r)&&a(u),v.__d=!1,v.__v=u,v.__P=l,a=v.render(v.props,v.state,v.context),v.state=v.__s,null!=v.getChildContext&&(t=s(s({},t),v.getChildContext())),h||null==v.getSnapshotBeforeUpdate||(w=v.getSnapshotBeforeUpdate(y,_)),A=null!=a&&a.type==p&&null==a.key?a.props.children:a,g(l,Array.isArray(A)?A:[A],u,i,t,o,r,f,e,c),v.base=u.__e,v.__h.length&&f.push(v),k&&(v.__E=v.__=null),v.__e=!1;}else null==r&&u.__v===i.__v?(u.__k=i.__k,u.__e=i.__e):u.__e=j(i.__e,u,i,t,o,r,f,c);(a=n.diffed)&&a(u);}catch(l){u.__v=null,n.__e(l,u,i);}return u.__e}function $(l,u){n.__c&&n.__c(u,l),l.some(function(u){try{l=u.__h,u.__h=[],l.some(function(n){n.call(u);});}catch(l){n.__e(l,u.__v);}});}function j(n,l,u,i,t,o,r,c){var s,a,v,h,y,p=u.props,d=l.props;if(t=\\"svg\\"===l.type||t,null!=o)for(s=0;s<o.length;s++)if(null!=(a=o[s])&&((null===l.type?3===a.nodeType:a.localName===l.type)||n==a)){n=a,o[s]=null;break}if(null==n){if(null===l.type)return document.createTextNode(d);n=t?document.createElementNS(\\"http://www.w3.org/2000/svg\\",l.type):document.createElement(l.type,d.is&&{is:d.is}),o=null,c=!1;}if(null===l.type)p!==d&&n.data!==d&&(n.data=d);else {if(null!=o&&(o=e.slice.call(n.childNodes)),v=(p=u.props||f).dangerouslySetInnerHTML,h=d.dangerouslySetInnerHTML,!c){if(null!=o)for(p={},y=0;y<n.attributes.length;y++)p[n.attributes[y].name]=n.attributes[y].value;(h||v)&&(h&&v&&h.__html==v.__html||(n.innerHTML=h&&h.__html||\\"\\"));}A(n,d,p,t,c),h?l.__k=[]:(s=l.props.children,g(n,Array.isArray(s)?s:[s],l,u,i,\\"foreignObject\\"!==l.type&&t,o,r,f,c)),c||(\\"value\\"in d&&void 0!==(s=d.value)&&s!==n.value&&C(n,\\"value\\",s,p.value,!1),\\"checked\\"in d&&void 0!==(s=d.checked)&&s!==n.checked&&C(n,\\"checked\\",s,p.checked,!1));}return n}function H(l,u,i){try{\\"function\\"==typeof l?l(u):l.current=u;}catch(l){n.__e(l,i);}}function I(l,u,i){var t,o,r;if(n.unmount&&n.unmount(l),(t=l.ref)&&(t.current&&t.current!==l.__e||H(t,null,u)),i||\\"function\\"==typeof l.type||(i=null!=(o=l.__e)),l.__e=l.__d=void 0,null!=(t=l.__c)){if(t.componentWillUnmount)try{t.componentWillUnmount();}catch(l){n.__e(l,u);}t.base=t.__P=null;}if(t=l.__k)for(r=0;r<t.length;r++)t[r]&&I(t[r],u,i);null!=o&&a(o);}function L(n,l,u){return this.constructor(n,u)}function M(l,u,i){var t,r,c;n.__&&n.__(l,u),r=(t=i===o)?null:i&&i.__k||u.__k,l=v(p,null,[l]),c=[],T(u,(t?u:i||u).__k=l,r||f,f,void 0!==u.ownerSVGElement,i&&!t?[i]:r?null:u.childNodes.length?e.slice.call(u.childNodes):null,c,i||f,t),$(c,l);}function O(n,l){M(n,l,o);}function S(n,l,u){var i,t,o,r=arguments,f=s({},n.props);for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);return null!=u&&(f.children=u),h(n.type,f,i||n.key,t||n.ref,null)}function q(n,l){var u={__c:l=\\"__cC\\"+r++,__:n,Consumer:function(n,l){return n.children(l)},Provider:function(n,u,i){return this.getChildContext||(u=[],(i={})[l]=this,this.getChildContext=function(){return i},this.shouldComponentUpdate=function(n){this.props.value!==n.value&&u.some(k);},this.sub=function(n){u.push(n);var l=n.componentWillUnmount;n.componentWillUnmount=function(){u.splice(u.indexOf(n),1),l&&l.call(n);};}),n.children}};return u.Provider.__=u.Consumer.contextType=u}n={__e:function(n,l){for(var u,i;l=l.__;)if((u=l.__c)&&!u.__)try{if(u.constructor&&null!=u.constructor.getDerivedStateFromError&&(i=!0,u.setState(u.constructor.getDerivedStateFromError(n))),null!=u.componentDidCatch&&(i=!0,u.componentDidCatch(n)),i)return k(u.__E=u)}catch(l){n=l;}throw n}},d.prototype.setState=function(n,l){var u;u=null!=this.__s&&this.__s!==this.state?this.__s:this.__s=s({},this.state),\\"function\\"==typeof n&&(n=n(s({},u),this.props)),n&&s(u,n),null!=n&&this.__v&&(l&&this.__h.push(l),k(this));},d.prototype.forceUpdate=function(n){this.__v&&(this.__e=!0,n&&this.__h.push(n),k(this));},d.prototype.render=p,u=[],i=\\"function\\"==typeof Promise?Promise.prototype.then.bind(Promise.resolve()):setTimeout,m.__r=0,o=f,r=0;
 var t$1,u$1,r$1,o$1=0,i$1=[],c$1=n.__r,f$1=n.diffed,e$1=n.__c,a$1=n.unmount;function v$1(t,r){n.__h&&n.__h(u$1,t,o$1||r),o$1=0;var i=u$1.__H||(u$1.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m$1(n){return o$1=1,p$1(k$1,n)}function p$1(n,r,o){var i=v$1(t$1++,2);return i.t=n,i.__c||(i.__c=u$1,i.__=[o?o(r):k$1(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}]),i.__}function y$1(r,o){var i=v$1(t$1++,3);!n.__s&&j$1(i.__H,o)&&(i.__=r,i.__H=o,u$1.__H.__h.push(i));}function l(r,o){var i=v$1(t$1++,4);!n.__s&&j$1(i.__H,o)&&(i.__=r,i.__H=o,u$1.__h.push(i));}function h$1(n){return o$1=5,_$1(function(){return {current:n}},[])}function s$1(n,t,u){o$1=6,l(function(){\\"function\\"==typeof n?n(t()):n&&(n.current=t());},null==u?u:u.concat(n));}function _$1(n,u){var r=v$1(t$1++,7);return j$1(r.__H,u)?(r.__H=u,r.__h=n,r.__=n()):r.__}function A$1(n,t){return o$1=8,_$1(function(){return n},t)}function F(n){var r=u$1.context[n.__c],o=v$1(t$1++,9);return o.__c=n,r?(null==o.__&&(o.__=!0,r.sub(u$1)),r.props.value):n.__}function T$1(t,u){n.useDebugValue&&n.useDebugValue(u?u(t):t);}function d$1(n){var r=v$1(t$1++,10),o=m$1();return r.__=n,u$1.componentDidCatch||(u$1.componentDidCatch=function(n){r.__&&r.__(n),o[1](n);}),[o[0],function(){o[1](void 0);}]}function q$1(){i$1.some(function(t){if(t.__P)try{t.__H.__h.forEach(b$1),t.__H.__h.forEach(g$1),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i$1=[];}n.__r=function(n){c$1&&c$1(n),t$1=0;var r=(u$1=n.__c).__H;r&&(r.__h.forEach(b$1),r.__h.forEach(g$1),r.__h=[]);},n.diffed=function(t){f$1&&f$1(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i$1.push(u)&&r$1===n.requestAnimationFrame||((r$1=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x$1&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x$1&&(t=requestAnimationFrame(u));})(q$1));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b$1),t.__h=t.__h.filter(function(n){return !n.__||g$1(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e$1&&e$1(t,u);},n.unmount=function(t){a$1&&a$1(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b$1);}catch(t){n.__e(t,u.__v);}};var x$1=\\"function\\"==typeof requestAnimationFrame;function b$1(n){\\"function\\"==typeof n.u&&n.u();}function g$1(n){n.u=n.__();}function j$1(n,t){return !n||t.some(function(t,u){return t!==n[u]})}function k$1(n,t){return \\"function\\"==typeof t?t(n):t}
@@ -625,6 +634,14 @@ exports[`snowpack install config-custom-path: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install config-custom-path: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/         size       gzip       brotli
+    └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install config-extends: allFiles 1`] = `
 Array [
   "array-flatten.js",
@@ -668,6 +685,14 @@ exports[`snowpack install config-extends: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install config-extends: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/         size       gzip       brotli
+    └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install config-external: allFiles 1`] = `
 Array [
   "config-external-pkg-a.js",
@@ -687,6 +712,14 @@ exports[`snowpack install config-external: import-map.json 1`] = `
     \\"config-external-pkg-a\\": \\"./config-external-pkg-a.js\\"
   }
 }"
+`;
+
+exports[`snowpack install config-external: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/                 size       gzip       brotli
+    └─ config-external-pkg-a.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install config-named-exports: allFiles 1`] = `
@@ -713,6 +746,14 @@ exports[`snowpack install config-named-exports: import-map.json 1`] = `
     \\"cjs-named-export-pkg\\": \\"./cjs-named-export-pkg.js\\"
   }
 }"
+`;
+
+exports[`snowpack install config-named-exports: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/                size       gzip       brotli
+    └─ cjs-named-export-pkg.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install config-polyfill-node: allFiles 1`] = `
@@ -948,6 +989,14 @@ console.log(path$1);
 export { FOO };"
 `;
 
+exports[`snowpack install config-polyfill-node: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/            size       gzip       brotli
+    └─ node-builtin-pkg.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install config-rollup: allFiles 1`] = `
 Array [
   "import-map.json",
@@ -963,6 +1012,15 @@ exports[`snowpack install config-rollup: import-map.json 1`] = `
     \\"svelte/internal\\": \\"./svelte/internal.js\\"
   }
 }"
+`;
+
+exports[`snowpack install config-rollup: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/           size       gzip       brotli
+    ├─ svelte-routing.js    XXXX KB    XXXX KB    XXXX KB
+    └─ svelte/internal.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install config-rollup: svelte/internal.js 1`] = `
@@ -3777,6 +3835,14 @@ exports[`snowpack install config-with-cli-flags: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install config-with-cli-flags: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/         size       gzip       brotli
+    └─ shallow-equal.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install config-with-cli-flags: shallow-equal.js 1`] = `
 "function shallowEqualObjects(objA, objB) {
   if (objA === objB) {
@@ -3837,6 +3903,15 @@ exports[`snowpack install dep-browser-entrypoint-object: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install dep-browser-entrypoint-object: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/             size       gzip       brotli
+    ├─ package-has-valid.js    XXXX KB    XXXX KB    XXXX KB
+    └─ package-no-valid.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install dep-browser-entrypoint-object: package-has-valid.js 1`] = `
 "const foobar = 42;
 export { foobar };"
@@ -3864,6 +3939,16 @@ exports[`snowpack install dep-exports: import-map.json 1`] = `
     \\"preact/hooks\\": \\"./preact/hooks.js\\"
   }
 }"
+`;
+
+exports[`snowpack install dep-exports: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/        size       gzip       brotli
+    ├─ preact.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ preact/debug.js    XXXX KB    XXXX KB    XXXX KB
+    └─ preact/hooks.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install dep-exports: preact.js 1`] = `
@@ -6358,6 +6443,14 @@ exports[`snowpack install dep-list-complex: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install dep-list-complex: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/     size       gzip       brotli
+    └─ dat.gui.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install dep-list-css: allFiles 1`] = `
 Array [
   "css-mock-pkg-a/index.css",
@@ -6373,6 +6466,11 @@ exports[`snowpack install dep-list-css: import-map.json 1`] = `
     \\"css-mock-pkg-b/index.css\\": \\"./css-mock-pkg-b/index.css\\"
   }
 }"
+`;
+
+exports[`snowpack install dep-list-css: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete"
 `;
 
 exports[`snowpack install dep-list-simple: allFiles 1`] = `
@@ -11041,6 +11139,14 @@ exports[`snowpack install dep-list-simple: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install dep-list-simple: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/     size       gzip       brotli
+    └─ async.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install dep-node-fetch: allFiles 1`] = `
 Array [
   "dep-node-fetch-mock-pkg.js",
@@ -11122,6 +11228,16 @@ export default index;
 export { Headers, Request, Response };"
 `;
 
+exports[`snowpack install dep-node-fetch: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/                   size       gzip       brotli
+    ├─ dep-node-fetch-mock-pkg.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ node-fetch.js    XXXX KB    XXXX KB    XXXX KB
+    └─ whatwg-fetch.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install dep-node-fetch: whatwg-fetch.js 1`] = `
 "// native patch for: node-fetch, whatwg-fetch
 // ref: https://github.com/tc39/proposal-global
@@ -11155,12 +11271,80 @@ exports[`snowpack install dep-remote-url: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install dep-remote-url: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/          size       gzip       brotli
+    └─ remote-url-pkg.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install dep-remote-url: remote-url-pkg.js 1`] = `
 "import pkg from 'http://example.com/FAKE_IMPORT_URL';
 export * from 'https://example.com/FAKE_IMPORT_URL';
 console.log(pkg);
 const foo = 'bar';
 export { foo };"
+`;
+
+exports[`snowpack install error-config-invalid: output 1`] = `
+"! XXX/package.json
+    - snowpack.install is not of a type(s) array
+    See https://www.snowpack.dev/#configuration for more info."
+`;
+
+exports[`snowpack install error-dep-types-only: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] No ESM dependencies found!
+  At least one dependency must have an ESM \\"module\\" entrypoint. You can find modern, web-ready packages at https://www.pika.dev
+[snowpack] install skipped (nothing to install)"
+`;
+
+exports[`snowpack install error-empty-dep-list: output 1`] = `"[snowpack] Nothing to install."`;
+
+exports[`snowpack install error-file-ext: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] Failed to load ../../../node_modules/error-file-ext-dep-b/index.vue
+  Try installing rollup-plugin-vue and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)
+[snowpack] Install failed."
+`;
+
+exports[`snowpack install error-illegal-env-var: output 1`] = `
+"! XXX/package.json
+    - snowpack.installOptions.env.FOO is not exactly one from <EnvVarString>,<EnvVarNumber>,<EnvVarTrue>
+    See https://www.snowpack.dev/#configuration for more info."
+`;
+
+exports[`snowpack install error-include-ignore-unsupported-files: output 1`] = `"[snowpack] Nothing to install."`;
+
+exports[`snowpack install error-missing-dep: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] Package \\"fake-module\\" not found. Have you installed it?
+[snowpack] Install failed."
+`;
+
+exports[`snowpack install error-missing-exports: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] Package \\"preact\\" exists but package.json \\"exports\\" does not include entry for \\"./debug/src/check-props\\"."
+`;
+
+exports[`snowpack install error-no-dep-list: output 1`] = `"[snowpack] Nothing to install."`;
+
+exports[`snowpack install error-node-builtin-unresolved: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ../../../node_modules/bad-node-builtin-pkg/entrypoint.js
+   Module \\"http\\" (Node.js built-in) is not available in the browser. Run Snowpack with --polyfill-node to fix.
+[snowpack] Install failed."
+`;
+
+exports[`snowpack install error-react-source-pika: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] React workaround packages no longer needed! Revert to the official React & React-DOM packages."
+`;
+
+exports[`snowpack install error-react-workaround: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] React workaround packages no longer needed! Revert back to the official React & React-DOM packages."
 `;
 
 exports[`snowpack install exclude: allFiles 1`] = `
@@ -11178,6 +11362,15 @@ exports[`snowpack install exclude: import-map.json 1`] = `
     \\"vue-router\\": \\"./vue-router.js\\"
   }
 }"
+`;
+
+exports[`snowpack install exclude: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/      size       gzip       brotli
+    ├─ vue-router.js    XXXX KB    XXXX KB    XXXX KB
+    └─ vue.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install exclude: vue.js 1`] = `
@@ -21675,6 +21868,14 @@ exports[`snowpack install exclude-external-packages: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install exclude-external-packages: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/         size       gzip       brotli
+    └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install export-maps: allFiles 1`] = `
 Array [
   "import-map.json",
@@ -21688,6 +21889,14 @@ exports[`snowpack install export-maps: import-map.json 1`] = `
     \\"preact\\": \\"./preact.js\\"
   }
 }"
+`;
+
+exports[`snowpack install export-maps: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/     size       gzip       brotli
+    └─ preact.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install export-maps: preact.js 1`] = `
@@ -22202,6 +22411,21 @@ exports[`snowpack install include: import-map.json 1`] = `
     \\"vue/dist/vue.esm.browser.js\\": \\"./vue/dist/vue.esm.browser.js\\"
   }
 }"
+`;
+
+exports[`snowpack install include: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/                             size       gzip       brotli
+    ├─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ deepmerge.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ http-vue-loader/src/httpVueLoader.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ package-01.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ package-02.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ svelte.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ vue-router.js    XXXX KB    XXXX KB    XXXX KB
+    └─ vue/dist/vue.esm.browser.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install include: package-01.js 1`] = `
@@ -37512,6 +37736,14 @@ exports[`snowpack install include-missing-in-package-json: import-map.json 1`] =
 }"
 `;
 
+exports[`snowpack install include-missing-in-package-json: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/          size       gzip       brotli
+    └─ @material/list.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install include-ts: allFiles 1`] = `
 Array [
   "array-flatten.js",
@@ -37898,6 +38130,17 @@ exports[`snowpack install include-ts: import-map.json 1`] = `
     \\"vue/dist/vue.esm.browser.js\\": \\"./vue/dist/vue.esm.browser.js\\"
   }
 }"
+`;
+
+exports[`snowpack install include-ts: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/                             size       gzip       brotli
+    ├─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ http-vue-loader/src/httpVueLoader.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ vue-router.js    XXXX KB    XXXX KB    XXXX KB
+    └─ vue/dist/vue.esm.browser.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install include-ts: vue/dist/vue.esm.browser.js 1`] = `
@@ -51432,6 +51675,14 @@ exports[`snowpack install include-with-alias: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install include-with-alias: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/         size       gzip       brotli
+    └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install include-with-package-name: allFiles 1`] = `
 Array [
   "array-flatten.js",
@@ -51818,6 +52069,17 @@ exports[`snowpack install include-with-package-name: import-map.json 1`] = `
     \\"vue/dist/vue.esm.browser.js\\": \\"./vue/dist/vue.esm.browser.js\\"
   }
 }"
+`;
+
+exports[`snowpack install include-with-package-name: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/                             size       gzip       brotli
+    ├─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ http-vue-loader/src/httpVueLoader.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ vue-router.js    XXXX KB    XXXX KB    XXXX KB
+    └─ vue/dist/vue.esm.browser.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install include-with-package-name: vue/dist/vue.esm.browser.js 1`] = `
@@ -65352,6 +65614,14 @@ exports[`snowpack install legacy-mount-alias: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install legacy-mount-alias: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/         size       gzip       brotli
+    └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install node-env: allFiles 1`] = `
 Array [
   "import-map.json",
@@ -65375,6 +65645,14 @@ const confB =  true ;
 export { cliA, confA, confB, nodeEnv };"
 `;
 
+exports[`snowpack install node-env: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/             size       gzip       brotli
+    └─ node-env-mock-pkg.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install package-react: allFiles 1`] = `
 Array [
   "import-map.json",
@@ -65392,6 +65670,18 @@ exports[`snowpack install package-react: import-map.json 1`] = `
     \\"react-dom/server\\": \\"./react-dom/server.js\\"
   }
 }"
+`;
+
+exports[`snowpack install package-react: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/                 size       gzip       brotli
+    ├─ react-dom.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ react-dom/server.js    XXXX KB    XXXX KB    XXXX KB
+    └─ react.js    XXXX KB    XXXX KB    XXXX KB
+  ⦿ web_modules/common/ (Shared)
+    └─ index-XXXXXXXX.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install package-react: react.js 1`] = `
@@ -95215,6 +95505,14 @@ exports[`snowpack install source-pika: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install source-pika: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/     size       gzip       brotli
+    └─ async.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install source-pika-lockfile: allFiles 1`] = `
 Array [
   "async.js",
@@ -99878,6 +100176,14 @@ exports[`snowpack install source-pika-lockfile: import-map.json 1`] = `
     \\"async\\": \\"./async.js\\"
   }
 }"
+`;
+
+exports[`snowpack install source-pika-lockfile: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/     size       gzip       brotli
+    └─ async.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install source-pika-types: allFiles 1`] = `
@@ -104546,6 +104852,14 @@ exports[`snowpack install source-pika-types: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install source-pika-types: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/     size       gzip       brotli
+    └─ async.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install source-pika-webdependencies: allFiles 1`] = `
 Array [
   "async.js",
@@ -109193,6 +109507,18 @@ exports[`snowpack install source-pika-webdependencies: import-map.json 1`] = `
 }"
 `;
 
+exports[`snowpack install source-pika-webdependencies: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/                 size       gzip       brotli
+    ├─ async.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ react-dom.js    XXXX KB    XXXX KB    XXXX KB
+    └─ react.js    XXXX KB    XXXX KB    XXXX KB
+  ⦿ web_modules/common/ (Shared)
+    └─ react-XXXXXXXX.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install source-pika-webdependencies: react.js 1`] = `"export { C as Children, a as Component, F as Fragment, P as Profiler, b as PureComponent, S as StrictMode, c as Suspense, _ as __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED, d as cloneElement, e as createContext, f as createElement, g as createFactory, h as createRef, R as default, i as forwardRef, j as isValidElement, l as lazy, m as memo, u as useCallback, k as useContext, n as useDebugValue, o as useEffect, p as useImperativeHandle, q as useLayoutEffect, r as useMemo, s as useReducer, t as useRef, v as useState, w as version } from './common/react-XXXXXXXX.js';"`;
 
 exports[`snowpack install source-pika-webdependencies: react-dom.js 1`] = `
@@ -109451,6 +109777,14 @@ exports[`snowpack install sub-package-json: import-map.json 1`] = `
     \\"solid-js/dom\\": \\"./solid-js/dom.js\\"
   }
 }"
+`;
+
+exports[`snowpack install sub-package-json: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/        size       gzip       brotli
+    └─ solid-js/dom.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install sub-package-json: solid-js/dom.js 1`] = `

@@ -1,3 +1,0 @@
-! XXX/package.json
-    - snowpack.installOptions.env.FOO is not exactly one from <EnvVarString>,<EnvVarNumber>,<EnvVarTrue>
-    See https://www.snowpack.dev/#configuration for more info.
