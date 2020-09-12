@@ -3,15 +3,16 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build --scope=snowpack",
+    "build": "lerna run build --scope=esmpkg --scope=snowpack",
     "publish": "lerna publish --no-private",
-    "format": "prettier --write \"snowpack/src/**/*.ts\"",
+    "format": "prettier --write \"{snowpack,esmpkg}/src/**/*.ts\"",
     "test": "jest --test-timeout=30000"
   },
   "workspaces": [
     "create-snowpack-app/*",
     "plugins/*",
     "snowpack",
+    "esmpkg",
     "test/build/*",
     "test/integration/*"
   ],

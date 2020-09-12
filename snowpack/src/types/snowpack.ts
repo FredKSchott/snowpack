@@ -1,5 +1,5 @@
 import type HttpProxy from 'http-proxy';
-import {Plugin as RollupPlugin} from 'rollup';
+import type {InstallOptions} from 'esmpkg';
 
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -8,8 +8,6 @@ export type DeepPartial<T> = {
     ? ReadonlyArray<DeepPartial<U>>
     : DeepPartial<T[P]>;
 };
-
-export type EnvVarReplacements = Record<string, string | number | true>;
 
 export type SnowpackBuiltFile = {code: string | Buffer; map?: string};
 export type SnowpackBuildMap = Record<string, SnowpackBuiltFile>;
@@ -122,20 +120,7 @@ export interface SnowpackConfig {
     open: string;
     hmr?: boolean;
   };
-  installOptions: {
-    dest: string;
-    env: EnvVarReplacements;
-    treeshake?: boolean;
-    installTypes: boolean;
-    polyfillNode: boolean;
-    sourceMap?: boolean | 'inline';
-    externalPackage: string[];
-    namedExports: string[];
-    rollup: {
-      plugins: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
-      dedupe?: string[];
-    };
-  };
+  installOptions: InstallOptions;
   buildOptions: {
     baseUrl: string;
     webModulesUrl: string;
@@ -148,7 +133,7 @@ export interface SnowpackConfig {
   _extensionMap: Record<string, string>;
 }
 
-export interface CLIFlags extends Omit<Partial<SnowpackConfig['installOptions']>, 'env'> {
+export interface CLIFlags extends Omit<InstallOptions, 'env'> {
   help?: boolean; // display help text
   version?: boolean; // display Snowpack version
   reload?: boolean;
@@ -170,35 +155,6 @@ export interface CommandOptions {
   lockfile: ImportMap | null;
   pkgManifest: any;
 }
-
-/**
- * An install target represents information about a dependency to install.
- * The specifier is the key pointing to the dependency, either as a package
- * name or as an actual file path within node_modules. All other properties
- * are metadata about what is actually being imported.
- */
-export type InstallTarget = {
-  specifier: string;
-  all: boolean;
-  default: boolean;
-  namespace: boolean;
-  named: string[];
-};
-
-export type DependencyStats = {
-  size: number;
-  gzip: number;
-  brotli?: number;
-  delta?: number;
-};
-
-export type DependencyType = 'direct' | 'common';
-
-export type DependencyStatsMap = {
-  [filePath: string]: DependencyStats;
-};
-
-export type DependencyStatsOutput = Record<DependencyType, DependencyStatsMap>;
 
 export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
 export type LoggerEvent = 'debug' | 'info' | 'warn' | 'error';
