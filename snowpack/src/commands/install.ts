@@ -3,6 +3,7 @@ import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-common
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginNodePolyfills from 'rollup-plugin-node-polyfills';
+import rollupPluginReplace from '@rollup/plugin-replace';
 import {init as initESModuleLexer} from 'es-module-lexer';
 import findUp from 'find-up';
 import util from 'util';
@@ -226,12 +227,17 @@ export async function install(
       dest: destLoc,
       externalPackage: externalPackages,
       sourceMap,
-      env,
+      env: userEnv,
       rollup: userDefinedRollup,
       treeshake: isTreeshake,
       polyfillNode,
     },
   } = config;
+
+  const env = {
+    NODE_ENV: process.env.NODE_ENV || 'production',
+    ...Object.fromEntries(Object.entries(userEnv).map(([key, value]) => [key, value === true ? process.env[key] : value])),
+  };
 
   const nodeModulesInstalled = findUp.sync('node_modules', {cwd, type: 'directory'});
   if (!webDependencies && !(process.versions as any).pnp && !nodeModulesInstalled) {
@@ -342,6 +348,9 @@ ${colors.dim(
         namedExports: true,
       }),
       rollupPluginCss(),
+      rollupPluginReplace(
+        Object.fromEntries(Object.entries(env).map(([key, value]) => [`process.env.${key}`, `'${value}'`]))
+      ),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
         externalEsm: process.env.EXTERNAL_ESM_PACKAGES || [],
@@ -349,10 +358,7 @@ ${colors.dim(
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
-      rollupPluginNodeProcessPolyfill({
-        NODE_ENV: process.env.NODE_ENV || 'production',
-        ...env,
-      }),
+      rollupPluginNodeProcessPolyfill(env),
       polyfillNode && rollupPluginNodePolyfills(),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
