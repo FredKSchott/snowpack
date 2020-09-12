@@ -82,7 +82,7 @@ To develop and test a Snowpack plugin, the strategy is the same as with other np
   <li>Run <code>npm link</code> in your plugin’s project folder to expose the plugin globally (in regard to your development machine).</li>
   <li>Create a new, example Snowpack project in a different location for testing</li>
   <li>
-    In your example Snowpack project, run <code>npm install && npm link my-snowpack-plugin</code> (use the name from your plugin’s <code>package.json</code>). 
+    In your example Snowpack project, run <code>npm install && npm link my-snowpack-plugin</code> (use the name from your plugin’s <code>package.json</code>).
     <ul>
       <li>Be aware that <code>npm install</code> will remove your linked plugin, so on any install, you will need to redo the <code>npm link my-snowpack-plugin</code>. </li>
       <li>(The alternative would be to use <code>npm install --save-dev &lt;folder_to_your_plugin_project&gt;</code>, which would create the "symlink-like" entry in your example Snowpack project’s <code>package.json</code>)</li>
@@ -110,7 +110,7 @@ For our first example, we’ll look at transforming a file.
 module.exports = function (snowpackConfig, pluginOptions) {
   return {
     name: 'my-commenter-plugin',
-    async transform({id, contents, isDev}) {
+    async transform({id, contents, isDev, fileExt}) {
       if (fileExt === '.js') {
         return `/* I’m a comment! */ ${contents}`;
       }
@@ -213,7 +213,7 @@ This is an (obviously) simplified version of the `@snowpack/plugin-webpack` plug
 - Extensions in Snowpack always have a leading `.` character (e.g. `.js`, `.ts`). This is to match Node’s `path.extname()` behavior, as well as make sure we’re not matching extension substrings (e.g. if we matched `js` at the end of a file, we also don’t want to match `.mjs` files by accident; we want to be explicit there).
 - The `resolve.input` and `resolve.output` file extension arrays are vital to how Snowpack understands your build pipeline, and are always required for `load()` to run correctly.
 - If `load()` doesn't return anything, the file isn’t loaded and the `load()` of the next suitable plugin is called.
-- If `transform()` doesn't return anything, the file isn’t transformed. 
+- If `transform()` doesn't return anything, the file isn’t transformed.
 - If you want to build a plugin that only runs some code on initialization (such as `@snowpack/plugin-dotenv`), put your side-effect code inside the function that returns your plugin. But be sure to still return a plugin object. A simple `{ name }` object will do.
 
 ## Plugin API
