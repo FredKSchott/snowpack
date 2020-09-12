@@ -130,7 +130,7 @@ exports.default = function plugin(config, userDefinedOptions) {
     return code;
   }
 
-  async function optimizeFile({esbuildService, file, rootDir}) {
+  async function optimizeFile({esbuildService, file, target, rootDir}) {
     const baseExt = path.extname(file).toLowerCase();
 
     // optimize based on extension. if it’s not here, leave as-is
@@ -145,7 +145,7 @@ exports.default = function plugin(config, userDefinedOptions) {
         if (options.minifyJS) {
           try {
             let code = fs.readFileSync(file, 'utf-8');
-            const minified = await esbuildService.transform(code, {minify: true});
+            const minified = await esbuildService.transform(code, {minify: true, target});
             code = minified.js;
             fs.writeFileSync(file, code);
           } catch (err) {
@@ -187,7 +187,7 @@ exports.default = function plugin(config, userDefinedOptions) {
       // 2. optimize all files in parallel
       const parallelWorkQueue = new PQueue({concurrency: CONCURRENT_WORKERS});
       for (const file of allFiles) {
-        parallelWorkQueue.add(() => optimizeFile({file, esbuildService, rootDir: buildDirectory}));
+        parallelWorkQueue.add(() => optimizeFile({file, esbuildService, target: options.target, rootDir: buildDirectory}));
       }
       await parallelWorkQueue.onIdle();
 

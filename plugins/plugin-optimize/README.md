@@ -2,6 +2,7 @@
 
 Optimize your unbundled Snowpack app:
 
+- ✅ Transpile JS
 - ✅ Minify JS
 - ✅ [Preload JS Modules][modulepreload]
 - (Coming soon) Minify HTML
@@ -38,5 +39,6 @@ Then add this plugin to your Snowpack config:
 | :--------------- | :-------: | :-------------------------------------------------------------- |
 | `minifyJS`       | `boolean` | Should JS be minified? (default: `true`)                        |
 | `preloadModules` | `boolean` | Should static `import`s be preloaded in HTML? (default: `true`) |
+| `target` | `string | string[]` | The language target(s) to transpile to. This can be a single string (ex: "es2018") or an array of strings (ex: ["chrome58","firefox57"]). If undefined, no transpilation will be done. See [esbuild documentation](https://github.com/evanw/esbuild) for more. |
 
 [modulepreload]: https://developers.google.com/web/updates/2017/12/modulepreload
