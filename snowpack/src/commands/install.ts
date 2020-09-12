@@ -3,6 +3,7 @@ import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-common
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginNodePolyfills from 'rollup-plugin-node-polyfills';
+import rollupPluginReplace from '@rollup/plugin-replace';
 import {init as initESModuleLexer} from 'es-module-lexer';
 import findUp from 'find-up';
 import util from 'util';
@@ -29,6 +30,7 @@ import {printStats} from '../stats-formatter.js';
 import {
   CommandOptions,
   DependencyStatsOutput,
+  EnvVarReplacements,
   ImportMap,
   InstallTarget,
   SnowpackConfig,
@@ -201,6 +203,24 @@ function resolveWebDependency(dep: string): DependencyLoc {
   }
 }
 
+function generateEnvObject(userEnv: EnvVarReplacements) : Object {
+  return {
+    NODE_ENV: process.env.NODE_ENV || 'production',
+    ...Object.keys(userEnv).reduce((acc, key) => {
+      const value = userEnv[key];
+      acc[key] = value === true ? process.env[key] : value;
+      return acc;
+    }, {})
+  };
+}
+
+function generateEnvReplacements(env: Object) : {[key: string]: string} {
+  return Object.keys(env).reduce((acc, key) => {
+    acc[`process.env.${key}`] = JSON.stringify(env[key]);
+    return acc;
+  }, {});
+}
+
 interface InstallOptions {
   lockfile: ImportMap | null;
   config: SnowpackConfig;
@@ -226,12 +246,14 @@ export async function install(
       dest: destLoc,
       externalPackage: externalPackages,
       sourceMap,
-      env,
+      env: userEnv,
       rollup: userDefinedRollup,
       treeshake: isTreeshake,
       polyfillNode,
     },
   } = config;
+
+  const env = generateEnvObject(userEnv);
 
   const nodeModulesInstalled = findUp.sync('node_modules', {cwd, type: 'directory'});
   if (!webDependencies && !(process.versions as any).pnp && !nodeModulesInstalled) {
@@ -342,6 +364,7 @@ ${colors.dim(
         namedExports: true,
       }),
       rollupPluginCss(),
+      rollupPluginReplace(generateEnvReplacements(env)),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
         externalEsm: process.env.EXTERNAL_ESM_PACKAGES || [],
@@ -349,10 +372,7 @@ ${colors.dim(
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
-      rollupPluginNodeProcessPolyfill({
-        NODE_ENV: process.env.NODE_ENV || 'production',
-        ...env,
-      }),
+      rollupPluginNodeProcessPolyfill(env),
       polyfillNode && rollupPluginNodePolyfills(),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
