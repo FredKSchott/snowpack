@@ -19,6 +19,8 @@ import components___ from '@app/components'; // bare import using alias
 import components____ from '@app/components/index'; // bare import using alias and index appended
 import components_____ from '@app/components/index.js'; // bare import using alias and index.js appended
 import components2 from '%/src/components'; // alias % to '.'
+import components3 from 'components'; //  alias components to './src/components'
+
 console.log(
   components,
   components_,
@@ -28,6 +30,7 @@ console.log(
   components_____,
   components______,
   components2,
+  components3
 );
 
 // Importing something that isn't JS

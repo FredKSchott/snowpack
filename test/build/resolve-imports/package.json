@@ -11,7 +11,8 @@
       "aliased-dep": "array-flatten",
       "@app": "./src",
       "@/": "./src/",
-      "%": "."
+      "%": ".",
+      "components": "./src/components"
     },
     "mount": {
       "./src": "/_dist_"

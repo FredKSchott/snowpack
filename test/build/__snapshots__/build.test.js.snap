@@ -6484,6 +6484,7 @@ import components___ from './components/index.js'; // bare import using alias
 import components____ from './components/index.js'; // bare import using alias and index appended
 import components_____ from './components/index.js'; // bare import using alias and index.js appended
 import components2 from './components/index.js'; // alias % to '.'
+import components3 from './components/index.js'; //  alias components to './src/components'
 console.log(
   components,
   components_,
@@ -6493,6 +6494,7 @@ console.log(
   components_____,
   components______,
   components2,
+  components3
 );
 // Importing something that isn't JS
 import styles from './components/style.css.proxy.js'; // relative import
