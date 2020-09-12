@@ -1,0 +1,38 @@
+{
+  "name": "esmpkg",
+  "version": "0.0.1",
+  "publishConfig": {
+    "access": "public",
+    "directory": "pkg"
+  },
+  "scripts": {
+    "build": "pika build",
+    "version": "pika build"
+  },
+  "types": "pkg/dist-types/index.d.ts",
+  "main": "pkg/dist-node/index.js",
+  "@pika/pack": {
+    "pipeline": [
+      [
+        "@pika/plugin-ts-standard-pkg"
+      ],
+      [
+        "@pika/plugin-build-node"
+      ]
+    ]
+  },
+  "dependencies": {
+    "@rollup/plugin-alias": "^3.0.1",
+    "@rollup/plugin-commonjs": "^15.0.0",
+    "@rollup/plugin-inject": "^4.0.2",
+    "@rollup/plugin-json": "^4.0.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
+    "es-module-lexer": "^0.3.24",
+    "is-builtin-module": "^3.0.0",
+    "kleur": "^4.1.1",
+    "mkdirp": "^1.0.3",
+    "rimraf": "^3.0.0",
+    "rollup": "^2.23.0",
+    "validate-npm-package-name": "^3.0.0"
+  }
+}

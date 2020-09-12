@@ -1,9 +1,10 @@
 import {ImportSpecifier, init as initESModuleLexer, parse} from 'es-module-lexer';
+import {InstallTarget} from 'esmpkg';
 import glob from 'glob';
 import path from 'path';
 import stripComments from 'strip-comments';
 import {logger} from './logger';
-import {InstallTarget, SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
+import {SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
 import {
   CSS_REGEX,
   findMatchingAliasEntry,

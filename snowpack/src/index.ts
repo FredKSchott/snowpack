@@ -10,9 +10,6 @@ import {loadAndValidateConfig} from './config.js';
 import {logger} from './logger';
 import {CLIFlags} from './types/snowpack';
 import {clearCache, readLockfile} from './util.js';
-
-export {install as unstable_installCommand} from './commands/install';
-export {createConfiguration} from './config.js';
 export * from './types/snowpack';
 
 const cwd = process.cwd();

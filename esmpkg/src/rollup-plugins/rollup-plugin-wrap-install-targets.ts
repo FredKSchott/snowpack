@@ -2,7 +2,7 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import {Plugin} from 'rollup';
 import {logger} from '../logger';
-import {InstallTarget} from '../types/snowpack';
+import {InstallTarget} from '../types';
 import {getWebDependencyName} from '../util.js';
 
 function autoDetectExports(fileLoc: string): string[] | undefined {

@@ -1,6 +1,6 @@
 import inject from '@rollup/plugin-inject';
 import {Plugin} from 'rollup';
-import {EnvVarReplacements} from '../types/snowpack';
+import {EnvVarReplacements} from '../types';
 import generateProcessPolyfill from './generateProcessPolyfill';
 
 const PROCESS_MODULE_NAME = 'process';

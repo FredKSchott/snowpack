@@ -37,19 +37,8 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   exclude: ['__tests__/**/*', '**/*.@(spec|test).*'],
   plugins: [],
   alias: {},
-  installOptions: {
-    dest: 'web_modules',
-    externalPackage: [],
-    installTypes: false,
-    polyfillNode: false,
-    env: {},
-    namedExports: [],
-    rollup: {
-      plugins: [],
-      dedupe: [],
-    },
-  },
   scripts: {},
+  installOptions: {},
   devOptions: {
     secure: false,
     hostname: 'localhost',
@@ -261,7 +250,7 @@ function loadPlugins(
       if (typeof plugin !== 'function') logger.error(`plugin ${name} doesn’t return function`);
       plugin = execPluginFactory(plugin, options) as SnowpackPlugin & LegacySnowpackPlugin;
     } catch (err) {
-      logger.error(err.toString() || err);
+      logger.error(err.toString());
       throw err;
     }
     plugin.name = plugin.name || name;
@@ -523,8 +512,9 @@ function normalizeAlias(config: SnowpackConfig, createMountAlias: boolean) {
 function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const cwd = process.cwd();
   config.knownEntrypoints = (config as any).install || [];
-  config.installOptions.dest = path.resolve(cwd, config.installOptions.dest);
   config.devOptions.out = path.resolve(cwd, config.devOptions.out);
+  config.installOptions.rollup = config.installOptions.rollup || {};
+  config.installOptions.rollup.plugins = config.installOptions.rollup.plugins || [];
   config.exclude = Array.from(
     new Set([...ALWAYS_EXCLUDE, `${config.devOptions.out}/**/*`, ...config.exclude]),
   );
