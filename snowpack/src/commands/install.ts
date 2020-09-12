@@ -236,7 +236,10 @@ export async function install(
 
   const env = {
     NODE_ENV: process.env.NODE_ENV || 'production',
-    ...Object.fromEntries(Object.entries(userEnv).map(([key, value]) => [key, value === true ? process.env[key] : value])),
+    ...Object.keys(userEnv).reduce((acc, key) => {
+      const value = userEnv[key];
+      return {...acc, [key]: value === true ? process.env[key] : value};
+    }, {})
   };
 
   const nodeModulesInstalled = findUp.sync('node_modules', {cwd, type: 'directory'});
@@ -349,7 +352,7 @@ ${colors.dim(
       }),
       rollupPluginCss(),
       rollupPluginReplace(
-        Object.fromEntries(Object.entries(env).map(([key, value]) => [`process.env.${key}`, `'${value}'`]))
+        Object.keys(env).reduce((acc, key) => ({...acc, [`process.env.${key}`]: `'${env[key]}'`}), {})
       ),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
