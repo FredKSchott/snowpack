@@ -61,7 +61,8 @@ describe('snowpack build', () => {
           entry.endsWith('.css') ||
           entry.endsWith('.html') ||
           entry.endsWith('.js') ||
-          entry.endsWith('.json')
+          entry.endsWith('.json') ||
+          entry.endsWith('.map')
         ) {
           const f1 = readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
           expect(format(f1)).toMatchSnapshot(entry.replace(/\\/g, '/'));

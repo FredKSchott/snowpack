@@ -3,6 +3,7 @@ import {validatePluginLoadResult} from '../config';
 import {logger} from '../logger';
 import {SnowpackBuildMap, SnowpackConfig, SnowpackPlugin} from '../types/snowpack';
 import {getExt, readFile, replaceExt} from '../util';
+import {SourceMapConsumer, SourceMapGenerator, RawSourceMap} from 'source-map';
 
 export interface BuildFileOptions {
   isDev: boolean;
@@ -100,6 +101,21 @@ async function runPipelineLoadStep(
   };
 }
 
+async function composeSourceMaps(id: string, base: string | RawSourceMap, derived: string | RawSourceMap) : Promise<string> {
+  const [baseMap, transformedMap] = await Promise.all([
+    new SourceMapConsumer(base),
+    new SourceMapConsumer(derived)
+  ]);
+  try {
+    const generator = SourceMapGenerator.fromSourceMap(transformedMap);
+    generator.applySourceMap(baseMap, id);
+    return generator.toString();
+  } finally {
+    baseMap.destroy();
+    transformedMap.destroy();
+  }
+}
+
 /**
  * Build Plugin Second Pass: If a plugin defines a
  * transform() method,call it. Transform cannot change
@@ -139,17 +155,22 @@ async function runPipelineTransformStep(
           urlPath: `./${path.basename(rootFileName + destExt)}`,
         });
         logger.debug(`✔ transform() success [${debugPath}]`, {name: step.name});
-        // if step returned a value, only update code (don’t touch .map)
         if (typeof result === 'string' || Buffer.isBuffer(result)) {
           output[destExt].code = result;
           output[destExt].map = undefined;
         } else if (result && typeof result === 'object' && (result as {result: string}).result) {
           output[destExt].code = (result as {result: string}).result;
-          output[destExt].map = undefined;
+          let map = (result as {map: string | RawSourceMap}).map;
+          let outputMap: string | undefined = undefined;
+          if (map && sourceMaps) {  // if source maps disabled, don’t return any
+            if (output[destExt].map) {
+              outputMap = await composeSourceMaps(filePath, output[destExt].map!, map);
+            } else {
+              outputMap = typeof map === 'object' ? JSON.stringify(map) : map;
+            }
+          }
+          output[destExt].map = outputMap;
         }
-
-        // if source maps disabled, don’t return any
-        if (!sourceMaps) output[destExt].map = undefined;
       }
     } catch (err) {
       // Attach metadata detailing where the error occurred.
