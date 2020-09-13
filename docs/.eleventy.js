@@ -119,7 +119,7 @@ module.exports = function (eleventyConfig) {
     // passthroughFileCopy: true,
     dir: {
       input: path.join(__dirname, '.'),
-      includes: '.eleventy',
+      includes: '_eleventy',
       // data: path.join(__dirname, 'data'),
       output: path.join(__dirname, '_site'),
     },
