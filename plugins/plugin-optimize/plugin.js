@@ -73,7 +73,7 @@ exports.default = function plugin(config, userDefinedOptions) {
   }
 
   /** Given a set of HTML files, trace the imported JS */
-  function preloadModulesInHTML(code, rootDir) {
+  function preloadModulesInHTML(code, rootDir, htmlFile) {
     const originalEntries = new Set(); // original entry files in HTML
     const allModules = new Set(); // all modules required by this HTML file
 
@@ -112,13 +112,13 @@ exports.default = function plugin(config, userDefinedOptions) {
     resolvedModules.sort((a, b) => a.localeCompare(b));
     code = appendHTMLToHead(
       code,
-      `  <!-- @snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance (More info: https://developers.google.com/web/updates/2017/12/modulepreload) -->\n    ` +
+      `  <!-- @snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance (More info: https://developers.google.com/web/updates/2017/12/modulepreload) -->\n` +
         resolvedModules
           .map(
             (src) =>
-              `<link rel="modulepreload" href="${src}" />`,
+              `    <link rel="modulepreload" href="${src}" />`,
           )
-          .join('') +
+          .join('\n') +
         '\n  ',
     );
     code = appendHTMLToBody(
@@ -159,7 +159,7 @@ exports.default = function plugin(config, userDefinedOptions) {
       case '.html': {
         let code = fs.readFileSync(file, 'utf-8');
         if (options.preloadModules) {
-          code = preloadModulesInHTML(code, rootDir);
+          code = preloadModulesInHTML(code, rootDir, file);
         }
         if (options.minifyHTML) {
           code = minifyHtml(code, {

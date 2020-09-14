@@ -423,11 +423,12 @@ export async function command(commandOptions: CommandOptions) {
     return;
   }
 
-  // "--watch" mode - Start watching the file system.
+  // "--watch --hmr" mode - Tell users about the HMR WebSocket URL
   if (hmrEngine) {
     logger.info(`[HMR] WebSocket URL available at ${colors.cyan(`${hmrEngine.wsUrl}`)}`);
   }
 
+  // "--watch" mode - Start watching the file system.
   // Defer "chokidar" loading to here, to reduce impact on overall startup time
   logger.info(colors.cyan('Watching for changes...'));
   const chokidar = await import('chokidar');
