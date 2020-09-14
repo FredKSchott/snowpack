@@ -39,7 +39,7 @@ export { U as Children, d as Component, p as Fragment, R as PureComponent, un as
 
 exports[`snowpack install config-alias: vue-currency-input/dist/vue-currency-input.esm.js 1`] = `
 "/**
- * Vue Currency Input 1.22.1
+ * Vue Currency Input 1.22.3
  * (c) 2018-2020 Matthias Stiller
  * @license MIT
  */
@@ -412,7 +412,7 @@ NumberInput.prototype.addEventListener = function addEventListener () {
     if (this$1.focus) {
       this$1.setCaretPosition(getCaretPositionAfterFormat(this$1.formattedValue, value, selectionStart, this$1.currencyFormat, this$1.options));
     }
-  });
+  }, { capture: true });
   this.el.addEventListener('focus', function () {
     this$1.focus = true;
     var ref = this$1.options.distractionFree;
@@ -464,14 +464,14 @@ var directive = {
     var options = Object.assign({}, DEFAULT_OPTIONS,
       (vnode.context.$ci || {}).globalOptions,
       optionsFromBinding);
-    var listeners = (vnode.data && vnode.data.on) || (vnode.componentOptions && vnode.componentOptions.listeners);
+    var listeners = (vnode.data && vnode.data.on) || (vnode.componentOptions && vnode.componentOptions.listeners) || {};
     var emit = function (event, data) {
       if (listeners[event]) {
-        listeners[event].fns(vnode.componentOptions ? data : { target: { value: data } });
+        listeners[event](vnode.componentOptions ? data : { target: { value: data } });
       }
     };
     el.$ci = new NumberInput(inputElement, options, {
-      onChange: function () { return emit('change', inputElement.value); },
+      onChange: function () { emit('change', inputElement.value); },
       onInput: function () { emit('input', inputElement.value); }
     });
   },
@@ -1132,6 +1132,13 @@ function compute_rest_props(props, keys) {
             rest[k] = props[k];
     return rest;
 }
+function compute_slots(slots) {
+    const result = {};
+    for (const key in slots) {
+        result[key] = true;
+    }
+    return result;
+}
 function once(fn) {
     let ran = false;
     return function (...args) {
@@ -1323,7 +1330,7 @@ function get_binding_group_value(group, __value, checked) {
     return Array.from(value);
 }
 function to_number(value) {
-    return value === '' ? undefined : +value;
+    return value === '' ? null : +value;
 }
 function time_ranges_to_array(ranges) {
     const array = [];
@@ -1720,6 +1727,7 @@ function flush() {
             set_current_component(component);
             update(component.$$);
         }
+        set_current_component(null);
         dirty_components.length = 0;
         while (binding_callbacks.length)
             binding_callbacks.pop()();
@@ -2074,6 +2082,9 @@ function handle_promise(promise, info) {
             update(info.then, 1, info.value, value);
             set_current_component(null);
         }, error => {
+            if (!info.hasCatch) {
+                throw error;
+            }
             set_current_component(current_component);
             update(info.catch, 2, info.error, error);
             set_current_component(null);
@@ -2541,7 +2552,7 @@ class SvelteComponent {
     }
 }
 function dispatch_dev(type, detail) {
-    document.dispatchEvent(custom_event(type, Object.assign({ version: '3.24.1' }, detail)));
+    document.dispatchEvent(custom_event(type, Object.assign({ version: '3.25.0' }, detail)));
 }
 function append_dev(target, node) {
     dispatch_dev(\\"SvelteDOMInsert\\", { target, node });
@@ -2645,7 +2656,7 @@ function loop_guard(timeout) {
         }
     };
 }
-export { HtmlTag, SvelteComponent, SvelteComponentDev, SvelteElement, action_destroyer, add_attribute, add_classes, add_flush_callback, add_location, add_render_callback, add_resize_listener, add_transform, afterUpdate, append, append_dev, assign, attr, attr_dev, beforeUpdate, bind, binding_callbacks, blank_object, bubble, check_outros, children, claim_component, claim_element, claim_space, claim_text, clear_loops, component_subscribe, compute_rest_props, createEventDispatcher, create_animation, create_bidirectional_transition, create_component, create_in_transition, create_out_transition, create_slot, create_ssr_component, current_component, custom_event, dataset_dev, debug, destroy_block, destroy_component, destroy_each, detach, detach_after_dev, detach_before_dev, detach_between_dev, detach_dev, dirty_components, dispatch_dev, each, element, element_is, empty, escape, escaped, exclude_internal_props, fix_and_destroy_block, fix_and_outro_and_destroy_block, fix_position, flush, getContext, get_binding_group_value, get_current_component, get_slot_changes, get_slot_context, get_spread_object, get_spread_update, get_store_value, globals, group_outros, handle_promise, has_prop, identity, init, insert, insert_dev, intros, invalid_attribute_name_character, is_client, is_crossorigin, is_empty, is_function, is_promise, listen, listen_dev, loop, loop_guard, missing_component, mount_component, noop, not_equal, now, null_to_empty, object_without_properties, onDestroy, onMount, once, outro_and_destroy_block, prevent_default, prop_dev, query_selector_all, raf, run, run_all, safe_not_equal, schedule_update, select_multiple_value, select_option, select_options, select_value, self, setContext, set_attributes, set_current_component, set_custom_element_data, set_data, set_data_dev, set_input_type, set_input_value, set_now, set_raf, set_store_value, set_style, set_svg_attributes, space, spread, stop_propagation, subscribe, svg_element, text, tick, time_ranges_to_array, to_number, toggle_class, transition_in, transition_out, update_keyed_each, update_slot, validate_component, validate_each_argument, validate_each_keys, validate_slots, validate_store, xlink_attr };"
+export { HtmlTag, SvelteComponent, SvelteComponentDev, SvelteElement, action_destroyer, add_attribute, add_classes, add_flush_callback, add_location, add_render_callback, add_resize_listener, add_transform, afterUpdate, append, append_dev, assign, attr, attr_dev, beforeUpdate, bind, binding_callbacks, blank_object, bubble, check_outros, children, claim_component, claim_element, claim_space, claim_text, clear_loops, component_subscribe, compute_rest_props, compute_slots, createEventDispatcher, create_animation, create_bidirectional_transition, create_component, create_in_transition, create_out_transition, create_slot, create_ssr_component, current_component, custom_event, dataset_dev, debug, destroy_block, destroy_component, destroy_each, detach, detach_after_dev, detach_before_dev, detach_between_dev, detach_dev, dirty_components, dispatch_dev, each, element, element_is, empty, escape, escaped, exclude_internal_props, fix_and_destroy_block, fix_and_outro_and_destroy_block, fix_position, flush, getContext, get_binding_group_value, get_current_component, get_slot_changes, get_slot_context, get_spread_object, get_spread_update, get_store_value, globals, group_outros, handle_promise, has_prop, identity, init, insert, insert_dev, intros, invalid_attribute_name_character, is_client, is_crossorigin, is_empty, is_function, is_promise, listen, listen_dev, loop, loop_guard, missing_component, mount_component, noop, not_equal, now, null_to_empty, object_without_properties, onDestroy, onMount, once, outro_and_destroy_block, prevent_default, prop_dev, query_selector_all, raf, run, run_all, safe_not_equal, schedule_update, select_multiple_value, select_option, select_options, select_value, self, setContext, set_attributes, set_current_component, set_custom_element_data, set_data, set_data_dev, set_input_type, set_input_value, set_now, set_raf, set_store_value, set_style, set_svg_attributes, space, spread, stop_propagation, subscribe, svg_element, text, tick, time_ranges_to_array, to_number, toggle_class, transition_in, transition_out, update_keyed_each, update_slot, validate_component, validate_each_argument, validate_each_keys, validate_slots, validate_store, xlink_attr };"
 `;
 
 exports[`snowpack install config-rollup: svelte-routing.js 1`] = `
@@ -2658,7 +2669,7 @@ const subscriber_queue = [];
  */
 function readable(value, start) {
     return {
-        subscribe: writable(value, start).subscribe,
+        subscribe: writable(value, start).subscribe
     };
 }
 /**
@@ -3152,7 +3163,7 @@ function hostMatches(anchor) {
 /* XXXX generated by Svelte vX.X.X */
 function create_fragment(ctx) {
 	let current;
-	const default_slot_template = /*$$slots*/ ctx[6].default;
+	const default_slot_template = /*#slots*/ ctx[6].default;
 	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[5], null);
 	return {
 		c() {
@@ -3189,6 +3200,7 @@ function instance($$self, $$props, $$invalidate) {
 	let $base;
 	let $location;
 	let $routes;
+	let { $$slots: slots = {}, $$scope } = $$props;
 	let { basepath = \\"/\\" } = $$props;
 	let { url = null } = $$props;
 	const locationContext = getContext(LOCATION);
@@ -3275,7 +3287,6 @@ function instance($$self, $$props, $$invalidate) {
 		registerRoute,
 		unregisterRoute
 	});
-	let { $$slots = {}, $$scope } = $$props;
 	$$self.$$set = $$props => {
 		if (\\"basepath\\" in $$props) $$invalidate(3, basepath = $$props.basepath);
 		if (\\"url\\" in $$props) $$invalidate(4, url = $$props.url);
@@ -3304,7 +3315,7 @@ function instance($$self, $$props, $$invalidate) {
 			}
 		}
 	};
-	return [routes, location, base, basepath, url, $$scope, $$slots];
+	return [routes, location, base, basepath, url, $$scope, slots];
 }
 class Router extends SvelteComponent {
 	constructor(options) {
@@ -3383,7 +3394,7 @@ function create_if_block(ctx) {
 // (43:2) {:else}
 function create_else_block(ctx) {
 	let current;
-	const default_slot_template = /*$$slots*/ ctx[10].default;
+	const default_slot_template = /*#slots*/ ctx[10].default;
 	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[9], get_default_slot_context);
 	return {
 		c() {
@@ -3546,6 +3557,7 @@ function create_fragment$1(ctx) {
 function instance$1($$self, $$props, $$invalidate) {
 	let $activeRoute;
 	let $location;
+	let { $$slots: slots = {}, $$scope } = $$props;
 	let { path = \\"\\" } = $$props;
 	let { component = null } = $$props;
 	const { registerRoute, unregisterRoute, activeRoute } = getContext(ROUTER);
@@ -3568,7 +3580,6 @@ function instance$1($$self, $$props, $$invalidate) {
 			unregisterRoute(route);
 		});
 	}
-	let { $$slots = {}, $$scope } = $$props;
 	$$self.$$set = $$new_props => {
 		$$invalidate(13, $$props = assign(assign({}, $$props), exclude_internal_props($$new_props)));
 		if (\\"path\\" in $$new_props) $$invalidate(8, path = $$new_props.path);
@@ -3598,7 +3609,7 @@ function instance$1($$self, $$props, $$invalidate) {
 		route,
 		path,
 		$$scope,
-		$$slots
+		slots
 	];
 }
 class Route extends SvelteComponent {
@@ -3613,7 +3624,7 @@ function create_fragment$2(ctx) {
 	let current;
 	let mounted;
 	let dispose;
-	const default_slot_template = /*$$slots*/ ctx[11].default;
+	const default_slot_template = /*#slots*/ ctx[11].default;
 	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[10], null);
 	let a_levels = [
 		{ href: /*href*/ ctx[0] },
@@ -3673,6 +3684,7 @@ function create_fragment$2(ctx) {
 function instance$2($$self, $$props, $$invalidate) {
 	let $base;
 	let $location;
+	let { $$slots: slots = {}, $$scope } = $$props;
 	let { to = \\"#\\" } = $$props;
 	let { replace = false } = $$props;
 	let { state = {} } = $$props;
@@ -3693,7 +3705,6 @@ function instance$2($$self, $$props, $$invalidate) {
 			navigate(href, { state, replace: shouldReplace });
 		}
 	}
-	let { $$slots = {}, $$scope } = $$props;
 	$$self.$$set = $$props => {
 		if (\\"to\\" in $$props) $$invalidate(6, to = $$props.to);
 		if (\\"replace\\" in $$props) $$invalidate(7, replace = $$props.replace);
@@ -3736,7 +3747,7 @@ function instance$2($$self, $$props, $$invalidate) {
 		state,
 		getProps,
 		$$scope,
-		$$slots
+		slots
 	];
 }
 class Link extends SvelteComponent {
@@ -22319,6 +22330,7 @@ function flush() {
             set_current_component(component);
             update(component.$$);
         }
+        set_current_component(null);
         dirty_components.length = 0;
         while (binding_callbacks.length)
             binding_callbacks.pop()();

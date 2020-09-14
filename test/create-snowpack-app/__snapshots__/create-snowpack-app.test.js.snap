@@ -8717,6 +8717,7 @@ function flush() {
             set_current_component(component);
             update(component.$$);
         }
+        set_current_component(null);
         dirty_components.length = 0;
         while (binding_callbacks.length)
             binding_callbacks.pop()();
@@ -9112,6 +9113,7 @@ function flush() {
             set_current_component(component);
             update(component.$$);
         }
+        set_current_component(null);
         dirty_components.length = 0;
         while (binding_callbacks.length)
             binding_callbacks.pop()();
@@ -9878,8 +9880,6 @@ const mutableHandlers = {
 };
 const readonlyHandlers = {
     get: readonlyGet,
-    has,
-    ownKeys,
     set(target, key) {
         return true;
     },
@@ -10596,7 +10596,7 @@ function markAttrsAccessed() {
     accessedAttrs = true;
 }
 function renderComponentRoot(instance) {
-    const { type: Component, parent, vnode, proxy, withProxy, props, slots, attrs, emit, render, renderCache, data, setupState, ctx } = instance;
+    const { type: Component, vnode, proxy, withProxy, props, propsOptions: [propsOptions], slots, attrs, emit, render, renderCache, data, setupState, ctx } = instance;
     let result;
     currentRenderingInstance = instance;
     try {
@@ -10641,32 +10641,17 @@ function renderComponentRoot(instance) {
             if (keys.length) {
                 if (shapeFlag & 1 /* ELEMENT */ ||
                     shapeFlag & 6 /* COMPONENT */) {
-                    if (shapeFlag & 1 /* ELEMENT */ && keys.some(isModelListener)) {
-                        // #1643, #1543
-                        // component v-model listeners should only fallthrough for component
-                        // HOCs
-                        fallthroughAttrs = filterModelListeners(fallthroughAttrs);
+                    if (propsOptions && keys.some(isModelListener)) {
+                        // If a v-model listener (onUpdate:xxx) has a corresponding declared
+                        // prop, it indicates this component expects to handle v-model and
+                        // it should not fallthrough.
+                        // related: #1543, #1643, #1989
+                        fallthroughAttrs = filterModelListeners(fallthroughAttrs, propsOptions);
                     }
                     root = cloneVNode(root, fallthroughAttrs);
                 }
                 else if ((\\"production\\" !== 'production') && !accessedAttrs && root.type !== Comment) ;
             }
-        }
-        // inherit scopeId
-        const scopeId = vnode.scopeId;
-        // vite#536: if subtree root is created from parent slot if would already
-        // have the correct scopeId, in this case adding the scopeId will cause
-        // it to be removed if the original slot vnode is reused.
-        const needScopeId = scopeId && root.scopeId !== scopeId;
-        const treeOwnerId = parent && parent.type.__scopeId;
-        const slotScopeId = treeOwnerId && treeOwnerId !== scopeId ? treeOwnerId + '-s' : null;
-        if (needScopeId || slotScopeId) {
-            const extras = {};
-            if (needScopeId)
-                extras[scopeId] = '';
-            if (slotScopeId)
-                extras[slotScopeId] = '';
-            root = cloneVNode(root, extras);
         }
         // inherit directives
         if (vnode.dirs) {
@@ -10730,10 +10715,10 @@ const getFunctionalFallthrough = (attrs) => {
     }
     return res;
 };
-const filterModelListeners = (attrs) => {
+const filterModelListeners = (attrs, props) => {
     const res = {};
     for (const key in attrs) {
-        if (!isModelListener(key)) {
+        if (!isModelListener(key) || !(key.slice(9) in props)) {
             res[key] = attrs[key];
         }
     }
@@ -10831,6 +10816,7 @@ function queueEffectWithSuspense(fn, suspense) {
     }
 }
 let isRenderingCompiledSlot = 0;
+const setCompiledSlotRendering = (n) => (isRenderingCompiledSlot += n);
 /**
  * Wrap a slot function to memoize current rendering instance
  * @private
@@ -10838,7 +10824,7 @@ let isRenderingCompiledSlot = 0;
 function withCtx(fn, ctx = currentRenderingInstance) {
     if (!ctx)
         return fn;
-    return function renderFnWithContext() {
+    const renderFnWithContext = (...args) => {
         // If a user calls a compiled slot inside a template expression (#1745), it
         // can mess up block tracking, so by default we need to push a null block to
         // avoid that. This isn't necessary if rendering a compiled \`<slot>\`.
@@ -10847,13 +10833,15 @@ function withCtx(fn, ctx = currentRenderingInstance) {
         }
         const owner = currentRenderingInstance;
         setCurrentRenderingInstance(ctx);
-        const res = fn.apply(null, arguments);
+        const res = fn(...args);
         setCurrentRenderingInstance(owner);
         if (!isRenderingCompiledSlot) {
             closeBlock();
         }
         return res;
     };
+    renderFnWithContext._c = true;
+    return renderFnWithContext;
 }
 // SFC scoped style ID management.
 let currentScopeId = null;
@@ -11078,10 +11066,15 @@ function normalizeChildren(vnode, children) {
         type = 16 /* ARRAY_CHILDREN */;
     }
     else if (typeof children === 'object') {
-        // Normalize slot to plain children
-        if ((shapeFlag & 1 /* ELEMENT */ || shapeFlag & 64 /* TELEPORT */) &&
-            children.default) {
-            normalizeChildren(vnode, children.default());
+        if (shapeFlag & 1 /* ELEMENT */ || shapeFlag & 64 /* TELEPORT */) {
+            // Normalize slot to plain children for plain element and Teleport
+            const slot = children.default;
+            if (slot) {
+                // _c marker is added by withCtx() indicating this is a compiled slot
+                slot._c && setCompiledSlotRendering(1);
+                normalizeChildren(vnode, slot());
+                slot._c && setCompiledSlotRendering(-1);
+            }
             return;
         }
         else {
@@ -11174,26 +11167,34 @@ function emit(instance, event, ...args) {
         callWithAsyncErrorHandling(handler, instance, 6 /* COMPONENT_EVENT_HANDLER */, args);
     }
 }
-function normalizeEmitsOptions(comp) {
-    if (hasOwn(comp, '__emits')) {
-        return comp.__emits;
+function normalizeEmitsOptions(comp, appContext, asMixin = false) {
+    const appId = appContext.app ? appContext.app._uid : -1;
+    const cache = comp.__emits || (comp.__emits = {});
+    const cached = cache[appId];
+    if (cached !== undefined) {
+        return cached;
     }
     const raw = comp.emits;
     let normalized = {};
     // apply mixin/extends props
     let hasExtends = false;
     if (__VUE_OPTIONS_API__ && !isFunction(comp)) {
-        if (comp.extends) {
+        const extendEmits = (raw) => {
             hasExtends = true;
-            extend(normalized, normalizeEmitsOptions(comp.extends));
+            extend(normalized, normalizeEmitsOptions(raw, appContext, true));
+        };
+        if (!asMixin && appContext.mixins.length) {
+            appContext.mixins.forEach(extendEmits);
+        }
+        if (comp.extends) {
+            extendEmits(comp.extends);
         }
         if (comp.mixins) {
-            hasExtends = true;
-            comp.mixins.forEach(m => extend(normalized, normalizeEmitsOptions(m)));
+            comp.mixins.forEach(extendEmits);
         }
     }
     if (!raw && !hasExtends) {
-        return (comp.__emits = undefined);
+        return (cache[appId] = null);
     }
     if (isArray(raw)) {
         raw.forEach(key => (normalized[key] = null));
@@ -11201,19 +11202,18 @@ function normalizeEmitsOptions(comp) {
     else {
         extend(normalized, raw);
     }
-    return (comp.__emits = normalized);
+    return (cache[appId] = normalized);
 }
 // Check if an incoming prop key is a declared emit event listener.
 // e.g. With \`emits: { click: null }\`, props named \`onClick\` and \`onclick\` are
 // both considered matched listeners.
-function isEmitListener(comp, key) {
-    let emits;
-    if (!isOn(key) || !(emits = normalizeEmitsOptions(comp))) {
+function isEmitListener(options, key) {
+    if (!options || !isOn(key)) {
         return false;
     }
     key = key.replace(/Once$/, '');
-    return (hasOwn(emits, key[2].toLowerCase() + key.slice(3)) ||
-        hasOwn(emits, key.slice(2)));
+    return (hasOwn(options, key[2].toLowerCase() + key.slice(3)) ||
+        hasOwn(options, key.slice(2)));
 }
 function initProps(instance, rawProps, isStateful, // result of bitwise flag comparison
 isSSR = false) {
@@ -11240,7 +11240,7 @@ isSSR = false) {
 function updateProps(instance, rawProps, rawPrevProps, optimized) {
     const { props, attrs, vnode: { patchFlag } } = instance;
     const rawCurrentProps = toRaw(props);
-    const [options] = normalizePropsOptions(instance.type);
+    const [options] = instance.propsOptions;
     if (
     // always force full diff if hmr is enabled
         (optimized || patchFlag > 0) &&
@@ -11311,7 +11311,7 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
     trigger(instance, \\"set\\" /* SET */, '$attrs');
 }
 function setFullProps(instance, rawProps, props, attrs) {
-    const [options, needCastKeys] = normalizePropsOptions(instance.type);
+    const [options, needCastKeys] = instance.propsOptions;
     if (rawProps) {
         for (const key in rawProps) {
             const value = rawProps[key];
@@ -11325,7 +11325,7 @@ function setFullProps(instance, rawProps, props, attrs) {
             if (options && hasOwn(options, (camelKey = camelize(key)))) {
                 props[camelKey] = value;
             }
-            else if (!isEmitListener(instance.type, key)) {
+            else if (!isEmitListener(instance.emitsOptions, key)) {
                 // Any non-declared (either as a prop or an emitted event) props are put
                 // into a separate \`attrs\` object for spreading. Make sure to preserve
                 // original key casing
@@ -11366,9 +11366,12 @@ function resolvePropValue(options, props, key, value) {
     }
     return value;
 }
-function normalizePropsOptions(comp) {
-    if (comp.__props) {
-        return comp.__props;
+function normalizePropsOptions(comp, appContext, asMixin = false) {
+    const appId = appContext.app ? appContext.app._uid : -1;
+    const cache = comp.__props || (comp.__props = {});
+    const cached = cache[appId];
+    if (cached) {
+        return cached;
     }
     const raw = comp.props;
     const normalized = {};
@@ -11377,22 +11380,24 @@ function normalizePropsOptions(comp) {
     let hasExtends = false;
     if (__VUE_OPTIONS_API__ && !isFunction(comp)) {
         const extendProps = (raw) => {
-            const [props, keys] = normalizePropsOptions(raw);
+            hasExtends = true;
+            const [props, keys] = normalizePropsOptions(raw, appContext, true);
             extend(normalized, props);
             if (keys)
                 needCastKeys.push(...keys);
         };
+        if (!asMixin && appContext.mixins.length) {
+            appContext.mixins.forEach(extendProps);
+        }
         if (comp.extends) {
-            hasExtends = true;
             extendProps(comp.extends);
         }
         if (comp.mixins) {
-            hasExtends = true;
             comp.mixins.forEach(extendProps);
         }
     }
     if (!raw && !hasExtends) {
-        return (comp.__props = EMPTY_ARR);
+        return (cache[appId] = EMPTY_ARR);
     }
     if (isArray(raw)) {
         for (let i = 0; i < raw.length; i++) {
@@ -11423,9 +11428,7 @@ function normalizePropsOptions(comp) {
             }
         }
     }
-    const normalizedEntry = [normalized, needCastKeys];
-    comp.__props = normalizedEntry;
-    return normalizedEntry;
+    return (cache[appId] = [normalized, needCastKeys]);
 }
 // use function string name to check type constructors
 // so that it works across vms / iframes.
@@ -11673,6 +11676,7 @@ function createAppContext() {
         provides: Object.create(null)
     };
 }
+let uid$1 = 0;
 function createAppAPI(render, hydrate) {
     return function createApp(rootComponent, rootProps = null) {
         if (rootProps != null && !isObject(rootProps)) {
@@ -11682,6 +11686,7 @@ function createAppAPI(render, hydrate) {
         const installedPlugins = new Set();
         let isMounted = false;
         const app = (context.app = {
+            _uid: uid$1++,
             _component: rootComponent,
             _props: rootProps,
             _container: null,
@@ -11994,15 +11999,41 @@ function baseCreateRenderer(options, createHydrationFns) {
                 }
             }
             // scopeId
-            if (scopeId) {
-                hostSetScopeId(el, scopeId);
-            }
-            const treeOwnerId = parentComponent && parentComponent.type.__scopeId;
-            // vnode's own scopeId and the current patched component's scopeId is
-            // different - this is a slot content node.
-            if (treeOwnerId && treeOwnerId !== scopeId) {
-                hostSetScopeId(el, treeOwnerId + '-s');
-            }
+            setScopeId(el, scopeId, vnode, parentComponent);
+            // if (scopeId) {
+            //   hostSetScopeId(el, scopeId)
+            // }
+            // if (parentComponent) {
+            //   const treeOwnerId = parentComponent.type.__scopeId
+            //   // vnode's own scopeId and the current patched component's scopeId is
+            //   // different - this is a slot content node.
+            //   if (treeOwnerId && treeOwnerId !== scopeId) {
+            //     hostSetScopeId(el, treeOwnerId + '-s')
+            //   }
+            //   const parentScopeId =
+            //     vnode === parentComponent.subTree && parentComponent.vnode.scopeId
+            //   if (parentScopeId) {
+            //     hostSetScopeId(el, parentScopeId)
+            //     if (parentComponent.parent) {
+            //       const treeOwnerId = parentComponent.parent.type.__scopeId
+            //       // vnode's own scopeId and the current patched component's scopeId is
+            //       // different - this is a slot content node.
+            //       if (treeOwnerId && treeOwnerId !== parentScopeId) {
+            //         hostSetScopeId(el, treeOwnerId + '-s')
+            //       }
+            //     }
+            //   }
+            // }
+        }
+        if ( __VUE_PROD_DEVTOOLS__) {
+            Object.defineProperty(el, '__vnode', {
+                value: vnode,
+                enumerable: false
+            });
+            Object.defineProperty(el, '__vueParentComponent', {
+                value: parentComponent,
+                enumerable: false
+            });
         }
         if (dirs) {
             invokeDirectiveHook(vnode, null, parentComponent, 'beforeMount');
@@ -12024,6 +12055,22 @@ function baseCreateRenderer(options, createHydrationFns) {
                 needCallTransitionHooks && transition.enter(el);
                 dirs && invokeDirectiveHook(vnode, null, parentComponent, 'mounted');
             }, parentSuspense);
+        }
+    };
+    const setScopeId = (el, scopeId, vnode, parentComponent) => {
+        if (scopeId) {
+            hostSetScopeId(el, scopeId);
+        }
+        if (parentComponent) {
+            const treeOwnerId = parentComponent.type.__scopeId;
+            // vnode's own scopeId and the current patched component's scopeId is
+            // different - this is a slot content node.
+            if (treeOwnerId && treeOwnerId !== scopeId) {
+                hostSetScopeId(el, treeOwnerId + '-s');
+            }
+            if (vnode === parentComponent.subTree) {
+                setScopeId(el, parentComponent.vnode.scopeId, parentComponent.vnode, parentComponent.parent);
+            }
         }
     };
     const mountChildren = (children, container, anchor, parentComponent, parentSuspense, isSVG, optimized, start = 0) => {
@@ -12758,7 +12805,7 @@ function baseCreateRenderer(options, createHydrationFns) {
         hostRemove(end);
     };
     const unmountComponent = (instance, parentSuspense, doRemove) => {
-        const { bum, effects, update, subTree, um, da, isDeactivated } = instance;
+        const { bum, effects, update, subTree, um } = instance;
         // beforeUnmount hook
         if (bum) {
             invokeArrayFns(bum);
@@ -12777,12 +12824,6 @@ function baseCreateRenderer(options, createHydrationFns) {
         // unmounted hook
         if (um) {
             queuePostRenderEffect(um, parentSuspense);
-        }
-        // deactivated hook
-        if (da &&
-            !isDeactivated &&
-            instance.vnode.shapeFlag & 256 /* COMPONENT_SHOULD_KEEP_ALIVE */) {
-            queuePostRenderEffect(da, parentSuspense);
         }
         queuePostRenderEffect(() => {
             instance.isUnmounted = true;
@@ -13366,10 +13407,8 @@ function resolveMergedOptions(instance) {
     if (!globalMixins.length && !mixins && !extendsOptions)
         return raw;
     const options = {};
-    globalMixins.forEach(m => mergeOptions(options, m, instance));
-    extendsOptions && mergeOptions(options, extendsOptions, instance);
-    mixins && mixins.forEach(m => mergeOptions(options, m, instance));
     mergeOptions(options, raw, instance);
+    globalMixins.forEach(m => mergeOptions(options, m, instance));
     return (raw.__merged = options);
 }
 function mergeOptions(to, from, instance) {
@@ -13382,6 +13421,10 @@ function mergeOptions(to, from, instance) {
             to[key] = from[key];
         }
     }
+    const { mixins, extends: extendsOptions } = from;
+    extendsOptions && mergeOptions(to, extendsOptions, instance);
+    mixins &&
+        mixins.forEach((m) => mergeOptions(to, m, instance));
 }
 const publicPropertiesMap = extend(Object.create(null), {
     $: i => i,
@@ -13439,7 +13482,7 @@ const PublicInstanceProxyHandlers = {
             else if (
             // only cache other properties when instance has declared (thus stable)
             // props
-            (normalizedProps = normalizePropsOptions(type)[0]) &&
+            (normalizedProps = instance.propsOptions[0]) &&
                 hasOwn(normalizedProps, key)) {
                 accessCache[key] = 2 /* PROPS */;
                 return props[key];
@@ -13501,13 +13544,12 @@ const PublicInstanceProxyHandlers = {
         }
         return true;
     },
-    has({ _: { data, setupState, accessCache, ctx, type, appContext } }, key) {
+    has({ _: { data, setupState, accessCache, ctx, appContext, propsOptions } }, key) {
         let normalizedProps;
         return (accessCache[key] !== undefined ||
             (data !== EMPTY_OBJ && hasOwn(data, key)) ||
             (setupState !== EMPTY_OBJ && hasOwn(setupState, key)) ||
-            ((normalizedProps = normalizePropsOptions(type)[0]) &&
-                hasOwn(normalizedProps, key)) ||
+            ((normalizedProps = propsOptions[0]) && hasOwn(normalizedProps, key)) ||
             hasOwn(ctx, key) ||
             hasOwn(publicPropertiesMap, key) ||
             hasOwn(appContext.config.globalProperties, key));
@@ -13527,13 +13569,13 @@ const RuntimeCompiledPublicInstanceProxyHandlers = extend({}, PublicInstanceProx
     }
 });
 const emptyAppContext = createAppContext();
-let uid$1 = 0;
+let uid$1$1 = 0;
 function createComponentInstance(vnode, parent, suspense) {
     const type = vnode.type;
     // inherit parent app context - or - if root, adopt from root vnode
     const appContext = (parent ? parent.appContext : vnode.appContext) || emptyAppContext;
     const instance = {
-        uid: uid$1++,
+        uid: uid$1$1++,
         vnode,
         type,
         parent,
@@ -13552,6 +13594,12 @@ function createComponentInstance(vnode, parent, suspense) {
         // local resovled assets
         components: null,
         directives: null,
+        // resolved props and emits options
+        propsOptions: normalizePropsOptions(type, appContext),
+        emitsOptions: normalizeEmitsOptions(type, appContext),
+        // emit
+        emit: null,
+        emitted: null,
         // state
         ctx: EMPTY_OBJ,
         data: EMPTY_OBJ,
@@ -13582,9 +13630,7 @@ function createComponentInstance(vnode, parent, suspense) {
         a: null,
         rtg: null,
         rtc: null,
-        ec: null,
-        emit: null,
-        emitted: null
+        ec: null
     };
     {
         instance.ctx = { _: instance };
@@ -13733,7 +13779,7 @@ function computed$1(getterOrOptions) {
     return c;
 }
 // Core API ------------------------------------------------------------------
-const version = \\"3.0.0-rc.9\\";
+const version = \\"3.0.0-rc.10\\";
 const svgNS = 'http://www.w3.org/2000/svg';
 const doc = (typeof document !== 'undefined' ? document : null);
 let tempContainer;
