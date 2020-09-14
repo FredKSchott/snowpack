@@ -38,6 +38,8 @@ Then add this plugin to your Snowpack config:
 | Name             |   Type    | Description                                                     |
 | :--------------- | :-------: | :-------------------------------------------------------------- |
 | `minifyJS`       | `boolean` | Should JS be minified? (default: `true`)                        |
+| `minifyCSS`       | `boolean` | Should CSS be minified? (default: `true`)                        |
+| `minifyHTML`       | `boolean` | Should HTML be minified? (default: `true`)                        |
 | `preloadModules` | `boolean` | Should static `import`s be preloaded in HTML? (default: `true`) |
 | `target` | `string | string[]` | The language target(s) to transpile to. This can be a single string (ex: "es2018") or an array of strings (ex: ["chrome58","firefox57"]). If undefined, no transpilation will be done. See [esbuild documentation](https://github.com/evanw/esbuild) for more. |
 

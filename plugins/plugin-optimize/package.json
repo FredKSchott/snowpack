@@ -3,9 +3,11 @@
   "version": "0.0.1",
   "main": "plugin.js",
   "dependencies": {
+    "csso": "^4.0.3",
     "es-module-lexer": "^0.3.24",
     "esbuild": "^0.6.28",
     "glob": "^7.1.6",
+    "html-minifier": "^4.0.0",
     "kleur": "^4.1.1",
     "p-queue": "^6.6.1"
   }
