@@ -8,7 +8,7 @@
     "testbuild": "snowpack build"
   },
   "devDependencies": {
-    "@snowpack/plugin-optimize": "^0.0.1",
+    "@snowpack/plugin-optimize": "^0.1.0",
     "snowpack": "^2.7.0"
   }
 }

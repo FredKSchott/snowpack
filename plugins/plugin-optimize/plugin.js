@@ -24,7 +24,7 @@ exports.default = function plugin(config, userDefinedOptions) {
     minifyJS: true,
     minifyHTML: true,
     minifyCSS: true,
-    preloadModules: true,
+    preloadModules: false,
     ...(userDefinedOptions || {}),
   };
 

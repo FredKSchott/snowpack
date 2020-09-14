@@ -558,13 +558,6 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     }
   }
 
-  // warn for minify: true
-  if (config.buildOptions.minify) {
-    logger.warn(
-      '[snowpack] buildOptions.minify is deprecated. Please install @snowpack/plugin-optimize instead: https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-optimize',
-    );
-  }
-
   plugins.forEach((plugin) => {
     if (plugin.config) {
       plugin.config(config);
@@ -666,6 +659,11 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   ) {
     handleDeprecatedConfigError(
       '[Snowpack v1 -> v2] `scripts["plugin:..."]` have been renamed to scripts["build:..."].',
+    );
+  }
+  if (rawConfig.buildOptions?.minify) {
+    handleDeprecatedConfigError(
+      '[Snowpack 2.11.0] `buildOptions.minify` has moved to package "@snowpack/plugin-optimize". Install it and include as a plugin in your Snowpack config file.',
     );
   }
   // Removed!

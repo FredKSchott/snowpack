@@ -2,11 +2,11 @@
 
 Optimize your unbundled Snowpack app:
 
-- ✅ Transpile JS
+- ✅ Minify HTML
+- ✅ Minify CSS
 - ✅ Minify JS
+- ✅ Transpile JS
 - ✅ [Preload JS Modules][modulepreload]
-- (Coming soon) Minify HTML
-- (Coming soon) Minify CSS
 
 ### Usage
 
@@ -22,25 +22,17 @@ Then add this plugin to your Snowpack config:
 // snowpack.config.json
 {
   "plugins": [
-    [
-      "@snowpack/plugin-optimize",
-      {
-        minifyJS: true, // default
-        preloadModules: true, // default
-      }
-    ]
+    ["@snowpack/plugin-optimize", { /* see options below */ }]
   ]
 }
 ```
 
 ### Plugin Options
 
-| Name             |   Type    | Description                                                     |
-| :--------------- | :-------: | :-------------------------------------------------------------- |
-| `minifyJS`       | `boolean` | Should JS be minified? (default: `true`)                        |
-| `minifyCSS`       | `boolean` | Should CSS be minified? (default: `true`)                        |
-| `minifyHTML`       | `boolean` | Should HTML be minified? (default: `true`)                        |
-| `preloadModules` | `boolean` | Should static `import`s be preloaded in HTML? (default: `true`) |
-| `target` | `string | string[]` | The language target(s) to transpile to. This can be a single string (ex: "es2018") or an array of strings (ex: ["chrome58","firefox57"]). If undefined, no transpilation will be done. See [esbuild documentation](https://github.com/evanw/esbuild) for more. |
-
-[modulepreload]: https://developers.google.com/web/updates/2017/12/modulepreload
+| Name             |       Type        | Description                                                                                                                                                                                                                                                    |
+| :--------------- | :---------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `minifyJS`       |     `boolean`     | Enable JS minification (default: `true`)                                                                                                                                                                                                                       |
+| `minifyCSS`      |     `boolean`     | Enable CSS minification (default: `true`)                                                                                                                                                                                                                      |
+| `minifyHTML`     |     `boolean`     | Enable HTML minification (default: `true`)                                                                                                                                                                                                                     |
+| `preloadModules` |     `boolean`     | Experimental: Add deep, optimized [`<link rel="modulepreload">`](https://developers.google.com/web/updates/2017/12/modulepreload) tags into your HTML. (default: `false`)                                                                                      |
+| `target`         | `string,string[]` | The language target(s) to transpile to. This can be a single string (ex: "es2018") or an array of strings (ex: ["chrome58","firefox57"]). If undefined, no transpilation will be done. See [esbuild documentation](https://github.com/evanw/esbuild) for more. |

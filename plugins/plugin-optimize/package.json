@@ -1,7 +1,11 @@
 {
   "name": "@snowpack/plugin-optimize",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "plugin.js",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "csso": "^4.0.3",
     "es-module-lexer": "^0.3.24",

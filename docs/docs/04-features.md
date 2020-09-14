@@ -270,3 +270,32 @@ Snowpack supports [native CSS "@import" behavior](https://developer.mozilla.org/
 **Note:** The actual CSS spec dictates that a "bare" import specifier like `@import "package/style.css"` should be treated as a relative path, equivalent to `@import "./package/style.css"`. We intentionally break from the spec to match the same package import behavior as JavaScript imports. If you prefer the strictly native behavior with no package resolution support, use the form `@import url("package/style.css")` instead. Snowpack will not resolve `url()` imports and will leave them as-is in the final build.
 
 **Note for webpack users:** If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With Snowpack you remove the `~` from your `@import`s.
+
+
+### Optimized Builds
+
+By default, Snowpack doesn't optimize your code for production. But, there are several plugins available to optimize your final build, including minification (reducing file sizes) and even bundling (combining files together to reduce the number of requests needed).
+
+**Connect the `@snowpack/plugin-optimize` plugin to optimize your build.** By default this will minify your built files for faster loading. It can also be configured to add `<link ref="modulepreload" />` elements that will improve the loading speed of unbundled sites. _Note: this plugin replaces `buildOptions.minify`._
+
+```js
+// snowpack.config.json
+// [npm install @snowpack/plugin-optimize]
+{
+  "plugins": [
+    ["@snowpack/plugin-optimize", {/* ... */}]
+  ]
+}
+```
+
+Note that `@snowpack/plugin-optimize` will optimize your build, but won't bundle files together.
+
+**If you'd like a bundled build, use `@snowpack/plugin-webpack` instead.** Connect the `"@snowpack/plugin-webpack"` plugin in your Snowpack configuration file and then run `snowpack build` to see your optimized, *bundled* build.
+
+```js
+// snowpack.config.json
+// [npm install @snowpack/plugin-webpack]
+{
+  "plugins": [["@snowpack/plugin-webpack", {/* ... */}]]
+}
+```

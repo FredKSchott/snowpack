@@ -4452,9 +4452,9 @@ Array [
 `;
 
 exports[`snowpack build module-preload: index.html 1`] = `
-"<!DOCTYPE html><html><head><title>My App</title><link rel=\\"modulepreload\\" href=\\"/_dist_/should-be-preloaded.js\\"></head><body><script type=\\"module\\" src=\\"/_dist_/home.js\\"></script><script>// some arbitrary JS; this tests that the scanner ignores this
+"<!DOCTYPE html><html><head><title>My App</title></head><body><script type=\\"module\\" src=\\"/_dist_/home.js\\"></script><script>// some arbitrary JS; this tests that the scanner ignores this
       const src = 'foo.js';
-      console.log(foo);</script><script src=\\"/_dist_/should-not-be-preloaded.js\\"></script><script type=\\"module\\" src=\\"/_dist_/should-be-preloaded.js\\"></script></body></html>"
+      console.log(foo);</script><script src=\\"/_dist_/should-not-be-preloaded.js\\"></script></body></html>"
 `;
 
 exports[`snowpack build module-resolution: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
