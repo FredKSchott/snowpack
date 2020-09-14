@@ -308,7 +308,6 @@ export async function command(commandOptions: CommandOptions) {
   if (getIsHmrEnabled(config)) {
     await fs.writeFile(path.resolve(internalFilesBuildLoc, 'hmr.js'), HMR_CLIENT_CODE);
     hmrEngine = new EsmHmrEngine();
-    logger.info(`[HMR] WebSocket URL available at ${colors.cyan(`${hmrEngine.wsUrl}`)}`);
   }
 
   logger.info(colors.yellow('! building source…'));
@@ -425,6 +424,10 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   // "--watch" mode - Start watching the file system.
+  if (hmrEngine) {
+    logger.info(`[HMR] WebSocket URL available at ${colors.cyan(`${hmrEngine.wsUrl}`)}`);
+  }
+
   // Defer "chokidar" loading to here, to reduce impact on overall startup time
   logger.info(colors.cyan('Watching for changes...'));
   const chokidar = await import('chokidar');
