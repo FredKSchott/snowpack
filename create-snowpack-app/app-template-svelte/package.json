@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-svelte",
-  "version": "1.8.9",
+  "version": "1.8.11",
   "license": "MIT",
   "keywords": [
     "csa-template"
