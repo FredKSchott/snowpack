@@ -26,8 +26,14 @@ Note: you will see warnings about `__dirname` and `require()` not being "a valid
 
 ```bash
 yarn build
-yarn --force
+yarn --force # only needed after very first build; afterward can be skipped
 ```
+
+#### Why is `yarn --force` needed?
+
+The advantages of using Lerna in a monorepo setup means when we run our tests (and even the [create-snowpack-app templates](./create-snowpack-app)), we’re using our local build of Snowpack and not npm’s published version. After all, if we had to publish to npm in order to test anything, that would be a bad experience for everyone!
+
+When we run `yarn build`, a binstub is built at `./snowpack/pkg/node-dist/index.bin.js`. This is what runs when you run `snowpack` in your CLI, as well as the thing that runs for all our tests. But say you ran `yarn build && yarn test` (no `yarn --force`), you’d get an error message: `/bin/sh: snowpack: command not found`. That’s because in all our tests and sub-projects it’s not enough for that to exist; that has to be symlinked inside every sub-project to `node_modules/.bin/snowpack` (again, because we want to use a local build and not npm’s version). `yarn` is the quickest way to symlink everything, however, `yarn --force` is required at this stage when dependencies are already installed. Without that flag Yarn (incorrectly) thinks there’s nothing to do. In other words, `yarn --force` is only needed **one time** as a one-line command to symlink everything for local development, after which only `yarn build` is needed for subsequent changes and rebuilds.
 
 ## Run tests
 
