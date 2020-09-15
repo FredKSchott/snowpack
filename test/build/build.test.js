@@ -24,8 +24,15 @@ describe('snowpack build', () => {
 
     it(testName, () => {
       const cwd = path.join(__dirname, testName);
+      const relativePath = cwd.replace(process.cwd() + '/', '');
+
       if (!existsSync(path.join(cwd, 'package.json'))) {
-        console.error(testName, 'no longer exists, skipping...');
+        console.warn(
+          '%s folder has no package.json file, it is likely a leftover folder from a deleted test. You can remove the folder with `git clean -xdf %s`',
+          relativePath,
+          relativePath,
+        );
+
         return;
       }
 
