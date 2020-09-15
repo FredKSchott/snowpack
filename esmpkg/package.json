@@ -27,6 +27,7 @@
     "@rollup/plugin-inject": "^4.0.2",
     "@rollup/plugin-json": "^4.0.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
+    "@rollup/plugin-replace": "^2.3.3",
     "es-module-lexer": "^0.3.24",
     "is-builtin-module": "^3.0.0",
     "kleur": "^4.1.1",

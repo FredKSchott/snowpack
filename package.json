@@ -14,7 +14,7 @@
     "snowpack",
     "esmpkg",
     "test/build/*",
-    "test/integration/*"
+    "test/esmpkg/*"
   ],
   "devDependencies": {
     "@pika/pack": "^0.5.0",
