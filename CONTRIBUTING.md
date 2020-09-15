@@ -50,7 +50,7 @@ You can run your local snowpack by path
 ```bash
 yarn build
 cd path/to/some-other-project
-/path/to/snowpack/pkg/dist-node/index.bin.js dev
+/path/to/snowpack/pkg/dist-node/index.bin.js dev --verbose --reload
 ```
 
 Or by linking the global `snowpack` library to your local clone
@@ -59,8 +59,10 @@ Or by linking the global `snowpack` library to your local clone
 cd pkg
 npm link
 cd path/to/some-other-project
-snowpack dev
+snowpack dev --verbose --reload
 ```
+
+The `--verbose` flag enables additional logs which will help to identify the source of a problem. The `--reload` will clear the local cache which might have been created by a different `snowpack` version. Learn more about [Snowpack's CLI flags](https://www.snowpack.dev/#cli-flags).
 
 ## Discussion
 
