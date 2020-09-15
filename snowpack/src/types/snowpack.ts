@@ -1,4 +1,5 @@
 import type HttpProxy from 'http-proxy';
+import type * as http from 'http';
 import {Plugin as RollupPlugin} from 'rollup';
 
 export type DeepPartial<T> = {
@@ -121,6 +122,7 @@ export interface SnowpackConfig {
     fallback: string;
     open: string;
     hmr?: boolean;
+    middleware?: (req: http.IncomingMessage, res: http.ServerResponse, next: () => void) => unknown;
   };
   installOptions: {
     dest: string;
