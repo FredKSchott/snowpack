@@ -1,17 +1,11 @@
 import * as colors from 'kleur/colors';
 import path from 'path';
 import {Plugin} from 'rollup';
-import {logger} from '../logger';
-import {InstallTarget} from '../types';
+import {InstallTarget, AbstractLogger} from '../types';
 import {getWebDependencyName} from '../util.js';
 
-function autoDetectExports(fileLoc: string): string[] | undefined {
-  try {
-    return Object.keys(require(fileLoc)).filter((imp) => imp !== 'default');
-  } catch (err) {
-    logger.error(`✘ Could not auto-detect exports for ${colors.bold(fileLoc)}
-${err.message}`);
-  }
+function autoDetectExports(fileLoc: string): string[] {
+  return Object.keys(require(fileLoc)).filter((imp) => imp !== 'default');
 }
 
 /**
@@ -30,6 +24,7 @@ export function rollupPluginWrapInstallTargets(
   isTreeshake: boolean,
   autoDetectPackageExports: string[],
   installTargets: InstallTarget[],
+  logger: AbstractLogger,
 ): Plugin {
   const installTargetSummaries: {[loc: string]: InstallTarget} = {};
 
@@ -80,7 +75,12 @@ export function rollupPluginWrapInstallTargets(
       let uniqueNamedImports = Array.from(new Set(installTargetSummary.named));
       const normalizedFileLoc = fileLoc.split(path.win32.sep).join(path.posix.sep);
       if ((!isTreeshake || installTargetSummary.namespace) && isAutoDetect(normalizedFileLoc)) {
-        uniqueNamedImports = autoDetectExports(fileLoc) || uniqueNamedImports;
+        try {
+          uniqueNamedImports = autoDetectExports(fileLoc);
+        } catch (err) {
+          logger.error(`✘ Could not auto-detect exports for ${colors.bold(fileLoc)}
+${err.message}`);
+        }
         installTargetSummary.default = true;
       }
       const result = `
