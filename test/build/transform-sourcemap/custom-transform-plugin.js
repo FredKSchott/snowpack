@@ -7,7 +7,7 @@ module.exports = function () {
       ms.appendLeft(contents.indexOf('console.log'), `console.log('transformed');\n`);
       const map = ms.generateMap({source: id, hires: false, includeContent: true});
       return {
-        result: ms.toString(),
+        contents: ms.toString(),
         // Try returning both object and string map formats.
         map: fileExt === '.js' ? map : map.toString()
       }
