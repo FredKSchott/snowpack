@@ -4001,7 +4001,7 @@ backo2@1.0.2:
   resolved "https://registry.yarnpkg.com/backo2/-/backo2-1.0.2.tgz#31ab1ac8b129363463e35b3ebb69f4dfcfba7947"
   integrity sha1-MasayLEpNjRj41s+u2n038+6eUc=
 
-"bad-node-builtin-pkg@file:./test/integration/error-node-builtin-unresolved/packages/bad-node-builtin-pkg":
+"bad-node-builtin-pkg@file:./test/esmpkg/error-node-builtin-unresolved/packages/bad-node-builtin-pkg":
   version "1.2.3"
 
 balanced-match@^1.0.0:
@@ -4737,7 +4737,7 @@ cipher-base@^1.0.0, cipher-base@^1.0.1, cipher-base@^1.0.3:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
-"cjs-named-export-pkg@file:./test/integration/config-named-exports/packages/cjs-named-export-pkg":
+"cjs-named-export-pkg@file:./test/esmpkg/config-named-exports/packages/cjs-named-export-pkg":
   version "1.2.3"
 
 class-utils@^0.3.5:
@@ -5046,10 +5046,10 @@ config-chain@^1.1.11, config-chain@^1.1.12:
     ini "^1.3.4"
     proto-list "~1.2.1"
 
-"config-external-pkg-a@file:./test/integration/config-external/packages/config-external-pkg-a":
+"config-external-pkg-a@file:./test/esmpkg/config-external/packages/config-external-pkg-a":
   version "1.2.3"
 
-"config-external-pkg-b@file:./test/integration/config-external/packages/config-external-pkg-b":
+"config-external-pkg-b@file:./test/esmpkg/config-external/packages/config-external-pkg-b":
   version "1.2.3"
 
 configstore@^4.0.0:
@@ -5404,10 +5404,10 @@ css-loader@^3.5.3:
     schema-utils "^2.7.0"
     semver "^6.3.0"
 
-"css-mock-pkg-a@file:./test/integration/dep-list-css/packages/css-mock-pkg-a":
+"css-mock-pkg-a@file:./test/esmpkg/dep-list-css/packages/css-mock-pkg-a":
   version "1.0.0"
 
-"css-mock-pkg-b@file:./test/integration/dep-list-css/packages/css-mock-pkg-b":
+"css-mock-pkg-b@file:./test/esmpkg/dep-list-css/packages/css-mock-pkg-b":
   version "1.0.0"
 
 css-modules-loader-core@^1.1.0:
@@ -5846,7 +5846,7 @@ delegates@^1.0.0:
   resolved "https://registry.yarnpkg.com/delegates/-/delegates-1.0.0.tgz#84c6e159b81904fdca59a0ef44cd870d31250f9a"
   integrity sha1-hMbhWbgZBP3KWaDvRM2HDTElD5o=
 
-"dep-node-fetch-mock-pkg@file:./test/integration/dep-node-fetch/packages/dep-node-fetch-mock-pkg":
+"dep-node-fetch-mock-pkg@file:./test/esmpkg/dep-node-fetch/packages/dep-node-fetch-mock-pkg":
   version "1.0.0"
 
 depd@~1.1.2:
@@ -6287,10 +6287,10 @@ error-ex@^1.2.0, error-ex@^1.3.1:
   dependencies:
     is-arrayish "^0.2.1"
 
-"error-file-ext-dep-a@file:./test/integration/error-file-ext/packages/error-file-ext-dep-a":
+"error-file-ext-dep-a@file:./test/esmpkg/error-file-ext/packages/error-file-ext-dep-a":
   version "1.0.0"
 
-"error-file-ext-dep-b@file:./test/integration/error-file-ext/packages/error-file-ext-dep-b":
+"error-file-ext-dep-b@file:./test/esmpkg/error-file-ext/packages/error-file-ext-dep-b":
   version "1.0.0"
 
 es-abstract@^1.17.0-next.1, es-abstract@^1.17.2, es-abstract@^1.17.5:
@@ -7693,7 +7693,7 @@ ignore@^4.0.3:
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-4.0.6.tgz#750e3db5862087b4737ebac8207ffd1ef27b25fc"
   integrity sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==
 
-"illegal-env-var-pkg@file:./test/integration/error-illegal-env-var/packages/illegal-env-var-pkg":
+"illegal-env-var-pkg@file:./test/esmpkg/error-illegal-env-var/packages/illegal-env-var-pkg":
   version "1.2.3"
 
 immutable@^3:
@@ -10187,10 +10187,10 @@ node-addon-api@^1.7.1:
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-1.7.2.tgz#3df30b95720b53c24e59948b49532b662444f54d"
   integrity sha512-ibPK3iA+vaY1eEjESkQkM0BbCqFOaZMiXRTtdB0u7b4djtY6JnsjvPdUHVMg6xQt3B8fpTTWHI9A+ADjM9frzg==
 
-"node-builtin-pkg@file:./test/integration/config-polyfill-node/packages/node-builtin-pkg":
+"node-builtin-pkg@file:./test/esmpkg/config-polyfill-node/packages/node-builtin-pkg":
   version "1.2.3"
 
-"node-env-mock-pkg@file:./test/integration/node-env/packages/node-env-mock-pkg":
+"node-env-mock-pkg@file:./test/esmpkg/node-env/packages/node-env-mock-pkg":
   version "1.2.3"
 
 node-fetch-npm@^2.0.2:
@@ -10890,13 +10890,13 @@ p-waterfall@^1.0.0:
   dependencies:
     p-reduce "^1.0.0"
 
-"package-01@file:./test/integration/include/packages/package-01":
+"package-01@file:./test/esmpkg/include/packages/package-01":
   version "1.0.0"
 
-"package-02@file:./test/integration/include/packages/package-02":
+"package-02@file:./test/esmpkg/include/packages/package-02":
   version "1.0.0"
 
-"package-has-valid@file:./test/integration/dep-browser-entrypoint-object/package-has-valid":
+"package-has-valid@file:./test/esmpkg/dep-browser-entrypoint-object/package-has-valid":
   version "1.2.3"
 
 package-json@^6.3.0:
@@ -10909,7 +10909,7 @@ package-json@^6.3.0:
     registry-url "^5.0.0"
     semver "^6.2.0"
 
-"package-no-valid@file:./test/integration/dep-browser-entrypoint-object/package-no-valid":
+"package-no-valid@file:./test/esmpkg/dep-browser-entrypoint-object/package-no-valid":
   version "1.2.3"
 
 pako@^0.2.5:
@@ -12470,7 +12470,7 @@ relateurl@^0.2.7:
   resolved "https://registry.yarnpkg.com/relateurl/-/relateurl-0.2.7.tgz#54dbf377e51440aca90a4cd274600d3ff2d888a9"
   integrity sha1-VNvzd+UUQKypCkzSdGANP/LYiKk=
 
-"remote-url-pkg@file:./test/integration/dep-remote-url/packages/remote-url-pkg":
+"remote-url-pkg@file:./test/esmpkg/dep-remote-url/packages/remote-url-pkg":
   version "1.0.0"
 
 remove-trailing-separator@^1.0.1:
@@ -14299,7 +14299,7 @@ type-fest@^0.8.1:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.8.1.tgz#09e249ebde851d3b1e48d27c105444667f17b83d"
   integrity sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==
 
-"type-only-pkg@file:./test/integration/error-dep-types-only/packages/type-only-pkg":
+"type-only-pkg@file:./test/esmpkg/error-dep-types-only/packages/type-only-pkg":
   version "1.0.0"
 
 typedarray-to-buffer@^3.1.5:

@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {OutputBundle, Plugin} from 'rollup';
 import zlib from 'zlib';
-import {DependencyType, DependencyStatsOutput} from '../types/snowpack';
+import {DependencyType, DependencyStatsOutput} from '../types';
 
 export function rollupPluginDependencyStats(
   cb: (dependencyInfo: DependencyStatsOutput) => void,
