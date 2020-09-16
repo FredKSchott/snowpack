@@ -1,5 +1,5 @@
 import type HttpProxy from 'http-proxy';
-import type {InstallOptions} from 'esmpkg';
+import type {InstallOptions} from 'esinstall';
 
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>

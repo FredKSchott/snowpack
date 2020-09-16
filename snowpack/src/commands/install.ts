@@ -1,4 +1,4 @@
-import {DependencyStatsOutput, install, InstallTarget, printStats} from 'esmpkg';
+import {DependencyStatsOutput, install, InstallTarget, printStats} from 'esinstall';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import {performance} from 'perf_hooks';

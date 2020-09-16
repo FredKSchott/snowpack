@@ -54,7 +54,7 @@
     "@babel/plugin-syntax-import-meta": "^7.10.4",
     "@snowpack/plugin-build-script": "^2.0.7",
     "@snowpack/plugin-run-script": "^2.1.2",
-    "esmpkg": "^0.0.1",
+    "esinstall": "^0.0.1",
     "cacache": "^15.0.0",
     "cachedir": "^2.3.0",
     "chokidar": "^3.4.0",

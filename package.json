@@ -3,18 +3,18 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build --scope=esmpkg --scope=snowpack",
+    "build": "lerna run build --scope=esinstall --scope=snowpack",
     "publish": "lerna publish --no-private",
-    "format": "prettier --write \"{snowpack,esmpkg}/src/**/*.ts\"",
+    "format": "prettier --write \"{snowpack,esinstall}/src/**/*.ts\"",
     "test": "jest --test-timeout=30000"
   },
   "workspaces": [
     "create-snowpack-app/*",
     "plugins/*",
     "snowpack",
-    "esmpkg",
+    "esinstall",
     "test/build/*",
-    "test/esmpkg/*"
+    "test/esinstall/*"
   ],
   "devDependencies": {
     "@pika/pack": "^0.5.0",
