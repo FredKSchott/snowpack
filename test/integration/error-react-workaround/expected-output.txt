@@ -1,2 +1,0 @@
-[snowpack] ! installing dependencies…
-[snowpack] React workaround packages no longer needed! Revert back to the official React & React-DOM packages.

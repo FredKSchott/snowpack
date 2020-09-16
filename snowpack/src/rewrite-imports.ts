@@ -72,7 +72,7 @@ async function transformCssImports(code: string, replaceImport: (specifier: stri
     // Only transform a script element if it contains inlined code / is not empty.
     rewrittenCode = spliceString(
       rewrittenCode,
-      `@import "${replaceImport(spec)}"`,
+      `@import "${replaceImport(spec)}";`,
       match.index,
       match.index + fullMatch.length,
     );
@@ -81,7 +81,7 @@ async function transformCssImports(code: string, replaceImport: (specifier: stri
 }
 
 export async function transformFileImports(
-  {baseExt, contents}: SnowpackSourceFile,
+  {baseExt, contents}: SnowpackSourceFile<string>,
   replaceImport: (specifier: string) => string,
 ) {
   if (baseExt === '.js') {

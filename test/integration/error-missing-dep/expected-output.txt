@@ -1,3 +1,0 @@
-[snowpack] ! installing dependencies…
-[snowpack] Package "fake-module" not found. Have you installed it?
-[snowpack] Install failed.

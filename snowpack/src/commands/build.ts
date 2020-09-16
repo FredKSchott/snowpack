@@ -21,15 +21,22 @@ import {transformFileImports} from '../rewrite-imports';
 import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
 import {
   cssSourceMappingURL,
-  getEncodingType,
   jsSourceMappingURL,
+  readFile,
   relativeURL,
   removeLeadingSlash,
   replaceExt,
+  HMR_CLIENT_CODE,
 } from '../util';
 import {getInstallTargets, run as installRunner} from './install';
+import {EsmHmrEngine} from '../hmr-server-engine';
 
 const CONCURRENT_WORKERS = require('os').cpus().length;
+
+let hmrEngine: EsmHmrEngine | null = null;
+function getIsHmrEnabled(config: SnowpackConfig) {
+  return config.buildOptions.watch && !!config.devOptions.hmr;
+}
 
 async function installOptimizedDependencies(
   scannedFiles: SnowpackSourceFile[],
@@ -139,7 +146,7 @@ class FileBuilder {
           case '.html': {
             code = wrapHtmlResponse({
               code,
-              hmr: false,
+              hmr: getIsHmrEnabled(this.config),
               isDev: false,
               config: this.config,
               mode: 'production',
@@ -165,7 +172,12 @@ class FileBuilder {
   async resolveImports(importMap: ImportMap) {
     let isSuccess = true;
     this.filesToProxy = [];
-    for (const [outLoc, file] of Object.entries(this.filesToResolve)) {
+    for (const [outLoc, rawFile] of Object.entries(this.filesToResolve)) {
+      // don’t transform binary file contents
+      if (Buffer.isBuffer(rawFile.contents)) {
+        continue;
+      }
+      const file = rawFile as SnowpackSourceFile<string>;
       const resolveImportSpecifier = createImportResolver({
         fileLoc: file.locOnDisk!, // we’re confident these are reading from disk because we just read them
         dependencyImportMap: importMap,
@@ -179,7 +191,7 @@ class FileBuilder {
         // Until supported, just exit here.
         if (!resolvedImportUrl) {
           isSuccess = false;
-          logger.error(`${file.locOnDisk} - Could not resolve unkonwn import "${spec}".`);
+          logger.error(`${file.locOnDisk} - Could not resolve unknown import "${spec}".`);
           return spec;
         }
         // Ignore "http://*" imports
@@ -187,8 +199,11 @@ class FileBuilder {
           return spec;
         }
         // Handle normal "./" & "../" import specifiers
-        const extName = path.extname(resolvedImportUrl);
-        const isProxyImport = extName && extName !== '.js';
+        const importExtName = path.extname(resolvedImportUrl);
+        const isProxyImport =
+          importExtName &&
+          (file.baseExt === '.js' || file.baseExt === '.html') &&
+          importExtName !== '.js';
         const isAbsoluteUrlPath = path.posix.isAbsolute(resolvedImportUrl);
         let resolvedImportPath = removeLeadingSlash(path.normalize(resolvedImportUrl));
         // We treat ".proxy.js" files special: we need to make sure that they exist on disk
@@ -227,7 +242,8 @@ class FileBuilder {
   async writeToDisk() {
     mkdirp.sync(this.outDir);
     for (const [outLoc, code] of Object.entries(this.output)) {
-      await fs.writeFile(outLoc, code, getEncodingType(path.extname(outLoc)));
+      const encoding = typeof code === 'string' ? 'utf-8' : undefined;
+      await fs.writeFile(outLoc, code, encoding);
     }
   }
 
@@ -243,7 +259,7 @@ class FileBuilder {
       hmr: false,
       config: this.config,
     });
-    await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
+    await fs.writeFile(importProxyFileLoc, proxyCode, 'utf-8');
   }
 }
 
@@ -289,6 +305,10 @@ export async function command(commandOptions: CommandOptions) {
 
   // Write the `import.meta.env` contents file to disk
   await fs.writeFile(path.join(internalFilesBuildLoc, 'env.js'), generateEnvModule('production'));
+  if (getIsHmrEnabled(config)) {
+    await fs.writeFile(path.resolve(internalFilesBuildLoc, 'hmr.js'), HMR_CLIENT_CODE);
+    hmrEngine = new EsmHmrEngine();
+  }
 
   logger.info(colors.yellow('! building source…'));
   const buildStart = performance.now();
@@ -317,7 +337,7 @@ export async function command(commandOptions: CommandOptions) {
         !installedFileLoc.endsWith('import-map.json') &&
         path.extname(installedFileLoc) !== '.js'
       ) {
-        const proxiedCode = await fs.readFile(installedFileLoc, {encoding: 'utf-8'});
+        const proxiedCode = await readFile(installedFileLoc);
         const importProxyFileLoc = installedFileLoc + '.proxy.js';
         const proxiedUrl = installedFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/');
         const proxyCode = await wrapImportProxy({
@@ -326,7 +346,7 @@ export async function command(commandOptions: CommandOptions) {
           hmr: false,
           config: config,
         });
-        await fs.writeFile(importProxyFileLoc, proxyCode, getEncodingType('.js'));
+        await fs.writeFile(importProxyFileLoc, proxyCode, 'utf-8');
       }
     }
     return installResult;
@@ -403,6 +423,11 @@ export async function command(commandOptions: CommandOptions) {
     return;
   }
 
+  // "--watch --hmr" mode - Tell users about the HMR WebSocket URL
+  if (hmrEngine) {
+    logger.info(`[HMR] WebSocket URL available at ${colors.cyan(`${hmrEngine.wsUrl}`)}`);
+  }
+
   // "--watch" mode - Start watching the file system.
   // Defer "chokidar" loading to here, to reduce impact on overall startup time
   logger.info(colors.cyan('Watching for changes...'));
@@ -448,6 +473,10 @@ export async function command(commandOptions: CommandOptions) {
       if (allImportProxyFiles.has(builtFile)) {
         await changedPipelineFile.writeProxyToDisk(builtFile);
       }
+    }
+
+    if (hmrEngine) {
+      hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
   const watcher = chokidar.watch(

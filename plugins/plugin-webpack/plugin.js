@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const glob = require("glob");
 const path = require("path");
+const url = require("url");
 const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserJSPlugin = require("terser-webpack-plugin");
@@ -10,6 +11,7 @@ const ManifestPlugin = require('webpack-manifest-plugin');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const cwd = process.cwd();
+const minify = require('html-minifier').minify;
 
 function insertBefore(newNode, existingNode) {
   existingNode.parentNode.insertBefore(newNode, existingNode);
@@ -50,7 +52,13 @@ function parseHTMLFiles({ buildDirectory }) {
   return { doms, jsEntries };
 }
 
-function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, buildDirectory }) {
+function emitHTMLFiles({
+  doms,
+  jsEntries,
+  stats, baseUrl,
+  buildDirectory,
+  htmlMinifierOptions,
+}) {
   const entrypoints = stats.toJson({ assets: false, hash: true }).entrypoints;
 
   //Now that webpack is done, modify the html files to point to the newly compiled resources
@@ -67,7 +75,9 @@ function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, buildDirectory }) {
 
         for (const jsFile of jsFiles) {
           const scriptEl = dom.window.document.createElement("script");
-          scriptEl.src = path.posix.join(baseUrl, jsFile);
+          scriptEl.src = url.parse(baseUrl).protocol
+            ? url.resolve(baseUrl, jsFile)
+            : path.posix.join(baseUrl, jsFile);
           // insert _before_ so the relative order of these scripts is maintained
           insertBefore(scriptEl, originalScriptEl);
         }
@@ -84,7 +94,11 @@ function emitHTMLFiles({ doms, jsEntries, stats, baseUrl, buildDirectory }) {
 
   //And write our modified html files out to the destination
   for (const [htmlFile, dom] of Object.entries(doms)) {
-    fs.writeFileSync(path.join(buildDirectory, htmlFile), dom.serialize());
+    const html = htmlMinifierOptions
+      ? minify(dom.serialize(), htmlMinifierOptions)
+      : dom.serialize();
+
+    fs.writeFileSync(path.join(buildDirectory, htmlFile), html);
   }
 }
 
@@ -140,7 +154,7 @@ function getSplitChunksConfig({ numEntries }) {
   };
 }
 
-module.exports = function plugin(config, args) {
+module.exports = function plugin(config, args = {}) {
   // Deprecated: args.mode
   if (args.mode && args.mode !== "production") {
     throw new Error("args.mode support has been removed.");
@@ -158,9 +172,22 @@ module.exports = function plugin(config, args) {
   if (!cssOutputPattern.endsWith(".css")) {
     throw new Error("Output Pattern for CSS must end in .css");
   }
-  
+
+  // Default options for HTMLMinifier
+  // https://github.com/kangax/html-minifier#options-quick-reference
+  const defaultHtmlMinifierOptions = {
+    collapseWhitespace: true,
+    removeComments: true,
+    removeEmptyAttributes: true,
+    removeRedundantAttributes: true,
+    removeScriptTypeAttributes: true,
+    removeStyleLinkTypeAttributes: true,
+  };
+
+  const htmlMinifierOptions = args.htmlMinifierOptions === false ? false : Object.assign({}, defaultHtmlMinifierOptions, args.htmlMinifierOptions)
+
   const manifest =
-    typeof args.manifest === string
+    typeof args.manifest === 'string'
       ? args.manifest
       : !!args.manifest
       ? './asset-manifest.json'
@@ -224,6 +251,7 @@ module.exports = function plugin(config, args) {
                     cwd: buildDirectory,
                     configFile: false,
                     babelrc: false,
+                    compact: true,
                     presets: [
                       [
                         "@babel/preset-env",
@@ -239,7 +267,7 @@ module.exports = function plugin(config, args) {
                   },
                 },
                 {
-                  loader: require.resolve('@open-wc/webpack-import-meta-loader'),
+                  loader: require.resolve("./plugins/import-meta-fix.js"),
                 },
                 {
                   loader: require.resolve("./plugins/proxy-import-resolve.js"),
@@ -352,7 +380,14 @@ module.exports = function plugin(config, args) {
         );
       }
 
-      emitHTMLFiles({ doms, jsEntries, stats, baseUrl, buildDirectory });
+      emitHTMLFiles({
+        doms,
+        jsEntries,
+        stats,
+        baseUrl,
+        buildDirectory,
+        htmlMinifierOptions,
+      });
     },
   };
 };

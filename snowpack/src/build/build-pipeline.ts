@@ -1,9 +1,8 @@
-import {promises as fs} from 'fs';
 import path from 'path';
 import {validatePluginLoadResult} from '../config';
 import {logger} from '../logger';
 import {SnowpackBuildMap, SnowpackConfig, SnowpackPlugin} from '../types/snowpack';
-import {getEncodingType, getExt, replaceExt} from '../util';
+import {getExt, readFile, replaceExt} from '../util';
 
 export interface BuildFileOptions {
   isDev: boolean;
@@ -97,7 +96,7 @@ async function runPipelineLoadStep(
 
   return {
     [srcExt]: {
-      code: await fs.readFile(srcPath, getEncodingType(srcExt)),
+      code: await readFile(srcPath),
     },
   };
 }

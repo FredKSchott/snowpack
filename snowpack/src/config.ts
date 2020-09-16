@@ -2,7 +2,6 @@ import buildScriptPlugin from '@snowpack/plugin-build-script';
 import runScriptPlugin from '@snowpack/plugin-run-script';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
-import fs from 'fs';
 import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
 import path from 'path';
@@ -23,7 +22,13 @@ import {
   SnowpackConfig,
   SnowpackPlugin,
 } from './types/snowpack';
-import {addLeadingSlash, addTrailingSlash, removeLeadingSlash, removeTrailingSlash} from './util';
+import {
+  addLeadingSlash,
+  addTrailingSlash,
+  readFile,
+  removeLeadingSlash,
+  removeTrailingSlash,
+} from './util';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
@@ -53,7 +58,6 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     open: 'default',
     out: 'build',
     fallback: 'index.html',
-    hmr: true,
     hmrDelay: 0,
   },
   buildOptions: {
@@ -268,7 +272,7 @@ function loadPlugins(
       plugin.load = async (options: PluginLoadOptions) => {
         const result = await build({
           ...options,
-          contents: fs.readFileSync(options.filePath, 'utf-8'),
+          contents: await readFile(options.filePath),
         }).catch((err) => {
           logger.error(
             `[${plugin.name}] There was a problem running this older plugin. Please update the plugin to the latest version.`,
@@ -556,13 +560,6 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     }
   }
 
-  // warn for minify: true
-  if (config.buildOptions.minify) {
-    logger.warn(
-      '[snowpack] buildOptions.minify is deprecated. Please install @snowpack/plugin-optimize instead: https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-optimize',
-    );
-  }
-
   plugins.forEach((plugin) => {
     if (plugin.config) {
       plugin.config(config);
@@ -664,6 +661,11 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   ) {
     handleDeprecatedConfigError(
       '[Snowpack v1 -> v2] `scripts["plugin:..."]` have been renamed to scripts["build:..."].',
+    );
+  }
+  if (rawConfig.buildOptions?.minify) {
+    handleDeprecatedConfigError(
+      '[Snowpack 2.11.0] `buildOptions.minify` has moved to package "@snowpack/plugin-optimize". Install it and include as a plugin in your Snowpack config file.',
     );
   }
   // Removed!

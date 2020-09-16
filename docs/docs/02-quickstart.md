@@ -55,7 +55,7 @@ npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 - [@snowpack/app-template-lit-element](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-lit-element)
 - [@snowpack/app-template-lit-element-typescript](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-lit-element-typescript)
 - [@snowpack/app-template-11ty](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-11ty)
-- **[See all community templates](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app)**
+- **[See all community templates](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/cli#featured-community-templates)**
 
 <!--
 ### Tutorial: Starting from Scratch

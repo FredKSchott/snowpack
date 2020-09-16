@@ -3,8 +3,10 @@ import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-common
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import rollupPluginNodePolyfills from 'rollup-plugin-node-polyfills';
+import rollupPluginReplace from '@rollup/plugin-replace';
 import {init as initESModuleLexer} from 'es-module-lexer';
 import findUp from 'find-up';
+import util from 'util';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
@@ -28,6 +30,7 @@ import {printStats} from '../stats-formatter.js';
 import {
   CommandOptions,
   DependencyStatsOutput,
+  EnvVarReplacements,
   ImportMap,
   InstallTarget,
   SnowpackConfig,
@@ -92,7 +95,9 @@ function resolveWebDependency(dep: string): DependencyLoc {
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
     return {
       type: isJSFile ? 'JS' : 'ASSET',
-      loc: require.resolve(dep, {paths: [cwd]}),
+      // For details on why we need to call fs.realpathSync.native here and other places, see
+      // https://github.com/pikapkg/snowpack/pull/999.
+      loc: fs.realpathSync.native(require.resolve(dep, {paths: [cwd]})),
     };
   }
   // If dep is a path within a package (but without an extension), we first need
@@ -128,7 +133,7 @@ function resolveWebDependency(dep: string): DependencyLoc {
   const [depManifestLoc, depManifest] = resolveDependencyManifest(dep, cwd);
   if (!depManifest) {
     try {
-      const maybeLoc = require.resolve(dep, {paths: [cwd]});
+      const maybeLoc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
       return {
         type: 'JS',
         loc: maybeLoc,
@@ -182,7 +187,9 @@ function resolveWebDependency(dep: string): DependencyLoc {
   try {
     return {
       type: 'JS',
-      loc: require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
+      loc: fs.realpathSync.native(
+        require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
+      ),
     };
   } catch (err) {
     // Type only packages! Some packages are purely for TypeScript (ex: csstypes).
@@ -194,6 +201,24 @@ function resolveWebDependency(dep: string): DependencyLoc {
     // Otherwise, file truly doesn't exist.
     throw err;
   }
+}
+
+function generateEnvObject(userEnv: EnvVarReplacements): Object {
+  return {
+    NODE_ENV: process.env.NODE_ENV || 'production',
+    ...Object.keys(userEnv).reduce((acc, key) => {
+      const value = userEnv[key];
+      acc[key] = value === true ? process.env[key] : value;
+      return acc;
+    }, {}),
+  };
+}
+
+function generateEnvReplacements(env: Object): {[key: string]: string} {
+  return Object.keys(env).reduce((acc, key) => {
+    acc[`process.env.${key}`] = JSON.stringify(env[key]);
+    return acc;
+  }, {});
 }
 
 interface InstallOptions {
@@ -221,12 +246,14 @@ export async function install(
       dest: destLoc,
       externalPackage: externalPackages,
       sourceMap,
-      env,
+      env: userEnv,
       rollup: userDefinedRollup,
       treeshake: isTreeshake,
       polyfillNode,
     },
   } = config;
+
+  const env = generateEnvObject(userEnv);
 
   const nodeModulesInstalled = findUp.sync('node_modules', {cwd, type: 'directory'});
   if (!webDependencies && !(process.versions as any).pnp && !nodeModulesInstalled) {
@@ -337,6 +364,7 @@ ${colors.dim(
         namedExports: true,
       }),
       rollupPluginCss(),
+      rollupPluginReplace(generateEnvReplacements(env)),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
         externalEsm: process.env.EXTERNAL_ESM_PACKAGES || [],
@@ -344,10 +372,7 @@ ${colors.dim(
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
-      rollupPluginNodeProcessPolyfill({
-        NODE_ENV: process.env.NODE_ENV || 'production',
-        ...env,
-      }),
+      rollupPluginNodeProcessPolyfill(env),
       polyfillNode && rollupPluginNodePolyfills(),
       ...userDefinedRollup.plugins, // load user-defined plugins last
       rollupPluginCatchUnresolved(),
@@ -394,6 +419,7 @@ ${colors.dim(
   };
   if (Object.keys(installEntrypoints).length > 0) {
     try {
+      logger.debug(`running installer with options: ${util.format(inputOptions)}`);
       const packageBundle = await rollup(inputOptions);
       logger.debug(
         `installing npm packages:\n    ${Object.keys(installEntrypoints).join('\n    ')}`,
@@ -401,6 +427,7 @@ ${colors.dim(
       if (isFatalWarningFound) {
         throw new Error(FAILED_INSTALL_MESSAGE);
       }
+      logger.debug(`writing install results to disk`);
       await packageBundle.write(outputOptions);
     } catch (_err) {
       const err: RollupError = _err;
@@ -446,6 +473,7 @@ export async function getInstallTargets(
   if (webDependencies) {
     installTargets.push(...scanDepList(Object.keys(webDependencies), cwd));
   }
+  // TODO: remove this if block; move logic inside scanImports
   if (scannedFiles) {
     installTargets.push(...(await scanImportsFromFiles(scannedFiles, config)));
   } else {
@@ -457,14 +485,19 @@ export async function getInstallTargets(
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
 
+  logger.debug('Starting install');
   const installTargets = await getInstallTargets(config);
+  logger.debug('Received install targets');
   if (installTargets.length === 0) {
     logger.error('Nothing to install.');
     return;
   }
+  logger.debug('Running install command');
   const finalResult = await run({...commandOptions, installTargets});
+  logger.debug('Install command successfully ran');
   if (finalResult.newLockfile) {
     await writeLockfile(path.join(cwd, 'snowpack.lock.json'), finalResult.newLockfile);
+    logger.debug('Successfully wrote lockfile');
   }
   if (finalResult.stats) {
     logger.info(printStats(finalResult.stats));

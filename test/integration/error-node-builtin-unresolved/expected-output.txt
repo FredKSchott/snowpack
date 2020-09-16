@@ -1,4 +1,0 @@
-[snowpack] ! installing dependencies…
-[snowpack] ../../../node_modules/bad-node-builtin-pkg/entrypoint.js
-   Module "http" (Node.js built-in) is not available in the browser. Run Snowpack with --polyfill-node to fix.
-[snowpack] Install failed.

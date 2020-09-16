@@ -22,7 +22,7 @@ Some libraries use compile-to-JS file formats and do require a special build scr
 
 ### JSX
 
-Snowpack has built-in support to handle `.jsx` & `.tsx` source files in your application. 
+Snowpack has built-in support to handle `.jsx` & `.tsx` source files in your application.
 
 **Note: Snowpack's default build does not support JSX in  `.js`/`.ts` files.** If you can't use the `.jsx`/`.tsx` file extension, you can use [Babel](#babel) to build your application instead.
 
@@ -170,6 +170,8 @@ To use Sass + PostCSS, check out [this guide](https://zellwk.com/blog/eleventy-s
 ```
 
 Snowpack ships an official [webpack plugin](https://www.npmjs.com/package/@snowpack/plugin-webpack) for optimizing your build. Connect the `"@snowpack/plugin-webpack"` plugin into your Snowpack configuration file and then run `snowpack build` to see your optimized, bundled build.
+
+See ["Optimized Builds"](/#optimized-builds) for more information about connecting bundled (or unbundled) optimization plugins for your production builds.
 
 
 ### Workbox

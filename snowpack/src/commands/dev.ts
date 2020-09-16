@@ -29,7 +29,7 @@ import isCompressible from 'compressible';
 import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
-import {createReadStream, existsSync, promises as fs, readFileSync, statSync} from 'fs';
+import {createReadStream, existsSync, promises as fs, statSync} from 'fs';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
@@ -68,18 +68,18 @@ import {
   checkLockfileHash,
   cssSourceMappingURL,
   DEV_DEPENDENCIES_DIR,
-  getEncodingType,
   getExt,
   jsSourceMappingURL,
   openInBrowser,
   parsePackageImportSpecifier,
+  readFile,
   replaceExt,
   resolveDependencyManifest,
   updateLockfileHash,
+  HMR_CLIENT_CODE,
 } from '../util';
 import {command as installCommand} from './install';
 import {getPort, paint, paintEvent} from './paint';
-const HMR_DEV_CODE = readFileSync(path.join(__dirname, '../assets/hmr.js'));
 
 const DEFAULT_PROXY_ERROR_HANDLER = (
   err: Error,
@@ -166,7 +166,7 @@ const sendFile = (
   }
 
   res.writeHead(200, headers);
-  res.write(body, getEncodingType(ext) as BufferEncoding);
+  res.write(body);
   res.end();
 };
 
@@ -203,7 +203,8 @@ function getUrlFromFile(
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
-  const {port: defaultPort, hostname, open, hmr: isHmr} = config.devOptions;
+  const {port: defaultPort, hostname, open} = config.devOptions;
+  const isHmr = typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true;
 
   // Start the startup timer!
   let serverStart = performance.now();
@@ -243,6 +244,7 @@ export async function command(commandOptions: CommandOptions) {
 
   // Set the proper install options, in case an install is needed.
   const dependencyImportMapLoc = path.join(DEV_DEPENDENCIES_DIR, 'import-map.json');
+  logger.debug(`Using cache folder: ${path.relative(cwd, DEV_DEPENDENCIES_DIR)}`);
   const installCommandOptions = merge(commandOptions, {
     config: {
       installOptions: {
@@ -255,9 +257,12 @@ export async function command(commandOptions: CommandOptions) {
 
   // Start with a fresh install of your dependencies, if needed.
   if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
+    logger.debug('Cache out of date or missing. Updating…');
     logger.info(colors.yellow('! updating dependencies...'));
     await installCommand(installCommandOptions);
     await updateLockfileHash(DEV_DEPENDENCIES_DIR);
+  } else {
+    logger.debug(`Cache up-to-date. Using existing cache`);
   }
 
   let dependencyImportMap: ImportMap = {imports: {}};
@@ -366,7 +371,7 @@ export async function command(commandOptions: CommandOptions) {
     });
 
     if (reqPath === getMetaUrlPath('/hmr.js', config)) {
-      sendFile(req, res, HMR_DEV_CODE, reqPath, '.js');
+      sendFile(req, res, HMR_CLIENT_CODE, reqPath, '.js');
       return;
     }
     if (reqPath === getMetaUrlPath('/env.js', config)) {
@@ -580,7 +585,11 @@ export async function command(commandOptions: CommandOptions) {
             }
             // Support proxy file imports
             const extName = path.extname(resolvedImportUrl);
-            if (extName && extName !== '.js') {
+            if (
+              extName &&
+              (responseExt === '.js' || responseExt === '.html') &&
+              extName !== '.js'
+            ) {
               return resolvedImportUrl + '.proxy.js';
             }
             return resolvedImportUrl;
@@ -644,6 +653,14 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       const {code, map} = output[requestedFileExt];
       let finalResponse = code;
 
+      // Wrap the response.
+      const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
+      finalResponse = await wrapResponse(finalResponse, {
+        hasCssResource: hasAttachedCss,
+        sourceMap: map,
+        sourceMappingURL: path.basename(requestedFile.base) + '.map',
+      });
+
       // Resolve imports.
       if (
         requestedFileExt === '.js' ||
@@ -656,14 +673,6 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
           finalResponse as string,
         );
       }
-
-      // Wrap the response.
-      const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
-      finalResponse = await wrapResponse(finalResponse, {
-        hasCssResource: hasAttachedCss,
-        sourceMap: map,
-        sourceMappingURL: path.basename(requestedFile.base) + '.map',
-      });
 
       // Return the finalized response.
       return finalResponse;
@@ -680,10 +689,9 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       sendFile(req, res, responseContent, fileLoc, responseFileExt);
       return;
     }
-
-    // 2. Load the file from disk. We'll need it to check the cold cache or
-    // build from scratch.
-    const fileContents = await fs.readFile(fileLoc, getEncodingType(requestedFileExt));
+    
+    // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
+    const fileContents = await readFile(fileLoc);
 
     // 3. Send dependencies directly, since they were already build & resolved
     // at install time.

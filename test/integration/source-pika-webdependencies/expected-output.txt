@@ -1,9 +1,0 @@
-[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
-[snowpack]
-  ⦿ web_modules/                 size       gzip       brotli
-    ├─ async.js    XXXX KB    XXXX KB    XXXX KB
-    ├─ react-dom.js    XXXX KB    XXXX KB    XXXX KB
-    └─ react.js    XXXX KB    XXXX KB    XXXX KB
-  ⦿ web_modules/common/ (Shared)
-    └─ react-XXXXXXXX.js    XXXX KB    XXXX KB    XXXX KB

@@ -68,8 +68,15 @@ describe('snowpack install', () => {
       }
 
       const cwd = path.join(__dirname, testName);
+      const relativePath = cwd.replace(process.cwd() + '/', '');
+
       if (!existsSync(path.join(cwd, 'package.json'))) {
-        console.error(testName, 'no longer exists, skipping...');
+        console.warn(
+          '%s folder has no package.json file, it is likely a leftover folder from a deleted test. You can remove the folder with `git clean -xdf %s`',
+          relativePath,
+          relativePath,
+        );
+
         return;
       }
 
@@ -79,22 +86,14 @@ describe('snowpack install', () => {
         reject: false,
         all: true,
       });
-      // Test Output
-      let expectedOutputLoc = path.join(__dirname, testName, 'expected-output.txt');
-      if (process.platform === 'win32') {
-        const expectedWinOutputLoc = path.resolve(expectedOutputLoc, '../expected-output.win.txt');
-        if (existsSync(expectedWinOutputLoc)) {
-          expectedOutputLoc = expectedWinOutputLoc;
-        }
-      }
-      const expectedOutput = await fs.readFile(expectedOutputLoc, {encoding: 'utf8'});
-      expect(
-        stripWhitespace(
-          stripConfigErrorPath(
-            stripResolveErrorPath(stripBenchmark(stripChunkHash(stripStats(stripStacktrace(all))))),
-          ),
+      const actualOutput = stripWhitespace(
+        stripConfigErrorPath(
+          stripResolveErrorPath(stripBenchmark(stripChunkHash(stripStats(stripStacktrace(all))))),
         ),
-      ).toBe(stripWhitespace(expectedOutput));
+      );
+
+      // Test output
+      expect(actualOutput).toMatchSnapshot('output');
 
       // Test Lockfile (if one exists)
       const expectedLockLoc = path.join(__dirname, testName, 'expected-lock.json');

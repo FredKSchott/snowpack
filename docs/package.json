@@ -2,8 +2,8 @@
   "name": "snowpack-www",
   "version": "2.7.0",
   "scripts": {
-    "docs:build": "cat docs/* > index.md && npx @11ty/eleventy --config .eleventy.js",
-    "docs:watch": "cat docs/* > index.md && npx @11ty/eleventy --config .eleventy.js --serve"
+    "docs:build": "cat docs/* > index.md && npx @11ty/eleventy",
+    "docs:watch": "cat docs/* > index.md && npx @11ty/eleventy --serve"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.11.0",

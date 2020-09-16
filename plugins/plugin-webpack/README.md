@@ -2,20 +2,35 @@
 
 Use Webpack to bundle your application for production.
 
+### Install
+
 ```
 npm install --save-dev @snowpack/plugin-webpack
 ```
 
-```js
-// snowpack.config.json
+### Usage
+
+Add `@snowpack/plugin-webpack` to `snowpack.config.json`:
+
+```json
 {
-  "plugins": [["@snowpack/plugin-webpack", { /* see "Plugin Options" below */}]]
+  "plugins": [["@snowpack/plugin-webpack", { /* see "Plugin Options" below */ }]]
 }
 ```
 
-#### Default Build Script
+or to `snowpack.config.js`:
 
 ```js
+module.exports = {
+  plugins: [["@snowpack/plugin-webpack", { /* see "Plugin Options" below */ }]]
+}
+```
+
+The options object is optional.
+
+### Default Build Script
+
+```json
 {
   "scripts": {"bundle:*": "@snowpack/plugin-webpack"}
 }
@@ -27,6 +42,7 @@ npm install --save-dev @snowpack/plugin-webpack
 - `outputPattern: {css: string, js: string, assets: string}` - Set the URL for your final bundled files. This is where they will be written to disk in the `build/` directory. See Webpack's [`output.filename`](https://webpack.js.org/configuration/output/#outputfilename) documentation for examples of valid values.
 - `extendConfig: (config: WebpackConfig) => WebpackConfig` - extend your webpack config, see below.
 - `manifest: boolean | string` - Enable generating a manifest file. The default value is `false`, the default file name is `./asset-manifest.json` if setting manifest to `true`. The relative path is resolved from the output directory.
+- `htmlMinifierOptions: boolean | object` - [See below](#minify-html).
 
 #### Extending The Default Webpack Config
 
@@ -49,4 +65,35 @@ module.exports = {
     ],
   ],
 };
+```
+
+#### Minify HTML
+
+With `htmlMinifierOptions` you can either disable the minification entirely or provide your own [options](https://github.com/kangax/html-minifier#options-quick-reference).
+
+```js
+// snowpack.config.js
+module.exports = {
+  plugins: [
+    [
+      "@snowpack/plugin-webpack",
+      {
+        htmlMinifierOptions: false // disabled entirely,
+      },
+    ],
+  ],
+};
+```
+
+The default options are:
+
+```js
+{
+  collapseWhitespace: true,
+  removeComments: true,
+  removeEmptyAttributes: true,
+  removeRedundantAttributes: true,
+  removeScriptTypeAttributes: true,
+  removeStyleLinkTypeAttributes: true,
+}
 ```

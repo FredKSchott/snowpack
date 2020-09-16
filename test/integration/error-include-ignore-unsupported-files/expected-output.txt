@@ -1,2 +1,0 @@
-[snowpack] ignoring unsupported file "src/c.abcdefg"
-[snowpack] Nothing to install.

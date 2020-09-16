@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 const colors = require('kleur/colors');
+const {minify: minifyHtml} = require('html-minifier');
+const {minify: minifyCss} = require('csso');
 const esbuild = require('esbuild');
 const {init, parse} = require('es-module-lexer');
 const PQueue = require('p-queue').default;
@@ -20,7 +22,9 @@ const {
 exports.default = function plugin(config, userDefinedOptions) {
   const options = {
     minifyJS: true,
-    preloadModules: true,
+    minifyHTML: true,
+    minifyCSS: true,
+    preloadModules: false,
     ...(userDefinedOptions || {}),
   };
 
@@ -69,11 +73,10 @@ exports.default = function plugin(config, userDefinedOptions) {
   }
 
   /** Given a set of HTML files, trace the imported JS */
-  function preloadModulesInHTML(htmlFile, rootDir) {
+  function preloadModulesInHTML(code, rootDir, htmlFile) {
     const originalEntries = new Set(); // original entry files in HTML
     const allModules = new Set(); // all modules required by this HTML file
 
-    let code = fs.readFileSync(htmlFile, 'utf-8');
     const scriptMatches = code.match(new RegExp(HTML_JS_REGEX));
     if (!scriptMatches || !scriptMatches.length) return code; // if nothing matched, exit
 
@@ -109,14 +112,13 @@ exports.default = function plugin(config, userDefinedOptions) {
     resolvedModules.sort((a, b) => a.localeCompare(b));
     code = appendHTMLToHead(
       code,
-      `  ` +
+      `  <!-- @snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance (More info: https://developers.google.com/web/updates/2017/12/modulepreload) -->\n` +
         resolvedModules
           .map(
             (src) =>
-              `<!-- @snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance
-         More info: https://developers.google.com/web/updates/2017/12/modulepreload -->\n    <link rel="modulepreload" href="${src}" />`,
+              `    <link rel="modulepreload" href="${src}" />`,
           )
-          .join('') +
+          .join('\n') +
         '\n  ',
     );
     code = appendHTMLToBody(
@@ -130,39 +132,42 @@ exports.default = function plugin(config, userDefinedOptions) {
     return code;
   }
 
-  async function optimizeFile({esbuildService, file, rootDir}) {
+  async function optimizeFile({esbuildService, file, target, rootDir}) {
     const baseExt = path.extname(file).toLowerCase();
 
     // optimize based on extension. if it’s not here, leave as-is
     switch (baseExt) {
       case '.css': {
-        // TODO: minify CSS
+        if (options.minifyCSS) {
+          let code = fs.readFileSync(file, 'utf-8');
+          code = minifyCss(code).css;
+          fs.writeFileSync(file, code, 'utf-8');
+        }
         break;
       }
       case '.js':
       case '.mjs': {
         // minify if enabled
         if (options.minifyJS) {
-          try {
-            let code = fs.readFileSync(file, 'utf-8');
-            const minified = await esbuildService.transform(code, {minify: true});
-            code = minified.js;
-            fs.writeFileSync(file, code);
-          } catch (err) {
-            console.error(
-              colors.dim('[@snowpack/plugin-optimize]') +
-                `Error minifying JS [${file}]\n${err.toString()}`,
-            );
-          }
+          let code = fs.readFileSync(file, 'utf-8');
+          const minified = await esbuildService.transform(code, {minify: true, target});
+          code = minified.js;
+          fs.writeFileSync(file, code);
         }
         break;
       }
       case '.html': {
+        let code = fs.readFileSync(file, 'utf-8');
         if (options.preloadModules) {
-          let code = preloadModulesInHTML(file, rootDir);
-          // TODO: minify HTML
-          fs.writeFileSync(file, code, 'utf-8');
+          code = preloadModulesInHTML(code, rootDir, file);
         }
+        if (options.minifyHTML) {
+          code = minifyHtml(code, {
+            removeComments: true,
+            collapseWhitespace: true,
+          });
+        }
+        fs.writeFileSync(file, code, 'utf-8');
         break;
       }
     }
@@ -187,7 +192,19 @@ exports.default = function plugin(config, userDefinedOptions) {
       // 2. optimize all files in parallel
       const parallelWorkQueue = new PQueue({concurrency: CONCURRENT_WORKERS});
       for (const file of allFiles) {
-        parallelWorkQueue.add(() => optimizeFile({file, esbuildService, rootDir: buildDirectory}));
+        parallelWorkQueue.add(() =>
+          optimizeFile({
+            file,
+            esbuildService,
+            target: options.target,
+            rootDir: buildDirectory,
+          }).catch((err) => {
+            console.error(
+              colors.dim('[@snowpack/plugin-optimize]') +
+                `Error: ${file} ${err.toString()}`,
+            );
+          }),
+        );
       }
       await parallelWorkQueue.onIdle();
 

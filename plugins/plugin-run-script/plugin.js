@@ -13,6 +13,7 @@ function runScriptPlugin(_, {cmd, watch, output}) {
         env: npmRunPath.env(),
         extendEnv: true,
         shell: true,
+        windowsHide: false,
         cwd,
       });
       const {stdout, stderr} = workerPromise;

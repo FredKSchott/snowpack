@@ -12,20 +12,23 @@ interface Dependency {
 }
 
 type HMRMessage = {type: 'reload'} | {type: 'update', url: string};
+const DEFAULT_PORT = 12321;
 
 export class EsmHmrEngine {
   clients: Set<WebSocket> = new Set();
   dependencyTree = new Map<string, Dependency>();
+
   private delay: number = 0;
   private currentBatch: HMRMessage[] = [];
   private currentBatchTimeout: NodeJS.Timer | null = null;
+  wsUrl = `ws://localhost:${DEFAULT_PORT}`;
 
   constructor(
     options: {server?: http.Server | http2.Http2Server; delay?: number} = {},
   ) {
     const wss = options.server
       ? new WebSocket.Server({noServer: true})
-      : new WebSocket.Server({port: 12321});
+      : new WebSocket.Server({port: DEFAULT_PORT});
     if (options.server) {
       options.server.on('upgrade', (req, socket, head) => {
         // Only handle upgrades to ESM-HMR requests, ignore others.
