@@ -9,8 +9,10 @@ export type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
-export type SnowpackBuiltFile = {code: string | Buffer; map?: string};
-export type SnowpackBuildMap = Record<string, SnowpackBuiltFile>;
+export type SnowpackBuiltFile = {
+  code: string | Buffer;
+  map?: string;
+};
 
 /** Standard file interface */
 export interface SnowpackSourceFile<Type = string | Buffer> {
@@ -56,9 +58,14 @@ export interface SnowpackPlugin {
   name: string;
   /** Tell Snowpack how the load() function will resolve files. */
   resolve?: {
-    /** file extensions that this load function takes as input (e.g. [".jsx", ".js", …]) */
+    /**
+       file extensions that this load function takes as input (e.g. [".jsx",
+       ".js", …])
+     */
     input: string[];
-    /** file extensions that this load function outputs (e.g. [".js", ".css"]) */
+    /**
+       file extensions that this load function outputs (e.g. [".js", ".css"])
+     */
     output: string[];
   };
   /** load a file that matches resolve.input */
@@ -119,6 +126,7 @@ export interface SnowpackConfig {
     fallback: string;
     open: string;
     hmr?: boolean;
+    hmrDelay: number;
   };
   installOptions: InstallOptions;
   buildOptions: {
