@@ -16,20 +16,21 @@ import {
 } from '../build/build-import-proxy';
 import {buildFile, runPipelineCleanupStep, runPipelineOptimizeStep} from '../build/build-pipeline';
 import {createImportResolver} from '../build/import-resolver';
+import {EsmHmrEngine} from '../hmr-server-engine';
 import {logger} from '../logger';
 import {transformFileImports} from '../rewrite-imports';
 import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
 import {
   cssSourceMappingURL,
+  HMR_CLIENT_CODE,
+  HMR_OVERLAY_CODE,
   jsSourceMappingURL,
   readFile,
   relativeURL,
   removeLeadingSlash,
   replaceExt,
-  HMR_CLIENT_CODE,
 } from '../util';
 import {getInstallTargets, run as installRunner} from './install';
-import {EsmHmrEngine} from '../hmr-server-engine';
 
 const CONCURRENT_WORKERS = require('os').cpus().length;
 
@@ -94,13 +95,12 @@ class FileBuilder {
     this.config = config;
   }
 
-  async buildFile(isExitOnBuild: boolean) {
+  async buildFile() {
     this.filesToResolve = {};
     const srcExt = path.extname(this.filepath);
     const builtFileOutput = await buildFile(this.filepath, {
       plugins: this.config.plugins,
       isDev: false,
-      isExitOnBuild,
       isHmrEnabled: false,
       sourceMaps: this.config.buildOptions.sourceMaps,
     });
@@ -306,7 +306,11 @@ export async function command(commandOptions: CommandOptions) {
   // Write the `import.meta.env` contents file to disk
   await fs.writeFile(path.join(internalFilesBuildLoc, 'env.js'), generateEnvModule('production'));
   if (getIsHmrEnabled(config)) {
-    await fs.writeFile(path.resolve(internalFilesBuildLoc, 'hmr.js'), HMR_CLIENT_CODE);
+    await fs.writeFile(path.resolve(internalFilesBuildLoc, 'hmr-client.js'), HMR_CLIENT_CODE);
+    await fs.writeFile(
+      path.resolve(internalFilesBuildLoc, 'hmr-error-overlay.js'),
+      HMR_OVERLAY_CODE,
+    );
     hmrEngine = new EsmHmrEngine();
   }
 
@@ -374,7 +378,7 @@ export async function command(commandOptions: CommandOptions) {
   const parallelWorkQueue = new PQueue({concurrency: CONCURRENT_WORKERS});
   const allBuildPipelineFiles = Object.values(buildPipelineFiles);
   for (const buildPipelineFile of allBuildPipelineFiles) {
-    parallelWorkQueue.add(() => buildPipelineFile.buildFile(true));
+    parallelWorkQueue.add(() => buildPipelineFile.buildFile());
   }
   await parallelWorkQueue.onIdle();
 
@@ -414,11 +418,9 @@ export async function command(commandOptions: CommandOptions) {
     await runPipelineOptimizeStep(buildDirectoryLoc, {
       plugins: config.plugins,
       isDev: false,
-      isExitOnBuild: false,
       isHmrEnabled: false,
       sourceMaps: config.buildOptions.sourceMaps,
     });
-
     logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
     return;
   }
@@ -448,8 +450,16 @@ export async function command(commandOptions: CommandOptions) {
     const changedPipelineFile = new FileBuilder({filepath: fileLoc, outDir, config});
     buildPipelineFiles[fileLoc] = changedPipelineFile;
     // 1. Build the file.
-    await changedPipelineFile.buildFile(false).catch((err) => {
-      logger.error(err.message, {name: changedPipelineFile.filepath});
+    await changedPipelineFile.buildFile().catch((err) => {
+      logger.error(fileLoc + ' ' + err.toString(), {name: err.__snowpackBuildDetails?.name});
+      hmrEngine &&
+        hmrEngine.broadcastMessage({
+          type: 'error',
+          title: 'Build Error',
+          errorMessage: err.toString(),
+          fileLoc,
+          errorStackTrace: err.stack,
+        });
     });
     // 2. Resolve any ESM imports. Handle new imports by triggering a re-install.
     let resolveSuccess = await changedPipelineFile.resolveImports(installResult.importMap!);

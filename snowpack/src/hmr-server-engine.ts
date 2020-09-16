@@ -1,4 +1,5 @@
 import WebSocket from 'ws';
+import stripAnsi from 'strip-ansi';
 import type http from 'http';
 import type http2 from 'http2';
 
@@ -11,8 +12,19 @@ interface Dependency {
   needsReplacementCount: number;
 }
 
-type HMRMessage = {type: 'reload'} | {type: 'update'; url: string};
+type HMRMessage =
+  | {type: 'reload'}
+  | {type: 'update'; url: string}
+  | {
+      type: 'error';
+      title: string;
+      errorMessage: string;
+      fileLoc?: string;
+      errorStackTrace?: string;
+    };
+
 const DEFAULT_PORT = 12321;
+const DEFAULT_CONNECT_DELAY = 2000;
 
 export class EsmHmrEngine {
   clients: Set<WebSocket> = new Set();
@@ -21,12 +33,16 @@ export class EsmHmrEngine {
   private delay: number = 0;
   private currentBatch: HMRMessage[] = [];
   private currentBatchTimeout: NodeJS.Timer | null = null;
+  private cachedConnectErrors: Set<HMRMessage> = new Set();
   wsUrl = `ws://localhost:${DEFAULT_PORT}`;
 
   constructor(options: {server?: http.Server | http2.Http2Server; delay?: number} = {}) {
     const wss = options.server
       ? new WebSocket.Server({noServer: true})
       : new WebSocket.Server({port: DEFAULT_PORT});
+    if (options.delay) {
+      this.delay = options.delay;
+    }
     if (options.server) {
       options.server.on('upgrade', (req, socket, head) => {
         // Only handle upgrades to ESM-HMR requests, ignore others.
@@ -41,10 +57,13 @@ export class EsmHmrEngine {
     wss.on('connection', (client) => {
       this.connectClient(client);
       this.registerListener(client);
+      if (this.cachedConnectErrors.size > 0) {
+        this.dispatchMessage(Array.from(this.cachedConnectErrors), client);
+      }
     });
-    if (options.delay) {
-      this.delay = options.delay;
-    }
+    wss.on('close', (client) => {
+      this.disconnectClient(client);
+    });
   }
 
   registerListener(client: WebSocket) {
@@ -121,18 +140,38 @@ export class EsmHmrEngine {
   }
 
   broadcastMessage(data: HMRMessage) {
+    // Special "error" event handling
+    if (data.type === 'error') {
+      // Clean: remove any console styling before we send to the browser
+      // NOTE(@fks): If another event ever needs this, okay to generalize.
+      data.title = data.title && stripAnsi(data.title);
+      data.errorMessage = data.errorMessage && stripAnsi(data.errorMessage);
+      data.fileLoc = data.fileLoc && stripAnsi(data.fileLoc);
+      data.errorStackTrace = data.errorStackTrace && stripAnsi(data.errorStackTrace);
+      // Cache: Cache errors in case an HMR client connects after the error (first page load).
+      if (
+        Array.from(this.cachedConnectErrors).every(
+          (f) => JSON.stringify(f) !== JSON.stringify(data),
+        )
+      ) {
+        this.cachedConnectErrors.add(data);
+        setTimeout(() => {
+          this.cachedConnectErrors.delete(data);
+        }, DEFAULT_CONNECT_DELAY);
+      }
+    }
     if (this.delay > 0) {
       if (this.currentBatchTimeout) {
         clearTimeout(this.currentBatchTimeout);
       }
       this.currentBatch.push(data);
-      this.currentBatchTimeout = setTimeout(() => this.broadcastBatch(), this.delay);
+      this.currentBatchTimeout = setTimeout(() => this.dispatchBatch(), this.delay || 100);
     } else {
       this.dispatchMessage([data]);
     }
   }
 
-  broadcastBatch() {
+  dispatchBatch() {
     if (this.currentBatchTimeout) {
       clearTimeout(this.currentBatchTimeout);
     }
@@ -144,22 +183,19 @@ export class EsmHmrEngine {
 
   /**
    * This is shared logic to dispatch messages to the clients. The public methods
-   * `broadcastMessage` and `broadcastBatch` manage the delay then use this,
+   * `broadcastMessage` and `dispatchBatch` manage the delay then use this,
    * internally when it's time to actually send the data.
    */
-  private dispatchMessage(messageBatch: HMRMessage[]) {
+  private dispatchMessage(messageBatch: HMRMessage[], singleClient?: WebSocket) {
     if (messageBatch.length === 0) {
       return;
     }
-
-    let singleReloadMessage = messageBatch.every((message) => message.type === 'reload')
-      ? messageBatch[0]
-      : null;
-
-    this.clients.forEach((client) => {
+    const clientRecipientList = singleClient ? [singleClient] : this.clients;
+    let singleSummaryMessage = messageBatch.find((message) => message.type === 'reload') || null;
+    clientRecipientList.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        if (singleReloadMessage) {
-          client.send(JSON.stringify(singleReloadMessage));
+        if (singleSummaryMessage) {
+          client.send(JSON.stringify(singleSummaryMessage));
         } else {
           messageBatch.forEach((data) => {
             client.send(JSON.stringify(data));

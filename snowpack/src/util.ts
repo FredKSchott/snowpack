@@ -415,4 +415,5 @@ export function removeTrailingSlash(path: string) {
   return path.replace(/[/\\]+$/, '');
 }
 
-export const HMR_CLIENT_CODE = fs.readFileSync(path.join(__dirname, '../assets/hmr.js'), 'utf-8');
+export const HMR_CLIENT_CODE = fs.readFileSync(path.join(__dirname, '../assets/hmr-client.js'), 'utf-8');
+export const HMR_OVERLAY_CODE = fs.readFileSync(path.join(__dirname, '../assets/hmr-error-overlay.js'), 'utf-8');

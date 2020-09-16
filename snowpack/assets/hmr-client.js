@@ -9,6 +9,10 @@ function log(...args) {
 function reload() {
   location.reload(true);
 }
+function clearErrorOverlay() {
+  document.querySelectorAll('hmr-error-overlay').forEach((el) => el.remove());
+}
+
 let SOCKET_MESSAGE_QUEUE = [];
 function _sendSocketMessage(msg) {
   socket.send(JSON.stringify(msg));
@@ -20,7 +24,9 @@ function sendSocketMessage(msg) {
     _sendSocketMessage(msg);
   }
 }
-const socketURL = typeof window !== 'undefined' &&  window.HMR_WEBSOCKET_URL || (location.protocol === 'http:' ? 'ws://' : 'wss://') + location.host + '/';
+const socketURL =
+  (typeof window !== 'undefined' && window.HMR_WEBSOCKET_URL) ||
+  (location.protocol === 'http:' ? 'ws://' : 'wss://') + location.host + '/';
 
 const socket = new WebSocket(socketURL, 'esm-hmr');
 socket.addEventListener('open', () => {
@@ -139,20 +145,34 @@ socket.addEventListener('message', ({data: _data}) => {
     reload();
     return;
   }
-  if (data.type !== 'update') {
-    log('message: unknown', data);
+  if (data.type === 'error') {
+    const HmrErrorOverlay = customElements.get('hmr-error-overlay');
+    if (HmrErrorOverlay) {
+      const overlay = new HmrErrorOverlay(data);
+      clearErrorOverlay();
+      document.body.appendChild(overlay);
+    }
+    console.error(
+      `[ESM-HMR] ${data.fileLoc ? data.fileLoc + '\n' : ''}`,
+      data.title + '\n' + data.errorMessage,
+    );
     return;
   }
-  log('message: update', data);
-  runModuleAccept(data.url)
-    .then((ok) => {
-      if (!ok) {
-        reload();
-      }
-    })
-    .catch((err) => {
-      console.error(err);
-      reload();
-    });
+  if (data.type === 'update') {
+    log('message: update', data);
+    runModuleAccept(data.url)
+      .then((ok) => {
+        if (ok) {
+          clearErrorOverlay();
+        } else {
+          reload();
+        }
+      })
+      .catch((err) => {
+        console.error('update fail', err);
+      });
+    return;
+  }
+  log('message: unknown', data);
 });
 log('listening for file changes...');
