@@ -26,8 +26,12 @@ Note: you will see warnings about `__dirname` and `require()` not being "a valid
 
 ```bash
 yarn build
-yarn --force
+yarn --force # only needed after very first build; afterward can be skipped
 ```
+
+#### Why is `yarn --force` needed?
+
+Lerna allows us to use our local build of Snowpack which is key for testing any changes we make. Thanks to Lerna, when we run `yarn build`, the `snowpack` [executable script](https://docs.npmjs.com/files/package.json#bin) is built at `./snowpack/pkg/node-dist/index.bin.js`. The `--force` command generates the symlinks needed so that this new executable script gets used by all parts of the project. Now when you run tests in [create-snowpack-app templates](./create-snowpack-app), it knows to use the locally built symlinked version. This solves two major problems: it means you don't have tons of `node_modules` in subdirectories and also means you don’t need to publish Snowpack to npm to test your changes.
 
 ## Run tests
 
