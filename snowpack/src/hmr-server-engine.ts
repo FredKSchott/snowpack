@@ -11,7 +11,7 @@ interface Dependency {
   needsReplacementCount: number;
 }
 
-type HMRMessage = {type: 'reload'} | {type: 'update', url: string};
+type HMRMessage = {type: 'reload'} | {type: 'update'; url: string};
 const DEFAULT_PORT = 12321;
 
 export class EsmHmrEngine {
@@ -23,9 +23,7 @@ export class EsmHmrEngine {
   private currentBatchTimeout: NodeJS.Timer | null = null;
   wsUrl = `ws://localhost:${DEFAULT_PORT}`;
 
-  constructor(
-    options: {server?: http.Server | http2.Http2Server; delay?: number} = {},
-  ) {
+  constructor(options: {server?: http.Server | http2.Http2Server; delay?: number} = {}) {
     const wss = options.server
       ? new WebSocket.Server({noServer: true})
       : new WebSocket.Server({port: DEFAULT_PORT});
@@ -154,10 +152,9 @@ export class EsmHmrEngine {
       return;
     }
 
-    let singleReloadMessage =
-      messageBatch.every(message => message.type === 'reload')
-        ? messageBatch[0]
-        : null;
+    let singleReloadMessage = messageBatch.every((message) => message.type === 'reload')
+      ? messageBatch[0]
+      : null;
 
     this.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {

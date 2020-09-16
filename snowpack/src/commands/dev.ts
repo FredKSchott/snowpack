@@ -689,7 +689,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       sendFile(req, res, responseContent, fileLoc, responseFileExt);
       return;
     }
-    
+
     // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
     const fileContents = await readFile(fileLoc);
 
