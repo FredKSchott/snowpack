@@ -6,7 +6,7 @@ const fs = require('fs');
 // Load the current package manifest
 const cwd = process.cwd();
 const pkgManifest = require(path.join(cwd, 'package.json'));
-const config = snowpack.unstable__loadAndValidateConfig([], pkgManifest);
+const config = snowpack.unstable__loadAndValidateConfig({}, pkgManifest);
 const DEPS_DIR = path.join(cwd, `node_modules/.cache/snowpack/dev`);
 const DEPS_IMPORT_MAP = require(path.join(DEPS_DIR, `import-map.json`));
 console.log(DEPS_DIR, DEPS_IMPORT_MAP);
@@ -36,6 +36,7 @@ module.exports = {
         const buildResult = await snowpack.unstable__buildFile(filePath, {
           plugins: config.plugins,
           isDev: false,
+          isSSR: false,
           isExitOnBuild: true,
           isHmrEnabled: false,
           sourceMaps: false,

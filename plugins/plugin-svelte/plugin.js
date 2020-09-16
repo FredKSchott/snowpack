@@ -21,6 +21,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   // Generate svelte options from user provided config (if given)
   svelteOptions = {
     dev: process.env.NODE_ENV !== 'production',
+    hydratable: true,
     css: false,
     ...svelteOptions,
     ...pluginOptions,
@@ -33,7 +34,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       output: ['.js', '.css'],
     },
     knownEntrypoints: ['svelte/internal'],
-    async load({filePath}) {
+    async load({filePath, isSSR}) {
       let codeToCompile = fs.readFileSync(filePath, 'utf-8');
       // PRE-PROCESS
       if (preprocessOptions) {
@@ -44,8 +45,15 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
         ).code;
       }
       // COMPILE
+      const ssrOptions = {};
+      if (isSSR) {
+        ssrOptions.generate = 'ssr';
+        ssrOptions.css = true;
+      }
+
       const {js, css} = svelte.compile(codeToCompile, {
         ...svelteOptions,
+        ...ssrOptions,
         outputFilename: filePath,
         filename: filePath,
       });

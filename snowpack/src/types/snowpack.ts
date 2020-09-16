@@ -28,6 +28,7 @@ export interface PluginLoadOptions {
   filePath: string;
   fileExt: string;
   isDev: boolean;
+  isSSR: boolean;
   isHmrEnabled: boolean;
 }
 

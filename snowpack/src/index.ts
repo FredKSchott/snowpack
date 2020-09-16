@@ -12,6 +12,7 @@ import {CLIFlags} from './types/snowpack';
 import {clearCache, readLockfile} from './util.js';
 
 export * from './types/snowpack';
+export {startServer as unstable__startServer} from './commands/dev';
 export {buildFile as unstable__buildFile} from './build/build-pipeline';
 export {wrapImportProxy as unstable__wrapImportProxy} from './build/build-import-proxy';
 export {loadAndValidateConfig as unstable__loadAndValidateConfig};

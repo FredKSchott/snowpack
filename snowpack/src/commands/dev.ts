@@ -30,6 +30,7 @@ import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, existsSync, promises as fs, statSync} from 'fs';
+import got from 'got';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
@@ -69,6 +70,7 @@ import {
   cssSourceMappingURL,
   DEV_DEPENDENCIES_DIR,
   getExt,
+  HMR_CLIENT_CODE,
   jsSourceMappingURL,
   openInBrowser,
   parsePackageImportSpecifier,
@@ -76,10 +78,12 @@ import {
   replaceExt,
   resolveDependencyManifest,
   updateLockfileHash,
-  HMR_CLIENT_CODE,
 } from '../util';
 import {command as installCommand} from './install';
 import {getPort, paint, paintEvent} from './paint';
+
+// TODO: Caching logic was removed to test the SSR workflow.
+// DO NOT MERGE THIS until that's been added back.
 
 const DEFAULT_PROXY_ERROR_HANDLER = (
   err: Error,
@@ -201,7 +205,7 @@ function getUrlFromFile(
   return null;
 }
 
-export async function command(commandOptions: CommandOptions) {
+export async function startServer(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
   const {port: defaultPort, hostname, open} = config.devOptions;
   const isHmr = typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true;
@@ -347,6 +351,7 @@ export async function command(commandOptions: CommandOptions) {
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const originalReqPath = reqPath;
+    const isSSR = reqUrl.includes('?ssr');
     let isProxyModule = false;
     let isSourceMap = false;
     if (reqPath.endsWith('.proxy.js')) {
@@ -473,11 +478,12 @@ export async function command(commandOptions: CommandOptions) {
         const builtFileOutput = await _buildFile(fileLoc, {
           plugins: config.plugins,
           isDev: true,
+          isSSR,
           isExitOnBuild: false,
           isHmrEnabled: isHmr,
           sourceMaps: config.buildOptions.sourceMaps,
         });
-        inMemoryBuildCache.set(fileLoc, builtFileOutput);
+        // inMemoryBuildCache.set(fileLoc, builtFileOutput);
         return builtFileOutput;
       })();
       filesBeingBuilt.set(fileLoc, fileBuilderPromise);
@@ -694,50 +700,50 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
     // 4. Check the persistent cache. If found, serve it via a "trust-but-verify" strategy.
     // Build it after sending, and if it no longer matches then assume the entire cache is suspect.
     // In that case, clear the persistent cache and then force a live-reload of the page.
-    const cachedBuildData =
-      !filesBeingDeleted.has(fileLoc) &&
-      (await cacache.get(BUILD_CACHE, fileLoc).catch(() => null));
-    if (cachedBuildData) {
-      const {originalFileHash} = cachedBuildData.metadata;
-      const newFileHash = etag(fileContents);
-      if (originalFileHash === newFileHash) {
-        // IF THIS FAILS TS CHECK: If you are changing the structure of SnowpackBuildMap, be sure to
-        // also update `BUILD_CACHE` in util.ts to a new unique name, to guarantee a clean cache for
-        // our users.
-        const coldCachedResponse: SnowpackBuildMap = JSON.parse(
-          cachedBuildData.data.toString(),
-        ) as Record<string, {code: string; map?: string}>;
-        inMemoryBuildCache.set(fileLoc, coldCachedResponse);
-        // Trust...
-        const wrappedResponse = await finalizeResponse(
-          fileLoc,
-          requestedFileExt,
-          coldCachedResponse,
-        );
-        if (!wrappedResponse) {
-          sendError(req, res, 404);
-          return;
-        }
-        sendFile(req, res, wrappedResponse, fileLoc, responseFileExt);
-        // ...but verify.
-        let checkFinalBuildResult: SnowpackBuildMap | null = null;
-        try {
-          checkFinalBuildResult = await buildFile(fileLoc);
-        } catch (err) {
-          // safe to ignore, it will be surfaced later anyway
-        } finally {
-          if (
-            !checkFinalBuildResult ||
-            !cachedBuildData.data.equals(Buffer.from(JSON.stringify(checkFinalBuildResult)))
-          ) {
-            inMemoryBuildCache.clear();
-            await cacache.rm.all(BUILD_CACHE);
-            hmrEngine.broadcastMessage({type: 'reload'});
-          }
-        }
-        return;
-      }
-    }
+    // const cachedBuildData =
+    //   !filesBeingDeleted.has(fileLoc) &&
+    //   (await cacache.get(BUILD_CACHE, fileLoc).catch(() => null));
+    // if (cachedBuildData) {
+    //   const {originalFileHash} = cachedBuildData.metadata;
+    //   const newFileHash = etag(fileContents);
+    //   if (originalFileHash === newFileHash) {
+    //     // IF THIS FAILS TS CHECK: If you are changing the structure of SnowpackBuildMap, be sure to
+    //     // also update `BUILD_CACHE` in util.ts to a new unique name, to guarantee a clean cache for
+    //     // our users.
+    //     const coldCachedResponse: SnowpackBuildMap = JSON.parse(
+    //       cachedBuildData.data.toString(),
+    //     ) as Record<string, {code: string; map?: string}>;
+    //     // inMemoryBuildCache.set(fileLoc, coldCachedResponse);
+    //     // Trust...
+    //     const wrappedResponse = await finalizeResponse(
+    //       fileLoc,
+    //       requestedFileExt,
+    //       coldCachedResponse,
+    //     );
+    //     if (!wrappedResponse) {
+    //       sendError(req, res, 404);
+    //       return;
+    //     }
+    //     sendFile(req, res, wrappedResponse, fileLoc, responseFileExt);
+    //     // ...but verify.
+    //     let checkFinalBuildResult: SnowpackBuildMap | null = null;
+    //     try {
+    //       checkFinalBuildResult = await buildFile(fileLoc);
+    //     } catch (err) {
+    //       // safe to ignore, it will be surfaced later anyway
+    //     } finally {
+    //       if (
+    //         !checkFinalBuildResult ||
+    //         !cachedBuildData.data.equals(Buffer.from(JSON.stringify(checkFinalBuildResult)))
+    //       ) {
+    //         inMemoryBuildCache.clear();
+    //         await cacache.rm.all(BUILD_CACHE);
+    //         hmrEngine.broadcastMessage({type: 'reload'});
+    //       }
+    //     }
+    //     return;
+    //   }
+    // }
 
     // 5. Final option: build the file, serve it, and cache it.
     let responseContent: string | Buffer | null;
@@ -945,5 +951,18 @@ ${err}`);
   depWatcher.on('change', onDepWatchEvent);
   depWatcher.on('unlink', onDepWatchEvent);
 
+  return {
+    requestHandler,
+    async loadByUrl(url: string, {isSSR}: {isSSR?: boolean}): Promise<string> {
+      if (!url.startsWith('/')) {
+        throw new Error(`url must start with "/", but got ${url}`);
+      }
+      return (await got.get(`http://localhost:${port}${url}${isSSR ? '?ssr=1' : ''}`)).body;
+    },
+  };
+}
+
+export async function command(commandOptions: CommandOptions) {
+  await startServer(commandOptions);
   return new Promise(() => {});
 }
