@@ -12,8 +12,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -216,7 +216,8 @@ export async function command(commandOptions: CommandOptions) {
 
   const messageBus = new EventEmitter();
 
-  // note: this would cause an infinite loop if not for the logger.on(…) in `paint.ts`.
+  // note: this would cause an infinite loop if not for the logger.on(…) in
+  // `paint.ts`.
   console.log = (...args: [any, ...any[]]) => {
     logger.info(util.format(...args));
   };
@@ -460,9 +461,10 @@ export async function command(commandOptions: CommandOptions) {
     }
 
     /**
-     * Given a file, build it. Building a file sends it through our internal file builder
-     * pipeline, and outputs a build map representing the final build. A Build Map is used
-     * because one source file can result in multiple built files (Example: .svelte -> .js & .css).
+     * Given a file, build it. Building a file sends it through our internal
+     * file builder pipeline, and outputs a build map representing the final
+     * build. A Build Map is used because one source file can result in multiple
+     * built files (Example: .svelte -> .js & .css).
      */
     async function buildFile(fileLoc: string): Promise<SnowpackBuildMap> {
       const existingBuilderPromise = filesBeingBuilt.get(fileLoc);
@@ -491,9 +493,10 @@ export async function command(commandOptions: CommandOptions) {
     }
 
     /**
-     * Wrap Response: The same build result can be expressed in different ways based on
-     * the URL. For example, "App.css" should return CSS but "App.css.proxy.js" should
-     * return a JS representation of that CSS. This is handled in the wrap step.
+     * Wrap Response: The same build result can be expressed in different ways
+     * based on the URL. For example, "App.css" should return CSS but
+     * "App.css.proxy.js" should return a JS representation of that CSS. This is
+     * handled in the wrap step.
      */
     async function wrapResponse(
       code: string | Buffer,
@@ -501,7 +504,11 @@ export async function command(commandOptions: CommandOptions) {
         hasCssResource,
         sourceMap,
         sourceMappingURL,
-      }: {hasCssResource: boolean; sourceMap?: string; sourceMappingURL: string},
+      }: {
+        hasCssResource: boolean;
+        sourceMap?: string;
+        sourceMappingURL: string;
+      },
     ) {
       // transform special requests
       if (isRoute) {
@@ -548,8 +555,8 @@ export async function command(commandOptions: CommandOptions) {
     }
 
     /**
-     * Resolve Imports: Resolved imports are based on the state of the file system, so
-     * they can't be cached long-term with the build.
+     * Resolve Imports: Resolved imports are based on the state of the file
+     * system, so they can't be cached long-term with the build.
      */
     async function resolveResponseImports(
       fileLoc: string,
@@ -627,8 +634,9 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
     }
 
     /**
-     * Given a build, finalize it for the response. This involves running individual steps
-     * needed to go from build result to sever response, including:
+     * Given a build, finalize it for the response. This involves running
+     * individual steps needed to go from build result to sever response,
+     * including:
      *   - wrapResponse(): Wrap responses
      *   - resolveResponseImports(): Resolve all ESM imports
      */
@@ -681,19 +689,21 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       sendFile(req, res, responseContent, fileLoc, responseFileExt);
       return;
     }
-
+    
     // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
     const fileContents = await readFile(fileLoc);
 
-    // 3. Send dependencies directly, since they were already build & resolved at install time.
+    // 3. Send dependencies directly, since they were already build & resolved
+    // at install time.
     if (reqPath.startsWith(config.buildOptions.webModulesUrl) && !isProxyModule) {
       sendFile(req, res, fileContents, fileLoc, responseFileExt);
       return;
     }
 
-    // 4. Check the persistent cache. If found, serve it via a "trust-but-verify" strategy.
-    // Build it after sending, and if it no longer matches then assume the entire cache is suspect.
-    // In that case, clear the persistent cache and then force a live-reload of the page.
+    // 4. Check the persistent cache. If found, serve it via a
+    // "trust-but-verify" strategy. Build it after sending, and if it no longer
+    // matches then assume the entire cache is suspect. In that case, clear the
+    // persistent cache and then force a live-reload of the page.
     const cachedBuildData =
       !filesBeingDeleted.has(fileLoc) &&
       (await cacache.get(BUILD_CACHE, fileLoc).catch(() => null));
@@ -701,12 +711,18 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       const {originalFileHash} = cachedBuildData.metadata;
       const newFileHash = etag(fileContents);
       if (originalFileHash === newFileHash) {
-        // IF THIS FAILS TS CHECK: If you are changing the structure of SnowpackBuildMap, be sure to
-        // also update `BUILD_CACHE` in util.ts to a new unique name, to guarantee a clean cache for
-        // our users.
+        // IF THIS FAILS TS CHECK: If you are changing the structure of
+        // SnowpackBuildMap, be sure to also update `BUILD_CACHE` in util.ts to
+        // a new unique name, to guarantee a clean cache for our users.
         const coldCachedResponse: SnowpackBuildMap = JSON.parse(
           cachedBuildData.data.toString(),
-        ) as Record<string, {code: string; map?: string}>;
+        ) as Record<
+          string,
+          {
+            code: string;
+            map?: string;
+          }
+        >;
         inMemoryBuildCache.set(fileLoc, coldCachedResponse);
         // Trust...
         const wrappedResponse = await finalizeResponse(
@@ -812,7 +828,8 @@ ${err}`);
     })
     .listen(port);
 
-  const hmrEngine = new EsmHmrEngine({server});
+  const {hmrDelay} = config.devOptions;
+  const hmrEngine = new EsmHmrEngine({server, delay: hmrDelay});
   onProcessExit(() => {
     hmrEngine.disconnectAllClients();
   });
@@ -850,14 +867,16 @@ ${err}`);
       return;
     }
 
-    // Append ".proxy.js" to Non-JS files to match their registered URL in the client app.
+    // Append ".proxy.js" to Non-JS files to match their registered URL in the
+    // client app.
     if (!updateUrl.endsWith('.js')) {
       updateUrl += '.proxy.js';
     }
-    // Check if a virtual file exists in the resource cache (ex: CSS from a Svelte file)
-    // If it does, mark it for HMR replacement but DONT trigger a separate HMR update event.
-    // This is because a virtual resource doesn't actually exist on disk, so we need the main
-    // resource (the JS) to load first. Only after that happens will the CSS exist.
+    // Check if a virtual file exists in the resource cache (ex: CSS from a
+    // Svelte file) If it does, mark it for HMR replacement but DONT trigger a
+    // separate HMR update event. This is because a virtual resource doesn't
+    // actually exist on disk, so we need the main resource (the JS) to load
+    // first. Only after that happens will the CSS exist.
     const virtualCssFileUrl = updateUrl.replace(/.js$/, '.css');
     const virtualNode = hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
     if (virtualNode) {
@@ -869,8 +888,9 @@ ${err}`);
       return;
     }
 
-    // Otherwise, reload the page if the file exists in our hot cache (which means that the
-    // file likely exists on the current page, but is not supported by HMR (HTML, image, etc)).
+    // Otherwise, reload the page if the file exists in our hot cache (which
+    // means that the file likely exists on the current page, but is not
+    // supported by HMR (HTML, image, etc)).
     if (inMemoryBuildCache.has(fileLoc)) {
       hmrEngine.broadcastMessage({type: 'reload'});
       return;
