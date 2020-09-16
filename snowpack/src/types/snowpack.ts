@@ -14,6 +14,8 @@ export type SnowpackBuiltFile = {
   map?: string;
 };
 
+export type SnowpackBuildMap = Record<string, SnowpackBuiltFile>;
+
 /** Standard file interface */
 export interface SnowpackSourceFile<Type = string | Buffer> {
   /** base extension (e.g. `.js`) */
