@@ -11,15 +11,17 @@ interface Dependency {
   needsReplacementCount: number;
 }
 
+type HMRMessage = {type: 'reload'} | {type: 'update', url: string};
+
 export class EsmHmrEngine {
   clients: Set<WebSocket> = new Set();
   dependencyTree = new Map<string, Dependency>();
-  private liveReloadDelayMs: number = 0;
-  private currentBatch: object[] = [];
+  private delay: number = 0;
+  private currentBatch: HMRMessage[] = [];
   private currentBatchTimeout: NodeJS.Timer | null = null;
 
   constructor(
-    options: {server?: http.Server | http2.Http2Server; liveReloadDelayMs?: number} = {},
+    options: {server?: http.Server | http2.Http2Server; delay?: number} = {},
   ) {
     const wss = options.server
       ? new WebSocket.Server({noServer: true})
@@ -39,8 +41,8 @@ export class EsmHmrEngine {
       this.connectClient(client);
       this.registerListener(client);
     });
-    if (options.liveReloadDelayMs) {
-      this.liveReloadDelayMs = options.liveReloadDelayMs;
+    if (options.delay) {
+      this.delay = options.delay;
     }
   }
 
@@ -117,15 +119,15 @@ export class EsmHmrEngine {
     entry.needsReplacement = !!entry.needsReplacementCount;
   }
 
-  broadcastMessage(data: object) {
-    if (this.liveReloadDelayMs > 0) {
+  broadcastMessage(data: HMRMessage) {
+    if (this.delay > 0) {
       if (this.currentBatchTimeout) {
         clearTimeout(this.currentBatchTimeout);
       }
       this.currentBatch.push(data);
-      this.currentBatchTimeout = setTimeout(() => this.broadcastBatch(), this.liveReloadDelayMs);
+      this.currentBatchTimeout = setTimeout(() => this.broadcastBatch(), this.delay);
     } else {
-      this.internalBroadcastMessage([data]);
+      this.dispatchMessage([data]);
     }
   }
 
@@ -134,17 +136,35 @@ export class EsmHmrEngine {
       clearTimeout(this.currentBatchTimeout);
     }
     if (this.currentBatch.length > 0) {
-      this.internalBroadcastMessage(this.currentBatch);
+      this.dispatchMessage(this.currentBatch);
       this.currentBatch = [];
     }
   }
 
-  private internalBroadcastMessage(dataArr: object[]) {
+  /**
+   * This is shared logic to dispatch messages to the clients. The public methods
+   * `broadcastMessage` and `broadcastBatch` manage the delay then use this,
+   * internally when it's time to actually send the data.
+   */
+  private dispatchMessage(messageBatch: HMRMessage[]) {
+    if (messageBatch.length === 0) {
+      return;
+    }
+
+    let singleReloadMessage =
+      messageBatch.every(message => message.type === 'reload')
+        ? messageBatch[0]
+        : null;
+
     this.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        dataArr.forEach((data) => {
-          client.send(JSON.stringify(data));
-        });
+        if (singleReloadMessage) {
+          client.send(JSON.stringify(singleReloadMessage));
+        } else {
+          messageBatch.forEach((data) => {
+            client.send(JSON.stringify(data));
+          });
+        }
       } else {
         this.disconnectClient(client);
       }

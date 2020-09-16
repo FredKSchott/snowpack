@@ -820,8 +820,8 @@ ${err}`);
     })
     .listen(port);
 
-  const liveReloadDelayMs = config.devOptions.liveReloadDelayMs;
-  const hmrEngine = new EsmHmrEngine({server, liveReloadDelayMs});
+  const {hmrDelay} = config.devOptions;
+  const hmrEngine = new EsmHmrEngine({server, delay: hmrDelay});
   onProcessExit(() => {
     hmrEngine.disconnectAllClients();
   });

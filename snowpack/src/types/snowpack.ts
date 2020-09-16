@@ -129,7 +129,7 @@ export interface SnowpackConfig {
     fallback: string;
     open: string;
     hmr: boolean;
-    liveReloadDelayMs: number;
+    hmrDelay: number;
   };
   installOptions: {
     dest: string;
