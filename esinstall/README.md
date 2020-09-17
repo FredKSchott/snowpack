@@ -99,6 +99,6 @@ export declare function install(_installTargets: (InstallTarget | string)[], _op
 
 ## Special Thanks 
 
-A huge thanks to all the contributors of Snowpack over the last year. This wouldn't have been possible without you.
+A huge thanks to all the contributors of Snowpack (and now **esinstall**) over the years. This wouldn't have been possible without you!
 
 Also, it can't be stressed enough: this tool would never have existed without Rollup. If you can, consider donating to their team: https://opencollective.com/rollup
