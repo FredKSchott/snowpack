@@ -1,8 +1,11 @@
 # esinstall
 
-Convert a set of imports from your `node_modules/` directory into a fresh, new directory guarenteed to be 100% [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import). Allows you to import npm dependencies in your web project without forcing a traditional bundler like webpack.
+ ⚡️ Powering [Snowpack](https://www.snowpack.dev) and the next generation of JavaScript tooling.
 
- ⚡️ Powering Snowpack and the next generation of JavaScript tooling.
+- Convert a set of imports from your `node_modules/` directory into a fresh, new 100% [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) install directory. 
+- JavaScript packages are converted to ESM regardless of how they were originally authored.
+- Import your new ESM dependencies in any ESM-only environment (websites, Deno, Node.js v14).
+
 
 ```
 npm install esinstall
