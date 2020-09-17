@@ -56,7 +56,7 @@ export function createImportResolver({
   config,
 }: ImportResolverOptions) {
   return function importResolver(spec: string): string | false {
-    if (URL_HAS_PROTOCOL_REGEX.test(spec)) {
+    if (URL_HAS_PROTOCOL_REGEX.test(spec) || config.installOptions.externalPackage?.includes(spec)) {
       return spec;
     }
     if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
