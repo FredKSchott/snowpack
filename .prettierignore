@@ -1,1 +1,3 @@
 test/**/_dist_
+test/**/{build,web_modules}/**/*
+test/create-snowpack-app/test-install

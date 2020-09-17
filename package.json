@@ -5,7 +5,7 @@
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build --scope=esinstall --scope=snowpack",
     "publish": "lerna publish --no-private",
-    "format": "prettier --write '{snowpack,esinstall}/src/**/*.{ts,js,json,md}' '{test,plugins}/**/*.{ts,js,json,md}' '*.{js,json,md}' '.github/**/*.{md,yml}' '!test/**/{build,web_modules}/**/*'",
+    "format": "prettier --write '{snowpack,esinstall}/src/**/*.{ts,js,json,md}' '{test,plugins}/**/*.{ts,js,json,md}' '*.{js,json,md}' '.github/**/*.{md,yml}'",
     "test": "jest --test-timeout=30000"
   },
   "workspaces": [
