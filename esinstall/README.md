@@ -1,6 +1,6 @@
 # esinstall
 
-Bundle a set of imports from your `node_modules/` directory into a fresh, new directory guarenteed to be 100% [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import). Great for using npm dependencies in web apps without a traditional bundler like webpack.
+Convert a set of imports from your `node_modules/` directory into a fresh, new directory guarenteed to be 100% [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import). Great for using npm dependencies in web apps without a traditional bundler like webpack.
 
  ⚡️ Powering Snowpack and the next generation of JavaScript tooling.
 
