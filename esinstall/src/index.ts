@@ -13,7 +13,6 @@ import rollupPluginNodePolyfills from 'rollup-plugin-node-polyfills';
 import rollupPluginReplace from '@rollup/plugin-replace';
 import util from 'util';
 import validatePackageName from 'validate-npm-package-name';
-import {logger} from './logger';
 import {rollupPluginCatchFetch} from './rollup-plugins/rollup-plugin-catch-fetch';
 import {rollupPluginCatchUnresolved} from './rollup-plugins/rollup-plugin-catch-unresolved';
 import {rollupPluginCss} from './rollup-plugins/rollup-plugin-css';
@@ -22,11 +21,11 @@ import {rollupPluginDependencyStats} from './rollup-plugins/rollup-plugin-stats'
 import {rollupPluginStripSourceMapping} from './rollup-plugins/rollup-plugin-strip-source-mapping';
 import {rollupPluginWrapInstallTargets} from './rollup-plugins/rollup-plugin-wrap-install-targets';
 import {
+  AbstractLogger,
   DependencyStatsOutput,
   EnvVarReplacements,
   ImportMap,
   InstallTarget,
-  LoggerLevel,
 } from './types';
 import {
   createInstallTarget,
@@ -43,8 +42,6 @@ import {
 
 export * from './types';
 export {printStats} from './stats';
-
-type InstallResultCode = 'SUCCESS' | 'ASSET' | 'FAIL';
 
 interface DependencyLoc {
   type: 'JS' | 'ASSET' | 'IGNORE';
@@ -69,9 +66,6 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
   'react-table',
 ];
 
-const cwd = process.cwd();
-let installResults: [string, InstallResultCode][] = [];
-
 function isImportOfPackage(importUrl: string, packageName: string) {
   return packageName === importUrl || importUrl.startsWith(packageName + '/');
 }
@@ -82,7 +76,7 @@ function isImportOfPackage(importUrl: string, packageName: string) {
  * Follows logic similar to Node's resolution logic, but using a package.json's ESM "module"
  * field instead of the CJS "main" field.
  */
-function resolveWebDependency(dep: string): DependencyLoc {
+function resolveWebDependency(dep: string, {logger, cwd}: {logger: AbstractLogger, cwd: string}): DependencyLoc {
   // if dep points directly to a file within a package, return that reference.
   // No other lookup required.
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
@@ -216,9 +210,10 @@ function generateEnvReplacements(env: Object): {[key: string]: string} {
 }
 
 interface InstallOptions {
+  cwd: string;
   alias: Record<string, string>;
   lockfile?: ImportMap;
-  logLevel: LoggerLevel;
+  logger: AbstractLogger;
   verbose?: boolean;
   dest: string;
   env: EnvVarReplacements;
@@ -249,8 +244,9 @@ const EMPTY_INSTALL_RETURN: InstallResult = {
 
 function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
   const options = {
+    cwd: process.cwd(),
     alias: {},
-    logLevel: 'info' as LoggerLevel,
+    logger: console,
     dest: 'web_modules',
     externalPackage: [],
     polyfillNode: false,
@@ -262,7 +258,7 @@ function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
     },
     ..._options,
   };
-  options.dest = path.resolve(cwd, options.dest);
+  options.dest = path.resolve(options.cwd, options.dest);
   return options;
 }
 
@@ -271,9 +267,10 @@ export async function install(
   _options: PublicInstallOptions = {},
 ): Promise<InstallResult> {
   const {
+    cwd,
     alias: installAlias,
     lockfile,
-    logLevel,
+    logger,
     dest: destLoc,
     namedExports,
     externalPackage: externalPackages,
@@ -284,7 +281,6 @@ export async function install(
     polyfillNode,
   } = setOptionDefaults(_options);
   const env = generateEnvObject(userEnv);
-  logger.level = logLevel;
 
   const installTargets: InstallTarget[] = _installTargets.map((t) =>
     typeof t === 'string' ? createInstallTarget(t) : t,
@@ -315,11 +311,10 @@ export async function install(
     if (lockfile && lockfile.imports[installSpecifier]) {
       installEntrypoints[targetName] = lockfile.imports[installSpecifier];
       importMap.imports[installSpecifier] = `./${proxiedName}.js`;
-      installResults.push([targetName, 'SUCCESS']);
       continue;
     }
     try {
-      const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier);
+      const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, {logger, cwd});
       if (targetType === 'JS') {
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${proxiedName}.js`;
@@ -328,14 +323,11 @@ export async function install(
           .forEach(([key]) => {
             importMap.imports[key] = `./${targetName}.js`;
           });
-        installResults.push([installSpecifier, 'SUCCESS']);
       } else if (targetType === 'ASSET') {
         assetEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${proxiedName}`;
-        installResults.push([installSpecifier, 'ASSET']);
       }
     } catch (err) {
-      installResults.push([installSpecifier, 'FAIL']);
       if (skipFailures) {
         continue;
       }
@@ -390,7 +382,7 @@ ${colors.dim(
         externalEsm: process.env.EXTERNAL_ESM_PACKAGES || [],
         requireReturnsDefault: 'auto',
       } as RollupCommonJSOptions),
-      rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets),
+      rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),
       rollupPluginDependencyStats((info) => (dependencyStats = info)),
       rollupPluginNodeProcessPolyfill(env),
       polyfillNode && rollupPluginNodePolyfills(),
@@ -398,7 +390,7 @@ ${colors.dim(
       rollupPluginCatchUnresolved(),
       rollupPluginStripSourceMapping(),
     ].filter(Boolean) as Plugin[],
-    onwarn(warning, warn) {
+    onwarn(warning) {
       // Warn about the first circular dependency, but then ignore the rest.
       if (warning.code === 'CIRCULAR_DEPENDENCY') {
         if (!isCircularImportFound) {
@@ -422,7 +414,12 @@ ${colors.dim(
         }
         return;
       }
-      warn(warning);
+      const {loc, message} = warning;
+      if (loc) {
+        logger.warn(`${loc.file}:${loc.line}:${loc.column} ${message}`);
+      } else {
+        logger.warn(message);
+      }
     },
   };
   const outputOptions: OutputOptions = {

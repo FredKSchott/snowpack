@@ -12,6 +12,14 @@ export interface ImportMap {
   imports: {[packageName: string]: string};
 }
 
+export interface AbstractLogger {
+  debug: (...args: any[]) => void;
+  log: (...args: any[]) => void;
+  warn: (...args: any[]) => void;
+  error: (...args: any[]) => void;
+}
+
+
 /**
  * An install target represents information about a dependency to install.
  * The specifier is the key pointing to the dependency, either as a package
