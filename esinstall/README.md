@@ -1,6 +1,6 @@
 # esinstall
 
-Convert a set of imports from your `node_modules/` directory into a fresh, new directory guarenteed to be 100% [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import). Great for using npm dependencies in web apps without a traditional bundler like webpack.
+Convert a set of imports from your `node_modules/` directory into a fresh, new directory guarenteed to be 100% [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import). Allows you to import npm dependencies in your web project without forcing a traditional bundler like webpack.
 
  ⚡️ Powering Snowpack and the next generation of JavaScript tooling.
 
@@ -52,8 +52,11 @@ if (success) {
   printStats(stats);
 }
 
-// Feature: Tree-shaking! Supports more detailed install targets.
-await install([{specifier: 'preact/hooks', all: false, default: false, namespace: false, named: ['useState', 'useEffect']}], {treeshake: true}); 
+// Feature: Tree-shaking! Get a smaller final build by providing more detailed install targets.
+await install(
+  [{specifier: 'preact/hooks', all: false, default: false, namespace: false, named: ['useState', 'useEffect']}], 
+  {treeshake: true}
+); 
 ```
 
 ## API
