@@ -271,7 +271,6 @@ Snowpack supports [native CSS "@import" behavior](https://developer.mozilla.org/
 
 **Note for webpack users:** If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With Snowpack you remove the `~` from your `@import`s.
 
-
 ### Optimized Builds
 
 By default, Snowpack doesn't optimize your code for production. But, there are several plugins available to optimize your final build, including minification (reducing file sizes) and even bundling (combining files together to reduce the number of requests needed).
@@ -290,7 +289,7 @@ By default, Snowpack doesn't optimize your code for production. But, there are s
 
 Note that `@snowpack/plugin-optimize` will optimize your build, but won't bundle files together.
 
-**If you'd like a bundled build, use `@snowpack/plugin-webpack` instead.** Connect the `"@snowpack/plugin-webpack"` plugin in your Snowpack configuration file and then run `snowpack build` to see your optimized, *bundled* build.
+**If you'd like a bundled build, use `@snowpack/plugin-webpack` instead.** Connect the `"@snowpack/plugin-webpack"` plugin in your Snowpack configuration file and then run `snowpack build` to see your optimized, _bundled_ build.
 
 ```js
 // snowpack.config.json

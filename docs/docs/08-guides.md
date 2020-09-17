@@ -24,7 +24,7 @@ Some libraries use compile-to-JS file formats and do require a special build scr
 
 Snowpack has built-in support to handle `.jsx` & `.tsx` source files in your application.
 
-**Note: Snowpack's default build does not support JSX in  `.js`/`.ts` files.** If you can't use the `.jsx`/`.tsx` file extension, you can use [Babel](#babel) to build your application instead.
+**Note: Snowpack's default build does not support JSX in `.js`/`.ts` files.** If you can't use the `.jsx`/`.tsx` file extension, you can use [Babel](#babel) to build your application instead.
 
 ### TypeScript
 
@@ -53,7 +53,6 @@ The plugin will automatically read plugins & presets from your local project `ba
 "plugins": ["@snowpack/plugin-babel"],
 ```
 
-
 ### Preact
 
 You can import and use Preact without any custom configuration needed.
@@ -71,9 +70,7 @@ You can import and use Preact without any custom configuration needed.
 }
 ```
 
-
 ### Vue
-
 
 ```js
 // snowpack.config.json
@@ -87,7 +84,6 @@ You can import and use Preact without any custom configuration needed.
 "plugins": ["@snowpack/plugin-svelte"]
 ```
 
-
 ### PostCSS
 
 ```js
@@ -98,7 +94,6 @@ You can import and use Preact without any custom configuration needed.
 ```
 
 The [`postcss-cli`](https://github.com/postcss/postcss-cli) package must be installed manually. You can configure PostCSS with a `postcss.config.js` file in your current working directory.
-
 
 ### Tailwind CSS
 
@@ -111,8 +106,8 @@ module.exports = {
     require('tailwindcss'),
     require('autoprefixer'),
     // ...
-  ]
-}
+  ],
+};
 ```
 
 Tailwind ships with first-class support for PostCSS. To use Tailwind in your Snowpack project, connect PostCSS ([see above](#postcss)) and add the recommended Tailwind PostCSS plugin to your snowpack configuration.
@@ -173,7 +168,6 @@ Snowpack ships an official [webpack plugin](https://www.npmjs.com/package/@snowp
 
 See ["Optimized Builds"](/#optimized-builds) for more information about connecting bundled (or unbundled) optimization plugins for your production builds.
 
-
 ### Workbox
 
 The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbox-cli) integrates well with Snowpack. Run the wizard to bootstrap your first configuration file, and then run `workbox generateSW` to generate your service worker.
@@ -193,9 +187,10 @@ And make sure that your HTML response also includes code to configure HMR to tal
 
 ```html
 <!-- Configure Snowpack's HMR connection yourself, somewhere on your page HTML -->
-<script>window.HMR_WEBSOCKET_URL = "ws://localhost:8080"</script>
+<script>
+  window.HMR_WEBSOCKET_URL = 'ws://localhost:8080';
+</script>
 ```
-
 
 ### Leaving Snowpack
 
