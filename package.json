@@ -5,7 +5,7 @@
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build --scope=esinstall --scope=snowpack",
     "publish": "lerna publish --no-private",
-    "format": "prettier --write \"{snowpack,esinstall}/src/**/*.ts\"",
+    "format": "prettier --write '{snowpack,esinstall}/src/**/*.{ts,js,json,md}' '{test,plugins}/**/*.{ts,js,json,md}' '*.{js,json,md}' '.github/**/*.{md,yml}' '!**/{_dist_,build,packages,TEST_BUILD_OUT,web_modules}/**' !test/create-snowpack-app/test-install",
     "test": "jest --test-timeout=30000"
   },
   "workspaces": [
@@ -43,5 +43,11 @@
     "lerna": "^3.22.1",
     "prettier": "^2.0.5",
     "typescript": "^3.9.7"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all",
+    "bracketSpacing": false,
+    "printWidth": 100
   }
 }
