@@ -70,6 +70,7 @@ import {
   DEV_DEPENDENCIES_DIR,
   getExt,
   HMR_CLIENT_CODE,
+  HMR_OVERLAY_CODE,
   jsSourceMappingURL,
   openInBrowser,
   parsePackageImportSpecifier,
@@ -372,6 +373,10 @@ export async function command(commandOptions: CommandOptions) {
 
     if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
       sendFile(req, res, HMR_CLIENT_CODE, reqPath, '.js');
+      return;
+    }
+    if (reqPath === getMetaUrlPath('/hmr-error-overlay.js', config)) {
+      sendFile(req, res, HMR_OVERLAY_CODE, reqPath, '.js');
       return;
     }
     if (reqPath === getMetaUrlPath('/env.js', config)) {
