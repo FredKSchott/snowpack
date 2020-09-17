@@ -1,7 +1,5 @@
 # esinstall
 
-⚡️ Powering [Snowpack](https://www.snowpack.dev) and the next generation of JavaScript tooling.
-
 - Convert a set of imports from your `node_modules/` directory into a fresh, new 100% [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) install directory.
 - JavaScript packages are converted to ESM regardless of how they were originally authored.
 - Import your new ESM dependencies in any ESM-only environment (websites, Deno, Node.js v14).
@@ -18,6 +16,8 @@ await install(['preact', 'preact/hooks'], {
 });
 // Result: Creates `preact.js` and `preact/hooks.js` inside a `web_modules/` directory in your current directory.
 ```
+
+⚡️ Powering [Snowpack](https://www.snowpack.dev) and the next generation of JavaScript tooling.
 
 ## Status
 
