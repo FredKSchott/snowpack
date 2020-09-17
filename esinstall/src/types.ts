@@ -19,7 +19,6 @@ export interface AbstractLogger {
   error: (...args: any[]) => void;
 }
 
-
 /**
  * An install target represents information about a dependency to install.
  * The specifier is the key pointing to the dependency, either as a package

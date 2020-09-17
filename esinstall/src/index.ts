@@ -76,7 +76,10 @@ function isImportOfPackage(importUrl: string, packageName: string) {
  * Follows logic similar to Node's resolution logic, but using a package.json's ESM "module"
  * field instead of the CJS "main" field.
  */
-function resolveWebDependency(dep: string, {logger, cwd}: {logger: AbstractLogger, cwd: string}): DependencyLoc {
+function resolveWebDependency(
+  dep: string,
+  {logger, cwd}: {logger: AbstractLogger; cwd: string},
+): DependencyLoc {
   // if dep points directly to a file within a package, return that reference.
   // No other lookup required.
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
@@ -314,7 +317,10 @@ export async function install(
       continue;
     }
     try {
-      const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, {logger, cwd});
+      const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, {
+        logger,
+        cwd,
+      });
       if (targetType === 'JS') {
         installEntrypoints[targetName] = targetLoc;
         importMap.imports[installSpecifier] = `./${proxiedName}.js`;
