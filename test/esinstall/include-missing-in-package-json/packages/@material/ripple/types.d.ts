@@ -21,14 +21,14 @@
  * THE SOFTWARE.
  */
 export interface MDCRipplePoint {
-  x: number;
-  y: number;
+    x: number;
+    y: number;
 }
 /**
  * Options passed in when attaching a ripple to an object.
  */
 export interface MDCRippleAttachOpts {
-  isUnbounded?: boolean;
+    isUnbounded?: boolean;
 }
 /**
  * See Material Design spec for more details on when to use ripples.
@@ -37,7 +37,7 @@ export interface MDCRippleAttachOpts {
  * disabled Whether or not the ripple is attached to a disabled component.
  */
 export interface MDCRippleCapableSurface {
-  root: Element;
-  unbounded?: boolean;
-  disabled?: boolean;
+    root: Element;
+    unbounded?: boolean;
+    disabled?: boolean;
 }

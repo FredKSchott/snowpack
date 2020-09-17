@@ -24,8 +24,8 @@
  * Priorities for the announce function
  */
 export declare enum AnnouncerPriority {
-  POLITE = 'polite',
-  ASSERTIVE = 'assertive',
+    POLITE = "polite",
+    ASSERTIVE = "assertive"
 }
 /**
  * Announces the given message with optional priority, defaulting to "polite"

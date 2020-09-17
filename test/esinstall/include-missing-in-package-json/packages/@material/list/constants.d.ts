@@ -21,33 +21,33 @@
  * THE SOFTWARE.
  */
 declare const cssClasses: {
-  LIST_ITEM_ACTIVATED_CLASS: string;
-  LIST_ITEM_CLASS: string;
-  LIST_ITEM_DISABLED_CLASS: string;
-  LIST_ITEM_SELECTED_CLASS: string;
-  LIST_ITEM_TEXT_CLASS: string;
-  LIST_ITEM_PRIMARY_TEXT_CLASS: string;
-  ROOT: string;
+    LIST_ITEM_ACTIVATED_CLASS: string;
+    LIST_ITEM_CLASS: string;
+    LIST_ITEM_DISABLED_CLASS: string;
+    LIST_ITEM_SELECTED_CLASS: string;
+    LIST_ITEM_TEXT_CLASS: string;
+    LIST_ITEM_PRIMARY_TEXT_CLASS: string;
+    ROOT: string;
 };
 declare const strings: {
-  ACTION_EVENT: string;
-  ARIA_CHECKED: string;
-  ARIA_CHECKED_CHECKBOX_SELECTOR: string;
-  ARIA_CHECKED_RADIO_SELECTOR: string;
-  ARIA_CURRENT: string;
-  ARIA_DISABLED: string;
-  ARIA_ORIENTATION: string;
-  ARIA_ORIENTATION_HORIZONTAL: string;
-  ARIA_ROLE_CHECKBOX_SELECTOR: string;
-  ARIA_SELECTED: string;
-  CHECKBOX_RADIO_SELECTOR: string;
-  CHECKBOX_SELECTOR: string;
-  CHILD_ELEMENTS_TO_TOGGLE_TABINDEX: string;
-  FOCUSABLE_CHILD_ELEMENTS: string;
-  RADIO_SELECTOR: string;
+    ACTION_EVENT: string;
+    ARIA_CHECKED: string;
+    ARIA_CHECKED_CHECKBOX_SELECTOR: string;
+    ARIA_CHECKED_RADIO_SELECTOR: string;
+    ARIA_CURRENT: string;
+    ARIA_DISABLED: string;
+    ARIA_ORIENTATION: string;
+    ARIA_ORIENTATION_HORIZONTAL: string;
+    ARIA_ROLE_CHECKBOX_SELECTOR: string;
+    ARIA_SELECTED: string;
+    CHECKBOX_RADIO_SELECTOR: string;
+    CHECKBOX_SELECTOR: string;
+    CHILD_ELEMENTS_TO_TOGGLE_TABINDEX: string;
+    FOCUSABLE_CHILD_ELEMENTS: string;
+    RADIO_SELECTOR: string;
 };
 declare const numbers: {
-  UNSET_INDEX: number;
-  TYPEAHEAD_BUFFER_CLEAR_TIMEOUT_MS: number;
+    UNSET_INDEX: number;
+    TYPEAHEAD_BUFFER_CLEAR_TIMEOUT_MS: number;
 };
-export {strings, cssClasses, numbers};
+export { strings, cssClasses, numbers };

@@ -21,24 +21,24 @@
  * THE SOFTWARE.
  */
 export declare const cssClasses: {
-  BG_FOCUSED: string;
-  FG_ACTIVATION: string;
-  FG_DEACTIVATION: string;
-  ROOT: string;
-  UNBOUNDED: string;
+    BG_FOCUSED: string;
+    FG_ACTIVATION: string;
+    FG_DEACTIVATION: string;
+    ROOT: string;
+    UNBOUNDED: string;
 };
 export declare const strings: {
-  VAR_FG_SCALE: string;
-  VAR_FG_SIZE: string;
-  VAR_FG_TRANSLATE_END: string;
-  VAR_FG_TRANSLATE_START: string;
-  VAR_LEFT: string;
-  VAR_TOP: string;
+    VAR_FG_SCALE: string;
+    VAR_FG_SIZE: string;
+    VAR_FG_TRANSLATE_END: string;
+    VAR_FG_TRANSLATE_START: string;
+    VAR_LEFT: string;
+    VAR_TOP: string;
 };
 export declare const numbers: {
-  DEACTIVATION_TIMEOUT_MS: number;
-  FG_DEACTIVATION_MS: number;
-  INITIAL_ORIGIN_SCALE: number;
-  PADDING: number;
-  TAP_DELAY_MS: number;
+    DEACTIVATION_TIMEOUT_MS: number;
+    FG_DEACTIVATION_MS: number;
+    INITIAL_ORIGIN_SCALE: number;
+    PADDING: number;
+    TAP_DELAY_MS: number;
 };

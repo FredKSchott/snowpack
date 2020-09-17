@@ -24,20 +24,20 @@
  * KEY provides normalized string values for keys.
  */
 export var KEY = {
-  UNKNOWN: 'Unknown',
-  BACKSPACE: 'Backspace',
-  ENTER: 'Enter',
-  SPACEBAR: 'Spacebar',
-  PAGE_UP: 'PageUp',
-  PAGE_DOWN: 'PageDown',
-  END: 'End',
-  HOME: 'Home',
-  ARROW_LEFT: 'ArrowLeft',
-  ARROW_UP: 'ArrowUp',
-  ARROW_RIGHT: 'ArrowRight',
-  ARROW_DOWN: 'ArrowDown',
-  DELETE: 'Delete',
-  ESCAPE: 'Escape',
+    UNKNOWN: 'Unknown',
+    BACKSPACE: 'Backspace',
+    ENTER: 'Enter',
+    SPACEBAR: 'Spacebar',
+    PAGE_UP: 'PageUp',
+    PAGE_DOWN: 'PageDown',
+    END: 'End',
+    HOME: 'Home',
+    ARROW_LEFT: 'ArrowLeft',
+    ARROW_UP: 'ArrowUp',
+    ARROW_RIGHT: 'ArrowRight',
+    ARROW_DOWN: 'ArrowDown',
+    DELETE: 'Delete',
+    ESCAPE: 'Escape',
 };
 var normalizedKeys = new Set();
 // IE11 has no support for new Map with iterable so we need to initialize this
@@ -56,19 +56,19 @@ normalizedKeys.add(KEY.ARROW_DOWN);
 normalizedKeys.add(KEY.DELETE);
 normalizedKeys.add(KEY.ESCAPE);
 var KEY_CODE = {
-  BACKSPACE: 8,
-  ENTER: 13,
-  SPACEBAR: 32,
-  PAGE_UP: 33,
-  PAGE_DOWN: 34,
-  END: 35,
-  HOME: 36,
-  ARROW_LEFT: 37,
-  ARROW_UP: 38,
-  ARROW_RIGHT: 39,
-  ARROW_DOWN: 40,
-  DELETE: 46,
-  ESCAPE: 27,
+    BACKSPACE: 8,
+    ENTER: 13,
+    SPACEBAR: 32,
+    PAGE_UP: 33,
+    PAGE_DOWN: 34,
+    END: 35,
+    HOME: 36,
+    ARROW_LEFT: 37,
+    ARROW_UP: 38,
+    ARROW_RIGHT: 39,
+    ARROW_DOWN: 40,
+    DELETE: 46,
+    ESCAPE: 27,
 };
 var mappedKeyCodes = new Map();
 // IE11 has no support for new Map with iterable so we need to initialize this
@@ -101,22 +101,22 @@ navigationKeys.add(KEY.ARROW_DOWN);
  * normalizeKey returns the normalized string for a navigational action.
  */
 export function normalizeKey(evt) {
-  var key = evt.key;
-  // If the event already has a normalized key, return it
-  if (normalizedKeys.has(key)) {
-    return key;
-  }
-  // tslint:disable-next-line:deprecation
-  var mappedKey = mappedKeyCodes.get(evt.keyCode);
-  if (mappedKey) {
-    return mappedKey;
-  }
-  return KEY.UNKNOWN;
+    var key = evt.key;
+    // If the event already has a normalized key, return it
+    if (normalizedKeys.has(key)) {
+        return key;
+    }
+    // tslint:disable-next-line:deprecation
+    var mappedKey = mappedKeyCodes.get(evt.keyCode);
+    if (mappedKey) {
+        return mappedKey;
+    }
+    return KEY.UNKNOWN;
 }
 /**
  * isNavigationEvent returns whether the event is a navigation event
  */
 export function isNavigationEvent(evt) {
-  return navigationKeys.has(normalizeKey(evt));
+    return navigationKeys.has(normalizeKey(evt));
 }
 //# sourceMappingURL=keyboard.js.map

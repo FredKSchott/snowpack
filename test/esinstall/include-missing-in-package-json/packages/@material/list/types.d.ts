@@ -21,13 +21,13 @@
  * THE SOFTWARE.
  */
 export interface MDCListActionEventDetail {
-  /**
-   * Index of the list item that was activated.
-   */
-  index: number;
+    /**
+     * Index of the list item that was activated.
+     */
+    index: number;
 }
 export interface MDCListActionEvent extends Event {
-  detail: MDCListActionEventDetail;
+    detail: MDCListActionEventDetail;
 }
 export declare type MDCListIndex = number | number[];
 /**
@@ -35,6 +35,6 @@ export declare type MDCListIndex = number | number[];
  * with list item text.
  */
 export interface MDCListTextAndIndex {
-  text: string;
-  index: number;
+    text: string;
+    index: number;
 }

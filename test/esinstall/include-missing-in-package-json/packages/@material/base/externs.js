@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 /**
  * @license
  * Copyright 2019 Google Inc.

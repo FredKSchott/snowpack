@@ -20,10 +20,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import {MDCRipplePoint} from './types';
+import { MDCRipplePoint } from './types';
 export declare function supportsCssVariables(windowObj: Window, forceRefresh?: boolean): boolean;
-export declare function getNormalizedEventCoords(
-  evt: Event | undefined,
-  pageOffset: MDCRipplePoint,
-  clientRect: ClientRect,
-): MDCRipplePoint;
+export declare function getNormalizedEventCoords(evt: Event | undefined, pageOffset: MDCRipplePoint, clientRect: ClientRect): MDCRipplePoint;

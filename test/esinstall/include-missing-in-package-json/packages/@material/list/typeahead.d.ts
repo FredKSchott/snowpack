@@ -20,15 +20,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import {MDCListTextAndIndex} from './types';
+import { MDCListTextAndIndex } from './types';
 /**
  * State of a typeahead instance.
  */
 export interface TypeaheadState {
-  typeaheadBuffer: string;
-  currentFirstChar: string;
-  sortedIndexCursor: number;
-  bufferClearTimeout: number;
+    typeaheadBuffer: string;
+    currentFirstChar: string;
+    sortedIndexCursor: number;
+    bufferClearTimeout: number;
 }
 /**
  * Initializes a state object for typeahead. Use the same reference for calls to
@@ -50,20 +50,17 @@ export declare function initState(): TypeaheadState;
  * @return Map that maps the first character of the primary text to the full
  *     list text and it's index
  */
-export declare function initSortedIndex(
-  listItemCount: number,
-  getPrimaryTextByItemIndex: (index: number) => string,
-): Map<string, MDCListTextAndIndex[]>;
+export declare function initSortedIndex(listItemCount: number, getPrimaryTextByItemIndex: (index: number) => string): Map<string, MDCListTextAndIndex[]>;
 /**
  * Arguments for matchItem
  */
 export interface TypeaheadMatchItemOpts {
-  focusItemAtIndex: (index: number) => void;
-  nextChar: string;
-  focusedItemIndex: number;
-  sortedIndexByFirstChar: Map<string, MDCListTextAndIndex[]>;
-  skipFocus: boolean;
-  isItemAtIndexDisabled: (index: number) => boolean;
+    focusItemAtIndex: (index: number) => void;
+    nextChar: string;
+    focusedItemIndex: number;
+    sortedIndexByFirstChar: Map<string, MDCListTextAndIndex[]>;
+    skipFocus: boolean;
+    isItemAtIndexDisabled: (index: number) => boolean;
 }
 /**
  * Given the next desired character from the user, it attempts to find the next
@@ -92,12 +89,12 @@ export declare function isTypingInProgress(state: TypeaheadState): boolean;
  * Options for handleKeydown.
  */
 export interface HandleKeydownOpts {
-  event: KeyboardEvent;
-  isTargetListItem: boolean;
-  focusItemAtIndex: (index: number) => void;
-  focusedItemIndex: number;
-  sortedIndexByFirstChar: Map<string, MDCListTextAndIndex[]>;
-  isItemAtIndexDisabled: (index: number) => boolean;
+    event: KeyboardEvent;
+    isTargetListItem: boolean;
+    focusItemAtIndex: (index: number) => void;
+    focusedItemIndex: number;
+    sortedIndexByFirstChar: Map<string, MDCListTextAndIndex[]>;
+    isItemAtIndexDisabled: (index: number) => boolean;
 }
 /**
  * Clears the typeahaed buffer so that it resets item matching to the first

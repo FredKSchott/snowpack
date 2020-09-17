@@ -22,10 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const path = require('path');
+const path = require("path");
 const regex = /import\.meta/g;
 function toBrowserPath(filePath, _path = path) {
-  return filePath.replace(new RegExp(_path.sep === '\\' ? '\\\\' : _path.sep, 'g'), '/');
+  return filePath.replace(
+    new RegExp(_path.sep === "\\" ? "\\\\" : _path.sep, "g"),
+    "/"
+  );
 }
 
 /**
@@ -41,12 +44,14 @@ function toBrowserPath(filePath, _path = path) {
 module.exports = function (source) {
   const relativePath = this.context.substring(
     this.context.indexOf(this.rootContext) + this.rootContext.length + 1,
-    this.resource.lastIndexOf(path.sep) + 1,
+    this.resource.lastIndexOf(path.sep) + 1
   );
 
   const browserPath = toBrowserPath(relativePath);
 
-  const fileName = this.resource.substring(this.resource.lastIndexOf(path.sep) + 1);
+  const fileName = this.resource.substring(
+    this.resource.lastIndexOf(path.sep) + 1
+  );
 
   let found = false;
   let rewrittenSource = source.replace(regex, () => {

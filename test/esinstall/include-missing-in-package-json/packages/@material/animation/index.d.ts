@@ -21,6 +21,6 @@
  * THE SOFTWARE.
  */
 import * as util from './util';
-export {util};
+export { util };
 export * from './types';
 export * from './util';

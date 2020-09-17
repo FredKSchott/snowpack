@@ -20,8 +20,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import {EventType, SpecificEventListener} from '@material/base/types';
-import {MDCRipplePoint} from './types';
+import { EventType, SpecificEventListener } from '@material/base/types';
+import { MDCRipplePoint } from './types';
 /**
  * Defines the shape of the adapter expected by the foundation.
  * Implement this adapter for your framework of choice to delegate updates to
@@ -30,32 +30,20 @@ import {MDCRipplePoint} from './types';
  * https://github.com/material-components/material-components-web/blob/master/docs/code/architecture.md
  */
 export interface MDCRippleAdapter {
-  browserSupportsCssVars(): boolean;
-  isUnbounded(): boolean;
-  isSurfaceActive(): boolean;
-  isSurfaceDisabled(): boolean;
-  addClass(className: string): void;
-  removeClass(className: string): void;
-  containsEventTarget(target: EventTarget | null): boolean;
-  registerInteractionHandler<K extends EventType>(
-    evtType: K,
-    handler: SpecificEventListener<K>,
-  ): void;
-  deregisterInteractionHandler<K extends EventType>(
-    evtType: K,
-    handler: SpecificEventListener<K>,
-  ): void;
-  registerDocumentInteractionHandler<K extends EventType>(
-    evtType: K,
-    handler: SpecificEventListener<K>,
-  ): void;
-  deregisterDocumentInteractionHandler<K extends EventType>(
-    evtType: K,
-    handler: SpecificEventListener<K>,
-  ): void;
-  registerResizeHandler(handler: SpecificEventListener<'resize'>): void;
-  deregisterResizeHandler(handler: SpecificEventListener<'resize'>): void;
-  updateCssVariable(varName: string, value: string | null): void;
-  computeBoundingRect(): ClientRect;
-  getWindowPageOffset(): MDCRipplePoint;
+    browserSupportsCssVars(): boolean;
+    isUnbounded(): boolean;
+    isSurfaceActive(): boolean;
+    isSurfaceDisabled(): boolean;
+    addClass(className: string): void;
+    removeClass(className: string): void;
+    containsEventTarget(target: EventTarget | null): boolean;
+    registerInteractionHandler<K extends EventType>(evtType: K, handler: SpecificEventListener<K>): void;
+    deregisterInteractionHandler<K extends EventType>(evtType: K, handler: SpecificEventListener<K>): void;
+    registerDocumentInteractionHandler<K extends EventType>(evtType: K, handler: SpecificEventListener<K>): void;
+    deregisterDocumentInteractionHandler<K extends EventType>(evtType: K, handler: SpecificEventListener<K>): void;
+    registerResizeHandler(handler: SpecificEventListener<'resize'>): void;
+    deregisterResizeHandler(handler: SpecificEventListener<'resize'>): void;
+    updateCssVariable(varName: string, value: string | null): void;
+    computeBoundingRect(): ClientRect;
+    getWindowPageOffset(): MDCRipplePoint;
 }

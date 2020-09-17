@@ -21,6 +21,6 @@
  * THE SOFTWARE.
  */
 import * as util from './util';
-export {util}; // New namespace
+export { util }; // New namespace
 export * from './util'; // Old namespace for backward compatibility
 //# sourceMappingURL=index.js.map

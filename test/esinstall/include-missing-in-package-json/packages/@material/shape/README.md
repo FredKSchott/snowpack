@@ -40,11 +40,11 @@ npm install @material/shape
 
 Components are categorized as small, medium, and large in the Material shape system. Overriding the below Sass variables will change all components in their respective categories.
 
-| Variable                   | Description                                                           |
-| -------------------------- | --------------------------------------------------------------------- |
-| `$small-component-radius`  | Rounded shape radius size for small components. Default value `4px`.  |
-| `$medium-component-radius` | Rounded shape radius size for medium components. Default value `4px`. |
-| `$large-component-radius`  | Rounded shape radius size for large components. Default value `0`.    |
+Variable | Description
+--- | ---
+`$small-component-radius` | Rounded shape radius size for small components. Default value `4px`.
+`$medium-component-radius` | Rounded shape radius size for medium components. Default value `4px`.
+`$large-component-radius` | Rounded shape radius size for large components. Default value `0`.
 
 Please refer [Material Design guidelines: Shape](https://material.io/go/design-shape) to learn about how components are categorized.
 
@@ -52,28 +52,28 @@ Please refer [Material Design guidelines: Shape](https://material.io/go/design-s
 
 ### CSS Custom Properties
 
-| CSS Custom Property  | Description                                                          |
-| -------------------- | -------------------------------------------------------------------- |
-| `--mdc-shape-small`  | Rounded shape radius size for small components. Default value `4px`. |
-| `--mdc-shape-medium` | Rounded shape radius size for small components. Default value `4px`. |
-| `--mdc-shape-large`  | Rounded shape radius size for small components. Default value `0`.   |
+CSS Custom Property | Description
+--- | ---
+`--mdc-shape-small` | Rounded shape radius size for small components. Default value `4px`.
+`--mdc-shape-medium` | Rounded shape radius size for small components. Default value `4px`.
+`--mdc-shape-large` | Rounded shape radius size for small components. Default value `0`.
 
 **Note: Do not use percentage values with custom properties, since they cannot be resolved by `shape.radius()` at runtime.**
 
 ### Sass Mixins
 
-| Mixin                             | Description                                                                                                                                                                                                                            |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `radius($radius, $rtl-reflexive)` | Shape API used by all other components to apply radius to appropriate corners. `$radius` can be single value or list of up to 4 radius corner values. Set `$rtl-reflexive` to true to flip the radius in RTL case, `false` by default. |
+Mixin | Description
+--- | ---
+`radius($radius, $rtl-reflexive)` | Shape API used by all other components to apply radius to appropriate corners. `$radius` can be single value or list of up to 4 radius corner values. Set `$rtl-reflexive` to true to flip the radius in RTL case, `false` by default.
 
 ### Sass Functions
 
-| Function                                     | Description                                                                                                                                                                                                                                                                              |
-| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `resolve-radius($radius, $component-height)` | Returns the resolved radius value of a shape category - `large`, `medium`, or `small`. If \$radius is not a category, this function returns the value itself if valid. Valid values are numbers or percentages. `$component-height` should be provided if `$radius` may be a percentage. |
-| `flip-radius($radius)`                       | Flips the radius values in RTL context. `$radius` is list of 2-4 corner values.                                                                                                                                                                                                          |
-| `mask-radius($radius, $masked-corners)`      | Accepts radius number or list of 2-4 radius values and returns 4 value list with masked corners as mentioned in `$masked-corners`.                                                                                                                                                       |
-| `unpack-radius($radius)`                     | Unpacks shorthand values for border-radius (i.e. lists of 1-3 values). If a list of 4 values is given, it is returned as-is.                                                                                                                                                             |
+Function | Description
+--- | ---
+`resolve-radius($radius, $component-height)` | Returns the resolved radius value of a shape category - `large`, `medium`, or `small`. If $radius is not a category, this function returns the value itself if valid. Valid values are numbers or percentages. `$component-height` should be provided if `$radius` may be a percentage.
+`flip-radius($radius)` | Flips the radius values in RTL context. `$radius` is list of 2-4 corner values.
+`mask-radius($radius, $masked-corners)` | Accepts radius number or list of 2-4 radius values and returns 4 value list with masked corners as mentioned in `$masked-corners`.
+`unpack-radius($radius)` | Unpacks shorthand values for border-radius (i.e. lists of 1-3 values). If a list of 4 values is given, it is returned as-is.
 
 ### Additional Information
 

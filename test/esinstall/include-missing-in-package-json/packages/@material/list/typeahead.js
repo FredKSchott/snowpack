@@ -20,9 +20,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import {normalizeKey} from '@material/dom/keyboard';
-import {numbers} from './constants';
-import {preventDefaultEvent} from './events';
+import { normalizeKey } from '@material/dom/keyboard';
+import { numbers } from './constants';
+import { preventDefaultEvent } from './events';
 /**
  * Initializes a state object for typeahead. Use the same reference for calls to
  * typeahead functions.
@@ -32,13 +32,13 @@ import {preventDefaultEvent} from './events';
  *     in-place.
  */
 export function initState() {
-  var state = {
-    bufferClearTimeout: 0,
-    currentFirstChar: '',
-    sortedIndexCursor: 0,
-    typeaheadBuffer: '',
-  };
-  return state;
+    var state = {
+        bufferClearTimeout: 0,
+        currentFirstChar: '',
+        sortedIndexCursor: 0,
+        typeaheadBuffer: '',
+    };
+    return state;
 }
 /**
  * Initializes typeahead state by indexing the current list items by primary
@@ -52,27 +52,27 @@ export function initState() {
  *     list text and it's index
  */
 export function initSortedIndex(listItemCount, getPrimaryTextByItemIndex) {
-  var sortedIndexByFirstChar = new Map();
-  // Aggregate item text to index mapping
-  for (var i = 0; i < listItemCount; i++) {
-    var primaryText = getPrimaryTextByItemIndex(i).trim();
-    if (!primaryText) {
-      continue;
+    var sortedIndexByFirstChar = new Map();
+    // Aggregate item text to index mapping
+    for (var i = 0; i < listItemCount; i++) {
+        var primaryText = getPrimaryTextByItemIndex(i).trim();
+        if (!primaryText) {
+            continue;
+        }
+        var firstChar = primaryText[0].toLowerCase();
+        if (!sortedIndexByFirstChar.has(firstChar)) {
+            sortedIndexByFirstChar.set(firstChar, []);
+        }
+        sortedIndexByFirstChar.get(firstChar).push({ text: primaryText.toLowerCase(), index: i });
     }
-    var firstChar = primaryText[0].toLowerCase();
-    if (!sortedIndexByFirstChar.has(firstChar)) {
-      sortedIndexByFirstChar.set(firstChar, []);
-    }
-    sortedIndexByFirstChar.get(firstChar).push({text: primaryText.toLowerCase(), index: i});
-  }
-  // Sort the mapping
-  // TODO(b/157162694): Investigate replacing forEach with Map.values()
-  sortedIndexByFirstChar.forEach(function (values) {
-    values.sort(function (first, second) {
-      return first.index - second.index;
+    // Sort the mapping
+    // TODO(b/157162694): Investigate replacing forEach with Map.values()
+    sortedIndexByFirstChar.forEach(function (values) {
+        values.sort(function (first, second) {
+            return first.index - second.index;
+        });
     });
-  });
-  return sortedIndexByFirstChar;
+    return sortedIndexByFirstChar;
 }
 /**
  * Given the next desired character from the user, it attempts to find the next
@@ -91,27 +91,23 @@ export function initSortedIndex(listItemCount, getPrimaryTextByItemIndex) {
  * @return The index of the matched item, or -1 if no match.
  */
 export function matchItem(opts, state) {
-  var nextChar = opts.nextChar,
-    focusItemAtIndex = opts.focusItemAtIndex,
-    sortedIndexByFirstChar = opts.sortedIndexByFirstChar,
-    focusedItemIndex = opts.focusedItemIndex,
-    skipFocus = opts.skipFocus,
-    isItemAtIndexDisabled = opts.isItemAtIndexDisabled;
-  clearTimeout(state.bufferClearTimeout);
-  state.bufferClearTimeout = setTimeout(function () {
-    clearBuffer(state);
-  }, numbers.TYPEAHEAD_BUFFER_CLEAR_TIMEOUT_MS);
-  state.typeaheadBuffer = state.typeaheadBuffer + nextChar;
-  var index;
-  if (state.typeaheadBuffer.length === 1) {
-    index = matchFirstChar(sortedIndexByFirstChar, focusedItemIndex, isItemAtIndexDisabled, state);
-  } else {
-    index = matchAllChars(sortedIndexByFirstChar, isItemAtIndexDisabled, state);
-  }
-  if (index !== -1 && !skipFocus) {
-    focusItemAtIndex(index);
-  }
-  return index;
+    var nextChar = opts.nextChar, focusItemAtIndex = opts.focusItemAtIndex, sortedIndexByFirstChar = opts.sortedIndexByFirstChar, focusedItemIndex = opts.focusedItemIndex, skipFocus = opts.skipFocus, isItemAtIndexDisabled = opts.isItemAtIndexDisabled;
+    clearTimeout(state.bufferClearTimeout);
+    state.bufferClearTimeout = setTimeout(function () {
+        clearBuffer(state);
+    }, numbers.TYPEAHEAD_BUFFER_CLEAR_TIMEOUT_MS);
+    state.typeaheadBuffer = state.typeaheadBuffer + nextChar;
+    var index;
+    if (state.typeaheadBuffer.length === 1) {
+        index = matchFirstChar(sortedIndexByFirstChar, focusedItemIndex, isItemAtIndexDisabled, state);
+    }
+    else {
+        index = matchAllChars(sortedIndexByFirstChar, isItemAtIndexDisabled, state);
+    }
+    if (index !== -1 && !skipFocus) {
+        focusItemAtIndex(index);
+    }
+    return index;
 }
 /**
  * Matches the user's single input character in the buffer to the
@@ -119,93 +115,89 @@ export function matchItem(opts, state) {
  * end of options. Returns -1 if no match is found.
  */
 function matchFirstChar(sortedIndexByFirstChar, focusedItemIndex, isItemAtIndexDisabled, state) {
-  var firstChar = state.typeaheadBuffer[0];
-  var itemsMatchingFirstChar = sortedIndexByFirstChar.get(firstChar);
-  if (!itemsMatchingFirstChar) {
+    var firstChar = state.typeaheadBuffer[0];
+    var itemsMatchingFirstChar = sortedIndexByFirstChar.get(firstChar);
+    if (!itemsMatchingFirstChar) {
+        return -1;
+    }
+    // Has the same firstChar been recently matched?
+    // Also, did starting index remain the same between key presses?
+    // If both hold true, simply increment index.
+    if (firstChar === state.currentFirstChar &&
+        itemsMatchingFirstChar[state.sortedIndexCursor].index ===
+            focusedItemIndex) {
+        state.sortedIndexCursor =
+            (state.sortedIndexCursor + 1) % itemsMatchingFirstChar.length;
+        var newIndex = itemsMatchingFirstChar[state.sortedIndexCursor].index;
+        if (!isItemAtIndexDisabled(newIndex)) {
+            return newIndex;
+        }
+    }
+    // If we're here, it means one of the following happened:
+    // - either firstChar or startingIndex has changed, invalidating the
+    // cursor.
+    // - The next item of typeahead is disabled, so we have to look further.
+    state.currentFirstChar = firstChar;
+    var newCursorPosition = -1;
+    var cursorPosition;
+    // Find the first non-disabled item as a fallback.
+    for (cursorPosition = 0; cursorPosition < itemsMatchingFirstChar.length; cursorPosition++) {
+        if (!isItemAtIndexDisabled(itemsMatchingFirstChar[cursorPosition].index)) {
+            newCursorPosition = cursorPosition;
+            break;
+        }
+    }
+    // Advance cursor to first item matching the firstChar that is positioned
+    // after starting item. Cursor is unchanged from fallback if there's no
+    // such item.
+    for (; cursorPosition < itemsMatchingFirstChar.length; cursorPosition++) {
+        if (itemsMatchingFirstChar[cursorPosition].index > focusedItemIndex &&
+            !isItemAtIndexDisabled(itemsMatchingFirstChar[cursorPosition].index)) {
+            newCursorPosition = cursorPosition;
+            break;
+        }
+    }
+    if (newCursorPosition !== -1) {
+        state.sortedIndexCursor = newCursorPosition;
+        return itemsMatchingFirstChar[state.sortedIndexCursor].index;
+    }
     return -1;
-  }
-  // Has the same firstChar been recently matched?
-  // Also, did starting index remain the same between key presses?
-  // If both hold true, simply increment index.
-  if (
-    firstChar === state.currentFirstChar &&
-    itemsMatchingFirstChar[state.sortedIndexCursor].index === focusedItemIndex
-  ) {
-    state.sortedIndexCursor = (state.sortedIndexCursor + 1) % itemsMatchingFirstChar.length;
-    var newIndex = itemsMatchingFirstChar[state.sortedIndexCursor].index;
-    if (!isItemAtIndexDisabled(newIndex)) {
-      return newIndex;
-    }
-  }
-  // If we're here, it means one of the following happened:
-  // - either firstChar or startingIndex has changed, invalidating the
-  // cursor.
-  // - The next item of typeahead is disabled, so we have to look further.
-  state.currentFirstChar = firstChar;
-  var newCursorPosition = -1;
-  var cursorPosition;
-  // Find the first non-disabled item as a fallback.
-  for (cursorPosition = 0; cursorPosition < itemsMatchingFirstChar.length; cursorPosition++) {
-    if (!isItemAtIndexDisabled(itemsMatchingFirstChar[cursorPosition].index)) {
-      newCursorPosition = cursorPosition;
-      break;
-    }
-  }
-  // Advance cursor to first item matching the firstChar that is positioned
-  // after starting item. Cursor is unchanged from fallback if there's no
-  // such item.
-  for (; cursorPosition < itemsMatchingFirstChar.length; cursorPosition++) {
-    if (
-      itemsMatchingFirstChar[cursorPosition].index > focusedItemIndex &&
-      !isItemAtIndexDisabled(itemsMatchingFirstChar[cursorPosition].index)
-    ) {
-      newCursorPosition = cursorPosition;
-      break;
-    }
-  }
-  if (newCursorPosition !== -1) {
-    state.sortedIndexCursor = newCursorPosition;
-    return itemsMatchingFirstChar[state.sortedIndexCursor].index;
-  }
-  return -1;
 }
 /**
  * Attempts to find the next item that matches all of the typeahead buffer.
  * Wraps around if at end of options. Returns -1 if no match is found.
  */
 function matchAllChars(sortedIndexByFirstChar, isItemAtIndexDisabled, state) {
-  var firstChar = state.typeaheadBuffer[0];
-  var itemsMatchingFirstChar = sortedIndexByFirstChar.get(firstChar);
-  if (!itemsMatchingFirstChar) {
-    return -1;
-  }
-  // Do nothing if text already matches
-  var startingItem = itemsMatchingFirstChar[state.sortedIndexCursor];
-  if (
-    startingItem.text.lastIndexOf(state.typeaheadBuffer, 0) === 0 &&
-    !isItemAtIndexDisabled(startingItem.index)
-  ) {
-    return startingItem.index;
-  }
-  // Find next item that matches completely; if no match, we'll eventually
-  // loop around to same position
-  var cursorPosition = (state.sortedIndexCursor + 1) % itemsMatchingFirstChar.length;
-  var nextCursorPosition = -1;
-  while (cursorPosition !== state.sortedIndexCursor) {
-    var currentItem = itemsMatchingFirstChar[cursorPosition];
-    var matches = currentItem.text.lastIndexOf(state.typeaheadBuffer, 0) === 0;
-    var isEnabled = !isItemAtIndexDisabled(currentItem.index);
-    if (matches && isEnabled) {
-      nextCursorPosition = cursorPosition;
-      break;
+    var firstChar = state.typeaheadBuffer[0];
+    var itemsMatchingFirstChar = sortedIndexByFirstChar.get(firstChar);
+    if (!itemsMatchingFirstChar) {
+        return -1;
     }
-    cursorPosition = (cursorPosition + 1) % itemsMatchingFirstChar.length;
-  }
-  if (nextCursorPosition !== -1) {
-    state.sortedIndexCursor = nextCursorPosition;
-    return itemsMatchingFirstChar[state.sortedIndexCursor].index;
-  }
-  return -1;
+    // Do nothing if text already matches
+    var startingItem = itemsMatchingFirstChar[state.sortedIndexCursor];
+    if (startingItem.text.lastIndexOf(state.typeaheadBuffer, 0) === 0 &&
+        !isItemAtIndexDisabled(startingItem.index)) {
+        return startingItem.index;
+    }
+    // Find next item that matches completely; if no match, we'll eventually
+    // loop around to same position
+    var cursorPosition = (state.sortedIndexCursor + 1) % itemsMatchingFirstChar.length;
+    var nextCursorPosition = -1;
+    while (cursorPosition !== state.sortedIndexCursor) {
+        var currentItem = itemsMatchingFirstChar[cursorPosition];
+        var matches = currentItem.text.lastIndexOf(state.typeaheadBuffer, 0) === 0;
+        var isEnabled = !isItemAtIndexDisabled(currentItem.index);
+        if (matches && isEnabled) {
+            nextCursorPosition = cursorPosition;
+            break;
+        }
+        cursorPosition = (cursorPosition + 1) % itemsMatchingFirstChar.length;
+    }
+    if (nextCursorPosition !== -1) {
+        state.sortedIndexCursor = nextCursorPosition;
+        return itemsMatchingFirstChar[state.sortedIndexCursor].index;
+    }
+    return -1;
 }
 /**
  * Whether or not the given typeahead instaance state is currently typing.
@@ -213,7 +205,7 @@ function matchAllChars(sortedIndexByFirstChar, isItemAtIndexDisabled, state) {
  * @param state The typeahead state instance. See `initState`.
  */
 export function isTypingInProgress(state) {
-  return state.typeaheadBuffer.length > 0;
+    return state.typeaheadBuffer.length > 0;
 }
 /**
  * Clears the typeahaed buffer so that it resets item matching to the first
@@ -222,7 +214,7 @@ export function isTypingInProgress(state) {
  * @param state The typeahead state instance. See `initState`.
  */
 export function clearBuffer(state) {
-  state.typeaheadBuffer = '';
+    state.typeaheadBuffer = '';
 }
 /**
  * Given a keydown event, it calculates whether or not to automatically focus a
@@ -242,55 +234,51 @@ export function clearBuffer(state) {
  * @returns index of the item matched by the keydown. -1 if not matched.
  */
 export function handleKeydown(opts, state) {
-  var event = opts.event,
-    isTargetListItem = opts.isTargetListItem,
-    focusedItemIndex = opts.focusedItemIndex,
-    focusItemAtIndex = opts.focusItemAtIndex,
-    sortedIndexByFirstChar = opts.sortedIndexByFirstChar,
-    isItemAtIndexDisabled = opts.isItemAtIndexDisabled;
-  var isArrowLeft = normalizeKey(event) === 'ArrowLeft';
-  var isArrowUp = normalizeKey(event) === 'ArrowUp';
-  var isArrowRight = normalizeKey(event) === 'ArrowRight';
-  var isArrowDown = normalizeKey(event) === 'ArrowDown';
-  var isHome = normalizeKey(event) === 'Home';
-  var isEnd = normalizeKey(event) === 'End';
-  var isEnter = normalizeKey(event) === 'Enter';
-  var isSpace = normalizeKey(event) === 'Spacebar';
-  if (isArrowLeft || isArrowUp || isArrowRight || isArrowDown || isHome || isEnd || isEnter) {
+    var event = opts.event, isTargetListItem = opts.isTargetListItem, focusedItemIndex = opts.focusedItemIndex, focusItemAtIndex = opts.focusItemAtIndex, sortedIndexByFirstChar = opts.sortedIndexByFirstChar, isItemAtIndexDisabled = opts.isItemAtIndexDisabled;
+    var isArrowLeft = normalizeKey(event) === 'ArrowLeft';
+    var isArrowUp = normalizeKey(event) === 'ArrowUp';
+    var isArrowRight = normalizeKey(event) === 'ArrowRight';
+    var isArrowDown = normalizeKey(event) === 'ArrowDown';
+    var isHome = normalizeKey(event) === 'Home';
+    var isEnd = normalizeKey(event) === 'End';
+    var isEnter = normalizeKey(event) === 'Enter';
+    var isSpace = normalizeKey(event) === 'Spacebar';
+    if (isArrowLeft || isArrowUp || isArrowRight || isArrowDown || isHome ||
+        isEnd || isEnter) {
+        return -1;
+    }
+    var isCharacterKey = !isSpace && event.key.length === 1;
+    if (isCharacterKey) {
+        preventDefaultEvent(event);
+        var matchItemOpts = {
+            focusItemAtIndex: focusItemAtIndex,
+            focusedItemIndex: focusedItemIndex,
+            nextChar: event.key.toLowerCase(),
+            sortedIndexByFirstChar: sortedIndexByFirstChar,
+            skipFocus: false,
+            isItemAtIndexDisabled: isItemAtIndexDisabled,
+        };
+        return matchItem(matchItemOpts, state);
+    }
+    if (!isSpace) {
+        return -1;
+    }
+    if (isTargetListItem) {
+        preventDefaultEvent(event);
+    }
+    var typeaheadOnListItem = isTargetListItem && isTypingInProgress(state);
+    if (typeaheadOnListItem) {
+        var matchItemOpts = {
+            focusItemAtIndex: focusItemAtIndex,
+            focusedItemIndex: focusedItemIndex,
+            nextChar: ' ',
+            sortedIndexByFirstChar: sortedIndexByFirstChar,
+            skipFocus: false,
+            isItemAtIndexDisabled: isItemAtIndexDisabled,
+        };
+        // space participates in typeahead matching if in rapid typing mode
+        return matchItem(matchItemOpts, state);
+    }
     return -1;
-  }
-  var isCharacterKey = !isSpace && event.key.length === 1;
-  if (isCharacterKey) {
-    preventDefaultEvent(event);
-    var matchItemOpts = {
-      focusItemAtIndex: focusItemAtIndex,
-      focusedItemIndex: focusedItemIndex,
-      nextChar: event.key.toLowerCase(),
-      sortedIndexByFirstChar: sortedIndexByFirstChar,
-      skipFocus: false,
-      isItemAtIndexDisabled: isItemAtIndexDisabled,
-    };
-    return matchItem(matchItemOpts, state);
-  }
-  if (!isSpace) {
-    return -1;
-  }
-  if (isTargetListItem) {
-    preventDefaultEvent(event);
-  }
-  var typeaheadOnListItem = isTargetListItem && isTypingInProgress(state);
-  if (typeaheadOnListItem) {
-    var matchItemOpts = {
-      focusItemAtIndex: focusItemAtIndex,
-      focusedItemIndex: focusedItemIndex,
-      nextChar: ' ',
-      sortedIndexByFirstChar: sortedIndexByFirstChar,
-      skipFocus: false,
-      isItemAtIndexDisabled: isItemAtIndexDisabled,
-    };
-    // space participates in typeahead matching if in rapid typing mode
-    return matchItem(matchItemOpts, state);
-  }
-  return -1;
 }
 //# sourceMappingURL=typeahead.js.map

@@ -28,60 +28,60 @@
  * https://github.com/material-components/material-components-web/blob/master/docs/code/architecture.md
  */
 export interface MDCListAdapter {
-  /**
-   * Returns the attribute value of list item at given `index`.
-   */
-  getAttributeForElementIndex(index: number, attr: string): string | null;
-  getListItemCount(): number;
-  getFocusedElementIndex(): number;
-  setAttributeForElementIndex(index: number, attribute: string, value: string): void;
-  addClassForElementIndex(index: number, className: string): void;
-  removeClassForElementIndex(index: number, className: string): void;
-  /**
-   * Focuses list item at the index specified.
-   */
-  focusItemAtIndex(index: number): void;
-  /**
-   * Sets the tabindex to the value specified for all button/a element children of
-   * the list item at the index specified.
-   */
-  setTabIndexForListItemChildren(listItemIndex: number, tabIndexValue: string): void;
-  /**
-   * @return true if radio button is present at given list item index.
-   */
-  hasRadioAtIndex(index: number): boolean;
-  /**
-   * @return true if checkbox is present at given list item index.
-   */
-  hasCheckboxAtIndex(index: number): boolean;
-  /**
-   * @return true if checkbox inside a list item is checked.
-   */
-  isCheckboxCheckedAtIndex(index: number): boolean;
-  /**
-   * @return true if root element is focused.
-   */
-  isRootFocused(): boolean;
-  /**
-   * @param index list item index.
-   * @param className the name of the class whose presence is to be checked.
-   * @return true if list item at `index` has class `className`.
-   */
-  listItemAtIndexHasClass(index: number, className: string): boolean;
-  /**
-   * Sets the checked status of checkbox or radio at given list item index.
-   */
-  setCheckedCheckboxOrRadioAtIndex(index: number, isChecked: boolean): void;
-  /**
-   * Notifies user action on list item.
-   */
-  notifyAction(index: number): void;
-  /**
-   * @return true when the current focused element is inside list root.
-   */
-  isFocusInsideList(): boolean;
-  /**
-   * @return the primary text content of the list item at index.
-   */
-  getPrimaryTextAtIndex(index: number): string;
+    /**
+     * Returns the attribute value of list item at given `index`.
+     */
+    getAttributeForElementIndex(index: number, attr: string): string | null;
+    getListItemCount(): number;
+    getFocusedElementIndex(): number;
+    setAttributeForElementIndex(index: number, attribute: string, value: string): void;
+    addClassForElementIndex(index: number, className: string): void;
+    removeClassForElementIndex(index: number, className: string): void;
+    /**
+     * Focuses list item at the index specified.
+     */
+    focusItemAtIndex(index: number): void;
+    /**
+     * Sets the tabindex to the value specified for all button/a element children of
+     * the list item at the index specified.
+     */
+    setTabIndexForListItemChildren(listItemIndex: number, tabIndexValue: string): void;
+    /**
+     * @return true if radio button is present at given list item index.
+     */
+    hasRadioAtIndex(index: number): boolean;
+    /**
+     * @return true if checkbox is present at given list item index.
+     */
+    hasCheckboxAtIndex(index: number): boolean;
+    /**
+     * @return true if checkbox inside a list item is checked.
+     */
+    isCheckboxCheckedAtIndex(index: number): boolean;
+    /**
+     * @return true if root element is focused.
+     */
+    isRootFocused(): boolean;
+    /**
+     * @param index list item index.
+     * @param className the name of the class whose presence is to be checked.
+     * @return true if list item at `index` has class `className`.
+     */
+    listItemAtIndexHasClass(index: number, className: string): boolean;
+    /**
+     * Sets the checked status of checkbox or radio at given list item index.
+     */
+    setCheckedCheckboxOrRadioAtIndex(index: number, isChecked: boolean): void;
+    /**
+     * Notifies user action on list item.
+     */
+    notifyAction(index: number): void;
+    /**
+     * @return true when the current focused element is inside list root.
+     */
+    isFocusInsideList(): boolean;
+    /**
+     * @return the primary text content of the list item at index.
+     */
+    getPrimaryTextAtIndex(index: number): string;
 }

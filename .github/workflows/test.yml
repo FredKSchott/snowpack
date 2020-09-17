@@ -14,16 +14,16 @@ jobs:
         os: [ubuntu-latest, windows-2016]
         node-version: [10.x, 12.x, 14.x]
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: build and test
-        run: |
-          yarn --ignore-engines
-          yarn build
-          yarn --ignore-engines --force
-          yarn test
-        env:
-          CI: true
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: build and test
+      run: |
+        yarn --ignore-engines
+        yarn build
+        yarn --ignore-engines --force
+        yarn test
+      env:
+        CI: true
