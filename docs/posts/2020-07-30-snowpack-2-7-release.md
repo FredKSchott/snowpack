@@ -1,9 +1,9 @@
 ---
 layout: layouts/post.njk
 title: Snowpack 2.7
-description: "A new plugin API plus smaller, faster production builds."
+description: 'A new plugin API plus smaller, faster production builds.'
 tagline: v2.7.0 release post
-permalink: "/posts/2020-07-30-snowpack-2-7-release/"
+permalink: '/posts/2020-07-30-snowpack-2-7-release/'
 date: 2020-07-30
 bannerImage: '/img/banner-2.jpg'
 ---
@@ -47,7 +47,6 @@ Snowpack 2.7 is fully backwards compatible with older plugins, so you can upgrad
 
 Every hook is documented in our new [Plugins Guide](/plugins) for plugin authors. The new API is heavily inspired by [Rollup](https://rollupjs.org/), so we hope it already feels familiar to many of you.
 
-
 ## Simplified Configuration
 
 ![snowpack screenshot](/img/snowpack-27-screenshot-3.png)
@@ -63,20 +62,17 @@ Other options like `mount`, `proxy`, and `alias` (see below) are now easier to c
 
 The `"scripts"` configuration format will continue to be supported in Snowpack v2, but we recommend migrating any custom scripts to `"plugins"` and plan to remove support in a future major release.
 
-
 ## New: Import Aliasing
 
 ![snowpack screenshot](/img/snowpack-27-screenshot-2.png)
 
 In previous versions of Snowpack, import aliasing was hard to understand and configure (and it didn’t support all types of aliasing). Starting in Snowpack v2.7, [Import Aliases](/#import-aliases) gets a new top-level `alias` config so that you can define as many custom aliases as you'd like. Package import aliases are also supported.
 
-
 ## Improved Build Performance
 
 Snowpack's official webpack plugin is now more powerful than ever, with new support for multi-page website bundling and better default performance settings (based on the [latest research from Google](https://web.dev/granular-chunking-nextjs/)). Special shout out to [@mxmul](https://github.com/mxmul) (Yelp) for leading these community contributions!
 
 If you don't use a bundler in production, you'll still see a smaller build. That's because Snowpack v2.7 now ships with minification on by default. We plan to keep improving the default unbundled build performance story over the next few releases, so stay tuned.
-
 
 ## Svelte + TypeScript Support
 
@@ -85,7 +81,6 @@ If you don't use a bundler in production, you'll still see a smaller build. That
 Last week, [Svelte announced official support for TypeScript](https://svelte.dev/blog/svelte-and-typescript). We're huge fans of both projects and couldn't pass up the chance to test the new support out in a brand new Svelte + TypeScript app template for Snowpack.
 
 Visit [Create Snowpack App](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app) for a list of all of our new app templates.
-
 
 ## Thank You, Contributors!
 
