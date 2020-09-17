@@ -84,7 +84,6 @@ interface InstallOptions {
         dedupe?: string[];
     };
 }
-declare type PublicInstallOptions = Partial<InstallOptions>;
 declare type InstallResult = {
     success: false;
     importMap: null;
@@ -96,7 +95,7 @@ declare type InstallResult = {
 };
 
 export declare function printStats(dependencyStats: DependencyStatsOutput): string;
-export declare function install(_installTargets: (InstallTarget | string)[], _options?: PublicInstallOptions): Promise<InstallResult>;
+export declare function install(_installTargets: (InstallTarget | string)[], _options?: Partial<InstallOptions>): Promise<InstallResult>;
 ```
 
 
