@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`minimal - no options: console.log calls 1`] = `
+exports[`@snowpack/plugin-webpack minimal - no options: console.log calls 1`] = `
 [MockFunction] {
   "calls": Array [
     Array [
@@ -18,7 +18,7 @@ exports[`minimal - no options: console.log calls 1`] = `
 }
 `;
 
-exports[`minimal - no options: fs.writeFile calls 1`] = `
+exports[`@snowpack/plugin-webpack minimal - no options: fs.writeFile calls 1`] = `
 Array [
   Array [
     "/plugins/plugin-webpack/test/stubs/minimal/js/index.67855721cb4d5774d8dd.js",
@@ -31,7 +31,7 @@ Array [
 ]
 `;
 
-exports[`minimal - no options: fs.writeFileSync calls 1`] = `
+exports[`@snowpack/plugin-webpack minimal - no options: fs.writeFileSync calls 1`] = `
 Array [
   Array [
     "/plugins/plugin-webpack/test/stubs/minimal/index.html",
