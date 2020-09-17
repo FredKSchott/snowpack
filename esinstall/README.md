@@ -18,6 +18,10 @@ await install(['preact', 'preact/hooks'], {/*options*/});
 // Result: Creates `preact.js` and `preact/hooks.js` inside a `web_modules/` directory in your current directory.
 ```
 
+## Status
+
+The core install logic of this library is considered well-tested and production-ready (1+ years of active use & development!). The JS interface is new, however, and may contain smaller bugs. We'll be working to stabilize the API over the next month, with a `1.0.0` release planned for October.
+
 ## Background
 
 Before [Snowpack](https://snowpack.dev/) was a frontend build tool, it was a CJS->ESM package converter.  `snowpack install` would read your package.json "dependencies" and re-install every frontend package from your "node_modules/" directory to a new "web_modules/" directory. "web_modules/" was guarenteed to be 100% ESM regardless of how each package was originally written. This dramatically simplified the minimum tooling required to build a website by removing a whole class of problem for the frontend basically summarized as "oh no this package was written for Node.js, it will never run in the browser, what do we do???"
