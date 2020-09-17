@@ -21,7 +21,7 @@
  * THE SOFTWARE.
  */
 import * as util from './util';
-export { util };
+export {util};
 export * from './adapter';
 export * from './component';
 export * from './constants';

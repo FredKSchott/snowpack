@@ -25,23 +25,21 @@
  * This makes ponyfills safer than traditional polyfills, especially for libraries like MDC.
  */
 export function closest(element, selector) {
-    if (element.closest) {
-        return element.closest(selector);
+  if (element.closest) {
+    return element.closest(selector);
+  }
+  var el = element;
+  while (el) {
+    if (matches(el, selector)) {
+      return el;
     }
-    var el = element;
-    while (el) {
-        if (matches(el, selector)) {
-            return el;
-        }
-        el = el.parentElement;
-    }
-    return null;
+    el = el.parentElement;
+  }
+  return null;
 }
 export function matches(element, selector) {
-    var nativeMatches = element.matches
-        || element.webkitMatchesSelector
-        || element.msMatchesSelector;
-    return nativeMatches.call(element, selector);
+  var nativeMatches = element.matches || element.webkitMatchesSelector || element.msMatchesSelector;
+  return nativeMatches.call(element, selector);
 }
 /**
  * Used to compute the estimated scroll width of elements. When an element is
@@ -52,20 +50,20 @@ export function matches(element, selector) {
  * @param {Element} element the element whose width to estimate
  */
 export function estimateScrollWidth(element) {
-    // Check the offsetParent. If the element inherits display: none from any
-    // parent, the offsetParent property will be null (see
-    // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent).
-    // This check ensures we only clone the node when necessary.
-    var htmlEl = element;
-    if (htmlEl.offsetParent !== null) {
-        return htmlEl.scrollWidth;
-    }
-    var clone = htmlEl.cloneNode(true);
-    clone.style.setProperty('position', 'absolute');
-    clone.style.setProperty('transform', 'translate(-9999px, -9999px)');
-    document.documentElement.appendChild(clone);
-    var scrollWidth = clone.scrollWidth;
-    document.documentElement.removeChild(clone);
-    return scrollWidth;
+  // Check the offsetParent. If the element inherits display: none from any
+  // parent, the offsetParent property will be null (see
+  // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent).
+  // This check ensures we only clone the node when necessary.
+  var htmlEl = element;
+  if (htmlEl.offsetParent !== null) {
+    return htmlEl.scrollWidth;
+  }
+  var clone = htmlEl.cloneNode(true);
+  clone.style.setProperty('position', 'absolute');
+  clone.style.setProperty('transform', 'translate(-9999px, -9999px)');
+  document.documentElement.appendChild(clone);
+  var scrollWidth = clone.scrollWidth;
+  document.documentElement.removeChild(clone);
+  return scrollWidth;
 }
 //# sourceMappingURL=ponyfill.js.map

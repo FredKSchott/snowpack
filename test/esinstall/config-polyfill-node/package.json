@@ -6,7 +6,9 @@
     "testinstall": "snowpack"
   },
   "snowpack": {
-    "exclude": ["packages/**/*"],
+    "exclude": [
+      "packages/**/*"
+    ],
     "install": [
       "node-builtin-pkg"
     ],

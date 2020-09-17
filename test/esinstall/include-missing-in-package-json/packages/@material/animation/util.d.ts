@@ -20,6 +20,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import { PrefixedCssPropertyName, PrefixedJsEventType, StandardCssPropertyName, StandardJsEventType } from './types';
-export declare function getCorrectPropertyName(windowObj: Window, cssProperty: StandardCssPropertyName): StandardCssPropertyName | PrefixedCssPropertyName;
-export declare function getCorrectEventName(windowObj: Window, eventType: StandardJsEventType): StandardJsEventType | PrefixedJsEventType;
+import {
+  PrefixedCssPropertyName,
+  PrefixedJsEventType,
+  StandardCssPropertyName,
+  StandardJsEventType,
+} from './types';
+export declare function getCorrectPropertyName(
+  windowObj: Window,
+  cssProperty: StandardCssPropertyName,
+): StandardCssPropertyName | PrefixedCssPropertyName;
+export declare function getCorrectEventName(
+  windowObj: Window,
+  eventType: StandardJsEventType,
+): StandardJsEventType | PrefixedJsEventType;

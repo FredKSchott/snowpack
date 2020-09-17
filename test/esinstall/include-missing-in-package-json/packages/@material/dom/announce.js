@@ -25,64 +25,65 @@
  */
 export var AnnouncerPriority;
 (function (AnnouncerPriority) {
-    AnnouncerPriority["POLITE"] = "polite";
-    AnnouncerPriority["ASSERTIVE"] = "assertive";
+  AnnouncerPriority['POLITE'] = 'polite';
+  AnnouncerPriority['ASSERTIVE'] = 'assertive';
 })(AnnouncerPriority || (AnnouncerPriority = {}));
 /**
  * Announces the given message with optional priority, defaulting to "polite"
  */
 export function announce(message, priority) {
-    Announcer.getInstance().say(message, priority);
+  Announcer.getInstance().say(message, priority);
 }
 var Announcer = /** @class */ (function () {
-    // Constructor made private to ensure only the singleton is used
-    function Announcer() {
-        this.liveRegions = new Map();
+  // Constructor made private to ensure only the singleton is used
+  function Announcer() {
+    this.liveRegions = new Map();
+  }
+  Announcer.getInstance = function () {
+    if (!Announcer.instance) {
+      Announcer.instance = new Announcer();
     }
-    Announcer.getInstance = function () {
-        if (!Announcer.instance) {
-            Announcer.instance = new Announcer();
-        }
-        return Announcer.instance;
-    };
-    Announcer.prototype.say = function (message, priority) {
-        if (priority === void 0) { priority = AnnouncerPriority.POLITE; }
-        var liveRegion = this.getLiveRegion(priority);
-        // Reset the region to pick up the message, even if the message is the
-        // exact same as before.
-        liveRegion.textContent = '';
-        // Timeout is necessary for screen readers like NVDA and VoiceOver.
-        setTimeout(function () {
-            liveRegion.textContent = message;
-            document.addEventListener('click', clearLiveRegion);
-        }, 1);
-        function clearLiveRegion() {
-            liveRegion.textContent = '';
-            document.removeEventListener('click', clearLiveRegion);
-        }
-    };
-    Announcer.prototype.getLiveRegion = function (priority) {
-        var existingLiveRegion = this.liveRegions.get(priority);
-        if (existingLiveRegion &&
-            document.body.contains(existingLiveRegion)) {
-            return existingLiveRegion;
-        }
-        var liveRegion = this.createLiveRegion(priority);
-        this.liveRegions.set(priority, liveRegion);
-        return liveRegion;
-    };
-    Announcer.prototype.createLiveRegion = function (priority) {
-        var el = document.createElement('div');
-        el.style.position = 'absolute';
-        el.style.top = '-9999px';
-        el.style.left = '-9999px';
-        el.style.height = '1px';
-        el.style.overflow = 'hidden';
-        el.setAttribute('aria-atomic', 'true');
-        el.setAttribute('aria-live', priority);
-        document.body.appendChild(el);
-        return el;
-    };
-    return Announcer;
-}());
+    return Announcer.instance;
+  };
+  Announcer.prototype.say = function (message, priority) {
+    if (priority === void 0) {
+      priority = AnnouncerPriority.POLITE;
+    }
+    var liveRegion = this.getLiveRegion(priority);
+    // Reset the region to pick up the message, even if the message is the
+    // exact same as before.
+    liveRegion.textContent = '';
+    // Timeout is necessary for screen readers like NVDA and VoiceOver.
+    setTimeout(function () {
+      liveRegion.textContent = message;
+      document.addEventListener('click', clearLiveRegion);
+    }, 1);
+    function clearLiveRegion() {
+      liveRegion.textContent = '';
+      document.removeEventListener('click', clearLiveRegion);
+    }
+  };
+  Announcer.prototype.getLiveRegion = function (priority) {
+    var existingLiveRegion = this.liveRegions.get(priority);
+    if (existingLiveRegion && document.body.contains(existingLiveRegion)) {
+      return existingLiveRegion;
+    }
+    var liveRegion = this.createLiveRegion(priority);
+    this.liveRegions.set(priority, liveRegion);
+    return liveRegion;
+  };
+  Announcer.prototype.createLiveRegion = function (priority) {
+    var el = document.createElement('div');
+    el.style.position = 'absolute';
+    el.style.top = '-9999px';
+    el.style.left = '-9999px';
+    el.style.height = '1px';
+    el.style.overflow = 'hidden';
+    el.setAttribute('aria-atomic', 'true');
+    el.setAttribute('aria-live', priority);
+    document.body.appendChild(el);
+    return el;
+  };
+  return Announcer;
+})();
 //# sourceMappingURL=announce.js.map

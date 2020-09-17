@@ -25,32 +25,33 @@
  * if so, use them.
  */
 export function applyPassive(globalObj) {
-    if (globalObj === void 0) { globalObj = window; }
-    return supportsPassiveOption(globalObj) ?
-        { passive: true } :
-        false;
+  if (globalObj === void 0) {
+    globalObj = window;
+  }
+  return supportsPassiveOption(globalObj) ? {passive: true} : false;
 }
 function supportsPassiveOption(globalObj) {
-    if (globalObj === void 0) { globalObj = window; }
-    // See
-    // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
-    var passiveSupported = false;
-    try {
-        var options = {
-            // This function will be called when the browser
-            // attempts to access the passive property.
-            get passive() {
-                passiveSupported = true;
-                return false;
-            }
-        };
-        var handler = function () { };
-        globalObj.document.addEventListener('test', handler, options);
-        globalObj.document.removeEventListener('test', handler, options);
-    }
-    catch (err) {
-        passiveSupported = false;
-    }
-    return passiveSupported;
+  if (globalObj === void 0) {
+    globalObj = window;
+  }
+  // See
+  // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+  var passiveSupported = false;
+  try {
+    var options = {
+      // This function will be called when the browser
+      // attempts to access the passive property.
+      get passive() {
+        passiveSupported = true;
+        return false;
+      },
+    };
+    var handler = function () {};
+    globalObj.document.addEventListener('test', handler, options);
+    globalObj.document.removeEventListener('test', handler, options);
+  } catch (err) {
+    passiveSupported = false;
+  }
+  return passiveSupported;
 }
 //# sourceMappingURL=events.js.map

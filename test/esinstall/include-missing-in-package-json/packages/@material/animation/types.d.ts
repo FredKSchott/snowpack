@@ -21,21 +21,32 @@
  * THE SOFTWARE.
  */
 export declare type StandardCssPropertyName = 'animation' | 'transform' | 'transition';
-export declare type PrefixedCssPropertyName = '-webkit-animation' | '-webkit-transform' | '-webkit-transition';
-export declare type StandardJsEventType = 'animationend' | 'animationiteration' | 'animationstart' | 'transitionend';
-export declare type PrefixedJsEventType = 'webkitAnimationEnd' | 'webkitAnimationIteration' | 'webkitAnimationStart' | 'webkitTransitionEnd';
+export declare type PrefixedCssPropertyName =
+  | '-webkit-animation'
+  | '-webkit-transform'
+  | '-webkit-transition';
+export declare type StandardJsEventType =
+  | 'animationend'
+  | 'animationiteration'
+  | 'animationstart'
+  | 'transitionend';
+export declare type PrefixedJsEventType =
+  | 'webkitAnimationEnd'
+  | 'webkitAnimationIteration'
+  | 'webkitAnimationStart'
+  | 'webkitTransitionEnd';
 export interface CssVendorProperty {
-    prefixed: PrefixedCssPropertyName;
-    standard: StandardCssPropertyName;
+  prefixed: PrefixedCssPropertyName;
+  standard: StandardCssPropertyName;
 }
 export interface JsVendorProperty {
-    cssProperty: StandardCssPropertyName;
-    prefixed: PrefixedJsEventType;
-    standard: StandardJsEventType;
+  cssProperty: StandardCssPropertyName;
+  prefixed: PrefixedJsEventType;
+  standard: StandardJsEventType;
 }
 export declare type CssVendorPropertyMap = {
-    [K in StandardCssPropertyName]: CssVendorProperty;
+  [K in StandardCssPropertyName]: CssVendorProperty;
 };
 export declare type JsVendorPropertyMap = {
-    [K in StandardJsEventType]: JsVendorProperty;
+  [K in StandardJsEventType]: JsVendorProperty;
 };

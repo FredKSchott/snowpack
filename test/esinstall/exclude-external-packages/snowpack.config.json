@@ -1,5 +1,5 @@
 {
   "installOptions": {
-    "externalPackage": [ "vue" ]
+    "externalPackage": ["vue"]
   }
 }

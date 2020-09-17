@@ -21,8 +21,8 @@
  * THE SOFTWARE.
  */
 declare interface Element {
-    msMatchesSelector?: (selector: string) => boolean;
+  msMatchesSelector?: (selector: string) => boolean;
 }
 declare interface Window {
-    CSS: CSS;
+  CSS: CSS;
 }

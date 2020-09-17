@@ -49,16 +49,16 @@ This would apply `-3` (high density) to button component instance.
 
 Here are the components that do provide density Sass mixins:
 
-  * [Button](../mdc-button/README.md#sass-mixins)
-  * [Checkbox](../mdc-checkbox/README.md#sass-mixins)
-  * [Chip](../mdc-chips/README.md#sass-mixins)
-  * [Data Table](../mdc-data-table/README.md#sass-mixins)
-  * [Icon Button](../mdc-icon-button/README.md#sass-mixins)
-  * [List](../mdc-list/README.md#sass-mixins)
-  * [Radio](../mdc-radio/README.md#sass-mixins)
-  * [Switch](../mdc-switch/README.md#sass-mixins)
-  * [Tab Bar](../mdc-tab-bar/README.md#sass-mixins)
-  * [Text Field](../mdc-textfield/README.md#sass-mixins)
+- [Button](../mdc-button/README.md#sass-mixins)
+- [Checkbox](../mdc-checkbox/README.md#sass-mixins)
+- [Chip](../mdc-chips/README.md#sass-mixins)
+- [Data Table](../mdc-data-table/README.md#sass-mixins)
+- [Icon Button](../mdc-icon-button/README.md#sass-mixins)
+- [List](../mdc-list/README.md#sass-mixins)
+- [Radio](../mdc-radio/README.md#sass-mixins)
+- [Switch](../mdc-switch/README.md#sass-mixins)
+- [Tab Bar](../mdc-tab-bar/README.md#sass-mixins)
+- [Text Field](../mdc-textfield/README.md#sass-mixins)
 
 ## Density Mixins
 
@@ -72,7 +72,7 @@ The height or size of a component is calculated with the following formula:
 @use "@material/button";
 @use "@material/density";
 
-$height: button.$height + density.$interval * $density-scale
+$height: button.$height + density.$interval * $density-scale;
 /// @example 36px + 4px * (-3) => 24px
 ```
 
@@ -88,8 +88,8 @@ Components that has different variants may have their own density mixin.
 
 For example, Tab Bar has two density mixins:
 
-  * `tab-bar.density()`: Density mixin for standard tab bar.
-  * `tab-bar.stacked-density()`: Density mixin for tab bar that has icon stacked on top of label.
+- `tab-bar.density()`: Density mixin for standard tab bar.
+- `tab-bar.stacked-density()`: Density mixin for tab bar that has icon stacked on top of label.
 
 Similarly, text field provides 3 different density mixins based on its variant.
 
@@ -106,15 +106,15 @@ be consumed directly by developers, use component's density mixin instead.
 
 ### Sass Variables
 
-Variable | Description
---- | ---
-`$interval` | Density interval between each dense scale. This interval is used for numbered density scale to calculate dense height based on baseline component height.
-`$minimum-scale` | Minimum scale supported by density subsystem. This scale always maps to highest dense scale.
-`$maximum-scale` | Maximum scale supported by density subsystem. This scale always maps to lowest dense scale.
-`$supported-scales` | Supported density scale when density literal is used (For example, `minimum`).
+| Variable            | Description                                                                                                                                               |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `$interval`         | Density interval between each dense scale. This interval is used for numbered density scale to calculate dense height based on baseline component height. |
+| `$minimum-scale`    | Minimum scale supported by density subsystem. This scale always maps to highest dense scale.                                                              |
+| `$maximum-scale`    | Maximum scale supported by density subsystem. This scale always maps to lowest dense scale.                                                               |
+| `$supported-scales` | Supported density scale when density literal is used (For example, `minimum`).                                                                            |
 
 ### Sass Functions
 
-Function | Description
---- | ---
-`prop-value($density-config, $density-scale, $property-name)` | Returns component property value based on given density config and density scale.
+| Function                                                      | Description                                                                       |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `prop-value($density-config, $density-scale, $property-name)` | Returns component property value based on given density config and density scale. |

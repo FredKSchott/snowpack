@@ -28,13 +28,13 @@ var ELEMENTS_KEY_ALLOWED_IN = ['input', 'button', 'textarea', 'select'];
  * @param evt keyboard event to be prevented.
  */
 export var preventDefaultEvent = function (evt) {
-    var target = evt.target;
-    if (!target) {
-        return;
-    }
-    var tagName = ("" + target.tagName).toLowerCase();
-    if (ELEMENTS_KEY_ALLOWED_IN.indexOf(tagName) === -1) {
-        evt.preventDefault();
-    }
+  var target = evt.target;
+  if (!target) {
+    return;
+  }
+  var tagName = ('' + target.tagName).toLowerCase();
+  if (ELEMENTS_KEY_ALLOWED_IN.indexOf(tagName) === -1) {
+    evt.preventDefault();
+  }
 };
 //# sourceMappingURL=events.js.map

@@ -34,13 +34,13 @@ Both `reflexive-property` and `reflexive-box` work with one base box-model prope
 
 `reflexive-position` is the least flexible mixin. It only works with one horizontal position property, "left" or "right". It also assumes the left and right values are the same.
 
-| Mixin | Description |
-| ----------------------------------------------- | - |
-| `rtl($root-selector)` | Creates a rule that is applied when the root element is within an RTL context |
-| `reflexive-box($base-property, $default-direction, $value, $root-selector)` | Applies the value to the `#{$base-property}-#{$default-direction}` property  in a LTR context, and flips the direction in an RTL context. **This mixin zeros out the original value in an RTL context.**  |
-| `reflexive-property($base-property, $left-value, $right-value, $root-selector)` | Emits rules that assign `#{$base-property}`-left to `#{left-value}` and `#{base-property}`-right to `#{right-value}` in a LTR context, and vice versa in a RTL context. **Basically it flips values between a LTR and RTL context.** |
-| `reflexive-position($position-property, $value, $root-selector)` | Applies the value to the specified position in a LTR context, and flips the direction in an RTL context. `$position-property` is a horizontal position, either "left" or "right". |
-| `reflexive($left-property, $left-value, $right-property, $right-value, $root-selector)` | Applies the pair of property values to the specified position in a LTR context, and flips the direction in an RTL context. |
+| Mixin                                                                                   | Description                                                                                                                                                                                                                          |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `rtl($root-selector)`                                                                   | Creates a rule that is applied when the root element is within an RTL context                                                                                                                                                        |
+| `reflexive-box($base-property, $default-direction, $value, $root-selector)`             | Applies the value to the `#{$base-property}-#{$default-direction}` property in a LTR context, and flips the direction in an RTL context. **This mixin zeros out the original value in an RTL context.**                              |
+| `reflexive-property($base-property, $left-value, $right-value, $root-selector)`         | Emits rules that assign `#{$base-property}`-left to `#{left-value}` and `#{base-property}`-right to `#{right-value}` in a LTR context, and vice versa in a RTL context. **Basically it flips values between a LTR and RTL context.** |
+| `reflexive-position($position-property, $value, $root-selector)`                        | Applies the value to the specified position in a LTR context, and flips the direction in an RTL context. `$position-property` is a horizontal position, either "left" or "right".                                                    |
+| `reflexive($left-property, $left-value, $right-property, $right-value, $root-selector)` | Applies the pair of property values to the specified position in a LTR context, and flips the direction in an RTL context.                                                                                                           |
 
 **A note about [dir="rtl"]**: `rtl($root-selector)` checks for `[dir="rtl"]` on the ancestor element. This works in most cases, it will sometimes lead to false negatives for more complex layouts, e.g.
 

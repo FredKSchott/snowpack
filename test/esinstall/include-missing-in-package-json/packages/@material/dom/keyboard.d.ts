@@ -24,20 +24,20 @@
  * KEY provides normalized string values for keys.
  */
 export declare const KEY: {
-    UNKNOWN: string;
-    BACKSPACE: string;
-    ENTER: string;
-    SPACEBAR: string;
-    PAGE_UP: string;
-    PAGE_DOWN: string;
-    END: string;
-    HOME: string;
-    ARROW_LEFT: string;
-    ARROW_UP: string;
-    ARROW_RIGHT: string;
-    ARROW_DOWN: string;
-    DELETE: string;
-    ESCAPE: string;
+  UNKNOWN: string;
+  BACKSPACE: string;
+  ENTER: string;
+  SPACEBAR: string;
+  PAGE_UP: string;
+  PAGE_DOWN: string;
+  END: string;
+  HOME: string;
+  ARROW_LEFT: string;
+  ARROW_UP: string;
+  ARROW_RIGHT: string;
+  ARROW_DOWN: string;
+  DELETE: string;
+  ESCAPE: string;
 };
 /**
  * normalizeKey returns the normalized string for a navigational action.

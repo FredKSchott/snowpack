@@ -1,6 +1,5 @@
-
 {
   "name": "config-external-pkg-b",
   "version": "1.2.3",
-  "module":  "entrypoint.js"
+  "module": "entrypoint.js"
 }

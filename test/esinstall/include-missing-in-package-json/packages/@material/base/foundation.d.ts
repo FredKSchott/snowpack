@@ -21,19 +21,19 @@
  * THE SOFTWARE.
  */
 export declare class MDCFoundation<AdapterType extends {} = {}> {
-    protected adapter: AdapterType;
-    static get cssClasses(): {
-        [key: string]: string;
-    };
-    static get strings(): {
-        [key: string]: string;
-    };
-    static get numbers(): {
-        [key: string]: number;
-    };
-    static get defaultAdapter(): {};
-    constructor(adapter?: AdapterType);
-    init(): void;
-    destroy(): void;
+  protected adapter: AdapterType;
+  static get cssClasses(): {
+    [key: string]: string;
+  };
+  static get strings(): {
+    [key: string]: string;
+  };
+  static get numbers(): {
+    [key: string]: number;
+  };
+  static get defaultAdapter(): {};
+  constructor(adapter?: AdapterType);
+  init(): void;
+  destroy(): void;
 }
 export default MDCFoundation;

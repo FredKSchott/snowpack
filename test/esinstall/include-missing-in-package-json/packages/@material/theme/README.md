@@ -53,19 +53,19 @@ Color scheme will only get you 80% of the way to a well-designed app. Inevitably
 
 The text styles (referred to as `<TEXT_STYLE>` below) used in the color system:
 
-Text style | Description
---- | ---
-`primary` | Used for most text (e.g., `text-primary-on-light`)
-`secondary` | Used for text which is lower in the visual hierarchy (e.g., `text-secondary-on-light`)
-`hint` | Used for text hints, such as those in text fields and labels (e.g., `text-hint-on-light`)
-`disabled` | Used for text in disabled components and content (e.g., `text-disabled-on-light`)
-`icon` | Used for icons (e.g., `text-icon-on-light`)
+| Text style  | Description                                                                               |
+| ----------- | ----------------------------------------------------------------------------------------- |
+| `primary`   | Used for most text (e.g., `text-primary-on-light`)                                        |
+| `secondary` | Used for text which is lower in the visual hierarchy (e.g., `text-secondary-on-light`)    |
+| `hint`      | Used for text hints, such as those in text fields and labels (e.g., `text-hint-on-light`) |
+| `disabled`  | Used for text in disabled components and content (e.g., `text-disabled-on-light`)         |
+| `icon`      | Used for icons (e.g., `text-icon-on-light`)                                               |
 
 Here are the example usages of `primary` text style:
 
-  * CSS Custom property: `--mdc-theme-text-primary-on-light`
-  * Class name: `mdc-theme--text-primary-on-light`
-  * Property name used in Sass: `text-primary-on-light`
+- CSS Custom property: `--mdc-theme-text-primary-on-light`
+- Class name: `mdc-theme--text-primary-on-light`
+- Property name used in Sass: `text-primary-on-light`
 
 ### Non-Sass customization
 
@@ -73,55 +73,55 @@ Only a very limited number of Material Design color customization features are s
 
 #### CSS Custom Properties
 
-CSS Custom property | Description
---- | ---
-`--mdc-theme-primary` | The theme primary color
-`--mdc-theme-secondary` | The theme secondary color
-`--mdc-theme-background` | The theme background color
-`--mdc-theme-surface` | The theme surface color
-`--mdc-theme-on-primary` | Text color on top of a primary background
-`--mdc-theme-on-secondary` | Text color on top of a secondary background
-`--mdc-theme-on-surface` | Text color on top of a surface background
-`--mdc-theme-text-<TEXT_STYLE>-on-light` | Text color for TEXT_STYLE on top of light background. Please see [Text styles section](#text-styles).
-`--mdc-theme-text-<TEXT_STYLE>-on-dark` | Text color for TEXT_STYLE on top of dark background. Please see [Text styles section](#text-styles).
+| CSS Custom property                      | Description                                                                                           |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `--mdc-theme-primary`                    | The theme primary color                                                                               |
+| `--mdc-theme-secondary`                  | The theme secondary color                                                                             |
+| `--mdc-theme-background`                 | The theme background color                                                                            |
+| `--mdc-theme-surface`                    | The theme surface color                                                                               |
+| `--mdc-theme-on-primary`                 | Text color on top of a primary background                                                             |
+| `--mdc-theme-on-secondary`               | Text color on top of a secondary background                                                           |
+| `--mdc-theme-on-surface`                 | Text color on top of a surface background                                                             |
+| `--mdc-theme-text-<TEXT_STYLE>-on-light` | Text color for TEXT_STYLE on top of light background. Please see [Text styles section](#text-styles). |
+| `--mdc-theme-text-<TEXT_STYLE>-on-dark`  | Text color for TEXT_STYLE on top of dark background. Please see [Text styles section](#text-styles).  |
 
 #### CSS Classes
 
-CSS Class | Description
---- | ---
-`mdc-theme--primary` | Sets the text color to the theme primary color
-`mdc-theme--secondary` | Sets the text color to the theme secondary color
-`mdc-theme--background` | Sets the background color to the theme background color
-`mdc-theme--surface` | Sets the surface color to the theme surface color
-`mdc-theme--on-primary` | Sets the text color to the theme on-primary color
-`mdc-theme--on-secondary` | Sets the text color to the theme on-secondary color
-`mdc-theme--on-surface` | Sets the text color to the theme on-surface color
-`mdc-theme--primary-bg` | Sets the background color to the theme primary color
-`mdc-theme--secondary-bg` | Sets the background color to the theme secondary color
-`mdc-theme--text-<TEXT_STYLE>-on-light` | Sets text to a suitable color for TEXT_STYLE on top of light background. Please see [Text styles section](#text-styles).
-`mdc-theme--text-<TEXT_STYLE>-on-dark` | Sets text to a suitable color for TEXT_STYLE on top of dark background. Please see [Text styles section](#text-styles).
+| CSS Class                               | Description                                                                                                              |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `mdc-theme--primary`                    | Sets the text color to the theme primary color                                                                           |
+| `mdc-theme--secondary`                  | Sets the text color to the theme secondary color                                                                         |
+| `mdc-theme--background`                 | Sets the background color to the theme background color                                                                  |
+| `mdc-theme--surface`                    | Sets the surface color to the theme surface color                                                                        |
+| `mdc-theme--on-primary`                 | Sets the text color to the theme on-primary color                                                                        |
+| `mdc-theme--on-secondary`               | Sets the text color to the theme on-secondary color                                                                      |
+| `mdc-theme--on-surface`                 | Sets the text color to the theme on-surface color                                                                        |
+| `mdc-theme--primary-bg`                 | Sets the background color to the theme primary color                                                                     |
+| `mdc-theme--secondary-bg`               | Sets the background color to the theme secondary color                                                                   |
+| `mdc-theme--text-<TEXT_STYLE>-on-light` | Sets text to a suitable color for TEXT_STYLE on top of light background. Please see [Text styles section](#text-styles). |
+| `mdc-theme--text-<TEXT_STYLE>-on-dark`  | Sets text to a suitable color for TEXT_STYLE on top of dark background. Please see [Text styles section](#text-styles).  |
 
 ### Sass Mixins, Variables, and Functions
 
-Mixin | Description
---- | ---
-`property($property, $value, $gss, $important)` | Applies a dynamic value to the specified property. The value may be a standard CSS value, a custom property Map, or a Material theme key.
+| Mixin                                           | Description                                                                                                                               |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `property($property, $value, $gss, $important)` | Applies a dynamic value to the specified property. The value may be a standard CSS value, a custom property Map, or a Material theme key. |
 
 #### Material theme keys with `theme.property()`
 
 Material theme key names below can be used as the `$value` argument for the `theme.property()` mixin. Some keys are dynamic, and change context depending on other key values. Keys may also translate to custom properties for dynamic runtime theming.
 
-Key Name | Description
---- | ---
-`primary` | The theme primary color
-`secondary` | The theme secondary color
-`background` | The theme background color
-`surface` | The theme surface color
-`text-<TEXT_STYLE>-on-light` | TEXT_STYLE on top of a light background. Please see [Text styles section](#text-styles).
-`text-<TEXT_STYLE>-on-dark` | TEXT_STYLE on top of a dark background. Please see [Text styles section](#text-styles).
-`on-primary` | A text/iconography color that is usable on top of primary color
-`on-secondary` | A text/iconography color that is usable on top of secondary color
-`on-surface` | A text/iconography color that is usable on top of surface color
+| Key Name                     | Description                                                                              |
+| ---------------------------- | ---------------------------------------------------------------------------------------- |
+| `primary`                    | The theme primary color                                                                  |
+| `secondary`                  | The theme secondary color                                                                |
+| `background`                 | The theme background color                                                               |
+| `surface`                    | The theme surface color                                                                  |
+| `text-<TEXT_STYLE>-on-light` | TEXT_STYLE on top of a light background. Please see [Text styles section](#text-styles). |
+| `text-<TEXT_STYLE>-on-dark`  | TEXT_STYLE on top of a dark background. Please see [Text styles section](#text-styles).  |
+| `on-primary`                 | A text/iconography color that is usable on top of primary color                          |
+| `on-secondary`               | A text/iconography color that is usable on top of secondary color                        |
+| `on-surface`                 | A text/iconography color that is usable on top of surface color                          |
 
 #### Custom properties with `theme.property()`
 
@@ -175,7 +175,7 @@ If the input color is a string literal equal to `"light"` or `"dark"`, it will b
 
 ```scss
 @debug theme.tone(#9c27b0); // dark
-@debug theme.tone(light);   // light
+@debug theme.tone(light); // light
 ```
 
 #### `theme.contrast-tone($color)`
@@ -199,8 +199,9 @@ Params:
 
 ```scss
 @debug theme.accessible-ink-color(secondary); // rgba(0, 0, 0, .87) (text-primary-on-light)
-@debug theme.accessible-ink-color(blue);      // white              (text-primary-on-dark)
+@debug theme.accessible-ink-color(blue); // white              (text-primary-on-dark)
 ```
+
 #### `theme.text-emphasis($emphasis)`
 
 Returns opacity value for given emphasis.

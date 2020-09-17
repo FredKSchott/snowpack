@@ -20,32 +20,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import { MDCFoundation } from './foundation';
-import { CustomEventListener, EventType, SpecificEventListener } from './types';
+import {MDCFoundation} from './foundation';
+import {CustomEventListener, EventType, SpecificEventListener} from './types';
 export declare class MDCComponent<FoundationType extends MDCFoundation> {
-    root: Element;
-    static attachTo(root: Element): MDCComponent<MDCFoundation<{}>>;
-    protected foundation: FoundationType;
-    constructor(root: Element, foundation?: FoundationType, ...args: unknown[]);
-    initialize(..._args: Array<unknown>): void;
-    getDefaultFoundation(): FoundationType;
-    initialSyncWithDOM(): void;
-    destroy(): void;
-    /**
-     * Wrapper method to add an event listener to the component's root element. This is most useful when
-     * listening for custom events.
-     */
-    listen<K extends EventType>(evtType: K, handler: SpecificEventListener<K>, options?: AddEventListenerOptions | boolean): void;
-    listen<E extends Event>(evtType: string, handler: CustomEventListener<E>, options?: AddEventListenerOptions | boolean): void;
-    /**
-     * Wrapper method to remove an event listener to the component's root element. This is most useful when
-     * unlistening for custom events.
-     */
-    unlisten<K extends EventType>(evtType: K, handler: SpecificEventListener<K>, options?: AddEventListenerOptions | boolean): void;
-    unlisten<E extends Event>(evtType: string, handler: CustomEventListener<E>, options?: AddEventListenerOptions | boolean): void;
-    /**
-     * Fires a cross-browser-compatible custom event from the component root of the given type, with the given data.
-     */
-    emit<T extends object>(evtType: string, evtData: T, shouldBubble?: boolean): void;
+  root: Element;
+  static attachTo(root: Element): MDCComponent<MDCFoundation<{}>>;
+  protected foundation: FoundationType;
+  constructor(root: Element, foundation?: FoundationType, ...args: unknown[]);
+  initialize(..._args: Array<unknown>): void;
+  getDefaultFoundation(): FoundationType;
+  initialSyncWithDOM(): void;
+  destroy(): void;
+  /**
+   * Wrapper method to add an event listener to the component's root element. This is most useful when
+   * listening for custom events.
+   */
+  listen<K extends EventType>(
+    evtType: K,
+    handler: SpecificEventListener<K>,
+    options?: AddEventListenerOptions | boolean,
+  ): void;
+  listen<E extends Event>(
+    evtType: string,
+    handler: CustomEventListener<E>,
+    options?: AddEventListenerOptions | boolean,
+  ): void;
+  /**
+   * Wrapper method to remove an event listener to the component's root element. This is most useful when
+   * unlistening for custom events.
+   */
+  unlisten<K extends EventType>(
+    evtType: K,
+    handler: SpecificEventListener<K>,
+    options?: AddEventListenerOptions | boolean,
+  ): void;
+  unlisten<E extends Event>(
+    evtType: string,
+    handler: CustomEventListener<E>,
+    options?: AddEventListenerOptions | boolean,
+  ): void;
+  /**
+   * Fires a cross-browser-compatible custom event from the component root of the given type, with the given data.
+   */
+  emit<T extends object>(evtType: string, evtData: T, shouldBubble?: boolean): void;
 }
 export default MDCComponent;
