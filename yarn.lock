@@ -2525,6 +2525,11 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.4.4.tgz#11d5db19bd178936ec89cd84519c4de439574398"
   integrity sha512-1oO6+dN5kdIA3sKPZhRGJTfGVP4SWV6KqlMOwry4J3HfyD68sl/3KmG7DeYUzvN+RbhXDnv/D8vNNB8168tAMg==
 
+"@prefresh/babel-plugin@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@prefresh/babel-plugin/-/babel-plugin-0.1.0.tgz#9b51e6d87cb1fa45be6b49f9a354e64827a8094c"
+  integrity sha512-YHQO8UTntichl4hbfm029EmZbzk7XaG6Qu3MUXORloCCOHzISey5ovJRn9YhhxGDS9fG0iYqVjQIldDmCC9E8A==
+
 "@prefresh/core@^0.8.1":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@prefresh/core/-/core-0.8.1.tgz#d4f15d9e3ee9c16bf420405e2b422774e807a594"
