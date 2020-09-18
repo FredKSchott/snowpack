@@ -195,8 +195,11 @@ class FileBuilder {
           return spec;
         }
         // Ignore "http://*" imports
-        if (url.parse(resolvedImportUrl).protocol ||
-            this.config.installOptions.externalPackage?.includes(resolvedImportUrl)) {
+        if (url.parse(resolvedImportUrl).protocol) {
+          return spec;
+        }
+        // Ignore packages marked as external
+        if (this.config.installOptions.externalPackage?.includes(resolvedImportUrl)) {
           return spec;
         }
         // Handle normal "./" & "../" import specifiers

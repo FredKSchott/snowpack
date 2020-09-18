@@ -1,12 +1,12 @@
 import fs from 'fs';
 import path from 'path';
+import url from 'url';
 import {ImportMap, SnowpackConfig} from '../types/snowpack';
 import {
   findMatchingAliasEntry,
   getExt,
   relativeURL,
   replaceExt,
-  URL_HAS_PROTOCOL_REGEX,
 } from '../util';
 import srcFileExtensionMapping from './src-file-extension-mapping';
 
@@ -56,9 +56,16 @@ export function createImportResolver({
   config,
 }: ImportResolverOptions) {
   return function importResolver(spec: string): string | false {
-    if (URL_HAS_PROTOCOL_REGEX.test(spec) || config.installOptions.externalPackage?.includes(spec)) {
+    // Ignore "http://*" imports
+    if (url.parse(spec).protocol) {
       return spec;
     }
+
+    // Ignore packages marked as external
+    if (config.installOptions.externalPackage?.includes(spec)) {
+      return spec;
+    }
+
     if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
       const importStats = getImportStats(path.dirname(fileLoc), spec);
       spec = resolveSourceSpecifier(spec, importStats, config);
