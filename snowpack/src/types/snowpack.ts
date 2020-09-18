@@ -1,5 +1,5 @@
 import type HttpProxy from 'http-proxy';
-import type {InstallOptions} from 'esmpkg';
+import type {InstallOptions} from 'esinstall';
 
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -9,7 +9,11 @@ export type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
-export type SnowpackBuiltFile = {code: string | Buffer; map?: string};
+export type SnowpackBuiltFile = {
+  code: string | Buffer;
+  map?: string;
+};
+
 export type SnowpackBuildMap = Record<string, SnowpackBuiltFile>;
 
 /** Standard file interface */
@@ -57,9 +61,14 @@ export interface SnowpackPlugin {
   name: string;
   /** Tell Snowpack how the load() function will resolve files. */
   resolve?: {
-    /** file extensions that this load function takes as input (e.g. [".jsx", ".js", …]) */
+    /**
+       file extensions that this load function takes as input (e.g. [".jsx",
+       ".js", …])
+     */
     input: string[];
-    /** file extensions that this load function outputs (e.g. [".js", ".css"]) */
+    /**
+       file extensions that this load function outputs (e.g. [".js", ".css"])
+     */
     output: string[];
   };
   /** load a file that matches resolve.input */
@@ -120,6 +129,7 @@ export interface SnowpackConfig {
     fallback: string;
     open: string;
     hmr?: boolean;
+    hmrDelay: number;
   };
   installOptions: InstallOptions;
   buildOptions: {

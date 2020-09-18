@@ -26,8 +26,12 @@ Note: you will see warnings about `__dirname` and `require()` not being "a valid
 
 ```bash
 yarn build
-yarn --force
+yarn --force # only needed after very first build; afterward can be skipped
 ```
+
+#### Why is `yarn --force` needed?
+
+Lerna allows us to use our local build of Snowpack which is key for testing any changes we make. Thanks to Lerna, when we run `yarn build`, the `snowpack` [executable script](https://docs.npmjs.com/files/package.json#bin) is built at `./snowpack/pkg/node-dist/index.bin.js`. The `--force` command generates the symlinks needed so that this new executable script gets used by all parts of the project. Now when you run tests in [create-snowpack-app templates](./create-snowpack-app), it knows to use the locally built symlinked version. This solves two major problems: it means you don't have tons of `node_modules` in subdirectories and also means you don’t need to publish Snowpack to npm to test your changes.
 
 ## Run tests
 
@@ -50,7 +54,7 @@ You can run your local snowpack by path
 ```bash
 yarn build
 cd path/to/some-other-project
-/path/to/snowpack/pkg/dist-node/index.bin.js dev
+/path/to/snowpack/pkg/dist-node/index.bin.js dev --verbose --reload
 ```
 
 Or by linking the global `snowpack` library to your local clone
@@ -59,8 +63,10 @@ Or by linking the global `snowpack` library to your local clone
 cd pkg
 npm link
 cd path/to/some-other-project
-snowpack dev
+snowpack dev --verbose --reload
 ```
+
+The `--verbose` flag enables additional logs which will help to identify the source of a problem. The `--reload` will clear the local cache which might have been created by a different `snowpack` version. Learn more about [Snowpack's CLI flags](https://www.snowpack.dev/#cli-flags).
 
 ## Discussion
 

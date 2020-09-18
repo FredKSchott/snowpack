@@ -1,5 +1,4 @@
 {
   "extends": "@snowpack/app-scripts-react",
-  "install": ["@testing-library/react", "@esm-bundle/chai"],
   "plugins": []
 }

@@ -12,8 +12,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -70,7 +70,6 @@ import {
   cssSourceMappingURL,
   DEV_DEPENDENCIES_DIR,
   getExt,
-  HMR_CLIENT_CODE,
   jsSourceMappingURL,
   openInBrowser,
   parsePackageImportSpecifier,
@@ -78,12 +77,10 @@ import {
   replaceExt,
   resolveDependencyManifest,
   updateLockfileHash,
+  HMR_CLIENT_CODE,
 } from '../util';
 import {command as installCommand} from './install';
 import {getPort, paint, paintEvent} from './paint';
-
-// TODO: Caching logic was removed to test the SSR workflow.
-// DO NOT MERGE THIS until that's been added back.
 
 const DEFAULT_PROXY_ERROR_HANDLER = (
   err: Error,
@@ -94,6 +91,41 @@ const DEFAULT_PROXY_ERROR_HANDLER = (
   logger.error(`✘ ${reqUrl}\n${err.message}`);
   sendError(req, res, 502);
 };
+
+/** 
+ * An in-memory build cache for Snowpack. Responsible for coordinating
+ * different builds (ex: SSR, non-SSR) to get/set individually but clear
+ * both at once.
+ */
+class InMemoryBuildCache {
+  ssrCache = new Map<string, SnowpackBuildMap>();
+  webCache = new Map<string, SnowpackBuildMap>();
+
+  private getCache(isSSR: boolean): Map<string, SnowpackBuildMap> {
+    if (isSSR) {
+      return this.ssrCache;
+    } else {
+      return this.webCache;
+    }
+  }
+
+  get(fileLoc: string, isSSR: boolean) {
+    return this.getCache(isSSR).get(fileLoc);
+  }
+  set(fileLoc: string, val: SnowpackBuildMap, isSSR: boolean) {
+    return this.getCache(isSSR).set(fileLoc, val);
+  }
+  has(fileLoc: string, isSSR: boolean) {
+    return this.getCache(isSSR).has(fileLoc);
+  }
+  delete(fileLoc: string) {
+    return this.getCache(true).delete(fileLoc) && this.getCache(false).delete(fileLoc);
+  }
+  clear() {
+    this.getCache(true).clear();
+    this.getCache(false).clear();
+  }
+}
 
 function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
   const reqPath = decodeURI(url.parse(req.url!).pathname!);
@@ -220,7 +252,8 @@ export async function startServer(commandOptions: CommandOptions) {
 
   const messageBus = new EventEmitter();
 
-  // note: this would cause an infinite loop if not for the logger.on(…) in `paint.ts`.
+  // note: this would cause an infinite loop if not for the logger.on(…) in
+  // `paint.ts`.
   console.log = (...args: [any, ...any[]]) => {
     logger.info(util.format(...args));
   };
@@ -236,7 +269,7 @@ export async function startServer(commandOptions: CommandOptions) {
     config.plugins.map((p) => p.name),
   );
 
-  const inMemoryBuildCache = new Map<string, SnowpackBuildMap>();
+  const inMemoryBuildCache = new InMemoryBuildCache();
   const filesBeingDeleted = new Set<string>();
   const filesBeingBuilt = new Map<string, Promise<SnowpackBuildMap>>();
   const mountedDirectories: [string, string][] = Object.entries(config.mount).map(
@@ -465,9 +498,10 @@ export async function startServer(commandOptions: CommandOptions) {
     }
 
     /**
-     * Given a file, build it. Building a file sends it through our internal file builder
-     * pipeline, and outputs a build map representing the final build. A Build Map is used
-     * because one source file can result in multiple built files (Example: .svelte -> .js & .css).
+     * Given a file, build it. Building a file sends it through our internal
+     * file builder pipeline, and outputs a build map representing the final
+     * build. A Build Map is used because one source file can result in multiple
+     * built files (Example: .svelte -> .js & .css).
      */
     async function buildFile(fileLoc: string): Promise<SnowpackBuildMap> {
       const existingBuilderPromise = filesBeingBuilt.get(fileLoc);
@@ -483,7 +517,7 @@ export async function startServer(commandOptions: CommandOptions) {
           isHmrEnabled: isHmr,
           sourceMaps: config.buildOptions.sourceMaps,
         });
-        // inMemoryBuildCache.set(fileLoc, builtFileOutput);
+        inMemoryBuildCache.set(fileLoc, builtFileOutput, isSSR);
         return builtFileOutput;
       })();
       filesBeingBuilt.set(fileLoc, fileBuilderPromise);
@@ -497,9 +531,10 @@ export async function startServer(commandOptions: CommandOptions) {
     }
 
     /**
-     * Wrap Response: The same build result can be expressed in different ways based on
-     * the URL. For example, "App.css" should return CSS but "App.css.proxy.js" should
-     * return a JS representation of that CSS. This is handled in the wrap step.
+     * Wrap Response: The same build result can be expressed in different ways
+     * based on the URL. For example, "App.css" should return CSS but
+     * "App.css.proxy.js" should return a JS representation of that CSS. This is
+     * handled in the wrap step.
      */
     async function wrapResponse(
       code: string | Buffer,
@@ -507,7 +542,11 @@ export async function startServer(commandOptions: CommandOptions) {
         hasCssResource,
         sourceMap,
         sourceMappingURL,
-      }: {hasCssResource: boolean; sourceMap?: string; sourceMappingURL: string},
+      }: {
+        hasCssResource: boolean;
+        sourceMap?: string;
+        sourceMappingURL: string;
+      },
     ) {
       // transform special requests
       if (isRoute) {
@@ -554,8 +593,8 @@ export async function startServer(commandOptions: CommandOptions) {
     }
 
     /**
-     * Resolve Imports: Resolved imports are based on the state of the file system, so
-     * they can't be cached long-term with the build.
+     * Resolve Imports: Resolved imports are based on the state of the file
+     * system, so they can't be cached long-term with the build.
      */
     async function resolveResponseImports(
       fileLoc: string,
@@ -633,8 +672,9 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
     }
 
     /**
-     * Given a build, finalize it for the response. This involves running individual steps
-     * needed to go from build result to sever response, including:
+     * Given a build, finalize it for the response. This involves running
+     * individual steps needed to go from build result to sever response,
+     * including:
      *   - wrapResponse(): Wrap responses
      *   - resolveResponseImports(): Resolve all ESM imports
      */
@@ -677,7 +717,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
     }
 
     // 1. Check the hot build cache. If it's already found, then just serve it.
-    let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(fileLoc);
+    let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(fileLoc, isSSR);
     if (hotCachedResponse) {
       const responseContent = await finalizeResponse(fileLoc, requestedFileExt, hotCachedResponse);
       if (!responseContent) {
@@ -691,59 +731,68 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
     // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
     const fileContents = await readFile(fileLoc);
 
-    // 3. Send dependencies directly, since they were already build & resolved at install time.
+    // 3. Send dependencies directly, since they were already build & resolved
+    // at install time.
     if (reqPath.startsWith(config.buildOptions.webModulesUrl) && !isProxyModule) {
       sendFile(req, res, fileContents, fileLoc, responseFileExt);
       return;
     }
 
-    // 4. Check the persistent cache. If found, serve it via a "trust-but-verify" strategy.
-    // Build it after sending, and if it no longer matches then assume the entire cache is suspect.
-    // In that case, clear the persistent cache and then force a live-reload of the page.
-    // const cachedBuildData =
-    //   !filesBeingDeleted.has(fileLoc) &&
-    //   (await cacache.get(BUILD_CACHE, fileLoc).catch(() => null));
-    // if (cachedBuildData) {
-    //   const {originalFileHash} = cachedBuildData.metadata;
-    //   const newFileHash = etag(fileContents);
-    //   if (originalFileHash === newFileHash) {
-    //     // IF THIS FAILS TS CHECK: If you are changing the structure of SnowpackBuildMap, be sure to
-    //     // also update `BUILD_CACHE` in util.ts to a new unique name, to guarantee a clean cache for
-    //     // our users.
-    //     const coldCachedResponse: SnowpackBuildMap = JSON.parse(
-    //       cachedBuildData.data.toString(),
-    //     ) as Record<string, {code: string; map?: string}>;
-    //     // inMemoryBuildCache.set(fileLoc, coldCachedResponse);
-    //     // Trust...
-    //     const wrappedResponse = await finalizeResponse(
-    //       fileLoc,
-    //       requestedFileExt,
-    //       coldCachedResponse,
-    //     );
-    //     if (!wrappedResponse) {
-    //       sendError(req, res, 404);
-    //       return;
-    //     }
-    //     sendFile(req, res, wrappedResponse, fileLoc, responseFileExt);
-    //     // ...but verify.
-    //     let checkFinalBuildResult: SnowpackBuildMap | null = null;
-    //     try {
-    //       checkFinalBuildResult = await buildFile(fileLoc);
-    //     } catch (err) {
-    //       // safe to ignore, it will be surfaced later anyway
-    //     } finally {
-    //       if (
-    //         !checkFinalBuildResult ||
-    //         !cachedBuildData.data.equals(Buffer.from(JSON.stringify(checkFinalBuildResult)))
-    //       ) {
-    //         inMemoryBuildCache.clear();
-    //         await cacache.rm.all(BUILD_CACHE);
-    //         hmrEngine.broadcastMessage({type: 'reload'});
-    //       }
-    //     }
-    //     return;
-    //   }
-    // }
+    // 4. Check the persistent cache. If found, serve it via a
+    // "trust-but-verify" strategy. Build it after sending, and if it no longer
+    // matches then assume the entire cache is suspect. In that case, clear the
+    // persistent cache and then force a live-reload of the page.
+    const cachedBuildData =
+      !isSSR &&
+      !filesBeingDeleted.has(fileLoc) &&
+      (await cacache.get(BUILD_CACHE, fileLoc).catch(() => null));
+    if (cachedBuildData) {
+      const {originalFileHash} = cachedBuildData.metadata;
+      const newFileHash = etag(fileContents);
+      if (originalFileHash === newFileHash) {
+        // IF THIS FAILS TS CHECK: If you are changing the structure of
+        // SnowpackBuildMap, be sure to also update `BUILD_CACHE` in util.ts to
+        // a new unique name, to guarantee a clean cache for our users.
+        const coldCachedResponse: SnowpackBuildMap = JSON.parse(
+          cachedBuildData.data.toString(),
+        ) as Record<
+          string,
+          {
+            code: string;
+            map?: string;
+          }
+        >;
+        inMemoryBuildCache.set(fileLoc, coldCachedResponse, false);
+        // Trust...
+        const wrappedResponse = await finalizeResponse(
+          fileLoc,
+          requestedFileExt,
+          coldCachedResponse,
+        );
+        if (!wrappedResponse) {
+          sendError(req, res, 404);
+          return;
+        }
+        sendFile(req, res, wrappedResponse, fileLoc, responseFileExt);
+        // ...but verify.
+        let checkFinalBuildResult: SnowpackBuildMap | null = null;
+        try {
+          checkFinalBuildResult = await buildFile(fileLoc);
+        } catch (err) {
+          // safe to ignore, it will be surfaced later anyway
+        } finally {
+          if (
+            !checkFinalBuildResult ||
+            !cachedBuildData.data.equals(Buffer.from(JSON.stringify(checkFinalBuildResult)))
+          ) {
+            inMemoryBuildCache.clear();
+            await cacache.rm.all(BUILD_CACHE);
+            hmrEngine.broadcastMessage({type: 'reload'});
+          }
+        }
+        return;
+      }
+    }
 
     // 5. Final option: build the file, serve it, and cache it.
     let responseContent: string | Buffer | null;
@@ -771,9 +820,16 @@ ${err}`);
 
     sendFile(req, res, responseContent, fileLoc, responseFileExt);
     const originalFileHash = etag(fileContents);
-    cacache.put(BUILD_CACHE, fileLoc, Buffer.from(JSON.stringify(responseOutput)), {
-      metadata: {originalFileHash},
-    });
+
+    // Only save the file to our cold cache if it's not SSR.
+    // NOTE(fks): We could do better and cache both, but at the time of writing SSR
+    // is still a new concept. Lets confirm that this is how we want to do SSR, and
+    // then can revisit the caching story once confident.
+    if (!isSSR) {
+      cacache.put(BUILD_CACHE, fileLoc, Buffer.from(JSON.stringify(responseOutput)), {
+        metadata: {originalFileHash},
+      });
+    }
   }
 
   type Http2RequestListener = (
@@ -818,7 +874,8 @@ ${err}`);
     })
     .listen(port);
 
-  const hmrEngine = new EsmHmrEngine({server});
+  const {hmrDelay} = config.devOptions;
+  const hmrEngine = new EsmHmrEngine({server, delay: hmrDelay});
   onProcessExit(() => {
     hmrEngine.disconnectAllClients();
   });
@@ -856,14 +913,16 @@ ${err}`);
       return;
     }
 
-    // Append ".proxy.js" to Non-JS files to match their registered URL in the client app.
+    // Append ".proxy.js" to Non-JS files to match their registered URL in the
+    // client app.
     if (!updateUrl.endsWith('.js')) {
       updateUrl += '.proxy.js';
     }
-    // Check if a virtual file exists in the resource cache (ex: CSS from a Svelte file)
-    // If it does, mark it for HMR replacement but DONT trigger a separate HMR update event.
-    // This is because a virtual resource doesn't actually exist on disk, so we need the main
-    // resource (the JS) to load first. Only after that happens will the CSS exist.
+    // Check if a virtual file exists in the resource cache (ex: CSS from a
+    // Svelte file) If it does, mark it for HMR replacement but DONT trigger a
+    // separate HMR update event. This is because a virtual resource doesn't
+    // actually exist on disk, so we need the main resource (the JS) to load
+    // first. Only after that happens will the CSS exist.
     const virtualCssFileUrl = updateUrl.replace(/.js$/, '.css');
     const virtualNode = hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
     if (virtualNode) {
@@ -875,9 +934,10 @@ ${err}`);
       return;
     }
 
-    // Otherwise, reload the page if the file exists in our hot cache (which means that the
-    // file likely exists on the current page, but is not supported by HMR (HTML, image, etc)).
-    if (inMemoryBuildCache.has(fileLoc)) {
+    // Otherwise, reload the page if the file exists in our hot cache (which
+    // means that the file likely exists on the current page, but is not
+    // supported by HMR (HTML, image, etc)).
+    if (inMemoryBuildCache.has(fileLoc, false)) {
       hmrEngine.broadcastMessage({type: 'reload'});
       return;
     }
@@ -953,6 +1013,7 @@ ${err}`);
 
   return {
     requestHandler,
+    /** @experimental - only available via unstable__startServer */
     async loadByUrl(url: string, {isSSR}: {isSSR?: boolean}): Promise<string> {
       if (!url.startsWith('/')) {
         throw new Error(`url must start with "/", but got ${url}`);

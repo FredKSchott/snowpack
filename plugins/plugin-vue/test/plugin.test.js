@@ -54,5 +54,5 @@ test('plugin base style scoped', async () => {
   const resultContent = await pluginLoad({
     filePath: codeFilePath,
   });
-  expect(resultContent['.css'].code).toMatch(/h1\[data-v-.*\]/)
+  expect(resultContent['.css'].code).toMatch(/h1\[data-v-.*\]/);
 });

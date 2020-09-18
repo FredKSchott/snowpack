@@ -65,42 +65,16 @@ Snowpack supports JSX & TypeScript source code by default. You can extend your b
 
 **You should be able to use a bundler because you want to, and not because you need to.** That was the original concept that Snowpack was designed to address. Snowpack treats bundling as an optional production optimization, which means you're free to skip over the extra complexity of bundling until you need it.
 
-By default, `snowpack build` will build your site using the same unbundled approach as the `dev` command. This is fine for most projects, but you also may still want to bundle for production. Legacy browser support, code minification, code-splitting, tree-shaking, dead code elimination, and other performance optimizations are all handled in Snowpack via bundling.
+By default, `snowpack build` will build your site using the same unbundled approach as the `dev` command. This is fine for most projects, but you also may still want to bundle for production. Legacy browser support, code minification, code-splitting, tree-shaking, dead code elimination, and other performance optimizations can all be handled in Snowpack via bundling.
 
-#### Bundled optimization
-
-**Connect your favorite bundler to Snowpack via a one-line plugin.** Bundlers normally require dozens or even hundreds of lines of configuration, but with Snowpack it's just a one-line change to your project config file. Snowpack builds your application _before_ sending it to the bundler, so that all the bundler needs to do is worry about bundling the final JavaScript & CSS. No custom configuration required.
-
-Snowpack ships with official support for [webpack](https://www.npmjs.com/package/@snowpack/plugin-webpack). Connect the `"@snowpack/plugin-webpack"` plugin in your Snowpack configuration file and then run `snowpack build` to see your optimized, bundled build.
+Bundlers normally require dozens or even hundreds of lines of configuration, but with Snowpack it's just a one-line plugin with no config required. This is possible because Snowpack builds your application _before_ sending it to the bundler, so the bundler never sees your custom source code (JSX, TS, Svelte, Vue, etc.) and instead only needs to worry about building common HTML, CSS, and JS.
 
 ```js
-// snowpack.config.json
-// [npm install @snowpack/plugin-webpack]
+// Bundlers plugins are pre-configured to work with Snowpack apps.
+// No config required!
 {
-  // Optimize your production builds with Webpack
-  "plugins": [["@snowpack/plugin-webpack", {/* ... */}]]
+  "plugins": [["@snowpack/plugin-webpack"]]
 }
 ```
 
-#### Unbundled optimization (experimental)
-
-To try Snowpack’s unbundled optimization including JS minification and JS [module preloading](https://developers.google.com/web/updates/2017/12/modulepreload), check out `@snowpack/plugin-optimize`. The goal of this plugin is to optimize an unbundled application for production, and provide better configuration all in one place. Note that this is experimental, so the API/plugin options may change slightly as features stabilize.
-
-_Note: this replaces `buildOptions.minify`._
-
-```js
-// snowpack.config.json
-// [npm install @snowpack/plugin-optimize]
-{
-  // Optimize your unbundled app
-  "plugins": [
-    [
-      "@snowpack/plugin-optimize",
-      {
-        "minifyJS": true, // default
-        "modulePreload": true // default
-      }
-    ]
-  ]
-}
-```
+See ["Optimized Builds"](/#optimized-builds) for more information about connecting bundled (or unbundled) optimization plugins for your production builds.

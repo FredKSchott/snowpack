@@ -309,7 +309,6 @@ export async function command(commandOptions: CommandOptions) {
   if (getIsHmrEnabled(config)) {
     await fs.writeFile(path.resolve(internalFilesBuildLoc, 'hmr.js'), HMR_CLIENT_CODE);
     hmrEngine = new EsmHmrEngine();
-    logger.info(`[ESM-HMR] web socket's url is ${colors.cyan(`${hmrEngine.wsUrl}`)}`);
   }
 
   logger.info(colors.yellow('! building source…'));
@@ -424,6 +423,11 @@ export async function command(commandOptions: CommandOptions) {
 
     logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
     return;
+  }
+
+  // "--watch --hmr" mode - Tell users about the HMR WebSocket URL
+  if (hmrEngine) {
+    logger.info(`[HMR] WebSocket URL available at ${colors.cyan(`${hmrEngine.wsUrl}`)}`);
   }
 
   // "--watch" mode - Start watching the file system.

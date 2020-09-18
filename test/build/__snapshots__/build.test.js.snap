@@ -4436,17 +4436,7 @@ exports[`snowpack build module-preload: _dist_/should-not-be-preloaded.js 1`] = 
 
 exports[`snowpack build module-preload: _dist_/unlinked-file.js 1`] = `"console.log(\\"I’m not imported by anything; I should be in the final build but not preloaded\\");"`;
 
-exports[`snowpack build module-preload: about/index.html 1`] = `
-"<!doctype html>
-<html>
-  <head>
-    <title>My App</title>
-  </head>
-  <body>
-    <script type=\\"module\\" src=\\"/_dist_/about.js\\"></script>
-  </body>
-</html>"
-`;
+exports[`snowpack build module-preload: about/index.html 1`] = `"<!doctype html><html><head><title>My App</title></head><body><script type=\\"module\\" src=\\"/_dist_/about.js\\"></script></body></html>"`;
 
 exports[`snowpack build module-preload: allFiles 1`] = `
 Array [
@@ -4462,27 +4452,9 @@ Array [
 `;
 
 exports[`snowpack build module-preload: index.html 1`] = `
-"<!DOCTYPE html>
-<html>
-  <head>
-    <title>My App</title>
-    <!-- @snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance
-         More info: https://developers.google.com/web/updates/2017/12/modulepreload -->
-    <link rel=\\"modulepreload\\" href=\\"/_dist_/should-be-preloaded.js\\" />
-  </head>
-  <body>
-    <script type=\\"module\\" src=\\"/_dist_/home.js\\"></script>
-    <script>
-      // some arbitrary JS; this tests that the scanner ignores this
+"<!DOCTYPE html><html><head><title>My App</title></head><body><script type=\\"module\\" src=\\"/_dist_/home.js\\"></script><script>// some arbitrary JS; this tests that the scanner ignores this
       const src = 'foo.js';
-      console.log(foo);
-    </script>
-    <!-- skip this because it’s not type=\\"module\\" -->
-    <script src=\\"/_dist_/should-not-be-preloaded.js\\"></script>
-    <!-- [@snowpack/plugin-optimize] modulepreload fallback for browsers that do not support it yet -->
-    <script type=\\"module\\" src=\\"/_dist_/should-be-preloaded.js\\"></script>
-  </body>
-</html>"
+      console.log(foo);</script><script src=\\"/_dist_/should-not-be-preloaded.js\\"></script></body></html>"
 `;
 
 exports[`snowpack build module-resolution: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
@@ -4631,6 +4603,11 @@ exports[`snowpack build package-tippy-js: web_modules/import-map.json 1`] = `
 
 exports[`snowpack build package-tippy-js: web_modules/tippyjs.js 1`] = `
 "import { c as createPopper } from './common/popper-XXXXXXXX.js';
+/**!
+* tippy.js v6.2.6
+* (c) 2017-2020 atomiks
+* MIT License
+*/
 var BOX_CLASS = \\"tippy-box\\";
 var CONTENT_CLASS = \\"tippy-content\\";
 var BACKDROP_CLASS = \\"tippy-backdrop\\";
@@ -5966,6 +5943,11 @@ document.head.appendChild(styleEl);"
 
 exports[`snowpack build package-tippy-js: web_modules/tippyjs/headless/dist/tippy-headless.esm.js 1`] = `
 "import { c as createPopper } from '../../../common/popper-XXXXXXXX.js';
+/**!
+* tippy.js v6.2.6
+* (c) 2017-2020 atomiks
+* MIT License
+*/
 var ROUND_ARROW = '<svg width=\\"16\\" height=\\"6\\" xmlns=\\"http://www.w3.org/2000/svg\\"><path d=\\"M0 6s1.796-.013 4.67-3.615C5.851.9 6.93.006 8 0c1.07-.006 2.148.887 3.343 2.385C14.233 6.005 16 6 16 6H0z\\"></svg>';
 var CONTENT_CLASS = \\"tippy-content\\";
 var BACKDROP_CLASS = \\"tippy-backdrop\\";

@@ -2,20 +2,49 @@
 
 Use Webpack to bundle your application for production.
 
+### Install
+
 ```
 npm install --save-dev @snowpack/plugin-webpack
 ```
 
-```js
-// snowpack.config.json
+### Usage
+
+Add `@snowpack/plugin-webpack` to `snowpack.config.json`:
+
+```json
 {
-  "plugins": [["@snowpack/plugin-webpack", { /* see "Plugin Options" below */}]]
+  "plugins": [
+    [
+      "@snowpack/plugin-webpack",
+      {
+        /* see "Plugin Options" below */
+      }
+    ]
+  ]
 }
 ```
 
-#### Default Build Script
+or to `snowpack.config.js`:
 
 ```js
+module.exports = {
+  plugins: [
+    [
+      '@snowpack/plugin-webpack',
+      {
+        /* see "Plugin Options" below */
+      },
+    ],
+  ],
+};
+```
+
+The options object is optional.
+
+### Default Build Script
+
+```json
 {
   "scripts": {"bundle:*": "@snowpack/plugin-webpack"}
 }
@@ -40,7 +69,7 @@ Note that this requires you use a `snowpack.config.js` JavaScript config file. J
 module.exports = {
   plugins: [
     [
-      "@snowpack/plugin-webpack",
+      '@snowpack/plugin-webpack',
       {
         extendConfig: (config) => {
           config.plugins.push(/* ... */);
@@ -61,9 +90,9 @@ With `htmlMinifierOptions` you can either disable the minification entirely or p
 module.exports = {
   plugins: [
     [
-      "@snowpack/plugin-webpack",
+      '@snowpack/plugin-webpack',
       {
-        htmlMinifierOptions: false // disabled entirely,
+        htmlMinifierOptions: false, // disabled entirely,
       },
     ],
   ],

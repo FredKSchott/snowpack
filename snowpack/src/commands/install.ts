@@ -1,16 +1,12 @@
-import {install, printStats, DependencyStatsOutput, InstallTarget} from 'esmpkg';
+import {DependencyStatsOutput, install, InstallTarget, printStats} from 'esinstall';
 import * as colors from 'kleur/colors';
+import util from 'util';
 import path from 'path';
 import {performance} from 'perf_hooks';
 import {logger} from '../logger';
 import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
 import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
-import {
-  CommandOptions,
-  ImportMap,
-  SnowpackConfig,
-  SnowpackSourceFile,
-} from '../types/snowpack';
+import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
 import {writeLockfile} from '../util.js';
 
 const cwd = process.cwd();
@@ -104,9 +100,15 @@ export async function run({
   }
 
   const finalResult = await install(installTargets, {
+    cwd,
     lockfile: newLockfile || undefined,
     alias: config.alias,
-    logLevel: logger.level,
+    logger: {
+      debug: (...args: [any, ...any[]]) => logger.debug(util.format(...args)),
+      log: (...args: [any, ...any[]]) => logger.info(util.format(...args)),
+      warn: (...args: [any, ...any[]]) => logger.warn(util.format(...args)),
+      error: (...args: [any, ...any[]]) => logger.error(util.format(...args)),
+    },
     ...config.installOptions,
   }).catch((err) => {
     if (err.loc) {

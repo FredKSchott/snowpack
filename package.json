@@ -3,18 +3,18 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build --scope=esmpkg --scope=snowpack",
+    "build": "lerna run build --scope=esinstall --scope=snowpack",
     "publish": "lerna publish --no-private",
-    "format": "prettier --write \"{snowpack,esmpkg}/src/**/*.ts\"",
+    "format": "prettier --write '{snowpack,esinstall}/src/**/*.{ts,js}' '{test,plugins}/**/*.{ts,js}' '*.{js,json,md}' '**/*.{json,md}' '.github/**/*.{md,yml}' '!**/{_dist_,build,packages,pkg,TEST_BUILD_OUT,web_modules}/**' !test/create-snowpack-app/test-install",
     "test": "jest --test-timeout=30000"
   },
   "workspaces": [
     "create-snowpack-app/*",
     "plugins/*",
     "snowpack",
-    "esmpkg",
+    "esinstall",
     "test/build/*",
-    "test/integration/*"
+    "test/esinstall/*"
   ],
   "devDependencies": {
     "@pika/pack": "^0.5.0",
@@ -43,5 +43,11 @@
     "lerna": "^3.22.1",
     "prettier": "^2.0.5",
     "typescript": "^3.9.7"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all",
+    "bracketSpacing": false,
+    "printWidth": 100
   }
 }

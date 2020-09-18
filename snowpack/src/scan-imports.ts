@@ -1,5 +1,5 @@
 import {ImportSpecifier, init as initESModuleLexer, parse} from 'es-module-lexer';
-import {InstallTarget} from 'esmpkg';
+import {InstallTarget} from 'esinstall';
 import glob from 'glob';
 import path from 'path';
 import stripComments from 'strip-comments';

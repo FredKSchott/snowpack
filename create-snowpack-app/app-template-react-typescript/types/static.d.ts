@@ -30,3 +30,7 @@ declare module '*.webp' {
   const ref: string;
   export default ref;
 }
+declare module '*.avif' {
+  const ref: string;
+  export default ref;
+}

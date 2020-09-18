@@ -6,20 +6,21 @@ import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
 import path from 'path';
 import yargs from 'yargs-parser';
-import {logger} from './logger';
+
 import srcFileExtensionMapping from './build/src-file-extension-mapping';
+import {logger} from './logger';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
   CLIFlags,
   DeepPartial,
+  LegacySnowpackPlugin,
   PluginLoadOptions,
+  PluginLoadResult,
   PluginOptimizeOptions,
   Proxy,
   ProxyOptions,
   SnowpackConfig,
   SnowpackPlugin,
-  LegacySnowpackPlugin,
-  PluginLoadResult,
 } from './types/snowpack';
 import {
   addLeadingSlash,
@@ -46,6 +47,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     open: 'default',
     out: 'build',
     fallback: 'index.html',
+    hmrDelay: 0,
   },
   buildOptions: {
     baseUrl: '/',
@@ -220,10 +222,7 @@ function parseScript(script: string): {scriptType: string; input: string[]; outp
 /** load and normalize plugins from config */
 function loadPlugins(
   config: SnowpackConfig,
-): {
-  plugins: SnowpackPlugin[];
-  extensionMap: Record<string, string>;
-} {
+): {plugins: SnowpackPlugin[]; extensionMap: Record<string, string>} {
   const plugins: SnowpackPlugin[] = [];
 
   function execPluginFactory(pluginFactory: any, pluginOptions?: any): SnowpackPlugin {
@@ -235,7 +234,8 @@ function loadPlugins(
   function loadPluginFromScript(specifier: string): SnowpackPlugin | undefined {
     try {
       const pluginLoc = require.resolve(specifier, {paths: [process.cwd()]});
-      return execPluginFactory(require(pluginLoc)); // no plugin options to load because we’re loading from a string
+      return execPluginFactory(require(pluginLoc)); // no plugin options to load because we’re
+      // loading from a string
     } catch (err) {
       // ignore
     }
@@ -280,7 +280,8 @@ function loadPlugins(
         return result.result;
       };
     }
-    // Legacy support: Map the new optimize() interface to the old bundle() interface
+    // Legacy support: Map the new optimize() interface to the old bundle()
+    // interface
     if (bundle) {
       plugin.optimize = async (options: PluginOptimizeOptions) => {
         return bundle({
@@ -288,8 +289,9 @@ function loadPlugins(
           destDirectory: options.buildDirectory,
           // @ts-ignore internal API only
           log: options.log,
-          // It turns out, this was more or less broken (included all files, not just JS).
-          // Confirmed no plugins are using this now, so safe to use an empty array.
+          // It turns out, this was more or less broken (included all
+          // files, not just JS). Confirmed no plugins are using this
+          // now, so safe to use an empty array.
           jsFilePaths: [],
         }).catch((err) => {
           logger.error(
@@ -548,13 +550,6 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     }
   }
 
-  // warn for minify: true
-  if (config.buildOptions.minify) {
-    logger.warn(
-      '[snowpack] buildOptions.minify is deprecated. Please install @snowpack/plugin-optimize instead: https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-optimize',
-    );
-  }
-
   plugins.forEach((plugin) => {
     if (plugin.config) {
       plugin.config(config);
@@ -656,6 +651,11 @@ function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
   ) {
     handleDeprecatedConfigError(
       '[Snowpack v1 -> v2] `scripts["plugin:..."]` have been renamed to scripts["build:..."].',
+    );
+  }
+  if (rawConfig.buildOptions?.minify) {
+    handleDeprecatedConfigError(
+      '[Snowpack 2.11.0] `buildOptions.minify` has moved to package "@snowpack/plugin-optimize". Install it and include as a plugin in your Snowpack config file.',
     );
   }
   // Removed!
