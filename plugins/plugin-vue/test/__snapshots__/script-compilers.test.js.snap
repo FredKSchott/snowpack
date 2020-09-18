@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`esbuildCompile jsx 1`] = `
-"import { Fragment } from '/web_modules/vue.js';
-import {createVNode, isVNode} from '/web_modules/vue.js';
+"import { Fragment } from 'vue';
+import {createVNode, isVNode} from 'vue';
 const slice = Array.prototype.slice;
 export function jsx(tag, props = null, children = null) {
   if (arguments.length > 3 || isVNode(children)) {
@@ -31,8 +31,8 @@ export default defineComponent({
 `;
 
 exports[`esbuildCompile tsx 1`] = `
-"import { Fragment } from '/web_modules/vue.js';
-import {createVNode, isVNode} from '/web_modules/vue.js';
+"import { Fragment } from 'vue';
+import {createVNode, isVNode} from 'vue';
 const slice = Array.prototype.slice;
 export function jsx(tag, props = null, children = null) {
   if (arguments.length > 3 || isVNode(children)) {
