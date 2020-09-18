@@ -9,7 +9,12 @@ module.exports = {
     public: '/',
     src: '/_dist_',
   },
-  plugins: ['@snowpack/plugin-react-refresh', '@snowpack/plugin-babel', '@snowpack/plugin-dotenv'],
+  plugins: [
+    '@snowpack/plugin-react-refresh',
+    '@snowpack/plugin-babel',
+    '@snowpack/plugin-dotenv',
+    ...(isTS ? [['@snowpack/plugin-run-script', {cmd: 'tsc --noEmit', watch: '$1 --watch'}]] : []),
+  ],
   devOptions: {},
   installOptions: {
     installTypes: isTS,
