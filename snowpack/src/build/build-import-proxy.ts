@@ -75,7 +75,7 @@ export function wrapHtmlResponse({
   });
 
   if (hmr) {
-    const hmrScript = `<script type="module" src="${getMetaUrlPath('hmr-client.js', config)}"></script>`;
+    const hmrScript = `<script type="module" src="${getMetaUrlPath('hmr-client.js', config)}"></script><script type="module" src="${getMetaUrlPath('hmr-error-overlay.js', config)}"></script>`;
     code = appendHTMLToBody(code, hmrScript);
   }
   return code;

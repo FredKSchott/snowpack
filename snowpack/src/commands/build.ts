@@ -23,6 +23,7 @@ import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../
 import {
   cssSourceMappingURL,
   HMR_CLIENT_CODE,
+  HMR_OVERLAY_CODE,
   jsSourceMappingURL,
   readFile,
   relativeURL,
@@ -306,6 +307,10 @@ export async function command(commandOptions: CommandOptions) {
   await fs.writeFile(path.join(internalFilesBuildLoc, 'env.js'), generateEnvModule('production'));
   if (getIsHmrEnabled(config)) {
     await fs.writeFile(path.resolve(internalFilesBuildLoc, 'hmr-client.js'), HMR_CLIENT_CODE);
+    await fs.writeFile(
+      path.resolve(internalFilesBuildLoc, 'hmr-error-overlay.js'),
+      HMR_OVERLAY_CODE,
+    );
     hmrEngine = new EsmHmrEngine();
   }
 
