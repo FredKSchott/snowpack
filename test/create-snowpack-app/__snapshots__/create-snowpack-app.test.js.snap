@@ -10577,7 +10577,9 @@ function flushJobs(seen) {
         for (flushIndex = 0; flushIndex < queue.length; flushIndex++) {
             const job = queue[flushIndex];
             if (job) {
-                if ((\\"production\\" !== 'production')) ;
+                if ((\\"production\\" !== 'production')) {
+                    checkRecursiveUpdates(seen, job);
+                }
                 callWithErrorHandling(job, null, 14 /* SCHEDULER */);
             }
         }
@@ -10643,7 +10645,9 @@ function renderComponentRoot(instance) {
             // functional
             const render = Component;
             // in dev, mark attrs accessed if optional props (attrs === props)
-            if ((\\"production\\" !== 'production') && attrs === props) ;
+            if ((\\"production\\" !== 'production') && attrs === props) {
+                markAttrsAccessed();
+            }
             result = normalizeVNode(render.length > 1
                 ? render(props, (\\"production\\" !== 'production')
                     ? {
@@ -10665,7 +10669,10 @@ function renderComponentRoot(instance) {
         // to have comments along side the root element which makes it a fragment
         let root = result;
         let setRoot = undefined;
-        if ((\\"production\\" !== 'production')) ;
+        if ((\\"production\\" !== 'production')) {
+            ;
+            [root, setRoot] = getChildRoot(result);
+        }
         if (Component.inheritAttrs !== false && fallthroughAttrs) {
             const keys = Object.keys(fallthroughAttrs);
             const { shapeFlag } = root;
@@ -10681,20 +10688,60 @@ function renderComponentRoot(instance) {
                     }
                     root = cloneVNode(root, fallthroughAttrs);
                 }
-                else if ((\\"production\\" !== 'production') && !accessedAttrs && root.type !== Comment) ;
+                else if ((\\"production\\" !== 'production') && !accessedAttrs && root.type !== Comment) {
+                    const allAttrs = Object.keys(attrs);
+                    const eventAttrs = [];
+                    const extraAttrs = [];
+                    for (let i = 0, l = allAttrs.length; i < l; i++) {
+                        const key = allAttrs[i];
+                        if (isOn(key)) {
+                            // ignore v-model handlers when they fail to fallthrough
+                            if (!isModelListener(key)) {
+                                // remove \`on\`, lowercase first letter to reflect event casing
+                                // accurately
+                                eventAttrs.push(key[2].toLowerCase() + key.slice(3));
+                            }
+                        }
+                        else {
+                            extraAttrs.push(key);
+                        }
+                    }
+                    if (extraAttrs.length) {
+                        warn(\`Extraneous non-props attributes (\` +
+                            \`\${extraAttrs.join(', ')}) \` +
+                            \`were passed to component but could not be automatically inherited \` +
+                            \`because component renders fragment or text root nodes.\`);
+                    }
+                    if (eventAttrs.length) {
+                        warn(\`Extraneous non-emits event listeners (\` +
+                            \`\${eventAttrs.join(', ')}) \` +
+                            \`were passed to component but could not be automatically inherited \` +
+                            \`because component renders fragment or text root nodes. \` +
+                            \`If the listener is intended to be a component custom event listener only, \` +
+                            \`declare it using the \\"emits\\" option.\`);
+                    }
+                }
             }
         }
         // inherit directives
         if (vnode.dirs) {
-            if ((\\"production\\" !== 'production') && !isElementRoot(root)) ;
+            if ((\\"production\\" !== 'production') && !isElementRoot(root)) {
+                warn(\`Runtime directive used on component with non-element root node. \` +
+                    \`The directives will not function as intended.\`);
+            }
             root.dirs = vnode.dirs;
         }
         // inherit transition data
         if (vnode.transition) {
-            if ((\\"production\\" !== 'production') && !isElementRoot(root)) ;
+            if ((\\"production\\" !== 'production') && !isElementRoot(root)) {
+                warn(\`Component inside <Transition> renders non-element root node \` +
+                    \`that cannot be animated.\`);
+            }
             root.transition = vnode.transition;
         }
-        if ((\\"production\\" !== 'production') && setRoot) ;
+        if ((\\"production\\" !== 'production') && setRoot) {
+            setRoot(root);
+        }
         else {
             result = root;
         }
@@ -14238,4 +14285,226 @@ function normalizeContainer(container) {
     return container;
 }
 export { createApp, createBlock, createTextVNode, createVNode, openBlock, toDisplayString };"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/App.css 1`] = `
+"
+.App {
+  text-align: center;
+}
+.App-header {
+  background-color: #f9f6f6;
+  color: #32485f;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+}
+.App-link {
+  color: #00c185;
+}
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+  margin-bottom: 1rem;
+  animation: App-logo-spin infinite 1.6s ease-in-out alternate;
+}
+.App-tsx {
+  display: flex;
+}
+.App-tsx > div {
+  margin-left: 30px;
+  font-size: 16px;
+}
+@keyframes App-logo-spin {
+from {
+    transform: scale(1);
+}
+to {
+    transform: scale(1.06);
+}
+}"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/App.css.proxy.js 1`] = `
+"const code=\`
+.App {
+  text-align: center;
+}
+.App-header {
+  background-color: #f9f6f6;
+  color: #32485f;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+}
+.App-link {
+  color: #00c185;
+}
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+  margin-bottom: 1rem;
+  animation: App-logo-spin infinite 1.6s ease-in-out alternate;
+}
+.App-tsx {
+  display: flex;
+}
+.App-tsx > div {
+  margin-left: 30px;
+  font-size: 16px;
+}
+@keyframes App-logo-spin {
+from {
+    transform: scale(1);
+}
+to {
+    transform: scale(1.06);
+}
+}
+\`,styleEl=document.createElement(\\"style\\"),codeEl=document.createTextNode(code);styleEl.type=\\"text/css\\",styleEl.appendChild(codeEl),document.head.appendChild(styleEl);"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/App.js 1`] = `"import\\"./App.css.proxy.js\\";import{defineComponent as c,reactive as l}from\\"../web_modules/vue.js\\";import m from\\"./components/FooTsx.js\\";import d from\\"./components/Foo.js\\";import i from\\"./components/BarJsx.js\\";import x from\\"./components/Bar.js\\";const t=c({components:{FooTsxVue:m,FooTsx:d,BarJsxVue:i,BarJsx:x},setup(){const s=l({message:\\"Learn Vue\\"});return{state:s}}});import{createVNode as o,createTextVNode as r,resolveComponent as e,toDisplayString as u,openBlock as B,createBlock as f}from\\"../web_modules/vue.js\\";const g={class:\\"App\\"},h={class:\\"App-header\\"},V=o(\\"img\\",{src:\\"/logo.svg\\",class:\\"App-logo\\",alt:\\"logo\\"},null,-1),v=o(\\"p\\",null,[r(\\" Edit \\"),o(\\"code\\",null,\\"src/App.vue\\"),r(\\" and save to reload. \\")],-1),T={class:\\"App-tsx\\"},F={class:\\"App-link\\",href:\\"https://vuejs.org\\",target:\\"_blank\\",rel:\\"noopener noreferrer\\"};export function render(s,j){const n=e(\\"FooTsxVue\\"),_=e(\\"FooTsx\\"),a=e(\\"BarJsxVue\\"),p=e(\\"BarJsx\\");return B(),f(\\"div\\",g,[o(\\"header\\",h,[V,v,o(\\"p\\",T,[o(n),o(_),o(a),o(p)]),o(\\"a\\",F,u(s.state.message),1)])])}t.render=render;export default t;"`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/Bar.js 1`] = `"import{Fragment as t}from\\"../../web_modules/vue.js\\";import{createVNode as o,isVNode as m}from\\"../../web_modules/vue.js\\";const a=Array.prototype.slice;export function jsx(e,r=null,s=null){return(arguments.length>3||m(s))&&(s=a.call(arguments,2)),o(e,r,s)}import{defineComponent as n,reactive as u}from\\"../../web_modules/vue.js\\";import l from\\"./Bar.module.css.proxy.js\\";export default n({name:\\"BarJsx\\",setup(){const e=u({name:\\"BarJsx\\"});return()=>jsx(t,null,jsx(\\"div\\",{className:l[\\"bar-jsx\\"]},e.name))}});"`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/Bar.module.css 1`] = `
+".bar-jsx {
+  color: red;
+}"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/Bar.module.css.proxy.js 1`] = `
+"export let code=\`._dist_components_Bar_module__bar-jsx {
+  color: red;
+}
+\`;let t={\\"bar-jsx\\":\\"_dist_components_Bar_module__bar-jsx\\"};export default t;const e=document.createElement(\\"style\\"),o=document.createTextNode(code);e.type=\\"text/css\\",e.appendChild(o),document.head.appendChild(e);"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/BarJsx.css 1`] = `
+"
+.bar-jsx-vue {
+  color: red;
+}"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/BarJsx.css.proxy.js 1`] = `
+"const code=\`
+.bar-jsx-vue {
+  color: red;
+}
+\`,styleEl=document.createElement(\\"style\\"),codeEl=document.createTextNode(code);styleEl.type=\\"text/css\\",styleEl.appendChild(codeEl),document.head.appendChild(styleEl);"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/BarJsx.js 1`] = `"import\\"./BarJsx.css.proxy.js\\";import{Fragment as t}from\\"../../web_modules/vue.js\\";import{createVNode as o,isVNode as u}from\\"../../web_modules/vue.js\\";const a=Array.prototype.slice;export function jsx(e,r=null,s=null){return(arguments.length>3||u(s))&&(s=a.call(arguments,2)),o(e,r,s)}import{defineComponent as m,reactive as n}from\\"../../web_modules/vue.js\\";export default m({name:\\"BarJsxVue\\",setup(){const e=n({name:\\"BarJsxVue\\"});return()=>jsx(t,null,jsx(\\"div\\",{className:\\"bar-jsx-vue\\"},e.name))}});"`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/Foo.js 1`] = `"import{Fragment as t}from\\"../../web_modules/vue.js\\";import{createVNode as r,isVNode as m}from\\"../../web_modules/vue.js\\";const n=Array.prototype.slice;export function jsx(e,s=null,o=null){return(arguments.length>3||m(o))&&(o=n.call(arguments,2)),r(e,s,o)}import{defineComponent as u,reactive as l}from\\"../../web_modules/vue.js\\";import a from\\"./Foo.module.css.proxy.js\\";export default u({name:\\"FooTsx\\",setup(){const e=l({name:\\"FooTsx\\"});return()=>jsx(t,null,jsx(\\"div\\",{className:a[\\"foo-tsx\\"]},e.name))}});"`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/Foo.module.css 1`] = `
+".foo-tsx {
+    color: green;
+}"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/Foo.module.css.proxy.js 1`] = `
+"export let code=\`._dist_components_Foo_module__foo-tsx {
+    color: green;
+}\`;let o={\\"foo-tsx\\":\\"_dist_components_Foo_module__foo-tsx\\"};export default o;const e=document.createElement(\\"style\\"),t=document.createTextNode(code);e.type=\\"text/css\\",e.appendChild(t),document.head.appendChild(e);"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/FooTsx.css 1`] = `
+"
+.foo-tsx-vue {
+  color: green;
+}"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/FooTsx.css.proxy.js 1`] = `
+"const code=\`
+.foo-tsx-vue {
+  color: green;
+}
+\`,styleEl=document.createElement(\\"style\\"),codeEl=document.createTextNode(code);styleEl.type=\\"text/css\\",styleEl.appendChild(codeEl),document.head.appendChild(styleEl);"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/FooTsx.js 1`] = `"import\\"./FooTsx.css.proxy.js\\";import{Fragment as t}from\\"../../web_modules/vue.js\\";import{createVNode as r,isVNode as u}from\\"../../web_modules/vue.js\\";const m=Array.prototype.slice;export function jsx(e,s=null,o=null){return(arguments.length>3||u(o))&&(o=m.call(arguments,2)),r(e,s,o)}import{defineComponent as n,reactive as a}from\\"../../web_modules/vue.js\\";export default n({name:\\"FooTsxVue\\",setup(){const e=a({name:\\"FooTsxVue\\"});return()=>jsx(t,null,jsx(\\"div\\",{className:\\"foo-tsx-vue\\"},e.name))}});"`;
+
+exports[`create-snowpack-app app-template-vue-typescript: _dist_/index.js 1`] = `"import o from\\"../__snowpack__/env.js\\";import.meta.env=o;import{createApp as t}from\\"../web_modules/vue.js\\";import p from\\"./App.js\\";const e=t(p);e.mount(\\"#app\\"),import.meta.hot&&(import.meta.hot.accept(),import.meta.hot.dispose(()=>{e.unmount()}));"`;
+
+exports[`create-snowpack-app app-template-vue-typescript: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "_dist_/App.css",
+  "_dist_/App.css.proxy.js",
+  "_dist_/App.js",
+  "_dist_/components/Bar.js",
+  "_dist_/components/Bar.module.css",
+  "_dist_/components/Bar.module.css.proxy.js",
+  "_dist_/components/BarJsx.css",
+  "_dist_/components/BarJsx.css.proxy.js",
+  "_dist_/components/BarJsx.js",
+  "_dist_/components/Foo.js",
+  "_dist_/components/Foo.module.css",
+  "_dist_/components/Foo.module.css.proxy.js",
+  "_dist_/components/FooTsx.css",
+  "_dist_/components/FooTsx.css.proxy.js",
+  "_dist_/components/FooTsx.js",
+  "_dist_/index.js",
+  "favicon-32x32.png",
+  "favicon.ico",
+  "index.html",
+  "logo.svg",
+  "robots.txt",
+  "web_modules/import-map.json",
+  "web_modules/vue.js",
+]
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: index.html 1`] = `
+"<!DOCTYPE html>
+<html lang=\\"en\\">
+  <head>
+    <meta charset=\\"utf-8\\" />
+    <link rel=\\"icon\\" type=\\"image/png\\" sizes=\\"32x32\\" href=\\"/favicon-32x32.png\\">
+    <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
+    <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
+    <title>Snowpack App</title>
+  </head>
+  <body>
+    <div id=\\"app\\"></div>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+      To begin the development, run \`npm start\` or \`yarn start\`.
+      To create a production bundle, use \`npm run build\` or \`yarn build\`.
+    -->
+  </body>
+</html>"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: web_modules/import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"vue\\": \\"./vue.js\\"
+  }
+}"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript: web_modules/vue.js 1`] = `
+"function xn(){throw new Error(\\"setTimeout has not been defined\\")}function In(){throw new Error(\\"clearTimeout has not been defined\\")}var ue=xn,de=In;typeof window.setTimeout==\\"function\\"&&(ue=setTimeout),typeof window.clearTimeout==\\"function\\"&&(de=clearTimeout);function Nn(e){if(ue===setTimeout)return setTimeout(e,0);if((ue===xn||!ue)&&setTimeout)return ue=setTimeout,setTimeout(e,0);try{return ue(e,0)}catch(t){try{return ue.call(null,e,0)}catch(n){return ue.call(this,e,0)}}}function os(e){if(de===clearTimeout)return clearTimeout(e);if((de===In||!de)&&clearTimeout)return de=clearTimeout,clearTimeout(e);try{return de(e)}catch(t){try{return de.call(null,e)}catch(n){return de.call(this,e)}}}var le=[],ke=!1,we,it=-1;function ss(){if(!ke||!we)return;ke=!1,we.length?le=we.concat(le):it=-1,le.length&&Pn()}function Pn(){if(ke)return;var e=Nn(ss);ke=!0;for(var t=le.length;t;){for(we=le,le=[];++it<t;)we&&we[it].run();it=-1,t=le.length}we=null,ke=!1,os(e)}function rs(e){var t=new Array(arguments.length-1);if(arguments.length>1)for(var n=1;n<arguments.length;n++)t[n-1]=arguments[n];le.push(new An(e,t)),le.length===1&&!ke&&Nn(Pn)}function An(e,t){this.fun=e,this.array=t}An.prototype.run=function(){this.fun.apply(null,this.array)};var is=\\"browser\\",ls=\\"browser\\",as=!0,cs=[],fs=\\"\\",us={},ds={},hs={};function ve(){}var ps=ve,ms=ve,gs=ve,bs=ve,_s=ve,ys=ve,Es=ve;function ws(e){throw new Error(\\"process.binding is not supported\\")}function vs(){return\\"/\\"}function Ts(e){throw new Error(\\"process.chdir is not supported\\")}function Os(){return 0}var De=window.performance||{},Rs=De.now||De.mozNow||De.msNow||De.oNow||De.webkitNow||function(){return new Date().getTime()};function xs(e){var t=Rs.call(De)*.001,n=Math.floor(t),o=Math.floor(t%1*1e9);return e&&(n=n-e[0],o=o-e[1],o<0&&(n--,o+=1e9)),[n,o]}var Is=new Date();function Ns(){var e=new Date(),t=e-Is;return t/1e3}var he={nextTick:rs,title:is,browser:as,env:{NODE_ENV:\\"production\\"},argv:cs,version:fs,versions:us,on:ps,addListener:ms,once:gs,off:bs,removeListener:_s,removeAllListeners:ys,emit:Es,binding:ws,cwd:vs,chdir:Ts,umask:Os,hrtime:xs,platform:ls,release:ds,config:hs,uptime:Ns};function It(e,t){const n=Object.create(null),o=e.split(\\",\\");for(let s=0;s<o.length;s++)n[o[s]]=!0;return t?s=>!!n[s.toLowerCase()]:s=>!!n[s]}const Ps=\\"Infinity,undefined,NaN,isFinite,isNaN,parseFloat,parseInt,decodeURI,decodeURIComponent,encodeURI,encodeURIComponent,Math,Number,Date,Array,Object,Boolean,String,RegExp,Map,Set,JSON,Intl\\",As=It(Ps),Cs=\\"itemscope,allowfullscreen,formnovalidate,ismap,nomodule,novalidate,readonly\\",Ss=It(Cs);function Nt(e){if(k(e)){const t={};for(let n=0;n<e.length;n++){const o=e[n],s=Nt(z(o)?Ds(o):o);if(s)for(const r in s)t[r]=s[r]}return t}else if(K(e))return e}const Ls=/;(?![^(]*\\\\))/g,ks=/:(.+)/;function Ds(e){const t={};return e.split(Ls).forEach(n=>{if(n){const o=n.split(ks);o.length>1&&(t[o[0].trim()]=o[1].trim())}}),t}function Pt(e){let t=\\"\\";if(z(e))t=e;else if(k(e))for(let n=0;n<e.length;n++)t+=Pt(e[n])+\\" \\";else if(K(e))for(const n in e)e[n]&&(t+=n+\\" \\");return t.trim()}const L={},lt=[],pe=()=>{},Cn=()=>!1,Ms=/^on[^a-z]/,at=e=>Ms.test(e),At=e=>e.startsWith(\\"onUpdate:\\"),V=Object.assign,Sn=(e,t)=>{const n=e.indexOf(t);n>-1&&e.splice(n,1)},Us=Object.prototype.hasOwnProperty,P=(e,t)=>Us.call(e,t),k=Array.isArray,I=e=>typeof e==\\"function\\",z=e=>typeof e==\\"string\\",Ct=e=>typeof e==\\"symbol\\",K=e=>e!==null&&typeof e==\\"object\\",Ln=e=>K(e)&&I(e.then)&&I(e.catch),Fs=Object.prototype.toString,Hs=e=>Fs.call(e),js=e=>Hs(e).slice(8,-1),St=e=>z(e)&&e[0]!==\\"-\\"&&\\"\\"+parseInt(e,10)===e,ct=It(\\"key,ref,onVnodeBeforeMount,onVnodeMounted,onVnodeBeforeUpdate,onVnodeUpdated,onVnodeBeforeUnmount,onVnodeUnmounted\\"),Lt=e=>{const t=Object.create(null);return n=>{const o=t[n];return o||(t[n]=e(n))}},Vs=/-(\\\\w)/g,Ke=Lt(e=>e.replace(Vs,(t,n)=>n?n.toUpperCase():\\"\\")),$s=/\\\\B([A-Z])/g,ft=Lt(e=>e.replace($s,\\"-$1\\").toLowerCase()),kt=Lt(e=>e.charAt(0).toUpperCase()+e.slice(1)),Dt=(e,t)=>e!==t&&(e===e||t===t),Mt=(e,t)=>{for(let n=0;n<e.length;n++)e[n](t)},Ut=(e,t,n)=>{Object.defineProperty(e,t,{configurable:!0,enumerable:!1,value:n})};let kn;const Dn=()=>kn||(kn=typeof globalThis!=\\"undefined\\"?globalThis:typeof self!=\\"undefined\\"?self:typeof window!=\\"undefined\\"?window:typeof global!=\\"undefined\\"?global:{}),Ft=new WeakMap(),We=[];let Te;const qe=Symbol(\\"\\"),Mn=Symbol(\\"\\");function Bs(e){return e&&e._isEffect===!0}function Ht(e,t=L){Bs(e)&&(e=e.raw);const n=Ws(e,t);return t.lazy||n(),n}function jt(e){e.active&&(Un(e),e.options.onStop&&e.options.onStop(),e.active=!1)}let Ks=0;function Ws(e,t){const n=function(){if(!n.active)return t.scheduler?void 0:e();if(!We.includes(n)){Un(n);try{return qs(),We.push(n),Te=n,e()}finally{We.pop(),ut(),Te=We[We.length-1]}}};return n.id=Ks++,n._isEffect=!0,n.active=!0,n.raw=e,n.deps=[],n.options=t,n}function Un(e){const{deps:t}=e;if(t.length){for(let n=0;n<t.length;n++)t[n].delete(e);t.length=0}}let Me=!0;const Vt=[];function $t(){Vt.push(Me),Me=!1}function qs(){Vt.push(Me),Me=!0}function ut(){const e=Vt.pop();Me=e===void 0?!0:e}function J(e,t,n){if(!Me||Te===void 0)return;let o=Ft.get(e);o||Ft.set(e,o=new Map());let s=o.get(n);s||o.set(n,s=new Set()),s.has(Te)||(s.add(Te),Te.deps.push(s))}function ne(e,t,n,o,s,r){const l=Ft.get(e);if(!l)return;const c=new Set(),u=b=>{b&&b.forEach(E=>{E!==Te&&c.add(E)})};if(t===\\"clear\\")l.forEach(u);else if(n===\\"length\\"&&k(e))l.forEach((b,E)=>{(E===\\"length\\"||E>=o)&&u(b)});else{n!==void 0&&u(l.get(n));const b=t===\\"add\\"&&(!k(e)||St(n))||t===\\"delete\\"&&!k(e);(b||t===\\"set\\"&&e instanceof Map)&&u(l.get(k(e)?\\"length\\":qe)),b&&e instanceof Map&&u(l.get(Mn))}const g=b=>{b.options.scheduler?b.options.scheduler(b):b()};c.forEach(g)}const Fn=new Set(Object.getOwnPropertyNames(Symbol).map(e=>Symbol[e]).filter(Ct)),zs=dt(),Ys=dt(!1,!0),Xs=dt(!0),Js=dt(!0,!0),Bt={};[\\"includes\\",\\"indexOf\\",\\"lastIndexOf\\"].forEach(e=>{Bt[e]=function(...t){const n=D(this);for(let s=0,r=this.length;s<r;s++)J(n,\\"get\\",s+\\"\\");const o=n[e](...t);return o===-1||o===!1?n[e](...t.map(D)):o}});function dt(e=!1,t=!1){return function(o,s,r){if(s===\\"__v_isReactive\\")return!e;if(s===\\"__v_isReadonly\\")return e;if(s===\\"__v_raw\\"&&r===(e?Jn:Xn).get(o))return o;const l=k(o);if(l&&P(Bt,s))return Reflect.get(Bt,s,r);const c=Reflect.get(o,s,r),u=Ct(s);if(u?Fn.has(s):s===\\"__proto__\\"||s===\\"__v_isRef\\")return c;if(e||J(o,\\"get\\",s),t)return c;if(Z(c)){const g=!l||!St(s);return g?c.value:c}return K(c)?e?Zn(c):pt(c):c}}const Zs=Hn(),Qs=Hn(!0);function Hn(e=!1){return function(n,o,s,r){const l=n[o];if(!e&&(s=D(s),!k(n)&&Z(l)&&!Z(s)))return l.value=s,!0;const c=k(n)&&St(o)?Number(o)<n.length:P(n,o),u=Reflect.set(n,o,s,r);return n===D(r)&&(c?Dt(s,l)&&ne(n,\\"set\\",o,s):ne(n,\\"add\\",o,s)),u}}function Gs(e,t){const n=P(e,t),o=e[t],s=Reflect.deleteProperty(e,t);return s&&n&&ne(e,\\"delete\\",t,void 0),s}function er(e,t){const n=Reflect.has(e,t);return(!Ct(t)||!Fn.has(t))&&J(e,\\"has\\",t),n}function tr(e){return J(e,\\"iterate\\",qe),Reflect.ownKeys(e)}const jn={get:zs,set:Zs,deleteProperty:Gs,has:er,ownKeys:tr},Vn={get:Xs,set(e,t){return!0},deleteProperty(e,t){return!0}},nr=V({},jn,{get:Ys,set:Qs}),Ji=V({},Vn,{get:Js}),Kt=e=>K(e)?pt(e):e,Wt=e=>K(e)?Zn(e):e,qt=e=>e,ze=e=>Reflect.getPrototypeOf(e);function zt(e,t,n=!1,o=!1){e=e.__v_raw;const s=D(e),r=D(t);t!==r&&(!n&&J(s,\\"get\\",t)),!n&&J(s,\\"get\\",r);const{has:l}=ze(s),c=n?Wt:o?qt:Kt;if(l.call(s,t))return c(e.get(t));if(l.call(s,r))return c(e.get(r))}function Yt(e,t=!1){const n=this.__v_raw,o=D(n),s=D(e);return e!==s&&(!t&&J(o,\\"has\\",e)),!t&&J(o,\\"has\\",s),e===s?n.has(e):n.has(e)||n.has(s)}function Xt(e,t=!1){return e=e.__v_raw,!t&&J(D(e),\\"iterate\\",qe),Reflect.get(e,\\"size\\",e)}function $n(e){e=D(e);const t=D(this),n=ze(t),o=n.has.call(t,e),s=n.add.call(t,e);return o||ne(t,\\"add\\",e,e),s}function Bn(e,t){t=D(t);const n=D(this),{has:o,get:s,set:r}=ze(n);let l=o.call(n,e);l||(e=D(e),l=o.call(n,e));const c=s.call(n,e),u=r.call(n,e,t);return l?Dt(t,c)&&ne(n,\\"set\\",e,t):ne(n,\\"add\\",e,t),u}function Kn(e){const t=D(this),{has:n,get:o,delete:s}=ze(t);let r=n.call(t,e);r||(e=D(e),r=n.call(t,e));const l=o?o.call(t,e):void 0,c=s.call(t,e);return r&&ne(t,\\"delete\\",e,void 0),c}function Wn(){const e=D(this),t=e.size!==0,n=ze(e).clear.call(e);return t&&ne(e,\\"clear\\",void 0,void 0),n}function Jt(e,t){return function(o,s){const r=this,l=r.__v_raw,c=D(l),u=e?Wt:t?qt:Kt;return!e&&J(c,\\"iterate\\",qe),l.forEach((g,b)=>o.call(s,u(g),u(b),r))}}function Zt(e,t,n){return function(...o){const s=this.__v_raw,r=D(s),l=r instanceof Map,c=e===\\"entries\\"||e===Symbol.iterator&&l,u=e===\\"keys\\"&&l,g=s[e](...o),b=t?Wt:n?qt:Kt;return!t&&J(r,\\"iterate\\",u?Mn:qe),{next(){const{value:E,done:x}=g.next();return x?{value:E,done:x}:{value:c?[b(E[0]),b(E[1])]:b(E),done:x}},[Symbol.iterator](){return this}}}}function ht(e){return function(...t){return e===\\"delete\\"?!1:this}}const qn={get(e){return zt(this,e)},get size(){return Xt(this)},has:Yt,add:$n,set:Bn,delete:Kn,clear:Wn,forEach:Jt(!1,!1)},zn={get(e){return zt(this,e,!1,!0)},get size(){return Xt(this)},has:Yt,add:$n,set:Bn,delete:Kn,clear:Wn,forEach:Jt(!1,!0)},Yn={get(e){return zt(this,e,!0)},get size(){return Xt(this,!0)},has(e){return Yt.call(this,e,!0)},add:ht(\\"add\\"),set:ht(\\"set\\"),delete:ht(\\"delete\\"),clear:ht(\\"clear\\"),forEach:Jt(!0,!1)},or=[\\"keys\\",\\"values\\",\\"entries\\",Symbol.iterator];or.forEach(e=>{qn[e]=Zt(e,!1,!1),Yn[e]=Zt(e,!0,!1),zn[e]=Zt(e,!1,!0)});function Qt(e,t){const n=t?zn:e?Yn:qn;return(o,s,r)=>s===\\"__v_isReactive\\"?!e:s===\\"__v_isReadonly\\"?e:s===\\"__v_raw\\"?o:Reflect.get(P(n,s)&&s in o?n:o,s,r)}const sr={get:Qt(!1,!1)},rr={get:Qt(!1,!0)},ir={get:Qt(!0,!1)},Xn=new WeakMap(),Jn=new WeakMap();function lr(e){switch(e){case\\"Object\\":case\\"Array\\":return 1;case\\"Map\\":case\\"Set\\":case\\"WeakMap\\":case\\"WeakSet\\":return 2;default:return 0}}function ar(e){return e.__v_skip||!Object.isExtensible(e)?0:lr(js(e))}function pt(e){return e&&e.__v_isReadonly?e:Gt(e,!1,jn,sr)}function cr(e){return Gt(e,!1,nr,rr)}function Zn(e){return Gt(e,!0,Vn,ir)}function Gt(e,t,n,o){if(!K(e))return e;if(e.__v_raw&&!(t&&e.__v_isReactive))return e;const s=t?Jn:Xn,r=s.get(e);if(r)return r;const l=ar(e);if(l===0)return e;const c=new Proxy(e,l===2?o:n);return s.set(e,c),c}function Ye(e){return Qn(e)?Ye(e.__v_raw):!!(e&&e.__v_isReactive)}function Qn(e){return!!(e&&e.__v_isReadonly)}function Gn(e){return Ye(e)||Qn(e)}function D(e){return e&&D(e.__v_raw)||e}function Z(e){return Boolean(e&&e.__v_isRef===!0)}function fr(e){return Z(e)?e.value:e}const ur={get:(e,t,n)=>fr(Reflect.get(e,t,n)),set:(e,t,n,o)=>{const s=e[t];return Z(s)&&!Z(n)?(s.value=n,!0):Reflect.set(e,t,n,o)}};function dr(e){return Ye(e)?e:new Proxy(e,ur)}class hr{constructor(e,t,n){this._setter=t,this._dirty=!0,this.__v_isRef=!0,this.effect=Ht(e,{lazy:!0,scheduler:()=>{this._dirty||(this._dirty=!0,ne(D(this),\\"set\\",\\"value\\"))}}),this.__v_isReadonly=n}get value(){return this._dirty&&(this._value=this.effect(),this._dirty=!1),J(D(this),\\"get\\",\\"value\\"),this._value}set value(e){this._setter(e)}}function pr(e){let t,n;return I(e)?(t=e,n=pe):(t=e.get,n=e.set),new hr(t,n,I(e)||!e.set)}const Xe=[];function Zi(e,...t){$t();const n=Xe.length?Xe[Xe.length-1].component:null,o=n&&n.appContext.config.warnHandler,s=mr();if(o)oe(o,n,11,[e+t.join(\\"\\"),n&&n.proxy,s.map(({vnode:r})=>\`at <\${Ko(n,r.type)}>\`).join(\`
+\`),s]);else{const r=[\`[Vue warn]: \${e}\`,...t];s.length&&!0&&r.push(\`
+\`,...gr(s)),console.warn(...r)}ut()}function mr(){let e=Xe[Xe.length-1];if(!e)return[];const t=[];for(;e;){const n=t[0];n&&n.vnode===e?n.recurseCount++:t.push({vnode:e,recurseCount:0});const o=e.component&&e.component.parent;e=o&&o.vnode}return t}function gr(e){const t=[];return e.forEach((n,o)=>{t.push(...o===0?[]:[\`
+\`],...br(n))}),t}function br({vnode:e,recurseCount:t}){const n=t>0?\`... (\${t} recursive calls)\`:\\"\\",o=e.component?e.component.parent==null:!1,s=\` at <\${Ko(e.component,e.type,o)}\`,r=\\">\\"+n;return e.props?[s,..._r(e.props),r]:[s+r]}function _r(e){const t=[],n=Object.keys(e);return n.slice(0,3).forEach(o=>{t.push(...eo(o,e[o]))}),n.length>3&&t.push(\\" ...\\"),t}function eo(e,t,n){return z(t)?(t=JSON.stringify(t),n?t:[\`\${e}=\${t}\`]):typeof t==\\"number\\"||typeof t==\\"boolean\\"||t==null?n?t:[\`\${e}=\${t}\`]:Z(t)?(t=eo(e,D(t.value),!0),n?t:[\`\${e}=Ref<\`,t,\\">\\"]):I(t)?[\`\${e}=fn\${t.name?\`<\${t.name}>\`:\\"\\"}\`]:(t=D(t),n?t:[\`\${e}=\`,t])}function oe(e,t,n,o){let s;try{s=o?e(...o):e()}catch(r){en(r,t,n)}return s}function Oe(e,t,n,o){if(I(e)){const r=oe(e,t,n,o);return r&&Ln(r)&&r.catch(l=>{en(l,t,n)}),r}const s=[];for(let r=0;r<e.length;r++)s.push(Oe(e[r],t,n,o));return s}function en(e,t,n){const o=t?t.vnode:null;if(t){let s=t.parent;const r=t.proxy,l=n;for(;s;){const u=s.ec;if(u){for(let g=0;g<u.length;g++)if(u[g](e,r,l))return}s=s.parent}const c=t.appContext.config.errorHandler;if(c){oe(c,null,10,[e,r,l]);return}}yr(e)}function yr(e,t,n){console.error(e)}let mt=!1,tn=!1;const se=[];let Re=0;const gt=[];let Je=null,Ue=0;const Ze=[];let me=null,Fe=0;const to=Promise.resolve();let nn=null,on=null;const Er=100;function wr(e){const t=nn||to;return e?t.then(e):t}function no(e){(!se.length||!se.includes(e,mt&&e.allowRecurse?Re+1:Re))&&e!==on&&(se.push(e),oo())}function oo(){!mt&&!tn&&(tn=!0,nn=to.then(io))}function vr(e){const t=se.indexOf(e);t>-1&&(se[t]=null)}function so(e,t,n,o){k(e)?n.push(...e):(!t||!t.includes(e,e.allowRecurse?o+1:o))&&n.push(e),oo()}function Tr(e){so(e,Je,gt,Ue)}function Or(e){so(e,me,Ze,Fe)}function sn(e,t=null){if(gt.length){for(on=t,Je=[...new Set(gt)],gt.length=0,Ue=0;Ue<Je.length;Ue++)Je[Ue]();Je=null,Ue=0,on=null,sn(e,t)}}function ro(e){if(Ze.length){const t=[...new Set(Ze)];if(Ze.length=0,me){me.push(...t);return}for(me=t,me.sort((n,o)=>bt(n)-bt(o)),Fe=0;Fe<me.length;Fe++)me[Fe]();me=null,Fe=0}}const bt=e=>e.id==null?Infinity:e.id;function io(e){tn=!1,mt=!0,sn(e),se.sort((t,n)=>bt(t)-bt(n));try{for(Re=0;Re<se.length;Re++){const t=se[Re];t&&(he.env.NODE_ENV!==\\"production\\",oe(t,null,14))}}finally{Re=0,se.length=0,ro(),mt=!1,nn=null,(se.length||Ze.length)&&io(e)}}function Qi(e,t){if(!e.has(t))e.set(t,1);else{const n=e.get(t);if(n>Er)throw new Error(\\"Maximum recursive updates exceeded. This means you have a reactive effect that is mutating its own dependencies and thus recursively triggering itself. Possible sources include component template, render function, updated hook or watcher source function.\\");e.set(t,n+1)}}let G=null;function lo(e){G=e}let ao=!1;function Rr(){ao=!0}function co(e){const{type:t,vnode:n,proxy:o,withProxy:s,props:r,propsOptions:[l],slots:c,attrs:u,emit:g,render:b,renderCache:E,data:x,setupState:A,ctx:$}=e;let U;G=e;try{let R;if(n.shapeFlag&4){const q=s||o;U=ee(b.call(q,q,E,r,A,x,$)),R=u}else{const q=t;he.env.NODE_ENV!==\\"production\\"&&u===r,U=ee(q.length>1?q(r,he.env.NODE_ENV!==\\"production\\"?{get attrs(){return Rr(),u},slots:c,emit:g}:{attrs:u,slots:c,emit:g}):q(r,null)),R=t.props?u:xr(u)}let W=U,ye;if(he.env.NODE_ENV!==\\"production\\",t.inheritAttrs!==!1&&R){const q=Object.keys(R),{shapeFlag:Ee}=W;q.length&&(Ee&1||Ee&6?(l&&q.some(At)&&(R=Ir(R,l)),W=wt(W,R)):he.env.NODE_ENV!==\\"production\\"&&!ao&&W.type!==be)}n.dirs&&(he.env.NODE_ENV!==\\"production\\"&&!fo(W),W.dirs=n.dirs),n.transition&&(he.env.NODE_ENV!==\\"production\\"&&!fo(W),W.transition=n.transition),he.env.NODE_ENV!==\\"production\\"&&ye||(U=W)}catch(R){en(R,e,1),U=xe(be)}return G=null,U}const Gi=e=>{if(e.type!==ge)return[e,void 0];const t=e.children,n=e.dynamicChildren,o=t.filter(u=>!(po(u)&&u.type===be&&u.children!==\\"v-if\\"));if(o.length!==1)return[e,void 0];const s=o[0],r=t.indexOf(s),l=n?n.indexOf(s):-1,c=u=>{t[r]=u,l>-1?n[l]=u:n&&u.patchFlag>0&&n.push(u)};return[ee(s),c]},xr=e=>{let t;for(const n in e)(n===\\"class\\"||n===\\"style\\"||at(n))&&((t||(t={}))[n]=e[n]);return t},Ir=(e,t)=>{const n={};for(const o in e)(!At(o)||!(o.slice(9)in t))&&(n[o]=e[o]);return n},fo=e=>e.shapeFlag&6||e.shapeFlag&1||e.type===be;function Nr(e,t,n){const{props:o,children:s}=e,{props:r,children:l,patchFlag:c}=t;if(t.dirs||t.transition)return!0;if(n&&c>0){if(c&1024)return!0;if(c&16)return o?uo(o,r):!!r;if(c&8){const u=t.dynamicProps;for(let g=0;g<u.length;g++){const b=u[g];if(r[b]!==o[b])return!0}}}else return(s||l)&&(!l||!l.$stable)?!0:o===r?!1:o?r?uo(o,r):!0:!!r;return!1}function uo(e,t){const n=Object.keys(t);if(n.length!==Object.keys(e).length)return!0;for(let o=0;o<n.length;o++){const s=n[o];if(t[s]!==e[s])return!0}return!1}function Pr({vnode:e,parent:t},n){for(;t&&t.subTree===e;)(e=t.vnode).el=n,t=t.parent}const Ar=e=>e.__isSuspense;function Cr(e,t){t&&!t.isResolved?k(e)?t.effects.push(...e):t.effects.push(e):Or(e)}let rn=0;const ho=e=>rn+=e;function Sr(e,t=G){if(!t)return e;const n=(...o)=>{rn||Ur(!0);const s=G;lo(t);const r=e(...o);return lo(s),rn||Fr(),r};return n._c=!0,n}let Lr=null;const kr=e=>e.__isTeleport,Dr=Symbol(),ge=Symbol(void 0),ln=Symbol(void 0),be=Symbol(void 0),Mr=Symbol(void 0),_t=[];let yt=null;function Ur(e=!1){_t.push(yt=e?null:[])}function Fr(){_t.pop(),yt=_t[_t.length-1]||null}function po(e){return e?e.__v_isVNode===!0:!1}function Qe(e,t){return e.type===t.type&&e.key===t.key}const Et=\\"__vInternal\\",mo=({key:e})=>e??null,go=({ref:e})=>e!=null?k(e)?e:[G,e]:null,xe=Hr;function Hr(e,t=null,n=null,o=0,s=null,r=!1){if((!e||e===Dr)&&(e=be),po(e)){const u=wt(e,t);return n&&an(u,n),u}if(I(e)&&\\"__vccOpts\\"in e&&(e=e.__vccOpts),t){(Gn(t)||Et in t)&&(t=V({},t));let{class:u,style:g}=t;u&&!z(u)&&(t.class=Pt(u)),K(g)&&(Gn(g)&&!k(g)&&(g=V({},g)),t.style=Nt(g))}const l=z(e)?1:Ar(e)?128:kr(e)?64:K(e)?4:I(e)?2:0,c={__v_isVNode:!0,[\\"__v_skip\\"]:!0,type:e,props:t,key:t&&mo(t),ref:t&&go(t),scopeId:Lr,children:null,component:null,suspense:null,dirs:null,transition:null,el:null,anchor:null,target:null,targetAnchor:null,staticCount:0,shapeFlag:l,patchFlag:o,dynamicProps:s,dynamicChildren:null,appContext:null};return an(c,n),!r&&yt&&(o>0||l&6)&&o!==32&&yt.push(c),c}function wt(e,t){const{props:n,patchFlag:o}=e,s=t?Vr(n||{},t):n;return{__v_isVNode:!0,[\\"__v_skip\\"]:!0,type:e.type,props:s,key:s&&mo(s),ref:t&&t.ref?go(t):e.ref,scopeId:e.scopeId,children:e.children,target:e.target,targetAnchor:e.targetAnchor,staticCount:e.staticCount,shapeFlag:e.shapeFlag,patchFlag:t&&e.type!==ge?o===-1?16:o|16:o,dynamicProps:e.dynamicProps,dynamicChildren:e.dynamicChildren,appContext:e.appContext,dirs:e.dirs,transition:e.transition,component:e.component,suspense:e.suspense,el:e.el,anchor:e.anchor}}function jr(e=\\" \\",t=0){return xe(ln,null,e,t)}function ee(e){return e==null||typeof e==\\"boolean\\"?xe(be):k(e)?xe(ge,null,e):typeof e==\\"object\\"?e.el===null?e:wt(e):xe(ln,null,String(e))}function He(e){return e.el===null?e:wt(e)}function an(e,t){let n=0;const{shapeFlag:o}=e;if(t==null)t=null;else if(k(t))n=16;else if(typeof t==\\"object\\")if(o&1||o&64){const s=t.default;s&&(s._c&&ho(1),an(e,s()),s._c&&ho(-1));return}else{n=32;const s=t._;!s&&!(Et in t)?t._ctx=G:s===3&&G&&(G.vnode.patchFlag&1024?(t._=2,e.patchFlag|=1024):t._=1)}else I(t)?(t={default:t,_ctx:G},n=32):(t=String(t),o&64?(n=16,t=[jr(t)]):n=8);e.children=t,e.shapeFlag|=n}function Vr(...e){const t=V({},e[0]);for(let n=1;n<e.length;n++){const o=e[n];for(const s in o)if(s===\\"class\\")t.class!==o.class&&(t.class=Pt([t.class,o.class]));else if(s===\\"style\\")t.style=Nt([t.style,o.style]);else if(at(s)){const r=t[s],l=o[s];r!==l&&(t[s]=r?[].concat(r,o[s]):l)}else t[s]=o[s]}return t}function $r(e,t,...n){const o=e.vnode.props||L;__VUE_PROD_DEVTOOLS__;let s=\`on\${kt(t)}\`,r=o[s];if(!r&&t.startsWith(\\"update:\\")&&(s=\`on\${kt(ft(t))}\`,r=o[s]),!r){if(r=o[s+\\"Once\\"],!e.emitted)(e.emitted={})[s]=!0;else if(e.emitted[s])return}r&&Oe(r,e,6,n)}function bo(e,t,n=!1){const o=t.app?t.app._uid:-1,s=e.__emits||(e.__emits={}),r=s[o];if(r!==void 0)return r;const l=e.emits;let c={},u=!1;if(__VUE_OPTIONS_API__&&!I(e)){const g=b=>{u=!0,V(c,bo(b,t,!0))};!n&&t.mixins.length&&t.mixins.forEach(g),e.extends&&g(e.extends),e.mixins&&e.mixins.forEach(g)}return!l&&!u?s[o]=null:(k(l)?l.forEach(g=>c[g]=null):V(c,l),s[o]=c)}function Br(e,t){return!e||!at(t)?!1:(t=t.replace(/Once$/,\\"\\"),P(e,t[2].toLowerCase()+t.slice(3))||P(e,t.slice(2)))}function Kr(e,t,n,o=!1){const s={},r={};Ut(r,Et,1),_o(e,t,s,r),n?e.props=o?s:cr(s):e.type.props?e.props=s:e.props=r,e.attrs=r}function Wr(e,t,n,o){const{props:s,attrs:r,vnode:{patchFlag:l}}=e,c=D(s),[u]=e.propsOptions;if((o||l>0)&&!(l&16)){if(l&8){const g=e.vnode.dynamicProps;for(let b=0;b<g.length;b++){const E=g[b],x=t[E];if(u)if(P(r,E))r[E]=x;else{const A=Ke(E);s[A]=cn(u,c,A,x)}else r[E]=x}}}else{_o(e,t,s,r);let g;for(const b in c)(!t||!P(t,b)&&((g=ft(b))===b||!P(t,g)))&&(u?n&&(n[b]!==void 0||n[g]!==void 0)&&(s[b]=cn(u,t||L,b,void 0)):delete s[b]);if(r!==c)for(const b in r)(!t||!P(t,b))&&delete r[b]}ne(e,\\"set\\",\\"$attrs\\")}function _o(e,t,n,o){const[s,r]=e.propsOptions;if(t)for(const l in t){const c=t[l];if(ct(l))continue;let u;s&&P(s,u=Ke(l))?n[u]=c:Br(e.emitsOptions,l)||(o[l]=c)}if(r){const l=D(n);for(let c=0;c<r.length;c++){const u=r[c];n[u]=cn(s,l,u,l[u])}}}function cn(e,t,n,o){const s=e[n];if(s!=null){const r=P(s,\\"default\\");if(r&&o===void 0){const l=s.default;o=s.type!==Function&&I(l)?l(t):l}s[0]&&(!P(t,n)&&!r?o=!1:s[1]&&(o===\\"\\"||o===ft(n))&&(o=!0))}return o}function yo(e,t,n=!1){const o=t.app?t.app._uid:-1,s=e.__props||(e.__props={}),r=s[o];if(r)return r;const l=e.props,c={},u=[];let g=!1;if(__VUE_OPTIONS_API__&&!I(e)){const b=E=>{g=!0;const[x,A]=yo(E,t,!0);V(c,x),A&&u.push(...A)};!n&&t.mixins.length&&t.mixins.forEach(b),e.extends&&b(e.extends),e.mixins&&e.mixins.forEach(b)}if(!l&&!g)return s[o]=lt;if(k(l))for(let b=0;b<l.length;b++){const E=Ke(l[b]);To(E)&&(c[E]=L)}else if(l)for(const b in l){const E=Ke(b);if(To(E)){const x=l[b],A=c[E]=k(x)||I(x)?{type:x}:x;if(A){const $=vo(Boolean,A.type),U=vo(String,A.type);A[0]=$>-1,A[1]=U<0||$<U,($>-1||P(A,\\"default\\"))&&u.push(E)}}}return s[o]=[c,u]}function Eo(e){const t=e&&e.toString().match(/^\\\\s*function (\\\\w+)/);return t?t[1]:\\"\\"}function wo(e,t){return Eo(e)===Eo(t)}function vo(e,t){if(k(t)){for(let n=0,o=t.length;n<o;n++)if(wo(t[n],e))return n}else if(I(t))return wo(t,e)?0:-1;return-1}function To(e){return e[0]!==\\"$\\"}function vt(e,t,n=j,o=!1){if(n){const s=n[e]||(n[e]=[]),r=t.__weh||(t.__weh=(...l)=>{if(n.isUnmounted)return;$t(),jo(n);const c=Oe(t,n,e,l);return jo(null),ut(),c});return o?s.unshift(r):s.push(r),r}}const _e=e=>(t,n=j)=>!bn&&vt(e,t,n),qr=_e(\\"bm\\"),zr=_e(\\"m\\"),Yr=_e(\\"bu\\"),Xr=_e(\\"u\\"),Jr=_e(\\"bum\\"),Oo=_e(\\"um\\"),Zr=_e(\\"rtg\\"),Qr=_e(\\"rtc\\"),Gr=(e,t=j)=>{vt(\\"ec\\",e,t)},Ro=e=>e.type.__isKeepAlive;function ei(e,t){xo(e,\\"a\\",t)}function ti(e,t){xo(e,\\"da\\",t)}function xo(e,t,n=j){const o=e.__wdc||(e.__wdc=()=>{let s=n;for(;s;){if(s.isDeactivated)return;s=s.parent}e()});if(vt(t,o,n),n){let s=n.parent;for(;s&&s.parent;)Ro(s.parent.vnode)&&ni(o,t,n,s),s=s.parent}}function ni(e,t,n,o){const s=vt(t,e,o,!0);Oo(()=>{Sn(o[t],s)},n)}const Io=e=>e[0]===\\"_\\"||e===\\"$stable\\",fn=e=>k(e)?e.map(ee):[ee(e)],oi=(e,t,n)=>Sr(o=>fn(t(o)),n),No=(e,t)=>{const n=e._ctx;for(const o in e){if(Io(o))continue;const s=e[o];if(I(s))t[o]=oi(o,s,n);else if(s!=null){const r=fn(s);t[o]=()=>r}}},Po=(e,t)=>{const n=fn(t);e.slots.default=()=>n},si=(e,t)=>{if(e.vnode.shapeFlag&32){const n=t._;n?(e.slots=t,Ut(t,\\"_\\",n)):No(t,e.slots={})}else e.slots={},t&&Po(e,t);Ut(e.slots,Et,1)},ri=(e,t)=>{const{vnode:n,slots:o}=e;let s=!0,r=L;if(n.shapeFlag&32){const l=t._;l?l===1?s=!1:V(o,t):(s=!t.$stable,No(t,o)),r=t}else t&&(Po(e,t),r={default:1});if(s)for(const l in o)!Io(l)&&!(l in r)&&delete o[l]};function Ie(e,t,n,o){const s=e.dirs,r=t&&t.dirs;for(let l=0;l<s.length;l++){const c=s[l];r&&(c.oldValue=r[l].value);const u=c.dir[o];u&&Oe(u,n,8,[e.el,c,e,t])}}function Ao(){return{app:null,config:{isNativeTag:Cn,performance:!1,globalProperties:{},optionMergeStrategies:{},isCustomElement:Cn,errorHandler:void 0,warnHandler:void 0},mixins:[],components:{},directives:{},provides:Object.create(null)}}let ii=0;function li(e,t){return function(o,s=null){s!=null&&!K(s)&&(s=null);const r=Ao(),l=new Set();let c=!1;const u=r.app={_uid:ii++,_component:o,_props:s,_container:null,_context:r,version:Ii,get config(){return r.config},set config(g){},use(g,...b){return l.has(g)||(g&&I(g.install)?(l.add(g),g.install(u,...b)):I(g)&&(l.add(g),g(u,...b))),u},mixin(g){return __VUE_OPTIONS_API__&&(r.mixins.includes(g)||r.mixins.push(g)),u},component(g,b){return b?(r.components[g]=b,u):r.components[g]},directive(g,b){return b?(r.directives[g]=b,u):r.directives[g]},mount(g,b){if(!c){const E=xe(o,s);return E.appContext=r,b&&t?t(E,g):e(E,g),c=!0,u._container=g,g.__vue_app__=u,__VUE_PROD_DEVTOOLS__,E.component.proxy}},unmount(){c&&(e(null,u._container),__VUE_PROD_DEVTOOLS__)},provide(g,b){return r.provides[g]=b,u}};return u}}function ai(){typeof __VUE_OPTIONS_API__!=\\"boolean\\"&&(Dn().__VUE_OPTIONS_API__=!0),typeof __VUE_PROD_DEVTOOLS__!=\\"boolean\\"&&(Dn().__VUE_PROD_DEVTOOLS__=!1)}const ci={scheduler:no},Y=Cr,Co=(e,t,n,o,s)=>{let r;s?s.shapeFlag&4?r=s.component.proxy:r=s.el:r=null;const[l,c]=e,u=t&&t[1],g=l.refs===L?l.refs={}:l.refs,b=l.setupState;if(u!=null&&u!==c&&(z(u)?(g[u]=null,P(b,u)&&(b[u]=null)):Z(u)&&(u.value=null)),z(c)){const E=()=>{g[c]=r,P(b,c)&&(b[c]=r)};r?(E.id=-1,Y(E,o)):E()}else if(Z(c)){const E=()=>{c.value=r};r?(E.id=-1,Y(E,o)):E()}else I(c)&&oe(c,n,12,[r,g])};function fi(e){return ui(e)}function ui(e,t){ai();const{insert:n,remove:o,patchProp:s,forcePatchProp:r,createElement:l,createText:c,createComment:u,setText:g,setElementText:b,parentNode:E,nextSibling:x,setScopeId:A=pe,cloneNode:$,insertStaticContent:U}=e,R=(i,a,d,h=null,p=null,_=null,y=!1,m=!1)=>{i&&!Qe(i,a)&&(h=rt(i),fe(i,p,_,!0),i=null),a.patchFlag===-2&&(m=!1,a.dynamicChildren=null);const{type:f,ref:T,shapeFlag:w}=a;switch(f){case ln:W(i,a,d,h);break;case be:ye(i,a,d,h);break;case Mr:i==null&&q(a,d,h,y);break;case ge:M(i,a,d,h,p,_,y,m);break;default:w&1?Ee(i,a,d,h,p,_,y,m):w&6?ce(i,a,d,h,p,_,y,m):(w&64||w&128)&&f.process(i,a,d,h,p,_,y,m,Se)}T!=null&&p&&Co(T,i&&i.ref,p,_,a)},W=(i,a,d,h)=>{if(i==null)n(a.el=c(a.children),d,h);else{const p=a.el=i.el;a.children!==i.children&&g(p,a.children)}},ye=(i,a,d,h)=>{i==null?n(a.el=u(a.children||\\"\\"),d,h):a.el=i.el},q=(i,a,d,h)=>{[i.el,i.anchor]=U(i.children,a,d,h)},Ee=(i,a,d,h,p,_,y,m)=>{y=y||a.type===\\"svg\\",i==null?Ge(a,d,h,p,_,y,m):et(i,a,p,_,y,m)},Ge=(i,a,d,h,p,_,y)=>{let m,f;const{type:T,props:w,shapeFlag:v,transition:O,scopeId:N,patchFlag:H,dirs:C}=i;if(i.el&&$!==void 0&&H===-1)m=i.el=$(i.el);else{if(m=i.el=l(i.type,_,w&&w.is),v&8?b(m,i.children):v&16&&ae(i.children,m,null,h,p,_&&T!==\\"foreignObject\\",y||!!i.dynamicChildren),C&&Ie(i,null,h,\\"created\\"),w){for(const Q in w)ct(Q)||s(m,Q,null,w[Q],_,i.children,h,p,ie);(f=w.onVnodeBeforeMount)&&re(f,h,i)}je(m,N,i,h)}__VUE_PROD_DEVTOOLS__&&(Object.defineProperty(m,\\"__vnode\\",{value:i,enumerable:!1}),Object.defineProperty(m,\\"__vueParentComponent\\",{value:h,enumerable:!1})),C&&Ie(i,null,h,\\"beforeMount\\");const B=(!p||p&&p.isResolved)&&O&&!O.persisted;B&&O.beforeEnter(m),n(m,a,d),((f=w&&w.onVnodeMounted)||B||C)&&Y(()=>{f&&re(f,h,i),B&&O.enter(m),C&&Ie(i,null,h,\\"mounted\\")},p)},je=(i,a,d,h)=>{if(a&&A(i,a),h){const p=h.type.__scopeId;p&&p!==a&&A(i,p+\\"-s\\"),d===h.subTree&&je(i,h.vnode.scopeId,h.vnode,h.parent)}},ae=(i,a,d,h,p,_,y,m=0)=>{for(let f=m;f<i.length;f++){const T=i[f]=y?He(i[f]):ee(i[f]);R(null,T,a,d,h,p,_,y)}},et=(i,a,d,h,p,_)=>{const y=a.el=i.el;let{patchFlag:m,dynamicChildren:f,dirs:T}=a;m|=i.patchFlag&16;const w=i.props||L,v=a.props||L;let O;if((O=v.onVnodeBeforeUpdate)&&re(O,d,a,i),T&&Ie(a,i,d,\\"beforeUpdate\\"),m>0){if(m&16)Ve(y,a,w,v,d,h,p);else if(m&2&&(w.class!==v.class&&s(y,\\"class\\",null,v.class,p)),m&4&&s(y,\\"style\\",w.style,v.style,p),m&8){const H=a.dynamicProps;for(let C=0;C<H.length;C++){const B=H[C],Q=w[B],Le=v[B];(Le!==Q||r&&r(y,B))&&s(y,B,Q,Le,p,i.children,d,h,ie)}}m&1&&(i.children!==a.children&&b(y,a.children))}else!_&&f==null&&Ve(y,a,w,v,d,h,p);const N=p&&a.type!==\\"foreignObject\\";f?Ae(i.dynamicChildren,f,y,d,h,N):_||$e(i,a,y,null,d,h,N),((O=v.onVnodeUpdated)||T)&&Y(()=>{O&&re(O,d,a,i),T&&Ie(a,i,d,\\"updated\\")},h)},Ae=(i,a,d,h,p,_)=>{for(let y=0;y<a.length;y++){const m=i[y],f=a[y],T=m.type===ge||!Qe(m,f)||m.shapeFlag&6||m.shapeFlag&64?E(m.el):d;R(m,f,T,null,h,p,_,!0)}},Ve=(i,a,d,h,p,_,y)=>{if(d!==h){for(const m in h){if(ct(m))continue;const f=h[m],T=d[m];(f!==T||r&&r(i,m))&&s(i,m,T,f,y,a.children,p,_,ie)}if(d!==L)for(const m in d)!ct(m)&&!(m in h)&&s(i,m,d[m],null,y,a.children,p,_,ie)}},M=(i,a,d,h,p,_,y,m)=>{const f=a.el=i?i.el:c(\\"\\"),T=a.anchor=i?i.anchor:c(\\"\\");let{patchFlag:w,dynamicChildren:v}=a;w>0&&(m=!0),i==null?(n(f,d,h),n(T,d,h),ae(a.children,d,T,p,_,y,m)):w>0&&w&64&&v?Ae(i.dynamicChildren,v,d,p,_,y):$e(i,a,d,T,p,_,y,m)},ce=(i,a,d,h,p,_,y,m)=>{i==null?a.shapeFlag&512?p.ctx.activate(a,d,h,y,m):Ce(a,d,h,p,_,y,m):F(i,a,m)},Ce=(i,a,d,h,p,_,y)=>{const m=i.component=yi(i,h,p);if(Ro(i)&&(m.ctx.renderer=Se),Ei(m),m.asyncDep){if(!p)return;if(p.registerDep(m,S),!i.el){const f=m.subTree=xe(be);ye(null,f,a,d)}return}S(m,i,a,d,p,_,y)},F=(i,a,d)=>{const h=a.component=i.component;if(Nr(i,a,d))if(h.asyncDep&&!h.asyncResolved){tt(h,a,d);return}else h.next=a,vr(h.update),h.update();else a.component=i.component,a.el=i.el,h.vnode=a},S=(i,a,d,h,p,_,y)=>{i.update=Ht(function(){if(i.isMounted){let{next:f,bu:T,u:w,parent:v,vnode:O}=i,N=f,H;f?tt(i,f,y):f=O,f.el=O.el,T&&Mt(T),(H=f.props&&f.props.onVnodeBeforeUpdate)&&re(H,v,f,O);const C=co(i),B=i.subTree;i.subTree=C,i.refs!==L&&(i.refs={}),R(B,C,E(B.el),rt(B),i,p,_),f.el=C.el,N===null&&Pr(i,C.el),w&&Y(w,p),(H=f.props&&f.props.onVnodeUpdated)&&Y(()=>{re(H,v,f,O)},p),__VUE_PROD_DEVTOOLS__}else{let f;const{el:T,props:w}=a,{bm:v,m:O,parent:N}=i;v&&Mt(v),(f=w&&w.onVnodeBeforeMount)&&re(f,N,a);const H=i.subTree=co(i);T&&xt?xt(a.el,H,i,p):(R(null,H,d,h,i,p,_),a.el=H.el),O&&Y(O,p),(f=w&&w.onVnodeMounted)&&Y(()=>{re(f,N,a)},p);const{a:C}=i;C&&a.shapeFlag&256&&Y(C,p),i.isMounted=!0}},ci),i.update.allowRecurse=!0},tt=(i,a,d)=>{a.component=i;const h=i.vnode.props;i.vnode=a,i.next=null,Wr(i,a.props,h,d),ri(i,a.children),sn(void 0,i.update)},$e=(i,a,d,h,p,_,y,m=!1)=>{const f=i&&i.children,T=i?i.shapeFlag:0,w=a.children,{patchFlag:v,shapeFlag:O}=a;if(v>0){if(v&128){ot(f,w,d,h,p,_,y,m);return}else if(v&256){nt(f,w,d,h,p,_,y,m);return}}O&8?(T&16&&ie(f,p,_),w!==f&&b(d,w)):T&16?O&16?ot(f,w,d,h,p,_,y,m):ie(f,p,_,!0):(T&8&&b(d,\\"\\"),O&16&&ae(w,d,h,p,_,y,m))},nt=(i,a,d,h,p,_,y,m)=>{i=i||lt,a=a||lt;const f=i.length,T=a.length,w=Math.min(f,T);let v;for(v=0;v<w;v++){const O=a[v]=m?He(a[v]):ee(a[v]);R(i[v],O,d,null,p,_,y,m)}f>T?ie(i,p,_,!0,w):ae(a,d,h,p,_,y,m,w)},ot=(i,a,d,h,p,_,y,m)=>{let f=0;const T=a.length;let w=i.length-1,v=T-1;for(;f<=w&&f<=v;){const O=i[f],N=a[f]=m?He(a[f]):ee(a[f]);if(Qe(O,N))R(O,N,d,null,p,_,y,m);else break;f++}for(;f<=w&&f<=v;){const O=i[w],N=a[v]=m?He(a[v]):ee(a[v]);if(Qe(O,N))R(O,N,d,null,p,_,y,m);else break;w--,v--}if(f>w){if(f<=v){const O=v+1,N=O<T?a[O].el:h;for(;f<=v;)R(null,a[f]=m?He(a[f]):ee(a[f]),d,N,p,_,y),f++}}else if(f>v)for(;f<=w;)fe(i[f],p,_,!0),f++;else{const O=f,N=f,H=new Map();for(f=N;f<=v;f++){const X=a[f]=m?He(a[f]):ee(a[f]);X.key!=null&&H.set(X.key,f)}let C,B=0;const Q=v-N+1;let Le=!1,Tn=0;const Be=new Array(Q);for(f=0;f<Q;f++)Be[f]=0;for(f=O;f<=w;f++){const X=i[f];if(B>=Q){fe(X,p,_,!0);continue}let te;if(X.key!=null)te=H.get(X.key);else for(C=N;C<=v;C++)if(Be[C-N]===0&&Qe(X,a[C])){te=C;break}te===void 0?fe(X,p,_,!0):(Be[te-N]=f+1,te>=Tn?Tn=te:Le=!0,R(X,a[te],d,null,p,_,y,m),B++)}const On=Le?di(Be):lt;for(C=On.length-1,f=Q-1;f>=0;f--){const X=N+f,te=a[X],Rn=X+1<T?a[X+1].el:h;Be[f]===0?R(null,te,d,Rn,p,_,y):Le&&(C<0||f!==On[C]?st(te,d,Rn,2):C--)}}},st=(i,a,d,h,p=null)=>{const{el:_,type:y,transition:m,children:f,shapeFlag:T}=i;if(T&6){st(i.component.subTree,a,d,h);return}if(T&128){i.suspense.move(a,d,h);return}if(T&64){y.move(i,a,d,Se);return}if(y===ge){n(_,a,d);for(let v=0;v<f.length;v++)st(f[v],a,d,h);n(i.anchor,a,d);return}const w=h!==2&&T&1&&m;if(w)if(h===0)m.beforeEnter(_),n(_,a,d),Y(()=>m.enter(_),p);else{const{leave:v,delayLeave:O,afterLeave:N}=m,H=()=>n(_,a,d),C=()=>{v(_,()=>{H(),N&&N()})};O?O(_,H,C):C()}else n(_,a,d)},fe=(i,a,d,h=!1)=>{const{type:p,props:_,ref:y,children:m,dynamicChildren:f,shapeFlag:T,patchFlag:w,dirs:v}=i;if(y!=null&&a&&Co(y,null,a,d,null),T&256){a.ctx.deactivate(i);return}const O=T&1&&v;let N;if((N=_&&_.onVnodeBeforeUnmount)&&re(N,a,i),T&6)ns(i.component,d,h);else{if(T&128){i.suspense.unmount(d,h);return}O&&Ie(i,null,a,\\"beforeUnmount\\"),f&&(p!==ge||w>0&&w&64)?ie(f,a,d):T&16&&ie(m,a,d),T&64&&i.type.remove(i,Se),h&&wn(i)}((N=_&&_.onVnodeUnmounted)||O)&&Y(()=>{N&&re(N,a,i),O&&Ie(i,null,a,\\"unmounted\\")},d)},wn=i=>{const{type:a,el:d,anchor:h,transition:p}=i;if(a===ge){ts(d,h);return}const _=()=>{o(d),p&&!p.persisted&&p.afterLeave&&p.afterLeave()};if(i.shapeFlag&1&&p&&!p.persisted){const{leave:y,delayLeave:m}=p,f=()=>y(d,_);m?m(i.el,_,f):f()}else _()},ts=(i,a)=>{let d;for(;i!==a;)d=x(i),o(i),i=d;o(a)},ns=(i,a,d)=>{const{bum:h,effects:p,update:_,subTree:y,um:m}=i;if(h&&Mt(h),p)for(let f=0;f<p.length;f++)jt(p[f]);_&&(jt(_),fe(y,i,a,d)),m&&Y(m,a),Y(()=>{i.isUnmounted=!0},a),a&&!a.isResolved&&!a.isUnmounted&&i.asyncDep&&!i.asyncResolved&&(a.deps--,a.deps===0&&a.resolve()),__VUE_PROD_DEVTOOLS__},ie=(i,a,d,h=!1,p=0)=>{for(let _=p;_<i.length;_++)fe(i[_],a,d,h)},rt=i=>i.shapeFlag&6?rt(i.component.subTree):i.shapeFlag&128?i.suspense.next():x(i.anchor||i.el),vn=(i,a)=>{i==null?a._vnode&&fe(a._vnode,null,null,!0):R(a._vnode||null,i,a),ro(),a._vnode=i},Se={p:R,um:fe,m:st,r:wn,mt:Ce,mc:ae,pc:$e,pbc:Ae,n:rt,o:e};let Rt,xt;return t&&([Rt,xt]=t(Se)),{render:vn,hydrate:Rt,createApp:li(vn,Rt)}}function re(e,t,n,o=null){Oe(e,t,7,[n,o])}function di(e){const t=e.slice(),n=[0];let o,s,r,l,c;const u=e.length;for(o=0;o<u;o++){const g=e[o];if(g!==0){if(s=n[n.length-1],e[s]<g){t[o]=s,n.push(o);continue}for(r=0,l=n.length-1;r<l;)c=(r+l)/2|0,e[n[c]]<g?r=c+1:l=c;g<e[n[r]]&&(r>0&&(t[o]=n[r-1]),n[r]=o)}}for(r=n.length,l=n[r-1];r-- >0;)n[r]=l,l=t[l];return n}const So={};function un(e,t,n){return Lo(e,t,n)}function Lo(e,t,{immediate:n,deep:o,flush:s,onTrack:r,onTrigger:l}=L,c=j){let u;const g=Z(e);if(g?u=()=>e.value:Ye(e)?(u=()=>e,o=!0):k(e)?u=()=>e.map(R=>{if(Z(R))return R.value;if(Ye(R))return Ne(R);if(I(R))return oe(R,c,2)}):I(e)?t?u=()=>oe(e,c,2):u=()=>c&&c.isUnmounted?void 0:(b&&b(),oe(e,c,3,[E])):u=pe,t&&o){const R=u;u=()=>Ne(R())}let b;const E=R=>{b=U.options.onStop=()=>{oe(R,c,4)}};let x=k(e)?[]:So;const A=()=>{if(!U.active)return;if(t){const R=U();(o||g||Dt(R,x))&&(b&&b(),Oe(t,c,3,[R,x===So?void 0:x,E]),x=R)}else U()};A.allowRecurse=!!t;let $;s===\\"sync\\"?$=A:s===\\"pre\\"?(A.id=-1,$=()=>{!c||c.isMounted?Tr(A):A()}):$=()=>Y(A,c&&c.suspense);const U=Ht(u,{lazy:!0,onTrack:r,onTrigger:l,scheduler:$});return Bo(U),t?n?A():x=U():U(),()=>{jt(U),c&&Sn(c.effects,U)}}function hi(e,t,n){const o=this.proxy,s=z(e)?()=>o[e]:e.bind(o);return Lo(s,t.bind(o),n,this)}function Ne(e,t=new Set()){if(!K(e)||t.has(e))return e;if(t.add(e),Z(e))Ne(e.value,t);else if(k(e))for(let n=0;n<e.length;n++)Ne(e[n],t);else if(e instanceof Map)e.forEach((n,o)=>{Ne(e.get(o),t)});else if(e instanceof Set)e.forEach(n=>{Ne(n,t)});else for(const n in e)Ne(e[n],t);return e}function pi(e,t){if(j){let n=j.provides;const o=j.parent&&j.parent.provides;o===n&&(n=j.provides=Object.create(o)),n[e]=t}}function dn(e,t){const n=j||G;if(n){const o=n.provides;if(e in o)return o[e];if(arguments.length>1)return t}}let hn=!1;function pn(e,t,n=[],o=[],s=!1){const{mixins:r,extends:l,data:c,computed:u,methods:g,watch:b,provide:E,inject:x,components:A,directives:$,beforeMount:U,mounted:R,beforeUpdate:W,updated:ye,activated:q,deactivated:Ee,beforeUnmount:Ge,unmounted:je,render:ae,renderTracked:et,renderTriggered:Ae,errorCaptured:Ve}=t,M=e.proxy,ce=e.ctx,Ce=e.appContext.mixins;if(s&&ae&&e.render===pe&&(e.render=ae),s||(hn=!0,ko(\\"beforeCreate\\",t,M,Ce),hn=!1,Mo(e,Ce,n,o)),l&&pn(e,l,n,o,!0),r&&Mo(e,r,n,o),x)if(k(x))for(let F=0;F<x.length;F++){const S=x[F];ce[S]=dn(S)}else for(const F in x){const S=x[F];K(S)?ce[F]=dn(S.from,S.default):ce[F]=dn(S)}if(g)for(const F in g){const S=g[F];I(S)&&(ce[F]=S.bind(M))}if(s?c&&n.push(c):(n.length&&n.forEach(F=>Uo(e,F,M)),c&&Uo(e,c,M)),u)for(const F in u){const S=u[F],tt=I(S)?S.bind(M,M):I(S.get)?S.get.bind(M,M):pe,$e=!I(S)&&I(S.set)?S.set.bind(M):pe,nt=Ri({get:tt,set:$e});Object.defineProperty(ce,F,{enumerable:!0,configurable:!0,get:()=>nt.value,set:ot=>nt.value=ot})}if(b&&o.push(b),!s&&o.length&&o.forEach(F=>{for(const S in F)Fo(F[S],ce,M,S)}),E){const F=I(E)?E.call(M):E;for(const S in F)pi(S,F[S])}s&&(A&&V(e.components||(e.components=V({},e.type.components)),A),$&&V(e.directives||(e.directives=V({},e.type.directives)),$)),s||ko(\\"created\\",t,M,Ce),U&&qr(U.bind(M)),R&&zr(R.bind(M)),W&&Yr(W.bind(M)),ye&&Xr(ye.bind(M)),q&&ei(q.bind(M)),Ee&&ti(Ee.bind(M)),Ve&&Gr(Ve.bind(M)),et&&Qr(et.bind(M)),Ae&&Zr(Ae.bind(M)),Ge&&Jr(Ge.bind(M)),je&&Oo(je.bind(M))}function ko(e,t,n,o){mn(e,o,n);const{extends:s,mixins:r}=t;s&&Do(e,s,n),r&&mn(e,r,n);const l=t[e];l&&l.call(n)}function Do(e,t,n){t.extends&&Do(e,t.extends,n);const o=t[e];o&&o.call(n)}function mn(e,t,n){for(let o=0;o<t.length;o++){const s=t[o].mixins;s&&mn(e,s,n);const r=t[o][e];r&&r.call(n)}}function Mo(e,t,n,o){for(let s=0;s<t.length;s++)pn(e,t[s],n,o,!0)}function Uo(e,t,n){const o=t.call(n,n);K(o)&&(e.data===L?e.data=pt(o):V(e.data,o))}function Fo(e,t,n,o){const s=()=>n[o];if(z(e)){const r=t[e];I(r)&&un(s,r)}else if(I(e))un(s,e.bind(n));else if(K(e))if(k(e))e.forEach(r=>Fo(r,t,n,o));else{const r=I(e.handler)?e.handler.bind(n):t[e.handler];I(r)&&un(s,r,e)}}function mi(e){const t=e.type,{__merged:n,mixins:o,extends:s}=t;if(n)return n;const r=e.appContext.mixins;if(!r.length&&!o&&!s)return t;const l={};return Tt(l,t,e),r.forEach(c=>Tt(l,c,e)),t.__merged=l}function Tt(e,t,n){const o=n.appContext.config.optionMergeStrategies;for(const l in t)o&&P(o,l)?e[l]=o[l](e[l],t[l],n.proxy,l):P(e,l)||(e[l]=t[l]);const{mixins:s,extends:r}=t;r&&Tt(e,r,n),s&&s.forEach(l=>Tt(e,l,n))}const Ho=V(Object.create(null),{$:e=>e,$el:e=>e.vnode.el,$data:e=>e.data,$props:e=>e.props,$attrs:e=>e.attrs,$slots:e=>e.slots,$refs:e=>e.refs,$parent:e=>e.parent&&e.parent.proxy,$root:e=>e.root&&e.root.proxy,$emit:e=>e.emit,$options:e=>__VUE_OPTIONS_API__?mi(e):e.type,$forceUpdate:e=>()=>no(e.update),$nextTick:()=>wr,$watch:e=>__VUE_OPTIONS_API__?hi.bind(e):pe}),gn={get({_:e},t){const{ctx:n,setupState:o,data:s,props:r,accessCache:l,type:c,appContext:u}=e;if(t===\\"__v_skip\\")return!0;let g;if(t[0]!==\\"$\\"){const A=l[t];if(A!==void 0)switch(A){case 0:return o[t];case 1:return s[t];case 3:return n[t];case 2:return r[t]}else{if(o!==L&&P(o,t))return l[t]=0,o[t];if(s!==L&&P(s,t))return l[t]=1,s[t];if((g=e.propsOptions[0])&&P(g,t))return l[t]=2,r[t];if(n!==L&&P(n,t))return l[t]=3,n[t];(!__VUE_OPTIONS_API__||!hn)&&(l[t]=4)}}const b=Ho[t];let E,x;if(b)return t===\\"$attrs\\"&&J(e,\\"get\\",t),b(e);if((E=c.__cssModules)&&(E=E[t]))return E;if(n!==L&&P(n,t))return l[t]=3,n[t];if(x=u.config.globalProperties,P(x,t))return x[t]},set({_:e},t,n){const{data:o,setupState:s,ctx:r}=e;if(s!==L&&P(s,t))s[t]=n;else if(o!==L&&P(o,t))o[t]=n;else if(t in e.props)return!1;return t[0]===\\"$\\"&&t.slice(1)in e?!1:(r[t]=n,!0)},has({_:{data:e,setupState:t,accessCache:n,ctx:o,appContext:s,propsOptions:r}},l){let c;return n[l]!==void 0||e!==L&&P(e,l)||t!==L&&P(t,l)||(c=r[0])&&P(c,l)||P(o,l)||P(Ho,l)||P(s.config.globalProperties,l)}},gi=V({},gn,{get(e,t){return t===Symbol.unscopables?void 0:gn.get(e,t,e)},has(e,t){const n=t[0]!==\\"_\\"&&!As(t);return n}}),bi=Ao();let _i=0;function yi(e,t,n){const o=e.type,s=(t?t.appContext:e.appContext)||bi,r={uid:_i++,vnode:e,type:o,parent:t,appContext:s,root:null,next:null,subTree:null,update:null,render:null,proxy:null,withProxy:null,effects:null,provides:t?t.provides:Object.create(s.provides),accessCache:null,renderCache:[],components:null,directives:null,propsOptions:yo(o,s),emitsOptions:bo(o,s),emit:null,emitted:null,ctx:L,data:L,props:L,attrs:L,slots:L,refs:L,setupState:L,setupContext:null,suspense:n,asyncDep:null,asyncResolved:!1,isMounted:!1,isUnmounted:!1,isDeactivated:!1,bc:null,c:null,bm:null,m:null,bu:null,u:null,um:null,bum:null,da:null,a:null,rtg:null,rtc:null,ec:null};return r.ctx={_:r},r.root=t?t.root:r,r.emit=$r.bind(null,r),__VUE_PROD_DEVTOOLS__,r}let j=null;const jo=e=>{j=e};let bn=!1;function Ei(e,t=!1){bn=t;const{props:n,children:o,shapeFlag:s}=e.vnode,r=s&4;Kr(e,n,r,t),si(e,o);const l=r?wi(e,t):void 0;return bn=!1,l}function wi(e,t){const n=e.type;e.accessCache={},e.proxy=new Proxy(e.ctx,gn);const{setup:o}=n;if(o){const s=e.setupContext=o.length>1?vi(e):null;j=e,$t();const r=oe(o,e,0,[e.props,s]);if(ut(),j=null,Ln(r)){if(t)return r.then(l=>{Vo(e,l)});e.asyncDep=r}else Vo(e,r)}else $o(e)}function Vo(e,t,n){I(t)?e.render=t:K(t)&&(__VUE_PROD_DEVTOOLS__&&(e.devtoolsRawSetupState=t),e.setupState=dr(t)),$o(e)}function $o(e,t){const n=e.type;e.render||(e.render=n.render||pe,e.render._rc&&(e.withProxy=new Proxy(e.ctx,gi))),__VUE_OPTIONS_API__&&(j=e,pn(e,n),j=null)}function vi(e){return{attrs:e.attrs,slots:e.slots,emit:e.emit}}function Bo(e){j&&(j.effects||(j.effects=[])).push(e)}const Ti=/(?:^|[-_])(\\\\w)/g,Oi=e=>e.replace(Ti,t=>t.toUpperCase()).replace(/[-_]/g,\\"\\");function Ko(e,t,n=!1){let o=I(t)&&t.displayName||t.name;if(!o&&t.__file){const s=t.__file.match(/([^/\\\\\\\\]+)\\\\.vue$/);s&&(o=s[1])}if(!o&&e&&e.parent){const s=r=>{for(const l in r)if(r[l]===t)return l};o=s(e.components||e.parent.type.components)||s(e.appContext.components)}return o?Oi(o):n?\\"App\\":\\"Anonymous\\"}function Ri(e){const t=pr(e);return Bo(t.effect),t}function xi(e){return I(e)?{setup:e,name:e.name}:e}const Ii=\\"3.0.0-rc.10\\",Wo=\\"http://www.w3.org/2000/svg\\",Pe=typeof document!=\\"undefined\\"?document:null;let qo,zo;const Yo={insert:(e,t,n)=>{t.insertBefore(e,n||null)},remove:e=>{const t=e.parentNode;t&&t.removeChild(e)},createElement:(e,t,n)=>t?Pe.createElementNS(Wo,e):Pe.createElement(e,n?{is:n}:void 0),createText:e=>Pe.createTextNode(e),createComment:e=>Pe.createComment(e),setText:(e,t)=>{e.nodeValue=t},setElementText:(e,t)=>{e.textContent=t},parentNode:e=>e.parentNode,nextSibling:e=>e.nextSibling,querySelector:e=>Pe.querySelector(e),setScopeId(e,t){e.setAttribute(t,\\"\\")},cloneNode(e){return e.cloneNode(!0)},insertStaticContent(e,t,n,o){const s=o?zo||(zo=Pe.createElementNS(Wo,\\"svg\\")):qo||(qo=Pe.createElement(\\"div\\"));s.innerHTML=e;const r=s.firstChild;let l=r,c=l;for(;l;)c=l,Yo.insert(l,t,n),l=s.firstChild;return[r,c]}};function Ni(e,t,n){if(t==null&&(t=\\"\\"),n)e.setAttribute(\\"class\\",t);else{const o=e._vtc;o&&(t=(t?[t,...o]:[...o]).join(\\" \\")),e.className=t}}function Pi(e,t,n){const o=e.style;if(!n)e.removeAttribute(\\"style\\");else if(z(n))t!==n&&(o.cssText=n);else{for(const s in n)_n(o,s,n[s]);if(t&&!z(t))for(const s in t)n[s]==null&&_n(o,s,\\"\\")}}const Xo=/\\\\s*!important$/;function _n(e,t,n){if(k(n))n.forEach(o=>_n(e,t,o));else if(t.startsWith(\\"--\\"))e.setProperty(t,n);else{const o=Ai(e,t);Xo.test(n)?e.setProperty(ft(o),n.replace(Xo,\\"\\"),\\"important\\"):e[o]=n}}const Jo=[\\"Webkit\\",\\"Moz\\",\\"ms\\"],yn={};function Ai(e,t){const n=yn[t];if(n)return n;let o=Ke(t);if(o!==\\"filter\\"&&o in e)return yn[t]=o;o=kt(o);for(let s=0;s<Jo.length;s++){const r=Jo[s]+o;if(r in e)return yn[t]=r}return t}const Zo=\\"http://www.w3.org/1999/xlink\\";function Ci(e,t,n,o){if(o&&t.startsWith(\\"xlink:\\"))n==null?e.removeAttributeNS(Zo,t.slice(6,t.length)):e.setAttributeNS(Zo,t,n);else{const s=Ss(t);n==null||s&&n===!1?e.removeAttribute(t):e.setAttribute(t,s?\\"\\":n)}}function Si(e,t,n,o,s,r,l){if(t===\\"innerHTML\\"||t===\\"textContent\\"){o&&l(o,s,r),e[t]=n??\\"\\";return}if(t===\\"value\\"&&e.tagName!==\\"PROGRESS\\"){e._value=n;const c=n??\\"\\";e.value!==c&&(e.value=c);return}if(n===\\"\\"&&typeof e[t]==\\"boolean\\")e[t]=!0;else if(n==null&&typeof e[t]==\\"string\\")e[t]=\\"\\",e.removeAttribute(t);else try{e[t]=n}catch(c){}}let Ot=Date.now;typeof document!=\\"undefined\\"&&Ot()>document.createEvent(\\"Event\\").timeStamp&&(Ot=()=>performance.now());let En=0;const Li=Promise.resolve(),ki=()=>{En=0},Di=()=>En||(Li.then(ki),En=Ot());function Mi(e,t,n,o){e.addEventListener(t,n,o)}function Ui(e,t,n,o){e.removeEventListener(t,n,o)}function Fi(e,t,n,o,s=null){const r=e._vei||(e._vei={}),l=r[t];if(o&&l)l.value=o;else{const[c,u]=Hi(t);if(o){const g=r[t]=ji(o,s);Mi(e,c,g,u)}else l&&(Ui(e,c,l,u),r[t]=void 0)}}const Qo=/(?:Once|Passive|Capture)$/;function Hi(e){let t;if(Qo.test(e)){t={};let n;for(;n=e.match(Qo);)e=e.slice(0,e.length-n[0].length),t[n[0].toLowerCase()]=!0}return[e.slice(2).toLowerCase(),t]}function ji(e,t){const n=o=>{const s=o.timeStamp||Ot();s>=n.attached-1&&Oe(Vi(o,n.value),t,5,[o])};return n.value=e,n.attached=Di(),n}function Vi(e,t){if(k(t)){const n=e.stopImmediatePropagation;return e.stopImmediatePropagation=()=>{n.call(e),e._stopped=!0},t.map(o=>s=>!s._stopped&&o(s))}else return t}const Go=/^on[a-z]/,$i=(e,t)=>t===\\"value\\",Bi=(e,t,n,o,s=!1,r,l,c,u)=>{switch(t){case\\"class\\":Ni(e,o,s);break;case\\"style\\":Pi(e,n,o);break;default:at(t)?At(t)||Fi(e,t,n,o,l):Ki(e,t,o,s)?Si(e,t,o,r,l,c,u):(t===\\"true-value\\"?e._trueValue=o:t===\\"false-value\\"&&(e._falseValue=o),Ci(e,t,o,s));break}};function Ki(e,t,n,o){return o?t===\\"innerHTML\\"?!0:!!(t in e&&Go.test(t)&&I(n)):t===\\"spellcheck\\"||t===\\"draggable\\"||(t===\\"form\\"&&typeof n==\\"string\\"||(t===\\"list\\"&&e.tagName===\\"INPUT\\"||Go.test(t)&&z(n)))?!1:t in e}const Wi=V({patchProp:Bi,forcePatchProp:$i},Yo);let es;function qi(){return es||(es=fi(Wi))}const zi=(...e)=>{const t=qi().createApp(...e),{mount:n}=t;return t.mount=o=>{const s=Yi(o);if(!s)return;const r=t._component;!I(r)&&!r.render&&!r.template&&(r.template=s.innerHTML),s.innerHTML=\\"\\";const l=n(s);return s.removeAttribute(\\"v-cloak\\"),s.setAttribute(\\"data-v-app\\",\\"\\"),l},t};function Yi(e){if(z(e)){const t=document.querySelector(e);return t}return e}export{zi as createApp,xi as defineComponent,pt as reactive};"
 `;
