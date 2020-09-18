@@ -21,8 +21,8 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "bin": {
-    "sp": "lib/index.bin.js",
-    "snowpack": "lib/index.bin.js"
+    "sp": "index.bin.js",
+    "snowpack": "index.bin.js"
   },
   "dependencies": {
     "@babel/plugin-syntax-import-meta": "^7.10.4",
