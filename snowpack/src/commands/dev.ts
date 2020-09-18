@@ -235,20 +235,20 @@ export async function startServer(commandOptions: CommandOptions) {
 
   // note: this would cause an infinite loop if not for the logger.on(…) in
   // `paint.ts`.
-  console.log = (...args: [any, ...any[]]) => {
-    logger.info(util.format(...args));
-  };
-  console.warn = (...args: [any, ...any[]]) => {
-    logger.warn(util.format(...args));
-  };
-  console.error = (...args: [any, ...any[]]) => {
-    logger.error(util.format(...args));
-  };
+  // console.log = (...args: [any, ...any[]]) => {
+  //   logger.info(util.format(...args));
+  // };
+  // console.warn = (...args: [any, ...any[]]) => {
+  //   logger.warn(util.format(...args));
+  // };
+  // console.error = (...args: [any, ...any[]]) => {
+  //   logger.error(util.format(...args));
+  // };
 
-  paint(
-    messageBus,
-    config.plugins.map((p) => p.name),
-  );
+  // paint(
+  //   messageBus,
+  //   config.plugins.map((p) => p.name),
+  // );
 
   const inMemoryBuildCache = new InMemoryBuildCache();
   const filesBeingDeleted = new Set<string>();
@@ -1024,7 +1024,7 @@ ${err}`);
   return {
     requestHandler,
     /** @experimental - only available via unstable__startServer */
-    async loadByUrl(url: string, {isSSR}: {isSSR?: boolean}): Promise<string> {
+    async loadByUrl(url: string, {isSSR}: {isSSR?: boolean} = {}): Promise<string> {
       if (!url.startsWith('/')) {
         throw new Error(`url must start with "/", but got ${url}`);
       }

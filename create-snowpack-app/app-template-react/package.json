@@ -13,9 +13,10 @@
     "build": "snowpack build",
     "format": "prettier --write \"src/**/*.{js,jsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx}\"",
-    "test": "jest"
+    "test": "web-test-runner \"src/**/*.test.jsx\""
   },
   "dependencies": {
+    "@esm-bundle/chai": "^4.1.5",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
   },
@@ -23,9 +24,10 @@
     "@snowpack/app-scripts-react": "^1.10.0",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/react": "^10.0.3",
+    "@web/test-runner": "^0.7.21",
     "jest": "^26.2.2",
     "prettier": "^2.0.5",
-    "snowpack": "^2.11.0"
+    "snowpack": "^2.10.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }
