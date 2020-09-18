@@ -1,4 +1,4 @@
-{ 
+{
   "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "module": "esnext",
@@ -21,7 +21,7 @@
     // Don't change these unless you know what you're doing.
     // See: https://github.com/microsoft/TypeScript/issues/25430
     "baseUrl": "./",
-    "paths": { "*": ["web_modules/.types/*"] },
+    "paths": {"*": ["web_modules/.types/*"]},
 
     "types": ["snowpack-env", "svelte", "jest", "@testing-library/jest-dom"]
   },

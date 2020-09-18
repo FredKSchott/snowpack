@@ -1,6 +1,13 @@
 {
   "name": "esinstall",
-  "version": "0.0.1",
+  "version": "0.1.3",
+  "description": "Convert packages to ESM.",
+  "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/esinstall#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git"
+  },
   "publishConfig": {
     "access": "public",
     "directory": "pkg"
@@ -34,6 +41,7 @@
     "mkdirp": "^1.0.3",
     "rimraf": "^3.0.0",
     "rollup": "^2.23.0",
+    "rollup-plugin-node-polyfills": "^0.2.1",
     "validate-npm-package-name": "^3.0.0"
   }
 }

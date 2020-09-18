@@ -1,12 +1,10 @@
-## Overview 
-
+## Overview
 
 ### What is Snowpack?
 
-Snowpack is a modern frontend build tool for faster web development. It replaces heavier, more complex bundlers like webpack or Parcel in your development workflow. 
+Snowpack is a modern frontend build tool for faster web development. It replaces heavier, more complex bundlers like webpack or Parcel in your development workflow.
 
 Snowpack leverages JavaScript's native module system (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">known as ESM</a>) to create a first-of-its-kind build system that never builds the same file twice. Snowpack pushes changes instantly to the browser, saving you hours of development time traditionally spent waiting around for your bundler.
-
 
 ### Key Features
 
@@ -15,7 +13,6 @@ Snowpack leverages JavaScript's native module system (<a href="https://developer
 - Integrate your favorite bundler for a [production-optimized build.](/#snowpack-build)
 - Enjoy out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](/#features)
 - Connect your favorite tools with [third-party plugins.](/#build-plugins)
-
 
 ### Who's Using Snowpack?
 
@@ -42,7 +39,6 @@ Snowpack serves your application **unbundled during development.** Every file on
 Snowpack's **unbundled development** still supports the same **bundled builds** that you're used to for production. When you go to build your application for production, you can plug in your favorite bundler via an official Snowpack plugin for Webpack or Rollup (coming soon). With Snowpack already handling your build, there's no complex bundler config required.
 
 **Snowpack gets you the best of both worlds:** fast, unbundled development with optimized performance in your bundled production builds.
-
 
 ### Library Support
 
@@ -81,7 +77,6 @@ Snowpack's **unbundled development** still supports the same **bundled builds** 
 **Snowpack builds your site for both modern and legacy browsers. Even IE11 is supported.** You can control and customize this behavior with the ["browserlist" package.json property](https://css-tricks.com/browserlist-good-idea/).
 
 The only requirement is that _during development_ you use a [modern browser](http://caniuse.com/#feat=es6-module). Any recent release of Firefox, Chrome, or Edge will do. This is required to support the modern, bundle-free ESM imports that load your application in the browser.
-
 
 ### Community
 

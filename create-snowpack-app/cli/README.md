@@ -6,17 +6,17 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 
 ## Official App Templates
 
-- [@snowpack/app-template-blank](../@snowpack/app-template-blank)
-- [@snowpack/app-template-blank-typescript](../@snowpack/app-template-blank-typescript)
-- [@snowpack/app-template-11ty](../@snowpack/app-template-11ty)
-- [@snowpack/app-template-lit-element-typescript](../@snowpack/app-template-lit-element-typescript)
-- [@snowpack/app-template-lit-element](../@snowpack/app-template-lit-element)
-- [@snowpack/app-template-preact](../@snowpack/app-template-preact)
-- [@snowpack/app-template-react-typescript](../@snowpack/app-template-react-typescript)
-- [@snowpack/app-template-react](../@snowpack/app-template-react)
-- [@snowpack/app-template-svelte-typescript](../@snowpack/app-template-svelte-typescript)
-- [@snowpack/app-template-svelte](../@snowpack/app-template-svelte)
-- [@snowpack/app-template-vue](../@snowpack/app-template-vue)
+- [@snowpack/app-template-blank](../app-template-blank)
+- [@snowpack/app-template-blank-typescript](../app-template-blank-typescript)
+- [@snowpack/app-template-11ty](../app-template-11ty)
+- [@snowpack/app-template-lit-element-typescript](../app-template-lit-element-typescript)
+- [@snowpack/app-template-lit-element](../app-template-lit-element)
+- [@snowpack/app-template-preact](../app-template-preact)
+- [@snowpack/app-template-react-typescript](../app-template-react-typescript)
+- [@snowpack/app-template-react](../app-template-react)
+- [@snowpack/app-template-svelte-typescript](../app-template-svelte-typescript)
+- [@snowpack/app-template-svelte](../app-template-svelte)
+- [@snowpack/app-template-vue](../app-template-vue)
 
 ### Featured Community Templates
 

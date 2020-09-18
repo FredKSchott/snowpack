@@ -8,7 +8,7 @@
     "noImplicitAny": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*", "@types/**/*"],
   "exclude": ["node_modules"]
