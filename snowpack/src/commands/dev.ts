@@ -69,6 +69,7 @@ import {
   cssSourceMappingURL,
   DEV_DEPENDENCIES_DIR,
   getExt,
+  HMR_CLIENT_CODE,
   jsSourceMappingURL,
   openInBrowser,
   parsePackageImportSpecifier,
@@ -76,7 +77,6 @@ import {
   replaceExt,
   resolveDependencyManifest,
   updateLockfileHash,
-  HMR_CLIENT_CODE,
 } from '../util';
 import {command as installCommand} from './install';
 import {getPort, paint, paintEvent} from './paint';
@@ -370,7 +370,7 @@ export async function command(commandOptions: CommandOptions) {
       }
     });
 
-    if (reqPath === getMetaUrlPath('/hmr.js', config)) {
+    if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
       sendFile(req, res, HMR_CLIENT_CODE, reqPath, '.js');
       return;
     }
@@ -475,7 +475,6 @@ export async function command(commandOptions: CommandOptions) {
         const builtFileOutput = await _buildFile(fileLoc, {
           plugins: config.plugins,
           isDev: true,
-          isExitOnBuild: false,
           isHmrEnabled: isHmr,
           sourceMaps: config.buildOptions.sourceMaps,
         });
@@ -594,11 +593,21 @@ export async function command(commandOptions: CommandOptions) {
             }
             return resolvedImportUrl;
           }
-          logger.error(`Import "${spec}" could not be resolved.
-If this is a new package, re-run Snowpack with the ${colors.bold('--reload')} flag to rebuild.
+          const errorTitle = `Error: Import "${spec}" could not be resolved.`;
+          const errorMessage = `If this is a new package, re-run Snowpack with the ${colors.bold(
+            '--reload',
+          )} flag to rebuild.
 If Snowpack is having trouble detecting the import, add ${colors.bold(
             `"install": ["${spec}"]`,
-          )} to your Snowpack config file.`);
+          )} to your Snowpack config file.`;
+          logger.error(`${errorTitle}\n${errorMessage}`);
+          hmrEngine.broadcastMessage({
+            type: 'error',
+            title: `${errorTitle}`,
+            errorMessage,
+            fileLoc,
+          });
+
           return spec;
         },
       );
@@ -761,8 +770,24 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
     try {
       responseOutput = await buildFile(fileLoc);
     } catch (err) {
-      logger.error(`${reqPath}
-${err}`);
+      logger.error(err.toString(), {name: err.__snowpackBuildDetails?.name});
+      if (err.__snowpackBuildDetails) {
+        hmrEngine.broadcastMessage({
+          type: 'error',
+          title: `Build Error: ${err.__snowpackBuildDetails.name}`,
+          errorMessage: err.toString(),
+          fileLoc,
+          errorStackTrace: err.stack,
+        });
+      } else {
+        hmrEngine.broadcastMessage({
+          type: 'error',
+          title: 'Build Error',
+          errorMessage: err.toString(),
+          fileLoc,
+          errorStackTrace: err.stack,
+        });
+      }
       sendError(req, res, 500);
       return;
     }

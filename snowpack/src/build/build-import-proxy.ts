@@ -26,7 +26,7 @@ export function wrapImportMeta({
   return (
     (hmr
       ? `import * as  __SNOWPACK_HMR__ from '${getMetaUrlPath(
-          'hmr.js',
+          'hmr-client.js',
           config,
         )}';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`
       : ``) +
@@ -75,7 +75,7 @@ export function wrapHtmlResponse({
   });
 
   if (hmr) {
-    const hmrScript = `<script type="module" src="${getMetaUrlPath('hmr.js', config)}"></script>`;
+    const hmrScript = `<script type="module" src="${getMetaUrlPath('hmr-client.js', config)}"></script>`;
     code = appendHTMLToBody(code, hmrScript);
   }
   return code;
@@ -143,7 +143,7 @@ async function generateCssModuleImportProxy({
   return `${
     hmr
       ? `
-import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr.js', config)}';
+import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr-client.js', config)}';
 import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
 import.meta.hot.dispose(() => {
   document.head.removeChild(styleEl);
