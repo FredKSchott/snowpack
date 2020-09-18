@@ -101,6 +101,7 @@ class FileBuilder {
     const builtFileOutput = await buildFile(this.filepath, {
       plugins: this.config.plugins,
       isDev: false,
+      isSSR: false,
       isHmrEnabled: false,
       sourceMaps: this.config.buildOptions.sourceMaps,
     });
@@ -422,6 +423,7 @@ export async function command(commandOptions: CommandOptions) {
     await runPipelineOptimizeStep(buildDirectoryLoc, {
       plugins: config.plugins,
       isDev: false,
+      isSSR: false,
       isHmrEnabled: false,
       sourceMaps: config.buildOptions.sourceMaps,
     });

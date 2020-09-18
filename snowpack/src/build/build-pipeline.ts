@@ -6,6 +6,7 @@ import {getExt, readFile, replaceExt} from '../util';
 
 export interface BuildFileOptions {
   isDev: boolean;
+  isSSR: boolean;
   isHmrEnabled: boolean;
   plugins: SnowpackPlugin[];
   sourceMaps: boolean;
@@ -37,7 +38,7 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
  */
 async function runPipelineLoadStep(
   srcPath: string,
-  {isDev, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
+  {isDev, isSSR, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   for (const step of plugins) {
@@ -55,6 +56,7 @@ async function runPipelineLoadStep(
         fileExt: srcExt,
         filePath: srcPath,
         isDev,
+        isSSR,
         isHmrEnabled,
       });
       logger.debug(`✔ load() success [${debugPath}]`, {name: step.name});
