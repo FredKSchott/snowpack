@@ -25,6 +25,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/*
+Background: This file was copied from the rendered HTML output of the 
+nextjs-error-overlay package / component. The source component was authored 
+for React & JSX which we didn't want to add as dependencies, so we grab the
+output itself here. 
+*/
+
 const ERROR_OVERLAY_TEMPLATE = `
 <template id="snowpack-error-overlay">
     <style>
@@ -885,7 +892,7 @@ var wrapper = document.createElement('div');
 wrapper.innerHTML = ERROR_OVERLAY_TEMPLATE;
 document.body.appendChild(wrapper);
 
-class HmrErrorOverlay extends HTMLElement {
+customElements.define('hmr-error-overlay', class HmrErrorOverlay extends HTMLElement {
   constructor({ title, errorMessage, fileLoc, errorStackTrace }) {
     super();
     this.title = title;
@@ -942,9 +949,4 @@ class HmrErrorOverlay extends HTMLElement {
       this.close();
     }
   }
-}
-
-customElements.define('hmr-error-overlay', HmrErrorOverlay);
-// const BiggerImage = customElements.get('hmr-error-overlay');
-// const overlay = new BiggerImage('Build Error', '[esbuild] Could not build this file', 'src/index.jsx', new Error('AH').stack);
-// document.body.appendChild(overlay);
+});
