@@ -18,11 +18,6 @@
     "test/esinstall/*"
   ],
   "devDependencies": {
-    "@pika/pack": "^0.5.0",
-    "@pika/plugin-build-node": "^0.9.1",
-    "@pika/plugin-copy-assets": "^0.9.1",
-    "@pika/plugin-simple-bin": "^0.9.1",
-    "@pika/plugin-ts-standard-pkg": "^0.9.1",
     "@types/babel__traverse": "^7.0.7",
     "@types/cacache": "^12.0.1",
     "@types/compressible": "^2.0.0",
