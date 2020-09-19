@@ -9,46 +9,20 @@
     "url": "https://github.com/pikapkg/snowpack.git"
   },
   "publishConfig": {
-    "access": "public",
-    "directory": "pkg"
+    "access": "public"
   },
   "scripts": {
-    "build": "pika build",
-    "version": "pika build"
-  },
-  "bin": {
-    "sp": "pkg/dist-node/index.bin.js",
-    "snowpack": "pkg/dist-node/index.bin.js"
+    "build": "tsc",
+    "build:watch": "tsc --watch"
   },
   "engines": {
     "node": ">=10.19.0"
   },
-  "@pika/pack": {
-    "pipeline": [
-      [
-        "@pika/plugin-ts-standard-pkg"
-      ],
-      [
-        "@pika/plugin-copy-assets"
-      ],
-      [
-        "@pika/plugin-build-node"
-      ],
-      [
-        "@pika/plugin-simple-bin",
-        {
-          "bin": "sp",
-          "minNodeVersion": 10
-        }
-      ],
-      [
-        "@pika/plugin-simple-bin",
-        {
-          "bin": "snowpack",
-          "minNodeVersion": 10
-        }
-      ]
-    ]
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "bin": {
+    "sp": "lib/index.bin.js",
+    "snowpack": "lib/index.bin.js"
   },
   "dependencies": {
     "@babel/plugin-syntax-import-meta": "^7.10.4",

@@ -12,12 +12,13 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "build:watch": "tsc --watch"
   },
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
   "exports": {
-    "import": "./import.mjs",
+    "import": "./index.esm.mjs",
     "require": "./lib/index.js"
   },
   "dependencies": {
