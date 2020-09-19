@@ -9,24 +9,16 @@
     "url": "https://github.com/pikapkg/snowpack.git"
   },
   "publishConfig": {
-    "access": "public",
-    "directory": "pkg"
+    "access": "public"
   },
   "scripts": {
-    "build": "pika build",
-    "version": "pika build"
+    "build": "tsc"
   },
-  "types": "pkg/dist-types/index.d.ts",
-  "main": "pkg/dist-node/index.js",
-  "@pika/pack": {
-    "pipeline": [
-      [
-        "@pika/plugin-ts-standard-pkg"
-      ],
-      [
-        "@pika/plugin-build-node"
-      ]
-    ]
+  "types": "lib/index.d.ts",
+  "main": "lib/index.js",
+  "exports": {
+    "import": "./import.mjs",
+    "require": "./lib/index.js"
   },
   "dependencies": {
     "@rollup/plugin-alias": "^3.0.1",
@@ -43,9 +35,5 @@
     "rollup": "^2.23.0",
     "rollup-plugin-node-polyfills": "^0.2.1",
     "validate-npm-package-name": "^3.0.0"
-  },
-  "exports": {
-    "import": "./wrapper.mjs",
-    "require": "./dist-node/index.js"
   }
 }
