@@ -140,6 +140,7 @@ export interface SnowpackConfig {
     minify: boolean;
     sourceMaps: boolean;
     watch: boolean;
+    ssr: false;
   };
   _extensionMap: Record<string, string>;
 }

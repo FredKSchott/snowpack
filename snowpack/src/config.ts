@@ -57,6 +57,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     minify: false,
     sourceMaps: false,
     watch: false,
+    ssr: false,
   },
 };
 
@@ -135,6 +136,7 @@ const configSchema = {
         minify: {type: 'boolean'},
         sourceMaps: {type: 'boolean'},
         watch: {type: 'boolean'},
+        ssr: {type: 'boolean'},
       },
     },
     proxy: {
