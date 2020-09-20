@@ -23,5 +23,5 @@ describe('NODE_ENV=', () => {
     test(`${nodeEnv}`, () => {
       expect(execPlugin(nodeEnv)).toMatchSnapshot();
     });
-  })
+  });
 });
