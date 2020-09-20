@@ -198,6 +198,10 @@ class FileBuilder {
         if (url.parse(resolvedImportUrl).protocol) {
           return spec;
         }
+        // Ignore packages marked as external
+        if (this.config.installOptions.externalPackage?.includes(resolvedImportUrl)) {
+          return spec;
+        }
         // Handle normal "./" & "../" import specifiers
         const importExtName = path.extname(resolvedImportUrl);
         const isProxyImport =

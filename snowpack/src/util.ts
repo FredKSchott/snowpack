@@ -35,8 +35,6 @@ export const HTML_JS_REGEX = /(<script[^>]*?type="module".*?>)(.*?)<\/script>/gi
 export const CSS_REGEX = /@import\s*['"](.*?)['"];/gs;
 export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
 
-export const URL_HAS_PROTOCOL_REGEX = /^(\w+:)?\/\//;
-
 /** Read file from disk; return a string if it’s a code file */
 export async function readFile(filepath: string): Promise<string | Buffer> {
   const data = await fs.promises.readFile(filepath);
