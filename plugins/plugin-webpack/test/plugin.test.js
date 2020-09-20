@@ -9,10 +9,26 @@ describe('@snowpack/plugin-webpack', () => {
       buildOptions: {},
     });
 
-    fs.writeFileSync = jest.fn();
-    fs.writeFile = jest.fn().mockImplementation((...args) => {
-      const callback = args.pop();
-      callback();
+    // terser-webpack-plugin reads out cache files after writing them,
+    // pass these through to the original method
+    // see https://github.com/pikapkg/snowpack/pull/1061#issuecomment-695112537
+    const originalWriteFileSync = fs.writeFileSync;
+    const originalWriteFile = fs.writeFile;
+
+    fs.writeFileSync = jest.fn().mockImplementation((path, ...args) => {
+      if (path.startsWith(__dirname)) return;
+
+      originalWriteFileSync(path, ...args);
+    });
+
+    fs.writeFile = jest.fn().mockImplementation((path, ...args) => {
+      if (path.startsWith(__dirname)) {
+        const callback = args.pop();
+        callback();
+        return;
+      }
+
+      originalWriteFile(path, ...args);
     });
     console.log = jest.fn();
 
@@ -20,10 +36,10 @@ describe('@snowpack/plugin-webpack', () => {
       buildDirectory: path.resolve(__dirname, 'stubs/minimal/'),
     });
 
-    expect(fs.writeFileSync.mock.calls.map(toPathAndStringContent)).toMatchSnapshot(
+    expect(fs.writeFileSync.mock.calls.filter(isLocal).map(toPathAndStringContent)).toMatchSnapshot(
       'fs.writeFileSync calls',
     );
-    expect(fs.writeFile.mock.calls.map(toPathAndStringContent)).toMatchSnapshot(
+    expect(fs.writeFile.mock.calls.filter(isLocal).map(toPathAndStringContent)).toMatchSnapshot(
       'fs.writeFile calls',
     );
     expect(console.log).toMatchSnapshot('console.log calls');
@@ -32,4 +48,8 @@ describe('@snowpack/plugin-webpack', () => {
 
 function toPathAndStringContent([path, content]) {
   return [path.replace(process.cwd(), ''), content.toString()];
+}
+
+function isLocal(mock) {
+  return mock[0].startsWith(__dirname);
 }
