@@ -152,6 +152,7 @@ async function runPipelineTransformStep(
     } catch (err) {
       // Attach metadata detailing where the error occurred.
       err.__snowpackBuildDetails = {name: step.name, step: 'transform'};
+      throw err;
     }
   }
 
