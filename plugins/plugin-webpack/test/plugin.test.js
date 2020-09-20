@@ -47,7 +47,10 @@ describe('@snowpack/plugin-webpack', () => {
 });
 
 function toPathAndStringContent([path, content]) {
-  return [path.replace(process.cwd(), ''), content.toString()];
+  const shortPath = path.replace(process.cwd(), '');
+  // unix-ify folder separators for Windows
+  const normalizedPath = shortPath.replace(/\\/g, '/');
+  return [normalizedPath, content.toString()];
 }
 
 function isLocal(mock) {
