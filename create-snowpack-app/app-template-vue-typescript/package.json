@@ -15,7 +15,7 @@
     "test": "echo \"Vue 3.0 test support is still in progress.\" && exit 1"
   },
   "dependencies": {
-    "vue": "^3.0.0-rc.4"
+    "vue": "^3.0.0"
   },
   "devDependencies": {
     "@snowpack/app-scripts-vue": "^1.8.4",
