@@ -1,7 +1,9 @@
 {
+  "include": ["src"],
   "compilerOptions": {
-    "target": "es2020",
-    "module": "esnext",
+    "outDir": "lib",
+    "module": "commonjs",
+    "target": "es2018",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "strict": true,
@@ -9,7 +11,5 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "skipLibCheck": true
-  },
-  "include": ["src/**/*", "@types/**/*"],
-  "exclude": ["node_modules"]
+  }
 }
