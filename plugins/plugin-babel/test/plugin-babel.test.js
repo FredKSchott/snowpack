@@ -89,7 +89,7 @@ describe('plugin-babel', () => {
       ...transformOptions,
     });
   });
-  test('sourceMaps option will be overwritte n', async () => {
+  test('sourceMaps option will be overwritten', async () => {
     const transformOptions = {
       sourceMaps: 'inline',
     };
