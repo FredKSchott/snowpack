@@ -47,7 +47,7 @@ const defaultExport = {
   }
 };
 
-import { createVNode as _createVNode, createTextVNode as _createTextVNode, toDisplayString as _toDisplayString, openBlock as _openBlock, createBlock as _createBlock } from \\"/web_modules/vue.js\\"
+import { createVNode as _createVNode, createTextVNode as _createTextVNode, toDisplayString as _toDisplayString, openBlock as _openBlock, createBlock as _createBlock } from \\"vue\\"
 
 const _hoisted_1 = { class: \\"App\\" }
 const _hoisted_2 = { class: \\"App-header\\" }
@@ -93,7 +93,7 @@ Object {
   },
   ".js": Object {
     "code": "const defaultExport = {};
-import { createVNode as _createVNode, openBlock as _openBlock, createBlock as _createBlock } from \\"/web_modules/vue.js\\"
+import { createVNode as _createVNode, openBlock as _openBlock, createBlock as _createBlock } from \\"vue\\"
 
 export function render(_ctx, _cache) {
   return (_openBlock(), _createBlock(\\"h1\\", null, \\"Vue Content Only Tpl\\"))
@@ -153,7 +153,7 @@ const defaultExport = {
   }
 };
 
-import { createVNode as _createVNode, createTextVNode as _createTextVNode, toDisplayString as _toDisplayString, openBlock as _openBlock, createBlock as _createBlock } from \\"/web_modules/vue.js\\"
+import { createVNode as _createVNode, createTextVNode as _createTextVNode, toDisplayString as _toDisplayString, openBlock as _openBlock, createBlock as _createBlock } from \\"vue\\"
 
 const _hoisted_1 = { class: \\"App\\" }
 const _hoisted_2 = { class: \\"App-header\\" }
