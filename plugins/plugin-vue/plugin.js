@@ -60,10 +60,7 @@ module.exports = function plugin(snowpackConfig) {
         const scriptLang = descriptor.script.lang;
         let scriptContent = descriptor.script.content;
         if (['jsx', 'ts', 'tsx'].includes(scriptLang)) {
-          scriptContent = scriptCompilers.esbuildCompile(
-            scriptContent,
-            scriptLang,
-          );
+          scriptContent = scriptCompilers.esbuildCompile(scriptContent, scriptLang);
         }
         if (['js', 'ts'].includes(scriptLang) || !scriptLang) {
           scriptContent = scriptContent.replace(`export default`, 'const defaultExport =');
@@ -99,7 +96,6 @@ module.exports = function plugin(snowpackConfig) {
           preprocessLang: descriptor.template.lang,
           compilerOptions: {
             scopeId: descriptor.styles.some((s) => s.scoped) ? `data-v-${id}` : null,
-            runtimeModuleName: '/web_modules/vue.js',
           },
         });
         if (js.errors && js.errors.length > 0) {

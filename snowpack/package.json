@@ -1,6 +1,6 @@
 {
   "name": "snowpack",
-  "version": "2.11.1",
+  "version": "2.12.0-pre.1",
   "description": "Run npm packages directly in the browser. No Webpack, Parcel, or bundlers required.",
   "author": "Fred K. Schott <fkschott@gmail.com>",
   "license": "MIT",
@@ -9,57 +9,26 @@
     "url": "https://github.com/pikapkg/snowpack.git"
   },
   "publishConfig": {
-    "access": "public",
-    "directory": "pkg"
+    "access": "public"
   },
   "scripts": {
-    "build": "pika build",
-    "version": "pika build"
-  },
-  "bin": {
-    "sp": "pkg/dist-node/index.bin.js",
-    "snowpack": "pkg/dist-node/index.bin.js"
+    "build": "tsc",
+    "build:watch": "tsc --watch"
   },
   "engines": {
     "node": ">=10.19.0"
   },
-  "@pika/pack": {
-    "pipeline": [
-      [
-        "@pika/plugin-ts-standard-pkg"
-      ],
-      [
-        "@pika/plugin-copy-assets"
-      ],
-      [
-        "@pika/plugin-build-node"
-      ],
-      [
-        "@pika/plugin-simple-bin",
-        {
-          "bin": "sp",
-          "minNodeVersion": 10
-        }
-      ],
-      [
-        "@pika/plugin-simple-bin",
-        {
-          "bin": "snowpack",
-          "minNodeVersion": 10
-        }
-      ]
-    ]
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "bin": {
+    "sp": "index.bin.js",
+    "snowpack": "index.bin.js"
   },
   "dependencies": {
     "@babel/plugin-syntax-import-meta": "^7.10.4",
-    "@rollup/plugin-alias": "^3.0.1",
-    "@rollup/plugin-commonjs": "^15.0.0",
-    "@rollup/plugin-inject": "^4.0.2",
-    "@rollup/plugin-json": "^4.0.0",
-    "@rollup/plugin-node-resolve": "^9.0.0",
-    "@rollup/plugin-replace": "^2.3.3",
     "@snowpack/plugin-build-script": "^2.0.7",
     "@snowpack/plugin-run-script": "^2.1.2",
+    "esinstall": "^0.1.0",
     "cacache": "^15.0.0",
     "cachedir": "^2.3.0",
     "chokidar": "^3.4.0",
@@ -77,7 +46,6 @@
     "glob": "^7.1.4",
     "got": "^11.1.4",
     "http-proxy": "^1.18.1",
-    "is-builtin-module": "^3.0.0",
     "isbinaryfile": "^4.0.6",
     "jsonschema": "^1.2.5",
     "kleur": "^4.1.1",
@@ -88,9 +56,8 @@
     "p-queue": "^6.6.1",
     "resolve-from": "^5.0.0",
     "rimraf": "^3.0.0",
-    "rollup": "^2.23.0",
-    "rollup-plugin-node-polyfills": "^0.2.1",
     "signal-exit": "^3.0.3",
+    "strip-ansi": "^6.0.0",
     "strip-comments": "^2.0.1",
     "tar": "^6.0.1",
     "validate-npm-package-name": "^3.0.0",

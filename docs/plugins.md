@@ -101,7 +101,6 @@ To develop and test a Snowpack plugin, the strategy is the same as with other np
   </li>
 </ol>
 
-
 ### Transform a File
 
 For our first example, we’ll look at transforming a file.
@@ -240,7 +239,6 @@ config(snowpackConfig) {
 Use this hook to read or make changes to the completed Snowpack configuration object. This is currently the recommended way to access the Snowpack configuration, since the one passed to the top-level plugin function is not yet finalized and may be incomplete.
 
 - [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts).
-
 
 ### resolve
 

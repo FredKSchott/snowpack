@@ -12,7 +12,6 @@ yarn add --dev snowpack
 
 Snowpack can also be installed globally via `npm install -g snowpack`. But, we recommend installing locally in every project via `--save-dev`/`--dev`. You can run the Snowpack CLI locally via package.json "scripts", npm's `npx snowpack`, or via `yarn snowpack`.
 
-
 ### Quick Start
 
 Here's a short list of what you can do with Snowpack:
@@ -31,7 +30,6 @@ snowpack build --watch
 # See more helpful info
 snowpack --help
 ```
-
 
 ### Create Snowpack App (CSA)
 

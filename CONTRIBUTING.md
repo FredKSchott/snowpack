@@ -22,18 +22,21 @@ yarn
 
 ## Build after changes
 
-Note: you will see warnings about `__dirname` and `require()` not being "a valid ESM global" when running `yarn build`. You can ignore these warnings.
+Some packages in the repo are written in JavaScript, and require no build step. Others (like Snowpack itself) are written in TypeScript, and require a build step to run.
 
 ```bash
+# Option 1: A one-time build step
 yarn build
-yarn --force
+
+# Option 2: Start a persistent TypeScript watcher, recompiling on every change
+# Recommended for active development, when many changes are required
+yarn build:watch
 ```
 
 ## Run tests
 
 ```bash
 yarn build
-yarn --force
 yarn test
 ```
 
@@ -50,7 +53,7 @@ You can run your local snowpack by path
 ```bash
 yarn build
 cd path/to/some-other-project
-/path/to/snowpack/pkg/dist-node/index.bin.js dev
+/path/to/snowpack/pkg/dist-node/index.bin.js dev --verbose --reload
 ```
 
 Or by linking the global `snowpack` library to your local clone
@@ -59,8 +62,10 @@ Or by linking the global `snowpack` library to your local clone
 cd pkg
 npm link
 cd path/to/some-other-project
-snowpack dev
+snowpack dev --verbose --reload
 ```
+
+The `--verbose` flag enables additional logs which will help to identify the source of a problem. The `--reload` will clear the local cache which might have been created by a different `snowpack` version. Learn more about [Snowpack's CLI flags](https://www.snowpack.dev/#cli-flags).
 
 ## Discussion
 

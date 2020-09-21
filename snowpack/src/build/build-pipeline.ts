@@ -7,7 +7,6 @@ import {getExt, readFile, replaceExt} from '../util';
 export interface BuildFileOptions {
   isDev: boolean;
   isHmrEnabled: boolean;
-  isExitOnBuild: boolean;
   plugins: SnowpackPlugin[];
   sourceMaps: boolean;
 }
@@ -38,7 +37,7 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
  */
 async function runPipelineLoadStep(
   srcPath: string,
-  {isDev, isHmrEnabled, isExitOnBuild, plugins, sourceMaps}: BuildFileOptions,
+  {isDev, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   for (const step of plugins) {
@@ -86,11 +85,9 @@ async function runPipelineLoadStep(
         return result;
       }
     } catch (err) {
-      // note: for many plugins like Babel, `err.toString()` is needed to display full output
-      logger.error(err.toString() || err, {name: step.name});
-      if (isExitOnBuild) {
-        process.exit(1);
-      }
+      // Attach metadata detailing where the error occurred.
+      err.__snowpackBuildDetails = {name: step.name, step: 'load'};
+      throw err;
     }
   }
 
@@ -111,7 +108,7 @@ async function runPipelineLoadStep(
 async function runPipelineTransformStep(
   output: SnowpackBuildMap,
   srcPath: string,
-  {isDev, isExitOnBuild, plugins, sourceMaps}: BuildFileOptions,
+  {isDev, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   const rootFilePath = srcPath.replace(srcExt, '');
@@ -153,11 +150,9 @@ async function runPipelineTransformStep(
         if (!sourceMaps) output[destExt].map = undefined;
       }
     } catch (err) {
-      // note: for many plugins like Babel, `err.toString()` is needed to display full output
-      logger.error(err.toString() || err, {name: step.name});
-      if (isExitOnBuild) {
-        process.exit(1);
-      }
+      // Attach metadata detailing where the error occurred.
+      err.__snowpackBuildDetails = {name: step.name, step: 'transform'};
+      throw err;
     }
   }
 
