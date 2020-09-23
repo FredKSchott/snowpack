@@ -102,7 +102,9 @@ function toPathAndStringContent([path, content]) {
   const shortPath = path.replace(process.cwd(), '');
   // unix-ify folder separators for Windows
   const normalizedPath = shortPath.replace(/\\/g, '/');
-  return [normalizedPath, content.toString()];
+  // unix-ify new lines
+  const normalizedContent = content.toString().replace(/(\\r\\n)/g, '\\n');
+  return [normalizedPath, normalizedContent];
 }
 
 function isLocal(mock) {
