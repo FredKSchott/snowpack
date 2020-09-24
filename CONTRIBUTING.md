@@ -35,7 +35,7 @@ yarn build:watch
 
 ## Updating and adding packages
 
-Since this is a monorepo with several subrepos, if you want to update/add packages in the subrepos like `create-snowpack-app/app-template-11ty` you'll want to run the commands in the target subdirectory like
+Since this is a monorepo with several packages, if you want to update/add packages in the subrepos like `create-snowpack-app/app-template-11ty` you'll want to run the commands in the target subdirectory like
 
 ```bash
 cd create-snowpack-app/app-template-vue
@@ -44,11 +44,11 @@ yarn add vue@latest
 
 ## Tests
 
-Our test suite uses a mixture of unit, integration, and snapshot tests. We recommend running these before you submit a PR.
+We recommend running all tests before you submit a PR.
 
 ### Running tests
 
-To run tests use:
+From the repository's root folder, run
 
 ```bash
 yarn build
@@ -57,7 +57,7 @@ yarn test
 
 ### Snapshot tests
 
-You'll almost always have a "failed" snapshot test when you make a contribution because your new change will make the final build different. You'll want to take a new snapshot. To do this run:
+The way our snapshot tests work is they test Snowpack by building the codebases in `test/build`. You'll almost always have a "failed" snapshot test when you make a contribution because your new change will make the final build different. You'll want to take a new snapshot. To do this run:
 
 ```bash
 yarn test -u
@@ -92,12 +92,18 @@ cd path/to/some-other-project
 snowpack dev --verbose --reload
 ```
 
+To test a local version of the CLI tool use
+
+```bash
+node /path/to/snowpack/create-snowpack-app/cli [my-new-dir] --template @snowpack/app-template-vue
+```
+
 To test a local version of the `create-snowpack-app` templates use
 
 NOTE This does not work, trying to figure this one out
 
 ```bash
-node /path/to/snowpack/create-snowpack-app/cli [my-new-dir] --template /path/to/snowpack/create-snowpack-app/app-template-vue --use-yarn
+npx create-snowpack-app [my-new-dir] --template /path/to/template
 ```
 
 The `--verbose` flag enables additional logs which will help to identify the source of a problem. The `--reload` will clear the local cache which might have been created by a different `snowpack` version. Learn more about [Snowpack's CLI flags](https://www.snowpack.dev/#cli-flags).
