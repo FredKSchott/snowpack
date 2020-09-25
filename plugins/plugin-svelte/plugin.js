@@ -21,7 +21,6 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   // Generate svelte options from user provided config (if given)
   svelteOptions = {
     dev: process.env.NODE_ENV !== 'production',
-    hydratable: true,
     css: false,
     ...svelteOptions,
     ...pluginOptions,
@@ -48,6 +47,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       const ssrOptions = {};
       if (isSSR) {
         ssrOptions.generate = 'ssr';
+        ssrOptions.hydratable = true;
         ssrOptions.css = true;
       }
 
