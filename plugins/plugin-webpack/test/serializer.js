@@ -22,6 +22,9 @@ function getSnowpackPluginOutputSnapshotSerializer(basePath) {
       if (firstCallArg.startsWith(basePath)) {
         const calls = mock.calls.filter(isLocal).map(toPathAndStringContent.bind(null, basePath));
         return calls
+          .sort((a, b) => {
+            return a[0] < b[0] ? -1 : 1;
+          })
           .map(([path, content]) => {
             return `FILE: ${path}\n${content}`;
           })
