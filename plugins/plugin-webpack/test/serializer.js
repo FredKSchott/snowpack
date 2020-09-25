@@ -16,26 +16,28 @@ const strpAnsi = require('strip-ansi');
  */
 function getSnowpackPluginOutputSnapshotSerializer(basePath) {
   return {
-    serialize({mock}) {
-      const firstCallArg = mock.calls[0][0];
-
-      if (firstCallArg.startsWith(basePath)) {
-        const calls = mock.calls.filter(isLocal).map(toPathAndStringContent.bind(null, basePath));
-        return calls
-          .sort((a, b) => {
-            return a[0] < b[0] ? -1 : 1;
-          })
-          .map(([path, content]) => {
-            return `FILE: ${path}\n${content}`;
-          })
-          .join(
-            '\n\n--------------------------------------------------------------------------------\n\n',
-          );
+    serialize(value) {
+      if (value.getMockName() === 'console.log') {
+        return value.mock.calls
+          .map(toSingleArgument)
+          .map(toNoralizedByteSize)
+          .map(removeColors)
+          .join('\n');
       }
 
-      const outputs = mock.calls.map(toSingleArgument).map(toNoralizedByteSize).map(removeColors);
-
-      return outputs.join('\n');
+      const calls = value.mock.calls
+        .filter(isLocal)
+        .map(toPathAndStringContent.bind(null, basePath));
+      return calls
+        .sort((a, b) => {
+          return a[0] < b[0] ? -1 : 1;
+        })
+        .map(([path, content]) => {
+          return `FILE: ${path}\n${content}`;
+        })
+        .join(
+          '\n\n--------------------------------------------------------------------------------\n\n',
+        );
     },
 
     test(value) {
@@ -64,6 +66,6 @@ function removeColors(output) {
   return strpAnsi(output);
 }
 
-function isLocal(mock) {
-  return mock[0].startsWith(__dirname);
+function isLocal(call) {
+  return call[0].startsWith(__dirname);
 }
