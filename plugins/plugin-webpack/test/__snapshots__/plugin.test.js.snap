@@ -1,24 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`@snowpack/plugin-webpack minimal - all options: console.log calls 1`] = `
-[MockFunction] {
-  "calls": Array [
-    Array [
-      "                   [1mAsset[39m[22m       [1mSize[39m[22m  [1mChunks[39m[22m  [1m[39m[22m                 [1m[39m[22m[1mChunk Names[39m[22m
-     [1m[32masset-manifest.json[39m[22m  174 bytes        [1m[39m[22m  [1m[32m[emitted][39m[22m        
-              [1m[32mindex-0.js[39m[22m  139 bytes       [1m0[39m[22m  [1m[32m[emitted][39m[22m        index
-          [1m[32mindex-0.js.map[39m[22m  188 bytes       [1m0[39m[22m  [1m[32m[emitted] [dev][39m[22m  index
+Array [
+  Array [
+    "                   [1mAsset[39m[22m       [1mSize[39m[22m  [1mChunks[39m[22m  [1m[39m[22m                 [1m[39m[22m[1mChunk Names[39m[22m
+     [1m[32masset-manifest.json[39m[22m  XXX bytes        [1m[39m[22m  [1m[32m[emitted][39m[22m        
+              [1m[32mindex-0.js[39m[22m  XXX bytes       [1m0[39m[22m  [1m[32m[emitted][39m[22m        index
+          [1m[32mindex-0.js.map[39m[22m  XXX bytes       [1m0[39m[22m  [1m[32m[emitted] [dev][39m[22m  index
     [1m[32mwebpack-runtime-1.js[39m[22m    1.5 KiB       [1m1[39m[22m  [1m[32m[emitted][39m[22m        webpack-runtime
 [1m[32mwebpack-runtime-1.js.map[39m[22m   8.06 KiB       [1m1[39m[22m  [1m[32m[emitted] [dev][39m[22m  webpack-runtime",
-    ],
   ],
-  "results": Array [
-    Object {
-      "type": "return",
-      "value": undefined,
-    },
-  ],
-}
+]
 `;
 
 exports[`@snowpack/plugin-webpack minimal - all options: fs.writeFile calls 1`] = `

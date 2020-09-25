@@ -94,7 +94,7 @@ describe('@snowpack/plugin-webpack', () => {
     expect(fs.writeFile.mock.calls.filter(isLocal).map(toPathAndStringContent)).toMatchSnapshot(
       'fs.writeFile calls',
     );
-    expect(console.log).toMatchSnapshot('console.log calls');
+    expect(console.log.mock.calls.map(toNoralizedByteSize)).toMatchSnapshot('console.log calls');
   });
 });
 
@@ -105,6 +105,13 @@ function toPathAndStringContent([path, content]) {
   // unix-ify new lines
   const normalizedContent = content.toString().replace(/(\\r\\n)/g, '\\n');
   return [normalizedPath, normalizedContent];
+}
+
+function toNoralizedByteSize([output, ...rest]) {
+  return [
+    typeof output === 'string' ? output.replace(/(\s{2,})\d+ bytes/g, '$1XXX bytes') : output,
+    ...rest,
+  ];
 }
 
 function isLocal(mock) {
