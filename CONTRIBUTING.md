@@ -33,12 +33,39 @@ yarn build
 yarn build:watch
 ```
 
-## Run tests
+## Updating and adding packages
+
+Since this is a monorepo with several packages, if you want to update/add packages in the subrepos like `create-snowpack-app/app-template-11ty` you'll want to run the commands in the target subdirectory like
+
+```bash
+cd create-snowpack-app/app-template-vue
+yarn add vue@latest
+```
+
+## Tests
+
+We recommend running all tests before you submit a PR.
+
+### Running tests
+
+From the repository's root folder, run
 
 ```bash
 yarn build
 yarn test
 ```
+
+### Snapshot tests
+
+The way our snapshot tests work is they test Snowpack by building the codebases in `test/build`. You'll almost always have a "failed" snapshot test when you make a contribution because your new change will make the final build different. You'll want to take a new snapshot. To do this run:
+
+```bash
+yarn test -u
+```
+
+You'll notice this changes the snapshot file. Commit this change and submit it along with your PR.
+
+### Filtering tests
 
 You can filter the tests that are being run using Jest's [`--testNamePattern`](https://jestjs.io/docs/en/cli#--testnamepatternregex) (alias: `-t`) CLI option. You can ignore the `123 snapshots obsolete` messages.
 
@@ -64,6 +91,20 @@ npm link
 cd path/to/some-other-project
 snowpack dev --verbose --reload
 ```
+
+To test a local version of the CLI tool use
+
+```bash
+node /path/to/snowpack/create-snowpack-app/cli [my-new-dir] --template @snowpack/app-template-vue
+```
+
+To test a local version of the `create-snowpack-app` templates use
+
+```bash
+npx create-snowpack-app [my-new-dir] --template ./path/to/template
+```
+
+Note the path must start with must start with a `.` to be considered local
 
 The `--verbose` flag enables additional logs which will help to identify the source of a problem. The `--reload` will clear the local cache which might have been created by a different `snowpack` version. Learn more about [Snowpack's CLI flags](https://www.snowpack.dev/#cli-flags).
 
