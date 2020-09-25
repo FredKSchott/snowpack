@@ -40,9 +40,9 @@ describe('@snowpack/plugin-webpack', () => {
       buildDirectory: path.resolve(__dirname, 'stubs/minimal/'),
     });
 
-    expect(fs.writeFileSync).toMatchSnapshot('fs.writeFileSync calls');
-    expect(fs.writeFile).toMatchSnapshot('fs.writeFile calls');
-    expect(console.log).toMatchSnapshot('console.log calls');
+    expect(fs.writeFileSync).toMatchSnapshot('fs.writeFileSync');
+    expect(fs.writeFile).toMatchSnapshot('fs.writeFile');
+    expect(console.log).toMatchSnapshot('console.log');
   });
 
   it('minimal - all options', async () => {
@@ -65,8 +65,8 @@ describe('@snowpack/plugin-webpack', () => {
       buildDirectory: path.resolve(__dirname, 'stubs/minimal/'),
     });
 
-    expect(fs.writeFileSync).toMatchSnapshot('fs.writeFileSync calls');
-    expect(fs.writeFile).toMatchSnapshot('fs.writeFile calls');
-    expect(console.log).toMatchSnapshot('console.log calls');
+    expect(fs.writeFileSync).toMatchSnapshot('fs.writeFileSync');
+    expect(fs.writeFile).toMatchSnapshot('fs.writeFile');
+    expect(console.log).toMatchSnapshot('console.log');
   });
 });
