@@ -28,10 +28,10 @@ SOFTWARE.
 
 const esbuild = require('esbuild');
 
-const codeSnippetH = `import { Fragment } from '/web_modules/vue.js';`;
+const codeSnippetH = `import { Fragment } from 'vue';`;
 
 // https://github.com/vitejs/vite/blob/master/src/client/vueJsxCompat.ts
-const codeSnippetVueJsxCompat = `import {createVNode, isVNode} from '/web_modules/vue.js';
+const codeSnippetVueJsxCompat = `import {createVNode, isVNode} from 'vue';
 const slice = Array.prototype.slice;
 export function jsx(tag, props = null, children = null) {
   if (arguments.length > 3 || isVNode(children)) {

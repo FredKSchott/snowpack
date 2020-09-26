@@ -1,0 +1,17 @@
+{
+  "include": ["src", "types"],
+  "exclude": ["node_modules"],
+  "extends": "@snowpack/app-scripts-vue/tsconfig.base.json",
+  "compilerOptions": {
+    // You can't currently define paths in your 'extends' config,
+    // so we have to set 'baseUrl' & 'paths' here.
+    // Don't change these unless you know what you're doing.
+    // See: https://github.com/microsoft/TypeScript/issues/25430
+    "baseUrl": "./",
+    /* more strict checking for errors that per-file transpilers like `esbuild` would crash */
+    "isolatedModules": true,
+    "paths": { "*": ["web_modules/.types/*"] }
+    // Feel free to add/edit new config options below:
+    // ...
+  }
+}

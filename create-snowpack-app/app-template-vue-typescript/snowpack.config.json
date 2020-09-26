@@ -1,0 +1,4 @@
+{
+  "extends": "@snowpack/app-scripts-vue",
+  "plugins": ["@snowpack/plugin-vue/plugin-tsx-jsx.js"]
+}
