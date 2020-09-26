@@ -43,10 +43,19 @@ import {
 export * from './types';
 export {printStats} from './stats';
 
-interface DependencyLoc {
-  type: 'JS' | 'ASSET' | 'IGNORE';
-  loc: string;
-}
+type DependencyLoc =
+  | {
+      type: 'JS';
+      loc: string;
+    }
+  | {
+      type: 'ASSET';
+      loc: string;
+    }
+  | {
+      type: 'DTS';
+      loc: undefined;
+    };
 
 // Add popular CJS packages here that use "synthetic" named imports in their documentation.
 // CJS packages should really only be imported via the default export:
@@ -168,30 +177,22 @@ function resolveWebDependency(
     foundEntrypoint = depManifest.main;
   }
   // Sometimes packages don't give an entrypoint, assuming you'll fall back to "index.js".
-  const isImplicitEntrypoint = !foundEntrypoint;
-  if (isImplicitEntrypoint) {
+  if (!foundEntrypoint && fs.existsSync(path.join(depManifestLoc, '../index.js'))) {
     foundEntrypoint = 'index.js';
+  }
+  // Some packages are types-only. If this is one of those packages, resolve with that.
+  if (!foundEntrypoint && (depManifest.types || depManifest.typings)) {
+    return {type: 'DTS', loc: undefined};
   }
   if (typeof foundEntrypoint !== 'string') {
     throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
   }
-  try {
-    return {
-      type: 'JS',
-      loc: fs.realpathSync.native(
-        require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
-      ),
-    };
-  } catch (err) {
-    // Type only packages! Some packages are purely for TypeScript (ex: csstypes).
-    // If no JS entrypoint was given or found, but a TS "types"/"typings" entrypoint
-    // was given, assume a TS-types only package and ignore.
-    if (isImplicitEntrypoint && (depManifest.types || depManifest.typings)) {
-      return {type: 'IGNORE', loc: ''};
-    }
-    // Otherwise, file truly doesn't exist.
-    throw err;
-  }
+  return {
+    type: 'JS',
+    loc: fs.realpathSync.native(
+      require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
+    ),
+  };
 }
 
 function generateEnvObject(userEnv: EnvVarReplacements): Object {
@@ -317,21 +318,24 @@ export async function install(
       continue;
     }
     try {
-      const {type: targetType, loc: targetLoc} = resolveWebDependency(installSpecifier, {
+      const resolvedResult = resolveWebDependency(installSpecifier, {
         logger,
         cwd,
       });
-      if (targetType === 'JS') {
-        installEntrypoints[targetName] = targetLoc;
+      if (resolvedResult.type === 'JS') {
+        installEntrypoints[targetName] = resolvedResult.loc;
         importMap.imports[installSpecifier] = `./${proxiedName}.js`;
         Object.entries(installAlias)
           .filter(([, value]) => value === installSpecifier)
           .forEach(([key]) => {
             importMap.imports[key] = `./${targetName}.js`;
           });
-      } else if (targetType === 'ASSET') {
-        assetEntrypoints[targetName] = targetLoc;
+      } else if (resolvedResult.type === 'ASSET') {
+        assetEntrypoints[targetName] = resolvedResult.loc;
         importMap.imports[installSpecifier] = `./${proxiedName}`;
+      } else if (resolvedResult.type === 'DTS') {
+        // This is fine! Skip type-only packages
+        logger.debug(`[${installSpecifier}] target points to a TS-only package.`);
       }
     } catch (err) {
       if (skipFailures) {
