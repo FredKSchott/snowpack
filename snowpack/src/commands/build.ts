@@ -73,7 +73,7 @@ async function installOptimizedDependencies(
  * individual stages so that the entire application build process can be tackled
  * in stages (build -> resolve -> write to disk).
  */
-export class FileBuilder {
+class FileBuilder {
   output: Record<string, string | Buffer> = {};
   filesToResolve: Record<string, SnowpackSourceFile> = {};
   filesToProxy: string[] = [];

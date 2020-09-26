@@ -3186,17 +3186,17 @@
     chrome-launcher "^0.13.3"
     puppeteer-core "^5.0.0"
 
-"@web/test-runner-cli@^0.5.11":
-  version "0.5.12"
-  resolved "https://registry.yarnpkg.com/@web/test-runner-cli/-/test-runner-cli-0.5.12.tgz#5ea0c71cfea214f598d7a89891d0c1af5acd5b38"
-  integrity sha512-FIf/Lf4zZgmcNe1JsoUMo8xn3nFvrQxeAHrAuvo+/I6FrDs2HwP+6hQNUY56awr+q9VTqR27+ieOkWnG8iwLhw==
+"@web/test-runner-cli@^0.5.13":
+  version "0.5.13"
+  resolved "https://registry.yarnpkg.com/@web/test-runner-cli/-/test-runner-cli-0.5.13.tgz#e1dcc8e4ef3310cc06bf9400a90e1549241452e7"
+  integrity sha512-boeKON/Af/L8iU3tG7LJCmL8bhWKmXRS4wp36cPdMDUIsMCxIVfD1xQjcxdrjM5OQiEdAIx58VEHwaYaFFLGXA==
   dependencies:
     "@babel/code-frame" "^7.10.4"
     "@types/babel__code-frame" "^7.0.1"
     "@web/browser-logs" "^0.1.2"
     "@web/config-loader" "^0.1.1"
     "@web/test-runner-chrome" "^0.6.4"
-    "@web/test-runner-core" "^0.7.12"
+    "@web/test-runner-core" "^0.7.16"
     camelcase "^6.0.0"
     chalk "^4.1.0"
     cli-cursor "^3.1.0"
@@ -3221,10 +3221,25 @@
   dependencies:
     "@web/test-runner-core" "^0.7.13"
 
-"@web/test-runner-core@^0.7.12", "@web/test-runner-core@^0.7.13", "@web/test-runner-core@^0.7.15", "@web/test-runner-core@^0.7.4":
+"@web/test-runner-core@^0.7.13", "@web/test-runner-core@^0.7.15", "@web/test-runner-core@^0.7.4":
   version "0.7.15"
   resolved "https://registry.yarnpkg.com/@web/test-runner-core/-/test-runner-core-0.7.15.tgz#7313c5ad4304e9ea0b4cb9f237c94d4f8e40d4eb"
   integrity sha512-RQQ5BBheSpBcmkK1afq0mUKlesubBt7cf0J+NvZ9lKqqRxIY2zSlynShJBwAsWzOxY/XDp33huBN2Kvoef3YZA==
+  dependencies:
+    "@babel/code-frame" "^7.10.4"
+    "@web/browser-logs" "^0.1.3"
+    "@web/dev-server-core" "^0.2.9"
+    co-body "^6.0.0"
+    debounce "^1.2.0"
+    dependency-graph "^0.9.0"
+    istanbul-lib-coverage "^3.0.0"
+    picomatch "^2.2.2"
+    uuid "^8.1.0"
+
+"@web/test-runner-core@^0.7.16", "@web/test-runner-core@^0.7.17":
+  version "0.7.17"
+  resolved "https://registry.yarnpkg.com/@web/test-runner-core/-/test-runner-core-0.7.17.tgz#afbfc6fc682eebe744ac249460e99fb203c6c299"
+  integrity sha512-wTHkFDjt0QBQXrLGMhrHTx6HB4KdpDo0FuM5nvxyw/p6tSp8banJalv+xKhX8cONR6XPFoaenn3oToK12EemwQ==
   dependencies:
     "@babel/code-frame" "^7.10.4"
     "@web/browser-logs" "^0.1.3"
@@ -3252,17 +3267,17 @@
   dependencies:
     "@types/mocha" "^8.0.1"
 
-"@web/test-runner@^0.7.21":
-  version "0.7.29"
-  resolved "https://registry.yarnpkg.com/@web/test-runner/-/test-runner-0.7.29.tgz#027b5383162e48ba857ab9bf6c275431446cdb81"
-  integrity sha512-rOVebaKfcDOPpI1T620HGEsA3NCf2Y7NyCMcGpS9cCeO+LZwDc7qRAP16RiPOk0hGoae0nhBs+N4KpxurnX7iQ==
+"@web/test-runner@^0.7.31":
+  version "0.7.31"
+  resolved "https://registry.yarnpkg.com/@web/test-runner/-/test-runner-0.7.31.tgz#ff5c02d9c1b020b117b4a6aa5c41e63b2235df47"
+  integrity sha512-hZAvyX+OtPlHi+vcXOGnBFrIY+lOojeLoaPnkn7RGMGfQS4RTBqTCo75ECdv8qm05TOecgNf4dXgcbgOdySYPw==
   dependencies:
     "@rollup/plugin-node-resolve" "^8.1.0"
     "@web/dev-server-rollup" "^0.2.9"
     "@web/test-runner-chrome" "^0.6.7"
-    "@web/test-runner-cli" "^0.5.11"
+    "@web/test-runner-cli" "^0.5.13"
     "@web/test-runner-commands" "^0.1.5"
-    "@web/test-runner-core" "^0.7.15"
+    "@web/test-runner-core" "^0.7.17"
     "@web/test-runner-mocha" "^0.3.3"
     command-line-args "^5.1.1"
     deepmerge "^4.2.2"
