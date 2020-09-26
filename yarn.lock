@@ -3008,17 +3008,6 @@
     estree-walker "^2.0.1"
     source-map "^0.6.1"
 
-"@vue/compiler-core@3.0.0-rc.10":
-  version "3.0.0-rc.10"
-  resolved "https://registry.yarnpkg.com/@vue/compiler-core/-/compiler-core-3.0.0-rc.10.tgz#a76f713fb0462429ec0ec10a472fff1f539c5772"
-  integrity sha512-kQzHzRsM0NPAWHeqSTb2J4VsHhjRkGeLTsGzeMnW+sojgTnS3T94KacwvYgVS4qeZAKiDq0bMNZoJWrHVQ3T8g==
-  dependencies:
-    "@babel/parser" "^7.10.4"
-    "@babel/types" "^7.10.4"
-    "@vue/shared" "3.0.0-rc.10"
-    estree-walker "^2.0.1"
-    source-map "^0.6.1"
-
 "@vue/compiler-dom@3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@vue/compiler-dom/-/compiler-dom-3.0.0.tgz#4cbb48fcf1f852daef2babcf9953b681ac463526"
@@ -3026,14 +3015,6 @@
   dependencies:
     "@vue/compiler-core" "3.0.0"
     "@vue/shared" "3.0.0"
-
-"@vue/compiler-dom@3.0.0-rc.10":
-  version "3.0.0-rc.10"
-  resolved "https://registry.yarnpkg.com/@vue/compiler-dom/-/compiler-dom-3.0.0-rc.10.tgz#dd1380d1ee61170de76f9eb91e0d8ac7985f0ae0"
-  integrity sha512-pqIUf5leZm0P9379utrRSVBMxhV8XaqJTEFFp5etCtbEa/H5ALs29EjFMtMcm9sQaVkZlKLu86mgIacbYB9Q3w==
-  dependencies:
-    "@vue/compiler-core" "3.0.0-rc.10"
-    "@vue/shared" "3.0.0-rc.10"
 
 "@vue/compiler-sfc@^3.0.0":
   version "3.0.0"
@@ -3072,13 +3053,6 @@
   dependencies:
     "@vue/shared" "3.0.0"
 
-"@vue/reactivity@3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@vue/reactivity/-/reactivity-3.0.0.tgz#fd15632a608650ce2a969c721787e27e2c80aa6b"
-  integrity sha512-mEGkztGQrAPZRhV7C6PorrpT3+NtuA4dY2QjMzzrW31noKhssWTajRZTwpLF39NBRrF5UU6cp9+1I0FfavMgEQ==
-  dependencies:
-    "@vue/shared" "3.0.0"
-
 "@vue/runtime-core@3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@vue/runtime-core/-/runtime-core-3.0.0.tgz#480febf1bfe32798b6abbd71a88f8e8b473a51c2"
@@ -3100,11 +3074,6 @@
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.0.0.tgz#ec089236629ecc0f10346b92f101ff4339169f1a"
   integrity sha512-4XWL/avABGxU2E2ZF1eZq3Tj7fvksCMssDZUHOykBIMmh5d+KcAnQMC5XHMhtnA0NAvktYsA2YpdsVwVmhWzvA==
-
-"@vue/shared@3.0.0-rc.10":
-  version "3.0.0-rc.10"
-  resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.0.0-rc.10.tgz#e7ab62abcabbfc738545902b96a3aa78f59f3286"
-  integrity sha512-fI6gVhhgb3cAmEkY4oeVVA2hWZ2xvkgogHdBI5PL7gSvZnOB6XZ2eQGsYjC4W+7BegvEkoMBuZsFXVa4ZQ07XQ==
 
 "@webassemblyjs/ast@1.9.0":
   version "1.9.0"
@@ -12390,7 +12359,7 @@ snapdragon@^0.8.1:
     source-map-resolve "^0.5.0"
     use "^3.1.0"
 
-snowpack@^2.11.0, snowpack@^2.7.0:
+snowpack@^2.10.0, snowpack@^2.11.0, snowpack@^2.7.0:
   version "2.11.1"
   resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-2.11.1.tgz#8565bed98806162bc1b001d3796c8863b18a2084"
   integrity sha512-trEBfCRUaPLaoMZdyDyLdzQfQGy2tOrr0gGeSV8AVjos3m412s2mWsfhYEGCT1AE/t0mrGMhj7ccVz5fh5yOnQ==
@@ -13938,7 +13907,7 @@ vue@*, vue@^2.0.0, vue@^2.6.12:
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.12.tgz#f5ebd4fa6bd2869403e29a896aed4904456c9123"
   integrity sha512-uhmLFETqPPNyuLLbsKz6ioJ4q7AZHzD8ZVFNATNyICSZouqP2Sz0rotWQC8UNBF6VGSCs5abnKJoStA6JbCbfg==
 
-vue@^3.0.0:
+vue@3.0.0, vue@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.0.0.tgz#cfb5df5c34efce319b113a1667d12b74dcfd9c90"
   integrity sha512-ZMrAARZ32sGIaYKr7Fk2GZEBh/VhulSrGxcGBiAvbN4fhjl3tuJyNFbbbLFqGjndbLoBW66I2ECq8ICdvkKdJw==
