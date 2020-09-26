@@ -16,6 +16,6 @@
     "type-only-pkg": "file:./packages/type-only-pkg"
   },
   "devDependencies": {
-    "snowpack": "^2.7.0"
+    "snowpack": "^2.11.0"
   }
 }

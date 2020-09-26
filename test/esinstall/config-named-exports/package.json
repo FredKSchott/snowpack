@@ -23,6 +23,6 @@
     "cjs-named-export-pkg": "file:./packages/cjs-named-export-pkg"
   },
   "devDependencies": {
-    "snowpack": "^2.7.0"
+    "snowpack": "^2.11.0"
   }
 }

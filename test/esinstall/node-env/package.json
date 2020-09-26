@@ -24,6 +24,6 @@
     "node-env-mock-pkg": "file:./packages/node-env-mock-pkg"
   },
   "devDependencies": {
-    "snowpack": "^2.7.0"
+    "snowpack": "^2.11.0"
   }
 }

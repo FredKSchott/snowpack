@@ -17,6 +17,6 @@
     "preact": "^10.4.6"
   },
   "devDependencies": {
-    "snowpack": "^2.7.0"
+    "snowpack": "^2.11.0"
   }
 }
