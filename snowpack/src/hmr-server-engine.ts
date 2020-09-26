@@ -30,9 +30,11 @@ interface EsmHmrEngineOptionsCommon {
 }
 
 type EsmHmrEngineOptions = ({
-  server: http.Server | http2.Http2Server;  
+  server: http.Server | http2.Http2Server;
+  port?: undefined;  
 } | {
   port: number;
+  server?: undefined;
 }) & EsmHmrEngineOptionsCommon;
 
 export class EsmHmrEngine {
@@ -45,14 +47,14 @@ export class EsmHmrEngine {
   private cachedConnectErrors: Set<HMRMessage> = new Set();
 
   constructor(options: EsmHmrEngineOptions) {
-    const wss = 'server' in options 
+    const wss = options.server 
       ? new WebSocket.Server({noServer: true})
       : new WebSocket.Server({port: options.port});
     if (options.delay) {
       this.delay = options.delay;
     }
 
-    if ('server' in options) {
+    if (options.server) {
       options.server.on('upgrade', (req, socket, head) => {
         // Only handle upgrades to ESM-HMR requests, ignore others.
         if (req.headers['sec-websocket-protocol'] !== 'esm-hmr') {
