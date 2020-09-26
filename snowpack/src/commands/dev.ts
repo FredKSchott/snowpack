@@ -881,7 +881,15 @@ ${err}`);
 
   const server = createServer(async (req, res) => {
     try {
-      return await requestHandler(req, res);
+      // Allow users to supply Express-style middleware (or a full Express app) to handle requests
+      // before Snowpack receives them. Snowpack will handle anything the middleware doesn't.
+      const middleware = config.devOptions.middleware;
+      if (typeof middleware === 'function') {
+        const next = () => requestHandler(req, res);
+        middleware(req, res, next);
+      } else {
+        await requestHandler(req, res);
+      }
     } catch (err) {
       logger.error(`[500] ${req.url}`);
       logger.error(err.toString() || err);
