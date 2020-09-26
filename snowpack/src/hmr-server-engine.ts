@@ -29,13 +29,17 @@ interface EsmHmrEngineOptionsCommon {
   delay?: number;
 }
 
-type EsmHmrEngineOptions = ({
-  server: http.Server | http2.Http2Server;
-  port?: undefined;  
-} | {
-  port: number;
-  server?: undefined;
-}) & EsmHmrEngineOptionsCommon;
+type EsmHmrEngineOptions = (
+  | {
+      server: http.Server | http2.Http2Server;
+      port?: undefined;
+    }
+  | {
+      port: number;
+      server?: undefined;
+    }
+) &
+  EsmHmrEngineOptionsCommon;
 
 export class EsmHmrEngine {
   clients: Set<WebSocket> = new Set();
@@ -47,7 +51,7 @@ export class EsmHmrEngine {
   private cachedConnectErrors: Set<HMRMessage> = new Set();
 
   constructor(options: EsmHmrEngineOptions) {
-    const wss = options.server 
+    const wss = options.server
       ? new WebSocket.Server({noServer: true})
       : new WebSocket.Server({port: options.port});
     if (options.delay) {
