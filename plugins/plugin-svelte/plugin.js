@@ -33,7 +33,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       output: ['.js', '.css'],
     },
     knownEntrypoints: ['svelte/internal'],
-    async load({filePath}) {
+    async load({filePath, isSSR}) {
       let codeToCompile = fs.readFileSync(filePath, 'utf-8');
       // PRE-PROCESS
       if (preprocessOptions) {
@@ -44,8 +44,16 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
         ).code;
       }
       // COMPILE
+      const ssrOptions = {};
+      if (isSSR) {
+        ssrOptions.generate = 'ssr';
+        ssrOptions.hydratable = true;
+        ssrOptions.css = true;
+      }
+
       const {js, css} = svelte.compile(codeToCompile, {
         ...svelteOptions,
+        ...ssrOptions,
         outputFilename: filePath,
         filename: filePath,
       });

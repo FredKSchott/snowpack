@@ -48,6 +48,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     out: 'build',
     fallback: 'index.html',
     hmrDelay: 0,
+    hmrPort: 12321,
   },
   buildOptions: {
     baseUrl: '/',
@@ -57,6 +58,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     minify: false,
     sourceMaps: false,
     watch: false,
+    ssr: false,
   },
 };
 
@@ -89,6 +91,8 @@ const configSchema = {
         bundle: {type: 'boolean'},
         open: {type: 'string'},
         hmr: {type: 'boolean'},
+        hmrDelay: {type: 'number'},
+        hmrPort: {type: 'number'},
       },
     },
     installOptions: {
@@ -135,6 +139,7 @@ const configSchema = {
         minify: {type: 'boolean'},
         sourceMaps: {type: 'boolean'},
         watch: {type: 'boolean'},
+        ssr: {type: 'boolean'},
       },
     },
     proxy: {

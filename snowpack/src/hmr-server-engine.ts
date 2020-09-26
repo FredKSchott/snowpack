@@ -23,8 +23,19 @@ type HMRMessage =
       errorStackTrace?: string;
     };
 
-const DEFAULT_PORT = 12321;
 const DEFAULT_CONNECT_DELAY = 2000;
+
+interface EsmHmrEngineOptionsCommon {
+  delay?: number;
+}
+
+type EsmHmrEngineOptions = ({
+  server: http.Server | http2.Http2Server;
+  port?: undefined;  
+} | {
+  port: number;
+  server?: undefined;
+}) & EsmHmrEngineOptionsCommon;
 
 export class EsmHmrEngine {
   clients: Set<WebSocket> = new Set();
@@ -34,15 +45,15 @@ export class EsmHmrEngine {
   private currentBatch: HMRMessage[] = [];
   private currentBatchTimeout: NodeJS.Timer | null = null;
   private cachedConnectErrors: Set<HMRMessage> = new Set();
-  wsUrl = `ws://localhost:${DEFAULT_PORT}`;
 
-  constructor(options: {server?: http.Server | http2.Http2Server; delay?: number} = {}) {
-    const wss = options.server
+  constructor(options: EsmHmrEngineOptions) {
+    const wss = options.server 
       ? new WebSocket.Server({noServer: true})
-      : new WebSocket.Server({port: DEFAULT_PORT});
+      : new WebSocket.Server({port: options.port});
     if (options.delay) {
       this.delay = options.delay;
     }
+
     if (options.server) {
       options.server.on('upgrade', (req, socket, head) => {
         // Only handle upgrades to ESM-HMR requests, ignore others.

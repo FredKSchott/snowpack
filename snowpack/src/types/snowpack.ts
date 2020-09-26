@@ -32,6 +32,7 @@ export interface PluginLoadOptions {
   filePath: string;
   fileExt: string;
   isDev: boolean;
+  isSSR: boolean;
   isHmrEnabled: boolean;
 }
 
@@ -129,6 +130,7 @@ export interface SnowpackConfig {
     open: string;
     hmr?: boolean;
     hmrDelay: number;
+    hmrPort: number;
   };
   installOptions: InstallOptions;
   buildOptions: {
@@ -139,6 +141,7 @@ export interface SnowpackConfig {
     minify: boolean;
     sourceMaps: boolean;
     watch: boolean;
+    ssr: false;
   };
   _extensionMap: Record<string, string>;
 }

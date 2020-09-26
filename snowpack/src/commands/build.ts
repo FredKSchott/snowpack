@@ -101,6 +101,7 @@ class FileBuilder {
     const builtFileOutput = await buildFile(this.filepath, {
       plugins: this.config.plugins,
       isDev: false,
+      isSSR: this.config.buildOptions.ssr,
       isHmrEnabled: false,
       sourceMaps: this.config.buildOptions.sourceMaps,
     });
@@ -269,6 +270,7 @@ class FileBuilder {
 
 export async function command(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
+  const isWatch = !!config.buildOptions.watch;
 
   const buildDirectoryLoc = config.devOptions.out;
   const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaDir);
@@ -289,10 +291,10 @@ export async function command(commandOptions: CommandOptions) {
 
   for (const runPlugin of config.plugins) {
     if (runPlugin.run) {
-      await runPlugin
+      const runJob = runPlugin
         .run({
-          isDev: false,
-          isHmrEnabled: false,
+          isDev: isWatch,
+          isHmrEnabled: getIsHmrEnabled(config),
           // @ts-ignore: internal API only
           log: (msg, data: {msg: string} = {}) => {
             if (msg === 'WORKER_MSG') {
@@ -302,8 +304,14 @@ export async function command(commandOptions: CommandOptions) {
         })
         .catch((err) => {
           logger.error(err.toString(), {name: runPlugin.name});
-          process.exit(1);
+          if (!isWatch) {
+            process.exit(1);
+          }
         });
+      // Wait for the job to complete before continuing (unless in watch mode)
+      if (!isWatch) {
+        await runJob;
+      }
     }
   }
 
@@ -315,7 +323,7 @@ export async function command(commandOptions: CommandOptions) {
       path.resolve(internalFilesBuildLoc, 'hmr-error-overlay.js'),
       HMR_OVERLAY_CODE,
     );
-    hmrEngine = new EsmHmrEngine();
+    hmrEngine = new EsmHmrEngine({ port: config.devOptions.hmrPort });
   }
 
   logger.info(colors.yellow('! building source…'));
@@ -422,6 +430,7 @@ export async function command(commandOptions: CommandOptions) {
     await runPipelineOptimizeStep(buildDirectoryLoc, {
       plugins: config.plugins,
       isDev: false,
+      isSSR: config.buildOptions.ssr,
       isHmrEnabled: false,
       sourceMaps: config.buildOptions.sourceMaps,
     });
@@ -431,7 +440,7 @@ export async function command(commandOptions: CommandOptions) {
 
   // "--watch --hmr" mode - Tell users about the HMR WebSocket URL
   if (hmrEngine) {
-    logger.info(`[HMR] WebSocket URL available at ${colors.cyan(`${hmrEngine.wsUrl}`)}`);
+    logger.info(`[HMR] WebSocket URL available at ${colors.cyan(`ws://localhost:${config.devOptions.hmrPort}`)}`);
   }
 
   // "--watch" mode - Start watching the file system.

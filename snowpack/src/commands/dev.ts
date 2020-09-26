@@ -30,6 +30,7 @@ import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, existsSync, promises as fs, statSync} from 'fs';
+import got from 'got';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
@@ -91,6 +92,41 @@ const DEFAULT_PROXY_ERROR_HANDLER = (
   logger.error(`✘ ${reqUrl}\n${err.message}`);
   sendError(req, res, 502);
 };
+
+/**
+ * An in-memory build cache for Snowpack. Responsible for coordinating
+ * different builds (ex: SSR, non-SSR) to get/set individually but clear
+ * both at once.
+ */
+class InMemoryBuildCache {
+  ssrCache = new Map<string, SnowpackBuildMap>();
+  webCache = new Map<string, SnowpackBuildMap>();
+
+  private getCache(isSSR: boolean): Map<string, SnowpackBuildMap> {
+    if (isSSR) {
+      return this.ssrCache;
+    } else {
+      return this.webCache;
+    }
+  }
+
+  get(fileLoc: string, isSSR: boolean) {
+    return this.getCache(isSSR).get(fileLoc);
+  }
+  set(fileLoc: string, val: SnowpackBuildMap, isSSR: boolean) {
+    return this.getCache(isSSR).set(fileLoc, val);
+  }
+  has(fileLoc: string, isSSR: boolean) {
+    return this.getCache(isSSR).has(fileLoc);
+  }
+  delete(fileLoc: string) {
+    return this.getCache(true).delete(fileLoc) && this.getCache(false).delete(fileLoc);
+  }
+  clear() {
+    this.getCache(true).clear();
+    this.getCache(false).clear();
+  }
+}
 
 function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
   const reqPath = decodeURI(url.parse(req.url!).pathname!);
@@ -202,7 +238,7 @@ function getUrlFromFile(
   return null;
 }
 
-export async function command(commandOptions: CommandOptions) {
+export async function startServer(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
   const {port: defaultPort, hostname, open} = config.devOptions;
   const isHmr = typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true;
@@ -234,7 +270,7 @@ export async function command(commandOptions: CommandOptions) {
     config.plugins.map((p) => p.name),
   );
 
-  const inMemoryBuildCache = new Map<string, SnowpackBuildMap>();
+  const inMemoryBuildCache = new InMemoryBuildCache();
   const filesBeingDeleted = new Set<string>();
   const filesBeingBuilt = new Map<string, Promise<SnowpackBuildMap>>();
   const mountedDirectories: [string, string][] = Object.entries(config.mount).map(
@@ -349,6 +385,7 @@ export async function command(commandOptions: CommandOptions) {
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const originalReqPath = reqPath;
+    const isSSR = reqUrl.includes('?ssr');
     let isProxyModule = false;
     let isSourceMap = false;
     if (reqPath.endsWith('.proxy.js')) {
@@ -480,10 +517,11 @@ export async function command(commandOptions: CommandOptions) {
         const builtFileOutput = await _buildFile(fileLoc, {
           plugins: config.plugins,
           isDev: true,
+          isSSR,
           isHmrEnabled: isHmr,
           sourceMaps: config.buildOptions.sourceMaps,
         });
-        inMemoryBuildCache.set(fileLoc, builtFileOutput);
+        inMemoryBuildCache.set(fileLoc, builtFileOutput, isSSR);
         return builtFileOutput;
       })();
       filesBeingBuilt.set(fileLoc, fileBuilderPromise);
@@ -693,7 +731,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
     }
 
     // 1. Check the hot build cache. If it's already found, then just serve it.
-    let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(fileLoc);
+    let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(fileLoc, isSSR);
     if (hotCachedResponse) {
       const responseContent = await finalizeResponse(fileLoc, requestedFileExt, hotCachedResponse);
       if (!responseContent) {
@@ -719,6 +757,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
     // matches then assume the entire cache is suspect. In that case, clear the
     // persistent cache and then force a live-reload of the page.
     const cachedBuildData =
+      !isSSR &&
       !filesBeingDeleted.has(fileLoc) &&
       (await cacache.get(BUILD_CACHE, fileLoc).catch(() => null));
     if (cachedBuildData) {
@@ -737,7 +776,7 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
             map?: string;
           }
         >;
-        inMemoryBuildCache.set(fileLoc, coldCachedResponse);
+        inMemoryBuildCache.set(fileLoc, coldCachedResponse, false);
         // Trust...
         const wrappedResponse = await finalizeResponse(
           fileLoc,
@@ -811,9 +850,16 @@ ${err}`);
 
     sendFile(req, res, responseContent, fileLoc, responseFileExt);
     const originalFileHash = etag(fileContents);
-    cacache.put(BUILD_CACHE, fileLoc, Buffer.from(JSON.stringify(responseOutput)), {
-      metadata: {originalFileHash},
-    });
+
+    // Only save the file to our cold cache if it's not SSR.
+    // NOTE(fks): We could do better and cache both, but at the time of writing SSR
+    // is still a new concept. Lets confirm that this is how we want to do SSR, and
+    // then can revisit the caching story once confident.
+    if (!isSSR) {
+      cacache.put(BUILD_CACHE, fileLoc, Buffer.from(JSON.stringify(responseOutput)), {
+        metadata: {originalFileHash},
+      });
+    }
   }
 
   type Http2RequestListener = (
@@ -921,7 +967,7 @@ ${err}`);
     // Otherwise, reload the page if the file exists in our hot cache (which
     // means that the file likely exists on the current page, but is not
     // supported by HMR (HTML, image, etc)).
-    if (inMemoryBuildCache.has(fileLoc)) {
+    if (inMemoryBuildCache.has(fileLoc, false)) {
       hmrEngine.broadcastMessage({type: 'reload'});
       return;
     }
@@ -995,5 +1041,19 @@ ${err}`);
   depWatcher.on('change', onDepWatchEvent);
   depWatcher.on('unlink', onDepWatchEvent);
 
+  return {
+    requestHandler,
+    /** @experimental - only available via unstable__startServer */
+    async loadByUrl(url: string, {isSSR}: {isSSR?: boolean}): Promise<string> {
+      if (!url.startsWith('/')) {
+        throw new Error(`url must start with "/", but got ${url}`);
+      }
+      return (await got.get(`http://localhost:${port}${url}${isSSR ? '?ssr=1' : ''}`)).body;
+    },
+  };
+}
+
+export async function command(commandOptions: CommandOptions) {
+  await startServer(commandOptions);
   return new Promise(() => {});
 }
