@@ -4,9 +4,11 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
+  const isDev = process.env.NODE_ENV !== "production";
+
   // Support importing Svelte files when you install dependencies.
   snowpackConfig.installOptions.rollup.plugins.push(
-    svelteRollupPlugin({include: '**/node_modules/**'}),
+    svelteRollupPlugin({include: '**/node_modules/**', dev: isDev}),
   );
 
   let svelteOptions;
@@ -20,7 +22,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   }
   // Generate svelte options from user provided config (if given)
   svelteOptions = {
-    dev: process.env.NODE_ENV !== 'production',
+    dev: isDev,
     css: false,
     ...svelteOptions,
     ...pluginOptions,
