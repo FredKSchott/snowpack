@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
-  const isDev = process.env.NODE_ENV !== "production";
+  const isDev = process.env.NODE_ENV !== 'production';
 
   // Support importing Svelte files when you install dependencies.
   snowpackConfig.installOptions.rollup.plugins.push(
