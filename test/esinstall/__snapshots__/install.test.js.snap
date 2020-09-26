@@ -11298,17 +11298,59 @@ const foo = 'bar';
 export { foo };"
 `;
 
+exports[`snowpack install dep-types-only: allFiles 1`] = `
+Array [
+  "array-flatten.js",
+  "import-map.json",
+]
+`;
+
+exports[`snowpack install dep-types-only: array-flatten.js 1`] = `
+"/**
+ * Flatten an array indefinitely.
+ */
+function flatten(array) {
+    var result = [];
+    $flatten(array, result);
+    return result;
+}
+/**
+ * Internal flatten function recursively passes \`result\`.
+ */
+function $flatten(array, result) {
+    for (var i = 0; i < array.length; i++) {
+        var value = array[i];
+        if (Array.isArray(value)) {
+            $flatten(value, result);
+        }
+        else {
+            result.push(value);
+        }
+    }
+}
+export { flatten };"
+`;
+
+exports[`snowpack install dep-types-only: import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"array-flatten\\": \\"./array-flatten.js\\"
+  }
+}"
+`;
+
+exports[`snowpack install dep-types-only: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/         size       gzip       brotli
+    └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install error-config-invalid: output 1`] = `
 "! XXX/package.json
     - snowpack.install is not of a type(s) array
     See https://www.snowpack.dev/#configuration for more info."
-`;
-
-exports[`snowpack install error-dep-types-only: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] No ESM dependencies found!
-  At least one dependency must have an ESM \\"module\\" entrypoint. You can find modern, web-ready packages at https://www.pika.dev
-[snowpack] install skipped (nothing to install)"
 `;
 
 exports[`snowpack install error-empty-dep-list: output 1`] = `"[snowpack] Nothing to install."`;

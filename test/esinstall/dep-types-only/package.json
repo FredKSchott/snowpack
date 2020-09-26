@@ -7,11 +7,13 @@
   },
   "snowpack": {
     "install": [
+      "array-flatten",
       "type-only-pkg"
     ]
   },
   "dependencies": {
-    "type-only-pkg": "file:./packages/type-only-pkg"
+      "array-flatten": "^3.0.0",
+      "type-only-pkg": "file:./packages/type-only-pkg"
   },
   "devDependencies": {
     "snowpack": "^2.7.0"
