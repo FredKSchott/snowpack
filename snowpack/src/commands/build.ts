@@ -323,7 +323,7 @@ export async function command(commandOptions: CommandOptions) {
       path.resolve(internalFilesBuildLoc, 'hmr-error-overlay.js'),
       HMR_OVERLAY_CODE,
     );
-    hmrEngine = new EsmHmrEngine();
+    hmrEngine = new EsmHmrEngine({ port: config.devOptions.hmrPort });
   }
 
   logger.info(colors.yellow('! building source…'));
@@ -440,7 +440,7 @@ export async function command(commandOptions: CommandOptions) {
 
   // "--watch --hmr" mode - Tell users about the HMR WebSocket URL
   if (hmrEngine) {
-    logger.info(`[HMR] WebSocket URL available at ${colors.cyan(`${hmrEngine.wsUrl}`)}`);
+    logger.info(`[HMR] WebSocket URL available at ${colors.cyan(`ws://localhost:${config.devOptions.hmrPort}`)}`);
   }
 
   // "--watch" mode - Start watching the file system.

@@ -130,6 +130,7 @@ export interface SnowpackConfig {
     open: string;
     hmr?: boolean;
     hmrDelay: number;
+    hmrPort: number;
   };
   installOptions: InstallOptions;
   buildOptions: {
