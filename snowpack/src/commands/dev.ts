@@ -93,7 +93,7 @@ const DEFAULT_PROXY_ERROR_HANDLER = (
   sendError(req, res, 502);
 };
 
-/** 
+/**
  * An in-memory build cache for Snowpack. Responsible for coordinating
  * different builds (ex: SSR, non-SSR) to get/set individually but clear
  * both at once.

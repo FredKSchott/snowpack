@@ -190,7 +190,7 @@ Notice that `.svelte` is missing from `resolve.output` and isn't returned by `lo
 
 ### Server-Side Rendering (SSR)
 
-Plugins can produce server-optimized code for SSR via the `load()` plugin hook. The `isSSR` flag tells the plugin that Snowpack is requesting your file for the server, and that it will expect a response that will run on the server. 
+Plugins can produce server-optimized code for SSR via the `load()` plugin hook. The `isSSR` flag tells the plugin that Snowpack is requesting your file for the server, and that it will expect a response that will run on the server.
 
 Some frameworks/languages (like React) run the same code on both the browser and the server. Others (like Svelte) will create different output for the server than the browser. In the example below, we use the `isSSR` flag to tell the Svelte compiler to generate server-optimized code when requested by Snowpack.
 
@@ -206,9 +206,11 @@ module.exports = function (snowpackConfig, pluginOptions) {
       output: ['.js', '.css'],
     },
     async load({filePath, isSSR}) {
-      const svelteOptions = { /* ... */ };
+      const svelteOptions = {
+        /* ... */
+      };
       const codeToCompile = fs.readFileSync(filePath, 'utf-8');
-      const result = svelte.compile(codeToCompile, { ...svelteOptions, ssr: isSSR });
+      const result = svelte.compile(codeToCompile, {...svelteOptions, ssr: isSSR});
       // ...
     },
   };
@@ -216,7 +218,6 @@ module.exports = function (snowpackConfig, pluginOptions) {
 ```
 
 If you're not sure if your plugin needs special SSR support, you are probably fine to skip this and ignore the `isSSR` flag in your plugin. Many languages won't need this, and SSR is always an intentional opt-in by the user.
-
 
 ### Optimizing & Bundling
 

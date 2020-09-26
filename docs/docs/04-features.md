@@ -271,7 +271,6 @@ Snowpack supports [native CSS "@import" behavior](https://developer.mozilla.org/
 
 **Note for webpack users:** If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With Snowpack you remove the `~` from your `@import`s.
 
-
 ### Server Side Rendering (SSR)
 
 SSR for Snowpack is supported but fairly new and experimental. This section of our documentation will be updated as we finalize support over the next few versions.
@@ -281,7 +280,6 @@ These frameworks have known experiments / examples of using SSR + Snowpack:
 - React (Example): https://github.com/matthoffner/snowpack-react-ssr
 - Svelte/Sapper (Experiment): https://github.com/Rich-Harris/snowpack-svelte-ssr
 - [Join our Discord](https://discord.gg/rS8SnRk) if you're interested in getting involved!
-
 
 ### Optimized Builds
 
