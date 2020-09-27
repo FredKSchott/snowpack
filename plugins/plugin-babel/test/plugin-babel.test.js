@@ -1,12 +1,12 @@
 const plugin = require('../plugin.js');
-const babel = require('@babel/core');
-const workerpool = require('workerpool');
 
 jest.mock('@babel/core');
+const babel = require('@babel/core');
 babel.transformFileAsync = jest.fn(() => Promise.resolve({code: 'code', map: 'map'}));
 
 /** jest mock above in worker will not work */
 jest.mock('workerpool');
+const workerpool = require('workerpool');
 workerpool.pool = jest.fn((path) => ({
   proxy: jest.fn(() =>
     Promise.resolve({
