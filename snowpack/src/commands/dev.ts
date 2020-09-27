@@ -54,7 +54,7 @@ import {
 } from '../build/build-import-proxy';
 import {buildFile as _buildFile, getInputsFromOutput} from '../build/build-pipeline';
 import {createImportResolver} from '../build/import-resolver';
-import srcFileExtensionMapping from '../build/src-file-extension-mapping';
+import {getUrlForFile} from '../build/file-urls';
 import {EsmHmrEngine} from '../hmr-server-engine';
 import {logger} from '../logger';
 import {
@@ -63,7 +63,7 @@ import {
   transformFileImports,
 } from '../rewrite-imports';
 import {matchDynamicImportValue} from '../scan-imports';
-import {CommandOptions, ImportMap, SnowpackBuildMap, SnowpackConfig} from '../types/snowpack';
+import {CommandOptions, ImportMap, SnowpackBuildMap} from '../types/snowpack';
 import {
   BUILD_CACHE,
   checkLockfileHash,
@@ -219,25 +219,6 @@ const sendError = (req: http.IncomingMessage, res: http.ServerResponse, status: 
   res.end();
 };
 
-function getUrlFromFile(
-  mountedDirectories: [string, string][],
-  fileLoc: string,
-  config: SnowpackConfig,
-): string | null {
-  for (const [dirDisk, dirUrl] of mountedDirectories) {
-    if (fileLoc.startsWith(dirDisk + path.sep)) {
-      const {baseExt} = getExt(fileLoc);
-      const resolvedDirUrl = dirUrl === '/' ? '' : dirUrl;
-      return replaceExt(
-        fileLoc.replace(dirDisk, resolvedDirUrl).replace(/[/\\]+/g, '/'),
-        baseExt,
-        config._extensionMap[baseExt] || srcFileExtensionMapping[baseExt] || baseExt,
-      );
-    }
-  }
-  return null;
-}
-
 export async function startServer(commandOptions: CommandOptions) {
   const {cwd, config} = commandOptions;
   const {port: defaultPort, hostname, open} = config.devOptions;
@@ -273,11 +254,6 @@ export async function startServer(commandOptions: CommandOptions) {
   const inMemoryBuildCache = new InMemoryBuildCache();
   const filesBeingDeleted = new Set<string>();
   const filesBeingBuilt = new Map<string, Promise<SnowpackBuildMap>>();
-  const mountedDirectories: [string, string][] = Object.entries(config.mount).map(
-    ([fromDisk, toUrl]) => {
-      return [path.resolve(cwd, fromDisk), toUrl];
-    },
-  );
 
   // Set the proper install options, in case an install is needed.
   const dependencyImportMapLoc = path.join(DEV_DEPENDENCIES_DIR, 'import-map.json');
@@ -458,7 +434,7 @@ export async function startServer(commandOptions: CommandOptions) {
           return fileLoc;
         }
       }
-      for (const [dirDisk, dirUrl] of mountedDirectories) {
+      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
         let requestedFile: string;
         if (dirUrl === '/') {
           requestedFile = path.join(dirDisk, reqPath);
@@ -946,7 +922,7 @@ ${err}`);
     if (isLiveReloadPaused) {
       return;
     }
-    let updateUrl = getUrlFromFile(mountedDirectories, fileLoc, config);
+    let updateUrl = getUrlForFile(fileLoc, config);
     if (!updateUrl) {
       return;
     }
@@ -1013,15 +989,12 @@ ${err}`);
     await cacache.rm.entry(BUILD_CACHE, fileLoc);
     filesBeingDeleted.delete(fileLoc);
   }
-  const watcher = chokidar.watch(
-    mountedDirectories.map(([dirDisk]) => dirDisk),
-    {
-      ignored: config.exclude,
-      persistent: true,
-      ignoreInitial: true,
-      disableGlobbing: false,
-    },
-  );
+  const watcher = chokidar.watch(Object.keys(config.mount), {
+    ignored: config.exclude,
+    persistent: true,
+    ignoreInitial: true,
+    disableGlobbing: false,
+  });
   watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));

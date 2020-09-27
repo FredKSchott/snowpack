@@ -8,7 +8,7 @@ import {
   relativeURL,
   replaceExt,
 } from '../util';
-import srcFileExtensionMapping from './src-file-extension-mapping';
+import {defaultFileExtensionMapping} from './file-urls';
 
 const cwd = process.cwd();
 
@@ -38,7 +38,7 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: S
     spec = spec + '.js';
   }
   const {baseExt} = getExt(spec);
-  const extToReplace = config._extensionMap[baseExt] || srcFileExtensionMapping[baseExt];
+  const extToReplace = config._extensionMap[baseExt] || defaultFileExtensionMapping[baseExt];
   if (extToReplace) {
     spec = replaceExt(spec, baseExt, extToReplace);
   }
