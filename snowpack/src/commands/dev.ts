@@ -43,7 +43,6 @@ import {performance} from 'perf_hooks';
 import onProcessExit from 'signal-exit';
 import stream from 'stream';
 import url from 'url';
-import util from 'util';
 import zlib from 'zlib';
 import {
   generateEnvModule,
@@ -81,7 +80,7 @@ import {
   updateLockfileHash,
 } from '../util';
 import {command as installCommand} from './install';
-import {getPort, paint, paintEvent} from './paint';
+import {getPort, paintEvent} from './paint';
 
 const DEFAULT_PROXY_ERROR_HANDLER = (
   err: Error,
