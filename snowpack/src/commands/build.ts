@@ -16,6 +16,7 @@ import {
 } from '../build/build-import-proxy';
 import {buildFile, runPipelineCleanupStep, runPipelineOptimizeStep} from '../build/build-pipeline';
 import {createImportResolver} from '../build/import-resolver';
+import {transformUrlForFile, getUrlForFile} from '../build/file-urls';
 import {EsmHmrEngine} from '../hmr-server-engine';
 import {logger} from '../logger';
 import {transformFileImports} from '../rewrite-imports';
@@ -269,19 +270,11 @@ class FileBuilder {
 }
 
 export async function command(commandOptions: CommandOptions) {
-  const {cwd, config} = commandOptions;
+  const {config} = commandOptions;
   const isWatch = !!config.buildOptions.watch;
 
   const buildDirectoryLoc = config.devOptions.out;
   const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaDir);
-  const mountedDirectories: [string, string][] = Object.entries(config.mount).map(
-    ([fromDisk, toUrl]) => {
-      return [
-        path.resolve(cwd, fromDisk),
-        path.resolve(buildDirectoryLoc, removeLeadingSlash(toUrl)),
-      ];
-    },
-  );
 
   if (config.buildOptions.clean) {
     rimraf.sync(buildDirectoryLoc);
@@ -369,7 +362,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   // 0. Find all source files.
-  for (const [fromDisk, dirDest] of mountedDirectories) {
+  for (const [fromDisk, toUrl] of Object.entries(config.mount)) {
     const allFiles = glob.sync(`**/*`, {
       ignore: config.exclude,
       cwd: fromDisk,
@@ -379,8 +372,9 @@ export async function command(commandOptions: CommandOptions) {
     });
     for (const rawLocOnDisk of allFiles) {
       const locOnDisk = path.resolve(rawLocOnDisk); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
-      const finalDest = locOnDisk.replace(fromDisk, dirDest);
-      const outDir = path.dirname(finalDest);
+      const finalUrl = transformUrlForFile(locOnDisk, [fromDisk, toUrl], config)!;
+      const finalDestLoc = path.join(buildDirectoryLoc, finalUrl);
+      const outDir = path.dirname(finalDestLoc);
       const buildPipelineFile = new FileBuilder({filepath: locOnDisk, outDir, config});
       buildPipelineFiles[locOnDisk] = buildPipelineFile;
     }
@@ -457,13 +451,13 @@ export async function command(commandOptions: CommandOptions) {
   }
   async function onWatchEvent(fileLoc: string) {
     logger.info(colors.cyan('File changed...'));
-    const [fromDisk, dirDest] =
-      mountedDirectories.find(([fromDisk]) => fileLoc.startsWith(fromDisk)) || [];
-    if (!fromDisk || !dirDest) {
+    const toUrl = getUrlForFile(fileLoc, config);
+    if (!toUrl) {
       return;
     }
-    const finalDest = fileLoc.replace(fromDisk, dirDest);
+    const finalDest = path.join(buildDirectoryLoc, toUrl);
     const outDir = path.dirname(finalDest);
+
     const changedPipelineFile = new FileBuilder({filepath: fileLoc, outDir, config});
     buildPipelineFiles[fileLoc] = changedPipelineFile;
     // 1. Build the file.
@@ -506,15 +500,12 @@ export async function command(commandOptions: CommandOptions) {
       hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
-  const watcher = chokidar.watch(
-    mountedDirectories.map(([dirDisk]) => dirDisk),
-    {
-      ignored: config.exclude,
-      ignoreInitial: true,
-      persistent: true,
-      disableGlobbing: false,
-    },
-  );
+  const watcher = chokidar.watch(Object.keys(config.mount), {
+    ignored: config.exclude,
+    ignoreInitial: true,
+    persistent: true,
+    disableGlobbing: false,
+  });
   watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onDeleteEvent(fileLoc));

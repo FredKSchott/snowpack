@@ -27,7 +27,7 @@ export async function getInstallTargets(
   if (scannedFiles) {
     installTargets.push(...(await scanImportsFromFiles(scannedFiles, config)));
   } else {
-    installTargets.push(...(await scanImports(cwd, config)));
+    installTargets.push(...(await scanImports(config)));
   }
   return installTargets;
 }

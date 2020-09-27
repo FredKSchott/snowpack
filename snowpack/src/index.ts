@@ -15,6 +15,7 @@ export * from './types/snowpack';
 // Unstable: These APIs are in progress and subject to change
 export {startServer as unstable__startServer} from './commands/dev';
 export {loadAndValidateConfig as unstable__loadAndValidateConfig};
+export {getUrlForFile} from './build/file-urls';
 
 const cwd = process.cwd();
 
