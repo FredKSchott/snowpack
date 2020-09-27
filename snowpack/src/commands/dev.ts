@@ -815,23 +815,14 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       responseOutput = await buildFile(fileLoc);
     } catch (err) {
       logger.error(err.toString(), {name: err.__snowpackBuildDetails?.name});
-      if (err.__snowpackBuildDetails) {
-        hmrEngine.broadcastMessage({
-          type: 'error',
-          title: `Build Error: ${err.__snowpackBuildDetails.name}`,
-          errorMessage: err.toString(),
-          fileLoc,
-          errorStackTrace: err.stack,
-        });
-      } else {
-        hmrEngine.broadcastMessage({
-          type: 'error',
-          title: 'Build Error',
-          errorMessage: err.toString(),
-          fileLoc,
-          errorStackTrace: err.stack,
-        });
-      }
+      hmrEngine.broadcastMessage({
+        type: 'error',
+        title:
+          `Build Error` + err.__snowpackBuildDetails ? `: ${err.__snowpackBuildDetails.name}` : '',
+        errorMessage: err.toString(),
+        fileLoc,
+        errorStackTrace: err.stack,
+      });
       sendError(req, res, 500);
       return;
     }
