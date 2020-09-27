@@ -17,6 +17,9 @@
     "svelte": "^3.24.0"
   },
   "devDependencies": {
+    "@snowpack/plugin-dotenv": "^2.0.1",
+    "@snowpack/plugin-run-script": "^2.1.2",
+    "@snowpack/plugin-svelte": "^2.0.4",
     "@snowpack/app-scripts-svelte": "^1.8.4",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/svelte": "^3.0.0",

@@ -1,30 +1,23 @@
 {
-  "extends": "@tsconfig/svelte/tsconfig.json",
-  "compilerOptions": {
-    "module": "esnext",
-    "target": "esnext",
-    "jsx": "preserve",
-    "allowSyntheticDefaultImports": true,
-    /* more strict checking for errors that per-file transpilers like `esbuild` would crash */
-    "isolatedModules": true,
-    /* noEmit - We only use TypeScript for type checking. */
-    "noEmit": true,
-    /* Additional Options */
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "useDefineForClassFields": true,
-
-    // You can't currently define paths in your 'extends' config,
-    // so we have to set 'baseUrl' & 'paths' here.
-    // Don't change these unless you know what you're doing.
-    // See: https://github.com/microsoft/TypeScript/issues/25430
-    "baseUrl": "./",
-    "paths": {"*": ["web_modules/.types/*"]},
-
-    "types": ["snowpack-env", "svelte", "jest", "@testing-library/jest-dom"]
-  },
   "include": ["src", "types"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+      "module": "esnext",
+      "target": "esnext",
+      "moduleResolution": "node",
+      "jsx": "preserve",
+      "baseUrl": "./",
+      /* paths - If you configure Snowpack import aliases, add them here. */
+      "paths": {},
+      /* noEmit - Snowpack builds (emits) files, not tsc. */
+      "noEmit": true,
+      /* Additional Options */
+      "strict": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "resolveJsonModule": true,
+      "useDefineForClassFields": true,
+      "allowSyntheticDefaultImports": true,
+      "importsNotUsedAsValues": "error",
+  }
 }
