@@ -1,7 +1,7 @@
 import type CSSModuleLoader from 'css-modules-loader-core';
 import path from 'path';
 import {SnowpackConfig} from '../types/snowpack';
-import {appendHTMLToBody, getExt} from '../util';
+import {appendHtmlToHead, getExt} from '../util';
 import {logger} from '../logger';
 
 export function getMetaUrlPath(urlPath: string, config: SnowpackConfig): string {
@@ -76,7 +76,7 @@ export function wrapHtmlResponse({
 
   if (hmr) {
     const hmrScript = `<script type="module" src="${getMetaUrlPath('hmr-client.js', config)}"></script><script type="module" src="${getMetaUrlPath('hmr-error-overlay.js', config)}"></script>`;
-    code = appendHTMLToBody(code, hmrScript);
+    code = appendHtmlToHead(code, hmrScript);
   }
   return code;
 }

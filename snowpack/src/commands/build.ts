@@ -472,7 +472,10 @@ export async function command(commandOptions: CommandOptions) {
       hmrEngine &&
         hmrEngine.broadcastMessage({
           type: 'error',
-          title: 'Build Error',
+          title:
+            `Build Error` + err.__snowpackBuildDetails
+              ? `: ${err.__snowpackBuildDetails.name}`
+              : '',
           errorMessage: err.toString(),
           fileLoc,
           errorStackTrace: err.stack,
