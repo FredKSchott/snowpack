@@ -5,6 +5,7 @@
     "module": "commonjs",
     "target": "es2018",
     "moduleResolution": "node",
+    "declaration": true,
     "esModuleInterop": true,
     "strict": true,
     "sourceMap": true,
