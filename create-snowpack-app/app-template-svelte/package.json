@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-svelte",
-  "version": "1.8.12",
+  "version": "1.8.13",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -17,11 +17,11 @@
     "svelte": "^3.24.0"
   },
   "devDependencies": {
-    "@snowpack/app-scripts-svelte": "^1.8.4",
+    "@snowpack/app-scripts-svelte": "^1.8.5",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/svelte": "^3.0.0",
     "jest": "^26.2.2",
-    "snowpack": "^2.11.0",
+    "snowpack": "^2.12.0",
     "svelte-check": "^1.0.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
