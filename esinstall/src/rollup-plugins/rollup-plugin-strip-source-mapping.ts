@@ -9,7 +9,7 @@ export function rollupPluginStripSourceMapping(): Plugin {
   return {
     name: 'snowpack:rollup-plugin-strip-source-mapping',
     transform: (code) => ({
-      code: code.replace(/\/\/+#\s*sourceMappingURL=.+$/gm, ''),
+      code: code.replace(/[^'"`]\/\/+#\s*sourceMappingURL=.+$/gm, ''),
       map: null,
     }),
   };
