@@ -120,7 +120,8 @@ class InMemoryBuildCache {
     return this.getCache(isSSR).has(fileLoc);
   }
   delete(fileLoc: string) {
-    return this.getCache(true).delete(fileLoc) && this.getCache(false).delete(fileLoc);
+    this.getCache(true).delete(fileLoc);
+    this.getCache(false).delete(fileLoc);
   }
   clear() {
     this.getCache(true).clear();
