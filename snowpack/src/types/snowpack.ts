@@ -148,7 +148,11 @@ export interface SnowpackConfig {
     /** (EXPERIMENTAL) If true, "snowpack build" should build your site for SSR. */
     ssr: boolean;
     /** (EXPERIMENTAL) Custom request handler for the dev server. */
-    app?: (req: http.IncomingMessage, res: http.ServerResponse, next: (err?: Error) => void) => unknown;
+    app?: (
+      req: http.IncomingMessage,
+      res: http.ServerResponse,
+      next: (err?: Error) => void,
+    ) => unknown;
   };
   _extensionMap: Record<string, string>;
 }
