@@ -61,7 +61,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   },
   experiments: {
     ssr: false,
-  }
+  },
 };
 
 const configSchema = {
