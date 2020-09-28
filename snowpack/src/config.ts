@@ -58,8 +58,10 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     minify: false,
     sourceMaps: false,
     watch: false,
-    ssr: false,
   },
+  experiments: {
+    ssr: false,
+  }
 };
 
 const configSchema = {

@@ -871,22 +871,26 @@ ${err}`);
     return http.createServer(requestHandler as http.RequestListener);
   };
 
-  const server = createServer(async (req, res) => {
-    try {
-      // Allow users to supply Express-style middleware (or a full Express app) to handle requests
-      // before Snowpack receives them. Snowpack will handle anything the middleware doesn't.
-      const middleware = config.devOptions.middleware;
-      if (typeof middleware === 'function') {
-        const next = () => requestHandler(req, res);
-        middleware(req, res, next);
-      } else {
-        await requestHandler(req, res);
-      }
-    } catch (err) {
+  const server = createServer((req, res) => {
+    /** Handle errors not handled in our requestHandler. */
+    function onUnhandledError(err: Error) {
       logger.error(`[500] ${req.url}`);
-      logger.error(err.toString() || err);
-      return sendError(req, res, 500);
+      logger.error(err.toString());
+      sendError(req, res, 500);
     }
+    // If custom "app" is given, pass requests through there first.
+    if (config.experiments.app) {
+      config.experiments.app(req, res, (err?: Error | null) => {
+        if (err) {
+          onUnhandledError(err);
+        } else {
+          requestHandler(req, res).catch(onUnhandledError);
+        }
+      });
+      return;
+    }
+    // Otherwise, pass requests directly to Snowpack's request handler.
+    requestHandler(req, res).catch(onUnhandledError);
   })
     .on('error', (err: Error) => {
       logger.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);

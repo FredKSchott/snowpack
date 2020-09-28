@@ -130,7 +130,6 @@ export interface SnowpackConfig {
     fallback: string;
     open: string;
     hmr?: boolean;
-    middleware?: (req: http.IncomingMessage, res: http.ServerResponse, next: () => void) => unknown;
     hmrDelay: number;
     hmrPort: number;
   };
@@ -143,7 +142,13 @@ export interface SnowpackConfig {
     minify: boolean;
     sourceMaps: boolean;
     watch: boolean;
-    ssr: false;
+  };
+  /** EXPERIMENTAL - This section is experimental and not yet finalized. May change across minor versions. */
+  experiments: {
+    /** (EXPERIMENTAL) If true, "snowpack build" should build your site for SSR. */
+    ssr: boolean;
+    /** (EXPERIMENTAL) Custom request handler for the dev server. */
+    app?: (req: http.IncomingMessage, res: http.ServerResponse, next: (err?: Error) => void) => unknown;
   };
   _extensionMap: Record<string, string>;
 }
