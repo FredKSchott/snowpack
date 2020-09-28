@@ -452,11 +452,12 @@ export async function startServer(commandOptions: CommandOptions) {
 
     async function getFileFromUrl(reqPath: string): Promise<string | null> {
       if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
-        const fileLoc = await attemptLoadFile(
-          reqPath.replace(config.buildOptions.webModulesUrl, DEV_DEPENDENCIES_DIR),
-        );
-        if (fileLoc) {
-          return fileLoc;
+        const dependencyFileLoc =
+          reqPath.replace(config.buildOptions.webModulesUrl, DEV_DEPENDENCIES_DIR) +
+          (isSourceMap ? '.map' : '');
+        const foundFile = await attemptLoadFile(dependencyFileLoc);
+        if (foundFile) {
+          return foundFile;
         }
       }
       for (const [dirDisk, dirUrl] of mountedDirectories) {
