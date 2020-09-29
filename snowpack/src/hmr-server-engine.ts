@@ -24,6 +24,7 @@ type HMRMessage =
     };
 
 const DEFAULT_CONNECT_DELAY = 2000;
+const DEFAULT_PORT = 12321;	
 
 interface EsmHmrEngineOptionsCommon {
   delay?: number;
@@ -32,10 +33,10 @@ interface EsmHmrEngineOptionsCommon {
 type EsmHmrEngineOptions = (
   | {
       server: http.Server | http2.Http2Server;
-      port?: undefined;
+      port: number;
     }
   | {
-      port: number;
+      port?: number;
       server?: undefined;
     }
 ) &
@@ -49,11 +50,13 @@ export class EsmHmrEngine {
   private currentBatch: HMRMessage[] = [];
   private currentBatchTimeout: NodeJS.Timer | null = null;
   private cachedConnectErrors: Set<HMRMessage> = new Set();
+  readonly port: number = 0;
 
   constructor(options: EsmHmrEngineOptions) {
+    this.port = options.port || DEFAULT_PORT;
     const wss = options.server
       ? new WebSocket.Server({noServer: true})
-      : new WebSocket.Server({port: options.port});
+      : new WebSocket.Server({port: this.port});
     if (options.delay) {
       this.delay = options.delay;
     }

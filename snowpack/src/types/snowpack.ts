@@ -141,7 +141,7 @@ export interface SnowpackConfig {
     output: 'stream' | 'dashboard';
     hmr?: boolean;
     hmrDelay: number;
-    hmrPort: number;
+    hmrPort: number | undefined;
     hmrErrorOverlay: boolean;
   };
   installOptions: InstallOptions;

@@ -54,12 +54,14 @@ export function wrapImportMeta({
 export function wrapHtmlResponse({
   code,
   hmr,
+  hmrPort,
   isDev,
   config,
   mode,
 }: {
   code: string;
   hmr: boolean;
+  hmrPort?: number;
   isDev: boolean;
   config: SnowpackConfig;
   mode: 'development' | 'production';
@@ -88,7 +90,11 @@ export function wrapHtmlResponse({
   // Any code not containing `<!DOCTYPE html>` is assumed to be a code snippet/partial.
   const isFullPage = code.startsWith('<!DOCTYPE html>');
   if (hmr && isFullPage) {
-    let hmrScript = `<script type="module" integrity="${SRI_CLIENT_HMR_SNOWPACK}" src="${getMetaUrlPath(
+    let hmrScript = ``;
+    if (hmrPort) {
+      hmrScript += `<script type="text/javascript">window.HMR_WEBSOCKET_PORT=${hmrPort}</script>\n`;
+    }
+    hmrScript += `<script type="module" integrity="${SRI_CLIENT_HMR_SNOWPACK}" src="${getMetaUrlPath(
       'hmr-client.js',
       config,
     )}"></script>`;
