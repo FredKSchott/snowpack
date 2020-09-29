@@ -97,6 +97,19 @@ The [`postcss-cli`](https://github.com/postcss/postcss-cli) package must be inst
 
 ### Tailwind CSS
 
+You can add [Tailwind](https://tailwindcss.com) to any project via native CSS `@import`:
+
+```css
+/* index.css */
+@import 'tailwindcss/dist/base.css';
+@import 'tailwindcss/dist/components.css';
+@import 'tailwindcss/dist/utilities.css';
+```
+
+#### Using PostCSS
+
+Tailwind also ships with first-class support for PostCSS. If you are using PostCSS in your project ([see above](#postcss)) then you can just add the Tailwind PostCSS plugin to your PostCSS config file to take advantage of the `@tailwind` keyword.
+
 ```js
 // postcss.config.js
 // Taken from: https://tailwindcss.com/docs/installation#using-tailwind-with-postcss
@@ -110,9 +123,7 @@ module.exports = {
 };
 ```
 
-Tailwind ships with first-class support for PostCSS. To use Tailwind in your Snowpack project, connect PostCSS ([see above](#postcss)) and add the recommended Tailwind PostCSS plugin to your snowpack configuration.
-
-Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installation/#using-tailwind-with-postcss) for more info.
+Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installation/#using-tailwind-with-postcss) for more information.
 
 ### Sass
 
