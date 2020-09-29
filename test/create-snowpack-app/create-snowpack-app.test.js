@@ -36,7 +36,9 @@ describe('create-snowpack-app', () => {
 
     // snowpack.config.json is a file we can test for to assume successful
     // install, since it’s added at the end.
-    const snowpackConfigExists = fs.existsSync(path.join(installDir, 'snowpack.config.json')) || fs.existsSync(path.join(installDir, 'snowpack.config.js'));
+    const snowpackConfigExists =
+      fs.existsSync(path.join(installDir, 'snowpack.config.json')) ||
+      fs.existsSync(path.join(installDir, 'snowpack.config.js'));
     expect(snowpackConfigExists).toBe(true);
 
     // install node_modules by default
@@ -67,7 +69,9 @@ describe('create-snowpack-app', () => {
 
     // snowpack.config.json is a file we can test for to assume successful
     // install, since it’s added at the end.
-    const snowpackConfigExists = fs.existsSync(path.join(installDir, 'snowpack.config.json')) || fs.existsSync(path.join(installDir, 'snowpack.config.js'));
+    const snowpackConfigExists =
+      fs.existsSync(path.join(installDir, 'snowpack.config.json')) ||
+      fs.existsSync(path.join(installDir, 'snowpack.config.js'));
     expect(snowpackConfigExists).toBe(true);
 
     // install node_modules by default

@@ -2,24 +2,24 @@
   "include": ["src", "types"],
   "exclude": ["node_modules"],
   "compilerOptions": {
-      "module": "esnext",
-      "target": "esnext",
-      "moduleResolution": "node",
-      "jsx": "preserve",
-      "baseUrl": "./",
-      /* paths - If you configure Snowpack import aliases, add them here. */
-      "paths": {},
-      /* noEmit - Snowpack builds (emits) files, not tsc. */
-      "noEmit": true,
-      /* LitElement - Add decorator support! */
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": true,
-      /* Additional Options */
-      "strict": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true,
-      "resolveJsonModule": true,
-      "allowSyntheticDefaultImports": true,
-      "importsNotUsedAsValues": "error",
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "jsx": "preserve",
+    "baseUrl": "./",
+    /* paths - If you configure Snowpack import aliases, add them here. */
+    "paths": {},
+    /* noEmit - Snowpack builds (emits) files, not tsc. */
+    "noEmit": true,
+    /* LitElement - Add decorator support! */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    /* Additional Options */
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "importsNotUsedAsValues": "error"
   }
 }
