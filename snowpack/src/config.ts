@@ -7,7 +7,7 @@ import {validate, ValidatorResult} from 'jsonschema';
 import path from 'path';
 import yargs from 'yargs-parser';
 
-import srcFileExtensionMapping from './build/src-file-extension-mapping';
+import {defaultFileExtensionMapping} from './build/file-urls';
 import {logger} from './logger';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
@@ -216,7 +216,9 @@ function parseScript(script: string): {scriptType: string; input: string[]; outp
   } else if (cleanInput[0] === '.vue') {
     cleanOutput = ['.js', '.css'];
   } else if (cleanInput.length > 0) {
-    cleanOutput = Array.from(new Set(cleanInput.map((ext) => srcFileExtensionMapping[ext] || ext)));
+    cleanOutput = Array.from(
+      new Set(cleanInput.map((ext) => defaultFileExtensionMapping[ext] || ext)),
+    );
   }
 
   return {
@@ -455,7 +457,7 @@ function normalizeProxies(proxies: RawProxies): Proxy[] {
   });
 }
 
-function normalizeMount(config: SnowpackConfig) {
+function normalizeMount(config: SnowpackConfig, cwd: string) {
   const mountedDirs: Record<string, string> = config.mount || {};
   for (const [target, cmd] of Object.entries(config.scripts)) {
     if (target.startsWith('mount:')) {
@@ -475,30 +477,31 @@ function normalizeMount(config: SnowpackConfig) {
       }
     }
   }
+  const normalizedMount = {};
   for (const [mountDir, mountUrl] of Object.entries(mountedDirs)) {
-    const fromDisk = path.posix.normalize(mountDir + '/');
-    delete mountedDirs[mountDir];
-    mountedDirs[fromDisk] = mountUrl;
     if (mountUrl[0] !== '/') {
       handleConfigError(
         `mount[${mountDir}]: Value "${mountUrl}" must be a URL path, and start with a "/"`,
       );
     }
+    normalizedMount[path.resolve(cwd, removeTrailingSlash(mountDir))] =
+      mountUrl === '/' ? '/' : removeTrailingSlash(mountUrl);
   }
   // if no mounted directories, mount the root directory to the base URL
-  if (!Object.keys(mountedDirs).length) {
-    mountedDirs['.'] = '/';
+  if (!Object.keys(normalizedMount).length) {
+    normalizedMount[cwd] = '/';
   }
-  return mountedDirs;
+  return normalizedMount;
 }
 
-function normalizeAlias(config: SnowpackConfig, createMountAlias: boolean) {
-  const cwd = process.cwd();
+function normalizeAlias(config: SnowpackConfig, cwd: string, createMountAlias: boolean) {
   const cleanAlias: Record<string, string> = config.alias || {};
   if (createMountAlias) {
     for (const mountDir of Object.keys(config.mount)) {
-      if (mountDir !== '.') {
-        cleanAlias[addTrailingSlash(mountDir)] = addTrailingSlash(`./${mountDir}`);
+      if (mountDir !== cwd) {
+        cleanAlias[addTrailingSlash(mountDir.substr(cwd.length + 1))] = addTrailingSlash(
+          `./${mountDir}`,
+        );
       }
     }
   }
@@ -542,8 +545,8 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const isLegacyMountConfig = !config.mount;
   config = handleLegacyProxyScripts(config);
   config.proxy = normalizeProxies(config.proxy as any);
-  config.mount = normalizeMount(config);
-  config.alias = normalizeAlias(config, isLegacyMountConfig);
+  config.mount = normalizeMount(config, cwd);
+  config.alias = normalizeAlias(config, cwd, isLegacyMountConfig);
 
   // new pipeline
   const {plugins, extensionMap} = loadPlugins(config);
