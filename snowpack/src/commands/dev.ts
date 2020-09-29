@@ -80,7 +80,7 @@ import {
   resolveDependencyManifest,
   updateLockfileHash,
 } from '../util';
-import {command as installCommand} from './install';
+import {getInstallTargets, run as installRunner} from './install';
 import {getPort, paint, paintEvent} from './paint';
 
 const DEFAULT_PROXY_ERROR_HANDLER = (
@@ -127,6 +127,30 @@ class InMemoryBuildCache {
     this.getCache(true).clear();
     this.getCache(false).clear();
   }
+}
+
+/**
+ * Install dependencies needed in "dev" mode. Generally speaking, this scans
+ * your entire source app for dependency install targets, installs them,
+ * and then updates the "hash" file used to check node_modules freshness.
+ */
+async function installDependencies(commandOptions: CommandOptions) {
+  const {config} = commandOptions;
+  const installTargets = await getInstallTargets(config);
+  if (installTargets.length === 0) {
+    logger.info('Nothing to install.');
+    return;
+  }
+  // 2. Install dependencies, based on the scan of your final build.
+  const installResult = await installRunner({
+    ...commandOptions,
+    installTargets,
+    config,
+    shouldPrintStats: true,
+    shouldWriteLockfile: false,
+  });
+  await updateLockfileHash(DEV_DEPENDENCIES_DIR);
+  return installResult;
 }
 
 function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
@@ -294,15 +318,6 @@ export async function startServer(commandOptions: CommandOptions) {
   });
 
   // Start with a fresh install of your dependencies, if needed.
-  if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
-    logger.debug('Cache out of date or missing. Updating…');
-    logger.info(colors.yellow('! updating dependencies...'));
-    await installCommand(installCommandOptions);
-    await updateLockfileHash(DEV_DEPENDENCIES_DIR);
-  } else {
-    logger.debug(`Cache up-to-date. Using existing cache`);
-  }
-
   let dependencyImportMap: ImportMap = {imports: {}};
   try {
     dependencyImportMap = JSON.parse(
@@ -310,6 +325,14 @@ export async function startServer(commandOptions: CommandOptions) {
     );
   } catch (err) {
     // no import-map found, safe to ignore
+  }
+
+  if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
+    logger.debug('Cache out of date or missing. Updating...');
+    const installResult = await installDependencies(installCommandOptions);
+    dependencyImportMap = installResult?.importMap || dependencyImportMap;
+  } else {
+    logger.debug(`Cache up-to-date. Using existing cache`);
   }
 
   const devProxies = {};
@@ -606,7 +629,9 @@ export async function startServer(commandOptions: CommandOptions) {
       fileLoc: string,
       responseExt: string,
       wrappedResponse: string,
+      retryMissing = true,
     ): Promise<string> {
+      let missingPackages: string[] = [];
       const resolveImportSpecifier = createImportResolver({
         fileLoc,
         dependencyImportMap,
@@ -638,24 +663,50 @@ export async function startServer(commandOptions: CommandOptions) {
             }
             return resolvedImportUrl;
           }
-          const errorTitle = `Error: Import "${spec}" could not be resolved.`;
-          const errorMessage = `If this is a new package, re-run Snowpack with the ${colors.bold(
-            '--reload',
-          )} flag to rebuild.
-If Snowpack is having trouble detecting the import, add ${colors.bold(
-            `"install": ["${spec}"]`,
-          )} to your Snowpack config file.`;
-          logger.error(`${errorTitle}\n${errorMessage}`);
-          hmrEngine.broadcastMessage({
-            type: 'error',
-            title: `${errorTitle}`,
-            errorMessage,
-            fileLoc,
-          });
 
+          missingPackages.push(spec);
           return spec;
         },
       );
+
+      // A missing package is a broken import, so we need to recover instantly if possible.
+      if (missingPackages.length > 0) {
+        // if retryMissing is true, do a fresh dependency install and then retry.
+        // Only retry once, to prevent an infinite loop when a package doesn't actually exist.
+        if (retryMissing) {
+          try {
+            logger.info(colors.yellow('Dependency cache out of date. Updating...'));
+            const installResult = await installDependencies(installCommandOptions);
+            dependencyImportMap = installResult?.importMap || dependencyImportMap;
+            return resolveResponseImports(fileLoc, responseExt, wrappedResponse, false);
+          } catch (err) {
+            const errorTitle = `Dependency Install Error`;
+            const errorMessage = err.message;
+            logger.error(`${errorTitle}: ${errorMessage}`);
+            hmrEngine.broadcastMessage({
+              type: 'error',
+              title: errorTitle,
+              errorMessage,
+              fileLoc,
+            });
+            return wrappedResponse;
+          }
+        }
+        // Otherwise, we need to send an error to the user, telling them about this issue.
+        // A failed retry usually means that Snowpack couldn't detect the import that the browser
+        // eventually saw post-build. In that case, you need to add it manually.
+        const errorTitle = `Error: Import "${missingPackages[0]}" could not be resolved.`;
+        const errorMessage = `If this import doesn't exist in the source file, add ${colors.bold(
+          `"install": ["${missingPackages[0]}"]`,
+        )} to your Snowpack config file.`;
+        logger.error(`${errorTitle}\n${errorMessage}`);
+        hmrEngine.broadcastMessage({
+          type: 'error',
+          title: errorTitle,
+          errorMessage,
+          fileLoc,
+        });
+      }
 
       let code = wrappedResponse;
       if (responseFileExt === '.js' && reqUrlHmrParam)
@@ -1059,6 +1110,12 @@ ${err}`);
 }
 
 export async function command(commandOptions: CommandOptions) {
-  await startServer(commandOptions);
+  try {
+    await startServer(commandOptions);
+  } catch (err) {
+    logger.error(err.message);
+    logger.debug(err.stack);
+    process.exit(1);
+  }
   return new Promise(() => {});
 }
