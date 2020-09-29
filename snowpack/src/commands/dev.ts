@@ -120,7 +120,8 @@ class InMemoryBuildCache {
     return this.getCache(isSSR).has(fileLoc);
   }
   delete(fileLoc: string) {
-    return this.getCache(true).delete(fileLoc) && this.getCache(false).delete(fileLoc);
+    this.getCache(true).delete(fileLoc);
+    this.getCache(false).delete(fileLoc);
   }
   clear() {
     this.getCache(true).clear();
@@ -451,11 +452,12 @@ export async function startServer(commandOptions: CommandOptions) {
 
     async function getFileFromUrl(reqPath: string): Promise<string | null> {
       if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
-        const fileLoc = await attemptLoadFile(
-          reqPath.replace(config.buildOptions.webModulesUrl, DEV_DEPENDENCIES_DIR),
-        );
-        if (fileLoc) {
-          return fileLoc;
+        const dependencyFileLoc =
+          reqPath.replace(config.buildOptions.webModulesUrl, DEV_DEPENDENCIES_DIR) +
+          (isSourceMap ? '.map' : '');
+        const foundFile = await attemptLoadFile(dependencyFileLoc);
+        if (foundFile) {
+          return foundFile;
         }
       }
       for (const [dirDisk, dirUrl] of mountedDirectories) {
@@ -815,23 +817,14 @@ If Snowpack is having trouble detecting the import, add ${colors.bold(
       responseOutput = await buildFile(fileLoc);
     } catch (err) {
       logger.error(err.toString(), {name: err.__snowpackBuildDetails?.name});
-      if (err.__snowpackBuildDetails) {
-        hmrEngine.broadcastMessage({
-          type: 'error',
-          title: `Build Error: ${err.__snowpackBuildDetails.name}`,
-          errorMessage: err.toString(),
-          fileLoc,
-          errorStackTrace: err.stack,
-        });
-      } else {
-        hmrEngine.broadcastMessage({
-          type: 'error',
-          title: 'Build Error',
-          errorMessage: err.toString(),
-          fileLoc,
-          errorStackTrace: err.stack,
-        });
-      }
+      hmrEngine.broadcastMessage({
+        type: 'error',
+        title:
+          `Build Error` + err.__snowpackBuildDetails ? `: ${err.__snowpackBuildDetails.name}` : '',
+        errorMessage: err.toString(),
+        fileLoc,
+        errorStackTrace: err.stack,
+      });
       sendError(req, res, 500);
       return;
     }
@@ -879,22 +872,26 @@ ${err}`);
     return http.createServer(requestHandler as http.RequestListener);
   };
 
-  const server = createServer(async (req, res) => {
-    try {
-      // Allow users to supply Express-style middleware (or a full Express app) to handle requests
-      // before Snowpack receives them. Snowpack will handle anything the middleware doesn't.
-      const middleware = config.devOptions.middleware;
-      if (typeof middleware === 'function') {
-        const next = () => requestHandler(req, res);
-        middleware(req, res, next);
-      } else {
-        await requestHandler(req, res);
-      }
-    } catch (err) {
+  const server = createServer((req, res) => {
+    /** Handle errors not handled in our requestHandler. */
+    function onUnhandledError(err: Error) {
       logger.error(`[500] ${req.url}`);
-      logger.error(err.toString() || err);
-      return sendError(req, res, 500);
+      logger.error(err.toString());
+      sendError(req, res, 500);
     }
+    // If custom "app" is given, pass requests through there first.
+    if (config.experiments.app) {
+      config.experiments.app(req, res, (err?: Error | null) => {
+        if (err) {
+          onUnhandledError(err);
+        } else {
+          requestHandler(req, res).catch(onUnhandledError);
+        }
+      });
+      return;
+    }
+    // Otherwise, pass requests directly to Snowpack's request handler.
+    requestHandler(req, res).catch(onUnhandledError);
   })
     .on('error', (err: Error) => {
       logger.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);

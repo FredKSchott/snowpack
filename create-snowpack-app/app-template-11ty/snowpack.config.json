@@ -3,6 +3,9 @@
     "_output": "/",
     "src": "/_dist_"
   },
+  "devOptions": {
+    "hmrDelay": 300
+  },
   "plugins": [
     [
       "@snowpack/plugin-run-script",

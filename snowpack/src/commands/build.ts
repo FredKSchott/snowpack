@@ -101,7 +101,7 @@ class FileBuilder {
     const builtFileOutput = await buildFile(this.filepath, {
       plugins: this.config.plugins,
       isDev: false,
-      isSSR: this.config.buildOptions.ssr,
+      isSSR: this.config.experiments.ssr,
       isHmrEnabled: false,
       sourceMaps: this.config.buildOptions.sourceMaps,
     });
@@ -430,7 +430,7 @@ export async function command(commandOptions: CommandOptions) {
     await runPipelineOptimizeStep(buildDirectoryLoc, {
       plugins: config.plugins,
       isDev: false,
-      isSSR: config.buildOptions.ssr,
+      isSSR: config.experiments.ssr,
       isHmrEnabled: false,
       sourceMaps: config.buildOptions.sourceMaps,
     });
@@ -472,7 +472,10 @@ export async function command(commandOptions: CommandOptions) {
       hmrEngine &&
         hmrEngine.broadcastMessage({
           type: 'error',
-          title: 'Build Error',
+          title:
+            `Build Error` + err.__snowpackBuildDetails
+              ? `: ${err.__snowpackBuildDetails.name}`
+              : '',
           errorMessage: err.toString(),
           fileLoc,
           errorStackTrace: err.stack,

@@ -20,6 +20,6 @@
     "react-dom": "16.13.1"
   },
   "devDependencies": {
-    "snowpack": "^2.11.0"
+    "snowpack": "^2.12.1"
   }
 }

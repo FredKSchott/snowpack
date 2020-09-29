@@ -16,6 +16,6 @@
   },
   "dependencies": {
     "dat.gui": "^0.7.6",
-    "snowpack": "^2.11.0"
+    "snowpack": "^2.12.1"
   }
 }

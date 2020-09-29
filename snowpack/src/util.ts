@@ -364,7 +364,7 @@ export function relativeURL(path1: string, path2: string): string {
 const CLOSING_HEAD_TAG = /<\s*\/\s*head\s*>/gi;
 
 /** Append HTML before closing </head> tag */
-export function appendHTMLToHead(doc: string, htmlToAdd: string) {
+export function appendHtmlToHead(doc: string, htmlToAdd: string) {
   const closingHeadMatch = doc.match(CLOSING_HEAD_TAG);
   // if no <head> tag found, throw an error (we can’t load your app properly)
   if (!closingHeadMatch) {
@@ -375,22 +375,6 @@ export function appendHTMLToHead(doc: string, htmlToAdd: string) {
     throw new Error(`Multiple <head> tags found in HTML (perhaps commented out?):\n${doc}`);
   }
   return doc.replace(closingHeadMatch[0], htmlToAdd + closingHeadMatch[0]);
-}
-
-const CLOSING_BODY_TAG = /<\s*\/\s*body\s*>/gi;
-
-/** Append HTML before closing </body> tag */
-export function appendHTMLToBody(doc: string, htmlToAdd: string) {
-  const closingBodyMatch = doc.match(CLOSING_BODY_TAG);
-  // if no <body> tag found, throw an error (we can’t load your app properly)
-  if (!closingBodyMatch) {
-    throw new Error(`No <body> tag found in HTML (this is needed to load your app):\n\n${doc}`);
-  }
-  // if multiple <body> tags found, also freak out
-  if (closingBodyMatch.length > 1) {
-    throw new Error(`Multiple <body> tags found in HTML (perhaps commented out?):\n\n${doc}`);
-  }
-  return doc.replace(closingBodyMatch[0], htmlToAdd + closingBodyMatch[0]);
 }
 
 /** Add / to beginning of string (but don’t double-up) */

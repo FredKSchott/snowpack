@@ -10,6 +10,6 @@
     "deepmerge": "^4.2.2"
   },
   "devDependencies": {
-    "snowpack": "^2.11.0"
+    "snowpack": "^2.12.1"
   }
 }
