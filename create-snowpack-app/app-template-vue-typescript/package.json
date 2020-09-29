@@ -18,7 +18,6 @@
     "vue": "^3.0.0"
   },
   "devDependencies": {
-    "@snowpack/app-scripts-vue": "^1.8.4",
     "@snowpack/plugin-dotenv": "^2.0.1",
     "@snowpack/plugin-vue": "^2.2.1",
     "snowpack": "^2.12.1",
