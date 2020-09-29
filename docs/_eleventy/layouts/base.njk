@@ -520,10 +520,15 @@ a.grid-nav-link:hover {
 
 
 @media (max-width: 860px) {
+  .grid-body-header {
+    margin: 3rem 0 0;
+  }
   .markdown-body, .grid-body-header, .toc {
     padding: 0 1em;
   }
-
+.grid-nav-container {
+    width: 100vw;
+}
 .grid-nav {    
   justify-content: space-between;
 }
@@ -539,7 +544,7 @@ margin: 0 -20px 0 0 ;
   .grid-toc  { 
     top: 44px;
     padding: 0;
-    width: 100%;
+    width: 100vw;
     overflow: auto;
     z-index: 100;
   }  
@@ -708,14 +713,6 @@ margin: 0 -20px 0 0 ;
       body postion should be unset
       */
       const ishiddenMobileClassEnabled = gridTocEl.classList.toggle('hidden-mobile');
-      if(ishiddenMobileClassEnabled){
-        document.body.style.position = "";
-        }
-      else{
-        document.body.style.position = 'fixed';
-      }
-      
-
     });
     gridTocEl.addEventListener('click', (e) => {
       gridTocEl.classList.add('hidden-mobile');
