@@ -1,6 +1,10 @@
 ## API Reference
 
-### `config` | `object` (options)
+### Configuration
+
+#### `config`
+
+`object` (options)
 
 See the configuration section for information on file formats and command line usage.
 
@@ -28,7 +32,11 @@ options:
 - **`buildOptions.*`**
   - Configure your build. See the section below for all options.
 
-### `config.installOptions`| `object` (options)
+#### `config.installOptions`
+
+`object` (options)
+
+Settings that determine how Snowpack handles installing modules.
 
 options:
 
@@ -57,7 +65,11 @@ options:
   - **`installOptions.rollup.plugins`** - Specify [Custom Rollup plugins](#installing-non-js-packages) if you are dealing with non-standard files.
   - **`installOptions.rollup.dedupe`** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation.
 
-### `config.devOptions`| `object` (options)
+#### `config.devOptions`
+
+`object` (options)
+
+Settings that determine how the Snowpack dev environment behaves.
 
 options:
 
@@ -80,7 +92,11 @@ options:
 - **`devOptions.secure`** | `boolean`
   - Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
 
-### `config.buildOptions`| `object` (options)
+#### `config.buildOptions`
+
+`object` (options)
+
+Determines how Snowpack processes the final build.
 
 options:
 
@@ -95,7 +111,9 @@ options:
 - **`buildOptions.webModulesUrl`** | `string` | Default: `web_modules`
   - Rename your web modules directory.
 
-### `config.proxy`| `object` (path: options)
+#### `config.proxy`
+
+`object` (path: options)
 
 If desired, `"proxy"` is where you configure the proxy behavior of your dev server. Define different paths that should be proxied, and where they should be proxied to.
 
@@ -126,7 +144,9 @@ TODO this section didn't really have the same format in the others so I made an 
 - **`"path".on`** | `object` (string: function)
   - `on` is a special property for setting event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
 
-### `config.mount`| `object` (path: path)
+#### `config.mount`
+
+`object` (path: path)
 
 The `mount` configuration lets you map local files to their location in the final build. If no mount configuration is given, then the entire current working directory (minus excluded files) will be built and mounted to the Root URL (Default: `/`, respects `baseUrl`).
 
@@ -145,7 +165,9 @@ example:
 }
 ```
 
-### `config.alias` | `object` (package: package or path)
+#### `config.alias`
+
+`object` (package: package or path)
 
 > Note: In an older version of Snowpack, all mounted directories were also available as aliases by default. As of Snowpack 2.7, this is no longer the case and no aliases are defined by default.
 

@@ -1,7 +1,5 @@
 ## Configuration
 
-TODO: This section should describe configuration, all API reference should go to reference section
-
 Snowpack's behavior can be configured by CLI flags, a custom Snowpack config file, or both. [See the api reference below for the full list of supported options](#api-reference).
 
 ### Config Files
