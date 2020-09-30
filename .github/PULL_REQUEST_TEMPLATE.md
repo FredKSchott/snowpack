@@ -10,5 +10,5 @@
 
 ## Docs
 
-<!-- Have new features been added or existing behavior changed? Please state places the changes were documented -->
+<!-- List places where documentation was updated, if applicable -->
 <!-- DON'T DELETE THIS SECTION! If no docs were added, explain why (e.g. "bug fix only") -->
