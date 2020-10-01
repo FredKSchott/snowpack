@@ -87,7 +87,7 @@ function isImportOfPackage(importUrl: string, packageName: string) {
  */
 function resolveWebDependency(
   dep: string,
-  {logger, cwd}: {logger: AbstractLogger; cwd: string},
+  {cwd}: {cwd: string},
 ): DependencyLoc {
   // if dep points directly to a file within a package, return that reference.
   // No other lookup required.
@@ -114,10 +114,9 @@ function resolveWebDependency(
         exportMapEntry?.require ||
         exportMapEntry;
       if (typeof exportMapValue !== 'string') {
-        logger.error(
+        throw new Error(
           `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".`,
         );
-        process.exit(1);
       }
       return {
         type: 'JS',
@@ -151,10 +150,9 @@ function resolveWebDependency(
     depManifest.name &&
     (depManifest.name.startsWith('@reactesm') || depManifest.name.startsWith('@pika/react'))
   ) {
-    logger.error(
+    throw new Error(
       `React workaround packages no longer needed! Revert back to the official React & React-DOM packages.`,
     );
-    process.exit(1);
   }
   let foundEntrypoint: string =
     depManifest['browser:module'] ||
@@ -235,16 +233,9 @@ interface InstallOptions {
 type PublicInstallOptions = Partial<InstallOptions>;
 export {PublicInstallOptions as InstallOptions};
 
-type InstallResult =
-  | {success: false; importMap: null; stats: null}
-  | {success: true; importMap: ImportMap; stats: DependencyStatsOutput};
+type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput};
 
 const FAILED_INSTALL_MESSAGE = 'Install failed.';
-const EMPTY_INSTALL_RETURN: InstallResult = {
-  success: false,
-  importMap: null,
-  stats: null,
-};
 
 function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
   const options = {
@@ -319,7 +310,6 @@ export async function install(
     }
     try {
       const resolvedResult = resolveWebDependency(installSpecifier, {
-        logger,
         cwd,
       });
       if (resolvedResult.type === 'JS') {
@@ -341,18 +331,16 @@ export async function install(
       if (skipFailures) {
         continue;
       }
-      logger.error(err.message || err);
-      throw new Error(FAILED_INSTALL_MESSAGE);
+      throw err;
     }
   }
   if (Object.keys(installEntrypoints).length === 0 && Object.keys(assetEntrypoints).length === 0) {
-    logger.error(`No ESM dependencies found!
+    throw new Error(`No ESM dependencies found!
 ${colors.dim(
   `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${colors.underline(
     'https://www.pika.dev',
   )}`,
 )}`);
-    return EMPTY_INSTALL_RETURN;
   }
 
   await initESModuleLexer;
@@ -485,7 +473,6 @@ ${colors.dim(
   }
 
   return {
-    success: true,
     importMap,
     stats: dependencyStats!,
   };

@@ -21,8 +21,8 @@ exports[`snowpack install config-alias: import-map.json 1`] = `
 `;
 
 exports[`snowpack install config-alias: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/                                          size       gzip       brotli
     ├─ preact/compat.js    XXXX KB    XXXX KB    XXXX KB
@@ -635,8 +635,8 @@ exports[`snowpack install config-custom-path: import-map.json 1`] = `
 `;
 
 exports[`snowpack install config-custom-path: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/         size       gzip       brotli
     └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
@@ -686,8 +686,8 @@ exports[`snowpack install config-extends: import-map.json 1`] = `
 `;
 
 exports[`snowpack install config-extends: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/         size       gzip       brotli
     └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
@@ -715,8 +715,8 @@ exports[`snowpack install config-external: import-map.json 1`] = `
 `;
 
 exports[`snowpack install config-external: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/                 size       gzip       brotli
     └─ config-external-pkg-a.js    XXXX KB    XXXX KB    XXXX KB"
@@ -749,8 +749,8 @@ exports[`snowpack install config-named-exports: import-map.json 1`] = `
 `;
 
 exports[`snowpack install config-named-exports: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/                size       gzip       brotli
     └─ cjs-named-export-pkg.js    XXXX KB    XXXX KB    XXXX KB"
@@ -990,8 +990,8 @@ export { FOO };"
 `;
 
 exports[`snowpack install config-polyfill-node: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/            size       gzip       brotli
     └─ node-builtin-pkg.js    XXXX KB    XXXX KB    XXXX KB"
@@ -1015,8 +1015,8 @@ exports[`snowpack install config-rollup: import-map.json 1`] = `
 `;
 
 exports[`snowpack install config-rollup: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/           size       gzip       brotli
     ├─ svelte-routing.js    XXXX KB    XXXX KB    XXXX KB
@@ -3847,8 +3847,8 @@ exports[`snowpack install config-with-cli-flags: import-map.json 1`] = `
 `;
 
 exports[`snowpack install config-with-cli-flags: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/         size       gzip       brotli
     └─ shallow-equal.js    XXXX KB    XXXX KB    XXXX KB"
@@ -3915,8 +3915,8 @@ exports[`snowpack install dep-browser-entrypoint-object: import-map.json 1`] = `
 `;
 
 exports[`snowpack install dep-browser-entrypoint-object: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/             size       gzip       brotli
     ├─ package-has-valid.js    XXXX KB    XXXX KB    XXXX KB
@@ -3953,8 +3953,8 @@ exports[`snowpack install dep-exports: import-map.json 1`] = `
 `;
 
 exports[`snowpack install dep-exports: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/        size       gzip       brotli
     ├─ preact.js    XXXX KB    XXXX KB    XXXX KB
@@ -6455,8 +6455,8 @@ exports[`snowpack install dep-list-complex: import-map.json 1`] = `
 `;
 
 exports[`snowpack install dep-list-complex: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/     size       gzip       brotli
     └─ dat.gui.js    XXXX KB    XXXX KB    XXXX KB"
@@ -6480,8 +6480,8 @@ exports[`snowpack install dep-list-css: import-map.json 1`] = `
 `;
 
 exports[`snowpack install dep-list-css: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete"
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!"
 `;
 
 exports[`snowpack install dep-list-simple: allFiles 1`] = `
@@ -11151,8 +11151,8 @@ exports[`snowpack install dep-list-simple: import-map.json 1`] = `
 `;
 
 exports[`snowpack install dep-list-simple: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/     size       gzip       brotli
     └─ async.js    XXXX KB    XXXX KB    XXXX KB"
@@ -11240,8 +11240,8 @@ export { Headers, Request, Response };"
 `;
 
 exports[`snowpack install dep-node-fetch: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/                   size       gzip       brotli
     ├─ dep-node-fetch-mock-pkg.js    XXXX KB    XXXX KB    XXXX KB
@@ -11283,8 +11283,8 @@ exports[`snowpack install dep-remote-url: import-map.json 1`] = `
 `;
 
 exports[`snowpack install dep-remote-url: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/          size       gzip       brotli
     └─ remote-url-pkg.js    XXXX KB    XXXX KB    XXXX KB"
@@ -11340,8 +11340,8 @@ exports[`snowpack install dep-types-only: import-map.json 1`] = `
 `;
 
 exports[`snowpack install dep-types-only: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/         size       gzip       brotli
     └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
@@ -11356,7 +11356,7 @@ exports[`snowpack install error-config-invalid: output 1`] = `
 exports[`snowpack install error-empty-dep-list: output 1`] = `"[snowpack] Nothing to install."`;
 
 exports[`snowpack install error-file-ext: output 1`] = `
-"[snowpack] ! installing dependencies…
+"[snowpack] installing dependencies...
 [snowpack] Failed to load ../../../node_modules/error-file-ext-dep-b/index.vue
   Try installing rollup-plugin-vue and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)
 [snowpack] Install failed."
@@ -11371,32 +11371,31 @@ exports[`snowpack install error-illegal-env-var: output 1`] = `
 exports[`snowpack install error-include-ignore-unsupported-files: output 1`] = `"[snowpack] Nothing to install."`;
 
 exports[`snowpack install error-missing-dep: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] Package \\"fake-module\\" not found. Have you installed it?
-[snowpack] Install failed."
+"[snowpack] installing dependencies...
+[snowpack] Package \\"fake-module\\" not found. Have you installed it?"
 `;
 
 exports[`snowpack install error-missing-exports: output 1`] = `
-"[snowpack] ! installing dependencies…
+"[snowpack] installing dependencies...
 [snowpack] Package \\"preact\\" exists but package.json \\"exports\\" does not include entry for \\"./debug/src/check-props\\"."
 `;
 
 exports[`snowpack install error-no-dep-list: output 1`] = `"[snowpack] Nothing to install."`;
 
 exports[`snowpack install error-node-builtin-unresolved: output 1`] = `
-"[snowpack] ! installing dependencies…
+"[snowpack] installing dependencies...
 [snowpack] ../../../node_modules/bad-node-builtin-pkg/entrypoint.js
    Module \\"http\\" (Node.js built-in) is not available in the browser. Run Snowpack with --polyfill-node to fix.
 [snowpack] Install failed."
 `;
 
 exports[`snowpack install error-react-source-pika: output 1`] = `
-"[snowpack] ! installing dependencies…
+"[snowpack] installing dependencies...
 [snowpack] React workaround packages no longer needed! Revert to the official React & React-DOM packages."
 `;
 
 exports[`snowpack install error-react-workaround: output 1`] = `
-"[snowpack] ! installing dependencies…
+"[snowpack] installing dependencies...
 [snowpack] React workaround packages no longer needed! Revert back to the official React & React-DOM packages."
 `;
 
@@ -11418,8 +11417,8 @@ exports[`snowpack install exclude: import-map.json 1`] = `
 `;
 
 exports[`snowpack install exclude: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/      size       gzip       brotli
     ├─ vue-router.js    XXXX KB    XXXX KB    XXXX KB
@@ -21713,8 +21712,8 @@ exports[`snowpack install exclude-external-packages: import-map.json 1`] = `
 `;
 
 exports[`snowpack install exclude-external-packages: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/         size       gzip       brotli
     └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
@@ -21736,8 +21735,8 @@ exports[`snowpack install export-maps: import-map.json 1`] = `
 `;
 
 exports[`snowpack install export-maps: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/     size       gzip       brotli
     └─ preact.js    XXXX KB    XXXX KB    XXXX KB"
@@ -22258,8 +22257,8 @@ exports[`snowpack install include: import-map.json 1`] = `
 `;
 
 exports[`snowpack install include: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/                             size       gzip       brotli
     ├─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB
@@ -37582,8 +37581,8 @@ exports[`snowpack install include-missing-in-package-json: import-map.json 1`] =
 `;
 
 exports[`snowpack install include-missing-in-package-json: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/          size       gzip       brotli
     └─ @material/list.js    XXXX KB    XXXX KB    XXXX KB"
@@ -37978,8 +37977,8 @@ exports[`snowpack install include-ts: import-map.json 1`] = `
 `;
 
 exports[`snowpack install include-ts: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/                             size       gzip       brotli
     ├─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB
@@ -51521,8 +51520,8 @@ exports[`snowpack install include-with-alias: import-map.json 1`] = `
 `;
 
 exports[`snowpack install include-with-alias: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/         size       gzip       brotli
     └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
@@ -51917,8 +51916,8 @@ exports[`snowpack install include-with-package-name: import-map.json 1`] = `
 `;
 
 exports[`snowpack install include-with-package-name: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/                             size       gzip       brotli
     ├─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB
@@ -65460,8 +65459,8 @@ exports[`snowpack install legacy-mount-alias: import-map.json 1`] = `
 `;
 
 exports[`snowpack install legacy-mount-alias: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/         size       gzip       brotli
     └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
@@ -65491,8 +65490,8 @@ export { cliA, confA, confB, nodeEnv };"
 `;
 
 exports[`snowpack install node-env: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/             size       gzip       brotli
     └─ node-env-mock-pkg.js    XXXX KB    XXXX KB    XXXX KB"
@@ -65518,8 +65517,8 @@ exports[`snowpack install package-react: import-map.json 1`] = `
 `;
 
 exports[`snowpack install package-react: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/                 size       gzip       brotli
     ├─ react-dom.js    XXXX KB    XXXX KB    XXXX KB
@@ -90639,8 +90638,8 @@ exports[`snowpack install sub-package-json: import-map.json 1`] = `
 `;
 
 exports[`snowpack install sub-package-json: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/        size       gzip       brotli
     └─ solid-js/dom.js    XXXX KB    XXXX KB    XXXX KB"

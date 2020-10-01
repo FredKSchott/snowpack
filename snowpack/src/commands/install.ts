@@ -33,7 +33,7 @@ export async function getInstallTargets(
 }
 
 export async function command(commandOptions: CommandOptions) {
-  const {cwd, config} = commandOptions;
+  const {config} = commandOptions;
 
   logger.debug('Starting install');
   const installTargets = await getInstallTargets(config);
@@ -43,29 +43,31 @@ export async function command(commandOptions: CommandOptions) {
     return;
   }
   logger.debug('Running install command');
-  const finalResult = await run({...commandOptions, installTargets});
-  logger.debug('Install command successfully ran');
-  if (finalResult.newLockfile) {
-    await writeLockfile(path.join(cwd, 'snowpack.lock.json'), finalResult.newLockfile);
-    logger.debug('Successfully wrote lockfile');
-  }
-  if (finalResult.stats) {
-    logger.info(printStats(finalResult.stats));
-  }
-
-  if (!finalResult.success || finalResult.hasError) {
+  await run({
+    ...commandOptions,
+    installTargets,
+    shouldPrintStats: true,
+    shouldWriteLockfile: true,
+  }).catch((err) => {
+    if (err.loc) {
+      logger.error(colors.red(colors.bold(`✘ ${err.loc.file}`)));
+    }
+    if (err.url) {
+      logger.error(colors.dim(`👉 ${err.url}`));
+    }
+    logger.error(err.message || err);
     process.exit(1);
-  }
+  });
 }
 
 interface InstallRunOptions extends CommandOptions {
   installTargets: InstallTarget[];
+  shouldWriteLockfile: boolean;
+  shouldPrintStats: boolean;
 }
 
 interface InstallRunResult {
-  success: boolean;
-  hasError: boolean;
-  importMap: ImportMap | null;
+  importMap: ImportMap;
   newLockfile: ImportMap | null;
   stats: DependencyStatsOutput | null;
 }
@@ -74,17 +76,17 @@ export async function run({
   config,
   lockfile,
   installTargets,
+  shouldWriteLockfile,
+  shouldPrintStats,
 }: InstallRunOptions): Promise<InstallRunResult> {
   const {webDependencies} = config;
 
   // start
   const installStart = performance.now();
-  logger.info(colors.yellow('! installing dependencies…'));
+  logger.info(colors.yellow('installing dependencies...'));
 
   if (installTargets.length === 0) {
     return {
-      success: true,
-      hasError: false,
       importMap: {imports: {}} as ImportMap,
       newLockfile: null,
       stats: null,
@@ -110,16 +112,13 @@ export async function run({
       error: (...args: [any, ...any[]]) => logger.error(util.format(...args)),
     },
     ...config.installOptions,
-  }).catch((err) => {
-    if (err.loc) {
-      logger.error(colors.red(colors.bold(`✘ ${err.loc.file}`)));
-    }
-    if (err.url) {
-      logger.error(colors.dim(`👉 ${err.url}`));
-    }
-    logger.error(err.message || err);
-    process.exit(1);
   });
+
+  logger.debug('Install ran successfully!');
+  if (shouldWriteLockfile && newLockfile) {
+    await writeLockfile(path.join(cwd, 'snowpack.lock.json'), newLockfile);
+    logger.debug('Successfully wrote lockfile');
+  }
 
   // finish
   const installEnd = performance.now();
@@ -127,14 +126,16 @@ export async function run({
   logger.info(
     `${
       depList.length
-        ? colors.green(`✔`) + ' install complete'
+        ? colors.green(`✔`) + ' install complete!'
         : 'install skipped (nothing to install)'
     } ${colors.dim(`[${((installEnd - installStart) / 1000).toFixed(2)}s]`)}`,
   );
 
+  if (shouldPrintStats && finalResult.stats) {
+    logger.info(printStats(finalResult.stats));
+  }
+
   return {
-    success: true,
-    hasError: false,
     importMap: finalResult.importMap,
     newLockfile,
     stats: finalResult.stats!,
