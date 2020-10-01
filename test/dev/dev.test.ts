@@ -1,5 +1,4 @@
 const path = require('path');
-const Stream = require('stream');
 
 const execa = require('execa');
 const {readdirSync, readFileSync, statSync, existsSync} = require('fs');
@@ -10,11 +9,9 @@ const got = require('got');
 describe('snowpack dev', () => {
   it('smoke', async () => {
     const cwd = path.join(__dirname, 'smoke');
-    const streamLogsToOutput = new Stream.Writable({objectMode: true});
 
     // start the server
     const snowpackProcess = execa('yarn', ['teststart'], {cwd});
-    snowpackProcess.stdout.pipe(streamLogsToOutput);
 
     // await server to be ready and set a timeout in case something goes wrong
     await new Promise((resolve, reject) => {
@@ -26,16 +23,14 @@ describe('snowpack dev', () => {
       }, 3000);
 
       const output = [];
-      streamLogsToOutput._write = (buffer, encoding, done) => {
+      snowpackProcess.stdout.on('data', (buffer) => {
         const line = buffer.toString();
         output.push(line);
         if (/Server started in/.test(line)) {
           resolve();
           clearTimeout(timeout);
         }
-
-        done();
-      };
+      });
     });
 
     // get HTML

@@ -1,7 +1,4 @@
 {
-  "scripts": {
-    "teststart": "snowpack dev"
-  },
   "snowpack": {
     "devOptions": {
       "open": "none"
