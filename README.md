@@ -1,14 +1,11 @@
-<p align="center"><img src="/docs/img/logo.png" alt="logo" width="20%" /></p>
-<h1 align="center">Snowpack</h1>
-<p align="center">
-  <a href="https://github.com/pikapkg/snowpack/actions">
-    <img src="https://github.com/pikapkg/snowpack/workflows/CI/badge.svg?event=push" alt="CI" />
-  </a>
-</p>
-
----
-
-## What is Snowpack?
+<a href="https://osawards.com/javascript/2020">
+  <img src="https://www.snowpack.dev/img/JSAwardWinner.jpg"  height="64px" />
+</a>    
+<a href="https://github.com/pikapkg/snowpack/actions">
+  <img src="https://github.com/pikapkg/snowpack/workflows/CI/badge.svg?event=push" alt="CI" />
+</a>
+  
+<h1>Snowpack</h1>
 
 Snowpack is a modern frontend build tool for faster web development. It replaces heavier, more complex bundlers like webpack or Parcel in your development workflow.
 
