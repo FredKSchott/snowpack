@@ -12,7 +12,6 @@ Snowpack supports configuration files in multiple formats, sorted by priority or
 1. `snowpack.config.js`: (`module.exports = {...}`).
 1. `snowpack.config.json`: (`{...}`).
 
-
 ### CLI Flags
 
 ```bash
@@ -42,7 +41,6 @@ $ snowpack build --clean
 - **`--version`** Show the current version.
 - **`--reload`** Clear the local cache. Useful for troubleshooting installer issues.
 
-
 ### Configuration
 
 Example:
@@ -65,7 +63,6 @@ Example:
   "alias": { /* ... */ }
 }
 ```
-
 
 #### `config`
 
