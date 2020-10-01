@@ -33,8 +33,8 @@ exports[`snowpack install auto-named-exports: import-map.json 1`] = `
 `;
 
 exports[`snowpack install auto-named-exports: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/                   size       gzip       brotli
     └─ cjs-named-export-pkg-02.js    XXXX KB    XXXX KB    XXXX KB"
@@ -90667,8 +90667,8 @@ exports[`snowpack install source-map-strip: import-map.json 1`] = `
 `;
 
 exports[`snowpack install source-map-strip: output 1`] = `
-"[snowpack] ! installing dependencies…
-[snowpack] ✔ install complete
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/               size       gzip       brotli
     └─ @auth0/auth0-spa-js.js    XXXX KB    XXXX KB    XXXX KB"
