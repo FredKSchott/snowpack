@@ -498,8 +498,15 @@ export async function startServer(commandOptions: CommandOptions) {
     const fileLoc = await getFileFromUrl(reqPath);
 
     if (!fileLoc) {
-      const prefix = colors.red('  ✘ ');
-      logger.error(`[404] ${reqUrl}\n${attemptedFileLoads.map((loc) => prefix + loc).join('\n')}`);
+      const attemptedFilesMessage = attemptedFileLoads.map((loc) => '  ✘ ' + loc).join('\n');
+      const errorMessage = `[404] ${reqUrl}\n${attemptedFilesMessage}`;
+      // Log any favicon 404s at the "debug" level, only. Browsers automatically request a favicon.ico file
+      // from the server, which creates annoying errors for new apps / first experiences.
+      if (reqPath === '/favicon.ico') {
+        logger.debug(errorMessage);
+      } else {
+        logger.error(errorMessage);
+      }
       return sendError(req, res, 404);
     }
 
