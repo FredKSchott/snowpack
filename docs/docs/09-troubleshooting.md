@@ -18,7 +18,6 @@ If you see this error message, that means that you've imported a file path not a
 
 ### Uncaught SyntaxError: The requested module '/web_modules/XXXXXX.js' does not provide an export named 'YYYYYY'
 
-This is usually seen when importing a named export from a package written in the older Common.js format. Snowpack will try to automatically scan and detect these named exports for legacy Common.js packages, but this is not always possible. 
+This is usually seen when importing a named export from a package written in the older Common.js format. Snowpack will try to automatically scan and detect these named exports for legacy Common.js packages, but this is not always possible.
 
 **To solve this issue:** See our documentation on the ["namedExports"](#install-options) configuration option to resolve manually
-

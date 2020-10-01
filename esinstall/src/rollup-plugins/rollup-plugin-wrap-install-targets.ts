@@ -35,7 +35,7 @@ export function rollupPluginWrapInstallTargets(
     try {
       const mod = require(normalizedFileLoc);
       // skip analysis for non-object modules, these can only be the default export.
-      if (!mod || (mod.constructor !== Object)) {
+      if (!mod || mod.constructor !== Object) {
         return;
       }
       // Collect and filter all properties of the object as named exports.

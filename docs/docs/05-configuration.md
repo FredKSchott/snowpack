@@ -104,8 +104,8 @@ $ snowpack build --clean
   - Alias an installed package name. This applies to imports within your application and within your installed dependency graph.
   - Example: `"alias": {"react": "preact/compat", "react-dom": "preact/compat"}`
 - **`installOptions.namedExports`** | `string[]`
-  - *NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed.*
-  - Import CJS packages using named exports (Example: `import {useTable} from 'react-table'`). 
+  - _NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed._
+  - Import CJS packages using named exports (Example: `import {useTable} from 'react-table'`).
   - Example: `"namedExports": ["react-table"]`
 - **`installOptions.rollup`** | `Object`
   - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use.
