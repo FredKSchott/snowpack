@@ -1,12 +1,8 @@
 ## API Reference
 
-### Configuration
-
-#### Overview
+### Config Files
 
 Snowpack's behavior can be configured by CLI flags, a custom Snowpack config file, or both. [See the api reference below for the full list of supported options](#api-reference).
-
-##### Config Files
 
 Snowpack supports configuration files in multiple formats, sorted by priority order:
 
@@ -16,28 +12,8 @@ Snowpack supports configuration files in multiple formats, sorted by priority or
 1. `snowpack.config.js`: (`module.exports = {...}`).
 1. `snowpack.config.json`: (`{...}`).
 
-Example:
 
-```js
-{
-  "install": [
-    "htm",
-    "preact",
-    "preact/hooks", // A package within a package
-    "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
-    "bulma/css/bulma.css" // A non-JS static asset (supports globs)
-  ],
-  "plugins": [ /* ... */ ],
-  "installOptions": { /* ... */ },
-  "devOptions": { /* ... */ },
-  "buildOptions": { /* ... */ },
-  "proxy": { /* ... */ },
-  "mount": { /* ... */ },
-  "alias": { /* ... */ }
-}
-```
-
-##### CLI Flags
+### CLI Flags
 
 ```bash
 # Show helpful info
@@ -65,6 +41,31 @@ $ snowpack build --clean
 - **`--help`** Show this help.
 - **`--version`** Show the current version.
 - **`--reload`** Clear the local cache. Useful for troubleshooting installer issues.
+
+
+### Configuration
+
+Example:
+
+```js
+{
+  "install": [
+    "htm",
+    "preact",
+    "preact/hooks", // A package within a package
+    "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
+    "bulma/css/bulma.css" // A non-JS static asset (supports globs)
+  ],
+  "plugins": [ /* ... */ ],
+  "installOptions": { /* ... */ },
+  "devOptions": { /* ... */ },
+  "buildOptions": { /* ... */ },
+  "proxy": { /* ... */ },
+  "mount": { /* ... */ },
+  "alias": { /* ... */ }
+}
+```
+
 
 #### `config`
 
