@@ -54,7 +54,7 @@ export interface PluginRunOptions {
 /** map of extensions -> code (e.g. { ".js": "[code]", ".css": "[code]" }) */
 export type PluginLoadResult = SnowpackBuildMap;
 
-export type PluginTransformResult = {contents: string, map: string | RawSourceMap};
+export type PluginTransformResult = {contents: string; map: string | RawSourceMap};
 
 export interface PluginOptimizeOptions {
   buildDirectory: string;
@@ -78,7 +78,9 @@ export interface SnowpackPlugin {
   /** load a file that matches resolve.input */
   load?(options: PluginLoadOptions): Promise<PluginLoadResult | string | null | undefined | void>;
   /** transform a file that matches resolve.input */
-  transform?(options: PluginTransformOptions): Promise<PluginTransformResult | string | null | undefined | void>;
+  transform?(
+    options: PluginTransformOptions,
+  ): Promise<PluginTransformResult | string | null | undefined | void>;
   /** runs a command, unrelated to file building (e.g. TypeScript, ESLint) */
   run?(options: PluginRunOptions): Promise<unknown>;
   /** optimize the entire built application */
