@@ -1,8 +1,8 @@
-## Configuration
-
-Snowpack's behavior can be configured by CLI flags, a custom Snowpack config file, or both. [See the table below for the full list of supported options](#all-config-options).
+## API Reference
 
 ### Config Files
+
+Snowpack's behavior can be configured by CLI flags, a custom Snowpack config file, or both. [See the api reference below for the full list of supported options](#api-reference).
 
 Snowpack supports configuration files in multiple formats, sorted by priority order:
 
@@ -41,7 +41,9 @@ $ snowpack build --clean
 - **`--version`** Show the current version.
 - **`--reload`** Clear the local cache. Useful for troubleshooting installer issues.
 
-### All Config Options
+### Configuration
+
+Example:
 
 ```js
 {
@@ -62,7 +64,29 @@ $ snowpack build --clean
 }
 ```
 
-#### Top-Level Options
+#### `config`
+
+`object` (options)
+
+See the configuration section for information on file formats and command line usage.
+
+Example:
+
+```js
+{
+  mount: {
+    public: '/',
+    src: '/_dist_',
+  },
+  plugins: ['@snowpack/plugin-babel', '@snowpack/plugin-dotenv'],
+  devOptions: {},
+  installOptions: {
+    installTypes: isTS,
+  },
+}
+```
+
+Options:
 
 - **`extends`** | `string`
   - Inherit from a separate "base" config. Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
@@ -86,7 +110,21 @@ $ snowpack build --clean
 - **`buildOptions.*`**
   - Configure your build. See the section below for all options.
 
-#### Install Options
+#### `config.installOptions`
+
+`object` (options)
+
+Settings that determine how Snowpack handles installing modules.
+
+Example:
+
+```js
+installOptions: {
+  installTypes: isTS,
+}
+```
+
+Options:
 
 - **`installOptions.dest`** | `string`
   - _Default:`"web_modules"`_
@@ -112,7 +150,22 @@ $ snowpack build --clean
   - **`installOptions.rollup.plugins`** - Specify [Custom Rollup plugins](#installing-non-js-packages) if you are dealing with non-standard files.
   - **`installOptions.rollup.dedupe`** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation.
 
-#### Dev Options
+#### `config.devOptions`
+
+`object` (options)
+
+Settings that determine how the Snowpack dev environment behaves.
+
+Example:
+
+```js
+devOptions: {
+	port: 4000,
+	open: "none",
+}
+```
+
+Options:
 
 - **`devOptions.port`** | `number` | Default: `8080`
   - The port number to run the dev server on.
@@ -133,7 +186,24 @@ $ snowpack build --clean
 - **`devOptions.secure`** | `boolean`
   - Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
 
-#### Build Options
+#### `config.buildOptions`
+
+`object` (options)
+
+Determines how Snowpack processes the final build.
+
+Example:
+
+```js
+buildOptions: {
+  sourceMaps: true,
+  baseUrl: '/home',
+  metaDir: 'static/snowpack',
+  webModulesUrl: 'web'
+}
+```
+
+Options:
 
 - **`buildOptions.baseUrl`** | `string` | Default: `/`
   - In your HTML, replace all instances of `%PUBLIC_URL%` with this (inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept). This is useful if your app will be deployed to a subdirectory. _Note: if you have `homepage` in your `package.json`, Snowpack will actually pick up on that, too._
@@ -146,7 +216,17 @@ $ snowpack build --clean
 - **`buildOptions.webModulesUrl`** | `string` | Default: `web_modules`
   - Rename your web modules directory.
 
-#### Proxy Options
+#### `config.proxy`
+
+`object` (path: options)
+
+If desired, `"proxy"` is where you configure the proxy behavior of your dev server. Define different paths that should be proxied, and where they should be proxied to.
+
+The short form of a full URL string is enough for general use. For advanced configuration, you can use the object format to set all options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
+
+This configuration has no effect on the final build.
+
+Example:
 
 ```js
 // snowpack.config.json
@@ -163,15 +243,19 @@ $ snowpack build --clean
 }
 ```
 
-If desired, `"proxy"` is where you configure the proxy behavior of your dev server. Define different paths that should be proxied, and where they should be proxied to.
+Options:
 
-The short form of a full URL string is enough for general use. For advanced configuration, you can use the object format to set all options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
+- **`"path".on`** | `object` (string: function)
+  - `on` is a special Snowpack property for setting event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
+- All options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
 
-`on` is a special property for setting event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
+#### `config.mount`
 
-This configuration has no effect on the final build.
+`object` (path: path)
 
-#### Mount Options
+The `mount` configuration lets you map local files to their location in the final build. If no mount configuration is given, then the entire current working directory (minus excluded files) will be built and mounted to the Root URL (Default: `/`, respects `baseUrl`).
+
+Example:
 
 ```js
 // snowpack.config.json
@@ -186,11 +270,22 @@ This configuration has no effect on the final build.
 }
 ```
 
-The `mount` configuration lets you map local files to their location in the final build. If no mount configuration is given, then the entire current working directory (minus excluded files) will be built and mounted to the Root URL (Default: `/`, respects `baseUrl`).
+#### `config.alias`
 
-#### Alias Options
+`object` (package: package or path)
 
 > Note: In an older version of Snowpack, all mounted directories were also available as aliases by default. As of Snowpack 2.7, this is no longer the case and no aliases are defined by default.
+
+The `alias` config option lets you define an import alias in your application. When aliasing a package, this allows you to import that package by another name in your application. This applies to imports inside of your dependencies as well, essentially replacing all references to the aliased package.
+
+Aliasing a local directory (any path that starts with "./") creates a shortcut to import that file or directory. While we don't necessarily recommend this pattern, some projects do enjoy using these instead of relative paths:
+
+```diff
+-import '../../../../../Button.js';
++import '@app/Button.js';
+```
+
+Example:
 
 ```js
 // snowpack.config.json
@@ -204,13 +299,4 @@ The `mount` configuration lets you map local files to their location in the fina
     "@app": "./src"
   }
 }
-```
-
-The `alias` config option lets you define an import alias in your application. When aliasing a package, this allows you to import that package by another name in your application. This applies to imports inside of your dependencies as well, essentially replacing all references to the aliased package.
-
-Aliasing a local directory (any path that starts with "./") creates a shortcut to import that file or directory. While we don't necessarily recommend this pattern, some projects do enjoy using these instead of relative paths:
-
-```diff
--import '../../../../../Button.js';
-+import '@app/Button.js';
 ```
