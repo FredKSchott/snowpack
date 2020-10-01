@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "teststart": "snowpack dev"
+  },
+  "snowpack": {
+    "devOptions": {
+      "open": "none"
+    },
+    "mount": {
+      "public": "/",
+      "src": "/_dist_"
+    }
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.2.0",
+    "snowpack": "^2.12.1"
+  }
+}
