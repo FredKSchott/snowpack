@@ -8155,7 +8155,7 @@ console.log(\\"ts loaded\\");
 //# sourceMappingURL=submodule.js.map"
 `;
 
-exports[`snowpack build transform-sourcemap: _dist_/submodule.js.map 1`] = `"{\\"version\\":3,\\"sources\\":[\\"/home/sweet/home/snowpack/test/build/transform-sourcemap/src/submodule.ts\\"],\\"names\\":[],\\"mappings\\":\\";AAAA\\",\\"sourcesContent\\":[\\"console.log('ts loaded');\\"]}"`;
+exports[`snowpack build transform-sourcemap: _dist_/submodule.js.map 1`] = `"{\\"version\\":3,\\"sources\\":[\\"/home/sweet/home/snowpack/test/build/transform-sourcemap/src/submodule.ts\\"],\\"names\\":[],\\"mappings\\":\\";AAAA\\",\\"sourcesContent\\":[\\"console.log(\\\\\\"ts loaded\\\\\\");\\"]}"`;
 
 exports[`snowpack build transform-sourcemap: allFiles 1`] = `
 Array [
