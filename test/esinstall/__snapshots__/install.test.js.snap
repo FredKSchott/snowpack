@@ -1,5 +1,45 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`snowpack install auto-named-exports: allFiles 1`] = `
+Array [
+  "cjs-named-export-pkg-02.js",
+  "import-map.json",
+]
+`;
+
+exports[`snowpack install auto-named-exports: cjs-named-export-pkg-02.js 1`] = `
+"var export1 = 1;
+var export2 = 'foo';
+var export3 = function foo() {};
+var export4 = () => {};
+var export5 = null;
+var entrypoint = {
+	export1: export1,
+	export2: export2,
+	export3: export3,
+	export4: export4,
+	export5: export5
+};
+export default entrypoint;
+export { entrypoint as __moduleExports, export1, export2, export3, export4, export5 };"
+`;
+
+exports[`snowpack install auto-named-exports: import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"cjs-named-export-pkg-02\\": \\"./cjs-named-export-pkg-02.js\\"
+  }
+}"
+`;
+
+exports[`snowpack install auto-named-exports: output 1`] = `
+"[snowpack] ! installing dependencies…
+[snowpack] ✔ install complete
+[snowpack]
+  ⦿ web_modules/                   size       gzip       brotli
+    └─ cjs-named-export-pkg-02.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
 exports[`snowpack install config-alias: allFiles 1`] = `
 Array [
   "import-map.json",
@@ -22238,7 +22278,11 @@ var httpVueLoader = createCommonjsModule(function (module, exports) {
 	return httpVueLoader;
 });
 });
-export default httpVueLoader;"
+var _baseURI = httpVueLoader._baseURI;
+export default httpVueLoader;
+var name = httpVueLoader.name;
+var template = httpVueLoader.template;
+export { httpVueLoader as __moduleExports, _baseURI, name, template };"
 `;
 
 exports[`snowpack install include: import-map.json 1`] = `
@@ -37962,7 +38006,11 @@ var httpVueLoader = createCommonjsModule(function (module, exports) {
 	return httpVueLoader;
 });
 });
-export default httpVueLoader;"
+var _baseURI = httpVueLoader._baseURI;
+export default httpVueLoader;
+var name = httpVueLoader.name;
+var template = httpVueLoader.template;
+export { httpVueLoader as __moduleExports, _baseURI, name, template };"
 `;
 
 exports[`snowpack install include-ts: import-map.json 1`] = `
@@ -51901,7 +51949,11 @@ var httpVueLoader = createCommonjsModule(function (module, exports) {
 	return httpVueLoader;
 });
 });
-export default httpVueLoader;"
+var _baseURI = httpVueLoader._baseURI;
+export default httpVueLoader;
+var name = httpVueLoader.name;
+var template = httpVueLoader.template;
+export { httpVueLoader as __moduleExports, _baseURI, name, template };"
 `;
 
 exports[`snowpack install include-with-package-name: import-map.json 1`] = `
