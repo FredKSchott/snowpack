@@ -1,9 +1,6 @@
-<a href="https://osawards.com/javascript/2020">
-  <img src="https://www.snowpack.dev/img/JSAwardWinner.jpg"  height="64px" />
-</a>    
-<a href="https://github.com/pikapkg/snowpack/actions">
+<a href="https://github.com/pikapkg/snowpack/actions" align="right">
   <img src="https://github.com/pikapkg/snowpack/workflows/CI/badge.svg?event=push" alt="CI" />
-</a>
+</a>    
   
 <h1>Snowpack</h1>
 
@@ -20,6 +17,10 @@ Snowpack leverages JavaScript's native module system (<a href="https://developer
 - Connect your favorite tools with [third-party plugins.](https://www.snowpack.dev/posts/#build-plugins)
 
 **💁 More info at the official [Snowpack website ➞](https://snowpack.dev)**
+
+<a href="https://osawards.com/javascript/2020">
+  <img src="https://www.snowpack.dev/img/JSAwardWinner.jpg"  height="72px" />
+</a>  
 
 ## Community
 
