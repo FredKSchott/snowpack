@@ -85,10 +85,7 @@ function isImportOfPackage(importUrl: string, packageName: string) {
  * Follows logic similar to Node's resolution logic, but using a package.json's ESM "module"
  * field instead of the CJS "main" field.
  */
-function resolveWebDependency(
-  dep: string,
-  {cwd}: {cwd: string},
-): DependencyLoc {
+function resolveWebDependency(dep: string, {cwd}: {cwd: string}): DependencyLoc {
   // if dep points directly to a file within a package, return that reference.
   // No other lookup required.
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
