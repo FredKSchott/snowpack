@@ -16,6 +16,27 @@ Snowpack supports configuration files in multiple formats, sorted by priority or
 1. `snowpack.config.js`: (`module.exports = {...}`).
 1. `snowpack.config.json`: (`{...}`).
 
+Example:
+
+```js
+{
+  "install": [
+    "htm",
+    "preact",
+    "preact/hooks", // A package within a package
+    "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
+    "bulma/css/bulma.css" // A non-JS static asset (supports globs)
+  ],
+  "plugins": [ /* ... */ ],
+  "installOptions": { /* ... */ },
+  "devOptions": { /* ... */ },
+  "buildOptions": { /* ... */ },
+  "proxy": { /* ... */ },
+  "mount": { /* ... */ },
+  "alias": { /* ... */ }
+}
+```
+
 ##### CLI Flags
 
 ```bash
