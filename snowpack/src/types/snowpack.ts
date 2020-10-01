@@ -1,6 +1,7 @@
 import type HttpProxy from 'http-proxy';
 import type * as http from 'http';
 import type {InstallOptions} from 'esinstall';
+import type {RawSourceMap} from 'source-map';
 
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -51,7 +52,9 @@ export interface PluginRunOptions {
 }
 
 /** map of extensions -> code (e.g. { ".js": "[code]", ".css": "[code]" }) */
-export type PluginLoadResult = string | SnowpackBuildMap;
+export type PluginLoadResult = SnowpackBuildMap;
+
+export type PluginTransformResult = {contents: string; map: string | RawSourceMap};
 
 export interface PluginOptimizeOptions {
   buildDirectory: string;
@@ -73,9 +76,11 @@ export interface SnowpackPlugin {
     output: string[];
   };
   /** load a file that matches resolve.input */
-  load?(options: PluginLoadOptions): Promise<PluginLoadResult | null | undefined | void>;
+  load?(options: PluginLoadOptions): Promise<PluginLoadResult | string | null | undefined | void>;
   /** transform a file that matches resolve.input */
-  transform?(options: PluginTransformOptions): Promise<string | null | undefined | void>;
+  transform?(
+    options: PluginTransformOptions,
+  ): Promise<PluginTransformResult | string | null | undefined | void>;
   /** runs a command, unrelated to file building (e.g. TypeScript, ESLint) */
   run?(options: PluginRunOptions): Promise<unknown>;
   /** optimize the entire built application */

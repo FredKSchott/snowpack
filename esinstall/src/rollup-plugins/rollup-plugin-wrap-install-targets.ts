@@ -1,12 +1,10 @@
 import * as colors from 'kleur/colors';
 import path from 'path';
+import fs from 'fs';
 import {Plugin} from 'rollup';
 import {InstallTarget, AbstractLogger} from '../types';
 import {getWebDependencyName} from '../util.js';
-
-function autoDetectExports(fileLoc: string): string[] {
-  return Object.keys(require(fileLoc)).filter((imp) => imp !== 'default');
-}
+import parse from 'cjs-module-lexer';
 
 /**
  * rollup-plugin-wrap-install-targets
@@ -27,12 +25,49 @@ export function rollupPluginWrapInstallTargets(
   logger: AbstractLogger,
 ): Plugin {
   const installTargetSummaries: {[loc: string]: InstallTarget} = {};
+  const cjsScannedNamedExports = new Map<string, string[]>();
 
-  function isAutoDetect(normalizedFileLoc: string) {
-    return autoDetectPackageExports.some((p) =>
-      normalizedFileLoc.includes(`node_modules/${p}${p.endsWith('.js') ? '' : '/'}`),
-    );
+  /**
+   * Runtime analysis: High Fidelity, but not always successful.
+   * `require()` the CJS file inside of Node.js to load the package and detect it's runtime exports.
+   */
+  function cjsAutoDetectExportsRuntime(normalizedFileLoc: string): string[] | undefined {
+    try {
+      const mod = require(normalizedFileLoc);
+      // skip analysis for non-object modules, these can only be the default export.
+      if (!mod || mod.constructor !== Object) {
+        return;
+      }
+      // Collect and filter all properties of the object as named exports.
+      return Object.keys(mod).filter((imp) => imp !== 'default');
+    } catch (err) {
+      logger.debug(
+        `✘ Runtime CJS auto-detection for ${colors.bold(
+          normalizedFileLoc,
+        )} unsuccessful. Falling back to static analysis. ${err.message}`,
+      );
+    }
   }
+
+  /**
+   * Attempt #2: Static analysis: Lower Fidelity, but safe to run on anything.
+   * Get the exports that we scanned originally using static analysis. This is meant to run on
+   * any file (not only CJS) but it will only return an array if CJS exports were found.
+   */
+  function cjsAutoDetectExportsStatic(filename: string): string[] | undefined {
+    const fileContents = fs.readFileSync(filename, 'utf-8');
+    try {
+      const {exports} = parse(fileContents);
+      // TODO: Also follow & deeply parse dependency "reexports" returned by the lexer.
+      if (exports.length > 0) {
+        return exports;
+      }
+    } catch (err) {
+      // Safe to ignore, this is usually due to the file not being CJS.
+      logger.debug(`cjsAutoDetectExportsStatic error: ${err.message}`);
+    }
+  }
+
   return {
     name: 'snowpack:wrap-install-targets',
     // Mark some inputs for tree-shaking.
@@ -51,7 +86,14 @@ export function rollupPluginWrapInstallTargets(
         }, {} as any);
         installTargetSummaries[val] = installTargetSummary;
         const normalizedFileLoc = val.split(path.win32.sep).join(path.posix.sep);
-        if (isAutoDetect(normalizedFileLoc)) {
+        const isExplicitAutoDetect = autoDetectPackageExports.some((p) =>
+          normalizedFileLoc.includes(`node_modules/${p}${p.endsWith('.js') ? '' : '/'}`),
+        );
+        const cjsExports = isExplicitAutoDetect
+          ? cjsAutoDetectExportsRuntime(val)
+          : cjsAutoDetectExportsStatic(val);
+        if (cjsExports) {
+          cjsScannedNamedExports.set(normalizedFileLoc, cjsExports);
           input[key] = `snowpack-wrap:${val}`;
         }
         if (isTreeshake && !installTargetSummary.all) {
@@ -72,15 +114,11 @@ export function rollupPluginWrapInstallTargets(
       const fileLoc = id.substring('snowpack-wrap:'.length);
       // Reduce all install targets into a single "summarized" install target.
       const installTargetSummary = installTargetSummaries[fileLoc];
-      let uniqueNamedImports = Array.from(new Set(installTargetSummary.named));
+      let uniqueNamedExports = Array.from(new Set(installTargetSummary.named));
       const normalizedFileLoc = fileLoc.split(path.win32.sep).join(path.posix.sep);
-      if ((!isTreeshake || installTargetSummary.namespace) && isAutoDetect(normalizedFileLoc)) {
-        try {
-          uniqueNamedImports = autoDetectExports(fileLoc);
-        } catch (err) {
-          logger.error(`✘ Could not auto-detect exports for ${colors.bold(fileLoc)}
-${err.message}`);
-        }
+      const scannedNamedExports = cjsScannedNamedExports.get(normalizedFileLoc);
+      if (scannedNamedExports && (!isTreeshake || installTargetSummary.namespace)) {
+        uniqueNamedExports = scannedNamedExports || [];
         installTargetSummary.default = true;
       }
       const result = `
@@ -90,7 +128,7 @@ ${err.message}`);
             ? `import __pika_web_default_export_for_treeshaking__ from '${normalizedFileLoc}'; export default __pika_web_default_export_for_treeshaking__;`
             : ''
         }
-        ${`export {${uniqueNamedImports.join(',')}} from '${normalizedFileLoc}';`}
+        ${`export {${uniqueNamedExports.join(',')}} from '${normalizedFileLoc}';`}
       `;
       return result;
     },

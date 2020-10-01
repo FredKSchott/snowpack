@@ -64,6 +64,8 @@ async function installOptimizedDependencies(
     ...commandOptions,
     installTargets,
     config: installConfig,
+    shouldPrintStats: true,
+    shouldWriteLockfile: false,
   });
   return installResult;
 }
@@ -332,9 +334,6 @@ export async function command(commandOptions: CommandOptions) {
     const installResult = await installOptimizedDependencies(scannedFiles, installDest, {
       ...commandOptions,
     });
-    if (!installResult.success || installResult.hasError || !installResult.importMap) {
-      process.exit(1);
-    }
     const allFiles = glob.sync(`**/*`, {
       cwd: installDest,
       absolute: true,

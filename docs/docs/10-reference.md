@@ -142,9 +142,8 @@ Options:
   - Alias an installed package name. This applies to imports within your application and within your installed dependency graph.
   - Example: `"alias": {"react": "preact/compat", "react-dom": "preact/compat"}`
 - **`installOptions.namedExports`** | `string[]`
-  - Legacy Common.js (CJS) packages should only be imported by the default import (Example: `import reactTable from 'react-table'`)
-  - But, some packages use named exports in their documentation, which can cause confusion for users. (Example: `import {useTable} from 'react-table'`)
-  - You can enable "fake/synthetic" named exports for Common.js package by adding the package name under this configuration.
+  - _NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed._
+  - Import CJS packages using named exports (Example: `import {useTable} from 'react-table'`).
   - Example: `"namedExports": ["react-table"]`
 - **`installOptions.rollup`** | `Object`
   - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use.

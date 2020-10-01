@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-source-map-strip",
+  "scripts": {
+    "testinstall": "snowpack"
+  },
+  "snowpack": {
+    "install": [
+      "@auth0/auth0-spa-js"
+    ]
+  },
+  "dependencies": {
+    "@auth0/auth0-spa-js": "1.12.1"
+  }
+}

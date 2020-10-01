@@ -6,9 +6,9 @@
 ## Testing
 
 <!-- How was this change tested? -->
-<!-- DON'T DELETE THIS SECTION! If no tests were added, explain why. -->
+<!-- DON'T DELETE THIS SECTION! If no tests added, explain why -->
 
 ## Docs
 
-<!-- List places where documentation was updated -->
-<!-- If no docs were added, explain why (e.g. "bug fix only") -->
+<!-- Was public documentation updated? -->
+<!-- DON'T DELETE THIS SECTION! If no docs added, explain why (e.g. "bug fix only") -->

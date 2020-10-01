@@ -18,15 +18,6 @@ If you see this error message, that means that you've imported a file path not a
 
 ### Uncaught SyntaxError: The requested module '/web_modules/XXXXXX.js' does not provide an export named 'YYYYYY'
 
-Snowpack follow's Node.js's CJS-ESM interoperability strategy, where Common.js packages are always exported to the default export (`import react`) and do not support named exports (`import * as react`). Many packages, however, document these named exports in their READMEs and assume that your bundler will support it. We automatically add support for named exports to a small number of very popular packages (like React) that use this sort of documentation.
+This is usually seen when importing a named export from a package written in the older Common.js format. Snowpack will try to automatically scan and detect these named exports for legacy Common.js packages, but this is not always possible.
 
-**To solve this issue:** Add the failing package to `installOptions.namedExports` and Snowpack will create those named exports for you automatically (note: you may need to re-run Snowpack with the `--reload` flag to apply this update).
-
-```json
-// snowpack.config.json
-{
-  "installOptions": {
-    "namedExports": ["someModule"]
-  }
-}
-```
+**To solve this issue:** See our documentation on the ["namedExports"](#install-options) configuration option to resolve manually

@@ -7,13 +7,15 @@ const os = require('os');
 const STRIP_WHITESPACE = /((\s+$)|((\\r\\n)|(\\n)))/gm;
 const STRIP_REV = /\?rev=\w+/gm;
 const STRIP_CHUNKHASH = /([\w\-]+\-)[a-z0-9]{8}(\.js)/g;
+const STRIP_ROOTDIR = /"[^"]+(\/snowpack\/test\/)/g;
 
 /** format diffs to be meaningful */
 function format(stdout) {
   return stdout
     .replace(STRIP_REV, '?rev=XXXXXXXXXX')
     .replace(STRIP_CHUNKHASH, '$1XXXXXXXX$2')
-    .replace(STRIP_WHITESPACE, '');
+    .replace(STRIP_WHITESPACE, '')
+    .replace(STRIP_ROOTDIR, '"/home/sweet/home$1');
 }
 
 describe('snowpack build', () => {
@@ -61,7 +63,8 @@ describe('snowpack build', () => {
           entry.endsWith('.css') ||
           entry.endsWith('.html') ||
           entry.endsWith('.js') ||
-          entry.endsWith('.json')
+          entry.endsWith('.json') ||
+          entry.endsWith('.map')
         ) {
           const f1 = readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
           expect(format(f1)).toMatchSnapshot(entry.replace(/\\/g, '/'));
