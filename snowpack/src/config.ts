@@ -735,7 +735,7 @@ function validatePlugin(plugin: SnowpackPlugin) {
 
 export function validatePluginLoadResult(
   plugin: SnowpackPlugin,
-  result: PluginLoadResult | void | undefined | null,
+  result: PluginLoadResult | string | void | undefined | null,
 ) {
   const pluginName = plugin.name;
   if (!result) {

@@ -1,0 +1,11 @@
+{
+  "mount": {
+    "./src": "/_dist_"
+  },
+  "buildOptions": {
+    "clean": true,
+    "minify": false,
+    "sourceMaps": true
+  },
+  "plugins": ["./custom-transform-plugin.js"]
+}
