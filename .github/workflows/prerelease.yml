@@ -12,40 +12,40 @@ jobs:
   version_and_release:
     runs-on: ubuntu-latest
     steps:
-    # SETUP:
-    - run: sudo apt-get install jq
-    - uses: actions/checkout@v2.3.2
-    - name: Use Node.js ${{ env.node_version }}
-      uses: actions/setup-node@v2.1.1
-      with:
-        node-version: ${{ env.node_version }}
-        # (REQUIRED) setting a registry enables the NODE_AUTH_TOKEN env variable where we can set an npm token.
-        registry-url: 'https://registry.npmjs.org'
-    - run: git config --global user.email "github-ci@snowpack.dev"
-    - run: git config --global user.name " ${{ github.actor }}"
-    - run: yarn
-    - run: yarn build
+      # SETUP:
+      - run: sudo apt-get install jq
+      - uses: actions/checkout@v2.3.2
+      - name: Use Node.js ${{ env.node_version }}
+        uses: actions/setup-node@v2.1.1
+        with:
+          node-version: ${{ env.node_version }}
+          # (REQUIRED) setting a registry enables the NODE_AUTH_TOKEN env variable where we can set an npm token.
+          registry-url: 'https://registry.npmjs.org'
+      - run: git config --global user.email "github-ci@snowpack.dev"
+      - run: git config --global user.name " ${{ github.actor }}"
+      - run: yarn
+      - run: yarn build
 
-    # PUBLISH ESINSTALL@NEXT:
-    - run: npm version $(npm info esinstall@next version) --allow-same-version --no-git-tag-version
-      working-directory: ./esinstall
-    - run: npm version prerelease --preid pre
-      working-directory: ./esinstall
-    - run: npm publish --tag next
-      working-directory: ./esinstall
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # PUBLISH ESINSTALL@NEXT:
+      - run: npm version $(npm info esinstall@next version) --allow-same-version --no-git-tag-version
+        working-directory: ./esinstall
+      - run: npm version prerelease --preid pre
+        working-directory: ./esinstall
+      - run: npm publish --tag next
+        working-directory: ./esinstall
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-    # PUBLISH SNOWPACK@NEXT:
-    - run: |
-        cat package.json | jq '.dependencies.esinstall = "next"' > package.json.tmp
-        mv package.json.tmp package.json
-      working-directory: ./snowpack
-    - run: npm version  $(npm info snowpack@next version) --allow-same-version ---no-git-tag-version
-      working-directory: ./snowpack
-    - run: npm version prerelease --preid pre
-      working-directory: ./snowpack
-    - run: npm publish --tag next
-      working-directory: ./snowpack
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # PUBLISH SNOWPACK@NEXT:
+      - run: |
+          cat package.json | jq '.dependencies.esinstall = "next"' > package.json.tmp
+          mv package.json.tmp package.json
+        working-directory: ./snowpack
+      - run: npm version  $(npm info snowpack@next version) --allow-same-version ---no-git-tag-version
+        working-directory: ./snowpack
+      - run: npm version prerelease --preid pre
+        working-directory: ./snowpack
+      - run: npm publish --tag next
+        working-directory: ./snowpack
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
