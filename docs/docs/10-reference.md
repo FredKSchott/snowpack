@@ -72,7 +72,23 @@ $ snowpack build --clean
 
 See the configuration section for information on file formats and command line usage.
 
-options:
+Example:
+
+```js
+{
+  mount: {
+    public: '/',
+    src: '/_dist_',
+  },
+  plugins: ['@snowpack/plugin-babel', '@snowpack/plugin-dotenv'],
+  devOptions: {},
+  installOptions: {
+    installTypes: isTS,
+  },
+}
+```
+
+Options:
 
 - **`extends`** | `string`
   - Inherit from a separate "base" config. Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
@@ -102,7 +118,15 @@ options:
 
 Settings that determine how Snowpack handles installing modules.
 
-options:
+Example:
+
+```js
+installOptions: {
+  installTypes: isTS,
+}
+```
+
+Options:
 
 - **`installOptions.dest`** | `string`
   - _Default:`"web_modules"`_
@@ -135,7 +159,16 @@ options:
 
 Settings that determine how the Snowpack dev environment behaves.
 
-options:
+Example:
+
+```js
+devOptions: {
+	port: 4000,
+	open: "none",
+}
+```
+
+Options:
 
 - **`devOptions.port`** | `number` | Default: `8080`
   - The port number to run the dev server on.
@@ -162,7 +195,18 @@ options:
 
 Determines how Snowpack processes the final build.
 
-options:
+Example:
+
+```js
+buildOptions: {
+  sourceMaps: true,
+  baseUrl: '/home',
+  metaDir: 'static/snowpack',
+  webModulesUrl: 'web'
+}
+```
+
+Options:
 
 - **`buildOptions.baseUrl`** | `string` | Default: `/`
   - In your HTML, replace all instances of `%PUBLIC_URL%` with this (inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept). This is useful if your app will be deployed to a subdirectory. _Note: if you have `homepage` in your `package.json`, Snowpack will actually pick up on that, too._
@@ -185,7 +229,7 @@ The short form of a full URL string is enough for general use. For advanced conf
 
 This configuration has no effect on the final build.
 
-example:
+Example:
 
 ```js
 // snowpack.config.json
@@ -202,11 +246,11 @@ example:
 }
 ```
 
-options:
-TODO this section didn't really have the same format in the others so I made an attempt. But perhaps since this is part of another API we don't need this.
+Options:
 
 - **`"path".on`** | `object` (string: function)
-  - `on` is a special property for setting event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
+  - `on` is a special Snowpack property for setting event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
+- All options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
 
 #### `config.mount`
 
@@ -214,7 +258,7 @@ TODO this section didn't really have the same format in the others so I made an 
 
 The `mount` configuration lets you map local files to their location in the final build. If no mount configuration is given, then the entire current working directory (minus excluded files) will be built and mounted to the Root URL (Default: `/`, respects `baseUrl`).
 
-example:
+Example:
 
 ```js
 // snowpack.config.json
@@ -244,7 +288,7 @@ Aliasing a local directory (any path that starts with "./") creates a shortcut t
 +import '@app/Button.js';
 ```
 
-example:
+Example:
 
 ```js
 // snowpack.config.json
