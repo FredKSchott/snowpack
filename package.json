@@ -10,6 +10,8 @@
     "test": "jest --test-timeout=30000"
   },
   "workspaces": [
+    "create-snowpack-app/*",
+    "plugins/*",
     "snowpack",
     "esinstall",
     "test/build/*",
