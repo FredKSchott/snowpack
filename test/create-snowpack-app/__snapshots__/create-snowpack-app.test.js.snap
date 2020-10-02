@@ -7506,26 +7506,26 @@ document.head.appendChild(styleEl);"
 `;
 
 exports[`create-snowpack-app app-template-react: _dist_/App.js 1`] = `
-"import React, { useState } from '../web_modules/react.js';
-import logo from './logo.svg.proxy.js';
-import './App.css.proxy.js';
-function App() {
-  return /*#__PURE__*/React.createElement(\\"div\\", {
+"import React, {useState} from \\"../web_modules/react.js\\";
+import logo2 from \\"./logo.svg.proxy.js\\";
+import \\"./App.css.proxy.js\\";
+function App2() {
+  return /* @__PURE__ */ React.createElement(\\"div\\", {
     className: \\"App\\"
-  }, /*#__PURE__*/React.createElement(\\"header\\", {
+  }, /* @__PURE__ */ React.createElement(\\"header\\", {
     className: \\"App-header\\"
-  }, /*#__PURE__*/React.createElement(\\"img\\", {
-    src: logo,
+  }, /* @__PURE__ */ React.createElement(\\"img\\", {
+    src: logo2,
     className: \\"App-logo\\",
     alt: \\"logo\\"
-  }), /*#__PURE__*/React.createElement(\\"p\\", null, \\"Edit \\", /*#__PURE__*/React.createElement(\\"code\\", null, \\"src/App.jsx\\"), \\" and save to reload.\\"), /*#__PURE__*/React.createElement(\\"a\\", {
+  }), /* @__PURE__ */ React.createElement(\\"p\\", null, \\"Edit \\", /* @__PURE__ */ React.createElement(\\"code\\", null, \\"src/App.jsx\\"), \\" and save to reload.\\"), /* @__PURE__ */ React.createElement(\\"a\\", {
     className: \\"App-link\\",
     href: \\"https://reactjs.org\\",
     target: \\"_blank\\",
     rel: \\"noopener noreferrer\\"
   }, \\"Learn React\\")));
 }
-export default App;"
+export default App2;"
 `;
 
 exports[`create-snowpack-app app-template-react: _dist_/index.css 1`] = `
@@ -7556,12 +7556,11 @@ document.head.appendChild(styleEl);"
 exports[`create-snowpack-app app-template-react: _dist_/index.js 1`] = `
 "import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
-import React from '../web_modules/react.js';
-import ReactDOM from '../web_modules/react-dom.js';
-import App from './App.js';
-import './index.css.proxy.js';
-ReactDOM.render( /*#__PURE__*/React.createElement(React.StrictMode, null, /*#__PURE__*/React.createElement(App, null)), document.getElementById('root')); // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-// Learn more: https://www.snowpack.dev/#hot-module-replacement
+import React from \\"../web_modules/react.js\\";
+import ReactDOM from \\"../web_modules/react-dom.js\\";
+import App2 from \\"./App.js\\";
+import \\"./index.css.proxy.js\\";
+ReactDOM.render(/* @__PURE__ */ React.createElement(React.StrictMode, null, /* @__PURE__ */ React.createElement(App2, null)), document.getElementById(\\"root\\"));
 if (import.meta.hot) {
   import.meta.hot.accept();
 }"
@@ -8021,26 +8020,26 @@ document.head.appendChild(styleEl);"
 `;
 
 exports[`create-snowpack-app app-template-react-typescript: _dist_/App.js 1`] = `
-"import React from '../web_modules/react.js';
-import logo from './logo.svg.proxy.js';
-import './App.css.proxy.js';
-function App({}) {
-  return /*#__PURE__*/React.createElement(\\"div\\", {
+"import React from \\"../web_modules/react.js\\";
+import logo2 from \\"./logo.svg.proxy.js\\";
+import \\"./App.css.proxy.js\\";
+function App2({}) {
+  return /* @__PURE__ */ React.createElement(\\"div\\", {
     className: \\"App\\"
-  }, /*#__PURE__*/React.createElement(\\"header\\", {
+  }, /* @__PURE__ */ React.createElement(\\"header\\", {
     className: \\"App-header\\"
-  }, /*#__PURE__*/React.createElement(\\"img\\", {
-    src: logo,
+  }, /* @__PURE__ */ React.createElement(\\"img\\", {
+    src: logo2,
     className: \\"App-logo\\",
     alt: \\"logo\\"
-  }), /*#__PURE__*/React.createElement(\\"p\\", null, \\"Edit \\", /*#__PURE__*/React.createElement(\\"code\\", null, \\"src/App.tsx\\"), \\" and save to reload.\\"), /*#__PURE__*/React.createElement(\\"a\\", {
+  }), /* @__PURE__ */ React.createElement(\\"p\\", null, \\"Edit \\", /* @__PURE__ */ React.createElement(\\"code\\", null, \\"src/App.tsx\\"), \\" and save to reload.\\"), /* @__PURE__ */ React.createElement(\\"a\\", {
     className: \\"App-link\\",
     href: \\"https://reactjs.org\\",
     target: \\"_blank\\",
     rel: \\"noopener noreferrer\\"
   }, \\"Learn React\\")));
 }
-export default App;"
+export default App2;"
 `;
 
 exports[`create-snowpack-app app-template-react-typescript: _dist_/index.css 1`] = `
@@ -8071,12 +8070,11 @@ document.head.appendChild(styleEl);"
 exports[`create-snowpack-app app-template-react-typescript: _dist_/index.js 1`] = `
 "import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
-import React from '../web_modules/react.js';
-import ReactDOM from '../web_modules/react-dom.js';
-import App from './App.js';
-import './index.css.proxy.js';
-ReactDOM.render( /*#__PURE__*/React.createElement(React.StrictMode, null, /*#__PURE__*/React.createElement(App, null)), document.getElementById('root')); // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-// Learn more: https://www.snowpack.dev/#hot-module-replacement
+import React from \\"../web_modules/react.js\\";
+import ReactDOM from \\"../web_modules/react-dom.js\\";
+import App2 from \\"./App.js\\";
+import \\"./index.css.proxy.js\\";
+ReactDOM.render(/* @__PURE__ */ React.createElement(React.StrictMode, null, /* @__PURE__ */ React.createElement(App2, null)), document.getElementById(\\"root\\"));
 if (import.meta.hot) {
   import.meta.hot.accept();
 }"

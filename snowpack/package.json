@@ -25,7 +25,6 @@
     "snowpack": "index.bin.js"
   },
   "dependencies": {
-    "@babel/plugin-syntax-import-meta": "^7.10.4",
     "@snowpack/plugin-build-script": "^2.0.7",
     "@snowpack/plugin-run-script": "^2.1.3",
     "cacache": "^15.0.0",
