@@ -16,7 +16,7 @@ function format(stdout) {
     .replace(STRIP_CHUNKHASH, '$1XXXXXXXX$2')
     .replace(STRIP_WHITESPACE, '')
     .replace(STRIP_ROOTDIR, (_, p1, p2)=> {
-      return `/HOME${(p1 + p2).replace(/\\/g, '/')}`;
+      return `/HOME${(p1 + p2).replace(/\\{1,2}/g, '/')}`;
     });
 }
 
