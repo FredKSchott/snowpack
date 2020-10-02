@@ -39,7 +39,7 @@ async function transformJs(contents, id, skipTransform) {
   } else if (IS_FAST_REFRESH_ENABLED.test(contents)) {
     // Warn in case someone has a bad setup, and to help older users upgrade.
     console.warn(
-      `[@snowpack/plugin-react-refresh] ${id}\n"react-refresh/babel" babel plugin no longer needed, safe to remove from user babel config.`,
+      `[@snowpack/plugin-react-refresh] ${id}\n"react-refresh/babel" plugin no longer needed in your babel config, safe to remove.`,
     );
     fastRefreshEnhancedCode = contents;
   } else {
