@@ -20,11 +20,9 @@
     "react-dom": "^16.13.1"
   },
   "devDependencies": {
-    "@babel/plugin-syntax-import-meta": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
     "@babel/preset-typescript": "^7.10.4",
     "@snowpack/app-scripts-react": "^1.11.0",
-    "@snowpack/plugin-babel": "^2.1.0",
     "@snowpack/plugin-dotenv": "^2.0.1",
     "@snowpack/plugin-react-refresh": "^2.1.0",
     "@testing-library/jest-dom": "^5.5.0",

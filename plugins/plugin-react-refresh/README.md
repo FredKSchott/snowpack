@@ -11,28 +11,15 @@ npm install --save-dev @snowpack/plugin-react-refresh
 ```js
 // snowpack.config.json
 {
-  "plugins": ["@snowpack/plugin-react-refresh"]
-}
-```
-
-In addition, you have to add `react-refresh/babel` as a plugin to your babel configuration:
-
-```js
-// babel.config.json
-{
-  "env": {
-    "development": {
-      "plugins": [
-        "react-refresh/babel"
-      ]
-    }
-  }
+  "plugins": ["@snowpack/plugin-react-refresh", {/* options: see below */}]
 }
 ```
 
 ## Plugin Options
 
-None
+| Name    |   Type    | Description                                                                                                                                                                        |
+| :------ | :-------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `babel` | `boolean` | By default, this plugin uses Babel to add Fast-Refresh code to eligible JS files. If you want to configure & run this yourself, set `"babel": false"`. Most users won't need this. |
 
 ## How it Works
 

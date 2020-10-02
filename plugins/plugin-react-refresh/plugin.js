@@ -29,7 +29,38 @@ function transformHtml(contents) {
   );
 }
 
-function transformJs(contents, id) {
+const babel = require('@babel/core');
+const IS_FAST_REFRESH_ENABLED = /\$RefreshReg\$\(/;
+async function transformJs(contents, id, skipTransform) {
+  let fastRefreshEnhancedCode;
+
+  if (skipTransform) {
+    fastRefreshEnhancedCode = contents;
+  } else if (IS_FAST_REFRESH_ENABLED.test(contents)) {
+    // Warn in case someone has a bad setup, and to help older users upgrade.
+    console.warn(
+      `[@snowpack/plugin-react-refresh] ${id}\n"react-refresh/babel" babel plugin no longer needed, safe to remove from user babel config.`,
+    );
+    fastRefreshEnhancedCode = contents;
+  } else {
+    const {code} = await babel.transformAsync(contents, {
+      cwd: process.cwd(),
+      filename: id,
+      ast: false,
+      compact: false,
+      sourceMaps: false,
+      configFile: false,
+      babelrc: false,
+      plugins: [require('react-refresh/babel')],
+    });
+    fastRefreshEnhancedCode = code;
+  }
+
+  // If fast refresh markup wasn't added, just return the original content.
+  if (!fastRefreshEnhancedCode || !IS_FAST_REFRESH_ENABLED.test(fastRefreshEnhancedCode)) {
+    return contents;
+  }
+
   return `
 /** React Refresh: Setup **/
 if (import.meta.hot) {
@@ -45,7 +76,7 @@ if (import.meta.hot) {
   }
 }
 
-${contents}
+${fastRefreshEnhancedCode}
 
 /** React Refresh: Connect **/
 if (import.meta.hot) {
@@ -57,7 +88,7 @@ if (import.meta.hot) {
 }`;
 }
 
-module.exports = function reactRefreshTransform(snowpackConfig) {
+module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
   return {
     name: '@snowpack/plugin-react-refresh',
     transform({contents, fileExt, id, isDev}) {
@@ -68,8 +99,9 @@ module.exports = function reactRefreshTransform(snowpackConfig) {
       if (!isDev) {
         return;
       }
-      if (fileExt === '.js' && /\$RefreshReg\$\(/.test(contents)) {
-        return transformJs(contents, id);
+      if (fileExt === '.js') {
+        const skipTransform = babel === false;
+        return transformJs(contents, id, skipTransform);
       }
       if (fileExt === '.html') {
         return transformHtml(contents);

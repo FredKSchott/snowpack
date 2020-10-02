@@ -33,5 +33,4 @@ module.exports = babelJest.createTransformer({
       },
     ],
   ],
-  plugins: ["@babel/plugin-syntax-import-meta"],
 });
