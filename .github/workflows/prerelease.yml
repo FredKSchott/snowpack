@@ -4,6 +4,10 @@ name: Create Prerelease
 
 on:
   workflow_dispatch:
+    inputs:
+      packagePath:
+        description: 'path to package (ex: "./snowpack", "plugins/plugin-babel")'
+        required: true
 
 env:
   node_version: 14
@@ -26,26 +30,16 @@ jobs:
       - run: yarn
       - run: yarn build
 
-      # PUBLISH ESINSTALL@NEXT:
-      - run: npm version $(npm info esinstall@next version) --allow-same-version --no-git-tag-version
-        working-directory: ./esinstall
+      # PUBLISH:
+      - run: echo "PACKAGE_NAME=$(node -p "require('./package.json').name")" >> $GITHUB_ENV
+        working-directory: ${{ github.event.inputs.packagePath }}
+      - run: echo "PACKAGE_VERSION=$(npm info $PACKAGE_NAME@next version | npm info $PACKAGE_NAME@latest version)" >> $GITHUB_ENV
+        working-directory: ${{ github.event.inputs.packagePath }}
+      - run: npm version $PACKAGE_VERSION --allow-same-version --no-git-tag-version
+        working-directory: ${{ github.event.inputs.packagePath }}
       - run: npm version prerelease --preid pre
-        working-directory: ./esinstall
-      - run: npm publish --tag next
-        working-directory: ./esinstall
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      # PUBLISH SNOWPACK@NEXT:
-      - run: |
-          cat package.json | jq '.dependencies.esinstall = "next"' > package.json.tmp
-          mv package.json.tmp package.json
-        working-directory: ./snowpack
-      - run: npm version  $(npm info snowpack@next version) --allow-same-version ---no-git-tag-version
-        working-directory: ./snowpack
-      - run: npm version prerelease --preid pre
-        working-directory: ./snowpack
-      - run: npm publish --tag next
-        working-directory: ./snowpack
+        working-directory: ${{ github.event.inputs.packagePath }}
+      - run: npm publish --tag next --dry-run
+        working-directory: ${{ github.event.inputs.packagePath }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
