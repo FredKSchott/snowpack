@@ -33,13 +33,13 @@ jobs:
       # PUBLISH:
       - run: echo "PACKAGE_NAME=$(node -p "require('./package.json').name")" >> $GITHUB_ENV
         working-directory: ${{ github.event.inputs.packagePath }}
-      - run: echo "PACKAGE_VERSION=$(npm info $PACKAGE_NAME@next version | npm info $PACKAGE_NAME@latest version)" >> $GITHUB_ENV
+      - run: echo "PACKAGE_VERSION=$(npm info $PACKAGE_NAME@next version || npm info $PACKAGE_NAME@latest version)" >> $GITHUB_ENV
         working-directory: ${{ github.event.inputs.packagePath }}
       - run: npm version $PACKAGE_VERSION --allow-same-version --no-git-tag-version
         working-directory: ${{ github.event.inputs.packagePath }}
       - run: npm version prerelease --preid pre
         working-directory: ${{ github.event.inputs.packagePath }}
-      - run: npm publish --tag next --dry-run
+      - run: npm publish --tag next
         working-directory: ${{ github.event.inputs.packagePath }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
