@@ -156,10 +156,8 @@ function resolveWebDependency(dep: string, {cwd}: {cwd: string}): DependencyLoc 
     );
   }
   let foundEntrypoint: string =
-    depManifest['browser:module'] ||
-    depManifest.module ||
-    depManifest['main:esnext'];
-    
+    depManifest['browser:module'] || depManifest.module || depManifest['main:esnext'];
+
   if (!foundEntrypoint && !BROKEN_BROWSER_ENTRYPOINT.includes(packageName)) {
     foundEntrypoint = depManifest.browser;
   }
