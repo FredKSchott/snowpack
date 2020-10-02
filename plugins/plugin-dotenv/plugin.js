@@ -26,7 +26,6 @@ module.exports = function plugin() {
           path: dotenvFile,
         }),
       );
-      console.debug(`[@snowpack/plugin-dotenv] loaded: ${dotenvFile}`);
     }
   });
 
