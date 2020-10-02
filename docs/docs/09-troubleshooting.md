@@ -20,4 +20,4 @@ If you see this error message, that means that you've imported a file path not a
 
 This is usually seen when importing a named export from a package written in the older Common.js format. Snowpack will try to automatically scan and detect these named exports for legacy Common.js packages, but this is not always possible.
 
-**To solve this issue:** See our documentation on the ["namedExports"](#install-options) configuration option to resolve manually
+**To solve this issue:** See our documentation on the ["namedExports"](#config.installoptions) configuration API option to resolve manually
