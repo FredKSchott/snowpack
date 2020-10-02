@@ -7,7 +7,7 @@ const os = require('os');
 const STRIP_WHITESPACE = /((\s+$)|((\\r\\n)|(\\n)))/gm;
 const STRIP_REV = /\?rev=\w+/gm;
 const STRIP_CHUNKHASH = /([\w\-]+\-)[a-z0-9]{8}(\.js)/g;
-const STRIP_ROOTDIR = /"[^"]+([\/\\]snowpack[\/\\]test[\/\\])(.+?)"/g;
+const STRIP_ROOTDIR = /"[^"]+([\/\\]+snowpack[\/\\]+test[\/\\]+)(.+?)"/g;
 
 /** format diffs to be meaningful */
 function format(stdout) {
