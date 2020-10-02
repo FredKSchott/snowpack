@@ -21,3 +21,20 @@ If you see this error message, that means that you've imported a file path not a
 This is usually seen when importing a named export from a package written in the older Common.js format. Snowpack will try to automatically scan and detect these named exports for legacy Common.js packages, but this is not always possible.
 
 **To solve this issue:** See our documentation on the ["namedExports"](#install-options) configuration option to resolve manually
+
+### Installing Non-JS Packages
+
+When installing packages from npm, you may encounter some file formats that can only run with additional parsing/processing. First check to see if there is a [Snowpack plugin for the type of file](#plugins).
+
+Because our internal installer is powered by Rollup, you can also add Rollup plugins to your [Snowpack config](#configuration-options) to handle these special, rare files:
+
+```js
+/* snowpack.config.js */
+module.exports = {
+  rollup: {
+    plugins: [require('rollup-plugin-sass')()],
+  },
+};
+```
+
+Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#using-plugins) for more information.

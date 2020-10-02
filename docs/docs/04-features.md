@@ -308,20 +308,3 @@ Note that `@snowpack/plugin-optimize` will optimize your build, but won't bundle
   "plugins": [["@snowpack/plugin-webpack", {/* ... */}]]
 }
 ```
-
-### Installing Non-JS Packages
-
-When installing packages from npm, You may encounter some non-JS code that can only run with additional parsing/processing. Svelte packages, for example, commonly include `.svelte` files that will require additional tooling to parse and install for the browser.
-
-Because our internal installer is powered by Rollup, you can add Rollup plugins to your [Snowpack config](#configuration-options) to handle these special, rare files:
-
-```js
-/* snowpack.config.js */
-module.exports = {
-  rollup: {
-    plugins: [require('rollup-plugin-svelte')()],
-  },
-};
-```
-
-Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#using-plugins) for more information.
