@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-lit-element",
-  "version": "1.8.12",
+  "version": "1.9.0",
   "license": "MIT",
   "keywords": [
     "csa-template"
@@ -25,7 +25,7 @@
     "@snowpack/plugin-babel": "^2.1.0",
     "@snowpack/plugin-dotenv": "^2.0.1",
     "prettier": "^2.0.5",
-    "snowpack": "^2.12.1"
+    "snowpack": "^2.13.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }
