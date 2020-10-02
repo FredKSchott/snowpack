@@ -83,6 +83,8 @@ import {
 import {getInstallTargets, run as installRunner} from './install';
 import {getPort, paint, paintEvent} from './paint';
 
+const FILE_BUILD_RESULT_ERROR = `Build Result Error: There was a problem with a file build result.`;
+
 const DEFAULT_PROXY_ERROR_HANDLER = (
   err: Error,
   req: http.IncomingMessage,
@@ -233,6 +235,7 @@ const sendFile = (
 };
 
 const sendError = (req: http.IncomingMessage, res: http.ServerResponse, status: number) => {
+  logger.error(`[${status}] ${req.url}`);
   const contentType = mime.contentType(path.extname(req.url!) || '.html');
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': '*',
@@ -769,7 +772,22 @@ export async function startServer(commandOptions: CommandOptions) {
     // 1. Check the hot build cache. If it's already found, then just serve it.
     let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(fileLoc, isSSR);
     if (hotCachedResponse) {
-      const responseContent = await finalizeResponse(fileLoc, requestedFileExt, hotCachedResponse);
+      let responseContent: string | Buffer | null;
+      try {
+        responseContent = await finalizeResponse(fileLoc, requestedFileExt, hotCachedResponse);
+      } catch (err) {
+        logger.error(FILE_BUILD_RESULT_ERROR);
+        logger.error(err.toString());
+        hmrEngine.broadcastMessage({
+          type: 'error',
+          title: FILE_BUILD_RESULT_ERROR,
+          errorMessage: err.toString(),
+          fileLoc,
+          errorStackTrace: err.stack,
+        });
+        sendError(req, res, 500);
+        return;
+      }
       if (!responseContent) {
         sendError(req, res, 404);
         return;
@@ -854,7 +872,8 @@ export async function startServer(commandOptions: CommandOptions) {
       hmrEngine.broadcastMessage({
         type: 'error',
         title:
-          `Build Error` + err.__snowpackBuildDetails ? `: ${err.__snowpackBuildDetails.name}` : '',
+          `Build Error` +
+          (err.__snowpackBuildDetails ? `: ${err.__snowpackBuildDetails.name}` : ''),
         errorMessage: err.toString(),
         fileLoc,
         errorStackTrace: err.stack,
@@ -865,8 +884,15 @@ export async function startServer(commandOptions: CommandOptions) {
     try {
       responseContent = await finalizeResponse(fileLoc, requestedFileExt, responseOutput);
     } catch (err) {
-      logger.error(`${reqPath}
-${err}`);
+      logger.error(FILE_BUILD_RESULT_ERROR);
+      logger.error(err.toString());
+      hmrEngine.broadcastMessage({
+        type: 'error',
+        title: FILE_BUILD_RESULT_ERROR,
+        errorMessage: err.toString(),
+        fileLoc,
+        errorStackTrace: err.stack,
+      });
       sendError(req, res, 500);
       return;
     }
@@ -909,7 +935,6 @@ ${err}`);
   const server = createServer((req, res) => {
     /** Handle errors not handled in our requestHandler. */
     function onUnhandledError(err: Error) {
-      logger.error(`[500] ${req.url}`);
       logger.error(err.toString());
       sendError(req, res, 500);
     }
