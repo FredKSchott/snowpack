@@ -7298,6 +7298,14 @@ exports[`create-snowpack-app app-template-preact: _dist_/App.css 1`] = `
 ".App {
   text-align: center;
 }
+.App code {
+  background: #FFF3;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.App p {
+  margin: 0.4rem;
+}
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -7314,7 +7322,7 @@ exports[`create-snowpack-app app-template-preact: _dist_/App.css 1`] = `
 .App-logo {
   height: 40vmin;
   pointer-events: none;
-  margin-bottom: 1rem;
+  margin-bottom: 3rem;
   animation: App-logo-spin infinite 1.6s ease-in-out alternate;
 }
 @keyframes App-logo-spin {
@@ -7329,7 +7337,7 @@ exports[`create-snowpack-app app-template-preact: _dist_/App.css 1`] = `
 
 exports[`create-snowpack-app app-template-preact: _dist_/App.css.proxy.js 1`] = `
 "
-const code = \\".App {  text-align: center;}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}.App-logo {  height: 40vmin;  pointer-events: none;  margin-bottom: 1rem;  animation: App-logo-spin infinite 1.6s ease-in-out alternate;}@keyframes App-logo-spin {  from {    transform: scale(1);  }  to {    transform: scale(1.06);  }}\\";
+const code = \\".App {  text-align: center;}.App code {  background: #FFF3;  padding: 4px 8px;  border-radius: 4px;}.App p {  margin: 0.4rem;}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}.App-logo {  height: 40vmin;  pointer-events: none;  margin-bottom: 3rem;  animation: App-logo-spin infinite 1.6s ease-in-out alternate;}@keyframes App-logo-spin {  from {    transform: scale(1);  }  to {    transform: scale(1.06);  }}\\";
 const styleEl = document.createElement(\\"style\\");
 const codeEl = document.createTextNode(code);
 styleEl.type = 'text/css';
@@ -7339,9 +7347,12 @@ document.head.appendChild(styleEl);"
 
 exports[`create-snowpack-app app-template-preact: _dist_/App.js 1`] = `
 "import { h } from '../web_modules/preact.js';
+import { useState } from '../web_modules/preact/hooks.js';
 import logo from './logo.png.proxy.js';
 import './App.css.proxy.js';
 function App() {
+  const [count, setCount] = useState(0);
+  setTimeout(() => setCount(count + 1), 1000);
   return h(\\"div\\", {
     className: \\"App\\"
   }, h(\\"header\\", {
@@ -7350,12 +7361,12 @@ function App() {
     src: logo,
     className: \\"App-logo\\",
     alt: \\"logo\\"
-  }), h(\\"p\\", null, \\"Edit \\", h(\\"code\\", null, \\"src/App.jsx\\"), \\" and save to reload.\\"), h(\\"a\\", {
+  }), h(\\"p\\", null, \\"Edit \\", h(\\"code\\", null, \\"src/App.jsx\\"), \\" and save to reload.\\"), h(\\"p\\", null, \\"Page has been open for \\", h(\\"code\\", null, count), \\" seconds.\\"), h(\\"p\\", null, h(\\"a\\", {
     className: \\"App-link\\",
     href: \\"https://preactjs.com\\",
     target: \\"_blank\\",
     rel: \\"noopener noreferrer\\"
-  }, \\"Learn Preact\\")));
+  }, \\"Learn Preact\\"))));
 }
 export default App;"
 `;
@@ -7412,6 +7423,7 @@ Array [
   "web_modules/import-map.json",
   "web_modules/preact.js",
   "web_modules/preact/devtools.js",
+  "web_modules/preact/hooks.js",
 ]
 `;
 
@@ -7445,7 +7457,8 @@ exports[`create-snowpack-app app-template-preact: web_modules/import-map.json 1`
 "{
   \\"imports\\": {
     \\"preact\\": \\"./preact.js\\",
-    \\"preact/devtools\\": \\"./preact/devtools.js\\"
+    \\"preact/devtools\\": \\"./preact/devtools.js\\",
+    \\"preact/hooks\\": \\"./preact/hooks.js\\"
   }
 }"
 `;
@@ -7457,11 +7470,25 @@ exports[`create-snowpack-app app-template-preact: web_modules/preact/devtools.js
 \\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.4.8\\",n,{Fragment:p,Component:d});"
 `;
 
+exports[`create-snowpack-app app-template-preact: web_modules/preact/hooks.js 1`] = `
+"import { n } from '../common/preact.module-XXXXXXXX.js';
+var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__c=u,i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}]),i.__}function q(){i.some(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.u&&n.u();}function g(n){n.u=n.__();}function k(n,t){return \\"function\\"==typeof t?t(n):t}
+export { m as useState };"
+`;
+
 exports[`create-snowpack-app app-template-react: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`create-snowpack-app app-template-react: _dist_/App.css 1`] = `
 ".App {
   text-align: center;
+}
+.App code {
+  background: #FFF3;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.App p {
+  margin: 0.4rem;
 }
 .App-logo {
   height: 40vmin;
@@ -7497,7 +7524,7 @@ exports[`create-snowpack-app app-template-react: _dist_/App.css 1`] = `
 
 exports[`create-snowpack-app app-template-react: _dist_/App.css.proxy.js 1`] = `
 "
-const code = \\".App {  text-align: center;}.App-logo {  height: 40vmin;  pointer-events: none;}@media (prefers-reduced-motion: no-preference) {  .App-logo {    animation: App-logo-spin infinite 20s linear;  }}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}@keyframes App-logo-spin {  from {    transform: rotate(0deg);  }  to {    transform: rotate(360deg);  }}\\";
+const code = \\".App {  text-align: center;}.App code {  background: #FFF3;  padding: 4px 8px;  border-radius: 4px;}.App p {  margin: 0.4rem;}.App-logo {  height: 40vmin;  pointer-events: none;}@media (prefers-reduced-motion: no-preference) {  .App-logo {    animation: App-logo-spin infinite 20s linear;  }}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}@keyframes App-logo-spin {  from {    transform: rotate(0deg);  }  to {    transform: rotate(360deg);  }}\\";
 const styleEl = document.createElement(\\"style\\");
 const codeEl = document.createTextNode(code);
 styleEl.type = 'text/css';
@@ -7510,6 +7537,8 @@ exports[`create-snowpack-app app-template-react: _dist_/App.js 1`] = `
 import logo2 from \\"./logo.svg.proxy.js\\";
 import \\"./App.css.proxy.js\\";
 function App2() {
+  const [count, setCount] = useState(0);
+  setTimeout(() => setCount(count + 1), 1e3);
   return /* @__PURE__ */ React.createElement(\\"div\\", {
     className: \\"App\\"
   }, /* @__PURE__ */ React.createElement(\\"header\\", {
@@ -7518,12 +7547,12 @@ function App2() {
     src: logo2,
     className: \\"App-logo\\",
     alt: \\"logo\\"
-  }), /* @__PURE__ */ React.createElement(\\"p\\", null, \\"Edit \\", /* @__PURE__ */ React.createElement(\\"code\\", null, \\"src/App.jsx\\"), \\" and save to reload.\\"), /* @__PURE__ */ React.createElement(\\"a\\", {
+  }), /* @__PURE__ */ React.createElement(\\"p\\", null, \\"Edit \\", /* @__PURE__ */ React.createElement(\\"code\\", null, \\"src/App.jsx\\"), \\" and save to reload.\\"), /* @__PURE__ */ React.createElement(\\"p\\", null, \\"Page has been open for \\", /* @__PURE__ */ React.createElement(\\"code\\", null, count), \\" seconds.\\"), /* @__PURE__ */ React.createElement(\\"p\\", null, /* @__PURE__ */ React.createElement(\\"a\\", {
     className: \\"App-link\\",
     href: \\"https://reactjs.org\\",
     target: \\"_blank\\",
     rel: \\"noopener noreferrer\\"
-  }, \\"Learn React\\")));
+  }, \\"Learn React\\"))));
 }
 export default App2;"
 `;
@@ -7977,6 +8006,14 @@ exports[`create-snowpack-app app-template-react-typescript: _dist_/App.css 1`] =
 ".App {
   text-align: center;
 }
+.App code {
+  background: #FFF3;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.App p {
+  margin: 0.4rem;
+}
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -8011,7 +8048,7 @@ exports[`create-snowpack-app app-template-react-typescript: _dist_/App.css 1`] =
 
 exports[`create-snowpack-app app-template-react-typescript: _dist_/App.css.proxy.js 1`] = `
 "
-const code = \\".App {  text-align: center;}.App-logo {  height: 40vmin;  pointer-events: none;}@media (prefers-reduced-motion: no-preference) {  .App-logo {    animation: App-logo-spin infinite 20s linear;  }}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}@keyframes App-logo-spin {  from {    transform: rotate(0deg);  }  to {    transform: rotate(360deg);  }}\\";
+const code = \\".App {  text-align: center;}.App code {  background: #FFF3;  padding: 4px 8px;  border-radius: 4px;}.App p {  margin: 0.4rem;}.App-logo {  height: 40vmin;  pointer-events: none;}@media (prefers-reduced-motion: no-preference) {  .App-logo {    animation: App-logo-spin infinite 20s linear;  }}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}@keyframes App-logo-spin {  from {    transform: rotate(0deg);  }  to {    transform: rotate(360deg);  }}\\";
 const styleEl = document.createElement(\\"style\\");
 const codeEl = document.createTextNode(code);
 styleEl.type = 'text/css';
@@ -8020,10 +8057,12 @@ document.head.appendChild(styleEl);"
 `;
 
 exports[`create-snowpack-app app-template-react-typescript: _dist_/App.js 1`] = `
-"import React from \\"../web_modules/react.js\\";
+"import React, {useState} from \\"../web_modules/react.js\\";
 import logo2 from \\"./logo.svg.proxy.js\\";
 import \\"./App.css.proxy.js\\";
 function App2({}) {
+  const [count, setCount] = useState(0);
+  setTimeout(() => setCount(count + 1), 1e3);
   return /* @__PURE__ */ React.createElement(\\"div\\", {
     className: \\"App\\"
   }, /* @__PURE__ */ React.createElement(\\"header\\", {
@@ -8032,12 +8071,12 @@ function App2({}) {
     src: logo2,
     className: \\"App-logo\\",
     alt: \\"logo\\"
-  }), /* @__PURE__ */ React.createElement(\\"p\\", null, \\"Edit \\", /* @__PURE__ */ React.createElement(\\"code\\", null, \\"src/App.tsx\\"), \\" and save to reload.\\"), /* @__PURE__ */ React.createElement(\\"a\\", {
+  }), /* @__PURE__ */ React.createElement(\\"p\\", null, \\"Edit \\", /* @__PURE__ */ React.createElement(\\"code\\", null, \\"src/App.tsx\\"), \\" and save to reload.\\"), /* @__PURE__ */ React.createElement(\\"p\\", null, \\"Page has been open for \\", /* @__PURE__ */ React.createElement(\\"code\\", null, count), \\" seconds.\\"), /* @__PURE__ */ React.createElement(\\"p\\", null, /* @__PURE__ */ React.createElement(\\"a\\", {
     className: \\"App-link\\",
     href: \\"https://reactjs.org\\",
     target: \\"_blank\\",
     rel: \\"noopener noreferrer\\"
-  }, \\"Learn React\\")));
+  }, \\"Learn React\\"))));
 }
 export default App2;"
 `;
@@ -8139,7 +8178,9 @@ exports[`create-snowpack-app app-template-react-typescript: web_modules/import-m
 
 exports[`create-snowpack-app app-template-react-typescript: web_modules/react.js 1`] = `
 "import { r as react } from './common/index-XXXXXXXX.js';
-export { r as default } from './common/index-XXXXXXXX.js';"
+export { r as default } from './common/index-XXXXXXXX.js';
+var useState = react.useState;
+export { useState };"
 `;
 
 exports[`create-snowpack-app app-template-react-typescript: web_modules/react-dom.js 1`] = `

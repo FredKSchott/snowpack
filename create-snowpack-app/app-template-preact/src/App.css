@@ -1,6 +1,14 @@
 .App {
   text-align: center;
 }
+.App code {
+  background: #FFF3;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.App p {
+  margin: 0.4rem;
+}
 
 .App-header {
   background-color: #282c34;
@@ -20,7 +28,7 @@
 .App-logo {
   height: 40vmin;
   pointer-events: none;
-  margin-bottom: 1rem;
+  margin-bottom: 3rem;
   animation: App-logo-spin infinite 1.6s ease-in-out alternate;
 }
 @keyframes App-logo-spin {
