@@ -156,11 +156,11 @@ socket.addEventListener('message', ({data: _data}) => {
     return;
   }
   if (data.type === 'error') {
-    createNewErrorOverlay(data);
     console.error(
       `[ESM-HMR] ${data.fileLoc ? data.fileLoc + '\n' : ''}`,
       data.title + '\n' + data.errorMessage,
     );
+    createNewErrorOverlay(data);
     return;
   }
   if (data.type === 'update') {
@@ -174,7 +174,13 @@ socket.addEventListener('message', ({data: _data}) => {
         }
       })
       .catch((err) => {
-        console.error('update fail', err);
+        console.error('[ESM-HMR] Hot Update Error', err);
+        createNewErrorOverlay({
+          title: 'Hot Update Error',
+          fileLoc: data.url,
+          errorMessage: err.message,
+          errorStackTrace: err.stack,
+        });
       });
     return;
   }
@@ -189,10 +195,11 @@ window.addEventListener('error', function (event) {
   if (event.filename) {
     fileLoc = event.filename;
     if (event.lineno !== undefined) {
-      fileLoc += `:${event.lineno}`;
+      fileLoc += ` [:${event.lineno}`;
       if (event.colno !== undefined) {
         fileLoc += `:${event.colno}`;
       }
+      fileLoc += `]`;
     }
   }
   createNewErrorOverlay({
