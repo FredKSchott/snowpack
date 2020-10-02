@@ -3,11 +3,7 @@
 name: Create Prerelease
 
 on:
-  workflow_dispatch:
-    inputs:
-      packagePath:
-        description: 'path to package (ex: "./snowpack", "plugins/plugin-babel")'
-        required: true
+  pull_request:
 
 env:
   node_version: 14
@@ -39,7 +35,7 @@ jobs:
       working-directory: ${{ github.event.inputs.packagePath }}
     - run: npm version prerelease --preid pre
       working-directory: ${{ github.event.inputs.packagePath }}
-    - run: npm publish --tag next
+    - run: npm publish --tag next --dry-run
       working-directory: ${{ github.event.inputs.packagePath }}
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
