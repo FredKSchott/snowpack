@@ -40,6 +40,11 @@ function getIsHmrEnabled(config: SnowpackConfig) {
   return config.buildOptions.watch && !!config.devOptions.hmr;
 }
 
+function handleFileError(err: Error, builder: FileBuilder) {
+  logger.error(`✘ ${builder.filepath}\n  ${err.stack ? err.stack : err.message}`);
+  process.exit(1);
+}
+
 async function installOptimizedDependencies(
   scannedFiles: SnowpackSourceFile[],
   installDest: string,
@@ -383,7 +388,9 @@ export async function command(commandOptions: CommandOptions) {
   const parallelWorkQueue = new PQueue({concurrency: CONCURRENT_WORKERS});
   const allBuildPipelineFiles = Object.values(buildPipelineFiles);
   for (const buildPipelineFile of allBuildPipelineFiles) {
-    parallelWorkQueue.add(() => buildPipelineFile.buildFile());
+    parallelWorkQueue.add(() =>
+      buildPipelineFile.buildFile().catch((err) => handleFileError(err, buildPipelineFile)),
+    );
   }
   await parallelWorkQueue.onIdle();
 
@@ -397,13 +404,21 @@ export async function command(commandOptions: CommandOptions) {
   // 2. Install all dependencies. This gets us the import map we need to resolve imports.
   let installResult = await installDependencies();
 
+  logger.info(colors.yellow('! verifying build...'));
+
   // 3. Resolve all built file imports.
   for (const buildPipelineFile of allBuildPipelineFiles) {
-    parallelWorkQueue.add(() => buildPipelineFile.resolveImports(installResult.importMap!));
+    parallelWorkQueue.add(() =>
+      buildPipelineFile
+        .resolveImports(installResult.importMap!)
+        .catch((err) => handleFileError(err, buildPipelineFile)),
+    );
   }
   await parallelWorkQueue.onIdle();
+  logger.info(`${colors.green('✔')} verification complete`);
 
   // 4. Write files to disk.
+  logger.info(colors.yellow('! writing build to disk...'));
   const allImportProxyFiles = new Set(
     allBuildPipelineFiles.map((b) => b.filesToProxy).reduce((flat, item) => flat.concat(item), []),
   );
@@ -411,11 +426,21 @@ export async function command(commandOptions: CommandOptions) {
     parallelWorkQueue.add(() => buildPipelineFile.writeToDisk());
     for (const builtFile of Object.keys(buildPipelineFile.output)) {
       if (allImportProxyFiles.has(builtFile)) {
-        parallelWorkQueue.add(() => buildPipelineFile.writeProxyToDisk(builtFile));
+        parallelWorkQueue.add(() =>
+          buildPipelineFile
+            .writeProxyToDisk(builtFile)
+            .catch((err) => handleFileError(err, buildPipelineFile)),
+        );
       }
     }
   }
   await parallelWorkQueue.onIdle();
+
+  logger.info(
+    `${colors.green('✔')} build complete ${colors.dim(
+      `[${((buildEnd - buildStart) / 1000).toFixed(2)}s]`,
+    )}`,
+  );
 
   // 5. Optimize the build.
   if (!config.buildOptions.watch) {

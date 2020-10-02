@@ -75,6 +75,10 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
   'react-table',
 ];
 
+// Rarely, a package will ship a broken "browser" package.json entrypoint.
+// Ignore the "browser" entrypoint in those packages.
+const BROKEN_BROWSER_ENTRYPOINT = ['@sheerun/mutationobserver-shim'];
+
 function isImportOfPackage(importUrl: string, packageName: string) {
   return packageName === importUrl || importUrl.startsWith(packageName + '/');
 }
@@ -152,10 +156,12 @@ function resolveWebDependency(dep: string, {cwd}: {cwd: string}): DependencyLoc 
     );
   }
   let foundEntrypoint: string =
-    depManifest['browser:module'] ||
-    depManifest.module ||
-    depManifest['main:esnext'] ||
-    depManifest.browser;
+    depManifest['browser:module'] || depManifest.module || depManifest['main:esnext'];
+
+  if (!foundEntrypoint && !BROKEN_BROWSER_ENTRYPOINT.includes(packageName)) {
+    foundEntrypoint = depManifest.browser;
+  }
+
   // Some packages define "browser" as an object. We'll do our best to find the
   // right entrypoint in an entrypoint object, or fail otherwise.
   // See: https://github.com/defunctzombie/package-browser-field-spec

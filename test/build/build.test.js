@@ -7,7 +7,7 @@ const os = require('os');
 const STRIP_WHITESPACE = /((\s+$)|((\\r\\n)|(\\n)))/gm;
 const STRIP_REV = /\?rev=\w+/gm;
 const STRIP_CHUNKHASH = /([\w\-]+\-)[a-z0-9]{8}(\.js)/g;
-const STRIP_ROOTDIR = /"[^"]+(\/snowpack\/test\/)/g;
+const STRIP_ROOTDIR = /"[^"]+([\/\\]+snowpack[\/\\]+test[\/\\]+)(.+?)"/g;
 
 /** format diffs to be meaningful */
 function format(stdout) {
@@ -15,7 +15,9 @@ function format(stdout) {
     .replace(STRIP_REV, '?rev=XXXXXXXXXX')
     .replace(STRIP_CHUNKHASH, '$1XXXXXXXX$2')
     .replace(STRIP_WHITESPACE, '')
-    .replace(STRIP_ROOTDIR, '"/home/sweet/home$1');
+    .replace(STRIP_ROOTDIR, (_, p1, p2)=> {
+      return `/HOME${(p1 + p2).replace(/\\{1,2}/g, '/')}`;
+    });
 }
 
 describe('snowpack build', () => {

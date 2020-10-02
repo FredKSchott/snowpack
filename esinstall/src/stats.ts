@@ -85,7 +85,7 @@ export function printStats(dependencyStats: DependencyStatsOutput): string {
   output += `${formatFiles(allDirect, maxFileNameLength)}\n`;
   if (Object.values(common).length > 0) {
     output += `  ⦿ ${colors.bold('web_modules/common/ (Shared)')}\n`;
-    output += `${formatFiles(allCommon, maxFileNameLength)}\n`;
+    output += `${formatFiles(allCommon, maxFileNameLength)}`;
   }
   return `\n${output}\n`;
 }

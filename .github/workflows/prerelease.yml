@@ -1,0 +1,45 @@
+# Inspired by https://bret.io/projects/package-automation/
+
+name: Create Prerelease
+
+on:
+  workflow_dispatch:
+    inputs:
+      packagePath:
+        description: 'path to package (ex: "./snowpack", "plugins/plugin-babel")'
+        required: true
+
+env:
+  node_version: 14
+
+jobs:
+  version_and_release:
+    runs-on: ubuntu-latest
+    steps:
+      # SETUP:
+      - run: sudo apt-get install jq
+      - uses: actions/checkout@v2.3.2
+      - name: Use Node.js ${{ env.node_version }}
+        uses: actions/setup-node@v2.1.1
+        with:
+          node-version: ${{ env.node_version }}
+          # (REQUIRED) setting a registry enables the NODE_AUTH_TOKEN env variable where we can set an npm token.
+          registry-url: 'https://registry.npmjs.org'
+      - run: git config --global user.email "github-ci@snowpack.dev"
+      - run: git config --global user.name " ${{ github.actor }}"
+      - run: yarn
+      - run: yarn build
+
+      # PUBLISH:
+      - run: echo "PACKAGE_NAME=$(node -p "require('./package.json').name")" >> $GITHUB_ENV
+        working-directory: ${{ github.event.inputs.packagePath }}
+      - run: echo "PACKAGE_VERSION=$(npm info $PACKAGE_NAME@next version || npm info $PACKAGE_NAME@latest version)" >> $GITHUB_ENV
+        working-directory: ${{ github.event.inputs.packagePath }}
+      - run: npm version $PACKAGE_VERSION --allow-same-version --no-git-tag-version
+        working-directory: ${{ github.event.inputs.packagePath }}
+      - run: npm version prerelease --preid pre
+        working-directory: ${{ github.event.inputs.packagePath }}
+      - run: npm publish --tag next
+        working-directory: ${{ github.event.inputs.packagePath }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
