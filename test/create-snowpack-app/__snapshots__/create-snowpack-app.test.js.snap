@@ -7292,6 +7292,92 @@ LitElement.render = render$1;
 export { LitElement, css, customElement, html, property };"
 `;
 
+exports[`create-snowpack-app app-template-minimal: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+
+exports[`create-snowpack-app app-template-minimal: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "index.css",
+  "index.html",
+  "index.js",
+  "package.json",
+  "README.md",
+  "snowpack.config.js",
+]
+`;
+
+exports[`create-snowpack-app app-template-minimal: index.css 1`] = `
+"/* Add CSS styles here! */
+body {
+  font-family: sans-serif;
+  margin: 2em 1em;
+  line-height: 1.5em;
+}"
+`;
+
+exports[`create-snowpack-app app-template-minimal: index.html 1`] = `
+"<!DOCTYPE html>
+<html lang=\\"en\\">
+  <head>
+    <meta charset=\\"utf-8\\" />
+    <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
+    <meta name=\\"description\\" content=\\"Starter Snowpack App\\" />
+    <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/index.css\\" />
+    <title>Starter Snowpack App</title>
+  </head>
+  <body>
+    <h1>Welcome to Snowpack!</h1>
+    <script type=\\"module\\" src=\\"/index.js\\"></script>
+  </body>
+</html>"
+`;
+
+exports[`create-snowpack-app app-template-minimal: index.js 1`] = `
+"/* Add JavaScript code here! */
+console.log('Hello World! You did! Welcome to Snowpack :D');"
+`;
+
+exports[`create-snowpack-app app-template-minimal: package.json 1`] = `
+"{
+  \\"name\\": \\"app-template-minimal\\",
+  \\"version\\": \\"1.6.12\\",
+  \\"license\\": \\"MIT\\",
+  \\"keywords\\": [
+    \\"csa-template\\"
+  ],
+  \\"main\\": \\"index.js\\",
+  \\"scripts\\": {
+    \\"start\\": \\"snowpack dev\\",
+    \\"build\\": \\"snowpack build\\",
+    \\"test\\": \\"echo \\\\\\"Error: No test runner added.\\\\\\" && exit 1\\"
+  },
+  \\"devDependencies\\": {
+    \\"snowpack\\": \\"^2.12.1\\"
+  }
+}"
+`;
+
+exports[`create-snowpack-app app-template-minimal: snowpack.config.js 1`] = `
+"module.exports = {
+  install: [
+  ],
+  plugins: [
+  ],
+  installOptions: {
+  },
+  devOptions: {
+  },
+  buildOptions: {
+  },
+  proxy: {
+  },
+  mount: {
+  },
+  alias: {
+  },
+};"
+`;
+
 exports[`create-snowpack-app app-template-preact: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`create-snowpack-app app-template-preact: _dist_/App.css 1`] = `
