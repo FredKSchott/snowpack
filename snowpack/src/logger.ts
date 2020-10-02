@@ -1,6 +1,11 @@
 import * as colors from 'kleur/colors';
 import {LoggerLevel, LoggerEvent, LoggerOptions} from './types/snowpack';
 
+export interface LogRecord {
+  val: string;
+  count: number;
+}
+
 const levels: Record<LoggerLevel, number> = {
   debug: 20,
   info: 30,
@@ -16,7 +21,7 @@ class SnowpackLogger {
   /** configure maximum number of logs to keep (default: 500) */
   public logCount = 500;
 
-  private history: string[] = []; // this is immutable; must be accessed with Logger.getHistory()
+  private history: {val: string; count: number}[] = []; // this is immutable; must be accessed with Logger.getHistory()
   private callbacks: Record<LoggerEvent, (message: string) => void> = {
     debug: (message: string) => {
       console.log(message);
@@ -45,7 +50,12 @@ class SnowpackLogger {
     const log = `${colors.dim(`[${name}]`)} ${text}`;
 
     // add to log history and remove old logs to keep memory low
-    this.history.push(log);
+    const lastHistoryItem = this.history[this.history.length - 1];
+    if (lastHistoryItem && lastHistoryItem.val === log) {
+      lastHistoryItem.count++;
+    } else {
+      this.history.push({val: log, count: 1});
+    }
     while (this.history.length > this.logCount) {
       this.history.shift();
     }
@@ -83,7 +93,7 @@ class SnowpackLogger {
   }
 
   /** get full logging history */
-  public getHistory(): ReadonlyArray<string> {
+  public getHistory(): ReadonlyArray<LogRecord> {
     return this.history;
   }
 
