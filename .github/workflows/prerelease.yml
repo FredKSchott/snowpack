@@ -39,7 +39,7 @@ jobs:
         working-directory: ${{ github.event.inputs.packagePath }}
       - run: npm version prerelease --preid pre
         working-directory: ${{ github.event.inputs.packagePath }}
-      - run: npm publish --tag next
+      - run: npm publish --tag next --dry-run
         working-directory: ${{ github.event.inputs.packagePath }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
