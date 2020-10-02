@@ -1,7 +1,7 @@
 {
   "name": "snowpack",
   "version": "2.13.0",
-  "description": "Run npm packages directly in the browser. No Webpack, Parcel, or bundlers required.",
+  "description": "The ESM-powered frontend build tool. Fast, lightweight, unbundled.",
   "author": "Fred K. Schott <fkschott@gmail.com>",
   "license": "MIT",
   "repository": {
