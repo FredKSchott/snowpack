@@ -19,12 +19,8 @@
     "preact": "^10.4.6"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.10.4",
-    "@babel/preset-react": "^7.10.4",
-    "@prefresh/babel-plugin": "^0.1.0",
-    "@prefresh/snowpack": "~1.1.1",
+    "@prefresh/snowpack": "^2.0.1",
     "@snowpack/app-scripts-preact": "^1.9.1",
-    "@snowpack/plugin-babel": "^2.1.0",
     "@snowpack/plugin-dotenv": "^2.0.1",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/preact": "^1.0.2",
