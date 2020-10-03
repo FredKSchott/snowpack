@@ -368,7 +368,7 @@ export async function command(commandOptions: CommandOptions) {
   // 0. Find all source files.
   for (const [mountedDir, mountEntry] of Object.entries(config.mount)) {
     const allFiles = glob.sync(`**/*`, {
-      ignore: config.exclude,
+      ignore: [...config.exclude, ...config.testOptions.files],
       cwd: mountedDir,
       absolute: true,
       nodir: true,
