@@ -57,11 +57,15 @@ export function rollupPluginWrapInstallTargets(
   function cjsAutoDetectExportsStatic(filename: string): string[] | undefined {
     const fileContents = fs.readFileSync(filename, 'utf-8');
     try {
-      const {exports} = parse(fileContents);
-      // TODO: Also follow & deeply parse dependency "reexports" returned by the lexer.
-      if (exports.length > 0) {
-        return exports;
-      }
+      const {exports, reexports} = parse(fileContents);
+      return Array.from(
+        new Set([
+          ...exports,
+          ...reexports.map((e) =>
+            cjsAutoDetectExportsStatic(require.resolve(e, {paths: [path.dirname(filename)]})),
+          ),
+        ]),
+      );
     } catch (err) {
       // Safe to ignore, this is usually due to the file not being CJS.
       logger.debug(`cjsAutoDetectExportsStatic error: ${err.message}`);

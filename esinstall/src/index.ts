@@ -73,6 +73,7 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
   'prop-types/index.js',
   'scheduler/index.js',
   'react-table',
+  'chai/index.js'
 ];
 
 // Rarely, a package will ship a broken "browser" package.json entrypoint.
