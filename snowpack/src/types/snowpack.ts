@@ -120,6 +120,7 @@ export interface SnowpackConfig {
   install: string[];
   extends?: string;
   exclude: string[];
+  testFiles: string[];
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
   proxy: Proxy[];

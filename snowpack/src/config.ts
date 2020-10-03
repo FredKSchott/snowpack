@@ -31,14 +31,15 @@ import {
 } from './util';
 
 const CONFIG_NAME = 'snowpack';
-const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
+const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*'];
 
 // default settings
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
-  exclude: ['__tests__/**/*', '**/*.@(spec|test).*'],
   plugins: [],
   alias: {},
   scripts: {},
+  exclude: [],
+  testFiles: ['__tests__/**/*', '**/*.@(spec|test).*'],
   installOptions: {},
   devOptions: {
     secure: false,

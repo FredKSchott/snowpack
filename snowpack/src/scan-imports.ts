@@ -226,12 +226,16 @@ export function scanDepList(depList: string[], cwd: string): InstallTarget[] {
     .reduce((flat, item) => flat.concat(item), []);
 }
 
-export async function scanImports(config: SnowpackConfig): Promise<InstallTarget[]> {
+export async function scanImports(
+  includeTests: boolean,
+  config: SnowpackConfig,
+): Promise<InstallTarget[]> {
   await initESModuleLexer;
+  const ignore = includeTests ? config.exclude : [...config.exclude, ...config.testFiles];
   const includeFileSets = await Promise.all(
     Object.keys(config.mount).map((fromDisk) => {
       return glob.sync(`**/*`, {
-        ignore: config.exclude.concat(['**/web_modules/**/*']),
+        ignore,
         cwd: fromDisk,
         absolute: true,
         nodir: true,

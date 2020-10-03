@@ -260,18 +260,22 @@ class FileBuilder {
     }
   }
 
-  async writeProxyToDisk(originalFileLoc: string) {
+  async getProxy(originalFileLoc: string) {
     const proxiedCode = this.output[originalFileLoc];
-    const importProxyFileLoc = originalFileLoc + '.proxy.js';
     const proxiedUrl = originalFileLoc
       .substr(this.config.devOptions.out.length)
       .replace(/\\/g, '/');
-    const proxyCode = await wrapImportProxy({
+    return wrapImportProxy({
       url: proxiedUrl,
       code: proxiedCode,
       hmr: false,
       config: this.config,
     });
+  }
+
+  async writeProxyToDisk(originalFileLoc: string) {
+    const proxyCode = await this.getProxy(originalFileLoc);
+    const importProxyFileLoc = originalFileLoc + '.proxy.js';
     await fs.writeFile(importProxyFileLoc, proxyCode, 'utf-8');
   }
 }
@@ -368,7 +372,7 @@ export async function command(commandOptions: CommandOptions) {
   // 0. Find all source files.
   for (const [mountedDir, mountEntry] of Object.entries(config.mount)) {
     const allFiles = glob.sync(`**/*`, {
-      ignore: config.exclude,
+      ignore: [...config.exclude, ...config.testFiles],
       cwd: mountedDir,
       absolute: true,
       nodir: true,

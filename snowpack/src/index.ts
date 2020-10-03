@@ -47,7 +47,7 @@ ${colors.bold('Flags:')}
 export async function cli(args: string[]) {
   // parse CLI flags
   const cliFlags = yargs(args, {
-    array: ['install', 'env', 'exclude', 'externalPackage'],
+    array: ['install', 'env', 'exclude', 'testFiles', 'externalPackage'],
   }) as CLIFlags;
 
   if (cliFlags.verbose) {

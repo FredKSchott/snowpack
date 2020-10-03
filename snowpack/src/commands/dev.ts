@@ -85,6 +85,10 @@ import {getPort, paint, paintEvent} from './paint';
 
 const FILE_BUILD_RESULT_ERROR = `Build Result Error: There was a problem with a file build result.`;
 
+function getCacheKey(fileLoc: string, {isSSR, env}) {
+  return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
+}
+
 const DEFAULT_PROXY_ERROR_HANDLER = (
   err: Error,
   req: http.IncomingMessage,
@@ -811,9 +815,11 @@ export async function startServer(commandOptions: CommandOptions) {
     // matches then assume the entire cache is suspect. In that case, clear the
     // persistent cache and then force a live-reload of the page.
     const cachedBuildData =
-      !isSSR &&
+      process.env.NODE_ENV !== 'test' &&
       !filesBeingDeleted.has(fileLoc) &&
-      (await cacache.get(BUILD_CACHE, fileLoc).catch(() => null));
+      (await cacache
+        .get(BUILD_CACHE, getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}))
+        .catch(() => null));
     if (cachedBuildData) {
       const {originalFileHash} = cachedBuildData.metadata;
       const newFileHash = etag(fileContents);
@@ -908,11 +914,14 @@ export async function startServer(commandOptions: CommandOptions) {
     // NOTE(fks): We could do better and cache both, but at the time of writing SSR
     // is still a new concept. Lets confirm that this is how we want to do SSR, and
     // then can revisit the caching story once confident.
-    if (!isSSR) {
-      cacache.put(BUILD_CACHE, fileLoc, Buffer.from(JSON.stringify(responseOutput)), {
+    cacache.put(
+      BUILD_CACHE, 
+      getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
+      Buffer.from(JSON.stringify(responseOutput)),
+      {
         metadata: {originalFileHash},
-      });
-    }
+      },
+    );
   }
 
   type Http2RequestListener = (
@@ -1066,7 +1075,8 @@ export async function startServer(commandOptions: CommandOptions) {
     handleHmrUpdate(fileLoc);
     inMemoryBuildCache.delete(fileLoc);
     filesBeingDeleted.add(fileLoc);
-    await cacache.rm.entry(BUILD_CACHE, fileLoc);
+    await cacache.rm.entry(BUILD_CACHE, getCacheKey(fileLoc, {isSSR: true, env: process.env.NODE_ENV}));
+    await cacache.rm.entry(BUILD_CACHE, getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}));
     filesBeingDeleted.delete(fileLoc);
   }
   const watcher = chokidar.watch(Object.keys(config.mount), {
