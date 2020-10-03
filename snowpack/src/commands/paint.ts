@@ -3,10 +3,30 @@ import {EventEmitter} from 'events';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import readline from 'readline';
-import {logger} from '../logger';
+import {logger, LogRecord} from '../logger';
 
 const cwd = process.cwd();
+const IS_FILE_CHANGED_MESSAGE = /File changed\.\.\./;
 
+/** Convert a logger's history into the proper dev console format. */
+function summarizeHistory(history: readonly LogRecord[]): string {
+  // Note: history array can get long over time. Performance matters here!
+  return history.reduce((historyString, record) => {
+    let line;
+    // We want to summarize common repeat "file changed" events to reduce noise.
+    // All other logs should be included verbatim, with all repeats added.
+    if (record.count === 1) {
+      line = record.val;
+    } else if (IS_FILE_CHANGED_MESSAGE.test(record.val)) {
+      line = record.val + colors.green(` [x${record.count}]`);
+    } else {
+      line = Array(record.count).fill(record.val).join('\n');
+    }
+    // Note: this includes an extra '\n' character at the start.
+    // Fine for our use-case, but be aware.
+    return historyString + '\n' + line;
+  }, '');
+}
 export const paintEvent = {
   BUILD_FILE: 'BUILD_FILE',
   LOAD_ERROR: 'LOAD_ERROR',
@@ -112,8 +132,8 @@ export function paint(bus: EventEmitter, plugins: string[]) {
     // Console Output
     const history = logger.getHistory();
     if (history.length) {
-      process.stdout.write(`${colors.underline(colors.bold('▼ Console'))}\n\n`);
-      process.stdout.write(history.join('\n'));
+      process.stdout.write(`${colors.underline(colors.bold('▼ Console'))}\n`);
+      process.stdout.write(summarizeHistory(history));
       process.stdout.write('\n\n');
     }
     // Worker Dashboards

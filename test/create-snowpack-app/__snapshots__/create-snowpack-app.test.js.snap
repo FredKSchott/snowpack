@@ -118,7 +118,7 @@ a {
 `;
 
 exports[`create-snowpack-app app-template-11ty: web_modules/canvas-confetti.js 1`] = `
-"// canvas-confetti v1.2.0 built on 2020-04-03T22:26:09.865Z
+"// canvas-confetti v1.3.0 built on 2020-09-26T17:55:06.231Z
 var module = {};
 // source content
 (function main(global, module, isWorker, workerSize) {
@@ -251,7 +251,7 @@ var module = {};
           worker = new Worker(URL.createObjectURL(new Blob([code])));
         } catch (e) {
           // eslint-disable-next-line no-console
-          typeof console !== undefined && typeof console.warn === 'function' ? console.warn('🎊 Count not load worker', e) : null;
+          typeof console !== undefined && typeof console.warn === 'function' ? console.warn('🎊 Could not load worker', e) : null;
           return null;
         }
         decorate(worker);
@@ -281,7 +281,8 @@ var module = {};
       '#ff36ff'
     ],
     // probably should be true, but back-compat
-    disableForReducedMotion: false
+    disableForReducedMotion: false,
+    scalar: 1
   };
   function convert(val, transform) {
     return transform ? transform(val) : val;
@@ -366,7 +367,8 @@ var module = {};
       wobbleX: 0,
       wobbleY: 0,
       gravity: opts.gravity * 3,
-      ovalScalar: 0.6
+      ovalScalar: 0.6,
+      scalar: opts.scalar
     };
   }
   function updateFetti(context, fetti) {
@@ -378,8 +380,8 @@ var module = {};
     fetti.tiltSin = Math.sin(fetti.tiltAngle);
     fetti.tiltCos = Math.cos(fetti.tiltAngle);
     fetti.random = Math.random() + 5;
-    fetti.wobbleX = fetti.x + (10 * Math.cos(fetti.wobble));
-    fetti.wobbleY = fetti.y + (10 * Math.sin(fetti.wobble));
+    fetti.wobbleX = fetti.x + ((10 * fetti.scalar) * Math.cos(fetti.wobble));
+    fetti.wobbleY = fetti.y + ((10 * fetti.scalar) * Math.sin(fetti.wobble));
     var progress = (fetti.tick++) / fetti.totalTicks;
     var x1 = fetti.x + (fetti.random * fetti.tiltCos);
     var y1 = fetti.y + (fetti.random * fetti.tiltSin);
@@ -473,6 +475,7 @@ var module = {};
       var colors = prop(options, 'colors');
       var ticks = prop(options, 'ticks', Number);
       var shapes = prop(options, 'shapes');
+      var scalar = prop(options, 'scalar');
       var origin = getOrigin(options);
       var temp = particleCount;
       var fettis = [];
@@ -490,7 +493,8 @@ var module = {};
             shape: shapes[randomInt(0, shapes.length)],
             ticks: ticks,
             decay: decay,
-            gravity: gravity
+            gravity: gravity,
+            scalar: scalar
           })
         );
       }
@@ -683,7 +687,7 @@ exports[`create-snowpack-app app-template-blank: index.html 1`] = `
 `;
 
 exports[`create-snowpack-app app-template-blank: web_modules/canvas-confetti.js 1`] = `
-"// canvas-confetti v1.2.0 built on 2020-04-03T22:26:09.865Z
+"// canvas-confetti v1.3.0 built on 2020-09-26T17:55:06.231Z
 var module = {};
 // source content
 (function main(global, module, isWorker, workerSize) {
@@ -816,7 +820,7 @@ var module = {};
           worker = new Worker(URL.createObjectURL(new Blob([code])));
         } catch (e) {
           // eslint-disable-next-line no-console
-          typeof console !== undefined && typeof console.warn === 'function' ? console.warn('🎊 Count not load worker', e) : null;
+          typeof console !== undefined && typeof console.warn === 'function' ? console.warn('🎊 Could not load worker', e) : null;
           return null;
         }
         decorate(worker);
@@ -846,7 +850,8 @@ var module = {};
       '#ff36ff'
     ],
     // probably should be true, but back-compat
-    disableForReducedMotion: false
+    disableForReducedMotion: false,
+    scalar: 1
   };
   function convert(val, transform) {
     return transform ? transform(val) : val;
@@ -931,7 +936,8 @@ var module = {};
       wobbleX: 0,
       wobbleY: 0,
       gravity: opts.gravity * 3,
-      ovalScalar: 0.6
+      ovalScalar: 0.6,
+      scalar: opts.scalar
     };
   }
   function updateFetti(context, fetti) {
@@ -943,8 +949,8 @@ var module = {};
     fetti.tiltSin = Math.sin(fetti.tiltAngle);
     fetti.tiltCos = Math.cos(fetti.tiltAngle);
     fetti.random = Math.random() + 5;
-    fetti.wobbleX = fetti.x + (10 * Math.cos(fetti.wobble));
-    fetti.wobbleY = fetti.y + (10 * Math.sin(fetti.wobble));
+    fetti.wobbleX = fetti.x + ((10 * fetti.scalar) * Math.cos(fetti.wobble));
+    fetti.wobbleY = fetti.y + ((10 * fetti.scalar) * Math.sin(fetti.wobble));
     var progress = (fetti.tick++) / fetti.totalTicks;
     var x1 = fetti.x + (fetti.random * fetti.tiltCos);
     var y1 = fetti.y + (fetti.random * fetti.tiltSin);
@@ -1038,6 +1044,7 @@ var module = {};
       var colors = prop(options, 'colors');
       var ticks = prop(options, 'ticks', Number);
       var shapes = prop(options, 'shapes');
+      var scalar = prop(options, 'scalar');
       var origin = getOrigin(options);
       var temp = particleCount;
       var fettis = [];
@@ -1055,7 +1062,8 @@ var module = {};
             shape: shapes[randomInt(0, shapes.length)],
             ticks: ticks,
             decay: decay,
-            gravity: gravity
+            gravity: gravity,
+            scalar: scalar
           })
         );
       }
@@ -1244,7 +1252,7 @@ exports[`create-snowpack-app app-template-blank-typescript: index.html 1`] = `
 `;
 
 exports[`create-snowpack-app app-template-blank-typescript: web_modules/canvas-confetti.js 1`] = `
-"// canvas-confetti v1.2.0 built on 2020-04-03T22:26:09.865Z
+"// canvas-confetti v1.3.0 built on 2020-09-26T17:55:06.231Z
 var module = {};
 // source content
 (function main(global, module, isWorker, workerSize) {
@@ -1377,7 +1385,7 @@ var module = {};
           worker = new Worker(URL.createObjectURL(new Blob([code])));
         } catch (e) {
           // eslint-disable-next-line no-console
-          typeof console !== undefined && typeof console.warn === 'function' ? console.warn('🎊 Count not load worker', e) : null;
+          typeof console !== undefined && typeof console.warn === 'function' ? console.warn('🎊 Could not load worker', e) : null;
           return null;
         }
         decorate(worker);
@@ -1407,7 +1415,8 @@ var module = {};
       '#ff36ff'
     ],
     // probably should be true, but back-compat
-    disableForReducedMotion: false
+    disableForReducedMotion: false,
+    scalar: 1
   };
   function convert(val, transform) {
     return transform ? transform(val) : val;
@@ -1492,7 +1501,8 @@ var module = {};
       wobbleX: 0,
       wobbleY: 0,
       gravity: opts.gravity * 3,
-      ovalScalar: 0.6
+      ovalScalar: 0.6,
+      scalar: opts.scalar
     };
   }
   function updateFetti(context, fetti) {
@@ -1504,8 +1514,8 @@ var module = {};
     fetti.tiltSin = Math.sin(fetti.tiltAngle);
     fetti.tiltCos = Math.cos(fetti.tiltAngle);
     fetti.random = Math.random() + 5;
-    fetti.wobbleX = fetti.x + (10 * Math.cos(fetti.wobble));
-    fetti.wobbleY = fetti.y + (10 * Math.sin(fetti.wobble));
+    fetti.wobbleX = fetti.x + ((10 * fetti.scalar) * Math.cos(fetti.wobble));
+    fetti.wobbleY = fetti.y + ((10 * fetti.scalar) * Math.sin(fetti.wobble));
     var progress = (fetti.tick++) / fetti.totalTicks;
     var x1 = fetti.x + (fetti.random * fetti.tiltCos);
     var y1 = fetti.y + (fetti.random * fetti.tiltSin);
@@ -1599,6 +1609,7 @@ var module = {};
       var colors = prop(options, 'colors');
       var ticks = prop(options, 'ticks', Number);
       var shapes = prop(options, 'shapes');
+      var scalar = prop(options, 'scalar');
       var origin = getOrigin(options);
       var temp = particleCount;
       var fettis = [];
@@ -1616,7 +1627,8 @@ var module = {};
             shape: shapes[randomInt(0, shapes.length)],
             ticks: ticks,
             decay: decay,
-            gravity: gravity
+            gravity: gravity,
+            scalar: scalar
           })
         );
       }
@@ -7346,29 +7358,29 @@ document.head.appendChild(styleEl);"
 `;
 
 exports[`create-snowpack-app app-template-preact: _dist_/App.js 1`] = `
-"import { h } from '../web_modules/preact.js';
-import { useState } from '../web_modules/preact/hooks.js';
-import logo from './logo.png.proxy.js';
-import './App.css.proxy.js';
-function App() {
+"import {h} from \\"../web_modules/preact.js\\";
+import {useState} from \\"../web_modules/preact/hooks.js\\";
+import logo2 from \\"./logo.png.proxy.js\\";
+import \\"./App.css.proxy.js\\";
+function App2() {
   const [count, setCount] = useState(0);
-  setTimeout(() => setCount(count + 1), 1000);
-  return h(\\"div\\", {
+  setTimeout(() => setCount(count + 1), 1e3);
+  return /* @__PURE__ */ h(\\"div\\", {
     className: \\"App\\"
-  }, h(\\"header\\", {
+  }, /* @__PURE__ */ h(\\"header\\", {
     className: \\"App-header\\"
-  }, h(\\"img\\", {
-    src: logo,
+  }, /* @__PURE__ */ h(\\"img\\", {
+    src: logo2,
     className: \\"App-logo\\",
     alt: \\"logo\\"
-  }), h(\\"p\\", null, \\"Edit \\", h(\\"code\\", null, \\"src/App.jsx\\"), \\" and save to reload.\\"), h(\\"p\\", null, \\"Page has been open for \\", h(\\"code\\", null, count), \\" seconds.\\"), h(\\"p\\", null, h(\\"a\\", {
+  }), /* @__PURE__ */ h(\\"p\\", null, \\"Edit \\", /* @__PURE__ */ h(\\"code\\", null, \\"src/App.jsx\\"), \\" and save to reload.\\"), /* @__PURE__ */ h(\\"p\\", null, \\"Page has been open for \\", /* @__PURE__ */ h(\\"code\\", null, count), \\" seconds.\\"), /* @__PURE__ */ h(\\"p\\", null, /* @__PURE__ */ h(\\"a\\", {
     className: \\"App-link\\",
     href: \\"https://preactjs.com\\",
     target: \\"_blank\\",
     rel: \\"noopener noreferrer\\"
   }, \\"Learn Preact\\"))));
 }
-export default App;"
+export default App2;"
 `;
 
 exports[`create-snowpack-app app-template-preact: _dist_/index.css 1`] = `
@@ -7397,11 +7409,11 @@ document.head.appendChild(styleEl);"
 `;
 
 exports[`create-snowpack-app app-template-preact: _dist_/index.js 1`] = `
-"import { h, render } from '../web_modules/preact.js';
-import '../web_modules/preact/devtools.js';
-import App from './App.js';
-import './index.css.proxy.js';
-render(h(App, null), document.getElementById('root'));"
+"import {h, render} from \\"../web_modules/preact.js\\";
+import \\"../web_modules/preact/devtools.js\\";
+import App2 from \\"./App.js\\";
+import \\"./index.css.proxy.js\\";
+render(/* @__PURE__ */ h(App2, null), document.getElementById(\\"root\\"));"
 `;
 
 exports[`create-snowpack-app app-template-preact: _dist_/logo.png.proxy.js 1`] = `"export default \\"/_dist_/logo.png\\";"`;
@@ -7463,16 +7475,16 @@ exports[`create-snowpack-app app-template-preact: web_modules/import-map.json 1`
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact: web_modules/preact.js 1`] = `"export { v as h, M as render } from './common/preact.module-XXXXXXXX.js';"`;
+exports[`create-snowpack-app app-template-preact: web_modules/preact.js 1`] = `"export { h, O as render } from './common/preact.module-XXXXXXXX.js';"`;
 
 exports[`create-snowpack-app app-template-preact: web_modules/preact/devtools.js 1`] = `
 "import { n, p, d } from '../common/preact.module-XXXXXXXX.js';
-\\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.4.8\\",n,{Fragment:p,Component:d});"
+\\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.5.3\\",n,{Fragment:p,Component:d});"
 `;
 
 exports[`create-snowpack-app app-template-preact: web_modules/preact/hooks.js 1`] = `
 "import { n } from '../common/preact.module-XXXXXXXX.js';
-var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__c=u,i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}]),i.__}function q(){i.some(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.u&&n.u();}function g(n){n.u=n.__();}function k(n,t){return \\"function\\"==typeof t?t(n):t}
+var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u),i.__}function q(){i.some(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.u&&n.u();}function g(n){n.u=n.__();}function k(n,t){return \\"function\\"==typeof t?t(n):t}
 export { m as useState };"
 `;
 

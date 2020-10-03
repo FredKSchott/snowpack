@@ -70,11 +70,11 @@ exports[`snowpack install config-alias: output 1`] = `
 `;
 
 exports[`snowpack install config-alias: preact/compat.js 1`] = `
-"var n,u,i,t,o,r,f={},e=[],c=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;function s(n,l){for(var u in l)n[u]=l[u];return n}function a(n){var l=n.parentNode;l&&l.removeChild(n);}function v(n,l,u){var i,t,o,r=arguments,f={};for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);if(null!=u&&(f.children=u),\\"function\\"==typeof n&&null!=n.defaultProps)for(o in n.defaultProps)void 0===f[o]&&(f[o]=n.defaultProps[o]);return h(n,f,i,t,null)}function h(l,u,i,t,o){var r={type:l,props:u,key:i,ref:t,__k:null,__:null,__b:0,__e:null,__d:void 0,__c:null,constructor:void 0,__v:o};return null==o&&(r.__v=r),null!=n.vnode&&n.vnode(r),r}function y(){return {current:null}}function p(n){return n.children}function d(n,l){this.props=n,this.context=l;}function _(n,l){if(null==l)return n.__?_(n.__,n.__.__k.indexOf(n)+1):null;for(var u;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e)return u.__e;return \\"function\\"==typeof n.type?_(n):null}function w(n){var l,u;if(null!=(n=n.__)&&null!=n.__c){for(n.__e=n.__c.base=null,l=0;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e){n.__e=n.__c.base=u.__e;break}return w(n)}}function k(l){(!l.__d&&(l.__d=!0)&&u.push(l)&&!m.__r++||t!==n.debounceRendering)&&((t=n.debounceRendering)||i)(m);}function m(){for(var n;m.__r=u.length;)n=u.sort(function(n,l){return n.__v.__b-l.__v.__b}),u=[],n.some(function(n){var l,u,i,t,o,r,f;n.__d&&(r=(o=(l=n).__v).__e,(f=l.__P)&&(u=[],(i=s({},o)).__v=i,t=T(f,o,i,l.__n,void 0!==f.ownerSVGElement,null,u,null==r?_(o):r),$(u,o),t!=r&&w(o)));});}function g(n,l,u,i,t,o,r,c,s,v){var y,d,w,k,m,g,b,A=i&&i.__k||e,P=A.length;for(s==f&&(s=null!=r?r[0]:P?_(i,0):null),u.__k=[],y=0;y<l.length;y++)if(null!=(k=u.__k[y]=null==(k=l[y])||\\"boolean\\"==typeof k?null:\\"string\\"==typeof k||\\"number\\"==typeof k?h(null,k,null,null,k):Array.isArray(k)?h(p,{children:k},null,null,null):null!=k.__e||null!=k.__c?h(k.type,k.props,k.key,null,k.__v):k)){if(k.__=u,k.__b=u.__b+1,null===(w=A[y])||w&&k.key==w.key&&k.type===w.type)A[y]=void 0;else for(d=0;d<P;d++){if((w=A[d])&&k.key==w.key&&k.type===w.type){A[d]=void 0;break}w=null;}m=T(n,k,w=w||f,t,o,r,c,s,v),(d=k.ref)&&w.ref!=d&&(b||(b=[]),w.ref&&b.push(w.ref,null,k),b.push(d,k.__c||m,k)),null!=m?(null==g&&(g=m),s=x(n,k,w,A,r,m,s),v||\\"option\\"!=u.type?\\"function\\"==typeof u.type&&(u.__d=s):n.value=\\"\\"):s&&w.__e==s&&s.parentNode!=n&&(s=_(w));}if(u.__e=g,null!=r&&\\"function\\"!=typeof u.type)for(y=r.length;y--;)null!=r[y]&&a(r[y]);for(y=P;y--;)null!=A[y]&&I(A[y],A[y]);if(b)for(y=0;y<b.length;y++)H(b[y],b[++y],b[++y]);}function b(n,l){return l=l||[],null==n||\\"boolean\\"==typeof n||(Array.isArray(n)?n.some(function(n){b(n,l);}):l.push(n)),l}function x(n,l,u,i,t,o,r){var f,e,c;if(void 0!==l.__d)f=l.__d,l.__d=void 0;else if(t==u||o!=r||null==o.parentNode)n:if(null==r||r.parentNode!==n)n.appendChild(o),f=null;else {for(e=r,c=0;(e=e.nextSibling)&&c<i.length;c+=2)if(e==o)break n;n.insertBefore(o,r),f=r;}return void 0!==f?f:o.nextSibling}function A(n,l,u,i,t){var o;for(o in u)\\"children\\"===o||\\"key\\"===o||o in l||C(n,o,null,u[o],i);for(o in l)t&&\\"function\\"!=typeof l[o]||\\"children\\"===o||\\"key\\"===o||\\"value\\"===o||\\"checked\\"===o||u[o]===l[o]||C(n,o,l[o],u[o],i);}function P(n,l,u){\\"-\\"===l[0]?n.setProperty(l,u):n[l]=null==u?\\"\\":\\"number\\"!=typeof u||c.test(l)?u:u+\\"px\\";}function C(n,l,u,i,t){var o,r;if(t&&\\"className\\"==l&&(l=\\"class\\"),\\"style\\"===l)if(\\"string\\"==typeof u)n.style=u;else {if(\\"string\\"==typeof i&&(n.style=i=\\"\\"),i)for(l in i)u&&l in u||P(n.style,l,\\"\\");if(u)for(l in u)i&&u[l]===i[l]||P(n.style,l,u[l]);}else \\"o\\"===l[0]&&\\"n\\"===l[1]?(o=l!==(l=l.replace(/Capture$/,\\"\\")),(r=l.toLowerCase())in n&&(l=r),l=l.slice(2),n.l||(n.l={}),n.l[l]=u,u?i||n.addEventListener(l,z,o):n.removeEventListener(l,z,o)):\\"list\\"!==l&&\\"tagName\\"!==l&&\\"form\\"!==l&&\\"type\\"!==l&&\\"size\\"!==l&&\\"download\\"!==l&&\\"href\\"!==l&&!t&&l in n?n[l]=null==u?\\"\\":u:\\"function\\"!=typeof u&&\\"dangerouslySetInnerHTML\\"!==l&&(l!==(l=l.replace(/xlink:?/,\\"\\"))?null==u||!1===u?n.removeAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase()):n.setAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase(),u):null==u||!1===u&&!/^ar/.test(l)?n.removeAttribute(l):n.setAttribute(l,u));}function z(l){this.l[l.type](n.event?n.event(l):l);}function N(n,l,u){var i,t;for(i=0;i<n.__k.length;i++)(t=n.__k[i])&&(t.__=n,t.__e&&(\\"function\\"==typeof t.type&&t.__k.length>1&&N(t,l,u),l=x(u,t,t,n.__k,null,t.__e,l),\\"function\\"==typeof n.type&&(n.__d=l)));}function T(l,u,i,t,o,r,f,e,c){var a,v,h,y,_,w,k,m,b,x,A,P=u.type;if(void 0!==u.constructor)return null;(a=n.__b)&&a(u);try{n:if(\\"function\\"==typeof P){if(m=u.props,b=(a=P.contextType)&&t[a.__c],x=a?b?b.props.value:a.__:t,i.__c?k=(v=u.__c=i.__c).__=v.__E:(\\"prototype\\"in P&&P.prototype.render?u.__c=v=new P(m,x):(u.__c=v=new d(m,x),v.constructor=P,v.render=L),b&&b.sub(v),v.props=m,v.state||(v.state={}),v.context=x,v.__n=t,h=v.__d=!0,v.__h=[]),null==v.__s&&(v.__s=v.state),null!=P.getDerivedStateFromProps&&(v.__s==v.state&&(v.__s=s({},v.__s)),s(v.__s,P.getDerivedStateFromProps(m,v.__s))),y=v.props,_=v.state,h)null==P.getDerivedStateFromProps&&null!=v.componentWillMount&&v.componentWillMount(),null!=v.componentDidMount&&v.__h.push(v.componentDidMount);else {if(null==P.getDerivedStateFromProps&&m!==y&&null!=v.componentWillReceiveProps&&v.componentWillReceiveProps(m,x),!v.__e&&null!=v.shouldComponentUpdate&&!1===v.shouldComponentUpdate(m,v.__s,x)||u.__v===i.__v){v.props=m,v.state=v.__s,u.__v!==i.__v&&(v.__d=!1),v.__v=u,u.__e=i.__e,u.__k=i.__k,v.__h.length&&f.push(v),N(u,e,l);break n}null!=v.componentWillUpdate&&v.componentWillUpdate(m,v.__s,x),null!=v.componentDidUpdate&&v.__h.push(function(){v.componentDidUpdate(y,_,w);});}v.context=x,v.props=m,v.state=v.__s,(a=n.__r)&&a(u),v.__d=!1,v.__v=u,v.__P=l,a=v.render(v.props,v.state,v.context),v.state=v.__s,null!=v.getChildContext&&(t=s(s({},t),v.getChildContext())),h||null==v.getSnapshotBeforeUpdate||(w=v.getSnapshotBeforeUpdate(y,_)),A=null!=a&&a.type==p&&null==a.key?a.props.children:a,g(l,Array.isArray(A)?A:[A],u,i,t,o,r,f,e,c),v.base=u.__e,v.__h.length&&f.push(v),k&&(v.__E=v.__=null),v.__e=!1;}else null==r&&u.__v===i.__v?(u.__k=i.__k,u.__e=i.__e):u.__e=j(i.__e,u,i,t,o,r,f,c);(a=n.diffed)&&a(u);}catch(l){u.__v=null,n.__e(l,u,i);}return u.__e}function $(l,u){n.__c&&n.__c(u,l),l.some(function(u){try{l=u.__h,u.__h=[],l.some(function(n){n.call(u);});}catch(l){n.__e(l,u.__v);}});}function j(n,l,u,i,t,o,r,c){var s,a,v,h,y,p=u.props,d=l.props;if(t=\\"svg\\"===l.type||t,null!=o)for(s=0;s<o.length;s++)if(null!=(a=o[s])&&((null===l.type?3===a.nodeType:a.localName===l.type)||n==a)){n=a,o[s]=null;break}if(null==n){if(null===l.type)return document.createTextNode(d);n=t?document.createElementNS(\\"http://www.w3.org/2000/svg\\",l.type):document.createElement(l.type,d.is&&{is:d.is}),o=null,c=!1;}if(null===l.type)p!==d&&n.data!==d&&(n.data=d);else {if(null!=o&&(o=e.slice.call(n.childNodes)),v=(p=u.props||f).dangerouslySetInnerHTML,h=d.dangerouslySetInnerHTML,!c){if(null!=o)for(p={},y=0;y<n.attributes.length;y++)p[n.attributes[y].name]=n.attributes[y].value;(h||v)&&(h&&v&&h.__html==v.__html||(n.innerHTML=h&&h.__html||\\"\\"));}A(n,d,p,t,c),h?l.__k=[]:(s=l.props.children,g(n,Array.isArray(s)?s:[s],l,u,i,\\"foreignObject\\"!==l.type&&t,o,r,f,c)),c||(\\"value\\"in d&&void 0!==(s=d.value)&&s!==n.value&&C(n,\\"value\\",s,p.value,!1),\\"checked\\"in d&&void 0!==(s=d.checked)&&s!==n.checked&&C(n,\\"checked\\",s,p.checked,!1));}return n}function H(l,u,i){try{\\"function\\"==typeof l?l(u):l.current=u;}catch(l){n.__e(l,i);}}function I(l,u,i){var t,o,r;if(n.unmount&&n.unmount(l),(t=l.ref)&&(t.current&&t.current!==l.__e||H(t,null,u)),i||\\"function\\"==typeof l.type||(i=null!=(o=l.__e)),l.__e=l.__d=void 0,null!=(t=l.__c)){if(t.componentWillUnmount)try{t.componentWillUnmount();}catch(l){n.__e(l,u);}t.base=t.__P=null;}if(t=l.__k)for(r=0;r<t.length;r++)t[r]&&I(t[r],u,i);null!=o&&a(o);}function L(n,l,u){return this.constructor(n,u)}function M(l,u,i){var t,r,c;n.__&&n.__(l,u),r=(t=i===o)?null:i&&i.__k||u.__k,l=v(p,null,[l]),c=[],T(u,(t?u:i||u).__k=l,r||f,f,void 0!==u.ownerSVGElement,i&&!t?[i]:r?null:u.childNodes.length?e.slice.call(u.childNodes):null,c,i||f,t),$(c,l);}function O(n,l){M(n,l,o);}function S(n,l,u){var i,t,o,r=arguments,f=s({},n.props);for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);return null!=u&&(f.children=u),h(n.type,f,i||n.key,t||n.ref,null)}function q(n,l){var u={__c:l=\\"__cC\\"+r++,__:n,Consumer:function(n,l){return n.children(l)},Provider:function(n,u,i){return this.getChildContext||(u=[],(i={})[l]=this,this.getChildContext=function(){return i},this.shouldComponentUpdate=function(n){this.props.value!==n.value&&u.some(k);},this.sub=function(n){u.push(n);var l=n.componentWillUnmount;n.componentWillUnmount=function(){u.splice(u.indexOf(n),1),l&&l.call(n);};}),n.children}};return u.Provider.__=u.Consumer.contextType=u}n={__e:function(n,l){for(var u,i;l=l.__;)if((u=l.__c)&&!u.__)try{if(u.constructor&&null!=u.constructor.getDerivedStateFromError&&(i=!0,u.setState(u.constructor.getDerivedStateFromError(n))),null!=u.componentDidCatch&&(i=!0,u.componentDidCatch(n)),i)return k(u.__E=u)}catch(l){n=l;}throw n}},d.prototype.setState=function(n,l){var u;u=null!=this.__s&&this.__s!==this.state?this.__s:this.__s=s({},this.state),\\"function\\"==typeof n&&(n=n(s({},u),this.props)),n&&s(u,n),null!=n&&this.__v&&(l&&this.__h.push(l),k(this));},d.prototype.forceUpdate=function(n){this.__v&&(this.__e=!0,n&&this.__h.push(n),k(this));},d.prototype.render=p,u=[],i=\\"function\\"==typeof Promise?Promise.prototype.then.bind(Promise.resolve()):setTimeout,m.__r=0,o=f,r=0;
-var t$1,u$1,r$1,o$1=0,i$1=[],c$1=n.__r,f$1=n.diffed,e$1=n.__c,a$1=n.unmount;function v$1(t,r){n.__h&&n.__h(u$1,t,o$1||r),o$1=0;var i=u$1.__H||(u$1.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m$1(n){return o$1=1,p$1(k$1,n)}function p$1(n,r,o){var i=v$1(t$1++,2);return i.t=n,i.__c||(i.__c=u$1,i.__=[o?o(r):k$1(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}]),i.__}function y$1(r,o){var i=v$1(t$1++,3);!n.__s&&j$1(i.__H,o)&&(i.__=r,i.__H=o,u$1.__H.__h.push(i));}function l(r,o){var i=v$1(t$1++,4);!n.__s&&j$1(i.__H,o)&&(i.__=r,i.__H=o,u$1.__h.push(i));}function h$1(n){return o$1=5,_$1(function(){return {current:n}},[])}function s$1(n,t,u){o$1=6,l(function(){\\"function\\"==typeof n?n(t()):n&&(n.current=t());},null==u?u:u.concat(n));}function _$1(n,u){var r=v$1(t$1++,7);return j$1(r.__H,u)?(r.__H=u,r.__h=n,r.__=n()):r.__}function A$1(n,t){return o$1=8,_$1(function(){return n},t)}function F(n){var r=u$1.context[n.__c],o=v$1(t$1++,9);return o.__c=n,r?(null==o.__&&(o.__=!0,r.sub(u$1)),r.props.value):n.__}function T$1(t,u){n.useDebugValue&&n.useDebugValue(u?u(t):t);}function d$1(n){var r=v$1(t$1++,10),o=m$1();return r.__=n,u$1.componentDidCatch||(u$1.componentDidCatch=function(n){r.__&&r.__(n),o[1](n);}),[o[0],function(){o[1](void 0);}]}function q$1(){i$1.some(function(t){if(t.__P)try{t.__H.__h.forEach(b$1),t.__H.__h.forEach(g$1),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i$1=[];}n.__r=function(n){c$1&&c$1(n),t$1=0;var r=(u$1=n.__c).__H;r&&(r.__h.forEach(b$1),r.__h.forEach(g$1),r.__h=[]);},n.diffed=function(t){f$1&&f$1(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i$1.push(u)&&r$1===n.requestAnimationFrame||((r$1=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x$1&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x$1&&(t=requestAnimationFrame(u));})(q$1));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b$1),t.__h=t.__h.filter(function(n){return !n.__||g$1(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e$1&&e$1(t,u);},n.unmount=function(t){a$1&&a$1(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b$1);}catch(t){n.__e(t,u.__v);}};var x$1=\\"function\\"==typeof requestAnimationFrame;function b$1(n){\\"function\\"==typeof n.u&&n.u();}function g$1(n){n.u=n.__();}function j$1(n,t){return !n||t.some(function(t,u){return t!==n[u]})}function k$1(n,t){return \\"function\\"==typeof t?t(n):t}
-function S$1(n,t){for(var e in t)n[e]=t[e];return n}function C$1(n,t){for(var e in n)if(\\"__source\\"!==e&&!(e in t))return !0;for(var r in t)if(\\"__source\\"!==r&&n[r]!==t[r])return !0;return !1}function R(n){this.props=n;}function w$1(n,t){function e(n){var e=this.props.ref,r=e==n.ref;return !r&&e&&(e.call?e(null):e.current=null),t?!t(this.props,n)||!r:C$1(this.props,n)}function r(t){return this.shouldComponentUpdate=e,v(n,t)}return r.displayName=\\"Memo(\\"+(n.displayName||n.name)+\\")\\",r.prototype.isReactComponent=!0,r.__f=!0,r}(R.prototype=new d).isPureReactComponent=!0,R.prototype.shouldComponentUpdate=function(n,t){return C$1(this.props,n)||C$1(this.state,t)};var x$2=n.__b;n.__b=function(n){n.type&&n.type.__f&&n.ref&&(n.props.ref=n.ref,n.ref=null),x$2&&x$2(n);};var g$2=\\"undefined\\"!=typeof Symbol&&Symbol.for&&Symbol.for(\\"react.forward_ref\\")||3911;function A$2(n){function t(t,e){var r=S$1({},t);return delete r.ref,n(r,(e=t.ref||e)&&(\\"object\\"!=typeof e||\\"current\\"in e)?e:null)}return t.$$typeof=g$2,t.render=t,t.prototype.isReactComponent=t.__f=!0,t.displayName=\\"ForwardRef(\\"+(n.displayName||n.name)+\\")\\",t}var N$1=function(n,t){return n?b(b(n).map(t)):null},U={map:N$1,forEach:N$1,count:function(n){return n?b(n).length:0},only:function(n){var t=b(n);if(1!==t.length)throw \\"Children.only\\";return t[0]},toArray:b},F$1=n.__e;function k$2(n){return n&&((n=S$1({},n)).__c=null,n.__k=n.__k&&n.__k.map(k$2)),n}function L$1(n){return n&&(n.__v=null,n.__k=n.__k&&n.__k.map(L$1)),n}function O$1(){this.__u=0,this.t=null,this.__b=null;}function M$1(n){var t=n.__.__c;return t&&t.o&&t.o(n)}function D(n){var t,e,r;function o(o){if(t||(t=n()).then(function(n){e=n.default||n;},function(n){r=n;}),r)throw r;if(!e)throw t;return v(e,o)}return o.displayName=\\"Lazy\\",o.__f=!0,o}function T$2(){this.u=null,this.i=null;}n.__e=function(n,t,e){if(n.then)for(var r,o=t;o=o.__;)if((r=o.__c)&&r.__c)return null==t.__e&&(t.__e=e.__e,t.__k=e.__k),r.__c(n,t.__c);F$1(n,t,e);},(O$1.prototype=new d).__c=function(n,t){var e=this;null==e.t&&(e.t=[]),e.t.push(t);var r=M$1(e.__v),o=!1,u=function(){o||(o=!0,t.componentWillUnmount=t.__c,r?r(i):i());};t.__c=t.componentWillUnmount,t.componentWillUnmount=function(){u(),t.__c&&t.__c();};var i=function(){var n;if(!--e.__u)for(e.__v.__k[0]=L$1(e.state.o),e.setState({o:e.__b=null});n=e.t.pop();)n.forceUpdate();};e.__u++||e.setState({o:e.__b=e.__v.__k[0]}),n.then(u,u);},O$1.prototype.componentWillUnmount=function(){this.t=[];},O$1.prototype.render=function(n,t){return this.__b&&(this.__v.__k&&(this.__v.__k[0]=k$2(this.__b)),this.__b=null),[v(p,null,t.o?null:n.children),t.o&&n.fallback]};var W=function(n,t,e){if(++e[1]===e[0]&&n.i.delete(t),n.props.revealOrder&&(\\"t\\"!==n.props.revealOrder[0]||!n.i.size))for(e=n.u;e;){for(;e.length>3;)e.pop()();if(e[1]<e[0])break;n.u=e=e[2];}};function I$1(n){return this.getChildContext=function(){return n.context},n.children}function P$1(n){var t=this,e=n.l,r=v(I$1,{context:t.context},n.__v);t.componentWillUnmount=function(){var n=t.s.parentNode;n&&n.removeChild(t.s),I(t.v);},t.l&&t.l!==e&&(t.componentWillUnmount(),t.h=!1),n.__v?t.h?(e.__k=t.__k,M(r,e),t.__k=e.__k):(t.s=document.createTextNode(\\"\\"),t.__k=e.__k,O(\\"\\",e),e.appendChild(t.s),t.h=!0,t.l=e,M(r,e,t.s),e.__k=t.__k,t.__k=t.s.__k):t.h&&t.componentWillUnmount(),t.v=r;}function j$2(n,t){return v(P$1,{__v:n,l:t})}(T$2.prototype=new d).o=function(n){var t=this,e=M$1(t.__v),r=t.i.get(n);return r[0]++,function(o){var u=function(){t.props.revealOrder?(r.push(o),W(t,n,r)):o();};e?e(u):u();}},T$2.prototype.render=function(n){this.u=null,this.i=new Map;var t=b(n.children);n.revealOrder&&\\"b\\"===n.revealOrder[0]&&t.reverse();for(var e=t.length;e--;)this.i.set(t[e],this.u=[1,0,this.u]);return n.children},T$2.prototype.componentDidUpdate=T$2.prototype.componentDidMount=function(){var n=this;this.i.forEach(function(t,e){W(n,e,t);});};var z$1=/^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|fill|flood|font|glyph(?!R)|horiz|marker(?!H|W|U)|overline|paint|stop|strikethrough|stroke|text(?!L)|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/;d.prototype.isReactComponent={};var H$1=\\"undefined\\"!=typeof Symbol&&Symbol.for&&Symbol.for(\\"react.element\\")||60103;function V(n,t,e){if(null==t.__k)for(;t.firstChild;)t.removeChild(t.firstChild);return M(n,t),\\"function\\"==typeof e&&e(),n?n.__c:null}function Z(n,t,e){return O(n,t),\\"function\\"==typeof e&&e(),n?n.__c:null}var B=n.event;function Y(n,t){n[\\"UNSAFE_\\"+t]&&!n[t]&&Object.defineProperty(n,t,{get:function(){return this[\\"UNSAFE_\\"+t]},set:function(n){this[\\"UNSAFE_\\"+t]=n;}});}n.event=function(n){B&&(n=B(n)),n.persist=function(){};var t=!1,e=!1,r=n.stopPropagation;n.stopPropagation=function(){r.call(n),t=!0;};var o=n.preventDefault;return n.preventDefault=function(){o.call(n),e=!0;},n.isPropagationStopped=function(){return t},n.isDefaultPrevented=function(){return e},n.nativeEvent=n};var $$1,q$2={configurable:!0,get:function(){return this.class}},G=n.vnode;n.vnode=function(n){n.$$typeof=H$1;var t=n.type,e=n.props;if(t){var r;if(e.class!=e.className&&(q$2.enumerable=\\"className\\"in e,null!=e.className&&(e.class=e.className),Object.defineProperty(e,\\"className\\",q$2)),\\"function\\"!=typeof t)for(r in e.defaultValue&&void 0!==e.value&&(e.value||0===e.value||(e.value=e.defaultValue),e.defaultValue=void 0),\\"select\\"===t&&e.multiple&&Array.isArray(e.value)&&(b(e.children).forEach(function(n){-1!=e.value.indexOf(n.props.value)&&(n.props.selected=!0);}),e.value=void 0),!0===e.download&&(e.download=\\"\\"),e){var o=z$1.test(r);o&&(n.props[r.replace(/[A-Z0-9]/,\\"-$&\\").toLowerCase()]=e[r]),(o||null===e[r])&&(e[r]=void 0);}else t.prototype&&!t.prototype.p&&(t.prototype.p=!0,Y(t.prototype,\\"componentWillMount\\"),Y(t.prototype,\\"componentWillReceiveProps\\"),Y(t.prototype,\\"componentWillUpdate\\"));!function(t){var e=n.type,r=n.props;if(r&&\\"string\\"==typeof e){var o={};for(var u in r)/^on(Ani|Tra|Tou)/.test(u)&&(r[u.toLowerCase()]=r[u],delete r[u]),o[u.toLowerCase()]=u;if(o.ondoubleclick&&(r.ondblclick=r[o.ondoubleclick],delete r[o.ondoubleclick]),o.onbeforeinput&&(r.onbeforeinput=r[o.onbeforeinput],delete r[o.onbeforeinput]),o.onchange&&(\\"textarea\\"===e||\\"input\\"===e.toLowerCase()&&!/^fil|che|ra/i.test(r.type))){var i=o.oninput||\\"oninput\\";r[i]||(r[i]=r[o.onchange],delete r[o.onchange]);}}}();}G&&G(n);};var J=n.__r;n.__r=function(n){J&&J(n),$$1=n.__c;};var K={ReactCurrentDispatcher:{current:{readContext:function(n){return $$1.__n[n.__c].props.value}}}},Q=\\"16.8.0\\";function X(n){return v.bind(null,n)}function nn(n){return !!n&&n.$$typeof===H$1}function tn(n){return nn(n)?S.apply(null,arguments):n}function en(n){return !!n.__k&&(M(null,n),!0)}function rn(n){return n&&(n.base||1===n.nodeType&&n)||null}var on=function(n,t){return n(t)},un=p;var compat_module = {useState:m$1,useReducer:p$1,useEffect:y$1,useLayoutEffect:l,useRef:h$1,useImperativeHandle:s$1,useMemo:_$1,useCallback:A$1,useContext:F,useDebugValue:T$1,version:\\"16.8.0\\",Children:U,render:V,hydrate:Z,unmountComponentAtNode:en,createPortal:j$2,createElement:v,createContext:q,createFactory:X,cloneElement:tn,createRef:y,Fragment:p,isValidElement:nn,findDOMNode:rn,Component:d,PureComponent:R,memo:w$1,forwardRef:A$2,unstable_batchedUpdates:on,StrictMode:p,Suspense:O$1,SuspenseList:T$2,lazy:D,__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED:K};
+"var n,u,i,t,o,r,f={},e=[],c=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;function s(n,l){for(var u in l)n[u]=l[u];return n}function a(n){var l=n.parentNode;l&&l.removeChild(n);}function h(n,l,u){var i,t,o,r=arguments,f={};for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);if(null!=u&&(f.children=u),\\"function\\"==typeof n&&null!=n.defaultProps)for(o in n.defaultProps)void 0===f[o]&&(f[o]=n.defaultProps[o]);return v(n,f,i,t,null)}function v(l,u,i,t,o){var r={type:l,props:u,key:i,ref:t,__k:null,__:null,__b:0,__e:null,__d:void 0,__c:null,__h:null,constructor:void 0,__v:o};return null==o&&(r.__v=r),null!=n.vnode&&n.vnode(r),r}function y(){return {current:null}}function p(n){return n.children}function d(n,l){this.props=n,this.context=l;}function _(n,l){if(null==l)return n.__?_(n.__,n.__.__k.indexOf(n)+1):null;for(var u;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e)return u.__e;return \\"function\\"==typeof n.type?_(n):null}function w(n){var l,u;if(null!=(n=n.__)&&null!=n.__c){for(n.__e=n.__c.base=null,l=0;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e){n.__e=n.__c.base=u.__e;break}return w(n)}}function k(l){(!l.__d&&(l.__d=!0)&&u.push(l)&&!g.__r++||t!==n.debounceRendering)&&((t=n.debounceRendering)||i)(g);}function g(){for(var n;g.__r=u.length;)n=u.sort(function(n,l){return n.__v.__b-l.__v.__b}),u=[],n.some(function(n){var l,u,i,t,o,r,f;n.__d&&(r=(o=(l=n).__v).__e,(f=l.__P)&&(u=[],(i=s({},o)).__v=i,t=$(f,o,i,l.__n,void 0!==f.ownerSVGElement,null!=o.__h?[r]:null,u,null==r?_(o):r,o.__h),j(u,o),t!=r&&w(o)));});}function m(n,l,u,i,t,o,r,c,s,h){var y,d,w,k,g,m,b,A=i&&i.__k||e,P=A.length;for(s==f&&(s=null!=r?r[0]:P?_(i,0):null),u.__k=[],y=0;y<l.length;y++)if(null!=(k=u.__k[y]=null==(k=l[y])||\\"boolean\\"==typeof k?null:\\"string\\"==typeof k||\\"number\\"==typeof k?v(null,k,null,null,k):Array.isArray(k)?v(p,{children:k},null,null,null):null!=k.__e||null!=k.__c?v(k.type,k.props,k.key,null,k.__v):k)){if(k.__=u,k.__b=u.__b+1,null===(w=A[y])||w&&k.key==w.key&&k.type===w.type)A[y]=void 0;else for(d=0;d<P;d++){if((w=A[d])&&k.key==w.key&&k.type===w.type){A[d]=void 0;break}w=null;}g=$(n,k,w=w||f,t,o,r,c,s,h),(d=k.ref)&&w.ref!=d&&(b||(b=[]),w.ref&&b.push(w.ref,null,k),b.push(d,k.__c||g,k)),null!=g?(null==m&&(m=g),s=x(n,k,w,A,r,g,s),h||\\"option\\"!=u.type?\\"function\\"==typeof u.type&&(u.__d=s):n.value=\\"\\"):s&&w.__e==s&&s.parentNode!=n&&(s=_(w));}if(u.__e=m,null!=r&&\\"function\\"!=typeof u.type)for(y=r.length;y--;)null!=r[y]&&a(r[y]);for(y=P;y--;)null!=A[y]&&L(A[y],A[y]);if(b)for(y=0;y<b.length;y++)I(b[y],b[++y],b[++y]);}function b(n,l){return l=l||[],null==n||\\"boolean\\"==typeof n||(Array.isArray(n)?n.some(function(n){b(n,l);}):l.push(n)),l}function x(n,l,u,i,t,o,r){var f,e,c;if(void 0!==l.__d)f=l.__d,l.__d=void 0;else if(t==u||o!=r||null==o.parentNode)n:if(null==r||r.parentNode!==n)n.appendChild(o),f=null;else {for(e=r,c=0;(e=e.nextSibling)&&c<i.length;c+=2)if(e==o)break n;n.insertBefore(o,r),f=r;}return void 0!==f?f:o.nextSibling}function A(n,l,u,i,t){var o;for(o in u)\\"children\\"===o||\\"key\\"===o||o in l||C(n,o,null,u[o],i);for(o in l)t&&\\"function\\"!=typeof l[o]||\\"children\\"===o||\\"key\\"===o||\\"value\\"===o||\\"checked\\"===o||u[o]===l[o]||C(n,o,l[o],u[o],i);}function P(n,l,u){\\"-\\"===l[0]?n.setProperty(l,u):n[l]=null==u?\\"\\":\\"number\\"!=typeof u||c.test(l)?u:u+\\"px\\";}function C(n,l,u,i,t){var o,r,f;if(t&&\\"className\\"==l&&(l=\\"class\\"),\\"style\\"===l)if(\\"string\\"==typeof u)n.style.cssText=u;else {if(\\"string\\"==typeof i&&(n.style.cssText=i=\\"\\"),i)for(l in i)u&&l in u||P(n.style,l,\\"\\");if(u)for(l in u)i&&u[l]===i[l]||P(n.style,l,u[l]);}else \\"o\\"===l[0]&&\\"n\\"===l[1]?(o=l!==(l=l.replace(/Capture$/,\\"\\")),(r=l.toLowerCase())in n&&(l=r),l=l.slice(2),n.l||(n.l={}),n.l[l+o]=u,f=o?N:z,u?i||n.addEventListener(l,f,o):n.removeEventListener(l,f,o)):\\"list\\"!==l&&\\"tagName\\"!==l&&\\"form\\"!==l&&\\"type\\"!==l&&\\"size\\"!==l&&\\"download\\"!==l&&\\"href\\"!==l&&!t&&l in n?n[l]=null==u?\\"\\":u:\\"function\\"!=typeof u&&\\"dangerouslySetInnerHTML\\"!==l&&(l!==(l=l.replace(/xlink:?/,\\"\\"))?null==u||!1===u?n.removeAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase()):n.setAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase(),u):null==u||!1===u&&!/^ar/.test(l)?n.removeAttribute(l):n.setAttribute(l,u));}function z(l){this.l[l.type+!1](n.event?n.event(l):l);}function N(l){this.l[l.type+!0](n.event?n.event(l):l);}function T(n,l,u){var i,t;for(i=0;i<n.__k.length;i++)(t=n.__k[i])&&(t.__=n,t.__e&&(\\"function\\"==typeof t.type&&t.__k.length>1&&T(t,l,u),l=x(u,t,t,n.__k,null,t.__e,l),\\"function\\"==typeof n.type&&(n.__d=l)));}function $(l,u,i,t,o,r,f,e,c){var a,h,v,y,_,w,k,g,b,x,A,P=u.type;if(void 0!==u.constructor)return null;null!=i.__h&&(c=i.__h,e=u.__e=i.__e,u.__h=null,r=[e]),(a=n.__b)&&a(u);try{n:if(\\"function\\"==typeof P){if(g=u.props,b=(a=P.contextType)&&t[a.__c],x=a?b?b.props.value:a.__:t,i.__c?k=(h=u.__c=i.__c).__=h.__E:(\\"prototype\\"in P&&P.prototype.render?u.__c=h=new P(g,x):(u.__c=h=new d(g,x),h.constructor=P,h.render=M),b&&b.sub(h),h.props=g,h.state||(h.state={}),h.context=x,h.__n=t,v=h.__d=!0,h.__h=[]),null==h.__s&&(h.__s=h.state),null!=P.getDerivedStateFromProps&&(h.__s==h.state&&(h.__s=s({},h.__s)),s(h.__s,P.getDerivedStateFromProps(g,h.__s))),y=h.props,_=h.state,v)null==P.getDerivedStateFromProps&&null!=h.componentWillMount&&h.componentWillMount(),null!=h.componentDidMount&&h.__h.push(h.componentDidMount);else {if(null==P.getDerivedStateFromProps&&g!==y&&null!=h.componentWillReceiveProps&&h.componentWillReceiveProps(g,x),!h.__e&&null!=h.shouldComponentUpdate&&!1===h.shouldComponentUpdate(g,h.__s,x)||u.__v===i.__v){h.props=g,h.state=h.__s,u.__v!==i.__v&&(h.__d=!1),h.__v=u,u.__e=i.__e,u.__k=i.__k,h.__h.length&&f.push(h),T(u,e,l);break n}null!=h.componentWillUpdate&&h.componentWillUpdate(g,h.__s,x),null!=h.componentDidUpdate&&h.__h.push(function(){h.componentDidUpdate(y,_,w);});}h.context=x,h.props=g,h.state=h.__s,(a=n.__r)&&a(u),h.__d=!1,h.__v=u,h.__P=l,a=h.render(h.props,h.state,h.context),h.state=h.__s,null!=h.getChildContext&&(t=s(s({},t),h.getChildContext())),v||null==h.getSnapshotBeforeUpdate||(w=h.getSnapshotBeforeUpdate(y,_)),A=null!=a&&a.type==p&&null==a.key?a.props.children:a,m(l,Array.isArray(A)?A:[A],u,i,t,o,r,f,e,c),h.base=u.__e,u.__h=null,h.__h.length&&f.push(h),k&&(h.__E=h.__=null),h.__e=!1;}else null==r&&u.__v===i.__v?(u.__k=i.__k,u.__e=i.__e):u.__e=H(i.__e,u,i,t,o,r,f,c);(a=n.diffed)&&a(u);}catch(l){u.__v=null,(c||null!=r)&&(u.__e=e,u.__h=!!c,r[r.indexOf(e)]=null),n.__e(l,u,i);}return u.__e}function j(l,u){n.__c&&n.__c(u,l),l.some(function(u){try{l=u.__h,u.__h=[],l.some(function(n){n.call(u);});}catch(l){n.__e(l,u.__v);}});}function H(n,l,u,i,t,o,r,c){var s,a,h,v,y,p=u.props,d=l.props;if(t=\\"svg\\"===l.type||t,null!=o)for(s=0;s<o.length;s++)if(null!=(a=o[s])&&((null===l.type?3===a.nodeType:a.localName===l.type)||n==a)){n=a,o[s]=null;break}if(null==n){if(null===l.type)return document.createTextNode(d);n=t?document.createElementNS(\\"http://www.w3.org/2000/svg\\",l.type):document.createElement(l.type,d.is&&{is:d.is}),o=null,c=!1;}if(null===l.type)p===d||c&&n.data===d||(n.data=d);else {if(null!=o&&(o=e.slice.call(n.childNodes)),h=(p=u.props||f).dangerouslySetInnerHTML,v=d.dangerouslySetInnerHTML,!c){if(null!=o)for(p={},y=0;y<n.attributes.length;y++)p[n.attributes[y].name]=n.attributes[y].value;(v||h)&&(v&&(h&&v.__html==h.__html||v.__html===n.innerHTML)||(n.innerHTML=v&&v.__html||\\"\\"));}A(n,d,p,t,c),v?l.__k=[]:(s=l.props.children,m(n,Array.isArray(s)?s:[s],l,u,i,\\"foreignObject\\"!==l.type&&t,o,r,f,c)),c||(\\"value\\"in d&&void 0!==(s=d.value)&&(s!==n.value||\\"progress\\"===l.type&&!s)&&C(n,\\"value\\",s,p.value,!1),\\"checked\\"in d&&void 0!==(s=d.checked)&&s!==n.checked&&C(n,\\"checked\\",s,p.checked,!1));}return n}function I(l,u,i){try{\\"function\\"==typeof l?l(u):l.current=u;}catch(l){n.__e(l,i);}}function L(l,u,i){var t,o,r;if(n.unmount&&n.unmount(l),(t=l.ref)&&(t.current&&t.current!==l.__e||I(t,null,u)),i||\\"function\\"==typeof l.type||(i=null!=(o=l.__e)),l.__e=l.__d=void 0,null!=(t=l.__c)){if(t.componentWillUnmount)try{t.componentWillUnmount();}catch(l){n.__e(l,u);}t.base=t.__P=null;}if(t=l.__k)for(r=0;r<t.length;r++)t[r]&&L(t[r],u,i);null!=o&&a(o);}function M(n,l,u){return this.constructor(n,u)}function O(l,u,i){var t,r,c;n.__&&n.__(l,u),r=(t=i===o)?null:i&&i.__k||u.__k,l=h(p,null,[l]),c=[],$(u,(t?u:i||u).__k=l,r||f,f,void 0!==u.ownerSVGElement,i&&!t?[i]:r?null:u.childNodes.length?e.slice.call(u.childNodes):null,c,i||f,t),j(c,l);}function S(n,l){O(n,l,o);}function q(n,l,u){var i,t,o,r=arguments,f=s({},n.props);for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);return null!=u&&(f.children=u),v(n.type,f,i||n.key,t||n.ref,null)}function B(n,l){var u={__c:l=\\"__cC\\"+r++,__:n,Consumer:function(n,l){return n.children(l)},Provider:function(n,u,i){return this.getChildContext||(u=[],(i={})[l]=this,this.getChildContext=function(){return i},this.shouldComponentUpdate=function(n){this.props.value!==n.value&&u.some(k);},this.sub=function(n){u.push(n);var l=n.componentWillUnmount;n.componentWillUnmount=function(){u.splice(u.indexOf(n),1),l&&l.call(n);};}),n.children}};return u.Provider.__=u.Consumer.contextType=u}n={__e:function(n,l){for(var u,i,t,o=l.__h;l=l.__;)if((u=l.__c)&&!u.__)try{if((i=u.constructor)&&null!=i.getDerivedStateFromError&&(u.setState(i.getDerivedStateFromError(n)),t=u.__d),null!=u.componentDidCatch&&(u.componentDidCatch(n),t=u.__d),t)return l.__h=o,u.__E=u}catch(l){n=l;}throw n}},d.prototype.setState=function(n,l){var u;u=null!=this.__s&&this.__s!==this.state?this.__s:this.__s=s({},this.state),\\"function\\"==typeof n&&(n=n(s({},u),this.props)),n&&s(u,n),null!=n&&this.__v&&(l&&this.__h.push(l),k(this));},d.prototype.forceUpdate=function(n){this.__v&&(this.__e=!0,n&&this.__h.push(n),k(this));},d.prototype.render=p,u=[],i=\\"function\\"==typeof Promise?Promise.prototype.then.bind(Promise.resolve()):setTimeout,g.__r=0,o=f,r=0;
+var t$1,u$1,r$1,o$1=0,i$1=[],c$1=n.__r,f$1=n.diffed,e$1=n.__c,a$1=n.unmount;function v$1(t,r){n.__h&&n.__h(u$1,t,o$1||r),o$1=0;var i=u$1.__H||(u$1.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m$1(n){return o$1=1,p$1(k$1,n)}function p$1(n,r,o){var i=v$1(t$1++,2);return i.t=n,i.__c||(i.__=[o?o(r):k$1(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u$1),i.__}function y$1(r,o){var i=v$1(t$1++,3);!n.__s&&j$1(i.__H,o)&&(i.__=r,i.__H=o,u$1.__H.__h.push(i));}function l(r,o){var i=v$1(t$1++,4);!n.__s&&j$1(i.__H,o)&&(i.__=r,i.__H=o,u$1.__h.push(i));}function h$1(n){return o$1=5,_$1(function(){return {current:n}},[])}function s$1(n,t,u){o$1=6,l(function(){\\"function\\"==typeof n?n(t()):n&&(n.current=t());},null==u?u:u.concat(n));}function _$1(n,u){var r=v$1(t$1++,7);return j$1(r.__H,u)&&(r.__=n(),r.__H=u,r.__h=n),r.__}function A$1(n,t){return o$1=8,_$1(function(){return n},t)}function F(n){var r=u$1.context[n.__c],o=v$1(t$1++,9);return o.__c=n,r?(null==o.__&&(o.__=!0,r.sub(u$1)),r.props.value):n.__}function T$1(t,u){n.useDebugValue&&n.useDebugValue(u?u(t):t);}function d$1(n){var r=v$1(t$1++,10),o=m$1();return r.__=n,u$1.componentDidCatch||(u$1.componentDidCatch=function(n){r.__&&r.__(n),o[1](n);}),[o[0],function(){o[1](void 0);}]}function q$1(){i$1.some(function(t){if(t.__P)try{t.__H.__h.forEach(b$1),t.__H.__h.forEach(g$1),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i$1=[];}n.__r=function(n){c$1&&c$1(n),t$1=0;var r=(u$1=n.__c).__H;r&&(r.__h.forEach(b$1),r.__h.forEach(g$1),r.__h=[]);},n.diffed=function(t){f$1&&f$1(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i$1.push(u)&&r$1===n.requestAnimationFrame||((r$1=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x$1&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x$1&&(t=requestAnimationFrame(u));})(q$1));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b$1),t.__h=t.__h.filter(function(n){return !n.__||g$1(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e$1&&e$1(t,u);},n.unmount=function(t){a$1&&a$1(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b$1);}catch(t){n.__e(t,u.__v);}};var x$1=\\"function\\"==typeof requestAnimationFrame;function b$1(n){\\"function\\"==typeof n.u&&n.u();}function g$1(n){n.u=n.__();}function j$1(n,t){return !n||n.length!==t.length||t.some(function(t,u){return t!==n[u]})}function k$1(n,t){return \\"function\\"==typeof t?t(n):t}
+function E(n,t){for(var e in t)n[e]=t[e];return n}function S$1(n,t){for(var e in n)if(\\"__source\\"!==e&&!(e in t))return !0;for(var r in t)if(\\"__source\\"!==r&&n[r]!==t[r])return !0;return !1}function w$1(n){this.props=n;}function C$1(n,t){function e(n){var e=this.props.ref,r=e==n.ref;return !r&&e&&(e.call?e(null):e.current=null),t?!t(this.props,n)||!r:S$1(this.props,n)}function r(t){return this.shouldComponentUpdate=e,h(n,t)}return r.displayName=\\"Memo(\\"+(n.displayName||n.name)+\\")\\",r.prototype.isReactComponent=!0,r.__f=!0,r}(w$1.prototype=new d).isPureReactComponent=!0,w$1.prototype.shouldComponentUpdate=function(n,t){return S$1(this.props,n)||S$1(this.state,t)};var R=n.__b;n.__b=function(n){n.type&&n.type.__f&&n.ref&&(n.props.ref=n.ref,n.ref=null),R&&R(n);};var x$2=\\"undefined\\"!=typeof Symbol&&Symbol.for&&Symbol.for(\\"react.forward_ref\\")||3911;function k$2(n){function t(t,e){var r=E({},t);return delete r.ref,n(r,(e=t.ref||e)&&(\\"object\\"!=typeof e||\\"current\\"in e)?e:null)}return t.$$typeof=x$2,t.render=t,t.prototype.isReactComponent=t.__f=!0,t.displayName=\\"ForwardRef(\\"+(n.displayName||n.name)+\\")\\",t}var O$1=function(n,t){return null==n?null:b(b(n).map(t))},A$2={map:O$1,forEach:O$1,count:function(n){return n?b(n).length:0},only:function(n){var t=b(n);if(1!==t.length)throw \\"Children.only\\";return t[0]},toArray:b},N$1=n.__e;function L$1(n){return n&&((n=E({},n)).__c=null,n.__k=n.__k&&n.__k.map(L$1)),n}function U(n){return n&&(n.__v=null,n.__k=n.__k&&n.__k.map(U)),n}function F$1(){this.__u=0,this.t=null,this.__b=null;}function M$1(n){var t=n.__.__c;return t&&t.__e&&t.__e(n)}function j$2(n){var t,e,r;function u(u){if(t||(t=n()).then(function(n){e=n.default||n;},function(n){r=n;}),r)throw r;if(!e)throw t;return h(e,u)}return u.displayName=\\"Lazy\\",u.__f=!0,u}function D(){this.u=null,this.o=null;}n.__e=function(n,t,e){if(n.then)for(var r,u=t;u=u.__;)if((r=u.__c)&&r.__c)return null==t.__e&&(t.__e=e.__e,t.__k=e.__k),r.__c(n,t.__c);N$1(n,t,e);},(F$1.prototype=new d).__c=function(n,t){var e=this;null==e.t&&(e.t=[]),e.t.push(t);var r=M$1(e.__v),u=!1,o=function(){u||(u=!0,t.componentWillUnmount=t.__c,r?r(i):i());};t.__c=t.componentWillUnmount,t.componentWillUnmount=function(){o(),t.__c&&t.__c();};var i=function(){var n;if(!--e.__u)for(e.__v.__k[0]=U(e.state.__e),e.setState({__e:e.__b=null});n=e.t.pop();)n.forceUpdate();},c=e.__v;c&&!0===c.__h||e.__u++||e.setState({__e:e.__b=e.__v.__k[0]}),n.then(o,o);},F$1.prototype.componentWillUnmount=function(){this.t=[];},F$1.prototype.render=function(n,t){this.__b&&(this.__v.__k&&(this.__v.__k[0]=L$1(this.__b)),this.__b=null);var e=t.__e&&h(p,null,n.fallback);return e&&(e.__h=null),[h(p,null,t.__e?null:n.children),e]};var I$1=function(n,t,e){if(++e[1]===e[0]&&n.o.delete(t),n.props.revealOrder&&(\\"t\\"!==n.props.revealOrder[0]||!n.o.size))for(e=n.u;e;){for(;e.length>3;)e.pop()();if(e[1]<e[0])break;n.u=e=e[2];}};function T$2(n){return this.getChildContext=function(){return n.context},n.children}function W(n){var t=this,e=n.i,r=h(T$2,{context:t.context},n.__v);t.componentWillUnmount=function(){var n=t.l.parentNode;n&&n.removeChild(t.l),L(t.s);},t.i&&t.i!==e&&(t.componentWillUnmount(),t.h=!1),n.__v?t.h?(e.__k=t.__k,O(r,e),t.__k=e.__k):(t.l=document.createTextNode(\\"\\"),t.__k=e.__k,S(\\"\\",e),e.appendChild(t.l),t.h=!0,t.i=e,O(r,e,t.l),e.__k=t.__k,t.__k=t.l.__k):t.h&&t.componentWillUnmount(),t.s=r;}function P$1(n,t){return h(W,{__v:n,i:t})}(D.prototype=new d).__e=function(n){var t=this,e=M$1(t.__v),r=t.o.get(n);return r[0]++,function(u){var o=function(){t.props.revealOrder?(r.push(u),I$1(t,n,r)):u();};e?e(o):o();}},D.prototype.render=function(n){this.u=null,this.o=new Map;var t=b(n.children);n.revealOrder&&\\"b\\"===n.revealOrder[0]&&t.reverse();for(var e=t.length;e--;)this.o.set(t[e],this.u=[1,0,this.u]);return n.children},D.prototype.componentDidUpdate=D.prototype.componentDidMount=function(){var n=this;this.o.forEach(function(t,e){I$1(n,e,t);});};var z$1=\\"undefined\\"!=typeof Symbol&&Symbol.for&&Symbol.for(\\"react.element\\")||60103,V=/^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|fill|flood|font|glyph(?!R)|horiz|marker(?!H|W|U)|overline|paint|stop|strikethrough|stroke|text(?!L)|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/,B$1=\\"undefined\\"!=typeof Symbol?/fil|che|rad/i:/fil|che|ra/i;function H$1(n,t,e){return null==t.__k&&(t.textContent=\\"\\"),O(n,t),\\"function\\"==typeof e&&e(),n?n.__c:null}function Z(n,t,e){return S(n,t),\\"function\\"==typeof e&&e(),n?n.__c:null}d.prototype.isReactComponent={},[\\"componentWillMount\\",\\"componentWillReceiveProps\\",\\"componentWillUpdate\\"].forEach(function(n){Object.defineProperty(d.prototype,n,{configurable:!0,get:function(){return this[\\"UNSAFE_\\"+n]},set:function(t){Object.defineProperty(this,n,{configurable:!0,writable:!0,value:t});}});});var Y=n.event;function $$1(){}function q$2(){return this.cancelBubble}function G(){return this.defaultPrevented}n.event=function(n){return Y&&(n=Y(n)),n.persist=$$1,n.isPropagationStopped=q$2,n.isDefaultPrevented=G,n.nativeEvent=n};var J,K={configurable:!0,get:function(){return this.class}},Q={configurable:!0,get:function(){return this.className}},X=n.vnode;n.vnode=function(n){var t=n.type,e=n.props,r=e;if(\\"string\\"==typeof t){for(var u in r={},e){var o=e[u];\\"defaultValue\\"===u&&\\"value\\"in e&&null==e.value?u=\\"value\\":\\"download\\"===u&&!0===o?o=\\"\\":/ondoubleclick/i.test(u)?u=\\"ondblclick\\":/^onchange(textarea|input)/i.test(u+t)&&!B$1.test(e.type)?u=\\"oninput\\":/^on(Ani|Tra|Tou|BeforeInp)/.test(u)?u=u.toLowerCase():V.test(u)?u=u.replace(/[A-Z0-9]/,\\"-$&\\").toLowerCase():null===o&&(o=void 0),r[u]=o;}\\"select\\"==t&&r.multiple&&Array.isArray(r.value)&&(r.value=b(e.children).forEach(function(n){n.props.selected=-1!=r.value.indexOf(n.props.value);})),n.props=r;}t&&r&&(\\"className\\"in r?Object.defineProperty(r,\\"class\\",Q):Object.defineProperty(r,\\"className\\",K)),n.$$typeof=z$1,X&&X(n);};var nn=n.__r;n.__r=function(n){nn&&nn(n),J=n.__c;};var tn={ReactCurrentDispatcher:{current:{readContext:function(n){return J.__n[n.__c].props.value}}}},en=\\"16.8.0\\";function rn(n){return h.bind(null,n)}function un(n){return !!n&&n.$$typeof===z$1}function on(n){return un(n)?q.apply(null,arguments):n}function cn(n){return !!n.__k&&(O(null,n),!0)}function ln(n){return n&&(n.base||1===n.nodeType&&n)||null}var fn=function(n,t){return n(t)},an=p;var compat_module = {useState:m$1,useReducer:p$1,useEffect:y$1,useLayoutEffect:l,useRef:h$1,useImperativeHandle:s$1,useMemo:_$1,useCallback:A$1,useContext:F,useDebugValue:T$1,version:\\"16.8.0\\",Children:A$2,render:H$1,hydrate:Z,unmountComponentAtNode:cn,createPortal:P$1,createElement:h,createContext:B,createFactory:rn,cloneElement:on,createRef:y,Fragment:p,isValidElement:un,findDOMNode:ln,Component:d,PureComponent:w$1,memo:C$1,forwardRef:k$2,unstable_batchedUpdates:fn,StrictMode:p,Suspense:F$1,SuspenseList:D,lazy:j$2,__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED:tn};
 export default compat_module;
-export { U as Children, d as Component, p as Fragment, R as PureComponent, un as StrictMode, O$1 as Suspense, T$2 as SuspenseList, K as __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED, tn as cloneElement, q as createContext, v as createElement, X as createFactory, j$2 as createPortal, y as createRef, rn as findDOMNode, A$2 as forwardRef, Z as hydrate, nn as isValidElement, D as lazy, w$1 as memo, V as render, en as unmountComponentAtNode, on as unstable_batchedUpdates, A$1 as useCallback, F as useContext, T$1 as useDebugValue, y$1 as useEffect, d$1 as useErrorBoundary, s$1 as useImperativeHandle, l as useLayoutEffect, _$1 as useMemo, p$1 as useReducer, h$1 as useRef, m$1 as useState, Q as version };"
+export { A$2 as Children, d as Component, p as Fragment, w$1 as PureComponent, an as StrictMode, F$1 as Suspense, D as SuspenseList, tn as __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED, on as cloneElement, B as createContext, h as createElement, rn as createFactory, P$1 as createPortal, y as createRef, ln as findDOMNode, k$2 as forwardRef, Z as hydrate, un as isValidElement, j$2 as lazy, C$1 as memo, H$1 as render, cn as unmountComponentAtNode, fn as unstable_batchedUpdates, A$1 as useCallback, F as useContext, T$1 as useDebugValue, y$1 as useEffect, d$1 as useErrorBoundary, s$1 as useImperativeHandle, l as useLayoutEffect, _$1 as useMemo, p$1 as useReducer, h$1 as useRef, m$1 as useState, en as version };"
 `;
 
 exports[`snowpack install config-alias: vue-currency-input/dist/vue-currency-input.esm.js 1`] = `
@@ -2004,7 +2004,7 @@ function create_bidirectional_transition(node, fn, params, intro) {
             program.group = outros;
             outros.r += 1;
         }
-        if (running_program) {
+        if (running_program || pending_program) {
             pending_program = program;
         }
         else {
@@ -2122,12 +2122,12 @@ function handle_promise(promise, info) {
             update(info.then, 1, info.value, value);
             set_current_component(null);
         }, error => {
-            if (!info.hasCatch) {
-                throw error;
-            }
             set_current_component(current_component);
             update(info.catch, 2, info.error, error);
             set_current_component(null);
+            if (!info.hasCatch) {
+                throw error;
+            }
         });
         // if we previously had a then/catch block, destroy it
         if (info.current !== info.pending) {
@@ -2592,7 +2592,7 @@ class SvelteComponent {
     }
 }
 function dispatch_dev(type, detail) {
-    document.dispatchEvent(custom_event(type, Object.assign({ version: '3.25.0' }, detail)));
+    document.dispatchEvent(custom_event(type, Object.assign({ version: '3.29.0' }, detail)));
 }
 function append_dev(target, node) {
     dispatch_dev(\\"SvelteDOMInsert\\", { target, node });
@@ -4003,20 +4003,20 @@ exports[`snowpack install dep-exports: output 1`] = `
 `;
 
 exports[`snowpack install dep-exports: preact.js 1`] = `
-"var n,l,u,i,t,o,r,f={},e=[],c=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;function s(n,l){for(var u in l)n[u]=l[u];return n}function a(n){var l=n.parentNode;l&&l.removeChild(n);}function v(n,l,u){var i,t,o,r=arguments,f={};for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);if(null!=u&&(f.children=u),\\"function\\"==typeof n&&null!=n.defaultProps)for(o in n.defaultProps)void 0===f[o]&&(f[o]=n.defaultProps[o]);return h(n,f,i,t,null)}function h(l,u,i,t,o){var r={type:l,props:u,key:i,ref:t,__k:null,__:null,__b:0,__e:null,__d:void 0,__c:null,constructor:void 0,__v:o};return null==o&&(r.__v=r),null!=n.vnode&&n.vnode(r),r}function y(){return {current:null}}function p(n){return n.children}function d(n,l){this.props=n,this.context=l;}function _(n,l){if(null==l)return n.__?_(n.__,n.__.__k.indexOf(n)+1):null;for(var u;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e)return u.__e;return \\"function\\"==typeof n.type?_(n):null}function w(n){var l,u;if(null!=(n=n.__)&&null!=n.__c){for(n.__e=n.__c.base=null,l=0;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e){n.__e=n.__c.base=u.__e;break}return w(n)}}function k(l){(!l.__d&&(l.__d=!0)&&u.push(l)&&!m.__r++||t!==n.debounceRendering)&&((t=n.debounceRendering)||i)(m);}function m(){for(var n;m.__r=u.length;)n=u.sort(function(n,l){return n.__v.__b-l.__v.__b}),u=[],n.some(function(n){var l,u,i,t,o,r,f;n.__d&&(r=(o=(l=n).__v).__e,(f=l.__P)&&(u=[],(i=s({},o)).__v=i,t=T(f,o,i,l.__n,void 0!==f.ownerSVGElement,null,u,null==r?_(o):r),$(u,o),t!=r&&w(o)));});}function g(n,l,u,i,t,o,r,c,s,v){var y,d,w,k,m,g,b,A=i&&i.__k||e,P=A.length;for(s==f&&(s=null!=r?r[0]:P?_(i,0):null),u.__k=[],y=0;y<l.length;y++)if(null!=(k=u.__k[y]=null==(k=l[y])||\\"boolean\\"==typeof k?null:\\"string\\"==typeof k||\\"number\\"==typeof k?h(null,k,null,null,k):Array.isArray(k)?h(p,{children:k},null,null,null):null!=k.__e||null!=k.__c?h(k.type,k.props,k.key,null,k.__v):k)){if(k.__=u,k.__b=u.__b+1,null===(w=A[y])||w&&k.key==w.key&&k.type===w.type)A[y]=void 0;else for(d=0;d<P;d++){if((w=A[d])&&k.key==w.key&&k.type===w.type){A[d]=void 0;break}w=null;}m=T(n,k,w=w||f,t,o,r,c,s,v),(d=k.ref)&&w.ref!=d&&(b||(b=[]),w.ref&&b.push(w.ref,null,k),b.push(d,k.__c||m,k)),null!=m?(null==g&&(g=m),s=x(n,k,w,A,r,m,s),v||\\"option\\"!=u.type?\\"function\\"==typeof u.type&&(u.__d=s):n.value=\\"\\"):s&&w.__e==s&&s.parentNode!=n&&(s=_(w));}if(u.__e=g,null!=r&&\\"function\\"!=typeof u.type)for(y=r.length;y--;)null!=r[y]&&a(r[y]);for(y=P;y--;)null!=A[y]&&I(A[y],A[y]);if(b)for(y=0;y<b.length;y++)H(b[y],b[++y],b[++y]);}function b(n,l){return l=l||[],null==n||\\"boolean\\"==typeof n||(Array.isArray(n)?n.some(function(n){b(n,l);}):l.push(n)),l}function x(n,l,u,i,t,o,r){var f,e,c;if(void 0!==l.__d)f=l.__d,l.__d=void 0;else if(t==u||o!=r||null==o.parentNode)n:if(null==r||r.parentNode!==n)n.appendChild(o),f=null;else {for(e=r,c=0;(e=e.nextSibling)&&c<i.length;c+=2)if(e==o)break n;n.insertBefore(o,r),f=r;}return void 0!==f?f:o.nextSibling}function A(n,l,u,i,t){var o;for(o in u)\\"children\\"===o||\\"key\\"===o||o in l||C(n,o,null,u[o],i);for(o in l)t&&\\"function\\"!=typeof l[o]||\\"children\\"===o||\\"key\\"===o||\\"value\\"===o||\\"checked\\"===o||u[o]===l[o]||C(n,o,l[o],u[o],i);}function P(n,l,u){\\"-\\"===l[0]?n.setProperty(l,u):n[l]=null==u?\\"\\":\\"number\\"!=typeof u||c.test(l)?u:u+\\"px\\";}function C(n,l,u,i,t){var o,r;if(t&&\\"className\\"==l&&(l=\\"class\\"),\\"style\\"===l)if(\\"string\\"==typeof u)n.style=u;else {if(\\"string\\"==typeof i&&(n.style=i=\\"\\"),i)for(l in i)u&&l in u||P(n.style,l,\\"\\");if(u)for(l in u)i&&u[l]===i[l]||P(n.style,l,u[l]);}else \\"o\\"===l[0]&&\\"n\\"===l[1]?(o=l!==(l=l.replace(/Capture$/,\\"\\")),(r=l.toLowerCase())in n&&(l=r),l=l.slice(2),n.l||(n.l={}),n.l[l]=u,u?i||n.addEventListener(l,z,o):n.removeEventListener(l,z,o)):\\"list\\"!==l&&\\"tagName\\"!==l&&\\"form\\"!==l&&\\"type\\"!==l&&\\"size\\"!==l&&\\"download\\"!==l&&\\"href\\"!==l&&!t&&l in n?n[l]=null==u?\\"\\":u:\\"function\\"!=typeof u&&\\"dangerouslySetInnerHTML\\"!==l&&(l!==(l=l.replace(/xlink:?/,\\"\\"))?null==u||!1===u?n.removeAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase()):n.setAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase(),u):null==u||!1===u&&!/^ar/.test(l)?n.removeAttribute(l):n.setAttribute(l,u));}function z(l){this.l[l.type](n.event?n.event(l):l);}function N(n,l,u){var i,t;for(i=0;i<n.__k.length;i++)(t=n.__k[i])&&(t.__=n,t.__e&&(\\"function\\"==typeof t.type&&t.__k.length>1&&N(t,l,u),l=x(u,t,t,n.__k,null,t.__e,l),\\"function\\"==typeof n.type&&(n.__d=l)));}function T(l,u,i,t,o,r,f,e,c){var a,v,h,y,_,w,k,m,b,x,A,P=u.type;if(void 0!==u.constructor)return null;(a=n.__b)&&a(u);try{n:if(\\"function\\"==typeof P){if(m=u.props,b=(a=P.contextType)&&t[a.__c],x=a?b?b.props.value:a.__:t,i.__c?k=(v=u.__c=i.__c).__=v.__E:(\\"prototype\\"in P&&P.prototype.render?u.__c=v=new P(m,x):(u.__c=v=new d(m,x),v.constructor=P,v.render=L),b&&b.sub(v),v.props=m,v.state||(v.state={}),v.context=x,v.__n=t,h=v.__d=!0,v.__h=[]),null==v.__s&&(v.__s=v.state),null!=P.getDerivedStateFromProps&&(v.__s==v.state&&(v.__s=s({},v.__s)),s(v.__s,P.getDerivedStateFromProps(m,v.__s))),y=v.props,_=v.state,h)null==P.getDerivedStateFromProps&&null!=v.componentWillMount&&v.componentWillMount(),null!=v.componentDidMount&&v.__h.push(v.componentDidMount);else {if(null==P.getDerivedStateFromProps&&m!==y&&null!=v.componentWillReceiveProps&&v.componentWillReceiveProps(m,x),!v.__e&&null!=v.shouldComponentUpdate&&!1===v.shouldComponentUpdate(m,v.__s,x)||u.__v===i.__v){v.props=m,v.state=v.__s,u.__v!==i.__v&&(v.__d=!1),v.__v=u,u.__e=i.__e,u.__k=i.__k,v.__h.length&&f.push(v),N(u,e,l);break n}null!=v.componentWillUpdate&&v.componentWillUpdate(m,v.__s,x),null!=v.componentDidUpdate&&v.__h.push(function(){v.componentDidUpdate(y,_,w);});}v.context=x,v.props=m,v.state=v.__s,(a=n.__r)&&a(u),v.__d=!1,v.__v=u,v.__P=l,a=v.render(v.props,v.state,v.context),v.state=v.__s,null!=v.getChildContext&&(t=s(s({},t),v.getChildContext())),h||null==v.getSnapshotBeforeUpdate||(w=v.getSnapshotBeforeUpdate(y,_)),A=null!=a&&a.type==p&&null==a.key?a.props.children:a,g(l,Array.isArray(A)?A:[A],u,i,t,o,r,f,e,c),v.base=u.__e,v.__h.length&&f.push(v),k&&(v.__E=v.__=null),v.__e=!1;}else null==r&&u.__v===i.__v?(u.__k=i.__k,u.__e=i.__e):u.__e=j(i.__e,u,i,t,o,r,f,c);(a=n.diffed)&&a(u);}catch(l){u.__v=null,n.__e(l,u,i);}return u.__e}function $(l,u){n.__c&&n.__c(u,l),l.some(function(u){try{l=u.__h,u.__h=[],l.some(function(n){n.call(u);});}catch(l){n.__e(l,u.__v);}});}function j(n,l,u,i,t,o,r,c){var s,a,v,h,y,p=u.props,d=l.props;if(t=\\"svg\\"===l.type||t,null!=o)for(s=0;s<o.length;s++)if(null!=(a=o[s])&&((null===l.type?3===a.nodeType:a.localName===l.type)||n==a)){n=a,o[s]=null;break}if(null==n){if(null===l.type)return document.createTextNode(d);n=t?document.createElementNS(\\"http://www.w3.org/2000/svg\\",l.type):document.createElement(l.type,d.is&&{is:d.is}),o=null,c=!1;}if(null===l.type)p!==d&&n.data!==d&&(n.data=d);else {if(null!=o&&(o=e.slice.call(n.childNodes)),v=(p=u.props||f).dangerouslySetInnerHTML,h=d.dangerouslySetInnerHTML,!c){if(null!=o)for(p={},y=0;y<n.attributes.length;y++)p[n.attributes[y].name]=n.attributes[y].value;(h||v)&&(h&&v&&h.__html==v.__html||(n.innerHTML=h&&h.__html||\\"\\"));}A(n,d,p,t,c),h?l.__k=[]:(s=l.props.children,g(n,Array.isArray(s)?s:[s],l,u,i,\\"foreignObject\\"!==l.type&&t,o,r,f,c)),c||(\\"value\\"in d&&void 0!==(s=d.value)&&s!==n.value&&C(n,\\"value\\",s,p.value,!1),\\"checked\\"in d&&void 0!==(s=d.checked)&&s!==n.checked&&C(n,\\"checked\\",s,p.checked,!1));}return n}function H(l,u,i){try{\\"function\\"==typeof l?l(u):l.current=u;}catch(l){n.__e(l,i);}}function I(l,u,i){var t,o,r;if(n.unmount&&n.unmount(l),(t=l.ref)&&(t.current&&t.current!==l.__e||H(t,null,u)),i||\\"function\\"==typeof l.type||(i=null!=(o=l.__e)),l.__e=l.__d=void 0,null!=(t=l.__c)){if(t.componentWillUnmount)try{t.componentWillUnmount();}catch(l){n.__e(l,u);}t.base=t.__P=null;}if(t=l.__k)for(r=0;r<t.length;r++)t[r]&&I(t[r],u,i);null!=o&&a(o);}function L(n,l,u){return this.constructor(n,u)}function M(l,u,i){var t,r,c;n.__&&n.__(l,u),r=(t=i===o)?null:i&&i.__k||u.__k,l=v(p,null,[l]),c=[],T(u,(t?u:i||u).__k=l,r||f,f,void 0!==u.ownerSVGElement,i&&!t?[i]:r?null:u.childNodes.length?e.slice.call(u.childNodes):null,c,i||f,t),$(c,l);}function O(n,l){M(n,l,o);}function S(n,l,u){var i,t,o,r=arguments,f=s({},n.props);for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);return null!=u&&(f.children=u),h(n.type,f,i||n.key,t||n.ref,null)}function q(n,l){var u={__c:l=\\"__cC\\"+r++,__:n,Consumer:function(n,l){return n.children(l)},Provider:function(n,u,i){return this.getChildContext||(u=[],(i={})[l]=this,this.getChildContext=function(){return i},this.shouldComponentUpdate=function(n){this.props.value!==n.value&&u.some(k);},this.sub=function(n){u.push(n);var l=n.componentWillUnmount;n.componentWillUnmount=function(){u.splice(u.indexOf(n),1),l&&l.call(n);};}),n.children}};return u.Provider.__=u.Consumer.contextType=u}n={__e:function(n,l){for(var u,i;l=l.__;)if((u=l.__c)&&!u.__)try{if(u.constructor&&null!=u.constructor.getDerivedStateFromError&&(i=!0,u.setState(u.constructor.getDerivedStateFromError(n))),null!=u.componentDidCatch&&(i=!0,u.componentDidCatch(n)),i)return k(u.__E=u)}catch(l){n=l;}throw n}},l=function(n){return null!=n&&void 0===n.constructor},d.prototype.setState=function(n,l){var u;u=null!=this.__s&&this.__s!==this.state?this.__s:this.__s=s({},this.state),\\"function\\"==typeof n&&(n=n(s({},u),this.props)),n&&s(u,n),null!=n&&this.__v&&(l&&this.__h.push(l),k(this));},d.prototype.forceUpdate=function(n){this.__v&&(this.__e=!0,n&&this.__h.push(n),k(this));},d.prototype.render=p,u=[],i=\\"function\\"==typeof Promise?Promise.prototype.then.bind(Promise.resolve()):setTimeout,m.__r=0,o=f,r=0;
-export { d as Component, p as Fragment, I as __u, S as cloneElement, q as createContext, v as createElement, y as createRef, v as h, O as hydrate, l as isValidElement, n as options, M as render, b as toChildArray };"
+"var n,l,u,i,t,o,r,f={},e=[],c=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;function s(n,l){for(var u in l)n[u]=l[u];return n}function a(n){var l=n.parentNode;l&&l.removeChild(n);}function h(n,l,u){var i,t,o,r=arguments,f={};for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);if(null!=u&&(f.children=u),\\"function\\"==typeof n&&null!=n.defaultProps)for(o in n.defaultProps)void 0===f[o]&&(f[o]=n.defaultProps[o]);return v(n,f,i,t,null)}function v(l,u,i,t,o){var r={type:l,props:u,key:i,ref:t,__k:null,__:null,__b:0,__e:null,__d:void 0,__c:null,__h:null,constructor:void 0,__v:o};return null==o&&(r.__v=r),null!=n.vnode&&n.vnode(r),r}function y(){return {current:null}}function p(n){return n.children}function d(n,l){this.props=n,this.context=l;}function _(n,l){if(null==l)return n.__?_(n.__,n.__.__k.indexOf(n)+1):null;for(var u;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e)return u.__e;return \\"function\\"==typeof n.type?_(n):null}function w(n){var l,u;if(null!=(n=n.__)&&null!=n.__c){for(n.__e=n.__c.base=null,l=0;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e){n.__e=n.__c.base=u.__e;break}return w(n)}}function k(l){(!l.__d&&(l.__d=!0)&&u.push(l)&&!g.__r++||t!==n.debounceRendering)&&((t=n.debounceRendering)||i)(g);}function g(){for(var n;g.__r=u.length;)n=u.sort(function(n,l){return n.__v.__b-l.__v.__b}),u=[],n.some(function(n){var l,u,i,t,o,r,f;n.__d&&(r=(o=(l=n).__v).__e,(f=l.__P)&&(u=[],(i=s({},o)).__v=i,t=$(f,o,i,l.__n,void 0!==f.ownerSVGElement,null!=o.__h?[r]:null,u,null==r?_(o):r,o.__h),j(u,o),t!=r&&w(o)));});}function m(n,l,u,i,t,o,r,c,s,h){var y,d,w,k,g,m,b,A=i&&i.__k||e,P=A.length;for(s==f&&(s=null!=r?r[0]:P?_(i,0):null),u.__k=[],y=0;y<l.length;y++)if(null!=(k=u.__k[y]=null==(k=l[y])||\\"boolean\\"==typeof k?null:\\"string\\"==typeof k||\\"number\\"==typeof k?v(null,k,null,null,k):Array.isArray(k)?v(p,{children:k},null,null,null):null!=k.__e||null!=k.__c?v(k.type,k.props,k.key,null,k.__v):k)){if(k.__=u,k.__b=u.__b+1,null===(w=A[y])||w&&k.key==w.key&&k.type===w.type)A[y]=void 0;else for(d=0;d<P;d++){if((w=A[d])&&k.key==w.key&&k.type===w.type){A[d]=void 0;break}w=null;}g=$(n,k,w=w||f,t,o,r,c,s,h),(d=k.ref)&&w.ref!=d&&(b||(b=[]),w.ref&&b.push(w.ref,null,k),b.push(d,k.__c||g,k)),null!=g?(null==m&&(m=g),s=x(n,k,w,A,r,g,s),h||\\"option\\"!=u.type?\\"function\\"==typeof u.type&&(u.__d=s):n.value=\\"\\"):s&&w.__e==s&&s.parentNode!=n&&(s=_(w));}if(u.__e=m,null!=r&&\\"function\\"!=typeof u.type)for(y=r.length;y--;)null!=r[y]&&a(r[y]);for(y=P;y--;)null!=A[y]&&L(A[y],A[y]);if(b)for(y=0;y<b.length;y++)I(b[y],b[++y],b[++y]);}function b(n,l){return l=l||[],null==n||\\"boolean\\"==typeof n||(Array.isArray(n)?n.some(function(n){b(n,l);}):l.push(n)),l}function x(n,l,u,i,t,o,r){var f,e,c;if(void 0!==l.__d)f=l.__d,l.__d=void 0;else if(t==u||o!=r||null==o.parentNode)n:if(null==r||r.parentNode!==n)n.appendChild(o),f=null;else {for(e=r,c=0;(e=e.nextSibling)&&c<i.length;c+=2)if(e==o)break n;n.insertBefore(o,r),f=r;}return void 0!==f?f:o.nextSibling}function A(n,l,u,i,t){var o;for(o in u)\\"children\\"===o||\\"key\\"===o||o in l||C(n,o,null,u[o],i);for(o in l)t&&\\"function\\"!=typeof l[o]||\\"children\\"===o||\\"key\\"===o||\\"value\\"===o||\\"checked\\"===o||u[o]===l[o]||C(n,o,l[o],u[o],i);}function P(n,l,u){\\"-\\"===l[0]?n.setProperty(l,u):n[l]=null==u?\\"\\":\\"number\\"!=typeof u||c.test(l)?u:u+\\"px\\";}function C(n,l,u,i,t){var o,r,f;if(t&&\\"className\\"==l&&(l=\\"class\\"),\\"style\\"===l)if(\\"string\\"==typeof u)n.style.cssText=u;else {if(\\"string\\"==typeof i&&(n.style.cssText=i=\\"\\"),i)for(l in i)u&&l in u||P(n.style,l,\\"\\");if(u)for(l in u)i&&u[l]===i[l]||P(n.style,l,u[l]);}else \\"o\\"===l[0]&&\\"n\\"===l[1]?(o=l!==(l=l.replace(/Capture$/,\\"\\")),(r=l.toLowerCase())in n&&(l=r),l=l.slice(2),n.l||(n.l={}),n.l[l+o]=u,f=o?N:z,u?i||n.addEventListener(l,f,o):n.removeEventListener(l,f,o)):\\"list\\"!==l&&\\"tagName\\"!==l&&\\"form\\"!==l&&\\"type\\"!==l&&\\"size\\"!==l&&\\"download\\"!==l&&\\"href\\"!==l&&!t&&l in n?n[l]=null==u?\\"\\":u:\\"function\\"!=typeof u&&\\"dangerouslySetInnerHTML\\"!==l&&(l!==(l=l.replace(/xlink:?/,\\"\\"))?null==u||!1===u?n.removeAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase()):n.setAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase(),u):null==u||!1===u&&!/^ar/.test(l)?n.removeAttribute(l):n.setAttribute(l,u));}function z(l){this.l[l.type+!1](n.event?n.event(l):l);}function N(l){this.l[l.type+!0](n.event?n.event(l):l);}function T(n,l,u){var i,t;for(i=0;i<n.__k.length;i++)(t=n.__k[i])&&(t.__=n,t.__e&&(\\"function\\"==typeof t.type&&t.__k.length>1&&T(t,l,u),l=x(u,t,t,n.__k,null,t.__e,l),\\"function\\"==typeof n.type&&(n.__d=l)));}function $(l,u,i,t,o,r,f,e,c){var a,h,v,y,_,w,k,g,b,x,A,P=u.type;if(void 0!==u.constructor)return null;null!=i.__h&&(c=i.__h,e=u.__e=i.__e,u.__h=null,r=[e]),(a=n.__b)&&a(u);try{n:if(\\"function\\"==typeof P){if(g=u.props,b=(a=P.contextType)&&t[a.__c],x=a?b?b.props.value:a.__:t,i.__c?k=(h=u.__c=i.__c).__=h.__E:(\\"prototype\\"in P&&P.prototype.render?u.__c=h=new P(g,x):(u.__c=h=new d(g,x),h.constructor=P,h.render=M),b&&b.sub(h),h.props=g,h.state||(h.state={}),h.context=x,h.__n=t,v=h.__d=!0,h.__h=[]),null==h.__s&&(h.__s=h.state),null!=P.getDerivedStateFromProps&&(h.__s==h.state&&(h.__s=s({},h.__s)),s(h.__s,P.getDerivedStateFromProps(g,h.__s))),y=h.props,_=h.state,v)null==P.getDerivedStateFromProps&&null!=h.componentWillMount&&h.componentWillMount(),null!=h.componentDidMount&&h.__h.push(h.componentDidMount);else {if(null==P.getDerivedStateFromProps&&g!==y&&null!=h.componentWillReceiveProps&&h.componentWillReceiveProps(g,x),!h.__e&&null!=h.shouldComponentUpdate&&!1===h.shouldComponentUpdate(g,h.__s,x)||u.__v===i.__v){h.props=g,h.state=h.__s,u.__v!==i.__v&&(h.__d=!1),h.__v=u,u.__e=i.__e,u.__k=i.__k,h.__h.length&&f.push(h),T(u,e,l);break n}null!=h.componentWillUpdate&&h.componentWillUpdate(g,h.__s,x),null!=h.componentDidUpdate&&h.__h.push(function(){h.componentDidUpdate(y,_,w);});}h.context=x,h.props=g,h.state=h.__s,(a=n.__r)&&a(u),h.__d=!1,h.__v=u,h.__P=l,a=h.render(h.props,h.state,h.context),h.state=h.__s,null!=h.getChildContext&&(t=s(s({},t),h.getChildContext())),v||null==h.getSnapshotBeforeUpdate||(w=h.getSnapshotBeforeUpdate(y,_)),A=null!=a&&a.type==p&&null==a.key?a.props.children:a,m(l,Array.isArray(A)?A:[A],u,i,t,o,r,f,e,c),h.base=u.__e,u.__h=null,h.__h.length&&f.push(h),k&&(h.__E=h.__=null),h.__e=!1;}else null==r&&u.__v===i.__v?(u.__k=i.__k,u.__e=i.__e):u.__e=H(i.__e,u,i,t,o,r,f,c);(a=n.diffed)&&a(u);}catch(l){u.__v=null,(c||null!=r)&&(u.__e=e,u.__h=!!c,r[r.indexOf(e)]=null),n.__e(l,u,i);}return u.__e}function j(l,u){n.__c&&n.__c(u,l),l.some(function(u){try{l=u.__h,u.__h=[],l.some(function(n){n.call(u);});}catch(l){n.__e(l,u.__v);}});}function H(n,l,u,i,t,o,r,c){var s,a,h,v,y,p=u.props,d=l.props;if(t=\\"svg\\"===l.type||t,null!=o)for(s=0;s<o.length;s++)if(null!=(a=o[s])&&((null===l.type?3===a.nodeType:a.localName===l.type)||n==a)){n=a,o[s]=null;break}if(null==n){if(null===l.type)return document.createTextNode(d);n=t?document.createElementNS(\\"http://www.w3.org/2000/svg\\",l.type):document.createElement(l.type,d.is&&{is:d.is}),o=null,c=!1;}if(null===l.type)p===d||c&&n.data===d||(n.data=d);else {if(null!=o&&(o=e.slice.call(n.childNodes)),h=(p=u.props||f).dangerouslySetInnerHTML,v=d.dangerouslySetInnerHTML,!c){if(null!=o)for(p={},y=0;y<n.attributes.length;y++)p[n.attributes[y].name]=n.attributes[y].value;(v||h)&&(v&&(h&&v.__html==h.__html||v.__html===n.innerHTML)||(n.innerHTML=v&&v.__html||\\"\\"));}A(n,d,p,t,c),v?l.__k=[]:(s=l.props.children,m(n,Array.isArray(s)?s:[s],l,u,i,\\"foreignObject\\"!==l.type&&t,o,r,f,c)),c||(\\"value\\"in d&&void 0!==(s=d.value)&&(s!==n.value||\\"progress\\"===l.type&&!s)&&C(n,\\"value\\",s,p.value,!1),\\"checked\\"in d&&void 0!==(s=d.checked)&&s!==n.checked&&C(n,\\"checked\\",s,p.checked,!1));}return n}function I(l,u,i){try{\\"function\\"==typeof l?l(u):l.current=u;}catch(l){n.__e(l,i);}}function L(l,u,i){var t,o,r;if(n.unmount&&n.unmount(l),(t=l.ref)&&(t.current&&t.current!==l.__e||I(t,null,u)),i||\\"function\\"==typeof l.type||(i=null!=(o=l.__e)),l.__e=l.__d=void 0,null!=(t=l.__c)){if(t.componentWillUnmount)try{t.componentWillUnmount();}catch(l){n.__e(l,u);}t.base=t.__P=null;}if(t=l.__k)for(r=0;r<t.length;r++)t[r]&&L(t[r],u,i);null!=o&&a(o);}function M(n,l,u){return this.constructor(n,u)}function O(l,u,i){var t,r,c;n.__&&n.__(l,u),r=(t=i===o)?null:i&&i.__k||u.__k,l=h(p,null,[l]),c=[],$(u,(t?u:i||u).__k=l,r||f,f,void 0!==u.ownerSVGElement,i&&!t?[i]:r?null:u.childNodes.length?e.slice.call(u.childNodes):null,c,i||f,t),j(c,l);}function S(n,l){O(n,l,o);}function q(n,l,u){var i,t,o,r=arguments,f=s({},n.props);for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);return null!=u&&(f.children=u),v(n.type,f,i||n.key,t||n.ref,null)}function B(n,l){var u={__c:l=\\"__cC\\"+r++,__:n,Consumer:function(n,l){return n.children(l)},Provider:function(n,u,i){return this.getChildContext||(u=[],(i={})[l]=this,this.getChildContext=function(){return i},this.shouldComponentUpdate=function(n){this.props.value!==n.value&&u.some(k);},this.sub=function(n){u.push(n);var l=n.componentWillUnmount;n.componentWillUnmount=function(){u.splice(u.indexOf(n),1),l&&l.call(n);};}),n.children}};return u.Provider.__=u.Consumer.contextType=u}n={__e:function(n,l){for(var u,i,t,o=l.__h;l=l.__;)if((u=l.__c)&&!u.__)try{if((i=u.constructor)&&null!=i.getDerivedStateFromError&&(u.setState(i.getDerivedStateFromError(n)),t=u.__d),null!=u.componentDidCatch&&(u.componentDidCatch(n),t=u.__d),t)return l.__h=o,u.__E=u}catch(l){n=l;}throw n}},l=function(n){return null!=n&&void 0===n.constructor},d.prototype.setState=function(n,l){var u;u=null!=this.__s&&this.__s!==this.state?this.__s:this.__s=s({},this.state),\\"function\\"==typeof n&&(n=n(s({},u),this.props)),n&&s(u,n),null!=n&&this.__v&&(l&&this.__h.push(l),k(this));},d.prototype.forceUpdate=function(n){this.__v&&(this.__e=!0,n&&this.__h.push(n),k(this));},d.prototype.render=p,u=[],i=\\"function\\"==typeof Promise?Promise.prototype.then.bind(Promise.resolve()):setTimeout,g.__r=0,o=f,r=0;
+export { d as Component, p as Fragment, L as __u, q as cloneElement, B as createContext, h as createElement, y as createRef, h, S as hydrate, l as isValidElement, n as options, O as render, b as toChildArray };"
 `;
 
 exports[`snowpack install dep-exports: preact/debug.js 1`] = `
 "import { options as n, Fragment as p$1, Component as d$1 } from '../preact.js';
-\\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.4.8\\",n,{Fragment:p$1,Component:d$1});
+\\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.5.3\\",n,{Fragment:p$1,Component:d$1});
 var o={};function r(){o={};}function a(n){return n.type===p$1?\\"Fragment\\":\\"function\\"==typeof n.type?n.type.displayName||n.type.name:\\"string\\"==typeof n.type?n.type:\\"#text\\"}var i=[],s=[];function c(){return i.length>0?i[i.length-1]:null}var l=!1;function u(n){return \\"function\\"==typeof n.type&&n.type!=p$1}function f(n){for(var e=[n],t=n;null!=t.__o;)e.push(t.__o),t=t.__o;return e.reduce(function(n,e){n+=\\"  in \\"+a(e);var t=e.__source;return t?n+=\\" (at \\"+t.fileName+\\":\\"+t.lineNumber+\\")\\":l||(l=!0,console.warn(\\"Add @babel/plugin-transform-react-jsx-source to get a more detailed component stack. Note that you should not add it to production builds of your App for bundle size reasons.\\")),n+\\"\\"},\\"\\")}var p=\\"function\\"==typeof WeakMap,d=d$1.prototype.setState;d$1.prototype.setState=function(n,e){return null==this.__v?null==this.state&&console.warn('Calling \\"this.setState\\" inside the constructor of a component is a no-op and might be a bug in your application. Instead, set \\"this.state = {}\\" directly.'+f(c())):null==this.__P&&console.warn('Can\\\\'t call \\"this.setState\\" on an unmounted component. This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in the componentWillUnmount method.'+f(this.__v)),d.call(this,n,e)};var h=d$1.prototype.forceUpdate;function y(n){var e=n.props,t=a(n),o=\\"\\";for(var r in e)if(e.hasOwnProperty(r)&&\\"children\\"!==r){var i=e[r];\\"function\\"==typeof i&&(i=\\"function \\"+(i.displayName||i.name)+\\"() {}\\"),i=Object(i)!==i||i.toString?i+\\"\\":Object.prototype.toString.call(i),o+=\\" \\"+r+\\"=\\"+JSON.stringify(i);}var s=e.children;return \\"<\\"+t+o+(s&&s.length?\\">..</\\"+t+\\">\\":\\" />\\")}d$1.prototype.forceUpdate=function(n){return null==this.__v?console.warn('Calling \\"this.forceUpdate\\" inside the constructor of a component is a no-op and might be a bug in your application.'+f(c())):null==this.__P&&console.warn('Can\\\\'t call \\"this.forceUpdate\\" on an unmounted component. This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in the componentWillUnmount method.'+f(this.__v)),h.call(this,n)},function(){!function(){var e=n.__b,t=n.diffed,o=n.__,r=n.vnode,a=n.__r;n.diffed=function(n){u(n)&&s.pop(),i.pop(),t&&t(n);},n.__b=function(n){u(n)&&i.push(n),e&&e(n);},n.__=function(n,e){s=[],o&&o(n,e);},n.vnode=function(n){n.__o=s.length>0?s[s.length-1]:null,r&&r(n);},n.__r=function(n){u(n)&&s.push(n),a&&a(n);};}();var e=!1,t=n.__b,r=n.diffed,c=n.vnode,l=n.__e,d=n.__,h=n.__h,v=p?{useEffect:new WeakMap,useLayoutEffect:new WeakMap,lazyPropTypes:new WeakMap}:null,m=[];n.__e=function(n,e,t){if(e&&e.__c&&\\"function\\"==typeof n.then){var o=n;n=new Error(\\"Missing Suspense. The throwing component was: \\"+a(e));for(var r=e;r;r=r.__)if(r.__c&&r.__c.__c){n=o;break}if(n instanceof Error)throw n}l(n,e,t);},n.__=function(n,e){if(!e)throw new Error(\\"Undefined parent passed to render(), this is the second argument.Check if the element is available in the DOM/has the correct id.\\");var t;switch(e.nodeType){case 1:case 11:case 9:t=!0;break;default:t=!1;}if(!t){var o=a(n);throw new Error(\\"Expected a valid HTML node as a second argument to render.\\\\tReceived \\"+e+\\" instead: render(<\\"+o+\\" />, \\"+e+\\");\\")}d&&d(n,e);},n.__b=function(n){var r=n.type,i=function n(e){return e?\\"function\\"==typeof e.type?n(e.__):e:{}}(n.__);if(e=!0,void 0===r)throw new Error(\\"Undefined component passed to createElement()You likely forgot to export your component or might have mixed up default and named imports\\"+y(n)+\\"\\"+f(n));if(null!=r&&\\"object\\"==typeof r){if(void 0!==r.__k&&void 0!==r.__e)throw new Error(\\"Invalid type passed to createElement(): \\"+r+\\"Did you accidentally pass a JSX literal as JSX twice?  let My\\"+a(n)+\\" = \\"+y(r)+\\";  let vnode = <My\\"+a(n)+\\" />;This usually happens when you export a JSX literal and not the component.\\"+f(n));throw new Error(\\"Invalid type passed to createElement(): \\"+(Array.isArray(r)?\\"array\\":r))}if(\\"thead\\"!==r&&\\"tfoot\\"!==r&&\\"tbody\\"!==r||\\"table\\"===i.type?\\"tr\\"===r&&\\"thead\\"!==i.type&&\\"tfoot\\"!==i.type&&\\"tbody\\"!==i.type&&\\"table\\"!==i.type?console.error(\\"Improper nesting of table. Your <tr> should have a <thead/tbody/tfoot/table> parent.\\"+y(n)+\\"\\"+f(n)):\\"td\\"===r&&\\"tr\\"!==i.type?console.error(\\"Improper nesting of table. Your <td> should have a <tr> parent.\\"+y(n)+\\"\\"+f(n)):\\"th\\"===r&&\\"tr\\"!==i.type&&console.error(\\"Improper nesting of table. Your <th> should have a <tr>.\\"+y(n)+\\"\\"+f(n)):console.error(\\"Improper nesting of table. Your <thead/tbody/tfoot> should have a <table> parent.\\"+y(n)+\\"\\"+f(n)),void 0!==n.ref&&\\"function\\"!=typeof n.ref&&\\"object\\"!=typeof n.ref&&!(\\"$$typeof\\"in n))throw new Error('Component\\\\'s \\"ref\\" property should be a function, or an object created by createRef(), but got ['+typeof n.ref+\\"] instead\\"+y(n)+\\"\\"+f(n));if(\\"string\\"==typeof n.type)for(var s in n.props)if(\\"o\\"===s[0]&&\\"n\\"===s[1]&&\\"function\\"!=typeof n.props[s]&&null!=n.props[s])throw new Error(\\"Component's \\\\\\"\\"+s+'\\" property should be a function, but got ['+typeof n.props[s]+\\"] instead\\"+y(n)+\\"\\"+f(n));if(\\"function\\"==typeof n.type&&n.type.propTypes){if(\\"Lazy\\"===n.type.displayName&&v&&!v.lazyPropTypes.has(n.type)){var c=\\"PropTypes are not supported on lazy(). Use propTypes on the wrapped component itself. \\";try{var l=n.type();v.lazyPropTypes.set(n.type,!0),console.warn(c+\\"Component wrapped in lazy() is \\"+a(l));}catch(n){console.warn(c+\\"We will log the wrapped component's name once it is loaded.\\");}}var u=n.props;n.type.__f&&delete(u=function(n,e){for(var t in e)n[t]=e[t];return n}({},u)).ref,function(n,e,t,r,a){Object.keys(n).forEach(function(t){var i;try{i=n[t](e,t,r,\\"prop\\",null,\\"SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED\\");}catch(n){i=n;}!i||i.message in o||(o[i.message]=!0,console.error(\\"Failed prop type: \\"+i.message+(a&&\\"\\"+a()||\\"\\")));});}(n.type.propTypes,u,0,a(n),function(){return f(n)});}t&&t(n);},n.__h=function(n,t,o){if(!n||!e)throw new Error(\\"Hook can only be invoked from render methods.\\");h&&h(n,t,o);};var b=function(n,e){return {get:function(){var t=\\"get\\"+n+e;m&&m.indexOf(t)<0&&(m.push(t),console.warn(\\"getting vnode.\\"+n+\\" is deprecated, \\"+e));},set:function(){var t=\\"set\\"+n+e;m&&m.indexOf(t)<0&&(m.push(t),console.warn(\\"setting vnode.\\"+n+\\" is not allowed, \\"+e));}}},w={nodeName:b(\\"nodeName\\",\\"use vnode.type\\"),attributes:b(\\"attributes\\",\\"use vnode.props\\"),children:b(\\"children\\",\\"use vnode.props.children\\")},g=Object.create({},w);n.vnode=function(n){var e=n.props;if(null!==n.type&&null!=e&&(\\"__source\\"in e||\\"__self\\"in e)){var t=n.props={};for(var o in e){var r=e[o];\\"__source\\"===o?n.__source=r:\\"__self\\"===o?n.__self=r:t[o]=r;}}n.__proto__=g,c&&c(n);},n.diffed=function(n){n.__k&&n.__k.forEach(function(e){if(e&&void 0===e.type){delete e.__,delete e.__b;var t=Object.keys(e).join(\\",\\");throw new Error(\\"Objects are not valid as a child. Encountered an object with the keys {\\"+t+\\"}.\\"+f(n))}});var t=n.__c;if(t&&t.__H){var o=t.__H;Array.isArray(o.__)&&o.__.forEach(function(e){if(e.__h&&(!e.__H||!Array.isArray(e.__H))){var t=a(n);console.warn(\\"In \\"+t+\\" you are calling useMemo/useCallback without passing arguments.This is a noop since it will not be able to memoize, it will execute it every render.\\"+f(n));}});}if(e=!1,r&&r(n),null!=n.__k)for(var i=[],s=0;s<n.__k.length;s++){var c=n.__k[s];if(c&&null!=c.key){var l=c.key;if(-1!==i.indexOf(l)){console.error('Following component has two or more children with the same key attribute: \\"'+l+'\\". This may cause glitches and misbehavior in rendering process. Component: '+y(n)+\\"\\"+f(n));break}i.push(l);}}};}();
 export { r as resetPropWarnings };"
 `;
 
 exports[`snowpack install dep-exports: preact/hooks.js 1`] = `
 "import { options as n } from '../preact.js';
-var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__c=u,i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}]),i.__}function y(r,o){var i=v(t++,3);!n.__s&&j(i.__H,o)&&(i.__=r,i.__H=o,u.__H.__h.push(i));}function l(r,o){var i=v(t++,4);!n.__s&&j(i.__H,o)&&(i.__=r,i.__H=o,u.__h.push(i));}function h(n){return o=5,_(function(){return {current:n}},[])}function s(n,t,u){o=6,l(function(){\\"function\\"==typeof n?n(t()):n&&(n.current=t());},null==u?u:u.concat(n));}function _(n,u){var r=v(t++,7);return j(r.__H,u)?(r.__H=u,r.__h=n,r.__=n()):r.__}function A(n,t){return o=8,_(function(){return n},t)}function F(n){var r=u.context[n.__c],o=v(t++,9);return o.__c=n,r?(null==o.__&&(o.__=!0,r.sub(u)),r.props.value):n.__}function T(t,u){n.useDebugValue&&n.useDebugValue(u?u(t):t);}function d(n){var r=v(t++,10),o=m();return r.__=n,u.componentDidCatch||(u.componentDidCatch=function(n){r.__&&r.__(n),o[1](n);}),[o[0],function(){o[1](void 0);}]}function q(){i.some(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.u&&n.u();}function g(n){n.u=n.__();}function j(n,t){return !n||t.some(function(t,u){return t!==n[u]})}function k(n,t){return \\"function\\"==typeof t?t(n):t}
+var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u),i.__}function y(r,o){var i=v(t++,3);!n.__s&&j(i.__H,o)&&(i.__=r,i.__H=o,u.__H.__h.push(i));}function l(r,o){var i=v(t++,4);!n.__s&&j(i.__H,o)&&(i.__=r,i.__H=o,u.__h.push(i));}function h(n){return o=5,_(function(){return {current:n}},[])}function s(n,t,u){o=6,l(function(){\\"function\\"==typeof n?n(t()):n&&(n.current=t());},null==u?u:u.concat(n));}function _(n,u){var r=v(t++,7);return j(r.__H,u)&&(r.__=n(),r.__H=u,r.__h=n),r.__}function A(n,t){return o=8,_(function(){return n},t)}function F(n){var r=u.context[n.__c],o=v(t++,9);return o.__c=n,r?(null==o.__&&(o.__=!0,r.sub(u)),r.props.value):n.__}function T(t,u){n.useDebugValue&&n.useDebugValue(u?u(t):t);}function d(n){var r=v(t++,10),o=m();return r.__=n,u.componentDidCatch||(u.componentDidCatch=function(n){r.__&&r.__(n),o[1](n);}),[o[0],function(){o[1](void 0);}]}function q(){i.some(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.u&&n.u();}function g(n){n.u=n.__();}function j(n,t){return !n||n.length!==t.length||t.some(function(t,u){return t!==n[u]})}function k(n,t){return \\"function\\"==typeof t?t(n):t}
 export { A as useCallback, F as useContext, T as useDebugValue, y as useEffect, d as useErrorBoundary, s as useImperativeHandle, l as useLayoutEffect, _ as useMemo, p as useReducer, h as useRef, m as useState };"
 `;
 
@@ -19062,7 +19062,7 @@ export default Vue;"
 
 exports[`snowpack install exclude: vue-router.js 1`] = `
 "/*!
-  * vue-router v3.4.3
+  * vue-router v3.4.5
   * (c) 2020 Evan You
   * @license MIT
   */
@@ -20710,6 +20710,7 @@ function runQueue (queue, fn, cb) {
   };
   step(0);
 }
+// When changing thing, also edit router.d.ts
 var NavigationFailureType = {
   redirected: 2,
   aborted: 4,
@@ -20923,10 +20924,10 @@ History.prototype.transitionTo = function transitionTo (
     // Exception should still be thrown
     throw e
   }
+  var prev = this.current;
   this.confirmTransition(
     route,
     function () {
-      var prev = this$1.current;
       this$1.updateRoute(route);
       onComplete && onComplete(route);
       this$1.ensureURL();
@@ -20946,16 +20947,14 @@ History.prototype.transitionTo = function transitionTo (
         onAbort(err);
       }
       if (err && !this$1.ready) {
-        this$1.ready = true;
-        // Initial redirection should still trigger the onReady onSuccess
+        // Initial redirection should not mark the history as ready yet
+        // because it's triggered by the redirection instead
         // https://github.com/vuejs/vue-router/issues/3225
-        if (!isNavigationFailure(err, NavigationFailureType.redirected)) {
+        // https://github.com/vuejs/vue-router/issues/3331
+        if (!isNavigationFailure(err, NavigationFailureType.redirected) || prev !== START) {
+          this$1.ready = true;
           this$1.readyErrorCbs.forEach(function (cb) {
             cb(err);
-          });
-        } else {
-          this$1.readyCbs.forEach(function (cb) {
-            cb(route);
           });
         }
       }
@@ -20965,6 +20964,7 @@ History.prototype.transitionTo = function transitionTo (
 History.prototype.confirmTransition = function confirmTransition (route, onComplete, onAbort) {
     var this$1 = this;
   var current = this.current;
+  this.pending = route;
   var abort = function (err) {
     // changed after adding errors with
     // https://github.com/vuejs/vue-router/pull/3047 before that change,
@@ -21011,7 +21011,6 @@ History.prototype.confirmTransition = function confirmTransition (route, onCompl
     // async components
     resolveAsyncComponents(activated)
   );
-  this.pending = route;
   var iterator = function (hook, next) {
     if (this$1.pending !== route) {
       return abort(createNavigationCancelledError(current, route))
@@ -21076,11 +21075,17 @@ History.prototype.updateRoute = function updateRoute (route) {
 History.prototype.setupListeners = function setupListeners () {
   // Default implementation is empty
 };
-History.prototype.teardownListeners = function teardownListeners () {
+History.prototype.teardown = function teardown () {
+  // clean up event listeners
+  // https://github.com/vuejs/vue-router/issues/2341
   this.listeners.forEach(function (cleanupListener) {
     cleanupListener();
   });
   this.listeners = [];
+  // reset current history route
+  // https://github.com/vuejs/vue-router/issues/3294
+  this.current = START;
+  this.pending = null;
 };
 function normalizeBase (base) {
   if (!base) {
@@ -21481,8 +21486,12 @@ var AbstractHistory = /*@__PURE__*/(function (History) {
     this.confirmTransition(
       route,
       function () {
+        var prev = this$1.current;
         this$1.index = targetIndex;
         this$1.updateRoute(route);
+        this$1.router.afterHooks.forEach(function (hook) {
+          hook && hook(route, prev);
+        });
       },
       function (err) {
         if (isNavigationFailure(err, NavigationFailureType.duplicated)) {
@@ -21560,11 +21569,7 @@ VueRouter.prototype.init = function init (app /* Vue component instance */) {
     // ensure we still have a main app or null if no apps
     // we do not release the router so it can be reused
     if (this$1.app === app) { this$1.app = this$1.apps[0] || null; }
-    if (!this$1.app) {
-      // clean up event listeners
-      // https://github.com/vuejs/vue-router/issues/2341
-      this$1.history.teardownListeners();
-    }
+    if (!this$1.app) { this$1.history.teardown(); }
   });
   // main app previously initialized
   // return as we don't need to set up new history listener
@@ -21701,7 +21706,7 @@ function createHref (base, fullPath, mode) {
   return base ? cleanPath(base + '/' + path) : path
 }
 VueRouter.install = install;
-VueRouter.version = '3.4.3';
+VueRouter.version = '3.4.5';
 VueRouter.isNavigationFailure = isNavigationFailure;
 VueRouter.NavigationFailureType = NavigationFailureType;
 if (inBrowser && window.Vue) {
@@ -21783,8 +21788,8 @@ exports[`snowpack install export-maps: output 1`] = `
 `;
 
 exports[`snowpack install export-maps: preact.js 1`] = `
-"var n,l,u,i,t,o,r,f={},e=[],c=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;function s(n,l){for(var u in l)n[u]=l[u];return n}function a(n){var l=n.parentNode;l&&l.removeChild(n);}function v(n,l,u){var i,t,o,r=arguments,f={};for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);if(null!=u&&(f.children=u),\\"function\\"==typeof n&&null!=n.defaultProps)for(o in n.defaultProps)void 0===f[o]&&(f[o]=n.defaultProps[o]);return h(n,f,i,t,null)}function h(l,u,i,t,o){var r={type:l,props:u,key:i,ref:t,__k:null,__:null,__b:0,__e:null,__d:void 0,__c:null,constructor:void 0,__v:o};return null==o&&(r.__v=r),null!=n.vnode&&n.vnode(r),r}function y(){return {current:null}}function p(n){return n.children}function d(n,l){this.props=n,this.context=l;}function _(n,l){if(null==l)return n.__?_(n.__,n.__.__k.indexOf(n)+1):null;for(var u;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e)return u.__e;return \\"function\\"==typeof n.type?_(n):null}function w(n){var l,u;if(null!=(n=n.__)&&null!=n.__c){for(n.__e=n.__c.base=null,l=0;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e){n.__e=n.__c.base=u.__e;break}return w(n)}}function k(l){(!l.__d&&(l.__d=!0)&&u.push(l)&&!m.__r++||t!==n.debounceRendering)&&((t=n.debounceRendering)||i)(m);}function m(){for(var n;m.__r=u.length;)n=u.sort(function(n,l){return n.__v.__b-l.__v.__b}),u=[],n.some(function(n){var l,u,i,t,o,r,f;n.__d&&(r=(o=(l=n).__v).__e,(f=l.__P)&&(u=[],(i=s({},o)).__v=i,t=T(f,o,i,l.__n,void 0!==f.ownerSVGElement,null,u,null==r?_(o):r),$(u,o),t!=r&&w(o)));});}function g(n,l,u,i,t,o,r,c,s,v){var y,d,w,k,m,g,b,A=i&&i.__k||e,P=A.length;for(s==f&&(s=null!=r?r[0]:P?_(i,0):null),u.__k=[],y=0;y<l.length;y++)if(null!=(k=u.__k[y]=null==(k=l[y])||\\"boolean\\"==typeof k?null:\\"string\\"==typeof k||\\"number\\"==typeof k?h(null,k,null,null,k):Array.isArray(k)?h(p,{children:k},null,null,null):null!=k.__e||null!=k.__c?h(k.type,k.props,k.key,null,k.__v):k)){if(k.__=u,k.__b=u.__b+1,null===(w=A[y])||w&&k.key==w.key&&k.type===w.type)A[y]=void 0;else for(d=0;d<P;d++){if((w=A[d])&&k.key==w.key&&k.type===w.type){A[d]=void 0;break}w=null;}m=T(n,k,w=w||f,t,o,r,c,s,v),(d=k.ref)&&w.ref!=d&&(b||(b=[]),w.ref&&b.push(w.ref,null,k),b.push(d,k.__c||m,k)),null!=m?(null==g&&(g=m),s=x(n,k,w,A,r,m,s),v||\\"option\\"!=u.type?\\"function\\"==typeof u.type&&(u.__d=s):n.value=\\"\\"):s&&w.__e==s&&s.parentNode!=n&&(s=_(w));}if(u.__e=g,null!=r&&\\"function\\"!=typeof u.type)for(y=r.length;y--;)null!=r[y]&&a(r[y]);for(y=P;y--;)null!=A[y]&&I(A[y],A[y]);if(b)for(y=0;y<b.length;y++)H(b[y],b[++y],b[++y]);}function b(n,l){return l=l||[],null==n||\\"boolean\\"==typeof n||(Array.isArray(n)?n.some(function(n){b(n,l);}):l.push(n)),l}function x(n,l,u,i,t,o,r){var f,e,c;if(void 0!==l.__d)f=l.__d,l.__d=void 0;else if(t==u||o!=r||null==o.parentNode)n:if(null==r||r.parentNode!==n)n.appendChild(o),f=null;else {for(e=r,c=0;(e=e.nextSibling)&&c<i.length;c+=2)if(e==o)break n;n.insertBefore(o,r),f=r;}return void 0!==f?f:o.nextSibling}function A(n,l,u,i,t){var o;for(o in u)\\"children\\"===o||\\"key\\"===o||o in l||C(n,o,null,u[o],i);for(o in l)t&&\\"function\\"!=typeof l[o]||\\"children\\"===o||\\"key\\"===o||\\"value\\"===o||\\"checked\\"===o||u[o]===l[o]||C(n,o,l[o],u[o],i);}function P(n,l,u){\\"-\\"===l[0]?n.setProperty(l,u):n[l]=null==u?\\"\\":\\"number\\"!=typeof u||c.test(l)?u:u+\\"px\\";}function C(n,l,u,i,t){var o,r;if(t&&\\"className\\"==l&&(l=\\"class\\"),\\"style\\"===l)if(\\"string\\"==typeof u)n.style=u;else {if(\\"string\\"==typeof i&&(n.style=i=\\"\\"),i)for(l in i)u&&l in u||P(n.style,l,\\"\\");if(u)for(l in u)i&&u[l]===i[l]||P(n.style,l,u[l]);}else \\"o\\"===l[0]&&\\"n\\"===l[1]?(o=l!==(l=l.replace(/Capture$/,\\"\\")),(r=l.toLowerCase())in n&&(l=r),l=l.slice(2),n.l||(n.l={}),n.l[l]=u,u?i||n.addEventListener(l,z,o):n.removeEventListener(l,z,o)):\\"list\\"!==l&&\\"tagName\\"!==l&&\\"form\\"!==l&&\\"type\\"!==l&&\\"size\\"!==l&&\\"download\\"!==l&&\\"href\\"!==l&&!t&&l in n?n[l]=null==u?\\"\\":u:\\"function\\"!=typeof u&&\\"dangerouslySetInnerHTML\\"!==l&&(l!==(l=l.replace(/xlink:?/,\\"\\"))?null==u||!1===u?n.removeAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase()):n.setAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase(),u):null==u||!1===u&&!/^ar/.test(l)?n.removeAttribute(l):n.setAttribute(l,u));}function z(l){this.l[l.type](n.event?n.event(l):l);}function N(n,l,u){var i,t;for(i=0;i<n.__k.length;i++)(t=n.__k[i])&&(t.__=n,t.__e&&(\\"function\\"==typeof t.type&&t.__k.length>1&&N(t,l,u),l=x(u,t,t,n.__k,null,t.__e,l),\\"function\\"==typeof n.type&&(n.__d=l)));}function T(l,u,i,t,o,r,f,e,c){var a,v,h,y,_,w,k,m,b,x,A,P=u.type;if(void 0!==u.constructor)return null;(a=n.__b)&&a(u);try{n:if(\\"function\\"==typeof P){if(m=u.props,b=(a=P.contextType)&&t[a.__c],x=a?b?b.props.value:a.__:t,i.__c?k=(v=u.__c=i.__c).__=v.__E:(\\"prototype\\"in P&&P.prototype.render?u.__c=v=new P(m,x):(u.__c=v=new d(m,x),v.constructor=P,v.render=L),b&&b.sub(v),v.props=m,v.state||(v.state={}),v.context=x,v.__n=t,h=v.__d=!0,v.__h=[]),null==v.__s&&(v.__s=v.state),null!=P.getDerivedStateFromProps&&(v.__s==v.state&&(v.__s=s({},v.__s)),s(v.__s,P.getDerivedStateFromProps(m,v.__s))),y=v.props,_=v.state,h)null==P.getDerivedStateFromProps&&null!=v.componentWillMount&&v.componentWillMount(),null!=v.componentDidMount&&v.__h.push(v.componentDidMount);else {if(null==P.getDerivedStateFromProps&&m!==y&&null!=v.componentWillReceiveProps&&v.componentWillReceiveProps(m,x),!v.__e&&null!=v.shouldComponentUpdate&&!1===v.shouldComponentUpdate(m,v.__s,x)||u.__v===i.__v){v.props=m,v.state=v.__s,u.__v!==i.__v&&(v.__d=!1),v.__v=u,u.__e=i.__e,u.__k=i.__k,v.__h.length&&f.push(v),N(u,e,l);break n}null!=v.componentWillUpdate&&v.componentWillUpdate(m,v.__s,x),null!=v.componentDidUpdate&&v.__h.push(function(){v.componentDidUpdate(y,_,w);});}v.context=x,v.props=m,v.state=v.__s,(a=n.__r)&&a(u),v.__d=!1,v.__v=u,v.__P=l,a=v.render(v.props,v.state,v.context),v.state=v.__s,null!=v.getChildContext&&(t=s(s({},t),v.getChildContext())),h||null==v.getSnapshotBeforeUpdate||(w=v.getSnapshotBeforeUpdate(y,_)),A=null!=a&&a.type==p&&null==a.key?a.props.children:a,g(l,Array.isArray(A)?A:[A],u,i,t,o,r,f,e,c),v.base=u.__e,v.__h.length&&f.push(v),k&&(v.__E=v.__=null),v.__e=!1;}else null==r&&u.__v===i.__v?(u.__k=i.__k,u.__e=i.__e):u.__e=j(i.__e,u,i,t,o,r,f,c);(a=n.diffed)&&a(u);}catch(l){u.__v=null,n.__e(l,u,i);}return u.__e}function $(l,u){n.__c&&n.__c(u,l),l.some(function(u){try{l=u.__h,u.__h=[],l.some(function(n){n.call(u);});}catch(l){n.__e(l,u.__v);}});}function j(n,l,u,i,t,o,r,c){var s,a,v,h,y,p=u.props,d=l.props;if(t=\\"svg\\"===l.type||t,null!=o)for(s=0;s<o.length;s++)if(null!=(a=o[s])&&((null===l.type?3===a.nodeType:a.localName===l.type)||n==a)){n=a,o[s]=null;break}if(null==n){if(null===l.type)return document.createTextNode(d);n=t?document.createElementNS(\\"http://www.w3.org/2000/svg\\",l.type):document.createElement(l.type,d.is&&{is:d.is}),o=null,c=!1;}if(null===l.type)p!==d&&n.data!==d&&(n.data=d);else {if(null!=o&&(o=e.slice.call(n.childNodes)),v=(p=u.props||f).dangerouslySetInnerHTML,h=d.dangerouslySetInnerHTML,!c){if(null!=o)for(p={},y=0;y<n.attributes.length;y++)p[n.attributes[y].name]=n.attributes[y].value;(h||v)&&(h&&v&&h.__html==v.__html||(n.innerHTML=h&&h.__html||\\"\\"));}A(n,d,p,t,c),h?l.__k=[]:(s=l.props.children,g(n,Array.isArray(s)?s:[s],l,u,i,\\"foreignObject\\"!==l.type&&t,o,r,f,c)),c||(\\"value\\"in d&&void 0!==(s=d.value)&&s!==n.value&&C(n,\\"value\\",s,p.value,!1),\\"checked\\"in d&&void 0!==(s=d.checked)&&s!==n.checked&&C(n,\\"checked\\",s,p.checked,!1));}return n}function H(l,u,i){try{\\"function\\"==typeof l?l(u):l.current=u;}catch(l){n.__e(l,i);}}function I(l,u,i){var t,o,r;if(n.unmount&&n.unmount(l),(t=l.ref)&&(t.current&&t.current!==l.__e||H(t,null,u)),i||\\"function\\"==typeof l.type||(i=null!=(o=l.__e)),l.__e=l.__d=void 0,null!=(t=l.__c)){if(t.componentWillUnmount)try{t.componentWillUnmount();}catch(l){n.__e(l,u);}t.base=t.__P=null;}if(t=l.__k)for(r=0;r<t.length;r++)t[r]&&I(t[r],u,i);null!=o&&a(o);}function L(n,l,u){return this.constructor(n,u)}function M(l,u,i){var t,r,c;n.__&&n.__(l,u),r=(t=i===o)?null:i&&i.__k||u.__k,l=v(p,null,[l]),c=[],T(u,(t?u:i||u).__k=l,r||f,f,void 0!==u.ownerSVGElement,i&&!t?[i]:r?null:u.childNodes.length?e.slice.call(u.childNodes):null,c,i||f,t),$(c,l);}function O(n,l){M(n,l,o);}function S(n,l,u){var i,t,o,r=arguments,f=s({},n.props);for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);return null!=u&&(f.children=u),h(n.type,f,i||n.key,t||n.ref,null)}function q(n,l){var u={__c:l=\\"__cC\\"+r++,__:n,Consumer:function(n,l){return n.children(l)},Provider:function(n,u,i){return this.getChildContext||(u=[],(i={})[l]=this,this.getChildContext=function(){return i},this.shouldComponentUpdate=function(n){this.props.value!==n.value&&u.some(k);},this.sub=function(n){u.push(n);var l=n.componentWillUnmount;n.componentWillUnmount=function(){u.splice(u.indexOf(n),1),l&&l.call(n);};}),n.children}};return u.Provider.__=u.Consumer.contextType=u}n={__e:function(n,l){for(var u,i;l=l.__;)if((u=l.__c)&&!u.__)try{if(u.constructor&&null!=u.constructor.getDerivedStateFromError&&(i=!0,u.setState(u.constructor.getDerivedStateFromError(n))),null!=u.componentDidCatch&&(i=!0,u.componentDidCatch(n)),i)return k(u.__E=u)}catch(l){n=l;}throw n}},l=function(n){return null!=n&&void 0===n.constructor},d.prototype.setState=function(n,l){var u;u=null!=this.__s&&this.__s!==this.state?this.__s:this.__s=s({},this.state),\\"function\\"==typeof n&&(n=n(s({},u),this.props)),n&&s(u,n),null!=n&&this.__v&&(l&&this.__h.push(l),k(this));},d.prototype.forceUpdate=function(n){this.__v&&(this.__e=!0,n&&this.__h.push(n),k(this));},d.prototype.render=p,u=[],i=\\"function\\"==typeof Promise?Promise.prototype.then.bind(Promise.resolve()):setTimeout,m.__r=0,o=f,r=0;
-export { d as Component, p as Fragment, I as __u, S as cloneElement, q as createContext, v as createElement, y as createRef, v as h, O as hydrate, l as isValidElement, n as options, M as render, b as toChildArray };"
+"var n,l,u,i,t,o,r,f={},e=[],c=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;function s(n,l){for(var u in l)n[u]=l[u];return n}function a(n){var l=n.parentNode;l&&l.removeChild(n);}function h(n,l,u){var i,t,o,r=arguments,f={};for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);if(null!=u&&(f.children=u),\\"function\\"==typeof n&&null!=n.defaultProps)for(o in n.defaultProps)void 0===f[o]&&(f[o]=n.defaultProps[o]);return v(n,f,i,t,null)}function v(l,u,i,t,o){var r={type:l,props:u,key:i,ref:t,__k:null,__:null,__b:0,__e:null,__d:void 0,__c:null,__h:null,constructor:void 0,__v:o};return null==o&&(r.__v=r),null!=n.vnode&&n.vnode(r),r}function y(){return {current:null}}function p(n){return n.children}function d(n,l){this.props=n,this.context=l;}function _(n,l){if(null==l)return n.__?_(n.__,n.__.__k.indexOf(n)+1):null;for(var u;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e)return u.__e;return \\"function\\"==typeof n.type?_(n):null}function w(n){var l,u;if(null!=(n=n.__)&&null!=n.__c){for(n.__e=n.__c.base=null,l=0;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e){n.__e=n.__c.base=u.__e;break}return w(n)}}function k(l){(!l.__d&&(l.__d=!0)&&u.push(l)&&!g.__r++||t!==n.debounceRendering)&&((t=n.debounceRendering)||i)(g);}function g(){for(var n;g.__r=u.length;)n=u.sort(function(n,l){return n.__v.__b-l.__v.__b}),u=[],n.some(function(n){var l,u,i,t,o,r,f;n.__d&&(r=(o=(l=n).__v).__e,(f=l.__P)&&(u=[],(i=s({},o)).__v=i,t=$(f,o,i,l.__n,void 0!==f.ownerSVGElement,null!=o.__h?[r]:null,u,null==r?_(o):r,o.__h),j(u,o),t!=r&&w(o)));});}function m(n,l,u,i,t,o,r,c,s,h){var y,d,w,k,g,m,b,A=i&&i.__k||e,P=A.length;for(s==f&&(s=null!=r?r[0]:P?_(i,0):null),u.__k=[],y=0;y<l.length;y++)if(null!=(k=u.__k[y]=null==(k=l[y])||\\"boolean\\"==typeof k?null:\\"string\\"==typeof k||\\"number\\"==typeof k?v(null,k,null,null,k):Array.isArray(k)?v(p,{children:k},null,null,null):null!=k.__e||null!=k.__c?v(k.type,k.props,k.key,null,k.__v):k)){if(k.__=u,k.__b=u.__b+1,null===(w=A[y])||w&&k.key==w.key&&k.type===w.type)A[y]=void 0;else for(d=0;d<P;d++){if((w=A[d])&&k.key==w.key&&k.type===w.type){A[d]=void 0;break}w=null;}g=$(n,k,w=w||f,t,o,r,c,s,h),(d=k.ref)&&w.ref!=d&&(b||(b=[]),w.ref&&b.push(w.ref,null,k),b.push(d,k.__c||g,k)),null!=g?(null==m&&(m=g),s=x(n,k,w,A,r,g,s),h||\\"option\\"!=u.type?\\"function\\"==typeof u.type&&(u.__d=s):n.value=\\"\\"):s&&w.__e==s&&s.parentNode!=n&&(s=_(w));}if(u.__e=m,null!=r&&\\"function\\"!=typeof u.type)for(y=r.length;y--;)null!=r[y]&&a(r[y]);for(y=P;y--;)null!=A[y]&&L(A[y],A[y]);if(b)for(y=0;y<b.length;y++)I(b[y],b[++y],b[++y]);}function b(n,l){return l=l||[],null==n||\\"boolean\\"==typeof n||(Array.isArray(n)?n.some(function(n){b(n,l);}):l.push(n)),l}function x(n,l,u,i,t,o,r){var f,e,c;if(void 0!==l.__d)f=l.__d,l.__d=void 0;else if(t==u||o!=r||null==o.parentNode)n:if(null==r||r.parentNode!==n)n.appendChild(o),f=null;else {for(e=r,c=0;(e=e.nextSibling)&&c<i.length;c+=2)if(e==o)break n;n.insertBefore(o,r),f=r;}return void 0!==f?f:o.nextSibling}function A(n,l,u,i,t){var o;for(o in u)\\"children\\"===o||\\"key\\"===o||o in l||C(n,o,null,u[o],i);for(o in l)t&&\\"function\\"!=typeof l[o]||\\"children\\"===o||\\"key\\"===o||\\"value\\"===o||\\"checked\\"===o||u[o]===l[o]||C(n,o,l[o],u[o],i);}function P(n,l,u){\\"-\\"===l[0]?n.setProperty(l,u):n[l]=null==u?\\"\\":\\"number\\"!=typeof u||c.test(l)?u:u+\\"px\\";}function C(n,l,u,i,t){var o,r,f;if(t&&\\"className\\"==l&&(l=\\"class\\"),\\"style\\"===l)if(\\"string\\"==typeof u)n.style.cssText=u;else {if(\\"string\\"==typeof i&&(n.style.cssText=i=\\"\\"),i)for(l in i)u&&l in u||P(n.style,l,\\"\\");if(u)for(l in u)i&&u[l]===i[l]||P(n.style,l,u[l]);}else \\"o\\"===l[0]&&\\"n\\"===l[1]?(o=l!==(l=l.replace(/Capture$/,\\"\\")),(r=l.toLowerCase())in n&&(l=r),l=l.slice(2),n.l||(n.l={}),n.l[l+o]=u,f=o?N:z,u?i||n.addEventListener(l,f,o):n.removeEventListener(l,f,o)):\\"list\\"!==l&&\\"tagName\\"!==l&&\\"form\\"!==l&&\\"type\\"!==l&&\\"size\\"!==l&&\\"download\\"!==l&&\\"href\\"!==l&&!t&&l in n?n[l]=null==u?\\"\\":u:\\"function\\"!=typeof u&&\\"dangerouslySetInnerHTML\\"!==l&&(l!==(l=l.replace(/xlink:?/,\\"\\"))?null==u||!1===u?n.removeAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase()):n.setAttributeNS(\\"http://www.w3.org/1999/xlink\\",l.toLowerCase(),u):null==u||!1===u&&!/^ar/.test(l)?n.removeAttribute(l):n.setAttribute(l,u));}function z(l){this.l[l.type+!1](n.event?n.event(l):l);}function N(l){this.l[l.type+!0](n.event?n.event(l):l);}function T(n,l,u){var i,t;for(i=0;i<n.__k.length;i++)(t=n.__k[i])&&(t.__=n,t.__e&&(\\"function\\"==typeof t.type&&t.__k.length>1&&T(t,l,u),l=x(u,t,t,n.__k,null,t.__e,l),\\"function\\"==typeof n.type&&(n.__d=l)));}function $(l,u,i,t,o,r,f,e,c){var a,h,v,y,_,w,k,g,b,x,A,P=u.type;if(void 0!==u.constructor)return null;null!=i.__h&&(c=i.__h,e=u.__e=i.__e,u.__h=null,r=[e]),(a=n.__b)&&a(u);try{n:if(\\"function\\"==typeof P){if(g=u.props,b=(a=P.contextType)&&t[a.__c],x=a?b?b.props.value:a.__:t,i.__c?k=(h=u.__c=i.__c).__=h.__E:(\\"prototype\\"in P&&P.prototype.render?u.__c=h=new P(g,x):(u.__c=h=new d(g,x),h.constructor=P,h.render=M),b&&b.sub(h),h.props=g,h.state||(h.state={}),h.context=x,h.__n=t,v=h.__d=!0,h.__h=[]),null==h.__s&&(h.__s=h.state),null!=P.getDerivedStateFromProps&&(h.__s==h.state&&(h.__s=s({},h.__s)),s(h.__s,P.getDerivedStateFromProps(g,h.__s))),y=h.props,_=h.state,v)null==P.getDerivedStateFromProps&&null!=h.componentWillMount&&h.componentWillMount(),null!=h.componentDidMount&&h.__h.push(h.componentDidMount);else {if(null==P.getDerivedStateFromProps&&g!==y&&null!=h.componentWillReceiveProps&&h.componentWillReceiveProps(g,x),!h.__e&&null!=h.shouldComponentUpdate&&!1===h.shouldComponentUpdate(g,h.__s,x)||u.__v===i.__v){h.props=g,h.state=h.__s,u.__v!==i.__v&&(h.__d=!1),h.__v=u,u.__e=i.__e,u.__k=i.__k,h.__h.length&&f.push(h),T(u,e,l);break n}null!=h.componentWillUpdate&&h.componentWillUpdate(g,h.__s,x),null!=h.componentDidUpdate&&h.__h.push(function(){h.componentDidUpdate(y,_,w);});}h.context=x,h.props=g,h.state=h.__s,(a=n.__r)&&a(u),h.__d=!1,h.__v=u,h.__P=l,a=h.render(h.props,h.state,h.context),h.state=h.__s,null!=h.getChildContext&&(t=s(s({},t),h.getChildContext())),v||null==h.getSnapshotBeforeUpdate||(w=h.getSnapshotBeforeUpdate(y,_)),A=null!=a&&a.type==p&&null==a.key?a.props.children:a,m(l,Array.isArray(A)?A:[A],u,i,t,o,r,f,e,c),h.base=u.__e,u.__h=null,h.__h.length&&f.push(h),k&&(h.__E=h.__=null),h.__e=!1;}else null==r&&u.__v===i.__v?(u.__k=i.__k,u.__e=i.__e):u.__e=H(i.__e,u,i,t,o,r,f,c);(a=n.diffed)&&a(u);}catch(l){u.__v=null,(c||null!=r)&&(u.__e=e,u.__h=!!c,r[r.indexOf(e)]=null),n.__e(l,u,i);}return u.__e}function j(l,u){n.__c&&n.__c(u,l),l.some(function(u){try{l=u.__h,u.__h=[],l.some(function(n){n.call(u);});}catch(l){n.__e(l,u.__v);}});}function H(n,l,u,i,t,o,r,c){var s,a,h,v,y,p=u.props,d=l.props;if(t=\\"svg\\"===l.type||t,null!=o)for(s=0;s<o.length;s++)if(null!=(a=o[s])&&((null===l.type?3===a.nodeType:a.localName===l.type)||n==a)){n=a,o[s]=null;break}if(null==n){if(null===l.type)return document.createTextNode(d);n=t?document.createElementNS(\\"http://www.w3.org/2000/svg\\",l.type):document.createElement(l.type,d.is&&{is:d.is}),o=null,c=!1;}if(null===l.type)p===d||c&&n.data===d||(n.data=d);else {if(null!=o&&(o=e.slice.call(n.childNodes)),h=(p=u.props||f).dangerouslySetInnerHTML,v=d.dangerouslySetInnerHTML,!c){if(null!=o)for(p={},y=0;y<n.attributes.length;y++)p[n.attributes[y].name]=n.attributes[y].value;(v||h)&&(v&&(h&&v.__html==h.__html||v.__html===n.innerHTML)||(n.innerHTML=v&&v.__html||\\"\\"));}A(n,d,p,t,c),v?l.__k=[]:(s=l.props.children,m(n,Array.isArray(s)?s:[s],l,u,i,\\"foreignObject\\"!==l.type&&t,o,r,f,c)),c||(\\"value\\"in d&&void 0!==(s=d.value)&&(s!==n.value||\\"progress\\"===l.type&&!s)&&C(n,\\"value\\",s,p.value,!1),\\"checked\\"in d&&void 0!==(s=d.checked)&&s!==n.checked&&C(n,\\"checked\\",s,p.checked,!1));}return n}function I(l,u,i){try{\\"function\\"==typeof l?l(u):l.current=u;}catch(l){n.__e(l,i);}}function L(l,u,i){var t,o,r;if(n.unmount&&n.unmount(l),(t=l.ref)&&(t.current&&t.current!==l.__e||I(t,null,u)),i||\\"function\\"==typeof l.type||(i=null!=(o=l.__e)),l.__e=l.__d=void 0,null!=(t=l.__c)){if(t.componentWillUnmount)try{t.componentWillUnmount();}catch(l){n.__e(l,u);}t.base=t.__P=null;}if(t=l.__k)for(r=0;r<t.length;r++)t[r]&&L(t[r],u,i);null!=o&&a(o);}function M(n,l,u){return this.constructor(n,u)}function O(l,u,i){var t,r,c;n.__&&n.__(l,u),r=(t=i===o)?null:i&&i.__k||u.__k,l=h(p,null,[l]),c=[],$(u,(t?u:i||u).__k=l,r||f,f,void 0!==u.ownerSVGElement,i&&!t?[i]:r?null:u.childNodes.length?e.slice.call(u.childNodes):null,c,i||f,t),j(c,l);}function S(n,l){O(n,l,o);}function q(n,l,u){var i,t,o,r=arguments,f=s({},n.props);for(o in l)\\"key\\"==o?i=l[o]:\\"ref\\"==o?t=l[o]:f[o]=l[o];if(arguments.length>3)for(u=[u],o=3;o<arguments.length;o++)u.push(r[o]);return null!=u&&(f.children=u),v(n.type,f,i||n.key,t||n.ref,null)}function B(n,l){var u={__c:l=\\"__cC\\"+r++,__:n,Consumer:function(n,l){return n.children(l)},Provider:function(n,u,i){return this.getChildContext||(u=[],(i={})[l]=this,this.getChildContext=function(){return i},this.shouldComponentUpdate=function(n){this.props.value!==n.value&&u.some(k);},this.sub=function(n){u.push(n);var l=n.componentWillUnmount;n.componentWillUnmount=function(){u.splice(u.indexOf(n),1),l&&l.call(n);};}),n.children}};return u.Provider.__=u.Consumer.contextType=u}n={__e:function(n,l){for(var u,i,t,o=l.__h;l=l.__;)if((u=l.__c)&&!u.__)try{if((i=u.constructor)&&null!=i.getDerivedStateFromError&&(u.setState(i.getDerivedStateFromError(n)),t=u.__d),null!=u.componentDidCatch&&(u.componentDidCatch(n),t=u.__d),t)return l.__h=o,u.__E=u}catch(l){n=l;}throw n}},l=function(n){return null!=n&&void 0===n.constructor},d.prototype.setState=function(n,l){var u;u=null!=this.__s&&this.__s!==this.state?this.__s:this.__s=s({},this.state),\\"function\\"==typeof n&&(n=n(s({},u),this.props)),n&&s(u,n),null!=n&&this.__v&&(l&&this.__h.push(l),k(this));},d.prototype.forceUpdate=function(n){this.__v&&(this.__e=!0,n&&this.__h.push(n),k(this));},d.prototype.render=p,u=[],i=\\"function\\"==typeof Promise?Promise.prototype.then.bind(Promise.resolve()):setTimeout,g.__r=0,o=f,r=0;
+export { d as Component, p as Fragment, L as __u, q as cloneElement, B as createContext, h as createElement, y as createRef, h, S as hydrate, l as isValidElement, n as options, O as render, b as toChildArray };"
 `;
 
 exports[`snowpack install include: allFiles 1`] = `
@@ -21944,11 +21949,11 @@ exports[`snowpack install include: http-vue-loader/src/httpVueLoader.js 1`] = `
 "var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 function createCommonjsModule(fn, basedir, module) {
 	return module = {
-	  path: basedir,
-	  exports: {},
-	  require: function (path, base) {
-      return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
-    }
+		path: basedir,
+		exports: {},
+		require: function (path, base) {
+			return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
+		}
 	}, fn(module, module.exports), module.exports;
 }
 function commonjsRequire () {
@@ -33344,7 +33349,7 @@ export default Vue;"
 
 exports[`snowpack install include: vue-router.js 1`] = `
 "/*!
-  * vue-router v3.4.3
+  * vue-router v3.4.5
   * (c) 2020 Evan You
   * @license MIT
   */
@@ -34992,6 +34997,7 @@ function runQueue (queue, fn, cb) {
   };
   step(0);
 }
+// When changing thing, also edit router.d.ts
 var NavigationFailureType = {
   redirected: 2,
   aborted: 4,
@@ -35205,10 +35211,10 @@ History.prototype.transitionTo = function transitionTo (
     // Exception should still be thrown
     throw e
   }
+  var prev = this.current;
   this.confirmTransition(
     route,
     function () {
-      var prev = this$1.current;
       this$1.updateRoute(route);
       onComplete && onComplete(route);
       this$1.ensureURL();
@@ -35228,16 +35234,14 @@ History.prototype.transitionTo = function transitionTo (
         onAbort(err);
       }
       if (err && !this$1.ready) {
-        this$1.ready = true;
-        // Initial redirection should still trigger the onReady onSuccess
+        // Initial redirection should not mark the history as ready yet
+        // because it's triggered by the redirection instead
         // https://github.com/vuejs/vue-router/issues/3225
-        if (!isNavigationFailure(err, NavigationFailureType.redirected)) {
+        // https://github.com/vuejs/vue-router/issues/3331
+        if (!isNavigationFailure(err, NavigationFailureType.redirected) || prev !== START) {
+          this$1.ready = true;
           this$1.readyErrorCbs.forEach(function (cb) {
             cb(err);
-          });
-        } else {
-          this$1.readyCbs.forEach(function (cb) {
-            cb(route);
           });
         }
       }
@@ -35247,6 +35251,7 @@ History.prototype.transitionTo = function transitionTo (
 History.prototype.confirmTransition = function confirmTransition (route, onComplete, onAbort) {
     var this$1 = this;
   var current = this.current;
+  this.pending = route;
   var abort = function (err) {
     // changed after adding errors with
     // https://github.com/vuejs/vue-router/pull/3047 before that change,
@@ -35293,7 +35298,6 @@ History.prototype.confirmTransition = function confirmTransition (route, onCompl
     // async components
     resolveAsyncComponents(activated)
   );
-  this.pending = route;
   var iterator = function (hook, next) {
     if (this$1.pending !== route) {
       return abort(createNavigationCancelledError(current, route))
@@ -35358,11 +35362,17 @@ History.prototype.updateRoute = function updateRoute (route) {
 History.prototype.setupListeners = function setupListeners () {
   // Default implementation is empty
 };
-History.prototype.teardownListeners = function teardownListeners () {
+History.prototype.teardown = function teardown () {
+  // clean up event listeners
+  // https://github.com/vuejs/vue-router/issues/2341
   this.listeners.forEach(function (cleanupListener) {
     cleanupListener();
   });
   this.listeners = [];
+  // reset current history route
+  // https://github.com/vuejs/vue-router/issues/3294
+  this.current = START;
+  this.pending = null;
 };
 function normalizeBase (base) {
   if (!base) {
@@ -35763,8 +35773,12 @@ var AbstractHistory = /*@__PURE__*/(function (History) {
     this.confirmTransition(
       route,
       function () {
+        var prev = this$1.current;
         this$1.index = targetIndex;
         this$1.updateRoute(route);
+        this$1.router.afterHooks.forEach(function (hook) {
+          hook && hook(route, prev);
+        });
       },
       function (err) {
         if (isNavigationFailure(err, NavigationFailureType.duplicated)) {
@@ -35842,11 +35856,7 @@ VueRouter.prototype.init = function init (app /* Vue component instance */) {
     // ensure we still have a main app or null if no apps
     // we do not release the router so it can be reused
     if (this$1.app === app) { this$1.app = this$1.apps[0] || null; }
-    if (!this$1.app) {
-      // clean up event listeners
-      // https://github.com/vuejs/vue-router/issues/2341
-      this$1.history.teardownListeners();
-    }
+    if (!this$1.app) { this$1.history.teardown(); }
   });
   // main app previously initialized
   // return as we don't need to set up new history listener
@@ -35983,7 +35993,7 @@ function createHref (base, fullPath, mode) {
   return base ? cleanPath(base + '/' + path) : path
 }
 VueRouter.install = install;
-VueRouter.version = '3.4.3';
+VueRouter.version = '3.4.5';
 VueRouter.isNavigationFailure = isNavigationFailure;
 VueRouter.NavigationFailureType = NavigationFailureType;
 if (inBrowser && window.Vue) {
@@ -37672,11 +37682,11 @@ exports[`snowpack install include-ts: http-vue-loader/src/httpVueLoader.js 1`] =
 "var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 function createCommonjsModule(fn, basedir, module) {
 	return module = {
-	  path: basedir,
-	  exports: {},
-	  require: function (path, base) {
-      return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
-    }
+		path: basedir,
+		exports: {},
+		require: function (path, base) {
+			return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
+		}
 	}, fn(module, module.exports), module.exports;
 }
 function commonjsRequire () {
@@ -48878,7 +48888,7 @@ export default Vue;"
 
 exports[`snowpack install include-ts: vue-router.js 1`] = `
 "/*!
-  * vue-router v3.4.3
+  * vue-router v3.4.5
   * (c) 2020 Evan You
   * @license MIT
   */
@@ -50526,6 +50536,7 @@ function runQueue (queue, fn, cb) {
   };
   step(0);
 }
+// When changing thing, also edit router.d.ts
 var NavigationFailureType = {
   redirected: 2,
   aborted: 4,
@@ -50739,10 +50750,10 @@ History.prototype.transitionTo = function transitionTo (
     // Exception should still be thrown
     throw e
   }
+  var prev = this.current;
   this.confirmTransition(
     route,
     function () {
-      var prev = this$1.current;
       this$1.updateRoute(route);
       onComplete && onComplete(route);
       this$1.ensureURL();
@@ -50762,16 +50773,14 @@ History.prototype.transitionTo = function transitionTo (
         onAbort(err);
       }
       if (err && !this$1.ready) {
-        this$1.ready = true;
-        // Initial redirection should still trigger the onReady onSuccess
+        // Initial redirection should not mark the history as ready yet
+        // because it's triggered by the redirection instead
         // https://github.com/vuejs/vue-router/issues/3225
-        if (!isNavigationFailure(err, NavigationFailureType.redirected)) {
+        // https://github.com/vuejs/vue-router/issues/3331
+        if (!isNavigationFailure(err, NavigationFailureType.redirected) || prev !== START) {
+          this$1.ready = true;
           this$1.readyErrorCbs.forEach(function (cb) {
             cb(err);
-          });
-        } else {
-          this$1.readyCbs.forEach(function (cb) {
-            cb(route);
           });
         }
       }
@@ -50781,6 +50790,7 @@ History.prototype.transitionTo = function transitionTo (
 History.prototype.confirmTransition = function confirmTransition (route, onComplete, onAbort) {
     var this$1 = this;
   var current = this.current;
+  this.pending = route;
   var abort = function (err) {
     // changed after adding errors with
     // https://github.com/vuejs/vue-router/pull/3047 before that change,
@@ -50827,7 +50837,6 @@ History.prototype.confirmTransition = function confirmTransition (route, onCompl
     // async components
     resolveAsyncComponents(activated)
   );
-  this.pending = route;
   var iterator = function (hook, next) {
     if (this$1.pending !== route) {
       return abort(createNavigationCancelledError(current, route))
@@ -50892,11 +50901,17 @@ History.prototype.updateRoute = function updateRoute (route) {
 History.prototype.setupListeners = function setupListeners () {
   // Default implementation is empty
 };
-History.prototype.teardownListeners = function teardownListeners () {
+History.prototype.teardown = function teardown () {
+  // clean up event listeners
+  // https://github.com/vuejs/vue-router/issues/2341
   this.listeners.forEach(function (cleanupListener) {
     cleanupListener();
   });
   this.listeners = [];
+  // reset current history route
+  // https://github.com/vuejs/vue-router/issues/3294
+  this.current = START;
+  this.pending = null;
 };
 function normalizeBase (base) {
   if (!base) {
@@ -51297,8 +51312,12 @@ var AbstractHistory = /*@__PURE__*/(function (History) {
     this.confirmTransition(
       route,
       function () {
+        var prev = this$1.current;
         this$1.index = targetIndex;
         this$1.updateRoute(route);
+        this$1.router.afterHooks.forEach(function (hook) {
+          hook && hook(route, prev);
+        });
       },
       function (err) {
         if (isNavigationFailure(err, NavigationFailureType.duplicated)) {
@@ -51376,11 +51395,7 @@ VueRouter.prototype.init = function init (app /* Vue component instance */) {
     // ensure we still have a main app or null if no apps
     // we do not release the router so it can be reused
     if (this$1.app === app) { this$1.app = this$1.apps[0] || null; }
-    if (!this$1.app) {
-      // clean up event listeners
-      // https://github.com/vuejs/vue-router/issues/2341
-      this$1.history.teardownListeners();
-    }
+    if (!this$1.app) { this$1.history.teardown(); }
   });
   // main app previously initialized
   // return as we don't need to set up new history listener
@@ -51517,7 +51532,7 @@ function createHref (base, fullPath, mode) {
   return base ? cleanPath(base + '/' + path) : path
 }
 VueRouter.install = install;
-VueRouter.version = '3.4.3';
+VueRouter.version = '3.4.5';
 VueRouter.isNavigationFailure = isNavigationFailure;
 VueRouter.NavigationFailureType = NavigationFailureType;
 if (inBrowser && window.Vue) {
@@ -51615,11 +51630,11 @@ exports[`snowpack install include-with-package-name: http-vue-loader/src/httpVue
 "var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 function createCommonjsModule(fn, basedir, module) {
 	return module = {
-	  path: basedir,
-	  exports: {},
-	  require: function (path, base) {
-      return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
-    }
+		path: basedir,
+		exports: {},
+		require: function (path, base) {
+			return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
+		}
 	}, fn(module, module.exports), module.exports;
 }
 function commonjsRequire () {
@@ -62821,7 +62836,7 @@ export default Vue;"
 
 exports[`snowpack install include-with-package-name: vue-router.js 1`] = `
 "/*!
-  * vue-router v3.4.3
+  * vue-router v3.4.5
   * (c) 2020 Evan You
   * @license MIT
   */
@@ -64469,6 +64484,7 @@ function runQueue (queue, fn, cb) {
   };
   step(0);
 }
+// When changing thing, also edit router.d.ts
 var NavigationFailureType = {
   redirected: 2,
   aborted: 4,
@@ -64682,10 +64698,10 @@ History.prototype.transitionTo = function transitionTo (
     // Exception should still be thrown
     throw e
   }
+  var prev = this.current;
   this.confirmTransition(
     route,
     function () {
-      var prev = this$1.current;
       this$1.updateRoute(route);
       onComplete && onComplete(route);
       this$1.ensureURL();
@@ -64705,16 +64721,14 @@ History.prototype.transitionTo = function transitionTo (
         onAbort(err);
       }
       if (err && !this$1.ready) {
-        this$1.ready = true;
-        // Initial redirection should still trigger the onReady onSuccess
+        // Initial redirection should not mark the history as ready yet
+        // because it's triggered by the redirection instead
         // https://github.com/vuejs/vue-router/issues/3225
-        if (!isNavigationFailure(err, NavigationFailureType.redirected)) {
+        // https://github.com/vuejs/vue-router/issues/3331
+        if (!isNavigationFailure(err, NavigationFailureType.redirected) || prev !== START) {
+          this$1.ready = true;
           this$1.readyErrorCbs.forEach(function (cb) {
             cb(err);
-          });
-        } else {
-          this$1.readyCbs.forEach(function (cb) {
-            cb(route);
           });
         }
       }
@@ -64724,6 +64738,7 @@ History.prototype.transitionTo = function transitionTo (
 History.prototype.confirmTransition = function confirmTransition (route, onComplete, onAbort) {
     var this$1 = this;
   var current = this.current;
+  this.pending = route;
   var abort = function (err) {
     // changed after adding errors with
     // https://github.com/vuejs/vue-router/pull/3047 before that change,
@@ -64770,7 +64785,6 @@ History.prototype.confirmTransition = function confirmTransition (route, onCompl
     // async components
     resolveAsyncComponents(activated)
   );
-  this.pending = route;
   var iterator = function (hook, next) {
     if (this$1.pending !== route) {
       return abort(createNavigationCancelledError(current, route))
@@ -64835,11 +64849,17 @@ History.prototype.updateRoute = function updateRoute (route) {
 History.prototype.setupListeners = function setupListeners () {
   // Default implementation is empty
 };
-History.prototype.teardownListeners = function teardownListeners () {
+History.prototype.teardown = function teardown () {
+  // clean up event listeners
+  // https://github.com/vuejs/vue-router/issues/2341
   this.listeners.forEach(function (cleanupListener) {
     cleanupListener();
   });
   this.listeners = [];
+  // reset current history route
+  // https://github.com/vuejs/vue-router/issues/3294
+  this.current = START;
+  this.pending = null;
 };
 function normalizeBase (base) {
   if (!base) {
@@ -65240,8 +65260,12 @@ var AbstractHistory = /*@__PURE__*/(function (History) {
     this.confirmTransition(
       route,
       function () {
+        var prev = this$1.current;
         this$1.index = targetIndex;
         this$1.updateRoute(route);
+        this$1.router.afterHooks.forEach(function (hook) {
+          hook && hook(route, prev);
+        });
       },
       function (err) {
         if (isNavigationFailure(err, NavigationFailureType.duplicated)) {
@@ -65319,11 +65343,7 @@ VueRouter.prototype.init = function init (app /* Vue component instance */) {
     // ensure we still have a main app or null if no apps
     // we do not release the router so it can be reused
     if (this$1.app === app) { this$1.app = this$1.apps[0] || null; }
-    if (!this$1.app) {
-      // clean up event listeners
-      // https://github.com/vuejs/vue-router/issues/2341
-      this$1.history.teardownListeners();
-    }
+    if (!this$1.app) { this$1.history.teardown(); }
   });
   // main app previously initialized
   // return as we don't need to set up new history listener
@@ -65460,7 +65480,7 @@ function createHref (base, fullPath, mode) {
   return base ? cleanPath(base + '/' + path) : path
 }
 VueRouter.install = install;
-VueRouter.version = '3.4.3';
+VueRouter.version = '3.4.5';
 VueRouter.isNavigationFailure = isNavigationFailure;
 VueRouter.NavigationFailureType = NavigationFailureType;
 if (inBrowser && window.Vue) {
