@@ -73,6 +73,7 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
   'prop-types/index.js',
   'scheduler/index.js',
   'react-table',
+  'chai/index.js'
 ];
 
 // Rarely, a package will ship a broken "browser" package.json entrypoint.
@@ -347,7 +348,6 @@ ${colors.dim(
   }
 
   await initESModuleLexer;
-  let isCircularImportFound = false;
   let isFatalWarningFound = false;
   const inputOptions: InputOptions = {
     input: installEntrypoints,
@@ -392,14 +392,6 @@ ${colors.dim(
       rollupPluginStripSourceMapping(),
     ].filter(Boolean) as Plugin[],
     onwarn(warning) {
-      // Warn about the first circular dependency, but then ignore the rest.
-      if (warning.code === 'CIRCULAR_DEPENDENCY') {
-        if (!isCircularImportFound) {
-          isCircularImportFound = true;
-          logger.warn(`Warning: 1+ circular dependencies found via "${warning.importer}".`);
-        }
-        return;
-      }
       // Log "unresolved" import warnings as an error, causing Snowpack to fail at the end.
       if (
         warning.code === 'PLUGIN_WARNING' &&
@@ -416,10 +408,12 @@ ${colors.dim(
         return;
       }
       const {loc, message} = warning;
-      if (loc) {
-        logger.warn(`${loc.file}:${loc.line}:${loc.column} ${message}`);
-      } else {
-        logger.warn(message);
+      const logMessage = loc ? `${loc.file}:${loc.line}:${loc.column} ${message}` : message;
+      // These two warnings are usually harmless in packages, so don't show them by default.
+      if (warning.code === 'CIRCULAR_DEPENDENCY' || warning.code === 'NAMESPACE_CONFLICT') {
+        logger.debug(logMessage);
+      }  else {
+        logger.warn(logMessage);
       }
     },
   };
