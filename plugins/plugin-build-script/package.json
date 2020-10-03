@@ -3,6 +3,11 @@
   "name": "@snowpack/plugin-build-script",
   "main": "plugin.js",
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-build-script#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git"
+  },
   "publishConfig": {
     "access": "public"
   },

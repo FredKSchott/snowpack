@@ -6,6 +6,11 @@
     "access": "public"
   },
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-scripts-lit-element#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git"
+  },
   "dependencies": {
     "@babel/core": "^7.10.5",
     "@snowpack/plugin-babel": "^2.1.1",

@@ -6,6 +6,11 @@
     "access": "public"
   },
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-scripts-svelte#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git"
+  },
   "peerDependencies": {
     "svelte": "^3.21.0"
   },

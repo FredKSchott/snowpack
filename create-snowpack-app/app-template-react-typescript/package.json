@@ -2,6 +2,11 @@
   "name": "@snowpack/app-template-react-typescript",
   "version": "1.12.0",
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react-typescript#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git"
+  },
   "keywords": [
     "csa-template"
   ],
