@@ -73,7 +73,7 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
   'prop-types/index.js',
   'scheduler/index.js',
   'react-table',
-  'chai/index.js'
+  'chai/index.js',
 ];
 
 // Rarely, a package will ship a broken "browser" package.json entrypoint.
@@ -412,7 +412,7 @@ ${colors.dim(
       // These two warnings are usually harmless in packages, so don't show them by default.
       if (warning.code === 'CIRCULAR_DEPENDENCY' || warning.code === 'NAMESPACE_CONFLICT') {
         logger.debug(logMessage);
-      }  else {
+      } else {
         logger.warn(logMessage);
       }
     },
