@@ -6,7 +6,8 @@
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-run-script#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pikapkg/snowpack.git"
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "plugins/plugin-run-script"
   },
   "publishConfig": {
     "access": "public"

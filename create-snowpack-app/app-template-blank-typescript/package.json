@@ -5,7 +5,8 @@
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-blank-typescript#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pikapkg/snowpack.git"
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "create-snowpack-app/app-template-blank-typescript"
   },
   "keywords": [
     "csa-template"

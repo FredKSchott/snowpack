@@ -6,7 +6,8 @@
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/babel-plugin-package-import#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pikapkg/snowpack.git"
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "plugins/babel-plugin-package-import"
   },
   "publishConfig": {
     "access": "public"
