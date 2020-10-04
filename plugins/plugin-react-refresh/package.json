@@ -3,6 +3,12 @@
   "version": "2.3.0",
   "main": "plugin.js",
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-react-refresh#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "plugins/plugin-react-refresh"
+  },
   "publishConfig": {
     "access": "public"
   },

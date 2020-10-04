@@ -2,6 +2,12 @@
   "name": "create-snowpack-app",
   "version": "1.8.2",
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/cli#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "create-snowpack-app/cli"
+  },
   "publishConfig": {
     "access": "public"
   },

@@ -6,7 +6,8 @@
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/esinstall#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pikapkg/snowpack.git"
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "esinstall"
   },
   "publishConfig": {
     "access": "public"

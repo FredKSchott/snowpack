@@ -2,6 +2,12 @@
   "name": "@snowpack/app-template-svelte",
   "version": "1.9.0",
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-svelte#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "create-snowpack-app/app-template-svelte"
+  },
   "keywords": [
     "csa-template"
   ],

@@ -2,6 +2,12 @@
   "name": "@snowpack/app-template-lit-element-typescript",
   "version": "1.10.0",
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-lit-element-typescript#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "create-snowpack-app/app-template-lit-element-typescript"
+  },
   "keywords": [
     "csa-template"
   ],
