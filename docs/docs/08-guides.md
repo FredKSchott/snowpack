@@ -123,12 +123,16 @@ module.exports = {
 };
 ```
 
-And import Tailwind's `base`, `components`, and `utilities` styles into your CSS:
-```css
+Once you have added the Tailwind PostCSS plugin, you can replace your native CSS `dist` imports with Tailwind's more powerful `base`, `components`, and `utilities` imports:
+
+```diff
 /* index.css */
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+- @import 'tailwindcss/dist/base.css';
+- @import 'tailwindcss/dist/components.css';
+- @import 'tailwindcss/dist/utilities.css';
++ @import 'tailwindcss/base';
++ @import 'tailwindcss/components';
++ @import 'tailwindcss/utilities';
 ```
 
 Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installation/#using-tailwind-with-postcss) for more information.
