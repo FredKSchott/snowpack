@@ -4,7 +4,7 @@ import etag from 'etag';
 import execa from 'execa';
 import crypto from 'crypto';
 import projectCacheDir from 'find-cache-dir';
-import findUp from 'find-up';
+import escalade from 'escalade';
 import fs from 'fs';
 import got, {CancelableRequest, Response} from 'got';
 import {isBinaryFile} from 'isbinaryfile';
@@ -239,24 +239,33 @@ export async function openInBrowser(
   }
 }
 
+export async function hashLockfile(): Promise<string | void> {
+  const file = await escalade('.', (dir, files) => {
+    if (files.includes('package-lock.json')) return path.join(dir, 'package-lock.json');
+    if (files.includes('yarn.lock')) return path.join(dir, 'yarn.lock');
+  });
+
+  if (file) {
+    return etag(await fs.promises.readFile(file, 'utf-8'));
+  }
+}
+
 export async function checkLockfileHash(dir: string) {
-  const lockfileLoc = await findUp(['package-lock.json', 'yarn.lock']);
-  if (!lockfileLoc) {
+  const newLockHash = await hashLockfile();
+  if (!newLockHash) {
     return true;
   }
   const hashLoc = path.join(dir, LOCKFILE_HASH_FILE);
-  const newLockHash = etag(await fs.promises.readFile(lockfileLoc, 'utf-8'));
   const oldLockHash = await fs.promises.readFile(hashLoc, 'utf-8').catch(() => '');
   return newLockHash === oldLockHash;
 }
 
 export async function updateLockfileHash(dir: string) {
-  const lockfileLoc = await findUp(['package-lock.json', 'yarn.lock']);
-  if (!lockfileLoc) {
+  const newLockHash = await hashLockfile();
+  if (!newLockHash) {
     return;
   }
   const hashLoc = path.join(dir, LOCKFILE_HASH_FILE);
-  const newLockHash = etag(await fs.promises.readFile(lockfileLoc));
   await mkdirp(path.dirname(hashLoc));
   await fs.promises.writeFile(hashLoc, newLockHash);
 }
