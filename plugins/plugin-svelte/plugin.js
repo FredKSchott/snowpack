@@ -4,7 +4,10 @@ const fs = require('fs');
 const path = require('path');
 const {createMakeHot} = require('svelte-hmr');
 
-const makeHot = createMakeHot({walk: svelte.walk});
+let makeHot = (...args) => {
+  makeHot = createMakeHot({walk: svelte.walk});
+  return makeHot(...args)
+}
 
 module.exports = function plugin(snowpackConfig, {hot: hotOptions, ...sveltePluginOptions} = {}) {
   const isDev = process.env.NODE_ENV !== 'production';
