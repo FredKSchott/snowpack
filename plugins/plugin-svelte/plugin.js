@@ -2,8 +2,11 @@ const svelte = require('svelte/compiler');
 const svelteRollupPlugin = require('rollup-plugin-svelte');
 const fs = require('fs');
 const path = require('path');
+const {createMakeHot} = require('svelte-hmr');
 
-module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
+const makeHot = createMakeHot({walk: svelte.walk});
+
+module.exports = function plugin(snowpackConfig, {hot: hotOptions, ...sveltePluginOptions} = {}) {
   const isDev = process.env.NODE_ENV !== 'production';
 
   // Support importing Svelte files when you install dependencies.
@@ -25,7 +28,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     dev: isDev,
     css: false,
     ...svelteOptions,
-    ...pluginOptions,
+    ...sveltePluginOptions,
   };
 
   return {
@@ -34,9 +37,13 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       input: ['.svelte'],
       output: ['.js', '.css'],
     },
-    knownEntrypoints: ['svelte/internal'],
-    async load({filePath, isSSR}) {
-      let codeToCompile = fs.readFileSync(filePath, 'utf-8');
+    knownEntrypoints: [
+      'svelte/internal',
+      'svelte-hmr/runtime/hot-api-esm.js',
+      'svelte-hmr/runtime/proxy-adapter-dom.js',
+    ],
+    async load({filePath, isHmrEnabled, isSSR}) {
+      let codeToCompile = await fs.promises.readFile(filePath, 'utf-8');
       // PRE-PROCESS
       if (preprocessOptions) {
         codeToCompile = (
@@ -53,12 +60,16 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
         ssrOptions.css = true;
       }
 
-      const {js, css} = svelte.compile(codeToCompile, {
+      const compileOptions = {
         ...svelteOptions,
         ...ssrOptions,
         outputFilename: filePath,
         filename: filePath,
-      });
+      };
+
+      const compiled = svelte.compile(codeToCompile, compileOptions);
+
+      const {js, css} = compiled;
 
       const {sourceMaps} = snowpackConfig.buildOptions;
       const output = {
@@ -67,6 +78,22 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
           map: sourceMaps ? js.map : undefined,
         },
       };
+
+      if (isHmrEnabled && !isSSR) {
+        output['.js'].code = makeHot({
+          id: filePath,
+          compiledCode: compiled.js.code,
+          hotOptions: {
+            ...hotOptions,
+            absoluteImports: false,
+            injectCss: false,
+          },
+          compiled,
+          originalCode: codeToCompile,
+          compileOptions,
+        });
+      }
+
       if (!svelteOptions.css && css && css.code) {
         output['.css'] = {
           code: css.code,
