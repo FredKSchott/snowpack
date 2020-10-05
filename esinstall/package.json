@@ -14,7 +14,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:watch": "tsc --watch"
+    "build:watch": "tsc --watch",
+    "lint": "tsc --noEmit --noUnusedLocals true --noUnusedParameters true"
   },
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
