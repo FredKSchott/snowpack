@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/plugin-react-refresh",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "main": "plugin.js",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-react-refresh#readme",
