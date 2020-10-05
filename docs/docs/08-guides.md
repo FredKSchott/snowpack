@@ -101,9 +101,9 @@ You can add [Tailwind](https://tailwindcss.com) to any project via native CSS `@
 
 ```css
 /* index.css */
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import 'tailwindcss/dist/base.css';
+@import 'tailwindcss/dist/components.css';
+@import 'tailwindcss/dist/utilities.css';
 ```
 
 #### Using PostCSS
