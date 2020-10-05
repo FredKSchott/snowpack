@@ -106,9 +106,9 @@ You can add [Tailwind](https://tailwindcss.com) to any project via native CSS `@
 @import 'tailwindcss/dist/utilities.css';
 ```
 
-#### Using PostCSS
+#### Using Tailwind with PostCSS
 
-Tailwind also ships with first-class support for PostCSS. If you are using PostCSS in your project ([see above](#postcss)) then you can just add the Tailwind PostCSS plugin to your PostCSS config file to take advantage of the `@tailwind` keyword.
+If you are using PostCSS in your project ([see above](#postcss)) then you can just add Tailwind as a plugin to your `postcss.config.js`:
 
 ```js
 // postcss.config.js
@@ -121,6 +121,14 @@ module.exports = {
     // ...
   ],
 };
+```
+
+And import Tailwind's `base`, `components`, and `utilities` styles into your CSS:
+```css
+/* index.css */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 ```
 
 Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installation/#using-tailwind-with-postcss) for more information.
