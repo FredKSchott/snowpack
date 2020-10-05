@@ -229,6 +229,7 @@ interface InstallOptions {
   externalPackage: string[];
   namedExports: string[];
   rollup: {
+    context?: string;
     plugins?: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
     dedupe?: string[];
   };
@@ -351,6 +352,9 @@ ${colors.dim(
   let isFatalWarningFound = false;
   const inputOptions: InputOptions = {
     input: installEntrypoints,
+    ...(userDefinedRollup.context && {
+      context: userDefinedRollup.context,
+    }),
     external: (id) => externalPackages.some((packageName) => isImportOfPackage(id, packageName)),
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
