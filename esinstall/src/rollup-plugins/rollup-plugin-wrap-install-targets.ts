@@ -60,7 +60,7 @@ export function rollupPluginWrapInstallTargets(
       const {exports} = parse(fileContents);
       // TODO: Also follow & deeply parse dependency "reexports" returned by the lexer.
       if (exports.length > 0) {
-        return exports;
+        return exports.filter((imp) => imp !== 'default');
       }
     } catch (err) {
       // Safe to ignore, this is usually due to the file not being CJS.

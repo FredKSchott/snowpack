@@ -3,6 +3,12 @@
   "version": "1.8.6",
   "main": "snowpack.config.js",
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-scripts-vue#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "create-snowpack-app/app-scripts-vue"
+  },
   "publishConfig": {
     "access": "public"
   },

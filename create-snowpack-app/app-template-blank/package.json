@@ -2,6 +2,12 @@
   "name": "@snowpack/app-template-blank",
   "version": "1.6.13",
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-blank#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "create-snowpack-app/app-template-blank"
+  },
   "keywords": [
     "csa-template"
   ],
