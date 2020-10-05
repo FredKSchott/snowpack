@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "name": "@snowpack/plugin-typescript",
+  "main": "plugin.js",
+  "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-typescript#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "plugins/plugin-typescript"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "typescript": "*"
+  },
+  "dependencies": {
+    "execa": "^4.0.3",
+    "npm-run-path": "^4.0.1"
+  }
+}

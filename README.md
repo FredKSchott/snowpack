@@ -35,6 +35,7 @@ For starter apps and templates, see [create-snowpack-app](./create-snowpack-app)
 ### Dev Environment
 
 - [@snowpack/plugin-dotenv](./plugins/plugin-dotenv)
+- [@snowpack/plugin-typescript](./plugins/plugin-typescript)
 
 ### Build
 
@@ -49,10 +50,10 @@ For starter apps and templates, see [create-snowpack-app](./create-snowpack-app)
 
 ### Bundle
 
-- [@snowpack/plugin-parcel](./plugins/plugin-parcel)
 - [@snowpack/plugin-webpack](./plugins/plugin-webpack)
+- [@snowpack/plugin-parcel](./plugins/plugin-parcel)
 
-### Advanced Plugins
+### Utility Plugins
 
 - [@snowpack/plugin-build-script](./plugins/plugin-build-script)
 - [@snowpack/plugin-run-script](./plugins/plugin-run-script)
