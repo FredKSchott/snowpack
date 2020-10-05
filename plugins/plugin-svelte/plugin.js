@@ -45,17 +45,10 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
           })
         ).code;
       }
-      // COMPILE
-      const ssrOptions = {};
-      if (isSSR) {
-        ssrOptions.generate = 'ssr';
-        ssrOptions.hydratable = true;
-        ssrOptions.css = true;
-      }
 
       const {js, css} = svelte.compile(codeToCompile, {
         ...svelteOptions,
-        ...ssrOptions,
+        generate: isSSR ? 'ssr' : 'dom',
         outputFilename: filePath,
         filename: filePath,
       });
