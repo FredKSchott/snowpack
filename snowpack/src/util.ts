@@ -6,7 +6,7 @@ import crypto from 'crypto';
 import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import fs from 'fs';
-import got, {CancelableRequest, Response} from 'got';
+import {send} from 'httpie';
 import {isBinaryFile} from 'isbinaryfile';
 import mkdirp from 'mkdirp';
 import open from 'open';
@@ -14,6 +14,8 @@ import path from 'path';
 import rimraf from 'rimraf';
 import validatePackageName from 'validate-npm-package-name';
 import {ImportMap, SnowpackConfig} from './types/snowpack';
+
+import type {HttpieResponse} from 'httpie';
 
 export const PIKA_CDN = `https://cdn.pika.dev`;
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
@@ -70,18 +72,16 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
   fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf-8'});
 }
 
-export function fetchCDNResource(
+export function fetchCDNResource<T=unknown>(
   resourceUrl: string,
-  responseType?: 'text' | 'json' | 'buffer',
-): Promise<CancelableRequest<Response>> {
+): Promise<HttpieResponse<T>> {
   if (!resourceUrl.startsWith(PIKA_CDN)) {
     resourceUrl = PIKA_CDN + resourceUrl;
   }
-  // @ts-ignore - TS doesn't like responseType being unknown amount three options
-  return got(resourceUrl, {
-    responseType: responseType,
-    headers: {'user-agent': `snowpack/v1.4 (https://snowpack.dev)`},
-    throwHttpErrors: false,
+  return send<T>('GET', resourceUrl, {
+    headers: {'user-agent': `snowpack/v1.4 (https://snowpack.dev)`}
+  }).catch(err => {
+    return err;
   });
 }
 

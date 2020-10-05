@@ -30,7 +30,7 @@ import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, existsSync, promises as fs, statSync} from 'fs';
-import got from 'got';
+import {send} from 'httpie';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
@@ -1109,7 +1109,7 @@ export async function startServer(commandOptions: CommandOptions) {
       if (!url.startsWith('/')) {
         throw new Error(`url must start with "/", but got ${url}`);
       }
-      return (await got.get(`http://localhost:${port}${url}${isSSR ? '?ssr=1' : ''}`)).body;
+      return await send('GET', `http://localhost:${port}${url}${isSSR ? '?ssr=1' : ''}`).then(r => r.data);
     },
   };
 }

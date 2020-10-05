@@ -1,5 +1,5 @@
 import {promises as fs} from 'fs';
-import got from 'got';
+import {send} from 'httpie';
 import path from 'path';
 import {CommandOptions} from '../types/snowpack';
 import {command as installCommand} from './install';
@@ -8,8 +8,8 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
   const {cwd, config, pkgManifest} = commandOptions;
   let [pkgName, pkgSemver] = addValue.split('@');
   if (!pkgSemver) {
-    const body = (await got(`http://registry.npmjs.org/${pkgName}/latest`).json()) as any;
-    pkgSemver = `^${body.version}`;
+    const {data} = await send('GET', `http://registry.npmjs.org/${pkgName}/latest`);
+    pkgSemver = `^${data.version}`;
   }
   pkgManifest.webDependencies = pkgManifest.webDependencies || {};
   pkgManifest.webDependencies[pkgName] = pkgSemver;
