@@ -12191,6 +12191,13 @@ schema-utils@^2.6.5, schema-utils@^2.6.6, schema-utils@^2.7.0, schema-utils@^2.7
     ajv "^6.12.4"
     ajv-keywords "^3.5.2"
 
+scorta@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/scorta/-/scorta-1.0.0.tgz#fc99e241063bc521f24c4a18f2358e9d363ad466"
+  integrity sha512-q6qyZNQEeJopoG5eWMVb92qeeKVRaThhaDwlyhu7V2MAROZjD0BJyGaNnf4d+QJcaJu+Mv72RqEB+BZVo+ONCA==
+  dependencies:
+    escalade "^3.1.0"
+
 section-matter@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/section-matter/-/section-matter-1.0.0.tgz#e9041953506780ec01d59f292a19c7b850b84167"

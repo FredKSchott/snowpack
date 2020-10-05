@@ -3,7 +3,7 @@ import globalCacheDir from 'cachedir';
 import etag from 'etag';
 import execa from 'execa';
 import crypto from 'crypto';
-import projectCacheDir from 'find-cache-dir';
+import { scorta } from 'scorta/sync';
 import escalade from 'escalade';
 import fs from 'fs';
 import got, {CancelableRequest, Response} from 'got';
@@ -27,8 +27,8 @@ export const RESOURCE_CACHE = path.join(GLOBAL_CACHE_DIR, 'pkg-cache-1.4');
 export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-2.7');
 
 export const PROJECT_CACHE_DIR =
-  projectCacheDir({name: 'snowpack'}) ||
-  // If `projectCacheDir()` is null, no node_modules directory exists.
+  scorta('snowpack') ||
+  // If `scorta()` is null, no node_modules directory exists.
   // Use the current path (hashed) to create a cache entry in the global cache instead.
   // Because this is specifically for dependencies, this fallback should rarely be used.
   path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
