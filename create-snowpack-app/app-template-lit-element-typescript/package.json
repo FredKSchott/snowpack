@@ -32,6 +32,7 @@
     "@snowpack/plugin-babel": "^2.1.2",
     "@snowpack/plugin-dotenv": "^2.0.3",
     "@snowpack/plugin-run-script": "^2.1.4",
+    "@snowpack/plugin-typescript": "^1.0.0",
     "@types/snowpack-env": "^2.3.0",
     "prettier": "^2.0.5",
     "snowpack": "^2.13.2",

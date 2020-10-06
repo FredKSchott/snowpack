@@ -28,18 +28,13 @@ Snowpack has built-in support to handle `.jsx` & `.tsx` source files in your app
 
 ### TypeScript
 
-Snowpack has built-in support to handle `.ts` & `.tsx` source files in your application.
+Snowpack includes built-in support to build all TypeScript source files (`.ts` & `.tsx`) in your application. 
 
-Snowpack supports live TypeScript type checking right in the Snowpack CLI dev console. Connect the TypeScript compiler (`tsc`) into your workflow using the snippet below.
+For automatic TypeScript type checking during development, add the official [@snowpack/plugin-typescript](https://www.npmjs.com/package/@snowpack/plugin-typescript) plugin to your Snowpack config file. This plugin adds automatic `tsc` type checking results right in the Snowpack dev console. 
 
 ```js
 // snowpack.config.json
-// Example: Connect TypeScript CLI (tsc) reporting to Snowpack
-{
-  "plugins": [
-    ["@snowpack/plugin-run-script", {"cmd": "tsc --noEmit", "watch": "$1 --watch"}]
-  ]
-}
+"plugins": ["@snowpack/plugin-typescript"]
 ```
 
 ### Babel

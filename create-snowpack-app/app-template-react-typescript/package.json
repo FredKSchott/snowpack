@@ -31,6 +31,7 @@
     "@snowpack/app-scripts-react": "^1.12.1",
     "@snowpack/plugin-dotenv": "^2.0.3",
     "@snowpack/plugin-react-refresh": "^2.3.1",
+    "@snowpack/plugin-typescript": "^1.0.0",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/react": "^10.0.3",
     "@types/react": "^16.9.49",
