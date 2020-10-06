@@ -8809,6 +8809,8 @@ exports[`create-snowpack-app app-template-svelte: web_modules/import-map.json 1`
 }"
 `;
 
+exports[`create-snowpack-app app-template-svelte: web_modules/svelte.js 1`] = `"export { o as onMount } from './common/index-XXXXXXXX.js';"`;
+
 exports[`create-snowpack-app app-template-svelte: web_modules/svelte/internal.js 1`] = `
 "function noop() { }
 function run(fn) {
@@ -9241,6 +9243,8 @@ exports[`create-snowpack-app app-template-svelte-typescript: web_modules/import-
   }
 }"
 `;
+
+exports[`create-snowpack-app app-template-svelte-typescript: web_modules/svelte.js 1`] = `"export { o as onMount } from './common/index-XXXXXXXX.js';"`;
 
 exports[`create-snowpack-app app-template-svelte-typescript: web_modules/svelte/internal.js 1`] = `
 "function noop() { }
