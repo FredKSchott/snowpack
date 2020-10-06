@@ -3,6 +3,7 @@
 exports[`snowpack install auto-named-exports: allFiles 1`] = `
 Array [
   "cjs-named-export-pkg-02.js",
+  "cjs-named-export-pkg-03.js",
   "import-map.json",
 ]
 `;
@@ -24,10 +25,22 @@ export default entrypoint;
 export { entrypoint as __moduleExports, export1, export2, export3, export4, export5 };"
 `;
 
+exports[`snowpack install auto-named-exports: cjs-named-export-pkg-03.js 1`] = `
+"var export42 = 'foobar';
+var reexported = {
+	export42: export42
+};
+var entrypoint = reexported;
+export default entrypoint;
+var export42$1 = entrypoint.export42;
+export { entrypoint as __moduleExports, export42$1 as export42 };"
+`;
+
 exports[`snowpack install auto-named-exports: import-map.json 1`] = `
 "{
   \\"imports\\": {
-    \\"cjs-named-export-pkg-02\\": \\"./cjs-named-export-pkg-02.js\\"
+    \\"cjs-named-export-pkg-02\\": \\"./cjs-named-export-pkg-02.js\\",
+    \\"cjs-named-export-pkg-03\\": \\"./cjs-named-export-pkg-03.js\\"
   }
 }"
 `;
@@ -37,7 +50,8 @@ exports[`snowpack install auto-named-exports: output 1`] = `
 [snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/                   size       gzip       brotli
-    └─ cjs-named-export-pkg-02.js    XXXX KB    XXXX KB    XXXX KB"
+    ├─ cjs-named-export-pkg-02.js    XXXX KB    XXXX KB    XXXX KB
+    └─ cjs-named-export-pkg-03.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install config-alias: allFiles 1`] = `

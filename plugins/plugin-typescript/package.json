@@ -1,16 +1,19 @@
 {
-  "version": "2.1.4",
-  "name": "@snowpack/plugin-run-script",
+  "version": "1.0.0",
+  "name": "@snowpack/plugin-typescript",
   "main": "plugin.js",
   "license": "MIT",
-  "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-run-script#readme",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-typescript#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/pikapkg/snowpack.git",
-    "directory": "plugins/plugin-run-script"
+    "directory": "plugins/plugin-typescript"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependencies": {
+    "typescript": "*"
   },
   "dependencies": {
     "execa": "^4.0.3",

@@ -146,6 +146,13 @@ const configSchema = {
         ssr: {type: 'boolean'},
       },
     },
+    experiments: {
+      type: ['object'],
+      properties: {
+        ssr: {type: 'boolean'},
+        app: {},
+      },
+    },
     proxy: {
       type: 'object',
     },
@@ -163,6 +170,7 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
     installOptions: {} as any,
     devOptions: {} as any,
     buildOptions: {} as any,
+    experiments: {} as any,
   };
   const {help, version, reload, config, ...relevantFlags} = flags;
 
@@ -174,6 +182,10 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
     }
     if (configSchema.properties[flag]) {
       result[flag] = val;
+      continue;
+    }
+    if (configSchema.properties.experiments.properties[flag]) {
+      result.experiments[flag] = val;
       continue;
     }
     if (configSchema.properties.installOptions.properties[flag]) {

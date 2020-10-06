@@ -206,7 +206,7 @@ if (import.meta.hot) {
 
 Snowpack can proxy requests from the dev server to external URLs and APIs. Making API requests directly the dev server can help you mimic your production environment during development.
 
-See the [Proxy Options](#proxy-options) section for more information and full set of configuration options.
+See the [config.proxy API](#config.proxy) section for more information and full set of configuration options.
 
 ### HTTPS/HTTP2
 

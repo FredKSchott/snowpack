@@ -19,7 +19,7 @@ Snowpack leverages JavaScript's native module system (<a href="https://developer
 **💁 More info at the official [Snowpack website ➞](https://snowpack.dev)**
 
 <a href="https://osawards.com/javascript/2020">
-  <img src="https://www.snowpack.dev/img/JSAwardWinner.jpg"  height="72px" />
+  <img src="https://www.snowpack.dev/img/JSAwardWinner.png"  height="72px" />
 </a>
 
 ## Community
@@ -35,6 +35,7 @@ For starter apps and templates, see [create-snowpack-app](./create-snowpack-app)
 ### Dev Environment
 
 - [@snowpack/plugin-dotenv](./plugins/plugin-dotenv)
+- [@snowpack/plugin-typescript](./plugins/plugin-typescript)
 
 ### Build
 
@@ -49,10 +50,10 @@ For starter apps and templates, see [create-snowpack-app](./create-snowpack-app)
 
 ### Bundle
 
-- [@snowpack/plugin-parcel](./plugins/plugin-parcel)
 - [@snowpack/plugin-webpack](./plugins/plugin-webpack)
+- [@snowpack/plugin-parcel](./plugins/plugin-parcel)
 
-### Advanced Plugins
+### Utility Plugins
 
 - [@snowpack/plugin-build-script](./plugins/plugin-build-script)
 - [@snowpack/plugin-run-script](./plugins/plugin-run-script)

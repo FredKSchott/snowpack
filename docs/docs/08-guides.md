@@ -28,18 +28,13 @@ Snowpack has built-in support to handle `.jsx` & `.tsx` source files in your app
 
 ### TypeScript
 
-Snowpack has built-in support to handle `.ts` & `.tsx` source files in your application.
+Snowpack includes built-in support to build all TypeScript source files (`.ts` & `.tsx`) in your application. 
 
-Snowpack supports live TypeScript type checking right in the Snowpack CLI dev console. Connect the TypeScript compiler (`tsc`) into your workflow using the snippet below.
+For automatic TypeScript type checking during development, add the official [@snowpack/plugin-typescript](https://www.npmjs.com/package/@snowpack/plugin-typescript) plugin to your Snowpack config file. This plugin adds automatic `tsc` type checking results right in the Snowpack dev console. 
 
 ```js
 // snowpack.config.json
-// Example: Connect TypeScript CLI (tsc) reporting to Snowpack
-{
-  "plugins": [
-    ["@snowpack/plugin-run-script", {"cmd": "tsc --noEmit", "watch": "$1 --watch"}]
-  ]
-}
+"plugins": ["@snowpack/plugin-typescript"]
 ```
 
 ### Babel
@@ -106,9 +101,9 @@ You can add [Tailwind](https://tailwindcss.com) to any project via native CSS `@
 @import 'tailwindcss/dist/utilities.css';
 ```
 
-#### Using PostCSS
+#### Using Tailwind with PostCSS
 
-Tailwind also ships with first-class support for PostCSS. If you are using PostCSS in your project ([see above](#postcss)) then you can just add the Tailwind PostCSS plugin to your PostCSS config file to take advantage of the `@tailwind` keyword.
+If you are using PostCSS in your project ([see above](#postcss)) then you can just add Tailwind as a plugin to your `postcss.config.js`:
 
 ```js
 // postcss.config.js
@@ -121,6 +116,18 @@ module.exports = {
     // ...
   ],
 };
+```
+
+Once you have added the Tailwind PostCSS plugin, you can replace your native CSS `dist` imports with Tailwind's more powerful `base`, `components`, and `utilities` imports:
+
+```diff
+/* index.css */
+- @import 'tailwindcss/dist/base.css';
+- @import 'tailwindcss/dist/components.css';
+- @import 'tailwindcss/dist/utilities.css';
++ @import 'tailwindcss/base';
++ @import 'tailwindcss/components';
++ @import 'tailwindcss/utilities';
 ```
 
 Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installation/#using-tailwind-with-postcss) for more information.
