@@ -248,7 +248,7 @@ This is an (obviously) simplified version of the `@snowpack/plugin-webpack` plug
 
 ## Plugin API
 
-Check out our ["SnowpackPlugin" TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts) for a fully documented and up-to-date summary of the Plugin API and all supported options.
+Check out our ["SnowpackPlugin" TypeScript definition](https://github.com/pikapkg/snowpack/tree/master/snowpack/src/types/snowpack.ts) for a fully documented and up-to-date summary of the Plugin API and all supported options.
 
 ### knownEntrypoints
 
@@ -269,7 +269,7 @@ config(snowpackConfig) {
 
 Use this hook to read or make changes to the completed Snowpack configuration object. This is currently the recommended way to access the Snowpack configuration, since the one passed to the top-level plugin function is not yet finalized and may be incomplete.
 
-- [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts).
+- [Full TypeScript definition](https://github.com/pikapkg/snowpack/tree/master/snowpack/src/types/snowpack.ts).
 
 ### resolve
 
@@ -285,14 +285,14 @@ If your plugin defines a `load()` method, Snowpack will need to know what files 
 
 - `input`: An array of file extensions that this plugin will load.
 - `output`: The set of all file extensions that this plugin's `load()` method will output.
-- [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts).
+- [Full TypeScript definition](https://github.com/pikapkg/snowpack/tree/master/snowpack/src/types/snowpack.ts).
 
 ### load()
 
 Load a file from disk and build it for your application. This is most useful for taking a file type that can't run in the browser (TypeScript, Sass, Vue, Svelte) and returning JS and/or CSS. It can even be used to load JS/CSS files directly from disk with a build step like Babel or PostCSS.
 
 - See above for an example of how to use this method.
-- [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts).
+- [Full TypeScript definition](https://github.com/pikapkg/snowpack/tree/master/snowpack/src/types/snowpack.ts).
 
 ### transform()
 
@@ -300,13 +300,13 @@ Transform a file's contents. Useful for making changes to all types of output (J
 
 - See above for an example of how to use this method.
 - Example: [@snowpack/plugin-postcss](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-postcss)
-- [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts).
+- [Full TypeScript definition](https://github.com/pikapkg/snowpack/tree/master/snowpack/src/types/snowpack.ts).
 
 ### run()
 
 Run a CLI command, and connect it's output into the Snowpack console. Useful for connecting tools like TypeScript.
 
-- [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts).
+- [Full TypeScript definition](https://github.com/pikapkg/snowpack/tree/master/snowpack/src/types/snowpack.ts).
 
 ### optimize()
 
@@ -314,7 +314,30 @@ Snowpack’s bundler plugin API is still experimental and may change in a future
 
 - Example: [@snowpack/plugin-parcel](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-parcel)
 - Example: [@snowpack/plugin-webpack](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-webpack)
-- [Full TypeScript definition](b/master/packages/snowpack/src/types/snowpack.ts).
+- [Full TypeScript definition](https://github.com/pikapkg/snowpack/tree/master/snowpack/src/types/snowpack.ts).
+
+### onChange()
+
+Get notified any time a watched file changes. This can be useful when paired with the `markChanged()` plugin method, to mark multiple files changed at once.
+
+- See [@snowpack/plugin-sass](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-sass/plugin.js) for an example of how to use this method.
+- [Full TypeScript definition](https://github.com/pikapkg/snowpack/tree/master/snowpack/src/types/snowpack.ts).
+
+## Plugin API Methods
+
+### this.markChanged()
+
+```js
+// Called inside any plugin hooks
+this.markChanged('/some/file/path.scss');
+```
+
+Manually mark a file as changed, regardless of whether the file changed on disk or not. This can be useful when paired with the `markChanged()` plugin hook, to mark multiple files changed at once.
+
+- See [@snowpack/plugin-sass](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-sass/plugin.js) for an example of how to use this method.
+- [Full TypeScript definition](https://github.com/pikapkg/snowpack/tree/master/snowpack/src/types/snowpack.ts).
+
+
 
 ## Publishing a Plugin
 
