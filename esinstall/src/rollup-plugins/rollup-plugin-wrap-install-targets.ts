@@ -67,7 +67,9 @@ export function rollupPluginWrapInstallTargets(
       const resolvedReexports = reexports.map((e) =>
         cjsAutoDetectExportsStatic(require.resolve(e, {paths: [path.dirname(filename)]}), visited),
       );
-      return Array.from(new Set([...exports, ...resolvedReexports])).filter((imp) => imp !== 'default');
+      return Array.from(new Set([...exports, ...resolvedReexports])).filter(
+        (imp) => imp !== 'default',
+      );
     } catch (err) {
       // Safe to ignore, this is usually due to the file not being CJS.
       logger.debug(`cjsAutoDetectExportsStatic error: ${err.message}`);

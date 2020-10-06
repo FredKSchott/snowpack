@@ -3,9 +3,7 @@
     "public": "/",
     "src": "/_dist_"
   },
-  "plugins": [
-    "@snowpack/plugin-typescript"
-  ],
+  "plugins": ["@snowpack/plugin-typescript"],
   "installOptions": {
     "installTypes": true
   }

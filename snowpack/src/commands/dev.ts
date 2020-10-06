@@ -508,7 +508,10 @@ export async function startServer(commandOptions: CommandOptions) {
           isHmrEnabled: isHmr,
           sourceMaps: config.buildOptions.sourceMaps,
         });
-        inMemoryBuildCache.set(getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}), builtFileOutput);
+        inMemoryBuildCache.set(
+          getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
+          builtFileOutput,
+        );
         return builtFileOutput;
       })();
       filesBeingBuilt.set(fileLoc, fileBuilderPromise);
@@ -746,7 +749,9 @@ export async function startServer(commandOptions: CommandOptions) {
     }
 
     // 1. Check the hot build cache. If it's already found, then just serve it.
-    let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}));
+    let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(
+      getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
+    );
     if (hotCachedResponse) {
       let responseContent: string | Buffer | null;
       try {
@@ -808,7 +813,10 @@ export async function startServer(commandOptions: CommandOptions) {
             map?: string;
           }
         >;
-        inMemoryBuildCache.set(getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}), coldCachedResponse);
+        inMemoryBuildCache.set(
+          getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
+          coldCachedResponse,
+        );
         // Trust...
         const wrappedResponse = await finalizeResponse(
           fileLoc,
@@ -887,7 +895,7 @@ export async function startServer(commandOptions: CommandOptions) {
     // is still a new concept. Lets confirm that this is how we want to do SSR, and
     // then can revisit the caching story once confident.
     cacache.put(
-      BUILD_CACHE, 
+      BUILD_CACHE,
       getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
       Buffer.from(JSON.stringify(responseOutput)),
       {
@@ -1048,8 +1056,14 @@ export async function startServer(commandOptions: CommandOptions) {
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: true, env: process.env.NODE_ENV}));
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}));
     filesBeingDeleted.add(fileLoc);
-    await cacache.rm.entry(BUILD_CACHE, getCacheKey(fileLoc, {isSSR: true, env: process.env.NODE_ENV}));
-    await cacache.rm.entry(BUILD_CACHE, getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}));
+    await cacache.rm.entry(
+      BUILD_CACHE,
+      getCacheKey(fileLoc, {isSSR: true, env: process.env.NODE_ENV}),
+    );
+    await cacache.rm.entry(
+      BUILD_CACHE,
+      getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}),
+    );
     filesBeingDeleted.delete(fileLoc);
   }
   const watcher = chokidar.watch(Object.keys(config.mount), {
@@ -1092,7 +1106,9 @@ export async function startServer(commandOptions: CommandOptions) {
       if (!url.startsWith('/')) {
         throw new Error(`url must start with "/", but got ${url}`);
       }
-      return await send('GET', `http://localhost:${port}${url}${isSSR ? '?ssr=1' : ''}`).then(r => r.data);
+      return await send('GET', `http://localhost:${port}${url}${isSSR ? '?ssr=1' : ''}`).then(
+        (r) => r.data,
+      );
     },
   };
 }

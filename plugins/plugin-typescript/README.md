@@ -1,10 +1,8 @@
 # @snowpack/plugin-typescript
 
-This plugin adds TypeScript type checking to any Snowpack project. 
+This plugin adds TypeScript type checking to any Snowpack project.
 
 When developing or building your site with Snowpack, this plugin will run TypeScript's `tsc` CLI in your project and pipe the output through Snowpack. Works with all version of TypeScript, as long as TypeScript is installed separately in your project.
-
-
 
 ## Usage
 
@@ -18,8 +16,6 @@ Then add the plugin to your Snowpack config:
 // snowpack.config.js
 
 module.exports = {
-  plugins: [
-    '@snowpack/plugin-typescript'
-  ],
+  plugins: ['@snowpack/plugin-typescript'],
 };
 ```

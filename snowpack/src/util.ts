@@ -72,15 +72,13 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
   fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf-8'});
 }
 
-export function fetchCDNResource<T=unknown>(
-  resourceUrl: string,
-): Promise<HttpieResponse<T>> {
+export function fetchCDNResource<T = unknown>(resourceUrl: string): Promise<HttpieResponse<T>> {
   if (!resourceUrl.startsWith(PIKA_CDN)) {
     resourceUrl = PIKA_CDN + resourceUrl;
   }
   return send<T>('GET', resourceUrl, {
-    headers: {'user-agent': `snowpack/v1.4 (https://snowpack.dev)`}
-  }).catch(err => {
+    headers: {'user-agent': `snowpack/v1.4 (https://snowpack.dev)`},
+  }).catch((err) => {
     return err;
   });
 }

@@ -8,7 +8,7 @@ on:
 
 env:
   node_version: 14
-  
+
 jobs:
   lint:
     runs-on: ubuntu-latest
