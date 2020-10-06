@@ -59,7 +59,7 @@ module.exports = function postcssPlugin(_, {native}) {
       }
       importedByMap.delete(filePath);
       for (const importerFilePath of importedBy) {
-        this.markChange(importerFilePath);
+        this.markChanged(importerFilePath);
       }
     },
     /** Load the Sass file and compile it to CSS. */
