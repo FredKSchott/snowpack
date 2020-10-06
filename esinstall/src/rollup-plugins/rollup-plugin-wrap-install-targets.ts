@@ -54,14 +54,20 @@ export function rollupPluginWrapInstallTargets(
    * Get the exports that we scanned originally using static analysis. This is meant to run on
    * any file (not only CJS) but it will only return an array if CJS exports were found.
    */
-  function cjsAutoDetectExportsStatic(filename: string): string[] | undefined {
+  function cjsAutoDetectExportsStatic(filename: string, visited = new Set()): string[] | undefined {
+    // Prevent infinite loops via circular dependencies.
+    if (visited.has(filename)) {
+      return [];
+    } else {
+      visited.add(filename);
+    }
     const fileContents = fs.readFileSync(filename, 'utf-8');
     try {
-      const {exports} = parse(fileContents);
-      // TODO: Also follow & deeply parse dependency "reexports" returned by the lexer.
-      if (exports.length > 0) {
-        return exports.filter((imp) => imp !== 'default');
-      }
+      const {exports, reexports} = parse(fileContents);
+      const resolvedReexports = reexports.map((e) =>
+        cjsAutoDetectExportsStatic(require.resolve(e, {paths: [path.dirname(filename)]}), visited),
+      );
+      return Array.from(new Set([...exports, ...resolvedReexports])).filter((imp) => imp !== 'default');
     } catch (err) {
       // Safe to ignore, this is usually due to the file not being CJS.
       logger.debug(`cjsAutoDetectExportsStatic error: ${err.message}`);
@@ -92,7 +98,7 @@ export function rollupPluginWrapInstallTargets(
         const cjsExports = isExplicitAutoDetect
           ? cjsAutoDetectExportsRuntime(val)
           : cjsAutoDetectExportsStatic(val);
-        if (cjsExports) {
+        if (cjsExports && cjsExports.length > 0) {
           cjsScannedNamedExports.set(normalizedFileLoc, cjsExports);
           input[key] = `snowpack-wrap:${val}`;
         }

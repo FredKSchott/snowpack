@@ -66,6 +66,54 @@ describe('plugin-babel', () => {
       }
     `);
   });
+
+  describe('input option', () => {
+    test('input option must be an array has at least 1 value', () => {
+      expect(() =>
+        plugin(
+          {
+            buildOptions: {},
+          },
+          {
+            input: '.js',
+          },
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `"options.input must be an array (e.g. ['.js', '.mjs', '.jsx', '.ts', '.tsx'])"`,
+      );
+      expect(() =>
+        plugin(
+          {
+            buildOptions: {},
+          },
+          {
+            input: [],
+          },
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`"options.input must specify at least one filetype"`);
+    });
+    test('input option will overwrite the default resolve config', () => {
+      expect(
+        plugin(
+          {
+            buildOptions: {},
+          },
+          {
+            input: ['.js'],
+          },
+        ).resolve,
+      ).toMatchInlineSnapshot(`
+        Object {
+          "input": Array [
+            ".js",
+          ],
+          "output": Array [
+            ".js",
+          ],
+        }
+      `);
+    });
+  });
   test('has transformOptions', async () => {
     const transformOptions = {
       ast: true,

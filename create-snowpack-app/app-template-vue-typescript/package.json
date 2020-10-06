@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-vue-typescript",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-vue-typescript#readme",
   "repository": {
@@ -24,9 +24,9 @@
     "vue": "^3.0.0"
   },
   "devDependencies": {
-    "@snowpack/plugin-dotenv": "^2.0.1",
-    "@snowpack/plugin-vue": "^2.2.1",
-    "snowpack": "^2.13.0",
+    "@snowpack/plugin-dotenv": "^2.0.3",
+    "@snowpack/plugin-vue": "^2.2.2",
+    "snowpack": "^2.13.2",
     "typescript": "^4.0.2"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
