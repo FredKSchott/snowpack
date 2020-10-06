@@ -1,7 +1,10 @@
-const svelte = require('svelte/compiler');
-const svelteRollupPlugin = require('rollup-plugin-svelte');
 const fs = require('fs');
 const path = require('path');
+const svelte = require('svelte/compiler');
+const svelteRollupPlugin = require('rollup-plugin-svelte');
+const execa = require('execa');
+const npmRunPath = require('npm-run-path');
+const cwd = process.cwd();
 
 module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   const isDev = process.env.NODE_ENV !== 'production';
@@ -67,6 +70,27 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
         };
       }
       return output;
+    },
+    async run({isDev, log}) {
+      const workerPromise = execa.command(`svelte-check --output human ${isDev ? '--watch' : ''}`, {
+        env: {FORCE_COLOR: true, ...npmRunPath.env()},
+        extendEnv: true,
+        windowsHide: false,
+        cwd,
+      });
+      const {stdout, stderr} = workerPromise;
+      let isDone = false;
+      function dataListener(chunk) {
+        let stdOutput = chunk.toString();
+        if (isDev && isDone) {
+          log('WORKER_RESET', {});
+        }
+        isDone = stdOutput.includes('svelte-check found');
+        log('WORKER_MSG', {level: 'log', msg: stdOutput});
+      }
+      stdout && stdout.on('data', dataListener);
+      stderr && stderr.on('data', dataListener);
+      return workerPromise;
     },
   };
 };

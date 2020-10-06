@@ -42,8 +42,8 @@ describe.skip('plugin-run-script', () => {
     execaResult.stdout.emit('data', Buffer.from('STDOUT_TEST_MESSAGE'));
     execaResult.stderr.emit('data', Buffer.from('STDERR_TEST_MESSAGE'));
     expect(logFn.mock.calls).toEqual([
-      ['CONSOLE_INFO', {id: 'CMD', msg: 'STDOUT_TEST_MESSAGE'}],
-      ['CONSOLE_INFO', {id: 'CMD', msg: 'STDERR_TEST_MESSAGE'}],
+      ['CONSOLE_INFO', {msg: 'STDOUT_TEST_MESSAGE'}],
+      ['CONSOLE_INFO', {msg: 'STDERR_TEST_MESSAGE'}],
     ]);
   });
   test('handles command output in "dashboard" mode', async () => {

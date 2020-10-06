@@ -20,7 +20,7 @@ function runScriptPlugin(_, {cmd, watch, output}) {
       function dataListener(chunk) {
         let stdOutput = chunk.toString();
         if (output === 'stream') {
-          log('CONSOLE_INFO', {id: cmdProgram, msg: stdOutput});
+          log('CONSOLE_INFO', {msg: stdOutput});
           return;
         }
         if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {

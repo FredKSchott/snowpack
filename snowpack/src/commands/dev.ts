@@ -346,7 +346,11 @@ export async function startServer(commandOptions: CommandOptions) {
           isHmrEnabled: isHmr,
           // @ts-ignore: internal API only
           log: (msg, data) => {
-            messageBus.emit(msg, {...data, id: runPlugin.name});
+            if (msg === 'CONSOLE_INFO') {
+              logger.info(data.msg, {name: runPlugin.name});
+            } else {
+              messageBus.emit(msg, {...data, id: runPlugin.name});
+            }
           },
         })
         .then(() => {

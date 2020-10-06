@@ -301,8 +301,8 @@ export async function command(commandOptions: CommandOptions) {
           isHmrEnabled: getIsHmrEnabled(config),
           // @ts-ignore: internal API only
           log: (msg, data: {msg: string} = {}) => {
-            if (msg === 'WORKER_MSG') {
-              logger.info(`[${runPlugin.name}] ${data.msg.trim()}`);
+            if (msg === 'CONSOLE_INFO' || msg === 'WORKER_MSG') {
+              logger.info(data.msg.trim(), {name: runPlugin.name});
             }
           },
         })
