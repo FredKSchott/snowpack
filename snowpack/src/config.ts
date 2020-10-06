@@ -125,6 +125,7 @@ const configSchema = {
         rollup: {
           type: 'object',
           properties: {
+            context: {type: 'string'},
             plugins: {type: 'array', items: {type: 'object'}},
             dedupe: {
               type: 'array',
