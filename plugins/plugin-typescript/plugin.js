@@ -6,7 +6,7 @@ function typescriptPlugin() {
   return {
     name: '@snowpack/plugin-typescript',
     async run({isDev, log}) {
-      const workerPromise = execa.command(isDev ? 'tsc --watch' : 'tsc', {
+      const workerPromise = execa.command(`tsc --noEmit ${isDev ? '--watch' : ''}`, {
         env: npmRunPath.env(),
         extendEnv: true,
         windowsHide: false,
