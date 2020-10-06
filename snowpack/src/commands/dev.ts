@@ -85,6 +85,10 @@ import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint
 
 const FILE_BUILD_RESULT_ERROR = `Build Result Error: There was a problem with a file build result.`;
 
+function getCacheKey(fileLoc: string, {isSSR, env}) {
+  return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
+}
+
 const DEFAULT_PROXY_ERROR_HANDLER = (
   err: Error,
   req: http.IncomingMessage,
@@ -94,42 +98,6 @@ const DEFAULT_PROXY_ERROR_HANDLER = (
   logger.error(`✘ ${reqUrl}\n${err.message}`);
   sendError(req, res, 502);
 };
-
-/**
- * An in-memory build cache for Snowpack. Responsible for coordinating
- * different builds (ex: SSR, non-SSR) to get/set individually but clear
- * both at once.
- */
-class InMemoryBuildCache {
-  ssrCache = new Map<string, SnowpackBuildMap>();
-  webCache = new Map<string, SnowpackBuildMap>();
-
-  private getCache(isSSR: boolean): Map<string, SnowpackBuildMap> {
-    if (isSSR) {
-      return this.ssrCache;
-    } else {
-      return this.webCache;
-    }
-  }
-
-  get(fileLoc: string, isSSR: boolean) {
-    return this.getCache(isSSR).get(fileLoc);
-  }
-  set(fileLoc: string, val: SnowpackBuildMap, isSSR: boolean) {
-    return this.getCache(isSSR).set(fileLoc, val);
-  }
-  has(fileLoc: string, isSSR: boolean) {
-    return this.getCache(isSSR).has(fileLoc);
-  }
-  delete(fileLoc: string) {
-    this.getCache(true).delete(fileLoc);
-    this.getCache(false).delete(fileLoc);
-  }
-  clear() {
-    this.getCache(true).clear();
-    this.getCache(false).clear();
-  }
-}
 
 /**
  * Install dependencies needed in "dev" mode. Generally speaking, this scans
@@ -287,7 +255,7 @@ export async function startServer(commandOptions: CommandOptions) {
     });
   }
 
-  const inMemoryBuildCache = new InMemoryBuildCache();
+  const inMemoryBuildCache = new Map<string, SnowpackBuildMap>();
   const filesBeingDeleted = new Set<string>();
   const filesBeingBuilt = new Map<string, Promise<SnowpackBuildMap>>();
 
@@ -540,7 +508,7 @@ export async function startServer(commandOptions: CommandOptions) {
           isHmrEnabled: isHmr,
           sourceMaps: config.buildOptions.sourceMaps,
         });
-        inMemoryBuildCache.set(fileLoc, builtFileOutput, isSSR);
+        inMemoryBuildCache.set(getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}), builtFileOutput);
         return builtFileOutput;
       })();
       filesBeingBuilt.set(fileLoc, fileBuilderPromise);
@@ -778,7 +746,7 @@ export async function startServer(commandOptions: CommandOptions) {
     }
 
     // 1. Check the hot build cache. If it's already found, then just serve it.
-    let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(fileLoc, isSSR);
+    let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}));
     if (hotCachedResponse) {
       let responseContent: string | Buffer | null;
       try {
@@ -819,9 +787,11 @@ export async function startServer(commandOptions: CommandOptions) {
     // matches then assume the entire cache is suspect. In that case, clear the
     // persistent cache and then force a live-reload of the page.
     const cachedBuildData =
-      !isSSR &&
+      process.env.NODE_ENV !== 'test' &&
       !filesBeingDeleted.has(fileLoc) &&
-      (await cacache.get(BUILD_CACHE, fileLoc).catch(() => null));
+      (await cacache
+        .get(BUILD_CACHE, getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}))
+        .catch(() => null));
     if (cachedBuildData) {
       const {originalFileHash} = cachedBuildData.metadata;
       const newFileHash = etag(fileContents);
@@ -838,7 +808,7 @@ export async function startServer(commandOptions: CommandOptions) {
             map?: string;
           }
         >;
-        inMemoryBuildCache.set(fileLoc, coldCachedResponse, false);
+        inMemoryBuildCache.set(getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}), coldCachedResponse);
         // Trust...
         const wrappedResponse = await finalizeResponse(
           fileLoc,
@@ -916,11 +886,14 @@ export async function startServer(commandOptions: CommandOptions) {
     // NOTE(fks): We could do better and cache both, but at the time of writing SSR
     // is still a new concept. Lets confirm that this is how we want to do SSR, and
     // then can revisit the caching story once confident.
-    if (!isSSR) {
-      cacache.put(BUILD_CACHE, fileLoc, Buffer.from(JSON.stringify(responseOutput)), {
+    cacache.put(
+      BUILD_CACHE, 
+      getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
+      Buffer.from(JSON.stringify(responseOutput)),
+      {
         metadata: {originalFileHash},
-      });
-    }
+      },
+    );
   }
 
   type Http2RequestListener = (
@@ -1039,7 +1012,7 @@ export async function startServer(commandOptions: CommandOptions) {
     // Otherwise, reload the page if the file exists in our hot cache (which
     // means that the file likely exists on the current page, but is not
     // supported by HMR (HTML, image, etc)).
-    if (inMemoryBuildCache.has(fileLoc, false)) {
+    if (inMemoryBuildCache.has(getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}))) {
       hmrEngine.broadcastMessage({type: 'reload'});
       return;
     }
@@ -1072,9 +1045,11 @@ export async function startServer(commandOptions: CommandOptions) {
   async function onWatchEvent(fileLoc) {
     logger.info(colors.cyan('File changed...'));
     handleHmrUpdate(fileLoc);
-    inMemoryBuildCache.delete(fileLoc);
+    inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: true, env: process.env.NODE_ENV}));
+    inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}));
     filesBeingDeleted.add(fileLoc);
-    await cacache.rm.entry(BUILD_CACHE, fileLoc);
+    await cacache.rm.entry(BUILD_CACHE, getCacheKey(fileLoc, {isSSR: true, env: process.env.NODE_ENV}));
+    await cacache.rm.entry(BUILD_CACHE, getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}));
     filesBeingDeleted.delete(fileLoc);
   }
   const watcher = chokidar.watch(Object.keys(config.mount), {
