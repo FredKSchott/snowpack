@@ -46,6 +46,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     port: 8080,
     open: 'default',
     out: 'build',
+    output: 'dashboard',
     fallback: 'index.html',
     hmrDelay: 0,
     hmrPort: 12321,
@@ -92,6 +93,7 @@ const configSchema = {
         fallback: {type: 'string'},
         bundle: {type: 'boolean'},
         open: {type: 'string'},
+        output: {type: 'string', enum: ['stream', 'dashboard']},
         hmr: {type: 'boolean'},
         hmrDelay: {type: 'number'},
         hmrPort: {type: 'number'},
@@ -123,6 +125,7 @@ const configSchema = {
         rollup: {
           type: 'object',
           properties: {
+            context: {type: 'string'},
             plugins: {type: 'array', items: {type: 'object'}},
             dedupe: {
               type: 'array',
@@ -144,6 +147,13 @@ const configSchema = {
         ssr: {type: 'boolean'},
       },
     },
+    experiments: {
+      type: ['object'],
+      properties: {
+        ssr: {type: 'boolean'},
+        app: {},
+      },
+    },
     proxy: {
       type: 'object',
     },
@@ -161,6 +171,7 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
     installOptions: {} as any,
     devOptions: {} as any,
     buildOptions: {} as any,
+    experiments: {} as any,
   };
   const {help, version, reload, config, ...relevantFlags} = flags;
 
@@ -172,6 +183,10 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
     }
     if (configSchema.properties[flag]) {
       result[flag] = val;
+      continue;
+    }
+    if (configSchema.properties.experiments.properties[flag]) {
+      result.experiments[flag] = val;
       continue;
     }
     if (configSchema.properties.installOptions.properties[flag]) {

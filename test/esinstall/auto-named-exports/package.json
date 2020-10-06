@@ -8,11 +8,13 @@
   },
   "snowpack": {
     "install": [
-      "cjs-named-export-pkg-02"
+      "cjs-named-export-pkg-02",
+      "cjs-named-export-pkg-03"
     ]
   },
   "dependencies": {
-    "cjs-named-export-pkg-02": "file:./packages/cjs-named-export-pkg-02"
+    "cjs-named-export-pkg-02": "file:./packages/cjs-named-export-pkg-02",
+    "cjs-named-export-pkg-03": "file:./packages/cjs-named-export-pkg-03"
   },
   "devDependencies": {
     "snowpack": "^2.12.1"

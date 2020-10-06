@@ -70,9 +70,9 @@ async function resolveDependency(
   }
 
   // Otherwise, resolve from the CDN remotely.
-  const {statusCode, headers, body} = await fetchCDNResource(installUrl);
+  const {statusCode, headers, data} = await fetchCDNResource(installUrl);
   if (statusCode !== 200) {
-    logger.warn(`Failed to resolve [${statusCode}]: ${installUrl} (${body})`);
+    logger.warn(`Failed to resolve [${statusCode}]: ${installUrl} (${data})`);
     logger.warn(`Falling back to local copy...`);
     return null;
   }
@@ -85,14 +85,14 @@ async function resolveDependency(
 
   if (installUrlType === 'pin') {
     const pinnedUrl = installUrl;
-    await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
+    await cacache.put(RESOURCE_CACHE, pinnedUrl, data, {
       metadata: {pinnedUrl, typesUrl},
     });
     return pinnedUrl;
   }
   if (pinnedUrlPath) {
     const pinnedUrl = `${PIKA_CDN}${pinnedUrlPath}`;
-    await cacache.put(RESOURCE_CACHE, pinnedUrl, body, {
+    await cacache.put(RESOURCE_CACHE, pinnedUrl, data, {
       metadata: {pinnedUrl, typesUrl},
     });
     return pinnedUrl;
