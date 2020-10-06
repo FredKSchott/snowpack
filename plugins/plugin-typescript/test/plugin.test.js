@@ -19,15 +19,17 @@ describe('plugin-typescript', () => {
     const result = await p.run({isDev: false, log: jest.fn});
     expect(result).toEqual(result);
   });
-  test('calls "tsc" when isDev=false', async () => {
+  test('calls "tsc" correctly when isDev=false', async () => {
     const p = plugin();
     await p.run({isDev: false, log: jest.fn});
-    expect(execaFn.mock.calls[0][0]).toMatch('tsc');
+    expect(execaFn.mock.calls[0][0]).toContain('--noEmit');
+    expect(execaFn.mock.calls[0][0]).not.toContain('--watch');
   });
   test('calls "tsc --watch" when isDev=true', async () => {
     const p = plugin();
     await p.run({isDev: true, log: jest.fn});
-    expect(execaFn.mock.calls[0][0]).toMatch('tsc --watch');
+    expect(execaFn.mock.calls[0][0]).toContain('--noEmit');
+    expect(execaFn.mock.calls[0][0]).toContain('--watch');
   });
   test('handles tsc output', async () => {
     const logFn = jest.fn();
