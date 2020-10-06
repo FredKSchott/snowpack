@@ -1,16 +1,12 @@
 <script>
-  import { onMount } from 'svelte'
-
-  let count = 0
-
+  import {onMount} from 'svelte';
+  let count = 0;
   onMount(() => {
     const interval = setInterval(() => count++, 1000);
     return () => {
-      clearInterval(interval)
-    }
-  })
-
-  const message = 'Learn Svelte';
+      clearInterval(interval);
+    };
+  });
 </script>
 
 <style>
@@ -66,7 +62,7 @@
     <p>Page has been open for <code>{count}</code> seconds.</p>
     <p>
       <a class="App-link" href="https://svelte.dev" target="_blank" rel="noopener noreferrer">
-        {message}
+        Learn Svelte
       </a>
     </p>
   </header>
