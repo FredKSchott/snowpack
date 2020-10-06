@@ -2,38 +2,23 @@ const execa = require('execa');
 const npmRunPath = require('npm-run-path');
 const cwd = process.cwd();
 
-function runScriptPlugin(_, {cmd, watch, output}) {
-  const [cmdProgram] = cmd.split(' ');
-  const watchCmd = watch && watch.replace('$1', cmd);
-
+function typescriptPlugin() {
   return {
-    name: cmdProgram,
+    name: '@snowpack/plugin-typescript',
     async run({isDev, log}) {
-      const workerPromise = execa.command(isDev ? watchCmd || cmd : cmd, {
+      const workerPromise = execa.command(`tsc --noEmit ${isDev ? '--watch' : ''}`, {
         env: npmRunPath.env(),
         extendEnv: true,
-        shell: true,
         windowsHide: false,
         cwd,
       });
       const {stdout, stderr} = workerPromise;
       function dataListener(chunk) {
         let stdOutput = chunk.toString();
-        if (output === 'stream') {
-          log('CONSOLE_INFO', {id: cmdProgram, msg: stdOutput});
-          return;
-        }
+        // In --watch mode, handle the "clear" character
         if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
           log('WORKER_RESET', {});
           stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
-        }
-        if (cmdProgram === 'tsc') {
-          const errorMatch = stdOutput.match(/Found (\d+) error/);
-          if (errorMatch) {
-            if (errorMatch[1] === '0') {
-              stdOutput = stdOutput.trim();
-            }
-          }
         }
         log('WORKER_MSG', {level: 'log', msg: stdOutput});
       }
@@ -44,4 +29,4 @@ function runScriptPlugin(_, {cmd, watch, output}) {
   };
 }
 
-module.exports = runScriptPlugin;
+module.exports = typescriptPlugin;

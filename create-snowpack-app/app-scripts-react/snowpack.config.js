@@ -13,7 +13,7 @@ module.exports = {
     '@snowpack/plugin-react-refresh',
     '@snowpack/plugin-babel',
     '@snowpack/plugin-dotenv',
-    ...(isTS ? [['@snowpack/plugin-run-script', {cmd: 'tsc --noEmit', watch: '$1 --watch'}]] : []),
+    ...(isTS ? ['@snowpack/plugin-typescript'] : []),
   ],
   devOptions: {},
   installOptions: {

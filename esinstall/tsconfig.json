@@ -10,8 +10,6 @@
     "strict": true,
     "sourceMap": true,
     "noImplicitAny": false,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "skipLibCheck": true
   }
 }

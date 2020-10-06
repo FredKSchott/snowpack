@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-blank",
-  "version": "1.6.14",
+  "version": "1.6.15",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-blank#readme",
   "repository": {
@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "prettier": "^2.0.5",
-    "snowpack": "^2.13.2"
+    "snowpack": "^2.13.3"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

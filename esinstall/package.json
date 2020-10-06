@@ -1,6 +1,6 @@
 {
   "name": "esinstall",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Convert packages to ESM.",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/esinstall#readme",
@@ -14,7 +14,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:watch": "tsc --watch"
+    "build:watch": "tsc --watch",
+    "lint": "tsc --noEmit --noUnusedLocals true --noUnusedParameters true"
   },
   "types": "lib/index.d.ts",
   "main": "lib/index.js",

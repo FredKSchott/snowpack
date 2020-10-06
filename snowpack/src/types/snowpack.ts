@@ -134,6 +134,7 @@ export interface SnowpackConfig {
     out: string;
     fallback: string;
     open: string;
+    output: 'stream' | 'dashboard';
     hmr?: boolean;
     hmrDelay: number;
     hmrPort: number;

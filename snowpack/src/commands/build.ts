@@ -260,18 +260,22 @@ class FileBuilder {
     }
   }
 
-  async writeProxyToDisk(originalFileLoc: string) {
+  async getProxy(originalFileLoc: string) {
     const proxiedCode = this.output[originalFileLoc];
-    const importProxyFileLoc = originalFileLoc + '.proxy.js';
     const proxiedUrl = originalFileLoc
       .substr(this.config.devOptions.out.length)
       .replace(/\\/g, '/');
-    const proxyCode = await wrapImportProxy({
+    return wrapImportProxy({
       url: proxiedUrl,
       code: proxiedCode,
       hmr: false,
       config: this.config,
     });
+  }
+
+  async writeProxyToDisk(originalFileLoc: string) {
+    const proxyCode = await this.getProxy(originalFileLoc);
+    const importProxyFileLoc = originalFileLoc + '.proxy.js';
     await fs.writeFile(importProxyFileLoc, proxyCode, 'utf-8');
   }
 }
