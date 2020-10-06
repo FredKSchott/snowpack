@@ -35,7 +35,6 @@ export const paintEvent = {
   WORKER_COMPLETE: 'WORKER_COMPLETE',
   WORKER_MSG: 'WORKER_MSG',
   WORKER_RESET: 'WORKER_RESET',
-  WORKER_UPDATE: 'WORKER_UPDATE',
 };
 
 /**
@@ -75,20 +74,49 @@ export async function getPort(defaultPort: number): Promise<number> {
   return bestAvailablePort;
 }
 
+export function getServerInfoMessage(
+  {startTimeMs, port, protocol, hostname, ips}: ServerInfo,
+  isBuilding = false,
+) {
+  let output = '';
+  const isServerStarted = startTimeMs > 0 && port > 0 && protocol;
+  if (isServerStarted) {
+    output += `  ${colors.bold(colors.cyan(`${protocol}//${hostname}:${port}`))}`;
+    for (const ip of ips) {
+      output += `${colors.cyan(` • `)}${colors.bold(colors.cyan(`${protocol}//${ip}:${port}`))}`;
+    }
+    output += '\n';
+    output += colors.dim(
+      // Not to hide slow startup times, but likely there were extraneous factors (prompts, etc.) where the speed isn’t accurate
+      startTimeMs < 1000 ? `  Server started in ${startTimeMs}ms.` : `  Server started.`,
+    );
+    if (isBuilding) {
+      output += colors.dim(` Building...`);
+    }
+    output += '\n\n';
+  } else {
+    output += colors.dim(`  Server starting…`) + '\n\n';
+  }
+  return output;
+}
+
+interface ServerInfo {
+  port: number;
+  hostname: string;
+  protocol: string;
+  startTimeMs: number;
+  ips: string[];
+}
+
 interface WorkerState {
   done: boolean;
-  state: null | [string, string];
   error: null | Error;
   output: string;
 }
-const WORKER_BASE_STATE: WorkerState = {done: false, error: null, state: null, output: ''};
+const WORKER_BASE_STATE: WorkerState = {done: false, error: null, output: ''};
 
-export function paint(bus: EventEmitter, plugins: string[]) {
-  let port: number;
-  let hostname: string;
-  let protocol = '';
-  let startTimeMs: number;
-  let ips: string[] = [];
+export function paintDashboard(bus: EventEmitter, plugins: string[]) {
+  let serverInfo: ServerInfo;
   const allWorkerStates: Record<string, WorkerState> = {};
   const allFileBuilds = new Set<string>();
 
@@ -108,27 +136,7 @@ export function paint(bus: EventEmitter, plugins: string[]) {
     // Header
     process.stdout.write(`${colors.bold(`snowpack`)}\n\n`);
     // Server Stats
-    const isServerStarted = startTimeMs > 0 && port > 0 && protocol;
-    if (isServerStarted) {
-      process.stdout.write(`  ${colors.bold(colors.cyan(`${protocol}//${hostname}:${port}`))}`);
-      for (const ip of ips) {
-        process.stdout.write(
-          `${colors.cyan(` • `)}${colors.bold(colors.cyan(`${protocol}//${ip}:${port}`))}`,
-        );
-      }
-      process.stdout.write('\n');
-      process.stdout.write(
-        colors.dim(
-          startTimeMs < 1000 ? `  Server started in ${startTimeMs}ms.` : `  Server started.`, // Not to hide slow startup times, but likely there were extraneous factors (prompts, etc.) where the speed isn’t accurate
-        ),
-      );
-      if (allFileBuilds.size > 0) {
-        process.stdout.write(colors.dim(` Building...`));
-      }
-      process.stdout.write('\n\n');
-    } else {
-      process.stdout.write(colors.dim(`  Server starting…`) + '\n\n');
-    }
+    serverInfo && process.stdout.write(getServerInfoMessage(serverInfo, allFileBuilds.size > 0));
     // Console Output
     const history = logger.getHistory();
     if (history.length) {
@@ -161,15 +169,7 @@ export function paint(bus: EventEmitter, plugins: string[]) {
     allWorkerStates[id].output += msg;
     repaint();
   });
-  bus.on(paintEvent.WORKER_UPDATE, ({id, state}) => {
-    if (typeof state !== undefined) {
-      setupWorker(id);
-      allWorkerStates[id].state = state;
-    }
-    repaint();
-  });
   bus.on(paintEvent.WORKER_COMPLETE, ({id, error}) => {
-    allWorkerStates[id].state = ['DONE', 'green'];
     allWorkerStates[id].done = true;
     allWorkerStates[id].error = allWorkerStates[id].error || error;
     repaint();
@@ -178,12 +178,8 @@ export function paint(bus: EventEmitter, plugins: string[]) {
     allWorkerStates[id] = {...WORKER_BASE_STATE};
     repaint();
   });
-  bus.on(paintEvent.SERVER_START, (info) => {
-    startTimeMs = info.startTimeMs;
-    hostname = info.hostname;
-    port = info.port;
-    protocol = info.protocol;
-    ips = info.ips;
+  bus.on(paintEvent.SERVER_START, (info: ServerInfo) => {
+    serverInfo = info;
     repaint();
   });
 

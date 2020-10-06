@@ -25,20 +25,13 @@ function runScriptPlugin(_, {cmd, watch, output}) {
         }
         if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
           log('WORKER_RESET', {});
-          log('WORKER_UPDATE', {state: ['RUNNING', 'yellow']});
           stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
         }
         if (cmdProgram === 'tsc') {
-          if (/Watching for file changes./gm.test(stdOutput)) {
-            log('WORKER_UPDATE', {state: ['RUNNING', 'yellow']});
-          }
           const errorMatch = stdOutput.match(/Found (\d+) error/);
           if (errorMatch) {
             if (errorMatch[1] === '0') {
-              log('WORKER_UPDATE', {state: ['OK', 'green']});
               stdOutput = stdOutput.trim();
-            } else {
-              log('WORKER_UPDATE', {state: ['ERROR', 'red']});
             }
           }
         }

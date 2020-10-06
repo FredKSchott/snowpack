@@ -81,7 +81,7 @@ import {
   updateLockfileHash,
 } from '../util';
 import {getInstallTargets, run as installRunner} from './install';
-import {getPort, paint, paintEvent} from './paint';
+import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
 
 const FILE_BUILD_RESULT_ERROR = `Build Result Error: There was a problem with a file build result.`;
 
@@ -262,22 +262,30 @@ export async function startServer(commandOptions: CommandOptions) {
 
   const messageBus = new EventEmitter();
 
-  // note: this would cause an infinite loop if not for the logger.on(…) in
-  // `paint.ts`.
-  console.log = (...args: [any, ...any[]]) => {
-    logger.info(util.format(...args));
-  };
-  console.warn = (...args: [any, ...any[]]) => {
-    logger.warn(util.format(...args));
-  };
-  console.error = (...args: [any, ...any[]]) => {
-    logger.error(util.format(...args));
-  };
-
-  paint(
-    messageBus,
-    config.plugins.map((p) => p.name),
-  );
+  if (config.devOptions.output === 'dashboard') {
+    // "dashboard": Pipe console methods to the logger, and then start the dashboard.
+    console.log = (...args: [any, ...any[]]) => {
+      logger.info(util.format(...args));
+    };
+    console.warn = (...args: [any, ...any[]]) => {
+      logger.warn(util.format(...args));
+    };
+    console.error = (...args: [any, ...any[]]) => {
+      logger.error(util.format(...args));
+    };
+    paintDashboard(
+      messageBus,
+      config.plugins.map((p) => p.name),
+    );
+  } else {
+    // "stream": Log relevent events to the console.
+    messageBus.on(paintEvent.WORKER_MSG, ({id, msg}) => {
+      logger.info(msg.trim(), {name: id});
+    });
+    messageBus.on(paintEvent.SERVER_START, (info) => {
+      console.log(getServerInfoMessage(info));
+    });
+  }
 
   const inMemoryBuildCache = new InMemoryBuildCache();
   const filesBeingDeleted = new Set<string>();
