@@ -91,6 +91,10 @@ export interface SnowpackPlugin {
   knownEntrypoints?: string[];
   /** read and modify the Snowpack config object */
   config?(snowpackConfig: SnowpackConfig): void;
+  /** Called when a watched file changes during development. */
+  onChange({filePath}: {filePath: string}): void;
+  /** (internal interface, not set by the user) Mark a file as changed. */
+  markChanged(file: string): void;
 }
 
 export interface LegacySnowpackPlugin {
