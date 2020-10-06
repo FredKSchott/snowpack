@@ -1,7 +1,13 @@
 {
   "name": "@snowpack/app-template-svelte",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-svelte#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "create-snowpack-app/app-template-svelte"
+  },
   "keywords": [
     "csa-template"
   ],
@@ -17,14 +23,14 @@
     "svelte": "^3.24.0"
   },
   "devDependencies": {
-    "@snowpack/app-scripts-svelte": "^1.8.5",
-    "@snowpack/plugin-dotenv": "^2.0.1",
-    "@snowpack/plugin-run-script": "^2.1.2",
-    "@snowpack/plugin-svelte": "^2.0.4",
+    "@snowpack/app-scripts-svelte": "^1.8.6",
+    "@snowpack/plugin-dotenv": "^2.0.3",
+    "@snowpack/plugin-run-script": "^2.1.4",
+    "@snowpack/plugin-svelte": "^2.1.1",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/svelte": "^3.0.0",
     "jest": "^26.2.2",
-    "snowpack": "^2.13.0",
+    "snowpack": "^2.13.2",
     "svelte-check": "^1.0.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"

@@ -1,14 +1,20 @@
 {
   "name": "@snowpack/app-scripts-vue",
-  "version": "1.8.6",
+  "version": "1.8.7",
   "main": "snowpack.config.js",
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-scripts-vue#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "create-snowpack-app/app-scripts-vue"
+  },
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "@snowpack/plugin-dotenv": "^2.0.2",
-    "@snowpack/plugin-vue": "^2.2.1"
+    "@snowpack/plugin-dotenv": "^2.0.3",
+    "@snowpack/plugin-vue": "^2.2.2"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

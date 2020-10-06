@@ -19,7 +19,7 @@ Snowpack leverages JavaScript's native module system (<a href="https://developer
 **💁 More info at the official [Snowpack website ➞](https://snowpack.dev)**
 
 <a href="https://osawards.com/javascript/2020">
-  <img src="https://www.snowpack.dev/img/JSAwardWinner.jpg"  height="72px" />
+  <img src="https://www.snowpack.dev/img/JSAwardWinner.png"  height="72px" />
 </a>
 
 ## Community

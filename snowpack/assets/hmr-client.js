@@ -175,12 +175,17 @@ socket.addEventListener('message', ({data: _data}) => {
       })
       .catch((err) => {
         console.error('[ESM-HMR] Hot Update Error', err);
-        createNewErrorOverlay({
-          title: 'Hot Update Error',
-          fileLoc: data.url,
-          errorMessage: err.message,
-          errorStackTrace: err.stack,
-        });
+        // A failed import gives a TypeError, but invalid ESM imports/exports give a SyntaxError.
+        // Failed build results already get reported via a better WebSocket update.
+        // We only want to report invalid code like a bad import that doesn't exist.
+        if (err instanceof SyntaxError) {
+          createNewErrorOverlay({
+            title: 'Hot Update Error',
+            fileLoc: data.url,
+            errorMessage: err.message,
+            errorStackTrace: err.stack,
+          });
+        }
       });
     return;
   }

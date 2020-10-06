@@ -1,11 +1,17 @@
 {
   "name": "@snowpack/app-scripts-preact",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"
   },
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-scripts-preact#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "create-snowpack-app/app-scripts-preact"
+  },
   "dependencies": {
     "@babel/core": "^7.10.5",
     "@babel/preset-env": "^7.10.4",
@@ -13,8 +19,8 @@
     "@babel/preset-typescript": "^7.10.4",
     "@prefresh/babel-plugin": "^0.1.0",
     "@prefresh/snowpack": "~1.1.1",
-    "@snowpack/plugin-babel": "^2.1.1",
-    "@snowpack/plugin-dotenv": "^2.0.2",
+    "@snowpack/plugin-babel": "^2.1.2",
+    "@snowpack/plugin-dotenv": "^2.0.3",
     "babel-jest": "^26.2.2",
     "react-app-polyfill": "^1.0.6"
   },

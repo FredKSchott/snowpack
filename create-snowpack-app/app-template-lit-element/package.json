@@ -1,7 +1,13 @@
 {
   "name": "@snowpack/app-template-lit-element",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-lit-element#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "create-snowpack-app/app-template-lit-element"
+  },
   "keywords": [
     "csa-template"
   ],
@@ -22,10 +28,10 @@
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/plugin-proposal-decorators": "^7.10.5",
-    "@snowpack/plugin-babel": "^2.1.0",
-    "@snowpack/plugin-dotenv": "^2.0.1",
+    "@snowpack/plugin-babel": "^2.1.2",
+    "@snowpack/plugin-dotenv": "^2.0.3",
     "prettier": "^2.0.5",
-    "snowpack": "^2.13.0"
+    "snowpack": "^2.13.2"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

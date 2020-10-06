@@ -1,7 +1,13 @@
 {
   "name": "@snowpack/app-template-react",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "create-snowpack-app/app-template-react"
+  },
   "keywords": [
     "csa-template"
   ],
@@ -21,14 +27,14 @@
   },
   "devDependencies": {
     "@babel/preset-react": "^7.10.4",
-    "@snowpack/app-scripts-react": "^1.12.0",
-    "@snowpack/plugin-dotenv": "^2.0.1",
-    "@snowpack/plugin-react-refresh": "^2.3.0",
+    "@snowpack/app-scripts-react": "^1.12.1",
+    "@snowpack/plugin-dotenv": "^2.0.3",
+    "@snowpack/plugin-react-refresh": "^2.3.1",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/react": "^10.0.3",
     "jest": "^26.2.2",
     "prettier": "^2.0.5",
-    "snowpack": "^2.13.0"
+    "snowpack": "^2.13.2"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

@@ -10,15 +10,15 @@ Snowpack leverages JavaScript's native module system (<a href="https://developer
 
 - Develop faster, with a dev server that starts up in **50ms or less.**
 - See changes reflected [instantly in the browser.](/#hot-module-replacement)
-- Integrate your favorite bundler for a [production-optimized build.](/#snowpack-build)
+- Integrate your favorite bundler for a [production-optimized build.](/#bundle-for-production)
 - Enjoy out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](/#features)
-- Connect your favorite tools with [third-party plugins.](/#build-plugins)
+- Connect your favorite tools with [third-party plugins.](/#plugins)
 
 ### Who's Using Snowpack?
 
 <div class="company-logos">
 {% for user in usersList %}
-  <a href="{{ user.url }}" target="_blank">
+  <a href="{{ user.url }}" target="_blank" rel="noopener noreferrer">
     {% if user.img %}<img class="company-logo" src="{{ user.img }}" alt="{{ user.name }}" />
     {% else %}<span>{{ user.name }}</span>
     {% endif %}

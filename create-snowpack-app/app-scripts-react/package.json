@@ -1,18 +1,24 @@
 {
   "name": "@snowpack/app-scripts-react",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"
   },
   "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-scripts-react#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "create-snowpack-app/app-scripts-react"
+  },
   "dependencies": {
     "@babel/core": "^7.10.5",
     "@babel/preset-react": "^7.10.4",
     "@babel/preset-typescript": "^7.10.4",
-    "@snowpack/plugin-babel": "^2.1.1",
-    "@snowpack/plugin-dotenv": "^2.0.2",
-    "@snowpack/plugin-react-refresh": "^2.3.0",
+    "@snowpack/plugin-babel": "^2.1.2",
+    "@snowpack/plugin-dotenv": "^2.0.3",
+    "@snowpack/plugin-react-refresh": "^2.3.1",
     "babel-jest": "^26.2.2",
     "babel-preset-react-app": "^9.1.2",
     "react-app-polyfill": "^1.0.6"

@@ -5,7 +5,7 @@
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build --scope=esinstall --scope=snowpack",
     "build:watch": "lerna run build:watch --parallel --scope=esinstall --scope=snowpack",
-    "publish": "lerna publish --no-private",
+    "publish": "npm run build && lerna publish --no-private",
     "format": "prettier --write '{snowpack,esinstall}/src/**/*.{ts,js}' '{test,plugins}/**/*.{ts,js}' '*.{js,json,md}' '**/*.{json,md}' '.github/**/*.{md,yml}' '!**/{_dist_,build,packages,pkg,TEST_BUILD_OUT,web_modules}/**' !test/create-snowpack-app/test-install",
     "test": "jest --test-timeout=30000"
   },

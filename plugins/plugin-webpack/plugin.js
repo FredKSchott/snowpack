@@ -110,11 +110,6 @@ function getSplitChunksConfig({numEntries}) {
         test(module) {
           return module.size() > 150000 && /node_modules[/\\]/.test(module.identifier());
         },
-        name(module) {
-          const hash = crypto.createHash(`sha1`);
-          hash.update(module.libIdent({context: 'dir'}));
-          return 'lib-' + hash.digest(`hex`).substring(0, 8);
-        },
         priority: 30,
         minChunks: 1,
         reuseExistingChunk: true,
