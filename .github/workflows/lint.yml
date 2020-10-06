@@ -21,4 +21,5 @@ jobs:
       - name: lint
         run: |
           yarn --ignore-engines
+          yarn build
           yarn lint
