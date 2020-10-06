@@ -71,4 +71,4 @@ Migrating an existing app to Snowpack is meant to be painless, since Snowpack su
 
 CSA is a good starting point for an existing application because it has a few common tools (like Babel) built in by default to replicate the full feature set of a traditional bundled app. CSA is also meant to be a drop-in replacement for Create React App, so any existing Create React App project should run via CSA with zero changes needed.
 
-If you run into issues, search the rest of our docs site for information about importing CSS [from JS](#import-css) and [from CSS](#css-%40import-support), [asset references](#import-images-%26-other-assets), and more.
+If you run into issues, search the rest of our docs site for information about importing CSS [from JS](#javascript) and [from CSS](#import-css), [asset references](#import-images-%26-other-assets), and more.
