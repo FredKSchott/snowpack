@@ -352,9 +352,7 @@ ${colors.dim(
   let isFatalWarningFound = false;
   const inputOptions: InputOptions = {
     input: installEntrypoints,
-    ...(userDefinedRollup.context && {
-      context: userDefinedRollup.context,
-    }),
+    context: userDefinedRollup.context,
     external: (id) => externalPackages.some((packageName) => isImportOfPackage(id, packageName)),
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
