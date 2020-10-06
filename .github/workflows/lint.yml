@@ -1,0 +1,25 @@
+name: Lint Code
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+env:
+  node_version: 14
+  
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.2
+      - name: Use Node.js ${{ env.node_version }}
+        uses: actions/setup-node@v2.1.1
+        with:
+          node-version: ${{ env.node_version }}
+      - name: lint
+        run: |
+          yarn --ignore-engines
+          yarn build
+          yarn lint

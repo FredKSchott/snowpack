@@ -13,7 +13,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:watch": "tsc --watch"
+    "build:watch": "tsc --watch",
+    "lint": "tsc --noEmit --noUnusedLocals true --noUnusedParameters true"
   },
   "engines": {
     "node": ">=10.19.0"
@@ -59,7 +60,6 @@
     "source-map": "^0.7.3",
     "strip-ansi": "^6.0.0",
     "strip-comments": "^2.0.1",
-    "tar": "^6.0.1",
     "validate-npm-package-name": "^3.0.0",
     "ws": "^7.3.0",
     "yargs-parser": "^18.1.3"
