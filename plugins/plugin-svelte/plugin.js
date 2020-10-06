@@ -82,7 +82,7 @@ module.exports = function plugin(snowpackConfig, {hot: hotOptions, ...sveltePlug
           hotOptions: {
             ...hotOptions,
             absoluteImports: false,
-            injectCss: false,
+            injectCss: true,
           },
           compiled,
           originalCode: codeToCompile,
