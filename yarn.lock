@@ -2581,6 +2581,11 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
+"@snowpack/plugin-markdown@file:plugins/plugin-markdown":
+  version "2.0.3"
+  dependencies:
+    markdown-wasm "^1.0.0"
+
 "@testing-library/dom@^6.1.0":
   version "6.16.0"
   resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-6.16.0.tgz#04ada27ed74ad4c0f0d984a1245bb29b1fd90ba9"
@@ -8994,6 +8999,11 @@ markdown-it@^8.4.2:
     linkify-it "^2.0.0"
     mdurl "^1.0.1"
     uc.micro "^1.0.5"
+
+markdown-wasm@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/markdown-wasm/-/markdown-wasm-1.0.0.tgz#a21415cbf9f2db5dda7225a5a17619de5dbf7f53"
+  integrity sha512-XbI01KYUzWtOry1nydMBo4FjujsKnqgihcX30WU7UkfVqcvD0KMJUEia1fnL9+zEb+o2RO9gfJ3fUSNxqg/yAA==
 
 maximatch@^0.1.0:
   version "0.1.0"

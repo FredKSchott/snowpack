@@ -1,0 +1,7 @@
+{
+  "mount": {
+    "public": "/",
+    "src": "/_dist_"
+  },
+  "plugins": ["@snowpack/plugin-markdown"]
+}
