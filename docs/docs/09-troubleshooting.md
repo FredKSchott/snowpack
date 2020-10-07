@@ -20,7 +20,7 @@ If you see this error message, that means that you've imported a file path not a
 
 This is usually seen when importing a named export from a package written in the older Common.js format. Snowpack will automatically scan legacy Common.js packages to detect its named exports, but sometimes these exports can't be detected statically.
 
-**To solve this issue:** Add a ["namedExports"](#config.install-options) entry in your Snowpack config file. This tells Snowpack to use a more-powerful runtime scanner on this legacy Common.js package to detect it's exports at runtime.
+**To solve this issue:** Add a ["namedExports"](#config.installoptions) entry in your Snowpack config file. This tells Snowpack to use a more-powerful runtime scanner on this legacy Common.js package to detect it's exports at runtime.
 
 ```json
 // snowpack.config.json
@@ -34,7 +34,7 @@ This is usually seen when importing a named export from a package written in the
 
 When installing packages from npm, you may encounter some file formats that can only run with additional parsing/processing. First check to see if there is a [Snowpack plugin for the type of file](#plugins).
 
-Because our internal installer is powered by Rollup, you can also add Rollup plugins to your [Snowpack config](#configuration-options) to handle these special, rare files:
+Because our internal installer is powered by Rollup, you can also add Rollup plugins to your [Snowpack config](#configuration) to handle these special, rare files:
 
 ```js
 /* snowpack.config.js */
