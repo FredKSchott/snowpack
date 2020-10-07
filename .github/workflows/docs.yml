@@ -10,7 +10,7 @@ env:
   node_version: 14
 
 jobs:
-  lint:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.3.2
