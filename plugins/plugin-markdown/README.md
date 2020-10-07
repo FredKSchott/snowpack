@@ -15,6 +15,14 @@ npm install --save-dev @snowpack/plugin-markdown
 
 #### What is Supported?
 
+WIP
+
 #### Plugin Options
 
-None
+Any of the options in [markdown-wasm](https://github.com/rsms/markdown-wasm)'s API are available. For example:
+
+```js
+{
+  "plugins": ["@snowpack/plugin-markdown", { parseFlags: markdown.ParseFlags.DEFAULT | markdown.ParseFlags.NO_HTML }]
+}
+```
