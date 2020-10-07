@@ -188,6 +188,8 @@ Options:
   - The hostname where the browser tab will be open.
 - **`devOptions.hmr`** | `boolean` | Default: `true`
   - Toggles whether or not Snowpack dev server should have HMR enabled.
+- **`devOptions.hmrErrorOverlay`** | `boolean` | Default: `true`
+  - When HMR is enabled, toggles whether or not a browser overlay should display javascript errors.
 - **`devOptions.secure`** | `boolean`
   - Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
 
