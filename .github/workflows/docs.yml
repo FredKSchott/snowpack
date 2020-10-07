@@ -19,8 +19,6 @@ jobs:
         with:
           node-version: ${{ env.node_version }}
       - name: test
-        working-directory: ./docs
         run: |
           yarn --ignore-engines
-          yarn docs:build
-          yarn docs:test
+          yarn test:docs

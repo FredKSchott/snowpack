@@ -4,7 +4,7 @@
   "scripts": {
     "docs:build": "cat docs/* > index.md && eleventy",
     "docs:watch": "cat docs/* > index.md && eleventy --serve",
-    "docs:test": "jest"
+    "test:docs": "jest /__test__/"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.11.0",

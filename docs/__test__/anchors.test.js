@@ -1,7 +1,9 @@
-var fs = require('fs');
+const fs = require('fs');
+const path = require('path');
+
 const cheerio = require('cheerio');
 
-const $ = cheerio.load(fs.readFileSync('_site/index.html'));
+const $ = cheerio.load(fs.readFileSync(path.join('_site', 'index.html')));
 
 function escapeRegExp(string) {
   return string.replace(/[.*+?^$%&{}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
