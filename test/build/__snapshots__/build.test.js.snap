@@ -7829,6 +7829,74 @@ Array [
 ]
 `;
 
+exports[`snowpack build plugin-markdown: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+
+exports[`snowpack build plugin-markdown: _dist_/index.html 1`] = `
+"<h1><a id=\\"plugin-markdown-build-test\\" class=\\"anchor\\" aria-hidden=\\"true\\" href=\\"#plugin-markdown-build-test\\"></a>Plugin Markdown Build Test</h1>
+<p>This tests @snowpack/plugin-markdown. The example index.md here should end up in the final build as index.html.</p>
+<h2><a id=\\"useful-links\\" class=\\"anchor\\" aria-hidden=\\"true\\" href=\\"#useful-links\\"></a>Useful links</h2>
+<ul>
+<li><a href=\\"https://rsms.me/markdown-wasm/\\">Markdown-wasm demo</a></li>
+<li><a href=\\"https://www.snowpack.dev/\\">Snowpack</a></li>
+</ul>"
+`;
+
+exports[`snowpack build plugin-markdown: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "_dist_/index.html",
+  "favicon.ico",
+  "index.css",
+  "index.html",
+  "logo.svg",
+  "robots.txt",
+]
+`;
+
+exports[`snowpack build plugin-markdown: index.css 1`] = `
+"#img {
+  display: block;
+  margin: auto;
+  height: 128px;
+  width: 128px;
+  padding: 2rem;
+}
+#canvas {
+  display: block;
+  margin: 2rem auto;
+  width: 540px;
+  height: 540px;
+}"
+`;
+
+exports[`snowpack build plugin-markdown: index.html 1`] = `
+"<!DOCTYPE html>
+<html lang=\\"en\\">
+  <head>
+    <meta charset=\\"utf-8\\" />
+    <link rel=\\"icon\\" href=\\"/favicon.ico\\" />
+    <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
+    <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
+    <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/index.css\\" />
+    <title>Snowpack App</title>
+  </head>
+  <body>
+    <img id=\\"img\\" src=\\"/logo.svg\\" />
+    <canvas id=\\"canvas\\"></canvas>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+      To begin the development, run \`npm start\` or \`yarn start\`.
+      To create a production bundle, use \`npm run build\` or \`yarn build\`.
+    -->
+  </body>
+</html>"
+`;
+
 exports[`snowpack build plugin-optimize: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`snowpack build plugin-optimize: _dist_/icon.svg.proxy.js 1`] = `"export default \\"/_dist_/icon.svg\\";"`;

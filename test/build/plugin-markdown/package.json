@@ -5,9 +5,7 @@
   "scripts": {
     "start": "snowpack dev",
     "build": "snowpack build",
-    "test": "echo \"This template does not include a test runner by default.\" && exit 1",
-    "format": "prettier --write \"src/**/*.js\"",
-    "lint": "prettier --check \"src/**/*.js\""
+    "testbuild": "snowpack build"
   },
   "dependencies": {
     "@snowpack/plugin-markdown": "file:../../../plugins/plugin-markdown",
