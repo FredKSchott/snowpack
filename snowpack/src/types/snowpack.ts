@@ -150,6 +150,9 @@ export interface SnowpackConfig {
     sourceMaps: boolean;
     watch: boolean;
   };
+  testOptions: {
+    files: string[];
+  };
   /** EXPERIMENTAL - This section is experimental and not yet finalized. May change across minor versions. */
   experiments: {
     /** (EXPERIMENTAL) If true, "snowpack build" should build your site for SSR. */

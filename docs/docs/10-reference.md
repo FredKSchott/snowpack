@@ -109,6 +109,8 @@ Options:
   - Configure your dev server. See the section below for all options.
 - **`buildOptions.*`**
   - Configure your build. See the section below for all options.
+- **`testOptions.*`**
+  - Configure your tests. See the section below for all options.
 
 #### `config.installOptions`
 
@@ -222,6 +224,26 @@ Options:
   - **_Experimental:_** Set to `true` to enable source maps
 - **`buildOptions.webModulesUrl`** | `string` | Default: `web_modules`
   - Rename your web modules directory.
+
+#### `config.testOptions`
+
+`object` (options)
+
+Settings that determine how the Snowpack test environment behaves.
+
+Example:
+
+```js
+testOptions: {
+  files: ['my-test-dir/*.test.js'];
+}
+```
+
+Options:
+
+- **`testOptions.files`** | `string[]` | Default: `["__tests__/**/*", "**/*.@(spec|test).*"]`
+  - The location of all test files.
+  - All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
 
 #### `config.proxy`
 

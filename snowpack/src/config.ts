@@ -31,14 +31,14 @@ import {
 } from './util';
 
 const CONFIG_NAME = 'snowpack';
-const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
+const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*'];
 
 // default settings
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
-  exclude: ['__tests__/**/*', '**/*.@(spec|test).*'],
   plugins: [],
   alias: {},
   scripts: {},
+  exclude: [],
   installOptions: {},
   devOptions: {
     secure: false,
@@ -60,6 +60,9 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     minify: false,
     sourceMaps: false,
     watch: false,
+  },
+  testOptions: {
+    files: ['__tests__/**/*', '**/*.@(spec|test).*'],
   },
   experiments: {
     ssr: false,
@@ -147,6 +150,12 @@ const configSchema = {
         sourceMaps: {type: 'boolean'},
         watch: {type: 'boolean'},
         ssr: {type: 'boolean'},
+      },
+    },
+    testOptions: {
+      type: 'object',
+      properties: {
+        files: {type: 'array', items: {type: 'string'}},
       },
     },
     experiments: {
