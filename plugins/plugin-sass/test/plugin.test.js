@@ -45,6 +45,6 @@ describe('plugin-sass', () => {
   test('uses native sass CLI when native option = true', async () => {
     const p = plugin(null, {native: true});
     process.env.PATH = '';
-    await expect(p.load({filePath: pathToSassApp, isDev: false})).rejects.toThrow(/(EPIPE|'sass' is not recognized)/);
+    await expect(p.load({filePath: pathToSassApp, isDev: false})).rejects.toThrow(/(EPIPE|ENOENT)/);
   });
 });
