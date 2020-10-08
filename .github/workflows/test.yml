@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - dev-test-debug
   pull_request:
 
 jobs:
@@ -11,8 +12,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-2016]
-        node-version: [10.x, 12.x, 14.x]
+        # os: [ubuntu-latest, windows-2016]
+        # node-version: [10.x, 12.x, 14.x]
+        os: [windows-2016]
+        node-version: [14.x]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -23,6 +26,7 @@ jobs:
         run: |
           yarn --ignore-engines
           yarn build
-          yarn test
+          # yarn test
+          npx jest test/dev/dev.test.ts --detectOpenHandles
         env:
           CI: true
