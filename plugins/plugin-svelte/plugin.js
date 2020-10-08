@@ -2,8 +2,14 @@ const svelte = require('svelte/compiler');
 const svelteRollupPlugin = require('rollup-plugin-svelte');
 const fs = require('fs');
 const path = require('path');
+const {createMakeHot} = require('svelte-hmr');
 
-module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
+let makeHot = (...args) => {
+  makeHot = createMakeHot({walk: svelte.walk});
+  return makeHot(...args);
+};
+
+module.exports = function plugin(snowpackConfig, {hot: hotOptions, ...sveltePluginOptions} = {}) {
   const isDev = process.env.NODE_ENV !== 'production';
 
   // Support importing Svelte files when you install dependencies.
@@ -13,7 +19,9 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
 
   let svelteOptions;
   let preprocessOptions;
-  const userSvelteConfigLoc = path.join(process.cwd(), 'svelte.config.js');
+  // Note(drew): __config is for internal testing use; maybe we should make this public at some point?
+  const userSvelteConfigLoc =
+    sveltePluginOptions.__config || path.join(process.cwd(), 'svelte.config.js');
   if (fs.existsSync(userSvelteConfigLoc)) {
     const userSvelteConfig = require(userSvelteConfigLoc);
     const {preprocess, ..._svelteOptions} = userSvelteConfig;
@@ -25,7 +33,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     dev: isDev,
     css: false,
     ...svelteOptions,
-    ...pluginOptions,
+    ...sveltePluginOptions,
   };
 
   return {
@@ -34,9 +42,13 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       input: ['.svelte'],
       output: ['.js', '.css'],
     },
-    knownEntrypoints: ['svelte/internal'],
-    async load({filePath, isSSR}) {
-      let codeToCompile = fs.readFileSync(filePath, 'utf-8');
+    knownEntrypoints: [
+      'svelte/internal',
+      'svelte-hmr/runtime/hot-api-esm.js',
+      'svelte-hmr/runtime/proxy-adapter-dom.js',
+    ],
+    async load({filePath, isHmrEnabled, isSSR}) {
+      let codeToCompile = await fs.promises.readFile(filePath, 'utf-8');
       // PRE-PROCESS
       if (preprocessOptions) {
         codeToCompile = (
@@ -46,12 +58,16 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
         ).code;
       }
 
-      const {js, css} = svelte.compile(codeToCompile, {
-        ...svelteOptions,
+      const compileOptions = {
         generate: isSSR ? 'ssr' : 'dom',
+        ...svelteOptions, // Note(drew) should take precedence over generate above
         outputFilename: filePath,
         filename: filePath,
-      });
+      };
+
+      const compiled = svelte.compile(codeToCompile, compileOptions);
+
+      const {js, css} = compiled;
 
       const {sourceMaps} = snowpackConfig.buildOptions;
       const output = {
@@ -60,6 +76,22 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
           map: sourceMaps ? js.map : undefined,
         },
       };
+
+      if (isHmrEnabled && !isSSR) {
+        output['.js'].code = makeHot({
+          id: filePath,
+          compiledCode: compiled.js.code,
+          hotOptions: {
+            ...hotOptions,
+            absoluteImports: false,
+            injectCss: true,
+          },
+          compiled,
+          originalCode: codeToCompile,
+          compileOptions,
+        });
+      }
+
       if (!svelteOptions.css && css && css.code) {
         output['.css'] = {
           code: css.code,

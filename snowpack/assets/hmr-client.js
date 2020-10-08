@@ -110,7 +110,7 @@ export function createHotContext(fullUrl) {
 }
 
 /** Called when a new module is loaded, to pass the updated module to the "active" module */
-async function runModuleAccept(id) {
+async function runModuleAccept({url: id, bubbled}) {
   const state = REGISTERED_MODULES[id];
   if (!state) {
     return false;
@@ -125,7 +125,7 @@ async function runModuleAccept(id) {
       import(id + `?mtime=${updateID}`),
       ...deps.map((d) => import(d + `?mtime=${updateID}`)),
     ]);
-    acceptCallback({module, deps: depModules});
+    acceptCallback({module, bubbled, deps: depModules});
   }
   return true;
 }
@@ -165,7 +165,7 @@ socket.addEventListener('message', ({data: _data}) => {
   }
   if (data.type === 'update') {
     log('message: update', data);
-    runModuleAccept(data.url)
+    runModuleAccept(data)
       .then((ok) => {
         if (ok) {
           clearErrorOverlay();

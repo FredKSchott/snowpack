@@ -2,12 +2,14 @@
   "name": "snowpack-www",
   "version": "2.7.0",
   "scripts": {
-    "docs:build": "cat docs/* > index.md && eleventy",
-    "docs:watch": "cat docs/* > index.md && eleventy --serve"
+    "build": "cat ../docs/* > index.md && eleventy",
+    "start": "cat ../docs/* > index.md && eleventy --serve",
+    "test": "jest /__test__/"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.11.0",
     "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.1",
+    "cheerio": "^1.0.0-rc.3",
     "eleventy-plugin-nesting-toc": "^1.2.0",
     "luxon": "^1.24.1",
     "markdown-it": "^11.0.0",

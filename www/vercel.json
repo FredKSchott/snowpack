@@ -1,0 +1,9 @@
+{
+  "routes": [
+    {
+      "src": "/plugins.*",
+      "status": 308,
+      "headers": {"Location": "/guides/plugins"}
+    }
+  ]
+}

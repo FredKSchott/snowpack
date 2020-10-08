@@ -31,14 +31,14 @@ import {
 } from './util';
 
 const CONFIG_NAME = 'snowpack';
-const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/.types/**/*'];
+const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*'];
 
 // default settings
 const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
-  exclude: ['__tests__/**/*', '**/*.@(spec|test).*'],
   plugins: [],
   alias: {},
   scripts: {},
+  exclude: [],
   installOptions: {},
   devOptions: {
     secure: false,
@@ -50,6 +50,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     fallback: 'index.html',
     hmrDelay: 0,
     hmrPort: 12321,
+    hmrErrorOverlay: true,
   },
   buildOptions: {
     baseUrl: '/',
@@ -59,6 +60,9 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     minify: false,
     sourceMaps: false,
     watch: false,
+  },
+  testOptions: {
+    files: ['__tests__/**/*', '**/*.@(spec|test).*'],
   },
   experiments: {
     ssr: false,
@@ -97,6 +101,7 @@ const configSchema = {
         hmr: {type: 'boolean'},
         hmrDelay: {type: 'number'},
         hmrPort: {type: 'number'},
+        hmrErrorOverlay: {type: 'boolean'},
       },
     },
     installOptions: {
@@ -145,6 +150,12 @@ const configSchema = {
         sourceMaps: {type: 'boolean'},
         watch: {type: 'boolean'},
         ssr: {type: 'boolean'},
+      },
+    },
+    testOptions: {
+      type: 'object',
+      properties: {
+        files: {type: 'array', items: {type: 'string'}},
       },
     },
     experiments: {
@@ -279,7 +290,7 @@ function loadPlugins(
     }
     plugin.name = plugin.name || name;
 
-    // Legacy support: Map the new load() interface to the old build() interface
+    // Legacy: Map the new load() interface to the old build() interface
     const {build, bundle} = plugin;
     if (build) {
       plugin.load = async (options: PluginLoadOptions) => {
@@ -304,8 +315,7 @@ function loadPlugins(
         return result.result;
       };
     }
-    // Legacy support: Map the new optimize() interface to the old bundle()
-    // interface
+    // Legacy: Map the new optimize() interface to the old bundle() interface
     if (bundle) {
       plugin.optimize = async (options: PluginOptimizeOptions) => {
         return bundle({
@@ -325,6 +335,8 @@ function loadPlugins(
         });
       };
     }
+
+    // Legacy: handle "defaultBuildScript" syntax
     if (
       !plugin.resolve &&
       plugin.defaultBuildScript &&
@@ -337,6 +349,15 @@ function loadPlugins(
       plugin.resolve = {input, output};
     }
 
+    // Add any internal plugin methods. Placeholders are okay when individual
+    // commands implement these differently.
+    plugin.markChanged = (file) => {
+      logger.debug(`clearCache(${file}) called, but function not yet hooked up.`, {
+        name: plugin.name,
+      });
+    };
+
+    // Finish up.
     validatePlugin(plugin);
     return plugin;
   }

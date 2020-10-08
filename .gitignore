@@ -2,8 +2,8 @@
 .build
 .idea
 .vercel
-docs/_site
-docs/index.md
+www/_site
+www/index.md
 lerna-debug.log
 node_modules
 package-lock.json

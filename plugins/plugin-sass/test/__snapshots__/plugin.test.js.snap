@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`plugin-sass returns the compiled Sass result: App.sass 1`] = `
+"body {
+  font-family: Helvetica, sans-serif;
+}
+
+.App {
+  text-align: center;
+  background: #333;
+}"
+`;
+
+exports[`plugin-sass returns the compiled Sass result: App.scss 1`] = `
+"body {
+  font-family: Helvetica, sans-serif;
+}
+
+.App {
+  text-align: center;
+  background: #333;
+}"
+`;
