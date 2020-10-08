@@ -42,4 +42,3 @@ You can pass Svelte HMR specific options through the `hot` option of the plugin.
   ]
 }
 ```
-
