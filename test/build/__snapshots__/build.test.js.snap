@@ -602,7 +602,7 @@ import def, {
     all/* , */,
 } from '../web_modules/async.js';
 console.log(def, waterfall, all);
-import(\\"../web_modules/array-flatten.js\\")"
+import(/* webpackChunkName: \\"array-flatten\\" */ \\"../web_modules/array-flatten.js\\")"
 `;
 
 exports[`snowpack build config-treeshake: allFiles 1`] = `

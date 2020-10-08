@@ -14,7 +14,7 @@ interface Dependency {
 
 type HMRMessage =
   | {type: 'reload'}
-  | {type: 'update'; url: string; bubbled: boolean;}
+  | {type: 'update'; url: string; bubbled: boolean}
   | {
       type: 'error';
       title: string;
