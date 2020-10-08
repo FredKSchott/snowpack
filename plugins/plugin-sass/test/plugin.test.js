@@ -17,7 +17,7 @@ describe('plugin-sass', () => {
 
   test('throws an error when stderr output is returned', async () => {
     const p = plugin(null, {});
-    expect(p.load({filePath: pathToBadCode, isDev: false})).rejects.toThrow(
+    await expect(p.load({filePath: pathToBadCode, isDev: false})).rejects.toThrow(
       'Command failed with exit code',
     );
   });
