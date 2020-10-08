@@ -838,7 +838,7 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
       'snowpack.config.json',
     ],
     loaders: {
-      '.ts': (filePath, content) => {
+      '.ts': (_, content) => {
         const {js} = esbuild.transformSync(content, {loader: 'ts', format: 'cjs'});
         const tempConfig = path.join(os.tmpdir(), '.snowpack.config.cjs');
         // This is a workaround for exporting config as ES Module.
