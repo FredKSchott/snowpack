@@ -29,7 +29,11 @@ describe('snowpack dev', () => {
     // start the server
     // NOTE: we tried spawning `yarn` here, but the process was not cleaned up
     //       correctly on CI and the action got stuck. npx does not cause that problem.
-    snowpackProcess = execa('npx', ['snowpack', 'dev', '--verbose'], {cwd});
+    snowpackProcess = execa(
+      path.resolve('node_modules', '.bin', 'snowpack'),
+      ['dev', '--verbose'],
+      {cwd},
+    );
 
     snowpackProcess.stdout.pipe(process.stdout);
     snowpackProcess.stderr.pipe(process.stderr);
