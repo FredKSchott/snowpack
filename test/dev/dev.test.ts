@@ -6,9 +6,12 @@ const glob = require('glob');
 const os = require('os');
 const got = require('got');
 
+let counter = 0;
+
 describe('snowpack dev', () => {
   let snowpackProcess;
   afterEach(async () => {
+    console.log('afterEach %d', counter);
     snowpackProcess.cancel();
     snowpackProcess.kill('SIGTERM', {
       forceKillAfterTimeout: 2000,
@@ -19,12 +22,16 @@ describe('snowpack dev', () => {
     } catch (error) {
       expect(error.killed).toEqual(true);
     }
+
+    console.log('done afterEach %d', counter);
   });
 
   it('smoke', async () => {
     expect.assertions(2);
 
     const cwd = path.join(__dirname, 'smoke');
+
+    console.log('execa snowpack counter: %d', ++counter);
 
     // start the server
     // NOTE: we tried spawning `yarn` here, but the process was not cleaned up
@@ -35,8 +42,8 @@ describe('snowpack dev', () => {
       {cwd},
     );
 
-    snowpackProcess.stdout.pipe(process.stdout);
-    snowpackProcess.stderr.pipe(process.stderr);
+    // snowpackProcess.stdout.pipe(process.stdout);
+    // snowpackProcess.stderr.pipe(process.stderr);
 
     // await server to be ready and set a timeout in case something goes wrong
     await new Promise((resolve, reject) => {
