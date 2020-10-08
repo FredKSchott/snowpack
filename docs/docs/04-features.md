@@ -223,6 +223,8 @@ You can automatically generate credentials for your project via either:
 - [devcert (no install required)](https://github.com/davewasmer/devcert-cli): `npx devcert-cli generate localhost`
 - [mkcert (install required)](https://github.com/FiloSottile/mkcert): `mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt localhost`
 
+Note that it is considered a best practise to add both `snowpack.key` and `snowpack.crt` to your `.gitignore` file.
+
 ### Legacy Browser Support
 
 You can customize the set of browsers you'd like to support via the `package.json` "browserslist" property, going all the way back to IE11. This will be picked up when you run `snowpack build` to build for production.
