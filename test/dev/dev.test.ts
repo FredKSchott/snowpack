@@ -35,7 +35,7 @@ describe('snowpack dev', () => {
     // start the server
     // NOTE: we tried spawning `yarn` here, but the process was not cleaned up
     //       correctly on CI and the action got stuck. npx does not cause that problem.
-    snowpackProcess = execa('npx', ['snowpack', 'dev'], {cwd, shell: true});
+    snowpackProcess = execa('npx', ['snowpack', 'dev'], {cwd, windowsHide: true});
 
     // await server to be ready and set a timeout in case something goes wrong
     await new Promise((resolve, reject) => {
