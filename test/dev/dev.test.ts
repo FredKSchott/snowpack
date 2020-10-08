@@ -22,7 +22,7 @@ describe('snowpack dev', () => {
   });
 
   it('smoke', async () => {
-    expect.assertions(3);
+    expect.assertions(2);
 
     const cwd = path.join(__dirname, 'smoke');
 
@@ -62,8 +62,8 @@ describe('snowpack dev', () => {
     const {body: htmlBody} = await got('http://localhost:8080');
     expect(htmlBody).toMatchSnapshot('html');
 
-    // get built JS
-    const {body: jsBody} = await got('http://localhost:8080/_dist_/index.js');
-    expect(jsBody).toMatchSnapshot('js');
+    // // get built JS
+    // const {body: jsBody} = await got('http://localhost:8080/_dist_/index.js');
+    // expect(jsBody).toMatchSnapshot('js');
   });
 });
