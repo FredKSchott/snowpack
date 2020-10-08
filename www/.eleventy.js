@@ -3,7 +3,7 @@ const pluginTOC = require('eleventy-plugin-nesting-toc');
 const syntaxHighlight = require('@11ty/eleventy-plugin-syntaxhighlight');
 const child_process = require('child_process');
 
-const { DateTime } = require("luxon");
+const {DateTime} = require('luxon');
 // const pluginRss = require("@11ty/eleventy-plugin-rss");
 // const pluginSyntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 
@@ -22,8 +22,8 @@ module.exports = function (eleventyConfig) {
   //   return 'https://www.pika.dev' + url;
   // });
 
-  eleventyConfig.addFilter("readableDate", dateObj => {
-    return DateTime.fromJSDate(dateObj, {zone: 'utc'}).toFormat("LLLL dd, yyyy");
+  eleventyConfig.addFilter('readableDate', (dateObj) => {
+    return DateTime.fromJSDate(dateObj, {zone: 'utc'}).toFormat('LLLL dd, yyyy');
   });
 
   // // https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#valid-date-string
@@ -77,10 +77,6 @@ module.exports = function (eleventyConfig) {
   //   }
   // });
 
-
-  eleventyConfig.on('beforeWatch', () => {
-    child_process.execSync('cat docs/* > index.md', { encoding: 'utf8'} )
-  });
   eleventyConfig.addPlugin(syntaxHighlight);
   eleventyConfig.addPlugin(pluginTOC, {
     tags: ['h2', 'h3'],
@@ -99,6 +95,22 @@ module.exports = function (eleventyConfig) {
     }).use(markdownItAnchor, {}),
   );
 
+    function onWatchEvent() {
+      console.log('GO!');
+      child_process.execSync('cat ../docs/* > index.md', {
+        cwd: __dirname,
+        encoding: 'utf8',
+      });
+    }
+    const chokidar = require('chokidar');
+    const watcher = chokidar.watch(path.join(__dirname, '../docs/*.md'), {
+      persistent: true,
+      ignoreInitial: true,
+      disableGlobbing: false,
+    });
+    watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
+    watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
+    watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
   return {
     // templateFormats: [
     //   "md",
