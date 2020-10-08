@@ -13060,6 +13060,11 @@ svelte-check@^1.0.0:
     vscode-languageserver-types "3.15.1"
     vscode-uri "2.1.2"
 
+svelte-hmr@^0.11.2-1:
+  version "0.11.2-1"
+  resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.11.2-1.tgz#ce1b481a2489697ccf7aa405bccae1421ce80011"
+  integrity sha512-VanuFg1OiMvLjs44jo8+qnZnKfQGfflNRf8hETUhOs28J5V4xsCgU2NJHy+3iTVgEX1+a41zIEIBgquh02o9bQ==
+
 svelte-language-server@*:
   version "0.10.133"
   resolved "https://registry.yarnpkg.com/svelte-language-server/-/svelte-language-server-0.10.133.tgz#e5d121a1a27090076e6c6c046b1aeeb45b5d0b93"
