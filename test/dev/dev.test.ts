@@ -7,14 +7,23 @@ const os = require('os');
 const got = require('got');
 
 describe('snowpack dev', () => {
+  // tests don't run on windows. `snowpackProcess` does not get ended correctly
+  if (process.platform === 'win32') {
+    it.todo('snowpack dev tests are currently not running on Windows');
+    return;
+  }
+
   let snowpackProcess;
   afterEach(async () => {
     snowpackProcess.cancel();
+    snowpackProcess.kill('SIGTERM', {
+      forceKillAfterTimeout: 2000,
+    });
 
     try {
       await snowpackProcess;
     } catch (error) {
-      expect(error.isCanceled).toEqual(true);
+      expect(error.killed).toEqual(true);
     }
   });
 
