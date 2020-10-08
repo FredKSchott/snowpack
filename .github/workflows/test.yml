@@ -22,11 +22,13 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: build and test
+      - name: build
         run: |
           yarn --ignore-engines
           yarn build
-          # yarn test
-          npx jest test/dev/dev.test.ts --detectOpenHandles --test-timeout=30000
+        env:
+          CI: true
+      - name: test
+        run: npx jest test/dev/dev.test.ts --detectOpenHandles --test-timeout=30000
         env:
           CI: true
