@@ -50,6 +50,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     fallback: 'index.html',
     hmrDelay: 0,
     hmrPort: 12321,
+    hmrErrorOverlay: true,
   },
   buildOptions: {
     baseUrl: '/',
@@ -97,6 +98,7 @@ const configSchema = {
         hmr: {type: 'boolean'},
         hmrDelay: {type: 'number'},
         hmrPort: {type: 'number'},
+        hmrErrorOverlay: {type: 'boolean'},
       },
     },
     installOptions: {

@@ -19,5 +19,9 @@
   "dependencies": {
     "rollup-plugin-svelte": "^5.2.3",
     "svelte-hmr": "^0.11.2-1"
+  },
+  "devDependencies": {
+    "node-sass": "^4.14.1",
+    "svelte-preprocess-sass": "^0.2.0"
   }
 }
