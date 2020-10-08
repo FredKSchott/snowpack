@@ -203,7 +203,9 @@ const sendFile = (
 };
 
 const sendError = (req: http.IncomingMessage, res: http.ServerResponse, status: number) => {
-  logger.error(`[${status}] ${req.url}`);
+  if (!(req.url === '/favicon.ico' && status === 404)) {
+    logger.error(`[${status}] ${req.url}`);
+  }
   const contentType = mime.contentType(path.extname(req.url!) || '.html');
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': '*',
@@ -482,13 +484,11 @@ export async function startServer(commandOptions: CommandOptions) {
     const fileLoc = await getFileFromUrl(reqPath);
 
     if (!fileLoc) {
-      const attemptedFilesMessage = attemptedFileLoads.map((loc) => '  ✘ ' + loc).join('\n');
-      const errorMessage = `[404] ${reqUrl}\n${attemptedFilesMessage}`;
-      // Log any favicon 404s at the "debug" level, only. Browsers automatically request a favicon.ico file
+      // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
       // from the server, which creates annoying errors for new apps / first experiences.
-      if (reqPath === '/favicon.ico') {
-        logger.debug(errorMessage);
-      } else {
+      if (reqPath !== '/favicon.ico') {
+        const attemptedFilesMessage = attemptedFileLoads.map((loc) => '  ✘ ' + loc).join('\n');
+        const errorMessage = `[404] ${reqUrl}\n${attemptedFilesMessage}`;
         logger.error(errorMessage);
       }
       return sendError(req, res, 404);
