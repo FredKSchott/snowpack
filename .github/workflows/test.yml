@@ -27,6 +27,6 @@ jobs:
           yarn --ignore-engines
           yarn build
           # yarn test
-          npx jest test/dev/dev.test.ts --detectOpenHandles
+          npx jest test/dev/dev.test.ts --detectOpenHandles --test-timeout=30000
         env:
           CI: true
