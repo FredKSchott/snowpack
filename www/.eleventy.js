@@ -95,8 +95,9 @@ module.exports = function (eleventyConfig) {
     }).use(markdownItAnchor, {}),
   );
 
+  // Only run in --serve mode.
+  if (process.argv.includes('--serve')) {
     function onWatchEvent() {
-      console.log('GO!');
       child_process.execSync('cat ../docs/* > index.md', {
         cwd: __dirname,
         encoding: 'utf8',
@@ -111,6 +112,8 @@ module.exports = function (eleventyConfig) {
     watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
     watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
     watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
+  }
+  
   return {
     // templateFormats: [
     //   "md",
