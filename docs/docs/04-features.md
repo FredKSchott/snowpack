@@ -214,7 +214,7 @@ See the [config.proxy API](#config.proxy) section for more information and full 
 npm start -- --secure
 ```
 
-Snowpack provides an easy way to use a local HTTPS server during development through the use of the `--secure` flag. When enabled, Snowpack will look for a `snowpack.key` and `snowpack.crt` file in the root directory and use that to create an HTTPS server with HTTP2 support enabled.
+Snowpack provides an easy way to use a local HTTPS server during development through the use of the `--secure` flag. When enabled, Snowpack will look for a `snowpack.key` and `snowpack.crt` file in the root directory and use that to create an HTTPS server with HTTP2 support enabled. It is good practice to add them to your `.gitignore` file as `snowpack.key` is a private key and every developer wants to use their own certificates anyways.
 
 #### Generating SSL Certificates
 
