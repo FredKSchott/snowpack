@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-config-ts-format",
+  "description": "Test for TypeScript-format config file.",
+  "scripts": {
+    "testbuild": "snowpack build"
+  },
+  "devDependencies": {
+    "snowpack": "^2.12.1"
+  }
+}

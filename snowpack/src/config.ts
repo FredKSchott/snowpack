@@ -2,8 +2,11 @@ import buildScriptPlugin from '@snowpack/plugin-build-script';
 import runScriptPlugin from '@snowpack/plugin-run-script';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
+import esbuild from 'esbuild';
+import fs from 'fs';
 import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
+import os from 'os';
 import path from 'path';
 import yargs from 'yargs-parser';
 
@@ -826,13 +829,24 @@ export function createConfiguration(
 
 export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
   const explorerSync = cosmiconfigSync(CONFIG_NAME, {
-    // only support these 4 types of config for now
+    // only support these 5 types of config for now
     searchPlaces: [
       'package.json',
       'snowpack.config.cjs',
       'snowpack.config.js',
+      'snowpack.config.ts',
       'snowpack.config.json',
     ],
+    loaders: {
+      '.ts': (filePath, content) => {
+        const {js} = esbuild.transformSync(content, {loader: 'ts', format: 'cjs'});
+        const tempConfig = path.join(os.tmpdir(), '.snowpack.config.cjs');
+        // This is a workaround for exporting config as ES Module.
+        fs.writeFileSync(tempConfig, `${js}\nmodule.exports = exports.default || exports;`);
+
+        return require(tempConfig);
+      },
+    },
     // don't support crawling up the folder tree:
     stopDir: path.dirname(process.cwd()),
   });
