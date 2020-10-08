@@ -975,11 +975,12 @@ export async function startServer(commandOptions: CommandOptions) {
     if (visited.has(url)) {
       return;
     }
-    visited.add(url);
     const node = hmrEngine.getEntry(url);
+    const isBubbled = visited.size > 0;
     if (node && node.isHmrEnabled) {
-      hmrEngine.broadcastMessage({type: 'update', url});
+      hmrEngine.broadcastMessage({type: 'update', url, bubbled: isBubbled});
     }
+    visited.add(url);
     if (node && node.isHmrAccepted) {
       // Found a boundary, no bubbling needed
     } else if (node && node.dependents.size > 0) {
