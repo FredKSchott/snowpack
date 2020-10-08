@@ -7,7 +7,6 @@ const pathToScssApp = path.join(__dirname, 'fixtures/scss/App.scss');
 const pathToBadCode = path.join(__dirname, 'fixtures/bad/bad.scss');
 
 describe('plugin-sass', () => {
-
   test('returns the compiled Sass result', async () => {
     const p = plugin(null, {});
     const sassResult = await p.load({filePath: pathToSassApp, isDev: false});
@@ -18,7 +17,9 @@ describe('plugin-sass', () => {
 
   test('throws an error when stderr output is returned', async () => {
     const p = plugin(null, {});
-    expect(p.load({filePath: pathToBadCode, isDev: false})).rejects.toThrow('Command failed with exit code');
+    expect(p.load({filePath: pathToBadCode, isDev: false})).rejects.toThrow(
+      'Command failed with exit code',
+    );
   });
 
   test('marks a dependant as changed when an imported changes and isDev=true', async () => {

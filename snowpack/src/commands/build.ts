@@ -292,7 +292,6 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
-
   const buildDirectoryLoc = config.devOptions.out;
   const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaDir);
 

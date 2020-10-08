@@ -30,6 +30,6 @@ module.exports = {
 
 ## Plugin Options
 
-| Name     |   Type    | Description        |
-| :------- | :-------: | :----------------- |
+| Name     |   Type    | Description                                                                                                                                                                                                                                                                            |
+| :------- | :-------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `native` | `boolean` | If true, the plugin will ignore the npm version of sass installed locally for the native Sass CLI [installed separately](https://sass-lang.com/install). This involves extra set up, but the result can be [up to 9x faster.](https://stackoverflow.com/a/56422541) Defaults to false. |

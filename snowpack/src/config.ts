@@ -349,7 +349,7 @@ function loadPlugins(
       plugin.resolve = {input, output};
     }
 
-    // Add any internal plugin methods. Placeholders are okay when individual 
+    // Add any internal plugin methods. Placeholders are okay when individual
     // commands implement these differently.
     plugin.markChanged = (file) => {
       logger.debug(`clearCache(${file}) called, but function not yet hooked up.`, {

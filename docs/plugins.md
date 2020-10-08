@@ -337,8 +337,6 @@ Manually mark a file as changed, regardless of whether the file changed on disk 
 - See [@snowpack/plugin-sass](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-sass/plugin.js) for an example of how to use this method.
 - [Full TypeScript definition](https://github.com/pikapkg/snowpack/tree/master/snowpack/src/types/snowpack.ts).
 
-
-
 ## Publishing a Plugin
 
 To share a plugin with the world, you can publish it to npm. For example, take a look at [snowpack-plugin-starter-template](https://github.com/pikapkg/snowpack-plugin-starter-template) which can get you up-and-running quickly. You can either copy this outright or simply take what you need.
