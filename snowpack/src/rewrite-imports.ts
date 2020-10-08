@@ -42,9 +42,9 @@ export async function transformEsmImports(
     }
     let rewrittenImport = replaceImport(spec);
     if (imp.d > -1) {
-        rewrittenImport = webpackMagicCommentMatches
-          ? `${webpackMagicCommentMatches.join(' ')} ${JSON.stringify(rewrittenImport)}`
-          : JSON.stringify(rewrittenImport);
+      rewrittenImport = webpackMagicCommentMatches
+        ? `${webpackMagicCommentMatches.join(' ')} ${JSON.stringify(rewrittenImport)}`
+        : JSON.stringify(rewrittenImport);
     }
     rewrittenCode = spliceString(rewrittenCode, rewrittenImport, imp.s, imp.e);
   }
