@@ -16,7 +16,9 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
 
   let svelteOptions;
   let preprocessOptions;
-  const userSvelteConfigLoc = path.join(process.cwd(), 'svelte.config.js');
+  // Note(drew): __config is for internal testing use; maybe we should make this public at some point?
+  const userSvelteConfigLoc =
+    pluginOptions.__config || path.join(process.cwd(), 'svelte.config.js');
   if (fs.existsSync(userSvelteConfigLoc)) {
     const userSvelteConfig = require(userSvelteConfigLoc);
     const {preprocess, ..._svelteOptions} = userSvelteConfig;
@@ -50,8 +52,8 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       }
 
       const {js, css} = svelte.compile(codeToCompile, {
-        ...svelteOptions,
         generate: isSSR ? 'ssr' : 'dom',
+        ...svelteOptions, // Note(drew) should take precedence over generate above
         outputFilename: filePath,
         filename: filePath,
       });

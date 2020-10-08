@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/plugin-babel",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "main": "plugin.js",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-babel#readme",

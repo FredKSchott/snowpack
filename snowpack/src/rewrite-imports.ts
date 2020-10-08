@@ -4,6 +4,8 @@ import {matchDynamicImportValue} from './scan-imports';
 
 const {parse} = require('es-module-lexer');
 
+const WEBPACK_MAGIC_COMMENT_REGEX = /\/\*[\s\S]*?\*\//g;
+
 function spliceString(source: string, withSlice: string, start: number, end: number) {
   return source.slice(0, start) + (withSlice || '') + source.slice(end);
 }
@@ -32,12 +34,17 @@ export async function transformEsmImports(
   let rewrittenCode = _code;
   for (const imp of imports.reverse()) {
     let spec = rewrittenCode.substring(imp.s, imp.e);
+    let webpackMagicCommentMatches;
     if (imp.d > -1) {
+      // Extracting comments from spec as they are stripped in `matchDynamicImportValue`
+      webpackMagicCommentMatches = spec.match(WEBPACK_MAGIC_COMMENT_REGEX);
       spec = matchDynamicImportValue(spec) || '';
     }
     let rewrittenImport = replaceImport(spec);
     if (imp.d > -1) {
-      rewrittenImport = JSON.stringify(rewrittenImport);
+      rewrittenImport = webpackMagicCommentMatches
+        ? `${webpackMagicCommentMatches.join(' ')} ${JSON.stringify(rewrittenImport)}`
+        : JSON.stringify(rewrittenImport);
     }
     rewrittenCode = spliceString(rewrittenCode, rewrittenImport, imp.s, imp.e);
   }

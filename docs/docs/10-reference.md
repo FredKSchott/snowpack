@@ -109,6 +109,8 @@ Options:
   - Configure your dev server. See the section below for all options.
 - **`buildOptions.*`**
   - Configure your build. See the section below for all options.
+- **`testOptions.*`**
+  - Configure your tests. See the section below for all options.
 
 #### `config.installOptions`
 
@@ -149,6 +151,7 @@ Options:
   - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use.
   - **`installOptions.rollup.plugins`** - Specify [Custom Rollup plugins](#installing-non-js-packages) if you are dealing with non-standard files.
   - **`installOptions.rollup.dedupe`** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation.
+  - **`installOptions.rollup.context`** - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment.
 
 #### `config.devOptions`
 
@@ -187,6 +190,8 @@ Options:
   - The hostname where the browser tab will be open.
 - **`devOptions.hmr`** | `boolean` | Default: `true`
   - Toggles whether or not Snowpack dev server should have HMR enabled.
+- **`devOptions.hmrErrorOverlay`** | `boolean` | Default: `true`
+  - When HMR is enabled, toggles whether or not a browser overlay should display javascript errors.
 - **`devOptions.secure`** | `boolean`
   - Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
 
@@ -219,6 +224,26 @@ Options:
   - **_Experimental:_** Set to `true` to enable source maps
 - **`buildOptions.webModulesUrl`** | `string` | Default: `web_modules`
   - Rename your web modules directory.
+
+#### `config.testOptions`
+
+`object` (options)
+
+Settings that determine how the Snowpack test environment behaves.
+
+Example:
+
+```js
+testOptions: {
+  files: ['my-test-dir/*.test.js'];
+}
+```
+
+Options:
+
+- **`testOptions.files`** | `string[]` | Default: `["__tests__/**/*", "**/*.@(spec|test).*"]`
+  - The location of all test files.
+  - All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
 
 #### `config.proxy`
 

@@ -75,7 +75,10 @@ export function wrapHtmlResponse({
   });
 
   if (hmr) {
-    const hmrScript = `<script type="module" src="${getMetaUrlPath('hmr-client.js', config)}"></script><script type="module" src="${getMetaUrlPath('hmr-error-overlay.js', config)}"></script>`;
+    let hmrScript = `<script type="module" src="${getMetaUrlPath('hmr-client.js', config)}"></script>`;
+    if (config.devOptions.hmrErrorOverlay) {
+      hmrScript += `<script type="module" src="${getMetaUrlPath('hmr-error-overlay.js', config)}"></script>`;
+    }
     code = appendHtmlToHead(code, hmrScript);
   }
   return code;

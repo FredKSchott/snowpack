@@ -45,6 +45,7 @@ npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 
 - [@snowpack/app-template-blank](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-blank)
 - [@snowpack/app-template-blank-typescript](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-blank-typescript)
+- [@snowpack/app-template-minimal](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-minimal)
 - [@snowpack/app-template-react](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react)
 - [@snowpack/app-template-react-typescript](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react-typescript)
 - [@snowpack/app-template-preact](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-preact)
@@ -53,6 +54,7 @@ npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 - [@snowpack/app-template-lit-element](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-lit-element)
 - [@snowpack/app-template-lit-element-typescript](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-lit-element-typescript)
 - [@snowpack/app-template-11ty](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-11ty)
+
 - **[See all community templates](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/cli#featured-community-templates)**
 
 <!--
@@ -69,4 +71,4 @@ Migrating an existing app to Snowpack is meant to be painless, since Snowpack su
 
 CSA is a good starting point for an existing application because it has a few common tools (like Babel) built in by default to replicate the full feature set of a traditional bundled app. CSA is also meant to be a drop-in replacement for Create React App, so any existing Create React App project should run via CSA with zero changes needed.
 
-If you run into issues, search the rest of our docs site for information about importing CSS [from JS](#import-css) and [from CSS](#css-%40import-support), [asset references](#import-images-%26-other-assets), and more.
+If you run into issues, search the rest of our docs site for information about importing CSS [from JS](#javascript) and [from CSS](#import-css), [asset references](#import-images-%26-other-assets), and more.

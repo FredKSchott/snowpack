@@ -216,19 +216,24 @@ const sendError = (req: http.IncomingMessage, res: http.ServerResponse, status: 
 };
 
 export async function startServer(commandOptions: CommandOptions) {
+  // Start the startup timer!
+  let serverStart = performance.now();
+
   const {cwd, config} = commandOptions;
   const {port: defaultPort, hostname, open} = config.devOptions;
   const isHmr = typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true;
-
-  // Start the startup timer!
-  let serverStart = performance.now();
+  const messageBus = new EventEmitter();
   const port = await getPort(defaultPort);
-  // Reset the clock if we had to wait for the user to select a new port.
+
+  // Reset the clock if we had to wait for the user prompt to select a new port.
   if (port !== defaultPort) {
     serverStart = performance.now();
   }
 
-  const messageBus = new EventEmitter();
+  // Fill in any command-specific plugin methods.
+  for (const p of config.plugins) {
+    p.markChanged = (fileLoc) => onWatchEvent(fileLoc) || undefined;
+  }
 
   if (config.devOptions.output === 'dashboard') {
     // "dashboard": Pipe console methods to the logger, and then start the dashboard.
@@ -974,11 +979,12 @@ export async function startServer(commandOptions: CommandOptions) {
     if (visited.has(url)) {
       return;
     }
-    visited.add(url);
     const node = hmrEngine.getEntry(url);
+    const isBubbled = visited.size > 0;
     if (node && node.isHmrEnabled) {
-      hmrEngine.broadcastMessage({type: 'update', url});
+      hmrEngine.broadcastMessage({type: 'update', url, bubbled: isBubbled});
     }
+    visited.add(url);
     if (node && node.isHmrAccepted) {
       // Found a boundary, no bubbling needed
     } else if (node && node.dependents.size > 0) {
@@ -1068,6 +1074,9 @@ export async function startServer(commandOptions: CommandOptions) {
       BUILD_CACHE,
       getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}),
     );
+    for (const plugin of config.plugins) {
+      plugin.onChange && plugin.onChange({filePath: fileLoc});
+    }
     filesBeingDeleted.delete(fileLoc);
   }
   const watcher = chokidar.watch(Object.keys(config.mount), {
