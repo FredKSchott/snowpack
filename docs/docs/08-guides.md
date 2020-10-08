@@ -136,26 +136,10 @@ Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installatio
 
 ```js
 // snowpack.config.json
-// Example: Build all src/css/*.scss files to public/css/*
-"plugins": [
-  ["@snowpack/plugin-run-script", {"cmd": "sass src/css:public/css --no-source-map", "watch": "$1 --watch"}]
-]
-
-// You can configure this to match your preferred layout:
-//
-// import './App.css';
-// "run:sass": "sass src:src --no-source-map",
-//
-// import 'public/css/App.css';
-// "run:sass": "sass src/css:public/css --no-source-map",
-// (Note: Assumes mounted public/ directory ala Create Snowpack App)
+"plugins": ["@snowpack/plugin-sass"]
 ```
 
 [Sass](https://www.sass-lang.com/) is a stylesheet language that’s compiled to CSS. It allows you to use variables, nested rules, mixins, functions, and more, all with a fully CSS-compatible syntax. Sass helps keep large stylesheets well-organized and makes it easy to share design within and across projects.
-
-[Check out the official Sass CLI documentation](https://sass-lang.com/documentation/cli/dart-sass) for a list of all available arguments. You can also use the [node-sass](https://www.npmjs.com/package/node-sass) CLI if you prefer to install Sass from npm.
-
-**Note:** Sass should be run as a "run:" script (see example above) to take advantage of the Sass CLI's partial handling. A `"build:scss"` script would build each file individually as its served, but couldn't handle Sass partials via `@use` due to the fact that Sass bundles these into the importer file CSS.
 
 To use Sass + PostCSS, check out [this guide](https://zellwk.com/blog/eleventy-snowpack-sass-postcss/).
 
