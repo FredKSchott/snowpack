@@ -21,7 +21,7 @@ module.exports = function plugin(snowpackConfig, {hot: hotOptions, ...sveltePlug
   let preprocessOptions;
   // Note(drew): __config is for internal testing use; maybe we should make this public at some point?
   const userSvelteConfigLoc =
-    pluginOptions.__config || path.join(process.cwd(), 'svelte.config.js');
+    sveltePluginOptions.__config || path.join(process.cwd(), 'svelte.config.js');
   if (fs.existsSync(userSvelteConfigLoc)) {
     const userSvelteConfig = require(userSvelteConfigLoc);
     const {preprocess, ..._svelteOptions} = userSvelteConfig;
