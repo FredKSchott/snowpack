@@ -271,19 +271,12 @@ export async function install(
 ): Promise<InstallResult> {
   const options = setOptionDefaults(_options);
   const {
-    useEsbuild = false,
+    useEsbuild = true, // TODO use rollup by default
     cwd,
     alias: installAlias,
-    lockfile,
     logger,
     dest: destLoc,
-    namedExports,
     externalPackage: externalPackages,
-    sourceMap,
-    env: userEnv,
-    rollup: userDefinedRollup,
-    treeshake: isTreeshake,
-    polyfillNode,
   } = options;
 
   const installTargets: InstallTarget[] = _installTargets.map((t) =>
@@ -311,7 +304,7 @@ export async function install(
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
     const proxiedName = sanitizePackageName(targetName); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
-    console.log({targetName, installSpecifier, proxiedName});
+
     // if (lockfile && lockfile.imports[installSpecifier]) {
     //   installEntrypoints[targetName] = lockfile.imports[installSpecifier];
     //   importMap.imports[installSpecifier] = `./${proxiedName}.js`;
@@ -354,7 +347,6 @@ export async function install(
   }
 
   await initESModuleLexer;
-  // console.log({installEntrypoints});
 
   const bundler = useEsbuild ? bundleWithEsBuild : bundleWithRollup;
 
@@ -367,9 +359,9 @@ export async function install(
   const assetsImportMap: ImportMap = {
     imports: Object.assign(
       {},
-      ...Object.keys(assetEntrypoints).map((k) => {
+      ...Object.keys(assetEntrypoints).map((assetName) => {
         return {
-          [k]: `./${k}`,
+          [assetName]: `./${sanitizePackageName(assetName)}`,
         };
       }),
     ),
@@ -384,8 +376,6 @@ export async function install(
     mkdirp.sync(path.dirname(assetDest));
     fs.copyFileSync(assetLoc, assetDest);
   }
-
-  console.log('stats', JSON.stringify(stats, null, 4));
 
   return {
     importMap,
@@ -407,16 +397,16 @@ function makeTsConfig({alias}) {
   const tsconfig = {
     compilerOptions: {paths: Object.assign({}, ...aliases)},
   };
-  console.log({tsconfig});
+
   return JSON.stringify(tsconfig);
 }
 
 async function bundleWithEsBuild({installEntrypoints, installTargets, ...options}: BundlerOptions) {
   const {dest: destLoc = '', env = {}, alias, externalPackage = []} = options;
-  console.log({dest: destLoc});
+
   const metafile = path.join(destLoc, './meta.json');
   const entryPoints = [...Object.values(installEntrypoints)];
-  console.log({entryPoints});
+
   const result = await esbuild({
     splitting: true,
     external: externalPackage,
@@ -424,7 +414,6 @@ async function bundleWithEsBuild({installEntrypoints, installTargets, ...options
     minifySyntax: false,
     minifyWhitespace: false,
     mainFields: ['browser:module', 'module', 'browser', 'main'].filter(isTruthy),
-    // platform: 'node',
     // sourcemap: 'inline', // TODO sourcemaps panics after a lot of CPU load
     define: {
       'process.env.NODE_ENV': JSON.stringify('dev'),
@@ -442,14 +431,12 @@ async function bundleWithEsBuild({installEntrypoints, installTargets, ...options
     logLevel: 'info',
     metafile,
   });
-  // console.log('bundled', result.outputFiles && result.outputFiles.map((x) => x.path));
+
   const meta = JSON.parse(await (await fs.promises.readFile(metafile)).toString());
 
   const importMap = metafileToImportMap({installEntrypoints, meta, destLoc: destLoc});
 
   const stats = metafileToStats({meta, destLoc});
-
-  console.log('esbuild', {importMap, stats: JSON.stringify(stats)});
 
   return {stats, importMap};
 }
@@ -463,7 +450,7 @@ function metafileToImportMap(_options: {
   const inputFiles = Object.values(installEntrypoints).map((x) => path.resolve(x)); // TODO replace resolve with join in cwd
   // const inputSpecifiers = Object.keys(installEntrypoints);
   const inputFilesToSpecifiers = invert(installEntrypoints);
-  console.log({inputFilesToSpecifiers});
+
   const importMaps: Record<string, string>[] = Object.keys(meta.outputs).map((output) => {
     // chunks cannot be entrypoints
     if (path.basename(output).startsWith('chunk.')) {
@@ -527,7 +514,7 @@ async function bundleWithRollup({installEntrypoints, installTargets, ...options}
     treeshake: isTreeshake,
     polyfillNode,
   } = setOptionDefaults(options);
-  // console.log({installTargets, installEntrypoints});
+
   const autoDetectNamedExports = [...CJS_PACKAGES_TO_AUTO_DETECT, ...namedExports];
   let dependencyStats: DependencyStatsOutput | null = null;
   const env = generateEnvObject(userEnv);
