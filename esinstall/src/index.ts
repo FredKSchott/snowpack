@@ -3,6 +3,8 @@ import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-common
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import {init as initESModuleLexer} from 'es-module-lexer';
+import {build as esbuild, Metadata} from 'esbuild';
+import {invert} from 'lodash';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
@@ -266,6 +268,7 @@ export async function install(
   _installTargets: (InstallTarget | string)[],
   _options: PublicInstallOptions = {},
 ): Promise<InstallResult> {
+  const options = setOptionDefaults(_options);
   const {
     cwd,
     alias: installAlias,
@@ -279,8 +282,7 @@ export async function install(
     rollup: userDefinedRollup,
     treeshake: isTreeshake,
     polyfillNode,
-  } = setOptionDefaults(_options);
-  const env = generateEnvObject(userEnv);
+  } = options;
 
   const installTargets: InstallTarget[] = _installTargets.map((t) =>
     typeof t === 'string' ? createInstallTarget(t) : t,
@@ -301,9 +303,8 @@ export async function install(
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
   const importMap: ImportMap = {imports: {}};
-  let dependencyStats: DependencyStatsOutput | null = null;
+
   const skipFailures = false;
-  const autoDetectNamedExports = [...CJS_PACKAGES_TO_AUTO_DETECT, ...namedExports];
 
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
@@ -349,6 +350,103 @@ ${colors.dim(
   }
 
   await initESModuleLexer;
+  console.log({installEntrypoints});
+  const bundleResult = await bundleWithEsBuild({
+    installEntrypoints,
+    installTargets,
+    ...options,
+  });
+
+  mkdirp.sync(destLoc);
+  await writeLockfile(path.join(destLoc, 'import-map.json'), importMap);
+  for (const [assetName, assetLoc] of Object.entries(assetEntrypoints)) {
+    const assetDest = `${destLoc}/${sanitizePackageName(assetName)}`;
+    mkdirp.sync(path.dirname(assetDest));
+    fs.copyFileSync(assetLoc, assetDest);
+  }
+
+  return {
+    importMap,
+    stats: bundleResult.stats,
+  };
+}
+
+type BundlerOptions = PublicInstallOptions & {
+  installEntrypoints: Record<string, string>;
+  installTargets: InstallTarget[];
+};
+
+async function bundleWithEsBuild({installEntrypoints, installTargets, ...options}: BundlerOptions) {
+  const {dest = ''} = options;
+  console.log({dest});
+  const metafile = path.join(dest, './meta.json');
+  const entryPoints = [...Object.values(installEntrypoints)];
+  console.log({entryPoints});
+  const result = await esbuild({
+    splitting: true,
+    // pure
+    bundle: true,
+    format: 'esm',
+    write: true,
+    entryPoints,
+    outdir: dest,
+    minify: false,
+    logLevel: 'info',
+    metafile,
+  });
+  // TODO create the imoprtsMap from the metafile
+  console.log(result.outputFiles && result.outputFiles.map((x) => x.path));
+  const meta = JSON.parse(await (await fs.promises.readFile(metafile)).toString());
+
+  const importMap = metafileToImportMap({installEntrypoints, meta, destLoc: dest});
+  console.log({importMap});
+
+  return {stats: {}, importMap};
+}
+
+function metafileToImportMap(_options: {
+  installEntrypoints: Record<string, string>;
+  meta: Metadata;
+  destLoc: string;
+}): ImportMap {
+  const {destLoc: destLoc, installEntrypoints, meta} = _options;
+  const inputFiles = Object.values(installEntrypoints).map((x) => path.resolve(x)); // TODO replace resolve with join in cwd
+  // const inputSpecifiers = Object.keys(installEntrypoints);
+  const inputFilesToSpecifiers = invert(installEntrypoints);
+  const importMaps: Record<string, string>[] = Object.keys(meta.outputs).map((output) => {
+    const inputs = Object.keys(meta.outputs[output].inputs).map((x) => path.resolve(x)); // TODO replace resolve with join in cwd
+    const input = inputs.find((x) => inputFiles.includes(x));
+    if (!input) {
+      return {};
+    }
+    const specifier = inputFilesToSpecifiers[input];
+    return {[specifier]: path.relative(destLoc, output)};
+  });
+  const importMap = Object.assign({}, ...importMaps);
+  return {imports: importMap};
+}
+
+
+
+
+async function bundleWithRollup({installEntrypoints, installTargets, ...options}: BundlerOptions) {
+  const {
+    cwd,
+    alias: installAlias,
+    logger,
+    dest: destLoc,
+    namedExports,
+    externalPackage: externalPackages,
+    sourceMap,
+    env: userEnv,
+    rollup: userDefinedRollup,
+    treeshake: isTreeshake,
+    polyfillNode,
+  } = setOptionDefaults(options);
+  console.log({installTargets, installEntrypoints});
+  const autoDetectNamedExports = [...CJS_PACKAGES_TO_AUTO_DETECT, ...namedExports];
+  let dependencyStats: DependencyStatsOutput | null = null;
+  const env = generateEnvObject(userEnv);
   let isFatalWarningFound = false;
   const inputOptions: InputOptions = {
     input: installEntrypoints,
@@ -462,17 +560,7 @@ ${colors.dim(
       throw new Error(FAILED_INSTALL_MESSAGE);
     }
   }
-
-  mkdirp.sync(destLoc);
-  await writeLockfile(path.join(destLoc, 'import-map.json'), importMap);
-  for (const [assetName, assetLoc] of Object.entries(assetEntrypoints)) {
-    const assetDest = `${destLoc}/${sanitizePackageName(assetName)}`;
-    mkdirp.sync(path.dirname(assetDest));
-    fs.copyFileSync(assetLoc, assetDest);
-  }
-
   return {
-    importMap,
     stats: dependencyStats!,
   };
 }
