@@ -5,9 +5,8 @@ import {all as merge} from 'deepmerge';
 import esbuild from 'esbuild';
 import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
-import {createRequire, createRequireFromPath} from 'module';
+import os from 'os';
 import path from 'path';
-import vm from 'vm';
 import yargs from 'yargs-parser';
 
 import {defaultFileExtensionMapping} from './build/file-urls';
@@ -838,25 +837,18 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
       'snowpack.config.json',
     ],
     loaders: {
-      '.ts': (configPath, content) => {
-        const {js} = esbuild.transformSync(content, {loader: 'ts', format: 'cjs'});
+      '.ts': (configPath) => {
+        const outPath = path.join(os.tmpdir(), '.snowpack.config.cjs');
+        esbuild.buildSync({
+          entryPoints: [configPath],
+          outfile: outPath,
+          bundle: true,
+          platform: 'node',
+        });
 
-        // TODO: remove `createRequireFromPath` usage once updated to Node.js v12.
-        const createReq = createRequire || createRequireFromPath;
-        const customRequire = createReq(configPath);
-        const exp = {default: {}};
-        const mod = {exports: exp};
-        const fn = `((__dirname, __filename, module, exports, require) => {${js}})`;
-        const script = new vm.Script(fn);
-        script.runInNewContext(global)(
-          path.dirname(configPath),
-          configPath,
-          mod,
-          exp,
-          customRequire,
-        );
+        const exported = require(outPath);
 
-        return mod.exports.default || mod.exports;
+        return exported.default || exported;
       },
     },
     // don't support crawling up the folder tree:
