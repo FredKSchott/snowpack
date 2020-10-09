@@ -4,7 +4,7 @@ import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import {init as initESModuleLexer} from 'es-module-lexer';
 import {build as esbuild, Metadata} from 'esbuild';
-import {invert} from 'lodash';
+import {invert, merge} from 'lodash/fp';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
@@ -230,6 +230,7 @@ interface InstallOptions {
   sourceMap?: boolean | 'inline';
   externalPackage: string[];
   namedExports: string[];
+  useEsbuild?: boolean;
   rollup: {
     context?: string;
     plugins?: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
@@ -270,6 +271,7 @@ export async function install(
 ): Promise<InstallResult> {
   const options = setOptionDefaults(_options);
   const {
+    useEsbuild = false,
     cwd,
     alias: installAlias,
     lockfile,
@@ -309,6 +311,7 @@ export async function install(
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
     const proxiedName = sanitizePackageName(targetName); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
+    console.log({targetName, installSpecifier, proxiedName});
     // if (lockfile && lockfile.imports[installSpecifier]) {
     //   installEntrypoints[targetName] = lockfile.imports[installSpecifier];
     //   importMap.imports[installSpecifier] = `./${proxiedName}.js`;
@@ -327,6 +330,7 @@ export async function install(
             importMap.imports[key] = `./${targetName}.js`;
           });
       } else if (resolvedResult.type === 'ASSET') {
+        // TODO add asset entrypoints to importMap
         assetEntrypoints[targetName] = resolvedResult.loc;
         // importMap.imports[installSpecifier] = `./${proxiedName}`;
       } else if (resolvedResult.type === 'DTS') {
@@ -351,11 +355,27 @@ export async function install(
 
   await initESModuleLexer;
   // console.log({installEntrypoints});
-  const {importMap, stats} = await bundleWithEsBuild({
+
+  const bundler = useEsbuild ? bundleWithEsBuild : bundleWithRollup;
+
+  let {importMap, stats} = await bundler({
     installEntrypoints,
     installTargets,
     ...options,
   });
+
+  const assetsImportMap: ImportMap = {
+    imports: Object.assign(
+      {},
+      ...Object.keys(assetEntrypoints).map((k) => {
+        return {
+          [k]: `./${k}`,
+        };
+      }),
+    ),
+  };
+
+  importMap = merge(assetsImportMap, importMap);
 
   mkdirp.sync(destLoc);
   await writeLockfile(path.join(destLoc, 'import-map.json'), importMap);
@@ -391,7 +411,6 @@ function makeTsConfig({alias}) {
   return JSON.stringify(tsconfig);
 }
 
-
 async function bundleWithEsBuild({installEntrypoints, installTargets, ...options}: BundlerOptions) {
   const {dest: destLoc = '', env = {}, alias, externalPackage = []} = options;
   console.log({dest: destLoc});
@@ -401,6 +420,11 @@ async function bundleWithEsBuild({installEntrypoints, installTargets, ...options
   const result = await esbuild({
     splitting: true,
     external: externalPackage,
+    minifyIdentifiers: false,
+    minifySyntax: false,
+    minifyWhitespace: false,
+    mainFields: ['browser:module', 'module', 'browser', 'main'].filter(isTruthy),
+    // platform: 'node',
     // sourcemap: 'inline', // TODO sourcemaps panics after a lot of CPU load
     define: {
       'process.env.NODE_ENV': JSON.stringify('dev'),
@@ -602,6 +626,7 @@ async function bundleWithRollup({installEntrypoints, installTargets, ...options}
         throw new Error(FAILED_INSTALL_MESSAGE);
       }
       logger.debug(`writing install results to disk`);
+
       await packageBundle.write(outputOptions);
     } catch (_err) {
       const err: RollupError = _err;
@@ -620,7 +645,22 @@ async function bundleWithRollup({installEntrypoints, installTargets, ...options}
       throw new Error(FAILED_INSTALL_MESSAGE);
     }
   }
+
+  const importMap: ImportMap = {
+    imports: Object.assign(
+      {},
+      ...Object.keys(installEntrypoints).map((k) => {
+        const targetName = getWebDependencyName(k);
+        const proxiedName = sanitizePackageName(targetName);
+        return {
+          [k]: `./${proxiedName}.js`,
+        };
+      }),
+    ),
+  };
+
   return {
     stats: dependencyStats!,
+    importMap,
   };
 }
