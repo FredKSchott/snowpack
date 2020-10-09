@@ -5,7 +5,7 @@ import {all as merge} from 'deepmerge';
 import esbuild from 'esbuild';
 import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
-import {createRequire} from 'module';
+import {createRequire, createRequireFromPath} from 'module';
 import path from 'path';
 import vm from 'vm';
 import yargs from 'yargs-parser';
@@ -841,7 +841,9 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
       '.ts': (configPath, content) => {
         const {js} = esbuild.transformSync(content, {loader: 'ts', format: 'cjs'});
 
-        const customRequire = createRequire(configPath);
+        // TODO: remove `createRequireFromPath` usage once updated to Node.js v12.
+        const createReq = createRequire || createRequireFromPath;
+        const customRequire = createReq(configPath);
         const exp = {default: {}};
         const mod = {exports: exp};
         const fn = `((__dirname, __filename, module, exports, require) => {${js}})`;
