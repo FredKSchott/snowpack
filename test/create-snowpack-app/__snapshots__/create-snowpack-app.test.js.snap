@@ -7565,7 +7565,7 @@ exports[`create-snowpack-app app-template-preact: web_modules/preact.js 1`] = `"
 
 exports[`create-snowpack-app app-template-preact: web_modules/preact/devtools.js 1`] = `
 "import { n, p, d } from '../common/preact.module-XXXXXXXX.js';
-\\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.5.3\\",n,{Fragment:p,Component:d});"
+\\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.5.4\\",n,{Fragment:p,Component:d});"
 `;
 
 exports[`create-snowpack-app app-template-preact: web_modules/preact/hooks.js 1`] = `
