@@ -4,7 +4,7 @@ const execa = require('execa');
 const {readdirSync, readFileSync, statSync, existsSync} = require('fs');
 const glob = require('glob');
 const os = require('os');
-const got = require('got');
+const {get} = require('httpie');
 
 describe('snowpack dev', () => {
   let snowpackProcess;
@@ -59,11 +59,11 @@ describe('snowpack dev', () => {
     });
 
     // get HTML
-    const {body: htmlBody} = await got('http://localhost:8080');
+    const {data: htmlBody} = await get('http://localhost:8080');
     expect(htmlBody).toMatchSnapshot('html');
 
     // get built JS
-    const {body: jsBody} = await got('http://localhost:8080/_dist_/index.js');
+    const {data: jsBody} = await get('http://localhost:8080/_dist_/index.js');
     expect(jsBody).toMatchSnapshot('js');
   });
 });
