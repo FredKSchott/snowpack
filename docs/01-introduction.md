@@ -18,7 +18,7 @@ Snowpack leverages JavaScript's native module system (<a href="https://developer
 
 <div class="company-logos">
 {% for user in usersList %}
-  <a href="{{ user.url }}" target="_blank" rel="noopener noreferrer">
+  <a href="{{ user.url }}" target="_blank" rel="noopener noreferrer nofollow">
     {% if user.img %}<img class="company-logo" src="{{ user.img }}" alt="{{ user.name }}" />
     {% else %}<span>{{ user.name }}</span>
     {% endif %}

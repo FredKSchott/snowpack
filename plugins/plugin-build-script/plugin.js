@@ -29,9 +29,9 @@ function buildScriptPlugin(_, {input, output, cmd}) {
       if (exitCode !== 0) {
         throw new Error(stderr || stdout);
       }
-      // If the plugin output tp stderr, how it to the user.
+      // If the plugin outputs to stderr, show it to the user.
       if (stderr) {
-        throw new Error(stderr);
+        console.warn(stderr);
       }
       return {[output[0]]: stdout};
     },
