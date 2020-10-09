@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-preact-typescript",
-  "version": "1.10.2",
+  "version": "1.0.0",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-preact-typescript#readme",
   "repository": {
