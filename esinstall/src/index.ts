@@ -302,25 +302,25 @@ export async function install(
   );
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
-  const importMap: ImportMap = {imports: {}};
+  // const importMap: ImportMap = {imports: {}};
 
   const skipFailures = false;
 
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
     const proxiedName = sanitizePackageName(targetName); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
-    if (lockfile && lockfile.imports[installSpecifier]) {
-      installEntrypoints[targetName] = lockfile.imports[installSpecifier];
-      importMap.imports[installSpecifier] = `./${proxiedName}.js`;
-      continue;
-    }
+    // if (lockfile && lockfile.imports[installSpecifier]) {
+    //   installEntrypoints[targetName] = lockfile.imports[installSpecifier];
+    //   importMap.imports[installSpecifier] = `./${proxiedName}.js`;
+    //   continue;
+    // }
     try {
       const resolvedResult = resolveWebDependency(installSpecifier, {
         cwd,
       });
       if (resolvedResult.type === 'JS') {
         installEntrypoints[targetName] = resolvedResult.loc;
-        importMap.imports[installSpecifier] = `./${proxiedName}.js`;
+        // importMap.imports[installSpecifier] = `./${proxiedName}.js`;
         Object.entries(installAlias)
           .filter(([, value]) => value === installSpecifier)
           .forEach(([key]) => {
@@ -328,7 +328,7 @@ export async function install(
           });
       } else if (resolvedResult.type === 'ASSET') {
         assetEntrypoints[targetName] = resolvedResult.loc;
-        importMap.imports[installSpecifier] = `./${proxiedName}`;
+        // importMap.imports[installSpecifier] = `./${proxiedName}`;
       } else if (resolvedResult.type === 'DTS') {
         // This is fine! Skip type-only packages
         logger.debug(`[${installSpecifier}] target points to a TS-only package.`);
@@ -342,16 +342,16 @@ export async function install(
   }
   if (Object.keys(installEntrypoints).length === 0 && Object.keys(assetEntrypoints).length === 0) {
     throw new Error(`No ESM dependencies found!
-${colors.dim(
-  `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${colors.underline(
-    'https://www.pika.dev',
-  )}`,
-)}`);
+  ${colors.dim(
+    `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${colors.underline(
+      'https://www.pika.dev',
+    )}`,
+  )}`);
   }
 
   await initESModuleLexer;
-  console.log({installEntrypoints});
-  const bundleResult = await bundleWithEsBuild({
+  // console.log({installEntrypoints});
+  const {importMap, stats} = await bundleWithEsBuild({
     installEntrypoints,
     installTargets,
     ...options,
@@ -365,11 +365,11 @@ ${colors.dim(
     fs.copyFileSync(assetLoc, assetDest);
   }
 
-  console.log(JSON.stringify(bundleResult.stats, null, 4));
+  console.log('stats', JSON.stringify(stats, null, 4));
 
   return {
     importMap,
-    stats: bundleResult.stats,
+    stats,
   };
 }
 
@@ -378,15 +378,37 @@ type BundlerOptions = PublicInstallOptions & {
   installTargets: InstallTarget[];
 };
 
+function makeTsConfig({alias}) {
+  const aliases = Object.keys(alias || {}).map((k) => {
+    return {
+      [k]: [alias[k]],
+    };
+  });
+  const tsconfig = {
+    compilerOptions: {paths: Object.assign({}, ...aliases)},
+  };
+  console.log({tsconfig});
+  return JSON.stringify(tsconfig);
+}
+
+
 async function bundleWithEsBuild({installEntrypoints, installTargets, ...options}: BundlerOptions) {
-  const {dest: destLoc = ''} = options;
+  const {dest: destLoc = '', env = {}, alias, externalPackage = []} = options;
   console.log({dest: destLoc});
   const metafile = path.join(destLoc, './meta.json');
   const entryPoints = [...Object.values(installEntrypoints)];
   console.log({entryPoints});
   const result = await esbuild({
     splitting: true,
-    // pure
+    external: externalPackage,
+    // sourcemap: 'inline', // TODO sourcemaps panics after a lot of CPU load
+    define: {
+      'process.env.NODE_ENV': JSON.stringify('dev'),
+      process: 'window',
+      'process.env': 'window',
+      ...generateEnvReplacements(env),
+    },
+    // tsconfig: makeTsConfig({alias}), // TODO create a tsconfig file and pass path here, delete after build finishes
     bundle: true,
     format: 'esm',
     write: true,
@@ -396,8 +418,7 @@ async function bundleWithEsBuild({installEntrypoints, installTargets, ...options
     logLevel: 'info',
     metafile,
   });
-  // TODO create the imoprtsMap from the metafile
-  console.log(result.outputFiles && result.outputFiles.map((x) => x.path));
+  // console.log('bundled', result.outputFiles && result.outputFiles.map((x) => x.path));
   const meta = JSON.parse(await (await fs.promises.readFile(metafile)).toString());
 
   const importMap = metafileToImportMap({installEntrypoints, meta, destLoc: destLoc});
@@ -418,14 +439,19 @@ function metafileToImportMap(_options: {
   const inputFiles = Object.values(installEntrypoints).map((x) => path.resolve(x)); // TODO replace resolve with join in cwd
   // const inputSpecifiers = Object.keys(installEntrypoints);
   const inputFilesToSpecifiers = invert(installEntrypoints);
+  console.log({inputFilesToSpecifiers});
   const importMaps: Record<string, string>[] = Object.keys(meta.outputs).map((output) => {
+    // chunks cannot be entrypoints
+    if (path.basename(output).startsWith('chunk.')) {
+      return {};
+    }
     const inputs = Object.keys(meta.outputs[output].inputs).map((x) => path.resolve(x)); // TODO replace resolve with join in cwd
     const input = inputs.find((x) => inputFiles.includes(x));
     if (!input) {
       return {};
     }
     const specifier = inputFilesToSpecifiers[input];
-    return {[specifier]: path.relative(destLoc, output)};
+    return {[specifier]: './' + path.normalize(path.relative(destLoc, output))};
   });
   const importMap = Object.assign({}, ...importMaps);
   return {imports: importMap};
@@ -477,7 +503,7 @@ async function bundleWithRollup({installEntrypoints, installTargets, ...options}
     treeshake: isTreeshake,
     polyfillNode,
   } = setOptionDefaults(options);
-  console.log({installTargets, installEntrypoints});
+  // console.log({installTargets, installEntrypoints});
   const autoDetectNamedExports = [...CJS_PACKAGES_TO_AUTO_DETECT, ...namedExports];
   let dependencyStats: DependencyStatsOutput | null = null;
   const env = generateEnvObject(userEnv);
