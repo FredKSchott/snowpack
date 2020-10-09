@@ -9,6 +9,7 @@
     "publish": "npm run build && lerna publish --no-private",
     "format": "prettier --write '{snowpack,esinstall}/src/**/*.{ts,js}' '{test,plugins}/**/*.{ts,js}' '*.{js,json,md}' '**/*.{json,md}' '.github/**/*.{md,yml}' '!**/{_dist_,build,packages,pkg,TEST_BUILD_OUT,web_modules}/**' !test/create-snowpack-app/test-install",
     "test": "jest /test/ --test-timeout=30000",
+    "test:dev": "jest /test-dev/ --test-timeout=30000",
     "test:docs": "cd www && yarn && yarn build && jest /__test__/"
   },
   "workspaces": [
@@ -36,6 +37,7 @@
     "@types/ws": "^7.2.4",
     "cross-env": "^7.0.2",
     "execa": "^4.0.3",
+    "httpie": "^1.1.2",
     "jest": "^26.2.2",
     "lerna": "^3.22.1",
     "prettier": "^2.0.5",
