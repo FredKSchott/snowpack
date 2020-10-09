@@ -19,10 +19,18 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: build and test
+      - name: build
         run: |
           yarn --ignore-engines
           yarn build
-          yarn test
+        env:
+          CI: true
+      - name: test
+        run: npm test
+        env:
+          CI: true
+      - name: dev test
+        run: npm run test:dev
+        if: matrix.os == 'ubuntu-latest'
         env:
           CI: true
