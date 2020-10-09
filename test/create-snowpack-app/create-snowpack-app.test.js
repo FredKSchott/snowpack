@@ -14,6 +14,10 @@ const format = (stdout) =>
     .replace(/\n\s*\/\*[^*]+\*\/\s*\n/gm, '\n'); // strip full-line comments (throws Svelte test)
 
 describe('create-snowpack-app', () => {
+
+  // Increase timeout for slow tests
+  jest.setTimeout(60 * 1000);
+
   // test npx create-snowpack-app bin
   it('npx create-snowpack-app', () => {
     const template = 'app-template-preact'; // any template will do
@@ -81,13 +85,11 @@ describe('create-snowpack-app', () => {
 
   // template snapshots
   templates.forEach((template) => {
-    it(template, async () => {
-      const cwd = path.join(TEMPLATES_DIR, template);
+    const cwd = path.join(TEMPLATES_DIR, template);
 
-      // build
+    it(`${template} > build`, async () => {
       await execa('yarn', ['build', '--clean'], {
         cwd,
-        env: {NODE_ENV: 'production'},
       });
 
       const actual = path.join(cwd, 'build');
@@ -115,6 +117,28 @@ describe('create-snowpack-app', () => {
           expect(format(f1)).toMatchSnapshot(entry.replace(/\\/g, '/'));
         }
       }
+    });
+
+    it(`${template} > test`, async () => {
+
+      // This template's tests just take way too long. TODO: Upgrade to @web/test-runner
+      if (template === 'app-template-svelte-typescript') {
+        return;
+      }
+
+      const {stdout, stderr, exitCode} = await execa('yarn', ['test', '--reporters'], {
+        cwd,
+        reject: false
+      });
+      
+      // Ignore templates that have no test runner installed.
+      if (stderr.includes('This template does not include a test runner by default.')) {
+        return;
+      }
+
+      expect(stdout.replace(/[\d\.]+\s*m?s/g, 'XXXXXXms')).toMatchSnapshot('stdout');
+      expect(stderr.replace(/[\d\.]+\s*m?s/g, 'XXXXXXms')).toMatchSnapshot('stderr');
+      expect(exitCode).toMatchSnapshot('exitCode');
     });
   });
 });

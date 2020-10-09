@@ -1119,6 +1119,10 @@ export async function startServer(commandOptions: CommandOptions) {
         (r) => r.data,
       );
     },
+    async shutdown() {
+      await watcher.close();
+      server.close();
+    }
   };
 }
 

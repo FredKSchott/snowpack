@@ -19,20 +19,18 @@
     "build": "snowpack build",
     "format": "prettier --write \"src/**/*.{js,jsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx}\"",
-    "test": "jest"
+    "test": "NODE_ENV=test web-test-runner \"src/**/*.test.jsx\""
   },
   "dependencies": {
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0"
   },
   "devDependencies": {
-    "@babel/preset-react": "^7.10.4",
-    "@snowpack/app-scripts-react": "^1.12.2",
     "@snowpack/plugin-dotenv": "^2.0.3",
     "@snowpack/plugin-react-refresh": "^2.3.1",
-    "@testing-library/jest-dom": "^5.5.0",
-    "@testing-library/react": "^10.0.3",
-    "jest": "^26.2.2",
+    "@snowpack/web-test-runner-plugin": "^0.0.1",
+    "@web/test-runner": "^0.7.31",
+    "chai": "^4.2.0",
     "prettier": "^2.0.5",
     "snowpack": "^2.13.3"
   },
