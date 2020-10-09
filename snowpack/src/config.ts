@@ -3,11 +3,11 @@ import runScriptPlugin from '@snowpack/plugin-run-script';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
 import esbuild from 'esbuild';
-import fs from 'fs';
 import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
-import os from 'os';
+import {createRequire} from 'module';
 import path from 'path';
+import vm from 'vm';
 import yargs from 'yargs-parser';
 
 import {defaultFileExtensionMapping} from './build/file-urls';
@@ -838,13 +838,23 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
       'snowpack.config.json',
     ],
     loaders: {
-      '.ts': (_, content) => {
+      '.ts': (configPath, content) => {
         const {js} = esbuild.transformSync(content, {loader: 'ts', format: 'cjs'});
-        const tempConfig = path.join(os.tmpdir(), '.snowpack.config.cjs');
-        // This is a workaround for exporting config as ES Module.
-        fs.writeFileSync(tempConfig, `${js}\nmodule.exports = exports.default || exports;`);
 
-        return require(tempConfig);
+        const customRequire = createRequire(configPath);
+        const exp = {default: {}};
+        const mod = {exports: exp};
+        const fn = `((__dirname, __filename, module, exports, require) => {${js}})`;
+        const script = new vm.Script(fn);
+        script.runInNewContext(global)(
+          path.dirname(configPath),
+          configPath,
+          mod,
+          exp,
+          customRequire,
+        );
+
+        return mod.exports.default || mod.exports;
       },
     },
     // don't support crawling up the folder tree:
