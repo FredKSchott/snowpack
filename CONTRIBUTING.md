@@ -53,6 +53,7 @@ From the repository's root folder, run
 ```bash
 yarn build
 yarn test
+yarn test:dev # might fail on windows, see #1171
 ```
 
 ### Snapshot tests
