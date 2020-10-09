@@ -12,10 +12,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # os: [ubuntu-latest, windows-2016]
-        # node-version: [10.x, 12.x, 14.x]
-        os: [windows-2016]
-        node-version: [14.x]
+        os: [ubuntu-latest, windows-2016]
+        node-version: [10.x, 12.x, 14.x]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -29,6 +27,11 @@ jobs:
         env:
           CI: true
       - name: test
-        run: npx jest test/dev/dev.test.ts --detectOpenHandles --test-timeout=30000
+        run: npm test
+        env:
+          CI: true
+      - name: dev test
+        run: npm run test:dev
+        if: matrix.os == 'ubuntu-latest'
         env:
           CI: true
