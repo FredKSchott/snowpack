@@ -365,6 +365,8 @@ ${colors.dim(
     fs.copyFileSync(assetLoc, assetDest);
   }
 
+  console.log(JSON.stringify(bundleResult.stats, null, 4));
+
   return {
     importMap,
     stats: bundleResult.stats,
@@ -377,9 +379,9 @@ type BundlerOptions = PublicInstallOptions & {
 };
 
 async function bundleWithEsBuild({installEntrypoints, installTargets, ...options}: BundlerOptions) {
-  const {dest = ''} = options;
-  console.log({dest});
-  const metafile = path.join(dest, './meta.json');
+  const {dest: destLoc = ''} = options;
+  console.log({dest: destLoc});
+  const metafile = path.join(destLoc, './meta.json');
   const entryPoints = [...Object.values(installEntrypoints)];
   console.log({entryPoints});
   const result = await esbuild({
@@ -389,7 +391,7 @@ async function bundleWithEsBuild({installEntrypoints, installTargets, ...options
     format: 'esm',
     write: true,
     entryPoints,
-    outdir: dest,
+    outdir: destLoc,
     minify: false,
     logLevel: 'info',
     metafile,
@@ -398,10 +400,13 @@ async function bundleWithEsBuild({installEntrypoints, installTargets, ...options
   console.log(result.outputFiles && result.outputFiles.map((x) => x.path));
   const meta = JSON.parse(await (await fs.promises.readFile(metafile)).toString());
 
-  const importMap = metafileToImportMap({installEntrypoints, meta, destLoc: dest});
-  console.log({importMap});
+  const importMap = metafileToImportMap({installEntrypoints, meta, destLoc: destLoc});
 
-  return {stats: {}, importMap};
+  const stats = metafileToStats({meta, destLoc});
+
+  console.log('esbuild', {importMap, stats: JSON.stringify(stats)});
+
+  return {stats, importMap};
 }
 
 function metafileToImportMap(_options: {
@@ -426,8 +431,37 @@ function metafileToImportMap(_options: {
   return {imports: importMap};
 }
 
+function metafileToStats(_options: {meta: Metadata; destLoc: string}): DependencyStatsOutput {
+  const {meta, destLoc} = _options;
+  const stats = Object.keys(meta.outputs).map((output) => {
+    const value = meta.outputs[output];
+    // const inputs = meta.outputs[output].bytes;
+    return {
+      path: output,
+      isCommon: ['chunk.'].some((x) => path.basename(output).startsWith(x)),
+      bytes: value.bytes,
+    };
+  });
 
+  function makeStatObject(value) {
+    const relativePath = path.relative(destLoc, value.path);
+    return {
+      [relativePath]: {
+        size: value.bytes,
+        gzip: 0, // TODO do we want to waste time compressing to show stats?
+        brotly: 0,
+        delta: 0,
+        // gzip: zlib.gzipSync(contents).byteLength,
+        // brotli: zlib.brotliCompressSync ? zlib.brotliCompressSync(contents).byteLength : 0,
+      },
+    };
+  }
 
+  return {
+    common: Object.assign({}, ...stats.filter((x) => x.isCommon).map(makeStatObject)),
+    direct: Object.assign({}, ...stats.filter((x) => !x.isCommon).map(makeStatObject)),
+  };
+}
 
 async function bundleWithRollup({installEntrypoints, installTargets, ...options}: BundlerOptions) {
   const {
