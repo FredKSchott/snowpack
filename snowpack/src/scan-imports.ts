@@ -16,7 +16,7 @@ import {
 } from './util';
 import PQueue from 'p-queue';
 
-const CONCURRENT_WORKERS = require('os').cpus().length;
+const CONCURRENT_FILE_READS = 1000;
 
 // [@\w] - Match a word-character or @ (valid package name)
 // (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)
@@ -251,7 +251,7 @@ export async function scanImports(
   }
 
   // Scan every matched JS file for web dependency imports
-  const loadFileQueue = new PQueue({concurrency: CONCURRENT_WORKERS});
+  const loadFileQueue = new PQueue({concurrency: CONCURRENT_FILE_READS});
   const getLoadedFiles = async (filePath: string): Promise<SnowpackSourceFile | null> =>
     loadFileQueue.add(async () => {
       const {baseExt, expandedExt} = getExt(filePath);
@@ -265,7 +265,6 @@ export async function scanImports(
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
     includeFiles.map(getLoadedFiles),
   );
-  await loadFileQueue.onIdle();
 
   return scanImportsFromFiles(loadedFiles.filter(isTruthy), config);
 }
