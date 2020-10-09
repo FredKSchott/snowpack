@@ -7574,6 +7574,193 @@ var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&
 export { m as useState };"
 `;
 
+exports[`create-snowpack-app app-template-preact-typescript: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+
+exports[`create-snowpack-app app-template-preact-typescript: _dist_/App.css 1`] = `
+".App {
+  text-align: center;
+}
+.App code {
+  background: #FFF3;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.App p {
+  margin: 0.4rem;
+}
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+.App-link {
+  color: #61dafb;
+}
+.App-logo {
+  height: 36vmin;
+  pointer-events: none;
+  margin-bottom: 3rem;
+  animation: App-logo-spin infinite 1.6s ease-in-out alternate;
+}
+@keyframes App-logo-spin {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.06);
+  }
+}"
+`;
+
+exports[`create-snowpack-app app-template-preact-typescript: _dist_/App.css.proxy.js 1`] = `
+"
+const code = \\".App {  text-align: center;}.App code {  background: #FFF3;  padding: 4px 8px;  border-radius: 4px;}.App p {  margin: 0.4rem;}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}.App-logo {  height: 36vmin;  pointer-events: none;  margin-bottom: 3rem;  animation: App-logo-spin infinite 1.6s ease-in-out alternate;}@keyframes App-logo-spin {  from {    transform: scale(1);  }  to {    transform: scale(1.06);  }}\\";
+const styleEl = document.createElement(\\"style\\");
+const codeEl = document.createTextNode(code);
+styleEl.type = 'text/css';
+styleEl.appendChild(codeEl);
+document.head.appendChild(styleEl);"
+`;
+
+exports[`create-snowpack-app app-template-preact-typescript: _dist_/App.js 1`] = `
+"import { h } from '../web_modules/preact.js';
+import { useState } from '../web_modules/preact/hooks.js';
+import logo from './logo.png.proxy.js';
+import './App.css.proxy.js';
+function App() {
+  const [count, setCount] = useState(0);
+  setTimeout(() => setCount(count + 1), 1000);
+  return h(\\"div\\", {
+    className: \\"App\\"
+  }, h(\\"header\\", {
+    className: \\"App-header\\"
+  }, h(\\"img\\", {
+    src: logo,
+    className: \\"App-logo\\",
+    alt: \\"logo\\"
+  }), h(\\"p\\", null, \\"Edit \\", h(\\"code\\", null, \\"src/App.jsx\\"), \\" and save to reload.\\"), h(\\"p\\", null, \\"Page has been open for \\", h(\\"code\\", null, count), \\" seconds.\\"), h(\\"p\\", null, h(\\"a\\", {
+    className: \\"App-link\\",
+    href: \\"https://preactjs.com\\",
+    target: \\"_blank\\",
+    rel: \\"noopener noreferrer\\"
+  }, \\"Learn Preact\\"))));
+}
+export default App;"
+`;
+
+exports[`create-snowpack-app app-template-preact-typescript: _dist_/index.css 1`] = `
+"body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}"
+`;
+
+exports[`create-snowpack-app app-template-preact-typescript: _dist_/index.css.proxy.js 1`] = `
+"
+const code = \\"body {  margin: 0;  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',    sans-serif;  -webkit-font-smoothing: antialiased;  -moz-osx-font-smoothing: grayscale;}code {  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',    monospace;}\\";
+const styleEl = document.createElement(\\"style\\");
+const codeEl = document.createTextNode(code);
+styleEl.type = 'text/css';
+styleEl.appendChild(codeEl);
+document.head.appendChild(styleEl);"
+`;
+
+exports[`create-snowpack-app app-template-preact-typescript: _dist_/index.js 1`] = `
+"import { h, render } from '../web_modules/preact.js';
+import '../web_modules/preact/devtools.js';
+import App from './App.js';
+import './index.css.proxy.js';
+const root = document.getElementById('root');
+if (root) {
+  render(h(App, null), root);
+}"
+`;
+
+exports[`create-snowpack-app app-template-preact-typescript: _dist_/logo.png.proxy.js 1`] = `"export default \\"/_dist_/logo.png\\";"`;
+
+exports[`create-snowpack-app app-template-preact-typescript: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "_dist_/App.css",
+  "_dist_/App.css.proxy.js",
+  "_dist_/App.js",
+  "_dist_/index.css",
+  "_dist_/index.css.proxy.js",
+  "_dist_/index.js",
+  "_dist_/logo.png",
+  "_dist_/logo.png.proxy.js",
+  "favicon.ico",
+  "index.html",
+  "robots.txt",
+  "web_modules/import-map.json",
+  "web_modules/preact.js",
+  "web_modules/preact/devtools.js",
+  "web_modules/preact/hooks.js",
+]
+`;
+
+exports[`create-snowpack-app app-template-preact-typescript: index.html 1`] = `
+"<!DOCTYPE html>
+<html lang=\\"en\\">
+  <head>
+    <meta charset=\\"utf-8\\" />
+    <link rel=\\"icon\\" href=\\"/favicon.ico\\" />
+    <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
+    <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
+    <title>Snowpack App</title>
+  </head>
+  <body>
+    <div id=\\"root\\"></div>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+      To begin the development, run \`npm start\` or \`yarn start\`.
+      To create a production bundle, use \`npm run build\` or \`yarn build\`.
+    -->
+  </body>
+</html>"
+`;
+
+exports[`create-snowpack-app app-template-preact-typescript: web_modules/import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"preact\\": \\"./preact.js\\",
+    \\"preact/devtools\\": \\"./preact/devtools.js\\",
+    \\"preact/hooks\\": \\"./preact/hooks.js\\"
+  }
+}"
+`;
+
+exports[`create-snowpack-app app-template-preact-typescript: web_modules/preact.js 1`] = `"export { h, O as render } from './common/preact.module-XXXXXXXX.js';"`;
+
+exports[`create-snowpack-app app-template-preact-typescript: web_modules/preact/devtools.js 1`] = `
+"import { n, p, d } from '../common/preact.module-XXXXXXXX.js';
+\\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.5.4\\",n,{Fragment:p,Component:d});"
+`;
+
+exports[`create-snowpack-app app-template-preact-typescript: web_modules/preact/hooks.js 1`] = `
+"import { n } from '../common/preact.module-XXXXXXXX.js';
+var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u),i.__}function q(){i.some(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.u&&n.u();}function g(n){n.u=n.__();}function k(n,t){return \\"function\\"==typeof t?t(n):t}
+export { m as useState };"
+`;
+
 exports[`create-snowpack-app app-template-react: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
 exports[`create-snowpack-app app-template-react: _dist_/App.css 1`] = `
