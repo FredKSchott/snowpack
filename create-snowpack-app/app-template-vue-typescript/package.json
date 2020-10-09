@@ -18,7 +18,7 @@
     "start": "snowpack dev",
     "build": "snowpack build",
     "type-check": "tsc",
-    "test": "echo \"Vue 3.0 test support is still in progress.\" && exit 1"
+    "test": "echo \"This template does not include a test runner by default.\" && exit 1"
   },
   "dependencies": {
     "vue": "^3.0.0"

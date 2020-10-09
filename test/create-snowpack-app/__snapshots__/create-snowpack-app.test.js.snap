@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`create-snowpack-app app-template-11ty: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-11ty > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-11ty: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-11ty > build: _dist_/index.js 1`] = `
 "/**
  * This file is just a silly example to show everything working in the browser.
  * When you're ready to start on your site, clear the file. Happy hacking!
@@ -14,7 +14,7 @@ confetti.create(document.getElementById('canvas'), {
 })({ particleCount: 200, spread: 200 });"
 `;
 
-exports[`create-snowpack-app app-template-11ty: about/index.html 1`] = `
+exports[`create-snowpack-app app-template-11ty > build: about/index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -45,7 +45,7 @@ exports[`create-snowpack-app app-template-11ty: about/index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-11ty: allFiles 1`] = `
+exports[`create-snowpack-app app-template-11ty > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/index.js",
@@ -59,7 +59,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-11ty: index.html 1`] = `
+exports[`create-snowpack-app app-template-11ty > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -89,7 +89,7 @@ exports[`create-snowpack-app app-template-11ty: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-11ty: static/index.css 1`] = `
+exports[`create-snowpack-app app-template-11ty > build: static/index.css 1`] = `
 "body {
   background: #222;
   color: #eee;
@@ -117,7 +117,7 @@ a {
 }"
 `;
 
-exports[`create-snowpack-app app-template-11ty: web_modules/canvas-confetti.js 1`] = `
+exports[`create-snowpack-app app-template-11ty > build: web_modules/canvas-confetti.js 1`] = `
 "// canvas-confetti v1.3.0 built on 2020-09-26T17:55:06.231Z
 var module = {};
 // source content
@@ -606,7 +606,7 @@ var create = module.exports.create;
 export default __pika_web_default_export_for_treeshaking__;"
 `;
 
-exports[`create-snowpack-app app-template-11ty: web_modules/import-map.json 1`] = `
+exports[`create-snowpack-app app-template-11ty > build: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"canvas-confetti\\": \\"./canvas-XXXXXXXX.js\\"
@@ -614,9 +614,9 @@ exports[`create-snowpack-app app-template-11ty: web_modules/import-map.json 1`] 
 }"
 `;
 
-exports[`create-snowpack-app app-template-blank: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-blank > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-blank: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-blank > build: _dist_/index.js 1`] = `
 "/**
  * This file is just a silly example to show everything working in the browser.
  * When you're ready to start on your site, clear the file. Happy hacking!
@@ -628,7 +628,7 @@ confetti.create(document.getElementById('canvas'), {
 })({ particleCount: 200, spread: 200 });"
 `;
 
-exports[`create-snowpack-app app-template-blank: allFiles 1`] = `
+exports[`create-snowpack-app app-template-blank > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/index.js",
@@ -642,7 +642,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-blank: index.css 1`] = `
+exports[`create-snowpack-app app-template-blank > build: index.css 1`] = `
 "#img {
   display: block;
   margin: auto;
@@ -658,7 +658,7 @@ exports[`create-snowpack-app app-template-blank: index.css 1`] = `
 }"
 `;
 
-exports[`create-snowpack-app app-template-blank: index.html 1`] = `
+exports[`create-snowpack-app app-template-blank > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -686,7 +686,7 @@ exports[`create-snowpack-app app-template-blank: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-blank: web_modules/canvas-confetti.js 1`] = `
+exports[`create-snowpack-app app-template-blank > build: web_modules/canvas-confetti.js 1`] = `
 "// canvas-confetti v1.3.0 built on 2020-09-26T17:55:06.231Z
 var module = {};
 // source content
@@ -1175,7 +1175,7 @@ var create = module.exports.create;
 export default __pika_web_default_export_for_treeshaking__;"
 `;
 
-exports[`create-snowpack-app app-template-blank: web_modules/import-map.json 1`] = `
+exports[`create-snowpack-app app-template-blank > build: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"canvas-confetti\\": \\"./canvas-XXXXXXXX.js\\"
@@ -1183,9 +1183,9 @@ exports[`create-snowpack-app app-template-blank: web_modules/import-map.json 1`]
 }"
 `;
 
-exports[`create-snowpack-app app-template-blank-typescript: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-blank-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-blank-typescript: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-blank-typescript > build: _dist_/index.js 1`] = `
 "import confetti from \\"../web_modules/canvas-XXXXXXXX.js\\";
 confetti.create(document.getElementById(\\"canvas\\"), {
   resize: true,
@@ -1193,7 +1193,7 @@ confetti.create(document.getElementById(\\"canvas\\"), {
 })({particleCount: 200, spread: 200});"
 `;
 
-exports[`create-snowpack-app app-template-blank-typescript: allFiles 1`] = `
+exports[`create-snowpack-app app-template-blank-typescript > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/index.js",
@@ -1207,7 +1207,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-blank-typescript: index.css 1`] = `
+exports[`create-snowpack-app app-template-blank-typescript > build: index.css 1`] = `
 "#img {
   display: block;
   margin: auto;
@@ -1223,7 +1223,7 @@ exports[`create-snowpack-app app-template-blank-typescript: index.css 1`] = `
 }"
 `;
 
-exports[`create-snowpack-app app-template-blank-typescript: index.html 1`] = `
+exports[`create-snowpack-app app-template-blank-typescript > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -1251,7 +1251,7 @@ exports[`create-snowpack-app app-template-blank-typescript: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-blank-typescript: web_modules/canvas-confetti.js 1`] = `
+exports[`create-snowpack-app app-template-blank-typescript > build: web_modules/canvas-confetti.js 1`] = `
 "// canvas-confetti v1.3.0 built on 2020-09-26T17:55:06.231Z
 var module = {};
 // source content
@@ -1740,7 +1740,7 @@ var create = module.exports.create;
 export default __pika_web_default_export_for_treeshaking__;"
 `;
 
-exports[`create-snowpack-app app-template-blank-typescript: web_modules/import-map.json 1`] = `
+exports[`create-snowpack-app app-template-blank-typescript > build: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"canvas-confetti\\": \\"./canvas-XXXXXXXX.js\\"
@@ -1748,9 +1748,9 @@ exports[`create-snowpack-app app-template-blank-typescript: web_modules/import-m
 }"
 `;
 
-exports[`create-snowpack-app app-template-lit-element: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-lit-element > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-lit-element: _dist_/app-root.js 1`] = `
+exports[`create-snowpack-app app-template-lit-element > build: _dist_/app-root.js 1`] = `
 "function _decorate(decorators, factory, superClass, mixins) { var api = _getDecoratorsApi(); if (mixins) { for (var i = 0; i < mixins.length; i++) { api = mixins[i](api); } } var r = factory(function initialize(O) { api.initializeInstanceElements(O, decorated.elements); }, superClass); var decorated = api.decorateClass(_coalesceClassElements(r.d.map(_createElementDescriptor)), decorators); api.initializeClassElements(r.F, decorated.elements); return api.runClassFinishers(r.F, decorated.finishers); }
 function _getDecoratorsApi() { _getDecoratorsApi = function () { return api; }; var api = { elementsDefinitionOrder: [[\\"method\\"], [\\"field\\"]], initializeInstanceElements: function (O, elements) { [\\"method\\", \\"field\\"].forEach(function (kind) { elements.forEach(function (element) { if (element.kind === kind && element.placement === \\"own\\") { this.defineClassElement(O, element); } }, this); }, this); }, initializeClassElements: function (F, elements) { var proto = F.prototype; [\\"method\\", \\"field\\"].forEach(function (kind) { elements.forEach(function (element) { var placement = element.placement; if (element.kind === kind && (placement === \\"static\\" || placement === \\"prototype\\")) { var receiver = placement === \\"static\\" ? F : proto; this.defineClassElement(receiver, element); } }, this); }, this); }, defineClassElement: function (receiver, element) { var descriptor = element.descriptor; if (element.kind === \\"field\\") { var initializer = element.initializer; descriptor = { enumerable: descriptor.enumerable, writable: descriptor.writable, configurable: descriptor.configurable, value: initializer === void 0 ? void 0 : initializer.call(receiver) }; } Object.defineProperty(receiver, element.key, descriptor); }, decorateClass: function (elements, decorators) { var newElements = []; var finishers = []; var placements = { static: [], prototype: [], own: [] }; elements.forEach(function (element) { this.addElementPlacement(element, placements); }, this); elements.forEach(function (element) { if (!_hasDecorators(element)) return newElements.push(element); var elementFinishersExtras = this.decorateElement(element, placements); newElements.push(elementFinishersExtras.element); newElements.push.apply(newElements, elementFinishersExtras.extras); finishers.push.apply(finishers, elementFinishersExtras.finishers); }, this); if (!decorators) { return { elements: newElements, finishers: finishers }; } var result = this.decorateConstructor(newElements, decorators); finishers.push.apply(finishers, result.finishers); result.finishers = finishers; return result; }, addElementPlacement: function (element, placements, silent) { var keys = placements[element.placement]; if (!silent && keys.indexOf(element.key) !== -1) { throw new TypeError(\\"Duplicated element (\\" + element.key + \\")\\"); } keys.push(element.key); }, decorateElement: function (element, placements) { var extras = []; var finishers = []; for (var decorators = element.decorators, i = decorators.length - 1; i >= 0; i--) { var keys = placements[element.placement]; keys.splice(keys.indexOf(element.key), 1); var elementObject = this.fromElementDescriptor(element); var elementFinisherExtras = this.toElementFinisherExtras((0, decorators[i])(elementObject) || elementObject); element = elementFinisherExtras.element; this.addElementPlacement(element, placements); if (elementFinisherExtras.finisher) { finishers.push(elementFinisherExtras.finisher); } var newExtras = elementFinisherExtras.extras; if (newExtras) { for (var j = 0; j < newExtras.length; j++) { this.addElementPlacement(newExtras[j], placements); } extras.push.apply(extras, newExtras); } } return { element: element, finishers: finishers, extras: extras }; }, decorateConstructor: function (elements, decorators) { var finishers = []; for (var i = decorators.length - 1; i >= 0; i--) { var obj = this.fromClassDescriptor(elements); var elementsAndFinisher = this.toClassDescriptor((0, decorators[i])(obj) || obj); if (elementsAndFinisher.finisher !== undefined) { finishers.push(elementsAndFinisher.finisher); } if (elementsAndFinisher.elements !== undefined) { elements = elementsAndFinisher.elements; for (var j = 0; j < elements.length - 1; j++) { for (var k = j + 1; k < elements.length; k++) { if (elements[j].key === elements[k].key && elements[j].placement === elements[k].placement) { throw new TypeError(\\"Duplicated element (\\" + elements[j].key + \\")\\"); } } } } } return { elements: elements, finishers: finishers }; }, fromElementDescriptor: function (element) { var obj = { kind: element.kind, key: element.key, placement: element.placement, descriptor: element.descriptor }; var desc = { value: \\"Descriptor\\", configurable: true }; Object.defineProperty(obj, Symbol.toStringTag, desc); if (element.kind === \\"field\\") obj.initializer = element.initializer; return obj; }, toElementDescriptors: function (elementObjects) { if (elementObjects === undefined) return; return _toArray(elementObjects).map(function (elementObject) { var element = this.toElementDescriptor(elementObject); this.disallowProperty(elementObject, \\"finisher\\", \\"An element descriptor\\"); this.disallowProperty(elementObject, \\"extras\\", \\"An element descriptor\\"); return element; }, this); }, toElementDescriptor: function (elementObject) { var kind = String(elementObject.kind); if (kind !== \\"method\\" && kind !== \\"field\\") { throw new TypeError('An element descriptor\\\\'s .kind property must be either \\"method\\" or' + ' \\"field\\", but a decorator created an element descriptor with' + ' .kind \\"' + kind + '\\"'); } var key = _toPropertyKey(elementObject.key); var placement = String(elementObject.placement); if (placement !== \\"static\\" && placement !== \\"prototype\\" && placement !== \\"own\\") { throw new TypeError('An element descriptor\\\\'s .placement property must be one of \\"static\\",' + ' \\"prototype\\" or \\"own\\", but a decorator created an element descriptor' + ' with .placement \\"' + placement + '\\"'); } var descriptor = elementObject.descriptor; this.disallowProperty(elementObject, \\"elements\\", \\"An element descriptor\\"); var element = { kind: kind, key: key, placement: placement, descriptor: Object.assign({}, descriptor) }; if (kind !== \\"field\\") { this.disallowProperty(elementObject, \\"initializer\\", \\"A method descriptor\\"); } else { this.disallowProperty(descriptor, \\"get\\", \\"The property descriptor of a field descriptor\\"); this.disallowProperty(descriptor, \\"set\\", \\"The property descriptor of a field descriptor\\"); this.disallowProperty(descriptor, \\"value\\", \\"The property descriptor of a field descriptor\\"); element.initializer = elementObject.initializer; } return element; }, toElementFinisherExtras: function (elementObject) { var element = this.toElementDescriptor(elementObject); var finisher = _optionalCallableProperty(elementObject, \\"finisher\\"); var extras = this.toElementDescriptors(elementObject.extras); return { element: element, finisher: finisher, extras: extras }; }, fromClassDescriptor: function (elements) { var obj = { kind: \\"class\\", elements: elements.map(this.fromElementDescriptor, this) }; var desc = { value: \\"Descriptor\\", configurable: true }; Object.defineProperty(obj, Symbol.toStringTag, desc); return obj; }, toClassDescriptor: function (obj) { var kind = String(obj.kind); if (kind !== \\"class\\") { throw new TypeError('A class descriptor\\\\'s .kind property must be \\"class\\", but a decorator' + ' created a class descriptor with .kind \\"' + kind + '\\"'); } this.disallowProperty(obj, \\"key\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"placement\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"descriptor\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"initializer\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"extras\\", \\"A class descriptor\\"); var finisher = _optionalCallableProperty(obj, \\"finisher\\"); var elements = this.toElementDescriptors(obj.elements); return { elements: elements, finisher: finisher }; }, runClassFinishers: function (constructor, finishers) { for (var i = 0; i < finishers.length; i++) { var newConstructor = (0, finishers[i])(constructor); if (newConstructor !== undefined) { if (typeof newConstructor !== \\"function\\") { throw new TypeError(\\"Finishers must return a constructor.\\"); } constructor = newConstructor; } } return constructor; }, disallowProperty: function (obj, name, objectType) { if (obj[name] !== undefined) { throw new TypeError(objectType + \\" can't have a .\\" + name + \\" property.\\"); } } }; return api; }
 function _createElementDescriptor(def) { var key = _toPropertyKey(def.key); var descriptor; if (def.kind === \\"method\\") { descriptor = { value: def.value, writable: true, configurable: true, enumerable: false }; } else if (def.kind === \\"get\\") { descriptor = { get: def.value, configurable: true, enumerable: false }; } else if (def.kind === \\"set\\") { descriptor = { set: def.value, configurable: true, enumerable: false }; } else if (def.kind === \\"field\\") { descriptor = { configurable: true, writable: true, enumerable: true }; } var element = { kind: def.kind === \\"field\\" ? \\"field\\" : \\"method\\", key: key, placement: def.static ? \\"static\\" : def.kind === \\"field\\" ? \\"own\\" : \\"prototype\\", descriptor: descriptor }; if (def.decorators) element.decorators = def.decorators; if (def.kind === \\"field\\") element.initializer = def.value; return element; }
@@ -1832,9 +1832,9 @@ export let AppRoot = _decorate([customElement('app-root')], function (_initializ
 }, LitElement);"
 `;
 
-exports[`create-snowpack-app app-template-lit-element: _dist_/index.js 1`] = `"import './app-root.js';"`;
+exports[`create-snowpack-app app-template-lit-element > build: _dist_/index.js 1`] = `"import './app-root.js';"`;
 
-exports[`create-snowpack-app app-template-lit-element: allFiles 1`] = `
+exports[`create-snowpack-app app-template-lit-element > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/app-root.js",
@@ -1848,7 +1848,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-lit-element: index.css 1`] = `
+exports[`create-snowpack-app app-template-lit-element > build: index.css 1`] = `
 "body {
   font-family: -apple-system, BlinkMacSystemFont, \\"Segoe UI\\", \\"Roboto\\", \\"Oxygen\\", \\"Ubuntu\\", \\"Cantarell\\", \\"Fira Sans\\", \\"Droid Sans\\", \\"Helvetica Neue\\", sans-serif;
   color: white;
@@ -1857,7 +1857,7 @@ exports[`create-snowpack-app app-template-lit-element: index.css 1`] = `
 }"
 `;
 
-exports[`create-snowpack-app app-template-lit-element: index.html 1`] = `
+exports[`create-snowpack-app app-template-lit-element > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -1884,7 +1884,7 @@ exports[`create-snowpack-app app-template-lit-element: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-lit-element: web_modules/import-map.json 1`] = `
+exports[`create-snowpack-app app-template-lit-element > build: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"lit-element\\": \\"./lit-element.js\\"
@@ -1892,7 +1892,7 @@ exports[`create-snowpack-app app-template-lit-element: web_modules/import-map.js
 }"
 `;
 
-exports[`create-snowpack-app app-template-lit-element: web_modules/lit-element.js 1`] = `
+exports[`create-snowpack-app app-template-lit-element > build: web_modules/lit-element.js 1`] = `
 "/**
  * @license
  * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -4526,9 +4526,9 @@ LitElement.render = render$1;
 export { LitElement, css, customElement, html, property };"
 `;
 
-exports[`create-snowpack-app app-template-lit-element-typescript: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-lit-element-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-lit-element-typescript: _dist_/app-root.js 1`] = `
+exports[`create-snowpack-app app-template-lit-element-typescript > build: _dist_/app-root.js 1`] = `
 "function _decorate(decorators, factory, superClass, mixins) { var api = _getDecoratorsApi(); if (mixins) { for (var i = 0; i < mixins.length; i++) { api = mixins[i](api); } } var r = factory(function initialize(O) { api.initializeInstanceElements(O, decorated.elements); }, superClass); var decorated = api.decorateClass(_coalesceClassElements(r.d.map(_createElementDescriptor)), decorators); api.initializeClassElements(r.F, decorated.elements); return api.runClassFinishers(r.F, decorated.finishers); }
 function _getDecoratorsApi() { _getDecoratorsApi = function () { return api; }; var api = { elementsDefinitionOrder: [[\\"method\\"], [\\"field\\"]], initializeInstanceElements: function (O, elements) { [\\"method\\", \\"field\\"].forEach(function (kind) { elements.forEach(function (element) { if (element.kind === kind && element.placement === \\"own\\") { this.defineClassElement(O, element); } }, this); }, this); }, initializeClassElements: function (F, elements) { var proto = F.prototype; [\\"method\\", \\"field\\"].forEach(function (kind) { elements.forEach(function (element) { var placement = element.placement; if (element.kind === kind && (placement === \\"static\\" || placement === \\"prototype\\")) { var receiver = placement === \\"static\\" ? F : proto; this.defineClassElement(receiver, element); } }, this); }, this); }, defineClassElement: function (receiver, element) { var descriptor = element.descriptor; if (element.kind === \\"field\\") { var initializer = element.initializer; descriptor = { enumerable: descriptor.enumerable, writable: descriptor.writable, configurable: descriptor.configurable, value: initializer === void 0 ? void 0 : initializer.call(receiver) }; } Object.defineProperty(receiver, element.key, descriptor); }, decorateClass: function (elements, decorators) { var newElements = []; var finishers = []; var placements = { static: [], prototype: [], own: [] }; elements.forEach(function (element) { this.addElementPlacement(element, placements); }, this); elements.forEach(function (element) { if (!_hasDecorators(element)) return newElements.push(element); var elementFinishersExtras = this.decorateElement(element, placements); newElements.push(elementFinishersExtras.element); newElements.push.apply(newElements, elementFinishersExtras.extras); finishers.push.apply(finishers, elementFinishersExtras.finishers); }, this); if (!decorators) { return { elements: newElements, finishers: finishers }; } var result = this.decorateConstructor(newElements, decorators); finishers.push.apply(finishers, result.finishers); result.finishers = finishers; return result; }, addElementPlacement: function (element, placements, silent) { var keys = placements[element.placement]; if (!silent && keys.indexOf(element.key) !== -1) { throw new TypeError(\\"Duplicated element (\\" + element.key + \\")\\"); } keys.push(element.key); }, decorateElement: function (element, placements) { var extras = []; var finishers = []; for (var decorators = element.decorators, i = decorators.length - 1; i >= 0; i--) { var keys = placements[element.placement]; keys.splice(keys.indexOf(element.key), 1); var elementObject = this.fromElementDescriptor(element); var elementFinisherExtras = this.toElementFinisherExtras((0, decorators[i])(elementObject) || elementObject); element = elementFinisherExtras.element; this.addElementPlacement(element, placements); if (elementFinisherExtras.finisher) { finishers.push(elementFinisherExtras.finisher); } var newExtras = elementFinisherExtras.extras; if (newExtras) { for (var j = 0; j < newExtras.length; j++) { this.addElementPlacement(newExtras[j], placements); } extras.push.apply(extras, newExtras); } } return { element: element, finishers: finishers, extras: extras }; }, decorateConstructor: function (elements, decorators) { var finishers = []; for (var i = decorators.length - 1; i >= 0; i--) { var obj = this.fromClassDescriptor(elements); var elementsAndFinisher = this.toClassDescriptor((0, decorators[i])(obj) || obj); if (elementsAndFinisher.finisher !== undefined) { finishers.push(elementsAndFinisher.finisher); } if (elementsAndFinisher.elements !== undefined) { elements = elementsAndFinisher.elements; for (var j = 0; j < elements.length - 1; j++) { for (var k = j + 1; k < elements.length; k++) { if (elements[j].key === elements[k].key && elements[j].placement === elements[k].placement) { throw new TypeError(\\"Duplicated element (\\" + elements[j].key + \\")\\"); } } } } } return { elements: elements, finishers: finishers }; }, fromElementDescriptor: function (element) { var obj = { kind: element.kind, key: element.key, placement: element.placement, descriptor: element.descriptor }; var desc = { value: \\"Descriptor\\", configurable: true }; Object.defineProperty(obj, Symbol.toStringTag, desc); if (element.kind === \\"field\\") obj.initializer = element.initializer; return obj; }, toElementDescriptors: function (elementObjects) { if (elementObjects === undefined) return; return _toArray(elementObjects).map(function (elementObject) { var element = this.toElementDescriptor(elementObject); this.disallowProperty(elementObject, \\"finisher\\", \\"An element descriptor\\"); this.disallowProperty(elementObject, \\"extras\\", \\"An element descriptor\\"); return element; }, this); }, toElementDescriptor: function (elementObject) { var kind = String(elementObject.kind); if (kind !== \\"method\\" && kind !== \\"field\\") { throw new TypeError('An element descriptor\\\\'s .kind property must be either \\"method\\" or' + ' \\"field\\", but a decorator created an element descriptor with' + ' .kind \\"' + kind + '\\"'); } var key = _toPropertyKey(elementObject.key); var placement = String(elementObject.placement); if (placement !== \\"static\\" && placement !== \\"prototype\\" && placement !== \\"own\\") { throw new TypeError('An element descriptor\\\\'s .placement property must be one of \\"static\\",' + ' \\"prototype\\" or \\"own\\", but a decorator created an element descriptor' + ' with .placement \\"' + placement + '\\"'); } var descriptor = elementObject.descriptor; this.disallowProperty(elementObject, \\"elements\\", \\"An element descriptor\\"); var element = { kind: kind, key: key, placement: placement, descriptor: Object.assign({}, descriptor) }; if (kind !== \\"field\\") { this.disallowProperty(elementObject, \\"initializer\\", \\"A method descriptor\\"); } else { this.disallowProperty(descriptor, \\"get\\", \\"The property descriptor of a field descriptor\\"); this.disallowProperty(descriptor, \\"set\\", \\"The property descriptor of a field descriptor\\"); this.disallowProperty(descriptor, \\"value\\", \\"The property descriptor of a field descriptor\\"); element.initializer = elementObject.initializer; } return element; }, toElementFinisherExtras: function (elementObject) { var element = this.toElementDescriptor(elementObject); var finisher = _optionalCallableProperty(elementObject, \\"finisher\\"); var extras = this.toElementDescriptors(elementObject.extras); return { element: element, finisher: finisher, extras: extras }; }, fromClassDescriptor: function (elements) { var obj = { kind: \\"class\\", elements: elements.map(this.fromElementDescriptor, this) }; var desc = { value: \\"Descriptor\\", configurable: true }; Object.defineProperty(obj, Symbol.toStringTag, desc); return obj; }, toClassDescriptor: function (obj) { var kind = String(obj.kind); if (kind !== \\"class\\") { throw new TypeError('A class descriptor\\\\'s .kind property must be \\"class\\", but a decorator' + ' created a class descriptor with .kind \\"' + kind + '\\"'); } this.disallowProperty(obj, \\"key\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"placement\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"descriptor\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"initializer\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"extras\\", \\"A class descriptor\\"); var finisher = _optionalCallableProperty(obj, \\"finisher\\"); var elements = this.toElementDescriptors(obj.elements); return { elements: elements, finisher: finisher }; }, runClassFinishers: function (constructor, finishers) { for (var i = 0; i < finishers.length; i++) { var newConstructor = (0, finishers[i])(constructor); if (newConstructor !== undefined) { if (typeof newConstructor !== \\"function\\") { throw new TypeError(\\"Finishers must return a constructor.\\"); } constructor = newConstructor; } } return constructor; }, disallowProperty: function (obj, name, objectType) { if (obj[name] !== undefined) { throw new TypeError(objectType + \\" can't have a .\\" + name + \\" property.\\"); } } }; return api; }
 function _createElementDescriptor(def) { var key = _toPropertyKey(def.key); var descriptor; if (def.kind === \\"method\\") { descriptor = { value: def.value, writable: true, configurable: true, enumerable: false }; } else if (def.kind === \\"get\\") { descriptor = { get: def.value, configurable: true, enumerable: false }; } else if (def.kind === \\"set\\") { descriptor = { set: def.value, configurable: true, enumerable: false }; } else if (def.kind === \\"field\\") { descriptor = { configurable: true, writable: true, enumerable: true }; } var element = { kind: def.kind === \\"field\\" ? \\"field\\" : \\"method\\", key: key, placement: def.static ? \\"static\\" : def.kind === \\"field\\" ? \\"own\\" : \\"prototype\\", descriptor: descriptor }; if (def.decorators) element.decorators = def.decorators; if (def.kind === \\"field\\") element.initializer = def.value; return element; }
@@ -4610,9 +4610,9 @@ export let AppRoot = _decorate([customElement('app-root')], function (_initializ
 }, LitElement);"
 `;
 
-exports[`create-snowpack-app app-template-lit-element-typescript: _dist_/index.js 1`] = `"import './app-root.js';"`;
+exports[`create-snowpack-app app-template-lit-element-typescript > build: _dist_/index.js 1`] = `"import './app-root.js';"`;
 
-exports[`create-snowpack-app app-template-lit-element-typescript: allFiles 1`] = `
+exports[`create-snowpack-app app-template-lit-element-typescript > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/app-root.js",
@@ -4626,7 +4626,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-lit-element-typescript: index.css 1`] = `
+exports[`create-snowpack-app app-template-lit-element-typescript > build: index.css 1`] = `
 "body {
   font-family: -apple-system, BlinkMacSystemFont, \\"Segoe UI\\", \\"Roboto\\", \\"Oxygen\\", \\"Ubuntu\\", \\"Cantarell\\", \\"Fira Sans\\", \\"Droid Sans\\", \\"Helvetica Neue\\", sans-serif;
   color: white;
@@ -4635,7 +4635,7 @@ exports[`create-snowpack-app app-template-lit-element-typescript: index.css 1`] 
 }"
 `;
 
-exports[`create-snowpack-app app-template-lit-element-typescript: index.html 1`] = `
+exports[`create-snowpack-app app-template-lit-element-typescript > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -4662,7 +4662,7 @@ exports[`create-snowpack-app app-template-lit-element-typescript: index.html 1`]
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-lit-element-typescript: web_modules/import-map.json 1`] = `
+exports[`create-snowpack-app app-template-lit-element-typescript > build: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"lit-element\\": \\"./lit-element.js\\"
@@ -4670,7 +4670,7 @@ exports[`create-snowpack-app app-template-lit-element-typescript: web_modules/im
 }"
 `;
 
-exports[`create-snowpack-app app-template-lit-element-typescript: web_modules/lit-element.js 1`] = `
+exports[`create-snowpack-app app-template-lit-element-typescript > build: web_modules/lit-element.js 1`] = `
 "/**
  * @license
  * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -7304,9 +7304,9 @@ LitElement.render = render$1;
 export { LitElement, css, customElement, html, property };"
 `;
 
-exports[`create-snowpack-app app-template-minimal: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-minimal > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-minimal: allFiles 1`] = `
+exports[`create-snowpack-app app-template-minimal > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "index.css",
@@ -7318,7 +7318,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-minimal: index.css 1`] = `
+exports[`create-snowpack-app app-template-minimal > build: index.css 1`] = `
 "/* Add CSS styles here! */
 body {
   font-family: sans-serif;
@@ -7327,7 +7327,7 @@ body {
 }"
 `;
 
-exports[`create-snowpack-app app-template-minimal: index.html 1`] = `
+exports[`create-snowpack-app app-template-minimal > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -7344,12 +7344,12 @@ exports[`create-snowpack-app app-template-minimal: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-minimal: index.js 1`] = `
+exports[`create-snowpack-app app-template-minimal > build: index.js 1`] = `
 "/* Add JavaScript code here! */
 console.log('Hello World! You did! Welcome to Snowpack :D');"
 `;
 
-exports[`create-snowpack-app app-template-minimal: package.json 1`] = `
+exports[`create-snowpack-app app-template-minimal > build: package.json 1`] = `
 "{
   \\"name\\": \\"app-template-minimal\\",
   \\"version\\": \\"1.6.12\\",
@@ -7361,7 +7361,7 @@ exports[`create-snowpack-app app-template-minimal: package.json 1`] = `
   \\"scripts\\": {
     \\"start\\": \\"snowpack dev\\",
     \\"build\\": \\"snowpack build\\",
-    \\"test\\": \\"echo \\\\\\"Error: No test runner added.\\\\\\" && exit 1\\"
+    \\"test\\": \\"echo \\\\\\"This template does not include a test runner by default.\\\\\\" && exit 1\\"
   },
   \\"devDependencies\\": {
     \\"snowpack\\": \\"^2.12.1\\"
@@ -7369,7 +7369,7 @@ exports[`create-snowpack-app app-template-minimal: package.json 1`] = `
 }"
 `;
 
-exports[`create-snowpack-app app-template-minimal: snowpack.config.js 1`] = `
+exports[`create-snowpack-app app-template-minimal > build: snowpack.config.js 1`] = `
 "module.exports = {
   install: [
   ],
@@ -7390,9 +7390,9 @@ exports[`create-snowpack-app app-template-minimal: snowpack.config.js 1`] = `
 };"
 `;
 
-exports[`create-snowpack-app app-template-preact: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-preact > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-preact: _dist_/App.css 1`] = `
+exports[`create-snowpack-app app-template-preact > build: _dist_/App.css 1`] = `
 ".App {
   text-align: center;
 }
@@ -7433,7 +7433,7 @@ exports[`create-snowpack-app app-template-preact: _dist_/App.css 1`] = `
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-preact > build: _dist_/App.css.proxy.js 1`] = `
 "
 const code = \\".App {  text-align: center;}.App code {  background: #FFF3;  padding: 4px 8px;  border-radius: 4px;}.App p {  margin: 0.4rem;}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}.App-logo {  height: 36vmin;  pointer-events: none;  margin-bottom: 3rem;  animation: App-logo-spin infinite 1.6s ease-in-out alternate;}@keyframes App-logo-spin {  from {    transform: scale(1);  }  to {    transform: scale(1.06);  }}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -7443,7 +7443,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-preact: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-preact > build: _dist_/App.js 1`] = `
 "import {h} from \\"../web_modules/preact.js\\";
 import {useState, useEffect} from \\"../web_modules/preact/hooks.js\\";
 import logo2 from \\"./logo.png.proxy.js\\";
@@ -7472,7 +7472,7 @@ function App2() {
 export default App2;"
 `;
 
-exports[`create-snowpack-app app-template-preact: _dist_/index.css 1`] = `
+exports[`create-snowpack-app app-template-preact > build: _dist_/index.css 1`] = `
 "body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -7487,7 +7487,7 @@ code {
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact: _dist_/index.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-preact > build: _dist_/index.css.proxy.js 1`] = `
 "
 const code = \\"body {  margin: 0;  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',    sans-serif;  -webkit-font-smoothing: antialiased;  -moz-osx-font-smoothing: grayscale;}code {  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',    monospace;}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -7497,7 +7497,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-preact: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-preact > build: _dist_/index.js 1`] = `
 "import {h, render} from \\"../web_modules/preact.js\\";
 import \\"../web_modules/preact/devtools.js\\";
 import App2 from \\"./App.js\\";
@@ -7505,9 +7505,9 @@ import \\"./index.css.proxy.js\\";
 render(/* @__PURE__ */ h(App2, null), document.getElementById(\\"root\\"));"
 `;
 
-exports[`create-snowpack-app app-template-preact: _dist_/logo.png.proxy.js 1`] = `"export default \\"/_dist_/logo.png\\";"`;
+exports[`create-snowpack-app app-template-preact > build: _dist_/logo.png.proxy.js 1`] = `"export default \\"/_dist_/logo.png\\";"`;
 
-exports[`create-snowpack-app app-template-preact: allFiles 1`] = `
+exports[`create-snowpack-app app-template-preact > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/App.css",
@@ -7528,7 +7528,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-preact: index.html 1`] = `
+exports[`create-snowpack-app app-template-preact > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -7554,7 +7554,7 @@ exports[`create-snowpack-app app-template-preact: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-preact: web_modules/import-map.json 1`] = `
+exports[`create-snowpack-app app-template-preact > build: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"preact\\": \\"./preact.js\\",
@@ -7564,22 +7564,22 @@ exports[`create-snowpack-app app-template-preact: web_modules/import-map.json 1`
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact: web_modules/preact.js 1`] = `"export { h, O as render } from './common/preact.module-XXXXXXXX.js';"`;
+exports[`create-snowpack-app app-template-preact > build: web_modules/preact.js 1`] = `"export { h, O as render } from './common/preact.module-XXXXXXXX.js';"`;
 
-exports[`create-snowpack-app app-template-preact: web_modules/preact/devtools.js 1`] = `
+exports[`create-snowpack-app app-template-preact > build: web_modules/preact/devtools.js 1`] = `
 "import { n, p, d } from '../common/preact.module-XXXXXXXX.js';
 \\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.5.4\\",n,{Fragment:p,Component:d});"
 `;
 
-exports[`create-snowpack-app app-template-preact: web_modules/preact/hooks.js 1`] = `
+exports[`create-snowpack-app app-template-preact > build: web_modules/preact/hooks.js 1`] = `
 "import { n } from '../common/preact.module-XXXXXXXX.js';
 var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u),i.__}function y(r,o){var i=v(t++,3);!n.__s&&j(i.__H,o)&&(i.__=r,i.__H=o,u.__H.__h.push(i));}function q(){i.some(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.u&&n.u();}function g(n){n.u=n.__();}function j(n,t){return !n||n.length!==t.length||t.some(function(t,u){return t!==n[u]})}function k(n,t){return \\"function\\"==typeof t?t(n):t}
 export { y as useEffect, m as useState };"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-preact-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-preact-typescript: _dist_/App.css 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/App.css 1`] = `
 ".App {
   text-align: center;
 }
@@ -7620,7 +7620,7 @@ exports[`create-snowpack-app app-template-preact-typescript: _dist_/App.css 1`] 
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/App.css.proxy.js 1`] = `
 "
 const code = \\".App {  text-align: center;}.App code {  background: #FFF3;  padding: 4px 8px;  border-radius: 4px;}.App p {  margin: 0.4rem;}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}.App-logo {  height: 36vmin;  pointer-events: none;  margin-bottom: 3rem;  animation: App-logo-spin infinite 1.6s ease-in-out alternate;}@keyframes App-logo-spin {  from {    transform: scale(1);  }  to {    transform: scale(1.06);  }}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -7630,7 +7630,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/App.js 1`] = `
 "import { h } from '../web_modules/preact.js';
 import { useState, useEffect } from '../web_modules/preact/hooks.js';
 import logo from './logo.png.proxy.js';
@@ -7660,7 +7660,7 @@ function App() {
 export default App;"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript: _dist_/index.css 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/index.css 1`] = `
 "body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -7675,7 +7675,7 @@ code {
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript: _dist_/index.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/index.css.proxy.js 1`] = `
 "
 const code = \\"body {  margin: 0;  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',    sans-serif;  -webkit-font-smoothing: antialiased;  -moz-osx-font-smoothing: grayscale;}code {  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',    monospace;}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -7685,7 +7685,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/index.js 1`] = `
 "import { h, render } from '../web_modules/preact.js';
 import '../web_modules/preact/devtools.js';
 import App from './App.js';
@@ -7696,9 +7696,9 @@ if (root) {
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript: _dist_/logo.png.proxy.js 1`] = `"export default \\"/_dist_/logo.png\\";"`;
+exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/logo.png.proxy.js 1`] = `"export default \\"/_dist_/logo.png\\";"`;
 
-exports[`create-snowpack-app app-template-preact-typescript: allFiles 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/App.css",
@@ -7719,7 +7719,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript: index.html 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -7745,7 +7745,7 @@ exports[`create-snowpack-app app-template-preact-typescript: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript: web_modules/import-map.json 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"preact\\": \\"./preact.js\\",
@@ -7755,22 +7755,22 @@ exports[`create-snowpack-app app-template-preact-typescript: web_modules/import-
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript: web_modules/preact.js 1`] = `"export { h, O as render } from './common/preact.module-XXXXXXXX.js';"`;
+exports[`create-snowpack-app app-template-preact-typescript > build: web_modules/preact.js 1`] = `"export { h, O as render } from './common/preact.module-XXXXXXXX.js';"`;
 
-exports[`create-snowpack-app app-template-preact-typescript: web_modules/preact/devtools.js 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: web_modules/preact/devtools.js 1`] = `
 "import { n, p, d } from '../common/preact.module-XXXXXXXX.js';
 \\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.5.4\\",n,{Fragment:p,Component:d});"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript: web_modules/preact/hooks.js 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: web_modules/preact/hooks.js 1`] = `
 "import { n } from '../common/preact.module-XXXXXXXX.js';
 var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u),i.__}function y(r,o){var i=v(t++,3);!n.__s&&j(i.__H,o)&&(i.__=r,i.__H=o,u.__H.__h.push(i));}function q(){i.some(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.u&&n.u();}function g(n){n.u=n.__();}function j(n,t){return !n||n.length!==t.length||t.some(function(t,u){return t!==n[u]})}function k(n,t){return \\"function\\"==typeof t?t(n):t}
 export { y as useEffect, m as useState };"
 `;
 
-exports[`create-snowpack-app app-template-react: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-react > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-react: _dist_/App.css 1`] = `
+exports[`create-snowpack-app app-template-react > build: _dist_/App.css 1`] = `
 ".App {
   text-align: center;
 }
@@ -7814,7 +7814,7 @@ exports[`create-snowpack-app app-template-react: _dist_/App.css 1`] = `
 }"
 `;
 
-exports[`create-snowpack-app app-template-react: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-react > build: _dist_/App.css.proxy.js 1`] = `
 "
 const code = \\".App {  text-align: center;}.App code {  background: #FFF3;  padding: 4px 8px;  border-radius: 4px;}.App p {  margin: 0.4rem;}.App-logo {  height: 40vmin;  pointer-events: none;}@media (prefers-reduced-motion: no-preference) {  .App-logo {    animation: App-logo-spin infinite 20s linear;  }}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}@keyframes App-logo-spin {  from {    transform: rotate(0deg);  }  to {    transform: rotate(360deg);  }}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -7824,7 +7824,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-react: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-react > build: _dist_/App.js 1`] = `
 "import React, {useState, useEffect} from \\"../web_modules/react.js\\";
 import logo2 from \\"./logo.svg.proxy.js\\";
 import \\"./App.css.proxy.js\\";
@@ -7852,7 +7852,7 @@ function App2() {
 export default App2;"
 `;
 
-exports[`create-snowpack-app app-template-react: _dist_/index.css 1`] = `
+exports[`create-snowpack-app app-template-react > build: _dist_/index.css 1`] = `
 "body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -7867,7 +7867,7 @@ code {
 }"
 `;
 
-exports[`create-snowpack-app app-template-react: _dist_/index.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-react > build: _dist_/index.css.proxy.js 1`] = `
 "
 const code = \\"body {  margin: 0;  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',    sans-serif;  -webkit-font-smoothing: antialiased;  -moz-osx-font-smoothing: grayscale;}code {  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',    monospace;}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -7877,7 +7877,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-react: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-react > build: _dist_/index.js 1`] = `
 "import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import React from \\"../web_modules/react.js\\";
@@ -7890,9 +7890,9 @@ if (import.meta.hot) {
 }"
 `;
 
-exports[`create-snowpack-app app-template-react: _dist_/logo.svg.proxy.js 1`] = `"export default \\"/_dist_/logo.svg\\";"`;
+exports[`create-snowpack-app app-template-react > build: _dist_/logo.svg.proxy.js 1`] = `"export default \\"/_dist_/logo.svg\\";"`;
 
-exports[`create-snowpack-app app-template-react: allFiles 1`] = `
+exports[`create-snowpack-app app-template-react > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/App.css",
@@ -7912,7 +7912,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-react: index.html 1`] = `
+exports[`create-snowpack-app app-template-react > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -7938,7 +7938,7 @@ exports[`create-snowpack-app app-template-react: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-react: web_modules/import-map.json 1`] = `
+exports[`create-snowpack-app app-template-react > build: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"react\\": \\"./react.js\\",
@@ -7947,7 +7947,7 @@ exports[`create-snowpack-app app-template-react: web_modules/import-map.json 1`]
 }"
 `;
 
-exports[`create-snowpack-app app-template-react: web_modules/react.js 1`] = `
+exports[`create-snowpack-app app-template-react > build: web_modules/react.js 1`] = `
 "import { r as react } from './common/index-XXXXXXXX.js';
 export { r as default } from './common/index-XXXXXXXX.js';
 var useEffect = react.useEffect;
@@ -7955,7 +7955,7 @@ var useState = react.useState;
 export { useEffect, useState };"
 `;
 
-exports[`create-snowpack-app app-template-react: web_modules/react-dom.js 1`] = `
+exports[`create-snowpack-app app-template-react > build: web_modules/react-dom.js 1`] = `
 "import { c as createCommonjsModule, r as react, o as objectAssign } from './common/index-XXXXXXXX.js';
 var scheduler_production_min = createCommonjsModule(function (module, exports) {
 var f,g,h,k,l;
@@ -8296,9 +8296,9 @@ function checkDCE() {
 export default reactDom;"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-react-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-react-typescript: _dist_/App.css 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: _dist_/App.css 1`] = `
 ".App {
   text-align: center;
 }
@@ -8342,7 +8342,7 @@ exports[`create-snowpack-app app-template-react-typescript: _dist_/App.css 1`] =
 }"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: _dist_/App.css.proxy.js 1`] = `
 "
 const code = \\".App {  text-align: center;}.App code {  background: #FFF3;  padding: 4px 8px;  border-radius: 4px;}.App p {  margin: 0.4rem;}.App-logo {  height: 40vmin;  pointer-events: none;}@media (prefers-reduced-motion: no-preference) {  .App-logo {    animation: App-logo-spin infinite 20s linear;  }}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}@keyframes App-logo-spin {  from {    transform: rotate(0deg);  }  to {    transform: rotate(360deg);  }}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -8352,7 +8352,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: _dist_/App.js 1`] = `
 "import React, {useState, useEffect} from \\"../web_modules/react.js\\";
 import logo2 from \\"./logo.svg.proxy.js\\";
 import \\"./App.css.proxy.js\\";
@@ -8380,7 +8380,7 @@ function App2({}) {
 export default App2;"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript: _dist_/index.css 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: _dist_/index.css 1`] = `
 "body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, \\"Segoe UI\\", \\"Roboto\\", \\"Oxygen\\",
@@ -8395,7 +8395,7 @@ code {
 }"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript: _dist_/index.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: _dist_/index.css.proxy.js 1`] = `
 "
 const code = \\"body {  margin: 0;  font-family: -apple-system, BlinkMacSystemFont, \\\\\\"Segoe UI\\\\\\", \\\\\\"Roboto\\\\\\", \\\\\\"Oxygen\\\\\\",    \\\\\\"Ubuntu\\\\\\", \\\\\\"Cantarell\\\\\\", \\\\\\"Fira Sans\\\\\\", \\\\\\"Droid Sans\\\\\\", \\\\\\"Helvetica Neue\\\\\\",    sans-serif;  -webkit-font-smoothing: antialiased;  -moz-osx-font-smoothing: grayscale;}code {  font-family: source-code-pro, Menlo, Monaco, Consolas, \\\\\\"Courier New\\\\\\",    monospace;}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -8405,7 +8405,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: _dist_/index.js 1`] = `
 "import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import React from \\"../web_modules/react.js\\";
@@ -8418,9 +8418,9 @@ if (import.meta.hot) {
 }"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript: _dist_/logo.svg.proxy.js 1`] = `"export default \\"/_dist_/logo.svg\\";"`;
+exports[`create-snowpack-app app-template-react-typescript > build: _dist_/logo.svg.proxy.js 1`] = `"export default \\"/_dist_/logo.svg\\";"`;
 
-exports[`create-snowpack-app app-template-react-typescript: allFiles 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/App.css",
@@ -8440,7 +8440,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-react-typescript: index.html 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -8466,7 +8466,7 @@ exports[`create-snowpack-app app-template-react-typescript: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript: web_modules/import-map.json 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"react\\": \\"./react.js\\",
@@ -8475,7 +8475,7 @@ exports[`create-snowpack-app app-template-react-typescript: web_modules/import-m
 }"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript: web_modules/react.js 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: web_modules/react.js 1`] = `
 "import { r as react } from './common/index-XXXXXXXX.js';
 export { r as default } from './common/index-XXXXXXXX.js';
 var useEffect = react.useEffect;
@@ -8483,7 +8483,7 @@ var useState = react.useState;
 export { useEffect, useState };"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript: web_modules/react-dom.js 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: web_modules/react-dom.js 1`] = `
 "import { c as createCommonjsModule, r as react, o as objectAssign } from './common/index-XXXXXXXX.js';
 var scheduler_production_min = createCommonjsModule(function (module, exports) {
 var f,g,h,k,l;
@@ -8824,11 +8824,11 @@ function checkDCE() {
 export default reactDom;"
 `;
 
-exports[`create-snowpack-app app-template-svelte: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-svelte > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-svelte: _dist_/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1wncah1.svelte-1wncah1{text-align:center}.App.svelte-1wncah1 code.svelte-1wncah1{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1wncah1 p.svelte-1wncah1{margin:0.4rem}.App-header.svelte-1wncah1.svelte-1wncah1{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1wncah1.svelte-1wncah1{color:#ff3e00}.App-logo.svelte-1wncah1.svelte-1wncah1{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1wncah1-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1wncah1-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
+exports[`create-snowpack-app app-template-svelte > build: _dist_/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1wncah1.svelte-1wncah1{text-align:center}.App.svelte-1wncah1 code.svelte-1wncah1{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1wncah1 p.svelte-1wncah1{margin:0.4rem}.App-header.svelte-1wncah1.svelte-1wncah1{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1wncah1.svelte-1wncah1{color:#ff3e00}.App-logo.svelte-1wncah1.svelte-1wncah1{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1wncah1-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1wncah1-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
 
-exports[`create-snowpack-app app-template-svelte: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-svelte > build: _dist_/App.css.proxy.js 1`] = `
 "
 const code = \\"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1wncah1.svelte-1wncah1{text-align:center}.App.svelte-1wncah1 code.svelte-1wncah1{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1wncah1 p.svelte-1wncah1{margin:0.4rem}.App-header.svelte-1wncah1.svelte-1wncah1{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1wncah1.svelte-1wncah1{color:#ff3e00}.App-logo.svelte-1wncah1.svelte-1wncah1{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1wncah1-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1wncah1-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -8838,7 +8838,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-svelte: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-svelte > build: _dist_/App.js 1`] = `
 "import './App.css.proxy.js';
 import {
 	SvelteComponent,
@@ -8941,7 +8941,7 @@ class App extends SvelteComponent {
 export default App;"
 `;
 
-exports[`create-snowpack-app app-template-svelte: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-svelte > build: _dist_/index.js 1`] = `
 "import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import App from \\"./App.js\\";
@@ -8959,7 +8959,7 @@ if (import.meta.hot) {
 }"
 `;
 
-exports[`create-snowpack-app app-template-svelte: allFiles 1`] = `
+exports[`create-snowpack-app app-template-svelte > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/App.css",
@@ -8976,7 +8976,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-svelte: index.html 1`] = `
+exports[`create-snowpack-app app-template-svelte > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -9001,7 +9001,7 @@ exports[`create-snowpack-app app-template-svelte: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-svelte: web_modules/import-map.json 1`] = `
+exports[`create-snowpack-app app-template-svelte > build: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"svelte\\": \\"./svelte.js\\",
@@ -9010,15 +9010,15 @@ exports[`create-snowpack-app app-template-svelte: web_modules/import-map.json 1`
 }"
 `;
 
-exports[`create-snowpack-app app-template-svelte: web_modules/svelte.js 1`] = `"export { o as onMount } from './common/index-XXXXXXXX.js';"`;
+exports[`create-snowpack-app app-template-svelte > build: web_modules/svelte.js 1`] = `"export { o as onMount } from './common/index-XXXXXXXX.js';"`;
 
-exports[`create-snowpack-app app-template-svelte: web_modules/svelte/internal.js 1`] = `"export { S as SvelteComponent, a as append, b as attr, d as detach, e as element, i as init, c as insert, n as noop, s as safe_not_equal, f as set_data, g as space, t as text } from '../common/index-XXXXXXXX.js';"`;
+exports[`create-snowpack-app app-template-svelte > build: web_modules/svelte/internal.js 1`] = `"export { S as SvelteComponent, a as append, b as attr, d as detach, e as element, i as init, c as insert, n as noop, s as safe_not_equal, f as set_data, g as space, t as text } from '../common/index-XXXXXXXX.js';"`;
 
-exports[`create-snowpack-app app-template-svelte-typescript: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-svelte-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-svelte-typescript: _dist_/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1sqyd3v.svelte-1sqyd3v{text-align:center}.App.svelte-1sqyd3v code.svelte-1sqyd3v{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1sqyd3v p.svelte-1sqyd3v{margin:0.4rem}.App-header.svelte-1sqyd3v.svelte-1sqyd3v{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1sqyd3v.svelte-1sqyd3v{color:#ff3e00}.App-logo.svelte-1sqyd3v.svelte-1sqyd3v{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1sqyd3v-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1sqyd3v-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
+exports[`create-snowpack-app app-template-svelte-typescript > build: _dist_/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1sqyd3v.svelte-1sqyd3v{text-align:center}.App.svelte-1sqyd3v code.svelte-1sqyd3v{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1sqyd3v p.svelte-1sqyd3v{margin:0.4rem}.App-header.svelte-1sqyd3v.svelte-1sqyd3v{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1sqyd3v.svelte-1sqyd3v{color:#ff3e00}.App-logo.svelte-1sqyd3v.svelte-1sqyd3v{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1sqyd3v-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1sqyd3v-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
 
-exports[`create-snowpack-app app-template-svelte-typescript: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-svelte-typescript > build: _dist_/App.css.proxy.js 1`] = `
 "
 const code = \\"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1sqyd3v.svelte-1sqyd3v{text-align:center}.App.svelte-1sqyd3v code.svelte-1sqyd3v{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1sqyd3v p.svelte-1sqyd3v{margin:0.4rem}.App-header.svelte-1sqyd3v.svelte-1sqyd3v{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1sqyd3v.svelte-1sqyd3v{color:#ff3e00}.App-logo.svelte-1sqyd3v.svelte-1sqyd3v{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1sqyd3v-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1sqyd3v-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -9028,7 +9028,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-svelte-typescript: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-svelte-typescript > build: _dist_/App.js 1`] = `
 "import './App.css.proxy.js';
 import {
 	SvelteComponent,
@@ -9131,7 +9131,7 @@ class App extends SvelteComponent {
 export default App;"
 `;
 
-exports[`create-snowpack-app app-template-svelte-typescript: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-svelte-typescript > build: _dist_/index.js 1`] = `
 "import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import App2 from \\"./App.js\\";
@@ -9147,7 +9147,7 @@ if (import.meta.hot) {
 }"
 `;
 
-exports[`create-snowpack-app app-template-svelte-typescript: allFiles 1`] = `
+exports[`create-snowpack-app app-template-svelte-typescript > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/App.css",
@@ -9164,7 +9164,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-svelte-typescript: index.html 1`] = `
+exports[`create-snowpack-app app-template-svelte-typescript > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -9189,7 +9189,7 @@ exports[`create-snowpack-app app-template-svelte-typescript: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-svelte-typescript: web_modules/import-map.json 1`] = `
+exports[`create-snowpack-app app-template-svelte-typescript > build: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"svelte\\": \\"./svelte.js\\",
@@ -9198,13 +9198,13 @@ exports[`create-snowpack-app app-template-svelte-typescript: web_modules/import-
 }"
 `;
 
-exports[`create-snowpack-app app-template-svelte-typescript: web_modules/svelte.js 1`] = `"export { o as onMount } from './common/index-XXXXXXXX.js';"`;
+exports[`create-snowpack-app app-template-svelte-typescript > build: web_modules/svelte.js 1`] = `"export { o as onMount } from './common/index-XXXXXXXX.js';"`;
 
-exports[`create-snowpack-app app-template-svelte-typescript: web_modules/svelte/internal.js 1`] = `"export { S as SvelteComponent, a as append, b as attr, d as detach, e as element, i as init, c as insert, n as noop, s as safe_not_equal, f as set_data, g as space, t as text } from '../common/index-XXXXXXXX.js';"`;
+exports[`create-snowpack-app app-template-svelte-typescript > build: web_modules/svelte/internal.js 1`] = `"export { S as SvelteComponent, a as append, b as attr, d as detach, e as element, i as init, c as insert, n as noop, s as safe_not_equal, f as set_data, g as space, t as text } from '../common/index-XXXXXXXX.js';"`;
 
-exports[`create-snowpack-app app-template-vue: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-vue > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-vue: _dist_/App.css 1`] = `
+exports[`create-snowpack-app app-template-vue > build: _dist_/App.css 1`] = `
 "
 .App {
   text-align: center;
@@ -9238,7 +9238,7 @@ to {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue > build: _dist_/App.css.proxy.js 1`] = `
 "
 const code = \\".App {  text-align: center;}.App-header {  background-color: #f9f6f6;  color: #32485f;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);}.App-link {  color: #00c185;}.App-logo {  height: 40vmin;  pointer-events: none;  margin-bottom: 1rem;  animation: App-logo-spin infinite 1.6s ease-in-out alternate;}@keyframes App-logo-spin {from {    transform: scale(1);}to {    transform: scale(1.06);}}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -9248,7 +9248,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-vue: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-vue > build: _dist_/App.js 1`] = `
 "import './App.css.proxy.js';
 const defaultExport = {
   data() {
@@ -9289,7 +9289,7 @@ defaultExport.render = render
 export default defaultExport"
 `;
 
-exports[`create-snowpack-app app-template-vue: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-vue > build: _dist_/index.js 1`] = `
 "import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import { createApp } from \\"../web_modules/vue.js\\";
@@ -9306,7 +9306,7 @@ if (import.meta.hot) {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue: allFiles 1`] = `
+exports[`create-snowpack-app app-template-vue > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/App.css",
@@ -9323,7 +9323,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-vue: index.html 1`] = `
+exports[`create-snowpack-app app-template-vue > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -9349,7 +9349,7 @@ exports[`create-snowpack-app app-template-vue: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-vue: web_modules/import-map.json 1`] = `
+exports[`create-snowpack-app app-template-vue > build: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"vue\\": \\"./vue.js\\"
@@ -9357,7 +9357,7 @@ exports[`create-snowpack-app app-template-vue: web_modules/import-map.json 1`] =
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue: web_modules/vue.js 1`] = `
+exports[`create-snowpack-app app-template-vue > build: web_modules/vue.js 1`] = `
 "/**
  * Make a map and return a function for checking if a key
  * is in that map.
@@ -14304,9 +14304,9 @@ function normalizeContainer(container) {
 export { createApp, createBlock, createTextVNode, createVNode, openBlock, toDisplayString };"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-vue-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/App.css 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/App.css 1`] = `
 "
 .App {
   text-align: center;
@@ -14347,7 +14347,7 @@ to {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/App.css.proxy.js 1`] = `
 "
 const code = \\".App {  text-align: center;}.App-header {  background-color: #f9f6f6;  color: #32485f;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);}.App-link {  color: #00c185;}.App-logo {  height: 40vmin;  pointer-events: none;  margin-bottom: 1rem;  animation: App-logo-spin infinite 1.6s ease-in-out alternate;}.App-tsx {  display: flex;}.App-tsx > div {  margin-left: 30px;  font-size: 16px;}@keyframes App-logo-spin {from {    transform: scale(1);}to {    transform: scale(1.06);}}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -14357,7 +14357,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/App.js 1`] = `
 "import './App.css.proxy.js';
 import {defineComponent, reactive} from \\"../web_modules/vue.js\\";
 import FooTsxVue from \\"./components/FooTsx.js\\";
@@ -14423,7 +14423,7 @@ defaultExport.render = render
 export default defaultExport"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/Bar.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Bar.js 1`] = `
 "import { Fragment } from '../../web_modules/vue.js';
 import {createVNode, isVNode} from '../../web_modules/vue.js';
 const slice = Array.prototype.slice;
@@ -14448,13 +14448,13 @@ export default defineComponent({
 });"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/Bar.module.css 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Bar.module.css 1`] = `
 ".bar-jsx {
   color: red;
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/Bar.module.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Bar.module.css.proxy.js 1`] = `
 "
 export let code = \\"._dist_components_Bar_module__bar-jsx {  color: red;}\\";
 let json = {\\"bar-jsx\\":\\"_dist_components_Bar_module__bar-jsx\\"};
@@ -14466,14 +14466,14 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/BarJsx.css 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/BarJsx.css 1`] = `
 "
 .bar-jsx-vue {
   color: red;
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/BarJsx.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/BarJsx.css.proxy.js 1`] = `
 "
 const code = \\"/* unsupport scoped css in vue with tsx, jsx*/.bar-jsx-vue {  color: red;}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -14483,7 +14483,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/BarJsx.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/BarJsx.js 1`] = `
 "import './BarJsx.css.proxy.js';
 import { Fragment } from '../../web_modules/vue.js';
 import {createVNode, isVNode} from '../../web_modules/vue.js';
@@ -14508,7 +14508,7 @@ export default defineComponent({
 });"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/Foo.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Foo.js 1`] = `
 "import { Fragment } from '../../web_modules/vue.js';
 import {createVNode, isVNode} from '../../web_modules/vue.js';
 const slice = Array.prototype.slice;
@@ -14533,13 +14533,13 @@ export default defineComponent({
 });"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/Foo.module.css 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Foo.module.css 1`] = `
 ".foo-tsx {
     color: green;
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/Foo.module.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Foo.module.css.proxy.js 1`] = `
 "
 export let code = \\"._dist_components_Foo_module__foo-tsx {    color: green;}\\";
 let json = {\\"foo-tsx\\":\\"_dist_components_Foo_module__foo-tsx\\"};
@@ -14551,14 +14551,14 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/FooTsx.css 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/FooTsx.css 1`] = `
 "
 .foo-tsx-vue {
   color: green;
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/FooTsx.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/FooTsx.css.proxy.js 1`] = `
 "
 const code = \\"/* unsupport scoped css in vue with tsx, jsx*/.foo-tsx-vue {  color: green;}\\";
 const styleEl = document.createElement(\\"style\\");
@@ -14568,7 +14568,7 @@ styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/components/FooTsx.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/FooTsx.js 1`] = `
 "import './FooTsx.css.proxy.js';
 import { Fragment } from '../../web_modules/vue.js';
 import {createVNode, isVNode} from '../../web_modules/vue.js';
@@ -14593,7 +14593,7 @@ export default defineComponent({
 });"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/index.js 1`] = `
 "import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import { createApp } from \\"../web_modules/vue.js\\";
@@ -14610,7 +14610,7 @@ if (import.meta.hot) {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: allFiles 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/App.css",
@@ -14639,7 +14639,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: index.html 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: index.html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -14665,7 +14665,7 @@ exports[`create-snowpack-app app-template-vue-typescript: index.html 1`] = `
 </html>"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: web_modules/import-map.json 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"vue\\": \\"./vue.js\\"
@@ -14673,7 +14673,7 @@ exports[`create-snowpack-app app-template-vue-typescript: web_modules/import-map
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript: web_modules/vue.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: web_modules/vue.js 1`] = `
 "/**
  * Make a map and return a function for checking if a key
  * is in that map.

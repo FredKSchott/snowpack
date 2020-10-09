@@ -9,7 +9,7 @@
   "scripts": {
     "start": "snowpack dev",
     "build": "snowpack build",
-    "test": "echo \"Error: No test runner added.\" && exit 1"
+    "test": "echo \"This template does not include a test runner by default.\" && exit 1"
   },
   "devDependencies": {
     "snowpack": "^2.12.1"
