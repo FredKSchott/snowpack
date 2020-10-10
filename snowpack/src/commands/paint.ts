@@ -30,7 +30,6 @@ function summarizeHistory(history: readonly LogRecord[]): string {
 export const paintEvent = {
   BUILD_FILE: 'BUILD_FILE',
   LOAD_ERROR: 'LOAD_ERROR',
-  SERVER_RESPONSE: 'SERVER_RESPONSE',
   SERVER_START: 'SERVER_START',
   WORKER_COMPLETE: 'WORKER_COMPLETE',
   WORKER_MSG: 'WORKER_MSG',

@@ -382,18 +382,6 @@ export async function startServer(commandOptions: CommandOptions) {
       reqPath = replaceExt(reqPath, '.map', '');
     }
 
-    res.on('finish', () => {
-      const {method, url} = req;
-      const {statusCode} = res;
-      if (statusCode !== 200) {
-        messageBus.emit(paintEvent.SERVER_RESPONSE, {
-          method,
-          url,
-          statusCode,
-        });
-      }
-    });
-
     if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
       sendFile(req, res, HMR_CLIENT_CODE, reqPath, '.js');
       return;
