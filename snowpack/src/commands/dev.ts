@@ -239,6 +239,7 @@ export async function startServer(commandOptions: CommandOptions) {
 
   if (config.devOptions.output === 'dashboard') {
     // "dashboard": Pipe console methods to the logger, and then start the dashboard.
+    logger.debug(`attaching console.log listeners`);
     console.log = (...args: [any, ...any[]]) => {
       logger.info(util.format(...args));
     };
@@ -248,6 +249,7 @@ export async function startServer(commandOptions: CommandOptions) {
     console.error = (...args: [any, ...any[]]) => {
       logger.error(util.format(...args));
     };
+    logger.debug(`starting dashboard`);
     paintDashboard(
       messageBus,
       config.plugins.map((p) => p.name),
@@ -324,6 +326,7 @@ export async function startServer(commandOptions: CommandOptions) {
   let credentials: {cert: Buffer; key: Buffer} | undefined;
   if (config.devOptions.secure) {
     try {
+      logger.debug(`reading credentials`);
       credentials = await readCredentials(cwd);
     } catch (e) {
       logger.error(
@@ -347,6 +350,7 @@ export async function startServer(commandOptions: CommandOptions) {
 
   for (const runPlugin of config.plugins) {
     if (runPlugin.run) {
+      logger.debug(`starting ${runPlugin.name} run() in watch/isDev mode`);
       runPlugin
         .run({
           isDev: true,
@@ -915,6 +919,12 @@ export async function startServer(commandOptions: CommandOptions) {
   };
 
   const server = createServer((req, res) => {
+    // Attach a request logger.
+    res.on('finish', () => {
+      const {method, url} = req;
+      const {statusCode} = res;
+      logger.debug(`[${statusCode}] ${method} ${url}`);
+    });
     /** Handle errors not handled in our requestHandler. */
     function onUnhandledError(err: Error) {
       logger.error(err.toString());

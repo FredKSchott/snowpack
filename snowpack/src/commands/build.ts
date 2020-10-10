@@ -303,6 +303,7 @@ export async function command(commandOptions: CommandOptions) {
 
   for (const runPlugin of config.plugins) {
     if (runPlugin.run) {
+      logger.debug(`starting ${runPlugin.name} run() (isDev=${isDev})`);
       const runJob = runPlugin
         .run({
           isDev: isDev,
@@ -328,6 +329,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   // Write the `import.meta.env` contents file to disk
+  logger.debug(`generating meta files`);
   await fs.writeFile(path.join(internalFilesBuildLoc, 'env.js'), generateEnvModule('production'));
   if (getIsHmrEnabled(config)) {
     await fs.writeFile(path.resolve(internalFilesBuildLoc, 'hmr-client.js'), HMR_CLIENT_CODE);
