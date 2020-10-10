@@ -14,8 +14,8 @@ describe('snowpack dev', () => {
   let snowpackProcess;
 
   beforeAll(() => {
-    fs.closeSync(fs.openSync(debugFilePath));
-    fs.closeSync(fs.openSync(errorFilePath));
+    fs.closeSync(fs.openSync(debugFilePath, 'a'));
+    fs.closeSync(fs.openSync(errorFilePath, 'a'));
   });
 
   afterEach(async () => {
