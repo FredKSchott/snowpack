@@ -3,6 +3,15 @@ import path from 'path';
 import {SnowpackConfig} from '../types/snowpack';
 import {appendHtmlToHead, getExt} from '../util';
 import {logger} from '../logger';
+import {generateSRIForFile} from './import-sri';
+
+const SRI_CLIENT_HMR_SNOWPACK = generateSRIForFile({
+  filePath: path.join(__dirname, '../../assets/hmr-client.js'),
+});
+
+const SRI_ERROR_HMR_SNOWPACK = generateSRIForFile({
+  filePath: path.join(__dirname, '../../assets/hmr-error-overlay.js'),
+});
 
 export function getMetaUrlPath(urlPath: string, config: SnowpackConfig): string {
   let {metaDir} = config.buildOptions || {};
@@ -75,9 +84,15 @@ export function wrapHtmlResponse({
   });
 
   if (hmr) {
-    let hmrScript = `<script type="module" src="${getMetaUrlPath('hmr-client.js', config)}"></script>`;
+    let hmrScript = `<script type="module" integrity="${SRI_CLIENT_HMR_SNOWPACK}" src="${getMetaUrlPath(
+      'hmr-client.js',
+      config,
+    )}"></script>`;
     if (config.devOptions.hmrErrorOverlay) {
-      hmrScript += `<script type="module" src="${getMetaUrlPath('hmr-error-overlay.js', config)}"></script>`;
+      hmrScript += `<script type="module" integrity="${SRI_ERROR_HMR_SNOWPACK}"src="${getMetaUrlPath(
+        'hmr-error-overlay.js',
+        config,
+      )}"></script>`;
     }
     code = appendHtmlToHead(code, hmrScript);
   }
