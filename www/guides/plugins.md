@@ -37,12 +37,9 @@ Snowpack plugins support a `run()` method which lets you run any CLI tool and co
 
 ### Bundler Plugins
 
-Snowpack builds you a runnable, unbundled website by default, but you can optimize this final build with your favorite bundler (webpack, Rollup, Parcel, etc.) through the plugin `bundle()` method. When a bundler plugin is used, Snowpack will run the bundler on your build automatically to optimize it.
+Snowpack builds you a runnable, unbundled website by default, but you can optimize this final build with your favorite bundler (webpack, Rollup, Parcel, etc.) through the plugin `optimize()` method. When a bundler plugin is used, Snowpack will run the bundler on your build automatically to optimize it.
 
-Snowpack’s bundler plugin API is the one part of the API that is still marked as experimental and may change in a future release. See our official bundler plugins for an example of using the current interface:
-
-- [@snowpack/plugin-parcel](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-parcel)
-- [@snowpack/plugin-webpack](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-webpack)
+See our official [@snowpack/plugin-webpack](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-webpack) bundler plugin for an example of using the current interface.
 
 ## How to Write a Plugin
 
@@ -312,8 +309,8 @@ Run a CLI command, and connect it's output into the Snowpack console. Useful for
 
 Snowpack’s bundler plugin API is still experimental and may change in a future release. See our official bundler plugins for an example of using the current interface:
 
-- Example: [@snowpack/plugin-parcel](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-parcel)
 - Example: [@snowpack/plugin-webpack](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-webpack)
+- Example: [snowpack-plugin-rollup-bundle](https://github.com/ParamagicDev/snowpack-plugin-rollup-bundle)
 - [Full TypeScript definition](https://github.com/pikapkg/snowpack/tree/master/snowpack/src/types/snowpack.ts).
 
 ### onChange()
