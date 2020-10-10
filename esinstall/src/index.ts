@@ -639,7 +639,14 @@ async function bundleWithRollup({installEntrypoints, installTargets, ...options}
   }
 
   const importMap: ImportMap = {
-    imports: Object.assign({}, ...Object.keys(installEntrypoints).map(getOutputName)),
+    imports: Object.assign(
+      {},
+      ...Object.keys(installEntrypoints).map((k) => {
+        return {
+          [k]: getOutputName(k),
+        };
+      }),
+    ),
   };
 
   return {
