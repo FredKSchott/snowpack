@@ -303,7 +303,7 @@ export async function install(
 
   for (const installSpecifier of allInstallSpecifiers) {
     const targetName = getWebDependencyName(installSpecifier);
-    const proxiedName = sanitizePackageName(targetName); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
+    // const proxiedName = sanitizePackageName(targetName); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
 
     // if (lockfile && lockfile.imports[installSpecifier]) {
     //   installEntrypoints[targetName] = lockfile.imports[installSpecifier];
@@ -317,11 +317,6 @@ export async function install(
       if (resolvedResult.type === 'JS') {
         installEntrypoints[targetName] = resolvedResult.loc;
         // importMap.imports[installSpecifier] = `./${proxiedName}.js`;
-        Object.entries(installAlias)
-          .filter(([, value]) => value === installSpecifier)
-          .forEach(([key]) => {
-            importMap.imports[key] = `./${targetName}.js`;
-          });
       } else if (resolvedResult.type === 'ASSET') {
         // TODO add asset entrypoints to importMap
         assetEntrypoints[targetName] = resolvedResult.loc;
@@ -350,7 +345,7 @@ export async function install(
 
   const bundler = useEsbuild ? bundleWithEsBuild : bundleWithRollup;
 
-  let {importMap, stats} = await bundler({
+  let {importMap: jsFilesImportMap, stats} = await bundler({
     installEntrypoints,
     installTargets,
     ...options,
@@ -367,7 +362,10 @@ export async function install(
     ),
   };
 
-  importMap = merge(assetsImportMap, importMap);
+  const aliasesImportMap = getAliasesImportMap({allInstallSpecifiers, installAlias});
+
+  // merge all importmaps
+  const importMap: ImportMap = [assetsImportMap, aliasesImportMap, jsFilesImportMap].reduce(merge, {}) as ImportMap;
 
   mkdirp.sync(destLoc);
   await writeLockfile(path.join(destLoc, 'import-map.json'), importMap);
@@ -381,6 +379,19 @@ export async function install(
     importMap,
     stats,
   };
+}
+
+function getAliasesImportMap({installAlias, allInstallSpecifiers}) {
+  const importMap: ImportMap = {imports: {}};
+  for (const installSpecifier of allInstallSpecifiers) {
+    Object.entries(installAlias)
+      .filter(([, value]) => value === installSpecifier)
+      .forEach(([key]) => {
+        const targetName = getWebDependencyName(installSpecifier);
+        importMap.imports[key] = `./${targetName}.js`;
+      });
+  }
+  return importMap;
 }
 
 type BundlerOptions = PublicInstallOptions & {
