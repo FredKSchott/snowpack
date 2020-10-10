@@ -249,11 +249,11 @@ export async function startServer(commandOptions: CommandOptions) {
     console.error = (...args: [any, ...any[]]) => {
       logger.error(util.format(...args));
     };
-    logger.debug(`starting dashboard`);
     paintDashboard(
       messageBus,
       config.plugins.map((p) => p.name),
     );
+    logger.debug(`dashboard started`);
   } else {
     // "stream": Log relevent events to the console.
     messageBus.on(paintEvent.WORKER_MSG, ({id, msg}) => {
