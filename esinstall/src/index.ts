@@ -588,15 +588,20 @@ async function bundleWithRollup({installEntrypoints, installTargets, ...options}
       }
     },
   };
+
+  function getOutputName(packageName) {
+    const targetName = getWebDependencyName(packageName);
+    const proxiedName = sanitizePackageName(targetName);
+    return `${proxiedName}.js`;
+  }
+
   const outputOptions: OutputOptions = {
     dir: destLoc,
     format: 'esm',
     sourcemap: sourceMap,
     exports: 'named',
     entryFileNames: (chunk) => {
-      const targetName = getWebDependencyName(chunk.name);
-      const proxiedName = sanitizePackageName(targetName);
-      return `${proxiedName}.js`;
+      return getOutputName(chunk.name);
     },
     chunkFileNames: 'common/[name]-[hash].js',
   };
@@ -634,16 +639,7 @@ async function bundleWithRollup({installEntrypoints, installTargets, ...options}
   }
 
   const importMap: ImportMap = {
-    imports: Object.assign(
-      {},
-      ...Object.keys(installEntrypoints).map((k) => {
-        const targetName = getWebDependencyName(k);
-        const proxiedName = sanitizePackageName(targetName);
-        return {
-          [k]: `./${proxiedName}.js`,
-        };
-      }),
-    ),
+    imports: Object.assign({}, ...Object.keys(installEntrypoints).map(getOutputName)),
   };
 
   return {
