@@ -7445,12 +7445,15 @@ document.head.appendChild(styleEl);"
 
 exports[`create-snowpack-app app-template-preact: _dist_/App.js 1`] = `
 "import {h} from \\"../web_modules/preact.js\\";
-import {useState} from \\"../web_modules/preact/hooks.js\\";
+import {useState, useEffect} from \\"../web_modules/preact/hooks.js\\";
 import logo2 from \\"./logo.png.proxy.js\\";
 import \\"./App.css.proxy.js\\";
 function App2() {
   const [count, setCount] = useState(0);
-  setTimeout(() => setCount(count + 1), 1e3);
+  useEffect(() => {
+    const timer = setTimeout(() => setCount(count + 1), 1e3);
+    return () => clearTimeout(timer);
+  }, [count, setCount]);
   return /* @__PURE__ */ h(\\"div\\", {
     className: \\"App\\"
   }, /* @__PURE__ */ h(\\"header\\", {
@@ -7570,8 +7573,8 @@ exports[`create-snowpack-app app-template-preact: web_modules/preact/devtools.js
 
 exports[`create-snowpack-app app-template-preact: web_modules/preact/hooks.js 1`] = `
 "import { n } from '../common/preact.module-XXXXXXXX.js';
-var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u),i.__}function q(){i.some(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.u&&n.u();}function g(n){n.u=n.__();}function k(n,t){return \\"function\\"==typeof t?t(n):t}
-export { m as useState };"
+var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u),i.__}function y(r,o){var i=v(t++,3);!n.__s&&j(i.__H,o)&&(i.__=r,i.__H=o,u.__H.__h.push(i));}function q(){i.some(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.u&&n.u();}function g(n){n.u=n.__();}function j(n,t){return !n||n.length!==t.length||t.some(function(t,u){return t!==n[u]})}function k(n,t){return \\"function\\"==typeof t?t(n):t}
+export { y as useEffect, m as useState };"
 `;
 
 exports[`create-snowpack-app app-template-preact-typescript: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
@@ -7629,12 +7632,16 @@ document.head.appendChild(styleEl);"
 
 exports[`create-snowpack-app app-template-preact-typescript: _dist_/App.js 1`] = `
 "import { h } from '../web_modules/preact.js';
-import { useState } from '../web_modules/preact/hooks.js';
+import { useState, useEffect } from '../web_modules/preact/hooks.js';
 import logo from './logo.png.proxy.js';
 import './App.css.proxy.js';
 function App() {
-  const [count, setCount] = useState(0);
-  setTimeout(() => setCount(count + 1), 1000);
+  // Create the count state.
+  const [count, setCount] = useState(0); // Create the counter (+1 every second).
+  useEffect(() => {
+    const timer = setTimeout(() => setCount(count + 1), 1000);
+    return () => clearTimeout(timer);
+  }, [count, setCount]); // Return the App component.
   return h(\\"div\\", {
     className: \\"App\\"
   }, h(\\"header\\", {
@@ -7757,8 +7764,8 @@ exports[`create-snowpack-app app-template-preact-typescript: web_modules/preact/
 
 exports[`create-snowpack-app app-template-preact-typescript: web_modules/preact/hooks.js 1`] = `
 "import { n } from '../common/preact.module-XXXXXXXX.js';
-var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u),i.__}function q(){i.some(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.u&&n.u();}function g(n){n.u=n.__();}function k(n,t){return \\"function\\"==typeof t?t(n):t}
-export { m as useState };"
+var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u),i.__}function y(r,o){var i=v(t++,3);!n.__s&&j(i.__H,o)&&(i.__=r,i.__H=o,u.__H.__h.push(i));}function q(){i.some(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){return t.__H.__h=[],n.__e(u,t.__v),!0}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.u&&n.u();}function g(n){n.u=n.__();}function j(n,t){return !n||n.length!==t.length||t.some(function(t,u){return t!==n[u]})}function k(n,t){return \\"function\\"==typeof t?t(n):t}
+export { y as useEffect, m as useState };"
 `;
 
 exports[`create-snowpack-app app-template-react: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
@@ -7818,12 +7825,15 @@ document.head.appendChild(styleEl);"
 `;
 
 exports[`create-snowpack-app app-template-react: _dist_/App.js 1`] = `
-"import React, {useState} from \\"../web_modules/react.js\\";
+"import React, {useState, useEffect} from \\"../web_modules/react.js\\";
 import logo2 from \\"./logo.svg.proxy.js\\";
 import \\"./App.css.proxy.js\\";
 function App2() {
   const [count, setCount] = useState(0);
-  setTimeout(() => setCount(count + 1), 1e3);
+  useEffect(() => {
+    const timer = setTimeout(() => setCount(count - 1), 1e3);
+    return () => clearTimeout(timer);
+  }, [count, setCount]);
   return /* @__PURE__ */ React.createElement(\\"div\\", {
     className: \\"App\\"
   }, /* @__PURE__ */ React.createElement(\\"header\\", {
@@ -7940,8 +7950,9 @@ exports[`create-snowpack-app app-template-react: web_modules/import-map.json 1`]
 exports[`create-snowpack-app app-template-react: web_modules/react.js 1`] = `
 "import { r as react } from './common/index-XXXXXXXX.js';
 export { r as default } from './common/index-XXXXXXXX.js';
+var useEffect = react.useEffect;
 var useState = react.useState;
-export { useState };"
+export { useEffect, useState };"
 `;
 
 exports[`create-snowpack-app app-template-react: web_modules/react-dom.js 1`] = `
@@ -8342,12 +8353,15 @@ document.head.appendChild(styleEl);"
 `;
 
 exports[`create-snowpack-app app-template-react-typescript: _dist_/App.js 1`] = `
-"import React, {useState} from \\"../web_modules/react.js\\";
+"import React, {useState, useEffect} from \\"../web_modules/react.js\\";
 import logo2 from \\"./logo.svg.proxy.js\\";
 import \\"./App.css.proxy.js\\";
 function App2({}) {
   const [count, setCount] = useState(0);
-  setTimeout(() => setCount(count + 1), 1e3);
+  useEffect(() => {
+    const timer = setTimeout(() => setCount(count - 1), 1e3);
+    return () => clearTimeout(timer);
+  }, [count, setCount]);
   return /* @__PURE__ */ React.createElement(\\"div\\", {
     className: \\"App\\"
   }, /* @__PURE__ */ React.createElement(\\"header\\", {
@@ -8464,8 +8478,9 @@ exports[`create-snowpack-app app-template-react-typescript: web_modules/import-m
 exports[`create-snowpack-app app-template-react-typescript: web_modules/react.js 1`] = `
 "import { r as react } from './common/index-XXXXXXXX.js';
 export { r as default } from './common/index-XXXXXXXX.js';
+var useEffect = react.useEffect;
 var useState = react.useState;
-export { useState };"
+export { useEffect, useState };"
 `;
 
 exports[`create-snowpack-app app-template-react-typescript: web_modules/react-dom.js 1`] = `
