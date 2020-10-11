@@ -8,6 +8,7 @@ import {invert, merge} from 'lodash/fp';
 import {mapKeys} from 'lodash';
 import fs from 'fs';
 import toUnixPath from 'slash';
+import tmpfile from 'tmpfile';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import path from 'path';
@@ -320,7 +321,6 @@ export async function install(
         installEntrypoints[installSpecifier] = resolvedResult.loc;
         // importMap.imports[installSpecifier] = `./${proxiedName}.js`;
       } else if (resolvedResult.type === 'ASSET') {
-        // TODO add asset entrypoints to importMap
         assetEntrypoints[targetName] = resolvedResult.loc;
         // importMap.imports[installSpecifier] = `./${proxiedName}`;
       } else if (resolvedResult.type === 'DTS') {
@@ -422,7 +422,10 @@ async function bundleWithEsBuild({installEntrypoints, ...options}: BundlerOption
   const {dest: destLoc = '', env = {}, alias, externalPackage = []} = options;
 
   const metafile = path.join(destLoc, './meta.json');
-  const entryPoints = [...Object.values(installEntrypoints).map(getWebDependencyName)]; // TODO sanitize package name here so we can remove jsInstallSpecifiersToFileLocation
+  const entryPoints = [...Object.values(installEntrypoints).map(getWebDependencyName)];
+
+  const tsconfigTempFile = tmpfile('.json');
+  await fs.promises.writeFile(tsconfigTempFile, makeTsConfig({alias}));
 
   const result = await esbuild({
     splitting: true,
@@ -438,7 +441,7 @@ async function bundleWithEsBuild({installEntrypoints, ...options}: BundlerOption
       'process.env': 'window',
       ...generateEnvReplacements(env),
     },
-    // tsconfig: makeTsConfig({alias}), // TODO create a tsconfig file and pass path here, delete after build finishes
+    tsconfig: tsconfigTempFile,
     bundle: true,
     format: 'esm',
     write: true,
@@ -448,6 +451,8 @@ async function bundleWithEsBuild({installEntrypoints, ...options}: BundlerOption
     logLevel: 'info',
     metafile,
   });
+
+  await fs.promises.unlink(tsconfigTempFile);
 
   const meta = JSON.parse(await (await fs.promises.readFile(metafile)).toString());
 
