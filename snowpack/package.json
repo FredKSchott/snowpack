@@ -42,7 +42,7 @@
     "etag": "^1.8.1",
     "execa": "^4.0.3",
     "find-cache-dir": "^3.3.1",
-    "find-up": "^4.1.0",
+    "find-up": "^5.0.0",
     "glob": "^7.1.4",
     "http-proxy": "^1.18.1",
     "httpie": "^1.1.2",
