@@ -9,7 +9,7 @@ let esbuildService: Service | null = null;
 
 const IS_PREACT = /from\s+['"]preact['"]/;
 function checkIsPreact(filePath: string, contents: string) {
-  return filePath.endsWith('.jsx') && IS_PREACT.test(contents);
+  return (filePath.endsWith('.jsx') || filePath.endsWith('.tsx')) && IS_PREACT.test(contents);
 }
 
 function getLoader(filePath: string): 'js' | 'jsx' | 'ts' | 'tsx' {
