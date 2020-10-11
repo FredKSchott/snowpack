@@ -18,8 +18,6 @@
     "array-flatten": "^3.0.0",
     "deepmerge": "^4.2.2",
     "http-vue-loader": "^1.4.1",
-    "package-01": "file:./packages/package-01",
-    "package-02": "file:./packages/package-02",
     "svelte": "^3.21.0",
     "vue": "^2.0.0",
     "vue-router": "^3.0.0"

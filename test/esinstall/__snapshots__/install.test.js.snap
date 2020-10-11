@@ -11459,9 +11459,6 @@ Array [
   "deepmerge/dist/cjs.js",
   "http-vue-loader/src/httpVueLoader.js",
   "import-map.json",
-  "meta.json",
-  "package-01/index.js",
-  "package-02/index.js",
   "svelte/index.js",
   "vue-router/dist/vue-router.esm.js",
   "vue/dist/vue.esm.browser.js",
@@ -11919,217 +11916,9 @@ exports[`snowpack install esbuild-include: import-map.json 1`] = `
     \\"array-flatten\\": \\"./array-flatten/dist.es2015/index.js\\",
     \\"deepmerge\\": \\"./deepmerge/dist/cjs.js\\",
     \\"http-vue-loader/src/httpVueLoader.js\\": \\"./http-vue-loader/src/httpVueLoader.js\\",
-    \\"package-01\\": \\"./package-01/index.js\\",
-    \\"package-02\\": \\"./package-02/index.js\\",
     \\"svelte\\": \\"./svelte/index.js\\",
     \\"vue-router\\": \\"./vue-router/dist/vue-router.esm.js\\",
     \\"vue/dist/vue.esm.browser.js\\": \\"./vue/dist/vue.esm.browser.js\\"
-  }
-}"
-`;
-
-exports[`snowpack install esbuild-include: meta.json 1`] = `
-"{
-  \\"inputs\\": {
-    \\"../../../node_modules/array-flatten/dist.es2015/index.js\\": {
-      \\"bytes\\": 503,
-      \\"imports\\": []
-    },
-    \\"../../../node_modules/deepmerge/dist/cjs.js\\": {
-      \\"bytes\\": 4035,
-      \\"imports\\": []
-    },
-    \\"../../../node_modules/http-vue-loader/src/httpVueLoader.js\\": {
-      \\"bytes\\": 10892,
-      \\"imports\\": []
-    },
-    \\"../../../node_modules/package-01/index.js\\": {
-      \\"bytes\\": 26,
-      \\"imports\\": []
-    },
-    \\"../../../node_modules/package-02/index.js\\": {
-      \\"bytes\\": 26,
-      \\"imports\\": []
-    },
-    \\"../../../node_modules/svelte/index.mjs\\": {
-      \\"bytes\\": 168,
-      \\"imports\\": [
-        {
-          \\"path\\": \\"../../../node_modules/svelte/internal/index.mjs\\"
-        }
-      ]
-    },
-    \\"../../../node_modules/svelte/internal/index.mjs\\": {
-      \\"bytes\\": 52355,
-      \\"imports\\": []
-    },
-    \\"../../../node_modules/vue-router/dist/vue-router.esm.js\\": {
-      \\"bytes\\": 79613,
-      \\"imports\\": []
-    },
-    \\"../../../node_modules/vue/dist/vue.esm.browser.js\\": {
-      \\"bytes\\": 315466,
-      \\"imports\\": []
-    }
-  },
-  \\"outputs\\": {
-    \\"web_modules/array-flatten/dist.es2015/index.js\\": {
-      \\"imports\\": [],
-      \\"inputs\\": {
-        \\"../../../node_modules/array-flatten/dist.es2015/index.js\\": {
-          \\"bytesInOutput\\": 309
-        },
-        \\"../../../node_modules/array-flatten/dist.es2015/index.js\\": {
-          \\"bytesInOutput\\": 0
-        }
-      },
-      \\"bytes\\": 391
-    },
-    \\"web_modules/deepmerge/dist/cjs.js\\": {
-      \\"imports\\": [
-        {
-          \\"path\\": \\"web_modules/chunk.Y7FREAVH.js\\"
-        }
-      ],
-      \\"inputs\\": {
-        \\"../../../node_modules/deepmerge/dist/cjs.js\\": {
-          \\"bytesInOutput\\": 3814
-        }
-      },
-      \\"bytes\\": 3948
-    },
-    \\"web_modules/http-vue-loader/src/httpVueLoader.js\\": {
-      \\"imports\\": [
-        {
-          \\"path\\": \\"web_modules/chunk.Y7FREAVH.js\\"
-        }
-      ],
-      \\"inputs\\": {
-        \\"../../../node_modules/http-vue-loader/src/httpVueLoader.js\\": {
-          \\"bytesInOutput\\": 11417
-        }
-      },
-      \\"bytes\\": 11576
-    },
-    \\"web_modules/chunk.Y7FREAVH.js\\": {
-      \\"imports\\": [],
-      \\"inputs\\": {},
-      \\"bytes\\": 188
-    },
-    \\"web_modules/package-01/index.js\\": {
-      \\"imports\\": [],
-      \\"inputs\\": {
-        \\"../../../node_modules/package-01/index.js\\": {
-          \\"bytesInOutput\\": 20
-        },
-        \\"../../../node_modules/package-01/index.js\\": {
-          \\"bytesInOutput\\": 0
-        }
-      },
-      \\"bytes\\": 84
-    },
-    \\"web_modules/package-02/index.js\\": {
-      \\"imports\\": [],
-      \\"inputs\\": {
-        \\"../../../node_modules/package-02/index.js\\": {
-          \\"bytesInOutput\\": 20
-        },
-        \\"../../../node_modules/package-02/index.js\\": {
-          \\"bytesInOutput\\": 0
-        }
-      },
-      \\"bytes\\": 84
-    },
-    \\"web_modules/svelte/index.js\\": {
-      \\"imports\\": [],
-      \\"inputs\\": {
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 20
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 36
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 46
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 67
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 49
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 25
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 150
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 31
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 1087
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 29
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 420
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 1129
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 28
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 114
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 382
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 244
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 1519
-        },
-        \\"../../../node_modules/svelte/internal/index.mjs\\": {
-          \\"bytesInOutput\\": 397
-        },
-        \\"../../../node_modules/svelte/index.mjs\\": {
-          \\"bytesInOutput\\": 0
-        },
-        \\"../../../node_modules/svelte/index.mjs\\": {
-          \\"bytesInOutput\\": 0
-        }
-      },
-      \\"bytes\\": 5992
-    },
-    \\"web_modules/vue-router/dist/vue-router.esm.js\\": {
-      \\"imports\\": [],
-      \\"inputs\\": {
-        \\"../../../node_modules/vue-router/dist/vue-router.esm.js\\": {
-          \\"bytesInOutput\\": 64398
-        },
-        \\"../../../node_modules/vue-router/dist/vue-router.esm.js\\": {
-          \\"bytesInOutput\\": 0
-        }
-      },
-      \\"bytes\\": 64505
-    },
-    \\"web_modules/vue/dist/vue.esm.browser.js\\": {
-      \\"imports\\": [],
-      \\"inputs\\": {
-        \\"../../../node_modules/vue/dist/vue.esm.browser.js\\": {
-          \\"bytesInOutput\\": 245877
-        },
-        \\"../../../node_modules/vue/dist/vue.esm.browser.js\\": {
-          \\"bytesInOutput\\": 0
-        }
-      },
-      \\"bytes\\": 245979
-    }
   }
 }"
 `;
@@ -12142,31 +11931,11 @@ exports[`snowpack install esbuild-include: output 1`] = `
     ├─ array-flatten/dist.es2015/index.js    XXXX KB    XXXX KB       NaN KB
     ├─ deepmerge/dist/cjs.js    XXXX KB    XXXX KB       NaN KB
     ├─ http-vue-loader/src/httpVueLoader.js    XXXX KB    XXXX KB       NaN KB
-    ├─ package-01/index.js    XXXX KB    XXXX KB       NaN KB
-    ├─ package-02/index.js    XXXX KB    XXXX KB       NaN KB
     ├─ svelte/index.js    XXXX KB    XXXX KB       NaN KB
     ├─ vue-router/dist/vue-router.esm.js    XXXX KB    XXXX KB       NaN KB
     └─ vue/dist/vue.esm.browser.js    XXXX KB    XXXX KB       NaN KB
   ⦿ web_modules/common/ (Shared)
     └─ chunk.Y7FREAVH.js    XXXX KB    XXXX KB       NaN KB"
-`;
-
-exports[`snowpack install esbuild-include: package-01/index.js 1`] = `
-"// ../../../node_modules/package-01/index.js
-function test() {
-}
-export {
-  test
-};"
-`;
-
-exports[`snowpack install esbuild-include: package-02/index.js 1`] = `
-"// ../../../node_modules/package-02/index.js
-function test() {
-}
-export {
-  test
-};"
 `;
 
 exports[`snowpack install esbuild-include: svelte/index.js 1`] = `

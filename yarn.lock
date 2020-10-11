@@ -10199,13 +10199,7 @@ p-waterfall@^1.0.0:
   dependencies:
     p-reduce "^1.0.0"
 
-"package-01@file:./test/esinstall/esbuild-include/packages/package-01":
-  version "1.0.0"
-
 "package-01@file:./test/esinstall/include/packages/package-01":
-  version "1.0.0"
-
-"package-02@file:./test/esinstall/esbuild-include/packages/package-02":
   version "1.0.0"
 
 "package-02@file:./test/esinstall/include/packages/package-02":

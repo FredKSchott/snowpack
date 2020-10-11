@@ -1,5 +1,4 @@
 // test 6: TypeScript decorators
-import {test} from 'package-01';
 
 function f() {
   console.log('f(): evaluated');
