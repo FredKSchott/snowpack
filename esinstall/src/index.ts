@@ -405,6 +405,7 @@ function getAliasesImportMap({installAlias, allInstallSpecifiers}) {
 type BundlerOptions = PublicInstallOptions & {
   installEntrypoints: Record<string, string>;
   // TODO rename jsInstallSpecifiersToFileLocation to something simpler
+  // same as installEntrypoints but keys are not sanitized, only contains js specifiers (no css and assets) and aliases paths are already resolved
   jsInstallSpecifiersToFileLocation: Record<string, string>;
   installTargets: InstallTarget[];
 };
