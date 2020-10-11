@@ -51,7 +51,7 @@ async function transformJs(contents, id, skipTransform) {
       sourceMaps: false,
       configFile: false,
       babelrc: false,
-      plugins: [require('react-refresh/babel')],
+      plugins: [require('react-refresh/babel'), require('@babel/plugin-syntax-class-properties')],
     });
     fastRefreshEnhancedCode = code;
   }
