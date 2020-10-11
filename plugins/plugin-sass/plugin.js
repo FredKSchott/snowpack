@@ -28,7 +28,6 @@ function scanSassImports(fileContents, filePath, fileExt) {
 }
 
 module.exports = function postcssPlugin(_, {native}) {
-
   /** A map of partially resolved imports to the files that imported them. */
   const importedByMap = new Map();
 
@@ -60,7 +59,7 @@ module.exports = function postcssPlugin(_, {native}) {
         }
       }
     },
-    /** 
+    /**
      * When a file changes, also mark it's importers as changed.
      * Note that Sass has very lax matching of imports -> files.
      * Follow these rules to find a match: https://sass-lang.com/documentation/at-rules/use
