@@ -13128,6 +13128,11 @@ svelte2tsx@*:
     dedent-js "^1.0.1"
     pascal-case "^3.1.1"
 
+svelte@3.21.0:
+  version "3.21.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.21.0.tgz#e326591cb92267e90b4fb5b961d80d9763792551"
+  integrity sha512-smh3LZKPCGJ+UXa0iZvUmuDctPYCwPY1opmClTWTm+l6e4y9FHLoCZMiue8YIeyc9JvlGT/EK0xry0diXjFDZQ==
+
 svelte@3.28.0:
   version "3.28.0"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.28.0.tgz#e257fab5666701cf230bea583ceb470bdda1344c"
@@ -13994,6 +13999,11 @@ vue-currency-input@^1.21.0:
   resolved "https://registry.yarnpkg.com/vue-currency-input/-/vue-currency-input-1.22.3.tgz#49d02fbe79e35d015b7c4762f669829701beec0c"
   integrity sha512-vrOaaiCSG8Hh7Fw7CYROIymFvVprWKaze3h67sihqJ4QAI9F+YElTQYv0fJwFK1NkKUS8H/MvAL0mwg9qrUfgg==
 
+vue-router@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.0.0.tgz#458092ad5d8e3b8d26661cfbcbf46c120f8ea1ae"
+  integrity sha512-qcS2QzYrT5r/TIEdtbar41joxX/MUsfNPB3k/yrRbowyKowXnY4NG1XFM4K2HFsugXXolTkyFfKrDas5+FRcBA==
+
 vue-router@^3.0.0:
   version "3.4.5"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.4.5.tgz#d396ec037b35931bdd1e9b7edd86f9788dc15175"
@@ -14003,6 +14013,11 @@ vue@*, vue@^2.0.0, vue@^2.6.12:
   version "2.6.12"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.12.tgz#f5ebd4fa6bd2869403e29a896aed4904456c9123"
   integrity sha512-uhmLFETqPPNyuLLbsKz6ioJ4q7AZHzD8ZVFNATNyICSZouqP2Sz0rotWQC8UNBF6VGSCs5abnKJoStA6JbCbfg==
+
+vue@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/vue/-/vue-2.0.0.tgz#2717556195650845a0141d8117ba8024ccedb2ba"
+  integrity sha1-JxdVYZVlCEWgFB2BF7qAJMztsro=
 
 vue@3.0.0, vue@^3.0.0:
   version "3.0.0"
