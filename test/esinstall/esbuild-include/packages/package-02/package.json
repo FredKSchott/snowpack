@@ -1,5 +1,5 @@
 {
   "version": "1.0.0",
-  "name": "package-02",
+  "name": "esbuild-package-02",
   "module": "index.js"
 }
