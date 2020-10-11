@@ -412,7 +412,7 @@ function makeTsConfig({alias}) {
     };
   });
   const tsconfig = {
-    compilerOptions: {paths: Object.assign({}, ...aliases)},
+    compilerOptions: {baseUrl: '.', paths: Object.assign({}, ...aliases)},
   };
 
   return JSON.stringify(tsconfig);
@@ -422,7 +422,7 @@ async function bundleWithEsBuild({installEntrypoints, ...options}: BundlerOption
   const {dest: destLoc = '', env = {}, alias, externalPackage = []} = options;
 
   const metafile = path.join(destLoc, './meta.json');
-  const entryPoints = [...Object.values(installEntrypoints).map(getWebDependencyName)];
+  const entryPoints = [...Object.values(installEntrypoints)];
 
   const tsconfigTempFile = tmpfile('.json');
   await fs.promises.writeFile(tsconfigTempFile, makeTsConfig({alias}));

@@ -40,6 +40,7 @@
     "rollup": "^2.23.0",
     "rollup-plugin-node-polyfills": "^0.2.1",
     "slash": "^3.0.0",
+    "tmpfile": "^0.2.0",
     "validate-npm-package-name": "^3.0.0"
   }
 }
