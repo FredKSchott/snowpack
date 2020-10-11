@@ -9,6 +9,8 @@ const KEEP_LOCKFILE = [
   'source-pika-lockfile', // We explicitly want to test the lockfile in this test
 ];
 
+const CHUNKS_GLOBS = ['**/common/**/*', 'chunk.*'];
+
 function stripBenchmark(stdout) {
   return stdout.replace(/\s*\[\d+\.?\d+s\](\n?)/g, '$1'); //remove benchmark
 }
@@ -118,7 +120,7 @@ describe('snowpack install', () => {
 
       const actual = path.join(__dirname, testName, 'web_modules');
       const allFiles = glob.sync(`**/*`, {
-        ignore: ['**/common/**/*'],
+        ignore: CHUNKS_GLOBS,
         cwd: actual,
         nodir: true,
       });

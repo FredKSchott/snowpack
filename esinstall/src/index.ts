@@ -281,7 +281,6 @@ export async function install(
     dest: destLoc,
     externalPackage: externalPackages,
   } = options;
-
   const installTargets: InstallTarget[] = _installTargets.map((t) =>
     typeof t === 'string' ? createInstallTarget(t) : t,
   );
