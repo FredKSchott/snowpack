@@ -6,7 +6,7 @@
     "testinstall": "snowpack"
   },
   "dependencies": {
-    "rollup-plugin-svelte": "^5.1.1",
+    "rollup-plugin-svelte": "^6.0.0",
     "svelte": "^3.18.2",
     "svelte-routing": "^1.4.0"
   },

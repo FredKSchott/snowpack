@@ -37,7 +37,7 @@
     "deepmerge": "^4.2.2",
     "detect-port": "^1.3.0",
     "es-module-lexer": "^0.3.24",
-    "esbuild": "^0.6.28",
+    "esbuild": "^0.7.0",
     "esinstall": "^0.3.2",
     "etag": "^1.8.1",
     "execa": "^4.0.3",
