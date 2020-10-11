@@ -4,7 +4,8 @@ import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import {init as initESModuleLexer} from 'es-module-lexer';
 import {build as esbuild, Metadata} from 'esbuild';
-import {invert, merge} from 'lodash/fp';
+import {invert, merge, } from 'lodash/fp';
+import {mapKeys} from 'lodash'
 import fs from 'fs';
 import toUnixPath from 'slash';
 import * as colors from 'kleur/colors';
@@ -298,7 +299,6 @@ export async function install(
   );
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
-  const jsInstallSpecifiersToFileLocation: {[installSpecifier: string]: string} = {};
   // const importMap: ImportMap = {imports: {}};
 
   const skipFailures = false;
@@ -317,8 +317,7 @@ export async function install(
         cwd,
       });
       if (resolvedResult.type === 'JS') {
-        installEntrypoints[targetName] = resolvedResult.loc;
-        jsInstallSpecifiersToFileLocation[installSpecifier] = resolvedResult.loc;
+        installEntrypoints[installSpecifier] = resolvedResult.loc;
         // importMap.imports[installSpecifier] = `./${proxiedName}.js`;
       } else if (resolvedResult.type === 'ASSET') {
         // TODO add asset entrypoints to importMap
@@ -350,7 +349,6 @@ export async function install(
 
   let {importMap: jsFilesImportMap, stats} = await bundler({
     installEntrypoints,
-    jsInstallSpecifiersToFileLocation,
     installTargets,
     ...options,
   });
@@ -404,9 +402,6 @@ function getAliasesImportMap({installAlias, allInstallSpecifiers}) {
 
 type BundlerOptions = PublicInstallOptions & {
   installEntrypoints: Record<string, string>;
-  // TODO rename jsInstallSpecifiersToFileLocation to something simpler
-  // same as installEntrypoints but keys are not sanitized, only contains js specifiers (no css and assets) and aliases paths are already resolved
-  jsInstallSpecifiersToFileLocation: Record<string, string>;
   installTargets: InstallTarget[];
 };
 
@@ -425,13 +420,12 @@ function makeTsConfig({alias}) {
 
 async function bundleWithEsBuild({
   installEntrypoints,
-  jsInstallSpecifiersToFileLocation,
   ...options
 }: BundlerOptions) {
   const {dest: destLoc = '', env = {}, alias, externalPackage = []} = options;
 
   const metafile = path.join(destLoc, './meta.json');
-  const entryPoints = [...Object.values(installEntrypoints)];
+  const entryPoints = [...Object.values(installEntrypoints).map(getWebDependencyName)]; // TODO sanitize package name here so we can remove jsInstallSpecifiersToFileLocation
 
   const result = await esbuild({
     splitting: true,
@@ -461,7 +455,7 @@ async function bundleWithEsBuild({
   const meta = JSON.parse(await (await fs.promises.readFile(metafile)).toString());
 
   const importMap = metafileToImportMap({
-    jsInstallSpecifiersToFileLocation,
+    installEntrypoints,
     meta,
     destLoc: destLoc,
   });
@@ -472,14 +466,13 @@ async function bundleWithEsBuild({
 }
 
 function metafileToImportMap(_options: {
-  jsInstallSpecifiersToFileLocation: Record<string, string>;
+  installEntrypoints: Record<string, string>;
   meta: Metadata;
   destLoc: string;
 }): ImportMap {
-  const {destLoc: destLoc, jsInstallSpecifiersToFileLocation, meta} = _options;
-  const inputFiles = Object.values(jsInstallSpecifiersToFileLocation).map((x) => path.resolve(x)); // TODO replace resolve with join in cwd
-  // const inputSpecifiers = Object.keys(installEntrypoints);
-  const inputFilesToSpecifiers = invert(jsInstallSpecifiersToFileLocation);
+  const {destLoc: destLoc, installEntrypoints: installEntrypoints, meta} = _options;
+  const inputFiles = Object.values(installEntrypoints).map((x) => path.resolve(x)); // TODO replace resolve with join in cwd
+  const inputFilesToSpecifiers = invert(installEntrypoints);
 
   const importMaps: Record<string, string>[] = Object.keys(meta.outputs).map((output) => {
     // chunks cannot be entrypoints
@@ -532,7 +525,6 @@ function metafileToStats(_options: {meta: Metadata; destLoc: string}): Dependenc
 
 async function bundleWithRollup({
   installEntrypoints,
-  jsInstallSpecifiersToFileLocation,
   installTargets,
   ...options
 }: BundlerOptions) {
@@ -555,7 +547,7 @@ async function bundleWithRollup({
   const env = generateEnvObject(userEnv);
   let isFatalWarningFound = false;
   const inputOptions: InputOptions = {
-    input: installEntrypoints,
+    input: mapKeys(installEntrypoints, getWebDependencyName),
     context: userDefinedRollup.context,
     external: (id) => externalPackages.some((packageName) => isImportOfPackage(id, packageName)),
     treeshake: {moduleSideEffects: 'no-external'},
@@ -676,7 +668,7 @@ async function bundleWithRollup({
   const importMap: ImportMap = {
     imports: Object.assign(
       {},
-      ...Object.keys(jsInstallSpecifiersToFileLocation).map((specifier) => {
+      ...Object.keys(installEntrypoints).map((specifier) => {
         return {
           [specifier]: `./${getOutputName(specifier)}`,
         };
