@@ -29,7 +29,7 @@
     "@snowpack/app-scripts-preact": "^1.9.3",
     "@snowpack/plugin-dotenv": "^2.0.3",
     "@testing-library/jest-dom": "^5.5.0",
-    "@testing-library/preact": "^1.0.2",
+    "@testing-library/preact": "^2.0.0",
     "jest": "^26.2.2",
     "prettier": "^2.0.5",
     "snowpack": "^2.13.3"
