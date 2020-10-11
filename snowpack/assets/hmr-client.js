@@ -211,6 +211,6 @@ window.addEventListener('error', function (event) {
     title: 'Unhandled Runtime Error',
     fileLoc,
     errorMessage: event.message,
-    errorStackTrace: event.error.stack,
+    errorStackTrace: event.error ? event.error.stack : undefined,
   });
 });
