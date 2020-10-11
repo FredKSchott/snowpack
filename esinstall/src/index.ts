@@ -427,7 +427,7 @@ async function bundleWithEsBuild({installEntrypoints, ...options}: BundlerOption
   const tsconfigTempFile = tmpfile('.json');
   await fs.promises.writeFile(tsconfigTempFile, makeTsConfig({alias}));
 
-  const result = await esbuild({
+  await esbuild({
     splitting: true,
     external: externalPackage,
     minifyIdentifiers: false,
@@ -545,7 +545,7 @@ async function bundleWithRollup({installEntrypoints, installTargets, ...options}
   const env = generateEnvObject(userEnv);
   let isFatalWarningFound = false;
   const inputOptions: InputOptions = {
-    input: mapKeys(installEntrypoints, (v, k) => getWebDependencyName(k)),
+    input: mapKeys(installEntrypoints, (_, k) => getWebDependencyName(k)),
     context: userDefinedRollup.context,
     external: (id) => externalPackages.some((packageName) => isImportOfPackage(id, packageName)),
     treeshake: {moduleSideEffects: 'no-external'},
