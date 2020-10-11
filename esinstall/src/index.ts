@@ -506,7 +506,7 @@ function metafileToStats(_options: {meta: Metadata; destLoc: string}): Dependenc
   });
 
   function makeStatObject(value) {
-    const relativePath = path.relative(destLoc, value.path);
+    const relativePath = toUnixPath(path.relative(destLoc, value.path));
     return {
       [relativePath]: {
         size: value.bytes,
