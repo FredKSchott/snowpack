@@ -4,20 +4,10 @@ const execa = require('execa');
 const {readdirSync, readFileSync, statSync, existsSync} = require('fs');
 const glob = require('glob');
 const os = require('os');
-const fs = require('fs');
 const {get} = require('httpie');
-
-const debugFilePath = path.join(__dirname, './logs/debug.snowpack.log');
-const errorFilePath = path.join(__dirname, './logs/error.snowpack.log');
 
 describe('snowpack dev', () => {
   let snowpackProcess;
-
-  beforeAll(() => {
-    fs.closeSync(fs.openSync(debugFilePath, 'a'));
-    fs.closeSync(fs.openSync(errorFilePath, 'a'));
-  });
-
   afterEach(async () => {
     snowpackProcess.cancel();
     snowpackProcess.kill('SIGTERM', {
@@ -35,19 +25,18 @@ describe('snowpack dev', () => {
     expect.assertions(3);
 
     const cwd = path.join(__dirname, 'smoke');
+
     // start the server
     // NOTE: we tried spawning `yarn` here, but the process was not cleaned up
     //       correctly on CI and the action got stuck. npx does not cause that problem.
     snowpackProcess = execa(
       path.resolve('node_modules', '.bin', 'snowpack'),
-      ['dev', '--verbose'],
+      ['dev', '--verbose', '--output', 'stream'],
       {cwd},
     );
 
-    const streamLogFile = fs.createWriteStream(debugFilePath);
-    const streamErrorFile = fs.createWriteStream(errorFilePath);
-    snowpackProcess.stdout.pipe(streamLogFile);
-    snowpackProcess.stderr.pipe(streamErrorFile);
+    snowpackProcess.stdout.pipe(process.stdout);
+    snowpackProcess.stderr.pipe(process.stderr);
 
     // await server to be ready and set a timeout in case something goes wrong
     await new Promise((resolve, reject) => {
