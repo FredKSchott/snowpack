@@ -426,6 +426,7 @@ async function bundleWithEsBuild({installEntrypoints, ...options}: BundlerOption
   const tsconfigTempFile = tmpfile('.json');
   await fs.promises.writeFile(tsconfigTempFile, makeTsConfig({alias}));
 
+  rimraf.sync(destLoc);
   await esbuild({
     splitting: true,
     external: externalPackage,
