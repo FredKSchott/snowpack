@@ -298,6 +298,7 @@ export async function install(
   );
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
+  const jsInstallSpecifiersToFileLocation: {[installSpecifier: string]: string} = {};
   // const importMap: ImportMap = {imports: {}};
 
   const skipFailures = false;
@@ -317,6 +318,7 @@ export async function install(
       });
       if (resolvedResult.type === 'JS') {
         installEntrypoints[targetName] = resolvedResult.loc;
+        jsInstallSpecifiersToFileLocation[installSpecifier] = resolvedResult.loc;
         // importMap.imports[installSpecifier] = `./${proxiedName}.js`;
       } else if (resolvedResult.type === 'ASSET') {
         // TODO add asset entrypoints to importMap
@@ -348,6 +350,7 @@ export async function install(
 
   let {importMap: jsFilesImportMap, stats} = await bundler({
     installEntrypoints,
+    jsInstallSpecifiersToFileLocation,
     installTargets,
     ...options,
   });
@@ -401,6 +404,8 @@ function getAliasesImportMap({installAlias, allInstallSpecifiers}) {
 
 type BundlerOptions = PublicInstallOptions & {
   installEntrypoints: Record<string, string>;
+  // TODO rename jsInstallSpecifiersToFileLocation to something simpler
+  jsInstallSpecifiersToFileLocation: Record<string, string>;
   installTargets: InstallTarget[];
 };
 
@@ -417,7 +422,11 @@ function makeTsConfig({alias}) {
   return JSON.stringify(tsconfig);
 }
 
-async function bundleWithEsBuild({installEntrypoints, installTargets, ...options}: BundlerOptions) {
+async function bundleWithEsBuild({
+  installEntrypoints,
+  jsInstallSpecifiersToFileLocation,
+  ...options
+}: BundlerOptions) {
   const {dest: destLoc = '', env = {}, alias, externalPackage = []} = options;
 
   const metafile = path.join(destLoc, './meta.json');
@@ -450,7 +459,11 @@ async function bundleWithEsBuild({installEntrypoints, installTargets, ...options
 
   const meta = JSON.parse(await (await fs.promises.readFile(metafile)).toString());
 
-  const importMap = metafileToImportMap({installEntrypoints, meta, destLoc: destLoc});
+  const importMap = metafileToImportMap({
+    jsInstallSpecifiersToFileLocation,
+    meta,
+    destLoc: destLoc,
+  });
 
   const stats = metafileToStats({meta, destLoc});
 
@@ -458,14 +471,14 @@ async function bundleWithEsBuild({installEntrypoints, installTargets, ...options
 }
 
 function metafileToImportMap(_options: {
-  installEntrypoints: Record<string, string>;
+  jsInstallSpecifiersToFileLocation: Record<string, string>;
   meta: Metadata;
   destLoc: string;
 }): ImportMap {
-  const {destLoc: destLoc, installEntrypoints, meta} = _options;
-  const inputFiles = Object.values(installEntrypoints).map((x) => path.resolve(x)); // TODO replace resolve with join in cwd
+  const {destLoc: destLoc, jsInstallSpecifiersToFileLocation, meta} = _options;
+  const inputFiles = Object.values(jsInstallSpecifiersToFileLocation).map((x) => path.resolve(x)); // TODO replace resolve with join in cwd
   // const inputSpecifiers = Object.keys(installEntrypoints);
-  const inputFilesToSpecifiers = invert(installEntrypoints);
+  const inputFilesToSpecifiers = invert(jsInstallSpecifiersToFileLocation);
 
   const importMaps: Record<string, string>[] = Object.keys(meta.outputs).map((output) => {
     // chunks cannot be entrypoints
@@ -516,7 +529,12 @@ function metafileToStats(_options: {meta: Metadata; destLoc: string}): Dependenc
   };
 }
 
-async function bundleWithRollup({installEntrypoints, installTargets, ...options}: BundlerOptions) {
+async function bundleWithRollup({
+  installEntrypoints,
+  jsInstallSpecifiersToFileLocation,
+  installTargets,
+  ...options
+}: BundlerOptions) {
   const {
     cwd,
     alias: installAlias,
@@ -657,9 +675,9 @@ async function bundleWithRollup({installEntrypoints, installTargets, ...options}
   const importMap: ImportMap = {
     imports: Object.assign(
       {},
-      ...Object.keys(installEntrypoints).map((k) => {
+      ...Object.keys(jsInstallSpecifiersToFileLocation).map((specifier) => {
         return {
-          [k]: `./${getOutputName(k)}`,
+          [specifier]: `./${getOutputName(specifier)}`,
         };
       }),
     ),
