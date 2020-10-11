@@ -4,8 +4,8 @@ import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import {init as initESModuleLexer} from 'es-module-lexer';
 import {build as esbuild, Metadata} from 'esbuild';
-import {invert, merge, } from 'lodash/fp';
-import {mapKeys} from 'lodash'
+import {invert, merge} from 'lodash/fp';
+import {mapKeys} from 'lodash';
 import fs from 'fs';
 import toUnixPath from 'slash';
 import * as colors from 'kleur/colors';
@@ -418,10 +418,7 @@ function makeTsConfig({alias}) {
   return JSON.stringify(tsconfig);
 }
 
-async function bundleWithEsBuild({
-  installEntrypoints,
-  ...options
-}: BundlerOptions) {
+async function bundleWithEsBuild({installEntrypoints, ...options}: BundlerOptions) {
   const {dest: destLoc = '', env = {}, alias, externalPackage = []} = options;
 
   const metafile = path.join(destLoc, './meta.json');
@@ -523,11 +520,7 @@ function metafileToStats(_options: {meta: Metadata; destLoc: string}): Dependenc
   };
 }
 
-async function bundleWithRollup({
-  installEntrypoints,
-  installTargets,
-  ...options
-}: BundlerOptions) {
+async function bundleWithRollup({installEntrypoints, installTargets, ...options}: BundlerOptions) {
   const {
     cwd,
     alias: installAlias,
@@ -547,7 +540,7 @@ async function bundleWithRollup({
   const env = generateEnvObject(userEnv);
   let isFatalWarningFound = false;
   const inputOptions: InputOptions = {
-    input: mapKeys(installEntrypoints, getWebDependencyName),
+    input: mapKeys(installEntrypoints, (v, k) => getWebDependencyName(k)),
     context: userDefinedRollup.context,
     external: (id) => externalPackages.some((packageName) => isImportOfPackage(id, packageName)),
     treeshake: {moduleSideEffects: 'no-external'},
