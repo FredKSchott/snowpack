@@ -6,6 +6,7 @@ import {init as initESModuleLexer} from 'es-module-lexer';
 import {build as esbuild, Metadata} from 'esbuild';
 import {invert, merge} from 'lodash/fp';
 import fs from 'fs';
+import toUnixPath from 'slash';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import path from 'path';
@@ -365,7 +366,10 @@ export async function install(
   const aliasesImportMap = getAliasesImportMap({allInstallSpecifiers, installAlias});
 
   // merge all importmaps
-  const importMap: ImportMap = [assetsImportMap, aliasesImportMap, jsFilesImportMap].reduce(merge, {}) as ImportMap;
+  const importMap: ImportMap = [assetsImportMap, aliasesImportMap, jsFilesImportMap].reduce(
+    merge,
+    {},
+  ) as ImportMap;
 
   mkdirp.sync(destLoc);
   await writeLockfile(path.join(destLoc, 'import-map.json'), importMap);
@@ -388,6 +392,7 @@ function getAliasesImportMap({installAlias, allInstallSpecifiers}) {
       .filter(([, value]) => value === installSpecifier)
       .forEach(([key]) => {
         const targetName = getWebDependencyName(installSpecifier);
+        // TODO the alias could not be at this path, the target path should be generated based on existing importMap
         importMap.imports[key] = `./${targetName}.js`;
       });
   }
@@ -425,7 +430,7 @@ async function bundleWithEsBuild({installEntrypoints, installTargets, ...options
     minifySyntax: false,
     minifyWhitespace: false,
     mainFields: ['browser:module', 'module', 'browser', 'main'].filter(isTruthy),
-    // sourcemap: 'inline', // TODO sourcemaps panics after a lot of CPU load
+    // sourcemap: 'inline', // TODO sourcemaps panics and gives a lot of CPU load
     define: {
       'process.env.NODE_ENV': JSON.stringify('dev'),
       process: 'window',
@@ -473,7 +478,7 @@ function metafileToImportMap(_options: {
       return {};
     }
     const specifier = inputFilesToSpecifiers[input];
-    return {[specifier]: './' + path.normalize(path.relative(destLoc, output))};
+    return {[specifier]: './' + toUnixPath(path.normalize(path.relative(destLoc, output)))};
   });
   const importMap = Object.assign({}, ...importMaps);
   return {imports: importMap};
@@ -654,7 +659,7 @@ async function bundleWithRollup({installEntrypoints, installTargets, ...options}
       {},
       ...Object.keys(installEntrypoints).map((k) => {
         return {
-          [k]: getOutputName(k),
+          [k]: `./${getOutputName(k)}`,
         };
       }),
     ),
