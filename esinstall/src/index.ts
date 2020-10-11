@@ -271,7 +271,7 @@ export async function install(
 ): Promise<InstallResult> {
   const options = setOptionDefaults(_options);
   const {
-    useEsbuild = true, // TODO use rollup by default
+    useEsbuild = false,
     cwd,
     alias: installAlias,
     logger,
