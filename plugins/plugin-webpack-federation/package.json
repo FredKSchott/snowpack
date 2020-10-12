@@ -1,0 +1,25 @@
+{
+  "name": "@snowpack/plugin-webpack-federation",
+  "version": "2.0.15",
+  "main": "plugin.js",
+  "license": "MIT",
+  "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-webpack-federation#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pikapkg/snowpack.git",
+    "directory": "plugins/plugin-webpack-federation"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "babel-loader": "^8.1.0",
+    "core-js": "^3.5.0",
+    "css-loader": "^3.5.3",
+    "file-loader": "^6.0.0",
+    "mini-css-extract-plugin": "^0.9.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "terser-webpack-plugin": "^3.0.1",
+    "webpack": "^5.0.0"
+  }
+}

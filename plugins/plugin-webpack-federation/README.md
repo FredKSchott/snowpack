@@ -1,0 +1,1 @@
+# @snowpack/plugin-webpack-federation
