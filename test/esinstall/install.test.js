@@ -94,8 +94,10 @@ describe('snowpack install', () => {
         ),
       );
 
+      const snapshotFile = path.join(cwd, 'snapshots'); // `jest-specific-snapshot` cannot use the .snap extension, since it conflicts with jest
+
       // Test output
-      expect(actualOutput).toMatchSpecificSnapshot(path.join(cwd, 'output.snapshot'));
+      expect(actualOutput).toMatchSpecificSnapshot(snapshotFile, 'cli output');
 
       // Test Lockfile (if one exists)
       const expectedLockLoc = path.join(__dirname, testName, 'expected-lock.json');
@@ -134,7 +136,8 @@ describe('snowpack install', () => {
       }
 
       expect(allFiles.map((f) => f.replace(/\\/g, '/'))).toMatchSpecificSnapshot(
-        path.join(cwd, 'allFiles.snapshot'),
+        snapshotFile,
+        'allFiles',
       );
 
       // If any diffs are detected, we'll assert the difference so that we get nice output.
@@ -146,10 +149,7 @@ describe('snowpack install', () => {
         const f1 = readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
         expect(
           stripWhitespace(stripSvelteComment(stripChunkHash(stripRev(f1)))),
-        ).toMatchSpecificSnapshot(
-          path.join(cwd, 'web_modules.snapshot'),
-          entry.replace(/\\/g, '/'),
-        );
+        ).toMatchSpecificSnapshot(snapshotFile, `web_modules/${entry.replace(/\\/g, '/')}`);
       }
     });
   }
