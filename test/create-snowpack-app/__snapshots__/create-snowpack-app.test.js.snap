@@ -7351,7 +7351,8 @@ console.log('Hello World! You did! Welcome to Snowpack :D');"
 
 exports[`create-snowpack-app app-template-minimal: package.json 1`] = `
 "{
-  \\"name\\": \\"app-template-minimal\\",
+  \\"name\\": \\"@snowpack/app-template-minimal\\",
+  \\"private\\": true,
   \\"version\\": \\"1.6.12\\",
   \\"license\\": \\"MIT\\",
   \\"keywords\\": [
