@@ -420,7 +420,6 @@ function makeTsConfig({alias}) {
 async function bundleWithEsBuild({installEntrypoints, ...options}: BundlerOptions) {
   const {dest: destLoc = '', env = {}, alias, externalPackage = [], treeshake} = options;
 
-
   const metafile = path.join(destLoc, './meta.json');
   const entryPoints = [...Object.values(installEntrypoints)];
 
@@ -440,7 +439,7 @@ async function bundleWithEsBuild({installEntrypoints, ...options}: BundlerOption
       'process.env.NODE_ENV': JSON.stringify('dev'),
       process: 'window', // TODO temporary workarounds to make certain packages work
       'process.env': 'window',
-      'global': 'window',
+      global: 'window',
       ...generateEnvReplacements(env),
     },
     tsconfig: tsconfigTempFile,
