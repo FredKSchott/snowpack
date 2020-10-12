@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-scripts-preact",
-  "version": "1.9.3",
+  "version": "1.9.4",
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"

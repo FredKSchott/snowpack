@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/plugin-webpack",
-  "version": "2.0.15",
+  "version": "2.0.16",
   "main": "plugin.js",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-webpack#readme",
