@@ -6,7 +6,7 @@ const mockComponent = path.join(__dirname, 'Button.svelte');
 
 describe('@snowpack/plugin-svelte (unmocked)', () => {
   it('generates code', async () => {
-    const options = {};
+    const options = {config: './plugins/plugin-svelte/test'};
     const sveltePlugin = plugin(mockConfig, options);
     const result = await sveltePlugin.load({filePath: mockComponent});
 

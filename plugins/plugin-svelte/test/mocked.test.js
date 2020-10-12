@@ -30,8 +30,7 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
   });
 
   it('handles preprocessing', async () => {
-    // test-only config option
-    const options = {__config: path.join(__dirname, 'svelte.config.js')};
+    const options = {config: './plugins/plugin-svelte/test'};
 
     const sveltePlugin = plugin(mockConfig, options);
 

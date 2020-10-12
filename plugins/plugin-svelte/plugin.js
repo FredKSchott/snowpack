@@ -17,23 +17,25 @@ module.exports = function plugin(snowpackConfig, {hot: hotOptions, ...sveltePlug
     svelteRollupPlugin({include: '**/node_modules/**', dev: isDev}),
   );
 
-  let svelteOptions;
+  let {config = '.', ...svelteOptions} = sveltePluginOptions || {};
+  let userSvelteOptions;
   let preprocessOptions;
-  // Note(drew): __config is for internal testing use; maybe we should make this public at some point?
-  const userSvelteConfigLoc =
-    sveltePluginOptions.__config || path.join(process.cwd(), 'svelte.config.js');
+
+  const userSvelteConfigLoc = path.resolve(process.cwd(), `${config}/svelte.config.js`);
+  
   if (fs.existsSync(userSvelteConfigLoc)) {
     const userSvelteConfig = require(userSvelteConfigLoc);
     const {preprocess, ..._svelteOptions} = userSvelteConfig;
     preprocessOptions = preprocess;
-    svelteOptions = _svelteOptions;
+    userSvelteOptions = _svelteOptions;
   }
+  
   // Generate svelte options from user provided config (if given)
   svelteOptions = {
     dev: isDev,
     css: false,
+    ...userSvelteOptions,
     ...svelteOptions,
-    ...sveltePluginOptions,
   };
 
   return {

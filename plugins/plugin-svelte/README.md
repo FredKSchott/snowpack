@@ -17,6 +17,8 @@ npm install --save-dev @snowpack/plugin-svelte
 
 ## Plugin Options
 
+- `config: string` - relative URL from working directory to `svelte.config.js`
+
 This plugin also supports all Svelte compiler options. See [here](https://svelte.dev/docs#svelte_compile) for a list of supported options.
 
 ### HMR Options
