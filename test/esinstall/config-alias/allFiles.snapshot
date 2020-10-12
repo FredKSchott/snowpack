@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install config-alias 1`] = `
+Array [
+  "import-map.json",
+  "preact/compat.js",
+  "vue-currency-input/dist/vue-currency-input.esm.js",
+]
+`;

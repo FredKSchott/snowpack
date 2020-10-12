@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install error-include-ignore-unsupported-files 1`] = `"[snowpack] Nothing to install."`;

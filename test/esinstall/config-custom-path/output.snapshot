@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install config-custom-path 1`] = `
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
+[snowpack]
+  ⦿ web_modules/         size       gzip       brotli
+    └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
+`;

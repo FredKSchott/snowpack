@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install sub-package-json 1`] = `
+Array [
+  "import-map.json",
+  "solid-js/dom.js",
+]
+`;

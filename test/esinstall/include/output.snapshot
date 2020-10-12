@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install include 1`] = `
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
+[snowpack]
+  ⦿ web_modules/                             size       gzip       brotli
+    ├─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ deepmerge.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ http-vue-loader/src/httpVueLoader.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ package-01.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ package-02.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ svelte.js    XXXX KB    XXXX KB    XXXX KB
+    ├─ vue-router.js    XXXX KB    XXXX KB    XXXX KB
+    └─ vue/dist/vue.esm.browser.js    XXXX KB    XXXX KB    XXXX KB"
+`;

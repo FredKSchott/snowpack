@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install dep-remote-url: import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"remote-url-pkg\\": \\"./remote-url-pkg.js\\"
+  }
+}"
+`;
+
+exports[`snowpack install dep-remote-url: remote-url-pkg.js 1`] = `
+"import pkg from 'http://example.com/FAKE_IMPORT_URL';
+export * from 'https://example.com/FAKE_IMPORT_URL';
+console.log(pkg);
+const foo = 'bar';
+export { foo };"
+`;

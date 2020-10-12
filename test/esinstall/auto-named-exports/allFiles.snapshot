@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install auto-named-exports 1`] = `
+Array [
+  "cjs-named-export-pkg-02.js",
+  "cjs-named-export-pkg-03.js",
+  "import-map.json",
+]
+`;

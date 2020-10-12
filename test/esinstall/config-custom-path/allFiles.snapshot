@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install config-custom-path 1`] = `
+Array [
+  "array-flatten.js",
+  "import-map.json",
+]
+`;

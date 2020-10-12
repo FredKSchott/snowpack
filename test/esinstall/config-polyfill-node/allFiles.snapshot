@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install config-polyfill-node 1`] = `
+Array [
+  "import-map.json",
+  "node-builtin-pkg.js",
+]
+`;

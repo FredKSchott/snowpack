@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install include 1`] = `
+Array [
+  "array-flatten.js",
+  "deepmerge.js",
+  "http-vue-loader/src/httpVueLoader.js",
+  "import-map.json",
+  "package-01.js",
+  "package-02.js",
+  "svelte.js",
+  "vue-router.js",
+  "vue/dist/vue.esm.browser.js",
+]
+`;

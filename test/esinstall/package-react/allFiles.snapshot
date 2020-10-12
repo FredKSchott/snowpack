@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install package-react 1`] = `
+Array [
+  "import-map.json",
+  "react-dom.js",
+  "react-dom/server.js",
+  "react.js",
+]
+`;

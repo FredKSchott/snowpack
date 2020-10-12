@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install dep-exports 1`] = `
+Array [
+  "import-map.json",
+  "preact.js",
+  "preact/debug.js",
+  "preact/hooks.js",
+]
+`;

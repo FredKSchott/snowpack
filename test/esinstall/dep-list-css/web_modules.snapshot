@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install dep-list-css: import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"css-mock-pkg-a/index.css\\": \\"./css-mock-pkg-a/index.css\\",
+    \\"css-mock-pkg-b/index.css\\": \\"./css-mock-pkg-b/index.css\\"
+  }
+}"
+`;

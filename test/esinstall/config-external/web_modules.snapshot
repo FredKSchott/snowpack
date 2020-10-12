@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install config-external: config-external-pkg-a.js 1`] = `
+"import { foo } from 'config-external-pkg-b';
+import { foo as foo$1 } from 'config-external-pkg-b/entrypoint';
+console.log(foo, foo$1);"
+`;
+
+exports[`snowpack install config-external: import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"config-external-pkg-a\\": \\"./config-external-pkg-a.js\\"
+  }
+}"
+`;
