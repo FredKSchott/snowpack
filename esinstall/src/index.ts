@@ -418,7 +418,8 @@ function makeTsConfig({alias}) {
 }
 
 async function bundleWithEsBuild({installEntrypoints, ...options}: BundlerOptions) {
-  const {dest: destLoc = '', env = {}, alias, externalPackage = []} = options;
+  const {dest: destLoc = '', env = {}, alias, externalPackage = [], treeshake} = options;
+
 
   const metafile = path.join(destLoc, './meta.json');
   const entryPoints = [...Object.values(installEntrypoints)];
@@ -428,17 +429,18 @@ async function bundleWithEsBuild({installEntrypoints, ...options}: BundlerOption
 
   rimraf.sync(destLoc);
   await esbuild({
-    splitting: true,
+    splitting: true, // needed to dedupe packages
     external: externalPackage,
-    minifyIdentifiers: false,
-    minifySyntax: false,
-    minifyWhitespace: false,
+    minifyIdentifiers: Boolean(treeshake),
+    minifySyntax: Boolean(treeshake),
+    minifyWhitespace: Boolean(treeshake),
     mainFields: ['browser:module', 'module', 'browser', 'main'].filter(isTruthy),
     // sourcemap: 'inline', // TODO sourcemaps panics and gives a lot of CPU load
     define: {
       'process.env.NODE_ENV': JSON.stringify('dev'),
-      process: 'window',
+      process: 'window', // TODO temporary workarounds to make certain packages work
       'process.env': 'window',
+      'global': 'window',
       ...generateEnvReplacements(env),
     },
     tsconfig: tsconfigTempFile,
@@ -447,7 +449,7 @@ async function bundleWithEsBuild({installEntrypoints, ...options}: BundlerOption
     write: true,
     entryPoints,
     outdir: destLoc,
-    minify: false,
+    minify: Boolean(treeshake),
     logLevel: 'info',
     metafile,
   });
