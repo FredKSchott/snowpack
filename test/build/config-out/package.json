@@ -9,7 +9,10 @@
   "snowpack": {
     "devOptions": {
       "out": "TEST_BUILD_OUT"
-    }
+    },
+    "exclude": [
+      "snapshots"
+    ]
   },
   "devDependencies": {
     "cross-env": "^7.0.2",
