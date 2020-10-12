@@ -446,34 +446,64 @@ export async function startServer(commandOptions: CommandOptions) {
         } else {
           continue;
         }
-        if (isRoute) {
-          let fileLoc =
-            (await attemptLoadFile(requestedFile)) ||
-            (await attemptLoadFile(requestedFile + '.html')) ||
-            (await attemptLoadFile(requestedFile + 'index.html')) ||
-            (await attemptLoadFile(requestedFile + '/index.html'));
-
-          if (!fileLoc && dirUrl === '/' && config.devOptions.fallback) {
-            const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
-            fileLoc = await attemptLoadFile(fallbackFile);
-          }
+        const fileLocExact = await attemptLoadFile(requestedFile);
+        if (fileLocExact) {
+          return fileLocExact;
+        }
+        for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
+          const fileLoc = await attemptLoadFile(potentialSourceFile);
           if (fileLoc) {
-            responseFileExt = '.html';
             return fileLoc;
-          }
-        } else {
-          for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
-            const fileLoc = await attemptLoadFile(potentialSourceFile);
-            if (fileLoc) {
-              return fileLoc;
-            }
           }
         }
       }
       return null;
     }
 
-    const fileLoc = await getFileFromUrl(reqPath);
+    async function getFileFromRoute(reqPath: string): Promise<string | null> {
+      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
+        let requestedFile: string;
+        if (dirUrl === '/') {
+          requestedFile = path.join(dirDisk, reqPath);
+        } else if (reqPath.startsWith(dirUrl)) {
+          requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, './'));
+        } else {
+          continue;
+        }
+        let fileLoc =
+          (await attemptLoadFile(requestedFile)) ||
+          (await attemptLoadFile(requestedFile + '.html')) ||
+          (await attemptLoadFile(requestedFile + 'index.html')) ||
+          (await attemptLoadFile(requestedFile + '/index.html'));
+        if (fileLoc) {
+          responseFileExt = '.html';
+          return fileLoc;
+        }
+      }
+      return null;
+    }
+
+    async function getFileFromFallback(): Promise<string | null> {
+      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
+        if (dirUrl !== '/') {
+          continue;
+        }
+        if (config.devOptions.fallback) {
+          const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
+          fileLoc = await attemptLoadFile(fallbackFile);
+        }
+        if (fileLoc) {
+          responseFileExt = '.html';
+          return fileLoc;
+        }
+      }
+      return null;
+    }
+
+    let fileLoc = await getFileFromUrl(reqPath);
+    if (!fileLoc && isRoute) {
+      fileLoc = (await getFileFromRoute(reqPath)) || (await getFileFromFallback());
+    }
 
     if (!fileLoc) {
       // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
