@@ -133,7 +133,7 @@ const sendFile = (
   res: http.ServerResponse,
   body: string | Buffer,
   fileLoc: string,
-  ext = '.html',
+  ext: string,
 ) => {
   body = Buffer.from(body);
   const ETag = etag(body, {weak: true});
@@ -424,9 +424,6 @@ export async function startServer(commandOptions: CommandOptions) {
     let responseFileExt = requestedFileExt;
     let isRoute = !requestedFileExt || requestedFileExt === '.html';
 
-    // Now that we've set isRoute properly, give `requestedFileExt` a fallback
-    requestedFileExt = requestedFileExt || '.html';
-
     async function getFileFromUrl(reqPath: string): Promise<string | null> {
       if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
         const dependencyFileLoc =
@@ -471,11 +468,11 @@ export async function startServer(commandOptions: CommandOptions) {
           continue;
         }
         let fileLoc =
-          (await attemptLoadFile(requestedFile)) ||
           (await attemptLoadFile(requestedFile + '.html')) ||
           (await attemptLoadFile(requestedFile + 'index.html')) ||
           (await attemptLoadFile(requestedFile + '/index.html'));
         if (fileLoc) {
+          requestedFileExt = '.html';
           responseFileExt = '.html';
           return fileLoc;
         }
@@ -493,6 +490,7 @@ export async function startServer(commandOptions: CommandOptions) {
           fileLoc = await attemptLoadFile(fallbackFile);
         }
         if (fileLoc) {
+          requestedFileExt = '.html';
           responseFileExt = '.html';
           return fileLoc;
         }
