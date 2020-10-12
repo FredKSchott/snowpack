@@ -5,7 +5,7 @@ const execa = require('execa');
 const rimraf = require('rimraf');
 const glob = require('glob');
 
-require('jest-specific-snapshot');
+require('jest-specific-snapshot'); // allows to call expect().toMatchSpecificSnapshot(filename, snapshotName)
 
 const KEEP_LOCKFILE = [
   'source-pika-lockfile', // We explicitly want to test the lockfile in this test
