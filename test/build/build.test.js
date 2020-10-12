@@ -59,7 +59,7 @@ describe('snowpack build', () => {
         throw new Error('Empty build directory!');
       }
 
-      const snapshotFile = path.join(cwd, 'snapshots')
+      const snapshotFile = path.join(cwd, 'snapshots');
       expect(allFiles.map((f) => f.replace(/\\/g, '/'))).toMatchSpecificSnapshot(
         snapshotFile,
         'allFiles',
@@ -75,7 +75,10 @@ describe('snowpack build', () => {
           entry.endsWith('.map')
         ) {
           const f1 = readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
-          expect(format(f1)).toMatchSpecificSnapshot(snapshotFile, `build/${entry.replace(/\\/g, '/')}`);
+          expect(format(f1)).toMatchSpecificSnapshot(
+            snapshotFile,
+            `build/${entry.replace(/\\/g, '/')}`,
+          );
         }
       }
     });
