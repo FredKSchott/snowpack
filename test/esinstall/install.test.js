@@ -5,6 +5,8 @@ const execa = require('execa');
 const rimraf = require('rimraf');
 const glob = require('glob');
 
+require('jest-specific-snapshot');
+
 const KEEP_LOCKFILE = [
   'source-pika-lockfile', // We explicitly want to test the lockfile in this test
 ];
@@ -93,7 +95,7 @@ describe('snowpack install', () => {
       );
 
       // Test output
-      expect(actualOutput).toMatchSnapshot('output');
+      expect(actualOutput).toMatchSpecificSnapshot(path.join(cwd, 'output.snapshot'));
 
       // Test Lockfile (if one exists)
       const expectedLockLoc = path.join(__dirname, testName, 'expected-lock.json');
@@ -131,7 +133,9 @@ describe('snowpack install', () => {
         throw new Error('Empty build directory!');
       }
 
-      expect(allFiles.map((f) => f.replace(/\\/g, '/'))).toMatchSnapshot('allFiles');
+      expect(allFiles.map((f) => f.replace(/\\/g, '/'))).toMatchSpecificSnapshot(
+        path.join(cwd, 'allFiles.snapshot'),
+      );
 
       // If any diffs are detected, we'll assert the difference so that we get nice output.
       for (const entry of allFiles) {
@@ -140,7 +144,10 @@ describe('snowpack install', () => {
           continue;
         }
         const f1 = readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
-        expect(stripWhitespace(stripSvelteComment(stripChunkHash(stripRev(f1))))).toMatchSnapshot(
+        expect(
+          stripWhitespace(stripSvelteComment(stripChunkHash(stripRev(f1)))),
+        ).toMatchSpecificSnapshot(
+          path.join(cwd, 'web_modules.snapshot'),
           entry.replace(/\\/g, '/'),
         );
       }
