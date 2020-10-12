@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install config-named-exports: allFiles 1`] = `
+Array [
+  "cjs-named-export-pkg.js",
+  "import-map.json",
+]
+`;
+
+exports[`snowpack install config-named-exports: cli output 1`] = `
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
+[snowpack]
+  ⦿ web_modules/                size       gzip       brotli
+    └─ cjs-named-export-pkg.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
+exports[`snowpack install config-named-exports: web_modules/cjs-named-export-pkg.js 1`] = `
+"var entrypoint = {
+  export1: 'foo',
+  export2: 'bar',
+};
+export default entrypoint;
+var export1 = entrypoint.export1;
+var export2 = entrypoint.export2;
+export { entrypoint as __moduleExports, export1, export2 };"
+`;
+
+exports[`snowpack install config-named-exports: web_modules/import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"cjs-named-export-pkg\\": \\"./cjs-named-export-pkg.js\\"
+  }
+}"
+`;

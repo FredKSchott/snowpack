@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`snowpack install dep-list-css 1`] = `
-Array [
-  "css-mock-pkg-a/index.css",
-  "css-mock-pkg-b/index.css",
-  "import-map.json",
-]
-`;

@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`snowpack install dep-list-complex 1`] = `
-"[snowpack] installing dependencies...
-[snowpack] ✔ install complete!
-[snowpack]
-  ⦿ web_modules/     size       gzip       brotli
-    └─ dat.gui.js    XXXX KB    XXXX KB    XXXX KB"
-`;

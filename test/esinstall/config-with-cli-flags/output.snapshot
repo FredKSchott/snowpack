@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`snowpack install config-with-cli-flags 1`] = `
-"[snowpack] installing dependencies...
-[snowpack] ✔ install complete!
-[snowpack]
-  ⦿ web_modules/         size       gzip       brotli
-    └─ shallow-equal.js    XXXX KB    XXXX KB    XXXX KB"
-`;

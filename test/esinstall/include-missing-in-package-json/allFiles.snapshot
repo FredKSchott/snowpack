@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`snowpack install include-missing-in-package-json 1`] = `
-Array [
-  "@material/list.js",
-  "import-map.json",
-]
-`;

@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`snowpack install source-map-strip 1`] = `
-Array [
-  "@auth0/auth0-spa-js.js",
-  "import-map.json",
-]
-`;

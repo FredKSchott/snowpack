@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`snowpack install dep-list-complex 1`] = `
-Array [
-  "dat.gui.js",
-  "import-map.json",
-]
-`;
