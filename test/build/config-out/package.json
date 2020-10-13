@@ -11,7 +11,7 @@
       "out": "TEST_BUILD_OUT"
     },
     "exclude": [
-      "snapshots"
+      "__snapshots__"
     ]
   },
   "devDependencies": {
