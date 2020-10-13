@@ -370,7 +370,7 @@ export async function startServer(commandOptions: CommandOptions) {
     }
   }
 
-  async function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
+  async function requestHandler(req: http.IncomingMessage, res: http.ServerResponse, next?: () => void) {
     const reqUrl = req.url!;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
@@ -504,14 +504,19 @@ export async function startServer(commandOptions: CommandOptions) {
     }
 
     if (!fileLoc) {
-      // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
-      // from the server, which creates annoying errors for new apps / first experiences.
-      if (reqPath !== '/favicon.ico') {
-        const attemptedFilesMessage = attemptedFileLoads.map((loc) => '  ✘ ' + loc).join('\n');
-        const errorMessage = `[404] ${reqUrl}\n${attemptedFilesMessage}`;
-        logger.error(errorMessage);
+      if (next) {
+        // fall through to next handler
+        return next();
+      } else {
+        // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
+        // from the server, which creates annoying errors for new apps / first experiences.
+        if (reqPath !== '/favicon.ico') {
+          const attemptedFilesMessage = attemptedFileLoads.map((loc) => '  ✘ ' + loc).join('\n');
+          const errorMessage = `[404] ${reqUrl}\n${attemptedFilesMessage}`;
+          logger.error(errorMessage);
+        }
+        return sendError(req, res, 404);
       }
-      return sendError(req, res, 404);
     }
 
     /**
