@@ -4,7 +4,7 @@ const fs = require('fs');
 const plugin = require('../plugin').default;
 const {getSnowpackPluginOutputSnapshotSerializer} = require('./serializer');
 
-describe('@snowpack/plugin-webpack', () => {
+describe('@snowpack/plugin-optimize', () => {
   beforeEach(() => {
     expect.addSnapshotSerializer(getSnowpackPluginOutputSnapshotSerializer(__dirname));
 
