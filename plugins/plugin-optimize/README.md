@@ -6,7 +6,7 @@ Optimize your unbundled Snowpack app:
 - ✅ Minify CSS
 - ✅ Minify JS
 - ✅ Transpile JS
-- ✅ [Preload JS Modules][modulepreload]
+- ✅ [Preload JS Modules][https://developers.google.com/web/updates/2017/12/modulepreload]
 
 ### Usage
 
