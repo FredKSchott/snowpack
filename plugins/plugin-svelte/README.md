@@ -17,6 +17,14 @@ npm install --save-dev @snowpack/plugin-svelte
 
 ## Plugin Options
 
+- `configFilePath: string` - relative URL to Svelte config, usually named `svelte.config.js`. Defaults to `svelte.config.js` in project root directory. 
+```js
+// Example usage
+   ...
+   ["@snowpack/plugin-svelte", { configFilePath: './dir/svelte.config.js' }]
+   ...
+```
+
 This plugin also supports all Svelte compiler options. See [here](https://svelte.dev/docs#svelte_compile) for a list of supported options.
 
 ### HMR Options
