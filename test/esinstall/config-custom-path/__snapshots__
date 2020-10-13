@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install config-custom-path: allFiles 1`] = `
+Array [
+  "array-flatten.js",
+  "import-map.json",
+]
+`;
+
+exports[`snowpack install config-custom-path: cli output 1`] = `
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
+[snowpack]
+  ⦿ web_modules/         size       gzip       brotli
+    └─ array-flatten.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
+exports[`snowpack install config-custom-path: web_modules/array-flatten.js 1`] = `
+"/**
+ * Flatten an array indefinitely.
+ */
+function flatten(array) {
+    var result = [];
+    $flatten(array, result);
+    return result;
+}
+/**
+ * Internal flatten function recursively passes \`result\`.
+ */
+function $flatten(array, result) {
+    for (var i = 0; i < array.length; i++) {
+        var value = array[i];
+        if (Array.isArray(value)) {
+            $flatten(value, result);
+        }
+        else {
+            result.push(value);
+        }
+    }
+}
+export { flatten };"
+`;
+
+exports[`snowpack install config-custom-path: web_modules/import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"array-flatten\\": \\"./array-flatten.js\\"
+  }
+}"
+`;

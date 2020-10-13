@@ -1,0 +1,215 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack build resolve-imports: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "_dist_/components/index.js",
+  "_dist_/components/style.css",
+  "_dist_/components/style.css.proxy.js",
+  "_dist_/index.html",
+  "_dist_/index.js",
+  "_dist_/sort.js",
+  "_dist_/test-mjs.js",
+  "TEST_WMU/@css/package-b/style.css",
+  "TEST_WMU/@css/package-b/style.css.proxy.js",
+  "TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg",
+  "TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg.proxy.js",
+  "TEST_WMU/array-flatten.js",
+  "TEST_WMU/css-package-a/style.css",
+  "TEST_WMU/css-package-a/style.css.proxy.js",
+  "TEST_WMU/import-map.json",
+]
+`;
+
+exports[`snowpack build resolve-imports: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+
+exports[`snowpack build resolve-imports: build/_dist_/components/index.js 1`] = `
+"import sort from '../sort.js';
+console.log(sort);
+export default 'Button';"
+`;
+
+exports[`snowpack build resolve-imports: build/_dist_/components/style.css 1`] = `
+"/* Include 2+ imports to make sure regex isn't borked. */
+@import \\"../../TEST_WMU/css-package-a/style.css\\";
+@import \\"../../TEST_WMU/@css/package-b/style.css\\";"
+`;
+
+exports[`snowpack build resolve-imports: build/_dist_/components/style.css.proxy.js 1`] = `
+"
+const code = \\"/* Include 2+ imports to make sure regex isn't borked. */@import \\\\\\"../../TEST_WMU/css-package-a/style.css\\\\\\";@import \\\\\\"../../TEST_WMU/@css/package-b/style.css\\\\\\";\\";
+const styleEl = document.createElement(\\"style\\");
+const codeEl = document.createTextNode(code);
+styleEl.type = 'text/css';
+styleEl.appendChild(codeEl);
+document.head.appendChild(styleEl);"
+`;
+
+exports[`snowpack build resolve-imports: build/_dist_/index.html 1`] = `
+"<!DOCTYPE html>
+<html lang=\\"en\\">
+  <head>
+    <meta charset=\\"utf-8\\" />
+    <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
+    <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
+    <title>Snowpack App</title>
+  </head>
+  <body>
+    <script type=\\"module\\" src=\\"https://example.com/foo/_dist_/index.js\\"></script>
+    <script type=\\"module\\">
+      // Path aliases
+      import {flatten} from '../TEST_WMU/array-flatten.js';
+      import * as aliasedDep from '../TEST_WMU/array-flatten.js';
+      console.log(flatten, aliasedDep);
+      // Importing a file
+      import sort from './sort.js'; // relative import
+      import sort_ from './sort.js'; // bare import using alias
+      import sort__ from './sort.js'; // bare import using alias + extension
+      console.log(sort, sort_, sort__);
+      // Importing a directory index.js file
+      import components from './components/index.js'; // relative import
+      import components_ from './components/index.js'; // relative import with index appended
+      import components__ from './components/index.js'; // relative import with index appended
+      import components___ from './components/index.js'; // bare import using alias
+      import components____ from './components/index.js'; // bare import using alias and index appended
+      import components_____ from './components/index.js'; // bare import using alias and index.js appended
+      console.log(
+        components,
+        components_,
+        components__,
+        components___,
+        components____,
+        components_____,
+      );
+      // Importing something that isn't JS
+      import styles from './components/style.css.proxy.js'; // relative import
+      import styles_ from './components/style.css.proxy.js'; // relative import
+      console.log(styles, styles_);
+    </script>
+    <!-- exception test 1: comments should be ignored -->
+    <!-- <script type=\\"module\\" src=\\"preact\\"></script> -->
+    <!-- exception test 2: ignore script tags that aren’t type=\\"module\\" -->
+    <script src=\\"svelte\\"></script>
+    <!-- exception test 3: obviously ignore HTML (this tests our RegEx) -->
+    <pre><code>import React from 'react';</code></pre>
+    <script></script>
+  </body>
+</html>"
+`;
+
+exports[`snowpack build resolve-imports: build/_dist_/index.js 1`] = `
+"// Path aliases
+import {flatten} from '../TEST_WMU/array-flatten.js';
+import * as aliasedDep from '../TEST_WMU/array-flatten.js';
+console.log(flatten, aliasedDep);
+// Importing a file
+import sort from './sort.js'; // relative import
+import sort_ from './sort.js'; // bare import using alias
+import sort__ from './sort.js'; // bare import using alias + extension
+import sort___ from './sort.js'; // bare import using alias with trailing slash
+console.log(sort, sort_, sort__, sort___);
+// Importing a directory index.js file
+import components from './components/index.js'; // relative import
+import components______ from './components/index.js'; // relative import with trailing slash
+import components_ from './components/index.js'; // relative import with index appended
+import components__ from './components/index.js'; // relative import with index appended
+import components___ from './components/index.js'; // bare import using alias
+import components____ from './components/index.js'; // bare import using alias and index appended
+import components_____ from './components/index.js'; // bare import using alias and index.js appended
+import components2 from './components/index.js'; // alias % to '.'
+console.log(
+  components,
+  components_,
+  components__,
+  components___,
+  components____,
+  components_____,
+  components______,
+  components2,
+);
+// Importing something that isn't JS
+import styles from './components/style.css.proxy.js'; // relative import
+import styles_ from './components/style.css.proxy.js'; // relative import
+console.log(styles, styles_);
+import adSvg from '../TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg.proxy.js';
+console.log(adSvg);"
+`;
+
+exports[`snowpack build resolve-imports: build/_dist_/sort.js 1`] = `"export default (arr) => arr.sort();"`;
+
+exports[`snowpack build resolve-imports: build/_dist_/test-mjs.js 1`] = `
+"import {flatten} from \\"../TEST_WMU/array-flatten.js\\";
+console.log(flatten);"
+`;
+
+exports[`snowpack build resolve-imports: build/TEST_WMU/@css/package-b/style.css 1`] = `
+"body {
+  color: blue;
+}"
+`;
+
+exports[`snowpack build resolve-imports: build/TEST_WMU/@css/package-b/style.css.proxy.js 1`] = `
+"
+const code = \\"body {  color: blue;}\\";
+const styleEl = document.createElement(\\"style\\");
+const codeEl = document.createTextNode(code);
+styleEl.type = 'text/css';
+styleEl.appendChild(codeEl);
+document.head.appendChild(styleEl);"
+`;
+
+exports[`snowpack build resolve-imports: build/TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg.proxy.js 1`] = `"export default \\"/TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg\\";"`;
+
+exports[`snowpack build resolve-imports: build/TEST_WMU/array-flatten.js 1`] = `
+"/**
+ * Flatten an array indefinitely.
+ */
+function flatten(array) {
+    var result = [];
+    $flatten(array, result);
+    return result;
+}
+/**
+ * Internal flatten function recursively passes \`result\`.
+ */
+function $flatten(array, result) {
+    for (var i = 0; i < array.length; i++) {
+        var value = array[i];
+        if (Array.isArray(value)) {
+            $flatten(value, result);
+        }
+        else {
+            result.push(value);
+        }
+    }
+}
+export { flatten };"
+`;
+
+exports[`snowpack build resolve-imports: build/TEST_WMU/css-package-a/style.css 1`] = `
+"body {
+  color: red;
+}"
+`;
+
+exports[`snowpack build resolve-imports: build/TEST_WMU/css-package-a/style.css.proxy.js 1`] = `
+"
+const code = \\"body {  color: red;}\\";
+const styleEl = document.createElement(\\"style\\");
+const codeEl = document.createTextNode(code);
+styleEl.type = 'text/css';
+styleEl.appendChild(codeEl);
+document.head.appendChild(styleEl);"
+`;
+
+exports[`snowpack build resolve-imports: build/TEST_WMU/import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"@css/package-b/style.css\\": \\"./@css/package-b/style.css\\",
+    \\"@fortawesome/fontawesome-free/svgs/solid/ad.svg\\": \\"./@fortawesome/fontawesome-free/svgs/solid/ad.svg\\",
+    \\"aliased-dep\\": \\"./array-flatten.js\\",
+    \\"array-flatten\\": \\"./array-flatten.js\\",
+    \\"css-package-a/style.css\\": \\"./css-package-a/style.css\\"
+  }
+}"
+`;
