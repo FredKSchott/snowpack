@@ -370,7 +370,11 @@ export async function startServer(commandOptions: CommandOptions) {
     }
   }
 
-  async function requestHandler(req: http.IncomingMessage, res: http.ServerResponse, next?: () => void) {
+  async function requestHandler(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    next?: () => void,
+  ) {
     const reqUrl = req.url!;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
