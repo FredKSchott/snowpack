@@ -20,17 +20,21 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
       generate: 'ssr',
       isDev: false,
     };
-    const sveltePlugin = plugin(mockConfig, options);
+    const optionsConfig = {configFilePath: './plugins/plugin-svelte/test/svelte.config.js'}
+
+    const sveltePlugin = plugin(mockConfig, {...options, ...optionsConfig});
     await sveltePlugin.load({filePath: mockComponent});
     const passedOptions = mockCompiler.mock.calls[0][1];
 
     // this tests that all options passed above made it to the compiler
     // objectContaining() allows additional options to be passed, but we only care that our options have been preserved
     expect(passedOptions).toEqual(expect.objectContaining(options));
+    // `configFilePath` option is expected not to be passed into Svelte
+    expect(passedOptions).toEqual(expect.not.objectContaining(optionsConfig));
   });
 
   it('handles preprocessing', async () => {
-    const options = {config: './plugins/plugin-svelte/test'};
+    const options = {configFilePath: './plugins/plugin-svelte/test/svelte.config.js'};
 
     const sveltePlugin = plugin(mockConfig, options);
 

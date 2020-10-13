@@ -17,17 +17,20 @@ module.exports = function plugin(snowpackConfig, {hot: hotOptions, ...sveltePlug
     svelteRollupPlugin({include: '**/node_modules/**', dev: isDev}),
   );
 
-  let {config = '.', ...svelteOptions} = sveltePluginOptions || {};
+  let {configFilePath = 'svelte.config.js', ...svelteOptions} = sveltePluginOptions || {};
   let userSvelteOptions;
   let preprocessOptions;
 
-  const userSvelteConfigLoc = path.resolve(process.cwd(), `${config}/svelte.config.js`);
-  
+  const userSvelteConfigLoc = path.resolve(process.cwd(), configFilePath);
+
   if (fs.existsSync(userSvelteConfigLoc)) {
     const userSvelteConfig = require(userSvelteConfigLoc);
     const {preprocess, ..._svelteOptions} = userSvelteConfig;
     preprocessOptions = preprocess;
     userSvelteOptions = _svelteOptions;
+  } else {
+    //user svelte.config.js is optional and should not error if not configured
+    if (configFilePath !== 'svelte.config.js') console.error(`[plugin-svelte] failed to find Svelte config file: could not locate "${userSvelteConfigLoc}"`);
   }
   
   // Generate svelte options from user provided config (if given)
