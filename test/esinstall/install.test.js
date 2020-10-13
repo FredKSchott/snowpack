@@ -94,7 +94,7 @@ describe('snowpack install', () => {
         ),
       );
 
-      const snapshotFile = path.join(cwd, 'snapshots'); // `jest-specific-snapshot` cannot use the .snap extension, since it conflicts with jest
+      const snapshotFile = path.join(cwd, '__snapshots__'); // `jest-specific-snapshot` cannot use the .snap extension, since it conflicts with jest
 
       // Test output
       expect(actualOutput).toMatchSpecificSnapshot(snapshotFile, 'cli output');
