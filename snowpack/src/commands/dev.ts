@@ -804,7 +804,11 @@ export async function startServer(commandOptions: CommandOptions) {
         return;
       }
       if (!responseContent) {
-        sendError(req, res, 404);
+        if (next) {
+          next();
+        } else {
+          sendError(req, res, 404);
+        }
         return;
       }
       sendFile(req, res, responseContent, fileLoc, responseFileExt);
@@ -858,7 +862,11 @@ export async function startServer(commandOptions: CommandOptions) {
           coldCachedResponse,
         );
         if (!wrappedResponse) {
-          sendError(req, res, 404);
+          if (next) {
+            next();
+          } else {
+            sendError(req, res, 404);
+          }
           return;
         }
         sendFile(req, res, wrappedResponse, fileLoc, responseFileExt);
@@ -917,7 +925,11 @@ export async function startServer(commandOptions: CommandOptions) {
       return;
     }
     if (!responseContent) {
-      sendError(req, res, 404);
+      if (next) {
+        next();
+      } else {
+        sendError(req, res, 404);
+      }
       return;
     }
 
