@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack build plugin-optimize: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "_dist_/icon.svg",
+  "_dist_/icon.svg.proxy.js",
+  "_dist_/index.js",
+  "_dist_/logo.png",
+  "_dist_/logo.png.proxy.js",
+  "_dist_/styles.css",
+  "_dist_/styles.css.proxy.js",
+  "artifact.txt",
+]
+`;
+
+exports[`snowpack build plugin-optimize: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+
+exports[`snowpack build plugin-optimize: build/_dist_/icon.svg.proxy.js 1`] = `"export default \\"/_dist_/icon.svg\\";"`;
+
+exports[`snowpack build plugin-optimize: build/_dist_/index.js 1`] = `
+"import './styles.css.proxy.js';
+import './logo.png.proxy.js';
+import iconComponent from './icon.svg.proxy.js';
+console.log('loaded');"
+`;
+
+exports[`snowpack build plugin-optimize: build/_dist_/logo.png.proxy.js 1`] = `"export default \\"/_dist_/logo.png\\";"`;
+
+exports[`snowpack build plugin-optimize: build/_dist_/styles.css 1`] = `
+"body {
+  font-family: fantasy;
+}"
+`;
+
+exports[`snowpack build plugin-optimize: build/_dist_/styles.css.proxy.js 1`] = `
+"
+const code = \\"body {  font-family: fantasy;}\\";
+const styleEl = document.createElement(\\"style\\");
+const codeEl = document.createTextNode(code);
+styleEl.type = 'text/css';
+styleEl.appendChild(codeEl);
+document.head.appendChild(styleEl);"
+`;

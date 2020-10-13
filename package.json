@@ -39,6 +39,7 @@
     "execa": "^4.0.3",
     "httpie": "^1.1.2",
     "jest": "^26.2.2",
+    "jest-specific-snapshot": "^4.0.0",
     "lerna": "^3.22.1",
     "prettier": "^2.0.5",
     "strip-ansi": "^6.0.0",

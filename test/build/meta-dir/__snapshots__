@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack build meta-dir: allFiles 1`] = `
+Array [
+  "index.js",
+  "static/snowpack/env.js",
+  "sub/index.js",
+]
+`;
+
+exports[`snowpack build meta-dir: build/index.js 1`] = `
+"import __SNOWPACK_ENV__ from './static/snowpack/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// public/index.js - Test import URLs from the \\"/\\" directory
+export default function doNothing() {
+  // I do nothing 🎉
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
+`;
+
+exports[`snowpack build meta-dir: build/static/snowpack/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+
+exports[`snowpack build meta-dir: build/sub/index.js 1`] = `
+"import __SNOWPACK_ENV__ from '../static/snowpack/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+// public/sub/index.js - Test import URLs from the \\"/sub/\\" directory
+export default function doNothing() {
+  // I do nothing 🎉
+}
+// Triggers a snowpack meta import URL
+console.log(import.meta.env)"
+`;

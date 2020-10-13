@@ -4,6 +4,8 @@ const {readdirSync, readFileSync, statSync, existsSync} = require('fs');
 const glob = require('glob');
 const os = require('os');
 
+require('jest-specific-snapshot'); // allows to call expect().toMatchSpecificSnapshot(filename, snapshotName)
+
 const STRIP_WHITESPACE = /((\s+$)|((\\r\\n)|(\\n)))/gm;
 const STRIP_REV = /\?rev=\w+/gm;
 const STRIP_CHUNKHASH = /([\w\-]+\-)[a-z0-9]{8}(\.js)/g;
@@ -15,7 +17,7 @@ function format(stdout) {
     .replace(STRIP_REV, '?rev=XXXXXXXXXX')
     .replace(STRIP_CHUNKHASH, '$1XXXXXXXX$2')
     .replace(STRIP_WHITESPACE, '')
-    .replace(STRIP_ROOTDIR, (_, p1, p2)=> {
+    .replace(STRIP_ROOTDIR, (_, p1, p2) => {
       return `/HOME${(p1 + p2).replace(/\\{1,2}/g, '/')}`;
     });
 }
@@ -57,7 +59,11 @@ describe('snowpack build', () => {
         throw new Error('Empty build directory!');
       }
 
-      expect(allFiles.map((f) => f.replace(/\\/g, '/'))).toMatchSnapshot('allFiles');
+      const snapshotFile = path.join(cwd, '__snapshots__');
+      expect(allFiles.map((f) => f.replace(/\\/g, '/'))).toMatchSpecificSnapshot(
+        snapshotFile,
+        'allFiles',
+      );
 
       // If any diffs are detected, we'll assert the difference so that we get nice output.
       for (const entry of allFiles) {
@@ -69,7 +75,10 @@ describe('snowpack build', () => {
           entry.endsWith('.map')
         ) {
           const f1 = readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
-          expect(format(f1)).toMatchSnapshot(entry.replace(/\\/g, '/'));
+          expect(format(f1)).toMatchSpecificSnapshot(
+            snapshotFile,
+            `build/${entry.replace(/\\/g, '/')}`,
+          );
         }
       }
     });
