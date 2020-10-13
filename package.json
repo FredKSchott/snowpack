@@ -15,8 +15,8 @@
   "workspaces": [
     "create-snowpack-app/*",
     "plugins/*",
-    "snowpack",
     "esinstall",
+    "snowpack",
     "test/build/*",
     "test/esinstall/*"
   ],
