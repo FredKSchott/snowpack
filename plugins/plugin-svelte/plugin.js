@@ -30,9 +30,12 @@ module.exports = function plugin(snowpackConfig, {hot: hotOptions, ...sveltePlug
     userSvelteOptions = _svelteOptions;
   } else {
     //user svelte.config.js is optional and should not error if not configured
-    if (configFilePath !== 'svelte.config.js') console.error(`[plugin-svelte] failed to find Svelte config file: could not locate "${userSvelteConfigLoc}"`);
+    if (configFilePath !== 'svelte.config.js')
+      console.error(
+        `[plugin-svelte] failed to find Svelte config file: could not locate "${userSvelteConfigLoc}"`,
+      );
   }
-  
+
   // Generate svelte options from user provided config (if given)
   svelteOptions = {
     dev: isDev,
