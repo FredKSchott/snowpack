@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`@snowpack/plugin-webpack minimal - all options: console.log 1`] = ``;
+
+exports[`@snowpack/plugin-webpack minimal - all options: fs.writeFileSync 1`] = `
+FILE: stubs/minimal/index.html
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Minimal test</title><link rel="stylesheet" href="style.css"></head><body><script type="module" src="index.js"></script></body></html>
+`;
+
+exports[`@snowpack/plugin-webpack minimal - no options: console.log 1`] = ``;
+
+exports[`@snowpack/plugin-webpack minimal - no options: fs.writeFileSync 1`] = `
+FILE: stubs/minimal/index.html
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Minimal test</title><link rel="stylesheet" href="style.css"></head><body><script type="module" src="index.js"></script></body></html>
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/index.js
+(()=>{function n(o){console.log(o)}n("test")})();
+
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/style.css
+body{border:1px solid red}
+`;
