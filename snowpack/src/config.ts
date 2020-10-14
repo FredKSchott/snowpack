@@ -49,7 +49,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     output: 'dashboard',
     fallback: 'index.html',
     hmrDelay: 0,
-    hmrPort: 12321,
+    hmrPort: undefined,
     hmrErrorOverlay: true,
   },
   buildOptions: {

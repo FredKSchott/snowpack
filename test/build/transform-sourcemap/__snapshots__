@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack build transform-sourcemap: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "_dist_/index.js",
+  "_dist_/index.js.map",
+  "_dist_/submodule.js",
+  "_dist_/submodule.js.map",
+]
+`;
+
+exports[`snowpack build transform-sourcemap: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+
+exports[`snowpack build transform-sourcemap: build/_dist_/index.js 1`] = `
+"import './submodule.js';
+console.log('transformed');
+console.log('loaded');
+//# sourceMappingURL=index.js.map"
+`;
+
+exports[`snowpack build transform-sourcemap: build/_dist_/index.js.map 1`] = `"{\\"version\\":3,\\"file\\":null,\\"sources\\":[/HOME/snowpack/test/build/transform-sourcemap/src/index.js],\\"sourcesContent\\":[\\"import './submodule.ts';console.log('loaded');\\"],\\"names\\":[],\\"mappings\\":\\"AAAA;AACA;;AACA;\\"}"`;
+
+exports[`snowpack build transform-sourcemap: build/_dist_/submodule.js 1`] = `
+"console.log('transformed');
+console.log(\\"ts loaded\\");
+//# sourceMappingURL=submodule.js.map"
+`;
+
+exports[`snowpack build transform-sourcemap: build/_dist_/submodule.js.map 1`] = `"{\\"version\\":3,\\"sources\\":[/HOME/snowpack/test/build/transform-sourcemap/src/submodule.ts],\\"names\\":[],\\"mappings\\":\\";AAAA\\",\\"sourcesContent\\":[\\"console.log(\\\\\\"ts loaded\\\\\\");\\"]}"`;

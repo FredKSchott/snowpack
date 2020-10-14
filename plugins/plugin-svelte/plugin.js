@@ -17,23 +17,31 @@ module.exports = function plugin(snowpackConfig, {hot: hotOptions, ...sveltePlug
     svelteRollupPlugin({include: '**/node_modules/**', dev: isDev}),
   );
 
-  let svelteOptions;
+  let {configFilePath = 'svelte.config.js', ...svelteOptions} = sveltePluginOptions || {};
+  let userSvelteOptions;
   let preprocessOptions;
-  // Note(drew): __config is for internal testing use; maybe we should make this public at some point?
-  const userSvelteConfigLoc =
-    sveltePluginOptions.__config || path.join(process.cwd(), 'svelte.config.js');
+
+  const userSvelteConfigLoc = path.resolve(process.cwd(), configFilePath);
+
   if (fs.existsSync(userSvelteConfigLoc)) {
     const userSvelteConfig = require(userSvelteConfigLoc);
-    const {preprocess, ..._svelteOptions} = userSvelteConfig;
+    const {preprocess, compilerOptions} = userSvelteConfig;
     preprocessOptions = preprocess;
-    svelteOptions = _svelteOptions;
+    userSvelteOptions = compilerOptions;
+  } else {
+    //user svelte.config.js is optional and should not error if not configured
+    if (configFilePath !== 'svelte.config.js')
+      console.error(
+        `[plugin-svelte] failed to find Svelte config file: could not locate "${userSvelteConfigLoc}"`,
+      );
   }
+
   // Generate svelte options from user provided config (if given)
   svelteOptions = {
     dev: isDev,
     css: false,
+    ...userSvelteOptions,
     ...svelteOptions,
-    ...sveltePluginOptions,
   };
 
   return {

@@ -34,9 +34,12 @@ function sendSocketMessage(msg) {
     _sendSocketMessage(msg);
   }
 }
-const socketURL =
-  (typeof window !== 'undefined' && window.HMR_WEBSOCKET_URL) ||
-  (location.protocol === 'http:' ? 'ws://' : 'wss://') + location.host + '/';
+let socketURL = typeof window !== 'undefined' && window.HMR_WEBSOCKET_URL;
+if (!socketURL) {
+  const socketHost = typeof window !== 'undefined' && window.HMR_WEBSOCKET_PORT ?
+    `${location.hostname}:${window.HMR_WEBSOCKET_PORT}` : location.host
+  socketURL = (location.protocol === 'http:' ? 'ws://' : 'wss://') + socketHost + '/';
+}
 
 const socket = new WebSocket(socketURL, 'esm-hmr');
 socket.addEventListener('open', () => {
@@ -211,6 +214,6 @@ window.addEventListener('error', function (event) {
     title: 'Unhandled Runtime Error',
     fileLoc,
     errorMessage: event.message,
-    errorStackTrace: event.error.stack,
+    errorStackTrace: event.error ? event.error.stack : undefined,
   });
 });

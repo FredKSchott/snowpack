@@ -156,6 +156,7 @@ class FileBuilder {
             code = wrapHtmlResponse({
               code,
               hmr: getIsHmrEnabled(this.config),
+              hmrPort: hmrEngine ? hmrEngine.port : undefined,
               isDev: false,
               config: this.config,
               mode: 'production',
@@ -474,7 +475,7 @@ export async function command(commandOptions: CommandOptions) {
   if (hmrEngine) {
     logger.info(
       `[HMR] WebSocket URL available at ${colors.cyan(
-        `ws://localhost:${config.devOptions.hmrPort}`,
+        `ws://localhost:${hmrEngine.port}`,
       )}`,
     );
   }

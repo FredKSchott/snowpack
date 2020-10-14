@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-react",
-  "version": "1.10.2",
+  "version": "1.11.0",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react#readme",
   "repository": {
@@ -27,13 +27,13 @@
   },
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^2.0.3",
-    "@snowpack/plugin-react-refresh": "^2.3.1",
+    "@snowpack/plugin-react-refresh": "^2.3.2",
     "@snowpack/web-test-runner-plugin": "^0.0.1",
     "@testing-library/react": "^11.0.0",
     "@web/test-runner": "^0.9.0",
     "chai": "^4.2.0",
     "prettier": "^2.0.5",
-    "snowpack": "^2.13.3"
+    "snowpack": "^2.14.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

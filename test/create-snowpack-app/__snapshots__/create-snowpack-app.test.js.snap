@@ -7351,7 +7351,8 @@ console.log('Hello World! You did! Welcome to Snowpack :D');"
 
 exports[`create-snowpack-app app-template-minimal > build: package.json 1`] = `
 "{
-  \\"name\\": \\"app-template-minimal\\",
+  \\"name\\": \\"@snowpack/app-template-minimal\\",
+  \\"private\\": true,
   \\"version\\": \\"1.6.12\\",
   \\"license\\": \\"MIT\\",
   \\"keywords\\": [
@@ -7831,7 +7832,7 @@ import \\"./App.css.proxy.js\\";
 function App2() {
   const [count, setCount] = useState(0);
   useEffect(() => {
-    const timer = setTimeout(() => setCount(count - 1), 1e3);
+    const timer = setTimeout(() => setCount(count + 1), 1e3);
     return () => clearTimeout(timer);
   }, [count, setCount]);
   return /* @__PURE__ */ React.createElement(\\"div\\", {
@@ -8359,7 +8360,7 @@ import \\"./App.css.proxy.js\\";
 function App2({}) {
   const [count, setCount] = useState(0);
   useEffect(() => {
-    const timer = setTimeout(() => setCount(count - 1), 1e3);
+    const timer = setTimeout(() => setCount(count + 1), 1e3);
     return () => clearTimeout(timer);
   }, [count, setCount]);
   return /* @__PURE__ */ React.createElement(\\"div\\", {

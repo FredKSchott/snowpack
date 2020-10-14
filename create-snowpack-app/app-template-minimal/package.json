@@ -1,5 +1,6 @@
 {
-  "name": "app-template-minimal",
+  "name": "@snowpack/app-template-minimal",
+  "private": true,
   "version": "1.6.12",
   "license": "MIT",
   "keywords": [
