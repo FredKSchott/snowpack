@@ -3,46 +3,57 @@ const svelteRollupPlugin = require('rollup-plugin-svelte');
 const fs = require('fs');
 const path = require('path');
 const {createMakeHot} = require('svelte-hmr');
+const cwd = process.cwd();
 
 let makeHot = (...args) => {
   makeHot = createMakeHot({walk: svelte.walk});
   return makeHot(...args);
 };
 
-module.exports = function plugin(snowpackConfig, {hot: hotOptions, ...sveltePluginOptions} = {}) {
+module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   const isDev = process.env.NODE_ENV !== 'production';
+  const useSourceMaps = snowpackConfig.buildOptions.sourceMaps;
 
   // Support importing Svelte files when you install dependencies.
   snowpackConfig.installOptions.rollup.plugins.push(
     svelteRollupPlugin({include: '**/node_modules/**', dev: isDev}),
   );
 
-  let {configFilePath = 'svelte.config.js', ...svelteOptions} = sveltePluginOptions || {};
-  let userSvelteOptions;
-  let preprocessOptions;
-
-  const userSvelteConfigLoc = path.resolve(process.cwd(), configFilePath);
-
-  if (fs.existsSync(userSvelteConfigLoc)) {
-    const userSvelteConfig = require(userSvelteConfigLoc);
-    const {preprocess, compilerOptions} = userSvelteConfig;
-    preprocessOptions = preprocess;
-    userSvelteOptions = compilerOptions;
-  } else {
-    //user svelte.config.js is optional and should not error if not configured
-    if (configFilePath !== 'svelte.config.js')
-      console.error(
-        `[plugin-svelte] failed to find Svelte config file: could not locate "${userSvelteConfigLoc}"`,
-      );
+  if (
+    pluginOptions.generate !== undefined ||
+    pluginOptions.dev !== undefined ||
+    pluginOptions.hydratable !== undefined ||
+    pluginOptions.css !== undefined ||
+    pluginOptions.preserveComments !== undefined ||
+    pluginOptions.preserveWhitespace !== undefined ||
+    pluginOptions.sveltePath !== undefined
+  ) {
+    throw new Error(
+      `[plugin-svelte] Svelte.compile options moved to new config value: {compilerOptions: {...}}`,
+    );
   }
 
-  // Generate svelte options from user provided config (if given)
-  svelteOptions = {
-    dev: isDev,
-    css: false,
-    ...userSvelteOptions,
-    ...svelteOptions,
-  };
+  if (pluginOptions.compileOptions !== undefined) {
+    throw new Error(
+      `[plugin-svelte] Could not recognize "compileOptions". Did you mean "compilerOptions"?`,
+    );
+  }
+
+  let configFilePath = path.resolve(cwd, pluginOptions.configFilePath || 'svelte.config.js');
+  let compilerOptions = pluginOptions.compilerOptions;
+  let preprocessOptions = pluginOptions.preprocess;
+  const hmrOptions = pluginOptions.hmrOptions;
+
+  if (fs.existsSync(configFilePath)) {
+    const configFileConfig = require(configFilePath);
+    preprocessOptions = preprocessOptions || configFileConfig.preprocess;
+    compilerOptions = compilerOptions || configFileConfig.compilerOptions;
+  } else {
+    //user svelte.config.js is optional and should not error if not configured
+    if (pluginOptions.configFilePath) {
+      throw new Error(`[plugin-svelte] failed to find Svelte config file: "${configFilePath}"`);
+    }
+  }
 
   return {
     name: '@snowpack/plugin-svelte',
@@ -66,44 +77,43 @@ module.exports = function plugin(snowpackConfig, {hot: hotOptions, ...sveltePlug
         ).code;
       }
 
-      const compileOptions = {
+      const finalCompileOptions = {
         generate: isSSR ? 'ssr' : 'dom',
-        ...svelteOptions, // Note(drew) should take precedence over generate above
+        css: false,
+        ...compilerOptions, // Note(drew) should take precedence over generate above
+        dev: isDev,
         outputFilename: filePath,
         filename: filePath,
       };
 
-      const compiled = svelte.compile(codeToCompile, compileOptions);
-
+      const compiled = svelte.compile(codeToCompile, finalCompileOptions);
       const {js, css} = compiled;
-
-      const {sourceMaps} = snowpackConfig.buildOptions;
       const output = {
         '.js': {
           code: js.code,
-          map: sourceMaps ? js.map : undefined,
+          map: useSourceMaps ? js.map : undefined,
         },
       };
 
       if (isHmrEnabled && !isSSR) {
         output['.js'].code = makeHot({
           id: filePath,
-          compiledCode: compiled.js.code,
+          compiledCode: js.code,
           hotOptions: {
-            ...hotOptions,
+            ...hmrOptions,
             absoluteImports: false,
             injectCss: true,
           },
           compiled,
           originalCode: codeToCompile,
-          compileOptions,
+          compileOptions: finalCompileOptions,
         });
       }
 
-      if (!svelteOptions.css && css && css.code) {
+      if (!finalCompileOptions.css && css && css.code) {
         output['.css'] = {
           code: css.code,
-          map: sourceMaps ? css.map : undefined,
+          map: useSourceMaps ? css.map : undefined,
         };
       }
       return output;

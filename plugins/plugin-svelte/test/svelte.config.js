@@ -1,7 +1,8 @@
-const {sass} = require('svelte-preprocess-sass');
-
 module.exports = {
   preprocess: {
-    style: sass({}, {name: 'css'}),
+    __test: 'svelte.config.js::preprocess'
   },
+  compilerOptions: {
+    __test: 'svelte.config.js'
+  }
 };
