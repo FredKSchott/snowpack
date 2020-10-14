@@ -188,7 +188,7 @@ import ReactDOM from 'react-dom';
 +  );
 ```
 
-> [Strict Mode](https://reactjs.org/docs/strict-mode.html) is a tool for highlighting potential problems in React code. It's optional, but included here for reasons.
+> [Strict Mode](https://reactjs.org/docs/strict-mode.html) is a tool for highlighting potential problems in React code.
 
 You shouldn't need to restart Snowpack to see this, it should look like this:
 
