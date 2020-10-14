@@ -25,9 +25,9 @@ module.exports = function plugin(snowpackConfig, {hot: hotOptions, ...sveltePlug
 
   if (fs.existsSync(userSvelteConfigLoc)) {
     const userSvelteConfig = require(userSvelteConfigLoc);
-    const {preprocess, ..._svelteOptions} = userSvelteConfig;
+    const {preprocess, compilerOptions} = userSvelteConfig;
     preprocessOptions = preprocess;
-    userSvelteOptions = _svelteOptions;
+    userSvelteOptions = compilerOptions;
   } else {
     //user svelte.config.js is optional and should not error if not configured
     if (configFilePath !== 'svelte.config.js')
