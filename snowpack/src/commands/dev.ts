@@ -581,6 +581,7 @@ export async function startServer(commandOptions: CommandOptions) {
         code = wrapHtmlResponse({
           code: code as string,
           hmr: isHmr,
+          hmrPort: hmrEngine.port !== port ? hmrEngine.port : undefined,
           isDev: true,
           config,
           mode: 'development',
@@ -1010,7 +1011,11 @@ export async function startServer(commandOptions: CommandOptions) {
     .listen(port);
 
   const {hmrDelay} = config.devOptions;
-  const hmrEngine = new EsmHmrEngine({server, delay: hmrDelay});
+  const hmrEngineOptions = Object.assign(
+    {delay: hmrDelay},
+    config.devOptions.hmrPort ? {port: config.devOptions.hmrPort} : {server, port},
+  );
+  const hmrEngine = new EsmHmrEngine(hmrEngineOptions);
   onProcessExit(() => {
     hmrEngine.disconnectAllClients();
   });
