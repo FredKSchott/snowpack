@@ -87,10 +87,6 @@ export default defaultExport",
 
 exports[`plugin base only tpl 1`] = `
 Object {
-  ".css": Object {
-    "code": "",
-    "map": "",
-  },
   ".js": Object {
     "code": "const defaultExport = {};
 import { createVNode as _createVNode, openBlock as _openBlock, createBlock as _createBlock } from \\"vue\\"

@@ -1,7 +1,12 @@
 import path from 'path';
 import {validatePluginLoadResult} from '../config';
 import {logger} from '../logger';
-import {SnowpackBuildMap, SnowpackConfig, SnowpackPlugin, PluginTransformResult} from '../types/snowpack';
+import {
+  SnowpackBuildMap,
+  SnowpackConfig,
+  SnowpackPlugin,
+  PluginTransformResult,
+} from '../types/snowpack';
 import {getExt, readFile, replaceExt} from '../util';
 import {SourceMapConsumer, SourceMapGenerator, RawSourceMap} from 'source-map';
 
@@ -84,6 +89,9 @@ async function runPipelineLoadStep(
 
           // if source maps disabled, don’t return any
           if (!sourceMaps) result[ext].map = undefined;
+
+          // clean up empty files
+          if (!result[ext].code) delete result[ext];
         });
         return result;
       }
@@ -101,10 +109,14 @@ async function runPipelineLoadStep(
   };
 }
 
-async function composeSourceMaps(id: string, base: string | RawSourceMap, derived: string | RawSourceMap) : Promise<string> {
+async function composeSourceMaps(
+  id: string,
+  base: string | RawSourceMap,
+  derived: string | RawSourceMap,
+): Promise<string> {
   const [baseMap, transformedMap] = await Promise.all([
     new SourceMapConsumer(base),
-    new SourceMapConsumer(derived)
+    new SourceMapConsumer(derived),
   ]);
   try {
     const generator = SourceMapGenerator.fromSourceMap(transformedMap);
@@ -159,12 +171,17 @@ async function runPipelineTransformStep(
           // V2 API, simple string variant
           output[destExt].code = result;
           output[destExt].map = undefined;
-        } else if (result && typeof result === 'object' && (result as PluginTransformResult).contents) {
+        } else if (
+          result &&
+          typeof result === 'object' &&
+          (result as PluginTransformResult).contents
+        ) {
           // V2 API, structured result variant
           output[destExt].code = (result as PluginTransformResult).contents;
           const map = (result as PluginTransformResult).map;
           let outputMap: string | undefined = undefined;
-          if (map && sourceMaps) {  // if source maps disabled, don’t return any
+          if (map && sourceMaps) {
+            // if source maps disabled, don’t return any
             if (output[destExt].map) {
               outputMap = await composeSourceMaps(filePath, output[destExt].map!, map);
             } else {
@@ -172,9 +189,13 @@ async function runPipelineTransformStep(
             }
           }
           output[destExt].map = outputMap;
-        } else if (result && typeof result === 'object' && (result as unknown as {result: string}).result) {
+        } else if (
+          result &&
+          typeof result === 'object' &&
+          ((result as unknown) as {result: string}).result
+        ) {
           // V1 API, deprecated
-          output[destExt].code = (result as unknown as {result: string}).result;
+          output[destExt].code = ((result as unknown) as {result: string}).result;
           output[destExt].map = undefined;
         }
       }
