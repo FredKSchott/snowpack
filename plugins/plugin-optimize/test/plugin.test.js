@@ -35,16 +35,17 @@ describe('@snowpack/plugin-optimize', () => {
     expect(console.log).toMatchSnapshot('console.log');
   });
 
-  it('minimal - all options', async () => {
-    const pluginInstance = plugin({
-      buildOptions: {},
-    }, {
-      minifyJS: false,
-      minifyCSS: false,
-      minifyHTML: false,
-      preloadModules: true,
-      target: 'es2020'
-    });
+  it('minimal - no minification', async () => {
+    const pluginInstance = plugin(
+      {
+        buildOptions: {},
+      },
+      {
+        minifyJS: false,
+        minifyCSS: false,
+        minifyHTML: false,
+      },
+    );
 
     await pluginInstance.optimize({
       buildDirectory: path.resolve(__dirname, 'stubs/minimal/'),
