@@ -2,10 +2,6 @@
 
 exports[`plugin vue with jsx 1`] = `
 Object {
-  ".css": Object {
-    "code": "",
-    "map": "",
-  },
   ".js": Object {
     "code": "import { Fragment } from 'vue';
 import {createVNode, isVNode} from 'vue';
@@ -31,10 +27,6 @@ export default defineComponent({
 
 exports[`plugin vue with ts 1`] = `
 Object {
-  ".css": Object {
-    "code": "",
-    "map": "",
-  },
   ".js": Object {
     "code": "import {defineComponent} from \\"vue\\";
 const defaultExport = defineComponent({
@@ -58,10 +50,6 @@ export default defaultExport",
 
 exports[`plugin vue with tsx 1`] = `
 Object {
-  ".css": Object {
-    "code": "",
-    "map": "",
-  },
   ".js": Object {
     "code": "import { Fragment } from 'vue';
 import {createVNode, isVNode} from 'vue';
