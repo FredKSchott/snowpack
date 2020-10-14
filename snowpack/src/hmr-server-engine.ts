@@ -24,7 +24,7 @@ type HMRMessage =
     };
 
 const DEFAULT_CONNECT_DELAY = 2000;
-const DEFAULT_PORT = 12321;	
+const DEFAULT_PORT = 12321;
 
 interface EsmHmrEngineOptionsCommon {
   delay?: number;

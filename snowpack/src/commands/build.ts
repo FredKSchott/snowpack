@@ -474,9 +474,7 @@ export async function command(commandOptions: CommandOptions) {
   // "--watch --hmr" mode - Tell users about the HMR WebSocket URL
   if (hmrEngine) {
     logger.info(
-      `[HMR] WebSocket URL available at ${colors.cyan(
-        `ws://localhost:${hmrEngine.port}`,
-      )}`,
+      `[HMR] WebSocket URL available at ${colors.cyan(`ws://localhost:${hmrEngine.port}`)}`,
     );
   }
 
