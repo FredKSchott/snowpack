@@ -108,6 +108,10 @@ module.exports = function plugin(snowpackConfig) {
         if (sourceMaps && js.map) output['.js'].map += JSON.stringify(js.map);
       }
 
+      // clean up
+      if (!output['.js'].code) delete output['.js'];
+      if (!output['.css'].code) delete output['.css'];
+
       return output;
     },
   };
