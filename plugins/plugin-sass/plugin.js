@@ -27,7 +27,7 @@ function scanSassImports(fileContents, filePath, fileExt) {
     });
 }
 
-module.exports = function postcssPlugin(_, {native}) {
+module.exports = function sassPlugin(_, {native, ...sassOptions} = {}) {
   /** A map of partially resolved imports to the files that imported them. */
   const importedByMap = new Map();
 
@@ -89,11 +89,29 @@ module.exports = function postcssPlugin(_, {native}) {
         const sassImports = scanSassImports(contents, filePath, fileExt);
         sassImports.forEach((imp) => addImportsToMap(filePath, imp));
       }
+
       // If file is `.sass`, use YAML-style. Otherwise, use default.
       const args = ['--stdin', '--load-path', path.dirname(filePath)];
       if (fileExt === '.sass') {
         args.push('--indented');
       }
+
+      // Pass in user-defined options
+      Object.entries(sassOptions || {}).forEach(([flag, value]) => {
+        let flagName = flag.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`); // convert camelCase to kebab-case
+        switch (typeof value) {
+          case 'boolean': {
+            args.push(`--${value === false ? 'no-' : ''}${flagName}`);
+            break;
+          }
+          case 'string':
+          case 'number': {
+            args.push(`--${flagName}=${value}`);
+            break;
+          }
+        }
+      });
+
       // Build the file.
       const {stdout, stderr} = await execa('sass', args, {
         input: contents,
