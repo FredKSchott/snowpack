@@ -152,6 +152,10 @@ exports.default = function plugin(config, userDefinedOptions) {
         break;
       }
       case '.html': {
+        if (!options.minifyHTML && !options.preloadModules) {
+          break;
+        }
+
         let code = fs.readFileSync(file, 'utf-8');
         if (options.preloadModules) {
           code = preloadModulesInHTML(code, rootDir, file);
