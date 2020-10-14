@@ -30,10 +30,10 @@ module.exports = {
 
 ## Plugin Options
 
-| Name                |   Type    | Description                                                                                                                                                                                                                                                                             |
-| :------------------ | :-------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `native`            | `boolean` | If true, the plugin will ignore the npm version of sass installed locally for the native Sass CLI [installed separately](https://sass-lang.com/install). This involves extra set up, but the result can be [up to 9x faster.](https://stackoverflow.com/a/56422541) (default: `false`). |
-| `compilerOptions.*` | `object`  | Pass [Sass options](https://sass-lang.com/documentation/cli/dart-sass#options) directly to the Sass compiler (see `compilerOptions`).                                                                                                                                                   |
+| Name                |   Type    | Description                                                                                                                                                                                                                                                                              |
+| :------------------ | :-------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `native`            | `boolean` | If `true`, the plugin will ignore the npm version of sass installed locally for the native Sass CLI [installed separately](https://sass-lang.com/install). This involves extra setup, but the result can be [up to 9× faster.](https://stackoverflow.com/a/56422541) (default: `false`). |
+| `compilerOptions.*` | `object`  | Pass [Sass options](https://sass-lang.com/documentation/cli/dart-sass#options) directly to the Sass compiler (see `compilerOptions`).                                                                                                                                                    |
 
 ### `compilerOptions`
 
