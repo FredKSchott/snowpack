@@ -41,7 +41,7 @@ module.exports = {
 | :--------------- | :----------------------------: | :------------------------------------------------------------------------------------------------------ |
 | `style`          | `'expanded'` \| `'compressed'` | The output style. Specify `'compressed'` to enable Sass’ built-in minification (default: `'expanded'`). |
 | `sourceMap`      |           `boolean`            | Enable / disable source maps (default: `true`).                                                         |
-| `sourceMapUrls`  |   `'relative'` \| `absolute`   | How to link from source maps to source files (default: `'relative'`).                                   |
+| `sourceMapUrls`  |  `'relative'` \| `'absolute'`  | How to link from source maps to source files (default: `'relative'`).                                   |
 | `embedSources`   |           `boolean`            | Embed source file contents in source maps (default: `false`).                                           |
 | `embedSourceMap` |           `boolean`            | Embed source map contents in CSS (default: `false`).                                                    |
 | `charset`        |           `boolean`            | Emit a `@charset` or BOM for CSS with non-ASCII characters. (defaul: `true`).                           |
