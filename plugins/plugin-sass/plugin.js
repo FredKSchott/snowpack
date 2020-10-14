@@ -27,7 +27,7 @@ function scanSassImports(fileContents, filePath, fileExt) {
     });
 }
 
-module.exports = function sassPlugin(_, {native, ...sassOptions} = {}) {
+module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
   /** A map of partially resolved imports to the files that imported them. */
   const importedByMap = new Map();
 
@@ -97,7 +97,7 @@ module.exports = function sassPlugin(_, {native, ...sassOptions} = {}) {
       }
 
       // Pass in user-defined options
-      Object.entries(sassOptions || {}).forEach(([flag, value]) => {
+      Object.entries(compilerOptions).forEach(([flag, value]) => {
         let flagName = flag.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`); // convert camelCase to kebab-case
         switch (typeof value) {
           case 'boolean': {

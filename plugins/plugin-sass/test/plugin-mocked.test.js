@@ -10,20 +10,20 @@ const MOCK_CONFIG = null;
 const MOCK_LOAD = {filePath: path.join(__dirname, 'fixtures', 'scss', 'App.scss'), isDev: false};
 
 const tests = [
-  {name: 'no options', given: undefined, expect: []},
+  {name: 'no options', given: {}, expect: []},
   {
     name: 'string option',
-    given: {style: 'compressed'},
+    given: {compilerOptions: {style: 'compressed'}},
     expect: [`--style=compressed`],
   },
   {
     name: 'boolean option',
-    given: {sourceMaps: false},
+    given: {compilerOptions: {sourceMaps: false}},
     expect: [`--no-source-maps`],
   },
   {
     name: 'combination',
-    given: {style: 'compressed', sourceMaps: true},
+    given: {compilerOptions: {style: 'compressed', sourceMaps: true}},
     expect: [`--style=compressed`, `--source-maps`],
   },
 ];
