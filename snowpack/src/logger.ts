@@ -37,7 +37,17 @@ class SnowpackLogger {
     },
   };
 
-  private log({level, name, message}: {level: LoggerEvent; name: string; message: string}) {
+  private log({
+    level,
+    name,
+    message,
+    task,
+  }: {
+    level: LoggerEvent;
+    name: string;
+    message: string;
+    task?: Function;
+  }) {
     // test if this level is enabled or not
     if (levels[this.level] > levels[level]) {
       return; // do nothing
@@ -66,30 +76,34 @@ class SnowpackLogger {
     } else {
       throw new Error(`No logging method defined for ${level}`);
     }
+
+    // logger takes a possibly processor-intensive task, and only
+    // processes it when this log level is enabled
+    task && task(this);
   }
 
   /** emit messages only visible when --debug is passed */
   public debug(message: string, options?: LoggerOptions): void {
     const name = (options && options.name) || 'snowpack';
-    this.log({level: 'debug', name, message});
+    this.log({level: 'debug', name, message, task: options?.task});
   }
 
   /** emit general info */
   public info(message: string, options?: LoggerOptions): void {
     const name = (options && options.name) || 'snowpack';
-    this.log({level: 'info', name, message});
+    this.log({level: 'info', name, message, task: options?.task});
   }
 
   /** emit non-fatal warnings */
   public warn(message: string, options?: LoggerOptions): void {
     const name = (options && options.name) || 'snowpack';
-    this.log({level: 'warn', name, message});
+    this.log({level: 'warn', name, message, task: options?.task});
   }
 
   /** emit critical error messages */
   public error(message: string, options?: LoggerOptions): void {
     const name = (options && options.name) || 'snowpack';
-    this.log({level: 'error', name, message});
+    this.log({level: 'error', name, message, task: options?.task});
   }
 
   /** get full logging history */
