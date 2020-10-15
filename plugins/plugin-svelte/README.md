@@ -10,44 +10,19 @@ npm install --save-dev @snowpack/plugin-svelte
 // snowpack.config.json
 {
   "plugins": [
-    ["@snowpack/plugin-svelte", { /* see “Plugin Options” below */ }]
+    ["@snowpack/plugin-svelte", { /* see optional “Plugin Options” below */ }]
   ]
 }
 ```
 
 ## Plugin Options
 
-- `configFilePath: string` - relative URL to Svelte config, usually named `svelte.config.js`. Defaults to `svelte.config.js` in project root directory.
+By default, this plugin will look for a `svelte.config.js` file in your project directory to load `preprocess` and `compilerOptions` configuration from. However, you can also customize Svelte directly via the plugin options below.
 
-```js
-// Example usage
-   ...
-   ["@snowpack/plugin-svelte", { configFilePath: './dir/svelte.config.js' }]
-   ...
-```
+| Name              |                                  Type                                  | Description                                                                                                         |
+| :---------------- | :--------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------ |
+| `configFilePath`  |                                `string`                                | Relative path to a Svelte config file. Defaults to load `svelte.config.js` from the current project root directory. |
+| `preprocess`      | [svelte.preprocess options](https://svelte.dev/docs#svelte_preprocess) | Configure the Svelte pre-processor. If this option is given, the config file `preprocess` option will be ignored.   |
+| `compilerOptions` |    [svelte.compile options](https://svelte.dev/docs#svelte_compile)    | Configure the Svelte compiler.If this option is given, the config file `preprocess` option will be ignored.         |
+| `hmrOptions`      |        [svelte-hmr options](https://github.com/rixo/svelte-hmr)        | Configure HMR & "fast refresh" behavior for Svelte.                                                                 |
 
-This plugin also supports all Svelte compiler options. See [here](https://svelte.dev/docs#svelte_compile) for a list of supported options.
-
-### HMR Options
-
-You can pass Svelte HMR specific options through the `hot` option of the plugin. Here are the available options and their defaults:
-
-```js
-{
-  "plugins": [
-    ["@snowpack/plugin-svelte", {
-      hot: {
-        // don't preserve local state
-        noPreserveState: false,
-        // escape hatch from preserve local state -- if this string appears anywhere
-        // in the component's code, then state won't be preserved for this update
-        noPreserveStateKey: '@!hmr',
-        // don't reload on fatal error
-        noReload: false,
-        // try to recover after runtime errors during component init
-        optimistic: false,
-      },
-    }]
-  ]
-}
-```
