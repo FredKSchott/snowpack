@@ -1,0 +1,19 @@
+{
+  "name": "@snowpack/test-plugin-nunjucks",
+  "private": true,
+  "version": "1.6.12",
+  "license": "MIT",
+  "keywords": [
+    "csa-template"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "start": "snowpack dev",
+    "build": "snowpack build",
+    "test": "echo \"Error: No test runner added.\" && exit 1"
+  },
+  "devDependencies": {
+    "snowpack": "^2.12.1",
+    "@snowpack/plugin-nunjucks": "file:../../../plugins/plugin-nunjucks"
+  }
+}
