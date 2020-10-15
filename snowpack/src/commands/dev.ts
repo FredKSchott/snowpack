@@ -268,6 +268,15 @@ export async function startServer(commandOptions: CommandOptions) {
   const filesBeingDeleted = new Set<string>();
   const filesBeingBuilt = new Map<string, Promise<SnowpackBuildMap>>();
 
+  logger.debug(`Using in-memory cache.`);
+  logger.debug(`Mounting directories:`, {
+    task: () => {
+      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
+        logger.debug(` -> '${dirDisk}' as URL '${dirUrl}'`);
+      }
+    },
+  });
+
   // Set the proper install options, in case an install is needed.
   const dependencyImportMapLoc = path.join(DEV_DEPENDENCIES_DIR, 'import-map.json');
   logger.debug(`Using cache folder: ${path.relative(cwd, DEV_DEPENDENCIES_DIR)}`);
