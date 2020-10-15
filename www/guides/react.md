@@ -8,9 +8,9 @@ date: 2020-10-01
 
 Image: ideally a nice header image showing the before or after, or some illustration with elements of the Snowpack logo, React, and symbols related to speed, joy.
 
-Snowpack is a great fit for [React](https://reactjs.org/) projects of any size. It's easy to get started with and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional React application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
+Snowpack is a great fit for [React](https://reactjs.org/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional React application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
 
-In this guide, you'll go from an empty directory to a fully configured Snowpack project with support for React and several other useful optimizations. In the process, you'll learn:
+In this guide, you'll go from an empty directory to a fully configured Snowpack project with support for React and several other useful developer tools. In the process, you'll learn:
 
 - How to set up Snowpack
 - How to get started with React in a Snowpack project
@@ -18,7 +18,7 @@ In this guide, you'll go from an empty directory to a fully configured Snowpack 
 - Enabling [Fast Refresh](https://reactnative.dev/docs/fast-refresh) mode for React
 - Connecting your favorite developer tools to Snowpack
 
-> 💡 Tip: if you want to jump to the end to see a full featured React setup, the [Create Snowpack App React template](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react) comes with everything you'll learn in this tutorial plus other useful tools.
+> 💡 Tip: if you want to jump to the end to see a full featured React setup, the [Create Snowpack App React template](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react) comes with everything you'll learn in this guide plus other useful tools.
 >
 > ```bash
 > npx create-snowpack-project react-snowpack-template --template @snowpack/project-template-react
@@ -28,19 +28,30 @@ Prerequisites: Snowpack is a command line tool installed from npm. This guide as
 
 ## Getting started with Snowpack and React
 
-The easiest way to start a new Snowpack project is with [Create Snowpack App](<https://www.snowpack.dev/#create-snowpack-app-(csa)>). Create Snowpack App is a tool to quickly set up Snowpack in a new directory.
+The easiest way to start a new Snowpack project is with [Create Snowpack App](<https://www.snowpack.dev/#create-snowpack-app-(csa)>), a tool to set up Snowpack in a new directory.
 
-The template you're starting with here is `@snowpack/project-template-minimal` is a bare-bones setup where Snowpack serves an `index.html`, `index.css`, and `index.js`.
+You'll start with the `@snowpack/project-template-minimal` template, a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
 
-Open up your terminal and head to a directory where you want to put your new project. Now run `npx create-snowpack-project react-snowpack --template @snowpack/project-template-minimal`. This creates a new directory called `react-snowpack` and installs the `@snowpack/project-template-minimal` inside it.
+To get started, open your terminal and head to a directory where you want to put your new project. Now run the following command in your terminal to create a new directory called `react-snowpack` with the minimal template automatically installed.
 
-You can now head to that new `react-snowpack` directory with `cd react-snowpack`. And to start up Snowpack run `npm run start`. You should see your new website up and running!
+```bash
+npx create-snowpack-project react-snowpack --template @snowpack/project-template-minima
+```
+
+You can now head to the new directory and start Snowpack with the following two commands:
+
+```bash
+cd react-snowpack
+npm run start
+```
+
+You should see your new website up and running!
 
 > 💡 Tip: the `README.md` in your new project contains useful information about what each file does.
 
 Image: screenshot of project-template-minimal, which shows "Hello world" in text on a white background.
 
-> 💡 Tip: you can also use Yarn for any of the commands in this tutorial.
+> 💡 Tip: you can also use Yarn for any of the commands in this guide.
 
 Now that you have a basic project up and running, it's time to install React. To install React, run the following command in your project directory:
 
@@ -48,17 +59,17 @@ Now that you have a basic project up and running, it's time to install React. To
 npm install react react-dom --save
 ```
 
-> 💡 Tip: in this tutorial commands use `--save` for frontend libraries and `--save-dev` for your developer tools to keep them organized separately. This is totally up to you, though.
+> 💡 Tip: in this guide commands use `--save` for frontend libraries and `--save-dev` for your developer tools to keep them organized separately. This is totally up to you, though.
 
 ## Create your first React component
 
-Snowpack has built in support for JSX in files with the `.jsx` extension. That means that there's no additional plugins or configuration needed to write your first React component, but you will need to rename your `index.js` file to `index.jsx` to take advantage of this.
+React relies on a special templating language called JSX. Snowpack has built in support for JSX in files with the `.jsx` extension. That means that there's no plugins or configuration needed to write your first React component. Rename `index.js` file to `index.jsx` so that Snowpack knows it's now a JSX file:
 
 ```bash
 mv index.js index.jsx
 ```
 
-> 💡 Tip: You do not need to update your `index.html` script tag to point to `index.jsx`. Because JSX isn't supported in the browser, Snowpack builds your file to a runnable `.js` file. This is good to remember when you're referencing built files in HTML `<script src="">` and `<link href="">` elements.
+> 💡 Tip: you do not need to update your `index.html` script tag to point to `index.jsx`. Because JSX isn't supported in the browser, Snowpack builds your file to a runnable `.js` file. This is good to remember when you're referencing built files in HTML `<script src="">` and `<link href="">` elements.
 
 You can now import React in `index.jsx` and add a simple test component just to make sure it's working:
 
@@ -70,7 +81,7 @@ You can now import React in `index.jsx` and add a simple test component just to 
 +ReactDOM.render(<div>"HELLO REACT"</div>, document.getElementById('root'));
 ```
 
-Since the React code is rendering into an element with the ID `root`, we'll need to add that to `index.html`:
+Since the React code is rendering into an element with the ID `root`, you'll need to add that to `index.html`:
 
 ```diff
   <body>
@@ -81,15 +92,15 @@ Since the React code is rendering into an element with the ID `root`, we'll need
 
 Image: screenshot of the project, which shows "HELLO REACT" on a white background
 
-You've just created your first React component in Snowpack! And also gotten your project prepared for building more with React.
+You've just created your first React component in Snowpack!
 
-## Customizing your file layout
+## Customize your project layout
 
-If you're going to be adding a bunch of new files, you probably don't want them in the root directory. Snowpack is flexible enough to support whatever project layout that you prefer. For this guide, let's use a popular project layout from the React community.
+Since you'll be adding a bunch of new files, you probably don't want them crowding up your top-level root directly. Snowpack is flexible enough to support whatever project layout that you prefer. In this guide, you'll learn how to use a popular project pattern from the React community.
 
-A standard way of organizing React projects is an `src` directory for components and their associated files. Then a `public` directory for static assets like images, fonts, icons, and sometimes CSS. Lets update our project to use this popular structure.
+In this pattern the `src` directory is for components and their associated files. Then a `public` directory is for static assets like images, fonts, icons, and sometimes CSS.
 
-```
+```bash
 📁 src
 ↳ index.jsx
 📁 public
@@ -97,7 +108,7 @@ A standard way of organizing React projects is an `src` directory for components
 ↳ index.html
 ```
 
-Provided are some commands that give the above project structure, you may prefer to use other tools like an IDE or text editor for this:
+Use your favorite visual editor to rearrange and rename, or run these commands in the terminal:
 
 ```bash
 mkdir src
@@ -107,7 +118,7 @@ mv index.html public/index.html
 mv index.css public/index.css
 ```
 
-Once your new structure is in place, you need to tell Snowpack about it. Every Snowpack project comes with a `snowpack.config.js` file for any configuration that you might need. Right now, you should see a mostly-empty, bare-bones config file. Add this to the empty `mount` object:
+Once your new project structure is in place, you need to tell Snowpack about it. Every Snowpack project comes with a `snowpack.config.js` file for any configuration that you might need. Right now, you should see a mostly empty, bare-bones configuration file. Add this to the empty `mount` object:
 
 ```diff
   mount: {
@@ -117,9 +128,7 @@ Once your new structure is in place, you need to tell Snowpack about it. Every S
   },
 ```
 
-`mount` is part of the [Snowpack Configuration API](https://www.snowpack.dev/#configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack will build files like `public/index.css` directory into `index.css`. So you won't need to change anything in `index.html` even though you've changed the directory of the original file.
-
-But since you have changed the destination for files in `src`, Snowpack will build files like `src/index.js` directory into `/_dist_/index.js`. You'll need to change that path in `index.html` from `/index.js` to `/_dist_/index.js`.
+`mount` is part of the [Snowpack Configuration API](https://www.snowpack.dev/#configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in `public` like `public/index.css` directory into `index.css`. It builds files in `src` like `src/index.js` into `/_dist_/index.js`, so you'll need to change that path in your `index.html`:
 
 ```diff
     <h1>Welcome to Snowpack!</h1>
@@ -219,13 +228,14 @@ function App() {
     <div className="App">
       <header className="App-header">
 +        <img src={logo} className="App-logo" alt="logo" />
+        <p>
 ```
 
 Image: the React logo (a blue atom) is now at the top of the page
 
 The project already has index.css for global styles. For CSS that's only for a specific component, a common design pattern is to add it in a CSS file with the same base name as the component. So the file for `App.jsx` would be `App.css` with this pattern.
 
-> 💡 Tip: Snowpack has built-in support for [CSS Modules](https://www.snowpack.dev/#import-css-modules) and if you'd like to use SASS we have an official [SASS Plugin](https://www.snowpack.dev/#sass).
+> 💡 Tip: Snowpack has built-in support for [CSS Modules](https://www.snowpack.dev/#import-css-modules) and if you'd like to use SASS there is an official [SASS Plugin](https://www.snowpack.dev/#sass).
 
 Create `src/App.css` and add this CSS:
 
@@ -312,7 +322,7 @@ Now when you change `App.jsx` the changes show without the whole page refreshing
 
 Image: GIF showing code side by side with the project. A change in made to App.jsx and it shows when the changed file is saved. But the counter resets to 0.
 
-However, if you make a change to App.jsx, you'll see the counter on the page reset to 0, even though the page itself hasn't fully refreshed. React Fast Refresh solves this.
+The counter on the page will still reset to 0, even though the page itself hasn't fully refreshed. This can be annoying if you're trying to debug state. React Fast Refresh solves this.
 
 Installing a plugin involves installing the module and then enabling it in the Snowpack configuration file.
 
@@ -348,9 +358,9 @@ Great job! You're now ready to build the React project if your dreams with Snowp
 
 Image: Certificate with share buttons for Twitter
 
-At this point you the basics and have a great starter for any React project. But if you take a look at our Snowpack React template you'll notice it has some other tools you might find useful
+At this point you the basics and have a great starter for any React project. But if you compare with the official [Snowpack React template](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react) you'll notice it has some other developer tools you might find useful:
 
-- [Prettier](https://prettier.io/) – a code formatter
+- [Prettier](https://prettier.io/) — a code formatter
 
 - Tests- TODO
 
@@ -358,4 +368,4 @@ At this point you the basics and have a great starter for any React project. But
 
 If you'd like to use Typescript with Snowpack and React, checkout the [Snowpack React Typescript](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react-typescript) starter.
 
-If you have any questions, comments, or corrections, we'd love to here from you in the the Snowpack [discussion](https://github.com/pikapkg/snowpack/discussions) forum or the [Snowpack Discord community](https://discord.gg/rS8SnRk).
+If you have any questions, comments, or corrections, we'd love to here from you in the Snowpack [discussion](https://github.com/pikapkg/snowpack/discussions) forum or our [Snowpack Discord community](https://discord.gg/rS8SnRk).
