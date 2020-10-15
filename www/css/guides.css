@@ -1,0 +1,12 @@
+.language-diff .deleted-sign,
+.language-diff .inserted-sign .inserted {
+  user-select: none;
+}
+
+.token.inserted {
+  color: #b5cea8;
+}
+
+.token.deleted {
+  color: #ce9178;
+}
