@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/plugin-svelte",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "main": "plugin.js",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-svelte#readme",
@@ -17,7 +17,7 @@
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4",
   "dependencies": {
-    "rollup-plugin-svelte": "^5.2.3",
+    "rollup-plugin-svelte": "^6.0.0",
     "svelte-hmr": "^0.11.2-1"
   },
   "devDependencies": {

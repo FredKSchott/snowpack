@@ -6,7 +6,9 @@ Snowpack was designed to support JavaScript's native ES Module (ESM) syntax. ESM
 
 ```js
 // ESM Example - src/user.js
-export function getUser() { /* ... */
+export function getUser() {
+  /* ... */
+}
 
 // src/index.js
 import {getUser} from './user.js';

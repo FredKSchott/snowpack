@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install dep-browser-entrypoint-object: allFiles 1`] = `
+Array [
+  "import-map.json",
+  "package-has-valid.js",
+  "package-no-valid.js",
+]
+`;
+
+exports[`snowpack install dep-browser-entrypoint-object: cli output 1`] = `
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
+[snowpack]
+  ⦿ web_modules/             size       gzip       brotli
+    ├─ package-has-valid.js    XXXX KB    XXXX KB    XXXX KB
+    └─ package-no-valid.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
+exports[`snowpack install dep-browser-entrypoint-object: web_modules/import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"package-has-valid\\": \\"./package-has-valid.js\\",
+    \\"package-no-valid\\": \\"./package-no-valid.js\\"
+  }
+}"
+`;
+
+exports[`snowpack install dep-browser-entrypoint-object: web_modules/package-has-valid.js 1`] = `
+"const foobar = 42;
+export { foobar };"
+`;
+
+exports[`snowpack install dep-browser-entrypoint-object: web_modules/package-no-valid.js 1`] = `
+"const foobar = 42;
+export { foobar };"
+`;

@@ -156,6 +156,7 @@ class FileBuilder {
             code = wrapHtmlResponse({
               code,
               hmr: getIsHmrEnabled(this.config),
+              hmrPort: hmrEngine ? hmrEngine.port : undefined,
               isDev: false,
               config: this.config,
               mode: 'production',
@@ -303,6 +304,7 @@ export async function command(commandOptions: CommandOptions) {
 
   for (const runPlugin of config.plugins) {
     if (runPlugin.run) {
+      logger.debug(`starting ${runPlugin.name} run() (isDev=${isDev})`);
       const runJob = runPlugin
         .run({
           isDev: isDev,
@@ -328,6 +330,7 @@ export async function command(commandOptions: CommandOptions) {
   }
 
   // Write the `import.meta.env` contents file to disk
+  logger.debug(`generating meta files`);
   await fs.writeFile(path.join(internalFilesBuildLoc, 'env.js'), generateEnvModule('production'));
   if (getIsHmrEnabled(config)) {
     await fs.writeFile(path.resolve(internalFilesBuildLoc, 'hmr-client.js'), HMR_CLIENT_CODE);
@@ -471,9 +474,7 @@ export async function command(commandOptions: CommandOptions) {
   // "--watch --hmr" mode - Tell users about the HMR WebSocket URL
   if (hmrEngine) {
     logger.info(
-      `[HMR] WebSocket URL available at ${colors.cyan(
-        `ws://localhost:${config.devOptions.hmrPort}`,
-      )}`,
+      `[HMR] WebSocket URL available at ${colors.cyan(`ws://localhost:${hmrEngine.port}`)}`,
     );
   }
 

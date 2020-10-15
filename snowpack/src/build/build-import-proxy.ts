@@ -1,8 +1,18 @@
 import type CSSModuleLoader from 'css-modules-loader-core';
 import path from 'path';
+import {readFileSync} from 'fs';
 import {SnowpackConfig} from '../types/snowpack';
 import {appendHtmlToHead, getExt} from '../util';
 import {logger} from '../logger';
+import {generateSRI} from './import-sri';
+
+const SRI_CLIENT_HMR_SNOWPACK = generateSRI(
+  readFileSync(path.join(__dirname, '../../assets/hmr-client.js')),
+);
+
+const SRI_ERROR_HMR_SNOWPACK = generateSRI(
+  readFileSync(path.join(__dirname, '../../assets/hmr-error-overlay.js')),
+);
 
 export function getMetaUrlPath(urlPath: string, config: SnowpackConfig): string {
   let {metaDir} = config.buildOptions || {};
@@ -44,12 +54,14 @@ export function wrapImportMeta({
 export function wrapHtmlResponse({
   code,
   hmr,
+  hmrPort,
   isDev,
   config,
   mode,
 }: {
   code: string;
   hmr: boolean;
+  hmrPort?: number;
   isDev: boolean;
   config: SnowpackConfig;
   mode: 'development' | 'production';
@@ -74,10 +86,23 @@ export function wrapHtmlResponse({
     return match;
   });
 
-  if (hmr) {
-    let hmrScript = `<script type="module" src="${getMetaUrlPath('hmr-client.js', config)}"></script>`;
+  // Full Page Transformations: Only full page responses should get these transformations.
+  // Any code not containing `<!DOCTYPE html>` is assumed to be a code snippet/partial.
+  const isFullPage = code.startsWith('<!DOCTYPE html>');
+  if (hmr && isFullPage) {
+    let hmrScript = ``;
+    if (hmrPort) {
+      hmrScript += `<script type="text/javascript">window.HMR_WEBSOCKET_PORT=${hmrPort}</script>\n`;
+    }
+    hmrScript += `<script type="module" integrity="${SRI_CLIENT_HMR_SNOWPACK}" src="${getMetaUrlPath(
+      'hmr-client.js',
+      config,
+    )}"></script>`;
     if (config.devOptions.hmrErrorOverlay) {
-      hmrScript += `<script type="module" src="${getMetaUrlPath('hmr-error-overlay.js', config)}"></script>`;
+      hmrScript += `<script type="module" integrity="${SRI_ERROR_HMR_SNOWPACK}" src="${getMetaUrlPath(
+        'hmr-error-overlay.js',
+        config,
+      )}"></script>`;
     }
     code = appendHtmlToHead(code, hmrScript);
   }

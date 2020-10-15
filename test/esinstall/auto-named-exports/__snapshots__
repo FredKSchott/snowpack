@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install auto-named-exports: allFiles 1`] = `
+Array [
+  "cjs-named-export-pkg-02.js",
+  "cjs-named-export-pkg-03.js",
+  "import-map.json",
+]
+`;
+
+exports[`snowpack install auto-named-exports: cli output 1`] = `
+"[snowpack] installing dependencies...
+[snowpack] ✔ install complete!
+[snowpack]
+  ⦿ web_modules/                   size       gzip       brotli
+    ├─ cjs-named-export-pkg-02.js    XXXX KB    XXXX KB    XXXX KB
+    └─ cjs-named-export-pkg-03.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
+exports[`snowpack install auto-named-exports: web_modules/cjs-named-export-pkg-02.js 1`] = `
+"var export1 = 1;
+var export2 = 'foo';
+var export3 = function foo() {};
+var export4 = () => {};
+var export5 = null;
+var entrypoint = {
+	export1: export1,
+	export2: export2,
+	export3: export3,
+	export4: export4,
+	export5: export5
+};
+export default entrypoint;
+export { entrypoint as __moduleExports, export1, export2, export3, export4, export5 };"
+`;
+
+exports[`snowpack install auto-named-exports: web_modules/cjs-named-export-pkg-03.js 1`] = `
+"var export42 = 'foobar';
+var reexported = {
+	export42: export42
+};
+var entrypoint = reexported;
+export default entrypoint;
+var export42$1 = entrypoint.export42;
+export { entrypoint as __moduleExports, export42$1 as export42 };"
+`;
+
+exports[`snowpack install auto-named-exports: web_modules/import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"cjs-named-export-pkg-02\\": \\"./cjs-named-export-pkg-02.js\\",
+    \\"cjs-named-export-pkg-03\\": \\"./cjs-named-export-pkg-03.js\\"
+  }
+}"
+`;

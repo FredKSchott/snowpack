@@ -4,7 +4,7 @@ This plugin adds [Sass](https://sass-lang.com/) support to any Snowpack project.
 
 This plugin also adds support for `.module.scss` Sass Modules. [Learn more.](https://www.snowpack.dev/#import-css-modules)
 
-## A Note on Sass Implementations
+#### A Note on Sass Implementations
 
 Sass is interesting in that multiple compilers are available: [sass](https://www.npmjs.com/package/sass) (written in Dart) & [node-sass](https://www.npmjs.com/package/node-sass) (written in JavaScript). Both packages run on Node.js and both are popular on npm. However, [node-sass is now considered deprecated](https://github.com/sass/node-sass/issues/2952).
 

@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-11ty",
-  "version": "1.8.3",
+  "version": "1.9.0",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-11ty#readme",
   "repository": {
@@ -25,10 +25,10 @@
     "canvas-confetti": "^1.2.0"
   },
   "devDependencies": {
-    "@11ty/eleventy": "^0.10.0",
+    "@11ty/eleventy": "^0.11.0",
     "@snowpack/plugin-run-script": "^2.1.5",
     "prettier": "^2.0.5",
-    "snowpack": "^2.13.3"
+    "snowpack": "^2.14.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

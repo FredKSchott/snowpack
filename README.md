@@ -24,7 +24,7 @@ Snowpack leverages JavaScript's native module system (<a href="https://developer
 
 ## Community
 
-[Join the Pika Discord](https://discord.gg/rS8SnRk) for discussion, questions about Snowpack or related Pika projects, or to show off what you’re working on!
+[Join our Discord](https://discord.gg/rS8SnRk) for discussion, questions about Snowpack or related Pika projects, or to show off what you’re working on!
 
 ## Create Snowpack App (CSA)
 
@@ -52,7 +52,6 @@ For starter apps and templates, see [create-snowpack-app](./create-snowpack-app)
 ### Bundle
 
 - [@snowpack/plugin-webpack](./plugins/plugin-webpack)
-- [@snowpack/plugin-parcel](./plugins/plugin-parcel)
 
 ### Utility Plugins
 
@@ -61,6 +60,7 @@ For starter apps and templates, see [create-snowpack-app](./create-snowpack-app)
 
 ## Featured Community Plugins
 
+- [snowpack-plugin-rollup-bundle](https://github.com/ParamagicDev/snowpack-plugin-rollup-bundle)
 - [@prefresh/snowpack](https://github.com/JoviDeCroock/prefresh)
 - [snowpack-plugin-imagemin](https://github.com/jaredLunde/snowpack-plugin-imagemin) Use [imagemin](https://github.com/imagemin/imagemin) to optimize your build images.
 - [snowpack-plugin-import-map](https://github.com/zhoukekestar/snowpack-plugin-import-map) A more easy way to map your imports to Pika CDN instead of [import-maps.json](https://github.com/WICG/import-maps).

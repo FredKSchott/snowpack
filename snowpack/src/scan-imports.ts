@@ -14,6 +14,9 @@ import {
   readFile,
   SVELTE_VUE_REGEX,
 } from './util';
+import PQueue from 'p-queue';
+
+const CONCURRENT_FILE_READS = 1000;
 
 // [@\w] - Match a word-character or @ (valid package name)
 // (?!.*(:\/\/)) - Ignore if previous match was a protocol (ex: http://)
@@ -248,8 +251,9 @@ export async function scanImports(
   }
 
   // Scan every matched JS file for web dependency imports
-  const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
-    includeFiles.map(async (filePath) => {
+  const loadFileQueue = new PQueue({concurrency: CONCURRENT_FILE_READS});
+  const getLoadedFiles = async (filePath: string): Promise<SnowpackSourceFile | null> =>
+    loadFileQueue.add(async () => {
       const {baseExt, expandedExt} = getExt(filePath);
       return {
         baseExt,
@@ -257,7 +261,9 @@ export async function scanImports(
         locOnDisk: filePath,
         contents: await readFile(filePath),
       };
-    }),
+    });
+  const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(
+    includeFiles.map(getLoadedFiles),
   );
 
   return scanImportsFromFiles(loadedFiles.filter(isTruthy), config);

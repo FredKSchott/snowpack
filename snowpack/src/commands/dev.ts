@@ -133,7 +133,7 @@ const sendFile = (
   res: http.ServerResponse,
   body: string | Buffer,
   fileLoc: string,
-  ext = '.html',
+  ext: string,
 ) => {
   body = Buffer.from(body);
   const ETag = etag(body, {weak: true});
@@ -239,6 +239,7 @@ export async function startServer(commandOptions: CommandOptions) {
 
   if (config.devOptions.output === 'dashboard') {
     // "dashboard": Pipe console methods to the logger, and then start the dashboard.
+    logger.debug(`attaching console.log listeners`);
     console.log = (...args: [any, ...any[]]) => {
       logger.info(util.format(...args));
     };
@@ -252,6 +253,7 @@ export async function startServer(commandOptions: CommandOptions) {
       messageBus,
       config.plugins.map((p) => p.name),
     );
+    logger.debug(`dashboard started`);
   } else {
     // "stream": Log relevent events to the console.
     messageBus.on(paintEvent.WORKER_MSG, ({id, msg}) => {
@@ -324,6 +326,7 @@ export async function startServer(commandOptions: CommandOptions) {
   let credentials: {cert: Buffer; key: Buffer} | undefined;
   if (config.devOptions.secure) {
     try {
+      logger.debug(`reading credentials`);
       credentials = await readCredentials(cwd);
     } catch (e) {
       logger.error(
@@ -347,6 +350,7 @@ export async function startServer(commandOptions: CommandOptions) {
 
   for (const runPlugin of config.plugins) {
     if (runPlugin.run) {
+      logger.debug(`starting ${runPlugin.name} run() in watch/isDev mode`);
       runPlugin
         .run({
           isDev: true,
@@ -366,7 +370,11 @@ export async function startServer(commandOptions: CommandOptions) {
     }
   }
 
-  async function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
+  async function requestHandler(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    next?: () => void,
+  ) {
     const reqUrl = req.url!;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
@@ -381,18 +389,6 @@ export async function startServer(commandOptions: CommandOptions) {
       isSourceMap = true;
       reqPath = replaceExt(reqPath, '.map', '');
     }
-
-    res.on('finish', () => {
-      const {method, url} = req;
-      const {statusCode} = res;
-      if (statusCode !== 200) {
-        messageBus.emit(paintEvent.SERVER_RESPONSE, {
-          method,
-          url,
-          statusCode,
-        });
-      }
-    });
 
     if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
       sendFile(req, res, HMR_CLIENT_CODE, reqPath, '.js');
@@ -432,9 +428,6 @@ export async function startServer(commandOptions: CommandOptions) {
     let responseFileExt = requestedFileExt;
     let isRoute = !requestedFileExt || requestedFileExt === '.html';
 
-    // Now that we've set isRoute properly, give `requestedFileExt` a fallback
-    requestedFileExt = requestedFileExt || '.html';
-
     async function getFileFromUrl(reqPath: string): Promise<string | null> {
       if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
         const dependencyFileLoc =
@@ -454,44 +447,80 @@ export async function startServer(commandOptions: CommandOptions) {
         } else {
           continue;
         }
-        if (isRoute) {
-          let fileLoc =
-            (await attemptLoadFile(requestedFile)) ||
-            (await attemptLoadFile(requestedFile + '.html')) ||
-            (await attemptLoadFile(requestedFile + 'index.html')) ||
-            (await attemptLoadFile(requestedFile + '/index.html'));
-
-          if (!fileLoc && dirUrl === '/' && config.devOptions.fallback) {
-            const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
-            fileLoc = await attemptLoadFile(fallbackFile);
-          }
+        const fileLocExact = await attemptLoadFile(requestedFile);
+        if (fileLocExact) {
+          return fileLocExact;
+        }
+        for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
+          const fileLoc = await attemptLoadFile(potentialSourceFile);
           if (fileLoc) {
-            responseFileExt = '.html';
             return fileLoc;
-          }
-        } else {
-          for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
-            const fileLoc = await attemptLoadFile(potentialSourceFile);
-            if (fileLoc) {
-              return fileLoc;
-            }
           }
         }
       }
       return null;
     }
 
-    const fileLoc = await getFileFromUrl(reqPath);
+    async function getFileFromRoute(reqPath: string): Promise<string | null> {
+      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
+        let requestedFile: string;
+        if (dirUrl === '/') {
+          requestedFile = path.join(dirDisk, reqPath);
+        } else if (reqPath.startsWith(dirUrl)) {
+          requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, './'));
+        } else {
+          continue;
+        }
+        let fileLoc =
+          (await attemptLoadFile(requestedFile + '.html')) ||
+          (await attemptLoadFile(requestedFile + 'index.html')) ||
+          (await attemptLoadFile(requestedFile + '/index.html'));
+        if (fileLoc) {
+          requestedFileExt = '.html';
+          responseFileExt = '.html';
+          return fileLoc;
+        }
+      }
+      return null;
+    }
+
+    async function getFileFromFallback(): Promise<string | null> {
+      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
+        if (dirUrl !== '/') {
+          continue;
+        }
+        if (config.devOptions.fallback) {
+          const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
+          fileLoc = await attemptLoadFile(fallbackFile);
+        }
+        if (fileLoc) {
+          requestedFileExt = '.html';
+          responseFileExt = '.html';
+          return fileLoc;
+        }
+      }
+      return null;
+    }
+
+    let fileLoc = await getFileFromUrl(reqPath);
+    if (!fileLoc && isRoute) {
+      fileLoc = (await getFileFromRoute(reqPath)) || (await getFileFromFallback());
+    }
 
     if (!fileLoc) {
-      // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
-      // from the server, which creates annoying errors for new apps / first experiences.
-      if (reqPath !== '/favicon.ico') {
-        const attemptedFilesMessage = attemptedFileLoads.map((loc) => '  ✘ ' + loc).join('\n');
-        const errorMessage = `[404] ${reqUrl}\n${attemptedFilesMessage}`;
-        logger.error(errorMessage);
+      if (next) {
+        // fall through to next handler
+        return next();
+      } else {
+        // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
+        // from the server, which creates annoying errors for new apps / first experiences.
+        if (reqPath !== '/favicon.ico') {
+          const attemptedFilesMessage = attemptedFileLoads.map((loc) => '  ✘ ' + loc).join('\n');
+          const errorMessage = `[404] ${reqUrl}\n${attemptedFilesMessage}`;
+          logger.error(errorMessage);
+        }
+        return sendError(req, res, 404);
       }
-      return sendError(req, res, 404);
     }
 
     /**
@@ -552,6 +581,7 @@ export async function startServer(commandOptions: CommandOptions) {
         code = wrapHtmlResponse({
           code: code as string,
           hmr: isHmr,
+          hmrPort: hmrEngine.port !== port ? hmrEngine.port : undefined,
           isDev: true,
           config,
           mode: 'development',
@@ -775,7 +805,11 @@ export async function startServer(commandOptions: CommandOptions) {
         return;
       }
       if (!responseContent) {
-        sendError(req, res, 404);
+        if (next) {
+          next();
+        } else {
+          sendError(req, res, 404);
+        }
         return;
       }
       sendFile(req, res, responseContent, fileLoc, responseFileExt);
@@ -829,7 +863,11 @@ export async function startServer(commandOptions: CommandOptions) {
           coldCachedResponse,
         );
         if (!wrappedResponse) {
-          sendError(req, res, 404);
+          if (next) {
+            next();
+          } else {
+            sendError(req, res, 404);
+          }
           return;
         }
         sendFile(req, res, wrappedResponse, fileLoc, responseFileExt);
@@ -888,7 +926,11 @@ export async function startServer(commandOptions: CommandOptions) {
       return;
     }
     if (!responseContent) {
-      sendError(req, res, 404);
+      if (next) {
+        next();
+      } else {
+        sendError(req, res, 404);
+      }
       return;
     }
 
@@ -927,6 +969,12 @@ export async function startServer(commandOptions: CommandOptions) {
   };
 
   const server = createServer((req, res) => {
+    // Attach a request logger.
+    res.on('finish', () => {
+      const {method, url} = req;
+      const {statusCode} = res;
+      logger.debug(`[${statusCode}] ${method} ${url}`);
+    });
     /** Handle errors not handled in our requestHandler. */
     function onUnhandledError(err: Error) {
       logger.error(err.toString());
@@ -963,7 +1011,11 @@ export async function startServer(commandOptions: CommandOptions) {
     .listen(port);
 
   const {hmrDelay} = config.devOptions;
-  const hmrEngine = new EsmHmrEngine({server, delay: hmrDelay});
+  const hmrEngineOptions = Object.assign(
+    {delay: hmrDelay},
+    config.devOptions.hmrPort ? {port: config.devOptions.hmrPort} : {server, port},
+  );
+  const hmrEngine = new EsmHmrEngine(hmrEngineOptions);
   onProcessExit(() => {
     hmrEngine.disconnectAllClients();
   });
