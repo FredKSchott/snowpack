@@ -17,8 +17,6 @@ import {
   PluginLoadOptions,
   PluginLoadResult,
   PluginOptimizeOptions,
-  Proxy,
-  ProxyOptions,
   SnowpackConfig,
   SnowpackPlugin,
 } from './types/snowpack';
@@ -463,36 +461,6 @@ function handleLegacyProxyScripts(config: any) {
   return config;
 }
 
-type RawProxies = Record<string, string | ProxyOptions>;
-function normalizeProxies(proxies: RawProxies): Proxy[] {
-  return Object.entries(proxies).map(([pathPrefix, options]) => {
-    if (typeof options !== 'string') {
-      return [
-        pathPrefix,
-        {
-          //@ts-ignore - Seems to be a strange 3.9.x bug
-          on: {},
-          ...options,
-        },
-      ];
-    }
-    return [
-      pathPrefix,
-      {
-        on: {
-          proxyReq: (proxyReq: http.ClientRequest, req: http.IncomingMessage) => {
-            const proxyPath = proxyReq.path.split(req.url!)[0];
-            proxyReq.path = proxyPath + req.url!.replace(pathPrefix, '');
-          },
-        },
-        target: options,
-        changeOrigin: true,
-        secure: false,
-      },
-    ];
-  });
-}
-
 function normalizeMount(config: SnowpackConfig, cwd: string) {
   const mountedDirs: Record<string, string> = config.mount || {};
   for (const [target, cmd] of Object.entries(config.scripts)) {
@@ -580,7 +548,6 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
 
   const isLegacyMountConfig = !config.mount;
   config = handleLegacyProxyScripts(config);
-  config.proxy = normalizeProxies(config.proxy as any);
   config.mount = normalizeMount(config, cwd);
   config.alias = normalizeAlias(config, cwd, isLegacyMountConfig);
 

@@ -32,7 +32,8 @@ import {EventEmitter} from 'events';
 import {createReadStream, existsSync, promises as fs, statSync} from 'fs';
 import {send} from 'httpie';
 import http from 'http';
-import HttpProxy from 'http-proxy';
+import HttpProxy from 'http2-proxy';
+import finalhandler from 'finalhandler';
 import http2 from 'http2';
 import https from 'https';
 import * as colors from 'kleur/colors';
@@ -99,6 +100,9 @@ const DEFAULT_PROXY_ERROR_HANDLER = (
   sendError(req, res, 502);
 };
 
+// global etag cache - keyed by url to find it quickly and be able to override it easily
+const ETagCache = {};
+
 /**
  * Install dependencies needed in "dev" mode. Generally speaking, this scans
  * your entire source app for dependency install targets, installs them,
@@ -137,6 +141,7 @@ const sendFile = (
 ) => {
   body = Buffer.from(body);
   const ETag = etag(body, {weak: true});
+  ETagCache[req.url as string] = ETag; // cache etag
   const contentType = mime.contentType(ext);
   const headers: Record<string, string> = {
     'Accept-Ranges': 'bytes',
@@ -299,18 +304,6 @@ export async function startServer(commandOptions: CommandOptions) {
     logger.debug(`Cache up-to-date. Using existing cache`);
   }
 
-  const devProxies = {};
-  config.proxy.forEach(([pathPrefix, proxyOptions]) => {
-    const proxyServer = (devProxies[pathPrefix] = HttpProxy.createProxyServer(proxyOptions));
-    for (const [onEventName, eventHandler] of Object.entries(proxyOptions.on)) {
-      proxyServer.on(onEventName, eventHandler as () => void);
-    }
-    if (!proxyOptions.on.error) {
-      proxyServer.on('error', DEFAULT_PROXY_ERROR_HANDLER);
-    }
-    logger.info(`Proxy created: ${pathPrefix} -> ${proxyOptions.target || proxyOptions.forward}`);
-  });
-
   const readCredentials = async (cwd: string) => {
     const [cert, key] = await Promise.all([
       fs.readFile(path.join(cwd, 'snowpack.crt')),
@@ -403,11 +396,29 @@ export async function startServer(commandOptions: CommandOptions) {
       return;
     }
 
-    for (const [pathPrefix] of config.proxy) {
+    if (req.headers['if-none-match'] && ETagCache[req.url as string] && ETagCache[req.url as string] === req.headers['if-none-match']) {
+      res.writeHead(304, {
+        'Accept-Ranges': 'bytes',
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': mime.contentType(path.parse(reqPath).ext.toLowerCase()) || 'application/octet-stream',
+        ETag: req.headers['if-none-match'],
+        Vary: 'Accept-Encoding',
+      });
+      res.end();
+      return;
+    }
+
+    for (const [pathPrefix, proxyOptions] of Object.entries(config.proxy)) {
       if (!shouldProxy(pathPrefix, req)) {
         continue;
       }
-      devProxies[pathPrefix].web(req, res);
+      // @ts-ignore
+      HttpProxy.web(req, res, proxyOptions as HttpProxy.http2WebOptions, (err, http2Request, http2Response) => {
+        if (err) {
+          console.error('proxy error', err);
+          finalhandler(http2Request, http2Response)(err);
+        }
+      });
       return;
     }
 
@@ -956,9 +967,9 @@ export async function startServer(commandOptions: CommandOptions) {
     response: http2.Http2ServerResponse,
   ) => void;
   const createServer = (requestHandler: http.RequestListener | Http2RequestListener) => {
-    if (credentials && config.proxy.length === 0) {
+    if (credentials) {
       return http2.createSecureServer(
-        {...credentials!, allowHTTP1: true},
+        {...credentials!, allowHTTP1: true, peerMaxConcurrentStreams: 500 },
         requestHandler as Http2RequestListener,
       );
     } else if (credentials) {
@@ -1000,10 +1011,17 @@ export async function startServer(commandOptions: CommandOptions) {
       process.exit(1);
     })
     .on('upgrade', (req: http.IncomingMessage, socket, head) => {
-      config.proxy.forEach(([pathPrefix, proxyOptions]) => {
+      Object.entries(config.proxy).forEach(([pathPrefix, proxyOptions]) => {
+        // @ts-ignore
         const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
         if (isWebSocket && shouldProxy(pathPrefix, req)) {
-          devProxies[pathPrefix].ws(req, socket, head);
+          // @ts-ignore
+          HttpProxy.ws(req, socket, head, proxyOptions, (err, req, socket) => {
+            if (err) {
+              console.error('proxy error', err);
+              socket.destroy();
+            }
+          });
           logger.info('Upgrading to WebSocket');
         }
       });

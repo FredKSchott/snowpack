@@ -1,4 +1,3 @@
-import type HttpProxy from 'http-proxy';
 import type * as http from 'http';
 import type {InstallOptions} from 'esinstall';
 import type {RawSourceMap} from 'source-map';
@@ -113,12 +112,6 @@ export type SnowpackPluginFactory<PluginOptions = object> = (
   pluginOptions?: PluginOptions,
 ) => SnowpackPlugin;
 
-export type ProxyOptions = HttpProxy.ServerOptions & {
-  // Custom on: {} event handlers
-  on: Record<string, Function>;
-};
-export type Proxy = [string, ProxyOptions];
-
 // interface this library uses internally
 export interface SnowpackConfig {
   install: string[];
@@ -126,7 +119,7 @@ export interface SnowpackConfig {
   exclude: string[];
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
-  proxy: Proxy[];
+  proxy: any;
   mount: Record<string, string>;
   alias: Record<string, string>;
   scripts: Record<string, string>;
