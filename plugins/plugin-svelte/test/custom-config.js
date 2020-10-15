@@ -1,8 +1,8 @@
 module.exports = {
   preprocess: {
-    __test: 'custom-config.js::preprocess'
+    __test: 'custom-config.js::preprocess',
   },
   compilerOptions: {
-    __test: 'custom-config.js'
-  }
+    __test: 'custom-config.js',
+  },
 };

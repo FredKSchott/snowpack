@@ -25,4 +25,3 @@ By default, this plugin will look for a `svelte.config.js` file in your project 
 | `preprocess`      | [svelte.preprocess options](https://svelte.dev/docs#svelte_preprocess) | Configure the Svelte pre-processor. If this option is given, the config file `preprocess` option will be ignored.   |
 | `compilerOptions` |    [svelte.compile options](https://svelte.dev/docs#svelte_compile)    | Configure the Svelte compiler.If this option is given, the config file `preprocess` option will be ignored.         |
 | `hmrOptions`      |        [svelte-hmr options](https://github.com/rixo/svelte-hmr)        | Configure HMR & "fast refresh" behavior for Svelte.                                                                 |
-
