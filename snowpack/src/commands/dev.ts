@@ -28,9 +28,9 @@ import cacache from 'cacache';
 import isCompressible from 'compressible';
 import merge from 'deepmerge';
 import etag from 'etag';
-import {EventEmitter} from 'events';
-import {createReadStream, existsSync, promises as fs, statSync} from 'fs';
-import {send} from 'httpie';
+import { EventEmitter } from 'events';
+import { createReadStream, existsSync, promises as fs, statSync } from 'fs';
+import { send } from 'httpie';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
@@ -39,7 +39,7 @@ import * as colors from 'kleur/colors';
 import mime from 'mime-types';
 import os from 'os';
 import path from 'path';
-import {performance} from 'perf_hooks';
+import { performance } from 'perf_hooks';
 import onProcessExit from 'signal-exit';
 import stream from 'stream';
 import url from 'url';
@@ -52,18 +52,18 @@ import {
   wrapImportMeta,
   wrapImportProxy,
 } from '../build/build-import-proxy';
-import {buildFile as _buildFile, getInputsFromOutput} from '../build/build-pipeline';
-import {createImportResolver} from '../build/import-resolver';
-import {getUrlForFile} from '../build/file-urls';
-import {EsmHmrEngine} from '../hmr-server-engine';
-import {logger} from '../logger';
+import { buildFile as _buildFile, getInputsFromOutput } from '../build/build-pipeline';
+import { createImportResolver } from '../build/import-resolver';
+import { getUrlForFile } from '../build/file-urls';
+import { EsmHmrEngine } from '../hmr-server-engine';
+import { logger } from '../logger';
 import {
   scanCodeImportsExports,
   transformEsmImports,
   transformFileImports,
 } from '../rewrite-imports';
-import {matchDynamicImportValue} from '../scan-imports';
-import {CommandOptions, ImportMap, SnowpackBuildMap} from '../types/snowpack';
+import { matchDynamicImportValue } from '../scan-imports';
+import { CommandOptions, ImportMap, SnowpackBuildMap } from '../types/snowpack';
 import {
   BUILD_CACHE,
   checkLockfileHash,
@@ -80,12 +80,12 @@ import {
   resolveDependencyManifest,
   updateLockfileHash,
 } from '../util';
-import {getInstallTargets, run as installRunner} from './install';
-import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
+import { getInstallTargets, run as installRunner } from './install';
+import { getPort, getServerInfoMessage, paintDashboard, paintEvent } from './paint';
 
 const FILE_BUILD_RESULT_ERROR = `Build Result Error: There was a problem with a file build result.`;
 
-function getCacheKey(fileLoc: string, {isSSR, env}) {
+function getCacheKey(fileLoc: string, { isSSR, env }) {
   return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
 }
 
@@ -105,7 +105,7 @@ const DEFAULT_PROXY_ERROR_HANDLER = (
  * and then updates the "hash" file used to check node_modules freshness.
  */
 async function installDependencies(commandOptions: CommandOptions) {
-  const {config} = commandOptions;
+  const { config } = commandOptions;
   const installTargets = await getInstallTargets(config);
   if (installTargets.length === 0) {
     logger.info('Nothing to install.');
@@ -136,7 +136,7 @@ const sendFile = (
   ext: string,
 ) => {
   body = Buffer.from(body);
-  const ETag = etag(body, {weak: true});
+  const ETag = etag(body, { weak: true });
   const contentType = mime.contentType(ext);
   const headers: Record<string, string> = {
     'Accept-Ranges': 'bytes',
@@ -178,16 +178,16 @@ const sendFile = (
   }
 
   // Handle partial requests
-  const {range} = req.headers;
+  const { range } = req.headers;
   if (range) {
-    const {size: fileSize} = statSync(fileLoc);
+    const { size: fileSize } = statSync(fileLoc);
     const [rangeStart, rangeEnd] = range.replace(/bytes=/, '').split('-');
 
     const start = parseInt(rangeStart, 10);
     const end = rangeEnd ? parseInt(rangeEnd, 10) : fileSize - 1;
     const chunkSize = end - start + 1;
 
-    const fileStream = createReadStream(fileLoc, {start, end});
+    const fileStream = createReadStream(fileLoc, { start, end });
     res.writeHead(206, {
       ...headers,
       'Content-Range': `bytes ${start}-${end}/${fileSize}`,
@@ -221,8 +221,8 @@ export async function startServer(commandOptions: CommandOptions) {
   // Start the startup timer!
   let serverStart = performance.now();
 
-  const {cwd, config} = commandOptions;
-  const {port: defaultPort, hostname, open} = config.devOptions;
+  const { cwd, config } = commandOptions;
+  const { port: defaultPort, hostname, open } = config.devOptions;
   const isHmr = typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true;
   const messageBus = new EventEmitter();
   const port = await getPort(defaultPort);
@@ -256,8 +256,8 @@ export async function startServer(commandOptions: CommandOptions) {
     logger.debug(`dashboard started`);
   } else {
     // "stream": Log relevent events to the console.
-    messageBus.on(paintEvent.WORKER_MSG, ({id, msg}) => {
-      logger.info(msg.trim(), {name: id});
+    messageBus.on(paintEvent.WORKER_MSG, ({ id, msg }) => {
+      logger.info(msg.trim(), { name: id });
     });
     messageBus.on(paintEvent.SERVER_START, (info) => {
       console.log(getServerInfoMessage(info));
@@ -268,7 +268,8 @@ export async function startServer(commandOptions: CommandOptions) {
   const filesBeingDeleted = new Set<string>();
   const filesBeingBuilt = new Map<string, Promise<SnowpackBuildMap>>();
 
-  logger.debug(`Using in-memory cache for mount points:`, {
+  logger.debug(`Using in-memory cache.`)
+  logger.debug(`Mounting directories:`, {
     task: () => {
       for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
         logger.debug(` -> '${dirDisk}' as URL '${dirUrl}'`);
@@ -283,17 +284,17 @@ export async function startServer(commandOptions: CommandOptions) {
     config: {
       installOptions: {
         dest: DEV_DEPENDENCIES_DIR,
-        env: {NODE_ENV: process.env.NODE_ENV || 'development'},
+        env: { NODE_ENV: process.env.NODE_ENV || 'development' },
         treeshake: false,
       },
     },
   });
 
   // Start with a fresh install of your dependencies, if needed.
-  let dependencyImportMap: ImportMap = {imports: {}};
+  let dependencyImportMap: ImportMap = { imports: {} };
   try {
     dependencyImportMap = JSON.parse(
-      await fs.readFile(dependencyImportMapLoc, {encoding: 'utf-8'}),
+      await fs.readFile(dependencyImportMapLoc, { encoding: 'utf-8' }),
     );
   } catch (err) {
     // no import-map found, safe to ignore
@@ -331,7 +332,7 @@ export async function startServer(commandOptions: CommandOptions) {
     };
   };
 
-  let credentials: {cert: Buffer; key: Buffer} | undefined;
+  let credentials: { cert: Buffer; key: Buffer } | undefined;
   if (config.devOptions.secure) {
     try {
       logger.debug(`reading credentials`);
@@ -365,14 +366,14 @@ export async function startServer(commandOptions: CommandOptions) {
           isHmrEnabled: isHmr,
           // @ts-ignore: internal API only
           log: (msg, data) => {
-            messageBus.emit(msg, {...data, id: runPlugin.name});
+            messageBus.emit(msg, { ...data, id: runPlugin.name });
           },
         })
         .then(() => {
-          logger.info('Command completed.', {name: runPlugin.name});
+          logger.info('Command completed.', { name: runPlugin.name });
         })
         .catch((err) => {
-          logger.error(`Command exited with error code: ${err}`, {name: runPlugin.name});
+          logger.error(`Command exited with error code: ${err}`, { name: runPlugin.name });
           process.exit(1);
         });
     }
@@ -551,18 +552,18 @@ export async function startServer(commandOptions: CommandOptions) {
           sourceMaps: config.buildOptions.sourceMaps,
         });
         inMemoryBuildCache.set(
-          getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
+          getCacheKey(fileLoc, { isSSR, env: process.env.NODE_ENV }),
           builtFileOutput,
         );
         return builtFileOutput;
       })();
       filesBeingBuilt.set(fileLoc, fileBuilderPromise);
       try {
-        messageBus.emit(paintEvent.BUILD_FILE, {id: fileLoc, isBuilding: true});
+        messageBus.emit(paintEvent.BUILD_FILE, { id: fileLoc, isBuilding: true });
         return await fileBuilderPromise;
       } finally {
         filesBeingBuilt.delete(fileLoc);
-        messageBus.emit(paintEvent.BUILD_FILE, {id: fileLoc, isBuilding: false});
+        messageBus.emit(paintEvent.BUILD_FILE, { id: fileLoc, isBuilding: false });
       }
     }
 
@@ -609,9 +610,9 @@ export async function startServer(commandOptions: CommandOptions) {
         }
         case '.js': {
           if (isProxyModule) {
-            code = await wrapImportProxy({url: reqPath, code, hmr: isHmr, config});
+            code = await wrapImportProxy({ url: reqPath, code, hmr: isHmr, config });
           } else {
-            code = wrapImportMeta({code: code as string, env: true, hmr: isHmr, config});
+            code = wrapImportMeta({ code: code as string, env: true, hmr: isHmr, config });
           }
 
           if (hasCssResource)
@@ -763,7 +764,7 @@ export async function startServer(commandOptions: CommandOptions) {
         return null;
       }
 
-      const {code, map} = output[requestedFileExt];
+      const { code, map } = output[requestedFileExt];
       let finalResponse = code;
 
       // Wrap the response.
@@ -793,7 +794,7 @@ export async function startServer(commandOptions: CommandOptions) {
 
     // 1. Check the hot build cache. If it's already found, then just serve it.
     let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(
-      getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
+      getCacheKey(fileLoc, { isSSR, env: process.env.NODE_ENV }),
     );
     if (hotCachedResponse) {
       let responseContent: string | Buffer | null;
@@ -842,10 +843,10 @@ export async function startServer(commandOptions: CommandOptions) {
       process.env.NODE_ENV !== 'test' &&
       !filesBeingDeleted.has(fileLoc) &&
       (await cacache
-        .get(BUILD_CACHE, getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}))
+        .get(BUILD_CACHE, getCacheKey(fileLoc, { isSSR, env: process.env.NODE_ENV }))
         .catch(() => null));
     if (cachedBuildData) {
-      const {originalFileHash} = cachedBuildData.metadata;
+      const { originalFileHash } = cachedBuildData.metadata;
       const newFileHash = etag(fileContents);
       if (originalFileHash === newFileHash) {
         // IF THIS FAILS TS CHECK: If you are changing the structure of
@@ -861,7 +862,7 @@ export async function startServer(commandOptions: CommandOptions) {
           }
         >;
         inMemoryBuildCache.set(
-          getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
+          getCacheKey(fileLoc, { isSSR, env: process.env.NODE_ENV }),
           coldCachedResponse,
         );
         // Trust...
@@ -892,7 +893,7 @@ export async function startServer(commandOptions: CommandOptions) {
           ) {
             inMemoryBuildCache.clear();
             await cacache.rm.all(BUILD_CACHE);
-            hmrEngine.broadcastMessage({type: 'reload'});
+            hmrEngine.broadcastMessage({ type: 'reload' });
           }
         }
         return;
@@ -905,7 +906,7 @@ export async function startServer(commandOptions: CommandOptions) {
     try {
       responseOutput = await buildFile(fileLoc);
     } catch (err) {
-      logger.error(err.toString(), {name: err.__snowpackBuildDetails?.name});
+      logger.error(err.toString(), { name: err.__snowpackBuildDetails?.name });
       hmrEngine.broadcastMessage({
         type: 'error',
         title:
@@ -951,10 +952,10 @@ export async function startServer(commandOptions: CommandOptions) {
     // then can revisit the caching story once confident.
     cacache.put(
       BUILD_CACHE,
-      getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
+      getCacheKey(fileLoc, { isSSR, env: process.env.NODE_ENV }),
       Buffer.from(JSON.stringify(responseOutput)),
       {
-        metadata: {originalFileHash},
+        metadata: { originalFileHash },
       },
     );
   }
@@ -966,7 +967,7 @@ export async function startServer(commandOptions: CommandOptions) {
   const createServer = (requestHandler: http.RequestListener | Http2RequestListener) => {
     if (credentials && config.proxy.length === 0) {
       return http2.createSecureServer(
-        {...credentials!, allowHTTP1: true},
+        { ...credentials!, allowHTTP1: true },
         requestHandler as Http2RequestListener,
       );
     } else if (credentials) {
@@ -979,8 +980,8 @@ export async function startServer(commandOptions: CommandOptions) {
   const server = createServer((req, res) => {
     // Attach a request logger.
     res.on('finish', () => {
-      const {method, url} = req;
-      const {statusCode} = res;
+      const { method, url } = req;
+      const { statusCode } = res;
       logger.debug(`[${statusCode}] ${method} ${url}`);
     });
     /** Handle errors not handled in our requestHandler. */
@@ -1018,10 +1019,10 @@ export async function startServer(commandOptions: CommandOptions) {
     })
     .listen(port);
 
-  const {hmrDelay} = config.devOptions;
+  const { hmrDelay } = config.devOptions;
   const hmrEngineOptions = Object.assign(
-    {delay: hmrDelay},
-    config.devOptions.hmrPort ? {port: config.devOptions.hmrPort} : {server, port},
+    { delay: hmrDelay },
+    config.devOptions.hmrPort ? { port: config.devOptions.hmrPort } : { server, port },
   );
   const hmrEngine = new EsmHmrEngine(hmrEngineOptions);
   onProcessExit(() => {
@@ -1038,7 +1039,7 @@ export async function startServer(commandOptions: CommandOptions) {
     const node = hmrEngine.getEntry(url);
     const isBubbled = visited.size > 0;
     if (node && node.isHmrEnabled) {
-      hmrEngine.broadcastMessage({type: 'update', url, bubbled: isBubbled});
+      hmrEngine.broadcastMessage({ type: 'update', url, bubbled: isBubbled });
     }
     visited.add(url);
     if (node && node.isHmrAccepted) {
@@ -1050,7 +1051,7 @@ export async function startServer(commandOptions: CommandOptions) {
       });
     } else {
       // We've reached the top, trigger a full page refresh
-      hmrEngine.broadcastMessage({type: 'reload'});
+      hmrEngine.broadcastMessage({ type: 'reload' });
     }
   }
   function handleHmrUpdate(fileLoc: string) {
@@ -1086,8 +1087,8 @@ export async function startServer(commandOptions: CommandOptions) {
     // Otherwise, reload the page if the file exists in our hot cache (which
     // means that the file likely exists on the current page, but is not
     // supported by HMR (HTML, image, etc)).
-    if (inMemoryBuildCache.has(getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}))) {
-      hmrEngine.broadcastMessage({type: 'reload'});
+    if (inMemoryBuildCache.has(getCacheKey(fileLoc, { isSSR: false, env: process.env.NODE_ENV }))) {
+      hmrEngine.broadcastMessage({ type: 'reload' });
       return;
     }
   }
@@ -1119,19 +1120,19 @@ export async function startServer(commandOptions: CommandOptions) {
   async function onWatchEvent(fileLoc) {
     logger.info(colors.cyan('File changed...'));
     handleHmrUpdate(fileLoc);
-    inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: true, env: process.env.NODE_ENV}));
-    inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}));
+    inMemoryBuildCache.delete(getCacheKey(fileLoc, { isSSR: true, env: process.env.NODE_ENV }));
+    inMemoryBuildCache.delete(getCacheKey(fileLoc, { isSSR: false, env: process.env.NODE_ENV }));
     filesBeingDeleted.add(fileLoc);
     await cacache.rm.entry(
       BUILD_CACHE,
-      getCacheKey(fileLoc, {isSSR: true, env: process.env.NODE_ENV}),
+      getCacheKey(fileLoc, { isSSR: true, env: process.env.NODE_ENV }),
     );
     await cacache.rm.entry(
       BUILD_CACHE,
-      getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}),
+      getCacheKey(fileLoc, { isSSR: false, env: process.env.NODE_ENV }),
     );
     for (const plugin of config.plugins) {
-      plugin.onChange && plugin.onChange({filePath: fileLoc});
+      plugin.onChange && plugin.onChange({ filePath: fileLoc });
     }
     filesBeingDeleted.delete(fileLoc);
   }
@@ -1156,7 +1157,7 @@ export async function startServer(commandOptions: CommandOptions) {
       .map(([fileLoc]) => `${path.dirname(fileLoc!)}/**`),
   );
   function onDepWatchEvent() {
-    hmrEngine.broadcastMessage({type: 'reload'});
+    hmrEngine.broadcastMessage({ type: 'reload' });
   }
   const depWatcher = chokidar.watch([...symlinkedFileLocs], {
     cwd: '/', // we’re using absolute paths, so watch from root
@@ -1171,7 +1172,7 @@ export async function startServer(commandOptions: CommandOptions) {
   return {
     requestHandler,
     /** @experimental - only available via unstable__startServer */
-    async loadByUrl(url: string, {isSSR}: {isSSR?: boolean}): Promise<string> {
+    async loadByUrl(url: string, { isSSR }: { isSSR?: boolean }): Promise<string> {
       if (!url.startsWith('/')) {
         throw new Error(`url must start with "/", but got ${url}`);
       }
@@ -1190,5 +1191,5 @@ export async function command(commandOptions: CommandOptions) {
     logger.debug(err.stack);
     process.exit(1);
   }
-  return new Promise(() => {});
+  return new Promise(() => { });
 }
