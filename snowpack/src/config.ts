@@ -567,12 +567,11 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     logger.debug('`devOptions.out` is now `buildOptions.out`! `devOptions.out` will be deprecated in the next major release.');
   };
   // @ts-ignore
-  const outDir = config.buildOptions.out || config.devOptions.out;
-  config.buildOptions.out = path.resolve(cwd, outDir);
+  config.buildOptions.out = path.resolve(cwd, config.buildOptions.out || config.devOptions.out);
   config.installOptions.rollup = config.installOptions.rollup || {};
   config.installOptions.rollup.plugins = config.installOptions.rollup.plugins || [];
   config.exclude = Array.from(
-    new Set([...ALWAYS_EXCLUDE, `${outDir}/**/*`, ...config.exclude]),
+    new Set([...ALWAYS_EXCLUDE, `${config.buildOptions.out}/**/*`, ...config.exclude]),
   );
 
   if (!config.proxy) {
