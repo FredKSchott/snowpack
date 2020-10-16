@@ -35,7 +35,7 @@ export const PROJECT_CACHE_DIR =
   // Because this is specifically for dependencies, this fallback should rarely be used.
   path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
 
-export const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, 'dev');
+export const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, process.env.NODE_ENV || 'development');
 const LOCKFILE_HASH_FILE = '.hash';
 
 export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;

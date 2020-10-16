@@ -176,6 +176,34 @@ The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbo
 
 Remember that Workbox expects to be run every time you deploy, as a part of a production build process. If you don't have one yet, create package.json [`"deploy"` and/or `"build"` scripts](https://michael-kuehnel.de/tooling/2018/03/22/helpers-and-tips-for-npm-run-scripts.html) to automate your production build process.
 
+
+### @web/test-runner
+
+[@web/test-runner](https://www.npmjs.com/package/@snowpack/app-scripts-react) is our recommended test runner for Snowpack projects. [See our section on testing](/#testing) for detailed instructions on how to get started with @web/test-runner.
+
+### Jest
+
+> Update (October 11, 2020): **We now recommend [@web/test-runner](https://www.npmjs.com/package/@snowpack/app-scripts-react) as our test runner of choice for Snowpack projects.** [See our section on testing](/#testing) for more background behind the change.
+
+[Jest](https://jestjs.io/) is a popular Node.js test runner for Node.js & web projects. Jest can be used with any frontend project as long as you configure how Jest should build your frontend files to run on Node.js. Many projects will try to manage this configuration for you, since it can get complicated.
+
+Snowpack ships pre-built Jest configuration files for several popular frameworks. If you need to use Jest for any reason,consider extending one of these packages:
+
+- React: [@snowpack/app-scripts-react](https://www.npmjs.com/package/@snowpack/app-scripts-react)
+- Preact: [@snowpack/app-scripts-preact](https://www.npmjs.com/package/@snowpack/app-scripts-preact)
+- Svelte: [@snowpack/app-scripts-svelte](https://www.npmjs.com/package/@snowpack/app-scripts-svelte)
+
+You can use these packages in your project like so:
+
+```js
+// jest.config.js
+// Example: extending a pre-built Jest configuration file
+module.exports = {
+  ...require("@snowpack/app-scripts-preact/jest.config.js")(),
+};
+```
+
+
 ### Server Side Rendering (SSR)
 
 To connect your own server to `snowpack dev` for SSR, there are a few things that you'll need to set up. Make sure that you include any Snowpack-built resources via script tags in your server's HTML response:
