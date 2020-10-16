@@ -101,6 +101,8 @@ const configSchema = {
         hmrDelay: {type: 'number'},
         hmrPort: {type: 'number'},
         hmrErrorOverlay: {type: 'boolean'},
+        // DEPRECATED
+        out: {type: 'string'},
       },
     },
     installOptions: {
