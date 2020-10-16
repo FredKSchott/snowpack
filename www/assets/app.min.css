@@ -984,8 +984,8 @@ p {
 }
 
 img.company-logo {
-  box-shadow: none;
-  border: none;
+  box-shadow: none !important;
+  border: none !important;
   flex: 100%;
   height: 56px;
 }
