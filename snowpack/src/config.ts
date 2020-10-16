@@ -564,8 +564,10 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   config.knownEntrypoints = (config as any).install || [];
   // @ts-ignore
   if (config.devOptions.out) {
-    logger.debug('`devOptions.out` is now `buildOptions.out`! `devOptions.out` will be deprecated in the next major release.');
-  };
+    logger.debug(
+      '`devOptions.out` is now `buildOptions.out`! `devOptions.out` will be deprecated in the next major release.',
+    );
+  }
   // @ts-ignore
   config.buildOptions.out = path.resolve(cwd, config.buildOptions.out || config.devOptions.out);
   config.installOptions.rollup = config.installOptions.rollup || {};
