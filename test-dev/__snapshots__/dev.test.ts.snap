@@ -10,7 +10,7 @@ exports[`snowpack dev smoke: html 1`] = `
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/index.css\\" />
     <title>Snowpack App</title>
-  <script type=\\"module\\" integrity=\\"sha384-Z1OPSs1KV1TOmQHeoGF8XyUQcMaBnM0p0xip/dmSSpZWySqHrGOuQ5R4sSJgwPrM\\" src=\\"/__snowpack__/hmr-client.js\\"></script><script type=\\"module\\" integrity=\\"sha384-ZHQS30EqaFTVzyH5XP0i+sVAiN0+DiOd1AikxE6LsJbQaA40xjdaXluCLs/7hPlM\\" src=\\"/__snowpack__/hmr-error-overlay.js\\"></script></head>
+  <script type=\\"module\\" integrity=\\"sha384-Z1OPSs1KV1TOmQHeoGF8XyUQcMaBnM0p0xip/dmSSpZWySqHrGOuQ5R4sSJgwPrM\\" src=\\"/__snowpack__/hmr-client.js\\"></script><script type=\\"module\\" integrity=\\"sha384-LH/mFhEGRB4jHedP0nqOoIUwc4VX8eWJxEL+qTGWtroqiLJ2vxX169J0oSBMHL5o\\" src=\\"/__snowpack__/hmr-error-overlay.js\\"></script></head>
   <body>
     <img id=\\"img\\" src=\\"/logo.svg\\" />
     <canvas id=\\"canvas\\"></canvas>
