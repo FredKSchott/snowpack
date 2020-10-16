@@ -6,25 +6,6 @@
     "start": "snowpack dev",
     "testbuild": "snowpack build"
   },
-  "snowpack": {
-    "alias": {
-      "aliased-dep": "array-flatten",
-      "@app": "./src",
-      "@/": "./src/",
-      "%": "."
-    },
-    "mount": {
-      "./src": "/_dist_"
-    },
-    "devOptions": {
-      "fallback": "_dist_/index.html"
-    },
-    "buildOptions": {
-      "baseUrl": "https://example.com/foo",
-      "webModulesUrl": "/TEST_WMU/",
-      "minify": false
-    }
-  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.14.0",
     "array-flatten": "^3.0.0",

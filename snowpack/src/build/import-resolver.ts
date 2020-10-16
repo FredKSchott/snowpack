@@ -2,12 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import url from 'url';
 import {ImportMap, SnowpackConfig} from '../types/snowpack';
-import {
-  findMatchingAliasEntry,
-  getExt,
-  relativeURL,
-  replaceExt,
-} from '../util';
+import {findMatchingAliasEntry, getExt, relativeURL, replaceExt} from '../util';
 import {defaultFileExtensionMapping} from './file-urls';
 
 const cwd = process.cwd();
@@ -31,16 +26,20 @@ export function getImportStats(dirLoc: string, spec: string): fs.Stats | false {
 
 /** Resolve an import based on the state of the file/folder found on disk. */
 function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: SnowpackConfig) {
+  // Handle directory imports (ex: "./components" -> "./components/index.js")
   if (stats && stats.isDirectory()) {
     const trailingSlash = spec.endsWith('/') ? '' : '/';
     spec = spec + trailingSlash + 'index.js';
-  } else if (!stats && !spec.endsWith('.js') && !spec.endsWith('.css')) {
-    spec = spec + '.js';
   }
+  // Transform the file extension (from input to output)
   const {baseExt} = getExt(spec);
   const extToReplace = config._extensionMap[baseExt] || defaultFileExtensionMapping[baseExt];
   if (extToReplace) {
     spec = replaceExt(spec, baseExt, extToReplace);
+  }
+  // Lazy check to handle imports that are missing file extensions
+  if (!stats && !spec.endsWith('.js') && !spec.endsWith('.css')) {
+    spec = spec + '.js';
   }
   return spec;
 }
@@ -66,10 +65,13 @@ export function createImportResolver({
       return spec;
     }
 
-    if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
+    if (spec.startsWith('/')) {
+      const importStats = getImportStats(cwd, spec.substr(1));
+      return resolveSourceSpecifier(spec, importStats, config);
+    }
+    if (spec.startsWith('./') || spec.startsWith('../')) {
       const importStats = getImportStats(path.dirname(fileLoc), spec);
-      spec = resolveSourceSpecifier(spec, importStats, config);
-      return spec;
+      return resolveSourceSpecifier(spec, importStats, config);
     }
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && aliasEntry.type === 'path') {
