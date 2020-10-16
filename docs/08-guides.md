@@ -176,7 +176,6 @@ The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbo
 
 Remember that Workbox expects to be run every time you deploy, as a part of a production build process. If you don't have one yet, create package.json [`"deploy"` and/or `"build"` scripts](https://michael-kuehnel.de/tooling/2018/03/22/helpers-and-tips-for-npm-run-scripts.html) to automate your production build process.
 
-
 ### @web/test-runner
 
 [@web/test-runner](https://www.npmjs.com/package/@snowpack/app-scripts-react) is our recommended test runner for Snowpack projects. [See our section on testing](/#testing) for detailed instructions on how to get started with @web/test-runner.
@@ -199,10 +198,9 @@ You can use these packages in your project like so:
 // jest.config.js
 // Example: extending a pre-built Jest configuration file
 module.exports = {
-  ...require("@snowpack/app-scripts-preact/jest.config.js")(),
+  ...require('@snowpack/app-scripts-preact/jest.config.js')(),
 };
 ```
-
 
 ### Server Side Rendering (SSR)
 

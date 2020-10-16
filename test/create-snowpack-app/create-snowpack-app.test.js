@@ -146,9 +146,9 @@ describe('create-snowpack-app', () => {
         console.error('STDOUT', stdout);
         console.error('STDERR', stderr);
       }
-      
+
       expect(exitCode).toEqual(0);
-      
+
       // NOTE(fks) Keeping these for future reference, more santization was needed,
       // and decision was made to just check exitCode for pass/fail.
       // expect(
