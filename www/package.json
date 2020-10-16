@@ -2,17 +2,26 @@
   "name": "snowpack-www",
   "version": "2.7.0",
   "scripts": {
-    "build": "cat ../docs/* > index.md && eleventy",
-    "start": "cat ../docs/* > index.md && eleventy --serve",
+    "build": "ELEVENTY_ENV=prod yarn build:md && eleventy && yarn build:sass && yarn build:css",
+    "build:css": "postcss _site/assets/*.css -u postcss-preset-env cssnano -r --no-map",
+    "build:md": "cat ../docs/* > index.md",
+    "build:sass": "sass css/app.scss:assets/app.min.css --no-source-map",
+    "start": "yarn build:md && concurrently 'eleventy --serve' 'yarn build:sass --watch'",
     "test": "jest /__test__/"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.11.0",
-    "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.1",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.3",
     "cheerio": "^1.0.0-rc.3",
+    "concurrently": "^5.3.0",
+    "cssnano": "^4.1.10",
     "eleventy-plugin-nesting-toc": "^1.2.0",
     "luxon": "^1.24.1",
     "markdown-it": "^11.0.0",
-    "markdown-it-anchor": "^5.3.0"
+    "markdown-it-anchor": "^5.3.0",
+    "postcss": "^8.1.1",
+    "postcss-cli": "^8.1.0",
+    "postcss-preset-env": "^6.7.0",
+    "sass": "^1.27.0"
   }
 }

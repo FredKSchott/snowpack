@@ -28,10 +28,8 @@
     <meta property="twitter:image" content="https://www.snowpack.dev/img/social-4.jpg">
 
     <!-- Global Stylesheets -->
-    <link rel="stylesheet" href="/css/minireset.css" />
-    <link rel="stylesheet" href="/css/github-markdown.css" >
-    <link rel="stylesheet" href="/css/prism.css" />
-    <link rel="stylesheet" href="/css/base.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/app.min.css" />
   </head>
   <body>
 
@@ -130,28 +128,32 @@
     }
 
     function setActiveToc() {
+      const PADDING_TOP = 64;
+
       for (const el of document.querySelectorAll('h2, h3, h4')) {
         if (!isScrolledIntoView(el)) {
           continue;
         }
+
         const elId = el.id;
-        const tocEl = tableOfContentsEl.querySelector(`a[href="#${elId}"]`);
+        const href = `#${elId}`;
         tableOfContentsEl
           .querySelectorAll(`a.active`)
-          .forEach(aEl => aEl.classList.remove('active'));
-        if (!tocEl) {
+          .forEach(aEl => {
+            if (aEl.getAttribute('href') !== href) aEl.classList.remove('active');
+          });
+
+        const tocEl = tableOfContentsEl.querySelector(`a[href="${href}"]`);
+        // only add the active class once, which will also prevent scroll from re-triggering while scrolling to the same element
+        if (!tocEl || tocEl.classList.contains('active')) {
           return;
         }
-        tocEl
-          .classList
-          .add('active');
-        // Don't scroll the top one
-        //if (elId !== 'introduction') {
-        //tocEl.scrollIntoView();
-        //tableOfContentsEl.parentElement.scrollTop -= 40;
-        //} else {
-        //tableOfContentsEl.parentElement.scrollTop = 0;
-        //}
+        tocEl.classList.add('active')
+
+        // update nav on desktop
+        if (window.innerWidth >= 860) {
+          gridTocEl.scrollTo({ top: tocEl.getBoundingClientRect().top + gridTocEl.scrollTop - PADDING_TOP, behavior: 'smooth'})
+        }
         return;
       }
     }

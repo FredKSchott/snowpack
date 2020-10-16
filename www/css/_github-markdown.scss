@@ -83,7 +83,7 @@
 }
 
 .markdown-body .pl-c2:before {
-  content: "^M";
+  content: '^M';
 }
 
 .markdown-body .pl-sr .pl-cce {
@@ -174,7 +174,7 @@
 
 .markdown-body h1 {
   font-size: 2em;
-  margin: .67em 0;
+  margin: 0.67em 0;
 }
 
 .markdown-body img {
@@ -196,7 +196,7 @@
   overflow: visible;
 }
 
-.markdown-body [type=checkbox] {
+.markdown-body [type='checkbox'] {
   box-sizing: border-box;
   padding: 0;
 }
@@ -234,13 +234,13 @@
 }
 
 .markdown-body hr:before {
-  content: "";
+  content: '';
   display: table;
 }
 
 .markdown-body hr:after {
   clear: both;
-  content: "";
+  content: '';
   display: table;
 }
 
@@ -353,7 +353,6 @@
   margin-left: 0;
 }
 
-
 .markdown-body input::-webkit-inner-spin-button,
 .markdown-body input::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -362,114 +361,114 @@
 }
 
 .markdown-body .border {
-  border: 1px solid #e1e4e8!important;
+  border: 1px solid #e1e4e8 !important;
 }
 
 .markdown-body .border-0 {
-  border: 0!important;
+  border: 0 !important;
 }
 
 .markdown-body .border-bottom {
-  border-bottom: 1px solid #e1e4e8!important;
+  border-bottom: 1px solid #e1e4e8 !important;
 }
 
 .markdown-body .rounded-1 {
-  border-radius: 3px!important;
+  border-radius: 3px !important;
 }
 
 .markdown-body .bg-white {
-  background-color: #fff!important;
+  background-color: #fff !important;
 }
 
 .markdown-body .bg-gray-light {
-  background-color: #fafbfc!important;
+  background-color: #fafbfc !important;
 }
 
 .markdown-body .text-gray-light {
-  color: #6a737d!important;
+  color: #6a737d !important;
 }
 
 .markdown-body .mb-0 {
-  margin-bottom: 0!important;
+  margin-bottom: 0 !important;
 }
 
 .markdown-body .my-2 {
-  margin-bottom: 8px!important;
-  margin-top: 8px!important;
+  margin-bottom: 8px !important;
+  margin-top: 8px !important;
 }
 
 .markdown-body .pl-0 {
-  padding-left: 0!important;
+  padding-left: 0 !important;
 }
 
 .markdown-body .py-0 {
-  padding-bottom: 0!important;
-  padding-top: 0!important;
+  padding-bottom: 0 !important;
+  padding-top: 0 !important;
 }
 
 .markdown-body .pl-1 {
-  padding-left: 4px!important;
+  padding-left: 4px !important;
 }
 
 .markdown-body .pl-2 {
-  padding-left: 8px!important;
+  padding-left: 8px !important;
 }
 
 .markdown-body .py-2 {
-  padding-bottom: 8px!important;
-  padding-top: 8px!important;
+  padding-bottom: 8px !important;
+  padding-top: 8px !important;
 }
 
 .markdown-body .pl-3,
 .markdown-body .px-3 {
-  padding-left: 16px!important;
+  padding-left: 16px !important;
 }
 
 .markdown-body .px-3 {
-  padding-right: 16px!important;
+  padding-right: 16px !important;
 }
 
 .markdown-body .pl-4 {
-  padding-left: 24px!important;
+  padding-left: 24px !important;
 }
 
 .markdown-body .pl-5 {
-  padding-left: 32px!important;
+  padding-left: 32px !important;
 }
 
 .markdown-body .pl-6 {
-  padding-left: 40px!important;
+  padding-left: 40px !important;
 }
 
 .markdown-body .f6 {
-  font-size: 12px!important;
+  font-size: 12px !important;
 }
 
 .markdown-body .lh-condensed {
-  line-height: 1.25!important;
+  line-height: 1.25 !important;
 }
 
 .markdown-body .text-bold {
-  font-weight: 600!important;
+  font-weight: 600 !important;
 }
 
 .markdown-body:before {
-  content: "";
+  content: '';
   display: table;
 }
 
 .markdown-body:after {
   clear: both;
-  content: "";
+  content: '';
   display: table;
 }
 
-.markdown-body>:first-child {
-  margin-top: 0!important;
+.markdown-body > :first-child {
+  margin-top: 0 !important;
 }
 
-.markdown-body>:last-child {
-  margin-bottom: 0!important;
+.markdown-body > :last-child {
+  margin-bottom: 0 !important;
 }
 
 .markdown-body a:not([href]) {
@@ -490,22 +489,22 @@
 .markdown-body hr {
   background-color: #e1e4e8;
   border: 0;
-  height: .25em;
+  height: 0.25em;
   margin: 24px 0;
   padding: 0;
 }
 
 .markdown-body blockquote {
-  border-left: .25em solid #dfe2e5;
+  border-left: 0.25em solid #dfe2e5;
   color: #6a737d;
   padding: 0 1em;
 }
 
-.markdown-body blockquote>:first-child {
+.markdown-body blockquote > :first-child {
   margin-top: 0;
 }
 
-.markdown-body blockquote>:last-child {
+.markdown-body blockquote > :last-child {
   margin-bottom: 0;
 }
 
@@ -542,7 +541,7 @@
 .markdown-body h1,
 .markdown-body h2 {
   /* border-bottom: 1px solid #eaecef; */
-  padding-bottom: .3em;
+  padding-bottom: 0.3em;
 }
 
 .markdown-body h1 {
@@ -564,12 +563,12 @@
 }
 
 .markdown-body h5 {
-  font-size: .875em;
+  font-size: 0.875em;
 }
 
 .markdown-body h6 {
   color: #6a737d;
-  font-size: .85em;
+  font-size: 0.85em;
 }
 
 .markdown-body ol,
@@ -589,12 +588,12 @@
   word-wrap: break-all;
 }
 
-.markdown-body li>p {
+.markdown-body li > p {
   margin-top: 16px;
 }
 
-.markdown-body li+li {
-  margin-top: .25em;
+.markdown-body li + li {
+  margin-top: 0.25em;
 }
 
 .markdown-body img {
@@ -603,14 +602,13 @@
   max-width: 100%;
 }
 
-.markdown-body img[align=right] {
+.markdown-body img[align='right'] {
   padding-left: 20px;
 }
 
-.markdown-body img[align=left] {
+.markdown-body img[align='left'] {
   padding-right: 20px;
 }
-
 
 .markdown-body iframe {
   max-width: 100%;
