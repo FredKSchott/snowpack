@@ -33,7 +33,6 @@ output itself here.
 */
 
 const ERROR_OVERLAY_TEMPLATE = `
-<template id="snowpack-error-overlay">
     <style>
           :host {
             all: initial;
@@ -886,11 +885,10 @@ const ERROR_OVERLAY_TEMPLATE = `
     </p>
     <hr><pre>Loading...</pre></div>
     </div></div></div></div>
-</template>`;
+`;
 
-var wrapper = document.createElement('div');
-wrapper.innerHTML = ERROR_OVERLAY_TEMPLATE;
-document.body.appendChild(wrapper);
+const template = document.createElement('template');
+template.innerHTML = ERROR_OVERLAY_TEMPLATE;
 
 customElements.define('hmr-error-overlay', class HmrErrorOverlay extends HTMLElement {
   constructor({ title, errorMessage, fileLoc, errorStackTrace }) {
@@ -900,7 +898,6 @@ customElements.define('hmr-error-overlay', class HmrErrorOverlay extends HTMLEle
     this.fileLoc = fileLoc;
     this.errorStackTrace = errorStackTrace;
     this.sr = this.attachShadow({ mode: 'open' });
-    const template = document.getElementById('snowpack-error-overlay');
     this.sr.appendChild(template.content.cloneNode(true));
     this.close = this.close.bind(this);
   }
