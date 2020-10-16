@@ -1,6 +1,6 @@
 {
   "name": "snowpack",
-  "version": "2.14.0",
+  "version": "2.14.1",
   "description": "The ESM-powered frontend build tool. Fast, lightweight, unbundled.",
   "author": "Fred K. Schott <fkschott@gmail.com>",
   "license": "MIT",
@@ -26,8 +26,8 @@
     "snowpack": "index.bin.js"
   },
   "dependencies": {
-    "@snowpack/plugin-build-script": "^2.0.9",
-    "@snowpack/plugin-run-script": "^2.1.5",
+    "@snowpack/plugin-build-script": "^2.0.10",
+    "@snowpack/plugin-run-script": "^2.1.6",
     "cacache": "^15.0.0",
     "cachedir": "^2.3.0",
     "chokidar": "^3.4.0",

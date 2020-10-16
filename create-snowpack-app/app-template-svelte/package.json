@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/app-template-svelte",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-svelte#readme",
   "repository": {
@@ -23,14 +23,14 @@
     "svelte": "^3.24.0"
   },
   "devDependencies": {
-    "@snowpack/app-scripts-svelte": "^1.8.8",
+    "@snowpack/app-scripts-svelte": "^1.8.9",
     "@snowpack/plugin-dotenv": "^2.0.3",
-    "@snowpack/plugin-run-script": "^2.1.5",
-    "@snowpack/plugin-svelte": "^2.2.0",
+    "@snowpack/plugin-run-script": "^2.1.6",
+    "@snowpack/plugin-svelte": "^3.0.0",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/svelte": "^3.0.0",
     "jest": "^26.2.2",
-    "snowpack": "^2.14.0",
+    "snowpack": "^2.14.1",
     "svelte-check": "^1.0.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
