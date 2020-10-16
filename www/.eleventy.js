@@ -8,7 +8,6 @@ const {DateTime} = require('luxon');
 // const pluginSyntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 
 module.exports = function (eleventyConfig) {
-  eleventyConfig.addPassthroughCopy(path.join(__dirname, 'css'));
   eleventyConfig.addPassthroughCopy(path.join(__dirname, 'img'));
   eleventyConfig.addPassthroughCopy(path.join(__dirname, 'assets'));
   eleventyConfig.addPassthroughCopy(path.join(__dirname, 'favicon'));
@@ -113,7 +112,7 @@ module.exports = function (eleventyConfig) {
     watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
     watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
   }
-  
+
   return {
     // templateFormats: [
     //   "md",

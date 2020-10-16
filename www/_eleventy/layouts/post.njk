@@ -27,415 +27,85 @@
     <meta property="twitter:description" content="{{description}}">
     <meta property="twitter:image" content="https://www.snowpack.dev/img/social-4.jpg">
 
-    <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
-
+    <!-- Global Stylesheets -->
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/app.min.css" />
     <style>
-      /*! minireset.css v0.0.6 | MIT License | github.com/jgthms/minireset.css */html,body,p,ol,ul,li,dl,dt,dd,blockquote,figure,fieldset,legend,textarea,pre,iframe,hr,h1,h2,h3,h4,h5,h6{margin:0;padding:0}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal}ul{list-style:none}button,input,select,textarea{margin:0}html{box-sizing:border-box}*,*::before,*::after{box-sizing:inherit}img,video{height:auto;max-width:100%}iframe{border:0}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}td:not([align]),th:not([align]){text-align:left}
-    </style>
-    <link rel="stylesheet" href="/css/github-markdown.css" >
-    <link href="/css/prism.css" rel="stylesheet" />
+      .grid-body-header {
+        margin: 5rem 1rem;
+        color: white;
+        text-align: center;
+        font-size: 18px;
+      }
 
+      .markdown-body img, .markdown-body iframe {
+        box-shadow: 0px 5px 12px 0 #CCC;
+        border-radius: 3px;
+        max-width: 130%;
+        margin-left: -15%;
+        margin-right: -15%;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+      }
 
-    <style>
+      .markdown-body table td:nth-child(1) {
+        white-space: nowrap;
+      }
 
-html, body, .markdown-body {
-  font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji; 
-}
-.header-logo, .grid-body-header,
-.header-snowpack-subtitle, .notification, .markdown-body h1, .markdown-body h2, .markdown-body h3, .pretty-font, .toc {
-  font-family: 'Overpass', sans-serif;
-}
-.markdown-body h2 {
-  font-size: 1.8em;
-  margin-top: 0;
-  padding-top: 48px;
-}
-.markdown-body h3 {
-  margin-top: 0;
-  padding-top: 48px;
-}
-.markdown-body h4 {
-  margin-top: 0;
-  padding-top: 24px;
-  text-transform: uppercase;
-  text-decoration: none;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
-.markdown-body h2 + h3 {
-  padding-top: 0px;
-}
-h2 code, h3 code, h4 code {
-    font-size: inherit;
-}
-.markdown-body pre {
-    padding: 2rem;
-}
+      .grid-body {
+        padding: 4rem 0;
+      }
 
-.subtitle {
-  display: block;
-  padding: 0.75em;
-  color: #888;
-  text-align: center;
-}
-.button {
-  display: inline-block;
-  zoom: 1;
-  line-height: normal;
-  white-space: nowrap;
-  vertical-align: middle;
-  text-align: center;
-  cursor: pointer;
-  user-select: none;
-  box-sizing: border-box;   
-  font-family: inherit;
-  font-size: 100%;
-  padding: .5em 1.5em;
-  text-decoration: none;
-  border-radius: 2px;
-  color: #fff;
-  font-size: 22px;
-  background: linear-gradient(45deg, #24bf62, #267dd6, #b224d0);
-  font-family: 'Overpass', sans-serif;
-  font-weight: bold;
-  box-shadow: 0 1px 3px 0 #2e5e82;
-  width: 100%;
-}
+      .grid-body-header h1 {
+        margin-bottom: 1rem;
+        margin-top: 1rem;
+      }
 
+      .markdown-body,
+      .fbody-header {
+        max-width: 780px;
+      }
 
-.header-link {
-  padding-left: 2px;
-}
-.grid-body-header {
-  margin: 5rem 1rem;
-  color: white;
-  text-align: center;
-  font-size: 18px;
-}
-.grid-body-header > p {
-  color: white;
-  font-weight: bold;
-}
-.grid-body-header a {
-  color: white;
-}
+      .markdown-body {
+        font-size: 18px;
+        margin-bottom: 20vh;
+      }
 
-.grid-body-header > svg {
-  margin: auto;
-  display: block;
-}
-.header-snowpack {
-  letter-spacing: -0.045em;
-  font-size: 5.75rem;
-  font-weight: 900;
-  margin: -0.5rem auto 0;
-}
-.header-snowpack-subtitle {
-  text-align: center;
-  font-size: 2.73rem;
-  font-weight: normal;
-  line-height: 1.1;
-  max-width: 424px;
-  margin: auto;
-}
-.header-code {
-  font-size: 1.6rem;
-  max-width: 424px;
-  background: #EEEEEE;
-  background: linear-gradient(45deg, #2FCC6E66,  #0e8bec66, #be2edd66);
-  border-radius: 6px;
-  box-shadow: 0 1px 3px 0 #2e5e82;
-  padding: 1rem;
-  margin: 1.5rem auto;
-  font-weight: bold;
-}
+      .markdown-body h2 {
+        font-size: 1.8em;
+      }
 
+      #background-image {
+        image-rendering: pixelated;
+        filter: brightness(0.72);
+      }
 
-.markdown-body h2 .header-link, .markdown-body h3 .header-link {
-  margin-left: 8px;
-  opacity: 0;
-  transition: opacity 100ms ease-in-out;
-}
-.markdown-body h3:hover .header-link {
-  opacity: 1;
-} 
+      @media (max-width: 860px) {
+        .markdown-body, .toc {
+          padding: 1em;
+        }
+      }
 
-.markdown-body ul {
-  list-style: initial;
-}
-.markdown-body ul > li > ul {
-    list-style: none;
-    border-left: 3px solid #99D;
-    padding: 0.5rem 1rem 0.6rem;
-    margin: 0.5rem 0;
-    border-left: 6px solid #2e5e82;
-    background: #258ad622;
-}
-.markdown-body img, .markdown-body iframe {
-  box-shadow: 0px 5px 12px 0 #CCC;
-  border-radius: 3px;
-  max-width: 130%;
-  margin-left: -15%;
-  margin-right: -15%;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
-.notification {
-    padding: 1rem 1.5rem;
-    margin: 2rem 0;
-    position: relative;
-    border-left: 6px solid #2e5e82;
-    background:  #258ad622;
-    font-size: 20px;
-    line-height: 1.4;
-
-}
-.grid-toc-buttons {
-  flex-grow: 1;
-  background: #457396;
-  background: #2e5e82;
-  padding: 0.5rem 0.5rem;
-}
-.grid-toc-buttons svg,
-.grid-toc-buttons img {
-  height: 28px;
-  width: 28px;
-  padding: 4px;
-  display: inline-block;
-  color: #FFFB;
-}
-.grid-toc-buttons svg:hover {
-  color: #fff;
-}
-.grid-toc-buttons img {
-  filter: grayscale(90%);
-}
-.grid-toc-buttons img:hover {
-  filter: none;
-}
-.grid-toc-buttons a.header-logo {
-    float: left;
-    display: flex;
-    align-items: center;
-    font-weight: bold;
-    font-size: 22px;
-    line-height: 1;
-}
-.grid-toc-buttons a.header-logo svg {
-  color: #ffF;
-  padding: 0;
-  margin-left: 2px;
-  margin-right: 8px;
-}
-.grid-toc-buttons a {
-  float: right;
-  color: white;
-  text-decoration: none;
-}
-
-* {
-	position: relative;
-	box-sizing: border-box;
-}
-
-html, body {
-  height: 100%;
-}
-
-body {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-}
-
-.grid-extra-space {
-  position: relative;
-  height: 470px;
-  overflow: hidden;
-  background: #ffffff;
-   /*background: 
-    linear-gradient(to right, #0002, #0000 10px),
-    linear-gradient(to right, #94b1bf00, #94b1bf);
-    url('/img/extra-space-4.jpg') center;  */
-  background-size: cover;
-  background: url('/img/extra-space.png') center; 
-}
-.grid-extra-space video,
-.grid-extra-space img {
-  position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.grid-extra-space .image-attribution {
-    background: #FFF9;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    text-align: center;
-  text-align: right;
-    z-index: 100;
-    letter-spacing: 0;
-    padding: 0.5rem 0.75rem;
-    font-size: 15px;
-    border-radius: 4px;
-}
-.grid-extra-space .image-attribution a {
-    font-weight: 600;
-    color: black;
-}
-
-.markdown-body table td:nth-child(1) {
-  white-space: nowrap;
-}
-
-.toc {
-  padding: 2rem 3rem 0.25rem;
-  background: #2e5e82;
-  min-height: 100%;
-}
-.toc a {
-  position: relative;
-  text-decoration: none;
-  color: #FFFB;
-}
-.toc a:before {
-  content: '▸';
-  position: absolute;
-  opacity: 0;
-  left: -19px;
-  top: -4px;
-  font-weight: normal;
-  transition: left 140ms ease-out;
-
-}
-
-.toc a:hover {
-  text-decoration: underline;
-}
-.toc a.active {
-  color: #fff;
-  font-weight: bold;
-  text-decoration: underline;
-}
-.toc a.active:before {
-  opacity: 1;
-  left: -17px;
-}
-
-.toc ol {
-  list-style: none;
-  line-height: 1.8;
-  margin-bottom: 3rem;
-}
-.toc > ol > li {
-  font-weight: bold;
-  text-transform: uppercase;
-}
-.toc > ol > li > a {
-  color: #FFF;
-}
-.toc > ol > li > ol {
-  padding: 0 1em 0em 1em;
-  font-weight: normal;
-  text-transform: none;
-}
-
-.twitter-tweet {
-  margin: auto;
-  margin-top: 2.5rem !important;
-  margin-bottom: 2.5rem !important;
-}
-.grid-body {
-  margin: auto;
-  max-width: 780px;
-  background: white;
-  padding: 3rem 3em;
-}
-.grid-toc-buttons {
-  height: 44px;
-}
-.markdown-body,
-.fbody-header {
-  max-width: 780px;
-}
-.markdown-body {
-  font-size: 18px;
-  margin-bottom: 20vh;
-}
-.github-button {
-  display: none;
-}
-
-    .highlight-red {
-      color: #2ecc71;
-    }
-    .highlight-yellow {
-      color: #be2edd;
-    }
-    .highlight-green {
-      color: #0c8cec;
-    }
-
-#toc-logo {
-  display: inline-block;
-}
-#toc-drawer-button {
-  display: none;
-}
-#background-image {
-  image-rendering: pixelated;
-  filter: brightness(0.72);
-}
-  .visible-mobile {display: none; }
-
-@media (max-width: 860px) {
-  body {
-    grid-template-columns: 280px 1fr;
-  }
-  .markdown-body, .toc {
-    padding: 1em;
-  }
-}
-@media (max-width: 740px) {
-.markdown-body img, .markdown-body iframe {
-  max-width: 108%;
-  margin-left: -4%;
-  margin-right: -4%;
-}
-  .grid-toc  { 
-    position: fixed;
-    top: 44px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 0;
-    width: 100%;
-    overflow: auto;
-    z-index: 100;
-   }
-  .grid-body {
-    overflow: hidden;
-    padding: 20px 0 0 0;
-    margin-left: 0;
-  }
-  .visible-mobile {display: initial; }
-  .hidden-mobile {display: none; }
-  .version-tag {display: none; }
-  #toc-drawer-button {
-    display: inline-block;
-  }
-  .header-snowpack {
-    font-size: 3.5rem;
-    text-align: center;
-  }
-  .markdown-body h1 {
-    font-size: 3.5em;
-  }
-  .markdown-body h3 .header-link {
-    opacity: 1;
-  } 
-}
-
-
+      @media (max-width: 740px) {
+        .markdown-body img, .markdown-body iframe {
+          max-width: 108%;
+          margin-left: -4%;
+          margin-right: -4%;
+        }
+        .grid-body {
+          padding: 20px 0 0 0;
+        }
+        .header-snowpack {
+          font-size: 3.5rem;
+          text-align: center;
+        }
+        .markdown-body h1 {
+          font-size: 3.5em;
+        }
+        .markdown-body h3 .header-link {
+          opacity: 1;
+        }
+      }
     </style>
   </head>
   <body>
@@ -469,7 +139,7 @@ body {
       {% endif %}
 
 
-      
+
 
       <div class="grid-body-header">
         <svg height="80px" style="padding-left: 8px;" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
