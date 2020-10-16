@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/web-test-runner-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "plugin.js",
   "license": "MIT",
   "publishConfig": {
@@ -11,7 +11,7 @@
     "snowpack": "^2.13.0"
   },
   "dependencies": {
-    "snowpack": "^2.14.1"
+    "snowpack": "^2.14.2"
   },
   "devDependencies": {
     "@web/test-runner": "^0.9.0"
