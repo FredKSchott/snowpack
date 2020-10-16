@@ -10,9 +10,7 @@
     "@web/test-runner": "^0.9.0",
     "snowpack": "^2.13.0"
   },
-  "dependencies": {
-    "snowpack": "^2.14.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@web/test-runner": "^0.9.0"
   },
