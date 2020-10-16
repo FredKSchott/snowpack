@@ -224,7 +224,7 @@ class FileBuilder {
         // in the final build, so we mark them to be written to disk at the next step.
         if (isProxyImport) {
           if (isAbsoluteUrlPath) {
-            this.filesToProxy.push(path.resolve(this.config.devOptions.out, resolvedImportPath));
+            this.filesToProxy.push(path.resolve(this.config.buildOptions.out, resolvedImportPath));
           } else {
             this.filesToProxy.push(path.resolve(path.dirname(outLoc), resolvedImportPath));
           }
@@ -239,7 +239,7 @@ class FileBuilder {
         if (isAbsoluteUrlPath) {
           resolvedImportUrl = relativeURL(
             path.dirname(outLoc),
-            path.resolve(this.config.devOptions.out, resolvedImportPath),
+            path.resolve(this.config.buildOptions.out, resolvedImportPath),
           );
         }
         // Make sure that a relative URL always starts with "./"
@@ -264,7 +264,7 @@ class FileBuilder {
   async getProxy(originalFileLoc: string) {
     const proxiedCode = this.output[originalFileLoc];
     const proxiedUrl = originalFileLoc
-      .substr(this.config.devOptions.out.length)
+      .substr(this.config.buildOptions.out.length)
       .replace(/\\/g, '/');
     return wrapImportProxy({
       url: proxiedUrl,
@@ -293,7 +293,7 @@ export async function command(commandOptions: CommandOptions) {
     }
   }
 
-  const buildDirectoryLoc = config.devOptions.out;
+  const buildDirectoryLoc = config.buildOptions.out;
   const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaDir);
 
   if (config.buildOptions.clean) {

@@ -45,7 +45,6 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     hostname: 'localhost',
     port: 8080,
     open: 'default',
-    out: 'build',
     output: 'dashboard',
     fallback: 'index.html',
     hmrDelay: 0,
@@ -53,6 +52,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
     hmrErrorOverlay: true,
   },
   buildOptions: {
+    out: 'build',
     baseUrl: '/',
     webModulesUrl: '/web_modules',
     clean: false,
@@ -93,7 +93,6 @@ const configSchema = {
       properties: {
         secure: {type: 'boolean'},
         port: {type: 'number'},
-        out: {type: 'string'},
         fallback: {type: 'string'},
         bundle: {type: 'boolean'},
         open: {type: 'string'},
@@ -143,6 +142,7 @@ const configSchema = {
     buildOptions: {
       type: ['object'],
       properties: {
+        out: {type: 'string'},
         baseUrl: {type: 'string'},
         clean: {type: 'boolean'},
         metaDir: {type: 'string'},
@@ -560,11 +560,17 @@ function normalizeAlias(config: SnowpackConfig, cwd: string, createMountAlias: b
 function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
   const cwd = process.cwd();
   config.knownEntrypoints = (config as any).install || [];
-  config.devOptions.out = path.resolve(cwd, config.devOptions.out);
+  // @ts-ignore
+  if (config.devOptions.out) {
+    logger.debug('`devOptions.out` is now `buildOptions.out`! `devOptions.out` will be deprecated in the next major release.');
+  };
+  // @ts-ignore
+  const outDir = config.buildOptions.out || config.devOptions.out;
+  config.buildOptions.out = path.resolve(cwd, outDir);
   config.installOptions.rollup = config.installOptions.rollup || {};
   config.installOptions.rollup.plugins = config.installOptions.rollup.plugins || [];
   config.exclude = Array.from(
-    new Set([...ALWAYS_EXCLUDE, `${config.devOptions.out}/**/*`, ...config.exclude]),
+    new Set([...ALWAYS_EXCLUDE, `${outDir}/**/*`, ...config.exclude]),
   );
 
   if (!config.proxy) {

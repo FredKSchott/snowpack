@@ -15,12 +15,12 @@ exports[`snowpack build config-out: build/package.json 1`] = `
   \\"private\\": true,
   \\"version\\": \\"1.0.1\\",
   \\"name\\": \\"@snowpack/test-config-out\\",
-  \\"description\\": \\"Test for devOptions.out\\",
+  \\"description\\": \\"Test for buildOptions.out\\",
   \\"scripts\\": {
     \\"testbuild\\": \\"snowpack build\\"
   },
   \\"snowpack\\": {
-    \\"devOptions\\": {
+    \\"buildOptions\\": {
       \\"out\\": \\"TEST_BUILD_OUT\\"
     },
     \\"exclude\\": [

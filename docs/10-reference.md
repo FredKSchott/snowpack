@@ -176,8 +176,6 @@ Options:
 
 - **`devOptions.port`** | `number` | Default: `8080`
   - The port number to run the dev server on.
-- **`devOptions.out`** | `string` | Default: `"build"`
-  - The local directory that we output your final build to.
 - **`devOptions.bundle`** | `boolean`
   - Create an optimized, bundled build for production.
   - You must have [Parcel](https://parceljs.org/) as a dev dependency in your project.
@@ -198,6 +196,9 @@ Options:
   - When HMR is enabled, toggles whether or not a browser overlay should display javascript errors.
 - **`devOptions.secure`** | `boolean`
   - Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
+- **`devOptions.out`** | `string` | Default: `"build"`
+  - _NOTE:_ Deprecated, see `buildOptions.out`.
+  - The local directory that we output your final build to.
 
 #### `config.buildOptions`
 
@@ -218,6 +219,8 @@ buildOptions: {
 
 Options:
 
+- **`buildOptions.out`** | `string` | Default: `"build"`
+  - The local directory that we output your final build to.
 - **`buildOptions.baseUrl`** | `string` | Default: `/`
   - In your HTML, replace all instances of `%PUBLIC_URL%` with this (inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept). This is useful if your app will be deployed to a subdirectory. _Note: if you have `homepage` in your `package.json`, Snowpack will actually pick up on that, too._
 - **`buildOptions.clean`** | `boolean` | Default: `false`

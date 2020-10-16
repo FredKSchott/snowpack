@@ -135,7 +135,6 @@ export interface SnowpackConfig {
     secure: boolean;
     hostname: string;
     port: number;
-    out: string;
     fallback: string;
     open: string;
     output: 'stream' | 'dashboard';
@@ -146,6 +145,7 @@ export interface SnowpackConfig {
   };
   installOptions: InstallOptions;
   buildOptions: {
+    out: string;
     baseUrl: string;
     webModulesUrl: string;
     clean: boolean;
