@@ -268,7 +268,7 @@ img.company-logo {
   position: fixed;
   top: 0;
   z-index: 100;
-  width: 100vw;
+  width: 100%;
 
   @media (min-width: $breakpoint-m) {
     position: sticky;
