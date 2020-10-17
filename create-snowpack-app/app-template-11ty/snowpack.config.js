@@ -3,15 +3,13 @@ module.exports = {
     /* ... */
   ],
   plugins: [
-    '@snowpack/plugin-react-refresh',
-    '@snowpack/plugin-dotenv',
-    '@snowpack/plugin-typescript',
+    ['@snowpack/plugin-run-script', { cmd: 'eleventy', watch: '$1 --watch' }],
   ],
   installOptions: {
     /* ... */
   },
   devOptions: {
-    /* ... */
+    hmrDelay: 300,
   },
   buildOptions: {
     /* ... */
@@ -20,7 +18,7 @@ module.exports = {
     /* ... */
   },
   mount: {
-    public: '/',
+    _output: '/',
     src: '/_dist_',
   },
   alias: {

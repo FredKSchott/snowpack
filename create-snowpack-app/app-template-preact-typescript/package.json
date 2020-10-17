@@ -1,5 +1,6 @@
 {
   "name": "@snowpack/app-template-preact-typescript",
+  "description": "A preconfigured template for Snowpack with Preact and Typescript",
   "version": "1.1.3",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-preact-typescript#readme",

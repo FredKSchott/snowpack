@@ -2,13 +2,9 @@ module.exports = {
   install: [
     /* ... */
   ],
-  plugins: [
-    '@snowpack/plugin-react-refresh',
-    '@snowpack/plugin-dotenv',
-    '@snowpack/plugin-typescript',
-  ],
+  plugins: ['@snowpack/plugin-typescript'],
   installOptions: {
-    /* ... */
+    installTypes: true,
   },
   devOptions: {
     /* ... */

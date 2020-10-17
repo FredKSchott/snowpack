@@ -1,5 +1,6 @@
 {
   "name": "@snowpack/app-template-svelte-typescript",
+  "description": "A preconfigured template for Snowpack with Svelte and TypeScript",
   "version": "1.11.3",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-svelte-typescript#readme",
