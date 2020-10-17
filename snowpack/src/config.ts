@@ -839,16 +839,23 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     loaders: {
       '.ts': (configPath) => {
         const outPath = path.join(os.tmpdir(), '.snowpack.config.cjs');
-        esbuild.buildSync({
-          entryPoints: [configPath],
-          outfile: outPath,
-          bundle: true,
-          platform: 'node',
-        });
 
-        const exported = require(outPath);
+        try {
+          esbuild.buildSync({
+            entryPoints: [configPath],
+            outfile: outPath,
+            bundle: true,
+            platform: 'node',
+          });
 
-        return exported.default || exported;
+          const exported = require(outPath);
+          return exported.default || exported;
+        } catch (error) {
+          logger.error(
+            'Warning: TypeScript config file support is still experimental. Consider moving to JavaScript if you continue to have problems.',
+          );
+          throw error;
+        }
       },
     },
     // don't support crawling up the folder tree:
