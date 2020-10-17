@@ -1,11 +1,15 @@
 module.exports = {
-  install: [
-    /* ... */
-  ],
+  mount: {
+    public: '/',
+    src: '/_dist_',
+  },
   plugins: [
     '@snowpack/plugin-babel',
     '@snowpack/plugin-dotenv',
     '@snowpack/plugin-typescript',
+  ],
+  install: [
+    /* ... */
   ],
   installOptions: {
     /* ... */
@@ -18,10 +22,6 @@ module.exports = {
   },
   proxy: {
     /* ... */
-  },
-  mount: {
-    public: '/',
-    src: '/_dist_',
   },
   alias: {
     /* ... */

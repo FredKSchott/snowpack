@@ -1,8 +1,12 @@
 module.exports = {
+  mount: {
+    public: '/',
+    src: '/_dist_',
+  },
+  plugins: ['@snowpack/plugin-typescript'],
   install: [
     /* ... */
   ],
-  plugins: ['@snowpack/plugin-typescript'],
   installOptions: {
     installTypes: true,
   },
@@ -14,10 +18,6 @@ module.exports = {
   },
   proxy: {
     /* ... */
-  },
-  mount: {
-    public: '/',
-    src: '/_dist_',
   },
   alias: {
     /* ... */

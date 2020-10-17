@@ -1,8 +1,12 @@
 module.exports = {
+  mount: {
+    public: '/',
+    src: '/_dist_',
+  },
+  plugins: ['@snowpack/plugin-babel', '@snowpack/plugin-dotenv'],
   install: [
     /* ... */
   ],
-  plugins: ['@snowpack/plugin-babel', '@snowpack/plugin-dotenv'],
   installOptions: {
     /* ... */
   },
@@ -14,10 +18,6 @@ module.exports = {
   },
   proxy: {
     /* ... */
-  },
-  mount: {
-    public: '/',
-    src: '/_dist_',
   },
   alias: {
     /* ... */

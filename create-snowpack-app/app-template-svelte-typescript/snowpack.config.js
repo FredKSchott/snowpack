@@ -1,7 +1,8 @@
 module.exports = {
-  install: [
-    /* ... */
-  ],
+  mount: {
+    public: '/',
+    src: '/_dist_',
+  },
   plugins: [
     '@snowpack/plugin-svelte',
     '@snowpack/plugin-dotenv',
@@ -10,6 +11,9 @@ module.exports = {
       '@snowpack/plugin-run-script',
       {cmd: 'svelte-check --output human', watch: '$1 --watch', output: 'stream'},
     ],
+  ],
+  install: [
+    /* ... */
   ],
   installOptions: {
     /* ... */
@@ -22,10 +26,6 @@ module.exports = {
   },
   proxy: {
     /* ... */
-  },
-  mount: {
-    public: '/',
-    src: '/_dist_',
   },
   alias: {
     /* ... */
