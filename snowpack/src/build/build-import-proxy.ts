@@ -205,19 +205,20 @@ export async function wrapImportProxy({
   hmr: boolean;
   config: SnowpackConfig;
 }) {
-  const {baseExt, expandedExt} = getExt(url);
 
-  if (typeof code === 'string') {
-    if (baseExt === '.json') {
-      return generateJsonImportProxy({code, hmr, config});
-    }
+  for (const ext of getExt(url)) {
+    if (typeof code === 'string') {
+      if (ext.endsWith('.json')) {
+        return generateJsonImportProxy({code, hmr, config});
+      }
 
-    if (baseExt === '.css') {
-      // if proxying a CSS file, remove its source map (the path no longer applies)
-      const sanitized = code.replace(/\/\*#\s*sourceMappingURL=[^/]+\//gm, '');
-      return expandedExt.endsWith('.module.css')
-        ? generateCssModuleImportProxy({url, code: sanitized, hmr, config})
-        : generateCssImportProxy({code: sanitized, hmr, config});
+      if (ext.endsWith('.css')) {
+        // if proxying a CSS file, remove its source map (the path no longer applies)
+        const sanitized = code.replace(/\/\*#\s*sourceMappingURL=[^/]+\//gm, '');
+        return ext.endsWith('.module.css')
+          ? generateCssModuleImportProxy({url, code: sanitized, hmr, config})
+          : generateCssImportProxy({code: sanitized, hmr, config});
+      }
     }
   }
 

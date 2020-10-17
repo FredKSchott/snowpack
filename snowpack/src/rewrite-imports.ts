@@ -91,13 +91,13 @@ export async function transformFileImports(
   {baseExt, contents}: SnowpackSourceFile<string>,
   replaceImport: (specifier: string) => string,
 ) {
-  if (baseExt === '.js') {
+  if (baseExt.endsWith('.js')) {
     return transformEsmImports(contents, replaceImport);
   }
-  if (baseExt === '.html') {
+  if (baseExt.endsWith('.html')) {
     return transformHtmlImports(contents, replaceImport);
   }
-  if (baseExt === '.css') {
+  if (baseExt.endsWith('.css')) {
     return transformCssImports(contents, replaceImport);
   }
   throw new Error(

@@ -313,18 +313,27 @@ export function isPackageAliasEntry(val: string): boolean {
 
 /** Get full extensions of files */
 export function getExt(fileName: string) {
-  return {
-    /** base extension (e.g. `.js`) */
-    baseExt: path.extname(fileName).toLocaleLowerCase(),
-    /** full extension, if applicable (e.g. `.proxy.js`) */
-    expandedExt: path.basename(fileName).replace(/[^.]+/, '').toLocaleLowerCase(),
-  };
+  const exts: string[] = [];
+  let current = '', mat;
+  while (mat = /\.[^.]*$/.exec(fileName)) {
+    current = mat[0] + current;
+    fileName = fileName.substr(0, mat.index);
+    exts.unshift(current);
+  }
+  return exts;
+}
+
+export function getLastExt(fileName: string) {
+  const mat = /\.[^.]*$/.exec(fileName);
+  return mat ? mat[0] : '';
 }
 
 /** Replace file extensions */
 export function replaceExt(fileName: string, oldExt: string, newExt: string): string {
-  const extToReplace = new RegExp(`\\${oldExt}$`, 'i');
-  return fileName.replace(extToReplace, newExt);
+  if (fileName.endsWith(oldExt)) {
+    fileName = fileName.substr(0, fileName.length - oldExt.length) + newExt;
+  }
+  return fileName;
 }
 
 /**

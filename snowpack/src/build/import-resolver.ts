@@ -3,7 +3,7 @@ import path from 'path';
 import url from 'url';
 import {ImportMap, SnowpackConfig} from '../types/snowpack';
 import {findMatchingAliasEntry, getExt, relativeURL, replaceExt} from '../util';
-import {defaultFileExtensionMapping} from './file-urls';
+import {tryPluginsResolveExt} from './file-urls';
 
 const cwd = process.cwd();
 
@@ -31,17 +31,11 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: S
     const trailingSlash = spec.endsWith('/') ? '' : '/';
     spec = spec + trailingSlash + 'index.js';
   }
-  // Transform the file extension (from input to output)
-  const {baseExt} = getExt(spec);
-  const extToReplace = config._extensionMap[baseExt] || defaultFileExtensionMapping[baseExt];
-  if (extToReplace) {
-    spec = replaceExt(spec, baseExt, extToReplace);
-  }
   // Lazy check to handle imports that are missing file extensions
   if (!stats && !spec.endsWith('.js') && !spec.endsWith('.css')) {
     spec = spec + '.js';
   }
-  return spec;
+  return tryPluginsResolveExt(config, spec);
 }
 
 /**

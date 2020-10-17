@@ -1,5 +1,6 @@
 import path from 'path';
-import {SnowpackConfig} from '../types/snowpack';
+import {SnowpackConfig, SnowpackPlugin} from '../types/snowpack';
+import {logger} from '../logger';
 import {getExt, replaceExt} from '../util';
 
 export const defaultFileExtensionMapping = {
@@ -23,6 +24,45 @@ export const defaultFileExtensionMapping = {
   '.less': '.css',
 };
 
+export function tryPluginsResolveExt(config: SnowpackConfig, filePath: string) {
+
+  const pluginResolveMultiple: string[] = [];
+  let lastExt = '';
+  let inputExt, outputExt;
+  for (const ext of getExt(filePath)) {
+    lastExt = ext;
+    if (inputExt) continue;
+    for (const plugin of config.plugins) {
+      if (!plugin.resolve) continue;
+      const pluginInput = plugin.resolve.input;
+      const pluginOutput = plugin.resolve.output;
+      if (!pluginInput.includes(ext)) continue;
+      if (pluginInput.length > 1) {
+        pluginResolveMultiple.push(`input (${pluginInput.join(', ')})`);
+      }
+      if (pluginOutput.length > 1) {
+        pluginResolveMultiple.push(`output (${pluginOutput.join(', ')})`);
+      }
+      if (pluginResolveMultiple.length) {
+        logger.debug(`Can't use plugin ${plugin.name} to resolve ${filePath}: Multiple extensions for ${pluginResolveMultiple.join(' and ')}`);
+        continue;
+      }
+      inputExt = ext;
+      outputExt = pluginOutput[0];
+      break;
+    }
+  }
+  if (!inputExt) {
+    inputExt = lastExt;
+    outputExt = config._extensionMap[lastExt] || defaultFileExtensionMapping[lastExt] || lastExt;
+  }
+  return replaceExt(
+    filePath,
+    inputExt,
+    outputExt,
+  );
+}
+
 /**
  * Map a file path to the hosted URL for a given "mount" entry.
  */
@@ -37,12 +77,10 @@ export function getUrlForFileMount({
   mountEntry: string;
   config: SnowpackConfig;
 }): string {
-  const {baseExt} = getExt(fileLoc);
   const resolvedDirUrl = mountEntry === '/' ? '' : mountEntry;
-  return replaceExt(
+  return tryPluginsResolveExt(
+    config,
     fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, '/'),
-    baseExt,
-    config._extensionMap[baseExt] || defaultFileExtensionMapping[baseExt] || baseExt,
   );
 }
 

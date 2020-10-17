@@ -7,7 +7,7 @@ import {
   SnowpackPlugin,
   PluginTransformResult,
 } from '../types/snowpack';
-import {getExt, readFile, replaceExt} from '../util';
+import {getExt, getLastExt, readFile, replaceExt} from '../util';
 import {SourceMapConsumer, SourceMapGenerator, RawSourceMap} from 'source-map';
 
 export interface BuildFileOptions {
@@ -20,14 +20,15 @@ export interface BuildFileOptions {
 
 export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
   const srcFile = replaceExt(fileLoc, '.map', ''); // if this is a .map file, try loading source
-  const {baseExt} = getExt(srcFile);
 
   const potentialInputs = new Set([srcFile]);
-  for (const plugin of plugins) {
-    if (plugin.resolve && plugin.resolve.output.includes(baseExt)) {
-      plugin.resolve.input.forEach((input) =>
-        potentialInputs.add(replaceExt(srcFile, baseExt, input)),
-      );
+  for (const ext of getExt(srcFile)) {
+    for (const plugin of plugins) {
+      if (plugin.resolve && plugin.resolve.output.includes(ext)) {
+        plugin.resolve.input.forEach((input) =>
+          potentialInputs.add(replaceExt(srcFile, ext, input)),
+        );
+      }
     }
   }
   return Array.from(potentialInputs);
@@ -46,66 +47,70 @@ async function runPipelineLoadStep(
   srcPath: string,
   {isDev, isSSR, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
-  const srcExt = getExt(srcPath).baseExt;
-  for (const step of plugins) {
-    if (!step.resolve || !step.resolve.input.includes(srcExt)) {
-      continue;
-    }
-    if (!step.load) {
-      continue;
-    }
-
-    try {
-      const debugPath = path.relative(process.cwd(), srcPath);
-      logger.debug(`load() starting… [${debugPath}]`, {name: step.name});
-      const result = await step.load({
-        fileExt: srcExt,
-        filePath: srcPath,
-        isDev,
-        isSSR,
-        isHmrEnabled,
-      });
-      logger.debug(`✔ load() success [${debugPath}]`, {name: step.name});
-
-      validatePluginLoadResult(step, result);
-
-      if (typeof result === 'string' || Buffer.isBuffer(result)) {
-        const mainOutputExt = step.resolve.output[0];
-        return {
-          [mainOutputExt]: {
-            code: result,
-          },
-        };
-      } else if (result && typeof result === 'object') {
-        Object.keys(result).forEach((ext) => {
-          const output = result[ext];
-
-          // normalize to {code, map} format
-          if (typeof output === 'string' || Buffer.isBuffer(output)) {
-            result[ext] = {code: output};
-          }
-
-          // ensure source maps are strings (it’s easy for plugins to pass back a JSON object)
-          if (result[ext].map && typeof result[ext].map === 'object')
-            result[ext].map = JSON.stringify(result[ext].map);
-
-          // if source maps disabled, don’t return any
-          if (!sourceMaps) result[ext].map = undefined;
-
-          // clean up empty files
-          if (!result[ext].code) delete result[ext];
-        });
-        return result;
+  let lastExt;
+  for (const srcExt of getExt(srcPath)) {
+    lastExt = srcExt;
+    for (const step of plugins) {
+      if (
+        !step.load ||
+        !step.resolve ||
+        !step.resolve.input.includes(srcExt)
+      ) {
+        continue;
       }
-    } catch (err) {
-      // Attach metadata detailing where the error occurred.
-      err.__snowpackBuildDetails = {name: step.name, step: 'load'};
-      throw err;
+
+      try {
+        const debugPath = path.relative(process.cwd(), srcPath);
+        logger.debug(`load() starting… [${debugPath}]`, {name: step.name});
+        const result = await step.load({
+          fileExt: srcExt,
+          filePath: srcPath,
+          isDev,
+          isSSR,
+          isHmrEnabled,
+        });
+        logger.debug(`✔ load() success [${debugPath}]`, {name: step.name});
+
+        validatePluginLoadResult(step, result);
+
+        if (typeof result === 'string' || Buffer.isBuffer(result)) {
+          const mainOutputExt = step.resolve.output[0];
+          return {
+            [mainOutputExt]: {
+              code: result,
+            },
+          };
+        } else if (result && typeof result === 'object') {
+          Object.keys(result).forEach((ext) => {
+            const output = result[ext];
+
+            // normalize to {code, map} format
+            if (typeof output === 'string' || Buffer.isBuffer(output)) {
+              result[ext] = {code: output};
+            }
+
+            // ensure source maps are strings (it’s easy for plugins to pass back a JSON object)
+            if (result[ext].map && typeof result[ext].map === 'object')
+              result[ext].map = JSON.stringify(result[ext].map);
+
+            // if source maps disabled, don’t return any
+            if (!sourceMaps) result[ext].map = undefined;
+
+            // clean up empty files
+            if (!result[ext].code) delete result[ext];
+          });
+          return result;
+        }
+      } catch (err) {
+        // Attach metadata detailing where the error occurred.
+        err.__snowpackBuildDetails = {name: step.name, step: 'load'};
+        throw err;
+      }
     }
   }
 
   return {
-    [srcExt]: {
+    [lastExt]: {
       code: await readFile(srcPath),
     },
   };
@@ -142,7 +147,7 @@ async function runPipelineTransformStep(
   srcPath: string,
   {isDev, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
-  const srcExt = getExt(srcPath).baseExt;
+  const srcExt = getLastExt(srcPath);
   const rootFilePath = srcPath.replace(srcExt, '');
   const rootFileName = path.basename(rootFilePath);
   for (const step of plugins) {

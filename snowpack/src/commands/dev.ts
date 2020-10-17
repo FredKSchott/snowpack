@@ -70,6 +70,7 @@ import {
   cssSourceMappingURL,
   DEV_DEPENDENCIES_DIR,
   getExt,
+  getLastExt,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
   jsSourceMappingURL,
@@ -437,9 +438,11 @@ export async function startServer(commandOptions: CommandOptions) {
     }
 
     let requestedFile = path.parse(reqPath);
-    let requestedFileExt = requestedFile.ext.toLowerCase();
-    let responseFileExt = requestedFileExt;
-    let isRoute = !requestedFileExt || requestedFileExt === '.html';
+    // let requestedFileExt = requestedFile.ext.toLowerCase();
+    let requestedFileExt = getExt(reqPath);
+    let requestedLastFileExt = getLastExt(reqPath);
+    let responseFileExt = requestedLastFileExt;
+    let isRoute = !requestedLastFileExt || requestedLastFileExt === '.html';
 
     async function getFileFromUrl(reqPath: string): Promise<string | null> {
       if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
@@ -489,7 +492,7 @@ export async function startServer(commandOptions: CommandOptions) {
           (await attemptLoadFile(requestedFile + 'index.html')) ||
           (await attemptLoadFile(requestedFile + '/index.html'));
         if (fileLoc) {
-          requestedFileExt = '.html';
+          requestedFileExt = ['.html'];
           responseFileExt = '.html';
           return fileLoc;
         }
@@ -507,7 +510,7 @@ export async function startServer(commandOptions: CommandOptions) {
           fileLoc = await attemptLoadFile(fallbackFile);
         }
         if (fileLoc) {
-          requestedFileExt = '.html';
+          requestedFileExt = ['.html'];
           responseFileExt = '.html';
           return fileLoc;
         }
@@ -655,7 +658,7 @@ export async function startServer(commandOptions: CommandOptions) {
           locOnDisk: fileLoc,
           contents: wrappedResponse,
           baseExt: responseExt,
-          expandedExt: getExt(fileLoc).expandedExt,
+          expandedExt: getExt(fileLoc)[0] || '',
         },
         (spec) => {
           // Try to resolve the specifier to a known URL in the project
@@ -760,40 +763,42 @@ export async function startServer(commandOptions: CommandOptions) {
      */
     async function finalizeResponse(
       fileLoc: string,
-      requestedFileExt: string,
+      requestedFileExt: string[],
       output: SnowpackBuildMap,
     ): Promise<string | Buffer | null> {
       // Verify that the requested file exists in the build output map.
-      if (!output[requestedFileExt] || !Object.keys(output)) {
-        return null;
+      for (const ext of requestedFileExt) {
+        if (!output[ext]) {
+          continue;
+        }
+
+        const {code, map} = output[ext];
+        let finalResponse = code;
+
+        // Wrap the response.
+        const hasAttachedCss = ext.endsWith('.js') && !!output['.css'];
+        finalResponse = await wrapResponse(finalResponse, {
+          hasCssResource: hasAttachedCss,
+          sourceMap: map,
+          sourceMappingURL: path.basename(requestedFile.base) + '.map',
+        });
+
+        // Resolve imports.
+        if (
+          ext.endsWith('.js') ||
+          ext.endsWith('.html') ||
+          ext.endsWith('.css')
+        ) {
+          finalResponse = await resolveResponseImports(
+            fileLoc,
+            ext,
+            finalResponse as string,
+          );
+        }
+        // Return the finalized response.
+        return finalResponse;
       }
-
-      const {code, map} = output[requestedFileExt];
-      let finalResponse = code;
-
-      // Wrap the response.
-      const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
-      finalResponse = await wrapResponse(finalResponse, {
-        hasCssResource: hasAttachedCss,
-        sourceMap: map,
-        sourceMappingURL: path.basename(requestedFile.base) + '.map',
-      });
-
-      // Resolve imports.
-      if (
-        requestedFileExt === '.js' ||
-        requestedFileExt === '.html' ||
-        requestedFileExt === '.css'
-      ) {
-        finalResponse = await resolveResponseImports(
-          fileLoc,
-          requestedFileExt,
-          finalResponse as string,
-        );
-      }
-
-      // Return the finalized response.
-      return finalResponse;
+      return null;
     }
 
     // 1. Check the hot build cache. If it's already found, then just serve it.
