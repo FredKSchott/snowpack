@@ -6,7 +6,7 @@ description: 'Get started with this in-depth tutorial on how to build React appl
 date: 2020-10-01
 ---
 
-Image: ideally a nice header image showing the before or after, or some illustration with elements of the Snowpack logo, React, and symbols related to speed, joy.
+<img src="/img/react-guide.png" alt="header image, showing the React and Snowpack logo against a background of blue mountains" />
 
 Snowpack is a great fit for [React](https://reactjs.org/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional React application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
 
@@ -45,7 +45,7 @@ You should see your new website up and running!
 
 > 💡 Tip: the `README.md` in your new project contains useful information about what each file does.
 
-Image: screenshot of project-template-minimal, which shows "Hello world" in text on a white background.
+<img src="/img/guides/react/minimalist-hello-world.png" alt="screenshot of project-template-minimal, which shows 'Hello world' in text on a white background." class="screenshot"/>
 
 > 💡 Tip: you can also use Yarn for any of the commands in this guide.
 
@@ -86,7 +86,7 @@ Since the React code is rendering into an element with the ID `root`, you'll nee
     <script type="module" src="/index.js"></script>
 ```
 
-Image: screenshot of the project, which shows "HELLO REACT" on a white background
+<img src="/img/guides/react/minimalist-hello-world-react.png" alt="screenshot of the project, which shows 'HELLO REACT' on a white background" class="screenshot"/>
 
 You've just created your first React component in Snowpack!
 
@@ -175,20 +175,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <p>
-          Edit <code>src/App.jsx</code> and save to reload.
-        </p>
-        <p>
           Page has been open for <code>{count}</code> seconds.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
         </p>
       </header>
     </div>
@@ -217,8 +204,7 @@ import ReactDOM from 'react-dom';
 > 💡 Tip: [Strict Mode](https://reactjs.org/docs/strict-mode.html) is a tool for highlighting potential problems in React code.
 
 You shouldn't need to restart Snowpack to see this, it should look like this:
-
-Image: screenshot of the project, showing text saying "edit `src/App.jsx` and save to reload," text that says "Page has been open for" and the number of seconds then "seconds". A link with the text Learn React that links to the React website.
+<img src="/img/guides/react/minimalist-hello-world-react-timer.png" alt="screenshot of the project with text that says 'Page has been open for' and the number of seconds then 'seconds'" class="screenshot"/>
 
 ## Styling your Snowpack/React project
 
@@ -226,7 +212,7 @@ When you add assets like images or CSS, Snowpack includes them in your final bui
 
 > 💡 Tip: as you're doing this, you should not need to reload the page or restart Snowpack. Snowpack automatically updates the project in the browser as you edit code.
 
-Add this file `logo.svg` (link to file) to your `src` directory. Now you can import it into your `App.jsx` and use it in an `img` tag to display it.
+Add this file [`logo.svg`](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-react/src/logo.svg) to your `src` directory. Now you can import it into your `App.jsx` and use it in an `img` tag to display it.
 
 ```diff
 import React, { useState, useEffect } from 'react';
@@ -248,7 +234,7 @@ function App() {
         <p>
 ```
 
-Image: the React logo (a blue atom) is now at the top of the page
+<img src="/img/guides/react/minimalist-hello-world-react-logo.png" alt="the React logo (a blue atom) is now at the top of the page" class="screenshot"/>
 
 The project already has index.css for global styles. For CSS that's only for a specific component, a common design pattern is to add it in a CSS file with the same base name as the component. The style file for `App.jsx` would be `App.css` with this pattern.
 
@@ -260,14 +246,11 @@ Create `src/App.css` and add this CSS:
 .App {
   text-align: center;
 }
-.App code {
-  background: #fff3;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
+
 .App p {
   margin: 0.4rem;
 }
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -290,10 +273,6 @@ Create `src/App.css` and add this CSS:
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -311,7 +290,7 @@ import logo from './logo.svg';
 +import './App.css';
 ```
 
-Image: screenshot. The page now has centered items, a grey background, styled fonts, and the React logo has an animation that rotates it.
+<img src="/img/guides/react/react.gif" alt="The page now has centered items, a grey background, styled fonts, and the React logo has an animation that rotates it." class="screenshot"/>
 
 ## Making Snowpack Even Faster with Fast Refresh
 

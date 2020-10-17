@@ -10,3 +10,10 @@
 .token.deleted {
   color: #ce9178;
 }
+
+.markdown-body img.screenshot {
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+  margin: 1rem 0;
+}
