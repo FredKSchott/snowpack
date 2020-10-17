@@ -119,6 +119,12 @@ export type ProxyOptions = HttpProxy.ServerOptions & {
 };
 export type Proxy = [string, ProxyOptions];
 
+export type MountEntry = {
+  url: string;
+  static: boolean;
+  resolve: boolean;
+};
+
 // interface this library uses internally
 export interface SnowpackConfig {
   install: string[];
@@ -127,7 +133,7 @@ export interface SnowpackConfig {
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
   proxy: Proxy[];
-  mount: Record<string, string>;
+  mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   scripts: Record<string, string>;
   plugins: SnowpackPlugin[];

@@ -8,6 +8,7 @@
   },
   "snowpack": {
     "buildOptions": {
+      "clean": true,
       "out": "TEST_BUILD_OUT"
     },
     "exclude": [
