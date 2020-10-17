@@ -26,6 +26,7 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
     for (const plugin of plugins) {
       if (plugin.resolve && plugin.resolve.output.includes(ext)) {
         plugin.resolve.input.forEach((input) =>
+          ext !== input &&
           potentialInputs.add(replaceExt(srcFile, ext, input)),
         );
       }
@@ -47,9 +48,7 @@ async function runPipelineLoadStep(
   srcPath: string,
   {isDev, isSSR, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
-  let lastExt;
   for (const srcExt of getExt(srcPath)) {
-    lastExt = srcExt;
     for (const step of plugins) {
       if (
         !step.load ||
@@ -110,7 +109,7 @@ async function runPipelineLoadStep(
   }
 
   return {
-    [lastExt]: {
+    [getLastExt(srcPath)]: {
       code: await readFile(srcPath),
     },
   };

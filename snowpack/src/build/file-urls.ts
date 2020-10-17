@@ -1,7 +1,7 @@
 import path from 'path';
 import {SnowpackConfig, SnowpackPlugin} from '../types/snowpack';
 import {logger} from '../logger';
-import {getExt, replaceExt} from '../util';
+import {getExt, getLastExt, replaceExt} from '../util';
 
 export const defaultFileExtensionMapping = {
   '.mjs': '.js',
@@ -27,11 +27,8 @@ export const defaultFileExtensionMapping = {
 export function tryPluginsResolveExt(config: SnowpackConfig, filePath: string) {
 
   const pluginResolveMultiple: string[] = [];
-  let lastExt = '';
   let inputExt, outputExt;
   for (const ext of getExt(filePath)) {
-    lastExt = ext;
-    if (inputExt) continue;
     for (const plugin of config.plugins) {
       if (!plugin.resolve) continue;
       const pluginInput = plugin.resolve.input;
@@ -51,12 +48,14 @@ export function tryPluginsResolveExt(config: SnowpackConfig, filePath: string) {
       outputExt = pluginOutput[0];
       break;
     }
+    if (inputExt) break;
   }
   if (!inputExt) {
-    inputExt = lastExt;
-    outputExt = config._extensionMap[lastExt] || defaultFileExtensionMapping[lastExt] || lastExt;
+    inputExt = getLastExt(filePath);
+    outputExt = config._extensionMap[inputExt] || defaultFileExtensionMapping[inputExt] || inputExt;
   }
-  return replaceExt(
+  // optimization: 99% of the time, extensions are the same
+  return inputExt === outputExt ? filePath : replaceExt(
     filePath,
     inputExt,
     outputExt,

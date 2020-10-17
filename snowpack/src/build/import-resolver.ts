@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import url from 'url';
 import {ImportMap, SnowpackConfig} from '../types/snowpack';
-import {findMatchingAliasEntry, getExt, relativeURL, replaceExt} from '../util';
+import {findMatchingAliasEntry, getLastExt, relativeURL} from '../util';
 import {tryPluginsResolveExt} from './file-urls';
 
 const cwd = process.cwd();
@@ -32,7 +32,7 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: S
     spec = spec + trailingSlash + 'index.js';
   }
   // Lazy check to handle imports that are missing file extensions
-  if (!stats && !spec.endsWith('.js') && !spec.endsWith('.css')) {
+  if (!stats && !getLastExt(spec)) {
     spec = spec + '.js';
   }
   return tryPluginsResolveExt(config, spec);
