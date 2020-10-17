@@ -1,5 +1,5 @@
 import path from 'path';
-import {SnowpackConfig, SnowpackPlugin} from '../types/snowpack';
+import {SnowpackConfig} from '../types/snowpack';
 import {logger} from '../logger';
 import {getExt, getLastExt, replaceExt} from '../util';
 
