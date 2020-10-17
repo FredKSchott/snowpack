@@ -15,5 +15,27 @@
   box-shadow: none;
   border: none;
   border-radius: 0;
+}
+
+.frame {
+  background-color: #0a5e9d;
+  padding: 34px 17px 10px 17px;
+  border-radius: 10px;
+  position: relative;
   margin: 1rem 0;
+}
+
+.frame::before {
+  content: url(/img/guides/react/buttons.svg);
+  display: block;
+  position: absolute;
+  top: 5px;
+}
+
+.frame::after {
+  content: url(/img/guides/react/snowpack-logo-tiny.svg);
+  display: block;
+  position: absolute;
+  top: 5px;
+  right: 17px;
 }

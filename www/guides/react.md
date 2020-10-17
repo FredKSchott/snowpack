@@ -45,7 +45,7 @@ You should see your new website up and running!
 
 > 💡 Tip: the `README.md` in your new project contains useful information about what each file does.
 
-<img src="/img/guides/react/minimalist-hello-world.png" alt="screenshot of project-template-minimal, which shows 'Hello world' in text on a white background." class="screenshot"/>
+<div class="frame"><img src="/img/guides/react/minimalist-hello-world.png" alt="screenshot of project-template-minimal, which shows 'Hello world' in text on a white background." class="screenshot"/></div>
 
 > 💡 Tip: you can also use Yarn for any of the commands in this guide.
 
@@ -86,7 +86,7 @@ Since the React code is rendering into an element with the ID `root`, you'll nee
     <script type="module" src="/index.js"></script>
 ```
 
-<img src="/img/guides/react/minimalist-hello-world-react.png" alt="screenshot of the project, which shows 'HELLO REACT' on a white background" class="screenshot"/>
+<div class="frame"><img src="/img/guides/react/minimalist-hello-world-react.png" alt="screenshot of the project, which shows 'HELLO REACT' on a white background" class="screenshot"/></div>
 
 You've just created your first React component in Snowpack!
 
@@ -204,7 +204,8 @@ import ReactDOM from 'react-dom';
 > 💡 Tip: [Strict Mode](https://reactjs.org/docs/strict-mode.html) is a tool for highlighting potential problems in React code.
 
 You shouldn't need to restart Snowpack to see this, it should look like this:
-<img src="/img/guides/react/minimalist-hello-world-react-timer.png" alt="screenshot of the project with text that says 'Page has been open for' and the number of seconds then 'seconds'" class="screenshot"/>
+
+<div class="frame"><img src="/img/guides/react/minimalist-hello-world-react-timer.png" alt="screenshot of the project with text that says 'Page has been open for' and the number of seconds then 'seconds'" class="screenshot"/></div>
 
 ## Styling your Snowpack/React project
 
@@ -234,7 +235,7 @@ function App() {
         <p>
 ```
 
-<img src="/img/guides/react/minimalist-hello-world-react-logo.png" alt="the React logo (a blue atom) is now at the top of the page" class="screenshot"/>
+<div class="frame"><img src="/img/guides/react/minimalist-hello-world-react-logo.png" alt="the React logo (a blue atom) is now at the top of the page" class="screenshot"/></div>
 
 The project already has index.css for global styles. For CSS that's only for a specific component, a common design pattern is to add it in a CSS file with the same base name as the component. The style file for `App.jsx` would be `App.css` with this pattern.
 
@@ -290,7 +291,7 @@ import logo from './logo.svg';
 +import './App.css';
 ```
 
-<img src="/img/guides/react/react.gif" alt="The page now has centered items, a grey background, styled fonts, and the React logo has an animation that rotates it." class="screenshot"/>
+<div class="frame"><img src="/img/guides/react/react.gif" alt="The page now has centered items, a grey background, styled fonts, and the React logo has an animation that rotates it." class="screenshot"/></div>
 
 ## Making Snowpack Even Faster with Fast Refresh
 
