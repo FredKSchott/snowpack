@@ -317,7 +317,7 @@ ReactDOM.render(
 
 Now when you change `App.jsx` the changes show without the whole page refreshing.
 
-Image: GIF showing code side by side with the project. A change in made to App.jsx and it shows when the changed file is saved. But the counter resets to 0.
+<div class="frame"><img src="/img/guides/react/hmr.gif" alt="GIF showing code side by side with the project. A change in made to App.jsx and it shows when the changed file is saved. But the counter resets to 0." class="screenshot"/></div>
 
 The counter on the page still resets to 0, even though the page itself hasn't fully refreshed. This can be annoying if you're trying to debug state. React Fast Refresh solves this.
 
@@ -347,7 +347,7 @@ module.exports = {
 
 Now make an edit to `App.jsx`. If this worked you'll see it without the counter stopping or losing its value.
 
-Image: GIF showing code side by side with the app. A change in made to App.jsx and it shows immediately when the file is changed. The counter keeps counting uninterrupted.
+<div class="frame"><img src="/img/guides/react/react-fast-refresh.gif" alt="GIF showing code side by side with the app. A change in made to App.jsx and it shows immediately when the file is changed. The counter keeps counting uninterrupted." class="screenshot"/></div>
 
 ## Going further
 
