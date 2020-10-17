@@ -134,6 +134,7 @@ const sendFile = (
   body: string | Buffer,
   fileLoc: string,
   ext: string,
+  cache?: boolean
 ) => {
   body = Buffer.from(body);
   const ETag = etag(body, {weak: true});
@@ -145,6 +146,8 @@ const sendFile = (
     ETag,
     Vary: 'Accept-Encoding',
   };
+  
+  if (cache) headers['Cache-Control'] = 'max-age=604800'; // 1 week
 
   if (req.headers['if-none-match'] === ETag) {
     res.writeHead(304, headers);
@@ -835,7 +838,7 @@ export async function startServer(commandOptions: CommandOptions) {
     // 3. Send dependencies directly, since they were already build & resolved
     // at install time.
     if (reqPath.startsWith(config.buildOptions.webModulesUrl) && !isProxyModule) {
-      sendFile(req, res, fileContents, fileLoc, responseFileExt);
+      sendFile(req, res, fileContents, fileLoc, responseFileExt, true);
       return;
     }
 
