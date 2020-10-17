@@ -412,7 +412,13 @@ export async function startServer(commandOptions: CommandOptions) {
       return;
     }
     if (reqPath === getMetaUrlPath('/env.js', config)) {
-      sendFile(req, res, generateEnvModule('development'), reqPath, '.js');
+      sendFile(
+        req,
+        res,
+        generateEnvModule({mode: 'production', isSSR}),
+        reqPath,
+        '.js',
+      );
       return;
     }
 

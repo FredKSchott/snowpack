@@ -9,7 +9,7 @@ Array [
 ]
 `;
 
-exports[`snowpack build config-external-package: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build config-external-package: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build config-external-package: build/_dist_/index.js 1`] = `
 "import 'fs';

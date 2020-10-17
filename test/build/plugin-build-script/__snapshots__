@@ -7,7 +7,7 @@ Array [
 ]
 `;
 
-exports[`snowpack build plugin-build-script: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build plugin-build-script: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build plugin-build-script: build/_dist_/index.js 1`] = `
 "const msg = 'I’m a TypeScript file';

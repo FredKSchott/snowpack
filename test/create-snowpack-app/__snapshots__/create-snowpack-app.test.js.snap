@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`create-snowpack-app app-template-11ty > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-11ty > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-11ty > build: _dist_/index.js 1`] = `
 "/**
@@ -614,7 +614,7 @@ exports[`create-snowpack-app app-template-11ty > build: web_modules/import-map.j
 }"
 `;
 
-exports[`create-snowpack-app app-template-blank > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-blank > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-blank > build: _dist_/index.js 1`] = `
 "/**
@@ -1183,7 +1183,7 @@ exports[`create-snowpack-app app-template-blank > build: web_modules/import-map.
 }"
 `;
 
-exports[`create-snowpack-app app-template-blank-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-blank-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-blank-typescript > build: _dist_/index.js 1`] = `
 "import confetti from \\"../web_modules/canvas-XXXXXXXX.js\\";
@@ -1748,7 +1748,7 @@ exports[`create-snowpack-app app-template-blank-typescript > build: web_modules/
 }"
 `;
 
-exports[`create-snowpack-app app-template-lit-element > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-lit-element > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-lit-element > build: _dist_/app-root.js 1`] = `
 "function _decorate(decorators, factory, superClass, mixins) { var api = _getDecoratorsApi(); if (mixins) { for (var i = 0; i < mixins.length; i++) { api = mixins[i](api); } } var r = factory(function initialize(O) { api.initializeInstanceElements(O, decorated.elements); }, superClass); var decorated = api.decorateClass(_coalesceClassElements(r.d.map(_createElementDescriptor)), decorators); api.initializeClassElements(r.F, decorated.elements); return api.runClassFinishers(r.F, decorated.finishers); }
@@ -4526,7 +4526,7 @@ LitElement.render = render$1;
 export { LitElement, css, customElement, html, property };"
 `;
 
-exports[`create-snowpack-app app-template-lit-element-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-lit-element-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-lit-element-typescript > build: _dist_/app-root.js 1`] = `
 "function _decorate(decorators, factory, superClass, mixins) { var api = _getDecoratorsApi(); if (mixins) { for (var i = 0; i < mixins.length; i++) { api = mixins[i](api); } } var r = factory(function initialize(O) { api.initializeInstanceElements(O, decorated.elements); }, superClass); var decorated = api.decorateClass(_coalesceClassElements(r.d.map(_createElementDescriptor)), decorators); api.initializeClassElements(r.F, decorated.elements); return api.runClassFinishers(r.F, decorated.finishers); }
@@ -7304,7 +7304,7 @@ LitElement.render = render$1;
 export { LitElement, css, customElement, html, property };"
 `;
 
-exports[`create-snowpack-app app-template-minimal > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-minimal > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-minimal > build: allFiles 1`] = `
 Array [
@@ -7389,7 +7389,7 @@ exports[`create-snowpack-app app-template-minimal > build: snowpack.config.js 1`
 };"
 `;
 
-exports[`create-snowpack-app app-template-preact > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-preact > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-preact > build: _dist_/App.css 1`] = `
 ".App {
@@ -7576,7 +7576,7 @@ var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&
 export { y as useEffect, m as useState };"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-preact-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/App.css 1`] = `
 ".App {
@@ -7767,7 +7767,7 @@ var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&
 export { y as useEffect, m as useState };"
 `;
 
-exports[`create-snowpack-app app-template-react > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-react > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-react > build: _dist_/App.css 1`] = `
 ".App {
@@ -8295,7 +8295,7 @@ function checkDCE() {
 export default reactDom;"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-react-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-react-typescript > build: _dist_/App.css 1`] = `
 ".App {
@@ -8823,7 +8823,7 @@ function checkDCE() {
 export default reactDom;"
 `;
 
-exports[`create-snowpack-app app-template-svelte > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-svelte > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-svelte > build: _dist_/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1wncah1.svelte-1wncah1{text-align:center}.App.svelte-1wncah1 code.svelte-1wncah1{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1wncah1 p.svelte-1wncah1{margin:0.4rem}.App-header.svelte-1wncah1.svelte-1wncah1{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1wncah1.svelte-1wncah1{color:#ff3e00}.App-logo.svelte-1wncah1.svelte-1wncah1{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1wncah1-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1wncah1-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
 
@@ -9013,7 +9013,7 @@ exports[`create-snowpack-app app-template-svelte > build: web_modules/svelte.js 
 
 exports[`create-snowpack-app app-template-svelte > build: web_modules/svelte/internal.js 1`] = `"export { S as SvelteComponent, a as append, b as attr, d as detach, e as element, i as init, c as insert, n as noop, s as safe_not_equal, f as set_data, g as space, t as text } from '../common/index-XXXXXXXX.js';"`;
 
-exports[`create-snowpack-app app-template-svelte-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-svelte-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-svelte-typescript > build: _dist_/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1sqyd3v.svelte-1sqyd3v{text-align:center}.App.svelte-1sqyd3v code.svelte-1sqyd3v{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1sqyd3v p.svelte-1sqyd3v{margin:0.4rem}.App-header.svelte-1sqyd3v.svelte-1sqyd3v{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1sqyd3v.svelte-1sqyd3v{color:#ff3e00}.App-logo.svelte-1sqyd3v.svelte-1sqyd3v{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1sqyd3v-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1sqyd3v-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
 
@@ -9201,7 +9201,7 @@ exports[`create-snowpack-app app-template-svelte-typescript > build: web_modules
 
 exports[`create-snowpack-app app-template-svelte-typescript > build: web_modules/svelte/internal.js 1`] = `"export { S as SvelteComponent, a as append, b as attr, d as detach, e as element, i as init, c as insert, n as noop, s as safe_not_equal, f as set_data, g as space, t as text } from '../common/index-XXXXXXXX.js';"`;
 
-exports[`create-snowpack-app app-template-vue > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-vue > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-vue > build: _dist_/App.css 1`] = `
 "
@@ -14303,7 +14303,7 @@ function normalizeContainer(container) {
 export { createApp, createBlock, createTextVNode, createVNode, openBlock, toDisplayString };"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`create-snowpack-app app-template-vue-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/App.css 1`] = `
 "
