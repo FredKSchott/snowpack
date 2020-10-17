@@ -198,6 +198,12 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
       result[flag] = val;
       continue;
     }
+    // Special: we moved `devOptions.out` -> `buildOptions.out`.
+    // Handle that flag special here, to prevent risk of undefined matching.
+    if (flag === 'out') {
+      result.buildOptions['out'] = val;
+      continue;
+    }
     if (configSchema.properties.experiments.properties[flag]) {
       result.experiments[flag] = val;
       continue;
@@ -569,7 +575,7 @@ function normalizeConfig(config: SnowpackConfig): SnowpackConfig {
     );
   }
   // @ts-ignore
-  config.buildOptions.out = path.resolve(cwd, config.buildOptions.out || config.devOptions.out);
+  config.buildOptions.out = path.resolve(cwd, config.devOptions.out || config.buildOptions.out);
   config.installOptions.rollup = config.installOptions.rollup || {};
   config.installOptions.rollup.plugins = config.installOptions.rollup.plugins || [];
   config.exclude = Array.from(
