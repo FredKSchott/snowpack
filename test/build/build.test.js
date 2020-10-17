@@ -46,7 +46,7 @@ describe('snowpack build', () => {
       const capitalize = testName === 'entrypoint-ids' && os.platform() === 'win32';
       execa.sync('yarn', ['testbuild'], {cwd: capitalize ? cwd.toUpperCase() : cwd});
       const actual =
-        testName === 'config-out' ? path.join(cwd, 'TEST_BUILD_OUT') : path.join(cwd, 'build');
+        testName.startsWith('config-out') ? path.join(cwd, 'TEST_BUILD_OUT') : path.join(cwd, 'build');
 
       // Test That all files match
       const allFiles = glob.sync(`**/*`, {
