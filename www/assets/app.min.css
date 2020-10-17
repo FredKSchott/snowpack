@@ -1175,7 +1175,7 @@ img.company-logo {
   position: fixed;
   top: 0;
   z-index: 100;
-  width: 100vw;
+  width: 100%;
 }
 @media (min-width: 860px) {
   .grid-nav-container {
@@ -1301,6 +1301,7 @@ img.company-logo {
   text-align: center;
   font-size: 2.1rem;
   font-weight: bold;
+  line-height: 1;
   letter-spacing: -1px;
   margin: 0;
   max-width: 460px;
