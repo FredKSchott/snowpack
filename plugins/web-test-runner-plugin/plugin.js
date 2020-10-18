@@ -12,35 +12,33 @@ To Resolve:
 `);
   }
   const pkgManifest = require(path.join(cwd, 'package.json'));
-  const config = snowpack.unstable__loadAndValidateConfig(
+  const config = snowpack.loadAndValidateConfig(
     {devOptions: {hmr: false, open: 'none', output: 'stream'}},
     pkgManifest,
   );
-  let loadByUrl, shutdownServer;
+  let server;
 
   return {
     name: 'snowpack-plugin',
     async serverStart({fileWatcher}) {
       fileWatcher.add(Object.keys(config.mount));
-      const server = await snowpack.unstable__startServer({
+      server = await snowpack.startServer({
         cwd,
         config,
         lockfile: null,
         pkgManifest,
       });
-      loadByUrl = server.loadByUrl;
-      shutdownServer = server.shutdown;
     },
     async serverStop() {
-      return shutdownServer();
+      return server.shutdown();
     },
     async serve({request}) {
       if (request.url.startsWith('/__web-dev-server')) {
         return;
       }
       const reqPath = request.path;
-      const result = await loadByUrl(reqPath, {isSSR: false});
-      return result;
+      const result = await server.loadUrl(reqPath, {isSSR: false, encoding: 'utf8'});
+      return result.contents;
     },
     transformImport({source}) {
       if (!isTestFilePath(source) || source.startsWith('/__web-dev-server')) {
