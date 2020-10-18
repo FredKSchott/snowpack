@@ -81,6 +81,7 @@ import {
 } from '../util';
 import {getInstallTargets, run as installRunner} from './install';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
+import {isBinaryFile} from 'isbinaryfile';
 
 interface LoadResult<T = Buffer | string> {
   contents: T;
@@ -315,7 +316,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
     return;
   }
   logger.error(err.toString());
-  logger.error(`[${status}] ${req.url}`, {
+  logger.error(`[500] ${req.url}`, {
     // @ts-ignore
     name: err.__snowpackBuildDetails?.name,
   });
@@ -340,7 +341,10 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
 
   // Fill in any command-specific plugin methods.
   for (const p of config.plugins) {
-    p.markChanged = (fileLoc) => onWatchEvent(fileLoc) || undefined;
+    p.markChanged = (fileLoc) => {
+      knownETags.clear();
+      onWatchEvent(fileLoc);
+    };
   }
 
   if (config.devOptions.output === 'dashboard') {
@@ -1017,6 +1021,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
       allowStale &&
       process.env.NODE_ENV !== 'test' &&
       !filesBeingDeleted.has(fileLoc) &&
+      !(await isBinaryFile(fileLoc)) &&
       (await cacache
         .get(BUILD_CACHE, getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}))
         .catch(() => null));
@@ -1147,6 +1152,15 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
   }
 
   /**
+   * A simple map to optimize the speed of our 304 responses. If an ETag check is
+   * sent in the request, check if it matches the last known etag for tat file.
+   *
+   * Remember: This is just a nice-to-have! If we get this logic wrong, it can mean
+   * stale files in the user's cache. Feel free to clear aggressively, as needed.
+   */
+  const knownETags = new Map<string, string>();
+
+  /**
    * Fully handle the response for a given request. This is used internally for
    * every response that the dev server sends, but it can also be used via the
    * JS API to handle most boilerplate around request handling.
@@ -1156,18 +1170,29 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
     res: http.ServerResponse,
     {handleError}: {handleError?: boolean} = {},
   ) {
+    const reqPath = req.url!;
     // Check if a configured proxy matches the request.
-    const requestProxy = getRequestProxy(req.url!);
+    const requestProxy = getRequestProxy(reqPath);
     if (requestProxy) {
       return requestProxy(req, res);
     }
+    // Check if we can send back an optimized 304 response
+    const quickETagCheck = req.headers['if-none-match'];
+    if (quickETagCheck && quickETagCheck === knownETags.get(reqPath)) {
+      logger.debug(`optimized etag! sending 304...`);
+      res.writeHead(304, {'Access-Control-Allow-Origin': '*'});
+      res.end();
+      return;
+    }
     // Otherwise, load the file and respond if successful.
     try {
-      const reqPath = req.url!;
-      const result = await loadUrl(reqPath, {allowStale: true});
+      const result = await loadUrl(reqPath, {allowStale: true, encoding: null});
       sendResponseFile(req, res, result);
       if (result.checkStale) {
         await result.checkStale();
+      }
+      if (result.contents) {
+        knownETags.set(reqPath, etag(result.contents, {weak: true}));
       }
       return;
     } catch (err) {
@@ -1268,33 +1293,29 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
       hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
-  function handleHmrUpdate(fileLoc: string) {
+  function handleHmrUpdate(fileLoc: string, updatedUrl: string) {
     if (isLiveReloadPaused) {
-      return;
-    }
-    let updateUrl = getUrlForFile(fileLoc, config);
-    if (!updateUrl) {
       return;
     }
 
     // Append ".proxy.js" to Non-JS files to match their registered URL in the
     // client app.
-    if (!updateUrl.endsWith('.js')) {
-      updateUrl += '.proxy.js';
+    if (!updatedUrl.endsWith('.js')) {
+      updatedUrl += '.proxy.js';
     }
     // Check if a virtual file exists in the resource cache (ex: CSS from a
     // Svelte file) If it does, mark it for HMR replacement but DONT trigger a
     // separate HMR update event. This is because a virtual resource doesn't
     // actually exist on disk, so we need the main resource (the JS) to load
     // first. Only after that happens will the CSS exist.
-    const virtualCssFileUrl = updateUrl.replace(/.js$/, '.css');
+    const virtualCssFileUrl = updatedUrl.replace(/.js$/, '.css');
     const virtualNode = hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
     if (virtualNode) {
       hmrEngine.markEntryForReplacement(virtualNode, true);
     }
     // If the changed file exists on the page, trigger a new HMR update.
-    if (hmrEngine.getEntry(updateUrl)) {
-      updateOrBubble(updateUrl, new Set());
+    if (hmrEngine.getEntry(updatedUrl)) {
+      updateOrBubble(updatedUrl, new Set());
       return;
     }
 
@@ -1331,9 +1352,14 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
   const chokidar = await import('chokidar');
 
   // Watch src files
-  async function onWatchEvent(fileLoc) {
+  async function onWatchEvent(fileLoc: string) {
     logger.info(colors.cyan('File changed...'));
-    handleHmrUpdate(fileLoc);
+    const updatedUrl = getUrlForFile(fileLoc, config);
+    if (updatedUrl) {
+      handleHmrUpdate(fileLoc, updatedUrl);
+      knownETags.delete(updatedUrl);
+      knownETags.delete(updatedUrl + '.proxy.js');
+    }
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: true, env: process.env.NODE_ENV}));
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}));
     filesBeingDeleted.add(fileLoc);
@@ -1356,9 +1382,17 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
     ignoreInitial: true,
     disableGlobbing: false,
   });
-  watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
-  watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
-  watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
+  watcher.on('add', (fileLoc) => {
+    knownETags.clear();
+    onWatchEvent(fileLoc);
+  });
+  watcher.on('unlink', (fileLoc) => {
+    knownETags.clear();
+    onWatchEvent(fileLoc);
+  });
+  watcher.on('change', (fileLoc) => {
+    onWatchEvent(fileLoc);
+  });
 
   // Watch node_modules & rerun snowpack install if symlinked dep updates
   const symlinkedFileLocs = new Set(
