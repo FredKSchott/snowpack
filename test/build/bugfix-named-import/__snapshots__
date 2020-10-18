@@ -9,7 +9,7 @@ Array [
 ]
 `;
 
-exports[`snowpack build bugfix-named-import: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build bugfix-named-import: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build bugfix-named-import: build/_dist_/index.js 1`] = `
 "import {flatten as _$v4} from '../web_modules/array-flatten.js';

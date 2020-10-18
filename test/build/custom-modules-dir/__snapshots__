@@ -9,7 +9,7 @@ Array [
 ]
 `;
 
-exports[`snowpack build custom-modules-dir: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build custom-modules-dir: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build custom-modules-dir: build/_dist_/index.js 1`] = `
 "import {flatten} from '../my_modules/array-flatten.js';

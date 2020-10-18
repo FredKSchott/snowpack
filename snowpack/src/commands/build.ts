@@ -115,13 +115,14 @@ class FileBuilder {
 
   async buildFile() {
     this.filesToResolve = {};
+    const isSSR = this.config.experiments.ssr;
     const srcExt = path.extname(this.filepath);
     const fileOutput = this.mountEntry.static
       ? {[srcExt]: {code: await readFile(this.filepath)}}
       : await buildFile(this.filepath, {
           plugins: this.config.plugins,
           isDev: false,
-          isSSR: this.config.experiments.ssr,
+          isSSR,
           isHmrEnabled: false,
           sourceMaps: this.config.buildOptions.sourceMaps,
         });
@@ -296,6 +297,7 @@ class FileBuilder {
 export async function command(commandOptions: CommandOptions) {
   const {config} = commandOptions;
   const isDev = !!config.buildOptions.watch;
+  const isSSR = !!config.experiments.ssr;
 
   // Fill in any command-specific plugin methods.
   // NOTE: markChanged only needed during dev, but may not be true for all.
@@ -343,7 +345,10 @@ export async function command(commandOptions: CommandOptions) {
 
   // Write the `import.meta.env` contents file to disk
   logger.debug(`generating meta files`);
-  await fs.writeFile(path.join(internalFilesBuildLoc, 'env.js'), generateEnvModule('production'));
+  await fs.writeFile(
+    path.join(internalFilesBuildLoc, 'env.js'),
+    generateEnvModule({mode: 'production', isSSR}),
+  );
   if (getIsHmrEnabled(config)) {
     await fs.writeFile(path.resolve(internalFilesBuildLoc, 'hmr-client.js'), HMR_CLIENT_CODE);
     await fs.writeFile(

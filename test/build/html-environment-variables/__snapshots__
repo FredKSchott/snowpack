@@ -9,7 +9,7 @@ Array [
 ]
 `;
 
-exports[`snowpack build html-environment-variables: build/__snowpack__/env.js 1`] = `"export default {\\"SNOWPACK_PUBLIC_MY_ENV_VAR\\":\\"my-var-replacement-configured-in-package.json\\",\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build html-environment-variables: build/__snowpack__/env.js 1`] = `"export default {\\"SNOWPACK_PUBLIC_MY_ENV_VAR\\":\\"my-var-replacement-configured-in-package.json\\",\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build html-environment-variables: build/index.css 1`] = `
 "#img {

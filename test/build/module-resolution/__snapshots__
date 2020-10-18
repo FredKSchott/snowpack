@@ -12,7 +12,7 @@ Array [
 ]
 `;
 
-exports[`snowpack build module-resolution: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build module-resolution: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build module-resolution: build/folder-1/folder-2/index.html 1`] = `
 "<html>

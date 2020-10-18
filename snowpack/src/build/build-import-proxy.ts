@@ -68,7 +68,6 @@ export function wrapHtmlResponse({
 }) {
   // replace %PUBLIC_URL% (along with surrounding slashes, if any)
   code = code.replace(/\/?%PUBLIC_URL%\/?/g, isDev ? '/' : config.buildOptions.baseUrl);
-
   // replace %MODE%
   code = code.replace(/%MODE%/g, mode);
 
@@ -229,10 +228,11 @@ export async function wrapImportProxy({
   return generateDefaultImportProxy(url);
 }
 
-export function generateEnvModule(mode: 'development' | 'production') {
-  const envObject = getSnowpackPublicEnvVariables();
+export function generateEnvModule({mode, isSSR}: {mode: 'development' | 'production', isSSR: boolean}) {
+  const envObject: Record<string, string | boolean | undefined> = getSnowpackPublicEnvVariables();
   envObject.MODE = mode;
   envObject.NODE_ENV = mode;
+  envObject.SSR = isSSR;
   return `export default ${JSON.stringify(envObject)};`;
 }
 

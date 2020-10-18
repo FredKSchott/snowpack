@@ -19,7 +19,7 @@ export default function doNothing() {
 console.log(import.meta.env)"
 `;
 
-exports[`snowpack build meta-dir-local-baseurl: build/static/snowpack/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build meta-dir-local-baseurl: build/static/snowpack/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build meta-dir-local-baseurl: build/sub/index.js 1`] = `
 "import __SNOWPACK_ENV__ from '../static/snowpack/env.js';
