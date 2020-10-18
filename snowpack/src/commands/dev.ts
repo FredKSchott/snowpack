@@ -75,6 +75,7 @@ import {
   openInBrowser,
   parsePackageImportSpecifier,
   readFile,
+  relativeURL,
   replaceExt,
   resolveDependencyManifest,
   updateLockfileHash,
@@ -795,26 +796,40 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
         },
         (spec) => {
           // Try to resolve the specifier to a known URL in the project
-          const resolvedImportUrl = resolveImportSpecifier(spec);
-          if (resolvedImportUrl) {
-            // Ignore "http://*" imports
-            if (url.parse(resolvedImportUrl).protocol) {
-              return resolvedImportUrl;
-            }
-            // Support proxy file imports
-            const extName = path.extname(resolvedImportUrl);
-            if (
-              extName &&
-              (responseExt === '.js' || responseExt === '.html') &&
-              extName !== '.js'
-            ) {
-              return resolvedImportUrl + '.proxy.js';
-            }
-            return resolvedImportUrl;
+          let resolvedImportUrl = resolveImportSpecifier(spec);
+          // Handle an import that couldn't be resolved
+          if (!resolvedImportUrl) {
+            missingPackages.push(spec);
+            return spec;
+          }
+          // Ignore "http://*" imports
+          if (url.parse(resolvedImportUrl).protocol) {
+            return spec;
+          }
+          // Ignore packages marked as external
+          if (config.installOptions.externalPackage?.includes(resolvedImportUrl)) {
+            return spec;
+          }
+          // Handle normal "./" & "../" import specifiers
+          const importExtName = path.posix.extname(resolvedImportUrl);
+          const isProxyImport =
+            importExtName &&
+            (responseExt === '.js' || responseExt === '.html') &&
+            importExtName !== '.js';
+          const isAbsoluteUrlPath = path.posix.isAbsolute(resolvedImportUrl);
+          if (isProxyImport) {
+            resolvedImportUrl = resolvedImportUrl + '.proxy.js';
           }
 
-          missingPackages.push(spec);
-          return spec;
+          // When dealing with an absolute import path, we need to honor the baseUrl
+          if (isAbsoluteUrlPath) {
+            resolvedImportUrl = relativeURL(path.posix.dirname(reqPath), resolvedImportUrl);
+          }
+          // Make sure that a relative URL always starts with "./"
+          if (!resolvedImportUrl.startsWith('.') && !resolvedImportUrl.startsWith('/')) {
+            resolvedImportUrl = './' + resolvedImportUrl;
+          }
+          return resolvedImportUrl;
         },
       );
 

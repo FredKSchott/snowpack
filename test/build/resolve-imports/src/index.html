@@ -48,6 +48,10 @@
       import styles from './components/style.css'; // relative import
       import styles_ from '@app/components/style.css'; // relative import
       console.log(styles, styles_);
+
+      // Importing across mounted directories
+      import robotsTxtRef from '../public/robots.txt';
+      console.log(robotsTxtRef);
     </script>
 
     <!-- exception test 1: comments should be ignored -->

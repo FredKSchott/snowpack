@@ -3,7 +3,7 @@ import path from 'path';
 import url from 'url';
 import {ImportMap, SnowpackConfig} from '../types/snowpack';
 import {findMatchingAliasEntry, getExt, relativeURL, replaceExt} from '../util';
-import {defaultFileExtensionMapping} from './file-urls';
+import {defaultFileExtensionMapping, getUrlForFile} from './file-urls';
 
 const cwd = process.cwd();
 
@@ -14,8 +14,7 @@ interface ImportResolverOptions {
 }
 
 /** Perform a file disk lookup for the requested import specifier. */
-export function getImportStats(dirLoc: string, spec: string): fs.Stats | false {
-  const importedFileOnDisk = path.resolve(dirLoc, spec);
+export function getImportStats(importedFileOnDisk: string): fs.Stats | false {
   try {
     return fs.statSync(importedFileOnDisk);
   } catch (err) {
@@ -66,18 +65,20 @@ export function createImportResolver({
     }
 
     if (spec.startsWith('/')) {
-      const importStats = getImportStats(cwd, spec.substr(1));
+      const importStats = getImportStats(path.resolve(cwd, spec.substr(1)));
       return resolveSourceSpecifier(spec, importStats, config);
     }
     if (spec.startsWith('./') || spec.startsWith('../')) {
-      const importStats = getImportStats(path.dirname(fileLoc), spec);
-      return resolveSourceSpecifier(spec, importStats, config);
+      const importedFileLoc = path.resolve(path.dirname(fileLoc), spec);
+      const importStats = getImportStats(importedFileLoc);
+      const newSpec = getUrlForFile(importedFileLoc, config) || spec;
+      return resolveSourceSpecifier(newSpec, importStats, config);
     }
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && aliasEntry.type === 'path') {
       const {from, to} = aliasEntry;
       let result = spec.replace(from, to);
-      const importStats = getImportStats(cwd, result);
+      const importStats = getImportStats(path.resolve(cwd, result));
       result = resolveSourceSpecifier(result, importStats, config);
       // replace Windows backslashes at the end, after resolution
       result = relativeURL(path.dirname(fileLoc), result);

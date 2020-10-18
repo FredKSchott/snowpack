@@ -7,6 +7,7 @@ module.exports = {
   },
   mount: {
     './src': '/_dist_',
+    './public': '/',
   },
   devOptions: {
     fallback: '_dist_/index.html',
