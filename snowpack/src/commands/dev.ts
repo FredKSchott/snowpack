@@ -547,7 +547,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
     }
     if (reqPath === getMetaUrlPath('/env.js', config)) {
       return {
-        contents: encodeResponse(generateEnvModule({mode: 'development', isSSR), encoding),
+        contents: encodeResponse(generateEnvModule({mode: 'development', isSSR}), encoding),
         originalFileLoc: null,
         responseFileName: 'env.js',
       };
