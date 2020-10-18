@@ -20,6 +20,9 @@ exports[`snowpack build config-out-flag: build/package.json 1`] = `
     \\"testbuild\\": \\"snowpack build --out TEST_BUILD_OUT\\"
   },
   \\"snowpack\\": {
+    \\"buildOptions\\": {
+      \\"clean\\": true
+    },
     \\"exclude\\": [
       \\"__snapshots__\\"
     ]

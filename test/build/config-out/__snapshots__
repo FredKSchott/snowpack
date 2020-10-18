@@ -21,6 +21,7 @@ exports[`snowpack build config-out: build/package.json 1`] = `
   },
   \\"snowpack\\": {
     \\"buildOptions\\": {
+      \\"clean\\": true,
       \\"out\\": \\"TEST_BUILD_OUT\\"
     },
     \\"exclude\\": [
