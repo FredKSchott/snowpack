@@ -2,8 +2,10 @@ import buildScriptPlugin from '@snowpack/plugin-build-script';
 import runScriptPlugin from '@snowpack/plugin-run-script';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
+import esbuild from 'esbuild';
 import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
+import os from 'os';
 import path from 'path';
 import yargs from 'yargs-parser';
 
@@ -826,13 +828,36 @@ export function createConfiguration(
 
 export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
   const explorerSync = cosmiconfigSync(CONFIG_NAME, {
-    // only support these 4 types of config for now
+    // only support these 5 types of config for now
     searchPlaces: [
       'package.json',
       'snowpack.config.cjs',
       'snowpack.config.js',
+      'snowpack.config.ts',
       'snowpack.config.json',
     ],
+    loaders: {
+      '.ts': (configPath) => {
+        const outPath = path.join(os.tmpdir(), '.snowpack.config.cjs');
+
+        try {
+          esbuild.buildSync({
+            entryPoints: [configPath],
+            outfile: outPath,
+            bundle: true,
+            platform: 'node',
+          });
+
+          const exported = require(outPath);
+          return exported.default || exported;
+        } catch (error) {
+          logger.error(
+            'Warning: TypeScript config file support is still experimental. Consider moving to JavaScript if you continue to have problems.',
+          );
+          throw error;
+        }
+      },
+    },
     // don't support crawling up the folder tree:
     stopDir: path.dirname(process.cwd()),
   });
