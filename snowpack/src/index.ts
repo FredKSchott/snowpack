@@ -12,10 +12,21 @@ import {CLIFlags} from './types/snowpack';
 import {clearCache, readLockfile} from './util.js';
 export * from './types/snowpack';
 
-// Unstable: These APIs are in progress and subject to change
-export {startServer as unstable__startServer} from './commands/dev';
-export {loadAndValidateConfig as unstable__loadAndValidateConfig};
+// Stable API:
+export {startServer, ServerResult} from './commands/dev';
+export {loadAndValidateConfig};
+
+// Unstable: These APIs are in progress and subject to change across minor versions
 export {getUrlForFile as unstable__getUrlForFile} from './build/file-urls';
+
+/** DEPRECATED: Promoted to startServer() **/
+export const unstable__startServer = () => {
+  throw new Error(`[snowpack 2.15] unstable__startServer is now startServer`);
+};
+/** DEPRECATED: Promoted to loadAndValidateConfig() **/
+export const unstable__loadAndValidateConfig = () => {
+  throw new Error(`[snowpack 2.15] unstable__loadAndValidateConfig is now loadAndValidateConfig`);
+};
 
 const cwd = process.cwd();
 

@@ -30,7 +30,6 @@ import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, existsSync, promises as fs, statSync} from 'fs';
-import {send} from 'httpie';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
@@ -83,7 +82,77 @@ import {
 import {getInstallTargets, run as installRunner} from './install';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
 
+interface LoadResult<T = Buffer | string> {
+  contents: T;
+  originalFileLoc: string | null;
+  responseFileName: string;
+  checkStale?: () => Promise<void>;
+}
+
+export interface ServerResult {
+  loadUrl: {
+    (
+      reqUrl: string,
+      opt?:
+        | {
+            isSSR?: boolean | undefined;
+            allowStale?: boolean | undefined;
+            encoding?: undefined;
+          }
+        | undefined,
+    ): Promise<LoadResult<Buffer | string>>;
+    (
+      reqUrl: string,
+      opt: {
+        isSSR?: boolean;
+        allowStale?: boolean;
+        encoding: BufferEncoding;
+      },
+    ): Promise<LoadResult<string>>;
+    (
+      reqUrl: string,
+      opt: {
+        isSSR?: boolean;
+        allowStale?: boolean;
+        encoding: null;
+      },
+    ): Promise<LoadResult<Buffer>>;
+  };
+  handleRequest: (
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    options?: {handleError?: boolean},
+  ) => Promise<void>;
+  sendResponseFile: typeof sendResponseFile;
+  sendResponseError: typeof sendResponseError;
+  shutdown(): Promise<void>;
+}
+
 const FILE_BUILD_RESULT_ERROR = `Build Result Error: There was a problem with a file build result.`;
+
+/**
+ * If encoding is defined, return a string. Otherwise, return a Buffer.
+ */
+function encodeResponse(
+  response: Buffer | string,
+  encoding: BufferEncoding | undefined | null,
+): Buffer | string {
+  if (encoding === undefined) {
+    return response;
+  }
+  if (encoding) {
+    if (typeof response === 'string') {
+      return response;
+    } else {
+      return response.toString(encoding);
+    }
+  }
+  if (typeof response === 'string') {
+    return Buffer.from(response);
+  } else {
+    return response;
+  }
+}
 
 function getCacheKey(fileLoc: string, {isSSR, env}) {
   return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
@@ -96,8 +165,20 @@ const DEFAULT_PROXY_ERROR_HANDLER = (
 ) => {
   const reqUrl = req.url!;
   logger.error(`✘ ${reqUrl}\n${err.message}`);
-  sendError(req, res, 502);
+  sendResponseError(req, res, 502);
 };
+
+/**
+ * A helper class for "Not Found" errors, storing data about what file lookups were attempted.
+ */
+class NotFoundError extends Error {
+  lookups: string[];
+
+  constructor(lookups: string[]) {
+    super('NOT_FOUND');
+    this.lookups = lookups;
+  }
+}
 
 /**
  * Install dependencies needed in "dev" mode. Generally speaking, this scans
@@ -123,21 +204,19 @@ async function installDependencies(commandOptions: CommandOptions) {
   return installResult;
 }
 
-function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
-  const reqPath = decodeURI(url.parse(req.url!).pathname!);
+function shouldProxy(pathPrefix: string, reqUrl: string) {
+  const reqPath = decodeURI(url.parse(reqUrl).pathname!);
   return reqPath.startsWith(pathPrefix);
 }
 
-const sendFile = (
+function sendResponseFile(
   req: http.IncomingMessage,
   res: http.ServerResponse,
-  body: string | Buffer,
-  fileLoc: string,
-  ext: string,
-) => {
-  body = Buffer.from(body);
+  {contents, originalFileLoc, responseFileName}: LoadResult,
+) {
+  const body = Buffer.from(contents);
   const ETag = etag(body, {weak: true});
-  const contentType = mime.contentType(ext);
+  const contentType = mime.contentType(responseFileName);
   const headers: Record<string, string> = {
     'Accept-Ranges': 'bytes',
     'Access-Control-Allow-Origin': '*',
@@ -178,16 +257,20 @@ const sendFile = (
   }
 
   // Handle partial requests
+  // TODO: This throws out a lot of hard work, and ignores any build. Improve.
   const {range} = req.headers;
   if (range) {
-    const {size: fileSize} = statSync(fileLoc);
+    if (!originalFileLoc) {
+      throw new Error('Virtual files do not support partial requests');
+    }
+    const {size: fileSize} = statSync(originalFileLoc);
     const [rangeStart, rangeEnd] = range.replace(/bytes=/, '').split('-');
 
     const start = parseInt(rangeStart, 10);
     const end = rangeEnd ? parseInt(rangeEnd, 10) : fileSize - 1;
     const chunkSize = end - start + 1;
 
-    const fileStream = createReadStream(fileLoc, {start, end});
+    const fileStream = createReadStream(originalFileLoc, {start, end});
     res.writeHead(206, {
       ...headers,
       'Content-Range': `bytes ${start}-${end}/${fileSize}`,
@@ -200,12 +283,9 @@ const sendFile = (
   res.writeHead(200, headers);
   res.write(body);
   res.end();
-};
+}
 
-const sendError = (req: http.IncomingMessage, res: http.ServerResponse, status: number) => {
-  if (!(req.url === '/favicon.ico' && status === 404)) {
-    logger.error(`[${status}] ${req.url}`);
-  }
+function sendResponseError(req: http.IncomingMessage, res: http.ServerResponse, status: number) {
   const contentType = mime.contentType(path.extname(req.url!) || '.html');
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': '*',
@@ -215,9 +295,29 @@ const sendError = (req: http.IncomingMessage, res: http.ServerResponse, status: 
   };
   res.writeHead(status, headers);
   res.end();
-};
+}
 
-export async function startServer(commandOptions: CommandOptions) {
+function handleResponseError(req, res, err: Error | NotFoundError) {
+  if (err instanceof NotFoundError) {
+    // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
+    // from the server, which creates annoying errors for new apps / first experiences.
+    if (req.path !== '/favicon.ico') {
+      const attemptedFilesMessage = err.lookups.map((loc) => '  ✘ ' + loc).join('\n');
+      logger.error(`[404] ${req.url}\n${attemptedFilesMessage}`);
+    }
+    sendResponseError(req, res, 404);
+    return;
+  }
+  logger.error(err.toString());
+  logger.error(`[${status}] ${req.url}`, {
+    // @ts-ignore
+    name: err.__snowpackBuildDetails?.name,
+  });
+  sendResponseError(req, res, 500);
+  return;
+}
+
+export async function startServer(commandOptions: CommandOptions): Promise<ServerResult> {
   // Start the startup timer!
   let serverStart = performance.now();
 
@@ -383,16 +483,44 @@ export async function startServer(commandOptions: CommandOptions) {
     }
   }
 
-  async function requestHandler(
-    req: http.IncomingMessage,
-    res: http.ServerResponse,
-    next?: () => void,
-  ) {
-    const reqUrl = req.url!;
+  function loadUrl(
+    reqUrl: string,
+    {
+      isSSR: _isSSR,
+      allowStale: _allowStale,
+      encoding: _encoding,
+    }?: {isSSR?: boolean; allowStale?: boolean; encoding?: undefined},
+  ): Promise<LoadResult<Buffer | string>>;
+  function loadUrl(
+    reqUrl: string,
+    {
+      isSSR: _isSSR,
+      allowStale: _allowStale,
+      encoding: _encoding,
+    }: {isSSR?: boolean; allowStale?: boolean; encoding: BufferEncoding},
+  ): Promise<LoadResult<string>>;
+  function loadUrl(
+    reqUrl: string,
+    {
+      isSSR: _isSSR,
+      allowStale: _allowStale,
+      encoding: _encoding,
+    }: {isSSR?: boolean; allowStale?: boolean; encoding: null},
+  ): Promise<LoadResult<Buffer>>;
+  async function loadUrl(
+    reqUrl: string,
+    {
+      isSSR: _isSSR,
+      allowStale: _allowStale,
+      encoding: _encoding,
+    }: {isSSR?: boolean; allowStale?: boolean; encoding?: BufferEncoding | null} = {},
+  ): Promise<LoadResult> {
+    const isSSR = _isSSR ?? false;
+    const allowStale = _allowStale ?? false;
+    const encoding = _encoding ?? null;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const originalReqPath = reqPath;
-    const isSSR = reqUrl.includes('?ssr');
     let isProxyModule = false;
     let isSourceMap = false;
     if (reqPath.endsWith('.proxy.js')) {
@@ -404,30 +532,25 @@ export async function startServer(commandOptions: CommandOptions) {
     }
 
     if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
-      sendFile(req, res, HMR_CLIENT_CODE, reqPath, '.js');
-      return;
+      return {
+        contents: encodeResponse(HMR_CLIENT_CODE, encoding),
+        originalFileLoc: null,
+        responseFileName: 'hmr-client.js',
+      };
     }
     if (reqPath === getMetaUrlPath('/hmr-error-overlay.js', config)) {
-      sendFile(req, res, HMR_OVERLAY_CODE, reqPath, '.js');
-      return;
+      return {
+        contents: encodeResponse(HMR_OVERLAY_CODE, encoding),
+        originalFileLoc: null,
+        responseFileName: 'hmr-error-overlay.js',
+      };
     }
     if (reqPath === getMetaUrlPath('/env.js', config)) {
-      sendFile(
-        req,
-        res,
-        generateEnvModule({mode: 'production', isSSR}),
-        reqPath,
-        '.js',
-      );
-      return;
-    }
-
-    for (const [pathPrefix] of config.proxy) {
-      if (!shouldProxy(pathPrefix, req)) {
-        continue;
-      }
-      devProxies[pathPrefix].web(req, res);
-      return;
+      return {
+        contents: encodeResponse(generateEnvModule({mode: 'development', isSSR), encoding),
+        originalFileLoc: null,
+        responseFileName: 'env.js',
+      };
     }
 
     const attemptedFileLoads: string[] = [];
@@ -527,19 +650,7 @@ export async function startServer(commandOptions: CommandOptions) {
     }
 
     if (!fileLoc) {
-      if (next) {
-        // fall through to next handler
-        return next();
-      } else {
-        // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
-        // from the server, which creates annoying errors for new apps / first experiences.
-        if (reqPath !== '/favicon.ico') {
-          const attemptedFilesMessage = attemptedFileLoads.map((loc) => '  ✘ ' + loc).join('\n');
-          const errorMessage = `[404] ${reqUrl}\n${attemptedFilesMessage}`;
-          logger.error(errorMessage);
-        }
-        return sendError(req, res, 404);
-      }
+      throw new NotFoundError(attemptedFileLoads);
     }
 
     /**
@@ -812,7 +923,6 @@ export async function startServer(commandOptions: CommandOptions) {
         responseContent = await finalizeResponse(fileLoc, requestedFileExt, hotCachedResponse);
       } catch (err) {
         logger.error(FILE_BUILD_RESULT_ERROR);
-        logger.error(err.toString());
         hmrEngine.broadcastMessage({
           type: 'error',
           title: FILE_BUILD_RESULT_ERROR,
@@ -820,19 +930,20 @@ export async function startServer(commandOptions: CommandOptions) {
           fileLoc,
           errorStackTrace: err.stack,
         });
-        sendError(req, res, 500);
-        return;
+        throw err;
       }
       if (!responseContent) {
-        if (next) {
-          next();
-        } else {
-          sendError(req, res, 404);
-        }
-        return;
+        throw new NotFoundError([fileLoc]);
       }
-      sendFile(req, res, responseContent, fileLoc, responseFileExt);
-      return;
+      return {
+        contents: encodeResponse(responseContent, encoding),
+        originalFileLoc: fileLoc,
+        responseFileName: replaceExt(
+          path.basename(fileLoc),
+          path.extname(fileLoc),
+          responseFileExt,
+        ),
+      };
     }
 
     // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
@@ -841,8 +952,15 @@ export async function startServer(commandOptions: CommandOptions) {
     // 3. Send dependencies directly, since they were already build & resolved
     // at install time.
     if (reqPath.startsWith(config.buildOptions.webModulesUrl) && !isProxyModule) {
-      sendFile(req, res, fileContents, fileLoc, responseFileExt);
-      return;
+      return {
+        contents: encodeResponse(fileContents, encoding),
+        originalFileLoc: fileLoc,
+        responseFileName: replaceExt(
+          path.basename(fileLoc),
+          path.extname(fileLoc),
+          responseFileExt,
+        ),
+      };
     }
 
     // 4. Check the persistent cache. If found, serve it via a
@@ -850,6 +968,7 @@ export async function startServer(commandOptions: CommandOptions) {
     // matches then assume the entire cache is suspect. In that case, clear the
     // persistent cache and then force a live-reload of the page.
     const cachedBuildData =
+      allowStale &&
       process.env.NODE_ENV !== 'test' &&
       !filesBeingDeleted.has(fileLoc) &&
       (await cacache
@@ -875,38 +994,43 @@ export async function startServer(commandOptions: CommandOptions) {
           getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
           coldCachedResponse,
         );
-        // Trust...
         const wrappedResponse = await finalizeResponse(
           fileLoc,
           requestedFileExt,
           coldCachedResponse,
         );
         if (!wrappedResponse) {
-          if (next) {
-            next();
-          } else {
-            sendError(req, res, 404);
-          }
-          return;
+          throw new NotFoundError([fileLoc]);
         }
-        sendFile(req, res, wrappedResponse, fileLoc, responseFileExt);
-        // ...but verify.
-        let checkFinalBuildResult: SnowpackBuildMap | null = null;
-        try {
-          checkFinalBuildResult = await buildFile(fileLoc);
-        } catch (err) {
-          // safe to ignore, it will be surfaced later anyway
-        } finally {
-          if (
-            !checkFinalBuildResult ||
-            !cachedBuildData.data.equals(Buffer.from(JSON.stringify(checkFinalBuildResult)))
-          ) {
-            inMemoryBuildCache.clear();
-            await cacache.rm.all(BUILD_CACHE);
-            hmrEngine.broadcastMessage({type: 'reload'});
-          }
-        }
-        return;
+        // Trust...
+        return {
+          contents: encodeResponse(wrappedResponse, encoding),
+          originalFileLoc: fileLoc,
+          responseFileName: replaceExt(
+            path.basename(fileLoc),
+            path.extname(fileLoc),
+            responseFileExt,
+          ),
+          // ...but verify.
+          checkStale: async () => {
+            let checkFinalBuildResult: SnowpackBuildMap | null = null;
+            try {
+              checkFinalBuildResult = await buildFile(fileLoc!);
+            } catch (err) {
+              // safe to ignore, it will be surfaced later anyway
+            } finally {
+              if (
+                !checkFinalBuildResult ||
+                !cachedBuildData.data.equals(Buffer.from(JSON.stringify(checkFinalBuildResult)))
+              ) {
+                inMemoryBuildCache.clear();
+                await cacache.rm.all(BUILD_CACHE);
+                hmrEngine.broadcastMessage({type: 'reload'});
+              }
+            }
+            return;
+          },
+        };
       }
     }
 
@@ -916,7 +1040,6 @@ export async function startServer(commandOptions: CommandOptions) {
     try {
       responseOutput = await buildFile(fileLoc);
     } catch (err) {
-      logger.error(err.toString(), {name: err.__snowpackBuildDetails?.name});
       hmrEngine.broadcastMessage({
         type: 'error',
         title:
@@ -926,14 +1049,12 @@ export async function startServer(commandOptions: CommandOptions) {
         fileLoc,
         errorStackTrace: err.stack,
       });
-      sendError(req, res, 500);
-      return;
+      throw err;
     }
     try {
       responseContent = await finalizeResponse(fileLoc, requestedFileExt, responseOutput);
     } catch (err) {
       logger.error(FILE_BUILD_RESULT_ERROR);
-      logger.error(err.toString());
       hmrEngine.broadcastMessage({
         type: 'error',
         title: FILE_BUILD_RESULT_ERROR,
@@ -941,77 +1062,114 @@ export async function startServer(commandOptions: CommandOptions) {
         fileLoc,
         errorStackTrace: err.stack,
       });
-      sendError(req, res, 500);
-      return;
+      throw err;
     }
     if (!responseContent) {
-      if (next) {
-        next();
-      } else {
-        sendError(req, res, 404);
-      }
-      return;
+      throw new NotFoundError([fileLoc]);
     }
 
-    sendFile(req, res, responseContent, fileLoc, responseFileExt);
-    const originalFileHash = etag(fileContents);
+    // Save the file to the cold cache for reuse across restarts.
+    cacache
+      .put(
+        BUILD_CACHE,
+        getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
+        Buffer.from(JSON.stringify(responseOutput)),
+        {
+          metadata: {originalFileHash: etag(fileContents)},
+        },
+      )
+      .catch((err) => {
+        logger.error(`Cache Error: ${err.toString()}`);
+      });
 
-    // Only save the file to our cold cache if it's not SSR.
-    // NOTE(fks): We could do better and cache both, but at the time of writing SSR
-    // is still a new concept. Lets confirm that this is how we want to do SSR, and
-    // then can revisit the caching story once confident.
-    cacache.put(
-      BUILD_CACHE,
-      getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
-      Buffer.from(JSON.stringify(responseOutput)),
-      {
-        metadata: {originalFileHash},
-      },
-    );
+    return {
+      contents: encodeResponse(responseContent, encoding),
+      originalFileLoc: fileLoc,
+      responseFileName: replaceExt(path.basename(fileLoc), path.extname(fileLoc), responseFileExt),
+    };
+  }
+
+  function getRequestProxy(
+    reqUrl: string,
+  ): undefined | ((req: http.IncomingMessage, res: http.ServerResponse) => void) {
+    for (const [pathPrefix] of config.proxy) {
+      if (!shouldProxy(pathPrefix, reqUrl)) {
+        continue;
+      }
+      return (req, res) => devProxies[pathPrefix].web(req, res);
+    }
+  }
+
+  /**
+   * Fully handle the response for a given request. This is used internally for
+   * every response that the dev server sends, but it can also be used via the
+   * JS API to handle most boilerplate around request handling.
+   */
+  async function handleRequest(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    {handleError}: {handleError?: boolean} = {},
+  ) {
+    // Check if a configured proxy matches the request.
+    const requestProxy = getRequestProxy(req.url!);
+    if (requestProxy) {
+      return requestProxy(req, res);
+    }
+    // Otherwise, load the file and respond if successful.
+    try {
+      const reqPath = req.url!;
+      const result = await loadUrl(reqPath, {allowStale: true});
+      sendResponseFile(req, res, result);
+      if (result.checkStale) {
+        await result.checkStale();
+      }
+      return;
+    } catch (err) {
+      // Some consumers may want to handle/ignore errors themselves.
+      if (handleError === false) {
+        throw err;
+      }
+      handleResponseError(req, res, err);
+    }
   }
 
   type Http2RequestListener = (
     request: http2.Http2ServerRequest,
     response: http2.Http2ServerResponse,
   ) => void;
-  const createServer = (requestHandler: http.RequestListener | Http2RequestListener) => {
+  const createServer = (responseHandler: http.RequestListener | Http2RequestListener) => {
     if (credentials && config.proxy.length === 0) {
       return http2.createSecureServer(
         {...credentials!, allowHTTP1: true},
-        requestHandler as Http2RequestListener,
+        responseHandler as Http2RequestListener,
       );
     } else if (credentials) {
-      return https.createServer(credentials, requestHandler as http.RequestListener);
+      return https.createServer(credentials, handleRequest);
     }
 
-    return http.createServer(requestHandler as http.RequestListener);
+    return http.createServer(handleRequest);
   };
 
-  const server = createServer((req, res) => {
+  const server = createServer(async (req, res) => {
     // Attach a request logger.
     res.on('finish', () => {
       const {method, url} = req;
       const {statusCode} = res;
       logger.debug(`[${statusCode}] ${method} ${url}`);
     });
-    /** Handle errors not handled in our requestHandler. */
-    function onUnhandledError(err: Error) {
-      logger.error(err.toString());
-      sendError(req, res, 500);
-    }
     // If custom "app" is given, pass requests through there first.
     if (config.experiments.app) {
-      config.experiments.app(req, res, (err?: Error | null) => {
+      config.experiments.app(req, res, async (err?: Error | null) => {
         if (err) {
-          onUnhandledError(err);
-        } else {
-          requestHandler(req, res).catch(onUnhandledError);
+          handleResponseError(req, res, err);
+          return;
         }
+        handleRequest(req, res);
       });
       return;
     }
     // Otherwise, pass requests directly to Snowpack's request handler.
-    requestHandler(req, res).catch(onUnhandledError);
+    handleRequest(req, res);
   })
     .on('error', (err: Error) => {
       logger.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);
@@ -1021,7 +1179,7 @@ export async function startServer(commandOptions: CommandOptions) {
     .on('upgrade', (req: http.IncomingMessage, socket, head) => {
       config.proxy.forEach(([pathPrefix, proxyOptions]) => {
         const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
-        if (isWebSocket && shouldProxy(pathPrefix, req)) {
+        if (isWebSocket && shouldProxy(pathPrefix, req.url!)) {
           devProxies[pathPrefix].ws(req, socket, head);
           logger.info('Upgrading to WebSocket');
         }
@@ -1180,16 +1338,10 @@ export async function startServer(commandOptions: CommandOptions) {
   depWatcher.on('unlink', onDepWatchEvent);
 
   return {
-    requestHandler,
-    /** @experimental - only available via unstable__startServer */
-    async loadByUrl(url: string, {isSSR}: {isSSR?: boolean}): Promise<string> {
-      if (!url.startsWith('/')) {
-        throw new Error(`url must start with "/", but got ${url}`);
-      }
-      return await send('GET', `http://localhost:${port}${url}${isSSR ? '?ssr=1' : ''}`).then(
-        (r) => r.data,
-      );
-    },
+    loadUrl,
+    handleRequest,
+    sendResponseFile,
+    sendResponseError,
     async shutdown() {
       await watcher.close();
       server.close();

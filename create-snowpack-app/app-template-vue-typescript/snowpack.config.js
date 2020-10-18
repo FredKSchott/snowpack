@@ -8,4 +8,22 @@ module.exports = {
     '@snowpack/plugin-vue/plugin-tsx-jsx.js',
     '@snowpack/plugin-dotenv',
   ],
+  install: [
+    /* ... */
+  ],
+  installOptions: {
+    /* ... */
+  },
+  devOptions: {
+    /* ... */
+  },
+  buildOptions: {
+    /* ... */
+  },
+  proxy: {
+    /* ... */
+  },
+  alias: {
+    /* ... */
+  },
 };

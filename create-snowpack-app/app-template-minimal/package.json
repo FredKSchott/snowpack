@@ -1,5 +1,6 @@
 {
   "name": "@snowpack/app-template-minimal",
+  "description": "A preconfigured minimal template for Snowpack",
   "private": true,
   "version": "1.6.12",
   "license": "MIT",
