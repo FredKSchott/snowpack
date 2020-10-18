@@ -128,6 +128,12 @@ export interface ServerResult {
   shutdown(): Promise<void>;
 }
 
+interface FoundFile {
+  fileLoc: string;
+  isStatic: boolean;
+  isResolve: boolean;
+}
+
 const FILE_BUILD_RESULT_ERROR = `Build Result Error: There was a problem with a file build result.`;
 
 /**
@@ -371,8 +377,8 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
   logger.debug(`Using in-memory cache.`);
   logger.debug(`Mounting directories:`, {
     task: () => {
-      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
-        logger.debug(` -> '${dirDisk}' as URL '${dirUrl}'`);
+      for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
+        logger.debug(` -> '${mountKey}' as URL '${mountEntry.url}'`);
       }
     },
   });
@@ -570,46 +576,52 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
     let responseFileExt = requestedFileExt;
     let isRoute = !requestedFileExt || requestedFileExt === '.html';
 
-    async function getFileFromUrl(reqPath: string): Promise<string | null> {
+    async function getFileFromUrl(reqPath: string): Promise<FoundFile | null> {
       if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
         const dependencyFileLoc =
           reqPath.replace(config.buildOptions.webModulesUrl, DEV_DEPENDENCIES_DIR) +
           (isSourceMap ? '.map' : '');
         const foundFile = await attemptLoadFile(dependencyFileLoc);
         if (foundFile) {
-          return foundFile;
+          return {fileLoc: foundFile, isStatic: true, isResolve: false};
         }
       }
-      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
+      for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
         let requestedFile: string;
-        if (dirUrl === '/') {
-          requestedFile = path.join(dirDisk, reqPath);
-        } else if (reqPath.startsWith(dirUrl)) {
-          requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, './'));
+        if (mountEntry.url === '/') {
+          requestedFile = path.join(mountKey, reqPath);
+        } else if (reqPath.startsWith(mountEntry.url)) {
+          requestedFile = path.join(mountKey, reqPath.replace(mountEntry.url, './'));
         } else {
           continue;
         }
         const fileLocExact = await attemptLoadFile(requestedFile);
         if (fileLocExact) {
-          return fileLocExact;
+          return {
+            fileLoc: fileLocExact,
+            isStatic: mountEntry.static,
+            isResolve: mountEntry.resolve,
+          };
         }
-        for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
-          const fileLoc = await attemptLoadFile(potentialSourceFile);
-          if (fileLoc) {
-            return fileLoc;
+        if (!mountEntry.static) {
+          for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
+            const fileLoc = await attemptLoadFile(potentialSourceFile);
+            if (fileLoc) {
+              return {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
+            }
           }
         }
       }
       return null;
     }
 
-    async function getFileFromRoute(reqPath: string): Promise<string | null> {
-      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
+    async function getFileFromRoute(reqPath: string): Promise<FoundFile | null> {
+      for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
         let requestedFile: string;
-        if (dirUrl === '/') {
-          requestedFile = path.join(dirDisk, reqPath);
-        } else if (reqPath.startsWith(dirUrl)) {
-          requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, './'));
+        if (mountEntry.url === '/') {
+          requestedFile = path.join(mountKey, reqPath);
+        } else if (reqPath.startsWith(mountEntry.url)) {
+          requestedFile = path.join(mountKey, reqPath.replace(mountEntry.url, './'));
         } else {
           continue;
         }
@@ -620,38 +632,41 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
         if (fileLoc) {
           requestedFileExt = '.html';
           responseFileExt = '.html';
-          return fileLoc;
+          return {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
         }
       }
       return null;
     }
 
-    async function getFileFromFallback(): Promise<string | null> {
-      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
-        if (dirUrl !== '/') {
+    async function getFileFromFallback(): Promise<FoundFile | null> {
+      if (!config.devOptions.fallback) {
+        return null;
+      }
+      for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
+        if (mountEntry.url !== '/') {
           continue;
         }
-        if (config.devOptions.fallback) {
-          const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
-          fileLoc = await attemptLoadFile(fallbackFile);
-        }
+        const fallbackFile = path.join(mountKey, config.devOptions.fallback);
+        const fileLoc = await attemptLoadFile(fallbackFile);
         if (fileLoc) {
           requestedFileExt = '.html';
           responseFileExt = '.html';
-          return fileLoc;
+          return {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
         }
       }
       return null;
     }
 
-    let fileLoc = await getFileFromUrl(reqPath);
-    if (!fileLoc && isRoute) {
-      fileLoc = (await getFileFromRoute(reqPath)) || (await getFileFromFallback());
+    let foundFile = await getFileFromUrl(reqPath);
+    if (!foundFile && isRoute) {
+      foundFile = (await getFileFromRoute(reqPath)) || (await getFileFromFallback());
     }
 
-    if (!fileLoc) {
+    if (!foundFile) {
       throw new NotFoundError(attemptedFileLoads);
     }
+
+    const {fileLoc, isStatic, isResolve} = foundFile;
 
     /**
      * Given a file, build it. Building a file sends it through our internal
@@ -949,11 +964,42 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
     // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
     const fileContents = await readFile(fileLoc);
 
-    // 3. Send dependencies directly, since they were already build & resolved
-    // at install time.
-    if (reqPath.startsWith(config.buildOptions.webModulesUrl) && !isProxyModule) {
+    // 3. Send static files directly, since they were already build & resolved at install time.
+    if (!isProxyModule && isStatic) {
+      // If no resolution needed, just send the file directly.
+      if (!isResolve) {
+        return {
+          contents: encodeResponse(fileContents, encoding),
+          originalFileLoc: fileLoc,
+          responseFileName: replaceExt(
+            path.basename(fileLoc),
+            path.extname(fileLoc),
+            responseFileExt,
+          ),
+        };
+      }
+      // Otherwise, finalize the response (where resolution happens) before sending.
+      let responseContent: string | Buffer | null;
+      try {
+        responseContent = await finalizeResponse(fileLoc, requestedFileExt, {
+          [requestedFileExt]: {code: fileContents},
+        });
+      } catch (err) {
+        logger.error(FILE_BUILD_RESULT_ERROR);
+        hmrEngine.broadcastMessage({
+          type: 'error',
+          title: FILE_BUILD_RESULT_ERROR,
+          errorMessage: err.toString(),
+          fileLoc,
+          errorStackTrace: err.stack,
+        });
+        throw err;
+      }
+      if (!responseContent) {
+        throw new NotFoundError([fileLoc]);
+      }
       return {
-        contents: encodeResponse(fileContents, encoding),
+        contents: encodeResponse(responseContent, encoding),
         originalFileLoc: fileLoc,
         responseFileName: replaceExt(
           path.basename(fileLoc),

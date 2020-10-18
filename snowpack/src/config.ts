@@ -16,6 +16,7 @@ import {
   CLIFlags,
   DeepPartial,
   LegacySnowpackPlugin,
+  MountEntry,
   PluginLoadOptions,
   PluginLoadResult,
   PluginOptimizeOptions,
@@ -89,6 +90,22 @@ const configSchema = {
     alias: {
       type: 'object',
       additionalProperties: {type: 'string'},
+    },
+    mount: {
+      type: 'object',
+      additionalProperties: {
+        oneOf: [
+          {type: 'string'},
+          {
+            type: ['object'],
+            properties: {
+              url: {type: 'string'},
+              static: {type: 'boolean'},
+              resolve: {type: 'boolean'},
+            },
+          },
+        ],
+      },
     },
     devOptions: {
       type: 'object',
@@ -504,7 +521,7 @@ function normalizeProxies(proxies: RawProxies): Proxy[] {
 }
 
 function normalizeMount(config: SnowpackConfig, cwd: string) {
-  const mountedDirs: Record<string, string> = config.mount || {};
+  const mountedDirs: Record<string, string | Partial<MountEntry>> = config.mount || {};
   for (const [target, cmd] of Object.entries(config.scripts)) {
     if (target.startsWith('mount:')) {
       const cmdArr = cmd.split(/\s+/);
@@ -519,23 +536,40 @@ function normalizeMount(config: SnowpackConfig, cwd: string) {
       if (target === 'mount:web_modules') {
         config.buildOptions.webModulesUrl = to;
       } else {
-        mountedDirs[cmdArr[0]] = to || `/${cmdArr[0]}`;
+        mountedDirs[cmdArr[0]] = {url: to || `/${cmdArr[0]}`};
       }
     }
   }
-  const normalizedMount = {};
-  for (const [mountDir, mountUrl] of Object.entries(mountedDirs)) {
-    if (mountUrl[0] !== '/') {
+  const normalizedMount: Record<string, MountEntry> = {};
+  for (const [mountDir, rawMountEntry] of Object.entries(mountedDirs)) {
+    const mountEntry: Partial<MountEntry> =
+      typeof rawMountEntry === 'string'
+        ? {url: rawMountEntry, static: false, resolve: true}
+        : rawMountEntry;
+    if (!mountEntry.url) {
       handleConfigError(
-        `mount[${mountDir}]: Value "${mountUrl}" must be a URL path, and start with a "/"`,
+        `mount[${mountDir}]: Object "${mountEntry.url}" missing required "url" option.`,
+      );
+      return normalizedMount;
+    }
+    if (mountEntry.url[0] !== '/') {
+      handleConfigError(
+        `mount[${mountDir}]: Value "${mountEntry.url}" must be a URL path, and start with a "/"`,
       );
     }
-    normalizedMount[path.resolve(cwd, removeTrailingSlash(mountDir))] =
-      mountUrl === '/' ? '/' : removeTrailingSlash(mountUrl);
+    normalizedMount[path.resolve(cwd, removeTrailingSlash(mountDir))] = {
+      url: mountEntry.url === '/' ? '/' : removeTrailingSlash(mountEntry.url),
+      static: mountEntry.static ?? false,
+      resolve: mountEntry.resolve ?? true,
+    };
   }
   // if no mounted directories, mount the root directory to the base URL
   if (!Object.keys(normalizedMount).length) {
-    normalizedMount[cwd] = '/';
+    normalizedMount[cwd] = {
+      url: '/',
+      static: false,
+      resolve: true,
+    };
   }
   return normalizedMount;
 }
