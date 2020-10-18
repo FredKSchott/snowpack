@@ -29,7 +29,7 @@ exports[`snowpack build config-out: build/package.json 1`] = `
   },
   \\"devDependencies\\": {
     \\"cross-env\\": \\"^7.0.2\\",
-    \\"snowpack\\": \\"^2.12.1\\"
+    \\"snowpack\\": \\"^2.14.3\\"
   }
 }"
 `;

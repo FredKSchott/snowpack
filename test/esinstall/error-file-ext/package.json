@@ -15,6 +15,6 @@
     "error-file-ext-dep-b": "file:./packages/error-file-ext-dep-b"
   },
   "devDependencies": {
-    "snowpack": "^2.12.1"
+    "snowpack": "^2.14.3"
   }
 }

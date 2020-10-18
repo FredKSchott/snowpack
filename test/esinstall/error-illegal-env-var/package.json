@@ -21,6 +21,6 @@
     "illegal-env-var-pkg": "file:./packages/illegal-env-var-pkg"
   },
   "devDependencies": {
-    "snowpack": "^2.12.1"
+    "snowpack": "^2.14.3"
   }
 }

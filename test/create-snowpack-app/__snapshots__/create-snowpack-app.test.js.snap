@@ -7363,7 +7363,7 @@ exports[`create-snowpack-app app-template-minimal > build: package.json 1`] = `
     \\"test\\": \\"echo \\\\\\"This template does not include a test runner by default.\\\\\\" && exit 1\\"
   },
   \\"devDependencies\\": {
-    \\"snowpack\\": \\"^2.12.1\\"
+    \\"snowpack\\": \\"^2.14.3\\"
   }
 }"
 `;
