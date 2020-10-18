@@ -94,7 +94,6 @@ const svg = new URL('./image.svg', import.meta.url); // svg === '/src/image.svg'
 <img src={img.href} />;
 ```
 
-
 ## Features
 
 Snowpack ships with built-in support for the following file types, no configuration required:
