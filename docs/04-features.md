@@ -73,12 +73,27 @@ Snowpack supports CSS Modules using the `[name].module.css` naming convention. C
 ### Import Images & Other Assets
 
 ```jsx
+const img = new URL('./image.png', import.meta.url); // img === '/src/image.png'
+const svg = new URL('./image.svg', import.meta.url); // svg === '/src/image.svg'
+
+/**
+* This example uses JSX, but you can create url objects with any framework 
+* and provide these as your asset reference to your img tag
+*/
+<img src={img.href} />
+```
+
+Snowpack supports the usage of URL class for asset references which doesn't overload the import keyword. This is the recommended way since it is the native asset module reference style.
+
+```jsx
 import img from './image.png'; // img === '/src/image.png'
 import svg from './image.svg'; // svg === '/src/image.svg'
 
 // This example uses JSX, but you can use these references with any framework.
 <img src={img} />;
 ```
+
+Alternatively, you can import images and reference your assets in the more traditional way. 
 
 All other assets not explicitly mentioned above can be imported and will return a URL reference to the final built asset. This can be useful for referencing non-JS assets by URL, like creating an image element with a `src` attribute pointing to that image.
 
