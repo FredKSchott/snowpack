@@ -50,18 +50,14 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
   it('logs error if resolve input is invalid', async () => {
     expect(() => {
       plugin(mockConfig, {
-        input: '.svelte'
+        input: '.svelte',
       });
-    }).toThrow(
-      `[plugin-svelte] Option "input" must be an array (e.g. ['.svelte', '.svx'])`
-    );
+    }).toThrow(`[plugin-svelte] Option "input" must be an array (e.g. ['.svelte', '.svx'])`);
     expect(() => {
       plugin(mockConfig, {
-        input: []
+        input: [],
       });
-    }).toThrow(
-      `[plugin-svelte] Option "input" must specify at least one filetype`
-    );
+    }).toThrow(`[plugin-svelte] Option "input" must specify at least one filetype`);
   });
 
   it('passes compilerOptions to compiler', async () => {
@@ -114,7 +110,7 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
   it('resolves custom file extensions', async () => {
     expect(
       plugin(mockConfig, {
-          input: ['.svelte','.svx'],
+        input: ['.svelte', '.svx'],
       }).resolve.input,
     ).toMatchInlineSnapshot(`
       Array [
@@ -124,7 +120,7 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
     `);
     expect(
       plugin(mockConfig, {
-          input: ['.svx'],
+        input: ['.svx'],
       }).resolve.input,
     ).toMatchInlineSnapshot(`
       Array [

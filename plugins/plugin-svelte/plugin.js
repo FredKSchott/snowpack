@@ -39,9 +39,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     );
   }
   if (pluginOptions.input && !Array.isArray(pluginOptions.input)) {
-    throw new Error(
-      `[plugin-svelte] Option "input" must be an array (e.g. ['.svelte', '.svx'])`,
-    );
+    throw new Error(`[plugin-svelte] Option "input" must be an array (e.g. ['.svelte', '.svx'])`);
   }
   if (pluginOptions.input && pluginOptions.input.length === 0) {
     throw new Error(`[plugin-svelte] Option "input" must specify at least one filetype`);
