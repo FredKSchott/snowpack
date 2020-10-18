@@ -26,22 +26,20 @@ export const defaultFileExtensionMapping = {
 
 export function tryPluginsResolveExt(config: SnowpackConfig, filePath: string) {
 
-  const pluginResolveMultiple: string[] = [];
   let inputExt, outputExt;
   for (const ext of getExt(filePath)) {
     for (const plugin of config.plugins) {
-      if (!plugin.resolve) continue;
-      const pluginInput = plugin.resolve.input;
+      if (
+        !plugin.resolve ||
+        !plugin.resolve.input.includes(ext)
+      ) continue;
       const pluginOutput = plugin.resolve.output;
-      if (!pluginInput.includes(ext)) continue;
-      if (pluginInput.length > 1) {
-        pluginResolveMultiple.push(`input (${pluginInput.join(', ')})`);
+      if (pluginOutput.length < 1) {
+        logger.error(`Plugin ${plugin.name} has no extensions for output`);
+        continue;
       }
       if (pluginOutput.length > 1) {
-        pluginResolveMultiple.push(`output (${pluginOutput.join(', ')})`);
-      }
-      if (pluginResolveMultiple.length) {
-        logger.debug(`Can't use plugin ${plugin.name} to resolve ${filePath}: Multiple extensions for ${pluginResolveMultiple.join(' and ')}`);
+        logger.warn(`Can't use plugin ${plugin.name} to resolve ${filePath}: Multiple extensions for output (${pluginOutput.join(', ')})`);
         continue;
       }
       inputExt = ext;
@@ -54,7 +52,8 @@ export function tryPluginsResolveExt(config: SnowpackConfig, filePath: string) {
     inputExt = getLastExt(filePath);
     outputExt = config._extensionMap[inputExt] || defaultFileExtensionMapping[inputExt] || inputExt;
   }
-  // optimization: 99% of the time, extensions are the same
+
+  // optimization: most of the time, extensions are the same
   return inputExt === outputExt ? filePath : replaceExt(
     filePath,
     inputExt,

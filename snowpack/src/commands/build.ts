@@ -105,8 +105,7 @@ class FileBuilder {
 
   async buildFile() {
     this.filesToResolve = {};
-    const srcExt = path.extname(this.filepath);
-    const builtFileOutput = await buildFile(this.filepath, {
+    const {srcExt, result: builtFileOutput} = await buildFile(this.filepath, {
       plugins: this.config.plugins,
       isDev: false,
       isSSR: this.config.experiments.ssr,

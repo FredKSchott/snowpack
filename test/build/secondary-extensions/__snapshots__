@@ -1,0 +1,112 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack build secondary-extensions: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "_dist_/App/App.cssModule.js",
+  "_dist_/App/App.js",
+  "_dist_/comp/foo/foo.css",
+  "_dist_/comp/foo/foo.css.proxy.js",
+  "_dist_/comp/foo/foo.global.css",
+  "_dist_/comp/foo/foo.global.js",
+  "_dist_/comp/foo/foo.html.js",
+  "_dist_/comp/foo/foo.js",
+  "_dist_/index.js",
+  "_dist_/partial/home.partial.html.js",
+  "index.html",
+]
+`;
+
+exports[`snowpack build secondary-extensions: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+
+exports[`snowpack build secondary-extensions: build/_dist_/App/App.cssModule.js 1`] = `
+"
+export default {
+  styles: \\".App {\\\\tdisplay: block;}\\"
+}"
+`;
+
+exports[`snowpack build secondary-extensions: build/_dist_/App/App.js 1`] = `
+"import style from \\"./App.cssModule.js\\";
+export default {
+  name: \\"App\\",
+  style
+};"
+`;
+
+exports[`snowpack build secondary-extensions: build/_dist_/comp/foo/foo.css 1`] = `".app--foo {}"`;
+
+exports[`snowpack build secondary-extensions: build/_dist_/comp/foo/foo.css.proxy.js 1`] = `
+"
+const code = \\".app--foo {}\\";
+const styleEl = document.createElement(\\"style\\");
+const codeEl = document.createTextNode(code);
+styleEl.type = 'text/css';
+styleEl.appendChild(codeEl);
+document.head.appendChild(styleEl);"
+`;
+
+exports[`snowpack build secondary-extensions: build/_dist_/comp/foo/foo.global.css 1`] = `".app--foo {}"`;
+
+exports[`snowpack build secondary-extensions: build/_dist_/comp/foo/foo.global.js 1`] = `
+"
+export default {
+  styles: \\".app--foo {}\\"
+}"
+`;
+
+exports[`snowpack build secondary-extensions: build/_dist_/comp/foo/foo.html.js 1`] = `
+"
+export default {
+  template: \\"<div class=\\\\\\"app--foo\\\\\\">\\\\tHello Foo!</div>\\"
+}"
+`;
+
+exports[`snowpack build secondary-extensions: build/_dist_/comp/foo/foo.js 1`] = `
+"import templateOrRender from './foo.html.js';
+import './foo.css.proxy.js';
+export default {
+	...templateOrRender,
+	setup: function() {
+		return {};
+	}
+};"
+`;
+
+exports[`snowpack build secondary-extensions: build/_dist_/index.js 1`] = `
+"
+import Foo from './comp/foo/foo.js';
+import partialHome from './partial/home.partial.html.js';
+import App from './App/App.js';
+console.log(Foo);
+console.log(partialHome);
+console.log(App);"
+`;
+
+exports[`snowpack build secondary-extensions: build/_dist_/partial/home.partial.html.js 1`] = `
+"
+export default \\"<div class=\\\\\\"partial--home\\\\\\">\\\\t<h1>\\\\t\\\\tHome Partial\\\\t</h1></div>\\""
+`;
+
+exports[`snowpack build secondary-extensions: build/index.html 1`] = `
+"<!DOCTYPE html>
+<html lang=\\"en\\">
+  <head>
+    <meta charset=\\"utf-8\\" />
+    <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
+    <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
+    <title>Snowpack App</title>
+  </head>
+  <body>
+    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+      To begin the development, run \`npm start\` or \`yarn start\`.
+      To create a production bundle, use \`npm run build\` or \`yarn build\`.
+    -->
+  </body>
+</html>"
+`;

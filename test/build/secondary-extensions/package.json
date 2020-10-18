@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-secondary-extensions",
+  "scripts": {
+    "prepare": "snowpack",
+    "testbuild": "snowpack build"
+  },
+  "devDependencies": {
+    "snowpack": "^2.12.1"
+  }
+}

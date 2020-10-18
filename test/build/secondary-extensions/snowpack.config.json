@@ -1,0 +1,15 @@
+{
+  "mount": {
+    "./public": "/",
+    "./src": "/_dist_"
+  },
+  "buildOptions": {
+    "minify": false
+  },
+  "plugins": [
+    ["./html-template-plugin", {"base": "/src/comp/"}],
+    "./html-partial-plugin",
+    "./css-global-plugin",
+    "./css-modules-plugin"
+  ]
+}

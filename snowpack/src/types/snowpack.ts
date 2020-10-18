@@ -18,6 +18,11 @@ export type SnowpackBuiltFile = {
 
 export type SnowpackBuildMap = Record<string, SnowpackBuiltFile>;
 
+export type SnowpackBuildMapExt = {
+  srcExt: string,
+  result: SnowpackBuildMap
+};
+
 /** Standard file interface */
 export interface SnowpackSourceFile<Type = string | Buffer> {
   /** base extension (e.g. `.js`) */

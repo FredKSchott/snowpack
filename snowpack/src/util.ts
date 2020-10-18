@@ -315,7 +315,7 @@ export function isPackageAliasEntry(val: string): boolean {
 export function getExt(fileName: string) {
   const exts: string[] = [];
   let current = '', mat;
-  while (mat = /\.[^.\\\/g]*$/.exec(fileName)) {
+  while (mat = /\.[^.\\\/]*$/.exec(fileName)) {
     current = mat[0] + current;
     fileName = fileName.substr(0, mat.index);
     exts.unshift(current);

@@ -3,6 +3,7 @@ import {validatePluginLoadResult} from '../config';
 import {logger} from '../logger';
 import {
   SnowpackBuildMap,
+  SnowpackBuildMapExt,
   SnowpackConfig,
   SnowpackPlugin,
   PluginTransformResult,
@@ -47,8 +48,9 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
 async function runPipelineLoadStep(
   srcPath: string,
   {isDev, isSSR, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
-): Promise<SnowpackBuildMap> {
-  for (const srcExt of getExt(srcPath)) {
+): Promise<SnowpackBuildMapExt> {
+  let srcExt;
+  for (srcExt of getExt(srcPath)) {
     for (const step of plugins) {
       if (
         !step.load ||
@@ -75,9 +77,12 @@ async function runPipelineLoadStep(
         if (typeof result === 'string' || Buffer.isBuffer(result)) {
           const mainOutputExt = step.resolve.output[0];
           return {
-            [mainOutputExt]: {
-              code: result,
-            },
+            srcExt,
+            result: {
+              [mainOutputExt]: {
+                code: result
+              }
+            }
           };
         } else if (result && typeof result === 'object') {
           Object.keys(result).forEach((ext) => {
@@ -98,7 +103,10 @@ async function runPipelineLoadStep(
             // clean up empty files
             if (!result[ext].code) delete result[ext];
           });
-          return result;
+          return {
+            srcExt,
+            result
+          };
         }
       } catch (err) {
         // Attach metadata detailing where the error occurred.
@@ -108,10 +116,14 @@ async function runPipelineLoadStep(
     }
   }
 
+  srcExt = getLastExt(srcPath);
   return {
-    [getLastExt(srcPath)]: {
-      code: await readFile(srcPath),
-    },
+    srcExt,
+    result: {
+      [srcExt]: {
+        code: await readFile(srcPath)
+      }
+    }
   };
 }
 
@@ -252,11 +264,11 @@ export async function runPipelineCleanupStep({plugins}: SnowpackConfig) {
 export async function buildFile(
   srcPath: string,
   buildFileOptions: BuildFileOptions,
-): Promise<SnowpackBuildMap> {
+): Promise<SnowpackBuildMapExt> {
   // Pass 1: Find the first plugin to load this file, and return the result
-  const loadResult = await runPipelineLoadStep(srcPath, buildFileOptions);
+  const {srcExt, result: loadResult} = await runPipelineLoadStep(srcPath, buildFileOptions);
   // Pass 2: Pass that result through every plugin transform() method.
   const transformResult = await runPipelineTransformStep(loadResult, srcPath, buildFileOptions);
   // Return the final build result.
-  return transformResult;
+  return {srcExt, result: transformResult};
 }
