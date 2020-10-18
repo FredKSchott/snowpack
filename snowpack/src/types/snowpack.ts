@@ -238,6 +238,7 @@ export interface CLIFlags extends Omit<InstallOptions, 'env'> {
   secure?: boolean;
   verbose?: boolean;
   quiet?: boolean;
+  [flag: string]: any;
 }
 
 export interface ImportMap {
