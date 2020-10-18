@@ -22,7 +22,7 @@ To Resolve:
     name: 'snowpack-plugin',
     async serverStart({fileWatcher}) {
       fileWatcher.add(Object.keys(config.mount));
-      server = await snowpack.startServer({
+      server = await snowpack.startDevServer({
         cwd,
         config,
         lockfile: null,
@@ -50,7 +50,7 @@ To Resolve:
         source.indexOf('?') === -1 ? undefined : source.indexOf('?'),
       );
       const sourcePath = path.join(cwd, reqPath);
-      const mountedUrl = snowpack.unstable__getUrlForFile(sourcePath, config);
+      const mountedUrl = snowpack.getUrlForFile(sourcePath, config);
       if (!mountedUrl) {
         throw new Error(`${source} could not be mounted!`);
       }

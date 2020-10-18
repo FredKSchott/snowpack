@@ -62,7 +62,7 @@ import {
   transformFileImports,
 } from '../rewrite-imports';
 import {matchDynamicImportValue} from '../scan-imports';
-import {CommandOptions, ImportMap, SnowpackBuildMap} from '../types/snowpack';
+import {CommandOptions, ImportMap, SnowpackBuildMap, LoadResult, SnowpackDevServer} from '../types/snowpack';
 import {
   BUILD_CACHE,
   checkLockfileHash,
@@ -83,52 +83,6 @@ import {
 import {getInstallTargets, run as installRunner} from './install';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
 import {isBinaryFile} from 'isbinaryfile';
-
-interface LoadResult<T = Buffer | string> {
-  contents: T;
-  originalFileLoc: string | null;
-  responseFileName: string;
-  checkStale?: () => Promise<void>;
-}
-
-export interface ServerResult {
-  loadUrl: {
-    (
-      reqUrl: string,
-      opt?:
-        | {
-            isSSR?: boolean | undefined;
-            allowStale?: boolean | undefined;
-            encoding?: undefined;
-          }
-        | undefined,
-    ): Promise<LoadResult<Buffer | string>>;
-    (
-      reqUrl: string,
-      opt: {
-        isSSR?: boolean;
-        allowStale?: boolean;
-        encoding: BufferEncoding;
-      },
-    ): Promise<LoadResult<string>>;
-    (
-      reqUrl: string,
-      opt: {
-        isSSR?: boolean;
-        allowStale?: boolean;
-        encoding: null;
-      },
-    ): Promise<LoadResult<Buffer>>;
-  };
-  handleRequest: (
-    req: http.IncomingMessage,
-    res: http.ServerResponse,
-    options?: {handleError?: boolean},
-  ) => Promise<void>;
-  sendResponseFile: typeof sendResponseFile;
-  sendResponseError: typeof sendResponseError;
-  shutdown(): Promise<void>;
-}
 
 interface FoundFile {
   fileLoc: string;
@@ -325,7 +279,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
   return;
 }
 
-export async function startServer(commandOptions: CommandOptions): Promise<ServerResult> {
+export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
   // Start the startup timer!
   let serverStart = performance.now();
 
@@ -1433,6 +1387,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
   depWatcher.on('unlink', onDepWatchEvent);
 
   return {
+    port,
     loadUrl,
     handleRequest,
     sendResponseFile,
@@ -1446,7 +1401,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Serve
 
 export async function command(commandOptions: CommandOptions) {
   try {
-    await startServer(commandOptions);
+    await startDevServer(commandOptions);
   } catch (err) {
     logger.error(err.message);
     logger.debug(err.stack);

@@ -11,6 +11,59 @@ export type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
+
+export interface LoadResult<T = Buffer | string> {
+  contents: T;
+  originalFileLoc: string | null;
+  responseFileName: string;
+  checkStale?: () => Promise<void>;
+}
+
+export interface SnowpackDevServer {
+  port: number;
+  loadUrl: {
+    (
+      reqUrl: string,
+      opt?:
+        | {
+            isSSR?: boolean | undefined;
+            allowStale?: boolean | undefined;
+            encoding?: undefined;
+          }
+        | undefined,
+    ): Promise<LoadResult<Buffer | string>>;
+    (
+      reqUrl: string,
+      opt: {
+        isSSR?: boolean;
+        allowStale?: boolean;
+        encoding: BufferEncoding;
+      },
+    ): Promise<LoadResult<string>>;
+    (
+      reqUrl: string,
+      opt: {
+        isSSR?: boolean;
+        allowStale?: boolean;
+        encoding: null;
+      },
+    ): Promise<LoadResult<Buffer>>;
+  };
+  handleRequest: (
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    options?: {handleError?: boolean},
+  ) => Promise<void>;
+  sendResponseFile: (
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    {contents, originalFileLoc, responseFileName}: LoadResult,
+  ) => void;
+  sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
+  shutdown(): Promise<void>;
+}
+
+
 export type SnowpackBuiltFile = {
   code: string | Buffer;
   map?: string;
