@@ -7,8 +7,6 @@ Array [
   "_dist_/App/App.js",
   "_dist_/comp/foo/foo.css",
   "_dist_/comp/foo/foo.css.proxy.js",
-  "_dist_/comp/foo/foo.global.css",
-  "_dist_/comp/foo/foo.global.js",
   "_dist_/comp/foo/foo.html.js",
   "_dist_/comp/foo/foo.js",
   "_dist_/index.js",
@@ -44,15 +42,6 @@ const codeEl = document.createTextNode(code);
 styleEl.type = 'text/css';
 styleEl.appendChild(codeEl);
 document.head.appendChild(styleEl);"
-`;
-
-exports[`snowpack build secondary-extensions: build/_dist_/comp/foo/foo.global.css 1`] = `".app--foo {}"`;
-
-exports[`snowpack build secondary-extensions: build/_dist_/comp/foo/foo.global.js 1`] = `
-"
-export default {
-  styles: \\".app--foo {}\\"
-}"
 `;
 
 exports[`snowpack build secondary-extensions: build/_dist_/comp/foo/foo.html.js 1`] = `
