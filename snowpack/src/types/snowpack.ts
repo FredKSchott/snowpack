@@ -11,7 +11,6 @@ export type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
-
 export interface LoadResult<T = Buffer | string> {
   contents: T;
   originalFileLoc: string | null;
@@ -62,7 +61,6 @@ export interface SnowpackDevServer {
   sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
   shutdown(): Promise<void>;
 }
-
 
 export type SnowpackBuiltFile = {
   code: string | Buffer;

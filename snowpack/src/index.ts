@@ -23,7 +23,9 @@ export const unstable__startServer = () => {
 };
 /** DEPRECATED: Promoted to loadAndValidateConfig() **/
 export const unstable__loadAndValidateConfig = () => {
-  throw new Error(`[snowpack 2.15] unstable__loadAndValidateConfig() is now loadAndValidateConfig()`);
+  throw new Error(
+    `[snowpack 2.15] unstable__loadAndValidateConfig() is now loadAndValidateConfig()`,
+  );
 };
 /** DEPRECATED: Promoted to getUrlForFile() **/
 export const unstable__getUrlForFile = () => {

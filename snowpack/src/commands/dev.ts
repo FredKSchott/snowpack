@@ -62,7 +62,13 @@ import {
   transformFileImports,
 } from '../rewrite-imports';
 import {matchDynamicImportValue} from '../scan-imports';
-import {CommandOptions, ImportMap, SnowpackBuildMap, LoadResult, SnowpackDevServer} from '../types/snowpack';
+import {
+  CommandOptions,
+  ImportMap,
+  SnowpackBuildMap,
+  LoadResult,
+  SnowpackDevServer,
+} from '../types/snowpack';
 import {
   BUILD_CACHE,
   checkLockfileHash,
