@@ -1,5 +1,6 @@
 {
   "name": "@snowpack/app-template-vue-typescript",
+  "description": "A preconfigured template for Snowpack with Vue and TypeScript",
   "version": "1.10.6",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-vue-typescript#readme",

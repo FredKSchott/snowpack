@@ -1,8 +1,11 @@
 module.exports = {
-  install: [
+  mount: {
+    /* ... */
+  },
+  plugins: [
     /* ... */
   ],
-  plugins: [
+  install: [
     /* ... */
   ],
   installOptions: {
@@ -15,9 +18,6 @@ module.exports = {
     /* ... */
   },
   proxy: {
-    /* ... */
-  },
-  mount: {
     /* ... */
   },
   alias: {

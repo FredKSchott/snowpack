@@ -1,22 +1,20 @@
 module.exports = {
   mount: {
-    public: '/',
+    _output: '/',
     src: '/_dist_',
   },
   plugins: [
-    '@snowpack/plugin-dotenv',
-    '@snowpack/plugin-babel',
-    '@snowpack/plugin-typescript',
-    '@prefresh/snowpack',
+    ['@snowpack/plugin-run-script', { cmd: 'eleventy', watch: '$1 --watch' }],
   ],
   install: [
     /* ... */
   ],
   installOptions: {
-    installTypes: true,
+    /* ... */
   },
   devOptions: {
-    /* ... */
+    // Eleventy updates multiple files at once, so add a 300ms delay before we trigger a browser update
+    hmrDelay: 300,
   },
   buildOptions: {
     /* ... */

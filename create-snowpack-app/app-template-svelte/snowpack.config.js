@@ -11,4 +11,22 @@ module.exports = {
       {cmd: 'svelte-check --output human', watch: '$1 --watch', output: 'stream'},
     ],
   ],
+  install: [
+    /* ... */
+  ],
+  installOptions: {
+    /* ... */
+  },
+  devOptions: {
+    /* ... */
+  },
+  buildOptions: {
+    /* ... */
+  },
+  proxy: {
+    /* ... */
+  },
+  alias: {
+    /* ... */
+  },
 };
