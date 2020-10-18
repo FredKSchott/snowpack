@@ -45,3 +45,7 @@ console.log(styles, styles_);
 
 import adSvg from '@fortawesome/fontawesome-free/svgs/solid/ad.svg';
 console.log(adSvg);
+
+// Importing across mounted directories
+import robotsTxtRef from '../public/robots.txt';
+console.log(robotsTxtRef);
