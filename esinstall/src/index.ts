@@ -411,8 +411,10 @@ ${colors.dim(
       }
       const {loc, message} = warning;
       const logMessage = loc ? `${loc.file}:${loc.line}:${loc.column} ${message}` : message;
-      // These two warnings are usually harmless in packages, so don't show them by default.
-      if (warning.code === 'CIRCULAR_DEPENDENCY' || warning.code === 'NAMESPACE_CONFLICT') {
+      // These warnings are usually harmless in packages, so don't show them by default.
+      if (warning.code === 'CIRCULAR_DEPENDENCY' ||
+          warning.code === 'NAMESPACE_CONFLICT' ||
+          warning.code === 'THIS_IS_UNDEFINED') {
         logger.debug(logMessage);
       } else {
         logger.warn(logMessage);
