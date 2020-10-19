@@ -76,11 +76,7 @@ export function getUrlForFileMount({
   config: SnowpackConfig;
 }): string {
   const resolvedDirUrl = mountEntry.url === '/' ? '' : mountEntry.url;
-  fileLoc = fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, '/');
-  return mountEntry.static ? fileLoc : tryPluginsResolveExt(
-    config,
-    fileLoc
-  );
+  return fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, '/');
 }
 
 /**

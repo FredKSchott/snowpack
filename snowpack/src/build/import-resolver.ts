@@ -3,8 +3,7 @@ import path from 'path';
 import url from 'url';
 import {ImportMap, SnowpackConfig} from '../types/snowpack';
 import {findMatchingAliasEntry, getLastExt, relativeURL} from '../util';
-import {getUrlForFile} from './file-urls';
-// import {tryPluginsResolveExt} from './file-urls';
+import {getUrlForFile, tryPluginsResolveExt} from './file-urls';
 
 const cwd = process.cwd();
 
@@ -25,7 +24,7 @@ export function getImportStats(importedFileOnDisk: string): fs.Stats | false {
 }
 
 /** Resolve an import based on the state of the file/folder found on disk. */
-function resolveSourceSpecifier(spec: string, stats: fs.Stats | false) {//, config: SnowpackConfig
+function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: SnowpackConfig) {
   // Handle directory imports (ex: "./components" -> "./components/index.js")
   if (stats && stats.isDirectory()) {
     const trailingSlash = spec.endsWith('/') ? '' : '/';
@@ -35,8 +34,7 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false) {//, conf
   if (!stats && !getLastExt(spec)) {
     spec = spec + '.js';
   }
-  return spec;
-  // return tryPluginsResolveExt(config, spec);
+  return tryPluginsResolveExt(config, spec);
 }
 
 /**
@@ -62,20 +60,20 @@ export function createImportResolver({
 
     if (spec.startsWith('/')) {
       const importStats = getImportStats(path.resolve(cwd, spec.substr(1)));
-      return resolveSourceSpecifier(spec, importStats);//, config
+      return resolveSourceSpecifier(spec, importStats, config);
     }
     if (spec.startsWith('./') || spec.startsWith('../')) {
       const importedFileLoc = path.resolve(path.dirname(fileLoc), spec);
       const importStats = getImportStats(importedFileLoc);
-      const newSpec = getUrlForFile(importedFileLoc, config) || spec;
-      return resolveSourceSpecifier(newSpec, importStats);//, config
+      const newSpec = getUrlForFile(importedFileLoc, config);
+      return resolveSourceSpecifier(newSpec || spec, importStats, config);
     }
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && aliasEntry.type === 'path') {
       const {from, to} = aliasEntry;
       let result = spec.replace(from, to);
       const importStats = getImportStats(path.resolve(cwd, result));
-      result = resolveSourceSpecifier(result, importStats);//, config
+      result = resolveSourceSpecifier(result, importStats, config);
       // replace Windows backslashes at the end, after resolution
       result = relativeURL(path.dirname(fileLoc), result);
       return result;

@@ -1,0 +1,42 @@
+.build.importResolver.4 {
+	"fileLoc": "/mnt/d/dev/github/snowpack/test/build/secondary-extensions/src/comp/foo/foo.js",
+	"spec": "./foo.global.css",
+	"importedFileLoc": "/mnt/d/dev/github/snowpack/test/build/secondary-extensions/src/comp/foo/foo.global.css",
+	"newSpec": "/_dist_/comp/foo/foo.global.css",
+	"result": "/_dist_/comp/foo/foo.css"
+}
+.build.importResolver.3 {
+	"spec": "./foo.global.css",
+	"baseExt": ".js",
+	"expandedExt": ".js",
+	"importExtName": ".css",
+	"isProxyImport": true
+}
+.build.importResolver.4 {
+	"fileLoc": "/mnt/d/dev/github/snowpack/test/build/secondary-extensions/src/comp/foo/foo.js",
+	"spec": "./foo.html",
+	"importedFileLoc": "/mnt/d/dev/github/snowpack/test/build/secondary-extensions/src/comp/foo/foo.html",
+	"newSpec": "/_dist_/comp/foo/foo.html",
+	"result": "/_dist_/comp/foo/foo.html.js"
+}
+.build.importResolver.3 {
+	"spec": "./foo.html",
+	"baseExt": ".js",
+	"expandedExt": ".js",
+	"importExtName": ".js",
+	"isProxyImport": false
+}
+.build.importResolver.4 {
+	"fileLoc": "/mnt/d/dev/github/snowpack/test/build/secondary-extensions/src/index.js",
+	"spec": "./comp/foo/foo",
+	"importedFileLoc": "/mnt/d/dev/github/snowpack/test/build/secondary-extensions/src/comp/foo/foo",
+	"newSpec": "/_dist_/comp/foo/foo",
+	"result": "/_dist_/comp/foo/foo.js"
+}
+.build.importResolver.3 {
+	"spec": "./comp/foo/foo",
+	"baseExt": ".js",
+	"expandedExt": ".js",
+	"importExtName": ".js",
+	"isProxyImport": false
+}
