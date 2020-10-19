@@ -17,17 +17,17 @@ export {startDevServer} from './commands/dev';
 export {loadAndValidateConfig};
 export {getUrlForFile} from './build/file-urls';
 
-/** DEPRECATED: Promoted to startServer() **/
+/** @deprecated: Promoted to startServer() **/
 export const unstable__startServer = () => {
   throw new Error(`[snowpack 2.15] unstable__startServer() is now startServer()`);
 };
-/** DEPRECATED: Promoted to loadAndValidateConfig() **/
+/** @deprecated: Promoted to loadAndValidateConfig() **/
 export const unstable__loadAndValidateConfig = () => {
   throw new Error(
     `[snowpack 2.15] unstable__loadAndValidateConfig() is now loadAndValidateConfig()`,
   );
 };
-/** DEPRECATED: Promoted to getUrlForFile() **/
+/** @deprecated: Promoted to getUrlForFile() **/
 export const unstable__getUrlForFile = () => {
   throw new Error(`[snowpack 2.15] unstable__getUrlForFile() is now getUrlForFile()`);
 };
