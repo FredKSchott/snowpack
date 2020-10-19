@@ -36,6 +36,7 @@
     "css-modules-loader-core": "^1.1.0",
     "deepmerge": "^4.2.2",
     "detect-port": "^1.3.0",
+    "devcert": "^1.1.3",
     "es-module-lexer": "^0.3.24",
     "esbuild": "^0.7.0",
     "esinstall": "^0.3.3",

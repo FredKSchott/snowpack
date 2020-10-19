@@ -89,6 +89,7 @@ import {
 import {getInstallTargets, run as installRunner} from './install';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
 import {isBinaryFile} from 'isbinaryfile';
+import {certificateFor} from 'devcert';
 
 interface FoundFile {
   fileLoc: string;
@@ -407,7 +408,17 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   if (config.devOptions.secure) {
     try {
       logger.debug(`reading credentials`);
-      credentials = await readCredentials(cwd);
+      try {
+        credentials = await readCredentials(cwd);
+      } catch (e) {
+        const {key, cert} = await certificateFor('localhost');
+        credentials = {key, cert};
+        logger.info(
+          `Snowpack is using auto generated cert, you can add your own ${colors.bold(
+            'snowpack.crt',
+          )}, ${colors.bold('snowpack.key')} in root path`,
+        );
+      }
     } catch (e) {
       logger.error(
         `✘ No HTTPS credentials found! Missing Files:  ${colors.bold(
