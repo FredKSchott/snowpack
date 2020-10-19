@@ -68,12 +68,10 @@ export function getUrlForFileMount({
   fileLoc,
   mountKey,
   mountEntry,
-  config,
 }: {
   fileLoc: string;
   mountKey: string;
   mountEntry: MountEntry;
-  config: SnowpackConfig;
 }): string {
   const resolvedDirUrl = mountEntry.url === '/' ? '' : mountEntry.url;
   return fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, '/');
@@ -108,5 +106,5 @@ export function getUrlForFile(fileLoc: string, config: SnowpackConfig): string |
     return null;
   }
   const [mountKey, mountEntry] = mountEntryResult;
-  return getUrlForFileMount({fileLoc, mountKey, mountEntry, config});
+  return getUrlForFileMount({fileLoc, mountKey, mountEntry});
 }
