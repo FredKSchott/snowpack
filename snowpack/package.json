@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pikapkg/snowpack.git"
+    "url": "https://github.com/snowpackjs/snowpack.git"
   },
   "publishConfig": {
     "access": "public"

@@ -123,25 +123,25 @@ If you already have an existing Snowpack application, Snowpack 2.0 will walk you
 
 #### Create Snowpack App
 
-The easiest way to get started with Snowpack is with [Create Snowpack App (CSA)](https://github.com/pikapkg/snowpack). CSA automatically initializes a starter application for you with a pre-configured, Snowpack-powered dev environment.
+The easiest way to get started with Snowpack is with [Create Snowpack App (CSA)](https://github.com/snowpackjs/snowpack). CSA automatically initializes a starter application for you with a pre-configured, Snowpack-powered dev environment.
 
 ```bash
 npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 ```
 
-- [@snowpack/app-template-blank](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-blank)
-- [@snowpack/app-template-react](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react)
-- [@snowpack/app-template-react-typescript](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react-typescript)
-- [@snowpack/app-template-preact](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-preact)
-- [@snowpack/app-template-svelte](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-svelte)
-- [@snowpack/app-template-vue](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-vue)
-- [@snowpack/app-template-lit-element](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-lit-element)
-- [@snowpack/app-template-11ty](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-11ty)
-- **[See all community templates](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app)**
+- [@snowpack/app-template-blank](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-blank)
+- [@snowpack/app-template-react](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-react)
+- [@snowpack/app-template-react-typescript](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-react-typescript)
+- [@snowpack/app-template-preact](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-preact)
+- [@snowpack/app-template-svelte](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte)
+- [@snowpack/app-template-vue](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-vue)
+- [@snowpack/app-template-lit-element](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-lit-element)
+- [@snowpack/app-template-11ty](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-11ty)
+- **[See all community templates](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app)**
 
 🐹 Happy hacking!
 
 ---
 
-_Thank you to all of our [80+ contributors](https://github.com/pikapkg/snowpack/graphs/contributors) for making this release possible._
+_Thank you to all of our [80+ contributors](https://github.com/snowpackjs/snowpack/graphs/contributors) for making this release possible._
 _Thanks to [Melissa McEwen](https://twitter.com/melissamcewen) & [@TheoOnTwitch](https://twitter.com/TheoOnTwitch) for helping to edit this post._

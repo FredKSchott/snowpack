@@ -1,5 +1,5 @@
-<a href="https://github.com/pikapkg/snowpack/actions" align="right">
-  <img src="https://github.com/pikapkg/snowpack/workflows/CI/badge.svg?event=push" alt="CI" />
+<a href="https://github.com/snowpackjs/snowpack/actions" align="right">
+  <img src="https://github.com/snowpackjs/snowpack/workflows/CI/badge.svg?event=push" alt="CI" />
 </a>    
   
 <h1>Snowpack</h1>

@@ -44,7 +44,7 @@ To Resolve:
       if (!isTestFilePath(source) || source.startsWith('/__web-dev-server')) {
         return;
       }
-      // PERF(fks): https://github.com/pikapkg/snowpack/pull/1259/files#r502963818
+      // PERF(fks): https://github.com/snowpackjs/snowpack/pull/1259/files#r502963818
       const reqPath = source.substring(
         0,
         source.indexOf('?') === -1 ? undefined : source.indexOf('?'),

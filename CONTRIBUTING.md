@@ -2,11 +2,11 @@
 
 Interested in contributing? We'd love your help!
 
-If you run into problems or find something confusing, please share it with us in [this discussion](https://github.com/pikapkg/snowpack/discussions/958). A great experience for new contributors is very important to us!
+If you run into problems or find something confusing, please share it with us in [this discussion](https://github.com/snowpackjs/snowpack/discussions/958). A great experience for new contributors is very important to us!
 
-Please note that all activity on the [`pikapkg/snowpack` repository](https://github.com/pikapkg/snowpack) and our [Discord](https://discord.gg/rS8SnRk) is moderated and will be strictly enforced under Snowpack's [Contributor Code of Conduct](CODE_OF_CONDUCT.md).
+Please note that all activity on the [`snowpackjs/snowpack` repository](https://github.com/snowpackjs/snowpack) and our [Discord](https://discord.gg/rS8SnRk) is moderated and will be strictly enforced under Snowpack's [Contributor Code of Conduct](CODE_OF_CONDUCT.md).
 
-Our [issue tracker](https://github.com/pikapkg/snowpack/issues) is always organized with a selection of high-priority bugs, feature requests, and ["help wanted!"](https://github.com/pikapkg/snowpack/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)/["good first issue"](https://github.com/pikapkg/snowpack/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) items. For general package troubleshooting and discussions, check out our [Package Community](https://www.pika.dev/npm/snowpack/discuss) discussion board.
+Our [issue tracker](https://github.com/snowpackjs/snowpack/issues) is always organized with a selection of high-priority bugs, feature requests, and ["help wanted!"](https://github.com/snowpackjs/snowpack/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)/["good first issue"](https://github.com/snowpackjs/snowpack/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) items. For general package troubleshooting and discussions, check out our [Package Community](https://www.pika.dev/npm/snowpack/discuss) discussion board.
 
 ## Requirements
 
@@ -15,7 +15,7 @@ Snowpack uses [yarn workspaces](https://classic.yarnpkg.com/) to manage multiple
 ## Initial setup
 
 ```bash
-git clone https://github.com/pikapkg/snowpack.git
+git clone https://github.com/snowpackjs/snowpack.git
 cd snowpack
 yarn
 ```
