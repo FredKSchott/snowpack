@@ -62,20 +62,20 @@ export function createImportResolver({
 
     if (spec.startsWith('/')) {
       const importStats = getImportStats(path.resolve(cwd, spec.substr(1)));
-      return resolveSourceSpecifier(spec, importStats, config);
+      return resolveSourceSpecifier(spec, importStats);//, config
     }
     if (spec.startsWith('./') || spec.startsWith('../')) {
       const importedFileLoc = path.resolve(path.dirname(fileLoc), spec);
       const importStats = getImportStats(importedFileLoc);
       const newSpec = getUrlForFile(importedFileLoc, config) || spec;
-      return resolveSourceSpecifier(newSpec, importStats, config);
+      return resolveSourceSpecifier(newSpec, importStats);//, config
     }
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && aliasEntry.type === 'path') {
       const {from, to} = aliasEntry;
       let result = spec.replace(from, to);
       const importStats = getImportStats(path.resolve(cwd, result));
-      result = resolveSourceSpecifier(result, importStats, config);
+      result = resolveSourceSpecifier(result, importStats);//, config
       // replace Windows backslashes at the end, after resolution
       result = relativeURL(path.dirname(fileLoc), result);
       return result;
