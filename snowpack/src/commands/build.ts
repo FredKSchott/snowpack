@@ -419,7 +419,7 @@ export async function command(commandOptions: CommandOptions) {
     });
     for (const rawLocOnDisk of allFiles) {
       const fileLoc = path.resolve(rawLocOnDisk); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
-      const finalUrl = getUrlForFileMount({fileLoc, mountKey: mountedDir, mountEntry, config});
+      const finalUrl = getUrlForFileMount({fileLoc, mountKey: mountedDir, mountEntry});
       const finalDestLoc = path.join(buildDirectoryLoc, finalUrl);
       const outDir = path.dirname(finalDestLoc);
       const buildPipelineFile = new FileBuilder({filepath: fileLoc, mountEntry, outDir, config});
@@ -521,7 +521,7 @@ export async function command(commandOptions: CommandOptions) {
       return;
     }
     const [mountKey, mountEntry] = mountEntryResult;
-    const finalUrl = getUrlForFileMount({fileLoc, mountKey, mountEntry, config})!;
+    const finalUrl = getUrlForFileMount({fileLoc, mountKey, mountEntry})!;
     const finalDest = path.join(buildDirectoryLoc, finalUrl);
     const outDir = path.dirname(finalDest);
 
