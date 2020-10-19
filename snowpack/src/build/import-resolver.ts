@@ -3,7 +3,8 @@ import path from 'path';
 import url from 'url';
 import {ImportMap, SnowpackConfig} from '../types/snowpack';
 import {findMatchingAliasEntry, getLastExt, relativeURL} from '../util';
-import {tryPluginsResolveExt, getUrlForFile} from './file-urls';
+import {getUrlForFile} from './file-urls';
+// import {tryPluginsResolveExt} from './file-urls';
 
 const cwd = process.cwd();
 
@@ -24,7 +25,7 @@ export function getImportStats(importedFileOnDisk: string): fs.Stats | false {
 }
 
 /** Resolve an import based on the state of the file/folder found on disk. */
-function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: SnowpackConfig) {
+function resolveSourceSpecifier(spec: string, stats: fs.Stats | false) {//, config: SnowpackConfig
   // Handle directory imports (ex: "./components" -> "./components/index.js")
   if (stats && stats.isDirectory()) {
     const trailingSlash = spec.endsWith('/') ? '' : '/';
