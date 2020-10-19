@@ -1,5 +1,6 @@
 {
   "name": "@snowpack/app-template-blank-typescript",
+  "description": "A preconfigured template for Snowpack with Typescript",
   "version": "1.9.7",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-blank-typescript#readme",

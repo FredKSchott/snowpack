@@ -68,7 +68,6 @@ export function wrapHtmlResponse({
 }) {
   // replace %PUBLIC_URL% (along with surrounding slashes, if any)
   code = code.replace(/\/?%PUBLIC_URL%\/?/g, isDev ? '/' : config.buildOptions.baseUrl);
-
   // replace %MODE%
   code = code.replace(/%MODE%/g, mode);
 
@@ -132,23 +131,25 @@ function generateCssImportProxy({
   hmr: boolean;
   config: SnowpackConfig;
 }) {
-  const cssImportProxyCode = `${
+  const cssImportProxyCode = `// [snowpack] add styles to the page (skip if no document exists)
+if (typeof document !== 'undefined') {${
     hmr
       ? `
-import.meta.hot.accept();
-import.meta.hot.dispose(() => {
-document.head.removeChild(styleEl);
-});\n`
+  import.meta.hot.accept();
+  import.meta.hot.dispose(() => {
+    document.head.removeChild(styleEl);
+  });\n`
       : ''
   }
-const code = ${JSON.stringify(code)};
+  const code = ${JSON.stringify(code)};
 
-const styleEl = document.createElement("style");
-const codeEl = document.createTextNode(code);
-styleEl.type = 'text/css';
+  const styleEl = document.createElement("style");
+  const codeEl = document.createTextNode(code);
+  styleEl.type = 'text/css';
 
-styleEl.appendChild(codeEl);
-document.head.appendChild(styleEl);`;
+  styleEl.appendChild(codeEl);
+  document.head.appendChild(styleEl);
+}`;
   return wrapImportMeta({code: cssImportProxyCode, hmr, env: false, config});
 }
 
@@ -168,26 +169,29 @@ async function generateCssModuleImportProxy({
   const {injectableSource, exportTokens} = await _cssModuleLoader.load(code, url, undefined, () => {
     throw new Error('Imports in CSS Modules are not yet supported.');
   });
-  return `${
-    hmr
-      ? `
-import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr-client.js', config)}';
-import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
-import.meta.hot.dispose(() => {
-  document.head.removeChild(styleEl);
-});\n`
-      : ``
-  }
+  return `
 export let code = ${JSON.stringify(injectableSource)};
 let json = ${JSON.stringify(exportTokens)};
 export default json;
 
-const styleEl = document.createElement("style");
-const codeEl = document.createTextNode(code);
-styleEl.type = 'text/css';
+// [snowpack] add styles to the page (skip if no document exists)
+if (typeof document !== 'undefined') {${
+    hmr
+      ? `
+  import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr-client.js', config)}';
+  import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
+  import.meta.hot.dispose(() => {
+    document.head.removeChild(styleEl);
+  });\n`
+      : ``
+  }
+  const styleEl = document.createElement("style");
+  const codeEl = document.createTextNode(code);
+  styleEl.type = 'text/css';
 
-styleEl.appendChild(codeEl);
-document.head.appendChild(styleEl);`;
+  styleEl.appendChild(codeEl);
+  document.head.appendChild(styleEl);
+}`;
 }
 
 function generateDefaultImportProxy(url: string) {
@@ -225,10 +229,11 @@ export async function wrapImportProxy({
   return generateDefaultImportProxy(url);
 }
 
-export function generateEnvModule(mode: 'development' | 'production') {
-  const envObject = getSnowpackPublicEnvVariables();
+export function generateEnvModule({mode, isSSR}: {mode: 'development' | 'production', isSSR: boolean}) {
+  const envObject: Record<string, string | boolean | undefined> = getSnowpackPublicEnvVariables();
   envObject.MODE = mode;
   envObject.NODE_ENV = mode;
+  envObject.SSR = isSSR;
   return `export default ${JSON.stringify(envObject)};`;
 }
 

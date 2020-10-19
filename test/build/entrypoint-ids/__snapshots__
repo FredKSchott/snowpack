@@ -10,7 +10,7 @@ Array [
 ]
 `;
 
-exports[`snowpack build entrypoint-ids: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build entrypoint-ids: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build entrypoint-ids: build/_dist_/index.js 1`] = `
 "import '../web_modules/chalk.js';

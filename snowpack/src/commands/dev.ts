@@ -30,7 +30,6 @@ import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, existsSync, promises as fs, statSync} from 'fs';
-import {send} from 'httpie';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
@@ -63,7 +62,13 @@ import {
   transformFileImports,
 } from '../rewrite-imports';
 import {matchDynamicImportValue} from '../scan-imports';
-import {CommandOptions, ImportMap, SnowpackBuildMap} from '../types/snowpack';
+import {
+  CommandOptions,
+  ImportMap,
+  SnowpackBuildMap,
+  LoadResult,
+  SnowpackDevServer,
+} from '../types/snowpack';
 import {
   BUILD_CACHE,
   checkLockfileHash,
@@ -77,14 +82,46 @@ import {
   openInBrowser,
   parsePackageImportSpecifier,
   readFile,
+  relativeURL,
   replaceExt,
   resolveDependencyManifest,
   updateLockfileHash,
 } from '../util';
 import {getInstallTargets, run as installRunner} from './install';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
+import {isBinaryFile} from 'isbinaryfile';
+
+interface FoundFile {
+  fileLoc: string;
+  isStatic: boolean;
+  isResolve: boolean;
+}
 
 const FILE_BUILD_RESULT_ERROR = `Build Result Error: There was a problem with a file build result.`;
+
+/**
+ * If encoding is defined, return a string. Otherwise, return a Buffer.
+ */
+function encodeResponse(
+  response: Buffer | string,
+  encoding: BufferEncoding | undefined | null,
+): Buffer | string {
+  if (encoding === undefined) {
+    return response;
+  }
+  if (encoding) {
+    if (typeof response === 'string') {
+      return response;
+    } else {
+      return response.toString(encoding);
+    }
+  }
+  if (typeof response === 'string') {
+    return Buffer.from(response);
+  } else {
+    return response;
+  }
+}
 
 function getCacheKey(fileLoc: string, {isSSR, env}) {
   return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
@@ -97,8 +134,20 @@ const DEFAULT_PROXY_ERROR_HANDLER = (
 ) => {
   const reqUrl = req.url!;
   logger.error(`✘ ${reqUrl}\n${err.message}`);
-  sendError(req, res, 502);
+  sendResponseError(req, res, 502);
 };
+
+/**
+ * A helper class for "Not Found" errors, storing data about what file lookups were attempted.
+ */
+class NotFoundError extends Error {
+  lookups: string[];
+
+  constructor(lookups: string[]) {
+    super('NOT_FOUND');
+    this.lookups = lookups;
+  }
+}
 
 /**
  * Install dependencies needed in "dev" mode. Generally speaking, this scans
@@ -124,21 +173,19 @@ async function installDependencies(commandOptions: CommandOptions) {
   return installResult;
 }
 
-function shouldProxy(pathPrefix: string, req: http.IncomingMessage) {
-  const reqPath = decodeURI(url.parse(req.url!).pathname!);
+function shouldProxy(pathPrefix: string, reqUrl: string) {
+  const reqPath = decodeURI(url.parse(reqUrl).pathname!);
   return reqPath.startsWith(pathPrefix);
 }
 
-const sendFile = (
+function sendResponseFile(
   req: http.IncomingMessage,
   res: http.ServerResponse,
-  body: string | Buffer,
-  fileLoc: string,
-  ext: string,
-) => {
-  body = Buffer.from(body);
+  {contents, originalFileLoc, responseFileName}: LoadResult,
+) {
+  const body = Buffer.from(contents);
   const ETag = etag(body, {weak: true});
-  const contentType = mime.contentType(ext);
+  const contentType = mime.contentType(responseFileName);
   const headers: Record<string, string> = {
     'Accept-Ranges': 'bytes',
     'Access-Control-Allow-Origin': '*',
@@ -179,16 +226,20 @@ const sendFile = (
   }
 
   // Handle partial requests
+  // TODO: This throws out a lot of hard work, and ignores any build. Improve.
   const {range} = req.headers;
   if (range) {
-    const {size: fileSize} = statSync(fileLoc);
+    if (!originalFileLoc) {
+      throw new Error('Virtual files do not support partial requests');
+    }
+    const {size: fileSize} = statSync(originalFileLoc);
     const [rangeStart, rangeEnd] = range.replace(/bytes=/, '').split('-');
 
     const start = parseInt(rangeStart, 10);
     const end = rangeEnd ? parseInt(rangeEnd, 10) : fileSize - 1;
     const chunkSize = end - start + 1;
 
-    const fileStream = createReadStream(fileLoc, {start, end});
+    const fileStream = createReadStream(originalFileLoc, {start, end});
     res.writeHead(206, {
       ...headers,
       'Content-Range': `bytes ${start}-${end}/${fileSize}`,
@@ -201,12 +252,9 @@ const sendFile = (
   res.writeHead(200, headers);
   res.write(body);
   res.end();
-};
+}
 
-const sendError = (req: http.IncomingMessage, res: http.ServerResponse, status: number) => {
-  if (!(req.url === '/favicon.ico' && status === 404)) {
-    logger.error(`[${status}] ${req.url}`);
-  }
+function sendResponseError(req: http.IncomingMessage, res: http.ServerResponse, status: number) {
   const contentType = mime.contentType(path.extname(req.url!) || '.html');
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': '*',
@@ -216,9 +264,29 @@ const sendError = (req: http.IncomingMessage, res: http.ServerResponse, status: 
   };
   res.writeHead(status, headers);
   res.end();
-};
+}
 
-export async function startServer(commandOptions: CommandOptions) {
+function handleResponseError(req, res, err: Error | NotFoundError) {
+  if (err instanceof NotFoundError) {
+    // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
+    // from the server, which creates annoying errors for new apps / first experiences.
+    if (req.path !== '/favicon.ico') {
+      const attemptedFilesMessage = err.lookups.map((loc) => '  ✘ ' + loc).join('\n');
+      logger.error(`[404] ${req.url}\n${attemptedFilesMessage}`);
+    }
+    sendResponseError(req, res, 404);
+    return;
+  }
+  logger.error(err.toString());
+  logger.error(`[500] ${req.url}`, {
+    // @ts-ignore
+    name: err.__snowpackBuildDetails?.name,
+  });
+  sendResponseError(req, res, 500);
+  return;
+}
+
+export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
   // Start the startup timer!
   let serverStart = performance.now();
 
@@ -235,7 +303,10 @@ export async function startServer(commandOptions: CommandOptions) {
 
   // Fill in any command-specific plugin methods.
   for (const p of config.plugins) {
-    p.markChanged = (fileLoc) => onWatchEvent(fileLoc) || undefined;
+    p.markChanged = (fileLoc) => {
+      knownETags.clear();
+      onWatchEvent(fileLoc);
+    };
   }
 
   if (config.devOptions.output === 'dashboard') {
@@ -272,8 +343,8 @@ export async function startServer(commandOptions: CommandOptions) {
   logger.debug(`Using in-memory cache.`);
   logger.debug(`Mounting directories:`, {
     task: () => {
-      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
-        logger.debug(` -> '${dirDisk}' as URL '${dirUrl}'`);
+      for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
+        logger.debug(` -> '${mountKey}' as URL '${mountEntry.url}'`);
       }
     },
   });
@@ -384,16 +455,44 @@ export async function startServer(commandOptions: CommandOptions) {
     }
   }
 
-  async function requestHandler(
-    req: http.IncomingMessage,
-    res: http.ServerResponse,
-    next?: () => void,
-  ) {
-    const reqUrl = req.url!;
+  function loadUrl(
+    reqUrl: string,
+    {
+      isSSR: _isSSR,
+      allowStale: _allowStale,
+      encoding: _encoding,
+    }?: {isSSR?: boolean; allowStale?: boolean; encoding?: undefined},
+  ): Promise<LoadResult<Buffer | string>>;
+  function loadUrl(
+    reqUrl: string,
+    {
+      isSSR: _isSSR,
+      allowStale: _allowStale,
+      encoding: _encoding,
+    }: {isSSR?: boolean; allowStale?: boolean; encoding: BufferEncoding},
+  ): Promise<LoadResult<string>>;
+  function loadUrl(
+    reqUrl: string,
+    {
+      isSSR: _isSSR,
+      allowStale: _allowStale,
+      encoding: _encoding,
+    }: {isSSR?: boolean; allowStale?: boolean; encoding: null},
+  ): Promise<LoadResult<Buffer>>;
+  async function loadUrl(
+    reqUrl: string,
+    {
+      isSSR: _isSSR,
+      allowStale: _allowStale,
+      encoding: _encoding,
+    }: {isSSR?: boolean; allowStale?: boolean; encoding?: BufferEncoding | null} = {},
+  ): Promise<LoadResult> {
+    const isSSR = _isSSR ?? false;
+    const allowStale = _allowStale ?? false;
+    const encoding = _encoding ?? null;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const originalReqPath = reqPath;
-    const isSSR = reqUrl.includes('?ssr');
     let isProxyModule = false;
     let isSourceMap = false;
     if (reqPath.endsWith('.proxy.js')) {
@@ -405,24 +504,25 @@ export async function startServer(commandOptions: CommandOptions) {
     }
 
     if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
-      sendFile(req, res, HMR_CLIENT_CODE, reqPath, '.js');
-      return;
+      return {
+        contents: encodeResponse(HMR_CLIENT_CODE, encoding),
+        originalFileLoc: null,
+        responseFileName: 'hmr-client.js',
+      };
     }
     if (reqPath === getMetaUrlPath('/hmr-error-overlay.js', config)) {
-      sendFile(req, res, HMR_OVERLAY_CODE, reqPath, '.js');
-      return;
+      return {
+        contents: encodeResponse(HMR_OVERLAY_CODE, encoding),
+        originalFileLoc: null,
+        responseFileName: 'hmr-error-overlay.js',
+      };
     }
     if (reqPath === getMetaUrlPath('/env.js', config)) {
-      sendFile(req, res, generateEnvModule('development'), reqPath, '.js');
-      return;
-    }
-
-    for (const [pathPrefix] of config.proxy) {
-      if (!shouldProxy(pathPrefix, req)) {
-        continue;
-      }
-      devProxies[pathPrefix].web(req, res);
-      return;
+      return {
+        contents: encodeResponse(generateEnvModule({mode: 'development', isSSR}), encoding),
+        originalFileLoc: null,
+        responseFileName: 'env.js',
+      };
     }
 
     const attemptedFileLoads: string[] = [];
@@ -444,46 +544,52 @@ export async function startServer(commandOptions: CommandOptions) {
     let responseFileExt = requestedLastFileExt;
     let isRoute = !requestedLastFileExt || requestedLastFileExt === '.html';
 
-    async function getFileFromUrl(reqPath: string): Promise<string | null> {
+    async function getFileFromUrl(reqPath: string): Promise<FoundFile | null> {
       if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
         const dependencyFileLoc =
           reqPath.replace(config.buildOptions.webModulesUrl, DEV_DEPENDENCIES_DIR) +
           (isSourceMap ? '.map' : '');
         const foundFile = await attemptLoadFile(dependencyFileLoc);
         if (foundFile) {
-          return foundFile;
+          return {fileLoc: foundFile, isStatic: true, isResolve: false};
         }
       }
-      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
+      for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
         let requestedFile: string;
-        if (dirUrl === '/') {
-          requestedFile = path.join(dirDisk, reqPath);
-        } else if (reqPath.startsWith(dirUrl)) {
-          requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, './'));
+        if (mountEntry.url === '/') {
+          requestedFile = path.join(mountKey, reqPath);
+        } else if (reqPath.startsWith(mountEntry.url)) {
+          requestedFile = path.join(mountKey, reqPath.replace(mountEntry.url, './'));
         } else {
           continue;
         }
         const fileLocExact = await attemptLoadFile(requestedFile);
         if (fileLocExact) {
-          return fileLocExact;
+          return {
+            fileLoc: fileLocExact,
+            isStatic: mountEntry.static,
+            isResolve: mountEntry.resolve,
+          };
         }
-        for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
-          const fileLoc = await attemptLoadFile(potentialSourceFile);
-          if (fileLoc) {
-            return fileLoc;
+        if (!mountEntry.static) {
+          for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
+            const fileLoc = await attemptLoadFile(potentialSourceFile);
+            if (fileLoc) {
+              return {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
+            }
           }
         }
       }
       return null;
     }
 
-    async function getFileFromRoute(reqPath: string): Promise<string | null> {
-      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
+    async function getFileFromRoute(reqPath: string): Promise<FoundFile | null> {
+      for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
         let requestedFile: string;
-        if (dirUrl === '/') {
-          requestedFile = path.join(dirDisk, reqPath);
-        } else if (reqPath.startsWith(dirUrl)) {
-          requestedFile = path.join(dirDisk, reqPath.replace(dirUrl, './'));
+        if (mountEntry.url === '/') {
+          requestedFile = path.join(mountKey, reqPath);
+        } else if (reqPath.startsWith(mountEntry.url)) {
+          requestedFile = path.join(mountKey, reqPath.replace(mountEntry.url, './'));
         } else {
           continue;
         }
@@ -494,50 +600,41 @@ export async function startServer(commandOptions: CommandOptions) {
         if (fileLoc) {
           requestedFileExt = ['.html'];
           responseFileExt = '.html';
-          return fileLoc;
+          return {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
         }
       }
       return null;
     }
 
-    async function getFileFromFallback(): Promise<string | null> {
-      for (const [dirDisk, dirUrl] of Object.entries(config.mount)) {
-        if (dirUrl !== '/') {
+    async function getFileFromFallback(): Promise<FoundFile | null> {
+      if (!config.devOptions.fallback) {
+        return null;
+      }
+      for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
+        if (mountEntry.url !== '/') {
           continue;
         }
-        if (config.devOptions.fallback) {
-          const fallbackFile = path.join(dirDisk, config.devOptions.fallback);
-          fileLoc = await attemptLoadFile(fallbackFile);
-        }
+        const fallbackFile = path.join(mountKey, config.devOptions.fallback);
+        const fileLoc = await attemptLoadFile(fallbackFile);
         if (fileLoc) {
           requestedFileExt = ['.html'];
           responseFileExt = '.html';
-          return fileLoc;
+          return {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
         }
       }
       return null;
     }
 
-    let fileLoc = await getFileFromUrl(reqPath);
-    if (!fileLoc && isRoute) {
-      fileLoc = (await getFileFromRoute(reqPath)) || (await getFileFromFallback());
+    let foundFile = await getFileFromUrl(reqPath);
+    if (!foundFile && isRoute) {
+      foundFile = (await getFileFromRoute(reqPath)) || (await getFileFromFallback());
     }
 
-    if (!fileLoc) {
-      if (next) {
-        // fall through to next handler
-        return next();
-      } else {
-        // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
-        // from the server, which creates annoying errors for new apps / first experiences.
-        if (reqPath !== '/favicon.ico') {
-          const attemptedFilesMessage = attemptedFileLoads.map((loc) => '  ✘ ' + loc).join('\n');
-          const errorMessage = `[404] ${reqUrl}\n${attemptedFilesMessage}`;
-          logger.error(errorMessage);
-        }
-        return sendError(req, res, 404);
-      }
+    if (!foundFile) {
+      throw new NotFoundError(attemptedFileLoads);
     }
+
+    const {fileLoc, isStatic, isResolve} = foundFile;
 
     /**
      * Given a file, build it. Building a file sends it through our internal
@@ -662,26 +759,40 @@ export async function startServer(commandOptions: CommandOptions) {
         },
         (spec) => {
           // Try to resolve the specifier to a known URL in the project
-          const resolvedImportUrl = resolveImportSpecifier(spec);
-          if (resolvedImportUrl) {
-            // Ignore "http://*" imports
-            if (url.parse(resolvedImportUrl).protocol) {
-              return resolvedImportUrl;
-            }
-            // Support proxy file imports
-            const extName = path.extname(resolvedImportUrl);
-            if (
-              extName &&
-              (responseExt === '.js' || responseExt === '.html') &&
-              extName !== '.js'
-            ) {
-              return resolvedImportUrl + '.proxy.js';
-            }
-            return resolvedImportUrl;
+          let resolvedImportUrl = resolveImportSpecifier(spec);
+          // Handle an import that couldn't be resolved
+          if (!resolvedImportUrl) {
+            missingPackages.push(spec);
+            return spec;
+          }
+          // Ignore "http://*" imports
+          if (url.parse(resolvedImportUrl).protocol) {
+            return spec;
+          }
+          // Ignore packages marked as external
+          if (config.installOptions.externalPackage?.includes(resolvedImportUrl)) {
+            return spec;
+          }
+          // Handle normal "./" & "../" import specifiers
+          const importExtName = path.posix.extname(resolvedImportUrl);
+          const isProxyImport =
+            importExtName &&
+            (responseExt === '.js' || responseExt === '.html') &&
+            importExtName !== '.js';
+          const isAbsoluteUrlPath = path.posix.isAbsolute(resolvedImportUrl);
+          if (isProxyImport) {
+            resolvedImportUrl = resolvedImportUrl + '.proxy.js';
           }
 
-          missingPackages.push(spec);
-          return spec;
+          // When dealing with an absolute import path, we need to honor the baseUrl
+          if (isAbsoluteUrlPath) {
+            resolvedImportUrl = relativeURL(path.posix.dirname(reqPath), resolvedImportUrl);
+          }
+          // Make sure that a relative URL always starts with "./"
+          if (!resolvedImportUrl.startsWith('.') && !resolvedImportUrl.startsWith('/')) {
+            resolvedImportUrl = './' + resolvedImportUrl;
+          }
+          return resolvedImportUrl;
         },
       );
 
@@ -811,7 +922,6 @@ export async function startServer(commandOptions: CommandOptions) {
         responseContent = await finalizeResponse(fileLoc, requestedFileExt, hotCachedResponse);
       } catch (err) {
         logger.error(FILE_BUILD_RESULT_ERROR);
-        logger.error(err.toString());
         hmrEngine.broadcastMessage({
           type: 'error',
           title: FILE_BUILD_RESULT_ERROR,
@@ -819,29 +929,68 @@ export async function startServer(commandOptions: CommandOptions) {
           fileLoc,
           errorStackTrace: err.stack,
         });
-        sendError(req, res, 500);
-        return;
+        throw err;
       }
       if (!responseContent) {
-        if (next) {
-          next();
-        } else {
-          sendError(req, res, 404);
-        }
-        return;
+        throw new NotFoundError([fileLoc]);
       }
-      sendFile(req, res, responseContent, fileLoc, responseFileExt);
-      return;
+      return {
+        contents: encodeResponse(responseContent, encoding),
+        originalFileLoc: fileLoc,
+        responseFileName: replaceExt(
+          path.basename(fileLoc),
+          path.extname(fileLoc),
+          responseFileExt,
+        ),
+      };
     }
 
     // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
     const fileContents = await readFile(fileLoc);
 
-    // 3. Send dependencies directly, since they were already build & resolved
-    // at install time.
-    if (reqPath.startsWith(config.buildOptions.webModulesUrl) && !isProxyModule) {
-      sendFile(req, res, fileContents, fileLoc, responseFileExt);
-      return;
+    // 3. Send static files directly, since they were already build & resolved at install time.
+    if (!isProxyModule && isStatic) {
+      // If no resolution needed, just send the file directly.
+      if (!isResolve) {
+        return {
+          contents: encodeResponse(fileContents, encoding),
+          originalFileLoc: fileLoc,
+          responseFileName: replaceExt(
+            path.basename(fileLoc),
+            path.extname(fileLoc),
+            responseFileExt,
+          ),
+        };
+      }
+      // Otherwise, finalize the response (where resolution happens) before sending.
+      let responseContent: string | Buffer | null;
+      try {
+        responseContent = await finalizeResponse(fileLoc, requestedFileExt, {
+          [requestedLastFileExt]: {code: fileContents},
+        });
+      } catch (err) {
+        logger.error(FILE_BUILD_RESULT_ERROR);
+        hmrEngine.broadcastMessage({
+          type: 'error',
+          title: FILE_BUILD_RESULT_ERROR,
+          errorMessage: err.toString(),
+          fileLoc,
+          errorStackTrace: err.stack,
+        });
+        throw err;
+      }
+      if (!responseContent) {
+        throw new NotFoundError([fileLoc]);
+      }
+      return {
+        contents: encodeResponse(responseContent, encoding),
+        originalFileLoc: fileLoc,
+        responseFileName: replaceExt(
+          path.basename(fileLoc),
+          path.extname(fileLoc),
+          responseFileExt,
+        ),
+      };
     }
 
     // 4. Check the persistent cache. If found, serve it via a
@@ -849,8 +998,10 @@ export async function startServer(commandOptions: CommandOptions) {
     // matches then assume the entire cache is suspect. In that case, clear the
     // persistent cache and then force a live-reload of the page.
     const cachedBuildData =
+      allowStale &&
       process.env.NODE_ENV !== 'test' &&
       !filesBeingDeleted.has(fileLoc) &&
+      !(await isBinaryFile(fileLoc)) &&
       (await cacache
         .get(BUILD_CACHE, getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}))
         .catch(() => null));
@@ -874,38 +1025,43 @@ export async function startServer(commandOptions: CommandOptions) {
           getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
           coldCachedResponse,
         );
-        // Trust...
         const wrappedResponse = await finalizeResponse(
           fileLoc,
           requestedFileExt,
           coldCachedResponse,
         );
         if (!wrappedResponse) {
-          if (next) {
-            next();
-          } else {
-            sendError(req, res, 404);
-          }
-          return;
+          throw new NotFoundError([fileLoc]);
         }
-        sendFile(req, res, wrappedResponse, fileLoc, responseFileExt);
-        // ...but verify.
-        let checkFinalBuildResult: SnowpackBuildMap | null = null;
-        try {
-          checkFinalBuildResult = await buildFile(fileLoc);
-        } catch (err) {
-          // safe to ignore, it will be surfaced later anyway
-        } finally {
-          if (
-            !checkFinalBuildResult ||
-            !cachedBuildData.data.equals(Buffer.from(JSON.stringify(checkFinalBuildResult)))
-          ) {
-            inMemoryBuildCache.clear();
-            await cacache.rm.all(BUILD_CACHE);
-            hmrEngine.broadcastMessage({type: 'reload'});
-          }
-        }
-        return;
+        // Trust...
+        return {
+          contents: encodeResponse(wrappedResponse, encoding),
+          originalFileLoc: fileLoc,
+          responseFileName: replaceExt(
+            path.basename(fileLoc),
+            path.extname(fileLoc),
+            responseFileExt,
+          ),
+          // ...but verify.
+          checkStale: async () => {
+            let checkFinalBuildResult: SnowpackBuildMap | null = null;
+            try {
+              checkFinalBuildResult = await buildFile(fileLoc!);
+            } catch (err) {
+              // safe to ignore, it will be surfaced later anyway
+            } finally {
+              if (
+                !checkFinalBuildResult ||
+                !cachedBuildData.data.equals(Buffer.from(JSON.stringify(checkFinalBuildResult)))
+              ) {
+                inMemoryBuildCache.clear();
+                await cacache.rm.all(BUILD_CACHE);
+                hmrEngine.broadcastMessage({type: 'reload'});
+              }
+            }
+            return;
+          },
+        };
       }
     }
 
@@ -915,7 +1071,6 @@ export async function startServer(commandOptions: CommandOptions) {
     try {
       responseOutput = await buildFile(fileLoc);
     } catch (err) {
-      logger.error(err.toString(), {name: err.__snowpackBuildDetails?.name});
       hmrEngine.broadcastMessage({
         type: 'error',
         title:
@@ -925,14 +1080,12 @@ export async function startServer(commandOptions: CommandOptions) {
         fileLoc,
         errorStackTrace: err.stack,
       });
-      sendError(req, res, 500);
-      return;
+      throw err;
     }
     try {
       responseContent = await finalizeResponse(fileLoc, requestedFileExt, responseOutput);
     } catch (err) {
       logger.error(FILE_BUILD_RESULT_ERROR);
-      logger.error(err.toString());
       hmrEngine.broadcastMessage({
         type: 'error',
         title: FILE_BUILD_RESULT_ERROR,
@@ -940,77 +1093,134 @@ export async function startServer(commandOptions: CommandOptions) {
         fileLoc,
         errorStackTrace: err.stack,
       });
-      sendError(req, res, 500);
-      return;
+      throw err;
     }
     if (!responseContent) {
-      if (next) {
-        next();
-      } else {
-        sendError(req, res, 404);
-      }
-      return;
+      throw new NotFoundError([fileLoc]);
     }
 
-    sendFile(req, res, responseContent, fileLoc, responseFileExt);
-    const originalFileHash = etag(fileContents);
+    // Save the file to the cold cache for reuse across restarts.
+    cacache
+      .put(
+        BUILD_CACHE,
+        getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
+        Buffer.from(JSON.stringify(responseOutput)),
+        {
+          metadata: {originalFileHash: etag(fileContents)},
+        },
+      )
+      .catch((err) => {
+        logger.error(`Cache Error: ${err.toString()}`);
+      });
 
-    // Only save the file to our cold cache if it's not SSR.
-    // NOTE(fks): We could do better and cache both, but at the time of writing SSR
-    // is still a new concept. Lets confirm that this is how we want to do SSR, and
-    // then can revisit the caching story once confident.
-    cacache.put(
-      BUILD_CACHE,
-      getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
-      Buffer.from(JSON.stringify(responseOutput)),
-      {
-        metadata: {originalFileHash},
-      },
-    );
+    return {
+      contents: encodeResponse(responseContent, encoding),
+      originalFileLoc: fileLoc,
+      responseFileName: replaceExt(path.basename(fileLoc), path.extname(fileLoc), responseFileExt),
+    };
+  }
+
+  function getRequestProxy(
+    reqUrl: string,
+  ): undefined | ((req: http.IncomingMessage, res: http.ServerResponse) => void) {
+    for (const [pathPrefix] of config.proxy) {
+      if (!shouldProxy(pathPrefix, reqUrl)) {
+        continue;
+      }
+      return (req, res) => devProxies[pathPrefix].web(req, res);
+    }
+  }
+
+  /**
+   * A simple map to optimize the speed of our 304 responses. If an ETag check is
+   * sent in the request, check if it matches the last known etag for tat file.
+   *
+   * Remember: This is just a nice-to-have! If we get this logic wrong, it can mean
+   * stale files in the user's cache. Feel free to clear aggressively, as needed.
+   */
+  const knownETags = new Map<string, string>();
+
+  /**
+   * Fully handle the response for a given request. This is used internally for
+   * every response that the dev server sends, but it can also be used via the
+   * JS API to handle most boilerplate around request handling.
+   */
+  async function handleRequest(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    {handleError}: {handleError?: boolean} = {},
+  ) {
+    const reqPath = req.url!;
+    // Check if a configured proxy matches the request.
+    const requestProxy = getRequestProxy(reqPath);
+    if (requestProxy) {
+      return requestProxy(req, res);
+    }
+    // Check if we can send back an optimized 304 response
+    const quickETagCheck = req.headers['if-none-match'];
+    if (quickETagCheck && quickETagCheck === knownETags.get(reqPath)) {
+      logger.debug(`optimized etag! sending 304...`);
+      res.writeHead(304, {'Access-Control-Allow-Origin': '*'});
+      res.end();
+      return;
+    }
+    // Otherwise, load the file and respond if successful.
+    try {
+      const result = await loadUrl(reqPath, {allowStale: true, encoding: null});
+      sendResponseFile(req, res, result);
+      if (result.checkStale) {
+        await result.checkStale();
+      }
+      if (result.contents) {
+        knownETags.set(reqPath, etag(result.contents, {weak: true}));
+      }
+      return;
+    } catch (err) {
+      // Some consumers may want to handle/ignore errors themselves.
+      if (handleError === false) {
+        throw err;
+      }
+      handleResponseError(req, res, err);
+    }
   }
 
   type Http2RequestListener = (
     request: http2.Http2ServerRequest,
     response: http2.Http2ServerResponse,
   ) => void;
-  const createServer = (requestHandler: http.RequestListener | Http2RequestListener) => {
+  const createServer = (responseHandler: http.RequestListener | Http2RequestListener) => {
     if (credentials && config.proxy.length === 0) {
       return http2.createSecureServer(
         {...credentials!, allowHTTP1: true},
-        requestHandler as Http2RequestListener,
+        responseHandler as Http2RequestListener,
       );
     } else if (credentials) {
-      return https.createServer(credentials, requestHandler as http.RequestListener);
+      return https.createServer(credentials, handleRequest);
     }
 
-    return http.createServer(requestHandler as http.RequestListener);
+    return http.createServer(handleRequest);
   };
 
-  const server = createServer((req, res) => {
+  const server = createServer(async (req, res) => {
     // Attach a request logger.
     res.on('finish', () => {
       const {method, url} = req;
       const {statusCode} = res;
       logger.debug(`[${statusCode}] ${method} ${url}`);
     });
-    /** Handle errors not handled in our requestHandler. */
-    function onUnhandledError(err: Error) {
-      logger.error(err.toString());
-      sendError(req, res, 500);
-    }
     // If custom "app" is given, pass requests through there first.
     if (config.experiments.app) {
-      config.experiments.app(req, res, (err?: Error | null) => {
+      config.experiments.app(req, res, async (err?: Error | null) => {
         if (err) {
-          onUnhandledError(err);
-        } else {
-          requestHandler(req, res).catch(onUnhandledError);
+          handleResponseError(req, res, err);
+          return;
         }
+        handleRequest(req, res);
       });
       return;
     }
     // Otherwise, pass requests directly to Snowpack's request handler.
-    requestHandler(req, res).catch(onUnhandledError);
+    handleRequest(req, res);
   })
     .on('error', (err: Error) => {
       logger.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);
@@ -1020,7 +1230,7 @@ export async function startServer(commandOptions: CommandOptions) {
     .on('upgrade', (req: http.IncomingMessage, socket, head) => {
       config.proxy.forEach(([pathPrefix, proxyOptions]) => {
         const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
-        if (isWebSocket && shouldProxy(pathPrefix, req)) {
+        if (isWebSocket && shouldProxy(pathPrefix, req.url!)) {
           devProxies[pathPrefix].ws(req, socket, head);
           logger.info('Upgrading to WebSocket');
         }
@@ -1063,33 +1273,29 @@ export async function startServer(commandOptions: CommandOptions) {
       hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
-  function handleHmrUpdate(fileLoc: string) {
+  function handleHmrUpdate(fileLoc: string, updatedUrl: string) {
     if (isLiveReloadPaused) {
-      return;
-    }
-    let updateUrl = getUrlForFile(fileLoc, config);
-    if (!updateUrl) {
       return;
     }
 
     // Append ".proxy.js" to Non-JS files to match their registered URL in the
     // client app.
-    if (!updateUrl.endsWith('.js')) {
-      updateUrl += '.proxy.js';
+    if (!updatedUrl.endsWith('.js')) {
+      updatedUrl += '.proxy.js';
     }
     // Check if a virtual file exists in the resource cache (ex: CSS from a
     // Svelte file) If it does, mark it for HMR replacement but DONT trigger a
     // separate HMR update event. This is because a virtual resource doesn't
     // actually exist on disk, so we need the main resource (the JS) to load
     // first. Only after that happens will the CSS exist.
-    const virtualCssFileUrl = updateUrl.replace(/.js$/, '.css');
+    const virtualCssFileUrl = updatedUrl.replace(/.js$/, '.css');
     const virtualNode = hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
     if (virtualNode) {
       hmrEngine.markEntryForReplacement(virtualNode, true);
     }
     // If the changed file exists on the page, trigger a new HMR update.
-    if (hmrEngine.getEntry(updateUrl)) {
-      updateOrBubble(updateUrl, new Set());
+    if (hmrEngine.getEntry(updatedUrl)) {
+      updateOrBubble(updatedUrl, new Set());
       return;
     }
 
@@ -1126,9 +1332,14 @@ export async function startServer(commandOptions: CommandOptions) {
   const chokidar = await import('chokidar');
 
   // Watch src files
-  async function onWatchEvent(fileLoc) {
+  async function onWatchEvent(fileLoc: string) {
     logger.info(colors.cyan('File changed...'));
-    handleHmrUpdate(fileLoc);
+    const updatedUrl = getUrlForFile(fileLoc, config);
+    if (updatedUrl) {
+      handleHmrUpdate(fileLoc, updatedUrl);
+      knownETags.delete(updatedUrl);
+      knownETags.delete(updatedUrl + '.proxy.js');
+    }
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: true, env: process.env.NODE_ENV}));
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}));
     filesBeingDeleted.add(fileLoc);
@@ -1151,9 +1362,17 @@ export async function startServer(commandOptions: CommandOptions) {
     ignoreInitial: true,
     disableGlobbing: false,
   });
-  watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
-  watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
-  watcher.on('unlink', (fileLoc) => onWatchEvent(fileLoc));
+  watcher.on('add', (fileLoc) => {
+    knownETags.clear();
+    onWatchEvent(fileLoc);
+  });
+  watcher.on('unlink', (fileLoc) => {
+    knownETags.clear();
+    onWatchEvent(fileLoc);
+  });
+  watcher.on('change', (fileLoc) => {
+    onWatchEvent(fileLoc);
+  });
 
   // Watch node_modules & rerun snowpack install if symlinked dep updates
   const symlinkedFileLocs = new Set(
@@ -1179,16 +1398,11 @@ export async function startServer(commandOptions: CommandOptions) {
   depWatcher.on('unlink', onDepWatchEvent);
 
   return {
-    requestHandler,
-    /** @experimental - only available via unstable__startServer */
-    async loadByUrl(url: string, {isSSR}: {isSSR?: boolean}): Promise<string> {
-      if (!url.startsWith('/')) {
-        throw new Error(`url must start with "/", but got ${url}`);
-      }
-      return await send('GET', `http://localhost:${port}${url}${isSSR ? '?ssr=1' : ''}`).then(
-        (r) => r.data,
-      );
-    },
+    port,
+    loadUrl,
+    handleRequest,
+    sendResponseFile,
+    sendResponseError,
     async shutdown() {
       await watcher.close();
       server.close();
@@ -1198,7 +1412,7 @@ export async function startServer(commandOptions: CommandOptions) {
 
 export async function command(commandOptions: CommandOptions) {
   try {
-    await startServer(commandOptions);
+    await startDevServer(commandOptions);
   } catch (err) {
     logger.error(err.message);
     logger.debug(err.stack);

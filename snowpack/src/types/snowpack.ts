@@ -11,6 +11,57 @@ export type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
+export interface LoadResult<T = Buffer | string> {
+  contents: T;
+  originalFileLoc: string | null;
+  responseFileName: string;
+  checkStale?: () => Promise<void>;
+}
+
+export interface SnowpackDevServer {
+  port: number;
+  loadUrl: {
+    (
+      reqUrl: string,
+      opt?:
+        | {
+            isSSR?: boolean | undefined;
+            allowStale?: boolean | undefined;
+            encoding?: undefined;
+          }
+        | undefined,
+    ): Promise<LoadResult<Buffer | string>>;
+    (
+      reqUrl: string,
+      opt: {
+        isSSR?: boolean;
+        allowStale?: boolean;
+        encoding: BufferEncoding;
+      },
+    ): Promise<LoadResult<string>>;
+    (
+      reqUrl: string,
+      opt: {
+        isSSR?: boolean;
+        allowStale?: boolean;
+        encoding: null;
+      },
+    ): Promise<LoadResult<Buffer>>;
+  };
+  handleRequest: (
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    options?: {handleError?: boolean},
+  ) => Promise<void>;
+  sendResponseFile: (
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    {contents, originalFileLoc, responseFileName}: LoadResult,
+  ) => void;
+  sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
+  shutdown(): Promise<void>;
+}
+
 export type SnowpackBuiltFile = {
   code: string | Buffer;
   map?: string;
@@ -124,6 +175,12 @@ export type ProxyOptions = HttpProxy.ServerOptions & {
 };
 export type Proxy = [string, ProxyOptions];
 
+export type MountEntry = {
+  url: string;
+  static: boolean;
+  resolve: boolean;
+};
+
 // interface this library uses internally
 export interface SnowpackConfig {
   install: string[];
@@ -132,7 +189,7 @@ export interface SnowpackConfig {
   knownEntrypoints: string[];
   webDependencies?: {[packageName: string]: string};
   proxy: Proxy[];
-  mount: Record<string, string>;
+  mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   scripts: Record<string, string>;
   plugins: SnowpackPlugin[];
@@ -186,6 +243,7 @@ export interface CLIFlags extends Omit<InstallOptions, 'env'> {
   secure?: boolean;
   verbose?: boolean;
   quiet?: boolean;
+  [flag: string]: any;
 }
 
 export interface ImportMap {

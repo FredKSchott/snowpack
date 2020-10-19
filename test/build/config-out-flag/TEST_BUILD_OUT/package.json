@@ -7,12 +7,15 @@
     "testbuild": "snowpack build --out TEST_BUILD_OUT"
   },
   "snowpack": {
+    "buildOptions": {
+      "clean": true
+    },
     "exclude": [
       "__snapshots__"
     ]
   },
   "devDependencies": {
     "cross-env": "^7.0.2",
-    "snowpack": "^2.12.1"
+    "snowpack": "^2.14.3"
   }
 }

@@ -7,7 +7,7 @@ Array [
 ]
 `;
 
-exports[`snowpack build plugin-run-script: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build plugin-run-script: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build plugin-run-script: build/css/index.css 1`] = `
 "body {

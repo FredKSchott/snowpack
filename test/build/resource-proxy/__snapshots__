@@ -11,7 +11,7 @@ Array [
 ]
 `;
 
-exports[`snowpack build resource-proxy: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build resource-proxy: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build resource-proxy: build/_dist_/index.js 1`] = `
 "import './styles.css.proxy.js';
@@ -28,11 +28,13 @@ exports[`snowpack build resource-proxy: build/_dist_/styles.css 1`] = `
 `;
 
 exports[`snowpack build resource-proxy: build/_dist_/styles.css.proxy.js 1`] = `
-"
-const code = \\"body {  font-family: fantasy;}\\";
-const styleEl = document.createElement(\\"style\\");
-const codeEl = document.createTextNode(code);
-styleEl.type = 'text/css';
-styleEl.appendChild(codeEl);
-document.head.appendChild(styleEl);"
+"// [snowpack] add styles to the page (skip if no document exists)
+if (typeof document !== 'undefined') {
+  const code = \\"body {  font-family: fantasy;}\\";
+  const styleEl = document.createElement(\\"style\\");
+  const codeEl = document.createTextNode(code);
+  styleEl.type = 'text/css';
+  styleEl.appendChild(codeEl);
+  document.head.appendChild(styleEl);
+}"
 `;

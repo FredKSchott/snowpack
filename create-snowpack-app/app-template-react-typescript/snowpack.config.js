@@ -6,6 +6,24 @@ module.exports = {
   plugins: [
     '@snowpack/plugin-react-refresh',
     '@snowpack/plugin-dotenv',
-    "@snowpack/plugin-typescript"
+    '@snowpack/plugin-typescript',
   ],
+  install: [
+    /* ... */
+  ],
+  installOptions: {
+    /* ... */
+  },
+  devOptions: {
+    /* ... */
+  },
+  buildOptions: {
+    /* ... */
+  },
+  proxy: {
+    /* ... */
+  },
+  alias: {
+    /* ... */
+  },
 };

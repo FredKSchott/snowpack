@@ -2,8 +2,10 @@ import buildScriptPlugin from '@snowpack/plugin-build-script';
 import runScriptPlugin from '@snowpack/plugin-run-script';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
+import esbuild from 'esbuild';
 import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
+import os from 'os';
 import path from 'path';
 import yargs from 'yargs-parser';
 
@@ -14,6 +16,7 @@ import {
   CLIFlags,
   DeepPartial,
   LegacySnowpackPlugin,
+  MountEntry,
   PluginLoadOptions,
   PluginLoadResult,
   PluginOptimizeOptions,
@@ -87,6 +90,22 @@ const configSchema = {
     alias: {
       type: 'object',
       additionalProperties: {type: 'string'},
+    },
+    mount: {
+      type: 'object',
+      additionalProperties: {
+        oneOf: [
+          {type: 'string'},
+          {
+            type: ['object'],
+            properties: {
+              url: {type: 'string'},
+              static: {type: 'boolean'},
+              resolve: {type: 'boolean'},
+            },
+          },
+        ],
+      },
     },
     devOptions: {
       type: 'object',
@@ -502,7 +521,7 @@ function normalizeProxies(proxies: RawProxies): Proxy[] {
 }
 
 function normalizeMount(config: SnowpackConfig, cwd: string) {
-  const mountedDirs: Record<string, string> = config.mount || {};
+  const mountedDirs: Record<string, string | Partial<MountEntry>> = config.mount || {};
   for (const [target, cmd] of Object.entries(config.scripts)) {
     if (target.startsWith('mount:')) {
       const cmdArr = cmd.split(/\s+/);
@@ -517,23 +536,40 @@ function normalizeMount(config: SnowpackConfig, cwd: string) {
       if (target === 'mount:web_modules') {
         config.buildOptions.webModulesUrl = to;
       } else {
-        mountedDirs[cmdArr[0]] = to || `/${cmdArr[0]}`;
+        mountedDirs[cmdArr[0]] = {url: to || `/${cmdArr[0]}`};
       }
     }
   }
-  const normalizedMount = {};
-  for (const [mountDir, mountUrl] of Object.entries(mountedDirs)) {
-    if (mountUrl[0] !== '/') {
+  const normalizedMount: Record<string, MountEntry> = {};
+  for (const [mountDir, rawMountEntry] of Object.entries(mountedDirs)) {
+    const mountEntry: Partial<MountEntry> =
+      typeof rawMountEntry === 'string'
+        ? {url: rawMountEntry, static: false, resolve: true}
+        : rawMountEntry;
+    if (!mountEntry.url) {
       handleConfigError(
-        `mount[${mountDir}]: Value "${mountUrl}" must be a URL path, and start with a "/"`,
+        `mount[${mountDir}]: Object "${mountEntry.url}" missing required "url" option.`,
+      );
+      return normalizedMount;
+    }
+    if (mountEntry.url[0] !== '/') {
+      handleConfigError(
+        `mount[${mountDir}]: Value "${mountEntry.url}" must be a URL path, and start with a "/"`,
       );
     }
-    normalizedMount[path.resolve(cwd, removeTrailingSlash(mountDir))] =
-      mountUrl === '/' ? '/' : removeTrailingSlash(mountUrl);
+    normalizedMount[path.resolve(cwd, removeTrailingSlash(mountDir))] = {
+      url: mountEntry.url === '/' ? '/' : removeTrailingSlash(mountEntry.url),
+      static: mountEntry.static ?? false,
+      resolve: mountEntry.resolve ?? true,
+    };
   }
   // if no mounted directories, mount the root directory to the base URL
   if (!Object.keys(normalizedMount).length) {
-    normalizedMount[cwd] = '/';
+    normalizedMount[cwd] = {
+      url: '/',
+      static: false,
+      resolve: true,
+    };
   }
   return normalizedMount;
 }
@@ -826,13 +862,36 @@ export function createConfiguration(
 
 export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
   const explorerSync = cosmiconfigSync(CONFIG_NAME, {
-    // only support these 4 types of config for now
+    // only support these 5 types of config for now
     searchPlaces: [
       'package.json',
       'snowpack.config.cjs',
       'snowpack.config.js',
+      'snowpack.config.ts',
       'snowpack.config.json',
     ],
+    loaders: {
+      '.ts': (configPath) => {
+        const outPath = path.join(os.tmpdir(), '.snowpack.config.cjs');
+
+        try {
+          esbuild.buildSync({
+            entryPoints: [configPath],
+            outfile: outPath,
+            bundle: true,
+            platform: 'node',
+          });
+
+          const exported = require(outPath);
+          return exported.default || exported;
+        } catch (error) {
+          logger.error(
+            'Warning: TypeScript config file support is still experimental. Consider moving to JavaScript if you continue to have problems.',
+          );
+          throw error;
+        }
+      },
+    },
     // don't support crawling up the folder tree:
     stopDir: path.dirname(process.cwd()),
   });

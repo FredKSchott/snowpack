@@ -15,7 +15,7 @@ Array [
 ]
 `;
 
-exports[`snowpack build secondary-extensions: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build secondary-extensions: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build secondary-extensions: build/_dist_/App/App.cssModule.js 1`] = `
 "
@@ -35,13 +35,15 @@ export default {
 exports[`snowpack build secondary-extensions: build/_dist_/comp/foo/foo.css 1`] = `".app--foo {}"`;
 
 exports[`snowpack build secondary-extensions: build/_dist_/comp/foo/foo.css.proxy.js 1`] = `
-"
-const code = \\".app--foo {}\\";
-const styleEl = document.createElement(\\"style\\");
-const codeEl = document.createTextNode(code);
-styleEl.type = 'text/css';
-styleEl.appendChild(codeEl);
-document.head.appendChild(styleEl);"
+"// [snowpack] add styles to the page (skip if no document exists)
+if (typeof document !== 'undefined') {
+  const code = \\".app--foo {}\\";
+  const styleEl = document.createElement(\\"style\\");
+  const codeEl = document.createTextNode(code);
+  styleEl.type = 'text/css';
+  styleEl.appendChild(codeEl);
+  document.head.appendChild(styleEl);
+}"
 `;
 
 exports[`snowpack build secondary-extensions: build/_dist_/comp/foo/foo.html.js 1`] = `

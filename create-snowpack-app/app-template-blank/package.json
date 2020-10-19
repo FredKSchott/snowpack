@@ -1,5 +1,6 @@
 {
   "name": "@snowpack/app-template-blank",
+  "description": "A preconfigured template for Snowpack with Prettier",
   "version": "1.6.19",
   "license": "MIT",
   "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-blank#readme",

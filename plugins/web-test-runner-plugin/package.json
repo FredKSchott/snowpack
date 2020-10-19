@@ -8,7 +8,7 @@
   },
   "peerDependencies": {
     "@web/test-runner": "^0.9.0",
-    "snowpack": "^2.13.0"
+    "snowpack": "^2.14.3"
   },
   "devDependencies": {
     "@web/test-runner": "^0.9.0"

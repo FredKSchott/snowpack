@@ -9,6 +9,6 @@
     "array-flatten": "^3.0.0"
   },
   "devDependencies": {
-    "snowpack": "^2.12.1"
+    "snowpack": "^2.14.3"
   }
 }

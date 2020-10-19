@@ -7,9 +7,24 @@ module.exports = {
     '@snowpack/plugin-dotenv',
     '@snowpack/plugin-babel',
     '@snowpack/plugin-typescript',
-    '@prefresh/snowpack'
+    '@prefresh/snowpack',
+  ],
+  install: [
+    /* ... */
   ],
   installOptions: {
     installTypes: true,
+  },
+  devOptions: {
+    /* ... */
+  },
+  buildOptions: {
+    /* ... */
+  },
+  proxy: {
+    /* ... */
+  },
+  alias: {
+    /* ... */
   },
 };

@@ -13,7 +13,7 @@ Array [
 ]
 `;
 
-exports[`snowpack build base-url-homepage: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build base-url-homepage: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build base-url-homepage: build/_dist_/index.js 1`] = `
 "import __SNOWPACK_ENV__ from '../__snowpack__/env.js';

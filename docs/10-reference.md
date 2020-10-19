@@ -287,21 +287,50 @@ Options:
 
 #### `config.mount`
 
-`object` (path: path)
+```
+mount: {
+  [path: string]: string | {url: string, static: boolean, resolve: boolean}
+}
+```
 
-The `mount` configuration lets you map local files to their location in the final build. If no mount configuration is given, then the entire current working directory (minus excluded files) will be built and mounted to the Root URL (Default: `/`, respects `baseUrl`).
-
-Example:
+The `mount` configuration lets you customize which directories should be included in your Snowpack build, and what URL they are mounted to. Given the following example configuration, you could expect the following results:
 
 ```js
+// Example: Basic "mount" usage
 // snowpack.config.json
 {
   "mount": {
-    // Files in the local "src/" directory are written to `/_dist_/*` in the final build.
     "src": "/_dist_",
-    // Files in the local "public/" directory are written to `/*` in the final build.
     "public": "/"
-    // … add other folders here
+  }
+}
+```
+
+```
+GET /src/a.js           -> 404 NOT FOUND ("./src" is mounted to "/_dist_/*", not "/src/*")
+GET /_dist_/a.js        -> ./src/a.js
+GET /_dist_/b/b.js      -> ./src/b/b.js
+GET /public/robots.txt  -> 404 NOT FOUND ("./public" dir is mounted to "/*", not "/public/*")
+GET /robots.txt         -> ./public/robots.txt
+```
+
+By default, Snowpack builds every mounted file by passing it through Snowpack's build pipeline.
+
+**\*New in Snowpack `v2.15.0`:** You can customize the build behavior for a mounted directory using the expanded object notation:
+
+- `url` _required_: The URL to mount to, matching the simple form above.
+- `static` _optional, default: false_: If true, don't build files in this directory and serve them directly to the browser.
+- `resolve` _optional, default: true_: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files and send every import to the browser, as written. We recommend that you don't disable this unless absolutely necessary, since it prevents Snowpack from handling your imports to things like packages, JSON files, CSS modules, and more.
+
+```js
+// Example: Advanced "mount" usage
+// snowpack.config.json
+{
+  "mount": {
+    // Same behavior as the "src" example above:
+    "src": {url: "/_dist_"},
+    // Mount "public" to the root URL path ("/*") and serve files with zero transformations:
+    "public": {url: "/", static: true, resolve: false}
   }
 }
 ```

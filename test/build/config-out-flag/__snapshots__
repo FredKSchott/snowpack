@@ -8,7 +8,7 @@ Array [
 ]
 `;
 
-exports[`snowpack build config-out-flag: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build config-out-flag: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build config-out-flag: build/package.json 1`] = `
 "{
@@ -20,13 +20,16 @@ exports[`snowpack build config-out-flag: build/package.json 1`] = `
     \\"testbuild\\": \\"snowpack build --out TEST_BUILD_OUT\\"
   },
   \\"snowpack\\": {
+    \\"buildOptions\\": {
+      \\"clean\\": true
+    },
     \\"exclude\\": [
       \\"__snapshots__\\"
     ]
   },
   \\"devDependencies\\": {
     \\"cross-env\\": \\"^7.0.2\\",
-    \\"snowpack\\": \\"^2.12.1\\"
+    \\"snowpack\\": \\"^2.14.3\\"
   }
 }"
 `;

@@ -4,4 +4,22 @@ module.exports = {
     src: '/_dist_',
   },
   plugins: ['@snowpack/plugin-babel', '@snowpack/plugin-dotenv'],
+  install: [
+    /* ... */
+  ],
+  installOptions: {
+    /* ... */
+  },
+  devOptions: {
+    /* ... */
+  },
+  buildOptions: {
+    /* ... */
+  },
+  proxy: {
+    /* ... */
+  },
+  alias: {
+    /* ... */
+  },
 };

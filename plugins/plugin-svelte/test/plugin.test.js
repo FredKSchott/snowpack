@@ -47,6 +47,19 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
     ).toThrow(badOptionCheck);
   });
 
+  it('logs error if resolve input is invalid', async () => {
+    expect(() => {
+      plugin(mockConfig, {
+        input: '.svelte',
+      });
+    }).toThrow(`[plugin-svelte] Option "input" must be an array (e.g. ['.svelte', '.svx'])`);
+    expect(() => {
+      plugin(mockConfig, {
+        input: [],
+      });
+    }).toThrow(`[plugin-svelte] Option "input" must specify at least one filetype`);
+  });
+
   it('passes compilerOptions to compiler', async () => {
     const compilerOptions = {
       __test: 'compilerOptions',
@@ -92,5 +105,27 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
       outputFilename: mockComponent,
     });
     expect(mockPreprocessor.mock.calls[0][1]).toEqual({__test: 'custom-config.js::preprocess'});
+  });
+
+  it('resolves custom file extensions', async () => {
+    expect(
+      plugin(mockConfig, {
+        input: ['.svelte', '.svx'],
+      }).resolve.input,
+    ).toMatchInlineSnapshot(`
+      Array [
+        ".svelte",
+        ".svx",
+      ]
+    `);
+    expect(
+      plugin(mockConfig, {
+        input: ['.svx'],
+      }).resolve.input,
+    ).toMatchInlineSnapshot(`
+      Array [
+        ".svx",
+      ]
+    `);
   });
 });

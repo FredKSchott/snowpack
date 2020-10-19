@@ -6,17 +6,19 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 
 ## Official App Templates
 
-- [@snowpack/app-template-blank](../app-template-blank)
-- [@snowpack/app-template-blank-typescript](../app-template-blank-typescript)
-- [@snowpack/app-template-11ty](../app-template-11ty)
-- [@snowpack/app-template-lit-element-typescript](../app-template-lit-element-typescript)
-- [@snowpack/app-template-lit-element](../app-template-lit-element)
-- [@snowpack/app-template-preact](../app-template-preact)
-- [@snowpack/app-template-react-typescript](../app-template-react-typescript)
-- [@snowpack/app-template-react](../app-template-react)
-- [@snowpack/app-template-svelte-typescript](../app-template-svelte-typescript)
-- [@snowpack/app-template-svelte](../app-template-svelte)
-- [@snowpack/app-template-vue](../app-template-vue)
+- [@snowpack/app-template-blank](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-blank)
+- [@snowpack/app-template-blank-typescript](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-blank-typescript)
+- [@snowpack/app-template-11ty](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-11ty)
+- [@snowpack/app-template-lit-element](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-lit-element)
+- [@snowpack/app-template-lit-element-typescript](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-lit-element-typescript)
+- [@snowpack/app-template-preact](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-preact)
+- [@snowpack/app-template-preact-typescript](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-preact-typescript)
+- [@snowpack/app-template-react](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-react)
+- [@snowpack/app-template-react-typescript](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-react-typescript)
+- [@snowpack/app-template-svelte](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte)
+- [@snowpack/app-template-svelte-typescript](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte-typescript)
+- [@snowpack/app-template-vue](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-vue)
+- [@snowpack/app-template-vue-typescript](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-vue-typescript)
 
 ### Featured Community Templates
 

@@ -80,7 +80,19 @@ import svg from './image.svg'; // svg === '/src/image.svg'
 <img src={img} />;
 ```
 
-All other assets not explicitly mentioned above can be imported and will return a URL reference to the final built asset. This can be useful for referencing non-JS assets by URL, like creating an image element with a `src` attribute pointing to that image.
+All other assets not explicitly mentioned above can be imported via ESM `import` and will return a URL reference to the final built asset. This can be useful for referencing non-JS assets by URL, like creating an image element with a `src` attribute pointing to that image.
+
+#### Coming Soon: Native Reference URLs
+
+Webpack 5.0 released support for native reference URLs to replace the original, fake ESM file import. If you are using a bundler that supports this (or, not using a bundler at all) we recommend updating your non-JS URL reference imports to use this more standard pattern. Once Rollup adds support as well, we will move to promote this to our recommended style.
+
+```jsx
+const img = new URL('./image.png', import.meta.url); // img === '/src/image.png'
+const svg = new URL('./image.svg', import.meta.url); // svg === '/src/image.svg'
+
+// This example uses JSX, but you can use these references with any framework.
+<img src={img.href} />;
+```
 
 ## Features
 

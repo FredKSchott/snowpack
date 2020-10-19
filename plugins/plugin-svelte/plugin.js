@@ -38,10 +38,17 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       `[plugin-svelte] Could not recognize "compileOptions". Did you mean "compilerOptions"?`,
     );
   }
+  if (pluginOptions.input && !Array.isArray(pluginOptions.input)) {
+    throw new Error(`[plugin-svelte] Option "input" must be an array (e.g. ['.svelte', '.svx'])`);
+  }
+  if (pluginOptions.input && pluginOptions.input.length === 0) {
+    throw new Error(`[plugin-svelte] Option "input" must specify at least one filetype`);
+  }
 
   let configFilePath = path.resolve(cwd, pluginOptions.configFilePath || 'svelte.config.js');
   let compilerOptions = pluginOptions.compilerOptions;
   let preprocessOptions = pluginOptions.preprocess;
+  let resolveInputOption = pluginOptions.input || ['.svelte'];
   const hmrOptions = pluginOptions.hmrOptions;
 
   if (fs.existsSync(configFilePath)) {
@@ -58,7 +65,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   return {
     name: '@snowpack/plugin-svelte',
     resolve: {
-      input: ['.svelte'],
+      input: resolveInputOption,
       output: ['.js', '.css'],
     },
     knownEntrypoints: [

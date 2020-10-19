@@ -10,6 +10,8 @@ Array [
   "_dist_/index.js",
   "_dist_/sort.js",
   "_dist_/test-mjs.js",
+  "robots.txt",
+  "robots.txt.proxy.js",
   "TEST_WMU/@css/package-b/style.css",
   "TEST_WMU/@css/package-b/style.css.proxy.js",
   "TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg",
@@ -21,7 +23,7 @@ Array [
 ]
 `;
 
-exports[`snowpack build resolve-imports: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\"};"`;
+exports[`snowpack build resolve-imports: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
 exports[`snowpack build resolve-imports: build/_dist_/components/index.js 1`] = `
 "import sort from '../sort.js';
@@ -36,13 +38,15 @@ exports[`snowpack build resolve-imports: build/_dist_/components/style.css 1`] =
 `;
 
 exports[`snowpack build resolve-imports: build/_dist_/components/style.css.proxy.js 1`] = `
-"
-const code = \\"/* Include 2+ imports to make sure regex isn't borked. */@import \\\\\\"../../TEST_WMU/css-package-a/style.css\\\\\\";@import \\\\\\"../../TEST_WMU/@css/package-b/style.css\\\\\\";\\";
-const styleEl = document.createElement(\\"style\\");
-const codeEl = document.createTextNode(code);
-styleEl.type = 'text/css';
-styleEl.appendChild(codeEl);
-document.head.appendChild(styleEl);"
+"// [snowpack] add styles to the page (skip if no document exists)
+if (typeof document !== 'undefined') {
+  const code = \\"/* Include 2+ imports to make sure regex isn't borked. */@import \\\\\\"../../TEST_WMU/css-package-a/style.css\\\\\\";@import \\\\\\"../../TEST_WMU/@css/package-b/style.css\\\\\\";\\";
+  const styleEl = document.createElement(\\"style\\");
+  const codeEl = document.createTextNode(code);
+  styleEl.type = 'text/css';
+  styleEl.appendChild(codeEl);
+  document.head.appendChild(styleEl);
+}"
 `;
 
 exports[`snowpack build resolve-imports: build/_dist_/index.html 1`] = `
@@ -92,6 +96,9 @@ exports[`snowpack build resolve-imports: build/_dist_/index.html 1`] = `
       import styles from './components/style.css.proxy.js'; // relative import
       import styles_ from './components/style.css.proxy.js'; // relative import
       console.log(styles, styles_);
+      // Importing across mounted directories
+      import robotsTxtRef from '../robots.txt.proxy.js';
+      console.log(robotsTxtRef);
     </script>
     <!-- exception test 1: comments should be ignored -->
     <!-- <script type=\\"module\\" src=\\"preact\\"></script> -->
@@ -146,7 +153,10 @@ import styles from './components/style.css.proxy.js'; // relative import
 import styles_ from './components/style.css.proxy.js'; // relative import
 console.log(styles, styles_);
 import adSvg from '../TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg.proxy.js';
-console.log(adSvg);"
+console.log(adSvg);
+// Importing across mounted directories
+import robotsTxtRef from '../robots.txt.proxy.js';
+console.log(robotsTxtRef);"
 `;
 
 exports[`snowpack build resolve-imports: build/_dist_/sort.js 1`] = `"export default (arr) => arr.sort();"`;
@@ -163,13 +173,15 @@ exports[`snowpack build resolve-imports: build/TEST_WMU/@css/package-b/style.css
 `;
 
 exports[`snowpack build resolve-imports: build/TEST_WMU/@css/package-b/style.css.proxy.js 1`] = `
-"
-const code = \\"body {  color: blue;}\\";
-const styleEl = document.createElement(\\"style\\");
-const codeEl = document.createTextNode(code);
-styleEl.type = 'text/css';
-styleEl.appendChild(codeEl);
-document.head.appendChild(styleEl);"
+"// [snowpack] add styles to the page (skip if no document exists)
+if (typeof document !== 'undefined') {
+  const code = \\"body {  color: blue;}\\";
+  const styleEl = document.createElement(\\"style\\");
+  const codeEl = document.createTextNode(code);
+  styleEl.type = 'text/css';
+  styleEl.appendChild(codeEl);
+  document.head.appendChild(styleEl);
+}"
 `;
 
 exports[`snowpack build resolve-imports: build/TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg.proxy.js 1`] = `"export default \\"/TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg\\";"`;
@@ -207,13 +219,15 @@ exports[`snowpack build resolve-imports: build/TEST_WMU/css-package-a/style.css 
 `;
 
 exports[`snowpack build resolve-imports: build/TEST_WMU/css-package-a/style.css.proxy.js 1`] = `
-"
-const code = \\"body {  color: red;}\\";
-const styleEl = document.createElement(\\"style\\");
-const codeEl = document.createTextNode(code);
-styleEl.type = 'text/css';
-styleEl.appendChild(codeEl);
-document.head.appendChild(styleEl);"
+"// [snowpack] add styles to the page (skip if no document exists)
+if (typeof document !== 'undefined') {
+  const code = \\"body {  color: red;}\\";
+  const styleEl = document.createElement(\\"style\\");
+  const codeEl = document.createTextNode(code);
+  styleEl.type = 'text/css';
+  styleEl.appendChild(codeEl);
+  document.head.appendChild(styleEl);
+}"
 `;
 
 exports[`snowpack build resolve-imports: build/TEST_WMU/import-map.json 1`] = `
@@ -227,3 +241,5 @@ exports[`snowpack build resolve-imports: build/TEST_WMU/import-map.json 1`] = `
   }
 }"
 `;
+
+exports[`snowpack build resolve-imports: build/robots.txt.proxy.js 1`] = `"export default \\"/robots.txt\\";"`;

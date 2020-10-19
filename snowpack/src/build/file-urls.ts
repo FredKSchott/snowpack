@@ -1,5 +1,5 @@
 import path from 'path';
-import {SnowpackConfig} from '../types/snowpack';
+import {MountEntry, SnowpackConfig} from '../types/snowpack';
 import {logger} from '../logger';
 import {getExt, getLastExt, replaceExt} from '../util';
 
@@ -72,20 +72,21 @@ export function getUrlForFileMount({
 }: {
   fileLoc: string;
   mountKey: string;
-  mountEntry: string;
+  mountEntry: MountEntry;
   config: SnowpackConfig;
 }): string {
-  const resolvedDirUrl = mountEntry === '/' ? '' : mountEntry;
-  return tryPluginsResolveExt(
+  const resolvedDirUrl = mountEntry.url === '/' ? '' : mountEntry.url;
+  fileLoc = fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, '/');
+  return mountEntry.static ? fileLoc : tryPluginsResolveExt(
     config,
-    fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, '/'),
+    fileLoc
   );
 }
 
 /**
  * Get the final, hosted URL path for a given file on disk.
  */
-export function getUrlForFile(fileLoc: string, config: SnowpackConfig): string | null {
+export function getMountEntryForFile(fileLoc: string, config: SnowpackConfig): [string, MountEntry] | null {
   // PERF: Use `for...in` here instead of the slower `Object.entries()` method
   // that we use everywhere else, since this function can get called 100s of
   // times during a build.
@@ -96,8 +97,20 @@ export function getUrlForFile(fileLoc: string, config: SnowpackConfig): string |
     if (!fileLoc.startsWith(mountKey + path.sep)) {
       continue;
     }
-    const mountEntry = config.mount[mountKey];
-    return getUrlForFileMount({fileLoc, mountKey, mountEntry, config});
+    return [mountKey, config.mount[mountKey]];
   }
   return null;
+}
+
+
+/**
+ * Get the final, hosted URL path for a given file on disk.
+ */
+export function getUrlForFile(fileLoc: string, config: SnowpackConfig): string | null {
+  const mountEntryResult = getMountEntryForFile(fileLoc, config);
+  if (!mountEntryResult) {
+    return null;
+  }
+  const [mountKey, mountEntry] = mountEntryResult;
+  return getUrlForFileMount({fileLoc, mountKey, mountEntry, config});
 }

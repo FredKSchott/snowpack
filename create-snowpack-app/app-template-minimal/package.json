@@ -1,5 +1,6 @@
 {
   "name": "@snowpack/app-template-minimal",
+  "description": "A preconfigured minimal template for Snowpack",
   "private": true,
   "version": "1.6.12",
   "license": "MIT",
@@ -13,6 +14,6 @@
     "test": "echo \"This template does not include a test runner by default.\" && exit 1"
   },
   "devDependencies": {
-    "snowpack": "^2.12.1"
+    "snowpack": "^2.14.3"
   }
 }
