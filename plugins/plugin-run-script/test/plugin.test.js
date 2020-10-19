@@ -4,7 +4,7 @@ const {EventEmitter} = require('events');
 jest.mock('execa');
 const execa = require('execa');
 
-// NOTE(fks): This is skipped due to refactoring happening in https://github.com/pikapkg/snowpack/pull/1203
+// NOTE(fks): This is skipped due to refactoring happening in https://github.com/snowpackjs/snowpack/pull/1203
 // Once that PR is merged, this should be safe to unskip
 describe.skip('plugin-run-script', () => {
   const DEFAULT_OPTIONS = {

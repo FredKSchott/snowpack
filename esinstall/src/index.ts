@@ -98,7 +98,7 @@ function resolveWebDependency(dep: string, {cwd}: {cwd: string}): DependencyLoc 
     return {
       type: isJSFile ? 'JS' : 'ASSET',
       // For details on why we need to call fs.realpathSync.native here and other places, see
-      // https://github.com/pikapkg/snowpack/pull/999.
+      // https://github.com/snowpackjs/snowpack/pull/999.
       loc: fs.realpathSync.native(require.resolve(dep, {paths: [cwd]})),
     };
   }

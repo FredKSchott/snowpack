@@ -3,10 +3,10 @@
   "version": "1.0.5",
   "main": "plugin.js",
   "license": "MIT",
-  "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-postcss#readme",
+  "homepage": "https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-postcss#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pikapkg/snowpack.git",
+    "url": "https://github.com/snowpackjs/snowpack.git",
     "directory": "plugins/plugin-postcss"
   },
   "publishConfig": {

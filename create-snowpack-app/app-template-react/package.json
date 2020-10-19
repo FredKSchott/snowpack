@@ -3,10 +3,10 @@
   "description": "A preconfigured template for Snowpack with React",
   "version": "1.12.2",
   "license": "MIT",
-  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react#readme",
+  "homepage": "https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-react#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pikapkg/snowpack.git",
+    "url": "https://github.com/snowpackjs/snowpack.git",
     "directory": "create-snowpack-app/app-template-react"
   },
   "keywords": [

@@ -3,10 +3,10 @@
   "version": "0.3.3",
   "description": "Convert packages to ESM.",
   "license": "MIT",
-  "homepage": "https://github.com/pikapkg/snowpack/tree/master/esinstall#readme",
+  "homepage": "https://github.com/snowpackjs/snowpack/tree/master/esinstall#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pikapkg/snowpack.git",
+    "url": "https://github.com/snowpackjs/snowpack.git",
     "directory": "esinstall"
   },
   "publishConfig": {
