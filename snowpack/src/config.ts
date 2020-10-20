@@ -887,7 +887,7 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
           return exported.default || exported;
         } catch (error) {
           logger.error(
-            'Warning: TypeScript config file support is still experimental. Consider moving to JavaScript if you continue to have problems.',
+            'Warning: TypeScript config file support is still experimental. Convert back to a JavaScript/JSON config file if you continue to have problems.',
           );
           throw error;
         }
