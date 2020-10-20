@@ -17,9 +17,9 @@ export {startDevServer} from './commands/dev';
 export {loadAndValidateConfig};
 export {getUrlForFile} from './build/file-urls';
 
-/** @deprecated: Promoted to startServer() **/
-export const unstable__startServer = () => {
-  throw new Error(`[snowpack 2.15] unstable__startServer() is now startServer()`);
+/** @deprecated: Promoted to startDevServer() **/
+export const unstable__startDevServer = () => {
+  throw new Error(`[snowpack 2.15] unstable__startServer() is now startDevServer()`);
 };
 /** @deprecated: Promoted to loadAndValidateConfig() **/
 export const unstable__loadAndValidateConfig = () => {

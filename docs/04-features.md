@@ -289,7 +289,13 @@ Snowpack supports [native CSS "@import" behavior](https://developer.mozilla.org/
 
 ### Server Side Rendering (SSR)
 
-SSR for Snowpack is supported but fairly new and experimental. This section of our documentation will be updated as we finalize support over the next few versions.
+SSR for Snowpack is supported but fairly new and experimental. This documentation will be updated as we finalize support over the next few minor versions.
+
+```js
+// New in Snowpack v2.15.0 - JS API Example
+import {startDevServer} from 'snowpack';
+const server = await startDevServer({ ... });
+```
 
 These frameworks have known experiments / examples of using SSR + Snowpack:
 
