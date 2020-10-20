@@ -291,7 +291,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
 
   const {cwd, config} = commandOptions;
   const {port: defaultPort, hostname, open} = config.devOptions;
-  const isHmr = typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true;
   const messageBus = new EventEmitter();
   const port = await getPort(defaultPort);
 
@@ -434,7 +433,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       runPlugin
         .run({
           isDev: true,
-          isHmrEnabled: isHmr,
+          // @deprecated: no longer accurate when using the JS API
+          isHmrEnabled: (typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true),
           // @ts-ignore: internal API only
           log: (msg, data) => {
             if (msg === 'CONSOLE_INFO') {
@@ -482,11 +482,19 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     reqUrl: string,
     {
       isSSR: _isSSR,
+      isHMR: _isHMR,
       allowStale: _allowStale,
       encoding: _encoding,
-    }: {isSSR?: boolean; allowStale?: boolean; encoding?: BufferEncoding | null} = {},
+    }: {
+      isSSR?: boolean;
+      isHMR?: boolean;
+      allowStale?: boolean;
+      encoding?: BufferEncoding | null;
+    } = {},
   ): Promise<LoadResult> {
     const isSSR = _isSSR ?? false;
+    // Default to HMR on, but disable HMR if SSR mode is enabled.
+    const isHMR = _isHMR ?? ((config.devOptions.hmr ?? true) && !isSSR);
     const allowStale = _allowStale ?? false;
     const encoding = _encoding ?? null;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
@@ -649,7 +657,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           plugins: config.plugins,
           isDev: true,
           isSSR,
-          isHmrEnabled: isHmr,
+          isHmrEnabled: isHMR,
           sourceMaps: config.buildOptions.sourceMaps,
         });
         inMemoryBuildCache.set(
@@ -690,7 +698,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       if (isRoute) {
         code = wrapHtmlResponse({
           code: code as string,
-          hmr: isHmr,
+          hmr: isHMR,
           hmrPort: hmrEngine.port !== port ? hmrEngine.port : undefined,
           isDev: true,
           config,
@@ -711,9 +719,9 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         }
         case '.js': {
           if (isProxyModule) {
-            code = await wrapImportProxy({url: reqPath, code, hmr: isHmr, config});
+            code = await wrapImportProxy({url: reqPath, code, hmr: isHMR, config});
           } else {
-            code = wrapImportMeta({code: code as string, env: true, hmr: isHmr, config});
+            code = wrapImportMeta({code: code as string, env: true, hmr: isHMR, config});
           }
 
           if (hasCssResource)
