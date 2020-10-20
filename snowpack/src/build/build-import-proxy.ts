@@ -175,18 +175,16 @@ async function generateCssModuleImportProxy({
 export let code = ${JSON.stringify(injectableSource)};
 let json = ${JSON.stringify(exportTokens)};
 export default json;
-
-// [snowpack] add styles to the page (skip if no document exists)
-if (typeof document !== 'undefined') {${
+${
     hmr
       ? `
-  import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr-client.js', config)}';
-  import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
-  import.meta.hot.dispose(() => {
-    document.head.removeChild(styleEl);
-  });\n`
-      : ``
-  }
+import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr-client.js', config)}';
+import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
+import.meta.hot.dispose(() => {
+  document && document.head.removeChild(styleEl);
+});\n` : ``}
+// [snowpack] add styles to the page (skip if no document exists)
+if (typeof document !== 'undefined') {
   const styleEl = document.createElement("style");
   const codeEl = document.createTextNode(code);
   styleEl.type = 'text/css';
