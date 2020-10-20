@@ -30,7 +30,7 @@ export function wrapImportMeta({
   env: boolean;
   config: SnowpackConfig;
 }) {
-  if (!code.includes('import.meta')) {
+  if (!/import\s*\.\s*meta/.test(code)) {
     return code;
   }
   return (
