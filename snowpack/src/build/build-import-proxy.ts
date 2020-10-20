@@ -14,6 +14,8 @@ const SRI_ERROR_HMR_SNOWPACK = generateSRI(
   readFileSync(path.join(__dirname, '../../assets/hmr-error-overlay.js')),
 );
 
+const importMetaRegex = /import\s*\.\s*meta/;
+
 export function getMetaUrlPath(urlPath: string, config: SnowpackConfig): string {
   let {metaDir} = config.buildOptions || {};
   return path.posix.normalize(path.posix.join('/', metaDir, urlPath));
@@ -30,7 +32,7 @@ export function wrapImportMeta({
   env: boolean;
   config: SnowpackConfig;
 }) {
-  if (!code.includes('import.meta')) {
+  if (!importMetaRegex.test(code)) {
     return code;
   }
   return (
