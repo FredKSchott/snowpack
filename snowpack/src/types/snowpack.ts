@@ -228,6 +228,9 @@ export interface SnowpackConfig {
   _extensionMap: Record<string, string>;
 }
 
+export type SnowpackUserConfig = DeepPartial<SnowpackConfig>;
+
+
 export interface CLIFlags extends Omit<InstallOptions, 'env'> {
   help?: boolean; // display help text
   version?: boolean; // display Snowpack version

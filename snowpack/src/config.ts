@@ -883,6 +883,7 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
           });
 
           const exported = require(outPath);
+          
           return exported.default || exported;
         } catch (error) {
           logger.error(
