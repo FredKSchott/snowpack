@@ -10,11 +10,10 @@ Snowpack supports configuration files in multiple formats, sorted by priority or
 1. `package.json`: A namespaced config object (`"snowpack": {...}`).
 1. `snowpack.config.cjs`: (`module.exports = {...}`) for projects using `"type": "module"`.
 1. `snowpack.config.js`: (`module.exports = {...}`).
-1. `snowpack.config.ts`*: (`export default {...}`).
+1. `snowpack.config.ts`\*: (`export default {...}`).
 1. `snowpack.config.json`: (`{...}`).
 
-_(* Note: `snowpack.config.ts` support is still experimental! It currently involves bundling your config file and all imported files into a temporary JS config file that can be loaded by Node.js. Your mileage may vary.)_
-
+_(\* Note: `snowpack.config.ts` support is still experimental! It currently involves bundling your config file and all imported files into a temporary JS config file that can be loaded by Node.js. Your mileage may vary.)_
 
 ### CLI Flags
 
