@@ -27,7 +27,6 @@ import {
   SnowpackConfig,
   SnowpackSourceFile,
   SnowpackBuiltFile,
-  SnowpackPlugin,
   PluginResolveExtension
 } from '../types/snowpack';
 import {
