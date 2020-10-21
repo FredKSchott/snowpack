@@ -322,6 +322,7 @@ export async function command(commandOptions: CommandOptions) {
       const runJob = runPlugin
         .run({
           isDev: isDev,
+          // @ts-ignore: deprecated
           isHmrEnabled: getIsHmrEnabled(config),
           // @ts-ignore: internal API only
           log: (msg, data: {msg: string} = {}) => {

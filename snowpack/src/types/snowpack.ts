@@ -99,6 +99,7 @@ export interface PluginTransformOptions {
 
 export interface PluginRunOptions {
   isDev: boolean;
+  /* @deprecated */
   isHmrEnabled: boolean;
 }
 
