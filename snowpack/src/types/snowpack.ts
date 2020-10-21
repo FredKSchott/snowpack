@@ -153,6 +153,13 @@ export interface SnowpackPlugin {
   markChanged?(file: string): void;
 }
 
+export type PluginResolveExtension = {
+  inputExt: string,
+  outputExt: string[],
+  plugin: SnowpackPlugin,
+  pluginsShadowed: SnowpackPlugin[]
+}
+
 export interface LegacySnowpackPlugin {
   defaultBuildScript: string;
   build?(options: PluginLoadOptions & {contents: string | Buffer}): Promise<any>;
@@ -231,6 +238,7 @@ export interface SnowpackConfig {
     ) => unknown;
   };
   _extensionMap: Record<string, string>;
+  _extensionMapPlugins: Record<string, PluginResolveExtension>;
 }
 
 export interface CLIFlags extends Omit<InstallOptions, 'env'> {

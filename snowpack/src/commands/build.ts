@@ -26,7 +26,9 @@ import {
   MountEntry,
   SnowpackConfig,
   SnowpackSourceFile,
-  SnowpackBuiltFile
+  SnowpackBuiltFile,
+  SnowpackPlugin,
+  PluginResolveExtension
 } from '../types/snowpack';
 import {
   cssSourceMappingURL,
@@ -327,7 +329,31 @@ export async function command(commandOptions: CommandOptions) {
   mkdirp.sync(buildDirectoryLoc);
   mkdirp.sync(internalFilesBuildLoc);
 
+  const pluginExtMap: Record<string, PluginResolveExtension> = {};
+  const pluginExtShadowed: PluginResolveExtension[] = [];
   for (const runPlugin of config.plugins) {
+    if (runPlugin.resolve) {
+      if (!runPlugin.resolve.output?.length) {
+        logger.error(`Plugin ${runPlugin.name} has no extensions for output`);
+        continue;
+      }
+      for (const inputExt of runPlugin.resolve.input) {
+        if (inputExt in pluginExtMap) {
+          const pluginResolveExt = pluginExtMap[inputExt];
+          if (pluginResolveExt.pluginsShadowed.length === 0) {
+            pluginExtShadowed.push(pluginResolveExt);
+          }
+          pluginResolveExt.pluginsShadowed.push(runPlugin);
+        } else {
+          pluginExtMap[inputExt] = {
+            inputExt,
+            outputExt: runPlugin.resolve.output,
+            plugin: runPlugin,
+            pluginsShadowed: []
+          };
+        }
+      }
+    }
     if (runPlugin.run) {
       logger.debug(`starting ${runPlugin.name} run() (isDev=${isDev})`);
       const runJob = runPlugin
@@ -351,6 +377,12 @@ export async function command(commandOptions: CommandOptions) {
       if (!isDev) {
         await runJob;
       }
+    }
+  }
+  config._extensionMapPlugins = pluginExtMap;
+  if (pluginExtShadowed.length) {
+    for (const pluginExt of pluginExtShadowed) {
+      logger.warn(`The ${pluginExt.inputExt} extension will be handled by ${pluginExt.plugin.name} but ${pluginExt.pluginsShadowed.length} other plugins requested it: ${pluginExt.pluginsShadowed.map(p => p.name).join(', ')}`);
     }
   }
 

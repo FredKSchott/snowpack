@@ -28,25 +28,17 @@ export function tryPluginsResolveExt(config: SnowpackConfig, filePath: string) {
 
   let inputExt, outputExt;
   for (const ext of getExt(filePath)) {
-    for (const plugin of config.plugins) {
-      if (
-        !plugin.resolve ||
-        !plugin.resolve.input.includes(ext)
-      ) continue;
-      const pluginOutput = plugin.resolve.output;
-      if (pluginOutput.length < 1) {
-        logger.error(`Plugin ${plugin.name} has no extensions for output`);
-        continue;
-      }
+    const pluginExt = config._extensionMapPlugins[ext];
+    if (pluginExt) {
+      const pluginOutput = pluginExt.outputExt;
       if (pluginOutput.length > 1) {
-        logger.warn(`Can't use plugin ${plugin.name} to resolve ${filePath}: Multiple extensions for output (${pluginOutput.join(', ')})`);
+        logger.warn(`Can't use plugin ${pluginExt.plugin.name} to resolve ${filePath}: Multiple extensions for output (${pluginOutput.join(', ')})`);
         continue;
       }
       inputExt = ext;
       outputExt = pluginOutput[0];
       break;
     }
-    if (inputExt) break;
   }
   if (!inputExt) {
     inputExt = getLastExt(filePath);
