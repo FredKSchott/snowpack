@@ -3,6 +3,17 @@
   "version": "0.3.4",
   "description": "Convert packages to ESM.",
   "license": "MIT",
+  "keywords": [
+    "install",
+    "web",
+    "dependencies",
+    "npm",
+    "esm",
+    "common.js",
+    "rollup",
+    "esbuild",
+    "cjs"
+  ],
   "homepage": "https://github.com/snowpackjs/snowpack/tree/master/esinstall#readme",
   "repository": {
     "type": "git",
@@ -15,7 +26,7 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "lint": "tsc --noEmit --noUnusedLocals true --noUnusedParameters true"
+    "lint": "tsc --noEmit --noUnusedLocals true --noUnusedParameters true && package-check"
   },
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -23,6 +34,7 @@
     "import": "./index.esm.mjs",
     "require": "./lib/index.js"
   },
+  "files": ["lib"],
   "dependencies": {
     "@rollup/plugin-alias": "^3.0.1",
     "@rollup/plugin-commonjs": "^15.0.0",
@@ -39,5 +51,8 @@
     "rollup": "^2.23.0",
     "rollup-plugin-node-polyfills": "^0.2.1",
     "validate-npm-package-name": "^3.0.0"
+  },
+  "devDependencies": {
+    "@skypack/package-check": "^0.1.0"
   }
 }
