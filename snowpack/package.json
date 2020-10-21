@@ -4,6 +4,15 @@
   "description": "The ESM-powered frontend build tool. Fast, lightweight, unbundled.",
   "author": "Fred K. Schott <fkschott@gmail.com>",
   "license": "MIT",
+  "keywords": [
+    "bundle",
+    "build",
+    "build tool",
+    "web",
+    "esm",
+    "esbuild",
+    "wasm"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/snowpackjs/snowpack.git"
@@ -14,17 +23,22 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "lint": "tsc --noEmit --noUnusedLocals true --noUnusedParameters true"
+    "lint": "tsc --noEmit --noUnusedLocals true --noUnusedParameters true && package-check"
   },
   "engines": {
     "node": ">=10.19.0"
   },
-  "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "main": "lib/index.js",
+  "exports": {
+    "import": "./index.esm.mjs",
+    "require": "./lib/index.js"
+  },
   "bin": {
     "sp": "index.bin.js",
     "snowpack": "index.bin.js"
   },
+  "files": ["assets", "lib"],
   "dependencies": {
     "@snowpack/plugin-build-script": "^2.0.11",
     "@snowpack/plugin-run-script": "^2.1.7",
@@ -63,5 +77,8 @@
     "validate-npm-package-name": "^3.0.0",
     "ws": "^7.3.0",
     "yargs-parser": "^18.1.3"
+  },
+  "devDependencies": {
+    "@skypack/package-check": "^0.1.0"
   }
 }

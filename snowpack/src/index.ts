@@ -12,7 +12,7 @@ import {CLIFlags} from './types/snowpack';
 import {clearCache, readLockfile} from './util.js';
 export * from './types/snowpack';
 
-// Stable API:
+// Stable API (remember to include all in "./index.esm.js" wrapper)
 export {startDevServer} from './commands/dev';
 export {loadAndValidateConfig};
 export {getUrlForFile} from './build/file-urls';
