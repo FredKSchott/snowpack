@@ -1,7 +1,7 @@
 {
   "name": "@snowpack/app-template-svelte",
   "description": "A preconfigured template for Snowpack with Svelte",
-  "version": "1.10.4",
+  "version": "1.10.5",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte#readme",
   "repository": {
@@ -24,14 +24,14 @@
     "svelte": "^3.24.0"
   },
   "devDependencies": {
-    "@snowpack/app-scripts-svelte": "^1.9.0",
+    "@snowpack/app-scripts-svelte": "^1.9.1",
     "@snowpack/plugin-dotenv": "^2.0.4",
     "@snowpack/plugin-run-script": "^2.1.7",
-    "@snowpack/plugin-svelte": "^3.0.1",
+    "@snowpack/plugin-svelte": "^3.1.0",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/svelte": "^3.0.0",
     "jest": "^26.2.2",
-    "snowpack": "^2.15.0",
+    "snowpack": "^2.15.1",
     "svelte-check": "^1.0.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
