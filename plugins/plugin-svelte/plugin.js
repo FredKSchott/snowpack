@@ -48,13 +48,14 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   let configFilePath = path.resolve(cwd, pluginOptions.configFilePath || 'svelte.config.js');
   let compilerOptions = pluginOptions.compilerOptions;
   let preprocessOptions = pluginOptions.preprocess;
-  let resolveInputOption = pluginOptions.input || ['.svelte'];
+  let resolveInputOption = pluginOptions.input;
   const hmrOptions = pluginOptions.hmrOptions;
 
   if (fs.existsSync(configFilePath)) {
     const configFileConfig = require(configFilePath);
     preprocessOptions = preprocessOptions || configFileConfig.preprocess;
     compilerOptions = compilerOptions || configFileConfig.compilerOptions;
+    resolveInputOption = resolveInputOption || configFileConfig.extensions;
   } else {
     //user svelte.config.js is optional and should not error if not configured
     if (pluginOptions.configFilePath) {
@@ -65,7 +66,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   return {
     name: '@snowpack/plugin-svelte',
     resolve: {
-      input: resolveInputOption,
+      input: resolveInputOption || ['.svelte'],
       output: ['.js', '.css'],
     },
     knownEntrypoints: [
