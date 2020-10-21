@@ -38,7 +38,10 @@
     "sp": "index.bin.js",
     "snowpack": "index.bin.js"
   },
-  "files": ["assets", "lib"],
+  "files": [
+    "assets",
+    "lib"
+  ],
   "dependencies": {
     "@snowpack/plugin-build-script": "^2.0.11",
     "@snowpack/plugin-run-script": "^2.1.7",

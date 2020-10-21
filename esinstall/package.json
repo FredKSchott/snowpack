@@ -34,7 +34,9 @@
     "import": "./index.esm.mjs",
     "require": "./lib/index.js"
   },
-  "files": ["lib"],
+  "files": [
+    "lib"
+  ],
   "dependencies": {
     "@rollup/plugin-alias": "^3.0.1",
     "@rollup/plugin-commonjs": "^15.0.0",

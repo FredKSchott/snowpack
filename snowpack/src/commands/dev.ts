@@ -434,7 +434,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         .run({
           isDev: true,
           // @deprecated: no longer accurate when using the JS API
-          isHmrEnabled: (typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true),
+          isHmrEnabled: typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true,
           // @ts-ignore: internal API only
           log: (msg, data) => {
             if (msg === 'CONSOLE_INFO') {
