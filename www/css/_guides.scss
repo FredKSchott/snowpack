@@ -23,19 +23,19 @@
   border-radius: 10px;
   position: relative;
   margin: 1rem 0;
-}
 
-.frame::before {
-  content: url(/img/guides/react/buttons.svg);
-  display: block;
-  position: absolute;
-  top: 5px;
-}
+  &::before {
+    content: url(/img/guides/react/buttons.svg);
+    display: block;
+    position: absolute;
+    top: 5px;
+  }
 
-.frame::after {
-  content: url(/img/guides/react/snowpack-logo-tiny.svg);
-  display: block;
-  position: absolute;
-  top: 5px;
-  right: 17px;
+  &::after {
+    content: url(/img/guides/react/snowpack-logo-tiny.svg);
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 17px;
+  }
 }
