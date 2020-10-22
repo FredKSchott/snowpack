@@ -18,7 +18,7 @@ In this guide, you'll go from an empty directory to a fully configured Snowpack 
 - Enabling [Fast Refresh](https://reactnative.dev/docs/fast-refresh) mode for React
 - Connecting your favorite developer tools to Snowpack
 
-> 💡 Tip: if you want to jump to the end to see a full featured React setup, the [Create Snowpack App React template](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react) comes with everything you'll learn in this guide plus other useful tools.
+> 💡 Tip: if you want to jump to the end to see a full featured React setup, the [Create Snowpack App React template](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-react) comes with everything you'll learn in this guide plus other useful tools.
 
 Prerequisites: Snowpack is a command line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of React is not required, Snowpack is a great way to learn React!
 
@@ -355,14 +355,14 @@ Great job! You're now ready to build the React project of your dreams with Snowp
 
 Image: Certificate with share buttons for Twitter
 
-At this point you have the basics and have a great starter for any React project. But if you compare with the official [Snowpack React template](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react) you'll notice it has some other developer tools you might find useful:
+At this point you have the basics and have a great starter for any React project. But if you compare with the official [Snowpack React template](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-react) you'll notice it has some other developer tools you might find useful:
 
 - [Prettier](https://prettier.io/)—a code formatter
 
 - Tests- TODO
 
-- [`@snowpack/plugin-dotenv`](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-dotenv) - Use `dotenv` in your Snowpack. This is useful for environment specific variables
+- [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-dotenv) - Use `dotenv` in your Snowpack. This is useful for environment specific variables
 
-If you'd like to use Typescript with Snowpack and React, checkout the [Snowpack React Typescript](https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/app-template-react-typescript) starter.
+If you'd like to use Typescript with Snowpack and React, checkout the [Snowpack React Typescript](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-react-typescript) starter.
 
-If you have any questions, comments, or corrections, we'd love to hear from you in the Snowpack [discussion](https://github.com/pikapkg/snowpack/discussions) forum or our [Snowpack Discord community](https://discord.gg/rS8SnRk).
+If you have any questions, comments, or corrections, we'd love to hear from you in the Snowpack [discussion](https://github.com/snowpackjs/snowpack/discussions) forum or our [Snowpack Discord community](https://discord.gg/rS8SnRk).
