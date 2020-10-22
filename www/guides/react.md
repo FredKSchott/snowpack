@@ -301,7 +301,8 @@ To use it, import it `App.jsx` with
 
 ```diff
 import logo from './logo.svg';
-+import './App.css';
+  import logo from './logo.svg';
++ import './App.css';
 ```
 
 <div class="frame"><img src="/img/guides/react/react.gif" alt="The page now has centered items, a grey background, styled fonts, and the React logo has an animation that rotates it." class="screenshot"/></div>
