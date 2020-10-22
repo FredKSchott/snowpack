@@ -121,7 +121,11 @@ This changes how Snowpack builds the files since by default Snowpack scans all d
 📁 public
 ↳ index.css (builds to → public/index.css)
 ↳ index.html (builds to → public/index.html)
-```
+├── 📁 src/
+│   └── index.jsx → src/index.js
+└── 📁 public/
+    ├── index.css → public/index.css
+    └── index.html → public/index.html
 
 This means if you are running Snowpack right now, the site is now broken as the files are all in different places. Snowpack Configuration allows you to fix this by changing what directories Snowpack scans and where they output. Every Snowpack project comes with a `snowpack.config.js` file for any configuration that you might need. Right now, you should see a configuration file with empty options. Add this to the empty `mount` object:
 
