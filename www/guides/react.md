@@ -353,7 +353,14 @@ module.exports = {
   plugins: [
 +    '@snowpack/plugin-react-refresh'
   ],
-};
+  module.exports = {
+    mount: {
+      public: '/',
+      src: '/_dist_',
+    },
+-   plugins: []
++   plugins: ['@snowpack/plugin-react-refresh'],
+  };
 ```
 
 > 💡 Tip: you'll need to restart Snowpack for the configuration changes to take effect
