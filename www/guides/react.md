@@ -85,7 +85,11 @@ Since the React code is rendering into an element with the ID `root`, you'll nee
 ```diff
   <body>
 -    <h1>Welcome to Snowpack!</h1>
-+    <div id="root"></div>
+  <body>
+-   <h1>Welcome to Snowpack!</h1>
++   <div id="root"></div>
++   <script type="module" src="/index.js"></script>
+  </body>
     <script type="module" src="/index.js"></script>
 ```
 
@@ -158,7 +162,12 @@ This configuration changes the build to:
     <h1>Welcome to Snowpack!</h1>
     <div id="root"></div>
 -    <script type="module" src="/index.js"></>
-+    <script type="module" src="/_dist_/index.js"></script>
+  <body>
+    <h1>Welcome to Snowpack!</h1>
+    <div id="root"></div>
+-   <script type="module" src="/index.js"></script>
++   <script type="module" src="/_dist_/index.js"></script>
+  </body>
   </body>
 ```
 
@@ -205,7 +214,16 @@ import ReactDOM from 'react-dom';
 +      <App />
 +    </React.StrictMode>,
 +    document.getElementById('root'),
-+  );
+  import React from 'react';
+  import ReactDOM from 'react-dom';
++ import App from './App.jsx';
+- ReactDOM.render(<div>"HELLO WORLD"</div>, document.getElementById('root'));
++ ReactDOM.render(
++   <React.StrictMode>
++     <App />
++   </React.StrictMode>,
++   document.getElementById('root'),
++ );
 ```
 
 > 💡 Tip: [Strict Mode](https://reactjs.org/docs/strict-mode.html) is a tool for highlighting potential problems in React code.
