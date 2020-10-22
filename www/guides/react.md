@@ -74,7 +74,10 @@ You can now import React in `index.jsx` and add a simple test component just to 
 - console.log('Hello World! You did! Welcome to Snowpack :D');
 +import React from 'react';
 +import ReactDOM from 'react-dom';
-+ReactDOM.render(<div>"HELLO REACT"</div>, document.getElementById('root'));
+- console.log('Hello World! You did! Welcome to Snowpack :D');
++ import React from 'react';
++ import ReactDOM from 'react-dom';
++ ReactDOM.render(<div>"HELLO REACT"</div>, document.getElementById('root'));
 ```
 
 Since the React code is rendering into an element with the ID `root`, you'll need to add that to `index.html`:
