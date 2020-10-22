@@ -325,7 +325,17 @@ ReactDOM.render(
 +// Learn more: https://www.snowpack.dev/#hot-module-replacement
 +if (import.meta.hot) {
 +  import.meta.hot.accept();
-+}
+  ReactDOM.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+    document.getElementById('root'),
+  );
++ // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
++ // Learn more: https://www.snowpack.dev/#hot-module-replacement
++ if (import.meta.hot) {
++   import.meta.hot.accept();
++ }
 ```
 
 Now when you change `App.jsx` the changes show without the whole page refreshing.
