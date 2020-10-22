@@ -594,7 +594,7 @@ function normalizeAlias(config: SnowpackConfig, cwd: string, createMountAlias: b
       replacement.startsWith('/')
     ) {
       delete cleanAlias[target];
-      cleanAlias[addTrailingSlash(target)] = addTrailingSlash(path.resolve(cwd, replacement));
+      cleanAlias[target] = addTrailingSlash(path.resolve(cwd, replacement));
     }
   }
   return cleanAlias;
