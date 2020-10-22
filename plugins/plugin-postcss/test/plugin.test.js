@@ -27,7 +27,6 @@ describe('@snowpack/plugin-postcss', () => {
             fileExt: path.extname(cssPath),
             contents: cssContent 
         });
-        console.log(execa.mock.calls[0])
         expect(execa.mock.calls[0]).toContain('postcss')
         expect(execa.mock.calls[0][1]).not.toEqual([`--config ${configFilePath}`])
     });
