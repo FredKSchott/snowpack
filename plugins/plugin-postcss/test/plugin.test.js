@@ -6,15 +6,30 @@ const cssPath = path.resolve(__dirname, './stubs/style.css');
 const cssContent = fs.readFileSync(cssPath, 'utf-8');
 const configFilePath = path.resolve(__dirname, './stubs/postcss.config.js');
 
+jest.mock('execa')
+const execa = require('execa');
+
 describe('@snowpack/plugin-postcss', () => {
+    beforeEach(() => {
+      execa.mockClear();
+      execaFn = jest.fn(() => {
+            return {
+                stdout: "stdout",
+                stderr: "stderr"
+            }
+      });
+      execa.mockImplementation(execaFn)
+    });
+
     test('with no options', async () => {
         const pluginInstance = plugin({}, {});
         const transformCSSResults = await pluginInstance.transform({
             fileExt: path.extname(cssPath),
             contents: cssContent 
         });
-
-        expect(transformCSSResults).toMatchSnapshot();
+        console.log(execa.mock.calls[0])
+        expect(execa.mock.calls[0]).toContain('postcss')
+        expect(execa.mock.calls[0][1]).not.toEqual([`--config ${configFilePath}`])
     });
 
     test('passing in a config file', async () => {
@@ -26,6 +41,7 @@ describe('@snowpack/plugin-postcss', () => {
             fileExt: path.extname(cssPath),
             contents: cssContent 
         });
-        expect(transformCSSResults).toMatchSnapshot();
+        expect(execa.mock.calls[0]).toContain('postcss')
+        expect(execa.mock.calls[0][1]).toEqual([`--config ${configFilePath}`])
     });
 });
