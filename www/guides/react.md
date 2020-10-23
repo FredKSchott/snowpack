@@ -290,7 +290,7 @@ Create `src/App.css` and add this CSS:
 }
 ```
 
-To use it, import it `App.jsx` with
+To use this CSS, head to `App.jsx` and import it
 
 ```diff
   import logo from './logo.svg';
