@@ -113,23 +113,9 @@ mv index.html public/index.html
 mv index.css public/index.css
 ```
 
-This changes how Snowpack builds the files since by default Snowpack scans all directories:
+This means if you are running Snowpack right now, the site is now broken as the files are all in different places.
 
-```
-/ (builds to → /)
-📁 src
-↳ index.jsx (builds to → src/index.js)
-📁 public
-↳ index.css (builds to → public/index.css)
-↳ index.html (builds to → public/index.html)
-├── 📁 src/
-│   └── index.jsx → src/index.js
-└── 📁 public/
-    ├── index.css → public/index.css
-    └── index.html → public/index.html
-```
-
-This means if you are running Snowpack right now, the site is now broken as the files are all in different places. Snowpack Configuration allows you to fix this by changing what directories Snowpack scans and where they output. Every Snowpack project comes with a `snowpack.config.js` file for any configuration that you might need. Right now, you should see a configuration file with empty options. Add this to the empty `mount` object:
+Snowpack Configuration allows you to fix this and by changing what directories Snowpack scans and where they output. Every Snowpack project comes with a `snowpack.config.js` file for any configuration that you might need. Right now, you should see a configuration file with empty options. Add this to the empty `mount` object:
 
 ```diff
   mount: {
@@ -140,16 +126,7 @@ This means if you are running Snowpack right now, the site is now broken as the 
   },
 ```
 
-This configuration changes the build to:
-
-```
-/ (ignored in case you have files in here you might not want in your final build)
-📁 src
-↳ index.jsx (builds to → _dist_/index.js)
-📁 public
-↳ index.css (builds to → index.css)
-↳ index.html (builds to → index.html)
-```
+<img src="/img/guides/react/folderstructure.jpg" alt="The original file configuration had Snowpack building the directory structure the same as the directories in the project, including root. Now the config builds only src and public. Src to the dist folder and public to root." />
 
 `mount` is part of the [Snowpack Configuration API](https://www.snowpack.dev/#configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in `public` like `public/index.css` directory into `index.css`. It builds files in `src` like `src/index.js` into `/_dist_/index.js`, so you'll need to change that path in your `index.html`:
 
