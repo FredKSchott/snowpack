@@ -203,7 +203,7 @@ export async function openInBrowser(
       });
       // use open Chrome tab if exists; create new Chrome tab if not
       const openChrome = execa(
-        'osascript ../assets/openChrome.applescript "' + encodeURI(url) + '"',
+        'osascript ../assets/openChrome.appleScript "' + encodeURI(url) + '"',
         {
           cwd: __dirname,
           stdio: 'ignore',
