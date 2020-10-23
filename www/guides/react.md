@@ -300,7 +300,7 @@ Head to `index.jsx` and add this snippet at the bottom:
 
 Now when you change `App.jsx` the changes show without the whole page refreshing.
 
-<div class="frame"><object width="425" height="344"><param name="movie" value="https://www.youtube.com/v/KDEDkbExszk&hl=en&fs=1"></param><param name="allowFullScreen" value="true"></param><embed src="https://www.youtube.com/v/KDEDkbExszk&hl=en&fs=1" type="application/x-shockwave-flash" allowfullscreen="true" width="425" height="344"></embed></object></div>
+<div class="frame"><object width="425" height="344"><param name="movie" value="https://www.youtube.com/v/vdpBgCvBEIo&hl=en&fs=1"></param><param name="allowFullScreen" value="true"></param><embed src="https://www.youtube.com/v/vdpBgCvBEIo&hl=en&fs=1" type="application/x-shockwave-flash" allowfullscreen="true" width="425" height="344"></embed></object></div>
 
 The counter on the page still resets to 0, even though the page itself hasn't fully refreshed. This can be annoying if you're trying to debug state. React Fast Refresh solves this.
 
