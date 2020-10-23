@@ -277,7 +277,7 @@ function App() {
 
 The project already has index.css for global styles. For CSS that's only for a specific component, a common design pattern is to add it in a CSS file with the same base name as the component. The style file for `App.jsx` would be `App.css` with this pattern.
 
-> 💡 Tip: Snowpack has built-in support for [CSS Modules](https://www.snowpack.dev/#import-css-modules) and if you'd like to use SASS there is an official [SASS Plugin](https://www.snowpack.dev/#sass).
+> 💡 Tip: Snowpack has built-in support for [CSS Modules](https://www.snowpack.dev/#import-css-modules) and if you'd like to use Sass there is an official [Sass Plugin](https://www.snowpack.dev/#sass).
 
 Create `src/App.css` and add this CSS:
 
