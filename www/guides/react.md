@@ -6,7 +6,7 @@ description: 'Get started with this in-depth tutorial on how to build React appl
 date: 2020-10-01
 ---
 
-<img src="/img/react-guide.png" alt="header image, showing the React and Snowpack logo against a background of blue mountains" />
+<img src="/img/ReactGuide.jpg" alt="header image, showing the React and Snowpack logo against a background of blue mountains" />
 
 Snowpack is a great fit for [React](https://reactjs.org/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional React application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
 
