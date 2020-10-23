@@ -1544,6 +1544,13 @@ img.company-logo {
   border-radius: 0;
 }
 
+.markdown-body embed {
+  background-color: #fff;
+  box-sizing: content-box;
+  max-width: 100%;
+  width: 100%;
+}
+
 .frame {
   background-color: #0a5e9d;
   padding: 34px 17px 10px 17px;
