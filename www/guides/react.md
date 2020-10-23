@@ -70,10 +70,7 @@ mv index.js index.jsx
 You can now import React in `index.jsx` and add a simple test component just to make sure it's working:
 
 ```diff
-/* Add JavaScript code here! */
-- console.log('Hello World! You did! Welcome to Snowpack :D');
-+import React from 'react';
-+import ReactDOM from 'react-dom';
+  /* Add JavaScript code here! */
 - console.log('Hello World! You did! Welcome to Snowpack :D');
 + import React from 'react';
 + import ReactDOM from 'react-dom';
@@ -84,13 +81,10 @@ Since the React code is rendering into an element with the ID `root`, you'll nee
 
 ```diff
   <body>
--    <h1>Welcome to Snowpack!</h1>
-  <body>
 -   <h1>Welcome to Snowpack!</h1>
 +   <div id="root"></div>
 +   <script type="module" src="/index.js"></script>
   </body>
-    <script type="module" src="/index.js"></script>
 ```
 
 <div class="frame"><img src="/img/guides/react/minimalist-hello-world-react.png" alt="screenshot of the project, which shows 'HELLO REACT' on a white background" class="screenshot"/></div>
@@ -133,15 +127,16 @@ This changes how Snowpack builds the files since by default Snowpack scans all d
 └── 📁 public/
     ├── index.css → public/index.css
     └── index.html → public/index.html
+```
 
 This means if you are running Snowpack right now, the site is now broken as the files are all in different places. Snowpack Configuration allows you to fix this by changing what directories Snowpack scans and where they output. Every Snowpack project comes with a `snowpack.config.js` file for any configuration that you might need. Right now, you should see a configuration file with empty options. Add this to the empty `mount` object:
 
 ```diff
   mount: {
--    /* ... */
-+ // directory name: 'build directory'
-+    public: '/',
-+    src: '/_dist_',
+-   /* ... */
++   // directory name: 'build directory'
++   public: '/',
++   src: '/_dist_',
   },
 ```
 
@@ -159,15 +154,11 @@ This configuration changes the build to:
 `mount` is part of the [Snowpack Configuration API](https://www.snowpack.dev/#configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in `public` like `public/index.css` directory into `index.css`. It builds files in `src` like `src/index.js` into `/_dist_/index.js`, so you'll need to change that path in your `index.html`:
 
 ```diff
-    <h1>Welcome to Snowpack!</h1>
-    <div id="root"></div>
--    <script type="module" src="/index.js"></>
   <body>
     <h1>Welcome to Snowpack!</h1>
     <div id="root"></div>
 -   <script type="module" src="/index.js"></script>
 +   <script type="module" src="/_dist_/index.js"></script>
-  </body>
   </body>
 ```
 
@@ -204,16 +195,6 @@ export default App;
 Now include it in `index.jsx`
 
 ```diff
-import React from 'react';
-import ReactDOM from 'react-dom';
-+ import App from './App.jsx';
-
-- ReactDOM.render(<div>"HELLO WORLD"</div>, document.getElementById('root'));
-+ ReactDOM.render(
-+    <React.StrictMode>
-+      <App />
-+    </React.StrictMode>,
-+    document.getElementById('root'),
   import React from 'react';
   import ReactDOM from 'react-dom';
 + import App from './App.jsx';
@@ -241,22 +222,9 @@ When you add assets like images or CSS, Snowpack includes them in your final bui
 Add this file [`logo.svg`](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-react/src/logo.svg) to your `src` directory. Now you can import it into your `App.jsx` and use it in an `img` tag to display it.
 
 ```diff
-import React, { useState, useEffect } from 'react';
+  import React, { useState, useEffect } from 'react';
 + import logo from './logo.svg';
 
-function App() {
-  // Create the count state.
-  const [count, setCount] = useState(0);
-  // Create the counter (+1 every second).
-  useEffect(() => {
-    const timer = setTimeout(() => setCount(count + 1), 1000);
-    return () => clearTimeout(timer);
-  }, [count, setCount]);
-  // Return the App component.
-  return (
-    <div className="App">
-      <header className="App-header">
-+        <img src={logo} className="App-logo" alt="logo" />
   function App() {
     // Create the count state.
     const [count, setCount] = useState(0);
@@ -325,7 +293,6 @@ Create `src/App.css` and add this CSS:
 To use it, import it `App.jsx` with
 
 ```diff
-import logo from './logo.svg';
   import logo from './logo.svg';
 + import './App.css';
 ```
@@ -341,16 +308,6 @@ Start by enabling [Hot Module Replacement](https://www.snowpack.dev/#hot-module-
 Head to `index.jsx` and add this snippet at the bottom:
 
 ```diff
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root'),
-);
-+// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-+// Learn more: https://www.snowpack.dev/#hot-module-replacement
-+if (import.meta.hot) {
-+  import.meta.hot.accept();
   ReactDOM.render(
     <React.StrictMode>
       <App />
@@ -381,14 +338,6 @@ npm install @snowpack/plugin-react-refresh --save-dev
 To enable it head to `snowpack-config.js` and add it to the array of plugins
 
 ```diff
-module.exports = {
-  mount: {
-    public: '/',
-    src: '/_dist_',
-  },
-  plugins: [
-+    '@snowpack/plugin-react-refresh'
-  ],
   module.exports = {
     mount: {
       public: '/',
