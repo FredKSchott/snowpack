@@ -7986,6 +7986,11 @@ humanize-ms@^1.2.1:
   dependencies:
     ms "^2.0.0"
 
+hypertag@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/hypertag/-/hypertag-0.0.3.tgz#2737f7a4ab885e0bb2b69a3319a11a92b035f96f"
+  integrity sha512-Z/cAsLCihKj+QJGQt5X19L/YY8PW5l8/A9Ju7s4g1ty4kwDdSzGp2QdRoKb266kFglJw6+CSsR/zNpkrOEo54A==
+
 iconv-lite@0.4.24, iconv-lite@^0.4.24:
   version "0.4.24"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
@@ -10457,6 +10462,13 @@ node-gyp@^5.0.2:
     semver "^5.7.1"
     tar "^4.4.12"
     which "^1.3.1"
+
+node-inject-html@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/node-inject-html/-/node-inject-html-0.0.4.tgz#9c82bd90d8301349d1ae9e27d4f866cb62b917b4"
+  integrity sha512-8sm0lZWHgJD/fEQFP3l0HIOwG+Wc4R3FB6YmrggC1M/bcMiHnY7i5zCarbW2VdRZnDQ5Do/0ecKr4xLGOfdENw==
+  dependencies:
+    moo "^0.5.1"
 
 node-int64@^0.4.0:
   version "0.4.0"
@@ -14910,6 +14922,11 @@ watchpack@^1.7.4:
   optionalDependencies:
     chokidar "^3.4.1"
     watchpack-chokidar2 "^2.0.0"
+
+water.css@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/water.css/-/water.css-2.0.0.tgz#9d7baa1508a4e7b5ae276ea6b87f80a43b341ac2"
+  integrity sha512-GoogHcpwiQEHktKjwIEyWIoZrvbxUb8KJDOGGZL8dvO+I8F9HYYLbEia5QrllJVd4CFfy5WWaYeXh8RYjh8JdQ==
 
 wcwidth@^1.0.0:
   version "1.0.1"

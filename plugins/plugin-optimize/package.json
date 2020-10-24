@@ -18,7 +18,9 @@
     "esbuild": "^0.8.0",
     "glob": "^7.1.6",
     "html-minifier": "^4.0.0",
-    "kleur": "^4.1.1",
+    "hypertag": "^0.0.3",
+    "kleur": "^4.1.3",
+    "node-inject-html": "^0.0.4",
     "p-queue": "^6.6.1"
   }
 }
