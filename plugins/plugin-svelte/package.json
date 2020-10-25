@@ -18,7 +18,7 @@
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4",
   "dependencies": {
     "rollup-plugin-svelte": "^6.0.0",
-    "svelte-hmr": "^0.11.2-1"
+    "svelte-hmr": "^0.11.2"
   },
   "devDependencies": {
     "node-sass": "^4.14.1",
