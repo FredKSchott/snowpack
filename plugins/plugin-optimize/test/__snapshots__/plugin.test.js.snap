@@ -7,13 +7,47 @@ exports[`@snowpack/plugin-optimize minimal - no minification: fs.writeFileSync 1
 exports[`@snowpack/plugin-optimize minimal - no options: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize minimal - no options: fs.writeFileSync 1`] = `
+FILE: stubs/minimal/esm_example.js
+export default function e(){return console.log("example"),1}
+
+
+--------------------------------------------------------------------------------
+
 FILE: stubs/minimal/index.html
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Minimal test</title><link rel="stylesheet" href="style.css"></head><body><script type="module" src="index.js"></script></body></html>
 
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/index.js
-(()=>{function n(o){console.log(o)}n("test")})();
+import"./esm_example.js";(()=>{function e(m){console.log(m)}e("test")})();
+
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/style.css
+body{border:1px solid red}
+`;
+
+exports[`@snowpack/plugin-optimize no HTML minification, with preloadModules: console.log 1`] = ``;
+
+exports[`@snowpack/plugin-optimize no HTML minification, with preloadModules: fs.writeFileSync 1`] = `
+FILE: stubs/minimal/esm_example.js
+export default function e(){return console.log("example"),1}
+
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/index.html
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Minimal test</title><link rel="stylesheet" href="style.css">  <!-- @snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance (More info: https://developers.google.com/web/updates/2017/12/modulepreload) -->
+    <link rel="modulepreload" href="/esm_example.js" />
+  </head><body><script type="module" src="index.js"></script>  <!-- [@snowpack/plugin-optimize] modulepreload fallback for browsers that do not support it yet -->
+    <script type="module" src="/esm_example.js"></script>
+  </body></html>
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/index.js
+import"./esm_example.js";(()=>{function e(m){console.log(m)}e("test")})();
 
 
 --------------------------------------------------------------------------------
