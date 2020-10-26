@@ -86,14 +86,31 @@ function buildImportCSS(manifest, minifyCSS) {
   for (const f in manifest) {
     manifest[f].js.forEach((js) => {
       if (!js.endsWith('.css.proxy.js')) return;
-      // TODO: handle .module.css files differently
-      allCSSFiles.add(js.replace(/\.proxy\.js$/, ''));
+      const isCSSModule = js.endsWith('.module.css.proxy.js');
+      allCSSFiles.add(isCSSModule ? js : js.replace(/\.proxy\.js$/, ''));
     });
   }
 
   // read + concat
   let code = '';
-  allCSSFiles.forEach((file) => (code += '\n' + fs.readFileSync(file, 'utf-8')));
+  allCSSFiles.forEach((file) => {
+    const contents = fs.readFileSync(file, 'utf-8');
+
+    if (file.endsWith('.module.css.proxy.js')) {
+      // css modules
+      const matches = contents.match(/^export let code = *(.*)$/m);
+      if (matches && matches[1])
+        code +=
+          '\n' +
+          matches[1]
+            .trim()
+            .replace(/^('|")/, '')
+            .replace(/('|");?$/, '');
+    } else {
+      // normal css
+      code += '\n' + contents;
+    }
+  });
 
   // minify
   if (code) {

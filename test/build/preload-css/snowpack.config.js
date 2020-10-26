@@ -8,6 +8,7 @@ module.exports = {
     [
       '@snowpack/plugin-optimize',
       {
+        minifyCSS: false,
         minifyHTML: false,
         minifyJS: false,
         preloadCSS: true,
