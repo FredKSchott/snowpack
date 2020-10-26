@@ -7,6 +7,24 @@ exports[`@snowpack/plugin-optimize minimal - no minification: fs.writeFileSync 1
 exports[`@snowpack/plugin-optimize minimal - no options: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize minimal - no options: fs.writeFileSync 1`] = `
+FILE: stubs/minimal/do-not-preload-1.js
+console.error("Error: this file in a comment shouldn’t be preloaded");
+
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/do-not-preload-2.js
+console.error("Error: this entry file shouldn’t be preloaded, either (it’s already in the entry)");
+
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/do-not-preload-3.js
+console.error("Error: this lazy-loaded file should not be preloaded (then it’s not lazy-loaded)");
+
+
+--------------------------------------------------------------------------------
+
 FILE: stubs/minimal/esm_example.js
 export default function e(){return console.log("example"),1}
 
@@ -14,12 +32,12 @@ export default function e(){return console.log("example"),1}
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/index.html
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Minimal test</title><link rel="stylesheet" href="style.css"></head><body><script type="module" src="index.js"></script></body></html>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Minimal test</title><link rel="stylesheet" href="style.css"></head><body><script type="module" src="index.js"></script><script type="module" src="./do-not-preload-2.js"></script></body></html>
 
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/index.js
-import"./esm_example.js";(()=>{function e(m){console.log(m)}e("test")})();
+import"./esm_example.js";import("./do-not-preload-3.js"),(()=>{function o(e){console.log(e)}o("test")})();
 
 
 --------------------------------------------------------------------------------
@@ -31,6 +49,24 @@ body{border:1px solid red}
 exports[`@snowpack/plugin-optimize no HTML minification, with preloadModules: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize no HTML minification, with preloadModules: fs.writeFileSync 1`] = `
+FILE: stubs/minimal/do-not-preload-1.js
+console.error("Error: this file in a comment shouldn’t be preloaded");
+
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/do-not-preload-2.js
+console.error("Error: this entry file shouldn’t be preloaded, either (it’s already in the entry)");
+
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/do-not-preload-3.js
+console.error("Error: this lazy-loaded file should not be preloaded (then it’s not lazy-loaded)");
+
+
+--------------------------------------------------------------------------------
+
 FILE: stubs/minimal/esm_example.js
 export default function e(){return console.log("example"),1}
 
@@ -38,16 +74,29 @@ export default function e(){return console.log("example"),1}
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/index.html
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Minimal test</title><link rel="stylesheet" href="style.css">  <!-- @snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance (More info: https://developers.google.com/web/updates/2017/12/modulepreload) -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Minimal test</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- [@snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance (More info: https://developers.google.com/web/updates/2017/12/modulepreload) -->
     <link rel="modulepreload" href="/esm_example.js" />
-  </head><body><script type="module" src="index.js"></script>  <!-- [@snowpack/plugin-optimize] modulepreload fallback for browsers that do not support it yet -->
+  </head>
+  <body>
+    <script type="module" src="index.js"></script>
+    <!-- <script type="module" src="./do-not-preload-1.js"></script> -->
+    <script type="module" src="./do-not-preload-2.js"></script>
+    <!-- [@snowpack/plugin-optimize] modulepreload fallback for browsers that do not support it yet -->
     <script type="module" src="/esm_example.js"></script>
-  </body></html>
+  </body>
+</html>
+
 
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/index.js
-import"./esm_example.js";(()=>{function e(m){console.log(m)}e("test")})();
+import"./esm_example.js";import("./do-not-preload-3.js"),(()=>{function o(e){console.log(e)}o("test")})();
 
 
 --------------------------------------------------------------------------------
