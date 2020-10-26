@@ -2,11 +2,55 @@
 
 exports[`@snowpack/plugin-optimize minimal - no minification: console.log 1`] = ``;
 
-exports[`@snowpack/plugin-optimize minimal - no minification: fs.writeFileSync 1`] = ``;
+exports[`@snowpack/plugin-optimize minimal - no minification: fs.writeFileSync 1`] = `
+FILE: stubs/minimal/__snowpack__/optimize-manifest.json
+{
+  "imports": {
+    "/index.html": {
+      "entry": [
+        "/do-not-preload-2.js",
+        "/index.js"
+      ],
+      "css": [
+        "/style.css"
+      ],
+      "js": [
+        "/do-not-preload-2.js",
+        "/esm_example.js",
+        "/index.js"
+      ]
+    }
+  },
+  "generated": []
+}
+`;
 
 exports[`@snowpack/plugin-optimize minimal - no options: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize minimal - no options: fs.writeFileSync 1`] = `
+FILE: stubs/minimal/__snowpack__/optimize-manifest.json
+{
+  "imports": {
+    "/index.html": {
+      "entry": [
+        "/do-not-preload-2.js",
+        "/index.js"
+      ],
+      "css": [
+        "/style.css"
+      ],
+      "js": [
+        "/do-not-preload-2.js",
+        "/esm_example.js",
+        "/index.js"
+      ]
+    }
+  },
+  "generated": []
+}
+
+--------------------------------------------------------------------------------
+
 FILE: stubs/minimal/do-not-preload-1.js
 console.error("Error: this file in a comment shouldn\\u2019t be preloaded");
 
@@ -32,7 +76,7 @@ export default function e(){return console.log("example"),1}
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/index.html
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Minimal test</title><link rel="stylesheet" href="style.css"></head><body><script type="module" src="index.js"></script><script type="module" src="./do-not-preload-2.js"></script></body></html>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Minimal test</title><link rel="stylesheet" href="style.css"/></head><body><script type="module" src="index.js"></script><script type="module" src="./do-not-preload-2.js"></script></body></html>
 
 --------------------------------------------------------------------------------
 
@@ -103,6 +147,29 @@ export default function n(){const o={bar:"bar"},t=null;return console.log(o==nul
 exports[`@snowpack/plugin-optimize no HTML minification, with preloadModules: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize no HTML minification, with preloadModules: fs.writeFileSync 1`] = `
+FILE: stubs/minimal/__snowpack__/optimize-manifest.json
+{
+  "imports": {
+    "/index.html": {
+      "entry": [
+        "/do-not-preload-2.js",
+        "/index.js"
+      ],
+      "css": [
+        "/style.css"
+      ],
+      "js": [
+        "/do-not-preload-2.js",
+        "/esm_example.js",
+        "/index.js"
+      ]
+    }
+  },
+  "generated": []
+}
+
+--------------------------------------------------------------------------------
+
 FILE: stubs/minimal/do-not-preload-1.js
 console.error("Error: this file in a comment shouldn\\u2019t be preloaded");
 
@@ -127,6 +194,7 @@ export default function e(){return console.log("example"),1}
 
 --------------------------------------------------------------------------------
 
+<<<<<<< HEAD
 FILE: stubs/minimal/index.html
 <!DOCTYPE html>
 <html lang="en">
@@ -150,6 +218,8 @@ FILE: stubs/minimal/index.html
 
 --------------------------------------------------------------------------------
 
+=======
+>>>>>>> 073286a5 (Update plugin-optimize snapshot)
 FILE: stubs/minimal/index.js
 import"./esm_example.js";import t from"./target-es2018.js";import("./do-not-preload-3.js"),(()=>{function o(e){console.log(e)}o("test",t())})();
 
