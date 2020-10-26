@@ -21,7 +21,7 @@ FILE: stubs/minimal/__snowpack__/optimize-manifest.json
       ]
     }
   },
-  "generated": []
+  "generated": {}
 }
 `;
 
@@ -46,7 +46,7 @@ FILE: stubs/minimal/__snowpack__/optimize-manifest.json
       ]
     }
   },
-  "generated": []
+  "generated": {}
 }
 
 --------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ FILE: stubs/minimal/__snowpack__/optimize-manifest.json
       ]
     }
   },
-  "generated": []
+  "generated": {}
 }
 
 --------------------------------------------------------------------------------

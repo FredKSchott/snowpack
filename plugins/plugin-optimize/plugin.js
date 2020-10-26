@@ -21,8 +21,8 @@ exports.default = function plugin(config, userDefinedOptions) {
     minifyHTML: true,
     minifyCSS: true,
     preloadCSS: false,
+    preloadedCSSName: '/imported-styles.css',
     preloadModules: false,
-    combinedCSSName: '/imported-styles.css',
     ...(userDefinedOptions || {}),
   };
 
@@ -77,7 +77,7 @@ exports.default = function plugin(config, userDefinedOptions) {
         // preload CSS
         if (preloadCSS) {
           code = injectHTML(code, {
-            headEnd: `<link type="stylesheet" rel="${options.combinedCSSName}" />\n`,
+            headEnd: `<link type="stylesheet" rel="${options.preloadedCSSName}" />\n`,
           });
         }
 
@@ -107,7 +107,7 @@ exports.default = function plugin(config, userDefinedOptions) {
       // 0. setup
       const esbuildService = await esbuild.startService();
       await init;
-      let generatedFiles = [];
+      let generatedFiles = {};
 
       // 1. index files
       const allFiles = glob
@@ -160,10 +160,10 @@ exports.default = function plugin(config, userDefinedOptions) {
       if (preloadCSS) {
         const combinedCSS = buildImportCSS(manifest, options.minifyCSS);
         if (combinedCSS) {
-          const outputCSS = path.join(buildDirectory, options.combinedCSSName);
+          const outputCSS = path.join(buildDirectory, options.preloadedCSSName);
           await mkdirp(path.dirname(outputCSS));
           fs.writeFileSync(outputCSS, combinedCSS, 'utf-8');
-          generatedFiles.push(outputCSS);
+          generatedFiles.preloadedCSS = outputCSS;
         }
       }
 

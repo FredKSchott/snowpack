@@ -46,9 +46,9 @@ exports[`snowpack build preload-css: build/__snowpack__/optimize-manifest.json 1
       ]
     }
   },
-  \\"generated\\": [
-    \\"/imported-styles.css\\"
-  ]
+  \\"generated\\": {
+    \\"preloadedCSS\\": \\"/imported-styles.css\\"
+  }
 }"
 `;
 

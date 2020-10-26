@@ -54,9 +54,10 @@ function formatManifest({manifest, buildDirectory, generatedFiles, preloadCSS}) 
     return [format(k), {entry, css, js}];
   });
   sorted.sort((a, b) => a[0].localeCompare(b[0]));
+
   return {
     imports: Object.fromEntries(sorted),
-    generated: generatedFiles.map(format),
+    generated: Object.fromEntries(Object.entries(generatedFiles).map(([k, v]) => [k, format(v)])),
   };
 }
 exports.formatManifest = formatManifest;
