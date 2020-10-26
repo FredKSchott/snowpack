@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
-const colors = require('kleur/colors');
 const {minify: minifyHtml} = require('html-minifier');
 const {minify: minifyCss} = require('csso');
 const esbuild = require('esbuild');

@@ -52,24 +52,24 @@ function transformCSSProxy(file, originalCode) {
     if (!importNamed) {
       // option 1: no transforms needed
       code = code.replace(new RegExp(`${code.substring(ss, se)};?\n?`), '');
-      return;
-    }
-
-    if (importedFile.endsWith('.module.css')) {
-      // option 2: transform css modules
-      const proxyCode = fs.readFileSync(path.resolve(filePath, originalImport), 'utf-8');
-      const matches = proxyCode.match(/^let json\s*=\s*(\{[^\}]+\})/m);
-      if (!matches) return;
-      code = code.replace(
-        new RegExp(`${code.substring(ss, se).replace(/\*/g, '\\*')};?`),
-        `const ${importNamed.replace(/\*\s+as\s+/, '')} = ${matches[1]};`,
-      );
     } else {
-      // option 3: transfrom normal css
-      code = code.replace(
-        new RegExp(`${code.substring(ss, se)};?`),
-        `const ${importNamed} = '${importedFile}';`,
-      );
+      if (importedFile.endsWith('.module.css')) {
+        // option 2: transform css modules
+        const proxyCode = fs.readFileSync(path.resolve(filePath, originalImport), 'utf-8');
+        const matches = proxyCode.match(/^let json\s*=\s*(\{[^\}]+\})/m);
+        if (matches) {
+          code = code.replace(
+            new RegExp(`${code.substring(ss, se).replace(/\*/g, '\\*')};?`),
+            `const ${importNamed.replace(/\*\s+as\s+/, '')} = ${matches[1]};`,
+          );
+        }
+      } else {
+        // option 3: transfrom normal css
+        code = code.replace(
+          new RegExp(`${code.substring(ss, se)};?`),
+          `const ${importNamed} = '${importedFile}';`,
+        );
+      }
     }
 
     proxyImports = getProxyImports(code); // re-parse code, continuing until all are transformed
@@ -86,6 +86,7 @@ function buildImportCSS(manifest, minifyCSS) {
   for (const f in manifest) {
     manifest[f].js.forEach((js) => {
       if (!js.endsWith('.css.proxy.js')) return;
+      // TODO: handle .module.css files differently
       allCSSFiles.add(js.replace(/\.proxy\.js$/, ''));
     });
   }
