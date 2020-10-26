@@ -3,6 +3,10 @@
  */
 const path = require('path');
 const colors = require('kleur/colors');
+const fromEntries = require('object.fromentries');
+
+// Node 10 shim
+if (!Object.fromEntries) fromEntries.shim();
 
 /** log somethin */
 function log(msg, level = 'log') {

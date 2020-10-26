@@ -83,7 +83,7 @@ exports.default = function plugin(config, userDefinedOptions) {
 
         // preload JS
         if (options.preloadModules) {
-          code = preloadJS({code, preloadCSS, rootDir});
+          code = preloadJS({code, file, preloadCSS, rootDir});
         }
 
         // minify
@@ -138,21 +138,23 @@ exports.default = function plugin(config, userDefinedOptions) {
 
       // 3. optimize all files in parallel
       const parallelWorkQueue = new PQueue({concurrency: CONCURRENT_WORKERS});
-      for (const file of allFiles.filter(
-        (file) => (preloadCSS && !file.endsWith('.css.proxy.js')) || true, // if preloading CSS, don’t optimize .css.proxy.js files
-      )) {
-        parallelWorkQueue.add(() =>
-          optimizeFile({
-            file,
-            esbuildService,
-            preloadCSS,
-            rootDir: buildDirectory,
-            target: options.target,
-          }).catch((err) => {
-            log(`Error: ${file} ${err.toString()}`, 'error');
-          }),
-        );
-      }
+      allFiles
+        .filter(
+          (file) => (preloadCSS ? !file.endsWith('.css.proxy.js') : true), // if preloading CSS, don’t optimize .css.proxy.js files
+        )
+        .forEach((file) => {
+          parallelWorkQueue.add(() =>
+            optimizeFile({
+              file,
+              esbuildService,
+              preloadCSS,
+              rootDir: buildDirectory,
+              target: options.target,
+            }).catch((err) => {
+              log(`Error: ${file} ${err.toString()}`, 'error');
+            }),
+          );
+        });
       await parallelWorkQueue.onIdle();
       esbuildService.stop();
 

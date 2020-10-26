@@ -12,7 +12,7 @@ const {scanJS} = require('./js');
 async function scanHTML(htmlFiles, buildDirectory) {
   const importList = {};
   await Promise.all(
-    htmlFiles.map(async (file) => {
+    htmlFiles.map(async (htmlFile) => {
       // TODO: add debug in plugins?
       // log(`scanning ${projectURL(file, buildDirectory)} for imports`, 'debug');
 
@@ -20,7 +20,7 @@ async function scanHTML(htmlFiles, buildDirectory) {
       const allJSImports = new Set(); // all JS imports for this HTML file
       const entry = new Set(); // keep track of HTML entry files
 
-      const code = await fs.promises.readFile(file, 'utf-8');
+      const code = await fs.promises.readFile(htmlFile, 'utf-8');
 
       // <link>
       hypertag(code, 'link').forEach((link) => {
@@ -28,7 +28,7 @@ async function scanHTML(htmlFiles, buildDirectory) {
         const resolvedCSS =
           link.href[0] === '/'
             ? path.join(buildDirectory, link.href)
-            : path.join(path.dirname(file), link.href);
+            : path.join(path.dirname(htmlFile), link.href);
         allCSSImports.add(resolvedCSS);
       });
 
@@ -38,16 +38,16 @@ async function scanHTML(htmlFiles, buildDirectory) {
         const resolvedJS =
           script.src[0] === '/'
             ? path.join(buildDirectory, script.src)
-            : path.join(path.dirname(file), script.src);
+            : path.join(path.dirname(htmlFile), script.src);
         allJSImports.add(resolvedJS);
         entry.add(resolvedJS);
       });
 
       // traverse all JS for other static imports (scannedFiles keeps track of files so we never redo work)
       const scannedFiles = new Set();
-      allJSImports.forEach((file) => {
+      allJSImports.forEach((jsFile) => {
         scanJS({
-          file,
+          file: jsFile,
           rootDir: buildDirectory,
           scannedFiles,
           importList: allJSImports,
@@ -55,7 +55,7 @@ async function scanHTML(htmlFiles, buildDirectory) {
       });
 
       // return
-      importList[file] = {
+      importList[htmlFile] = {
         entry: Array.from(entry),
         css: Array.from(allCSSImports),
         js: Array.from(allJSImports),
@@ -67,7 +67,7 @@ async function scanHTML(htmlFiles, buildDirectory) {
 exports.scanHTML = scanHTML;
 
 /** Given a set of HTML files, trace the imported JS */
-function preloadJS({code, preloadCSS, rootDir}) {
+function preloadJS({code, file, preloadCSS, rootDir}) {
   const originalEntries = new Set(); // original entry files in HTML
   const allModules = new Set(); // all modules required by this HTML file
 

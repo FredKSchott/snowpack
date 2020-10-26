@@ -17,7 +17,8 @@ FILE: stubs/minimal/__snowpack__/optimize-manifest.json
       "js": [
         "/do-not-preload-2.js",
         "/esm_example.js",
-        "/index.js"
+        "/index.js",
+        "/target-es2018.js"
       ]
     }
   },
@@ -42,12 +43,19 @@ FILE: stubs/minimal/__snowpack__/optimize-manifest.json
       "js": [
         "/do-not-preload-2.js",
         "/esm_example.js",
-        "/index.js"
+        "/index.js",
+        "/target-es2018.js"
       ]
     }
   },
   "generated": {}
 }
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/do-not-preload-1.js
+console.error("Error: this file in a comment shouldn\\u2019t be preloaded");
+
 
 --------------------------------------------------------------------------------
 
@@ -63,8 +71,26 @@ console.error("Error: this entry file shouldn\\u2019t be preloaded, either (it\\
 
 --------------------------------------------------------------------------------
 
+FILE: stubs/minimal/do-not-preload-2.js
+console.error("Error: this entry file shouldn\\u2019t be preloaded, either (it\\u2019s already in the entry)");
+
+
+--------------------------------------------------------------------------------
+
 FILE: stubs/minimal/do-not-preload-3.js
 console.error("Error: this lazy-loaded file should not be preloaded (then it\\u2019s not lazy-loaded)");
+
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/do-not-preload-3.js
+console.error("Error: this lazy-loaded file should not be preloaded (then it\\u2019s not lazy-loaded)");
+
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/esm_example.js
+export default function e(){return console.log("example"),1}
 
 
 --------------------------------------------------------------------------------
@@ -86,48 +112,6 @@ import"./esm_example.js";import t from"./target-es2018.js";import("./do-not-prel
 
 --------------------------------------------------------------------------------
 
-FILE: stubs/minimal/style.css
-body{border:1px solid #fff;margin:1px}
-
---------------------------------------------------------------------------------
-
-FILE: stubs/minimal/target-es2018.js
-export default function n(){const o={bar:"bar"},t=null;return console.log(o?.bar,t??100),!0}
-
-`;
-
-exports[`@snowpack/plugin-optimize minimal - target: console.log 1`] = ``;
-
-exports[`@snowpack/plugin-optimize minimal - target: fs.writeFileSync 1`] = `
-FILE: stubs/minimal/do-not-preload-1.js
-console.error("Error: this file in a comment shouldn\\u2019t be preloaded");
-
-
---------------------------------------------------------------------------------
-
-FILE: stubs/minimal/do-not-preload-2.js
-console.error("Error: this entry file shouldn\\u2019t be preloaded, either (it\\u2019s already in the entry)");
-
-
---------------------------------------------------------------------------------
-
-FILE: stubs/minimal/do-not-preload-3.js
-console.error("Error: this lazy-loaded file should not be preloaded (then it\\u2019s not lazy-loaded)");
-
-
---------------------------------------------------------------------------------
-
-FILE: stubs/minimal/esm_example.js
-export default function e(){return console.log("example"),1}
-
-
---------------------------------------------------------------------------------
-
-FILE: stubs/minimal/index.html
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Minimal test</title><link rel="stylesheet" href="style.css"></head><body><script type="module" src="index.js"></script><script type="module" src="./do-not-preload-2.js"></script></body></html>
-
---------------------------------------------------------------------------------
-
 FILE: stubs/minimal/index.js
 import"./esm_example.js";import t from"./target-es2018.js";import("./do-not-preload-3.js"),(()=>{function o(e){console.log(e)}o("test",t())})();
 
@@ -140,7 +124,13 @@ body{border:1px solid #fff;margin:1px}
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/target-es2018.js
-export default function n(){const o={bar:"bar"},t=null;return console.log(o==null?void 0:o.bar,t!=null?t:100),!0}
+export default function n(){const o={bar:"bar"},t=null;return console.log(o?.bar,t??100),!0}
+
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/target-es2018.js
+export default function n(){const o={bar:"bar"},t=null;return console.log(o?.bar,t??100),!0}
 
 `;
 
@@ -161,7 +151,8 @@ FILE: stubs/minimal/__snowpack__/optimize-manifest.json
       "js": [
         "/do-not-preload-2.js",
         "/esm_example.js",
-        "/index.js"
+        "/index.js",
+        "/target-es2018.js"
       ]
     }
   },
@@ -172,6 +163,18 @@ FILE: stubs/minimal/__snowpack__/optimize-manifest.json
 
 FILE: stubs/minimal/do-not-preload-1.js
 console.error("Error: this file in a comment shouldn\\u2019t be preloaded");
+
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/do-not-preload-1.js
+console.error("Error: this file in a comment shouldn\\u2019t be preloaded");
+
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/do-not-preload-2.js
+console.error("Error: this entry file shouldn\\u2019t be preloaded, either (it\\u2019s already in the entry)");
 
 
 --------------------------------------------------------------------------------
@@ -188,13 +191,24 @@ console.error("Error: this lazy-loaded file should not be preloaded (then it\\u2
 
 --------------------------------------------------------------------------------
 
+FILE: stubs/minimal/do-not-preload-3.js
+console.error("Error: this lazy-loaded file should not be preloaded (then it\\u2019s not lazy-loaded)");
+
+
+--------------------------------------------------------------------------------
+
 FILE: stubs/minimal/esm_example.js
 export default function e(){return console.log("example"),1}
 
 
 --------------------------------------------------------------------------------
 
-<<<<<<< HEAD
+FILE: stubs/minimal/esm_example.js
+export default function e(){return console.log("example"),1}
+
+
+--------------------------------------------------------------------------------
+
 FILE: stubs/minimal/index.html
 <!DOCTYPE html>
 <html lang="en">
@@ -205,6 +219,7 @@ FILE: stubs/minimal/index.html
     <!-- [@snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance (More info: https://developers.google.com/web/updates/2017/12/modulepreload) -->
     <link rel="modulepreload" href="/esm_example.js" />
     <link rel="modulepreload" href="/target-es2018.js" />
+
   </head>
   <body>
     <script type="module" src="index.js"></script>
@@ -212,14 +227,19 @@ FILE: stubs/minimal/index.html
     <script type="module" src="./do-not-preload-2.js"></script>
     <!-- [@snowpack/plugin-optimize] modulepreload fallback for browsers that do not support it yet -->
     <script type="module" src="/esm_example.js"></script><script type="module" src="/target-es2018.js"></script>
+
   </body>
 </html>
 
 
 --------------------------------------------------------------------------------
 
-=======
->>>>>>> 073286a5 (Update plugin-optimize snapshot)
+FILE: stubs/minimal/index.js
+import"./esm_example.js";import t from"./target-es2018.js";import("./do-not-preload-3.js"),(()=>{function o(e){console.log(e)}o("test",t())})();
+
+
+--------------------------------------------------------------------------------
+
 FILE: stubs/minimal/index.js
 import"./esm_example.js";import t from"./target-es2018.js";import("./do-not-preload-3.js"),(()=>{function o(e){console.log(e)}o("test",t())})();
 
@@ -228,6 +248,12 @@ import"./esm_example.js";import t from"./target-es2018.js";import("./do-not-prel
 
 FILE: stubs/minimal/style.css
 body{border:1px solid #fff;margin:1px}
+
+--------------------------------------------------------------------------------
+
+FILE: stubs/minimal/target-es2018.js
+export default function n(){const o={bar:"bar"},t=null;return console.log(o?.bar,t??100),!0}
+
 
 --------------------------------------------------------------------------------
 
