@@ -1,4 +1,4 @@
-import esm_example from './esm_example.js'
+import esm_example from './esm_example.js';
 
 (() => {
   function n(o) {

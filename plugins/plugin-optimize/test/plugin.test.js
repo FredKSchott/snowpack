@@ -56,20 +56,21 @@ describe('@snowpack/plugin-optimize', () => {
   });
 
   it('no HTML minification, with preloadModules', async () => {
-      const pluginInstance = plugin(
+    const pluginInstance = plugin(
       {
-          buildOptions: {},
+        buildOptions: {},
       },
       {
-          minifyHTML: false,
-          preloadModules: true
-      })
+        minifyHTML: false,
+        preloadModules: true,
+      },
+    );
 
-      await pluginInstance.optimize({
-          buildDirectory: path.resolve(__dirname, 'stubs/minimal/'),
-      });
+    await pluginInstance.optimize({
+      buildDirectory: path.resolve(__dirname, 'stubs/minimal/'),
+    });
 
-      expect(fs.writeFileSync).toMatchSnapshot('fs.writeFileSync');
-      expect(console.log).toMatchSnapshot('console.log');
+    expect(fs.writeFileSync).toMatchSnapshot('fs.writeFileSync');
+    expect(console.log).toMatchSnapshot('console.log');
   });
 });
