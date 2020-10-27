@@ -3,12 +3,12 @@
   "version": "3.0.0",
   "scripts": {
     "start": "yarn build:md && concurrently 'snowpack dev' 'yarn build:sass --watch'",
-    "build": "ELEVENTY_ENV=prod yarn build:md && yarn build:sass && yarn build:css && snowpack build",
+    "build": "ELEVENTY_ENV=prod yarn build:md && yarn build:sass && snowpack build && yarn build:css",
     "test": "jest /__test__/",
     "format": "prettier --write \"src/**/*.js\"",
     "lint": "prettier --check \"src/**/*.js\"",
     "build:md": "cat ../docs/* > _template/index.md",
-    "build:css": "postcss eleventy/assets/*.css -u postcss-preset-env cssnano -r --no-map",
+    "build:css": "postcss _site/assets/*.css -u postcss-preset-env cssnano -r --no-map",
     "build:sass": "sass css/app.scss:_template/assets/app.min.css --no-source-map"
   },
   "devDependencies": {
