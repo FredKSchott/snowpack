@@ -1,6 +1,6 @@
 module.exports = {
   mount: {
-    _output: '/',
+    _site: '/',
     src: '/_dist_',
   },
   plugins: [

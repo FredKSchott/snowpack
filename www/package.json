@@ -8,7 +8,7 @@
     "format": "prettier --write \"src/**/*.js\"",
     "lint": "prettier --check \"src/**/*.js\"",
     "build:css": "postcss _site/assets/*.css -u postcss-preset-env cssnano -r --no-map",
-    "build:sass": "sass css/app.scss:_template/static/app.min.css --no-source-map"
+    "build:sass": "sass css/app.scss:_template/assets/app.min.css --no-source-map"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.11.0",
