@@ -2,7 +2,7 @@
   "name": "snowpack-www",
   "version": "3.0.0",
   "scripts": {
-    "start": "snowpack dev",
+    "start": "concurrently 'snowpack dev' 'yarn build:sass --watch'",
     "build": "ELEVENTY_ENV=prod snowpack build && yarn build:sass && yarn build:css",
     "test": "echo \"This template does not include a test runner by default.\" && exit 1",
     "format": "prettier --write \"src/**/*.js\"",
@@ -14,6 +14,7 @@
     "@11ty/eleventy": "^0.11.0",
     "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.4",
     "@snowpack/plugin-run-script": "^2.1.7",
+    "concurrently": "^5.3.0",
     "cssnano": "^4.1.10",
     "eleventy-plugin-nesting-toc": "^1.2.0",
     "luxon": "^1.25.0",
