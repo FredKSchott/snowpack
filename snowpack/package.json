@@ -31,8 +31,11 @@
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
   "exports": {
-    "import": "./index.esm.mjs",
-    "require": "./lib/index.js"
+    ".": {
+      "import": "./index.esm.mjs",
+      "require": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "bin": {
     "sp": "index.bin.js",
