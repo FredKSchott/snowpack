@@ -7351,20 +7351,24 @@ exports[`create-snowpack-app app-template-minimal > build: package.json 1`] = `
 "{
   \\"name\\": \\"@snowpack/app-template-minimal\\",
   \\"description\\": \\"A preconfigured minimal template for Snowpack\\",
-  \\"private\\": true,
-  \\"version\\": \\"1.6.12\\",
+  \\"version\\": \\"1.0.1\\",
   \\"license\\": \\"MIT\\",
+  \\"homepage\\": \\"https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-preact#readme\\",
+  \\"repository\\": {
+    \\"type\\": \\"git\\",
+    \\"url\\": \\"https://github.com/snowpackjs/snowpack.git\\",
+    \\"directory\\": \\"create-snowpack-app/app-template-minimal\\"
+  },
   \\"keywords\\": [
     \\"csa-template\\"
   ],
   \\"main\\": \\"index.js\\",
   \\"scripts\\": {
     \\"start\\": \\"snowpack dev\\",
-    \\"build\\": \\"snowpack build\\",
-    \\"test\\": \\"echo \\\\\\"This template does not include a test runner by default.\\\\\\" && exit 1\\"
+    \\"build\\": \\"snowpack build\\"
   },
   \\"devDependencies\\": {
-    \\"snowpack\\": \\"^2.14.3\\"
+    \\"snowpack\\": \\"^2.15.1\\"
   }
 }"
 `;
