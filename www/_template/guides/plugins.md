@@ -60,7 +60,9 @@ module.exports = function (snowpackConfig, pluginOptions) {
 ```json
 // snowpack.config.json
 {
-  "plugins": [["./my-snowpack-plugin.js", {"optionA": "foo", "optionB": "bar"}]]
+  "plugins": [
+    ["./my-snowpack-plugin.js", { "optionA": "foo", "optionB": "bar" }]
+  ]
 }
 ```
 
@@ -106,7 +108,7 @@ For our first example, we’ll look at transforming a file.
 module.exports = function (snowpackConfig, pluginOptions) {
   return {
     name: 'my-commenter-plugin',
-    async transform({id, contents, isDev, fileExt}) {
+    async transform({ id, contents, isDev, fileExt }) {
       if (fileExt === '.js') {
         return `/* I’m a comment! */ ${contents}`;
       }
@@ -136,7 +138,7 @@ module.exports = function (snowpackConfig, pluginOptions) {
       input: ['.js', '.jsx', '.ts', '.tsx', '.mjs'],
       output: ['.js'],
     },
-    async load({filePath}) {
+    async load({ filePath }) {
       const result = await babel.transformFileAsync(filePath);
       return result.code;
     },
@@ -202,12 +204,15 @@ module.exports = function (snowpackConfig, pluginOptions) {
       input: ['.svelte'],
       output: ['.js', '.css'],
     },
-    async load({filePath, isSSR}) {
+    async load({ filePath, isSSR }) {
       const svelteOptions = {
         /* ... */
       };
       const codeToCompile = fs.readFileSync(filePath, 'utf-8');
-      const result = svelte.compile(codeToCompile, {...svelteOptions, ssr: isSSR});
+      const result = svelte.compile(codeToCompile, {
+        ...svelteOptions,
+        ssr: isSSR,
+      });
       // ...
     },
   };
