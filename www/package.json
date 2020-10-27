@@ -1,26 +1,27 @@
 {
   "name": "snowpack-www",
-  "version": "2.7.0",
+  "version": "3.0.0",
   "scripts": {
-    "build": "ELEVENTY_ENV=prod yarn build:md && eleventy && yarn build:sass && yarn build:css",
+    "start": "snowpack dev && yarn build:sass && yarn build:css",
+    "build": "snowpack build",
+    "test": "echo \"This template does not include a test runner by default.\" && exit 1",
+    "format": "prettier --write \"src/**/*.js\"",
+    "lint": "prettier --check \"src/**/*.js\"",
     "build:css": "postcss _site/assets/*.css -u postcss-preset-env cssnano -r --no-map",
-    "build:md": "cat ../docs/* > index.md",
-    "build:sass": "sass css/app.scss:assets/app.min.css --no-source-map",
-    "start": "yarn build:md && concurrently 'eleventy --serve' 'yarn build:sass --watch'",
-    "test": "jest /__test__/"
+    "build:sass": "sass css/app.scss:_template/static/app.min.css --no-source-map"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.11.0",
-    "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.3",
-    "cheerio": "^1.0.0-rc.3",
-    "concurrently": "^5.3.0",
-    "cssnano": "^4.1.10",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.4",
+    "@snowpack/plugin-run-script": "^2.1.7",
     "eleventy-plugin-nesting-toc": "^1.2.0",
-    "luxon": "^1.24.1",
-    "markdown-it": "^11.0.0",
-    "markdown-it-anchor": "^5.3.0",
-    "postcss": "^8.1.1",
+    "postcss": "^8.1.4",
     "postcss-cli": "^8.1.0",
+    "prettier": "^2.0.5",
+    "snowpack": "^2.15.1",
+    "luxon": "^1.25.0",
+    "markdown-it": "^12.0.2",
+    "markdown-it-anchor": "^6.0.0",
     "postcss-preset-env": "^6.7.0",
     "sass": "^1.27.0"
   }
