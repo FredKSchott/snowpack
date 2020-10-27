@@ -4,7 +4,7 @@
   "scripts": {
     "start": "concurrently 'snowpack dev' 'yarn build:sass --watch'",
     "build": "ELEVENTY_ENV=prod snowpack build && yarn build:sass && yarn build:css",
-    "test": "echo \"This template does not include a test runner by default.\" && exit 1",
+    "test": "jest /__test__/",
     "format": "prettier --write \"src/**/*.js\"",
     "lint": "prettier --check \"src/**/*.js\"",
     "build:css": "postcss _site/assets/*.css -u postcss-preset-env cssnano -r --no-map",
