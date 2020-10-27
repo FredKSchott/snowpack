@@ -55,13 +55,15 @@ npm install react react-dom --save
 
 ## Create your first React component
 
-React relies on a special templating language called JSX. Snowpack has built in support for JSX in files with the `.jsx` extension. That means that there's no plugins or configuration needed to write your first React component. Rename `index.js` file to `index.jsx` so that Snowpack knows it's now a JSX file:
+React relies on a special templating language called JSX. If you're familiar with React then you already know JSX: it's React's templating language that allows you to write something like `<App />` or `<Header></Header>` directly in your JavaScript code.
+
+Snowpack has built in support for JSX in files using the `.jsx` extension. That means that there's no plugins or configuration needed to write your first React component. Rename `index.js` file to `index.jsx` so that Snowpack knows to handle JSX in the file:
 
 ```bash
 mv index.js index.jsx
 ```
 
-> 💡 Tip: you do not need to update your `index.html` script tag reference to point to `index.jsx`. Browsers don't speak JSX (or TypeScript, for that matter), so any compile-to-JS file formats are compiled to `.js` in the final browser build. This is good to keep in mind when you're referencing built files in HTML `<script src="">` and `<link href="">` elements.
+> 💡 Tip: you do not need to update your `index.html` script tag reference to point to `index.jsx`. Browsers don't speak JSX (or TypeScript, for that matter), so any compile-to-JS file formats compile to `.js` in the final browser build. This is good to keep in mind when you're referencing built files in HTML `<script src="">` and `<link href="">` elements.
 
 You can now import React in `index.jsx` and add a simple test component just to make sure it's working:
 
@@ -109,9 +111,9 @@ mv index.html public/index.html
 mv index.css public/index.css
 ```
 
-This means if you are running Snowpack right now, the site is now broken as the files are all in different places.
+This means if you are running Snowpack right now, the site is now broken as the files are all in different places. Lets add a "mount" configuration to update your site to your new project layout.
 
-Snowpack Configuration allows you to fix this and by changing what directories Snowpack scans and where they output. Every Snowpack project comes with a `snowpack.config.js` file for any configuration that you might need. Right now, you should see a configuration file with empty options. Add this to the empty `mount` object:
+The `mount` configuration changes where Snowpack looks for and builds files. Every Snowpack project comes with a `snowpack.config.js` file for any configuration that you might need. Right now, you should see a configuration file with empty options. Add this to the empty `mount` object:
 
 ```diff
   mount: {
@@ -186,7 +188,7 @@ You shouldn't need to restart Snowpack to see this, it should look like this:
 
 <div class="frame"><img src="/img/guides/react/minimalist-hello-world-react-timer.png" alt="screenshot of the project with text that says 'Page has been open for' and the number of seconds then 'seconds'" class="screenshot"/></div>
 
-## Styling your Snowpack/React project
+## Styling your project
 
 When you add assets like images or CSS, Snowpack includes them in your final build. If you already know React, this process should look pretty familiar.
 
@@ -233,7 +235,6 @@ Create `src/App.css` and add this CSS:
 
 .App-logo {
   height: 40vmin;
-  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -274,11 +275,11 @@ To use this CSS, head to `App.jsx` and import it
 
 ## Making Snowpack Even Faster with Fast Refresh
 
-[React Fast Refresh](https://reactnative.dev/docs/fast-refresh)? What's that? It's a developer tool that makes it much easier to see how updates to your code work in the browser. React projects are often interactive and include state. For example, this project you're building has a state that is the amount of time on the page. When developing with state it's useful not to lose it while you edit code. React Fast Refresh shows you updates without refreshing the entire page. Showing you how to add this is also a good intro to Snowpack plugins. Snowpack starts with a minimal setup with the perspective that you can add what you need through the plugin system.
+[React Fast Refresh](https://reactnative.dev/docs/fast-refresh)? What's that? It's a Snowpack enhancement that lets you push individual file changes to update the browser without refreshing the page or clearing component state.
 
-Start by enabling [Hot Module Replacement](https://www.snowpack.dev/#hot-module-replacement), a requirement for Fast Refresh. Snowpack automatically refreshes to show changes in your code. Hot Module Replacement only updates the components that changed without refreshing the whole page. You can enable it for React with a small snippet of code in `index.jsx`.
+React projects are often interactive and include state. For example, this project you're building has a state that is the amount of time on the page. When developing with state it's useful not to lose it while you edit code. React Fast Refresh shows you updates without refreshing the entire page. Showing you how to add this is also a good intro to Snowpack plugins. Snowpack starts with a minimal setup with the perspective that you can add what you need through the plugin system.
 
-Head to `index.jsx` and add this snippet at the bottom:
+Start by enabling [Hot Module Replacement](https://www.snowpack.dev/#hot-module-replacement) in your project. HMR is the system that lets Snowpack push updates to the browser without a full page refresh, a requirement for Fast Refresh. You can enable HMR for React by adding a small snippet of code to your `src/index.jsx` file.
 
 ```diff
   ReactDOM.render(
@@ -294,13 +295,13 @@ Head to `index.jsx` and add this snippet at the bottom:
 + }
 ```
 
-Now when you change `App.jsx` the changes show without the whole page refreshing.
+Now when you change `App.jsx` the page updates to show your changes without a full refresh.
 
 <div class="frame"><img src="/img/guides/react/hmr.gif" alt="GIF showing code side by side with the app. A change in made to App.jsx and it shows immediately when the file is changed. The counter keeps counting uninterrupted." class="screenshot"/></div>
 
 HMR can save you time on its own, but you may notice in the example above that the counter on the page still resets to 0. This can slow down your development, especially when you're trying to debug a specific component state problem. Lets enable Fast Refresh to preserve component state across updates.
 
-To enable Fast Refresh, we'll need to install the `@snowpack/plugin-react-refresh` package. This package is a Snowpack plugin, which you can use to enhance or customize Snowpack with all sorts of new behaviors. To start, install the package in your project:
+To enable Fast Refresh, you'll need to install the `@snowpack/plugin-react-refresh` package. This package is a Snowpack plugin, which you can use to enhance or customize Snowpack with all sorts of new behaviors. To start, install the package in your project:
 
 ```bash
 npm install @snowpack/plugin-react-refresh --save-dev
@@ -319,7 +320,7 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
   };
 ```
 
-Restart Snowpack to apply the new plugin, and then try changing the `App.jsx` component again. If Fast Refresh is working properly you ill see the counter keep its value across changes, without resetting to zero.
+Restart Snowpack to apply the new plugin, and then try changing the `App.jsx` component again. If Fast Refresh is working properly, the counter keep its value across changes, without resetting to zero.
 
 <div class="frame"><img src="/img/guides/react/react-fast-refresh.gif" alt="GIF showing code side by side with the app. A change in made to App.jsx and it shows immediately when the file is changed. The counter keeps counting uninterrupted." class="screenshot"/></div>
 
@@ -327,16 +328,18 @@ Restart Snowpack to apply the new plugin, and then try changing the `App.jsx` co
 
 Great job! You're now ready to build the React project of your dreams with Snowpack.
 
-Image: Certificate with share buttons for Twitter
+Want to tweet your accomplishment to the world? Click the button below:
+
+<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-text="I just learned how to build a React app with #Snowpack. Check out the tutorial:" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 At this point you have the basics and have a great starter for any React project. But if you compare with the official [Snowpack React template](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-react) you'll notice it has some other developer tools you might find useful:
 
 - [Prettier](https://prettier.io/)—a popular code formatter
 
-- [Tests](https://www.snowpack.dev/#testing)— Snowpack supports any popular JavaScript testing framework
+- [Tests](https://www.snowpack.dev/#testing)—Snowpack supports any popular JavaScript testing framework
 
-- [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-dotenv)— Use `dotenv` in your Snowpack. This is useful for environment specific variables
+- [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-dotenv)—Use `dotenv` in your Snowpack. This is useful for environment specific variables
 
-If you'd like to use Typescript with Snowpack and React, checkout the [Snowpack React Typescript](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-react-typescript) starter.
+If you'd like to use Typescript with Snowpack and React, check out the [Snowpack React Typescript](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-react-typescript) starter.
 
 If you have any questions, comments, or corrections, we'd love to hear from you in the Snowpack [discussion](https://github.com/snowpackjs/snowpack/discussions) forum or our [Snowpack Discord community](https://discord.gg/rS8SnRk).
