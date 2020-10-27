@@ -1,6 +1,6 @@
 module.exports = {
   mount: {
-    _site: '/',
+    eleventy: '/',
     src: '/_dist_',
   },
   plugins: [
@@ -17,7 +17,7 @@ module.exports = {
     hmrDelay: 300,
   },
   buildOptions: {
-    /* ... */
+    out: '_site',
   },
   proxy: {
     /* ... */

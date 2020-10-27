@@ -3,4 +3,4 @@ build
 web_modules
 node_modules
 _site
-_template/index.md
+_eleventy
