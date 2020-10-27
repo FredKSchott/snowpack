@@ -7365,7 +7365,8 @@ exports[`create-snowpack-app app-template-minimal > build: package.json 1`] = `
   \\"main\\": \\"index.js\\",
   \\"scripts\\": {
     \\"start\\": \\"snowpack dev\\",
-    \\"build\\": \\"snowpack build\\"
+    \\"build\\": \\"snowpack build\\",
+    \\"test\\": \\"echo \\\\\\"This template does not include a test runner by default.\\\\\\" && exit 1\\"
   },
   \\"devDependencies\\": {
     \\"snowpack\\": \\"^2.15.1\\"
