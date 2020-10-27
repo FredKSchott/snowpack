@@ -68,8 +68,8 @@ describe('plugin-run-script', () => {
       ['WORKER_MSG', {level: 'log', msg: 'TEST_CLEAR_MESSAGE'}],
     ]);
   });
-  test('modify plugin name when specify name', async() => {
+  test('modify plugin name when specify name', async () => {
     const p = plugin(null, {...DEFAULT_OPTIONS, output: 'dashboard', name: 'test'});
-    expect(p.name).toBe('test')
-  })
+    expect(p.name).toBe('test');
+  });
 });
