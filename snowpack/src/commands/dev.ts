@@ -1167,7 +1167,11 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         await result.checkStale();
       }
       if (result.contents) {
-        knownETags.set(reqPath, etag(result.contents, {weak: true}));
+        const tag = etag(result.contents, {weak: true});
+        knownETags.set(reqPath, tag);
+        if (reqPath.indexOf('?') >= 0) {
+          knownETags.set(reqPath.split('?', 2)[0], tag);
+        }
       }
       return;
     } catch (err) {
