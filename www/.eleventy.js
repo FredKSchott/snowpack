@@ -49,7 +49,7 @@ module.exports = function (eleventyConfig) {
     dir: {
       input: '_template',
       includes: '../_includes',
-      output: '_output',
+      output: '_site',
     },
   };
 };
