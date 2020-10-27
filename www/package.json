@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "scripts": {
     "start": "yarn build:md && concurrently 'snowpack dev' 'yarn build:sass --watch'",
-    "build": "ELEVENTY_ENV=prod yarn build:md && snowpack build && yarn build:sass && yarn build:css",
+    "build": "ELEVENTY_ENV=prod yarn build:md && yarn build:sass && yarn build:css && snowpack build",
     "test": "jest /__test__/",
     "format": "prettier --write \"src/**/*.js\"",
     "lint": "prettier --check \"src/**/*.js\"",
