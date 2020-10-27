@@ -292,7 +292,7 @@ export function findMatchingAliasEntry(
 
   for (const [from, to] of Object.entries(config.alias)) {
     let foundType: 'package' | 'path' = isPackageAliasEntry(to) ? 'package' : 'path';
-    const isExactMatch = spec === removeTrailingSlash(from);
+    const isExactMatch = spec === from;
     const isDeepMatch = spec.startsWith(addTrailingSlash(from));
     if (isExactMatch || isDeepMatch) {
       return {
