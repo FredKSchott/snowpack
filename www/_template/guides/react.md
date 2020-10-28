@@ -326,9 +326,7 @@ Restart Snowpack to apply the new plugin, and then try changing the `App.jsx` co
 
 ## Going further
 
-Great job! You're now ready to build the React project of your dreams with Snowpack.
-
-Want to tweet your accomplishment to the world? Click the button below:
+Great job! You're now ready to build the React project of your dreams with Snowpack. Want to tweet your accomplishment to the world? Click the button below:
 
 <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-text="I just learned how to build a React app with #Snowpack. Check out the tutorial:" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
