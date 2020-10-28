@@ -1,3 +1,7 @@
+---
+layout: layouts/main.njk
+---
+
 ## Recipes
 
 Below are a collection of guides for using different web frameworks and build tools with Snowpack. If you'd like to contribute a new recipe, feel free to edit the docs to add your own.

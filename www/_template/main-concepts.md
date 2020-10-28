@@ -1,3 +1,7 @@
+---
+layout: layouts/main.njk
+---
+
 ## Main Concepts
 
 ### Unbundled Development

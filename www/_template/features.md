@@ -1,3 +1,7 @@
+---
+layout: layouts/main.njk
+---
+
 ## JavaScript
 
 ### ES Modules (ESM)

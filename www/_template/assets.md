@@ -1,3 +1,7 @@
+---
+layout: layouts/main.njk
+---
+
 ## Assets
 
 - [Snowpack Logo (PNG, White)](/assets/snowpack-logo-white.png)

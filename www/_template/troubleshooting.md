@@ -1,3 +1,7 @@
+---
+layout: layouts/main.njk
+---
+
 ## Troubleshooting
 
 ### No such file or directory
