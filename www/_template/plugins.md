@@ -1,8 +1,4 @@
----
-layout: layouts/main.njk
----
-
-Plugins
+## Plugins
 
 Snowpack isn't just a build tool for JavaScript, it is a build tool for your entire website. Babel, TypeScript, PostCSS, SVGR and any favorite build tool can be connected directly into Snowpack via 1-line plugins.
 
