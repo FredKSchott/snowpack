@@ -1,6 +1,10 @@
-## Get Started
+---
+layout: layouts/guide.njk
+---
 
-### Install Snowpack
+# Get Started
+
+## Install Snowpack
 
 ```bash
 # using npm

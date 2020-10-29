@@ -1,3 +1,9 @@
+---
+layout: layouts/guide.njk
+---
+
+# Configuration
+
 ## API Reference
 
 ### Config Files
