@@ -1,5 +1,6 @@
 ---
 layout: layouts/main.njk
+home: true
 
 # Using Snowpack? Want to be featured on snowpack.dev?
 # Add your project, organization, or company to the end of this list!
