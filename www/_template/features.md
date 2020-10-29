@@ -4,9 +4,7 @@ layout: layouts/guide.njk
 
 # Features
 
-## JavaScript
-
-### ES Modules (ESM)
+## ES Modules (ESM)
 
 Snowpack was designed to support JavaScript's native ES Module (ESM) syntax. ESM lets you define explicit imports & exports that browsers and build tools can better understand and optimize for. If you're familiar with the `import` and `export` keywords in JavaScript, then you already know ESM!
 
@@ -24,7 +22,7 @@ All modern browsers support ESM, so Snowpack is able to ship this code directly 
 
 Snowpack also lets you import non-JavaScript files directly in your application. Snowpack handles all this for you automatically so there's nothing to configure, using the following logic:
 
-### Import NPM Packages
+## Import NPM Packages
 
 ```js
 // Returns the React & React-DOM npm packages
@@ -36,7 +34,7 @@ Snowpack lets you import npm packages directly in the browser. Even if a package
 
 When you start up your dev server or run a new build, you may see a message that Snowpack is "installing dependencies". This means that Snowpack is converting your dependencies to run in the browser.
 
-### Import JSON
+## Import JSON
 
 ```js
 // Returns the JSON object via the default import
@@ -45,7 +43,7 @@ import json from './data.json';
 
 Snowpack supports importing JSON files, which return the full JSON object in the default import.
 
-### Import CSS
+## Import CSS
 
 ```js
 // Loads './style.css' onto the page
@@ -56,7 +54,7 @@ Snowpack supports basic CSS imports inside of your JavaScript files. When you im
 
 If you prefer, Snowpack also supports any popular CSS-in-JS library for styling.
 
-### Import CSS Modules
+## Import CSS Modules
 
 ```css
 /* src/style.module.css */
@@ -76,7 +74,7 @@ return <div className={styles.error}>Your Error Message</div>;
 
 Snowpack supports CSS Modules using the `[name].module.css` naming convention. CSS Modules work just like normal CSS imports, but with a special default `styles` export that maps your original classnames to unique identifiers.
 
-### Import Images & Other Assets
+## Import Images & Other Assets
 
 ```jsx
 import img from './image.png'; // img === '/src/image.png'
@@ -88,7 +86,7 @@ import svg from './image.svg'; // svg === '/src/image.svg'
 
 All other assets not explicitly mentioned above can be imported via ESM `import` and will return a URL reference to the final built asset. This can be useful for referencing non-JS assets by URL, like creating an image element with a `src` attribute pointing to that image.
 
-#### Coming Soon: Native Reference URLs
+## Coming Soon: Native Reference URLs
 
 Webpack 5.0 released support for native reference URLs to replace the original, fake ESM file import. If you are using a bundler that supports this (or, not using a bundler at all) we recommend updating your non-JS URL reference imports to use this more standard pattern. Once Rollup adds support as well, we will move to promote this to our recommended style.
 
@@ -100,7 +98,7 @@ const svg = new URL('./image.svg', import.meta.url); // svg === '/src/image.svg'
 <img src={img.href} />;
 ```
 
-## Features
+## Supported file types
 
 Snowpack ships with built-in support for the following file types, no configuration required:
 
@@ -113,7 +111,7 @@ Snowpack ships with built-in support for the following file types, no configurat
 
 To customize build behavior and support new languages (`.scss`, `.svelte`, `.vue`), keep reading.
 
-### Import Aliases
+## Import Aliases
 
 ```js
 // Instead of this:
@@ -144,7 +142,7 @@ Snowpack supports setting custom import aliases for your project via the top-lev
 }
 ```
 
-### Environment Variables
+## Environment Variables
 
 ```js
 // `import.meta.env` - Read process.env variables in your web app
@@ -180,7 +178,7 @@ You can use environment variables in HTML files. All occurrences of `%SNOWPACK_P
 
 Add the `@snowpack/plugin-dotenv` plugin to your dev environment to automatically load environment variables from your project `.env` files. Visit the [plugin README](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-dotenv) to learn more.
 
-### Hot Module Replacement
+## Hot Module Replacement
 
 Hot Module Replacement (HMR) is the ability to update your web app during development without refreshing the page. Imagine changing some CSS, hitting save, and then instantly seeing your change reflected on the page without a refresh. That's HMR.
 
@@ -212,7 +210,7 @@ if (import.meta.hot) {
 
 - 👉 **[Check out the full ESM-HMR spec.](https://github.com/snowpackjs/esm-hot-module-replacement-spec)**
 
-### Dev Request Proxy
+## Dev Request Proxy
 
 ```js
 // snowpack.config.json
@@ -228,7 +226,7 @@ Snowpack can proxy requests from the dev server to external URLs and APIs. Makin
 
 See the [config.proxy API](#config.proxy) section for more information and full set of configuration options.
 
-### HTTPS/HTTP2
+## HTTPS/HTTP2
 
 ```
 npm start -- --secure
@@ -236,7 +234,7 @@ npm start -- --secure
 
 Snowpack provides an easy way to use a local HTTPS server during development through the use of the `--secure` flag. When enabled, Snowpack will look for a `snowpack.key` and `snowpack.crt` file in the root directory and use that to create an HTTPS server with HTTP2 support enabled.
 
-#### Generating SSL Certificates
+## Generating SSL Certificates
 
 You can automatically generate credentials for your project via either:
 
@@ -245,7 +243,7 @@ You can automatically generate credentials for your project via either:
 
 In most situations you should add personally generated certificate files (`snowpack.key` and `snowpack.crt`) to your `.gitignore` file.
 
-### Legacy Browser Support
+## Legacy Browser Support
 
 You can customize the set of browsers you'd like to support via the `package.json` "browserslist" property, going all the way back to IE11. This will be picked up when you run `snowpack build` to build for production.
 
@@ -258,7 +256,7 @@ If you're worried about legacy browsers, you should also add a bundler to your p
 
 Note: During development (`snowpack dev`) we perform no transpilation for older browsers. Make sure that you're using a modern browser during development.
 
-### Node.js Polyfills
+## Node.js Polyfills
 
 If you depend on packages that depend on Node.js built-in modules (`"fs"`, `"path"`, `"url"`, etc.) you can run Snowpack with `--polyfill-node` (or `installOptions.polyfillNode: true` in your config file). This will automatically polyfill any Node.js dependencies as much as possible for the browser. You can see the full list of supported polyfills here: https://github.com/ionic-team/rollup-plugin-node-polyfills
 
@@ -276,7 +274,7 @@ module.exports = {
 };
 ```
 
-### CSS Imports (@import)
+## CSS Imports (@import)
 
 ```css
 /* Import a local CSS file */
@@ -293,7 +291,7 @@ Snowpack supports [native CSS "@import" behavior](https://developer.mozilla.org/
 
 **Note for webpack users:** If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With Snowpack you remove the `~` from your `@import`s.
 
-### Server Side Rendering (SSR)
+## Server Side Rendering (SSR)
 
 SSR for Snowpack is supported but fairly new and experimental. This documentation will be updated as we finalize support over the next few minor versions.
 
@@ -309,7 +307,7 @@ These frameworks have known experiments / examples of using SSR + Snowpack:
 - Svelte/Sapper (Experiment): https://github.com/Rich-Harris/snowpack-svelte-ssr
 - [Join our Discord](https://discord.gg/rS8SnRk) if you're interested in getting involved!
 
-### Optimized Builds
+## Optimized Builds
 
 By default, Snowpack doesn't optimize your code for production. But, there are several plugins available to optimize your final build, including minification (reducing file sizes) and even bundling (combining files together to reduce the number of requests needed).
 
@@ -337,7 +335,7 @@ Note that `@snowpack/plugin-optimize` will optimize your build, but won't bundle
 }
 ```
 
-### Testing
+## Testing
 
 Snowpack supports any popular JavaScript testing framework that you're already familiar with. Mocha, Jest, Jasmine, AVA and Cypress are all supported in Snowpack applications.
 

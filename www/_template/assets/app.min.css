@@ -1576,6 +1576,11 @@ img.company-logo {
   right: 17px;
 }
 
+.menu .back {
+  margin: 10px 0;
+  display: block;
+}
+
 .guide .grid-body-header {
   margin-bottom: 4rem;
 }
