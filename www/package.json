@@ -2,7 +2,7 @@
   "name": "snowpack-www",
   "version": "3.0.0",
   "scripts": {
-    "start": "yarn build:md && concurrently 'snowpack dev --verbose' 'yarn build:sass --watch'",
+    "start": "yarn build:md && concurrently 'snowpack dev' 'yarn build:sass --watch'",
     "build": "ELEVENTY_ENV=prod yarn build:md && yarn build:sass && snowpack build && yarn build:css",
     "test": "jest /__test__/",
     "format": "prettier --write \"src/**/*.js\"",
