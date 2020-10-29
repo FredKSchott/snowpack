@@ -35,7 +35,8 @@
     "require": "./lib/index.js"
   },
   "files": [
-    "lib"
+    "lib",
+    "index.esm.mjs"
   ],
   "dependencies": {
     "@rollup/plugin-alias": "^3.0.1",

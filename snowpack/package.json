@@ -43,7 +43,9 @@
   },
   "files": [
     "assets",
-    "lib"
+    "lib",
+    "index.bin.js",
+    "index.esm.mjs"
   ],
   "dependencies": {
     "@snowpack/plugin-build-script": "^2.0.11",
