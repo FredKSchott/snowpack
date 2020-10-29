@@ -143,9 +143,6 @@ Options:
   - Treeshake your dependencies to optimize your installed files. Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
 - **`installOptions.installTypes`** | `boolean`
   - Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#typescript) to pick up these types.
-- **`installOptions.alias`** | `{[mapFromPackageName: string]: string}`
-  - Alias an installed package name. This applies to imports within your application and within your installed dependency graph.
-  - Example: `"alias": {"react": "preact/compat", "react-dom": "preact/compat"}`
 - **`installOptions.namedExports`** | `string[]`
   - _NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed._
   - Import CJS packages using named exports (Example: `import {useTable} from 'react-table'`).
