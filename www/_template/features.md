@@ -1,8 +1,7 @@
 ---
 layout: layouts/main.njk
+title: Features
 ---
-
-# Features
 
 ## ES Modules (ESM)
 

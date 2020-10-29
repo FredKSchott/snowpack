@@ -1,8 +1,7 @@
 ---
 layout: layouts/main.njk
+title: Plugins
 ---
-
-# Plugins
 
 Snowpack isn't just a build tool for JavaScript, it is a build tool for your entire website. Babel, TypeScript, PostCSS, SVGR and any favorite build tool can be connected directly into Snowpack via 1-line plugins.
 
@@ -15,7 +14,7 @@ Snowpack plugins can be added to:
 
 👉 **[Check out our advanced guide](/plugins) and learn how to create your own plugin.**
 
-### Connect a Plugin
+## Connect a Plugin
 
 To make a plugin available, you have to put it in your project `devDependencies` list (`package.json`) which will install it locally (in your project) and make it available to snowpack.
 
@@ -50,11 +49,11 @@ This is all you need to add Babel to your application build pipeline. If the plu
 
 NOTE: The **order** of plugins is important, for example, if there are multiple plugins that load/build particular type of file, the first matching will take precedence. If it succeeds in the build task for the file, others will not be called for that particular build task.
 
-### Connect any Script/CLI
+## Connect any Script/CLI
 
 If you can't find a plugin that fits your needs and don't want to write your own, you can also run CLI commands directly as a part of your build using one of our two utility plugins: `@snowpack/plugin-build-script` & `@snowpack/plugin-run-script`.
 
-#### @snowpack/plugin-build-script
+### @snowpack/plugin-build-script
 
 ```js
 // snowpack.config.json
@@ -68,7 +67,7 @@ If you can't find a plugin that fits your needs and don't want to write your own
 
 This plugin allows you to connect any CLI into your build process. Just give it a `cmd` CLI command that can take input from `stdin` and emit the build result via `stdout`. Check out the README for more information.
 
-#### @snowpack/plugin-run-script
+### @snowpack/plugin-run-script
 
 ```js
 // snowpack.config.json
@@ -82,7 +81,7 @@ This plugin allows you to connect any CLI into your build process. Just give it 
 
 This plugin allows you to run any CLI command as a part of your dev and build workflow. This plugin doesn't affect your build output, but it is useful for connecting developer tooling directly into Snowpack. Use this to add meaningful feedback to your dev console as you type, like TypeScript type-checking and ESLint lint errors.
 
-### Official Plugins
+## Official Plugins
 
 - [@snowpack/plugin-babel](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-babel)
 - [@snowpack/plugin-dotenv](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-dotenv)
@@ -94,7 +93,7 @@ This plugin allows you to run any CLI command as a part of your dev and build wo
 
 👉 **[Check out our full list](/plugins) of official plugins.**
 
-### Community Plugins
+## Community Plugins
 
 - [snowpack-plugin-mdx](https://www.npmjs.com/package/snowpack-plugin-mdx)
 - [snowpack-plugin-stylus](https://www.npmjs.com/package/snowpack-plugin-stylus)

@@ -1,8 +1,7 @@
 ---
 layout: layouts/main.njk
+title: Main Concepts
 ---
-
-# Main Concepts
 
 ## Unbundled Development
 
@@ -22,7 +21,7 @@ Unbundled development has several advantages over the traditional bundled develo
 
 That last point is key: **Every file is built individually and cached indefinitely.** Your dev environment will never build a file more than once and your browser will never download a file twice (until it changes). This is the real power of unbundled development.
 
-### Using NPM Dependencies
+## Using NPM Dependencies
 
 NPM packages are mainly published using a module syntax (Common.js, or CJS) that can't run on the web without some build processing. Even if you write your application using browser-native ESM `import` and `export` statements that would all run directly in the browser, trying to import any one npm package will force you back into bundled development.
 
