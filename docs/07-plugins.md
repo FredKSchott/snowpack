@@ -85,6 +85,7 @@ This plugin allows you to run any CLI command as a part of your dev and build wo
 - [@snowpack/plugin-postcss](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-postcss)
 - [@snowpack/plugin-react-refresh](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-react-refresh)
 - [@snowpack/plugin-svelte](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-svelte)
+- [@snowpack/plugin-svelte-typescript](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-svelte-typescript)
 - [@snowpack/plugin-vue](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-vue)
 - [@snowpack/plugin-webpack](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-webpack)
 
