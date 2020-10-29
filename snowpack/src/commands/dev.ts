@@ -1145,15 +1145,15 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     res: http.ServerResponse,
     {handleError}: {handleError?: boolean} = {},
   ) {
-    const fullRequestUrl = req.url!;
+    const reqUrl = req.url!;
     // Check if a configured proxy matches the request.
-    const requestProxy = getRequestProxy(fullRequestUrl);
+    const requestProxy = getRequestProxy(reqUrl);
     if (requestProxy) {
       return requestProxy(req, res);
     }
     // Check if we can send back an optimized 304 response
     const quickETagCheck = req.headers['if-none-match'];
-    if (quickETagCheck && quickETagCheck === knownETags.get(fullRequestUrl)) {
+    if (quickETagCheck && quickETagCheck === knownETags.get(reqUrl)) {
       logger.debug(`optimized etag! sending 304...`);
       res.writeHead(304, {'Access-Control-Allow-Origin': '*'});
       res.end();
@@ -1161,7 +1161,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     }
     // Otherwise, load the file and respond if successful.
     try {
-      const result = await loadUrl(fullRequestUrl, {allowStale: true, encoding: null});
+      const result = await loadUrl(reqUrl, {allowStale: true, encoding: null});
       sendResponseFile(req, res, result);
       if (result.checkStale) {
         await result.checkStale();
