@@ -9,7 +9,10 @@ description: 'Snowpack is the fast, bundle-free build tool for all kinds of fron
 </aside>
 
 <article id="grid-body" class="grid-body">
-  {% if home %} {% include 'layouts/home.html' %} {% endif %}
+  {% if home %} {% include 'layouts/home.html' %} 
+  {% else %} {% include 'layouts/header.njk' %} 
+  
+  {% endif %}
 
   <div class="markdown-body">
     {{ content | safe }}
