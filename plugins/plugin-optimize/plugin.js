@@ -112,7 +112,7 @@ exports.default = function plugin(config, userDefinedOptions) {
     resolvedModules.sort((a, b) => a.localeCompare(b));
     code = appendHTMLToHead(
       code,
-      `  <!-- @snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance (More info: https://developers.google.com/web/updates/2017/12/modulepreload) -->\n` +
+      `  <!-- [@snowpack/plugin-optimize] Add modulepreload to improve unbundled load performance (More info: https://developers.google.com/web/updates/2017/12/modulepreload) -->\n` +
         resolvedModules.map((src) => `    <link rel="modulepreload" href="${src}" />`).join('\n') +
         '\n  ',
     );
