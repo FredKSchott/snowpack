@@ -13,7 +13,11 @@ describe('each anchor link should have a corresponding anchor', () => {
   $('a').each(function (i, link) {
     const href = $(link).attr('href');
     // link must include # and must not be an external link
-    if (href.includes('#') && !href.includes('https://') && !href.includes('http://')) {
+    if (
+      href.includes('#') &&
+      !href.includes('https://') &&
+      !href.includes('http://')
+    ) {
       // let's try to only get the #ID selector by removing anything else
       let anchor = escapeRegExp(href.slice(href.indexOf('#')));
 
