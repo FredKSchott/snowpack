@@ -1,0 +1,16 @@
+{
+  "navItems": [
+    {
+      "title": "Introduction",
+      "url": "/"
+    },
+    {
+      "title": "Getting Started",
+      "url": "/getting-started"
+    },
+    {
+      "title": "Guides",
+      "url": "/getting-started"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+
+
+
+{{ page.url | url }}
+<nav class="toc">
+  <ol>
+    <li>
+      <a href="/" class="{%if page.url  == '/' %}active{% endif %}">Introduction</a>
+    </li>
+    <li>
+      <a href="/getting-started" class="{%if page.url  == '/getting-started/' %}active{% endif %}">Getting Started</a>
+    </li>
+
+    <li>
+      <a href="/" >Guides</a>
+      <ol>
+        <li><a href="/guides/plugins">Plugins</a></li>
+      </ol>
+    </li>
+
+    <li>
+      <a href="/configuration" class="{%if page.url  == '/configuration/' %}active{% endif %}">Configuration</a>
+    </li>
+  </ol>
+</nav>

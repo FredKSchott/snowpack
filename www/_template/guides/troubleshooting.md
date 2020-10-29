@@ -1,5 +1,5 @@
 ---
-layout: layouts/main.njk
+layout: layouts/guide.njk
 ---
 
 ## Troubleshooting
