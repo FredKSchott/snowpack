@@ -13,6 +13,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@babel/core": "^7.0.0",
     "babel-loader": "^8.1.0",
     "core-js": "^3.5.0",
     "css-loader": "^4.3.0",
