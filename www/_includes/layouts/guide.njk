@@ -2,7 +2,10 @@
 layout: layouts/base.njk
 ---
 <aside class="grid-toc hidden-mobile">
-  {{ content | toc | safe }}
+     <div style="margin: 0rem auto; max-width: 424px;" class= "menu">
+         {{ content | toc | safe }}
+      <a href="/" class="subtitle"><<< Back to main docs</a>
+    </div>
 </aside>
 
 <article id="grid-body" class="guide grid-body">

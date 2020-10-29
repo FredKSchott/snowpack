@@ -1,17 +1,21 @@
 
-<nav class="toc">
+<nav class="menu">
   <ol>
     <li>
       <a href="/" class="{%if page.url  == '/' %}active{% endif %}">Introduction</a>
     </li>
     <li>
-      <a href="/getting-started" class="{%if page.url  == '/getting-started/' %}active{% endif %}">Getting Started</a>
+      <a href="/getting-started">Getting Started</a>
+      <ol>
+        <li><a href="/features">Features</a></li>
+      </ol>
     </li>
 
     <li>
       <a href="/" >Guides</a>
       <ol>
         <li><a href="/guides/plugins">Plugin guide</a></li>
+        <li><a href="/guides/plugins">React guide</a></li>
       </ol>
     </li>
 
