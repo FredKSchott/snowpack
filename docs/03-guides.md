@@ -2,7 +2,7 @@
 
 Below are a collection of guides for using different web frameworks and build tools with Snowpack. If you'd like to contribute a new recipe, feel free to edit the docs to add your own.
 
-### Supported Libraries
+### Supported Libraries - Add to Library Support in Introduction?
 
 All of the following frameworks have been tested and guaranteed to work in Snowpack without issues. If you encounter an issue using any of the following, please file an issue.
 
@@ -20,13 +20,13 @@ All of the following frameworks have been tested and guaranteed to work in Snowp
 
 Some libraries use compile-to-JS file formats and do require a special build script or plugin. See the guide below for examples.
 
-### JSX
+### JSX - to remove? Info could be covered in introduction?
 
 Snowpack has built-in support to handle `.jsx` & `.tsx` source files in your application.
 
 **Note: Snowpack's default build does not support JSX in `.js`/`.ts` files.** If you can't use the `.jsx`/`.tsx` file extension, you can use [Babel](#babel) to build your application instead.
 
-### TypeScript
+### TypeScript - Add to Getting Started or create Typescript Guide
 
 Snowpack includes built-in support to build all TypeScript source files (`.ts` & `.tsx`) in your application.
 
@@ -37,7 +37,7 @@ For automatic TypeScript type checking during development, add the official [@sn
 "plugins": ["@snowpack/plugin-typescript"]
 ```
 
-### Babel
+### Babel - Add to Getting Started? Or maybe Build/Deployment guide?
 
 Snowpack already comes with built-in support for building JavaScript, TypeScript, and JSX. However, If you would like to run your build through Babel instead, you can replace our default file builder with the official Snowpack Babel plugin.
 
@@ -48,7 +48,7 @@ The plugin will automatically read plugins & presets from your local project `ba
 "plugins": ["@snowpack/plugin-babel"],
 ```
 
-### Preact
+### Preact - Remove until Preact Guide?
 
 You can import and use Preact without any custom configuration needed.
 
@@ -65,21 +65,21 @@ You can import and use Preact without any custom configuration needed.
 }
 ```
 
-### Vue
+### Vue -Remove until Vue Guide?
 
 ```js
 // snowpack.config.json
 "plugins": ["@snowpack/plugin-vue"]
 ```
 
-### Svelte
+### Svelte - Remove until Svelte Guide?
 
 ```js
 // snowpack.config.json
 "plugins": ["@snowpack/plugin-svelte"]
 ```
 
-### PostCSS
+### PostCSS - Add to Plugins? Or make a guide for this?
 
 ```js
 // snowpack.config.json
@@ -90,7 +90,7 @@ You can import and use Preact without any custom configuration needed.
 
 The [`postcss-cli`](https://github.com/postcss/postcss-cli) package must be installed manually. You can configure PostCSS with a `postcss.config.js` file in your current working directory.
 
-### Tailwind CSS
+### Tailwind CSS - Create Tailwind Guide?
 
 You can add [Tailwind](https://tailwindcss.com) to any project via native CSS `@import`:
 
@@ -101,7 +101,7 @@ You can add [Tailwind](https://tailwindcss.com) to any project via native CSS `@
 @import 'tailwindcss/dist/utilities.css';
 ```
 
-#### Using Tailwind with PostCSS
+#### Using Tailwind with PostCSS - Create Tailwind Guide?
 
 If you are using PostCSS in your project ([see above](#postcss)) then you can just add Tailwind as a plugin to your `postcss.config.js`:
 
@@ -132,7 +132,7 @@ Once you have added the Tailwind PostCSS plugin, you can replace your native CSS
 
 Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installation/#using-tailwind-with-postcss) for more information.
 
-### Sass
+### Sass - Add to Plugins or SASS guide?
 
 ```js
 // snowpack.config.json
@@ -143,7 +143,7 @@ Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installatio
 
 To use Sass + PostCSS, check out [this guide](https://zellwk.com/blog/eleventy-snowpack-sass-postcss/).
 
-### ESLint
+### ESLint - Add to Plugins? Or some type of guide?
 
 ```js
 // snowpack.config.json
@@ -156,7 +156,7 @@ To use Sass + PostCSS, check out [this guide](https://zellwk.com/blog/eleventy-s
 ]
 ```
 
-### Webpack
+### Webpack - Add to Plugins or Deployment/Build guide?
 
 ```js
 // snowpack.config.json
@@ -170,17 +170,17 @@ Snowpack ships an official [webpack plugin](https://www.npmjs.com/package/@snowp
 
 See ["Optimized Builds"](/#optimized-builds) for more information about connecting bundled (or unbundled) optimization plugins for your production builds.
 
-### Workbox
+### Workbox - Create Workbox guide?
 
 The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbox-cli) integrates well with Snowpack. Run the wizard to bootstrap your first configuration file, and then run `workbox generateSW` to generate your service worker.
 
 Remember that Workbox expects to be run every time you deploy, as a part of a production build process. If you don't have one yet, create package.json [`"deploy"` and/or `"build"` scripts](https://michael-kuehnel.de/tooling/2018/03/22/helpers-and-tips-for-npm-run-scripts.html) to automate your production build process.
 
-### @web/test-runner
+### @web/test-runner - Create Testing guide?
 
 [@web/test-runner](https://www.npmjs.com/package/@web/test-runner) is our recommended test runner for Snowpack projects. [See our section on testing](/#testing) for detailed instructions on how to get started with @web/test-runner.
 
-### Jest
+### Jest - Create Testing guide?
 
 > Update (October 11, 2020): **We now recommend [@web/test-runner](https://www.npmjs.com/package/@web/test-runner) as our test runner of choice for Snowpack projects.** [See our section on testing](/#testing) for more background behind the change.
 
@@ -202,7 +202,7 @@ module.exports = {
 };
 ```
 
-### Server Side Rendering (SSR)
+### Server Side Rendering (SSR) - Create SSR guide?
 
 To connect your own server to `snowpack dev` for SSR, there are a few things that you'll need to set up. Make sure that you include any Snowpack-built resources via script tags in your server's HTML response:
 
@@ -220,7 +220,7 @@ And make sure that your HTML response also includes code to configure HMR to tal
 </script>
 ```
 
-### Leaving Snowpack
+### Leaving Snowpack - Create Leaving Snowpack guide?
 
 Snowpack is designed for zero lock-in. If you ever feel the need to add a traditional application bundler to your stack (for whatever reason!) you can do so in seconds.
 
