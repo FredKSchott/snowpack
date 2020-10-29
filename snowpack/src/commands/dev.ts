@@ -1145,15 +1145,15 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     res: http.ServerResponse,
     {handleError}: {handleError?: boolean} = {},
   ) {
-    const reqPath = req.url!;
+    const fullRequestUrl = req.url!;
     // Check if a configured proxy matches the request.
-    const requestProxy = getRequestProxy(reqPath);
+    const requestProxy = getRequestProxy(fullRequestUrl);
     if (requestProxy) {
       return requestProxy(req, res);
     }
     // Check if we can send back an optimized 304 response
     const quickETagCheck = req.headers['if-none-match'];
-    if (quickETagCheck && quickETagCheck === knownETags.get(reqPath)) {
+    if (quickETagCheck && quickETagCheck === knownETags.get(fullRequestUrl)) {
       logger.debug(`optimized etag! sending 304...`);
       res.writeHead(304, {'Access-Control-Allow-Origin': '*'});
       res.end();
@@ -1161,17 +1161,15 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     }
     // Otherwise, load the file and respond if successful.
     try {
-      const result = await loadUrl(reqPath, {allowStale: true, encoding: null});
+      const result = await loadUrl(fullRequestUrl, {allowStale: true, encoding: null});
       sendResponseFile(req, res, result);
       if (result.checkStale) {
         await result.checkStale();
       }
       if (result.contents) {
         const tag = etag(result.contents, {weak: true});
+        const reqPath = decodeURI(url.parse(reqUrl).pathname!);
         knownETags.set(reqPath, tag);
-        if (reqPath.indexOf('?') >= 0) {
-          knownETags.set(reqPath.split('?', 2)[0], tag);
-        }
       }
       return;
     } catch (err) {
