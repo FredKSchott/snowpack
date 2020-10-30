@@ -41,7 +41,9 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   alias: {},
   scripts: {},
   exclude: [],
-  installOptions: {},
+  installOptions: {
+    packageLookupEntries: [],
+  },
   devOptions: {
     secure: false,
     hostname: 'localhost',
