@@ -54,18 +54,20 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   if (fs.existsSync(configFilePath)) {
     const configFileConfig = require(configFilePath);
     preprocessOptions =
-      typeof preprocessOptions !== 'undefined'
-        ? preprocessOptions
-        : typeof configFileConfig.preprocess !== 'undefined'
-        ? configFileConfig.preprocess
-        : require('svelte-preprocess');
-    compilerOptions = compilerOptions || configFileConfig.compilerOptions;
-    resolveInputOption = resolveInputOption || configFileConfig.extensions;
+      preprocessOptions !== undefined ? preprocessOptions : configFileConfig.preprocess;
+    compilerOptions =
+      compilerOptions !== undefined ? compilerOptions : configFileConfig.compilerOptions;
+    resolveInputOption =
+      resolveInputOption !== undefined ? resolveInputOption : configFileConfig.extensions;
   } else {
     //user svelte.config.js is optional and should not error if not configured
     if (pluginOptions.configFilePath) {
       throw new Error(`[plugin-svelte] failed to find Svelte config file: "${configFilePath}"`);
     }
+  }
+
+  if (preprocessOptions === undefined) {
+    preprocessOptions = require('svelte-preprocess')();
   }
 
   return {
