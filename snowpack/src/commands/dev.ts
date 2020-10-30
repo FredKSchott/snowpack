@@ -790,7 +790,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           }
 
           // When dealing with an absolute import path, we need to honor the baseUrl
-          if (isAbsoluteUrlPath) {
+          // proxy modules may attach code to the root HTML (like style) so don't resolve
+          if (isAbsoluteUrlPath && !isProxyModule) {
             resolvedImportUrl = relativeURL(path.posix.dirname(reqPath), resolvedImportUrl);
           }
           // Make sure that a relative URL always starts with "./"
@@ -886,18 +887,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       if (!output[requestedFileExt] || !Object.keys(output)) {
         return null;
       }
-
       const {code, map} = output[requestedFileExt];
       let finalResponse = code;
-
-      // Wrap the response.
-      const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
-      finalResponse = await wrapResponse(finalResponse, {
-        hasCssResource: hasAttachedCss,
-        sourceMap: map,
-        sourceMappingURL: path.basename(requestedFile.base) + '.map',
-      });
-
       // Resolve imports.
       if (
         requestedFileExt === '.js' ||
@@ -910,7 +901,13 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           finalResponse as string,
         );
       }
-
+      // Wrap the response.
+      const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
+      finalResponse = await wrapResponse(finalResponse, {
+        hasCssResource: hasAttachedCss,
+        sourceMap: map,
+        sourceMappingURL: path.basename(requestedFile.base) + '.map',
+      });
       // Return the finalized response.
       return finalResponse;
     }
