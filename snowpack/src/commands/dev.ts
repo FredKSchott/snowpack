@@ -653,7 +653,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         return existingBuilderPromise;
       }
       const fileBuilderPromise = (async () => {
-        const builtFileOutput = await _buildFile(fileLoc, {
+        const builtFileOutput = await _buildFile(url.pathToFileURL(fileLoc), {
           plugins: config.plugins,
           isDev: true,
           isSSR,
@@ -946,7 +946,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     }
 
     // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
-    const fileContents = await readFile(fileLoc);
+    const fileContents = await readFile(url.pathToFileURL(fileLoc));
 
     // 3. Send static files directly, since they were already build & resolved at install time.
     if (!isProxyModule && isStatic) {
