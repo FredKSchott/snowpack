@@ -16,7 +16,15 @@
       <span class="section">Guides</span>
       <ol>
         {%- for guide in collections.guides -%}
-          <li><a href="{{ guide.url }}">{{ guide.data.title }}</a></li>
+          <li>
+            <a href="{{ guide.url }}">
+            {%if guide.data.sidebarTitle %}
+              {{ guide.data.sidebarTitle }}
+            {% else %}
+              {{ guide.data.title }}
+            {% endif %}
+            </a>
+          </li>
         {%- endfor -%}
   
       </ol>

@@ -1,6 +1,6 @@
 ---
 layout: layouts/main.njk
-title: SASS
+title: Sass
 tags: guides
 ---
 

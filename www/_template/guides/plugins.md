@@ -5,6 +5,7 @@ title: Snowpack Plugin Guide
 description: 'Documentation and guides for building Snowpack plugins.'
 date: 2020-07-30
 tags: guides
+sidebarTitle: Plugins
 ---
 
 #### Who is this page for?
