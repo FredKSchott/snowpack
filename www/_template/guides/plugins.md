@@ -1,6 +1,5 @@
 ---
 layout: layouts/guide.njk
-permalink: '/guides/plugins/'
 title: Snowpack Plugin Guide
 description: 'Documentation and guides for building Snowpack plugins.'
 date: 2020-07-30
