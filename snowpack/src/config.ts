@@ -42,7 +42,7 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   scripts: {},
   exclude: [],
   installOptions: {
-    packageLookupEntries: [],
+    packageLookupFields: [],
   },
   devOptions: {
     secure: false,

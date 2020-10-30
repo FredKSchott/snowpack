@@ -1,0 +1,1 @@
+console.log('TEST: THIS IS THE BAD ENTRYPOINT');

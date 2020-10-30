@@ -32,7 +32,6 @@ import {
   findMatchingAliasEntry,
   getWebDependencyName,
   isPackageAliasEntry,
-  isTruthy,
   MISSING_PLUGIN_SUGGESTIONS,
   parsePackageImportSpecifier,
   resolveDependencyManifest,
@@ -92,7 +91,7 @@ function isImportOfPackage(importUrl: string, packageName: string) {
  */
 function resolveWebDependency(
   dep: string,
-  {cwd, packageLookupEntries}: {cwd: string; packageLookupEntries: string[]},
+  {cwd, packageLookupFields}: {cwd: string; packageLookupFields: string[]},
 ): DependencyLoc {
   // if dep points directly to a file within a package, return that reference.
   // No other lookup required.
@@ -159,7 +158,7 @@ function resolveWebDependency(
       `React workaround packages no longer needed! Revert back to the official React & React-DOM packages.`,
     );
   }
-  let foundEntrypoint: any = [...packageLookupEntries, 'browser:module', 'module', 'main:esnext']
+  let foundEntrypoint: any = [...packageLookupFields, 'browser:module', 'module', 'main:esnext']
     .map((e) => depManifest[e])
     .find(Boolean);
   if (!foundEntrypoint && !BROKEN_BROWSER_ENTRYPOINT.includes(packageName)) {
@@ -230,7 +229,7 @@ interface InstallOptions {
   polyfillNode: boolean;
   sourceMap?: boolean | 'inline';
   externalPackage: string[];
-  packageLookupEntries: string[];
+  packageLookupFields: string[];
   namedExports: string[];
   rollup: {
     context?: string;
@@ -254,7 +253,7 @@ function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
     dest: 'web_modules',
     externalPackage: [],
     polyfillNode: false,
-    packageLookupEntries: [],
+    packageLookupFields: [],
     env: {},
     namedExports: [],
     rollup: {
@@ -284,7 +283,7 @@ export async function install(
     rollup: userDefinedRollup,
     treeshake: isTreeshake,
     polyfillNode,
-    packageLookupEntries,
+    packageLookupFields,
   } = setOptionDefaults(_options);
   const env = generateEnvObject(userEnv);
 
@@ -322,7 +321,7 @@ export async function install(
     try {
       const resolvedResult = resolveWebDependency(installSpecifier, {
         cwd,
-        packageLookupEntries,
+        packageLookupFields,
       });
       if (resolvedResult.type === 'JS') {
         installEntrypoints[targetName] = resolvedResult.loc;
