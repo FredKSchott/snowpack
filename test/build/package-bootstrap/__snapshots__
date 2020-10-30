@@ -4,7 +4,6 @@ exports[`snowpack build package-bootstrap: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
   "_dist_/index.js",
-  "_dist_/style.css",
   "web_modules/bootstrap/dist/css/bootstrap.min.css",
   "web_modules/bootstrap/dist/css/bootstrap.min.css.proxy.js",
   "web_modules/import-map.json",
@@ -17,8 +16,6 @@ exports[`snowpack build package-bootstrap: build/_dist_/index.js 1`] = `
 "import '../web_modules/bootstrap/dist/css/bootstrap.min.css.proxy.js';
 console.log('CSS added to page!');"
 `;
-
-exports[`snowpack build package-bootstrap: build/_dist_/style.css 1`] = `"@import \\"../web_modules/bootstrap/dist/css/bootstrap.min.css\\";"`;
 
 exports[`snowpack build package-bootstrap: build/web_modules/bootstrap/dist/css/bootstrap.min.css 1`] = `
 "/*!
