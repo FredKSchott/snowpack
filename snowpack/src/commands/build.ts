@@ -412,7 +412,7 @@ export async function command(commandOptions: CommandOptions) {
       const finalUrl = getUrlForFileMount({fileLoc, mountKey: mountedDir, mountEntry, config})!;
       const finalDestLoc = path.join(buildDirectoryLoc, finalUrl);
       const outDir = path.dirname(finalDestLoc);
-      const buildPipelineFile = new FileBuilder({filepath: url.pathToFileURL(fileLoc), mountEntry, outDir, config});
+      const buildPipelineFile = new FileBuilder({fileURL: url.pathToFileURL(fileLoc), mountEntry, outDir, config});
       buildPipelineFiles[fileLoc] = buildPipelineFile;
     }
   }
@@ -515,7 +515,7 @@ export async function command(commandOptions: CommandOptions) {
     const finalDest = path.join(buildDirectoryLoc, finalUrl);
     const outDir = path.dirname(finalDest);
 
-    const changedPipelineFile = new FileBuilder({filepath: url.pathToFileURL(fileLoc), mountEntry, outDir, config});
+    const changedPipelineFile = new FileBuilder({fileURL: url.pathToFileURL(fileLoc), mountEntry, outDir, config});
     buildPipelineFiles[fileLoc] = changedPipelineFile;
     // 1. Build the file.
     await changedPipelineFile.buildFile().catch((err) => {
@@ -573,3 +573,4 @@ export async function command(commandOptions: CommandOptions) {
   // We intentionally never want to exit in watch mode!
   return new Promise(() => {});
 }
+  
