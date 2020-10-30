@@ -68,6 +68,7 @@ import {
   SnowpackBuildMap,
   LoadResult,
   SnowpackDevServer,
+  OnFileChangeCallback,
 } from '../types/snowpack';
 import {
   BUILD_CACHE,
@@ -1335,9 +1336,13 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   // Defer "chokidar" loading to here, to reduce impact on overall startup time
   const chokidar = await import('chokidar');
 
+  // Allow the user to hook into this callback, if they like (noop by default)
+  let onFileChangeCallback: OnFileChangeCallback = () => {};
+
   // Watch src files
   async function onWatchEvent(fileLoc: string) {
     logger.info(colors.cyan('File changed...'));
+    onFileChangeCallback({filePath: fileLoc});
     const updatedUrl = getUrlForFile(fileLoc, config);
     if (updatedUrl) {
       handleHmrUpdate(fileLoc, updatedUrl);
@@ -1407,6 +1412,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     handleRequest,
     sendResponseFile,
     sendResponseError,
+    onFileChange: (callback) => (onFileChangeCallback = callback),
     async shutdown() {
       await watcher.close();
       server.close();

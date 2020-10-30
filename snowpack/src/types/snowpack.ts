@@ -18,6 +18,7 @@ export interface LoadResult<T = Buffer | string> {
   checkStale?: () => Promise<void>;
 }
 
+export type OnFileChangeCallback = ({filePath: string}) => any;
 export interface SnowpackDevServer {
   port: number;
   loadUrl: {
@@ -59,6 +60,7 @@ export interface SnowpackDevServer {
     {contents, originalFileLoc, responseFileName}: LoadResult,
   ) => void;
   sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
+  onFileChange: (callback: OnFileChangeCallback) => void;
   shutdown(): Promise<void>;
 }
 
