@@ -184,14 +184,11 @@ async function openInExistingChromeBrowser(url: string) {
     shell: true,
   });
   // use open Chrome tab if exists; create new Chrome tab if not
-  const openChrome = execa(
-    'osascript ../assets/openChrome.appleScript "' + encodeURI(url) + '"',
-    {
-      cwd: __dirname,
-      stdio: 'ignore',
-      shell: true,
-    },
-  );
+  const openChrome = execa('osascript ../assets/openChrome.appleScript "' + encodeURI(url) + '"', {
+    cwd: __dirname,
+    stdio: 'ignore',
+    shell: true,
+  });
   // if Chrome doesn’t respond within 3s, fall back to opening new tab in default browser
   let isChromeStalled = setTimeout(() => {
     openChrome.cancel();
@@ -208,7 +205,6 @@ async function openInExistingChromeBrowser(url: string) {
   } finally {
     clearTimeout(isChromeStalled);
   }
-
 }
 export async function openInBrowser(
   protocol: string,
