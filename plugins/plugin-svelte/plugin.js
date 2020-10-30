@@ -53,7 +53,12 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
 
   if (fs.existsSync(configFilePath)) {
     const configFileConfig = require(configFilePath);
-    preprocessOptions = preprocessOptions || configFileConfig.preprocess;
+    preprocessOptions =
+      typeof preprocessOptions !== 'undefined'
+        ? preprocessOptions
+        : typeof configFileConfig.preprocess !== 'undefined'
+        ? configFileConfig.preprocess
+        : require('svelte-preprocess');
     compilerOptions = compilerOptions || configFileConfig.compilerOptions;
     resolveInputOption = resolveInputOption || configFileConfig.extensions;
   } else {
@@ -77,7 +82,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     async load({filePath, isHmrEnabled, isSSR}) {
       let codeToCompile = await fs.promises.readFile(filePath, 'utf-8');
       // PRE-PROCESS
-      if (preprocessOptions) {
+      if (preprocessOptions !== false) {
         codeToCompile = (
           await svelte.preprocess(codeToCompile, preprocessOptions, {
             filename: filePath,
