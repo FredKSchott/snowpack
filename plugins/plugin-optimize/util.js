@@ -24,12 +24,6 @@ function isRemoteModule(specifier) {
 }
 exports.isRemoteModule = isRemoteModule;
 
-/** Insert any string into the middle of another string at position */
-function insert(string, insertion, pos = 0) {
-  return string.substring(0, pos - 1) + insertion + string.substring(pos);
-}
-exports.insert = insert;
-
 /** URL relative */
 function projectURL(url, buildDirectory) {
   return path.relative(buildDirectory, url).replace(/\\/g, '/').replace(/^\/?/, '/');
