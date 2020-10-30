@@ -178,12 +178,44 @@ const appNames = {
   },
 };
 
+async function openInExistingChromeBrowser(url: string) {
+  // see if Chrome process is open; fail if not
+  await execa.command('ps cax | grep "Google Chrome"', {
+    shell: true,
+  });
+  // use open Chrome tab if exists; create new Chrome tab if not
+  const openChrome = execa(
+    'osascript ../assets/openChrome.appleScript "' + encodeURI(url) + '"',
+    {
+      cwd: __dirname,
+      stdio: 'ignore',
+      shell: true,
+    },
+  );
+  // if Chrome doesn’t respond within 3s, fall back to opening new tab in default browser
+  let isChromeStalled = setTimeout(() => {
+    openChrome.cancel();
+  }, 3000);
+  try {
+    await openChrome;
+  } catch (err) {
+    if (err.isCanceled) {
+      console.warn(`Chrome not responding to Snowpack after 3s. Opening in new tab.`);
+    } else {
+      console.error(err.toString() || err);
+    }
+    throw err;
+  } finally {
+    clearTimeout(isChromeStalled);
+  }
+
+}
 export async function openInBrowser(
   protocol: string,
   hostname: string,
   port: number,
   browser: string,
-) {
+): Promise<void> {
   const url = `${protocol}//${hostname}:${port}`;
   browser = /chrome/i.test(browser)
     ? appNames[process.platform]['chrome']
@@ -191,52 +223,20 @@ export async function openInBrowser(
     ? appNames[process.platform]['brave']
     : browser;
   const isMac = process.platform === 'darwin';
-  const isOpeningInChrome = /chrome|default/i.test(browser);
-  if (isMac && isOpeningInChrome) {
+  const isBrowserChrome = /chrome|default/i.test(browser);
+  if (!isMac || !isBrowserChrome) {
+    await (browser === 'default' ? open(url) : open(url, {app: browser}));
+    return;
+  }
+
+  try {
     // If we're on macOS, and we haven't requested a specific browser,
     // we can try opening Chrome with AppleScript. This lets us reuse an
     // existing tab when possible instead of creating a new one.
-    try {
-      // see if Chrome process is open; fail if not
-      await execa.command('ps cax | grep "Google Chrome"', {
-        shell: true,
-      });
-      // use open Chrome tab if exists; create new Chrome tab if not
-      const openChrome = execa(
-        'osascript ../assets/openChrome.appleScript "' + encodeURI(url) + '"',
-        {
-          cwd: __dirname,
-          stdio: 'ignore',
-          shell: true,
-        },
-      );
-      // if Chrome doesn’t respond within 3s, fall back to opening new tab in default browser
-      let isChromeStalled = setTimeout(() => {
-        openChrome.cancel();
-      }, 3000);
-
-      try {
-        await openChrome;
-      } catch (err) {
-        if (err.isCanceled) {
-          console.warn(
-            `Chrome not responding to Snowpack after 3s. Opening dev server in new tab.`,
-          );
-        } else {
-          console.error(err.toString() || err);
-        }
-        open(url);
-      } finally {
-        clearTimeout(isChromeStalled);
-      }
-      return true;
-    } catch (err) {
-      // if no open Chrome process, open default browser
-      // no error message needed here
-      open(url);
-    }
-  } else {
-    browser === 'default' ? open(url) : open(url, {app: browser});
+    await openInExistingChromeBrowser(url);
+  } catch (err) {
+    // if no open Chrome process, just go ahead and open default browser.
+    await open(url);
   }
 }
 

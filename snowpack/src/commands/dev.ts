@@ -1327,9 +1327,11 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     startTimeMs: Math.round(performance.now() - serverStart),
   });
 
-  // Open the user's browser
+  // Open the user's browser (ignore if failed)
   if (open !== 'none') {
-    await openInBrowser(protocol, hostname, port, open);
+    await openInBrowser(protocol, hostname, port, open).catch((err) => {
+      logger.debug(`Browser open error: ${err}`);
+    });
   }
 
   // Start watching the file system.
