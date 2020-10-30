@@ -77,7 +77,7 @@ exports.default = function plugin(config, userDefinedOptions) {
         // preload CSS
         if (preloadCSS) {
           code = injectHTML(code, {
-            headEnd: `<link type="stylesheet" rel="${options.preloadedCSSName}" />\n`,
+            headEnd: `<link rel="stylesheet" href="${options.preloadedCSSName}" />\n`,
           });
         }
 

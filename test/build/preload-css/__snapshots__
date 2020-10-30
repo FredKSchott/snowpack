@@ -135,7 +135,7 @@ exports[`snowpack build preload-css: build/index.html 1`] = `
 <html>
   <HEAD>
     <link rel=\\"stylesheet\\" href=\\"/reset.css\\" />
-    <link type=\\"stylesheet\\" rel=\\"/imported-styles.css\\" />
+    <link rel=\\"stylesheet\\" href=\\"/imported-styles.css\\" />
   </HEAD>
   <body>
     Some text node

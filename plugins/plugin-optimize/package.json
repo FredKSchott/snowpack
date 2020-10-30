@@ -20,7 +20,7 @@
     "html-minifier": "^4.0.0",
     "hypertag": "^0.0.3",
     "kleur": "^4.1.3",
-    "node-inject-html": "^0.0.4",
+    "node-inject-html": "^0.0.5",
     "object.fromentries": "^2.0.2",
     "p-queue": "^6.6.1"
   }
