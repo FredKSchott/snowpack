@@ -20,7 +20,7 @@
     "build": "snowpack build",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
-    "test": "web-test-runner \"src/**/*.test.tsx\""
+    "test": "web-test-runner \"src/**/*.test.tsx\" --puppeteer"
   },
   "dependencies": {
     "react": "^16.13.1",
@@ -40,6 +40,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/snowpack-env": "^2.3.0",
     "@web/test-runner": "^0.9.0",
+    "@web/test-runner-puppeteer": "^0.7.2",
     "chai": "^4.2.0",
     "prettier": "^2.0.5",
     "snowpack": "^2.15.1",
