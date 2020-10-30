@@ -69,7 +69,7 @@
     "http-proxy": "^1.18.1",
     "httpie": "^1.1.2",
     "isbinaryfile": "^4.0.6",
-    "jsonschema": "^1.2.5",
+    "jsonschema": "~1.2.5",
     "kleur": "^4.1.1",
     "mime-types": "^2.1.26",
     "mkdirp": "^1.0.3",
