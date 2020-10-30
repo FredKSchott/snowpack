@@ -13,8 +13,8 @@
     "access": "public"
   },
   "dependencies": {
-    "csso": "^4.0.3",
-    "es-module-lexer": "^0.3.24",
+    "csso": "^4.1.0",
+    "es-module-lexer": "^0.3.25",
     "esbuild": "^0.8.0",
     "glob": "^7.1.6",
     "html-minifier": "^4.0.0",

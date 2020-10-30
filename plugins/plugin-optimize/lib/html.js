@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const hypertag = require('hypertag');
 const {injectHTML} = require('node-inject-html');
-const {projectURL, insert} = require('../util');
+const {projectURL, isRemoteModule} = require('../util');
 const {scanJS} = require('./js');
 
 /** Scan HTML for static imports */
@@ -25,22 +25,30 @@ async function scanHTML(htmlFiles, buildDirectory) {
       // <link>
       hypertag(code, 'link').forEach((link) => {
         if (!link.href) return;
-        const resolvedCSS =
-          link.href[0] === '/'
-            ? path.join(buildDirectory, link.href)
-            : path.join(path.dirname(htmlFile), link.href);
-        allCSSImports.add(resolvedCSS);
+        if (isRemoteModule(link.href)) {
+          allCSSImports.add(link.href);
+        } else {
+          const resolvedCSS =
+            link.href[0] === '/'
+              ? path.join(buildDirectory, link.href)
+              : path.join(path.dirname(htmlFile), link.href);
+          allCSSImports.add(resolvedCSS);
+        }
       });
 
       // <script>
       hypertag(code, 'script').forEach((script) => {
         if (!script.src) return;
-        const resolvedJS =
-          script.src[0] === '/'
-            ? path.join(buildDirectory, script.src)
-            : path.join(path.dirname(htmlFile), script.src);
-        allJSImports.add(resolvedJS);
-        entry.add(resolvedJS);
+        if (isRemoteModule(script.src)) {
+          allJSImports.add(script.src);
+        } else {
+          const resolvedJS =
+            script.src[0] === '/'
+              ? path.join(buildDirectory, script.src)
+              : path.join(path.dirname(htmlFile), script.src);
+          allJSImports.add(resolvedJS);
+          entry.add(resolvedJS);
+        }
       });
 
       // traverse all JS for other static imports (scannedFiles keeps track of files so we never redo work)

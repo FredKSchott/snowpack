@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const {parse} = require('es-module-lexer');
-const {minify: minifyCss} = require('csso');
+const csso = require('csso');
 
 /** Early-exit function that determines, given a set of JS files, if CSS is being imported */
 function hasCSSImport(files) {
@@ -112,9 +112,10 @@ function buildImportCSS(manifest, minifyCSS) {
     }
   });
 
+  // sanitize JSON values
+  const css = code.replace(/\\n/g, '\n').replace(/\\"/g, '"');
+
   // minify
-  if (code) {
-    return minifyCSS ? minifyCss(code).css : code;
-  }
+  return minifyCSS ? csso.minify(css).css : css;
 }
 exports.buildImportCSS = buildImportCSS;

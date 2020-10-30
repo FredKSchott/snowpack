@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const {parse} = require('es-module-lexer');
 const colors = require('kleur/colors');
-const {log, projectURL} = require('../util');
+const {log, projectURL, isRemoteModule} = require('../util');
 
 /** Recursively scan JS for static imports */
 function scanJS({file, rootDir, scannedFiles, importList}) {
@@ -19,11 +19,16 @@ function scanJS({file, rootDir, scannedFiles, importList}) {
       .filter(({d}) => d === -1) // this is where we discard dynamic imports (> -1) and import.meta (-2)
       .forEach(({s, e}) => {
         const specifier = code.substring(s, e);
-        importList.add(
-          specifier.startsWith('/')
-            ? path.join(rootDir, removeLeadingSlash(file))
-            : path.resolve(path.dirname(file), specifier),
-        );
+        if (isRemoteModule(specifier)) {
+          importList.add(specifier);
+          scannedFiles.add(specifier); // don’t scan remote modules
+        } else {
+          importList.add(
+            specifier.startsWith('/')
+              ? path.join(rootDir, file)
+              : path.resolve(path.dirname(file), specifier),
+          );
+        }
       });
 
     // 2. recursively scan imports not yet scanned

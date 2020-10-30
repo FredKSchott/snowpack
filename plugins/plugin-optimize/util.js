@@ -44,10 +44,7 @@ exports.removeLeadingSlash = removeLeadingSlash;
 
 /** Build Import */
 function formatManifest({manifest, buildDirectory, generatedFiles, preloadCSS}) {
-  const format = (url) => {
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')) return url;
-    return projectURL(url, buildDirectory);
-  };
+  const format = (url) => (isRemoteModule(url) ? url : projectURL(url, buildDirectory));
 
   const sorted = Object.entries(manifest).map(([k, v]) => {
     const entry = v.entry.map(format);

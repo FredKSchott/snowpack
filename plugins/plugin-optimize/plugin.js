@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 const {minify: minifyHtml} = require('html-minifier');
-const {minify: minifyCss} = require('csso');
+const csso = require('csso');
 const esbuild = require('esbuild');
 const {init} = require('es-module-lexer');
 const mkdirp = require('mkdirp');
@@ -42,9 +42,9 @@ exports.default = function plugin(config, userDefinedOptions) {
 
         // minify
         let code = fs.readFileSync(file, 'utf-8');
-        code = minifyCss(code).css;
+        code = csso.minify(code).css;
         fs.writeFileSync(file, code, 'utf-8');
-        return;
+        break;
       }
       case '.js':
       case '.mjs': {
@@ -66,7 +66,7 @@ exports.default = function plugin(config, userDefinedOptions) {
         }
 
         fs.writeFileSync(file, code);
-        return;
+        break;
       }
       case '.html': {
         const shouldOptimize = options.preloadCSS || options.preloadModules || options.minifyHTML;
@@ -96,7 +96,7 @@ exports.default = function plugin(config, userDefinedOptions) {
         }
 
         fs.writeFileSync(file, code, 'utf-8');
-        return;
+        break;
       }
     }
   }
@@ -158,15 +158,13 @@ exports.default = function plugin(config, userDefinedOptions) {
       await parallelWorkQueue.onIdle();
       esbuildService.stop();
 
-      // 5. build CSS file (and delete unneeded CSS )
+      // 5. build CSS file
       if (preloadCSS) {
         const combinedCSS = buildImportCSS(manifest, options.minifyCSS);
-        if (combinedCSS) {
-          const outputCSS = path.join(buildDirectory, options.preloadedCSSName);
-          await mkdirp(path.dirname(outputCSS));
-          fs.writeFileSync(outputCSS, combinedCSS, 'utf-8');
-          generatedFiles.preloadedCSS = outputCSS;
-        }
+        const outputCSS = path.join(buildDirectory, options.preloadedCSSName);
+        await mkdirp(path.dirname(outputCSS));
+        fs.writeFileSync(outputCSS, combinedCSS, 'utf-8');
+        generatedFiles.preloadedCSS = outputCSS;
       }
 
       // 6. wrte manifest
