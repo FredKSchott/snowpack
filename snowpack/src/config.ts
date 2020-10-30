@@ -2,13 +2,12 @@ import buildScriptPlugin from '@snowpack/plugin-build-script';
 import runScriptPlugin from '@snowpack/plugin-run-script';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
-import esbuild from 'esbuild';
+import * as esbuild from 'esbuild';
 import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
 import os from 'os';
 import path from 'path';
 import yargs from 'yargs-parser';
-
 import {defaultFileExtensionMapping} from './build/file-urls';
 import {logger} from './logger';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
