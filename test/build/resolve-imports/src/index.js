@@ -49,4 +49,5 @@ console.log(adSvg);
 
 // Importing across mounted directories
 import robotsTxtRef from '../public/robots.txt';
-console.log(robotsTxtRef);
+import robotsTxtRef_ from '$public/robots.txt';
+console.log(robotsTxtRef, robotsTxtRef_);
