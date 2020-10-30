@@ -22,6 +22,6 @@ module.exports = {
 
 ## Plugin Options
 
-| Name   |   Type   | Description                                                                                                                                                                      |
-| :----- | :------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Name   |   Type   | Description                                                                                                                                                                               |
+| :----- | :------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `args` | `string` | Optional arguments to pass to the `tsc` CLI. For example, you can configure a custom project directory (with a custom `tsconfig.json` file) using `args: "--project ./your/custom/path"`. |
