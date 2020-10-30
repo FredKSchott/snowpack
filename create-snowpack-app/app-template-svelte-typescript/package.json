@@ -36,7 +36,6 @@
     "@types/snowpack-env": "^2.3.0",
     "jest": "^26.2.2",
     "snowpack": "^2.15.1",
-    "svelte-check": "^1.0.0",
     "svelte-preprocess": "^4.0.8",
     "typescript": "^4.0.0"
   },
