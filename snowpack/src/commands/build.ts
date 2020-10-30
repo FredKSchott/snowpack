@@ -47,7 +47,7 @@ function getIsHmrEnabled(config: SnowpackConfig) {
 }
 
 function handleFileError(err: Error, builder: FileBuilder) {
-  logger.error(`✘ ${builder.filepath}\n  ${err.stack ? err.stack : err.message}`);
+  logger.error(`✘ ${builder.fileURL}\n  ${err.stack ? err.stack : err.message}`);
   process.exit(1);
 }
 
@@ -91,23 +91,23 @@ class FileBuilder {
   filesToResolve: Record<string, SnowpackSourceFile> = {};
   filesToProxy: string[] = [];
 
-  readonly filepath: string;
+  readonly fileURL: URL;
   readonly mountEntry: MountEntry;
   readonly outDir: string;
   readonly config: SnowpackConfig;
 
   constructor({
-    filepath,
+    fileURL,
     mountEntry,
     outDir,
     config,
   }: {
-    filepath: string;
+    fileURL: URL;
     mountEntry: MountEntry;
     outDir: string;
     config: SnowpackConfig;
   }) {
-    this.filepath = filepath;
+    this.fileURL = fileURL;
     this.mountEntry = mountEntry;
     this.outDir = outDir;
     this.config = config;
@@ -116,10 +116,10 @@ class FileBuilder {
   async buildFile() {
     this.filesToResolve = {};
     const isSSR = this.config.experiments.ssr;
-    const srcExt = path.extname(this.filepath);
+    const srcExt = path.extname(url.fileURLToPath(this.fileURL));
     const fileOutput = this.mountEntry.static
-      ? {[srcExt]: {code: await readFile(this.filepath)}}
-      : await buildFile(this.filepath, {
+      ? {[srcExt]: {code: await readFile(this.fileURL)}}
+      : await buildFile(this.fileURL, {
           plugins: this.config.plugins,
           isDev: false,
           isSSR,
@@ -132,7 +132,7 @@ class FileBuilder {
       if (!code) {
         continue;
       }
-      const outFilename = replaceExt(path.basename(this.filepath), srcExt, fileExt);
+      const outFilename = replaceExt(path.basename(url.fileURLToPath(this.fileURL)), srcExt, fileExt);
       const outLoc = path.join(this.outDir, outFilename);
       const sourceMappingURL = outFilename + '.map';
       if (this.mountEntry.resolve && typeof code === 'string') {
@@ -143,7 +143,7 @@ class FileBuilder {
               baseExt: fileExt,
               expandedExt: fileExt,
               contents: code,
-              locOnDisk: this.filepath,
+              locOnDisk: url.fileURLToPath(this.fileURL),
             };
             break;
           }
@@ -160,7 +160,7 @@ class FileBuilder {
               baseExt: fileExt,
               expandedExt: fileExt,
               contents: code,
-              locOnDisk: this.filepath,
+              locOnDisk: url.fileURLToPath(this.fileURL),
             };
             break;
           }
@@ -178,7 +178,7 @@ class FileBuilder {
               baseExt: fileExt,
               expandedExt: fileExt,
               contents: code,
-              locOnDisk: this.filepath,
+              locOnDisk: url.fileURLToPath(this.fileURL),
             };
             break;
           }
@@ -383,7 +383,7 @@ export async function command(commandOptions: CommandOptions) {
         !installedFileLoc.endsWith('import-map.json') &&
         path.extname(installedFileLoc) !== '.js'
       ) {
-        const proxiedCode = await readFile(installedFileLoc);
+        const proxiedCode = await readFile(url.pathToFileURL(installedFileLoc));
         const importProxyFileLoc = installedFileLoc + '.proxy.js';
         const proxiedUrl = installedFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/');
         const proxyCode = await wrapImportProxy({
@@ -412,7 +412,7 @@ export async function command(commandOptions: CommandOptions) {
       const finalUrl = getUrlForFileMount({fileLoc, mountKey: mountedDir, mountEntry, config})!;
       const finalDestLoc = path.join(buildDirectoryLoc, finalUrl);
       const outDir = path.dirname(finalDestLoc);
-      const buildPipelineFile = new FileBuilder({filepath: fileLoc, mountEntry, outDir, config});
+      const buildPipelineFile = new FileBuilder({filepath: url.pathToFileURL(fileLoc), mountEntry, outDir, config});
       buildPipelineFiles[fileLoc] = buildPipelineFile;
     }
   }
@@ -515,7 +515,7 @@ export async function command(commandOptions: CommandOptions) {
     const finalDest = path.join(buildDirectoryLoc, finalUrl);
     const outDir = path.dirname(finalDest);
 
-    const changedPipelineFile = new FileBuilder({filepath: fileLoc, mountEntry, outDir, config});
+    const changedPipelineFile = new FileBuilder({filepath: url.pathToFileURL(fileLoc), mountEntry, outDir, config});
     buildPipelineFiles[fileLoc] = changedPipelineFile;
     // 1. Build the file.
     await changedPipelineFile.buildFile().catch((err) => {
