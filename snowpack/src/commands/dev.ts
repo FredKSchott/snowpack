@@ -686,11 +686,9 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     async function wrapResponse(
       code: string | Buffer,
       {
-        hasCssResource,
         sourceMap,
         sourceMappingURL,
       }: {
-        hasCssResource: boolean;
         sourceMap?: string;
         sourceMappingURL: string;
       },
@@ -724,10 +722,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           } else {
             code = wrapImportMeta({code: code as string, env: true, hmr: isHMR, config});
           }
-
-          if (hasCssResource)
-            code =
-              `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
 
           // source mapping
           if (sourceMap) code = jsSourceMappingURL(code, sourceMappingURL);
@@ -890,6 +884,12 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       }
       const {code, map} = output[requestedFileExt];
       let finalResponse = code;
+      // Handle attached CSS.
+      if (requestedFileExt === '.js' && output['.css']) {
+        finalResponse =
+          `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` +
+          finalResponse;
+      }
       // Resolve imports.
       if (
         requestedFileExt === '.js' ||
@@ -903,9 +903,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         );
       }
       // Wrap the response.
-      const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
       finalResponse = await wrapResponse(finalResponse, {
-        hasCssResource: hasAttachedCss,
         sourceMap: map,
         sourceMappingURL: path.basename(requestedFile.base) + '.map',
       });
