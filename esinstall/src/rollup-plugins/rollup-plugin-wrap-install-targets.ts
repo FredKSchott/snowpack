@@ -39,7 +39,7 @@ export function rollupPluginWrapInstallTargets(
         return;
       }
       // Collect and filter all properties of the object as named exports.
-      return Object.keys(mod).filter((imp) => imp !== 'default');
+      return Object.keys(mod).filter((imp) => imp !== 'default' && imp !== '__esModule');
     } catch (err) {
       logger.debug(
         `✘ Runtime CJS auto-detection for ${colors.bold(
@@ -68,7 +68,7 @@ export function rollupPluginWrapInstallTargets(
         cjsAutoDetectExportsStatic(require.resolve(e, {paths: [path.dirname(filename)]}), visited),
       );
       return Array.from(new Set([...exports, ...resolvedReexports])).filter(
-        (imp) => imp !== 'default',
+        (imp) => imp !== 'default' && imp !== '__esModule',
       );
     } catch (err) {
       // Safe to ignore, this is usually due to the file not being CJS.

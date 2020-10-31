@@ -2572,11 +2572,6 @@
   dependencies:
     "@testing-library/dom" "^7.0.3"
 
-"@tsconfig/svelte@^1.0.3":
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/@tsconfig/svelte/-/svelte-1.0.10.tgz#30ec7feeee0bdf38b12a50f0686f8a2e7b6b9dc0"
-  integrity sha512-EBrpH2iXXfaf/9z81koiDYkp2mlwW2XzFcAqn6qh7VKyP8zBvHHAQzNhY+W9vH5arAjmGAm5g8ElWq6YmXm3ig==
-
 "@types/aria-query@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@types/aria-query/-/aria-query-4.2.0.tgz#14264692a9d6e2fa4db3df5e56e94b5e25647ac0"
@@ -2752,7 +2747,7 @@
   dependencies:
     "@types/istanbul-lib-report" "*"
 
-"@types/jest@*", "@types/jest@^26.0.4":
+"@types/jest@*":
   version "26.0.15"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-26.0.15.tgz#12e02c0372ad0548e07b9f4e19132b834cb1effe"
   integrity sha512-s2VMReFXRg9XXxV+CW9e5Nz8fH2K1aEhwgjUqPPbQd7g95T0laAcvLv032EhFHIa5GHsZ8W7iJEQVaJq6k3Gog==
@@ -3225,7 +3220,7 @@
     "@web/test-runner-core" "^0.8.4"
     selenium-webdriver "^4.0.0-alpha.7"
 
-"@web/test-runner@^0.9.0":
+"@web/test-runner@^0.9.7":
   version "0.9.7"
   resolved "https://registry.yarnpkg.com/@web/test-runner/-/test-runner-0.9.7.tgz#f5fdbce3f346c75c3fbc64ddcd8c6e206939f2d1"
   integrity sha512-A894e2sgI3aZ7voDMo0o/0ms7oS7NPOb9zui7tMGZt4RUWc4uWduolHd7znAVCTXSJwmlGw8Aa1gWwf4IzAvaQ==
