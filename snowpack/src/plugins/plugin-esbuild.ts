@@ -31,7 +31,7 @@ export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}
       esbuildService = esbuildService || (await startService());
       const contents = await fs.readFile(filePath, 'utf-8');
       const isPreact = checkIsPreact(filePath, contents);
-      const {js, jsSourceMap, warnings} = await esbuildService!.transform(contents, {
+      const {code, map, warnings} = await esbuildService!.transform(contents, {
         loader: getLoader(filePath),
         jsxFactory: isPreact ? 'h' : undefined,
         jsxFragment: isPreact ? 'Fragment' : undefined,
@@ -44,8 +44,8 @@ export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}
       }
       return {
         '.js': {
-          code: js || '',
-          map: jsSourceMap,
+          code: code || '',
+          map,
         },
       };
     },
