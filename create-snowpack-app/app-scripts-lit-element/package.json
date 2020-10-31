@@ -1,6 +1,7 @@
 {
   "name": "@snowpack/app-scripts-lit-element",
   "version": "1.8.8",
+  "private": true,
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"

@@ -1,6 +1,7 @@
 {
   "name": "@snowpack/app-scripts-svelte",
   "version": "1.9.2",
+  "private": true,
   "main": "snowpack.config.js",
   "publishConfig": {
     "access": "public"
