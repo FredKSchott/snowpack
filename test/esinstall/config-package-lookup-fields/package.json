@@ -8,7 +8,9 @@
   },
   "snowpack": {
     "installOptions": {
-      "packageLookupFields": ["svelte"]
+      "packageLookupFields": [
+        "svelte"
+      ]
     }
   },
   "dependencies": {
