@@ -5,7 +5,6 @@ module.exports = {
   },
   plugins: [
     '@snowpack/plugin-dotenv',
-    '@snowpack/plugin-babel',
     '@snowpack/plugin-typescript',
     '@prefresh/snowpack',
   ],
