@@ -146,7 +146,7 @@ exports.default = function plugin(config, userDefinedOptions) {
         if (options.minifyJS) {
           let code = fs.readFileSync(file, 'utf-8');
           const minified = await esbuildService.transform(code, {minify: true, target});
-          code = minified.js;
+          code = minified.code;
           fs.writeFileSync(file, code);
         }
         break;
