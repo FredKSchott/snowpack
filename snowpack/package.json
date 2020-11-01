@@ -1,12 +1,21 @@
 {
   "name": "snowpack",
-  "version": "2.14.3",
+  "version": "2.16.0",
   "description": "The ESM-powered frontend build tool. Fast, lightweight, unbundled.",
   "author": "Fred K. Schott <fkschott@gmail.com>",
   "license": "MIT",
+  "keywords": [
+    "bundle",
+    "build",
+    "build tool",
+    "web",
+    "esm",
+    "esbuild",
+    "wasm"
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/pikapkg/snowpack.git"
+    "url": "https://github.com/snowpackjs/snowpack.git"
   },
   "publishConfig": {
     "access": "public"
@@ -14,20 +23,33 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "lint": "tsc --noEmit --noUnusedLocals true --noUnusedParameters true"
+    "lint": "tsc --noEmit --noUnusedLocals true --noUnusedParameters true && package-check"
   },
   "engines": {
     "node": ">=10.19.0"
   },
-  "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "import": "./index.esm.mjs",
+      "require": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "bin": {
     "sp": "index.bin.js",
     "snowpack": "index.bin.js"
   },
+  "files": [
+    "assets",
+    "lib",
+    "index.bin.js",
+    "index.esm.mjs"
+  ],
   "dependencies": {
-    "@snowpack/plugin-build-script": "^2.0.10",
-    "@snowpack/plugin-run-script": "^2.1.6",
+    "@snowpack/plugin-build-script": "^2.0.11",
+    "@snowpack/plugin-run-script": "^2.2.0",
     "cacache": "^15.0.0",
     "cachedir": "^2.3.0",
     "chokidar": "^3.4.0",
@@ -37,8 +59,8 @@
     "deepmerge": "^4.2.2",
     "detect-port": "^1.3.0",
     "es-module-lexer": "^0.3.24",
-    "esbuild": "^0.7.0",
-    "esinstall": "^0.3.3",
+    "esbuild": "^0.8.0",
+    "esinstall": "^0.3.6",
     "etag": "^1.8.1",
     "execa": "^4.0.3",
     "find-cache-dir": "^3.3.1",
@@ -47,7 +69,7 @@
     "http-proxy": "^1.18.1",
     "httpie": "^1.1.2",
     "isbinaryfile": "^4.0.6",
-    "jsonschema": "^1.2.5",
+    "jsonschema": "~1.2.5",
     "kleur": "^4.1.1",
     "mime-types": "^2.1.26",
     "mkdirp": "^1.0.3",
@@ -62,6 +84,6 @@
     "strip-comments": "^2.0.1",
     "validate-npm-package-name": "^3.0.0",
     "ws": "^7.3.0",
-    "yargs-parser": "^18.1.3"
+    "yargs-parser": "^20.0.0"
   }
 }

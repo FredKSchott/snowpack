@@ -2,7 +2,7 @@
   "private": true,
   "version": "1.0.1",
   "name": "@snowpack/test-bugfix-named-import",
-  "description": "Tests for the _$v4 named import bug (https://github.com/pikapkg/snowpack/issues/560)",
+  "description": "Tests for the _$v4 named import bug (https://github.com/snowpackjs/snowpack/issues/560)",
   "snowpack": {
     "mount": {
       "./src": "/_dist_"

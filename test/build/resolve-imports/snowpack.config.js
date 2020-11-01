@@ -4,6 +4,8 @@ module.exports = {
     '@app': './src',
     '@/': './src/',
     '%': '.',
+    "@sort": "./src/sort.js",
+    "$public": "./public"
   },
   mount: {
     './src': '/_dist_',

@@ -14,6 +14,8 @@ const SRI_ERROR_HMR_SNOWPACK = generateSRI(
   readFileSync(path.join(__dirname, '../../assets/hmr-error-overlay.js')),
 );
 
+const importMetaRegex = /import\s*\.\s*meta/;
+
 export function getMetaUrlPath(urlPath: string, config: SnowpackConfig): string {
   let {metaDir} = config.buildOptions || {};
   return path.posix.normalize(path.posix.join('/', metaDir, urlPath));
@@ -30,7 +32,7 @@ export function wrapImportMeta({
   env: boolean;
   config: SnowpackConfig;
 }) {
-  if (!code.includes('import.meta')) {
+  if (!importMetaRegex.test(code)) {
     return code;
   }
   return (
@@ -173,18 +175,19 @@ async function generateCssModuleImportProxy({
 export let code = ${JSON.stringify(injectableSource)};
 let json = ${JSON.stringify(exportTokens)};
 export default json;
-
+${
+    hmr
+      ? `
+import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr-client.js', config)}';
+import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);\n` : ``}
 // [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {${
     hmr
       ? `
-  import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr-client.js', config)}';
-  import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);
   import.meta.hot.dispose(() => {
-    document.head.removeChild(styleEl);
+    document && document.head.removeChild(styleEl);
   });\n`
-      : ``
-  }
+      : ``}
   const styleEl = document.createElement("style");
   const codeEl = document.createTextNode(code);
   styleEl.type = 'text/css';

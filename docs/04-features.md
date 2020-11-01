@@ -172,7 +172,7 @@ You can use environment variables in HTML files. All occurrences of `%SNOWPACK_P
 }
 ```
 
-Add the `@snowpack/plugin-dotenv` plugin to your dev environment to automatically load environment variables from your project `.env` files. Visit the [plugin README](https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-dotenv) to learn more.
+Add the `@snowpack/plugin-dotenv` plugin to your dev environment to automatically load environment variables from your project `.env` files. Visit the [plugin README](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-dotenv) to learn more.
 
 ### Hot Module Replacement
 
@@ -184,14 +184,14 @@ Snowpack supports full HMR out-of-the-box for the following served files:
 - CSS Modules
 - JSON
 
-Popular frameworks can also be set up for HMR. **[Create Snowpack App (CSA)](https://github.com/pikapkg/snowpack/blob/master/create-snowpack-app) ships with HMR enabled by default for all of the following frameworks.** If you're not using CSA, you can setup HMR in your application with a simple plugin or a few lines of code:
+Popular frameworks can also be set up for HMR. **[Create Snowpack App (CSA)](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app) ships with HMR enabled by default for all of the following frameworks.** If you're not using CSA, you can setup HMR in your application with a simple plugin or a few lines of code:
 
 - Preact: [@prefresh/snowpack](https://www.npmjs.com/package/@prefresh/snowpack)
 - React: [@snowpack/plugin-react-refresh](https://www.npmjs.com/package/@snowpack/plugin-react-refresh)
-- Svelte: [A few lines of code](https://github.com/pikapkg/snowpack/blob/master/create-snowpack-app/app-template-svelte/src/index.js#L9-L16)
-- Vue: [A few lines of code](https://github.com/pikapkg/snowpack/blob/master/create-snowpack-app/app-template-vue/src/index.js#L7-L14)
+- Svelte: [A few lines of code](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-svelte/src/index.js#L9-L16)
+- Vue: [A few lines of code](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-vue/src/index.js#L7-L14)
 
-For more advanced, bare-metal HMR integrations, Snowpack created [ESM-HMR](https://github.com/pikapkg/esm-hot-module-replacement-spec), a standard HMR API for any ESM-based dev environment. Any HMR integration built for ESM-HMR will run on Snowpack and any other ESM-HMR-enabled dev server. To use the HMR API directly (via `import.meta.hot`) check out [the ESM-HMR spec](https://github.com/pikapkg/esm-hot-module-replacement-spec) to learn more.
+For more advanced, bare-metal HMR integrations, Snowpack created [ESM-HMR](https://github.com/snowpackjs/esm-hot-module-replacement-spec), a standard HMR API for any ESM-based dev environment. Any HMR integration built for ESM-HMR will run on Snowpack and any other ESM-HMR-enabled dev server. To use the HMR API directly (via `import.meta.hot`) check out [the ESM-HMR spec](https://github.com/snowpackjs/esm-hot-module-replacement-spec) to learn more.
 
 ```js
 if (import.meta.hot) {
@@ -204,7 +204,7 @@ if (import.meta.hot) {
 }
 ```
 
-- 👉 **[Check out the full ESM-HMR spec.](https://github.com/pikapkg/esm-hot-module-replacement-spec)**
+- 👉 **[Check out the full ESM-HMR spec.](https://github.com/snowpackjs/esm-hot-module-replacement-spec)**
 
 ### Dev Request Proxy
 
@@ -289,7 +289,13 @@ Snowpack supports [native CSS "@import" behavior](https://developer.mozilla.org/
 
 ### Server Side Rendering (SSR)
 
-SSR for Snowpack is supported but fairly new and experimental. This section of our documentation will be updated as we finalize support over the next few versions.
+SSR for Snowpack is supported but fairly new and experimental. This documentation will be updated as we finalize support over the next few minor versions.
+
+```js
+// New in Snowpack v2.15.0 - JS API Example
+import {startDevServer} from 'snowpack';
+const server = await startDevServer({ ... });
+```
 
 These frameworks have known experiments / examples of using SSR + Snowpack:
 
@@ -340,4 +346,4 @@ module.exports = {
 };
 ```
 
-[See an example setup](https://github.com/pikapkg/snowpack/blob/master/create-snowpack-app/app-template-react) in on of our Create Snowpack App starter templates.
+[See an example setup](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-react) in on of our Create Snowpack App starter templates.

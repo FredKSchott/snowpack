@@ -50,12 +50,12 @@ const esbuildCompile = (content, lang) => {
     result += `${codeSnippetH}\n`;
     result += `${codeSnippetVueJsxCompat}\n`;
   }
-  const {js} = esbuild.transformSync(content, {
+  const {code} = esbuild.transformSync(content, {
     loader: lang,
     jsxFactory: 'jsx',
     jsxFragment: 'Fragment',
   });
-  result += `\n${js.trim()}\n`;
+  result += `\n${code.trim()}\n`;
   return result.trim();
 };
 

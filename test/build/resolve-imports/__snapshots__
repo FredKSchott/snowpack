@@ -96,9 +96,9 @@ exports[`snowpack build resolve-imports: build/_dist_/index.html 1`] = `
       import styles from './components/style.css.proxy.js'; // relative import
       import styles_ from './components/style.css.proxy.js'; // relative import
       console.log(styles, styles_);
-      // Importing across mounted directories
       import robotsTxtRef from '../robots.txt.proxy.js';
-      console.log(robotsTxtRef);
+      import robotsTxtRef_ from '../robots.txt.proxy.js';
+      console.log(robotsTxtRef, robotsTxtRef_);
     </script>
     <!-- exception test 1: comments should be ignored -->
     <!-- <script type=\\"module\\" src=\\"preact\\"></script> -->
@@ -122,7 +122,8 @@ import sort_ from './sort.js'; // absolute import
 import sort__ from './sort.js'; // bare import using alias
 import sort___ from './sort.js'; // bare import using alias + extension
 import sort____ from './sort.js'; // bare import using alias with trailing slash
-console.log(sort, sort_, sort__, sort___, sort___, sort____);
+import sort_____ from './sort.js'; // bare import using file alias
+console.log(sort, sort_, sort__, sort___, sort___, sort____, sort_____);
 // Note: file does not need to exist for these checks:
 import svelteFile from './foo.js'; // plugin-provided file extension
 import svelteFile_ from './foo.js'; // plugin-provided, missing file extension
@@ -156,7 +157,8 @@ import adSvg from '../TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg.p
 console.log(adSvg);
 // Importing across mounted directories
 import robotsTxtRef from '../robots.txt.proxy.js';
-console.log(robotsTxtRef);"
+import robotsTxtRef_ from '../robots.txt.proxy.js';
+console.log(robotsTxtRef, robotsTxtRef_);"
 `;
 
 exports[`snowpack build resolve-imports: build/_dist_/sort.js 1`] = `"export default (arr) => arr.sort();"`;

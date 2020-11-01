@@ -18,6 +18,7 @@ export interface LoadResult<T = Buffer | string> {
   checkStale?: () => Promise<void>;
 }
 
+export type OnFileChangeCallback = ({filePath: string}) => any;
 export interface SnowpackDevServer {
   port: number;
   loadUrl: {
@@ -59,6 +60,7 @@ export interface SnowpackDevServer {
     {contents, originalFileLoc, responseFileName}: LoadResult,
   ) => void;
   sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
+  onFileChange: (callback: OnFileChangeCallback) => void;
   shutdown(): Promise<void>;
 }
 
@@ -104,6 +106,7 @@ export interface PluginTransformOptions {
 
 export interface PluginRunOptions {
   isDev: boolean;
+  /* @deprecated */
   isHmrEnabled: boolean;
 }
 
@@ -240,6 +243,8 @@ export interface SnowpackConfig {
   _extensionMap: Record<string, string>;
   _extensionMapPlugins: Record<string, PluginResolveExtension>;
 }
+
+export type SnowpackUserConfig = DeepPartial<SnowpackConfig>;
 
 export interface CLIFlags extends Omit<InstallOptions, 'env'> {
   help?: boolean; // display help text

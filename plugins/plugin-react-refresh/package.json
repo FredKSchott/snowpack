@@ -1,12 +1,12 @@
 {
   "name": "@snowpack/plugin-react-refresh",
-  "version": "2.3.2",
+  "version": "2.3.5",
   "main": "plugin.js",
   "license": "MIT",
-  "homepage": "https://github.com/pikapkg/snowpack/tree/master/plugins/plugin-react-refresh#readme",
+  "homepage": "https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-react-refresh#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pikapkg/snowpack.git",
+    "url": "https://github.com/snowpackjs/snowpack.git",
     "directory": "plugins/plugin-react-refresh"
   },
   "publishConfig": {
@@ -15,7 +15,7 @@
   "dependencies": {
     "@babel/core": "^7.0.0",
     "@babel/plugin-syntax-class-properties": "^7.10.0",
-    "react-refresh": "^0.8.3"
+    "react-refresh": "^0.9.0"
   },
   "peerDependencies": {
     "react": ">=16.10.0",

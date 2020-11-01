@@ -48,13 +48,17 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   let configFilePath = path.resolve(cwd, pluginOptions.configFilePath || 'svelte.config.js');
   let compilerOptions = pluginOptions.compilerOptions;
   let preprocessOptions = pluginOptions.preprocess;
-  let resolveInputOption = pluginOptions.input || ['.svelte'];
+  let resolveInputOption = pluginOptions.input;
   const hmrOptions = pluginOptions.hmrOptions;
 
   if (fs.existsSync(configFilePath)) {
     const configFileConfig = require(configFilePath);
-    preprocessOptions = preprocessOptions || configFileConfig.preprocess;
-    compilerOptions = compilerOptions || configFileConfig.compilerOptions;
+    preprocessOptions =
+      preprocessOptions !== undefined ? preprocessOptions : configFileConfig.preprocess;
+    compilerOptions =
+      compilerOptions !== undefined ? compilerOptions : configFileConfig.compilerOptions;
+    resolveInputOption =
+      resolveInputOption !== undefined ? resolveInputOption : configFileConfig.extensions;
   } else {
     //user svelte.config.js is optional and should not error if not configured
     if (pluginOptions.configFilePath) {
@@ -62,10 +66,14 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     }
   }
 
+  if (preprocessOptions === undefined) {
+    preprocessOptions = require('svelte-preprocess')();
+  }
+
   return {
     name: '@snowpack/plugin-svelte',
     resolve: {
-      input: resolveInputOption,
+      input: resolveInputOption || ['.svelte'],
       output: ['.js', '.css'],
     },
     knownEntrypoints: [
@@ -76,7 +84,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     async load({filePath, isHmrEnabled, isSSR}) {
       let codeToCompile = await fs.promises.readFile(filePath, 'utf-8');
       // PRE-PROCESS
-      if (preprocessOptions) {
+      if (preprocessOptions !== false) {
         codeToCompile = (
           await svelte.preprocess(codeToCompile, preprocessOptions, {
             filename: filePath,

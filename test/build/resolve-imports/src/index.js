@@ -9,7 +9,8 @@ import sort_ from '/_dist_/sort.js'; // absolute import
 import sort__ from '@app/sort'; // bare import using alias
 import sort___ from '@app/sort.js'; // bare import using alias + extension
 import sort____ from '@/sort'; // bare import using alias with trailing slash
-console.log(sort, sort_, sort__, sort___, sort___, sort____);
+import sort_____ from '@sort'; // bare import using file alias
+console.log(sort, sort_, sort__, sort___, sort___, sort____, sort_____);
 
 // Note: file does not need to exist for these checks:
 import svelteFile from './foo.svelte'; // plugin-provided file extension
@@ -48,4 +49,5 @@ console.log(adSvg);
 
 // Importing across mounted directories
 import robotsTxtRef from '../public/robots.txt';
-console.log(robotsTxtRef);
+import robotsTxtRef_ from '$public/robots.txt';
+console.log(robotsTxtRef, robotsTxtRef_);

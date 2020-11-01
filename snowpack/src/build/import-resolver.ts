@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import url from 'url';
 import {ImportMap, SnowpackConfig} from '../types/snowpack';
-import {findMatchingAliasEntry, getLastExt, relativeURL} from '../util';
+import {findMatchingAliasEntry, getLastExt} from '../util';
 import {getUrlForFile, tryPluginsResolveExt} from './file-urls';
 
 const cwd = process.cwd();
@@ -72,11 +72,10 @@ export function createImportResolver({
     if (aliasEntry && aliasEntry.type === 'path') {
       const {from, to} = aliasEntry;
       let result = spec.replace(from, to);
-      const importStats = getImportStats(path.resolve(cwd, result));
-      result = resolveSourceSpecifier(result, importStats, config);
-      // replace Windows backslashes at the end, after resolution
-      result = relativeURL(path.dirname(fileLoc), result);
-      return result;
+      const importedFileLoc = path.resolve(cwd, result);
+      const importStats = getImportStats(importedFileLoc);
+      const newSpec = getUrlForFile(importedFileLoc, config) || spec;
+      return resolveSourceSpecifier(newSpec, importStats, config);
     }
     if (dependencyImportMap) {
       // NOTE: We don't need special handling for an alias here, since the aliased "from"

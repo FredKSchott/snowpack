@@ -20,5 +20,5 @@ jobs:
           node-version: ${{ env.node_version }}
       - name: test
         run: |
-          yarn --ignore-engines
+          yarn --ignore-engines --frozen-lockfile
           yarn test:docs

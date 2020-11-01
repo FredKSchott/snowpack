@@ -57,12 +57,10 @@ You can import and use Preact without any custom configuration needed.
 ```js
 // Example: Lets you import "react" in your application, but uses preact internally
 // snowpack.config.json
-"installOptions": {
   "alias": {
     "react": "preact/compat",
     "react-dom": "preact/compat"
   }
-}
 ```
 
 ### Vue
@@ -178,11 +176,11 @@ Remember that Workbox expects to be run every time you deploy, as a part of a pr
 
 ### @web/test-runner
 
-[@web/test-runner](https://www.npmjs.com/package/@snowpack/app-scripts-react) is our recommended test runner for Snowpack projects. [See our section on testing](/#testing) for detailed instructions on how to get started with @web/test-runner.
+[@web/test-runner](https://www.npmjs.com/package/@web/test-runner) is our recommended test runner for Snowpack projects. [See our section on testing](/#testing) for detailed instructions on how to get started with @web/test-runner.
 
 ### Jest
 
-> Update (October 11, 2020): **We now recommend [@web/test-runner](https://www.npmjs.com/package/@snowpack/app-scripts-react) as our test runner of choice for Snowpack projects.** [See our section on testing](/#testing) for more background behind the change.
+> Update (October 11, 2020): **We now recommend [@web/test-runner](https://www.npmjs.com/package/@web/test-runner) as our test runner of choice for Snowpack projects.** [See our section on testing](/#testing) for more background behind the change.
 
 [Jest](https://jestjs.io/) is a popular Node.js test runner for Node.js & web projects. Jest can be used with any frontend project as long as you configure how Jest should build your frontend files to run on Node.js. Many projects will try to manage this configuration for you, since it can get complicated.
 

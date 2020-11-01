@@ -10,7 +10,10 @@ Snowpack supports configuration files in multiple formats, sorted by priority or
 1. `package.json`: A namespaced config object (`"snowpack": {...}`).
 1. `snowpack.config.cjs`: (`module.exports = {...}`) for projects using `"type": "module"`.
 1. `snowpack.config.js`: (`module.exports = {...}`).
+1. `snowpack.config.ts`\*: (`export default {...}`).
 1. `snowpack.config.json`: (`{...}`).
+
+_(\* Note: `snowpack.config.ts` support is still experimental! It currently involves bundling your config file and all imported files into a temporary JS config file that can be loaded by Node.js. Your mileage may vary.)_
 
 ### CLI Flags
 
@@ -140,9 +143,6 @@ Options:
   - Treeshake your dependencies to optimize your installed files. Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
 - **`installOptions.installTypes`** | `boolean`
   - Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#typescript) to pick up these types.
-- **`installOptions.alias`** | `{[mapFromPackageName: string]: string}`
-  - Alias an installed package name. This applies to imports within your application and within your installed dependency graph.
-  - Example: `"alias": {"react": "preact/compat", "react-dom": "preact/compat"}`
 - **`installOptions.namedExports`** | `string[]`
   - _NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed._
   - Import CJS packages using named exports (Example: `import {useTable} from 'react-table'`).
@@ -151,11 +151,14 @@ Options:
   - _NOTE: This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser._
   - Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
   - Example: `"externalPackage": ["fs"]`
+- **`installOptions.packageLookupFields`** | `string[]`
+  - Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the defaults like "module", "main", etc. Useful for package ecosystems like Svelte where dependencies aren't shipped as traditional JavaScript.
+  - Example: `"packageLookupFields": ["svelte"]`
 - **`installOptions.rollup`** | `Object`
   - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use.
   - **`installOptions.rollup.plugins`** - Specify [Custom Rollup plugins](#installing-non-js-packages) if you are dealing with non-standard files.
   - **`installOptions.rollup.dedupe`** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation.
-  - **`installOptions.rollup.context`** - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment.
+  - **`installOptions.rollup.context`** - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning (`The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten`) is silenced by default, unless `--verbose` is used.
 
 #### `config.devOptions`
 

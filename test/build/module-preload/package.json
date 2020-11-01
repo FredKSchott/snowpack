@@ -1,9 +1,0 @@
-{
-  "private": true,
-  "version": "1.0.1",
-  "name": "@snowpack/test-module-preload",
-  "description": "Tests that @snowpack/plugin-optimize preloads modules correctly",
-  "scripts": {
-    "testbuild": "snowpack build"
-  }
-}

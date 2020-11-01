@@ -1,0 +1,6 @@
+{
+  "version": "1.0.0",
+  "name": "some-svelte-package",
+  "svelte": "good.js",
+  "module": "bad.js"
+}

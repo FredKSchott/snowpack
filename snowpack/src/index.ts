@@ -12,22 +12,22 @@ import {CLIFlags} from './types/snowpack';
 import {clearCache, readLockfile} from './util.js';
 export * from './types/snowpack';
 
-// Stable API:
+// Stable API (remember to include all in "./index.esm.js" wrapper)
 export {startDevServer} from './commands/dev';
 export {loadAndValidateConfig};
 export {getUrlForFile} from './build/file-urls';
 
-/** DEPRECATED: Promoted to startServer() **/
-export const unstable__startServer = () => {
-  throw new Error(`[snowpack 2.15] unstable__startServer() is now startServer()`);
+/** @deprecated: Promoted to startDevServer() **/
+export const unstable__startDevServer = () => {
+  throw new Error(`[snowpack 2.15] unstable__startServer() is now startDevServer()`);
 };
-/** DEPRECATED: Promoted to loadAndValidateConfig() **/
+/** @deprecated: Promoted to loadAndValidateConfig() **/
 export const unstable__loadAndValidateConfig = () => {
   throw new Error(
     `[snowpack 2.15] unstable__loadAndValidateConfig() is now loadAndValidateConfig()`,
   );
 };
-/** DEPRECATED: Promoted to getUrlForFile() **/
+/** @deprecated: Promoted to getUrlForFile() **/
 export const unstable__getUrlForFile = () => {
   throw new Error(`[snowpack 2.15] unstable__getUrlForFile() is now getUrlForFile()`);
 };

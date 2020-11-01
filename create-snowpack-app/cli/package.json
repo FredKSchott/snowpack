@@ -1,11 +1,11 @@
 {
   "name": "create-snowpack-app",
-  "version": "1.8.3",
+  "version": "1.8.5",
   "license": "MIT",
-  "homepage": "https://github.com/pikapkg/snowpack/tree/master/create-snowpack-app/cli#readme",
+  "homepage": "https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/cli#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pikapkg/snowpack.git",
+    "url": "https://github.com/snowpackjs/snowpack.git",
     "directory": "create-snowpack-app/cli"
   },
   "publishConfig": {
@@ -18,6 +18,6 @@
     "execa": "^4.0.0",
     "fs-extra": "^9.0.0",
     "kleur": "^4.1.1",
-    "yargs-parser": "^18.1.3"
+    "yargs-parser": "^20.0.0"
   }
 }

@@ -68,6 +68,7 @@ import {
   SnowpackBuildMap,
   LoadResult,
   SnowpackDevServer,
+  OnFileChangeCallback,
 } from '../types/snowpack';
 import {
   BUILD_CACHE,
@@ -292,7 +293,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
 
   const {cwd, config} = commandOptions;
   const {port: defaultPort, hostname, open} = config.devOptions;
-  const isHmr = typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true;
   const messageBus = new EventEmitter();
   const port = await getPort(defaultPort);
 
@@ -435,7 +435,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       runPlugin
         .run({
           isDev: true,
-          isHmrEnabled: isHmr,
+          // @deprecated: no longer accurate when using the JS API
+          isHmrEnabled: typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true,
           // @ts-ignore: internal API only
           log: (msg, data) => {
             if (msg === 'CONSOLE_INFO') {
@@ -483,11 +484,19 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     reqUrl: string,
     {
       isSSR: _isSSR,
+      isHMR: _isHMR,
       allowStale: _allowStale,
       encoding: _encoding,
-    }: {isSSR?: boolean; allowStale?: boolean; encoding?: BufferEncoding | null} = {},
+    }: {
+      isSSR?: boolean;
+      isHMR?: boolean;
+      allowStale?: boolean;
+      encoding?: BufferEncoding | null;
+    } = {},
   ): Promise<LoadResult> {
     const isSSR = _isSSR ?? false;
+    // Default to HMR on, but disable HMR if SSR mode is enabled.
+    const isHMR = _isHMR ?? ((config.devOptions.hmr ?? true) && !isSSR);
     const allowStale = _allowStale ?? false;
     const encoding = _encoding ?? null;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
@@ -652,7 +661,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           plugins: config.plugins,
           isDev: true,
           isSSR,
-          isHmrEnabled: isHmr,
+          isHmrEnabled: isHMR,
           sourceMaps: config.buildOptions.sourceMaps,
         });
         inMemoryBuildCache.set(
@@ -680,11 +689,9 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     async function wrapResponse(
       code: string | Buffer,
       {
-        hasCssResource,
         sourceMap,
         sourceMappingURL,
       }: {
-        hasCssResource: boolean;
         sourceMap?: string;
         sourceMappingURL: string;
       },
@@ -693,7 +700,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       if (isRoute) {
         code = wrapHtmlResponse({
           code: code as string,
-          hmr: isHmr,
+          hmr: isHMR,
           hmrPort: hmrEngine.port !== port ? hmrEngine.port : undefined,
           isDev: true,
           config,
@@ -714,14 +721,10 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         }
         case '.js': {
           if (isProxyModule) {
-            code = await wrapImportProxy({url: reqPath, code, hmr: isHmr, config});
+            code = await wrapImportProxy({url: reqPath, code, hmr: isHMR, config});
           } else {
-            code = wrapImportMeta({code: code as string, env: true, hmr: isHmr, config});
+            code = wrapImportMeta({code: code as string, env: true, hmr: isHMR, config});
           }
-
-          if (hasCssResource)
-            code =
-              `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
 
           // source mapping
           if (sourceMap) code = jsSourceMappingURL(code, sourceMappingURL);
@@ -785,7 +788,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           }
 
           // When dealing with an absolute import path, we need to honor the baseUrl
-          if (isAbsoluteUrlPath) {
+          // proxy modules may attach code to the root HTML (like style) so don't resolve
+          if (isAbsoluteUrlPath && !isProxyModule) {
             resolvedImportUrl = relativeURL(path.posix.dirname(reqPath), resolvedImportUrl);
           }
           // Make sure that a relative URL always starts with "./"
@@ -879,21 +883,17 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     ): Promise<string | Buffer | null> {
       // Verify that the requested file exists in the build output map.
       for (const ext of requestedFileExt) {
-        if (!output[ext]) {
-          continue;
-        }
+        if (!output[ext]) continue;
 
         const {code, map} = output[ext];
         let finalResponse = code;
 
-        // Wrap the response.
-        const hasAttachedCss = ext.endsWith('.js') && !!output['.css'];
-        finalResponse = await wrapResponse(finalResponse, {
-          hasCssResource: hasAttachedCss,
-          sourceMap: map,
-          sourceMappingURL: path.basename(requestedFile.base) + '.map',
-        });
-
+        // Handle attached CSS.
+        if (ext.endsWith('.js') && output['.css']) {
+          finalResponse =
+            `import './${path.basename(reqPath).replace(/\.js$/, '.css.proxy.js')}';\n` +
+            finalResponse;
+        }
         // Resolve imports.
         if (
           ext.endsWith('.js') ||
@@ -906,6 +906,11 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
             finalResponse as string,
           );
         }
+        // Wrap the response.
+        finalResponse = await wrapResponse(finalResponse, {
+          sourceMap: map,
+          sourceMappingURL: path.basename(requestedFile.base) + '.map',
+        });
         // Return the finalized response.
         return finalResponse;
       }
@@ -1150,15 +1155,15 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     res: http.ServerResponse,
     {handleError}: {handleError?: boolean} = {},
   ) {
-    const reqPath = req.url!;
+    const reqUrl = req.url!;
     // Check if a configured proxy matches the request.
-    const requestProxy = getRequestProxy(reqPath);
+    const requestProxy = getRequestProxy(reqUrl);
     if (requestProxy) {
       return requestProxy(req, res);
     }
     // Check if we can send back an optimized 304 response
     const quickETagCheck = req.headers['if-none-match'];
-    if (quickETagCheck && quickETagCheck === knownETags.get(reqPath)) {
+    if (quickETagCheck && quickETagCheck === knownETags.get(reqUrl)) {
       logger.debug(`optimized etag! sending 304...`);
       res.writeHead(304, {'Access-Control-Allow-Origin': '*'});
       res.end();
@@ -1166,13 +1171,15 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     }
     // Otherwise, load the file and respond if successful.
     try {
-      const result = await loadUrl(reqPath, {allowStale: true, encoding: null});
+      const result = await loadUrl(reqUrl, {allowStale: true, encoding: null});
       sendResponseFile(req, res, result);
       if (result.checkStale) {
         await result.checkStale();
       }
       if (result.contents) {
-        knownETags.set(reqPath, etag(result.contents, {weak: true}));
+        const tag = etag(result.contents, {weak: true});
+        const reqPath = decodeURI(url.parse(reqUrl).pathname!);
+        knownETags.set(reqPath, tag);
       }
       return;
     } catch (err) {
@@ -1322,18 +1329,24 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     startTimeMs: Math.round(performance.now() - serverStart),
   });
 
-  // Open the user's browser
+  // Open the user's browser (ignore if failed)
   if (open !== 'none') {
-    await openInBrowser(protocol, hostname, port, open);
+    await openInBrowser(protocol, hostname, port, open).catch((err) => {
+      logger.debug(`Browser open error: ${err}`);
+    });
   }
 
   // Start watching the file system.
   // Defer "chokidar" loading to here, to reduce impact on overall startup time
   const chokidar = await import('chokidar');
 
+  // Allow the user to hook into this callback, if they like (noop by default)
+  let onFileChangeCallback: OnFileChangeCallback = () => {};
+
   // Watch src files
   async function onWatchEvent(fileLoc: string) {
     logger.info(colors.cyan('File changed...'));
+    onFileChangeCallback({filePath: fileLoc});
     const updatedUrl = getUrlForFile(fileLoc, config);
     if (updatedUrl) {
       handleHmrUpdate(fileLoc, updatedUrl);
@@ -1403,6 +1416,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     handleRequest,
     sendResponseFile,
     sendResponseError,
+    onFileChange: (callback) => (onFileChangeCallback = callback),
     async shutdown() {
       await watcher.close();
       server.close();
