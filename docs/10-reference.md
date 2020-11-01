@@ -151,6 +151,9 @@ Options:
   - _NOTE: This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser._
   - Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
   - Example: `"externalPackage": ["fs"]`
+- **`installOptions.packageLookupFields`** | `string[]`
+  - Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the defaults like "module", "main", etc. Useful for package ecosystems like Svelte where dependencies aren't shipped as traditional JavaScript.
+  - Example: `"packageLookupFields": ["svelte"]`
 - **`installOptions.rollup`** | `Object`
   - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use.
   - **`installOptions.rollup.plugins`** - Specify [Custom Rollup plugins](#installing-non-js-packages) if you are dealing with non-standard files.

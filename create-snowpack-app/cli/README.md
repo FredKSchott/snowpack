@@ -32,4 +32,5 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 - [snowpack-vue-capacitor-2-demo](https://github.com/brodybits/snowpack-vue-capacitor-2-demo) Demo of Snowpack with Vue and [Capacitor mobile app framework](https://capacitorjs.com/) version 2, originally generated from `@snowpack/vue-template` template, see [discussion #905](https://github.com/snowpackjs/snowpack/discussions/905)
 - [snowpack-react-ssr](https://github.com/matthoffner/snowpack-react-ssr) (React + Server Side Rendering)
 - [snowpack-app-template-preact-hmr-tailwind](https://github.com/Mozart409/snowpack-app-template-preact-hmr-tailwind) (Snowpack + Preact + HMR + Tailwindcss)
+- [snowpack-mdx-chakra](https://github.com/molebox/snowpack-mdx)(An opinionated template setup with MDX, Chakra-ui for styling, theme and components, and React Router v6 for routing.)
 - PRs that add a link to this list are welcome!

@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '12.x'
       - name: yarn install
-        run: yarn
+        run: yarn --frozen-lockfile
         env:
           CI: true
       - name: yarn format

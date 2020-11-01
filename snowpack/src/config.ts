@@ -2,13 +2,12 @@ import buildScriptPlugin from '@snowpack/plugin-build-script';
 import runScriptPlugin from '@snowpack/plugin-run-script';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
-import esbuild from 'esbuild';
+import * as esbuild from 'esbuild';
 import http from 'http';
 import {validate, ValidatorResult} from 'jsonschema';
 import os from 'os';
 import path from 'path';
 import yargs from 'yargs-parser';
-
 import {defaultFileExtensionMapping} from './build/file-urls';
 import {logger} from './logger';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
@@ -42,7 +41,9 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   alias: {},
   scripts: {},
   exclude: [],
-  installOptions: {},
+  installOptions: {
+    packageLookupFields: [],
+  },
   devOptions: {
     secure: false,
     hostname: 'localhost',
@@ -594,7 +595,9 @@ function normalizeAlias(config: SnowpackConfig, cwd: string, createMountAlias: b
       replacement.startsWith('/')
     ) {
       delete cleanAlias[target];
-      cleanAlias[removeTrailingSlash(target)] = addTrailingSlash(path.resolve(cwd, replacement));
+      cleanAlias[target] = target.endsWith('/')
+        ? addTrailingSlash(path.resolve(cwd, replacement))
+        : removeTrailingSlash(path.resolve(cwd, replacement));
     }
   }
   return cleanAlias;

@@ -8,19 +8,19 @@ exports[`@snowpack/plugin-optimize minimal - no options: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize minimal - no options: fs.writeFileSync 1`] = `
 FILE: stubs/minimal/do-not-preload-1.js
-console.error("Error: this file in a comment shouldn’t be preloaded");
+console.error("Error: this file in a comment shouldn\\u2019t be preloaded");
 
 
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/do-not-preload-2.js
-console.error("Error: this entry file shouldn’t be preloaded, either (it’s already in the entry)");
+console.error("Error: this entry file shouldn\\u2019t be preloaded, either (it\\u2019s already in the entry)");
 
 
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/do-not-preload-3.js
-console.error("Error: this lazy-loaded file should not be preloaded (then it’s not lazy-loaded)");
+console.error("Error: this lazy-loaded file should not be preloaded (then it\\u2019s not lazy-loaded)");
 
 
 --------------------------------------------------------------------------------
@@ -50,19 +50,19 @@ exports[`@snowpack/plugin-optimize no HTML minification, with preloadModules: co
 
 exports[`@snowpack/plugin-optimize no HTML minification, with preloadModules: fs.writeFileSync 1`] = `
 FILE: stubs/minimal/do-not-preload-1.js
-console.error("Error: this file in a comment shouldn’t be preloaded");
+console.error("Error: this file in a comment shouldn\\u2019t be preloaded");
 
 
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/do-not-preload-2.js
-console.error("Error: this entry file shouldn’t be preloaded, either (it’s already in the entry)");
+console.error("Error: this entry file shouldn\\u2019t be preloaded, either (it\\u2019s already in the entry)");
 
 
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/do-not-preload-3.js
-console.error("Error: this lazy-loaded file should not be preloaded (then it’s not lazy-loaded)");
+console.error("Error: this lazy-loaded file should not be preloaded (then it\\u2019s not lazy-loaded)");
 
 
 --------------------------------------------------------------------------------

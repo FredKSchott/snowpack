@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/plugin-optimize",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "main": "plugin.js",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-optimize#readme",
@@ -15,7 +15,7 @@
   "dependencies": {
     "csso": "^4.0.3",
     "es-module-lexer": "^0.3.24",
-    "esbuild": "^0.7.0",
+    "esbuild": "^0.8.0",
     "glob": "^7.1.6",
     "html-minifier": "^4.0.0",
     "kleur": "^4.1.1",

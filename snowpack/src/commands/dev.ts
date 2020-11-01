@@ -68,6 +68,7 @@ import {
   SnowpackBuildMap,
   LoadResult,
   SnowpackDevServer,
+  OnFileChangeCallback,
 } from '../types/snowpack';
 import {
   BUILD_CACHE,
@@ -685,11 +686,9 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     async function wrapResponse(
       code: string | Buffer,
       {
-        hasCssResource,
         sourceMap,
         sourceMappingURL,
       }: {
-        hasCssResource: boolean;
         sourceMap?: string;
         sourceMappingURL: string;
       },
@@ -723,10 +722,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           } else {
             code = wrapImportMeta({code: code as string, env: true, hmr: isHMR, config});
           }
-
-          if (hasCssResource)
-            code =
-              `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
 
           // source mapping
           if (sourceMap) code = jsSourceMappingURL(code, sourceMappingURL);
@@ -889,6 +884,12 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       }
       const {code, map} = output[requestedFileExt];
       let finalResponse = code;
+      // Handle attached CSS.
+      if (requestedFileExt === '.js' && output['.css']) {
+        finalResponse =
+          `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` +
+          finalResponse;
+      }
       // Resolve imports.
       if (
         requestedFileExt === '.js' ||
@@ -902,9 +903,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         );
       }
       // Wrap the response.
-      const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
       finalResponse = await wrapResponse(finalResponse, {
-        hasCssResource: hasAttachedCss,
         sourceMap: map,
         sourceMappingURL: path.basename(requestedFile.base) + '.map',
       });
@@ -1335,9 +1334,13 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   // Defer "chokidar" loading to here, to reduce impact on overall startup time
   const chokidar = await import('chokidar');
 
+  // Allow the user to hook into this callback, if they like (noop by default)
+  let onFileChangeCallback: OnFileChangeCallback = () => {};
+
   // Watch src files
   async function onWatchEvent(fileLoc: string) {
     logger.info(colors.cyan('File changed...'));
+    onFileChangeCallback({filePath: fileLoc});
     const updatedUrl = getUrlForFile(fileLoc, config);
     if (updatedUrl) {
       handleHmrUpdate(fileLoc, updatedUrl);
@@ -1407,6 +1410,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     handleRequest,
     sendResponseFile,
     sendResponseError,
+    onFileChange: (callback) => (onFileChangeCallback = callback),
     async shutdown() {
       await watcher.close();
       server.close();
