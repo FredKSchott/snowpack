@@ -134,10 +134,10 @@ const configSchema = {
         installTypes: {type: 'boolean'},
         polyfillNode: {type: 'boolean'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
-        alias: {
-          type: 'object',
-          additionalProperties: {type: 'string'},
-        },
+        // alias: {
+        //   type: 'object',
+        //   additionalProperties: {type: 'string'},
+        // },
         env: {
           type: 'object',
           additionalProperties: {
