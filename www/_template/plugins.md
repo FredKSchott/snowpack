@@ -14,6 +14,26 @@ Snowpack plugins can be added to:
 
 👉 **[Check out our advanced guide](/plugins) and learn how to create your own plugin.**
 
+## Official Plugins
+
+- [@snowpack/plugin-babel](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-babel)
+- [@snowpack/plugin-dotenv](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-dotenv)
+- [@snowpack/plugin-postcss](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-postcss)
+- [@snowpack/plugin-react-refresh](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-react-refresh)
+- [@snowpack/plugin-svelte](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-svelte)
+- [@snowpack/plugin-vue](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-vue)
+- [@snowpack/plugin-webpack](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-webpack)
+
+👉 **[Check out our full list](/plugins) of official plugins.**
+
+## Community Plugins
+
+- [snowpack-plugin-mdx](https://www.npmjs.com/package/snowpack-plugin-mdx)
+- [snowpack-plugin-stylus](https://www.npmjs.com/package/snowpack-plugin-stylus)
+- [snowpack-plugin-import-map](https://github.com/zhoukekestar/snowpack-plugin-import-map)
+
+👉 **[Find your community plugin on npm.](https://www.npmjs.com/search?q=keywords:snowpack%20plugin)**
+
 ## Connect a Plugin
 
 To make a plugin available, you have to put it in your project `devDependencies` list (`package.json`) which will install it locally (in your project) and make it available to snowpack.
@@ -81,22 +101,49 @@ This plugin allows you to connect any CLI into your build process. Just give it 
 
 This plugin allows you to run any CLI command as a part of your dev and build workflow. This plugin doesn't affect your build output, but it is useful for connecting developer tooling directly into Snowpack. Use this to add meaningful feedback to your dev console as you type, like TypeScript type-checking and ESLint lint errors.
 
-## Official Plugins
+## @snowpack/plugin-sass
 
-- [@snowpack/plugin-babel](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-babel)
-- [@snowpack/plugin-dotenv](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-dotenv)
-- [@snowpack/plugin-postcss](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-postcss)
-- [@snowpack/plugin-react-refresh](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-react-refresh)
-- [@snowpack/plugin-svelte](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-svelte)
-- [@snowpack/plugin-vue](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-vue)
-- [@snowpack/plugin-webpack](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-webpack)
+```js
+// snowpack.config.json
+"plugins": ["@snowpack/plugin-sass"]
+```
 
-👉 **[Check out our full list](/plugins) of official plugins.**
+[Sass](https://www.sass-lang.com/) is a stylesheet language that’s compiled to CSS. It allows you to use variables, nested rules, mixins, functions, and more, all with a fully CSS-compatible syntax. Sass helps keep large stylesheets well-organized and makes it easy to share design within and across projects.
 
-## Community Plugins
+To use Sass + PostCSS, check out [this guide](https://zellwk.com/blog/eleventy-snowpack-sass-postcss/).
 
-- [snowpack-plugin-mdx](https://www.npmjs.com/package/snowpack-plugin-mdx)
-- [snowpack-plugin-stylus](https://www.npmjs.com/package/snowpack-plugin-stylus)
-- [snowpack-plugin-import-map](https://github.com/zhoukekestar/snowpack-plugin-import-map)
+## @snowpack/plugin-typescript
 
-👉 **[Find your community plugin on npm.](https://www.npmjs.com/search?q=keywords:snowpack%20plugin)**
+Snowpack includes built-in support to build all TypeScript source files (`.ts` & `.tsx`) in your application.
+
+For automatic TypeScript type checking during development, add the official [@snowpack/plugin-typescript](https://www.npmjs.com/package/@snowpack/plugin-typescript) plugin to your Snowpack config file. This plugin adds automatic `tsc` type checking results right in the Snowpack dev console.
+
+```js
+// snowpack.config.json
+"plugins": ["@snowpack/plugin-typescript"]
+```
+
+## @snowpack/plugin-webpack
+
+```js
+// snowpack.config.json
+{
+  // Optimize your production builds with Webpack
+  "plugins": [["@snowpack/plugin-webpack", {/* ... */}]]
+}
+```
+
+Snowpack ships an official [webpack plugin](https://www.npmjs.com/package/@snowpack/plugin-webpack) for optimizing your build. Connect the `"@snowpack/plugin-webpack"` plugin into your Snowpack configuration file and then run `snowpack build` to see your optimized, bundled build.
+
+See ["Optimized Builds"](/#optimized-builds) for more information about connecting bundled (or unbundled) optimization plugins for your production builds.
+
+## @snowpack/plugin-babel
+
+Snowpack already comes with built-in support for building JavaScript, TypeScript, and JSX. However, If you would like to run your build through Babel instead, you can replace our default file builder with the official Snowpack Babel plugin.
+
+The plugin will automatically read plugins & presets from your local project `babel.config.*` config file, if one exists.
+
+```js
+// snowpack.config.json
+"plugins": ["@snowpack/plugin-babel"],
+```
