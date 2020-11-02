@@ -6,7 +6,7 @@ title: Get Started
 ## Quick start
 
 ```bash
-npx create-snowpack-app --template @snowpack/app-template-blank
+npx create-snowpack-app new-dir --template @snowpack/app-template-blank
 cd new-dir
 npm start
 ```
