@@ -350,3 +350,9 @@ module.exports = {
 ```
 
 [See an example setup](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-react) in on of our Create Snowpack App starter templates.
+
+## JSX
+
+Snowpack has built-in support to handle `.jsx` & `.tsx` source files in your application.
+
+**Note: Snowpack's default build does not support JSX in `.js`/`.ts` files.** If you can't use the `.jsx`/`.tsx` file extension, you can use [Babel](#babel) to build your application instead.
