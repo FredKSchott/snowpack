@@ -8,6 +8,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserJSPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const jsdom = require('jsdom');
 const {JSDOM} = jsdom;
 const cwd = process.cwd();
@@ -15,6 +16,23 @@ const minify = require('html-minifier').minify;
 
 function insertBefore(newNode, existingNode) {
   existingNode.parentNode.insertBefore(newNode, existingNode);
+}
+
+function mountedRoots(mounts) {
+  const rootsAsUrls = Object.entries(mounts).map(([src, {url, static: isStatic}]) => ({
+    isStatic,
+    // Anything mounted at the root is "spread" into the output directory, so
+    // the individual files must be tracked rather than the destination
+    // directory as a whole.
+    output: url === '/' ? fs.readdirSync(src, 'utf-8').map((fileName) => `/${fileName}`) : [url],
+  }));
+
+  const staticRoots = rootsAsUrls.filter(({isStatic}) => isStatic).flatMap(({output}) => output);
+  const nonStaticRoots = rootsAsUrls
+    .filter(({isStatic}) => !isStatic)
+    .flatMap(({output}) => output);
+
+  return {staticRoots, nonStaticRoots};
 }
 
 function parseHTMLFiles({buildDirectory}) {
@@ -312,6 +330,17 @@ module.exports = function plugin(config, args = {}) {
         //Extract a css file from imported css files
         new MiniCssExtractPlugin({
           filename: cssOutputPattern,
+        }),
+        new CleanWebpackPlugin({
+          cleanOnceBeforeBuildPatterns: [
+            '**/*',
+            // Static-mounted files should be part of the output, but Webpack
+            // has no knowledge of them since they aren't processed at all, so
+            // they must be manually ignored.
+            ...mountedRoots(config.mount || {}).staticRoots.map(
+              (url) => `!${url.replace(/^\//, '')}/**`,
+            ),
+          ],
         }),
       ];
       if (manifest) {

@@ -15,6 +15,7 @@
   "dependencies": {
     "@babel/core": "^7.0.0",
     "babel-loader": "^8.1.0",
+    "clean-webpack-plugin": "^3.0.0",
     "core-js": "^3.5.0",
     "css-loader": "^4.3.0",
     "file-loader": "^6.0.0",

@@ -111,3 +111,23 @@ The default options are:
   removeStyleLinkTypeAttributes: true,
 }
 ```
+
+#### Including static assets
+
+This plugin will remove any files from the output directory that aren't
+`import`ed anywhere in the source files, unless they are mounted via a
+static mount. If you need to include files in your output without `import`ing
+them (eg. for reference via manually-built URLs), then they must be mounted
+in Snowpack under a static mount:
+
+```js
+// snowpack.config.js
+module.exports = {
+  mount: {
+    myStaticAssets: {
+      url: '/my-static-assets',
+      static: true,
+    },
+  },
+};
+```
