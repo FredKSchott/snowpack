@@ -31,12 +31,12 @@ import {
   createInstallTarget,
   findMatchingAliasEntry,
   getWebDependencyName,
-  isPackageAliasEntry,
   MISSING_PLUGIN_SUGGESTIONS,
   parsePackageImportSpecifier,
   resolveDependencyManifest,
   sanitizePackageName,
   writeLockfile,
+  removeTrailingSlash,
 } from './util';
 
 export * from './types';
@@ -363,12 +363,10 @@ ${colors.dim(
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
       rollupPluginAlias({
-        entries: Object.entries(installAlias)
-          .filter(([, val]) => isPackageAliasEntry(val))
-          .map(([key, val]) => ({
-            find: key,
-            replacement: val,
-          })),
+        entries: Object.entries(installAlias).map(([key, val]) => ({
+          find: key,
+          replacement: removeTrailingSlash(val),
+        })),
       }),
       rollupPluginCatchFetch(),
       rollupPluginNodeResolve({
