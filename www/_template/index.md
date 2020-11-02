@@ -67,15 +67,13 @@ usersList:
     url: https://github.com/bs-community
 ---
 
-## Overview
-
-### What is Snowpack?
+## What is Snowpack?
 
 Snowpack is a modern frontend build tool for faster web development. It replaces heavier, more complex bundlers like webpack or Parcel in your development workflow.
 
 Snowpack leverages JavaScript's native module system (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">known as ESM</a>) to create a first-of-its-kind build system that never builds the same file twice. Snowpack pushes changes instantly to the browser, saving you hours of development time traditionally spent waiting around for your bundler.
 
-### Key Features
+## Key Features
 
 - Develop faster, with a dev server that starts up in **50ms or less.**
 - See changes reflected [instantly in the browser.](/#hot-module-replacement)
@@ -83,7 +81,7 @@ Snowpack leverages JavaScript's native module system (<a href="https://developer
 - Enjoy out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](/#features)
 - Connect your favorite tools with [third-party plugins.](/#plugins)
 
-### Who's Using Snowpack?
+## Who's Using Snowpack?
 
 <div class="company-logos">
 {% for user in usersList %}
@@ -99,7 +97,7 @@ Snowpack leverages JavaScript's native module system (<a href="https://developer
 </a>
 </div>
 
-### How Snowpack Works
+## How Snowpack Works
 
 **Snowpack is a modern, lightweight build tool for faster web development.** Traditional JavaScript build tools like webpack and Parcel need to rebuild & rebundle entire chunks of your application every time you save a single file. This rebundling step introduces lag between hitting save on your changes and seeing them reflected in the browser.
 
@@ -109,7 +107,7 @@ Snowpack's **unbundled development** still supports the same **bundled builds** 
 
 **Snowpack gets you the best of both worlds:** fast, unbundled development with optimized performance in your bundled production builds.
 
-### Library Support
+## Library Support
 
 <div class="grid-list">
 
@@ -126,7 +124,7 @@ Snowpack's **unbundled development** still supports the same **bundled builds** 
 
 </div>
 
-### Tooling Support
+## Tooling Support
 
 <div class="grid-list">
 
@@ -141,13 +139,13 @@ Snowpack's **unbundled development** still supports the same **bundled builds** 
 
 </div>
 
-### Browser Support
+## Browser Support
 
 **Snowpack builds your site for both modern and legacy browsers. Even IE11 is supported.** You can control and customize this behavior with the ["browserlist" package.json property](https://css-tricks.com/browserlist-good-idea/).
 
 The only requirement is that _during development_ you use a [modern browser](http://caniuse.com/#feat=es6-module). Any recent release of Firefox, Chrome, or Edge will do. This is required to support the modern, bundle-free ESM imports that load your application in the browser.
 
-### Community
+## Community
 
 <a href="https://discord.gg/zxSwN8Z"><img alt="Join us on Discord!" src="https://img.shields.io/discord/712696926406967308.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2" style="height: 24px; border: none;"/></a>
 
