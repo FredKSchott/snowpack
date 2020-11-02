@@ -1,3 +1,7 @@
+---
+layout: layouts/main.njk
+title: Configuration
+---
 ## API Reference
 
 ### Config Files

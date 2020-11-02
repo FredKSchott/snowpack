@@ -3,7 +3,6 @@
 .idea
 .vercel
 www/_site
-www/_template/index.md
 www/eleventy
 lerna-debug.log
 node_modules

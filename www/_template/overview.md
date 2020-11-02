@@ -1,6 +1,9 @@
-## Main Concepts
+---
+layout: layouts/main.njk
+title: Main Concepts
+---
 
-### Unbundled Development
+## Unbundled Development
 
 ![webpack vs. snowpack diagram](/img/snowpack-unbundled-example-3.png)
 
@@ -18,7 +21,7 @@ Unbundled development has several advantages over the traditional bundled develo
 
 That last point is key: **Every file is built individually and cached indefinitely.** Your dev environment will never build a file more than once and your browser will never download a file twice (until it changes). This is the real power of unbundled development.
 
-### Using NPM Dependencies
+## Using NPM Dependencies
 
 NPM packages are mainly published using a module syntax (Common.js, or CJS) that can't run on the web without some build processing. Even if you write your application using browser-native ESM `import` and `export` statements that would all run directly in the browser, trying to import any one npm package will force you back into bundled development.
 
@@ -47,7 +50,7 @@ After Snowpack builds your dependencies, any package can be imported and run dir
 </body>
 ```
 
-### Snowpack's Dev Server
+## Snowpack's Dev Server
 
 ![dev command output example](/img/snowpack-dev-startup-2.png)
 
@@ -55,13 +58,13 @@ After Snowpack builds your dependencies, any package can be imported and run dir
 
 Snowpack supports JSX & TypeScript source code by default. You can extend your build even further with [custom plugins](#plugins) that connect Snowpack with your favorite build tools: TypeScript, Babel, Vue, Svelte, PostCSS, Sass... go wild!
 
-### Snowpack's Build Pipeline
+## Snowpack's Build Pipeline
 
 ![build output example](/img/snowpack-build-example.png)
 
 `snowpack build` - When you're ready to deploy your application, run the build command to generate a static production build of your site. Building is tightly integrated with your dev setup so that you are guaranteed to get a near-exact copy of the same code that you saw during development.
 
-### Bundle for Production
+## Bundle for Production
 
 **You should be able to use a bundler because you want to, and not because you need to.** That was the original concept that Snowpack was designed to address. Snowpack treats bundling as an optional production optimization, which means you're free to skip over the extra complexity of bundling until you need it.
 

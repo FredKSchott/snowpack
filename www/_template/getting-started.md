@@ -1,6 +1,9 @@
-## Get Started
+---
+layout: layouts/main.njk
+title: Get Started
+---
 
-### Install Snowpack
+## Install Snowpack
 
 ```bash
 # using npm
@@ -12,7 +15,7 @@ yarn add --dev snowpack
 
 Snowpack can also be installed globally via `npm install -g snowpack`. But, we recommend installing locally in every project via `--save-dev`/`--dev`. You can run the Snowpack CLI locally via package.json "scripts", npm's `npx snowpack`, or via `yarn snowpack`.
 
-### Quick Start
+## Quick Start
 
 Here's a short list of what you can do with Snowpack:
 
@@ -31,7 +34,7 @@ snowpack build --watch
 snowpack --help
 ```
 
-### Create Snowpack App (CSA)
+## Create Snowpack App (CSA)
 
 The easiest way to get started with Snowpack is via [Create Snowpack App (CSA)](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app). CSA automatically initializes a starter application for you with a pre-configured, Snowpack-powered dev environment.
 
@@ -41,7 +44,7 @@ If you've ever used Create React App, this is a lot like that!
 npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 ```
 
-### Official App Templates
+## Official App Templates
 
 - [@snowpack/app-template-blank](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-blank)
 - [@snowpack/app-template-blank-typescript](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-blank-typescript)
@@ -65,7 +68,7 @@ While CSA is a great all-in-one starter dev environment, you may prefer to learn
 **Coming Soon!**
 -->
 
-### Migrating an Existing App
+## Migrating an Existing App
 
 Migrating an existing app to Snowpack is meant to be painless, since Snowpack supports most features and build tools that you're already using today (Babel, PostCSS, etc). If this is your first time using Snowpack you should start with a Create Snowpack App (CSA) template, copy over your "src" & "public" files from your old app, and then run `snowpack dev`, troubleshooting any remaining issues.
 

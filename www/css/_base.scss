@@ -1,6 +1,7 @@
 // typography
-$body: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans,
-  sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+$body: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue,
+  Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+  Segoe UI Symbol, Noto Color Emoji;
 $heading: 'Overpass', $body;
 
 // breakpoints
@@ -127,6 +128,10 @@ img.company-logo {
     overflow: auto;
     padding-top: 0;
   }
+}
+
+.grid-body .markdown-body {
+  padding-top: 52px;
 }
 
 .grid-body-header {
@@ -530,7 +535,7 @@ img.company-logo {
   background: #258ad622;
 }
 
-.toc {
+.menu {
   background: #2e5e82;
   min-height: 100%;
   padding: 1rem;
