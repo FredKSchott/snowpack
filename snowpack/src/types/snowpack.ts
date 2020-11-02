@@ -203,7 +203,7 @@ export interface SnowpackConfig {
     hmrPort: number | undefined;
     hmrErrorOverlay: boolean;
   };
-  installOptions: InstallOptions;
+  installOptions: Omit<InstallOptions, 'alias'>;
   buildOptions: {
     out: string;
     baseUrl: string;
