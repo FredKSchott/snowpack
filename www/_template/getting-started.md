@@ -11,7 +11,7 @@ cd new-dir
 npm start
 ```
 
-This uses [our create-snowpack-app](/create-snowpack-app) template to spin up a working Snowpack app. For a list of other templates available check out the [create-snowpack-app](/create-snowpack-app) section.
+This uses [our create-snowpack-app](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/cli) template to spin up a working Snowpack app. For a list of other templates available check out the [create-snowpack-app](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/cli) docs.
 
 ## Basic commands
 
