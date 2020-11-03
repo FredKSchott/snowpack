@@ -6,10 +6,19 @@ jest.mock('svelte/compiler', () => ({compile: mockCompiler, preprocess: mockPrep
 
 const plugin = require('../plugin');
 
-const mockConfig = {buildOptions: {sourceMaps: false}, installOptions: {rollup: {plugins: []}}};
+let mockConfig;
 const mockComponent = path.join(__dirname, 'Button.svelte');
 
 describe('@snowpack/plugin-svelte (mocked)', () => {
+  beforeEach(()=>{
+    mockConfig = {
+      buildOptions: {sourceMaps: false},
+      installOptions: {
+        rollup: {plugins: []},
+        packageLookupFields: [],
+      },
+    };
+  })
   afterEach(() => {
     mockCompiler.mockClear();
     mockPreprocessor.mockClear();
@@ -127,5 +136,12 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
         ".svx",
       ]
     `);
+  });
+  it('supports importing svelte components', async () => {
+    plugin(mockConfig,{});
+    expect(mockConfig.installOptions.packageLookupFields).toEqual(['svelte']);
+    mockConfig.installOptions.packageLookupFields = ['module'];
+    plugin(mockConfig,{});
+    expect(mockConfig.installOptions.packageLookupFields).toEqual(['module', 'svelte']);
   });
 });
