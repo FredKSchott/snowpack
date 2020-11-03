@@ -7384,7 +7384,8 @@ exports[`create-snowpack-app app-template-minimal > build: package.json 1`] = `
 `;
 
 exports[`create-snowpack-app app-template-minimal > build: snowpack.config.js 1`] = `
-"module.exports = {
+"/** @type {import(\\"snowpack\\").SnowpackUserConfig } */
+module.exports = {
   mount: {
   },
   plugins: [
