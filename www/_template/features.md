@@ -3,6 +3,23 @@ layout: layouts/main.njk
 title: Features
 ---
 
+Here's a short list of what you can do with Snowpack:
+
+```bash
+# Start your dev server, load your site locally
+snowpack dev
+
+# Build your site for production
+snowpack build
+
+# Build your site, but watch the file system and rebuild when files change.
+# Great for local development with your own dev server (ex: Rails)
+snowpack build --watch
+
+# See more helpful info
+snowpack --help
+```
+
 ## ES Modules (ESM)
 
 Snowpack was designed to support JavaScript's native ES Module (ESM) syntax. ESM lets you define explicit imports & exports that browsers and build tools can better understand and optimize for. If you're familiar with the `import` and `export` keywords in JavaScript, then you already know ESM!
