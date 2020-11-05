@@ -1196,10 +1196,10 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         responseHandler as Http2RequestListener,
       );
     } else if (credentials) {
-      return https.createServer(credentials, handleRequest);
+      return https.createServer(credentials, responseHandler as http.RequestListener);
     }
 
-    return http.createServer(handleRequest);
+    return http.createServer(responseHandler as http.RequestListener);
   };
 
   const server = createServer(async (req, res) => {
