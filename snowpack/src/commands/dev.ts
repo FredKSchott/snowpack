@@ -640,8 +640,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       throw new NotFoundError(attemptedFileLoads);
     }
 
-    const {fileLoc, isStatic, isResolve} = foundFile;
-
     /**
      * Given a file, build it. Building a file sends it through our internal
      * file builder pipeline, and outputs a build map representing the final
@@ -911,6 +909,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       return finalResponse;
     }
 
+    const {fileLoc, isStatic, isResolve} = foundFile;
+
     // 1. Check the hot build cache. If it's already found, then just serve it.
     let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(
       getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
@@ -946,7 +946,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
 
     // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
     const fileContents = await readFile(fileLoc);
-
     // 3. Send static files directly, since they were already build & resolved at install time.
     if (!isProxyModule && isStatic) {
       // If no resolution needed, just send the file directly.
@@ -1157,7 +1156,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     }
     // Check if we can send back an optimized 304 response
     const quickETagCheck = req.headers['if-none-match'];
-    if (quickETagCheck && quickETagCheck === knownETags.get(reqUrl)) {
+    const quickETagCheckUrl = reqUrl.replace(/\/$/, '/index.html');
+    if (quickETagCheck && quickETagCheck === knownETags.get(quickETagCheckUrl)) {
       logger.debug(`optimized etag! sending 304...`);
       res.writeHead(304, {'Access-Control-Allow-Origin': '*'});
       res.end();
