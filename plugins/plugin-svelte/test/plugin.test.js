@@ -10,7 +10,7 @@ let mockConfig;
 const mockComponent = path.join(__dirname, 'Button.svelte');
 
 describe('@snowpack/plugin-svelte (mocked)', () => {
-  beforeEach(()=>{
+  beforeEach(() => {
     mockConfig = {
       buildOptions: {sourceMaps: false},
       installOptions: {
@@ -18,7 +18,7 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
         packageLookupFields: [],
       },
     };
-  })
+  });
   afterEach(() => {
     mockCompiler.mockClear();
     mockPreprocessor.mockClear();
@@ -138,10 +138,10 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
     `);
   });
   it('supports importing svelte components', async () => {
-    plugin(mockConfig,{});
+    plugin(mockConfig, {});
     expect(mockConfig.installOptions.packageLookupFields).toEqual(['svelte']);
     mockConfig.installOptions.packageLookupFields = ['module'];
-    plugin(mockConfig,{});
+    plugin(mockConfig, {});
     expect(mockConfig.installOptions.packageLookupFields).toEqual(['module', 'svelte']);
   });
 });
