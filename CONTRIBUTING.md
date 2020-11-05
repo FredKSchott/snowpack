@@ -109,7 +109,6 @@ Note the path must start with must start with a `.` to be considered local
 
 The `--verbose` flag enables additional logs which will help to identify the source of a problem. The `--reload` will clear the local cache which might have been created by a different `snowpack` version. Learn more about [Snowpack's CLI flags](https://www.snowpack.dev/#cli-flags).
 
-
 ## Pull Request Guidelines
 
 - Checkout a topic branch from a base branch, e.g. `master`, and merge back against that branch.
@@ -126,7 +125,6 @@ The `--verbose` flag enables additional logs which will help to identify the sou
   - Add appropriate tests if applicable.
 
 - Ensure all tests have been passed.
-
 
 ## Discussion
 
