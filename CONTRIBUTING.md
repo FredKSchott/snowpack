@@ -109,6 +109,25 @@ Note the path must start with must start with a `.` to be considered local
 
 The `--verbose` flag enables additional logs which will help to identify the source of a problem. The `--reload` will clear the local cache which might have been created by a different `snowpack` version. Learn more about [Snowpack's CLI flags](https://www.snowpack.dev/#cli-flags).
 
+
+## Pull Request Guidelines
+
+- Checkout a topic branch from a base branch, e.g. `master`, and merge back against that branch.
+
+- If adding a new feature:
+
+  - Provide a convincing reason to add this feature.
+  - Add accompanying tests if applicable.
+
+- If fixing bug:
+
+  - If you are resolving a special issue, add `(fix #xxxx)` (#xxxx is the issue id) in your PR title for a better release.
+  - Provide a detailed description of the bug in the PR. Live demo preferred.
+  - Add appropriate tests if applicable.
+
+- Ensure all tests have been passed.
+
+
 ## Discussion
 
 [Join the Pika Discord](https://discord.gg/rS8SnRk)
