@@ -117,9 +117,9 @@ If adding a feature, it probably should have been brought up in a [discussion](h
 
 Some tips for creating your first pull request:
 
-  - Provide background for why a PR was created.
-  - Link to any relevant issues, discussions, or past PRs.
-  - Add accompanying tests if applicable.
+- Provide background for why a PR was created.
+- Link to any relevant issues, discussions, or past PRs.
+- Add accompanying tests if applicable.
 
 Ensure all tests have been passed.
 
