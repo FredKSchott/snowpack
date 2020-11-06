@@ -179,6 +179,15 @@ export type MountEntry = {
   resolve: boolean;
 };
 
+export interface OptimizeOptions {
+  entrypoints: 'auto' | string[] | ((options: {files: string[]}) => string[]);
+  preload: boolean;
+  bundle: boolean;
+  manifest: boolean;
+  minify: boolean;
+  target: 'es2020' | 'es2019' | 'es2018' | 'es2017';
+}
+
 // interface this library uses internally
 export interface SnowpackConfig {
   install: string[];
@@ -226,6 +235,8 @@ export interface SnowpackConfig {
       res: http.ServerResponse,
       next: (err?: Error) => void,
     ) => unknown;
+    /** (EXPERIMENTAL) Optimize your site for production. */
+    optimize?: OptimizeOptions;
   };
   _extensionMap: Record<string, string>;
 }
@@ -244,7 +255,11 @@ export type SnowpackUserConfig = {
   installOptions?: Partial<SnowpackConfig['installOptions']>;
   buildOptions?: Partial<SnowpackConfig['buildOptions']>;
   testOptions?: Partial<SnowpackConfig['testOptions']>;
-  experiments?: Partial<SnowpackConfig['experiments']>;
+  experiments?: {
+    ssr?: SnowpackConfig['experiments']['ssr'];
+    app?: SnowpackConfig['experiments']['app'];
+    optimize?: Partial<SnowpackConfig['experiments']['optimize']>;
+  };
 };
 
 export interface CLIFlags extends Omit<InstallOptions, 'env'> {
