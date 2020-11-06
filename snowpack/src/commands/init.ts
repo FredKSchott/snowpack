@@ -5,7 +5,7 @@ import {logger} from '../logger';
 import {CommandOptions} from '../types/snowpack';
 
 export async function command(commandOptions: CommandOptions) {
-  const {cwd, config, pkgManifest} = commandOptions;
+  const {cwd} = commandOptions;
   logger.info(`Creating new project configuration file... ${dim('(snowpack.config.js)')}`);
   const templateLoc = path.join(__dirname, '../../assets/snowpack-init-file.js');
   const destLoc = path.join(cwd, 'snowpack.config.js');
