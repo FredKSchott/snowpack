@@ -1053,7 +1053,7 @@
     levenary "^1.1.1"
     semver "^5.5.0"
 
-"@babel/preset-env@^7.10.4":
+"@babel/preset-env@^7.10.4", "@babel/preset-env@^7.12.1":
   version "7.12.1"
   resolved "https://registry.yarnpkg.com/@babel/preset-env/-/preset-env-7.12.1.tgz#9c7e5ca82a19efc865384bb4989148d2ee5d7ac2"
   integrity sha512-H8kxXmtPaAGT7TyBvSSkoSTUK6RHh61So05SyEbpmr0MCZrsNYn7mGMzzeYoOUCdHzww61k8XBft2TaES+xPLg==
