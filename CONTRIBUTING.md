@@ -111,20 +111,17 @@ The `--verbose` flag enables additional logs which will help to identify the sou
 
 ## Pull Request Guidelines
 
-- Checkout a topic branch from a base branch, e.g. `master`, and merge back against that branch.
+Checkout a topic branch from a base branch, e.g. `master`, and merge back against that branch.
 
-- If adding a new feature:
+If adding a feature, it probably should have been brought up in a [discussion](https://github.com/snowpackjs/snowpack/discussions) instead before the PR was created.
 
-  - Provide a convincing reason to add this feature.
+Some tips for creating your first pull request:
+
+  - Provide background for why a PR was created.
+  - Link to any relevant issues, discussions, or past PRs.
   - Add accompanying tests if applicable.
 
-- If fixing bug:
-
-  - If you are resolving a special issue, add `(fix #xxxx)` (#xxxx is the issue id) in your PR title for a better release.
-  - Provide a detailed description of the bug in the PR. Live demo preferred.
-  - Add appropriate tests if applicable.
-
-- Ensure all tests have been passed.
+Ensure all tests have been passed.
 
 ## Discussion
 
