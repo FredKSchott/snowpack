@@ -120,8 +120,7 @@ Some tips for creating your first pull request:
 - Provide background for why a PR was created.
 - Link to any relevant issues, discussions, or past PRs.
 - Add accompanying tests if applicable.
-
-Ensure all tests have been passed.
+- Ensure all tests have been passed.
 
 ## Discussion
 
