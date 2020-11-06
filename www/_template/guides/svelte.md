@@ -10,7 +10,7 @@ sidebarTitle: React
 
 <img src="/img/SvelteGuide.jpg" alt="header image, showing the Svelte and Snowpack logo against a background of blue mountains" />
 
-Snowpack is a great fit for [Svelte](https://reactjs.org/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional Svelte application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
+Snowpack is a great fit for [Svelte](https://svelte.dev/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional Svelte application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
 
 In this guide, you'll go from an empty directory to a fully configured Snowpack project with support for Svelte and several other useful developer tools. In the process, you'll learn:
 
@@ -26,7 +26,7 @@ Prerequisites: Snowpack is a command line tool installed from npm. This guide as
 
 ## Getting started
 
-The easiest way to start a new Snowpack project is with [Create Snowpack App](<https://www.snowpack.dev/#create-snowpack-app-(csa)>), a tool to set up Snowpack in a new directory `@snowpack/project-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
+The easiest way to start a new Snowpack project is with [Create Snowpack App](<https://www.snowpack.dev/#create-snowpack-app-(csa)>), a tool for creating a new project based on our example templates. `@snowpack/project-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
 
 To get started, open your terminal and head to a directory where you want to put your new project. Now run the following command in your terminal to create a new directory called `svelte-snowpack` with the minimal template automatically installed.
 
@@ -55,16 +55,11 @@ npm install svelte --save
 
 > 💡 Tip: add the "--use-yarn" or "--use-pnpm" flag to use something other than npm
 
-You'll also need the `@snowpack/plugin-svelte` plugin so that Snowpack knows how to use files with the `.svelte` extension. This package is a Snowpack plugin, which you can use to enhance or customize Snowpack to support packages that aren't built in to Snowpack. To start, install the package in your project:
+You'll also need the `@snowpack/plugin-svelte` plugin so that Snowpack knows how built `.svelte` files into JavaScript and CSS files that run in the browser. Snowpack plugins are a way to extend Snowpack's capabilities with a bare minimum of configuration. To start, install the package in your project:
 
 ```bash
 npm install @snowpack/plugin-svelte --save-dev
 ```
-
-Plugin Svelte
-
-- recognizes and builds Svelte files to JS & CSS
-- built files are HMR/Fast Refresh enabled
 
 Once installed, you'll need to add the plugin to your Snowpack configuration file so that Snowpack knows to use it:
 
@@ -79,11 +74,11 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
   };
 ```
 
+`@snowpack/plugin-svelte` also has built in HMR (hot module replacement) and Fast Refresh, features you'll explore in the next step.
+
 ## Create your first Svelte component
 
 Svelte relies on HTML-based templating in .svelte files. Let's create our first `.svelte` component named `App.svelte` with the following code
-
-> Fred: see additions below, recommended.
 
 ```svelte
 <script>
@@ -101,7 +96,7 @@ Svelte relies on HTML-based templating in .svelte files. Let's create our first 
 </div>
 ```
 
-Now head to `index.js` and import it.
+Now head to `index.js` and import it the new `app.svelte` file
 
 ```diff
 /* Add JavaScript code here! */
@@ -115,9 +110,11 @@ Now head to `index.js` and import it.
 +export default app;
 ```
 
-Start up Snowpack with `npm start` and you should see a page that says "Learn Svelte." Congrads! You have Svelte up and running!
+Start up Snowpack with `npm start` and you should see a page that says "Learn Svelte." Learn job, you now have Svelte up and running. When you make changes to the code and save them, you'll see them instantly in the browser without refreshing the entire page. That's the Hot Module Refresh from `@snowpack/plugin-svelte`.
 
-TODO: IMAGE
+Image: GIF showing code and site side by side, site is a "Learn Svelte" link on a white background. When the text is edit to add "Hello world" and the file saves, the changes show up in the site immediately.
+
+> 💡 Tip: check out your network tab in the browser inspector- you'll see only the file that changed reloading, not all the files that make up the site.
 
 ## Customize your project layout
 
@@ -172,7 +169,7 @@ You'll need to restart Snowpack for configuration file changes. When you start u
 
 ## Styling your project
 
-When you add assets like images or CSS, Snowpack includes them in your final build.
+Your site is a little plain, so in this step you'll add an image and animate it with CSS.
 
 > 💡 Tip: as you're doing this, you should not need to reload the page or restart Snowpack. Snowpack automatically updates the project in the browser as you edit code.
 
@@ -185,12 +182,9 @@ Add this file [`logo.svg`](https://github.com/snowpackjs/snowpack/blob/master/cr
           Learn Svelte
 ```
 
-TODO: IMAGE
+Image: Site showing the new logo
 
-Svelte components are styled within the component in a `<style>` tag. Add this code to the top of `App.svelte`
-
-> Fred: where do I add this again? Having the empty
-> `<style>` tag in the original example makes this more clear.
+With Svelte, CSS is included in your `.svelte` component and you'll add it there. Add this code to the top of `App.svelte` between the `<style>` tags:
 
 ```css
 <style>
@@ -223,13 +217,13 @@ Svelte components are styled within the component in a `<style>` tag. Add this c
 
 > 💡 Tip: Snowpack has built-in support for [CSS Modules](https://www.snowpack.dev/#import-css-modules) and if you'd like to use Sass there is an official [Sass Plugin](https://www.snowpack.dev/#sass).
 
-TODO: Image
+Image: Gif showing the results with the logo animated
 
-## Adding some logic to your Svelte component
+## Adding a simple counter
 
-Svelte components include component specific scripts in a `<script>` tag.
+In a previous step we demonstrated the built in Hot Module Replacement (HMR) from `@snowpack/plugin-svelte`, but what about the Fast Refresh? Fast Refresh preserves state when you're developing, so you can see how your code changes affect the code that's running live in the browser. In this step you'll add a simple timer with a state based on the seconds on the page so you can see Fast Refresh in action.
 
-In `App.svelte` add this
+Svelte components include component specific scripts in a `<script>` tag. Let's add the counter here in `App.svelte` between the `<scripe>` tags:
 
 ```js
 <script>
@@ -244,7 +238,7 @@ In `App.svelte` add this
 </script>
 ```
 
-Then lower down in your component's body, add this
+Then lower down in your component's body, add this code that will display the results of the timer.
 
 ```diff
 <div class="App">
@@ -258,12 +252,11 @@ Then lower down in your component's body, add this
 </div>
 ```
 
+Trying making a change to the code. You'll see the timer does not reset.
+
+Image: GIF showing code and site side by side, when the word "Hello" is added to the .svelte page and the code is saved, the change shows up in the browser without the timer resetting (it keeps counting)
+
 ## Hot Module Replacement with Svelte
-
-POINT ONE: SNOWPACK IS AWESOME RIGHT OUT OF THE BOX
-
-- plugin-svelte comes with Fast Refresh enabled by default
-- illustrate the concept: make change, counter state is preserved
 
 POINT TWO: Under stand the concept a bit more, show that there's a bit more to do here.
 
