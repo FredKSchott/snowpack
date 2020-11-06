@@ -3,21 +3,23 @@ layout: layouts/main.njk
 title: Get Started
 ---
 
-This guide will show you how to set up Snowpack from scratch in a Node.js project.
+![webpack vs. snowpack diagram](/img/snowpack-unbundled-example-3.png)
+
+This guide will show you how to set up Snowpack from scratch in a Node.js project. Along the way you'll learn key concepts of Snowpack and unbundled development
 
 > 💡 Tip: For specific frameworks like React and Svelte we have framework guides. Check out our full list of guides here (TODO: INsert link).
 
 In this guide you'll learn
 
-- Unbundled development: **Unbundled development** is the idea of shipping individual files to the browser during development. Files can still be built with your favorite tools (like Babel, TypeScript, Sass) and then loaded individually in the browser with dependencies thanks to ESM `import` and `export` syntax. Any time you change a file, Snowpack only ever needs to rebuild that single file.
-- Using ESM: Snowpack leverages JavaScript's native module system (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">known as ESM</a>) to create a first-of-its-kind build system that never builds the same file twice. Snowpack pushes changes instantly to the browser, saving you hours of development time traditionally spent waiting around for your bundler.
-- Snowpack's dev server: Snowpack's dev server is an instant dev environment for [unbundled development.](#unbundled-development)
-- Snowpack's build pipeline: Snowpack treats bundling as an optional production optimization, which means you're free to skip over the extra complexity of bundling until you need it.
+- Unbundled development: Saving time by building only the files changed during development instead of bundling your entire codebase.
+- ESM and Snowpack: Snowpack uses JavaScript's native module system (known as [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import)) to power the single-file builds.
+- Snowpack's dev server: An instant dev environment for unbundled development.
+- Snowpack's build pipeline: A flexible system where you use a bundler only if you need one.
+- Using Node modules/NPM packages: Snowpack does the work of bringing your favorite Node modules into the ESM world.
+- Using CSS: Snowpack has built-in support for CSS (and CSS Modules, JSX and [more](/features)
+- Using plugins: You can extend your build even further with [custom plugins](/plugins) that connect Snowpack with your favorite build tools: TypeScript, Babel, Vue, Svelte, PostCSS, Sass... go wild!
 
-- Using CSS: CSS is one of several built-in types of files that Snowpack can handle
-- Using Node modules with ESM
-
-> 💡 Tip: the project we'll create here is [Create Snowpack App minimalist template](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/). For a list of other templates available check out the [create-snowpack-app](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/cli) docs.
+> 💡 Tip: the project we'll create here is [Create Snowpack App minimalist template](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/). For a list of other examples that available check out the [create-snowpack-app](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/cli) docs.
 
 Prerequisites: Snowpack is a command line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal.
 
@@ -25,14 +27,16 @@ Snowpack builds your site for both modern and legacy browsers, but during develo
 
 ## Install Snowpack
 
-Let's create an empty directory. You can use any tool of your choice or the command line as shown here:
+In this step we'll create a new NPM project and install Snowpack.
+
+First create an empty directory. You can use any tool of your choice or the command line as shown here:
 
 ```bash
 mkdir my-first-snowpack
 cd my-first-snowpack
 ```
 
-Now let's enable it as a Node project
+Now enable it as an NPM project with the following command, which will create a package.json. Feel free to just hit enter for all the fields:
 
 ```bash
 npm init
@@ -40,7 +44,7 @@ npm init
 
 > 💡 Tip: add the "--use-yarn" or "--use-pnpm" flag to use something other than npm
 
-This creates our `package.json`, now let's install Snowpack
+Now let's install Snowpack to our dev dependencies with this command:
 
 ```
 npm install --save-dev snowpack
@@ -50,11 +54,9 @@ npm install --save-dev snowpack
 
 ## Snowpack Dev Server
 
-`snowpack dev` - Snowpack's dev server is an instant dev environment for [unbundled development.](#unbundled-development) The dev server will only build a file when it's requested by the browser. That means that Snowpack can start up instantly (usually in **<50ms**) and scale to infinitely large projects without slowing down. In contrast, it's common to see 30+ second dev startup times when building large apps with a traditional bundler.
+In this step we'll add some files so we can showcase Snowpack's dev server. Snowpack's dev server is an instant dev environment for unbundled development. The dev server will only build a file when it's requested by the browser. That means that Snowpack can start up instantly (usually in **<50ms**) and scale to infinitely large projects without slowing down. In contrast, it's common to see 30+ second dev startup times when building large apps with a traditional bundler.
 
-Snowpack supports JSX & TypeScript source code by default. You can extend your build even further with [custom plugins](/plugins) that connect Snowpack with your favorite build tools: TypeScript, Babel, Vue, Svelte, PostCSS, Sass... go wild!
-
-To show you how it works let's create an `index.html` in your `my-first-snowpack` with the following contents:
+First create an `index.html` in your project with the following contents:
 
 ```html
 <!DOCTYPE html>
@@ -77,12 +79,11 @@ Now let's add the Snowpack dev server to `package.json` under as the `start` scr
   "scripts": {
 +   "start": "snowpack dev",
     "test": "echo \"Error: no test specified\" && exit 1"
-
   },
 
 ```
 
-Now you can run this on the command line to start the dev server
+Now you can run this on the command line to start the Snowpack dev server
 
 ```
 npm run start
@@ -90,19 +91,17 @@ npm run start
 
 Snowpack displays the local host address and automatically opens the page in your default browser.
 
-TODO: add image showing the console and the site
+IMAGE: GIF. Side by side of the terminal showing the dev server output. The dev server output displays the localhost address the project is running on. In a browser window you can see the running project on localhost, which is "Welcome to Snowpack" on a white background. An edit is made to `index.html` adding an exclamation point, the browser window shows the updated text as soon as the file is saved.
 
-Some key features:
+Try changing the index.html and saving while the server is running, the site should refresh and show changes automatically.
 
-- try changing the index.html and saving while the server is running, the site should refresh and show changes automatically
+## ESM (ES Modules)
 
-## ES Modules
-
-Snowpack was designed to support JavaScript's native ES Module (ESM) syntax. ESM lets you define explicit imports & exports that browsers and build tools can better understand and optimize for. If you're familiar with the `import` and `export` keywords in JavaScript, then you already know ESM!
+You're ready to add some ES modules (ESM). Snowpack is designed to support JavaScript's native ES Module (ESM) syntax. ESM lets you define explicit imports & exports that browsers and build tools can better understand and optimize for. If you're familiar with the `import` and `export` keywords in JavaScript, then you already know ESM!
 
 All modern browsers support ESM, so Snowpack is able to ship this code directly to the browser during development. This is what makes Snowpack's **unbundled development** workflow possible.
 
-Let's create an example `hello-world.js` that creates a helloWorld ES module:
+Let's create an example `hello-world.js` that exports a `helloWorld` ESM:
 
 ```js
 export function helloWorld() {
@@ -110,7 +109,7 @@ export function helloWorld() {
 }
 ```
 
-And let's use our new module by importing it using ESM syntax. Create an `index.js` that imports our new module:
+Use your new module by importing it using ESM syntax and running. Create an `index.js` that imports our new module using ESM syntax:
 
 ```js
 import { helloWorld } from './hello-world.js';
@@ -118,7 +117,7 @@ import { helloWorld } from './hello-world.js';
 helloWorld();
 ```
 
-Now let's finally add to our `index.html` at the bottom of the body tag
+Finally, add your `index.js` to `index.html` at the bottom of the `<body>` tag
 
 ```diff
   <body>
@@ -127,15 +126,15 @@ Now let's finally add to our `index.html` at the bottom of the body tag
   </body>
 ```
 
-Try making a change to the module. Snowpack will rebuild that module, but nothing else. With Snowpack **Every file is built individually and cached indefinitely.** Your dev environment will never build a file more than once and your browser will never download a file twice (until it changes). This is the real power of unbundled development.
-
 > 💡 Tip: Snowpack detects the files in `index.html` for processing
 
-Check your console and you should see the Hello World
+Check your console on your Snowpack site. You should see "Hello World!". Try making a change to the module. Snowpack will rebuild that module without rebuilding the rest of your code. With Snowpack **Every file is built individually and cached indefinitely.** Your dev environment will never build a file more than once and your browser will never download a file twice (until it changes). This is the real power of unbundled development.
+
+IMAGE: Gif showing the code next to the project running in the browser. On save the console shows "Hello World!". On edit and save of the `hello-world.js` file to be "Hello everyone!" instead, that instantly shows in the browser console.
 
 ## Using NPM Packages
 
-NPM packages are mainly published using a module syntax (Common.js, or CJS) that can't run on the web without some build processing. Even if you write your application using browser-native ESM `import` and `export` statements that would all run directly in the browser, trying to import any one npm package will force you back into bundled development.
+While writing your own JavaScript is great, you'll also probably want to use JavaScript from NPM. NPM packages are mainly published using a module syntax (Common.js, or CJS) that can't run on the web without some build processing. Even if you write your application using browser-native ESM `import` and `export` statements that would all run directly in the browser, trying to import any one npm package will force you back into bundled development.
 
 **Snowpack takes a different approach:** Instead of bundling your entire application for this one requirement, Snowpack processes your dependencies separately. Here's how it works:
 
@@ -154,37 +153,41 @@ After Snowpack builds your dependencies, any package can be imported and run dir
 
 Snowpack lets you import npm packages directly in the browser. Even if a package was published using a legacy format, Snowpack will up-convert the package to ESM before serving it to the browser.
 
-Let's install a package and use it
+> 💡 Tip: When you start up your dev server or run a new build, you may see a message that Snowpack is "installing dependencies". This means that Snowpack is converting your dependencies to run in the browser.
+
+Let's install a package from NPM and use it with the following command:
 
 ```bash
 npm install --save canvas-confetti
 ```
 
-Now head to `index.html` and add this
+Now head to `index.html` and add this code to the bottom of the `<body>` tag:
 
 ```diff
-
-  <script type="module">
-  import confetti from 'canvas-confetti';
-confetti.create(document.getElementById('canvas'), {
-  resize: true,
-  useWorker: true,
-})({ particleCount: 200, spread: 200 });
-
-  </script>
-
+   <script type="module" src="/index.js"></script>
++  <script type="module">
++  import confetti from 'canvas-confetti';
++ confetti.create(document.getElementById('canvas'), {
++  resize: true,
++  useWorker: true,
++ })({ particleCount: 200, spread: 200 });
++  </script>
+  </body>
 ```
 
-Restart your Snowpack dev server and you should see this:
-TODO: IMAGE/GIF
+> 💡 Tip: You can also add this code in index.js
 
-> 💡 Tip: When you start up your dev server or run a new build, you may see a message that Snowpack is "installing dependencies". This means that Snowpack is converting your dependencies to run in the browser.
+You should now see a nifty confetti effect on your site.
 
-> 💡 Tip: Sometimes node modules need to be polyfilled because TODO add links info/
+IMAGE: Gif showing site loading with a confetti effect
+
+> 💡 Tip: Not all NPM modules may work well in the browser. If it's dependent on Node.js built-in modules you'll need to polyfill Node. Read more about how to do this on our [features page.](/features)
 
 ## Adding CSS
 
-First add this css file as `index.css`
+Snowpack natively supports many file types. CSS and CSS Modules for example. Here we'll add a simple CSS file to showcase this.
+
+First add the following css as a new `index.css` file:
 
 ```css
 body {
@@ -192,7 +195,7 @@ body {
 }
 ```
 
-Now let's include in our project by adding it to index.html in the `<head>`
+Include it in your project by adding it to index.html in the `<head>`
 
 ```diff
     <meta name="description" content="Starter Snowpack App" />
@@ -200,17 +203,15 @@ Now let's include in our project by adding it to index.html in the `<head>`
     <title>Starter Snowpack App</title>
 ```
 
+Image: GIF showing adding the css to `index.html` and saving, showing the visual changes as the CSS loads.
+
 ## Build for production/deployment
 
-**You should be able to use a bundler because you want to, and not because you need to.** That was the original concept that Snowpack was designed to address. Snowpack treats bundling as an optional production optimization, which means you're free to skip over the extra complexity of bundling until you need it.
+OK you've now built the most amazing website ever (or something like that) and you want to launch it. It's time to use Snowpack build.
 
-By default, `snowpack build` will build your site using the same unbundled approach as the `dev` command.
+By default, `snowpack build` will build your site using the same unbundled approach as the `dev` command. Building is tightly integrated with your dev setup so that you are guaranteed to get a near-exact copy of the same code that you saw during development.
 
-See ["Optimized Builds"](/#optimized-builds) for more information about connecting bundled (or unbundled) optimization plugins for your production builds.
-
-When you're ready to deploy your application, run the `snowpack build` command to generate a static production build of your site. Building is tightly integrated with your dev setup so that you are guaranteed to get a near-exact copy of the same code that you saw during development.
-
-Let's add this to package.json
+Let's add this to package.json so it's easier to run on the command line:
 
 ```diff
   "scripts": {
@@ -222,7 +223,7 @@ Let's add this to package.json
 
 ```
 
-Now let's try it out. Run this in your terminal
+Now let's try it out. Run this in your terminal:
 
 ```bash
 npm run build
@@ -230,11 +231,13 @@ npm run build
 
 You should see a new directory called `build` that contains a copy of your Snowpack project ready for deployment.
 
-TODO: Image
+IMAGE: GIF terminal running Snowpack build, showing output, then clicking on the new `build` directory
 
 ## Bundle for deployment
 
-`snowpack build` is fine for many projects, but you also may still want to bundle for production. Legacy browser support, code minification, code-splitting, tree-shaking, dead code elimination, and other performance optimizations can all be handled in Snowpack via bundling.
+`snowpack build` is fine for many projects, but you also may still want to bundle to optimize code, especially with large projects. Legacy browser support, code minification, code-splitting, tree-shaking, dead code elimination, and other performance optimizations can all be handled in Snowpack via bundling. In this step we'll install the Webpack plugin and use it to build.
+
+Snowpack's **You should be able to use a bundler because you want to, and not because you need to.** That was the original concept that Snowpack was designed to address. Snowpack treats bundling as an optional production optimization, which means you're free to skip over the extra complexity of bundling until you need it.
 
 Bundlers normally require dozens or even hundreds of lines of configuration, but with Snowpack it's just a one-line plugin with no config required. This is possible because Snowpack builds your application _before_ sending it to the bundler, so the bundler never sees your custom source code (JSX, TS, Svelte, Vue, etc.) and instead only needs to worry about building common HTML, CSS, and JS.
 
@@ -255,14 +258,25 @@ module.exports = {
 };
 ```
 
+Again run
+
+```bash
+npm run build
+```
+
+TODO: there is a problem here because it doesn't get the code added in "Using NPM Packages"
+
+> 💡 Tip: Want to optimize your site code without a bundler? Check out our plugin-optimize.
+
 ## Next Steps
 
-Congrads etc.!
+You're ready to launch the most optimized hello world ever. But that's just the beginning with Snowpack.
 
-Check out all the other stuff you can try built into Snowpack (CSS modules, JSX etc.)
+What's next? Our docs site has several great resources
 
-Check out examples
+- Features: a list of all the built in features Snowpack supports right out of the box
+- Plugins: a list of plugins that allow you to integrate your favorite tools with Snowpack
+- Templates/Example: pre-built projects you can build on or just explore using many popular frameworks and tools
+- Guides: Step by step deep dives on building with and for Snowpack. Includes frameworks like React and Svelte.
 
-Check out plugins
-
-Check out our guides!
+If you have any questions, comments, or corrections, we'd love to hear from you in the Snowpack [discussion](https://github.com/snowpackjs/snowpack/discussions) forum or our [Snowpack Discord community](https://discord.gg/rS8SnRk).
