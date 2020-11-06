@@ -4,7 +4,7 @@
   "name": "@snowpack/test-error-react-source-pika",
   "description": "Test that error is reported when React workaround package is used.",
   "scripts": {
-    "testinstall": "snowpack"
+    "testinstall": "snowpack install"
   },
   "webDependencies": {
     "async": "~3.0.0",

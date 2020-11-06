@@ -4,7 +4,7 @@
   "name": "@snowpack/test-config-with-cli-flags",
   "description": "Test that the --optimize flag overrides the config",
   "scripts": {
-    "testinstall": "snowpack --no-source-map"
+    "testinstall": "snowpack install --no-source-map"
   },
   "snowpack": {
     "install": [

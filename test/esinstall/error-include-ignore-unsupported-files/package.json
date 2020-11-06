@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "name": "@snowpack/test-include-ignore-unsupported-files",
   "scripts": {
-    "testinstall": "snowpack"
+    "testinstall": "snowpack install"
   },
   "devDependencies": {
     "snowpack": "^2.14.3"
