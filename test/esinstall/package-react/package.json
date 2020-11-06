@@ -4,7 +4,7 @@
   "name": "@snowpack/test-package-react",
   "description": "Ensures React still works",
   "scripts": {
-    "testinstall": "snowpack"
+    "testinstall": "snowpack install"
   },
   "snowpack": {
     "install": [

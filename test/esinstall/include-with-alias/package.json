@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "name": "@snowpack/test-include-with-alias",
   "scripts": {
-    "testinstall": "snowpack"
+    "testinstall": "snowpack install"
   },
   "snowpack": {
     "buildOptions": {

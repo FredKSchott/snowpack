@@ -4,7 +4,7 @@
   "name": "@snowpack/test-config-external",
   "description": "Handle external packages",
   "scripts": {
-    "testinstall": "snowpack"
+    "testinstall": "snowpack install"
   },
   "snowpack": {
     "installOptions": {
