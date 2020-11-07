@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "name": "@snowpack/test-include-missing-in-package-json",
   "scripts": {
-    "testinstall": "node copyPackages && snowpack"
+    "testinstall": "node copyPackages && snowpack install"
   },
   "snowpack": {
     "mount": {

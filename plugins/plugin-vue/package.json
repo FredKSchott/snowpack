@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/plugin-vue",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "main": "plugin.js",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-vue#readme",

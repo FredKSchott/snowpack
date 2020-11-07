@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "name": "@snowpack/test-sub-package-json",
   "scripts": {
-    "testinstall": "snowpack"
+    "testinstall": "snowpack install"
   },
   "snowpack": {
     "install": [

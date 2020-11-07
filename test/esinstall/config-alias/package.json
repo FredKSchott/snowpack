@@ -4,7 +4,7 @@
   "name": "@snowpack/test-config-alias",
   "description": "Handle deep imports to package entrypoints",
   "scripts": {
-    "testinstall": "snowpack"
+    "testinstall": "snowpack install"
   },
   "snowpack": {
     "alias": {

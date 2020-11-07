@@ -4,7 +4,7 @@
   "name": "@snowpack/test-dep-browser-entrypoint-object",
   "description": "Test that we properly handle a package.json 'browser' object.",
   "scripts": {
-    "testinstall": "snowpack"
+    "testinstall": "snowpack install"
   },
   "snowpack": {
     "install": [

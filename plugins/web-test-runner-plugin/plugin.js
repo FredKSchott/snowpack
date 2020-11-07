@@ -38,7 +38,7 @@ To Resolve:
       }
       const reqPath = request.path;
       const result = await server.loadUrl(reqPath, {isSSR: false, encoding: 'utf8'});
-      return result.contents;
+      return {body: result.contents, type: result.contentType};
     },
     transformImport({source}) {
       if (!isTestFilePath(source) || source.startsWith('/__web-dev-server')) {

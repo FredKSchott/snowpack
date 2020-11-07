@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "name": "@snowpack/test-node-env",
   "scripts": {
-    "testinstall": "cross-env CLI_A=cli CONF_A=alpha ./node_modules/.bin/snowpack --env NODE_ENV=FOOBAR --env CLI_A"
+    "testinstall": "cross-env CLI_A=cli CONF_A=alpha ./node_modules/.bin/snowpack install --env NODE_ENV=FOOBAR --env CLI_A"
   },
   "snowpack": {
     "install": [

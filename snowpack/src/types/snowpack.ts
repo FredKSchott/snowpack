@@ -14,7 +14,7 @@ export type DeepPartial<T> = {
 export interface LoadResult<T = Buffer | string> {
   contents: T;
   originalFileLoc: string | null;
-  responseFileName: string;
+  contentType: string | false;
   checkStale?: () => Promise<void>;
 }
 
@@ -57,7 +57,7 @@ export interface SnowpackDevServer {
   sendResponseFile: (
     req: http.IncomingMessage,
     res: http.ServerResponse,
-    {contents, originalFileLoc, responseFileName}: LoadResult,
+    {contents, originalFileLoc, contentType}: LoadResult,
   ) => void;
   sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
   onFileChange: (callback: OnFileChangeCallback) => void;
