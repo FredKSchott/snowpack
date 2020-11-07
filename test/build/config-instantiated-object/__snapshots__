@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack build config-instantiated-object: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "_dist_/index.js",
+]
+`;
+
+exports[`snowpack build config-instantiated-object: build/__snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+
+exports[`snowpack build config-instantiated-object: build/_dist_/index.js 1`] = `"console.log('fooey');"`;
