@@ -4,6 +4,7 @@ import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
 import * as esbuild from 'esbuild';
 import http from 'http';
+import {isPlainObject} from 'is-plain-object';
 import {validate, ValidatorResult} from 'jsonschema';
 import os from 'os';
 import path from 'path';
@@ -855,7 +856,9 @@ export function createConfiguration(
   if (validationErrors.length > 0) {
     return [validationErrors, undefined];
   }
-  const mergedConfig = merge<SnowpackConfig>([DEFAULT_CONFIG, config]);
+  const mergedConfig = merge<SnowpackConfig>([DEFAULT_CONFIG, config], {
+    isMergeableObject: isPlainObject,
+  });
   return [null, normalizeConfig(mergedConfig)];
 }
 
@@ -959,7 +962,9 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     {webDependencies: pkgManifest.webDependencies},
     config,
     cliConfig as any,
-  ]);
+  ], {
+    isMergeableObject: isPlainObject,
+  });
   for (const webDependencyName of Object.keys(mergedConfig.webDependencies || {})) {
     if (pkgManifest.dependencies && pkgManifest.dependencies[webDependencyName]) {
       handleConfigError(
