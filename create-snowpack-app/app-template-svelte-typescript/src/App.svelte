@@ -7,9 +7,9 @@
 		clearInterval(interval);
 	  };
 	});
-  </script>
+</script>
   
-  <style>
+<style>
 	:global(body) {
 	  margin: 0;
 	  font-family: Arial, Helvetica, sans-serif;
@@ -57,7 +57,7 @@
   
   <div class="App">
 	<header class="App-header">
-	  <img src="/logo.svg" class="App-logo" alt="logo" />
+	  <img src="logo.svg" class="App-logo" alt="logo" />
 	  <p>Edit <code>src/App.svelte</code> and save to reload.</p>
 	  <p>Page has been open for <code>{count}</code> seconds.</p>
 	  <p>
