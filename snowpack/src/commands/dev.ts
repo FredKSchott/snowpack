@@ -26,10 +26,9 @@
 
 import cacache from 'cacache';
 import isCompressible from 'compressible';
-import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
-import {createReadStream, existsSync, promises as fs, statSync} from 'fs';
+import {createReadStream, promises as fs, statSync} from 'fs';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
@@ -41,6 +40,7 @@ import os from 'os';
 import path from 'path';
 import {performance} from 'perf_hooks';
 import onProcessExit from 'signal-exit';
+import {buildNewPackage, fetchCDN, lookupBySpecifier, SKYPACK_ORIGIN} from 'skypack';
 import stream from 'stream';
 import url from 'url';
 import util from 'util';
@@ -74,7 +74,6 @@ import {
 } from '../types/snowpack';
 import {
   BUILD_CACHE,
-  checkLockfileHash,
   cssSourceMappingURL,
   DEV_DEPENDENCIES_DIR,
   getExt,
@@ -88,9 +87,7 @@ import {
   relativeURL,
   replaceExt,
   resolveDependencyManifest,
-  updateLockfileHash,
 } from '../util';
-import {getInstallTargets, run as installRunner} from './install';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
 
 interface FoundFile {
@@ -151,33 +148,43 @@ class NotFoundError extends Error {
   }
 }
 
-/**
- * Install dependencies needed in "dev" mode. Generally speaking, this scans
- * your entire source app for dependency install targets, installs them,
- * and then updates the "hash" file used to check node_modules freshness.
- */
-async function installDependencies(commandOptions: CommandOptions) {
-  const {config} = commandOptions;
-  const installTargets = await getInstallTargets(config, commandOptions.lockfile);
-  if (installTargets.length === 0) {
-    logger.info('Nothing to install.');
-    return;
-  }
-  // 2. Install dependencies, based on the scan of your final build.
-  const installResult = await installRunner({
-    ...commandOptions,
-    installTargets,
-    config,
-    shouldPrintStats: true,
-    shouldWriteLockfile: false,
-  });
-  await updateLockfileHash(DEV_DEPENDENCIES_DIR);
-  return installResult;
-}
+// /**
+//  * Install dependencies needed in "dev" mode. Generally speaking, this scans
+//  * your entire source app for dependency install targets, installs them,
+//  * and then updates the "hash" file used to check node_modules freshness.
+//  */
+// async function installDependencies(commandOptions: CommandOptions) {
+//   const {config} = commandOptions;
+//   const installTargets = await getInstallTargets(config, commandOptions.lockfile);
+//   if (installTargets.length === 0) {
+//     logger.info('Nothing to install.');
+//     return;
+//   }
+//   // 2. Install dependencies, based on the scan of your final build.
+//   const installResult = await installRunner({
+//     ...commandOptions,
+//     installTargets,
+//     config,
+//     shouldPrintStats: true,
+//     shouldWriteLockfile: false,
+//   });
+//   await updateLockfileHash(DEV_DEPENDENCIES_DIR);
+//   return installResult;
+// }
 
 function shouldProxy(pathPrefix: string, reqUrl: string) {
   const reqPath = decodeURI(url.parse(reqUrl).pathname!);
   return reqPath.startsWith(pathPrefix);
+}
+
+function parseRawPackageImport(spec: string): [string, string | null] {
+  const impParts = spec.split('/');
+  if (spec.startsWith('@')) {
+    const [scope, name, ...rest] = impParts;
+    return [`${scope}/${name}`, rest.join('/') || null];
+  }
+  const [name, ...rest] = impParts;
+  return [name, rest.join('/') || null];
 }
 
 function sendResponseFile(
@@ -353,15 +360,15 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   // Set the proper install options, in case an install is needed.
   const dependencyImportMapLoc = path.join(DEV_DEPENDENCIES_DIR, 'import-map.json');
   logger.debug(`Using cache folder: ${path.relative(cwd, DEV_DEPENDENCIES_DIR)}`);
-  const installCommandOptions = merge(commandOptions, {
-    config: {
-      installOptions: {
-        dest: DEV_DEPENDENCIES_DIR,
-        env: {NODE_ENV: process.env.NODE_ENV || 'development'},
-        treeshake: false,
-      },
-    },
-  });
+  // const installCommandOptions = merge(commandOptions, {
+  //   config: {
+  //     installOptions: {
+  //       dest: DEV_DEPENDENCIES_DIR,
+  //       env: {NODE_ENV: process.env.NODE_ENV || 'development'},
+  //       treeshake: false,
+  //     },
+  //   },
+  // });
 
   // Start with a fresh install of your dependencies, if needed.
   let dependencyImportMap: ImportMap = {imports: {}};
@@ -373,13 +380,13 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     // no import-map found, safe to ignore
   }
 
-  if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
-    logger.debug('Cache out of date or missing. Updating...');
-    const installResult = await installDependencies(installCommandOptions);
-    dependencyImportMap = installResult?.importMap || dependencyImportMap;
-  } else {
-    logger.debug(`Cache up-to-date. Using existing cache`);
-  }
+  // if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
+  //   logger.debug('Cache out of date or missing. Updating...');
+  //   const installResult = await installDependencies(installCommandOptions);
+  //   dependencyImportMap = installResult?.importMap || dependencyImportMap;
+  // } else {
+  //   logger.debug(`Cache up-to-date. Using existing cache`);
+  // }
 
   const devProxies = {};
   config.proxy.forEach(([pathPrefix, proxyOptions]) => {
@@ -457,6 +464,62 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     }
   }
 
+  const fetchedPackages = new Set<string>();
+  function logFetching(packageName: string) {
+    if (fetchedPackages.has(packageName)) {
+      return;
+    }
+    fetchedPackages.add(packageName);
+    logger.info(
+      `Fetching latest ${colors.bold(packageName)} ${colors.dim(
+        `→ ${SKYPACK_ORIGIN}/${packageName}`,
+      )}`,
+    );
+  }
+
+  async function fetchWebModule(installUrl: string): Promise<string> {
+    let body: string;
+    if (
+      installUrl.startsWith('/-/') ||
+      installUrl.startsWith('/pin/') ||
+      installUrl.startsWith('/new/') ||
+      installUrl.startsWith('/error/')
+    ) {
+      body = (await fetchCDN(installUrl)).body;
+    } else {
+      const [packageName, packagePath] = parseRawPackageImport(installUrl.substr(1));
+      if (lockfile && lockfile.imports[installUrl.substr(1)]) {
+        body = (await fetchCDN(lockfile.imports[installUrl.substr(1)])).body;
+      } else if (lockfile && lockfile.imports[packageName + '/']) {
+        body = (await fetchCDN(lockfile.imports[packageName + '/'] + packagePath)).body;
+      } else {
+        const _packageSemver =
+          (config.webDependencies && config.webDependencies[packageName]) ||
+          (commandOptions.pkgManifest?.dependencies &&
+            commandOptions.pkgManifest.dependencies[packageName]);
+        if (!_packageSemver) {
+          logFetching(packageName);
+        }
+        const packageSemver = _packageSemver || 'latest';
+        let lookupResponse = await lookupBySpecifier(installUrl.substr(1), packageSemver);
+        if (!lookupResponse.error && lookupResponse.importStatus === 'NEW') {
+          const buildResponse = await buildNewPackage(installUrl.substr(1), packageSemver);
+          if (!buildResponse.success) {
+            throw new Error('Package could not be built!');
+          }
+          lookupResponse = await lookupBySpecifier(installUrl.substr(1), packageSemver);
+        }
+        if (lookupResponse.error) {
+          throw lookupResponse.error;
+        }
+        body = lookupResponse.body;
+      }
+    }
+    return (body as string)
+      .replace(/(from|import) \'\//g, `$1 '/__snowpack__/web_modules/`)
+      .replace(/(from|import) \"\//g, `$1 "/__snowpack__/web_modules/`);
+  }
+
   function loadUrl(
     reqUrl: string,
     {
@@ -532,6 +595,18 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         contents: encodeResponse(generateEnvModule({mode: 'development', isSSR}), encoding),
         originalFileLoc: null,
         contentType: 'application/javascript',
+      };
+    }
+
+    const webModulePrefix = getMetaUrlPath('web_modules', config);
+    if (reqPath.startsWith(getMetaUrlPath('/web_modules/', config))) {
+      const code = await fetchWebModule(reqPath.substr(webModulePrefix.length));
+      return {
+        contents: encodeResponse(code, encoding),
+        originalFileLoc: null,
+        contentType: path.extname(reqPath)
+          ? mime.lookup(path.extname(reqPath))
+          : 'application/javascript',
       };
     }
 
@@ -806,23 +881,24 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         // if retryMissing is true, do a fresh dependency install and then retry.
         // Only retry once, to prevent an infinite loop when a package doesn't actually exist.
         if (retryMissing) {
-          try {
-            logger.info(colors.yellow('Dependency cache out of date. Updating...'));
-            const installResult = await installDependencies(installCommandOptions);
-            dependencyImportMap = installResult?.importMap || dependencyImportMap;
-            return resolveResponseImports(fileLoc, responseExt, wrappedResponse, false);
-          } catch (err) {
-            const errorTitle = `Dependency Install Error`;
-            const errorMessage = err.message;
-            logger.error(`${errorTitle}: ${errorMessage}`);
-            hmrEngine.broadcastMessage({
-              type: 'error',
-              title: errorTitle,
-              errorMessage,
-              fileLoc,
-            });
-            return wrappedResponse;
-          }
+          // try {
+          logger.info(colors.yellow('Dependency cache out of date. Updating...'));
+          // const installResult = await installDependencies(installCommandOptions);
+          // dependencyImportMap = installResult?.importMap || dependencyImportMap;
+          // return resolveResponseImports(fileLoc, responseExt, wrappedResponse, false);
+          // } catch (err) {
+          const errorMessage = 'NOT YET SUPPORTED'; //err.message;
+          const errorTitle = `Dependency Install Error`;
+          // const errorMessage = err.message;
+          logger.error(`${errorTitle}: ${errorMessage}`);
+          hmrEngine.broadcastMessage({
+            type: 'error',
+            title: errorTitle,
+            errorMessage,
+            fileLoc,
+          });
+          return wrappedResponse;
+          // }
         }
         // Otherwise, we need to send an error to the user, telling them about this issue.
         // A failed retry usually means that Snowpack couldn't detect the import that the browser

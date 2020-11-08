@@ -1,3 +1,4 @@
+import type {Plugin} from 'rollup';
 import {DependencyStatsOutput, install, InstallTarget, printStats} from 'esinstall';
 import * as colors from 'kleur/colors';
 import util from 'util';
@@ -7,6 +8,7 @@ import {logger} from '../logger';
 import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
 import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
 import {writeLockfile} from '../util.js';
+import {rollupPluginSkypack} from 'skypack';
 
 const cwd = process.cwd();
 
@@ -115,6 +117,9 @@ export async function run({
       error: (...args: [any, ...any[]]) => logger.error(util.format(...args)),
     },
     ...config.installOptions,
+    rollup: {
+      plugins: [rollupPluginSkypack({installTypes: false}) as Plugin],
+    },
   });
 
   logger.debug('Install ran successfully!');

@@ -385,7 +385,11 @@ export async function command(commandOptions: CommandOptions) {
     const scannedFiles = Object.values(buildPipelineFiles)
       .map((f) => Object.values(f.filesToResolve))
       .reduce((flat, item) => flat.concat(item), []);
-    const installDest = path.join(buildDirectoryLoc, config.buildOptions.webModulesUrl);
+    const installDest = path.join(
+      buildDirectoryLoc,
+      config.buildOptions.metaDir,
+      config.buildOptions.webModulesUrl,
+    );
     const installResult = await installOptimizedDependencies(scannedFiles, installDest, {
       ...commandOptions,
     });

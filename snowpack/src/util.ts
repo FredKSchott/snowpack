@@ -12,6 +12,7 @@ import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
 import url from 'url';
+import {clearCache as clearSkypackCache} from 'skypack';
 import {ImportMap, SnowpackConfig} from './types/snowpack';
 
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
@@ -242,7 +243,11 @@ export async function updateLockfileHash(dir: string) {
 }
 
 export async function clearCache() {
-  return Promise.all([cacache.rm.all(BUILD_CACHE), rimraf.sync(PROJECT_CACHE_DIR)]);
+  return Promise.all([
+    clearSkypackCache(),
+    cacache.rm.all(BUILD_CACHE),
+    rimraf.sync(PROJECT_CACHE_DIR),
+  ]);
 }
 
 /**

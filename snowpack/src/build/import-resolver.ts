@@ -69,9 +69,7 @@ export function createImportResolver({
       if (isRemoteSpecifier(mappedImport)) {
         return mappedImport;
       }
-      throw new Error(
-        `Not yet supported: "${spec}" lockfile entry must be a full URL (https://...).`,
-      );
+      return path.posix.join('/', config.buildOptions.metaDir, 'web_modules', mappedImport);
     }
     if (spec.startsWith('/')) {
       const importStats = getImportStats(path.resolve(cwd, spec.substr(1)));
@@ -96,8 +94,8 @@ export function createImportResolver({
       // NOTE: We don't need special handling for an alias here, since the aliased "from"
       // is already the key in the import map. The aliased "to" value is also an entry.
       const importMapEntry = installImportMap.imports[spec];
-      return path.posix.resolve(config.buildOptions.webModulesUrl, importMapEntry);
+      return path.posix.resolve('/', config.buildOptions.metaDir, 'web_modules', importMapEntry);
     }
-    return false;
+    return path.posix.join('/', config.buildOptions.metaDir, 'web_modules', spec);
   };
 }
