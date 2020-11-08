@@ -1359,7 +1359,7 @@ img.company-logo {
   }
 }
 
-.markdown-body {
+.markdown-body, .content {
   padding: 0 1em;
   margin-bottom: 50vh;
   margin-left: auto;
@@ -1367,10 +1367,11 @@ img.company-logo {
   max-width: 1000px;
 }
 @media (min-width: 860px) {
-  .markdown-body {
+  .markdown-body, .content {
     padding: 0 3em;
   }
 }
+
 .markdown-body h2 .header-link,
 .markdown-body h3 .header-link {
   margin-left: 8px;

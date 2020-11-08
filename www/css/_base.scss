@@ -454,7 +454,7 @@ img.company-logo {
   }
 }
 
-.markdown-body {
+.markdown-body, .content {
   padding: 0 1em;
   margin-bottom: 50vh;
   margin-left: auto;
@@ -464,7 +464,9 @@ img.company-logo {
   @media (min-width: $breakpoint-m) {
     padding: 0 3em;
   }
+}
 
+.markdown-body {
   h2,
   h3 {
     .header-link {

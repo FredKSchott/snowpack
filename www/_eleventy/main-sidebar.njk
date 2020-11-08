@@ -1,0 +1,323 @@
+<nav class="toc">
+    <ol>
+
+        <li>
+            <a href="#overview" class="active">Overview</a>
+
+            <ol>
+
+                <li>
+                    <a href="#what-is-snowpack%3F">What is Snowpack?</a>
+                </li>
+
+                <li>
+                    <a href="#key-features">Key Features</a>
+                </li>
+
+                <li>
+                    <a href="#who%E2%80%99s-using-snowpack%3F">Who’s Using Snowpack?</a>
+                </li>
+
+                <li>
+                    <a href="#how-snowpack-works">How Snowpack Works</a>
+                </li>
+
+                <li>
+                    <a href="#library-support">Library Support</a>
+                </li>
+
+                <li>
+                    <a href="#tooling-support">Tooling Support</a>
+                </li>
+
+                <li>
+                    <a href="#browser-support">Browser Support</a>
+                </li>
+
+                <li>
+                    <a href="#community">Community</a>
+                </li>
+            </ol>
+        </li>
+
+        <li>
+            <a href="#get-started">Get Started</a>
+
+            <ol>
+
+                <li>
+                    <a href="#install-snowpack">Install Snowpack</a>
+                </li>
+
+                <li>
+                    <a href="#quick-start">Quick Start</a>
+                </li>
+
+                <li>
+                    <a href="#create-snowpack-app-(csa)">Create Snowpack App (CSA)</a>
+                </li>
+
+                <li>
+                    <a href="#official-app-templates">Official App Templates</a>
+                </li>
+
+                <li>
+                    <a href="#migrating-an-existing-app">Migrating an Existing App</a>
+                </li>
+            </ol>
+        </li>
+
+        <li>
+            <a href="#main-concepts">Main Concepts</a>
+
+            <ol>
+
+                <li>
+                    <a href="#unbundled-development">Unbundled Development</a>
+                </li>
+
+                <li>
+                    <a href="#using-npm-dependencies">Using NPM Dependencies</a>
+                </li>
+
+                <li>
+                    <a href="#snowpack%E2%80%99s-dev-server">Snowpack’s Dev Server</a>
+                </li>
+
+                <li>
+                    <a href="#snowpack%E2%80%99s-build-pipeline">Snowpack’s Build Pipeline</a>
+                </li>
+
+                <li>
+                    <a href="#bundle-for-production">Bundle for Production</a>
+                </li>
+            </ol>
+        </li>
+
+        <li>
+            <a href="#javascript">JavaScript</a>
+
+            <ol>
+
+                <li>
+                    <a href="#es-modules-(esm)">ES Modules (ESM)</a>
+                </li>
+
+                <li>
+                    <a href="#import-npm-packages">Import NPM Packages</a>
+                </li>
+
+                <li>
+                    <a href="#import-json">Import JSON</a>
+                </li>
+
+                <li>
+                    <a href="#import-css">Import CSS</a>
+                </li>
+
+                <li>
+                    <a href="#import-css-modules">Import CSS Modules</a>
+                </li>
+
+                <li>
+                    <a href="#import-images-%26-other-assets">Import Images &amp; Other Assets</a>
+                </li>
+            </ol>
+        </li>
+
+        <li>
+            <a href="#features">Features</a>
+
+            <ol>
+
+                <li>
+                    <a href="#import-aliases">Import Aliases</a>
+                </li>
+
+                <li>
+                    <a href="#environment-variables">Environment Variables</a>
+                </li>
+
+                <li>
+                    <a href="#hot-module-replacement">Hot Module Replacement</a>
+                </li>
+
+                <li>
+                    <a href="#dev-request-proxy">Dev Request Proxy</a>
+                </li>
+
+                <li>
+                    <a href="#https%2Fhttp2">HTTPS/HTTP2</a>
+                </li>
+
+                <li>
+                    <a href="#legacy-browser-support">Legacy Browser Support</a>
+                </li>
+
+                <li>
+                    <a href="#node.js-polyfills">Node.js Polyfills</a>
+                </li>
+
+                <li>
+                    <a href="#css-imports-(%40import)">CSS Imports (@import)</a>
+                </li>
+
+                <li>
+                    <a href="#server-side-rendering-(ssr)">Server Side Rendering (SSR)</a>
+                </li>
+
+                <li>
+                    <a href="#optimized-builds">Optimized Builds</a>
+                </li>
+
+                <li>
+                    <a href="#testing">Testing</a>
+                </li>
+            </ol>
+        </li>
+
+        <li>
+            <a href="#plugins">Plugins</a>
+
+            <ol>
+
+                <li>
+                    <a href="#connect-a-plugin">Connect a Plugin</a>
+                </li>
+
+                <li>
+                    <a href="#connect-any-script%2Fcli">Connect any Script/CLI</a>
+                </li>
+
+                <li>
+                    <a href="#official-plugins">Official Plugins</a>
+                </li>
+
+                <li>
+                    <a href="#community-plugins">Community Plugins</a>
+                </li>
+            </ol>
+        </li>
+
+        <li>
+            <a href="#recipes">Recipes</a>
+
+            <ol>
+
+                <li>
+                    <a href="#supported-libraries">Supported Libraries</a>
+                </li>
+
+                <li>
+                    <a href="#jsx">JSX</a>
+                </li>
+
+                <li>
+                    <a href="#typescript">TypeScript</a>
+                </li>
+
+                <li>
+                    <a href="#babel">Babel</a>
+                </li>
+
+                <li>
+                    <a href="#preact">Preact</a>
+                </li>
+
+                <li>
+                    <a href="#vue">Vue</a>
+                </li>
+
+                <li>
+                    <a href="#svelte">Svelte</a>
+                </li>
+
+                <li>
+                    <a href="#postcss">PostCSS</a>
+                </li>
+
+                <li>
+                    <a href="#tailwind-css">Tailwind CSS</a>
+                </li>
+
+                <li>
+                    <a href="#sass">Sass</a>
+                </li>
+
+                <li>
+                    <a href="#eslint">ESLint</a>
+                </li>
+
+                <li>
+                    <a href="#webpack">Webpack</a>
+                </li>
+
+                <li>
+                    <a href="#workbox">Workbox</a>
+                </li>
+
+                <li>
+                    <a href="#%40web%2Ftest-runner">@web/test-runner</a>
+                </li>
+
+                <li>
+                    <a href="#jest">Jest</a>
+                </li>
+
+                <li>
+                    <a href="#server-side-rendering-(ssr)-2">Server Side Rendering (SSR)</a>
+                </li>
+
+                <li>
+                    <a href="#leaving-snowpack">Leaving Snowpack</a>
+                </li>
+            </ol>
+        </li>
+
+        <li>
+            <a href="#troubleshooting">Troubleshooting</a>
+
+            <ol>
+
+                <li>
+                    <a href="#no-such-file-or-directory">No such file or directory</a>
+                </li>
+
+                <li>
+                    <a href="#package-exists-but-package.json-%E2%80%9Cexports%E2%80%9D-does-not-include-entry">Package exists but package.json “exports” does not include entry</a>
+                </li>
+
+                <li>
+                    <a href="#uncaught-syntaxerror%3A-the-requested-module-%E2%80%98%2Fweb_modules%2Fxxxxxx.js%E2%80%99-does-not-provide-an-export-named-%E2%80%98yyyyyy%E2%80%99">Uncaught SyntaxError: The requested module ‘/web_modules/XXXXXX.js’ does not provide an export named ‘YYYYYY’</a>
+                </li>
+
+                <li>
+                    <a href="#installing-non-js-packages">Installing Non-JS Packages</a>
+                </li>
+            </ol>
+        </li>
+
+        <li>
+            <a href="#api-reference">API Reference</a>
+
+            <ol>
+
+                <li>
+                    <a href="#config-files">Config Files</a>
+                </li>
+
+                <li>
+                    <a href="#cli-flags">CLI Flags</a>
+                </li>
+
+                <li>
+                    <a href="#configuration">Configuration</a>
+                </li>
+            </ol>
+        </li>
+
+        <li>
+            <a href="#assets">Assets</a>
+        </li>
+    </ol>
+</nav>
