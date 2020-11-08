@@ -26,10 +26,9 @@
 
 import cacache from 'cacache';
 import isCompressible from 'compressible';
-import merge from 'deepmerge';
 import etag from 'etag';
 import {EventEmitter} from 'events';
-import {createReadStream, existsSync, promises as fs, statSync} from 'fs';
+import {createReadStream, promises as fs, statSync} from 'fs';
 import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
@@ -65,7 +64,6 @@ import {
 import {matchDynamicImportValue} from '../scan-imports';
 import {
   CommandOptions,
-  ImportMap,
   LoadResult,
   OnFileChangeCallback,
   RouteConfigObject,
@@ -74,10 +72,9 @@ import {
 } from '../types/snowpack';
 import {
   BUILD_CACHE,
-  checkLockfileHash,
   cssSourceMappingURL,
-  DEV_DEPENDENCIES_DIR,
   getExt,
+  getPackageSource,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
   isRemoteSpecifier,
@@ -88,9 +85,7 @@ import {
   relativeURL,
   replaceExt,
   resolveDependencyManifest,
-  updateLockfileHash,
 } from '../util';
-import {getInstallTargets, run as installRunner} from './install';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
 
 interface FoundFile {
@@ -149,30 +144,6 @@ class NotFoundError extends Error {
     super('NOT_FOUND');
     this.lookups = lookups;
   }
-}
-
-/**
- * Install dependencies needed in "dev" mode. Generally speaking, this scans
- * your entire source app for dependency install targets, installs them,
- * and then updates the "hash" file used to check node_modules freshness.
- */
-async function installDependencies(commandOptions: CommandOptions) {
-  const {config} = commandOptions;
-  const installTargets = await getInstallTargets(config, commandOptions.lockfile);
-  if (installTargets.length === 0) {
-    logger.info('Nothing to install.');
-    return;
-  }
-  // 2. Install dependencies, based on the scan of your final build.
-  const installResult = await installRunner({
-    ...commandOptions,
-    installTargets,
-    config,
-    shouldPrintStats: true,
-    shouldWriteLockfile: false,
-  });
-  await updateLockfileHash(DEV_DEPENDENCIES_DIR);
-  return installResult;
 }
 
 function shouldProxy(pathPrefix: string, reqUrl: string) {
@@ -288,14 +259,14 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
 }
 
 export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
-  const {lockfile} = commandOptions;
+  const {cwd, config, lockfile} = commandOptions;
   // Start the startup timer!
   let serverStart = performance.now();
 
-  const {cwd, config} = commandOptions;
   const {port: defaultPort, hostname, open} = config.devOptions;
   const messageBus = new EventEmitter();
   const port = await getPort(defaultPort);
+  const pkgSource = getPackageSource(config.experiments.source);
 
   // Reset the clock if we had to wait for the user prompt to select a new port.
   if (port !== defaultPort) {
@@ -350,36 +321,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     },
   });
 
-  // Set the proper install options, in case an install is needed.
-  const dependencyImportMapLoc = path.join(DEV_DEPENDENCIES_DIR, 'import-map.json');
-  logger.debug(`Using cache folder: ${path.relative(cwd, DEV_DEPENDENCIES_DIR)}`);
-  const installCommandOptions = merge(commandOptions, {
-    config: {
-      installOptions: {
-        dest: DEV_DEPENDENCIES_DIR,
-        env: {NODE_ENV: process.env.NODE_ENV || 'development'},
-        treeshake: false,
-      },
-    },
-  });
-
-  // Start with a fresh install of your dependencies, if needed.
-  let dependencyImportMap: ImportMap = {imports: {}};
-  try {
-    dependencyImportMap = JSON.parse(
-      await fs.readFile(dependencyImportMapLoc, {encoding: 'utf-8'}),
-    );
-  } catch (err) {
-    // no import-map found, safe to ignore
-  }
-
-  if (!(await checkLockfileHash(DEV_DEPENDENCIES_DIR)) || !existsSync(dependencyImportMapLoc)) {
-    logger.debug('Cache out of date or missing. Updating...');
-    const installResult = await installDependencies(installCommandOptions);
-    dependencyImportMap = installResult?.importMap || dependencyImportMap;
-  } else {
-    logger.debug(`Cache up-to-date. Using existing cache`);
-  }
+  let sourceImportMap = await pkgSource.prepare(commandOptions);
 
   const devProxies = {};
   config.proxy.forEach(([pathPrefix, proxyOptions]) => {
@@ -535,6 +477,31 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       };
     }
 
+    if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
+      try {
+        const webModuleUrl = reqPath.substr(config.buildOptions.webModulesUrl.length + 1);
+        const response = await pkgSource.load(webModuleUrl, commandOptions);
+        return {
+          contents: encodeResponse(response, encoding),
+          originalFileLoc: null,
+          contentType: path.extname(reqPath)
+            ? mime.lookup(path.extname(reqPath))
+            : 'application/javascript',
+        };
+      } catch (err) {
+        const errorTitle = `Dependency Load Error`;
+        const errorMessage = err.message;
+        logger.error(`${errorTitle}: ${errorMessage}`);
+        hmrEngine.broadcastMessage({
+          type: 'error',
+          title: errorTitle,
+          errorMessage,
+          fileLoc: reqPath,
+        });
+        throw err;
+      }
+    }
+
     const attemptedFileLoads: string[] = [];
     function attemptLoadFile(requestedFile): Promise<null | string> {
       if (attemptedFileLoads.includes(requestedFile)) {
@@ -553,15 +520,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     let isRoute = !requestedFileExt || requestedFileExt === '.html';
 
     async function getFileFromUrl(reqPath: string): Promise<FoundFile | null> {
-      if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
-        const dependencyFileLoc =
-          reqPath.replace(config.buildOptions.webModulesUrl, DEV_DEPENDENCIES_DIR) +
-          (isSourceMap ? '.map' : '');
-        const foundFile = await attemptLoadFile(dependencyFileLoc);
-        if (foundFile) {
-          return {fileLoc: foundFile, isStatic: true, isResolve: false};
-        }
-      }
       for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
         let requestedFile: string;
         if (mountEntry.url === '/') {
@@ -751,7 +709,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       const resolveImportSpecifier = createImportResolver({
         fileLoc,
         lockfile: lockfile,
-        installImportMap: dependencyImportMap,
         config,
       });
       wrappedResponse = await transformFileImports(
@@ -764,7 +721,11 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         (spec) => {
           // Try to resolve the specifier to a known URL in the project
           let resolvedImportUrl = resolveImportSpecifier(spec);
-          // Handle an import that couldn't be resolved
+          // Handle a package import
+          if (!resolvedImportUrl) {
+            resolvedImportUrl = pkgSource.resolvePackageImport(spec, sourceImportMap, config);
+          }
+          // Handle a package import that couldn't be resolved
           if (!resolvedImportUrl) {
             missingPackages.push(spec);
             return spec;
@@ -807,9 +768,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         // Only retry once, to prevent an infinite loop when a package doesn't actually exist.
         if (retryMissing) {
           try {
-            logger.info(colors.yellow('Dependency cache out of date. Updating...'));
-            const installResult = await installDependencies(installCommandOptions);
-            dependencyImportMap = installResult?.importMap || dependencyImportMap;
+            sourceImportMap = await pkgSource.recoverMissingPackageImport(missingPackages);
             return resolveResponseImports(fileLoc, responseExt, wrappedResponse, false);
           } catch (err) {
             const errorTitle = `Dependency Install Error`;
@@ -1418,7 +1377,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
 
   // Watch node_modules & rerun snowpack install if symlinked dep updates
   const symlinkedFileLocs = new Set(
-    Object.keys(dependencyImportMap.imports)
+    Object.keys(sourceImportMap.imports)
       .map((specifier) => {
         const [packageName] = parsePackageImportSpecifier(specifier);
         return resolveDependencyManifest(packageName, cwd);

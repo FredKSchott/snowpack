@@ -73,6 +73,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
     files: ['__tests__/**/*', '**/*.@(spec|test).*'],
   },
   experiments: {
+    source: 'local',
     routes: [],
     ssr: false,
   },
@@ -649,7 +650,9 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
 
   // normalize config URL/path values
   config.buildOptions.baseUrl = addTrailingSlash(config.buildOptions.baseUrl);
-  config.buildOptions.webModulesUrl = addLeadingSlash(config.buildOptions.webModulesUrl);
+  config.buildOptions.webModulesUrl = removeTrailingSlash(
+    addLeadingSlash(config.buildOptions.webModulesUrl),
+  );
   config.buildOptions.metaDir = removeLeadingSlash(
     removeTrailingSlash(config.buildOptions.metaDir),
   );
