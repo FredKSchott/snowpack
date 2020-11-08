@@ -17,15 +17,15 @@ function parseRawPackageImport(spec: string): [string, string | null] {
 }
 
 export async function generateImportMap(
-  webDependencies: Record<string, string>,
+  webDependencies: Record<string, string | null>,
   inheritFromImportMap?: ImportMap,
 ): Promise<ImportMap> {
-  const newLockfile: ImportMap = {imports: {}};
+  const newLockfile: ImportMap = inheritFromImportMap ? {imports: {...inheritFromImportMap.imports}} : {imports: {}};
   await Promise.all(
     Object.entries(webDependencies).map(async ([packageName, packageSemver]) => {
-      if (inheritFromImportMap && inheritFromImportMap.imports[packageName]) {
-        newLockfile.imports[packageName] = inheritFromImportMap.imports[packageName];
-        newLockfile.imports[packageName + '/'] = inheritFromImportMap.imports[packageName + '/'];
+      if (packageSemver === null) {
+        delete newLockfile.imports[packageName];
+        delete newLockfile.imports[packageName + '/'];
         return;
       }
       const lookupResponse = await lookupBySpecifier(packageName, packageSemver);
@@ -46,8 +46,8 @@ export async function generateImportMap(
             deepPinnedUrlParts.push(investigate);
           }
         }
-        newLockfile.imports[packageName] = '/' + deepPinnedUrlParts.join('/');
-        newLockfile.imports[packageName + '/'] = '/' + deepPinnedUrlParts.join('/') + '/';
+        newLockfile.imports[packageName] = SKYPACK_ORIGIN + '/' + deepPinnedUrlParts.join('/');
+        newLockfile.imports[packageName + '/'] = SKYPACK_ORIGIN + '/' + deepPinnedUrlParts.join('/') + '/';
       }
     }),
   );
@@ -102,7 +102,7 @@ export async function fetchCDN(
   let freshResult: Response<string>;
   try {
     freshResult = await got(resourceUrl, {
-      headers: {'user-agent': userAgent || `snowpack/v3.0 (https://www.snowpack.dev)`},
+      headers: {'user-agent': userAgent || `skypack/v0.0.1`},
       throwHttpErrors: false,
     });
   } catch (err) {
@@ -196,7 +196,10 @@ export async function lookupBySpecifier(
     (semverString ? `@${semverString}` : ``) +
     (packagePath ? `/${packagePath}` : ``);
   try {
-    const {body, headers, isCached, isStale} = await fetchCDN(lookupUrl, userAgent);
+    const {body, statusCode, headers, isCached, isStale} = await fetchCDN(lookupUrl, userAgent);
+    if (statusCode !== 200) {
+      throw new Error(body);
+    }
     return {
       error: null,
       body,

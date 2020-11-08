@@ -6,18 +6,13 @@ import crypto from 'crypto';
 import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import fs from 'fs';
-import {send} from 'httpie';
 import {isBinaryFile} from 'isbinaryfile';
 import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
-import validatePackageName from 'validate-npm-package-name';
 import {ImportMap, SnowpackConfig} from './types/snowpack';
 
-import type {HttpieResponse} from 'httpie';
-
-export const PIKA_CDN = `https://cdn.pika.dev`;
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
 
 // A note on cache naming/versioning: We currently version our global caches
@@ -25,7 +20,6 @@ export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
 // same cache across versions until something in the data structure changes.
 // At that point, bump the version in the cache name to create a new unique
 // cache name.
-export const RESOURCE_CACHE = path.join(GLOBAL_CACHE_DIR, 'pkg-cache-1.4');
 export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-2.7');
 
 export const PROJECT_CACHE_DIR =
@@ -41,7 +35,6 @@ export const DEV_DEPENDENCIES_DIR = path.join(
 );
 const LOCKFILE_HASH_FILE = '.hash';
 
-export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
 // NOTE(fks): Must match empty script elements to work properly.
 export const HTML_JS_REGEX = /(<script[^>]*?type="module".*?>)(.*?)<\/script>/gims;
 export const CSS_REGEX = /@import\s*['"](.*?)['"];/gs;
@@ -73,17 +66,6 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
     sortedImportMap.imports[key] = importMap.imports[key];
   }
   fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf-8'});
-}
-
-export function fetchCDNResource<T = unknown>(resourceUrl: string): Promise<HttpieResponse<T>> {
-  if (!resourceUrl.startsWith(PIKA_CDN)) {
-    resourceUrl = PIKA_CDN + resourceUrl;
-  }
-  return send<T>('GET', resourceUrl, {
-    headers: {'user-agent': `snowpack/v1.4 (https://snowpack.dev)`},
-  }).catch((err) => {
-    return err;
-  });
 }
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {
@@ -259,11 +241,7 @@ export async function updateLockfileHash(dir: string) {
 }
 
 export async function clearCache() {
-  return Promise.all([
-    cacache.rm.all(RESOURCE_CACHE),
-    cacache.rm.all(BUILD_CACHE),
-    rimraf.sync(PROJECT_CACHE_DIR),
-  ]);
+  return Promise.all([cacache.rm.all(BUILD_CACHE), rimraf.sync(PROJECT_CACHE_DIR)]);
 }
 
 /**
@@ -344,16 +322,6 @@ export function cssSourceMappingURL(code: string, sourceMappingURL: string) {
 /** JS sourceMappingURL */
 export function jsSourceMappingURL(code: string, sourceMappingURL: string) {
   return code.replace(/\n*$/, '') + `\n//# sourceMappingURL=${sourceMappingURL}\n`; // strip ending lines & append source map (with linebreaks for safety)
-}
-
-/**
- * Formats the snowpack dependency name from a "webDependencies" input value:
- * 2. Remove any ".js"/".mjs" extension (will be added automatically by Rollup)
- */
-export function getWebDependencyName(dep: string): string {
-  return validatePackageName(dep).validForNewPackages
-    ? dep.replace(/\.js$/i, 'js') // if this is a top-level package ending in .js, replace with js (e.g. tippy.js -> tippyjs)
-    : dep.replace(/\.m?js$/i, ''); // otherwise simply strip the extension (Rollup will resolve it)
 }
 
 /** URL relative */

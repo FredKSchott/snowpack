@@ -8,7 +8,6 @@
     "cdn",
     "sdk"
   ],
-  "private": true,
   "author": "Fred K. Schott <fkschott@gmail.com>",
   "license": "MIT",
   "publishConfig": {

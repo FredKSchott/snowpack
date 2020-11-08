@@ -4,7 +4,6 @@ import util from 'util';
 import path from 'path';
 import {performance} from 'perf_hooks';
 import {logger} from '../logger';
-import {resolveTargetsFromRemoteCDN} from '../resolve-remote.js';
 import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
 import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
 import {writeLockfile} from '../util.js';
@@ -13,15 +12,13 @@ const cwd = process.cwd();
 
 export async function getInstallTargets(
   config: SnowpackConfig,
+  lockfile: ImportMap | null,
   scannedFiles?: SnowpackSourceFile[],
 ) {
-  const {knownEntrypoints, webDependencies} = config;
-  const installTargets: InstallTarget[] = [];
+  const {knownEntrypoints} = config;
+  let installTargets: InstallTarget[] = [];
   if (knownEntrypoints) {
     installTargets.push(...scanDepList(knownEntrypoints, cwd));
-  }
-  if (webDependencies) {
-    installTargets.push(...scanDepList(Object.keys(webDependencies), cwd));
   }
   // TODO: remove this if block; move logic inside scanImports
   if (scannedFiles) {
@@ -29,14 +26,29 @@ export async function getInstallTargets(
   } else {
     installTargets.push(...(await scanImports(process.env.NODE_ENV === 'test', config)));
   }
+  if (lockfile) {
+    const importMapSubPaths = Object.keys(lockfile.imports).filter((ent) => ent.endsWith('/'));
+    installTargets = installTargets.filter((t) => {
+      if (lockfile.imports[t.specifier]) {
+        return false;
+      }
+      if (
+        t.specifier.includes('/') &&
+        importMapSubPaths.some((ent) => t.specifier.startsWith(ent))
+      ) {
+        return false;
+      }
+      return true;
+    });
+  }
   return installTargets;
 }
 
 export async function command(commandOptions: CommandOptions) {
-  const {config} = commandOptions;
+  const {config, lockfile} = commandOptions;
 
   logger.debug('Starting install');
-  const installTargets = await getInstallTargets(config);
+  const installTargets = await getInstallTargets(config, lockfile);
   logger.debug('Received install targets');
   if (installTargets.length === 0) {
     logger.error('Nothing to install.');
@@ -74,16 +86,13 @@ interface InstallRunResult {
 
 export async function run({
   config,
-  lockfile,
   installTargets,
   shouldWriteLockfile,
   shouldPrintStats,
 }: InstallRunOptions): Promise<InstallRunResult> {
-  const {webDependencies} = config;
-
   // start
   const installStart = performance.now();
-  logger.info(colors.yellow('installing dependencies...'));
+  logger.info(colors.yellow('! installing dependencies...'));
 
   if (installTargets.length === 0) {
     return {
@@ -94,12 +103,6 @@ export async function run({
   }
 
   let newLockfile: ImportMap | null = null;
-  if (webDependencies && Object.keys(webDependencies).length > 0) {
-    newLockfile = await resolveTargetsFromRemoteCDN(lockfile, config).catch((err) => {
-      logger.error('\n' + err.message || err);
-      process.exit(1);
-    });
-  }
 
   const finalResult = await install(installTargets, {
     cwd,

@@ -156,7 +156,7 @@ class NotFoundError extends Error {
  */
 async function installDependencies(commandOptions: CommandOptions) {
   const {config} = commandOptions;
-  const installTargets = await getInstallTargets(config);
+  const installTargets = await getInstallTargets(config, commandOptions.lockfile);
   if (installTargets.length === 0) {
     logger.info('Nothing to install.');
     return;
@@ -286,6 +286,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
 }
 
 export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
+  const {lockfile} = commandOptions;
   // Start the startup timer!
   let serverStart = performance.now();
 
@@ -744,7 +745,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       let missingPackages: string[] = [];
       const resolveImportSpecifier = createImportResolver({
         fileLoc,
-        dependencyImportMap,
+        lockfile: lockfile,
+        installImportMap: dependencyImportMap,
         config,
       });
       wrappedResponse = await transformFileImports(
@@ -764,7 +766,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           }
           // Ignore "http://*" imports
           if (url.parse(resolvedImportUrl).protocol) {
-            return spec;
+            return resolvedImportUrl;
           }
           // Ignore packages marked as external
           if (config.installOptions.externalPackage?.includes(resolvedImportUrl)) {
