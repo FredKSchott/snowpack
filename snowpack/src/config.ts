@@ -956,15 +956,18 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     }
   }
   // if valid, apply config over defaults
-  const mergedConfig = merge<SnowpackConfig>([
-    pkgManifest.homepage ? {buildOptions: {baseUrl: pkgManifest.homepage}} : {},
-    extendConfig,
-    {webDependencies: pkgManifest.webDependencies},
-    config,
-    cliConfig as any,
-  ], {
-    isMergeableObject: isPlainObject,
-  });
+  const mergedConfig = merge<SnowpackConfig>(
+    [
+      pkgManifest.homepage ? {buildOptions: {baseUrl: pkgManifest.homepage}} : {},
+      extendConfig,
+      {webDependencies: pkgManifest.webDependencies},
+      config,
+      cliConfig as any,
+    ],
+    {
+      isMergeableObject: isPlainObject,
+    },
+  );
   for (const webDependencyName of Object.keys(mergedConfig.webDependencies || {})) {
     if (pkgManifest.dependencies && pkgManifest.dependencies[webDependencyName]) {
       handleConfigError(
