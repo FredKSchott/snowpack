@@ -1,6 +1,5 @@
 ---
 layout: layouts/guide.njk
-permalink: '/guides/react/'
 title: The Snowpack Guide to Getting Started with Svelte
 description: 'Get started with this in-depth tutorial on how to build Svelte applications and websites with Snowpack'
 date: 2020-10-01
