@@ -20,7 +20,7 @@ In this guide, you'll go from an empty directory to a fully configured Snowpack 
 - Enabling Hot Module Replacement (HMR)
 - Connecting your favorite tools
 
-Prerequisites: Snowpack is a command line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of React is not required, Snowpack is a great way to learn React!
+Prerequisites: Snowpack is a command line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of React is not required, Snowpack is a great way to learn Svelte!
 
 > 💡 Tip: if you want to jump to the end to see a full featured React setup, the [Create Snowpack App Svelte template](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) comes with everything you'll learn in this guide plus other useful tools.
 
@@ -55,7 +55,7 @@ npm install svelte --save
 
 > 💡 Tip: add the "--use-yarn" or "--use-pnpm" flag to use something other than npm
 
-You'll also need the `@snowpack/plugin-svelte` plugin so that Snowpack knows how built `.svelte` files into JavaScript and CSS files that run in the browser. Snowpack plugins are a way to extend Snowpack's capabilities with a bare minimum of configuration. To start, install the package in your project:
+You'll also need the `@snowpack/plugin-svelte` plugin so that Snowpack knows how built `.svelte` files into JavaScript and CSS files that run in the browser. Snowpack plugins are a way to extend Snowpack's capabilities without having to do custom configuration. To start, install the package in your project:
 
 ```bash
 npm install @snowpack/plugin-svelte --save-dev
@@ -78,7 +78,7 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
 
 ## Create your first Svelte component
 
-Svelte relies on HTML-based templating in .svelte files. Let's create our first `.svelte` component named `App.svelte` with the following code
+Svelte relies on HTML-based templating in .svelte files. Create your first `.svelte` component named `App.svelte` with the following code
 
 ```svelte
 <script>
@@ -110,7 +110,7 @@ Now head to `index.js` and import it the new `app.svelte` file
 +export default app;
 ```
 
-Start up Snowpack with `npm start` and you should see a page that says "Learn Svelte." Learn job, you now have Svelte up and running. When you make changes to the code and save them, you'll see them instantly in the browser without refreshing the entire page. That's the Hot Module Refresh from `@snowpack/plugin-svelte`.
+Start up Snowpack with `npm start` and you should see a page that says "Learn Svelte." GrewR job, you now have Svelte up and running. When you make changes to the code and save them, you'll see them instantly in the browser without refreshing the entire page. That's the Hot Module Refresh from `@snowpack/plugin-svelte`.
 
 Image: GIF showing code and site side by side, site is a "Learn Svelte" link on a white background. When the text is edit to add "Hello world" and the file saves, the changes show up in the site immediately.
 
@@ -142,7 +142,7 @@ mv index.css public/index.css
 
 This means if you are running Snowpack right now, the site is now broken as the files are all in different places. Lets add a "mount" configuration to update your site to your new project layout.
 
-The `mount` configuration changes where Snowpack looks for and builds files. Every Snowpack project comes with a `snowpack.config.js` file for any configuration that you might need. Right now, you should see a configuration file with empty options. Add this to the empty `mount` object:
+The `mount` configuration changes where Snowpack scan for and builds files. Head back to the `snowpack.config.js` file you edited when you added `@snowpack/plugin-svelte`. Add this to the empty `mount` object:
 
 ```diff
   mount: {
@@ -184,7 +184,7 @@ Add this file [`logo.svg`](https://github.com/snowpackjs/snowpack/blob/master/cr
 
 Image: Site showing the new logo
 
-With Svelte, CSS is included in your `.svelte` component and you'll add it there. Add this code to the top of `App.svelte` between the `<style>` tags:
+With Svelte, CSS can go directly in your `.svelte` component. Add this code to the top of `App.svelte` between the `<style>` tags:
 
 ```css
 <style>
@@ -221,9 +221,9 @@ Image: Gif showing the results with the logo animated
 
 ## Adding a simple counter
 
-In a previous step we demonstrated the built in Hot Module Replacement (HMR) from `@snowpack/plugin-svelte`, but what about the Fast Refresh? Fast Refresh preserves state when you're developing, so you can see how your code changes affect the code that's running live in the browser. In this step you'll add a simple timer with a state based on the seconds on the page so you can see Fast Refresh in action.
+A previous step demonstrated the built in Hot Module Replacement (HMR) from `@snowpack/plugin-svelte`, but what about the Fast Refresh? Fast Refresh preserves state when you're developing, so you can see how your code changes affect the code that's running live in the browser. In this step you'll add a simple timer with a state based on the seconds on the page so you can see Fast Refresh in action.
 
-Svelte components include component specific scripts in a `<script>` tag. Let's add the counter here in `App.svelte` between the `<scripe>` tags:
+Svelte components include component specific scripts in a `<script>` tag. Add the counter here in `App.svelte` between the `<scripe>` tags:
 
 ```js
 <script>
@@ -238,7 +238,7 @@ Svelte components include component specific scripts in a `<script>` tag. Let's 
 </script>
 ```
 
-Then lower down in your component's body, add this code that will display the results of the timer.
+Then lower down in your component's body, add this code that displays the results of the timer.
 
 ```diff
 <div class="App">
@@ -256,40 +256,20 @@ Trying making a change to the code. You'll see the timer does not reset.
 
 Image: GIF showing code and site side by side, when the word "Hello" is added to the .svelte page and the code is saved, the change shows up in the browser without the timer resetting (it keeps counting)
 
-## Hot Module Replacement with Svelte
+What about other files? Like if you had a file with a regular `.js` extension? For non-`.svelte` files you'll need to add this code snippet to the bottom of `index.js` to get full Hot Module Replacement:
 
-POINT TWO: Under stand the concept a bit more, show that there's a bit more to do here.
+```diff
+export default app;
 
-- point: plugin-svelte ONLY enables this fast refresh for .svelte files. With no other changes, a change to `api/getUser.js` would trigger a full page reload.
-- what about your non .svelte files? helpers JS files, state management, etc. example: `api/getUser.js`
-- add the HMR snippet to the top of your app to enable
-- to see it in action, open up your network panel. When you change the index.js file, you should see only that file get fetched, not a full page reload.
-- HMR is super cool and powerful, to learn more about it check out the docs.
-- you could even say: "Feel free to skip this and come back to it if it's too tricky"
-
-HMR: by definition, is the SYSTEM that Snowpack uses to push individual updates. The confusing bit is that developers have starting thinking about it as a feature of their environment: "does Snowpack support HMR".
-
-The 3 Levels of Developer UX Speed
-
-1. Full Browser Refresh on change (browsersync)
-2. Basic HMR - refetch the changed file, and then re-render the app
-3. Fast Refresh - refetch the changed file, and then re-render that single component, preserving state
-
-## Making Snowpack Even Faster with Fast Reload/Hot Module Replacement
-
-Hot Module Replacment (HMR) and Svelte are enhancements that let you push individual file changes to update the browser without refreshing the page.
-
-For example make a change now and you'll see the entire page refresh.
-TODO: GIF
-
-To enable HMR head to `index.js` and add this snippet
-
-```js
-// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-// Learn more: https://www.snowpack.dev/#hot-module-replacement
++// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
++// Learn more: https://www.snowpack.dev/#hot-module-replacement
++if (import.meta.hot) {
++  import.meta.hot.accept();
++  import.meta.hot.dispose(() => {
++    app.$destroy();
++  });
++}
 ```
-
-TODO: GIF
 
 ## Going further
 
@@ -297,7 +277,7 @@ Great job! You're now ready to build the Svelte project of your dreams with Snow
 
 <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-text="I just learned how to build a React app with #Snowpack. Check out the tutorial:" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-At this point you have the basics and have a great starter for any React project. But if you compare with the official [Snowpack Svelte template](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) you'll notice it has some other developer tools you might find useful:
+At this point you have the basics and have a great starter for any Svelte project. But if you compare with the official [Snowpack Svelte template](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) you'll notice it has some other developer tools you might find useful:
 
 - [Prettier](https://prettier.io/)—a popular code formatter
 
