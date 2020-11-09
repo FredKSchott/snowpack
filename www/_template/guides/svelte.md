@@ -80,7 +80,7 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
 
 Svelte relies on HTML-based templating in .svelte files. Create your first `.svelte` component named `App.svelte` with the following code
 
-```svelte
+```html
 <script>
   /* Svelte component logic will go here! */
 </script>
@@ -88,11 +88,16 @@ Svelte relies on HTML-based templating in .svelte files. Create your first `.sve
   /* Styling will go here! */
 </style>
 <div class="App">
-    <header class="App-header">
-        <a class="App-link" href="https://svelte.dev" target="_blank" rel="noopener noreferrer">
-          Learn Svelte
-        </a>
-    </header>
+  <header class="App-header">
+    <a
+      class="App-link"
+      href="https://svelte.dev"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Learn Svelte
+    </a>
+  </header>
 </div>
 ```
 
