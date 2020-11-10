@@ -2,27 +2,6 @@ import path from 'path';
 import {MountEntry, SnowpackConfig} from '../types/snowpack';
 import {getExt, replaceExt} from '../util';
 
-export const defaultFileExtensionMapping = {
-  '.mjs': '.js',
-  '.jsx': '.js',
-  '.ts': '.js',
-  '.tsx': '.js',
-  '.vue': '.js',
-  '.svelte': '.js',
-  '.mdx': '.js',
-  '.svx': '.js',
-  '.elm': '.js',
-  '.yaml': '.json',
-  '.toml': '.json',
-  '.php': '.html',
-  '.md': '.html',
-  '.ejs': '.html',
-  '.njk': '.html',
-  '.scss': '.css',
-  '.sass': '.css',
-  '.less': '.css',
-};
-
 /**
  * Map a file path to the hosted URL for a given "mount" entry.
  */
@@ -44,7 +23,7 @@ export function getUrlForFileMount({
     baseExt,
     mountEntry.static
       ? baseExt
-      : config._extensionMap[baseExt] || defaultFileExtensionMapping[baseExt] || baseExt,
+      : config._extensionMap[baseExt] || baseExt,
   );
 }
 

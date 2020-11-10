@@ -9,7 +9,6 @@ import {validate, ValidatorResult} from 'jsonschema';
 import os from 'os';
 import path from 'path';
 import yargs from 'yargs-parser';
-import {defaultFileExtensionMapping} from './build/file-urls';
 import {logger} from './logger';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
@@ -267,9 +266,7 @@ function parseScript(script: string): {scriptType: string; input: string[]; outp
   } else if (cleanInput[0] === '.vue') {
     cleanOutput = ['.js', '.css'];
   } else if (cleanInput.length > 0) {
-    cleanOutput = Array.from(
-      new Set(cleanInput.map((ext) => defaultFileExtensionMapping[ext] || ext)),
-    );
+    cleanOutput = [...cleanInput];
   }
 
   return {
