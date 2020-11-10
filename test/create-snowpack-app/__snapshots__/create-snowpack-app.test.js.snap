@@ -8931,7 +8931,7 @@ function create_fragment(ctx) {
 			t8 = space();
 			p2 = element(\\"p\\");
 			p2.innerHTML = \`<a class=\\"App-link svelte-1wncah1\\" href=\\"https://svelte.dev\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\">Learn Svelte</a>\`;
-			if (img.src !== (img_src_value = \\"/logo.svg\\")) attr(img, \\"src\\", img_src_value);
+			if (img.src !== (img_src_value = \\"./logo.svg\\")) attr(img, \\"src\\", img_src_value);
 			attr(img, \\"class\\", \\"App-logo svelte-1wncah1\\");
 			attr(img, \\"alt\\", \\"logo\\");
 			attr(p0, \\"class\\", \\"svelte-1wncah1\\");
@@ -9123,7 +9123,7 @@ function create_fragment(ctx) {
 			t8 = space();
 			p2 = element(\\"p\\");
 			p2.innerHTML = \`<a class=\\"App-link svelte-1sqyd3v\\" href=\\"https://svelte.dev\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\">Learn Svelte</a>\`;
-			if (img.src !== (img_src_value = \\"/logo.svg\\")) attr(img, \\"src\\", img_src_value);
+			if (img.src !== (img_src_value = \\"logo.svg\\")) attr(img, \\"src\\", img_src_value);
 			attr(img, \\"class\\", \\"App-logo svelte-1sqyd3v\\");
 			attr(img, \\"alt\\", \\"logo\\");
 			attr(p0, \\"class\\", \\"svelte-1sqyd3v\\");
@@ -9306,10 +9306,11 @@ const defaultExport = {
   }
 };
 import { createVNode as _createVNode, createTextVNode as _createTextVNode, toDisplayString as _toDisplayString, openBlock as _openBlock, createBlock as _createBlock } from \\"../web_modules/vue.js\\"
+import _imports_0 from './logo.svg.js'
 const _hoisted_1 = { class: \\"App\\" }
 const _hoisted_2 = { class: \\"App-header\\" }
 const _hoisted_3 = /*#__PURE__*/_createVNode(\\"img\\", {
-  src: \\"/logo.svg\\",
+  src: _imports_0,
   class: \\"App-logo\\",
   alt: \\"logo\\"
 }, null, -1)
@@ -14494,10 +14495,11 @@ const defaultExport = defineComponent({
   }
 });
 import { createVNode as _createVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, toDisplayString as _toDisplayString, openBlock as _openBlock, createBlock as _createBlock } from \\"../web_modules/vue.js\\"
+import _imports_0 from './logo.svg.js'
 const _hoisted_1 = { class: \\"App\\" }
 const _hoisted_2 = { class: \\"App-header\\" }
 const _hoisted_3 = /*#__PURE__*/_createVNode(\\"img\\", {
-  src: \\"/logo.svg\\",
+  src: _imports_0,
   class: \\"App-logo\\",
   alt: \\"logo\\"
 }, null, -1)
