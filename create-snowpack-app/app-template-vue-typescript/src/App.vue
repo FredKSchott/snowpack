@@ -1,7 +1,7 @@
 <template>
   <div class="App">
     <header class="App-header">
-      <img src="logo.svg" class="App-logo" alt="logo" />
+      <img src="./logo.svg" class="App-logo" alt="logo" />
       <p>
         Edit
         <code>src/App.vue</code> and save to reload.
