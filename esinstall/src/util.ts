@@ -30,7 +30,7 @@ export function parsePackageImportSpecifier(imp: string): [string, string | null
 // @see https://github.com/snowpackjs/snowpack/pull/999.
 export function resolvePath(dep: string, cwd?: string) {
   const options: { paths?: string[] } = {};
-  if (cwd) options.paths = [ __dirname, cwd ];
+  if (cwd) options.paths = [ cwd, __dirname ];
   return fs.realpathSync.native(require.resolve(dep, options));
 }
 
