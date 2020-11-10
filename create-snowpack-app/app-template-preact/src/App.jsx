@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import logo from 'logo.png';
-import 'App.css';
+import logo from './logo.png';
+import './App.css';
 
 function App() {
   // Create the count state.
