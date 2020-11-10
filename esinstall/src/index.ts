@@ -37,6 +37,7 @@ import {
   resolveDependencyManifest,
   sanitizePackageName,
   writeLockfile,
+  resolvePath,
 } from './util';
 
 export * from './types';
@@ -99,9 +100,7 @@ function resolveWebDependency(
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
     return {
       type: isJSFile ? 'JS' : 'ASSET',
-      // For details on why we need to call fs.realpathSync.native here and other places, see
-      // https://github.com/snowpackjs/snowpack/pull/999.
-      loc: fs.realpathSync.native(require.resolve(dep, {paths: [cwd]})),
+      loc: resolvePath(dep, cwd)
     };
   }
   // If dep is a path within a package (but without an extension), we first need
@@ -136,7 +135,7 @@ function resolveWebDependency(
   const [depManifestLoc, depManifest] = resolveDependencyManifest(dep, cwd);
   if (!depManifest) {
     try {
-      const maybeLoc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
+      const maybeLoc = resolvePath(dep, cwd);
       return {
         type: 'JS',
         loc: maybeLoc,
@@ -193,8 +192,8 @@ function resolveWebDependency(
   }
   return {
     type: 'JS',
-    loc: fs.realpathSync.native(
-      require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
+    loc: resolvePath(
+      path.join(depManifestLoc || '', '..', foundEntrypoint)
     ),
   };
 }

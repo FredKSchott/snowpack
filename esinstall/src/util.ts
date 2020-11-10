@@ -48,9 +48,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
   // include a package.json. If we detect that to be the reason for failure,
   // move on to our custom implementation.
   try {
-    const depManifest = fs.realpathSync.native(
-      require.resolve(`${dep}/package.json`, {paths: [cwd]}),
-    );
+    const depManifest = resolvePath(`${dep}/package.json`, cwd);
     return [depManifest, require(depManifest)];
   } catch (err) {
     // if its an export map issue, move on to our manual resolver.
@@ -66,7 +64,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
   // established & move out of experimental mode.
   let result = [null, null] as [string | null, any | null];
   try {
-    const fullPath = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
+    const fullPath = resolvePath(dep, cwd);
     // Strip everything after the package name to get the package root path
     // NOTE: This find-replace is very gross, replace with something like upath.
     const searchPath = `${path.sep}node_modules${path.sep}${dep.replace('/', path.sep)}`;
