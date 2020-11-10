@@ -80,7 +80,7 @@ describe('@snowpack/plugin-optimize', () => {
         buildOptions: {},
       },
       {
-        target: ['es2018']
+        target: ['es2018'],
       },
     );
 
