@@ -26,6 +26,14 @@ export function parsePackageImportSpecifier(imp: string): [string, string | null
   return [name, rest.join('/') || null];
 }
 
+// We need `fs.realpathSync.native` here
+// @see https://github.com/snowpackjs/snowpack/pull/999.
+export function resolvePath(dep: string, cwd?: string) {
+  const options: { paths?: string[] } = {};
+  if (cwd) options.paths = [ __dirname, cwd ];
+  return fs.realpathSync.native(require.resolve(dep, options));
+}
+
 /**
  * Given a package name, look for that package's package.json manifest.
  * Return both the manifest location (if believed to exist) and the
