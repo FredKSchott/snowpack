@@ -1296,7 +1296,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   const ips = Object.values(os.networkInterfaces())
     .reduce((every: os.NetworkInterfaceInfo[], i) => [...every, ...(i || [])], [])
     .filter((i) => i.family === 'IPv4' && i.internal === false)
-    .map((i) => i.address);
+    .map((i) => i.address)
+    .slice(0, 1);
   const protocol = config.devOptions.secure ? 'https:' : 'http:';
   messageBus.emit(paintEvent.SERVER_START, {
     protocol,
