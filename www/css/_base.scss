@@ -383,13 +383,12 @@ img.company-logo {
   line-height: 1;
   font-weight: 900;
   max-width: 424px;
-  margin: 0 auto;
+  margin: 0 auto 0.75rem;
   opacity: 0.9;
 
   @media (min-width: $breakpoint-m) {
     font-size: 5.75rem;
     max-width: none;
-    margin: 0 auto;
     opacity: 1;
   }
 }
