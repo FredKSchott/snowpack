@@ -88,7 +88,7 @@ describe('create-snowpack-app', () => {
     const cwd = path.join(TEMPLATES_DIR, template);
 
     it(`${template} > build`, async () => {
-      await execa('yarn', ['build', '--clean'], {
+      await execa('yarn', ['build', '--clean', '--baseUrl', '/'], {
         // Jest sets NODE_ENV to "test" by default, but this should be undefined in real-world use
         env: {NODE_ENV: undefined},
         cwd,
