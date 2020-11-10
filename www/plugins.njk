@@ -4,6 +4,7 @@ permalink: '/plugins/'
 ---
 
 <style>
+  /* TODO: Clean up and move into _pluginPage.scss */
   #loading-message {
     margin: 1rem;
     text-align: center;
@@ -32,7 +33,7 @@ permalink: '/plugins/'
   .card-descr {
     line-height: 1.25;
     margin-top: 0.25em;
-    margin-bottom: 0.375em;
+    margin-bottom: 0.25em;
     max-width: 80ch;
   }
   .card-subtitle {
@@ -54,6 +55,7 @@ permalink: '/plugins/'
     font-size: 22px;
   }
 </style>
+
 <aside class="grid-toc hidden-mobile">
   {% include 'main-sidebar.njk' %}
 </aside>
@@ -73,12 +75,10 @@ permalink: '/plugins/'
     </p>
   </div>
   <div class="content">
-    <h3 class="pluginPage-subheading">Plugins that will make your blazing fast site even more awesome.</h3>
-    <p class="pluginPage-intro">To learn more about Snowpack plugins, read our full plugin
+    <h3 class="pluginPage-subheading">Customize your build pipeline with Snowpack plugins</h3>
+    <p class="pluginPage-intro">To learn more about our plugin system, read our
       <a href="/#plugins">getting started</a>
-      guide.<br/>To create your own plugin, check out the
-      <a href="/guides/plugins">Plugin Authoring</a>
-      guide.
+      guide.<br/>Can't find what you need? <a href="/guides/plugins">Creating your own plugin is easy!</a>
     </p>
     <div class="pluginPage-count" id="total-result-count"></div>
     <form name="myform" id="myform" class="pluginPage-search" action="https://www.npmjs.com/search" method="GET">
@@ -131,13 +131,21 @@ permalink: '/plugins/'
       }
 
     async function searchPlugins(val) {
-      const res = await fetch(`https://api.skypack.dev/v1/search?q=${encodeURIComponent('snowpack plugin ' + (
-      val || ''))}`);
+      const params3 = new URLSearchParams([
+        [
+          "q", 'snowpack plugin ' + (
+          val || '')
+        ],
+        [
+          "count", "100"
+        ]
+      ]);
+      const res = await fetch(`https://api.skypack.dev/v1/search?${params3.toString()}`);
       const results = await res.json();
-      if (val === undefined) {
+      if (val === undefined && results.results && results.results.length > 50) {
         document
           .getElementById('total-result-count')
-          .innerText = 'Snowpack has over 62 plugins, with more added every day!';
+          .innerText = results.results.length + ' amazing plugins available!';
       }
       if (!results.results || results.results.length === 0) {
         render(html `<ul class="cards"><li style="margin: 1rem; text-align: center;">No results found.</li></ul>`, document.getElementById('search-results'),);

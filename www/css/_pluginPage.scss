@@ -1,6 +1,6 @@
 .pluginPage {
+
   &-count {
-    margin-top: 1.5rem;
     margin-bottom: 1.5rem;
     color: rgba(black, 0.6);
     font-weight: 300;
@@ -29,6 +29,7 @@
     width: 100%;
 
     &-input {
+      font-size: 1em;
       box-sizing: border-box;
       padding: 0.25em 0.75em;
       flex-shrink: 0;

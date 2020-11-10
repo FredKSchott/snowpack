@@ -1361,7 +1361,7 @@ img.company-logo {
 
 .markdown-body, .content {
   padding: 0 1em;
-  margin-bottom: 50vh;
+  margin-bottom: 20vh;
   margin-left: auto;
   margin-right: auto;
   max-width: 1000px;
@@ -1391,16 +1391,19 @@ img.company-logo {
 }
 .markdown-body h2 {
   font-size: 3em;
-  margin-top: 48px;
+  margin-top: -12px;
+  padding-top: 60px;
 }
 .markdown-body h3 {
-  margin-top: 48px;
+  margin-top: -12px;
+  padding-top: 60px;
 }
 .markdown-body h3:hover .header-link {
   opacity: 1;
 }
 .markdown-body h4 {
-  margin-top: 24px;
+  margin-top: -36px;
+  padding-top: 60px;
   text-transform: uppercase;
   text-decoration: none;
   font-weight: bold;
@@ -1527,7 +1530,6 @@ img.company-logo {
   }
 }
 .pluginPage-count {
-  margin-top: 1.5rem;
   margin-bottom: 1.5rem;
   color: rgba(0, 0, 0, 0.6);
   font-weight: 300;
@@ -1554,6 +1556,7 @@ img.company-logo {
   width: 100%;
 }
 .pluginPage-search-input {
+  font-size: 1em;
   box-sizing: border-box;
   padding: 0.25em 0.75em;
   flex-shrink: 0;
