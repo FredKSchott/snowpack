@@ -422,7 +422,7 @@ export async function command(commandOptions: CommandOptions) {
       const finalDestLoc = path.join(buildDirectoryLoc, finalUrl);
       const outDir = path.dirname(finalDestLoc);
       const buildPipelineFile = new FileBuilder({
-        fileURL: url.pathToFileURL(fileLoc)
+        fileURL: url.pathToFileURL(fileLoc),
         mountEntry,
         outDir,
         config,
