@@ -9,7 +9,9 @@ sidebarTitle: React
 
 <img src="/img/SvelteGuide.jpg" alt="header image, showing the Svelte and Snowpack logo against a background of blue mountains" />
 
-Snowpack is a great fit for [Svelte](https://svelte.dev/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional Svelte application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files. (SOLICIT QUOTE/TESTIMONIAL about Svelte/Sveltekit + Snowpack).
+Snowpack is a great fit for [Svelte](https://svelte.dev/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional Svelte application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
+
+> Snowpack is … astonishingly fast, and has a beautiful development experience (hot module reloading, error overlays and so on), and we've been working closely with the Snowpack team on features like SSR. The hot module reloading is particularly revelatory. - [Rich Harris, creator of Svelte](https://svelte.dev/blog/whats-the-deal-with-sveltekit)
 
 In this guide, you'll go from an empty directory to a fully configured Snowpack project with support for Svelte and several other useful developer tools. In the process, you'll learn:
 
