@@ -8,7 +8,7 @@ const {init} = require('es-module-lexer');
 const mkdirp = require('mkdirp');
 const PQueue = require('p-queue').default;
 const {injectHTML} = require('node-inject-html');
-const {buildImportCSS, transformCSSProxy, removeCSSFiles} = require('./lib/css');
+const {buildImportCSS, transformCSSProxy} = require('./lib/css');
 const {scanHTML, preloadJS} = require('./lib/html');
 const {formatManifest, log} = require('./util');
 
@@ -113,7 +113,7 @@ exports.default = function plugin(config, userDefinedOptions) {
       const allFiles = glob
         .sync('**/*', {
           cwd: buildDirectory,
-          ignore: [`${config.buildOptions.metaDir}/*`, ...((options && options.exclude) || [])],
+          ignore: [`${config.buildOptions.metaDir}/*`],
           nodir: true,
         })
         .map((file) => path.join(buildDirectory, file)); // resolve to root dir
