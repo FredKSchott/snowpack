@@ -8,6 +8,7 @@ import {validate, ValidatorResult} from 'jsonschema';
 import os from 'os';
 import path from 'path';
 import yargs from 'yargs-parser';
+import url from 'url';
 
 import {defaultFileExtensionMapping} from './build/file-urls';
 import {logger} from './logger';
@@ -323,7 +324,7 @@ function loadPlugins(
       plugin.load = async (options: PluginLoadOptions) => {
         const result = await build({
           ...options,
-          contents: await readFile(options.filePath),
+          contents: await readFile(url.pathToFileURL(options.filePath)),
         }).catch((err) => {
           logger.error(
             `[${plugin.name}] There was a problem running this older plugin. Please update the plugin to the latest version.`,
