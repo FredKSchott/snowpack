@@ -12838,6 +12838,13 @@ rollup@^2.20.0, rollup@^2.23.0:
   optionalDependencies:
     fsevents "~2.1.2"
 
+rollup@^2.33.1:
+  version "2.33.1"
+  resolved "https://descinet.bbva.es/artifactory/api/npm/npm/rollup/-/rollup-2.33.1.tgz#802795164164ee63cd47769d8879c33ec8ae0c40"
+  integrity sha1-gCeVFkFk7mPNR3adiHnDPsiuDEA=
+  optionalDependencies:
+    fsevents "~2.1.2"
+
 rsvp@^4.8.4:
   version "4.8.5"
   resolved "https://registry.yarnpkg.com/rsvp/-/rsvp-4.8.5.tgz#c8f155311d167f68f21e168df71ec5b083113734"
