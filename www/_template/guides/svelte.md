@@ -9,13 +9,13 @@ sidebarTitle: React
 
 <img src="/img/SvelteGuide.jpg" alt="header image, showing the Svelte and Snowpack logo against a background of blue mountains" />
 
-Snowpack is a great fit for [Svelte](https://svelte.dev/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional Svelte application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
+Snowpack is a great fit for [Svelte](https://svelte.dev/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional Svelte application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files. (SOLICIT QUOTE/TESTIMONIAL about Svelte/Sveltekit + Snowpack).
 
 In this guide, you'll go from an empty directory to a fully configured Snowpack project with support for Svelte and several other useful developer tools. In the process, you'll learn:
 
 - How to set up your Snowpack development environment
 - Adding your first Svelte component
-- Working with CSS, images and other web assets
+- Importing images and other web assets
 - Enabling Hot Module Replacement (HMR)
 - Connecting your favorite tools
 
@@ -54,7 +54,7 @@ npm install svelte --save
 
 > 💡 Tip: add the "--use-yarn" or "--use-pnpm" flag to use something other than npm
 
-You'll also need the `@snowpack/plugin-svelte` plugin so that Snowpack knows how built `.svelte` files into JavaScript and CSS files that run in the browser. Snowpack plugins are a way to extend Snowpack's capabilities without having to do custom configuration. To start, install the package in your project:
+You'll also need the `@snowpack/plugin-svelte` plugin so that Snowpack knows how built `.svelte` files into JavaScript and CSS files that run in the browser. Snowpack plugins are a way to extend Snowpack's capabilities without having to do custom configuration yourself. To start, install the package in your project:
 
 ```bash
 npm install @snowpack/plugin-svelte --save-dev
@@ -73,18 +73,18 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
   };
 ```
 
-`@snowpack/plugin-svelte` also has built in HMR (hot module replacement) and Fast Refresh, features you'll explore in the next step.
+`@snowpack/plugin-svelte` also has built in HMR (hot module replacement) and Fast Refresh, features you'll explore later on in this guide.
 
 ## Create your first Svelte component
 
-Svelte relies on HTML-based templating in .svelte files. Create your first `.svelte` component named `App.svelte` with the following code
+Once @snowpack/plugin-svelte is connected, Snowpack will automatically build `.svelte` files to JS and CSS to run in the browser. Create your first `.svelte` component named `App.svelte` with the following code:
 
 ```html
 <script>
-  /* Svelte component logic will go here! */
+  /* component logic will go here */
 </script>
 <style>
-  /* Styling will go here! */
+  /* css will go here*/
 </style>
 <div class="App">
   <header class="App-header">
@@ -104,7 +104,7 @@ Now head to `index.js` and import it the new `app.svelte` file
 
 ```diff
 /* Add JavaScript code here! */
--console.log('Hello World! You did! Welcome to Snowpack :D');
+-console.log('Hello World! You did it! Welcome to Snowpack :D');
 +import App from "./App.svelte";
 
 +var app = new App({
@@ -114,11 +114,9 @@ Now head to `index.js` and import it the new `app.svelte` file
 +export default app;
 ```
 
-Start up Snowpack with `npm start` and you should see a page that says "Learn Svelte." GrewR job, you now have Svelte up and running. When you make changes to the code and save them, you'll see them instantly in the browser without refreshing the entire page. That's the Hot Module Refresh from `@snowpack/plugin-svelte`.
+Start up Snowpack with `npm start` and you should see a page that says "Learn Svelte." GrewR job, you now have Svelte up and running. When you make changes to the code and save them, you'll see them instantly in the browser without refreshing the entire page.
 
 Image: GIF showing code and site side by side, site is a "Learn Svelte" link on a white background. When the text is edit to add "Hello world" and the file saves, the changes show up in the site immediately.
-
-> 💡 Tip: check out your network tab in the browser inspector- you'll see only the file that changed reloading, not all the files that make up the site.
 
 ## Customize your project layout
 
@@ -175,8 +173,6 @@ You'll need to restart Snowpack for configuration file changes. When you start u
 
 Your site is a little plain, so in this step you'll add an image and animate it with CSS.
 
-> 💡 Tip: as you're doing this, you should not need to reload the page or restart Snowpack. Snowpack automatically updates the project in the browser as you edit code.
-
 Add this file [`logo.svg`](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-svelte/public/logo.svg) to your `public` directory. Now you can add it to your `App.svelte`
 
 ```diff
@@ -223,9 +219,9 @@ With Svelte, CSS can go directly in your `.svelte` component. Add this code to t
 
 Image: Gif showing the results with the logo animated
 
-## Adding a simple counter
+## Expanding your Svelte component
 
-A previous step demonstrated the built in Hot Module Replacement (HMR) from `@snowpack/plugin-svelte`, but what about the Fast Refresh? Fast Refresh preserves state when you're developing, so you can see how your code changes affect the code that's running live in the browser. In this step you'll add a simple timer with a state based on the seconds on the page so you can see Fast Refresh in action.
+A previous step demonstrated the built in Hot Module Replacement (HMR) from `@snowpack/plugin-svelte`, but what about Fast Refresh? Snowpack is one of the only Svelte dev environments to support Fast Refresh by default. As you make changes to `.svelte` files, Snowpack will automatically update the browser for you without losing your place or resetting component state. That's Fast Refresh in action. To see this for yourself, go ahead and add a simple timer to your App.svelte component:
 
 Svelte components include component specific scripts in a `<script>` tag. Add the counter here in `App.svelte` between the `<scripe>` tags:
 
