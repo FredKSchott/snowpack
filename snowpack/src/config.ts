@@ -80,10 +80,6 @@ const configSchema = {
     install: {type: 'array', items: {type: 'string'}},
     exclude: {type: 'array', items: {type: 'string'}},
     plugins: {type: 'array'},
-    webDependencies: {
-      type: ['object'],
-      additionalProperties: {type: 'string'},
-    },
     scripts: {
       type: ['object'],
       additionalProperties: {type: 'string'},
@@ -965,18 +961,6 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
       isMergeableObject: isPlainObject,
     },
   );
-  for (const webDependencyName of Object.keys(mergedConfig.webDependencies || {})) {
-    if (pkgManifest.dependencies && pkgManifest.dependencies[webDependencyName]) {
-      handleConfigError(
-        `"${webDependencyName}" is included in "webDependencies". Please remove it from your package.json "dependencies" config.`,
-      );
-    }
-    if (pkgManifest.devDependencies && pkgManifest.devDependencies[webDependencyName]) {
-      handleConfigError(
-        `"${webDependencyName}" is included in "webDependencies". Please remove it from your package.json "devDependencies" config.`,
-      );
-    }
-  }
 
   const [validationErrors, configResult] = createConfiguration(mergedConfig);
   if (validationErrors) {

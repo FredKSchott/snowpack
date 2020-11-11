@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`snowpack install error-missing-dep: cli output 1`] = `
-"[snowpack] installing dependencies...
+"[snowpack] ! installing dependencies...
 [snowpack] Package \\"fake-module\\" not found. Have you installed it?"
 `;

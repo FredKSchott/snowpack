@@ -185,7 +185,6 @@ export interface SnowpackConfig {
   extends?: string;
   exclude: string[];
   knownEntrypoints: string[];
-  webDependencies?: {[packageName: string]: string};
   proxy: Proxy[];
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;

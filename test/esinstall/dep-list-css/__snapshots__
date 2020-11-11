@@ -9,7 +9,7 @@ Array [
 `;
 
 exports[`snowpack install dep-list-css: cli output 1`] = `
-"[snowpack] installing dependencies...
+"[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!"
 `;
 
