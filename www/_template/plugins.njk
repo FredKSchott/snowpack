@@ -1,0 +1,166 @@
+---
+layout: layouts/base.njk
+permalink: '/plugins/'
+---
+
+<style>
+  /* TODO: Clean up and move into _pluginPage.scss */
+  #loading-message {
+    margin: 1rem;
+    text-align: center;
+  }
+  .cards {
+    list-style: none;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .plugin-icon {
+    height: 42px;
+    width: 42px;
+    float: left;
+    margin-left: -56px;
+    margin-top: 6px;
+    opacity: 0.4;
+  }
+  .card {
+    margin: 1rem 0.25em;
+    border-radius: 4px;
+    padding: 0.5rem 0.5rem 0.5rem 48px;
+  }
+  .card-header {
+    font-size: 1.1447rem;
+  }
+  .card-descr {
+    line-height: 1.25;
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+    max-width: 80ch;
+  }
+  .card-subtitle {
+    color: #7986a5;
+    font-size: 0.8735804647362989em;
+  }
+  .sky-form {
+    display: flex;
+    padding: 0.5rem;
+    justify-content: center;
+  }
+  .sky-btn {
+    background: #2e5e82;
+    color: white;
+    border: none;
+    border-radius: 0 2px 2px 0;
+    font-weight: 500;
+    padding: 0.5rem;
+    font-size: 22px;
+  }
+</style>
+
+<aside class="grid-toc hidden-mobile">
+  {% include '_includes/layouts/menu.njk' %}
+</aside>
+
+<article id="grid-body" class="grid-body">
+  <div class="grid-body-header">
+    <svg height="64px" style="padding-left: 8px;" viewbox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <g id="Page-1" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
+        <g id="mountain-solid" transform="translate(-1.000000, 0.000000)" fill-rule="nonzero">
+          <path d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z" id="Shape"></path>
+        </g>
+      </g>
+    </svg>
+    <h1 class="header-snowpack">Snowpack</h1>
+    <p class="header-snowpack-subtitle">
+      The Snowpack Plugin Catalog
+    </p>
+  </div>
+  <div class="content">
+    <h3 class="pluginPage-subheading">Customize your build pipeline with Snowpack plugins</h3>
+    <p class="pluginPage-intro">To learn more about our plugin system, read our
+      <a href="/getting-start">getting started</a>
+      guide.<br/>Can't find what you need? <a href="/guides/plugins">Creating your own plugin is easy!</a>
+    </p>
+    <div class="pluginPage-count" id="total-result-count"></div>
+    <form name="myform" id="myform" class="pluginPage-search" action="https://www.npmjs.com/search" method="GET">
+      <input type="search" name="q" value="" placeholder="search Sass, sitemaps, image optimization..." class="pluginPage-search-input">
+      <button type="submit" class="pluginPage-search-submit">Search</button>
+    </form>
+
+    <br/>
+    <h2 class="pluginPage-zero-heading">Popular Snowpack Plugins</h2>
+
+    <section id="search-results">
+      <div id="loading-message">Loading...</div>
+    </section>
+  </div>
+
+  <script type="module">
+    import {html, render} from 'https://cdn.skypack.dev/htm/preact/standalone.module.js'
+
+    function Card({result}) {
+      return html ` <li class="card">
+      <img class="plugin-icon" src="/img/backpack.svg" />
+      <header class="card-header">
+        <h3 class="card-name">
+          <a href="https://www.skypack.dev/view/${result
+        .name}" target="_blank"><span itemprop="name">${result
+        .name}</span></a>
+        </h3>
+      </header>
+      <p class="card-descr" itemprop="description">${result
+        .description
+        .split('. ')[0]}</p>
+      <p class="card-subtitle">
+		    Updated <time class="" datetime="${result
+        .updatedAt}">August 10, 2020</time>
+      </p>
+    </li>`;
+    }
+
+    document
+      .getElementById('myform')
+      .onsubmit = function DoSubmit(e) {
+        const form = new FormData(e.target);
+        const formula = form.get("q");
+        document
+          .getElementById('loading-message')
+          .style
+          .display = 'block';
+        searchPlugins(formula);
+        return false;
+      }
+
+    async function searchPlugins(val) {
+      const params3 = new URLSearchParams([
+        [
+          "q", 'snowpack plugin ' + (
+          val || '')
+        ],
+        [
+          "count", "100"
+        ]
+      ]);
+      const res = await fetch(`https://api.skypack.dev/v1/search?${params3.toString()}`);
+      const results = await res.json();
+      if (val === undefined && results.results && results.results.length > 50) {
+        document
+          .getElementById('total-result-count')
+          .innerText = results.results.length + ' amazing plugins available!';
+      }
+      if (!results.results || results.results.length === 0) {
+        render(html `<ul class="cards"><li style="margin: 1rem; text-align: center;">No results found.</li></ul>`, document.getElementById('search-results'),);
+      } else {
+        render(html `<ul class="cards">${results.results.map(r => html `<${Card} result=${r} />`)}</ul>`, document.getElementById('search-results'),);
+      }
+      if (document.getElementById('loading-message')) {
+        document
+          .getElementById('loading-message')
+          .style
+          .display = 'none';
+      }
+    }
+
+    searchPlugins();
+    </script>
+  <script type="module">
+  </script>

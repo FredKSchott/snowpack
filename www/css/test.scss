@@ -130,10 +130,6 @@ img.company-logo {
   }
 }
 
-.grid-body .markdown-body {
-  padding-top: 52px;
-}
-
 .grid-body-header {
   line-height: 1.5;
   margin: 3rem 0 0;
@@ -471,6 +467,7 @@ img.company-logo {
     padding: 0 3em;
   }
 }
+
 .markdown-body {
   h2,
   h3 {
@@ -540,7 +537,7 @@ img.company-logo {
   background: #258ad622;
 }
 
-.menu {
+.toc {
   background: #2e5e82;
   min-height: 100%;
   padding: 1rem;
