@@ -198,7 +198,7 @@ export async function lookupBySpecifier(
   try {
     const {body, statusCode, headers, isCached, isStale} = await fetchCDN(lookupUrl, userAgent);
     if (statusCode !== 200) {
-      throw new Error(body);
+      return {error: new Error(body)};
     }
     return {
       error: null,
