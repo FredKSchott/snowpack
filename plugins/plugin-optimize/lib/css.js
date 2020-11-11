@@ -109,6 +109,7 @@ function buildImportCSS(manifest, minifyCSS) {
     } else {
       // normal css
       code += '\n' + contents;
+      fs.unlinkSync(file); // after we‘ve scanned a CSS file, remove it (so it‘s not double-loaded)
     }
   });
 
