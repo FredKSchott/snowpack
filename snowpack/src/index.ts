@@ -3,6 +3,7 @@ import path from 'path';
 import util from 'util';
 import yargs from 'yargs-parser';
 import {addCommand, rmCommand} from './commands/add-rm';
+import {command as initCommand} from './commands/init';
 import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {command as installCommand} from './commands/install';
@@ -44,6 +45,7 @@ ${colors.bold(`snowpack`)} - A faster build system for the modern web.
   📖 ${colors.dim('https://www.snowpack.dev/#configuration')}
 
 ${colors.bold('Commands:')}
+  snowpack init         Create a new project config file.
   snowpack dev          Develop your app locally.
   snowpack build        Build your app for production.
   snowpack install      (Advanced) Install web-ready dependencies.
@@ -92,8 +94,12 @@ export async function cli(args: string[]) {
     process.exit(1);
   }
 
-  const cmd = cliFlags['_'][2] || 'install';
+  const cmd = cliFlags['_'][2];
   logger.debug(`run command: ${cmd}`);
+  if (!cmd) {
+    printHelp();
+    process.exit(1);
+  }
 
   // Set this early -- before config loading -- so that plugins see it.
   if (cmd === 'build') {
@@ -129,6 +135,10 @@ export async function cli(args: string[]) {
     process.exit(1);
   }
 
+  if (cmd === 'init') {
+    await initCommand(commandOptions);
+    return process.exit(0);
+  }
   if (cmd === 'build') {
     await buildCommand(commandOptions);
     return process.exit(0);

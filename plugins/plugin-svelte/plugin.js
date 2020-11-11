@@ -18,6 +18,8 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   snowpackConfig.installOptions.rollup.plugins.push(
     svelteRollupPlugin({include: '**/node_modules/**', dev: isDev}),
   );
+  // Support importing sharable Svelte components.
+  snowpackConfig.installOptions.packageLookupFields.push('svelte');
 
   if (
     pluginOptions.generate !== undefined ||

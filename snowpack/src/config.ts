@@ -4,11 +4,11 @@ import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
 import * as esbuild from 'esbuild';
 import http from 'http';
+import {isPlainObject} from 'is-plain-object';
 import {validate, ValidatorResult} from 'jsonschema';
 import os from 'os';
 import path from 'path';
 import yargs from 'yargs-parser';
-import {defaultFileExtensionMapping} from './build/file-urls';
 import {logger} from './logger';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
@@ -266,9 +266,7 @@ function parseScript(script: string): {scriptType: string; input: string[]; outp
   } else if (cleanInput[0] === '.vue') {
     cleanOutput = ['.js', '.css'];
   } else if (cleanInput.length > 0) {
-    cleanOutput = Array.from(
-      new Set(cleanInput.map((ext) => defaultFileExtensionMapping[ext] || ext)),
-    );
+    cleanOutput = [...cleanInput];
   }
 
   return {
@@ -855,7 +853,9 @@ export function createConfiguration(
   if (validationErrors.length > 0) {
     return [validationErrors, undefined];
   }
-  const mergedConfig = merge<SnowpackConfig>([DEFAULT_CONFIG, config]);
+  const mergedConfig = merge<SnowpackConfig>([DEFAULT_CONFIG, config], {
+    isMergeableObject: isPlainObject,
+  });
   return [null, normalizeConfig(mergedConfig)];
 }
 
@@ -953,13 +953,18 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     }
   }
   // if valid, apply config over defaults
-  const mergedConfig = merge<SnowpackConfig>([
-    pkgManifest.homepage ? {buildOptions: {baseUrl: pkgManifest.homepage}} : {},
-    extendConfig,
-    {webDependencies: pkgManifest.webDependencies},
-    config,
-    cliConfig as any,
-  ]);
+  const mergedConfig = merge<SnowpackConfig>(
+    [
+      pkgManifest.homepage ? {buildOptions: {baseUrl: pkgManifest.homepage}} : {},
+      extendConfig,
+      {webDependencies: pkgManifest.webDependencies},
+      config,
+      cliConfig as any,
+    ],
+    {
+      isMergeableObject: isPlainObject,
+    },
+  );
   for (const webDependencyName of Object.keys(mergedConfig.webDependencies || {})) {
     if (pkgManifest.dependencies && pkgManifest.dependencies[webDependencyName]) {
       handleConfigError(

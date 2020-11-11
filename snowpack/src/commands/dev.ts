@@ -181,11 +181,10 @@ function shouldProxy(pathPrefix: string, reqUrl: string) {
 function sendResponseFile(
   req: http.IncomingMessage,
   res: http.ServerResponse,
-  {contents, originalFileLoc, responseFileName}: LoadResult,
+  {contents, originalFileLoc, contentType}: LoadResult,
 ) {
   const body = Buffer.from(contents);
   const ETag = etag(body, {weak: true});
-  const contentType = mime.contentType(responseFileName);
   const headers: Record<string, string> = {
     'Accept-Ranges': 'bytes',
     'Access-Control-Allow-Origin': '*',
@@ -515,21 +514,21 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       return {
         contents: encodeResponse(HMR_CLIENT_CODE, encoding),
         originalFileLoc: null,
-        responseFileName: 'hmr-client.js',
+        contentType: 'application/javascript',
       };
     }
     if (reqPath === getMetaUrlPath('/hmr-error-overlay.js', config)) {
       return {
         contents: encodeResponse(HMR_OVERLAY_CODE, encoding),
         originalFileLoc: null,
-        responseFileName: 'hmr-error-overlay.js',
+        contentType: 'application/javascript',
       };
     }
     if (reqPath === getMetaUrlPath('/env.js', config)) {
       return {
         contents: encodeResponse(generateEnvModule({mode: 'development', isSSR}), encoding),
         originalFileLoc: null,
-        responseFileName: 'env.js',
+        contentType: 'application/javascript',
       };
     }
 
@@ -639,8 +638,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     if (!foundFile) {
       throw new NotFoundError(attemptedFileLoads);
     }
-
-    const {fileLoc, isStatic, isResolve} = foundFile;
 
     /**
      * Given a file, build it. Building a file sends it through our internal
@@ -911,6 +908,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       return finalResponse;
     }
 
+    const {fileLoc, isStatic, isResolve} = foundFile;
+
     // 1. Check the hot build cache. If it's already found, then just serve it.
     let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(
       getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
@@ -936,17 +935,12 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       return {
         contents: encodeResponse(responseContent, encoding),
         originalFileLoc: fileLoc,
-        responseFileName: replaceExt(
-          path.basename(fileLoc),
-          path.extname(fileLoc),
-          responseFileExt,
-        ),
+        contentType: mime.lookup(responseFileExt),
       };
     }
 
     // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
     const fileContents = await readFile(fileLoc);
-
     // 3. Send static files directly, since they were already build & resolved at install time.
     if (!isProxyModule && isStatic) {
       // If no resolution needed, just send the file directly.
@@ -954,11 +948,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         return {
           contents: encodeResponse(fileContents, encoding),
           originalFileLoc: fileLoc,
-          responseFileName: replaceExt(
-            path.basename(fileLoc),
-            path.extname(fileLoc),
-            responseFileExt,
-          ),
+          contentType: mime.lookup(responseFileExt),
         };
       }
       // Otherwise, finalize the response (where resolution happens) before sending.
@@ -984,11 +974,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       return {
         contents: encodeResponse(responseContent, encoding),
         originalFileLoc: fileLoc,
-        responseFileName: replaceExt(
-          path.basename(fileLoc),
-          path.extname(fileLoc),
-          responseFileExt,
-        ),
+        contentType: mime.lookup(responseFileExt),
       };
     }
 
@@ -1036,11 +1022,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         return {
           contents: encodeResponse(wrappedResponse, encoding),
           originalFileLoc: fileLoc,
-          responseFileName: replaceExt(
-            path.basename(fileLoc),
-            path.extname(fileLoc),
-            responseFileExt,
-          ),
+          contentType: mime.lookup(responseFileExt),
           // ...but verify.
           checkStale: async () => {
             let checkFinalBuildResult: SnowpackBuildMap | null = null;
@@ -1115,7 +1097,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     return {
       contents: encodeResponse(responseContent, encoding),
       originalFileLoc: fileLoc,
-      responseFileName: replaceExt(path.basename(fileLoc), path.extname(fileLoc), responseFileExt),
+      contentType: mime.lookup(responseFileExt),
     };
   }
 
@@ -1157,7 +1139,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     }
     // Check if we can send back an optimized 304 response
     const quickETagCheck = req.headers['if-none-match'];
-    if (quickETagCheck && quickETagCheck === knownETags.get(reqUrl)) {
+    const quickETagCheckUrl = reqUrl.replace(/\/$/, '/index.html');
+    if (quickETagCheck && quickETagCheck === knownETags.get(quickETagCheckUrl)) {
       logger.debug(`optimized etag! sending 304...`);
       res.writeHead(304, {'Access-Control-Allow-Origin': '*'});
       res.end();
@@ -1196,10 +1179,10 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         responseHandler as Http2RequestListener,
       );
     } else if (credentials) {
-      return https.createServer(credentials, handleRequest);
+      return https.createServer(credentials, responseHandler as http.RequestListener);
     }
 
-    return http.createServer(handleRequest);
+    return http.createServer(responseHandler as http.RequestListener);
   };
 
   const server = createServer(async (req, res) => {

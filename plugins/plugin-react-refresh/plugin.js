@@ -18,13 +18,15 @@ function transformHtml(contents) {
     `$&
 <script>
   function debounce(e,t){let u;return()=>{clearTimeout(u),u=setTimeout(e,t)}}
-  const exports = {};
-  ${reactRefreshCode}
-  exports.performReactRefresh = debounce(exports.performReactRefresh, 30);
-  window.$RefreshRuntime$ = exports;
-  window.$RefreshRuntime$.injectIntoGlobalHook(window);
-  window.$RefreshReg$ = () => {};
-  window.$RefreshSig$ = () => (type) => type;
+  {
+    const exports = {};
+    ${reactRefreshCode}
+    exports.performReactRefresh = debounce(exports.performReactRefresh, 30);
+    window.$RefreshRuntime$ = exports;
+    window.$RefreshRuntime$.injectIntoGlobalHook(window);
+    window.$RefreshReg$ = () => {};
+    window.$RefreshSig$ = () => (type) => type;
+  }
 </script>`,
   );
 }

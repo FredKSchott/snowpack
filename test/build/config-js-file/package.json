@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-config-js-file",
+  "description": "Test for a js config file",
+  "scripts": {
+    "testbuild": "snowpack build"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.2",
+    "snowpack": "^2.14.3"
+  }
+}

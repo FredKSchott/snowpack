@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "name": "@snowpack/test-exclude",
   "scripts": {
-    "testinstall": "snowpack  --exclude 'src/exclude.js'"
+    "testinstall": "snowpack install --exclude 'src/exclude.js'"
   },
   "snowpack": {
     "buildOptions": {
