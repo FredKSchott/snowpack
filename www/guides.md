@@ -1,5 +1,5 @@
 ---
-layout: layouts/guide.njk
+layout: layouts/temp.njk
 ---
 
 ## Guides
