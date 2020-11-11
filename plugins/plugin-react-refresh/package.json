@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/plugin-react-refresh",
-  "version": "2.3.4",
+  "version": "2.3.7",
   "main": "plugin.js",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-react-refresh#readme",
@@ -15,7 +15,7 @@
   "dependencies": {
     "@babel/core": "^7.0.0",
     "@babel/plugin-syntax-class-properties": "^7.10.0",
-    "react-refresh": "^0.8.3"
+    "react-refresh": "^0.9.0"
   },
   "peerDependencies": {
     "react": ">=16.10.0",

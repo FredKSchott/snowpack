@@ -1,6 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`snowpack install error-react-source-pika: cli output 1`] = `
-"[snowpack] installing dependencies...
-[snowpack] React workaround packages no longer needed! Revert to the official React & React-DOM packages."
-`;

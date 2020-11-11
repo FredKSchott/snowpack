@@ -20,6 +20,6 @@ jobs:
           node-version: ${{ env.node_version }}
       - name: lint
         run: |
-          yarn --ignore-engines
+          yarn --ignore-engines --frozen-lockfile
           yarn build
           yarn lint

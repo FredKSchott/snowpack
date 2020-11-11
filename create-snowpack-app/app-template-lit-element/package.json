@@ -1,7 +1,7 @@
 {
   "name": "@snowpack/app-template-lit-element",
   "description": "A preconfigured template for Snowpack with LitElement",
-  "version": "1.9.8",
+  "version": "1.9.11",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-lit-element#readme",
   "repository": {
@@ -32,7 +32,7 @@
     "@snowpack/plugin-babel": "^2.1.4",
     "@snowpack/plugin-dotenv": "^2.0.4",
     "prettier": "^2.0.5",
-    "snowpack": "^2.15.1"
+    "snowpack": "^2.17.1"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

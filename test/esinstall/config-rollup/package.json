@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "name": "@snowpack/test-config-rollup",
   "scripts": {
-    "testinstall": "snowpack"
+    "testinstall": "snowpack install"
   },
   "dependencies": {
     "rollup-plugin-svelte": "^6.0.0",

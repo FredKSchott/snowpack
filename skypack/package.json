@@ -1,0 +1,54 @@
+{
+  "name": "skypack",
+  "version": "0.0.1",
+  "description": "Install packages from Skypack",
+  "keywords": [
+    "skypack",
+    "esm",
+    "cdn",
+    "sdk"
+  ],
+  "author": "Fred K. Schott <fkschott@gmail.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "directory": "pkg"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowpackjs/snowpack.git",
+    "directory": "skypack"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "lint": "tsc --noEmit --noUnusedLocals true --noUnusedParameters true && package-check"
+  },
+  "engines": {
+    "node": ">=10.19.0"
+  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./index.esm.mjs",
+      "require": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "index.bin.js",
+    "index.esm.mjs"
+  ],
+  "dependencies": {
+    "cacache": "^15.0.0",
+    "cachedir": "^2.3.0",
+    "got": "^11.1.4",
+    "kleur": "^4.1.0",
+    "p-queue": "^6.2.1",
+    "rimraf": "^3.0.0",
+    "rollup": "^2.23.0",
+    "validate-npm-package-name": "^3.0.0"
+  }
+}

@@ -2,8 +2,9 @@ import buildScriptPlugin from '@snowpack/plugin-build-script';
 import runScriptPlugin from '@snowpack/plugin-run-script';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
-import esbuild from 'esbuild';
+import * as esbuild from 'esbuild';
 import http from 'http';
+import {isPlainObject} from 'is-plain-object';
 import {validate, ValidatorResult} from 'jsonschema';
 import os from 'os';
 import path from 'path';
@@ -43,7 +44,9 @@ const DEFAULT_CONFIG: Partial<SnowpackConfig> = {
   alias: {},
   scripts: {},
   exclude: [],
-  installOptions: {},
+  installOptions: {
+    packageLookupFields: [],
+  },
   devOptions: {
     secure: false,
     hostname: 'localhost',
@@ -80,10 +83,6 @@ const configSchema = {
     install: {type: 'array', items: {type: 'string'}},
     exclude: {type: 'array', items: {type: 'string'}},
     plugins: {type: 'array'},
-    webDependencies: {
-      type: ['object'],
-      additionalProperties: {type: 'string'},
-    },
     scripts: {
       type: ['object'],
       additionalProperties: {type: 'string'},
@@ -134,10 +133,6 @@ const configSchema = {
         installTypes: {type: 'boolean'},
         polyfillNode: {type: 'boolean'},
         sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
-        alias: {
-          type: 'object',
-          additionalProperties: {type: 'string'},
-        },
         env: {
           type: 'object',
           additionalProperties: {
@@ -270,9 +265,7 @@ function parseScript(script: string): {scriptType: string; input: string[]; outp
   } else if (cleanInput[0] === '.vue') {
     cleanOutput = ['.js', '.css'];
   } else if (cleanInput.length > 0) {
-    cleanOutput = Array.from(
-      new Set(cleanInput.map((ext) => defaultFileExtensionMapping[ext] || ext)),
-    );
+    cleanOutput = [...cleanInput];
   }
 
   return {
@@ -595,7 +588,9 @@ function normalizeAlias(config: SnowpackConfig, cwd: string, createMountAlias: b
       replacement.startsWith('/')
     ) {
       delete cleanAlias[target];
-      cleanAlias[removeTrailingSlash(target)] = addTrailingSlash(path.resolve(cwd, replacement));
+      cleanAlias[target] = target.endsWith('/')
+        ? addTrailingSlash(path.resolve(cwd, replacement))
+        : removeTrailingSlash(path.resolve(cwd, replacement));
     }
   }
   return cleanAlias;
@@ -857,7 +852,9 @@ export function createConfiguration(
   if (validationErrors.length > 0) {
     return [validationErrors, undefined];
   }
-  const mergedConfig = merge<SnowpackConfig>([DEFAULT_CONFIG, config]);
+  const mergedConfig = merge<SnowpackConfig>([DEFAULT_CONFIG, config], {
+    isMergeableObject: isPlainObject,
+  });
   return [null, normalizeConfig(mergedConfig)];
 }
 
@@ -955,25 +952,18 @@ export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): Snowpa
     }
   }
   // if valid, apply config over defaults
-  const mergedConfig = merge<SnowpackConfig>([
-    pkgManifest.homepage ? {buildOptions: {baseUrl: pkgManifest.homepage}} : {},
-    extendConfig,
-    {webDependencies: pkgManifest.webDependencies},
-    config,
-    cliConfig as any,
-  ]);
-  for (const webDependencyName of Object.keys(mergedConfig.webDependencies || {})) {
-    if (pkgManifest.dependencies && pkgManifest.dependencies[webDependencyName]) {
-      handleConfigError(
-        `"${webDependencyName}" is included in "webDependencies". Please remove it from your package.json "dependencies" config.`,
-      );
-    }
-    if (pkgManifest.devDependencies && pkgManifest.devDependencies[webDependencyName]) {
-      handleConfigError(
-        `"${webDependencyName}" is included in "webDependencies". Please remove it from your package.json "devDependencies" config.`,
-      );
-    }
-  }
+  const mergedConfig = merge<SnowpackConfig>(
+    [
+      pkgManifest.homepage ? {buildOptions: {baseUrl: pkgManifest.homepage}} : {},
+      extendConfig,
+      {webDependencies: pkgManifest.webDependencies},
+      config,
+      cliConfig as any,
+    ],
+    {
+      isMergeableObject: isPlainObject,
+    },
+  );
 
   const [validationErrors, configResult] = createConfiguration(mergedConfig);
   if (validationErrors) {

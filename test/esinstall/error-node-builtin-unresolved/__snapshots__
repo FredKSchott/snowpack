@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`snowpack install error-node-builtin-unresolved: cli output 1`] = `
-"[snowpack] installing dependencies...
+"[snowpack] ! installing dependencies...
 [snowpack] ../../../node_modules/bad-node-builtin-pkg/entrypoint.js
    Module \\"http\\" (Node.js built-in) is not available in the browser. Run Snowpack with --polyfill-node to fix.
 [snowpack] Install failed."

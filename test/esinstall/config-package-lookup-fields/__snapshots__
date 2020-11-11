@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install config-package-lookup-fields: allFiles 1`] = `
+Array [
+  "import-map.json",
+  "some-svelte-package.js",
+]
+`;
+
+exports[`snowpack install config-package-lookup-fields: cli output 1`] = `
+"[snowpack] ! installing dependencies...
+[snowpack] ✔ install complete!
+[snowpack]
+  ⦿ web_modules/               size       gzip       brotli
+    └─ some-svelte-package.js    XXXX KB    XXXX KB    XXXX KB"
+`;
+
+exports[`snowpack install config-package-lookup-fields: web_modules/import-map.json 1`] = `
+"{
+  \\"imports\\": {
+    \\"some-svelte-package\\": \\"./some-svelte-package.js\\"
+  }
+}"
+`;
+
+exports[`snowpack install config-package-lookup-fields: web_modules/some-svelte-package.js 1`] = `"console.log('TEST: THIS IS THE GOOD ENTRYPOINT');"`;

@@ -11,7 +11,7 @@ Array [
 `;
 
 exports[`snowpack install include-with-package-name: cli output 1`] = `
-"[snowpack] installing dependencies...
+"[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/                             size       gzip       brotli
@@ -11246,7 +11246,7 @@ export default Vue;"
 
 exports[`snowpack install include-with-package-name: web_modules/vue-router.js 1`] = `
 "/*!
-  * vue-router v3.4.6
+  * vue-router v3.4.8
   * (c) 2020 Evan You
   * @license MIT
   */
@@ -11452,13 +11452,15 @@ function isObjectEqual (a, b) {
   if ( b === void 0 ) b = {};
   // handle null value #1566
   if (!a || !b) { return a === b }
-  var aKeys = Object.keys(a);
-  var bKeys = Object.keys(b);
+  var aKeys = Object.keys(a).sort();
+  var bKeys = Object.keys(b).sort();
   if (aKeys.length !== bKeys.length) {
     return false
   }
-  return aKeys.every(function (key) {
+  return aKeys.every(function (key, i) {
     var aVal = a[key];
+    var bKey = bKeys[i];
+    if (bKey !== key) { return false }
     var bVal = b[key];
     // query values can be null and undefined
     if (aVal == null || bVal == null) { return aVal === bVal }
@@ -12694,14 +12696,14 @@ function matchRoute (
   path,
   params
 ) {
-  var m;
   try {
-    m = decodeURI(path).match(regex);
+    path = decodeURI(path);
   } catch (err) {
     {
       warn(false, (\\"Error decoding \\\\\\"\\" + path + \\"\\\\\\". Leaving it intact.\\"));
     }
   }
+  var m = path.match(regex);
   if (!m) {
     return false
   } else if (!params) {
@@ -12872,7 +12874,17 @@ function scrollToPosition (shouldScroll, position) {
     position = normalizePosition(shouldScroll);
   }
   if (position) {
-    window.scrollTo(position.x, position.y);
+    // $flow-disable-line
+    if ('scrollBehavior' in document.documentElement.style) {
+      window.scrollTo({
+        left: position.x,
+        top: position.y,
+        // $flow-disable-line
+        behavior: shouldScroll.behavior
+      });
+    } else {
+      window.scrollTo(position.x, position.y);
+    }
   }
 }
 /*  */
@@ -13883,7 +13895,7 @@ function createHref (base, fullPath, mode) {
   return base ? cleanPath(base + '/' + path) : path
 }
 VueRouter.install = install;
-VueRouter.version = '3.4.6';
+VueRouter.version = '3.4.8';
 VueRouter.isNavigationFailure = isNavigationFailure;
 VueRouter.NavigationFailureType = NavigationFailureType;
 if (inBrowser && window.Vue) {

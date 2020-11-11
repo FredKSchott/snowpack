@@ -6,10 +6,19 @@ jest.mock('svelte/compiler', () => ({compile: mockCompiler, preprocess: mockPrep
 
 const plugin = require('../plugin');
 
-const mockConfig = {buildOptions: {sourceMaps: false}, installOptions: {rollup: {plugins: []}}};
+let DEFAULT_CONFIG;
 const mockComponent = path.join(__dirname, 'Button.svelte');
 
 describe('@snowpack/plugin-svelte (mocked)', () => {
+  beforeEach(() => {
+    DEFAULT_CONFIG = {
+      buildOptions: {sourceMaps: false},
+      installOptions: {
+        rollup: {plugins: []},
+        packageLookupFields: [],
+      },
+    };
+  });
   afterEach(() => {
     mockCompiler.mockClear();
     mockPreprocessor.mockClear();
@@ -17,7 +26,7 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
 
   it('logs error if config options set but finds no file', async () => {
     expect(() => {
-      plugin(mockConfig, {
+      plugin(DEFAULT_CONFIG, {
         configFilePath: './plugins/plugin-svelte/this-file-does-not-exist.js',
       });
     }).toThrow(/failed to find Svelte config file/);
@@ -25,7 +34,7 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
 
   it('logs error if compileOptions is used instead of compilerOptions', async () => {
     expect(() => {
-      plugin(mockConfig, {
+      plugin(DEFAULT_CONFIG, {
         compileOptions: {__test: 'ignore'},
       });
     }).toThrow(
@@ -36,12 +45,12 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
   it('logs error if old style config format is used', async () => {
     const badOptionCheck = /Svelte\.compile options moved to new config value/;
     expect(() =>
-      plugin(mockConfig, {
+      plugin(DEFAULT_CONFIG, {
         css: false,
       }),
     ).toThrow(badOptionCheck);
     expect(() =>
-      plugin(mockConfig, {
+      plugin(DEFAULT_CONFIG, {
         generate: 'dom',
       }),
     ).toThrow(badOptionCheck);
@@ -49,12 +58,12 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
 
   it('logs error if resolve input is invalid', async () => {
     expect(() => {
-      plugin(mockConfig, {
+      plugin(DEFAULT_CONFIG, {
         input: '.svelte',
       });
     }).toThrow(`[plugin-svelte] Option "input" must be an array (e.g. ['.svelte', '.svx'])`);
     expect(() => {
-      plugin(mockConfig, {
+      plugin(DEFAULT_CONFIG, {
         input: [],
       });
     }).toThrow(`[plugin-svelte] Option "input" must specify at least one filetype`);
@@ -64,7 +73,7 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
     const compilerOptions = {
       __test: 'compilerOptions',
     };
-    const sveltePlugin = plugin(mockConfig, {compilerOptions});
+    const sveltePlugin = plugin(DEFAULT_CONFIG, {compilerOptions});
     await sveltePlugin.load({filePath: mockComponent});
     expect(mockCompiler.mock.calls[0][1]).toEqual({
       __test: 'compilerOptions',
@@ -78,21 +87,21 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
 
   it('passes preprocess options to compiler', async () => {
     const preprocess = {__test: 'preprocess'};
-    const sveltePlugin = plugin(mockConfig, {preprocess});
+    const sveltePlugin = plugin(DEFAULT_CONFIG, {preprocess});
     await sveltePlugin.load({filePath: mockComponent});
     expect(mockPreprocessor.mock.calls[0][1]).toEqual(preprocess);
   });
 
   // For our users we load from the current working directory, but in jest that doesn't make sense
   it.skip('load config from a default svelte config file', async () => {
-    const sveltePlugin = plugin(mockConfig, {});
+    const sveltePlugin = plugin(DEFAULT_CONFIG, {});
     await sveltePlugin.load({filePath: mockComponent});
     expect(mockCompiler.mock.calls[0][1]).toEqual({__test: 'svelte.config.js'});
     expect(mockPreprocessor.mock.calls[0][1]).toEqual({__test: 'svelte.config.js::preprocess'});
   });
 
   it('load config from a custom svelte config file', async () => {
-    const sveltePlugin = plugin(mockConfig, {
+    const sveltePlugin = plugin(DEFAULT_CONFIG, {
       configFilePath: './plugins/plugin-svelte/test/custom-config.js',
     });
     await sveltePlugin.load({filePath: mockComponent});
@@ -109,7 +118,7 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
 
   it('resolves custom file extensions', async () => {
     expect(
-      plugin(mockConfig, {
+      plugin(DEFAULT_CONFIG, {
         input: ['.svelte', '.svx'],
       }).resolve.input,
     ).toMatchInlineSnapshot(`
@@ -119,7 +128,7 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
       ]
     `);
     expect(
-      plugin(mockConfig, {
+      plugin(DEFAULT_CONFIG, {
         input: ['.svx'],
       }).resolve.input,
     ).toMatchInlineSnapshot(`
@@ -127,5 +136,13 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
         ".svx",
       ]
     `);
+  });
+  it('supports importing svelte components', async () => {
+    const config = {...DEFAULT_CONFIG};
+    plugin(config, {});
+    expect(config.installOptions.packageLookupFields).toEqual(['svelte']);
+    config.installOptions.packageLookupFields = ['module'];
+    plugin(config, {});
+    expect(config.installOptions.packageLookupFields).toEqual(['module', 'svelte']);
   });
 });

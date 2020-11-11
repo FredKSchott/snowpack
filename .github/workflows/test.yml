@@ -21,7 +21,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: build
         run: |
-          yarn --ignore-engines
+          yarn --ignore-engines --frozen-lockfile
           yarn build
         env:
           CI: true
