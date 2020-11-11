@@ -2,7 +2,7 @@
   "name": "snowpack-www",
   "version": "2.7.0",
   "scripts": {
-    "build": "ELEVENTY_ENV=prod yarn build:md && eleventy && yarn build:sass && yarn build:css",
+    "build": "ELEVENTY_ENV=prod yarn build:md && yarn build:sass && eleventy && yarn build:css",
     "build:css": "postcss _site/assets/*.css -u postcss-preset-env cssnano -r --no-map",
     "build:md": "cat ../docs/* > index.md",
     "build:sass": "sass css/app.scss:assets/app.min.css --no-source-map",
