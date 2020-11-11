@@ -1293,17 +1293,16 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   }
 
   // Announce server has started
-  const ips = Object.values(os.networkInterfaces())
+  const remoteIps = Object.values(os.networkInterfaces())
     .reduce((every: os.NetworkInterfaceInfo[], i) => [...every, ...(i || [])], [])
     .filter((i) => i.family === 'IPv4' && i.internal === false)
-    .map((i) => i.address)
-    .slice(0, 1);
+    .map((i) => i.address);
   const protocol = config.devOptions.secure ? 'https:' : 'http:';
   messageBus.emit(paintEvent.SERVER_START, {
     protocol,
     hostname,
     port,
-    ips,
+    remoteIp: remoteIps[0],
     startTimeMs: Math.round(performance.now() - serverStart),
   });
 
