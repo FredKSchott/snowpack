@@ -33,6 +33,12 @@ This is usually seen when importing a named export from a package written in the
 }
 ```
 
+#### TypeScript imports
+
+This could occur if you're attempting to import a named interface or other type from another compiled TypeScript file.
+
+**To solve this issue:** Make sure to use `import type { MyInterfaceName }` instead.
+
 ## Installing Non-JS Packages
 
 When installing packages from npm, you may encounter some file formats that can only run with additional parsing/processing. First check to see if there is a [Snowpack plugin for the type of file](#plugins).
