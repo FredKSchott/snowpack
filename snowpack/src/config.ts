@@ -11,7 +11,6 @@ import path from 'path';
 import yargs from 'yargs-parser';
 import url from 'url';
 
-import {defaultFileExtensionMapping} from './build/file-urls';
 import {logger} from './logger';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
