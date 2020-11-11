@@ -1,6 +1,6 @@
 {
   "name": "snowpack",
-  "version": "2.17.0",
+  "version": "2.17.1",
   "description": "The ESM-powered frontend build tool. Fast, lightweight, unbundled.",
   "author": "Fred K. Schott <fkschott@gmail.com>",
   "license": "MIT",
