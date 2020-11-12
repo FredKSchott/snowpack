@@ -1047,10 +1047,6 @@ img.company-logo {
   }
 }
 
-.grid-body .markdown-body {
-  padding-top: 52px;
-}
-
 .grid-body-header {
   line-height: 1.5;
   margin: 3rem 0 0;
@@ -1362,21 +1358,27 @@ img.company-logo {
   }
 }
 
-.markdown-body,
 .content {
   padding: 0 1em;
   margin-bottom: 20vh;
   margin-left: auto;
   margin-right: auto;
-  max-width: 1000px;
+  max-width: 1200px;
 }
 @media (min-width: 860px) {
-  .markdown-body,
-.content {
+  .content {
     padding: 0 3em;
   }
 }
 
+.markdown-body {
+  min-width: 0;
+}
+.markdown-body h2:first-child,
+.markdown-body h3:first-child,
+.markdown-body h4:first-child {
+  padding-top: 0;
+}
 .markdown-body h2 .header-link,
 .markdown-body h3 .header-link {
   margin-left: 8px;
@@ -1482,23 +1484,44 @@ img.company-logo {
     margin-bottom: 3rem;
   }
 }
-.menu > ol > li {
+.menu .toc > ol > li {
   font-weight: bold;
   text-transform: uppercase;
   padding-bottom: 3rem;
 }
 @media (min-width: 860px) {
-  .menu > ol > li {
+  .menu .toc > ol > li {
     padding-bottom: 0;
   }
 }
-.menu > ol > li > a {
+.menu .toc > ol > li > a {
   color: #fff;
 }
-.menu > ol > li > ol {
+.menu .toc > ol > li > ol {
   padding: 0 1em;
   font-weight: normal;
   text-transform: none;
+}
+
+.has-navigation {
+  display: flex;
+  flex-direction: row;
+}
+
+.sub-navigation {
+  width: 260px;
+  flex-shrink: 0;
+}
+.sub-navigation hr {
+  margin: 1rem 0;
+}
+.sub-navigation h4 {
+  font-weight: bold;
+  font-size: 22px;
+  margin: 0 0 0.5rem;
+}
+.sub-navigation ol {
+  list-style: none;
 }
 
 #toc-logo {

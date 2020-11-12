@@ -14,8 +14,11 @@ description: 'Snowpack is the fast, bundle-free build tool for all kinds of fron
   
   {% endif %}
 
-  <div class="markdown-body">
-    {{ content | safe }}
+  <div class="has-navigation content">
+    <div class="markdown-body content">
+      {{ content | safe }}
+    </div>
+    {% include 'layouts/subnav.njk' %}
   </div>
 </article>
 
