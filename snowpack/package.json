@@ -1,6 +1,6 @@
 {
   "name": "snowpack",
-  "version": "2.15.1",
+  "version": "2.17.1",
   "description": "The ESM-powered frontend build tool. Fast, lightweight, unbundled.",
   "author": "Fred K. Schott <fkschott@gmail.com>",
   "license": "MIT",
@@ -31,8 +31,11 @@
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
   "exports": {
-    "import": "./index.esm.mjs",
-    "require": "./lib/index.js"
+    ".": {
+      "import": "./index.esm.mjs",
+      "require": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "bin": {
     "sp": "index.bin.js",
@@ -40,11 +43,13 @@
   },
   "files": [
     "assets",
-    "lib"
+    "lib",
+    "index.bin.js",
+    "index.esm.mjs"
   ],
   "dependencies": {
     "@snowpack/plugin-build-script": "^2.0.11",
-    "@snowpack/plugin-run-script": "^2.1.7",
+    "@snowpack/plugin-run-script": "^2.2.0",
     "cacache": "^15.0.0",
     "cachedir": "^2.3.0",
     "chokidar": "^3.4.0",
@@ -54,8 +59,8 @@
     "deepmerge": "^4.2.2",
     "detect-port": "^1.3.0",
     "es-module-lexer": "^0.3.24",
-    "esbuild": "^0.7.0",
-    "esinstall": "^0.3.5",
+    "esbuild": "^0.8.0",
+    "esinstall": "^0.3.7",
     "etag": "^1.8.1",
     "execa": "^4.0.3",
     "find-cache-dir": "^3.3.1",
@@ -63,8 +68,9 @@
     "glob": "^7.1.4",
     "http-proxy": "^1.18.1",
     "httpie": "^1.1.2",
+    "is-plain-object": "^5.0.0",
     "isbinaryfile": "^4.0.6",
-    "jsonschema": "^1.2.5",
+    "jsonschema": "~1.2.5",
     "kleur": "^4.1.1",
     "mime-types": "^2.1.26",
     "mkdirp": "^1.0.3",
@@ -76,12 +82,10 @@
     "signal-exit": "^3.0.3",
     "source-map": "^0.7.3",
     "strip-ansi": "^6.0.0",
+    "skypack": "^0.0.1",
     "strip-comments": "^2.0.1",
     "validate-npm-package-name": "^3.0.0",
     "ws": "^7.3.0",
-    "yargs-parser": "^18.1.3"
-  },
-  "devDependencies": {
-    "@skypack/package-check": "^0.1.0"
+    "yargs-parser": "^20.0.0"
   }
 }

@@ -68,6 +68,7 @@ import {
   SnowpackBuildMap,
   LoadResult,
   SnowpackDevServer,
+  OnFileChangeCallback,
 } from '../types/snowpack';
 import {
   BUILD_CACHE,
@@ -155,7 +156,7 @@ class NotFoundError extends Error {
  */
 async function installDependencies(commandOptions: CommandOptions) {
   const {config} = commandOptions;
-  const installTargets = await getInstallTargets(config);
+  const installTargets = await getInstallTargets(config, commandOptions.lockfile);
   if (installTargets.length === 0) {
     logger.info('Nothing to install.');
     return;
@@ -180,11 +181,10 @@ function shouldProxy(pathPrefix: string, reqUrl: string) {
 function sendResponseFile(
   req: http.IncomingMessage,
   res: http.ServerResponse,
-  {contents, originalFileLoc, responseFileName}: LoadResult,
+  {contents, originalFileLoc, contentType}: LoadResult,
 ) {
   const body = Buffer.from(contents);
   const ETag = etag(body, {weak: true});
-  const contentType = mime.contentType(responseFileName);
   const headers: Record<string, string> = {
     'Accept-Ranges': 'bytes',
     'Access-Control-Allow-Origin': '*',
@@ -286,6 +286,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
 }
 
 export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
+  const {lockfile} = commandOptions;
   // Start the startup timer!
   let serverStart = performance.now();
 
@@ -514,21 +515,21 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       return {
         contents: encodeResponse(HMR_CLIENT_CODE, encoding),
         originalFileLoc: null,
-        responseFileName: 'hmr-client.js',
+        contentType: 'application/javascript',
       };
     }
     if (reqPath === getMetaUrlPath('/hmr-error-overlay.js', config)) {
       return {
         contents: encodeResponse(HMR_OVERLAY_CODE, encoding),
         originalFileLoc: null,
-        responseFileName: 'hmr-error-overlay.js',
+        contentType: 'application/javascript',
       };
     }
     if (reqPath === getMetaUrlPath('/env.js', config)) {
       return {
         contents: encodeResponse(generateEnvModule({mode: 'development', isSSR}), encoding),
         originalFileLoc: null,
-        responseFileName: 'env.js',
+        contentType: 'application/javascript',
       };
     }
 
@@ -639,8 +640,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       throw new NotFoundError(attemptedFileLoads);
     }
 
-    const {fileLoc, isStatic, isResolve} = foundFile;
-
     /**
      * Given a file, build it. Building a file sends it through our internal
      * file builder pipeline, and outputs a build map representing the final
@@ -653,7 +652,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         return existingBuilderPromise;
       }
       const fileBuilderPromise = (async () => {
-        const builtFileOutput = await _buildFile(fileLoc, {
+        const builtFileOutput = await _buildFile(url.pathToFileURL(fileLoc), {
           plugins: config.plugins,
           isDev: true,
           isSSR,
@@ -685,11 +684,9 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     async function wrapResponse(
       code: string | Buffer,
       {
-        hasCssResource,
         sourceMap,
         sourceMappingURL,
       }: {
-        hasCssResource: boolean;
         sourceMap?: string;
         sourceMappingURL: string;
       },
@@ -724,10 +721,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
             code = wrapImportMeta({code: code as string, env: true, hmr: isHMR, config});
           }
 
-          if (hasCssResource)
-            code =
-              `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` + code;
-
           // source mapping
           if (sourceMap) code = jsSourceMappingURL(code, sourceMappingURL);
 
@@ -752,7 +745,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       let missingPackages: string[] = [];
       const resolveImportSpecifier = createImportResolver({
         fileLoc,
-        dependencyImportMap,
+        lockfile: lockfile,
+        installImportMap: dependencyImportMap,
         config,
       });
       wrappedResponse = await transformFileImports(
@@ -772,7 +766,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           }
           // Ignore "http://*" imports
           if (url.parse(resolvedImportUrl).protocol) {
-            return spec;
+            return resolvedImportUrl;
           }
           // Ignore packages marked as external
           if (config.installOptions.externalPackage?.includes(resolvedImportUrl)) {
@@ -790,7 +784,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           }
 
           // When dealing with an absolute import path, we need to honor the baseUrl
-          if (isAbsoluteUrlPath) {
+          // proxy modules may attach code to the root HTML (like style) so don't resolve
+          if (isAbsoluteUrlPath && !isProxyModule) {
             resolvedImportUrl = relativeURL(path.posix.dirname(reqPath), resolvedImportUrl);
           }
           // Make sure that a relative URL always starts with "./"
@@ -886,18 +881,14 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       if (!output[requestedFileExt] || !Object.keys(output)) {
         return null;
       }
-
       const {code, map} = output[requestedFileExt];
       let finalResponse = code;
-
-      // Wrap the response.
-      const hasAttachedCss = requestedFileExt === '.js' && !!output['.css'];
-      finalResponse = await wrapResponse(finalResponse, {
-        hasCssResource: hasAttachedCss,
-        sourceMap: map,
-        sourceMappingURL: path.basename(requestedFile.base) + '.map',
-      });
-
+      // Handle attached CSS.
+      if (requestedFileExt === '.js' && output['.css']) {
+        finalResponse =
+          `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` +
+          finalResponse;
+      }
       // Resolve imports.
       if (
         requestedFileExt === '.js' ||
@@ -910,10 +901,16 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           finalResponse as string,
         );
       }
-
+      // Wrap the response.
+      finalResponse = await wrapResponse(finalResponse, {
+        sourceMap: map,
+        sourceMappingURL: path.basename(requestedFile.base) + '.map',
+      });
       // Return the finalized response.
       return finalResponse;
     }
+
+    const {fileLoc, isStatic, isResolve} = foundFile;
 
     // 1. Check the hot build cache. If it's already found, then just serve it.
     let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(
@@ -940,16 +937,12 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       return {
         contents: encodeResponse(responseContent, encoding),
         originalFileLoc: fileLoc,
-        responseFileName: replaceExt(
-          path.basename(fileLoc),
-          path.extname(fileLoc),
-          responseFileExt,
-        ),
+        contentType: mime.lookup(responseFileExt),
       };
     }
 
     // 2. Load the file from disk. We'll need it to check the cold cache or build from scratch.
-    const fileContents = await readFile(fileLoc);
+    const fileContents = await readFile(url.pathToFileURL(fileLoc));
 
     // 3. Send static files directly, since they were already build & resolved at install time.
     if (!isProxyModule && isStatic) {
@@ -958,11 +951,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         return {
           contents: encodeResponse(fileContents, encoding),
           originalFileLoc: fileLoc,
-          responseFileName: replaceExt(
-            path.basename(fileLoc),
-            path.extname(fileLoc),
-            responseFileExt,
-          ),
+          contentType: mime.lookup(responseFileExt),
         };
       }
       // Otherwise, finalize the response (where resolution happens) before sending.
@@ -988,11 +977,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       return {
         contents: encodeResponse(responseContent, encoding),
         originalFileLoc: fileLoc,
-        responseFileName: replaceExt(
-          path.basename(fileLoc),
-          path.extname(fileLoc),
-          responseFileExt,
-        ),
+        contentType: mime.lookup(responseFileExt),
       };
     }
 
@@ -1040,11 +1025,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         return {
           contents: encodeResponse(wrappedResponse, encoding),
           originalFileLoc: fileLoc,
-          responseFileName: replaceExt(
-            path.basename(fileLoc),
-            path.extname(fileLoc),
-            responseFileExt,
-          ),
+          contentType: mime.lookup(responseFileExt),
           // ...but verify.
           checkStale: async () => {
             let checkFinalBuildResult: SnowpackBuildMap | null = null;
@@ -1119,7 +1100,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     return {
       contents: encodeResponse(responseContent, encoding),
       originalFileLoc: fileLoc,
-      responseFileName: replaceExt(path.basename(fileLoc), path.extname(fileLoc), responseFileExt),
+      contentType: mime.lookup(responseFileExt),
     };
   }
 
@@ -1153,15 +1134,16 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     res: http.ServerResponse,
     {handleError}: {handleError?: boolean} = {},
   ) {
-    const reqPath = req.url!;
+    const reqUrl = req.url!;
     // Check if a configured proxy matches the request.
-    const requestProxy = getRequestProxy(reqPath);
+    const requestProxy = getRequestProxy(reqUrl);
     if (requestProxy) {
       return requestProxy(req, res);
     }
     // Check if we can send back an optimized 304 response
     const quickETagCheck = req.headers['if-none-match'];
-    if (quickETagCheck && quickETagCheck === knownETags.get(reqPath)) {
+    const quickETagCheckUrl = reqUrl.replace(/\/$/, '/index.html');
+    if (quickETagCheck && quickETagCheck === knownETags.get(quickETagCheckUrl)) {
       logger.debug(`optimized etag! sending 304...`);
       res.writeHead(304, {'Access-Control-Allow-Origin': '*'});
       res.end();
@@ -1169,13 +1151,15 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     }
     // Otherwise, load the file and respond if successful.
     try {
-      const result = await loadUrl(reqPath, {allowStale: true, encoding: null});
+      const result = await loadUrl(reqUrl, {allowStale: true, encoding: null});
       sendResponseFile(req, res, result);
       if (result.checkStale) {
         await result.checkStale();
       }
       if (result.contents) {
-        knownETags.set(reqPath, etag(result.contents, {weak: true}));
+        const tag = etag(result.contents, {weak: true});
+        const reqPath = decodeURI(url.parse(reqUrl).pathname!);
+        knownETags.set(reqPath, tag);
       }
       return;
     } catch (err) {
@@ -1198,10 +1182,10 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         responseHandler as Http2RequestListener,
       );
     } else if (credentials) {
-      return https.createServer(credentials, handleRequest);
+      return https.createServer(credentials, responseHandler as http.RequestListener);
     }
 
-    return http.createServer(handleRequest);
+    return http.createServer(responseHandler as http.RequestListener);
   };
 
   const server = createServer(async (req, res) => {
@@ -1312,7 +1296,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   }
 
   // Announce server has started
-  const ips = Object.values(os.networkInterfaces())
+  const remoteIps = Object.values(os.networkInterfaces())
     .reduce((every: os.NetworkInterfaceInfo[], i) => [...every, ...(i || [])], [])
     .filter((i) => i.family === 'IPv4' && i.internal === false)
     .map((i) => i.address);
@@ -1321,22 +1305,28 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     protocol,
     hostname,
     port,
-    ips,
+    remoteIp: remoteIps[0],
     startTimeMs: Math.round(performance.now() - serverStart),
   });
 
-  // Open the user's browser
+  // Open the user's browser (ignore if failed)
   if (open !== 'none') {
-    await openInBrowser(protocol, hostname, port, open);
+    await openInBrowser(protocol, hostname, port, open).catch((err) => {
+      logger.debug(`Browser open error: ${err}`);
+    });
   }
 
   // Start watching the file system.
   // Defer "chokidar" loading to here, to reduce impact on overall startup time
   const chokidar = await import('chokidar');
 
+  // Allow the user to hook into this callback, if they like (noop by default)
+  let onFileChangeCallback: OnFileChangeCallback = () => {};
+
   // Watch src files
   async function onWatchEvent(fileLoc: string) {
     logger.info(colors.cyan('File changed...'));
+    onFileChangeCallback({filePath: fileLoc});
     const updatedUrl = getUrlForFile(fileLoc, config);
     if (updatedUrl) {
       handleHmrUpdate(fileLoc, updatedUrl);
@@ -1406,6 +1396,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     handleRequest,
     sendResponseFile,
     sendResponseError,
+    onFileChange: (callback) => (onFileChangeCallback = callback),
     async shutdown() {
       await watcher.close();
       server.close();

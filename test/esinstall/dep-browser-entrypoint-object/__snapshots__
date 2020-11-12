@@ -9,7 +9,7 @@ Array [
 `;
 
 exports[`snowpack install dep-browser-entrypoint-object: cli output 1`] = `
-"[snowpack] installing dependencies...
+"[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/             size       gzip       brotli

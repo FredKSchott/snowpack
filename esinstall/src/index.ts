@@ -32,7 +32,6 @@ import {
   findMatchingAliasEntry,
   getWebDependencyName,
   isPackageAliasEntry,
-  isTruthy,
   MISSING_PLUGIN_SUGGESTIONS,
   parsePackageImportSpecifier,
   resolveDependencyManifest,
@@ -90,7 +89,10 @@ function isImportOfPackage(importUrl: string, packageName: string) {
  * Follows logic similar to Node's resolution logic, but using a package.json's ESM "module"
  * field instead of the CJS "main" field.
  */
-function resolveWebDependency(dep: string, {cwd}: {cwd: string}): DependencyLoc {
+function resolveWebDependency(
+  dep: string,
+  {cwd, packageLookupFields}: {cwd: string; packageLookupFields: string[]},
+): DependencyLoc {
   // if dep points directly to a file within a package, return that reference.
   // No other lookup required.
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
@@ -156,9 +158,9 @@ function resolveWebDependency(dep: string, {cwd}: {cwd: string}): DependencyLoc 
       `React workaround packages no longer needed! Revert back to the official React & React-DOM packages.`,
     );
   }
-  let foundEntrypoint: string =
-    depManifest['browser:module'] || depManifest.module || depManifest['main:esnext'];
-
+  let foundEntrypoint: any = [...packageLookupFields, 'browser:module', 'module', 'main:esnext']
+    .map((e) => depManifest[e])
+    .find(Boolean);
   if (!foundEntrypoint && !BROKEN_BROWSER_ENTRYPOINT.includes(packageName)) {
     foundEntrypoint = depManifest.browser;
   }
@@ -227,6 +229,7 @@ interface InstallOptions {
   polyfillNode: boolean;
   sourceMap?: boolean | 'inline';
   externalPackage: string[];
+  packageLookupFields: string[];
   namedExports: string[];
   rollup: {
     context?: string;
@@ -250,6 +253,7 @@ function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
     dest: 'web_modules',
     externalPackage: [],
     polyfillNode: false,
+    packageLookupFields: [],
     env: {},
     namedExports: [],
     rollup: {
@@ -279,6 +283,7 @@ export async function install(
     rollup: userDefinedRollup,
     treeshake: isTreeshake,
     polyfillNode,
+    packageLookupFields,
   } = setOptionDefaults(_options);
   const env = generateEnvObject(userEnv);
 
@@ -316,6 +321,7 @@ export async function install(
     try {
       const resolvedResult = resolveWebDependency(installSpecifier, {
         cwd,
+        packageLookupFields,
       });
       if (resolvedResult.type === 'JS') {
         installEntrypoints[targetName] = resolvedResult.loc;
@@ -366,7 +372,7 @@ ${colors.dim(
       }),
       rollupPluginCatchFetch(),
       rollupPluginNodeResolve({
-        mainFields: ['browser:module', 'module', 'browser', 'main'].filter(isTruthy),
+        mainFields: ['browser:module', 'module', 'browser', 'main'],
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: true, // Default: true

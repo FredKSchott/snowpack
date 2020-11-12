@@ -18,6 +18,8 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   snowpackConfig.installOptions.rollup.plugins.push(
     svelteRollupPlugin({include: '**/node_modules/**', dev: isDev}),
   );
+  // Support importing sharable Svelte components.
+  snowpackConfig.installOptions.packageLookupFields.push('svelte');
 
   if (
     pluginOptions.generate !== undefined ||
@@ -53,14 +55,21 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
 
   if (fs.existsSync(configFilePath)) {
     const configFileConfig = require(configFilePath);
-    preprocessOptions = preprocessOptions || configFileConfig.preprocess;
-    compilerOptions = compilerOptions || configFileConfig.compilerOptions;
-    resolveInputOption = resolveInputOption || configFileConfig.extensions;
+    preprocessOptions =
+      preprocessOptions !== undefined ? preprocessOptions : configFileConfig.preprocess;
+    compilerOptions =
+      compilerOptions !== undefined ? compilerOptions : configFileConfig.compilerOptions;
+    resolveInputOption =
+      resolveInputOption !== undefined ? resolveInputOption : configFileConfig.extensions;
   } else {
     //user svelte.config.js is optional and should not error if not configured
     if (pluginOptions.configFilePath) {
       throw new Error(`[plugin-svelte] failed to find Svelte config file: "${configFilePath}"`);
     }
+  }
+
+  if (preprocessOptions === undefined) {
+    preprocessOptions = require('svelte-preprocess')();
   }
 
   return {
@@ -77,7 +86,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     async load({filePath, isHmrEnabled, isSSR}) {
       let codeToCompile = await fs.promises.readFile(filePath, 'utf-8');
       // PRE-PROCESS
-      if (preprocessOptions) {
+      if (preprocessOptions !== false) {
         codeToCompile = (
           await svelte.preprocess(codeToCompile, preprocessOptions, {
             filename: filePath,

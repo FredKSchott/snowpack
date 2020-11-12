@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-config-package-lookup-fields",
+  "description": "Handle custom packageLookupFields",
+  "scripts": {
+    "testinstall": "snowpack install"
+  },
+  "snowpack": {
+    "installOptions": {
+      "packageLookupFields": [
+        "svelte"
+      ]
+    }
+  },
+  "dependencies": {
+    "some-svelte-package": "file:./packages/some-svelte-package"
+  },
+  "devDependencies": {
+    "snowpack": "^2.14.3"
+  }
+}

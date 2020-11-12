@@ -49,9 +49,9 @@
       import styles_ from '@app/components/style.css'; // relative import
       console.log(styles, styles_);
 
-      // Importing across mounted directories
       import robotsTxtRef from '../public/robots.txt';
-      console.log(robotsTxtRef);
+      import robotsTxtRef_ from '$public/robots.txt';
+      console.log(robotsTxtRef, robotsTxtRef_);
     </script>
 
     <!-- exception test 1: comments should be ignored -->

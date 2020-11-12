@@ -12,8 +12,9 @@ exports[`@snowpack/plugin-react-refresh transform js and html when babel is disa
   <body>
 <script>
   function debounce(e,t){let u;return()=>{clearTimeout(u),u=setTimeout(e,t)}}
-  const exports = {};
-  /** @license React vundefined
+  {
+    const exports = {};
+    /** @license React v0.9.0
  * react-refresh-runtime.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -23,8 +24,6 @@ exports[`@snowpack/plugin-react-refresh transform js and html when babel is disa
  */
 
 'use strict';
-
-
 
 if (\\"development\\" !== \\"production\\") {
   (function() {
@@ -50,7 +49,6 @@ var REACT_LAZY_TYPE = 0xead4;
 var REACT_BLOCK_TYPE = 0xead9;
 var REACT_SERVER_BLOCK_TYPE = 0xeada;
 var REACT_FUNDAMENTAL_TYPE = 0xead5;
-var REACT_RESPONDER_TYPE = 0xead6;
 var REACT_SCOPE_TYPE = 0xead7;
 var REACT_OPAQUE_ID_TYPE = 0xeae0;
 var REACT_DEBUG_TRACING_MODE_TYPE = 0xeae1;
@@ -74,7 +72,6 @@ if (typeof Symbol === 'function' && Symbol.for) {
   REACT_BLOCK_TYPE = symbolFor('react.block');
   REACT_SERVER_BLOCK_TYPE = symbolFor('react.server.block');
   REACT_FUNDAMENTAL_TYPE = symbolFor('react.fundamental');
-  REACT_RESPONDER_TYPE = symbolFor('react.responder');
   REACT_SCOPE_TYPE = symbolFor('react.scope');
   REACT_OPAQUE_ID_TYPE = symbolFor('react.opaque.id');
   REACT_DEBUG_TRACING_MODE_TYPE = symbolFor('react.debug_trace_mode');
@@ -689,11 +686,12 @@ exports.setSignature = setSignature;
   })();
 }
 
-  exports.performReactRefresh = debounce(exports.performReactRefresh, 30);
-  window.$RefreshRuntime$ = exports;
-  window.$RefreshRuntime$.injectIntoGlobalHook(window);
-  window.$RefreshReg$ = () => {};
-  window.$RefreshSig$ = () => (type) => type;
+    exports.performReactRefresh = debounce(exports.performReactRefresh, 30);
+    window.$RefreshRuntime$ = exports;
+    window.$RefreshRuntime$.injectIntoGlobalHook(window);
+    window.$RefreshReg$ = () => {};
+    window.$RefreshSig$ = () => (type) => type;
+  }
 </script>
     <div id=\\"root\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -735,8 +733,9 @@ exports[`@snowpack/plugin-react-refresh transform js and html: html 1`] = `
   <body>
 <script>
   function debounce(e,t){let u;return()=>{clearTimeout(u),u=setTimeout(e,t)}}
-  const exports = {};
-  /** @license React vundefined
+  {
+    const exports = {};
+    /** @license React v0.9.0
  * react-refresh-runtime.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -746,8 +745,6 @@ exports[`@snowpack/plugin-react-refresh transform js and html: html 1`] = `
  */
 
 'use strict';
-
-
 
 if (\\"development\\" !== \\"production\\") {
   (function() {
@@ -773,7 +770,6 @@ var REACT_LAZY_TYPE = 0xead4;
 var REACT_BLOCK_TYPE = 0xead9;
 var REACT_SERVER_BLOCK_TYPE = 0xeada;
 var REACT_FUNDAMENTAL_TYPE = 0xead5;
-var REACT_RESPONDER_TYPE = 0xead6;
 var REACT_SCOPE_TYPE = 0xead7;
 var REACT_OPAQUE_ID_TYPE = 0xeae0;
 var REACT_DEBUG_TRACING_MODE_TYPE = 0xeae1;
@@ -797,7 +793,6 @@ if (typeof Symbol === 'function' && Symbol.for) {
   REACT_BLOCK_TYPE = symbolFor('react.block');
   REACT_SERVER_BLOCK_TYPE = symbolFor('react.server.block');
   REACT_FUNDAMENTAL_TYPE = symbolFor('react.fundamental');
-  REACT_RESPONDER_TYPE = symbolFor('react.responder');
   REACT_SCOPE_TYPE = symbolFor('react.scope');
   REACT_OPAQUE_ID_TYPE = symbolFor('react.opaque.id');
   REACT_DEBUG_TRACING_MODE_TYPE = symbolFor('react.debug_trace_mode');
@@ -1412,11 +1407,12 @@ exports.setSignature = setSignature;
   })();
 }
 
-  exports.performReactRefresh = debounce(exports.performReactRefresh, 30);
-  window.$RefreshRuntime$ = exports;
-  window.$RefreshRuntime$.injectIntoGlobalHook(window);
-  window.$RefreshReg$ = () => {};
-  window.$RefreshSig$ = () => (type) => type;
+    exports.performReactRefresh = debounce(exports.performReactRefresh, 30);
+    window.$RefreshRuntime$ = exports;
+    window.$RefreshRuntime$.injectIntoGlobalHook(window);
+    window.$RefreshReg$ = () => {};
+    window.$RefreshSig$ = () => (type) => type;
+  }
 </script>
     <div id=\\"root\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>

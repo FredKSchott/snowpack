@@ -4,7 +4,7 @@
   "name": "@snowpack/test-config-invalid",
   "description": "Test invalid configuration (install should be array)",
   "scripts": {
-    "testinstall": "snowpack"
+    "testinstall": "snowpack install"
   },
   "snowpack": {
     "install": "shallow-equal"

@@ -4,7 +4,7 @@
   "name": "@snowpack/test-include-with-package-name",
   "description": "Test that 'include' import scanner supports package name imports",
   "scripts": {
-    "testinstall": "snowpack"
+    "testinstall": "snowpack install"
   },
   "snowpack": {
     "buildOptions": {

@@ -3,6 +3,7 @@ import {InstallTarget} from 'esinstall';
 import glob from 'glob';
 import path from 'path';
 import stripComments from 'strip-comments';
+import url from 'url';
 import {logger} from './logger';
 import {SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
 import {
@@ -259,7 +260,7 @@ export async function scanImports(
         baseExt,
         expandedExt,
         locOnDisk: filePath,
-        contents: await readFile(filePath),
+        contents: await readFile(url.pathToFileURL(filePath)),
       };
     });
   const loadedFiles: (SnowpackSourceFile | null)[] = await Promise.all(

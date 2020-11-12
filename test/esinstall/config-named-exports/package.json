@@ -4,7 +4,7 @@
   "name": "@snowpack/test-config-named-exports",
   "description": "Handle installOptions.namedExports",
   "scripts": {
-    "testinstall": "snowpack"
+    "testinstall": "snowpack install"
   },
   "snowpack": {
     "install": [

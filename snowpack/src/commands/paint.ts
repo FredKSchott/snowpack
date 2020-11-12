@@ -74,15 +74,17 @@ export async function getPort(defaultPort: number): Promise<number> {
 }
 
 export function getServerInfoMessage(
-  {startTimeMs, port, protocol, hostname, ips}: ServerInfo,
+  {startTimeMs, port, protocol, hostname, remoteIp}: ServerInfo,
   isBuilding = false,
 ) {
   let output = '';
   const isServerStarted = startTimeMs > 0 && port > 0 && protocol;
   if (isServerStarted) {
     output += `  ${colors.bold(colors.cyan(`${protocol}//${hostname}:${port}`))}`;
-    for (const ip of ips) {
-      output += `${colors.cyan(` • `)}${colors.bold(colors.cyan(`${protocol}//${ip}:${port}`))}`;
+    if (remoteIp) {
+      output += `${colors.cyan(` • `)}${colors.bold(
+        colors.cyan(`${protocol}//${remoteIp}:${port}`),
+      )}`;
     }
     output += '\n';
     output += colors.dim(
@@ -104,7 +106,7 @@ interface ServerInfo {
   hostname: string;
   protocol: string;
   startTimeMs: number;
-  ips: string[];
+  remoteIp?: string;
 }
 
 interface WorkerState {

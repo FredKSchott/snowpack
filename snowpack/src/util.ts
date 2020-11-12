@@ -6,18 +6,13 @@ import crypto from 'crypto';
 import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import fs from 'fs';
-import {send} from 'httpie';
 import {isBinaryFile} from 'isbinaryfile';
 import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
-import validatePackageName from 'validate-npm-package-name';
 import {ImportMap, SnowpackConfig} from './types/snowpack';
 
-import type {HttpieResponse} from 'httpie';
-
-export const PIKA_CDN = `https://cdn.pika.dev`;
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
 
 // A note on cache naming/versioning: We currently version our global caches
@@ -25,7 +20,6 @@ export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
 // same cache across versions until something in the data structure changes.
 // At that point, bump the version in the cache name to create a new unique
 // cache name.
-export const RESOURCE_CACHE = path.join(GLOBAL_CACHE_DIR, 'pkg-cache-1.4');
 export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-2.7');
 
 export const PROJECT_CACHE_DIR =
@@ -41,14 +35,13 @@ export const DEV_DEPENDENCIES_DIR = path.join(
 );
 const LOCKFILE_HASH_FILE = '.hash';
 
-export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
 // NOTE(fks): Must match empty script elements to work properly.
 export const HTML_JS_REGEX = /(<script[^>]*?type="module".*?>)(.*?)<\/script>/gims;
 export const CSS_REGEX = /@import\s*['"](.*?)['"];/gs;
 export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
 
 /** Read file from disk; return a string if it’s a code file */
-export async function readFile(filepath: string): Promise<string | Buffer> {
+export async function readFile(filepath: URL): Promise<string | Buffer> {
   const data = await fs.promises.readFile(filepath);
   const isBinary = await isBinaryFile(data);
   return isBinary ? data : data.toString('utf-8');
@@ -73,17 +66,6 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
     sortedImportMap.imports[key] = importMap.imports[key];
   }
   fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf-8'});
-}
-
-export function fetchCDNResource<T = unknown>(resourceUrl: string): Promise<HttpieResponse<T>> {
-  if (!resourceUrl.startsWith(PIKA_CDN)) {
-    resourceUrl = PIKA_CDN + resourceUrl;
-  }
-  return send<T>('GET', resourceUrl, {
-    headers: {'user-agent': `snowpack/v1.4 (https://snowpack.dev)`},
-  }).catch((err) => {
-    return err;
-  });
 }
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {
@@ -178,12 +160,40 @@ const appNames = {
   },
 };
 
+async function openInExistingChromeBrowser(url: string) {
+  // see if Chrome process is open; fail if not
+  await execa.command('ps cax | grep "Google Chrome"', {
+    shell: true,
+  });
+  // use open Chrome tab if exists; create new Chrome tab if not
+  const openChrome = execa('osascript ../assets/openChrome.appleScript "' + encodeURI(url) + '"', {
+    cwd: __dirname,
+    stdio: 'ignore',
+    shell: true,
+  });
+  // if Chrome doesn’t respond within 3s, fall back to opening new tab in default browser
+  let isChromeStalled = setTimeout(() => {
+    openChrome.cancel();
+  }, 3000);
+  try {
+    await openChrome;
+  } catch (err) {
+    if (err.isCanceled) {
+      console.warn(`Chrome not responding to Snowpack after 3s. Opening in new tab.`);
+    } else {
+      console.error(err.toString() || err);
+    }
+    throw err;
+  } finally {
+    clearTimeout(isChromeStalled);
+  }
+}
 export async function openInBrowser(
   protocol: string,
   hostname: string,
   port: number,
   browser: string,
-) {
+): Promise<void> {
   const url = `${protocol}//${hostname}:${port}`;
   browser = /chrome/i.test(browser)
     ? appNames[process.platform]['chrome']
@@ -191,52 +201,20 @@ export async function openInBrowser(
     ? appNames[process.platform]['brave']
     : browser;
   const isMac = process.platform === 'darwin';
-  const isOpeningInChrome = /chrome|default/i.test(browser);
-  if (isMac && isOpeningInChrome) {
+  const isBrowserChrome = /chrome|default/i.test(browser);
+  if (!isMac || !isBrowserChrome) {
+    await (browser === 'default' ? open(url) : open(url, {app: browser}));
+    return;
+  }
+
+  try {
     // If we're on macOS, and we haven't requested a specific browser,
     // we can try opening Chrome with AppleScript. This lets us reuse an
     // existing tab when possible instead of creating a new one.
-    try {
-      // see if Chrome process is open; fail if not
-      await execa.command('ps cax | grep "Google Chrome"', {
-        shell: true,
-      });
-      // use open Chrome tab if exists; create new Chrome tab if not
-      const openChrome = execa(
-        'osascript ../assets/openChrome.applescript "' + encodeURI(url) + '"',
-        {
-          cwd: __dirname,
-          stdio: 'ignore',
-          shell: true,
-        },
-      );
-      // if Chrome doesn’t respond within 3s, fall back to opening new tab in default browser
-      let isChromeStalled = setTimeout(() => {
-        openChrome.cancel();
-      }, 3000);
-
-      try {
-        await openChrome;
-      } catch (err) {
-        if (err.isCanceled) {
-          console.warn(
-            `Chrome not responding to Snowpack after 3s. Opening dev server in new tab.`,
-          );
-        } else {
-          console.error(err.toString() || err);
-        }
-        open(url);
-      } finally {
-        clearTimeout(isChromeStalled);
-      }
-      return true;
-    } catch (err) {
-      // if no open Chrome process, open default browser
-      // no error message needed here
-      open(url);
-    }
-  } else {
-    browser === 'default' ? open(url) : open(url, {app: browser});
+    await openInExistingChromeBrowser(url);
+  } catch (err) {
+    // if no open Chrome process, just go ahead and open default browser.
+    await open(url);
   }
 }
 
@@ -263,11 +241,7 @@ export async function updateLockfileHash(dir: string) {
 }
 
 export async function clearCache() {
-  return Promise.all([
-    cacache.rm.all(RESOURCE_CACHE),
-    cacache.rm.all(BUILD_CACHE),
-    rimraf.sync(PROJECT_CACHE_DIR),
-  ]);
+  return Promise.all([cacache.rm.all(BUILD_CACHE), rimraf.sync(PROJECT_CACHE_DIR)]);
 }
 
 /**
@@ -292,7 +266,7 @@ export function findMatchingAliasEntry(
 
   for (const [from, to] of Object.entries(config.alias)) {
     let foundType: 'package' | 'path' = isPackageAliasEntry(to) ? 'package' : 'path';
-    const isExactMatch = spec === removeTrailingSlash(from);
+    const isExactMatch = spec === from;
     const isDeepMatch = spec.startsWith(addTrailingSlash(from));
     if (isExactMatch || isDeepMatch) {
       return {
@@ -348,16 +322,6 @@ export function cssSourceMappingURL(code: string, sourceMappingURL: string) {
 /** JS sourceMappingURL */
 export function jsSourceMappingURL(code: string, sourceMappingURL: string) {
   return code.replace(/\n*$/, '') + `\n//# sourceMappingURL=${sourceMappingURL}\n`; // strip ending lines & append source map (with linebreaks for safety)
-}
-
-/**
- * Formats the snowpack dependency name from a "webDependencies" input value:
- * 2. Remove any ".js"/".mjs" extension (will be added automatically by Rollup)
- */
-export function getWebDependencyName(dep: string): string {
-  return validatePackageName(dep).validForNewPackages
-    ? dep.replace(/\.js$/i, 'js') // if this is a top-level package ending in .js, replace with js (e.g. tippy.js -> tippyjs)
-    : dep.replace(/\.m?js$/i, ''); // otherwise simply strip the extension (Rollup will resolve it)
 }
 
 /** URL relative */

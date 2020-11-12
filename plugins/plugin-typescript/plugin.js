@@ -2,16 +2,19 @@ const execa = require('execa');
 const npmRunPath = require('npm-run-path');
 const cwd = process.cwd();
 
-function typescriptPlugin() {
+function typescriptPlugin(_, {args} = {}) {
   return {
     name: '@snowpack/plugin-typescript',
     async run({isDev, log}) {
-      const workerPromise = execa.command(`tsc --noEmit ${isDev ? '--watch' : ''}`, {
-        env: npmRunPath.env(),
-        extendEnv: true,
-        windowsHide: false,
-        cwd,
-      });
+      const workerPromise = execa.command(
+        `tsc --noEmit ${isDev ? '--watch' : ''} ${args ? args : ''}`,
+        {
+          env: npmRunPath.env(),
+          extendEnv: true,
+          windowsHide: false,
+          cwd,
+        },
+      );
       const {stdout, stderr} = workerPromise;
       function dataListener(chunk) {
         let stdOutput = chunk.toString();

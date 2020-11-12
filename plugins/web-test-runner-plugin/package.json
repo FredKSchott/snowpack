@@ -1,17 +1,17 @@
 {
   "name": "@snowpack/web-test-runner-plugin",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "plugin.js",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "peerDependencies": {
-    "@web/test-runner": "^0.9.0",
+    "@web/test-runner": "^0.9.7",
     "snowpack": "^2.14.3"
   },
   "devDependencies": {
-    "@web/test-runner": "^0.9.0"
+    "@web/test-runner": "^0.9.7"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

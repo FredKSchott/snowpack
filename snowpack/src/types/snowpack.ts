@@ -14,10 +14,11 @@ export type DeepPartial<T> = {
 export interface LoadResult<T = Buffer | string> {
   contents: T;
   originalFileLoc: string | null;
-  responseFileName: string;
+  contentType: string | false;
   checkStale?: () => Promise<void>;
 }
 
+export type OnFileChangeCallback = ({filePath: string}) => any;
 export interface SnowpackDevServer {
   port: number;
   loadUrl: {
@@ -56,9 +57,10 @@ export interface SnowpackDevServer {
   sendResponseFile: (
     req: http.IncomingMessage,
     res: http.ServerResponse,
-    {contents, originalFileLoc, responseFileName}: LoadResult,
+    {contents, originalFileLoc, contentType}: LoadResult,
   ) => void;
   sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
+  onFileChange: (callback: OnFileChangeCallback) => void;
   shutdown(): Promise<void>;
 }
 
@@ -183,7 +185,6 @@ export interface SnowpackConfig {
   extends?: string;
   exclude: string[];
   knownEntrypoints: string[];
-  webDependencies?: {[packageName: string]: string};
   proxy: Proxy[];
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
@@ -201,7 +202,7 @@ export interface SnowpackConfig {
     hmrPort: number | undefined;
     hmrErrorOverlay: boolean;
   };
-  installOptions: InstallOptions;
+  installOptions: Omit<InstallOptions, 'alias'>;
   buildOptions: {
     out: string;
     baseUrl: string;
@@ -229,7 +230,22 @@ export interface SnowpackConfig {
   _extensionMap: Record<string, string>;
 }
 
-export type SnowpackUserConfig = DeepPartial<SnowpackConfig>;
+export type SnowpackUserConfig = {
+  install?: string[];
+  extends?: string;
+  exclude?: string[];
+  proxy?: Record<string, string | ProxyOptions>;
+  mount?: Record<string, string | Partial<MountEntry>>;
+  alias?: Record<string, string>;
+  /** @deprecated */
+  scripts?: Record<string, string>;
+  plugins?: (string | [string, any])[];
+  devOptions?: Partial<SnowpackConfig['devOptions']>;
+  installOptions?: Partial<SnowpackConfig['installOptions']>;
+  buildOptions?: Partial<SnowpackConfig['buildOptions']>;
+  testOptions?: Partial<SnowpackConfig['testOptions']>;
+  experiments?: Partial<SnowpackConfig['experiments']>;
+};
 
 export interface CLIFlags extends Omit<InstallOptions, 'env'> {
   help?: boolean; // display help text

@@ -11,9 +11,9 @@ sidebarTitle: Plugins
 #### Who is this page for?
 
 - Anyone writing a custom plugin for Snowpack.
-- Anyone extending Snowpack's default behavior.
-- Anyone adding framework-specific auto-HMR.
-- Anyone using Snowpack programmatically (ex: `snowpack.install()`).
+- Anyone extending Snowpack to support new file types.
+- Anyone extending Snowpack with a custom bundler or production optimization.
+- Anyone adding Fast Refresh or automatic HMR for a framework.
 
 Looking for help using Snowpack in your project?
 👉 **[Check out our main docs.](/)**

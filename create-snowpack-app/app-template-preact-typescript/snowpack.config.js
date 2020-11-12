@@ -1,3 +1,4 @@
+/** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
   mount: {
     public: '/',
@@ -5,7 +6,6 @@ module.exports = {
   },
   plugins: [
     '@snowpack/plugin-dotenv',
-    '@snowpack/plugin-babel',
     '@snowpack/plugin-typescript',
     '@prefresh/snowpack',
   ],

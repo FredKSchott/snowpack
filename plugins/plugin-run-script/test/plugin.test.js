@@ -4,9 +4,7 @@ const {EventEmitter} = require('events');
 jest.mock('execa');
 const execa = require('execa');
 
-// NOTE(fks): This is skipped due to refactoring happening in https://github.com/snowpackjs/snowpack/pull/1203
-// Once that PR is merged, this should be safe to unskip
-describe.skip('plugin-run-script', () => {
+describe('plugin-run-script', () => {
   const DEFAULT_OPTIONS = {
     cmd: 'CMD',
     watch: '$1 --additional-test-watch-options',
@@ -33,7 +31,7 @@ describe.skip('plugin-run-script', () => {
   test('calls the given "watch" command when isDev=true', async () => {
     const p = plugin(null, {cmd: 'CMD', watch: '$1 --additional-test-watch-options'});
     await p.run({isDev: true, log: jest.fn});
-    expect(execaFn.mock.calls[0][0]).toMatch('cmd --additional-test-watch-options');
+    expect(execaFn.mock.calls[0][0]).toMatch('CMD --additional-test-watch-options');
   });
   test('handles command output in "stream" mode', async () => {
     const logFn = jest.fn();
@@ -69,5 +67,9 @@ describe.skip('plugin-run-script', () => {
       ['WORKER_RESET', {}],
       ['WORKER_MSG', {level: 'log', msg: 'TEST_CLEAR_MESSAGE'}],
     ]);
+  });
+  test('modify plugin name when specify name', async () => {
+    const p = plugin(null, {...DEFAULT_OPTIONS, output: 'dashboard', name: 'test'});
+    expect(p.name).toBe('test');
   });
 });

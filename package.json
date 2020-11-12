@@ -3,10 +3,10 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build --scope=esinstall --scope=snowpack",
-    "build:watch": "lerna run build:watch --parallel --scope=esinstall --scope=snowpack",
+    "build": "lerna run build --scope=esinstall --scope=snowpack --scope=skypack",
+    "build:watch": "lerna run build:watch --parallel --scope=esinstall --scope=snowpack --scope=skypack",
     "build:docs": "cd www && yarn build",
-    "lint": "lerna run lint --parallel --scope=esinstall --scope=snowpack",
+    "lint": "lerna run lint --parallel --scope=esinstall --scope=snowpack --scope=skypack",
     "publish": "npm run build && lerna publish --no-private",
     "format": "prettier --write '{snowpack,esinstall}/src/**/*.{ts,js}' '{test,plugins}/**/*.{ts,js}' '*.{js,json,md}' '**/*.{json,md}' '.github/**/*.{md,yml}' '!**/{_dist_,build,packages,pkg,TEST_BUILD_OUT,web_modules}/**' !test/create-snowpack-app/test-install",
     "test": "jest /test/ --test-timeout=30000",
@@ -18,10 +18,12 @@
     "plugins/*",
     "esinstall",
     "snowpack",
+    "skypack",
     "test/build/*",
     "test/esinstall/*"
   ],
   "devDependencies": {
+    "@skypack/package-check": "^0.2.0",
     "@types/babel__traverse": "^7.0.7",
     "@types/cacache": "^12.0.1",
     "@types/compressible": "^2.0.0",

@@ -27,7 +27,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: git config --global user.email "github-ci@snowpack.dev"
       - run: git config --global user.name " ${{ github.actor }}"
-      - run: yarn
+      - run: yarn --frozen-lockfile
       - run: yarn build
 
       # PUBLISH:
