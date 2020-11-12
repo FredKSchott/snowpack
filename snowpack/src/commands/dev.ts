@@ -1296,7 +1296,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   }
 
   // Announce server has started
-  const ips = Object.values(os.networkInterfaces())
+  const remoteIps = Object.values(os.networkInterfaces())
     .reduce((every: os.NetworkInterfaceInfo[], i) => [...every, ...(i || [])], [])
     .filter((i) => i.family === 'IPv4' && i.internal === false)
     .map((i) => i.address);
@@ -1305,7 +1305,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     protocol,
     hostname,
     port,
-    ips,
+    remoteIp: remoteIps[0],
     startTimeMs: Math.round(performance.now() - serverStart),
   });
 
