@@ -167,7 +167,7 @@ exports.default = function plugin(config, userDefinedOptions) {
         generatedFiles.preloadedCSS = outputCSS;
       }
 
-      // 6. wrte manifest
+      // 6. write manifest
       fs.writeFileSync(
         path.join(buildDirectory, config.buildOptions.metaDir, 'optimize-manifest.json'),
         JSON.stringify(

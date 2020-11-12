@@ -77,7 +77,7 @@ describe('@snowpack/plugin-optimize', () => {
   it('minimal - target', async () => {
     const pluginInstance = plugin(
       {
-        buildOptions: {},
+        buildOptions: {metaDir: '__snowpack__'},
       },
       {
         target: ['es2018'],
