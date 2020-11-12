@@ -36,6 +36,14 @@ module.exports = function (eleventyConfig) {
     );
   });
 
+  eleventyConfig.addFilter('toSearchEntry', function (str) {
+    return str.replace(/<a class="direct-link"[^>]*>#<\/a\>/g, '');
+  });
+
+  eleventyConfig.addFilter('toJSON', function (obj) {
+    return JSON.stringify(obj);
+  });
+
   eleventyConfig.setLibrary(
     'md',
     markdownIt({
