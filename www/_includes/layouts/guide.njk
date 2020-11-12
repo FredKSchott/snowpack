@@ -1,0 +1,17 @@
+---
+layout: layouts/base.njk
+---
+<aside class="grid-toc hidden-mobile">
+     <div style="margin: 0rem auto; max-width: 424px;" class= "menu">
+        <a href="/" class="back"><<< Back to main docs</a>
+         {{ content | toc | safe }}
+     
+    </div>
+</aside>
+
+<article id="grid-body" class="guide grid-body">
+{% include 'layouts/header.njk' %} 
+  <div class="markdown-body">
+    {{ content | safe }}
+  </div>
+</article>

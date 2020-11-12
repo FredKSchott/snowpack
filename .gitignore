@@ -14,3 +14,4 @@ test/esinstall/**/web_modules
 yarn-error.log
 test/build/config-out/TEST_BUILD_OUT
 www/assets/app.min.css
+www/eleventy
