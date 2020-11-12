@@ -198,7 +198,15 @@ The easiest way to get started with Snowpack is via [Create Snowpack App (CSA)](
 If you've ever used Create React App, this is a lot like that!
 
 ```bash
+<<<<<<< HEAD
 npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
+=======
+# using npm
+npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
+
+# using yarn
+yarn create snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
+>>>>>>> docs-refactor
 ```
 
 ### Official App Templates
@@ -910,7 +918,11 @@ To use Sass + PostCSS, check out [this guide](https://zellwk.com/blog/eleventy-s
 // snowpack.config.json
 "plugins": [
   ["@snowpack/plugin-run-script", {
+<<<<<<< HEAD
     "cmd": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+=======
+    "cmd": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
+>>>>>>> docs-refactor
     // Optional: Use npm package "watch" to run on every file change
     "watch": "watch \"$1\" src"
   }]

@@ -65,6 +65,14 @@ usersList:
     name: Blessing Skin
     img: https://blessing.netlify.app/logo.png
     url: https://github.com/bs-community
+  - trpg-engine:
+    name: TRPG Engine
+    img: https://trpgdoc.moonrailgun.com/img/trpg_logo.png
+    url: https://trpgdoc.moonrailgun.com/
+  - shein:
+    name: SHEIN
+    img: https://sheinsz.ltwebstatic.com/she_dist/images/touch-icon-ipad-144-47ceee2d97.png
+    url: https://www.shein.com/
 ---
 
 ## What is Snowpack?
@@ -147,7 +155,7 @@ The only requirement is that _during development_ you use a [modern browser](htt
 
 ## Community
 
-<a href="https://discord.gg/zxSwN8Z"><img alt="Join us on Discord!" src="https://img.shields.io/discord/712696926406967308.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2" style="height: 24px; border: none;"/></a>
+<a href="https://discord.gg/snowpack"><img alt="Join us on Discord!" src="https://img.shields.io/discord/712696926406967308.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2" style="height: 24px; border: none;"/></a>
 
 [Join the Pika Discord](https://discord.gg/rS8SnRk) for discussion, questions about Snowpack or related Pika projects, or to show off what you’re working on!
 

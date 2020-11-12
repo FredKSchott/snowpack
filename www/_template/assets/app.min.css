@@ -1363,18 +1363,21 @@ img.company-logo {
   }
 }
 
-.markdown-body {
+.markdown-body,
+.content {
   padding: 0 1em;
-  margin-bottom: 50vh;
+  margin-bottom: 20vh;
   margin-left: auto;
   margin-right: auto;
   max-width: 1000px;
 }
 @media (min-width: 860px) {
-  .markdown-body {
+  .markdown-body,
+.content {
     padding: 0 3em;
   }
 }
+
 .markdown-body h2 .header-link,
 .markdown-body h3 .header-link {
   margin-left: 8px;
@@ -1394,16 +1397,19 @@ img.company-logo {
 }
 .markdown-body h2 {
   font-size: 3em;
-  margin-top: 48px;
+  margin-top: -12px;
+  padding-top: 60px;
 }
 .markdown-body h3 {
-  margin-top: 48px;
+  margin-top: -12px;
+  padding-top: 60px;
 }
 .markdown-body h3:hover .header-link {
   opacity: 1;
 }
 .markdown-body h4 {
-  margin-top: 24px;
+  margin-top: -36px;
+  padding-top: 60px;
   text-transform: uppercase;
   text-decoration: none;
   font-weight: bold;
@@ -1642,4 +1648,93 @@ img.company-logo {
 .markdown-body iframe.twitter-share-button {
   box-shadow: none;
   border: 0;
+}
+
+.pluginPage {
+  background-color: red;
+}
+.pluginPage-count {
+  margin-bottom: 1.5rem;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 300;
+  font-size: 1em;
+  font-style: italic;
+  text-align: center;
+}
+@media (min-width: 600px) {
+  .pluginPage-count {
+    font-size: 1.2em;
+  }
+}
+.pluginPage-intro {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  line-height: 1.5;
+}
+.pluginPage-intro a {
+  color: #2e5e82;
+}
+.pluginPage-search {
+  display: flex;
+  width: 100%;
+}
+.pluginPage-search-input {
+  font-size: 1em;
+  box-sizing: border-box;
+  padding: 0.25em 0.75em;
+  flex-shrink: 0;
+  flex-grow: 1;
+  border-radius: 4px 0 0 4px;
+  border-width: 1px 0 1px 1px;
+  appearance: none;
+  box-shadow: 0 0 0 2px rgba(46, 94, 130, 0);
+  transition: box-shadow 150ms linear;
+}
+.pluginPage-search-input:focus {
+  border-color: #2e5e82;
+  box-shadow: 0 0 0 2px #2e5e82;
+  outline: none;
+}
+.pluginPage-search-input:focus + .pluginPage-search-submit {
+  box-shadow: 0 0 0 2px #2e5e82;
+}
+.pluginPage-search-submit {
+  padding: 0.5em 1em;
+  color: white;
+  font-weight: 700;
+  font-size: 1em;
+  font-family: "Overpass", sans-serif;
+  background-color: #2e5e82;
+  border-radius: 0 4px 4px 0;
+  appearance: none;
+  border: none;
+  box-shadow: 0 0 0 2px rgba(46, 94, 130, 0);
+  transition: box-shadow 150ms linear;
+}
+.pluginPage-subheading {
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  color: #2e5e82;
+  font-size: 1em;
+  font-family: "Overpass", sans-serif;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+@media (min-width: 600px) {
+  .pluginPage-subheading {
+    font-size: 1.3em;
+  }
+}
+.pluginPage-zero-heading {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  font-size: 1.4em;
+  text-align: center;
+}
+@media (min-width: 600px) {
+  .pluginPage-zero-heading {
+    font-size: 1.5em;
+  }
 }
