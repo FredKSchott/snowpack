@@ -28,6 +28,9 @@ describe('snowpack build', () => {
       continue;
     }
 
+    // CSS Modules generate differently on Windows; skip that only for Windows (but test in Unix still)
+    if (testName === 'preload-css' && os.platform() === 'win32') continue;
+
     it(testName, () => {
       const cwd = path.join(__dirname, testName);
       const relativePath = cwd.replace(process.cwd() + '/', '');
@@ -45,8 +48,9 @@ describe('snowpack build', () => {
       // build test
       const capitalize = testName === 'entrypoint-ids' && os.platform() === 'win32';
       execa.sync('yarn', ['testbuild'], {cwd: capitalize ? cwd.toUpperCase() : cwd});
-      const actual =
-        testName.startsWith('config-out') ? path.join(cwd, 'TEST_BUILD_OUT') : path.join(cwd, 'build');
+      const actual = testName.startsWith('config-out')
+        ? path.join(cwd, 'TEST_BUILD_OUT')
+        : path.join(cwd, 'build');
 
       // Test That all files match
       const allFiles = glob.sync(`**/*`, {
