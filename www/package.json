@@ -7,7 +7,7 @@
     "build:md": "cat ../docs/* > index.md",
     "build:sass": "sass css/app.scss:assets/app.min.css --no-source-map",
     "start": "yarn build:md && concurrently 'eleventy --serve' 'yarn build:sass --watch'",
-    "test": "jest /__test__/"
+    "test": "yarn build && jest"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.11.0",
@@ -16,6 +16,7 @@
     "concurrently": "^5.3.0",
     "cssnano": "^4.1.10",
     "eleventy-plugin-nesting-toc": "^1.2.0",
+    "jest": "^26.6.3",
     "luxon": "^1.24.1",
     "markdown-it": "^11.0.0",
     "markdown-it-anchor": "^5.3.0",
