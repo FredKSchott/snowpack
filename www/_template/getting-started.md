@@ -3,21 +3,18 @@ layout: layouts/main.njk
 title: Get Started
 ---
 
-![Webpack vs. Snowpack diagram](/img/snowpack-unbundled-example-3.png)
-
-This guide shows you how to set up Snowpack from scratch in a Node.js project. Along the way you'll learn key concepts of Snowpack and unbundled development
+Welcome to Snowpack! This guide shows you how to set up Snowpack from scratch in a Node.js project. Along the way you'll learn key concepts of Snowpack and unbundled development
 
 In this guide you'll learn
 
-- Unbundled development: saving time by building only the files changed during development instead of bundling your entire codebase.
-- ESM and Snowpack: Snowpack uses JavaScript's native module system (known as [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import)) to power the single-file builds.
-- Snowpack's dev server: an instant dev environment for unbundled development.
-- Snowpack's build pipeline: a flexible system where you use a bundler only if you need one.
-- Using Node modules/npm packages: Snowpack does the work of bringing your favorite Node modules into the ESM world.
-- Using CSS: Snowpack has built-in support for CSS (and CSS Modules, JSX and [more](/features)
-- Using plugins: you can extend your build even further with [custom plugins](/plugins) that connect Snowpack with your favorite build tools: TypeScript, Babel, Vue, Svelte, PostCSS, Sass... go wild!
+- What makes Snowpack so fast? (hint: unbundled development!)
+- What are JavaScript ES Modules (ESM)?
+- Creating your first project
+- Starting Snowpack's dev server
+- Building your first project
+- Customizing Snowpack with plugins
 
-> 💡 Tip: the project you'll create here is [Create Snowpack App minimalist template/example](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/). A list other examples is available at the [create-snowpack-app](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/cli) docs.
+> 💡 Tip: This guide will walk you through creating the Snowpack minimal app template from scratch. You can see the final result [here](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/), along with more [examples](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/cligit) to get you started.
 
 Prerequisites: Snowpack is a command line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal.
 
