@@ -245,7 +245,7 @@ export type SnowpackUserConfig = {
   buildOptions?: Partial<SnowpackConfig['buildOptions']>;
   testOptions?: Partial<SnowpackConfig['testOptions']>;
   experiments?: Partial<SnowpackConfig['experiments']>;
-}
+};
 
 export interface CLIFlags extends Omit<InstallOptions, 'env'> {
   help?: boolean; // display help text

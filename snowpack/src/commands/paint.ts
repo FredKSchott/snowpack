@@ -82,7 +82,9 @@ export function getServerInfoMessage(
   if (isServerStarted) {
     output += `  ${colors.bold(colors.cyan(`${protocol}//${hostname}:${port}`))}`;
     if (remoteIp) {
-      output += `${colors.cyan(` • `)}${colors.bold(colors.cyan(`${protocol}//${remoteIp}:${port}`))}`;
+      output += `${colors.cyan(` • `)}${colors.bold(
+        colors.cyan(`${protocol}//${remoteIp}:${port}`),
+      )}`;
     }
     output += '\n';
     output += colors.dim(

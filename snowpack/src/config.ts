@@ -602,7 +602,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   // TODO: This function is really fighting with TypeScript. Now that we have an accurate
   // SnowpackUserConfig type, we can have this function construct a fresh config object
   // from scratch instead of trying to modify the user's config object in-place.
-  let config: SnowpackConfig = _config as any as SnowpackConfig;
+  let config: SnowpackConfig = (_config as any) as SnowpackConfig;
   config.knownEntrypoints = (config as any).install || [];
   // @ts-ignore
   if (config.devOptions.out) {
