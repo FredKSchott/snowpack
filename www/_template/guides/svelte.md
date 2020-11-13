@@ -4,7 +4,7 @@ title: The Snowpack Guide to Getting Started with Svelte
 description: 'Get started with this in-depth tutorial on how to build Svelte applications and websites with Snowpack'
 date: 2020-10-01
 tags: guides
-sidebarTitle: React
+sidebarTitle: Svelte
 ---
 
 <img src="/img/SvelteGuide.jpg" alt="header image, showing the Svelte and Snowpack logo against a background of blue mountains" />
@@ -21,9 +21,9 @@ In this guide, you'll go from an empty directory to a fully configured Snowpack 
 - Enabling Hot Module Replacement (HMR)
 - Connecting your favorite tools
 
-Prerequisites: Snowpack is a command line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of React is not required, Snowpack is a great way to learn Svelte!
+Prerequisites: Snowpack is a command line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of Svelte is not required, Snowpack is a great way to learn Svelte!
 
-> 💡 Tip: if you want to jump to the end to see a full featured React setup, the [Create Snowpack App Svelte template](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) comes with everything you'll learn in this guide plus other useful tools.
+> 💡 Tip: if you want to jump to the end to see a full featured Svelte setup, the [Create Snowpack App Svelte template](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) comes with everything you'll learn in this guide plus other useful tools.
 
 ## Getting started
 
@@ -277,7 +277,7 @@ export default app;
 
 Great job! You're now ready to build the Svelte project of your dreams with Snowpack. Want to tweet your accomplishment to the world? Click the button below:
 
-<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-text="I just learned how to build a React app with #Snowpack. Check out the tutorial:" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-text="I just learned how to build a Svelte app with #Snowpack. Check out the tutorial:" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 At this point you have the basics and have a great starter for any Svelte project. But if you compare with the official [Snowpack Svelte template](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) you'll notice it has some other developer tools you might find useful:
 
