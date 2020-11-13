@@ -75,7 +75,7 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
   };
 ```
 
-`@snowpack/plugin-svelte` also has built in HMR (hot module replacement) and Fast Refresh, features you'll explore later on in this guide.
+`@snowpack/plugin-svelte` also has built-in HMR (hot module replacement) and Fast Refresh, features you'll explore later on in this guide.
 
 ## Create your first Svelte component
 
@@ -86,7 +86,7 @@ Once @snowpack/plugin-svelte is connected, Snowpack will automatically build `.s
   /* component logic will go here */
 </script>
 <style>
-  /* css will go here*/
+  /* css will go here */
 </style>
 <div class="App">
   <header class="App-header">
@@ -173,7 +173,7 @@ You'll need to restart Snowpack for configuration file changes. When you start u
 
 ## Styling your project
 
-Your site is a little plain, so in this step you'll add an image and animate it with CSS.
+Your site is looking a little plain. In this step you'll spruce it up with images and a CSS animation.
 
 Add this file [`logo.svg`](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-svelte/public/logo.svg) to your `public` directory. Now you can add it to your `App.svelte`
 
@@ -223,7 +223,7 @@ Image: Gif showing the results with the logo animated
 
 ## Expanding your Svelte component
 
-A previous step demonstrated the built in Hot Module Replacement (HMR) from `@snowpack/plugin-svelte`, but what about Fast Refresh? Snowpack is one of the only Svelte dev environments to support Fast Refresh by default. As you make changes to `.svelte` files, Snowpack will automatically update the browser for you without losing your place or resetting component state. That's Fast Refresh in action. To see this for yourself, go ahead and add a simple timer to your App.svelte component:
+A previous step demonstrated the built in Hot Module Replacement (HMR) from `@snowpack/plugin-svelte`, but what about Fast Refresh? Snowpack is one of the only Svelte dev environments to support Fast Refresh by default. As you make changes to `.svelte` files, Snowpack will automatically update the browser for you without losing your place or resetting component state. That's Fast Refresh in action. To see this for yourself, go ahead and add a simple timer to your App.svelte component.
 
 Svelte components include component specific scripts in a `<script>` tag. Add the counter here in `App.svelte` between the `<scripe>` tags:
 
@@ -258,7 +258,7 @@ Trying making a change to the code. You'll see the timer does not reset.
 
 Image: GIF showing code and site side by side, when the word "Hello" is added to the .svelte page and the code is saved, the change shows up in the browser without the timer resetting (it keeps counting)
 
-What about other files? Like if you had a file with a regular `.js` extension? For non-`.svelte` files you'll need to add this code snippet to the bottom of `index.js` to get full Hot Module Replacement:
+What about other, non-Svelte files like `src/index.js`? To re-render your Svelte application when other files change, add this code snippet to the bottom:
 
 ```diff
 export default app;
