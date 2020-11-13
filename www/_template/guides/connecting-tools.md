@@ -6,21 +6,50 @@ tags: guides
 sidebarTitle: Connecting your favorite tools
 ---
 
-One of the biggest questions we get in our discussion forums and Discord is how to connect tools to Snowpack. EsLint, PostCSS, SASS, and any other of the useful tools developers use to build JavaScript these days. In this Guide we'll go over how to use your favorite tools with Snowpack. Almost all work with just a few additions to a configuration file.
+One of the most common questions we get is "How do I connect my favorite tool to Snowpack?" In this guide we'll go over the three different ways that you can integrate third-party tooling into your Snowpack dev environment or build pipeline:
 
-## The three ways
+- Snowpack plugin
+- Integrated CLI script (via `@snowpack/plugin-run-script`)
+- Run separately, outside of Snowpack (ex: in your `package.json`)
 
-It's worth first going over the three ways and their pros and cons:
+## Integrating a Tool With a Snowpack Plugin
 
-- Snowpack plugins
-- Run scripts using Snowpack
-- Run scripts outside of Snowpack (in `package.json`)
+The best way to connect a new tool to Snowpack is to search our [plugin catalog](/plugins) for a relevant plugin. Most likely, someone already created a plugin to help you integrate your favorite tool with ease.
 
-## Plugin
+To add a plugin first install using your package manager, then add the plugin name to the `plugins` section in your Snowpack configuration file. Many plugins have their own totally optional configuration options. These are covered in each plugin's documentation.
 
-Usually Snowpack plugins are the easiest way to use your favorite tools. Snowpack plugins are built to require no configuration, but if you do want to do configuration, they are built with that in mind too!
+For example, if you'd like to use sass, you can install [`@snowpack/plugin-sass`
+](https://www.npmjs.com/package/@snowpack/plugin-sass) with npm:
 
-Snowpack has a [growing plugin ecosystem](/plugins). Adding a plugin is two steps: install the Plugin using your package manager and then tell Snowpack about it by adding the name of the plugin to the Snowpack config file. Configuration options are covered in each plugin's documentation.
+```bash
+npm install @snowpack/plugin-sass
+```
+
+Then if you don't already have a Snowpack configuration file (`snowpack.config.js`) you can create one with this command:
+
+```bash
+snowpack init
+```
+
+Open up `snowpack.config.js` and add the name of your new plugin to the plugins object:
+
+```diff
+// snowpack.config.js
+  plugins: [
+-    /* ... */
++ '@snowpack/plugin-sass'
+  ],
+```
+
+What about the other optional configuration options? [The `@snowpack/plugin-sass` documentation](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-sass) lists all the options and where to put them in the `snowpack.config.js` file. If I wanted the `compressed` output `style` I'd turn the `@snowpack/plugin-sass` value into an array with an object containing the configuration:
+
+```diff
+// snowpack.config.js
+  plugins: [
+- '@snowpack/plugin-sass'
++ ['@snowpack/plugin-sass', { style: 'compressed'}
+  ],
+```
 
 If there isn't a plugin yet, you might be interested in making one. Check out our [Guide to creating a plugin](/guide/plugins)
 
@@ -40,7 +69,7 @@ If you can't find a plugin that fits your needs and don't want to write your own
 }
 ```
 
-This plugin allows you to connect any CLI into your build process. Just give it a `cmd` CLI command that can take input from `stdin` and emit the build result via `stdout`. Check out the README for more information.
+This plugin allows you to connect any CLI into your build process. Just give it a `cmd` CLI command that can take input from `stdin` and emit the build result via `stdout`. Check out the [plugin documentation](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-build-script) for more information.
 
 #### @snowpack/plugin-run-script
 
@@ -54,7 +83,7 @@ This plugin allows you to connect any CLI into your build process. Just give it 
 }
 ```
 
-This plugin allows you to run any CLI command as a part of your dev and build workflow. This plugin doesn't affect your build output, but it is useful for connecting developer tooling directly into Snowpack. Use this to add meaningful feedback to your dev console as you type, like TypeScript type-checking and ESLint lint errors.
+This plugin allows you to run any CLI command as a part of your dev and build workflow. This plugin doesn't affect your build output, but it is useful for connecting developer tooling directly into Snowpack. Use this to add meaningful feedback to your dev console as you type, like TypeScript type-checking and ESLint lint errors. This doesn't affect how Snowpack builds your site. Check out the [plugin documentation](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-run-script) for more information.
 
 ### Examples
 
@@ -81,11 +110,3 @@ The [`postcss-cli`](https://github.com/postcss/postcss-cli) package must be inst
   }]
 ]
 ```
-
-## Running scripts outside of Snowpack
-
-The third option is running the tool completely outside of Snowpack. This sometimes has an advantage if don't need it to run at the same time as Snowpack. This docs site for example runs PostCSS outside of Snowpack. It's not used in the dev server, only on build, so there is really no advantage to adding it to Snowpack. Our build script in `package.json` runs PostCSS:
-
-`"build": "ELEVENTY_ENV=prod yarn build:sass && snowpack build && yarn build:css"`
-
-Sass is also run outside of Snowpack but the next release of docs we'll use the `@snowpack/plugin-sass` plugin instead. It didn't exist when we first set up the docs so we had been using [Concurrently](https://github.com/kimmobrunfeldt/concurrently) to run a sass watcher and Snowpack at the same time.
