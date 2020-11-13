@@ -11,6 +11,7 @@ Snowpack Guides are deep dives into popular Snowpack topics.
 
 Stubs (guides under construction)
 
+- [Bundling for Deployment](/guides/bundling)
 - [Vue](/guides/vue)
 - [Preact](/guides/preact)
 - [Svelte](/guides/svelte)
