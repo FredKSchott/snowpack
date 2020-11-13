@@ -3,6 +3,8 @@ layout: layouts/main.njk
 title: Troubleshooting
 ---
 
+This page covers troubleshooting several common issues. For further help we have an active [GitHub Discussion forum](https://github.com/snowpackjs/snowpack/discussions)and [Discord](https://discord.gg/snowpack). Developers and community contributors frequently answer questions on both.
+
 ## No such file or directory
 
 ```
