@@ -13,7 +13,7 @@ Snowpack is a great fit for [Svelte](https://svelte.dev/) projects of any size. 
 
 > Snowpack is … astonishingly fast, and has a beautiful development experience (hot module reloading, error overlays and so on), and we've been working closely with the Snowpack team on features like SSR[Server-side rendering]. The hot module reloading is particularly revelatory. - [Rich Harris, creator of Svelte](https://svelte.dev/blog/whats-the-deal-with-sveltekit)
 
-This guide is a step by step from an empty directory to a fully configured Snowpack project. The concepts this guide covers include:
+This guide is a step by step from an empty directory to a fully configured Snowpack project, in the process teaching:
 
 - How to set up your Snowpack development environment
 - Adding your first Svelte component
@@ -21,21 +21,21 @@ This guide is a step by step from an empty directory to a fully configured Snowp
 - Enabling Hot Module Replacement (HMR)
 - Connecting your favorite tools
 
-Prerequisites: Snowpack is a command line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of Svelte is not required, Snowpack is a great way to learn Svelte!
+Prerequisites: Snowpack is a command-line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of Svelte is not required, Snowpack is an excellent way to learn Svelte!
 
-> 💡 Tip: if you want to jump to the end to see a full featured Svelte setup, there is a [Svelte](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) working example available in our Create Snowpack App templates.
+> 💡 Tip: a [Svelte/Snowpack](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) working example is available in our Create Snowpack App templates.
 
 ## Getting started
 
 The easiest way to start a new Snowpack project is with [Create Snowpack App](<https://www.snowpack.dev/#create-snowpack-app-(csa)>), a tool for creating a new project based on our example templates. `@snowpack/project-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
 
-To get started, open your terminal and head to a directory where you want to put your new project. Run the following command in your terminal to create a new directory called `svelte-snowpack` with the minimal template installed.
+Run the following command in your terminal to create a new directory called `svelte-snowpack` with the minimal template installed:
 
 ```bash
 npx create-snowpack-app svelte-snowpack --template @snowpack/app-template-minimal
 ```
 
-You can now head to the new directory and start Snowpack with the following two commands:
+Head to the new `svelte-snowpack` directory and start Snowpack with the following two commands:
 
 ```bash
 cd svelte-snowpack
@@ -43,8 +43,6 @@ npm run start
 ```
 
 You should see your new website up and running!
-
-> 💡 Tip: the `README.md` in your new project contains useful information about what each file does.
 
 <div class="frame"><img src="/img/guides/react/minimalist-hello-world.png" alt="screenshot of project-template-minimal, which shows 'Hello world' in text on a white background." class="screenshot"/></div>
 
@@ -65,6 +63,7 @@ npm install @snowpack/plugin-svelte --save-dev
 Once installed, you'll need to add the plugin to your Snowpack configuration file so that Snowpack knows to use it:
 
 ```diff
+// snowpack.config.js
   module.exports = {
     mount: {
       public: '/',
@@ -82,6 +81,7 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
 With `@snowpack/plugin-svelte` installed, Snowpack will build `.svelte` files to JS and CSS to run in the browser. Create your first `.svelte` component named `App.svelte` with the following code:
 
 ```html
+<!-- App.svelte -->
 <script>
   /* component logic will go here */
 </script>
@@ -105,6 +105,8 @@ With `@snowpack/plugin-svelte` installed, Snowpack will build `.svelte` files to
 Now head to `index.js` and import it the new `app.svelte` file
 
 ```diff
+// index.js
+
 /* Add JavaScript code here! */
 -console.log('Hello World! You did it! Welcome to Snowpack :D');
 +import App from "./App.svelte";
@@ -149,6 +151,8 @@ This means if you are running Snowpack right now, the site is now broken as the 
 The `mount` configuration changes where Snowpack scan for and builds files. Head back to the `snowpack.config.js` file you edited when you added `@snowpack/plugin-svelte`. Add this to the empty `mount` object:
 
 ```diff
+// snowpack.config.js
+
   mount: {
 -   /* ... */
 +   // directory name: 'build directory'
@@ -162,6 +166,8 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
 `mount` is part of the [Snowpack Configuration API](https://www.snowpack.dev/#configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in `public` like `public/index.css` directory into `index.css`. It builds files in `src` like `src/index.js` into `/_dist_/index.js`, so change that path in your `index.html`:
 
 ```diff
+<!-- public/index.html -->
+
   <body>
 -   <h1>Welcome to Snowpack!</h1>
 -   <script type="module" src="/index.js"></script>
@@ -175,9 +181,11 @@ You'll need to restart Snowpack for configuration file changes. When you start u
 
 In Svelte you can add CSS directly to your component. This step demonstrates this capability by adding an animated logo.
 
-Add this file [`logo.svg`](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-svelte/public/logo.svg) to your `public` directory. Now you can add it to your `App.svelte`
+Download [`logo.svg`](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-svelte/public/logo.svg) to your `public` directory. Now you can add it to your `App.svelte`
 
 ```diff
+<!-- src/App.svelte -->
+
     <header class="App-header">
 +       <img src="/logo.svg" class="App-logo" alt="logo" />
         <a class="App-link" href="https://svelte.dev" target="_blank" rel="noopener noreferrer">
@@ -188,7 +196,9 @@ Image: Site showing the new logo
 
 With Svelte, CSS can go directly in your `.svelte` component. Add this code to the top of `App.svelte` between the `<style>` tags:
 
-```css
+```html
+<!-- src/App.svelte -->
+
 <style>
   .App-header {
     background-color: #f9f6f6;
@@ -223,13 +233,14 @@ Image: Gif showing the results with the logo animated
 
 ## Adding a counter to your Svelte component
 
-A previous step demonstrated the built in Hot Module Replacement (HMR) from `@snowpack/plugin-svelte`, but what about Fast Refresh? Snowpack is one of the only Svelte dev environments to support Fast Refresh by default. As you make changes to `.svelte` files, Snowpack updates the browser for you without losing your place or resetting component state. That's Fast Refresh in action. To see this for yourself, go ahead and add a simple timer to your App.svelte component.
+Snowpack is one of the only Svelte dev environments to support Fast Refresh by default. As you make changes to `.svelte` files, Snowpack updates the browser for you without losing your place or resetting component state. That's Fast Refresh in action. To see this for yourself, go ahead and add a simple timer to your App.svelte component.
 
-Svelte components include component specific scripts in a `<script>` tag. Add the counter here in `App.svelte` between the `<scripe>` tags:
+Svelte components include component specific scripts in a `<script>` tag. Add the counter here in `App.svelte` between the `<script>` tags:
 
-```js
+```html
+<!-- src/App.svelte -->
 <script>
-  import {onMount} from 'svelte';
+  import { onMount } from 'svelte';
   let count = 0;
   onMount(() => {
     const interval = setInterval(() => count++, 1000);
@@ -243,6 +254,8 @@ Svelte components include component specific scripts in a `<script>` tag. Add th
 Then lower down in your component's body, add this code that displays the results of the timer.
 
 ```diff
+<!-- src/App.svelte -->
+
 <div class="App">
     <header class="App-header">
       <img src="/logo.svg" class="App-logo" alt="logo" />
@@ -261,6 +274,8 @@ Image: GIF showing code and site side by side, when the word "Hello" is added to
 What about other, non-Svelte files like `src/index.js`? To re-render your Svelte application when other files change, add this code snippet to the bottom:
 
 ```diff
+<!-- src/index.js-->
+
 export default app;
 
 +// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
