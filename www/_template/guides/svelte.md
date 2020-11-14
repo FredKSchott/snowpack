@@ -29,7 +29,7 @@ Prerequisites: Snowpack is a command line tool installed from npm. This guide as
 
 The easiest way to start a new Snowpack project is with [Create Snowpack App](<https://www.snowpack.dev/#create-snowpack-app-(csa)>), a tool for creating a new project based on our example templates. `@snowpack/project-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
 
-To get started, open your terminal and head to a directory where you want to put your new project. Now run the following command in your terminal to create a new directory called `svelte-snowpack` with the minimal template automatically installed.
+To get started, open your terminal and head to a directory where you want to put your new project. Run the following command in your terminal to create a new directory called `svelte-snowpack` with the minimal template installed.
 
 ```bash
 npx create-snowpack-app svelte-snowpack --template @snowpack/app-template-minimal
@@ -79,7 +79,7 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
 
 ## Create your first Svelte component
 
-With `@snowpack/plugin-svelte` installed, Snowpack will automatically build `.svelte` files to JS and CSS to run in the browser. Create your first `.svelte` component named `App.svelte` with the following code:
+With `@snowpack/plugin-svelte` installed, Snowpack will build `.svelte` files to JS and CSS to run in the browser. Create your first `.svelte` component named `App.svelte` with the following code:
 
 ```html
 <script>
@@ -223,7 +223,7 @@ Image: Gif showing the results with the logo animated
 
 ## Adding a counter to your Svelte component
 
-A previous step demonstrated the built in Hot Module Replacement (HMR) from `@snowpack/plugin-svelte`, but what about Fast Refresh? Snowpack is one of the only Svelte dev environments to support Fast Refresh by default. As you make changes to `.svelte` files, Snowpack automatically updates the browser for you without losing your place or resetting component state. That's Fast Refresh in action. To see this for yourself, go ahead and add a simple timer to your App.svelte component.
+A previous step demonstrated the built in Hot Module Replacement (HMR) from `@snowpack/plugin-svelte`, but what about Fast Refresh? Snowpack is one of the only Svelte dev environments to support Fast Refresh by default. As you make changes to `.svelte` files, Snowpack updates the browser for you without losing your place or resetting component state. That's Fast Refresh in action. To see this for yourself, go ahead and add a simple timer to your App.svelte component.
 
 Svelte components include component specific scripts in a `<script>` tag. Add the counter here in `App.svelte` between the `<scripe>` tags:
 
@@ -286,6 +286,8 @@ At this point you have the basics and have a great starter for any Svelte projec
 - [Tests](https://www.snowpack.dev/#testing)—Snowpack supports any popular JavaScript testing framework
 
 - [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-dotenv)—Use `dotenv` in your Snowpack. This is useful for environment specific variables
+
+We also recommend the official [Svelte](https://svelte.dev/tutorial/basics) tutorial, which teaches more about how Svelte works and how to build Svelte components.
 
 If you'd like to use Typescript with Snowpack and Svelte, check out the [Snowpack Svelte Typescript](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte-typescript) template.
 
