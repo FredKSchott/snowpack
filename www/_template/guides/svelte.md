@@ -11,9 +11,9 @@ sidebarTitle: Svelte
 
 Snowpack is a great fit for [Svelte](https://svelte.dev/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional Svelte application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
 
-> Snowpack is … astonishingly fast, and has a beautiful development experience (hot module reloading, error overlays and so on), and we've been working closely with the Snowpack team on features like SSR. The hot module reloading is particularly revelatory. - [Rich Harris, creator of Svelte](https://svelte.dev/blog/whats-the-deal-with-sveltekit)
+> Snowpack is … astonishingly fast, and has a beautiful development experience (hot module reloading, error overlays and so on), and we've been working closely with the Snowpack team on features like SSR[Server-side rendering]. The hot module reloading is particularly revelatory. - [Rich Harris, creator of Svelte](https://svelte.dev/blog/whats-the-deal-with-sveltekit)
 
-In this guide, you'll go from an empty directory to a fully configured Snowpack project with support for Svelte and several other useful developer tools. In the process, you'll learn:
+This guide is a step by step from an empty directory to a fully configured Snowpack project. The concepts this guide covers include:
 
 - How to set up your Snowpack development environment
 - Adding your first Svelte component
@@ -23,7 +23,7 @@ In this guide, you'll go from an empty directory to a fully configured Snowpack 
 
 Prerequisites: Snowpack is a command line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of Svelte is not required, Snowpack is a great way to learn Svelte!
 
-> 💡 Tip: if you want to jump to the end to see a full featured Svelte setup, the [Create Snowpack App Svelte template](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) comes with everything you'll learn in this guide plus other useful tools.
+> 💡 Tip: if you want to jump to the end to see a full featured Svelte setup, there is a [Svelte](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) working example available in our Create Snowpack App templates.
 
 ## Getting started
 
@@ -56,7 +56,7 @@ npm install svelte --save
 
 > 💡 Tip: add the "--use-yarn" or "--use-pnpm" flag to use something other than npm
 
-You'll also need the `@snowpack/plugin-svelte` plugin so that Snowpack knows how built `.svelte` files into JavaScript and CSS files that run in the browser. Snowpack plugins are a way to extend Snowpack's capabilities without having to do custom configuration yourself. To start, install the package in your project:
+Install the `@snowpack/plugin-svelte` plugin so that Snowpack knows how built `.svelte` files into JavaScript and CSS files that run in the browser. Snowpack plugins are a way to extend Snowpack's capabilities without having to do custom configuration yourself. To start, install the package in your project:
 
 ```bash
 npm install @snowpack/plugin-svelte --save-dev
@@ -75,11 +75,11 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
   };
 ```
 
-`@snowpack/plugin-svelte` also has built-in HMR (hot module replacement) and Fast Refresh, features you'll explore later on in this guide.
+`@snowpack/plugin-svelte` also has built-in HMR (hot module replacement) and Fast Refresh, features explored later on in this guide.
 
 ## Create your first Svelte component
 
-Once @snowpack/plugin-svelte is connected, Snowpack will automatically build `.svelte` files to JS and CSS to run in the browser. Create your first `.svelte` component named `App.svelte` with the following code:
+With `@snowpack/plugin-svelte` installed, Snowpack will automatically build `.svelte` files to JS and CSS to run in the browser. Create your first `.svelte` component named `App.svelte` with the following code:
 
 ```html
 <script>
@@ -116,13 +116,13 @@ Now head to `index.js` and import it the new `app.svelte` file
 +export default app;
 ```
 
-Start up Snowpack with `npm start` and you should see a page that says "Learn Svelte." GrewR job, you now have Svelte up and running. When you make changes to the code and save them, you'll see them instantly in the browser without refreshing the entire page.
+Start up Snowpack with `npm start` and you should see a page that says "Learn Svelte." GrewR job, you now have Svelte up and running. Any code changes you make show up in the browser when you save a file.
 
 Image: GIF showing code and site side by side, site is a "Learn Svelte" link on a white background. When the text is edit to add "Hello world" and the file saves, the changes show up in the site immediately.
 
 ## Customize your project layout
 
-Since you'll be adding a bunch of new files, you probably don't want them crowding up your top-level root directly. Snowpack is flexible enough to support whatever project layout that you prefer. In this guide, you'll learn how to use a popular project pattern from the Svelte community.
+Snowpack is flexible enough to support whatever project layout that you prefer. In this guide, you'll learn how to use a popular project pattern from the Svelte community.
 
 ```
 📁 src : your Svelte components and their assets (CSS, images)
@@ -157,9 +157,9 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
   },
 ```
 
-<img src="/img/guides/react/folderstructure.png" alt="The original file configuration had Snowpack building the directory structure the same as the directories in the project, including root. Now the config builds only src and public. Src to the dist folder and public to root." />
+<img src="/img/guides/react/folderstructure.png" alt="The original file configuration had Snowpack building the directory structure the same as the directories in the project, including root. Now the configuration builds only src and public. Src to the dist folder and public to root." />
 
-`mount` is part of the [Snowpack Configuration API](https://www.snowpack.dev/#configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in `public` like `public/index.css` directory into `index.css`. It builds files in `src` like `src/index.js` into `/_dist_/index.js`, so you'll need to change that path in your `index.html`:
+`mount` is part of the [Snowpack Configuration API](https://www.snowpack.dev/#configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in `public` like `public/index.css` directory into `index.css`. It builds files in `src` like `src/index.js` into `/_dist_/index.js`, so change that path in your `index.html`:
 
 ```diff
   <body>
@@ -171,9 +171,9 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
 
 You'll need to restart Snowpack for configuration file changes. When you start up again, if it worked, it should look the same.
 
-## Styling your project
+## Adding an animated Svelte Logo
 
-Your site is looking a little plain. In this step you'll spruce it up with images and a CSS animation.
+In Svelte you can add CSS directly to your component. This step demonstrates this capability by adding an animated logo.
 
 Add this file [`logo.svg`](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-svelte/public/logo.svg) to your `public` directory. Now you can add it to your `App.svelte`
 
@@ -221,9 +221,9 @@ With Svelte, CSS can go directly in your `.svelte` component. Add this code to t
 
 Image: Gif showing the results with the logo animated
 
-## Expanding your Svelte component
+## Adding a counter to your Svelte component
 
-A previous step demonstrated the built in Hot Module Replacement (HMR) from `@snowpack/plugin-svelte`, but what about Fast Refresh? Snowpack is one of the only Svelte dev environments to support Fast Refresh by default. As you make changes to `.svelte` files, Snowpack will automatically update the browser for you without losing your place or resetting component state. That's Fast Refresh in action. To see this for yourself, go ahead and add a simple timer to your App.svelte component.
+A previous step demonstrated the built in Hot Module Replacement (HMR) from `@snowpack/plugin-svelte`, but what about Fast Refresh? Snowpack is one of the only Svelte dev environments to support Fast Refresh by default. As you make changes to `.svelte` files, Snowpack automatically updates the browser for you without losing your place or resetting component state. That's Fast Refresh in action. To see this for yourself, go ahead and add a simple timer to your App.svelte component.
 
 Svelte components include component specific scripts in a `<script>` tag. Add the counter here in `App.svelte` between the `<scripe>` tags:
 
@@ -279,7 +279,7 @@ Great job! You're now ready to build the Svelte project of your dreams with Snow
 
 <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-text="I just learned how to build a Svelte app with #Snowpack. Check out the tutorial:" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-At this point you have the basics and have a great starter for any Svelte project. But if you compare with the official [Snowpack Svelte template](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) you'll notice it has some other developer tools you might find useful:
+At this point you have the basics and have a great starter for any Svelte project. The official [Snowpack Svelte](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) example has a few other tools you might find useful:
 
 - [Prettier](https://prettier.io/)—a popular code formatter
 
