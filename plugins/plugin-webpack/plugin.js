@@ -231,7 +231,7 @@ module.exports = function plugin(config, args = {}) {
               exclude: /node_modules/,
               use: [
                 {
-                  loader: 'babel-loader',
+                  loader: require.resolve('babel-loader'),
                   options: {
                     cwd: buildDirectory,
                     configFile: false,
@@ -239,7 +239,7 @@ module.exports = function plugin(config, args = {}) {
                     compact: true,
                     presets: [
                       [
-                        '@babel/preset-env',
+                        require.resolve('@babel/preset-env'),
                         {
                           targets: presetEnvTargets,
                           bugfixes: true,
@@ -267,7 +267,7 @@ module.exports = function plugin(config, args = {}) {
                   loader: MiniCssExtractPlugin.loader,
                 },
                 {
-                  loader: 'css-loader',
+                  loader: require.resolve('css-loader'),
                 },
               ],
             },
@@ -278,7 +278,7 @@ module.exports = function plugin(config, args = {}) {
                   loader: MiniCssExtractPlugin.loader,
                 },
                 {
-                  loader: 'css-loader',
+                  loader: require.resolve('css-loader'),
                   options: {
                     modules: true,
                   },
@@ -290,7 +290,7 @@ module.exports = function plugin(config, args = {}) {
               exclude: [/\.js?$/, /\.json?$/, /\.css$/],
               use: [
                 {
-                  loader: 'file-loader',
+                  loader: require.resolve('file-loader'),
                   options: {
                     name: assetsOutputPattern,
                   },
