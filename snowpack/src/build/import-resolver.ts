@@ -4,12 +4,15 @@ import url from 'url';
 import {ImportMap, SnowpackConfig} from '../types/snowpack';
 import {findMatchingAliasEntry, getLastExt} from '../util';
 import {getUrlForFile, tryPluginsResolveExt} from './file-urls';
+// import {findMatchingAliasEntry, getExt, replaceExt} from '../util';
+// import {getUrlForFile} from './file-urls';
 
 const cwd = process.cwd();
 
 interface ImportResolverOptions {
   fileLoc: string;
-  dependencyImportMap: ImportMap | null | undefined;
+  lockfile?: ImportMap | null;
+  installImportMap?: ImportMap | null;
   config: SnowpackConfig;
 }
 
@@ -44,7 +47,8 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: S
  */
 export function createImportResolver({
   fileLoc,
-  dependencyImportMap,
+  lockfile,
+  installImportMap,
   config,
 }: ImportResolverOptions) {
   return function importResolver(spec: string): string | false {
@@ -52,12 +56,20 @@ export function createImportResolver({
     if (url.parse(spec).protocol) {
       return spec;
     }
-
     // Ignore packages marked as external
     if (config.installOptions.externalPackage?.includes(spec)) {
       return spec;
     }
-
+    // Support snowpack.lock.json entry
+    if (lockfile && lockfile.imports[spec]) {
+      const mappedImport = lockfile.imports[spec];
+      if (url.parse(mappedImport).protocol) {
+        return mappedImport;
+      }
+      throw new Error(
+        `Not yet supported: "${spec}" lockfile entry must be a full URL (https://...).`,
+      );
+    }
     if (spec.startsWith('/')) {
       const importStats = getImportStats(path.resolve(cwd, spec.substr(1)));
       return resolveSourceSpecifier(spec, importStats, config);
@@ -77,13 +89,11 @@ export function createImportResolver({
       const newSpec = getUrlForFile(importedFileLoc, config) || spec;
       return resolveSourceSpecifier(newSpec, importStats, config);
     }
-    if (dependencyImportMap) {
+    if (installImportMap && installImportMap.imports[spec]) {
       // NOTE: We don't need special handling for an alias here, since the aliased "from"
       // is already the key in the import map. The aliased "to" value is also an entry.
-      const importMapEntry = dependencyImportMap.imports[spec];
-      if (importMapEntry) {
-        return path.posix.resolve(config.buildOptions.webModulesUrl, importMapEntry);
-      }
+      const importMapEntry = installImportMap.imports[spec];
+      return path.posix.resolve(config.buildOptions.webModulesUrl, importMapEntry);
     }
     return false;
   };

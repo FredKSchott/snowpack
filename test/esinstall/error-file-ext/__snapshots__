@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`snowpack install error-file-ext: cli output 1`] = `
-"[snowpack] installing dependencies...
+"[snowpack] ! installing dependencies...
 [snowpack] Failed to load ../../../node_modules/error-file-ext-dep-b/index.vue
   Try installing rollup-plugin-vue and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)
 [snowpack] Install failed."

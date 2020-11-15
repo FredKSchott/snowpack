@@ -1,4 +1,5 @@
 import path from 'path';
+import url from 'url';
 import {validatePluginLoadResult} from '../config';
 import {logger} from '../logger';
 import {
@@ -121,7 +122,7 @@ async function runPipelineLoadStep(
     srcExt,
     result: {
       [srcExt]: {
-        code: await readFile(srcPath)
+        code: await readFile(url.pathToFileURL(srcPath))
       }
     }
   };
@@ -262,13 +263,13 @@ export async function runPipelineCleanupStep({plugins}: SnowpackConfig) {
 
 /** Core Snowpack file pipeline builder */
 export async function buildFile(
-  srcPath: string,
+  srcURL: URL,
   buildFileOptions: BuildFileOptions,
 ): Promise<SnowpackBuildMapExt> {
   // Pass 1: Find the first plugin to load this file, and return the result
-  const {srcExt, result: loadResult} = await runPipelineLoadStep(srcPath, buildFileOptions);
+  const {srcExt, result: loadResult} = await runPipelineLoadStep(url.fileURLToPath(srcURL), buildFileOptions);
   // Pass 2: Pass that result through every plugin transform() method.
-  const transformResult = await runPipelineTransformStep(loadResult, srcPath, buildFileOptions);
+  const transformResult = await runPipelineTransformStep(loadResult, url.fileURLToPath(srcURL), buildFileOptions);
   // Return the final build result.
   return {srcExt, result: transformResult};
 }

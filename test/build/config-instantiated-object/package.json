@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-config-instantiated-object",
+  "description": "Test for plugin options using instantiated objects",
+  "scripts": {
+    "testbuild": "snowpack build"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.2",
+    "snowpack": "^2.14.3"
+  }
+}

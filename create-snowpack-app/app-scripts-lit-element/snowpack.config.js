@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const url = require('url');
 
-const cwd = process.cwd();
-const isTS = fs.existsSync(path.join(cwd, 'tsconfig.json'));
+const isTS = fs.existsSync(url.pathToFileURL(path.join(process.cwd(), 'tsconfig.json')));
 
 module.exports = {
   mount: {

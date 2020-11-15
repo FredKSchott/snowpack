@@ -38,7 +38,11 @@ The easiest way to get started with Snowpack is via [Create Snowpack App (CSA)](
 If you've ever used Create React App, this is a lot like that!
 
 ```bash
+# using npm
 npx create-snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
+
+# using yarn
+yarn create snowpack-app new-dir --template [SELECT FROM BELOW] [--use-yarn]
 ```
 
 ### Official App Templates

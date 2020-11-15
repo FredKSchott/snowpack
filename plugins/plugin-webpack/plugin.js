@@ -76,7 +76,9 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMin
         for (const cssFile of cssFiles) {
           const linkEl = dom.window.document.createElement('link');
           linkEl.setAttribute('rel', 'stylesheet');
-          linkEl.href = path.posix.join(baseUrl, cssFile);
+          linkEl.href = url.parse(baseUrl).protocol
+            ? url.resolve(baseUrl, cssFile)
+            : path.posix.join(baseUrl, cssFile);
           head.append(linkEl);
         }
         originalScriptEl.remove();

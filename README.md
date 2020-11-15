@@ -73,4 +73,5 @@ For starter apps and templates, see [create-snowpack-app](./create-snowpack-app)
 - [snowpack-plugin-inliner](https://github.com/fansenze/snowpack-plugin-inliner) A plugin for snowpack which transforms files into base64 URIs.
 - [snowpack-plugin-relative-css-urls](https://github.com/canadaduane/snowpack-plugin-relative-css-urls) Keep your image assets and CSS together within the same component directories.
 - [snowpack-plugin-replace](https://github.com/moonrailgun/snowpack-plugin-replace) A plugin for replace file content with `string` or `RegExp`, useful for migrate or make some magic without modify source code
+- [snowpack-plugin-elm](https://github.com/marc136/snowpack-plugin-elm) A plugin to compile [Elm apps and modules](https://elm-lang.org).
 - PRs that add a link to this list are welcome!

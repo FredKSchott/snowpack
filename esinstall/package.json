@@ -1,6 +1,6 @@
 {
   "name": "esinstall",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Convert packages to ESM.",
   "license": "MIT",
   "keywords": [
@@ -51,7 +51,7 @@
     "kleur": "^4.1.1",
     "mkdirp": "^1.0.3",
     "rimraf": "^3.0.0",
-    "rollup": "^2.23.0",
+    "rollup": "^2.33.1",
     "rollup-plugin-node-polyfills": "^0.2.1",
     "validate-npm-package-name": "^3.0.0"
   }

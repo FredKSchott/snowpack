@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "name": "@snowpack/test-config-extends",
   "scripts": {
-    "testinstall": "snowpack"
+    "testinstall": "snowpack install"
   },
   "dependencies": {
     "array-flatten": "^3.0.0"

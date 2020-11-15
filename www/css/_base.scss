@@ -383,13 +383,12 @@ img.company-logo {
   line-height: 1;
   font-weight: 900;
   max-width: 424px;
-  margin: 0 auto;
+  margin: 0 auto 0.75rem;
   opacity: 0.9;
 
   @media (min-width: $breakpoint-m) {
     font-size: 5.75rem;
     max-width: none;
-    margin: 0 auto;
     opacity: 1;
   }
 }
@@ -454,9 +453,9 @@ img.company-logo {
   }
 }
 
-.markdown-body {
+.markdown-body, .content {
   padding: 0 1em;
-  margin-bottom: 50vh;
+  margin-bottom: 20vh;
   margin-left: auto;
   margin-right: auto;
   max-width: 1000px;
@@ -464,7 +463,9 @@ img.company-logo {
   @media (min-width: $breakpoint-m) {
     padding: 0 3em;
   }
+}
 
+.markdown-body {
   h2,
   h3 {
     .header-link {
@@ -486,11 +487,13 @@ img.company-logo {
 
   h2 {
     font-size: 3em;
-    margin-top: 48px;
+    margin-top: -12px;
+    padding-top: 60px;
   }
 
   h3 {
-    margin-top: 48px;
+    margin-top: -12px;
+    padding-top: 60px;
 
     &:hover .header-link {
       opacity: 1;
@@ -498,7 +501,8 @@ img.company-logo {
   }
 
   h4 {
-    margin-top: 24px;
+    margin-top: -36px;
+    padding-top: 60px;
     text-transform: uppercase;
     text-decoration: none;
     font-weight: bold;

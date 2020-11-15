@@ -50,7 +50,7 @@ function getIsHmrEnabled(config: SnowpackConfig) {
 }
 
 function handleFileError(err: Error, builder: FileBuilder) {
-  logger.error(`✘ ${builder.filepath}\n  ${err.stack ? err.stack : err.message}`);
+  logger.error(`✘ ${builder.fileURL}\n  ${err.stack ? err.stack : err.message}`);
   process.exit(1);
 }
 
@@ -72,13 +72,17 @@ async function installOptimizedDependencies(
   // will can scan all used entrypoints. Set to `[]` to improve tree-shaking performance.
   installConfig.knownEntrypoints = [];
   // 1. Scan imports from your final built JS files.
-  const installTargets = await getInstallTargets(installConfig, scannedFiles);
+  const installTargets = await getInstallTargets(
+    installConfig,
+    commandOptions.lockfile,
+    scannedFiles,
+  );
   // 2. Install dependencies, based on the scan of your final build.
   const installResult = await installRunner({
     ...commandOptions,
     installTargets,
     config: installConfig,
-    shouldPrintStats: true,
+    shouldPrintStats: false,
     shouldWriteLockfile: false,
   });
   return installResult;
@@ -94,26 +98,30 @@ class FileBuilder {
   filesToResolve: Record<string, SnowpackSourceFile> = {};
   filesToProxy: string[] = [];
 
-  readonly filepath: string;
+  readonly fileURL: URL;
   readonly mountEntry: MountEntry;
   readonly outDir: string;
   readonly config: SnowpackConfig;
+  readonly lockfile: ImportMap | null;
 
   constructor({
-    filepath,
+    fileURL,
     mountEntry,
     outDir,
     config,
+    lockfile,
   }: {
-    filepath: string;
+    fileURL: URL;
     mountEntry: MountEntry;
     outDir: string;
     config: SnowpackConfig;
+    lockfile: ImportMap | null;
   }) {
-    this.filepath = filepath;
+    this.fileURL = fileURL;
     this.mountEntry = mountEntry;
     this.outDir = outDir;
     this.config = config;
+    this.lockfile = lockfile;
   }
 
   async buildFile() {
@@ -122,10 +130,10 @@ class FileBuilder {
     let srcExt: string;
     let fileOutput: Record<string, SnowpackBuiltFile>;
     if (this.mountEntry.static) {
-      srcExt = getLastExt(this.filepath);
-      fileOutput = {[srcExt]: {code: await readFile(this.filepath)}};
+      srcExt = getLastExt(url.fileURLToPath(this.fileURL));
+      fileOutput = {[srcExt]: {code: await readFile(this.fileURL)}};
     } else {
-      ({srcExt, result: fileOutput} = await buildFile(this.filepath, {
+      ({srcExt, result: fileOutput} = await buildFile(this.fileURL, {
         plugins: this.config.plugins,
         isDev: false,
         isSSR,
@@ -140,8 +148,8 @@ class FileBuilder {
         continue;
       }
 
-      let outFilename = path.basename(this.filepath);
-      if (srcExt !== fileExt) { // optimization
+      let outFilename = path.basename(url.fileURLToPath(this.fileURL));
+      if (srcExt !== fileExt) {
         outFilename = replaceExt(outFilename, srcExt, fileExt);
       }
       const fileLastExt = getLastExt(fileExt);
@@ -155,7 +163,7 @@ class FileBuilder {
               baseExt: fileLastExt,
               expandedExt: fileExt,
               contents: code,
-              locOnDisk: this.filepath,
+              locOnDisk: url.fileURLToPath(this.fileURL),
             };
             break;
           }
@@ -172,7 +180,7 @@ class FileBuilder {
               baseExt: fileLastExt,
               expandedExt: fileExt,
               contents: code,
-              locOnDisk: this.filepath,
+              locOnDisk: url.fileURLToPath(this.fileURL),
             };
             break;
           }
@@ -190,7 +198,7 @@ class FileBuilder {
               baseExt: fileLastExt,
               expandedExt: fileExt,
               contents: code,
-              locOnDisk: this.filepath,
+              locOnDisk: url.fileURLToPath(this.fileURL),
             };
             break;
           }
@@ -215,7 +223,8 @@ class FileBuilder {
       const file = rawFile as SnowpackSourceFile<string>;
       const resolveImportSpecifier = createImportResolver({
         fileLoc: file.locOnDisk!, // we’re confident these are reading from disk because we just read them
-        dependencyImportMap: importMap,
+        lockfile: this.lockfile,
+        installImportMap: importMap,
         config: this.config,
       });
       const resolvedCode = await transformFileImports(file, (spec) => {
@@ -307,7 +316,7 @@ class FileBuilder {
 }
 
 export async function command(commandOptions: CommandOptions) {
-  const {config} = commandOptions;
+  const {config, lockfile} = commandOptions;
   const isDev = !!config.buildOptions.watch;
   const isSSR = !!config.experiments.ssr;
 
@@ -401,7 +410,7 @@ export async function command(commandOptions: CommandOptions) {
     hmrEngine = new EsmHmrEngine({port: config.devOptions.hmrPort});
   }
 
-  logger.info(colors.yellow('! building source…'));
+  logger.info(colors.yellow('! building source files...'));
   const buildStart = performance.now();
   const buildPipelineFiles: Record<string, FileBuilder> = {};
 
@@ -425,7 +434,7 @@ export async function command(commandOptions: CommandOptions) {
         !installedFileLoc.endsWith('import-map.json') &&
         path.extname(installedFileLoc) !== '.js'
       ) {
-        const proxiedCode = await readFile(installedFileLoc);
+        const proxiedCode = await readFile(url.pathToFileURL(installedFileLoc));
         const importProxyFileLoc = installedFileLoc + '.proxy.js';
         const proxiedUrl = installedFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/');
         const proxyCode = await wrapImportProxy({
@@ -454,7 +463,13 @@ export async function command(commandOptions: CommandOptions) {
       const finalUrl = getUrlForFileMount({fileLoc, mountKey: mountedDir, mountEntry});
       const finalDestLoc = path.join(buildDirectoryLoc, finalUrl);
       const outDir = path.dirname(finalDestLoc);
-      const buildPipelineFile = new FileBuilder({filepath: fileLoc, mountEntry, outDir, config});
+      const buildPipelineFile = new FileBuilder({
+        fileURL: url.pathToFileURL(fileLoc),
+        mountEntry,
+        outDir,
+        config,
+        lockfile,
+      });
       buildPipelineFiles[fileLoc] = buildPipelineFile;
     }
   }
@@ -482,6 +497,7 @@ export async function command(commandOptions: CommandOptions) {
   logger.info(colors.yellow('! verifying build...'));
 
   // 3. Resolve all built file imports.
+  const verifyStart = performance.now();
   for (const buildPipelineFile of allBuildPipelineFiles) {
     parallelWorkQueue.add(() =>
       buildPipelineFile
@@ -490,7 +506,12 @@ export async function command(commandOptions: CommandOptions) {
     );
   }
   await parallelWorkQueue.onIdle();
-  logger.info(`${colors.green('✔')} verification complete`);
+  const verifyEnd = performance.now();
+  logger.info(
+    `${colors.green('✔')} verification complete ${colors.dim(
+      `[${((verifyEnd - verifyStart) / 1000).toFixed(2)}s]`,
+    )}`,
+  );
 
   // 4. Write files to disk.
   logger.info(colors.yellow('! writing build to disk...'));
@@ -511,14 +532,9 @@ export async function command(commandOptions: CommandOptions) {
   }
   await parallelWorkQueue.onIdle();
 
-  logger.info(
-    `${colors.green('✔')} build complete ${colors.dim(
-      `[${((buildEnd - buildStart) / 1000).toFixed(2)}s]`,
-    )}`,
-  );
-
   // 5. Optimize the build.
   if (!config.buildOptions.watch) {
+    logger.info(colors.yellow('! optimizing build...'));
     await runPipelineCleanupStep(config);
     await runPipelineOptimizeStep(buildDirectoryLoc, {
       plugins: config.plugins,
@@ -527,7 +543,7 @@ export async function command(commandOptions: CommandOptions) {
       isHmrEnabled: false,
       sourceMaps: config.buildOptions.sourceMaps,
     });
-    logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
+    logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}`);
     return;
   }
 
@@ -556,8 +572,13 @@ export async function command(commandOptions: CommandOptions) {
     const finalUrl = getUrlForFileMount({fileLoc, mountKey, mountEntry})!;
     const finalDest = path.join(buildDirectoryLoc, finalUrl);
     const outDir = path.dirname(finalDest);
-
-    const changedPipelineFile = new FileBuilder({filepath: fileLoc, mountEntry, outDir, config});
+    const changedPipelineFile = new FileBuilder({
+      fileURL: url.pathToFileURL(fileLoc),
+      mountEntry,
+      outDir,
+      config,
+      lockfile,
+    });
     buildPipelineFiles[fileLoc] = changedPipelineFile;
     // 1. Build the file.
     await changedPipelineFile.buildFile().catch((err) => {
