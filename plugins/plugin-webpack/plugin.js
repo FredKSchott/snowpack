@@ -124,7 +124,10 @@ function getSplitChunksConfig({numEntries}) {
            * E.g. /web_modules/moment.js -> lib-moment.HASH.js
            */
           const ident = module.libIdent({context: 'dir'});
-          const lastItem = ident.split("/").reduceRight(item => item).replace(/\.js$/, "");
+          const lastItem = ident
+            .split('/')
+            .reduceRight((item) => item)
+            .replace(/\.js$/, '');
           return `lib-${lastItem}`;
         },
         priority: 30,
