@@ -107,10 +107,25 @@ function getSplitChunksConfig({numEntries}) {
     cacheGroups: {
       default: false,
       vendors: false,
-      // NPM libraries larger than 150KB are pulled into their own chunk
+      /**
+       * NPM libraries larger than 100KB are pulled into their own chunk
+       *
+       * We use a smaller cutoff than the reference implementation (which does 150KB),
+       * because our babel-loader config compresses whitespace with `compact: true`.
+       */
       lib: {
         test(module) {
-          return module.size() > 150000 && /node_modules[/\\]/.test(module.identifier());
+          return module.size() > 100000 && /web_modules[/\\]/.test(module.identifier());
+        },
+        name(module) {
+          /**
+           * Name the chunk based on the filename in /web_modules.
+           *
+           * E.g. /web_modules/moment.js -> lib-moment.HASH.js
+           */
+          const ident = module.libIdent({context: 'dir'});
+          const lastItem = ident.split("/").reduceRight(item => item).replace(/\.js$/, "");
+          return `lib-${lastItem}`;
         },
         priority: 30,
         minChunks: 1,
@@ -119,7 +134,8 @@ function getSplitChunksConfig({numEntries}) {
       // modules used by all entrypoints end up in commons
       commons: {
         name: 'commons',
-        minChunks: numEntries,
+        // don't create a commons chunk until there are 2+ entries
+        minChunks: Math.max(2, numEntries),
         priority: 20,
       },
       // modules used by multiple chunks can be pulled into shared chunks
@@ -306,7 +322,7 @@ module.exports = function plugin(config, args = {}) {
           runtimeChunk: {
             name: `webpack-runtime`,
           },
-          splitChunks: getSplitChunksConfig({numEntries: jsEntries.length}),
+          splitChunks: getSplitChunksConfig({numEntries: Object.keys(jsEntries).length}),
           minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
         },
       };
