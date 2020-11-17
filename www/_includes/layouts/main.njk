@@ -4,22 +4,25 @@ title: 'Snowpack - The faster frontend build tool'
 description: 'Snowpack is the fast, bundle-free build tool for all kinds of frontend projects.'
 ---
 
-<section class="container" style="display: flex;">
+<section class="container page-container">
 
   <aside class="grid-toc hidden-mobile">
     {% include 'layouts/menu.njk' %}
   </aside>
 
   <article id="grid-body" class="grid-body">
-    {% include 'layouts/header.njk' %}
-
     <div class="has-navigation content">
       <div class="markdown-body content">
+        <h2>
+        {{ title }}
+        </h2>
         {{ content | safe }}
       </div>
-      {% include 'layouts/subnav.njk' %}
     </div>
   </article>
+
+    {% include 'layouts/subnav.njk' %}
+
 
 </section>
 

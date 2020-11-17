@@ -55,19 +55,19 @@ function setActiveToc() {
     tocEl.classList.add('active');
 
     // update nav on desktop
-    if (window.innerWidth >= 860) {
-      gridTocEl.scrollTo({
-        top:
-          tocEl.getBoundingClientRect().top + gridTocEl.scrollTop - PADDING_TOP,
-        behavior: 'smooth',
-      });
-    }
+    // if (window.innerWidth >= 860) {
+    //   gridTocEl.scrollTo({
+    //     top:
+    //       tocEl.getBoundingClientRect().top + gridTocEl.scrollTop - PADDING_TOP,
+    //     behavior: 'smooth',
+    //   });
+    // }
     return;
   }
 }
 
 const gridBodyEl = document.getElementById('grid-body');
-const tableOfContentsEl = document.querySelector('.toc');
+const tableOfContentsEl = document.querySelector('.sub-navigation .toc');
 const gridTocEl = document.querySelector('.grid-toc');
 gridBodyEl.addEventListener('scroll', debounce(setActiveToc));
 window.addEventListener('scroll', debounce(setActiveToc));
