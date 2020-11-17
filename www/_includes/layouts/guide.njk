@@ -1,0 +1,17 @@
+---
+layout: layouts/base.njk
+---
+
+<aside class="grid-toc hidden-mobile">
+  {% include 'layouts/menu.njk' %}
+</aside>
+
+<article id="grid-body" class="guide grid-body">
+  {% include 'layouts/header.njk' %}
+  <div class="has-navigation content">
+    <div class="markdown-body content">
+      {{ content | safe }}
+    </div>
+    {% include 'layouts/subnav.njk' %}
+  </div>
+</article>
