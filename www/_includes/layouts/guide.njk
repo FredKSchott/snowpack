@@ -2,16 +2,19 @@
 layout: layouts/base.njk
 ---
 
-<section class="container" style="display: flex;">
+<section class="container page-container">
 
   <aside class="grid-toc hidden-mobile">
     {% include 'layouts/menu.njk' %}
   </aside>
 
   <article id="grid-body" class="guide grid-body">
-    {% include 'layouts/header.njk' %}
     <div class="has-navigation content">
       <div class="markdown-body content">
+
+        <h1>
+        {{ title }}
+        </h1>
         {{ content | safe }}
       </div>
       {% include 'layouts/subnav.njk' %}

@@ -33,7 +33,6 @@ p {
 .markdown-body h2,
 .markdown-body h3,
 .pretty-font,
-.toc,
 .version-number {
   font-family: $heading;
 }
@@ -111,6 +110,11 @@ img.company-logo {
 
 .container {
   margin: auto;
+  max-width: 1400px;
+}
+.page-container {
+  display: flex;
+  padding: 2rem 0;
 }
 
 .github-button {
@@ -131,13 +135,11 @@ img.company-logo {
 }
 
 .grid-body-header {
-  line-height: 1.5;
-  margin: 3rem 0 0;
-  padding: 0 1em;
 
-  @media (min-width: $breakpoint-m) {
-    margin: 4rem 0 0;
-  }
+  background: bisque;
+
+  line-height: 1.5;
+  padding: 3rem 0;
 
   a {
     color: white;
@@ -197,13 +199,26 @@ img.company-logo {
   font-style: italic;
 }
 
+
+.grid-nav-container {
+  position: fixed;
+  display: block;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: #457396;
+  background: #2e5e82;
+
+  @media (min-width: $breakpoint-m) {
+    position: sticky;
+  }
+}
+
 .grid-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #457396;
-  background: #2e5e82;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0;
 
   @media (min-width: $breakpoint-m) {
     justify-content: left;
@@ -266,17 +281,6 @@ img.company-logo {
   }
 }
 
-.grid-nav-container {
-  position: fixed;
-  top: 0;
-  z-index: 100;
-  width: 100%;
-
-  @media (min-width: $breakpoint-m) {
-    position: sticky;
-  }
-}
-
 .grid-toc {
   position: fixed;
   top: 44px;
@@ -293,7 +297,7 @@ img.company-logo {
   @media (min-width: $breakpoint-m) {
     position: sticky;
     top: 52px;
-    width: 360px;
+    width: 320px;
     max-height: calc(100vh - 52px);
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
@@ -397,14 +401,13 @@ img.company-logo {
 
 .header-snowpack-subtitle {
   text-align: center;
-  font-size: 2.1rem;
-  font-weight: bold;
+  font-size: 2.0rem;
+  font-weight: 500;
   line-height: 1;
   letter-spacing: -1px;
   margin: 0;
   max-width: 460px;
   margin: auto;
-  opacity: 0.6;
 }
 
 .highlight,
@@ -443,6 +446,7 @@ img.company-logo {
   display: block;
   background: #f0db4f;
   text-align: center;
+  margin-bottom: 1.5rem;
 
   img {
     height: 74px;
@@ -456,15 +460,10 @@ img.company-logo {
 }
 
 .content {
-  padding: 0 1em;
   margin-bottom: 20vh;
   margin-left: auto;
   margin-right: auto;
   max-width: 1200px;
-
-  @media (min-width: $breakpoint-m) {
-    padding: 0 3em;
-  }
 }
 
 .markdown-body {
@@ -546,18 +545,26 @@ img.company-logo {
 }
 
 .menu {
-  background: #2e5e82;
-  min-height: 100%;
-  padding: 1rem;
+  min-height: 0;
 
-  @media (min-width: $breakpoint-m) {
-    padding: 2rem 3rem 0.25rem;
+  .menu-section-header {
+    font-family: $heading;
+    color: #393939;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.2em;
+    margin-bottom: 8px;
+    margin-top: 0;
   }
 
   a {
     position: relative;
     text-decoration: none;
-    color: #fffb;
+
+    border: none;
+    color: #717171;
+    display: block;
+    transition: color .3s;
 
     &::before {
       content: '▸';
@@ -574,7 +581,7 @@ img.company-logo {
     }
 
     &.active {
-      color: #fff;
+      color: #0c8cec;
       font-weight: bold;
       text-decoration: underline;
 
@@ -588,31 +595,12 @@ img.company-logo {
   ol {
     list-style: none;
     line-height: 1.8;
-    margin-bottom: 0;
-
-    @media (min-width: $breakpoint-m) {
-      margin-bottom: 3rem;
-    }
   }
-
-  .toc > ol > li {
-    font-weight: bold;
-    text-transform: uppercase;
-    padding-bottom: 3rem;
-
-    @media (min-width: $breakpoint-m) {
-      padding-bottom: 0;
-    }
-
-    > a {
-      color: #fff;
-    }
-
-    > ol {
-      padding: 0 1em;
-      font-weight: normal;
-      text-transform: none;
-    }
+  > ol > li {
+    margin-bottom: 1rem;
+  }
+  > ol > li > ol {
+    padding-left: 1rem;
   }
 }
 
@@ -621,8 +609,13 @@ img.company-logo {
   flex-direction: row;
 }
 .sub-navigation {
-  width: 260px;
   flex-shrink: 0;
+  position: sticky;
+  top: 52px;
+  width: 360px;
+  max-height: calc(100vh - 52px);
+  overflow-y: scroll;
+  padding: 10vh 0 0 3rem;
 
   hr {
     margin: 1rem 0;
