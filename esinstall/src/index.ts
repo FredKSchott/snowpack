@@ -118,7 +118,7 @@ function resolveWebDependency(
         exportMapEntry?.require ||
         exportMapEntry;
       if (typeof exportMapValue !== 'string') {
-        throw new Error(
+        console.warn(
           `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".`,
         );
       }
