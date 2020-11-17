@@ -1,0 +1,6 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack install error-bad-export-map: cli output 1`] = `
+"[snowpack] ! installing dependencies...
+[snowpack] Invalid \\"exports\\" main target \\"entrypoint.js\\" defined in the package config XHOMEX/node_modules/bad-export-map-pkg/package.json; targets must start with \\"./\\""
+`;
