@@ -4,6 +4,8 @@ title: Workbox
 tags: guides
 ---
 
+{% include 'layouts/stub.njk' %}
+
 ### Workbox
 
 The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbox-cli) integrates well with Snowpack. Run the wizard to bootstrap your first configuration file, and then run `workbox generateSW` to generate your service worker.

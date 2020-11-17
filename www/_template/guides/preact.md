@@ -4,6 +4,8 @@ title: Preact
 tags: guides
 ---
 
+{% include 'layouts/stub.njk' %}
+
 ## Preact
 
 You can import and use Preact without any custom configuration needed.

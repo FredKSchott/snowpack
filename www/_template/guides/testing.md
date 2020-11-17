@@ -4,6 +4,8 @@ title: Testing
 tags: guides
 ---
 
+{% include 'layouts/stub.njk' %}
+
 ### @web/test-runner
 
 [@web/test-runner](https://www.npmjs.com/package/@web/test-runner) is our recommended test runner for Snowpack projects. [See our section on testing](/#testing) for detailed instructions on how to get started with @web/test-runner.
