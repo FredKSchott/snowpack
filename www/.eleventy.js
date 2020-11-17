@@ -19,6 +19,7 @@ module.exports = function (eleventyConfig) {
     'woff',
     'woff2',
     'mp4',
+    'webmanifest',
   ]);
   eleventyConfig.addPassthroughCopy('static');
   eleventyConfig.addPassthroughCopy('favicon');

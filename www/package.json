@@ -2,30 +2,21 @@
   "name": "snowpack-www",
   "version": "3.0.0",
   "scripts": {
-    "start": "concurrently 'snowpack dev' 'yarn build:sass --watch'",
-    "build": "ELEVENTY_ENV=prod yarn build:sass && snowpack build && yarn build:css",
+    "start": "snowpack dev",
+    "build": "ELEVENTY_ENV=prod snowpack build",
     "test": "jest /__test__/",
-    "dev": "concurrently 'eleventy --serve' 'yarn build:sass --watch'",
     "format": "prettier --write \"src/**/*.js\"",
-    "lint": "prettier --check \"src/**/*.js\"",
-    "build:css": "postcss _site/assets/*.css -u postcss-preset-env cssnano -r --no-map",
-    "build:sass": "sass css/app.scss:_template/assets/app.min.css --no-source-map"
+    "lint": "prettier --check \"src/**/*.js\""
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.11.0",
     "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.4",
-    "@snowpack/plugin-run-script": "^2.1.7",
-    "concurrently": "^5.3.0",
-    "cssnano": "^4.1.10",
+    "@snowpack/plugin-sass": "^1.1.1",
     "eleventy-plugin-nesting-toc": "^1.2.0",
     "luxon": "^1.25.0",
     "markdown-it": "^12.0.2",
     "markdown-it-anchor": "^6.0.0",
-    "postcss": "^8.1.4",
-    "postcss-cli": "^8.1.0",
-    "postcss-preset-env": "^6.7.0",
     "prettier": "^2.0.5",
-    "sass": "^1.27.0",
     "snowpack": "^2.15.1"
   }
 }
