@@ -111,7 +111,7 @@ The `--verbose` flag enables additional logs which will help to identify the sou
 
 ## Pull Request Guidelines
 
-Checkout a topic branch from a base branch, e.g. `master`, and merge back against that branch.
+Checkout a topic branch from a base branch, e.g. `main`, and merge back against that branch.
 
 If adding a feature, it probably should have been brought up in a [discussion](https://github.com/snowpackjs/snowpack/discussions) instead before the PR was created.
 
