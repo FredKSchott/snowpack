@@ -117,7 +117,7 @@ Now head to `index.js` and import it the new `app.svelte` file
 +export default app;
 ```
 
-Start up Snowpack with `npm start` and you should see a page that says "Learn Svelte." Congratulations! you now have Svelte up and running. Any code changes you make show up in the browser when you save a file.
+The page should now say "Learn Svelte". Congratulations! you now have Svelte up and running.
 
 Image: GIF showing code and site side by side, site is a "Learn Svelte" link on a white background. When the text is edit to add "Hello world" and the file saves, the changes show up in the site immediately.
 
@@ -174,7 +174,7 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
   </body>
 ```
 
-You'll need to restart Snowpack for configuration file changes. When you start up again, if it worked, it should look the same.
+You'll need to restart Snowpack (stop the process in terminal and then run `npm start` again) for configuration file changes. When you start up again, if it worked, it should look exactly the same since all the changes you just made are behind the scenes.
 
 ## Adding an animated Svelte Logo
 
@@ -215,7 +215,7 @@ With Svelte, CSS can go directly in your `.svelte` component. Add this code to t
     margin-bottom: 3rem;
     animation: App-logo-spin infinite 1.6s ease-in-out alternate;
   }
-  @keyframes App-logo-spin {
+  @keyframes App-logo-pulse {
     from {
       transform: scale(1);
     }
