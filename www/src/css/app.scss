@@ -1,6 +1,9 @@
 // Reset
 @import './_minireset';
 
+// vars
+@import './_var';
+
 // GitHub markdown styles
 @import './_github-markdown';
 
@@ -9,6 +12,9 @@
 
 // Base styles
 @import './_base';
+
+// home page styles
+@import './home';
 
 // Guides styles
 @import './_guides';
