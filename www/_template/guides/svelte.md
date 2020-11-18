@@ -60,14 +60,13 @@ Install the `@snowpack/plugin-svelte` plugin so that Snowpack knows how built `.
 npm install @snowpack/plugin-svelte --save-dev
 ```
 
-Once installed, you'll need to add the plugin to your Snowpack configuration file so that Snowpack knows to use it:
+Once installed, you'll need to add the plugin to your Snowpack configuration file (`snowpack.config.js`) so that Snowpack knows to use it:
 
 ```diff
 // snowpack.config.js
   module.exports = {
     mount: {
-      public: '/',
-      src: '/_dist_',
+      /* ... */
     },
 -   plugins: []
 +   plugins: ['@snowpack/plugin-svelte'],
@@ -111,14 +110,14 @@ Now head to `index.js` and import it the new `app.svelte` file
 -console.log('Hello World! You did it! Welcome to Snowpack :D');
 +import App from "./App.svelte";
 
-+var app = new App({
++let app = new App({
 +  target: document.body,
 +});
 
 +export default app;
 ```
 
-Start up Snowpack with `npm start` and you should see a page that says "Learn Svelte." GrewR job, you now have Svelte up and running. Any code changes you make show up in the browser when you save a file.
+Start up Snowpack with `npm start` and you should see a page that says "Learn Svelte." Congratulations! you now have Svelte up and running. Any code changes you make show up in the browser when you save a file.
 
 Image: GIF showing code and site side by side, site is a "Learn Svelte" link on a white background. When the text is edit to add "Hello world" and the file saves, the changes show up in the site immediately.
 
@@ -161,7 +160,7 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
   },
 ```
 
-<img src="/img/guides/react/folderstructure.png" alt="The original file configuration had Snowpack building the directory structure the same as the directories in the project, including root. Now the configuration builds only src and public. Src to the dist folder and public to root." />
+<img src="/img/guides/react/folderstructure.png" alt="Graphic shows the original and new folder structures side by side. Arrows indicate that the files are built to where the arrow points. The Original side shows a folder labeled ./ entire directory with an arrow pointing to a folder labeled  mysite.com/*. The New side shows a folder labeled ./src/* with an arrow pointing to a folder labeled mysite.com/_dist/*. Then a second folder labeled ./public/* with an arrow pointing to a folder labeled mysite.com/* " />
 
 `mount` is part of the [Snowpack Configuration API](https://www.snowpack.dev/#configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in `public` like `public/index.css` directory into `index.css`. It builds files in `src` like `src/index.js` into `/_dist_/index.js`, so change that path in your `index.html`:
 
