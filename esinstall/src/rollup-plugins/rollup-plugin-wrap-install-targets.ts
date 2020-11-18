@@ -1,10 +1,13 @@
 import * as colors from 'kleur/colors';
 import path from 'path';
 import fs from 'fs';
+import {VM as VM2} from 'vm2';
 import {Plugin} from 'rollup';
 import {InstallTarget, AbstractLogger} from '../types';
-import {getWebDependencyName} from '../util.js';
-import parse from 'cjs-module-lexer';
+import {getWebDependencyName, isTruthy} from '../util.js';
+
+// Use CJS intentionally here! ESM interface is async but CJS is sync, and this file is sync
+const {parse} = require('cjs-module-lexer');
 
 /**
  * rollup-plugin-wrap-install-targets
@@ -30,8 +33,9 @@ export function rollupPluginWrapInstallTargets(
   /**
    * Runtime analysis: High Fidelity, but not always successful.
    * `require()` the CJS file inside of Node.js to load the package and detect it's runtime exports.
+   * TODO: Safe to remove now that cjsAutoDetectExportsUntrusted() is getting smarter?
    */
-  function cjsAutoDetectExportsRuntime(normalizedFileLoc: string): string[] | undefined {
+  function cjsAutoDetectExportsTrusted(normalizedFileLoc: string): string[] | undefined {
     try {
       const mod = require(normalizedFileLoc);
       // skip analysis for non-object modules, these can only be the default export.
@@ -54,7 +58,11 @@ export function rollupPluginWrapInstallTargets(
    * Get the exports that we scanned originally using static analysis. This is meant to run on
    * any file (not only CJS) but it will only return an array if CJS exports were found.
    */
-  function cjsAutoDetectExportsStatic(filename: string, visited = new Set()): string[] | undefined {
+  function cjsAutoDetectExportsUntrusted(
+    filename: string,
+    visited = new Set(),
+  ): string[] | undefined {
+    const isMainEntrypoint = visited.size === 0;
     // Prevent infinite loops via circular dependencies.
     if (visited.has(filename)) {
       return [];
@@ -63,16 +71,42 @@ export function rollupPluginWrapInstallTargets(
     }
     const fileContents = fs.readFileSync(filename, 'utf-8');
     try {
-      const {exports, reexports} = parse(fileContents);
-      const resolvedReexports = reexports.map((e) =>
-        cjsAutoDetectExportsStatic(require.resolve(e, {paths: [path.dirname(filename)]}), visited),
-      );
+      // Attempt 1 - CJS: Run cjs-module-lexer to statically analyze exports.
+      let {exports, reexports} = parse(fileContents);
+      // If re-exports were detected (`exports.foo = require(...)`) then resolve them here.
+      let resolvedReexports: string[] = [];
+      if (reexports.length > 0) {
+        resolvedReexports = ([] as string[]).concat.apply(
+          [],
+          reexports
+            .map((e) =>
+              cjsAutoDetectExportsUntrusted(
+                require.resolve(e, {paths: [path.dirname(filename)]}),
+                visited,
+              ),
+            )
+            .filter(isTruthy),
+        );
+      }
+      // Attempt 2 - UMD: Run the file in a sandbox to dynamically analyze exports.
+      // This will only work on UMD and very simple CJS files (require not supported).
+      // Uses VM2 to run safely sandbox untrusted code (no access no Node.js primitives, just JS).
+      if (isMainEntrypoint && exports.length === 0 && reexports.length === 0) {
+        const vm = new VM2({wasm: false, fixAsync: false});
+        exports = Object.keys(
+          vm.run(
+            'const exports={}; const module={exports}; ' + fileContents + ';; module.exports;',
+          ),
+        );
+      }
+
+      // Resolve and flatten all exports into a single array, and remove invalid exports.
       return Array.from(new Set([...exports, ...resolvedReexports])).filter(
         (imp) => imp !== 'default' && imp !== '__esModule',
       );
     } catch (err) {
       // Safe to ignore, this is usually due to the file not being CJS.
-      logger.debug(`cjsAutoDetectExportsStatic error: ${err.message}`);
+      logger.debug(`cjsAutoDetectExportsUntrusted error: ${err.message}`);
     }
   }
 
@@ -98,8 +132,8 @@ export function rollupPluginWrapInstallTargets(
           normalizedFileLoc.includes(`node_modules/${p}${p.endsWith('.js') ? '' : '/'}`),
         );
         const cjsExports = isExplicitAutoDetect
-          ? cjsAutoDetectExportsRuntime(val)
-          : cjsAutoDetectExportsStatic(val);
+          ? cjsAutoDetectExportsTrusted(val)
+          : cjsAutoDetectExportsUntrusted(val);
         if (cjsExports && cjsExports.length > 0) {
           cjsScannedNamedExports.set(normalizedFileLoc, cjsExports);
           input[key] = `snowpack-wrap:${val}`;

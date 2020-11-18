@@ -165,7 +165,9 @@ deepmerge.all = function deepmergeAll(array, options) {
 };
 var deepmerge_1 = deepmerge;
 var cjs = deepmerge_1;
-export default cjs;"
+var all = cjs.all;
+export default cjs;
+export { cjs as __moduleExports, all };"
 `;
 
 exports[`snowpack install include: web_modules/http-vue-loader/src/httpVueLoader.js 1`] = `
