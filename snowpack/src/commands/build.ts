@@ -390,6 +390,7 @@ export async function command(commandOptions: CommandOptions) {
       absolute: true,
       nodir: true,
       dot: true,
+      follow: true,
     });
     for (const installedFileLoc of allFiles) {
       if (
@@ -419,6 +420,7 @@ export async function command(commandOptions: CommandOptions) {
       absolute: true,
       nodir: true,
       dot: true,
+      follow: true,
     });
     for (const rawLocOnDisk of allFiles) {
       const fileLoc = path.resolve(rawLocOnDisk); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
