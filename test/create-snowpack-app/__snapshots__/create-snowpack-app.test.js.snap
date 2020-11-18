@@ -8868,12 +8868,12 @@ export default reactDom;"
 
 exports[`create-snowpack-app app-template-svelte > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
-exports[`create-snowpack-app app-template-svelte > build: _dist_/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1wncah1.svelte-1wncah1{text-align:center}.App.svelte-1wncah1 code.svelte-1wncah1{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1wncah1 p.svelte-1wncah1{margin:0.4rem}.App-header.svelte-1wncah1.svelte-1wncah1{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1wncah1.svelte-1wncah1{color:#ff3e00}.App-logo.svelte-1wncah1.svelte-1wncah1{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1wncah1-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1wncah1-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
+exports[`create-snowpack-app app-template-svelte > build: _dist_/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-rq4gzr.svelte-rq4gzr{text-align:center}.App.svelte-rq4gzr code.svelte-rq4gzr{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-rq4gzr p.svelte-rq4gzr{margin:0.4rem}.App-header.svelte-rq4gzr.svelte-rq4gzr{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-rq4gzr.svelte-rq4gzr{color:#ff3e00}.App-logo.svelte-rq4gzr.svelte-rq4gzr{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-rq4gzr-App-logo-pulse infinite 1.6s ease-in-out alternate}@keyframes svelte-rq4gzr-App-logo-pulse{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
 
 exports[`create-snowpack-app app-template-svelte > build: _dist_/App.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
-  const code = \\"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1wncah1.svelte-1wncah1{text-align:center}.App.svelte-1wncah1 code.svelte-1wncah1{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1wncah1 p.svelte-1wncah1{margin:0.4rem}.App-header.svelte-1wncah1.svelte-1wncah1{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1wncah1.svelte-1wncah1{color:#ff3e00}.App-logo.svelte-1wncah1.svelte-1wncah1{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1wncah1-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1wncah1-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}\\";
+  const code = \\"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-rq4gzr.svelte-rq4gzr{text-align:center}.App.svelte-rq4gzr code.svelte-rq4gzr{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-rq4gzr p.svelte-rq4gzr{margin:0.4rem}.App-header.svelte-rq4gzr.svelte-rq4gzr{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-rq4gzr.svelte-rq4gzr{color:#ff3e00}.App-logo.svelte-rq4gzr.svelte-rq4gzr{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-rq4gzr-App-logo-pulse infinite 1.6s ease-in-out alternate}@keyframes svelte-rq4gzr-App-logo-pulse{from{transform:scale(1)}to{transform:scale(1.06)}}\\";
   const styleEl = document.createElement(\\"style\\");
   const codeEl = document.createTextNode(code);
   styleEl.type = 'text/css';
@@ -8921,7 +8921,7 @@ function create_fragment(ctx) {
 			img = element(\\"img\\");
 			t0 = space();
 			p0 = element(\\"p\\");
-			p0.innerHTML = \`Edit <code class=\\"svelte-1wncah1\\">src/App.svelte</code> and save to reload.\`;
+			p0.innerHTML = \`Edit <code class=\\"svelte-rq4gzr\\">src/App.svelte</code> and save to reload.\`;
 			t4 = space();
 			p1 = element(\\"p\\");
 			t5 = text(\\"Page has been open for \\");
@@ -8930,16 +8930,16 @@ function create_fragment(ctx) {
 			t7 = text(\\" seconds.\\");
 			t8 = space();
 			p2 = element(\\"p\\");
-			p2.innerHTML = \`<a class=\\"App-link svelte-1wncah1\\" href=\\"https://svelte.dev\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\">Learn Svelte</a>\`;
+			p2.innerHTML = \`<a class=\\"App-link svelte-rq4gzr\\" href=\\"https://svelte.dev\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\">Learn Svelte</a>\`;
 			if (img.src !== (img_src_value = \\"/logo.svg\\")) attr(img, \\"src\\", img_src_value);
-			attr(img, \\"class\\", \\"App-logo svelte-1wncah1\\");
+			attr(img, \\"class\\", \\"App-logo svelte-rq4gzr\\");
 			attr(img, \\"alt\\", \\"logo\\");
-			attr(p0, \\"class\\", \\"svelte-1wncah1\\");
-			attr(code1, \\"class\\", \\"svelte-1wncah1\\");
-			attr(p1, \\"class\\", \\"svelte-1wncah1\\");
-			attr(p2, \\"class\\", \\"svelte-1wncah1\\");
-			attr(header, \\"class\\", \\"App-header svelte-1wncah1\\");
-			attr(div, \\"class\\", \\"App svelte-1wncah1\\");
+			attr(p0, \\"class\\", \\"svelte-rq4gzr\\");
+			attr(code1, \\"class\\", \\"svelte-rq4gzr\\");
+			attr(p1, \\"class\\", \\"svelte-rq4gzr\\");
+			attr(p2, \\"class\\", \\"svelte-rq4gzr\\");
+			attr(header, \\"class\\", \\"App-header svelte-rq4gzr\\");
+			attr(div, \\"class\\", \\"App svelte-rq4gzr\\");
 		},
 		m(target, anchor) {
 			insert(target, div, anchor);
@@ -8989,7 +8989,7 @@ exports[`create-snowpack-app app-template-svelte > build: _dist_/index.js 1`] = 
 "import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import App from \\"./App.js\\";
-var app = new App({
+let app = new App({
   target: document.body,
 });
 export default app;
