@@ -43,9 +43,9 @@
     height: 36vmin;
     pointer-events: none;
     margin-bottom: 3rem;
-    animation: App-logo-spin infinite 1.6s ease-in-out alternate;
+    animation: App-logo-pulse infinite 1.6s ease-in-out alternate;
   }
-  @keyframes App-logo-spin {
+  @keyframes App-logo-pulse {
     from {
       transform: scale(1);
     }
