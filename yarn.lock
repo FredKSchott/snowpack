@@ -2644,7 +2644,7 @@
   resolved "https://registry.yarnpkg.com/@types/canvas-confetti/-/canvas-confetti-1.3.0.tgz#c2ea6b4c280832e134cb98ea3b84775febc53b63"
   integrity sha512-vfShQvbd7XD+jT2bFTju5oALkzI5uMO7RGH8RYOTP8p5LiY9NXSr0fJp2BvfW36Qf8807ma/yev0aS5GRwQcFg==
 
-"@types/chai@^4.2.13":
+"@types/chai@^4.2.13", "@types/chai@^4.2.14":
   version "4.2.14"
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.2.14.tgz#44d2dd0b5de6185089375d976b4ec5caf6861193"
   integrity sha512-G+ITQPXkwTrslfG5L/BksmbLUA0M1iybEsmCWPqzSxsRRhJZimBKJkoMi8fr/CPygPTj4zO5pJH7I2/cm9M7SQ==
