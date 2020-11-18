@@ -14,11 +14,11 @@
     "test:docs": "cd www && yarn && yarn build && jest /__test__/"
   },
   "workspaces": [
-    "create-snowpack-app/*",
-    "plugins/*",
     "esinstall",
     "snowpack",
     "skypack",
+    "create-snowpack-app/*",
+    "plugins/*",
     "test/build/*",
     "test/esinstall/*"
   ],

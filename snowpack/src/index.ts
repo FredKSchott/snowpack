@@ -5,12 +5,13 @@ import yargs from 'yargs-parser';
 import {addCommand, rmCommand} from './commands/add-rm';
 import {command as initCommand} from './commands/init';
 import {command as buildCommand} from './commands/build';
-import {command as devCommand} from './commands/dev';
 import {command as installCommand} from './commands/install';
+import {command as devCommand} from './commands/dev';
 import {loadAndValidateConfig} from './config.js';
 import {logger} from './logger';
 import {CLIFlags} from './types/snowpack';
 import {clearCache, readLockfile} from './util.js';
+export {createConfiguration} from './config.js';
 export * from './types/snowpack';
 
 // Stable API (remember to include all in "./index.esm.js" wrapper)
@@ -45,18 +46,20 @@ ${colors.bold(`snowpack`)} - A faster build system for the modern web.
   📖 ${colors.dim('https://www.snowpack.dev/#configuration')}
 
 ${colors.bold('Commands:')}
-  snowpack init         Create a new project config file.
-  snowpack dev          Develop your app locally.
-  snowpack build        Build your app for production.
-  snowpack install      (Advanced) Install web-ready dependencies.
+  snowpack init          Create a new project config file.
+  snowpack dev           Develop your app locally.
+  snowpack build         Build your app for production.
+  snowpack add [package] Add a package to your lockfile (import map).
+  snowpack rm [package]  Remove a package from your lockfile.
+  snowpack install       (Deprecated) Install web-ready dependencies.
 
 ${colors.bold('Flags:')}
-  --config [path]       Set the location of your project config file.
-  --help                Show this help message.
-  --version             Show the current version.
-  --reload              Clear Snowpack's local cache (troubleshooting).
-  --verbose             View debug info (where available)
-  --quiet               Don’t output anything (dev server will still log minimally)
+  --config [path]        Set the location of your project config file.
+  --help                 Show this help message.
+  --version              Show the current version.
+  --reload               Clear Snowpack's local cache (troubleshooting).
+  --verbose              View debug info (where available)
+  --quiet                Don’t output anything (dev server will still log minimally)
     `.trim(),
   );
 }

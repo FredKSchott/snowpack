@@ -2,60 +2,60 @@
  * Copy/paste from Snowpack utils, at least until there’s some common import
  */
 const path = require('path');
+const colors = require('kleur/colors');
+const fromEntries = require('object.fromentries');
 
-exports.HTML_JS_REGEX = /<script[^>]+type="?module"?[^>]*>/gims;
+// Node 10 shim
+if (!Object.fromEntries) fromEntries.shim();
+
+/** log somethin */
+function log(msg, level = 'log') {
+  console[level](`${colors.dim('[@snowpack/plugin-optimize]')} ${msg}`);
+}
+exports.log = log;
 
 /** determine if remote package or not */
-exports.isRemoteModule = function isRemoteModule(specifier) {
+function isRemoteModule(specifier) {
   return (
     specifier.startsWith('//') ||
     specifier.startsWith('http://') ||
     specifier.startsWith('https://')
   );
-};
-
-const CLOSING_HEAD_TAG = /<\s*\/\s*head\s*>/gi;
-
-/** Append HTML before closing </head> tag */
-exports.appendHTMLToHead = function appendHTMLToHead(doc, htmlToAdd) {
-  const closingHeadMatch = doc.match(CLOSING_HEAD_TAG);
-  // if no <head> tag found, throw an error (we can’t load your app properly)
-  if (!closingHeadMatch) {
-    throw new Error(`No <head> tag found in HTML (this is needed to optimize your app):\n${doc}`);
-  }
-  // if multiple <head> tags found, also freak out
-  if (closingHeadMatch.length > 1) {
-    throw new Error(`Multiple <head> tags found in HTML (perhaps commented out?):\n${doc}`);
-  }
-  return doc.replace(closingHeadMatch[0], htmlToAdd + closingHeadMatch[0]);
-};
-
-const CLOSING_BODY_TAG = /<\s*\/\s*body\s*>/gi;
-
-/** Append HTML before closing </body> tag */
-exports.appendHTMLToBody = function appendHTMLToBody(doc, htmlToAdd) {
-  const closingBodyMatch = doc.match(CLOSING_BODY_TAG);
-  // if no <body> tag found, throw an error (we can’t load your app properly)
-  if (!closingBodyMatch) {
-    throw new Error(`No <body> tag found in HTML (this is needed to load your app):\n\n${doc}`);
-  }
-  // if multiple <body> tags found, also freak out
-  if (closingBodyMatch.length > 1) {
-    throw new Error(`Multiple <body> tags found in HTML (perhaps commented out?):\n\n${doc}`);
-  }
-  return doc.replace(closingBodyMatch[0], htmlToAdd + closingBodyMatch[0]);
-};
+}
+exports.isRemoteModule = isRemoteModule;
 
 /** URL relative */
-exports.relativeURL = function relativeURL(path1, path2) {
-  let url = path.relative(path1, path2).replace(/\\/g, '/');
-  if (!url.startsWith('./') && !url.startsWith('../')) {
-    url = './' + url;
-  }
-  return url;
-};
+function projectURL(url, buildDirectory) {
+  return path.relative(buildDirectory, url).replace(/\\/g, '/').replace(/^\/?/, '/');
+}
+exports.projectURL = projectURL;
 
 /** Remove \ and / from beginning of string */
-exports.removeLeadingSlash = function removeLeadingSlash(path) {
+function removeLeadingSlash(path) {
   return path.replace(/^[/\\]+/, '');
-};
+}
+exports.removeLeadingSlash = removeLeadingSlash;
+
+/** Build Import */
+function formatManifest({manifest, buildDirectory, generatedFiles, preloadCSS}) {
+  const format = (url) => (isRemoteModule(url) ? url : projectURL(url, buildDirectory));
+
+  const sorted = Object.entries(manifest).map(([k, v]) => {
+    const entry = v.entry.map(format);
+    const css = v.css.map(format);
+    const js = v.js
+      .filter((f) => (preloadCSS && !f.endsWith('.css.proxy.js')) || true) // if preloading CSS, omit .css.proxy.js files
+      .map(format);
+    entry.sort((a, b) => a.localeCompare(b));
+    css.sort((a, b) => a.localeCompare(b));
+    js.sort((a, b) => a.localeCompare(b));
+    return [format(k), {entry, css, js}];
+  });
+  sorted.sort((a, b) => a[0].localeCompare(b[0]));
+
+  return {
+    imports: Object.fromEntries(sorted),
+    generated: Object.fromEntries(Object.entries(generatedFiles).map(([k, v]) => [k, format(v)])),
+  };
+}
+exports.formatManifest = formatManifest;

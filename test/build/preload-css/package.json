@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-optimize-css",
+  "description": "Tests { preloadCSS: true } for @snowpack/plugin-optimize",
+  "scripts": {
+    "testbuild": "snowpack build"
+  },
+  "dependencies": {
+    "water.css": "^2.0.0"
+  },
+  "devDependencies": {
+    "@snowpack/plugin-optimize": "^0.2.6",
+    "@snowpack/plugin-sass": "^1.1.1",
+    "snowpack": "^2.14.3"
+  }
+}

@@ -10,7 +10,7 @@ Array [
 `;
 
 exports[`snowpack install package-react: cli output 1`] = `
-"[snowpack] installing dependencies...
+"[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/                 size       gzip       brotli
