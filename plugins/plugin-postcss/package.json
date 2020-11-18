@@ -15,5 +15,8 @@
   "peerDependencies": {
     "postcss": "*",
     "postcss-cli": "*"
+  },
+  "dependencies": {
+    "execa": "^4.1.0"
   }
 }
