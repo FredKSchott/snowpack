@@ -634,6 +634,16 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   config.proxy = normalizeProxies(config.proxy as any);
   config.mount = normalizeMount(config, cwd);
   config.alias = normalizeAlias(config, cwd, isLegacyMountConfig);
+  if (config.experiments.optimize) {
+    config.experiments.optimize = {
+      entrypoints: config.experiments.optimize.entrypoints ?? 'auto',
+      preload: config.experiments.optimize.preload ?? false,
+      bundle: config.experiments.optimize.bundle ?? false,
+      manifest: config.experiments.optimize.manifest ?? false,
+      target: config.experiments.optimize.target ?? 'es2020',
+      minify: config.experiments.optimize.minify ?? false,
+    };
+  }
 
   // new pipeline
   const {plugins, extensionMap} = loadPlugins(config);
