@@ -186,8 +186,6 @@ Options:
   - The port number to run the dev server on.
 - **`devOptions.bundle`** | `boolean`
   - Create an optimized, bundled build for production.
-  - You must have [Parcel](https://parceljs.org/) as a dev dependency in your project.
-  - If undefined, this option will be enabled if the `parcel` package is found.
 - **`devOptions.fallback`** | `string` | Default: `"index.html"`
   - When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
 - **`devOptions.open`** | `string` | Default: `"default"`
