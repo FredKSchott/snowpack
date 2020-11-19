@@ -3,22 +3,20 @@ layout: layouts/main.njk
 title: Features
 ---
 
-Here's a short list of what you can do with Snowpack:
+## Supported file types
 
-```bash
-# Start your dev server, load your site locally
-snowpack dev
+Snowpack ships with built-in support for the following file types, no configuration required:
 
-# Build your site for production
-snowpack build
+- JavaScript (`.js`, `.mjs`)
+- TypeScript (`.ts`, `.tsx`)
+- JSX (`.jsx`, `.tsx`)
+- CSS (`.css`)
+- CSS Modules (`.module.css`)
+- Images (`.svg`, `.jpg`, `.png`, etc.)
 
-# Build your site, but watch the file system and rebuild when files change.
-# Great for local development with your own dev server (ex: Rails)
-snowpack build --watch
+To customize build behavior and support new languages [check out our tooling guide]()
 
-# See more helpful info
-snowpack --help
-```
+**Note: Snowpack's default build does not support JSX in `.js`/`.ts` files.** If you can't use the `.jsx`/`.tsx` file extension, you can use [Babel](#babel) to build your application instead.
 
 ## ES Modules (ESM)
 
@@ -70,6 +68,23 @@ Snowpack supports basic CSS imports inside of your JavaScript files. When you im
 
 If you prefer, Snowpack also supports any popular CSS-in-JS library for styling.
 
+## CSS Imports (@import)
+
+```css
+/* Import a local CSS file */
+@import './style1.css';
+/* Import a local Sass file (Sass build plugin still needed to compile file contents) */
+@import './style2.scss';
+/* Import a package CSS file */
+@import 'bootstrap/dist/css/bootstrap.css';
+```
+
+Snowpack supports [native CSS "@import" behavior](https://developer.mozilla.org/en-US/docs/Web/CSS/@import) with additional support for importing CSS from within packages.
+
+**Note:** The actual CSS spec dictates that a "bare" import specifier like `@import "package/style.css"` should be treated as a relative path, equivalent to `@import "./package/style.css"`. We intentionally break from the spec to match the same package import behavior as JavaScript imports. If you prefer the strictly native behavior with no package resolution support, use the form `@import url("package/style.css")` instead. Snowpack will not resolve `url()` imports and will leave them as-is in the final build.
+
+**Note for webpack users:** If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With Snowpack you remove the `~` from your `@import`s.
+
 ## Import CSS Modules
 
 ```css
@@ -102,62 +117,6 @@ import svg from './image.svg'; // svg === '/src/image.svg'
 
 All other assets not explicitly mentioned above can be imported via ESM `import` and will return a URL reference to the final built asset. This can be useful for referencing non-JS assets by URL, like creating an image element with a `src` attribute pointing to that image.
 
-## Coming Soon: Native Reference URLs
-
-Webpack 5.0 released support for native reference URLs to replace the original, fake ESM file import. If you are using a bundler that supports this (or, not using a bundler at all) we recommend updating your non-JS URL reference imports to use this more standard pattern. Once Rollup adds support as well, we will move to promote this to our recommended style.
-
-```jsx
-const img = new URL('./image.png', import.meta.url); // img === '/src/image.png'
-const svg = new URL('./image.svg', import.meta.url); // svg === '/src/image.svg'
-
-// This example uses JSX, but you can use these references with any framework.
-<img src={img.href} />;
-```
-
-## Supported file types
-
-Snowpack ships with built-in support for the following file types, no configuration required:
-
-- JavaScript (`.js`, `.mjs`)
-- TypeScript (`.ts`, `.tsx`)
-- JSX (`.jsx`, `.tsx`)
-- CSS (`.css`)
-- CSS Modules (`.module.css`)
-- Images (`.svg`, `.jpg`, `.png`, etc.)
-
-To customize build behavior and support new languages (`.scss`, `.svelte`, `.vue`), keep reading.
-
-## Import Aliases
-
-```js
-// Instead of this:
-import Button from `../../../../components/Button`;
-
-// You can do this:
-import Button from `@app/components/Button`;
-```
-
-Snowpack supports setting custom import aliases for your project via the top-level `alias` property. This can be used to define an alias for either a local source directory (like aliasing `@app` to `./src`) or a package (like aliasing `react` to `preact/compat`). See the full documentation for `alias` below.
-
-**TypeScript Users:** You'll need to configure your `tsconfig.json` `paths` to get proper types from top-level imports. Learn more about ["path mappings"](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping).
-
-```js
-// tsconfig.json
-{
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      // Define either ONE of these...
-      // 1. General support: matches everything relative to the project directory
-      "*": ["*"],
-      // 2. Explicit support: match only your mounted directories (Recommended!)
-      "src/*": ["src/*"],
-      "public/*": ["public/*"],
-    }
-  }
-}
-```
-
 ## Environment Variables
 
 ```js
@@ -182,17 +141,6 @@ For your safety, Snowpack only supports environment variables that begin with `S
 You can use environment variables in HTML files. All occurrences of `%SNOWPACK_PUBLIC_*%`, `%PUBLIC_URL%`, and `%MODE%` will be replaced at build time.
 
 **Remember:** that these env variables are statically injected into your application for everyone at **build time**, and not runtime.
-
-#### `.env` File Support
-
-```js
-// snowpack.config.json
-{
-  "plugins": ["@snowpack/plugin-dotenv"]
-}
-```
-
-Add the `@snowpack/plugin-dotenv` plugin to your dev environment to automatically load environment variables from your project `.env` files. Visit the [plugin README](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-dotenv) to learn more.
 
 ## Hot Module Replacement
 
@@ -226,22 +174,6 @@ if (import.meta.hot) {
 
 - 👉 **[Check out the full ESM-HMR spec.](https://github.com/snowpackjs/esm-hot-module-replacement-spec)**
 
-## Dev Request Proxy
-
-```js
-// snowpack.config.json
-// Example: Proxy "/api/pokemon/ditto" -> "https://pokeapi.co/api/v2/pokemon/ditto"
-{
-  "proxy": {
-    "/api": "https://pokeapi.co/api/v2",
-  }
-}
-```
-
-Snowpack can proxy requests from the dev server to external URLs and APIs. Making API requests directly the dev server can help you mimic your production environment during development.
-
-See the [config.proxy API](#config.proxy) section for more information and full set of configuration options.
-
 ## HTTPS/HTTP2
 
 ```
@@ -249,15 +181,6 @@ npm start -- --secure
 ```
 
 Snowpack provides an easy way to use a local HTTPS server during development through the use of the `--secure` flag. When enabled, Snowpack will look for a `snowpack.key` and `snowpack.crt` file in the root directory and use that to create an HTTPS server with HTTP2 support enabled.
-
-## Generating SSL Certificates
-
-You can automatically generate credentials for your project via either:
-
-- [devcert (no install required)](https://github.com/davewasmer/devcert-cli): `npx devcert-cli generate localhost`
-- [mkcert (install required)](https://github.com/FiloSottile/mkcert): `mkcert -install && mkcert -key-file snowpack.key -cert-file snowpack.crt localhost`
-
-In most situations you should add personally generated certificate files (`snowpack.key` and `snowpack.crt`) to your `.gitignore` file.
 
 ## Legacy Browser Support
 
@@ -289,103 +212,3 @@ module.exports = {
   },
 };
 ```
-
-## CSS Imports (@import)
-
-```css
-/* Import a local CSS file */
-@import './style1.css';
-/* Import a local Sass file (Sass build plugin still needed to compile file contents) */
-@import './style2.scss';
-/* Import a package CSS file */
-@import 'bootstrap/dist/css/bootstrap.css';
-```
-
-Snowpack supports [native CSS "@import" behavior](https://developer.mozilla.org/en-US/docs/Web/CSS/@import) with additional support for importing CSS from within packages.
-
-**Note:** The actual CSS spec dictates that a "bare" import specifier like `@import "package/style.css"` should be treated as a relative path, equivalent to `@import "./package/style.css"`. We intentionally break from the spec to match the same package import behavior as JavaScript imports. If you prefer the strictly native behavior with no package resolution support, use the form `@import url("package/style.css")` instead. Snowpack will not resolve `url()` imports and will leave them as-is in the final build.
-
-**Note for webpack users:** If you're migrating an existing app to snowpack, note that `@import '~package/...'` (URL starting with a tilde) is a syntax specific to webpack. With Snowpack you remove the `~` from your `@import`s.
-
-## Server Side Rendering (SSR)
-
-SSR for Snowpack is supported but fairly new and experimental. This documentation will be updated as we finalize support over the next few minor versions.
-
-```js
-// New in Snowpack v2.15.0 - JS API Example
-import {startDevServer} from 'snowpack';
-const server = await startDevServer({ ... });
-```
-
-These frameworks have known experiments / examples of using SSR + Snowpack:
-
-- React (Example): https://github.com/matthoffner/snowpack-react-ssr
-- Svelte/Sapper (Experiment): https://github.com/Rich-Harris/snowpack-svelte-ssr
-- [Join our Discord](https://discord.gg/rS8SnRk) if you're interested in getting involved!
-
-To connect your own server to `snowpack dev` for SSR, there are a few things that you'll need to set up. Make sure that you include any Snowpack-built resources via script tags in your server's HTML response:
-
-```html
-<!-- Example: Create Snowpack App builds your src/ directory to the /_dist_/* directory -->
-<script type="module" src="http://localhost:8080/_dist_/index.js"></script>
-```
-
-And make sure that your HTML response also includes code to configure HMR to talk to Snowpack's dev server:
-
-```html
-<!-- Configure Snowpack's HMR connection yourself, somewhere on your page HTML -->
-<script>
-  window.HMR_WEBSOCKET_URL = 'ws://localhost:8080';
-</script>
-```
-
-## Optimized Builds
-
-By default, Snowpack doesn't optimize your code for production. But, there are several plugins available to optimize your final build, including minification (reducing file sizes) and even bundling (combining files together to reduce the number of requests needed).
-
-**Connect the `@snowpack/plugin-optimize` plugin to optimize your build.** By default this will minify your built files for faster loading. It can also be configured to add `<link ref="modulepreload" />` elements that will improve the loading speed of unbundled sites. _Note: this plugin replaces `buildOptions.minify`._
-
-```js
-// snowpack.config.json
-// [npm install @snowpack/plugin-optimize]
-{
-  "plugins": [
-    ["@snowpack/plugin-optimize", {/* ... */}]
-  ]
-}
-```
-
-Note that `@snowpack/plugin-optimize` will optimize your build, but won't bundle files together.
-
-**If you'd like a bundled build, use `@snowpack/plugin-webpack` instead.** Connect the `"@snowpack/plugin-webpack"` plugin in your Snowpack configuration file and then run `snowpack build` to see your optimized, _bundled_ build.
-
-```js
-// snowpack.config.json
-// [npm install @snowpack/plugin-webpack]
-{
-  "plugins": [["@snowpack/plugin-webpack", {/* ... */}]]
-}
-```
-
-## Testing
-
-Snowpack supports any popular JavaScript testing framework that you're already familiar with. Mocha, Jest, Jasmine, AVA and Cypress are all supported in Snowpack applications.
-
-We currently recommend [@web/test-runner](https://www.npmjs.com/package/@web/test-runner) (WTR) for testing in Snowpack projects. When benchmarked it performed faster than Jest (our previous recommendation) while also providing an environment for testing that more closely matches the actual browser that your project runs in. Most importantly, WTR runs the same Snowpack build pipeline that you've already configured for your project, so there's no extra build configuration needed to run your tests. Jest (and many others) ask you to configure a totally secondary build pipeline for your tests, which reduces test confidence while adding 100s of extra dependencies to your project.
-
-To use [@web/test-runner](https://www.npmjs.com/package/@web/test-runner) in your project, [follow the instructions here](https://modern-web.dev/docs/test-runner/overview/) and make sure that you add the Snowpack plugin to your config file:
-
-```js
-// web-test-runner.config.js
-module.exports = {
-  plugins: [require('@snowpack/web-test-runner-plugin')()],
-};
-```
-
-[See an example setup](https://github.com/snowpackjs/snowpack/blob/main/create-snowpack-app/app-template-react) in on of our Create Snowpack App starter templates.
-
-## JSX
-
-Snowpack has built-in support to handle `.jsx` & `.tsx` source files in your application.
-
-**Note: Snowpack's default build does not support JSX in `.js`/`.ts` files.** If you can't use the `.jsx`/`.tsx` file extension, you can use [Babel](#babel) to build your application instead.
