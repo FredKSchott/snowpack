@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "scripts": {
     "start": "../snowpack/index.bin.js dev",
-    "build": "ELEVENTY_ENV=prod ../snowpack/index.bin.js build",
+    "build": "eleventy && ELEVENTY_ENV=prod ../snowpack/index.bin.js build",
     "test": "jest /__test__/",
     "format": "prettier --write \"src/**/*.js\"",
     "lint": "prettier --check \"src/**/*.js\""
