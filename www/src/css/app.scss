@@ -1,3 +1,6 @@
+// vars
+@import './_var';
+
 // Reset
 @import './_minireset';
 
@@ -9,6 +12,9 @@
 
 // Base styles
 @import './_base';
+
+// home page styles
+@import './home';
 
 // Guides styles
 @import './_guides';

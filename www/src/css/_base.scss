@@ -1,11 +1,4 @@
-// typography
-$body: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue,
-  Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-  Segoe UI Symbol, Noto Color Emoji;
-$heading: 'Overpass', $body;
-
-// breakpoints
-$breakpoint-m: 860px;
+@import './_var';
 
 .markdown-body,
 body,
@@ -114,7 +107,7 @@ img.company-logo {
 }
 .page-container {
   display: flex;
-  padding: 2rem 0;
+  //padding: 2rem 0;
 }
 
 .github-button {
@@ -124,6 +117,7 @@ img.company-logo {
 .grid-body {
   overflow: hidden;
   padding-top: 52px;
+  width: 100%;
 
   @media (min-width: $breakpoint-m) {
     background: white;
@@ -133,25 +127,6 @@ img.company-logo {
     padding-top: 0;
   }
 }
-
-.grid-body-header {
-
-  background: bisque;
-
-  line-height: 1.5;
-  padding: 3rem 0;
-
-  a {
-    color: white;
-  }
-
-  > svg {
-    margin: auto;
-    display: block;
-    opacity: 0.9;
-  }
-}
-
 
 .grid-extra-space {
   position: relative;
@@ -199,7 +174,6 @@ img.company-logo {
   font-style: italic;
 }
 
-
 .grid-nav-container {
   position: fixed;
   display: block;
@@ -218,7 +192,7 @@ img.company-logo {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0;
+  padding: $padding;
 
   @media (min-width: $breakpoint-m) {
     justify-content: left;
@@ -288,7 +262,7 @@ img.company-logo {
   right: 0;
   bottom: 0;
   width: 100vw;
-  padding: 0;
+  padding: $padding;
   flex-shrink: 0;
   flex-grow: 0;
   overflow: auto;
@@ -401,7 +375,7 @@ img.company-logo {
 
 .header-snowpack-subtitle {
   text-align: center;
-  font-size: 2.0rem;
+  font-size: 2rem;
   font-weight: 500;
   line-height: 1;
   letter-spacing: -1px;
@@ -467,9 +441,8 @@ img.company-logo {
 }
 
 .markdown-body {
-
   min-width: 0;
-
+  padding: $padding;
   h2:first-child,
   h3:first-child,
   h4:first-child {
@@ -564,7 +537,7 @@ img.company-logo {
     border: none;
     color: #717171;
     display: block;
-    transition: color .3s;
+    transition: color 0.3s;
 
     &::before {
       content: '▸';
@@ -631,7 +604,6 @@ img.company-logo {
     list-style: none;
   }
 }
-
 
 #toc-logo {
   display: none;
