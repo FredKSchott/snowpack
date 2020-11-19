@@ -2,8 +2,8 @@
   "name": "snowpack-www",
   "version": "3.0.0",
   "scripts": {
-    "start": "snowpack dev",
-    "build": "ELEVENTY_ENV=prod snowpack build",
+    "start": "../snowpack/index.bin.js dev",
+    "build": "ELEVENTY_ENV=prod ../snowpack/index.bin.js build",
     "test": "jest /__test__/",
     "format": "prettier --write \"src/**/*.js\"",
     "lint": "prettier --check \"src/**/*.js\""
@@ -16,7 +16,6 @@
     "luxon": "^1.25.0",
     "markdown-it": "^12.0.2",
     "markdown-it-anchor": "^6.0.0",
-    "prettier": "^2.0.5",
-    "snowpack": "^2.15.1"
+    "prettier": "^2.0.5"
   }
 }
