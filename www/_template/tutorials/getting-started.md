@@ -1,6 +1,6 @@
 ---
 layout: layouts/main.njk
-title: Get Started
+title: "Starting a New Project"
 ---
 
 Welcome to Snowpack! This guide shows you how to set up Snowpack from scratch in a Node.js project. Along the way you'll learn key concepts of Snowpack and unbundled development

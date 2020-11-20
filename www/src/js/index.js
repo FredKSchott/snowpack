@@ -57,14 +57,15 @@ function setActiveToc() {
     }
     tocEl.classList.add('active');
 
-    // update nav on desktop
+    // // update nav on desktop
     // if (window.innerWidth >= 860) {
-    //   gridTocEl.scrollTo({
-    //     top:
-    //       tocEl.getBoundingClientRect().top + gridTocEl.scrollTop - PADDING_TOP,
-    //     behavior: 'smooth',
-    //   });
+    //   tocEl.scrollIntoView({behavior: 'smooth'});
     // }
+      //   {
+      //   top:
+      //     tocEl.getBoundingClientRect().top + gridTocEl.scrollTop - PADDING_TOP,
+      //   behavior: 'smooth',
+      // });
     return;
   }
 }

@@ -349,7 +349,8 @@ img.company-logo {
     max-height: calc(100vh - 52px);
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
-  }
+    z-index: 1;
+}
 }
 
 .grid-toc-buttons {
@@ -523,11 +524,13 @@ img.company-logo {
   }
 
   h2,
-  h3 {
+  h3,
+  h4 {
     .header-link {
-      margin-left: 8px;
+      margin-left: 0.25rem;
       opacity: 1;
       transition: opacity 100ms ease-in-out;
+      color: #2e5e82;
 
       @media (min-width: $breakpoint-m) {
         opacity: 0;
@@ -543,13 +546,11 @@ img.company-logo {
 
   h2 {
     font-size: 3em;
-    margin-top: -12px;
-    padding-top: 40px;
   }
 
   h3 {
-    margin-top: -12px;
-    padding-top: 40px;
+    margin-top: -60px;
+    padding-top: 90px;
 
     &:hover .header-link {
       opacity: 1;
@@ -557,12 +558,14 @@ img.company-logo {
   }
 
   h4 {
-    margin-top: -36px;
-    padding-top: 40px;
     text-transform: uppercase;
     text-decoration: none;
     font-weight: bold;
     letter-spacing: 1px;
+
+    &:hover .header-link {
+      opacity: 1;
+    }
   }
 
   iframe,
@@ -654,14 +657,18 @@ img.company-logo {
   display: flex;
   flex-direction: row;
 }
-.sub-navigation {
-  flex-shrink: 0;
-  position: sticky;
+.sub-navigation-column {
+  position: relative;
   top: 52px;
   width: 360px;
-  max-height: calc(100vh - 52px);
-  overflow-y: scroll;
+  flex-shrink: 0;
   padding: 10vh 0 0 3rem;
+}
+.sub-navigation {
+  overflow-y: scroll;
+  max-height: calc(80vh - 100px);
+  position: fixed;
+  width: 360px;
 
   hr {
     margin: 1rem 0;
