@@ -46,7 +46,7 @@ You should see your new website up and running!
 
 <div class="frame"><img src="/img/guides/react/minimalist-hello-world.png" alt="screenshot of project-template-minimal, which shows 'Hello world' in text on a white background." class="screenshot"/></div>
 
-Now that you have a basic project up and running, to install Svelte, run the following command in your project directory:
+Now that you have a basic project up and running! The next step is to install Svelte. Run the following command in your project directory:
 
 ```bash
 npm install svelte --save
@@ -54,7 +54,7 @@ npm install svelte --save
 
 > 💡 Tip: add the "--use-yarn" or "--use-pnpm" flag to use something other than npm
 
-Install the `@snowpack/plugin-svelte` plugin so that Snowpack knows how built `.svelte` files into JavaScript and CSS files that run in the browser. Snowpack plugins are a way to extend Snowpack's capabilities without having to do custom configuration yourself. To start, install the package in your project:
+Snowpack [plugins](/plugins) are a way to extend Snowpack's capabilities without having to do custom configuration yourself. Install the `@snowpack/plugin-svelte` plugin so that Snowpack knows how built `.svelte` files into JavaScript and CSS files that run in the browser:
 
 ```bash
 npm install @snowpack/plugin-svelte --save-dev
@@ -64,20 +64,36 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
 
 ```diff
 // snowpack.config.js
-  module.exports = {
-    mount: {
-      /* ... */
-    },
--   plugins: []
-+   plugins: ['@snowpack/plugin-svelte'],
-  };
+
+module.exports = {
+  mount: {
+    /* ... */
+  },
+  plugins: [
+-    /* ... */
++    '@snowpack/plugin-svelte'
+  ],
 ```
 
-`@snowpack/plugin-svelte` also has built-in HMR (hot module replacement) and Fast Refresh, features explored later on in this guide.
+Restart your Snowpack dev server to run it with the new configuration. Exit the process (ctrl + c in most Windows/Linux and cmd + c for Mac) and start it again with `npm run start`.
+
+> 💡 Tip: Restart the Snowpack development server when you make configuration changes (changes to the `snowpack.config.js`).
+
+The Snowpack Development server will show the following as it recognizes your new dependency (Svelte) and turns it into ESM:
+
+```bash
+[snowpack] installing dependencies...
+[snowpack] ✔ install complete! [0.45s]
+[snowpack]
+  ⦿ web_modules/                                size       gzip       brotli
+    ├─ svelte-hmr/runtime/hot-api-esm.js        22.17 KB   7.42 KB    6.3 KB
+    ├─ svelte-hmr/runtime/proxy-adapter-dom.js  5.17 KB    1.65 KB    1.38 KB
+    └─ svelte/internal.js                       52.78 KB   13.24 KB   11.45 KB
+```
 
 ## Create your first Svelte component
 
-With `@snowpack/plugin-svelte` installed, Snowpack will build `.svelte` files to JS and CSS to run in the browser. Create your first `.svelte` component named `App.svelte` with the following code:
+With `@snowpack/plugin-svelte` installed, Snowpack will build `.svelte` files to the HTML, JS, and CSS needed to run in the browser. Create your first `.svelte` component named `App.svelte` with the following code:
 
 ```html
 <!-- App.svelte -->
@@ -101,7 +117,7 @@ With `@snowpack/plugin-svelte` installed, Snowpack will build `.svelte` files to
 </div>
 ```
 
-Now head to `index.js` and import it the new `app.svelte` file
+Now head to `index.js` and import the new `app.svelte` file
 
 ```diff
 // index.js
@@ -120,6 +136,8 @@ Now head to `index.js` and import it the new `app.svelte` file
 The page should now say "Learn Svelte". Congratulations! you now have Svelte up and running.
 
 Image: GIF showing code and site side by side, site is a "Learn Svelte" link on a white background. When the text is edit to add "Hello world" and the file saves, the changes show up in the site immediately.
+
+TODO: This no longer works for some reason
 
 ## Customize your project layout
 
@@ -186,8 +204,8 @@ Download [`logo.svg`](https://github.com/snowpackjs/snowpack/blob/master/create-
 <!-- src/App.svelte -->
 
     <header class="App-header">
-+       <img src="/logo.svg" class="App-logo" alt="logo" />
-        <a class="App-link" href="https://svelte.dev" target="_blank" rel="noopener noreferrer">
++     <img src="/logo.svg" class="App-logo" alt="logo" />
+      <a class="App-link" href="https://svelte.dev" target="_blank" rel="noopener noreferrer">
           Learn Svelte
 ```
 
@@ -225,8 +243,6 @@ With Svelte, CSS can go directly in your `.svelte` component. Add this code to t
   }
 </style>
 ```
-
-> 💡 Tip: Snowpack has built-in support for [CSS Modules](https://www.snowpack.dev/#import-css-modules) and if you'd like to use Sass there is an official [Sass Plugin](https://www.snowpack.dev/#sass).
 
 Image: Gif showing the results with the logo animated
 
