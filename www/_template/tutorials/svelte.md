@@ -117,7 +117,7 @@ With `@snowpack/plugin-svelte` installed, Snowpack will build `.svelte` files to
 </div>
 ```
 
-Now head to `index.js` and import the new `app.svelte` file
+Now head to `index.js` and import the new `App.svelte` file
 
 ```diff
 // index.js
