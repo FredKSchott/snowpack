@@ -80,7 +80,7 @@ If you don't use a bundler in production, you'll still see a smaller build. That
 
 Last week, [Svelte announced official support for TypeScript](https://svelte.dev/blog/svelte-and-typescript). We're huge fans of both projects and couldn't pass up the chance to test the new support out in a brand new Svelte + TypeScript app template for Snowpack.
 
-Visit [Create Snowpack App](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app) for a list of all of our new app templates.
+Visit [Create Snowpack App](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app) for a list of all of our new app templates.
 
 ## Thank You, Contributors!
 
