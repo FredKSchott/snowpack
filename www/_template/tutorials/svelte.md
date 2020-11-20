@@ -135,9 +135,7 @@ Now head to `index.js` and import the new `App.svelte` file
 
 The page should now say "Learn Svelte". Congratulations! you now have Svelte up and running.
 
-Image: GIF showing code and site side by side, site is a "Learn Svelte" link on a white background. When the text is edit to add "Hello world" and the file saves, the changes show up in the site immediately.
-
-TODO: This no longer works for some reason
+<div class="frame"><img src="/img/guides/svelte/svelte-component-snowpack.gif" alt="code and site side by side, site is a 'Learn Svelte' link on a white background. When the text is edit to add 'Hello world' and the file saves, the changes show up in the site immediately." class="screenshot"/></div>
 
 ## Customize your project layout
 
@@ -198,18 +196,23 @@ You'll need to restart Snowpack (stop the process in terminal and then run `npm 
 
 In Svelte you can add CSS directly to your component. This step demonstrates this capability by adding an animated logo.
 
-Download [`logo.svg`](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-svelte/public/logo.svg) to your `public` directory. Now you can add it to your `App.svelte`
+[Download `logo.svg`](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-svelte/public/logo.svg) to your `public` directory. Now you can add it to your `App.svelte`
 
 ```diff
 <!-- src/App.svelte -->
 
-    <header class="App-header">
-+     <img src="/logo.svg" class="App-logo" alt="logo" />
-      <a class="App-link" href="https://svelte.dev" target="_blank" rel="noopener noreferrer">
-          Learn Svelte
+  <header class="App-header">
++   <img src="/logo.svg" class="App-logo" alt="logo" />
+    <a
+      class="App-link"
+      href="https://svelte.dev"
+      target="_blank"
+      rel="noopener noreferrer">
+      Learn Svelte
+    </a>
 ```
 
-Image: Site showing the new logo
+<div class="frame"><img src="/img/guides/svelte/svelte-logo-snowpack.jpg" alt="Side by side of code and site. The site now has a very large Svelte logo. The code shows the src/App.svelte file "  class="screenshot"/></div>
 
 With Svelte, CSS can go directly in your `.svelte` component. Add this code to the top of `App.svelte` between the `<style>` tags:
 
@@ -244,7 +247,7 @@ With Svelte, CSS can go directly in your `.svelte` component. Add this code to t
 </style>
 ```
 
-Image: Gif showing the results with the logo animated
+<div class="frame"><img src="/img/guides/svelte/svelte-logo-style-snowpack.gif" alt="code and site side by side, when the css is added to the Svelte component, the background becomes a beige, the logo shrinks down, and the logo has a pulsing animation" class="screenshot"/></div>
 
 ## Adding a counter to your Svelte component
 
@@ -254,6 +257,7 @@ Svelte components include component specific scripts in a `<script>` tag. Add th
 
 ```html
 <!-- src/App.svelte -->
+
 <script>
   import { onMount } from 'svelte';
   let count = 0;
@@ -284,7 +288,7 @@ Then lower down in your component's body, add this code that displays the result
 
 Trying making a change to the code. You'll see the timer does not reset.
 
-Image: GIF showing code and site side by side, when the word "Hello" is added to the .svelte page and the code is saved, the change shows up in the browser without the timer resetting (it keeps counting)
+<div class="frame"><img src="/img/guides/svelte/svelte-snowpack-counter-1.gif" alt="Showing code and site side by side, when the word 'Hello' is added to the .svelte page and the code is saved, the change shows up in the browser without the timer resetting (it keeps counting)" class="screenshot"/></div>
 
 What about other, non-Svelte files like `src/index.js`? To re-render your Svelte application when other files change, add this code snippet to the bottom:
 
