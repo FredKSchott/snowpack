@@ -17,6 +17,6 @@
     "markdown-it": "^12.0.2",
     "markdown-it-anchor": "^6.0.0",
     "prettier": "^2.0.5",
-    "snowpack": "^2.15.1"
+    "snowpack": "^2.17.1"
   }
 }

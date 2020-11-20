@@ -36,6 +36,9 @@ function isScrolledIntoView(el) {
 function setActiveToc() {
   const PADDING_TOP = 64;
 
+  if (!tableOfContentsEl) {
+    return;
+  }
   for (const el of document.querySelectorAll('h2, h3, h4')) {
     if (!isScrolledIntoView(el)) {
       continue;
@@ -102,6 +105,9 @@ gridTocEl.addEventListener('click', (e) => {
   */
 
 window.addEventListener('DOMContentLoaded', (event) => {
+  if (!tableOfContentsEl) {
+    return;
+  }
   setActiveToc();
   document
     .querySelectorAll('.markdown-body h3, .markdown-body h4')

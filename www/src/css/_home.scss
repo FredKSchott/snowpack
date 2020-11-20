@@ -1,0 +1,94 @@
+@import './_var';
+
+.home {
+  h2 {
+    font-size: 1.5rem;
+  }
+  .header-cta {
+    margin: 1.5rem auto 0;
+    display: flex;
+    justify-content: center;
+  }
+  .content {
+    padding: 1rem;
+  }
+  .grid-body {
+    padding-top: 0;
+  }
+
+  .grid-body-header {
+    background: #2a85ca40;
+    border-bottom: 1px solid #0003;
+    color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.5;
+    margin-top: 2em;
+
+    @media (min-width: $breakpoint-l) {
+      margin: 0;
+    }
+    background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 512' title='mountain' class='logo' fill='%23FFFB'%3E%3Cpath d='M634.92 462.7l-288-448C341.03 5.54 330.89 0 320 0s-21.03 5.54-26.92 14.7l-288 448a32.001 32.001 0 0 0-1.17 32.64A32.004 32.004 0 0 0 32 512h576c11.71 0 22.48-6.39 28.09-16.67a31.983 31.983 0 0 0-1.17-32.63zM320 91.18L405.39 224H320l-64 64-38.06-38.06L320 91.18z' /%3E%3C/svg%3E");
+    background-size: 50%;
+    min-height: 50vh;
+    background-position: calc(100% + 100px) calc(100% + 64px);
+    background-repeat: no-repeat;
+    a {
+      color: white;
+    }
+
+    > svg {
+      margin: auto;
+      display: block;
+      opacity: 0.9;
+    }
+
+    .logo {
+      width: 100%;
+      position: absolute;
+      right: 0px;
+    }
+    .logo path {
+      fill: #fff;
+    }
+
+    .section {
+      padding: 1rem * 2;
+    }
+  }
+
+  .home-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    grid-gap: 1rem;
+
+    @media (min-width: $breakpoint-l) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .section {
+      background: #2e5e82;
+      border: 12px solid #2e5e82;
+    }
+
+    svg {
+      fill: #2e5e82;
+      height: 100px;
+    }
+
+    .section-title {
+      color: white;
+      font-size: 3rem;
+      font-weight: 300;
+      line-height: 1.2em;
+      margin-bottom: 8px;
+      margin-top: 0;
+    }
+  }
+
+  .home-hr {
+    margin: 2em 0;
+  }
+}
