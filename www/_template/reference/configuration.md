@@ -184,8 +184,6 @@ Options:
 
 - **`devOptions.port`** | `number` | Default: `8080`
   - The port number to run the dev server on.
-- **`devOptions.bundle`** | `boolean`
-  - Create an optimized, bundled build for production.
 - **`devOptions.fallback`** | `string` | Default: `"index.html"`
   - When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
 - **`devOptions.open`** | `string` | Default: `"default"`
