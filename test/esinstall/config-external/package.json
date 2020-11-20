@@ -9,19 +9,23 @@
   "snowpack": {
     "installOptions": {
       "externalPackage": [
+        "config-external-pkg-b",
+        "config-external-pkg-c"
+      ],
+      "externalPackageEsm": [
         "config-external-pkg-b"
       ]
     },
     "install": [
-      "config-external-pkg-a"
-    ],
-    "buildOptions": {
-      "minify": false
-    }
+      "config-external-pkg-a",
+      "config-external-pkg-cjs"
+    ]
   },
   "dependencies": {
     "config-external-pkg-a": "file:./packages/config-external-pkg-a",
-    "config-external-pkg-b": "file:./packages/config-external-pkg-b"
+    "config-external-pkg-b": "file:./packages/config-external-pkg-b",
+    "config-external-pkg-c": "file:./packages/config-external-pkg-c",
+    "config-external-pkg-cjs": "file:./packages/config-external-pkg-cjs"
   },
   "devDependencies": {
     "snowpack": "^2.14.3"
