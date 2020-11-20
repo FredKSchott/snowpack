@@ -3,7 +3,7 @@
   "version": "1.1.5",
   "main": "plugin.js",
   "license": "MIT",
-  "homepage": "https://github.com/snowpackjs/snowpack/tree/master/plugins/babel-plugin-package-import#readme",
+  "homepage": "https://github.com/snowpackjs/snowpack/tree/main/plugins/babel-plugin-package-import#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/snowpackjs/snowpack.git",
