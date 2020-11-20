@@ -191,7 +191,7 @@ Popular frameworks can also be set up for HMR. **[Create Snowpack App (CSA)](htt
 - Svelte: [A few lines of code](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-svelte/src/index.js#L9-L16)
 - Vue: [A few lines of code](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-vue/src/index.js#L7-L14)
 
-For more advanced, bare-metal HMR integrations, Snowpack created [ESM-HMR](https://github.com/snowpackjs/esm-hot-module-replacement-spec), a standard HMR API for any ESM-based dev environment. Any HMR integration built for ESM-HMR will run on Snowpack and any other ESM-HMR-enabled dev server. To use the HMR API directly (via `import.meta.hot`) check out [the ESM-HMR spec](https://github.com/snowpackjs/esm-hot-module-replacement-spec) to learn more.
+For more advanced, bare-metal HMR integrations, Snowpack created [ESM-HMR](https://github.com/snowpackjs/esm-hmr), a standard HMR API for any ESM-based dev environment. Any HMR integration built for ESM-HMR will run on Snowpack and any other ESM-HMR-enabled dev server. To use the HMR API directly (via `import.meta.hot`) check out [the ESM-HMR spec](https://github.com/snowpackjs/esm-hmr) to learn more.
 
 ```js
 if (import.meta.hot) {
@@ -204,7 +204,7 @@ if (import.meta.hot) {
 }
 ```
 
-- 👉 **[Check out the full ESM-HMR spec.](https://github.com/snowpackjs/esm-hot-module-replacement-spec)**
+- 👉 **[Check out the full ESM-HMR spec.](https://github.com/snowpackjs/esm-hmr)**
 
 ### Dev Request Proxy
 
