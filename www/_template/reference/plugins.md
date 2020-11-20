@@ -1,11 +1,6 @@
 ---
-layout: layouts/guide.njk
-permalink: '/guides/plugins/'
-title: Snowpack Plugin Guide
-description: 'Documentation and guides for building Snowpack plugins.'
-date: 2020-07-30
-tags: guides
-sidebarTitle: Plugins
+layout: layouts/main.njk
+title: Plugin API
 ---
 
 #### Who is this page for?

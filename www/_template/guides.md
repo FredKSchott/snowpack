@@ -11,6 +11,7 @@ Snowpack Guides are deep dives into popular Snowpack topics.
 
 Stubs (guides under construction)
 
+- [SSL, HTTPS, and HTTP/2 in Development](/guides/https-ssl-certificates)
 - [Connecting your dev tools](/guides/connecting-tools)
 - [Bundling for Deployment](/guides/bundling)
 - [Testing](/guides/testing)

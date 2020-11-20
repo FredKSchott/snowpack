@@ -30,6 +30,17 @@ p {
   font-family: $heading;
 }
 
+.notification {
+  background-color: #b224d0;
+  padding: 0.5rem;
+  color: white;
+  font-weight: bold;
+  a {
+    color: white;
+    text-decoration: underline;
+  }
+}
+
 .button {
   line-height: normal;
   white-space: nowrap;
@@ -45,12 +56,23 @@ p {
   margin-top: 2px;
   text-decoration: none;
   border-radius: 4px;
-  color: #fff;
   font-size: 22px;
-  background: linear-gradient(45deg, #24bf62, #267dd6, #b224d0);
   font-family: 'Overpass', sans-serif;
   font-weight: bold;
-  box-shadow: 0 2px 1px 0 #2e5e82aa;
+  border: 1px solid #666;
+  background-color: #FEFEFE;
+  transition: transform 0.15s ease-out;
+}
+.button:hover {
+  box-shadow: 0 2px 2px 0 #2e5e82aa;
+  transform: scale(1.02);
+}
+a.button {
+  text-decoration: none !important;
+}
+.button.button-primary {
+  color: #fff;
+  background: linear-gradient(45deg, #24bf62, #267dd6, #b224d0);
 }
 
 .copy-button {
@@ -69,11 +91,17 @@ p {
   line-height: 1.5rem;
   padding: 0.75rem 1.25rem;
   padding-bottom: 0.75rem;
-  transition: background-color,  color, fill, stroke 0.5s ease-out;
+  transition: transform 0.5s ease-in-out,
+    background-color,transform,  color, fill, stroke 0.5s ease-out;
 
   svg, span {
     color: #ccc;
     transition: color 0.1s ease-out;
+  }
+
+  &:hover {
+    box-shadow: 0 2px 2px 0 #2e5e8266;
+    transform: scale(1.02);
   }
 }
 
@@ -482,6 +510,7 @@ img.company-logo {
   margin-left: auto;
   margin-right: auto;
   max-width: 1200px;
+  flex-grow: 1;
 }
 
 .markdown-body {
@@ -515,12 +544,12 @@ img.company-logo {
   h2 {
     font-size: 3em;
     margin-top: -12px;
-    padding-top: 60px;
+    padding-top: 40px;
   }
 
   h3 {
     margin-top: -12px;
-    padding-top: 60px;
+    padding-top: 40px;
 
     &:hover .header-link {
       opacity: 1;
@@ -529,7 +558,7 @@ img.company-logo {
 
   h4 {
     margin-top: -36px;
-    padding-top: 60px;
+    padding-top: 40px;
     text-transform: uppercase;
     text-decoration: none;
     font-weight: bold;

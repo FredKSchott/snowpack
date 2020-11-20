@@ -11,7 +11,7 @@ description: 'Snowpack is the fast, bundle-free build tool for all kinds of fron
       <p class="header-snowpack-subtitle">The faster frontend build tool.</p>
 
       <div class="header-cta">
-        <a href="/getting-started" class="button">Get started</a>
+        <a href="/getting-started" class="button button-primary">Get started</a>
         <div style="margin: 0.5rem"></div>
         <button  class="copy-button"  data-clipboard-text="npm install snowpack">
         <span  style="margin-right: 0.75rem;">$</span>
@@ -67,27 +67,25 @@ description: 'Snowpack is the fast, bundle-free build tool for all kinds of fron
         />
       </a>
 
-      <div class="content">
-        <div class="home-grid">
-          <div class="section">
-            <h2 class="section-title">Fast</h2>
-          </div>
-          <div class="section">
-            <h2 class="section-title">Supports your code</h2>
-          </div>
-          <div class="section">
-            <h2 class="section-title">Deploy with ease</h2>
-          </div>
-        </div>
+      <div class="content markdown-body">
 
-        <h2>The Elevator Pitch</h2>
-        <img src="/img/snowpack-unbundled-example-3.png" />
-        <p>
-          Every file is built individually and cached indefinitely. Your dev
-          environment will never build a file more than once and your browser
-          will never download a file twice (until it changes). This is the real
-          power of unbundled development.
-        </p>
+        <h2 id="what-is-snowpack%3F">What is Snowpack?</h2>
+        <p  style="font-size: 22px">Snowpack is a modern frontend build tool for faster web development. It replaces heavier, more complex bundlers like webpack or Parcel in your development workflow.</p>
+        <p  style="font-size: 22px">Snowpack leverages JavaScript’s native module system (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">known as ESM</a>) to create a first-of-its-kind build system that never builds the same file twice. Snowpack pushes changes instantly to the browser, saving you hours of development time traditionally spent waiting around for your bundler.</p>
+
+        <h2 id="key-features">Key Features</h2>
+        <ul style="font-size: 22px">
+        <li>Develop faster, with a dev server that starts up in <strong>50ms or less.</strong></li>
+        <li>See changes reflected <a href="/#hot-module-replacement">instantly in the browser.</a></li>
+        <li>Integrate your favorite bundler for a <a href="/#bundle-for-production">production-optimized build.</a></li>
+        <li>Enjoy out-of-the-box support for <a href="/#features">TypeScript, JSX, CSS Modules and more.</a></li>
+        <li>Connect your favorite tools with <a href="/#plugins">third-party plugins.</a></li>
+        </ul>
+
+        <div style="margin-top: 3rem; text-align: center;">
+          <a href="/getting-started" class="button button-primary">Get started</a>
+          <a href="/concepts/how-snowpack-works" class="button">Learn more</a>
+        </div>
       </div>
     </article>
   </section>
