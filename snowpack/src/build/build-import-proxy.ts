@@ -119,18 +119,17 @@ function generateWasmImportProxy({
   hmr: boolean;
   config: SnowpackConfig;
 }) {
-  const wasmImportProxyCode = `
-  export default async () => {
-    const response = await fetch(${JSON.stringify(url)});
-    const resultObj = await WebAssembly.instantiateStreaming(response, {
-      module: {},
-      env: {
-        abort() {
-        },
+  const wasmImportProxyCode = `export default async () => {
+  const response = await fetch(${JSON.stringify(url)});
+  const resultObj = await WebAssembly.instantiateStreaming(response, {
+    module: {},
+    env: {
+      abort() {
       },
-    });
-    return resultObj.instance;
-  }
+    },
+  });
+  return resultObj.instance;
+}
   `
   return wrapImportMeta({code: wasmImportProxyCode, hmr, env: false, config});
 }
