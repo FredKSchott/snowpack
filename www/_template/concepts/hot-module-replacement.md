@@ -3,7 +3,7 @@ layout: layouts/main.njk
 title: Fast Refresh & HMR
 ---
 
-Hot Module Replacement (HMR) is the ability to update your web app during development without refreshing the page. Imagine changing some CSS, hitting save, and then instantly seeing your change reflected on the page without a refresh. That's HMR.
+Hot Module Replacement (HMR) is the ability to push file updates to the browser without triggering a full page refresh.  Imagine changing some CSS, hitting save, and then instantly seeing your change reflected on the page without a refresh. That's HMR.
 
 Snowpack supports full HMR out-of-the-box for the following served files:
 

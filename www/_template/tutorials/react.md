@@ -1,11 +1,9 @@
 ---
 layout: layouts/guide.njk
-permalink: '/guides/react/'
 title: The Snowpack Guide to Getting Started with React
 description: 'Get started with this in-depth tutorial on how to build React applications and websites with Snowpack and developer tools like React Fast Refresh'
 date: 2020-10-01
 tags: guides
-sidebarTitle: React
 ---
 
 <img src="/img/ReactGuide.jpg" alt="header image, showing the React and Snowpack logo against a background of blue mountains" />
