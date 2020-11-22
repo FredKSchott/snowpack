@@ -119,7 +119,7 @@ function generateWasmImportProxy({
   hmr: boolean;
   config: SnowpackConfig;
 }) {
-  const wasmImportProxyCode = `export default async (importObjects={
+  const wasmImportProxyCode = `export default async (importObject={
   module: {},
   env: {
     abort() {
@@ -127,7 +127,7 @@ function generateWasmImportProxy({
   },
 }) => {
   const response = await fetch(${JSON.stringify(url)});
-  const resultObj = await WebAssembly.instantiateStreaming(response, importObjects);
+  const resultObj = await WebAssembly.instantiateStreaming(response, importObject);
   return resultObj.instance;
 }
   `
