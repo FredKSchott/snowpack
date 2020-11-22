@@ -110,6 +110,31 @@ export function wrapHtmlResponse({
   return code;
 }
 
+function generateWasmImportProxy({
+  url,
+  hmr,
+  config,
+}: {
+  url: string;
+  hmr: boolean;
+  config: SnowpackConfig;
+}) {
+  const wasmImportProxyCode = `
+  export default async () => {
+    const response = await fetch(${JSON.stringify(url)});
+    const resultObj = await WebAssembly.instantiateStreaming(response, {
+      module: {},
+      env: {
+        abort() {
+        },
+      },
+    });
+    return resultObj.instance;
+  }
+  `
+  return wrapImportMeta({code: wasmImportProxyCode, hmr, env: false, config});
+}
+
 function generateJsonImportProxy({
   code,
   hmr,
@@ -213,7 +238,9 @@ export async function wrapImportProxy({
   config: SnowpackConfig;
 }) {
   const {baseExt, expandedExt} = getExt(url);
-
+  if (baseExt === '.wasm') {
+    return generateWasmImportProxy({url, hmr, config});
+  } 
   if (typeof code === 'string') {
     if (baseExt === '.json') {
       return generateJsonImportProxy({code, hmr, config});
