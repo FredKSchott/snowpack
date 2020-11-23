@@ -1,8 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import url from 'url';
 import {ImportMap, SnowpackConfig} from '../types/snowpack';
-import {findMatchingAliasEntry, getExt, replaceExt} from '../util';
+import {findMatchingAliasEntry, getExt, isRemoteSpecifier, replaceExt} from '../util';
 import {getUrlForFile} from './file-urls';
 
 const cwd = process.cwd();
@@ -57,7 +56,7 @@ export function createImportResolver({
 }: ImportResolverOptions) {
   return function importResolver(spec: string): string | false {
     // Ignore "http://*" imports
-    if (url.parse(spec).protocol) {
+    if (isRemoteSpecifier(spec)) {
       return spec;
     }
     // Ignore packages marked as external
@@ -67,7 +66,7 @@ export function createImportResolver({
     // Support snowpack.lock.json entry
     if (lockfile && lockfile.imports[spec]) {
       const mappedImport = lockfile.imports[spec];
-      if (url.parse(mappedImport).protocol) {
+      if (isRemoteSpecifier(mappedImport)) {
         return mappedImport;
       }
       throw new Error(

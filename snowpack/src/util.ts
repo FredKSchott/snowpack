@@ -1,8 +1,8 @@
 import cacache from 'cacache';
 import globalCacheDir from 'cachedir';
+import crypto from 'crypto';
 import etag from 'etag';
 import execa from 'execa';
-import crypto from 'crypto';
 import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import fs from 'fs';
@@ -11,6 +11,7 @@ import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
+import url from 'url';
 import {ImportMap, SnowpackConfig} from './types/snowpack';
 
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
@@ -301,6 +302,10 @@ export function replaceExt(fileName: string, oldExt: string, newExt: string): st
   return fileName.replace(extToReplace, newExt);
 }
 
+/** determine if remote package or not */
+export function isRemoteSpecifier(specifier) {
+  return specifier.startsWith('//') || url.parse(specifier).protocol;
+}
 /**
  * Sanitizes npm packages that end in .js (e.g `tippy.js` -> `tippyjs`).
  * This is necessary because Snowpack can’t create both a file and directory

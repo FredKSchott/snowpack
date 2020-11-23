@@ -3,7 +3,7 @@
 .idea
 .vercel
 www/_site
-www/index.md
+www/eleventy
 lerna-debug.log
 node_modules
 package-lock.json
