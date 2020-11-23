@@ -98,7 +98,7 @@ function resolveWebDependency(
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
     // For details on why we need to call fs.realpathSync.native here and other places, see
     // https://github.com/snowpackjs/snowpack/pull/999.
-    const loc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}))
+    const loc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
     const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(loc));
     return {
       type: isJSFile ? 'JS' : 'ASSET',
