@@ -18,17 +18,15 @@ Popular frameworks can also be set up for HMR. **[Create Snowpack App (CSA)](htt
 - Svelte: [A few lines of code](https://github.com/snowpackjs/snowpack/blob/main/create-snowpack-app/app-template-svelte/src/index.js#L9-L16)
 - Vue: [A few lines of code](https://github.com/snowpackjs/snowpack/blob/main/create-snowpack-app/app-template-vue/src/index.js#L7-L14)
 
-For more advanced, bare-metal HMR integrations, Snowpack created [ESM-HMR](https://github.com/snowpackjs/esm-hmr), a standard HMR API for any ESM-based dev environment. Any HMR integration built for ESM-HMR will run on Snowpack and any other ESM-HMR-enabled dev server. To use the HMR API directly (via `import.meta.hot`) check out [the ESM-HMR spec](https://github.com/snowpackjs/esm-hmr) to learn more.
+For more advanced HMR integrations, Snowpack created the [esm-hmr spec](https://github.com/snowpackjs/esm-hmr), a standard HMR API for any ESM-based dev environment:
 
 ```js
+// HMR Code Snippet Example
 if (import.meta.hot) {
   import.meta.hot.accept(({ module }) => {
-    // Accept the module, apply it to your application.
-  });
-  import.meta.hot.dispose(() => {
-    // Cleanup any side-effects. Optional.
+    // Accept the module, apply it into your application.
   });
 }
 ```
 
-- 👉 **[Check out the full ESM-HMR spec.](https://github.com/snowpackjs/esm-hmr)**
+Check out the full [ESM-HMR API reference](https://github.com/snowpackjs/esm-hmr) on GitHub.
