@@ -3,5 +3,5 @@ console.error('');
 console.error('  npm install --save-dev @snowpack/babel-plugin-package-import');
 console.error('');
 console.error(
-  'Learn more: https://github.com/snowpackjs/snowpack/tree/main/plugins/babel-plugin-package-import',
+  'Learn more: https://github.com/snowpackjs/snowpack/tree/master/plugins/babel-plugin-package-import',
 );

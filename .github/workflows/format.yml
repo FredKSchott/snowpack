@@ -9,10 +9,10 @@ jobs:
   format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
-      - uses: actions/setup-node@v2.1.2
+      - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
       - name: yarn install

@@ -31,7 +31,6 @@ import {
   cssSourceMappingURL,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
-  isRemoteSpecifier,
   jsSourceMappingURL,
   readFile,
   relativeURL,
@@ -39,7 +38,6 @@ import {
   replaceExt,
 } from '../util';
 import {getInstallTargets, run as installRunner} from './install';
-import {runBuiltInOptimize} from '../build/optimize';
 
 const CONCURRENT_WORKERS = require('os').cpus().length;
 
@@ -233,7 +231,7 @@ class FileBuilder {
           return spec;
         }
         // Ignore "http://*" imports
-        if (isRemoteSpecifier(resolvedImportUrl)) {
+        if (url.parse(resolvedImportUrl).protocol) {
           return spec;
         }
         // Ignore packages marked as external
@@ -242,14 +240,10 @@ class FileBuilder {
         }
         // Handle normal "./" & "../" import specifiers
         const importExtName = path.extname(resolvedImportUrl);
-        const isBundling = !!this.config.experiments.optimize?.bundle;
         const isProxyImport =
           importExtName &&
           (file.baseExt === '.js' || file.baseExt === '.html') &&
-          importExtName !== '.js' &&
-          // If using our built-in bundler, treat CSS as a first class citizen (no proxy file needed).
-          // TODO: Remove special `.module.css` handling by building css modules to native JS + CSS.
-          (!isBundling || !/(?<!module)\.css$/.test(resolvedImportUrl));
+          importExtName !== '.js';
         const isAbsoluteUrlPath = path.posix.isAbsolute(resolvedImportUrl);
         let resolvedImportPath = removeLeadingSlash(path.normalize(resolvedImportUrl));
         // We treat ".proxy.js" files special: we need to make sure that they exist on disk
@@ -260,7 +254,9 @@ class FileBuilder {
           } else {
             this.filesToProxy.push(path.resolve(path.dirname(outLoc), resolvedImportPath));
           }
+        }
 
+        if (isProxyImport) {
           resolvedImportPath = resolvedImportPath + '.proxy.js';
           resolvedImportUrl = resolvedImportUrl + '.proxy.js';
         }
@@ -395,24 +391,21 @@ export async function command(commandOptions: CommandOptions) {
       nodir: true,
       dot: true,
     });
-
-    if (!config.experiments.optimize?.bundle) {
-      for (const installedFileLoc of allFiles) {
-        if (
-          !installedFileLoc.endsWith('import-map.json') &&
-          path.extname(installedFileLoc) !== '.js'
-        ) {
-          const proxiedCode = await readFile(url.pathToFileURL(installedFileLoc));
-          const importProxyFileLoc = installedFileLoc + '.proxy.js';
-          const proxiedUrl = installedFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/');
-          const proxyCode = await wrapImportProxy({
-            url: proxiedUrl,
-            code: proxiedCode,
-            hmr: false,
-            config: config,
-          });
-          await fs.writeFile(importProxyFileLoc, proxyCode, 'utf-8');
-        }
+    for (const installedFileLoc of allFiles) {
+      if (
+        !installedFileLoc.endsWith('import-map.json') &&
+        path.extname(installedFileLoc) !== '.js'
+      ) {
+        const proxiedCode = await readFile(url.pathToFileURL(installedFileLoc));
+        const importProxyFileLoc = installedFileLoc + '.proxy.js';
+        const proxiedUrl = installedFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/');
+        const proxyCode = await wrapImportProxy({
+          url: proxiedUrl,
+          code: proxiedCode,
+          hmr: false,
+          config: config,
+        });
+        await fs.writeFile(importProxyFileLoc, proxyCode, 'utf-8');
       }
     }
     return installResult;
@@ -503,26 +496,16 @@ export async function command(commandOptions: CommandOptions) {
 
   // 5. Optimize the build.
   if (!config.buildOptions.watch) {
-    if (config.experiments.optimize || config.plugins.some((p) => p.optimize)) {
-      const optimizeStart = performance.now();
-      logger.info(colors.yellow('! optimizing build...'));
-      await runBuiltInOptimize(config);
-      await runPipelineOptimizeStep(buildDirectoryLoc, {
-        plugins: config.plugins,
-        isDev: false,
-        isSSR: config.experiments.ssr,
-        isHmrEnabled: false,
-        sourceMaps: config.buildOptions.sourceMaps,
-      });
-      const optimizeEnd = performance.now();
-      logger.info(
-        `${colors.green('✔')} optimize complete ${colors.dim(
-          `[${((optimizeEnd - optimizeStart) / 1000).toFixed(2)}s]`,
-        )}`,
-      );
-    }
+    logger.info(colors.yellow('! optimizing build...'));
     await runPipelineCleanupStep(config);
-    logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
+    await runPipelineOptimizeStep(buildDirectoryLoc, {
+      plugins: config.plugins,
+      isDev: false,
+      isSSR: config.experiments.ssr,
+      isHmrEnabled: false,
+      sourceMaps: config.buildOptions.sourceMaps,
+    });
+    logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}`);
     return;
   }
 

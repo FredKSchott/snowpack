@@ -3,7 +3,7 @@
   "description": "A preconfigured template for Snowpack with Typescript",
   "version": "1.9.12",
   "license": "MIT",
-  "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-blank-typescript#readme",
+  "homepage": "https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-blank-typescript#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/snowpackjs/snowpack.git",

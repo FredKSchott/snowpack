@@ -56,45 +56,43 @@ permalink: '/plugins/'
   }
 </style>
 
-<section class="container page-container">
-  <aside class="grid-toc hidden-mobile">
-    {% include 'main-sidebar.njk' %}
-  </aside>
+<aside class="grid-toc hidden-mobile">
+  {% include 'main-sidebar.njk' %}
+</aside>
 
-  <article id="grid-body" class="grid-body">
-    <div class="grid-body-header">
-      <svg height="64px" style="padding-left: 8px;" viewbox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-        <g id="Page-1" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
-          <g id="mountain-solid" transform="translate(-1.000000, 0.000000)" fill-rule="nonzero">
-            <path d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z" id="Shape"></path>
-          </g>
+<article id="grid-body" class="grid-body">
+  <div class="grid-body-header">
+    <svg height="64px" style="padding-left: 8px;" viewbox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <g id="Page-1" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
+        <g id="mountain-solid" transform="translate(-1.000000, 0.000000)" fill-rule="nonzero">
+          <path d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z" id="Shape"></path>
         </g>
-      </svg>
-      <h1 class="header-snowpack">Snowpack</h1>
-      <p class="header-snowpack-subtitle">
-        The Snowpack Plugin Catalog
-      </p>
-    </div>
-    <div class="content">
-      <h3 class="pluginPage-subheading">Customize your build pipeline with Snowpack plugins</h3>
-      <p class="pluginPage-intro">To learn more about our plugin system, read our
-        <a href="/#plugins">getting started</a>
-        guide.<br/>Can't find what you need? <a href="/guides/plugins">Creating your own plugin is easy!</a>
-      </p>
-      <div class="pluginPage-count" id="total-result-count"></div>
-      <form name="myform" id="myform" class="pluginPage-search" action="https://www.npmjs.com/search" method="GET">
-        <input type="search" name="q" value="" placeholder="search Sass, sitemaps, image optimization..." class="pluginPage-search-input">
-        <button type="submit" class="pluginPage-search-submit">Search</button>
-      </form>
+      </g>
+    </svg>
+    <h1 class="header-snowpack">Snowpack</h1>
+    <p class="header-snowpack-subtitle">
+      The Snowpack Plugin Catalog
+    </p>
+  </div>
+  <div class="content">
+    <h3 class="pluginPage-subheading">Customize your build pipeline with Snowpack plugins</h3>
+    <p class="pluginPage-intro">To learn more about our plugin system, read our
+      <a href="/#plugins">getting started</a>
+      guide.<br/>Can't find what you need? <a href="/guides/plugins">Creating your own plugin is easy!</a>
+    </p>
+    <div class="pluginPage-count" id="total-result-count"></div>
+    <form name="myform" id="myform" class="pluginPage-search" action="https://www.npmjs.com/search" method="GET">
+      <input type="search" name="q" value="" placeholder="search Sass, sitemaps, image optimization..." class="pluginPage-search-input">
+      <button type="submit" class="pluginPage-search-submit">Search</button>
+    </form>
 
-      <br/>
-      <h2 class="pluginPage-zero-heading">Popular Snowpack Plugins</h2>
+    <br/>
+    <h2 class="pluginPage-zero-heading">Popular Snowpack Plugins</h2>
 
-      <section id="search-results">
-        <div id="loading-message">Loading...</div>
-      </section>
-    </div>
-  </section>
+    <section id="search-results">
+      <div id="loading-message">Loading...</div>
+    </section>
+  </div>
 
   <script type="module">
     import {html, render} from 'https://cdn.skypack.dev/htm/preact/standalone.module.js'

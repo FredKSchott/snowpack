@@ -89,7 +89,7 @@ export function wrapHtmlResponse({
 
   // Full Page Transformations: Only full page responses should get these transformations.
   // Any code not containing `<!DOCTYPE html>` is assumed to be a code snippet/partial.
-  const isFullPage = code.toLowerCase().startsWith('<!doctype html>');
+  const isFullPage = code.startsWith('<!DOCTYPE html>');
   if (hmr && isFullPage) {
     let hmrScript = ``;
     if (hmrPort) {

@@ -96,13 +96,12 @@ function resolveWebDependency(
   // if dep points directly to a file within a package, return that reference.
   // No other lookup required.
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
-    // For details on why we need to call fs.realpathSync.native here and other places, see
-    // https://github.com/snowpackjs/snowpack/pull/999.
-    const loc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
-    const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(loc));
+    const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(dep));
     return {
       type: isJSFile ? 'JS' : 'ASSET',
-      loc,
+      // For details on why we need to call fs.realpathSync.native here and other places, see
+      // https://github.com/snowpackjs/snowpack/pull/999.
+      loc: fs.realpathSync.native(require.resolve(dep, {paths: [cwd]})),
     };
   }
   // If dep is a path within a package (but without an extension), we first need

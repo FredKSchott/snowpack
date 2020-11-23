@@ -4,7 +4,7 @@ import fs from 'fs';
 import {Plugin} from 'rollup';
 import {InstallTarget, AbstractLogger} from '../types';
 import {getWebDependencyName} from '../util.js';
-const {parse} = require('cjs-module-lexer');
+import parse from 'cjs-module-lexer';
 
 /**
  * rollup-plugin-wrap-install-targets

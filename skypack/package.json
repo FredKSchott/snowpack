@@ -1,7 +1,7 @@
 {
   "name": "skypack",
   "version": "0.0.1",
-  "description": "The Skypack SDK.",
+  "description": "Install packages from Skypack",
   "keywords": [
     "skypack",
     "esm",

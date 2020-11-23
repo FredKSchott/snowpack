@@ -18,9 +18,9 @@ jobs:
     steps:
       # SETUP:
       - run: sudo apt-get install jq
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.2
       - name: Use Node.js ${{ env.node_version }}
-        uses: actions/setup-node@v2.1.2
+        uses: actions/setup-node@v2.1.1
         with:
           node-version: ${{ env.node_version }}
           # (REQUIRED) setting a registry enables the NODE_AUTH_TOKEN env variable where we can set an npm token.

@@ -1,6 +1,6 @@
 import App from "./App.svelte";
 
-let app = new App({
+var app = new App({
   target: document.body,
 });
 

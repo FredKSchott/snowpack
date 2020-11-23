@@ -37,7 +37,7 @@ To Resolve:
         return;
       }
       const reqPath = request.path;
-      const result = await server.loadUrl(reqPath, {isSSR: false});
+      const result = await server.loadUrl(reqPath, {isSSR: false, encoding: 'utf8'});
       return {body: result.contents, type: result.contentType};
     },
     transformImport({source}) {
