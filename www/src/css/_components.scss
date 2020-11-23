@@ -1,34 +1,4 @@
-@import './_var';
-
-.markdown-body,
-body,
-html {
-  font-family: $body;
-}
-
-* {
-  position: relative;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: $body;
-}
-
-p {
-  line-height: 1.5;
-}
-
-.header-logo,
-.header-snowpack,
-.header-snowpack-subtitle,
-.markdown-body h1,
-.markdown-body h2,
-.markdown-body h3,
-.pretty-font,
-.version-number {
-  font-family: $heading;
-}
+// Notification
 
 .notification {
   background-color: #b224d0;
@@ -40,6 +10,8 @@ p {
     text-decoration: underline;
   }
 }
+
+// Button
 
 .button {
   line-height: normal;
@@ -60,7 +32,7 @@ p {
   font-family: 'Overpass', sans-serif;
   font-weight: bold;
   border: 1px solid #666;
-  background-color: #FEFEFE;
+  background-color: #fefefe;
   transition: transform 0.15s ease-out;
 }
 .button:hover {
@@ -74,6 +46,8 @@ a.button {
   color: #fff;
   background: linear-gradient(45deg, #24bf62, #267dd6, #b224d0);
 }
+
+// Copy button
 
 .copy-button {
   box-sizing: border-box;
@@ -91,10 +65,11 @@ a.button {
   line-height: 1.5rem;
   padding: 0.75rem 1.25rem;
   padding-bottom: 0.75rem;
-  transition: transform 0.5s ease-in-out,
-    background-color,transform,  color, fill, stroke 0.5s ease-out;
+  transition: transform 0.5s ease-in-out, background-color, transform, color,
+    fill, stroke 0.5s ease-out;
 
-  svg, span {
+  svg,
+  span {
     color: #ccc;
     transition: color 0.1s ease-out;
   }
@@ -107,7 +82,8 @@ a.button {
 
 .copy-button:hover {
   border-color: #2a85ca;
-  svg, span {
+  svg,
+  span {
     color: #2a85ca;
   }
 }
@@ -129,6 +105,7 @@ a.button {
   }
 }
 
+// Company logos
 img.company-logo {
   box-shadow: none !important;
   border: none !important;
@@ -175,70 +152,13 @@ img.company-logo {
   }
 }
 
-.container {
-  margin: auto;
-  max-width: 1400px;
-}
-.page-container {
-  display: flex;
-  //padding: 2rem 0;
-}
+// github button
 
 .github-button {
   display: none;
 }
 
-.grid-body {
-  overflow: hidden;
-  padding-top: 52px;
-  width: 100%;
-
-  @media (min-width: $breakpoint-m) {
-    background: white;
-    flex-grow: 1;
-    min-width: 0;
-    overflow: auto;
-    padding-top: 0;
-  }
-}
-
-.grid-extra-space {
-  position: relative;
-  height: 470px;
-  overflow: hidden;
-  background: #ffffff;
-  // background: linear-gradient(to right, #0002, #0000 10px), linear-gradient(to right, #94b1bf00, #94b1bf); url('/img/extra-space-4.jpg') center;
-  background-size: cover;
-  background: url('/img/extra-space.png') center;
-
-  video,
-  img {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .image-attribution {
-    background: #fff9;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    text-align: center;
-    text-align: right;
-    z-index: 100;
-    letter-spacing: 0;
-    padding: 0.5rem 0.75rem;
-    font-size: 15px;
-    border-radius: 4px;
-
-    a {
-      font-weight: 600;
-      color: black;
-    }
-  }
-}
-
+// grid list
 .grid-list ul {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -248,6 +168,7 @@ img.company-logo {
   font-style: italic;
 }
 
+// grid nav
 .grid-nav-container {
   position: fixed;
   display: block;
@@ -329,6 +250,7 @@ img.company-logo {
   }
 }
 
+// grid toc
 .grid-toc {
   position: fixed;
   top: 44px;
@@ -350,7 +272,7 @@ img.company-logo {
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
     z-index: 1;
-}
+  }
 }
 
 .grid-toc-buttons {
@@ -404,6 +326,7 @@ img.company-logo {
   }
 }
 
+// HEader
 .header-link {
   padding-left: 2px;
 }
@@ -457,6 +380,7 @@ img.company-logo {
   margin: auto;
 }
 
+// highlight
 .highlight,
 .highlight-container {
   position: relative;
@@ -489,6 +413,7 @@ img.company-logo {
   color: #0c8cec;
 }
 
+// Img banner
 .img-banner {
   display: block;
   background: #f0db4f;
@@ -506,13 +431,7 @@ img.company-logo {
   }
 }
 
-.content {
-  margin-bottom: 20vh;
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 1200px;
-  flex-grow: 1;
-}
+// Markdown body
 
 .markdown-body {
   min-width: 0;
@@ -582,6 +501,66 @@ img.company-logo {
   ul {
     list-style: initial;
   }
+
+  @media (min-width: 600px) {
+    font-size: 1.1em;
+  }
+
+  blockquote,
+  p,
+  ul,
+  ol,
+  pre {
+    margin-top: 2em;
+    margin-bottom: 2em;
+  }
+
+  p {
+    line-height: 1.6;
+  }
+
+  ul {
+    margin-top: 2em;
+    margin-bottom: 2em;
+  }
+
+  li {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    line-height: 1.6;
+  }
+
+  h2 {
+    font-size: 2.5em;
+    line-height: 1.2;
+  }
+
+  blockquote {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding: 1.5rem 1rem;
+    color: #2e5e82;
+    font-size: 1.1em;
+    font-weight: 300;
+    background: linear-gradient(-30deg, #c9efd8, #f9ddff);
+    border-left: none;
+
+    @media (min-width: 860px) {
+      margin-left: -2rem;
+      margin-right: -2rem;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 2px rgba(50, 127, 177, 0.1),
+        0 1.5rem 3rem rgba(50, 125, 177, 0.1);
+    }
+
+    & *:first-child {
+      margin-top: 0;
+    }
+    & *:last-child {
+      margin-bottom: 0;
+    }
+  }
 }
 
 .markdown-body h3 .markdown-body .markdown-body ul > li > ul {
@@ -593,6 +572,25 @@ img.company-logo {
   background: #258ad622;
 }
 
+.markdown-body iframe.twitter-share-button {
+  box-shadow: none;
+  border: 0;
+}
+
+.markdown-body img.screenshot {
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+}
+
+.markdown-body embed {
+  background-color: #fff;
+  box-sizing: content-box;
+  max-width: 100%;
+  width: 100%;
+}
+
+// Menu
 .menu {
   min-height: 0;
 
@@ -653,17 +651,7 @@ img.company-logo {
   }
 }
 
-.has-navigation {
-  display: flex;
-  flex-direction: row;
-}
-.sub-navigation-column {
-  position: relative;
-  top: 52px;
-  width: 360px;
-  flex-shrink: 0;
-  padding: 10vh 0 0 3rem;
-}
+// Sub navigation
 .sub-navigation {
   overflow-y: scroll;
   max-height: calc(80vh - 100px);
@@ -685,6 +673,7 @@ img.company-logo {
   }
 }
 
+// TOC
 #toc-logo {
   display: none;
 
@@ -703,10 +692,12 @@ img.company-logo {
   }
 }
 
+// Search form
 .search-form {
   flex-grow: 1;
 }
 
+// Hidden mobile
 @media (max-width: $breakpoint-m - 1) {
   .hidden-mobile {
     display: none;
@@ -714,4 +705,44 @@ img.company-logo {
   .version-tag {
     display: none;
   }
+}
+
+// Frame
+
+.frame {
+  background-color: #0a5e9d;
+  padding: 34px 17px 10px 17px;
+  border-radius: 10px;
+  position: relative;
+  margin: 1rem 0;
+
+  &::before {
+    content: url(/img/guides/react/buttons.svg);
+    display: block;
+    position: absolute;
+    top: 5px;
+  }
+
+  &::after {
+    content: url(/img/guides/react/snowpack-logo-tiny.svg);
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 17px;
+  }
+}
+
+// Diff markdown blocks
+
+.language-diff .deleted-sign,
+.language-diff .inserted-sign .inserted {
+  user-select: none;
+}
+
+.token.inserted {
+  color: #b5cea8;
+}
+
+.token.deleted {
+  color: #ce9178;
 }

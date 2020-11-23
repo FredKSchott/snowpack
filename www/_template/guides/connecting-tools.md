@@ -1,5 +1,5 @@
 ---
-layout: layouts/guide.njk
+layout: layouts/main.njk
 title: The Snowpack Guide to connecting your favorite tools
 description: 'How do you use your favorite tools in Snowpack? This Guide will help you get started'
 tags: guides

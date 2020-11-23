@@ -10,14 +10,18 @@
 // Syntax highlighting
 @import './_prism';
 
-// Base styles
-@import './_base';
+
+// Global styles
+@import './_globals';
+
+// Layout
+@import './_layout';
+
+// Components
+@import './_components';
 
 // home page styles
 @import './home';
-
-// Guides styles
-@import './_guides';
 
 // Pages
 @import './_pluginPage';

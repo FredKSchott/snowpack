@@ -1,0 +1,45 @@
+.container {
+  margin: auto;
+  max-width: 1400px;
+}
+.page-container {
+  display: flex;
+  //padding: 2rem 0;
+}
+
+.grid-body {
+  overflow: hidden;
+  padding-top: 52px;
+  width: 100%;
+
+  @media (min-width: $breakpoint-m) {
+    background: white;
+    flex-grow: 1;
+    min-width: 0;
+    overflow: auto;
+    padding-top: 0;
+  }
+}
+
+
+.content {
+  margin-bottom: 20vh;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1200px;
+  flex-grow: 1;
+}
+
+
+
+.has-navigation {
+  display: flex;
+  flex-direction: row;
+}
+.sub-navigation-column {
+  position: relative;
+  top: 52px;
+  width: 360px;
+  flex-shrink: 0;
+  padding: 10vh 0 0 3rem;
+}
