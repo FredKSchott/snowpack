@@ -35,13 +35,13 @@ Snowpack also lets you import non-JavaScript files directly in your application.
 
 ### TypeScript
 
-Snowpack includes built-in support to build TypeScript files (`*.ts`) to JavaScript. 
+Snowpack includes built-in support to build TypeScript files (`*.ts`) to JavaScript.
 
 Note that this built-in support is build only. By default, Snowpack does not type-check your TypeScript code. To integrate type checking into your development/build workflow, add the [@snowpack/plugin-typescript](https://www.npmjs.com/package/@snowpack/plugin-typescript) plugin.
 
 ### JSX
 
-Snowpack includes built-in support to build JSX files (`*.jsx` & `*.tsx`) to JavaScript. 
+Snowpack includes built-in support to build JSX files (`*.jsx` & `*.tsx`) to JavaScript.
 
 If you are using Preact, Snowpack will detect this and switch to use the Preact-style JSX `h()` function. This is all done automatically for you. If you need to customize this behavior, consider adding the [@snowpack/plugin-babel](https://www.npmjs.com/package/@snowpack/plugin-babel) plugin for full compiler customization via Babel.
 
@@ -80,8 +80,7 @@ return <div className={styles.error}>Your Error Message</div>;
 
 Snowpack supports CSS Modules using the `[name].module.css` naming convention. Like any CSS file, importing one will automatically apply that CSS to the page. However, CSS Modules export a special default `styles` object that maps your original classnames to unique identifiers.
 
-CSS Modules help you enforce component scoping & isolation on the frontend with unique-generated  class names for your stylesheets.
-
+CSS Modules help you enforce component scoping & isolation on the frontend with unique-generated class names for your stylesheets.
 
 ### Other Assets
 
@@ -96,7 +95,6 @@ import txtReference from './words.txt'; // txt === '/src/image.png'
 
 All other assets not explicitly mentioned above can be imported via ESM `import` and will return a URL reference to the final built asset. This can be useful for referencing non-JS assets by URL, like creating an image element with a `src` attribute pointing to that image.
 
-
 ### Import NPM Packages
 
 ```js
@@ -108,4 +106,3 @@ import ReactDOM from 'react-dom';
 Snowpack lets you import npm packages directly in the browser. Even if a package was published using a legacy format, Snowpack will up-convert the package to ESM before serving it to the browser.
 
 When you start up your dev server or run a new build, you may see a message that Snowpack is "installing dependencies". This means that Snowpack is converting your dependencies to run in the browser. This only needs to run once, or until you next change your dependency tree by adding or removing dependencies.
-
