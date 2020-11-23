@@ -101,7 +101,6 @@ usersList:
 </a>
 </div>
 
-
 ## Assets
 
 - [Snowpack Logo (PNG, White)](/img/snowpack-logo-white.png)

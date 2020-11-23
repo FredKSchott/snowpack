@@ -7,7 +7,7 @@ title: Command Line API
 
 TODO
 
-### Flags 
+### Flags
 
 ```bash
 # Show helpful info

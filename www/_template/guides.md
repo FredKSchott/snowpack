@@ -16,7 +16,6 @@ Snowpack Guides are deep dives into popular Snowpack topics.
 - [Workbox](/guides/workbox)
 - [Vue](/guides/vue)
 
-
 ### Community guides
 
 PRs that add a link to this list are welcome!

@@ -3,7 +3,6 @@ layout: layouts/main.njk
 title: SSL Certificates
 ---
 
-
 <div class="notification">
 This guide has an example repo: 
 <a href="https://github.com/snowpackjs/snowpack/tree/main/examples/https-ssl-certificates/">
