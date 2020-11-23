@@ -1,5 +1,5 @@
 ---
-layout: layouts/main.njk
+layout: layouts/content.njk
 title: Bundling your Snowpack site for production
 tags: guides
 ---

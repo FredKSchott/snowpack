@@ -1,5 +1,5 @@
 ---
-layout: layouts/main.njk
+layout: layouts/content.njk
 title: 'Starting a New Project'
 ---
 

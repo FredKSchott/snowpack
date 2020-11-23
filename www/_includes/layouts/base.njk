@@ -35,6 +35,10 @@
     <section class="grid-nav-container">
       {% include 'layouts/components/nav.njk' %}
     </section>
+
+    {% if home %}
+      {% include 'layouts/components/hero.njk' %}
+    {% endif %}
     {{ content | safe }}
 
   </body>

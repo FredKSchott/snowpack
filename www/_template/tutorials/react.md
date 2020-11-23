@@ -1,5 +1,5 @@
 ---
-layout: layouts/main.njk
+layout: layouts/content.njk
 title: The Snowpack Guide to Getting Started with React
 description: 'Get started with this in-depth tutorial on how to build React applications and websites with Snowpack and developer tools like React Fast Refresh'
 date: 2020-10-01
