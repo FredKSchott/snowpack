@@ -250,30 +250,7 @@ img.company-logo {
   }
 }
 
-// grid toc
-.grid-toc {
-  position: fixed;
-  top: 44px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  padding: 1rem;
-  flex-shrink: 0;
-  flex-grow: 0;
-  overflow: auto;
-  z-index: 100;
-
-  @media (min-width: $breakpoint-m) {
-    position: sticky;
-    top: 52px;
-    width: 320px;
-    max-height: calc(100vh - 52px);
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
-    z-index: 1;
-  }
-}
+// grid toc buttons
 
 .grid-toc-buttons {
   height: 44px;
@@ -431,9 +408,13 @@ img.company-logo {
   }
 }
 
-// Markdown body
+//
+.content-title {
+  font-size: 3em;
+}
+// content body
 
-.markdown-body {
+.content-body {
   min-width: 0;
   padding: 1rem;
   h2:first-child,
@@ -563,7 +544,7 @@ img.company-logo {
   }
 }
 
-.markdown-body h3 .markdown-body .markdown-body ul > li > ul {
+.content-body h3 .content-body .content-body ul > li > ul {
   list-style: none;
   border-left: 3px solid #99d;
   padding: 0.5rem 1rem 0.6rem;
@@ -572,18 +553,18 @@ img.company-logo {
   background: #258ad622;
 }
 
-.markdown-body iframe.twitter-share-button {
+.content-body iframe.twitter-share-button {
   box-shadow: none;
   border: 0;
 }
 
-.markdown-body img.screenshot {
+.content-body img.screenshot {
   box-shadow: none;
   border: none;
   border-radius: 0;
 }
 
-.markdown-body embed {
+.content-body embed {
   background-color: #fff;
   box-sizing: content-box;
   max-width: 100%;
@@ -653,11 +634,6 @@ img.company-logo {
 
 // Sub navigation
 .sub-navigation {
-  overflow-y: scroll;
-  max-height: calc(80vh - 100px);
-  position: fixed;
-  width: 360px;
-
   hr {
     margin: 1rem 0;
   }

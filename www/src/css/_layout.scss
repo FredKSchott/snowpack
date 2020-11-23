@@ -1,45 +1,92 @@
+@import './_var';
+
 .container {
   margin: auto;
   max-width: 1400px;
 }
-.page-container {
+
+// Main
+// Two sections
+// main.njk
+.main {
   display: flex;
-  //padding: 2rem 0;
-}
-
-.grid-body {
-  overflow: hidden;
-  padding-top: 52px;
-  width: 100%;
-
-  @media (min-width: $breakpoint-m) {
-    background: white;
-    flex-grow: 1;
-    min-width: 0;
+  .grid-toc {
+    position: fixed;
+    top: 44px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    padding: 1rem;
+    flex-shrink: 0;
+    flex-grow: 0;
     overflow: auto;
-    padding-top: 0;
+    z-index: 100;
+
+    @media (min-width: $breakpoint-m) {
+      position: sticky;
+      top: 52px;
+      width: 320px;
+      max-height: calc(100vh - 52px);
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+      z-index: 1;
+    }
+  }
+  .grid-body {
+    overflow: hidden;
+    padding-top: 52px;
+    width: 100%;
+
+    @media (min-width: $breakpoint-m) {
+      background: white;
+      flex-grow: 1;
+      min-width: 0;
+      overflow: auto;
+      padding-top: 0;
+    }
   }
 }
 
-
+// Content
+// content.njk
 .content {
-  margin-bottom: 20vh;
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 1200px;
-  flex-grow: 1;
-}
+  padding: 1rem;
 
+  .content-layout {
+    @media (min-width: $breakpoint-m) {
+      display: flex;
+      flex-direction: row-reverse;
+      margin-bottom: 20vh;
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 1200px;
+      flex-grow: 1;
+    }
 
+    .content-body {
+      background: white;
+      flex-grow: 1;
+      min-width: 0;
+      overflow: auto;
+      padding-top: 0;
+    }
+    .sub-navigation-column {
+      padding: 1em 0;
+      @media (min-width: $breakpoint-m) {
+        width: 360px;
+        flex-shrink: 0;
+        padding: 10vh 0 0 3rem;
+      }
 
-.has-navigation {
-  display: flex;
-  flex-direction: row;
-}
-.sub-navigation-column {
-  position: relative;
-  top: 52px;
-  width: 360px;
-  flex-shrink: 0;
-  padding: 10vh 0 0 3rem;
+      .sub-navigation {
+        @media (min-width: $breakpoint-m) {
+          overflow-y: scroll;
+          max-height: calc(80vh - 100px);
+          position: fixed;
+          width: 360px;
+        }
+      }
+    }
+  }
 }
