@@ -10,6 +10,7 @@ interface Dependency {
   isHmrAccepted: boolean;
   needsReplacement: boolean;
   needsReplacementCount: number;
+  mtime: string | null;
 }
 
 type HMRMessage =
@@ -103,6 +104,7 @@ export class EsmHmrEngine {
       needsReplacementCount: 0,
       isHmrEnabled: false,
       isHmrAccepted: false,
+      mtime: null,
     };
     this.dependencyTree.set(sourceUrl, newEntry);
     return newEntry;
