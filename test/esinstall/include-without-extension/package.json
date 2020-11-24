@@ -1,0 +1,19 @@
+{
+  "private": true,
+  "name": "@snowpack/test-inlcude-without-extension",
+  "version": "1.0.0",
+  "scripts": {
+    "testinstall": "snowpack"
+  },
+  "snowpack": {
+    "buildOptions": {
+      "minify": false
+    }
+  },
+  "devDependencies": {
+    "snowpack": "^2.15.1"
+  },
+  "dependencies": {
+    "core-js": "^3.6.5"
+  }
+}

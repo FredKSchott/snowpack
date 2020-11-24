@@ -49,47 +49,34 @@ $ snowpack build --clean
 Example:
 
 ```js
-{
-  "install": [
-    "htm",
-    "preact",
-    "preact/hooks", // A package within a package
-    "unistore/full/preact.es.js", // An ESM file within a package (supports globs)
-    "bulma/css/bulma.css" // A non-JS static asset (supports globs)
+// Example Configuration File
+module.exports = {
+  plugins: [
+    /* ... */
   ],
-  "plugins": [ /* ... */ ],
-  "installOptions": { /* ... */ },
-  "devOptions": { /* ... */ },
-  "buildOptions": { /* ... */ },
-  "proxy": { /* ... */ },
-  "mount": { /* ... */ },
-  "alias": { /* ... */ }
-}
-```
-
-#### `config`
-
-`object` (options)
-
-See the configuration section for information on file formats and command line usage.
-
-Example:
-
-```js
-{
-  mount: {
-    public: '/',
-    src: '/_dist_',
-  },
-  plugins: ['@snowpack/plugin-babel', '@snowpack/plugin-dotenv'],
-  devOptions: {},
   installOptions: {
-    installTypes: isTS,
+    /* ... */
   },
-}
+  devOptions: {
+    /* ... */
+  },
+  buildOptions: {
+    /* ... */
+  },
+  proxy: {
+    /* ... */
+  },
+  mount: {
+    /* ... */
+  },
+  alias: {
+    /* ... */
+  },
+};
 ```
 
-Options:
+<!--
+### config.plugins
 
 - **`extends`** | `string`
   - Inherit from a separate "base" config. Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
@@ -121,44 +108,48 @@ Options:
 
 Settings that determine how Snowpack handles installing modules.
 
-Example:
+#### installOptions.dest `string`
 
-```js
-installOptions: {
-  installTypes: isTS,
-}
-```
+- _Default:`"web_modules"`_
+- Configure the install directory.
 
-Options:
+#### installOptions.sourceMap `boolean`
 
-- **`installOptions.dest`** | `string`
-  - _Default:`"web_modules"`_
-  - Configure the install directory.
-- **`installOptions.sourceMap`** | `boolean`
-  - Emit source maps for installed packages.
-- **`installOptions.env`** | `{[ENV_NAME: string]: (string | true)}`
-  - Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
-- **`installOptions.treeshake`** | `boolean`
-  - _Default:`false`, or `true` when run with `snowpack build`_
-  - Treeshake your dependencies to optimize your installed files. Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
-- **`installOptions.installTypes`** | `boolean`
-  - Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#typescript) to pick up these types.
-- **`installOptions.namedExports`** | `string[]`
-  - _NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed._
-  - Import CJS packages using named exports (Example: `import {useTable} from 'react-table'`).
-  - Example: `"namedExports": ["react-table"]`
-- **`installOptions.externalPackage`** | `string[]`
-  - _NOTE: This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser._
-  - Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
-  - Example: `"externalPackage": ["fs"]`
-- **`installOptions.packageLookupFields`** | `string[]`
-  - Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the defaults like "module", "main", etc. Useful for package ecosystems like Svelte where dependencies aren't shipped as traditional JavaScript.
-  - Example: `"packageLookupFields": ["svelte"]`
-- **`installOptions.rollup`** | `Object`
-  - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use.
-  - **`installOptions.rollup.plugins`** - Specify [Custom Rollup plugins](#installing-non-js-packages) if you are dealing with non-standard files.
-  - **`installOptions.rollup.dedupe`** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve#usage) for more documentation.
-  - **`installOptions.rollup.context`** - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning (`The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten`) is silenced by default, unless `--verbose` is used.
+- Emit source maps for installed packages.
+
+#### installOptions.env `{[ENV_NAME: string]: (string true)}`
+
+- Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
+
+#### installOptions.treeshake `boolean`
+
+- _Default:`false`, or `true` when run with `snowpack build`_
+- Treeshake your dependencies to optimize your installed files. Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
+
+#### installOptions.installTypes `boolean`
+
+- Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#typescript) to pick up these types.
+
+#### installOptions.namedExports `string[]`
+
+- _NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed._
+- Import CJS packages using named exports (Example: `import {useTable} from 'react-table'`).
+- Example: `"namedExports": ["react-table"]`
+
+#### installOptions.externalPackage `string[]`
+
+- _NOTE: This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser._
+- Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
+- Example: `"externalPackage": ["fs"]`
+
+#### installOptions.packageLookupFields `string[]`
+
+- Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the defaults like "module", "main", etc. Useful for package ecosystems like Svelte where dependencies aren't shipped as traditional JavaScript.
+- Example: `"packageLookupFields": ["svelte"]`
+
+#### installOptions.rollup `Object`
+
+- Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use.
 
 #### `config.devOptions`
 
@@ -175,81 +166,81 @@ devOptions: {
 }
 ```
 
-Options:
+### config.devOptions
 
-- **`devOptions.port`** | `number` | Default: `8080`
-  - The port number to run the dev server on.
-- **`devOptions.fallback`** | `string` | Default: `"index.html"`
-  - When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
-- **`devOptions.open`** | `string` | Default: `"default"`
-  - Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
-- **`devOptions.output`** | `"stream" | "dashboard"` | Default: `"dashboard"`
-  - Set the output mode of the `dev` console.
-  - `"dashboard"` delivers an organized layout of console output and the logs of any connected tools. This is recommended for most users and results in the best logging experience.
-  - `"stream"` is useful when Snowpack is run in parallel with other commands, where clearing the shell would clear important output of other commands running in the same shell.
-- **`devOptions.hostname`** | `string` | Default: `localhost`
-  - The hostname where the browser tab will be open.
-- **`devOptions.hmr`** | `boolean` | Default: `true`
-  - Toggles whether or not Snowpack dev server should have HMR enabled.
-- **`devOptions.hmrErrorOverlay`** | `boolean` | Default: `true`
-  - When HMR is enabled, toggles whether or not a browser overlay should display javascript errors.
-- **`devOptions.secure`** | `boolean`
-  - Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
-- **`devOptions.out`** | `string` | Default: `"build"`
-  - _NOTE:_ Deprecated, see `buildOptions.out`.
-  - The local directory that we output your final build to.
+#### devOptions.port | `number` | Default: `8080`
+
+- The port number to run the dev server on.
+
+#### devOptions.fallback | `string` | Default: `"index.html"`
+
+- When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
+
+#### devOptions.open | `string` | Default: `"default"`
+
+- Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
+
+#### devOptions.output | `"stream" | "dashboard"` | Default: `"dashboard"`
+
+- Set the output mode of the `dev` console.
+- `"dashboard"` delivers an organized layout of console output and the logs of any connected tools. This is recommended for most users and results in the best logging experience.
+- `"stream"` is useful when Snowpack is run in parallel with other commands, where clearing the shell would clear important output of other commands running in the same shell.
+
+#### devOptions.hostname | `string` | Default: `localhost`
+
+- The hostname where the browser tab will be open.
+
+#### devOptions.hmr | `boolean` | Default: `true`
+
+- Toggles whether or not Snowpack dev server should have HMR enabled.
+
+#### devOptions.hmrErrorOverlay | `boolean` | Default: `true`
+
+- When HMR is enabled, toggles whether or not a browser overlay should display javascript errors.
+
+#### devOptions.secure | `boolean`
+
+- Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
+
+#### devOptions.out | `string` | Default: `"build"`
+
+- _NOTE:_ Deprecated, see `buildOptions.out`.
+- The local directory that we output your final build to.
 
 #### `config.buildOptions`
 
-`object` (options)
+#### buildOptions.out | `string` | Default: `"build"`
 
-Determines how Snowpack processes the final build.
+- The local directory that we output your final build to.
 
-Example:
+#### buildOptions.baseUrl | `string` | Default: `/`
 
-```js
-buildOptions: {
-  sourceMaps: true,
-  baseUrl: '/home',
-  metaDir: 'static/snowpack',
-  webModulesUrl: 'web'
-}
-```
+- In your HTML, replace all instances of `%PUBLIC_URL%` with this (inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept). This is useful if your app will be deployed to a subdirectory. _Note: if you have `homepage` in your `package.json`, Snowpack will actually pick up on that, too._
 
-Options:
+#### buildOptions.clean | `boolean` | Default: `false`
 
-- **`buildOptions.out`** | `string` | Default: `"build"`
-  - The local directory that we output your final build to.
-- **`buildOptions.baseUrl`** | `string` | Default: `/`
-  - In your HTML, replace all instances of `%PUBLIC_URL%` with this (inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept). This is useful if your app will be deployed to a subdirectory. _Note: if you have `homepage` in your `package.json`, Snowpack will actually pick up on that, too._
-- **`buildOptions.clean`** | `boolean` | Default: `false`
-  - Set to `true` if Snowpack should erase the build folder before each build.
-- **`buildOptions.metaDir`** | `string` | Default: `__snowpack__`
-  - By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
-- **`buildOptions.sourceMaps`** | `boolean` | Default: `false`
-  - **_Experimental:_** Set to `true` to enable source maps
-- **`buildOptions.webModulesUrl`** | `string` | Default: `web_modules`
-  - Rename your web modules directory.
+- Set to `true` if Snowpack should erase the build folder before each build.
+
+#### buildOptions.metaDir | `string` | Default: `__snowpack__`
+
+- By default, Snowpack outputs Snowpack-related metadata such as [HMR](#hot-module-replacement) and [ENV](#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
+
+#### buildOptions.sourceMaps | `boolean` | Default: `false`
+
+- **_Experimental:_** Set to `true` to enable source maps
+
+#### buildOptions.webModulesUrl | `string` | Default: `web_modules`
+
+- Rename your web modules directory.
 
 #### `config.testOptions`
 
 `object` (options)
 
-Settings that determine how the Snowpack test environment behaves.
+#### testOptions.files | `string[]` | Default: `["__tests__/**/*", "**/*.@(spec|test).*"]`
 
-Example:
-
-```js
-testOptions: {
-  files: ['my-test-dir/*.test.js'];
-}
-```
-
-Options:
-
-- **`testOptions.files`** | `string[]` | Default: `["__tests__/**/*", "**/*.@(spec|test).*"]`
-  - The location of all test files.
-  - All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
+- The location of all test files.
+- All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
 
 #### `config.proxy`
 
@@ -364,3 +355,28 @@ Example:
   }
 }
 ```
+
+### Environment Variables
+
+```js
+// `import.meta.env` - Read process.env variables in your web app
+fetch(`${import.meta.env.SNOWPACK_PUBLIC_API_URL}/users`).then(...)
+
+// Supports destructuring as well:
+const {SNOWPACK_PUBLIC_API_URL} = import.meta.env;
+fetch(`${SNOWPACK_PUBLIC_API_URL}/users`).then(...)
+
+// Instead of `import.meta.env.NODE_ENV` use `import.meta.env.MODE`
+if (import.meta.env.MODE === 'development') {
+  // ...
+```
+
+You can read environment variables directly in your web application via `import.meta.env`. If you've ever used `process.env` in Create React App or any Webpack application, this behaves exactly the same.
+
+For your safety, Snowpack only supports environment variables that begin with `SNOWPACK_PUBLIC_*`. We do this because everything in your web application is sent to the browser, and we don't want you to accidentally share sensitive keys/env variables with your public web application. Prefixing your frontend web env variables with `SNOWPACK_PUBLIC_` is a good reminder that they will be shared with the world.
+
+`import.meta.env.MODE` and `import.meta.env.NODE_ENV` are also both set to the current `process.env.NODE_ENV` value, so that you can change app behavior based on dev vs. build. The env value is set to `development` during `snowpack dev` and `production` during `snowpack build`. Use this in your application instead of `process.env.NODE_ENV`.
+
+You can use environment variables in HTML files. All occurrences of `%SNOWPACK_PUBLIC_*%`, `%PUBLIC_URL%`, and `%MODE%` will be replaced at build time.
+
+**Remember:** that these env variables are statically injected into your application for everyone at **build time**, and not runtime.
