@@ -1,9 +1,6 @@
 // vars
 @import './_var';
 
-// Reset
-@import './_minireset';
-
 // GitHub markdown styles
 @import './_github-markdown';
 
@@ -13,12 +10,17 @@
 // Global styles
 @import './_globals';
 
+// Typography
+@import './_typography';
+
 // Layout
 @import './_layout';
 
 // Components
 @import './_components';
 @import './_menu';
+@import './_hero';
+
 // home page styles
 @import './home';
 

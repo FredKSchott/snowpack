@@ -172,7 +172,7 @@ img.company-logo {
 
 // grid nav
 .grid-nav-container {
-  position: fixed;
+  position: sticky;
   display: block;
   top: 0;
   z-index: 100;
@@ -306,59 +306,6 @@ img.company-logo {
   }
 }
 */
-// Header
-.header-link {
-  padding-left: 2px;
-}
-
-.header-logo {
-  float: left;
-  display: flex;
-  align-items: center;
-  font-weight: bold;
-  font-size: 36px;
-  line-height: 1;
-  margin: 0 -20px 0 0;
-
-  @media (min-width: $breakpoint-m) {
-    margin: 0 20px 0 0;
-  }
-
-  svg {
-    color: #fff;
-    padding: 0;
-    margin-left: 2px;
-    margin-right: 8px;
-    height: 31px;
-    width: 31px;
-  }
-}
-
-.header-snowpack {
-  font-size: 4.5rem;
-  text-align: center;
-  letter-spacing: -0.045em;
-  line-height: 1;
-  font-weight: 900;
-  margin: 0 auto 0.75rem;
-  opacity: 0.9;
-
-  @media (min-width: $breakpoint-m) {
-    font-size: 5.75rem;
-    max-width: none;
-    opacity: 1;
-  }
-}
-
-.header-snowpack-subtitle {
-  text-align: center;
-  font-size: 3rem;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: -1px;
-  margin: 0;
-  margin: auto;
-}
 
 // highlight
 .highlight,
@@ -414,164 +361,9 @@ img.company-logo {
 //
 .content-title {
   font-size: 3em;
-}
-// content body
+  line-height: 1em;
+  letter-spacing: -0.05em;
 
-.content-body {
-  min-width: 0;
-  padding: 1rem;
-  h2:first-child,
-  h3:first-child,
-  h4:first-child {
-    padding-top: 0;
-  }
-
-  h2,
-  h3,
-  h4 {
-    .header-link {
-      margin-left: 0.25rem;
-      opacity: 1;
-      transition: opacity 100ms ease-in-out;
-      color: #2e5e82;
-
-      @media (min-width: $breakpoint-m) {
-        opacity: 0;
-      }
-    }
-  }
-
-  h2 code,
-  h3 code,
-  h4 code {
-    font-size: inherit;
-  }
-
-  h2 {
-    font-size: 3em;
-  }
-
-  h3 {
-    margin-top: -60px;
-    padding-top: 90px;
-
-    &:hover .header-link {
-      opacity: 1;
-    }
-  }
-
-  h4 {
-    text-transform: uppercase;
-    text-decoration: none;
-    font-weight: bold;
-    letter-spacing: 1px;
-
-    &:hover .header-link {
-      opacity: 1;
-    }
-  }
-
-  iframe,
-  img {
-    box-shadow: 0 5px 12px 0 #ccc;
-    border: 1px solid #aaa;
-    border-radius: 3px;
-  }
-
-  pre {
-    padding: 2rem;
-  }
-
-  ul {
-    list-style: initial;
-  }
-
-  @media (min-width: 600px) {
-    font-size: 1.1em;
-  }
-
-  blockquote,
-  p,
-  ul,
-  ol,
-  pre {
-    margin-top: 2em;
-    margin-bottom: 2em;
-  }
-
-  p {
-    line-height: 1.6;
-  }
-
-  ul {
-    margin-top: 2em;
-    margin-bottom: 2em;
-  }
-
-  li {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-    line-height: 1.6;
-  }
-
-  h2 {
-    font-size: 2.5em;
-    line-height: 1.2;
-  }
-
-  blockquote {
-    margin-left: -1rem;
-    margin-right: -1rem;
-    padding: 1.5rem 1rem;
-    color: #2e5e82;
-    font-size: 1.1em;
-    font-weight: 300;
-    background: linear-gradient(-30deg, #c9efd8, #f9ddff);
-    border-left: none;
-
-    @media (min-width: 860px) {
-      margin-left: -2rem;
-      margin-right: -2rem;
-      padding: 2rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 1px 2px rgba(50, 127, 177, 0.1),
-        0 1.5rem 3rem rgba(50, 125, 177, 0.1);
-    }
-
-    & *:first-child {
-      margin-top: 0;
-    }
-    & *:last-child {
-      margin-bottom: 0;
-    }
-  }
-}
-
-.content-body h3 .content-body .content-body ul > li > ul {
-  list-style: none;
-  border-left: 3px solid #99d;
-  padding: 0.5rem 1rem 0.6rem;
-  margin: 0.5rem 0;
-  border-left: 6px solid #2e5e82;
-  background: #258ad622;
-}
-
-.content-body iframe.twitter-share-button {
-  box-shadow: none;
-  border: 0;
-}
-
-.content-body img.screenshot {
-  box-shadow: none;
-  border: none;
-  border-radius: 0;
-}
-
-.content-body embed {
-  background-color: #fff;
-  box-sizing: content-box;
-  max-width: 100%;
-  width: 100%;
 }
 
 // TOC
@@ -646,54 +438,4 @@ img.company-logo {
 
 .token.deleted {
   color: #ce9178;
-}
-
-// Hero
-
-.hero {
-  background: #2a85ca40;
-  border-bottom: 1px solid #0003;
-  color: #111;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1.5;
-  margin-top: 2em;
-
-  @media (min-width: $breakpoint-l) {
-    margin: 0;
-  }
-  background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 512' title='mountain' class='logo' fill='%23FFFB'%3E%3Cpath d='M634.92 462.7l-288-448C341.03 5.54 330.89 0 320 0s-21.03 5.54-26.92 14.7l-288 448a32.001 32.001 0 0 0-1.17 32.64A32.004 32.004 0 0 0 32 512h576c11.71 0 22.48-6.39 28.09-16.67a31.983 31.983 0 0 0-1.17-32.63zM320 91.18L405.39 224H320l-64 64-38.06-38.06L320 91.18z' /%3E%3C/svg%3E");
-  background-size: 50%;
-  min-height: 50vh;
-  background-position: calc(100% + 100px) calc(100% + 64px);
-  background-repeat: no-repeat;
-  a {
-    color: white;
-  }
-
-  > svg {
-    margin: auto;
-    display: block;
-    opacity: 0.9;
-  }
-
-  .logo {
-    width: 100%;
-    position: absolute;
-    right: 0px;
-  }
-  .logo path {
-    fill: #fff;
-  }
-
-  .section {
-    padding: 1rem * 2;
-  }
-}
-
-.hero-cta {
-  margin: 1.5rem auto 0;
-  display: flex;
-  justify-content: center;
 }

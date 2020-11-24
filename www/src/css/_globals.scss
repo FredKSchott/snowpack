@@ -1,31 +1,31 @@
 @import './_var';
 
+html,
+body {
+  margin: 0;
+}
+
 body,
 html {
   font-family: $body;
 }
 
 * {
-  position: relative;
   box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 p {
   line-height: 1.5;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
 .header-logo,
 .header-snowpack,
 .header-snowpack-subtitle,
-.markdown-body h1,
-.markdown-body h2,
-.markdown-body h3,
 .pretty-font,
 .version-number {
   font-family: $heading;
