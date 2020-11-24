@@ -453,7 +453,7 @@ ${colors.dim(
       if (isFatalWarningFound) {
         throw new Error(FAILED_INSTALL_MESSAGE);
       }
-      logger.debug(`writing install results to disk`);
+      logger.debug(`writing install results to disk with options: ${util.format(outputOptions)}`);
       await packageBundle.write(outputOptions);
     } catch (_err) {
       const err: RollupError = _err;

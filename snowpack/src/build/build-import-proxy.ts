@@ -107,6 +107,7 @@ export function wrapHtmlResponse({
     }
     code = appendHtmlToHead(code, hmrScript);
   }
+  logger.debug(code)
   return code;
 }
 
