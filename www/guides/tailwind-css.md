@@ -1,25 +1,25 @@
 ---
 layout: layouts/main.njk
-title: "Tailwind CSS"
+title: 'Tailwind CSS'
 ---
 
 [Tailwind](https://tailwindcss.com) is a popular class-based CSS utility library.
 
 ### Using Tailwind with Native CSS
 
-The easiest way to use Tailwind is via native CSS `@import` *or* JS `import`. 
+The easiest way to use Tailwind is via native CSS `@import` _or_ JS `import`.
 
 ```css
 /* index.css */
 @import 'tailwindcss/dist/tailwind.css';
 ```
+
 ```js
 /* index.js */
 import 'tailwindcss/dist/tailwind.css';
 ```
 
 This imports Tailwind's full CSS build into your application. This simple usage comes at the cost of performance: Tailwind's full CSS build is 3.5+ MB of CSS. For any serious production use, the Tailwind team **strongly** recommends using PostCSS.
-
 
 #### Using Tailwind with PostCSS
 

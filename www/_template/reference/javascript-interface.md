@@ -13,7 +13,7 @@ import {startDevServer} from 'snowpack';
 const server = await startDevServer({ ... });
 ```
 
-Snowpack is most commonly used via the command-line. However, Snowpack also ships a JavaScript API for anyone who wants to integrate with some custom build pipeline or server-side rendering engine. 
+Snowpack is most commonly used via the command-line. However, Snowpack also ships a JavaScript API for anyone who wants to integrate with some custom build pipeline or server-side rendering engine.
 
 For example, [SvelteKit](https://svelte.dev/blog/whats-the-deal-with-sveltekit) -- the Svelte team's official app framework -- uses Snowpack's JavaScript API to build a custom SSR engine on top of Snowpack.
 

@@ -48,17 +48,13 @@ const buildResult = await server.loadUrl(req.url);
 
 Note that you'll still need to set up static file serving out of the `build/` directory for production deployments. For that reason, this can be seen as an enhancement over the static setup in Option 1 for faster development speeds.
 
-
-
 ### Connecting Development Builds
 
-You'll also want to make sure to connect & enable HMR for automatic browser updates on file change. 
+You'll also want to make sure to connect & enable HMR for automatic browser updates on file change.
 
 ### Connecting Production Builds
 
-Similar to development, you'll want to make sure that 
-
-
+Similar to development, you'll want to make sure that
 
 To connect your custom server to `snowpack dev` for development, make sure that your HTML server response includes `script` & `link` tags to load your Snowpack-built JavaScript and CSS, respectively:
 

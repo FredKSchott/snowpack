@@ -8,7 +8,7 @@ Snowpack implements the [esm-hmr](https://github.com/pikapkg/esm-hmr) spec, an a
 ```js
 // HMR Code Snippet Example
 if (import.meta.hot) {
-  import.meta.hot.accept(({ module }) => {
+  import.meta.hot.accept(({module}) => {
     // Accept the module, apply it into your application.
   });
 }
