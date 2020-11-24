@@ -107,7 +107,7 @@ export function wrapHtmlResponse({
     }
     code = appendHtmlToHead(code, hmrScript);
   }
-  logger.debug(code)
+  logger.debug(`The entire Html code:\n${code}`)
   return code;
 }
 
