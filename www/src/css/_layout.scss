@@ -12,22 +12,22 @@
   display: flex;
   .grid-toc {
     position: fixed;
-    top: 44px;
+    top: $nav-height;
     left: 0;
     right: 0;
     bottom: 0;
-    width: 100vw;
-    padding: 1rem;
+    width: 100%;
     flex-shrink: 0;
     flex-grow: 0;
     overflow: auto;
     z-index: 100;
 
     @media (min-width: $breakpoint-m) {
+      padding: 1rem;
       position: sticky;
-      top: 52px;
+      top: $nav-height;
       width: 320px;
-      max-height: calc(100vh - 52px);
+      max-height: calc(100vh - $nav-height);
       overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
       z-index: 1;
@@ -35,7 +35,7 @@
   }
   .grid-body {
     overflow: hidden;
-    padding-top: 52px;
+    padding-top: $nav-height;
     width: 100%;
 
     @media (min-width: $breakpoint-m) {
