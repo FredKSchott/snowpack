@@ -10,7 +10,7 @@ path: /catalog/shape/
 
 Shapes direct attention, identify components, communicate state, and express brand.
 
-> Currently shape system for web only supports rounded corners.
+> Currently shape system for web supports only rounded corners.
 
 ## Design & API Documentation
 

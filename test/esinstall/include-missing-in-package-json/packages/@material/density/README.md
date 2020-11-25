@@ -64,7 +64,7 @@ Here are the components that do provide density Sass mixins:
 
 Components that supports density provides Sass mixins to customize density for that component. Each density mixin takes in a density scale number, e.g. 0 (the default) or -1 (higher density).
 
-Currently, the density system only allows negative numbers to customize for high density. The lower the density scale, the higher the component density. The exact density scale range depends on the component. If the scale number is unsupported by the component density mixin, the compiler will report an error at build time.
+Currently, the density system allows only negative numbers to customize for high density. The lower the density scale, the higher the component density. The exact density scale range depends on the component. If the scale number is unsupported by the component density mixin, the compiler will report an error at build time.
 
 The height or size of a component is calculated with the following formula:
 

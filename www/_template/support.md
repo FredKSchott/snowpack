@@ -45,7 +45,7 @@ This could occur if you're attempting to import a named interface or other type 
 
 ## Installing Non-JS Packages
 
-When installing packages from npm, you may encounter some file formats that can only run with additional parsing/processing. First check to see if there is a [Snowpack plugin for the type of file](#plugins).
+When installing packages from npm, you may encounter some file formats that can run only with additional parsing/processing. First check to see if there is a [Snowpack plugin for the type of file](#plugins).
 
 Because our internal installer is powered by Rollup, you can also add Rollup plugins to your [Snowpack config](#configuration) to handle these special, rare files:
 

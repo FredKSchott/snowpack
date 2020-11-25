@@ -252,7 +252,7 @@ export function toggleClass(element, className) {
 }
 ```
 
-This not only reduces the complexity of your component class, but allows for the functionality of complex adapters to be adequately tested:
+This not only reduces the complexity of your component class, but also allows for the functionality of complex adapters to be adequately tested:
 
 ```javascript
 test('toggleClass() removes a class when present on an element', t => {

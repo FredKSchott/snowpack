@@ -28,11 +28,11 @@ npm install @material/rtl
 
 ### Sass Mixins
 
-`rtl` is the most flexible mixin, because it can work with multiple CSS properties. All other RTL mixins logic could be engineered by only using `rtl`, but we provide these mixins for convenience.
+`rtl` is the most flexible mixin, because it can work with multiple CSS properties. All other RTL mixins logic could be engineered by using only `rtl`, but we provide these mixins for convenience.
 
 Both `reflexive-property` and `reflexive-box` work with one base box-model property, e.g. margin, border, padding. But `reflexive-property` is more flexible because it accepts different left and right values. `reflexive-box` assumes the left and right values are the same, and therefore that the box-model is symmetrical.
 
-`reflexive-position` is the least flexible mixin. It only works with one horizontal position property, "left" or "right". It also assumes the left and right values are the same.
+`reflexive-position` is the least flexible mixin. It works with only one horizontal position property, "left" or "right". It also assumes the left and right values are the same.
 
 | Mixin | Description |
 | ----------------------------------------------- | - |
