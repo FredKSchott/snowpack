@@ -39,7 +39,7 @@
 }
 .button:hover {
   box-shadow: 0 2px 2px 0 #2e5e82aa;
-  transform: scale(1.02);
+  transform: translateY(-1px);
 }
 a.button {
   text-decoration: none !important;
@@ -83,7 +83,7 @@ a.button {
 
   &:hover {
     box-shadow: 0 2px 2px 0 #2e5e8266;
-    transform: scale(1.02);
+    transform: translateY(-1px);
   }
 }
 
