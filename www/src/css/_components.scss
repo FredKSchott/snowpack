@@ -49,6 +49,11 @@ a.button {
   background: linear-gradient(45deg, #24bf62, #267dd6, #b224d0);
 }
 
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 // Copy button
 
 .copy-button {
@@ -363,7 +368,6 @@ img.company-logo {
   font-size: 3em;
   line-height: 1em;
   letter-spacing: -0.05em;
-
 }
 
 // TOC
@@ -438,4 +442,30 @@ img.company-logo {
 
 .token.deleted {
   color: #ce9178;
+}
+
+// Anchor links on hover
+.content {
+  h2,
+  h3,
+  h4 {
+    .header-link {
+      margin-left: 0.25rem;
+      opacity: 1;
+      transition: opacity 100ms ease-in-out;
+      color: #2e5e82;
+
+      @media (min-width: $breakpoint-m) {
+        opacity: 0;
+      }
+    }
+  }
+
+  h2,
+  h3,
+  h4 {
+    &:hover .header-link {
+      opacity: 1;
+    }
+  }
 }

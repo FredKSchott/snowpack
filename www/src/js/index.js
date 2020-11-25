@@ -106,13 +106,15 @@ gridTocEl.addEventListener('click', (e) => {
   */
 
 window.addEventListener('DOMContentLoaded', (event) => {
+   console.log("here")
   if (!tableOfContentsEl) {
     return;
   }
   setActiveToc();
   document
-    .querySelectorAll('.markdown-body h3, .markdown-body h4')
+    .querySelectorAll('.content h2, .content h3')
     .forEach((headerEl) => {
+      console.log("link needed")
       const linkEl = document.createElement('a');
       // linkEl.setAttribute('target', "_blank");
       linkEl.setAttribute('href', '#' + headerEl.id);
