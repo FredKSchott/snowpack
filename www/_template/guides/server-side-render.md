@@ -3,19 +3,15 @@ layout: layouts/main.njk
 title: Server-Side Rendering (SSR)
 ---
 
-<div class="notification">
-Status: Experimental 
-</div>
-
 Server-side rendering (SSR) refers to several similar developer stories:
 
-- Using Snowpack with a server web framework like Rails or Laravel
+- Using Snowpack with a server web framework like Rails or Express
 - Using Snowpack with a server-side frontend framework kit like Next.js or SvelteKit
 - Any site configuration where your HTML is generated at runtime, outside of your static build.
 
-This guide will walk you through two different options for setting up Snowpack with your own custom server:
+This guide will walk you through three different options for setting up Snowpack with your own custom server:
 
-1. `snowpack build --watch` - Serve Snowpack-built files out of the static build directory
+1. `snowpack build --watch` - Load files out of the static build directory
 2. `startDevServer({ ... })` - Load files on-demand via Snowpack's JavaScript API
 
 ### Option 1: Static
@@ -23,7 +19,7 @@ This guide will walk you through two different options for setting up Snowpack w
 Serving built files directly out of Snowpack's `build/` directory is the easiest way to get started with Snowpack. Run `snowpack build` to build your site to a static directory, and then make sure that your HTML server response includes the appropriate `script` & `link` tags to load your Snowpack-built JavaScript and CSS:
 
 ```html
-<!-- Example: Include the Snowpack-built `./build/dist/index.js` in your HTML response -->
+<!-- Example: If you own the server HTML response, make sure that you host the built assets and load the correct JS/CSS files in your HTML.  -->
 <script type="module" src="/dist/index.js"></script>
 ```
 
@@ -33,36 +29,51 @@ This setup also has the benefit of pulling from the same `build/` directory in b
 
 The downside of this static approach is that you need to wait for Snowpack to build the entire `build/` directory on startup before your site will run. This is something that all other build tools (like Webpack) have to deal with, but Snowpack has the ability to only build files when they are requested by the browser, leading to ~0ms startup wait time.
 
-### Option 2: On-Demand
+### Option 2: On Demand (Middleware)
 
-To load files on-demand, you'll need to leverage Snowpack's JavaScript API:
+<div class="notification">
+Status: Experimental 
+</div>
+
+The best developer experience is achieved by loading files on-demand. This removes any need for work on startup, giving you a faster developer environment no matter how large your project grows.
+
 
 ```js
-// JS API Example
 import {startDevServer} from 'snowpack';
 const server = await startDevServer({ ... });
+
+// Example: Express
 // On request, build each file on request and respond with its built contents
-// Example: res.send(buildResult.contents);
-const buildResult = await server.loadUrl(req.url);
+app.use((req, res, next) => {
+  try {
+    const buildResult = await server.loadUrl(req.url);
+    res.send(buildResult.contents);
+  } catch (err) {
+    next(err);
+  }
+});
 ```
 
 Note that you'll still need to set up static file serving out of the `build/` directory for production deployments. For that reason, this can be seen as an enhancement over the static setup in Option 1 for faster development speeds.
 
+### Bonus Option 3: via Snowpack Dev Server
 
+If your application is written in JavaScript exposed through a traditional Express-style JavaScript middleware function (`(req, res, next) => ...`) then you can integrate your application logic directly into Snowpack's dev server via `experiments.app`:
 
-### Connecting Development Builds
-
-You'll also want to make sure to connect & enable HMR for automatic browser updates on file change. 
-
-### Connecting Production Builds
-
-Similar to development, you'll want to make sure that 
-
-
-
-To connect your custom server to `snowpack dev` for development, make sure that your HTML server response includes `script` & `link` tags to load your Snowpack-built JavaScript and CSS, respectively:
-
-```html
-<!-- Example: Load the Snowpack-built `dist/index.js` file in your server HTML response -->
-<script type="module" src="/dist/index.js"></script>
+```js
+// Example snowpack.config.js
+"experiments": {
+  "app": (req, res, next) => {
+    if (req.url === '/home') {
+      // Implement your own response.
+    }
+    if (req.url.startsWith('/api')) {
+      // Works to add API endpoints as well!
+    }
+    // Otherwise, let Snowpack's dev server handle it.
+    next();
+  }
+}
 ```
+
+This can be great for rapid development and prototyping, but note that this support is limited: Snowpack's dev server is not designed to be run in production. For any real-world usage, you'll still want to run your own server logic using either of the other options outlined above.
