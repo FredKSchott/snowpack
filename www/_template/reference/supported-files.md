@@ -105,4 +105,4 @@ import ReactDOM from 'react-dom';
 
 Snowpack lets you import npm packages directly in the browser. Even if a package was published using a legacy format, Snowpack will up-convert the package to ESM before serving it to the browser.
 
-When you start up your dev server or run a new build, you may see a message that Snowpack is "installing dependencies". This means that Snowpack is converting your dependencies to run in the browser. This only needs to run once, or until you next change your dependency tree by adding or removing dependencies.
+When you start up your dev server or run a new build, you may see a message that Snowpack is "installing dependencies". This means that Snowpack is converting your dependencies to run in the browser. This needs to run only once, or until you next change your dependency tree by adding or removing dependencies.

@@ -47,6 +47,6 @@ These options are camelCased equivalents of the [Sass CLI Options][sass-options]
 | `embedSources`   |           `boolean`            | Embed source file contents in source maps (default: `false`).                                           |
 | `embedSourceMap` |           `boolean`            | Embed source map contents in CSS (default: `false`).                                                    |
 | `charset`        |           `boolean`            | Emit a `@charset` or BOM for CSS with non-ASCII characters. (default: `true`).                          |
-| `update`         |           `boolean`            | Only compile out-of-date stylesheets (default: `false`).                                                |
+| `update`         |           `boolean`            | Compile only out-of-date stylesheets (default: `false`).                                                |
 
 [sass-options]: https://sass-lang.com/documentation/cli/dart-sass#options

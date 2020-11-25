@@ -56,7 +56,7 @@ Consuming component styles:
 
 Mixin | Description
 --- | ---
-`targets($feature-targets...)` | Conditionalizes content to only be emitted if the given feature target(s) is/are queried.
+`targets($feature-targets...)` | Conditionalizes content to be emitted only if the given feature target(s) is/are queried.
 
 Function | Description
 --- | ---
