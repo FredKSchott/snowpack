@@ -88,7 +88,8 @@ document.getElementById('toc-drawer-button').addEventListener('click', (e) => {
   );
 });
 gridTocEl.addEventListener('click', (e) => {
-  gridTocEl.classList.add('hidden-mobile');
+  console.log("testing")
+  ridTocEl.classList.add('hidden-mobile');
   document.body.style.position = '';
 });
 /* May not be needed:
@@ -106,7 +107,6 @@ gridTocEl.addEventListener('click', (e) => {
   */
 
 window.addEventListener('DOMContentLoaded', (event) => {
-   console.log("here")
   if (!tableOfContentsEl) {
     return;
   }
@@ -114,7 +114,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
   document
     .querySelectorAll('.content h2, .content h3')
     .forEach((headerEl) => {
-      console.log("link needed")
       const linkEl = document.createElement('a');
       // linkEl.setAttribute('target', "_blank");
       linkEl.setAttribute('href', '#' + headerEl.id);

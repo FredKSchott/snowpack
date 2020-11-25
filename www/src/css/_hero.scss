@@ -50,29 +50,6 @@
   padding-left: 2px;
 }
 
-.header-logo {
-  float: left;
-  display: flex;
-  align-items: center;
-  font-weight: bold;
-  font-size: 36px;
-  line-height: 1;
-  margin: 0 -20px 0 0;
-
-  @media (min-width: $breakpoint-m) {
-    margin: 0 20px 0 0;
-  }
-
-  svg {
-    color: #fff;
-    padding: 0;
-    margin-left: 2px;
-    margin-right: 8px;
-    height: 31px;
-    width: 31px;
-  }
-}
-
 .header-snowpack {
   font-size: 3.5rem;
   text-align: center;

@@ -1,0 +1,19 @@
+@import './_var';
+
+// Search form
+.search-form {
+  text-align: center;
+
+  input {
+    border: 1px solid #0006;
+    border-radius: 4px;
+    font-size: 100%;
+    font-family: Menlo, ui-monospace, SFMono-Regular, Monaco, Consolas,
+      Liberation Mono, Courier New, monospace;
+    line-height: 1.5rem;
+    padding: 0.75rem 1.25rem;
+    padding-bottom: 0.75rem;
+    transition: transform 0.5s ease-in-out, background-color, transform, color,
+      fill, stroke 0.5s ease-out;
+  }
+}

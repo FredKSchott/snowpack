@@ -190,14 +190,18 @@ img.company-logo {
   }
 }
 
+.nav-links {
+  display: flex;
+  align-items: center;
+}
+
 .grid-nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
 
+  padding: 1rem;
+  justify-content: space-between;
   @media (min-width: $breakpoint-m) {
-    justify-content: left;
   }
 
   img,
@@ -237,7 +241,28 @@ img.company-logo {
       border-bottom: 2px solid #fff8;
     }
   }
+  .header-logo {
+    float: left;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 36px;
+    line-height: 1;
+    margin: 0 -20px 0 0;
 
+    @media (min-width: $breakpoint-m) {
+      margin: 0 20px 0 0;
+    }
+
+    svg {
+      color: #fff;
+      padding: 0;
+      margin-left: 2px;
+      margin-right: 8px;
+      height: 31px;
+      width: 31px;
+    }
+  }
   a.version-number {
     font-size: 22px;
     font-weight: bold;
@@ -256,61 +281,6 @@ img.company-logo {
     margin-left: 8px;
   }
 }
-
-// grid toc buttons
-// unsure if being used
-/*
-.grid-toc-buttons {
-  height: 44px;
-  flex-grow: 1;
-  background: #457396;
-  background: #2e5e82;
-  padding: 0.5rem 0.5rem;
-
-  svg,
-  img {
-    height: 28px;
-    width: 28px;
-    padding: 4px;
-    display: inline-block;
-    color: #fffb;
-  }
-
-  svg:hover {
-    color: #fff;
-  }
-
-  img {
-    filter: grayscale(90%);
-
-    &:hover {
-      filter: none;
-    }
-  }
-
-  a {
-    float: right;
-    color: white;
-    text-decoration: none;
-  }
-
-  .header-logo {
-    float: left;
-    display: flex;
-    align-items: center;
-    font-weight: bold;
-    font-size: 22px;
-    line-height: 1;
-
-    svg {
-      color: #fff;
-      padding: 0;
-      margin-left: 2px;
-      margin-right: 8px;
-    }
-  }
-}
-*/
 
 // highlight
 .highlight,
@@ -381,17 +351,11 @@ img.company-logo {
 
 #toc-drawer-button {
   display: inline-block;
-  margin: 0 auto 0 0;
 
   @media (min-width: $breakpoint-m) {
     display: none;
     margin: 0 12px 0 0;
   }
-}
-
-// Search form
-.search-form {
-  flex-grow: 1;
 }
 
 // Hidden mobile
