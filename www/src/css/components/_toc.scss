@@ -1,0 +1,27 @@
+/**
+ * Table of Contents (toc)
+ * The left-hand sidebar
+ */
+
+.snow-toc {
+  position: fixed;
+  top: $nav-height;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  flex-shrink: 0;
+  flex-grow: 0;
+  overflow: auto;
+  z-index: 100;
+
+  @media (min-width: $breakpoint-m) {
+    position: sticky;
+    top: $nav-height;
+    width: 320px;
+    max-height: calc(100vh - $nav-height);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    z-index: 1;
+  }
+}

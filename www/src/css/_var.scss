@@ -9,18 +9,21 @@ $breakpoint-m: 860px;
 $breakpoint-l: 1000px;
 
 // nav bar height mobile
-
-$nav-height: 62px;
+$nav-height: 48px;
 
 // colors
+$blue: #0a5e9d;
+$dark-blue: #2e5e82;
+$lightest-blue: #cfe2f2;
+$orange: #fa6400;
 
-$color-primary: #2e5e82;
-$color-secondary: #0a5e9d;
-$color-light: #cfe2f2;
-$color-strong-contrast: #fa6400;
+$color-primary: $dark-blue;
+$color-secondary: $blue;
+$color-light: $lightest-blue;
+$color-strong-contrast: $orange;
 $grey: #717171;
 $dark-grey: #393939;
-$light-grey: #C1C1C1;
+$light-grey: #c1c1c1;
 $darkest-grey: #333333;
 $white: #ffffff;
 

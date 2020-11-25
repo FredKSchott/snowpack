@@ -61,18 +61,18 @@ function setActiveToc() {
     // if (window.innerWidth >= 860) {
     //   tocEl.scrollIntoView({behavior: 'smooth'});
     // }
-      //   {
-      //   top:
-      //     tocEl.getBoundingClientRect().top + gridTocEl.scrollTop - PADDING_TOP,
-      //   behavior: 'smooth',
-      // });
+    //   {
+    //   top:
+    //     tocEl.getBoundingClientRect().top + gridTocEl.scrollTop - PADDING_TOP,
+    //   behavior: 'smooth',
+    // });
     return;
   }
 }
 
 const gridBodyEl = document.getElementById('grid-body');
 const tableOfContentsEl = document.querySelector('.sub-navigation .toc');
-const gridTocEl = document.querySelector('.grid-toc');
+const gridTocEl = document.querySelector('.snow-toc');
 gridBodyEl.addEventListener('scroll', debounce(setActiveToc));
 window.addEventListener('scroll', debounce(setActiveToc));
 
@@ -106,24 +106,21 @@ gridTocEl.addEventListener('click', (e) => {
   */
 
 window.addEventListener('DOMContentLoaded', (event) => {
-   console.log("here")
+  console.log('here');
   if (!tableOfContentsEl) {
     return;
   }
   setActiveToc();
-  document
-    .querySelectorAll('.content h2, .content h3')
-    .forEach((headerEl) => {
-      console.log("link needed")
-      const linkEl = document.createElement('a');
-      // linkEl.setAttribute('target', "_blank");
-      linkEl.setAttribute('href', '#' + headerEl.id);
-      linkEl.classList.add('header-link');
-      linkEl.innerText = '#';
-      headerEl.appendChild(linkEl);
-    });
+  document.querySelectorAll('.content h2, .content h3').forEach((headerEl) => {
+    console.log('link needed');
+    const linkEl = document.createElement('a');
+    // linkEl.setAttribute('target', "_blank");
+    linkEl.setAttribute('href', '#' + headerEl.id);
+    linkEl.classList.add('header-link');
+    linkEl.innerText = '#';
+    headerEl.appendChild(linkEl);
+  });
 });
-
 
 // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
 // Learn more: https://www.snowpack.dev/#hot-module-replacement

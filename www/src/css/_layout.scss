@@ -10,29 +10,7 @@
 // main.njk
 .main {
   display: flex;
-  .grid-toc {
-    position: fixed;
-    top: $nav-height;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    flex-shrink: 0;
-    flex-grow: 0;
-    overflow: auto;
-    z-index: 100;
 
-    @media (min-width: $breakpoint-m) {
-      padding: 1rem;
-      position: sticky;
-      top: $nav-height;
-      width: 320px;
-      max-height: calc(100vh - $nav-height);
-      overflow-y: scroll;
-      -webkit-overflow-scrolling: touch;
-      z-index: 1;
-    }
-  }
   .grid-body {
     width: 100%;
 
@@ -82,7 +60,6 @@
           overflow-y: scroll;
           max-height: calc(80vh - 100px);
           position: fixed;
-
         }
       }
     }
