@@ -1,0 +1,90 @@
+@import './_var';
+
+// Menu
+.menu {
+  min-height: 0;
+  background-color: $color-primary;
+
+  @media (min-width: $breakpoint-m) {
+    background-color: white;
+  }
+
+  .menu-section-header {
+    font-family: $heading;
+    color: $light-grey;
+    @media (min-width: $breakpoint-m) {
+      color: $dark-grey;
+    }
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.2em;
+    margin-bottom: 8px;
+    margin-top: 0;
+  }
+
+  a {
+    position: relative;
+    text-decoration: none;
+    border: none;
+    color: $white;
+    display: block;
+    transition: color 0.3s;
+
+    @media (min-width: $breakpoint-m) {
+      color: $grey;
+    }
+    // I don't think this is used
+    /*&::before {
+      content: '▸';
+      position: absolute;
+      opacity: 0;
+      left: -19px;
+      top: -4px;
+      font-weight: normal;
+      transition: left 140ms ease-out;
+    }*/
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &.active {
+      color: #0c8cec;
+      font-weight: bold;
+      text-decoration: underline;
+
+      &::before {
+        opacity: 1;
+        left: -17px;
+      }
+    }
+  }
+
+  ol {
+    list-style: none;
+    line-height: 1.8;
+  }
+  > ol > li {
+    margin-bottom: 1rem;
+  }
+  > ol > li > ol {
+    padding-left: 1rem;
+  }
+}
+
+// Sub navigation
+.sub-navigation {
+  hr {
+    margin: 1rem 0;
+  }
+
+  h4 {
+    font-weight: bold;
+    font-size: 22px;
+    margin: 0 0 0.5rem;
+  }
+
+  ol {
+    list-style: none;
+  }
+}

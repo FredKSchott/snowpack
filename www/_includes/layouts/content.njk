@@ -1,0 +1,21 @@
+---
+layout: layouts/main.njk
+title: 'Snowpack - The faster frontend build tool'
+description: 'Snowpack is the fast, bundle-free build tool for all kinds of frontend projects.'
+---
+
+<div class="content">
+
+  <h2 class="content-title">
+    {{ title }}
+  </h2>
+  <div class="content-layout">
+    <div class="sub-navigation-column">
+      {% include 'layouts/components/subnav.njk' %}
+    </div>
+    <div class="content-body">
+      {{ content | safe }}
+    </div>
+  </div>
+
+</div>

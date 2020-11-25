@@ -1,5 +1,5 @@
 ---
-layout: layouts/main.njk
+layout: layouts/content.njk
 title: Snowpack Community
 
 # Using Snowpack? Want to be featured on snowpack.dev?

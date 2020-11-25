@@ -106,13 +106,15 @@ gridTocEl.addEventListener('click', (e) => {
   */
 
 window.addEventListener('DOMContentLoaded', (event) => {
+   console.log("here")
   if (!tableOfContentsEl) {
     return;
   }
   setActiveToc();
   document
-    .querySelectorAll('.markdown-body h3, .markdown-body h4')
+    .querySelectorAll('.content h2, .content h3')
     .forEach((headerEl) => {
+      console.log("link needed")
       const linkEl = document.createElement('a');
       // linkEl.setAttribute('target', "_blank");
       linkEl.setAttribute('href', '#' + headerEl.id);
@@ -121,3 +123,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
       headerEl.appendChild(linkEl);
     });
 });
+
+
+// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
+// Learn more: https://www.snowpack.dev/#hot-module-replacement
+if (import.meta.hot) {
+  import.meta.hot.accept();
+}

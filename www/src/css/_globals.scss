@@ -1,0 +1,33 @@
+@import './_var';
+
+html,
+body {
+  margin: 0;
+}
+
+body,
+html {
+  font-family: $body;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+p {
+  line-height: 1.5;
+}
+
+.header-logo,
+.header-snowpack,
+.header-snowpack-subtitle,
+.pretty-font,
+.version-number {
+  font-family: $heading;
+  font-weight: 600;
+}
