@@ -14569,8 +14569,8 @@ exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/compone
 
 exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Bar.module.css.proxy.js 1`] = `
 "
-export let code = \\"._bar-jsx_1ih6s_1 {  color: red;}\\";
-let json = {\\"bar-jsx\\":\\"_bar-jsx_1ih6s_1\\"};
+export let code = \\"._dist_components_Bar_module__bar-jsx {  color: red;}\\";
+let json = {\\"bar-jsx\\":\\"_dist_components_Bar_module__bar-jsx\\"};
 export default json;
 // [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
@@ -14659,8 +14659,8 @@ exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/compone
 
 exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Foo.module.css.proxy.js 1`] = `
 "
-export let code = \\"._foo-tsx_kh4bk_1 {    color: green;}\\";
-let json = {\\"foo-tsx\\":\\"_foo-tsx_kh4bk_1\\"};
+export let code = \\"._dist_components_Foo_module__foo-tsx {    color: green;}\\";
+let json = {\\"foo-tsx\\":\\"_dist_components_Foo_module__foo-tsx\\"};
 export default json;
 // [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
