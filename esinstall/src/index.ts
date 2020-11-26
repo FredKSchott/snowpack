@@ -230,6 +230,7 @@ interface InstallOptions {
   polyfillNode: boolean;
   sourceMap?: boolean | 'inline';
   externalPackage: string[];
+  externalPackageEsm: string[];
   packageLookupFields: string[];
   namedExports: string[];
   rollup: {
@@ -253,6 +254,7 @@ function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
     logger: console,
     dest: 'web_modules',
     externalPackage: [],
+    externalPackageEsm: [],
     polyfillNode: false,
     packageLookupFields: [],
     env: {},
@@ -278,7 +280,8 @@ export async function install(
     logger,
     dest: destLoc,
     namedExports,
-    externalPackage: externalPackages,
+    externalPackage,
+    externalPackageEsm,
     sourceMap,
     env: userEnv,
     rollup: userDefinedRollup,
@@ -295,7 +298,7 @@ export async function install(
     installTargets
       .filter(
         (dep) =>
-          !externalPackages.some((packageName) => isImportOfPackage(dep.specifier, packageName)),
+          !externalPackage.some((packageName) => isImportOfPackage(dep.specifier, packageName)),
       )
       .map((dep) => dep.specifier)
       .map((specifier) => {
@@ -360,7 +363,7 @@ ${colors.dim(
   const inputOptions: InputOptions = {
     input: installEntrypoints,
     context: userDefinedRollup.context,
-    external: (id) => externalPackages.some((packageName) => isImportOfPackage(id, packageName)),
+    external: (id) => externalPackage.some((packageName) => isImportOfPackage(id, packageName)),
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
       rollupPluginAlias({
@@ -389,7 +392,7 @@ ${colors.dim(
       rollupPluginReplace(generateEnvReplacements(env)),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
-        externalEsm: process.env.EXTERNAL_ESM_PACKAGES || [],
+        esmExternals: externalPackageEsm,
         requireReturnsDefault: 'auto',
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),

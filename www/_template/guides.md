@@ -13,6 +13,8 @@ Snowpack Guides are deep dives into popular Snowpack topics.
 
 ## Popular Libraries & Frameworks
 
+- [React + global imports](/guides/react-global-imports)
+- [React + lazy loaded components](/guides/react-loadable-components)
 - [Workbox](/guides/workbox)
 - [Vue](/guides/vue)
 

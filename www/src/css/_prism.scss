@@ -2,14 +2,14 @@ pre,
 code {
   color: #d4d4d4;
   font-size: 14px;
-  text-shadow: none;
   font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-  direction: ltr;
-  text-align: left;
-  white-space: pre;
-  word-spacing: normal;
-  word-break: normal;
   line-height: 1.5;
+  direction: ltr;
+  white-space: pre;
+  text-align: left;
+  text-shadow: none;
+  word-break: normal;
+  word-spacing: normal;
   -moz-tab-size: 4;
   -o-tab-size: 4;
   tab-size: 4;
@@ -33,8 +33,8 @@ code::selection {
 }
 
 pre {
-  padding: 0.8rem 1rem 0.9rem;
   margin: 0.5rem 0 16px;
+  padding: 0.8rem 1rem 0.9rem;
   overflow: auto;
   background: #282a36;
   border-radius: 4px;
@@ -42,9 +42,9 @@ pre {
 
 :not(pre) > code {
   padding: 0.1em 0.3em;
-  border-radius: 0.3em;
   color: #db4c69;
   background: #f9f2f4;
+  border-radius: 0.3em;
 }
 
 /*********************************************************
@@ -170,6 +170,7 @@ pre {
 .token.namespace {
   color: #4ec9b0;
 }
+
 /*********************************************************
 * Language Specific
 */
@@ -191,6 +192,7 @@ code[class*='language-html'] {
 .language-html .token.punctuation {
   color: #808080;
 }
+
 /*********************************************************
 * Line highlighting
 */
@@ -205,16 +207,16 @@ pre > code {
 
 .line-highlight {
   position: absolute;
-  left: 0;
   right: 0;
-  padding: inherit 0;
-  margin-top: 1em;
-  background: #f7ebc6;
-  box-shadow: inset 5px 0 0 #f7d87c;
+  left: 0;
   z-index: 0;
-  pointer-events: none;
+  margin-top: 1em;
+  padding: inherit 0;
   line-height: inherit;
   white-space: pre;
+  background: #f7ebc6;
+  box-shadow: inset 5px 0 0 #f7d87c;
+  pointer-events: none;
 }
 
 pre[class*='language-bash'] .token.function {

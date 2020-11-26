@@ -1,4 +1,4 @@
-@import './_var';
+@use './var' as *;
 
 .content {
   h1,
@@ -7,8 +7,8 @@
   h4,
   h5,
   h6 {
-    font-family: $heading;
     font-weight: 600;
+    font-family: $heading;
     line-height: 1.2;
   }
 
@@ -62,12 +62,12 @@
   }
 
   blockquote {
-    margin-left: -1rem;
     margin-right: -1rem;
+    margin-left: -1rem;
     padding: 1.5rem 1rem;
     color: #2e5e82;
-    font-size: 1.1em;
     font-weight: 300;
+    font-size: 1.1em;
     background: linear-gradient(-30deg, #c9efd8, #f9ddff);
     border-left: none;
 
