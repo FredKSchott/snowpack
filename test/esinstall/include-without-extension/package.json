@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@snowpack/test-inlcude-without-extension",
+  "name": "@snowpack/test-include-without-extension",
   "version": "1.0.0",
   "scripts": {
     "testinstall": "snowpack"
