@@ -15,8 +15,8 @@
   &-intro {
     margin-top: 1rem;
     margin-bottom: 1rem;
-    text-align: center;
     line-height: 1.5;
+    text-align: center;
 
     a {
       color: #2e5e82;
@@ -28,21 +28,21 @@
     width: 100%;
 
     &-input {
-      font-size: 1em;
+      flex-grow: 1;
+      flex-shrink: 0;
       box-sizing: border-box;
       padding: 0.25em 0.75em;
-      flex-shrink: 0;
-      flex-grow: 1;
-      border-radius: 4px 0 0 4px;
+      font-size: 1em;
       border-width: 1px 0 1px 1px;
-      appearance: none;
+      border-radius: 4px 0 0 4px;
       box-shadow: 0 0 0 2px rgba(#2e5e82, 0);
       transition: box-shadow 150ms linear;
+      appearance: none;
 
       &:focus {
         border-color: #2e5e82;
-        box-shadow: 0 0 0 2px rgba(#2e5e82, 1);
         outline: none;
+        box-shadow: 0 0 0 2px rgba(#2e5e82, 1);
 
         + .pluginPage-search-submit {
           box-shadow: 0 0 0 2px rgba(#2e5e82, 1);
@@ -57,11 +57,11 @@
       font-size: 1em;
       font-family: 'Overpass', sans-serif;
       background-color: #2e5e82;
-      border-radius: 0 4px 4px 0;
-      appearance: none;
       border: none;
+      border-radius: 0 4px 4px 0;
       box-shadow: 0 0 0 2px rgba(#2e5e82, 0);
       transition: box-shadow 150ms linear;
+      appearance: none;
     }
   }
 

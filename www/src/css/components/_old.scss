@@ -1,12 +1,12 @@
-@import './_var';
+@use '../var' as *;
 
 // Notification
 
 .notification {
-  background-color: #b224d0;
   padding: 0.5rem;
   color: white;
   font-weight: bold;
+  background-color: #b224d0;
   a {
     color: white;
     text-decoration: underline;
@@ -16,26 +16,26 @@
 // Button
 
 .button {
+  box-sizing: border-box;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  padding: 0.3em 1.5em;
+  font-weight: bold;
+  font-size: 100%;
+  font-size: 22px;
+  font-family: inherit;
+  font-family: 'Overpass', sans-serif;
   line-height: normal;
   white-space: nowrap;
-  vertical-align: middle;
   text-align: center;
-  cursor: pointer;
-  user-select: none;
-  box-sizing: border-box;
-  font-family: inherit;
-  font-size: 100%;
-  padding: 0.3em 1.5em;
-  margin-bottom: 2px;
-  margin-top: 2px;
   text-decoration: none;
-  border-radius: 4px;
-  font-size: 22px;
-  font-family: 'Overpass', sans-serif;
-  font-weight: bold;
-  border: 1px solid #666;
+  vertical-align: middle;
   background-color: #fefefe;
+  border: 1px solid #666;
+  border-radius: 4px;
+  cursor: pointer;
   transition: transform 0.15s ease-out;
+  user-select: none;
 }
 .button:hover {
   box-shadow: 0 2px 2px 0 #2e5e82aa;
@@ -57,21 +57,21 @@ a.button {
 // Copy button
 
 .copy-button {
-  box-sizing: border-box;
-  border: 1px solid #0006;
-  border-radius: 4px;
-  font-size: 100%;
-  background-color: white;
-  cursor: pointer;
   display: flex;
+  flex: none;
   align-items: center;
   justify-content: center;
-  flex: none;
+  box-sizing: border-box;
+  padding: 0.75rem 1.25rem;
+  padding-bottom: 0.75rem;
+  font-size: 100%;
   font-family: Menlo, ui-monospace, SFMono-Regular, Monaco, Consolas,
     Liberation Mono, Courier New, monospace;
   line-height: 1.5rem;
-  padding: 0.75rem 1.25rem;
-  padding-bottom: 0.75rem;
+  background-color: white;
+  border: 1px solid #0006;
+  border-radius: 4px;
+  cursor: pointer;
   transition: transform 0.5s ease-in-out, background-color, transform, color,
     fill, stroke 0.5s ease-out;
 
@@ -95,8 +95,8 @@ a.button {
   }
 }
 .copy-button.active {
-  animation-iteration-count: 1;
   animation: pulse 0.5s;
+  animation-iteration-count: 1;
   svg {
     color: #ccc;
   }
@@ -104,8 +104,8 @@ a.button {
 
 @keyframes pulse {
   0% {
-    border-color: #2a85ca;
     color: #2a85ca;
+    border-color: #2a85ca;
   }
 
   100% {
@@ -114,10 +114,10 @@ a.button {
 
 // Company logos
 img.company-logo {
-  box-shadow: none !important;
-  border: none !important;
   flex: 100%;
   height: 56px;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .company-logos {
@@ -128,18 +128,18 @@ img.company-logo {
 
   > a {
     flex-shrink: 0;
-    text-decoration: none;
-    color: #e74c3c;
     margin: 0 4px;
     padding: 10px;
-    filter: grayscale(0.1);
+    color: #e74c3c;
+    text-decoration: none;
     opacity: 0.8;
+    filter: grayscale(0.1);
 
     &:hover {
-      text-decoration: underline;
       font-weight: normal;
-      filter: grayscale(0);
+      text-decoration: underline;
       opacity: 1;
+      filter: grayscale(0);
     }
   }
 
@@ -149,13 +149,13 @@ img.company-logo {
     align-items: center;
     color: #555;
     font-weight: normal;
-    filter: grayscale(0);
     opacity: 1;
+    filter: grayscale(0);
   }
 
   > .add-company-button {
-    border-color: #e74c3c;
     color: #e74c3c;
+    border-color: #e74c3c;
   }
 }
 
@@ -169,10 +169,10 @@ img.company-logo {
 .grid-list ul {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  list-style: none;
-  font-family: Overpass;
   font-size: 18px;
+  font-family: Overpass;
   font-style: italic;
+  list-style: none;
 }
 
 // highlight
@@ -211,14 +211,14 @@ img.company-logo {
 // Img banner
 .img-banner {
   display: block;
-  background: #f0db4f;
-  text-align: center;
   margin: 1.5rem 0;
+  text-align: center;
+  background: #f0db4f;
 
   img {
     height: 74px;
-    box-shadow: none;
     border: none;
+    box-shadow: none;
 
     @media (min-width: $breakpoint-m) {
       height: 100px;
@@ -231,25 +231,6 @@ img.company-logo {
   font-size: 3em;
   line-height: 1em;
   letter-spacing: -0.05em;
-}
-
-// TOC
-#toc-logo {
-  display: none;
-
-  @media (min-width: $breakpoint-m) {
-    display: inline-block;
-  }
-}
-
-#toc-drawer-button {
-  display: inline-block;
-  margin: 0 auto 0 0;
-
-  @media (min-width: $breakpoint-m) {
-    display: none;
-    margin: 0 12px 0 0;
-  }
 }
 
 // Search form
@@ -270,25 +251,25 @@ img.company-logo {
 // Frame
 
 .frame {
-  background-color: #0a5e9d;
-  padding: 34px 17px 10px 17px;
-  border-radius: 10px;
   position: relative;
   margin: 1rem 0;
+  padding: 34px 17px 10px 17px;
+  background-color: #0a5e9d;
+  border-radius: 10px;
 
   &::before {
-    content: url(/img/guides/react/buttons.svg);
-    display: block;
     position: absolute;
     top: 5px;
+    display: block;
+    content: url(/img/guides/react/buttons.svg);
   }
 
   &::after {
-    content: url(/img/guides/react/snowpack-logo-tiny.svg);
-    display: block;
     position: absolute;
     top: 5px;
     right: 17px;
+    display: block;
+    content: url(/img/guides/react/snowpack-logo-tiny.svg);
   }
 }
 
@@ -314,9 +295,9 @@ img.company-logo {
   h4 {
     .header-link {
       margin-left: 0.25rem;
+      color: #2e5e82;
       opacity: 1;
       transition: opacity 100ms ease-in-out;
-      color: #2e5e82;
 
       @media (min-width: $breakpoint-m) {
         opacity: 0;

@@ -1,12 +1,8 @@
-@import './_var';
+@use './var' as *;
 
 html,
 body {
   margin: 0;
-}
-
-body,
-html {
   font-family: $body;
 }
 
@@ -28,6 +24,6 @@ p {
 .header-snowpack-subtitle,
 .pretty-font,
 .version-number {
-  font-family: $heading;
   font-weight: 600;
+  font-family: $heading;
 }

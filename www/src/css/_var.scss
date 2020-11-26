@@ -1,8 +1,8 @@
 // typography
-$body: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue,
-  Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-  Segoe UI Symbol, Noto Color Emoji;
+$body: -apple-system, 'BlinkMacSystemFont', 'Helvetica Neue', 'Segoe UI',
+  'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', sans-serif;
 $heading: 'Overpass', $body;
+$code: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
 
 // breakpoints
 $breakpoint-m: 860px;
@@ -24,8 +24,8 @@ $color-strong-contrast: $orange;
 $grey: #717171;
 $dark-grey: #393939;
 $light-grey: #c1c1c1;
-$darkest-grey: #333333;
-$white: #ffffff;
+$darkest-grey: #333;
+$white: #fff;
 
 $light-rainbow-blue: #c9efd8;
 $light-rainbow-pink: #f9ddff;
@@ -33,3 +33,8 @@ $rainbow-purple: #b224d0;
 $rainbow-blue: #267dd6;
 $rainbow-green: #24bf62;
 $rainbow-yellow: #f0db4f;
+
+$layers: (
+  'base': 1,
+  'nav': 10,
+);

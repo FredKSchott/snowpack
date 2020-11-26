@@ -1,23 +1,24 @@
 // GitHub markdown styles
-@import './_github-markdown';
+@use './_github-markdown';
 
 // Syntax highlighting
-@import './_prism';
+@use './_prism';
 
 // Global styles
-@import './_globals';
+@use './_globals';
 
 // Typography
-@import './_typography';
-
-// Layout
-@import './_layout';
+@use './_typography';
 
 // Components
-@import './components/hero';
-@import './components/menu';
-@import './components/nav';
-@import './components/old';
+@use './components/container';
+@use './components/hero';
+@use './components/icon';
+@use './components/logo';
+@use './components/nav';
+@use './components/old';
+@use './components/toc';
+@use './components/view';
 
 // Pages
-@import './pages/plugins';
+@use './pages/plugins';

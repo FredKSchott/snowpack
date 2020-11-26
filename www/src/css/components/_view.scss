@@ -1,0 +1,71 @@
+@use '../var' as *;
+
+/**
+ * Main document view
+ */
+
+$top-padding: 24px;
+
+// Document view
+.snow-view__docs {
+  display: grid;
+  grid-gap: 1.5rem;
+  grid-template-areas: 'subnav' 'main';
+  grid-template-columns: auto;
+
+  @media (min-width: $breakpoint-m) {
+    grid-template-areas: 'nav subnav' 'nav main';
+    grid-template-columns: 18rem auto;
+  }
+
+  @media (min-width: $breakpoint-l) {
+    grid-template-areas: 'nav main subnav';
+    grid-template-columns: 18rem auto 18rem;
+  }
+
+  // -----------
+  //  Components
+  // -----------
+
+  .snow-view-nav {
+    position: fixed;
+    top: $nav-height;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: map-get($map: $layers, $key: 'nav');
+    display: none;
+    grid-area: nav;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    overflow: auto;
+    color: $white;
+    background: $dark-blue;
+
+    @media (min-width: $breakpoint-m) {
+      position: sticky;
+      top: $nav-height;
+      z-index: 1;
+      display: block;
+      max-height: calc(100vh - #{$nav-height + $top-padding});
+      padding: $top-padding 0 0 0;
+      overflow-y: auto;
+      color: inherit;
+      background: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    // States
+    &.is-visible {
+      display: block;
+    }
+  }
+
+  .snow-view-main {
+    grid-area: main;
+  }
+
+  .snow-view-subnav {
+    grid-area: subnav;
+  }
+}

@@ -4,17 +4,21 @@ title: 'Snowpack - The faster frontend build tool'
 description: 'Snowpack is the fast, bundle-free build tool for all kinds of frontend projects.'
 ---
 
-<section class="container main">
+<div class="container">
+  <section class="snow-view__docs">
 
-  <aside class="snow-toc hidden-mobile">
-    {% include 'layouts/components/menu.njk' %}
-  </aside>
+    <aside id="nav-primary" class="snow-view-nav">
+      {% include 'layouts/components/menu.njk' %}
+    </aside>
 
-  <article id="grid-body" class="grid-body">
-    {{ content | safe }}
-  </article>
+    <article id="grid-body" class="snow-view-main">
+      {{ content | safe }}
+    </article>
 
-</section>
+
+    {% include 'layouts/components/subnav.njk' %}
+  </section>
+</div>
 
 <!-- Place this tag in your head or just before your close body tag. -->
 <script async="async" defer="defer" src="https://buttons.github.io/buttons.js"></script>
