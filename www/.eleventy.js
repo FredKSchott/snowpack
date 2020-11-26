@@ -28,7 +28,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPlugin(syntaxHighlight);
   eleventyConfig.addPlugin(pluginTOC, {
     tags: ['h2', 'h3'],
-    // wrapperClass: 'grid-toc',
+    // wrapperClass: 'snow-toc',
   });
 
   eleventyConfig.addFilter('readableDate', (dateObj) => {

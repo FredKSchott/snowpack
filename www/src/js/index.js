@@ -61,36 +61,44 @@ function setActiveToc() {
     // if (window.innerWidth >= 860) {
     //   tocEl.scrollIntoView({behavior: 'smooth'});
     // }
-      //   {
-      //   top:
-      //     tocEl.getBoundingClientRect().top + gridTocEl.scrollTop - PADDING_TOP,
-      //   behavior: 'smooth',
-      // });
+    //   {
+    //   top:
+    //     tocEl.getBoundingClientRect().top + gridTocEl.scrollTop - PADDING_TOP,
+    //   behavior: 'smooth',
+    // });
     return;
   }
 }
 
 const gridBodyEl = document.getElementById('grid-body');
 const tableOfContentsEl = document.querySelector('.sub-navigation .toc');
-const gridTocEl = document.querySelector('.grid-toc');
+const gridTocEl = document.querySelector('#nav-primary');
 gridBodyEl.addEventListener('scroll', debounce(setActiveToc));
 window.addEventListener('scroll', debounce(setActiveToc));
 
-document.getElementById('toc-drawer-button').addEventListener('click', (e) => {
-  e.preventDefault();
+function handleMobileNav(evt) {
+  evt.preventDefault();
   /*If hidden-mobile class is enabled that means we are on desktop do overflow normal but we
     if we are at mobile fixed body position, so that its not scrollable(which currently causing bug) and navbar  handling its
     owns scroll. Case to consider there are chance use can open navbar using toggle button and user when click on any link
     body postion should be unset
     */
-  const ishiddenMobileClassEnabled = gridTocEl.classList.toggle(
-    'hidden-mobile',
-  );
-});
-gridTocEl.addEventListener('click', (e) => {
-  gridTocEl.classList.add('hidden-mobile');
-  document.body.style.position = '';
-});
+  gridTocEl.classList.toggle('is-visible');
+
+  const isOpen = gridTocEl.classList.contains('is-visible');
+  if (isOpen) {
+    evt.target.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  } else {
+    evt.target.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = undefined;
+  }
+}
+
+const mobileNavBtn = document.getElementById('toc-drawer-button');
+
+mobileNavBtn.addEventListener('click', handleMobileNav);
+mobileNavBtn.addEventListener('touchend', handleMobileNav);
 /* May not be needed:
   window.addEventListener('DOMContentLoaded', (event) => {
     if (!window.location.hash) {
@@ -106,24 +114,21 @@ gridTocEl.addEventListener('click', (e) => {
   */
 
 window.addEventListener('DOMContentLoaded', (event) => {
-   console.log("here")
+  console.log('here');
   if (!tableOfContentsEl) {
     return;
   }
   setActiveToc();
-  document
-    .querySelectorAll('.content h2, .content h3')
-    .forEach((headerEl) => {
-      console.log("link needed")
-      const linkEl = document.createElement('a');
-      // linkEl.setAttribute('target', "_blank");
-      linkEl.setAttribute('href', '#' + headerEl.id);
-      linkEl.classList.add('header-link');
-      linkEl.innerText = '#';
-      headerEl.appendChild(linkEl);
-    });
+  document.querySelectorAll('.content h2, .content h3').forEach((headerEl) => {
+    console.log('link needed');
+    const linkEl = document.createElement('a');
+    // linkEl.setAttribute('target', "_blank");
+    linkEl.setAttribute('href', '#' + headerEl.id);
+    linkEl.classList.add('header-link');
+    linkEl.innerText = '#';
+    headerEl.appendChild(linkEl);
+  });
 });
-
 
 // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
 // Learn more: https://www.snowpack.dev/#hot-module-replacement
