@@ -29,6 +29,9 @@ describe('snowpack build', () => {
       continue;
     }
 
+    // CSS Modules generate differently on Windows; skip that only for Windows (but test in Unix still)
+    if (testName === 'preload-css' && os.platform() === 'win32') continue;
+
     it(testName, () => {
       const cwd = path.join(__dirname, testName);
       const relativePath = cwd.replace(process.cwd() + '/', '');
