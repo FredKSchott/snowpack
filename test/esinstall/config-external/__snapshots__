@@ -3,6 +3,7 @@
 exports[`snowpack install config-external: allFiles 1`] = `
 Array [
   "config-external-pkg-a.js",
+  "config-external-pkg-cjs.js",
   "import-map.json",
 ]
 `;
@@ -11,20 +12,36 @@ exports[`snowpack install config-external: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
-  ⦿ web_modules/                 size       gzip       brotli
-    └─ config-external-pkg-a.js    XXXX KB    XXXX KB    XXXX KB"
+  ⦿ web_modules/                   size       gzip       brotli
+    ├─ config-external-pkg-a.js    XXXX KB    XXXX KB    XXXX KB
+    └─ config-external-pkg-cjs.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`snowpack install config-external: web_modules/config-external-pkg-a.js 1`] = `
 "import { foo } from 'config-external-pkg-b';
 import { foo as foo$1 } from 'config-external-pkg-b/entrypoint';
-console.log(foo, foo$1);"
+import bar from 'config-external-pkg-c';
+console.log(foo, foo$1, bar);"
+`;
+
+exports[`snowpack install config-external: web_modules/config-external-pkg-cjs.js 1`] = `
+"import * as configExternalPkgB from 'config-external-pkg-b';
+import bar from 'config-external-pkg-c';
+function getDefaultExportFromNamespaceIfNotNamed (n) {
+	return n && Object.prototype.hasOwnProperty.call(n, 'default') && Object.keys(n).length === 1 ? n['default'] : n;
+}
+var foo = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(configExternalPkgB);
+console.log(foo, bar);
+var entrypoint = {
+};
+export default entrypoint;"
 `;
 
 exports[`snowpack install config-external: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
-    \\"config-external-pkg-a\\": \\"./config-external-pkg-a.js\\"
+    \\"config-external-pkg-a\\": \\"./config-external-pkg-a.js\\",
+    \\"config-external-pkg-cjs\\": \\"./config-external-pkg-cjs.js\\"
   }
 }"
 `;
