@@ -98,10 +98,10 @@ describe('snowpack install', () => {
       });
       const actualOutput = stripWhitespace(
         stripHomePath(
-        stripConfigErrorPath(
-          stripResolveErrorPath(stripBenchmark(stripChunkHash(stripStats(stripStacktrace(all))))),
+          stripConfigErrorPath(
+            stripResolveErrorPath(stripBenchmark(stripChunkHash(stripStats(stripStacktrace(all))))),
+          ),
         ),
-        )
       );
 
       const snapshotFile = path.join(cwd, '__snapshots__'); // `jest-specific-snapshot` cannot use the .snap extension, since it conflicts with jest

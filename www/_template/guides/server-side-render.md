@@ -37,7 +37,6 @@ Status: Experimental
 
 The best developer experience is achieved by loading files on-demand. This removes any need for work on startup, giving you a faster developer environment no matter how large your project grows.
 
-
 ```js
 import {startDevServer} from 'snowpack';
 const server = await startDevServer({ ... });
