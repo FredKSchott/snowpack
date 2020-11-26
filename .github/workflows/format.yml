@@ -3,7 +3,7 @@ name: 'Format Code'
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   format:
