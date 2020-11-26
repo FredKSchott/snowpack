@@ -36,8 +36,10 @@ function sendSocketMessage(msg) {
 }
 let socketURL = typeof window !== 'undefined' && window.HMR_WEBSOCKET_URL;
 if (!socketURL) {
-  const socketHost = typeof window !== 'undefined' && window.HMR_WEBSOCKET_PORT ?
-    `${location.hostname}:${window.HMR_WEBSOCKET_PORT}` : location.host
+  const socketHost =
+    typeof window !== 'undefined' && window.HMR_WEBSOCKET_PORT
+      ? `${location.hostname}:${window.HMR_WEBSOCKET_PORT}`
+      : location.host;
   socketURL = (location.protocol === 'http:' ? 'ws://' : 'wss://') + socketHost + '/';
 }
 
@@ -112,8 +114,32 @@ export function createHotContext(fullUrl) {
   return state;
 }
 
+/** Called when any CSS file is loaded. */
+async function runCssStyleAccept({url: id}) {
+  const nonce = Date.now();
+  const oldLinkEl =
+    document.head.querySelector(`link[data-hmr="${id}"]`) ||
+    document.head.querySelector(`link[href="${id}"]`);
+  if (!oldLinkEl) {
+    return true;
+  }
+  const linkEl = oldLinkEl.cloneNode(false);
+  linkEl.dataset.hmr = id;
+  linkEl.type = 'text/css';
+  linkEl.rel = 'stylesheet';
+  linkEl.href = id + '?mtime=' + nonce;
+  linkEl.addEventListener(
+    'load',
+    // Once loaded, remove the old link element (with some delay, to avoid FOUC)
+    () => setTimeout(() => document.head.removeChild(oldLinkEl), 30),
+    false,
+  );
+  oldLinkEl.parentNode.insertBefore(linkEl, oldLinkEl)
+  return true;
+}
+
 /** Called when a new module is loaded, to pass the updated module to the "active" module */
-async function runModuleAccept({url: id, bubbled}) {
+async function runJsModuleAccept({url: id, bubbled}) {
   const state = REGISTERED_MODULES[id];
   if (!state) {
     return false;
@@ -168,7 +194,7 @@ socket.addEventListener('message', ({data: _data}) => {
   }
   if (data.type === 'update') {
     log('message: update', data);
-    runModuleAccept(data)
+    (data.url.endsWith('.css') ? runCssStyleAccept(data) : runJsModuleAccept(data))
       .then((ok) => {
         if (ok) {
           clearErrorOverlay();

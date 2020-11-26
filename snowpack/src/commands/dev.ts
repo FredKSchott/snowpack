@@ -1261,16 +1261,24 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
-  function handleHmrUpdate(fileLoc: string, updatedUrl: string) {
+  function handleHmrUpdate(fileLoc: string, originalUrl: string) {
     if (isLiveReloadPaused) {
       return;
     }
 
+    // CSS files may be loaded directly in the client (not via JS import / .proxy.js)
+    // so send an "update" event to live update if thats the case.
+    if (originalUrl.endsWith('.css') && !originalUrl.endsWith('.module.css')) {
+      hmrEngine.broadcastMessage({type: 'update', url: originalUrl, bubbled: false});
+    }
+
     // Append ".proxy.js" to Non-JS files to match their registered URL in the
     // client app.
+    let updatedUrl = originalUrl;
     if (!updatedUrl.endsWith('.js')) {
       updatedUrl += '.proxy.js';
     }
+
     // Check if a virtual file exists in the resource cache (ex: CSS from a
     // Svelte file) If it does, mark it for HMR replacement but DONT trigger a
     // separate HMR update event. This is because a virtual resource doesn't
@@ -1281,6 +1289,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     if (virtualNode) {
       hmrEngine.markEntryForReplacement(virtualNode, true);
     }
+
     // If the changed file exists on the page, trigger a new HMR update.
     if (hmrEngine.getEntry(updatedUrl)) {
       updateOrBubble(updatedUrl, new Set());
