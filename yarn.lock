@@ -5280,6 +5280,12 @@ config-chain@^1.1.11, config-chain@^1.1.12:
 "config-external-pkg-b@file:./test/esinstall/config-external/packages/config-external-pkg-b":
   version "1.2.3"
 
+"config-external-pkg-c@file:./test/esinstall/config-external/packages/config-external-pkg-c":
+  version "1.2.3"
+
+"config-external-pkg-cjs@file:./test/esinstall/config-external/packages/config-external-pkg-cjs":
+  version "1.2.3"
+
 connect-history-api-fallback@^1:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/connect-history-api-fallback/-/connect-history-api-fallback-1.6.0.tgz#8b32089359308d111115d81cad3fceab888f97bc"
