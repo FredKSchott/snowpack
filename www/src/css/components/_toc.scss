@@ -36,6 +36,8 @@ $top-padding: 24px;
 }
 
 .snow-toc {
+  transition: padding 0.2s ease-out, opacity 0.2s ease-in-out;
+
   // -----------
   //  Components
   // -----------
@@ -53,13 +55,13 @@ $top-padding: 24px;
 
   &-section {
     + .snow-toc-section {
-      margin-top: 1rem;
+      margin-top: 1.5rem;
     }
 
     &-header {
       margin-top: 0;
       margin-bottom: 8px;
-      color: $light-grey;
+      color: rgba($white, 0.6);
       font-weight: 600;
       font-size: 18px;
       font-family: $heading;

@@ -1,5 +1,11 @@
 @use '../var' as *;
 
+body {
+  &.is-nav-open {
+    overflow: hidden;
+  }
+}
+
 // Notification
 
 .notification {
@@ -241,7 +247,7 @@ img.company-logo {
 // Hidden mobile
 @media (max-width: $breakpoint-m - 1) {
   .hidden-mobile {
-    display: none;
+    display: none !important;
   }
   .version-tag {
     display: none;

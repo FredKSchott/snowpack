@@ -13,10 +13,17 @@
     </svg>
     <span class="snow-logo-type">Snowpack</span>
   </a>
-  <div class="search-form hidden-mobile">
-
-    <!-- <input type="text" name="search" placeholder="Search documentation..." class="search-form-input"></div> -->
+  <div class="search-form">
+    <input type="text" name="search" placeholder="Search documentation..." class="search-form-input" id="search-form-input">
+    <span class="search-form-hint">
+      <span class="sr-only">Press </span>
+      <kbd class="font-sans"><abbr title="Command" style="text-decoration: none;">⌘</abbr></kbd>
+      <span class="sr-only"> and </span>
+      <kbd class="font-sans">K</kbd>
+      <span class="sr-only"> to search</span>
+    </span>
   </div>
+  <div style="flex-grow: 1"></div>
   <a href="https://github.com/snowpackjs/snowpack/discussions/1183" target="_blank" class="snow-nav-link snow-nav-version">
     v2.17.1
   </a>

@@ -10,7 +10,10 @@
   top: 0;
   z-index: map-get($map: $layers, $key: 'nav');
   display: grid;
-  grid-template-areas: 'mobile logo version';
+  grid-template-areas: 
+  'mobile logo version'
+  'search search search';
+  grid-template-rows: $nav-height $nav-height;
   grid-template-columns: 1fr 2fr 1fr;
   align-items: center;
   height: $nav-height;
@@ -19,8 +22,13 @@
   color: $white;
   background-color: $dark-blue;
 
+  body.is-nav-open & {
+    height: $nav-height * 2;
+  }
+
   @media (min-width: $breakpoint-m) {
     display: flex;
+    height: $nav-height;
     padding-left: 0;
   }
 
@@ -62,7 +70,7 @@
 
     @media (min-width: $breakpoint-m) {
       justify-content: flex-start;
-      padding: 0.5rem 1rem 0.5rem 1.25rem;
+      padding: 0.5rem 1.25rem;
     }
   }
 
@@ -87,6 +95,7 @@
 
   &-version {
     grid-area: version;
+    margin-left: 0.5em;
     font-size: 0.8em;
     font-family: $code;
     text-align: right;
@@ -106,3 +115,4 @@
     }
   }
 }
+

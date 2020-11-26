@@ -71,10 +71,25 @@ function setActiveToc() {
 }
 
 const gridBodyEl = document.getElementById('grid-body');
+const searchFormInputEl = document.getElementById('search-form-input');
 const tableOfContentsEl = document.querySelector('.sub-navigation .toc');
 const gridTocEl = document.querySelector('#nav-primary');
+
 gridBodyEl.addEventListener('scroll', debounce(setActiveToc));
 window.addEventListener('scroll', debounce(setActiveToc));
+searchFormInputEl.addEventListener('keyup', () => {
+  if (searchFormInputEl.value) {
+    gridTocEl.classList.add('is-mobile-hidden');
+  } else {
+    gridTocEl.classList.remove('is-mobile-hidden');
+  }
+});
+
+document.onkeydown = function (e) {
+  if ((e.ctrlKey || e.metaKey) && e.which == 75) {
+    searchFormInputEl.focus();
+  }
+};
 
 function handleMobileNav(evt) {
   evt.preventDefault();
@@ -83,15 +98,12 @@ function handleMobileNav(evt) {
     owns scroll. Case to consider there are chance use can open navbar using toggle button and user when click on any link
     body postion should be unset
     */
-  gridTocEl.classList.toggle('is-visible');
-
-  const isOpen = gridTocEl.classList.contains('is-visible');
+  document.body.classList.toggle('is-nav-open');
+  const isOpen = document.body.classList.contains('is-nav-open');
   if (isOpen) {
     evt.target.setAttribute('aria-expanded', 'true');
-    document.body.style.overflow = 'hidden';
   } else {
     evt.target.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = undefined;
   }
 }
 
@@ -114,7 +126,6 @@ mobileNavBtn.addEventListener('touchend', handleMobileNav);
   */
 
 window.addEventListener('DOMContentLoaded', (event) => {
-  console.log('here');
   if (!tableOfContentsEl) {
     return;
   }

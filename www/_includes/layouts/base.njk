@@ -33,15 +33,16 @@
   </head>
   <body class="base">
     {% include 'layouts/components/nav.njk' %}
-
-    {% if home %}
-      {% include 'layouts/components/hero.njk' %}
-    {% endif %}
     {{ content | safe }}
-
   </body>
 
   <script type="module" src="/_dist_/js/index.js"></script>
+  <script type="module">
+    import docsearch from 'docsearch.js/dist/cdn/docsearch.min.js';
+    docsearch({
+      apiKey: '562139304880b94536fc53f5d65c5c19', indexName: 'snowpack', inputSelector: '.search-form-input', debug: true // Set debug to true if you want to inspect the dropdown
+    });
+  </script>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-130280175-9"></script>
   <script>

@@ -6,7 +6,7 @@ module.exports = {
   plugins: [
     ['@snowpack/plugin-run-script', { cmd: 'eleventy', watch: '$1 --watch' }],
     ['@snowpack/plugin-sass', { compilerOptions: { style: 'compressed' } }],
-    ['@snowpack/plugin-postcss'],
+    ['@snowpack/plugin-postcss', {}],
   ],
   install: [
     /* ... */

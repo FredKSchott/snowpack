@@ -9,7 +9,7 @@ $breakpoint-m: 860px;
 $breakpoint-l: 1000px;
 
 // nav bar height mobile
-$nav-height: 48px;
+$nav-height: 56px;
 
 // colors
 $blue: #0a5e9d;
@@ -36,5 +36,6 @@ $rainbow-yellow: #f0db4f;
 
 $layers: (
   'base': 1,
+  'nav-view': 9,
   'nav': 10,
 );

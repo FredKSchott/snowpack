@@ -19,6 +19,9 @@
 @use './components/old';
 @use './components/toc';
 @use './components/view';
+@use './components/search';
 
 // Pages
 @use './pages/plugins';
+
+@import 'docsearch.js/dist/cdn/docsearch.min.css';

@@ -26,5 +26,8 @@
     "stylelint-config-prettier": "^8.0.2",
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^20.0.0"
+  },
+  "dependencies": {
+    "docsearch.js": "^2.6.3"
   }
 }
