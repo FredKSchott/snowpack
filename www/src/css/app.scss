@@ -1,17 +1,27 @@
-// Reset
-@import './_minireset';
-
 // GitHub markdown styles
-@import './_github-markdown';
+@use './_github-markdown';
 
 // Syntax highlighting
-@import './_prism';
+@use './_prism';
 
-// Base styles
-@import './_base';
+// Global styles
+@use './_globals';
 
-// Guides styles
-@import './_guides';
+// Typography
+@use './_typography';
+
+// Components
+@use './components/container';
+@use './components/hero';
+@use './components/icon';
+@use './components/logo';
+@use './components/nav';
+@use './components/old';
+@use './components/toc';
+@use './components/view';
+@use './components/search';
 
 // Pages
-@import './_pluginPage';
+@use './pages/plugins';
+
+@import 'docsearch.js/dist/cdn/docsearch.min.css';

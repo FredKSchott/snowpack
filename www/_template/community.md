@@ -1,5 +1,5 @@
 ---
-layout: layouts/main.njk
+layout: layouts/content.njk
 title: Snowpack Community
 
 # Using Snowpack? Want to be featured on snowpack.dev?
@@ -100,3 +100,11 @@ usersList:
   Add your logo
 </a>
 </div>
+
+## Assets
+
+- [Snowpack Logo (PNG, White)](/img/snowpack-logo-white.png)
+- [Snowpack Logo (PNG, Dark)](/img/snowpack-logo-dark.png)
+- [Snowpack Logo (PNG, Black)](/img/snowpack-logo-black.png)
+- [Snowpack Wordmark (PNG, White)](/img/snowpack-wordmark-white.png)
+- [Snowpack Wordmark (PNG, Black)](/img/snowpack-wordmark-black.png)

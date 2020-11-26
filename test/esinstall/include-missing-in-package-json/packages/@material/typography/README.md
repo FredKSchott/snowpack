@@ -125,7 +125,7 @@ Mixin | Description
 `zero-width-prefix` | Adds an invisible, zero-width prefix to a container's text. This ensures that the baseline is always where the text would be, instead of defaulting to the container bottom when text is empty. Do not use this mixin if the `baseline` mixin is already applied.
 `text-baseline($top, $bottom, $display)`| Sets the baseline of flow text content.
 
-> **A note about `overflow-ellipsis`**, `overflow-ellipsis` should only be used if the element is `display: block` or `display: inline-block`.
+> **A note about `overflow-ellipsis`**, `overflow-ellipsis` should be used only if the element is `display: block` or `display: inline-block`.
 
 #### `$style` Values
 

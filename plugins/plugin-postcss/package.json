@@ -3,7 +3,7 @@
   "version": "1.0.7",
   "main": "plugin.js",
   "license": "MIT",
-  "homepage": "https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-postcss#readme",
+  "homepage": "https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-postcss#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/snowpackjs/snowpack.git",
@@ -15,5 +15,8 @@
   "peerDependencies": {
     "postcss": "*",
     "postcss-cli": "*"
+  },
+  "dependencies": {
+    "execa": "^4.1.0"
   }
 }

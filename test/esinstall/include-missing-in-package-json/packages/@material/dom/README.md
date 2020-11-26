@@ -78,4 +78,4 @@ The module provides a single SASS mixin which helps improves a DOM element's UX 
 
 Mixin | Description
 --- | ---
-`transparent-border` | Emits necessary layout styles to set a transparent border around an element without interfering with the rest of its component layout. The border is only visible in high-contrast mode. The target element should be a child of a relatively positioned top-level element (i.e. a ::before pseudo-element).
+`transparent-border` | Emits necessary layout styles to set a transparent border around an element without interfering with the rest of its component layout. The border is visible only in high-contrast mode. The target element should be a child of a relatively positioned top-level element (i.e. a ::before pseudo-element).

@@ -58,7 +58,7 @@ That last point is key: every built file is cached individually and reused indef
 
 Run `snowpack dev` to start your new web dev environment and the first thing you'll notice is **how flippin' fast O(1) build tooling is.** Snowpack starts up in less than 50ms. That's no typo: 50 milliseconds or less.
 
-With no bundling work needed to start, your server spins up immediately. On your very first page load, Snowpack builds your first requested files and then caches them for future use. Even if your project contains a million different files, Snowpack only builds the files needed to load the current page. This is how Snowpack stays fast.
+With no bundling work needed to start, your server spins up immediately. On your very first page load, Snowpack builds your first requested files and then caches them for future use. Even if your project contains a million different files, Snowpack builds only those needed to load the current page. This is how Snowpack stays fast.
 
 `snowpack dev` includes a development server and a bunch of familiar features right out of the box:
 

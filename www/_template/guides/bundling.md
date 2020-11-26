@@ -1,5 +1,5 @@
 ---
-layout: layouts/main.njk
+layout: layouts/content.njk
 title: Bundling your Snowpack site for production
 tags: guides
 ---
@@ -8,7 +8,7 @@ tags: guides
 
 Snowpack's bundling philosophy is that **you should be able to use a bundler because you want to, and not because you need to.** Snowpack treats bundling as an optional production optimization, which means you're free to skip over the extra complexity of bundling until you need it.
 
-Bundlers normally require dozens or even hundreds of lines of configuration, but with Snowpack it's just a one-line plugin with no configuration required. This is possible because Snowpack builds your application _before_ sending it to the bundler, so the bundler never sees your custom source code (JSX, TS, Svelte, Vue, etc.) and instead only needs to worry about building common HTML, CSS, and JS.
+Bundlers normally require dozens or even hundreds of lines of configuration, but with Snowpack it's just a one-line plugin with no configuration required. This is possible because Snowpack builds your application _before_ sending it to the bundler, so the bundler never sees your custom source code (JSX, TS, Svelte, Vue, etc.) and instead needs to worry only about building common HTML, CSS, and JS.
 
 First install the Webpack plugin with the following command:
 

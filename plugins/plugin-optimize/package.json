@@ -3,7 +3,7 @@
   "version": "0.2.9",
   "main": "plugin.js",
   "license": "MIT",
-  "homepage": "https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-optimize#readme",
+  "homepage": "https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-optimize#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/snowpackjs/snowpack.git",

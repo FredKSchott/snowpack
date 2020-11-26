@@ -5,7 +5,6 @@ import {VM as VM2} from 'vm2';
 import {Plugin} from 'rollup';
 import {InstallTarget, AbstractLogger} from '../types';
 import {getWebDependencyName, isTruthy} from '../util.js';
-
 // Use CJS intentionally here! ESM interface is async but CJS is sync, and this file is sync
 const {parse} = require('cjs-module-lexer');
 

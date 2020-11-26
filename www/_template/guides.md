@@ -1,22 +1,22 @@
 ---
-layout: layouts/main.njk
+layout: layouts/content.njk
 ---
 
-## Guides
+## Topics
 
 Snowpack Guides are deep dives into popular Snowpack topics.
 
-- [React](/guides/react)
-- [Create a Plugin](/guides/plugins)
-
-Stubs (guides under construction)
-
+- [SSL, HTTPS, and HTTP/2 in Development](/guides/https-ssl-certificates)
+- [Connecting your dev tools](/guides/connecting-tools)
 - [Bundling for Deployment](/guides/bundling)
-- [Vue](/guides/vue)
-- [Preact](/guides/preact)
-- [Svelte](/guides/svelte)
 - [Testing](/guides/testing)
+
+## Popular Libraries & Frameworks
+
+- [React + global imports](/guides/react-global-imports)
+- [React + lazy loaded components](/guides/react-loadable-components)
 - [Workbox](/guides/workbox)
+- [Vue](/guides/vue)
 
 ### Community guides
 

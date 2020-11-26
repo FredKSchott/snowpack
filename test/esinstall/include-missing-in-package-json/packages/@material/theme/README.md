@@ -47,7 +47,7 @@ https://www.w3.org/TR/WCAG20
 
 ### Advanced customization
 
-Color scheme will only get you 80% of the way to a well-designed app. Inevitably there will be some components that do not work "out of the box". To fix problems with accessibility and design, we suggest you use our Sass mixins, such as `button.filled-accessible()`. For more information, consult the documentation for each component.
+Color scheme will get you only 80% of the way to a well-designed app. Inevitably there will be some components that do not work "out of the box". To fix problems with accessibility and design, we suggest you use our Sass mixins, such as `button.filled-accessible()`. For more information, consult the documentation for each component.
 
 ### Text styles
 

@@ -36,6 +36,9 @@ function isScrolledIntoView(el) {
 function setActiveToc() {
   const PADDING_TOP = 64;
 
+  if (!tableOfContentsEl) {
+    return;
+  }
   for (const el of document.querySelectorAll('h2, h3, h4')) {
     if (!isScrolledIntoView(el)) {
       continue;
@@ -54,39 +57,60 @@ function setActiveToc() {
     }
     tocEl.classList.add('active');
 
-    // update nav on desktop
+    // // update nav on desktop
     // if (window.innerWidth >= 860) {
-    //   gridTocEl.scrollTo({
-    //     top:
-    //       tocEl.getBoundingClientRect().top + gridTocEl.scrollTop - PADDING_TOP,
-    //     behavior: 'smooth',
-    //   });
+    //   tocEl.scrollIntoView({behavior: 'smooth'});
     // }
+    //   {
+    //   top:
+    //     tocEl.getBoundingClientRect().top + gridTocEl.scrollTop - PADDING_TOP,
+    //   behavior: 'smooth',
+    // });
     return;
   }
 }
 
 const gridBodyEl = document.getElementById('grid-body');
+const searchFormInputEl = document.getElementById('search-form-input');
 const tableOfContentsEl = document.querySelector('.sub-navigation .toc');
-const gridTocEl = document.querySelector('.grid-toc');
+const gridTocEl = document.querySelector('#nav-primary');
+
 gridBodyEl.addEventListener('scroll', debounce(setActiveToc));
 window.addEventListener('scroll', debounce(setActiveToc));
+searchFormInputEl.addEventListener('keyup', () => {
+  if (searchFormInputEl.value) {
+    gridTocEl.classList.add('is-mobile-hidden');
+  } else {
+    gridTocEl.classList.remove('is-mobile-hidden');
+  }
+});
 
-document.getElementById('toc-drawer-button').addEventListener('click', (e) => {
-  e.preventDefault();
+document.onkeydown = function (e) {
+  if ((e.ctrlKey || e.metaKey) && e.which == 75) {
+    searchFormInputEl.focus();
+  }
+};
+
+function handleMobileNav(evt) {
+  evt.preventDefault();
   /*If hidden-mobile class is enabled that means we are on desktop do overflow normal but we
     if we are at mobile fixed body position, so that its not scrollable(which currently causing bug) and navbar  handling its
     owns scroll. Case to consider there are chance use can open navbar using toggle button and user when click on any link
     body postion should be unset
     */
-  const ishiddenMobileClassEnabled = gridTocEl.classList.toggle(
-    'hidden-mobile',
-  );
-});
-gridTocEl.addEventListener('click', (e) => {
-  gridTocEl.classList.add('hidden-mobile');
-  document.body.style.position = '';
-});
+  document.body.classList.toggle('is-nav-open');
+  const isOpen = document.body.classList.contains('is-nav-open');
+  if (isOpen) {
+    evt.target.setAttribute('aria-expanded', 'true');
+  } else {
+    evt.target.setAttribute('aria-expanded', 'false');
+  }
+}
+
+const mobileNavBtn = document.getElementById('toc-drawer-button');
+
+mobileNavBtn.addEventListener('click', handleMobileNav);
+mobileNavBtn.addEventListener('touchend', handleMobileNav);
 /* May not be needed:
   window.addEventListener('DOMContentLoaded', (event) => {
     if (!window.location.hash) {
@@ -102,15 +126,23 @@ gridTocEl.addEventListener('click', (e) => {
   */
 
 window.addEventListener('DOMContentLoaded', (event) => {
+  if (!tableOfContentsEl) {
+    return;
+  }
   setActiveToc();
-  document
-    .querySelectorAll('.markdown-body h3, .markdown-body h4')
-    .forEach((headerEl) => {
-      const linkEl = document.createElement('a');
-      // linkEl.setAttribute('target', "_blank");
-      linkEl.setAttribute('href', '#' + headerEl.id);
-      linkEl.classList.add('header-link');
-      linkEl.innerText = '#';
-      headerEl.appendChild(linkEl);
-    });
+  document.querySelectorAll('.content h2, .content h3').forEach((headerEl) => {
+    console.log('link needed');
+    const linkEl = document.createElement('a');
+    // linkEl.setAttribute('target', "_blank");
+    linkEl.setAttribute('href', '#' + headerEl.id);
+    linkEl.classList.add('header-link');
+    linkEl.innerText = '#';
+    headerEl.appendChild(linkEl);
+  });
 });
+
+// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
+// Learn more: https://www.snowpack.dev/#hot-module-replacement
+if (import.meta.hot) {
+  import.meta.hot.accept();
+}
