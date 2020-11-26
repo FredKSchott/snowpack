@@ -1,0 +1,5 @@
+[{
+    "id": "FFF",
+    "input": "import {flatten} from 'array-flatten';",
+    "output": "import {flatten} from '../web_modules/array-flatten.js';"
+}]

@@ -1,0 +1,1 @@
+import {flatten} from 'array-flatten';
