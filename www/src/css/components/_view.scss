@@ -73,6 +73,7 @@ $top-padding: 24px;
 
   .snow-view-main {
     grid-area: main;
+    overflow: hidden;
   }
   .snow-view-full {
     grid-row-start: main;

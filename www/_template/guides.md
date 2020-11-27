@@ -6,6 +6,8 @@ layout: layouts/content.njk
 
 Snowpack Guides are deep dives into popular Snowpack topics.
 
+- [Routing](/guides/routing)
+- [Server-Side Render](/guides/server-side-render)
 - [SSL, HTTPS, and HTTP/2 in Development](/guides/https-ssl-certificates)
 - [Connecting your dev tools](/guides/connecting-tools)
 - [Bundling for Deployment](/guides/bundling)
