@@ -34,6 +34,7 @@ import http from 'http';
 import HttpProxy from 'http-proxy';
 import http2 from 'http2';
 import https from 'https';
+import {isBinaryFile} from 'isbinaryfile';
 import * as colors from 'kleur/colors';
 import mime from 'mime-types';
 import os from 'os';
@@ -52,8 +53,8 @@ import {
   wrapImportProxy,
 } from '../build/build-import-proxy';
 import {buildFile as _buildFile, getInputsFromOutput} from '../build/build-pipeline';
-import {createImportResolver} from '../build/import-resolver';
 import {getUrlForFile} from '../build/file-urls';
+import {createImportResolver} from '../build/import-resolver';
 import {EsmHmrEngine} from '../hmr-server-engine';
 import {logger} from '../logger';
 import {
@@ -65,10 +66,11 @@ import {matchDynamicImportValue} from '../scan-imports';
 import {
   CommandOptions,
   ImportMap,
-  SnowpackBuildMap,
   LoadResult,
-  SnowpackDevServer,
   OnFileChangeCallback,
+  RouteConfigObject,
+  SnowpackBuildMap,
+  SnowpackDevServer,
 } from '../types/snowpack';
 import {
   BUILD_CACHE,
@@ -90,7 +92,6 @@ import {
 } from '../util';
 import {getInstallTargets, run as installRunner} from './install';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
-import {isBinaryFile} from 'isbinaryfile';
 
 interface FoundFile {
   fileLoc: string;
@@ -590,7 +591,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       return null;
     }
 
-    async function getFileFromRoute(reqPath: string): Promise<FoundFile | null> {
+    async function getFileFromLazyUrl(reqPath: string): Promise<FoundFile | null> {
       for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
         let requestedFile: string;
         if (mountEntry.url === '/') {
@@ -634,7 +635,10 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
 
     let foundFile = await getFileFromUrl(reqPath);
     if (!foundFile && isRoute) {
-      foundFile = (await getFileFromRoute(reqPath)) || (await getFileFromFallback());
+      foundFile =
+        (await getFileFromLazyUrl(reqPath)) ||
+        // @deprecated: to be removed in v3
+        (await getFileFromFallback());
     }
 
     if (!foundFile) {
@@ -1125,6 +1129,21 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
    */
   const knownETags = new Map<string, string>();
 
+  function matchRoute(reqUrl: string): RouteConfigObject | null {
+    let reqPath = decodeURI(url.parse(reqUrl).pathname!);
+    const reqExt = path.extname(reqPath);
+    const isRoute = !reqExt || reqExt.toLowerCase() === '.html';
+    for (const route of config.experiments.routes) {
+      if (route.match === 'routes' && !isRoute) {
+        continue;
+      }
+      if (route._srcRegex.test(reqPath)) {
+        return route;
+      }
+    }
+    return null;
+  }
+
   /**
    * Fully handle the response for a given request. This is used internally for
    * every response that the dev server sends, but it can also be used via the
@@ -1135,8 +1154,17 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     res: http.ServerResponse,
     {handleError}: {handleError?: boolean} = {},
   ) {
-    const reqUrl = req.url!;
-    // Check if a configured proxy matches the request.
+    let reqUrl = req.url!;
+    const matchedRoute = matchRoute(reqUrl);
+    // If a route is matched, rewrite the URL or call the route function
+    if (matchedRoute) {
+      if (typeof matchedRoute.dest === 'string') {
+        reqUrl = matchedRoute.dest;
+      } else {
+        return matchedRoute.dest(req, res);
+      }
+    }
+    // @deprecated: to be removed in v3
     const requestProxy = getRequestProxy(reqUrl);
     if (requestProxy) {
       return requestProxy(req, res);

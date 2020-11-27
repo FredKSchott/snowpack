@@ -188,13 +188,20 @@ export interface OptimizeOptions {
   target: 'es2020' | 'es2019' | 'es2018' | 'es2017';
 }
 
+export interface RouteConfigObject {
+  src: string;
+  dest: string | ((req: http.IncomingMessage, res: http.ServerResponse) => void);
+  match: 'routes' | 'all';
+  _srcRegex: RegExp;
+}
+
 // interface this library uses internally
 export interface SnowpackConfig {
   install: string[];
   extends?: string;
   exclude: string[];
   knownEntrypoints: string[];
-  proxy: Proxy[];
+  webDependencies: Record<string, string>;
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   scripts: Record<string, string>;
@@ -225,11 +232,14 @@ export interface SnowpackConfig {
   testOptions: {
     files: string[];
   };
+  // @deprecated - Use experiments.routes instead
+  proxy: Proxy[];
   /** EXPERIMENTAL - This section is experimental and not yet finalized. May change across minor versions. */
   experiments: {
     /** (EXPERIMENTAL) If true, "snowpack build" should build your site for SSR. */
     ssr: boolean;
     /** (EXPERIMENTAL) Custom request handler for the dev server. */
+    /** @deprecated: Use experiments.routes or integrate Snowpack's JS API into your own server instead. */
     app?: (
       req: http.IncomingMessage,
       res: http.ServerResponse,
@@ -237,6 +247,8 @@ export interface SnowpackConfig {
     ) => unknown;
     /** (EXPERIMENTAL) Optimize your site for production. */
     optimize?: OptimizeOptions;
+    /** (EXPERIMENTAL) Configure routes during development. */
+    routes: RouteConfigObject[];
   };
   _extensionMap: Record<string, string>;
 }
@@ -259,6 +271,7 @@ export type SnowpackUserConfig = {
     ssr?: SnowpackConfig['experiments']['ssr'];
     app?: SnowpackConfig['experiments']['app'];
     optimize?: Partial<SnowpackConfig['experiments']['optimize']>;
+    routes?: Pick<RouteConfigObject, 'src' | 'dest' | 'match'>[];
   };
 };
 
