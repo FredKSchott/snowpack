@@ -9,9 +9,10 @@
     "lint": "lerna run lint --parallel --scope=esinstall --scope=snowpack --scope=skypack",
     "publish": "npm run build && lerna publish --no-private",
     "format": "prettier --write '{snowpack,esinstall}/src/**/*.{ts,js}' '{test,plugins}/**/*.{ts,js}' '*.{js,json,md}' '**/*.{json,md}' '.github/**/*.{md,yml}' '!**/{_dist_,build,packages,pkg,TEST_BUILD_OUT,web_modules}/**' !test/create-snowpack-app/test-install",
-    "test": "jest /test/ --test-timeout=30000",
+    "pretest": "node test/setup.js",
+    "test": "jest --test-timeout=30000",
     "test:dev": "jest /test-dev/ --test-timeout=30000",
-    "test:docs": "cd www && jest /__test__/ --passWithNoTests"
+    "test:docs": "cd www && yarn && yarn test --passWithNoTests"
   },
   "workspaces": [
     "esinstall",
@@ -38,6 +39,7 @@
     "@types/signal-exit": "^3.0.0",
     "@types/validate-npm-package-name": "^3.0.0",
     "@types/ws": "^7.2.4",
+    "cheerio": "^1.0.0-rc.3",
     "cross-env": "^7.0.2",
     "execa": "^4.0.3",
     "httpie": "^1.1.2",

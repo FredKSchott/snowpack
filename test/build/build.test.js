@@ -12,6 +12,14 @@ const STRIP_CHUNKHASH = /([\w\-]+\-)[a-z0-9]{8}(\.js)/g;
 const STRIP_ROOTDIR = /"[^"]+([\/\\]+snowpack[\/\\]+test[\/\\]+)(.+?)"/g;
 const STRIP_CSS_MODULES = /_[\d\w]{5}_[\d]{1,3}/g;
 
+const SKIP_TESTS = [
+  'base-url',
+  'base-url-homepage',
+  'base-url-remote',
+  'config-treeshake',
+  'html-environment-variables',
+];
+
 /** format diffs to be meaningful */
 function format(stdout) {
   return stdout
@@ -28,6 +36,9 @@ describe('snowpack build', () => {
     if (testName === 'node_modules' || testName === '__snapshots__' || testName.includes('.')) {
       continue;
     }
+
+    // skip individual tests
+    if (SKIP_TESTS.includes(testName)) continue;
 
     // CSS Modules generate differently on Windows; skip that only for Windows (but test in Unix still)
     if (testName === 'preload-css' && os.platform() === 'win32') {
@@ -49,8 +60,6 @@ describe('snowpack build', () => {
       }
 
       // build test
-      const capitalize = testName === 'entrypoint-ids' && os.platform() === 'win32';
-      execa.sync('yarn', ['testbuild'], {cwd: capitalize ? cwd.toUpperCase() : cwd});
       const actual = testName.startsWith('config-out')
         ? path.join(cwd, 'TEST_BUILD_OUT')
         : path.join(cwd, 'build');
