@@ -67,6 +67,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
     minify: false,
     sourceMaps: false,
     watch: false,
+    htmlFragments: false,
   },
   testOptions: {
     files: ['__tests__/**/*', '**/*.@(spec|test).*'],
@@ -168,6 +169,7 @@ const configSchema = {
         sourceMaps: {type: 'boolean'},
         watch: {type: 'boolean'},
         ssr: {type: 'boolean'},
+        htmlFragments: {type: 'boolean'},
       },
     },
     testOptions: {

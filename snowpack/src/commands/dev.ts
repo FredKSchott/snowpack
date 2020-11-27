@@ -1018,11 +1018,22 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
           coldCachedResponse,
         );
-        const wrappedResponse = await finalizeResponse(
-          fileLoc,
-          requestedFileExt,
-          coldCachedResponse,
-        );
+
+        let wrappedResponse: string | Buffer | null;
+        try {
+          wrappedResponse = await finalizeResponse(fileLoc, requestedFileExt, coldCachedResponse);
+        } catch (err) {
+          logger.error(FILE_BUILD_RESULT_ERROR);
+          hmrEngine.broadcastMessage({
+            type: 'error',
+            title: FILE_BUILD_RESULT_ERROR,
+            errorMessage: err.toString(),
+            fileLoc,
+            errorStackTrace: err.stack,
+          });
+          throw err;
+        }
+
         if (!wrappedResponse) {
           throw new NotFoundError([fileLoc]);
         }

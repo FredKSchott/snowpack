@@ -228,6 +228,7 @@ export interface SnowpackConfig {
     minify: boolean;
     sourceMaps: boolean;
     watch: boolean;
+    htmlFragments: boolean;
   };
   testOptions: {
     files: string[];
