@@ -842,12 +842,16 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         code = await transformEsmImports(code as string, (imp) => {
           const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
           const node = hmrEngine.getEntry(importUrl);
-          if (node && node.needsReplacement) {
-            node.mtime = mtime;
+          if (node == null) return imp;
+          if (node.needsReplacement) {
             hmrEngine.markEntryForReplacement(node, false);
+            node.mtime = mtime;
           }
-          if (node && node.mtime) {
+          if (node.mtime && !node.isHmrAccepted) {
             return `${imp}?mtime=${node.mtime}`;
+          }
+          if (node.needsReplacement) {
+            return `${imp}?mtime=${mtime}`;
           }
           return imp;
         });
