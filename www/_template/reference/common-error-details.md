@@ -31,7 +31,6 @@ This error could also appear if you importing named exports from older, non-ESM 
 
 **To solve:** Use the default import (`import pkg from 'my-old-package'`) for legacy Common.js/UMD packages that cannot be analyzed.
 
-
 ### Installing Non-JS Packages
 
 When installing packages from npm, you may encounter some file formats that can run only with additional parsing/processing. First check to see if there is a [Snowpack plugin for the type of file](#plugins).

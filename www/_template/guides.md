@@ -99,11 +99,9 @@ background: linear-gradient(30deg, #A7BFE8, #6190E8);
 
 </style>
 
-
 <h2 class="content-title">
   {{ title }}
 </h2>
-
 
 <h3 class="content-title">
   Using Snowpack
