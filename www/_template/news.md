@@ -175,7 +175,6 @@ background: linear-gradient(30deg, #ff9472, #f2709c);
 
 </style>
 
-
 <h2 class="content-title">
   {{ title }}
 </h2>
@@ -191,6 +190,7 @@ Got something that you think we should feature? [Submit it!](https://github.com/
   </article>
 
 {% for item in news %}
+
 <article class="news-item">
   <a href="{{ item.url }}" style="text-decoration: none; color: initial;">
 {% if item.img %}<img class="news-item-image" src="{{ item.img }}" alt="" />
@@ -205,10 +205,6 @@ Got something that you think we should feature? [Submit it!](https://github.com/
 </article>
 {% endfor %}
 </div>
-
-
-
-
 
 <div class="content">
 

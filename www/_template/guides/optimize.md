@@ -7,7 +7,7 @@ There are several plugins available to optimize your final build with popular bu
 
 **[@snowpack/plugin-webpack](/guides/webpack) is currently our recommended stable bundler for production websites.**
 
-Snowpack recently released an optimization pipeline powered by [esbuild](https://esbuild.github.io/). While this built-in pipeline can optimize your build 10x faster than Webpack or Rollup, esbuild is still young and [not yet production-ready](https://esbuild.github.io/faq/#production-readiness). Therefore, we currently  only recommended this for smaller projects.
+Snowpack recently released an optimization pipeline powered by [esbuild](https://esbuild.github.io/). While this built-in pipeline can optimize your build 10x faster than Webpack or Rollup, esbuild is still young and [not yet production-ready](https://esbuild.github.io/faq/#production-readiness). Therefore, we currently only recommended this for smaller projects.
 
 ## Recommended: Optimize your build with Webpack
 
