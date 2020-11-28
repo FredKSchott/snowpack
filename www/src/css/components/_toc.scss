@@ -19,19 +19,31 @@ $top-padding: 24px;
     color: $grey;
   }
 
+  &::before {
+      content: "▸";
+      position: absolute;
+      opacity: 0;
+      left: -19px;
+      top: -2px;
+      font-weight: 400;
+      transition: left .14s ease-out;
+      font-size: 26px;
+      line-height: 1;
+  }
+
+
   &:hover {
     text-decoration: underline;
   }
 
   &.active {
     color: #0c8cec;
-    font-weight: bold;
     text-decoration: underline;
 
     &::before {
-      left: -17px;
       opacity: 1;
-    }
+      left: -17px;
+  }
   }
 }
 

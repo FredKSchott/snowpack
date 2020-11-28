@@ -24,6 +24,25 @@ $top-padding: 24px;
     grid-template-columns: 18rem auto 18rem;
   }
 
+  &.is-home {
+    margin-bottom: 3rem;
+
+    .snow-view-nav {
+      @media (min-width: $breakpoint-m) {
+        position: static;
+        max-height: inherit;
+      }
+    }
+  }
+  &.is-full {
+    .snow-view-main {
+      grid-row-start: main;
+      grid-row-end: main;
+      grid-column-start: main;
+      grid-column-end: subnav;
+    }
+  }
+
   // -----------
   //  Components
   // -----------
@@ -43,14 +62,30 @@ $top-padding: 24px;
     color: $white;
     background: $dark-blue;
 
+    body.is-nav-open & {
+      display: block;
+    }
+  }
+
+  .snow-view-main {
+    grid-area: main;
+    padding-bottom: 2rem;
+  }
+
+  .snow-view-subnav {
+    grid-area: subnav;
+    padding-bottom: 2rem;
+  }
+
+  .snow-view-nav,
+  .snow-view-subnav {
     @media (min-width: $breakpoint-m) {
       position: sticky;
       top: $nav-height;
       z-index: 1;
       display: block;
-      max-height: calc(100vh - #{$nav-height + $top-padding});
-      padding: $top-padding 0 0 0;
-      overflow-y: auto;
+      max-height: calc(100vh - #{$nav-height});
+      padding: $top-padding 0 $top-padding 0;
       color: inherit;
       background: none;
       -webkit-overflow-scrolling: touch;
@@ -65,24 +100,5 @@ $top-padding: 24px;
         opacity: 0;
       }
     }
-
-    body.is-nav-open & {
-      display: block;
-    }
-  }
-
-  .snow-view-main {
-    grid-area: main;
-    overflow: hidden;
-  }
-  .snow-view-full {
-    grid-row-start: main;
-    grid-row-end: main;
-    grid-column-start: main;
-    grid-column-end: subnav;
-  }
-
-  .snow-view-subnav {
-    grid-area: subnav;
   }
 }

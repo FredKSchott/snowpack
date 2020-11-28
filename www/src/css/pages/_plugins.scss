@@ -1,11 +1,13 @@
 .pluginPage {
   &-count {
-    margin-bottom: 1.5rem;
+    margin: 0.5rem 0 1rem;
     color: rgba(black, 0.6);
     font-weight: 300;
     font-size: 1em;
     font-style: italic;
     text-align: center;
+    max-width: 600px;
+    min-height: 24px;
 
     @media (min-width: 600px) {
       font-size: 1.2em;
@@ -16,7 +18,7 @@
     margin-top: 1rem;
     margin-bottom: 1rem;
     line-height: 1.5;
-    text-align: center;
+    text-align: left;
 
     a {
       color: #2e5e82;
@@ -26,6 +28,7 @@
   &-search {
     display: flex;
     width: 100%;
+    max-width: 600px;
 
     &-input {
       flex-grow: 1;
@@ -66,16 +69,17 @@
   }
 
   &-subheading {
-    margin-top: 2rem;
-    margin-bottom: 1.5rem;
+    margin-top: -2.5rem;
+    margin-bottom: 0;
     color: #2e5e82;
     font-size: 1em;
     font-family: 'Overpass', sans-serif;
     letter-spacing: -0.02em;
-    text-align: center;
+    text-align: left;
+    font-weight: 500;
 
     @media (min-width: 600px) {
-      font-size: 1.3em;
+      font-size: 1.5em;
     }
   }
 
@@ -84,7 +88,7 @@
     margin-bottom: 1.5rem;
     font-weight: 700;
     font-size: 1.4em;
-    text-align: center;
+    text-align: left;
 
     @media (min-width: 600px) {
       font-size: 1.5em;

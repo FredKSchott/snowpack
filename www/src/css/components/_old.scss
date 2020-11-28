@@ -235,9 +235,15 @@ img.company-logo {
 
 //
 .content-title {
-  font-size: 3em;
+  font-family: $heading;
   line-height: 1em;
   letter-spacing: -0.05em;
+}
+h2.content-title {
+  font-size: 3em;
+}
+h3.content-title {
+  font-size: 2em;
 }
 
 // Search form

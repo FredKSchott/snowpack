@@ -1,7 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Vue
-tags: guides
+tags: communityGuide
 ---
 
 ## Vue
