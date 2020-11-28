@@ -1,16 +1,27 @@
 ---
-layout: layouts/main.njk
-title: 'Snowpack - The faster frontend build tool'
-description: 'Snowpack is the fast, bundle-free build tool for all kinds of frontend projects.'
+layout: layouts/base.njk
 ---
 
-<div class="content">
-  <h2 class="content-title">
-    {{ title }}
-  </h2>
-  <div class="content-layout">
-    <div class="content-body">
-      {{ content | safe }}
-    </div>
-  </div>
+<div class="container">
+  <section class="snow-view__docs">
+
+    <aside id="nav-primary" class="snow-view-nav">
+      {% include 'layouts/components/menu.njk' %}
+    </aside>
+
+    <article id="grid-body" class="snow-view-main">
+      <div class="content">
+        <h2 class="content-title">
+          {{ title }}
+        </h2>
+        <div class="content-layout">
+          <div class="content-body">
+            {{ content | safe }}
+          </div>
+        </div>
+      </div>
+    </article>
+
+    {% include 'layouts/components/subnav.njk' %}
+  </section>
 </div>
