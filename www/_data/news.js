@@ -55,13 +55,13 @@ const NEWS = [
     url: 'https://scribbble.io/subhero/getting-started-with-snowpack-react-and-tailwind/',
   },
   {
-    title: 'The Official React Guide to Snowpack',
+    title: 'New Official Guide: React',
     date: new Date('2020-12-01'),
     url: 'https://next.snowpack.dev/tutorials/react',
     img: 'https://next.snowpack.dev/img/ReactGuide.jpg' 
   },
   {
-    title: 'The Official Svelte Guide to Snowpack',
+    title: 'New Official Guide: Svelte',
     date: new Date('2020-12-01'),
     url: 'https://next.snowpack.dev/tutorials/svelte',
     img: 'https://next.snowpack.dev/img/ReactGuide.jpg'
