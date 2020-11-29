@@ -13,7 +13,10 @@ To Resolve:
   }
   const pkgManifest = require(path.join(cwd, 'package.json'));
   const config = snowpack.loadAndValidateConfig(
-    {devOptions: {hmr: false, open: 'none', output: 'stream'}},
+    {
+      externalPackage: ['/__web-dev-server__web-socket.js'],
+      devOptions: {hmr: false, open: 'none', output: 'stream'},
+    },
     pkgManifest,
   );
   let server;
