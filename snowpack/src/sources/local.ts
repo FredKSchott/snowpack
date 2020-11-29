@@ -34,7 +34,7 @@ async function installDependencies(commandOptions: CommandOptions) {
 
 // A bit of a hack: we keep this in local state and populate it
 // during the "prepare" call. Useful so that we don't need to pass
-// this implementation detail around outside of this interface. 
+// this implementation detail around outside of this interface.
 // Can't add it to the exported interface due to TS.
 let installCommandOptions: CommandOptions;
 

@@ -35,7 +35,7 @@ function parseRawPackageImport(spec: string): [string, string | null] {
 }
 
 /**
- * Skypack Package Source: A generic interface through which 
+ * Skypack Package Source: A generic interface through which
  * Snowpack interacts with the Skypack CDN. Used to load dependencies
  * from the CDN during both development and optimized building.
  */
