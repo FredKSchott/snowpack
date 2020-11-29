@@ -91,6 +91,7 @@ module.exports = function plugin(snowpackConfig) {
 
       if (descriptor.template) {
         const js = compiler.compileTemplate({
+          id,
           filename: path.relative(process.cwd(), filePath),
           source: descriptor.template.content,
           preprocessLang: descriptor.template.lang,
