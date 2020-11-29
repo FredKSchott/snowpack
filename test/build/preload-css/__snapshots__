@@ -81,8 +81,8 @@ exports[`snowpack build preload-css: build/_dist_/scoped.module.css 1`] = `".one
 
 exports[`snowpack build preload-css: build/_dist_/scoped.module.css.proxy.js 1`] = `
 "
-export let code = \\"._one_XXXXX_1 {  color: palegoldenrod;}._two_XXXXX_5 {  color: khaki;}\\";
-let json = {\\"one\\":\\"_one_XXXXX_1\\",\\"two\\":\\"_two_XXXXX_5\\"};
+export let code = \\"._one_XXXXX_XX {  color: palegoldenrod;}._two_XXXXX_XX {  color: khaki;}\\";
+let json = {\\"one\\":\\"_one_XXXXX_XX\\",\\"two\\":\\"_two_XXXXX_XX\\"};
 export default json;
 // [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
@@ -98,8 +98,8 @@ exports[`snowpack build preload-css: build/_dist_/scoped-scss.module.css 1`] = `
 
 exports[`snowpack build preload-css: build/_dist_/scoped-scss.module.css.proxy.js 1`] = `
 "
-export let code = \\"._XXXXX_1tn23_1 {  color: ghostwhite;}._four_XXXXX_5 {  color: lemonchiffon;}\\";
-let json = {\\"three\\":\\"_XXXXX_1tn23_1\\",\\"four\\":\\"_four_XXXXX_5\\"};
+export let code = \\"._XXXXX_XXtn23_1 {  color: ghostwhite;}._four_XXXXX_XX {  color: lemonchiffon;}\\";
+let json = {\\"three\\":\\"_XXXXX_XXtn23_1\\",\\"four\\":\\"_four_XXXXX_XX\\"};
 export default json;
 // [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
