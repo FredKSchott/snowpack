@@ -120,6 +120,13 @@ function update_slot(slot, slot_definition, ctx, $$scope, dirty, get_slot_change
         slot.p(slot_context, slot_changes);
     }
 }
+function update_slot_spread(slot, slot_definition, ctx, $$scope, dirty, get_slot_changes_fn, get_slot_spread_changes_fn, get_slot_context_fn) {
+    const slot_changes = get_slot_spread_changes_fn(dirty) | get_slot_changes(slot_definition, $$scope, dirty, get_slot_changes_fn);
+    if (slot_changes) {
+        const slot_context = get_slot_context(slot_definition, ctx, $$scope, get_slot_context_fn);
+        slot.p(slot_context, slot_changes);
+    }
+}
 function exclude_internal_props(props) {
     const result = {};
     for (const k in props)
@@ -515,6 +522,20 @@ class HtmlTag {
         this.n.forEach(detach);
     }
 }
+function attribute_to_object(attributes) {
+    const result = {};
+    for (const attribute of attributes) {
+        result[attribute.name] = attribute.value;
+    }
+    return result;
+}
+function get_custom_elements_slots(element) {
+    const result = {};
+    element.childNodes.forEach((node) => {
+        result[node.slot || 'default'] = true;
+    });
+    return result;
+}
 const active_docs = new Set();
 let active = 0;
 // https://github.com/darkskyapp/string-hash/blob/master/index.js
@@ -683,6 +704,9 @@ function setContext(key, context) {
 }
 function getContext(key) {
     return get_current_component().$$.context.get(key);
+}
+function hasContext(key) {
+    return get_current_component().$$.context.has(key);
 }
 // TODO figure out if we still want to support
 // shorthand events, or if we want to implement
@@ -1555,7 +1579,7 @@ class SvelteComponent {
     }
 }
 function dispatch_dev(type, detail) {
-    document.dispatchEvent(custom_event(type, Object.assign({ version: '3.29.4' }, detail)));
+    document.dispatchEvent(custom_event(type, Object.assign({ version: '3.30.0' }, detail)));
 }
 function append_dev(target, node) {
     dispatch_dev('SvelteDOMInsert', { target, node });
@@ -1659,7 +1683,7 @@ function loop_guard(timeout) {
         }
     };
 }
-export { HtmlTag, SvelteComponent, SvelteComponentDev, SvelteElement, action_destroyer, add_attribute, add_classes, add_flush_callback, add_location, add_render_callback, add_resize_listener, add_transform, afterUpdate, append, append_dev, assign, attr, attr_dev, beforeUpdate, bind, binding_callbacks, blank_object, bubble, check_outros, children, claim_component, claim_element, claim_space, claim_text, clear_loops, component_subscribe, compute_rest_props, compute_slots, createEventDispatcher, create_animation, create_bidirectional_transition, create_component, create_in_transition, create_out_transition, create_slot, create_ssr_component, current_component, custom_event, dataset_dev, debug, destroy_block, destroy_component, destroy_each, detach, detach_after_dev, detach_before_dev, detach_between_dev, detach_dev, dirty_components, dispatch_dev, each, element, element_is, empty, escape, escaped, exclude_internal_props, fix_and_destroy_block, fix_and_outro_and_destroy_block, fix_position, flush, getContext, get_binding_group_value, get_current_component, get_slot_changes, get_slot_context, get_spread_object, get_spread_update, get_store_value, globals, group_outros, handle_promise, has_prop, identity, init, insert, insert_dev, intros, invalid_attribute_name_character, is_client, is_crossorigin, is_empty, is_function, is_promise, listen, listen_dev, loop, loop_guard, missing_component, mount_component, noop, not_equal, now, null_to_empty, object_without_properties, onDestroy, onMount, once, outro_and_destroy_block, prevent_default, prop_dev, query_selector_all, raf, run, run_all, safe_not_equal, schedule_update, select_multiple_value, select_option, select_options, select_value, self, setContext, set_attributes, set_current_component, set_custom_element_data, set_data, set_data_dev, set_input_type, set_input_value, set_now, set_raf, set_store_value, set_style, set_svg_attributes, space, spread, stop_propagation, subscribe, svg_element, text, tick, time_ranges_to_array, to_number, toggle_class, transition_in, transition_out, update_keyed_each, update_slot, validate_component, validate_each_argument, validate_each_keys, validate_slots, validate_store, xlink_attr };"
+export { HtmlTag, SvelteComponent, SvelteComponentDev, SvelteElement, action_destroyer, add_attribute, add_classes, add_flush_callback, add_location, add_render_callback, add_resize_listener, add_transform, afterUpdate, append, append_dev, assign, attr, attr_dev, attribute_to_object, beforeUpdate, bind, binding_callbacks, blank_object, bubble, check_outros, children, claim_component, claim_element, claim_space, claim_text, clear_loops, component_subscribe, compute_rest_props, compute_slots, createEventDispatcher, create_animation, create_bidirectional_transition, create_component, create_in_transition, create_out_transition, create_slot, create_ssr_component, current_component, custom_event, dataset_dev, debug, destroy_block, destroy_component, destroy_each, detach, detach_after_dev, detach_before_dev, detach_between_dev, detach_dev, dirty_components, dispatch_dev, each, element, element_is, empty, escape, escaped, exclude_internal_props, fix_and_destroy_block, fix_and_outro_and_destroy_block, fix_position, flush, getContext, get_binding_group_value, get_current_component, get_custom_elements_slots, get_slot_changes, get_slot_context, get_spread_object, get_spread_update, get_store_value, globals, group_outros, handle_promise, hasContext, has_prop, identity, init, insert, insert_dev, intros, invalid_attribute_name_character, is_client, is_crossorigin, is_empty, is_function, is_promise, listen, listen_dev, loop, loop_guard, missing_component, mount_component, noop, not_equal, now, null_to_empty, object_without_properties, onDestroy, onMount, once, outro_and_destroy_block, prevent_default, prop_dev, query_selector_all, raf, run, run_all, safe_not_equal, schedule_update, select_multiple_value, select_option, select_options, select_value, self, setContext, set_attributes, set_current_component, set_custom_element_data, set_data, set_data_dev, set_input_type, set_input_value, set_now, set_raf, set_store_value, set_style, set_svg_attributes, space, spread, stop_propagation, subscribe, svg_element, text, tick, time_ranges_to_array, to_number, toggle_class, transition_in, transition_out, update_keyed_each, update_slot, update_slot_spread, validate_component, validate_each_argument, validate_each_keys, validate_slots, validate_store, xlink_attr };"
 `;
 
 exports[`snowpack install config-rollup: web_modules/svelte-routing.js 1`] = `
@@ -2166,8 +2190,8 @@ function hostMatches(anchor) {
 /* XXXX generated by Svelte vX.X.X */
 function create_fragment(ctx) {
 	let current;
-	const default_slot_template = /*#slots*/ ctx[6].default;
-	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[5], null);
+	const default_slot_template = /*#slots*/ ctx[9].default;
+	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[8], null);
 	return {
 		c() {
 			if (default_slot) default_slot.c();
@@ -2180,8 +2204,8 @@ function create_fragment(ctx) {
 		},
 		p(ctx, [dirty]) {
 			if (default_slot) {
-				if (default_slot.p && dirty & /*$$scope*/ 32) {
-					update_slot(default_slot, default_slot_template, ctx, /*$$scope*/ ctx[5], dirty, null, null);
+				if (default_slot.p && dirty & /*$$scope*/ 256) {
+					update_slot(default_slot, default_slot_template, ctx, /*$$scope*/ ctx[8], dirty, null, null);
 				}
 			}
 		},
@@ -2209,13 +2233,13 @@ function instance($$self, $$props, $$invalidate) {
 	const locationContext = getContext(LOCATION);
 	const routerContext = getContext(ROUTER);
 	const routes = writable([]);
-	component_subscribe($$self, routes, value => $$invalidate(10, $routes = value));
+	component_subscribe($$self, routes, value => $$invalidate(7, $routes = value));
 	const activeRoute = writable(null);
 	let hasActiveRoute = false; // Used in SSR to synchronously set that a Route is active.
 	// If locationContext is not set, this is the topmost Router in the tree.
 	// If the \`url\` prop is given we force the location to it.
 	const location = locationContext || writable(url ? { pathname: url } : globalHistory.location);
-	component_subscribe($$self, location, value => $$invalidate(9, $location = value));
+	component_subscribe($$self, location, value => $$invalidate(6, $location = value));
 	// If routerContext is set, the routerBase of the parent Router
 	// will be the base for this Router's descendants.
 	// If routerContext is not set, the path and resolved uri will both
@@ -2223,7 +2247,7 @@ function instance($$self, $$props, $$invalidate) {
 	const base = routerContext
 	? routerContext.routerBase
 	: writable({ path: basepath, uri: basepath });
-	component_subscribe($$self, base, value => $$invalidate(8, $base = value));
+	component_subscribe($$self, base, value => $$invalidate(5, $base = value));
 	const routerBase = derived([base, activeRoute], ([base, activeRoute]) => {
 		// If there is no activeRoute, the routerBase will be identical to the base.
 		if (activeRoute === null) {
@@ -2293,10 +2317,10 @@ function instance($$self, $$props, $$invalidate) {
 	$$self.$$set = $$props => {
 		if (\\"basepath\\" in $$props) $$invalidate(3, basepath = $$props.basepath);
 		if (\\"url\\" in $$props) $$invalidate(4, url = $$props.url);
-		if (\\"$$scope\\" in $$props) $$invalidate(5, $$scope = $$props.$$scope);
+		if (\\"$$scope\\" in $$props) $$invalidate(8, $$scope = $$props.$$scope);
 	};
 	$$self.$$.update = () => {
-		if ($$self.$$.dirty & /*$base*/ 256) {
+		if ($$self.$$.dirty & /*$base*/ 32) {
 			// This reactive statement will update all the Routes' path when
 			// the basepath changes.
 			 {
@@ -2307,7 +2331,7 @@ function instance($$self, $$props, $$invalidate) {
 				});
 			}
 		}
-		if ($$self.$$.dirty & /*$routes, $location*/ 1536) {
+		if ($$self.$$.dirty & /*$routes, $location*/ 192) {
 			// This reactive statement will be run when the Router is created
 			// when there are no Routes and then again the following tick, so it
 			// will not find an active Route in SSR and in the browser it will only
@@ -2318,7 +2342,18 @@ function instance($$self, $$props, $$invalidate) {
 			}
 		}
 	};
-	return [routes, location, base, basepath, url, $$scope, slots];
+	return [
+		routes,
+		location,
+		base,
+		basepath,
+		url,
+		$base,
+		$location,
+		$routes,
+		$$scope,
+		slots
+	];
 }
 class Router extends SvelteComponent {
 	constructor(options) {
@@ -2328,11 +2363,11 @@ class Router extends SvelteComponent {
 }
 /* XXXX generated by Svelte vX.X.X */
 const get_default_slot_changes = dirty => ({
-	params: dirty & /*routeParams*/ 2,
+	params: dirty & /*routeParams*/ 4,
 	location: dirty & /*$location*/ 16
 });
 const get_default_slot_context = ctx => ({
-	params: /*routeParams*/ ctx[1],
+	params: /*routeParams*/ ctx[2],
 	location: /*$location*/ ctx[4]
 });
 // (40:0) {#if $activeRoute !== null && $activeRoute.route === route}
@@ -2374,6 +2409,8 @@ function create_if_block(ctx) {
 				if (!if_block) {
 					if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 					if_block.c();
+				} else {
+					if_block.p(ctx, dirty);
 				}
 				transition_in(if_block, 1);
 				if_block.m(if_block_anchor.parentNode, if_block_anchor);
@@ -2411,7 +2448,7 @@ function create_else_block(ctx) {
 		},
 		p(ctx, dirty) {
 			if (default_slot) {
-				if (default_slot.p && dirty & /*$$scope, routeParams, $location*/ 530) {
+				if (default_slot.p && dirty & /*$$scope, routeParams, $location*/ 532) {
 					update_slot(default_slot, default_slot_template, ctx, /*$$scope*/ ctx[9], dirty, get_default_slot_changes, get_default_slot_context);
 				}
 			}
@@ -2437,8 +2474,8 @@ function create_if_block_1(ctx) {
 	let current;
 	const switch_instance_spread_levels = [
 		{ location: /*$location*/ ctx[4] },
-		/*routeParams*/ ctx[1],
-		/*routeProps*/ ctx[2]
+		/*routeParams*/ ctx[2],
+		/*routeProps*/ ctx[3]
 	];
 	var switch_value = /*component*/ ctx[0];
 	function switch_props(ctx) {
@@ -2464,11 +2501,11 @@ function create_if_block_1(ctx) {
 			current = true;
 		},
 		p(ctx, dirty) {
-			const switch_instance_changes = (dirty & /*$location, routeParams, routeProps*/ 22)
+			const switch_instance_changes = (dirty & /*$location, routeParams, routeProps*/ 28)
 			? get_spread_update(switch_instance_spread_levels, [
 					dirty & /*$location*/ 16 && { location: /*$location*/ ctx[4] },
-					dirty & /*routeParams*/ 2 && get_spread_object(/*routeParams*/ ctx[1]),
-					dirty & /*routeProps*/ 4 && get_spread_object(/*routeProps*/ ctx[2])
+					dirty & /*routeParams*/ 4 && get_spread_object(/*routeParams*/ ctx[2]),
+					dirty & /*routeProps*/ 8 && get_spread_object(/*routeProps*/ ctx[3])
 				])
 			: {};
 			if (switch_value !== (switch_value = /*component*/ ctx[0])) {
@@ -2510,7 +2547,7 @@ function create_if_block_1(ctx) {
 function create_fragment$1(ctx) {
 	let if_block_anchor;
 	let current;
-	let if_block = /*$activeRoute*/ ctx[3] !== null && /*$activeRoute*/ ctx[3].route === /*route*/ ctx[7] && create_if_block(ctx);
+	let if_block = /*$activeRoute*/ ctx[1] !== null && /*$activeRoute*/ ctx[1].route === /*route*/ ctx[7] && create_if_block(ctx);
 	return {
 		c() {
 			if (if_block) if_block.c();
@@ -2522,10 +2559,10 @@ function create_fragment$1(ctx) {
 			current = true;
 		},
 		p(ctx, [dirty]) {
-			if (/*$activeRoute*/ ctx[3] !== null && /*$activeRoute*/ ctx[3].route === /*route*/ ctx[7]) {
+			if (/*$activeRoute*/ ctx[1] !== null && /*$activeRoute*/ ctx[1].route === /*route*/ ctx[7]) {
 				if (if_block) {
 					if_block.p(ctx, dirty);
-					if (dirty & /*$activeRoute*/ 8) {
+					if (dirty & /*$activeRoute*/ 2) {
 						transition_in(if_block, 1);
 					}
 				} else {
@@ -2564,7 +2601,7 @@ function instance$1($$self, $$props, $$invalidate) {
 	let { path = \\"\\" } = $$props;
 	let { component = null } = $$props;
 	const { registerRoute, unregisterRoute, activeRoute } = getContext(ROUTER);
-	component_subscribe($$self, activeRoute, value => $$invalidate(3, $activeRoute = value));
+	component_subscribe($$self, activeRoute, value => $$invalidate(1, $activeRoute = value));
 	const location = getContext(LOCATION);
 	component_subscribe($$self, location, value => $$invalidate(4, $location = value));
 	const route = {
@@ -2590,22 +2627,22 @@ function instance$1($$self, $$props, $$invalidate) {
 		if (\\"$$scope\\" in $$new_props) $$invalidate(9, $$scope = $$new_props.$$scope);
 	};
 	$$self.$$.update = () => {
-		if ($$self.$$.dirty & /*$activeRoute*/ 8) {
+		if ($$self.$$.dirty & /*$activeRoute*/ 2) {
 			 if ($activeRoute && $activeRoute.route === route) {
-				$$invalidate(1, routeParams = $activeRoute.params);
+				$$invalidate(2, routeParams = $activeRoute.params);
 			}
 		}
 		 {
 			const { path, component, ...rest } = $$props;
-			$$invalidate(2, routeProps = rest);
+			$$invalidate(3, routeProps = rest);
 		}
 	};
 	$$props = exclude_internal_props($$props);
 	return [
 		component,
+		$activeRoute,
 		routeParams,
 		routeProps,
-		$activeRoute,
 		$location,
 		activeRoute,
 		location,
@@ -2627,8 +2664,8 @@ function create_fragment$2(ctx) {
 	let current;
 	let mounted;
 	let dispose;
-	const default_slot_template = /*#slots*/ ctx[11].default;
-	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[10], null);
+	const default_slot_template = /*#slots*/ ctx[15].default;
+	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[14], null);
 	let a_levels = [
 		{ href: /*href*/ ctx[0] },
 		{ \\"aria-current\\": /*ariaCurrent*/ ctx[2] },
@@ -2657,8 +2694,8 @@ function create_fragment$2(ctx) {
 		},
 		p(ctx, [dirty]) {
 			if (default_slot) {
-				if (default_slot.p && dirty & /*$$scope*/ 1024) {
-					update_slot(default_slot, default_slot_template, ctx, /*$$scope*/ ctx[10], dirty, null, null);
+				if (default_slot.p && dirty & /*$$scope*/ 16384) {
+					update_slot(default_slot, default_slot_template, ctx, /*$$scope*/ ctx[14], dirty, null, null);
 				}
 			}
 			set_attributes(a, a_data = get_spread_update(a_levels, [
@@ -2693,9 +2730,9 @@ function instance$2($$self, $$props, $$invalidate) {
 	let { state = {} } = $$props;
 	let { getProps = () => ({}) } = $$props;
 	const { base } = getContext(ROUTER);
-	component_subscribe($$self, base, value => $$invalidate(14, $base = value));
+	component_subscribe($$self, base, value => $$invalidate(12, $base = value));
 	const location = getContext(LOCATION);
-	component_subscribe($$self, location, value => $$invalidate(15, $location = value));
+	component_subscribe($$self, location, value => $$invalidate(13, $location = value));
 	const dispatch = createEventDispatcher();
 	let href, isPartiallyCurrent, isCurrent, props;
 	function onClick(event) {
@@ -2713,23 +2750,23 @@ function instance$2($$self, $$props, $$invalidate) {
 		if (\\"replace\\" in $$props) $$invalidate(7, replace = $$props.replace);
 		if (\\"state\\" in $$props) $$invalidate(8, state = $$props.state);
 		if (\\"getProps\\" in $$props) $$invalidate(9, getProps = $$props.getProps);
-		if (\\"$$scope\\" in $$props) $$invalidate(10, $$scope = $$props.$$scope);
+		if (\\"$$scope\\" in $$props) $$invalidate(14, $$scope = $$props.$$scope);
 	};
 	let ariaCurrent;
 	$$self.$$.update = () => {
-		if ($$self.$$.dirty & /*to, $base*/ 16448) {
+		if ($$self.$$.dirty & /*to, $base*/ 4160) {
 			 $$invalidate(0, href = to === \\"/\\" ? $base.uri : resolve(to, $base.uri));
 		}
-		if ($$self.$$.dirty & /*$location, href*/ 32769) {
-			 $$invalidate(12, isPartiallyCurrent = startsWith($location.pathname, href));
+		if ($$self.$$.dirty & /*$location, href*/ 8193) {
+			 $$invalidate(10, isPartiallyCurrent = startsWith($location.pathname, href));
 		}
-		if ($$self.$$.dirty & /*href, $location*/ 32769) {
-			 $$invalidate(13, isCurrent = href === $location.pathname);
+		if ($$self.$$.dirty & /*href, $location*/ 8193) {
+			 $$invalidate(11, isCurrent = href === $location.pathname);
 		}
-		if ($$self.$$.dirty & /*isCurrent*/ 8192) {
+		if ($$self.$$.dirty & /*isCurrent*/ 2048) {
 			 $$invalidate(2, ariaCurrent = isCurrent ? \\"page\\" : undefined);
 		}
-		if ($$self.$$.dirty & /*getProps, $location, href, isPartiallyCurrent, isCurrent*/ 45569) {
+		if ($$self.$$.dirty & /*getProps, $location, href, isPartiallyCurrent, isCurrent*/ 11777) {
 			 $$invalidate(1, props = getProps({
 				location: $location,
 				href,
@@ -2749,6 +2786,10 @@ function instance$2($$self, $$props, $$invalidate) {
 		replace,
 		state,
 		getProps,
+		isPartiallyCurrent,
+		isCurrent,
+		$base,
+		$location,
 		$$scope,
 		slots
 	];
