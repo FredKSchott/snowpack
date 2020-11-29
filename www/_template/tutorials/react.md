@@ -1,12 +1,11 @@
 ---
-layout: layouts/content.njk
-title: The Snowpack Guide to Getting Started with React
+layout: layouts/content-with-cover.njk
+title: 'Getting Started with React'
 description: 'Get started with this in-depth tutorial on how to build React applications and websites with Snowpack and developer tools like React Fast Refresh'
-date: 2020-10-01
-tags: guides
+date: 2020-12-01
+tags: communityGuide
+cover: '/img/ReactGuide.jpg'
 ---
-
-<img src="/img/ReactGuide.jpg" alt="header image, showing the React and Snowpack logo against a background of blue mountains" />
 
 Snowpack is a great fit for [React](https://reactjs.org/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional React application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
 

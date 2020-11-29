@@ -1,5 +1,5 @@
 ---
-layout: layouts/base.njk
+layout: layouts/main.njk
 title: 'The Snowpack Plugin Catalog'
 permalink: '/plugins/'
 ---
@@ -13,7 +13,6 @@ permalink: '/plugins/'
   .cards {
     list-style: none;
     max-width: 600px;
-    margin: 0 auto;
   }
   .plugin-icon {
     height: 52px;
@@ -23,7 +22,7 @@ permalink: '/plugins/'
     margin-top: 8px;
     opacity: 0.5;
     transform: rotate(45deg);
-background: radial-gradient(to top, red, blue);
+    background: radial-gradient(to top, red, blue);
   }
   .card:nth-child(3n+2) .plugin-icon {
     filter: hue-rotate(-60deg);
@@ -33,7 +32,7 @@ background: radial-gradient(to top, red, blue);
   }
 
   .card {
-    margin: 1rem 0.25em;
+    margin: 0.5rem 0.25em;
     border-radius: 4px;
     padding: 0.5rem 0.5rem 0.5rem 48px;
   }
@@ -71,45 +70,28 @@ background: radial-gradient(to top, red, blue);
   }
 </style>
 
-<div class="container">
-  <section class="snow-view__docs">
+<h2 class="content-title">
+  {{ title }}
+</h2>
 
-    <aside id="nav-primary" class="snow-view-nav">
-      {% include 'layouts/components/menu.njk' %}
-    </aside>
+<h3 class="pluginPage-subheading">Customize Snowpack with optimized build plugins.</h3>
+<p class="pluginPage-intro">To learn more about our plugin system, check out the
+        <a href="/reference/plugins">Plugin API.</a><br/>Can't find what you need? <a href="/reference/plugins">Creating your own plugin is easy!</a>
+</p>
+<form name="myform" id="myform" class="pluginPage-search" action="https://www.npmjs.com/search" method="GET">
+  <input type="search" name="q" value="" placeholder="search Sass, sitemaps, image optimization..." class="pluginPage-search-input">
+  <button type="submit" class="pluginPage-search-submit">Search</button>
+</form>
+<div class="pluginPage-count" id="total-result-count"></div>
 
-    <article id="grid-body" class="grid-body snow-view-main">
-      <div class="grid-body-header">
-      <br/>
-      <br/>
-        <p class="header-snowpack-subtitle">
-          The Snowpack Plugin Catalog
-        </p>
-      </div>
+{# <h2 class="pluginPage-zero-heading">Popular Snowpack Plugins</h2> #}
 
-      <h3 class="pluginPage-subheading">Customize your build pipeline with Snowpack plugins</h3>
-      <p class="pluginPage-intro">To learn more about our plugin system, read our
-        <a href="/#plugins">getting started</a>
-        guide.<br/>Can't find what you need? <a href="/guides/plugins">Creating your own plugin is easy!</a>
-      </p>
-      <div class="pluginPage-count" id="total-result-count"></div>
-      <form name="myform" id="myform" class="pluginPage-search" action="https://www.npmjs.com/search" method="GET">
-        <input type="search" name="q" value="" placeholder="search Sass, sitemaps, image optimization..." class="pluginPage-search-input">
-        <button type="submit" class="pluginPage-search-submit">Search</button>
-      </form>
+<section id="search-results" style="max-width: 600px;">
+  <div id="loading-message">Loading...</div>
+</section>
 
-      <br/>
-      <h2 class="pluginPage-zero-heading">Popular Snowpack Plugins</h2>
-
-      <section id="search-results">
-        <div id="loading-message">Loading...</div>
-      </section>
-    </article>
-  </section>
-</div>
-
-  <script type="module">
-    import {html, render} from 'https://cdn.skypack.dev/htm/preact/standalone.module.js'
+<script type="module">
+  import {html, render} from 'https://cdn.skypack.dev/htm/preact/standalone.module.js'
 
     function Card({result}) {
       return html ` <li class="card">
@@ -140,7 +122,11 @@ background: radial-gradient(to top, red, blue);
           .getElementById('loading-message')
           .style
           .display = 'block';
-        searchPlugins(formula);
+        searchPlugins(formula);   
+        
+        const searchParams = new URLSearchParams(window.location.search);
+        searchParams.set("q", formula);
+        window.location.search = searchParams.toString();    
         return false;
       }
 
@@ -156,10 +142,10 @@ background: radial-gradient(to top, red, blue);
       ]);
       const res = await fetch(`https://api.skypack.dev/v1/search?${params3.toString()}`);
       const results = await res.json();
-      if (val === undefined && results.results && results.results.length > 50) {
+      if (!val && results.results && results.results.length > 50) {
         document
           .getElementById('total-result-count')
-          .innerText = results.results.length + ' amazing plugins available!';
+          .innerText = results.results.length + ' Snowpack plugins available!';
       }
       if (!results.results || results.results.length === 0) {
         render(html `<ul class="cards"><li style="margin: 1rem; text-align: center;">No results found.</li></ul>`, document.getElementById('search-results'),);
@@ -174,5 +160,8 @@ background: radial-gradient(to top, red, blue);
       }
     }
 
-    searchPlugins();
+
+    const searchParams = new URLSearchParams(window.location.search);
+    document.querySelector('.pluginPage-search-input').value = searchParams.get('q');
+    searchPlugins(searchParams.get('q'));
     </script>

@@ -1,5 +1,5 @@
 ---
-layout: layouts/main.njk
+layout: layouts/content.njk
 title: Server-Side Rendering (SSR)
 ---
 
@@ -55,24 +55,4 @@ app.use((req, res, next) => {
 
 Note that you'll still need to set up static file serving out of the `build/` directory for production deployments. For that reason, this can be seen as an enhancement over the static setup in Option 1 for faster development speeds.
 
-### Bonus Option 3: via Snowpack Dev Server
-
-If your application is written in JavaScript exposed through a traditional Express-style JavaScript middleware function (`(req, res, next) => ...`) then you can integrate your application logic directly into Snowpack's dev server via `experiments.app`:
-
-```js
-// Example snowpack.config.js
-"experiments": {
-  "app": (req, res, next) => {
-    if (req.url === '/home') {
-      // Implement your own response.
-    }
-    if (req.url.startsWith('/api')) {
-      // Works to add API endpoints as well!
-    }
-    // Otherwise, let Snowpack's dev server handle it.
-    next();
-  }
-}
-```
-
-This can be great for rapid development and prototyping, but note that this support is limited: Snowpack's dev server is not designed to be run in production. For any real-world usage, you'll still want to run your own server logic using either of the other options outlined above.
+While our official API is written in JavaScript and requires Node.js to run, you could implement your own API for any language/environment using the `snowpack dev` CLI command to start the server and loading assets directly by fetching each URL.

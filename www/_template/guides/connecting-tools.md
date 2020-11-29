@@ -2,8 +2,6 @@
 layout: layouts/content.njk
 title: The Snowpack Guide to connecting your favorite tools
 description: 'How do you use your favorite tools in Snowpack? This Guide will help you get started'
-tags: guides
-sidebarTitle: Connecting your favorite tools
 ---
 
 One of the most common questions we get is "How do I connect my favorite tool to Snowpack?" In this guide we'll go over the three different ways that you can integrate third-party tooling into your Snowpack dev environment or build pipeline:

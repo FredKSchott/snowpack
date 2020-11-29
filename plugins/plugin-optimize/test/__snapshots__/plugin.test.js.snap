@@ -124,13 +124,13 @@ body{border:1px solid #fff;margin:1px}
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/target-es2018.js
-export default function n(){const o={bar:"bar"},t=null;return console.log(o?.bar,t??100),!0}
+export default function r(){const t={bar:"bar"},o=null;return console.log(t?.bar,o??100),!0}
 
 
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/target-es2018.js
-export default function n(){const o={bar:"bar"},t=null;return console.log(o?.bar,t??100),!0}
+export default function r(){const t={bar:"bar"},o=null;return console.log(t?.bar,o??100),!0}
 
 `;
 
@@ -232,13 +232,13 @@ body{border:1px solid #fff;margin:1px}
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/target-es2018.js
-export default function n(){const o={bar:"bar"},t=null;return console.log(o==null?void 0:o.bar,t!=null?t:100),!0}
+export default function r(){const t={bar:"bar"},o=null;return console.log(t==null?void 0:t.bar,o!=null?o:100),!0}
 
 
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/target-es2018.js
-export default function n(){const o={bar:"bar"},t=null;return console.log(o==null?void 0:o.bar,t!=null?t:100),!0}
+export default function r(){const t={bar:"bar"},o=null;return console.log(t==null?void 0:t.bar,o!=null?o:100),!0}
 
 `;
 
@@ -360,12 +360,12 @@ body{border:1px solid #fff;margin:1px}
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/target-es2018.js
-export default function n(){const o={bar:"bar"},t=null;return console.log(o?.bar,t??100),!0}
+export default function r(){const t={bar:"bar"},o=null;return console.log(t?.bar,o??100),!0}
 
 
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/target-es2018.js
-export default function n(){const o={bar:"bar"},t=null;return console.log(o?.bar,t??100),!0}
+export default function r(){const t={bar:"bar"},o=null;return console.log(t?.bar,o??100),!0}
 
 `;

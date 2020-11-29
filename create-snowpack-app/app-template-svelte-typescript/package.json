@@ -31,7 +31,7 @@
     "@testing-library/svelte": "^3.0.0",
     "@types/chai": "^4.2.13",
     "@types/snowpack-env": "^2.3.2",
-    "@web/test-runner": "^0.9.7",
+    "@web/test-runner": "^0.10.0",
     "chai": "^4.2.0",
     "snowpack": "^2.17.1",
     "svelte-preprocess": "^4.0.8",

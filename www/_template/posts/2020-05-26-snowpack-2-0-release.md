@@ -2,7 +2,7 @@
 layout: layouts/post.njk
 bannerVideo: '/img/extra-space-4.mp4'
 permalink: '/posts/2020-05-26-snowpack-2-0-release/'
-title: Introducing Snowpack 2.0
+title: Snowpack v2.0
 description: 'Build web applications with less tooling and faster iteration.'
 tagline: v2.0.0 release post
 date: 2020-05-26

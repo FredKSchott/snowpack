@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.11.0",
+    "@11ty/eleventy-plugin-rss": "^1.0.9",
     "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.4",
     "@snowpack/plugin-postcss": "^1.0.7",
     "@snowpack/plugin-sass": "^1.1.1",

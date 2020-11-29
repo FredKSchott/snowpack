@@ -1,8 +1,8 @@
 import {DependencyStatsOutput, install, InstallTarget, printStats} from 'esinstall';
 import * as colors from 'kleur/colors';
-import util from 'util';
 import path from 'path';
 import {performance} from 'perf_hooks';
+import util from 'util';
 import {logger} from '../logger';
 import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
 import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
@@ -92,7 +92,14 @@ export async function run({
 }: InstallRunOptions): Promise<InstallRunResult> {
   // start
   const installStart = performance.now();
-  logger.info(colors.yellow('! installing dependencies...'));
+  logger.info(
+    colors.yellow(
+      '! installing dependencies...' +
+        colors.cyan(
+          config.experiments.source === 'local' ? '' : ` (source: ${config.experiments.source})`,
+        ),
+    ),
+  );
 
   if (installTargets.length === 0) {
     return {

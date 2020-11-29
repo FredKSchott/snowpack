@@ -1,7 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Preact
-tags: guides
+tags: communityGuide
 ---
 
 ## Preact

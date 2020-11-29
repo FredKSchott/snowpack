@@ -72,7 +72,7 @@ function setActiveToc() {
 
 const gridBodyEl = document.getElementById('grid-body');
 const searchFormInputEl = document.getElementById('search-form-input');
-const tableOfContentsEl = document.querySelector('.sub-navigation .toc');
+const tableOfContentsEl = document.querySelector('.toc');
 const gridTocEl = document.querySelector('#nav-primary');
 
 gridBodyEl.addEventListener('scroll', debounce(setActiveToc));

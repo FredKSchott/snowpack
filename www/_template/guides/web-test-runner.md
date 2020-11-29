@@ -1,6 +1,7 @@
 ---
-layout: layouts/main.njk
+layout: layouts/content.njk
 title: '@web/test-runner'
+tags: communityGuide
 ---
 
 [@web/test-runner](https://www.npmjs.com/package/@web/test-runner) is our recommended test runner for Snowpack projects. Read more about why we recommend @web/test-runner in our [Snowpack Testing Guide](/guides/testing).

@@ -16,7 +16,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
 
   // Support importing Svelte files when you install dependencies.
   snowpackConfig.installOptions.rollup.plugins.push(
-    svelteRollupPlugin({include: '**/node_modules/**', dev: isDev}),
+    svelteRollupPlugin({include: '**/node_modules/**', compilerOptions: {dev: isDev}}),
   );
   // Support importing sharable Svelte components.
   snowpackConfig.installOptions.packageLookupFields.push('svelte');

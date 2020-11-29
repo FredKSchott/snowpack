@@ -1,6 +1,6 @@
-import type HttpProxy from 'http-proxy';
-import type * as http from 'http';
 import type {InstallOptions} from 'esinstall';
+import type * as http from 'http';
+import type HttpProxy from 'http-proxy';
 import type {RawSourceMap} from 'source-map';
 
 export type DeepPartial<T> = {
@@ -188,13 +188,20 @@ export interface OptimizeOptions {
   target: 'es2020' | 'es2019' | 'es2018' | 'es2017';
 }
 
+export interface RouteConfigObject {
+  src: string;
+  dest: string | ((req: http.IncomingMessage, res: http.ServerResponse) => void);
+  match: 'routes' | 'all';
+  _srcRegex: RegExp;
+}
+
 // interface this library uses internally
 export interface SnowpackConfig {
   install: string[];
   extends?: string;
   exclude: string[];
   knownEntrypoints: string[];
-  proxy: Proxy[];
+  webDependencies: Record<string, string>;
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   scripts: Record<string, string>;
@@ -221,15 +228,21 @@ export interface SnowpackConfig {
     minify: boolean;
     sourceMaps: boolean;
     watch: boolean;
+    htmlFragments: boolean;
   };
   testOptions: {
     files: string[];
   };
+  // @deprecated - Use experiments.routes instead
+  proxy: Proxy[];
   /** EXPERIMENTAL - This section is experimental and not yet finalized. May change across minor versions. */
   experiments: {
+    /** (EXPERIMENTAL) Where should dependencies be loaded from? */
+    source: 'local' | 'skypack';
     /** (EXPERIMENTAL) If true, "snowpack build" should build your site for SSR. */
     ssr: boolean;
     /** (EXPERIMENTAL) Custom request handler for the dev server. */
+    /** @deprecated: Use experiments.routes or integrate Snowpack's JS API into your own server instead. */
     app?: (
       req: http.IncomingMessage,
       res: http.ServerResponse,
@@ -237,6 +250,8 @@ export interface SnowpackConfig {
     ) => unknown;
     /** (EXPERIMENTAL) Optimize your site for production. */
     optimize?: OptimizeOptions;
+    /** (EXPERIMENTAL) Configure routes during development. */
+    routes: RouteConfigObject[];
   };
   _extensionMap: Record<string, string>;
 }
@@ -256,9 +271,11 @@ export type SnowpackUserConfig = {
   buildOptions?: Partial<SnowpackConfig['buildOptions']>;
   testOptions?: Partial<SnowpackConfig['testOptions']>;
   experiments?: {
+    source?: SnowpackConfig['experiments']['source'];
     ssr?: SnowpackConfig['experiments']['ssr'];
     app?: SnowpackConfig['experiments']['app'];
     optimize?: Partial<SnowpackConfig['experiments']['optimize']>;
+    routes?: Pick<RouteConfigObject, 'src' | 'dest' | 'match'>[];
   };
 };
 
@@ -293,4 +310,28 @@ export interface LoggerOptions {
   name?: string;
   /** (optional) do some additional work after logging a message, if log level is enabled */
   task?: Function;
+}
+
+/** PackageSource - a common interface for loading and interacting with dependencies.  */
+export interface PackageSource {
+  /**
+   * Do any work needed before starting the dev server or build. Either will wait
+   * for this to complete before continuing. Example: For "local", this involves
+   * running esinstall (if needed) to prepare your local dependencies as ESM.
+   */
+  prepare(commandOptions: CommandOptions): Promise<ImportMap>;
+  /**
+   * Load a dependency with the given spec (ex: "/web_modules/react" -> "react")
+   * If load fails or is unsuccessful, reject the promise.
+   */
+  load(
+    spec: string,
+    options: {config: SnowpackConfig; lockfile: ImportMap | null; pkgManifest: any},
+  ): Promise<Buffer | string>;
+  /** Resolve a package import to URL (ex: "react" -> "/web_modules/react") */
+  resolvePackageImport(spec: string, importMap: ImportMap, config: SnowpackConfig): string | false;
+  /** Handle 1+ missing package imports before failing, if possible. */
+  recoverMissingPackageImport(missingPackages: string[]): Promise<ImportMap>;
+  /** Modify the build install config for optimized build install. */
+  modifyBuildInstallConfig(config: SnowpackConfig): Promise<void>;
 }

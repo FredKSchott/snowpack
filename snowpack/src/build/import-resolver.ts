@@ -1,15 +1,14 @@
 import fs from 'fs';
 import path from 'path';
-import {ImportMap, SnowpackConfig} from '../types/snowpack';
-import {findMatchingAliasEntry, getExt, isRemoteSpecifier, replaceExt} from '../util';
-import {getUrlForFile} from './file-urls';
+import { ImportMap, SnowpackConfig } from '../types/snowpack';
+import { findMatchingAliasEntry, getExt, isRemoteSpecifier, replaceExt } from '../util';
+import { getUrlForFile } from './file-urls';
 
 const cwd = process.cwd();
 
 interface ImportResolverOptions {
   fileLoc: string;
   lockfile?: ImportMap | null;
-  installImportMap?: ImportMap | null;
   config: SnowpackConfig;
 }
 
@@ -51,7 +50,6 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: S
 export function createImportResolver({
   fileLoc,
   lockfile,
-  installImportMap,
   config,
 }: ImportResolverOptions) {
   return function importResolver(spec: string): string | false {
@@ -69,9 +67,7 @@ export function createImportResolver({
       if (isRemoteSpecifier(mappedImport)) {
         return mappedImport;
       }
-      throw new Error(
-        `Not yet supported: "${spec}" lockfile entry must be a full URL (https://...).`,
-      );
+      throw new Error(`Not supported: "${spec}" lockfile entry must be a full URL (https://...).`);
     }
     if (spec.startsWith('/')) {
       const importStats = getImportStats(path.resolve(cwd, spec.substr(1)));
@@ -91,12 +87,6 @@ export function createImportResolver({
       const importStats = getImportStats(importedFileLoc);
       const newSpec = getUrlForFile(importedFileLoc, config) || spec;
       return resolveSourceSpecifier(newSpec, importStats, config);
-    }
-    if (installImportMap && installImportMap.imports[spec]) {
-      // NOTE: We don't need special handling for an alias here, since the aliased "from"
-      // is already the key in the import map. The aliased "to" value is also an entry.
-      const importMapEntry = installImportMap.imports[spec];
-      return path.posix.resolve(config.buildOptions.webModulesUrl, importMapEntry);
     }
     return false;
   };

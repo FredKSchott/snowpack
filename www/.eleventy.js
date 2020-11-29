@@ -3,6 +3,7 @@ const syntaxHighlight = require('@11ty/eleventy-plugin-syntaxhighlight');
 const markdownIt = require('markdown-it');
 const markdownItAnchor = require('markdown-it-anchor');
 const { DateTime } = require('luxon');
+const pluginRss = require("@11ty/eleventy-plugin-rss");
 
 module.exports = function (eleventyConfig) {
   eleventyConfig.setTemplateFormats([
@@ -25,6 +26,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy('favicon');
   eleventyConfig.addPassthroughCopy('img');
 
+  eleventyConfig.addPlugin(pluginRss);
   eleventyConfig.addPlugin(syntaxHighlight);
   eleventyConfig.addPlugin(pluginTOC, {
     tags: ['h2', 'h3'],
@@ -57,6 +59,7 @@ module.exports = function (eleventyConfig) {
   return {
     dir: {
       input: '_template',
+      data: '../_data',
       includes: '../_includes',
       output: 'eleventy',
     },
