@@ -15,4 +15,4 @@ module.exports = {
 };
 ```
 
-[See an example setup](https://github.com/snowpackjs/snowpack/blob/main/create-snowpack-app/app-template-react) in on of our Create Snowpack App starter templates.
+[See an example setup](https://github.com/snowpackjs/snowpack/blob/main/create-snowpack-app/app-template-react) in one of our Create Snowpack App starter templates.
