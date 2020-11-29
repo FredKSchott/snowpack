@@ -7,6 +7,7 @@ const strpAnsi = require('strip-ansi');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'create-snowpack-app');
 const templates = fs.readdirSync(TEMPLATES_DIR).filter((dir) => dir.startsWith('app-template-'));
+const STRIP_CSS_MODULES = /_[\d\w]{5}_[\d]{1,3}/g;
 
 const format = (stdout) =>
   stdout
@@ -115,7 +116,11 @@ describe('create-snowpack-app', () => {
           entry.endsWith('.js') ||
           entry.endsWith('.json')
         ) {
-          const f1 = fs.readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
+          let f1 = fs.readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
+          // Add special handling for CSS module hashes
+          if (entry.includes('.module.css')) {
+            f1 = f1.replace(STRIP_CSS_MODULES, '_XXXXX_XX');
+          }
           expect(format(f1)).toMatchSnapshot(entry.replace(/\\/g, '/'));
         }
       }
