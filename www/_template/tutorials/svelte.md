@@ -1,13 +1,12 @@
 ---
-layout: layouts/guide.njk
+layout: layouts/content-with-cover.njk
 title: The Snowpack Guide to Getting Started with Svelte
 description: 'Get started with this in-depth tutorial on how to build Svelte applications and websites with Snowpack'
-date: 2020-10-01
-tags: guides
+date: 2020-12-01
 sidebarTitle: Svelte
+tags: communityGuide
+cover: '/img/SvelteGuide.jpg'
 ---
-
-<img src="/img/SvelteGuide.jpg" alt="header image, showing the Svelte and Snowpack logo against a background of blue mountains" />
 
 Snowpack is a great fit for [Svelte](https://svelte.dev/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional Svelte application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
 
