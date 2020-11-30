@@ -1,6 +1,6 @@
 ---
-layout: layouts/main.njk
-title: Get Started
+layout: layouts/content.njk
+title: 'Starting a New Project'
 ---
 
 Welcome to Snowpack! This guide shows you how to set up Snowpack from scratch in a Node.js project. Along the way you'll learn key concepts of Snowpack and unbundled development
@@ -47,7 +47,7 @@ npm install --save-dev snowpack
 
 ## Snowpack's development server
 
-In this step we'll add some files so we can showcase Snowpack's development server, an instant development environment for unbundled development. The development server only builds a file when it's requested by the browser. That means that Snowpack can start up instantly (usually in **<50 ms**) and scale to infinitely large projects without slowing down. In contrast, it's common to see 30+ second dev startup times when building large apps with a traditional bundler.
+In this step we'll add some files so we can showcase Snowpack's development server, an instant development environment for unbundled development. The development server builds a file only when it's requested by the browser. That means that Snowpack can start up instantly (usually in **<50 ms**) and scale to infinitely large projects without slowing down. In contrast, it's common to see 30+ second dev startup times when building large apps with a traditional bundler.
 
 First create an `index.html` in your project with the following contents:
 

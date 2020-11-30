@@ -1,4 +1,4 @@
-import type CSSModuleLoader from 'css-modules-loader-core';
+import type {Postcss} from 'postcss';
 import path from 'path';
 import {readFileSync} from 'fs';
 import {SnowpackConfig} from '../types/snowpack';
@@ -88,8 +88,13 @@ export function wrapHtmlResponse({
   });
 
   // Full Page Transformations: Only full page responses should get these transformations.
-  // Any code not containing `<!DOCTYPE html>` is assumed to be a code snippet/partial.
+  // Any code not containing `<!DOCTYPE html>` is assumed to be an HTML fragment.
   const isFullPage = code.toLowerCase().startsWith('<!doctype html>');
+  if (hmr && !isFullPage && !config.buildOptions.htmlFragments) {
+    throw new Error(`HTML fragment found!
+HTML fragments (files not starting with "<!doctype html>") are not transformed like full HTML pages.
+Add the missing doctype, or set buildOptions.htmlFragments=true if HTML fragments are expected.`);
+  }
   if (hmr && isFullPage) {
     let hmrScript = ``;
     if (hmrPort) {
@@ -148,14 +153,14 @@ if (typeof document !== 'undefined') {${
   const styleEl = document.createElement("style");
   const codeEl = document.createTextNode(code);
   styleEl.type = 'text/css';
-
   styleEl.appendChild(codeEl);
   document.head.appendChild(styleEl);
 }`;
   return wrapImportMeta({code: cssImportProxyCode, hmr, env: false, config});
 }
 
-let _cssModuleLoader: CSSModuleLoader;
+let _postCss: Postcss;
+let _postCssModules: any;
 async function generateCssModuleImportProxy({
   url,
   code,
@@ -167,19 +172,36 @@ async function generateCssModuleImportProxy({
   hmr: boolean;
   config: SnowpackConfig;
 }) {
-  _cssModuleLoader = _cssModuleLoader || new (require('css-modules-loader-core'))();
-  const {injectableSource, exportTokens} = await _cssModuleLoader.load(code, url, undefined, () => {
-    throw new Error('Imports in CSS Modules are not yet supported.');
+  _postCss = _postCss || require('postcss');
+  _postCssModules = _postCssModules || require('postcss-modules');
+  let moduleJson: string | undefined;
+  const processor = _postCss([
+    _postCssModules({
+      getJSON: (_, json) => {
+        moduleJson = json;
+      },
+    }),
+  ]);
+  const result = await processor.process(code, {
+    from: url,
+    to: url + '.proxy.js',
   });
+  // log any warnings that happened.
+  result
+    .warnings()
+    .forEach((element) => logger.warn(`${url} - ${element.text}`, {name: 'snowpack:cssmodules'}));
+  // return the JS+CSS proxy file.
   return `
-export let code = ${JSON.stringify(injectableSource)};
-let json = ${JSON.stringify(exportTokens)};
+export let code = ${JSON.stringify(result.css)};
+let json = ${JSON.stringify(moduleJson)};
 export default json;
 ${
-    hmr
-      ? `
+  hmr
+    ? `
 import * as __SNOWPACK_HMR_API__ from '${getMetaUrlPath('hmr-client.js', config)}';
-import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);\n` : ``}
+import.meta.hot = __SNOWPACK_HMR_API__.createHotContext(import.meta.url);\n`
+    : ``
+}
 // [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {${
     hmr
@@ -187,7 +209,8 @@ if (typeof document !== 'undefined') {${
   import.meta.hot.dispose(() => {
     document && document.head.removeChild(styleEl);
   });\n`
-      : ``}
+      : ``
+  }
   const styleEl = document.createElement("style");
   const codeEl = document.createTextNode(code);
   styleEl.type = 'text/css';
@@ -231,7 +254,13 @@ export async function wrapImportProxy({
   return generateDefaultImportProxy(url);
 }
 
-export function generateEnvModule({mode, isSSR}: {mode: 'development' | 'production', isSSR: boolean}) {
+export function generateEnvModule({
+  mode,
+  isSSR,
+}: {
+  mode: 'development' | 'production';
+  isSSR: boolean;
+}) {
   const envObject: Record<string, string | boolean | undefined> = getSnowpackPublicEnvVariables();
   envObject.MODE = mode;
   envObject.NODE_ENV = mode;

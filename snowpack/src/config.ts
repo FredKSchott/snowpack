@@ -8,9 +8,8 @@ import {isPlainObject} from 'is-plain-object';
 import {validate, ValidatorResult} from 'jsonschema';
 import os from 'os';
 import path from 'path';
-import yargs from 'yargs-parser';
 import url from 'url';
-
+import yargs from 'yargs-parser';
 import {logger} from './logger';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
@@ -23,6 +22,7 @@ import {
   PluginOptimizeOptions,
   Proxy,
   ProxyOptions,
+  RouteConfigObject,
   SnowpackConfig,
   SnowpackPlugin,
   SnowpackUserConfig,
@@ -67,11 +67,14 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
     minify: false,
     sourceMaps: false,
     watch: false,
+    htmlFragments: false,
   },
   testOptions: {
     files: ['__tests__/**/*', '**/*.@(spec|test).*'],
   },
   experiments: {
+    source: 'local',
+    routes: [],
     ssr: false,
   },
 };
@@ -167,6 +170,7 @@ const configSchema = {
         sourceMaps: {type: 'boolean'},
         watch: {type: 'boolean'},
         ssr: {type: 'boolean'},
+        htmlFragments: {type: 'boolean'},
       },
     },
     testOptions: {
@@ -180,6 +184,7 @@ const configSchema = {
       properties: {
         ssr: {type: 'boolean'},
         app: {},
+        routes: {},
       },
     },
     proxy: {
@@ -568,6 +573,27 @@ function normalizeMount(config: SnowpackConfig, cwd: string) {
   return normalizedMount;
 }
 
+function normalizeRoutes(routes: RouteConfigObject[]): RouteConfigObject[] {
+  return routes.map(({src, dest, match}, i) => {
+    // Normalize
+    if (typeof dest === 'string') {
+      dest = addLeadingSlash(dest);
+    }
+    if (!src.startsWith('^')) {
+      src = '^' + src;
+    }
+    if (!src.endsWith('$')) {
+      src = src + '$';
+    }
+    // Validate
+    try {
+      return {src, dest, match: match || 'all', _srcRegex: new RegExp(src)};
+    } catch (err) {
+      throw new Error(`config.routes[${i}].src: invalid regular expression syntax "${src}"`);
+    }
+  });
+}
+
 function normalizeAlias(config: SnowpackConfig, cwd: string, createMountAlias: boolean) {
   const cleanAlias: Record<string, string> = config.alias || {};
   if (createMountAlias) {
@@ -624,7 +650,9 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
 
   // normalize config URL/path values
   config.buildOptions.baseUrl = addTrailingSlash(config.buildOptions.baseUrl);
-  config.buildOptions.webModulesUrl = addLeadingSlash(config.buildOptions.webModulesUrl);
+  config.buildOptions.webModulesUrl = removeTrailingSlash(
+    addLeadingSlash(config.buildOptions.webModulesUrl),
+  );
   config.buildOptions.metaDir = removeLeadingSlash(
     removeTrailingSlash(config.buildOptions.metaDir),
   );
@@ -634,6 +662,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   config.proxy = normalizeProxies(config.proxy as any);
   config.mount = normalizeMount(config, cwd);
   config.alias = normalizeAlias(config, cwd, isLegacyMountConfig);
+  config.experiments.routes = normalizeRoutes(config.experiments.routes);
   if (config.experiments.optimize) {
     config.experiments.optimize = {
       entrypoints: config.experiments.optimize.entrypoints ?? 'auto',

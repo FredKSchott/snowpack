@@ -1,7 +1,6 @@
 ---
-layout: layouts/main.njk
+layout: layouts/content.njk
 title: Leaving Snowpack
-tags: guides
 ---
 
 ### Leaving Snowpack

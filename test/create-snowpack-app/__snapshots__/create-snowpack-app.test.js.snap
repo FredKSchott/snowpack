@@ -118,7 +118,7 @@ a {
 `;
 
 exports[`create-snowpack-app app-template-11ty > build: web_modules/canvas-confetti.js 1`] = `
-"// canvas-confetti v1.3.1 built on 2020-10-16T14:05:34.896Z
+"// canvas-confetti v1.3.2 built on 2020-11-12T12:53:54.473Z
 var module = {};
 // source content
 (function main(global, module, isWorker, workerSize) {
@@ -127,6 +127,7 @@ var module = {};
     global.Blob &&
     global.Promise &&
     global.OffscreenCanvas &&
+    global.OffscreenCanvasRenderingContext2D &&
     global.HTMLCanvasElement &&
     global.HTMLCanvasElement.prototype.transferControlToOffscreen &&
     global.URL &&
@@ -690,7 +691,7 @@ exports[`create-snowpack-app app-template-blank > build: index.html 1`] = `
 `;
 
 exports[`create-snowpack-app app-template-blank > build: web_modules/canvas-confetti.js 1`] = `
-"// canvas-confetti v1.3.1 built on 2020-10-16T14:05:34.896Z
+"// canvas-confetti v1.3.2 built on 2020-11-12T12:53:54.473Z
 var module = {};
 // source content
 (function main(global, module, isWorker, workerSize) {
@@ -699,6 +700,7 @@ var module = {};
     global.Blob &&
     global.Promise &&
     global.OffscreenCanvas &&
+    global.OffscreenCanvasRenderingContext2D &&
     global.HTMLCanvasElement &&
     global.HTMLCanvasElement.prototype.transferControlToOffscreen &&
     global.URL &&
@@ -1258,7 +1260,7 @@ exports[`create-snowpack-app app-template-blank-typescript > build: index.html 1
 `;
 
 exports[`create-snowpack-app app-template-blank-typescript > build: web_modules/canvas-confetti.js 1`] = `
-"// canvas-confetti v1.3.1 built on 2020-10-16T14:05:34.896Z
+"// canvas-confetti v1.3.2 built on 2020-11-12T12:53:54.473Z
 var module = {};
 // source content
 (function main(global, module, isWorker, workerSize) {
@@ -1267,6 +1269,7 @@ var module = {};
     global.Blob &&
     global.Promise &&
     global.OffscreenCanvas &&
+    global.OffscreenCanvasRenderingContext2D &&
     global.HTMLCanvasElement &&
     global.HTMLCanvasElement.prototype.transferControlToOffscreen &&
     global.URL &&
@@ -7362,7 +7365,7 @@ exports[`create-snowpack-app app-template-minimal > build: package.json 1`] = `
   \\"description\\": \\"A preconfigured minimal template for Snowpack\\",
   \\"version\\": \\"1.0.4\\",
   \\"license\\": \\"MIT\\",
-  \\"homepage\\": \\"https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-preact#readme\\",
+  \\"homepage\\": \\"https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-preact#readme\\",
   \\"repository\\": {
     \\"type\\": \\"git\\",
     \\"url\\": \\"https://github.com/snowpackjs/snowpack.git\\",
@@ -7583,17 +7586,17 @@ exports[`create-snowpack-app app-template-preact > build: web_modules/import-map
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact > build: web_modules/preact.js 1`] = `"export { h, O as render } from './common/preact.module-XXXXXXXX.js';"`;
+exports[`create-snowpack-app app-template-preact > build: web_modules/preact.js 1`] = `"export { v as h, O as render } from './common/preact.module-XXXXXXXX.js';"`;
 
 exports[`create-snowpack-app app-template-preact > build: web_modules/preact/devtools.js 1`] = `
 "import { n, p, d } from '../common/preact.module-XXXXXXXX.js';
-\\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.5.5\\",n,{Fragment:p,Component:d});"
+\\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.5.7\\",n,{Fragment:p,Component:d});"
 `;
 
 exports[`create-snowpack-app app-template-preact > build: web_modules/preact/hooks.js 1`] = `
 "import { n } from '../common/preact.module-XXXXXXXX.js';
-var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u),i.__}function y(r,o){var i=v(t++,3);!n.__s&&j(i.__H,o)&&(i.__=r,i.__H=o,u.__H.__h.push(i));}function q(){i.forEach(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){t.__H.__h=[],n.__e(u,t.__v);}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.__c&&n.__c();}function g(n){n.__c=n.__();}function j(n,t){return !n||n.length!==t.length||t.some(function(t,u){return t!==n[u]})}function k(n,t){return \\"function\\"==typeof t?t(n):t}
-export { y as useEffect, m as useState };"
+var t,u,r,o=0,i=[],c=n.__b,f=n.__r,e=n.diffed,a=n.__c,v=n.unmount;function m(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function l(n){return o=1,p(w,n)}function p(n,r,o){var i=m(t++,2);return i.t=n,i.__c||(i.__=[o?o(r):w(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u),i.__}function y(r,o){var i=m(t++,3);!n.__s&&k(i.__H,o)&&(i.__=r,i.__H=o,u.__H.__h.push(i));}function x(){i.forEach(function(t){if(t.__P)try{t.__H.__h.forEach(g),t.__H.__h.forEach(j),t.__H.__h=[];}catch(u){t.__H.__h=[],n.__e(u,t.__v);}}),i=[];}n.__b=function(n){u=null,c&&c(n);},n.__r=function(n){f&&f(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(g),r.__h.forEach(j),r.__h=[]);},n.diffed=function(t){e&&e(t);var o=t.__c;o&&o.__H&&o.__H.__h.length&&(1!==i.push(o)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),b&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);b&&(t=requestAnimationFrame(u));})(x)),u=void 0;},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(g),t.__h=t.__h.filter(function(n){return !n.__||j(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),a&&a(t,u);},n.unmount=function(t){v&&v(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(g);}catch(t){n.__e(t,u.__v);}};var b=\\"function\\"==typeof requestAnimationFrame;function g(n){var t=u;\\"function\\"==typeof n.__c&&n.__c(),u=t;}function j(n){var t=u;n.__c=n.__(),u=t;}function k(n,t){return !n||n.length!==t.length||t.some(function(t,u){return t!==n[u]})}function w(n,t){return \\"function\\"==typeof t?t(n):t}
+export { y as useEffect, l as useState };"
 `;
 
 exports[`create-snowpack-app app-template-preact-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
@@ -7777,17 +7780,17 @@ exports[`create-snowpack-app app-template-preact-typescript > build: web_modules
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript > build: web_modules/preact.js 1`] = `"export { h, O as render } from './common/preact.module-XXXXXXXX.js';"`;
+exports[`create-snowpack-app app-template-preact-typescript > build: web_modules/preact.js 1`] = `"export { v as h, O as render } from './common/preact.module-XXXXXXXX.js';"`;
 
 exports[`create-snowpack-app app-template-preact-typescript > build: web_modules/preact/devtools.js 1`] = `
 "import { n, p, d } from '../common/preact.module-XXXXXXXX.js';
-\\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.5.5\\",n,{Fragment:p,Component:d});"
+\\"undefined\\"!=typeof window&&window.__PREACT_DEVTOOLS__&&window.__PREACT_DEVTOOLS__.attachPreact(\\"10.5.7\\",n,{Fragment:p,Component:d});"
 `;
 
 exports[`create-snowpack-app app-template-preact-typescript > build: web_modules/preact/hooks.js 1`] = `
 "import { n } from '../common/preact.module-XXXXXXXX.js';
-var t,u,r,o=0,i=[],c=n.__r,f=n.diffed,e=n.__c,a=n.unmount;function v(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function m(n){return o=1,p(k,n)}function p(n,r,o){var i=v(t++,2);return i.t=n,i.__c||(i.__=[o?o(r):k(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u),i.__}function y(r,o){var i=v(t++,3);!n.__s&&j(i.__H,o)&&(i.__=r,i.__H=o,u.__H.__h.push(i));}function q(){i.forEach(function(t){if(t.__P)try{t.__H.__h.forEach(b),t.__H.__h.forEach(g),t.__H.__h=[];}catch(u){t.__H.__h=[],n.__e(u,t.__v);}}),i=[];}n.__r=function(n){c&&c(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(b),r.__h.forEach(g),r.__h=[]);},n.diffed=function(t){f&&f(t);var u=t.__c;u&&u.__H&&u.__H.__h.length&&(1!==i.push(u)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),x&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);x&&(t=requestAnimationFrame(u));})(q));},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(b),t.__h=t.__h.filter(function(n){return !n.__||g(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),e&&e(t,u);},n.unmount=function(t){a&&a(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(b);}catch(t){n.__e(t,u.__v);}};var x=\\"function\\"==typeof requestAnimationFrame;function b(n){\\"function\\"==typeof n.__c&&n.__c();}function g(n){n.__c=n.__();}function j(n,t){return !n||n.length!==t.length||t.some(function(t,u){return t!==n[u]})}function k(n,t){return \\"function\\"==typeof t?t(n):t}
-export { y as useEffect, m as useState };"
+var t,u,r,o=0,i=[],c=n.__b,f=n.__r,e=n.diffed,a=n.__c,v=n.unmount;function m(t,r){n.__h&&n.__h(u,t,o||r),o=0;var i=u.__H||(u.__H={__:[],__h:[]});return t>=i.__.length&&i.__.push({}),i.__[t]}function l(n){return o=1,p(w,n)}function p(n,r,o){var i=m(t++,2);return i.t=n,i.__c||(i.__=[o?o(r):w(void 0,r),function(n){var t=i.t(i.__[0],n);i.__[0]!==t&&(i.__=[t,i.__[1]],i.__c.setState({}));}],i.__c=u),i.__}function y(r,o){var i=m(t++,3);!n.__s&&k(i.__H,o)&&(i.__=r,i.__H=o,u.__H.__h.push(i));}function x(){i.forEach(function(t){if(t.__P)try{t.__H.__h.forEach(g),t.__H.__h.forEach(j),t.__H.__h=[];}catch(u){t.__H.__h=[],n.__e(u,t.__v);}}),i=[];}n.__b=function(n){u=null,c&&c(n);},n.__r=function(n){f&&f(n),t=0;var r=(u=n.__c).__H;r&&(r.__h.forEach(g),r.__h.forEach(j),r.__h=[]);},n.diffed=function(t){e&&e(t);var o=t.__c;o&&o.__H&&o.__H.__h.length&&(1!==i.push(o)&&r===n.requestAnimationFrame||((r=n.requestAnimationFrame)||function(n){var t,u=function(){clearTimeout(r),b&&cancelAnimationFrame(t),setTimeout(n);},r=setTimeout(u,100);b&&(t=requestAnimationFrame(u));})(x)),u=void 0;},n.__c=function(t,u){u.some(function(t){try{t.__h.forEach(g),t.__h=t.__h.filter(function(n){return !n.__||j(n)});}catch(r){u.some(function(n){n.__h&&(n.__h=[]);}),u=[],n.__e(r,t.__v);}}),a&&a(t,u);},n.unmount=function(t){v&&v(t);var u=t.__c;if(u&&u.__H)try{u.__H.__.forEach(g);}catch(t){n.__e(t,u.__v);}};var b=\\"function\\"==typeof requestAnimationFrame;function g(n){var t=u;\\"function\\"==typeof n.__c&&n.__c(),u=t;}function j(n){var t=u;n.__c=n.__(),u=t;}function k(n,t){return !n||n.length!==t.length||t.some(function(t,u){return t!==n[u]})}function w(n,t){return \\"function\\"==typeof t?t(n):t}
+export { y as useEffect, l as useState };"
 `;
 
 exports[`create-snowpack-app app-template-react > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
@@ -8868,12 +8871,12 @@ export default reactDom;"
 
 exports[`create-snowpack-app app-template-svelte > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
 
-exports[`create-snowpack-app app-template-svelte > build: _dist_/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1wncah1.svelte-1wncah1{text-align:center}.App.svelte-1wncah1 code.svelte-1wncah1{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1wncah1 p.svelte-1wncah1{margin:0.4rem}.App-header.svelte-1wncah1.svelte-1wncah1{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1wncah1.svelte-1wncah1{color:#ff3e00}.App-logo.svelte-1wncah1.svelte-1wncah1{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1wncah1-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1wncah1-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
+exports[`create-snowpack-app app-template-svelte > build: _dist_/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-rq4gzr.svelte-rq4gzr{text-align:center}.App.svelte-rq4gzr code.svelte-rq4gzr{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-rq4gzr p.svelte-rq4gzr{margin:0.4rem}.App-header.svelte-rq4gzr.svelte-rq4gzr{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-rq4gzr.svelte-rq4gzr{color:#ff3e00}.App-logo.svelte-rq4gzr.svelte-rq4gzr{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-rq4gzr-App-logo-pulse infinite 1.6s ease-in-out alternate}@keyframes svelte-rq4gzr-App-logo-pulse{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
 
 exports[`create-snowpack-app app-template-svelte > build: _dist_/App.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
-  const code = \\"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1wncah1.svelte-1wncah1{text-align:center}.App.svelte-1wncah1 code.svelte-1wncah1{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1wncah1 p.svelte-1wncah1{margin:0.4rem}.App-header.svelte-1wncah1.svelte-1wncah1{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1wncah1.svelte-1wncah1{color:#ff3e00}.App-logo.svelte-1wncah1.svelte-1wncah1{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1wncah1-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1wncah1-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}\\";
+  const code = \\"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-rq4gzr.svelte-rq4gzr{text-align:center}.App.svelte-rq4gzr code.svelte-rq4gzr{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-rq4gzr p.svelte-rq4gzr{margin:0.4rem}.App-header.svelte-rq4gzr.svelte-rq4gzr{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-rq4gzr.svelte-rq4gzr{color:#ff3e00}.App-logo.svelte-rq4gzr.svelte-rq4gzr{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-rq4gzr-App-logo-pulse infinite 1.6s ease-in-out alternate}@keyframes svelte-rq4gzr-App-logo-pulse{from{transform:scale(1)}to{transform:scale(1.06)}}\\";
   const styleEl = document.createElement(\\"style\\");
   const codeEl = document.createTextNode(code);
   styleEl.type = 'text/css';
@@ -8921,7 +8924,7 @@ function create_fragment(ctx) {
 			img = element(\\"img\\");
 			t0 = space();
 			p0 = element(\\"p\\");
-			p0.innerHTML = \`Edit <code class=\\"svelte-1wncah1\\">src/App.svelte</code> and save to reload.\`;
+			p0.innerHTML = \`Edit <code class=\\"svelte-rq4gzr\\">src/App.svelte</code> and save to reload.\`;
 			t4 = space();
 			p1 = element(\\"p\\");
 			t5 = text(\\"Page has been open for \\");
@@ -8930,16 +8933,16 @@ function create_fragment(ctx) {
 			t7 = text(\\" seconds.\\");
 			t8 = space();
 			p2 = element(\\"p\\");
-			p2.innerHTML = \`<a class=\\"App-link svelte-1wncah1\\" href=\\"https://svelte.dev\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\">Learn Svelte</a>\`;
+			p2.innerHTML = \`<a class=\\"App-link svelte-rq4gzr\\" href=\\"https://svelte.dev\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\">Learn Svelte</a>\`;
 			if (img.src !== (img_src_value = \\"/logo.svg\\")) attr(img, \\"src\\", img_src_value);
-			attr(img, \\"class\\", \\"App-logo svelte-1wncah1\\");
+			attr(img, \\"class\\", \\"App-logo svelte-rq4gzr\\");
 			attr(img, \\"alt\\", \\"logo\\");
-			attr(p0, \\"class\\", \\"svelte-1wncah1\\");
-			attr(code1, \\"class\\", \\"svelte-1wncah1\\");
-			attr(p1, \\"class\\", \\"svelte-1wncah1\\");
-			attr(p2, \\"class\\", \\"svelte-1wncah1\\");
-			attr(header, \\"class\\", \\"App-header svelte-1wncah1\\");
-			attr(div, \\"class\\", \\"App svelte-1wncah1\\");
+			attr(p0, \\"class\\", \\"svelte-rq4gzr\\");
+			attr(code1, \\"class\\", \\"svelte-rq4gzr\\");
+			attr(p1, \\"class\\", \\"svelte-rq4gzr\\");
+			attr(p2, \\"class\\", \\"svelte-rq4gzr\\");
+			attr(header, \\"class\\", \\"App-header svelte-rq4gzr\\");
+			attr(div, \\"class\\", \\"App svelte-rq4gzr\\");
 		},
 		m(target, anchor) {
 			insert(target, div, anchor);
@@ -8989,7 +8992,7 @@ exports[`create-snowpack-app app-template-svelte > build: _dist_/index.js 1`] = 
 "import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import App from \\"./App.js\\";
-var app = new App({
+let app = new App({
   target: document.body,
 });
 export default app;
@@ -14569,8 +14572,8 @@ exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/compone
 
 exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Bar.module.css.proxy.js 1`] = `
 "
-export let code = \\"._dist_components_Bar_module__bar-jsx {  color: red;}\\";
-let json = {\\"bar-jsx\\":\\"_dist_components_Bar_module__bar-jsx\\"};
+export let code = \\"._bar-jsx_XXXXX_XX {  color: red;}\\";
+let json = {\\"bar-jsx\\":\\"_bar-jsx_XXXXX_XX\\"};
 export default json;
 // [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
@@ -14659,8 +14662,8 @@ exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/compone
 
 exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Foo.module.css.proxy.js 1`] = `
 "
-export let code = \\"._dist_components_Foo_module__foo-tsx {    color: green;}\\";
-let json = {\\"foo-tsx\\":\\"_dist_components_Foo_module__foo-tsx\\"};
+export let code = \\"._foo-tsx_XXXXX_XX {    color: green;}\\";
+let json = {\\"foo-tsx\\":\\"_foo-tsx_XXXXX_XX\\"};
 export default json;
 // [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
@@ -15588,12 +15591,18 @@ function reactive(target) {
     }
     return createReactiveObject(target, false, mutableHandlers, mutableCollectionHandlers);
 }
-// Return a reactive-copy of the original object, where only the root level
-// properties are reactive, and does NOT unwrap refs nor recursively convert
-// returned properties.
+/**
+ * Return a shallowly-reactive copy of the original object, where only the root
+ * level properties are reactive. It also does not auto-unwrap refs (even at the
+ * root level).
+ */
 function shallowReactive(target) {
     return createReactiveObject(target, false, shallowReactiveHandlers, shallowCollectionHandlers);
 }
+/**
+ * Creates a readonly copy of the original object. Note the returned copy is not
+ * made reactive, but \`readonly\` can be called on an already reactive object.
+ */
 function readonly(target) {
     return createReactiveObject(target, true, readonlyHandlers, readonlyCollectionHandlers);
 }
@@ -15660,6 +15669,24 @@ function proxyRefs(objectWithRefs) {
     return isReactive(objectWithRefs)
         ? objectWithRefs
         : new Proxy(objectWithRefs, shallowUnwrapHandlers);
+}
+class ObjectRefImpl {
+    constructor(_object, _key) {
+        this._object = _object;
+        this._key = _key;
+        this.__v_isRef = true;
+    }
+    get value() {
+        return this._object[this._key];
+    }
+    set value(newVal) {
+        this._object[this._key] = newVal;
+    }
+}
+function toRef(object, key) {
+    return isRef(object[key])
+        ? object[key]
+        : new ObjectRefImpl(object, key);
 }
 class ComputedRefImpl {
     constructor(getter, _setter, isReadonly) {
@@ -15906,7 +15933,7 @@ function queueFlush() {
 function invalidateJob(job) {
     const i = queue.indexOf(job);
     if (i > -1) {
-        queue[i] = null;
+        queue.splice(i, 1);
     }
 }
 function queueCb(cb, activeQueue, pendingQueue, index) {
@@ -15975,8 +16002,6 @@ function flushJobs(seen) {
     //    priority number)
     // 2. If a component is unmounted during a parent component's update,
     //    its update can be skipped.
-    // Jobs can never be null before flush starts, since they are only invalidated
-    // during execution of another flushed job.
     queue.sort((a, b) => getId(a) - getId(b));
     try {
         for (flushIndex = 0; flushIndex < queue.length; flushIndex++) {
@@ -16270,7 +16295,7 @@ function shouldUpdateComponent(prevVNode, nextVNode, optimized) {
     if (nextVNode.dirs || nextVNode.transition) {
         return true;
     }
-    if (optimized && patchFlag > 0) {
+    if (optimized && patchFlag >= 0) {
         if (patchFlag & 1024 /* DYNAMIC_SLOTS */) {
             // slot content that references values that might have changed,
             // e.g. in a v-for
@@ -17171,7 +17196,7 @@ const setRef = (rawRef, oldRawRef, parentComponent, parentSuspense, vnode) => {
     }
     else {
         if (vnode.shapeFlag & 4 /* STATEFUL_COMPONENT */) {
-            value = vnode.component.proxy;
+            value = vnode.component.exposed || vnode.component.proxy;
         }
         else {
             value = vnode.el;
@@ -18761,7 +18786,9 @@ function applyOptions(instance, options, deferredData = [], deferredWatch = [], 
     // assets
     components, directives,
     // lifecycle
-    beforeMount, mounted, beforeUpdate, updated, activated, deactivated, beforeDestroy, beforeUnmount, destroyed, unmounted, render, renderTracked, renderTriggered, errorCaptured } = options;
+    beforeMount, mounted, beforeUpdate, updated, activated, deactivated, beforeDestroy, beforeUnmount, destroyed, unmounted, render, renderTracked, renderTriggered, errorCaptured,
+    // public API
+    expose } = options;
     const publicThis = instance.proxy;
     const ctx = instance.ctx;
     const globalMixins = instance.appContext.mixins;
@@ -18924,6 +18951,19 @@ function applyOptions(instance, options, deferredData = [], deferredWatch = [], 
     }
     if (unmounted) {
         onUnmounted(unmounted.bind(publicThis));
+    }
+    if (isArray(expose)) {
+        if (!asMixin) {
+            if (expose.length) {
+                const exposed = instance.exposed || (instance.exposed = proxyRefs({}));
+                expose.forEach(key => {
+                    exposed[key] = toRef(publicThis, key);
+                });
+            }
+            else if (!instance.exposed) {
+                instance.exposed = EMPTY_OBJ;
+            }
+        }
     }
 }
 function callSyncHook(name, type, options, instance, globalMixins) {
@@ -19203,6 +19243,7 @@ function createComponentInstance(vnode, parent, suspense) {
         update: null,
         render: null,
         proxy: null,
+        exposed: null,
         withProxy: null,
         effects: null,
         provides: parent ? parent.provides : Object.create(appContext.provides),
@@ -19316,7 +19357,9 @@ function setupStatefulComponent(instance, isSSR) {
 function handleSetupResult(instance, setupResult, isSSR) {
     if (isFunction(setupResult)) {
         // setup returned an inline render function
-        instance.render = setupResult;
+        {
+            instance.render = setupResult;
+        }
     }
     else if (isObject(setupResult)) {
         // setup returned bindings.
@@ -19349,11 +19392,15 @@ function finishComponentSetup(instance, isSSR) {
     }
 }
 function createSetupContext(instance) {
+    const expose = exposed => {
+        instance.exposed = proxyRefs(exposed);
+    };
     {
         return {
             attrs: instance.attrs,
             slots: instance.slots,
-            emit: instance.emit
+            emit: instance.emit,
+            expose
         };
     }
 }
@@ -19404,7 +19451,7 @@ function defineComponent(options) {
     return isFunction(options) ? { setup: options, name: options.name } : options;
 }
 // Core API ------------------------------------------------------------------
-const version = \\"3.0.2\\";
+const version = \\"3.0.3\\";
 const svgNS = 'http://www.w3.org/2000/svg';
 const doc = (typeof document !== 'undefined' ? document : null);
 let tempContainer;

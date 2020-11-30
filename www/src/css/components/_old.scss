@@ -1,0 +1,328 @@
+@use '../var' as *;
+
+body {
+  &.is-nav-open {
+    overflow: hidden;
+  }
+}
+
+// Notification
+
+.notification {
+  padding: 0.5rem;
+  color: white;
+  font-weight: bold;
+  background-color: #b224d0;
+  a {
+    color: white;
+    text-decoration: underline;
+  }
+}
+
+// Button
+
+.button {
+  box-sizing: border-box;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  padding: 0.3em 1.5em;
+  font-weight: bold;
+  font-size: 100%;
+  font-size: 22px;
+  font-family: inherit;
+  font-family: 'Overpass', sans-serif;
+  line-height: normal;
+  white-space: nowrap;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  background-color: #fefefe;
+  border: 1px solid #666;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.15s ease-out;
+  user-select: none;
+}
+.button:hover {
+  box-shadow: 0 2px 2px 0 #2e5e82aa;
+  transform: translateY(-1px);
+}
+a.button {
+  text-decoration: none !important;
+}
+.button.button-primary {
+  color: #fff;
+  background: linear-gradient(45deg, #24bf62, #267dd6, #b224d0);
+}
+
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+// Copy button
+
+.copy-button {
+  min-width: 292px;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0.75rem 1.25rem;
+  padding-bottom: 0.75rem;
+  font-size: 100%;
+  font-family: Menlo, ui-monospace, SFMono-Regular, Monaco, Consolas,
+    Liberation Mono, Courier New, monospace;
+  line-height: 1.5rem;
+  background-color: white;
+  border: 1px solid #0006;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.5s ease-in-out, width, background-color, transform, color,
+    fill, stroke 0.5s ease-out;
+
+  svg,
+  .faded {
+    color: #ccc;
+    transition: color 0.1s ease-out;
+  }
+
+  &:hover {
+    box-shadow: 0 2px 2px 0 #2e5e8266;
+    transform: translateY(-1px);
+  }
+}
+
+.copy-button:hover {
+  border-color: #2a85ca;
+  svg,
+  span {
+    color: #2a85ca;
+  }
+}
+.copy-button.active {
+  animation: pulse 0.5s;
+  animation-iteration-count: 1;
+  svg {
+    color: #ccc;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    color: #2a85ca;
+    border-color: #2a85ca;
+  }
+
+  100% {
+  }
+}
+
+// Company logos
+img.company-logo {
+  flex: 100%;
+  height: 56px;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.company-logos {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: -4px;
+  margin-bottom: 24px;
+
+  > a {
+    flex-shrink: 0;
+    margin: 0 4px;
+    padding: 10px;
+    color: #e74c3c;
+    text-decoration: none;
+    opacity: 0.8;
+    filter: grayscale(0.1);
+
+    &:hover {
+      font-weight: normal;
+      text-decoration: underline;
+      opacity: 1;
+      filter: grayscale(0);
+    }
+  }
+
+  > .add-company-button,
+  > .add-star-button {
+    display: flex;
+    align-items: center;
+    color: #555;
+    font-weight: normal;
+    opacity: 1;
+    filter: grayscale(0);
+  }
+
+  > .add-company-button {
+    color: #e74c3c;
+    border-color: #e74c3c;
+  }
+}
+
+// github button
+
+.github-button {
+  display: none;
+}
+
+// grid list
+.grid-list ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  font-size: 18px;
+  font-family: Overpass;
+  font-style: italic;
+  list-style: none;
+}
+
+// highlight
+.highlight,
+.highlight-container {
+  position: relative;
+  font-weight: bold;
+}
+
+.highlight-container {
+  display: inline-block;
+}
+
+.highlight-1 {
+  color: #2ecc71;
+}
+
+.highlight-2 {
+  color: #be2edd;
+}
+
+.highlight-3 {
+  color: #0c8cec;
+}
+
+.highlight-red {
+  color: #2ecc71;
+}
+.highlight-yellow {
+  color: #be2edd;
+}
+.highlight-green {
+  color: #0c8cec;
+}
+
+// Img banner
+.img-banner {
+  display: block;
+  margin: 1.5rem 0;
+  text-align: center;
+  background: #f0db4f;
+
+  img {
+    height: 74px;
+    border: none;
+    box-shadow: none;
+
+    @media (min-width: $breakpoint-m) {
+      height: 100px;
+    }
+  }
+}
+
+//
+.content-title {
+  font-family: $heading;
+  line-height: 1em;
+  letter-spacing: -0.05em;
+}
+h2.content-title {
+  font-size: 3em;
+}
+h3.content-title {
+  font-size: 2em;
+}
+
+// Search form
+.search-form {
+  flex-grow: 1;
+}
+
+// Hidden mobile
+@media (max-width: $breakpoint-m - 1) {
+  .hidden-mobile {
+    display: none !important;
+  }
+  .version-tag {
+    display: none;
+  }
+}
+
+// Frame
+
+.frame {
+  position: relative;
+  margin: 1rem 0;
+  padding: 34px 17px 10px 17px;
+  background-color: #0a5e9d;
+  border-radius: 10px;
+
+  &::before {
+    position: absolute;
+    top: 5px;
+    display: block;
+    content: url(/img/guides/react/buttons.svg);
+  }
+
+  &::after {
+    position: absolute;
+    top: 5px;
+    right: 17px;
+    display: block;
+    content: url(/img/guides/react/snowpack-logo-tiny.svg);
+  }
+}
+
+// Diff markdown blocks
+
+.language-diff .deleted-sign,
+.language-diff .inserted-sign .inserted {
+  user-select: none;
+}
+
+.token.inserted {
+  color: #b5cea8;
+}
+
+.token.deleted {
+  color: #ce9178;
+}
+
+// Anchor links on hover
+.content {
+  h2,
+  h3,
+  h4 {
+    .header-link {
+      margin-left: 0.25rem;
+      color: #2e5e82;
+      opacity: 1;
+      transition: opacity 100ms ease-in-out;
+
+      @media (min-width: $breakpoint-m) {
+        opacity: 0;
+      }
+    }
+  }
+
+  h2,
+  h3,
+  h4 {
+    &:hover .header-link {
+      opacity: 1;
+    }
+  }
+}

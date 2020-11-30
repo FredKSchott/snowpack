@@ -1,0 +1,21 @@
+{
+  "name": "@snowpack/example-react-global-imports",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "snowpack dev",
+    "build": "snowpack build"
+  },
+  "dependencies": {
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0"
+  },
+  "devDependencies": {
+    "@babel/preset-react": "^7.12.7",
+    "@snowpack/plugin-babel": "^2.1.4",
+    "@snowpack/plugin-dotenv": "^2.0.4",
+    "@snowpack/plugin-react-refresh": "^2.3.7",
+    "babel-plugin-import-globals": "^2.0.0",
+    "snowpack": "^2.17.1"
+  }
+}

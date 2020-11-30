@@ -1,11 +1,6 @@
 ---
-layout: layouts/guide.njk
-permalink: '/guides/plugins/'
-title: Snowpack Plugin Guide
-description: 'Documentation and guides for building Snowpack plugins.'
-date: 2020-07-30
-tags: guides
-sidebarTitle: Plugins
+layout: layouts/content.njk
+title: Plugin API
 ---
 
 #### Who is this page for?
@@ -183,7 +178,7 @@ module.exports = function(snowpackConfig, pluginOptions) {
 
 This is a simplified version of the official Snowpack Svelte plugin. Don't worry if you're not familiar with Svelte, just know that building a Svelte file (`.svelte`) generates both JS & CSS for our final build.
 
-In that case, the `resolve` property only takes a single `input` file type (`['.svelte']`) but two `output` file types (`['.js', '.css']`). This matches the result of Svelte's build process and the returned entries of our `load()` method.
+In that case, the `resolve` property takes only a single `input` file type (`['.svelte']`) but two `output` file types (`['.js', '.css']`). This matches the result of Svelte's build process and the returned entries of our `load()` method.
 
 **See it in action:** Let's say that we have a source file at `src/components/App.svelte`. Because the `.svelte` file extension matches an extension in our plugin's `resolve.input` array, Snowpack lets this plugin claim responsibility for loading this file. `load()` executes, Svelte builds the file from disk, and both JavaScript & CSS are returned to the final build.
 
@@ -238,7 +233,7 @@ module.exports = function(snowpackConfig, pluginOptions) {
 };
 ```
 
-This is an (obviously) simplified version of the `@snowpack/plugin-webpack` plugin. When the build command has finished building your application, this plugin hook is called with the `buildDirectory` path as an argument. It's up to the plugin to read build files from this directory and write any changes back to the directory. Changes should be made in place, so only write files at the end and be sure to clean up after yourself (if a file is no longer needed after optimizing/bundling, it is safe to remove).
+This is an (obviously) simplified version of the `@snowpack/plugin-webpack` plugin. When the build command has finished building your application, this plugin hook is called with the `buildDirectory` path as an argument. It's up to the plugin to read build files from this directory and write any changes back to the directory. Changes should be made in place, so write files only at the end and be sure to clean up after yourself (if a file is no longer needed after optimizing/bundling, it is safe to remove).
 
 ### Tips / Gotchas
 
@@ -248,7 +243,7 @@ This is an (obviously) simplified version of the `@snowpack/plugin-webpack` plug
 - The `resolve.input` and `resolve.output` file extension arrays are vital to how Snowpack understands your build pipeline, and are always required for `load()` to run correctly.
 - If `load()` doesn't return anything, the file isn’t loaded and the `load()` of the next suitable plugin is called.
 - If `transform()` doesn't return anything, the file isn’t transformed.
-- If you want to build a plugin that only runs some code on initialization (such as `@snowpack/plugin-dotenv`), put your side-effect code inside the function that returns your plugin. But be sure to still return a plugin object. A simple `{ name }` object will do.
+- If you want to build a plugin that runs some code only on initialization (such as `@snowpack/plugin-dotenv`), put your side-effect code inside the function that returns your plugin. But be sure to still return a plugin object. A simple `{ name }` object will do.
 
 ## Plugin API
 
@@ -285,7 +280,7 @@ resolve: {input: [".sass"], output: [".css"]}
 resolve: {input: [".svelte"], output: [".js",[".css"]}
 ```
 
-If your plugin defines a `load()` method, Snowpack will need to know what files your plugin is responsible to load and what its output will look like. **`resolve` is only needed if you also define a `load()` method.**
+If your plugin defines a `load()` method, Snowpack will need to know what files your plugin is responsible to load and what its output will look like. **`resolve` is needed only if you also define a `load()` method.**
 
 - `input`: An array of file extensions that this plugin will load.
 - `output`: The set of all file extensions that this plugin's `load()` method will output.

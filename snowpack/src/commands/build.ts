@@ -15,11 +15,13 @@ import {
   wrapImportProxy,
 } from '../build/build-import-proxy';
 import {buildFile, runPipelineCleanupStep, runPipelineOptimizeStep} from '../build/build-pipeline';
+import {getMountEntryForFile, getUrlForFileMount} from '../build/file-urls';
 import {createImportResolver} from '../build/import-resolver';
-import {getUrlForFileMount, getMountEntryForFile} from '../build/file-urls';
+import {runBuiltInOptimize} from '../build/optimize';
 import {EsmHmrEngine} from '../hmr-server-engine';
 import {logger} from '../logger';
 import {transformFileImports} from '../rewrite-imports';
+import localPackageSource from '../sources/local';
 import {
   CommandOptions,
   ImportMap,
@@ -29,6 +31,7 @@ import {
 } from '../types/snowpack';
 import {
   cssSourceMappingURL,
+  getPackageSource,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
   isRemoteSpecifier,
@@ -39,7 +42,6 @@ import {
   replaceExt,
 } from '../util';
 import {getInstallTargets, run as installRunner} from './install';
-import {runBuiltInOptimize} from '../build/optimize';
 
 const CONCURRENT_WORKERS = require('os').cpus().length;
 
@@ -67,6 +69,10 @@ async function installOptimizedDependencies(
         : commandOptions.config.installOptions.treeshake ?? true,
     },
   });
+
+  const pkgSource = getPackageSource(commandOptions.config.experiments.source);
+  pkgSource.modifyBuildInstallConfig(installConfig);
+
   // Unlike dev (where we scan from source code) the built output guarantees that we
   // will can scan all used entrypoints. Set to `[]` to improve tree-shaking performance.
   installConfig.knownEntrypoints = [];
@@ -218,15 +224,18 @@ class FileBuilder {
       const resolveImportSpecifier = createImportResolver({
         fileLoc: file.locOnDisk!, // we’re confident these are reading from disk because we just read them
         lockfile: this.lockfile,
-        installImportMap: importMap,
         config: this.config,
       });
       const resolvedCode = await transformFileImports(file, (spec) => {
         // Try to resolve the specifier to a known URL in the project
         let resolvedImportUrl = resolveImportSpecifier(spec);
-        // NOTE: If the import cannot be resolved, we'll need to re-install
-        // your dependencies. We don't support this yet, but we will.
-        // Until supported, just exit here.
+        // If not resolved, then this is a package. During build, dependencies are always
+        // installed locally via esinstall, so use localPackageSource here.
+        if (!resolvedImportUrl) {
+          resolvedImportUrl = localPackageSource.resolvePackageImport(spec, importMap, this.config);
+        }
+        // If still not resolved, then this imported package somehow evaded detection
+        // when we scanned it in the previous step. If you find a bug here, report it!
         if (!resolvedImportUrl) {
           isSuccess = false;
           logger.error(`${file.locOnDisk} - Could not resolve unknown import "${spec}".`);
@@ -386,14 +395,17 @@ export async function command(commandOptions: CommandOptions) {
       .map((f) => Object.values(f.filesToResolve))
       .reduce((flat, item) => flat.concat(item), []);
     const installDest = path.join(buildDirectoryLoc, config.buildOptions.webModulesUrl);
-    const installResult = await installOptimizedDependencies(scannedFiles, installDest, {
-      ...commandOptions,
-    });
+    const installResult = await installOptimizedDependencies(
+      scannedFiles,
+      installDest,
+      commandOptions,
+    );
     const allFiles = glob.sync(`**/*`, {
       cwd: installDest,
       absolute: true,
       nodir: true,
       dot: true,
+      follow: true,
     });
 
     if (!config.experiments.optimize?.bundle) {
@@ -426,6 +438,7 @@ export async function command(commandOptions: CommandOptions) {
       absolute: true,
       nodir: true,
       dot: true,
+      follow: true,
     });
     for (const rawLocOnDisk of allFiles) {
       const fileLoc = path.resolve(rawLocOnDisk); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.

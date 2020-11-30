@@ -1,7 +1,7 @@
 ---
-layout: layouts/main.njk
+layout: layouts/content.njk
 title: Workbox
-tags: guides
+tags: communityGuide
 ---
 
 ### Workbox

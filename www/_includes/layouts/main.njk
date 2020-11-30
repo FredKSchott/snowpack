@@ -1,34 +1,17 @@
 ---
 layout: layouts/base.njk
-title: 'Snowpack - The faster frontend build tool'
-description: 'Snowpack is the fast, bundle-free build tool for all kinds of frontend projects.'
 ---
 
-<section class="container page-container">
+<div class="container">
+  <section class="snow-view__docs is-full">
 
-  <aside class="grid-toc hidden-mobile">
-    {% include 'layouts/menu.njk' %}
-  </aside>
+    <aside id="nav-primary" class="snow-view-nav">
+      {% include 'layouts/components/menu.njk' %}
+    </aside>
 
-  <article id="grid-body" class="grid-body">
-    <div class="has-navigation content">
-      <div class="markdown-body content">
-        <h2>
-        {{ title }}
-        </h2>
-        {{ content | safe }}
-      </div>
-    </div>
-  </article>
+    <article id="grid-body" class="snow-view-main">
+      {{ content | safe }}
+    </article>
 
-    {% include 'layouts/subnav.njk' %}
-
-
-</section>
-
-<!-- Place this tag in your head or just before your close body tag. -->
-<script
-  async="async"
-  defer="defer"
-  src="https://buttons.github.io/buttons.js"
-></script>
+  </section>
+</div>

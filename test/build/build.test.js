@@ -10,6 +10,7 @@ const STRIP_WHITESPACE = /((\s+$)|((\\r\\n)|(\\n)))/gm;
 const STRIP_REV = /\?rev=\w+/gm;
 const STRIP_CHUNKHASH = /([\w\-]+\-)[a-z0-9]{8}(\.js)/g;
 const STRIP_ROOTDIR = /"[^"]+([\/\\]+snowpack[\/\\]+test[\/\\]+)(.+?)"/g;
+const STRIP_CSS_MODULES = /_[\d\w]{5}_[\d]{1,3}/g;
 
 /** format diffs to be meaningful */
 function format(stdout) {
@@ -29,7 +30,9 @@ describe('snowpack build', () => {
     }
 
     // CSS Modules generate differently on Windows; skip that only for Windows (but test in Unix still)
-    if (testName === 'preload-css' && os.platform() === 'win32') continue;
+    if (testName === 'preload-css' && os.platform() === 'win32') {
+      continue;
+    }
 
     it(testName, () => {
       const cwd = path.join(__dirname, testName);
@@ -78,7 +81,11 @@ describe('snowpack build', () => {
           entry.endsWith('.json') ||
           entry.endsWith('.map')
         ) {
-          const f1 = readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
+          let f1 = readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
+          // Add special handling for CSS module hashes
+          if (entry.includes('.module.css')) {
+            f1 = f1.replace(STRIP_CSS_MODULES, '_XXXXX_XX');
+          }
           expect(format(f1)).toMatchSpecificSnapshot(
             snapshotFile,
             `build/${entry.replace(/\\/g, '/')}`,

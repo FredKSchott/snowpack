@@ -8,11 +8,13 @@
   },
   "snowpack": {
     "install": [
+      "umd-named-export-pkg-01",
       "cjs-named-export-pkg-02",
       "cjs-named-export-pkg-03"
     ]
   },
   "dependencies": {
+    "umd-named-export-pkg-01": "file:./packages/umd-named-export-pkg-01",
     "cjs-named-export-pkg-02": "file:./packages/cjs-named-export-pkg-02",
     "cjs-named-export-pkg-03": "file:./packages/cjs-named-export-pkg-03"
   },

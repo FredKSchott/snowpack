@@ -1,0 +1,104 @@
+@use '../var' as *;
+
+/**
+ * Main document view
+ */
+
+$top-padding: 24px;
+
+// Document view
+.snow-view__docs {
+  grid-gap: 1.5rem;
+  grid-template-areas: 'subnav' 'main';
+  grid-template-columns: auto;
+
+  @media (min-width: $breakpoint-m) {
+    display: grid;
+    grid-template-areas: 'nav subnav' 'nav main';
+    grid-template-columns: 18rem auto;
+  }
+
+  @media (min-width: $breakpoint-l) {
+    display: grid;
+    grid-template-areas: 'nav main subnav';
+    grid-template-columns: 18rem auto 18rem;
+  }
+
+  &.is-home {
+    margin-bottom: 3rem;
+
+    .snow-view-nav {
+      @media (min-width: $breakpoint-m) {
+        position: static;
+        max-height: inherit;
+      }
+    }
+  }
+  &.is-full {
+    .snow-view-main {
+      grid-row-start: main;
+      grid-row-end: main;
+      grid-column-start: main;
+      grid-column-end: subnav;
+    }
+  }
+
+  // -----------
+  //  Components
+  // -----------
+
+  .snow-view-nav {
+    position: fixed;
+    top: $nav-height * 2;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: map-get($map: $layers, $key: 'nav-view');
+    display: none;
+    grid-area: nav;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    overflow: auto;
+    color: $white;
+    background: $dark-blue;
+
+    body.is-nav-open & {
+      display: block;
+    }
+  }
+
+  .snow-view-main {
+    grid-area: main;
+    padding-bottom: 2rem;
+  }
+
+  .snow-view-subnav {
+    grid-area: subnav;
+    padding-bottom: 2rem;
+  }
+
+  .snow-view-nav,
+  .snow-view-subnav {
+    @media (min-width: $breakpoint-m) {
+      position: sticky;
+      top: $nav-height;
+      z-index: 1;
+      display: block;
+      max-height: calc(100vh - #{$nav-height});
+      padding: $top-padding 0 $top-padding 0;
+      color: inherit;
+      background: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @media (max-width: $breakpoint-m - 1) {
+      &.is-mobile-hidden {
+        overflow: hidden;
+      }
+      &.is-mobile-hidden .snow-toc {
+        padding-top: 0.5rem;
+        opacity: 0;
+      }
+    }
+  }
+}

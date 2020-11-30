@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Snowpack Example: HTTPS Local Devleopment</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+        code {
+            background: #0003;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+    </style>
+
+  </head>
+  <body>
+    <em>Example: SSL Certificates</em>
+    <h1>This site is using... <code id="protocol-text"></code></h1>
+    <script type="module">
+        document.getElementById('protocol-text').innerText = window.location.protocol.replace(':', '');
+    </script>
+  </body>
+</html>
