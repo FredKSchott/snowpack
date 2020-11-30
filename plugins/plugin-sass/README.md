@@ -23,7 +23,7 @@ Then add the plugin to your Snowpack config:
 
 module.exports = {
   plugins: [
-    ['@snowpack/plugin-sass', { /* see options below */ }
+    ['@snowpack/plugin-sass', { /* see options below */ } ]
   ],
 };
 ```
