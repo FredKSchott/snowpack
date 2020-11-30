@@ -14,14 +14,16 @@ $top-padding: 24px;
 
   @media (min-width: $breakpoint-m) {
     display: grid;
-    grid-template-areas: 'nav subnav' 'nav main';
-    grid-template-columns: 18rem auto;
+    grid-template-areas:
+      'nav subnav'
+      'nav main';
+    grid-template-columns: 16rem minmax(auto, $breakpoint-m);
   }
 
   @media (min-width: $breakpoint-l) {
     display: grid;
     grid-template-areas: 'nav main subnav';
-    grid-template-columns: 18rem auto 18rem;
+    grid-template-columns: 16rem auto 20rem;
   }
 
   &.is-home {
@@ -70,6 +72,7 @@ $top-padding: 24px;
   .snow-view-main {
     grid-area: main;
     padding: $top-padding 0 $top-padding 0;
+    overflow: auto;
 
     .content-title {
       display: block;
@@ -82,9 +85,9 @@ $top-padding: 24px;
   .snow-view-subnav {
     grid-area: subnav;
     padding: 90px 0 $top-padding 0;
-    
+
     @media (max-width: $breakpoint-l) {
-    padding-top: $top-padding;
+      padding-top: $top-padding;
     }
 
     .content-title {
@@ -109,7 +112,7 @@ $top-padding: 24px;
 
     @media (max-width: $breakpoint-m - 1) {
       padding-bottom: 2rem;
-      
+
       &.is-mobile-hidden {
         overflow: hidden;
       }
