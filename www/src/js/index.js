@@ -130,7 +130,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     return;
   }
   setActiveToc();
-  document.querySelectorAll('.content h2, .content h3').forEach((headerEl) => {
+  document.querySelectorAll('.content h3, .content h4').forEach((headerEl) => {
     console.log('link needed');
     const linkEl = document.createElement('a');
     // linkEl.setAttribute('target', "_blank");

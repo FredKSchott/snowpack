@@ -99,6 +99,10 @@ $top-padding: 24px;
     position: static;
     z-index: 1;
     padding-top: 2rem;
+    
+    .snow-toc-section-header {
+      color: $dark-grey;
+    }
 
     hr {
       display: block;

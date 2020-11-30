@@ -69,29 +69,47 @@ $top-padding: 24px;
 
   .snow-view-main {
     grid-area: main;
-    padding-bottom: 2rem;
+    padding: $top-padding 0 $top-padding 0;
+
+    .content-title {
+      display: block;
+      @media (max-width: $breakpoint-l) {
+        display: none;
+      }
+    }
   }
 
   .snow-view-subnav {
     grid-area: subnav;
-    padding-bottom: 2rem;
+    padding: 90px 0 $top-padding 0;
+    
+    @media (max-width: $breakpoint-l) {
+    padding-top: $top-padding;
+    }
+
+    .content-title {
+      display: none;
+      @media (max-width: $breakpoint-l) {
+        display: block;
+      }
+    }
   }
 
-  .snow-view-nav,
-  .snow-view-subnav {
+  .snow-view-nav {
     @media (min-width: $breakpoint-m) {
       position: sticky;
       top: $nav-height;
       z-index: 1;
       display: block;
       max-height: calc(100vh - #{$nav-height});
-      padding: $top-padding 0 $top-padding 0;
       color: inherit;
       background: none;
       -webkit-overflow-scrolling: touch;
     }
 
     @media (max-width: $breakpoint-m - 1) {
+      padding-bottom: 2rem;
+      
       &.is-mobile-hidden {
         overflow: hidden;
       }
@@ -99,6 +117,19 @@ $top-padding: 24px;
         padding-top: 0.5rem;
         opacity: 0;
       }
+    }
+  }
+
+  .snow-view-subnav {
+    @media (min-width: $breakpoint-l) {
+      position: sticky;
+      top: $nav-height;
+      z-index: 1;
+      display: block;
+      max-height: calc(100vh - #{$nav-height});
+      color: inherit;
+      background: none;
+      -webkit-overflow-scrolling: touch;
     }
   }
 }

@@ -311,6 +311,7 @@ h3.content-title {
       color: #2e5e82;
       opacity: 1;
       transition: opacity 100ms ease-in-out;
+      font-weight: 100;
 
       @media (min-width: $breakpoint-m) {
         opacity: 0;
