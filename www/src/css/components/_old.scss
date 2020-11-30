@@ -63,12 +63,12 @@ a.button {
 // Copy button
 
 .copy-button {
-  min-width: 292px;
   display: flex;
   flex: none;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  min-width: 292px;
   padding: 0.75rem 1.25rem;
   padding-bottom: 0.75rem;
   font-size: 100%;
@@ -309,6 +309,7 @@ h3.content-title {
     .header-link {
       margin-left: 0.25rem;
       color: #2e5e82;
+      font-weight: 100;
       opacity: 1;
       transition: opacity 100ms ease-in-out;
 
