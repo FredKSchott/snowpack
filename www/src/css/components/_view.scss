@@ -47,6 +47,15 @@ $top-padding: 24px;
     }
   }
 
+  &.has-subnav {
+    .snow-view-main .content-title {
+      display: block;
+      @media (max-width: $breakpoint-l) {
+        display: none;
+      }
+    }
+  }
+
   // -----------
   //  Components
   // -----------
@@ -72,16 +81,9 @@ $top-padding: 24px;
   }
 
   .snow-view-main {
-    min-width: 0;
     grid-area: main;
+    min-width: 0;
     padding: $top-padding 0 $top-padding 0;
-
-    .content-title {
-      display: block;
-      @media (max-width: $breakpoint-l) {
-        display: none;
-      }
-    }
   }
 
   .snow-view-subnav {

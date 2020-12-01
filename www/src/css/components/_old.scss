@@ -22,7 +22,6 @@ body {
 // Stub
 .stub {
   padding: 0.5rem;
-
   font-weight: bold;
   background-color: #f0db4f;
   a {
@@ -228,14 +227,14 @@ img.company-logo {
 // Img banner
 .img-banner {
   display: block;
+  margin: -3rem -1.5rem 0;
   text-align: center;
   background: #f0db4f;
   border-radius: 4px;
-  margin: -3rem -1.5rem 0;
 
   @media (min-width: $breakpoint-m) {
-    margin: 0;
     height: 100px;
+    margin: 0;
   }
 
   img {

@@ -59,12 +59,12 @@
   blockquote {
     margin-right: -1rem;
     margin-left: -1rem;
+    padding: 1rem 2rem;
     color: #2e5e82;
     font-weight: 300;
     font-size: 1.1em;
     background: linear-gradient(-30deg, #c9efd8, #f9ddff);
     border-left: none;
-    padding: 1rem 2rem;
 
     @media (min-width: $breakpoint-m) {
       border-radius: 0.5rem;
