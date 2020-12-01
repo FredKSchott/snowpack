@@ -299,7 +299,7 @@ What about other, non-Svelte files like `src/index.js`? To re-render your Svelte
 export default app;
 
 +// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-+// Learn more: https://next.snowpack.dev/concepts/hot-module-replacement
++// Learn more: https://snowpack.dev/concepts/hot-module-replacement
 +if (import.meta.hot) {
 +  import.meta.hot.accept();
 +  import.meta.hot.dispose(() => {
@@ -318,7 +318,7 @@ At this point you have the basics and have a great starter for any Svelte projec
 
 - [Prettier](https://prettier.io/)—a popular code formatter
 
-- [Tests](https://www.snowpack.dev/#testing)—Snowpack supports any popular JavaScript testing framework
+- [Tests](/guides/testing)—Snowpack supports any popular JavaScript testing framework
 
 - [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-dotenv)—Use `dotenv` in your Snowpack. This is useful for environment specific variables
 
