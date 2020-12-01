@@ -7,7 +7,6 @@ Looking to get started writing your own plugin? Check out our [Plugin Guide](/gu
 
 Looking for a good summary? Check out our ["SnowpackPlugin" TypeScript definition](https://github.com/snowpackjs/snowpack/tree/main/snowpack/src/types/snowpack.ts) for a fully documented and up-to-date overview of the Plugin API and all supported options.
 
-
 ### Overview
 
 ```js
@@ -15,7 +14,9 @@ Looking for a good summary? Check out our ["SnowpackPlugin" TypeScript definitio
 module.exports = function (snowpackConfig, pluginOptions) {
   return {
     name: 'my-first-snowpack-plugin',
-    config() { console.log('Success!'); },
+    config() {
+      console.log('Success!');
+    },
   };
 };
 
@@ -31,7 +32,6 @@ A **Snowpack Plugin** is an object interface that lets you customize Snowpack's 
 Snowpack's plugin interface is inspired by [Rollup](https://rollupjs.org/). If you've ever written a Rollup plugin before, then hopefully these concepts and terms feel familiar.
 
 ### Lifecycle Hooks
-
 
 #### config()
 
@@ -68,7 +68,6 @@ Get notified any time a watched file changes. This can be useful when paired wit
 
 See [@snowpack/plugin-sass](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-sass/plugin.js) for an example of how to use this method.
 
-
 ### Plugin Properties
 
 #### knownEntrypoints
@@ -95,7 +94,6 @@ If your plugin defines a `load()` method, Snowpack will need to know what files 
 - `input`: An array of file extensions that this plugin will load.
 - `output`: The set of all file extensions that this plugin's `load()` method will output.
 - [Full TypeScript definition](https://github.com/snowpackjs/snowpack/tree/main/snowpack/src/types/snowpack.ts).
-
 
 ### Plugin Methods
 
