@@ -107,7 +107,7 @@ npx create-snowpack-app [my-new-dir] --template ./path/to/template
 
 Note the path must start with must start with a `.` to be considered local
 
-The `--verbose` flag enables additional logs which will help to identify the source of a problem. The `--reload` will clear the local cache which might have been created by a different `snowpack` version. Learn more about [Snowpack's CLI flags](https://www.snowpack.dev/#cli-flags).
+The `--verbose` flag enables additional logs which will help to identify the source of a problem. The `--reload` will clear the local cache which might have been created by a different `snowpack` version. Learn more about [Snowpack's CLI flags](/reference/cli-command-line-interface).
 
 ## Pull Request Guidelines
 

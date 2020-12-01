@@ -20,10 +20,9 @@ Snowpack's plugin interface is inspired by [Rollup](https://rollupjs.org/). If y
 
 Snowpack uses an internal **Build Pipeline** to build files in your application for development and production. Every source file passes through the build pipeline, which means that Snowpack can build more than just JavaScript. Images, CSS, SVGs and more can all be built by Snowpack.
 
-#### Build Plugins 
+#### Build Plugins
 
 Snowpack finds the first plugin that claims to `resolve` the given file. It then calls that plugin's `load()` method to load the file into your application. This is where compiled languages (TypeScript, Sass, JSX, etc.) are loaded and compiled to something that can run on the web (JS, CSS, etc).
-
 
 #### Transform Plugins
 
@@ -65,9 +64,8 @@ module.exports = function (snowpackConfig, pluginOptions) {
 A Snowpack plugin should be distributed as a function that can be called with plugin-specific options to return a plugin object.
 Snowpack will automatically call this function to load your plugin. That function accepts 2 parameters, in this order:
 
-1. the [Snowpack configuration object](/#all-config-options) (`snowpackConfig`)
+1. the [Snowpack configuration object](/reference/configuration) (`snowpackConfig`)
 1. (optional) user-provided config options (`pluginOptions`)
-
 
 ### Example: Transform a File
 
@@ -215,8 +213,8 @@ To develop and test a Snowpack plugin, the strategy is the same as with other np
 - Run `npm link` in your plugin’s project folder to expose the plugin globally (in regard to your development machine).
 - Create a new, example Snowpack project in a different location for testing
 - In your example Snowpack project, run `npm install && npm link my-snowpack-plugin` (use the name from your plugin’s `package.json`).
-    - Be aware that `npm install` will remove your linked plugin, so on any install, you will need to redo the `npm link my-snowpack-plugin`. 
-    - (The alternative would be to use `npm install --save-dev &lt;folder_to_your_plugin_project&gt;`, which would create the "symlink-like" entry in your example Snowpack project’s `package.json`)
+  - Be aware that `npm install` will remove your linked plugin, so on any install, you will need to redo the `npm link my-snowpack-plugin`.
+  - (The alternative would be to use `npm install --save-dev &lt;folder_to_your_plugin_project&gt;`, which would create the "symlink-like" entry in your example Snowpack project’s `package.json`)
 
 In your example Snowpack project, add your plugin to the `snowpack.config.json` along with any plugin options you’d like to test:
 
@@ -237,8 +235,6 @@ In general, make sure to mind the following checklist:
 - ✔️ Your `package.json` file has a `main` entry pointing to the final build
 - ✔️ Your code is compiled to run on Node >= 10
 - ✔️ Your package README contains a list of custom options, if your plugin is configurable
-
-
 
 ### Tips / Gotchas
 
