@@ -3,7 +3,7 @@ layout: layouts/content.njk
 title: Hot Module Replacement (HMR) API
 ---
 
-Snowpack implements the [esm-hmr](https://github.com/pikapkg/esm-hmr) spec, an attempted standard for ESM-based Hot Module Replacement (HMR).
+Snowpack implements HMR via the [esm-hmr](https://github.com/pikapkg/esm-hmr) spec, an attempted standard for ESM-based Hot Module Replacement (HMR).
 
 ```js
 // HMR Code Snippet Example

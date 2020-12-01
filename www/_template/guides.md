@@ -87,6 +87,7 @@ background: linear-gradient(30deg, #A7BFE8, #6190E8);
 - [Connecting your dev tools](/guides/connecting-tools)
 - [Bundling for Deployment](/guides/bundling)
 - [Testing](/guides/testing)
+- [Creating Your Own Plugin](/guides/plugins)
 - [Leaving Snowpack](/guides/leaving-snowpack)
 </div>
 
