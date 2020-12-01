@@ -20,7 +20,7 @@ This guide is a step by step from an empty directory to a fully configured Snowp
 - Enabling Hot Module Replacement (HMR)
 - Connecting your favorite tools
 
-Prerequisites: Snowpack is a command-line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of Svelte is not required, Snowpack is an excellent way to learn Svelte!
+Prerequisites: Snowpack is a command-line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of Svelte is not required: Snowpack is an excellent way to learn Svelte!
 
 > 💡 Tip: a [Svelte/Snowpack](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) working example is available in our Create Snowpack App templates.
 
@@ -53,11 +53,11 @@ npm install svelte --save
 
 > 💡 Tip: add the "--use-yarn" or "--use-pnpm" flag to use something other than npm
 
-Snowpack [plugins](/plugins) are a way to extend Snowpack's capabilities without having to do custom configuration yourself. Install the `@snowpack/plugin-svelte` plugin so that Snowpack knows how built `.svelte` files into JavaScript and CSS files that run in the browser:
-
 ```bash
 npm install @snowpack/plugin-svelte --save-dev
 ```
+
+Snowpack [plugins](/plugins) are a way to extend Snowpack's capabilities without having to do custom configuration yourself. Install the `@snowpack/plugin-svelte` plugin so that Snowpack knows how built `.svelte` files into JavaScript and CSS files that run in the browser:
 
 Once installed, you'll need to add the plugin to your Snowpack configuration file (`snowpack.config.js`) so that Snowpack knows to use it:
 
@@ -78,7 +78,7 @@ Restart your Snowpack dev server to run it with the new configuration. Exit the 
 
 > 💡 Tip: Restart the Snowpack development server when you make configuration changes (changes to the `snowpack.config.js`).
 
-The Snowpack Development server will show the following as it recognizes your new dependency (Svelte) and turns it into ESM:
+Snowpack will recognize the new new dependency (Svelte, or "svelte/internal") and print the following output as installs your dependencies for the frontend:
 
 ```bash
 [snowpack] installing dependencies...
@@ -92,7 +92,9 @@ The Snowpack Development server will show the following as it recognizes your ne
 
 ## Create your first Svelte component
 
-With `@snowpack/plugin-svelte` installed, Snowpack will build `.svelte` files to the HTML, JS, and CSS needed to run in the browser. Create your first `.svelte` component named `App.svelte` with the following code:
+You now have your Snowpack environment set up to build `.svelte` files for the browser. Now it's time to create your first Svelte component file!
+
+Create a file named `App.svelte` in your project directory with the following code:
 
 ```html
 <!-- App.svelte -->
@@ -116,7 +118,7 @@ With `@snowpack/plugin-svelte` installed, Snowpack will build `.svelte` files to
 </div>
 ```
 
-Now head to `index.js` and import the new `App.svelte` file
+Now you can use the new `App.svelte` file in your `index.js`:
 
 ```diff
 // index.js
@@ -132,7 +134,7 @@ Now head to `index.js` and import the new `App.svelte` file
 +export default app;
 ```
 
-The page should now say "Learn Svelte". Congratulations! you now have Svelte up and running.
+The page should now say "Learn Svelte". Congratulations! you now have your first Svelte component!
 
 <div class="frame"><img src="/img/guides/svelte/svelte-component-snowpack.gif" alt="code and site side by side, site is a 'Learn Svelte' link on a white background. When the text is edit to add 'Hello world' and the file saves, the changes show up in the site immediately." class="screenshot"/></div>
 
@@ -177,7 +179,7 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
 
 <img src="/img/guides/folder-structure.png" alt="Graphic shows the original and new folder structures side by side. Arrows indicate that the files are built to where the arrow points. The Original side shows a folder labeled ./ entire directory with an arrow pointing to a folder labeled  mysite.com/*. The New side shows a folder labeled ./src/* with an arrow pointing to a folder labeled mysite.com/_dist/*. Then a second folder labeled ./public/* with an arrow pointing to a folder labeled mysite.com/* " />
 
-`mount` is part of the [Snowpack Configuration API](https://www.snowpack.dev/#configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in `public` like `public/index.css` directory into `index.css`. It builds files in `src` like `src/index.js` into `/_dist_/index.js`, so change that path in your `index.html`:
+`mount` is part of the [Snowpack Configuration API](/reference/configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in `public` like `public/index.css` directory into `index.css`. It builds files in `src` like `src/index.js` into `/_dist_/index.js`, so change that path in your `index.html`:
 
 ```diff
 <!-- public/index.html -->
@@ -189,7 +191,7 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
   </body>
 ```
 
-You'll need to restart Snowpack (stop the process in terminal and then run `npm start` again) for configuration file changes. When you start up again, if it worked, it should look exactly the same since all the changes you just made are behind the scenes.
+You'll need to restart Snowpack (stop the process in terminal and then run `npm start` again) for configuration file changes. It should look exactly as it did before, but now using your brand new project folder layout
 
 ## Adding an animated Svelte Logo
 
@@ -250,7 +252,7 @@ With Svelte, CSS can go directly in your `.svelte` component. Add this code to t
 
 ## Adding a counter to your Svelte component
 
-Snowpack is one of the only Svelte dev environments to support Fast Refresh by default. As you make changes to `.svelte` files, Snowpack updates the browser for you without losing your place or resetting component state. That's Fast Refresh in action. To see this for yourself, go ahead and add a simple timer to your App.svelte component.
+Snowpack is one of the only Svelte dev environments to support Fast Refresh by default. With Fast Refresh, as you make changes to `.svelte` files, Snowpack pushes live updates to the browser without losing your place or resetting component state. To see this for yourself, go ahead and add a simple timer to your App.svelte component.
 
 Svelte components include component specific scripts in a `<script>` tag. Add the counter here in `App.svelte` between the `<script>` tags:
 
