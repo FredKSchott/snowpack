@@ -1,30 +1,45 @@
 @use '../var' as *;
 // A long feature list in columns
 .feature-list {
+  
   &-top {
-    text-align: center;
+    text-align: left;
   }
 
   &-bullets {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     grid-column-gap: 2em;
-
-    grid-row-gap: 0.1em;
+    grid-row-gap: 1em;
+    margin: 2.5em 0 !important;
+    padding: .1em !important;
+    list-style: none;
 
     h3 {
       font-size: 1.25em;
+      margin: 0 0 .25em 0;
     }
+
   }
   &-bullet {
+
+    border-radius: 4px;
+    padding: 0.25em;
     display: list-item;
-    padding-left: 1em;
-    list-style-type: '✔️';
+
+    &::before {
+      display: block;
+      float: left;
+      content: '✅';
+      color: green !important;
+      margin-right: 6px;
+
+    }
   }
   &-buttons {
-    margin: 1em 0;
+    margin: 2em 0;
+    text-align: center;
   }
-
   &-button {
     display: inline-block;
     margin: 0.5em;

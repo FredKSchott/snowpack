@@ -11,34 +11,6 @@ title: Guides
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   grid-auto-flow: dense;
   }
-  .discord-banner {
-    grid-column: 1 / -1;
-    border: 1px solid #2e2077;
-    background-color: #545eec;
-    display: flex;
-    align-items: center;
-    font-size: 20px;
-    color: white;
-    font-weight: 500;
-    padding: 1.25rem;
-  margin: 1.5rem 0 1rem;
-background: #545eec;
-box-shadow:  10px 10px 30px #4750c966,
-             -10px -10px 30px #616cff66;
-  }
-  .discord-banner > * {
-    display: block;
-  }
-
-  @media (max-width: 700px) {
-    .discord-banner {
-      flex-direction: column;
-      }
-    .discord-banner > div {
-      margin-top: 1rem;
-    }
-  }
-
   .news-item {
     display: flex;
     grid-column: span 1;

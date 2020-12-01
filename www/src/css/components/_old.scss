@@ -228,9 +228,15 @@ img.company-logo {
 // Img banner
 .img-banner {
   display: block;
-  margin: 1.5rem 0;
   text-align: center;
   background: #f0db4f;
+  border-radius: 4px;
+  margin: -3rem -1.5rem 0;
+
+  @media (min-width: $breakpoint-m) {
+    margin: 0;
+    height: 100px;
+  }
 
   img {
     height: 74px;
