@@ -6,6 +6,7 @@ date: 2020-12-01
 sidebarTitle: Svelte
 tags: communityGuide
 cover: '/img/SvelteGuide.jpg'
+img: '/img/logos/svelte.svg'
 ---
 
 Snowpack is a great fit for [Svelte](https://svelte.dev/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional Svelte application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.

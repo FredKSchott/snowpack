@@ -2,6 +2,7 @@
 layout: layouts/content.njk
 title: Vue
 tags: communityGuide
+img: '/img/logos/vue.svg'
 ---
 
 <div class="stub">

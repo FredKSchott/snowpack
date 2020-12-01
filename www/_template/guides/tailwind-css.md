@@ -3,6 +3,7 @@ layout: layouts/content.njk
 title: 'Tailwind CSS'
 tags: communityGuide
 published: true
+img: '/img/logos/tailwind.svg'
 ---
 
 [Tailwind](https://tailwindcss.com) is a popular class-based CSS utility library.

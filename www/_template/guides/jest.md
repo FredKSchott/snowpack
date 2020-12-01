@@ -2,7 +2,7 @@
 layout: layouts/content.njk
 title: 'Jest'
 tags: communityGuide
-img: 'https://moumen-soliman.github.io/frontend-helper/static/img/jest.6d3adcf.jpg'
+img: '/img/logos/jest.svg'
 published: true
 ---
 
