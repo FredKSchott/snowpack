@@ -2,6 +2,7 @@
 layout: layouts/content.njk
 title: The Snowpack Guide to connecting your favorite tools
 description: 'How do you use your favorite tools in Snowpack? This Guide will help you get started'
+published: true
 ---
 
 One of the most common questions we get is "How do I connect my favorite tool to Snowpack?" In this guide we'll go over the three different ways that you can integrate third-party tooling into your Snowpack dev environment or build pipeline:
@@ -49,7 +50,7 @@ What about the other optional configuration options? [The `@snowpack/plugin-sass
   ],
 ```
 
-If there isn't a plugin yet, you might be interested in making one. Check out our [Guide to creating a plugin](/guide/plugins)
+If there isn't a plugin yet, you might be interested in making one. Check out our [Plugin API](/reference/plugins)
 
 ## Connect any other Script/CLI using plugin-run-script and plugin-build-script
 

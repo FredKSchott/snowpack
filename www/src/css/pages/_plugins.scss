@@ -1,13 +1,13 @@
 .pluginPage {
   &-count {
+    max-width: 600px;
+    min-height: 24px;
     margin: 0.5rem 0 1rem;
     color: rgba(black, 0.6);
     font-weight: 300;
     font-size: 1em;
     font-style: italic;
     text-align: center;
-    max-width: 600px;
-    min-height: 24px;
 
     @media (min-width: 600px) {
       font-size: 1.2em;
@@ -72,11 +72,11 @@
     margin-top: -2.5rem;
     margin-bottom: 0;
     color: #2e5e82;
+    font-weight: 500;
     font-size: 1em;
     font-family: 'Overpass', sans-serif;
     letter-spacing: -0.02em;
     text-align: left;
-    font-weight: 500;
 
     @media (min-width: 600px) {
       font-size: 1.5em;

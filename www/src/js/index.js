@@ -36,6 +36,9 @@ function isScrolledIntoView(el) {
 function setActiveToc() {
   const PADDING_TOP = 64;
 
+  if (window.innerWidth < 1240) {
+    return;
+  }
   if (!tableOfContentsEl) {
     return;
   }
@@ -46,15 +49,16 @@ function setActiveToc() {
 
     const elId = el.id;
     const href = `#${elId}`;
+    const tocEl = tableOfContentsEl.querySelector(`a[href="${href}"]`);
+    // only add the active class once, which will also prevent scroll from re-triggering while scrolling to the same element
+    if (!tocEl || tocEl.classList.contains('active')) {
+      continue;
+    }
+
     tableOfContentsEl.querySelectorAll(`a.active`).forEach((aEl) => {
       if (aEl.getAttribute('href') !== href) aEl.classList.remove('active');
     });
 
-    const tocEl = tableOfContentsEl.querySelector(`a[href="${href}"]`);
-    // only add the active class once, which will also prevent scroll from re-triggering while scrolling to the same element
-    if (!tocEl || tocEl.classList.contains('active')) {
-      return;
-    }
     tocEl.classList.add('active');
 
     // // update nav on desktop
@@ -130,7 +134,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     return;
   }
   setActiveToc();
-  document.querySelectorAll('.content h2, .content h3').forEach((headerEl) => {
+  document.querySelectorAll('.content h3, .content h4').forEach((headerEl) => {
     console.log('link needed');
     const linkEl = document.createElement('a');
     // linkEl.setAttribute('target', "_blank");

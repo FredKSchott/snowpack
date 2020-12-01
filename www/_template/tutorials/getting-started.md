@@ -170,7 +170,7 @@ You should now see a nifty confetti effect on your site.
 
 IMAGE: Gif showing site loading with a confetti effect
 
-> 💡 Tip: not all NPM modules may work well in the browser. If it's dependent on Node.js built-in modules you'll need to polyfill Node. Read more about how to do this on our [features page.](/features)
+> 💡 Tip: not all NPM modules may work well in the browser. If it's dependent on Node.js built-in modules you'll need to polyfill Node. Read more about how to do this on our [Starting a New Project page.](/tutorials/getting-started#using-npm-packages)
 
 ## Adding CSS
 

@@ -31,6 +31,7 @@ import {
   createInstallTarget,
   findMatchingAliasEntry,
   getWebDependencyName,
+  isJavaScript,
   isPackageAliasEntry,
   MISSING_PLUGIN_SUGGESTIONS,
   parsePackageImportSpecifier,
@@ -99,9 +100,8 @@ function resolveWebDependency(
     // For details on why we need to call fs.realpathSync.native here and other places, see
     // https://github.com/snowpackjs/snowpack/pull/999.
     const loc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
-    const isJSFile = ['.js', '.mjs', '.cjs'].includes(path.extname(loc));
     return {
-      type: isJSFile ? 'JS' : 'ASSET',
+      type: isJavaScript(loc) ? 'JS' : 'ASSET',
       loc,
     };
   }
@@ -139,7 +139,7 @@ function resolveWebDependency(
     try {
       const maybeLoc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
       return {
-        type: 'JS',
+        type: isJavaScript(maybeLoc) ? 'JS' : 'ASSET',
         loc: maybeLoc,
       };
     } catch (err) {
@@ -192,11 +192,12 @@ function resolveWebDependency(
   if (typeof foundEntrypoint !== 'string') {
     throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
   }
+  const loc = fs.realpathSync.native(
+    require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
+  );
   return {
-    type: 'JS',
-    loc: fs.realpathSync.native(
-      require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
-    ),
+    type: isJavaScript(loc) ? 'JS' : 'ASSET',
+    loc,
   };
 }
 
@@ -305,7 +306,8 @@ export async function install(
         const aliasEntry = findMatchingAliasEntry(installAlias, specifier);
         return aliasEntry && aliasEntry.type === 'package' ? aliasEntry.to : specifier;
       })
-      .sort(),
+      .map((specifier) => specifier.replace(/(\/|\\)+$/, '')) // remove trailing slash from end of specifier (easier for Node to resolve)
+      .sort((a, b) => a.localeCompare(b, undefined, {numeric: true})),
   );
   const installEntrypoints: {[targetName: string]: string} = {};
   const assetEntrypoints: {[targetName: string]: string} = {};
@@ -315,8 +317,8 @@ export async function install(
   const autoDetectNamedExports = [...CJS_PACKAGES_TO_AUTO_DETECT, ...namedExports];
 
   for (const installSpecifier of allInstallSpecifiers) {
-    const targetName = getWebDependencyName(installSpecifier);
-    const proxiedName = sanitizePackageName(targetName); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
+    let targetName = getWebDependencyName(installSpecifier);
+    let proxiedName = sanitizePackageName(targetName); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
     if (lockfile && lockfile.imports[installSpecifier]) {
       installEntrypoints[targetName] = lockfile.imports[installSpecifier];
       importMap.imports[installSpecifier] = `./${proxiedName}.js`;
@@ -336,6 +338,13 @@ export async function install(
             importMap.imports[key] = `./${targetName}.js`;
           });
       } else if (resolvedResult.type === 'ASSET') {
+        // add extension if missing
+        const isMissingExt = path.extname(resolvedResult.loc) && !path.extname(proxiedName);
+        if (isMissingExt) {
+          const ext = path.basename(resolvedResult.loc).replace(/[^.]+/, '');
+          targetName += ext;
+          proxiedName += ext;
+        }
         assetEntrypoints[targetName] = resolvedResult.loc;
         importMap.imports[installSpecifier] = `./${proxiedName}`;
       } else if (resolvedResult.type === 'DTS') {

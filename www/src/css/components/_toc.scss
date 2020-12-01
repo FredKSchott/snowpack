@@ -20,15 +20,15 @@ $top-padding: 24px;
   }
 
   &::before {
-      content: "▸";
       position: absolute;
-      opacity: 0;
-      left: -19px;
       top: -2px;
+      left: -19px;
       font-weight: 400;
-      transition: left .14s ease-out;
       font-size: 26px;
       line-height: 1;
+      opacity: 0;
+      transition: left .14s ease-out;
+      content: "▸";
   }
 
 
@@ -41,8 +41,8 @@ $top-padding: 24px;
     text-decoration: underline;
 
     &::before {
-      opacity: 1;
       left: -17px;
+      opacity: 1;
   }
   }
 }
@@ -99,6 +99,10 @@ $top-padding: 24px;
     position: static;
     z-index: 1;
     padding-top: 2rem;
+    
+    .snow-toc-section-header {
+      color: $dark-grey;
+    }
 
     hr {
       display: block;

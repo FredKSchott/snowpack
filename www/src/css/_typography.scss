@@ -66,7 +66,7 @@
     background: linear-gradient(-30deg, #c9efd8, #f9ddff);
     border-left: none;
 
-    @media (min-width: 860px) {
+    @media (min-width: $breakpoint-m) {
       padding: 1rem 2rem;
       border-radius: 0.5rem;
       box-shadow: 0 1px 2px rgba(50, 127, 177, 0.1),

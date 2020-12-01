@@ -4,7 +4,7 @@ module.exports = {
     src: '/_dist_',
   },
   plugins: [
-    ['@snowpack/plugin-run-script', { cmd: 'eleventy', watch: '$1 --watch' }],
+    ['@snowpack/plugin-run-script', { cmd: 'eleventy', watch: '$1 --watch --quiet' }],
     ['@snowpack/plugin-sass', { compilerOptions: { style: 'compressed' } }],
     ['@snowpack/plugin-postcss', {}],
   ],

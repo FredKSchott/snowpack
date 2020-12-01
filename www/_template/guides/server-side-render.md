@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Server-Side Rendering (SSR)
+published: true
 ---
 
 Server-side rendering (SSR) refers to several similar developer stories:
@@ -32,7 +33,7 @@ The downside of this static approach is that you need to wait for Snowpack to bu
 ### Option 2: On Demand (Middleware)
 
 <div class="notification">
-Status: Experimental 
+Status: Experimental
 </div>
 
 The best developer experience is achieved by loading files on-demand. This removes any need for work on startup, giving you a faster developer environment no matter how large your project grows.

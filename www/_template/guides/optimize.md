@@ -1,7 +1,12 @@
 ---
 layout: layouts/content.njk
 title: Optimize for production
+published: false
 ---
+
+<div class="stub">
+This article is a stub, you can help fix it by removing duplicate content from /guides/bundling and writing it in a <a href="https://documentation.divio.com/how-to-guides/">guide format</a>
+</div>
 
 There are several plugins available to optimize your final build with popular bundlers like Webpack, Parcel, and (more recently) Rollup. Third-party bundlers are well-tested and well-supported, making them a great choice for production builds.
 
