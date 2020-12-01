@@ -221,7 +221,6 @@
       dataLayer.push(arguments);
     }
     gtag('js', new Date());
-
-    gtag('config', 'UA-130280175-9');
+    gtag('config', 'UA-130280175-9', {page_path: location.pathname === '/' ? (location.pathname + location.hash) : (location.pathname)});
   </script>
 </html>
