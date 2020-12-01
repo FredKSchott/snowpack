@@ -72,7 +72,7 @@ $top-padding: 24px;
   }
 
   .snow-view-main {
-    overflow: auto;
+    min-width: 0;
     grid-area: main;
     padding: $top-padding 0 $top-padding 0;
 
