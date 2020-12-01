@@ -16,6 +16,8 @@ import {
   SVELTE_VUE_REGEX,
 } from './util';
 import PQueue from 'p-queue';
+import fs from 'fs';
+import { join, dirname } from 'path';
 
 const CONCURRENT_FILE_READS = 1000;
 
@@ -139,7 +141,7 @@ function parseJsForInstallTargets(contents: string): InstallTarget[] {
   );
 }
 
-function parseCssForInstallTargets(code: string): InstallTarget[] {
+async function parseCssForInstallTargets(code: string, relativeLoc: string): Promise<InstallTarget[]> {
   const installTargets: InstallTarget[] = [];
   let match;
   const importRegex = new RegExp(CSS_REGEX);
@@ -147,17 +149,23 @@ function parseCssForInstallTargets(code: string): InstallTarget[] {
     const [, spec] = match;
     const webModuleSpecifier = parseWebModuleSpecifier(spec);
     if (webModuleSpecifier) {
-      installTargets.push(createInstallTarget(webModuleSpecifier));
+      const installTarget = createInstallTarget(webModuleSpecifier)
+      const localFileReference = join(dirname(relativeLoc), installTarget.specifier)
+      try {
+        await fs.promises.access(localFileReference, fs.constants.F_OK)
+      } catch (e) {
+        installTargets.push(installTarget);
+      }
     }
   }
   return installTargets;
 }
 
-function parseFileForInstallTargets({
+async function parseFileForInstallTargets({
   locOnDisk,
   baseExt,
   contents,
-}: SnowpackSourceFile<string>): InstallTarget[] {
+}: SnowpackSourceFile<string>): Promise<InstallTarget[]> {
   const relativeLoc = path.relative(process.cwd(), locOnDisk);
 
   try {
@@ -167,7 +175,7 @@ function parseFileForInstallTargets({
       case '.sass':
       case '.scss': {
         logger.debug(`Scanning ${relativeLoc} for imports as CSS`);
-        return parseCssForInstallTargets(contents);
+        return await parseCssForInstallTargets(contents, relativeLoc);
       }
       case '.html':
       case '.svelte':
@@ -274,10 +282,13 @@ export async function scanImportsFromFiles(
   loadedFiles: SnowpackSourceFile[],
   config: SnowpackConfig,
 ): Promise<InstallTarget[]> {
-  return loadedFiles
-    .filter((sourceFile) => !Buffer.isBuffer(sourceFile.contents)) // filter out binary files from import scanning
-    .map((sourceFile) => parseFileForInstallTargets(sourceFile as SnowpackSourceFile<string>))
-    .reduce((flat, item) => flat.concat(item), [])
+  const installTargets = await Promise.all(
+    loadedFiles
+      .filter((sourceFile) => !Buffer.isBuffer(sourceFile.contents)) // filter out binary files from import scanning
+      .map((sourceFile) => parseFileForInstallTargets(sourceFile as SnowpackSourceFile<string>))
+  )
+
+  return installTargets.reduce((flat, item) => flat.concat(item), [])
     .filter((target) => {
       const aliasEntry = findMatchingAliasEntry(config, target.specifier);
       return !aliasEntry || aliasEntry.type === 'package';
