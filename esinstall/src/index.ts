@@ -244,7 +244,7 @@ interface InstallOptions {
 type PublicInstallOptions = Partial<InstallOptions>;
 export {PublicInstallOptions as InstallOptions};
 
-type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput};
+export type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput};
 
 const FAILED_INSTALL_MESSAGE = 'Install failed.';
 
