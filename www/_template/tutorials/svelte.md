@@ -26,7 +26,7 @@ Prerequisites: Snowpack is a command-line tool installed from npm. This guide as
 
 ## Getting started
 
-The easiest way to start a new Snowpack project is with [Create Snowpack App](<https://www.snowpack.dev/#create-snowpack-app-(csa)>), a tool for creating a new project based on our example templates. `@snowpack/app-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
+The easiest way to start a new Snowpack project is with [Create Snowpack App](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli), a tool for creating a new project based on our example templates. `@snowpack/app-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
 
 Run the following command in your terminal to create a new directory called `svelte-snowpack` with the minimal template installed:
 
@@ -299,7 +299,7 @@ What about other, non-Svelte files like `src/index.js`? To re-render your Svelte
 export default app;
 
 +// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-+// Learn more: https://www.snowpack.dev/#hot-module-replacement
++// Learn more: https://next.snowpack.dev/concepts/hot-module-replacement
 +if (import.meta.hot) {
 +  import.meta.hot.accept();
 +  import.meta.hot.dispose(() => {

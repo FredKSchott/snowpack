@@ -23,7 +23,7 @@ Bundlers normally require dozens or even hundreds of lines of configuration, but
 }
 ```
 
-See ["Optimized Builds"](/#optimized-builds) for more information about connecting bundled (or unbundled) optimization plugins for your production builds.
+See [our bundling guides](/guides/bundling) for more information about connecting bundled (or unbundled) optimization plugins for your production builds.
 
 ## Legacy Browser Support
 

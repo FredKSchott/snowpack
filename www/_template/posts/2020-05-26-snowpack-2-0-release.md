@@ -14,7 +14,7 @@ After 40+ beta versions & release candidates we are very excited to introduce **
 - Bundle-free development with bundled production builds.
 - Built-in support for TypeScript, JSX, CSS Modules and more.
 - Works with React, Preact, Vue, Svelte, and all your favorite libraries.
-- [Create Snowpack App (CSA)](</#create-snowpack-app-(csa)>) starter templates.
+- [Create Snowpack App (CSA)](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli) starter templates.
 
 <br/>
 
@@ -72,7 +72,7 @@ With no bundling work needed to start, your server spins up immediately. On your
 
 ## Customizing Your Build
 
-[Build Scripts](/#build-scripts) let you connect your favorite build tools. With Snowpack, you express every build as a linear `input -> build -> output` workflow. This allow Snowpack to pipe your files into and out of any existing UNIX-y CLI tools without the need for a special plugin ecosystem.
+[Build Scripts](/concepts/build-pipeline) let you connect your favorite build tools. With Snowpack, you express every build as a linear `input -> build -> output` workflow. This allow Snowpack to pipe your files into and out of any existing UNIX-y CLI tools without the need for a special plugin ecosystem.
 
 ```js
 // snowpack.config.json
@@ -87,7 +87,7 @@ With no bundling work needed to start, your server spins up immediately. On your
 
 If you've ever used your `package.json` "scripts" config, this format should feel familiar. We love the simplicity of using your CLIs directly without an unnecessary plugin system. We hope this pattern offers a similar intuitive design.
 
-If you want more control over your build (or want to write your own build tool) Snowpack also supports [third-party JavaScript plugins](/#build-plugins). [Check out our docs](/#build-scripts) to learn more about customizing your build.
+If you want more control over your build (or want to write your own build tool) Snowpack also supports [third-party JavaScript plugins](/plugins). [Check out our docs](/concepts/build-pipeline) to learn more about customizing your build.
 
 ## `build` Bundling for Production
 
