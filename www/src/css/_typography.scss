@@ -59,15 +59,14 @@
   blockquote {
     margin-right: -1rem;
     margin-left: -1rem;
-    padding: 1.5rem 1rem;
     color: #2e5e82;
     font-weight: 300;
     font-size: 1.1em;
     background: linear-gradient(-30deg, #c9efd8, #f9ddff);
     border-left: none;
+    padding: 1rem 2rem;
 
     @media (min-width: $breakpoint-m) {
-      padding: 1rem 2rem;
       border-radius: 0.5rem;
       box-shadow: 0 1px 2px rgba(50, 127, 177, 0.1),
         0 1.5rem 3rem rgba(50, 125, 177, 0.1);
