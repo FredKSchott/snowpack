@@ -2,6 +2,8 @@
 layout: layouts/content.njk
 title: Preact
 tags: communityGuide
+img: '/img/logos/preact.svg'
+imgBackground: '#333333'
 ---
 
 You can import and use Preact without any custom configuration needed.
