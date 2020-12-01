@@ -29,7 +29,7 @@
 
     <!-- Global Stylesheets -->
     <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/app.min.css" />
+    <link rel="stylesheet" href="/_dist_/css/legacy-post.css" />
     <style>
       .grid-body-header {
         margin: 5rem 1rem;
@@ -63,7 +63,7 @@
 
       .markdown-body,
       .fbody-header {
-        max-width: 780px;
+        max-width: 820px;
       }
 
       .markdown-body {
@@ -80,7 +80,7 @@
         filter: brightness(0.72);
       }
 
-      @media (max-width: 800px) {
+      @media (max-width: 860px) {
         .markdown-body, .toc {
           padding: 1em;
         }
@@ -109,7 +109,7 @@
     </style>
   </head>
   <body>
-    <div class="snow-toc-buttons">
+    <div class="grid-toc-buttons">
       <a class="header-logo" href="/">
         <svg id="toc-logo" height="38px" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
             <g id="Page-1" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
@@ -160,7 +160,7 @@
       </div>
     </div>
     <div id="grid-body" class="grid-body">
-<article class="markdown-body content">
+<article class="markdown-body">
       {{ content | safe }}
     </article>
     </div>
