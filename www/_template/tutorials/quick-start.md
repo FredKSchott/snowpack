@@ -16,21 +16,19 @@ pnpm add --save-dev snowpack
 
 ### Run the Snowpack CLI
 
-All popular package managers support running any installed packages via CLI. This prevents you from having to install the package globally just to run it yourself.
-
 ```bash
 npx snowpack [command]
 yarn run snowpack [command]
 pnpm run snowpack [command]
 ```
 
-Throughout our documentation, we'll use `snowpack [command]` to document the CLI. To run this yourself, refer to this section and add the `npx`/`yarn run`/`pnpm run` prefix of the package manager that you used to install Snowpack.
+Throughout our documentation, we'll use `snowpack [command]` to document the CLI. To run your locally installed version of Snowpack, add the `npx`/`yarn run`/`pnpm run` prefix of the package manager that you used to install Snowpack.
 
-For long-term development, the best way to use Snowpack is with a saved package.json script. This reduces your own need to remember exact Snowpack commands/configuration, and lets you share some common scripts with the the rest of your team (if applicable).
+For long-term development, the best way to use Snowpack is with a package.json script. This reduces your own need to remember exact Snowpack commands/configuration, and lets you share some common scripts with the the rest of your team (if applicable).
 
 ```js
 // Recommended: package.json scripts
-// npm run start (or yarn, or pnpm)
+// npm run start (or: "yarn run ...", "pnpm run ...")
 "scripts": {
     "start": "snowpack dev",
     "build": "snowpack build"
