@@ -19,6 +19,16 @@ body {
   }
 }
 
+// Stub
+.stub {
+  padding: 0.5rem;
+
+  font-weight: bold;
+  background-color: #f0db4f;
+  a {
+    text-decoration: underline;
+  }
+}
 // Button
 
 .button {
@@ -79,8 +89,8 @@ a.button {
   border: 1px solid #0006;
   border-radius: 4px;
   cursor: pointer;
-  transition: transform 0.5s ease-in-out, width, background-color, transform, color,
-    fill, stroke 0.5s ease-out;
+  transition: transform 0.5s ease-in-out, width, background-color, transform,
+    color, fill, stroke 0.5s ease-out;
 
   svg,
   .faded {

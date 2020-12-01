@@ -4,8 +4,6 @@ title: Preact
 tags: communityGuide
 ---
 
-## Preact
-
 You can import and use Preact without any custom configuration needed.
 
 **To use `preact/compat`:** (the Preact+React compatability layer) alias the "compat" package to React in your install options:

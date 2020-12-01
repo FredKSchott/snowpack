@@ -1,7 +1,12 @@
 ---
 layout: layouts/content.njk
 title: Hot Module Replacement (HMR)
+published: false
 ---
+
+<div class="stub">
+This article is a stub, you can help fix it by removing duplicate content from /concepts/hot-module-replacement and writing it in a <a href="https://documentation.divio.com/how-to-guides/">guide format</a>
+</div>
 
 Hot Module Replacement (HMR) is the ability for Snowpack to push file changes to the browser without triggering a full page refresh. This article is about enabling HMR and connecting to the HMR dev server.
 
@@ -17,7 +22,7 @@ You can tell if HMR is connected by checking your browser dev console. If you se
 
 ### Enable HMR: Snowpack Dev Server
 
-HMR is enabled by default when you run `snowpack dev`. The Snowpack dev server will add the necessary scripts for your browser, and no configuration is required for most users. You can toggle this support off during development via the [`devOptions.hmr` configuration option](/configuration).
+HMR is enabled by default when you run `snowpack dev`. The Snowpack dev server will add the necessary scripts for your browser, and no configuration is required for most users. You can toggle this support off during development via the [`devOptions.hmr` configuration option](/reference/configuration).
 
 ### Enable HMR: Custom Server
 
