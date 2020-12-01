@@ -37,7 +37,6 @@ For long-term development, the best way to use Snowpack is with a saved package.
 }
 ```
 
-
 ### Serve your project locally
 
 ```

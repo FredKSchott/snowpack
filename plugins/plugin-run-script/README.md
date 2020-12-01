@@ -31,7 +31,7 @@ Supply any CLI command in `cmd`. Note that this is the same as running the comma
 ## Plugin Options
 
 | Name     |   Type    | Description                                                                 |
-| :------- | :-------: | :-------------------------------------------------------------------------- |
+| :------- | :-------: | :-------------------------------------------------------------------------- | ------------------------------------------------------------ |
 | `cmd`    | `string`  | The CLI command to run. Note that this will run **before** Snowpack builds. |
 | `name`   | `string`  | (optional) Set name of console output, default is program name.             |
 | `watch`  | `string`  | (optional) A watch command to run during the dev server.                    |
