@@ -1,6 +1,13 @@
 @use './var' as *;
 
 .content {
+
+  a {
+    color: #0366d6;
+    text-decoration: none;
+  }
+
+
   h1,
   h2,
   h3,
