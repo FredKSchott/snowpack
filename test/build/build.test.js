@@ -16,7 +16,10 @@ const SKIP_TESTS = [
   'base-url',
   'base-url-homepage',
   'base-url-remote',
+  'bugfix-named-import',
+  'cdn',
   'config-treeshake',
+  'custom-modules-dir',
   'html-environment-variables',
 ];
 
