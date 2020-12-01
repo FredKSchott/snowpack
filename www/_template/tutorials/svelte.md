@@ -287,7 +287,7 @@ Then lower down in your component's body, add this code that displays the result
 </div>
 ```
 
-Trying making a change to the code. You'll see the timer does not reset.
+Change some code on the page (like the "Learn Svelte" button). You'll see the timer does not reset.
 
 <div class="frame"><img src="/img/guides/svelte/svelte-snowpack-counter-1.gif" alt="Showing code and site side by side, when the word 'Hello' is added to the .svelte page and the code is saved, the change shows up in the browser without the timer resetting (it keeps counting)" class="screenshot"/></div>
 
