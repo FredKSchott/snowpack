@@ -3,6 +3,7 @@ layout: layouts/content.njk
 title: 'Jest'
 tags: communityGuide
 img: '/img/logos/jest.svg'
+imgBackground: '#d14c53'
 published: true
 ---
 

@@ -103,7 +103,7 @@ background: linear-gradient(30deg, #A7BFE8, #6190E8);
 
 <article class="news-item">
   <a href="{{ post.url }}" style="text-decoration: none; color: initial; flex-grow: 1;">
-{% if post.data.img %}<img class="news-item-image" src="{{ post.data.img }}" alt="" />
+{% if post.data.img %}<img class="news-item-image" src="{{ post.data.img }}" alt="" {% if post.data.imgBackground %} style="background: {{post.data.imgBackground}}" {% endif %} />
 {% else %}<div class="news-item-image"></div>
 {% endif %}
   <div class="news-item-text">

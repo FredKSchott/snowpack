@@ -2,7 +2,6 @@
 layout: layouts/content.njk
 title: Workbox
 tags: communityGuide
-img: '/img/logos/workbox.svg'
 ---
 
 <div class="stub">
