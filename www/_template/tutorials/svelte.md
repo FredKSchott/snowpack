@@ -300,7 +300,7 @@ What about other, non-Svelte files like `src/index.js`? To re-render your Svelte
 export default app;
 
 +// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-+// Learn more: https://snowpack.dev/concepts/hot-module-replacement
++// Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
 +if (import.meta.hot) {
 +  import.meta.hot.accept();
 +  import.meta.hot.dispose(() => {
