@@ -3,6 +3,7 @@ layout: layouts/content.njk
 title: 'Jest'
 tags: communityGuide
 img: 'https://moumen-soliman.github.io/frontend-helper/static/img/jest.6d3adcf.jpg'
+published: true
 ---
 
 [Jest](https://jestjs.io/) is a popular Node.js test runner for Node.js & web projects. Jest can be used with any frontend project as long as you configure how Jest should build your frontend files to run on Node.js. Many projects will try to manage this configuration for you, since it can get complicated.

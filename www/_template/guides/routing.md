@@ -1,10 +1,11 @@
 ---
 layout: layouts/content.njk
 title: Routing
+published: true
 ---
 
 <div class="notification">
-Status: Experimental 
+Status: Experimental
 </div>
 
 As a web build tool, Snowpack has no knowledge of how (or where) your application is served in production. But Snowpack's dev server can be customized to recreate something close to your production environment for local development.

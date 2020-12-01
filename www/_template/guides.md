@@ -12,7 +12,7 @@ title: Guides
   grid-auto-flow: dense;
   }
   .discord-banner {
-    grid-column: 1 / -1;     
+    grid-column: 1 / -1;
     border: 1px solid #2e2077;
     background-color: #545eec;
     display: flex;
@@ -23,7 +23,7 @@ title: Guides
     padding: 1.25rem;
   margin: 1.5rem 0 1rem;
 background: #545eec;
-box-shadow:  10px 10px 30px #4750c966, 
+box-shadow:  10px 10px 30px #4750c966,
              -10px -10px 30px #616cff66;
   }
   .discord-banner > * {
@@ -41,7 +41,7 @@ box-shadow:  10px 10px 30px #4750c966,
 
   .news-item {
     display: flex;
-    grid-column: span 1;  
+    grid-column: span 1;
     overflow: hidden;
     font-family: Open Sans,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;
     color: #1a202c;
@@ -76,7 +76,7 @@ box-shadow:  10px 10px 30px #4750c966,
 }
 
 .news-item:nth-child(5n+0) .news-item-image {
-  background: #f2709c; 
+  background: #f2709c;
     background: linear-gradient(30deg, #ff9472, #f2709c);
 }
 .news-item:nth-child(5n+1) .news-item-image {
@@ -110,12 +110,12 @@ background: linear-gradient(30deg, #A7BFE8, #6190E8);
 <div class="content">
 
 - [Routing](/guides/routing)
-- [Server-Side Render](/guides/server-side-render)
+- [Server-Side Rendering](/guides/server-side-render)
 - [SSL, HTTPS, and HTTP/2 in Development](/guides/https-ssl-certificates)
 - [Connecting your dev tools](/guides/connecting-tools)
 - [Bundling for Deployment](/guides/bundling)
 - [Testing](/guides/testing)
-
+- [Leaving Snowpack](/guides/leaving-snowpack)
 </div>
 
 <br/>

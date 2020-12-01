@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Testing
+published: true
 ---
 
 Snowpack supports all of the popular JavaScript testing frameworks that you're already familiar with. Mocha, Jest, Jasmine, AVA and Cypress are all supported in Snowpack applications, if integrated correctly.
