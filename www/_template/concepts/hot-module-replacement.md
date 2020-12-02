@@ -5,7 +5,7 @@ title: Fast Refresh & HMR
 
 Hot Module Replacement (HMR) is the ability to push file updates to the browser without triggering a full page refresh. Imagine changing some CSS, hitting save, and then instantly seeing your change reflected on the page without a refresh. That's HMR.
 
-HMR is not unique to Snowpack. However, Snowpack's approach to [unbundled development](/concepts/how-snowpack-works) and ability to leverage ESM for direct file updates makes HMR significantly faster than it would be in a traditional bundled dev environment.
+HMR is not unique to Snowpack. However, Snowpack's approach to [unbundled development](/concepts/how-snowpack-works) and ability to leverage ESM for direct file updates makes HMR significantly faster than it would be in a traditional bundled dev environment. In bundled dev environments, HMR updates cannot be sent directly to the browser and instead need to be relinked, rebuilt and reapplied within the context of larger bundles, slowing things down considerably (especially as your project grows).
 
 Snowpack ships with ready, out-of-the-box HMR support for the following files in development:
 
@@ -13,9 +13,11 @@ Snowpack ships with ready, out-of-the-box HMR support for the following files in
 - CSS Modules
 - JSON
 
-In addition, Snowpack also supports **Fast Refresh** for most popular frameworks like React, Preact and Svelte. Fast Refresh is a framework-specific enhancement to HMR, which applies single file updates in a way that preserves component state across updates. Changes to a `Timer` component, for example, would be applied without resetting the components internal state.
+## Fast Refresh
 
-Fast Refresh makes your development even faster, especially when working on popups and other secondary view states that normally would require a click to re-open or re-visit after every change.
+In addition to normal HMR, Snowpack also supports **Fast Refresh** for most popular frameworks like React, Preact and Svelte. Fast Refresh is a framework-specific enhancement to HMR, which applies single file updates in a way that preserves component state across updates. Changes to a `Timer` component, for example, would be applied without resetting the components internal state.
+
+Fast Refresh makes development even faster, especially when working on popups and other secondary view states that normally would require a click to re-open or re-visit after every change.
 
 ### Enabling HMR with Fast Refresh
 
