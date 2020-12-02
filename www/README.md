@@ -1,5 +1,7 @@
 # Snowpack Docs
 
+We aim to follow the [Divio documentation system](https://documentation.divio.com/introduction/) though a lot of our docs are legacy and don't necessarily fit it yet.
+
 ## Architecture
 
 - Markdown files that become pages are in `/template`
@@ -7,6 +9,10 @@
 - templates in `_includes`
 
 ## Style Guide
+
+- Sentence-style capitalization
+- Oxford comma
+- Don't capitalize after colons
 
 ### Code Blocks
 
