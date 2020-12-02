@@ -1,0 +1,8 @@
+@use './var' as *;
+
+@mixin subtle-border-animation {
+  &:hover {
+    border-color: transparent; /* remove the border's colour */
+    box-shadow: 0 0 0 2px rgba(46, 95, 132, 0.69); /* emulate the border */
+  }
+}
