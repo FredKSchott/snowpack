@@ -15,13 +15,11 @@ Snowpack ships with ready, out-of-the-box HMR support for the following file typ
 
 JavaScript HMR is also supported out-of-the-box, but often requires a few additional lines of code to properly integrate with your frontend framework's "render" function. See "Enabling HMR + Fast Refresh" below.
 
-
 ## Fast Refresh
 
 In addition to normal HMR, Snowpack also supports **Fast Refresh** for most popular frameworks like React, Preact and Svelte. Fast Refresh is a framework-specific enhancement to HMR, which applies single file updates in a way that preserves component state across updates. Changes to a `<Timer />` component, for example, would be applied without resetting the components internal state.
 
 Fast Refresh makes development even faster, especially when working on popups and other secondary view states that normally would require a click to re-open or re-visit after every change.
-
 
 ## Enabling HMR + Fast Refresh
 
@@ -44,4 +42,3 @@ if (import.meta.hot) {
 ```
 
 Check out the full [ESM-HMR API reference](https://github.com/snowpackjs/esm-hmr) on GitHub.
-
