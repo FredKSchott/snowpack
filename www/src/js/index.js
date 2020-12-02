@@ -83,24 +83,8 @@ function setActiveToc() {
   // });
 }
 
-const searchFormInputEl = document.getElementById('search-form-input');
 const tableOfContentsEl = document.querySelector('.toc');
-const gridTocEl = document.querySelector('#nav-primary');
 window.addEventListener('scroll', debounce(setActiveToc));
-searchFormInputEl.addEventListener('keyup', () => {
-  if (searchFormInputEl.value) {
-    gridTocEl.classList.add('is-mobile-hidden');
-  } else {
-    gridTocEl.classList.remove('is-mobile-hidden');
-  }
-});
-
-document.onkeydown = function (e) {
-  if ((e.ctrlKey || e.metaKey) && e.which == 75) {
-    searchFormInputEl.focus();
-  }
-};
-
 /* May not be needed:
   window.addEventListener('DOMContentLoaded', (event) => {
     if (!window.location.hash) {
