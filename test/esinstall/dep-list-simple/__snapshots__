@@ -16,7 +16,216 @@ exports[`snowpack install dep-list-simple: cli output 1`] = `
 `;
 
 exports[`snowpack install dep-list-simple: web_modules/async.js 1`] = `
-"/**
+"/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+var cachedSetTimeout = defaultSetTimout;
+var cachedClearTimeout = defaultClearTimeout;
+var globalContext;
+if (typeof window !== 'undefined') {
+    globalContext = window;
+} else if (typeof self !== 'undefined') {
+    globalContext = self;
+} else {
+    globalContext = {};
+}
+if (typeof globalContext.setTimeout === 'function') {
+    cachedSetTimeout = setTimeout;
+}
+if (typeof globalContext.clearTimeout === 'function') {
+    cachedClearTimeout = clearTimeout;
+}
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+function nextTick(fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+}
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+var title = 'browser';
+var platform = 'browser';
+var browser = true;
+var argv = [];
+var version = ''; // empty string to avoid regexp issues
+var versions = {};
+var release = {};
+var config = {};
+function noop() {}
+var on = noop;
+var addListener = noop;
+var once = noop;
+var off = noop;
+var removeListener = noop;
+var removeAllListeners = noop;
+var emit = noop;
+function binding(name) {
+    throw new Error('process.binding is not supported');
+}
+function cwd () { return '/' }
+function chdir (dir) {
+    throw new Error('process.chdir is not supported');
+}function umask() { return 0; }
+// from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
+var performance = globalContext.performance || {};
+var performanceNow =
+  performance.now        ||
+  performance.mozNow     ||
+  performance.msNow      ||
+  performance.oNow       ||
+  performance.webkitNow  ||
+  function(){ return (new Date()).getTime() };
+// generate timestamp or delta
+// see http://nodejs.org/api/process.html#process_process_hrtime
+function hrtime(previousTimestamp){
+  var clocktime = performanceNow.call(performance)*1e-3;
+  var seconds = Math.floor(clocktime);
+  var nanoseconds = Math.floor((clocktime%1)*1e9);
+  if (previousTimestamp) {
+    seconds = seconds - previousTimestamp[0];
+    nanoseconds = nanoseconds - previousTimestamp[1];
+    if (nanoseconds<0) {
+      seconds--;
+      nanoseconds += 1e9;
+    }
+  }
+  return [seconds,nanoseconds]
+}
+var startTime = new Date();
+function uptime() {
+  var currentTime = new Date();
+  var dif = currentTime - startTime;
+  return dif / 1000;
+}
+var process = {
+  nextTick: nextTick,
+  title: title,
+  browser: browser,
+  env: {\\"NODE_ENV\\":\\"test\\"},
+  argv: argv,
+  version: version,
+  versions: versions,
+  on: on,
+  addListener: addListener,
+  once: once,
+  off: off,
+  removeListener: removeListener,
+  removeAllListeners: removeAllListeners,
+  emit: emit,
+  binding: binding,
+  cwd: cwd,
+  chdir: chdir,
+  umask: umask,
+  hrtime: hrtime,
+  platform: platform,
+  release: release,
+  config: config,
+  uptime: uptime
+};
+/**
  * Creates a continuation function with some arguments already applied.
  *
  * Useful as a shorthand when combined with other control flow functions. Any
@@ -250,7 +459,7 @@ function isArrayLike(value) {
 // A temporary value used to identify if the loop should be broken.
 // See #1064, #1293
 const breakLoop = {};
-function once(fn) {
+function once$1(fn) {
     function wrapper (...args) {
         if (fn === null) return;
         var callFn = fn;
@@ -361,7 +570,7 @@ function asyncEachOfLimit(generator, limit, iteratee, callback) {
 }
 var eachOfLimit = (limit) => {
     return (obj, iteratee, callback) => {
-        callback = once(callback);
+        callback = once$1(callback);
         if (limit <= 0) {
             throw new RangeError('concurrency limit cannot be less than 1')
         }
@@ -444,7 +653,7 @@ function eachOfLimit$1(coll, limit, iteratee, callback) {
 var eachOfLimit$2 = awaitify(eachOfLimit$1, 4);
 // eachOf implementation optimized for array-likes
 function eachOfArrayLike(coll, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var index = 0,
         completed = 0,
         {length} = coll,
@@ -760,7 +969,7 @@ function auto(tasks, concurrency, callback) {
         callback = concurrency;
         concurrency = null;
     }
-    callback = once(callback || promiseCallback());
+    callback = once$1(callback || promiseCallback());
     var numTasks = Object.keys(tasks).length;
     if (!numTasks) {
         return callback(null);
@@ -1115,7 +1324,7 @@ function setInitial(dll, node) {
     dll.length = 1;
     dll.head = dll.tail = node;
 }
-function queue(worker, concurrency, payload) {
+function queue$1(worker, concurrency, payload) {
     if (concurrency == null) {
         concurrency = 1;
     }
@@ -1402,7 +1611,7 @@ function queue(worker, concurrency, payload) {
  * console.log('finished processing baz');
  */
 function cargo(worker, payload) {
-    return queue(worker, 1, payload);
+    return queue$1(worker, 1, payload);
 }
 /**
  * Creates a \`cargoQueue\` object with the specified payload. Tasks added to the
@@ -1459,7 +1668,7 @@ function cargo(worker, payload) {
  * });
  */
 function cargo$1(worker, concurrency, payload) {
-    return queue(worker, concurrency, payload);
+    return queue$1(worker, concurrency, payload);
 }
 /**
  * Reduces \`coll\` into a single value using an async \`iteratee\` to return each
@@ -1503,7 +1712,7 @@ function cargo$1(worker, concurrency, payload) {
  * });
  */
 function reduce(coll, memo, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var _iteratee = wrapAsync(iteratee);
     return eachOfSeries$1(coll, (x, i, iterCb) => {
         _iteratee(memo, x, (err, v) => {
@@ -2565,7 +2774,7 @@ var log = consoleFunc('log');
  * @returns {Promise} a promise, if no callback is passed
  */
 function mapValuesLimit(obj, limit, iteratee, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     var newObj = {};
     var _iteratee = wrapAsync(iteratee);
     return eachOfLimit(limit)(obj, (val, key, next) => {
@@ -2756,7 +2965,7 @@ if (hasNextTick) {
 } else {
     _defer$1 = fallback;
 }
-var nextTick = wrap(_defer$1);
+var nextTick$1 = wrap(_defer$1);
 var _parallel = awaitify((eachfn, tasks, callback) => {
     var results = isArrayLike(tasks) ? [] : {};
     eachfn(tasks, (task, key, taskCb) => {
@@ -3006,9 +3215,9 @@ function parallelLimit(tasks, limit, callback) {
  *     console.log('finished processing bar');
  * });
  */
-function queue$1 (worker, concurrency) {
+function queue$1$1 (worker, concurrency) {
     var _worker = wrapAsync(worker);
-    return queue((items, cb) => {
+    return queue$1((items, cb) => {
         _worker(items[0], cb);
     }, concurrency, 1);
 }
@@ -3127,7 +3336,7 @@ function smaller(x, y) {
  */
 function priorityQueue(worker, concurrency) {
     // Start with a normal queue
-    var q = queue$1(worker, concurrency);
+    var q = queue$1$1(worker, concurrency);
     q._tasks = new Heap();
     // Override push to accept second parameter representing priority
     q.push = function(data, priority = 0, callback = () => {}) {
@@ -3193,7 +3402,7 @@ function priorityQueue(worker, concurrency) {
  * });
  */
 function race(tasks, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     if (!Array.isArray(tasks)) return callback(new TypeError('First argument to race must be an array of functions'));
     if (!tasks.length) return callback();
     for (var i = 0, l = tasks.length; i < l; i++) {
@@ -4058,7 +4267,7 @@ function transform (coll, accumulator, iteratee, callback) {
         iteratee = accumulator;
         accumulator = Array.isArray(coll) ? [] : {};
     }
-    callback = once(callback || promiseCallback());
+    callback = once$1(callback || promiseCallback());
     var _iteratee = wrapAsync(iteratee);
     eachOf$1(coll, (v, k, cb) => {
         _iteratee(accumulator, v, k, cb);
@@ -4291,7 +4500,7 @@ function until(test, iteratee, callback) {
  * }
  */
 function waterfall (tasks, callback) {
-    callback = once(callback);
+    callback = once$1(callback);
     if (!Array.isArray(tasks)) return callback(new Error('First argument to waterfall must be an array of functions'));
     if (!tasks.length) return callback();
     var taskIndex = 0;
@@ -4392,11 +4601,11 @@ var index = {
     mapValuesLimit: mapValuesLimit$1,
     mapValuesSeries,
     memoize,
-    nextTick,
+    nextTick: nextTick$1,
     parallel,
     parallelLimit,
     priorityQueue,
-    queue: queue$1,
+    queue: queue$1$1,
     race: race$1,
     reduce: reduce$1,
     reduceRight,
@@ -4454,7 +4663,7 @@ var index = {
     doDuring: doWhilst$1
 };
 export default index;
-export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick, parallel, parallelLimit, priorityQueue, queue$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
+export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick$1 as nextTick, parallel, parallelLimit, priorityQueue, queue$1$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
 `;
 
 exports[`snowpack install dep-list-simple: web_modules/import-map.json 1`] = `
