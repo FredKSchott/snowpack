@@ -13,11 +13,9 @@ Snowpack ships with ready, out-of-the-box HMR support for the following files in
 - CSS Modules
 - JSON
 
-In addition, Snowpack also supports **Fast Refresh** for most popular frameworks like React, Preact and Svelte. Fast Refresh is a framework-specific enhancement to HMR, which applies single file updates in a way that preserves component state across updates. Changes to a `Timer` component, for example, would be applied without resetting the components internal state. 
+In addition, Snowpack also supports **Fast Refresh** for most popular frameworks like React, Preact and Svelte. Fast Refresh is a framework-specific enhancement to HMR, which applies single file updates in a way that preserves component state across updates. Changes to a `Timer` component, for example, would be applied without resetting the components internal state.
 
 Fast Refresh makes your development even faster, especially when working on popups and other secondary view states that normally would require a click to re-open or re-visit after every change.
-
-
 
 ### Enabling HMR with Fast Refresh
 
