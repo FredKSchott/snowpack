@@ -39,9 +39,27 @@ description: 'Snowpack is the fast, bundle-free build tool for all kinds of fron
     {% include 'layouts/components/nav.njk' %}
     {{ content | safe }}
   </body>
-
-  <script type="module" src="/_dist_/js/index.js"></script>
-  <script type="module">
+  <script>
+  function handleMobileNav(evt) {
+    evt.preventDefault();
+    /*If hidden-mobile class is enabled that means we are on desktop do overflow normal but we
+      if we are at mobile fixed body position, so that its not scrollable(which currently causing bug) and navbar  handling its
+      owns scroll. Case to consider there are chance use can open navbar using toggle button and user when click on any link
+      body postion should be unset
+      */
+    document.body.classList.toggle('is-nav-open');
+    const isOpen = document.body.classList.contains('is-nav-open');
+    if (isOpen) {
+      evt.target.setAttribute('aria-expanded', 'true');
+    } else {
+      evt.target.setAttribute('aria-expanded', 'false');
+    }
+  }
+  const mobileNavBtn = document.getElementById('toc-drawer-button');
+  mobileNavBtn.addEventListener('click', handleMobileNav);
+  mobileNavBtn.addEventListener('touchend', handleMobileNav);
+</script>
+  <script type="module" async="async">
     import docsearch from 'docsearch.js/dist/cdn/docsearch.min.js';
     docsearch({
       apiKey: '562139304880b94536fc53f5d65c5c19', indexName: 'snowpack', inputSelector: '.search-form-input', debug: true // Set debug to true if you want to inspect the dropdown

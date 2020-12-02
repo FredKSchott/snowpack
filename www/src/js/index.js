@@ -101,26 +101,6 @@ document.onkeydown = function (e) {
   }
 };
 
-function handleMobileNav(evt) {
-  evt.preventDefault();
-  /*If hidden-mobile class is enabled that means we are on desktop do overflow normal but we
-    if we are at mobile fixed body position, so that its not scrollable(which currently causing bug) and navbar  handling its
-    owns scroll. Case to consider there are chance use can open navbar using toggle button and user when click on any link
-    body postion should be unset
-    */
-  document.body.classList.toggle('is-nav-open');
-  const isOpen = document.body.classList.contains('is-nav-open');
-  if (isOpen) {
-    evt.target.setAttribute('aria-expanded', 'true');
-  } else {
-    evt.target.setAttribute('aria-expanded', 'false');
-  }
-}
-
-const mobileNavBtn = document.getElementById('toc-drawer-button');
-
-mobileNavBtn.addEventListener('click', handleMobileNav);
-mobileNavBtn.addEventListener('touchend', handleMobileNav);
 /* May not be needed:
   window.addEventListener('DOMContentLoaded', (event) => {
     if (!window.location.hash) {
@@ -149,9 +129,3 @@ window.addEventListener('DOMContentLoaded', (event) => {
   });
   setActiveToc();
 });
-
-// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-// Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
-if (import.meta.hot) {
-  import.meta.hot.accept();
-}
