@@ -18,7 +18,7 @@ async function setupBuildTests() {
       .sync(path.join(__dirname, 'build', '*/package.json'))
       .map(path.dirname)
       .map((testdir) => {
-        const capitalize = testdir === 'entrypoint-ids' && os.platform() === 'win32';
+        const capitalize = testdir === 'entrypoint-ids' && os.platform() === 'win32'; // for Windows, we capitalize this one directory to see if Snowpack can still resolve
         return execa('yarn', ['testbuild'], {cwd: capitalize ? testdir.toUpperCase() : testdir});
       }),
   );

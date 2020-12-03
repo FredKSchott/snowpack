@@ -5,6 +5,6 @@ const distJS = fs.readFileSync(path.join(__dirname, 'build', '_dist_', 'index.js
 
 describe('config: installOptions.externalPackage', () => {
   it('preserves external package', () => {
-    expect(distJS.includes(`import 'fs';`)).toBe(true);
+    expect(distJS).toEqual(expect.stringContaining(`import 'fs';`));
   });
 });
