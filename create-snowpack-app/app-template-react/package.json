@@ -1,7 +1,7 @@
 {
   "name": "@snowpack/app-template-react",
   "description": "A preconfigured template for Snowpack with React",
-  "version": "1.12.7",
+  "version": "1.12.8",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-react#readme",
   "repository": {
@@ -27,14 +27,14 @@
     "react-dom": "^17.0.0"
   },
   "devDependencies": {
-    "@snowpack/plugin-dotenv": "^2.0.4",
-    "@snowpack/plugin-react-refresh": "^2.3.7",
-    "@snowpack/web-test-runner-plugin": "^0.1.4",
+    "@snowpack/plugin-dotenv": "^2.0.5",
+    "@snowpack/plugin-react-refresh": "^2.3.8",
+    "@snowpack/web-test-runner-plugin": "^0.1.5",
     "@testing-library/react": "^11.0.0",
     "@web/test-runner": "^0.10.0",
     "chai": "^4.2.0",
     "prettier": "^2.0.5",
-    "snowpack": "^2.17.1"
+    "snowpack": "^2.18.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }
