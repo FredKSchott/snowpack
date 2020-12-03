@@ -33,9 +33,9 @@ This error could also appear if you importing named exports from older, non-ESM 
 
 ### Installing Non-JS Packages
 
-When installing packages from npm, you may encounter some file formats that can run only with additional parsing/processing. First check to see if there is a [Snowpack plugin for the type of file](#plugins).
+When installing packages from npm, you may encounter some file formats that can run only with additional parsing/processing. First check to see if there is a [Snowpack plugin for the type of file](/plugins).
 
-Because our internal installer is powered by Rollup, you can also add Rollup plugins to your [Snowpack config](#configuration) to handle these special, rare files:
+Because our internal installer is powered by Rollup, you can also add Rollup plugins to your [Snowpack config](/reference/configuration) to handle these special, rare files:
 
 ```js
 /* snowpack.config.js */

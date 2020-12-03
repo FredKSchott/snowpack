@@ -64,7 +64,7 @@ const NEWS = [
     title: 'New Official Guide: Svelte',
     date: new Date('2020-12-01'),
     url: 'https://next.snowpack.dev/tutorials/svelte',
-    img: 'https://next.snowpack.dev/img/ReactGuide.jpg'
+    img: 'https://next.snowpack.dev/img/SvelteGuide.jpg'
   },
 ];
 

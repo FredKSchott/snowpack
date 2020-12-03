@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Bundling your Snowpack site for production
+published: true
 ---
 
 `snowpack build` is fine for many projects, but you also may still want to bundle to optimize code, especially with large projects. Snowpack handles legacy browser support, code minification, code-splitting, tree-shaking, dead code elimination, and other performance optimizations via bundling. In this step you'll install the Webpack plugin and use it to build our project.

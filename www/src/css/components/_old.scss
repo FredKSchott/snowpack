@@ -19,6 +19,15 @@ body {
   }
 }
 
+// Stub
+.stub {
+  padding: 0.5rem;
+  font-weight: bold;
+  background-color: #f0db4f;
+  a {
+    text-decoration: underline;
+  }
+}
 // Button
 
 .button {
@@ -31,7 +40,6 @@ body {
   font-size: 22px;
   font-family: inherit;
   font-family: 'Overpass', sans-serif;
-  line-height: normal;
   white-space: nowrap;
   text-align: center;
   text-decoration: none;
@@ -63,12 +71,12 @@ a.button {
 // Copy button
 
 .copy-button {
-  min-width: 292px;
   display: flex;
   flex: none;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  min-width: 292px;
   padding: 0.75rem 1.25rem;
   padding-bottom: 0.75rem;
   font-size: 100%;
@@ -79,8 +87,8 @@ a.button {
   border: 1px solid #0006;
   border-radius: 4px;
   cursor: pointer;
-  transition: transform 0.5s ease-in-out, width, background-color, transform, color,
-    fill, stroke 0.5s ease-out;
+  transition: transform 0.5s ease-in-out, width, background-color, transform,
+    color, fill, stroke 0.5s ease-out;
 
   svg,
   .faded {
@@ -218,9 +226,15 @@ img.company-logo {
 // Img banner
 .img-banner {
   display: block;
-  margin: 1.5rem 0;
+  margin: -3rem -1.5rem 0;
   text-align: center;
   background: #f0db4f;
+  border-radius: 4px;
+
+  @media (min-width: $breakpoint-m) {
+    height: 100px;
+    margin: 0;
+  }
 
   img {
     height: 74px;
@@ -309,6 +323,7 @@ h3.content-title {
     .header-link {
       margin-left: 0.25rem;
       color: #2e5e82;
+      font-weight: 100;
       opacity: 1;
       transition: opacity 100ms ease-in-out;
 

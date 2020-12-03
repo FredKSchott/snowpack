@@ -2,7 +2,7 @@
 
 This plugin adds [Sass](https://sass-lang.com/) support to any Snowpack project. With this plugin, you can import any `*.scss` or `*.sass` Sass file from JavaScript and have it compile to CSS.
 
-This plugin also adds support for `.module.scss` Sass Modules. [Learn more.](https://www.snowpack.dev/#import-css-modules)
+This plugin also adds support for `.module.scss` Sass Modules. [Learn more.](https://www.snowpack.dev/reference/supported-files)
 
 #### A Note on Sass Implementations
 
@@ -23,7 +23,12 @@ Then add the plugin to your Snowpack config:
 
 module.exports = {
   plugins: [
-    ['@snowpack/plugin-sass', { /* see options below */ }
+    [
+      '@snowpack/plugin-sass',
+      {
+        /* see options below */
+      },
+    ],
   ],
 };
 ```

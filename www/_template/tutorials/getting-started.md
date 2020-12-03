@@ -14,7 +14,7 @@ In this guide you'll learn
 - Building your first project
 - Customizing Snowpack with plugins
 
-> 💡 Tip: This guide will walk you through creating the [Snowpack minimal app template](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/ from scratch. You can see the final result [here](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/), along with more [examples](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli) to get you started
+> 💡 Tip: This guide will walk you through creating the [Snowpack minimal app template](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/) from scratch. You can see the final result [here](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/), along with more [examples](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli) to get you started
 
 Prerequisites: Snowpack is a command line tool installed from npm. This guide assumes a basic understanding of JavaScript, npm, and how to run commands in the terminal.
 
@@ -170,7 +170,7 @@ You should now see a nifty confetti effect on your site.
 
 IMAGE: Gif showing site loading with a confetti effect
 
-> 💡 Tip: not all NPM modules may work well in the browser. If it's dependent on Node.js built-in modules you'll need to polyfill Node. Read more about how to do this on our [features page.](/features)
+> 💡 Tip: not all NPM modules may work well in the browser. If it's dependent on Node.js built-in modules you'll need to polyfill Node. Read more about how to do this on our [Starting a New Project page.](/tutorials/getting-started#using-npm-packages)
 
 ## Adding CSS
 
@@ -229,7 +229,6 @@ You've just learned the major concepts of unbundled developments and built a tin
 What's next? Our docs site has several great resources
 
 - [Bundling for production guide](/guides/bundling): how to connect a bundler like Webpack to optimize code for production deployments
-- [Features](/features): a list of all the built in features Snowpack supports right out of the box
 - [Plugins](/plugins): a list of plugins that allow you to integrate your favorite tools with Snowpack
 - [Templates/Examples](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli): pre-built projects you can build on or just explore using many popular frameworks and tools
 - [Guides](/guides): Step by step deep dives on building with and for Snowpack. Includes frameworks like React and Svelte.

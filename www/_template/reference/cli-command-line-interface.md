@@ -5,7 +5,15 @@ title: Command Line API
 
 ### Commands
 
-TODO
+```
+$ snowpack --help
+
+snowpack init         Create a new project config file.
+snowpack dev          Develop your app locally.
+snowpack build        Build your app for production.
+
+...
+```
 
 ### Flags
 
@@ -16,17 +24,12 @@ $ snowpack --help
 # Show additional debugging logs
 $ snowpack --verbose
 
-# {installOptions: {dest: 'CUSTOM_DIR/'}}
-$ snowpack install --dest CUSTOM_DIR/
+# {devOptions: {open: 'none'}}
+$ snowpack dev --open none
 
-# {devOptions: {bundle: true}}
-$ snowpack dev --bundle
-
-# {devOptions: {bundle: false}}
-$ snowpack dev --no-bundle
-
-# {buildOptions: {clean: true}}
+# {buildOptions: {clean: true/false}}
 $ snowpack build --clean
+$ snowpack build --no-clean
 ```
 
 **CLI flags will be merged with (and take priority over) your config file values.** Every config value outlined below can also be passed as a CLI flag. Additionally, Snowpack also supports the following flags:

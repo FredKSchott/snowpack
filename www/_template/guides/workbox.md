@@ -4,7 +4,9 @@ title: Workbox
 tags: communityGuide
 ---
 
-### Workbox
+<div class="stub">
+This article is a stub, you can help expand it into <a href="https://documentation.divio.com/how-to-guides/">guide format</a>
+</div>
 
 The [Workbox CLI](https://developers.google.com/web/tools/workbox/modules/workbox-cli) integrates well with Snowpack. Run the wizard to bootstrap your first configuration file, and then run `workbox generateSW` to generate your service worker.
 

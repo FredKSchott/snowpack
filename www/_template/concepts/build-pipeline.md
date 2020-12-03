@@ -23,7 +23,7 @@ Bundlers normally require dozens or even hundreds of lines of configuration, but
 }
 ```
 
-See ["Optimized Builds"](/#optimized-builds) for more information about connecting bundled (or unbundled) optimization plugins for your production builds.
+See [our bundling guides](/guides/bundling) for more information about connecting bundled (or unbundled) optimization plugins for your production builds.
 
 ## Legacy Browser Support
 
@@ -34,6 +34,6 @@ You can customize the set of browsers you'd like to support via the `package.jso
 "browserslist": ">0.75%, not ie 11, not UCAndroid >0, not OperaMini all",
 ```
 
-If you're worried about legacy browsers, you should also add a bundler to your production build. Check out our [section on bundling for production](#bundle-for-production) for more info.
+If you're worried about legacy browsers, you should also add a bundler to your production build. Check out our [section on bundling for deployment](/guides/bundling) for more info.
 
 Note: During development (`snowpack dev`) we perform no transpilation for older browsers. Make sure that you're using a modern browser during development.

@@ -6,6 +6,7 @@ const PROCESS_MODULE_NAME = 'process';
 export function rollupPluginNodeProcessPolyfill(env = {}): Plugin {
   const injectPlugin = inject({
     process: PROCESS_MODULE_NAME,
+    include: /\.(cjs|js|jsx|mjs|ts|tsx)$/, // only target JavaScript files
   });
 
   return {

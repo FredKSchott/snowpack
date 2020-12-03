@@ -14,20 +14,24 @@ $top-padding: 24px;
 
   @media (min-width: $breakpoint-m) {
     display: grid;
-    grid-template-areas: 'nav subnav' 'nav main';
-    grid-template-columns: 18rem auto;
+    grid-template-areas:
+      'nav subnav'
+      'nav main';
+    grid-template-columns: 16rem minmax(auto, $breakpoint-m);
   }
 
   @media (min-width: $breakpoint-l) {
     display: grid;
     grid-template-areas: 'nav main subnav';
-    grid-template-columns: 18rem auto 18rem;
+    grid-template-columns: 16rem auto 20rem;
   }
 
   &.is-home {
+    margin-top: 1.5rem;
     margin-bottom: 3rem;
 
     .snow-view-nav {
+      padding-top: 1.5rem;
       @media (min-width: $breakpoint-m) {
         position: static;
         max-height: inherit;
@@ -40,6 +44,15 @@ $top-padding: 24px;
       grid-row-end: main;
       grid-column-start: main;
       grid-column-end: subnav;
+    }
+  }
+
+  &.has-subnav {
+    .snow-view-main .content-title {
+      display: block;
+      @media (max-width: $breakpoint-l) {
+        display: none;
+      }
     }
   }
 
@@ -69,29 +82,41 @@ $top-padding: 24px;
 
   .snow-view-main {
     grid-area: main;
-    padding-bottom: 2rem;
+    min-width: 0;
+    padding: $top-padding 0 $top-padding 0;
   }
 
   .snow-view-subnav {
     grid-area: subnav;
-    padding-bottom: 2rem;
+    padding: 90px 0 $top-padding 0;
+
+    @media (max-width: $breakpoint-l) {
+      padding-top: $top-padding;
+    }
+
+    .content-title {
+      display: none;
+      @media (max-width: $breakpoint-l) {
+        display: block;
+      }
+    }
   }
 
-  .snow-view-nav,
-  .snow-view-subnav {
+  .snow-view-nav {
     @media (min-width: $breakpoint-m) {
       position: sticky;
       top: $nav-height;
       z-index: 1;
       display: block;
       max-height: calc(100vh - #{$nav-height});
-      padding: $top-padding 0 $top-padding 0;
       color: inherit;
       background: none;
       -webkit-overflow-scrolling: touch;
     }
 
     @media (max-width: $breakpoint-m - 1) {
+      padding-bottom: 2rem;
+
       &.is-mobile-hidden {
         overflow: hidden;
       }
@@ -99,6 +124,19 @@ $top-padding: 24px;
         padding-top: 0.5rem;
         opacity: 0;
       }
+    }
+  }
+
+  .snow-view-subnav {
+    @media (min-width: $breakpoint-l) {
+      position: sticky;
+      top: $nav-height;
+      z-index: 1;
+      display: block;
+      max-height: calc(100vh - #{$nav-height});
+      color: inherit;
+      background: none;
+      -webkit-overflow-scrolling: touch;
     }
   }
 }

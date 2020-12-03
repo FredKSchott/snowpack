@@ -3,11 +3,13 @@ layout: layouts/base.njk
 ---
 
 <div class="container">
-  <section class="snow-view__docs">
+  <section class="snow-view__docs has-subnav">
 
     <aside id="nav-primary" class="snow-view-nav">
       {% include 'layouts/components/menu.njk' %}
     </aside>
+
+    {% include 'layouts/components/subnav.njk' %}
 
     <article id="grid-body" class="snow-view-main">
       <div class="content">
@@ -22,6 +24,5 @@ layout: layouts/base.njk
       </div>
     </article>
 
-    {% include 'layouts/components/subnav.njk' %}
   </section>
 </div>

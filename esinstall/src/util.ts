@@ -184,3 +184,9 @@ export function createInstallTarget(specifier: string, all = true): InstallTarge
     named: [],
   };
 }
+
+/** Is this file JavaScript?  */
+export function isJavaScript(pathname: string) {
+  const ext = path.extname(pathname).toLowerCase();
+  return ext === '.js' || ext === '.mjs' || ext === '.cjs';
+}

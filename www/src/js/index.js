@@ -23,94 +23,68 @@ function debounce(fn) {
 }
 
 function isScrolledIntoView(el) {
-  const rect = el.getBoundingClientRect();
-  const elemTop = rect.top;
-  const elemBottom = rect.bottom;
-  // Only completely visible elements return true:
-  // var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
-  // Partially visible elements return true:
-  const isVisible = elemTop < window.innerHeight && elemBottom >= 0;
+  const { top } = el.getBoundingClientRect();
+  const halfHeight = window.innerHeight / 2;
+  const isVisible = top <= halfHeight;
   return isVisible;
 }
 
 function setActiveToc() {
-  const PADDING_TOP = 64;
-
+  if (window.innerWidth < 1240) {
+    return;
+  }
   if (!tableOfContentsEl) {
     return;
   }
-  for (const el of document.querySelectorAll('h2, h3, h4')) {
-    if (!isScrolledIntoView(el)) {
-      continue;
-    }
 
-    const elId = el.id;
-    const href = `#${elId}`;
-    tableOfContentsEl.querySelectorAll(`a.active`).forEach((aEl) => {
-      if (aEl.getAttribute('href') !== href) aEl.classList.remove('active');
-    });
+  const headings = [
+    ...document.querySelectorAll(
+      '#grid-body h1, #grid-body h2, #grid-body h3, #grid-body h4',
+    ),
+  ].filter((el) => !!el.id);
+  const scrolledToBeginning = window.scrollY === 0;
+  const scrolledToEnd =
+    Math.ceil(window.innerHeight + window.scrollY) >=
+    Math.ceil(document.body.getBoundingClientRect().height);
 
-    const tocEl = tableOfContentsEl.querySelector(`a[href="${href}"]`);
-    // only add the active class once, which will also prevent scroll from re-triggering while scrolling to the same element
-    if (!tocEl || tocEl.classList.contains('active')) {
-      return;
-    }
-    tocEl.classList.add('active');
+  let el;
+  if (scrolledToBeginning) {
+    el = headings[0]; // if we‘re at the top of the page, highlight the first item
+  } else if (scrolledToEnd) {
+    el = headings[headings.length - 1]; // if we’re at the end of the page, highlight the last item
+  } else {
+    el = headings.reverse().find(isScrolledIntoView); // otherwise highlight the one that’s at least halfway up the page
+  }
 
-    // // update nav on desktop
-    // if (window.innerWidth >= 860) {
-    //   tocEl.scrollIntoView({behavior: 'smooth'});
-    // }
-    //   {
-    //   top:
-    //     tocEl.getBoundingClientRect().top + gridTocEl.scrollTop - PADDING_TOP,
-    //   behavior: 'smooth',
-    // });
+  if (!el) return;
+
+  const elId = el.id;
+  const href = `#${elId}`;
+  const tocEl = tableOfContentsEl.querySelector(`a[href="${href}"]`);
+  // only add the active class once, which will also prevent scroll from re-triggering while scrolling to the same element
+  if (!tocEl || tocEl.classList.contains('active')) {
     return;
   }
+
+  tableOfContentsEl.querySelectorAll(`a.active`).forEach((aEl) => {
+    if (aEl.getAttribute('href') !== href) aEl.classList.remove('active');
+  });
+
+  tocEl.classList.add('active');
+
+  // // update nav on desktop
+  // if (window.innerWidth >= 860) {
+  //   tocEl.scrollIntoView({behavior: 'smooth'});
+  // }
+  //   {
+  //   top:
+  //     tocEl.getBoundingClientRect().top + gridTocEl.scrollTop - PADDING_TOP,
+  //   behavior: 'smooth',
+  // });
 }
 
-const gridBodyEl = document.getElementById('grid-body');
-const searchFormInputEl = document.getElementById('search-form-input');
 const tableOfContentsEl = document.querySelector('.toc');
-const gridTocEl = document.querySelector('#nav-primary');
-
-gridBodyEl.addEventListener('scroll', debounce(setActiveToc));
 window.addEventListener('scroll', debounce(setActiveToc));
-searchFormInputEl.addEventListener('keyup', () => {
-  if (searchFormInputEl.value) {
-    gridTocEl.classList.add('is-mobile-hidden');
-  } else {
-    gridTocEl.classList.remove('is-mobile-hidden');
-  }
-});
-
-document.onkeydown = function (e) {
-  if ((e.ctrlKey || e.metaKey) && e.which == 75) {
-    searchFormInputEl.focus();
-  }
-};
-
-function handleMobileNav(evt) {
-  evt.preventDefault();
-  /*If hidden-mobile class is enabled that means we are on desktop do overflow normal but we
-    if we are at mobile fixed body position, so that its not scrollable(which currently causing bug) and navbar  handling its
-    owns scroll. Case to consider there are chance use can open navbar using toggle button and user when click on any link
-    body postion should be unset
-    */
-  document.body.classList.toggle('is-nav-open');
-  const isOpen = document.body.classList.contains('is-nav-open');
-  if (isOpen) {
-    evt.target.setAttribute('aria-expanded', 'true');
-  } else {
-    evt.target.setAttribute('aria-expanded', 'false');
-  }
-}
-
-const mobileNavBtn = document.getElementById('toc-drawer-button');
-
-mobileNavBtn.addEventListener('click', handleMobileNav);
-mobileNavBtn.addEventListener('touchend', handleMobileNav);
 /* May not be needed:
   window.addEventListener('DOMContentLoaded', (event) => {
     if (!window.location.hash) {
@@ -129,9 +103,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
   if (!tableOfContentsEl) {
     return;
   }
-  setActiveToc();
-  document.querySelectorAll('.content h2, .content h3').forEach((headerEl) => {
-    console.log('link needed');
+  document.querySelectorAll('.content h3, .content h4').forEach((headerEl) => {
     const linkEl = document.createElement('a');
     // linkEl.setAttribute('target', "_blank");
     linkEl.setAttribute('href', '#' + headerEl.id);
@@ -139,10 +111,5 @@ window.addEventListener('DOMContentLoaded', (event) => {
     linkEl.innerText = '#';
     headerEl.appendChild(linkEl);
   });
+  setActiveToc();
 });
-
-// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-// Learn more: https://www.snowpack.dev/#hot-module-replacement
-if (import.meta.hot) {
-  import.meta.hot.accept();
-}

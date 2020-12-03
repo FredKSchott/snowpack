@@ -1,9 +1,8 @@
 ---
 layout: layouts/content.njk
 title: Leaving Snowpack
+published: true
 ---
-
-### Leaving Snowpack
 
 Snowpack is designed for zero lock-in. If you ever feel the need to add a traditional application bundler to your stack (for whatever reason!) you can do so in seconds.
 

@@ -11,37 +11,9 @@ title: Guides
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   grid-auto-flow: dense;
   }
-  .discord-banner {
-    grid-column: 1 / -1;     
-    border: 1px solid #2e2077;
-    background-color: #545eec;
-    display: flex;
-    align-items: center;
-    font-size: 20px;
-    color: white;
-    font-weight: 500;
-    padding: 1.25rem;
-  margin: 1.5rem 0 1rem;
-background: #545eec;
-box-shadow:  10px 10px 30px #4750c966, 
-             -10px -10px 30px #616cff66;
-  }
-  .discord-banner > * {
-    display: block;
-  }
-
-  @media (max-width: 700px) {
-    .discord-banner {
-      flex-direction: column;
-      }
-    .discord-banner > div {
-      margin-top: 1rem;
-    }
-  }
-
   .news-item {
     display: flex;
-    grid-column: span 1;  
+    grid-column: span 1;
     overflow: hidden;
     font-family: Open Sans,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;
     color: #1a202c;
@@ -76,7 +48,7 @@ box-shadow:  10px 10px 30px #4750c966,
 }
 
 .news-item:nth-child(5n+0) .news-item-image {
-  background: #f2709c; 
+  background: #f2709c;
     background: linear-gradient(30deg, #ff9472, #f2709c);
 }
 .news-item:nth-child(5n+1) .news-item-image {
@@ -110,12 +82,13 @@ background: linear-gradient(30deg, #A7BFE8, #6190E8);
 <div class="content">
 
 - [Routing](/guides/routing)
-- [Server-Side Render](/guides/server-side-render)
+- [Server-Side Rendering](/guides/server-side-render)
 - [SSL, HTTPS, and HTTP/2 in Development](/guides/https-ssl-certificates)
 - [Connecting your dev tools](/guides/connecting-tools)
 - [Bundling for Deployment](/guides/bundling)
 - [Testing](/guides/testing)
-
+- [Creating Your Own Plugin](/guides/plugins)
+- [Leaving Snowpack](/guides/leaving-snowpack)
 </div>
 
 <br/>
@@ -130,7 +103,7 @@ background: linear-gradient(30deg, #A7BFE8, #6190E8);
 
 <article class="news-item">
   <a href="{{ post.url }}" style="text-decoration: none; color: initial; flex-grow: 1;">
-{% if post.data.img %}<img class="news-item-image" src="{{ post.data.img }}" alt="" />
+{% if post.data.img %}<img class="news-item-image" src="{{ post.data.img }}" alt="" {% if post.data.imgBackground %} style="background: {{post.data.imgBackground}}" {% endif %} />
 {% else %}<div class="news-item-image"></div>
 {% endif %}
   <div class="news-item-text">
