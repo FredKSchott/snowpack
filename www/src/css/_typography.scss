@@ -1,12 +1,10 @@
 @use './var' as *;
 
 .content {
-
   a {
     color: #0366d6;
     text-decoration: none;
   }
-
 
   h1,
   h2,
@@ -65,8 +63,7 @@
   }
 
   blockquote {
-    margin-right: -1rem;
-    margin-left: -1rem;
+    margin: 0;
     padding: 1rem 2rem;
     color: #2e5e82;
     font-weight: 300;
