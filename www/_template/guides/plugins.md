@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Creating Your Own Plugin
+description: Learn the basics of our Plugin API through working examples.
 ---
 
 #### Who is this page for?

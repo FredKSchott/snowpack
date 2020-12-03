@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: The Build Pipeline
+description: Snowpack Build creates a production-ready website with or without a bundler
 ---
 
 ![build output example](/img/snowpack-build-example.png)

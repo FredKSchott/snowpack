@@ -2,6 +2,7 @@
 layout: layouts/content.njk
 title: Optimize & Bundle for Production
 published: true
+description: How to optimize your Snowpack build for production, with or without a bundler.
 ---
 
 `snowpack build` builds your site into web native JS, CSS, and HTML files. This "unbundled" deployment can be enough for small sites, but many developers prefer to optimize and bundle their final site for production performance.

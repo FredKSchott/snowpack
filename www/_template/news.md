@@ -1,6 +1,7 @@
 ---
 layout: layouts/main.njk
 title: Community & News
+description: Snowpack community news and companies that use Snowpack.
 
 # Using Snowpack? Want to be featured on snowpack.dev?
 # Add your project, organization, or company to the end of this list!
@@ -88,7 +89,7 @@ usersList:
   grid-auto-flow: dense;
   }
   .discord-banner {
-    grid-column: 1 / -1;     
+    grid-column: 1 / -1;
     border: 1px solid #2e2077;
     background-color: #545eec;
     display: flex;
@@ -117,7 +118,7 @@ box-shadow:  6px 6px 20px #4750c966,
 
   .news-item {
     display: flex;
-    grid-column: span 1;  
+    grid-column: span 1;
     overflow: hidden;
     font-family: Open Sans,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;
     color: #1a202c;
@@ -154,7 +155,7 @@ box-shadow:  6px 6px 20px #4750c966,
 }
 
 .news-item:nth-child(4n+0) .news-item-image {
-  background: #f2709c; 
+  background: #f2709c;
 background: linear-gradient(30deg, #ff9472, #f2709c);
 
 }

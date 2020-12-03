@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Plugin API
+description: The Snowpack Plugin API and how to use it. 
 ---
 
 Looking to get started writing your own plugin? Check out our [Plugin Guide](/guides/plugins) for an overview of how plugins work and a walk-through to help you create your own.

@@ -2,6 +2,7 @@
 layout: layouts/main.njk
 title: 'The Snowpack Plugin Catalog'
 permalink: '/plugins/'
+description: 'Snowpack plugins allow for configuration-minimal tooling integration.'
 ---
 
 <style>
@@ -76,7 +77,8 @@ permalink: '/plugins/'
 
 <h3 class="pluginPage-subheading">Customize Snowpack with optimized build plugins.</h3>
 <p class="pluginPage-intro">To learn more about our plugin system, check out the
-        <a href="/reference/plugins">Plugin API.</a><br/>Can't find what you need? <a href="/reference/plugins">Creating your own plugin is easy!</a>
+  <a href="/reference/plugins">Plugin API.</a><br/>Can't find what you need?
+  <a href="/reference/plugins">Creating your own plugin is easy!</a>
 </p>
 <form name="myform" id="myform" class="pluginPage-search" action="https://www.npmjs.com/search" method="GET">
   <input type="search" name="q" value="" placeholder="search Sass, sitemaps, image optimization..." class="pluginPage-search-input">
@@ -122,11 +124,11 @@ permalink: '/plugins/'
           .getElementById('loading-message')
           .style
           .display = 'block';
-        searchPlugins(formula);   
-        
+        searchPlugins(formula);
+
         const searchParams = new URLSearchParams(window.location.search);
         searchParams.set("q", formula);
-        window.location.search = searchParams.toString();    
+        window.location.search = searchParams.toString();
         return false;
       }
 
