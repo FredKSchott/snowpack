@@ -84,11 +84,11 @@ background: linear-gradient(30deg, #A7BFE8, #6190E8);
 - [Routing](/guides/routing)
 - [Server-Side Rendering](/guides/server-side-render)
 - [SSL, HTTPS, and HTTP/2 in Development](/guides/https-ssl-certificates)
-- [Connecting your dev tools](/guides/connecting-tools)
-- [Bundling for Deployment](/guides/bundling)
+- [Connecting Third-Party Tools](/guides/connecting-tools)
+- [Optimize & Bundle for Production](/guides/bundling)
+- [Streaming NPM Packages](/guides/streaming-npm-packages)
 - [Testing](/guides/testing)
 - [Creating Your Own Plugin](/guides/plugins)
-- [Leaving Snowpack](/guides/leaving-snowpack)
 </div>
 
 <br/>
