@@ -26,6 +26,11 @@ Snowpack leverages JavaScript's native module system (<a href="https://developer
 
 [Join our Discord](https://discord.gg/rS8SnRk) for discussion, questions about Snowpack or related Pika projects, or to show off what you’re working on!
 
+## Contributing
+
+To contribute, please read the our
+[guidelines](./CONTRIBUTING.md).
+
 ## Create Snowpack App (CSA)
 
 For starter apps and templates, see [create-snowpack-app](./create-snowpack-app).
