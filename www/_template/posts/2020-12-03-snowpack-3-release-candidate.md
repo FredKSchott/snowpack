@@ -1,8 +1,8 @@
 ---
 layout: layouts/post.njk
 title: 'Snowpack v3.0 Release Candidate'
-tagline: Another leap forward for frontend development.
-description: 'Snowpack v3.0 will release on January 6th, 2021 (the one-year anniversary of its original launch post). This is our biggest release yet with some serious new features, including a new way to load npm packages on-demand that lets you skip the `npm install` step entirely.'
+tagline: New features to change the way you build for the web.
+description: 'New features to change the way you build for the web. Snowpack v3.0 will release on January 6th, 2021 (the one-year anniversary of its original launch post). This is our biggest release yet with some serious new features, including a new way to load npm packages on-demand that lets you skip the `npm install` step entirely.'
 date: 2020-12-03
 bannerImage: '/img/banner-2.jpg'
 ---
@@ -21,6 +21,7 @@ Snowpack v3 will focus on the polish & official release of four features already
 - `import 'snowpack'` - A brand new JavaScript API for Snowpack integrations.
 
 <video preload="auto" autoplay muted>
+    <source src="/img/snowpackskypack.webm" type="video/webm">
     <source src="/img/snowpackskypack.mp4" type="video">
 </video>
 
