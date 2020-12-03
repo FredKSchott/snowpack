@@ -14,7 +14,7 @@ To solve this problem, Snowpack supports loading your dependencies from remote s
 
 - `"local"` - The default, existing behavior that reads dependencies from `node_modules/`
 - `"skypack"` - Load dependencies on-demand from the [Skypack CDN](https://skypack.dev/).
-- *in a future release, custom sources will be supported via plugin.*
+- _in a future release, custom sources will be supported via plugin._
 
 ```js
 // snowpack.config.js
@@ -27,5 +27,5 @@ Loading your dependencies from Skypack has several benefits over the traditional
 
 - **Speed:** Skip the install + build steps for dependencies, and load your dependencies as pre-build ESM code directly from a CDN like Skypack.
 - **Safety:** ESM packages are pre-built and never given access to [run code on your machine](https://www.usenix.org/system/files/sec19-zimmermann.pdf). Packages only run in the browser sandbox.
-- **Simplicity:** ESM packages are managed by Snowpack, so frontend projects that don't need Node.js (Rails, PHP, etc.) can drop the npm CLI entirely if they choose. 
+- **Simplicity:** ESM packages are managed by Snowpack, so frontend projects that don't need Node.js (Rails, PHP, etc.) can drop the npm CLI entirely if they choose.
 - **Identical Builds:** When you build your site for production, package code is transpiled with the rest of your site and tree-shaken to your exact imports, resulting in a final build that's nearly identical.

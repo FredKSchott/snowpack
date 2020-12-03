@@ -4,9 +4,9 @@ title: Optimize for Production
 published: false
 ---
 
-Snowpack builds your site into web native JS, CSS, and HTML files. This "unbundled" deployment can be enough for small sites, but many developers prefer to optimize and bundle their final site for production performance. 
+Snowpack builds your site into web native JS, CSS, and HTML files. This "unbundled" deployment can be enough for small sites, but many developers prefer to optimize and bundle their final site for production performance.
 
-Snowpack build optimizations come in two flavors: **built-in** (esbuild) & **plugin** (webpack, rollup, or whatever else you might like to run). 
+Snowpack build optimizations come in two flavors: **built-in** (esbuild) & **plugin** (webpack, rollup, or whatever else you might like to run).
 
 ### Option 1: Built-in Optimizations
 
@@ -41,10 +41,9 @@ export interface OptimizeOptions {
 }
 ```
 
-
 ### Option 2: Optimize Plugins
 
-Snowpack supports popular bundlers via plugin: 
+Snowpack supports popular bundlers via plugin:
 
 - webpack (recommended!): [@snowpack/plugin-webpack](https://www.npmjs.com/package/@snowpack/plugin-webpack)
 - Rollup: [snowpack-plugin-rollup-bundle](https://github.com/ParamagicDev/snowpack-plugin-rollup-bundle)
@@ -53,7 +52,7 @@ Snowpack supports popular bundlers via plugin:
 
 Check out our [Plugins Catalog](/plugins) to browse all available Snowpack plugins, and read the [Plugins Guide](/guides/plugins) if you're interested in creating your own.
 
-<!-- 
+<!--
 ### Recommended: Optimize your build with Webpack
 
 Connect the `"@snowpack/plugin-webpack"` plugin in your Snowpack configuration file and then run `snowpack build` to see your optimized, _bundled_ build.
