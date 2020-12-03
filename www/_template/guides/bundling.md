@@ -33,4 +33,4 @@ Again run
 npm run build
 ```
 
-> 💡 Tip: Want to optimize your site code without a bundler? Check out our plugin-optimize.
+> 💡 Tip: Want to optimize your site code without a bundler? Check out our [plugin-optimize](https://www.skypack.dev/view/@snowpack/plugin-optimize).
