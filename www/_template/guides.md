@@ -86,7 +86,7 @@ background: linear-gradient(30deg, #A7BFE8, #6190E8);
 - [SSL, HTTPS, and HTTP/2 in Development](/guides/https-ssl-certificates)
 - [Connecting Third-Party Tools](/guides/connecting-tools)
 - [Optimize & Bundle for Production](/guides/optimize-and-bundle)
-- [Streaming NPM Packages](/guides/streaming-npm-packages)
+- [Streaming NPM Imports](/guides/streaming-npm-imports)
 - [Testing](/guides/testing)
 - [Creating Your Own Plugin](/guides/plugins)
 </div>

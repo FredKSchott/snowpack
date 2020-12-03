@@ -1,6 +1,6 @@
 ---
 layout: layouts/content.njk
-title: Streaming NPM Packages
+title: Streaming NPM Imports
 published: true
 ---
 
