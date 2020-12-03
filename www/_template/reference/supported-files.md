@@ -87,7 +87,7 @@ CSS Modules help you enforce component scoping & isolation on the frontend with 
 ```jsx
 import imgReference from './image.png'; // img === '/src/image.png'
 import svgReference from './image.svg'; // svg === '/src/image.svg'
-import txtReference from './words.txt'; // txt === '/src/image.png'
+import txtReference from './words.txt'; // txt === '/src/words.txt'
 
 // This example uses JSX, but you can use import references with any framework.
 <img src={imgReference} />;
