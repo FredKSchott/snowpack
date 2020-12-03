@@ -1,10 +1,12 @@
 ---
 layout: layouts/content.njk
-title: Optimize for Production
-published: false
+title: Optimize & Bundle for Production
+published: true
 ---
 
-Snowpack builds your site into web native JS, CSS, and HTML files. This "unbundled" deployment can be enough for small sites, but many developers prefer to optimize and bundle their final site for production performance.
+`snowpack build` builds your site into web native JS, CSS, and HTML files. This "unbundled" deployment can be enough for small sites, but many developers prefer to optimize and bundle their final site for production performance. 
+
+Snowpack can run all sorts of optimizations on your final build to handle legacy browser support, code minification, code-splitting, tree-shaking, dead code elimination, preloading, bundling, and more. 
 
 Snowpack build optimizations come in two flavors: **built-in** (esbuild) & **plugin** (webpack, rollup, or whatever else you might like to run).
 
@@ -18,7 +20,7 @@ Snowpack recently released a built-in optimization pipeline powered by [esbuild]
 
 ```js
 // snowpack.config.js
-// Built-in bundling support
+// Example: Using Snowpack's built-in bundling support
 {
   "experiments": {
     "optimize": {
@@ -29,6 +31,8 @@ Snowpack recently released a built-in optimization pipeline powered by [esbuild]
   }
 }
 ```
+
+The full supported interface is: 
 
 ```ts
 export interface OptimizeOptions {
@@ -51,31 +55,3 @@ Snowpack supports popular bundlers via plugin:
 **For now, we recommend using @snowpack/plugin-webpack until our built-in optimize support is more mature.**
 
 Check out our [Plugins Catalog](/plugins) to browse all available Snowpack plugins, and read the [Plugins Guide](/guides/plugins) if you're interested in creating your own.
-
-<!--
-### Recommended: Optimize your build with Webpack
-
-Connect the `"@snowpack/plugin-webpack"` plugin in your Snowpack configuration file and then run `snowpack build` to see your optimized, _bundled_ build.
-
-```js
-// snowpack.config.js
-// [npm install @snowpack/plugin-webpack]
-{
-  "plugins": [["@snowpack/plugin-webpack", {/* ... */}]]
-}
-```
-
-You can extend the default webpack configuration to customize your bundled output:
-
-```js
-// snowpack.config.js
-// [npm install @snowpack/plugin-webpack]
-{
-  "plugins": [["@snowpack/plugin-webpack", {
-    extendConfig: (webpackConfig) {
-      /* ... */
-      return webpackConfig;
-    }
-  }]]
-}
-``` -->

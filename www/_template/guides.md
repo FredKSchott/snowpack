@@ -85,7 +85,7 @@ background: linear-gradient(30deg, #A7BFE8, #6190E8);
 - [Server-Side Rendering](/guides/server-side-render)
 - [SSL, HTTPS, and HTTP/2 in Development](/guides/https-ssl-certificates)
 - [Connecting Third-Party Tools](/guides/connecting-tools)
-- [Optimize & Bundle for Production](/guides/bundling)
+- [Optimize & Bundle for Production](/guides/optimize-and-bundle)
 - [Streaming NPM Packages](/guides/streaming-npm-packages)
 - [Testing](/guides/testing)
 - [Creating Your Own Plugin](/guides/plugins)
