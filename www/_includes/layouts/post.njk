@@ -18,29 +18,42 @@
     <meta property="og:url" content="https://www.snowpack.dev{{permalink}}">
     <meta property="og:title" content="{{title}}">
     <meta property="og:description" content="{{description}}">
-    <meta property="og:image" content="https://www.snowpack.dev/img/social-2.jpg">
+    <meta property="og:image" content="https://www.snowpack.dev/img/social-snowpackv3.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://www.snowpack.dev{{permalink}}">
     <meta property="twitter:title" content="{{title}}">
     <meta property="twitter:description" content="{{description}}">
-    <meta property="twitter:image" content="https://www.snowpack.dev/img/social-2.jpg">
+    <meta property="twitter:image" content="https://www.snowpack.dev/img/social-snowpackv3.png">
 
     <!-- Global Stylesheets -->
     <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/_dist_/css/app.css" />
     <link rel="stylesheet" href="/_dist_/css/legacy-post.css" />
     <style>
-      .markdown-body img, .markdown-body iframe {
+      .markdown-body img, .markdown-body video, .markdown-body iframe {
         box-shadow: 0px 5px 12px 0 #CCC;
         border-radius: 3px;
-        max-width: 130%;
+        min-width: 130%;
+        width: 130%;
         margin-left: -15%;
         margin-right: -15%;
         margin-top: 4rem;
         margin-bottom: -1rem;
       }
+
+      @media (max-width: 860px) {
+      .markdown-body img, .markdown-body video, .markdown-body iframe {
+        min-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: -2rem;
+      }
+      }
+
+
+
 
       .markdown-body table td:nth-child(1) {
         white-space: nowrap;
