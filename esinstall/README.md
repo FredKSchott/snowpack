@@ -25,7 +25,7 @@ The core install logic of this library is considered well-tested and production-
 
 ## Background
 
-Before [Snowpack](https://snowpack.dev/) was a frontend build tool, it was a CJS->ESM package converter. `snowpack install` would read your package.json "dependencies" and re-install every frontend package from your "node_modules/" directory to a new "web_modules/" directory. "web_modules/" was guarenteed to be 100% ESM regardless of how each package was originally written. This dramatically simplified the minimum tooling required to build a website by removing a whole class of problem for the frontend basically summarized as "oh no this package was written for Node.js, it will never run in the browser, what do we do???"
+Before [Snowpack](https://www.snowpack.dev/) was a frontend build tool, it was a CJS->ESM package converter. `snowpack install` would read your package.json "dependencies" and re-install every frontend package from your "node_modules/" directory to a new "web_modules/" directory. "web_modules/" was guarenteed to be 100% ESM regardless of how each package was originally written. This dramatically simplified the minimum tooling required to build a website by removing a whole class of problem for the frontend basically summarized as "oh no this package was written for Node.js, it will never run in the browser, what do we do???"
 
 Snowpack is now a fully-featured frontend build tool, but it's still built entirely on that original foundation. That foundation is now **esinstall**, a general-purpose JavaScript interface for creating ESM single-file versions of locally installed npm packages.
 

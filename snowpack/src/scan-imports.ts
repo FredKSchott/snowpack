@@ -282,6 +282,7 @@ export async function scanImportsFromFiles(
   loadedFiles: SnowpackSourceFile[],
   config: SnowpackConfig,
 ): Promise<InstallTarget[]> {
+  await initESModuleLexer;
   const installTargets = await Promise.all(
     loadedFiles
       .filter((sourceFile) => !Buffer.isBuffer(sourceFile.contents)) // filter out binary files from import scanning

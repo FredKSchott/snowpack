@@ -1,7 +1,7 @@
 <a href="https://github.com/snowpackjs/snowpack/actions" align="right">
   <img src="https://github.com/snowpackjs/snowpack/workflows/CI/badge.svg?event=push" alt="CI" />
-</a>    
-  
+</a>
+
 <h1>Snowpack</h1>
 
 Snowpack is a modern frontend build tool for faster web development. It replaces heavier, more complex bundlers like webpack or Parcel in your development workflow.
@@ -11,10 +11,10 @@ Snowpack leverages JavaScript's native module system (<a href="https://developer
 ### Key Features
 
 - Develop faster, with a dev server that starts up in **50ms or less.**
-- See changes reflected [instantly in the browser.](https://www.snowpack.dev/posts/#hot-module-replacement)
-- Integrate your favorite bundler for a [production-optimized build.](https://www.snowpack.dev/posts/#snowpack-build)
-- Enjoy out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](https://www.snowpack.dev/posts/#features)
-- Connect your favorite tools with [third-party plugins.](https://www.snowpack.dev/posts/#build-plugins)
+- See changes reflected [instantly in the browser.](https://www.snowpack.dev/concepts/hot-module-replacement)
+- Integrate your favorite bundler for a [production-optimized build.](https://www.snowpack.dev/concepts/build-pipelined)
+- Enjoy out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](https://www.snowpack.dev/reference/supported-files)
+- Connect your favorite tools with [third-party plugins.](https://www.snowpack.dev/plugins)
 
 **💁 More info at the official [Snowpack website ➞](https://snowpack.dev)**
 
@@ -75,3 +75,7 @@ For starter apps and templates, see [create-snowpack-app](./create-snowpack-app)
 - [snowpack-plugin-replace](https://github.com/moonrailgun/snowpack-plugin-replace) A plugin for replace file content with `string` or `RegExp`, useful for migrate or make some magic without modify source code
 - [snowpack-plugin-elm](https://github.com/marc136/snowpack-plugin-elm) A plugin to compile [Elm apps and modules](https://elm-lang.org).
 - PRs that add a link to this list are welcome!
+
+## License
+
+[MIT](https://github.com/snowpackjs/snowpack/blob/main/LICENSE)

@@ -7,14 +7,17 @@
   },
   "snowpack": {
     "install": [
-      "preact"
+      "preact",
+      "preact/hooks",
+      "@clevercloud/components/assets/backup.svg"
     ],
     "buildOptions": {
       "minify": false
     }
   },
   "dependencies": {
-    "preact": "^10.4.6"
+    "preact": "^10.4.6",
+    "@clevercloud/components": "4.1.0-beta.5"
   },
   "devDependencies": {
     "snowpack": "^2.14.3"

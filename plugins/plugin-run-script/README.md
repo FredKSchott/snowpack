@@ -1,6 +1,6 @@
 # @snowpack/plugin-run-script
 
-Run any CLI command as a part of Snowpack’s dev server and production build. Useful for languages not supported by [Snowpack plugins](https://www.snowpack.dev/#build-plugins). This replaces the old `run:*` scripts in your Snowpack config.
+Run any CLI command as a part of Snowpack’s dev server and production build. Useful for languages not supported by [Snowpack plugins](https://www.snowpack.dev/plugins). This replaces the old `run:*` scripts in your Snowpack config.
 
 Usage:
 

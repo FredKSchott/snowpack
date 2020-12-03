@@ -1,11 +1,12 @@
 ---
 layout: layouts/content-with-cover.njk
-title: The Snowpack Guide to Getting Started with Svelte
+title: 'Getting Started with Svelte'
 description: 'Get started with this in-depth tutorial on how to build Svelte applications and websites with Snowpack'
 date: 2020-12-01
 sidebarTitle: Svelte
 tags: communityGuide
 cover: '/img/SvelteGuide.jpg'
+img: '/img/SvelteGuide.jpg'
 ---
 
 Snowpack is a great fit for [Svelte](https://svelte.dev/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional Svelte application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
@@ -26,7 +27,7 @@ Prerequisites: Snowpack is a command-line tool installed from npm. This guide as
 
 ## Getting started
 
-The easiest way to start a new Snowpack project is with [Create Snowpack App](<https://www.snowpack.dev/#create-snowpack-app-(csa)>), a tool for creating a new project based on our example templates. `@snowpack/app-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
+The easiest way to start a new Snowpack project is with [Create Snowpack App](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli), a tool for creating a new project based on our example templates. `@snowpack/app-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
 
 Run the following command in your terminal to create a new directory called `svelte-snowpack` with the minimal template installed:
 
@@ -299,7 +300,7 @@ What about other, non-Svelte files like `src/index.js`? To re-render your Svelte
 export default app;
 
 +// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-+// Learn more: https://www.snowpack.dev/#hot-module-replacement
++// Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
 +if (import.meta.hot) {
 +  import.meta.hot.accept();
 +  import.meta.hot.dispose(() => {
@@ -318,7 +319,7 @@ At this point you have the basics and have a great starter for any Svelte projec
 
 - [Prettier](https://prettier.io/)—a popular code formatter
 
-- [Tests](https://www.snowpack.dev/#testing)—Snowpack supports any popular JavaScript testing framework
+- [Tests](/guides/testing)—Snowpack supports any popular JavaScript testing framework
 
 - [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-dotenv)—Use `dotenv` in your Snowpack. This is useful for environment specific variables
 

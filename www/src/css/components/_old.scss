@@ -22,7 +22,6 @@ body {
 // Stub
 .stub {
   padding: 0.5rem;
-
   font-weight: bold;
   background-color: #f0db4f;
   a {
@@ -41,7 +40,6 @@ body {
   font-size: 22px;
   font-family: inherit;
   font-family: 'Overpass', sans-serif;
-  line-height: normal;
   white-space: nowrap;
   text-align: center;
   text-decoration: none;
@@ -228,9 +226,15 @@ img.company-logo {
 // Img banner
 .img-banner {
   display: block;
-  margin: 1.5rem 0;
+  margin: -3rem -1.5rem 0;
   text-align: center;
   background: #f0db4f;
+  border-radius: 4px;
+
+  @media (min-width: $breakpoint-m) {
+    height: 100px;
+    margin: 0;
+  }
 
   img {
     height: 74px;

@@ -99,8 +99,8 @@ usersList:
     padding: 1.25rem;
   margin: 1.5rem 0 1rem;
 background: #545eec;
-box-shadow:  10px 10px 30px #4750c966, 
-             -10px -10px 30px #616cff66;
+box-shadow:  6px 6px 20px #4750c966,
+             -6px -6px 20px #616cff66;
   }
   .discord-banner > * {
     display: block;

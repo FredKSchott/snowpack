@@ -5,6 +5,7 @@ description: 'Get started with this in-depth tutorial on how to build React appl
 date: 2020-12-01
 tags: communityGuide
 cover: '/img/ReactGuide.jpg'
+img: '/img/ReactGuide.jpg'
 ---
 
 Snowpack is a great fit for [React](https://reactjs.org/) projects of any size. It's easy to get started and can scale to projects containing thousands of components and pages without any impact on development speed. Unlike traditional React application tooling, Snowpack saves you from getting bogged down with complex bundler setups and configuration files.
@@ -23,7 +24,7 @@ Prerequisites: Snowpack is a command line tool installed from npm. This guide as
 
 ## Getting started
 
-The easiest way to start a new Snowpack project is with [Create Snowpack App](<https://www.snowpack.dev/#create-snowpack-app-(csa)>), a tool to set up Snowpack in a new directory `@snowpack/project-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
+The easiest way to start a new Snowpack project is with [Create Snowpack App](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli), a tool to set up Snowpack in a new directory `@snowpack/project-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
 
 To get started, open your terminal and head to a directory where you want to put your new project. Now run the following command in your terminal to create a new directory called `react-snowpack` with the minimal template automatically installed.
 
@@ -125,7 +126,7 @@ The `mount` configuration changes where Snowpack looks for and builds files. Eve
 
 <img src="/img/guides/react/folderstructure.png" alt="The original file configuration had Snowpack building the directory structure the same as the directories in the project, including root. Now the config builds only src and public. Src to the dist folder and public to root." />
 
-`mount` is part of the [Snowpack Configuration API](https://www.snowpack.dev/#configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in `public` like `public/index.css` directory into `index.css`. It builds files in `src` like `src/index.js` into `/_dist_/index.js`, so you'll need to change that path in your `index.html`:
+`mount` is part of the [Snowpack Configuration API](/reference/configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in `public` like `public/index.css` directory into `index.css`. It builds files in `src` like `src/index.js` into `/_dist_/index.js`, so you'll need to change that path in your `index.html`:
 
 ```diff
   <body>
@@ -219,7 +220,7 @@ Add this file [`logo.svg`](https://github.com/snowpackjs/snowpack/blob/main/crea
 
 The project already has index.css for global styles. For CSS that's only for a specific component, a common design pattern is to add it in a CSS file with the same base name as the component. The style file for `App.jsx` would be `App.css` with this pattern.
 
-> 💡 Tip: Snowpack has built-in support for [CSS Modules](https://www.snowpack.dev/#import-css-modules) and if you'd like to use Sass there is an official [Sass Plugin](https://www.snowpack.dev/#sass).
+> 💡 Tip: Snowpack has built-in support for [CSS Modules](/reference/supported-files) and if you'd like to use Sass there is an official [Sass Plugin](/guides/sass/).
 
 Create `src/App.css` and add this CSS:
 
@@ -278,7 +279,7 @@ To use this CSS, head to `App.jsx` and import it
 
 React projects are often interactive and include state. For example, this project you're building has a state that is the amount of time on the page. When developing with state it's useful not to lose it while you edit code. React Fast Refresh shows you updates without refreshing the entire page. Showing you how to add this is also a good intro to Snowpack plugins. Snowpack starts with a minimal setup with the perspective that you can add what you need through the plugin system.
 
-Start by enabling [Hot Module Replacement](https://www.snowpack.dev/#hot-module-replacement) in your project. HMR is the system that lets Snowpack push updates to the browser without a full page refresh, a requirement for Fast Refresh. You can enable HMR for React by adding a small snippet of code to your `src/index.jsx` file.
+Start by enabling [Hot Module Replacement](/concepts/hot-module-replacement) in your project. HMR is the system that lets Snowpack push updates to the browser without a full page refresh, a requirement for Fast Refresh. You can enable HMR for React by adding a small snippet of code to your `src/index.jsx` file.
 
 ```diff
   ReactDOM.render(
@@ -288,7 +289,7 @@ Start by enabling [Hot Module Replacement](https://www.snowpack.dev/#hot-module-
     document.getElementById('root'),
   );
 + // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-+ // Learn more: https://www.snowpack.dev/#hot-module-replacement
++ // Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
 + if (import.meta.hot) {
 +   import.meta.hot.accept();
 + }
@@ -333,7 +334,7 @@ At this point you have the basics and have a great starter for any React project
 
 - [Prettier](https://prettier.io/)—a popular code formatter
 
-- [Tests](https://www.snowpack.dev/#testing)—Snowpack supports any popular JavaScript testing framework
+- [Tests](/guides/testing)—Snowpack supports any popular JavaScript testing framework
 
 - [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-dotenv)—Use `dotenv` in your Snowpack. This is useful for environment specific variables
 

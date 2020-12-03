@@ -36,6 +36,7 @@
     padding: 6px 12px;
     color: #c2ced9;
     font-size: 16px;
+    pointer-events: none;
 
     & * {
       font-family: $code;
@@ -83,14 +84,13 @@
     -webkit-font-smoothing: antialiased;
 
     &:focus {
-        color: white;
-    border-color: rgba($white, 0.75);
+      color: white;
+      border-color: rgba($white, 0.75);
 
-    &::placeholder {
-        color:  rgba($white, 0.8);
+      &::placeholder {
+        color: rgba($white, 0.8);
       }
-  
-}
+    }
     &::placeholder {
       color: #c2ced9;
     }

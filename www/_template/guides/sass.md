@@ -3,6 +3,8 @@ layout: layouts/content.njk
 title: 'Sass'
 tags: communityGuide
 published: true
+img: '/img/logos/sass.svg'
+imgBackground: '#bf4080'
 ---
 
 <div class="stub">

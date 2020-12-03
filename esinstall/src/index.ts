@@ -94,17 +94,6 @@ function resolveWebDependency(
   dep: string,
   {cwd, packageLookupFields}: {cwd: string; packageLookupFields: string[]},
 ): DependencyLoc {
-  // if dep points directly to a file within a package, return that reference.
-  // No other lookup required.
-  if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
-    // For details on why we need to call fs.realpathSync.native here and other places, see
-    // https://github.com/snowpackjs/snowpack/pull/999.
-    const loc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
-    return {
-      type: isJavaScript(loc) ? 'JS' : 'ASSET',
-      loc,
-    };
-  }
   // If dep is a path within a package (but without an extension), we first need
   // to check for an export map in the package.json. If one exists, resolve to it.
   const [packageName, packageEntrypoint] = parsePackageImportSpecifier(dep);
@@ -123,11 +112,23 @@ function resolveWebDependency(
           `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".`,
         );
       }
+      const loc = path.join(packageManifestLoc, '..', exportMapValue);
       return {
-        type: 'JS',
-        loc: path.join(packageManifestLoc, '..', exportMapValue),
+        type: isJavaScript(loc) ? 'JS' : 'ASSET',
+        loc,
       };
     }
+  }
+
+  // if, no export map and dep points directly to a file within a package, return that reference.
+  if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
+    // For details on why we need to call fs.realpathSync.native here and other places, see
+    // https://github.com/snowpackjs/snowpack/pull/999.
+    const loc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
+    return {
+      type: isJavaScript(loc) ? 'JS' : 'ASSET',
+      loc,
+    };
   }
 
   // Otherwise, resolve directly to the dep specifier. Note that this supports both
@@ -244,7 +245,7 @@ interface InstallOptions {
 type PublicInstallOptions = Partial<InstallOptions>;
 export {PublicInstallOptions as InstallOptions};
 
-type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput};
+export type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput};
 
 const FAILED_INSTALL_MESSAGE = 'Install failed.';
 

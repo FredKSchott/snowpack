@@ -2,11 +2,14 @@
 layout: layouts/content.njk
 title: Vue
 tags: communityGuide
+img: '/img/logos/vue.png'
+imgBackground: '#f6f9f6'
 ---
 
 <div class="stub">
 This article is a stub, you can help expand it into <a href="https://documentation.divio.com/how-to-guides/">guide format</a>
 </div>
+
 To support `.vue` files you will need the [Vue Plugin](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-vue), which uses Vue 3.
 
 ```js

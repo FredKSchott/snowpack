@@ -66,7 +66,7 @@ The `"scripts"` configuration format will continue to be supported in Snowpack v
 
 ![snowpack screenshot](/img/snowpack-27-screenshot-2.png)
 
-In previous versions of Snowpack, import aliasing was hard to understand and configure (and it didn’t support all types of aliasing). Starting in Snowpack v2.7, [Import Aliases](/#import-aliases) gets a new top-level `alias` config so that you can define as many custom aliases as you'd like. Package import aliases are also supported.
+In previous versions of Snowpack, import aliasing was hard to understand and configure (and it didn’t support all types of aliasing). Starting in Snowpack v2.7, [Import Aliases](/reference/configuration) gets a new top-level `alias` config so that you can define as many custom aliases as you'd like. Package import aliases are also supported.
 
 ## Improved Build Performance
 

@@ -14,7 +14,7 @@
         </svg>
       </button>
       <script type="module">
-        import Clipboard from 'https://cdn.skypack.dev/clipboard';
+        import Clipboard from 'https://cdn.skypack.dev/pin/clipboard@v2.0.6-eJjsV6JYCJOnOsq3YfEc/min/clipboard.js';
         const clippy = new Clipboard('.copy-button');
         const copyText = document.getElementById('copy-button').innerHTML;
         clippy.on('success', function (e) {
@@ -37,7 +37,7 @@
     </div>
     <div class="hero-cta">
       <!-- Place this tag where you want the button to render. -->
-      <div class="hidden-mobile" style="text-align: center">
+      <div class="hidden-mobile" style="text-align: center; height: 36px;">
         <a class="github-button" href="https://github.com/snowpackjs/snowpack" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star snowpackjs/snowpack on GitHub">Star</a >
       </div>
     </div>
