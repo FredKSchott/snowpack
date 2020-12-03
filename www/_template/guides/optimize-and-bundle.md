@@ -25,7 +25,7 @@ Snowpack recently released a built-in optimization pipeline powered by [esbuild]
   "experiments": {
     "optimize": {
       "bundle": true,
-      "minify": true
+      "minify": true,
       "target": 'es2018'
     }
   }
