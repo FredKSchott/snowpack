@@ -7,7 +7,7 @@ date: 2020-12-03
 bannerImage: '/img/banner-2.jpg'
 ---
 
-**tl;dr:** Snowpack v3.0 will release on January 6th, 2021 (the one-year anniversary of its original launch post). This is our biggest release yet with some serious new features, including **a new way to load npm imports on-demand** and skip the frontend `npm install` step entirely. 
+**tl;dr:** Snowpack v3.0 will release on January 6th, 2021 (the one-year anniversary of its original launch post). This is our biggest release yet with some serious new features, including **a new way to load npm imports on-demand** and skip the frontend `npm install` step entirely.
 
 Best of all: it's all available to try today!
 
@@ -15,16 +15,14 @@ Best of all: it's all available to try today!
 
 Snowpack v3 will focus on the polish & official release of four features already available today in the current version of Snowpack (v2.18.0) under the `experiments` flag:
 
-- `experiments.source`-  Streaming npm imports, no install step required.
+- `experiments.source`- Streaming npm imports, no install step required.
 - `experiments.optimize` - Built-in bundling, preloading, and asset minifying.
 - `experiments.routes` - Advanced config for HTML fallbacks and API proxies.
 - `import 'snowpack'` - A brand new JavaScript API for Snowpack integrations.
 
-
 <video preload="auto" autoplay muted>
     <source src="/img/snowpackskypack.mp4" type="video">
 </video>
-
 
 ## New: Streaming NPM Imports
 
@@ -42,7 +40,7 @@ import * as React from 'react';
 import * as React from 'https://cdn.skypack.dev/react@17.0.1';
 ```
 
-That URL in the example above points to [Skypack](https://skypack.dev/), a popular JavaScript CDN that we built to serve every npm package as ESM. Importing dependencies by URL like this is well supported in Snowpack, Deno, and all major browsers. But writing these URLs directly into your source code isn't ideal and makes development impossible without a network connection. 
+That URL in the example above points to [Skypack](https://skypack.dev/), a popular JavaScript CDN that we built to serve every npm package as ESM. Importing dependencies by URL like this is well supported in Snowpack, Deno, and all major browsers. But writing these URLs directly into your source code isn't ideal and makes development impossible without a network connection.
 
 **Snowpack v3.0 brings together the best of both worlds:** Get the simplicity of `import 'react'` in your own source code and let Snowpack fetch these dependencies behind the scenes, pre-built and ready to run in the browser. Snowpack caches everything for you automatically, so you can continue to work offline without relying on Skypack besides the first package fetch.
 
@@ -50,7 +48,7 @@ This has several benefits over the traditional "npm install" approach:
 
 - **Speed:** Skip the install + build steps for dependencies, and load your dependencies as pre-build ESM code directly from the Skypack CDN.
 - **Safety:** ESM packages are pre-built into JavaScript for you and never given access to [run code on your machine](https://www.usenix.org/system/files/sec19-zimmermann.pdf). Third-party code only ever run in the browser sandbox.
-- **Simplicity:** ESM packages are managed by Snowpack, so frontend projects that don't need Node.js (Rails, PHP, etc.) can drop the npm CLI entirely if they choose. 
+- **Simplicity:** ESM packages are managed by Snowpack, so frontend projects that don't need Node.js (Rails, PHP, etc.) can drop the npm CLI entirely if they choose.
 - **Same Final Build:** When you build your site for production, package code is transpiled with the rest of your site and tree-shaken to your exact imports, resulting in a final build that's nearly identical.
 
 If this all sounds too wild for you, don't worry. This is **100% opt-in** behavior for those who want it. By default, Snowpack will continue to pull your npm package dependencies out of your project `node_modules` directory like it always has.
@@ -69,10 +67,9 @@ Snowpack is able to adopt esbuild today thanks to an early bet that we made on t
 
 esbuild is still a young project, but it's future looks promising. In the meantime, we will also continue to invest in the existing Webpack & Rollup bundler plugins for a long time to come.
 
-To get started, check out the `experiments.optimize` option in our newest [Optimizing Your Snowpack Build](/guides/optimize-and-bundle) guide. 
+To get started, check out the `experiments.optimize` option in our newest [Optimizing Your Snowpack Build](/guides/optimize-and-bundle) guide.
 
 ![js api](/img/post-snowpackv3-routes.png)
-
 
 ## Routing
 
@@ -85,7 +82,6 @@ Snowpack's new `experiments.routes` configuration lets you define routes that al
 - **Mimic Vercel/Netlify** - Re-create your Vercel or Netlify routes in development. Or, create a Snowpack plugin to automatically generate these routes from your `vercel.json` or `_redirects` file at startup.
 
 While API proxying and SPA fallbacks have already been supported in Snowpack for a while now, this brings them all together into a single, expressive new API.
-
 
 ![js api](/img/post-snowpackv3-jsapi.png)
 
@@ -104,9 +100,9 @@ You can install the Snowpack v3.0 release candidate today by running:
 ```
 npm install snowpack@next
 ```
- 
+
 Since all v3.0 features already exist in Snowpack today, our existing documentation site applies to both v2 & v3. At this point only very old, undocumented, legacy behavior has been removed from the `next` v3.0 branch.
 
 Features under the `experiments` flag may continue to change as we get closer to the official release date. By the end of the year, you can expect that these features will move out from behind the `experiments` flag and into top-level config objects in the `next` v3.0 branch.
 
-Learn more at [snowpack.dev](https://www.snowpack.dev). Happy hacking! 
+Learn more at [snowpack.dev](https://www.snowpack.dev). Happy hacking!
