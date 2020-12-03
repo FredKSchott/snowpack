@@ -4,9 +4,9 @@ title: Optimize & Bundle for Production
 published: true
 ---
 
-`snowpack build` builds your site into web native JS, CSS, and HTML files. This "unbundled" deployment can be enough for small sites, but many developers prefer to optimize and bundle their final site for production performance. 
+`snowpack build` builds your site into web native JS, CSS, and HTML files. This "unbundled" deployment can be enough for small sites, but many developers prefer to optimize and bundle their final site for production performance.
 
-Snowpack can run all sorts of optimizations on your final build to handle legacy browser support, code minification, code-splitting, tree-shaking, dead code elimination, preloading, bundling, and more. 
+Snowpack can run all sorts of optimizations on your final build to handle legacy browser support, code minification, code-splitting, tree-shaking, dead code elimination, preloading, bundling, and more.
 
 Snowpack build optimizations come in two flavors: **built-in** (esbuild) & **plugin** (webpack, rollup, or whatever else you might like to run).
 
@@ -32,7 +32,7 @@ Snowpack recently released a built-in optimization pipeline powered by [esbuild]
 }
 ```
 
-The full supported interface is: 
+The full supported interface is:
 
 ```ts
 export interface OptimizeOptions {
