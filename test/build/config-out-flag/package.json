@@ -9,10 +9,7 @@
   "snowpack": {
     "buildOptions": {
       "clean": true
-    },
-    "exclude": [
-      "__snapshots__"
-    ]
+    }
   },
   "devDependencies": {
     "cross-env": "^7.0.2",
