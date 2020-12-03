@@ -286,7 +286,7 @@ function loadPlugins(
 ): {plugins: SnowpackPlugin[]; extensionMap: Record<string, string>} {
   const plugins: SnowpackPlugin[] = [];
 
-  function execPluginFactory(pluginFactory: any, pluginOptions?: any): SnowpackPlugin {
+  function execPluginFactory(pluginFactory: any, pluginOptions: any = {}): SnowpackPlugin {
     let plugin: SnowpackPlugin | null = null;
     plugin = pluginFactory(config, pluginOptions) as SnowpackPlugin;
     return plugin;
