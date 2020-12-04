@@ -9,10 +9,12 @@ We aim to follow the [Divio documentation system](https://documentation.divio.co
 - templates in `_includes`
 
 ## Style Guide
-
+- Terminology
+  - Snowpack app/project/site?
 - Sentence-style capitalization
 - Oxford comma
 - Don't capitalize after colons
+- Avoid using future tense and passive tense if possible, for example "will rebuild" should be "rebuilds"
 
 ### Code Blocks
 
