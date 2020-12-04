@@ -12,6 +12,7 @@ import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
 import {clearCache as clearSkypackCache} from 'skypack';
+import {RawSourceMap} from 'source-map';
 import url from 'url';
 import localPackageSource from './sources/local';
 import skypackPackageSource from './sources/skypack';
@@ -338,6 +339,12 @@ export function cssSourceMappingURL(code: string, sourceMappingURL: string) {
 /** JS sourceMappingURL */
 export function jsSourceMappingURL(code: string, sourceMappingURL: string) {
   return code.replace(/\n*$/, '') + `\n//# sourceMappingURL=${sourceMappingURL}\n`; // strip ending lines & append source map (with linebreaks for safety)
+}
+
+export function offsetSourceMap(map: string | RawSourceMap, lineOffset: number) {
+  const decodedMap = typeof map === 'string' ? (JSON.parse(map) as RawSourceMap) : map;
+  decodedMap.mappings = ';'.repeat(lineOffset) + decodedMap.mappings;
+  return decodedMap;
 }
 
 /** URL relative */

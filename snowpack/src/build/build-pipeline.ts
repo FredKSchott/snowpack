@@ -112,7 +112,10 @@ async function runPipelineLoadStep(
   };
 }
 
-async function composeSourceMaps(
+/**
+ * Todo: should we remove composeSourceMaps
+ */
+export async function composeSourceMaps(
   id: string,
   base: string | RawSourceMap,
   derived: string | RawSourceMap,
@@ -154,7 +157,7 @@ async function runPipelineTransformStep(
     try {
       for (const destExt of Object.keys(output)) {
         const destBuildFile = output[destExt];
-        const {code} = destBuildFile;
+        const {code, map: destMap} = destBuildFile;
         const fileName = rootFileName + destExt;
         const filePath = rootFilePath + destExt;
         const debugPath = path.relative(process.cwd(), filePath);
@@ -164,6 +167,8 @@ async function runPipelineTransformStep(
           isDev,
           fileExt: destExt,
           id: filePath,
+          srcPath,
+          inputSourceMap: destMap,
           // @ts-ignore: Deprecated
           filePath: fileName,
           // @ts-ignore: Deprecated
@@ -172,34 +177,39 @@ async function runPipelineTransformStep(
         logger.debug(`✔ transform() success [${debugPath}]`, {name: step.name});
         if (typeof result === 'string' || Buffer.isBuffer(result)) {
           // V2 API, simple string variant
-          output[destExt].code = result;
-          output[destExt].map = undefined;
+          if (destBuildFile.code !== result) {
+            destBuildFile.map = undefined;
+            if (sourceMaps && (destExt === '.js' || destExt === '.css')) {
+              logger.warn(`source-map file not found in [${debugPath}]`, {name: step.name});
+            }
+          }
+          destBuildFile.code = result;
         } else if (
           result &&
           typeof result === 'object' &&
           (result as PluginTransformResult).contents
         ) {
           // V2 API, structured result variant
-          output[destExt].code = (result as PluginTransformResult).contents;
+          destBuildFile.code = (result as PluginTransformResult).contents;
           const map = (result as PluginTransformResult).map;
           let outputMap: string | undefined = undefined;
-          if (map && sourceMaps) {
+          if (sourceMaps) {
             // if source maps disabled, don’t return any
-            if (output[destExt].map) {
-              outputMap = await composeSourceMaps(filePath, output[destExt].map!, map);
-            } else {
+            if (map) {
               outputMap = typeof map === 'object' ? JSON.stringify(map) : map;
+            } else if (destExt === '.js' || destExt === '.css') {
+              logger.warn(`source-map file not found in [${debugPath}]`, {name: step.name});
             }
           }
-          output[destExt].map = outputMap;
+          destBuildFile.map = outputMap;
         } else if (
           result &&
           typeof result === 'object' &&
           ((result as unknown) as {result: string}).result
         ) {
           // V1 API, deprecated
-          output[destExt].code = ((result as unknown) as {result: string}).result;
-          output[destExt].map = undefined;
+          destBuildFile.code = ((result as unknown) as {result: string}).result;
+          destBuildFile.map = undefined;
         }
       }
     } catch (err) {

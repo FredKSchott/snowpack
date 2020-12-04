@@ -33,8 +33,9 @@ function transformHtml(contents) {
 
 const babel = require('@babel/core');
 const IS_FAST_REFRESH_ENABLED = /\$RefreshReg\$\(/;
-async function transformJs(contents, id, skipTransform) {
+async function transformJs(contents, id, skipTransform, srcPath, inputSourceMap, sourceMaps) {
   let fastRefreshEnhancedCode;
+  let outputMap;
 
   if (skipTransform) {
     fastRefreshEnhancedCode = contents;
@@ -45,17 +46,20 @@ async function transformJs(contents, id, skipTransform) {
     );
     fastRefreshEnhancedCode = contents;
   } else {
-    const {code} = await babel.transformAsync(contents, {
+    const {code, map} = await babel.transformAsync(contents, {
       cwd: process.cwd(),
       filename: id,
       ast: false,
       compact: false,
-      sourceMaps: false,
+      sourceFileName: srcPath,
+      sourceMaps,
+      inputSourceMap: inputSourceMap ? JSON.parse(inputSourceMap) : undefined,
       configFile: false,
       babelrc: false,
       plugins: [require('react-refresh/babel'), require('@babel/plugin-syntax-class-properties')],
     });
     fastRefreshEnhancedCode = code;
+    outputMap = map;
   }
 
   // If fast refresh markup wasn't added, just return the original content.
@@ -63,7 +67,7 @@ async function transformJs(contents, id, skipTransform) {
     return contents;
   }
 
-  return `
+  const code = `
 /** React Refresh: Setup **/
 if (import.meta.hot) {
   if (!window.$RefreshReg$ || !window.$RefreshSig$ || !window.$RefreshRuntime$) {
@@ -88,12 +92,19 @@ if (import.meta.hot) {
     window.$RefreshRuntime$.performReactRefresh()
   });
 }`;
+
+  if (outputMap) {
+    outputMap.mappings = ';'.repeat(15) + outputMap.mappings;
+    return {contents: code, map: outputMap};
+  }
+
+  return code;
 }
 
 module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
   return {
     name: '@snowpack/plugin-react-refresh',
-    transform({contents, fileExt, id, isDev}) {
+    transform({contents, fileExt, id, isDev, srcPath, inputSourceMap}) {
       // Use long-form "=== false" to handle older Snowpack versions
       if (snowpackConfig.devOptions.hmr === false) {
         return;
@@ -103,7 +114,9 @@ module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
       }
       if (fileExt === '.js') {
         const skipTransform = babel === false;
-        return transformJs(contents, id, skipTransform);
+        const sourceMaps =
+          snowpackConfig.buildOptions && snowpackConfig.buildOptions.sourceMaps ? true : false;
+        return transformJs(contents, id, skipTransform, srcPath, inputSourceMap, sourceMaps);
       }
       if (fileExt === '.html') {
         return transformHtml(contents);

@@ -2,7 +2,7 @@ import type {Postcss} from 'postcss';
 import path from 'path';
 import {readFileSync} from 'fs';
 import {SnowpackConfig} from '../types/snowpack';
-import {appendHtmlToHead, getExt} from '../util';
+import {appendHtmlToHead, getExt, offsetSourceMap} from '../util';
 import {logger} from '../logger';
 import {generateSRI} from './import-sri';
 
@@ -21,36 +21,65 @@ export function getMetaUrlPath(urlPath: string, config: SnowpackConfig): string 
   return path.posix.normalize(path.posix.join('/', metaDir, urlPath));
 }
 
+function loc(code: string) {
+  let count = 0;
+
+  for (let i = 0; i < code.length; i++) {
+    if (code[i] === '\n') {
+      count += 1;
+    }
+  }
+
+  return count;
+}
+
 export function wrapImportMeta({
   code,
+  map,
   hmr,
   env,
   config,
 }: {
   code: string;
+  map?: string;
   hmr: boolean;
   env: boolean;
   config: SnowpackConfig;
 }) {
   if (!importMetaRegex.test(code)) {
-    return code;
+    return {code, map};
   }
-  return (
-    (hmr
-      ? `import * as  __SNOWPACK_HMR__ from '${getMetaUrlPath(
-          'hmr-client.js',
-          config,
-        )}';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`
-      : ``) +
-    (env
-      ? `import __SNOWPACK_ENV__ from '${getMetaUrlPath(
-          'env.js',
-          config,
-        )}';\nimport.meta.env = __SNOWPACK_ENV__;\n`
-      : ``) +
-    '\n' +
-    code
-  );
+
+  let lineOffset = 0;
+  const codes = [code];
+  if (env) {
+    const envCode = `import __SNOWPACK_ENV__ from '${getMetaUrlPath(
+      'env.js',
+      config,
+    )}';\nimport.meta.env = __SNOWPACK_ENV__;\n`;
+    codes.unshift(envCode);
+    lineOffset += loc(envCode);
+  }
+
+  if (hmr) {
+    const hmrCode = `import * as  __SNOWPACK_HMR__ from '${getMetaUrlPath(
+      'hmr-client.js',
+      config,
+    )}';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`;
+
+    codes.unshift(hmrCode);
+    lineOffset += loc(hmrCode);
+  }
+
+  if (map) {
+    const updatedMap = offsetSourceMap(map, lineOffset);
+    return {
+      code: codes.join(''),
+      map: JSON.stringify(updatedMap),
+    };
+  }
+
+  return {code: codes.join(''), map: undefined};
 }
 
 export function wrapHtmlResponse({
@@ -126,7 +155,7 @@ function generateJsonImportProxy({
 }) {
   const jsonImportProxyCode = `let json = ${JSON.stringify(JSON.parse(code))};
 export default json;`;
-  return wrapImportMeta({code: jsonImportProxyCode, hmr, env: false, config});
+  return wrapImportMeta({code: jsonImportProxyCode, hmr, env: false, config}).code;
 }
 
 function generateCssImportProxy({
@@ -156,7 +185,7 @@ if (typeof document !== 'undefined') {${
   styleEl.appendChild(codeEl);
   document.head.appendChild(styleEl);
 }`;
-  return wrapImportMeta({code: cssImportProxyCode, hmr, env: false, config});
+  return wrapImportMeta({code: cssImportProxyCode, hmr, env: false, config}).code;
 }
 
 let _postCss: Postcss;

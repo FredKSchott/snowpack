@@ -97,6 +97,8 @@ export interface PluginTransformOptions {
   contents: string | Buffer;
   isDev: boolean;
   isHmrEnabled: boolean;
+  srcPath: string;
+  inputSourceMap?: string;
 }
 
 export interface PluginRunOptions {

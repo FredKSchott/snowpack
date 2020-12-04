@@ -174,7 +174,7 @@ class FileBuilder {
               const cssFilename = outFilename.replace(/\.js$/i, '.css');
               code = `import './${cssFilename}';\n` + code;
             }
-            code = wrapImportMeta({code, env: true, hmr: false, config: this.config});
+            code = wrapImportMeta({code, env: true, hmr: false, config: this.config}).code;
             if (map) code = jsSourceMappingURL(code, sourceMappingURL);
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,

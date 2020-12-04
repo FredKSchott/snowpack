@@ -672,6 +672,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       }
 
       // transform other files
+      let outputMap = sourceMap;
       switch (responseFileExt) {
         case '.css': {
           if (sourceMap) code = cssSourceMappingURL(code as string, sourceMappingURL);
@@ -681,18 +682,26 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           if (isProxyModule) {
             code = await wrapImportProxy({url: reqPath, code, hmr: isHMR, config});
           } else {
-            code = wrapImportMeta({code: code as string, env: true, hmr: isHMR, config});
+            const result = wrapImportMeta({
+              code: code as string,
+              map: outputMap,
+              env: true,
+              hmr: isHMR,
+              config,
+            });
+            code = result.code;
+            outputMap = result.map;
           }
 
           // source mapping
-          if (sourceMap) code = jsSourceMappingURL(code, sourceMappingURL);
+          if (outputMap) code = jsSourceMappingURL(code, sourceMappingURL);
 
           break;
         }
       }
 
       // by default, return file from disk
-      return code;
+      return {contents: code, map: outputMap};
     }
 
     /**
@@ -866,12 +875,15 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         );
       }
       // Wrap the response.
-      finalResponse = await wrapResponse(finalResponse, {
+
+      const {contents, map: outputMap} = await wrapResponse(finalResponse, {
         sourceMap: map,
         sourceMappingURL: path.basename(requestedFile.base) + '.map',
       });
+      output[requestedFileExt].map = outputMap;
+
       // Return the finalized response.
-      return finalResponse;
+      return contents;
     }
 
     const {fileLoc, isStatic, isResolve} = foundFile;
