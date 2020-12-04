@@ -11,12 +11,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-2016]
+        os: [ubuntu-latest, windows-latest]
         node-version: [10.x, 12.x, 14.x]
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2.1.2
+        uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
       - name: build
@@ -26,11 +26,11 @@ jobs:
         env:
           CI: true
       - name: test
-        run: npm test
+        run: yarn test
         env:
           CI: true
       - name: dev test
-        run: npm run test:dev
+        run: yarn test:dev
         if: matrix.os == 'ubuntu-latest'
         env:
           CI: true

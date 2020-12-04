@@ -7,14 +7,6 @@
     "start": "snowpack dev",
     "testbuild": "cross-env SNOWPACK_PUBLIC_MY_ENV_VAR='my-var-replacement-configured-in-package.json' SNOWPACK_PUBLIC_='ignoreme' snowpack build"
   },
-  "snowpack": {
-    "mount": {
-      "./public": "/"
-    },
-    "buildOptions": {
-      "minify": false
-    }
-  },
   "dependencies": {},
   "devDependencies": {
     "cross-env": "^7.0.2",

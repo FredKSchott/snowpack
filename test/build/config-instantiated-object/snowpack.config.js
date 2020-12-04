@@ -1,9 +1,9 @@
 class Instantiable {
-	constructor() {
-		this.prop = true;
-	}
+  constructor() {
+    this.prop = true;
+  }
 
-	method() {}
+  method() {}
 }
 
 const instance = new Instantiable();
@@ -12,7 +12,5 @@ module.exports = {
   mount: {
     './src': '/_dist_',
   },
-  plugins: [
-    [ "./dummy-plugin.js", { instance } ]
-  ]
+  plugins: [['./dummy-plugin.js', {instance}]],
 };
