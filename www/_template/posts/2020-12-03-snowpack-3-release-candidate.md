@@ -20,9 +20,9 @@ Snowpack v3 will focus on the polish & official release of four features already
 - `experiments.routes` - Advanced config for HTML fallbacks and API proxies.
 - `import 'snowpack'` - A brand new JavaScript API for Snowpack integrations.
 
-<video preload="auto" autoplay muted>
+<video preload="auto" autoplay muted playsinline>
     <source src="/img/snowpackskypack.webm" type="video/webm">
-    <source src="/img/snowpackskypack.mp4" type="video">
+    <source src="/img/snowpackskypack.mp4" type="video/mp4">
 </video>
 
 ## New: Streaming NPM Imports
