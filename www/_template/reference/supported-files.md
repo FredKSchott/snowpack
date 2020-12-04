@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Supported Files
+description: Snowpack ships with built-in support for many file types including json, js, ts, jsx, css, css modules, and images.
 ---
 
 Snowpack ships with built-in support for the following file types, no configuration required:

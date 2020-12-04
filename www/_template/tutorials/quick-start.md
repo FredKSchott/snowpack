@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Quick Start
+description: A very basic guide for developers who want to run Snowpack as quickly as possible.
 ---
 
 ### Install Snowpack

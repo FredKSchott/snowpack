@@ -5,6 +5,7 @@ tags: communityGuide
 published: true
 img: '/img/logos/sass.svg'
 imgBackground: '#bf4080'
+description: How to use SASS with Snowpack using the Snowpack SASS plugin
 ---
 
 <div class="stub">

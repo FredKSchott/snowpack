@@ -4,6 +4,7 @@ title: Vue
 tags: communityGuide
 img: '/img/logos/vue.png'
 imgBackground: '#f6f9f6'
+description: How to use Vue with Snowpack using the Vue Plugin.
 ---
 
 <div class="stub">

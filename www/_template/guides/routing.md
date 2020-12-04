@@ -2,6 +2,7 @@
 layout: layouts/content.njk
 title: Routing
 published: true
+description: This guide will walk you through some common routing scenarios and how to configure the routes option to support them in development.
 ---
 
 <div class="notification">

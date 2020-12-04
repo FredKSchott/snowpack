@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Common Error Details
+description: How to troubleshoot common issues and error messagesm, plus our resources for getting help.
 ---
 
 This page details several common issues and error messages. For further help we have an active [GitHub Discussion forum](https://github.com/snowpackjs/snowpack/discussions)and [Discord](https://discord.gg/snowpack). Developers and community contributors frequently answer questions on both.

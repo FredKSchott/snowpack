@@ -1,10 +1,11 @@
 ---
 layout: layouts/content.njk
 title: JavaScript API
+description: Snowpack's JavaScript API is for anyone who wants to integrate with some custom build pipeline or server-side rendering engine.
 ---
 
 <div class="notification">
-Status: Experimental 
+Status: Experimental
 </div>
 
 ```js

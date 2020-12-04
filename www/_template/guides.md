@@ -1,6 +1,7 @@
 ---
 layout: layouts/main.njk
 title: Guides
+description: Snowpack's usage and integration guides.
 ---
 
 <style>

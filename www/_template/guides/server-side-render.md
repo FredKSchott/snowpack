@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Server-Side Rendering (SSR)
+description: This guide will walk you through three different options for setting up Snowpack with your own custom server.
 published: true
 ---
 

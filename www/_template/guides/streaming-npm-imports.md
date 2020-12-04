@@ -2,6 +2,7 @@
 layout: layouts/content.njk
 title: Streaming NPM Imports
 published: true
+stream: Load dependencies from remote sources instead of node_modules.
 ---
 
 <div class="notification">
