@@ -10,7 +10,7 @@ We aim to follow the [Divio documentation system](https://documentation.divio.co
 
 ## Style Guide
 - Terminology
-  - Snowpack app/project/site?
+  - When do we use Snowpack app vs. project vs. site vs. webapp
 - Sentence-style capitalization
 - Oxford comma
 - Don't capitalize after colons
