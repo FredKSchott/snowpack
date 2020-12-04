@@ -46,7 +46,7 @@ interface ScannedHtmlEntrypoint {
 // has a bug where it complains about overwriting source files even when write: false.
 // We create a fake bundle directory for now. Nothing ever actually gets written here.
 const FAKE_BUILD_DIRECTORY = path.join(PROJECT_CACHE_DIR, '~~bundle~~');
-const FAKE_BUILD_DIRECTORY_REGEX = /.*\~\~bundle\~\~\//;
+const FAKE_BUILD_DIRECTORY_REGEX = /.*\~\~bundle\~\~[\\\/]/;
 /**
  * Scan a directory and remove any empty folders, recursively.
  */
@@ -494,9 +494,9 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
   logger.debug(`bundleEntrypoints: ${JSON.stringify(bundleEntrypoints)}`);
 
   if ((!htmlEntrypoints || htmlEntrypoints.length === 0) && bundleEntrypoints.length === 0) {
-      throw new Error(
-        '[optimize] No HTML entrypoints detected. Set "entrypoints" manually if your site HTML is generated outside of Snowpack (SSR, Rails, PHP, etc.).',
-      );
+    throw new Error(
+      '[optimize] No HTML entrypoints detected. Set "entrypoints" manually if your site HTML is generated outside of Snowpack (SSR, Rails, PHP, etc.).',
+    );
   }
 
   // NOTE: esbuild has no `cwd` support, and assumes that you're always bundling the
