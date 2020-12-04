@@ -57,7 +57,7 @@ Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#us
 /* snowpack.config.js */
 module.exports = {
   devOptions: {
-    port: 3000
+    port: 3000,
   },
 };
 ```
