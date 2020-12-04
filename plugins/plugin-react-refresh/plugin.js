@@ -33,7 +33,7 @@ function transformHtml(contents) {
 
 const babel = require('@babel/core');
 const IS_FAST_REFRESH_ENABLED = /\$RefreshReg\$\(/;
-async function transformJs(contents, id, skipTransform, srcPath, inputSourceMap, sourceMaps) {
+async function transformJs(contents, id, skipTransform, inputSourceMap, sourceMaps) {
   let fastRefreshEnhancedCode;
   let outputMap;
 
@@ -51,7 +51,6 @@ async function transformJs(contents, id, skipTransform, srcPath, inputSourceMap,
       filename: id,
       ast: false,
       compact: false,
-      sourceFileName: srcPath,
       sourceMaps,
       inputSourceMap: inputSourceMap ? JSON.parse(inputSourceMap) : undefined,
       configFile: false,
@@ -104,7 +103,7 @@ if (import.meta.hot) {
 module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
   return {
     name: '@snowpack/plugin-react-refresh',
-    transform({contents, fileExt, id, isDev, srcPath, inputSourceMap}) {
+    transform({contents, fileExt, id, isDev, inputSourceMap}) {
       // Use long-form "=== false" to handle older Snowpack versions
       if (snowpackConfig.devOptions.hmr === false) {
         return;
@@ -116,7 +115,7 @@ module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
         const skipTransform = babel === false;
         const sourceMaps =
           snowpackConfig.buildOptions && snowpackConfig.buildOptions.sourceMaps ? true : false;
-        return transformJs(contents, id, skipTransform, srcPath, inputSourceMap, sourceMaps);
+        return transformJs(contents, id, skipTransform, inputSourceMap, sourceMaps);
       }
       if (fileExt === '.html') {
         return transformHtml(contents);

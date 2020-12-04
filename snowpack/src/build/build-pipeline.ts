@@ -112,10 +112,7 @@ async function runPipelineLoadStep(
   };
 }
 
-/**
- * Todo: should we remove composeSourceMaps
- */
-export async function composeSourceMaps(
+async function composeSourceMaps(
   id: string,
   base: string | RawSourceMap,
   derived: string | RawSourceMap,
@@ -167,7 +164,6 @@ async function runPipelineTransformStep(
           isDev,
           fileExt: destExt,
           id: filePath,
-          srcPath,
           inputSourceMap: destMap,
           // @ts-ignore: Deprecated
           filePath: fileName,
@@ -197,6 +193,9 @@ async function runPipelineTransformStep(
             // if source maps disabled, don’t return any
             if (map) {
               outputMap = typeof map === 'object' ? JSON.stringify(map) : map;
+              if (destBuildFile.map) {
+                outputMap = await composeSourceMaps(filePath, destBuildFile.map, outputMap);
+              }
             } else if (destExt === '.js' || destExt === '.css') {
               logger.warn(`source-map file not found in [${debugPath}]`, {name: step.name});
             }
