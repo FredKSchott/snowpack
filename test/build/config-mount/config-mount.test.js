@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 const cheerio = require('cheerio');
-const {fileLines} = require('../../test-utils');
 
 function generateContentsMap(dir) {
   const contentMap = {};
@@ -61,10 +60,10 @@ describe('config: mount', () => {
   describe('advanced', () => {
     it('url', () => {
       const cwd = path.join(__dirname, 'build', 'new-g');
-      const distJS = fileLines(path.join(cwd, 'index.js'));
+      const distJS = fs.readFileSync(path.join(cwd, 'index.js'), 'utf-8');
       const $ = cheerio.load(fs.readFileSync(path.join(cwd, 'main.html'), 'utf-8'));
 
-      expect(distJS[1]).toBe(`import "./dep.js";`); // formatter ran
+      expect(distJS).toEqual(expect.stringContaining(`import "./dep.js";`)); // formatter ran
       expect($('script[type="module"]').attr('src')).toBe('/_dist_/index.js'); // JS resolved
     });
 
@@ -77,9 +76,9 @@ describe('config: mount', () => {
 
     it('resolve: false', () => {
       const cwd = path.join(__dirname, 'build', 'i');
-      const distJS = fileLines(path.join(cwd, 'index.js'));
+      const distJS = fs.readFileSync(path.join(cwd, 'index.js'), 'utf-8');
 
-      expect(distJS[1]).toBe(`import "./dep";`); // JS not resolved
+      expect(distJS).toEqual(expect.stringContaining(`import "./dep";`)); // JS not resolved
     });
   });
 });

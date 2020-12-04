@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const cheerio = require('cheerio');
-const {fileLines} = require('../../test-utils');
 
 const html = fs.readFileSync(path.join(__dirname, 'build', 'index.html'), 'utf8');
 
