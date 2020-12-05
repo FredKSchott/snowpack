@@ -229,7 +229,7 @@ You've just learned the major concepts of unbundled developments and built a tin
 
 What's next? Our docs site has several great resources
 
-- [Bundling for production guide](/guides/bundling): how to connect a bundler like Webpack to optimize code for production deployments
+- [Bundling for production guide](/guides/optimize-and-bundle): how to connect a bundler like Webpack to optimize code for production deployments
 - [Plugins](/plugins): a list of plugins that allow you to integrate your favorite tools with Snowpack
 - [Templates/Examples](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli): pre-built projects you can build on or just explore using many popular frameworks and tools
 - [Guides](/guides): Step by step deep dives on building with and for Snowpack. Includes frameworks like React and Svelte.
