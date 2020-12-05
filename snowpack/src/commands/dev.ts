@@ -480,12 +480,16 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
       try {
         const webModuleUrl = reqPath.substr(config.buildOptions.webModulesUrl.length + 1);
-        const response = await pkgSource.load(webModuleUrl, commandOptions);
+        const loadedModule = await pkgSource.load(webModuleUrl, commandOptions);
+        let code = loadedModule;
+        if (isProxyModule) {
+          code = await wrapImportProxy({url: reqPath, code: code.toString(), hmr: isHMR, config});
+        }
         return {
-          contents: encodeResponse(response, encoding),
+          contents: encodeResponse(code, encoding),
           originalFileLoc: null,
-          contentType: path.extname(reqPath)
-            ? mime.lookup(path.extname(reqPath))
+          contentType: path.extname(originalReqPath)
+            ? mime.lookup(path.extname(originalReqPath))
             : 'application/javascript',
         };
       } catch (err) {
