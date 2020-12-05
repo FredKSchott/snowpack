@@ -432,6 +432,7 @@ export async function command(commandOptions: CommandOptions) {
 
   // 0. Find all source files.
   for (const [mountedDir, mountEntry] of Object.entries(config.mount)) {
+    const finalDestLocMap = new Map<string, string>();
     const allFiles = glob.sync(`**/*`, {
       ignore: [...config.exclude, ...config.testOptions.files],
       cwd: mountedDir,
@@ -444,6 +445,15 @@ export async function command(commandOptions: CommandOptions) {
       const fileLoc = path.resolve(rawLocOnDisk); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
       const finalUrl = getUrlForFileMount({fileLoc, mountKey: mountedDir, mountEntry, config})!;
       const finalDestLoc = path.join(buildDirectoryLoc, finalUrl);
+
+      const existedFileLoc = finalDestLocMap.get(finalDestLoc);
+      if (existedFileLoc) {
+        logger.error(`Error: These two files are built to the same path: ${finalDestLoc}`);
+        logger.error(existedFileLoc);
+        logger.error(fileLoc);
+        process.exit(1);
+      }
+
       const outDir = path.dirname(finalDestLoc);
       const buildPipelineFile = new FileBuilder({
         fileURL: url.pathToFileURL(fileLoc),
@@ -453,6 +463,8 @@ export async function command(commandOptions: CommandOptions) {
         lockfile,
       });
       buildPipelineFiles[fileLoc] = buildPipelineFile;
+
+      finalDestLocMap.set(finalDestLoc, fileLoc);
     }
   }
 
