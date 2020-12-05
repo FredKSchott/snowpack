@@ -134,10 +134,10 @@ module.exports = function(snowpackConfig, pluginOptions) {
     resolve: {
       input: ['.svelte'],
       output: ['.js', '.css'],
-    }
+    },
     async load({ filePath }) {
       const fileContents = await fs.readFile(filePath, 'utf-8');
-      const { js, css } = svelte.compile(codeToCompile, { filename: filePath });
+      const { js, css } = svelte.compile(fileContents, { filename: filePath });
       return {
         '.js': js && js.code,
         '.css': css && css.code,
