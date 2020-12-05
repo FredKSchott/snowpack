@@ -1,18 +1,26 @@
-const fs = require('fs');
 const path = require('path');
 const cheerio = require('cheerio');
+const {setupBuildTest, readFiles} = require('../../test-utils');
 
-const html = fs.readFileSync(path.join(__dirname, 'build', 'index.html'), 'utf8');
+const cwd = path.join(__dirname, 'build');
 
-const $ = cheerio.load(html);
+let files = {};
 
 describe('packageManifest.homepage', () => {
+  beforeAll(() => {
+    setupBuildTest(__dirname);
+
+    files = readFiles(['index.html'], {cwd});
+  });
+
   it('baseUrl works for <link>', () => {
+    const $ = cheerio.load(files['/index.html']);
     expect($('link[rel="icon"]').attr('href').startsWith('/static/')).toBe(true);
     expect($('link[rel="stylesheet"]').attr('href').startsWith('/static/')).toBe(true);
   });
 
   it('baseUrl works for <script>', () => {
+    const $ = cheerio.load(files['/index.html']);
     expect($('script').attr('src').startsWith('/static/')).toBe(true);
   });
 });

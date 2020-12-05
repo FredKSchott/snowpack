@@ -2,6 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 const cheerio = require('cheerio');
+const {setupBuildTest, readFiles} = require('../../test-utils');
+
+const cwd = path.join(__dirname, 'build');
+let files = {};
 
 function generateContentsMap(dir) {
   const contentMap = {};
@@ -14,6 +18,12 @@ function generateContentsMap(dir) {
 }
 
 describe('config: mount', () => {
+  beforeAll(() => {
+    setupBuildTest(__dirname);
+
+    files = readFiles(['h/main.html', 'i/index.js', 'new-g/index.js', 'new-g/main.html'], {cwd});
+  });
+
   describe('basic', () => {
     const tests = [
       {
@@ -59,26 +69,18 @@ describe('config: mount', () => {
 
   describe('advanced', () => {
     it('url', () => {
-      const cwd = path.join(__dirname, 'build', 'new-g');
-      const distJS = fs.readFileSync(path.join(cwd, 'index.js'), 'utf-8');
-      const $ = cheerio.load(fs.readFileSync(path.join(cwd, 'main.html'), 'utf-8'));
-
-      expect(distJS).toEqual(expect.stringContaining(`import "./dep.js";`)); // formatter ran
+      const $ = cheerio.load(files['/new-g/main.html']);
+      expect(files['/new-g/index.js']).toEqual(expect.stringContaining(`import "./dep.js";`)); // formatter ran
       expect($('script[type="module"]').attr('src')).toBe('/_dist_/index.js'); // JS resolved
     });
 
     it('static', () => {
-      const cwd = path.join(__dirname, 'build', 'h');
-      const $ = cheerio.load(fs.readFileSync(path.join(cwd, 'main.html'), 'utf-8'));
-
+      const $ = cheerio.load(files['/h/main.html']);
       expect($('script[type="module"]').attr('src')).toBe('/_dist_/index.js'); // JS resolved
     });
 
     it('resolve: false', () => {
-      const cwd = path.join(__dirname, 'build', 'i');
-      const distJS = fs.readFileSync(path.join(cwd, 'index.js'), 'utf-8');
-
-      expect(distJS).toEqual(expect.stringContaining(`import "./dep";`)); // JS not resolved
+      expect(files['/i/index.js']).toEqual(expect.stringContaining(`import "./dep";`)); // JS not resolved
     });
   });
 });

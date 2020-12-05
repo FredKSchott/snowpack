@@ -1,10 +1,18 @@
-const fs = require('fs');
 const path = require('path');
+const {readFiles, setupBuildTest} = require('../../test-utils');
 
-const distJS = fs.readFileSync(path.join(__dirname, 'build', '_dist_', 'index.js'), 'utf-8');
+const cwd = path.join(__dirname, 'build');
+
+let files = {};
 
 describe('config: installOptions.externalPackage', () => {
+  beforeAll(() => {
+    setupBuildTest(__dirname);
+
+    files = readFiles(['_dist_/index.js'], {cwd});
+  });
+
   it('preserves external package', () => {
-    expect(distJS).toEqual(expect.stringContaining(`import 'fs';`));
+    expect(files['/_dist_/index.js']).toEqual(expect.stringContaining(`import 'fs';`));
   });
 });

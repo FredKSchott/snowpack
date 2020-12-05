@@ -1,3 +1,5 @@
 module.exports = {
-  mount: {public: '/'},
+  mount: {
+    public: '/',
+  },
 };

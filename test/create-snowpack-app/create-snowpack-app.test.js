@@ -3,7 +3,6 @@ const path = require('path');
 const execa = require('execa');
 const rimraf = require('rimraf');
 const glob = require('glob');
-const strpAnsi = require('strip-ansi');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'create-snowpack-app');
 const templates = fs.readdirSync(TEMPLATES_DIR).filter((dir) => dir.startsWith('app-template-'));

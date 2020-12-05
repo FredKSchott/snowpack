@@ -1,13 +1,18 @@
-const fs = require('fs');
 const path = require('path');
 const cheerio = require('cheerio');
+const {setupBuildTest, readFiles} = require('../../test-utils');
 
-const html = fs.readFileSync(path.join(__dirname, 'build', 'index.html'), 'utf8');
-
-const $ = cheerio.load(html);
-
+const cwd = path.join(__dirname, 'build');
+let files = {};
 describe('html-environment-variables', () => {
+  beforeAll(() => {
+    setupBuildTest(__dirname);
+
+    files = readFiles(['index.html'], {cwd});
+  });
+
   it('passes env vars into HTML', () => {
+    const $ = cheerio.load(files['/index.html']);
     const htmlTag = $('html');
 
     // test an existing propery to make sure it still persists

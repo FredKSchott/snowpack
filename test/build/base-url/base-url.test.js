@@ -1,15 +1,20 @@
-const fs = require('fs');
 const path = require('path');
 const cheerio = require('cheerio');
+const {setupBuildTest, readFiles} = require('../../test-utils');
 
 const cwd = path.join(__dirname, 'build');
 
-const html = fs.readFileSync(path.join(cwd, 'index.html'), 'utf8');
-const indexJS = fs.readFileSync(path.join(cwd, 'index.js'), 'utf-8');
-const distJS = fs.readFileSync(path.join(cwd, '_dist_', 'index.js'), 'utf-8');
-const $ = cheerio.load(html);
+let files = {};
+let $;
 
 describe('buildOptions.baseUrl', () => {
+  beforeAll(() => {
+    setupBuildTest(__dirname);
+
+    files = readFiles(['index.html', 'index.js', '_dist_/index.js'], {cwd});
+    $ = cheerio.load(files['/index.html']);
+  });
+
   it('baseUrl works for <link>', () => {
     expect($('link[rel="icon"]').attr('href').startsWith('/static/')).toBe(true);
     expect($('link[rel="stylesheet"]').attr('href').startsWith('/static/')).toBe(true);
@@ -21,15 +26,19 @@ describe('buildOptions.baseUrl', () => {
 
   it('import.meta.env works', () => {
     // env is present in index.js
-    expect(indexJS).toEqual(
+    expect(files['/index.js']).toEqual(
       expect.stringContaining(`import __SNOWPACK_ENV__ from './__snowpack__/env.js';`),
     );
-    expect(indexJS).toEqual(expect.stringContaining(`import.meta.env = __SNOWPACK_ENV__;`));
+    expect(files['/index.js']).toEqual(
+      expect.stringContaining(`import.meta.env = __SNOWPACK_ENV__;`),
+    );
 
     // env is present in _dist_/index.js too
-    expect(distJS).toEqual(
+    expect(files['/_dist_/index.js']).toEqual(
       expect.stringContaining(`import __SNOWPACK_ENV__ from '../__snowpack__/env.js';`),
     );
-    expect(distJS).toEqual(expect.stringContaining(`import.meta.env = __SNOWPACK_ENV__;`));
+    expect(files['/_dist_/index.js']).toEqual(
+      expect.stringContaining(`import.meta.env = __SNOWPACK_ENV__;`),
+    );
   });
 });
