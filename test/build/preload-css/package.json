@@ -1,7 +1,7 @@
 {
   "private": true,
   "version": "1.0.1",
-  "name": "@snowpack/test-optimize-css",
+  "name": "@snowpack/test-preload-css",
   "description": "Tests { preloadCSS: true } for @snowpack/plugin-optimize",
   "scripts": {
     "testbuild": "snowpack build"

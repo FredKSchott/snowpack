@@ -4,12 +4,14 @@ const {setupBuildTest} = require('../../test-utils');
 
 const cwd = path.join(__dirname, 'build');
 
-describe('config: instantiated objects', () => {
+describe('config: TypeScript config', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
   });
 
-  it('instantiated objects don’t affect build', () => {
-    expect(fs.existsSync(path.join(cwd, '_dist_', 'index.js'))).toBe(true);
+  it('mounts & builds correctly', () => {
+    const webModule = path.join(cwd, '_dist_', 'index.js');
+
+    expect(fs.existsSync(webModule)).toBe(true);
   });
 });

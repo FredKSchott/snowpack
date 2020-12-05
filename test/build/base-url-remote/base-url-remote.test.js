@@ -1,12 +1,20 @@
-const fs = require('fs');
 const path = require('path');
 const cheerio = require('cheerio');
+const {setupBuildTest, readFiles} = require('../../test-utils');
 
-const html = fs.readFileSync(path.join(__dirname, 'build', 'index.html'), 'utf8');
+const cwd = path.join(__dirname, 'build');
 
-const $ = cheerio.load(html);
+let files = {};
+let $;
 
 describe('buildOptions.baseUrl', () => {
+  beforeAll(() => {
+    setupBuildTest(__dirname);
+
+    files = readFiles(['index.html'], {cwd});
+    $ = cheerio.load(files['/index.html']);
+  });
+
   it('baseUrl works for <link>', () => {
     expect($('link[rel="icon"]').attr('href').startsWith('https://www.example.com/')).toBe(true);
     expect($('link[rel="stylesheet"]').attr('href').startsWith('https://www.example.com/')).toBe(

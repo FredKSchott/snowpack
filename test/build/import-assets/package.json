@@ -1,14 +1,11 @@
 {
   "private": true,
   "version": "1.0.1",
-  "name": "@snowpack/test-legacy-mount-scripts",
-  "description": "This tests the old scripts mount:* configuration format",
+  "name": "@snowpack/test-import-css",
+  "description": "A test to make sure that URLs for resources don’t have backslashes on Windows",
   "scripts": {
     "start": "snowpack dev",
     "testbuild": "snowpack build"
-  },
-  "dependencies": {
-    "array-flatten": "^3.0.0"
   },
   "devDependencies": {
     "snowpack": "^2.14.3"

@@ -1262,7 +1262,7 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@css/package-b@file:./test/build/resolve-imports/packages/css-package-b":
+"@css/package-b@file:./test/build/config-alias/packages/css-package-b":
   version "1.2.3"
 
 "@emotion/is-prop-valid@^0.8.5":
@@ -5659,7 +5659,7 @@ css-loader@^4.3.0:
 "css-mock-pkg-b@file:./test/esinstall/dep-list-css/packages/css-mock-pkg-b":
   version "1.0.0"
 
-"css-package-a@file:./test/build/resolve-imports/packages/css-package-a":
+"css-package-a@file:./test/build/config-alias/packages/css-package-a":
   version "1.2.3"
 
 css-select-base-adapter@^0.1.1:

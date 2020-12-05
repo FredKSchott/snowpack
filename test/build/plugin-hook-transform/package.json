@@ -1,16 +1,14 @@
 {
   "private": true,
   "version": "1.0.1",
-  "name": "@snowpack/test-legacy-mount-scripts",
-  "description": "This tests the old scripts mount:* configuration format",
+  "name": "@snowpack/test-plugin-hook-transform",
+  "description": "A test to make sure that the plugin transform() hook is working as expected",
   "scripts": {
     "start": "snowpack dev",
     "testbuild": "snowpack build"
   },
-  "dependencies": {
-    "array-flatten": "^3.0.0"
-  },
   "devDependencies": {
+    "magic-string": "^0.25.7",
     "snowpack": "^2.14.3"
   }
 }
