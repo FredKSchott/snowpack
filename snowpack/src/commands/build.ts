@@ -448,9 +448,9 @@ export async function command(commandOptions: CommandOptions) {
 
       const existedFileLoc = finalDestLocMap.get(finalDestLoc);
       if (existedFileLoc) {
-        logger.error(`Error: These two files are built to the same path: ${finalDestLoc}`);
-        logger.error(existedFileLoc);
-        logger.error(fileLoc);
+        logger.error(`Error: Two files overlap and build to the same destination: ${finalDestLoc}`);
+        logger.error(`  File 1: ${existedFileLoc}`);
+        logger.error(`  File 2: ${fileLoc}`);
         process.exit(1);
       }
 
