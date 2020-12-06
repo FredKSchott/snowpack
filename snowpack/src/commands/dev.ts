@@ -524,6 +524,12 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     let isRoute = !requestedFileExt || requestedFileExt === '.html';
 
     async function getFileFromUrl(reqPath: string): Promise<FoundFile | null> {
+      let fileResult: null | {
+        fileLoc: string;
+        isStatic: boolean;
+        isResolve: boolean;
+      } = null;
+
       for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
         let requestedFile: string;
         if (mountEntry.url === '/') {
@@ -535,7 +541,13 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         }
         const fileLocExact = await attemptLoadFile(requestedFile);
         if (fileLocExact) {
-          return {
+          if (fileResult && fileResult.fileLoc !== fileLocExact) {
+            logger.error(`Error: Two files overlap and build to the same destination: ${requestedFile}`);
+            logger.error(`  File 1: ${fileResult.fileLoc}`);
+            logger.error(`  File 2: ${fileLocExact}`);
+            process.exit(1);
+          }
+          fileResult = {
             fileLoc: fileLocExact,
             isStatic: mountEntry.static,
             isResolve: mountEntry.resolve,
@@ -545,12 +557,18 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
             const fileLoc = await attemptLoadFile(potentialSourceFile);
             if (fileLoc) {
-              return {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
+              if (fileResult && fileResult.fileLoc !== fileLoc) {
+                logger.error(`Error: Two files overlap and build to the same destination: ${requestedFile}`);
+                logger.error(`  File 1: ${fileResult.fileLoc}`);
+                logger.error(`  File 2: ${fileLoc}`);
+                process.exit(1);
+              }
+              fileResult = {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
             }
           }
         }
       }
-      return null;
+      return fileResult;
     }
 
     async function getFileFromLazyUrl(reqPath: string): Promise<FoundFile | null> {
