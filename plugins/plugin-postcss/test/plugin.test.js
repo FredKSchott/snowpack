@@ -24,6 +24,7 @@ describe('@snowpack/plugin-postcss', () => {
   test('with no options', async () => {
     const pluginInstance = plugin({}, {});
     const transformCSSResults = await pluginInstance.transform({
+      id: cssPath,
       fileExt: path.extname(cssPath),
       contents: cssContent,
     });
@@ -37,6 +38,7 @@ describe('@snowpack/plugin-postcss', () => {
     };
     const pluginInstance = plugin({}, options);
     const transformCSSResults = await pluginInstance.transform({
+      id: cssPath,
       fileExt: path.extname(cssPath),
       contents: cssContent,
     });
