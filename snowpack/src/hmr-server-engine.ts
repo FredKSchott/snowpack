@@ -4,13 +4,13 @@ import type http from 'http';
 import type http2 from 'http2';
 
 interface Dependency {
+  mtime: string | undefined;
   dependents: Set<string>;
   dependencies: Set<string>;
   isHmrEnabled: boolean;
   isHmrAccepted: boolean;
   needsReplacement: boolean;
   needsReplacementCount: number;
-  mtime: string | null;
 }
 
 type HMRMessage =
@@ -98,13 +98,13 @@ export class EsmHmrEngine {
 
   createEntry(sourceUrl: string) {
     const newEntry: Dependency = {
+      mtime: undefined,
       dependencies: new Set(),
       dependents: new Set(),
       needsReplacement: false,
       needsReplacementCount: 0,
       isHmrEnabled: false,
       isHmrAccepted: false,
-      mtime: null,
     };
     this.dependencyTree.set(sourceUrl, newEntry);
     return newEntry;

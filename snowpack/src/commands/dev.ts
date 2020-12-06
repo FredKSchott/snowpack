@@ -38,6 +38,7 @@ import * as colors from 'kleur/colors';
 import mime from 'mime-types';
 import os from 'os';
 import path from 'path';
+import querystring from 'querystring';
 import {performance} from 'perf_hooks';
 import onProcessExit from 'signal-exit';
 import stream from 'stream';
@@ -442,8 +443,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     const isHMR = _isHMR ?? ((config.devOptions.hmr ?? true) && !isSSR);
     const allowStale = _allowStale ?? false;
     const encoding = _encoding ?? null;
-    const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
-    const mtime = reqUrlHmrParam && reqUrlHmrParam.split('=')[1];
+    const reqQuery = querystring.parse(reqUrl.split('?')[1]) as {mtime?: string};
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const originalReqPath = reqPath;
     let isProxyModule = false;
@@ -805,23 +805,21 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       }
 
       let code = wrappedResponse;
-      if (responseFileExt === '.js' && mtime)
+      if (responseFileExt === '.js' && reqQuery.mtime) {
         code = await transformEsmImports(code as string, (imp) => {
           const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
           const node = hmrEngine.getEntry(importUrl);
-          if (node == null) return imp;
-          if (node.needsReplacement) {
-            hmrEngine.markEntryForReplacement(node, false);
-            node.mtime = mtime;
+          if (!node || !node.needsReplacement) {
+            return imp;
           }
-          if (node.mtime && !node.isHmrAccepted) {
-            return `${imp}?mtime=${node.mtime}`;
+          hmrEngine.markEntryForReplacement(node, false);
+          if (node.isHmrAccepted) {
+            return imp;
           }
-          if (node.needsReplacement) {
-            return `${imp}?mtime=${mtime}`;
-          }
-          return imp;
+          node.mtime = reqQuery.mtime;
+          return `${imp}?mtime=${reqQuery.mtime}`;
         });
+      }
 
       if (responseFileExt === '.js') {
         const isHmrEnabled = code.includes('import.meta.hot');
