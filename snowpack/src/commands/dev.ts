@@ -443,6 +443,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     const allowStale = _allowStale ?? false;
     const encoding = _encoding ?? null;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
+    const mtime = reqUrlHmrParam && reqUrlHmrParam.split('=')[1];
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const originalReqPath = reqPath;
     let isProxyModule = false;
@@ -804,13 +805,20 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       }
 
       let code = wrappedResponse;
-      if (responseFileExt === '.js' && reqUrlHmrParam)
+      if (responseFileExt === '.js' && mtime)
         code = await transformEsmImports(code as string, (imp) => {
           const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
           const node = hmrEngine.getEntry(importUrl);
-          if (node && node.needsReplacement) {
+          if (node == null) return imp;
+          if (node.needsReplacement) {
             hmrEngine.markEntryForReplacement(node, false);
-            return `${imp}?${reqUrlHmrParam}`;
+            node.mtime = mtime;
+          }
+          if (node.mtime && !node.isHmrAccepted) {
+            return `${imp}?mtime=${node.mtime}`;
+          }
+          if (node.needsReplacement) {
+            return `${imp}?mtime=${mtime}`;
           }
           return imp;
         });
