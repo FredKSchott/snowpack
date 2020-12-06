@@ -11,8 +11,7 @@
   "author": "Fred K. Schott <fkschott@gmail.com>",
   "license": "MIT",
   "publishConfig": {
-    "access": "public",
-    "directory": "pkg"
+    "access": "public"
   },
   "repository": {
     "type": "git",
