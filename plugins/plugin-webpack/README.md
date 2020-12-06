@@ -57,6 +57,7 @@ The options object is optional.
 - `extendConfig: (config: WebpackConfig) => WebpackConfig` - extend your webpack config, see below.
 - `manifest: boolean | string` - Enable generating a manifest file. The default value is `false`, the default file name is `./asset-manifest.json` if setting manifest to `true`. The relative path is resolved from the output directory.
 - `htmlMinifierOptions: boolean | object` - [See below](#minify-html).
+- `ignoreWarnings: boolean` - Does not fail the build when Webpack emits warnings. The default value is `true`.
 
 #### Extending The Default Webpack Config
 
