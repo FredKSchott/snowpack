@@ -97,7 +97,7 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMin
 }
 
 function getSplitChunksConfig({numEntries}) {
-  const isCssModule = module => module.type === `css/mini-extract`
+  const isCss = module => module.type === `css/mini-extract`
   /**
    * Implements a version of granular chunking, as described at https://web.dev/granular-chunking-nextjs/.
    */
@@ -116,7 +116,7 @@ function getSplitChunksConfig({numEntries}) {
        */
       lib: {
         test(module) {
-          return !isCssModule(module) && module.size() > 100000 && /web_modules[/\\]/.test(module.identifier());
+          return !isCss(module) && module.size() > 100000 && /web_modules[/\\]/.test(module.identifier());
         },
         name(module) {
           /**
@@ -138,7 +138,7 @@ function getSplitChunksConfig({numEntries}) {
       // modules used by all entrypoints end up in commons
       commons: {
         test(module) {
-          return !isCssModule(module)
+          return !isCss(module)
         },
         name: 'commons',
         // don't create a commons chunk until there are 2+ entries
@@ -148,7 +148,7 @@ function getSplitChunksConfig({numEntries}) {
       // modules used by multiple chunks can be pulled into shared chunks
       shared: {
         test(module) {
-          return !isCssModule(module)
+          return !isCss(module)
         },
         name(module, chunks) {
           const hash = crypto
@@ -165,7 +165,7 @@ function getSplitChunksConfig({numEntries}) {
       // Bundle all css & lazy css into one stylesheet to make sure lazy components do not break
       styles: {
         test(module) {
-          return isCssModule(module)
+          return isCss(module)
         },
         name: `styles`,
         priority: 40,
