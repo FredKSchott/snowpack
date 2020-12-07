@@ -31,7 +31,6 @@
     "@babel/plugin-proposal-decorators": "^7.10.5",
     "@snowpack/plugin-babel": "^2.1.5",
     "@snowpack/plugin-dotenv": "^2.0.5",
-    "@snowpack/plugin-sass": "^1.1.2",
     "prettier": "^2.0.5",
     "snowpack": "^2.18.1"
   },
