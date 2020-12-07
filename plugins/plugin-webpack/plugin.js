@@ -379,10 +379,18 @@ module.exports = function plugin(config, args = {}) {
             reject(err);
             return;
           }
+          const info = stats.toJson(extendedConfig.stats);
           if (stats.hasErrors()) {
-            const info = stats.toJson(extendedConfig.stats);
-            console.error(info.warnings.join('\n-----\n'));
-            console.error(info.errors.join('\n-----\n'));
+            console.error('Webpack errors:\n' + info.errors.join('\n-----\n'));
+            reject(Error(`Webpack failed with ${info.errors} error(s).`));
+            return;
+          }
+          if (stats.hasWarnings()) {
+            console.error('Webpack warnings:\n' + info.warnings.join('\n-----\n'));
+            if (args.failOnWarnings) {
+              reject(Error(`Webpack failed with ${info.warnings} warnings(s).`));
+              return;
+            }
           }
           resolve(stats);
         });
