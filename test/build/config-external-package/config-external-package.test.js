@@ -9,7 +9,7 @@ describe('config: installOptions.externalPackage', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(['_dist_/index.js'], {cwd});
+    files = readFiles(cwd);
   });
 
   it('preserves external package', () => {

@@ -8,10 +8,7 @@ describe('module resolution', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(
-      ['src.js', 'index.html', 'folder-1/index.html', 'folder-1/folder-2/index.html'],
-      {cwd},
-    );
+    files = readFiles(cwd);
   });
 
   it('JS: resolves web_modules relatively', () => {

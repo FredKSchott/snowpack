@@ -7,9 +7,7 @@ let files = {};
 describe('import resource', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
-    files = readFiles(['_dist_/index.js', '_dist_/styles.css', '_dist_/styles.css.proxy.js'], {
-      cwd,
-    });
+    files = readFiles(cwd);
   });
 
   describe('css', () => {

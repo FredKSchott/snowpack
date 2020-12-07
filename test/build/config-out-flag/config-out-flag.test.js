@@ -10,10 +10,10 @@ describe('CLI: --out flag', () => {
   });
 
   it('respects --out', () => {
-    const distJS = path.join(cwd, 'src', 'index.js');
-    expect(fs.existsSync(distJS)).toBe(true);
+    const distJSLoc = path.join(cwd, 'src', 'index.js');
+    expect(fs.existsSync(distJSLoc)).toBe(true); // JS file exists
 
-    const snowpackMeta = path.join(cwd, '__snowpack__', 'env.js');
-    expect(fs.existsSync(snowpackMeta)).toBe(true);
+    const snowpackMetaLoc = path.join(cwd, '__snowpack__', 'env.js');
+    expect(fs.existsSync(snowpackMetaLoc)).toBe(true); // snowpack meta exists
   });
 });

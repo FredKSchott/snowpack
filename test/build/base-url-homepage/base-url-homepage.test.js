@@ -10,7 +10,7 @@ describe('packageManifest.homepage', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(['index.html'], {cwd});
+    files = readFiles(cwd);
   });
 
   it('baseUrl works for <link>', () => {

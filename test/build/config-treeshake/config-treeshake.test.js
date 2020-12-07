@@ -12,16 +12,16 @@ describe('installOptions.treeshake', () => {
   });
 
   it('built web_modules/array-flatten.js', () => {
-    const webModule = path.join(cwd, 'web_modules', 'array-flatten.js');
+    const webModuleLoc = path.join(cwd, 'web_modules', 'array-flatten.js');
 
-    expect(fs.existsSync(webModule)).toBe(true); // file exists
-    expect(fs.readFileSync(webModule, 'utf-8')).toBeTruthy(); // file has contents
+    expect(fs.existsSync(webModuleLoc)).toBe(true); // file exists
+    expect(fs.readFileSync(webModuleLoc, 'utf8')).toBeTruthy(); // file has contents
   });
 
   it('built web_modules/async.js', () => {
-    const webModule = path.join(cwd, 'web_modules', 'async.js');
+    const webModuleLoc = path.join(cwd, 'web_modules', 'async.js');
 
-    expect(fs.existsSync(webModule)).toBe(true); // file exists
-    expect(fs.readFileSync(webModule, 'utf-8')).toBeTruthy(); // file has contents
+    expect(fs.existsSync(webModuleLoc)).toBe(true); // file exists
+    expect(fs.readFileSync(webModuleLoc, 'utf8')).toBeTruthy(); // file has contents
   });
 });

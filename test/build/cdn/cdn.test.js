@@ -10,7 +10,7 @@ describe('CDN URLs', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(['index.html', '_dist_/index.js'], {cwd});
+    files = readFiles(cwd);
   });
 
   it('HTML: preserves remote URLs', () => {

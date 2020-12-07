@@ -10,7 +10,7 @@ describe('@snowpack/plugin-optimize', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(['index.html', '_dist_/vanilla.js'], {cwd});
+    files = readFiles(cwd);
   });
 
   describe('CSS', () => {

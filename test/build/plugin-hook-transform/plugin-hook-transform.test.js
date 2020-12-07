@@ -10,10 +10,7 @@ describe('plugin API: transform()', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(
-      ['src/index.js', 'src/submodule.ts', 'build/_dist_/index.js', 'build/_dist_/submodule.js'],
-      {cwd},
-    );
+    files = readFiles(cwd);
   });
 
   it('transforms JS', () => {

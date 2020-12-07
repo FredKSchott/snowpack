@@ -12,7 +12,7 @@ function generateContentsMap(dir) {
   const allFiles = glob.sync(dir + '**/*', {nodir: true});
   allFiles.sort((a, b) => a.localeCompare(b, {numeric: true}));
   allFiles.forEach((file) => {
-    contentMap[path.relative(dir, file)] = fs.readFileSync(file, 'utf-8');
+    contentMap[path.relative(dir, file)] = fs.readFileSync(file, 'utf8');
   });
   return contentMap;
 }
@@ -21,7 +21,7 @@ describe('config: mount', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(['h/main.html', 'i/index.js', 'new-g/index.js', 'new-g/main.html'], {cwd});
+    files = readFiles(cwd);
   });
 
   describe('basic', () => {

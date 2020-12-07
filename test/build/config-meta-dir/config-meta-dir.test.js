@@ -9,13 +9,13 @@ describe('config: buildOptions.metaDir', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(['index.js', 'sub/index.js'], {cwd});
+    files = readFiles(cwd);
   });
 
   it('builds snowpack env', () => {
-    const envFile = path.join(cwd, 'static', 'snowpack', 'env.js');
-    expect(fs.existsSync(envFile)).toBe(true); // file exists
-    expect(fs.readFileSync(envFile, 'utf-8')).toBeTruthy(); // file has contents
+    const envFileLoc = path.join(cwd, 'static', 'snowpack', 'env.js');
+    expect(fs.existsSync(envFileLoc)).toBe(true); // file exists
+    expect(fs.readFileSync(envFileLoc, 'utf8')).toBeTruthy(); // file has contents
   });
 
   it('resolves snowpack env', () => {

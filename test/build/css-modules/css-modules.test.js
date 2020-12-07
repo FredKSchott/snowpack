@@ -8,7 +8,7 @@ describe('', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(['src/App.module.css', 'src/App.module.css.proxy.js'], {cwd});
+    files = readFiles(cwd);
   });
 
   it('builds css.proxy.js file', () => {
