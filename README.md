@@ -1,13 +1,15 @@
+
 <p><a href="https://osawards.com/javascript/2020">
-  <img src="https://www.snowpack.dev/img/JSAwardWinner.png"  height="72px" />
+  <img src="https://www.snowpack.dev/img/JSAwardWinner.png"   />
 </a></p>
+
 <a href="https://github.com/snowpackjs/snowpack/actions">
   <img src="https://github.com/snowpackjs/snowpack/workflows/CI/badge.svg" alt="CI" />
 </a> <a href="https://discord.gg/snowpack"><img alt="Join us on Discord!" src="https://img.shields.io/discord/712696926406967308.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"/></a>
 
 <h1>Snowpack</h1>
 
-Snowpack is a lightning-fast frontend build tool, designed for the modern web. It is an alternative to heavier, more complex bundlers like webpack or Parcel in your development workflow. Snowpack leverages JavaScript's native module system (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">known as ESM</a>) to create a first-of-its-kind build system that never builds the same file twice. Snowpack pushes changes instantly to the browser, saving you hours of development time traditionally spent waiting around for your bundler.
+Snowpack is a lightning-fast frontend build tool, designed to leverage JavaScript's native module system (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">known as ESM</a>). It is an alternative to heavier, more complex bundlers like webpack or Parcel in your development workflow. 
 
 ### Key Features
 
