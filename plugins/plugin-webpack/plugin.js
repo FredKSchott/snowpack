@@ -199,8 +199,6 @@ module.exports = function plugin(config, args = {}) {
       ? './asset-manifest.json'
       : undefined;
 
-  const ignoreWarnings = args.ignoreWarnings === undefined ? true : args.ignoreWarnings
-
   // Webpack handles minification for us, so its safe to always
   // disable Snowpack's default minifier.
   config.buildOptions.minify = false;
@@ -363,11 +361,16 @@ module.exports = function plugin(config, args = {}) {
             reject(err);
             return;
           }
-          if (stats.hasErrors() || (stats.hasWarnings() && !ignoreWarnings)) {
-            const info = stats.toJson(extendedConfig.stats);
-            console.error(info.warnings.join('\n-----\n'));
-            console.error(info.errors.join('\n-----\n'));
-            reject(Error(`Webpack build failed with ${info.errors} error(s) and ${info.warnings} warning(s)`));
+          const info = stats.toJson(extendedConfig.stats);
+          if (stats.hasErrors()) {
+            console.error('Webpack errors:\n' + info.errors.join('\n-----\n'));
+            reject(Error(`Webpack failed with ${info.errors} error(s).`));
+          }
+          if (stats.hasWarnings()) {
+            console.error('Webpack warnings:\n' + info.warnings.join('\n-----\n'));
+            if (args.failOnWarnings) {
+              reject(Error(`Webpack failed with ${info.warnings} warnings(s).`));
+            }
           }
           resolve(stats);
         });
