@@ -20,5 +20,7 @@ Snowpack is a lightning-fast frontend build tool, designed for the modern web. I
   <img src="https://www.snowpack.dev/img/JSAwardWinner.png"  height="72px" />
 </a>
 
+<br/><br/>
+
 > **Contributor Guidelines:** [CONTRIBUTING.md](./CONTRIBUTING.md)  
 > **License:** [MIT](https://github.com/snowpackjs/snowpack/blob/main/LICENSE)
