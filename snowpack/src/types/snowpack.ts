@@ -229,6 +229,8 @@ export interface SnowpackConfig {
     sourceMaps: boolean;
     watch: boolean;
     htmlFragments: boolean;
+    jsxFactory: string | undefined;
+    jsxFragment: string | undefined;
   };
   testOptions: {
     files: string[];

@@ -171,6 +171,8 @@ const configSchema = {
         watch: {type: 'boolean'},
         ssr: {type: 'boolean'},
         htmlFragments: {type: 'boolean'},
+        jsxFactory: {type: 'string'},
+        jsxFragment: {type: 'string'},
       },
     },
     testOptions: {

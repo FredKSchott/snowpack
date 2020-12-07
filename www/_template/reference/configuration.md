@@ -194,6 +194,14 @@ module.exports = {
 
 - Rename your web modules directory.
 
+#### buildOptions.jsxFactory | `string` | Default: `React.createElement` (or `h` if Preact import is detected)
+
+- Set the name of the used function to create JSX elements.
+
+#### buildOptions.jsxFragment | `string` | Default: `React.Fragment` (or `Fragment` if Preact import is detected)
+
+- Set the name of the used function to create JSX fragments.
+
 ### config.testOptions
 
 #### testOptions.files | `string[]` | Default: `["__tests__/**/*", "**/*.@(spec|test).*"]`
