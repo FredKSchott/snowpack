@@ -15,7 +15,7 @@ This guide will walk you through some common routing scenarios and how to config
 
 ### Scenario 1: SPA Fallback Paths
 
-Single Page Applications (SPA) give the client application complete control over routing logic. The web host itself has no idea what is a valid route and what is a 404, since that logic lives completely in the client. Therefore, every route (valid or not) must be served the the same HTML response that will load and run the HTML/JS/CSS application in the browser. This special file is called the "SPA Fallback".
+Single Page Applications (SPA) give the client application complete control over routing logic. The web host itself has no idea what is a valid route and what is a 404, since that logic lives completely in the client. Therefore, every route (valid or not) must be served the same HTML response that will load and run the HTML/JS/CSS application in the browser. This special file is called the "SPA Fallback".
 
 To implement this pattern, you'll want to define a single "catch-all" route for development:
 
