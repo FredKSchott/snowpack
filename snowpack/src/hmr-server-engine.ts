@@ -4,7 +4,6 @@ import type http from 'http';
 import type http2 from 'http2';
 
 interface Dependency {
-  mtime: string | undefined;
   dependents: Set<string>;
   dependencies: Set<string>;
   isHmrEnabled: boolean;
@@ -98,7 +97,6 @@ export class EsmHmrEngine {
 
   createEntry(sourceUrl: string) {
     const newEntry: Dependency = {
-      mtime: undefined,
       dependencies: new Set(),
       dependents: new Set(),
       needsReplacement: false,

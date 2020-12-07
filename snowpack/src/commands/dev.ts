@@ -38,7 +38,6 @@ import * as colors from 'kleur/colors';
 import mime from 'mime-types';
 import os from 'os';
 import path from 'path';
-import querystring from 'querystring';
 import {performance} from 'perf_hooks';
 import onProcessExit from 'signal-exit';
 import stream from 'stream';
@@ -443,7 +442,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     const isHMR = _isHMR ?? ((config.devOptions.hmr ?? true) && !isSSR);
     const allowStale = _allowStale ?? false;
     const encoding = _encoding ?? null;
-    const reqQuery = querystring.parse(reqUrl.split('?')[1]) as {mtime?: string};
+    const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const originalReqPath = reqPath;
     let isProxyModule = false;
@@ -805,21 +804,16 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       }
 
       let code = wrappedResponse;
-      if (responseFileExt === '.js' && reqQuery.mtime) {
+      if (responseFileExt === '.js' && reqUrlHmrParam)
         code = await transformEsmImports(code as string, (imp) => {
           const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
           const node = hmrEngine.getEntry(importUrl);
-          if (!node || !node.needsReplacement) {
-            return imp;
+          if (node && node.needsReplacement) {
+            hmrEngine.markEntryForReplacement(node, false);
+            return `${imp}?${reqUrlHmrParam}`;
           }
-          hmrEngine.markEntryForReplacement(node, false);
-          if (node.isHmrAccepted) {
-            return imp;
-          }
-          node.mtime = reqQuery.mtime;
-          return `${imp}?mtime=${reqQuery.mtime}`;
+          return imp;
         });
-      }
 
       if (responseFileExt === '.js') {
         const isHmrEnabled = code.includes('import.meta.hot');
