@@ -723,8 +723,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           baseExt: responseExt,
           expandedExt: getExt(fileLoc).expandedExt,
         },
-        (raw) => {
-          let [spec, query] = raw.split('?');
+        (rawSpec) => {
+          let [spec, query] = rawSpec.split('?');
           // Try to resolve the specifier to a known URL in the project
           let resolvedImportUrl = resolveImportSpecifier(spec);
           // Handle a package import
@@ -756,7 +756,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
             // Adds or appends a query parameter to specify the type of proxy to be generated for the resource
             if (config.buildOptions?.proxyType) {
               for (const {match, type} of config.buildOptions.proxyType) {
-                if (match.test(raw)) {
+                if (match.test(spec)) {
                   if (!/type=[^&]*/.test(query)) {
                     resolvedImportUrl = resolvedImportUrl + '?type=' + type;
                   }
