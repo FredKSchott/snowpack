@@ -391,6 +391,7 @@ ${colors.dim(
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: true, // Default: true
         dedupe: userDefinedRollup.dedupe || [],
+        exportConditions: packageLookupFields,
       }),
       rollupPluginJson({
         preferConst: true,
