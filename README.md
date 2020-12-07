@@ -1,3 +1,7 @@
+<a href="https://osawards.com/javascript/2020">
+  <img src="https://www.snowpack.dev/img/JSAwardWinner.png"  height="72px" />
+</a>
+
 <a href="https://github.com/snowpackjs/snowpack/actions">
   <img src="https://github.com/snowpackjs/snowpack/workflows/CI/badge.svg" alt="CI" />
 </a> <a href="https://discord.gg/snowpack"><img alt="Join us on Discord!" src="https://img.shields.io/discord/712696926406967308.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"/></a>
@@ -15,10 +19,6 @@ Snowpack is a lightning-fast frontend build tool, designed for the modern web. I
 - Connect your favorite tools with [third-party plugins.](https://www.snowpack.dev/plugins)
 
 **💁 More info at the official [Snowpack website ➞](https://snowpack.dev)**
-
-<a href="https://osawards.com/javascript/2020">
-  <img src="https://www.snowpack.dev/img/JSAwardWinner.png"  height="72px" />
-</a>
 
 <br/>
 <br/>
