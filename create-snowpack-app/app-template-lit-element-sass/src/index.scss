@@ -1,0 +1,8 @@
+/*
+  NOTE: this class should apply to the page but not to the custom element
+        when constructable stylesheets and shadow-dom are supported by your browser
+*/
+.container {
+  padding: 5px;
+  background-color: white;
+}

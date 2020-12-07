@@ -1,0 +1,16 @@
+/*
+  NOTE: these classes should apply to the custom element but not to the page
+        when constructable stylesheets and shadow-dom are supported by your browser
+*/
+.container {
+
+  padding: 10px;
+  margin: 10px;
+  background-color: orange;
+  outline: 2px solid white;
+
+  .link {
+    color: white;
+    text-decoration: none;
+  }
+}
