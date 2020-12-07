@@ -1,4 +1,3 @@
-
 <p><a href="https://osawards.com/javascript/2020">
   <img src="https://www.snowpack.dev/img/JSAwardWinner.png"   />
 </a></p>
@@ -9,7 +8,7 @@
 
 <h1>Snowpack</h1>
 
-Snowpack is a lightning-fast frontend build tool, designed to leverage JavaScript's native module system (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">known as ESM</a>). It is an alternative to heavier, more complex bundlers like webpack or Parcel in your development workflow. 
+Snowpack is a lightning-fast frontend build tool, designed to leverage JavaScript's native module system (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">known as ESM</a>). It is an alternative to heavier, more complex bundlers like webpack or Parcel in your development workflow.
 
 ### Key Features
 
