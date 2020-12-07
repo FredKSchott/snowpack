@@ -616,6 +616,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
      */
     async function buildFile(fileLoc: string): Promise<SnowpackBuildMap> {
       const existingBuilderPromise = filesBeingBuilt.get(fileLoc);
+      console.log(fileLoc, existingBuilderPromise);
       if (existingBuilderPromise) {
         return existingBuilderPromise;
       }
@@ -889,7 +890,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     // 1. Check the hot build cache. If it's already found, then just serve it.
     let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(
       getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
-    );
+      );
+      console.log(getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}), hotCachedResponse);
     if (hotCachedResponse) {
       let responseContent: string | Buffer | null;
       try {
@@ -1287,17 +1289,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       updatedUrl += '.proxy.js';
     }
 
-    // Check if a virtual file exists in the resource cache (ex: CSS from a
-    // Svelte file) If it does, mark it for HMR replacement but DONT trigger a
-    // separate HMR update event. This is because a virtual resource doesn't
-    // actually exist on disk, so we need the main resource (the JS) to load
-    // first. Only after that happens will the CSS exist.
-    const virtualCssFileUrl = updatedUrl.replace(/.js$/, '.css');
-    const virtualNode = hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
-    if (virtualNode) {
-      hmrEngine.markEntryForReplacement(virtualNode, true);
-    }
-
     // If the changed file exists on the page, trigger a new HMR update.
     if (hmrEngine.getEntry(updatedUrl)) {
       updateOrBubble(updatedUrl, new Set());
@@ -1345,11 +1336,27 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   async function onWatchEvent(fileLoc: string) {
     logger.info(colors.cyan('File changed...'));
     onFileChangeCallback({filePath: fileLoc});
-    const updatedUrl = getUrlForFile(fileLoc, config);
-    if (updatedUrl) {
-      handleHmrUpdate(fileLoc, updatedUrl);
-      knownETags.delete(updatedUrl);
-      knownETags.delete(updatedUrl + '.proxy.js');
+    const fileUrl = getUrlForFile(fileLoc, config);
+    console.log(fileUrl);
+    if (fileUrl) {
+      if (fileUrl.endsWith('.js')) {
+        knownETags.delete(fileUrl);
+        // Check if a virtual file exists in the resource cache (ex: CSS from a
+        // Svelte file) If it does, mark it for HMR replacement but DONT trigger a
+        // separate HMR update event. This is because a virtual resource doesn't
+        // actually exist on disk, so we need the main resource (the JS) to load
+        // first. Only after that happens will the CSS exist.
+        const virtualCssFileUrl = fileUrl.replace(/.js$/, '.css.proxy.js');
+        const virtualNode = hmrEngine.getEntry(virtualCssFileUrl);
+        console.log(virtualCssFileUrl, virtualNode);
+        if (virtualNode) {
+          handleHmrUpdate(fileLoc, fileUrl.replace(/.js$/, '.css'));
+        }
+      } else {
+        knownETags.delete(fileUrl + '.proxy.js');
+      }
+      // Trigger an HMR update event
+      handleHmrUpdate(fileLoc, fileUrl);
     }
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: true, env: process.env.NODE_ENV}));
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}));
