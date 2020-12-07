@@ -68,8 +68,6 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
     sourceMaps: false,
     watch: false,
     htmlFragments: false,
-    jsxFactory: undefined,
-    jsxFragment: undefined
   },
   testOptions: {
     files: ['__tests__/**/*', '**/*.@(spec|test).*'],
