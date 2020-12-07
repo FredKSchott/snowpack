@@ -159,6 +159,24 @@ if (typeof document !== 'undefined') {${
   return wrapImportMeta({code: cssImportProxyCode, hmr, env: false, config});
 }
 
+function generateCssResultProxy({
+  code,
+  hmr,
+  config,
+}: {
+  code: string;
+  hmr: boolean;
+  config: SnowpackConfig;
+}) {
+  const cssImportProxyCode = `// [snowpack] lit-css wrapper
+import {css} from "/web_modules/lit-element.js";
+export default css\`
+${code.replace(/([$`\\])/g, "\\$1")}
+\`;
+`;
+  return wrapImportMeta({code: cssImportProxyCode, hmr, env: false, config});
+}
+
 let _postCss: Postcss;
 let _postCssModules: any;
 async function generateCssModuleImportProxy({
@@ -226,11 +244,13 @@ function generateDefaultImportProxy(url: string) {
 
 export async function wrapImportProxy({
   url,
+  type,
   code,
   hmr,
   config,
 }: {
   url: string;
+  type?: string;
   code: string | Buffer;
   hmr: boolean;
   config: SnowpackConfig;
@@ -245,6 +265,9 @@ export async function wrapImportProxy({
     if (baseExt === '.css') {
       // if proxying a CSS file, remove its source map (the path no longer applies)
       const sanitized = code.replace(/\/\*#\s*sourceMappingURL=[^/]+\//gm, '');
+      if (type === "lit-css") {
+        return generateCssResultProxy({code: sanitized, hmr, config});
+      }
       return expandedExt.endsWith('.module.css')
         ? generateCssModuleImportProxy({url, code: sanitized, hmr, config})
         : generateCssImportProxy({code: sanitized, hmr, config});
