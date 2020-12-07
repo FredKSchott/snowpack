@@ -119,7 +119,9 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
         extendEnv: native ? true : false,
       });
       // Handle the output.
-      if (stderr) throw new Error(stderr);
+      if (stderr && !stderr.endsWith("Waiting for the debugger to disconnect...")) {
+        throw new Error(stderr);
+      }
       if (stdout) return stdout;
     },
   };
