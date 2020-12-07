@@ -443,7 +443,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     const isHMR = _isHMR ?? ((config.devOptions.hmr ?? true) && !isSSR);
     const allowStale = _allowStale ?? false;
     const encoding = _encoding ?? null;
-    const reqQuery = querystring.parse(reqUrl.split('?')[1]) as {mtime?: string};
+    const reqQuery = querystring.parse(reqUrl.split('?')[1]) as {mtime?: string, type?:string};
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const originalReqPath = reqPath;
     let isProxyModule = false;
@@ -684,7 +684,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         }
         case '.js': {
           if (isProxyModule) {
-            code = await wrapImportProxy({url: reqPath, code, hmr: isHMR, config});
+            code = await wrapImportProxy({url: reqPath, type: reqQuery.type, code, hmr: isHMR, config});
           } else {
             code = wrapImportMeta({code: code as string, env: true, hmr: isHMR, config});
           }
@@ -723,7 +723,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           baseExt: responseExt,
           expandedExt: getExt(fileLoc).expandedExt,
         },
-        (spec) => {
+        (raw) => {
+          let [spec, query] = raw.split("?");
           // Try to resolve the specifier to a known URL in the project
           let resolvedImportUrl = resolveImportSpecifier(spec);
           // Handle a package import
@@ -762,6 +763,9 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           // Make sure that a relative URL always starts with "./"
           if (!resolvedImportUrl.startsWith('.') && !resolvedImportUrl.startsWith('/')) {
             resolvedImportUrl = './' + resolvedImportUrl;
+          }
+          if (query) {
+            resolvedImportUrl += '?' + query;
           }
           return resolvedImportUrl;
         },
