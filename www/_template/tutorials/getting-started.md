@@ -193,7 +193,7 @@ Include it in your project by adding it to index.html in the `<head>`
     <title>Starter Snowpack App</title>
 ```
 
-<div class="frame"><img src="/img/guides/getting-started/snowpack-font-css.gif" alt="image showing the effects of the new CSS file: the font has changed from serif to sans-serif" class="screenshot"/></div>
+<div class="frame"><img src="/img/guides/getting-started/snowpack-font-css.jpg" alt="image showing the effects of the new CSS file: the font has changed from serif to sans-serif" class="screenshot"/></div>
 
 ## Build for production/deployment
 
