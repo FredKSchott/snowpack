@@ -365,11 +365,13 @@ module.exports = function plugin(config, args = {}) {
           if (stats.hasErrors()) {
             console.error('Webpack errors:\n' + info.errors.join('\n-----\n'));
             reject(Error(`Webpack failed with ${info.errors} error(s).`));
+            return;
           }
           if (stats.hasWarnings()) {
             console.error('Webpack warnings:\n' + info.warnings.join('\n-----\n'));
             if (args.failOnWarnings) {
               reject(Error(`Webpack failed with ${info.warnings} warnings(s).`));
+              return;
             }
           }
           resolve(stats);
