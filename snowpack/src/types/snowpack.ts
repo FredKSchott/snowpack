@@ -229,6 +229,7 @@ export interface SnowpackConfig {
     sourceMaps: boolean;
     watch: boolean;
     htmlFragments: boolean;
+    proxyType: {match:RegExp, type: "lit-css"|"load-css"}[]
   };
   testOptions: {
     files: string[];

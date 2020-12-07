@@ -724,7 +724,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           expandedExt: getExt(fileLoc).expandedExt,
         },
         (raw) => {
-          let [spec, query] = raw.split("?");
+          let [spec, query] = raw.split('?');
           // Try to resolve the specifier to a known URL in the project
           let resolvedImportUrl = resolveImportSpecifier(spec);
           // Handle a package import
@@ -753,6 +753,17 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           const isAbsoluteUrlPath = path.posix.isAbsolute(resolvedImportUrl);
           if (isProxyImport) {
             resolvedImportUrl = resolvedImportUrl + '.proxy.js';
+            // Adds or appends a query parameter to specify the type of proxy to be generated for the resource
+            if (config.buildOptions?.proxyType) {
+              for (const {match, type} of config.buildOptions.proxyType) {
+                if (match.test(raw)) {
+                  if (!/type=[^&]*/.test(query)) {
+                    resolvedImportUrl = resolvedImportUrl + '?type=' + type;
+                  }
+                  break;
+                }
+              }
+            }
           }
 
           // When dealing with an absolute import path, we need to honor the baseUrl

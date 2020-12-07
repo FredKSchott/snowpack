@@ -265,8 +265,16 @@ export async function wrapImportProxy({
     if (baseExt === '.css') {
       // if proxying a CSS file, remove its source map (the path no longer applies)
       const sanitized = code.replace(/\/\*#\s*sourceMappingURL=[^/]+\//gm, '');
-      if (type === "lit-css") {
-        return generateCssResultProxy({code: sanitized, hmr, config});
+      if (type) {
+        if (Array.isArray(type)) {
+          type = type[0]; // The first one is the one that the developer put in the source code
+        }
+        if (type === 'lit-css') {
+          return generateCssResultProxy({code: sanitized, hmr, config});
+        }
+        if (type !== 'load-css') {
+          throw new Error('Unable to create a proxy for type: ' + type);
+        }
       }
       return expandedExt.endsWith('.module.css')
         ? generateCssModuleImportProxy({url, code: sanitized, hmr, config})
