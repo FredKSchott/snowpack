@@ -16,7 +16,6 @@ Snowpack ships with built-in support for the following file types, no configurat
 
 To customize build behavior and support new languages [check out our tooling guide](/guides/connecting-tools)
 
-
 ### JavaScript & ESM
 
 Snowpack was designed to support JavaScript's native ES Module (ESM) syntax. ESM lets you define explicit imports & exports that browsers and build tools can better understand and optimize for. If you're familiar with the `import` and `export` keywords in JavaScript, then you already know ESM!
