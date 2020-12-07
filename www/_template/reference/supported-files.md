@@ -14,7 +14,8 @@ Snowpack ships with built-in support for the following file types, no configurat
 - CSS Modules (`.module.css`)
 - Images & Assets (`.svg`, `.jpg`, `.png`, etc.)
 
-To customize build behavior and support new languages [check out our tooling guide]()
+To customize build behavior and support new languages [check out our tooling guide](/guides/connecting-tools)
+
 
 ### JavaScript & ESM
 
