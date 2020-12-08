@@ -903,7 +903,7 @@ export function createConfiguration(
   return [null, normalizeConfig(mergedConfig)];
 }
 
-export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
+export function loadConfigurationForCLI(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
   const explorerSync = cosmiconfigSync(CONFIG_NAME, {
     // only support these 5 types of config for now
     searchPlaces: [

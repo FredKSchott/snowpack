@@ -26,6 +26,8 @@ import {
   CommandOptions,
   ImportMap,
   MountEntry,
+  OnFileChangeCallback,
+  SnowpackBuildServer,
   SnowpackConfig,
   SnowpackSourceFile,
 } from '../types/snowpack';
@@ -320,7 +322,9 @@ class FileBuilder {
   }
 }
 
-export async function command(commandOptions: CommandOptions) {
+export async function buildProject(
+  commandOptions: CommandOptions,
+): Promise<undefined | SnowpackBuildServer> {
   const {config, lockfile} = commandOptions;
   const isDev = !!config.buildOptions.watch;
   const isSSR = !!config.experiments.ssr;
@@ -572,6 +576,7 @@ export async function command(commandOptions: CommandOptions) {
     if (!mountEntryResult) {
       return;
     }
+    onFileChangeCallback({filePath: fileLoc});
     const [mountKey, mountEntry] = mountEntryResult;
     const finalUrl = getUrlForFileMount({fileLoc, mountKey, mountEntry, config})!;
     const finalDest = path.join(buildDirectoryLoc, finalUrl);
@@ -637,6 +642,28 @@ export async function command(commandOptions: CommandOptions) {
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onDeleteEvent(fileLoc));
 
-  // We intentionally never want to exit in watch mode!
-  return new Promise(() => {});
+  // Allow the user to hook into this callback, if they like (noop by default)
+  let onFileChangeCallback: OnFileChangeCallback = () => {};
+
+  return {
+    onFileChange: (callback) => (onFileChangeCallback = callback),
+    async shutdown() {
+      await watcher.close();
+    },
+  };
+}
+
+export async function command(commandOptions: CommandOptions) {
+  try {
+    await buildProject(commandOptions);
+  } catch (err) {
+    logger.error(err.message);
+    logger.debug(err.stack);
+    process.exit(1);
+  }
+
+  if (commandOptions.config.buildOptions.watch) {
+    // We intentionally never want to exit in watch mode!
+    return new Promise(() => {});
+  }
 }

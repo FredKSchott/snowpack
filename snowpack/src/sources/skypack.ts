@@ -53,11 +53,7 @@ export default {
 
   async load(
     spec: string,
-    {
-      config,
-      lockfile,
-      pkgManifest,
-    }: {config: SnowpackConfig; lockfile: ImportMap | null; pkgManifest: any},
+    {config, lockfile}: {config: SnowpackConfig; lockfile: ImportMap | null},
   ): Promise<string> {
     let body: string;
     if (
@@ -74,9 +70,7 @@ export default {
       } else if (lockfile && lockfile.imports[packageName + '/']) {
         body = (await fetchCDN(lockfile.imports[packageName + '/'] + packagePath)).body;
       } else {
-        const _packageSemver =
-          (config.webDependencies && config.webDependencies[packageName]) ||
-          (pkgManifest?.dependencies && pkgManifest.dependencies[packageName]);
+        const _packageSemver = config.webDependencies && config.webDependencies[packageName];
         if (!_packageSemver) {
           logFetching(packageName);
         }
