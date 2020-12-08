@@ -1,7 +1,7 @@
 {
   "name": "@snowpack/app-template-react",
   "description": "A preconfigured template for Snowpack with React",
-  "version": "1.12.9",
+  "version": "1.12.10",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-react#readme",
   "repository": {
@@ -34,7 +34,7 @@
     "@web/test-runner": "^0.10.0",
     "chai": "^4.2.0",
     "prettier": "^2.0.5",
-    "snowpack": "^2.18.1"
+    "snowpack": "^2.18.2"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }
