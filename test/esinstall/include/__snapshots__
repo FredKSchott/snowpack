@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install include: allFiles 1`] = `
+exports[`include matches the snapshot: allFiles 1`] = `
 Array [
   "array-flatten.js",
   "deepmerge.js",
@@ -14,7 +14,7 @@ Array [
 ]
 `;
 
-exports[`snowpack install include: cli output 1`] = `
+exports[`include matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -29,7 +29,7 @@ exports[`snowpack install include: cli output 1`] = `
     └─ vue/dist/vue.esm.browser.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install include: web_modules/array-flatten.js 1`] = `
+exports[`include matches the snapshot: web_modules/array-flatten.js 1`] = `
 "/**
  * Flatten an array indefinitely.
  */
@@ -55,7 +55,7 @@ function $flatten(array, result) {
 export { flatten };"
 `;
 
-exports[`snowpack install include: web_modules/deepmerge.js 1`] = `
+exports[`include matches the snapshot: web_modules/deepmerge.js 1`] = `
 "var isMergeableObject = function isMergeableObject(value) {
 	return isNonNullObject(value)
 		&& !isSpecial(value)
@@ -170,7 +170,7 @@ export default cjs;
 export { cjs as __moduleExports, all };"
 `;
 
-exports[`snowpack install include: web_modules/http-vue-loader/src/httpVueLoader.js 1`] = `
+exports[`include matches the snapshot: web_modules/http-vue-loader/src/httpVueLoader.js 1`] = `
 "var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 function createCommonjsModule(fn, basedir, module) {
 	return module = {
@@ -515,7 +515,7 @@ var template = httpVueLoader.template;
 export { httpVueLoader as __moduleExports, _baseURI, name, template };"
 `;
 
-exports[`snowpack install include: web_modules/import-map.json 1`] = `
+exports[`include matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"array-flatten\\": \\"./array-flatten.js\\",
@@ -530,17 +530,17 @@ exports[`snowpack install include: web_modules/import-map.json 1`] = `
 }"
 `;
 
-exports[`snowpack install include: web_modules/package-01.js 1`] = `
+exports[`include matches the snapshot: web_modules/package-01.js 1`] = `
 "function test() {}
 export { test };"
 `;
 
-exports[`snowpack install include: web_modules/package-02.js 1`] = `
+exports[`include matches the snapshot: web_modules/package-02.js 1`] = `
 "function test() {}
 export { test };"
 `;
 
-exports[`snowpack install include: web_modules/svelte.js 1`] = `
+exports[`include matches the snapshot: web_modules/svelte.js 1`] = `
 "function noop() { }
 function run(fn) {
     return fn();
@@ -716,7 +716,7 @@ class SvelteComponentDev extends SvelteComponent {
 export { SvelteComponentDev as SvelteComponent, afterUpdate, beforeUpdate, createEventDispatcher, getContext, onDestroy, onMount, setContext, tick };"
 `;
 
-exports[`snowpack install include: web_modules/vue/dist/vue.esm.browser.js 1`] = `
+exports[`include matches the snapshot: web_modules/vue/dist/vue.esm.browser.js 1`] = `
 "/*!
  * Vue.js v2.6.12
  * (c) 2014-2020 Evan You
@@ -11557,7 +11557,7 @@ Vue.compile = compileToFunctions;
 export default Vue;"
 `;
 
-exports[`snowpack install include: web_modules/vue-router.js 1`] = `
+exports[`include matches the snapshot: web_modules/vue-router.js 1`] = `
 "/*!
   * vue-router v3.4.9
   * (c) 2020 Evan You

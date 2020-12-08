@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install dep-list-simple: allFiles 1`] = `
+exports[`dep-list-simple matches the snapshot: allFiles 1`] = `
 Array [
   "async.js",
   "import-map.json",
 ]
 `;
 
-exports[`snowpack install dep-list-simple: cli output 1`] = `
+exports[`dep-list-simple matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -15,7 +15,7 @@ exports[`snowpack install dep-list-simple: cli output 1`] = `
     └─ async.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install dep-list-simple: web_modules/async.js 1`] = `
+exports[`dep-list-simple matches the snapshot: web_modules/async.js 1`] = `
 "/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
 function defaultSetTimout() {
     throw new Error('setTimeout has not been defined');
@@ -4666,7 +4666,7 @@ export default index;
 export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick$1 as nextTick, parallel, parallelLimit, priorityQueue, queue$1$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
 `;
 
-exports[`snowpack install dep-list-simple: web_modules/import-map.json 1`] = `
+exports[`dep-list-simple matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"async\\": \\"./async.js\\"

@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install source-map-strip: allFiles 1`] = `
+exports[`source-map-strip matches the snapshot: allFiles 1`] = `
 Array [
   "@auth0/auth0-spa-js.js",
   "import-map.json",
 ]
 `;
 
-exports[`snowpack install source-map-strip: cli output 1`] = `
+exports[`source-map-strip matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -15,7 +15,7 @@ exports[`snowpack install source-map-strip: cli output 1`] = `
     └─ @auth0/auth0-spa-js.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install source-map-strip: web_modules/@auth0/auth0-spa-js.js 1`] = `
+exports[`source-map-strip matches the snapshot: web_modules/@auth0/auth0-spa-js.js 1`] = `
 "/*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the \\"License\\"); you may not use
@@ -33,7 +33,7 @@ export default auth0SpaJs_production_esm;
 export { ur as Auth0Client };"
 `;
 
-exports[`snowpack install source-map-strip: web_modules/import-map.json 1`] = `
+exports[`source-map-strip matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"@auth0/auth0-spa-js\\": \\"./@auth0/auth0-spa-js.js\\"

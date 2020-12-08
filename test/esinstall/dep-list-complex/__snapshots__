@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install dep-list-complex: allFiles 1`] = `
+exports[`dep-list-complex matches the snapshot: allFiles 1`] = `
 Array [
   "dat.gui.js",
   "import-map.json",
 ]
 `;
 
-exports[`snowpack install dep-list-complex: cli output 1`] = `
+exports[`dep-list-complex matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -15,7 +15,7 @@ exports[`snowpack install dep-list-complex: cli output 1`] = `
     └─ dat.gui.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install dep-list-complex: web_modules/dat.gui.js 1`] = `
+exports[`dep-list-complex matches the snapshot: web_modules/dat.gui.js 1`] = `
 "/**
  * dat-gui JavaScript Controller Library
  * http://code.google.com/p/dat-gui
@@ -2474,7 +2474,7 @@ export default index;
 export { GUI$1 as GUI, color, controllers, dom$1 as dom, gui };"
 `;
 
-exports[`snowpack install dep-list-complex: web_modules/import-map.json 1`] = `
+exports[`dep-list-complex matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"dat.gui\\": \\"./dat.gui.js\\"

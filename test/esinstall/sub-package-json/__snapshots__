@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install sub-package-json: allFiles 1`] = `
+exports[`sub-package-json matches the snapshot: allFiles 1`] = `
 Array [
   "import-map.json",
   "solid-js/dom.js",
 ]
 `;
 
-exports[`snowpack install sub-package-json: cli output 1`] = `
+exports[`sub-package-json matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -15,7 +15,7 @@ exports[`snowpack install sub-package-json: cli output 1`] = `
     └─ solid-js/dom.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install sub-package-json: web_modules/import-map.json 1`] = `
+exports[`sub-package-json matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"solid-js/dom\\": \\"./solid-js/dom.js\\"
@@ -23,7 +23,7 @@ exports[`snowpack install sub-package-json: web_modules/import-map.json 1`] = `
 }"
 `;
 
-exports[`snowpack install sub-package-json: web_modules/solid-js/dom.js 1`] = `
+exports[`sub-package-json matches the snapshot: web_modules/solid-js/dom.js 1`] = `
 "const equalFn = (a, b) => a === b;
 const ERROR = Symbol(\\"error\\");
 function createRoot(fn, detachedOwner) {

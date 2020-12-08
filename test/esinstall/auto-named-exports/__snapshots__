@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install auto-named-exports: allFiles 1`] = `
+exports[`auto-named-exports matches the snapshot: allFiles 1`] = `
 Array [
   "cjs-named-export-pkg-02.js",
   "cjs-named-export-pkg-03.js",
@@ -9,7 +9,7 @@ Array [
 ]
 `;
 
-exports[`snowpack install auto-named-exports: cli output 1`] = `
+exports[`auto-named-exports matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -19,7 +19,7 @@ exports[`snowpack install auto-named-exports: cli output 1`] = `
     └─ umd-named-export-pkg-01.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install auto-named-exports: web_modules/cjs-named-export-pkg-02.js 1`] = `
+exports[`auto-named-exports matches the snapshot: web_modules/cjs-named-export-pkg-02.js 1`] = `
 "var export1 = 1;
 var export2 = 'foo';
 var export3 = function foo() {};
@@ -36,7 +36,7 @@ export default entrypoint;
 export { entrypoint as __moduleExports, export1, export2, export3, export4, export5 };"
 `;
 
-exports[`snowpack install auto-named-exports: web_modules/cjs-named-export-pkg-03.js 1`] = `
+exports[`auto-named-exports matches the snapshot: web_modules/cjs-named-export-pkg-03.js 1`] = `
 "var export42 = 'foobar';
 var reexported = {
 	export42: export42
@@ -47,7 +47,7 @@ var export42$1 = entrypoint.export42;
 export { entrypoint as __moduleExports, export42$1 as export42 };"
 `;
 
-exports[`snowpack install auto-named-exports: web_modules/import-map.json 1`] = `
+exports[`auto-named-exports matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"cjs-named-export-pkg-02\\": \\"./cjs-named-export-pkg-02.js\\",
@@ -57,7 +57,7 @@ exports[`snowpack install auto-named-exports: web_modules/import-map.json 1`] = 
 }"
 `;
 
-exports[`snowpack install auto-named-exports: web_modules/umd-named-export-pkg-01.js 1`] = `
+exports[`auto-named-exports matches the snapshot: web_modules/umd-named-export-pkg-01.js 1`] = `
 "function createCommonjsModule(fn, basedir, module) {
 	return module = {
 		path: basedir,

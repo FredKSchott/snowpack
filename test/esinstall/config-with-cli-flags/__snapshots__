@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install config-with-cli-flags: allFiles 1`] = `
+exports[`config-with-cli-flags matches the snapshot: allFiles 1`] = `
 Array [
   "import-map.json",
   "shallow-equal.js",
 ]
 `;
 
-exports[`snowpack install config-with-cli-flags: cli output 1`] = `
+exports[`config-with-cli-flags matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -15,7 +15,7 @@ exports[`snowpack install config-with-cli-flags: cli output 1`] = `
     └─ shallow-equal.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install config-with-cli-flags: web_modules/import-map.json 1`] = `
+exports[`config-with-cli-flags matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"shallow-equal\\": \\"./shallow-equal.js\\"
@@ -23,7 +23,7 @@ exports[`snowpack install config-with-cli-flags: web_modules/import-map.json 1`]
 }"
 `;
 
-exports[`snowpack install config-with-cli-flags: web_modules/shallow-equal.js 1`] = `
+exports[`config-with-cli-flags matches the snapshot: web_modules/shallow-equal.js 1`] = `
 "function shallowEqualObjects(objA, objB) {
   if (objA === objB) {
     return true;

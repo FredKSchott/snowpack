@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install config-polyfill-node: allFiles 1`] = `
+exports[`config-polyfill-node matches the snapshot: allFiles 1`] = `
 Array [
   "import-map.json",
   "node-builtin-pkg.js",
 ]
 `;
 
-exports[`snowpack install config-polyfill-node: cli output 1`] = `
+exports[`config-polyfill-node matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -15,7 +15,7 @@ exports[`snowpack install config-polyfill-node: cli output 1`] = `
     └─ node-builtin-pkg.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install config-polyfill-node: web_modules/import-map.json 1`] = `
+exports[`config-polyfill-node matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"node-builtin-pkg\\": \\"./node-builtin-pkg.js\\"
@@ -23,7 +23,7 @@ exports[`snowpack install config-polyfill-node: web_modules/import-map.json 1`] 
 }"
 `;
 
-exports[`snowpack install config-polyfill-node: web_modules/node-builtin-pkg.js 1`] = `
+exports[`config-polyfill-node matches the snapshot: web_modules/node-builtin-pkg.js 1`] = `
 "// Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

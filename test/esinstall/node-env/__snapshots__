@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install node-env: allFiles 1`] = `
+exports[`node-env matches the snapshot: allFiles 1`] = `
 Array [
   "import-map.json",
   "node-env-mock-pkg.js",
 ]
 `;
 
-exports[`snowpack install node-env: cli output 1`] = `
+exports[`node-env matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -15,7 +15,7 @@ exports[`snowpack install node-env: cli output 1`] = `
     └─ node-env-mock-pkg.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install node-env: web_modules/import-map.json 1`] = `
+exports[`node-env matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"node-env-mock-pkg\\": \\"./node-env-mock-pkg.js\\"
@@ -23,7 +23,7 @@ exports[`snowpack install node-env: web_modules/import-map.json 1`] = `
 }"
 `;
 
-exports[`snowpack install node-env: web_modules/node-env-mock-pkg.js 1`] = `
+exports[`node-env matches the snapshot: web_modules/node-env-mock-pkg.js 1`] = `
 "const nodeEnv =  true ;
 const cliA =  true ;
 const confA =  true ;

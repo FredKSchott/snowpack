@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install include-missing-in-package-json: allFiles 1`] = `
+exports[`include-missing-in-package-json matches the snapshot: allFiles 1`] = `
 Array [
   "@material/list.js",
   "import-map.json",
 ]
 `;
 
-exports[`snowpack install include-missing-in-package-json: cli output 1`] = `
+exports[`include-missing-in-package-json matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -15,7 +15,7 @@ exports[`snowpack install include-missing-in-package-json: cli output 1`] = `
     └─ @material/list.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install include-missing-in-package-json: web_modules/@material/list.js 1`] = `
+exports[`include-missing-in-package-json matches the snapshot: web_modules/@material/list.js 1`] = `
 "/*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 Permission to use, copy, modify, and/or distribute this software for any
@@ -1632,7 +1632,7 @@ var MDCList = /** @class */ (function (_super) {
 export { MDCList, MDCListFoundation, cssClasses, numbers, strings };"
 `;
 
-exports[`snowpack install include-missing-in-package-json: web_modules/import-map.json 1`] = `
+exports[`include-missing-in-package-json matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"@material/list\\": \\"./@material/list.js\\"

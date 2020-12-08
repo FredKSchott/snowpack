@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install error-react-workaround: cli output 1`] = `
+exports[`error-react-workaround matches the snapshot: allFiles 1`] = `Array []`;
+
+exports[`error-react-workaround matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] React workaround packages no longer needed! Revert back to the official React & React-DOM packages."
 `;
