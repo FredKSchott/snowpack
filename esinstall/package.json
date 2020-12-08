@@ -40,7 +40,7 @@
   ],
   "dependencies": {
     "@rollup/plugin-alias": "^3.0.1",
-    "@rollup/plugin-commonjs": "^16.0.0",
+    "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-inject": "^4.0.2",
     "@rollup/plugin-json": "^4.0.0",
     "@rollup/plugin-node-resolve": "^10.0.0",
