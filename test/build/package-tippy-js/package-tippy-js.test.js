@@ -9,15 +9,15 @@ describe('package: tippy.js', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(['_dist_/index.js'], {cwd});
+    files = readFiles(cwd);
   });
 
   it('builds to the correct path', () => {
-    const mainEntry = path.join(cwd, 'web_modules', 'tippyjs.js');
-    const assets = path.join(cwd, 'web_modules', 'tippyjs');
+    const mainEntryLoc = path.join(cwd, 'web_modules', 'tippyjs.js');
+    const assetsLoc = path.join(cwd, 'web_modules', 'tippyjs');
 
-    expect(fs.existsSync(mainEntry) && fs.statSync(mainEntry).isFile()).toBe(true);
-    expect(fs.existsSync(assets) && fs.statSync(assets).isDirectory()).toBe(true);
+    expect(fs.existsSync(mainEntryLoc) && fs.statSync(mainEntryLoc).isFile()).toBe(true);
+    expect(fs.existsSync(assetsLoc) && fs.statSync(assetsLoc).isDirectory()).toBe(true);
   });
 
   it('resolves imports', () => {

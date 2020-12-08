@@ -8,7 +8,7 @@ describe('package: bootstrap', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(['_dist_/index.js'], {cwd});
+    files = readFiles(cwd);
   });
 
   it('resolves JS', () => {

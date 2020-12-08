@@ -10,8 +10,8 @@ describe('config: TypeScript config', () => {
   });
 
   it('mounts & builds correctly', () => {
-    const webModule = path.join(cwd, '_dist_', 'index.js');
+    const webModuleLoc = path.join(cwd, '_dist_', 'index.js');
 
-    expect(fs.existsSync(webModule)).toBe(true);
+    expect(fs.existsSync(webModuleLoc)).toBe(true);
   });
 });

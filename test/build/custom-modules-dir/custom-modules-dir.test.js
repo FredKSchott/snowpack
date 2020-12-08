@@ -9,7 +9,7 @@ describe('buildOptions.webModulesUrl', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(['_dist_/index.js'], {cwd});
+    files = readFiles(cwd);
   });
 
   it('snowpack: installs in specified directory', () => {

@@ -10,13 +10,13 @@ describe('@snowpack/plugin-build-script', () => {
   });
 
   it('runs Babel on TS', () => {
-    const js = path.join(cwd, '_dist_', 'index.js');
-    expect(fs.existsSync(js)).toBe(true); // file exists
-    expect(fs.readFileSync(js, 'utf-8')).toBeTruthy(); // file has content
+    const jsLoc = path.join(cwd, '_dist_', 'index.js');
+    expect(fs.existsSync(jsLoc)).toBe(true); // file exists
+    expect(fs.readFileSync(jsLoc, 'utf-8')).toBeTruthy(); // file has content
   });
 
   it('doesn’t leave TS in build', () => {
-    const ts = path.join(cwd, '_dist_', 'index.ts');
-    expect(fs.existsSync(ts)).not.toBe(true); // file doesn’t exist
+    const tsLoc = path.join(cwd, '_dist_', 'index.ts');
+    expect(fs.existsSync(tsLoc)).not.toBe(true); // file doesn’t exist
   });
 });

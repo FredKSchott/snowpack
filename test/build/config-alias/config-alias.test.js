@@ -9,9 +9,7 @@ describe('config: alias', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(['_dist_/index.js', '_dist_/index.html', '_dist_/components/style.css'], {
-      cwd,
-    });
+    files = readFiles(cwd);
   });
 
   it('web_modules can be aliased', () => {

@@ -10,14 +10,14 @@ describe('config: mount scripts (legacy)', () => {
   });
 
   it('mounted ./src', () => {
-    const js = path.join(cwd, '_dist_', 'index.js');
-    expect(fs.existsSync(js)).toBe(true); // file exists
-    expect(fs.readFileSync(js, 'utf-8')).toBeTruthy(); // file has content
+    const jsLoc = path.join(cwd, '_dist_', 'index.js');
+    expect(fs.existsSync(jsLoc)).toBe(true); // file exists
+    expect(fs.readFileSync(jsLoc, 'utf8')).toBeTruthy(); // file has content
   });
 
   it('mounted ./public', () => {
-    const html = path.join(cwd, 'index.html');
-    expect(fs.existsSync(html)).toBe(true); // file exists
-    expect(fs.readFileSync(html, 'utf-8')).toBeTruthy(); // file has content
+    const htmlLoc = path.join(cwd, 'index.html');
+    expect(fs.existsSync(htmlLoc)).toBe(true); // file exists
+    expect(fs.readFileSync(htmlLoc, 'utf8')).toBeTruthy(); // file has content
   });
 });

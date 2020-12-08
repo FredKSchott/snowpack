@@ -8,7 +8,7 @@ describe('html-environment-variables', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
-    files = readFiles(['index.html'], {cwd});
+    files = readFiles(cwd);
   });
 
   it('passes env vars into HTML', () => {

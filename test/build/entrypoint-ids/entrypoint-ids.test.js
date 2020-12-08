@@ -11,7 +11,7 @@ describe('core: web_modules resolution', () => {
     const capitalize = os.platform() === 'win32'; // for Windows, we capitalize this one directory to see if Snowpack can still resolve
     setupBuildTest(capitalize ? __dirname.toUpperCase() : __dirname);
 
-    files = readFiles(['_dist_/index.js'], {cwd});
+    files = readFiles(cwd);
   });
 
   it('resolves web_modules without case-sensitivity', () => {
