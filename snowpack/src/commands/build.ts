@@ -27,7 +27,8 @@ import {
   ImportMap,
   MountEntry,
   OnFileChangeCallback,
-  SnowpackBuildServer,
+  SnowpackBuildResult,
+  SnowpackBuildResultFileManifest,
   SnowpackConfig,
   SnowpackSourceFile,
 } from '../types/snowpack';
@@ -55,6 +56,19 @@ function getIsHmrEnabled(config: SnowpackConfig) {
 function handleFileError(err: Error, builder: FileBuilder) {
   logger.error(`✘ ${builder.fileURL}\n  ${err.stack ? err.stack : err.message}`);
   process.exit(1);
+}
+
+function createBuildFileManifest(allFiles: FileBuilder[]): SnowpackBuildResultFileManifest {
+  const result: SnowpackBuildResultFileManifest = {};
+  for (const sourceFile of allFiles) {
+    for (const outputFile of Object.entries(sourceFile.output)) {
+      result[outputFile[0]] = {
+        source: url.fileURLToPath(sourceFile.fileURL),
+        contents: outputFile[1],
+      };
+    }
+  }
+  return result;
 }
 
 async function installOptimizedDependencies(
@@ -322,9 +336,7 @@ class FileBuilder {
   }
 }
 
-export async function buildProject(
-  commandOptions: CommandOptions,
-): Promise<undefined | SnowpackBuildServer> {
+export async function buildProject(commandOptions: CommandOptions): Promise<SnowpackBuildResult> {
   const {config, lockfile} = commandOptions;
   const isDev = !!config.buildOptions.watch;
   const isSSR = !!config.experiments.ssr;
@@ -530,6 +542,8 @@ export async function buildProject(
   }
   await parallelWorkQueue.onIdle();
 
+  const buildResultManifest = createBuildFileManifest(allBuildPipelineFiles);
+
   // 5. Optimize the build.
   if (!config.buildOptions.watch) {
     if (config.experiments.optimize || config.plugins.some((p) => p.optimize)) {
@@ -552,7 +566,15 @@ export async function buildProject(
     }
     await runPipelineCleanupStep(config);
     logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
-    return;
+    return {
+      result: buildResultManifest,
+      onFileChange: () => {
+        throw new Error('buildProject().onFileChange() only supported in "watch" mode.');
+      },
+      shutdown: () => {
+        throw new Error('buildProject().shutdown() only supported in "watch" mode.');
+      },
+    };
   }
 
   // "--watch --hmr" mode - Tell users about the HMR WebSocket URL
@@ -646,6 +668,7 @@ export async function buildProject(
   let onFileChangeCallback: OnFileChangeCallback = () => {};
 
   return {
+    result: buildResultManifest,
     onFileChange: (callback) => (onFileChangeCallback = callback),
     async shutdown() {
       await watcher.close();

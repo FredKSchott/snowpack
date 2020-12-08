@@ -63,7 +63,14 @@ export interface SnowpackDevServer {
   onFileChange: (callback: OnFileChangeCallback) => void;
   shutdown(): Promise<void>;
 }
-export interface SnowpackBuildServer {
+
+export type SnowpackBuildResultFileManifest = Record<
+  string,
+  {source: string; contents: string | Buffer}
+>;
+
+export interface SnowpackBuildResult {
+  result: SnowpackBuildResultFileManifest;
   onFileChange: (callback: OnFileChangeCallback) => void;
   shutdown(): Promise<void>;
 }
@@ -303,6 +310,7 @@ export interface ImportMap {
 }
 
 export interface CommandOptions {
+  // TODO(fks): remove `cwd`, replace with a new `config.root` property on SnowpackConfig.
   cwd: string;
   config: SnowpackConfig;
   lockfile: ImportMap | null;

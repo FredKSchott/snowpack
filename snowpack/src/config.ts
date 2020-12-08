@@ -888,7 +888,7 @@ export function validatePluginLoadResult(
 }
 
 export function createConfiguration(
-  config: SnowpackUserConfig,
+  config: SnowpackUserConfig = {},
 ): [ValidatorResult['errors'], undefined] | [null, SnowpackConfig] {
   const {errors: validationErrors} = validate(config, configSchema, {
     propertyName: CONFIG_NAME,
