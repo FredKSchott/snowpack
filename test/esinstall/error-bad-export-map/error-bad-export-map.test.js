@@ -9,12 +9,12 @@ const {
 require('jest-specific-snapshot'); // allows to call expect().toMatchSpecificSnapshot(filename, snapshotName)
 
 describe('error-bad-export-map', () => {
-  // This test doesn't work with Node 10 since it does not support export maps
-  if (process.versions.node.startsWith('10.')) {
-    return;
-  }
-
   it('matches the snapshot', async () => {
+    // This test doesn't work with Node 10 since it does not support export maps
+    if (process.versions.node.startsWith('10.')) {
+      return;
+    }
+
     const cwd = __dirname;
 
     if (existsPackageJson(cwd) === false) return;

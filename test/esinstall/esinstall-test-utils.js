@@ -43,10 +43,10 @@ exports.runTest = runTest;
 
 async function testLockFile(cwd) {
   const expectedLockLoc = path.join(cwd, 'expected-lock.json');
-  const expectedLock = await fs
-    .readFile(expectedLockLoc, {encoding: 'utf8'})
-    .catch((/* ignore */) => null);
-  if (expectedLock) {
+
+  if (existsSync(expectedLockLoc)) {
+    const expectedLock = await fs.readFile(expectedLockLoc, {encoding: 'utf8'});
+
     const actualLockLoc = path.join(__dirname, 'snowpack.lock.json');
     const actualLock = await fs.readFile(actualLockLoc, {encoding: 'utf8'});
 
