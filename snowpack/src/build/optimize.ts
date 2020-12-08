@@ -51,7 +51,7 @@ const FAKE_BUILD_DIRECTORY_REGEX = /.*\~\~bundle\~\~[\\\/]/;
  * Scan a directory and remove any empty folders, recursively.
  */
 async function removeEmptyFolders(directoryLoc: string): Promise<boolean> {
-  if ((await fs.stat(directoryLoc)).isDirectory()) {
+  if (!(await fs.stat(directoryLoc)).isDirectory()) {
     return false;
   }
   // If folder is empty, clear it
