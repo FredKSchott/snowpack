@@ -18,23 +18,17 @@ We aim to follow the [Divio documentation system](https://documentation.divio.co
 - Avoid using vague terms for link text like "here"
 
 ### Code blocks
+Code blocks should have a top comment with information about the code:
+1st line: required if this a code snippet about a specific file
+2nd line: describe the change, not always required but recommended. Start with Example: if relevent.
+3rd line: if a dependency is implied, add the npm install script here
 
-Code blocks should include a file name on the top in a comment. Example:
+Example:
 
 ```js
 // snowpack.config.js
-
-module.exports = {
-  plugins: [
-    ['@snowpack/plugin-sass', { /* see options below */ }
-  ],
-};
-```
-
-The second line should ideally include a description of the example
-```js
-// snowpack.config.js
-// Example: enabling the sass plugin after installing it `npm install --save-dev @snowpack/plugin-sass`
+// Example: Connect the Sass plugin
+// [npm install @snowpack/plugin-sass]
 module.exports = {
   plugins: [
     ['@snowpack/plugin-sass', { /* see options below */ }
