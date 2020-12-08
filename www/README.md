@@ -9,6 +9,7 @@ We aim to follow the [Divio documentation system](https://documentation.divio.co
 - templates in `_includes`
 
 ## Style guide
+
 - Terminology
   - Use "Snowpack project" rather than Snowpack app/webapp or Snowpack site in docs
   - Exceptions are in blog posts or introductory material where the other terms are easier to understand
@@ -18,6 +19,7 @@ We aim to follow the [Divio documentation system](https://documentation.divio.co
 - Avoid using vague terms for link text like "here"
 
 ### Code blocks
+
 Code blocks should have a top comment with information about the code:
 1st line: required if this a code snippet about a specific file
 2nd line: describe the change, not always required but recommended. Start with Example: if relevent.
