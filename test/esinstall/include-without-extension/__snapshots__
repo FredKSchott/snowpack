@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install include-without-extension: allFiles 1`] = `
+exports[`include-without-extension matches the snapshot: allFiles 1`] = `
 Array [
   "core-js/modules/es.promise.js",
   "import-map.json",
 ]
 `;
 
-exports[`snowpack install include-without-extension: cli output 1`] = `
+exports[`include-without-extension matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -15,7 +15,7 @@ exports[`snowpack install include-without-extension: cli output 1`] = `
     └─ core-js/modules/es.promise.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install include-without-extension: web_modules/core-js/modules/es.promise.js 1`] = `
+exports[`include-without-extension matches the snapshot: web_modules/core-js/modules/es.promise.js 1`] = `
 "var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 function createCommonjsModule(fn, basedir, module) {
 	return module = {
@@ -1223,7 +1223,7 @@ var es_promise = {
 export default es_promise;"
 `;
 
-exports[`snowpack install include-without-extension: web_modules/import-map.json 1`] = `
+exports[`include-without-extension matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"core-js/modules/es.promise\\": \\"./core-js/modules/es.promise.js\\"

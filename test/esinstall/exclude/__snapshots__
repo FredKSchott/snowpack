@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install exclude: allFiles 1`] = `
+exports[`exclude matches the snapshot: allFiles 1`] = `
 Array [
   "import-map.json",
   "vue-router.js",
@@ -8,7 +8,7 @@ Array [
 ]
 `;
 
-exports[`snowpack install exclude: cli output 1`] = `
+exports[`exclude matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -17,7 +17,7 @@ exports[`snowpack install exclude: cli output 1`] = `
     └─ vue.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install exclude: web_modules/import-map.json 1`] = `
+exports[`exclude matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"vue\\": \\"./vue.js\\",
@@ -26,7 +26,7 @@ exports[`snowpack install exclude: web_modules/import-map.json 1`] = `
 }"
 `;
 
-exports[`snowpack install exclude: web_modules/vue.js 1`] = `
+exports[`exclude matches the snapshot: web_modules/vue.js 1`] = `
 "/*!
  * Vue.js v2.6.12
  * (c) 2014-2020 Evan You
@@ -7621,7 +7621,7 @@ if (inBrowser) {
 export default Vue;"
 `;
 
-exports[`snowpack install exclude: web_modules/vue-router.js 1`] = `
+exports[`exclude matches the snapshot: web_modules/vue-router.js 1`] = `
 "/*!
   * vue-router v3.4.9
   * (c) 2020 Evan You
