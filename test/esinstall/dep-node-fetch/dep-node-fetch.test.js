@@ -9,11 +9,6 @@ const {
 require('jest-specific-snapshot'); // allows to call expect().toMatchSpecificSnapshot(filename, snapshotName)
 
 describe('dep-node-fetch', () => {
-  beforeAll(() => {
-    // Needed so that ora (spinner) doesn't use platform-specific characters
-    process.env.CI = '1';
-  });
-
   it('matches the snapshot', async () => {
     const cwd = __dirname;
 

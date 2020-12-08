@@ -9,10 +9,10 @@ const {
 require('jest-specific-snapshot'); // allows to call expect().toMatchSpecificSnapshot(filename, snapshotName)
 
 describe('error-bad-export-map', () => {
-  beforeAll(() => {
-    // Needed so that ora (spinner) doesn't use platform-specific characters
-    process.env.CI = '1';
-  });
+  // This test doesn't work with Node 10 since it does not support export maps
+  if (process.versions.node.startsWith('10.')) {
+    return;
+  }
 
   it('matches the snapshot', async () => {
     const cwd = __dirname;
