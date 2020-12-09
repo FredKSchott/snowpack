@@ -1,35 +1,56 @@
+const fs = require('fs');
 const path = require('path');
-const {
-  existsPackageJson,
-  runTest,
-  testLockFile,
-  testWebModules,
-} = require('../esinstall-test-utils.js');
-
-require('jest-specific-snapshot'); // allows to call expect().toMatchSpecificSnapshot(filename, snapshotName)
+const {install} = require('../../../esinstall/lib');
 
 describe('node-env', () => {
-  it('matches the snapshot', async () => {
-    const cwd = __dirname;
+  it('inlines data if specified', async () => {
+    const dest = path.join(__dirname, 'test-basic');
 
-    if (existsPackageJson(cwd) === false) return;
+    const env = {
+      ENV_STRING: 'string',
+      ENV_NUMBER: 23,
+      ENV_BOOLEAN: true,
+      ENV_ARRAY: [1],
+      ENV_OBJECT: {obj: true},
+      ENV_NULL: null,
+      ENV_UNDEFINED: undefined,
+    };
 
-    // Run Test
-    const {output, snapshotFile} = await runTest(cwd);
+    await install(['node-env-mock-pkg'], {dest, env, cwd: 'test-success'});
 
-    // Test output
-    expect(output).toMatchSpecificSnapshot(snapshotFile, 'cli output');
+    const nodeEnvMockPkg = fs.readFileSync(path.join(dest, 'node-env-mock-pkg.js'), 'utf8');
 
-    // Test Lockfile (if one exists)
-    await testLockFile(cwd);
+    // positive test
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const string = "string";`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const number = 23;`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const boolean = undefined;`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const array = [1];`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const object = {"obj":true};`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const nullValue = null;`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const undefinedValue = undefined;`));
 
-    // Cleanup
-    const {testAllSnapshots, testDiffs} = testWebModules(cwd, snapshotFile);
+    // inverse test (ensure polyfill not loaded)
+    expect(nodeEnvMockPkg).not.toEqual(expect.stringContaining(`/* SNOWPACK PROCESS POLYFILL`));
+  });
 
-    // Assert that the snapshots match
-    testAllSnapshots();
+  it('loads polyfill if env vars missing', async () => {
+    const dest = path.join(__dirname, 'test-polyfill');
+    const env = {
+      ENV_STRING: 'string',
+    };
 
-    // If any diffs are detected, we'll assert the difference so that we get nice output.
-    testDiffs();
+    await install(['node-env-mock-pkg'], {dest, env, cwd: __dirname});
+
+    const nodeEnvMockPkg = fs.readFileSync(path.join(dest, 'node-env-mock-pkg.js'), 'utf8');
+
+    // positive test
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const string = "string";`));
+    expect(nodeEnvMockPkg).toEqual(
+      expect.stringContaining(`const number = process.env.ENV_NUMBER;`),
+    );
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`/* SNOWPACK PROCESS POLYFILL`));
+
+    // inverse test (ensure value is not inlined also somewhere)
+    expect(nodeEnvMockPkg).not.toEqual(expect.stringContaining(`const number = 23;`));
   });
 });
