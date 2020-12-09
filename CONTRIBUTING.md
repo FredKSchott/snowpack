@@ -44,7 +44,7 @@ yarn add vue@latest
 
 ## Tests
 
-We recommend running all tests before you submit a PR.
+We recommend running all tests before you submit a PR. Tests will not work unless you have run a build `yarn build`. 
 
 ### Running tests
 
