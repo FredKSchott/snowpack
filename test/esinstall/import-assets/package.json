@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-import-assets",
+  "dependencies": {
+    "mock-pkg-install-assets": "file:./packages/mock-pkg-install-assets"
+  }
+}
