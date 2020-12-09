@@ -48,7 +48,7 @@ Use this hook to read or make changes to the completed Snowpack configuration ob
 
 Load a file from disk and build it for your application. This is most useful for taking a file type that can't run in the browser (TypeScript, Sass, Vue, Svelte) and returning JS and/or CSS. It can even be used to load JS/CSS files directly from disk with a build step like Babel or PostCSS.
 
-Options (what to call these? Parameters? Returns?)
+Parameters:
 - `filePath` | `string` : the raw path of the file?
 - `isSSR`| `boolean` | Default: `false` : is it SSR? IDK
 - `isDev`| `boolean` | Default: `false` : ??
