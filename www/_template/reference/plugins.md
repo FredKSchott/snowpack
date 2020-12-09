@@ -53,9 +53,10 @@ Options (what to call these? Parameters? Returns?)
 - `isSSR`| `boolean` | Default: `false` : is it SSR? IDK
 - `isDev`| `boolean` | Default: `false` : ??
 - `fileExt` | `string` : the file extension?
+
 #### transform()
 
-Transform a file's contents. Useful for making changes to all types of build output (JS, CSS, etc.) regardless of how they were originally loaded from disk.
+Transforms build output (JS, CSS, etc.) regardless of how they were originally loaded from disk.
 
 #### run()
 
