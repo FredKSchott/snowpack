@@ -91,7 +91,6 @@ The object returned by this function is a **Snowpack Plugin**. A plugin consists
 - The **transform** method: A function that allows you to transform & modify built files. In this case, we add a simple comment (`/* I’m a comment */`) to the beginning of every JS file in your build.
 
 This covers the basics of single-file transformations. In our next example, we’ll show how to compile a source file and change the file extension in the process.
-
 ### Example: Build From Source
 
 When you build files from source, you also have the ability to transform the file type from source code to web code. In this example, we'll use Babel to load several types of files as input and output JavaScript in the final build:
@@ -119,6 +118,31 @@ This is a simplified version of the official Snowpack Babel plugin, which builds
 The `load()` method is responsible for loading and build files from disk while the `resolve` property tells Snowpack which files the plugin can load and what to expect as output. In this case, the plugin claims responsibility for files matching any of the file extensions found in `resolve.input`, and outputs `.js` JavaScript (declared via `resolve.output`).
 
 **See it in action:** Let's say that we have a source file at `src/components/App.jsx`. Because the `.jsx` file extension matches an extension in our plugin's `resolve.input` array, Snowpack lets this plugin claim responsibility for loading this file. `load()` executes, Babel builds the JSX input file from disk, and JavaScript is returned to the final build.
+
+
+You could use this method to write a plugin to parse Markdown (`.md`), Nunjucks (`.njk`) or templating languages into HTML. Here is an example that parses Markdown into HTML:
+
+```js
+const { parse } = require('markdown-wasm/dist/markdown.node.js');
+const fs = require('fs');
+
+module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
+  return {
+    name: 'my-markdown-parser',
+    resolve: {
+      input: ['.md', '.markdown'],
+      output: ['.html'],
+    },
+    load: ({filePath}) => {
+      const markdown = fs.readFileSync(filePath, 'utf-8');
+      const code = parse(markdown, pluginOptions);
+      return {
+        '.html': code,
+      };
+    },
+  };
+};
+```
 
 ### Example: Multi-File Building
 
@@ -223,7 +247,6 @@ In your example Snowpack project, add your plugin to the `snowpack.config.json` 
 {
   "plugins": [
     ["my-snowpack-plugin", { "option-1": "testing", "another-option": false }]
-  "
 }
 ```
 
@@ -246,3 +269,4 @@ In general, make sure to mind the following checklist:
 - If `load()` doesn't return anything, the file isn’t loaded and the `load()` of the next suitable plugin is called.
 - If `transform()` doesn't return anything, the file isn’t transformed.
 - If you want to build a plugin that runs some code only on initialization (such as `@snowpack/plugin-dotenv`), put your side-effect code inside the function that returns your plugin. But be sure to still return a plugin object. A simple `{ name }` object will do.
+- `load()` cannot get the contents of the file, you'll need to use another method if you want to parse the contents like Node's `fs`
