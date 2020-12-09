@@ -1,4 +1,4 @@
-const {install} = require('esinstall');
+const {install} = require('../../../esinstall/lib');
 
 /**
  * Browser configuration

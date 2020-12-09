@@ -1,4 +1,4 @@
-const {install} = require('esinstall');
+const {install} = require('../../../esinstall/lib');
 
 describe('package-entrypoints browser configuration', () => {
   it('supports all of the variations', async () => {

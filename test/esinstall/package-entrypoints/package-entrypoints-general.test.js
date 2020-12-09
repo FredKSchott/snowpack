@@ -1,4 +1,4 @@
-const {install} = require('esinstall');
+const {install} = require('../../../esinstall/lib');
 
 describe('package-entrypoints general tests', () => {
   it('Supports packages with a dot in the name', async () => {
