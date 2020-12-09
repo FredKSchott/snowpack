@@ -64,6 +64,17 @@ export interface SnowpackDevServer {
   shutdown(): Promise<void>;
 }
 
+export type SnowpackBuildResultFileManifest = Record<
+  string,
+  {source: string; contents: string | Buffer}
+>;
+
+export interface SnowpackBuildResult {
+  result: SnowpackBuildResultFileManifest;
+  onFileChange: (callback: OnFileChangeCallback) => void;
+  shutdown(): Promise<void>;
+}
+
 export type SnowpackBuiltFile = {
   code: string | Buffer;
   map?: string;
@@ -299,10 +310,10 @@ export interface ImportMap {
 }
 
 export interface CommandOptions {
+  // TODO(fks): remove `cwd`, replace with a new `config.root` property on SnowpackConfig.
   cwd: string;
   config: SnowpackConfig;
   lockfile: ImportMap | null;
-  pkgManifest: any;
 }
 
 export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
@@ -328,7 +339,7 @@ export interface PackageSource {
    */
   load(
     spec: string,
-    options: {config: SnowpackConfig; lockfile: ImportMap | null; pkgManifest: any},
+    options: {config: SnowpackConfig; lockfile: ImportMap | null},
   ): Promise<Buffer | string>;
   /** Resolve a package import to URL (ex: "react" -> "/web_modules/react") */
   resolvePackageImport(spec: string, importMap: ImportMap, config: SnowpackConfig): string | false;

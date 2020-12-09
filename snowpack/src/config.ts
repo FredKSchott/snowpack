@@ -888,7 +888,7 @@ export function validatePluginLoadResult(
 }
 
 export function createConfiguration(
-  config: SnowpackUserConfig,
+  config: SnowpackUserConfig = {},
 ): [ValidatorResult['errors'], undefined] | [null, SnowpackConfig] {
   const {errors: validationErrors} = validate(config, configSchema, {
     propertyName: CONFIG_NAME,
@@ -903,7 +903,7 @@ export function createConfiguration(
   return [null, normalizeConfig(mergedConfig)];
 }
 
-export function loadAndValidateConfig(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
+export function loadConfigurationForCLI(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
   const explorerSync = cosmiconfigSync(CONFIG_NAME, {
     // only support these 5 types of config for now
     searchPlaces: [
