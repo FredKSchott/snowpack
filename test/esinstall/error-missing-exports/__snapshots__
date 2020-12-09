@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`error-missing-exports matches the snapshot: allFiles 1`] = `Array []`;
-
-exports[`error-missing-exports matches the snapshot: cli output 1`] = `
-"[snowpack] ! installing dependencies...
-[snowpack] Package \\"preact\\" exists but package.json \\"exports\\" does not include entry for \\"./debug/src/check-props\\"."
-`;

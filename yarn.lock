@@ -4307,6 +4307,27 @@ brorand@^1.0.1:
   resolved "https://registry.yarnpkg.com/brorand/-/brorand-1.1.0.tgz#12c25efe40a45e3c323eb8675a0a0ce57b22371f"
   integrity sha1-EsJe/kCkXjwyPrhnWgoM5XsiNx8=
 
+"browser-dot-slash-index@file:./test/esinstall/package-entrypoints/browser-dot-slash-index":
+  version "1.2.3"
+
+"browser-dot-slash@file:./test/esinstall/package-entrypoints/browser-dot-slash":
+  version "1.2.3"
+
+"browser-dot@file:./test/esinstall/package-entrypoints/browser-dot":
+  version "1.2.3"
+
+"browser-index-js@file:./test/esinstall/package-entrypoints/browser-index-js":
+  version "1.2.3"
+
+"browser-index@file:./test/esinstall/package-entrypoints/browser-index":
+  version "1.2.3"
+
+"browser-no-valid@file:./test/esinstall/package-entrypoints/browser-no-valid":
+  version "1.2.3"
+
+"browser-path@file:./test/esinstall/package-entrypoints/browser-path":
+  version "1.2.3"
+
 browser-process-hrtime@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/browser-process-hrtime/-/browser-process-hrtime-1.0.0.tgz#3c9b4b7d782c8121e56f10106d84c0d0ffc94626"
@@ -10775,12 +10796,6 @@ p-waterfall@^1.0.0:
 
 "package-02@file:./test/esinstall/include/packages/package-02":
   version "1.0.0"
-
-"package-has-valid@file:./test/esinstall/dep-browser-entrypoint-object/package-has-valid":
-  version "1.2.3"
-
-"package-no-valid@file:./test/esinstall/dep-browser-entrypoint-object/package-no-valid":
-  version "1.2.3"
 
 pako@~1.0.5:
   version "1.0.11"

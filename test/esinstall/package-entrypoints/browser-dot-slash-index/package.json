@@ -1,0 +1,8 @@
+{
+  "name": "browser-has-valid",
+  "version": "1.2.3",
+  "browser": {
+    "./index": "entrypoint.js",
+    "./bad": "bad"
+  }
+}
