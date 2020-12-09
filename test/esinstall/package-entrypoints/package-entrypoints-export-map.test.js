@@ -1,8 +1,10 @@
 const {install} = require('../../../esinstall/lib');
+const path = require('path');
 
 describe('package-entrypoints browser configuration', () => {
   it('supports all of the variations', async () => {
     const cwd = __dirname;
+    const dest = path.join(cwd, 'test-export-map-variations');
 
     const targets = [
       // ".": "index.js"
@@ -25,6 +27,7 @@ describe('package-entrypoints browser configuration', () => {
       importMap: {imports},
     } = await install(targets, {
       cwd,
+      dest,
     });
 
     // Loop over every target and ensure we are able to install
@@ -77,6 +80,7 @@ describe('package-entrypoints browser configuration', () => {
 
   it("supports preact's configuration", async () => {
     const cwd = __dirname;
+    const dest = path.join(cwd, 'test-export-preact');
 
     const targets = ['preact', 'preact/hooks', 'preact/debug'];
 
@@ -84,6 +88,7 @@ describe('package-entrypoints browser configuration', () => {
       importMap: {imports},
     } = await install(targets, {
       cwd,
+      dest,
     });
 
     // Loop over every target and ensure we are able to install
@@ -94,12 +99,14 @@ describe('package-entrypoints browser configuration', () => {
 
   it('export . with slash throws', async () => {
     const cwd = __dirname;
+    const dest = path.join(cwd, 'test-export-dot-slash');
 
     const targets = ['export-map-dot-slash'];
 
     const run = async () => {
       await install(targets, {
         cwd,
+        dest,
       });
     };
 
@@ -108,12 +115,14 @@ describe('package-entrypoints browser configuration', () => {
 
   it('loading a missing export throws', async () => {
     const cwd = __dirname;
+    const dest = path.join(cwd, 'test-export-missing-export');
 
     const targets = ['preact/debug/src/check-props'];
 
     const run = async () => {
       await install(targets, {
         cwd,
+        dest,
       });
     };
 

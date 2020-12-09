@@ -1,4 +1,5 @@
 const {install} = require('../../../esinstall/lib');
+const path = require('path');
 
 /**
  * Browser configuration
@@ -7,6 +8,7 @@ const {install} = require('../../../esinstall/lib');
 describe('package-entrypoints browser configuration', () => {
   it('is able to resolve browser: path configuration', async () => {
     const cwd = __dirname;
+    const dest = path.join(cwd, 'test-browser-path');
 
     const targets = [
       // "browser": "index.js"
@@ -17,6 +19,7 @@ describe('package-entrypoints browser configuration', () => {
       importMap: {imports},
     } = await install(targets, {
       cwd,
+      dest,
     });
 
     // Loop over every target and ensure we are able to install
@@ -27,6 +30,7 @@ describe('package-entrypoints browser configuration', () => {
 
   it('is able to resolve browser object configuration', async () => {
     const cwd = __dirname;
+    const dest = path.join(cwd, 'test-browser-object');
 
     const targets = [
       // The following are object based
@@ -56,6 +60,7 @@ describe('package-entrypoints browser configuration', () => {
       importMap: {imports},
     } = await install(targets, {
       cwd,
+      dest,
     });
 
     // Loop over every target and ensure we are able to install
