@@ -453,7 +453,9 @@ ${colors.dim(
       try {
         const targetName = getWebDependencyName(chunk.name);
         const proxiedName = sanitizePackageName(targetName);
-        return `${proxiedName}.js`;
+        let name = `${proxiedName}.js`;
+        console.log("NAME IS", name);
+        return name;
       } catch(er) {
         console.log("ERRORED", er);
         return `foo.js`;
