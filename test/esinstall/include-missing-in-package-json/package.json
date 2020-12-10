@@ -1,5 +1,0 @@
-{
-  "private": true,
-  "version": "1.0.1",
-  "name": "@snowpack/test-include-missing-in-package-json"
-}
