@@ -17887,24 +17887,22 @@ function writeFile(dest, data) {
 
         console.log("AFTER MKPATH")
         console.log("FSWRITE", dest, fs.existsSync(dest));
-        
+
         try {
-            fs.writeFileSync(dest, data);
-            console.log("WRITEFILESYNCCOMPLETE");
-            fulfil();
+            fs.writeFile(dest, data, err => {
+                console.log("FILE WRITTEN", err);
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    fulfil();
+                }
+            });  
         } catch(err) {
-            console.log("WRITEFILESYNCREJECT", err);
+            console.log("WRITEFILE THREW!", err);
             reject(err);
         }
-        /*fs.writeFile(dest, data, err => {
-            console.log("FILE WRITTEN", err);
-            if (err) {
-                reject(err);
-            }
-            else {
-                fulfil();
-            }
-        });*/
+
     });
 }
 
