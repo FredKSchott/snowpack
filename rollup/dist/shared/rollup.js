@@ -17889,6 +17889,7 @@ function writeFile(dest, data) {
         console.log("FSWRITE", dest, fs.existsSync(dest));
 
         try {
+            console.log("IS THIS THE REAL FS?", fs.writeFile);
             fs.writeFile(dest, data, err => {
                 console.log("FILE WRITTEN", err);
                 if (err) {
