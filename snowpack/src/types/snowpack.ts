@@ -187,7 +187,6 @@ export type Proxy = [string, ProxyOptions];
 export type MountEntry = {
   url: string;
   static: boolean;
-  staticHtml: boolean;
   resolve: boolean;
 };
 
