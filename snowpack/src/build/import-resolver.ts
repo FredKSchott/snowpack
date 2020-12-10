@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../types/snowpack';
-import {findMatchingAliasEntry, getExt, isRemoteSpecifier, replaceExt} from '../util';
+import {findMatchingAliasEntry, getExt, isRemoteUrl, replaceExt} from '../util';
 import {getUrlForFile} from './file-urls';
 
 const cwd = process.cwd();
@@ -44,7 +44,7 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: S
 export function createImportResolver({fileLoc, config}: {fileLoc: string; config: SnowpackConfig}) {
   return function importResolver(spec: string): string | false {
     // Ignore "http://*" imports
-    if (isRemoteSpecifier(spec)) {
+    if (isRemoteUrl(spec)) {
       return spec;
     }
     // Ignore packages marked as external

@@ -37,7 +37,7 @@ import {
   getPackageSource,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
-  isRemoteSpecifier,
+  isRemoteUrl,
   jsSourceMappingURL,
   readFile,
   relativeURL,
@@ -253,7 +253,7 @@ class FileBuilder {
           return spec;
         }
         // Ignore "http://*" imports
-        if (isRemoteSpecifier(resolvedImportUrl)) {
+        if (isRemoteUrl(resolvedImportUrl)) {
           return resolvedImportUrl;
         }
         // Ignore packages marked as external

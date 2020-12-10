@@ -10,7 +10,7 @@ import {OptimizeOptions, SnowpackConfig} from '../types/snowpack';
 import {
   addLeadingSlash,
   addTrailingSlash,
-  isRemoteSpecifier,
+  isRemoteUrl,
   isTruthy,
   PROJECT_CACHE_DIR,
   removeLeadingSlash,
@@ -369,7 +369,7 @@ async function processEntrypoints(
     const bundleEntrypoints = Array.from(
       htmlEntrypoints.reduce((all, val) => {
         val.getLinks('stylesheet').each((_, elem) => {
-          if (!elem.attribs.href || isRemoteSpecifier(elem.attribs.href)) {
+          if (!elem.attribs.href || isRemoteUrl(elem.attribs.href)) {
             return;
           }
           const resolvedCSS =
@@ -379,7 +379,7 @@ async function processEntrypoints(
           all.add(resolvedCSS);
         });
         val.getScripts().each((_, elem) => {
-          if (!elem.attribs.src || isRemoteSpecifier(elem.attribs.src)) {
+          if (!elem.attribs.src || isRemoteUrl(elem.attribs.src)) {
             return;
           }
           const resolvedJS =

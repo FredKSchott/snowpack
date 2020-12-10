@@ -262,11 +262,8 @@ export async function clearCache() {
   ]);
 }
 
-/**
- * For the given import specifier, return an alias entry if one is matched.
- */
-export function getAliasType(val: string): 'package' | 'path' | 'url' {
-  if (url.parse(val).protocol) {
+function getAliasType(val: string): 'package' | 'path' | 'url' {
+  if (isRemoteUrl(val)) {
     return 'url';
   }
   return !path.isAbsolute(val) ? 'package' : 'path';
@@ -321,10 +318,10 @@ export function replaceExt(fileName: string, oldExt: string, newExt: string): st
   return fileName.replace(extToReplace, newExt);
 }
 
-/** determine if remote package or not */
-export function isRemoteSpecifier(specifier) {
-  return specifier.startsWith('//') || url.parse(specifier).protocol;
+export function isRemoteUrl(val: string): boolean {
+  return val.startsWith('//') || !!url.parse(val).protocol?.startsWith('http');
 }
+
 /**
  * Sanitizes npm packages that end in .js (e.g `tippy.js` -> `tippyjs`).
  * This is necessary because Snowpack can’t create both a file and directory

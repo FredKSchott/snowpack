@@ -77,7 +77,7 @@ import {
   getPackageSource,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
-  isRemoteSpecifier,
+  isRemoteUrl,
   jsSourceMappingURL,
   openInBrowser,
   parsePackageImportSpecifier,
@@ -734,7 +734,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
             return spec;
           }
           // Ignore "http://*" imports
-          if (isRemoteSpecifier(resolvedImportUrl)) {
+          if (isRemoteUrl(resolvedImportUrl)) {
             return resolvedImportUrl;
           }
           // Ignore packages marked as external
