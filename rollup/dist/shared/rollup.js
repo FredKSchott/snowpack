@@ -17875,7 +17875,7 @@ function mkdirpath(path) {
     }
 }
 function writeFile(dest, data) {
-    console.log("WRITING", dest);
+    console.log("WRITING", dest, process.cwd());
     return new Promise((fulfil, reject) => {
         console.log("MKPATH");
 
@@ -17884,8 +17884,11 @@ function writeFile(dest, data) {
         } catch(err) {
             console.log("MKDIR FAILED", err);
         }
+
+        console.log("AFTER MKPATH")
         
         fs.writeFile(dest, data, err => {
+            console.log("FILE WRITTEN", err);
             if (err) {
                 reject(err);
             }
