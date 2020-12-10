@@ -84,6 +84,12 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
     async load({filePath, isDev}) {
       const fileExt = path.extname(filePath);
       const contents = fs.readFileSync(filePath, 'utf8');
+
+      // Sass partials should never be loaded directly, return nothing to ignore.
+      if (path.basename(filePath).startsWith('_')) {
+        return;
+      }
+
       // During development, we need to track changes to Sass dependencies.
       if (isDev) {
         const sassImports = scanSassImports(contents, filePath, fileExt);
