@@ -17886,7 +17886,7 @@ function writeFile(dest, data) {
         }
 
         console.log("AFTER MKPATH")
-        console.log("FSWRITE", dest);
+        console.log("FSWRITE", dest, fs.existsSync(dest));
         fs.writeFile(dest, data, err => {
             console.log("FILE WRITTEN", err);
             if (err) {
