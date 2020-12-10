@@ -2,7 +2,7 @@
 module.exports = {
   mount: {
     _output: {url: '/', static: true},
-    src: {url: '/_dist_'},
+    src: {url: '/dist'},
   },
   plugins: [
     ['@snowpack/plugin-run-script', { cmd: 'eleventy', watch: '$1 --watch' }],
