@@ -16,6 +16,7 @@ describe('package-entrypoints', () => {
     } = await install([spec], {
       cwd,
       dest,
+      sourceMap: false
     });
 
     console.log("AFTER INSTALL");
