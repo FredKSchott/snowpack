@@ -1,1 +1,1 @@
-export const foobar = 42;
+export function test() {}
