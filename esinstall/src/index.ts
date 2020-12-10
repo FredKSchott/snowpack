@@ -468,7 +468,7 @@ ${colors.dim(
         throw new Error(FAILED_INSTALL_MESSAGE);
       }
       logger.debug(`writing install results to disk`);
-      await packageBundle.write(outputOptions);
+      await packageBundle.generate(outputOptions);
     } catch (_err) {
       const err: RollupError = _err;
       const errFilePath = err.loc?.file || err.id;
