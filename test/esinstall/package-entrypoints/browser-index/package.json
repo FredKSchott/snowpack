@@ -1,5 +1,5 @@
 {
-  "name": "browser-has-valid",
+  "name": "browser-index",
   "version": "1.2.3",
   "browser": {
     "index": "entrypoint.js",

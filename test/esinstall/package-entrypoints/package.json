@@ -1,7 +1,7 @@
 {
   "private": true,
   "version": "1.0.1",
-  "name": "@snowpack/package-entrypoint",
+  "name": "@snowpack/test-package-entrypoint",
   "description": "Test that we properly handle all package entry points.",
   "scripts": {},
   "snowpack": {
