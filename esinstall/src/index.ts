@@ -449,9 +449,16 @@ ${colors.dim(
     sourcemap: sourceMap,
     exports: 'named',
     entryFileNames: (chunk) => {
-      const targetName = getWebDependencyName(chunk.name);
-      const proxiedName = sanitizePackageName(targetName);
-      return `${proxiedName}.js`;
+      console.log('in entry file names');
+      try {
+        const targetName = getWebDependencyName(chunk.name);
+        const proxiedName = sanitizePackageName(targetName);
+        return `${proxiedName}.js`;
+      } catch(er) {
+        console.log("ERRORED", er);
+        return `foo.js`;
+      }
+
     },
     chunkFileNames: 'common/[name]-[hash].js',
   };
@@ -468,7 +475,7 @@ ${colors.dim(
         throw new Error(FAILED_INSTALL_MESSAGE);
       }
       logger.debug(`writing install results to disk`);
-      await packageBundle.generate(outputOptions);
+      await packageBundle.write(outputOptions);
     } catch (_err) {
       const err: RollupError = _err;
       const errFilePath = err.loc?.file || err.id;
