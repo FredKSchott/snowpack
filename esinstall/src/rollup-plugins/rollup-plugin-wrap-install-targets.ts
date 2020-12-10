@@ -1,5 +1,6 @@
 import * as colors from 'kleur/colors';
 import path from 'path';
+import url from 'url';
 import fs from 'fs';
 import {VM as VM2} from 'vm2';
 import {Plugin} from 'rollup';
@@ -115,6 +116,9 @@ export function rollupPluginWrapInstallTargets(
     buildStart(inputOptions) {
       const input = inputOptions.input as {[entryAlias: string]: string};
       for (const [key, val] of Object.entries(input)) {
+        if (url.parse(val).protocol) {
+          continue;
+        }
         const allInstallTargets = installTargets.filter(
           (imp) => getWebDependencyName(imp.specifier) === key,
         );

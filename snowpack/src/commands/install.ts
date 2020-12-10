@@ -26,21 +26,6 @@ export async function getInstallTargets(
   } else {
     installTargets.push(...(await scanImports(process.env.NODE_ENV === 'test', config)));
   }
-  if (lockfile) {
-    const importMapSubPaths = Object.keys(lockfile.imports).filter((ent) => ent.endsWith('/'));
-    installTargets = installTargets.filter((t) => {
-      if (lockfile.imports[t.specifier]) {
-        return false;
-      }
-      if (
-        t.specifier.includes('/') &&
-        importMapSubPaths.some((ent) => t.specifier.startsWith(ent))
-      ) {
-        return false;
-      }
-      return true;
-    });
-  }
   return installTargets;
 }
 
@@ -110,7 +95,6 @@ export async function run({
   }
 
   let newLockfile: ImportMap | null = null;
-
   const finalResult = await install(installTargets, {
     cwd,
     lockfile: newLockfile || undefined,

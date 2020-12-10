@@ -212,7 +212,6 @@ export interface SnowpackConfig {
   extends?: string;
   exclude: string[];
   knownEntrypoints: string[];
-  webDependencies: Record<string, string>;
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   scripts: Record<string, string>;
@@ -246,6 +245,8 @@ export interface SnowpackConfig {
   testOptions: {
     files: string[];
   };
+  // @deprecated - now found at lockfile.dependencies
+  webDependencies: Record<string, string>;
   // @deprecated - Use experiments.routes instead
   proxy: Proxy[];
   /** EXPERIMENTAL - This section is experimental and not yet finalized. May change across minor versions. */
@@ -306,14 +307,18 @@ export interface CLIFlags extends Omit<InstallOptions, 'env'> {
 }
 
 export interface ImportMap {
-  imports: {[packageName: string]: string};
+  imports: {[specifier: string]: string};
+}
+
+export interface LockfileManifest extends ImportMap {
+  dependencies: {[packageName: string]: string};
 }
 
 export interface CommandOptions {
   // TODO(fks): remove `cwd`, replace with a new `config.root` property on SnowpackConfig.
   cwd: string;
   config: SnowpackConfig;
-  lockfile: ImportMap | null;
+  lockfile: LockfileManifest | null;
 }
 
 export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
@@ -346,5 +351,8 @@ export interface PackageSource {
   /** Handle 1+ missing package imports before failing, if possible. */
   recoverMissingPackageImport(missingPackages: string[]): Promise<ImportMap>;
   /** Modify the build install config for optimized build install. */
-  modifyBuildInstallConfig(config: SnowpackConfig): Promise<void>;
+  modifyBuildInstallConfig(options: {
+    config: SnowpackConfig;
+    lockfile: ImportMap | null;
+  }): Promise<void>;
 }

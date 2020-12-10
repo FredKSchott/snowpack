@@ -712,7 +712,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       let missingPackages: string[] = [];
       const resolveImportSpecifier = createImportResolver({
         fileLoc,
-        lockfile: lockfile,
         config,
       });
       wrappedResponse = await transformFileImports(

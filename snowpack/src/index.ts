@@ -17,6 +17,7 @@ export * from './types/snowpack';
 export {startDevServer} from './commands/dev';
 export {buildProject} from './commands/build';
 export {loadConfigurationForCLI as loadAndValidateConfig, createConfiguration} from './config.js';
+export {readLockfile as loadLockfile} from './util.js';
 export {getUrlForFile} from './build/file-urls';
 
 const cwd = process.cwd();

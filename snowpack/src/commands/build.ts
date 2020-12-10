@@ -87,7 +87,7 @@ async function installOptimizedDependencies(
   });
 
   const pkgSource = getPackageSource(commandOptions.config.experiments.source);
-  pkgSource.modifyBuildInstallConfig(installConfig);
+  pkgSource.modifyBuildInstallConfig({config: installConfig, lockfile: commandOptions.lockfile});
 
   // Unlike dev (where we scan from source code) the built output guarantees that we
   // will can scan all used entrypoints. Set to `[]` to improve tree-shaking performance.
@@ -239,7 +239,6 @@ class FileBuilder {
       const file = rawFile as SnowpackSourceFile<string>;
       const resolveImportSpecifier = createImportResolver({
         fileLoc: file.locOnDisk!, // we’re confident these are reading from disk because we just read them
-        lockfile: this.lockfile,
         config: this.config,
       });
       const resolvedCode = await transformFileImports(file, (spec) => {
@@ -247,7 +246,7 @@ class FileBuilder {
         let resolvedImportUrl = resolveImportSpecifier(spec);
         // If not resolved, then this is a package. During build, dependencies are always
         // installed locally via esinstall, so use localPackageSource here.
-        if (!resolvedImportUrl) {
+        if (importMap.imports[spec]) {
           resolvedImportUrl = localPackageSource.resolvePackageImport(spec, importMap, this.config);
         }
         // If still not resolved, then this imported package somehow evaded detection
@@ -259,7 +258,7 @@ class FileBuilder {
         }
         // Ignore "http://*" imports
         if (isRemoteSpecifier(resolvedImportUrl)) {
-          return spec;
+          return resolvedImportUrl;
         }
         // Ignore packages marked as external
         if (this.config.installOptions.externalPackage?.includes(resolvedImportUrl)) {
