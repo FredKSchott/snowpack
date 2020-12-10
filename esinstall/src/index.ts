@@ -84,6 +84,18 @@ function isImportOfPackage(importUrl: string, packageName: string) {
   return packageName === importUrl || importUrl.startsWith(packageName + '/');
 }
 
+function resolveExportsMap(packageManifest: {exports: {}}, exportsProp: string) {
+  const exportMapEntry = packageManifest.exports[exportsProp];
+  const exportMapValue =
+    exportMapEntry?.browser ||
+    exportMapEntry?.import ||
+    exportMapEntry?.default ||
+    exportMapEntry?.require ||
+    exportMapEntry;
+
+  return exportMapValue;
+}
+
 /**
  * Resolve a "webDependencies" input value to the correct absolute file location.
  * Supports both npm package names, and file paths relative to the node_modules directory.
@@ -94,19 +106,15 @@ function resolveWebDependency(
   dep: string,
   {cwd, packageLookupFields}: {cwd: string; packageLookupFields: string[]},
 ): DependencyLoc {
-  // If dep is a path within a package (but without an extension), we first need
-  // to check for an export map in the package.json. If one exists, resolve to it.
+  // We first need to check for an export map in the package.json. If one exists, resolve to it.
   const [packageName, packageEntrypoint] = parsePackageImportSpecifier(dep);
-  if (packageEntrypoint) {
-    const [packageManifestLoc, packageManifest] = resolveDependencyManifest(packageName, cwd);
-    if (packageManifestLoc && packageManifest && packageManifest.exports) {
-      const exportMapEntry = packageManifest.exports['./' + packageEntrypoint];
-      const exportMapValue =
-        exportMapEntry?.browser ||
-        exportMapEntry?.import ||
-        exportMapEntry?.default ||
-        exportMapEntry?.require ||
-        exportMapEntry;
+  const [packageManifestLoc, packageManifest] = resolveDependencyManifest(packageName, cwd);
+
+  if (packageManifestLoc && packageManifest && packageManifest.exports) {
+    // If this is a non-main entry point
+    if (packageEntrypoint) {
+      const exportMapValue = resolveExportsMap(packageManifest, './' + packageEntrypoint);
+
       if (typeof exportMapValue !== 'string') {
         throw new Error(
           `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".`,
@@ -117,6 +125,16 @@ function resolveWebDependency(
         type: isJavaScript(loc) ? 'JS' : 'ASSET',
         loc,
       };
+    } else {
+      const exportMapValue = resolveExportsMap(packageManifest, '.');
+
+      if (exportMapValue) {
+        const loc = path.join(packageManifestLoc, '..', exportMapValue);
+        return {
+          type: isJavaScript(loc) ? 'JS' : 'ASSET',
+          loc,
+        };
+      }
     }
   }
 
@@ -160,7 +178,13 @@ function resolveWebDependency(
       `React workaround packages no longer needed! Revert back to the official React & React-DOM packages.`,
     );
   }
-  let foundEntrypoint: any = [...packageLookupFields, 'browser:module', 'module', 'main:esnext']
+  let foundEntrypoint: any = [
+    ...packageLookupFields,
+    'browser:module',
+    'module',
+    'main:esnext',
+    'jsnext:main',
+  ]
     .map((e) => depManifest[e])
     .find(Boolean);
   if (!foundEntrypoint && !BROKEN_BROWSER_ENTRYPOINT.includes(packageName)) {
@@ -175,6 +199,8 @@ function resolveWebDependency(
       foundEntrypoint[dep] ||
       foundEntrypoint['./index.js'] ||
       foundEntrypoint['./index'] ||
+      foundEntrypoint['index.js'] ||
+      foundEntrypoint['index'] ||
       foundEntrypoint['./'] ||
       foundEntrypoint['.'];
   }

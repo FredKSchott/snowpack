@@ -43,6 +43,7 @@
   "dependencies": {
     "cacache": "^15.0.0",
     "cachedir": "^2.3.0",
+    "esinstall": "^0.4.0",
     "etag": "^1.8.1",
     "find-up": "^5.0.0",
     "got": "^11.1.4",
