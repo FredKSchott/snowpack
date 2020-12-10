@@ -145,7 +145,8 @@ class FileBuilder {
     this.filesToResolve = {};
     const isSSR = this.config.experiments.ssr;
     const srcExt = path.extname(url.fileURLToPath(this.fileURL));
-    const fileOutput = this.mountEntry.static
+    const isStatic = srcExt === '.html' ? this.mountEntry.staticHtml : this.mountEntry.static;
+    const fileOutput = isStatic
       ? {[srcExt]: {code: await readFile(this.fileURL)}}
       : await buildFile(this.fileURL, {
           plugins: this.config.plugins,

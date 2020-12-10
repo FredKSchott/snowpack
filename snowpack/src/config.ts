@@ -561,6 +561,7 @@ function normalizeMount(config: SnowpackConfig, cwd: string) {
     normalizedMount[path.resolve(cwd, removeTrailingSlash(mountDir))] = {
       url: mountEntry.url === '/' ? '/' : removeTrailingSlash(mountEntry.url),
       static: mountEntry.static ?? false,
+      staticHtml: mountEntry.staticHtml ?? false,
       resolve: mountEntry.resolve ?? true,
     };
   }
@@ -569,6 +570,7 @@ function normalizeMount(config: SnowpackConfig, cwd: string) {
     normalizedMount[cwd] = {
       url: '/',
       static: false,
+      staticHtml: false,
       resolve: true,
     };
   }

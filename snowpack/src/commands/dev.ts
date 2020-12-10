@@ -537,7 +537,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         if (fileLocExact) {
           return {
             fileLoc: fileLocExact,
-            isStatic: mountEntry.static,
+            isStatic: isRoute ? mountEntry.static : mountEntry.staticHtml,
             isResolve: mountEntry.resolve,
           };
         }
@@ -545,7 +545,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
             const fileLoc = await attemptLoadFile(potentialSourceFile);
             if (fileLoc) {
-              return {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
+              return {fileLoc, isStatic: false, isResolve: mountEntry.resolve};
             }
           }
         }
@@ -570,7 +570,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         if (fileLoc) {
           requestedFileExt = '.html';
           responseFileExt = '.html';
-          return {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
+          return {fileLoc, isStatic: mountEntry.staticHtml, isResolve: mountEntry.resolve};
         }
       }
       return null;
@@ -589,7 +589,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         if (fileLoc) {
           requestedFileExt = '.html';
           responseFileExt = '.html';
-          return {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
+          return {fileLoc, isStatic: mountEntry.staticHtml, isResolve: mountEntry.resolve};
         }
       }
       return null;
