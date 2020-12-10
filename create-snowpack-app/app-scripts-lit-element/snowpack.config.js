@@ -6,8 +6,8 @@ const isTS = fs.existsSync(url.pathToFileURL(path.join(process.cwd(), 'tsconfig.
 
 module.exports = {
   mount: {
-    public: '/',
-    src: '/_dist_',
+    public: {url: '/', static: true},
+    src: {url: '/_dist_', static: false},
   },
   plugins: ['@snowpack/plugin-babel', '@snowpack/plugin-dotenv'],
   devOptions: {},
