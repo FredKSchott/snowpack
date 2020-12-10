@@ -62,6 +62,7 @@ export function rollupPluginWrapInstallTargets(
     filename: string,
     visited = new Set(),
   ): string[] | undefined {
+    console.log({msg: 'CJS START', filename});
     const isMainEntrypoint = visited.size === 0;
     // Prevent infinite loops via circular dependencies.
     if (visited.has(filename)) {
@@ -108,6 +109,7 @@ export function rollupPluginWrapInstallTargets(
       // Safe to ignore, this is usually due to the file not being CJS.
       logger.debug(`cjsAutoDetectExportsUntrusted error: ${err.message}`);
     }
+    console.log({msg: 'CJS END', filename});
   }
 
   return {

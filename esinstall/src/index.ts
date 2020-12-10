@@ -456,7 +456,6 @@ ${colors.dim(
     chunkFileNames: 'common/[name]-[hash].js',
   };
 
-  rimraf.sync(destLoc);
   if (Object.keys(installEntrypoints).length > 0) {
     try {
       logger.debug(`running installer with options: ${util.format(inputOptions)}`);
@@ -467,8 +466,9 @@ ${colors.dim(
       if (isFatalWarningFound) {
         throw new Error(FAILED_INSTALL_MESSAGE);
       }
+      console.log({installTargets, msg: 'WRITE'});
       logger.debug(`writing install results to disk`);
-      await packageBundle.generate(outputOptions);
+      await packageBundle.write(outputOptions);
     } catch (_err) {
       const err: RollupError = _err;
       const errFilePath = err.loc?.file || err.id;
@@ -487,7 +487,6 @@ ${colors.dim(
     }
   }
 
-  mkdirp.sync(destLoc);
   await writeLockfile(path.join(destLoc, 'import-map.json'), importMap);
   for (const [assetName, assetLoc] of Object.entries(assetEntrypoints)) {
     const assetDest = `${destLoc}/${sanitizePackageName(assetName)}`;
