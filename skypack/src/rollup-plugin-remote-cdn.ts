@@ -1,7 +1,7 @@
 import cacache from 'cacache';
 import {OutputOptions, Plugin, ResolvedId} from 'rollup';
 import {fetchCDN} from './index';
-import {SKYPACK_ORIGIN, HAS_CDN_HASH_REGEX, RESOURCE_CACHE, ImportMap} from './util';
+import {SKYPACK_ORIGIN, HAS_CDN_HASH_REGEX, RESOURCE_CACHE} from './util';
 
 const CACHED_FILE_ID_PREFIX = 'snowpack-pkg-cache:';
 const PIKA_CDN_TRIM_LENGTH = SKYPACK_ORIGIN.length;
@@ -15,10 +15,8 @@ const PIKA_CDN_TRIM_LENGTH = SKYPACK_ORIGIN.length;
  * rollup that it's safe to load from the cache in the `load()` hook.
  */
 export function rollupPluginSkypack({
-  lockfile,
   installTypes,
 }: {
-  lockfile?: ImportMap | null;
   installTypes: boolean;
 }) {
   // const allTypesToInstall = new Set<string>();

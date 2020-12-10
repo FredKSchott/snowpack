@@ -12,7 +12,6 @@ const cwd = process.cwd();
 
 export async function getInstallTargets(
   config: SnowpackConfig,
-  lockfile: ImportMap | null,
   scannedFiles?: SnowpackSourceFile[],
 ) {
   const {knownEntrypoints} = config;
@@ -30,10 +29,10 @@ export async function getInstallTargets(
 }
 
 export async function command(commandOptions: CommandOptions) {
-  const {config, lockfile} = commandOptions;
+  const {config} = commandOptions;
 
   logger.debug('Starting install');
-  const installTargets = await getInstallTargets(config, lockfile);
+  const installTargets = await getInstallTargets(config);
   logger.debug('Received install targets');
   if (installTargets.length === 0) {
     logger.error('Nothing to install.');

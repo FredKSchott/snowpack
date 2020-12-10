@@ -15,7 +15,7 @@ import {checkLockfileHash, DEV_DEPENDENCIES_DIR, updateLockfileHash} from '../ut
  */
 async function installDependencies(commandOptions: CommandOptions) {
   const {config} = commandOptions;
-  const installTargets = await getInstallTargets(config, commandOptions.lockfile);
+  const installTargets = await getInstallTargets(config);
   if (installTargets.length === 0) {
     logger.info('Nothing to install.');
     return;

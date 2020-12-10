@@ -55,9 +55,7 @@ export default {
     config.installOptions.lockfile = lockfile || undefined;
     config.installOptions.rollup = config.installOptions.rollup || {};
     config.installOptions.rollup.plugins = config.installOptions.rollup.plugins || [];
-    config.installOptions.rollup.plugins.push(
-      rollupPluginSkypack({installTypes: false, lockfile: lockfile || undefined}) as Plugin,
-    );
+    config.installOptions.rollup.plugins.push(rollupPluginSkypack({installTypes: false}) as Plugin);
   },
 
   async load(

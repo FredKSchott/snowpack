@@ -259,7 +259,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
 }
 
 export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
-  const {cwd, config, lockfile} = commandOptions;
+  const {cwd, config} = commandOptions;
   // Start the startup timer!
   let serverStart = performance.now();
 
