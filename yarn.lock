@@ -10776,7 +10776,7 @@ p-waterfall@^1.0.0:
 "package-02@file:./test/esinstall/include/packages/package-02":
   version "1.0.0"
 
-"package-entrypoints-module@file:./test/esinstall/package-entrypoints/packages/package-entrypoints-module":
+"package-entrypoints-module@file:./test/esinstall/aaaaa/packages/package-entrypoints-module":
   version "1.0.0"
 
 "package-has-valid@file:./test/esinstall/dep-browser-entrypoint-object/package-has-valid":
