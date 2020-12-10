@@ -1,35 +1,26 @@
+const fs = require('fs-extra');
 const path = require('path');
-const {
-  existsPackageJson,
-  runTest,
-  testLockFile,
-  testWebModules,
-} = require('../esinstall-test-utils.js');
-
-require('jest-specific-snapshot'); // allows to call expect().toMatchSpecificSnapshot(filename, snapshotName)
+const {install} = require('../../../esinstall/lib');
 
 describe('include-missing-in-package-json', () => {
-  it('matches the snapshot', async () => {
-    const cwd = __dirname;
+  beforeAll(() => {
+    // copy packages/* to node_modules/*
+    fs.readdirSync(path.join(__dirname, 'packages')).forEach((pkg) => {
+      fs.copySync(path.join(__dirname, 'packages', pkg), path.join(__dirname, 'node_modules', pkg));
+    });
+  });
 
-    if (existsPackageJson(cwd) === false) return;
+  it('resolves packages in node_modules but not package.json', async () => {
+    const installTargets = ['@material/animation', 'tslib'];
 
-    // Run Test
-    const {output, snapshotFile} = await runTest(cwd);
+    // install
+    const {
+      importMap: {imports},
+    } = await install(installTargets, {cwd: __dirname});
 
-    // Test output
-    expect(output).toMatchSpecificSnapshot(snapshotFile, 'cli output');
-
-    // Test Lockfile (if one exists)
-    await testLockFile(cwd);
-
-    // Cleanup
-    const {testAllSnapshots, testDiffs} = testWebModules(cwd, snapshotFile);
-
-    // Assert that the snapshots match
-    testAllSnapshots();
-
-    // If any diffs are detected, we'll assert the difference so that we get nice output.
-    testDiffs();
+    // ensure all targets built
+    for (const target of installTargets) {
+      expect(imports[target]).toBeTruthy();
+    }
   });
 });
