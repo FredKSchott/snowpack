@@ -1,0 +1,6 @@
+{
+  "name": "package-entrypoints-module",
+  "version": "1.0.0",
+  "main": "./lol-this-doesnt-exist.js",
+  "module": "./entrypoint.js"
+}

@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-package-entrypoint",
+  "dependencies": {
+    "package-entrypoints-module": "file:./packages/module"
+  }
+}
