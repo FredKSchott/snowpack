@@ -10,6 +10,6 @@ describe('error-no-dep-list', () => {
         {cwd: __dirname},
       ),
     ).rejects.toThrowError(`No ESM dependencies found!
-  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at https://www.pika.dev`);
+  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at https://www.skypack.dev`);
   });
 });
