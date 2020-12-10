@@ -20,7 +20,7 @@ module.exports = {
   proxy: {
     /* ... */
   },
-  experiments: {
-    source: 'skypack'
-  }
+  alias: {
+    /* ... */
+  },
 };
