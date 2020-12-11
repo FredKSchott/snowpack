@@ -2,11 +2,6 @@
   "private": true,
   "version": "1.0.1",
   "name": "@snowpack/test-error-node-builtin-unresolved",
-  "snowpack": {
-    "exclude": [
-      "packages/**/*"
-    ]
-  },
   "dependencies": {
     "bad-node-builtin-pkg": "file:./packages/bad-node-builtin-pkg"
   }
