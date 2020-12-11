@@ -1,8 +1,27 @@
 @use './var' as *;
 
-@mixin subtle-border-animation {
+$easeOutSine: cubic-bezier(0.61, 1, 0.88, 1);
+$easeInExpo: cubic-bezier(0.7, 0, 0.84, 0);
+$easeInOutSine: cubic-bezier(0.37, 0, 0.63, 1);
+$easeInOutCubic: cubic-bezier(0.65, 0, 0.35, 1);
+$easeInOutBack: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+$easeInCirc: cubic-bezier(0.55, 0, 1, 0.45);
+$easeOutExpo: cubic-bezier(0.16, 1, 0.3, 1);
+$transition-fast: 200ms;
+$transition-medium: 500ms;
+$transition-slow: 1s;
+@mixin animation-button-color-change {
+  transition: all $transition-fast $easeOutSine;
   &:hover {
-    border-color: transparent; /* remove the border's colour */
-    box-shadow: 0 0 0 2px rgba(46, 95, 132, 0.69); /* emulate the border */
+    background-color: #b224d0;
+    color: white;
+  }
+}
+
+@mixin animation-button-color-change-gradient {
+  transition: all $transition-medium $easeOutExpo;
+
+  &:hover {
+    background-position: 80%;
   }
 }
