@@ -4,7 +4,7 @@
   "name": "@snowpack/test-config-package-lookup-fields",
   "description": "Handle custom packageLookupFields",
   "scripts": {
-    "testinstall": "snowpack install"
+    "testbuild": "snowpack build"
   },
   "snowpack": {
     "installOptions": {
