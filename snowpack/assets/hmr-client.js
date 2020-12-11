@@ -9,15 +9,24 @@ function log(...args) {
   console.log('[ESM-HMR]', ...args);
 }
 function reload() {
-  isWindowDefined && location.reload(true);
+  if (!isWindowDefined) {
+    return;
+  }
+  location.reload(true);
 }
 /** Clear all error overlays from the page */
 function clearErrorOverlay() {
-  isWindowDefined && document.querySelectorAll('hmr-error-overlay').forEach((el) => el.remove());
+  if (!isWindowDefined) {
+    return;
+  }
+  document.querySelectorAll('hmr-error-overlay').forEach((el) => el.remove());
 }
 /** Create an error overlay (if custom element exists on the page). */
 function createNewErrorOverlay(data) {
-  const HmrErrorOverlay = isWindowDefined && customElements.get('hmr-error-overlay');
+  if (!isWindowDefined) {
+    return;
+  }
+  const HmrErrorOverlay = customElements.get('hmr-error-overlay');
   if (HmrErrorOverlay) {
     const overlay = new HmrErrorOverlay(data);
     clearErrorOverlay();
@@ -36,10 +45,11 @@ function sendSocketMessage(msg) {
     _sendSocketMessage(msg);
   }
 }
-let socketURL = typeof window !== 'undefined' && window.HMR_WEBSOCKET_URL;
+
+let socketURL = isWindowDefined && window.HMR_WEBSOCKET_URL;
 if (!socketURL) {
   const socketHost =
-    typeof window !== 'undefined' && window.HMR_WEBSOCKET_PORT
+    isWindowDefined && window.HMR_WEBSOCKET_PORT
       ? `${location.hostname}:${window.HMR_WEBSOCKET_PORT}`
       : location.host;
   socketURL = (location.protocol === 'http:' ? 'ws://' : 'wss://') + socketHost + '/';
@@ -225,7 +235,7 @@ socket.addEventListener('message', ({data: _data}) => {
 log('listening for file changes...');
 
 /** Runtime error reporting: If a runtime error occurs, show it in an overlay. */
-isWindowDefined && window.addEventListener('error', function (event) {
+window && window.addEventListener('error', function (event) {
   // Generate an "error location" string
   let fileLoc;
   if (event.filename) {
