@@ -4923,13 +4923,13 @@ cjs-module-lexer@^1.0.0:
   resolved "https://registry.yarnpkg.com/cjs-module-lexer/-/cjs-module-lexer-1.0.0.tgz#c125ff0f4ab2c898dda909352f254d55e2213261"
   integrity sha512-bLSEjEwg4knnuXt7LIWegvgTOClk6ZonZY6g4CFGBly1EjRqVjTjI8Dwnb/dsu1PwJjYBKxnguE5bRTdk+bFOA==
 
-"cjs-named-export-pkg-02@file:./test/esinstall/auto-named-exports/packages/cjs-named-export-pkg-02":
-  version "1.2.3"
-
-"cjs-named-export-pkg-03@file:./test/esinstall/auto-named-exports/packages/cjs-named-export-pkg-03":
-  version "1.2.3"
-
 "cjs-named-export-pkg@file:./test/esinstall/config-named-exports/packages/cjs-named-export-pkg":
+  version "1.2.3"
+
+"cjs-named-exports-reexported@file:./test/esinstall/named-exports/packages/cjs-named-exports-reexported":
+  version "1.2.3"
+
+"cjs-named-exports-simple@file:./test/esinstall/named-exports/packages/cjs-named-exports-simple":
   version "1.2.3"
 
 class-utils@^0.3.5:
@@ -13933,7 +13933,7 @@ umask@^1.1.0:
   resolved "https://registry.yarnpkg.com/umask/-/umask-1.1.0.tgz#f29cebf01df517912bb58ff9c4e50fde8e33320d"
   integrity sha1-8pzr8B31F5ErtY/5xOUP3o4zMg0=
 
-"umd-named-export-pkg-01@file:./test/esinstall/auto-named-exports/packages/umd-named-export-pkg-01":
+"umd-named-exports@file:./test/esinstall/named-exports/packages/umd-named-exports":
   version "0.7.0"
 
 unbzip2-stream@^1.3.3:

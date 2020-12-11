@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-esinstall-named-exports",
+  "description": "Handle automatic named export detection for cjs packages",
+  "scripts": {
+    "testinstall": "snowpack install"
+  },
+  "dependencies": {
+    "cjs-named-exports-reexported": "file:./packages/cjs-named-exports-reexported",
+    "cjs-named-exports-simple": "file:./packages/cjs-named-exports-simple",
+    "umd-named-exports": "file:./packages/umd-named-exports"
+  },
+  "devDependencies": {
+    "snowpack": "^2.14.3"
+  }
+}
