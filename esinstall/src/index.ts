@@ -260,6 +260,7 @@ interface InstallOptions {
   externalPackage: string[];
   externalPackageEsm: string[];
   packageLookupFields: string[];
+  packageExportLookupFields: string[];
   namedExports: string[];
   rollup: {
     context?: string;
@@ -285,6 +286,7 @@ function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
     externalPackageEsm: [],
     polyfillNode: false,
     packageLookupFields: [],
+    packageExportLookupFields: [],
     env: {},
     namedExports: [],
     rollup: {
@@ -316,6 +318,7 @@ export async function install(
     treeshake: isTreeshake,
     polyfillNode,
     packageLookupFields,
+    packageExportLookupFields
   } = setOptionDefaults(_options);
   const env = generateEnvObject(userEnv);
 
@@ -417,6 +420,7 @@ ${colors.dim(
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: true, // Default: true
         dedupe: userDefinedRollup.dedupe || [],
+        exportConditions: packageExportLookupFields
       }),
       rollupPluginJson({
         preferConst: true,
