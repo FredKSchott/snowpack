@@ -318,7 +318,7 @@ export async function install(
     treeshake: isTreeshake,
     polyfillNode,
     packageLookupFields,
-    packageExportLookupFields
+    packageExportLookupFields,
   } = setOptionDefaults(_options);
   const env = generateEnvObject(userEnv);
 
@@ -420,7 +420,7 @@ ${colors.dim(
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: true, // Default: true
         dedupe: userDefinedRollup.dedupe || [],
-        exportConditions: packageExportLookupFields
+        exportConditions: packageExportLookupFields,
       }),
       rollupPluginJson({
         preferConst: true,
