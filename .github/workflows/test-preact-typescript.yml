@@ -1,0 +1,22 @@
+name: test official snowpack preact-typescript template
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+
+  preact-typescript:
+    strategy:
+      matrix:
+        os: [macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v1
+      - name: create-snowpack-app
+        run: |
+          npx create-snowpack-app --template @snowpack/app-template-preact-typescript app
+          cd app
+          npm run build
