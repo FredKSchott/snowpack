@@ -10,18 +10,36 @@ $easeOutExpo: cubic-bezier(0.16, 1, 0.3, 1);
 $transition-fast: 200ms;
 $transition-medium: 500ms;
 $transition-slow: 1s;
-@mixin animation-button-color-change {
-  transition: all $transition-fast $easeOutSine;
+
+@mixin animation-hover-pop {
+  transition: transform 0.15s ease-out;
   &:hover {
-    background-color: #b224d0;
-    color: white;
+    box-shadow: 0 2px 2px 0 #2e5e82aa;
+    transform: translateY(-1px);
   }
 }
 
-@mixin animation-button-color-change-gradient {
-  transition: all $transition-medium $easeOutExpo;
+@keyframes pulse {
+  0% {
+    color: #2a85ca;
+    border-color: #2a85ca;
+  }
+
+  100% {
+  }
+}
+
+@mixin animation-copy-button {
+  transition: transform 0.5s ease-in-out, width, background-color, transform,
+    color, fill, stroke 0.5s ease-out;
 
   &:hover {
-    background-position: 80%;
+    box-shadow: 0 2px 2px 0 #2e5e8266;
+    transform: translateY(-1px);
+    border-color: #2a85ca;
+    svg,
+    span {
+      color: #2a85ca;
+    }
   }
 }

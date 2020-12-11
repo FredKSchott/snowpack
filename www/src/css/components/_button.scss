@@ -21,23 +21,11 @@
   cursor: pointer;
   text-decoration: none !important;
   user-select: none;
-  @include animation-button-color-change;
+  @include animation-hover-pop;
 
   &-primary {
     color: #fff;
-    background: linear-gradient(
-      45deg,
-      #24bf62,
-      #267dd6,
-      #b224d0,
-      #267dd6,
-      #24bf62,
-      #267dd6,
-      #b224d0,
-      #267dd6
-    );
-    background-size: 400%;
-    @include animation-button-color-change-gradient;
+    background: linear-gradient(45deg, #24bf62, #267dd6, #b224d0);
   }
 }
 
