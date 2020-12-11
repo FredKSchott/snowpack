@@ -389,7 +389,7 @@ export async function install(
     throw new Error(`No ESM dependencies found!
 ${colors.dim(
   `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${colors.underline(
-    'https://www.pika.dev',
+    'https://www.skypack.dev',
   )}`,
 )}`);
   }
