@@ -71,9 +71,9 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
       // check no ext: "_index" (/a/b/c/foo/_index)
       this._markImportersAsChanged(filePathNoExt);
       // check no underscore: "index.scss" (/a/b/c/foo/index.scss)
-      this._markImportersAsChanged(filePath.replace(/([\\\/])_/, '$1'));
+      this._markImportersAsChanged(filePath.replace(/\/_(?!.*\/)/, '$1'));
       // check no ext, no underscore: "index" (/a/b/c/foo/index)
-      this._markImportersAsChanged(filePathNoExt.replace(/([\\\/])_/, '$1'));
+      this._markImportersAsChanged(filePathNoExt.replace(/\/_(?!.*\/)/, '$1'));
       // check folder import: "foo" (/a/b/c/foo)
       if (filePathNoExt.endsWith('_index')) {
         const folderPathNoIndex = filePathNoExt.substring(0, filePathNoExt.length - 7);
