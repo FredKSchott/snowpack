@@ -35,7 +35,7 @@ We also recommend that you manually add the Snowpack HMR client to your HTML (de
 
 ```html
 <!-- Load the script to enable HMR. -->
-<script src="/__snowpack__/hmr-client.js"></script>
+<script type="module" src="/__snowpack__/hmr-client.js"></script>
 ```
 
 ### Configuring HMR
@@ -56,7 +56,7 @@ You can control this by setting `devOptions.hmrPort` manually via configuration 
 <script>
   window.HMR_WEBSOCKET_URL = 'ws://localhost:4444';
 </script>
-<script src="/__snowpack__/hmr-client.js"></script>
+<script type="module" src="/__snowpack__/hmr-client.js"></script>
 ```
 
 ### Disable HMR
