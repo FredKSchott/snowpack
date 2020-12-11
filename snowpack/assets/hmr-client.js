@@ -3,19 +3,21 @@
  * A client-side implementation of the ESM-HMR spec, for reference.
  */
 
+const isWindowDefined = typeof window !== 'undefined';
+
 function log(...args) {
   console.log('[ESM-HMR]', ...args);
 }
 function reload() {
-  location.reload(true);
+  isWindowDefined && location.reload(true);
 }
 /** Clear all error overlays from the page */
 function clearErrorOverlay() {
-  document.querySelectorAll('hmr-error-overlay').forEach((el) => el.remove());
+  isWindowDefined && document.querySelectorAll('hmr-error-overlay').forEach((el) => el.remove());
 }
 /** Create an error overlay (if custom element exists on the page). */
 function createNewErrorOverlay(data) {
-  const HmrErrorOverlay = customElements.get('hmr-error-overlay');
+  const HmrErrorOverlay = isWindowDefined && customElements.get('hmr-error-overlay');
   if (HmrErrorOverlay) {
     const overlay = new HmrErrorOverlay(data);
     clearErrorOverlay();
@@ -223,7 +225,7 @@ socket.addEventListener('message', ({data: _data}) => {
 log('listening for file changes...');
 
 /** Runtime error reporting: If a runtime error occurs, show it in an overlay. */
-window.addEventListener('error', function (event) {
+isWindowDefined && window.addEventListener('error', function (event) {
   // Generate an "error location" string
   let fileLoc;
   if (event.filename) {
