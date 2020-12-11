@@ -9,6 +9,12 @@ function stripFileExtension(filename) {
   return filename.split('.').slice(0, -1).join('.');
 }
 
+function stripUnderscorePrefix(filename) {
+  const segments = filename.split('/');
+  const sassFile = segments.pop();
+  return `${segments.join('/')}/${sassFile.replace(/^_+/, '')}`;
+}
+
 function scanSassImports(fileContents, filePath, fileExt) {
   // TODO: Replace with matchAll once Node v10 is out of TLS.
   // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
@@ -71,9 +77,9 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
       // check no ext: "_index" (/a/b/c/foo/_index)
       this._markImportersAsChanged(filePathNoExt);
       // check no underscore: "index.scss" (/a/b/c/foo/index.scss)
-      this._markImportersAsChanged(filePath.replace(/\/_(?!.*\/)/, '$1'));
+      this._markImportersAsChanged(stripUnderscorePrefix(filePath));
       // check no ext, no underscore: "index" (/a/b/c/foo/index)
-      this._markImportersAsChanged(filePathNoExt.replace(/\/_(?!.*\/)/, '$1'));
+      this._markImportersAsChanged(stripUnderscorePrefix(filePathNoExt));
       // check folder import: "foo" (/a/b/c/foo)
       if (filePathNoExt.endsWith('_index')) {
         const folderPathNoIndex = filePathNoExt.substring(0, filePathNoExt.length - 7);
