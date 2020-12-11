@@ -6,21 +6,6 @@
   "scripts": {
     "testinstall": "snowpack install"
   },
-  "snowpack": {
-    "alias": {
-      "react": "preact/compat",
-      "react-dom": "preact/compat",
-      "vue": "vue/dist/vue.esm.browser.js",
-      "vue-currency-input": "vue-currency-input/dist/vue-currency-input.esm.js"
-    },
-    "install": [
-      "react",
-      "react-dom"
-    ],
-    "buildOptions": {
-      "minify": false
-    }
-  },
   "dependencies": {
     "preact": "^10.0.0",
     "vue": "^2.6.12",
