@@ -178,12 +178,12 @@ function getSplitChunksConfig({numEntries}) {
 }
 
 function getPresetEnvTargets({browserslist}) {
-  if(Array.isArray(browserslist) || typeof browserslist === "string") {
+  if (Array.isArray(browserslist) || typeof browserslist === 'string') {
     return browserslist;
-  } else if(typeof browserslist === "object" && "production" in browserslist) {
+  } else if (typeof browserslist === 'object' && 'production' in browserslist) {
     return browserslist.production;
   } else {
-    return '>0.75%, not ie 11, not UCAndroid >0, not OperaMini all'
+    return '>0.75%, not ie 11, not UCAndroid >0, not OperaMini all';
   }
 }
 
@@ -246,7 +246,7 @@ module.exports = function plugin(config, args = {}) {
           encoding: 'utf-8',
         }),
       );
-      const presetEnvTargets = getPresetEnvTargets(tempBuildManifest)
+      const presetEnvTargets = getPresetEnvTargets(tempBuildManifest);
 
       let extendConfig = (cfg) => cfg;
       if (typeof args.extendConfig === 'function') {
