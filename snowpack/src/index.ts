@@ -103,7 +103,6 @@ export async function cli(args: string[]) {
   const lockfile = await readLockfile(cwd);
   logger.debug(`lockfile ${lockfile ? 'loaded.' : 'not loaded'}`);
   const commandOptions: CommandOptions = {
-    cwd,
     config,
     lockfile,
   };

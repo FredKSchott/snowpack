@@ -40,6 +40,7 @@ const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/web_modules/**/*', '**/.type
 
 // default settings
 const DEFAULT_CONFIG: SnowpackUserConfig = {
+  root: process.cwd(),
   plugins: [],
   alias: {},
   scripts: {},

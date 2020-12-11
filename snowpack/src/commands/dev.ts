@@ -259,7 +259,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
 }
 
 export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
-  const {cwd, config} = commandOptions;
+  const {config} = commandOptions;
   // Start the startup timer!
   let serverStart = performance.now();
 
@@ -351,7 +351,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   if (config.devOptions.secure) {
     try {
       logger.debug(`reading credentials`);
-      credentials = await readCredentials(cwd);
+      credentials = await readCredentials(config.root);
     } catch (e) {
       logger.error(
         `✘ No HTTPS credentials found! Missing Files:  ${colors.bold(
@@ -1383,7 +1383,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     Object.keys(sourceImportMap.imports)
       .map((specifier) => {
         const [packageName] = parsePackageImportSpecifier(specifier);
-        return resolveDependencyManifest(packageName, cwd);
+        return resolveDependencyManifest(packageName, config.root);
       }) // resolve symlink src location
       .filter(([_, packageManifest]) => packageManifest && !packageManifest['_id']) // only watch symlinked deps for now
       .map(([fileLoc]) => `${path.dirname(fileLoc!)}/**`),

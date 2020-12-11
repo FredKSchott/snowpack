@@ -208,6 +208,7 @@ export interface RouteConfigObject {
 
 // interface this library uses internally
 export interface SnowpackConfig {
+  root: string;
   install: string[];
   extends?: string;
   exclude: string[];
@@ -271,6 +272,7 @@ export interface SnowpackConfig {
 }
 
 export type SnowpackUserConfig = {
+  root?: string,
   install?: string[];
   extends?: string;
   exclude?: string[];
@@ -315,8 +317,6 @@ export interface LockfileManifest extends ImportMap {
 }
 
 export interface CommandOptions {
-  // TODO(fks): remove `cwd`, replace with a new `config.root` property on SnowpackConfig.
-  cwd: string;
   config: SnowpackConfig;
   lockfile: LockfileManifest | null;
 }
