@@ -97,6 +97,7 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMin
 }
 
 function getSplitChunksConfig({numEntries}) {
+  const isCss = (module) => module.type === `css/mini-extract`;
   /**
    * Implements a version of granular chunking, as described at https://web.dev/granular-chunking-nextjs/.
    */
@@ -115,7 +116,9 @@ function getSplitChunksConfig({numEntries}) {
        */
       lib: {
         test(module) {
-          return module.size() > 100000 && /web_modules[/\\]/.test(module.identifier());
+          return (
+            !isCss(module) && module.size() > 100000 && /web_modules[/\\]/.test(module.identifier())
+          );
         },
         name(module) {
           /**
@@ -136,6 +139,9 @@ function getSplitChunksConfig({numEntries}) {
       },
       // modules used by all entrypoints end up in commons
       commons: {
+        test(module) {
+          return !isCss(module);
+        },
         name: 'commons',
         // don't create a commons chunk until there are 2+ entries
         minChunks: Math.max(2, numEntries),
@@ -143,6 +149,9 @@ function getSplitChunksConfig({numEntries}) {
       },
       // modules used by multiple chunks can be pulled into shared chunks
       shared: {
+        test(module) {
+          return !isCss(module);
+        },
         name(module, chunks) {
           const hash = crypto
             .createHash(`sha1`)
@@ -154,6 +163,15 @@ function getSplitChunksConfig({numEntries}) {
         priority: 10,
         minChunks: 2,
         reuseExistingChunk: true,
+      },
+      // Bundle all css & lazy css into one stylesheet to make sure lazy components do not break
+      styles: {
+        test(module) {
+          return isCss(module);
+        },
+        name: `styles`,
+        priority: 40,
+        enforce: true,
       },
     },
   };
@@ -361,10 +379,18 @@ module.exports = function plugin(config, args = {}) {
             reject(err);
             return;
           }
+          const info = stats.toJson(extendedConfig.stats);
           if (stats.hasErrors()) {
-            const info = stats.toJson(extendedConfig.stats);
-            console.error(info.warnings.join('\n-----\n'));
-            console.error(info.errors.join('\n-----\n'));
+            console.error('Webpack errors:\n' + info.errors.join('\n-----\n'));
+            reject(Error(`Webpack failed with ${info.errors} error(s).`));
+            return;
+          }
+          if (stats.hasWarnings()) {
+            console.error('Webpack warnings:\n' + info.warnings.join('\n-----\n'));
+            if (args.failOnWarnings) {
+              reject(Error(`Webpack failed with ${info.warnings} warnings(s).`));
+              return;
+            }
           }
           resolve(stats);
         });

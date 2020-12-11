@@ -44,7 +44,7 @@ yarn add vue@latest
 
 ## Tests
 
-We recommend running all tests before you submit a PR.
+We recommend running all tests before you submit a PR. Tests will not work unless you have run a build `yarn build`.
 
 ### Running tests
 
@@ -57,6 +57,8 @@ yarn test:dev # might fail on windows, see #1171
 ```
 
 ### Snapshot tests
+
+_Update Dec 2020: we’re working on improving this! Snapshots are now mostly gone from `test/build`, and we’ll be working through `test/esinstall` next. We‘ll wait to finish the work before updating this section, but know that this may become outdated soon._
 
 The way our snapshot tests work is they test Snowpack by building the codebases in `test/build`. You'll almost always have a "failed" snapshot test when you make a contribution because your new change will make the final build different. You'll want to take a new snapshot. To do this run:
 

@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`snowpack install error-config-invalid: cli output 1`] = `
-"! XXX/package.json
-    - snowpack.install is not of a type(s) array
-    See https://www.snowpack.dev/#configuration for more info."
-`;

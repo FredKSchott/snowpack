@@ -7,32 +7,18 @@ import {command as initCommand} from './commands/init';
 import {command as buildCommand} from './commands/build';
 import {command as installCommand} from './commands/install';
 import {command as devCommand} from './commands/dev';
-import {loadAndValidateConfig} from './config.js';
 import {logger} from './logger';
-import {CLIFlags} from './types/snowpack';
+import {loadConfigurationForCLI} from './config';
+import {CLIFlags, CommandOptions} from './types/snowpack';
 import {clearCache, readLockfile} from './util.js';
-export {createConfiguration} from './config.js';
 export * from './types/snowpack';
 
 // Stable API (remember to include all in "./index.esm.js" wrapper)
 export {startDevServer} from './commands/dev';
-export {loadAndValidateConfig};
+export {buildProject} from './commands/build';
+export {loadConfigurationForCLI as loadAndValidateConfig, createConfiguration} from './config.js';
+export {readLockfile as loadLockfile} from './util.js';
 export {getUrlForFile} from './build/file-urls';
-
-/** @deprecated: Promoted to startDevServer() **/
-export const unstable__startDevServer = () => {
-  throw new Error(`[snowpack 2.15] unstable__startServer() is now startDevServer()`);
-};
-/** @deprecated: Promoted to loadAndValidateConfig() **/
-export const unstable__loadAndValidateConfig = () => {
-  throw new Error(
-    `[snowpack 2.15] unstable__loadAndValidateConfig() is now loadAndValidateConfig()`,
-  );
-};
-/** @deprecated: Promoted to getUrlForFile() **/
-export const unstable__getUrlForFile = () => {
-  throw new Error(`[snowpack 2.15] unstable__getUrlForFile() is now getUrlForFile()`);
-};
 
 const cwd = process.cwd();
 
@@ -112,16 +98,14 @@ export async function cli(args: string[]) {
     process.env.NODE_ENV = process.env.NODE_ENV || 'development';
   }
 
-  const config = loadAndValidateConfig(cliFlags, pkgManifest);
+  const config = loadConfigurationForCLI(cliFlags, pkgManifest);
   logger.debug(`config loaded: ${util.format(config)}`);
   const lockfile = await readLockfile(cwd);
   logger.debug(`lockfile ${lockfile ? 'loaded.' : 'not loaded'}`);
-  const commandOptions = {
+  const commandOptions: CommandOptions = {
     cwd,
     config,
     lockfile,
-    pkgManifest,
-    logger,
   };
 
   if (cmd === 'add') {

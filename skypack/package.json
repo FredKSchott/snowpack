@@ -1,6 +1,6 @@
 {
   "name": "skypack",
-  "version": "0.0.1",
+  "version": "0.1.2",
   "description": "The Skypack SDK.",
   "keywords": [
     "skypack",
@@ -11,8 +11,7 @@
   "author": "Fred K. Schott <fkschott@gmail.com>",
   "license": "MIT",
   "publishConfig": {
-    "access": "public",
-    "directory": "pkg"
+    "access": "public"
   },
   "repository": {
     "type": "git",
@@ -44,8 +43,12 @@
   "dependencies": {
     "cacache": "^15.0.0",
     "cachedir": "^2.3.0",
+    "esinstall": "^0.4.0",
+    "etag": "^1.8.1",
+    "find-up": "^5.0.0",
     "got": "^11.1.4",
     "kleur": "^4.1.0",
+    "mkdirp": "^1.0.3",
     "p-queue": "^6.2.1",
     "rimraf": "^3.0.0",
     "rollup": "^2.23.0",

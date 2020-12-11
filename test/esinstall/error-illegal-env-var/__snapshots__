@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`snowpack install error-illegal-env-var: cli output 1`] = `
-"! XXX/package.json
-    - snowpack.installOptions.env.FOO is not exactly one from <EnvVarString>,<EnvVarNumber>,<EnvVarTrue>
-    See https://www.snowpack.dev/#configuration for more info."
-`;

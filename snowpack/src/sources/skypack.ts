@@ -8,7 +8,7 @@ import {
   SKYPACK_ORIGIN,
 } from 'skypack';
 import {logger} from '../logger';
-import {ImportMap, PackageSource, SnowpackConfig} from '../types/snowpack';
+import {ImportMap, LockfileManifest, PackageSource, SnowpackConfig} from '../types/snowpack';
 
 const fetchedPackages = new Set<string>();
 function logFetching(packageName: string) {
@@ -45,19 +45,22 @@ export default {
     return {imports: {}};
   },
 
-  async modifyBuildInstallConfig(config: SnowpackConfig) {
-    config.installOptions.rollup?.plugins?.push(
-      rollupPluginSkypack({installTypes: false}) as Plugin,
-    );
+  async modifyBuildInstallConfig({
+    config,
+    lockfile,
+  }: {
+    config: SnowpackConfig;
+    lockfile: LockfileManifest | null;
+  }) {
+    config.installOptions.lockfile = lockfile || undefined;
+    config.installOptions.rollup = config.installOptions.rollup || {};
+    config.installOptions.rollup.plugins = config.installOptions.rollup.plugins || [];
+    config.installOptions.rollup.plugins.push(rollupPluginSkypack({installTypes: false}) as Plugin);
   },
 
   async load(
     spec: string,
-    {
-      config,
-      lockfile,
-      pkgManifest,
-    }: {config: SnowpackConfig; lockfile: ImportMap | null; pkgManifest: any},
+    {config, lockfile}: {config: SnowpackConfig; lockfile: LockfileManifest | null},
   ): Promise<string> {
     let body: string;
     if (
@@ -74,9 +77,9 @@ export default {
       } else if (lockfile && lockfile.imports[packageName + '/']) {
         body = (await fetchCDN(lockfile.imports[packageName + '/'] + packagePath)).body;
       } else {
-        const _packageSemver =
-          (config.webDependencies && config.webDependencies[packageName]) ||
-          (pkgManifest?.dependencies && pkgManifest.dependencies[packageName]);
+        // TODO: When config.root is added, look up package.json "dependencies" & "devDependencies"
+        // from the root and fallback to those if lockfile.dependencies[packageName] doesn't exist.
+        const _packageSemver = lockfile?.dependencies && lockfile.dependencies[packageName];
         if (!_packageSemver) {
           logFetching(packageName);
         }

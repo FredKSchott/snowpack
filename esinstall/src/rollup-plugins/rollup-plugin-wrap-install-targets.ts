@@ -1,10 +1,11 @@
+import fs from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
-import fs from 'fs';
-import {VM as VM2} from 'vm2';
 import {Plugin} from 'rollup';
-import {InstallTarget, AbstractLogger} from '../types';
-import {getWebDependencyName, isTruthy} from '../util.js';
+import {VM as VM2} from 'vm2';
+import {AbstractLogger, InstallTarget} from '../types';
+import {getWebDependencyName, isRemoteUrl, isTruthy} from '../util';
+
 // Use CJS intentionally here! ESM interface is async but CJS is sync, and this file is sync
 const {parse} = require('cjs-module-lexer');
 
@@ -115,6 +116,9 @@ export function rollupPluginWrapInstallTargets(
     buildStart(inputOptions) {
       const input = inputOptions.input as {[entryAlias: string]: string};
       for (const [key, val] of Object.entries(input)) {
+        if (isRemoteUrl(val)) {
+          continue;
+        }
         const allInstallTargets = installTargets.filter(
           (imp) => getWebDependencyName(imp.specifier) === key,
         );

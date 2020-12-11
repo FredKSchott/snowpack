@@ -3,7 +3,6 @@ const path = require('path');
 const execa = require('execa');
 const rimraf = require('rimraf');
 const glob = require('glob');
-const strpAnsi = require('strip-ansi');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'create-snowpack-app');
 const templates = fs.readdirSync(TEMPLATES_DIR).filter((dir) => dir.startsWith('app-template-'));
@@ -148,8 +147,7 @@ describe('create-snowpack-app', () => {
 
       // If tests didn't pass, output some relevant info into the test logs.
       if (exitCode !== 0) {
-        console.error('STDOUT', stdout);
-        console.error('STDERR', stderr);
+        console.error({msg: `FAILED TEMPLATE: ${template}`, stdout, stderr});
       }
 
       expect(exitCode).toEqual(0);

@@ -4,6 +4,7 @@ title: '@web/test-runner'
 tags: communityGuide
 img: '/img/logos/modern-web.svg'
 imgBackground: '#f2f2f8'
+description: How to use @web/test-runner in your Snowpack project.
 ---
 
 [@web/test-runner](https://www.npmjs.com/package/@web/test-runner) is our recommended test runner for Snowpack projects. Read more about why we recommend @web/test-runner in our [Snowpack Testing Guide](/guides/testing).

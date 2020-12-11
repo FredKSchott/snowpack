@@ -10,7 +10,7 @@ import {OptimizeOptions, SnowpackConfig} from '../types/snowpack';
 import {
   addLeadingSlash,
   addTrailingSlash,
-  isRemoteSpecifier,
+  isRemoteUrl,
   isTruthy,
   PROJECT_CACHE_DIR,
   removeLeadingSlash,
@@ -46,12 +46,12 @@ interface ScannedHtmlEntrypoint {
 // has a bug where it complains about overwriting source files even when write: false.
 // We create a fake bundle directory for now. Nothing ever actually gets written here.
 const FAKE_BUILD_DIRECTORY = path.join(PROJECT_CACHE_DIR, '~~bundle~~');
-const FAKE_BUILD_DIRECTORY_REGEX = /.*\~\~bundle\~\~\//;
+const FAKE_BUILD_DIRECTORY_REGEX = /.*\~\~bundle\~\~[\\\/]/;
 /**
  * Scan a directory and remove any empty folders, recursively.
  */
 async function removeEmptyFolders(directoryLoc: string): Promise<boolean> {
-  if ((await fs.stat(directoryLoc)).isDirectory()) {
+  if (!(await fs.stat(directoryLoc)).isDirectory()) {
     return false;
   }
   // If folder is empty, clear it
@@ -369,7 +369,7 @@ async function processEntrypoints(
     const bundleEntrypoints = Array.from(
       htmlEntrypoints.reduce((all, val) => {
         val.getLinks('stylesheet').each((_, elem) => {
-          if (!elem.attribs.href || isRemoteSpecifier(elem.attribs.href)) {
+          if (!elem.attribs.href || isRemoteUrl(elem.attribs.href)) {
             return;
           }
           const resolvedCSS =
@@ -379,7 +379,7 @@ async function processEntrypoints(
           all.add(resolvedCSS);
         });
         val.getScripts().each((_, elem) => {
-          if (!elem.attribs.src || isRemoteSpecifier(elem.attribs.src)) {
+          if (!elem.attribs.src || isRemoteUrl(elem.attribs.src)) {
             return;
           }
           const resolvedJS =
@@ -494,9 +494,9 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
   logger.debug(`bundleEntrypoints: ${JSON.stringify(bundleEntrypoints)}`);
 
   if ((!htmlEntrypoints || htmlEntrypoints.length === 0) && bundleEntrypoints.length === 0) {
-      throw new Error(
-        '[optimize] No HTML entrypoints detected. Set "entrypoints" manually if your site HTML is generated outside of Snowpack (SSR, Rails, PHP, etc.).',
-      );
+    throw new Error(
+      '[optimize] No HTML entrypoints detected. Set "entrypoints" manually if your site HTML is generated outside of Snowpack (SSR, Rails, PHP, etc.).',
+    );
   }
 
   // NOTE: esbuild has no `cwd` support, and assumes that you're always bundling the

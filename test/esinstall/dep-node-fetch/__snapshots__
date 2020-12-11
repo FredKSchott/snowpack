@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install dep-node-fetch: allFiles 1`] = `
+exports[`dep-node-fetch matches the snapshot: allFiles 1`] = `
 Array [
   "dep-node-fetch-mock-pkg.js",
   "import-map.json",
@@ -9,7 +9,7 @@ Array [
 ]
 `;
 
-exports[`snowpack install dep-node-fetch: cli output 1`] = `
+exports[`dep-node-fetch matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -19,7 +19,7 @@ exports[`snowpack install dep-node-fetch: cli output 1`] = `
     └─ whatwg-fetch.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install dep-node-fetch: web_modules/dep-node-fetch-mock-pkg.js 1`] = `
+exports[`dep-node-fetch matches the snapshot: web_modules/dep-node-fetch-mock-pkg.js 1`] = `
 "// native patch for: node-fetch, whatwg-fetch
 // ref: https://github.com/tc39/proposal-global
 var getGlobal = function () {
@@ -63,7 +63,7 @@ var fetch_ = /*#__PURE__*/Object.freeze({
 console.log(fetch, fetch_);"
 `;
 
-exports[`snowpack install dep-node-fetch: web_modules/import-map.json 1`] = `
+exports[`dep-node-fetch matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"dep-node-fetch-mock-pkg\\": \\"./dep-node-fetch-mock-pkg.js\\",
@@ -73,7 +73,7 @@ exports[`snowpack install dep-node-fetch: web_modules/import-map.json 1`] = `
 }"
 `;
 
-exports[`snowpack install dep-node-fetch: web_modules/node-fetch.js 1`] = `
+exports[`dep-node-fetch matches the snapshot: web_modules/node-fetch.js 1`] = `
 "// native patch for: node-fetch, whatwg-fetch
 // ref: https://github.com/tc39/proposal-global
 var getGlobal = function () {
@@ -91,7 +91,7 @@ export default index;
 export { Headers, Request, Response };"
 `;
 
-exports[`snowpack install dep-node-fetch: web_modules/whatwg-fetch.js 1`] = `
+exports[`dep-node-fetch matches the snapshot: web_modules/whatwg-fetch.js 1`] = `
 "// native patch for: node-fetch, whatwg-fetch
 // ref: https://github.com/tc39/proposal-global
 var getGlobal = function () {

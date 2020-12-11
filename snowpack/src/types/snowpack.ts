@@ -64,6 +64,17 @@ export interface SnowpackDevServer {
   shutdown(): Promise<void>;
 }
 
+export type SnowpackBuildResultFileManifest = Record<
+  string,
+  {source: string; contents: string | Buffer}
+>;
+
+export interface SnowpackBuildResult {
+  result: SnowpackBuildResultFileManifest;
+  onFileChange: (callback: OnFileChangeCallback) => void;
+  shutdown(): Promise<void>;
+}
+
 export type SnowpackBuiltFile = {
   code: string | Buffer;
   map?: string;
@@ -84,10 +95,15 @@ export interface SnowpackSourceFile<Type = string | Buffer> {
 }
 
 export interface PluginLoadOptions {
+  /** The absolute file path of the source file, on disk. */
   filePath: string;
+  /** A helper for just the file extension of the source file (ex: ".js", ".svelte") */
   fileExt: string;
+  /** True if builder is in dev mode (`snowpack dev` or `snowpack build --watch`) */
   isDev: boolean;
+  /** True if builder is in SSR mode */
   isSSR: boolean;
+  /** True if HMR is enabled (add any HMR code to the output here). */
   isHmrEnabled: boolean;
 }
 
@@ -201,7 +217,6 @@ export interface SnowpackConfig {
   extends?: string;
   exclude: string[];
   knownEntrypoints: string[];
-  webDependencies: Record<string, string>;
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   scripts: Record<string, string>;
@@ -229,10 +244,14 @@ export interface SnowpackConfig {
     sourceMaps: boolean;
     watch: boolean;
     htmlFragments: boolean;
+    jsxFactory: string | undefined;
+    jsxFragment: string | undefined;
   };
   testOptions: {
     files: string[];
   };
+  // @deprecated - now found at lockfile.dependencies
+  webDependencies: Record<string, string>;
   // @deprecated - Use experiments.routes instead
   proxy: Proxy[];
   /** EXPERIMENTAL - This section is experimental and not yet finalized. May change across minor versions. */
@@ -293,14 +312,18 @@ export interface CLIFlags extends Omit<InstallOptions, 'env'> {
 }
 
 export interface ImportMap {
-  imports: {[packageName: string]: string};
+  imports: {[specifier: string]: string};
+}
+
+export interface LockfileManifest extends ImportMap {
+  dependencies: {[packageName: string]: string};
 }
 
 export interface CommandOptions {
+  // TODO(fks): remove `cwd`, replace with a new `config.root` property on SnowpackConfig.
   cwd: string;
   config: SnowpackConfig;
-  lockfile: ImportMap | null;
-  pkgManifest: any;
+  lockfile: LockfileManifest | null;
 }
 
 export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
@@ -326,12 +349,15 @@ export interface PackageSource {
    */
   load(
     spec: string,
-    options: {config: SnowpackConfig; lockfile: ImportMap | null; pkgManifest: any},
+    options: {config: SnowpackConfig; lockfile: ImportMap | null},
   ): Promise<Buffer | string>;
   /** Resolve a package import to URL (ex: "react" -> "/web_modules/react") */
   resolvePackageImport(spec: string, importMap: ImportMap, config: SnowpackConfig): string | false;
   /** Handle 1+ missing package imports before failing, if possible. */
   recoverMissingPackageImport(missingPackages: string[]): Promise<ImportMap>;
   /** Modify the build install config for optimized build install. */
-  modifyBuildInstallConfig(config: SnowpackConfig): Promise<void>;
+  modifyBuildInstallConfig(options: {
+    config: SnowpackConfig;
+    lockfile: ImportMap | null;
+  }): Promise<void>;
 }

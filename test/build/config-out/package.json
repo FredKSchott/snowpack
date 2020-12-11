@@ -10,10 +10,7 @@
     "buildOptions": {
       "clean": true,
       "out": "TEST_BUILD_OUT"
-    },
-    "exclude": [
-      "__snapshots__"
-    ]
+    }
   },
   "devDependencies": {
     "cross-env": "^7.0.2",

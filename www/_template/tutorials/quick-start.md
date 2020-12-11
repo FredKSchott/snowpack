@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Quick Start
+description: A very basic guide for developers who want to run Snowpack as quickly as possible.
 ---
 
 ### Install Snowpack
@@ -24,7 +25,7 @@ pnpm run snowpack [command]
 
 Throughout our documentation, we'll use `snowpack [command]` to document the CLI. To run your locally installed version of Snowpack, add the `npx`/`yarn run`/`pnpm run` prefix of the package manager that you used to install Snowpack.
 
-For long-term development, the best way to use Snowpack is with a package.json script. This reduces your own need to remember exact Snowpack commands/configuration, and lets you share some common scripts with the the rest of your team (if applicable).
+For long-term development, the best way to use Snowpack is with a package.json script. This reduces your own need to remember exact Snowpack commands/configuration, and lets you share some common scripts with the rest of your team (if applicable).
 
 ```js
 // Recommended: package.json scripts

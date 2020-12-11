@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install package-react: allFiles 1`] = `
+exports[`package-react matches the snapshot: allFiles 1`] = `
 Array [
   "import-map.json",
   "react-dom.js",
@@ -9,7 +9,7 @@ Array [
 ]
 `;
 
-exports[`snowpack install package-react: cli output 1`] = `
+exports[`package-react matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
@@ -21,7 +21,7 @@ exports[`snowpack install package-react: cli output 1`] = `
     └─ index-XXXXXXXX.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
-exports[`snowpack install package-react: web_modules/import-map.json 1`] = `
+exports[`package-react matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
     \\"react\\": \\"./react.js\\",
@@ -31,7 +31,7 @@ exports[`snowpack install package-react: web_modules/import-map.json 1`] = `
 }"
 `;
 
-exports[`snowpack install package-react: web_modules/react.js 1`] = `
+exports[`package-react matches the snapshot: web_modules/react.js 1`] = `
 "import { r as react } from './common/index-XXXXXXXX.js';
 export { r as __moduleExports, r as default } from './common/index-XXXXXXXX.js';
 var Children = react.Children;
@@ -65,7 +65,7 @@ var version = react.version;
 export { Children, Component, Fragment, Profiler, PureComponent, StrictMode, Suspense, __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED, cloneElement, createContext, createElement, createFactory, createRef, forwardRef, isValidElement, lazy, memo, useCallback, useContext, useDebugValue, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useReducer, useRef, useState, version };"
 `;
 
-exports[`snowpack install package-react: web_modules/react-dom.js 1`] = `
+exports[`package-react matches the snapshot: web_modules/react-dom.js 1`] = `
 "import { c as createCommonjsModule, r as react, o as objectAssign, a as checkPropTypes_1 } from './common/index-XXXXXXXX.js';
 var scheduler_development = createCommonjsModule(function (module, exports) {
 {
@@ -21721,7 +21721,7 @@ var version = reactDom.version;
 export { __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED, reactDom as __moduleExports, createPortal, findDOMNode, flushSync, hydrate, render, unmountComponentAtNode, unstable_batchedUpdates, unstable_createPortal, unstable_renderSubtreeIntoContainer, version };"
 `;
 
-exports[`snowpack install package-react: web_modules/react-dom/server.js 1`] = `
+exports[`package-react matches the snapshot: web_modules/react-dom/server.js 1`] = `
 "import { c as createCommonjsModule, r as react, o as objectAssign, a as checkPropTypes_1 } from '../common/index-XXXXXXXX.js';
 var reactDomServer_browser_development = createCommonjsModule(function (module) {
 {

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import url from 'url';
 import validatePackageName from 'validate-npm-package-name';
 import {InstallTarget, ImportMap} from './types';
 
@@ -9,6 +10,10 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
     sortedImportMap.imports[key] = importMap.imports[key];
   }
   fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf-8'});
+}
+
+export function isRemoteUrl(val: string): boolean {
+  return val.startsWith('//') || !!url.parse(val).protocol?.startsWith('http');
 }
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {

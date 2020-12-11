@@ -77,7 +77,7 @@ import {
   getPackageSource,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
-  isRemoteSpecifier,
+  isRemoteUrl,
   jsSourceMappingURL,
   openInBrowser,
   parsePackageImportSpecifier,
@@ -259,7 +259,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
 }
 
 export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
-  const {cwd, config, lockfile} = commandOptions;
+  const {cwd, config} = commandOptions;
   // Start the startup timer!
   let serverStart = performance.now();
 
@@ -480,12 +480,16 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
       try {
         const webModuleUrl = reqPath.substr(config.buildOptions.webModulesUrl.length + 1);
-        const response = await pkgSource.load(webModuleUrl, commandOptions);
+        const loadedModule = await pkgSource.load(webModuleUrl, commandOptions);
+        let code = loadedModule;
+        if (isProxyModule) {
+          code = await wrapImportProxy({url: reqPath, code: code.toString(), hmr: isHMR, config});
+        }
         return {
-          contents: encodeResponse(response, encoding),
+          contents: encodeResponse(code, encoding),
           originalFileLoc: null,
-          contentType: path.extname(reqPath)
-            ? mime.lookup(path.extname(reqPath))
+          contentType: path.extname(originalReqPath)
+            ? mime.lookup(path.extname(originalReqPath))
             : 'application/javascript',
         };
       } catch (err) {
@@ -708,7 +712,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       let missingPackages: string[] = [];
       const resolveImportSpecifier = createImportResolver({
         fileLoc,
-        lockfile: lockfile,
         config,
       });
       wrappedResponse = await transformFileImports(
@@ -731,7 +734,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
             return spec;
           }
           // Ignore "http://*" imports
-          if (isRemoteSpecifier(resolvedImportUrl)) {
+          if (isRemoteUrl(resolvedImportUrl)) {
             return resolvedImportUrl;
           }
           // Ignore packages marked as external

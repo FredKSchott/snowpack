@@ -6,8 +6,8 @@ const isTS = fs.existsSync(path.join(cwd, 'tsconfig.json'));
 
 module.exports = {
   mount: {
-    public: '/',
-    src: '/_dist_',
+    public: {url: '/', static: true},
+    src: {url: '/dist'},
   },
   plugins: [
     '@snowpack/plugin-react-refresh',

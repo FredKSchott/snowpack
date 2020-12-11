@@ -1,6 +1,6 @@
 {
   "version": "independent",
-  "packages": ["snowpack", "skypack", "create-snowpack-app/*", "plugins/*"],
+  "packages": ["snowpack", "skypack", "esinstall", "create-snowpack-app/*", "plugins/*"],
   "npmClient": "yarn",
   "useWorkspaces": true
 }

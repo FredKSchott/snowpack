@@ -15,7 +15,7 @@ import {clearCache as clearSkypackCache} from 'skypack';
 import url from 'url';
 import localPackageSource from './sources/local';
 import skypackPackageSource from './sources/skypack';
-import {ImportMap, PackageSource, SnowpackConfig} from './types/snowpack';
+import {LockfileManifest, PackageSource, SnowpackConfig} from './types/snowpack';
 
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
 
@@ -51,7 +51,7 @@ export async function readFile(filepath: URL): Promise<string | Buffer> {
   return isBinary ? data : data.toString('utf-8');
 }
 
-export async function readLockfile(cwd: string): Promise<ImportMap | null> {
+export async function readLockfile(cwd: string): Promise<LockfileManifest | null> {
   try {
     var lockfileContents = fs.readFileSync(path.join(cwd, 'snowpack.lock.json'), {
       encoding: 'utf-8',
@@ -64,12 +64,18 @@ export async function readLockfile(cwd: string): Promise<ImportMap | null> {
   return JSON.parse(lockfileContents);
 }
 
-export async function writeLockfile(loc: string, importMap: ImportMap): Promise<void> {
-  const sortedImportMap: ImportMap = {imports: {}};
-  for (const key of Object.keys(importMap.imports).sort()) {
-    sortedImportMap.imports[key] = importMap.imports[key];
+function sortObject<T>(originalObject: Record<string, T>): Record<string, T> {
+  const newObject = {};
+  for (const key of Object.keys(originalObject).sort()) {
+    newObject[key] = originalObject[key];
   }
-  fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf-8'});
+  return newObject;
+}
+
+export async function writeLockfile(loc: string, importMap: LockfileManifest): Promise<void> {
+  importMap.dependencies = sortObject(importMap.dependencies);
+  importMap.imports = sortObject(importMap.imports);
+  fs.writeFileSync(loc, JSON.stringify(importMap, undefined, 2), {encoding: 'utf-8'});
 }
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {
@@ -256,13 +262,20 @@ export async function clearCache() {
   ]);
 }
 
+function getAliasType(val: string): 'package' | 'path' | 'url' {
+  if (isRemoteUrl(val)) {
+    return 'url';
+  }
+  return !path.isAbsolute(val) ? 'package' : 'path';
+}
+
 /**
  * For the given import specifier, return an alias entry if one is matched.
  */
 export function findMatchingAliasEntry(
   config: SnowpackConfig,
   spec: string,
-): {from: string; to: string; type: 'package' | 'path'} | undefined {
+): {from: string; to: string; type: 'package' | 'path' | 'url'} | undefined {
   // Only match bare module specifiers. relative and absolute imports should not match
   if (
     spec === '.' ||
@@ -277,24 +290,16 @@ export function findMatchingAliasEntry(
   }
 
   for (const [from, to] of Object.entries(config.alias)) {
-    let foundType: 'package' | 'path' = isPackageAliasEntry(to) ? 'package' : 'path';
     const isExactMatch = spec === from;
     const isDeepMatch = spec.startsWith(addTrailingSlash(from));
     if (isExactMatch || isDeepMatch) {
       return {
         from,
         to,
-        type: foundType,
+        type: getAliasType(to),
       };
     }
   }
-}
-
-/**
- * For the given import specifier, return an alias entry if one is matched.
- */
-export function isPackageAliasEntry(val: string): boolean {
-  return !path.isAbsolute(val);
 }
 
 /** Get full extensions of files */
@@ -313,10 +318,10 @@ export function replaceExt(fileName: string, oldExt: string, newExt: string): st
   return fileName.replace(extToReplace, newExt);
 }
 
-/** determine if remote package or not */
-export function isRemoteSpecifier(specifier) {
-  return specifier.startsWith('//') || url.parse(specifier).protocol;
+export function isRemoteUrl(val: string): boolean {
+  return val.startsWith('//') || !!url.parse(val).protocol?.startsWith('http');
 }
+
 /**
  * Sanitizes npm packages that end in .js (e.g `tippy.js` -> `tippyjs`).
  * This is necessary because Snowpack can’t create both a file and directory

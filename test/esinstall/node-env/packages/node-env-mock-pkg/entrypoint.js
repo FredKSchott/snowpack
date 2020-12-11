@@ -1,4 +1,7 @@
-export const nodeEnv = process.env.NODE_ENV === 'FOOBAR' ? true : false;
-export const cliA = process.env.CLI_A === 'cli' ? true : false;
-export const confA = process.env.CONF_A === 'alpha' ? true : false;
-export const confB = process.env.CONF_B === 'beta' ? true : false;
+export const string = process.env.ENV_STRING;
+export const number = process.env.ENV_NUMBER;
+export const boolean = process.env.ENV_BOOLEAN;
+export const array = process.env.ENV_ARRAY;
+export const object = process.env.ENV_OBJECT;
+export const nullValue = process.env.ENV_NULL;
+export const undefinedValue = process.env.ENV_UNDEFINED;

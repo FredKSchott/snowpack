@@ -1,3 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack install error-include-ignore-unsupported-files: cli output 1`] = `"[snowpack] Nothing to install."`;
+exports[`error-include-ignore-unsupported-files matches the snapshot: allFiles 1`] = `Array []`;
+
+exports[`error-include-ignore-unsupported-files matches the snapshot: cli output 1`] = `"[snowpack] Nothing to install."`;

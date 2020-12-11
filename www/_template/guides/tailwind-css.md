@@ -5,6 +5,7 @@ tags: communityGuide
 published: true
 img: '/img/logos/tailwind.svg'
 imgBackground: '#f2f8f8'
+description: How to use Tailwind CSS with Snowpack.
 ---
 
 [Tailwind](https://tailwindcss.com) is a popular class-based CSS utility library.

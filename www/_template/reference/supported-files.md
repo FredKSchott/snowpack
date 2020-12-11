@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Supported Files
+description: Snowpack ships with built-in support for many file types including json, js, ts, jsx, css, css modules, and images.
 ---
 
 Snowpack ships with built-in support for the following file types, no configuration required:
@@ -13,7 +14,7 @@ Snowpack ships with built-in support for the following file types, no configurat
 - CSS Modules (`.module.css`)
 - Images & Assets (`.svg`, `.jpg`, `.png`, etc.)
 
-To customize build behavior and support new languages [check out our tooling guide]()
+To customize build behavior and support new languages [check out our tooling guide](/guides/connecting-tools)
 
 ### JavaScript & ESM
 
@@ -87,7 +88,7 @@ CSS Modules help you enforce component scoping & isolation on the frontend with 
 ```jsx
 import imgReference from './image.png'; // img === '/src/image.png'
 import svgReference from './image.svg'; // svg === '/src/image.svg'
-import txtReference from './words.txt'; // txt === '/src/image.png'
+import txtReference from './words.txt'; // txt === '/src/words.txt'
 
 // This example uses JSX, but you can use import references with any framework.
 <img src={imgReference} />;

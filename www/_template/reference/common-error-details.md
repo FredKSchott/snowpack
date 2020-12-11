@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Common Error Details
+description: How to troubleshoot common issues and error messagesm, plus our resources for getting help.
 ---
 
 This page details several common issues and error messages. For further help we have an active [GitHub Discussion forum](https://github.com/snowpackjs/snowpack/discussions)and [Discord](https://discord.gg/snowpack). Developers and community contributors frequently answer questions on both.
@@ -47,3 +48,16 @@ module.exports = {
 ```
 
 Refer to [Rollup’s documentation on plugins](https://rollupjs.org/guide/en/#using-plugins) for more information.
+
+### RangeError: Invalid WebSocket frame: RSV1 must be clear
+
+**To solve this issue:** Use any other port than `8080` for the dev server. To do so, specify a port in your [Snowpack config](/reference/configuration):
+
+```js
+/* snowpack.config.js */
+module.exports = {
+  devOptions: {
+    port: 3000,
+  },
+};
+```

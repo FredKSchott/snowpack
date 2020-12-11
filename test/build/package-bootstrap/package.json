@@ -9,9 +9,6 @@
   "snowpack": {
     "mount": {
       "./src": "/_dist_"
-    },
-    "buildOptions": {
-      "minify": false
     }
   },
   "dependencies": {

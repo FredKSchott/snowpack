@@ -39,51 +39,10 @@ description: 'Snowpack is the fast, bundle-free build tool for all kinds of fron
     </style>
   </head>
   <body class="base">
+    {% include 'layouts/components/grid-banner.njk' %}
     {% include 'layouts/components/nav.njk' %}
     {{ content | safe }}
   </body>
-  <script>
-    function handleMobileNav(evt) {
-      evt.preventDefault();
-      /*If hidden-mobile class is enabled that means we are on desktop do overflow normal but we
-        if we are at mobile fixed body position, so that its not scrollable(which currently causing bug) and navbar  handling its
-        owns scroll. Case to consider there are chance use can open navbar using toggle button and user when click on any link
-        body postion should be unset
-        */
-      document.body.classList.toggle('is-nav-open');
-      const isOpen = document.body.classList.contains('is-nav-open');
-      if (isOpen) {
-        evt.target.setAttribute('aria-expanded', 'true');
-      } else {
-        evt.target.setAttribute('aria-expanded', 'false');
-      }
-    }
-    const mobileNavBtn = document.getElementById('toc-drawer-button');
-    mobileNavBtn.addEventListener('click', handleMobileNav);
-    mobileNavBtn.addEventListener('touchend', handleMobileNav);
-
-    const gridTocEl = document.querySelector('#nav-primary');
-    const searchFormInputEl = document.getElementById('search-form-input');
-    searchFormInputEl.addEventListener('keyup', () => {
-      if (searchFormInputEl.value) {
-        gridTocEl.classList.add('is-mobile-hidden');
-      } else {
-        gridTocEl.classList.remove('is-mobile-hidden');
-      }
-    });
-
-    document.onkeydown = function (e) {
-      if ((e.ctrlKey || e.metaKey) && e.which == 75) {
-        searchFormInputEl.focus();
-      }
-    };
-</script>
-  <script type="module" defer>
-    import docsearch from 'docsearch.js/dist/cdn/docsearch.min.js';
-    docsearch({
-      apiKey: '562139304880b94536fc53f5d65c5c19', indexName: 'snowpack', inputSelector: '.search-form-input', debug: true // Set debug to true if you want to inspect the dropdown
-    });
-  </script>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-130280175-9"></script>
   <script>

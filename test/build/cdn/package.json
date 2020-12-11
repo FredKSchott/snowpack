@@ -7,15 +7,6 @@
     "start": "snowpack dev",
     "testbuild": "snowpack build"
   },
-  "snowpack": {
-    "mount": {
-      "./public": "/",
-      "./src": "/_dist_"
-    },
-    "buildOptions": {
-      "minify": false
-    }
-  },
   "devDependencies": {
     "snowpack": "^2.14.3"
   }

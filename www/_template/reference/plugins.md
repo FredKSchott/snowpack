@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Plugin API
+description: The Snowpack Plugin API and how to use it.
 ---
 
 Looking to get started writing your own plugin? Check out our [Plugin Guide](/guides/plugins) for an overview of how plugins work and a walk-through to help you create your own.
@@ -86,7 +87,7 @@ An list of any npm dependencies that are added as a part of `load()` or `transfo
 resolve: {input: [".sass"], output: [".css"]}
 
 // Example: Svelte plugin compiles Svelte files to JS & CSS.
-resolve: {input: [".svelte"], output: [".js",[".css"]}
+resolve: {input: [".svelte"], output: [".js", ".css"]}
 ```
 
 If your plugin defines a `load()` method, Snowpack will need to know what files your plugin is responsible to load and what its output will look like. **`resolve` is needed only if you also define a `load()` method.**

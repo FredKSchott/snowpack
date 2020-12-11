@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`snowpack install error-empty-dep-list: cli output 1`] = `"[snowpack] Nothing to install."`;

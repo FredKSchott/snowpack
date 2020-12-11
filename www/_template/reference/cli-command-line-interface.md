@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Command Line API
+description: The Snowpack Command Line tool's API, commands, and flags.
 ---
 
 ### Commands

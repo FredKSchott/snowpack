@@ -1,6 +1,7 @@
 ---
 layout: layouts/content.njk
 title: Creating Your Own Plugin
+description: Learn the basics of our Plugin API through working examples.
 ---
 
 #### Who is this page for?
@@ -124,24 +125,24 @@ The `load()` method is responsible for loading and build files from disk while t
 For a more complicated example, we’ll take one input file (`.svelte`) and use it to generate 2 output files (`.js` and `.css`).
 
 ```js
-const fs = require("fs").promises;
-const svelte = require("svelte/compiler");
+const fs = require('fs').promises;
+const svelte = require('svelte/compiler');
 
-module.exports = function(snowpackConfig, pluginOptions) {
+module.exports = function (snowpackConfig, pluginOptions) {
   return {
     name: 'my-svelte-plugin',
     resolve: {
       input: ['.svelte'],
       output: ['.js', '.css'],
-    }
+    },
     async load({ filePath }) {
       const fileContents = await fs.readFile(filePath, 'utf-8');
-      const { js, css } = svelte.compile(codeToCompile, { filename: filePath });
+      const { js, css } = svelte.compile(fileContents, { filename: filePath });
       return {
         '.js': js && js.code,
         '.css': css && css.code,
       };
-    }
+    },
   };
 };
 ```

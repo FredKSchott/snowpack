@@ -26,6 +26,9 @@ import {
   CommandOptions,
   ImportMap,
   MountEntry,
+  OnFileChangeCallback,
+  SnowpackBuildResult,
+  SnowpackBuildResultFileManifest,
   SnowpackConfig,
   SnowpackSourceFile,
 } from '../types/snowpack';
@@ -34,7 +37,7 @@ import {
   getPackageSource,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
-  isRemoteSpecifier,
+  isRemoteUrl,
   jsSourceMappingURL,
   readFile,
   relativeURL,
@@ -55,6 +58,19 @@ function handleFileError(err: Error, builder: FileBuilder) {
   process.exit(1);
 }
 
+function createBuildFileManifest(allFiles: FileBuilder[]): SnowpackBuildResultFileManifest {
+  const result: SnowpackBuildResultFileManifest = {};
+  for (const sourceFile of allFiles) {
+    for (const outputFile of Object.entries(sourceFile.output)) {
+      result[outputFile[0]] = {
+        source: url.fileURLToPath(sourceFile.fileURL),
+        contents: outputFile[1],
+      };
+    }
+  }
+  return result;
+}
+
 async function installOptimizedDependencies(
   scannedFiles: SnowpackSourceFile[],
   installDest: string,
@@ -71,17 +87,13 @@ async function installOptimizedDependencies(
   });
 
   const pkgSource = getPackageSource(commandOptions.config.experiments.source);
-  pkgSource.modifyBuildInstallConfig(installConfig);
+  pkgSource.modifyBuildInstallConfig({config: installConfig, lockfile: commandOptions.lockfile});
 
   // Unlike dev (where we scan from source code) the built output guarantees that we
   // will can scan all used entrypoints. Set to `[]` to improve tree-shaking performance.
   installConfig.knownEntrypoints = [];
   // 1. Scan imports from your final built JS files.
-  const installTargets = await getInstallTargets(
-    installConfig,
-    commandOptions.lockfile,
-    scannedFiles,
-  );
+  const installTargets = await getInstallTargets(installConfig, scannedFiles);
   // 2. Install dependencies, based on the scan of your final build.
   const installResult = await installRunner({
     ...commandOptions,
@@ -223,7 +235,6 @@ class FileBuilder {
       const file = rawFile as SnowpackSourceFile<string>;
       const resolveImportSpecifier = createImportResolver({
         fileLoc: file.locOnDisk!, // we’re confident these are reading from disk because we just read them
-        lockfile: this.lockfile,
         config: this.config,
       });
       const resolvedCode = await transformFileImports(file, (spec) => {
@@ -231,7 +242,7 @@ class FileBuilder {
         let resolvedImportUrl = resolveImportSpecifier(spec);
         // If not resolved, then this is a package. During build, dependencies are always
         // installed locally via esinstall, so use localPackageSource here.
-        if (!resolvedImportUrl) {
+        if (importMap.imports[spec]) {
           resolvedImportUrl = localPackageSource.resolvePackageImport(spec, importMap, this.config);
         }
         // If still not resolved, then this imported package somehow evaded detection
@@ -242,8 +253,8 @@ class FileBuilder {
           return spec;
         }
         // Ignore "http://*" imports
-        if (isRemoteSpecifier(resolvedImportUrl)) {
-          return spec;
+        if (isRemoteUrl(resolvedImportUrl)) {
+          return resolvedImportUrl;
         }
         // Ignore packages marked as external
         if (this.config.installOptions.externalPackage?.includes(resolvedImportUrl)) {
@@ -320,7 +331,7 @@ class FileBuilder {
   }
 }
 
-export async function command(commandOptions: CommandOptions) {
+export async function buildProject(commandOptions: CommandOptions): Promise<SnowpackBuildResult> {
   const {config, lockfile} = commandOptions;
   const isDev = !!config.buildOptions.watch;
   const isSSR = !!config.experiments.ssr;
@@ -432,6 +443,7 @@ export async function command(commandOptions: CommandOptions) {
 
   // 0. Find all source files.
   for (const [mountedDir, mountEntry] of Object.entries(config.mount)) {
+    const finalDestLocMap = new Map<string, string>();
     const allFiles = glob.sync(`**/*`, {
       ignore: [...config.exclude, ...config.testOptions.files],
       cwd: mountedDir,
@@ -444,6 +456,15 @@ export async function command(commandOptions: CommandOptions) {
       const fileLoc = path.resolve(rawLocOnDisk); // this is necessary since glob.sync() returns paths with / on windows.  path.resolve() will switch them to the native path separator.
       const finalUrl = getUrlForFileMount({fileLoc, mountKey: mountedDir, mountEntry, config})!;
       const finalDestLoc = path.join(buildDirectoryLoc, finalUrl);
+
+      const existedFileLoc = finalDestLocMap.get(finalDestLoc);
+      if (existedFileLoc) {
+        logger.error(`Error: Two files overlap and build to the same destination: ${finalDestLoc}`);
+        logger.error(`  File 1: ${existedFileLoc}`);
+        logger.error(`  File 2: ${fileLoc}`);
+        process.exit(1);
+      }
+
       const outDir = path.dirname(finalDestLoc);
       const buildPipelineFile = new FileBuilder({
         fileURL: url.pathToFileURL(fileLoc),
@@ -453,6 +474,8 @@ export async function command(commandOptions: CommandOptions) {
         lockfile,
       });
       buildPipelineFiles[fileLoc] = buildPipelineFile;
+
+      finalDestLocMap.set(finalDestLoc, fileLoc);
     }
   }
 
@@ -514,6 +537,8 @@ export async function command(commandOptions: CommandOptions) {
   }
   await parallelWorkQueue.onIdle();
 
+  const buildResultManifest = createBuildFileManifest(allBuildPipelineFiles);
+
   // 5. Optimize the build.
   if (!config.buildOptions.watch) {
     if (config.experiments.optimize || config.plugins.some((p) => p.optimize)) {
@@ -536,7 +561,15 @@ export async function command(commandOptions: CommandOptions) {
     }
     await runPipelineCleanupStep(config);
     logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
-    return;
+    return {
+      result: buildResultManifest,
+      onFileChange: () => {
+        throw new Error('buildProject().onFileChange() only supported in "watch" mode.');
+      },
+      shutdown: () => {
+        throw new Error('buildProject().shutdown() only supported in "watch" mode.');
+      },
+    };
   }
 
   // "--watch --hmr" mode - Tell users about the HMR WebSocket URL
@@ -560,6 +593,7 @@ export async function command(commandOptions: CommandOptions) {
     if (!mountEntryResult) {
       return;
     }
+    onFileChangeCallback({filePath: fileLoc});
     const [mountKey, mountEntry] = mountEntryResult;
     const finalUrl = getUrlForFileMount({fileLoc, mountKey, mountEntry, config})!;
     const finalDest = path.join(buildDirectoryLoc, finalUrl);
@@ -625,6 +659,29 @@ export async function command(commandOptions: CommandOptions) {
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('unlink', (fileLoc) => onDeleteEvent(fileLoc));
 
-  // We intentionally never want to exit in watch mode!
-  return new Promise(() => {});
+  // Allow the user to hook into this callback, if they like (noop by default)
+  let onFileChangeCallback: OnFileChangeCallback = () => {};
+
+  return {
+    result: buildResultManifest,
+    onFileChange: (callback) => (onFileChangeCallback = callback),
+    async shutdown() {
+      await watcher.close();
+    },
+  };
+}
+
+export async function command(commandOptions: CommandOptions) {
+  try {
+    await buildProject(commandOptions);
+  } catch (err) {
+    logger.error(err.message);
+    logger.debug(err.stack);
+    process.exit(1);
+  }
+
+  if (commandOptions.config.buildOptions.watch) {
+    // We intentionally never want to exit in watch mode!
+    return new Promise(() => {});
+  }
 }

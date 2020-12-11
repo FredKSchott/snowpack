@@ -7,9 +7,6 @@
     "testbuild": "snowpack build"
   },
   "snowpack": {
-    "buildOptions": {
-      "minify": false
-    },
     "mount": {
       "./src": "/_dist_"
     },
