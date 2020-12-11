@@ -25,12 +25,15 @@ For reference documentation (APIs, configuration, etc.), use the following forma
 ```
 method/name | `type` | Default: `value` : description
 ```
+
 `Default` is optional and only applies if there is a default.
 
 Example:
+
 ```
 devOptions.open | `string` | Default: `"default"`
 ```
+
 If it's a heading use the truncated format with the rest of the information below the heading:
 
 ```
@@ -39,7 +42,6 @@ If it's a heading use the truncated format with the rest of the information belo
 Default: `value`
 Description
 ```
-
 
 Examples:
 
