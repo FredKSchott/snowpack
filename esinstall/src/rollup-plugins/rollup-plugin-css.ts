@@ -1,5 +1,4 @@
 import {Plugin} from 'rollup';
-import {promises as fs} from 'fs';
 
 function getInjectorCode(name: string, code: string) {
   return `
@@ -29,19 +28,10 @@ __snowpack__injectStyle(${JSON.stringify(code)});\n`;
 export function rollupPluginCss() {
   return {
     name: 'snowpack:rollup-plugin-css',
-    resolveId(source, importer) {
-      if (!source.endsWith('.css')) {
-        return null;
-      }
-      return this.resolve(source, importer, {skipSelf: true}).then((resolved) => {
-        return resolved || null;
-      });
-    },
-    async load(id: string) {
+    async transform(code: string, id: string) {
       if (!id.endsWith('.css')) {
         return null;
       }
-      const code = await fs.readFile(id, {encoding: 'utf-8'});
       const humanReadableName = id.replace(/.*node_modules[\/\\]/, '').replace(/[\/\\]/g, '/');
       return getInjectorCode(humanReadableName, code);
     },
