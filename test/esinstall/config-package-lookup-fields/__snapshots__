@@ -9,7 +9,10 @@ Array [
 
 exports[`config-package-lookup-fields matches the snapshot: cli output 1`] = `
 "[snowpack] ! installing dependencies...
-[snowpack] Package \\"some-svelte-package\\" not found. Have you installed it?"
+[snowpack] ✔ install complete!
+[snowpack]
+  ⦿ web_modules/                      size       gzip       brotli
+    └─ some-custom-lookup-package.js    XXXX KB    XXXX KB    XXXX KB"
 `;
 
 exports[`config-package-lookup-fields matches the snapshot: web_modules/import-map.json 1`] = `

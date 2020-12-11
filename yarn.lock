@@ -12899,7 +12899,7 @@ solid-js@^0.16.7:
   resolved "https://registry.yarnpkg.com/solid-js/-/solid-js-0.16.14.tgz#098aea093d1f1660c3572eda5af085e5d0cc2f20"
   integrity sha512-fdkzrseYaileVAHJAmGRXBrq6Uyd7zwGK53T+QnKTlvd5hhPSh5i2W8vny1HycHTXZ3v8oms/2H2Gj3/cVfVqQ==
 
-"some-svelte-package@file:./test/esinstall/config-package-lookup-fields/packages/some-svelte-package":
+"some-custom-lookup-package@file:./test/esinstall/config-package-lookup-fields/packages/some-custom-lookup-package":
   version "1.0.0"
 
 sort-keys@^2.0.0:

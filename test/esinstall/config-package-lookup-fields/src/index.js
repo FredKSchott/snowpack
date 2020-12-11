@@ -1,1 +1,1 @@
-import 'some-svelte-package';
+import 'some-custom-lookup-package';

@@ -9,12 +9,12 @@
   "snowpack": {
     "installOptions": {
       "packageLookupFields": [
-        "svelte"
+        "custom-lookup"
       ]
     }
   },
   "dependencies": {
-    "some-svelte-package": "file:./packages/some-svelte-package"
+    "some-custom-lookup-package": "file:./packages/some-custom-lookup-package"
   },
   "devDependencies": {
     "snowpack": "^2.14.3"
