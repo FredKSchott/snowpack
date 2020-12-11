@@ -83,7 +83,7 @@ exports[`create-snowpack-app app-template-11ty > build: index.html 1`] = `
       </svg>
     </div>
 <canvas id=\\"canvas\\"></canvas>
-<script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+<script type=\\"module\\" src=\\"/dist/index.js\\"></script>
 <a href=\\"/about\\">About Page</a>
   </body>
 </html>"
@@ -677,7 +677,7 @@ exports[`create-snowpack-app app-template-blank > build: index.html 1`] = `
     <img id=\\"img\\" src=\\"/logo.svg\\" />
     <canvas id=\\"canvas\\"></canvas>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -1246,7 +1246,7 @@ exports[`create-snowpack-app app-template-blank-typescript > build: index.html 1
     <img id=\\"img\\" src=\\"/logo.svg\\" />
     <canvas id=\\"canvas\\"></canvas>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -1883,7 +1883,7 @@ exports[`create-snowpack-app app-template-lit-element > build: index.html 1`] = 
   <body>
     <app-root></app-root>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -4661,7 +4661,7 @@ exports[`create-snowpack-app app-template-lit-element-typescript > build: index.
   <body>
     <app-root></app-root>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -7563,7 +7563,7 @@ exports[`create-snowpack-app app-template-preact > build: index.html 1`] = `
   <body>
     <div id=\\"root\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -7757,7 +7757,7 @@ exports[`create-snowpack-app app-template-preact-typescript > build: index.html 
   <body>
     <div id=\\"root\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -7954,7 +7954,7 @@ exports[`create-snowpack-app app-template-react > build: index.html 1`] = `
   <body>
     <div id=\\"root\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -8492,7 +8492,7 @@ exports[`create-snowpack-app app-template-react-typescript > build: index.html 1
   <body>
     <div id=\\"root\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -9035,7 +9035,7 @@ exports[`create-snowpack-app app-template-svelte > build: index.html 1`] = `
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -9225,7 +9225,7 @@ exports[`create-snowpack-app app-template-svelte-typescript > build: index.html 
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -9387,7 +9387,7 @@ exports[`create-snowpack-app app-template-vue > build: index.html 1`] = `
   <body>
     <div id=\\"app\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -14778,7 +14778,7 @@ exports[`create-snowpack-app app-template-vue-typescript > build: index.html 1`]
   <body>
     <div id=\\"app\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

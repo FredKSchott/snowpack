@@ -695,7 +695,7 @@ exports.setSignature = setSignature;
 </script>
     <div id=\\"root\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
   </body>
 </html>"
 `;
@@ -1416,7 +1416,7 @@ exports.setSignature = setSignature;
 </script>
     <div id=\\"root\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
   </body>
 </html>"
 `;
