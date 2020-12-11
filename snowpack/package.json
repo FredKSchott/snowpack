@@ -50,7 +50,7 @@
   "dependencies": {
     "@snowpack/plugin-build-script": "^2.0.12",
     "@snowpack/plugin-run-script": "^2.2.1",
-    "@types/cheerio": "^0.22.22",
+    "@types/cheerio": "0.22.22",
     "cacache": "^15.0.0",
     "cachedir": "^2.3.0",
     "cheerio": "^1.0.0-rc.3",

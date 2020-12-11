@@ -39,7 +39,7 @@ export { N$1 as Children, d as Component, p as Fragment, w$2 as PureComponent, f
 
 exports[`config-alias matches the snapshot: web_modules/vue-currency-input/dist/vue-currency-input.esm.js 1`] = `
 "/**
- * Vue Currency Input 1.22.3
+ * Vue Currency Input 1.22.4
  * (c) 2018-2020 Matthias Stiller
  * @license MIT
  */
@@ -49,6 +49,7 @@ var count = function (str, search) { return (str.match(new RegExp(escapeRegExp(s
 var startsWith = function (str, search) { return str.substring(0, search.length) === search; };
 var substringBefore = function (str, search) { return str.substring(0, str.indexOf(search)); };
 var DECIMAL_SYMBOLS = [',', '.', '٫'];
+var INTEGER_PATTERN = '(0|[1-9]\\\\\\\\d*)';
 var NumberFormat = function NumberFormat (options) {
   var currency = options.currency;
   var locale = options.locale;
@@ -93,14 +94,20 @@ NumberFormat.prototype.parse = function parse (str, valueAsInteger) {
     str = this.normalizeDigits(str);
     str = this.stripCurrencySymbol(str);
     str = this.stripMinusSymbol(str);
-    var fraction = this.decimalSymbol ? (\\"(\\" + (escapeRegExp(this.decimalSymbol)) + \\"\\\\\\\\d*)?\\") : '';
-    var match = str.match(new RegExp((\\"^\\" + (this.integerPattern()) + fraction + \\"$\\")));
-    if (match) {
-      var number = Number((\\"\\" + (negative ? '-' : '') + ((this.onlyDigits(match[1]))) + \\".\\" + ((this.onlyDigits(match[3] || '')))));
+    var fraction = this.decimalSymbol ? (\\"(?:\\" + (escapeRegExp(this.decimalSymbol)) + \\"(\\\\\\\\d*))?\\") : '';
+    var match = this.stripGroupingSymbol(str).match(new RegExp((\\"^\\" + INTEGER_PATTERN + fraction + \\"$\\")));
+    if (match && this.isValidIntegerFormat(str.split(this.decimalSymbol)[0], Number(match[1]))) {
+      var number = Number((\\"\\" + (negative ? '-' : '') + (match[1]) + \\".\\" + ((match[2] || ''))));
       return valueAsInteger ? Number(number.toFixed(this.maximumFractionDigits).split('.').join('')) : number
     }
   }
   return null
+};
+NumberFormat.prototype.isValidIntegerFormat = function isValidIntegerFormat (str, integerNumber) {
+  return [
+    this.normalizeDigits(integerNumber.toLocaleString(this.locale)),
+    this.normalizeDigits(integerNumber.toLocaleString(this.locale, { useGrouping: false }))
+  ].includes(str)
 };
 NumberFormat.prototype.format = function format (number, options) {
     if ( options === void 0 ) options = {
@@ -115,20 +122,20 @@ NumberFormat.prototype.format = function format (number, options) {
     return this.insertCurrencySymbol(Math.abs(number).toLocaleString(this.locale, options), number < 0 || (number === 0 && (1 / number < 0)))
   }
 };
-NumberFormat.prototype.integerPattern = function integerPattern () {
-  return (\\"(0|[1-9]\\\\\\\\d{0,2}(\\" + (escapeRegExp(this.groupingSymbol)) + \\"?\\\\\\\\d{3})*)\\")
-};
 NumberFormat.prototype.toFraction = function toFraction (str) {
   return (\\"\\" + (this.digits[0]) + (this.decimalSymbol) + ((this.onlyLocaleDigits(str.substr(1)).substr(0, this.maximumFractionDigits))))
 };
 NumberFormat.prototype.isFractionIncomplete = function isFractionIncomplete (str) {
-  return !!this.normalizeDigits(str).match(new RegExp((\\"^\\" + (this.integerPattern()) + (escapeRegExp(this.decimalSymbol)) + \\"$\\")))
+  return !!this.normalizeDigits(this.stripGroupingSymbol(str)).match(new RegExp((\\"^\\" + INTEGER_PATTERN + (escapeRegExp(this.decimalSymbol)) + \\"$\\")))
 };
 NumberFormat.prototype.isNegative = function isNegative (str) {
   return startsWith(str, this.negativePrefix) || startsWith(str.replace('-', this.minusSymbol), this.minusSymbol)
 };
 NumberFormat.prototype.insertCurrencySymbol = function insertCurrencySymbol (str, negative) {
   return (\\"\\" + (negative ? this.negativePrefix : this.prefix) + str + (this.suffix))
+};
+NumberFormat.prototype.stripGroupingSymbol = function stripGroupingSymbol (str) {
+  return str.replace(new RegExp(escapeRegExp(this.groupingSymbol), 'g'), '')
 };
 NumberFormat.prototype.stripMinusSymbol = function stripMinusSymbol (str) {
   return str.replace('-', this.minusSymbol).replace(this.minusSymbol, '')

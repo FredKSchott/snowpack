@@ -15233,7 +15233,7 @@ function createGetter(isReadonly = false, shallow = false) {
             return target;
         }
         const targetIsArray = isArray(target);
-        if (targetIsArray && hasOwn(arrayInstrumentations, key)) {
+        if (!isReadonly && targetIsArray && hasOwn(arrayInstrumentations, key)) {
             return Reflect.get(arrayInstrumentations, key, receiver);
         }
         const res = Reflect.get(target, key, receiver);
@@ -15381,11 +15381,11 @@ function add(value) {
     const target = toRaw(this);
     const proto = getProto(target);
     const hadKey = proto.has.call(target, value);
-    const result = target.add(value);
+    target.add(value);
     if (!hadKey) {
         trigger(target, \\"add\\" /* ADD */, value, value);
     }
-    return result;
+    return this;
 }
 function set$1(key, value) {
     value = toRaw(value);
@@ -15397,14 +15397,14 @@ function set$1(key, value) {
         hadKey = has.call(target, key);
     }
     const oldValue = get.call(target, key);
-    const result = target.set(key, value);
+    target.set(key, value);
     if (!hadKey) {
         trigger(target, \\"add\\" /* ADD */, key, value);
     }
     else if (hasChanged(value, oldValue)) {
         trigger(target, \\"set\\" /* SET */, key, value);
     }
-    return result;
+    return this;
 }
 function deleteEntry(key) {
     const target = toRaw(this);
@@ -16124,19 +16124,24 @@ function isEmitListener(options, key) {
     if (!options || !isOn(key)) {
         return false;
     }
-    key = key.replace(/Once$/, '');
-    return (hasOwn(options, key[2].toLowerCase() + key.slice(3)) ||
-        hasOwn(options, key.slice(2)));
+    key = key.slice(2).replace(/Once$/, '');
+    return (hasOwn(options, key[0].toLowerCase() + key.slice(1)) ||
+        hasOwn(options, hyphenate(key)) ||
+        hasOwn(options, key));
 }
-// mark the current rendering instance for asset resolution (e.g.
-// resolveComponent, resolveDirective) during render
+/**
+ * mark the current rendering instance for asset resolution (e.g.
+ * resolveComponent, resolveDirective) during render
+ */
 let currentRenderingInstance = null;
 function setCurrentRenderingInstance(instance) {
     currentRenderingInstance = instance;
 }
-// dev only flag to track whether $attrs was used during render.
-// If $attrs was used during render then the warning for failed attrs
-// fallthrough can be suppressed.
+/**
+ * dev only flag to track whether $attrs was used during render.
+ * If $attrs was used during render then the warning for failed attrs
+ * fallthrough can be suppressed.
+ */
 let accessedAttrs = false;
 function markAttrsAccessed() {
     accessedAttrs = true;
@@ -16180,7 +16185,7 @@ function renderComponentRoot(instance) {
         // to have comments along side the root element which makes it a fragment
         let root = result;
         let setRoot = undefined;
-        if ((\\"production\\" !== 'production')) ;
+        if ((\\"production\\" !== 'production') && result.patchFlag & 2048 /* DEV_ROOT_FRAGMENT */) ;
         if (Component.inheritAttrs !== false && fallthroughAttrs) {
             const keys = Object.keys(fallthroughAttrs);
             const { shapeFlag } = root;
@@ -16228,9 +16233,6 @@ function renderComponentRoot(instance) {
  * root for attrs and scope id processing.
  */
 const getChildRoot = (vnode) => {
-    if (vnode.type !== Fragment) {
-        return [vnode, undefined];
-    }
     const rawChildren = vnode.children;
     const dynamicChildren = vnode.dynamicChildren;
     const childRoot = filterSingleRoot(rawChildren);
@@ -16252,16 +16254,27 @@ const getChildRoot = (vnode) => {
     };
     return [normalizeVNode(childRoot), setRoot];
 };
-/**
- * dev only
- */
 function filterSingleRoot(children) {
-    const filtered = children.filter(child => {
-        return !(isVNode(child) &&
-            child.type === Comment &&
-            child.children !== 'v-if');
-    });
-    return filtered.length === 1 && isVNode(filtered[0]) ? filtered[0] : null;
+    let singleRoot;
+    for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        if (isVNode(child)) {
+            // ignore user comment
+            if (child.type !== Comment || child.children === 'v-if') {
+                if (singleRoot) {
+                    // has more than 1 non-comment child, return now
+                    return;
+                }
+                else {
+                    singleRoot = child;
+                }
+            }
+        }
+        else {
+            return;
+        }
+    }
+    return singleRoot;
 }
 const getFunctionalFallthrough = (attrs) => {
     let res;
@@ -16842,7 +16855,7 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
         onTrigger,
         scheduler
     });
-    recordInstanceBoundEffect(runner);
+    recordInstanceBoundEffect(runner, instance);
     // initial run
     if (cb) {
         if (immediate) {
@@ -17178,6 +17191,11 @@ function initFeatureFlags() {
         getGlobalThis().__VUE_PROD_DEVTOOLS__ = false;
     }
 }
+// implementation, close to no-op
+function defineComponent(options) {
+    return isFunction(options) ? { setup: options, name: options.name } : options;
+}
+const isAsyncWrapper = (i) => !!i.type.__asyncLoader;
 const prodEffectOptions = {
     scheduler: queueJob,
     // #1801, #2043 component render effects should allow recursive updates
@@ -17185,13 +17203,13 @@ const prodEffectOptions = {
 };
 const queuePostRenderEffect =  queueEffectWithSuspense
     ;
-const setRef = (rawRef, oldRawRef, parentComponent, parentSuspense, vnode) => {
+const setRef = (rawRef, oldRawRef, parentSuspense, vnode) => {
     if (isArray(rawRef)) {
-        rawRef.forEach((r, i) => setRef(r, oldRawRef && (isArray(oldRawRef) ? oldRawRef[i] : oldRawRef), parentComponent, parentSuspense, vnode));
+        rawRef.forEach((r, i) => setRef(r, oldRawRef && (isArray(oldRawRef) ? oldRawRef[i] : oldRawRef), parentSuspense, vnode));
         return;
     }
     let value;
-    if (!vnode) {
+    if (!vnode || isAsyncWrapper(vnode)) {
         value = null;
     }
     else {
@@ -17249,10 +17267,7 @@ const setRef = (rawRef, oldRawRef, parentComponent, parentSuspense, vnode) => {
         }
     }
     else if (isFunction(ref)) {
-        callWithErrorHandling(ref, parentComponent, 12 /* FUNCTION_REF */, [
-            value,
-            refs
-        ]);
+        callWithErrorHandling(ref, owner, 12 /* FUNCTION_REF */, [value, refs]);
     }
     else ;
 };
@@ -17327,7 +17342,7 @@ function baseCreateRenderer(options, createHydrationFns) {
         }
         // set ref
         if (ref != null && parentComponent) {
-            setRef(ref, n1 && n1.ref, parentComponent, parentSuspense, n2);
+            setRef(ref, n1 && n1.ref, parentSuspense, n2);
         }
     };
     const processText = (n1, n2, container, anchor) => {
@@ -17352,6 +17367,24 @@ function baseCreateRenderer(options, createHydrationFns) {
     };
     const mountStaticNode = (n2, container, anchor, isSVG) => {
         [n2.el, n2.anchor] = hostInsertStaticContent(n2.children, container, anchor, isSVG);
+    };
+    const moveStaticNode = ({ el, anchor }, container, nextSibling) => {
+        let next;
+        while (el && el !== anchor) {
+            next = hostNextSibling(el);
+            hostInsert(el, container, nextSibling);
+            el = next;
+        }
+        hostInsert(anchor, container, nextSibling);
+    };
+    const removeStaticNode = ({ el, anchor }) => {
+        let next;
+        while (el && el !== anchor) {
+            next = hostNextSibling(el);
+            hostRemove(el);
+            el = next;
+        }
+        hostRemove(anchor);
     };
     const processElement = (n1, n2, container, anchor, parentComponent, parentSuspense, isSVG, optimized) => {
         isSVG = isSVG || n2.type === 'svg';
@@ -18063,6 +18096,10 @@ function baseCreateRenderer(options, createHydrationFns) {
             hostInsert(vnode.anchor, container, anchor);
             return;
         }
+        if (type === Static) {
+            moveStaticNode(vnode, container, anchor);
+            return;
+        }
         // single nodes
         const needTransition = moveType !== 2 /* REORDER */ &&
             shapeFlag & 1 /* ELEMENT */ &&
@@ -18097,8 +18134,8 @@ function baseCreateRenderer(options, createHydrationFns) {
     const unmount = (vnode, parentComponent, parentSuspense, doRemove = false, optimized = false) => {
         const { type, props, ref, children, dynamicChildren, shapeFlag, patchFlag, dirs } = vnode;
         // unset ref
-        if (ref != null && parentComponent) {
-            setRef(ref, null, parentComponent, parentSuspense, null);
+        if (ref != null) {
+            setRef(ref, null, parentSuspense, null);
         }
         if (shapeFlag & 256 /* COMPONENT_SHOULD_KEEP_ALIVE */) {
             parentComponent.ctx.deactivate(vnode);
@@ -18154,6 +18191,10 @@ function baseCreateRenderer(options, createHydrationFns) {
         const { type, el, anchor, transition } = vnode;
         if (type === Fragment) {
             removeFragment(el, anchor);
+            return;
+        }
+        if (type === Static) {
+            removeStaticNode(vnode);
             return;
         }
         const performRemove = () => {
@@ -18375,6 +18416,11 @@ function resolveAsset(type, name, warnMissing = true) {
         const Component = instance.type;
         // self name has highest priority
         if (type === COMPONENTS) {
+            // special self referencing call generated by compiler
+            // inferred from SFC filename
+            if (name === \`_self\`) {
+                return Component;
+            }
             const selfName = Component.displayName || Component.name;
             if (selfName &&
                 (selfName === name ||
@@ -18462,9 +18508,9 @@ const InternalObjectKey = \`__vInternal\`;
 const normalizeKey = ({ key }) => key != null ? key : null;
 const normalizeRef = ({ ref }) => {
     return (ref != null
-        ? isArray(ref)
-            ? ref
-            : { i: currentRenderingInstance, r: ref }
+        ? isString(ref) || isRef(ref) || isFunction(ref)
+            ? { i: currentRenderingInstance, r: ref }
+            : ref
         : null);
 };
 const createVNode = ( _createVNode);
@@ -18897,9 +18943,9 @@ function applyOptions(instance, options, deferredData = [], deferredWatch = [], 
             const provides = isFunction(provideOptions)
                 ? provideOptions.call(publicThis)
                 : provideOptions;
-            for (const key in provides) {
+            Reflect.ownKeys(provides).forEach(key => {
                 provide(key, provides[key]);
-            }
+            });
         });
     }
     // asset options.
@@ -19083,6 +19129,12 @@ function mergeOptions(to, from, instance) {
         }
     }
 }
+/**
+ * #2437 In Vue 3, functional components do not have a public instance proxy but
+ * they exist in the internal parent chain. For code that relies on traversing
+ * public $parent chains, skip functional ones and go to the parent instead.
+ */
+const getPublicInstance = (i) => i && (i.proxy ? i.proxy : getPublicInstance(i.parent));
 const publicPropertiesMap = extend(Object.create(null), {
     $: i => i,
     $el: i => i.vnode.el,
@@ -19091,7 +19143,7 @@ const publicPropertiesMap = extend(Object.create(null), {
     $attrs: i => ( i.attrs),
     $slots: i => ( i.slots),
     $refs: i => ( i.refs),
-    $parent: i => i.parent && i.parent.proxy,
+    $parent: i => getPublicInstance(i.parent),
     $root: i => i.root && i.root.proxy,
     $emit: i => i.emit,
     $options: i => (__VUE_OPTIONS_API__ ? resolveMergedOptions(i) : i.type),
@@ -19387,7 +19439,9 @@ function finishComponentSetup(instance, isSSR) {
     // support for 2.x options
     if (__VUE_OPTIONS_API__) {
         currentInstance = instance;
+        pauseTracking();
         applyOptions(instance, Component);
+        resetTracking();
         currentInstance = null;
     }
 }
@@ -19406,9 +19460,9 @@ function createSetupContext(instance) {
 }
 // record effects created during a component's setup() so that they can be
 // stopped when the component unmounts
-function recordInstanceBoundEffect(effect) {
-    if (currentInstance) {
-        (currentInstance.effects || (currentInstance.effects = [])).push(effect);
+function recordInstanceBoundEffect(effect, instance = currentInstance) {
+    if (instance) {
+        (instance.effects || (instance.effects = [])).push(effect);
     }
 }
 const classifyRE = /(?:^|[-_])(\\\\w)/g;
@@ -19418,7 +19472,7 @@ function formatComponentName(instance, Component, isRoot = false) {
         ? Component.displayName || Component.name
         : Component.name;
     if (!name && Component.__file) {
-        const match = Component.__file.match(/([^/\\\\\\\\]+)\\\\.vue$/);
+        const match = Component.__file.match(/([^/\\\\\\\\]+)\\\\.\\\\w+$/);
         if (match) {
             name = match[1];
         }
@@ -19446,12 +19500,8 @@ function computed$1(getterOrOptions) {
     recordInstanceBoundEffect(c.effect);
     return c;
 }
-// implementation, close to no-op
-function defineComponent(options) {
-    return isFunction(options) ? { setup: options, name: options.name } : options;
-}
 // Core API ------------------------------------------------------------------
-const version = \\"3.0.3\\";
+const version = \\"3.0.4\\";
 const svgNS = 'http://www.w3.org/2000/svg';
 const doc = (typeof document !== 'undefined' ? document : null);
 let tempContainer;
@@ -19640,22 +19690,31 @@ prevChildren, parentComponent, parentSuspense, unmountChildren) {
         }
         return;
     }
-    if (value === '' && typeof el[key] === 'boolean') {
-        // e.g. <select multiple> compiles to { multiple: '' }
-        el[key] = true;
-    }
-    else if (value == null && typeof el[key] === 'string') {
-        // e.g. <div :id=\\"null\\">
-        el[key] = '';
-        el.removeAttribute(key);
-    }
-    else {
-        // some properties perform value validation and throw
-        try {
-            el[key] = value;
+    if (value === '' || value == null) {
+        const type = typeof el[key];
+        if (value === '' && type === 'boolean') {
+            // e.g. <select multiple> compiles to { multiple: '' }
+            el[key] = true;
+            return;
         }
-        catch (e) {
+        else if (value == null && type === 'string') {
+            // e.g. <div :id=\\"null\\">
+            el[key] = '';
+            el.removeAttribute(key);
+            return;
         }
+        else if (type === 'number') {
+            // e.g. <img :width=\\"null\\">
+            el[key] = 0;
+            el.removeAttribute(key);
+            return;
+        }
+    }
+    // some properties perform value validation and throw
+    try {
+        el[key] = value;
+    }
+    catch (e) {
     }
 }
 // Async edge case fix requires storing an event listener's attach timestamp.

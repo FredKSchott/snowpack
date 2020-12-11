@@ -420,6 +420,7 @@ ${colors.dim(
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: true, // Default: true
         dedupe: userDefinedRollup.dedupe || [],
+        // @ts-ignore: Added in v11+ of this plugin
         exportConditions: packageExportLookupFields,
       }),
       rollupPluginJson({
