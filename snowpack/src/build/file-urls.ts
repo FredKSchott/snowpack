@@ -16,15 +16,18 @@ export function getUrlForFileMount({
   mountEntry: MountEntry;
   config: SnowpackConfig;
 }): string {
-  const {baseExt} = getExt(fileLoc);
+  const {expandedExt} = getExt(fileLoc);
   const resolvedDirUrl = mountEntry.url === '/' ? '' : mountEntry.url;
-  return replaceExt(
-    fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, '/'),
-    baseExt,
-    mountEntry.static
-      ? baseExt
-      : config._extensionMap[baseExt] || baseExt,
-  );
+  let renamedFileLoc = fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, "/");
+  if (!mountEntry.static) {
+    for (let [fromExt, toExt] of Object.entries(config._extensionMap)) {
+      if (expandedExt.endsWith(fromExt)) {
+        renamedFileLoc = replaceExt(renamedFileLoc, fromExt, toExt);
+        break;
+      }
+    }
+  }
+  return renamedFileLoc;
 }
 
 /**

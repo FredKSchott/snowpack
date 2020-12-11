@@ -21,14 +21,19 @@ export interface BuildFileOptions {
 
 export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
   const srcFile = replaceExt(fileLoc, '.map', ''); // if this is a .map file, try loading source
-  const {baseExt} = getExt(srcFile);
+  const {expandedExt} = getExt(srcFile);
 
   const potentialInputs = new Set([srcFile]);
-  for (const plugin of plugins) {
-    if (plugin.resolve && plugin.resolve.output.includes(baseExt)) {
-      plugin.resolve.input.forEach((input) =>
-        potentialInputs.add(replaceExt(srcFile, baseExt, input)),
-      );
+  if (expandedExt) for (const plugin of plugins) {
+    if (plugin.resolve) {
+      for (let outExt of plugin.resolve.output) {
+        if (expandedExt.endsWith(outExt)) {
+          plugin.resolve.input.forEach((input) =>
+              potentialInputs.add(replaceExt(srcFile, outExt, input))
+          );
+          break;
+        }
+      }
     }
   }
   return Array.from(potentialInputs);
@@ -47,15 +52,19 @@ async function runPipelineLoadStep(
   srcPath: string,
   {isDev, isSSR, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
-  const srcExt = getExt(srcPath).baseExt;
+  const {baseExt, expandedExt} = getExt(srcPath);
+
   for (const step of plugins) {
-    if (!step.resolve || !step.resolve.input.includes(srcExt)) {
-      continue;
-    }
     if (!step.load) {
       continue;
     }
-
+    if (!step.resolve) {
+      continue;
+    }
+    let srcExt = step.resolve.input.find(input => expandedExt.endsWith(input));
+    if (!srcExt) {
+      continue;
+    }
     try {
       const debugPath = path.relative(process.cwd(), srcPath);
       logger.debug(`load() starting… [${debugPath}]`, {name: step.name});
@@ -75,28 +84,32 @@ async function runPipelineLoadStep(
         return {
           [mainOutputExt]: {
             code: result,
+            outPath: replaceExt(srcPath, srcExt, mainOutputExt)
           },
         };
       } else if (result && typeof result === 'object') {
-        Object.keys(result).forEach((ext) => {
-          const output = result[ext];
+        let out = {};
+        for (const [ext, output] of Object.entries(result)) {
+          const outPath = replaceExt(srcPath, srcExt, ext);
 
           // normalize to {code, map} format
           if (typeof output === 'string' || Buffer.isBuffer(output)) {
-            result[ext] = {code: output};
+            out[ext] = {code: output, outPath: outPath};
+          } else {
+            out[ext] = {...output, outPath: outPath};
           }
 
           // ensure source maps are strings (it’s easy for plugins to pass back a JSON object)
-          if (result[ext].map && typeof result[ext].map === 'object')
-            result[ext].map = JSON.stringify(result[ext].map);
+          if (out[ext].map && typeof out[ext].map === 'object')
+            out[ext].map = JSON.stringify(out[ext].map);
 
           // if source maps disabled, don’t return any
-          if (!sourceMaps) result[ext].map = undefined;
+          if (!sourceMaps) out[ext].map = undefined;
 
           // clean up empty files
-          if (!result[ext].code) delete result[ext];
-        });
-        return result;
+          if (!out[ext].code) delete out[ext];
+        }
+        return out;
       }
     } catch (err) {
       // Attach metadata detailing where the error occurred.
@@ -106,8 +119,9 @@ async function runPipelineLoadStep(
   }
 
   return {
-    [srcExt]: {
+    [baseExt]: {
       code: await readFile(url.pathToFileURL(srcPath)),
+      outPath: srcPath
     },
   };
 }
@@ -140,36 +154,28 @@ async function composeSourceMaps(
  */
 async function runPipelineTransformStep(
   output: SnowpackBuildMap,
-  srcPath: string,
   {isDev, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
-  const srcExt = getExt(srcPath).baseExt;
-  const rootFilePath = srcPath.replace(srcExt, '');
-  const rootFileName = path.basename(rootFilePath);
   for (const step of plugins) {
     if (!step.transform) {
       continue;
     }
-
     try {
       for (const destExt of Object.keys(output)) {
-        const destBuildFile = output[destExt];
-        const {code} = destBuildFile;
-        const fileName = rootFileName + destExt;
-        const filePath = rootFilePath + destExt;
-        const debugPath = path.relative(process.cwd(), filePath);
-        logger.debug(`transform() starting… [${debugPath}]`, {name: step.name});
+        const {code, outPath} = output[destExt];
+        const filePath = path.basename(outPath);
+        logger.debug(`transform() starting… [${outPath}]`, {name: step.name});
         const result = await step.transform({
           contents: code,
           isDev,
           fileExt: destExt,
-          id: filePath,
+          id: outPath,
           // @ts-ignore: Deprecated
-          filePath: fileName,
+          filePath: filePath,
           // @ts-ignore: Deprecated
-          urlPath: `./${path.basename(rootFileName + destExt)}`,
+          urlPath: `./${filePath}`,
         });
-        logger.debug(`✔ transform() success [${debugPath}]`, {name: step.name});
+        logger.debug(`✔ transform() success [${outPath}]`, {name: step.name});
         if (typeof result === 'string' || Buffer.isBuffer(result)) {
           // V2 API, simple string variant
           output[destExt].code = result;
@@ -186,7 +192,7 @@ async function runPipelineTransformStep(
           if (map && sourceMaps) {
             // if source maps disabled, don’t return any
             if (output[destExt].map) {
-              outputMap = await composeSourceMaps(filePath, output[destExt].map!, map);
+              outputMap = await composeSourceMaps(outPath, output[destExt].map!, map);
             } else {
               outputMap = typeof map === 'object' ? JSON.stringify(map) : map;
             }
@@ -253,7 +259,7 @@ export async function buildFile(
   // Pass 1: Find the first plugin to load this file, and return the result
   const loadResult = await runPipelineLoadStep(url.fileURLToPath(srcURL), buildFileOptions);
   // Pass 2: Pass that result through every plugin transform() method.
-  const transformResult = await runPipelineTransformStep(loadResult, url.fileURLToPath(srcURL), buildFileOptions);
+  const transformResult = await runPipelineTransformStep(loadResult, buildFileOptions);
   // Return the final build result.
   return transformResult;
 }

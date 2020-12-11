@@ -78,6 +78,7 @@ export interface SnowpackBuildResult {
 export type SnowpackBuiltFile = {
   code: string | Buffer;
   map?: string;
+  outPath: string
 };
 
 export type SnowpackBuildMap = Record<string, SnowpackBuiltFile>;
@@ -117,7 +118,10 @@ export interface PluginRunOptions {
 }
 
 /** map of extensions -> code (e.g. { ".js": "[code]", ".css": "[code]" }) */
-export type PluginLoadResult = SnowpackBuildMap;
+export type PluginLoadResult = Record<string, {
+  code: string | Buffer;
+  map?: string;
+}>;
 
 export type PluginTransformResult = {contents: string; map: string | RawSourceMap};
 

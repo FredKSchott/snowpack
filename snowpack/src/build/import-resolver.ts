@@ -24,10 +24,12 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: S
     spec = spec + trailingSlash + 'index.js';
   }
   // Transform the file extension (from input to output)
-  const {baseExt} = getExt(spec);
-  const extToReplace = config._extensionMap[baseExt];
-  if (extToReplace) {
-    spec = replaceExt(spec, baseExt, extToReplace);
+  const {expandedExt} = getExt(spec);
+  for (let [fromExt, toExt] of Object.entries(config._extensionMap)) {
+    if (expandedExt.endsWith(fromExt)) {
+      spec = replaceExt(spec, fromExt, toExt);
+      break;
+    }
   }
   // Lazy check to handle imports that are missing file extensions
   if (!stats && !spec.endsWith('.js') && !spec.endsWith('.css')) {

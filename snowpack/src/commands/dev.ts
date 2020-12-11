@@ -844,11 +844,11 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       requestedFileExt: string,
       output: SnowpackBuildMap,
     ): Promise<string | Buffer | null> {
-      // Verify that the requested file exists in the build output map.
-      if (!output[requestedFileExt] || !Object.keys(output)) {
+      let matchingExtendedExt = Object.keys(output).find(key => key.endsWith(requestedFileExt));
+      if (!matchingExtendedExt) {
         return null;
       }
-      const {code, map} = output[requestedFileExt];
+      const {code, map} = output[matchingExtendedExt];
       let finalResponse = code;
       // Handle attached CSS.
       if (requestedFileExt === '.js' && output['.css']) {
@@ -925,7 +925,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       let responseContent: string | Buffer | null;
       try {
         responseContent = await finalizeResponse(fileLoc, requestedFileExt, {
-          [requestedFileExt]: {code: fileContents},
+          [requestedFileExt]: {code: fileContents, outPath: fileLoc},
         });
       } catch (err) {
         logger.error(FILE_BUILD_RESULT_ERROR);
@@ -974,6 +974,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           {
             code: string;
             map?: string;
+            outPath: string;
           }
         >;
         inMemoryBuildCache.set(

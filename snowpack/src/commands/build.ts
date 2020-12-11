@@ -144,9 +144,10 @@ class FileBuilder {
   async buildFile() {
     this.filesToResolve = {};
     const isSSR = this.config.experiments.ssr;
-    const srcExt = path.extname(url.fileURLToPath(this.fileURL));
+    const filePath = url.fileURLToPath(this.fileURL);
+    const srcExt = path.extname(filePath);
     const fileOutput = this.mountEntry.static
-      ? {[srcExt]: {code: await readFile(this.fileURL)}}
+      ? {[srcExt]: {code: await readFile(this.fileURL), outPath:filePath}}
       : await buildFile(this.fileURL, {
           plugins: this.config.plugins,
           isDev: false,
@@ -161,7 +162,7 @@ class FileBuilder {
         continue;
       }
       const outFilename = replaceExt(
-        path.basename(url.fileURLToPath(this.fileURL)),
+        path.basename(filePath),
         srcExt,
         fileExt,
       );
@@ -175,7 +176,7 @@ class FileBuilder {
               baseExt: fileExt,
               expandedExt: fileExt,
               contents: code,
-              locOnDisk: url.fileURLToPath(this.fileURL),
+              locOnDisk: filePath,
             };
             break;
           }
@@ -192,7 +193,7 @@ class FileBuilder {
               baseExt: fileExt,
               expandedExt: fileExt,
               contents: code,
-              locOnDisk: url.fileURLToPath(this.fileURL),
+              locOnDisk: filePath,
             };
             break;
           }
@@ -210,7 +211,7 @@ class FileBuilder {
               baseExt: fileExt,
               expandedExt: fileExt,
               contents: code,
-              locOnDisk: url.fileURLToPath(this.fileURL),
+              locOnDisk: filePath,
             };
             break;
           }
