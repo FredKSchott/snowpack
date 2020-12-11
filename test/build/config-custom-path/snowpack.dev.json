@@ -1,6 +1,6 @@
 {
   "install": ["array-flatten"],
   "buildOptions": {
-    "minify": false
+    "webModulesUrl": "other_folder"
   }
 }
