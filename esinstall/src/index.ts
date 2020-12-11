@@ -31,7 +31,7 @@ import {
   createInstallTarget,
   findMatchingAliasEntry,
   getWebDependencyName,
-  isJavaScript,
+  getWebDependencyType,
   isPackageAliasEntry,
   MISSING_PLUGIN_SUGGESTIONS,
   parsePackageImportSpecifier,
@@ -45,7 +45,7 @@ export {printStats} from './stats';
 
 type DependencyLoc =
   | {
-      type: 'JS';
+      type: 'BUNDLE';
       loc: string;
     }
   | {
@@ -122,7 +122,7 @@ function resolveWebDependency(
       }
       const loc = path.join(packageManifestLoc, '..', exportMapValue);
       return {
-        type: isJavaScript(loc) ? 'JS' : 'ASSET',
+        type: getWebDependencyType(loc),
         loc,
       };
     } else {
@@ -131,7 +131,7 @@ function resolveWebDependency(
       if (exportMapValue) {
         const loc = path.join(packageManifestLoc, '..', exportMapValue);
         return {
-          type: isJavaScript(loc) ? 'JS' : 'ASSET',
+          type: getWebDependencyType(loc),
           loc,
         };
       }
@@ -144,7 +144,7 @@ function resolveWebDependency(
     // https://github.com/snowpackjs/snowpack/pull/999.
     const loc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
     return {
-      type: isJavaScript(loc) ? 'JS' : 'ASSET',
+      type: getWebDependencyType(loc),
       loc,
     };
   }
@@ -158,7 +158,7 @@ function resolveWebDependency(
     try {
       const maybeLoc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
       return {
-        type: isJavaScript(maybeLoc) ? 'JS' : 'ASSET',
+        type: getWebDependencyType(maybeLoc),
         loc: maybeLoc,
       };
     } catch (err) {
@@ -223,7 +223,7 @@ function resolveWebDependency(
     require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
   );
   return {
-    type: isJavaScript(loc) ? 'JS' : 'ASSET',
+    type: getWebDependencyType(loc),
     loc,
   };
 }
@@ -359,7 +359,7 @@ export async function install(
         cwd,
         packageLookupFields,
       });
-      if (resolvedResult.type === 'JS') {
+      if (resolvedResult.type === 'BUNDLE') {
         installEntrypoints[targetName] = resolvedResult.loc;
         importMap.imports[installSpecifier] = `./${proxiedName}.js`;
         Object.entries(installAlias)

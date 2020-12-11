@@ -16,7 +16,14 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
 
   // Support importing Svelte files when you install dependencies.
   snowpackConfig.installOptions.rollup.plugins.push(
-    svelteRollupPlugin({include: '**/node_modules/**', compilerOptions: {dev: isDev}}),
+    svelteRollupPlugin({
+      include: /\.svelte$/,
+      compilerOptions: {dev: isDev},
+      // Snowpack wraps JS-imported CSS in a JS wrapper, so use
+      // Svelte's own first-class `emitCss: false` here.
+      // TODO: Remove once Snowpack adds first-class CSS import support in deps.
+      emitCss: false,
+    }),
   );
   // Support importing sharable Svelte components.
   snowpackConfig.installOptions.packageLookupFields.push('svelte');
