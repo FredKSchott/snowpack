@@ -273,7 +273,7 @@ By default, Snowpack builds every mounted file by passing it through Snowpack's 
 
 - `url` _required_: The URL to mount to, matching the string in the simple form above.
 - `static` _optional, default: false_: If true, don't build files in this directory. Copy and serve them directly from disk to the browser. Caveat: see `staticHtml` below.
-- `staticHtml` _optional, default: false_: If true, don't build HTML (`.html`) files in this directory. This special option exists because HTML files are almost always built to support HMR and  the popular pattern of keeping HTML files in a `public/` directory that's otherwise full of static.
+- `staticHtml` _optional, default: false_: If true, don't build HTML (`.html`) files in this directory. This special option exists because HTML files are almost always built to support HMR and the popular pattern of keeping HTML files in a `public/` directory that's otherwise full of static.
 - `resolve` _optional, default: true_: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written. We recommend that you don't disable this unless absolutely necessary, since it prevents Snowpack from handling your imports to things like packages, JSON files, CSS modules, and more. Leaving resolve as `true` has minimal impact on performance.
 
 ```js
