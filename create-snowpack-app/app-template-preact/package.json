@@ -1,7 +1,7 @@
 {
   "name": "@snowpack/app-template-preact",
   "description": "A preconfigured template for Snowpack with Preact",
-  "version": "1.11.11",
+  "version": "1.12.0",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-preact#readme",
   "repository": {
@@ -33,7 +33,7 @@
     "@web/test-runner": "^0.10.0",
     "chai": "^4.2.0",
     "prettier": "^2.0.5",
-    "snowpack": "^2.18.2"
+    "snowpack": "^2.18.3"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }
