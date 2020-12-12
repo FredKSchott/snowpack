@@ -4,6 +4,7 @@ const execa = require('execa');
 const npmRunPath = require('npm-run-path');
 
 const IMPORT_REGEX = /\@(use|import)\s*['"](.*?)['"]/g;
+const PARTIAL_REGEX = /([\/\\])_(.+)(?![\/\\])/;
 
 function stripFileExtension(filename) {
   return filename.split('.').slice(0, -1).join('.');
@@ -71,9 +72,9 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
       // check no ext: "_index" (/a/b/c/foo/_index)
       this._markImportersAsChanged(filePathNoExt);
       // check no underscore: "index.scss" (/a/b/c/foo/index.scss)
-      this._markImportersAsChanged(filePath.replace(/[\/\\]_(.+)(?![\/\\])/, '/$1'));
+      this._markImportersAsChanged(filePath.replace(PARTIAL_REGEX, '$1$2'));
       // check no ext, no underscore: "index" (/a/b/c/foo/index)
-      this._markImportersAsChanged(filePathNoExt.replace(/[\/\\]_(.+)(?![\/\\])/, '/$1'));
+      this._markImportersAsChanged(filePathNoExt.replace(PARTIAL_REGEX, '$1$2'));
       // check folder import: "foo" (/a/b/c/foo)
       if (filePathNoExt.endsWith('_index')) {
         const folderPathNoIndex = filePathNoExt.substring(0, filePathNoExt.length - 7);
