@@ -4926,6 +4926,9 @@ cjs-module-lexer@^1.0.0:
 "cjs-named-export-pkg@file:./test/esinstall/config-named-exports/packages/cjs-named-export-pkg":
   version "1.2.3"
 
+"cjs-named-exports-obj@file:./test/esinstall/named-exports/packages/cjs-named-exports-obj":
+  version "1.0.0"
+
 "cjs-named-exports-reexported@file:./test/esinstall/named-exports/packages/cjs-named-exports-reexported":
   version "1.2.3"
 

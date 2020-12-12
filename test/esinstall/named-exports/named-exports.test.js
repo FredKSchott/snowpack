@@ -20,6 +20,19 @@ describe('named-exports', () => {
     );
   });
 
+  it('cjs (export obj)', async () => {
+    const pkg = 'cjs-named-exports-obj';
+    const dest = path.join(cwd, 'test-cjs');
+    await install([pkg], {cwd, dest});
+
+    const output = fs.readFileSync(path.join(dest, `${pkg}.js`), 'utf8');
+
+    // test output
+    expect(output).toEqual(
+      expect.stringContaining(`export { entrypoint as __moduleExports, export1, export2 };`),
+    );
+  });
+
   it('cjs (re-exported)', async () => {
     const pkg = 'cjs-named-exports-reexported';
     const dest = path.join(cwd, 'test-cjs-02');

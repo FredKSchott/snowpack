@@ -7,6 +7,7 @@
     "testinstall": "snowpack install"
   },
   "dependencies": {
+    "cjs-named-exports-obj": "file:./packages/cjs-named-exports-obj",
     "cjs-named-exports-reexported": "file:./packages/cjs-named-exports-reexported",
     "cjs-named-exports-simple": "file:./packages/cjs-named-exports-simple",
     "umd-named-exports": "file:./packages/umd-named-exports"
