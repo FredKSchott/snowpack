@@ -6,7 +6,7 @@ const url = require('url');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserJSPlugin = require('terser-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const jsdom = require('jsdom');
 const {JSDOM} = jsdom;
@@ -57,8 +57,8 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMin
   Object.keys(jsEntries).forEach((name) => {
     if (entrypoints[name] !== undefined && entrypoints[name]) {
       const assetFiles = entrypoints[name].assets || [];
-      const jsFiles = assetFiles.filter((d) => d.endsWith('.js'));
-      const cssFiles = assetFiles.filter((d) => d.endsWith('.css'));
+      const jsFiles = assetFiles.filter((d) => d.name.endsWith('.js'));
+      const cssFiles = assetFiles.filter((d) => d.name.endsWith('.css'));
 
       for (const occurrence of jsEntries[name].occurrences) {
         const originalScriptEl = occurrence.script;
@@ -68,8 +68,8 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMin
         for (const jsFile of jsFiles) {
           const scriptEl = dom.window.document.createElement('script');
           scriptEl.src = url.parse(baseUrl).protocol
-            ? url.resolve(baseUrl, jsFile)
-            : path.posix.join(baseUrl, jsFile);
+            ? url.resolve(baseUrl, jsFile.name)
+            : path.posix.join(baseUrl, jsFile.name);
           // insert _before_ so the relative order of these scripts is maintained
           insertBefore(scriptEl, originalScriptEl);
         }
@@ -77,8 +77,8 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMin
           const linkEl = dom.window.document.createElement('link');
           linkEl.setAttribute('rel', 'stylesheet');
           linkEl.href = url.parse(baseUrl).protocol
-            ? url.resolve(baseUrl, cssFile)
-            : path.posix.join(baseUrl, cssFile);
+            ? url.resolve(baseUrl, cssFile.name)
+            : path.posix.join(baseUrl, cssFile.name);
           head.append(linkEl);
         }
         originalScriptEl.remove();
@@ -107,7 +107,7 @@ function getSplitChunksConfig({numEntries}) {
     minSize: 20000,
     cacheGroups: {
       default: false,
-      vendors: false,
+      defaultVendors: false,
       /**
        * NPM libraries larger than 100KB are pulled into their own chunk
        *
@@ -196,7 +196,7 @@ module.exports = function plugin(config, args = {}) {
   args.outputPattern = args.outputPattern || {};
   const jsOutputPattern = args.outputPattern.js || 'js/[name].[contenthash].js';
   const cssOutputPattern = args.outputPattern.css || 'css/[name].[contenthash].css';
-  const assetsOutputPattern = args.outputPattern.assets || 'assets/[name]-[hash].[ext]';
+  const assetsOutputPattern = args.outputPattern.assets || 'assets/[name]-[contenthash].[ext]';
   if (!jsOutputPattern.endsWith('.js')) {
     throw new Error('Output Pattern for JS must end in .js');
   }
@@ -353,7 +353,14 @@ module.exports = function plugin(config, args = {}) {
             name: `webpack-runtime`,
           },
           splitChunks: getSplitChunksConfig({numEntries: Object.keys(jsEntries).length}),
-          minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
+          minimizer: [new TerserJSPlugin({}), new CssMinimizerPlugin({
+            minimizerOptions: {
+              preset: [
+                'default',
+                { discardComments: { removeAll: true } }
+              ]
+            }
+          })],
         },
       };
       const plugins = [
@@ -390,12 +397,12 @@ module.exports = function plugin(config, args = {}) {
           }
           const info = stats.toJson(extendedConfig.stats);
           if (stats.hasErrors()) {
-            console.error('Webpack errors:\n' + info.errors.join('\n-----\n'));
+            console.error('Webpack errors:\n' + info.errors.map(error => error.message).join('\n-----\n'));
             reject(Error(`Webpack failed with ${info.errors} error(s).`));
             return;
           }
           if (stats.hasWarnings()) {
-            console.error('Webpack warnings:\n' + info.warnings.join('\n-----\n'));
+            console.error('Webpack warnings:\n' + info.warnings.map(warning => warning.message).join('\n-----\n'));
             if (args.failOnWarnings) {
               reject(Error(`Webpack failed with ${info.warnings} warnings(s).`));
               return;
