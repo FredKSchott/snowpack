@@ -24,9 +24,9 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc --watch",
-    "lint": "tsc --noEmit --noUnusedLocals true --noUnusedParameters true && package-check"
+    "build": "tsc --noUnusedLocals false --noUnusedParameters false",
+    "build:watch": "tsc --watch --noUnusedLocals false --noUnusedParameters false",
+    "lint": "tsc --noEmit && package-check"
   },
   "types": "lib/index.d.ts",
   "main": "lib/index.js",

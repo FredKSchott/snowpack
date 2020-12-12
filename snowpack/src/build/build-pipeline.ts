@@ -192,14 +192,6 @@ async function runPipelineTransformStep(
             }
           }
           output[destExt].map = outputMap;
-        } else if (
-          result &&
-          typeof result === 'object' &&
-          ((result as unknown) as {result: string}).result
-        ) {
-          // V1 API, deprecated
-          output[destExt].code = ((result as unknown) as {result: string}).result;
-          output[destExt].map = undefined;
         }
       }
     } catch (err) {

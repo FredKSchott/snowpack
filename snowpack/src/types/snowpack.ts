@@ -1,6 +1,5 @@
 import type {InstallOptions} from 'esinstall';
 import type * as http from 'http';
-import type HttpProxy from 'http-proxy';
 import type {RawSourceMap} from 'source-map';
 
 export type DeepPartial<T> = {
@@ -117,8 +116,6 @@ export interface PluginTransformOptions {
 
 export interface PluginRunOptions {
   isDev: boolean;
-  /* @deprecated */
-  isHmrEnabled: boolean;
 }
 
 /** map of extensions -> code (e.g. { ".js": "[code]", ".css": "[code]" }) */
@@ -167,27 +164,11 @@ export interface SnowpackPlugin {
   markChanged?(file: string): void;
 }
 
-export interface LegacySnowpackPlugin {
-  defaultBuildScript: string;
-  build?(options: PluginLoadOptions & {contents: string | Buffer}): Promise<any>;
-  bundle?(options: {
-    srcDirectory: string;
-    destDirectory: string;
-    jsFilePaths: string[];
-  }): Promise<any>;
-}
-
 /** Snowpack Build Plugin type */
 export type SnowpackPluginFactory<PluginOptions = object> = (
   snowpackConfig: SnowpackConfig,
   pluginOptions?: PluginOptions,
 ) => SnowpackPlugin;
-
-export type ProxyOptions = HttpProxy.ServerOptions & {
-  // Custom on: {} event handlers
-  on: Record<string, Function>;
-};
-export type Proxy = [string, ProxyOptions];
 
 export type MountEntry = {
   url: string;
@@ -219,7 +200,6 @@ export interface SnowpackConfig {
   knownEntrypoints: string[];
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
-  scripts: Record<string, string>;
   plugins: SnowpackPlugin[];
   devOptions: {
     secure: boolean;
@@ -250,23 +230,12 @@ export interface SnowpackConfig {
   testOptions: {
     files: string[];
   };
-  // @deprecated - now found at lockfile.dependencies
-  webDependencies: Record<string, string>;
-  // @deprecated - Use experiments.routes instead
-  proxy: Proxy[];
   /** EXPERIMENTAL - This section is experimental and not yet finalized. May change across minor versions. */
   experiments: {
     /** (EXPERIMENTAL) Where should dependencies be loaded from? */
     source: 'local' | 'skypack';
     /** (EXPERIMENTAL) If true, "snowpack build" should build your site for SSR. */
     ssr: boolean;
-    /** (EXPERIMENTAL) Custom request handler for the dev server. */
-    /** @deprecated: Use experiments.routes or integrate Snowpack's JS API into your own server instead. */
-    app?: (
-      req: http.IncomingMessage,
-      res: http.ServerResponse,
-      next: (err?: Error) => void,
-    ) => unknown;
     /** (EXPERIMENTAL) Optimize your site for production. */
     optimize?: OptimizeOptions;
     /** (EXPERIMENTAL) Configure routes during development. */
@@ -279,11 +248,8 @@ export type SnowpackUserConfig = {
   install?: string[];
   extends?: string;
   exclude?: string[];
-  proxy?: Record<string, string | ProxyOptions>;
   mount?: Record<string, string | Partial<MountEntry>>;
   alias?: Record<string, string>;
-  /** @deprecated */
-  scripts?: Record<string, string>;
   plugins?: (string | [string, any])[];
   devOptions?: Partial<SnowpackConfig['devOptions']>;
   installOptions?: Partial<SnowpackConfig['installOptions']>;
@@ -292,7 +258,6 @@ export type SnowpackUserConfig = {
   experiments?: {
     source?: SnowpackConfig['experiments']['source'];
     ssr?: SnowpackConfig['experiments']['ssr'];
-    app?: SnowpackConfig['experiments']['app'];
     optimize?: Partial<SnowpackConfig['experiments']['optimize']>;
     routes?: Pick<RouteConfigObject, 'src' | 'dest' | 'match'>[];
   };

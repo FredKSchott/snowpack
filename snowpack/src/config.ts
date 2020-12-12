@@ -1,39 +1,23 @@
-import buildScriptPlugin from '@snowpack/plugin-build-script';
-import runScriptPlugin from '@snowpack/plugin-run-script';
 import {cosmiconfigSync} from 'cosmiconfig';
 import {all as merge} from 'deepmerge';
 import * as esbuild from 'esbuild';
-import http from 'http';
 import {isPlainObject} from 'is-plain-object';
 import {validate, ValidatorResult} from 'jsonschema';
 import os from 'os';
 import path from 'path';
-import url from 'url';
-import yargs from 'yargs-parser';
 import {logger} from './logger';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
   CLIFlags,
   DeepPartial,
-  LegacySnowpackPlugin,
   MountEntry,
-  PluginLoadOptions,
   PluginLoadResult,
-  PluginOptimizeOptions,
-  Proxy,
-  ProxyOptions,
   RouteConfigObject,
   SnowpackConfig,
   SnowpackPlugin,
   SnowpackUserConfig,
 } from './types/snowpack';
-import {
-  addLeadingSlash,
-  addTrailingSlash,
-  readFile,
-  removeLeadingSlash,
-  removeTrailingSlash,
-} from './util';
+import {addLeadingSlash, addTrailingSlash, removeLeadingSlash, removeTrailingSlash} from './util';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*'];
@@ -42,7 +26,6 @@ const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/web_modules/**/*', '**/.type
 const DEFAULT_CONFIG: SnowpackUserConfig = {
   plugins: [],
   alias: {},
-  scripts: {},
   exclude: [],
   installOptions: {
     packageLookupFields: [],
@@ -86,10 +69,6 @@ const configSchema = {
     install: {type: 'array', items: {type: 'string'}},
     exclude: {type: 'array', items: {type: 'string'}},
     plugins: {type: 'array'},
-    scripts: {
-      type: ['object'],
-      additionalProperties: {type: 'string'},
-    },
     alias: {
       type: 'object',
       additionalProperties: {type: 'string'},
@@ -123,8 +102,6 @@ const configSchema = {
         hmrDelay: {type: 'number'},
         hmrPort: {type: 'number'},
         hmrErrorOverlay: {type: 'boolean'},
-        // DEPRECATED
-        out: {type: 'string'},
       },
     },
     installOptions: {
@@ -259,29 +236,6 @@ function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
   return result;
 }
 
-/** ensure extensions all have preceding dots */
-function parseScript(script: string): {scriptType: string; input: string[]; output: string[]} {
-  const [scriptType, extMatch] = script.toLowerCase().split(':');
-  const [inputMatch, outputMatch] = extMatch ? extMatch.split('->') : [];
-  const cleanInput = [...new Set(inputMatch.split(',').map((ext) => `.${ext}`))];
-  let cleanOutput: string[] = [];
-  if (outputMatch) {
-    cleanOutput = [...new Set(outputMatch.split(',').map((ext) => `.${ext}`))];
-  } else if (cleanInput[0] === '.svelte') {
-    cleanOutput = ['.js', '.css'];
-  } else if (cleanInput[0] === '.vue') {
-    cleanOutput = ['.js', '.css'];
-  } else if (cleanInput.length > 0) {
-    cleanOutput = [...cleanInput];
-  }
-
-  return {
-    scriptType,
-    input: cleanInput,
-    output: cleanOutput,
-  };
-}
-
 /** load and normalize plugins from config */
 function loadPlugins(
   config: SnowpackConfig,
@@ -294,88 +248,19 @@ function loadPlugins(
     return plugin;
   }
 
-  function loadPluginFromScript(specifier: string): SnowpackPlugin | undefined {
-    try {
-      const pluginLoc = require.resolve(specifier, {paths: [process.cwd()]});
-      return execPluginFactory(require(pluginLoc)); // no plugin options to load because we’re
-      // loading from a string
-    } catch (err) {
-      // ignore
-    }
-  }
-
   function loadPluginFromConfig(name: string, options?: any): SnowpackPlugin {
     const pluginLoc = require.resolve(name, {paths: [process.cwd()]});
     const pluginRef = require(pluginLoc);
-    let plugin: SnowpackPlugin & LegacySnowpackPlugin;
+    let plugin: SnowpackPlugin;
     try {
       plugin = typeof pluginRef.default === 'function' ? pluginRef.default : pluginRef;
       if (typeof plugin !== 'function') logger.error(`plugin ${name} doesn’t return function`);
-      plugin = execPluginFactory(plugin, options) as SnowpackPlugin & LegacySnowpackPlugin;
+      plugin = execPluginFactory(plugin, options) as SnowpackPlugin;
     } catch (err) {
       logger.error(err.toString());
       throw err;
     }
     plugin.name = plugin.name || name;
-
-    // Legacy: Map the new load() interface to the old build() interface
-    const {build, bundle} = plugin;
-    if (build) {
-      plugin.load = async (options: PluginLoadOptions) => {
-        const result = await build({
-          ...options,
-          contents: await readFile(url.pathToFileURL(options.filePath)),
-        }).catch((err) => {
-          logger.error(
-            `[${plugin.name}] There was a problem running this older plugin. Please update the plugin to the latest version.`,
-          );
-          throw err;
-        });
-        if (!result) {
-          return null;
-        }
-        if (result.resources) {
-          return {
-            '.js': result.result,
-            '.css': result.resources.css,
-          };
-        }
-        return result.result;
-      };
-    }
-    // Legacy: Map the new optimize() interface to the old bundle() interface
-    if (bundle) {
-      plugin.optimize = async (options: PluginOptimizeOptions) => {
-        return bundle({
-          srcDirectory: options.buildDirectory,
-          destDirectory: options.buildDirectory,
-          // @ts-ignore internal API only
-          log: options.log,
-          // It turns out, this was more or less broken (included all
-          // files, not just JS). Confirmed no plugins are using this
-          // now, so safe to use an empty array.
-          jsFilePaths: [],
-        }).catch((err) => {
-          logger.error(
-            `[${plugin.name}] There was a problem running this older plugin. Please update the plugin to the latest version.`,
-          );
-          throw err;
-        });
-      };
-    }
-
-    // Legacy: handle "defaultBuildScript" syntax
-    if (
-      !plugin.resolve &&
-      plugin.defaultBuildScript &&
-      plugin.defaultBuildScript.startsWith('build:')
-    ) {
-      const {input, output} = parseScript(plugin.defaultBuildScript);
-      plugin.resolve = {input, output};
-    } else if (plugin.resolve) {
-      const {input, output} = plugin.resolve;
-      plugin.resolve = {input, output};
-    }
 
     // Add any internal plugin methods. Placeholders are okay when individual
     // commands implement these differently.
@@ -389,38 +274,6 @@ function loadPlugins(
     validatePlugin(plugin);
     return plugin;
   }
-
-  // 1. require & load config.scripts
-  // TODO: deprecate scripts and move out of this function
-  Object.entries(config.scripts).forEach(([target, cmd]) => {
-    const {scriptType, input, output} = parseScript(target);
-    if ((config.plugins as any).some((p) => (Array.isArray(p) ? p[0] : p) === cmd)) {
-      handleConfigError(
-        `[${cmd}]: loaded in both \`scripts\` and \`plugins\`. Please choose one (preferably \`plugins\`).`,
-      );
-    }
-
-    switch (scriptType) {
-      case 'run': {
-        if (target.endsWith('::watch')) {
-          break;
-        }
-        const watchCmd = config.scripts[target + '::watch'];
-        plugins.push(execPluginFactory(runScriptPlugin, {cmd, watch: watchCmd || cmd}));
-        break;
-      }
-
-      case 'build': {
-        plugins.push(execPluginFactory(buildScriptPlugin, {input, output, cmd}));
-        break;
-      }
-
-      case 'bundle': {
-        plugins.push(loadPluginFromScript(cmd)!);
-        break;
-      }
-    }
-  });
 
   // 2. config.plugins
   config.plugins.forEach((ref) => {
@@ -456,91 +309,8 @@ function loadPlugins(
   };
 }
 
-/**
- * Convert deprecated proxy scripts to
- * FUTURE: Remove this on next major release
- */
-function handleLegacyProxyScripts(config: any) {
-  for (const scriptId in config.scripts as any) {
-    if (!scriptId.startsWith('proxy:')) {
-      continue;
-    }
-    const cmdArr = config.scripts[scriptId]!.split(/\s+/);
-    if (cmdArr[0] !== 'proxy') {
-      handleConfigError(`scripts[${scriptId}] must use the proxy command`);
-    }
-    cmdArr.shift();
-    const {to, _} = yargs(cmdArr);
-    if (_.length !== 1) {
-      handleConfigError(
-        `scripts[${scriptId}] must use the format: "proxy http://SOME.URL --to /PATH"`,
-      );
-    }
-    if (to && to[0] !== '/') {
-      handleConfigError(
-        `scripts[${scriptId}]: "--to ${to}" must be a URL path, and start with a "/"`,
-      );
-    }
-    const {toUrl, fromUrl} = {fromUrl: _[0], toUrl: to};
-    if (config.proxy[toUrl]) {
-      handleConfigError(`scripts[${scriptId}]: Cannot overwrite proxy[${toUrl}].`);
-    }
-    (config.proxy as any)[toUrl] = fromUrl;
-    delete config.scripts[scriptId];
-  }
-  return config;
-}
-
-type RawProxies = Record<string, string | ProxyOptions>;
-function normalizeProxies(proxies: RawProxies): Proxy[] {
-  return Object.entries(proxies).map(([pathPrefix, options]) => {
-    if (typeof options !== 'string') {
-      return [
-        pathPrefix,
-        {
-          //@ts-ignore - Seems to be a strange 3.9.x bug
-          on: {},
-          ...options,
-        },
-      ];
-    }
-    return [
-      pathPrefix,
-      {
-        on: {
-          proxyReq: (proxyReq: http.ClientRequest, req: http.IncomingMessage) => {
-            const proxyPath = proxyReq.path.split(req.url!)[0];
-            proxyReq.path = proxyPath + req.url!.replace(pathPrefix, '');
-          },
-        },
-        target: options,
-        changeOrigin: true,
-        secure: false,
-      },
-    ];
-  });
-}
-
 function normalizeMount(config: SnowpackConfig, cwd: string) {
   const mountedDirs: Record<string, string | Partial<MountEntry>> = config.mount || {};
-  for (const [target, cmd] of Object.entries(config.scripts)) {
-    if (target.startsWith('mount:')) {
-      const cmdArr = cmd.split(/\s+/);
-      if (cmdArr[0] !== 'mount') {
-        handleConfigError(`scripts[${target}] must use the mount command`);
-      }
-      cmdArr.shift();
-      const {to, _} = yargs(cmdArr);
-      if (_.length !== 1) {
-        handleConfigError(`scripts[${target}] must use the format: "mount dir [--to /PATH]"`);
-      }
-      if (target === 'mount:web_modules') {
-        config.buildOptions.webModulesUrl = to;
-      } else {
-        mountedDirs[cmdArr[0]] = {url: to || `/${cmdArr[0]}`};
-      }
-    }
-  }
   const normalizedMount: Record<string, MountEntry> = {};
   for (const [mountDir, rawMountEntry] of Object.entries(mountedDirs)) {
     const mountEntry: Partial<MountEntry> =
@@ -632,23 +402,12 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   // from scratch instead of trying to modify the user's config object in-place.
   let config: SnowpackConfig = (_config as any) as SnowpackConfig;
   config.knownEntrypoints = (config as any).install || [];
-  // @ts-ignore
-  if (config.devOptions.out) {
-    logger.debug(
-      '`devOptions.out` is now `buildOptions.out`! `devOptions.out` will be deprecated in the next major release.',
-    );
-  }
-  // @ts-ignore
-  config.buildOptions.out = path.resolve(cwd, config.devOptions.out || config.buildOptions.out);
+  config.buildOptions.out = path.resolve(cwd, config.buildOptions.out);
   config.installOptions.rollup = config.installOptions.rollup || {};
   config.installOptions.rollup.plugins = config.installOptions.rollup.plugins || [];
   config.exclude = Array.from(
     new Set([...ALWAYS_EXCLUDE, `${config.buildOptions.out}/**/*`, ...config.exclude]),
   );
-
-  if (!config.proxy) {
-    config.proxy = {} as any;
-  }
 
   // normalize config URL/path values
   config.buildOptions.baseUrl = addTrailingSlash(config.buildOptions.baseUrl);
@@ -660,8 +419,6 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   );
 
   const isLegacyMountConfig = !config.mount;
-  config = handleLegacyProxyScripts(config);
-  config.proxy = normalizeProxies(config.proxy as any);
   config.mount = normalizeMount(config, cwd);
   config.alias = normalizeAlias(config, cwd, isLegacyMountConfig);
   config.experiments.routes = normalizeRoutes(config.experiments.routes);
@@ -705,139 +462,23 @@ function handleConfigError(msg: string) {
 function handleValidationErrors(filepath: string, errors: {toString: () => string}[]) {
   logger.error(`! ${filepath || 'Configuration error'}
 ${errors.map((err) => `    - ${err.toString()}`).join('\n')}
-    See https://www.snowpack.dev/#configuration for more info.`);
+    See https://www.snowpack.dev for more info.`);
   process.exit(1);
 }
 
 function handleDeprecatedConfigError(mainMsg: string, ...msgs: string[]) {
   logger.error(`${mainMsg}
 ${msgs.join('\n')}
-See https://www.snowpack.dev/#configuration for more info.`);
+See https://www.snowpack.dev for more info.`);
   process.exit(1);
 }
 
-function validateConfigAgainstV1(rawConfig: any, cliFlags: any) {
-  // Moved!
-  if (rawConfig.dedupe || cliFlags.dedupe) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `dedupe` is now `installOptions.rollup.dedupe`.',
-    );
+function valdiateDeprecatedConfig(rawConfig: any, _: any) {
+  if (rawConfig.scripts) {
+    handleDeprecatedConfigError('[v3.0] Legacy "scripts" config is deprecated.');
   }
-  if (rawConfig.namedExports) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `rollup.namedExports` is no longer required. See also: installOptions.namedExports',
-    );
-  }
-  if (rawConfig.installOptions?.rollup?.namedExports) {
-    delete rawConfig.installOptions.rollup.namedExports;
-    logger.error(
-      '[Snowpack v2.3.0] `rollup.namedExports` is no longer required. See also: installOptions.namedExports',
-    );
-  }
-  if (rawConfig.rollup) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] top-level `rollup` config is now `installOptions.rollup`.',
-    );
-  }
-  if (rawConfig.installOptions?.include || cliFlags.include) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.include` is now handled via "mount" build scripts!',
-    );
-  }
-  if (rawConfig.installOptions?.exclude) {
-    handleDeprecatedConfigError('[Snowpack v1 -> v2] `installOptions.exclude` is now `exclude`.');
-  }
-  if (Array.isArray(rawConfig.webDependencies)) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] The `webDependencies` array is now `install`.',
-    );
-  }
-  if (rawConfig.knownEntrypoints) {
-    handleDeprecatedConfigError('[Snowpack v1 -> v2] `knownEntrypoints` is now `install`.');
-  }
-  if (rawConfig.entrypoints) {
-    handleDeprecatedConfigError('[Snowpack v1 -> v2] `entrypoints` is now `install`.');
-  }
-  if (rawConfig.include) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] All files are now included by default. "include" config is safe to remove.',
-      'Whitelist & include specific folders via "mount" build scripts.',
-    );
-  }
-  // Replaced!
-  if (rawConfig.source || cliFlags.source) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `source` is now detected automatically, this config is safe to remove.',
-    );
-  }
-  if (rawConfig.stat || cliFlags.stat) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `stat` is now the default output, this config is safe to remove.',
-    );
-  }
-  if (
-    rawConfig.scripts &&
-    Object.keys(rawConfig.scripts).filter((k) => k.startsWith('lintall')).length > 0
-  ) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `scripts["lintall:..."]` has been renamed to scripts["run:..."]',
-    );
-  }
-  if (
-    rawConfig.scripts &&
-    Object.keys(rawConfig.scripts).filter((k) => k.startsWith('plugin:`')).length > 0
-  ) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `scripts["plugin:..."]` have been renamed to scripts["build:..."].',
-    );
-  }
-  if (rawConfig.buildOptions?.minify) {
-    handleDeprecatedConfigError(
-      '[Snowpack 2.11.0] `buildOptions.minify` has moved to package "@snowpack/plugin-optimize". Install it and include as a plugin in your Snowpack config file.',
-    );
-  }
-  // Removed!
-  if (rawConfig.devOptions?.dist) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `devOptions.dist` is no longer required. This config is safe to remove.',
-      `If you'd still like to host your src/ directory at the "/_dist/*" URL, create a mount script:',
-      '    {"scripts": {"mount:src": "mount src --to /_dist_"}} `,
-    );
-  }
-  if (rawConfig.hash || cliFlags.hash) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.hash` has been replaced by `snowpack build`.',
-    );
-  }
-  if (rawConfig.installOptions?.nomodule || cliFlags.nomodule) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.nomodule` has been replaced by `snowpack build`.',
-    );
-  }
-  if (rawConfig.installOptions?.nomoduleOutput || cliFlags.nomoduleOutput) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.nomoduleOutput` has been replaced by `snowpack build`.',
-    );
-  }
-  if (rawConfig.installOptions?.babel || cliFlags.babel) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.babel` has been replaced by `snowpack build`.',
-    );
-  }
-  if (rawConfig.installOptions?.optimize) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.optimize` has been replaced by `snowpack build` minification.',
-    );
-  }
-  if (rawConfig.installOptions?.strict || cliFlags.strict) {
-    handleDeprecatedConfigError(
-      '[Snowpack v1 -> v2] `installOptions.strict` is no longer supported.',
-    );
-  }
-  if (rawConfig.installOptions?.alias) {
-    handleDeprecatedConfigError(
-      '[New in v2.7] `installOptions.alias` has been moved to a top-level `alias` config. (https://snowpack.dev#all-config-options)',
-    );
+  if (rawConfig.proxy) {
+    handleDeprecatedConfigError('[v3.0] Legacy "proxy" config is deprecated in favor of "routes".');
   }
 }
 
@@ -959,7 +600,7 @@ export function loadConfigurationForCLI(flags: CLIFlags, pkgManifest: any): Snow
 
   // validate against schema; throw helpful user if invalid
   const config: SnowpackUserConfig = result.config;
-  validateConfigAgainstV1(config, flags);
+  valdiateDeprecatedConfig(config, flags);
   const cliConfig = expandCliFlags(flags);
 
   let extendConfig: SnowpackUserConfig = {} as SnowpackUserConfig;
