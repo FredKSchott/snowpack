@@ -192,7 +192,7 @@ export function createInstallTarget(specifier: string, all = true): InstallTarge
 
 export function isJavaScript(pathname: string): boolean {
   const ext = path.extname(pathname).toLowerCase();
-  return (ext === '.js' || ext === '.mjs' || ext === '.cjs');
+  return ext === '.js' || ext === '.mjs' || ext === '.cjs';
 }
 
 /**
