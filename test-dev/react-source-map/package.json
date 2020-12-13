@@ -1,0 +1,33 @@
+{
+  "snowpack": {
+    "mount": {
+      "public": "/",
+      "src": "/_dist_"
+    },
+    "plugins": [
+      [
+        "@snowpack/plugin-react-refresh",
+        {
+          "reactRefreshOptions": {
+            "skipEnvCheck": true
+          }
+        }
+      ]
+    ],
+    "devOptions": {
+      "open": "none",
+      "port": 8081
+    },
+    "buildOptions": {
+      "sourceMaps": true
+    }
+  },
+  "dependencies": {
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0"
+  },
+  "devDependencies": {
+    "@snowpack/plugin-react-refresh": "^2.3.8",
+    "snowpack": "^2.18.2"
+  }
+}

@@ -8,6 +8,7 @@ import {
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
   NATIVE_REQUIRE,
+  offsetSourceMap,
 } from '../util';
 import {generateSRI} from './import-sri';
 
@@ -21,13 +22,27 @@ export function getMetaUrlPath(urlPath: string, config: SnowpackConfig): string 
   return path.posix.normalize(path.posix.join('/', metaDir, urlPath));
 }
 
-export function wrapImportMeta({
+function loc(code: string) {
+  let count = 0;
+
+  for (let i = 0; i < code.length; i++) {
+    if (code[i] === '\n') {
+      count += 1;
+    }
+  }
+
+  return count;
+}
+
+export async function wrapImportMeta({
   code,
+  map,
   hmr,
   env,
   config,
 }: {
   code: string;
+  map?: string;
   hmr: boolean;
   env: boolean;
   config: SnowpackConfig;
@@ -41,8 +56,9 @@ export function wrapImportMeta({
     code = code.replace(importMetaHotRegex, 'undefined /* [snowpack] import.meta.hot */ ');
   }
   if (!importMetaRegex.test(code)) {
-    return code;
+    return {code, map};
   }
+
   let hmrSnippet = ``;
   if (hmr) {
     hmrSnippet = `import * as  __SNOWPACK_HMR__ from '${getMetaUrlPath(
@@ -60,7 +76,16 @@ export function wrapImportMeta({
       envSnippet += `import.meta.env = __SNOWPACK_ENV__;\n`;
     }
   }
-  return hmrSnippet + envSnippet + '\n' + code;
+
+  const snippet = hmrSnippet + envSnippet + '\n';
+  code = snippet + code;
+
+  if (map) {
+    const lineOffset = loc(snippet);
+    map = await offsetSourceMap(map, lineOffset);
+  }
+
+  return {code, map};
 }
 
 export function wrapHtmlResponse({
@@ -125,7 +150,7 @@ Add the missing doctype, or set buildOptions.htmlFragments=true if HTML fragment
   return code;
 }
 
-function generateJsonImportProxy({
+async function generateJsonImportProxy({
   code,
   hmr,
   config,
@@ -136,10 +161,11 @@ function generateJsonImportProxy({
 }) {
   const jsonImportProxyCode = `let json = ${JSON.stringify(JSON.parse(code))};
 export default json;`;
-  return wrapImportMeta({code: jsonImportProxyCode, hmr, env: false, config});
+  const result = await wrapImportMeta({code: jsonImportProxyCode, hmr, env: false, config});
+  return result.code;
 }
 
-function generateCssImportProxy({
+async function generateCssImportProxy({
   code,
   hmr,
   config,
@@ -166,7 +192,8 @@ if (typeof document !== 'undefined') {${
   styleEl.appendChild(codeEl);
   document.head.appendChild(styleEl);
 }`;
-  return wrapImportMeta({code: cssImportProxyCode, hmr, env: false, config});
+  const result = await wrapImportMeta({code: cssImportProxyCode, hmr, env: false, config});
+  return result.code;
 }
 
 let _postCss: Postcss;

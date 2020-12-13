@@ -637,27 +637,40 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         responseFileExt = '.js';
       } else if (isSourceMap && sourceMap) {
         responseFileExt = '.map';
-        code = sourceMap;
       }
 
       // transform other files
+      let outputMap = sourceMap;
       switch (responseFileExt) {
         case '.css': {
           if (sourceMap) code = cssSourceMappingURL(code as string, sourceMappingURL);
           break;
         }
-        case '.js': {
+        case '.js':
+        case '.map': {
           if (isProxyModule) {
             code = await wrapImportProxy({url: reqPath, code, hmr: isHMR, config});
           } else {
-            code = wrapImportMeta({code: code as string, env: true, hmr: isHMR, config});
+            const result = await wrapImportMeta({
+              code: code as string,
+              map: outputMap,
+              env: true,
+              hmr: isHMR,
+              config,
+            });
+            code = result.code;
+            outputMap = result.map;
           }
 
           // source mapping
-          if (sourceMap) code = jsSourceMappingURL(code, sourceMappingURL);
+          if (outputMap) code = jsSourceMappingURL(code, sourceMappingURL);
 
           break;
         }
+      }
+
+      if (isSourceMap && outputMap) {
+        return outputMap;
       }
 
       // by default, return file from disk
@@ -831,10 +844,12 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         );
       }
       // Wrap the response.
+
       finalResponse = await wrapResponse(finalResponse, {
         sourceMap: map,
         sourceMappingURL: path.basename(requestedFile.base) + '.map',
       });
+
       // Return the finalized response.
       return finalResponse;
     }

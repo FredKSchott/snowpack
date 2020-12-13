@@ -1,4 +1,3 @@
-mockBabel();
 const path = require('path');
 const fs = require('fs');
 const pluginReactRefresh = require('../plugin');
@@ -24,37 +23,6 @@ const jsTransformOptions = {
   isDev: true,
 };
 
-function mockBabel() {
-  jest.mock('@babel/core');
-  const babel = require('@babel/core');
-  babel.transformAsync = jest
-    .fn()
-    .mockName('babel.transformAsync')
-    .mockImplementation(async (contents, options, ...args) => {
-      options.plugins = (options.plugins || []).map((plugin) => {
-        if (Array.isArray(plugin)) {
-          if (plugin[1]) {
-            plugin[1].skipEnvCheck = true;
-          }
-          return plugin;
-        }
-        // Fix: React Refresh Babel transform should only be enabled in development environment.
-        // Instead, the environment is: "test".
-        // If you want to override this check, pass {skipEnvCheck: true} as plugin options.
-        return [plugin, {skipEnvCheck: true}];
-      });
-
-      // Stop `jest.requireActual('@babel/core').transformAsync()` from requiring mocked babel function
-      jest.unmock('@babel/core');
-      const ret = await jest
-        .requireActual('@babel/core')
-        .transformAsync(contents, options, ...args);
-      mockBabel();
-
-      return ret;
-    });
-}
-
 async function testPluginInstance(pluginInstance) {
   const pluginTransform = pluginInstance.transform;
   expect(await pluginTransform(htmlTransformOptions)).toMatchSnapshot('html');
@@ -75,7 +43,7 @@ describe('@snowpack/plugin-react-refresh', () => {
           hmr: true,
         },
       },
-      {babel: true},
+      {babel: true, reactRefreshOptions: {skipEnvCheck: true}},
     );
     await testPluginInstance(pluginInstance);
   });
@@ -87,7 +55,7 @@ describe('@snowpack/plugin-react-refresh', () => {
           hmr: false,
         },
       },
-      {babel: true},
+      {babel: true, reactRefreshOptions: {skipEnvCheck: true}},
     );
     await testPluginInstance(pluginInstance);
   });
@@ -99,7 +67,7 @@ describe('@snowpack/plugin-react-refresh', () => {
           hmr: true,
         },
       },
-      {babel: false},
+      {babel: false, reactRefreshOptions: {skipEnvCheck: true}},
     );
     await testPluginInstance(pluginInstance);
   });
