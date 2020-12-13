@@ -143,6 +143,7 @@ export interface PluginTransformOptions {
   isSSR: boolean;
   /** True if file being transformed is inside of a package. */
   isPackage: boolean;
+  inputSourceMap?: string;
 }
 
 export interface PluginRunOptions {

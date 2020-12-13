@@ -32,70 +32,72 @@ function transformHtml(contents) {
 
 const babel = require('@babel/core');
 const IS_FAST_REFRESH_ENABLED = /\$RefreshReg\$\(/;
-async function transformJs(contents, id, cwd, skipTransform) {
-  let fastRefreshEnhancedCode;
-
+async function transformJs(
+  contents,
+  id,
+  cwd,
+  skipTransform,
+  inputSourceMap,
+  sourceMaps,
+  reactRefreshOptions,
+) {
   if (skipTransform) {
-    fastRefreshEnhancedCode = contents;
+    return contents;
   } else if (IS_FAST_REFRESH_ENABLED.test(contents)) {
     // Warn in case someone has a bad setup, and to help older users upgrade.
     console.warn(
       `[@snowpack/plugin-react-refresh] ${id}\n"react-refresh/babel" plugin no longer needed in your babel config, safe to remove.`,
     );
-    fastRefreshEnhancedCode = contents;
+    return contents;
   } else {
-    const {code} = await babel.transformAsync(contents, {
+    const {code, map} = await babel.transformAsync(contents, {
       cwd,
       filename: id,
       ast: false,
       compact: false,
-      sourceMaps: false,
+      sourceMaps,
+      inputSourceMap: sourceMaps && inputSourceMap ? JSON.parse(inputSourceMap) : undefined,
       configFile: false,
       babelrc: false,
       plugins: [
-        [require('react-refresh/babel'), {skipEnvCheck: true}],
+        [require('react-refresh/babel'), {...reactRefreshOptions, skipEnvCheck: true}],
         require('@babel/plugin-syntax-class-properties'),
       ],
     });
-    fastRefreshEnhancedCode = code;
-  }
 
-  // If fast refresh markup wasn't added, just return the original content.
-  if (!fastRefreshEnhancedCode || !IS_FAST_REFRESH_ENABLED.test(fastRefreshEnhancedCode)) {
-    return contents;
-  }
+    if (IS_FAST_REFRESH_ENABLED.test(code)) {
+      return babel
+        .transformAsync(code, {
+          cwd: process.cwd(),
+          filename: id,
+          ast: false,
+          compact: false,
+          sourceMaps,
+          inputSourceMap: (sourceMaps && map) || undefined,
+          configFile: false,
+          babelrc: false,
+          plugins: [[require('./hmr-babel-plugin'), {id}]],
+        })
+        .then((result) => {
+          if (result.map) {
+            return {contents: result.code, map: result.map};
+          }
+          return result.code;
+        });
+    } else {
+      if (map) {
+        return {contents: code, map};
+      }
 
-  return `
-/** React Refresh: Setup **/
-if (import.meta.hot) {
-  if (!window.$RefreshReg$ || !window.$RefreshSig$ || !window.$RefreshRuntime$) {
-    console.warn('@snowpack/plugin-react-refresh: HTML setup script not run. React Fast Refresh only works when Snowpack serves your HTML routes. You may want to remove this plugin.');
-  } else {
-    var prevRefreshReg = window.$RefreshReg$;
-    var prevRefreshSig = window.$RefreshSig$;
-    window.$RefreshReg$ = (type, id) => {
-      window.$RefreshRuntime$.register(type, ${JSON.stringify(id)} + " " + id);
+      return code;
     }
-    window.$RefreshSig$ = window.$RefreshRuntime$.createSignatureFunctionForTransform;
   }
 }
 
-${fastRefreshEnhancedCode}
-
-/** React Refresh: Connect **/
-if (import.meta.hot) {
-  window.$RefreshReg$ = prevRefreshReg
-  window.$RefreshSig$ = prevRefreshSig
-  import.meta.hot.accept(() => {
-    window.$RefreshRuntime$.performReactRefresh()
-  });
-}`;
-}
-
-module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
+module.exports = function reactRefreshTransform(snowpackConfig, {babel, reactRefreshOptions}) {
   return {
     name: '@snowpack/plugin-react-refresh',
-    transform({contents, fileExt, id, isDev, isHmrEnabled, isSSR}) {
+    transform({contents, fileExt, id, isDev, isHmrEnabled, isSSR, inputSourceMap}) {
       // Use long-form "=== false" to handle older Snowpack versions
       if (isHmrEnabled === false) {
         return;
@@ -107,7 +109,17 @@ module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
       // While server-side rendering, the fast-refresh code is not needed.
       if (fileExt === '.js' && !isSSR) {
         const skipTransform = babel === false;
-        return transformJs(contents, id, snowpackConfig.root || process.cwd(), skipTransform);
+        const sourceMaps =
+          snowpackConfig.buildOptions && snowpackConfig.buildOptions.sourceMaps ? true : false;
+        return transformJs(
+          contents,
+          id,
+          snowpackConfig.root || process.cwd(),
+          skipTransform,
+          inputSourceMap,
+          sourceMaps,
+          reactRefreshOptions,
+        );
       }
       if (fileExt === '.html') {
         return transformHtml(contents);

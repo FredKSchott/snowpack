@@ -8,6 +8,7 @@ import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
+import {Position, RawSourceMap, SourceMapConsumer, SourceMapGenerator} from 'source-map';
 import url from 'url';
 import getDefaultBrowserId from 'default-browser-id';
 import type {ImportMap, LockfileManifest, SnowpackConfig} from './types';
@@ -414,6 +415,48 @@ export function cssSourceMappingURL(code: string, sourceMappingURL: string) {
 /** JS sourceMappingURL */
 export function jsSourceMappingURL(code: string, sourceMappingURL: string) {
   return code.replace(/\n*$/, '') + `\n//# sourceMappingURL=${sourceMappingURL}\n`; // strip ending lines & append source map (with linebreaks for safety)
+}
+
+export async function offsetSourceMap(map: string | RawSourceMap, lineOffset: number) {
+  const generator = new SourceMapGenerator();
+  const consumer = await new SourceMapConsumer(map);
+  try {
+    consumer.sources.forEach((source) => {
+      const content = consumer.sourceContentFor(source);
+      if (content) {
+        generator.setSourceContent(source, content);
+      }
+    });
+
+    consumer.eachMapping((mapping) => {
+      const original = (typeof mapping.originalLine === 'number' &&
+      typeof mapping.originalColumn === 'number'
+        ? {
+            line: mapping.originalLine,
+            column: mapping.originalColumn,
+          }
+        : null) as Position;
+
+      const generated = (typeof mapping.generatedLine === 'number' &&
+      typeof mapping.generatedColumn === 'number'
+        ? {
+            line: mapping.generatedLine + lineOffset,
+            column: mapping.generatedColumn,
+          }
+        : null) as Position;
+
+      generator.addMapping({
+        name: mapping.name,
+        original,
+        generated,
+        source: mapping.source,
+      });
+    });
+
+    return generator.toString();
+  } finally {
+    consumer.destroy();
+  }
 }
 
 /** URL relative */

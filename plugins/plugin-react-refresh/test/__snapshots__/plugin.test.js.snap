@@ -2120,17 +2120,18 @@ exports.setSignature = setSignature;
 `;
 
 exports[`@snowpack/plugin-react-refresh transform js and html: js 1`] = `
-"
-/** React Refresh: Setup **/
+"/** React Refresh: Setup **/
 if (import.meta.hot) {
   if (!window.$RefreshReg$ || !window.$RefreshSig$ || !window.$RefreshRuntime$) {
     console.warn('@snowpack/plugin-react-refresh: HTML setup script not run. React Fast Refresh only works when Snowpack serves your HTML routes. You may want to remove this plugin.');
   } else {
     var prevRefreshReg = window.$RefreshReg$;
     var prevRefreshSig = window.$RefreshSig$;
+
     window.$RefreshReg$ = (type, id) => {
-      window.$RefreshRuntime$.register(type, \\"stub.js\\" + \\" \\" + id);
-    }
+      window.$RefreshRuntime$.register(type, \\"stub.js\\" + ' ' + id);
+    };
+
     window.$RefreshSig$ = window.$RefreshRuntime$.createSignatureFunctionForTransform;
   }
 }
@@ -2148,12 +2149,11 @@ var _c;
 
 $RefreshReg$(_c, \\"App\\");
 
-/** React Refresh: Connect **/
 if (import.meta.hot) {
-  window.$RefreshReg$ = prevRefreshReg
-  window.$RefreshSig$ = prevRefreshSig
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
   import.meta.hot.accept(() => {
-    window.$RefreshRuntime$.performReactRefresh()
+    window.$RefreshRuntime$.performReactRefresh();
   });
 }"
 `;

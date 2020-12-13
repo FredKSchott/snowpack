@@ -1,4 +1,3 @@
-mockBabel();
 const path = require('path');
 const fs = require('fs');
 const pluginReactRefresh = require('../plugin');
@@ -67,7 +66,14 @@ async function testPluginInstance(pluginInstance, overrides = {}) {
 
 describe('@snowpack/plugin-react-refresh', () => {
   test('transform js and html', async () => {
-    const pluginInstance = pluginReactRefresh({}, {babel: true});
+    const pluginInstance = pluginReactRefresh(
+      {
+        devOptions: {
+          hmr: true,
+        },
+      },
+      {babel: true, reactRefreshOptions: {skipEnvCheck: true}},
+    );
     await testPluginInstance(pluginInstance);
   });
   test("don't transform when disabled", async () => {
@@ -91,7 +97,7 @@ describe('@snowpack/plugin-react-refresh', () => {
           hmr: true,
         },
       },
-      {babel: false},
+      {babel: false, reactRefreshOptions: {skipEnvCheck: true}},
     );
     await testPluginInstance(pluginInstance);
   });
