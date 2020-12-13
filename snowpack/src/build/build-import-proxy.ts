@@ -89,7 +89,7 @@ export function wrapHtmlResponse({
 
   // Full Page Transformations: Only full page responses should get these transformations.
   // Any code not containing `<!DOCTYPE html>` is assumed to be an HTML fragment.
-  const isFullPage = code.toLowerCase().startsWith('<!doctype html>');
+  const isFullPage = code.trim().toLowerCase().startsWith('<!doctype html>');
   if (hmr && !isFullPage && !config.buildOptions.htmlFragments) {
     throw new Error(`HTML fragment found!
 HTML fragments (files not starting with "<!doctype html>") are not transformed like full HTML pages.
