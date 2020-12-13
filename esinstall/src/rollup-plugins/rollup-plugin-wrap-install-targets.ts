@@ -4,7 +4,7 @@ import path from 'path';
 import {Plugin} from 'rollup';
 import {VM as VM2} from 'vm2';
 import {AbstractLogger, InstallTarget} from '../types';
-import {getWebDependencyName, isRemoteUrl, isTruthy} from '../util';
+import {getWebDependencyName, isJavaScript, isRemoteUrl, isTruthy} from '../util';
 
 // Use CJS intentionally here! ESM interface is async but CJS is sync, and this file is sync
 const {parse} = require('cjs-module-lexer');
@@ -117,6 +117,9 @@ export function rollupPluginWrapInstallTargets(
       const input = inputOptions.input as {[entryAlias: string]: string};
       for (const [key, val] of Object.entries(input)) {
         if (isRemoteUrl(val)) {
+          continue;
+        }
+        if (!isJavaScript(val)) {
           continue;
         }
         const allInstallTargets = installTargets.filter(

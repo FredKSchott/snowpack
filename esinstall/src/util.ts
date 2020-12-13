@@ -190,6 +190,11 @@ export function createInstallTarget(specifier: string, all = true): InstallTarge
   };
 }
 
+export function isJavaScript(pathname: string): boolean {
+  const ext = path.extname(pathname).toLowerCase();
+  return (ext === '.js' || ext === '.mjs' || ext === '.cjs');
+}
+
 /**
  * Detect the web dependency "type" as either JS or ASSET:
  *   - BUNDLE: Install and bundle this file with Rollup engine.
@@ -198,7 +203,7 @@ export function createInstallTarget(specifier: string, all = true): InstallTarge
 export function getWebDependencyType(pathname: string): 'ASSET' | 'BUNDLE' {
   const ext = path.extname(pathname).toLowerCase();
   // JavaScript should always be bundled.
-  if (ext === '.js' || ext === '.mjs' || ext === '.cjs') {
+  if (isJavaScript(pathname)) {
     return 'BUNDLE';
   }
   // Svelte & Vue should always be bundled because we want to show the missing plugin
