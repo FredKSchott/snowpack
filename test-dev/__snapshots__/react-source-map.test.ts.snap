@@ -1,10 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`snowpack dev react-source-map: app.js 1`] = `
+exports[`snowpack dev react-source-map: App.js 1`] = `
 "import * as  __SNOWPACK_HMR__ from '/__snowpack__/hmr-client.js';
 import.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);
-import __SNOWPACK_ENV__ from '/__snowpack__/env.js';
+import * as __SNOWPACK_ENV__ from '/__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
+
 /** React Refresh: Setup **/
 if (import.meta.hot) {
   if (!window.$RefreshReg$ || !window.$RefreshSig$ || !window.$RefreshRuntime$) {
@@ -14,7 +15,7 @@ if (import.meta.hot) {
     var prevRefreshSig = window.$RefreshSig$;
 
     window.$RefreshReg$ = (type, id) => {
-      window.$RefreshRuntime$.register(type, \\"/Users/akari/Github/snowpack/test-dev/react-source-map/src/app.js\\" + ' ' + id);
+      window.$RefreshRuntime$.register(type, \\"<rootDir>/src/App.js\\" + ' ' + id);
     };
 
     window.$RefreshSig$ = window.$RefreshRuntime$.createSignatureFunctionForTransform;
@@ -67,16 +68,16 @@ if (import.meta.hot) {
     window.$RefreshRuntime$.performReactRefresh();
   });
 }
-//# sourceMappingURL=app.js.map
+//# sourceMappingURL=App.js.map
 "
 `;
 
-exports[`snowpack dev react-source-map: app.js.map 1`] = `
+exports[`snowpack dev react-source-map: App.js.map 1`] = `
 Object {
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;AAAA,OAAA,KAAA,IAAA,QAAA,EAAA,SAAA,QAAA,OAAA;AACA,OAAA,KAAA,MAAA,YAAA;AACA,OAAA,WAAA;;AAEA,SAAA,IAAA,GAAA;AAAA,EAAA,EAAA;;AAEE,QAAM,CAAA,KAAA,EAAA,QAAA,IAAoB,QAAA,CAA1B,CAA0B,CAA1B;AAEA,EAAA,SAAA,CAAU,MAAA;AACR,UAAA,KAAA,GAAc,UAAA,CAAW,MAAM,QAAA,CAAS,KAAA,GAA1B,CAAiB,CAAjB,EAAd,GAAc,CAAd;AACA,WAAO,MAAM,YAAA,CAAb,KAAa,CAAb;AAFF,GAAA,EAGG,CAAA,KAAA,EAHH,QAGG,CAHH,CAAA;AAKA,SACE,eAAA,KAAA,CAAA,aAAA,CAAA,KAAA,EAAA;AAAK,IAAA,SAAA,EAAU;AAAf,GAAA,EACE,eAAA,KAAA,CAAA,aAAA,CAAA,QAAA,EAAA;AAAQ,IAAA,SAAA,EAAU;AAAlB,GAAA,EACE,eAAA,KAAA,CAAA,aAAA,CAAA,KAAA,EAAA;AAAK,IAAA,GAAA,EAAL,KAAA;AAAgB,IAAA,SAAA,EAAhB,UAAA;AAAqC,IAAA,GAAA,EAAI;AAAzC,GAAA,CADF,EAEE,eAAA,KAAA,CAAA,aAAA,CAAA,GAAA,EAAA,IAAA,EAAA,OAAA,EACO,eAAA,KAAA,CAAA,aAAA,CAAA,MAAA,EAAA,IAAA,EADP,aACO,CADP,EAFF,sBAEE,CAFF,EAKE,eAAA,KAAA,CAAA,aAAA,CAAA,GAAA,EAAA,IAAA,EAAA,yBAAA,EACyB,eAAA,KAAA,CAAA,aAAA,CAAA,MAAA,EAAA,IAAA,EADzB,KACyB,CADzB,EALF,WAKE,CALF,EAQE,eAAA,KAAA,CAAA,aAAA,CAAA,GAAA,EAAA,IAAA,EACE,eAAA,KAAA,CAAA,aAAA,CAAA,GAAA,EAAA;AACE,IAAA,SAAA,EADF,UAAA;AAEE,IAAA,IAAA,EAFF,qBAAA;AAGE,IAAA,MAAA,EAHF,QAAA;AAIE,IAAA,GAAA,EAAI;AAJN,GAAA,EAXR,aAWQ,CADF,CARF,CADF,CADF;AAgBS;;GAzBX,I;;KAAA,I;AAkCA,eAAA,IAAA",
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;AAAA,OAAA,KAAA,IAAA,QAAA,EAAA,SAAA,QAAA,OAAA;AACA,OAAA,KAAA,MAAA,YAAA;AACA,OAAA,WAAA;;AAEA,SAAA,IAAA,GAAA;AAAA,EAAA,EAAA;;AAEE,QAAM,CAAA,KAAA,EAAA,QAAA,IAAoB,QAAA,CAA1B,CAA0B,CAA1B;AAEA,EAAA,SAAA,CAAU,MAAA;AACR,UAAA,KAAA,GAAc,UAAA,CAAW,MAAM,QAAA,CAAS,KAAA,GAA1B,CAAiB,CAAjB,EAAd,GAAc,CAAd;AACA,WAAO,MAAM,YAAA,CAAb,KAAa,CAAb;AAFF,GAAA,EAGG,CAAA,KAAA,EAHH,QAGG,CAHH,CAAA;AAKA,SACE,eAAA,KAAA,CAAA,aAAA,CAAA,KAAA,EAAA;AAAK,IAAA,SAAA,EAAU;AAAf,GAAA,EACE,eAAA,KAAA,CAAA,aAAA,CAAA,QAAA,EAAA;AAAQ,IAAA,SAAA,EAAU;AAAlB,GAAA,EACE,eAAA,KAAA,CAAA,aAAA,CAAA,KAAA,EAAA;AAAK,IAAA,GAAA,EAAL,KAAA;AAAgB,IAAA,SAAA,EAAhB,UAAA;AAAqC,IAAA,GAAA,EAAI;AAAzC,GAAA,CADF,EAEE,eAAA,KAAA,CAAA,aAAA,CAAA,GAAA,EAAA,IAAA,EAAA,OAAA,EACO,eAAA,KAAA,CAAA,aAAA,CAAA,MAAA,EAAA,IAAA,EADP,aACO,CADP,EAFF,sBAEE,CAFF,EAKE,eAAA,KAAA,CAAA,aAAA,CAAA,GAAA,EAAA,IAAA,EAAA,yBAAA,EACyB,eAAA,KAAA,CAAA,aAAA,CAAA,MAAA,EAAA,IAAA,EADzB,KACyB,CADzB,EALF,WAKE,CALF,EAQE,eAAA,KAAA,CAAA,aAAA,CAAA,GAAA,EAAA,IAAA,EACE,eAAA,KAAA,CAAA,aAAA,CAAA,GAAA,EAAA;AACE,IAAA,SAAA,EADF,UAAA;AAEE,IAAA,IAAA,EAFF,qBAAA;AAGE,IAAA,MAAA,EAHF,QAAA;AAIE,IAAA,GAAA,EAAI;AAJN,GAAA,EAXR,aAWQ,CADF,CARF,CADF,CADF;AAgBS;;GAzBX,I;;KAAA,I;AAkCA,eAAA,IAAA",
   "names": Array [],
   "sources": Array [
-    "/Users/akari/Github/snowpack/test-dev/react-source-map/src/app.jsx",
+    "src/App.jsx",
   ],
   "sourcesContent": Array [
     "import React, { useState, useEffect } from 'react';
@@ -133,7 +134,7 @@ exports[`snowpack dev react-source-map: html 1`] = `
     <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <title>Snowpack App</title>
-  <script type=\\"module\\" integrity=\\"sha384-nVIHeZJ8JTjn1/6rYx7hJo3wZ5ar+ErXrRjaSvgzp3YuAaF6hRiitaIUwTSv4N8G\\" src=\\"/__snowpack__/hmr-client.js\\"></script><script type=\\"module\\" integrity=\\"sha384-LH/mFhEGRB4jHedP0nqOoIUwc4VX8eWJxEL+qTGWtroqiLJ2vxX169J0oSBMHL5o\\" src=\\"/__snowpack__/hmr-error-overlay.js\\"></script></head>
+  <script type=\\"module\\" integrity=\\"sha384-ZsG+E+8Q6Yh0v98Nd0SfOT1bOX82TJaNaBS1npTZYuq4oD09c6rDD2R9pXqMvter\\" src=\\"/__snowpack__/hmr-client.js\\"></script><script type=\\"module\\" integrity=\\"sha384-LH/mFhEGRB4jHedP0nqOoIUwc4VX8eWJxEL+qTGWtroqiLJ2vxX169J0oSBMHL5o\\" src=\\"/__snowpack__/hmr-error-overlay.js\\"></script></head>
   <body>
 <script>
   function debounce(e,t){let u;return()=>{clearTimeout(u),u=setTimeout(e,t)}}
@@ -820,7 +821,7 @@ exports.setSignature = setSignature;
 </script>
     <div id=\\"root\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -839,8 +840,9 @@ exports.setSignature = setSignature;
 exports[`snowpack dev react-source-map: index.js 1`] = `
 "import * as  __SNOWPACK_HMR__ from '/__snowpack__/hmr-client.js';
 import.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);
-import __SNOWPACK_ENV__ from '/__snowpack__/env.js';
+import * as __SNOWPACK_ENV__ from '/__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
+
 import React from \\"../web_modules/react.js\\";
 import ReactDOM from \\"../web_modules/react-dom.js\\";
 import App2 from \\"./App.js\\";
@@ -856,10 +858,10 @@ if (import.meta.hot) {
 
 exports[`snowpack dev react-source-map: index.js.map 1`] = `
 Object {
-  "mappings": ";;;;AAAA,OAAA,KAAA,MAAA,OAAA;AACA,OAAA,QAAA,MAAA,WAAA;AACA,OAAA,IAAA,MAAA,WAAA;AACA,OAAA,aAAA;AAEA,QAAA,CAAS,MAAT,EACE,eAAA,KAAA,CAAA,aAAA,CAAC,KAAA,CAAM,UAAP,EAAA,IAAA,EACE,eAAA,KAAA,CAAA,aAAA,CAAC,IAAD,EAAA,IAAA,CADF,CADF,EAIE,QAAA,CAAS,cAAT,CAAwB,MAAxB,CAJF;;AASA,IAAI,MAAA,CAAA,IAAA,CAAY,GAAhB,EAAgB;AACd,EAAA,MAAA,CAAA,IAAA,CAAY,GAAZ,CAAgB,MAAhB;AAAgB",
+  "mappings": ";;;;;AAAA,OAAA,KAAA,MAAA,OAAA;AACA,OAAA,QAAA,MAAA,WAAA;AACA,OAAA,IAAA,MAAA,WAAA;AACA,OAAA,aAAA;AAEA,QAAA,CAAS,MAAT,EACE,eAAA,KAAA,CAAA,aAAA,CAAC,KAAA,CAAM,UAAP,EAAA,IAAA,EACE,eAAA,KAAA,CAAA,aAAA,CAAC,IAAD,EAAA,IAAA,CADF,CADF,EAIE,QAAA,CAAS,cAAT,CAAwB,MAAxB,CAJF;;AASA,IAAI,MAAA,CAAA,IAAA,CAAY,GAAhB,EAAgB;AACd,EAAA,MAAA,CAAA,IAAA,CAAY,GAAZ,CAAgB,MAAhB;AAAgB",
   "names": Array [],
   "sources": Array [
-    "/Users/akari/Github/snowpack/test-dev/react-source-map/src/index.jsx",
+    "src/index.jsx",
   ],
   "sourcesContent": Array [
     "import React from 'react';
