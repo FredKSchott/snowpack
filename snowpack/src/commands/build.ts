@@ -147,15 +147,16 @@ class FileBuilder {
     const srcExt = path.extname(url.fileURLToPath(this.fileURL));
     // Workaround: HMR plugins need to add scripts to HTML file, even if static.
     // TODO: Remove once no longer needed in dev.
-    const fileOutput = (this.mountEntry.static && srcExt !== '.html')
-      ? {[srcExt]: {code: await readFile(this.fileURL)}}
-      : await buildFile(this.fileURL, {
-          plugins: this.config.plugins,
-          isDev: false,
-          isSSR,
-          isHmrEnabled: false,
-          sourceMaps: this.config.buildOptions.sourceMaps,
-        });
+    const fileOutput =
+      this.mountEntry.static && srcExt !== '.html'
+        ? {[srcExt]: {code: await readFile(this.fileURL)}}
+        : await buildFile(this.fileURL, {
+            plugins: this.config.plugins,
+            isDev: false,
+            isSSR,
+            isHmrEnabled: false,
+            sourceMaps: this.config.buildOptions.sourceMaps,
+          });
 
     for (const [fileExt, buildResult] of Object.entries(fileOutput)) {
       let {code, map} = buildResult;
