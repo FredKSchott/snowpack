@@ -6,6 +6,8 @@ const glob = require('glob');
 const os = require('os');
 const {get} = require('httpie');
 
+const rootDir = path.resolve(__dirname, './react-source-map');
+
 describe('snowpack dev', () => {
   let snowpackProcess;
   afterEach(async () => {
@@ -44,14 +46,14 @@ describe('snowpack dev', () => {
       const timeout = setTimeout(() => {
         snowpackProcess.cancel();
         console.error(output.join(''));
-        reject(new Error('Timeout: snowpack did not start server within 3 seconds.'));
-      }, 3000);
+        reject(new Error('Timeout: snowpack did not start server within 8 seconds.'));
+      }, 8000);
 
       const output = [];
       snowpackProcess.stdout.on('data', (buffer) => {
         const line = buffer.toString();
         output.push(line);
-        if (/Server started in/.test(line)) {
+        if (/Server started/.test(line)) {
           resolve(undefined);
           clearTimeout(timeout);
         }
@@ -63,19 +65,24 @@ describe('snowpack dev', () => {
     expect(htmlBody).toMatchSnapshot('html');
 
     // get built index JS
-    const {data: indexJs} = await get('http://localhost:8081/_dist_/index.js');
+    let {data: indexJs} = await get('http://localhost:8081/dist/index.js');
+    indexJs = indexJs.replace(new RegExp(rootDir, 'g'), '<rootDir>');
     expect(indexJs).toMatchSnapshot('index.js');
 
     // get built index map
-    const {data: indexJsMap} = await get('http://localhost:8081/_dist_/index.js.map');
+    const {data: indexJsMap} = await get('http://localhost:8081/dist/index.js.map');
+    indexJsMap.sources = indexJsMap.sources.map((p) => path.relative(rootDir, p));
     expect(indexJsMap).toMatchSnapshot('index.js.map');
 
     // get built app JS
-    const {data: appJs} = await get('http://localhost:8081/_dist_/app.js');
-    expect(appJs).toMatchSnapshot('app.js');
+    let {data: appJs} = await get('http://localhost:8081/dist/App.js');
+    appJs = appJs.replace(new RegExp(rootDir, 'g'), '<rootDir>');
+    expect(appJs).toMatchSnapshot('App.js');
 
     // get built app map
-    const {data: appJsMap} = await get('http://localhost:8081/_dist_/app.js.map');
-    expect(appJsMap).toMatchSnapshot('app.js.map');
+    const {data: appJsMap} = await get('http://localhost:8081/dist/App.js.map');
+    appJsMap.sources = appJsMap.sources.map((p) => path.relative(rootDir, p));
+
+    expect(appJsMap).toMatchSnapshot('App.js.map');
   });
 });
