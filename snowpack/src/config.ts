@@ -5,7 +5,8 @@ import {all as merge} from 'deepmerge';
 import * as esbuild from 'esbuild';
 import http from 'http';
 import {isPlainObject} from 'is-plain-object';
-import {validate, ValidatorResult} from 'jsonschema';
+import {validate} from 'jsonschema';
+import {dim} from 'kleur/colors';
 import os from 'os';
 import path from 'path';
 import url from 'url';
@@ -702,10 +703,9 @@ function handleConfigError(msg: string) {
   process.exit(1);
 }
 
-function handleValidationErrors(filepath: string, errors: {toString: () => string}[]) {
-  logger.error(`! ${filepath || 'Configuration error'}
-${errors.map((err) => `    - ${err.toString()}`).join('\n')}
-    See https://www.snowpack.dev/#configuration for more info.`);
+function handleValidationErrors(filepath: string, err: ConfigValidationError) {
+  logger.error(`! ${filepath}\n${err.message}`);
+  logger.info(dim(`See https://www.snowpack.dev/ for more info.`));
   process.exit(1);
 }
 
@@ -887,20 +887,24 @@ export function validatePluginLoadResult(
   }
 }
 
-export function createConfiguration(
-  config: SnowpackUserConfig = {},
-): [ValidatorResult['errors'], undefined] | [null, SnowpackConfig] {
+class ConfigValidationError extends Error {
+  constructor(errors: Error[]) {
+    super(`Configuration Error:\n${errors.map((err) => `  - ${err.toString()}`).join('\n')}`);
+  }
+}
+
+export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackConfig {
   const {errors: validationErrors} = validate(config, configSchema, {
     propertyName: CONFIG_NAME,
     allowUnknownAttributes: false,
   });
   if (validationErrors.length > 0) {
-    return [validationErrors, undefined];
+    throw new ConfigValidationError(validationErrors);
   }
   const mergedConfig = merge<SnowpackUserConfig>([DEFAULT_CONFIG, config], {
     isMergeableObject: isPlainObject,
   });
-  return [null, normalizeConfig(mergedConfig)];
+  return normalizeConfig(mergedConfig);
 }
 
 export function loadConfigurationForCLI(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
@@ -978,8 +982,7 @@ export function loadConfigurationForCLI(flags: CLIFlags, pkgManifest: any): Snow
       propertyName: CONFIG_NAME,
     });
     if (extendValidation.errors && extendValidation.errors.length > 0) {
-      handleValidationErrors(result.filepath, extendValidation.errors);
-      process.exit(1);
+      handleValidationErrors(extendConfigLoc, new ConfigValidationError(extendValidation.errors));
     }
     if (extendConfig.plugins) {
       const extendConfigDir = path.dirname(extendConfigLoc);
@@ -1010,10 +1013,12 @@ export function loadConfigurationForCLI(flags: CLIFlags, pkgManifest: any): Snow
     },
   );
 
-  const [validationErrors, configResult] = createConfiguration(mergedConfig);
-  if (validationErrors) {
-    handleValidationErrors(result.filepath, validationErrors);
-    process.exit(1);
+  try {
+    return createConfiguration(mergedConfig);
+  } catch (err) {
+    if (err instanceof ConfigValidationError) {
+      handleValidationErrors(result.filepath, err);
+    }
+    throw err;
   }
-  return configResult!;
 }
