@@ -8,16 +8,37 @@ describe('Rollup config', () => {
     const spec = 'svelte-routing';
 
     const {
-      importMap: {imports}
+      importMap: {imports},
     } = await install([spec], {
       cwd,
       dest,
       rollup: {
-        plugins: [require('rollup-plugin-svelte')()]
-      }
+        plugins: [require('rollup-plugin-svelte')()],
+      },
     });
 
     // install would have thrown without the plugin, so getting here is enough.
     expect(imports[spec]).toBeTruthy();
+  });
+
+  it('omitting the rollup plugin will throw on install', async () => {
+    const cwd = __dirname;
+    const dest = path.join(cwd, 'test-rollup-no-plugin');
+    const spec = 'svelte-routing';
+
+    try {
+      await install([spec], {
+        cwd,
+        dest,
+        rollup: {
+          // No plugin makes svelte sad
+        },
+      });
+
+      // Shouldn't have gotten here :(
+      expect(false).toBeTruthy();
+    } catch (err) {
+      expect(err).toBeInstanceOf(Error);
+    }
   });
 });
