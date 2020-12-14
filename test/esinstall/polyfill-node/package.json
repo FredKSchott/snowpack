@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-polyfill-node",
+  "dependencies": {
+    "node-builtin-pkg": "file:./packages/node-builtin-pkg"
+  }
+}
