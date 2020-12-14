@@ -235,7 +235,7 @@ socket.addEventListener('message', ({data: _data}) => {
 log('listening for file changes...');
 
 /** Runtime error reporting: If a runtime error occurs, show it in an overlay. */
-window && window.addEventListener('error', function (event) {
+isWindowDefined && window.addEventListener('error', function (event) {
   // Generate an "error location" string
   let fileLoc;
   if (event.filename) {

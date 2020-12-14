@@ -874,7 +874,10 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       return finalResponse;
     }
 
-    const {fileLoc, isStatic, isResolve} = foundFile;
+    const {fileLoc, isStatic: _isStatic, isResolve} = foundFile;
+    // Workaround: HMR plugins need to add scripts to HTML file, even if static.
+    // TODO: Once plugins are able to add virtual files + imports, this will no longer be needed.
+    const isStatic = _isStatic && !fileLoc.endsWith('.html');
 
     // 1. Check the hot build cache. If it's already found, then just serve it.
     let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(

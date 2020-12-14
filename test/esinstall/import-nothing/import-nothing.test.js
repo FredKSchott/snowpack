@@ -2,7 +2,7 @@ const {install} = require('../../../esinstall/lib');
 
 describe('error-no-dep-list', () => {
   it('importing nothing', async () => {
-    expect(() =>
+    return expect(() =>
       install(
         [
           /* nothing! */

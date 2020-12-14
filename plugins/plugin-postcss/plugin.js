@@ -1,10 +1,9 @@
-const path = require('path');
 const execa = require('execa');
 
 module.exports = function postcssPlugin(snowpackConfig, options) {
   return {
     name: '@snowpack/postcss-transform',
-    async transform({id, fileExt, contents}) {
+    async transform({fileExt, contents}) {
       const {input = ['.css'], config} = options;
       if (!input.includes(fileExt) || !contents) return;
 

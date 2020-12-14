@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`error-config-invalid matches the snapshot: allFiles 1`] = `Array []`;
-
-exports[`error-config-invalid matches the snapshot: cli output 1`] = `
-"! XXX/package.json
-    - snowpack.install is not of a type(s) array
-    See https://www.snowpack.dev/#configuration for more info."
-`;

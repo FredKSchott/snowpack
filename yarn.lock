@@ -4106,7 +4106,7 @@ backo2@1.0.2:
   resolved "https://registry.yarnpkg.com/backo2/-/backo2-1.0.2.tgz#31ab1ac8b129363463e35b3ebb69f4dfcfba7947"
   integrity sha1-MasayLEpNjRj41s+u2n038+6eUc=
 
-"bad-node-builtin-pkg@file:./test/esinstall/error-node-builtin-unresolved/packages/bad-node-builtin-pkg":
+"bad-node-builtin-pkg@file:./test/esinstall/import-node-builtin/packages/bad-node-builtin-pkg":
   version "1.2.3"
 
 balanced-match@^1.0.0:
@@ -4923,13 +4923,13 @@ cjs-module-lexer@^1.0.0:
   resolved "https://registry.yarnpkg.com/cjs-module-lexer/-/cjs-module-lexer-1.0.0.tgz#c125ff0f4ab2c898dda909352f254d55e2213261"
   integrity sha512-bLSEjEwg4knnuXt7LIWegvgTOClk6ZonZY6g4CFGBly1EjRqVjTjI8Dwnb/dsu1PwJjYBKxnguE5bRTdk+bFOA==
 
-"cjs-named-export-pkg-02@file:./test/esinstall/auto-named-exports/packages/cjs-named-export-pkg-02":
+"cjs-named-exports-obj@file:./test/esinstall/named-exports/packages/cjs-named-exports-obj":
+  version "1.0.0"
+
+"cjs-named-exports-reexported@file:./test/esinstall/named-exports/packages/cjs-named-exports-reexported":
   version "1.2.3"
 
-"cjs-named-export-pkg-03@file:./test/esinstall/auto-named-exports/packages/cjs-named-export-pkg-03":
-  version "1.2.3"
-
-"cjs-named-export-pkg@file:./test/esinstall/config-named-exports/packages/cjs-named-export-pkg":
+"cjs-named-exports-simple@file:./test/esinstall/named-exports/packages/cjs-named-exports-simple":
   version "1.2.3"
 
 class-utils@^0.3.5:
@@ -6424,12 +6424,6 @@ error-ex@^1.2.0, error-ex@^1.3.1:
   integrity sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==
   dependencies:
     is-arrayish "^0.2.1"
-
-"error-file-ext-dep-a@file:./test/esinstall/error-file-ext/packages/error-file-ext-dep-a":
-  version "1.0.0"
-
-"error-file-ext-dep-b@file:./test/esinstall/error-file-ext/packages/error-file-ext-dep-b":
-  version "1.0.0"
 
 es-abstract@^1.17.2:
   version "1.17.7"
@@ -11401,7 +11395,7 @@ postcss@^8.1.8:
     nanoid "^3.1.20"
     source-map "^0.6.1"
 
-preact@^10.4.6, preact@^10.5.4:
+preact@^10.0.0:
   version "10.5.7"
   resolved "https://registry.yarnpkg.com/preact/-/preact-10.5.7.tgz#f1d84725539e18f7ccbea937cf3db5895661dbd3"
   integrity sha512-4oEpz75t/0UNcwmcsjk+BIcDdk68oao+7kxcpc1hQPNs2Oo3ZL9xFz8UBf350mxk/VEdD41L5b4l2dE3Ug3RYg==
@@ -12725,6 +12719,11 @@ signal-exit@^3.0.0, signal-exit@^3.0.2, signal-exit@^3.0.3:
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.3.tgz#a1410c2edd8f077b08b4e253c8eacfcaf057461c"
   integrity sha512-VUJ49FC8U1OxwZLxIbTTrDvLnf/6TDgxZcK8wxR8zs13xpx7xbG60ndBlhNrFi2EMuFRoeDoJO7wthSLq42EjA==
 
+simple-svelte-autocomplete@1.2.4:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/simple-svelte-autocomplete/-/simple-svelte-autocomplete-1.2.4.tgz#57be9b01e42b33d5e46b1ab2bedf3c5d1b5101cf"
+  integrity sha512-+1Y8/QKuF/MnsKFiVFd1i8JJRb5MOxHRBPvftEirNgd54YqBCDqLbg0aAxGDdpCts+yAEOABLN4c7l7/eGTyDw==
+
 simple-swizzle@^0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/simple-swizzle/-/simple-swizzle-0.2.2.tgz#a4da6b635ffcccca33f70d17cb92592de95e557a"
@@ -12899,7 +12898,7 @@ solid-js@^0.16.7:
   resolved "https://registry.yarnpkg.com/solid-js/-/solid-js-0.16.14.tgz#098aea093d1f1660c3572eda5af085e5d0cc2f20"
   integrity sha512-fdkzrseYaileVAHJAmGRXBrq6Uyd7zwGK53T+QnKTlvd5hhPSh5i2W8vny1HycHTXZ3v8oms/2H2Gj3/cVfVqQ==
 
-"some-custom-lookup-package@file:./test/esinstall/config-package-lookup-fields/packages/some-custom-lookup-package":
+"some-custom-lookup-package@file:./test/build/config-package-lookup-fields/packages/some-custom-lookup-package":
   version "1.0.0"
 
 sort-keys@^2.0.0:
@@ -13859,7 +13858,7 @@ type-is@^1.6.16:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-"type-only-pkg@file:./test/esinstall/dep-types-only/packages/type-only-pkg":
+"type-only-pkg@file:./test/esinstall/import-types/packages/type-only-pkg":
   version "1.0.0"
 
 typedarray-to-buffer@^3.1.5:
@@ -13934,7 +13933,7 @@ umask@^1.1.0:
   resolved "https://registry.yarnpkg.com/umask/-/umask-1.1.0.tgz#f29cebf01df517912bb58ff9c4e50fde8e33320d"
   integrity sha1-8pzr8B31F5ErtY/5xOUP3o4zMg0=
 
-"umd-named-export-pkg-01@file:./test/esinstall/auto-named-exports/packages/umd-named-export-pkg-01":
+"umd-named-exports@file:./test/esinstall/named-exports/packages/umd-named-exports":
   version "0.7.0"
 
 unbzip2-stream@^1.3.3:

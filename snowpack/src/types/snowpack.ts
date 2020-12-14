@@ -97,10 +97,15 @@ export interface SnowpackSourceFile<Type = string | Buffer> {
 }
 
 export interface PluginLoadOptions {
+  /** The absolute file path of the source file, on disk. */
   filePath: string;
+  /** A helper for just the file extension of the source file (ex: ".js", ".svelte") */
   fileExt: string;
+  /** True if builder is in dev mode (`snowpack dev` or `snowpack build --watch`) */
   isDev: boolean;
+  /** True if builder is in SSR mode */
   isSSR: boolean;
+  /** True if HMR is enabled (add any HMR code to the output here). */
   isHmrEnabled: boolean;
 }
 

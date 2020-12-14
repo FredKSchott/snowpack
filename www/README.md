@@ -18,6 +18,33 @@ We aim to follow the [Divio documentation system](https://documentation.divio.co
 - Capitalize after colons
 - Avoid using vague terms for link text like "here"
 
+### Reference documentation formatting
+
+For reference documentation (APIs, configuration, etc.), use the following format:
+
+```
+method/name | `type` | Default: `value` : description
+```
+
+`Default` is optional and only applies if there is a default.
+
+Example:
+
+```
+devOptions.open | `string` | Default: `"default"`
+```
+
+If it's a heading use the truncated format with the rest of the information below the heading:
+
+```
+#### name
+`string`
+Default: `value`
+Description
+```
+
+Examples:
+
 ### Code blocks
 
 Code blocks should have a top comment with information about the code:
