@@ -4,7 +4,7 @@
   "name": "@snowpack/test-module-resolution",
   "description": "Tests that relative web_modules directories work",
   "devDependencies": {
-    "preact": "^10.4.6",
+    "preact": "^10.0.0",
     "snowpack": "^2.14.3"
   }
 }

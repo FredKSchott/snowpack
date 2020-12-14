@@ -14,7 +14,7 @@ Snowpack is a lightning-fast frontend build tool, designed to leverage JavaScrip
 
 - Develop faster, with a dev server that starts up in **50ms or less.**
 - See changes reflected [instantly in the browser.](https://www.snowpack.dev/concepts/hot-module-replacement)
-- Integrate your favorite bundler for a [production-optimized build.](https://www.snowpack.dev/concepts/build-pipelined)
+- Integrate your favorite bundler for a [production-optimized build.](https://www.snowpack.dev/concepts/build-pipeline)
 - Enjoy out-of-the-box support for [TypeScript, JSX, CSS Modules and more.](https://www.snowpack.dev/reference/supported-files)
 - Connect your favorite tools with [third-party plugins.](https://www.snowpack.dev/plugins)
 

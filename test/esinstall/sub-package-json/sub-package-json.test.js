@@ -1,35 +1,19 @@
 const path = require('path');
-const {
-  existsPackageJson,
-  runTest,
-  testLockFile,
-  testWebModules,
-} = require('../esinstall-test-utils.js');
+const {install} = require('../../../esinstall/lib');
 
-require('jest-specific-snapshot'); // allows to call expect().toMatchSpecificSnapshot(filename, snapshotName)
-
-describe('sub-package-json', () => {
-  it('matches the snapshot', async () => {
+describe('sub package with package.json', () => {
+  it('resolves to the right place', async () => {
     const cwd = __dirname;
+    const dest = path.join(cwd, 'test-sub-package-json');
+    const spec = 'solid-js/dom';
 
-    if (existsPackageJson(cwd) === false) return;
+    const {
+      importMap: {imports},
+    } = await install([spec], {
+      cwd,
+      dest,
+    });
 
-    // Run Test
-    const {output, snapshotFile} = await runTest(cwd);
-
-    // Test output
-    expect(output).toMatchSpecificSnapshot(snapshotFile, 'cli output');
-
-    // Test Lockfile (if one exists)
-    await testLockFile(cwd);
-
-    // Cleanup
-    const {testAllSnapshots, testDiffs} = testWebModules(cwd, snapshotFile);
-
-    // Assert that the snapshots match
-    testAllSnapshots();
-
-    // If any diffs are detected, we'll assert the difference so that we get nice output.
-    testDiffs();
+    expect(imports[spec]).toBeTruthy();
   });
 });

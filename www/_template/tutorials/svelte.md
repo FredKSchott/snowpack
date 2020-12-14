@@ -174,13 +174,13 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
 -   /* ... */
 +   // directory name: 'build directory'
 +   public: '/',
-+   src: '/_dist_',
++   src: '/dist',
   },
 ```
 
 <img src="/img/guides/folder-structure.png" alt="Graphic shows the original and new folder structures side by side. Arrows indicate that the files are built to where the arrow points. The Original side shows a folder labeled ./ entire directory with an arrow pointing to a folder labeled  mysite.com/*. The New side shows a folder labeled ./src/* with an arrow pointing to a folder labeled mysite.com/_dist/*. Then a second folder labeled ./public/* with an arrow pointing to a folder labeled mysite.com/* " />
 
-`mount` is part of the [Snowpack Configuration API](/reference/configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in the `public` directory - like `public/index.css` - into `index.css`. Likewise, it builds files in `src` like `src/index.js` into `/_dist_/index.js`, so change that path in your `index.html`:
+`mount` is part of the [Snowpack Configuration API](/reference/configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in the `public` directory - like `public/index.css` - into `index.css`. Likewise, it builds files in `src` like `src/index.js` into `/dist/index.js`, so change that path in your `index.html`:
 
 ```diff
 <!-- public/index.html -->
@@ -188,7 +188,7 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
   <body>
 -   <h1>Welcome to Snowpack!</h1>
 -   <script type="module" src="/index.js"></script>
-+   <script type="module" src="/_dist_/index.js"></script>
++   <script type="module" src="/dist/index.js"></script>
   </body>
 ```
 
