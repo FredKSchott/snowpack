@@ -645,6 +645,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   config.root = path.resolve(cwd, config.root);
   // @ts-ignore
   config.buildOptions.out = path.resolve(cwd, config.devOptions.out || config.buildOptions.out);
+  config.installOptions.cwd = config.root;
   config.installOptions.rollup = config.installOptions.rollup || {};
   config.installOptions.rollup.plugins = config.installOptions.rollup.plugins || [];
   config.exclude = Array.from(
