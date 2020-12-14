@@ -56,7 +56,7 @@ async function runPipelineLoadStep(
     }
 
     try {
-      const debugPath = path.relative(process.cwd(), srcPath);
+      const debugPath = path.relative(config.root, srcPath);
       logger.debug(`load() starting… [${debugPath}]`, {name: step.name});
       const result = await step.load({
         fileExt: srcExt,
@@ -156,7 +156,7 @@ async function runPipelineTransformStep(
         const {code} = destBuildFile;
         const fileName = rootFileName + destExt;
         const filePath = rootFilePath + destExt;
-        const debugPath = path.relative(process.cwd(), filePath);
+        const debugPath = path.relative(config.root, filePath);
         logger.debug(`transform() starting… [${debugPath}]`, {name: step.name});
         const result = await step.transform({
           contents: code,
