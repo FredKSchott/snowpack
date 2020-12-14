@@ -26,6 +26,7 @@ import {
   EnvVarReplacements,
   ImportMap,
   InstallTarget,
+  ExportMapEntry,
 } from './types';
 import {
   createInstallTarget,
@@ -84,16 +85,30 @@ function isImportOfPackage(importUrl: string, packageName: string) {
   return packageName === importUrl || importUrl.startsWith(packageName + '/');
 }
 
-function resolveExportsMap(packageManifest: {exports: {}}, exportsProp: string) {
-  const exportMapEntry = packageManifest.exports[exportsProp];
-  const exportMapValue =
-    exportMapEntry?.browser ||
-    exportMapEntry?.import ||
-    exportMapEntry?.default ||
-    exportMapEntry?.require ||
-    exportMapEntry;
+function resolveNestedCondition(exportMapEntry: ExportMapEntry | undefined): string | undefined {
+  // If this is a string or undefined we can skip checking for conditions
+  switch (typeof exportMapEntry) {
+    case 'string':
+      return exportMapEntry;
+    case 'undefined':
+      return exportMapEntry;
+  }
 
-  return exportMapValue;
+  return (
+    resolveNestedCondition(exportMapEntry?.browser) ||
+    resolveNestedCondition(exportMapEntry?.import) ||
+    resolveNestedCondition(exportMapEntry?.default) ||
+    resolveNestedCondition(exportMapEntry?.require) ||
+    undefined
+  );
+}
+
+function resolveExportsMap(
+  packageManifest: {exports: {}},
+  exportsProp: string,
+): string | undefined {
+  const exportMapEntry = packageManifest.exports[exportsProp];
+  return resolveNestedCondition(exportMapEntry);
 }
 
 /**

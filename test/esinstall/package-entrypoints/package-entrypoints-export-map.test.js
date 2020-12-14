@@ -21,6 +21,9 @@ describe('package-entrypoints browser configuration', () => {
 
       // ".": { "require": "index.js" }
       'export-map-object-require',
+
+      // "." : { "browser": { "development": "index.js" } }
+      'export-map-object-browser-object',
     ];
 
     const {
