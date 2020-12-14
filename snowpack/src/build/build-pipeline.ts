@@ -15,8 +15,7 @@ export interface BuildFileOptions {
   isDev: boolean;
   isSSR: boolean;
   isHmrEnabled: boolean;
-  plugins: SnowpackPlugin[];
-  sourceMaps: boolean;
+  config: SnowpackConfig;
 }
 
 export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
@@ -45,10 +44,10 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
  */
 async function runPipelineLoadStep(
   srcPath: string,
-  {isDev, isSSR, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
+  {isDev, isSSR, isHmrEnabled, config}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
-  for (const step of plugins) {
+  for (const step of config.plugins) {
     if (!step.resolve || !step.resolve.input.includes(srcExt)) {
       continue;
     }
@@ -91,7 +90,7 @@ async function runPipelineLoadStep(
             result[ext].map = JSON.stringify(result[ext].map);
 
           // if source maps disabled, don’t return any
-          if (!sourceMaps) result[ext].map = undefined;
+          if (!config.buildOptions.sourceMaps) result[ext].map = undefined;
 
           // clean up empty files
           if (!result[ext].code) delete result[ext];
@@ -141,12 +140,12 @@ async function composeSourceMaps(
 async function runPipelineTransformStep(
   output: SnowpackBuildMap,
   srcPath: string,
-  {isDev, plugins, sourceMaps}: BuildFileOptions,
+  {isDev, config}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const srcExt = getExt(srcPath).baseExt;
   const rootFilePath = srcPath.replace(srcExt, '');
   const rootFileName = path.basename(rootFilePath);
-  for (const step of plugins) {
+  for (const step of config.plugins) {
     if (!step.transform) {
       continue;
     }
@@ -183,7 +182,7 @@ async function runPipelineTransformStep(
           output[destExt].code = (result as PluginTransformResult).contents;
           const map = (result as PluginTransformResult).map;
           let outputMap: string | undefined = undefined;
-          if (map && sourceMaps) {
+          if (map && config.buildOptions.sourceMaps) {
             // if source maps disabled, don’t return any
             if (output[destExt].map) {
               outputMap = await composeSourceMaps(filePath, output[destExt].map!, map);
@@ -212,8 +211,8 @@ async function runPipelineTransformStep(
   return output;
 }
 
-export async function runPipelineOptimizeStep(buildDirectory: string, {plugins}: BuildFileOptions) {
-  for (const step of plugins) {
+export async function runPipelineOptimizeStep(buildDirectory: string, {config}: BuildFileOptions) {
+  for (const step of config.plugins) {
     if (!step.optimize) {
       continue;
     }

@@ -1,9 +1,8 @@
 const {isTestFilePath} = require('@web/test-runner');
 const snowpack = require('snowpack');
 const path = require('path');
-const cwd = process.cwd();
 
-module.exports = function () {
+module.exports = function (snowpackConfig) {
   if (process.env.NODE_ENV !== 'test') {
     throw new Error(`@snowpack/web-test-runner-plugin: NODE_ENV must === "test" to build files correctly.
 To Resolve:
@@ -26,7 +25,7 @@ To Resolve:
     async serverStart({fileWatcher}) {
       fileWatcher.add(Object.keys(config.mount));
       server = await snowpack.startDevServer({
-        cwd,
+        cwd: snowpackConfig.root || process.cwd(),
         config,
         lockfile: null,
         pkgManifest,

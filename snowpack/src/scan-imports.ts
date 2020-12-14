@@ -157,8 +157,9 @@ function parseFileForInstallTargets({
   locOnDisk,
   baseExt,
   contents,
+  root,
 }: SnowpackSourceFile<string>): InstallTarget[] {
-  const relativeLoc = path.relative(process.cwd(), locOnDisk);
+  const relativeLoc = path.relative(root, locOnDisk);
 
   try {
     switch (baseExt) {
@@ -259,6 +260,7 @@ export async function scanImports(
       return {
         baseExt,
         expandedExt,
+        root: config.root,
         locOnDisk: filePath,
         contents: await readFile(url.pathToFileURL(filePath)),
       };

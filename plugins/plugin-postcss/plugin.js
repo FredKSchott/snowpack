@@ -1,7 +1,7 @@
 const path = require('path');
 const execa = require('execa');
 
-module.exports = function postcssPlugin(_, options) {
+module.exports = function postcssPlugin(snowpackConfig, options) {
   return {
     name: '@snowpack/postcss-transform',
     async transform({id, fileExt, contents}) {
@@ -12,7 +12,7 @@ module.exports = function postcssPlugin(_, options) {
       if (config) flags.push(`--config ${config}`);
 
       const {stdout} = await execa('postcss', flags, {
-        cwd: path.dirname(id),
+        cwd: snowpackConfig.root || process.cwd(),
         input: contents,
       });
 

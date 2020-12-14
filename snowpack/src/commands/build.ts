@@ -148,11 +148,10 @@ class FileBuilder {
     const fileOutput = this.mountEntry.static
       ? {[srcExt]: {code: await readFile(this.fileURL)}}
       : await buildFile(this.fileURL, {
-          plugins: this.config.plugins,
+          config: this.config,
           isDev: false,
           isSSR,
           isHmrEnabled: false,
-          sourceMaps: this.config.buildOptions.sourceMaps,
         });
 
     for (const [fileExt, buildResult] of Object.entries(fileOutput)) {
@@ -174,6 +173,7 @@ class FileBuilder {
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
               expandedExt: fileExt,
+              root: this.config.root,
               contents: code,
               locOnDisk: url.fileURLToPath(this.fileURL),
             };
@@ -191,6 +191,7 @@ class FileBuilder {
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
               expandedExt: fileExt,
+              root: this.config.root,
               contents: code,
               locOnDisk: url.fileURLToPath(this.fileURL),
             };
@@ -209,6 +210,7 @@ class FileBuilder {
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
               expandedExt: fileExt,
+              root: this.config.root,
               contents: code,
               locOnDisk: url.fileURLToPath(this.fileURL),
             };
@@ -546,11 +548,10 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
       logger.info(colors.yellow('! optimizing build...'));
       await runBuiltInOptimize(config);
       await runPipelineOptimizeStep(buildDirectoryLoc, {
-        plugins: config.plugins,
+        config,
         isDev: false,
         isSSR: config.experiments.ssr,
         isHmrEnabled: false,
-        sourceMaps: config.buildOptions.sourceMaps,
       });
       const optimizeEnd = performance.now();
       logger.info(

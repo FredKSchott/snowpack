@@ -72,7 +72,7 @@ module.exports = function plugin(snowpackConfig) {
       await Promise.all(
         descriptor.styles.map((stylePart) => {
           const css = compiler.compileStyle({
-            filename: path.relative(process.cwd(), filePath),
+            filename: path.relative(snowpackConfig.root || process.cwd(), filePath),
             source: stylePart.content,
             id: `data-v-${id}`,
             scoped: stylePart.scoped != null,
@@ -92,7 +92,7 @@ module.exports = function plugin(snowpackConfig) {
       if (descriptor.template) {
         const js = compiler.compileTemplate({
           id,
-          filename: path.relative(process.cwd(), filePath),
+          filename: path.relative(snowpackConfig.root || process.cwd(), filePath),
           source: descriptor.template.content,
           preprocessLang: descriptor.template.lang,
           compilerOptions: {

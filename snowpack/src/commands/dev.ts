@@ -293,10 +293,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     console.error = (...args: [any, ...any[]]) => {
       logger.error(util.format(...args));
     };
-    paintDashboard(
-      messageBus,
-      config.plugins.map((p) => p.name),
-    );
+    paintDashboard(messageBus, config);
     logger.debug(`dashboard started`);
   } else {
     // "stream": Log relevent events to the console.
@@ -620,11 +617,10 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       }
       const fileBuilderPromise = (async () => {
         const builtFileOutput = await _buildFile(url.pathToFileURL(fileLoc), {
-          plugins: config.plugins,
+          config,
           isDev: true,
           isSSR,
           isHmrEnabled: isHMR,
-          sourceMaps: config.buildOptions.sourceMaps,
         });
         inMemoryBuildCache.set(
           getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
@@ -718,6 +714,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         {
           locOnDisk: fileLoc,
           contents: wrappedResponse,
+          root: config.root,
           baseExt: responseExt,
           expandedExt: getExt(fileLoc).expandedExt,
         },

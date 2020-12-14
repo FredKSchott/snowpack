@@ -92,6 +92,8 @@ export interface SnowpackSourceFile<Type = string | Buffer> {
   expandedExt: string;
   /** if no location on disk, assume this exists in memory */
   locOnDisk: string;
+  /** project "root" directory */
+  root: string;
 }
 
 export interface PluginLoadOptions {
@@ -272,7 +274,7 @@ export interface SnowpackConfig {
 }
 
 export type SnowpackUserConfig = {
-  root?: string,
+  root?: string;
   install?: string[];
   extends?: string;
   exclude?: string[];
@@ -295,10 +297,11 @@ export type SnowpackUserConfig = {
   };
 };
 
-export interface CLIFlags extends Omit<InstallOptions, 'env'> {
+export interface CLIFlags {
   help?: boolean; // display help text
   version?: boolean; // display Snowpack version
   reload?: boolean;
+  root?: string; // manual path to project root
   config?: string; // manual path to config file
   env?: string[]; // env vars
   open?: string[];

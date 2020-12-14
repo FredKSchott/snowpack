@@ -26,7 +26,7 @@ module.exports = function plugin(snowpackConfig, options = {}) {
       pool = pool || workerpool.pool(require.resolve('./worker.js'));
       worker = worker || (await pool.proxy());
       let encodedResult = await worker.transformFileAsync(filePath, {
-        cwd: process.cwd(),
+        cwd: snowpackConfig.root || process.cwd(),
         ast: false,
         compact: false,
         sourceMaps: snowpackConfig.buildOptions.sourceMaps,
