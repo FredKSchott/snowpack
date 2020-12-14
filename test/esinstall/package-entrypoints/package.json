@@ -27,8 +27,5 @@
     "export-map-object-default": "file:./export-map-object-default",
     "export-map-object-require": "file:./export-map-object-require",
     "preact": "^10.0.0"
-  },
-  "devDependencies": {
-    "esinstall": "^0.4.0"
   }
 }
