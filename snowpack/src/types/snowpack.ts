@@ -88,8 +88,6 @@ export interface SnowpackSourceFile<Type = string | Buffer> {
   baseExt: string;
   /** file contents */
   contents: Type;
-  /** expanded extension (e.g. `.proxy.js` or `.module.css`) */
-  expandedExt: string;
   /** if no location on disk, assume this exists in memory */
   locOnDisk: string;
 }

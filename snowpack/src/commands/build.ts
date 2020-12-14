@@ -176,7 +176,6 @@ class FileBuilder {
             if (map) code = cssSourceMappingURL(code, sourceMappingURL);
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
-              expandedExt: fileExt,
               contents: code,
               locOnDisk: url.fileURLToPath(this.fileURL),
             };
@@ -193,7 +192,6 @@ class FileBuilder {
             if (map) code = jsSourceMappingURL(code, sourceMappingURL);
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
-              expandedExt: fileExt,
               contents: code,
               locOnDisk: url.fileURLToPath(this.fileURL),
             };
@@ -211,7 +209,6 @@ class FileBuilder {
             });
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
-              expandedExt: fileExt,
               contents: code,
               locOnDisk: url.fileURLToPath(this.fileURL),
             };

@@ -8,7 +8,7 @@ import {
   SnowpackPlugin,
   PluginTransformResult,
 } from '../types/snowpack';
-import {getExt, readFile, replaceExt} from '../util';
+import {readFile, replaceExt} from '../util';
 import {SourceMapConsumer, SourceMapGenerator, RawSourceMap} from 'source-map';
 
 export interface BuildFileOptions {
@@ -21,13 +21,12 @@ export interface BuildFileOptions {
 
 export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
   const srcFile = replaceExt(fileLoc, '.map', ''); // if this is a .map file, try loading source
-  const {baseExt} = getExt(srcFile);
 
   const potentialInputs = new Set([srcFile]);
   for (const plugin of plugins) {
-    if (plugin.resolve && plugin.resolve.output.includes(baseExt)) {
-      plugin.resolve.input.forEach((input) =>
-        potentialInputs.add(replaceExt(srcFile, baseExt, input)),
+    if (plugin.resolve && plugin.resolve.output.some((ext => srcFile.endsWith(ext)))) {
+      plugin.resolve.input.forEach((inputExt) =>
+        potentialInputs.add(replaceExt(srcFile, path.extname(srcFile), inputExt)),
       );
     }
   }
@@ -47,9 +46,9 @@ async function runPipelineLoadStep(
   srcPath: string,
   {isDev, isSSR, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
-  const srcExt = getExt(srcPath).baseExt;
+  const srcExt = path.extname(srcPath);
   for (const step of plugins) {
-    if (!step.resolve || !step.resolve.input.includes(srcExt)) {
+    if (!step.resolve || !step.resolve.output.some((ext => srcPath.endsWith(ext)))) {
       continue;
     }
     if (!step.load) {
@@ -143,7 +142,7 @@ async function runPipelineTransformStep(
   srcPath: string,
   {isDev, plugins, sourceMaps}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
-  const srcExt = getExt(srcPath).baseExt;
+  const srcExt = path.extname(srcPath);
   const rootFilePath = srcPath.replace(srcExt, '');
   const rootFileName = path.basename(rootFilePath);
   for (const step of plugins) {

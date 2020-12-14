@@ -73,7 +73,6 @@ import {
 import {
   BUILD_CACHE,
   cssSourceMappingURL,
-  getExt,
   getPackageSource,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
@@ -719,7 +718,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           locOnDisk: fileLoc,
           contents: wrappedResponse,
           baseExt: responseExt,
-          expandedExt: getExt(fileLoc).expandedExt,
         },
         (spec) => {
           // Try to resolve the specifier to a known URL in the project

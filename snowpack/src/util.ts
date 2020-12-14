@@ -302,17 +302,19 @@ export function findMatchingAliasEntry(
   }
 }
 
-/** Get full extensions of files */
-export function getExt(fileName: string) {
-  return {
-    /** base extension (e.g. `.js`) */
-    baseExt: path.extname(fileName).toLocaleLowerCase(),
-    /** full extension, if applicable (e.g. `.proxy.js`) */
-    expandedExt: path.basename(fileName).replace(/[^.]+/, '').toLocaleLowerCase(),
-  };
+export function getExtensionMatch(fileName: string, extensionMap: Record<string, string>): string | undefined {
+  let extensionMatch;
+  let extensionMatchIndex = 0;
+  while (!extensionMatch && extensionMatchIndex > -1) {
+    if (extensionMatchIndex > 0) {
+      extensionMatchIndex++;
+    }
+    extensionMatchIndex = fileName.indexOf('.', extensionMatchIndex);
+    extensionMatch = extensionMap[fileName.substr(extensionMatchIndex)];
+  }
+  return extensionMatchIndex > 0 ? extensionMatch : undefined;
 }
 
-/** Replace file extensions */
 export function replaceExt(fileName: string, oldExt: string, newExt: string): string {
   const extToReplace = new RegExp(`\\${oldExt}$`, 'i');
   return fileName.replace(extToReplace, newExt);
