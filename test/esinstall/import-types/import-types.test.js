@@ -14,8 +14,6 @@ describe('importing types', () => {
       dest,
     });
 
-    console.log(imports);
-
     // This package should not have been installed because it only contains types.
     expect(imports[spec]).toBeFalsy();
   });
