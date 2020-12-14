@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-dep-types-only",
+  "dependencies": {
+    "array-flatten": "^3.0.0",
+    "type-only-pkg": "file:./packages/type-only-pkg"
+  }
+}
