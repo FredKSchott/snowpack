@@ -889,7 +889,7 @@ export function validatePluginLoadResult(
 
 class ConfigValidationError extends Error {
   constructor(errors: Error[]) {
-    super(`Configuration Error:\n${errors.map((err) => `  - ${err.toString()}`).join('\n')}`);
+    super(`Configuration Error:\n${errors.map((err) => `  - ${err.toString()}`).join(os.EOL)}`);
   }
 }
 
