@@ -298,7 +298,7 @@ function loadPlugins(
 
   function loadPluginFromScript(specifier: string): SnowpackPlugin | undefined {
     try {
-      const pluginLoc = require.resolve(specifier, {paths: [config.root]});
+      const pluginLoc = require.resolve(specifier, {paths: [process.cwd()]});
       return execPluginFactory(require(pluginLoc)); // no plugin options to load because we’re
       // loading from a string
     } catch (err) {
@@ -307,7 +307,7 @@ function loadPlugins(
   }
 
   function loadPluginFromConfig(name: string, options?: any): SnowpackPlugin {
-    const pluginLoc = require.resolve(name, {paths: [config.root]});
+    const pluginLoc = require.resolve(name, {paths: [process.cwd()]});
     const pluginRef = require(pluginLoc);
     let plugin: SnowpackPlugin & LegacySnowpackPlugin;
     try {
@@ -524,7 +524,7 @@ function normalizeProxies(proxies: RawProxies): Proxy[] {
 }
 
 function normalizeMount(config: SnowpackConfig) {
-  const cwd = config.root;
+  const cwd = process.cwd();
   const mountedDirs: Record<string, string | Partial<MountEntry>> = config.mount || {};
   for (const [target, cmd] of Object.entries(config.scripts)) {
     if (target.startsWith('mount:')) {
@@ -600,7 +600,7 @@ function normalizeRoutes(routes: RouteConfigObject[]): RouteConfigObject[] {
 }
 
 function normalizeAlias(config: SnowpackConfig, createMountAlias: boolean) {
-  const cwd = config.root;
+  const cwd = process.cwd();
   const cleanAlias: Record<string, string> = config.alias || {};
   if (createMountAlias) {
     for (const mountDir of Object.keys(config.mount)) {
@@ -630,6 +630,7 @@ function normalizeAlias(config: SnowpackConfig, createMountAlias: boolean) {
 
 /** resolve --dest relative to cwd, etc. */
 function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
+  const cwd = process.cwd();
   // TODO: This function is really fighting with TypeScript. Now that we have an accurate
   // SnowpackUserConfig type, we can have this function construct a fresh config object
   // from scratch instead of trying to modify the user's config object in-place.
@@ -641,9 +642,9 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
       '`devOptions.out` is now `buildOptions.out`! `devOptions.out` will be deprecated in the next major release.',
     );
   }
+  config.root = path.resolve(cwd, config.root);
   // @ts-ignore
-  config.root = path.resolve(config.root);
-  config.buildOptions.out = path.resolve(config.root, config.buildOptions.out);
+  config.buildOptions.out = path.resolve(cwd, config.devOptions.out || config.buildOptions.out);
   config.installOptions.rollup = config.installOptions.rollup || {};
   config.installOptions.rollup.plugins = config.installOptions.rollup.plugins || [];
   config.exclude = Array.from(
@@ -908,7 +909,7 @@ export function createConfiguration(
 }
 
 export function loadConfigurationForCLI(flags: CLIFlags, pkgManifest: any): SnowpackConfig {
-  const root = flags.root || DEFAULT_ROOT;
+  const cwd = process.cwd();
   const explorerSync = cosmiconfigSync(CONFIG_NAME, {
     // only support these 5 types of config for now
     searchPlaces: [
@@ -942,20 +943,20 @@ export function loadConfigurationForCLI(flags: CLIFlags, pkgManifest: any): Snow
       },
     },
     // don't support crawling up the folder tree:
-    stopDir: path.dirname(root),
+    stopDir: path.dirname(cwd),
   });
 
   let result;
   // if user specified --config path, load that
   if (flags.config) {
-    result = explorerSync.load(path.resolve(root, flags.config));
+    result = explorerSync.load(path.resolve(cwd, flags.config));
     if (!result) {
       handleConfigError(`Could not locate Snowpack config at ${flags.config}`);
     }
   }
 
   // If no config was found above, search for one.
-  result = result || explorerSync.search(root);
+  result = result || explorerSync.search(cwd);
 
   // If still no config found, assume none exists and use the default config.
   if (!result || !result.config || result.isEmpty) {
@@ -971,7 +972,7 @@ export function loadConfigurationForCLI(flags: CLIFlags, pkgManifest: any): Snow
   if (config.extends) {
     const extendConfigLoc = config.extends.startsWith('.')
       ? path.resolve(path.dirname(result.filepath), config.extends)
-      : require.resolve(config.extends, {paths: [config.root || DEFAULT_ROOT]});
+      : require.resolve(config.extends, {paths: [cwd]});
     const extendResult = explorerSync.load(extendConfigLoc);
     if (!extendResult) {
       handleConfigError(`Could not locate Snowpack config at ${flags.config}`);
@@ -1001,6 +1002,7 @@ export function loadConfigurationForCLI(flags: CLIFlags, pkgManifest: any): Snow
       });
     }
   }
+
   // if valid, apply config over defaults
   const mergedConfig = merge<SnowpackUserConfig>(
     [
