@@ -4,8 +4,7 @@
   "name": "@snowpack/test-legacy-mount-scripts",
   "description": "This tests the old scripts mount:* configuration format",
   "scripts": {
-    "start": "snowpack dev",
-    "testbuild": "snowpack build"
+    "start": "snowpack dev"
   },
   "dependencies": {
     "array-flatten": "^3.0.0"
