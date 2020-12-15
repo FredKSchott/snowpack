@@ -1,33 +1,19 @@
 const fs = require('fs');
 const path = require('path');
-const snowpack = require('../../../snowpack');
-const {getFile} = require('../../test-utils');
+const {setupBuildTest} = require('../../test-utils');
 
-const TEST_ROOT = __dirname;
-const TEST_OUT = path.join(__dirname, 'TEST_BUILD_OUT');
-let result;
-
- 
+const cwd = path.join(__dirname, 'TEST_BUILD_OUT');
 
 describe('config: buildOptions.out', () => {
-  beforeAll(async () => {
-    const config = snowpack.createConfiguration({
-      root: TEST_ROOT,
-      mount: {
-        [path.resolve(TEST_ROOT, './src')]: '/src',
-      },
-      buildOptions: {
-        clean: true,
-        out: TEST_OUT,
-      },
-    });
-    const {result: _result} = await snowpack.buildProject({config, lockfile: null});
-    result = _result;
-    console.log(result);
+  beforeAll(() => {
+    setupBuildTest(__dirname);
   });
 
   it('respects buildOptions.out', () => {
-    expect( getFile(result, TEST_OUT, './src/index.js')).toBeDefined(); // JS file exists
-    expect( getFile(result, TEST_OUT, './__snowpack__/env.js')).toBeDefined(); // JS file exists
+    const distJSLoc = path.join(cwd, 'src', 'index.js');
+    expect(fs.existsSync(distJSLoc)).toBe(true); // JS file exists
+
+    const snowpackMetaLoc = path.join(cwd, '__snowpack__', 'env.js');
+    expect(fs.existsSync(snowpackMetaLoc)).toBe(true); // snowpack meta exists
   });
 });

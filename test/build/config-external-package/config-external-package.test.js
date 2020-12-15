@@ -1,32 +1,18 @@
 const path = require('path');
-const snowpack = require('../../../snowpack');
-const {getFile} = require('../../test-utils');
+const {readFiles, setupBuildTest} = require('../../test-utils');
 
-const TEST_ROOT = __dirname;
-const TEST_OUT = path.join(__dirname, 'build');
-let result;
+const cwd = path.join(__dirname, 'build');
 
- 
+let files = {};
 
 describe('config: installOptions.externalPackage', () => {
-  beforeAll(async () => {
-    const config = snowpack.createConfiguration({
-      root: TEST_ROOT,
-      mount: {
-        [path.resolve(TEST_ROOT, './src')]: '/_dist_',
-      },
-      installOptions: {
-        externalPackage: ['fs'],
-      },
-      buildOptions: {
-        out: TEST_OUT,
-      },
-    });
-    const {result: _result} = await snowpack.buildProject({config, lockfile: null});
-    result = _result;
+  beforeAll(() => {
+    setupBuildTest(__dirname);
+
+    files = readFiles(cwd);
   });
 
   it('preserves external package', () => {
-    expect( getFile(result, TEST_OUT, './_dist_/index.js')).toEqual(expect.stringContaining(`import 'fs';`));
+    expect(files['/_dist_/index.js']).toEqual(expect.stringContaining(`import 'fs';`));
   });
 });

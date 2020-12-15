@@ -5,7 +5,8 @@
   "description": "Test to make sure that the `homepage` key works (should see `/static/` in index.html)",
   "homepage": "/static/",
   "scripts": {
-    "start": "snowpack dev"
+    "start": "snowpack dev",
+    "testbuild": "snowpack build"
   },
   "devDependencies": {
     "snowpack": "^2.14.3"

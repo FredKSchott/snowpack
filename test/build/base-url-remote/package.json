@@ -4,7 +4,8 @@
   "name": "@snowpack/test-base-url-remote",
   "description": "This tests that you can have a remote URL for buildOptions.baseUrl and it’s preserved.",
   "scripts": {
-    "start": "snowpack dev"
+    "start": "snowpack dev",
+    "testbuild": "snowpack build"
   },
   "dependencies": {
     "array-flatten": "^3.0.0"

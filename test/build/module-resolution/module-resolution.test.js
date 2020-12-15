@@ -1,45 +1,28 @@
 const path = require('path');
-const snowpack = require('../../../snowpack');
-const {getFile} = require('../../test-utils');
+const {setupBuildTest, readFiles} = require('../../test-utils');
 
-const TEST_ROOT = __dirname;
-const TEST_OUT = path.join(__dirname, 'build');
-let result;
-
- 
+const cwd = path.join(__dirname, 'build');
+let files = {};
 
 describe('module resolution', () => {
-  beforeAll(async () => {
-    const config = snowpack.createConfiguration({
-      root: TEST_ROOT,
-      installOptions: {
-        treeshake: false,
-      },
-      mount: {
-        [path.resolve(TEST_ROOT, './public')]: '/',
-      },
-      buildOptions: {
-        out: TEST_OUT,
-      },
-    });
-    const {result: _result} = await snowpack.buildProject({config, lockfile: null});
-    result = _result;
+  beforeAll(() => {
+    setupBuildTest(__dirname);
+
+    files = readFiles(cwd);
   });
 
   it('JS: resolves web_modules relatively', () => {
-    expect( getFile(result, TEST_OUT, './src.js')).toEqual(
-      expect.stringContaining(`import './web_modules/preact.js';`),
-    );
+    expect(files['/src.js']).toEqual(expect.stringContaining(`import './web_modules/preact.js';`));
   });
 
   it('HTML: <script> tags also resolve relatively', () => {
-    expect( getFile(result, TEST_OUT, './index.html')).toEqual(
+    expect(files['/index.html']).toEqual(
       expect.stringContaining(`import preact from './web_modules/preact.js';`),
     );
-    expect( getFile(result, TEST_OUT, './folder-1/index.html')).toEqual(
+    expect(files['/folder-1/index.html']).toEqual(
       expect.stringContaining(`import preact from '../web_modules/preact.js';`),
     );
-    expect( getFile(result, TEST_OUT, './folder-1/folder-2/index.html')).toEqual(
+    expect(files['/folder-1/folder-2/index.html']).toEqual(
       expect.stringContaining(`import preact from '../../web_modules/preact.js';`),
     );
   });
