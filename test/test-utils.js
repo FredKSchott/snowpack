@@ -15,6 +15,17 @@ function setupBuildTest(cwd) {
 }
 exports.setupBuildTest = setupBuildTest;
 
+
+function getFile(results, TEST_OUT, id) {
+  const foundFile = results[path.resolve(TEST_OUT, id)];
+  if (!foundFile) {
+    console.log(results, id);
+    return null;
+  }
+  return foundFile.contents;
+}
+exports.getFile = getFile;
+
 /** steup for /tests/esinstall/* */
 async function setupEsinstallTest(cwd) {
   return await execa('yarn', ['--silent', 'run', 'testinstall'], {

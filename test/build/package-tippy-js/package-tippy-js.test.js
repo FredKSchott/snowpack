@@ -1,14 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 const snowpack = require('../../../snowpack');
+const {getFile} = require('../../test-utils');
 
 const TEST_ROOT = __dirname;
 const TEST_OUT = path.join(__dirname, 'build');
 let result;
 
-function getFile(id) {
-  return result[path.resolve(TEST_OUT, id)].contents;
-}
+ 
 
 describe('package: tippy.js', () => {
   beforeAll(async () => {
@@ -35,7 +34,7 @@ describe('package: tippy.js', () => {
   });
 
   it('resolves imports', () => {
-    expect(getFile('./_dist_/index.js')).toEqual(
+    expect( getFile(result, TEST_OUT, './_dist_/index.js')).toEqual(
       expect.stringContaining(`import tippy from '../web_modules/tippyjs.js';`),
     );
   });

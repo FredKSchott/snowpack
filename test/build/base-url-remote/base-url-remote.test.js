@@ -1,14 +1,13 @@
 const path = require('path');
 const cheerio = require('cheerio');
 const snowpack = require('../../../snowpack');
+const {getFile} = require('../../test-utils');
 
 const TEST_ROOT = __dirname;
 const TEST_OUT = path.join(__dirname, 'build');
 let result;
 
-function getFile(id) {
-  return result[path.resolve(TEST_OUT, id)].contents;
-}
+ 
 
 describe('buildOptions.baseUrl', () => {
   beforeAll(async () => {
@@ -29,7 +28,7 @@ describe('buildOptions.baseUrl', () => {
   });
 
   it('baseUrl works for <link>', () => {
-    const $ = cheerio.load(getFile('./index.html'));
+    const $ = cheerio.load( getFile(result, TEST_OUT, './index.html'));
     expect($('link[rel="icon"]').attr('href').startsWith('https://www.example.com/')).toBe(true);
     expect($('link[rel="stylesheet"]').attr('href').startsWith('https://www.example.com/')).toBe(
       true,
@@ -37,7 +36,7 @@ describe('buildOptions.baseUrl', () => {
   });
 
   it('baseUrl works for <script>', () => {
-    const $ = cheerio.load(getFile('./index.html'));
+    const $ = cheerio.load( getFile(result, TEST_OUT, './index.html'));
     expect($('script').attr('src').startsWith('https://www.example.com/')).toBe(true);
   });
 });

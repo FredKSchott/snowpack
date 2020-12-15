@@ -2,14 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const cheerio = require('cheerio');
 const snowpack = require('../../../snowpack');
+const {getFile} = require('../../test-utils');
 
 const TEST_ROOT = __dirname;
 const TEST_OUT = path.join(__dirname, 'build');
 let result;
 
-function getFile(id) {
-  return result[path.resolve(TEST_OUT, id)].contents;
-}
+ 
 
 describe('@snowpack/plugin-optimize', () => {
   beforeAll(async () => {
@@ -49,7 +48,7 @@ describe('@snowpack/plugin-optimize', () => {
 
   describe('HTML', () => {
     it('injects imported styles', () => {
-      const $ = cheerio.load(getFile('./index.html'));
+      const $ = cheerio.load( getFile(result, TEST_OUT, './index.html'));
       expect($(`link[href$="imported-styles.css"]`)).toBeTruthy();
     });
   });
@@ -62,12 +61,12 @@ describe('@snowpack/plugin-optimize', () => {
         `import styleURL from './global-2.css';`,
       ];
       ORIGINAL_IMPORTS.forEach((i) => {
-        expect(getFile('./_dist_/vanilla.js')).not.toEqual(expect.stringContaining(i));
+        expect( getFile(result, TEST_OUT, './_dist_/vanilla.js')).not.toEqual(expect.stringContaining(i));
       });
     });
 
     it('doesn’t remove dynamic CSS', () => {
-      expect(getFile('./_dist_/vanilla.js')).toEqual(
+      expect( getFile(result, TEST_OUT, './_dist_/vanilla.js')).toEqual(
         expect.stringContaining(`import("./dynamic-css.css.proxy.js");`),
       );
     });
