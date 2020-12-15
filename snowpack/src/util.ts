@@ -13,6 +13,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import {clearCache as clearSkypackCache} from 'skypack';
 import url from 'url';
+import { logger } from './logger';
 import localPackageSource from './sources/local';
 import skypackPackageSource from './sources/skypack';
 import {LockfileManifest, PackageSource, SnowpackConfig} from './types/snowpack';
@@ -46,6 +47,7 @@ export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
 
 /** Read file from disk; return a string if it’s a code file */
 export async function readFile(filepath: URL): Promise<string | Buffer> {
+  logger.error(url.fileURLToPath(filepath));
   const data = await fs.promises.readFile(url.fileURLToPath(filepath));
   const isBinary = await isBinaryFile(data);
   return isBinary ? data : data.toString('utf-8');
