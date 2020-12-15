@@ -56,6 +56,8 @@ function getIsHmrEnabled(config: SnowpackConfig) {
 
 function handleFileError(err: Error, builder: FileBuilder) {
   logger.error(`✘ ${builder.fileURL}`);
+  logger.error(err.message);
+  logger.debug(err.stack || 'No stack.');
   throw err;
 }
 
