@@ -39,7 +39,7 @@ function setActiveToc() {
 
   const headings = [
     ...document.querySelectorAll(
-      '#grid-body h1, #grid-body h2, #grid-body h3, #grid-body h4',
+      '.content-body h1, .content-body h2, .content-body h3, .content-body h4',
     ),
   ].filter((el) => !!el.id);
   const scrolledToBeginning = window.scrollY === 0;
