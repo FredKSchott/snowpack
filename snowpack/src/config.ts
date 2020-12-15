@@ -466,10 +466,9 @@ function handleConfigError(msg: string) {
   process.exit(1);
 }
 
-function handleValidationErrors(filepath: string, errors: {toString: () => string}[]) {
-  logger.error(`! ${filepath || 'Configuration error'}
-${errors.map((err) => `    - ${err.toString()}`).join('\n')}
-    See https://www.snowpack.dev for more info.`);
+function handleValidationErrors(filepath: string, err: ConfigValidationError) {
+  logger.error(`! ${filepath}\n${err.message}`);
+  logger.info(dim(`See https://www.snowpack.dev for more info.`));
   process.exit(1);
 }
 
