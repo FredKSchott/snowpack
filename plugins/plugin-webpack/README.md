@@ -1,6 +1,9 @@
 # @snowpack/plugin-webpack
 
-Use Webpack to bundle your application for production.
+Use Webpack to bundle your Snowpack project for production when you run `snowpack build`.
+
+See our [build pipeline](https://www.snowpack.dev/concepts/build-pipeline) docs for more information.
+
 
 ### Install
 
@@ -8,22 +11,7 @@ Use Webpack to bundle your application for production.
 npm install --save-dev @snowpack/plugin-webpack
 ```
 
-### Usage
-
-Add `@snowpack/plugin-webpack` to `snowpack.config.json`:
-
-```json
-{
-  "plugins": [
-    [
-      "@snowpack/plugin-webpack",
-      {
-        /* see "Plugin Options" below */
-      }
-    ]
-  ]
-}
-```
+Then add `@snowpack/plugin-webpack` to `snowpack.config.js`:
 
 or to `snowpack.config.js`:
 
@@ -40,15 +28,7 @@ module.exports = {
 };
 ```
 
-The options object is optional.
-
-### Default Build Script
-
-```json
-{
-  "scripts": {"bundle:*": "@snowpack/plugin-webpack"}
-}
-```
+Once added to the configuration, `@snowpack/plugin-webpack` will run automatically on `snowpack build`.
 
 ### Plugin Options
 
@@ -62,8 +42,6 @@ The options object is optional.
 #### Extending The Default Webpack Config
 
 The `extendConfig` option is a function that you can provide to configure the default webpack config. If you provide this function, the plugin will pass its return value to `webpack.compile()`. Use this to make changes, add plugins, configure loaders, etc.
-
-Note that this requires you use a `snowpack.config.js` JavaScript config file. JSON configuration cannot represent a function.
 
 ```js
 // snowpack.config.js
