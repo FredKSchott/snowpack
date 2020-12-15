@@ -7,7 +7,7 @@ const TEST_OUT = path.join(__dirname, 'TEST_BUILD_OUT');
 
 describe('config: buildOptions.out', () => {
   beforeAll(async () => {
-    const [, config] = snowpack.createConfiguration({
+    const config = snowpack.createConfiguration({
       root: TEST_ROOT,
       mount: {
         [path.resolve(TEST_ROOT, './src')]: '/src',

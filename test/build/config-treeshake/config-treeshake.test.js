@@ -9,7 +9,7 @@ const TEST_OUT = path.join(__dirname, 'build');
 
 describe('installOptions.treeshake', () => {
   beforeAll(async () => {
-    const [, config] = snowpack.createConfiguration({
+    const config = snowpack.createConfiguration({
       root: TEST_ROOT,
       installOptions: {
         treeshake: true,

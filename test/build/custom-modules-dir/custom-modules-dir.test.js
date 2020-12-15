@@ -12,7 +12,7 @@ function getFile(id) {
 
 describe('buildOptions.webModulesUrl', () => {
   beforeAll(async () => {
-    const [, config] = snowpack.createConfiguration({
+    const config = snowpack.createConfiguration({
       root: TEST_ROOT,
       mount: {
         [path.resolve(TEST_ROOT, './src')]: '/_dist_',

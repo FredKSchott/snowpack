@@ -24,7 +24,7 @@ function generateContentsMap(dir) {
 
 describe('config: mount', () => {
   beforeAll(async () => {
-    const [, config] = snowpack.createConfiguration({
+    const config = snowpack.createConfiguration({
       root: TEST_ROOT,
       mount: {
         [path.resolve(TEST_ROOT, 'a')]: '/a',

@@ -11,7 +11,7 @@ function getFile(id) {
 
 describe('module resolution', () => {
   beforeAll(async () => {
-    const [, config] = snowpack.createConfiguration({
+    const config = snowpack.createConfiguration({
       root: TEST_ROOT,
       installOptions: {
         treeshake: false,

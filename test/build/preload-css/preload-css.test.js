@@ -13,7 +13,7 @@ function getFile(id) {
 
 describe('@snowpack/plugin-optimize', () => {
   beforeAll(async () => {
-    const [, config] = snowpack.createConfiguration({
+    const config = snowpack.createConfiguration({
       root: TEST_ROOT,
       mount: {
         [path.resolve(TEST_ROOT, './public')]: '/',
