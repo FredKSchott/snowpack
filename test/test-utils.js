@@ -17,10 +17,11 @@ exports.setupBuildTest = setupBuildTest;
 
 
 function getFile(results, TEST_OUT, id) {
-  const foundFile = results[path.resolve(TEST_OUT, id)];
+  const foundFileLoc = path.resolve(TEST_OUT, id);
+  const foundFile = results[foundFileLoc];
   if (!foundFile) {
     console.log(results, id);
-    return null;
+    throw new Error(`TEST: Attempted to getFile(${foundFileLoc}) but not found!`);
   }
   return foundFile.contents;
 }
