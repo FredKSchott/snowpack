@@ -30,7 +30,6 @@ import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, promises as fs, statSync} from 'fs';
 import http from 'http';
-import HttpProxy from 'http-proxy';
 import http2 from 'http2';
 import https from 'https';
 import {isBinaryFile} from 'isbinaryfile';
@@ -73,8 +72,8 @@ import {
 import {
   BUILD_CACHE,
   cssSourceMappingURL,
-  getExt,
   getPackageSource,
+  hasExtension,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
   isRemoteUrl,
@@ -83,7 +82,7 @@ import {
   parsePackageImportSpecifier,
   readFile,
   relativeURL,
-  replaceExt,
+  removeExtension,
   resolveDependencyManifest,
 } from '../util';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
@@ -124,16 +123,6 @@ function getCacheKey(fileLoc: string, {isSSR, env}) {
   return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
 }
 
-const DEFAULT_PROXY_ERROR_HANDLER = (
-  err: Error,
-  req: http.IncomingMessage,
-  res: http.ServerResponse,
-) => {
-  const reqUrl = req.url!;
-  logger.error(`✘ ${reqUrl}\n${err.message}`);
-  sendResponseError(req, res, 502);
-};
-
 /**
  * A helper class for "Not Found" errors, storing data about what file lookups were attempted.
  */
@@ -144,11 +133,6 @@ class NotFoundError extends Error {
     super('NOT_FOUND');
     this.lookups = lookups;
   }
-}
-
-function shouldProxy(pathPrefix: string, reqUrl: string) {
-  const reqPath = decodeURI(url.parse(reqUrl).pathname!);
-  return reqPath.startsWith(pathPrefix);
 }
 
 function sendResponseFile(
@@ -259,7 +243,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
 }
 
 export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
-  const {cwd, config} = commandOptions;
+  const {config} = commandOptions;
   // Start the startup timer!
   let serverStart = performance.now();
 
@@ -293,10 +277,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     console.error = (...args: [any, ...any[]]) => {
       logger.error(util.format(...args));
     };
-    paintDashboard(
-      messageBus,
-      config.plugins.map((p) => p.name),
-    );
+    paintDashboard(messageBus, config);
     logger.debug(`dashboard started`);
   } else {
     // "stream": Log relevent events to the console.
@@ -322,19 +303,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   });
 
   let sourceImportMap = await pkgSource.prepare(commandOptions);
-
-  const devProxies = {};
-  config.proxy.forEach(([pathPrefix, proxyOptions]) => {
-    const proxyServer = (devProxies[pathPrefix] = HttpProxy.createProxyServer(proxyOptions));
-    for (const [onEventName, eventHandler] of Object.entries(proxyOptions.on)) {
-      proxyServer.on(onEventName, eventHandler as () => void);
-    }
-    if (!proxyOptions.on.error) {
-      proxyServer.on('error', DEFAULT_PROXY_ERROR_HANDLER);
-    }
-    logger.info(`Proxy created: ${pathPrefix} -> ${proxyOptions.target || proxyOptions.forward}`);
-  });
-
   const readCredentials = async (cwd: string) => {
     const [cert, key] = await Promise.all([
       fs.readFile(path.join(cwd, 'snowpack.crt')),
@@ -351,7 +319,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   if (config.devOptions.secure) {
     try {
       logger.debug(`reading credentials`);
-      credentials = await readCredentials(cwd);
+      credentials = await readCredentials(config.root);
     } catch (e) {
       logger.error(
         `✘ No HTTPS credentials found! Missing Files:  ${colors.bold(
@@ -378,8 +346,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       runPlugin
         .run({
           isDev: true,
-          // @deprecated: no longer accurate when using the JS API
-          isHmrEnabled: typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true,
           // @ts-ignore: internal API only
           log: (msg, data) => {
             if (msg === 'CONSOLE_INFO') {
@@ -447,12 +413,12 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     const originalReqPath = reqPath;
     let isProxyModule = false;
     let isSourceMap = false;
-    if (reqPath.endsWith('.proxy.js')) {
+    if (hasExtension(reqPath, '.proxy.js')) {
       isProxyModule = true;
-      reqPath = replaceExt(reqPath, '.proxy.js', '');
-    } else if (reqPath.endsWith('.map')) {
+      reqPath = removeExtension(reqPath, '.proxy.js');
+    } else if (hasExtension(reqPath, '.map')) {
       isSourceMap = true;
-      reqPath = replaceExt(reqPath, '.map', '');
+      reqPath = removeExtension(reqPath, '.map');
     }
 
     if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
@@ -620,11 +586,10 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       }
       const fileBuilderPromise = (async () => {
         const builtFileOutput = await _buildFile(url.pathToFileURL(fileLoc), {
-          plugins: config.plugins,
+          config,
           isDev: true,
           isSSR,
           isHmrEnabled: isHMR,
-          sourceMaps: config.buildOptions.sourceMaps,
         });
         inMemoryBuildCache.set(
           getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
@@ -718,8 +683,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         {
           locOnDisk: fileLoc,
           contents: wrappedResponse,
+          root: config.root,
           baseExt: responseExt,
-          expandedExt: getExt(fileLoc).expandedExt,
         },
         (spec) => {
           // Try to resolve the specifier to a known URL in the project
@@ -877,7 +842,10 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       return finalResponse;
     }
 
-    const {fileLoc, isStatic, isResolve} = foundFile;
+    const {fileLoc, isStatic: _isStatic, isResolve} = foundFile;
+    // Workaround: HMR plugins need to add scripts to HTML file, even if static.
+    // TODO: Once plugins are able to add virtual files + imports, this will no longer be needed.
+    const isStatic = _isStatic && !hasExtension(fileLoc, '.html');
 
     // 1. Check the hot build cache. If it's already found, then just serve it.
     let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(
@@ -1082,17 +1050,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     };
   }
 
-  function getRequestProxy(
-    reqUrl: string,
-  ): undefined | ((req: http.IncomingMessage, res: http.ServerResponse) => void) {
-    for (const [pathPrefix] of config.proxy) {
-      if (!shouldProxy(pathPrefix, reqUrl)) {
-        continue;
-      }
-      return (req, res) => devProxies[pathPrefix].web(req, res);
-    }
-  }
-
   /**
    * A simple map to optimize the speed of our 304 responses. If an ETag check is
    * sent in the request, check if it matches the last known etag for tat file.
@@ -1137,11 +1094,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         return matchedRoute.dest(req, res);
       }
     }
-    // @deprecated: to be removed in v3
-    const requestProxy = getRequestProxy(reqUrl);
-    if (requestProxy) {
-      return requestProxy(req, res);
-    }
     // Check if we can send back an optimized 304 response
     const quickETagCheck = req.headers['if-none-match'];
     const quickETagCheckUrl = reqUrl.replace(/\/$/, '/index.html');
@@ -1178,7 +1130,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     response: http2.Http2ServerResponse,
   ) => void;
   const createServer = (responseHandler: http.RequestListener | Http2RequestListener) => {
-    if (credentials && config.proxy.length === 0) {
+    if (credentials) {
       return http2.createSecureServer(
         {...credentials!, allowHTTP1: true},
         responseHandler as Http2RequestListener,
@@ -1197,17 +1149,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       const {statusCode} = res;
       logger.debug(`[${statusCode}] ${method} ${url}`);
     });
-    // If custom "app" is given, pass requests through there first.
-    if (config.experiments.app) {
-      config.experiments.app(req, res, async (err?: Error | null) => {
-        if (err) {
-          handleResponseError(req, res, err);
-          return;
-        }
-        handleRequest(req, res);
-      });
-      return;
-    }
     // Otherwise, pass requests directly to Snowpack's request handler.
     handleRequest(req, res);
   })
@@ -1215,15 +1156,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       logger.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);
       server.close();
       process.exit(1);
-    })
-    .on('upgrade', (req: http.IncomingMessage, socket, head) => {
-      config.proxy.forEach(([pathPrefix, proxyOptions]) => {
-        const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
-        if (isWebSocket && shouldProxy(pathPrefix, req.url!)) {
-          devProxies[pathPrefix].ws(req, socket, head);
-          logger.info('Upgrading to WebSocket');
-        }
-      });
     })
     .listen(port);
 
@@ -1269,14 +1201,14 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
 
     // CSS files may be loaded directly in the client (not via JS import / .proxy.js)
     // so send an "update" event to live update if thats the case.
-    if (originalUrl.endsWith('.css') && !originalUrl.endsWith('.module.css')) {
+    if (hasExtension(originalUrl, '.css') && !hasExtension(originalUrl, '.module.css')) {
       hmrEngine.broadcastMessage({type: 'update', url: originalUrl, bubbled: false});
     }
 
     // Append ".proxy.js" to Non-JS files to match their registered URL in the
     // client app.
     let updatedUrl = originalUrl;
-    if (!updatedUrl.endsWith('.js')) {
+    if (!hasExtension(updatedUrl, '.js')) {
       updatedUrl += '.proxy.js';
     }
 
@@ -1383,7 +1315,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     Object.keys(sourceImportMap.imports)
       .map((specifier) => {
         const [packageName] = parsePackageImportSpecifier(specifier);
-        return resolveDependencyManifest(packageName, cwd);
+        return resolveDependencyManifest(packageName, config.root);
       }) // resolve symlink src location
       .filter(([_, packageManifest]) => packageManifest && !packageManifest['_id']) // only watch symlinked deps for now
       .map(([fileLoc]) => `${path.dirname(fileLoc!)}/**`),

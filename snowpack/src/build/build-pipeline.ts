@@ -8,28 +8,31 @@ import {
   SnowpackPlugin,
   PluginTransformResult,
 } from '../types/snowpack';
-import {getExt, readFile, replaceExt} from '../util';
+import {getExtension, readFile, removeExtension, replaceExtension} from '../util';
 import {SourceMapConsumer, SourceMapGenerator, RawSourceMap} from 'source-map';
 
 export interface BuildFileOptions {
   isDev: boolean;
   isSSR: boolean;
   isHmrEnabled: boolean;
-  plugins: SnowpackPlugin[];
-  sourceMaps: boolean;
+  config: SnowpackConfig;
 }
 
 export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
-  const srcFile = replaceExt(fileLoc, '.map', ''); // if this is a .map file, try loading source
-  const {baseExt} = getExt(srcFile);
+  const srcFile = removeExtension(fileLoc, '.map'); // if this is a .map file, try loading source
 
   const potentialInputs = new Set([srcFile]);
   for (const plugin of plugins) {
-    if (plugin.resolve && plugin.resolve.output.includes(baseExt)) {
-      plugin.resolve.input.forEach((input) =>
-        potentialInputs.add(replaceExt(srcFile, baseExt, input)),
-      );
+    if (!plugin.resolve) {
+      continue;
     }
+    const matchedOutputExt = plugin.resolve.output.find((ext) => srcFile.endsWith(ext));
+    if (!matchedOutputExt) {
+      continue;
+    }
+    plugin.resolve.input.forEach((inputExt) =>
+      potentialInputs.add(replaceExtension(srcFile, matchedOutputExt, inputExt)),
+    );
   }
   return Array.from(potentialInputs);
 }
@@ -45,19 +48,18 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
  */
 async function runPipelineLoadStep(
   srcPath: string,
-  {isDev, isSSR, isHmrEnabled, plugins, sourceMaps}: BuildFileOptions,
+  {isDev, isSSR, isHmrEnabled, config}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
-  const srcExt = getExt(srcPath).baseExt;
-  for (const step of plugins) {
-    if (!step.resolve || !step.resolve.input.includes(srcExt)) {
+  const srcExt = getExtension(srcPath);
+  for (const step of config.plugins) {
+    if (!step.resolve || !step.resolve.input.some((ext) => srcPath.endsWith(ext))) {
       continue;
     }
     if (!step.load) {
       continue;
     }
-
     try {
-      const debugPath = path.relative(process.cwd(), srcPath);
+      const debugPath = path.relative(config.root, srcPath);
       logger.debug(`load() starting… [${debugPath}]`, {name: step.name});
       const result = await step.load({
         fileExt: srcExt,
@@ -91,7 +93,7 @@ async function runPipelineLoadStep(
             result[ext].map = JSON.stringify(result[ext].map);
 
           // if source maps disabled, don’t return any
-          if (!sourceMaps) result[ext].map = undefined;
+          if (!config.buildOptions.sourceMaps) result[ext].map = undefined;
 
           // clean up empty files
           if (!result[ext].code) delete result[ext];
@@ -141,12 +143,11 @@ async function composeSourceMaps(
 async function runPipelineTransformStep(
   output: SnowpackBuildMap,
   srcPath: string,
-  {isDev, plugins, sourceMaps}: BuildFileOptions,
+  {isDev, config}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
-  const srcExt = getExt(srcPath).baseExt;
-  const rootFilePath = srcPath.replace(srcExt, '');
+  const rootFilePath = removeExtension(srcPath, getExtension(srcPath));
   const rootFileName = path.basename(rootFilePath);
-  for (const step of plugins) {
+  for (const step of config.plugins) {
     if (!step.transform) {
       continue;
     }
@@ -157,7 +158,7 @@ async function runPipelineTransformStep(
         const {code} = destBuildFile;
         const fileName = rootFileName + destExt;
         const filePath = rootFilePath + destExt;
-        const debugPath = path.relative(process.cwd(), filePath);
+        const debugPath = path.relative(config.root, filePath);
         logger.debug(`transform() starting… [${debugPath}]`, {name: step.name});
         const result = await step.transform({
           contents: code,
@@ -183,7 +184,7 @@ async function runPipelineTransformStep(
           output[destExt].code = (result as PluginTransformResult).contents;
           const map = (result as PluginTransformResult).map;
           let outputMap: string | undefined = undefined;
-          if (map && sourceMaps) {
+          if (map && config.buildOptions.sourceMaps) {
             // if source maps disabled, don’t return any
             if (output[destExt].map) {
               outputMap = await composeSourceMaps(filePath, output[destExt].map!, map);
@@ -192,14 +193,6 @@ async function runPipelineTransformStep(
             }
           }
           output[destExt].map = outputMap;
-        } else if (
-          result &&
-          typeof result === 'object' &&
-          ((result as unknown) as {result: string}).result
-        ) {
-          // V1 API, deprecated
-          output[destExt].code = ((result as unknown) as {result: string}).result;
-          output[destExt].map = undefined;
         }
       }
     } catch (err) {
@@ -212,8 +205,8 @@ async function runPipelineTransformStep(
   return output;
 }
 
-export async function runPipelineOptimizeStep(buildDirectory: string, {plugins}: BuildFileOptions) {
-  for (const step of plugins) {
+export async function runPipelineOptimizeStep(buildDirectory: string, {config}: BuildFileOptions) {
+  for (const step of config.plugins) {
     if (!step.optimize) {
       continue;
     }
@@ -253,7 +246,11 @@ export async function buildFile(
   // Pass 1: Find the first plugin to load this file, and return the result
   const loadResult = await runPipelineLoadStep(url.fileURLToPath(srcURL), buildFileOptions);
   // Pass 2: Pass that result through every plugin transform() method.
-  const transformResult = await runPipelineTransformStep(loadResult, url.fileURLToPath(srcURL), buildFileOptions);
+  const transformResult = await runPipelineTransformStep(
+    loadResult,
+    url.fileURLToPath(srcURL),
+    buildFileOptions,
+  );
   // Return the final build result.
   return transformResult;
 }

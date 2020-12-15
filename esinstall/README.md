@@ -83,9 +83,10 @@ import {
 } from './types';
 
 interface InstallOptions {
+  cwd: string;
   alias: Record<string, string>;
   lockfile?: ImportMap;
-  logLevel: LoggerLevel;
+  logger: AbstractLogger;
   verbose?: boolean;
   dest: string;
   env: EnvVarReplacements;
@@ -93,8 +94,12 @@ interface InstallOptions {
   polyfillNode: boolean;
   sourceMap?: boolean | 'inline';
   externalPackage: string[];
+  externalPackageEsm: string[];
+  packageLookupFields: string[];
+  packageExportLookupFields: string[];
   namedExports: string[];
   rollup: {
+    context?: string;
     plugins?: RollupPlugin[];
     dedupe?: string[];
   };

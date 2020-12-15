@@ -26,12 +26,13 @@ import {
   EnvVarReplacements,
   ImportMap,
   InstallTarget,
+  ExportMapEntry,
 } from './types';
 import {
   createInstallTarget,
   findMatchingAliasEntry,
   getWebDependencyName,
-  isJavaScript,
+  getWebDependencyType,
   isPackageAliasEntry,
   MISSING_PLUGIN_SUGGESTIONS,
   parsePackageImportSpecifier,
@@ -45,7 +46,7 @@ export {printStats} from './stats';
 
 type DependencyLoc =
   | {
-      type: 'JS';
+      type: 'BUNDLE';
       loc: string;
     }
   | {
@@ -84,6 +85,32 @@ function isImportOfPackage(importUrl: string, packageName: string) {
   return packageName === importUrl || importUrl.startsWith(packageName + '/');
 }
 
+function resolveNestedCondition(exportMapEntry: ExportMapEntry | undefined): string | undefined {
+  // If this is a string or undefined we can skip checking for conditions
+  switch (typeof exportMapEntry) {
+    case 'string':
+      return exportMapEntry;
+    case 'undefined':
+      return exportMapEntry;
+  }
+
+  return (
+    resolveNestedCondition(exportMapEntry?.browser) ||
+    resolveNestedCondition(exportMapEntry?.import) ||
+    resolveNestedCondition(exportMapEntry?.default) ||
+    resolveNestedCondition(exportMapEntry?.require) ||
+    undefined
+  );
+}
+
+function resolveExportsMap(
+  packageManifest: {exports: {}},
+  exportsProp: string,
+): string | undefined {
+  const exportMapEntry = packageManifest.exports[exportsProp];
+  return resolveNestedCondition(exportMapEntry);
+}
+
 /**
  * Resolve a "webDependencies" input value to the correct absolute file location.
  * Supports both npm package names, and file paths relative to the node_modules directory.
@@ -94,19 +121,15 @@ function resolveWebDependency(
   dep: string,
   {cwd, packageLookupFields}: {cwd: string; packageLookupFields: string[]},
 ): DependencyLoc {
-  // If dep is a path within a package (but without an extension), we first need
-  // to check for an export map in the package.json. If one exists, resolve to it.
+  // We first need to check for an export map in the package.json. If one exists, resolve to it.
   const [packageName, packageEntrypoint] = parsePackageImportSpecifier(dep);
-  if (packageEntrypoint) {
-    const [packageManifestLoc, packageManifest] = resolveDependencyManifest(packageName, cwd);
-    if (packageManifestLoc && packageManifest && packageManifest.exports) {
-      const exportMapEntry = packageManifest.exports['./' + packageEntrypoint];
-      const exportMapValue =
-        exportMapEntry?.browser ||
-        exportMapEntry?.import ||
-        exportMapEntry?.default ||
-        exportMapEntry?.require ||
-        exportMapEntry;
+  const [packageManifestLoc, packageManifest] = resolveDependencyManifest(packageName, cwd);
+
+  if (packageManifestLoc && packageManifest && packageManifest.exports) {
+    // If this is a non-main entry point
+    if (packageEntrypoint) {
+      const exportMapValue = resolveExportsMap(packageManifest, './' + packageEntrypoint);
+
       if (typeof exportMapValue !== 'string') {
         throw new Error(
           `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".`,
@@ -114,9 +137,19 @@ function resolveWebDependency(
       }
       const loc = path.join(packageManifestLoc, '..', exportMapValue);
       return {
-        type: isJavaScript(loc) ? 'JS' : 'ASSET',
+        type: getWebDependencyType(loc),
         loc,
       };
+    } else {
+      const exportMapValue = resolveExportsMap(packageManifest, '.');
+
+      if (exportMapValue) {
+        const loc = path.join(packageManifestLoc, '..', exportMapValue);
+        return {
+          type: getWebDependencyType(loc),
+          loc,
+        };
+      }
     }
   }
 
@@ -126,7 +159,7 @@ function resolveWebDependency(
     // https://github.com/snowpackjs/snowpack/pull/999.
     const loc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
     return {
-      type: isJavaScript(loc) ? 'JS' : 'ASSET',
+      type: getWebDependencyType(loc),
       loc,
     };
   }
@@ -140,7 +173,7 @@ function resolveWebDependency(
     try {
       const maybeLoc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
       return {
-        type: isJavaScript(maybeLoc) ? 'JS' : 'ASSET',
+        type: getWebDependencyType(maybeLoc),
         loc: maybeLoc,
       };
     } catch (err) {
@@ -160,7 +193,13 @@ function resolveWebDependency(
       `React workaround packages no longer needed! Revert back to the official React & React-DOM packages.`,
     );
   }
-  let foundEntrypoint: any = [...packageLookupFields, 'browser:module', 'module', 'main:esnext']
+  let foundEntrypoint: any = [
+    ...packageLookupFields,
+    'browser:module',
+    'module',
+    'main:esnext',
+    'jsnext:main',
+  ]
     .map((e) => depManifest[e])
     .find(Boolean);
   if (!foundEntrypoint && !BROKEN_BROWSER_ENTRYPOINT.includes(packageName)) {
@@ -175,6 +214,8 @@ function resolveWebDependency(
       foundEntrypoint[dep] ||
       foundEntrypoint['./index.js'] ||
       foundEntrypoint['./index'] ||
+      foundEntrypoint['index.js'] ||
+      foundEntrypoint['index'] ||
       foundEntrypoint['./'] ||
       foundEntrypoint['.'];
   }
@@ -197,7 +238,7 @@ function resolveWebDependency(
     require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
   );
   return {
-    type: isJavaScript(loc) ? 'JS' : 'ASSET',
+    type: getWebDependencyType(loc),
     loc,
   };
 }
@@ -234,6 +275,7 @@ interface InstallOptions {
   externalPackage: string[];
   externalPackageEsm: string[];
   packageLookupFields: string[];
+  packageExportLookupFields: string[];
   namedExports: string[];
   rollup: {
     context?: string;
@@ -259,6 +301,7 @@ function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
     externalPackageEsm: [],
     polyfillNode: false,
     packageLookupFields: [],
+    packageExportLookupFields: [],
     env: {},
     namedExports: [],
     rollup: {
@@ -290,6 +333,7 @@ export async function install(
     treeshake: isTreeshake,
     polyfillNode,
     packageLookupFields,
+    packageExportLookupFields,
   } = setOptionDefaults(_options);
   const env = generateEnvObject(userEnv);
 
@@ -330,7 +374,7 @@ export async function install(
         cwd,
         packageLookupFields,
       });
-      if (resolvedResult.type === 'JS') {
+      if (resolvedResult.type === 'BUNDLE') {
         installEntrypoints[targetName] = resolvedResult.loc;
         importMap.imports[installSpecifier] = `./${proxiedName}.js`;
         Object.entries(installAlias)
@@ -363,7 +407,7 @@ export async function install(
     throw new Error(`No ESM dependencies found!
 ${colors.dim(
   `  At least one dependency must have an ESM "module" entrypoint. You can find modern, web-ready packages at ${colors.underline(
-    'https://www.pika.dev',
+    'https://www.skypack.dev',
   )}`,
 )}`);
   }
@@ -391,6 +435,8 @@ ${colors.dim(
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: true, // Default: true
         dedupe: userDefinedRollup.dedupe || [],
+        // @ts-ignore: Added in v11+ of this plugin
+        exportConditions: packageExportLookupFields,
       }),
       rollupPluginJson({
         preferConst: true,

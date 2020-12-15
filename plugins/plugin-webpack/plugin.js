@@ -10,7 +10,6 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const jsdom = require('jsdom');
 const {JSDOM} = jsdom;
-const cwd = process.cwd();
 const minify = require('html-minifier').minify;
 
 function insertBefore(newNode, existingNode) {
@@ -177,6 +176,16 @@ function getSplitChunksConfig({numEntries}) {
   };
 }
 
+function getPresetEnvTargets({browserslist}) {
+  if (Array.isArray(browserslist) || typeof browserslist === 'string') {
+    return browserslist;
+  } else if (typeof browserslist === 'object' && 'production' in browserslist) {
+    return browserslist.production;
+  } else {
+    return '>0.75%, not ie 11, not UCAndroid >0, not OperaMini all';
+  }
+}
+
 module.exports = function plugin(config, args = {}) {
   // Deprecated: args.mode
   if (args.mode && args.mode !== 'production') {
@@ -232,12 +241,11 @@ module.exports = function plugin(config, args = {}) {
       const buildOptions = config.buildOptions || {};
       let baseUrl = buildOptions.baseUrl || config.homepage || '/';
       const tempBuildManifest = JSON.parse(
-        await fs.readFileSync(path.join(cwd, 'package.json'), {
+        await fs.readFileSync(path.join(config.root || process.cwd(), 'package.json'), {
           encoding: 'utf-8',
         }),
       );
-      const presetEnvTargets =
-        tempBuildManifest.browserslist || '>0.75%, not ie 11, not UCAndroid >0, not OperaMini all';
+      const presetEnvTargets = getPresetEnvTargets(tempBuildManifest);
 
       let extendConfig = (cfg) => cfg;
       if (typeof args.extendConfig === 'function') {

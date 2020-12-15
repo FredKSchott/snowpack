@@ -1,1 +1,0 @@
-import 'some-svelte-package';

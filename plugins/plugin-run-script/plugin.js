@@ -1,8 +1,7 @@
 const execa = require('execa');
 const npmRunPath = require('npm-run-path');
-const cwd = process.cwd();
 
-function runScriptPlugin(_, {name, cmd, watch, output}) {
+function runScriptPlugin(snowpackConfig, {name, cmd, watch, output}) {
   const [cmdProgram] = cmd.split(' ');
   const watchCmd = watch && watch.replace('$1', cmd);
 
@@ -14,7 +13,7 @@ function runScriptPlugin(_, {name, cmd, watch, output}) {
         extendEnv: true,
         shell: true,
         windowsHide: false,
-        cwd,
+        cwd: snowpackConfig.root || process.cwd(),
       });
       const {stdout, stderr} = workerPromise;
       function dataListener(chunk) {

@@ -7,7 +7,7 @@ import {CommandOptions, LockfileManifest} from '../types/snowpack';
 import {writeLockfile} from '../util';
 
 export async function addCommand(addValue: string, commandOptions: CommandOptions) {
-  const {cwd, lockfile} = commandOptions;
+  const {lockfile, config} = commandOptions;
   let [pkgName, pkgSemver] = addValue.split('@');
   const installMessage = pkgSemver ? `${pkgName}@${pkgSemver}` : pkgName;
   logger.info(`fetching ${cyan(installMessage)} from Skypack CDN...`);
@@ -28,11 +28,11 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
       ...addedDependency,
     },
   };
-  await writeLockfile(path.join(cwd, 'snowpack.lock.json'), newLockfile);
+  await writeLockfile(path.join(config.root, 'snowpack.lock.json'), newLockfile);
 }
 
 export async function rmCommand(addValue: string, commandOptions: CommandOptions) {
-  const {cwd, lockfile} = commandOptions;
+  const {lockfile, config} = commandOptions;
   let [pkgName] = addValue.split('@');
   logger.info(`removing ${cyan(pkgName)} from project lockfile...`);
   const newLockfile: LockfileManifest = {
@@ -40,5 +40,5 @@ export async function rmCommand(addValue: string, commandOptions: CommandOptions
     dependencies: lockfile?.dependencies ?? {},
   };
   delete newLockfile.dependencies[pkgName];
-  await writeLockfile(path.join(cwd, 'snowpack.lock.json'), newLockfile);
+  await writeLockfile(path.join(config.root, 'snowpack.lock.json'), newLockfile);
 }

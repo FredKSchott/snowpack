@@ -147,8 +147,7 @@ describe('create-snowpack-app', () => {
 
       // If tests didn't pass, output some relevant info into the test logs.
       if (exitCode !== 0) {
-        console.error('STDOUT', stdout);
-        console.error('STDERR', stderr);
+        console.error({msg: `FAILED TEMPLATE: ${template}`, stdout, stderr});
       }
 
       expect(exitCode).toEqual(0);

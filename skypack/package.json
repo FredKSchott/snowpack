@@ -1,6 +1,6 @@
 {
   "name": "skypack",
-  "version": "0.1.2",
+  "version": "0.2.1",
   "description": "The Skypack SDK.",
   "keywords": [
     "skypack",
@@ -19,9 +19,9 @@
     "directory": "skypack"
   },
   "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc --watch",
-    "lint": "tsc --noEmit --noUnusedLocals true --noUnusedParameters true && package-check"
+    "build": "tsc --noUnusedLocals false --noUnusedParameters false",
+    "build:watch": "tsc --watch --noUnusedLocals false --noUnusedParameters false",
+    "lint": "tsc --noEmit && package-check"
   },
   "engines": {
     "node": ">=10.19.0"
@@ -43,6 +43,7 @@
   "dependencies": {
     "cacache": "^15.0.0",
     "cachedir": "^2.3.0",
+    "esinstall": "^0.5.1",
     "etag": "^1.8.1",
     "find-up": "^5.0.0",
     "got": "^11.1.4",
