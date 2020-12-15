@@ -90,6 +90,8 @@ export interface SnowpackSourceFile<Type = string | Buffer> {
   contents: Type;
   /** if no location on disk, assume this exists in memory */
   locOnDisk: string;
+  /** project "root" directory */
+  root: string;
 }
 
 export interface PluginLoadOptions {
@@ -211,6 +213,7 @@ export interface RouteConfigObject {
 
 // interface this library uses internally
 export interface SnowpackConfig {
+  root: string;
   install: string[];
   extends?: string;
   exclude: string[];
@@ -274,6 +277,7 @@ export interface SnowpackConfig {
 }
 
 export type SnowpackUserConfig = {
+  root?: string;
   install?: string[];
   extends?: string;
   exclude?: string[];
@@ -296,10 +300,11 @@ export type SnowpackUserConfig = {
   };
 };
 
-export interface CLIFlags extends Omit<InstallOptions, 'env'> {
+export interface CLIFlags {
   help?: boolean; // display help text
   version?: boolean; // display Snowpack version
   reload?: boolean;
+  root?: string; // manual path to project root
   config?: string; // manual path to config file
   env?: string[]; // env vars
   open?: string[];
@@ -318,8 +323,6 @@ export interface LockfileManifest extends ImportMap {
 }
 
 export interface CommandOptions {
-  // TODO(fks): remove `cwd`, replace with a new `config.root` property on SnowpackConfig.
-  cwd: string;
   config: SnowpackConfig;
   lockfile: LockfileManifest | null;
 }

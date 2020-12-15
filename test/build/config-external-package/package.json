@@ -3,19 +3,6 @@
   "version": "1.0.0",
   "name": "@snowpack/test-config-external-package",
   "description": "Test for installOptions.externalPackage as it applies to building.",
-  "scripts": {
-    "testbuild": "snowpack build"
-  },
-  "snowpack": {
-    "mount": {
-      "./src": "/_dist_"
-    },
-    "installOptions": {
-      "externalPackage": [
-        "fs"
-      ]
-    }
-  },
   "devDependencies": {
     "snowpack": "^2.14.3"
   },

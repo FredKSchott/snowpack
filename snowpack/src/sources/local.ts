@@ -54,10 +54,10 @@ export default {
   },
 
   async prepare(commandOptions: CommandOptions) {
-    const {cwd} = commandOptions;
+    const {config} = commandOptions;
     // Set the proper install options, in case an install is needed.
     const dependencyImportMapLoc = path.join(DEV_DEPENDENCIES_DIR, 'import-map.json');
-    logger.debug(`Using cache folder: ${path.relative(cwd, DEV_DEPENDENCIES_DIR)}`);
+    logger.debug(`Using cache folder: ${path.relative(config.root, DEV_DEPENDENCIES_DIR)}`);
     installCommandOptions = merge(commandOptions, {
       config: {
         installOptions: {

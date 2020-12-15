@@ -3,9 +3,6 @@
   "version": "1.0.1",
   "name": "@snowpack/test-config-treeshake",
   "description": "This test ensures that --treeshake can handle complex imports",
-  "scripts": {
-    "testbuild": "snowpack build"
-  },
   "dependencies": {
     "array-flatten": "^3.0.0",
     "async": "^3.2.0"

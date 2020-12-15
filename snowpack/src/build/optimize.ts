@@ -404,6 +404,7 @@ async function processEntrypoints(
  */
 async function runEsbuildOnBuildDirectory(
   bundleEntrypoints: string[],
+  allFiles: string[],
   config: SnowpackConfig,
   esbuildService: esbuild.Service,
 ): Promise<{manifest: ESBuildMetaManifest; outputFiles: esbuild.OutputFile[]}> {
@@ -420,6 +421,9 @@ async function runEsbuildOnBuildDirectory(
     publicPath: config.buildOptions.baseUrl,
     minify: config.experiments.optimize!.minify,
     target: config.experiments.optimize!.target,
+    external: Array.from(new Set(allFiles.map((f) => '*' + path.extname(f)))).filter(
+      (ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css',
+    ),
   });
   const manifestFile = outputFiles!.find((f) => f.path.endsWith('build-manifest.json'))!;
   const manifestContents = manifestFile.text;
@@ -511,6 +515,7 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
   const esbuildService = await esbuild.startService();
   const {manifest, outputFiles} = await runEsbuildOnBuildDirectory(
     bundleEntrypoints,
+    allBuildFiles,
     config,
     esbuildService,
   );
