@@ -302,22 +302,26 @@ export function findMatchingAliasEntry(
   }
 }
 
-export function getExtensionMatch(fileName: string, extensionMap: Record<string, string>): string | undefined {
+/**
+ * Get the most specific file extension match possible.
+ */
+export function getExtensionMatch(
+  fileName: string,
+  extensionMap: Record<string, string>,
+): [string, string] | undefined {
+  let extensionPartial;
   let extensionMatch;
-  let extensionMatchIndex = 0;
+  // If a full URL is given, start at the basename. Otherwise, start at zero.
+  let extensionMatchIndex = Math.max(0, fileName.lastIndexOf('/'));
+  // Grab expanded file extensions, from longest to shortest.
   while (!extensionMatch && extensionMatchIndex > -1) {
-    if (extensionMatchIndex > 0) {
-      extensionMatchIndex++;
-    }
+    extensionMatchIndex++;
     extensionMatchIndex = fileName.indexOf('.', extensionMatchIndex);
-    extensionMatch = extensionMap[fileName.substr(extensionMatchIndex)];
+    extensionPartial = fileName.substr(extensionMatchIndex).toLowerCase();
+    extensionMatch = extensionMap[extensionPartial];
   }
-  return extensionMatchIndex > 0 ? extensionMatch : undefined;
-}
-
-export function replaceExt(fileName: string, oldExt: string, newExt: string): string {
-  const extToReplace = new RegExp(`\\${oldExt}$`, 'i');
-  return fileName.replace(extToReplace, newExt);
+  // Return the first match, if one was found. Otherwise, return undefined.
+  return extensionMatch ? [extensionPartial, extensionMatch] : undefined;
 }
 
 export function isRemoteUrl(val: string): boolean {
@@ -370,6 +374,22 @@ export function appendHtmlToHead(doc: string, htmlToAdd: string) {
     throw new Error(`Multiple <head> tags found in HTML (perhaps commented out?):\n${doc}`);
   }
   return doc.replace(closingHeadMatch[0], htmlToAdd + closingHeadMatch[0]);
+}
+
+export function getExtension(str: string) {
+  return path.extname(str).toLowerCase();
+}
+
+export function hasExtension(str: string, ext: string) {
+  return str.toLowerCase().endsWith(ext);
+}
+
+export function replaceExtension(fileName: string, oldExt: string, newExt: string): string {
+  const extToReplace = new RegExp(`\\${oldExt}$`, 'i');
+  return fileName.replace(extToReplace, newExt);
+}
+export function removeExtension(fileName: string, oldExt: string): string {
+  return replaceExtension(fileName, oldExt, '');
 }
 
 /** Add / to beginning of string (but don’t double-up) */

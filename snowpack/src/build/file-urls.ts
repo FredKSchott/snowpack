@@ -1,6 +1,6 @@
 import path from 'path';
 import {MountEntry, SnowpackConfig} from '../types/snowpack';
-import {replaceExt, getExtensionMatch} from '../util';
+import {replaceExtension, getExtensionMatch} from '../util';
 
 /**
  * Map a file path to the hosted URL for a given "mount" entry.
@@ -16,13 +16,20 @@ export function getUrlForFileMount({
   mountEntry: MountEntry;
   config: SnowpackConfig;
 }): string {
-  const fileExt = path.extname(fileLoc);
   const fileName = path.basename(fileLoc);
   const resolvedDirUrl = mountEntry.url === '/' ? '' : mountEntry.url;
-  return replaceExt(
-    fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, '/'),
-    fileExt,
-    mountEntry.static ? fileExt : getExtensionMatch(fileName, config._extensionMap) || fileExt,
+  const mountedUrl = fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, '/');
+  if (mountEntry.static) {
+    return mountedUrl;
+  }
+  const extensionMatch = getExtensionMatch(fileName, config._extensionMap);
+  if (!extensionMatch) {
+    return mountedUrl;
+  }
+  return replaceExtension(
+    mountedUrl,
+    extensionMatch[0],
+    extensionMatch[1]
   );
 }
 

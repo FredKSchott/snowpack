@@ -9,6 +9,7 @@ import {SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
 import {
   CSS_REGEX,
   findMatchingAliasEntry,
+  getExtension,
   HTML_JS_REGEX,
   isTruthy,
   readFile,
@@ -255,7 +256,7 @@ export async function scanImports(
   const getLoadedFiles = async (filePath: string): Promise<SnowpackSourceFile | null> =>
     loadFileQueue.add(async () => {
       return {
-        baseExt: path.extname(filePath),
+        baseExt: getExtension(filePath),
         locOnDisk: filePath,
         contents: await readFile(url.pathToFileURL(filePath)),
       };

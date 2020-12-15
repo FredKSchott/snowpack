@@ -74,6 +74,7 @@ import {
   BUILD_CACHE,
   cssSourceMappingURL,
   getPackageSource,
+  hasExtension,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
   isRemoteUrl,
@@ -82,7 +83,7 @@ import {
   parsePackageImportSpecifier,
   readFile,
   relativeURL,
-  replaceExt,
+  removeExtension,
   resolveDependencyManifest,
 } from '../util';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
@@ -446,12 +447,12 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     const originalReqPath = reqPath;
     let isProxyModule = false;
     let isSourceMap = false;
-    if (reqPath.endsWith('.proxy.js')) {
+    if (hasExtension(reqPath, '.proxy.js')) {
       isProxyModule = true;
-      reqPath = replaceExt(reqPath, '.proxy.js', '');
-    } else if (reqPath.endsWith('.map')) {
+      reqPath = removeExtension(reqPath, '.proxy.js');
+    } else if (hasExtension(reqPath, '.map')) {
       isSourceMap = true;
-      reqPath = replaceExt(reqPath, '.map', '');
+      reqPath = removeExtension(reqPath, '.map');
     }
 
     if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
@@ -878,7 +879,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     const {fileLoc, isStatic: _isStatic, isResolve} = foundFile;
     // Workaround: HMR plugins need to add scripts to HTML file, even if static.
     // TODO: Once plugins are able to add virtual files + imports, this will no longer be needed.
-    const isStatic = _isStatic && !fileLoc.endsWith('.html');
+    const isStatic = _isStatic && !hasExtension(fileLoc, '.html');
 
     // 1. Check the hot build cache. If it's already found, then just serve it.
     let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(
@@ -1270,14 +1271,14 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
 
     // CSS files may be loaded directly in the client (not via JS import / .proxy.js)
     // so send an "update" event to live update if thats the case.
-    if (originalUrl.endsWith('.css') && !originalUrl.endsWith('.module.css')) {
+    if (hasExtension(originalUrl, '.css') && !hasExtension(originalUrl, '.module.css')) {
       hmrEngine.broadcastMessage({type: 'update', url: originalUrl, bubbled: false});
     }
 
     // Append ".proxy.js" to Non-JS files to match their registered URL in the
     // client app.
     let updatedUrl = originalUrl;
-    if (!updatedUrl.endsWith('.js')) {
+    if (!hasExtension(updatedUrl, '.js')) {
       updatedUrl += '.proxy.js';
     }
 

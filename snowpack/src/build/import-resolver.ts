@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../types/snowpack';
-import {findMatchingAliasEntry, getExtensionMatch, isRemoteUrl, replaceExt} from '../util';
+import {findMatchingAliasEntry, getExtensionMatch, hasExtension, isRemoteUrl, replaceExtension} from '../util';
 import {getUrlForFile} from './file-urls';
 
 const cwd = process.cwd();
@@ -24,13 +24,12 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: S
     spec = spec + trailingSlash + 'index.js';
   }
   // Transform the file extension (from input to output)
-  const baseExt = path.extname(spec);
-  const extToReplace = getExtensionMatch(spec, config._extensionMap);
-  if (extToReplace) {
-    spec = replaceExt(spec, baseExt, extToReplace);
+  const extensionMatch = getExtensionMatch(spec, config._extensionMap);
+  if (extensionMatch) {
+    spec = replaceExtension(spec, extensionMatch[0], extensionMatch[1]);
   }
   // Lazy check to handle imports that are missing file extensions
-  if (!stats && !spec.endsWith('.js') && !spec.endsWith('.css')) {
+  if (!stats && !hasExtension(spec, '.js') && !hasExtension(spec, '.css')) {
     spec = spec + '.js';
   }
   return spec;
