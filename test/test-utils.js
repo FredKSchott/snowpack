@@ -15,7 +15,6 @@ function setupBuildTest(cwd) {
 }
 exports.setupBuildTest = setupBuildTest;
 
-
 function getFile(results, TEST_OUT, id) {
   const foundFileLoc = path.resolve(TEST_OUT, id);
   const foundFile = results[foundFileLoc];

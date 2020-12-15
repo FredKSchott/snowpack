@@ -52,7 +52,6 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   if (pluginOptions.input && pluginOptions.input.length === 0) {
     throw new Error(`[plugin-svelte] Option "input" must specify at least one filetype`);
   }
-  console.log(snowpackConfig.root, process.cwd(), pluginOptions.configFilePath)
   let configFilePath = path.resolve(
     snowpackConfig.root || process.cwd(),
     pluginOptions.configFilePath || 'svelte.config.js',
