@@ -549,7 +549,7 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
     throw new ConfigValidationError(validationErrors);
   }
   const mergedConfig = merge<SnowpackUserConfig>([DEFAULT_CONFIG, config], {
-    isMergeableObject: isPlainObject,
+    isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
   });
   return normalizeConfig(mergedConfig);
 }
@@ -621,7 +621,7 @@ export function loadConfigurationForCLI(flags: CLIFlags, pkgManifest: any): Snow
       : require.resolve(config.extends, {paths: [cwd]});
     const extendResult = explorerSync.load(extendConfigLoc);
     if (!extendResult) {
-      handleConfigError(`Could not locate Snowpack config at ${flags.config}`);
+      handleConfigError(`Could not locate Snowpack config at ${extendConfigLoc}`);
       process.exit(1);
     }
     extendConfig = extendResult.config;
@@ -658,7 +658,7 @@ export function loadConfigurationForCLI(flags: CLIFlags, pkgManifest: any): Snow
       cliConfig as any,
     ],
     {
-      isMergeableObject: isPlainObject,
+    isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
     },
   );
 
