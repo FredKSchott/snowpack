@@ -4,7 +4,6 @@ Use Webpack to bundle your Snowpack project for production when you run `snowpac
 
 See our [build pipeline](https://www.snowpack.dev/concepts/build-pipeline) docs for more information.
 
-
 ### Install
 
 ```
