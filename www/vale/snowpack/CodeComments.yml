@@ -8,4 +8,4 @@ link: https://github.com/snowpackjs/snowpack/blob/main/www/README.md
 level: warning
 scope: raw
 raw:
-  - '\`\`\`js\n[^\\]'
+  - '\`\`\`js\n[^\/\/]'
