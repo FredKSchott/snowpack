@@ -2,15 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 const cheerio = require('cheerio');
-const snowpack = require('../../../snowpack');
+const {setupBuildTest, readFiles} = require('../../test-utils');
 
-const TEST_ROOT = __dirname;
-const TEST_OUT = path.join(__dirname, 'build');
-let result;
-
-function getFile(id) {
-  return result[path.resolve(TEST_OUT, id)].contents;
-}
+const cwd = path.join(__dirname, 'build');
+let files = {};
 
 function generateContentsMap(dir) {
   const contentMap = {};
@@ -23,26 +18,10 @@ function generateContentsMap(dir) {
 }
 
 describe('config: mount', () => {
-  beforeAll(async () => {
-    const config = snowpack.createConfiguration({
-      root: TEST_ROOT,
-      mount: {
-        [path.resolve(TEST_ROOT, 'a')]: '/a',
-        [path.resolve(TEST_ROOT, 'src/b')]: '/new-b',
-        [path.resolve(TEST_ROOT, 'src/c')]: '/deep/c',
-        [path.resolve(TEST_ROOT, 'src/d')]: '/bad/d/',
-        [path.resolve(TEST_ROOT, 'src/e/f')]: '/e',
-        [path.resolve(TEST_ROOT, 'src/g')]: {url: '/new-g'},
-        [path.resolve(TEST_ROOT, 'src/h')]: {url: '/h', static: true},
-        [path.resolve(TEST_ROOT, 'src/i')]: {url: '/i', static: false, resolve: false},
-        [path.resolve(TEST_ROOT, 'src/j')]: {url: '/j', static: true, resolve: false},
-      },
-      buildOptions: {
-        out: TEST_OUT,
-      },
-    });
-    const {result: _result} = await snowpack.buildProject({config, lockfile: null});
-    result = _result;
+  beforeAll(() => {
+    setupBuildTest(__dirname);
+
+    files = readFiles(cwd);
   });
 
   describe('basic', () => {
@@ -90,18 +69,18 @@ describe('config: mount', () => {
 
   describe('advanced', () => {
     it('url', () => {
-      const $ = cheerio.load(getFile('./new-g/main.html'));
-      expect(getFile('./new-g/index.js')).toEqual(expect.stringContaining(`import "./dep.js";`)); // formatter ran
+      const $ = cheerio.load(files['/new-g/main.html']);
+      expect(files['/new-g/index.js']).toEqual(expect.stringContaining(`import "./dep.js";`)); // formatter ran
       expect($('script[type="module"]').attr('src')).toBe('/_dist_/index.js'); // JS resolved
     });
 
     it('static', () => {
-      const $ = cheerio.load(getFile('./h/main.html'));
+      const $ = cheerio.load(files['/h/main.html']);
       expect($('script[type="module"]').attr('src')).toBe('/_dist_/index.js'); // JS resolved
     });
 
     it('resolve: false', () => {
-      expect(getFile('./i/index.js')).toEqual(expect.stringContaining(`import "./dep";`)); // JS not resolved
+      expect(files['/i/index.js']).toEqual(expect.stringContaining(`import "./dep";`)); // JS not resolved
     });
   });
 });

@@ -55,8 +55,8 @@ function getIsHmrEnabled(config: SnowpackConfig) {
 }
 
 function handleFileError(err: Error, builder: FileBuilder) {
-  logger.error(`✘ ${builder.fileURL}\n  ${err.stack ? err.stack : err.message}`);
-  process.exit(1);
+  logger.error(`✘ ${builder.fileURL}`);
+  throw err;
 }
 
 function createBuildFileManifest(allFiles: FileBuilder[]): SnowpackBuildResultFileManifest {
@@ -542,6 +542,12 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
   await parallelWorkQueue.onIdle();
 
   const buildResultManifest = createBuildFileManifest(allBuildPipelineFiles);
+  // TODO(fks): Add support for virtual files (injected by snowpack, plugins)
+  // and web_modules in this manifest.
+  // buildResultManifest[path.join(internalFilesBuildLoc, 'env.js')] = {
+  //   source: null,
+  //   contents: generateEnvModule({mode: 'production', isSSR}),
+  // };
 
   // 5. Optimize the build.
   if (!config.buildOptions.watch) {

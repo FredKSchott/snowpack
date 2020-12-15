@@ -3,6 +3,15 @@
   "version": "1.0.1",
   "name": "@snowpack/test-config-out",
   "description": "Test for buildOptions.out",
+  "scripts": {
+    "testbuild": "snowpack build"
+  },
+  "snowpack": {
+    "buildOptions": {
+      "clean": true,
+      "out": "TEST_BUILD_OUT"
+    }
+  },
   "devDependencies": {
     "cross-env": "^7.0.2",
     "snowpack": "^2.14.3"

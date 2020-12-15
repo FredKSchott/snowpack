@@ -4,7 +4,8 @@
   "name": "@snowpack/test-cdn",
   "description": "This test simulates a build from the Pika CDN",
   "scripts": {
-    "start": "snowpack dev"
+    "start": "snowpack dev",
+    "testbuild": "snowpack build"
   },
   "devDependencies": {
     "snowpack": "^2.14.3"
