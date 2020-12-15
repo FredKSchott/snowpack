@@ -1,6 +1,6 @@
 import path from 'path';
 import {MountEntry, SnowpackConfig} from '../types/snowpack';
-import {getExt, replaceExt} from '../util';
+import {replaceExtension, getExtensionMatch} from '../util';
 
 /**
  * Map a file path to the hosted URL for a given "mount" entry.
@@ -16,21 +16,30 @@ export function getUrlForFileMount({
   mountEntry: MountEntry;
   config: SnowpackConfig;
 }): string {
-  const {baseExt} = getExt(fileLoc);
+  const fileName = path.basename(fileLoc);
   const resolvedDirUrl = mountEntry.url === '/' ? '' : mountEntry.url;
-  return replaceExt(
-    fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, '/'),
-    baseExt,
-    mountEntry.static
-      ? baseExt
-      : config._extensionMap[baseExt] || baseExt,
+  const mountedUrl = fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, '/');
+  if (mountEntry.static) {
+    return mountedUrl;
+  }
+  const extensionMatch = getExtensionMatch(fileName, config._extensionMap);
+  if (!extensionMatch) {
+    return mountedUrl;
+  }
+  return replaceExtension(
+    mountedUrl,
+    extensionMatch[0],
+    extensionMatch[1]
   );
 }
 
 /**
  * Get the final, hosted URL path for a given file on disk.
  */
-export function getMountEntryForFile(fileLoc: string, config: SnowpackConfig): [string, MountEntry] | null {
+export function getMountEntryForFile(
+  fileLoc: string,
+  config: SnowpackConfig,
+): [string, MountEntry] | null {
   // PERF: Use `for...in` here instead of the slower `Object.entries()` method
   // that we use everywhere else, since this function can get called 100s of
   // times during a build.
@@ -45,7 +54,6 @@ export function getMountEntryForFile(fileLoc: string, config: SnowpackConfig): [
   }
   return null;
 }
-
 
 /**
  * Get the final, hosted URL path for a given file on disk.

@@ -2,7 +2,7 @@ import type {Postcss} from 'postcss';
 import path from 'path';
 import {readFileSync} from 'fs';
 import {SnowpackConfig} from '../types/snowpack';
-import {appendHtmlToHead, getExt} from '../util';
+import {appendHtmlToHead, hasExtension} from '../util';
 import {logger} from '../logger';
 import {generateSRI} from './import-sri';
 
@@ -235,17 +235,15 @@ export async function wrapImportProxy({
   hmr: boolean;
   config: SnowpackConfig;
 }) {
-  const {baseExt, expandedExt} = getExt(url);
-
   if (typeof code === 'string') {
-    if (baseExt === '.json') {
+    if (hasExtension(url, '.json')) {
       return generateJsonImportProxy({code, hmr, config});
     }
 
-    if (baseExt === '.css') {
+    if (hasExtension(url, '.css')) {
       // if proxying a CSS file, remove its source map (the path no longer applies)
       const sanitized = code.replace(/\/\*#\s*sourceMappingURL=[^/]+\//gm, '');
-      return expandedExt.endsWith('.module.css')
+      return hasExtension(url, '.module.css')
         ? generateCssModuleImportProxy({url, code: sanitized, hmr, config})
         : generateCssImportProxy({code: sanitized, hmr, config});
     }
