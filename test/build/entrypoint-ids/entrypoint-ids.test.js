@@ -1,22 +1,36 @@
 const os = require('os');
 const path = require('path');
-const {setupBuildTest, readFiles} = require('../../test-utils');
+const snowpack = require('../../../snowpack');
+
+const capitalize = os.platform() === 'win32'; // for Windows, we capitalize this one directory to see if Snowpack can still resolve
+const TEST_ROOT = capitalize ? __dirname.toUpperCase() : __dirname;
+const TEST_OUT = path.join(__dirname, 'build');
+let result;
+
+function getFile(id) {
+  return result[path.resolve(TEST_OUT, id)].contents;
+}
 
 const IMPORTS = ['ansi-styles', 'chalk'];
-const cwd = path.join(__dirname, 'build');
-let files = {};
 
 describe('core: web_modules resolution', () => {
-  beforeAll(() => {
-    const capitalize = os.platform() === 'win32'; // for Windows, we capitalize this one directory to see if Snowpack can still resolve
-    setupBuildTest(capitalize ? __dirname.toUpperCase() : __dirname);
-
-    files = readFiles(cwd);
+  beforeAll(async () => {
+    const config = snowpack.createConfiguration({
+      root: TEST_ROOT,
+      mount: {
+        [path.resolve(TEST_ROOT, './src')]: '/_dist_',
+      },
+      buildOptions: {
+        out: TEST_OUT,
+      },
+    });
+    const {result: _result} = await snowpack.buildProject({config, lockfile: null});
+    result = _result;
   });
 
   it('resolves web_modules without case-sensitivity', () => {
     IMPORTS.forEach((i) => {
-      expect(files['/_dist_/index.js']).toEqual(
+      expect(getFile('./_dist_/index.js')).toEqual(
         expect.stringContaining(`import '../web_modules/${i}.js';`),
       );
     });

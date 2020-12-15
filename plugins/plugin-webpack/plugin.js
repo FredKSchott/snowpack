@@ -10,7 +10,6 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const jsdom = require('jsdom');
 const {JSDOM} = jsdom;
-const cwd = process.cwd();
 const minify = require('html-minifier').minify;
 
 function insertBefore(newNode, existingNode) {
@@ -242,7 +241,7 @@ module.exports = function plugin(config, args = {}) {
       const buildOptions = config.buildOptions || {};
       let baseUrl = buildOptions.baseUrl || config.homepage || '/';
       const tempBuildManifest = JSON.parse(
-        await fs.readFileSync(path.join(cwd, 'package.json'), {
+        await fs.readFileSync(path.join(config.root || process.cwd(), 'package.json'), {
           encoding: 'utf-8',
         }),
       );

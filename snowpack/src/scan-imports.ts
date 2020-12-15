@@ -9,7 +9,7 @@ import {SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
 import {
   CSS_REGEX,
   findMatchingAliasEntry,
-  getExt,
+  getExtension,
   HTML_JS_REGEX,
   isTruthy,
   readFile,
@@ -157,8 +157,9 @@ function parseFileForInstallTargets({
   locOnDisk,
   baseExt,
   contents,
+  root,
 }: SnowpackSourceFile<string>): InstallTarget[] {
-  const relativeLoc = path.relative(process.cwd(), locOnDisk);
+  const relativeLoc = path.relative(root, locOnDisk);
 
   try {
     switch (baseExt) {
@@ -255,10 +256,9 @@ export async function scanImports(
   const loadFileQueue = new PQueue({concurrency: CONCURRENT_FILE_READS});
   const getLoadedFiles = async (filePath: string): Promise<SnowpackSourceFile | null> =>
     loadFileQueue.add(async () => {
-      const {baseExt, expandedExt} = getExt(filePath);
       return {
-        baseExt,
-        expandedExt,
+        baseExt: getExtension(filePath),
+        root: config.root,
         locOnDisk: filePath,
         contents: await readFile(url.pathToFileURL(filePath)),
       };

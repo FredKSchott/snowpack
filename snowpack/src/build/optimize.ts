@@ -10,6 +10,7 @@ import {OptimizeOptions, SnowpackConfig} from '../types/snowpack';
 import {
   addLeadingSlash,
   addTrailingSlash,
+  hasExtension,
   isRemoteUrl,
   isTruthy,
   PROJECT_CACHE_DIR,
@@ -219,7 +220,7 @@ function addNewBundledCss(
     return;
   }
   for (const key of Object.keys(manifest.outputs)) {
-    if (!key.endsWith('.css')) {
+    if (!hasExtension(key, '.css')) {
       continue;
     }
     const scriptKey = key.replace('.css', '.js');
@@ -280,7 +281,7 @@ async function getEntrypoints(
 ) {
   if (entrypoints === 'auto') {
     // TODO: Filter allBuildFiles by HTML with head & body
-    return allBuildFiles.filter((f) => f.endsWith('.html'));
+    return allBuildFiles.filter((f) => hasExtension(f, '.html'));
   }
   if (Array.isArray(entrypoints)) {
     return entrypoints;
@@ -351,11 +352,11 @@ async function processEntrypoints(
   baseUrl: string,
 ): Promise<{htmlEntrypoints: null | ScannedHtmlEntrypoint[]; bundleEntrypoints: string[]}> {
   // If entrypoints are JS:
-  if (entrypointFiles.every((f) => f.endsWith('.js'))) {
+  if (entrypointFiles.every((f) => hasExtension(f, '.js'))) {
     return {htmlEntrypoints: null, bundleEntrypoints: entrypointFiles};
   }
   // If entrypoints are HTML:
-  if (entrypointFiles.every((f) => f.endsWith('.html'))) {
+  if (entrypointFiles.every((f) => hasExtension(f, '.html'))) {
     const rawHtmlEntrypoints = await scanHtmlEntrypoints(entrypointFiles);
     const htmlEntrypoints = rawHtmlEntrypoints.filter(isTruthy);
     if (
@@ -403,6 +404,7 @@ async function processEntrypoints(
  */
 async function runEsbuildOnBuildDirectory(
   bundleEntrypoints: string[],
+  allFiles: string[],
   config: SnowpackConfig,
   esbuildService: esbuild.Service,
 ): Promise<{manifest: ESBuildMetaManifest; outputFiles: esbuild.OutputFile[]}> {
@@ -419,6 +421,9 @@ async function runEsbuildOnBuildDirectory(
     publicPath: config.buildOptions.baseUrl,
     minify: config.experiments.optimize!.minify,
     target: config.experiments.optimize!.target,
+    external: Array.from(new Set(allFiles.map((f) => '*' + path.extname(f)))).filter(
+      (ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css',
+    ),
   });
   const manifestFile = outputFiles!.find((f) => f.path.endsWith('build-manifest.json'))!;
   const manifestContents = manifestFile.text;
@@ -510,6 +515,7 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
   const esbuildService = await esbuild.startService();
   const {manifest, outputFiles} = await runEsbuildOnBuildDirectory(
     bundleEntrypoints,
+    allBuildFiles,
     config,
     esbuildService,
   );

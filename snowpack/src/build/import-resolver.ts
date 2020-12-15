@@ -1,10 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../types/snowpack';
-import {findMatchingAliasEntry, getExt, isRemoteUrl, replaceExt} from '../util';
+import {findMatchingAliasEntry, getExtensionMatch, hasExtension, isRemoteUrl, replaceExtension} from '../util';
 import {getUrlForFile} from './file-urls';
-
-const cwd = process.cwd();
 
 /** Perform a file disk lookup for the requested import specifier. */
 export function getImportStats(importedFileOnDisk: string): fs.Stats | false {
@@ -24,13 +22,12 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: S
     spec = spec + trailingSlash + 'index.js';
   }
   // Transform the file extension (from input to output)
-  const {baseExt} = getExt(spec);
-  const extToReplace = config._extensionMap[baseExt];
-  if (extToReplace) {
-    spec = replaceExt(spec, baseExt, extToReplace);
+  const extensionMatch = getExtensionMatch(spec, config._extensionMap);
+  if (extensionMatch) {
+    spec = replaceExtension(spec, extensionMatch[0], extensionMatch[1]);
   }
   // Lazy check to handle imports that are missing file extensions
-  if (!stats && !spec.endsWith('.js') && !spec.endsWith('.css')) {
+  if (!stats && !hasExtension(spec, '.js') && !hasExtension(spec, '.css')) {
     spec = spec + '.js';
   }
   return spec;
@@ -52,7 +49,7 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
       return spec;
     }
     if (spec.startsWith('/')) {
-      const importStats = getImportStats(path.resolve(cwd, spec.substr(1)));
+      const importStats = getImportStats(path.resolve(config.root, spec.substr(1)));
       return resolveSourceSpecifier(spec, importStats, config);
     }
     if (spec.startsWith('./') || spec.startsWith('../')) {
@@ -68,7 +65,7 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
       if (aliasEntry.type === 'url') {
         return result;
       }
-      const importedFileLoc = path.resolve(cwd, result);
+      const importedFileLoc = path.resolve(config.root, result);
       const importStats = getImportStats(importedFileLoc);
       const newSpec = getUrlForFile(importedFileLoc, config) || spec;
       return resolveSourceSpecifier(newSpec, importStats, config);

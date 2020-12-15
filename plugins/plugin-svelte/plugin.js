@@ -3,7 +3,6 @@ const svelteRollupPlugin = require('rollup-plugin-svelte');
 const fs = require('fs');
 const path = require('path');
 const {createMakeHot} = require('svelte-hmr');
-const cwd = process.cwd();
 
 let makeHot = (...args) => {
   makeHot = createMakeHot({walk: svelte.walk});
@@ -53,8 +52,10 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   if (pluginOptions.input && pluginOptions.input.length === 0) {
     throw new Error(`[plugin-svelte] Option "input" must specify at least one filetype`);
   }
-
-  let configFilePath = path.resolve(cwd, pluginOptions.configFilePath || 'svelte.config.js');
+  let configFilePath = path.resolve(
+    snowpackConfig.root || process.cwd(),
+    pluginOptions.configFilePath || 'svelte.config.js',
+  );
   let compilerOptions = pluginOptions.compilerOptions;
   let preprocessOptions = pluginOptions.preprocess;
   let resolveInputOption = pluginOptions.input;

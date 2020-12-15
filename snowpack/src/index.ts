@@ -20,8 +20,6 @@ export {loadConfigurationForCLI as loadAndValidateConfig, createConfiguration} f
 export {readLockfile as loadLockfile} from './util.js';
 export {getUrlForFile} from './build/file-urls';
 
-const cwd = process.cwd();
-
 function printHelp() {
   logger.info(
     `
@@ -74,11 +72,14 @@ export async function cli(args: string[]) {
     await clearCache();
   }
   // Load the current package manifest
+  // TODO: process.cwd() okay here? We should remove this requirement on a package.json for v3.0.
   let pkgManifest: any;
   try {
-    pkgManifest = require(path.join(cwd, 'package.json'));
+    pkgManifest = require(path.join(process.cwd(), 'package.json'));
   } catch (err) {
-    logger.error(`package.json not found in directory: ${cwd}. Run \`npm init -y\` to create one.`);
+    logger.error(
+      `package.json not found in directory: ${process.cwd()}. Run \`npm init -y\` to create one.`,
+    );
     process.exit(1);
   }
 
@@ -99,10 +100,10 @@ export async function cli(args: string[]) {
 
   const config = loadConfigurationForCLI(cliFlags, pkgManifest);
   logger.debug(`config loaded: ${util.format(config)}`);
-  const lockfile = await readLockfile(cwd);
+  // TODO: process.cwd() okay here? Should the lockfile live at root instead of cwd?
+  const lockfile = await readLockfile(process.cwd());
   logger.debug(`lockfile ${lockfile ? 'loaded.' : 'not loaded'}`);
   const commandOptions: CommandOptions = {
-    cwd,
     config,
     lockfile,
   };

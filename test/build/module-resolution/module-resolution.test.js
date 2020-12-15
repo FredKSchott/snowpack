@@ -1,28 +1,46 @@
 const path = require('path');
-const {setupBuildTest, readFiles} = require('../../test-utils');
+const snowpack = require('../../../snowpack');
 
-const cwd = path.join(__dirname, 'build');
-let files = {};
+const TEST_ROOT = __dirname;
+const TEST_OUT = path.join(__dirname, 'build');
+let result;
+
+function getFile(id) {
+  return result[path.resolve(TEST_OUT, id)].contents;
+}
 
 describe('module resolution', () => {
-  beforeAll(() => {
-    setupBuildTest(__dirname);
-
-    files = readFiles(cwd);
+  beforeAll(async () => {
+    const config = snowpack.createConfiguration({
+      root: TEST_ROOT,
+      installOptions: {
+        treeshake: false,
+      },
+      mount: {
+        [path.resolve(TEST_ROOT, './public')]: '/',
+      },
+      buildOptions: {
+        out: TEST_OUT,
+      },
+    });
+    const {result: _result} = await snowpack.buildProject({config, lockfile: null});
+    result = _result;
   });
 
   it('JS: resolves web_modules relatively', () => {
-    expect(files['/src.js']).toEqual(expect.stringContaining(`import './web_modules/preact.js';`));
+    expect(getFile('./src.js')).toEqual(
+      expect.stringContaining(`import './web_modules/preact.js';`),
+    );
   });
 
   it('HTML: <script> tags also resolve relatively', () => {
-    expect(files['/index.html']).toEqual(
+    expect(getFile('./index.html')).toEqual(
       expect.stringContaining(`import preact from './web_modules/preact.js';`),
     );
-    expect(files['/folder-1/index.html']).toEqual(
+    expect(getFile('./folder-1/index.html')).toEqual(
       expect.stringContaining(`import preact from '../web_modules/preact.js';`),
     );
-    expect(files['/folder-1/folder-2/index.html']).toEqual(
+    expect(getFile('./folder-1/folder-2/index.html')).toEqual(
       expect.stringContaining(`import preact from '../../web_modules/preact.js';`),
     );
   });

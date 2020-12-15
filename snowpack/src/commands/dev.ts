@@ -72,8 +72,8 @@ import {
 import {
   BUILD_CACHE,
   cssSourceMappingURL,
-  getExt,
   getPackageSource,
+  hasExtension,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
   isRemoteUrl,
@@ -82,7 +82,7 @@ import {
   parsePackageImportSpecifier,
   readFile,
   relativeURL,
-  replaceExt,
+  removeExtension,
   resolveDependencyManifest,
 } from '../util';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
@@ -243,7 +243,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
 }
 
 export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
-  const {cwd, config} = commandOptions;
+  const {config} = commandOptions;
   // Start the startup timer!
   let serverStart = performance.now();
 
@@ -277,10 +277,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     console.error = (...args: [any, ...any[]]) => {
       logger.error(util.format(...args));
     };
-    paintDashboard(
-      messageBus,
-      config.plugins.map((p) => p.name),
-    );
+    paintDashboard(messageBus, config);
     logger.debug(`dashboard started`);
   } else {
     // "stream": Log relevent events to the console.
@@ -322,7 +319,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   if (config.devOptions.secure) {
     try {
       logger.debug(`reading credentials`);
-      credentials = await readCredentials(cwd);
+      credentials = await readCredentials(config.root);
     } catch (e) {
       logger.error(
         `✘ No HTTPS credentials found! Missing Files:  ${colors.bold(
@@ -416,12 +413,12 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     const originalReqPath = reqPath;
     let isProxyModule = false;
     let isSourceMap = false;
-    if (reqPath.endsWith('.proxy.js')) {
+    if (hasExtension(reqPath, '.proxy.js')) {
       isProxyModule = true;
-      reqPath = replaceExt(reqPath, '.proxy.js', '');
-    } else if (reqPath.endsWith('.map')) {
+      reqPath = removeExtension(reqPath, '.proxy.js');
+    } else if (hasExtension(reqPath, '.map')) {
       isSourceMap = true;
-      reqPath = replaceExt(reqPath, '.map', '');
+      reqPath = removeExtension(reqPath, '.map');
     }
 
     if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
@@ -589,11 +586,10 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       }
       const fileBuilderPromise = (async () => {
         const builtFileOutput = await _buildFile(url.pathToFileURL(fileLoc), {
-          plugins: config.plugins,
+          config,
           isDev: true,
           isSSR,
           isHmrEnabled: isHMR,
-          sourceMaps: config.buildOptions.sourceMaps,
         });
         inMemoryBuildCache.set(
           getCacheKey(fileLoc, {isSSR, env: process.env.NODE_ENV}),
@@ -687,8 +683,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         {
           locOnDisk: fileLoc,
           contents: wrappedResponse,
+          root: config.root,
           baseExt: responseExt,
-          expandedExt: getExt(fileLoc).expandedExt,
         },
         (spec) => {
           // Try to resolve the specifier to a known URL in the project
@@ -849,7 +845,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     const {fileLoc, isStatic: _isStatic, isResolve} = foundFile;
     // Workaround: HMR plugins need to add scripts to HTML file, even if static.
     // TODO: Once plugins are able to add virtual files + imports, this will no longer be needed.
-    const isStatic = _isStatic && !fileLoc.endsWith('.html');
+    const isStatic = _isStatic && !hasExtension(fileLoc, '.html');
 
     // 1. Check the hot build cache. If it's already found, then just serve it.
     let hotCachedResponse: SnowpackBuildMap | undefined = inMemoryBuildCache.get(
@@ -1205,14 +1201,14 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
 
     // CSS files may be loaded directly in the client (not via JS import / .proxy.js)
     // so send an "update" event to live update if thats the case.
-    if (originalUrl.endsWith('.css') && !originalUrl.endsWith('.module.css')) {
+    if (hasExtension(originalUrl, '.css') && !hasExtension(originalUrl, '.module.css')) {
       hmrEngine.broadcastMessage({type: 'update', url: originalUrl, bubbled: false});
     }
 
     // Append ".proxy.js" to Non-JS files to match their registered URL in the
     // client app.
     let updatedUrl = originalUrl;
-    if (!updatedUrl.endsWith('.js')) {
+    if (!hasExtension(updatedUrl, '.js')) {
       updatedUrl += '.proxy.js';
     }
 
@@ -1319,7 +1315,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     Object.keys(sourceImportMap.imports)
       .map((specifier) => {
         const [packageName] = parsePackageImportSpecifier(specifier);
-        return resolveDependencyManifest(packageName, cwd);
+        return resolveDependencyManifest(packageName, config.root);
       }) // resolve symlink src location
       .filter(([_, packageManifest]) => packageManifest && !packageManifest['_id']) // only watch symlinked deps for now
       .map(([fileLoc]) => `${path.dirname(fileLoc!)}/**`),

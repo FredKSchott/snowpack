@@ -34,6 +34,7 @@ import {
 } from '../types/snowpack';
 import {
   cssSourceMappingURL,
+  getExtensionMatch,
   getPackageSource,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
@@ -42,7 +43,7 @@ import {
   readFile,
   relativeURL,
   removeLeadingSlash,
-  replaceExt,
+  replaceExtension,
 } from '../util';
 import {getInstallTargets, run as installRunner} from './install';
 
@@ -145,29 +146,29 @@ class FileBuilder {
     this.filesToResolve = {};
     const isSSR = this.config.experiments.ssr;
     const srcExt = path.extname(url.fileURLToPath(this.fileURL));
-    // Workaround: HMR plugins need to add scripts to HTML file, even if static.
-    // TODO: Remove once no longer needed in dev.
-    const fileOutput =
-      this.mountEntry.static && srcExt !== '.html'
-        ? {[srcExt]: {code: await readFile(this.fileURL)}}
-        : await buildFile(this.fileURL, {
-            plugins: this.config.plugins,
-            isDev: false,
-            isSSR,
-            isHmrEnabled: false,
-            sourceMaps: this.config.buildOptions.sourceMaps,
-          });
+    const fileOutput = this.mountEntry.static
+      ? {[srcExt]: {code: await readFile(this.fileURL)}}
+      : await buildFile(this.fileURL, {
+          config: this.config,
+          isDev: false,
+          isSSR,
+          isHmrEnabled: false,
+        });
 
     for (const [fileExt, buildResult] of Object.entries(fileOutput)) {
       let {code, map} = buildResult;
       if (!code) {
         continue;
       }
-      const outFilename = replaceExt(
-        path.basename(url.fileURLToPath(this.fileURL)),
-        srcExt,
-        fileExt,
-      );
+      let outFilename = path.basename(url.fileURLToPath(this.fileURL));
+      const extensionMatch = getExtensionMatch(this.fileURL.toString(), this.config._extensionMap);
+      if (extensionMatch) {
+        outFilename = replaceExtension(
+          path.basename(url.fileURLToPath(this.fileURL)),
+          extensionMatch[0],
+          fileExt,
+        );
+      }
       const outLoc = path.join(this.outDir, outFilename);
       const sourceMappingURL = outFilename + '.map';
       if (this.mountEntry.resolve && typeof code === 'string') {
@@ -176,7 +177,7 @@ class FileBuilder {
             if (map) code = cssSourceMappingURL(code, sourceMappingURL);
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
-              expandedExt: fileExt,
+              root: this.config.root,
               contents: code,
               locOnDisk: url.fileURLToPath(this.fileURL),
             };
@@ -193,7 +194,7 @@ class FileBuilder {
             if (map) code = jsSourceMappingURL(code, sourceMappingURL);
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
-              expandedExt: fileExt,
+              root: this.config.root,
               contents: code,
               locOnDisk: url.fileURLToPath(this.fileURL),
             };
@@ -211,7 +212,7 @@ class FileBuilder {
             });
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
-              expandedExt: fileExt,
+              root: this.config.root,
               contents: code,
               locOnDisk: url.fileURLToPath(this.fileURL),
             };
@@ -549,11 +550,10 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
       logger.info(colors.yellow('! optimizing build...'));
       await runBuiltInOptimize(config);
       await runPipelineOptimizeStep(buildDirectoryLoc, {
-        plugins: config.plugins,
+        config,
         isDev: false,
         isSSR: config.experiments.ssr,
         isHmrEnabled: false,
-        sourceMaps: config.buildOptions.sourceMaps,
       });
       const optimizeEnd = performance.now();
       logger.info(

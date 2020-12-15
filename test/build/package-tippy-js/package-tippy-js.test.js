@@ -1,27 +1,41 @@
 const fs = require('fs');
 const path = require('path');
-const {setupBuildTest, readFiles} = require('../../test-utils');
+const snowpack = require('../../../snowpack');
 
-const cwd = path.join(__dirname, 'build');
-let files = {};
+const TEST_ROOT = __dirname;
+const TEST_OUT = path.join(__dirname, 'build');
+let result;
+
+function getFile(id) {
+  return result[path.resolve(TEST_OUT, id)].contents;
+}
 
 describe('package: tippy.js', () => {
-  beforeAll(() => {
-    setupBuildTest(__dirname);
-
-    files = readFiles(cwd);
+  beforeAll(async () => {
+    const config = snowpack.createConfiguration({
+      root: TEST_ROOT,
+      mount: {
+        [path.resolve(TEST_ROOT, './src')]: '/_dist_',
+      },
+      buildOptions: {
+        out: TEST_OUT,
+        minify: false,
+      },
+    });
+    const {result: _result} = await snowpack.buildProject({config, lockfile: null});
+    result = _result;
   });
 
   it('builds to the correct path', () => {
-    const mainEntryLoc = path.join(cwd, 'web_modules', 'tippyjs.js');
-    const assetsLoc = path.join(cwd, 'web_modules', 'tippyjs');
+    const mainEntryLoc = path.join(TEST_OUT, 'web_modules', 'tippyjs.js');
+    const assetsLoc = path.join(TEST_OUT, 'web_modules', 'tippyjs');
 
     expect(fs.existsSync(mainEntryLoc) && fs.statSync(mainEntryLoc).isFile()).toBe(true);
     expect(fs.existsSync(assetsLoc) && fs.statSync(assetsLoc).isDirectory()).toBe(true);
   });
 
   it('resolves imports', () => {
-    expect(files['/_dist_/index.js']).toEqual(
+    expect(getFile('./_dist_/index.js')).toEqual(
       expect.stringContaining(`import tippy from '../web_modules/tippyjs.js';`),
     );
   });
