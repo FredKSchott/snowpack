@@ -38,6 +38,7 @@ import {
   getPackageSource,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
+  isFsEventsEnabled,
   isRemoteUrl,
   jsSourceMappingURL,
   readFile,
@@ -663,6 +664,7 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
     ignoreInitial: true,
     persistent: true,
     disableGlobbing: false,
+    useFsEvents: isFsEventsEnabled(),
   });
   watcher.on('add', (fileLoc) => onWatchEvent(fileLoc));
   watcher.on('change', (fileLoc) => onWatchEvent(fileLoc));

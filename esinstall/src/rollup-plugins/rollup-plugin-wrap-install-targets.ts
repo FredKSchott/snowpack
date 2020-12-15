@@ -37,7 +37,7 @@ export function rollupPluginWrapInstallTargets(
    */
   function cjsAutoDetectExportsTrusted(normalizedFileLoc: string): string[] | undefined {
     try {
-      const mod = require(normalizedFileLoc);
+      const mod = eval('require')(normalizedFileLoc);
       // skip analysis for non-object modules, these can only be the default export.
       if (!mod || mod.constructor !== Object) {
         return;

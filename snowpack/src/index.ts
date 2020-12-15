@@ -1,5 +1,6 @@
 import * as colors from 'kleur/colors';
 import path from 'path';
+import {promises as fs} from 'fs';
 import util from 'util';
 import yargs from 'yargs-parser';
 import {addCommand, rmCommand} from './commands/add-rm';
@@ -75,13 +76,14 @@ export async function cli(args: string[]) {
   // TODO: process.cwd() okay here? We should remove this requirement on a package.json for v3.0.
   let pkgManifest: any;
   try {
-    pkgManifest = require(path.join(process.cwd(), 'package.json'));
+    pkgManifest = await fs.readFile(path.join(process.cwd(), 'package.json'), 'utf8');
   } catch (err) {
     logger.error(
       `package.json not found in directory: ${process.cwd()}. Run \`npm init -y\` to create one.`,
     );
     process.exit(1);
   }
+  pkgManifest = JSON.parse(pkgManifest);
 
   const cmd = cliFlags['_'][2];
   logger.debug(`run command: ${cmd}`);
@@ -98,7 +100,7 @@ export async function cli(args: string[]) {
     process.env.NODE_ENV = process.env.NODE_ENV || 'development';
   }
 
-  const config = loadConfigurationForCLI(cliFlags, pkgManifest);
+  const config = await loadConfigurationForCLI(cliFlags, pkgManifest);
   logger.debug(`config loaded: ${util.format(config)}`);
   // TODO: process.cwd() okay here? Should the lockfile live at root instead of cwd?
   const lockfile = await readLockfile(process.cwd());

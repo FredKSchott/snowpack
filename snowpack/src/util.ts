@@ -19,6 +19,9 @@ import {LockfileManifest, PackageSource, SnowpackConfig} from './types/snowpack'
 
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
 
+// We need to use eval here to prevent Rollup from detecting this use of `require()`
+export const NATIVE_REQUIRE = eval('require');
+
 // A note on cache naming/versioning: We currently version our global caches
 // with the version of the last breaking change. This allows us to re-use the
 // same cache across versions until something in the data structure changes.
@@ -86,6 +89,19 @@ export function getPackageSource(source: 'skypack' | 'local'): PackageSource {
   return source === 'local' ? localPackageSource : skypackPackageSource;
 }
 
+/**
+ * Returns true if fsevents exists. When Snowpack is bundled, automatic fsevents
+ * detection fails for many libraries. This function helps add back support.
+ */
+export function isFsEventsEnabled(): boolean {
+  try {
+    NATIVE_REQUIRE('fsevents');
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 /** Get the package name + an entrypoint within that package (if given). */
 export function parsePackageImportSpecifier(imp: string): [string, string | null] {
   const impParts = imp.split('/');
@@ -114,7 +130,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
     const depManifest = fs.realpathSync.native(
       require.resolve(`${dep}/package.json`, {paths: [cwd]}),
     );
-    return [depManifest, require(depManifest)];
+    return [depManifest, NATIVE_REQUIRE(depManifest)];
   } catch (err) {
     // if its an export map issue, move on to our manual resolver.
     if (err.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
@@ -413,10 +429,10 @@ export function removeTrailingSlash(path: string) {
 }
 
 export const HMR_CLIENT_CODE = fs.readFileSync(
-  path.join(__dirname, '../assets/hmr-client.js'),
+  path.resolve(__dirname, '../assets/hmr-client.js'),
   'utf-8',
 );
 export const HMR_OVERLAY_CODE = fs.readFileSync(
-  path.join(__dirname, '../assets/hmr-error-overlay.js'),
+  path.resolve(__dirname, '../assets/hmr-error-overlay.js'),
   'utf-8',
 );
