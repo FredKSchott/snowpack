@@ -3,17 +3,6 @@
   "version": "1.0.1",
   "name": "@snowpack/test-package-tippy-js",
   "description": "Tests that npm modules that end in .js work",
-  "scripts": {
-    "testbuild": "snowpack build"
-  },
-  "snowpack": {
-    "mount": {
-      "./src": "/_dist_"
-    },
-    "buildOptions": {
-      "minify": false
-    }
-  },
   "dependencies": {
     "tippy.js": "^6.2.5"
   },

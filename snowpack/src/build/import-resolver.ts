@@ -4,8 +4,6 @@ import {SnowpackConfig} from '../types/snowpack';
 import {findMatchingAliasEntry, getExt, isRemoteUrl, replaceExt} from '../util';
 import {getUrlForFile} from './file-urls';
 
-const cwd = process.cwd();
-
 /** Perform a file disk lookup for the requested import specifier. */
 export function getImportStats(importedFileOnDisk: string): fs.Stats | false {
   try {
@@ -52,7 +50,7 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
       return spec;
     }
     if (spec.startsWith('/')) {
-      const importStats = getImportStats(path.resolve(cwd, spec.substr(1)));
+      const importStats = getImportStats(path.resolve(config.root, spec.substr(1)));
       return resolveSourceSpecifier(spec, importStats, config);
     }
     if (spec.startsWith('./') || spec.startsWith('../')) {
@@ -68,7 +66,7 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
       if (aliasEntry.type === 'url') {
         return result;
       }
-      const importedFileLoc = path.resolve(cwd, result);
+      const importedFileLoc = path.resolve(config.root, result);
       const importStats = getImportStats(importedFileLoc);
       const newSpec = getUrlForFile(importedFileLoc, config) || spec;
       return resolveSourceSpecifier(newSpec, importStats, config);

@@ -145,18 +145,14 @@ class FileBuilder {
     this.filesToResolve = {};
     const isSSR = this.config.experiments.ssr;
     const srcExt = path.extname(url.fileURLToPath(this.fileURL));
-    // Workaround: HMR plugins need to add scripts to HTML file, even if static.
-    // TODO: Remove once no longer needed in dev.
-    const fileOutput =
-      this.mountEntry.static && srcExt !== '.html'
-        ? {[srcExt]: {code: await readFile(this.fileURL)}}
-        : await buildFile(this.fileURL, {
-            plugins: this.config.plugins,
-            isDev: false,
-            isSSR,
-            isHmrEnabled: false,
-            sourceMaps: this.config.buildOptions.sourceMaps,
-          });
+    const fileOutput = this.mountEntry.static
+      ? {[srcExt]: {code: await readFile(this.fileURL)}}
+      : await buildFile(this.fileURL, {
+          config: this.config,
+          isDev: false,
+          isSSR,
+          isHmrEnabled: false,
+        });
 
     for (const [fileExt, buildResult] of Object.entries(fileOutput)) {
       let {code, map} = buildResult;
@@ -177,6 +173,7 @@ class FileBuilder {
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
               expandedExt: fileExt,
+              root: this.config.root,
               contents: code,
               locOnDisk: url.fileURLToPath(this.fileURL),
             };
@@ -194,6 +191,7 @@ class FileBuilder {
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
               expandedExt: fileExt,
+              root: this.config.root,
               contents: code,
               locOnDisk: url.fileURLToPath(this.fileURL),
             };
@@ -212,6 +210,7 @@ class FileBuilder {
             this.filesToResolve[outLoc] = {
               baseExt: fileExt,
               expandedExt: fileExt,
+              root: this.config.root,
               contents: code,
               locOnDisk: url.fileURLToPath(this.fileURL),
             };
@@ -549,11 +548,10 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
       logger.info(colors.yellow('! optimizing build...'));
       await runBuiltInOptimize(config);
       await runPipelineOptimizeStep(buildDirectoryLoc, {
-        plugins: config.plugins,
+        config,
         isDev: false,
         isSSR: config.experiments.ssr,
         isHmrEnabled: false,
-        sourceMaps: config.buildOptions.sourceMaps,
       });
       const optimizeEnd = performance.now();
       logger.info(

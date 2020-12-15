@@ -33,7 +33,7 @@ function transformHtml(contents) {
 
 const babel = require('@babel/core');
 const IS_FAST_REFRESH_ENABLED = /\$RefreshReg\$\(/;
-async function transformJs(contents, id, skipTransform) {
+async function transformJs(contents, id, cwd, skipTransform) {
   let fastRefreshEnhancedCode;
 
   if (skipTransform) {
@@ -46,7 +46,7 @@ async function transformJs(contents, id, skipTransform) {
     fastRefreshEnhancedCode = contents;
   } else {
     const {code} = await babel.transformAsync(contents, {
-      cwd: process.cwd(),
+      cwd,
       filename: id,
       ast: false,
       compact: false,
@@ -103,7 +103,7 @@ module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
       }
       if (fileExt === '.js') {
         const skipTransform = babel === false;
-        return transformJs(contents, id, skipTransform);
+        return transformJs(contents, id, snowpackConfig.root || process.cwd(), skipTransform);
       }
       if (fileExt === '.html') {
         return transformHtml(contents);
