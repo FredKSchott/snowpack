@@ -4,8 +4,8 @@ import util from 'util';
 import yargs from 'yargs-parser';
 import {addCommand, rmCommand} from './commands/add-rm';
 import {command as initCommand} from './commands/init';
-import {command as buildCommand} from './commands/build';
 import {command as installCommand} from './commands/install';
+import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {logger} from './logger';
 import {loadConfigurationForCLI} from './config';
@@ -35,7 +35,6 @@ ${colors.bold('Commands:')}
   snowpack build         Build your app for production.
   snowpack add [package] Add a package to your lockfile (import map).
   snowpack rm [package]  Remove a package from your lockfile.
-  snowpack install       (Deprecated) Install web-ready dependencies.
 
 ${colors.bold('Flags:')}
   --config [path]        Set the location of your project config file.
@@ -123,6 +122,11 @@ export async function cli(args: string[]) {
     process.exit(1);
   }
 
+  // DEPRECATED: To be removed once final esinstall test is moved off of "snowpack install"
+  if (cmd === 'install') {
+    await installCommand(commandOptions);
+    return process.exit(0);
+  }
   if (cmd === 'init') {
     await initCommand(commandOptions);
     return process.exit(0);
@@ -133,10 +137,6 @@ export async function cli(args: string[]) {
   }
   if (cmd === 'dev') {
     await devCommand(commandOptions);
-    return process.exit(0);
-  }
-  if (cmd === 'install') {
-    await installCommand(commandOptions);
     return process.exit(0);
   }
 

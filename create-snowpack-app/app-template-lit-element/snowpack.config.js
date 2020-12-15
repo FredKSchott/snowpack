@@ -16,10 +16,7 @@ module.exports = {
   },
   buildOptions: {
     /* ... */
-  },
-  proxy: {
-    /* ... */
-  },
+  }, 
   alias: {
     /* ... */
   },

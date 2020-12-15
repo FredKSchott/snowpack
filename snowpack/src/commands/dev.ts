@@ -30,7 +30,6 @@ import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, promises as fs, statSync} from 'fs';
 import http from 'http';
-import HttpProxy from 'http-proxy';
 import http2 from 'http2';
 import https from 'https';
 import {isBinaryFile} from 'isbinaryfile';
@@ -124,16 +123,6 @@ function getCacheKey(fileLoc: string, {isSSR, env}) {
   return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
 }
 
-const DEFAULT_PROXY_ERROR_HANDLER = (
-  err: Error,
-  req: http.IncomingMessage,
-  res: http.ServerResponse,
-) => {
-  const reqUrl = req.url!;
-  logger.error(`✘ ${reqUrl}\n${err.message}`);
-  sendResponseError(req, res, 502);
-};
-
 /**
  * A helper class for "Not Found" errors, storing data about what file lookups were attempted.
  */
@@ -144,11 +133,6 @@ class NotFoundError extends Error {
     super('NOT_FOUND');
     this.lookups = lookups;
   }
-}
-
-function shouldProxy(pathPrefix: string, reqUrl: string) {
-  const reqPath = decodeURI(url.parse(reqUrl).pathname!);
-  return reqPath.startsWith(pathPrefix);
 }
 
 function sendResponseFile(
@@ -319,19 +303,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   });
 
   let sourceImportMap = await pkgSource.prepare(commandOptions);
-
-  const devProxies = {};
-  config.proxy.forEach(([pathPrefix, proxyOptions]) => {
-    const proxyServer = (devProxies[pathPrefix] = HttpProxy.createProxyServer(proxyOptions));
-    for (const [onEventName, eventHandler] of Object.entries(proxyOptions.on)) {
-      proxyServer.on(onEventName, eventHandler as () => void);
-    }
-    if (!proxyOptions.on.error) {
-      proxyServer.on('error', DEFAULT_PROXY_ERROR_HANDLER);
-    }
-    logger.info(`Proxy created: ${pathPrefix} -> ${proxyOptions.target || proxyOptions.forward}`);
-  });
-
   const readCredentials = async (cwd: string) => {
     const [cert, key] = await Promise.all([
       fs.readFile(path.join(cwd, 'snowpack.crt')),
@@ -375,8 +346,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       runPlugin
         .run({
           isDev: true,
-          // @deprecated: no longer accurate when using the JS API
-          isHmrEnabled: typeof config.devOptions.hmr !== 'undefined' ? config.devOptions.hmr : true,
           // @ts-ignore: internal API only
           log: (msg, data) => {
             if (msg === 'CONSOLE_INFO') {
@@ -1081,17 +1050,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     };
   }
 
-  function getRequestProxy(
-    reqUrl: string,
-  ): undefined | ((req: http.IncomingMessage, res: http.ServerResponse) => void) {
-    for (const [pathPrefix] of config.proxy) {
-      if (!shouldProxy(pathPrefix, reqUrl)) {
-        continue;
-      }
-      return (req, res) => devProxies[pathPrefix].web(req, res);
-    }
-  }
-
   /**
    * A simple map to optimize the speed of our 304 responses. If an ETag check is
    * sent in the request, check if it matches the last known etag for tat file.
@@ -1136,11 +1094,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         return matchedRoute.dest(req, res);
       }
     }
-    // @deprecated: to be removed in v3
-    const requestProxy = getRequestProxy(reqUrl);
-    if (requestProxy) {
-      return requestProxy(req, res);
-    }
     // Check if we can send back an optimized 304 response
     const quickETagCheck = req.headers['if-none-match'];
     const quickETagCheckUrl = reqUrl.replace(/\/$/, '/index.html');
@@ -1177,7 +1130,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     response: http2.Http2ServerResponse,
   ) => void;
   const createServer = (responseHandler: http.RequestListener | Http2RequestListener) => {
-    if (credentials && config.proxy.length === 0) {
+    if (credentials) {
       return http2.createSecureServer(
         {...credentials!, allowHTTP1: true},
         responseHandler as Http2RequestListener,
@@ -1196,17 +1149,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       const {statusCode} = res;
       logger.debug(`[${statusCode}] ${method} ${url}`);
     });
-    // If custom "app" is given, pass requests through there first.
-    if (config.experiments.app) {
-      config.experiments.app(req, res, async (err?: Error | null) => {
-        if (err) {
-          handleResponseError(req, res, err);
-          return;
-        }
-        handleRequest(req, res);
-      });
-      return;
-    }
     // Otherwise, pass requests directly to Snowpack's request handler.
     handleRequest(req, res);
   })
@@ -1214,15 +1156,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       logger.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);
       server.close();
       process.exit(1);
-    })
-    .on('upgrade', (req: http.IncomingMessage, socket, head) => {
-      config.proxy.forEach(([pathPrefix, proxyOptions]) => {
-        const isWebSocket = proxyOptions.ws || proxyOptions.target?.toString().startsWith('ws');
-        if (isWebSocket && shouldProxy(pathPrefix, req.url!)) {
-          devProxies[pathPrefix].ws(req, socket, head);
-          logger.info('Upgrading to WebSocket');
-        }
-      });
     })
     .listen(port);
 
