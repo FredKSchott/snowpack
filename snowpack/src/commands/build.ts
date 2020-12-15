@@ -55,8 +55,8 @@ function getIsHmrEnabled(config: SnowpackConfig) {
 }
 
 function handleFileError(err: Error, builder: FileBuilder) {
-  logger.error(`✘ ${builder.fileURL}\n  ${err.stack ? err.stack : err.message}`);
-  process.exit(1);
+  logger.error(`✘ ${builder.fileURL}`);
+  throw err;
 }
 
 function createBuildFileManifest(allFiles: FileBuilder[]): SnowpackBuildResultFileManifest {
