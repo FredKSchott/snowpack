@@ -18,10 +18,7 @@ module.exports = {
   },
   buildOptions: {
     /* ... */
-  },
-  proxy: {
-    /* ... */
-  },
+  }, 
   mount: {
     /* ... */
   },
