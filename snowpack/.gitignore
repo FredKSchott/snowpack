@@ -1,2 +1,4 @@
+lib/*
 node_modules
-lib
+vendor/generated
+polyfills
