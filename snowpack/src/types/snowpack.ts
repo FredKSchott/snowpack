@@ -65,7 +65,7 @@ export interface SnowpackDevServer {
 
 export type SnowpackBuildResultFileManifest = Record<
   string,
-  {source: string; contents: string | Buffer}
+  {source: string | null; contents: string | Buffer}
 >;
 
 export interface SnowpackBuildResult {

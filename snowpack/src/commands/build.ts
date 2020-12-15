@@ -542,6 +542,12 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
   await parallelWorkQueue.onIdle();
 
   const buildResultManifest = createBuildFileManifest(allBuildPipelineFiles);
+  // TODO(fks): When we add support for virtual files (injected by plugins)
+  // handle this file using that same system.
+  buildResultManifest[path.join(internalFilesBuildLoc, 'env.js')] = {
+    source: null,
+    contents: generateEnvModule({mode: 'production', isSSR}),
+  };
 
   // 5. Optimize the build.
   if (!config.buildOptions.watch) {
