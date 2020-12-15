@@ -5,7 +5,7 @@
 extends: existence
 message: 'JavaScript code blocks should start with a comment that describes the file'
 link: https://github.com/snowpackjs/snowpack/blob/main/www/README.md
-level: error
+level: warning
 scope: raw
 raw:
   - '\`\`\`js\n[^\\]'
