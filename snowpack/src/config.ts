@@ -643,7 +643,7 @@ export async function loadConfigurationForCLI(
       cliConfig as any,
     ],
     {
-    isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
+      isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
     },
   );
 
