@@ -33,31 +33,57 @@ Create a directory for your plugin and a `.js` file using this template:
 // Example: a basic Snowpack plugin file, customize the name of the file and the value of the name in the object
 module.exports = function (snowpackConfig, pluginOptions) {
   return {
-    name: 'my-snowpack-plugin',
+    name: 'my-snowpack-plugin'
   };
 };
 ```
 
 To test your new plugin, run `npm init` to create a basic `package.json` then run `npm link` in your plugin’s directory to expose the plugin globally (on your development machine).
 
+> Be aware that `npm install` will remove your linked plugin, so on any install, you will need to redo the `npm link my-snowpack-plugin`.
+
+
 For testing, [create a new, example Snowpack project](/tutorials/getting-started) in a different directory. In your example Snowpack project, run `npm install && npm link my-snowpack-plugin` (use the name from your plugin’s `package.json`).
 
-> The alternative would be to use `npm install --save-dev &lt;folder_to_your_plugin_project&gt;`, which would create the "symlink-like" entry in your example Snowpack project’s `package.json`
-
-> Be aware that `npm install` will remove your linked plugin, so on any install, you will need to redo the `npm link my-snowpack-plugin`.
+> The alternative would be to use `npm install --save-dev path_to_your_plugin`, which would create the "symlink-like" entry in your example Snowpack project’s `package.json`
 
 In your example Snowpack project, add your plugin to the `snowpack.config.js` along with any plugin options you’d like to test:
 
 ```js
-// snowpack.config.json
+// snowpack.config.js
+// Example: enabling a Snowpack plugin called "my-snowpack-plugin"
 {
   "plugins": [
-    ["my-snowpack-plugin", { "option-1": "testing", "another-option": false }]
+    "my-snowpack-plugin"
+  ]
 }
 ```
 
-NOTE: We should have an example with options
+Plugins can also have their own `pluginOptions`, an object:
 
+```js
+// my-snowpack-plugin.js
+// Example: a basic Snowpack plugin file using options
+module.exports = function (snowpackConfig, pluginOptions) {
+  let optionA = pluginOptions.optionA;
+  let optionB = pluginOptions.optionB;
+  return {
+    name: 'my-snowpack-plugin'
+  };
+};
+```
+
+These `pluginOptions` are set in the Snowpack configuration file by passing in the plugin as an array containing the plugin name followed by an object containing the `pluginOptions` :
+
+```js
+// snowpack.config.js
+// Example: enabling a Snowpack plugin with options
+{
+  "plugins": [
+    ["my-snowpack-plugin", { "optionA": "foo", "optionB": "bar" }]
+  ]
+}
+```
 ## Plugin types
 
 Which example should you examine to go further? It depends on what type of plugin you're building. Here's some concise information to help you decide. Don’t skip this section, we promise we’ll keep it short. Many of the questions we get about having issues with building plugins come from developers starting from a type that’s not a good fit for what they are trying to do.
@@ -68,8 +94,8 @@ Build plugins act on the initial build. Each has a `resolve` object that tells S
 
 Some examples:
 
-- [@snowpack/plugin-sass](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-sass): compiles SASS files to CSS files
-- [@snowpack/plugin-svelte](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-svelte): compiles Svelte files into HTML, CSS, and JS
+- [@snowpack/plugin-sass](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-sass): Compiles SASS files to CSS files
+- [@snowpack/plugin-svelte](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-svelte): Compiles Svelte files into HTML, CSS, and JS
 
 ### Transform plugins
 
@@ -77,13 +103,15 @@ Transform plugins run on the built HTML, JS, and CSS using the `transform()` met
 
 Some examples:
 
-- [@snowpack/plugin-postcss](): runs postcss to optimize CSS
+- [@snowpack/plugin-postcss](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-postcss): Runs postcss to optimize CSS.
 
 ### Dev tooling plugins
 
 Dev tooling plugins run during `snowpack dev` using the `run()` method to integrate CLI dev tools with Snowpack’s CLI console.
 
 Some examples:
+- [@snowpack/plugin-run-script](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-run-script): Runs any CLI command during `snowpack dev` or `snowpack build`
+
 
 ### Bundler plugin
 
@@ -91,7 +119,8 @@ By default, `snowpack build` produces a site ready for the web, but adding a bun
 
 Some examples:
 
-- [@snowpack/plugin-webpack]():
+- [@snowpack/plugin-webpack](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-webpack): Bundles build using Webpack.
+- [@snowpack/plugin-optimize](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-optimize): Performs a selection of optimizations on the final build.
 
 ### Example: Transform a file with a transform plugin
 
@@ -210,7 +239,7 @@ In that case, the `resolve` property takes only a single `input` file type (`['.
 
 **See it in action:** Let's say that we have a source file at `src/components/App.svelte`. Because the `.svelte` file extension matches an extension in our plugin's `resolve.input` array, Snowpack lets this plugin claim responsibility for loading this file. `load()` executes, Svelte builds the file from disk, and both JavaScript & CSS are returned to the final build.
 
-Notice that `.svelte` is missing from `resolve.output` and isn't returned by `load()`. Only the files returned by the `load()` method are included in the final build. If you wanted your plugin to keep the original source file in your final build, you could add `{ '.svelte': contents }` to the return object.
+> Notice that `.svelte` is missing from `resolve.output` and isn't returned by `load()`. Only the files returned by the `load()` method are included in the final build. If you wanted your plugin to keep the original source file in your final build, you could add `{ '.svelte': contents }` to the return object.
 
 ### Example: Server-Side Rendering (SSR)
 

@@ -10,3 +10,4 @@ match: $sentence
 exceptions:
   - Snowpack
   - ':\s[A-Z]'
+  - Babel
