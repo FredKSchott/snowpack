@@ -5,14 +5,6 @@
   "scripts": {
     "testinstall": "snowpack install"
   },
-  "snowpack": {
-    "install": [
-      "array-flatten"
-    ],
-    "buildOptions": {
-      "minify": false
-    }
-  },
   "dependencies": {
     "array-flatten": "^3.0.0",
     "vue": "^2.0.0"

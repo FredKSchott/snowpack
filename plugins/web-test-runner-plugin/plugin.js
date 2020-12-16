@@ -11,18 +11,20 @@ To Resolve:
 `);
   }
   const pkgManifest = require(path.join(snowpackConfig.root || process.cwd(), 'package.json'));
-  const config = snowpack.loadAndValidateConfig(
-    {
-      externalPackage: ['/__web-dev-server__web-socket.js'],
-      devOptions: {hmr: false, open: 'none', output: 'stream'},
-    },
-    pkgManifest,
-  );
-  let server;
+  let server, config;
 
   return {
     name: 'snowpack-plugin',
     async serverStart({fileWatcher}) {
+      config = await snowpack.loadAndValidateConfig(
+        {
+          externalPackage: ['/__web-dev-server__web-socket.js'],
+          hmr: false,
+          open: 'none',
+          output: 'stream',
+        },
+        pkgManifest,
+      );
       fileWatcher.add(Object.keys(config.mount));
       server = await snowpack.startDevServer({
         cwd: snowpackConfig.root || process.cwd(),

@@ -1,18 +1,18 @@
-import type {Postcss} from 'postcss';
 import path from 'path';
-import {readFileSync} from 'fs';
-import {SnowpackConfig} from '../types/snowpack';
-import {appendHtmlToHead, hasExtension} from '../util';
+import type {Postcss} from 'postcss';
 import {logger} from '../logger';
+import {SnowpackConfig} from '../types/snowpack';
+import {
+  appendHtmlToHead,
+  hasExtension,
+  HMR_CLIENT_CODE,
+  HMR_OVERLAY_CODE,
+  NATIVE_REQUIRE,
+} from '../util';
 import {generateSRI} from './import-sri';
 
-const SRI_CLIENT_HMR_SNOWPACK = generateSRI(
-  readFileSync(path.join(__dirname, '../../assets/hmr-client.js')),
-);
-
-const SRI_ERROR_HMR_SNOWPACK = generateSRI(
-  readFileSync(path.join(__dirname, '../../assets/hmr-error-overlay.js')),
-);
+const SRI_CLIENT_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_CLIENT_CODE));
+const SRI_ERROR_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_OVERLAY_CODE));
 
 const importMetaRegex = /import\s*\.\s*meta/;
 
@@ -182,8 +182,8 @@ async function generateCssModuleImportProxy({
   hmr: boolean;
   config: SnowpackConfig;
 }) {
-  _postCss = _postCss || require('postcss');
-  _postCssModules = _postCssModules || require('postcss-modules');
+  _postCssModules = _postCssModules || NATIVE_REQUIRE('postcss-modules');
+  _postCss = _postCss || NATIVE_REQUIRE('postcss');
   let moduleJson: string | undefined;
   const processor = _postCss([
     _postCssModules({

@@ -76,6 +76,7 @@ import {
   hasExtension,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
+  isFsEventsEnabled,
   isRemoteUrl,
   jsSourceMappingURL,
   openInBrowser,
@@ -1292,11 +1293,13 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     }
     filesBeingDeleted.delete(fileLoc);
   }
+
   const watcher = chokidar.watch(Object.keys(config.mount), {
     ignored: config.exclude,
     persistent: true,
     ignoreInitial: true,
     disableGlobbing: false,
+    useFsEvents: isFsEventsEnabled(),
   });
   watcher.on('add', (fileLoc) => {
     knownETags.clear();
@@ -1328,6 +1331,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     persistent: true,
     ignoreInitial: true,
     disableGlobbing: false,
+    useFsEvents: isFsEventsEnabled(),
   });
   depWatcher.on('add', onDepWatchEvent);
   depWatcher.on('change', onDepWatchEvent);
