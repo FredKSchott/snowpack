@@ -4,7 +4,7 @@ import path from 'path';
 import {Plugin} from 'rollup';
 import {VM as VM2} from 'vm2';
 import {AbstractLogger, InstallTarget} from '../types';
-import {getWebDependencyName, isJavaScript, isRemoteUrl, isTruthy} from '../util';
+import {getWebDependencyName, isJavaScript, isRemoteUrl, isTruthy, NATIVE_REQUIRE} from '../util';
 
 // Use CJS intentionally here! ESM interface is async but CJS is sync, and this file is sync
 const {parse} = require('cjs-module-lexer');
@@ -37,7 +37,7 @@ export function rollupPluginWrapInstallTargets(
    */
   function cjsAutoDetectExportsTrusted(normalizedFileLoc: string): string[] | undefined {
     try {
-      const mod = eval('require')(normalizedFileLoc);
+      const mod = NATIVE_REQUIRE(normalizedFileLoc);
       // skip analysis for non-object modules, these can only be the default export.
       if (!mod || mod.constructor !== Object) {
         return;
@@ -69,7 +69,7 @@ export function rollupPluginWrapInstallTargets(
     } else {
       visited.add(filename);
     }
-    const fileContents = fs.readFileSync(filename, 'utf-8');
+    const fileContents = fs.readFileSync(filename, 'utf8');
     try {
       // Attempt 1 - CJS: Run cjs-module-lexer to statically analyze exports.
       let {exports, reexports} = parse(fileContents);

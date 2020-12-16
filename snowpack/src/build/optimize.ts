@@ -92,7 +92,7 @@ function collectDeepImports(url: string, manifest: ESBuildMetaManifest, set: Set
 async function scanHtmlEntrypoints(htmlFiles: string[]): Promise<(ScannedHtmlEntrypoint | null)[]> {
   return Promise.all(
     htmlFiles.map(async (htmlFile) => {
-      const code = await fs.readFile(htmlFile, 'utf-8');
+      const code = await fs.readFile(htmlFile, 'utf8');
       const root = cheerio.load(code);
       const isHtmlFragment = root.html().startsWith('<html><head></head><body>');
       if (isHtmlFragment) {
@@ -190,7 +190,7 @@ async function restitchInlineScripts(htmlData: ScannedHtmlEntrypoint): Promise<v
     .each((_, elem) => {
       const scriptRoot = root(elem);
       const scriptFile = path.resolve(file, '..', scriptRoot.attr('src')!);
-      const scriptContent = readFileSync(scriptFile, 'utf-8');
+      const scriptContent = readFileSync(scriptFile, 'utf8');
       scriptRoot.text(scriptContent);
       scriptRoot.removeAttr('src');
       scriptRoot.removeAttr('snowpack-inline');
@@ -201,7 +201,7 @@ async function restitchInlineScripts(htmlData: ScannedHtmlEntrypoint): Promise<v
     .each((_, elem) => {
       const linkRoot = root(elem);
       const styleFile = path.resolve(file, '..', linkRoot.attr('href')!);
-      const styleContent = readFileSync(styleFile, 'utf-8');
+      const styleContent = readFileSync(styleFile, 'utf8');
       const newStyleEl = root('<style></style>');
       newStyleEl.text(styleContent);
       linkRoot.after(newStyleEl);
@@ -549,7 +549,7 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
   else if (options.minify || options.target) {
     for (const f of allBuildFiles) {
       if (['.js', '.css'].includes(path.extname(f))) {
-        let code = await fs.readFile(f, 'utf-8');
+        let code = await fs.readFile(f, 'utf8');
         const minified = await esbuildService.transform(code, {
           sourcefile: path.basename(f),
           loader: path.extname(f).slice(1) as 'js' | 'css',

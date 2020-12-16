@@ -311,7 +311,7 @@ class FileBuilder {
   async writeToDisk() {
     mkdirp.sync(this.outDir);
     for (const [outLoc, code] of Object.entries(this.output)) {
-      const encoding = typeof code === 'string' ? 'utf-8' : undefined;
+      const encoding = typeof code === 'string' ? 'utf8' : undefined;
       await fs.writeFile(outLoc, code, encoding);
     }
   }
@@ -332,7 +332,7 @@ class FileBuilder {
   async writeProxyToDisk(originalFileLoc: string) {
     const proxyCode = await this.getProxy(originalFileLoc);
     const importProxyFileLoc = originalFileLoc + '.proxy.js';
-    await fs.writeFile(importProxyFileLoc, proxyCode, 'utf-8');
+    await fs.writeFile(importProxyFileLoc, proxyCode, 'utf8');
   }
 }
 
@@ -439,7 +439,7 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
             hmr: false,
             config: config,
           });
-          await fs.writeFile(importProxyFileLoc, proxyCode, 'utf-8');
+          await fs.writeFile(importProxyFileLoc, proxyCode, 'utf8');
         }
       }
     }

@@ -4,12 +4,15 @@ import url from 'url';
 import validatePackageName from 'validate-npm-package-name';
 import {InstallTarget, ImportMap} from './types';
 
+// We need to use eval here to prevent Rollup from detecting this use of `require()`
+export const NATIVE_REQUIRE = eval('require');
+
 export async function writeLockfile(loc: string, importMap: ImportMap): Promise<void> {
   const sortedImportMap: ImportMap = {imports: {}};
   for (const key of Object.keys(importMap.imports).sort()) {
     sortedImportMap.imports[key] = importMap.imports[key];
   }
-  fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf-8'});
+  fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
 }
 
 export function isRemoteUrl(val: string): boolean {
@@ -71,7 +74,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
     const manifestPath =
       fullPath.substring(0, indexOfSearch + searchPath.length + 1) + 'package.json';
     result[0] = manifestPath;
-    const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
+    const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf8'});
     result[1] = JSON.parse(manifestStr);
   }
   return result;

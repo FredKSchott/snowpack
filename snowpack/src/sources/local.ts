@@ -71,7 +71,7 @@ export default {
     let dependencyImportMap = {imports: {}};
     try {
       dependencyImportMap = JSON.parse(
-        await fs.readFile(dependencyImportMapLoc, {encoding: 'utf-8'}),
+        await fs.readFile(dependencyImportMapLoc, {encoding: 'utf8'}),
       );
     } catch (err) {
       // no import-map found, safe to ignore

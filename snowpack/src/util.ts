@@ -51,13 +51,13 @@ export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
 export async function readFile(filepath: URL): Promise<string | Buffer> {
   const data = await fs.promises.readFile(url.fileURLToPath(filepath));
   const isBinary = await isBinaryFile(data);
-  return isBinary ? data : data.toString('utf-8');
+  return isBinary ? data : data.toString('utf8');
 }
 
 export async function readLockfile(cwd: string): Promise<LockfileManifest | null> {
   try {
     var lockfileContents = fs.readFileSync(path.join(cwd, 'snowpack.lock.json'), {
-      encoding: 'utf-8',
+      encoding: 'utf8',
     });
   } catch (err) {
     // no lockfile found, ignore and continue
@@ -78,7 +78,7 @@ function sortObject<T>(originalObject: Record<string, T>): Record<string, T> {
 export async function writeLockfile(loc: string, importMap: LockfileManifest): Promise<void> {
   importMap.dependencies = sortObject(importMap.dependencies);
   importMap.imports = sortObject(importMap.imports);
-  fs.writeFileSync(loc, JSON.stringify(importMap, undefined, 2), {encoding: 'utf-8'});
+  fs.writeFileSync(loc, JSON.stringify(importMap, undefined, 2), {encoding: 'utf8'});
 }
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {
@@ -154,7 +154,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
       const manifestPath =
         fullPath.substring(0, indexOfSearch + searchPath.length + 1) + 'package.json';
       result[0] = manifestPath;
-      const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
+      const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf8'});
       result[1] = JSON.parse(manifestStr);
     }
   } catch (err) {
@@ -254,8 +254,8 @@ export async function checkLockfileHash(dir: string) {
     return true;
   }
   const hashLoc = path.join(dir, LOCKFILE_HASH_FILE);
-  const newLockHash = etag(await fs.promises.readFile(lockfileLoc, 'utf-8'));
-  const oldLockHash = await fs.promises.readFile(hashLoc, 'utf-8').catch(() => '');
+  const newLockHash = etag(await fs.promises.readFile(lockfileLoc, 'utf8'));
+  const oldLockHash = await fs.promises.readFile(hashLoc, 'utf8').catch(() => '');
   return newLockHash === oldLockHash;
 }
 
@@ -430,9 +430,9 @@ export function removeTrailingSlash(path: string) {
 
 export const HMR_CLIENT_CODE = fs.readFileSync(
   path.resolve(__dirname, '../assets/hmr-client.js'),
-  'utf-8',
+  'utf8',
 );
 export const HMR_OVERLAY_CODE = fs.readFileSync(
   path.resolve(__dirname, '../assets/hmr-error-overlay.js'),
-  'utf-8',
+  'utf8',
 );
