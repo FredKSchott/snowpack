@@ -55,11 +55,11 @@ describe('config: alias', () => {
       // group 2: special extension (.svelte)
       {
         name: '[svelte] plugin-provided file extension',
-        expected: `import svelteFile from './foo.js';`,
+        expected: `import svelteFile from './foo.svelte.js';`,
       },
       {
         name: '[svelte] plugin-provided, missing file extension',
-        expected: `import svelteFile_ from './foo.js';`,
+        expected: `import svelteFile_ from './foo.svelte.js';`,
       },
       // { name: '[svelte] absolute URL, plugin-provided file extension',expected: `import svelteFile__ from './foo.js';`}, // TODO: fix!
       // { name: '[svelte] absolute URL, missing file extension', expected: `import svelteFile___ from './foo.js';`, }, // TODO: fix!

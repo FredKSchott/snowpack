@@ -20,7 +20,6 @@ function generateContentsMap(dir) {
 describe('config: mount', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
-
     files = readFiles(cwd);
   });
 
@@ -60,9 +59,8 @@ describe('config: mount', () => {
 
     tests.forEach((t) => {
       it(t.name, () => {
-        const given = generateContentsMap(path.join(__dirname, t.given));
-        const expected = generateContentsMap(path.join(__dirname, 'build', t.expect));
-        expect(given).toEqual(expected);
+        const given = generateContentsMap(path.join(__dirname, 'build', t.expect));
+        expect(given).toMatchSnapshot(t.name);
       });
     });
   });
@@ -70,7 +68,7 @@ describe('config: mount', () => {
   describe('advanced', () => {
     it('url', () => {
       const $ = cheerio.load(files['/new-g/main.html']);
-      expect(files['/new-g/index.js']).toEqual(expect.stringContaining(`import "./dep.js";`)); // formatter ran
+      expect(files['/new-g/index.jsx.js']).toEqual(expect.stringContaining(`import "./dep.js";`)); // formatter ran
       expect($('script[type="module"]').attr('src')).toBe('/_dist_/index.js'); // JS resolved
     });
 
@@ -80,7 +78,7 @@ describe('config: mount', () => {
     });
 
     it('resolve: false', () => {
-      expect(files['/i/index.js']).toEqual(expect.stringContaining(`import "./dep";`)); // JS not resolved
+      expect(files['/i/index.jsx.js']).toEqual(expect.stringContaining(`import "./dep";`)); // JS not resolved
     });
   });
 });

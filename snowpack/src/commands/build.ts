@@ -44,7 +44,6 @@ import {
   readFile,
   relativeURL,
   removeLeadingSlash,
-  replaceExtension,
 } from '../util';
 import {getInstallTargets, run as installRunner} from './install';
 
@@ -164,11 +163,7 @@ class FileBuilder {
       let outFilename = path.basename(url.fileURLToPath(this.fileURL));
       const extensionMatch = getExtensionMatch(this.fileURL.toString(), this.config._extensionMap);
       if (extensionMatch) {
-        outFilename = replaceExtension(
-          path.basename(url.fileURLToPath(this.fileURL)),
-          extensionMatch[0],
-          fileExt,
-        );
+        outFilename = path.basename(url.fileURLToPath(this.fileURL)) + extensionMatch[1];
       }
       const outLoc = path.join(this.outDir, outFilename);
       const sourceMappingURL = outFilename + '.map';

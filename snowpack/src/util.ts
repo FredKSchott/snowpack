@@ -422,8 +422,13 @@ export function replaceExtension(fileName: string, oldExt: string, newExt: strin
   const extToReplace = new RegExp(`\\${oldExt}$`, 'i');
   return fileName.replace(extToReplace, newExt);
 }
+
 export function removeExtension(fileName: string, oldExt: string): string {
   return replaceExtension(fileName, oldExt, '');
+}
+
+export function addExtension(fileName: string, newExt: string): string {
+  return fileName + newExt;
 }
 
 /** Add / to beginning of string (but don’t double-up) */

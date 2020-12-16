@@ -27,6 +27,6 @@ describe('plugin API: transform()', () => {
     expect(files['/src/submodule.ts']).not.toEqual(expect.stringContaining(SEARCH_STRING));
 
     // test 2: code is added in plugin
-    expect(files['/build/_dist_/submodule.js']).toEqual(expect.stringContaining(SEARCH_STRING));
+    expect(files['/build/_dist_/submodule.ts.js']).toEqual(expect.stringContaining(SEARCH_STRING));
   });
 });

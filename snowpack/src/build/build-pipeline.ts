@@ -1,15 +1,15 @@
 import path from 'path';
+import { RawSourceMap, SourceMapConsumer, SourceMapGenerator } from 'source-map';
 import url from 'url';
-import {validatePluginLoadResult} from '../config';
-import {logger} from '../logger';
+import { validatePluginLoadResult } from '../config';
+import { logger } from '../logger';
 import {
+  PluginTransformResult,
   SnowpackBuildMap,
   SnowpackConfig,
-  SnowpackPlugin,
-  PluginTransformResult,
+  SnowpackPlugin
 } from '../types';
-import {getExtension, readFile, removeExtension, replaceExtension} from '../util';
-import {SourceMapConsumer, SourceMapGenerator, RawSourceMap} from 'source-map';
+import { getExtension, readFile, removeExtension } from '../util';
 
 export interface BuildFileOptions {
   isDev: boolean;
@@ -30,9 +30,7 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
     if (!matchedOutputExt) {
       continue;
     }
-    plugin.resolve.input.forEach((inputExt) =>
-      potentialInputs.add(replaceExtension(srcFile, matchedOutputExt, inputExt)),
-    );
+    potentialInputs.add(removeExtension(srcFile, matchedOutputExt));
   }
   return Array.from(potentialInputs);
 }
