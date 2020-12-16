@@ -554,7 +554,7 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
     throw new ConfigValidationError(validationErrors);
   }
   const mergedConfig = merge<SnowpackUserConfig>([DEFAULT_CONFIG, config], {
-    isMergeableObject: isPlainObject,
+    isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
   });
   return normalizeConfig(mergedConfig);
 }
@@ -643,7 +643,7 @@ export async function loadConfigurationForCLI(
       cliConfig as any,
     ],
     {
-      isMergeableObject: isPlainObject,
+    isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
     },
   );
 

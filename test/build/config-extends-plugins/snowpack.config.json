@@ -6,5 +6,8 @@
   },
   "buildOptions": {
     "minify": false
-  }
+  },
+  "plugins": [
+    "@snowpack/plugin-sass"
+  ]
 }
