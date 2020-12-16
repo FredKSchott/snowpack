@@ -65,9 +65,15 @@ Some examples:
   - [@snowpack/plugin-sass](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-sass): compiles SASS files to CSS files
   - [@snowpack/plugin-svelte](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-svelte): compiles Svelte files into HTML, CSS, and JS
 
+Parameters:
+- `filePath` | `string` : the raw path of the file?
+- `isSSR`| `boolean` | Default: `false` : is it SSR? IDK
+- `isDev`| `boolean` | Default: `false` : ??
+- `fileExt` | `string` : the file extension?
 
-### Transform plugins
-Transform plugins run on the built HTML, JS, and CSS using the `transform()` method.
+#### transform()
+
+Transforms build output (JS, CSS, etc.) regardless of how they were originally loaded from disk.
 
 Some examples:
   - [@snowpack/plugin-postcss](): runs postcss to optimize CSS
