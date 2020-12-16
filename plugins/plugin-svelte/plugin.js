@@ -128,6 +128,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
             ...hmrOptions,
             absoluteImports: false,
             injectCss: true,
+            noOverlay: true,
           },
           compiled,
           originalCode: codeToCompile,
