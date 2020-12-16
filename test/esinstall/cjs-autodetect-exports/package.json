@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-autodetect-cjs",
+  "dependencies": {
+    "cjs-invalid-exports": "file:./packages/cjs-invalid-exports",
+    "cjs-valid-exports": "file:./packages/cjs-valid-exports"
+  }
+}

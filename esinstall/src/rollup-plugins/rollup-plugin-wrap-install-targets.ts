@@ -5,6 +5,7 @@ import {Plugin} from 'rollup';
 import {VM as VM2} from 'vm2';
 import {AbstractLogger, InstallTarget} from '../types';
 import {getWebDependencyName, isJavaScript, isRemoteUrl, isTruthy, NATIVE_REQUIRE} from '../util';
+import isValidIdentifier from 'is-valid-identifier';
 
 // Use CJS intentionally here! ESM interface is async but CJS is sync, and this file is sync
 const {parse} = require('cjs-module-lexer');
@@ -98,6 +99,13 @@ export function rollupPluginWrapInstallTargets(
             'const exports={}; const module={exports}; ' + fileContents + ';; module.exports;',
           ),
         );
+
+        // Verify that all of these are valid identifiers. Otherwise when we attempt to
+        // reexport it will produce invalid js like `import { a, b, 0, ) } from 'foo';
+        const allValid = exports.every((identifier) => isValidIdentifier(identifier));
+        if (!allValid) {
+          exports = [];
+        }
       }
 
       // Resolve and flatten all exports into a single array, and remove invalid exports.
