@@ -1,18 +1,18 @@
-import type {Postcss} from 'postcss';
 import path from 'path';
-import {readFileSync} from 'fs';
-import {SnowpackConfig} from '../types/snowpack';
-import {appendHtmlToHead, hasExtension} from '../util';
+import type {Postcss} from 'postcss';
 import {logger} from '../logger';
+import {SnowpackConfig} from '../types/snowpack';
+import {
+  appendHtmlToHead,
+  hasExtension,
+  HMR_CLIENT_CODE,
+  HMR_OVERLAY_CODE,
+  NATIVE_REQUIRE,
+} from '../util';
 import {generateSRI} from './import-sri';
 
-const SRI_CLIENT_HMR_SNOWPACK = generateSRI(
-  readFileSync(path.join(__dirname, '../../assets/hmr-client.js')),
-);
-
-const SRI_ERROR_HMR_SNOWPACK = generateSRI(
-  readFileSync(path.join(__dirname, '../../assets/hmr-error-overlay.js')),
-);
+const SRI_CLIENT_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_CLIENT_CODE));
+const SRI_ERROR_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_OVERLAY_CODE));
 
 const importMetaRegex = /import\s*\.\s*meta/;
 
@@ -32,25 +32,35 @@ export function wrapImportMeta({
   env: boolean;
   config: SnowpackConfig;
 }) {
+  // Create Regex expressions here, since global regex has per-string state
+  const importMetaHotRegex = /import\s*\.\s*meta\s*\.\s*hot/g;
+  const importMetaEnvRegex = /import\s*\.\s*meta\s*\.\s*env/g;
+  // Optimize: replace direct references to `import.meta.hot` by inlining undefined.
+  // Do this first so that we can bail out in the next `import.meta` test.
+  if (!hmr) {
+    code = code.replace(importMetaHotRegex, 'undefined /* [snowpack] import.meta.hot */ ');
+  }
   if (!importMetaRegex.test(code)) {
     return code;
   }
-  return (
-    (hmr
-      ? `import * as  __SNOWPACK_HMR__ from '${getMetaUrlPath(
-          'hmr-client.js',
-          config,
-        )}';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`
-      : ``) +
-    (env
-      ? `import __SNOWPACK_ENV__ from '${getMetaUrlPath(
-          'env.js',
-          config,
-        )}';\nimport.meta.env = __SNOWPACK_ENV__;\n`
-      : ``) +
-    '\n' +
-    code
-  );
+  let hmrSnippet = ``;
+  if (hmr) {
+    hmrSnippet = `import * as  __SNOWPACK_HMR__ from '${getMetaUrlPath(
+      'hmr-client.js',
+      config,
+    )}';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`;
+  }
+  let envSnippet = ``;
+  if (env) {
+    envSnippet = `import * as __SNOWPACK_ENV__ from '${getMetaUrlPath('env.js', config)}';\n`;
+    // Optimize any direct references `import.meta.env` by inlining the ref
+    code = code.replace(importMetaEnvRegex, '__SNOWPACK_ENV__');
+    // If we still detect references to `import.meta`, assign `import.meta.env` to be safe
+    if (importMetaRegex.test(code)) {
+      envSnippet += `import.meta.env = __SNOWPACK_ENV__;\n`;
+    }
+  }
+  return hmrSnippet + envSnippet + '\n' + code;
 }
 
 export function wrapHtmlResponse({
@@ -172,8 +182,8 @@ async function generateCssModuleImportProxy({
   hmr: boolean;
   config: SnowpackConfig;
 }) {
-  _postCss = _postCss || require('postcss');
-  _postCssModules = _postCssModules || require('postcss-modules');
+  _postCssModules = _postCssModules || NATIVE_REQUIRE('postcss-modules');
+  _postCss = _postCss || NATIVE_REQUIRE('postcss');
   let moduleJson: string | undefined;
   const processor = _postCss([
     _postCssModules({
@@ -263,7 +273,11 @@ export function generateEnvModule({
   envObject.MODE = mode;
   envObject.NODE_ENV = mode;
   envObject.SSR = isSSR;
-  return `export default ${JSON.stringify(envObject)};`;
+  return Object.entries(envObject)
+    .map(([key, val]) => {
+      return `export const ${key} = ${JSON.stringify(val)};`;
+    })
+    .join('\n');
 }
 
 const PUBLIC_ENV_REGEX = /^SNOWPACK_PUBLIC_.+/;

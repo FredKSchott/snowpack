@@ -1,6 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`create-snowpack-app app-template-11ty > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-11ty > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-11ty > build: about/index.html 1`] = `
 "<!DOCTYPE html>
@@ -618,7 +622,11 @@ exports[`create-snowpack-app app-template-11ty > build: web_modules/import-map.j
 }"
 `;
 
-exports[`create-snowpack-app app-template-blank > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-blank > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-blank > build: allFiles 1`] = `
 Array [
@@ -1191,7 +1199,11 @@ exports[`create-snowpack-app app-template-blank > build: web_modules/import-map.
 }"
 `;
 
-exports[`create-snowpack-app app-template-blank-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-blank-typescript > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-blank-typescript > build: allFiles 1`] = `
 Array [
@@ -1760,7 +1772,11 @@ exports[`create-snowpack-app app-template-blank-typescript > build: web_modules/
 }"
 `;
 
-exports[`create-snowpack-app app-template-lit-element > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-lit-element > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-lit-element > build: allFiles 1`] = `
 Array [
@@ -4538,7 +4554,11 @@ LitElement.render = render$1;
 export { LitElement, css, customElement, html, property };"
 `;
 
-exports[`create-snowpack-app app-template-lit-element-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-lit-element-typescript > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-lit-element-typescript > build: allFiles 1`] = `
 Array [
@@ -7316,7 +7336,11 @@ LitElement.render = render$1;
 export { LitElement, css, customElement, html, property };"
 `;
 
-exports[`create-snowpack-app app-template-minimal > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-minimal > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-minimal > build: allFiles 1`] = `
 Array [
@@ -7406,7 +7430,11 @@ module.exports = {
 };"
 `;
 
-exports[`create-snowpack-app app-template-preact > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-preact > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-preact > build: allFiles 1`] = `
 Array [
@@ -7597,7 +7625,11 @@ var t,u,r,o=0,i=[],c=n.__b,f=n.__r,e=n.diffed,a=n.__c,v=n.unmount;function m(t,r
 export { y as useEffect, l as useState };"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-preact-typescript > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-preact-typescript > build: allFiles 1`] = `
 Array [
@@ -7791,7 +7823,11 @@ var t,u,r,o=0,i=[],c=n.__b,f=n.__r,e=n.diffed,a=n.__c,v=n.unmount;function m(t,r
 export { y as useEffect, l as useState };"
 `;
 
-exports[`create-snowpack-app app-template-react > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-react > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-react > build: allFiles 1`] = `
 Array [
@@ -7925,15 +7961,15 @@ if (typeof document !== 'undefined') {
 `;
 
 exports[`create-snowpack-app app-template-react > build: dist/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+"import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import React from \\"../web_modules/react.js\\";
 import ReactDOM from \\"../web_modules/react-dom.js\\";
 import App2 from \\"./App.js\\";
 import \\"./index.css.proxy.js\\";
 ReactDOM.render(/* @__PURE__ */ React.createElement(React.StrictMode, null, /* @__PURE__ */ React.createElement(App2, null)), document.getElementById(\\"root\\"));
-if (import.meta.hot) {
-  import.meta.hot.accept();
+if (undefined /* [snowpack] import.meta.hot */ ) {
+  undefined /* [snowpack] import.meta.hot */ .accept();
 }"
 `;
 
@@ -8329,7 +8365,11 @@ function checkDCE() {
 export default reactDom;"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-react-typescript > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-react-typescript > build: allFiles 1`] = `
 Array [
@@ -8463,15 +8503,15 @@ if (typeof document !== 'undefined') {
 `;
 
 exports[`create-snowpack-app app-template-react-typescript > build: dist/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+"import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import React from \\"../web_modules/react.js\\";
 import ReactDOM from \\"../web_modules/react-dom.js\\";
 import App2 from \\"./App.js\\";
 import \\"./index.css.proxy.js\\";
 ReactDOM.render(/* @__PURE__ */ React.createElement(React.StrictMode, null, /* @__PURE__ */ React.createElement(App2, null)), document.getElementById(\\"root\\"));
-if (import.meta.hot) {
-  import.meta.hot.accept();
+if (undefined /* [snowpack] import.meta.hot */ ) {
+  undefined /* [snowpack] import.meta.hot */ .accept();
 }"
 `;
 
@@ -8867,7 +8907,11 @@ function checkDCE() {
 export default reactDom;"
 `;
 
-exports[`create-snowpack-app app-template-svelte > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-svelte > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-svelte > build: allFiles 1`] = `
 Array [
@@ -9004,7 +9048,7 @@ export default App;"
 `;
 
 exports[`create-snowpack-app app-template-svelte > build: dist/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+"import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import App from \\"./App.js\\";
 let app = new App({
@@ -9013,9 +9057,9 @@ let app = new App({
 export default app;
 // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
 // Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
-if (import.meta.hot) {
-  import.meta.hot.accept();
-  import.meta.hot.dispose(() => {
+if (undefined /* [snowpack] import.meta.hot */ ) {
+  undefined /* [snowpack] import.meta.hot */ .accept();
+  undefined /* [snowpack] import.meta.hot */ .dispose(() => {
     app.$destroy();
   });
 }"
@@ -9059,7 +9103,11 @@ exports[`create-snowpack-app app-template-svelte > build: web_modules/svelte.js 
 
 exports[`create-snowpack-app app-template-svelte > build: web_modules/svelte/internal.js 1`] = `"export { S as SvelteComponent, a as append, b as attr, d as detach, e as element, i as init, c as insert, n as noop, s as safe_not_equal, f as set_data, g as space, t as text } from '../common/index-XXXXXXXX.js';"`;
 
-exports[`create-snowpack-app app-template-svelte-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-svelte-typescript > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-svelte-typescript > build: allFiles 1`] = `
 Array [
@@ -9196,16 +9244,16 @@ export default App;"
 `;
 
 exports[`create-snowpack-app app-template-svelte-typescript > build: dist/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+"import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import App2 from \\"./App.js\\";
 var app = new App2({
   target: document.body
 });
 export default app;
-if (import.meta.hot) {
-  import.meta.hot.accept();
-  import.meta.hot.dispose(() => {
+if (undefined /* [snowpack] import.meta.hot */ ) {
+  undefined /* [snowpack] import.meta.hot */ .accept();
+  undefined /* [snowpack] import.meta.hot */ .dispose(() => {
     app.$destroy();
   });
 }"
@@ -9249,7 +9297,11 @@ exports[`create-snowpack-app app-template-svelte-typescript > build: web_modules
 
 exports[`create-snowpack-app app-template-svelte-typescript > build: web_modules/svelte/internal.js 1`] = `"export { S as SvelteComponent, a as append, b as attr, d as detach, e as element, i as init, c as insert, n as noop, s as safe_not_equal, f as set_data, g as space, t as text } from '../common/index-XXXXXXXX.js';"`;
 
-exports[`create-snowpack-app app-template-vue > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-vue > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-vue > build: allFiles 1`] = `
 Array [
@@ -9356,7 +9408,7 @@ export default defaultExport"
 `;
 
 exports[`create-snowpack-app app-template-vue > build: dist/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+"import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import { createApp } from \\"../web_modules/vue.js\\";
 import App from \\"./App.js\\";
@@ -9364,9 +9416,9 @@ const app = createApp(App);
 app.mount(\\"#app\\");
 // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
 // Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
-if (import.meta.hot) {
-  import.meta.hot.accept();
-  import.meta.hot.dispose(() => {
+if (undefined /* [snowpack] import.meta.hot */ ) {
+  undefined /* [snowpack] import.meta.hot */ .accept();
+  undefined /* [snowpack] import.meta.hot */ .dispose(() => {
     app.unmount();
   });
 }"
@@ -14416,7 +14468,11 @@ function normalizeContainer(container) {
 export { createApp, createBlock, createTextVNode, createVNode, openBlock, toDisplayString };"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-vue-typescript > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-vue-typescript > build: allFiles 1`] = `
 Array [
@@ -14747,7 +14803,7 @@ export default defineComponent({
 `;
 
 exports[`create-snowpack-app app-template-vue-typescript > build: dist/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+"import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import { createApp } from \\"../web_modules/vue.js\\";
 import App from \\"./App.js\\";
@@ -14755,9 +14811,9 @@ const app = createApp(App);
 app.mount(\\"#app\\");
 // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
 // Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
-if (import.meta.hot) {
-  import.meta.hot.accept();
-  import.meta.hot.dispose(() => {
+if (undefined /* [snowpack] import.meta.hot */ ) {
+  undefined /* [snowpack] import.meta.hot */ .accept();
+  undefined /* [snowpack] import.meta.hot */ .dispose(() => {
     app.unmount();
   });
 }"

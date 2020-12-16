@@ -8,7 +8,7 @@
     "build:docs": "cd www && yarn build",
     "lint": "lerna run lint --parallel --scope=esinstall --scope=snowpack --scope=skypack",
     "publish": "npm run build && lerna publish --no-private",
-    "format": "prettier --write '{snowpack,esinstall}/src/**/*.{ts,js}' '{test,plugins}/**/*.{ts,js}' '*.{js,json,md}' '**/*.{json,md}' '.github/**/*.{md,yml}' '!**/{dist,build,packages,pkg,TEST_BUILD_OUT,web_modules}/**' !test/create-snowpack-app/test-install",
+    "format": "prettier --write '{snowpack,esinstall}/src/**/*.{ts,js}' '{test,plugins}/**/*.{ts,js}' '*.{js,json,md}' '**/*.{json,md}' '.github/**/*.{md,yml}' '!**/{vendor,dist,build,packages,pkg,TEST_BUILD_OUT,web_modules}/**' !test/create-snowpack-app/test-install",
     "test": "jest --testPathIgnorePatterns=/test-dev/ --test-timeout=30000",
     "test:dev": "jest /test-dev/ --test-timeout=30000",
     "test:docs": "cd www && yarn && yarn test --passWithNoTests"

@@ -54,3 +54,12 @@ export interface LoggerOptions {
   /** (optional) change name at beginning of line */
   name?: string;
 }
+
+export type ExportMapEntry =
+  | string
+  | {
+      browser?: ExportMapEntry;
+      import?: ExportMapEntry;
+      default?: ExportMapEntry;
+      require?: ExportMapEntry;
+    };
