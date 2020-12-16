@@ -18,6 +18,8 @@ We aim to follow the [Divio documentation system](https://documentation.divio.co
 - Capitalize after colons
 - Avoid using vague terms for link text like "here"
 
+### Vale
+[Vale](https://github.com/errata-ai/vale) is a text linter. A selection of rules based on our style guide are available in the Vale directory. Right now Vale usage in this repository is experimental but once we have some experience with using these we plan on integrating them as tests.
 ### Reference documentation formatting
 
 For reference documentation (APIs, configuration, etc.), use the following format:
