@@ -32,25 +32,35 @@ export function wrapImportMeta({
   env: boolean;
   config: SnowpackConfig;
 }) {
+  // Create Regex expressions here, since global regex has per-string state
+  const importMetaHotRegex = /import\s*\.\s*meta\s*\.\s*hot/g;
+  const importMetaEnvRegex = /import\s*\.\s*meta\s*\.\s*env/g;
+  // Optimize: replace direct references to `import.meta.hot` by inlining undefined.
+  // Do this first so that we can bail out in the next `import.meta` test.
+  if (!hmr) {
+    code = code.replace(importMetaHotRegex, 'undefined /* [snowpack] import.meta.hot */ ');
+  }
   if (!importMetaRegex.test(code)) {
     return code;
   }
-  return (
-    (hmr
-      ? `import * as  __SNOWPACK_HMR__ from '${getMetaUrlPath(
-          'hmr-client.js',
-          config,
-        )}';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`
-      : ``) +
-    (env
-      ? `import __SNOWPACK_ENV__ from '${getMetaUrlPath(
-          'env.js',
-          config,
-        )}';\nimport.meta.env = __SNOWPACK_ENV__;\n`
-      : ``) +
-    '\n' +
-    code
-  );
+  let hmrSnippet = ``;
+  if (hmr) {
+    hmrSnippet = `import * as  __SNOWPACK_HMR__ from '${getMetaUrlPath(
+      'hmr-client.js',
+      config,
+    )}';\nimport.meta.hot = __SNOWPACK_HMR__.createHotContext(import.meta.url);\n`;
+  }
+  let envSnippet = ``;
+  if (env) {
+    envSnippet = `import * as __SNOWPACK_ENV__ from '${getMetaUrlPath('env.js', config)}';\n`;
+    // Optimize any direct references `import.meta.env` by inlining the ref
+    code = code.replace(importMetaEnvRegex, '__SNOWPACK_ENV__');
+    // If we still detect references to `import.meta`, assign `import.meta.env` to be safe
+    if (importMetaRegex.test(code)) {
+      envSnippet += `import.meta.env = __SNOWPACK_ENV__;\n`;
+    }
+  }
+  return hmrSnippet + envSnippet + '\n' + code;
 }
 
 export function wrapHtmlResponse({
@@ -263,7 +273,11 @@ export function generateEnvModule({
   envObject.MODE = mode;
   envObject.NODE_ENV = mode;
   envObject.SSR = isSSR;
-  return `export default ${JSON.stringify(envObject)};`;
+  return Object.entries(envObject)
+    .map(([key, val]) => {
+      return `export const ${key} = ${JSON.stringify(val)};`;
+    })
+    .join('\n');
 }
 
 const PUBLIC_ENV_REGEX = /^SNOWPACK_PUBLIC_.+/;
