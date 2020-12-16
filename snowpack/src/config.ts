@@ -898,7 +898,7 @@ export function createConfiguration(
     return [validationErrors, undefined];
   }
   const mergedConfig = merge<SnowpackUserConfig>([DEFAULT_CONFIG, config], {
-    isMergeableObject: isPlainObject,
+    isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
   });
   return [null, normalizeConfig(mergedConfig)];
 }
@@ -1006,7 +1006,7 @@ export function loadConfigurationForCLI(flags: CLIFlags, pkgManifest: any): Snow
       cliConfig as any,
     ],
     {
-      isMergeableObject: isPlainObject,
+    isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
     },
   );
 
