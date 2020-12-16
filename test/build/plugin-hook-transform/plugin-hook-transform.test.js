@@ -11,6 +11,7 @@ describe('plugin API: transform()', () => {
     setupBuildTest(__dirname);
 
     files = readFiles(cwd);
+    console.log(files);
   });
 
   it('transforms JS', () => {

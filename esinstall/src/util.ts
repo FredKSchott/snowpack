@@ -51,7 +51,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
     const depManifest = fs.realpathSync.native(
       require.resolve(`${dep}/package.json`, {paths: [cwd]}),
     );
-    return [depManifest, require(depManifest)];
+    return [depManifest, NATIVE_REQUIRE(depManifest)];
   } catch (err) {
     // if its an export map issue, move on to our manual resolver.
     if (err.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
