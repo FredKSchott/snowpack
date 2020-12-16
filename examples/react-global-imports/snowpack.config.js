@@ -2,7 +2,7 @@
 module.exports = {
   mount: {
     public: '/',
-    src: '/_dist_',
+    src: '/dist',
   },
   plugins: ['@snowpack/plugin-babel', '@snowpack/plugin-react-refresh', '@snowpack/plugin-dotenv'],
   install: ['react', 'react-dom'],

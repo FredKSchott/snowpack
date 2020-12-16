@@ -2,7 +2,7 @@ const plugin = require('../plugin.js');
 const path = require('path');
 
 const pathToSassApp = path.join(__dirname, 'fixtures/sass/App.sass');
-const pathToSassBase = path.join(__dirname, 'fixtures/sass/base.sass');
+const pathToSassBase = path.join(__dirname, 'fixtures/sass/_base.sass');
 const pathToScssApp = path.join(__dirname, 'fixtures/scss/App.scss');
 const pathToBadCode = path.join(__dirname, 'fixtures/bad/bad.scss');
 
@@ -13,6 +13,14 @@ describe('plugin-sass', () => {
     expect(sassResult).toMatchSnapshot('App.sass');
     const scssResult = await p.load({filePath: pathToScssApp, isDev: true});
     expect(scssResult).toMatchSnapshot('App.scss');
+  });
+
+  test('returns undefined when a sass partial is loaded directly', async () => {
+    const p = plugin(null, {});
+    const devResult = await p.load({filePath: pathToSassBase, isDev: false});
+    expect(devResult).toEqual(undefined);
+    const prodResult = await p.load({filePath: pathToSassBase, isDev: true});
+    expect(prodResult).toEqual(undefined);
   });
 
   test('throws an error when stderr output is returned', async () => {

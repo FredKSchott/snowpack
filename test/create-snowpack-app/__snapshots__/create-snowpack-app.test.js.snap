@@ -1,17 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`create-snowpack-app app-template-11ty > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
-
-exports[`create-snowpack-app app-template-11ty > build: _dist_/index.js 1`] = `
-"/**
- * This file is just a silly example to show everything working in the browser.
- * When you're ready to start on your site, clear the file. Happy hacking!
- **/
-import confetti from '../web_modules/canvas-XXXXXXXX.js';
-confetti.create(document.getElementById('canvas'), {
-  resize: true,
-  useWorker: true,
-})({ particleCount: 200, spread: 200 });"
+exports[`create-snowpack-app app-template-11ty > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
 `;
 
 exports[`create-snowpack-app app-template-11ty > build: about/index.html 1`] = `
@@ -48,8 +40,8 @@ exports[`create-snowpack-app app-template-11ty > build: about/index.html 1`] = `
 exports[`create-snowpack-app app-template-11ty > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
-  "_dist_/index.js",
   "about/index.html",
+  "dist/index.js",
   "index.html",
   "static/favicon.png",
   "static/index.css",
@@ -57,6 +49,18 @@ Array [
   "web_modules/canvas-confetti.js",
   "web_modules/import-map.json",
 ]
+`;
+
+exports[`create-snowpack-app app-template-11ty > build: dist/index.js 1`] = `
+"/**
+ * This file is just a silly example to show everything working in the browser.
+ * When you're ready to start on your site, clear the file. Happy hacking!
+ **/
+import confetti from '../web_modules/canvas-XXXXXXXX.js';
+confetti.create(document.getElementById('canvas'), {
+  resize: true,
+  useWorker: true,
+})({ particleCount: 200, spread: 200 });"
 `;
 
 exports[`create-snowpack-app app-template-11ty > build: index.html 1`] = `
@@ -83,7 +87,7 @@ exports[`create-snowpack-app app-template-11ty > build: index.html 1`] = `
       </svg>
     </div>
 <canvas id=\\"canvas\\"></canvas>
-<script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+<script type=\\"module\\" src=\\"/dist/index.js\\"></script>
 <a href=\\"/about\\">About Page</a>
   </body>
 </html>"
@@ -618,9 +622,27 @@ exports[`create-snowpack-app app-template-11ty > build: web_modules/import-map.j
 }"
 `;
 
-exports[`create-snowpack-app app-template-blank > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-blank > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
-exports[`create-snowpack-app app-template-blank > build: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-blank > build: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "dist/index.js",
+  "favicon.ico",
+  "index.css",
+  "index.html",
+  "logo.svg",
+  "robots.txt",
+  "web_modules/canvas-confetti.js",
+  "web_modules/import-map.json",
+]
+`;
+
+exports[`create-snowpack-app app-template-blank > build: dist/index.js 1`] = `
 "/**
  * This file is just a silly example to show everything working in the browser.
  * When you're ready to start on your site, clear the file. Happy hacking!
@@ -630,20 +652,6 @@ confetti.create(document.getElementById('canvas'), {
   resize: true,
   useWorker: true,
 })({ particleCount: 200, spread: 200 });"
-`;
-
-exports[`create-snowpack-app app-template-blank > build: allFiles 1`] = `
-Array [
-  "__snowpack__/env.js",
-  "_dist_/index.js",
-  "favicon.ico",
-  "index.css",
-  "index.html",
-  "logo.svg",
-  "robots.txt",
-  "web_modules/canvas-confetti.js",
-  "web_modules/import-map.json",
-]
 `;
 
 exports[`create-snowpack-app app-template-blank > build: index.css 1`] = `
@@ -677,7 +685,7 @@ exports[`create-snowpack-app app-template-blank > build: index.html 1`] = `
     <img id=\\"img\\" src=\\"/logo.svg\\" />
     <canvas id=\\"canvas\\"></canvas>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -1191,20 +1199,16 @@ exports[`create-snowpack-app app-template-blank > build: web_modules/import-map.
 }"
 `;
 
-exports[`create-snowpack-app app-template-blank-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
-
-exports[`create-snowpack-app app-template-blank-typescript > build: _dist_/index.js 1`] = `
-"import confetti from \\"../web_modules/canvas-XXXXXXXX.js\\";
-confetti.create(document.getElementById(\\"canvas\\"), {
-  resize: true,
-  useWorker: true
-})({particleCount: 200, spread: 200});"
+exports[`create-snowpack-app app-template-blank-typescript > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
 `;
 
 exports[`create-snowpack-app app-template-blank-typescript > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
-  "_dist_/index.js",
+  "dist/index.js",
   "favicon.ico",
   "index.css",
   "index.html",
@@ -1213,6 +1217,14 @@ Array [
   "web_modules/canvas-confetti.js",
   "web_modules/import-map.json",
 ]
+`;
+
+exports[`create-snowpack-app app-template-blank-typescript > build: dist/index.js 1`] = `
+"import confetti from \\"../web_modules/canvas-XXXXXXXX.js\\";
+confetti.create(document.getElementById(\\"canvas\\"), {
+  resize: true,
+  useWorker: true
+})({particleCount: 200, spread: 200});"
 `;
 
 exports[`create-snowpack-app app-template-blank-typescript > build: index.css 1`] = `
@@ -1246,7 +1258,7 @@ exports[`create-snowpack-app app-template-blank-typescript > build: index.html 1
     <img id=\\"img\\" src=\\"/logo.svg\\" />
     <canvas id=\\"canvas\\"></canvas>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -1760,9 +1772,27 @@ exports[`create-snowpack-app app-template-blank-typescript > build: web_modules/
 }"
 `;
 
-exports[`create-snowpack-app app-template-lit-element > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-lit-element > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
-exports[`create-snowpack-app app-template-lit-element > build: _dist_/app-root.js 1`] = `
+exports[`create-snowpack-app app-template-lit-element > build: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "dist/app-root.js",
+  "dist/index.js",
+  "favicon.ico",
+  "index.css",
+  "index.html",
+  "robots.txt",
+  "web_modules/import-map.json",
+  "web_modules/lit-element.js",
+]
+`;
+
+exports[`create-snowpack-app app-template-lit-element > build: dist/app-root.js 1`] = `
 "function _decorate(decorators, factory, superClass, mixins) { var api = _getDecoratorsApi(); if (mixins) { for (var i = 0; i < mixins.length; i++) { api = mixins[i](api); } } var r = factory(function initialize(O) { api.initializeInstanceElements(O, decorated.elements); }, superClass); var decorated = api.decorateClass(_coalesceClassElements(r.d.map(_createElementDescriptor)), decorators); api.initializeClassElements(r.F, decorated.elements); return api.runClassFinishers(r.F, decorated.finishers); }
 function _getDecoratorsApi() { _getDecoratorsApi = function () { return api; }; var api = { elementsDefinitionOrder: [[\\"method\\"], [\\"field\\"]], initializeInstanceElements: function (O, elements) { [\\"method\\", \\"field\\"].forEach(function (kind) { elements.forEach(function (element) { if (element.kind === kind && element.placement === \\"own\\") { this.defineClassElement(O, element); } }, this); }, this); }, initializeClassElements: function (F, elements) { var proto = F.prototype; [\\"method\\", \\"field\\"].forEach(function (kind) { elements.forEach(function (element) { var placement = element.placement; if (element.kind === kind && (placement === \\"static\\" || placement === \\"prototype\\")) { var receiver = placement === \\"static\\" ? F : proto; this.defineClassElement(receiver, element); } }, this); }, this); }, defineClassElement: function (receiver, element) { var descriptor = element.descriptor; if (element.kind === \\"field\\") { var initializer = element.initializer; descriptor = { enumerable: descriptor.enumerable, writable: descriptor.writable, configurable: descriptor.configurable, value: initializer === void 0 ? void 0 : initializer.call(receiver) }; } Object.defineProperty(receiver, element.key, descriptor); }, decorateClass: function (elements, decorators) { var newElements = []; var finishers = []; var placements = { static: [], prototype: [], own: [] }; elements.forEach(function (element) { this.addElementPlacement(element, placements); }, this); elements.forEach(function (element) { if (!_hasDecorators(element)) return newElements.push(element); var elementFinishersExtras = this.decorateElement(element, placements); newElements.push(elementFinishersExtras.element); newElements.push.apply(newElements, elementFinishersExtras.extras); finishers.push.apply(finishers, elementFinishersExtras.finishers); }, this); if (!decorators) { return { elements: newElements, finishers: finishers }; } var result = this.decorateConstructor(newElements, decorators); finishers.push.apply(finishers, result.finishers); result.finishers = finishers; return result; }, addElementPlacement: function (element, placements, silent) { var keys = placements[element.placement]; if (!silent && keys.indexOf(element.key) !== -1) { throw new TypeError(\\"Duplicated element (\\" + element.key + \\")\\"); } keys.push(element.key); }, decorateElement: function (element, placements) { var extras = []; var finishers = []; for (var decorators = element.decorators, i = decorators.length - 1; i >= 0; i--) { var keys = placements[element.placement]; keys.splice(keys.indexOf(element.key), 1); var elementObject = this.fromElementDescriptor(element); var elementFinisherExtras = this.toElementFinisherExtras((0, decorators[i])(elementObject) || elementObject); element = elementFinisherExtras.element; this.addElementPlacement(element, placements); if (elementFinisherExtras.finisher) { finishers.push(elementFinisherExtras.finisher); } var newExtras = elementFinisherExtras.extras; if (newExtras) { for (var j = 0; j < newExtras.length; j++) { this.addElementPlacement(newExtras[j], placements); } extras.push.apply(extras, newExtras); } } return { element: element, finishers: finishers, extras: extras }; }, decorateConstructor: function (elements, decorators) { var finishers = []; for (var i = decorators.length - 1; i >= 0; i--) { var obj = this.fromClassDescriptor(elements); var elementsAndFinisher = this.toClassDescriptor((0, decorators[i])(obj) || obj); if (elementsAndFinisher.finisher !== undefined) { finishers.push(elementsAndFinisher.finisher); } if (elementsAndFinisher.elements !== undefined) { elements = elementsAndFinisher.elements; for (var j = 0; j < elements.length - 1; j++) { for (var k = j + 1; k < elements.length; k++) { if (elements[j].key === elements[k].key && elements[j].placement === elements[k].placement) { throw new TypeError(\\"Duplicated element (\\" + elements[j].key + \\")\\"); } } } } } return { elements: elements, finishers: finishers }; }, fromElementDescriptor: function (element) { var obj = { kind: element.kind, key: element.key, placement: element.placement, descriptor: element.descriptor }; var desc = { value: \\"Descriptor\\", configurable: true }; Object.defineProperty(obj, Symbol.toStringTag, desc); if (element.kind === \\"field\\") obj.initializer = element.initializer; return obj; }, toElementDescriptors: function (elementObjects) { if (elementObjects === undefined) return; return _toArray(elementObjects).map(function (elementObject) { var element = this.toElementDescriptor(elementObject); this.disallowProperty(elementObject, \\"finisher\\", \\"An element descriptor\\"); this.disallowProperty(elementObject, \\"extras\\", \\"An element descriptor\\"); return element; }, this); }, toElementDescriptor: function (elementObject) { var kind = String(elementObject.kind); if (kind !== \\"method\\" && kind !== \\"field\\") { throw new TypeError('An element descriptor\\\\'s .kind property must be either \\"method\\" or' + ' \\"field\\", but a decorator created an element descriptor with' + ' .kind \\"' + kind + '\\"'); } var key = _toPropertyKey(elementObject.key); var placement = String(elementObject.placement); if (placement !== \\"static\\" && placement !== \\"prototype\\" && placement !== \\"own\\") { throw new TypeError('An element descriptor\\\\'s .placement property must be one of \\"static\\",' + ' \\"prototype\\" or \\"own\\", but a decorator created an element descriptor' + ' with .placement \\"' + placement + '\\"'); } var descriptor = elementObject.descriptor; this.disallowProperty(elementObject, \\"elements\\", \\"An element descriptor\\"); var element = { kind: kind, key: key, placement: placement, descriptor: Object.assign({}, descriptor) }; if (kind !== \\"field\\") { this.disallowProperty(elementObject, \\"initializer\\", \\"A method descriptor\\"); } else { this.disallowProperty(descriptor, \\"get\\", \\"The property descriptor of a field descriptor\\"); this.disallowProperty(descriptor, \\"set\\", \\"The property descriptor of a field descriptor\\"); this.disallowProperty(descriptor, \\"value\\", \\"The property descriptor of a field descriptor\\"); element.initializer = elementObject.initializer; } return element; }, toElementFinisherExtras: function (elementObject) { var element = this.toElementDescriptor(elementObject); var finisher = _optionalCallableProperty(elementObject, \\"finisher\\"); var extras = this.toElementDescriptors(elementObject.extras); return { element: element, finisher: finisher, extras: extras }; }, fromClassDescriptor: function (elements) { var obj = { kind: \\"class\\", elements: elements.map(this.fromElementDescriptor, this) }; var desc = { value: \\"Descriptor\\", configurable: true }; Object.defineProperty(obj, Symbol.toStringTag, desc); return obj; }, toClassDescriptor: function (obj) { var kind = String(obj.kind); if (kind !== \\"class\\") { throw new TypeError('A class descriptor\\\\'s .kind property must be \\"class\\", but a decorator' + ' created a class descriptor with .kind \\"' + kind + '\\"'); } this.disallowProperty(obj, \\"key\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"placement\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"descriptor\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"initializer\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"extras\\", \\"A class descriptor\\"); var finisher = _optionalCallableProperty(obj, \\"finisher\\"); var elements = this.toElementDescriptors(obj.elements); return { elements: elements, finisher: finisher }; }, runClassFinishers: function (constructor, finishers) { for (var i = 0; i < finishers.length; i++) { var newConstructor = (0, finishers[i])(constructor); if (newConstructor !== undefined) { if (typeof newConstructor !== \\"function\\") { throw new TypeError(\\"Finishers must return a constructor.\\"); } constructor = newConstructor; } } return constructor; }, disallowProperty: function (obj, name, objectType) { if (obj[name] !== undefined) { throw new TypeError(objectType + \\" can't have a .\\" + name + \\" property.\\"); } } }; return api; }
 function _createElementDescriptor(def) { var key = _toPropertyKey(def.key); var descriptor; if (def.kind === \\"method\\") { descriptor = { value: def.value, writable: true, configurable: true, enumerable: false }; } else if (def.kind === \\"get\\") { descriptor = { get: def.value, configurable: true, enumerable: false }; } else if (def.kind === \\"set\\") { descriptor = { set: def.value, configurable: true, enumerable: false }; } else if (def.kind === \\"field\\") { descriptor = { configurable: true, writable: true, enumerable: true }; } var element = { kind: def.kind === \\"field\\" ? \\"field\\" : \\"method\\", key: key, placement: def.static ? \\"static\\" : def.kind === \\"field\\" ? \\"own\\" : \\"prototype\\", descriptor: descriptor }; if (def.decorators) element.decorators = def.decorators; if (def.kind === \\"field\\") element.initializer = def.value; return element; }
@@ -1844,21 +1874,7 @@ export let AppRoot = _decorate([customElement('app-root')], function (_initializ
 }, LitElement);"
 `;
 
-exports[`create-snowpack-app app-template-lit-element > build: _dist_/index.js 1`] = `"import './app-root.js';"`;
-
-exports[`create-snowpack-app app-template-lit-element > build: allFiles 1`] = `
-Array [
-  "__snowpack__/env.js",
-  "_dist_/app-root.js",
-  "_dist_/index.js",
-  "favicon.ico",
-  "index.css",
-  "index.html",
-  "robots.txt",
-  "web_modules/import-map.json",
-  "web_modules/lit-element.js",
-]
-`;
+exports[`create-snowpack-app app-template-lit-element > build: dist/index.js 1`] = `"import './app-root.js';"`;
 
 exports[`create-snowpack-app app-template-lit-element > build: index.css 1`] = `
 "body {
@@ -1883,7 +1899,7 @@ exports[`create-snowpack-app app-template-lit-element > build: index.html 1`] = 
   <body>
     <app-root></app-root>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -4538,9 +4554,27 @@ LitElement.render = render$1;
 export { LitElement, css, customElement, html, property };"
 `;
 
-exports[`create-snowpack-app app-template-lit-element-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-lit-element-typescript > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
-exports[`create-snowpack-app app-template-lit-element-typescript > build: _dist_/app-root.js 1`] = `
+exports[`create-snowpack-app app-template-lit-element-typescript > build: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "dist/app-root.js",
+  "dist/index.js",
+  "favicon.ico",
+  "index.css",
+  "index.html",
+  "robots.txt",
+  "web_modules/import-map.json",
+  "web_modules/lit-element.js",
+]
+`;
+
+exports[`create-snowpack-app app-template-lit-element-typescript > build: dist/app-root.js 1`] = `
 "function _decorate(decorators, factory, superClass, mixins) { var api = _getDecoratorsApi(); if (mixins) { for (var i = 0; i < mixins.length; i++) { api = mixins[i](api); } } var r = factory(function initialize(O) { api.initializeInstanceElements(O, decorated.elements); }, superClass); var decorated = api.decorateClass(_coalesceClassElements(r.d.map(_createElementDescriptor)), decorators); api.initializeClassElements(r.F, decorated.elements); return api.runClassFinishers(r.F, decorated.finishers); }
 function _getDecoratorsApi() { _getDecoratorsApi = function () { return api; }; var api = { elementsDefinitionOrder: [[\\"method\\"], [\\"field\\"]], initializeInstanceElements: function (O, elements) { [\\"method\\", \\"field\\"].forEach(function (kind) { elements.forEach(function (element) { if (element.kind === kind && element.placement === \\"own\\") { this.defineClassElement(O, element); } }, this); }, this); }, initializeClassElements: function (F, elements) { var proto = F.prototype; [\\"method\\", \\"field\\"].forEach(function (kind) { elements.forEach(function (element) { var placement = element.placement; if (element.kind === kind && (placement === \\"static\\" || placement === \\"prototype\\")) { var receiver = placement === \\"static\\" ? F : proto; this.defineClassElement(receiver, element); } }, this); }, this); }, defineClassElement: function (receiver, element) { var descriptor = element.descriptor; if (element.kind === \\"field\\") { var initializer = element.initializer; descriptor = { enumerable: descriptor.enumerable, writable: descriptor.writable, configurable: descriptor.configurable, value: initializer === void 0 ? void 0 : initializer.call(receiver) }; } Object.defineProperty(receiver, element.key, descriptor); }, decorateClass: function (elements, decorators) { var newElements = []; var finishers = []; var placements = { static: [], prototype: [], own: [] }; elements.forEach(function (element) { this.addElementPlacement(element, placements); }, this); elements.forEach(function (element) { if (!_hasDecorators(element)) return newElements.push(element); var elementFinishersExtras = this.decorateElement(element, placements); newElements.push(elementFinishersExtras.element); newElements.push.apply(newElements, elementFinishersExtras.extras); finishers.push.apply(finishers, elementFinishersExtras.finishers); }, this); if (!decorators) { return { elements: newElements, finishers: finishers }; } var result = this.decorateConstructor(newElements, decorators); finishers.push.apply(finishers, result.finishers); result.finishers = finishers; return result; }, addElementPlacement: function (element, placements, silent) { var keys = placements[element.placement]; if (!silent && keys.indexOf(element.key) !== -1) { throw new TypeError(\\"Duplicated element (\\" + element.key + \\")\\"); } keys.push(element.key); }, decorateElement: function (element, placements) { var extras = []; var finishers = []; for (var decorators = element.decorators, i = decorators.length - 1; i >= 0; i--) { var keys = placements[element.placement]; keys.splice(keys.indexOf(element.key), 1); var elementObject = this.fromElementDescriptor(element); var elementFinisherExtras = this.toElementFinisherExtras((0, decorators[i])(elementObject) || elementObject); element = elementFinisherExtras.element; this.addElementPlacement(element, placements); if (elementFinisherExtras.finisher) { finishers.push(elementFinisherExtras.finisher); } var newExtras = elementFinisherExtras.extras; if (newExtras) { for (var j = 0; j < newExtras.length; j++) { this.addElementPlacement(newExtras[j], placements); } extras.push.apply(extras, newExtras); } } return { element: element, finishers: finishers, extras: extras }; }, decorateConstructor: function (elements, decorators) { var finishers = []; for (var i = decorators.length - 1; i >= 0; i--) { var obj = this.fromClassDescriptor(elements); var elementsAndFinisher = this.toClassDescriptor((0, decorators[i])(obj) || obj); if (elementsAndFinisher.finisher !== undefined) { finishers.push(elementsAndFinisher.finisher); } if (elementsAndFinisher.elements !== undefined) { elements = elementsAndFinisher.elements; for (var j = 0; j < elements.length - 1; j++) { for (var k = j + 1; k < elements.length; k++) { if (elements[j].key === elements[k].key && elements[j].placement === elements[k].placement) { throw new TypeError(\\"Duplicated element (\\" + elements[j].key + \\")\\"); } } } } } return { elements: elements, finishers: finishers }; }, fromElementDescriptor: function (element) { var obj = { kind: element.kind, key: element.key, placement: element.placement, descriptor: element.descriptor }; var desc = { value: \\"Descriptor\\", configurable: true }; Object.defineProperty(obj, Symbol.toStringTag, desc); if (element.kind === \\"field\\") obj.initializer = element.initializer; return obj; }, toElementDescriptors: function (elementObjects) { if (elementObjects === undefined) return; return _toArray(elementObjects).map(function (elementObject) { var element = this.toElementDescriptor(elementObject); this.disallowProperty(elementObject, \\"finisher\\", \\"An element descriptor\\"); this.disallowProperty(elementObject, \\"extras\\", \\"An element descriptor\\"); return element; }, this); }, toElementDescriptor: function (elementObject) { var kind = String(elementObject.kind); if (kind !== \\"method\\" && kind !== \\"field\\") { throw new TypeError('An element descriptor\\\\'s .kind property must be either \\"method\\" or' + ' \\"field\\", but a decorator created an element descriptor with' + ' .kind \\"' + kind + '\\"'); } var key = _toPropertyKey(elementObject.key); var placement = String(elementObject.placement); if (placement !== \\"static\\" && placement !== \\"prototype\\" && placement !== \\"own\\") { throw new TypeError('An element descriptor\\\\'s .placement property must be one of \\"static\\",' + ' \\"prototype\\" or \\"own\\", but a decorator created an element descriptor' + ' with .placement \\"' + placement + '\\"'); } var descriptor = elementObject.descriptor; this.disallowProperty(elementObject, \\"elements\\", \\"An element descriptor\\"); var element = { kind: kind, key: key, placement: placement, descriptor: Object.assign({}, descriptor) }; if (kind !== \\"field\\") { this.disallowProperty(elementObject, \\"initializer\\", \\"A method descriptor\\"); } else { this.disallowProperty(descriptor, \\"get\\", \\"The property descriptor of a field descriptor\\"); this.disallowProperty(descriptor, \\"set\\", \\"The property descriptor of a field descriptor\\"); this.disallowProperty(descriptor, \\"value\\", \\"The property descriptor of a field descriptor\\"); element.initializer = elementObject.initializer; } return element; }, toElementFinisherExtras: function (elementObject) { var element = this.toElementDescriptor(elementObject); var finisher = _optionalCallableProperty(elementObject, \\"finisher\\"); var extras = this.toElementDescriptors(elementObject.extras); return { element: element, finisher: finisher, extras: extras }; }, fromClassDescriptor: function (elements) { var obj = { kind: \\"class\\", elements: elements.map(this.fromElementDescriptor, this) }; var desc = { value: \\"Descriptor\\", configurable: true }; Object.defineProperty(obj, Symbol.toStringTag, desc); return obj; }, toClassDescriptor: function (obj) { var kind = String(obj.kind); if (kind !== \\"class\\") { throw new TypeError('A class descriptor\\\\'s .kind property must be \\"class\\", but a decorator' + ' created a class descriptor with .kind \\"' + kind + '\\"'); } this.disallowProperty(obj, \\"key\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"placement\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"descriptor\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"initializer\\", \\"A class descriptor\\"); this.disallowProperty(obj, \\"extras\\", \\"A class descriptor\\"); var finisher = _optionalCallableProperty(obj, \\"finisher\\"); var elements = this.toElementDescriptors(obj.elements); return { elements: elements, finisher: finisher }; }, runClassFinishers: function (constructor, finishers) { for (var i = 0; i < finishers.length; i++) { var newConstructor = (0, finishers[i])(constructor); if (newConstructor !== undefined) { if (typeof newConstructor !== \\"function\\") { throw new TypeError(\\"Finishers must return a constructor.\\"); } constructor = newConstructor; } } return constructor; }, disallowProperty: function (obj, name, objectType) { if (obj[name] !== undefined) { throw new TypeError(objectType + \\" can't have a .\\" + name + \\" property.\\"); } } }; return api; }
 function _createElementDescriptor(def) { var key = _toPropertyKey(def.key); var descriptor; if (def.kind === \\"method\\") { descriptor = { value: def.value, writable: true, configurable: true, enumerable: false }; } else if (def.kind === \\"get\\") { descriptor = { get: def.value, configurable: true, enumerable: false }; } else if (def.kind === \\"set\\") { descriptor = { set: def.value, configurable: true, enumerable: false }; } else if (def.kind === \\"field\\") { descriptor = { configurable: true, writable: true, enumerable: true }; } var element = { kind: def.kind === \\"field\\" ? \\"field\\" : \\"method\\", key: key, placement: def.static ? \\"static\\" : def.kind === \\"field\\" ? \\"own\\" : \\"prototype\\", descriptor: descriptor }; if (def.decorators) element.decorators = def.decorators; if (def.kind === \\"field\\") element.initializer = def.value; return element; }
@@ -4622,21 +4656,7 @@ export let AppRoot = _decorate([customElement('app-root')], function (_initializ
 }, LitElement);"
 `;
 
-exports[`create-snowpack-app app-template-lit-element-typescript > build: _dist_/index.js 1`] = `"import './app-root.js';"`;
-
-exports[`create-snowpack-app app-template-lit-element-typescript > build: allFiles 1`] = `
-Array [
-  "__snowpack__/env.js",
-  "_dist_/app-root.js",
-  "_dist_/index.js",
-  "favicon.ico",
-  "index.css",
-  "index.html",
-  "robots.txt",
-  "web_modules/import-map.json",
-  "web_modules/lit-element.js",
-]
-`;
+exports[`create-snowpack-app app-template-lit-element-typescript > build: dist/index.js 1`] = `"import './app-root.js';"`;
 
 exports[`create-snowpack-app app-template-lit-element-typescript > build: index.css 1`] = `
 "body {
@@ -4661,7 +4681,7 @@ exports[`create-snowpack-app app-template-lit-element-typescript > build: index.
   <body>
     <app-root></app-root>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -7316,7 +7336,11 @@ LitElement.render = render$1;
 export { LitElement, css, customElement, html, property };"
 `;
 
-exports[`create-snowpack-app app-template-minimal > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-minimal > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
 exports[`create-snowpack-app app-template-minimal > build: allFiles 1`] = `
 Array [
@@ -7363,7 +7387,7 @@ exports[`create-snowpack-app app-template-minimal > build: package.json 1`] = `
 "{
   \\"name\\": \\"@snowpack/app-template-minimal\\",
   \\"description\\": \\"A preconfigured minimal template for Snowpack\\",
-  \\"version\\": \\"1.0.7\\",
+  \\"version\\": \\"1.1.1\\",
   \\"license\\": \\"MIT\\",
   \\"homepage\\": \\"https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-preact#readme\\",
   \\"repository\\": {
@@ -7381,7 +7405,7 @@ exports[`create-snowpack-app app-template-minimal > build: package.json 1`] = `
     \\"test\\": \\"echo \\\\\\"This template does not include a test runner by default.\\\\\\" && exit 1\\"
   },
   \\"devDependencies\\": {
-    \\"snowpack\\": \\"^2.18.2\\"
+    \\"snowpack\\": \\"^2.18.4\\"
   }
 }"
 `;
@@ -7401,16 +7425,39 @@ module.exports = {
   },
   buildOptions: {
   },
-  proxy: {
-  },
   alias: {
   },
 };"
 `;
 
-exports[`create-snowpack-app app-template-preact > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-preact > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
-exports[`create-snowpack-app app-template-preact > build: _dist_/App.css 1`] = `
+exports[`create-snowpack-app app-template-preact > build: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "dist/App.css",
+  "dist/App.css.proxy.js",
+  "dist/App.js",
+  "dist/index.css",
+  "dist/index.css.proxy.js",
+  "dist/index.js",
+  "dist/logo.png",
+  "dist/logo.png.proxy.js",
+  "favicon.ico",
+  "index.html",
+  "robots.txt",
+  "web_modules/import-map.json",
+  "web_modules/preact.js",
+  "web_modules/preact/devtools.js",
+  "web_modules/preact/hooks.js",
+]
+`;
+
+exports[`create-snowpack-app app-template-preact > build: dist/App.css 1`] = `
 ".App {
   text-align: center;
 }
@@ -7451,7 +7498,7 @@ exports[`create-snowpack-app app-template-preact > build: _dist_/App.css 1`] = `
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact > build: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-preact > build: dist/App.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\".App {  text-align: center;}.App code {  background: #FFF3;  padding: 4px 8px;  border-radius: 4px;}.App p {  margin: 0.4rem;}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}.App-logo {  height: 36vmin;  pointer-events: none;  margin-bottom: 3rem;  animation: App-logo-spin infinite 1.6s ease-in-out alternate;}@keyframes App-logo-spin {  from {    transform: scale(1);  }  to {    transform: scale(1.06);  }}\\";
@@ -7463,7 +7510,7 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact > build: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-preact > build: dist/App.js 1`] = `
 "import {h} from \\"../web_modules/preact.js\\";
 import {useState, useEffect} from \\"../web_modules/preact/hooks.js\\";
 import logo2 from \\"./logo.png.proxy.js\\";
@@ -7492,7 +7539,7 @@ function App2() {
 export default App2;"
 `;
 
-exports[`create-snowpack-app app-template-preact > build: _dist_/index.css 1`] = `
+exports[`create-snowpack-app app-template-preact > build: dist/index.css 1`] = `
 "body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -7507,7 +7554,7 @@ code {
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact > build: _dist_/index.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-preact > build: dist/index.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\"body {  margin: 0;  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',    sans-serif;  -webkit-font-smoothing: antialiased;  -moz-osx-font-smoothing: grayscale;}code {  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',    monospace;}\\";
@@ -7519,7 +7566,7 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact > build: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-preact > build: dist/index.js 1`] = `
 "import {h, render} from \\"../web_modules/preact.js\\";
 import \\"../web_modules/preact/devtools.js\\";
 import App2 from \\"./App.js\\";
@@ -7527,28 +7574,7 @@ import \\"./index.css.proxy.js\\";
 render(/* @__PURE__ */ h(App2, null), document.getElementById(\\"root\\"));"
 `;
 
-exports[`create-snowpack-app app-template-preact > build: _dist_/logo.png.proxy.js 1`] = `"export default \\"/_dist_/logo.png\\";"`;
-
-exports[`create-snowpack-app app-template-preact > build: allFiles 1`] = `
-Array [
-  "__snowpack__/env.js",
-  "_dist_/App.css",
-  "_dist_/App.css.proxy.js",
-  "_dist_/App.js",
-  "_dist_/index.css",
-  "_dist_/index.css.proxy.js",
-  "_dist_/index.js",
-  "_dist_/logo.png",
-  "_dist_/logo.png.proxy.js",
-  "favicon.ico",
-  "index.html",
-  "robots.txt",
-  "web_modules/import-map.json",
-  "web_modules/preact.js",
-  "web_modules/preact/devtools.js",
-  "web_modules/preact/hooks.js",
-]
-`;
+exports[`create-snowpack-app app-template-preact > build: dist/logo.png.proxy.js 1`] = `"export default \\"/dist/logo.png\\";"`;
 
 exports[`create-snowpack-app app-template-preact > build: index.html 1`] = `
 "<!DOCTYPE html>
@@ -7563,7 +7589,7 @@ exports[`create-snowpack-app app-template-preact > build: index.html 1`] = `
   <body>
     <div id=\\"root\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -7599,9 +7625,34 @@ var t,u,r,o=0,i=[],c=n.__b,f=n.__r,e=n.diffed,a=n.__c,v=n.unmount;function m(t,r
 export { y as useEffect, l as useState };"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-preact-typescript > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
-exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/App.css 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "dist/App.css",
+  "dist/App.css.proxy.js",
+  "dist/App.js",
+  "dist/index.css",
+  "dist/index.css.proxy.js",
+  "dist/index.js",
+  "dist/logo.png",
+  "dist/logo.png.proxy.js",
+  "favicon.ico",
+  "index.html",
+  "robots.txt",
+  "web_modules/import-map.json",
+  "web_modules/preact.js",
+  "web_modules/preact/devtools.js",
+  "web_modules/preact/hooks.js",
+]
+`;
+
+exports[`create-snowpack-app app-template-preact-typescript > build: dist/App.css 1`] = `
 ".App {
   text-align: center;
 }
@@ -7642,7 +7693,7 @@ exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/App.
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: dist/App.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\".App {  text-align: center;}.App code {  background: #FFF3;  padding: 4px 8px;  border-radius: 4px;}.App p {  margin: 0.4rem;}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}.App-logo {  height: 36vmin;  pointer-events: none;  margin-bottom: 3rem;  animation: App-logo-spin infinite 1.6s ease-in-out alternate;}@keyframes App-logo-spin {  from {    transform: scale(1);  }  to {    transform: scale(1.06);  }}\\";
@@ -7654,7 +7705,7 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: dist/App.js 1`] = `
 "import {h} from \\"../web_modules/preact.js\\";
 import {useState, useEffect} from \\"../web_modules/preact/hooks.js\\";
 import logo2 from \\"./logo.png.proxy.js\\";
@@ -7683,7 +7734,7 @@ function App2() {
 export default App2;"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/index.css 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: dist/index.css 1`] = `
 "body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -7698,7 +7749,7 @@ code {
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/index.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: dist/index.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\"body {  margin: 0;  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',    sans-serif;  -webkit-font-smoothing: antialiased;  -moz-osx-font-smoothing: grayscale;}code {  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',    monospace;}\\";
@@ -7710,7 +7761,7 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/index.js 1`] = `
+exports[`create-snowpack-app app-template-preact-typescript > build: dist/index.js 1`] = `
 "import {h, render} from \\"../web_modules/preact.js\\";
 import \\"../web_modules/preact/devtools.js\\";
 import App2 from \\"./App.js\\";
@@ -7721,28 +7772,7 @@ if (root) {
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript > build: _dist_/logo.png.proxy.js 1`] = `"export default \\"/_dist_/logo.png\\";"`;
-
-exports[`create-snowpack-app app-template-preact-typescript > build: allFiles 1`] = `
-Array [
-  "__snowpack__/env.js",
-  "_dist_/App.css",
-  "_dist_/App.css.proxy.js",
-  "_dist_/App.js",
-  "_dist_/index.css",
-  "_dist_/index.css.proxy.js",
-  "_dist_/index.js",
-  "_dist_/logo.png",
-  "_dist_/logo.png.proxy.js",
-  "favicon.ico",
-  "index.html",
-  "robots.txt",
-  "web_modules/import-map.json",
-  "web_modules/preact.js",
-  "web_modules/preact/devtools.js",
-  "web_modules/preact/hooks.js",
-]
-`;
+exports[`create-snowpack-app app-template-preact-typescript > build: dist/logo.png.proxy.js 1`] = `"export default \\"/dist/logo.png\\";"`;
 
 exports[`create-snowpack-app app-template-preact-typescript > build: index.html 1`] = `
 "<!DOCTYPE html>
@@ -7757,7 +7787,7 @@ exports[`create-snowpack-app app-template-preact-typescript > build: index.html 
   <body>
     <div id=\\"root\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -7793,9 +7823,33 @@ var t,u,r,o=0,i=[],c=n.__b,f=n.__r,e=n.diffed,a=n.__c,v=n.unmount;function m(t,r
 export { y as useEffect, l as useState };"
 `;
 
-exports[`create-snowpack-app app-template-react > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-react > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
-exports[`create-snowpack-app app-template-react > build: _dist_/App.css 1`] = `
+exports[`create-snowpack-app app-template-react > build: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "dist/App.css",
+  "dist/App.css.proxy.js",
+  "dist/App.js",
+  "dist/index.css",
+  "dist/index.css.proxy.js",
+  "dist/index.js",
+  "dist/logo.svg",
+  "dist/logo.svg.proxy.js",
+  "favicon.ico",
+  "index.html",
+  "robots.txt",
+  "web_modules/import-map.json",
+  "web_modules/react-dom.js",
+  "web_modules/react.js",
+]
+`;
+
+exports[`create-snowpack-app app-template-react > build: dist/App.css 1`] = `
 ".App {
   text-align: center;
 }
@@ -7839,7 +7893,7 @@ exports[`create-snowpack-app app-template-react > build: _dist_/App.css 1`] = `
 }"
 `;
 
-exports[`create-snowpack-app app-template-react > build: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-react > build: dist/App.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\".App {  text-align: center;}.App code {  background: #FFF3;  padding: 4px 8px;  border-radius: 4px;}.App p {  margin: 0.4rem;}.App-logo {  height: 40vmin;  pointer-events: none;}@media (prefers-reduced-motion: no-preference) {  .App-logo {    animation: App-logo-spin infinite 20s linear;  }}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}@keyframes App-logo-spin {  from {    transform: rotate(0deg);  }  to {    transform: rotate(360deg);  }}\\";
@@ -7851,7 +7905,7 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-react > build: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-react > build: dist/App.js 1`] = `
 "import React, {useState, useEffect} from \\"../web_modules/react.js\\";
 import logo2 from \\"./logo.svg.proxy.js\\";
 import \\"./App.css.proxy.js\\";
@@ -7879,7 +7933,7 @@ function App2() {
 export default App2;"
 `;
 
-exports[`create-snowpack-app app-template-react > build: _dist_/index.css 1`] = `
+exports[`create-snowpack-app app-template-react > build: dist/index.css 1`] = `
 "body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -7894,7 +7948,7 @@ code {
 }"
 `;
 
-exports[`create-snowpack-app app-template-react > build: _dist_/index.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-react > build: dist/index.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\"body {  margin: 0;  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',    sans-serif;  -webkit-font-smoothing: antialiased;  -moz-osx-font-smoothing: grayscale;}code {  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',    monospace;}\\";
@@ -7906,40 +7960,20 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-react > build: _dist_/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+exports[`create-snowpack-app app-template-react > build: dist/index.js 1`] = `
+"import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import React from \\"../web_modules/react.js\\";
 import ReactDOM from \\"../web_modules/react-dom.js\\";
 import App2 from \\"./App.js\\";
 import \\"./index.css.proxy.js\\";
 ReactDOM.render(/* @__PURE__ */ React.createElement(React.StrictMode, null, /* @__PURE__ */ React.createElement(App2, null)), document.getElementById(\\"root\\"));
-if (import.meta.hot) {
-  import.meta.hot.accept();
+if (undefined /* [snowpack] import.meta.hot */ ) {
+  undefined /* [snowpack] import.meta.hot */ .accept();
 }"
 `;
 
-exports[`create-snowpack-app app-template-react > build: _dist_/logo.svg.proxy.js 1`] = `"export default \\"/_dist_/logo.svg\\";"`;
-
-exports[`create-snowpack-app app-template-react > build: allFiles 1`] = `
-Array [
-  "__snowpack__/env.js",
-  "_dist_/App.css",
-  "_dist_/App.css.proxy.js",
-  "_dist_/App.js",
-  "_dist_/index.css",
-  "_dist_/index.css.proxy.js",
-  "_dist_/index.js",
-  "_dist_/logo.svg",
-  "_dist_/logo.svg.proxy.js",
-  "favicon.ico",
-  "index.html",
-  "robots.txt",
-  "web_modules/import-map.json",
-  "web_modules/react-dom.js",
-  "web_modules/react.js",
-]
-`;
+exports[`create-snowpack-app app-template-react > build: dist/logo.svg.proxy.js 1`] = `"export default \\"/dist/logo.svg\\";"`;
 
 exports[`create-snowpack-app app-template-react > build: index.html 1`] = `
 "<!DOCTYPE html>
@@ -7954,7 +7988,7 @@ exports[`create-snowpack-app app-template-react > build: index.html 1`] = `
   <body>
     <div id=\\"root\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -8331,9 +8365,33 @@ function checkDCE() {
 export default reactDom;"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-react-typescript > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
-exports[`create-snowpack-app app-template-react-typescript > build: _dist_/App.css 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "dist/App.css",
+  "dist/App.css.proxy.js",
+  "dist/App.js",
+  "dist/index.css",
+  "dist/index.css.proxy.js",
+  "dist/index.js",
+  "dist/logo.svg",
+  "dist/logo.svg.proxy.js",
+  "favicon.ico",
+  "index.html",
+  "robots.txt",
+  "web_modules/import-map.json",
+  "web_modules/react-dom.js",
+  "web_modules/react.js",
+]
+`;
+
+exports[`create-snowpack-app app-template-react-typescript > build: dist/App.css 1`] = `
 ".App {
   text-align: center;
 }
@@ -8377,7 +8435,7 @@ exports[`create-snowpack-app app-template-react-typescript > build: _dist_/App.c
 }"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript > build: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: dist/App.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\".App {  text-align: center;}.App code {  background: #FFF3;  padding: 4px 8px;  border-radius: 4px;}.App p {  margin: 0.4rem;}.App-logo {  height: 40vmin;  pointer-events: none;}@media (prefers-reduced-motion: no-preference) {  .App-logo {    animation: App-logo-spin infinite 20s linear;  }}.App-header {  background-color: #282c34;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);  color: white;}.App-link {  color: #61dafb;}@keyframes App-logo-spin {  from {    transform: rotate(0deg);  }  to {    transform: rotate(360deg);  }}\\";
@@ -8389,7 +8447,7 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript > build: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: dist/App.js 1`] = `
 "import React, {useState, useEffect} from \\"../web_modules/react.js\\";
 import logo2 from \\"./logo.svg.proxy.js\\";
 import \\"./App.css.proxy.js\\";
@@ -8417,7 +8475,7 @@ function App2({}) {
 export default App2;"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript > build: _dist_/index.css 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: dist/index.css 1`] = `
 "body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, \\"Segoe UI\\", \\"Roboto\\", \\"Oxygen\\",
@@ -8432,7 +8490,7 @@ code {
 }"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript > build: _dist_/index.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-react-typescript > build: dist/index.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\"body {  margin: 0;  font-family: -apple-system, BlinkMacSystemFont, \\\\\\"Segoe UI\\\\\\", \\\\\\"Roboto\\\\\\", \\\\\\"Oxygen\\\\\\",    \\\\\\"Ubuntu\\\\\\", \\\\\\"Cantarell\\\\\\", \\\\\\"Fira Sans\\\\\\", \\\\\\"Droid Sans\\\\\\", \\\\\\"Helvetica Neue\\\\\\",    sans-serif;  -webkit-font-smoothing: antialiased;  -moz-osx-font-smoothing: grayscale;}code {  font-family: source-code-pro, Menlo, Monaco, Consolas, \\\\\\"Courier New\\\\\\",    monospace;}\\";
@@ -8444,40 +8502,20 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript > build: _dist_/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+exports[`create-snowpack-app app-template-react-typescript > build: dist/index.js 1`] = `
+"import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import React from \\"../web_modules/react.js\\";
 import ReactDOM from \\"../web_modules/react-dom.js\\";
 import App2 from \\"./App.js\\";
 import \\"./index.css.proxy.js\\";
 ReactDOM.render(/* @__PURE__ */ React.createElement(React.StrictMode, null, /* @__PURE__ */ React.createElement(App2, null)), document.getElementById(\\"root\\"));
-if (import.meta.hot) {
-  import.meta.hot.accept();
+if (undefined /* [snowpack] import.meta.hot */ ) {
+  undefined /* [snowpack] import.meta.hot */ .accept();
 }"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript > build: _dist_/logo.svg.proxy.js 1`] = `"export default \\"/_dist_/logo.svg\\";"`;
-
-exports[`create-snowpack-app app-template-react-typescript > build: allFiles 1`] = `
-Array [
-  "__snowpack__/env.js",
-  "_dist_/App.css",
-  "_dist_/App.css.proxy.js",
-  "_dist_/App.js",
-  "_dist_/index.css",
-  "_dist_/index.css.proxy.js",
-  "_dist_/index.js",
-  "_dist_/logo.svg",
-  "_dist_/logo.svg.proxy.js",
-  "favicon.ico",
-  "index.html",
-  "robots.txt",
-  "web_modules/import-map.json",
-  "web_modules/react-dom.js",
-  "web_modules/react.js",
-]
-`;
+exports[`create-snowpack-app app-template-react-typescript > build: dist/logo.svg.proxy.js 1`] = `"export default \\"/dist/logo.svg\\";"`;
 
 exports[`create-snowpack-app app-template-react-typescript > build: index.html 1`] = `
 "<!DOCTYPE html>
@@ -8492,7 +8530,7 @@ exports[`create-snowpack-app app-template-react-typescript > build: index.html 1
   <body>
     <div id=\\"root\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -8869,11 +8907,32 @@ function checkDCE() {
 export default reactDom;"
 `;
 
-exports[`create-snowpack-app app-template-svelte > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-svelte > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
-exports[`create-snowpack-app app-template-svelte > build: _dist_/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-rq4gzr.svelte-rq4gzr{text-align:center}.App.svelte-rq4gzr code.svelte-rq4gzr{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-rq4gzr p.svelte-rq4gzr{margin:0.4rem}.App-header.svelte-rq4gzr.svelte-rq4gzr{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-rq4gzr.svelte-rq4gzr{color:#ff3e00}.App-logo.svelte-rq4gzr.svelte-rq4gzr{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-rq4gzr-App-logo-pulse infinite 1.6s ease-in-out alternate}@keyframes svelte-rq4gzr-App-logo-pulse{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
+exports[`create-snowpack-app app-template-svelte > build: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "dist/App.css",
+  "dist/App.css.proxy.js",
+  "dist/App.js",
+  "dist/index.js",
+  "favicon.ico",
+  "index.html",
+  "logo.svg",
+  "robots.txt",
+  "web_modules/import-map.json",
+  "web_modules/svelte.js",
+  "web_modules/svelte/internal.js",
+]
+`;
 
-exports[`create-snowpack-app app-template-svelte > build: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-svelte > build: dist/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-rq4gzr.svelte-rq4gzr{text-align:center}.App.svelte-rq4gzr code.svelte-rq4gzr{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-rq4gzr p.svelte-rq4gzr{margin:0.4rem}.App-header.svelte-rq4gzr.svelte-rq4gzr{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-rq4gzr.svelte-rq4gzr{color:#ff3e00}.App-logo.svelte-rq4gzr.svelte-rq4gzr{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-rq4gzr-App-logo-pulse infinite 1.6s ease-in-out alternate}@keyframes svelte-rq4gzr-App-logo-pulse{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
+
+exports[`create-snowpack-app app-template-svelte > build: dist/App.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-rq4gzr.svelte-rq4gzr{text-align:center}.App.svelte-rq4gzr code.svelte-rq4gzr{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-rq4gzr p.svelte-rq4gzr{margin:0.4rem}.App-header.svelte-rq4gzr.svelte-rq4gzr{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-rq4gzr.svelte-rq4gzr{color:#ff3e00}.App-logo.svelte-rq4gzr.svelte-rq4gzr{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-rq4gzr-App-logo-pulse infinite 1.6s ease-in-out alternate}@keyframes svelte-rq4gzr-App-logo-pulse{from{transform:scale(1)}to{transform:scale(1.06)}}\\";
@@ -8885,7 +8944,7 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-svelte > build: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-svelte > build: dist/App.js 1`] = `
 "import './App.css.proxy.js';
 import {
 	SvelteComponent,
@@ -8988,8 +9047,8 @@ class App extends SvelteComponent {
 export default App;"
 `;
 
-exports[`create-snowpack-app app-template-svelte > build: _dist_/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+exports[`create-snowpack-app app-template-svelte > build: dist/index.js 1`] = `
+"import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import App from \\"./App.js\\";
 let app = new App({
@@ -8998,29 +9057,12 @@ let app = new App({
 export default app;
 // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
 // Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
-if (import.meta.hot) {
-  import.meta.hot.accept();
-  import.meta.hot.dispose(() => {
+if (undefined /* [snowpack] import.meta.hot */ ) {
+  undefined /* [snowpack] import.meta.hot */ .accept();
+  undefined /* [snowpack] import.meta.hot */ .dispose(() => {
     app.$destroy();
   });
 }"
-`;
-
-exports[`create-snowpack-app app-template-svelte > build: allFiles 1`] = `
-Array [
-  "__snowpack__/env.js",
-  "_dist_/App.css",
-  "_dist_/App.css.proxy.js",
-  "_dist_/App.js",
-  "_dist_/index.js",
-  "favicon.ico",
-  "index.html",
-  "logo.svg",
-  "robots.txt",
-  "web_modules/import-map.json",
-  "web_modules/svelte.js",
-  "web_modules/svelte/internal.js",
-]
 `;
 
 exports[`create-snowpack-app app-template-svelte > build: index.html 1`] = `
@@ -9035,7 +9077,7 @@ exports[`create-snowpack-app app-template-svelte > build: index.html 1`] = `
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -9061,11 +9103,32 @@ exports[`create-snowpack-app app-template-svelte > build: web_modules/svelte.js 
 
 exports[`create-snowpack-app app-template-svelte > build: web_modules/svelte/internal.js 1`] = `"export { S as SvelteComponent, a as append, b as attr, d as detach, e as element, i as init, c as insert, n as noop, s as safe_not_equal, f as set_data, g as space, t as text } from '../common/index-XXXXXXXX.js';"`;
 
-exports[`create-snowpack-app app-template-svelte-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-svelte-typescript > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
-exports[`create-snowpack-app app-template-svelte-typescript > build: _dist_/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1sqyd3v.svelte-1sqyd3v{text-align:center}.App.svelte-1sqyd3v code.svelte-1sqyd3v{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1sqyd3v p.svelte-1sqyd3v{margin:0.4rem}.App-header.svelte-1sqyd3v.svelte-1sqyd3v{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1sqyd3v.svelte-1sqyd3v{color:#ff3e00}.App-logo.svelte-1sqyd3v.svelte-1sqyd3v{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1sqyd3v-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1sqyd3v-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
+exports[`create-snowpack-app app-template-svelte-typescript > build: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "dist/App.css",
+  "dist/App.css.proxy.js",
+  "dist/App.js",
+  "dist/index.js",
+  "favicon.ico",
+  "index.html",
+  "logo.svg",
+  "robots.txt",
+  "web_modules/import-map.json",
+  "web_modules/svelte.js",
+  "web_modules/svelte/internal.js",
+]
+`;
 
-exports[`create-snowpack-app app-template-svelte-typescript > build: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1sqyd3v.svelte-1sqyd3v{text-align:center}.App.svelte-1sqyd3v code.svelte-1sqyd3v{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1sqyd3v p.svelte-1sqyd3v{margin:0.4rem}.App-header.svelte-1sqyd3v.svelte-1sqyd3v{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1sqyd3v.svelte-1sqyd3v{color:#ff3e00}.App-logo.svelte-1sqyd3v.svelte-1sqyd3v{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1sqyd3v-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1sqyd3v-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
+
+exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1sqyd3v.svelte-1sqyd3v{text-align:center}.App.svelte-1sqyd3v code.svelte-1sqyd3v{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1sqyd3v p.svelte-1sqyd3v{margin:0.4rem}.App-header.svelte-1sqyd3v.svelte-1sqyd3v{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1sqyd3v.svelte-1sqyd3v{color:#ff3e00}.App-logo.svelte-1sqyd3v.svelte-1sqyd3v{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1sqyd3v-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1sqyd3v-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}\\";
@@ -9077,7 +9140,7 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-svelte-typescript > build: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.js 1`] = `
 "import './App.css.proxy.js';
 import {
 	SvelteComponent,
@@ -9180,37 +9243,20 @@ class App extends SvelteComponent {
 export default App;"
 `;
 
-exports[`create-snowpack-app app-template-svelte-typescript > build: _dist_/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+exports[`create-snowpack-app app-template-svelte-typescript > build: dist/index.js 1`] = `
+"import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import App2 from \\"./App.js\\";
 var app = new App2({
   target: document.body
 });
 export default app;
-if (import.meta.hot) {
-  import.meta.hot.accept();
-  import.meta.hot.dispose(() => {
+if (undefined /* [snowpack] import.meta.hot */ ) {
+  undefined /* [snowpack] import.meta.hot */ .accept();
+  undefined /* [snowpack] import.meta.hot */ .dispose(() => {
     app.$destroy();
   });
 }"
-`;
-
-exports[`create-snowpack-app app-template-svelte-typescript > build: allFiles 1`] = `
-Array [
-  "__snowpack__/env.js",
-  "_dist_/App.css",
-  "_dist_/App.css.proxy.js",
-  "_dist_/App.js",
-  "_dist_/index.js",
-  "favicon.ico",
-  "index.html",
-  "logo.svg",
-  "robots.txt",
-  "web_modules/import-map.json",
-  "web_modules/svelte.js",
-  "web_modules/svelte/internal.js",
-]
 `;
 
 exports[`create-snowpack-app app-template-svelte-typescript > build: index.html 1`] = `
@@ -9225,7 +9271,7 @@ exports[`create-snowpack-app app-template-svelte-typescript > build: index.html 
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -9251,9 +9297,30 @@ exports[`create-snowpack-app app-template-svelte-typescript > build: web_modules
 
 exports[`create-snowpack-app app-template-svelte-typescript > build: web_modules/svelte/internal.js 1`] = `"export { S as SvelteComponent, a as append, b as attr, d as detach, e as element, i as init, c as insert, n as noop, s as safe_not_equal, f as set_data, g as space, t as text } from '../common/index-XXXXXXXX.js';"`;
 
-exports[`create-snowpack-app app-template-vue > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-vue > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
-exports[`create-snowpack-app app-template-vue > build: _dist_/App.css 1`] = `
+exports[`create-snowpack-app app-template-vue > build: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "dist/App.css",
+  "dist/App.css.proxy.js",
+  "dist/App.js",
+  "dist/index.js",
+  "favicon-32x32.png",
+  "favicon.ico",
+  "index.html",
+  "logo.svg",
+  "robots.txt",
+  "web_modules/import-map.json",
+  "web_modules/vue.js",
+]
+`;
+
+exports[`create-snowpack-app app-template-vue > build: dist/App.css 1`] = `
 "
 .App {
   text-align: center;
@@ -9287,7 +9354,7 @@ to {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue > build: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue > build: dist/App.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\".App {  text-align: center;}.App-header {  background-color: #f9f6f6;  color: #32485f;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);}.App-link {  color: #00c185;}.App-logo {  height: 40vmin;  pointer-events: none;  margin-bottom: 1rem;  animation: App-logo-spin infinite 1.6s ease-in-out alternate;}@keyframes App-logo-spin {from {    transform: scale(1);}to {    transform: scale(1.06);}}\\";
@@ -9299,7 +9366,7 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue > build: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-vue > build: dist/App.js 1`] = `
 "import './App.css.proxy.js';
 const defaultExport = {
   data() {
@@ -9340,8 +9407,8 @@ defaultExport.render = render
 export default defaultExport"
 `;
 
-exports[`create-snowpack-app app-template-vue > build: _dist_/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+exports[`create-snowpack-app app-template-vue > build: dist/index.js 1`] = `
+"import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import { createApp } from \\"../web_modules/vue.js\\";
 import App from \\"./App.js\\";
@@ -9349,29 +9416,12 @@ const app = createApp(App);
 app.mount(\\"#app\\");
 // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
 // Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
-if (import.meta.hot) {
-  import.meta.hot.accept();
-  import.meta.hot.dispose(() => {
+if (undefined /* [snowpack] import.meta.hot */ ) {
+  undefined /* [snowpack] import.meta.hot */ .accept();
+  undefined /* [snowpack] import.meta.hot */ .dispose(() => {
     app.unmount();
   });
 }"
-`;
-
-exports[`create-snowpack-app app-template-vue > build: allFiles 1`] = `
-Array [
-  "__snowpack__/env.js",
-  "_dist_/App.css",
-  "_dist_/App.css.proxy.js",
-  "_dist_/App.js",
-  "_dist_/index.js",
-  "favicon-32x32.png",
-  "favicon.ico",
-  "index.html",
-  "logo.svg",
-  "robots.txt",
-  "web_modules/import-map.json",
-  "web_modules/vue.js",
-]
 `;
 
 exports[`create-snowpack-app app-template-vue > build: index.html 1`] = `
@@ -9387,7 +9437,7 @@ exports[`create-snowpack-app app-template-vue > build: index.html 1`] = `
   <body>
     <div id=\\"app\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -14418,9 +14468,42 @@ function normalizeContainer(container) {
 export { createApp, createBlock, createTextVNode, createVNode, openBlock, toDisplayString };"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: __snowpack__/env.js 1`] = `"export default {\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+exports[`create-snowpack-app app-template-vue-typescript > build: __snowpack__/env.js 1`] = `
+"export const MODE = \\"production\\";
+export const NODE_ENV = \\"production\\";
+export const SSR = false;"
+`;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/App.css 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "dist/App.css",
+  "dist/App.css.proxy.js",
+  "dist/App.js",
+  "dist/components/Bar.js",
+  "dist/components/Bar.module.css",
+  "dist/components/Bar.module.css.proxy.js",
+  "dist/components/BarJsx.css",
+  "dist/components/BarJsx.css.proxy.js",
+  "dist/components/BarJsx.js",
+  "dist/components/Foo.js",
+  "dist/components/Foo.module.css",
+  "dist/components/Foo.module.css.proxy.js",
+  "dist/components/FooTsx.css",
+  "dist/components/FooTsx.css.proxy.js",
+  "dist/components/FooTsx.js",
+  "dist/index.js",
+  "favicon-32x32.png",
+  "favicon.ico",
+  "index.html",
+  "logo.svg",
+  "robots.txt",
+  "web_modules/import-map.json",
+  "web_modules/vue.js",
+]
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/App.css 1`] = `
 "
 .App {
   text-align: center;
@@ -14461,7 +14544,7 @@ to {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/App.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\".App {  text-align: center;}.App-header {  background-color: #f9f6f6;  color: #32485f;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);}.App-link {  color: #00c185;}.App-logo {  height: 40vmin;  pointer-events: none;  margin-bottom: 1rem;  animation: App-logo-spin infinite 1.6s ease-in-out alternate;}.App-tsx {  display: flex;}.App-tsx > div {  margin-left: 30px;  font-size: 16px;}@keyframes App-logo-spin {from {    transform: scale(1);}to {    transform: scale(1.06);}}\\";
@@ -14473,7 +14556,7 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/App.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/App.js 1`] = `
 "import './App.css.proxy.js';
 import {defineComponent, reactive} from \\"../web_modules/vue.js\\";
 import FooTsxVue from \\"./components/FooTsx.js\\";
@@ -14539,7 +14622,7 @@ defaultExport.render = render
 export default defaultExport"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Bar.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Bar.js 1`] = `
 "import { Fragment } from '../../web_modules/vue.js';
 import {createVNode, isVNode} from '../../web_modules/vue.js';
 const slice = Array.prototype.slice;
@@ -14564,13 +14647,13 @@ export default defineComponent({
 });"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Bar.module.css 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Bar.module.css 1`] = `
 ".bar-jsx {
   color: red;
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Bar.module.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Bar.module.css.proxy.js 1`] = `
 "
 export let code = \\"._bar-jsx_XXXXX_XX {  color: red;}\\";
 let json = {\\"bar-jsx\\":\\"_bar-jsx_XXXXX_XX\\"};
@@ -14585,14 +14668,14 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/BarJsx.css 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.css 1`] = `
 "
 .bar-jsx-vue {
   color: red;
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/BarJsx.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\"/* unsupport scoped css in vue with tsx, jsx*/.bar-jsx-vue {  color: red;}\\";
@@ -14604,7 +14687,7 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/BarJsx.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.js 1`] = `
 "import './BarJsx.css.proxy.js';
 import { Fragment } from '../../web_modules/vue.js';
 import {createVNode, isVNode} from '../../web_modules/vue.js';
@@ -14629,7 +14712,7 @@ export default defineComponent({
 });"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Foo.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Foo.js 1`] = `
 "import { Fragment } from '../../web_modules/vue.js';
 import {createVNode, isVNode} from '../../web_modules/vue.js';
 const slice = Array.prototype.slice;
@@ -14654,13 +14737,13 @@ export default defineComponent({
 });"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Foo.module.css 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Foo.module.css 1`] = `
 ".foo-tsx {
     color: green;
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/Foo.module.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/Foo.module.css.proxy.js 1`] = `
 "
 export let code = \\"._foo-tsx_XXXXX_XX {    color: green;}\\";
 let json = {\\"foo-tsx\\":\\"_foo-tsx_XXXXX_XX\\"};
@@ -14675,14 +14758,14 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/FooTsx.css 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/FooTsx.css 1`] = `
 "
 .foo-tsx-vue {
   color: green;
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/FooTsx.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/FooTsx.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\"/* unsupport scoped css in vue with tsx, jsx*/.foo-tsx-vue {  color: green;}\\";
@@ -14694,7 +14777,7 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/components/FooTsx.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/FooTsx.js 1`] = `
 "import './FooTsx.css.proxy.js';
 import { Fragment } from '../../web_modules/vue.js';
 import {createVNode, isVNode} from '../../web_modules/vue.js';
@@ -14719,8 +14802,8 @@ export default defineComponent({
 });"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: _dist_/index.js 1`] = `
-"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/index.js 1`] = `
+"import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import { createApp } from \\"../web_modules/vue.js\\";
 import App from \\"./App.js\\";
@@ -14728,41 +14811,12 @@ const app = createApp(App);
 app.mount(\\"#app\\");
 // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
 // Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
-if (import.meta.hot) {
-  import.meta.hot.accept();
-  import.meta.hot.dispose(() => {
+if (undefined /* [snowpack] import.meta.hot */ ) {
+  undefined /* [snowpack] import.meta.hot */ .accept();
+  undefined /* [snowpack] import.meta.hot */ .dispose(() => {
     app.unmount();
   });
 }"
-`;
-
-exports[`create-snowpack-app app-template-vue-typescript > build: allFiles 1`] = `
-Array [
-  "__snowpack__/env.js",
-  "_dist_/App.css",
-  "_dist_/App.css.proxy.js",
-  "_dist_/App.js",
-  "_dist_/components/Bar.js",
-  "_dist_/components/Bar.module.css",
-  "_dist_/components/Bar.module.css.proxy.js",
-  "_dist_/components/BarJsx.css",
-  "_dist_/components/BarJsx.css.proxy.js",
-  "_dist_/components/BarJsx.js",
-  "_dist_/components/Foo.js",
-  "_dist_/components/Foo.module.css",
-  "_dist_/components/Foo.module.css.proxy.js",
-  "_dist_/components/FooTsx.css",
-  "_dist_/components/FooTsx.css.proxy.js",
-  "_dist_/components/FooTsx.js",
-  "_dist_/index.js",
-  "favicon-32x32.png",
-  "favicon.ico",
-  "index.html",
-  "logo.svg",
-  "robots.txt",
-  "web_modules/import-map.json",
-  "web_modules/vue.js",
-]
 `;
 
 exports[`create-snowpack-app app-template-vue-typescript > build: index.html 1`] = `
@@ -14778,7 +14832,7 @@ exports[`create-snowpack-app app-template-vue-typescript > build: index.html 1`]
   <body>
     <div id=\\"app\\"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script type=\\"module\\" src=\\"/_dist_/index.js\\"></script>
+    <script type=\\"module\\" src=\\"/dist/index.js\\"></script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -15233,7 +15287,7 @@ function createGetter(isReadonly = false, shallow = false) {
             return target;
         }
         const targetIsArray = isArray(target);
-        if (targetIsArray && hasOwn(arrayInstrumentations, key)) {
+        if (!isReadonly && targetIsArray && hasOwn(arrayInstrumentations, key)) {
             return Reflect.get(arrayInstrumentations, key, receiver);
         }
         const res = Reflect.get(target, key, receiver);
@@ -15381,11 +15435,11 @@ function add(value) {
     const target = toRaw(this);
     const proto = getProto(target);
     const hadKey = proto.has.call(target, value);
-    const result = target.add(value);
+    target.add(value);
     if (!hadKey) {
         trigger(target, \\"add\\" /* ADD */, value, value);
     }
-    return result;
+    return this;
 }
 function set$1(key, value) {
     value = toRaw(value);
@@ -15397,14 +15451,14 @@ function set$1(key, value) {
         hadKey = has.call(target, key);
     }
     const oldValue = get.call(target, key);
-    const result = target.set(key, value);
+    target.set(key, value);
     if (!hadKey) {
         trigger(target, \\"add\\" /* ADD */, key, value);
     }
     else if (hasChanged(value, oldValue)) {
         trigger(target, \\"set\\" /* SET */, key, value);
     }
-    return result;
+    return this;
 }
 function deleteEntry(key) {
     const target = toRaw(this);
@@ -16124,19 +16178,24 @@ function isEmitListener(options, key) {
     if (!options || !isOn(key)) {
         return false;
     }
-    key = key.replace(/Once$/, '');
-    return (hasOwn(options, key[2].toLowerCase() + key.slice(3)) ||
-        hasOwn(options, key.slice(2)));
+    key = key.slice(2).replace(/Once$/, '');
+    return (hasOwn(options, key[0].toLowerCase() + key.slice(1)) ||
+        hasOwn(options, hyphenate(key)) ||
+        hasOwn(options, key));
 }
-// mark the current rendering instance for asset resolution (e.g.
-// resolveComponent, resolveDirective) during render
+/**
+ * mark the current rendering instance for asset resolution (e.g.
+ * resolveComponent, resolveDirective) during render
+ */
 let currentRenderingInstance = null;
 function setCurrentRenderingInstance(instance) {
     currentRenderingInstance = instance;
 }
-// dev only flag to track whether $attrs was used during render.
-// If $attrs was used during render then the warning for failed attrs
-// fallthrough can be suppressed.
+/**
+ * dev only flag to track whether $attrs was used during render.
+ * If $attrs was used during render then the warning for failed attrs
+ * fallthrough can be suppressed.
+ */
 let accessedAttrs = false;
 function markAttrsAccessed() {
     accessedAttrs = true;
@@ -16180,7 +16239,7 @@ function renderComponentRoot(instance) {
         // to have comments along side the root element which makes it a fragment
         let root = result;
         let setRoot = undefined;
-        if ((\\"production\\" !== 'production')) ;
+        if ((\\"production\\" !== 'production') && result.patchFlag & 2048 /* DEV_ROOT_FRAGMENT */) ;
         if (Component.inheritAttrs !== false && fallthroughAttrs) {
             const keys = Object.keys(fallthroughAttrs);
             const { shapeFlag } = root;
@@ -16228,9 +16287,6 @@ function renderComponentRoot(instance) {
  * root for attrs and scope id processing.
  */
 const getChildRoot = (vnode) => {
-    if (vnode.type !== Fragment) {
-        return [vnode, undefined];
-    }
     const rawChildren = vnode.children;
     const dynamicChildren = vnode.dynamicChildren;
     const childRoot = filterSingleRoot(rawChildren);
@@ -16252,16 +16308,27 @@ const getChildRoot = (vnode) => {
     };
     return [normalizeVNode(childRoot), setRoot];
 };
-/**
- * dev only
- */
 function filterSingleRoot(children) {
-    const filtered = children.filter(child => {
-        return !(isVNode(child) &&
-            child.type === Comment &&
-            child.children !== 'v-if');
-    });
-    return filtered.length === 1 && isVNode(filtered[0]) ? filtered[0] : null;
+    let singleRoot;
+    for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        if (isVNode(child)) {
+            // ignore user comment
+            if (child.type !== Comment || child.children === 'v-if') {
+                if (singleRoot) {
+                    // has more than 1 non-comment child, return now
+                    return;
+                }
+                else {
+                    singleRoot = child;
+                }
+            }
+        }
+        else {
+            return;
+        }
+    }
+    return singleRoot;
 }
 const getFunctionalFallthrough = (attrs) => {
     let res;
@@ -16842,7 +16909,7 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
         onTrigger,
         scheduler
     });
-    recordInstanceBoundEffect(runner);
+    recordInstanceBoundEffect(runner, instance);
     // initial run
     if (cb) {
         if (immediate) {
@@ -17178,6 +17245,11 @@ function initFeatureFlags() {
         getGlobalThis().__VUE_PROD_DEVTOOLS__ = false;
     }
 }
+// implementation, close to no-op
+function defineComponent(options) {
+    return isFunction(options) ? { setup: options, name: options.name } : options;
+}
+const isAsyncWrapper = (i) => !!i.type.__asyncLoader;
 const prodEffectOptions = {
     scheduler: queueJob,
     // #1801, #2043 component render effects should allow recursive updates
@@ -17185,13 +17257,13 @@ const prodEffectOptions = {
 };
 const queuePostRenderEffect =  queueEffectWithSuspense
     ;
-const setRef = (rawRef, oldRawRef, parentComponent, parentSuspense, vnode) => {
+const setRef = (rawRef, oldRawRef, parentSuspense, vnode) => {
     if (isArray(rawRef)) {
-        rawRef.forEach((r, i) => setRef(r, oldRawRef && (isArray(oldRawRef) ? oldRawRef[i] : oldRawRef), parentComponent, parentSuspense, vnode));
+        rawRef.forEach((r, i) => setRef(r, oldRawRef && (isArray(oldRawRef) ? oldRawRef[i] : oldRawRef), parentSuspense, vnode));
         return;
     }
     let value;
-    if (!vnode) {
+    if (!vnode || isAsyncWrapper(vnode)) {
         value = null;
     }
     else {
@@ -17249,10 +17321,7 @@ const setRef = (rawRef, oldRawRef, parentComponent, parentSuspense, vnode) => {
         }
     }
     else if (isFunction(ref)) {
-        callWithErrorHandling(ref, parentComponent, 12 /* FUNCTION_REF */, [
-            value,
-            refs
-        ]);
+        callWithErrorHandling(ref, owner, 12 /* FUNCTION_REF */, [value, refs]);
     }
     else ;
 };
@@ -17327,7 +17396,7 @@ function baseCreateRenderer(options, createHydrationFns) {
         }
         // set ref
         if (ref != null && parentComponent) {
-            setRef(ref, n1 && n1.ref, parentComponent, parentSuspense, n2);
+            setRef(ref, n1 && n1.ref, parentSuspense, n2);
         }
     };
     const processText = (n1, n2, container, anchor) => {
@@ -17352,6 +17421,24 @@ function baseCreateRenderer(options, createHydrationFns) {
     };
     const mountStaticNode = (n2, container, anchor, isSVG) => {
         [n2.el, n2.anchor] = hostInsertStaticContent(n2.children, container, anchor, isSVG);
+    };
+    const moveStaticNode = ({ el, anchor }, container, nextSibling) => {
+        let next;
+        while (el && el !== anchor) {
+            next = hostNextSibling(el);
+            hostInsert(el, container, nextSibling);
+            el = next;
+        }
+        hostInsert(anchor, container, nextSibling);
+    };
+    const removeStaticNode = ({ el, anchor }) => {
+        let next;
+        while (el && el !== anchor) {
+            next = hostNextSibling(el);
+            hostRemove(el);
+            el = next;
+        }
+        hostRemove(anchor);
     };
     const processElement = (n1, n2, container, anchor, parentComponent, parentSuspense, isSVG, optimized) => {
         isSVG = isSVG || n2.type === 'svg';
@@ -18063,6 +18150,10 @@ function baseCreateRenderer(options, createHydrationFns) {
             hostInsert(vnode.anchor, container, anchor);
             return;
         }
+        if (type === Static) {
+            moveStaticNode(vnode, container, anchor);
+            return;
+        }
         // single nodes
         const needTransition = moveType !== 2 /* REORDER */ &&
             shapeFlag & 1 /* ELEMENT */ &&
@@ -18097,8 +18188,8 @@ function baseCreateRenderer(options, createHydrationFns) {
     const unmount = (vnode, parentComponent, parentSuspense, doRemove = false, optimized = false) => {
         const { type, props, ref, children, dynamicChildren, shapeFlag, patchFlag, dirs } = vnode;
         // unset ref
-        if (ref != null && parentComponent) {
-            setRef(ref, null, parentComponent, parentSuspense, null);
+        if (ref != null) {
+            setRef(ref, null, parentSuspense, null);
         }
         if (shapeFlag & 256 /* COMPONENT_SHOULD_KEEP_ALIVE */) {
             parentComponent.ctx.deactivate(vnode);
@@ -18154,6 +18245,10 @@ function baseCreateRenderer(options, createHydrationFns) {
         const { type, el, anchor, transition } = vnode;
         if (type === Fragment) {
             removeFragment(el, anchor);
+            return;
+        }
+        if (type === Static) {
+            removeStaticNode(vnode);
             return;
         }
         const performRemove = () => {
@@ -18375,6 +18470,11 @@ function resolveAsset(type, name, warnMissing = true) {
         const Component = instance.type;
         // self name has highest priority
         if (type === COMPONENTS) {
+            // special self referencing call generated by compiler
+            // inferred from SFC filename
+            if (name === \`_self\`) {
+                return Component;
+            }
             const selfName = Component.displayName || Component.name;
             if (selfName &&
                 (selfName === name ||
@@ -18462,9 +18562,9 @@ const InternalObjectKey = \`__vInternal\`;
 const normalizeKey = ({ key }) => key != null ? key : null;
 const normalizeRef = ({ ref }) => {
     return (ref != null
-        ? isArray(ref)
-            ? ref
-            : { i: currentRenderingInstance, r: ref }
+        ? isString(ref) || isRef(ref) || isFunction(ref)
+            ? { i: currentRenderingInstance, r: ref }
+            : ref
         : null);
 };
 const createVNode = ( _createVNode);
@@ -18897,9 +18997,9 @@ function applyOptions(instance, options, deferredData = [], deferredWatch = [], 
             const provides = isFunction(provideOptions)
                 ? provideOptions.call(publicThis)
                 : provideOptions;
-            for (const key in provides) {
+            Reflect.ownKeys(provides).forEach(key => {
                 provide(key, provides[key]);
-            }
+            });
         });
     }
     // asset options.
@@ -19083,6 +19183,12 @@ function mergeOptions(to, from, instance) {
         }
     }
 }
+/**
+ * #2437 In Vue 3, functional components do not have a public instance proxy but
+ * they exist in the internal parent chain. For code that relies on traversing
+ * public $parent chains, skip functional ones and go to the parent instead.
+ */
+const getPublicInstance = (i) => i && (i.proxy ? i.proxy : getPublicInstance(i.parent));
 const publicPropertiesMap = extend(Object.create(null), {
     $: i => i,
     $el: i => i.vnode.el,
@@ -19091,7 +19197,7 @@ const publicPropertiesMap = extend(Object.create(null), {
     $attrs: i => ( i.attrs),
     $slots: i => ( i.slots),
     $refs: i => ( i.refs),
-    $parent: i => i.parent && i.parent.proxy,
+    $parent: i => getPublicInstance(i.parent),
     $root: i => i.root && i.root.proxy,
     $emit: i => i.emit,
     $options: i => (__VUE_OPTIONS_API__ ? resolveMergedOptions(i) : i.type),
@@ -19387,7 +19493,9 @@ function finishComponentSetup(instance, isSSR) {
     // support for 2.x options
     if (__VUE_OPTIONS_API__) {
         currentInstance = instance;
+        pauseTracking();
         applyOptions(instance, Component);
+        resetTracking();
         currentInstance = null;
     }
 }
@@ -19406,9 +19514,9 @@ function createSetupContext(instance) {
 }
 // record effects created during a component's setup() so that they can be
 // stopped when the component unmounts
-function recordInstanceBoundEffect(effect) {
-    if (currentInstance) {
-        (currentInstance.effects || (currentInstance.effects = [])).push(effect);
+function recordInstanceBoundEffect(effect, instance = currentInstance) {
+    if (instance) {
+        (instance.effects || (instance.effects = [])).push(effect);
     }
 }
 const classifyRE = /(?:^|[-_])(\\\\w)/g;
@@ -19418,7 +19526,7 @@ function formatComponentName(instance, Component, isRoot = false) {
         ? Component.displayName || Component.name
         : Component.name;
     if (!name && Component.__file) {
-        const match = Component.__file.match(/([^/\\\\\\\\]+)\\\\.vue$/);
+        const match = Component.__file.match(/([^/\\\\\\\\]+)\\\\.\\\\w+$/);
         if (match) {
             name = match[1];
         }
@@ -19446,12 +19554,8 @@ function computed$1(getterOrOptions) {
     recordInstanceBoundEffect(c.effect);
     return c;
 }
-// implementation, close to no-op
-function defineComponent(options) {
-    return isFunction(options) ? { setup: options, name: options.name } : options;
-}
 // Core API ------------------------------------------------------------------
-const version = \\"3.0.3\\";
+const version = \\"3.0.4\\";
 const svgNS = 'http://www.w3.org/2000/svg';
 const doc = (typeof document !== 'undefined' ? document : null);
 let tempContainer;
@@ -19640,22 +19744,31 @@ prevChildren, parentComponent, parentSuspense, unmountChildren) {
         }
         return;
     }
-    if (value === '' && typeof el[key] === 'boolean') {
-        // e.g. <select multiple> compiles to { multiple: '' }
-        el[key] = true;
-    }
-    else if (value == null && typeof el[key] === 'string') {
-        // e.g. <div :id=\\"null\\">
-        el[key] = '';
-        el.removeAttribute(key);
-    }
-    else {
-        // some properties perform value validation and throw
-        try {
-            el[key] = value;
+    if (value === '' || value == null) {
+        const type = typeof el[key];
+        if (value === '' && type === 'boolean') {
+            // e.g. <select multiple> compiles to { multiple: '' }
+            el[key] = true;
+            return;
         }
-        catch (e) {
+        else if (value == null && type === 'string') {
+            // e.g. <div :id=\\"null\\">
+            el[key] = '';
+            el.removeAttribute(key);
+            return;
         }
+        else if (type === 'number') {
+            // e.g. <img :width=\\"null\\">
+            el[key] = 0;
+            el.removeAttribute(key);
+            return;
+        }
+    }
+    // some properties perform value validation and throw
+    try {
+        el[key] = value;
+    }
+    catch (e) {
     }
 }
 // Async edge case fix requires storing an event listener's attach timestamp.

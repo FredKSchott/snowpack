@@ -120,20 +120,20 @@ The `mount` configuration changes where Snowpack looks for and builds files. Eve
 -   /* ... */
 +   // directory name: 'build directory'
 +   public: '/',
-+   src: '/_dist_',
++   src: '/dist',
   },
 ```
 
 <img src="/img/guides/react/folderstructure.png" alt="The original file configuration had Snowpack building the directory structure the same as the directories in the project, including root. Now the config builds only src and public. Src to the dist folder and public to root." />
 
-`mount` is part of the [Snowpack Configuration API](/reference/configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in `public` like `public/index.css` directory into `index.css`. It builds files in `src` like `src/index.js` into `/_dist_/index.js`, so you'll need to change that path in your `index.html`:
+`mount` is part of the [Snowpack Configuration API](/reference/configuration). It allows you to customize the file structure of your project. The key is the name of the directory and the value is where you'd like them in the final build. With this new configuration, Snowpack builds files in `public` like `public/index.css` directory into `index.css`. It builds files in `src` like `src/index.js` into `/dist/index.js`, so you'll need to change that path in your `index.html`:
 
 ```diff
   <body>
     <h1>Welcome to Snowpack!</h1>
     <div id="root"></div>
 -   <script type="module" src="/index.js"></script>
-+   <script type="module" src="/_dist_/index.js"></script>
++   <script type="module" src="/dist/index.js"></script>
   </body>
 ```
 
@@ -313,7 +313,7 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
   module.exports = {
     mount: {
       public: '/',
-      src: '/_dist_',
+      src: '/dist',
     },
 -   plugins: []
 +   plugins: ['@snowpack/plugin-react-refresh'],

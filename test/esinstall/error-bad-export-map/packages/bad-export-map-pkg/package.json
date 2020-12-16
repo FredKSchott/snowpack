@@ -1,8 +1,0 @@
-{
-  "version": "1.2.3",
-  "name": "bad-export-map-pkg",
-  "description": "ERROR: export map entry must start with ./",
-  "exports": {
-    ".": "entrypoint.js"
-  }
-}

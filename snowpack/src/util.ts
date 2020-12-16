@@ -15,9 +15,12 @@ import {clearCache as clearSkypackCache} from 'skypack';
 import url from 'url';
 import localPackageSource from './sources/local';
 import skypackPackageSource from './sources/skypack';
-import {ImportMap, PackageSource, SnowpackConfig} from './types/snowpack';
+import {LockfileManifest, PackageSource, SnowpackConfig} from './types/snowpack';
 
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
+
+// We need to use eval here to prevent Rollup from detecting this use of `require()`
+export const NATIVE_REQUIRE = eval('require');
 
 // A note on cache naming/versioning: We currently version our global caches
 // with the version of the last breaking change. This allows us to re-use the
@@ -46,15 +49,15 @@ export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
 
 /** Read file from disk; return a string if it’s a code file */
 export async function readFile(filepath: URL): Promise<string | Buffer> {
-  const data = await fs.promises.readFile(filepath);
+  const data = await fs.promises.readFile(url.fileURLToPath(filepath));
   const isBinary = await isBinaryFile(data);
-  return isBinary ? data : data.toString('utf-8');
+  return isBinary ? data : data.toString('utf8');
 }
 
-export async function readLockfile(cwd: string): Promise<ImportMap | null> {
+export async function readLockfile(cwd: string): Promise<LockfileManifest | null> {
   try {
     var lockfileContents = fs.readFileSync(path.join(cwd, 'snowpack.lock.json'), {
-      encoding: 'utf-8',
+      encoding: 'utf8',
     });
   } catch (err) {
     // no lockfile found, ignore and continue
@@ -64,12 +67,18 @@ export async function readLockfile(cwd: string): Promise<ImportMap | null> {
   return JSON.parse(lockfileContents);
 }
 
-export async function writeLockfile(loc: string, importMap: ImportMap): Promise<void> {
-  const sortedImportMap: ImportMap = {imports: {}};
-  for (const key of Object.keys(importMap.imports).sort()) {
-    sortedImportMap.imports[key] = importMap.imports[key];
+function sortObject<T>(originalObject: Record<string, T>): Record<string, T> {
+  const newObject = {};
+  for (const key of Object.keys(originalObject).sort()) {
+    newObject[key] = originalObject[key];
   }
-  fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf-8'});
+  return newObject;
+}
+
+export async function writeLockfile(loc: string, importMap: LockfileManifest): Promise<void> {
+  importMap.dependencies = sortObject(importMap.dependencies);
+  importMap.imports = sortObject(importMap.imports);
+  fs.writeFileSync(loc, JSON.stringify(importMap, undefined, 2), {encoding: 'utf8'});
 }
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {
@@ -78,6 +87,19 @@ export function isTruthy<T>(item: T | false | null | undefined): item is T {
 
 export function getPackageSource(source: 'skypack' | 'local'): PackageSource {
   return source === 'local' ? localPackageSource : skypackPackageSource;
+}
+
+/**
+ * Returns true if fsevents exists. When Snowpack is bundled, automatic fsevents
+ * detection fails for many libraries. This function helps add back support.
+ */
+export function isFsEventsEnabled(): boolean {
+  try {
+    NATIVE_REQUIRE('fsevents');
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
 /** Get the package name + an entrypoint within that package (if given). */
@@ -108,7 +130,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
     const depManifest = fs.realpathSync.native(
       require.resolve(`${dep}/package.json`, {paths: [cwd]}),
     );
-    return [depManifest, require(depManifest)];
+    return [depManifest, NATIVE_REQUIRE(depManifest)];
   } catch (err) {
     // if its an export map issue, move on to our manual resolver.
     if (err.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
@@ -132,7 +154,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
       const manifestPath =
         fullPath.substring(0, indexOfSearch + searchPath.length + 1) + 'package.json';
       result[0] = manifestPath;
-      const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf-8'});
+      const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf8'});
       result[1] = JSON.parse(manifestStr);
     }
   } catch (err) {
@@ -232,8 +254,8 @@ export async function checkLockfileHash(dir: string) {
     return true;
   }
   const hashLoc = path.join(dir, LOCKFILE_HASH_FILE);
-  const newLockHash = etag(await fs.promises.readFile(lockfileLoc, 'utf-8'));
-  const oldLockHash = await fs.promises.readFile(hashLoc, 'utf-8').catch(() => '');
+  const newLockHash = etag(await fs.promises.readFile(lockfileLoc, 'utf8'));
+  const oldLockHash = await fs.promises.readFile(hashLoc, 'utf8').catch(() => '');
   return newLockHash === oldLockHash;
 }
 
@@ -256,13 +278,20 @@ export async function clearCache() {
   ]);
 }
 
+function getAliasType(val: string): 'package' | 'path' | 'url' {
+  if (isRemoteUrl(val)) {
+    return 'url';
+  }
+  return !path.isAbsolute(val) ? 'package' : 'path';
+}
+
 /**
  * For the given import specifier, return an alias entry if one is matched.
  */
 export function findMatchingAliasEntry(
   config: SnowpackConfig,
   spec: string,
-): {from: string; to: string; type: 'package' | 'path'} | undefined {
+): {from: string; to: string; type: 'package' | 'path' | 'url'} | undefined {
   // Only match bare module specifiers. relative and absolute imports should not match
   if (
     spec === '.' ||
@@ -277,46 +306,44 @@ export function findMatchingAliasEntry(
   }
 
   for (const [from, to] of Object.entries(config.alias)) {
-    let foundType: 'package' | 'path' = isPackageAliasEntry(to) ? 'package' : 'path';
     const isExactMatch = spec === from;
     const isDeepMatch = spec.startsWith(addTrailingSlash(from));
     if (isExactMatch || isDeepMatch) {
       return {
         from,
         to,
-        type: foundType,
+        type: getAliasType(to),
       };
     }
   }
 }
 
 /**
- * For the given import specifier, return an alias entry if one is matched.
+ * Get the most specific file extension match possible.
  */
-export function isPackageAliasEntry(val: string): boolean {
-  return !path.isAbsolute(val);
+export function getExtensionMatch(
+  fileName: string,
+  extensionMap: Record<string, string>,
+): [string, string] | undefined {
+  let extensionPartial;
+  let extensionMatch;
+  // If a full URL is given, start at the basename. Otherwise, start at zero.
+  let extensionMatchIndex = Math.max(0, fileName.lastIndexOf('/'));
+  // Grab expanded file extensions, from longest to shortest.
+  while (!extensionMatch && extensionMatchIndex > -1) {
+    extensionMatchIndex++;
+    extensionMatchIndex = fileName.indexOf('.', extensionMatchIndex);
+    extensionPartial = fileName.substr(extensionMatchIndex).toLowerCase();
+    extensionMatch = extensionMap[extensionPartial];
+  }
+  // Return the first match, if one was found. Otherwise, return undefined.
+  return extensionMatch ? [extensionPartial, extensionMatch] : undefined;
 }
 
-/** Get full extensions of files */
-export function getExt(fileName: string) {
-  return {
-    /** base extension (e.g. `.js`) */
-    baseExt: path.extname(fileName).toLocaleLowerCase(),
-    /** full extension, if applicable (e.g. `.proxy.js`) */
-    expandedExt: path.basename(fileName).replace(/[^.]+/, '').toLocaleLowerCase(),
-  };
+export function isRemoteUrl(val: string): boolean {
+  return val.startsWith('//') || !!url.parse(val).protocol?.startsWith('http');
 }
 
-/** Replace file extensions */
-export function replaceExt(fileName: string, oldExt: string, newExt: string): string {
-  const extToReplace = new RegExp(`\\${oldExt}$`, 'i');
-  return fileName.replace(extToReplace, newExt);
-}
-
-/** determine if remote package or not */
-export function isRemoteSpecifier(specifier) {
-  return specifier.startsWith('//') || url.parse(specifier).protocol;
-}
 /**
  * Sanitizes npm packages that end in .js (e.g `tippy.js` -> `tippyjs`).
  * This is necessary because Snowpack can’t create both a file and directory
@@ -365,6 +392,22 @@ export function appendHtmlToHead(doc: string, htmlToAdd: string) {
   return doc.replace(closingHeadMatch[0], htmlToAdd + closingHeadMatch[0]);
 }
 
+export function getExtension(str: string) {
+  return path.extname(str).toLowerCase();
+}
+
+export function hasExtension(str: string, ext: string) {
+  return str.toLowerCase().endsWith(ext);
+}
+
+export function replaceExtension(fileName: string, oldExt: string, newExt: string): string {
+  const extToReplace = new RegExp(`\\${oldExt}$`, 'i');
+  return fileName.replace(extToReplace, newExt);
+}
+export function removeExtension(fileName: string, oldExt: string): string {
+  return replaceExtension(fileName, oldExt, '');
+}
+
 /** Add / to beginning of string (but don’t double-up) */
 export function addLeadingSlash(path: string) {
   return path.replace(/^\/?/, '/');
@@ -386,10 +429,10 @@ export function removeTrailingSlash(path: string) {
 }
 
 export const HMR_CLIENT_CODE = fs.readFileSync(
-  path.join(__dirname, '../assets/hmr-client.js'),
-  'utf-8',
+  path.resolve(__dirname, '../assets/hmr-client.js'),
+  'utf8',
 );
 export const HMR_OVERLAY_CODE = fs.readFileSync(
-  path.join(__dirname, '../assets/hmr-error-overlay.js'),
-  'utf-8',
+  path.resolve(__dirname, '../assets/hmr-error-overlay.js'),
+  'utf8',
 );

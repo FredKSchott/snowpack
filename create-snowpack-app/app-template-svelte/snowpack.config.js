@@ -1,8 +1,8 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
   mount: {
-    public: '/',
-    src: '/_dist_',
+    public: {url: '/', static: true},
+    src: {url: '/dist'},
   },
   plugins: [
     '@snowpack/plugin-svelte',
@@ -19,10 +19,7 @@ module.exports = {
   },
   buildOptions: {
     /* ... */
-  },
-  proxy: {
-    /* ... */
-  },
+  }, 
   alias: {
     /* ... */
   },

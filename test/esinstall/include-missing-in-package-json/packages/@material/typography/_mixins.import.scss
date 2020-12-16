@@ -1,3 +1,0 @@
-@forward "@material/feature-targeting" as mdc-feature-*;
-@forward "./index" as mdc-typography-* hide mdc-typography-typography;
-@forward "./index" as mdc-* show mdc-typography;

@@ -1,10 +1,12 @@
+import fs from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
-import fs from 'fs';
-import {VM as VM2} from 'vm2';
 import {Plugin} from 'rollup';
-import {InstallTarget, AbstractLogger} from '../types';
-import {getWebDependencyName, isTruthy} from '../util.js';
+import {VM as VM2} from 'vm2';
+import {AbstractLogger, InstallTarget} from '../types';
+import {getWebDependencyName, isJavaScript, isRemoteUrl, isTruthy, NATIVE_REQUIRE} from '../util';
+import isValidIdentifier from 'is-valid-identifier';
+
 // Use CJS intentionally here! ESM interface is async but CJS is sync, and this file is sync
 const {parse} = require('cjs-module-lexer');
 
@@ -36,7 +38,7 @@ export function rollupPluginWrapInstallTargets(
    */
   function cjsAutoDetectExportsTrusted(normalizedFileLoc: string): string[] | undefined {
     try {
-      const mod = require(normalizedFileLoc);
+      const mod = NATIVE_REQUIRE(normalizedFileLoc);
       // skip analysis for non-object modules, these can only be the default export.
       if (!mod || mod.constructor !== Object) {
         return;
@@ -68,7 +70,7 @@ export function rollupPluginWrapInstallTargets(
     } else {
       visited.add(filename);
     }
-    const fileContents = fs.readFileSync(filename, 'utf-8');
+    const fileContents = fs.readFileSync(filename, 'utf8');
     try {
       // Attempt 1 - CJS: Run cjs-module-lexer to statically analyze exports.
       let {exports, reexports} = parse(fileContents);
@@ -97,6 +99,13 @@ export function rollupPluginWrapInstallTargets(
             'const exports={}; const module={exports}; ' + fileContents + ';; module.exports;',
           ),
         );
+
+        // Verify that all of these are valid identifiers. Otherwise when we attempt to
+        // reexport it will produce invalid js like `import { a, b, 0, ) } from 'foo';
+        const allValid = exports.every((identifier) => isValidIdentifier(identifier));
+        if (!allValid) {
+          exports = [];
+        }
       }
 
       // Resolve and flatten all exports into a single array, and remove invalid exports.
@@ -115,6 +124,12 @@ export function rollupPluginWrapInstallTargets(
     buildStart(inputOptions) {
       const input = inputOptions.input as {[entryAlias: string]: string};
       for (const [key, val] of Object.entries(input)) {
+        if (isRemoteUrl(val)) {
+          continue;
+        }
+        if (!isJavaScript(val)) {
+          continue;
+        }
         const allInstallTargets = installTargets.filter(
           (imp) => getWebDependencyName(imp.specifier) === key,
         );

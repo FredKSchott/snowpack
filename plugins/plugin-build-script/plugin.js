@@ -2,9 +2,7 @@ const execa = require('execa');
 const npmRunPath = require('npm-run-path');
 const {promises: fs} = require('fs');
 
-const cwd = process.cwd();
-
-function buildScriptPlugin(_, {input, output, cmd}) {
+function buildScriptPlugin(snowpackConfig, {input, output, cmd}) {
   if (output.length !== 1) {
     throw new Error('Requires one output.');
   }
@@ -23,7 +21,7 @@ function buildScriptPlugin(_, {input, output, cmd}) {
         shell: true,
         windowsHide: false,
         input: contents,
-        cwd,
+        cwd: snowpackConfig.root || process.cwd(),
       });
       // If the command failed, fail the plugin as well.
       if (exitCode !== 0) {

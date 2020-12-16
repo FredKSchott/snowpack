@@ -20,10 +20,7 @@ module.exports = {
   },
   buildOptions: {
     out: '_site',
-  },
-  proxy: {
-    /* ... */
-  },
+  }, 
   alias: {
     /* ... */
   },

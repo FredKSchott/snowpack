@@ -1,6 +1,6 @@
 {
   "name": "esinstall",
-  "version": "0.4.0",
+  "version": "0.5.1",
   "description": "Convert packages to ESM.",
   "license": "MIT",
   "keywords": [
@@ -24,9 +24,9 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc --watch",
-    "lint": "tsc --noEmit --noUnusedLocals true --noUnusedParameters true && package-check"
+    "build": "tsc --noUnusedLocals false --noUnusedParameters false",
+    "build:watch": "tsc --watch --noUnusedLocals false --noUnusedParameters false",
+    "lint": "tsc --noEmit && package-check"
   },
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -48,6 +48,7 @@
     "cjs-module-lexer": "^1.0.0",
     "es-module-lexer": "^0.3.24",
     "is-builtin-module": "^3.0.0",
+    "is-valid-identifier": "^2.0.2",
     "kleur": "^4.1.1",
     "mkdirp": "^1.0.3",
     "rimraf": "^3.0.0",

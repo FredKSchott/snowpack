@@ -1,0 +1,10 @@
+{
+  "version": "1.2.3",
+  "name": "export-map-object-import",
+  "description": "With dot slash",
+  "exports": {
+    ".": {
+      "import": "./entrypoint.js"
+    }
+  }
+}

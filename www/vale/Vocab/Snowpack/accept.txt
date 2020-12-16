@@ -1,0 +1,10 @@
+(CSS|\.css).*\b
+(JSX|\.jsx).*\b
+\.js*\b
+npx
+Snowpack
+bundler
+npm
+Skypack
+Webpack
+Vue

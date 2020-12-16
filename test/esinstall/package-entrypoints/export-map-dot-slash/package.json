@@ -1,0 +1,8 @@
+{
+  "version": "1.2.3",
+  "name": "export-map-dot-slash",
+  "description": "With dot slash",
+  "exports": {
+    "./": "./entrypoint.js"
+  }
+}

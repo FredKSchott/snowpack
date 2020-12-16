@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-include-ts",
+  "scripts": {
+    "testbuild": "snowpack build"
+  },
+  "snowpack": {
+    "buildOptions": {
+      "minify": false
+    }
+  },
+  "dependencies": {
+    "array-flatten": "^3.0.0",
+    "http-vue-loader": "^1.4.1",
+    "shallow-equal": "^1.2.1",
+    "vue": "^2.0.0",
+    "vue-router": "^3.0.0"
+  },
+  "devDependencies": {
+    "snowpack": "^2.14.3"
+  }
+}

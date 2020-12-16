@@ -1,9 +1,8 @@
 const {isTestFilePath} = require('@web/test-runner');
 const snowpack = require('snowpack');
 const path = require('path');
-const cwd = process.cwd();
 
-module.exports = function () {
+module.exports = function (snowpackConfig = {}) {
   if (process.env.NODE_ENV !== 'test') {
     throw new Error(`@snowpack/web-test-runner-plugin: NODE_ENV must === "test" to build files correctly.
 To Resolve:
@@ -11,22 +10,24 @@ To Resolve:
   2. Prefix your web-test-runner CLI command: "NODE_ENV=test web-test-runner ...".
 `);
   }
-  const pkgManifest = require(path.join(cwd, 'package.json'));
-  const config = snowpack.loadAndValidateConfig(
-    {
-      externalPackage: ['/__web-dev-server__web-socket.js'],
-      devOptions: {hmr: false, open: 'none', output: 'stream'},
-    },
-    pkgManifest,
-  );
-  let server;
+  const pkgManifest = require(path.join(snowpackConfig.root || process.cwd(), 'package.json'));
+  let server, config;
 
   return {
     name: 'snowpack-plugin',
     async serverStart({fileWatcher}) {
+      config = await snowpack.loadAndValidateConfig(
+        {
+          externalPackage: ['/__web-dev-server__web-socket.js'],
+          hmr: false,
+          open: 'none',
+          output: 'stream',
+        },
+        pkgManifest,
+      );
       fileWatcher.add(Object.keys(config.mount));
       server = await snowpack.startDevServer({
-        cwd,
+        cwd: snowpackConfig.root || process.cwd(),
         config,
         lockfile: null,
         pkgManifest,
@@ -52,7 +53,7 @@ To Resolve:
         0,
         source.indexOf('?') === -1 ? undefined : source.indexOf('?'),
       );
-      const sourcePath = path.join(cwd, reqPath);
+      const sourcePath = path.join(snowpackConfig.root || process.cwd(), reqPath);
       const mountedUrl = snowpack.getUrlForFile(sourcePath, config);
       if (!mountedUrl) {
         throw new Error(`${source} could not be mounted!`);

@@ -10,7 +10,8 @@ import {OptimizeOptions, SnowpackConfig} from '../types/snowpack';
 import {
   addLeadingSlash,
   addTrailingSlash,
-  isRemoteSpecifier,
+  hasExtension,
+  isRemoteUrl,
   isTruthy,
   PROJECT_CACHE_DIR,
   removeLeadingSlash,
@@ -91,7 +92,7 @@ function collectDeepImports(url: string, manifest: ESBuildMetaManifest, set: Set
 async function scanHtmlEntrypoints(htmlFiles: string[]): Promise<(ScannedHtmlEntrypoint | null)[]> {
   return Promise.all(
     htmlFiles.map(async (htmlFile) => {
-      const code = await fs.readFile(htmlFile, 'utf-8');
+      const code = await fs.readFile(htmlFile, 'utf8');
       const root = cheerio.load(code);
       const isHtmlFragment = root.html().startsWith('<html><head></head><body>');
       if (isHtmlFragment) {
@@ -189,7 +190,7 @@ async function restitchInlineScripts(htmlData: ScannedHtmlEntrypoint): Promise<v
     .each((_, elem) => {
       const scriptRoot = root(elem);
       const scriptFile = path.resolve(file, '..', scriptRoot.attr('src')!);
-      const scriptContent = readFileSync(scriptFile, 'utf-8');
+      const scriptContent = readFileSync(scriptFile, 'utf8');
       scriptRoot.text(scriptContent);
       scriptRoot.removeAttr('src');
       scriptRoot.removeAttr('snowpack-inline');
@@ -200,7 +201,7 @@ async function restitchInlineScripts(htmlData: ScannedHtmlEntrypoint): Promise<v
     .each((_, elem) => {
       const linkRoot = root(elem);
       const styleFile = path.resolve(file, '..', linkRoot.attr('href')!);
-      const styleContent = readFileSync(styleFile, 'utf-8');
+      const styleContent = readFileSync(styleFile, 'utf8');
       const newStyleEl = root('<style></style>');
       newStyleEl.text(styleContent);
       linkRoot.after(newStyleEl);
@@ -219,7 +220,7 @@ function addNewBundledCss(
     return;
   }
   for (const key of Object.keys(manifest.outputs)) {
-    if (!key.endsWith('.css')) {
+    if (!hasExtension(key, '.css')) {
       continue;
     }
     const scriptKey = key.replace('.css', '.js');
@@ -280,7 +281,7 @@ async function getEntrypoints(
 ) {
   if (entrypoints === 'auto') {
     // TODO: Filter allBuildFiles by HTML with head & body
-    return allBuildFiles.filter((f) => f.endsWith('.html'));
+    return allBuildFiles.filter((f) => hasExtension(f, '.html'));
   }
   if (Array.isArray(entrypoints)) {
     return entrypoints;
@@ -351,11 +352,11 @@ async function processEntrypoints(
   baseUrl: string,
 ): Promise<{htmlEntrypoints: null | ScannedHtmlEntrypoint[]; bundleEntrypoints: string[]}> {
   // If entrypoints are JS:
-  if (entrypointFiles.every((f) => f.endsWith('.js'))) {
+  if (entrypointFiles.every((f) => hasExtension(f, '.js'))) {
     return {htmlEntrypoints: null, bundleEntrypoints: entrypointFiles};
   }
   // If entrypoints are HTML:
-  if (entrypointFiles.every((f) => f.endsWith('.html'))) {
+  if (entrypointFiles.every((f) => hasExtension(f, '.html'))) {
     const rawHtmlEntrypoints = await scanHtmlEntrypoints(entrypointFiles);
     const htmlEntrypoints = rawHtmlEntrypoints.filter(isTruthy);
     if (
@@ -369,7 +370,7 @@ async function processEntrypoints(
     const bundleEntrypoints = Array.from(
       htmlEntrypoints.reduce((all, val) => {
         val.getLinks('stylesheet').each((_, elem) => {
-          if (!elem.attribs.href || isRemoteSpecifier(elem.attribs.href)) {
+          if (!elem.attribs.href || isRemoteUrl(elem.attribs.href)) {
             return;
           }
           const resolvedCSS =
@@ -379,7 +380,7 @@ async function processEntrypoints(
           all.add(resolvedCSS);
         });
         val.getScripts().each((_, elem) => {
-          if (!elem.attribs.src || isRemoteSpecifier(elem.attribs.src)) {
+          if (!elem.attribs.src || isRemoteUrl(elem.attribs.src)) {
             return;
           }
           const resolvedJS =
@@ -403,6 +404,7 @@ async function processEntrypoints(
  */
 async function runEsbuildOnBuildDirectory(
   bundleEntrypoints: string[],
+  allFiles: string[],
   config: SnowpackConfig,
   esbuildService: esbuild.Service,
 ): Promise<{manifest: ESBuildMetaManifest; outputFiles: esbuild.OutputFile[]}> {
@@ -419,6 +421,9 @@ async function runEsbuildOnBuildDirectory(
     publicPath: config.buildOptions.baseUrl,
     minify: config.experiments.optimize!.minify,
     target: config.experiments.optimize!.target,
+    external: Array.from(new Set(allFiles.map((f) => '*' + path.extname(f)))).filter(
+      (ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css',
+    ),
   });
   const manifestFile = outputFiles!.find((f) => f.path.endsWith('build-manifest.json'))!;
   const manifestContents = manifestFile.text;
@@ -510,6 +515,7 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
   const esbuildService = await esbuild.startService();
   const {manifest, outputFiles} = await runEsbuildOnBuildDirectory(
     bundleEntrypoints,
+    allBuildFiles,
     config,
     esbuildService,
   );
@@ -543,7 +549,7 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
   else if (options.minify || options.target) {
     for (const f of allBuildFiles) {
       if (['.js', '.css'].includes(path.extname(f))) {
-        let code = await fs.readFile(f, 'utf-8');
+        let code = await fs.readFile(f, 'utf8');
         const minified = await esbuildService.transform(code, {
           sourcefile: path.basename(f),
           loader: path.extname(f).slice(1) as 'js' | 'css',

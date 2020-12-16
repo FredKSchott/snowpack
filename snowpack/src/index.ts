@@ -1,11 +1,12 @@
 import * as colors from 'kleur/colors';
 import path from 'path';
+import {promises as fs} from 'fs';
 import util from 'util';
 import yargs from 'yargs-parser';
 import {addCommand, rmCommand} from './commands/add-rm';
 import {command as initCommand} from './commands/init';
-import {command as buildCommand} from './commands/build';
 import {command as installCommand} from './commands/install';
+import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {logger} from './logger';
 import {loadConfigurationForCLI} from './config';
@@ -17,9 +18,8 @@ export * from './types/snowpack';
 export {startDevServer} from './commands/dev';
 export {buildProject} from './commands/build';
 export {loadConfigurationForCLI as loadAndValidateConfig, createConfiguration} from './config.js';
+export {readLockfile as loadLockfile} from './util.js';
 export {getUrlForFile} from './build/file-urls';
-
-const cwd = process.cwd();
 
 function printHelp() {
   logger.info(
@@ -36,7 +36,6 @@ ${colors.bold('Commands:')}
   snowpack build         Build your app for production.
   snowpack add [package] Add a package to your lockfile (import map).
   snowpack rm [package]  Remove a package from your lockfile.
-  snowpack install       (Deprecated) Install web-ready dependencies.
 
 ${colors.bold('Flags:')}
   --config [path]        Set the location of your project config file.
@@ -74,13 +73,17 @@ export async function cli(args: string[]) {
     await clearCache();
   }
   // Load the current package manifest
+  // TODO: process.cwd() okay here? We should remove this requirement on a package.json for v3.0.
   let pkgManifest: any;
   try {
-    pkgManifest = require(path.join(cwd, 'package.json'));
+    pkgManifest = await fs.readFile(path.join(process.cwd(), 'package.json'), 'utf8');
   } catch (err) {
-    logger.error(`package.json not found in directory: ${cwd}. Run \`npm init -y\` to create one.`);
+    logger.error(
+      `package.json not found in directory: ${process.cwd()}. Run \`npm init -y\` to create one.`,
+    );
     process.exit(1);
   }
+  pkgManifest = JSON.parse(pkgManifest);
 
   const cmd = cliFlags['_'][2];
   logger.debug(`run command: ${cmd}`);
@@ -97,12 +100,12 @@ export async function cli(args: string[]) {
     process.env.NODE_ENV = process.env.NODE_ENV || 'development';
   }
 
-  const config = loadConfigurationForCLI(cliFlags, pkgManifest);
+  const config = await loadConfigurationForCLI(cliFlags, pkgManifest);
   logger.debug(`config loaded: ${util.format(config)}`);
-  const lockfile = await readLockfile(cwd);
+  // TODO: process.cwd() okay here? Should the lockfile live at root instead of cwd?
+  const lockfile = await readLockfile(process.cwd());
   logger.debug(`lockfile ${lockfile ? 'loaded.' : 'not loaded'}`);
   const commandOptions: CommandOptions = {
-    cwd,
     config,
     lockfile,
   };
@@ -121,6 +124,11 @@ export async function cli(args: string[]) {
     process.exit(1);
   }
 
+  // DEPRECATED: To be removed once final esinstall test is moved off of "snowpack install"
+  if (cmd === 'install') {
+    await installCommand(commandOptions);
+    return process.exit(0);
+  }
   if (cmd === 'init') {
     await initCommand(commandOptions);
     return process.exit(0);
@@ -131,10 +139,6 @@ export async function cli(args: string[]) {
   }
   if (cmd === 'dev') {
     await devCommand(commandOptions);
-    return process.exit(0);
-  }
-  if (cmd === 'install') {
-    await installCommand(commandOptions);
     return process.exit(0);
   }
 

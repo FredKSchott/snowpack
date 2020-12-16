@@ -8,17 +8,14 @@ import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js
 import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
 import {writeLockfile} from '../util.js';
 
-const cwd = process.cwd();
-
 export async function getInstallTargets(
   config: SnowpackConfig,
-  lockfile: ImportMap | null,
   scannedFiles?: SnowpackSourceFile[],
 ) {
   const {knownEntrypoints} = config;
   let installTargets: InstallTarget[] = [];
   if (knownEntrypoints) {
-    installTargets.push(...scanDepList(knownEntrypoints, cwd));
+    installTargets.push(...scanDepList(knownEntrypoints, config.root));
   }
   // TODO: remove this if block; move logic inside scanImports
   if (scannedFiles) {
@@ -26,29 +23,14 @@ export async function getInstallTargets(
   } else {
     installTargets.push(...(await scanImports(process.env.NODE_ENV === 'test', config)));
   }
-  if (lockfile) {
-    const importMapSubPaths = Object.keys(lockfile.imports).filter((ent) => ent.endsWith('/'));
-    installTargets = installTargets.filter((t) => {
-      if (lockfile.imports[t.specifier]) {
-        return false;
-      }
-      if (
-        t.specifier.includes('/') &&
-        importMapSubPaths.some((ent) => t.specifier.startsWith(ent))
-      ) {
-        return false;
-      }
-      return true;
-    });
-  }
   return installTargets;
 }
 
 export async function command(commandOptions: CommandOptions) {
-  const {config, lockfile} = commandOptions;
+  const {config} = commandOptions;
 
   logger.debug('Starting install');
-  const installTargets = await getInstallTargets(config, lockfile);
+  const installTargets = await getInstallTargets(config);
   logger.debug('Received install targets');
   if (installTargets.length === 0) {
     logger.error('Nothing to install.');
@@ -110,9 +92,8 @@ export async function run({
   }
 
   let newLockfile: ImportMap | null = null;
-
   const finalResult = await install(installTargets, {
-    cwd,
+    cwd: config.root,
     lockfile: newLockfile || undefined,
     alias: config.alias,
     logger: {
@@ -126,7 +107,7 @@ export async function run({
 
   logger.debug('Install ran successfully!');
   if (shouldWriteLockfile && newLockfile) {
-    await writeLockfile(path.join(cwd, 'snowpack.lock.json'), newLockfile);
+    await writeLockfile(path.join(config.root, 'snowpack.lock.json'), newLockfile);
     logger.debug('Successfully wrote lockfile');
   }
 

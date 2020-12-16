@@ -1,16 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { ImportMap, SnowpackConfig } from '../types/snowpack';
-import { findMatchingAliasEntry, getExt, isRemoteSpecifier, replaceExt } from '../util';
-import { getUrlForFile } from './file-urls';
-
-const cwd = process.cwd();
-
-interface ImportResolverOptions {
-  fileLoc: string;
-  lockfile?: ImportMap | null;
-  config: SnowpackConfig;
-}
+import {SnowpackConfig} from '../types/snowpack';
+import {findMatchingAliasEntry, getExtensionMatch, hasExtension, isRemoteUrl, replaceExtension} from '../util';
+import {getUrlForFile} from './file-urls';
 
 /** Perform a file disk lookup for the requested import specifier. */
 export function getImportStats(importedFileOnDisk: string): fs.Stats | false {
@@ -30,13 +22,12 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: S
     spec = spec + trailingSlash + 'index.js';
   }
   // Transform the file extension (from input to output)
-  const {baseExt} = getExt(spec);
-  const extToReplace = config._extensionMap[baseExt];
-  if (extToReplace) {
-    spec = replaceExt(spec, baseExt, extToReplace);
+  const extensionMatch = getExtensionMatch(spec, config._extensionMap);
+  if (extensionMatch) {
+    spec = replaceExtension(spec, extensionMatch[0], extensionMatch[1]);
   }
   // Lazy check to handle imports that are missing file extensions
-  if (!stats && !spec.endsWith('.js') && !spec.endsWith('.css')) {
+  if (!stats && !hasExtension(spec, '.js') && !hasExtension(spec, '.css')) {
     spec = spec + '.js';
   }
   return spec;
@@ -47,30 +38,18 @@ function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: S
  * to a proper URL. Returns false if no matching import was found, which usually indicates a package
  * not found in the import map.
  */
-export function createImportResolver({
-  fileLoc,
-  lockfile,
-  config,
-}: ImportResolverOptions) {
+export function createImportResolver({fileLoc, config}: {fileLoc: string; config: SnowpackConfig}) {
   return function importResolver(spec: string): string | false {
     // Ignore "http://*" imports
-    if (isRemoteSpecifier(spec)) {
+    if (isRemoteUrl(spec)) {
       return spec;
     }
     // Ignore packages marked as external
     if (config.installOptions.externalPackage?.includes(spec)) {
       return spec;
     }
-    // Support snowpack.lock.json entry
-    if (lockfile && lockfile.imports[spec]) {
-      const mappedImport = lockfile.imports[spec];
-      if (isRemoteSpecifier(mappedImport)) {
-        return mappedImport;
-      }
-      throw new Error(`Not supported: "${spec}" lockfile entry must be a full URL (https://...).`);
-    }
     if (spec.startsWith('/')) {
-      const importStats = getImportStats(path.resolve(cwd, spec.substr(1)));
+      const importStats = getImportStats(path.resolve(config.root, spec.substr(1)));
       return resolveSourceSpecifier(spec, importStats, config);
     }
     if (spec.startsWith('./') || spec.startsWith('../')) {
@@ -80,10 +59,13 @@ export function createImportResolver({
       return resolveSourceSpecifier(newSpec, importStats, config);
     }
     const aliasEntry = findMatchingAliasEntry(config, spec);
-    if (aliasEntry && aliasEntry.type === 'path') {
+    if (aliasEntry && (aliasEntry.type === 'path' || aliasEntry.type === 'url')) {
       const {from, to} = aliasEntry;
       let result = spec.replace(from, to);
-      const importedFileLoc = path.resolve(cwd, result);
+      if (aliasEntry.type === 'url') {
+        return result;
+      }
+      const importedFileLoc = path.resolve(config.root, result);
       const importStats = getImportStats(importedFileLoc);
       const newSpec = getUrlForFile(importedFileLoc, config) || spec;
       return resolveSourceSpecifier(newSpec, importStats, config);

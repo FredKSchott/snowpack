@@ -1,6 +1,5 @@
 import type {InstallOptions} from 'esinstall';
 import type * as http from 'http';
-import type HttpProxy from 'http-proxy';
 import type {RawSourceMap} from 'source-map';
 
 export type DeepPartial<T> = {
@@ -66,7 +65,7 @@ export interface SnowpackDevServer {
 
 export type SnowpackBuildResultFileManifest = Record<
   string,
-  {source: string; contents: string | Buffer}
+  {source: string | null; contents: string | Buffer}
 >;
 
 export interface SnowpackBuildResult {
@@ -88,17 +87,22 @@ export interface SnowpackSourceFile<Type = string | Buffer> {
   baseExt: string;
   /** file contents */
   contents: Type;
-  /** expanded extension (e.g. `.proxy.js` or `.module.css`) */
-  expandedExt: string;
   /** if no location on disk, assume this exists in memory */
   locOnDisk: string;
+  /** project "root" directory */
+  root: string;
 }
 
 export interface PluginLoadOptions {
+  /** The absolute file path of the source file, on disk. */
   filePath: string;
+  /** A helper for just the file extension of the source file (ex: ".js", ".svelte") */
   fileExt: string;
+  /** True if builder is in dev mode (`snowpack dev` or `snowpack build --watch`) */
   isDev: boolean;
+  /** True if builder is in SSR mode */
   isSSR: boolean;
+  /** True if HMR is enabled (add any HMR code to the output here). */
   isHmrEnabled: boolean;
 }
 
@@ -112,8 +116,6 @@ export interface PluginTransformOptions {
 
 export interface PluginRunOptions {
   isDev: boolean;
-  /* @deprecated */
-  isHmrEnabled: boolean;
 }
 
 /** map of extensions -> code (e.g. { ".js": "[code]", ".css": "[code]" }) */
@@ -162,27 +164,11 @@ export interface SnowpackPlugin {
   markChanged?(file: string): void;
 }
 
-export interface LegacySnowpackPlugin {
-  defaultBuildScript: string;
-  build?(options: PluginLoadOptions & {contents: string | Buffer}): Promise<any>;
-  bundle?(options: {
-    srcDirectory: string;
-    destDirectory: string;
-    jsFilePaths: string[];
-  }): Promise<any>;
-}
-
 /** Snowpack Build Plugin type */
 export type SnowpackPluginFactory<PluginOptions = object> = (
   snowpackConfig: SnowpackConfig,
   pluginOptions?: PluginOptions,
 ) => SnowpackPlugin;
-
-export type ProxyOptions = HttpProxy.ServerOptions & {
-  // Custom on: {} event handlers
-  on: Record<string, Function>;
-};
-export type Proxy = [string, ProxyOptions];
 
 export type MountEntry = {
   url: string;
@@ -208,14 +194,13 @@ export interface RouteConfigObject {
 
 // interface this library uses internally
 export interface SnowpackConfig {
+  root: string;
   install: string[];
   extends?: string;
   exclude: string[];
   knownEntrypoints: string[];
-  webDependencies: Record<string, string>;
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
-  scripts: Record<string, string>;
   plugins: SnowpackPlugin[];
   devOptions: {
     secure: boolean;
@@ -246,21 +231,12 @@ export interface SnowpackConfig {
   testOptions: {
     files: string[];
   };
-  // @deprecated - Use experiments.routes instead
-  proxy: Proxy[];
   /** EXPERIMENTAL - This section is experimental and not yet finalized. May change across minor versions. */
   experiments: {
     /** (EXPERIMENTAL) Where should dependencies be loaded from? */
     source: 'local' | 'skypack';
     /** (EXPERIMENTAL) If true, "snowpack build" should build your site for SSR. */
     ssr: boolean;
-    /** (EXPERIMENTAL) Custom request handler for the dev server. */
-    /** @deprecated: Use experiments.routes or integrate Snowpack's JS API into your own server instead. */
-    app?: (
-      req: http.IncomingMessage,
-      res: http.ServerResponse,
-      next: (err?: Error) => void,
-    ) => unknown;
     /** (EXPERIMENTAL) Optimize your site for production. */
     optimize?: OptimizeOptions;
     /** (EXPERIMENTAL) Configure routes during development. */
@@ -270,14 +246,12 @@ export interface SnowpackConfig {
 }
 
 export type SnowpackUserConfig = {
+  root?: string;
   install?: string[];
   extends?: string;
   exclude?: string[];
-  proxy?: Record<string, string | ProxyOptions>;
   mount?: Record<string, string | Partial<MountEntry>>;
   alias?: Record<string, string>;
-  /** @deprecated */
-  scripts?: Record<string, string>;
   plugins?: (string | [string, any])[];
   devOptions?: Partial<SnowpackConfig['devOptions']>;
   installOptions?: Partial<SnowpackConfig['installOptions']>;
@@ -286,16 +260,16 @@ export type SnowpackUserConfig = {
   experiments?: {
     source?: SnowpackConfig['experiments']['source'];
     ssr?: SnowpackConfig['experiments']['ssr'];
-    app?: SnowpackConfig['experiments']['app'];
     optimize?: Partial<SnowpackConfig['experiments']['optimize']>;
     routes?: Pick<RouteConfigObject, 'src' | 'dest' | 'match'>[];
   };
 };
 
-export interface CLIFlags extends Omit<InstallOptions, 'env'> {
+export interface CLIFlags {
   help?: boolean; // display help text
   version?: boolean; // display Snowpack version
   reload?: boolean;
+  root?: string; // manual path to project root
   config?: string; // manual path to config file
   env?: string[]; // env vars
   open?: string[];
@@ -306,14 +280,16 @@ export interface CLIFlags extends Omit<InstallOptions, 'env'> {
 }
 
 export interface ImportMap {
-  imports: {[packageName: string]: string};
+  imports: {[specifier: string]: string};
+}
+
+export interface LockfileManifest extends ImportMap {
+  dependencies: {[packageName: string]: string};
 }
 
 export interface CommandOptions {
-  // TODO(fks): remove `cwd`, replace with a new `config.root` property on SnowpackConfig.
-  cwd: string;
   config: SnowpackConfig;
-  lockfile: ImportMap | null;
+  lockfile: LockfileManifest | null;
 }
 
 export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
@@ -346,5 +322,8 @@ export interface PackageSource {
   /** Handle 1+ missing package imports before failing, if possible. */
   recoverMissingPackageImport(missingPackages: string[]): Promise<ImportMap>;
   /** Modify the build install config for optimized build install. */
-  modifyBuildInstallConfig(config: SnowpackConfig): Promise<void>;
+  modifyBuildInstallConfig(options: {
+    config: SnowpackConfig;
+    lockfile: ImportMap | null;
+  }): Promise<void>;
 }

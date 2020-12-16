@@ -3,11 +3,11 @@ import {cyan, dim, underline} from 'kleur/colors';
 import path from 'path';
 import {generateImportMap} from 'skypack';
 import {logger} from '../logger';
-import {CommandOptions} from '../types/snowpack';
+import {CommandOptions, LockfileManifest} from '../types/snowpack';
 import {writeLockfile} from '../util';
 
 export async function addCommand(addValue: string, commandOptions: CommandOptions) {
-  const {cwd, lockfile} = commandOptions;
+  const {lockfile, config} = commandOptions;
   let [pkgName, pkgSemver] = addValue.split('@');
   const installMessage = pkgSemver ? `${pkgName}@${pkgSemver}` : pkgName;
   logger.info(`fetching ${cyan(installMessage)} from Skypack CDN...`);
@@ -20,14 +20,25 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
       underline(`https://cdn.skypack.dev/${pkgName}@${pkgSemver}`),
     )} to your project lockfile. ${dim('(snowpack.lock.json)')}`,
   );
-  const newLockfile = await generateImportMap({[pkgName]: pkgSemver}, lockfile || undefined);
-  await writeLockfile(path.join(cwd, 'snowpack.lock.json'), newLockfile);
+  const addedDependency = {[pkgName]: pkgSemver};
+  const newLockfile: LockfileManifest = {
+    ...(await generateImportMap(addedDependency, lockfile || undefined)),
+    dependencies: {
+      ...lockfile?.dependencies,
+      ...addedDependency,
+    },
+  };
+  await writeLockfile(path.join(config.root, 'snowpack.lock.json'), newLockfile);
 }
 
 export async function rmCommand(addValue: string, commandOptions: CommandOptions) {
-  const {cwd, lockfile} = commandOptions;
+  const {lockfile, config} = commandOptions;
   let [pkgName] = addValue.split('@');
   logger.info(`removing ${cyan(pkgName)} from project lockfile...`);
-  const newLockfile = await generateImportMap({[pkgName]: null}, lockfile || undefined);
-  await writeLockfile(path.join(cwd, 'snowpack.lock.json'), newLockfile);
+  const newLockfile: LockfileManifest = {
+    ...(await generateImportMap({[pkgName]: null}, lockfile || undefined)),
+    dependencies: lockfile?.dependencies ?? {},
+  };
+  delete newLockfile.dependencies[pkgName];
+  await writeLockfile(path.join(config.root, 'snowpack.lock.json'), newLockfile);
 }

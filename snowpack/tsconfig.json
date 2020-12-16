@@ -8,8 +8,10 @@
     "declaration": true,
     "esModuleInterop": true,
     "strict": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "noImplicitAny": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "skipLibCheck": true
   }
 }

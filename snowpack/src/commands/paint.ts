@@ -4,8 +4,8 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import readline from 'readline';
 import {logger, LogRecord} from '../logger';
+import {SnowpackConfig} from '../types/snowpack';
 
-const cwd = process.cwd();
 const IS_FILE_CHANGED_MESSAGE = /File changed\.\.\./;
 
 /** Convert a logger's history into the proper dev console format. */
@@ -116,12 +116,12 @@ interface WorkerState {
 }
 const WORKER_BASE_STATE: WorkerState = {done: false, error: null, output: ''};
 
-export function paintDashboard(bus: EventEmitter, plugins: string[]) {
+export function paintDashboard(bus: EventEmitter, config: SnowpackConfig) {
   let serverInfo: ServerInfo;
   const allWorkerStates: Record<string, WorkerState> = {};
   const allFileBuilds = new Set<string>();
 
-  for (const plugin of plugins) {
+  for (const plugin of config.plugins.map((p) => p.name)) {
     allWorkerStates[plugin] = {...WORKER_BASE_STATE};
   }
 
@@ -159,9 +159,9 @@ export function paintDashboard(bus: EventEmitter, plugins: string[]) {
 
   bus.on(paintEvent.BUILD_FILE, ({id, isBuilding}) => {
     if (isBuilding) {
-      allFileBuilds.add(path.relative(cwd, id));
+      allFileBuilds.add(path.relative(config.root, id));
     } else {
-      allFileBuilds.delete(path.relative(cwd, id));
+      allFileBuilds.delete(path.relative(config.root, id));
     }
     repaint();
   });

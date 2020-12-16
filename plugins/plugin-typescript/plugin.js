@@ -1,8 +1,7 @@
 const execa = require('execa');
 const npmRunPath = require('npm-run-path');
-const cwd = process.cwd();
 
-function typescriptPlugin(_, {args} = {}) {
+function typescriptPlugin(snowpackConfig, {args} = {}) {
   return {
     name: '@snowpack/plugin-typescript',
     async run({isDev, log}) {
@@ -12,7 +11,7 @@ function typescriptPlugin(_, {args} = {}) {
           env: npmRunPath.env(),
           extendEnv: true,
           windowsHide: false,
-          cwd,
+          cwd: snowpackConfig.root || process.cwd(),
         },
       );
       const {stdout, stderr} = workerPromise;

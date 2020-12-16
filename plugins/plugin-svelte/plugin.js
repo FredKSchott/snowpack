@@ -3,7 +3,6 @@ const svelteRollupPlugin = require('rollup-plugin-svelte');
 const fs = require('fs');
 const path = require('path');
 const {createMakeHot} = require('svelte-hmr');
-const cwd = process.cwd();
 
 let makeHot = (...args) => {
   makeHot = createMakeHot({walk: svelte.walk});
@@ -16,7 +15,14 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
 
   // Support importing Svelte files when you install dependencies.
   snowpackConfig.installOptions.rollup.plugins.push(
-    svelteRollupPlugin({include: '**/node_modules/**', compilerOptions: {dev: isDev}}),
+    svelteRollupPlugin({
+      include: /\.svelte$/,
+      compilerOptions: {dev: isDev},
+      // Snowpack wraps JS-imported CSS in a JS wrapper, so use
+      // Svelte's own first-class `emitCss: false` here.
+      // TODO: Remove once Snowpack adds first-class CSS import support in deps.
+      emitCss: false,
+    }),
   );
   // Support importing sharable Svelte components.
   snowpackConfig.installOptions.packageLookupFields.push('svelte');
@@ -46,8 +52,10 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   if (pluginOptions.input && pluginOptions.input.length === 0) {
     throw new Error(`[plugin-svelte] Option "input" must specify at least one filetype`);
   }
-
-  let configFilePath = path.resolve(cwd, pluginOptions.configFilePath || 'svelte.config.js');
+  let configFilePath = path.resolve(
+    snowpackConfig.root || process.cwd(),
+    pluginOptions.configFilePath || 'svelte.config.js',
+  );
   let compilerOptions = pluginOptions.compilerOptions;
   let preprocessOptions = pluginOptions.preprocess;
   let resolveInputOption = pluginOptions.input;

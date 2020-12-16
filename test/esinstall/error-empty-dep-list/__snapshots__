@@ -1,5 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`error-empty-dep-list matches the snapshot: allFiles 1`] = `Array []`;
-
-exports[`error-empty-dep-list matches the snapshot: cli output 1`] = `"[snowpack] Nothing to install."`;

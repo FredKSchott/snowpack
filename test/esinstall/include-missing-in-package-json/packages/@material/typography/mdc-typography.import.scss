@@ -1,8 +1,0 @@
-@forward "@material/feature-targeting/variables" as mdc-feature-*;
-@forward "@material/feature-targeting/mixins" as mdc-feature-*;
-@forward "variables" as mdc-typography-*;
-@forward "mixins" as mdc-* hide mdc-base, mdc-baseline-bottom, mdc-baseline-strut-, mdc-baseline-top, mdc-core-styles, mdc-overflow-ellipsis;
-@forward "mixins" as mdc-typography-* hide mdc-typography-typography;
-@forward "@material/feature-targeting/functions" as mdc-feature-*;
-@forward "functions" as mdc-typography-*;
-@forward "mdc-typography";

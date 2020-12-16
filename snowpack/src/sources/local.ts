@@ -15,7 +15,7 @@ import {checkLockfileHash, DEV_DEPENDENCIES_DIR, updateLockfileHash} from '../ut
  */
 async function installDependencies(commandOptions: CommandOptions) {
   const {config} = commandOptions;
-  const installTargets = await getInstallTargets(config, commandOptions.lockfile);
+  const installTargets = await getInstallTargets(config);
   if (installTargets.length === 0) {
     logger.info('Nothing to install.');
     return;
@@ -54,10 +54,10 @@ export default {
   },
 
   async prepare(commandOptions: CommandOptions) {
-    const {cwd} = commandOptions;
+    const {config} = commandOptions;
     // Set the proper install options, in case an install is needed.
     const dependencyImportMapLoc = path.join(DEV_DEPENDENCIES_DIR, 'import-map.json');
-    logger.debug(`Using cache folder: ${path.relative(cwd, DEV_DEPENDENCIES_DIR)}`);
+    logger.debug(`Using cache folder: ${path.relative(config.root, DEV_DEPENDENCIES_DIR)}`);
     installCommandOptions = merge(commandOptions, {
       config: {
         installOptions: {
@@ -71,7 +71,7 @@ export default {
     let dependencyImportMap = {imports: {}};
     try {
       dependencyImportMap = JSON.parse(
-        await fs.readFile(dependencyImportMapLoc, {encoding: 'utf-8'}),
+        await fs.readFile(dependencyImportMapLoc, {encoding: 'utf8'}),
       );
     } catch (err) {
       // no import-map found, safe to ignore
