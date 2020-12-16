@@ -4027,7 +4027,7 @@ assert-plus@1.0.0, assert-plus@^1.0.0:
   resolved "https://registry.yarnpkg.com/assert-plus/-/assert-plus-1.0.0.tgz#f12e0f3c5d77b0b1cdd9146942e4e96c1e4dd525"
   integrity sha1-8S4PPF13sLHN2RRpQuTpbB5N1SU=
 
-assert@^1.1.1:
+assert@^1.1.1, assert@^1.4.1:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/assert/-/assert-1.5.0.tgz#55c109aaf6e0aefdb3dc4b71240c70bf574b18eb"
   integrity sha512-EDsgawzwoun2CZkCgtxJbv392v4nbk9XDD06zI+kQYoBM/3RBWLlEyJARDOmhAAosBjWACEkKL6S+lIZtcAubA==
@@ -5085,6 +5085,9 @@ cipher-base@^1.0.0, cipher-base@^1.0.1, cipher-base@^1.0.3:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
+"cjs-invalid-exports@file:./test/esinstall/cjs-autodetect-exports/packages/cjs-invalid-exports":
+  version "1.0.0"
+
 cjs-module-lexer@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/cjs-module-lexer/-/cjs-module-lexer-0.6.0.tgz#4186fcca0eae175970aee870b9fe2d6cf8d5655f"
@@ -5103,6 +5106,9 @@ cjs-module-lexer@^1.0.0:
 
 "cjs-named-exports-simple@file:./test/esinstall/named-exports/packages/cjs-named-exports-simple":
   version "1.2.3"
+
+"cjs-valid-exports@file:./test/esinstall/cjs-autodetect-exports/packages/cjs-valid-exports":
+  version "1.0.0"
 
 class-utils@^0.3.5:
   version "0.3.6"
@@ -6719,28 +6725,6 @@ escodegen@^1.14.1:
     optionator "^0.8.1"
   optionalDependencies:
     source-map "~0.6.1"
-
-esinstall@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/esinstall/-/esinstall-0.4.0.tgz#b228ed75919b0b87ca0c28ab28f6888d59b92788"
-  integrity sha512-aOGbM1/AYSPMBspYmmNcqlhmUEpVh0wEXj6+IKP8W+rdyyXPYzYOEtjilH8XDc9P7UFTeB8VIfdtJiLGQkpDVA==
-  dependencies:
-    "@rollup/plugin-alias" "^3.0.1"
-    "@rollup/plugin-commonjs" "^16.0.0"
-    "@rollup/plugin-inject" "^4.0.2"
-    "@rollup/plugin-json" "^4.0.0"
-    "@rollup/plugin-node-resolve" "^10.0.0"
-    "@rollup/plugin-replace" "^2.3.3"
-    cjs-module-lexer "^1.0.0"
-    es-module-lexer "^0.3.24"
-    is-builtin-module "^3.0.0"
-    kleur "^4.1.1"
-    mkdirp "^1.0.3"
-    rimraf "^3.0.0"
-    rollup "^2.34.0"
-    rollup-plugin-node-polyfills "^0.2.1"
-    validate-npm-package-name "^3.0.0"
-    vm2 "^3.9.2"
 
 eslint-scope@^4.0.3:
   version "4.0.3"
@@ -8555,6 +8539,13 @@ is-utf8@^0.2.0:
   resolved "https://registry.yarnpkg.com/is-utf8/-/is-utf8-0.2.1.tgz#4b0da1442104d1b336340e80797e865cf39f7d72"
   integrity sha1-Sw2hRCEE0bM2NA6AeX6GXPOffXI=
 
+is-valid-identifier@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/is-valid-identifier/-/is-valid-identifier-2.0.2.tgz#146d9dbf29821b8118580b039d2203aa4bd1da4b"
+  integrity sha512-mpS5EGqXOwzXtKAg6I44jIAqeBfntFLxpAth1rrKbxtKyI6LPktyDYpHBI+tHlduhhX/SF26mFXmxQu995QVqg==
+  dependencies:
+    assert "^1.4.1"
+
 is-whitespace@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/is-whitespace/-/is-whitespace-0.3.0.tgz#1639ecb1be036aec69a54cbb401cfbed7114ab7f"
@@ -9233,6 +9224,11 @@ junk@^1.0.1:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/junk/-/junk-1.0.3.tgz#87be63488649cbdca6f53ab39bec9ccd2347f592"
   integrity sha1-h75jSIZJy9ym9Tqzm+yczSNH9ZI=
+
+keyboard-key@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/keyboard-key/-/keyboard-key-1.1.0.tgz#6f2e8e37fa11475bb1f1d65d5174f1b35653f5b7"
+  integrity sha512-qkBzPTi3rlAKvX7k0/ub44sqOfXeLc/jcnGGmj5c7BJpU8eDrEVPyhCvNYAaoubbsLm9uGWwQJO1ytQK1a9/dQ==
 
 keygrip@~1.1.0:
   version "1.1.0"
@@ -10298,7 +10294,7 @@ node-addon-api@^1.7.1:
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-1.7.2.tgz#3df30b95720b53c24e59948b49532b662444f54d"
   integrity sha512-ibPK3iA+vaY1eEjESkQkM0BbCqFOaZMiXRTtdB0u7b4djtY6JnsjvPdUHVMg6xQt3B8fpTTWHI9A+ADjM9frzg==
 
-"node-builtin-pkg@file:./test/esinstall/config-polyfill-node/packages/node-builtin-pkg":
+"node-builtin-pkg@file:./test/esinstall/polyfill-node/packages/node-builtin-pkg":
   version "1.2.3"
 
 "node-env-mock-pkg@file:./test/esinstall/node-env/packages/node-env-mock-pkg":
