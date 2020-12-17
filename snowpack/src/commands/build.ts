@@ -270,7 +270,6 @@ class FileBuilder {
         const isBundling = !!this.config.experiments.optimize?.bundle;
         const isProxyImport =
           importExtName &&
-          (file.baseExt === '.js' || file.baseExt === '.html') &&
           importExtName !== '.js' &&
           // If using our built-in bundler, treat CSS as a first class citizen (no proxy file needed).
           // TODO: Remove special `.module.css` handling by building css modules to native JS + CSS.
