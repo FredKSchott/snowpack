@@ -13,6 +13,7 @@ Snowpack ships with built-in support for the following file types, no configurat
 - CSS (`.css`)
 - CSS Modules (`.module.css`)
 - Images & Assets (`.svg`, `.jpg`, `.png`, etc.)
+- WASM (`.wasm`)
 
 To customize build behavior and support new languages [check out our tooling guide](/guides/connecting-tools)
 
@@ -95,6 +96,16 @@ import txtReference from './words.txt'; // txt === '/src/words.txt'
 ```
 
 All other assets not explicitly mentioned above can be imported via ESM `import` and will return a URL reference to the final built asset. This can be useful for referencing non-JS assets by URL, like creating an image element with a `src` attribute pointing to that image.
+
+### WASM
+
+```js
+// Loads and intializes the requested WASM file
+const wasm = await WebAssembly.instantiateStreaming(fetch("/example.wasm"));
+```
+
+Snowpack supports loading WASM files directly into your application using the browser's [`WebAssembly`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly) API. Read our [WASM guide](/guides/wasm) to learn more.
+
 
 ### Import NPM Packages
 
