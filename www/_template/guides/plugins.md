@@ -6,7 +6,7 @@ description: Learn the basics of our Plugin API through working examples.
 
 A **Snowpack Plugin** lets you customize Snowpack's behavior. Snowpack provides different hooks for your plugin to connect to. For example, you can add a plugin to handle Svelte files, optimize CSS, convert SVGs to React components, run TypeScript during development, and much more.
 
-This guide takes you though several examples to learn the basics of plugin creation. We hope to see your plugin in our [Plugin directory](/plugins)!
+This guide takes you though several examples to learn the basics of plugin creation. We hope to see your plugin in our [Plugin directory](/plugins)! TODO add how to add to diretory
 
 Who is this guide for?
 
