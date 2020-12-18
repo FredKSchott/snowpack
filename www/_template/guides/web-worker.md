@@ -15,7 +15,7 @@ description: How to use Web Workers in your Snowpack project.
 const myWorker = new Worker(new URL("./worker.js", import.meta.url));
 ```
 
-Passing a `URL` to the `Worker` constructor (instead of a string literal) isn't required to run in the browser. However, Webpack 5 requires this for its automatic bundling and Native Worker support.
+Passing a `URL` to the Worker constructor (instead of a string literal) is recommended, but not required. Using a string literal (ex: `new Worker('./worker.js')`) may prevent some optimizations when you build your site for production.
 
 Also note that the URL passed to the `Worker` must match the final URL which may differ from the path on disk. For example, `./worker.js` would still be used even if the original file on disk was `worker.ts`. `mount` destinations should also be used here, if needed.
 
