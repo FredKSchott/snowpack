@@ -46,7 +46,7 @@ _Previously config.pwd_
 
 Known dependencies to install with Snowpack.
 
-> Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
+> Usually used for installing packages any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
 
 ## config.extends
 
@@ -114,10 +114,6 @@ You can further customize this the build behavior for any mounted directory by u
 
 - `mount.resolve` | `boolean` | _optional_ | default: `true`: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written.
 
-> We recommend that you don't disable `mount.resolve` unless absolutely necessary, since it prevents Snowpack from handling your imports to things like packages, JSON files, CSS modules, and more. Leaving resolve as `true` has minimal impact on performance.
-
-> Our [React](/tutorials/react) and [Svelte](/tutorials/svelte/) tutorials have detailed explanations of how to use `config.mount`
-
 ## config.alias
 
 `object` (package: package or path)
@@ -157,13 +153,72 @@ Enable Snowpack plugins and their options
 
 ## config.devOptions
 
+`object` (option name: value)
+
+Configure the Snowpack dev server.
+
+- devOptions.secure | `type` | _optional/required_ | Default: `value` : description
+- devOptions.hostname | `type` | _optional/required_ | Default: `value` : description
+- devOptions.port | `type` | _optional/required_ | Default: `value` : description
+- devOptions.fallback | `type` | _optional/required_ | Default: `value` : description
+- devOptions.open | `type` | _optional/required_ | Default: `value` : description
+- devOptions.output | `type` | _optional/required_ | Default: `value` : description
+- devoptions.hmr | `type` | _optional/required_ | Default: `value` : description
+- devoptions.hmrDelay | `type` | _optional/required_ | Default: `value` : description
+- devoptions.hmrPort | `type` | _optional/required_ | Default: `value` : description
+- devoptions.hmrErrorOverlay | `type` | _optional/required_ | Default: `value` : description
+
 ## config.installOptions
+
+`object` (option name: value)
+
+Configure how npm packages are installed.
+
+- installOptions.dest | `type` | _optional/required_ | Default: `value` : description
+- installOptions.externalPackage | `type` | _optional/required_ | Default: `value` : description
+- installOptions.treeshake | `type` | _optional/required_ | Default: `value` : description
+- installOptions.installTypes | `type` | _optional/required_ | Default: `value` : description
+- installOptions.polyfillNode | `type` | _optional/required_ | Default: `value` : description
+- installOptions.sourceMap | `type` | _optional/required_ | Default: `value` : description
+- installOptions.env | `type` | _optional/required_ | Default: `value` : description
+- installOptions.rollup | `type` | _optional/required_ | Default: `value` : description
 
 ## config.buildOptions
 
-## config.testOptions
+`object` (option name: value)
 
+Configure your final build.
+
+- buildOptions.out | `type` | _optional/required_ | Default: `value` : description
+- buildOptions.baseUrl | `type` | _optional/required_ | Default: `value` : description
+- buildOptions.webModulesUrl | `type` | _optional/required_ | Default: `value` : description
+- buildOptions.clean | `type` | _optional/required_ | Default: `value` : description
+- buildOptions.metaDir | `type` | _optional/required_ | Default: `value` : description
+- buildOptions.minify | `type` | _optional/required_ | Default: `value` : description
+- buildOptions.sourceMaps | `type` | _optional/required_ | Default: `value` : description
+- buildOptions.watch | `type` | _optional/required_ | Default: `value` : description
+- buildOptions.htmlFragments | `type` | _optional/required_ | Default: `value` : description
+- buildOptions.jsxFactory | `type` | _optional/required_ | Default: `value` : description
+- buildOptions.fragment | `type` | _optional/required_ | Default: `value` : description
+
+## config.testOptions
+`array` (files as `strings`)
+
+Configure tests. TODO: How so?
+
+- testOptions.files
+
+- testOptions.files
 ## config.experiments
+`object` (option name: value)
+
+This section is experimental and not yet finalized. May change across versions.
+
+[See the code for options](https://github.com/snowpackjs/snowpack/blob/main/snowpack/src/types/snowpack.ts#L235)
+
+## config._extensionMap
+
+TODO: I think this matches input extentions to output but I am not sure
 
 ---
 

@@ -210,6 +210,7 @@ export interface SnowpackConfig {
   /** Enable Snowpack plugins and their options
   **/
   plugins: SnowpackPlugin[];
+  /** Configure the Snowpack dev server. */
   devOptions: {
     secure: boolean;
     hostname: string;
@@ -222,6 +223,7 @@ export interface SnowpackConfig {
     hmrPort: number | undefined;
     hmrErrorOverlay: boolean;
   };
+  /** Configure how npm packages are installed. */
   installOptions: Omit<InstallOptions, 'alias'>;
   buildOptions: {
     out: string;
@@ -236,6 +238,7 @@ export interface SnowpackConfig {
     jsxFactory: string | undefined;
     jsxFragment: string | undefined;
   };
+  /** Configure tests. */
   testOptions: {
     files: string[];
   };
