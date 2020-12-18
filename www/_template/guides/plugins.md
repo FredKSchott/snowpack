@@ -6,31 +6,25 @@ description: Learn the basics of our Plugin API through working examples.
 
 A **Snowpack Plugin** lets you customize Snowpack's behavior. Snowpack provides different hooks for your plugin to connect to. For example, you can add a plugin to handle Svelte files, optimize CSS, convert SVGs to React components, run TypeScript during development, and much more.
 
-This guide takes you though several examples to learn the basics of plugin creation. We hope to see your plugin in our [Plugin directory](/plugins)! TODO add how to add to diretory
+This guide takes you though creating and publishing your first plugin.
 
-Who is this guide for?
+You'll learn
+- The basic structure of Snowpack plugins
+- How to choose the right hooks from the Snowpack Plugin API
+- How to publish your plugin and add it to our [Plugin](/plugins) directory
 
-- Anyone interested in writing a custom plugin for Snowpack.
-- Anyone extending Snowpack to support new file types.
-- Anyone extending Snowpack with a custom bundler or production optimization.
-- Anyone adding Fast Refresh or automatic HMR for a framework.
+Prerequisites: This guide assumes basic understanding of Node.js, npm, and JavaScript.
 
-Prerequisites: This guide assumes basic understanding of structuring JavaScript methods and objects.
+## Creating and testing a basic plugin
+In this step you'll a `.js` file that exports a [function that returns a plugin object](/reference/configuration). This function can be called with plugin-specific options.
 
-Snowpack plugins use a structure based on [Rollup's](https://rollupjs.org/). If you've ever written a Rollup plugin before, then these concepts and terms may feel familiar.
-
-## Your first plugin
-
-At its simplest, a Snowpack plugin needs just one file: A `.js` file that exports a function that returns a plugin object. The function can be called with plugin-specific options. Snowpack automatically calls this function to load your plugin. That function accepts 2 parameters, in this order:
-
-1. the [Snowpack configuration object](/reference/configuration) (`snowpackConfig`)
-1. (optional) user-provided configuration options (`pluginOptions`)
-
-Create a directory for your plugin and a `.js` file using this template:
+Create a directory for your plugin called `my-snowpack-plugin` and inside it create a `my-snowpack-plugin.js` file:
 
 ```js
 // my-snowpack-plugin.js
 // Example: a basic Snowpack plugin file, customize the name of the file and the value of the name in the object
+// snowpackConfig = The Snowpack configuration object
+// pluginOptions = user-provided configuration options
 module.exports = function (snowpackConfig, pluginOptions) {
   return {
     name: 'my-snowpack-plugin'
@@ -39,9 +33,6 @@ module.exports = function (snowpackConfig, pluginOptions) {
 ```
 
 To test your new plugin, run `npm init` to create a basic `package.json` then run `npm link` in your plugin’s directory to expose the plugin globally (on your development machine).
-
-> Be aware that `npm install` will remove your linked plugin, so on any install, you will need to redo the `npm link my-snowpack-plugin`.
-
 
 For testing, [create a new, example Snowpack project](/tutorials/getting-started) in a different directory. In your example Snowpack project, run `npm install && npm link my-snowpack-plugin` (use the name from your plugin’s `package.json`).
 
@@ -59,68 +50,115 @@ In your example Snowpack project, add your plugin to the `snowpack.config.js` al
 }
 ```
 
-Plugins can also have their own `pluginOptions`, an object:
+TODO: how to test
 
-```js
+## Adding user-configurable options to your plugin
+TODO make this a real example
+In this step, you'll learn how to add user-configurable options to your plugin and to use them in your plugin code.
+
+In your example Snowpack project, instead of enabling the plugin as a string containing the plugin name, use an array.  The first item is name of your plugin and the second a new object containing the plugin options.
+
+```diff
+// snowpack.config.js
+{
+  "plugins": [
+-    "my-snowpack-plugin"
++    ["my-snowpack-plugin", { "optionA": "foo", "optionB": true }]
+  ]
+}
+```
+
+You access these through the `pluginOptions`
+
+```diff
 // my-snowpack-plugin.js
-// Example: a basic Snowpack plugin file using options
 module.exports = function (snowpackConfig, pluginOptions) {
-  let optionA = pluginOptions.optionA;
-  let optionB = pluginOptions.optionB;
++ let optionA = pluginOptions.optionA
++ let optionB = pluginOptions.optionB
   return {
     name: 'my-snowpack-plugin'
   };
 };
 ```
 
-These `pluginOptions` are set in the Snowpack configuration file by passing in the plugin as an array containing the plugin name followed by an object containing the `pluginOptions` :
 
-```js
-// snowpack.config.js
-// Example: enabling a Snowpack plugin with options
-{
-  "plugins": [
-    ["my-snowpack-plugin", { "optionA": "foo", "optionB": "bar" }]
-  ]
-}
+## Choosing the right hook from The Snowpack Plugin API
+The plugin API has four main hooks you'll use to integrate with Snowpack. Hooks are methods that Snowpack calls automatically when running. Choosing the right one depends on what part of the build pipeline you want your plugin to act on and what type of actions it performs:
+
+- Build plugins act on the raw files in your Snowpack project. They use the `resolve` object and `load()` hook. For example [@snowpack/plugin-sass](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-sass) compiles SASS files to CSS files.
+- Transform plugins run on the HTML, JS, and CSS files Snowpack built from your raw file. These utilize the `transform()` hook. An example is [@snowpack/plugin-postcss](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-postcss), which runs postcss to optimize CSS.
+- Bundler plugins replace the default [`snowpack build`](/concepts/build-pipeline) using the `optimize()` hook. An example is [@snowpack/plugin-webpack](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-webpack) which bundles the final build using Webpack.
+- Dev tooling plugins run during `snowpack dev` OR `snowpack build` using the `run()` hook. For example [@snowpack/plugin-run-script](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-run-script) runs any CLI command during `snowpack dev` or `snowpack build`.
+
+TODO: When do you choose a dev tooling vs. other types?
+
+## Build plugins: Using `resolve` and `load()` hook
+In this step you'll turn your example plugin into a build plugin that takes a variety of types of files and outputs JavaScript.
+
+If you modified `my-snowpack-plugin.js`, go back and replace it with the basic code from "Creating and testing a basic plugin."
+
+You'll need to install Babel
+```bash
+npm install --save-dev @babel/core
 ```
-## Plugin types
 
-Which example should you examine to go further? It depends on what type of plugin you're building. Here's some concise information to help you decide. Don’t skip this section, we promise we’ll keep it short. Many of the questions we get about having issues with building plugins come from developers starting from a type that’s not a good fit for what they are trying to do.
+Then require Babel in your `my-snowpack-plugin.js`
+```diff
+// my-snowpack-plugin.js
++ const babel = require('@babel/core');
+module.exports = function (snowpackConfig, pluginOptions) {
+```
 
-### Build plugins
+TODO: Link to API docs
+The next thing you need is the `resolve` object with `input` and `output` keys.
 
-Build plugins act on the initial build. Each has a `resolve` object that tells Snowpack what type of files they handle and a `load()` method that loads the matching files so you can work with them. Build plugins work great for turning compiled and templating languages to HTML, JS, and CSS.
+You don't need to know Babel, just that it takes JavaScript and Typescript files and compiles them to browser-friendly JavaScript files. So our `input` is the types of files Babel will compile and the `output` is the final product:
 
-Some examples:
+```diff
+// my-snowpack-plugin.js
 
-- [@snowpack/plugin-sass](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-sass): Compiles SASS files to CSS files
-- [@snowpack/plugin-svelte](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-svelte): Compiles Svelte files into HTML, CSS, and JS
+  return {
+    name: 'my-snowpack-plugin'
++   resolve: {
++     input: ['.js', '.jsx', '.ts', '.tsx', '.mjs'],
++     output: ['.js'],
+    },
+```
 
-### Transform plugins
+Next you'll want to call the `load` hook. This loads the files matching the input extensions.
+```diff
+// my-snowpack-plugin.js
 
-Transform plugins run on the built HTML, JS, and CSS using the `transform()` method.
+   resolve: {
+      input: ['.js', '.jsx', '.ts', '.tsx', '.mjs'],
+      output: ['.js'],
+    },
++    async load({ filePath }) {
++      const result = await babel.transformFileAsync(filePath);
++      return result.code;
++    },
+```
 
-Some examples:
+It's here you do any of the actual things specific to your plugin. In this case we use Babel's `transformFileAsync` to load the file from the filePath.
 
-- [@snowpack/plugin-postcss](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-postcss): Runs postcss to optimize CSS.
-
-### Dev tooling plugins
-
-Dev tooling plugins run during `snowpack dev` using the `run()` method to integrate CLI dev tools with Snowpack’s CLI console.
-
-Some examples:
-- [@snowpack/plugin-run-script](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-run-script): Runs any CLI command during `snowpack dev` or `snowpack build`
+Then we return the result, which Snowpack knows is a JavaScript file.
 
 
-### Bundler plugin
+> `load()` provides information about the file ([see parameters in the Plugin API documentation]()), you'll need to use another method if you want to parse the contents like Node's `fs`. Here Babel’s `transformFileAsync` both gets the contents and transforms the file so we don’t need `fs`.
 
-By default, `snowpack build` produces a site ready for the web, but adding a bundler plugin allows for further optimization. A bundler plugin automatically runs a bundler (or other optimizer) on `snowpack build` using the `optimize()` method.
 
-Some examples:
 
-- [@snowpack/plugin-webpack](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-webpack): Bundles build using Webpack.
-- [@snowpack/plugin-optimize](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-optimize): Performs a selection of optimizations on the final build.
+TODO: Testing it
+**See it in action:** Let's say that we have a source file at `src/components/App.jsx`. Because the `.jsx` file extension matches an extension in our plugin's `resolve.input` array, Snowpack lets this plugin claim responsibility for loading this file. `load()` executes, Babel builds the JSX input file from disk, and JavaScript is returned to the final build.
+
+----
+IN PROGRESS
+
+## Using the `transform()` hook
+
+
+## Using the `optimize()` hook
+
 
 ### Example: Transform a file with a transform plugin
 
@@ -145,37 +183,12 @@ The object returned by this function is a **Snowpack Plugin**. A plugin consists
 - The **name** property: The name of your plugin. This is usually the same as your package name if published to npm.
 - The **transform** method: A function that allows you to transform & modify built files. In this case, we add a simple comment (`/* I’m a comment */`) to the beginning of every JS file in your build.
 
-### Example: Process files with Babel using a build plugin
 
-This example is a build plugin that takes a variety of types of files and outputs JavaScript. This is a simplified version of the official Snowpack Babel plugin, which builds all JavaScript, TypeScript, and JSX files in your application with the `load()` method.
 
-```js
-// my-babel-plugin.js
-const babel = require('@babel/core');
 
-module.exports = function (snowpackConfig, pluginOptions) {
-  return {
-    name: 'my-babel-plugin',
-    resolve: {
-      input: ['.js', '.jsx', '.ts', '.tsx', '.mjs'],
-      output: ['.js'],
-    },
-    async load({ filePath }) {
-      const result = await babel.transformFileAsync(filePath);
-      return result.code;
-    },
-  };
-};
-```
 
-The important parts of this plugin are:
 
-- the `resolve` object tells Snowpack that this plugin takes `'.js', '.jsx', '.ts', '.tsx', '.mjs'` files and outputs `.js` files
-- the `load()` method loads the files matching the input extensions. It’s here that the plugin does most of its work, calling the methods from Babel to load and transform the file.
 
-> `load()` provides information about the file ([see parameters in the Plugin API documentation]()), you'll need to use another method if you want to parse the contents like Node's `fs`. Here Babel’s `transformFileAsync` both gets the contents and transforms the file so we don’t need `fs`.
-
-**See it in action:** Let's say that we have a source file at `src/components/App.jsx`. Because the `.jsx` file extension matches an extension in our plugin's `resolve.input` array, Snowpack lets this plugin claim responsibility for loading this file. `load()` executes, Babel builds the JSX input file from disk, and JavaScript is returned to the final build.
 
 ## Example: Convert markdown to HTML with a build plugin
 
