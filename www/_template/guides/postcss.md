@@ -15,7 +15,7 @@ This article is a stub, you can help expand it into <a href="https://documentati
 
 [PostCSS](https://postcss.org/) is a popular CSS transpiler with a support for a large ecosystem of plugins.
 
-**To use PostCSS with Snowpack:** add [@snowpack/plugin-postcss](https://www.npmjs.com/package/@snowpack/plugin-postcss) to your project.
+**To use PostCSS with Snowpack:** add the [@snowpack/plugin-postcss](https://www.npmjs.com/package/@snowpack/plugin-postcss) plugin to your project.
 
 ```diff
 // snowpack.config.js
