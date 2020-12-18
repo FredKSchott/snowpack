@@ -317,6 +317,16 @@ Example:
 }
 ```
 
+### config.exclude
+Exclude will ignore certain directories from being watched. Example:
+
+```js
+// snowpack.config.json
+{
+  exclude: ['**/vendor/**/*']
+}
+```
+
 ### Environment Variables
 
 ```js
@@ -330,7 +340,7 @@ fetch(`${SNOWPACK_PUBLIC_API_URL}/users`).then(...)
 // Instead of `import.meta.env.NODE_ENV` use `import.meta.env.MODE`
 if (import.meta.env.MODE === 'development') {
   // ...
-```
+``
 
 You can read environment variables directly in your web application via `import.meta.env`. If you've ever used `process.env` in Create React App or any Webpack application, this behaves exactly the same.
 
