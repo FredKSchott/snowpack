@@ -43,7 +43,7 @@ module.exports = {
 };
 ```
 
-Once the plugin are added, you can replace your native CSS `dist` imports with Tailwind's more powerful `base`, `components`, and `utilities` imports:
+Once the plugin is enabled, you can replace your native CSS `dist` imports with Tailwind's more powerful `base`, `components`, and `utilities` imports:
 
 ```diff
 /* index.css */
