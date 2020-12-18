@@ -123,6 +123,7 @@ const configSchema = {
         hmrDelay: {type: 'number'},
         hmrPort: {type: 'number'},
         hmrErrorOverlay: {type: 'boolean'},
+        config: {type: 'boolean'},
         // DEPRECATED
         out: {type: 'string'},
       },

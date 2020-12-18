@@ -296,6 +296,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     paintDashboard(
       messageBus,
       config.plugins.map((p) => p.name),
+      config.devOptions.concise
     );
     logger.debug(`dashboard started`);
   } else {
