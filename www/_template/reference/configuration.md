@@ -4,56 +4,182 @@ title: snowpack.config.js
 description: The Snowpack configuration API reference.
 ---
 
+
+
 ```js
-// Example Configuration File
+// Example: snowpack.config.js
 module.exports = {
   plugins: [
     /* ... */
   ],
-  installOptions: {
-    /* ... */
-  },
-  devOptions: {
-    /* ... */
-  },
-  buildOptions: {
-    /* ... */
-  },
-  mount: {
-    /* ... */
-  },
-  alias: {
-    /* ... */
-  },
 };
 ```
 
-<!--
+```js
+// Example: snowpack.config.js (ESM)
+// This is ESM-format config file. to enable
+// Add "type": "module" in your package.json
+export default {
+  plugins: [
+    /* ... */
+  ],
+};
+```
+
+
+> To generate a basic configuration file scaffold in your Snowpack project run `snowpack init`.
+
+ <!-- snowpack/src/types/snowpack.ts -->
+ <!-- snowpack/src/config.ts -->
+
+## config.root
+`string`
+Default: `/`
+
+Specify the root of a project using Snowpack.
+
+TODO: add tip for usage
+
+_Previously config.pwd_
+
+## config.install
+`array of strings`
+
+Known dependencies to install with Snowpack.
+
+> Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
+## config.extends
+`string`
+Inherit from a separate "base" config.
+
+>Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
+
+## config.exclude
+`array of strings`
+Default: `['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*']`
+
+Exclude any files from the Snowpack pipeline.
+
+
+
+## config.knownEntrypoints
+
+
+## config.mount
+
+## config.alias
+
+## config.plugins
+
+
+## config.devOptions
+
+## config.installOptions
+
+
+## config.buildOptions
+
+## config.testOptions
+
+## config.experiments
+
+-------
+
+
+### config.exclude
+
+Exclude will ignore certain directories from being watched. Example:
+
+```js
+// snowpack.config.json
+{
+  exclude: ['**/vendor/**/*'];
+}
+```
+
+### config.mount
+
+```
+mount: {
+  [path: string]: string | {url: string, resolve: boolean, static: boolean, staticHtml: boolean}
+}
+```
+
+The `mount` option tells Snowpack which project directories to build and how to build them. Given the following example configuration, you could expect the following results:
+
+```js
+// Example: Basic "mount" usage
+// snowpack.config.json
+{
+  "mount": {
+    "src": "/dist",
+    "public": "/"
+  }
+}
+```
+
+```
+GET /src/a.js           -> 404 NOT FOUND ("./src" is mounted to "/dist/*", not "/src/*")
+GET /dist/a.js        -> ./src/a.js
+GET /dist/b/b.js      -> ./src/b/b.js
+GET /public/robots.txt  -> 404 NOT FOUND ("./public" dir is mounted to "/*", not "/public/*")
+GET /robots.txt         -> ./public/robots.txt
+```
+
+By default, Snowpack builds every mounted file by passing it through Snowpack's build pipeline. You can customize this the build behavior for any mounted directory by using the expanded object notation:
+
+- `url` _required_: The URL to mount to, matching the string in the simple form above.
+- `static` _optional, default: false_: If true, don't build files in this directory. Copy and serve them directly from disk to the browser. Caveat: see `staticHtml` below.
+- `staticHtml` _optional, default: false_: If true, don't build HTML (`.html`) files in this directory. This special option exists because HTML files are almost always built to support HMR and the popular pattern of keeping HTML files in a `public/` directory that's otherwise full of static.
+- `resolve` _optional, default: true_: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written. We recommend that you don't disable this unless absolutely necessary, since it prevents Snowpack from handling your imports to things like packages, JSON files, CSS modules, and more. Leaving resolve as `true` has minimal impact on performance.
+
+```js
+// Example: Advanced "mount" usage
+// snowpack.config.json
+{
+  "mount": {
+    // Same behavior as the "src" example above:
+    "src": {url: "/dist"},
+    // Mount "public" to the root URL path ("/*") and serve files with zero transformations:
+    "public": {url: "/", static: true, resolve: false}
+  }
+}
+```
+
+### config.alias
+
+`object` (package: package or path)
+
+> Note: In an older version of Snowpack, all mounted directories were also available as aliases by default. As of Snowpack 2.7, this is no longer the case and no aliases are defined by default.
+
+The `alias` config option lets you define an import alias in your application. When aliasing a package, this allows you to import that package by another name in your application. This applies to imports inside of your dependencies as well, essentially replacing all references to the aliased package.
+
+Aliasing a local directory (any path that starts with "./") creates a shortcut to import that file or directory. While we don't necessarily recommend this pattern, some projects do enjoy using these instead of relative paths:
+
+```diff
+-import '../../../../../Button.js';
++import '@app/Button.js';
+```
+
+Example:
+
+```js
+// snowpack.config.json
+{
+  alias: {
+    // Type 1: Package Import Alias
+    "lodash": "lodash-es",
+    "react": "preact/compat",
+    // Type 2: Local Directory Import Alias (relative to cwd)
+    "components": "./src/components"
+    "@app": "./src"
+  }
+}
+```
+
 ### config.plugins
 
-- **`extends`** | `string`
-  - Inherit from a separate "base" config. Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
-- **`exclude`** | `string[]`
-  - Exclude any files from scanning, building, etc. Defaults to exclude common test file locations: `['**/node_modules/**/*', '**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`
-  - Useful for excluding tests and other unnecessary files from the final build. Supports glob pattern matching.
-- **`install`** | `string[]`
-  - Known dependencies to install with Snowpack. Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
-- **`mount.*`**
-  - Mount local directories to custom URLs in your built application.
-- **`alias.*`**
-  - Configure import aliases for directories and packages. See the section below for all options.
-- **`proxy.*`**
-  - Configure the dev server to proxy requests. See the section below for all options.
-- **`plugins`**
-  - Extend Snowpack with third-party tools and plugins. See the section below for more info.
-- **`installOptions.*`**
-  - Configure how npm packages are installed. See the section below for all options.
-- **`devOptions.*`**
-  - Configure your dev server. See the section below for all options.
-- **`buildOptions.*`**
-  - Configure your build. See the section below for all options.
-- **`testOptions.*`**
-  - Configure your tests. See the section below for all options. -->
+Extend Snowpack with third-party tools and plugins. TODO: add link to dedicated plugin docs.
 
 ### config.installOptions
 
@@ -236,97 +362,6 @@ Options:
 - **`"path".on`** | `object` (string: function)
   - `on` is a special Snowpack property for setting event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
 - All options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
-
-### config.mount
-
-```
-mount: {
-  [path: string]: string | {url: string, resolve: boolean, static: boolean, staticHtml: boolean}
-}
-```
-
-The `mount` option tells Snowpack which project directories to build and how to build them. Given the following example configuration, you could expect the following results:
-
-```js
-// Example: Basic "mount" usage
-// snowpack.config.json
-{
-  "mount": {
-    "src": "/dist",
-    "public": "/"
-  }
-}
-```
-
-```
-GET /src/a.js           -> 404 NOT FOUND ("./src" is mounted to "/dist/*", not "/src/*")
-GET /dist/a.js        -> ./src/a.js
-GET /dist/b/b.js      -> ./src/b/b.js
-GET /public/robots.txt  -> 404 NOT FOUND ("./public" dir is mounted to "/*", not "/public/*")
-GET /robots.txt         -> ./public/robots.txt
-```
-
-By default, Snowpack builds every mounted file by passing it through Snowpack's build pipeline. You can customize this the build behavior for any mounted directory by using the expanded object notation:
-
-- `url` _required_: The URL to mount to, matching the string in the simple form above.
-- `static` _optional, default: false_: If true, don't build files in this directory. Copy and serve them directly from disk to the browser. Caveat: see `staticHtml` below.
-- `staticHtml` _optional, default: false_: If true, don't build HTML (`.html`) files in this directory. This special option exists because HTML files are almost always built to support HMR and the popular pattern of keeping HTML files in a `public/` directory that's otherwise full of static.
-- `resolve` _optional, default: true_: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written. We recommend that you don't disable this unless absolutely necessary, since it prevents Snowpack from handling your imports to things like packages, JSON files, CSS modules, and more. Leaving resolve as `true` has minimal impact on performance.
-
-```js
-// Example: Advanced "mount" usage
-// snowpack.config.json
-{
-  "mount": {
-    // Same behavior as the "src" example above:
-    "src": {url: "/dist"},
-    // Mount "public" to the root URL path ("/*") and serve files with zero transformations:
-    "public": {url: "/", static: true, resolve: false}
-  }
-}
-```
-
-### config.alias
-
-`object` (package: package or path)
-
-> Note: In an older version of Snowpack, all mounted directories were also available as aliases by default. As of Snowpack 2.7, this is no longer the case and no aliases are defined by default.
-
-The `alias` config option lets you define an import alias in your application. When aliasing a package, this allows you to import that package by another name in your application. This applies to imports inside of your dependencies as well, essentially replacing all references to the aliased package.
-
-Aliasing a local directory (any path that starts with "./") creates a shortcut to import that file or directory. While we don't necessarily recommend this pattern, some projects do enjoy using these instead of relative paths:
-
-```diff
--import '../../../../../Button.js';
-+import '@app/Button.js';
-```
-
-Example:
-
-```js
-// snowpack.config.json
-{
-  alias: {
-    // Type 1: Package Import Alias
-    "lodash": "lodash-es",
-    "react": "preact/compat",
-    // Type 2: Local Directory Import Alias (relative to cwd)
-    "components": "./src/components"
-    "@app": "./src"
-  }
-}
-```
-
-### config.exclude
-
-Exclude will ignore certain directories from being watched. Example:
-
-```js
-// snowpack.config.json
-{
-  exclude: ['**/vendor/**/*'];
-}
-```
 
 ### Environment Variables
 

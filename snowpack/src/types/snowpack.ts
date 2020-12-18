@@ -9,7 +9,6 @@ export type DeepPartial<T> = {
     ? ReadonlyArray<DeepPartial<U>>
     : DeepPartial<T[P]>;
 };
-
 export interface LoadResult<T = Buffer | string> {
   contents: T;
   originalFileLoc: string | null;
@@ -194,9 +193,13 @@ export interface RouteConfigObject {
 
 // interface this library uses internally
 export interface SnowpackConfig {
+  /** Specify the root of a project using Snowpack. */
   root: string;
+  /** Known dependencies to install with Snowpack. */
   install: string[];
+  /** Inherit from a separate "base" config. */
   extends?: string;
+  /** Exclude any files from the Snowpack pipeline. */
   exclude: string[];
   knownEntrypoints: string[];
   mount: Record<string, MountEntry>;
@@ -252,6 +255,7 @@ export type SnowpackUserConfig = {
   exclude?: string[];
   mount?: Record<string, string | Partial<MountEntry>>;
   alias?: Record<string, string>;
+  /** Extend Snowpack with third-party tools and plugins. */
   plugins?: (string | [string, any])[];
   devOptions?: Partial<SnowpackConfig['devOptions']>;
   installOptions?: Partial<SnowpackConfig['installOptions']>;
