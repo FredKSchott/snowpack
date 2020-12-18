@@ -3,6 +3,7 @@ import {EventEmitter} from 'events';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import readline from 'readline';
+import stripAnsi from 'strip-ansi';
 import {logger, LogRecord} from '../logger';
 import {SnowpackConfig} from '../types/snowpack';
 
@@ -117,6 +118,7 @@ interface WorkerState {
 const WORKER_BASE_STATE: WorkerState = {done: false, error: null, output: ''};
 
 export function paintDashboard(bus: EventEmitter, config: SnowpackConfig) {
+  var concise = config.devOptions.concise;
   let serverInfo: ServerInfo;
   const allWorkerStates: Record<string, WorkerState> = {};
   const allFileBuilds = new Set<string>();
@@ -132,18 +134,21 @@ export function paintDashboard(bus: EventEmitter, config: SnowpackConfig) {
   }
 
   function repaint() {
+    const formatHeader = concise ? colors.dim : colors.bold;
+    const formatWorker = concise ? (str) => str : colors.underline;
+    const EOL = concise ? '\n' : '\n\n';
     // Clear Page
     process.stdout.write(process.platform === 'win32' ? '\x1B[2J\x1B[0f' : '\x1B[2J\x1B[3J\x1B[H');
     // Header
-    process.stdout.write(`${colors.bold(`snowpack`)}\n\n`);
+    process.stdout.write(`${colors.bold(formatHeader(`snowpack`))}${EOL}`);
     // Server Stats
-    serverInfo && process.stdout.write(getServerInfoMessage(serverInfo, allFileBuilds.size > 0));
+    serverInfo && !concise && process.stdout.write(getServerInfoMessage(serverInfo, allFileBuilds.size > 0));
     // Console Output
     const history = logger.getHistory();
     if (history.length) {
-      process.stdout.write(`${colors.underline(colors.bold('▼ Console'))}\n`);
+      process.stdout.write(`${formatWorker(formatHeader('▼ Console'))}\n`);
       process.stdout.write(summarizeHistory(history));
-      process.stdout.write('\n\n');
+      process.stdout.write(EOL);
     }
     // Worker Dashboards
     for (const [script, workerState] of Object.entries(allWorkerStates)) {
@@ -151,9 +156,19 @@ export function paintDashboard(bus: EventEmitter, config: SnowpackConfig) {
         continue;
       }
       const colorsFn = Array.isArray(workerState.error) ? colors.red : colors.reset;
-      process.stdout.write(`${colorsFn(colors.underline(colors.bold('▼ ' + script)))}\n\n`);
-      process.stdout.write('  ' + workerState.output.trim().replace(/\n/gm, '\n  '));
-      process.stdout.write('\n\n');
+      process.stdout.write(`${colorsFn(formatWorker(formatHeader('▼ ' + script)))}${EOL}`);
+      var output = workerState.output.trim();
+      if (concise) {
+        // Strip blank lines
+        output = output
+            .split('\n')
+            .filter((line) => stripAnsi(line).length > 0)
+            .join('\n');
+      }
+      if (output.length > 0) {
+        process.stdout.write('  ' + output.replace(/\n/gm, '\n  '));
+      }
+      !concise && process.stdout.write(EOL);
     }
   }
 

@@ -144,6 +144,10 @@ module.exports = {
 - `"dashboard"` delivers an organized layout of console output and the logs of any connected tools. This is recommended for most users and results in the best logging experience.
 - `"stream"` is useful when Snowpack is run in parallel with other commands, where clearing the shell would clear important output of other commands running in the same shell.
 
+#### devOptions.concise | `boolean` | Default false
+
+`Concise` dashboard view will present the dashboard in as few lines as possible. This is useful if you have a lot of plugins producing output, and would like to see them without scrolling.
+
 #### devOptions.hostname | `string` | Default: `localhost`
 
 - The hostname where the browser tab will be open.
