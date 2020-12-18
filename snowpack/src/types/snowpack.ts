@@ -205,7 +205,10 @@ export interface SnowpackConfig {
   knownEntrypoints: string[];
   /** Mount local directories to custom URLs in your built application. */
   mount: Record<string, MountEntry>;
+  /** Configure import aliases for directories and packages. */
   alias: Record<string, string>;
+  /** Enable Snowpack plugins and their options
+  **/
   plugins: SnowpackPlugin[];
   devOptions: {
     secure: boolean;

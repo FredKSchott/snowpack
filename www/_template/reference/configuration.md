@@ -120,9 +120,40 @@ You can further customize this the build behavior for any mounted directory by u
 
 ## config.alias
 
-`ee`
+`object` (package: package or path)
+
+Configure import aliases for directories and packages. When aliasing a package, this allows you to import that package by another name in your application. This applies to imports inside of your dependencies as well, essentially replacing all references to the aliased package.
+
+> Note: In an older version of Snowpack, all mounted directories were also available as aliases by default. As of Snowpack 2.7, this is no longer the case and no aliases are defined by default.
+
+```js
+// snowpack.config.js
+// Example: alias types
+{
+  alias: {
+    // Type 1: Package Import Alias
+    "lodash": "lodash-es",
+    "react": "preact/compat",
+    // Type 2: Local Directory Import Alias (relative to cwd)
+    "components": "./src/components"
+    "@app": "./src"
+  }
+}
+```
 
 ## config.plugins
+
+`array` containing pluginName `string` or an array [`pluginName`, {`pluginOptions`}
+
+Enable Snowpack plugins and their options
+
+```js
+// snowpack-config.js
+// Example: enable plugins both simple and expanded
+{
+  plugins: ['plugin-1', ['plugin-2', { 'plugin-option': false }]];
+}
+```
 
 ## config.devOptions
 
