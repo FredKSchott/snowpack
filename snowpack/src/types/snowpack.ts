@@ -201,7 +201,9 @@ export interface SnowpackConfig {
   extends?: string;
   /** Exclude any files from the Snowpack pipeline. */
   exclude: string[];
+  /** TODO */
   knownEntrypoints: string[];
+  /** Mount local directories to custom URLs in your built application. */
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   plugins: SnowpackPlugin[];

@@ -89,8 +89,11 @@ const configSchema = {
           {
             type: ['object'],
             properties: {
+              /** The URL to mount to, matching the string in the simple form above. */
               url: {type: 'string'},
+              /** If true, don't build files in this directory. Copy and serve them directly from disk to the browser. */
               static: {type: 'boolean'},
+              /** If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written. */
               resolve: {type: 'boolean'},
             },
           },
