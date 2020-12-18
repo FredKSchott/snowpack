@@ -15,7 +15,7 @@ description: How to use WASM in your Snowpack project.
 ```js
 // Example: Load WASM in your project
 const wasm = await WebAssembly.instantiateStreaming(
-  fetch("/example.wasm"), 
+  fetch('/example.wasm'),
   /* { ... } */
 );
 ```

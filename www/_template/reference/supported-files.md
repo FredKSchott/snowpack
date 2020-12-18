@@ -101,11 +101,10 @@ All other assets not explicitly mentioned above can be imported via ESM `import`
 
 ```js
 // Loads and intializes the requested WASM file
-const wasm = await WebAssembly.instantiateStreaming(fetch("/example.wasm"));
+const wasm = await WebAssembly.instantiateStreaming(fetch('/example.wasm'));
 ```
 
 Snowpack supports loading WASM files directly into your application using the browser's [`WebAssembly`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly) API. Read our [WASM guide](/guides/wasm) to learn more.
-
 
 ### Import NPM Packages
 

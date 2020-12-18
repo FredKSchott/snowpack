@@ -12,7 +12,6 @@ description: How to use PostCSS in your Snowpack project.
 This article is a stub, you can help expand it into <a href="https://documentation.divio.com/how-to-guides/">guide format</a>
 </div>
 
-
 [PostCSS](https://postcss.org/) is a popular CSS transpiler with a support for a large ecosystem of plugins.
 
 **To use PostCSS with Snowpack:** add the [@snowpack/plugin-postcss](https://www.npmjs.com/package/@snowpack/plugin-postcss) plugin to your project.
@@ -32,8 +31,8 @@ PostCSS requires a [`postcss.config.js`](https://github.com/postcss/postcss#usag
 module.exports = {
   plugins: [
     // ...
-  ]
-}
+  ],
+};
 ```
 
 Be aware that this plugin will transform all built CSS in your project, including any files that compiled to CSS (like `.scss` Sass files, for example).
