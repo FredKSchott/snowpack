@@ -171,9 +171,9 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
  */
 export const MISSING_PLUGIN_SUGGESTIONS: {[ext: string]: string} = {
   '.svelte':
-    'Try installing rollup-plugin-svelte and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)',
+    'Try installing rollup-plugin-svelte and adding it to Snowpack (https://www.snowpack.dev/tutorials/svelte)',
   '.vue':
-    'Try installing rollup-plugin-vue and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)',
+    'Try installing rollup-plugin-vue and adding it to Snowpack (https://www.snowpack.dev/guides/vue)',
 };
 
 const appNames = {
