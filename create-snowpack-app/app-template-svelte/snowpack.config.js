@@ -5,7 +5,9 @@ module.exports = {
     src: {url: '/dist'},
   },
   plugins: [
-    '@snowpack/plugin-svelte',
+    ['@snowpack/plugin-svelte', {
+      hmrOptions: {preserveLocalState: true}
+    }],
     '@snowpack/plugin-dotenv',
   ],
   install: [
