@@ -9,7 +9,7 @@ describe('config-package-svelte', () => {
     ).rejects.toThrowError(`Install failed.`);
     // TODO:
     // Assert the reason: Failed to load ../../../node_modules/simple-svelte-autocomplete/src/SimpleAutocomplete.svelte
-    // Try installing rollup-plugin-svelte and adding it to Snowpack (https://www.snowpack.dev/#custom-rollup-plugins)
+    // Try installing rollup-plugin-vue and adding it to Snowpack (https://www.snowpack.dev/guides/vue)
   });
 
   it('succeeds when svelte plugin is provided', async () => {

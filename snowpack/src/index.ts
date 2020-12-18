@@ -28,7 +28,7 @@ ${colors.bold(`snowpack`)} - A faster build system for the modern web.
 
   Snowpack is best configured via config file.
   But, most configuration can also be passed via CLI flags.
-  📖 ${colors.dim('https://www.snowpack.dev/#configuration')}
+  📖 ${colors.dim('https://www.snowpack.dev/reference/configuration')}
 
 ${colors.bold('Commands:')}
   snowpack init          Create a new project config file.
