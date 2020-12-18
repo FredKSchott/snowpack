@@ -24,7 +24,7 @@ This article is a stub, you can help expand it into <a href="https://documentati
 ]
 ```
 
-PostCSS then requires a [`postcss.config.js`](https://github.com/postcss/postcss#usage) file in the top-level of your package to customize how your CSS will be transformed. You can customize where this config file is loaded from by using the `config` plugin option. See [the plugin README](https://www.npmjs.com/package/@snowpack/plugin-postcss) for all available options.
+PostCSS requires a [`postcss.config.js`](https://github.com/postcss/postcss#usage) file to configure how it transforms CSS. By default, the plugin looks in the root directory of your project for `postcss.config.js`. This path can be changed in the Snowpack configuration. See [the plugin README](https://www.npmjs.com/package/@snowpack/plugin-postcss) for all available options.
 
 ```js
 // postcss.config.js
