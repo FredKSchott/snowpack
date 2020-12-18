@@ -471,7 +471,9 @@ ${colors.dim(
           const fileName = path.relative(cwd, warning.id).replace(/\\/g, '/');
           logger.error(`${fileName}\n   ${warning.message}`);
         } else {
-          logger.error(`${warning.message}. See https://www.snowpack.dev/reference/common-error-details`);
+          logger.error(
+            `${warning.message}. See https://www.snowpack.dev/reference/common-error-details`,
+          );
         }
         return;
       }
