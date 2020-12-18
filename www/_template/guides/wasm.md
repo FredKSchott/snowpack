@@ -20,7 +20,7 @@ const wasm = await WebAssembly.instantiateStreaming(
 );
 ```
 
-In the future, we may add `import "/example.wasm"` ESM import support to automate this support for you. However, today WASM import support differs from bundler-to-bundler. 
+In the future, we may add `import "/example.wasm"` ESM import support to automate this support for you. However, today WASM import support differs from bundler-to-bundler.
 
 In any case, WASM import support would just be a shortcut or wrapper around the code snippet above. You can recreate this helper today in your own project:
 
