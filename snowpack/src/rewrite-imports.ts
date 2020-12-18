@@ -1,5 +1,5 @@
 import {SnowpackSourceFile} from './types/snowpack';
-import {HTML_JS_REGEX, CSS_REGEX} from './util';
+import {HTML_JS_REGEX, CSS_REGEX, HTML_STYLE_REGEX} from './util';
 import {matchDynamicImportValue} from './scan-imports';
 
 const {parse} = require('es-module-lexer');
@@ -54,8 +54,8 @@ export async function transformEsmImports(
 async function transformHtmlImports(code: string, replaceImport: (specifier: string) => string) {
   let rewrittenCode = code;
   let match;
-  const importRegex = new RegExp(HTML_JS_REGEX);
-  while ((match = importRegex.exec(rewrittenCode))) {
+  const jsImportRegex = new RegExp(HTML_JS_REGEX);
+  while ((match = jsImportRegex.exec(rewrittenCode))) {
     const [, scriptTag, scriptCode] = match;
     // Only transform a script element if it contains inlined code / is not empty.
     if (scriptCode.trim()) {
@@ -64,6 +64,19 @@ async function transformHtmlImports(code: string, replaceImport: (specifier: str
         await transformEsmImports(scriptCode, replaceImport),
         match.index + scriptTag.length,
         match.index + scriptTag.length + scriptCode.length,
+      );
+    }
+  }
+  const cssImportRegex = new RegExp(HTML_STYLE_REGEX);
+  while ((match = cssImportRegex.exec(rewrittenCode))) {
+    const [, styleTag, styleCode] = match;
+    // Only transform a script element if it contains inlined code / is not empty.
+    if (styleCode.trim()) {
+      rewrittenCode = spliceString(
+        rewrittenCode,
+        await transformCssImports(styleCode, replaceImport),
+        match.index + styleTag.length,
+        match.index + styleTag.length + styleCode.length,
       );
     }
   }
@@ -79,7 +92,8 @@ async function transformCssImports(code: string, replaceImport: (specifier: stri
     // Only transform a script element if it contains inlined code / is not empty.
     rewrittenCode = spliceString(
       rewrittenCode,
-      `@import "${replaceImport(spec)}";`,
+      // CSS doesn't support proxy files, so always point to the original file
+      `@import "${replaceImport(spec).replace('.proxy.js', '')}";`,
       match.index,
       match.index + fullMatch.length,
     );

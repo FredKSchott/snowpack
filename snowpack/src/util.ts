@@ -44,6 +44,7 @@ const LOCKFILE_HASH_FILE = '.hash';
 
 // NOTE(fks): Must match empty script elements to work properly.
 export const HTML_JS_REGEX = /(<script[^>]*?type="module".*?>)(.*?)<\/script>/gims;
+export const HTML_STYLE_REGEX = /(<style.*?>)(.*?)<\/style>/gims;
 export const CSS_REGEX = /@import\s*['"](.*?)['"];/gs;
 export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
 

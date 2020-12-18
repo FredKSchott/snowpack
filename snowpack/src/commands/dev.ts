@@ -711,7 +711,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           const importExtName = path.posix.extname(resolvedImportUrl);
           const isProxyImport =
             importExtName &&
-            (responseExt === '.js' || responseExt === '.html') &&
             importExtName !== '.js';
           const isAbsoluteUrlPath = path.posix.isAbsolute(resolvedImportUrl);
           if (isProxyImport) {

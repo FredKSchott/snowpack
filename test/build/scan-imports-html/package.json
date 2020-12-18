@@ -1,0 +1,19 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-build-scan-imports-html",
+  "snowpack": {
+    "mount": {
+      "./src": "/dist"
+    }
+  },
+  "scripts": {
+    "start": "snowpack dev",
+    "testbuild": "snowpack build"
+  },
+  "dependencies": {
+    "array-flatten": "^3.0.0",
+    "css-package": "file:./packages/css-package",
+    "snowpack": "^2.18.0"
+  }
+}

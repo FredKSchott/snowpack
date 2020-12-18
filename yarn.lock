@@ -5776,6 +5776,9 @@ css-loader@^4.3.0:
 "css-package-a@file:./test/build/config-alias/packages/css-package-a":
   version "1.2.3"
 
+"css-package@file:./test/build/scan-imports/packages/css-package":
+  version "1.2.3"
+
 css-select-base-adapter@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/css-select-base-adapter/-/css-select-base-adapter-0.1.1.tgz#3b2ff4972cc362ab88561507a95408a1432135d7"
@@ -9224,11 +9227,6 @@ junk@^1.0.1:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/junk/-/junk-1.0.3.tgz#87be63488649cbdca6f53ab39bec9ccd2347f592"
   integrity sha1-h75jSIZJy9ym9Tqzm+yczSNH9ZI=
-
-keyboard-key@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/keyboard-key/-/keyboard-key-1.1.0.tgz#6f2e8e37fa11475bb1f1d65d5174f1b35653f5b7"
-  integrity sha512-qkBzPTi3rlAKvX7k0/ub44sqOfXeLc/jcnGGmj5c7BJpU8eDrEVPyhCvNYAaoubbsLm9uGWwQJO1ytQK1a9/dQ==
 
 keygrip@~1.1.0:
   version "1.1.0"
@@ -13598,10 +13596,10 @@ supports-hyperlinks@^2.0.0:
     has-flag "^4.0.0"
     supports-color "^7.0.0"
 
-svelte-hmr@^0.12.0:
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.12.0.tgz#de3616d09a902fb7b0a014f1b3acdded1da352f6"
-  integrity sha512-NYpzqME/jlTBL+JLilznH2QnQbREJvwikWjLNpJuekhcCqIWbnO7hrNnMZCgAKiQHAKEdiohtjARJhO7nMZGbg==
+svelte-hmr@^0.12.1:
+  version "0.12.1"
+  resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.12.1.tgz#2c124f541a4f0b842f979ecaaaf08d52a9339448"
+  integrity sha512-d2lH2W5Rc3IzunTwUYDdZ/hw5T8Z54mIWo+z3OK/+x4v+f64U0S/bgaXW4l4dkoHusuW8qOhpse0hnW1Vpxp4g==
 
 svelte-preprocess-filter@^1.0.0:
   version "1.0.0"

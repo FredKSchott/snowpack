@@ -11,6 +11,7 @@ import {
   findMatchingAliasEntry,
   getExtension,
   HTML_JS_REGEX,
+  HTML_STYLE_REGEX,
   isTruthy,
   readFile,
   SVELTE_VUE_REGEX,
@@ -174,7 +175,10 @@ function parseFileForInstallTargets({
       case '.svelte':
       case '.vue': {
         logger.debug(`Scanning ${relativeLoc} for imports as HTML`);
-        return parseJsForInstallTargets(extractJSFromHTML({contents, baseExt}));
+        return [
+          ...parseCssForInstallTargets(extractCssFromHtml(contents)),
+          ...parseJsForInstallTargets(extractJsFromHtml({contents, baseExt})),
+        ];
       }
       case '.js':
       case '.jsx':
@@ -199,7 +203,7 @@ function parseFileForInstallTargets({
 }
 
 /** Extract only JS within <script type="module"> tags (works for .svelte and .vue files, too) */
-function extractJSFromHTML({contents, baseExt}: {contents: string; baseExt: string}): string {
+function extractJsFromHtml({contents, baseExt}: {contents: string; baseExt: string}): string {
   // TODO: Replace with matchAll once Node v10 is out of TLS.
   // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
   const allMatches: string[][] = [];
@@ -214,6 +218,22 @@ function extractJSFromHTML({contents, baseExt}: {contents: string; baseExt: stri
 
   return allMatches
     .map((match) => match[2]) // match[2] is the code inside the <script></script> element
+    .filter((s) => s.trim())
+    .join('\n');
+}
+
+/** Extract only CSS within <style> tags (works for .svelte and .vue files, too) */
+function extractCssFromHtml(contents: string): string {
+  // TODO: Replace with matchAll once Node v10 is out of TLS.
+  // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
+  const allMatches: string[][] = [];
+  let match;
+  let regex = new RegExp(HTML_STYLE_REGEX);
+  while ((match = regex.exec(contents))) {
+    allMatches.push(match);
+  }
+  return allMatches
+    .map((match) => match[2]) // match[2] is the code inside the <style></style> element
     .filter((s) => s.trim())
     .join('\n');
 }
