@@ -9,7 +9,7 @@ import {command as installCommand} from './commands/install';
 import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {logger} from './logger';
-import {loadConfigurationForCLI} from './config';
+import {loadConfiguration, expandCliFlags} from './config';
 import {CLIFlags, CommandOptions} from './types';
 import {clearCache, readLockfile} from './util.js';
 export * from './types';
@@ -17,9 +17,16 @@ export * from './types';
 // Stable API (remember to include all in "./index.esm.js" wrapper)
 export {startDevServer} from './commands/dev';
 export {buildProject} from './commands/build';
-export {loadConfigurationForCLI as loadAndValidateConfig, createConfiguration} from './config.js';
+export {loadConfiguration, createConfiguration} from './config.js';
 export {readLockfile as loadLockfile} from './util.js';
 export {getUrlForFile} from './build/file-urls';
+export {logger} from './logger';
+
+export function loadAndValidateConfig() {
+  throw new Error(
+    'loadAndValidateConfig() has been deprecated in favor of loadConfiguration() and createConfiguration()',
+  );
+}
 
 function printHelp() {
   logger.info(
@@ -100,7 +107,8 @@ export async function cli(args: string[]) {
     process.env.NODE_ENV = process.env.NODE_ENV || 'development';
   }
 
-  const config = await loadConfigurationForCLI(cliFlags, pkgManifest);
+  const cliConfig = expandCliFlags(cliFlags);
+  const config = await loadConfiguration(cliConfig, cliFlags.config);
   logger.debug(`config loaded: ${util.format(config)}`);
   // TODO: process.cwd() okay here? Should the lockfile live at root instead of cwd?
   const lockfile = await readLockfile(process.cwd());

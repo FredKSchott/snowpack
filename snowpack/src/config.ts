@@ -9,7 +9,6 @@ import {logger} from './logger';
 import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
   CLIFlags,
-  DeepPartial,
   MountEntry,
   PluginLoadResult,
   RouteConfigObject,
@@ -186,7 +185,7 @@ const configSchema = {
  * is undefined, since the deep merge strategy would then overwrite good
  * defaults with 'undefined'.
  */
-function expandCliFlags(flags: CLIFlags): DeepPartial<SnowpackConfig> {
+export function expandCliFlags(flags: CLIFlags): SnowpackUserConfig {
   const result = {
     installOptions: {} as any,
     devOptions: {} as any,
@@ -484,7 +483,7 @@ See https://www.snowpack.dev for more info.`);
   process.exit(1);
 }
 
-function valdiateDeprecatedConfig(rawConfig: any, _: any) {
+function valdiateDeprecatedConfig(rawConfig: any) {
   if (rawConfig.scripts) {
     handleDeprecatedConfigError('[v3.0] Legacy "scripts" config is deprecated.');
   }
@@ -558,7 +557,8 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
   });
   return normalizeConfig(mergedConfig);
 }
-function loadConfig(
+
+function loadConfigurationFile(
   filename: string,
 ): {filepath: string | undefined; config: SnowpackUserConfig} | null {
   const loc = path.resolve(process.cwd(), filename);
@@ -568,22 +568,30 @@ function loadConfig(
   return {filepath: loc, config: NATIVE_REQUIRE(loc)};
 }
 
-export async function loadConfigurationForCLI(
-  flags: CLIFlags,
-  pkgManifest: any,
+export async function loadConfiguration(
+  overrides: SnowpackUserConfig = {},
+  configPath?: string,
 ): Promise<SnowpackConfig> {
-  let result =
-    // if user specified --config path, load that
-    (flags.config && loadConfig(flags.config)) ||
-    // If no config was found above, search for one.
-    loadConfig('snowpack.config.mjs') ||
-    loadConfig('snowpack.config.cjs') ||
-    loadConfig('snowpack.config.js') ||
-    loadConfig('snowpack.config.json');
+  let result: ReturnType<typeof loadConfigurationFile> = null;
+  // if user specified --config path, load that
+  if (configPath) {
+    result = loadConfigurationFile(configPath);
+    if (!result) {
+      throw new Error(`Snowpack config file could not be found: ${configPath}`);
+    }
+  }
+
+  // If no config was found above, search for one.
+  result =
+    result ||
+    loadConfigurationFile('snowpack.config.mjs') ||
+    loadConfigurationFile('snowpack.config.cjs') ||
+    loadConfigurationFile('snowpack.config.js') ||
+    loadConfigurationFile('snowpack.config.json');
 
   // Support package.json "snowpack" config
   if (!result) {
-    const potentialPackageJsonConfig = loadConfig('package.json');
+    const potentialPackageJsonConfig = loadConfigurationFile('package.json');
     if (potentialPackageJsonConfig && (potentialPackageJsonConfig.config as any).snowpack) {
       result = {
         filepath: potentialPackageJsonConfig.filepath,
@@ -596,15 +604,15 @@ export async function loadConfigurationForCLI(
 
   // validate against schema; throw helpful user if invalid
   const {config, filepath} = result;
-  valdiateDeprecatedConfig(result, flags);
-  const cliConfig = expandCliFlags(flags);
+  valdiateDeprecatedConfig(config);
+  valdiateDeprecatedConfig(overrides);
 
   let extendConfig: SnowpackUserConfig = {} as SnowpackUserConfig;
   if (config.extends) {
     const extendConfigLoc = config.extends.startsWith('.')
       ? path.resolve(process.cwd(), config.extends)
       : require.resolve(config.extends, {paths: [process.cwd()]});
-    const extendResult = loadConfig(extendConfigLoc);
+    const extendResult = loadConfigurationFile(extendConfigLoc);
     if (!extendResult) {
       handleConfigError(`Could not locate "extends" config at ${extendConfigLoc}`);
       process.exit(1);
@@ -634,18 +642,9 @@ export async function loadConfigurationForCLI(
   }
 
   // if valid, apply config over defaults
-  const mergedConfig = merge<SnowpackUserConfig>(
-    [
-      pkgManifest.homepage ? {buildOptions: {baseUrl: pkgManifest.homepage}} : {},
-      extendConfig,
-      {webDependencies: pkgManifest.webDependencies},
-      config,
-      cliConfig as any,
-    ],
-    {
-      isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
-    },
-  );
+  const mergedConfig = merge<SnowpackUserConfig>([extendConfig, config, overrides], {
+    isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
+  });
 
   try {
     return createConfiguration(mergedConfig);
