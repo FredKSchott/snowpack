@@ -1,6 +1,4 @@
 import * as colors from 'kleur/colors';
-import path from 'path';
-import {promises as fs} from 'fs';
 import util from 'util';
 import yargs from 'yargs-parser';
 import {addCommand, rmCommand} from './commands/add-rm';
@@ -79,18 +77,6 @@ export async function cli(args: string[]) {
     logger.info(colors.yellow('! clearing cache...'));
     await clearCache();
   }
-  // Load the current package manifest
-  // TODO: process.cwd() okay here? We should remove this requirement on a package.json for v3.0.
-  let pkgManifest: any;
-  try {
-    pkgManifest = await fs.readFile(path.join(process.cwd(), 'package.json'), 'utf8');
-  } catch (err) {
-    logger.error(
-      `package.json not found in directory: ${process.cwd()}. Run \`npm init -y\` to create one.`,
-    );
-    process.exit(1);
-  }
-  pkgManifest = JSON.parse(pkgManifest);
 
   const cmd = cliFlags['_'][2];
   logger.debug(`run command: ${cmd}`);

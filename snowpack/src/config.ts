@@ -255,19 +255,26 @@ function loadPlugins(
     return plugin;
   }
 
-  function loadPluginFromConfig(name: string, options?: any): SnowpackPlugin {
-    const pluginLoc = require.resolve(name, {paths: [process.cwd()]});
+  function loadPluginFromConfig(pluginLoc: string, options?: any): SnowpackPlugin {
+    if (!path.isAbsolute(pluginLoc)) {
+      throw new Error(
+        `Snowpack Internal Error: plugin ${pluginLoc} should have been resolved to an absolute path.`,
+      );
+    }
     const pluginRef = NATIVE_REQUIRE(pluginLoc);
     let plugin: SnowpackPlugin;
     try {
       plugin = typeof pluginRef.default === 'function' ? pluginRef.default : pluginRef;
-      if (typeof plugin !== 'function') logger.error(`plugin ${name} doesn’t return function`);
+      if (typeof plugin !== 'function') logger.error(`plugin ${pluginLoc} must export a function.`);
       plugin = execPluginFactory(plugin, options) as SnowpackPlugin;
     } catch (err) {
       logger.error(err.toString());
       throw err;
     }
-    plugin.name = plugin.name || name;
+
+    if (!plugin.name) {
+      plugin.name = path.relative(process.cwd(), pluginLoc);
+    }
 
     // Add any internal plugin methods. Placeholders are okay when individual
     // commands implement these differently.
@@ -317,7 +324,6 @@ function loadPlugins(
 }
 
 function normalizeMount(config: SnowpackConfig) {
-  const cwd = process.cwd();
   const mountedDirs: Record<string, string | Partial<MountEntry>> = config.mount || {};
   const normalizedMount: Record<string, MountEntry> = {};
   for (const [mountDir, rawMountEntry] of Object.entries(mountedDirs)) {
@@ -336,7 +342,7 @@ function normalizeMount(config: SnowpackConfig) {
         `mount[${mountDir}]: Value "${mountEntry.url}" must be a URL path, and start with a "/"`,
       );
     }
-    normalizedMount[path.resolve(cwd, removeTrailingSlash(mountDir))] = {
+    normalizedMount[removeTrailingSlash(mountDir)] = {
       url: mountEntry.url === '/' ? '/' : removeTrailingSlash(mountEntry.url),
       static: mountEntry.static ?? false,
       resolve: mountEntry.resolve ?? true,
@@ -344,7 +350,7 @@ function normalizeMount(config: SnowpackConfig) {
   }
   // if no mounted directories, mount the root directory to the base URL
   if (!Object.keys(normalizedMount).length) {
-    normalizedMount[cwd] = {
+    normalizedMount[process.cwd()] = {
       url: '/',
       static: false,
       resolve: true,
@@ -374,45 +380,13 @@ function normalizeRoutes(routes: RouteConfigObject[]): RouteConfigObject[] {
   });
 }
 
-function normalizeAlias(config: SnowpackConfig, createMountAlias: boolean) {
-  const cwd = process.cwd();
-  const cleanAlias: Record<string, string> = config.alias || {};
-  if (createMountAlias) {
-    for (const mountDir of Object.keys(config.mount)) {
-      if (mountDir !== cwd) {
-        cleanAlias[addTrailingSlash(mountDir.substr(cwd.length + 1))] = addTrailingSlash(
-          `./${mountDir}`,
-        );
-      }
-    }
-  }
-  for (const [target, replacement] of Object.entries(config.alias)) {
-    if (
-      replacement === '.' ||
-      replacement === '..' ||
-      replacement.startsWith('./') ||
-      replacement.startsWith('../') ||
-      replacement.startsWith('/')
-    ) {
-      delete cleanAlias[target];
-      cleanAlias[target] = target.endsWith('/')
-        ? addTrailingSlash(path.resolve(cwd, replacement))
-        : removeTrailingSlash(path.resolve(cwd, replacement));
-    }
-  }
-  return cleanAlias;
-}
-
 /** resolve --dest relative to cwd, etc. */
 function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
-  const cwd = process.cwd();
   // TODO: This function is really fighting with TypeScript. Now that we have an accurate
   // SnowpackUserConfig type, we can have this function construct a fresh config object
   // from scratch instead of trying to modify the user's config object in-place.
   let config: SnowpackConfig = (_config as any) as SnowpackConfig;
-  config.root = path.resolve(cwd, config.root);
   config.knownEntrypoints = (config as any).install || [];
-  config.buildOptions.out = path.resolve(cwd, config.buildOptions.out);
   config.installOptions.cwd = config.root;
   config.installOptions.rollup = config.installOptions.rollup || {};
   config.installOptions.rollup.plugins = config.installOptions.rollup.plugins || [];
@@ -429,9 +403,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
     removeTrailingSlash(config.buildOptions.metaDir),
   );
 
-  const isLegacyMountConfig = !config.mount;
   config.mount = normalizeMount(config);
-  config.alias = normalizeAlias(config, isLegacyMountConfig);
   config.experiments.routes = normalizeRoutes(config.experiments.routes);
   if (config.experiments.optimize) {
     config.experiments.optimize = {
@@ -538,6 +510,77 @@ export function validatePluginLoadResult(
   }
 }
 
+/**
+ * Get the config base path, that all relative config values should resolve to. In order:
+ *   - The directory of the config file path, if it exists.
+ *   - The config.root value, if given.
+ *   - Otherwise, the current working directory of the process.
+ */
+function getConfigBasePath(configFileLoc: string | undefined, configRoot: string | undefined) {
+  return (
+    (configFileLoc && path.dirname(configFileLoc)) ||
+    (configRoot && path.resolve(process.cwd(), configRoot)) ||
+    process.cwd()
+  );
+}
+
+function resolveRelativeConfigAlias(aliasConfig: Record<string, string>, configBase: string) {
+  for (const [target, replacement] of Object.entries(aliasConfig)) {
+    if (
+      replacement === '.' ||
+      replacement === '..' ||
+      replacement.startsWith('./') ||
+      replacement.startsWith('../') ||
+      replacement.startsWith('/')
+    ) {
+      aliasConfig[target] = target.endsWith('/')
+        ? addTrailingSlash(path.resolve(configBase, replacement))
+        : removeTrailingSlash(path.resolve(configBase, replacement));
+    }
+  }
+}
+
+function resolveRelativeConfigMount(mountConfig: Record<string, any>, configBase: string) {
+  for (const [target, replacement] of Object.entries(mountConfig)) {
+    delete mountConfig[target];
+    mountConfig[path.resolve(configBase, target)] = replacement;
+  }
+}
+
+function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): SnowpackUserConfig {
+  if (config.root) {
+    config.root = path.resolve(configBase, config.root);
+  }
+  if (config.buildOptions?.out) {
+    config.buildOptions.out = path.resolve(configBase, config.buildOptions.out);
+  }
+  if (config.installOptions?.cwd) {
+    config.installOptions.cwd = path.resolve(configBase, config.installOptions.cwd);
+  }
+  if (config.extends) {
+    config.extends = path.resolve(configBase, config.extends);
+  }
+  if (config.plugins) {
+    config.plugins = config.plugins.map((plugin) => {
+      const name = Array.isArray(plugin) ? plugin[0] : plugin;
+      const absName = path.isAbsolute(name) ? name : require.resolve(name, {paths: [configBase]});
+      if (Array.isArray(plugin)) {
+        plugin.splice(0, 1, absName);
+        return plugin;
+      }
+      return absName;
+    });
+  }
+  if (config.mount) {
+    resolveRelativeConfigMount(config.mount, configBase);
+  }
+  if (config.alias) {
+    resolveRelativeConfigAlias(config.alias, configBase);
+  }
+
+  return config;
+}
+
 class ConfigValidationError extends Error {
   constructor(errors: Error[]) {
     super(`Configuration Error:\n${errors.map((err) => `  - ${err.toString()}`).join(os.EOL)}`);
@@ -545,6 +588,7 @@ class ConfigValidationError extends Error {
 }
 
 export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackConfig {
+  // Validate the configuration object against our schema. Report any errors.
   const {errors: validationErrors} = validate(config, configSchema, {
     propertyName: CONFIG_NAME,
     allowUnknownAttributes: false,
@@ -552,9 +596,18 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
   if (validationErrors.length > 0) {
     throw new ConfigValidationError(validationErrors);
   }
+  // Inherit any undefined values from the default configuration. If no config argument
+  // was passed (or no configuration file found in loadConfiguration) then this function
+  // will effectively return a copy of the DEFAULT_CONFIG object.
   const mergedConfig = merge<SnowpackUserConfig>([DEFAULT_CONFIG, config], {
     isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
   });
+  // Resolve relative config values. If using loadConfiguration, all config values should
+  // already be resolved relative to the config file path so that this should be a no-op.
+  // But, we still need to run it in case you called this function directly.
+  const configBase = getConfigBasePath(undefined, config.root);
+  resolveRelativeConfig(mergedConfig, configBase);
+  // Normalize & return.
   return normalizeConfig(mergedConfig);
 }
 
@@ -597,21 +650,23 @@ export async function loadConfiguration(
         filepath: potentialPackageJsonConfig.filepath,
         config: (potentialPackageJsonConfig.config as any).snowpack,
       };
-    } else {
-      result = {filepath: undefined, config: {...DEFAULT_CONFIG}};
     }
   }
 
-  // validate against schema; throw helpful user if invalid
+  if (!result) {
+    logger.warn('Hint: run "snowpack init" to create a project config file. Using defaults...');
+    result = {filepath: undefined, config: {}};
+  }
+
   const {config, filepath} = result;
+  const configBase = getConfigBasePath(filepath, config.root);
   valdiateDeprecatedConfig(config);
   valdiateDeprecatedConfig(overrides);
+  resolveRelativeConfig(config, configBase);
 
   let extendConfig: SnowpackUserConfig = {} as SnowpackUserConfig;
   if (config.extends) {
-    const extendConfigLoc = config.extends.startsWith('.')
-      ? path.resolve(process.cwd(), config.extends)
-      : require.resolve(config.extends, {paths: [process.cwd()]});
+    const extendConfigLoc = require.resolve(config.extends, {paths: [configBase]});
     const extendResult = loadConfigurationFile(extendConfigLoc);
     if (!extendResult) {
       handleConfigError(`Could not locate "extends" config at ${extendConfigLoc}`);
@@ -625,20 +680,7 @@ export async function loadConfiguration(
     if (extendValidation.errors && extendValidation.errors.length > 0) {
       handleValidationErrors(extendConfigLoc, new ConfigValidationError(extendValidation.errors));
     }
-    if (extendConfig.plugins) {
-      const extendConfigDir = path.dirname(extendConfigLoc);
-      extendConfig.plugins = extendConfig.plugins.map((plugin) => {
-        const name = Array.isArray(plugin) ? plugin[0] : plugin;
-        const absName = path.isAbsolute(name)
-          ? name
-          : require.resolve(name, {paths: [extendConfigDir]});
-        if (Array.isArray(plugin)) {
-          plugin.splice(0, 1, absName);
-          return plugin;
-        }
-        return absName;
-      });
-    }
+    resolveRelativeConfig(extendConfig, extendConfigLoc);
   }
 
   // if valid, apply config over defaults

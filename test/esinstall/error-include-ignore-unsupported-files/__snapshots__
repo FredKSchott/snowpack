@@ -2,4 +2,7 @@
 
 exports[`error-include-ignore-unsupported-files matches the snapshot: allFiles 1`] = `Array []`;
 
-exports[`error-include-ignore-unsupported-files matches the snapshot: cli output 1`] = `"[snowpack] Nothing to install."`;
+exports[`error-include-ignore-unsupported-files matches the snapshot: cli output 1`] = `
+"[snowpack] Hint: run \\"snowpack init\\" to create a project config file. Using defaults...
+[snowpack] Nothing to install."
+`;

@@ -10,24 +10,19 @@ To Resolve:
   2. Prefix your web-test-runner CLI command: "NODE_ENV=test web-test-runner ...".
 `);
   }
-  const pkgManifest = require(path.join(snowpackConfig.root || process.cwd(), 'package.json'));
   let server, config;
 
   return {
     name: 'snowpack-plugin',
     async serverStart({fileWatcher}) {
-      config = await snowpack.loadConfiguration(
-        {
-          installOptions: {externalPackage: ['/__web-dev-server__web-socket.js']},
-          devOptions: {open: 'none', output: 'stream', hmr: false},
-        },
-      );
+      config = await snowpack.loadConfiguration({
+        installOptions: {externalPackage: ['/__web-dev-server__web-socket.js']},
+        devOptions: {open: 'none', output: 'stream', hmr: false},
+      });
       fileWatcher.add(Object.keys(config.mount));
       server = await snowpack.startDevServer({
-        cwd: snowpackConfig.root || process.cwd(),
         config,
         lockfile: null,
-        pkgManifest,
       });
     },
     async serverStop() {
