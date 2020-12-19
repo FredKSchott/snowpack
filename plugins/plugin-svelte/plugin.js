@@ -11,11 +11,16 @@ let makeHot = (...args) => {
 
 module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   const isDev = process.env.NODE_ENV !== 'production';
+<<<<<<< HEAD
   const useSourceMaps =
     snowpackConfig.buildOptions.sourcemap || snowpackConfig.buildOptions.sourceMaps;
   // Old Snowpack versions wouldn't build dependencies. Starting in v3.1, Snowpack's build pipeline
   // is run on all files, including npm package files. The rollup plugin is no longer needed.
   const needsRollupPlugin = typeof snowpackConfig.buildOptions.resolveProxyImports === 'undefined';
+=======
+  const useSourceMaps = snowpackConfig.buildOptions.sourceMaps;
+  const importedByMap = new Map();
+>>>>>>> 2b7f590d... feat(plugin-svelte): track preprocess dependencies
 
   // Support importing Svelte files when you install dependencies.
   const packageOptions = snowpackConfig.packageOptions || snowpackConfig.installOptions;
@@ -102,15 +107,40 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       'svelte-hmr/runtime/hot-api-esm.js',
       'svelte-hmr/runtime/proxy-adapter-dom.js',
     ],
+<<<<<<< HEAD
     async load({filePath, isHmrEnabled, isSSR, isPackage}) {
+=======
+
+    _markImportersAsChanged(filePath) {
+      if (importedByMap.has(filePath)) {
+        const importedBy = importedByMap.get(filePath);
+        importedByMap.delete(filePath);
+        for (const importerFilePath of importedBy) {
+          this.markChanged(importerFilePath);
+        }
+      }
+    },
+
+    async load({filePath, isHmrEnabled, isSSR}) {
+      let dependencies = [];
+>>>>>>> 2b7f590d... feat(plugin-svelte): track preprocess dependencies
       let codeToCompile = await fs.promises.readFile(filePath, 'utf-8');
       // PRE-PROCESS
       if (preprocessOptions !== false) {
-        codeToCompile = (
-          await svelte.preprocess(codeToCompile, preprocessOptions, {
+        ({code: codeToCompile, dependencies} = await svelte.preprocess(
+          codeToCompile,
+          preprocessOptions,
+          {
             filename: filePath,
-          })
-        ).code;
+          },
+        ));
+      }
+
+      if (isDev && dependencies) {
+        dependencies.forEach((depPath) => {
+          console.log(depPath, filePath);
+          importedByMap(depPath, filePath);
+        });
       }
 
       const finalCompileOptions = {
