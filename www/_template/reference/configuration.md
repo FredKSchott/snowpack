@@ -341,7 +341,7 @@ fetch(`${SNOWPACK_PUBLIC_API_URL}/users`).then(...)
 // Instead of `import.meta.env.NODE_ENV` use `import.meta.env.MODE`
 if (import.meta.env.MODE === 'development') {
   // ...
-``
+```
 
 You can read environment variables directly in your web application via `import.meta.env`. If you've ever used `process.env` in Create React App or any Webpack application, this behaves exactly the same.
 
@@ -349,7 +349,7 @@ For your safety, Snowpack supports only environment variables which begin with `
 
 `import.meta.env.MODE` and `import.meta.env.NODE_ENV` are also both set to the current `process.env.NODE_ENV` value, so that you can change app behavior based on dev vs. build. The env value is set to `development` during `snowpack dev` and `production` during `snowpack build`. Use this in your application instead of `process.env.NODE_ENV`.
 
-You can use environment variables in HTML files. All occurrences of `%SNOWPACK_PUBLIC_*%`, `%PUBLIC_URL%`, and `%MODE%` will be replaced at build time.
+You can also use environment variables in HTML files. All occurrences of `%SNOWPACK_PUBLIC_*%`, `%PUBLIC_URL%`, and `%MODE%` will be replaced at build time.
 
 **Remember:** that these env variables are statically injected into your application for everyone at **build time**, and not runtime.
 ```
