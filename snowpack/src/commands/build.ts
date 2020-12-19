@@ -73,6 +73,22 @@ function createBuildFileManifest(allFiles: FileBuilder[]): SnowpackBuildResultFi
   return result;
 }
 
+function getSsrCliConfig(config: SnowpackConfig): [SnowpackConfig, SnowpackConfig] {
+  const clientConfig = merge(config, {
+    buildOptions: {
+      ssr: false,
+      outDir: path.join(config.buildOptions.out, 'client'),
+    },
+  });
+  const serverConfig = merge(config, {
+    buildOptions: {
+      ssr: true,
+      outDir: path.join(config.buildOptions.out, 'server'),
+    },
+  });
+  return [clientConfig, serverConfig];
+}
+
 async function installOptimizedDependencies(
   scannedFiles: SnowpackSourceFile[],
   installDest: string,
@@ -682,8 +698,20 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
 }
 
 export async function command(commandOptions: CommandOptions) {
+  if (commandOptions.config.experiments.ssr && commandOptions.config.buildOptions.watch) {
+    logger.error(err.message);
+    process.exit(1);
+  }
   try {
-    await buildProject(commandOptions);
+    if (commandOptions.config.experiments.ssr) {
+      const [clientConfig, serverConfig] = getSsrCliConfig(commandOptions.config);
+      await Promise.all([
+        buildProject({lockfile: commandOptions.lockfile, config: clientConfig}),
+        buildProject({lockfile: commandOptions.lockfile, config: serverConfig}),
+      ]);
+    } else {
+      await buildProject(commandOptions);
+    }
   } catch (err) {
     logger.error(err.message);
     logger.debug(err.stack);
