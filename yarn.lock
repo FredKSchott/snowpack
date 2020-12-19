@@ -5776,7 +5776,7 @@ css-loader@^4.3.0:
 "css-package-a@file:./test/build/config-alias/packages/css-package-a":
   version "1.2.3"
 
-"css-package@file:./test/build/scan-imports/packages/css-package":
+"css-package@file:./test/build/scan-imports-html/packages/css-package":
   version "1.2.3"
 
 css-select-base-adapter@^0.1.1:
@@ -7286,7 +7286,7 @@ fsevents@^1.2.7:
     bindings "^1.5.0"
     nan "^2.12.1"
 
-fsevents@^2.1.0, fsevents@^2.1.2:
+fsevents@^2.1.2, fsevents@^2.2.0:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.2.1.tgz#1fb02ded2036a8ac288d507a65962bd87b97628d"
   integrity sha512-bTLYHSeC0UH/EFXS9KqWnXuOl/wHK5Z/d+ghd5AsFMYN7wIGkUCOJyzy88+wJKkZPGON8u4Z9f6U4FdgURE9qA==

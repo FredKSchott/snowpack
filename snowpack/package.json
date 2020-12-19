@@ -46,7 +46,7 @@
     "esbuild": "^0.8.7"
   },
   "optionalDependencies": {
-    "fsevents": "^2.1.0"
+    "fsevents": "^2.2.0"
   },
   "devDependencies": {
     "@types/cheerio": "0.22.22",
