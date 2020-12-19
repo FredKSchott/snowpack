@@ -1,26 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`@snowpack/plugin-react-refresh hrm=false, babel=false, isDev=false transforms html correctly 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hmr=false, babel=false, isDev=false transforms html correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh hrm=false, babel=false, isDev=false transforms js correctly 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hmr=false, babel=false, isDev=false transforms js correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh hrm=false, babel=false, isDev=true transforms html correctly 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hmr=false, babel=false, isDev=true transforms html correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh hrm=false, babel=false, isDev=true transforms js correctly 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hmr=false, babel=false, isDev=true transforms js correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh hrm=false, babel=true, isDev=false transforms html correctly 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hmr=false, babel=true, isDev=false transforms html correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh hrm=false, babel=true, isDev=false transforms js correctly 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hmr=false, babel=true, isDev=false transforms js correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh hrm=false, babel=true, isDev=true transforms html correctly 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hmr=false, babel=true, isDev=true transforms html correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh hrm=false, babel=true, isDev=true transforms js correctly 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hmr=false, babel=true, isDev=true transforms js correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh hrm=true, babel=false, isDev=false transforms html correctly 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hmr=true, babel=false, isDev=false transforms html correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh hrm=true, babel=false, isDev=false transforms js correctly 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hmr=true, babel=false, isDev=false transforms js correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh hrm=true, babel=false, isDev=true transforms html correctly 1`] = `
+exports[`@snowpack/plugin-react-refresh hmr=true, babel=false, isDev=true transforms html correctly 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -38,7 +38,7 @@ exports[`@snowpack/plugin-react-refresh hrm=true, babel=false, isDev=true transf
 </html>"
 `;
 
-exports[`@snowpack/plugin-react-refresh hrm=true, babel=false, isDev=true transforms js correctly 1`] = `
+exports[`@snowpack/plugin-react-refresh hmr=true, babel=false, isDev=true transforms js correctly 1`] = `
 "import React from 'react';
 function App() {
   return /* @__PURE__ */ React.createElement('div', null, 'React App');
@@ -47,11 +47,11 @@ export default App;
 "
 `;
 
-exports[`@snowpack/plugin-react-refresh hrm=true, babel=true, isDev=false transforms html correctly 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hmr=true, babel=true, isDev=false transforms html correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh hrm=true, babel=true, isDev=false transforms js correctly 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hmr=true, babel=true, isDev=false transforms js correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh hrm=true, babel=true, isDev=true transforms html correctly 1`] = `
+exports[`@snowpack/plugin-react-refresh hmr=true, babel=true, isDev=true transforms html correctly 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -69,7 +69,7 @@ exports[`@snowpack/plugin-react-refresh hrm=true, babel=true, isDev=true transfo
 </html>"
 `;
 
-exports[`@snowpack/plugin-react-refresh hrm=true, babel=true, isDev=true transforms js correctly 1`] = `
+exports[`@snowpack/plugin-react-refresh hmr=true, babel=true, isDev=true transforms js correctly 1`] = `
 "
 /** React Refresh: Setup **/
 if (import.meta.hot) {

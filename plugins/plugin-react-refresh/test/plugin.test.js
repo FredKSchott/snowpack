@@ -70,7 +70,7 @@ describe('@snowpack/plugin-react-refresh', () => {
   const devConfigs = [true, false];
 
   cartesian(hmrConfigs, babelConfigs, devConfigs).forEach(([hmr, babel, isDev]) => {
-    describe(`hrm=${hmr}, babel=${babel}, isDev=${isDev}`, () => {
+    describe(`hmr=${hmr}, babel=${babel}, isDev=${isDev}`, () => {
       const pluginInstance = pluginReactRefresh(
         {
           devOptions: {
