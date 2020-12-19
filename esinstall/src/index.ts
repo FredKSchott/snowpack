@@ -9,7 +9,7 @@ import mkdirp from 'mkdirp';
 import path from 'path';
 import rimraf from 'rimraf';
 import {InputOptions, OutputOptions, Plugin as RollupPlugin, rollup, RollupError} from 'rollup';
-import rollupPluginNodePolyfills from 'rollup-plugin-node-polyfills';
+import rollupPluginNodePolyfills from 'rollup-plugin-polyfill-node';
 import rollupPluginReplace from '@rollup/plugin-replace';
 import util from 'util';
 import validatePackageName from 'validate-npm-package-name';
