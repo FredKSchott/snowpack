@@ -41,7 +41,7 @@ function mockBabel() {
         // Fix: React Refresh Babel transform should only be enabled in development environment.
         // Instead, the environment is: "test".
         // If you want to override this check, pass {skipEnvCheck: true} as plugin options.
-        return [plugin, {skipEnvCheck: true}];
+        return [plugin, { skipEnvCheck: true }];
       });
 
       // Stop `jest.requireActual('@babel/core').transformAsync()` from requiring mocked babel function
@@ -55,52 +55,26 @@ function mockBabel() {
     });
 }
 
-async function testPluginInstance(pluginInstance) {
-  const pluginTransform = pluginInstance.transform;
-  expect(await pluginTransform(htmlTransformOptions)).toMatchSnapshot('html');
-  expect(await pluginTransform(jsTransformOptions)).toMatchSnapshot('js');
-  expect(await pluginTransform({...htmlTransformOptions, isDev: false})).toMatchSnapshot(
-    'html and isDev=false',
-  );
-  expect(await pluginTransform({...jsTransformOptions, isDev: false})).toMatchSnapshot(
-    'js and isDev=false',
-  );
-}
+const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
 
 describe('@snowpack/plugin-react-refresh', () => {
-  test('transform js and html', async () => {
-    const pluginInstance = pluginReactRefresh(
-      {
-        devOptions: {
-          hmr: true,
-        },
-      },
-      {babel: true},
-    );
-    await testPluginInstance(pluginInstance);
-  });
+  const hmrConfigs = [true, false];
+  const babelConfigs = [true, false];
+  const devConfigs = [true, false];
 
-  test('transform js and html when hmr is disabled', async () => {
-    const pluginInstance = pluginReactRefresh(
-      {
-        devOptions: {
-          hmr: false,
+  cartesian(hmrConfigs, babelConfigs, devConfigs).forEach(([hmr, babel, isDev]) => {
+    describe(`hrm=${hmr}, babel=${babel}, isDev=${isDev}`, () => {
+      const pluginInstance = pluginReactRefresh(
+        {
+          devOptions: {
+            hmr,
+          },
         },
-      },
-      {babel: true},
-    );
-    await testPluginInstance(pluginInstance);
-  });
-
-  test('transform js and html when babel is disabled', async () => {
-    const pluginInstance = pluginReactRefresh(
-      {
-        devOptions: {
-          hmr: true,
-        },
-      },
-      {babel: false},
-    );
-    await testPluginInstance(pluginInstance);
+        { babel },
+      );
+      const pluginTransform = pluginInstance.transform;
+      it('transforms html correctly', async () => expect(await pluginTransform({ ...htmlTransformOptions, isDev })).toMatchSnapshot());
+      it('transforms js correctly', async () => expect(await pluginTransform({ ...jsTransformOptions, isDev })).toMatchSnapshot());
+    });
   });
 });

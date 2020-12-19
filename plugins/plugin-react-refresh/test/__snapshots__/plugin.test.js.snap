@@ -1,6 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`@snowpack/plugin-react-refresh transform js and html when babel is disabled: html 1`] = `
+exports[`@snowpack/plugin-react-refresh hrm=false, babel=false, isDev=false transforms html correctly 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh hrm=false, babel=false, isDev=false transforms js correctly 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh hrm=false, babel=false, isDev=true transforms html correctly 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh hrm=false, babel=false, isDev=true transforms js correctly 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh hrm=false, babel=true, isDev=false transforms html correctly 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh hrm=false, babel=true, isDev=false transforms js correctly 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh hrm=false, babel=true, isDev=true transforms html correctly 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh hrm=false, babel=true, isDev=true transforms js correctly 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh hrm=true, babel=false, isDev=false transforms html correctly 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh hrm=true, babel=false, isDev=false transforms js correctly 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh hrm=true, babel=false, isDev=true transforms html correctly 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -700,9 +720,7 @@ exports.setSignature = setSignature;
 </html>"
 `;
 
-exports[`@snowpack/plugin-react-refresh transform js and html when babel is disabled: html and isDev=false 1`] = `undefined`;
-
-exports[`@snowpack/plugin-react-refresh transform js and html when babel is disabled: js 1`] = `
+exports[`@snowpack/plugin-react-refresh hrm=true, babel=false, isDev=true transforms js correctly 1`] = `
 "import React from 'react';
 function App() {
   return /* @__PURE__ */ React.createElement('div', null, 'React App');
@@ -711,17 +729,11 @@ export default App;
 "
 `;
 
-exports[`@snowpack/plugin-react-refresh transform js and html when babel is disabled: js and isDev=false 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hrm=true, babel=true, isDev=false transforms html correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh transform js and html when hmr is disabled: html 1`] = `undefined`;
+exports[`@snowpack/plugin-react-refresh hrm=true, babel=true, isDev=false transforms js correctly 1`] = `undefined`;
 
-exports[`@snowpack/plugin-react-refresh transform js and html when hmr is disabled: html and isDev=false 1`] = `undefined`;
-
-exports[`@snowpack/plugin-react-refresh transform js and html when hmr is disabled: js 1`] = `undefined`;
-
-exports[`@snowpack/plugin-react-refresh transform js and html when hmr is disabled: js and isDev=false 1`] = `undefined`;
-
-exports[`@snowpack/plugin-react-refresh transform js and html: html 1`] = `
+exports[`@snowpack/plugin-react-refresh hrm=true, babel=true, isDev=true transforms html correctly 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
   <head>
@@ -1421,9 +1433,7 @@ exports.setSignature = setSignature;
 </html>"
 `;
 
-exports[`@snowpack/plugin-react-refresh transform js and html: html and isDev=false 1`] = `undefined`;
-
-exports[`@snowpack/plugin-react-refresh transform js and html: js 1`] = `
+exports[`@snowpack/plugin-react-refresh hrm=true, babel=true, isDev=true transforms js correctly 1`] = `
 "
 /** React Refresh: Setup **/
 if (import.meta.hot) {
@@ -1461,5 +1471,3 @@ if (import.meta.hot) {
   });
 }"
 `;
-
-exports[`@snowpack/plugin-react-refresh transform js and html: js and isDev=false 1`] = `undefined`;
