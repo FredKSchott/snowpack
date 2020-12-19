@@ -16,14 +16,11 @@ To Resolve:
   return {
     name: 'snowpack-plugin',
     async serverStart({fileWatcher}) {
-      config = await snowpack.loadAndValidateConfig(
+      config = await snowpack.loadConfiguration(
         {
-          externalPackage: ['/__web-dev-server__web-socket.js'],
-          hmr: false,
-          open: 'none',
-          output: 'stream',
+          installOptions: {externalPackage: ['/__web-dev-server__web-socket.js']},
+          devOptions: {open: 'none', output: 'stream', hmr: false},
         },
-        pkgManifest,
       );
       fileWatcher.add(Object.keys(config.mount));
       server = await snowpack.startDevServer({
