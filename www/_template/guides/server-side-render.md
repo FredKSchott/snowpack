@@ -11,7 +11,7 @@ Server-side rendering (SSR) refers to several similar developer stories:
 - Using Snowpack with a server-side frontend framework kit like Next.js or SvelteKit
 - Any site configuration where your HTML is generated at runtime, outside of your static build.
 
-This guide will walk you through three different options for setting up Snowpack with your own custom server:
+This guide will walk you through two options for setting up Snowpack with your own custom server:
 
 1. `snowpack build --watch` - Load files out of the static build directory
 2. `startDevServer({ ... })` - Load files on-demand via Snowpack's JavaScript API
