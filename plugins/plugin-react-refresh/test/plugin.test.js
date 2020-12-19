@@ -55,7 +55,14 @@ function mockBabel() {
     });
 }
 
+/**
+ * 
+ * This 1-liner depends on `flatMap`, which is not yet available in Node 10
+ * TODO use this 1-liner when Node 10 is deprecated
 const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+ */
+const f = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
+const cartesian = (a, b, ...c) => (b ? cartesian(f(a, b), ...c) : a);
 
 describe('@snowpack/plugin-react-refresh', () => {
   const hmrConfigs = [true, false];

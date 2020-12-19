@@ -22,6 +22,7 @@
     "react-dom": ">=16.9.0"
   },
   "scripts": {
+    "postinstall": "node ./postinstall.js",
     "test": "jest"
   },
   "devDependencies": {

@@ -5,29 +5,14 @@
  * - https://github.com/vitejs/vite-plugin-react (see LICENSE)
  */
 
-const fs = require('fs');
-
-const reactRefreshLoc = require.resolve('react-refresh/cjs/react-refresh-runtime.development.js');
-const reactRefreshCode = fs
-  .readFileSync(reactRefreshLoc, {encoding: 'utf-8'})
-  .replace(`process.env.NODE_ENV`, JSON.stringify('development'));
+const runtimeUrlPath = '/node_modules/@snowpack/plugin-react-refresh';
+const injectedRuntimeScriptTag = `<script src="${runtimeUrlPath}/runtime.js"></script>`;
 
 function transformHtml(contents) {
   return contents.replace(
-    /<body.*?>/,
+    /<head.*?>/,
     `$&
-<script>
-  function debounce(e,t){let u;return()=>{clearTimeout(u),u=setTimeout(e,t)}}
-  {
-    const exports = {};
-    ${reactRefreshCode}
-    exports.performReactRefresh = debounce(exports.performReactRefresh, 30);
-    window.$RefreshRuntime$ = exports;
-    window.$RefreshRuntime$.injectIntoGlobalHook(window);
-    window.$RefreshReg$ = () => {};
-    window.$RefreshSig$ = () => (type) => type;
-  }
-</script>`,
+${injectedRuntimeScriptTag}`,
   );
 }
 
@@ -45,7 +30,7 @@ async function transformJs(contents, id, cwd, skipTransform) {
     );
     fastRefreshEnhancedCode = contents;
   } else {
-    const {code} = await babel.transformAsync(contents, {
+    const { code } = await babel.transformAsync(contents, {
       cwd,
       filename: id,
       ast: false,
@@ -67,7 +52,7 @@ async function transformJs(contents, id, cwd, skipTransform) {
 /** React Refresh: Setup **/
 if (import.meta.hot) {
   if (!window.$RefreshReg$ || !window.$RefreshSig$ || !window.$RefreshRuntime$) {
-    console.warn('@snowpack/plugin-react-refresh: HTML setup script not run. React Fast Refresh only works when Snowpack serves your HTML routes. You many want to remove this plugin.');
+    console.warn(${JSON.stringify(reactRefreshRuntimeWarning)});
   } else {
     var prevRefreshReg = window.$RefreshReg$;
     var prevRefreshSig = window.$RefreshSig$;
@@ -90,7 +75,18 @@ if (import.meta.hot) {
 }`;
 }
 
+const reactRefreshRuntimeWarning = `@snowpack/plugin-react-refresh: React Fast Refresh\'s runtime not found.
+It is served by default when Snowpack serves your HTML routes.
+To support other HTML files, add the following \`<script>\` tag immediately after /\`<head>\` tag, and before any other \`<script>\` tag:
+\`${injectedRuntimeScriptTag}\``;
+
 module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
+  snowpackConfig.mount = snowpackConfig.mount || [];
+  snowpackConfig.mount['node_modules/@snowpack/plugin-react-refresh'] = {
+    url: runtimeUrlPath,
+    static: true,
+    resolve: false,
+  };
   return {
     name: '@snowpack/plugin-react-refresh',
     transform({contents, fileExt, id, isDev}) {
