@@ -12,6 +12,7 @@ let makeHot = (...args) => {
 module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   const isDev = process.env.NODE_ENV !== 'production';
   const useSourceMaps = snowpackConfig.buildOptions.sourceMaps;
+  const importedByMap = new Map();
 
   // Support importing Svelte files when you install dependencies.
   snowpackConfig.installOptions.rollup.plugins.push(
@@ -91,15 +92,36 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       'svelte-hmr/runtime/hot-api-esm.js',
       'svelte-hmr/runtime/proxy-adapter-dom.js',
     ],
+
+    _markImportersAsChanged(filePath) {
+      if (importedByMap.has(filePath)) {
+        const importedBy = importedByMap.get(filePath);
+        importedByMap.delete(filePath);
+        for (const importerFilePath of importedBy) {
+          this.markChanged(importerFilePath);
+        }
+      }
+    },
+
     async load({filePath, isHmrEnabled, isSSR}) {
+      let dependencies = [];
       let codeToCompile = await fs.promises.readFile(filePath, 'utf-8');
       // PRE-PROCESS
       if (preprocessOptions !== false) {
-        codeToCompile = (
-          await svelte.preprocess(codeToCompile, preprocessOptions, {
+        ({code: codeToCompile, dependencies} = await svelte.preprocess(
+          codeToCompile,
+          preprocessOptions,
+          {
             filename: filePath,
-          })
-        ).code;
+          },
+        ));
+      }
+
+      if (isDev && dependencies) {
+        dependencies.forEach((depPath) => {
+          console.log(depPath, filePath);
+          importedByMap(depPath, filePath);
+        });
       }
 
       const finalCompileOptions = {
