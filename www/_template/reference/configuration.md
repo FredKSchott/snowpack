@@ -352,4 +352,7 @@ For your safety, Snowpack supports only environment variables which begin with `
 You can also use environment variables in HTML files. All occurrences of `%SNOWPACK_PUBLIC_*%`, `%PUBLIC_URL%`, and `%MODE%` will be replaced at build time.
 
 **Remember:** that these env variables are statically injected into your application for everyone at **build time**, and not runtime.
+
+```
+
 ```
