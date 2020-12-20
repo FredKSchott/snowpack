@@ -38,7 +38,8 @@
   },
   "files": [
     "assets",
-    "lib",
+    "lib/**/*",
+    "!lib/**/*.spec.*",
     "index.bin.js",
     "index.bundle.js"
   ],
