@@ -175,9 +175,9 @@ module.exports = {
 
 - In your HTML, replace all instances of `%PUBLIC_URL%` with this (inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept). This is useful if your app will be deployed to a subdirectory. _Note: if you have `homepage` in your `package.json`, Snowpack will actually pick up on that, too._
 
-#### buildOptions.clean | `boolean` | Default: `false`
+#### buildOptions.clean | `boolean` | Default: `true`
 
-- Set to `true` if Snowpack should erase the build folder before each build.
+- Set to `false` to prevent Snowpack from deleting the build output folder (`buildOptions.out`) between builds.
 
 #### buildOptions.metaDir | `string` | Default: `__snowpack__`
 
