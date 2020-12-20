@@ -26,6 +26,7 @@
 
 import cacache from 'cacache';
 import isCompressible from 'compressible';
+import {createRuntime, ESMRuntime} from 'esm-runtime';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, promises as fs, statSync} from 'fs';
@@ -241,6 +242,24 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
   });
   sendResponseError(req, res, 500);
   return;
+}
+
+function createServerRuntime(
+  sp: SnowpackDevServer,
+  options: {invalidateOnChange?: boolean} = {},
+): ESMRuntime {
+  const runtime = createRuntime({
+    loadUrl: (url) => sp.loadUrl(url, {isSSR: true, allowStale: false, encoding: 'utf8'}),
+  });
+  if (options.invalidateOnChange !== false) {
+    sp.onFileChange(({filePath}) => {
+      const url = sp.getUrlForFile(filePath);
+      if (url) {
+        runtime.invalidateModule(url);
+      }
+    });
+  }
+  return runtime;
 }
 
 export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
@@ -1334,18 +1353,21 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   depWatcher.on('change', onDepWatchEvent);
   depWatcher.on('unlink', onDepWatchEvent);
 
-  return {
+  const sp = {
     port,
     loadUrl,
     handleRequest,
     sendResponseFile,
     sendResponseError,
+    getUrlForFile: (fileLoc: string) => getUrlForFile(fileLoc, config),
     onFileChange: (callback) => (onFileChangeCallback = callback),
+    createServerRuntime: (options) => createServerRuntime(sp, options),
     async shutdown() {
       await watcher.close();
       server.close();
     },
-  };
+  } as SnowpackDevServer;
+  return sp;
 }
 
 export async function command(commandOptions: CommandOptions) {

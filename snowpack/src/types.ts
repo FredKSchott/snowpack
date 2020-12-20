@@ -1,4 +1,5 @@
 import type {InstallOptions} from 'esinstall';
+import type {ESMRuntime} from 'esm-runtime';
 import type * as http from 'http';
 import type {RawSourceMap} from 'source-map';
 
@@ -59,7 +60,9 @@ export interface SnowpackDevServer {
     {contents, originalFileLoc, contentType}: LoadResult,
   ) => void;
   sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
+  getUrlForFile: (fileLoc: string) => string | null;
   onFileChange: (callback: OnFileChangeCallback) => void;
+  createServerRuntime: (options?: {invalidateOnChange?: boolean}) => ESMRuntime;
   shutdown(): Promise<void>;
 }
 
