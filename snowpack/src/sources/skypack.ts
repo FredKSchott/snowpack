@@ -8,7 +8,7 @@ import {
   SKYPACK_ORIGIN,
 } from 'skypack';
 import {logger} from '../logger';
-import {ImportMap, LockfileManifest, PackageSource, SnowpackConfig} from '../types/snowpack';
+import {ImportMap, LockfileManifest, PackageSource, SnowpackConfig} from '../types';
 
 const fetchedPackages = new Set<string>();
 function logFetching(packageName: string) {

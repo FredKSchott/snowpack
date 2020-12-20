@@ -1,5 +1,5 @@
 import path from 'path';
-import {MountEntry, SnowpackConfig} from '../types/snowpack';
+import {MountEntry, SnowpackConfig} from '../types';
 import {replaceExtension, getExtensionMatch} from '../util';
 
 /**

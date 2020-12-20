@@ -6,7 +6,7 @@ import mkdirp from 'mkdirp';
 import path from 'path';
 import rimraf from 'rimraf';
 import {logger} from '../logger';
-import {OptimizeOptions, SnowpackConfig} from '../types/snowpack';
+import {OptimizeOptions, SnowpackConfig} from '../types';
 import {
   addLeadingSlash,
   addTrailingSlash,

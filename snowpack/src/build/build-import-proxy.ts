@@ -1,7 +1,7 @@
 import path from 'path';
 import type {Postcss} from 'postcss';
 import {logger} from '../logger';
-import {SnowpackConfig} from '../types/snowpack';
+import {SnowpackConfig} from '../types';
 import {
   appendHtmlToHead,
   hasExtension,

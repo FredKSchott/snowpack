@@ -7,7 +7,7 @@ import {
   SnowpackConfig,
   SnowpackPlugin,
   PluginTransformResult,
-} from '../types/snowpack';
+} from '../types';
 import {getExtension, readFile, removeExtension, replaceExtension} from '../util';
 import {SourceMapConsumer, SourceMapGenerator, RawSourceMap} from 'source-map';
 

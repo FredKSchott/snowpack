@@ -4,7 +4,7 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import readline from 'readline';
 import {logger, LogRecord} from '../logger';
-import {SnowpackConfig} from '../types/snowpack';
+import {SnowpackConfig} from '../types';
 
 const IS_FILE_CHANGED_MESSAGE = /File changed\.\.\./;
 

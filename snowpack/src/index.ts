@@ -10,9 +10,9 @@ import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {logger} from './logger';
 import {loadConfigurationForCLI} from './config';
-import {CLIFlags, CommandOptions} from './types/snowpack';
+import {CLIFlags, CommandOptions} from './types';
 import {clearCache, readLockfile} from './util.js';
-export * from './types/snowpack';
+export * from './types';
 
 // Stable API (remember to include all in "./index.esm.js" wrapper)
 export {startDevServer} from './commands/dev';

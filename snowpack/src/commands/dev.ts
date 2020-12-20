@@ -68,7 +68,7 @@ import {
   RouteConfigObject,
   SnowpackBuildMap,
   SnowpackDevServer,
-} from '../types/snowpack';
+} from '../types';
 import {
   BUILD_CACHE,
   cssSourceMappingURL,

@@ -15,7 +15,7 @@ import {clearCache as clearSkypackCache} from 'skypack';
 import url from 'url';
 import localPackageSource from './sources/local';
 import skypackPackageSource from './sources/skypack';
-import {LockfileManifest, PackageSource, SnowpackConfig} from './types/snowpack';
+import {LockfileManifest, PackageSource, SnowpackConfig} from './types';
 
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
 

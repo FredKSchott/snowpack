@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {SnowpackConfig} from '../types/snowpack';
+import {SnowpackConfig} from '../types';
 import {findMatchingAliasEntry, getExtensionMatch, hasExtension, isRemoteUrl, replaceExtension} from '../util';
 import {getUrlForFile} from './file-urls';
 

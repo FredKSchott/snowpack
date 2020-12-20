@@ -2,7 +2,7 @@ import {promises as fs, existsSync, constants as fsConstants} from 'fs';
 import {bold, dim} from 'kleur/colors';
 import path from 'path';
 import {logger} from '../logger';
-import {CommandOptions} from '../types/snowpack';
+import {CommandOptions} from '../types';
 
 export async function command(commandOptions: CommandOptions) {
   const {config} = commandOptions;

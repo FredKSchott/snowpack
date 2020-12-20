@@ -3,7 +3,7 @@ import {cyan, dim, underline} from 'kleur/colors';
 import path from 'path';
 import {generateImportMap} from 'skypack';
 import {logger} from '../logger';
-import {CommandOptions, LockfileManifest} from '../types/snowpack';
+import {CommandOptions, LockfileManifest} from '../types';
 import {writeLockfile} from '../util';
 
 export async function addCommand(addValue: string, commandOptions: CommandOptions) {

@@ -31,7 +31,7 @@ import {
   SnowpackBuildResultFileManifest,
   SnowpackConfig,
   SnowpackSourceFile,
-} from '../types/snowpack';
+} from '../types';
 import {
   cssSourceMappingURL,
   getExtensionMatch,

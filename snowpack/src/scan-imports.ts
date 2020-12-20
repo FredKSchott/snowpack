@@ -5,7 +5,7 @@ import path from 'path';
 import stripComments from 'strip-comments';
 import url from 'url';
 import {logger} from './logger';
-import {SnowpackConfig, SnowpackSourceFile} from './types/snowpack';
+import {SnowpackConfig, SnowpackSourceFile} from './types';
 import {
   CSS_REGEX,
   findMatchingAliasEntry,

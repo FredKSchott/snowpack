@@ -1,5 +1,5 @@
 import * as colors from 'kleur/colors';
-import {LoggerLevel, LoggerEvent, LoggerOptions} from './types/snowpack';
+import {LoggerLevel, LoggerEvent, LoggerOptions} from './types';
 
 export interface LogRecord {
   val: string;

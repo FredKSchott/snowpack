@@ -1,4 +1,4 @@
-import {SnowpackSourceFile} from './types/snowpack';
+import {SnowpackSourceFile} from './types';
 import {HTML_JS_REGEX, CSS_REGEX, HTML_STYLE_REGEX} from './util';
 import {matchDynamicImportValue} from './scan-imports';
 

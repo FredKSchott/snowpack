@@ -2,7 +2,7 @@ import {Service, startService} from 'esbuild';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import {promises as fs} from 'fs';
-import {SnowpackPlugin, SnowpackConfig} from '../types/snowpack';
+import {SnowpackPlugin, SnowpackConfig} from '../types';
 import {logger} from '../logger';
 
 let esbuildService: Service | null = null;

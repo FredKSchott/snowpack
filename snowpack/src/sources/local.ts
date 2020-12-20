@@ -5,7 +5,7 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import {getInstallTargets, run as installRunner} from '../commands/install';
 import {logger} from '../logger';
-import {CommandOptions, PackageSource, SnowpackConfig} from '../types/snowpack';
+import {CommandOptions, PackageSource, SnowpackConfig} from '../types';
 import {checkLockfileHash, DEV_DEPENDENCIES_DIR, updateLockfileHash} from '../util';
 
 /**

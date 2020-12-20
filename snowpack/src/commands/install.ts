@@ -5,7 +5,7 @@ import {performance} from 'perf_hooks';
 import util from 'util';
 import {logger} from '../logger';
 import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
-import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types/snowpack';
+import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types';
 import {writeLockfile} from '../util.js';
 
 export async function getInstallTargets(

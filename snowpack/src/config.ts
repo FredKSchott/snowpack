@@ -16,7 +16,7 @@ import {
   SnowpackConfig,
   SnowpackPlugin,
   SnowpackUserConfig,
-} from './types/snowpack';
+} from './types';
 import {
   addLeadingSlash,
   addTrailingSlash,
