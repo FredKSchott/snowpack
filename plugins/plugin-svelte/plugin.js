@@ -77,6 +77,8 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     }
   }
 
+  console.log(pluginOptions.preprocess);
+
   if (preprocessOptions === undefined) {
     preprocessOptions = require('svelte-preprocess')();
   }
@@ -108,6 +110,8 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       let codeToCompile = await fs.promises.readFile(filePath, 'utf-8');
       // PRE-PROCESS
       if (preprocessOptions !== false) {
+        console.log('boo!');
+
         ({code: codeToCompile, dependencies} = await svelte.preprocess(
           codeToCompile,
           preprocessOptions,
@@ -120,7 +124,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       if (isDev && dependencies) {
         dependencies.forEach((depPath) => {
           console.log(depPath, filePath);
-          importedByMap(depPath, filePath);
+          importedByMap.set(depPath, filePath);
         });
       }
 
