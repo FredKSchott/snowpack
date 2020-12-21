@@ -48,6 +48,23 @@ export const HTML_STYLE_REGEX = /(<style.*?>)(.*?)<\/style>/gims;
 export const CSS_REGEX = /@import\s*['"](.*?)['"];/gs;
 export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
 
+/**
+ * Like rimraf, but will fail if "dir" is outside of your configured build output directory.
+ */
+export function deleteFromBuildSafe(dir: string, config: SnowpackConfig) {
+  const {out} = config.buildOptions;
+  if (!path.isAbsolute(dir)) {
+    throw new Error(`rimrafSafe(): dir ${dir} must be a absolute path`);
+  }
+  if (!path.isAbsolute(out)) {
+    throw new Error(`rimrafSafe(): buildOptions.out ${out} must be a absolute path`);
+  }
+  if (!dir.startsWith(out)) {
+    throw new Error(`rimrafSafe(): ${dir} outside of buildOptions.out ${out}`);
+  }
+  return rimraf.sync(dir);
+}
+
 /** Read file from disk; return a string if it’s a code file */
 export async function readFile(filepath: URL): Promise<string | Buffer> {
   const data = await fs.promises.readFile(url.fileURLToPath(filepath));

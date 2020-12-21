@@ -6,7 +6,6 @@ import mkdirp from 'mkdirp';
 import PQueue from 'p-queue';
 import path from 'path';
 import {performance} from 'perf_hooks';
-import rimraf from 'rimraf';
 import url from 'url';
 import {
   generateEnvModule,
@@ -34,6 +33,7 @@ import {
 } from '../types';
 import {
   cssSourceMappingURL,
+  deleteFromBuildSafe,
   getExtensionMatch,
   getPackageSource,
   HMR_CLIENT_CODE,
@@ -352,7 +352,7 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
   const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaDir);
 
   if (config.buildOptions.clean) {
-    rimraf.sync(buildDirectoryLoc);
+    deleteFromBuildSafe(buildDirectoryLoc, config);
   }
   mkdirp.sync(buildDirectoryLoc);
   mkdirp.sync(internalFilesBuildLoc);

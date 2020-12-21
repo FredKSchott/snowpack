@@ -6,11 +6,6 @@
   "scripts": {
     "testbuild": "snowpack build --out TEST_BUILD_OUT"
   },
-  "snowpack": {
-    "buildOptions": {
-      "clean": true
-    }
-  },
   "devDependencies": {
     "cross-env": "^7.0.2",
     "snowpack": "^2.14.3"

@@ -27,7 +27,7 @@ module.exports = function plugin(snowpackConfig, options = {}) {
       worker = worker || (await pool.proxy());
       let encodedResult = await worker.transformFileAsync(filePath, {
         caller: {
-          name: "@snowpack/plugin-babel",
+          name: '@snowpack/plugin-babel',
           supportsStaticESM: true,
           supportsDynamicImport: true,
           supportsTopLevelAwait: true,

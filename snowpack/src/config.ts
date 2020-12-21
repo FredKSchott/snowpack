@@ -52,7 +52,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
     out: 'build',
     baseUrl: '/',
     webModulesUrl: '/web_modules',
-    clean: false,
+    clean: true,
     metaDir: '__snowpack__',
     minify: false,
     sourceMaps: false,
