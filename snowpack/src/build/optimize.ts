@@ -4,7 +4,6 @@ import {promises as fs, readFileSync, unlinkSync, writeFileSync} from 'fs';
 import {glob} from 'glob';
 import mkdirp from 'mkdirp';
 import path from 'path';
-import rimraf from 'rimraf';
 import {logger} from '../logger';
 import {OptimizeOptions, SnowpackConfig} from '../types';
 import {
@@ -16,6 +15,7 @@ import {
   PROJECT_CACHE_DIR,
   removeLeadingSlash,
   removeTrailingSlash,
+  deleteFromBuildSafe,
 } from '../util';
 import {getUrlForFile} from './file-urls';
 
@@ -531,8 +531,9 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
         await fs.unlink(path.resolve(buildDirectoryLoc, bundledInput));
       }
     }
-    rimraf.sync(
+    deleteFromBuildSafe(
       path.resolve(buildDirectoryLoc, removeLeadingSlash(config.buildOptions.webModulesUrl)),
+      config
     );
     await removeEmptyFolders(buildDirectoryLoc);
     for (const outputFile of outputFiles!) {

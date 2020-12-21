@@ -1,6 +1,4 @@
 import * as colors from 'kleur/colors';
-import path from 'path';
-import {promises as fs} from 'fs';
 import util from 'util';
 import yargs from 'yargs-parser';
 import {addCommand, rmCommand} from './commands/add-rm';
@@ -9,7 +7,7 @@ import {command as installCommand} from './commands/install';
 import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {logger} from './logger';
-import {loadConfigurationForCLI} from './config';
+import {loadConfiguration, expandCliFlags} from './config';
 import {CLIFlags, CommandOptions} from './types';
 import {clearCache, readLockfile} from './util.js';
 export * from './types';
@@ -17,9 +15,16 @@ export * from './types';
 // Stable API (remember to include all in "./index.esm.js" wrapper)
 export {startDevServer} from './commands/dev';
 export {buildProject} from './commands/build';
-export {loadConfigurationForCLI as loadAndValidateConfig, createConfiguration} from './config.js';
+export {loadConfiguration, createConfiguration} from './config.js';
 export {readLockfile as loadLockfile} from './util.js';
 export {getUrlForFile} from './build/file-urls';
+export {logger} from './logger';
+
+export function loadAndValidateConfig() {
+  throw new Error(
+    'loadAndValidateConfig() has been deprecated in favor of loadConfiguration() and createConfiguration()',
+  );
+}
 
 function printHelp() {
   logger.info(
@@ -72,18 +77,6 @@ export async function cli(args: string[]) {
     logger.info(colors.yellow('! clearing cache...'));
     await clearCache();
   }
-  // Load the current package manifest
-  // TODO: process.cwd() okay here? We should remove this requirement on a package.json for v3.0.
-  let pkgManifest: any;
-  try {
-    pkgManifest = await fs.readFile(path.join(process.cwd(), 'package.json'), 'utf8');
-  } catch (err) {
-    logger.error(
-      `package.json not found in directory: ${process.cwd()}. Run \`npm init -y\` to create one.`,
-    );
-    process.exit(1);
-  }
-  pkgManifest = JSON.parse(pkgManifest);
 
   const cmd = cliFlags['_'][2];
   logger.debug(`run command: ${cmd}`);
@@ -100,7 +93,8 @@ export async function cli(args: string[]) {
     process.env.NODE_ENV = process.env.NODE_ENV || 'development';
   }
 
-  const config = await loadConfigurationForCLI(cliFlags, pkgManifest);
+  const cliConfig = expandCliFlags(cliFlags);
+  const config = await loadConfiguration(cliConfig, cliFlags.config);
   logger.debug(`config loaded: ${util.format(config)}`);
   // TODO: process.cwd() okay here? Should the lockfile live at root instead of cwd?
   const lockfile = await readLockfile(process.cwd());
