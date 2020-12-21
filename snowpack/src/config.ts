@@ -103,10 +103,15 @@ const configSchema = {
     devOptions: {
       type: 'object',
       properties: {
+        /* TODO */
         secure: {type: 'boolean'},
+        /** the port the dev server runs on */
         port: {type: 'number'},
+        /* TODO*/
         fallback: {type: 'string'},
+        /* TODO */
         bundle: {type: 'boolean'},
+        /** Opens the dev server in a new browser tab. */
         open: {type: 'string'},
         output: {type: 'string', enum: ['stream', 'dashboard']},
         hmr: {type: 'boolean'},

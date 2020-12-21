@@ -157,15 +157,48 @@ Enable Snowpack plugins and their options
 
 Configure the Snowpack dev server.
 
-- devOptions.secure | `type` | _optional/required_ | Default: `value` : description
-- devOptions.hostname | `type` | _optional/required_ | Default: `value` : description
-- devOptions.port | `type` | _optional/required_ | Default: `value` : description
-- devOptions.fallback | `type` | _optional/required_ | Default: `value` : description
-- devOptions.open | `type` | _optional/required_ | Default: `value` : description
+### devOptions.secure
+
+- devOptions.secure | `boolean` | _optional_ | Default: `false` : TODO I think this is about https?
+
+### devOptions.hostname
+
+- devOptions.hostname | `string` | _optional_ | Default: `localhost` : The name of the host the dev server runs on TODO why is this not on config.ts line 103 object
+
+### devOptions.port
+
+- devOptions.port | `number` | _optional_ | Default: `8080` : The port the dev server runs on
+
+### devOptions.fallback
+
+- devOptions.fallback | `string` | _optional_ | Default: `index.html` : TODO truncate this When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
+
+### devOptions.bundle
+
+- devOptions.bundle | `boolean` | _optional_ | Default: `TODO` : TODO
+
+### devOptions.open
+
+- devOptions.open | `string` | _optional_ | Default: `default` : Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
+
+### devOptions.output
+
 - devOptions.output | `type` | _optional/required_ | Default: `value` : description
+
+### devOptions.hmr
+
 - devoptions.hmr | `type` | _optional/required_ | Default: `value` : description
+
+### devOptions.hmrDelay
+
 - devoptions.hmrDelay | `type` | _optional/required_ | Default: `value` : description
+
+### devOptions.hmrPort
+
 - devoptions.hmrPort | `type` | _optional/required_ | Default: `value` : description
+
+### devOptions.hmrErrorOverlay
+
 - devoptions.hmrErrorOverlay | `type` | _optional/required_ | Default: `value` : description
 
 ## config.installOptions
@@ -202,6 +235,7 @@ Configure your final build.
 - buildOptions.fragment | `type` | _optional/required_ | Default: `value` : description
 
 ## config.testOptions
+
 `array` (files as `strings`)
 
 Configure tests. TODO: How so?
@@ -209,14 +243,16 @@ Configure tests. TODO: How so?
 - testOptions.files
 
 - testOptions.files
+
 ## config.experiments
+
 `object` (option name: value)
 
 This section is experimental and not yet finalized. May change across versions.
 
 [See the code for options](https://github.com/snowpackjs/snowpack/blob/main/snowpack/src/types/snowpack.ts#L235)
 
-## config._extensionMap
+## config.\_extensionMap
 
 TODO: I think this matches input extentions to output but I am not sure
 

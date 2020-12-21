@@ -253,6 +253,7 @@ export interface SnowpackConfig {
     /** (EXPERIMENTAL) Configure routes during development. */
     routes: RouteConfigObject[];
   };
+  /* TODO */
   _extensionMap: Record<string, string>;
 }
 
