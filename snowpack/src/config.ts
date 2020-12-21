@@ -524,27 +524,39 @@ function getConfigBasePath(configFileLoc: string | undefined, configRoot: string
   );
 }
 
-function resolveRelativeConfigAlias(aliasConfig: Record<string, string>, configBase: string) {
+function resolveRelativeConfigAlias(
+  aliasConfig: Record<string, string>,
+  configBase: string,
+): SnowpackUserConfig['alias'] {
+  const cleanAliasConfig = {};
   for (const [target, replacement] of Object.entries(aliasConfig)) {
-    if (
+    const isDirectory = target.endsWith('/');
+    const isPath =
       replacement === '.' ||
       replacement === '..' ||
       replacement.startsWith('./') ||
       replacement.startsWith('../') ||
-      replacement.startsWith('/')
-    ) {
-      aliasConfig[target] = target.endsWith('/')
+      replacement.startsWith('/');
+    if (isPath) {
+      cleanAliasConfig[target] = isDirectory
         ? addTrailingSlash(path.resolve(configBase, replacement))
         : removeTrailingSlash(path.resolve(configBase, replacement));
+    } else {
+      cleanAliasConfig[target] = replacement;
     }
   }
+  return cleanAliasConfig;
 }
 
-function resolveRelativeConfigMount(mountConfig: Record<string, any>, configBase: string) {
+function resolveRelativeConfigMount(
+  mountConfig: Record<string, any>,
+  configBase: string,
+): SnowpackUserConfig['mount'] {
+  const cleanMountConfig = {};
   for (const [target, replacement] of Object.entries(mountConfig)) {
-    delete mountConfig[target];
-    mountConfig[path.resolve(configBase, target)] = replacement;
+    cleanMountConfig[path.resolve(configBase, target)] = replacement;
   }
+  return cleanMountConfig;
 }
 
 function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): SnowpackUserConfig {
@@ -572,10 +584,10 @@ function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): 
     });
   }
   if (config.mount) {
-    resolveRelativeConfigMount(config.mount, configBase);
+    config.mount = resolveRelativeConfigMount(config.mount, configBase);
   }
   if (config.alias) {
-    resolveRelativeConfigAlias(config.alias, configBase);
+    config.alias = resolveRelativeConfigAlias(config.alias, configBase);
   }
 
   return config;
