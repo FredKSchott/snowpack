@@ -4,7 +4,7 @@ const fs = require('fs');
 
 fs.copyFileSync(require.resolve('source-map/lib/mappings.wasm'), path.join(__dirname, '../lib/mappings.wasm'));
 // fs.copyFileSync(path.join(require.resolve('rollup-plugin-node-polyfills/package.json'), '../polyfills'), path.join(__dirname, '../polyfills'));
-execa.commandSync(`cp -r ${path.join(require.resolve('rollup-plugin-node-polyfills/package.json'), '../polyfills')} ${path.join(__dirname, '../polyfills')}`);
+// execa.commandSync(`cp -r ${path.join(require.resolve('rollup-plugin-node-polyfills/package.json'), '../polyfills')} ${path.join(__dirname, '../polyfills')}`);
 
 /** 
  * Some packages just don't work with Rollup. As a workaround,

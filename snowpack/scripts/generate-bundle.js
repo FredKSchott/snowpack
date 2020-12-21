@@ -91,10 +91,6 @@ const config = {
         // vm2 & others
         {find: /^vm2$/, replacement: require.resolve('../vendor/vm2/index.js')},
         {find: /^htmlparser2$/, replacement: require.resolve('../vendor/generated/~htmlparser2.js')},
-        {
-          find: /^rollup-plugin-node-polyfills$/,
-          replacement: 'rollup-plugin-node-polyfills/dist/index.js'
-        },
       ],
     }),
     commonjs({
