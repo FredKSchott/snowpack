@@ -31,7 +31,6 @@ import {EventEmitter} from 'events';
 import {createReadStream, promises as fs, statSync} from 'fs';
 import http from 'http';
 import http2 from 'http2';
-import https from 'https';
 import {isBinaryFile} from 'isbinaryfile';
 import * as colors from 'kleur/colors';
 import mime from 'mime-types';
@@ -1133,8 +1132,6 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         {...credentials!, allowHTTP1: true},
         responseHandler as Http2RequestListener,
       );
-    } else if (credentials) {
-      return https.createServer(credentials, responseHandler as http.RequestListener);
     }
 
     return http.createServer(responseHandler as http.RequestListener);
