@@ -128,10 +128,17 @@ Configure import aliases for directories and packages.
 ```
 
 ## config.plugins
-`todo`
-Default: TODO
+`array` containing pluginName `string` or an array [`pluginName`, {`pluginOptions`}
 
-Extend Snowpack with third-party tools and plugins. See the section below for more info.
+Enable Snowpack plugins and their options
+
+```js
+// snowpack-config.js
+// Example: enable plugins both simple and expanded
+{
+  plugins: ['plugin-1', ['plugin-2', { 'plugin-option': false }]];
+}
+```
 
 ## config.proxy
 `todo`
