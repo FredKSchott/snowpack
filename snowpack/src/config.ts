@@ -103,20 +103,25 @@ const configSchema = {
     devOptions: {
       type: 'object',
       properties: {
-        /* TODO */
+        /** Toggles whether Snowpack dev server should use HTTPS with HTTP2 enabled. */
         secure: {type: 'boolean'},
-        /** the port the dev server runs on */
+        /** the port the dev server runs on. */
         port: {type: 'number'},
-        /* TODO*/
+        /* The HTML file to serve for non-resource routes. */
         fallback: {type: 'string'},
         /* TODO */
         bundle: {type: 'boolean'},
-        /** Opens the dev server in a new browser tab. */
+        /** Configures how the dev server opens in the browser when it starts. */
         open: {type: 'string'},
+        /** Set the output mode of the `dev` console. */
         output: {type: 'string', enum: ['stream', 'dashboard']},
+        /** Toggles HMR on the Snowpack dev server. */
         hmr: {type: 'boolean'},
+        /** Milliseconds to delay HMR-triggered browser update. */
         hmrDelay: {type: 'number'},
+        /** The port where Snowpack's HMR Websocket runs. */
         hmrPort: {type: 'number'},
+        /** Toggles a browser overlay that displays JavaScript runtime errors when running HMR. */
         hmrErrorOverlay: {type: 'boolean'},
       },
     },

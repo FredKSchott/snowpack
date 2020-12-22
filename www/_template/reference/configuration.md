@@ -158,48 +158,89 @@ Enable Snowpack plugins and their options
 Configure the Snowpack dev server.
 
 ### devOptions.secure
+`boolean`
+Default: `false`
+_optional_
 
-- devOptions.secure | `boolean` | _optional_ | Default: `false` : TODO I think this is about https?
+Toggles whether Snowpack dev server should use HTTPS with HTTP2 enabled.
 
 ### devOptions.hostname
+`string`
+Default: `localhost`
+_optional_
 
-- devOptions.hostname | `string` | _optional_ | Default: `localhost` : The name of the host the dev server runs on TODO why is this not on config.ts line 103 object
+The name of the host the dev server runs on.
+
+TODO: originally "The hostname where the browser tab will be open." is this more correct? Also why isn't it in the devoptions object in config.ts?
 
 ### devOptions.port
+`number`
+Default: `8080`
+_optional_
 
-- devOptions.port | `number` | _optional_ | Default: `8080` : The port the dev server runs on
+The port the dev server runs on.
 
 ### devOptions.fallback
+`string`
+Default: `"index.html"`
+_optional_
 
-- devOptions.fallback | `string` | _optional_ | Default: `index.html` : TODO truncate this When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
+The HTML file to serve for non-resource routes.
+
+When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
 
 ### devOptions.bundle
+`boolean`
+Default: TODO
 
-- devOptions.bundle | `boolean` | _optional_ | Default: `TODO` : TODO
+TODO:  This is still in config.ts but seems deprecated
 
 ### devOptions.open
+`string`
+Default: `"default"`
+_optional_
 
-- devOptions.open | `string` | _optional_ | Default: `default` : Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
+Configures how the dev server opens in the browser when it starts.
+
+If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
 
 ### devOptions.output
+`string` (either `"dashboard"` or `"stream"`)
+Default: `"dashboard"`
 
-- devOptions.output | `type` | _optional/required_ | Default: `value` : description
+Set the output mode of the `dev` console.
+
+- `"dashboard"` delivers an organized layout of console output and the logs of any connected tools. This is recommended for most users and results in the best logging experience.
+- `"stream"` is useful when Snowpack is run in parallel with other commands, where clearing the shell would clear important output of other commands running in the same shell.
 
 ### devOptions.hmr
+`boolean`
+Default: `true`
+_optional_
 
-- devoptions.hmr | `type` | _optional/required_ | Default: `value` : description
-
+Toggles HMR on the Snowpack dev server.
 ### devOptions.hmrDelay
+`number` (milliseconds)
+Default: `0`
+_optional_
 
-- devoptions.hmrDelay | `type` | _optional/required_ | Default: `value` : description
+Milliseconds to delay HMR-triggered browser update.
 
 ### devOptions.hmrPort
+`number`
+Default: `undefined`
+_optional_
 
-- devoptions.hmrPort | `type` | _optional/required_ | Default: `value` : description
+The port where Snowpack's HMR Websocket runs.
+
+The default of `undefined` means it runs on the same port as the Snowpack dev server. TODO I think
 
 ### devOptions.hmrErrorOverlay
+`boolean`
+Default: `true`
+_optional_
 
-- devoptions.hmrErrorOverlay | `type` | _optional/required_ | Default: `value` : description
+Toggles a browser overlay that displays JavaScript runtime errors when running HMR.
 
 ## config.installOptions
 
@@ -207,15 +248,102 @@ Configure the Snowpack dev server.
 
 Configure how npm packages are installed.
 
-- installOptions.dest | `type` | _optional/required_ | Default: `value` : description
-- installOptions.externalPackage | `type` | _optional/required_ | Default: `value` : description
-- installOptions.treeshake | `type` | _optional/required_ | Default: `value` : description
-- installOptions.installTypes | `type` | _optional/required_ | Default: `value` : description
-- installOptions.polyfillNode | `type` | _optional/required_ | Default: `value` : description
+### installOptions.dest
+`string`
+Default: `"web_modules"`_
+_optional_
+
+Configures the destination for npm modules converted by Snowpack
+
+TODO: I think
+### installOptions.externalPackage
+`array[string]`
+Default: `[]`
+_optional_
+
+Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
+
+Example: `"externalPackage": ["fs"]`
+
+> ⚠️ This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser.
+
+### installOptions.treeshake
+`boolean`
+Default: `false` on `snowpack dev`, `true` on `snowpack build`
+_optional_
+
+Treeshake your dependencies to optimize your installed files.
+
+Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
+### installOptions.installTypes
+`boolean`
+Default: `false`
+_optional_
+
+ Install TypeScript type declarations with your packages.
+
+> Requires changes to your `tsconfig.json` to pick up these types.
+
+TODO: TypeScript guide or example
+
+### installOptions.polyfillNode
+`boolean`
+Default: `false`
+_optional_
+
+This will automatically polyfill any Node.js dependencies as much as possible for the browser
+
+
+Converts packages that depend on Node.js built-in modules (`"fs"`, `"path"`, `"url"`, etc.). You can see the full list of supported polyfills at the [rollup-plugin-node-polyfills documentation](https://github.com/ionic-team/rollup-plugin-node-polyfills)
+
+If you'd like to customize this polyfill behavior, skip the `--polyfill-node` flag and instead provide your own Rollup plugin for the installer:
+
+```js
+// Example: If `--polyfill-node` doesn't support your use-case, you can provide your own custom Node.js polyfill behavior
+module.exports = {
+  installOptions: {
+    polyfillNode: false,
+    rollup: {
+      plugins: [require('rollup-plugin-node-polyfills')({crypto: true, ...})],
+    },
+  },
+};
+```
+
+### installOptions.sourceMap
+`boolean`
+Default: `false`
+
+
+- Emit source maps for installed packages.
+
 - installOptions.sourceMap | `type` | _optional/required_ | Default: `value` : description
+
+- **_Experimental:_** Set to `true` to enable source maps
+### installOptions.env
+`{[ENV_NAME: string]: (string true)}`
+
+- Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
+
+
+
 - installOptions.env | `type` | _optional/required_ | Default: `value` : description
+
+### installOptions.rollup
 - installOptions.rollup | `type` | _optional/required_ | Default: `value` : description
 
+
+### installOptions.namedExports
+
+TODO does this exist
+
+- _NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed._
+- Import CJS packages using named exports (Example: `import {useTable} from 'react-table'`).
+- Example: `"namedExports": ["react-table"]`
+
+### installOptions.packageLookupFields
+
+TODO does this exist
 ## config.buildOptions
 
 `object` (option name: value)
@@ -252,118 +380,23 @@ This section is experimental and not yet finalized. May change across versions.
 
 [See the code for options](https://github.com/snowpackjs/snowpack/blob/main/snowpack/src/types/snowpack.ts#L235)
 
-## config.\_extensionMap
+## config._extensionMap
 
 TODO: I think this matches input extentions to output but I am not sure
 
 ---
 
-### config.exclude
-
-Exclude will ignore certain directories from being watched. Example:
-
-```js
-// snowpack.config.json
-{
-  exclude: ['**/vendor/**/*'];
-}
-```
-
-### config.mount
-
-```
-mount: {
-  [path: string]: string | {url: string, resolve: boolean, static: boolean, staticHtml: boolean}
-}
-```
-
-The `mount` option tells Snowpack which project directories to build and how to build them. Given the following example configuration, you could expect the following results:
-
-```js
-// Example: Basic "mount" usage
-// snowpack.config.json
-{
-  "mount": {
-    "src": "/dist",
-    "public": "/"
-  }
-}
-```
-
-By default, Snowpack builds every mounted file by passing it through Snowpack's build pipeline.
-
-### config.alias
-
-`object` (package: package or path)
-
-> Note: In an older version of Snowpack, all mounted directories were also available as aliases by default. As of Snowpack 2.7, this is no longer the case and no aliases are defined by default.
-
-The `alias` config option lets you define an import alias in your application. When aliasing a package, this allows you to import that package by another name in your application. This applies to imports inside of your dependencies as well, essentially replacing all references to the aliased package.
-
-Aliasing a local directory (any path that starts with "./") creates a shortcut to import that file or directory. While we don't necessarily recommend this pattern, some projects do enjoy using these instead of relative paths:
-
-```diff
--import '../../../../../Button.js';
-+import '@app/Button.js';
-```
-
-Example:
-
-```js
-// snowpack.config.json
-{
-  alias: {
-    // Type 1: Package Import Alias
-    "lodash": "lodash-es",
-    "react": "preact/compat",
-    // Type 2: Local Directory Import Alias (relative to cwd)
-    "components": "./src/components"
-    "@app": "./src"
-  }
-}
-```
-
-### config.plugins
-
-Extend Snowpack with third-party tools and plugins. TODO: add link to dedicated plugin docs.
 
 ### config.installOptions
 
 Settings that determine how Snowpack handles installing modules.
 
-#### installOptions.dest `string`
 
-- _Default:`"web_modules"`_
-- Configure the install directory.
 
-#### installOptions.sourceMap `boolean`
 
-- Emit source maps for installed packages.
 
-#### installOptions.env `{[ENV_NAME: string]: (string true)}`
 
-- Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
 
-#### installOptions.treeshake `boolean`
-
-- _Default:`false`, or `true` when run with `snowpack build`_
-- Treeshake your dependencies to optimize your installed files. Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
-
-#### installOptions.installTypes `boolean`
-
-- Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#typescript) to pick up these types.
-
-#### installOptions.namedExports `string[]`
-
-- _NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed._
-- Import CJS packages using named exports (Example: `import {useTable} from 'react-table'`).
-- Example: `"namedExports": ["react-table"]`
-
-#### installOptions.externalPackage `string[]`
-
-- _NOTE: This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser._
-- Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
-- Example: `"externalPackage": ["fs"]`
 
 #### installOptions.packageLookupFields `string[]`
 
@@ -378,64 +411,13 @@ Settings that determine how Snowpack handles installing modules.
 - **installOptions.rollup.dedupe** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/main/packages/node-resolve#usage) for more documentation.
 - **installOptions.rollup.context** - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning ("'this' keyword is equivalent to 'undefined' ... and has been rewritten") is silenced by default, unless `--verbose` is used.
 
-#### installOptions.polyfillNode | `boolean`
-
-If you depend on packages that depend on Node.js built-in modules (`"fs"`, `"path"`, `"url"`, etc.) you can run Snowpack with `--polyfill-node` (or `installOptions.polyfillNode: true` in your config file). This will automatically polyfill any Node.js dependencies as much as possible for the browser. You can see the full list of supported polyfills here: https://github.com/ionic-team/rollup-plugin-node-polyfills
-
-If you'd like to customize this polyfill behavior, skip the `--polyfill-node` flag and instead provide your own Rollup plugin for the installer:
-
-```js
-// Example: If `--polyfill-node` doesn't support your use-case, you can provide your own custom Node.js polyfill behavior
-module.exports = {
-  installOptions: {
-    polyfillNode: false,
-    rollup: {
-      plugins: [require('rollup-plugin-node-polyfills')({crypto: true, ...})],
-    },
-  },
-};
-```
 
 ### config.devOptions
 
-#### devOptions.port | `number` | Default: `8080`
 
-- The port number to run the dev server on.
 
-#### devOptions.fallback | `string` | Default: `"index.html"`
 
-- When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
 
-#### devOptions.open | `string` | Default: `"default"`
-
-- Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
-
-#### devOptions.output | `"stream" | "dashboard"` | Default: `"dashboard"`
-
-- Set the output mode of the `dev` console.
-- `"dashboard"` delivers an organized layout of console output and the logs of any connected tools. This is recommended for most users and results in the best logging experience.
-- `"stream"` is useful when Snowpack is run in parallel with other commands, where clearing the shell would clear important output of other commands running in the same shell.
-
-#### devOptions.hostname | `string` | Default: `localhost`
-
-- The hostname where the browser tab will be open.
-
-#### devOptions.hmr | `boolean` | Default: `true`
-
-- Toggles whether or not Snowpack dev server should have HMR enabled.
-
-#### devOptions.hmrErrorOverlay | `boolean` | Default: `true`
-
-- When HMR is enabled, toggles whether or not a browser overlay should display javascript errors.
-
-#### devOptions.secure | `boolean`
-
-- Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
-
-#### devOptions.out | `string` | Default: `"build"`
-
-- _NOTE:_ Deprecated, see `buildOptions.out`.
-- The local directory that we output your final build to.
 
 ### config.buildOptions
 
@@ -455,9 +437,7 @@ module.exports = {
 
 - By default, Snowpack outputs Snowpack-related metadata such as [HMR](/concepts/hot-module-replacement) and [ENV](/reference/configuration#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
 
-#### buildOptions.sourceMaps | `boolean` | Default: `false`
 
-- **_Experimental:_** Set to `true` to enable source maps
 
 #### buildOptions.webModulesUrl | `string` | Default: `web_modules`
 

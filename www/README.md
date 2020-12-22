@@ -27,7 +27,7 @@ We aim to follow the [Divio documentation system](https://documentation.divio.co
 For reference documentation (APIs, configuration, etc.), use the following format:
 
 ```
-method/name | `type` | _optional/required_ | Default: `value` : description
+method/name | `type` |  Default: `value` | _optional/required_ : description
 ```
 
 `Default` is optional and only applies if there is a default.
@@ -46,7 +46,9 @@ If it's a heading use the truncated format with the rest of the information belo
 Default: `value`
 _optional/required_
 
-Description
+Short 1-2 sentence description.
+
+Details
 ```
 
 Examples:
