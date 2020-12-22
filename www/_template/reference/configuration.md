@@ -141,11 +141,20 @@ Enable Snowpack plugins and their options
 ```
 
 ## config.devOptions
-TODO COPY EDIT AND REORDER SUB SECTIONS
-`todo`
-Default: TODO
+`object` (option name: value)
 
-Configure your dev server. See the section below for all options.
+Configure the Snowpack dev server.
+
+### devOptions.secure
+`boolean`
+
+- Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
+
+### devOptions.hostname
+`string`
+Default: `localhost`
+
+- The hostname where the browser tab will be open.
 
 ### devOptions.port 
 `number`
@@ -173,17 +182,15 @@ Default: `"dashboard"`
 - `"dashboard"` delivers an organized layout of console output and the logs of any connected tools. This is recommended for most users and results in the best logging experience.
 - `"stream"` is useful when Snowpack is run in parallel with other commands, where clearing the shell would clear important output of other commands running in the same shell.
 
-### devOptions.hostname
-`string`
-Default: `localhost`
-
-- The hostname where the browser tab will be open.
-
 ### devOptions.hmr
 `boolean`
 Default: `true`
 
 - Toggles whether or not Snowpack dev server should have HMR enabled.
+
+### devOptions.hmrDelay
+
+### devoptions.hmrPort
 
 ### devOptions.hmrErrorOverlay
 `boolean`
@@ -191,17 +198,11 @@ Default: `true`
 
 - When HMR is enabled, toggles whether or not a browser overlay should display javascript errors.
 
-### devOptions.secure
-`boolean`
-
-- Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
-
 ### devOptions.out
 `string` 
 Default: `"build"`
 
-- _NOTE:_ Deprecated, see `buildOptions.out`.
-- The local directory that we output your final build to.
+> _NOTE:_ Deprecated, see `buildOptions.out`.
 
 ## config.installOptions
 `todo`
