@@ -33,6 +33,13 @@ Specify the root of a project using Snowpack.
 
 Previously config.cwd
 
+## config.install
+`string[]`
+
+Known dependencies to install with Snowpack. 
+
+> Used for installing packages any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
+
 ## config.extends
 `string`
 Default: TODO
@@ -58,12 +65,6 @@ Exclude will ignore certain directories from being watched. Example:
 }
 ```
 
-
-## config.install
-`string[]`
-Default: todo
-
-  - Known dependencies to install with Snowpack. Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
   
 ## config.mount
 `todo`
