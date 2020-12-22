@@ -147,38 +147,55 @@ Configure the Snowpack dev server.
 
 ### devOptions.secure
 `boolean`
+Default: `false`
 
-- Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
+Toggles whether Snowpack dev server should use HTTPS with HTTP2 enabled.
 
 ### devOptions.hostname
 `string`
 Default: `localhost`
 
-- The hostname where the browser tab will be open.
+The hostname the dev server runs on.
+
+TODO: originally "The hostname where the browser tab will be open." is this more correct? Also why isn't it in the devoptions object in config.ts?
 
 ### devOptions.port 
 `number`
 Default: `8080`
 
-- The port number to run the dev server on.
+The port the dev server runs on.
 
 ### devOptions.fallback
 `string` 
 Default: `"index.html"`
 
-- When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
+The HTML file to serve for non-resource routes.
+
+When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. 
+
+> ⚠️ Make sure that you configure your production servers to serve this.
+
+### devOptions.bundle
+
+`boolean`
+Default: TODO
+
+TODO: This is still in config.ts but seems deprecated
 
 ### devOptions.open 
 `string`
 Default: `"default"`
 
-- Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
+Configures how the dev server opens in the browser when it starts.
+
+Any installed browser, e.g., "chrome", "firefox", "brave". Set "none" to disable.
 
 ### devOptions.output 
 `"stream" | "dashboard"`
 Default: `"dashboard"`
 
-- Set the output mode of the `dev` console.
+Set the output mode of the `dev` console: 
+
 - `"dashboard"` delivers an organized layout of console output and the logs of any connected tools. This is recommended for most users and results in the best logging experience.
 - `"stream"` is useful when Snowpack is run in parallel with other commands, where clearing the shell would clear important output of other commands running in the same shell.
 
@@ -186,17 +203,28 @@ Default: `"dashboard"`
 `boolean`
 Default: `true`
 
-- Toggles whether or not Snowpack dev server should have HMR enabled.
+Toggles HMR on the Snowpack dev server.
 
 ### devOptions.hmrDelay
+`number` (milliseconds)
+Default: `0`
+
+Milliseconds to delay HMR-triggered browser update.
 
 ### devoptions.hmrPort
+`number`
+Default: `undefined`
+
+The port where Snowpack's HMR Websocket runs.
+
+The default of `undefined` means it runs on the same port as the Snowpack dev server. TODO I think
+
 
 ### devOptions.hmrErrorOverlay
 `boolean`
 Default: `true`
 
-- When HMR is enabled, toggles whether or not a browser overlay should display javascript errors.
+Toggles a browser overlay that displays JavaScript runtime errors when running HMR.
 
 ### devOptions.out
 `string` 
