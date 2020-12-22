@@ -25,6 +25,14 @@ export default {
 
 > To generate a basic configuration file scaffold in your Snowpack project run `snowpack init`.
 
+## config.root
+`string`
+Default: `/`
+
+Specify the root of a project using Snowpack.
+
+Previously config.cwd
+
 ## config.extends
 `string`
 Default: TODO
