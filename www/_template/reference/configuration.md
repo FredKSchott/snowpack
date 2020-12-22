@@ -206,7 +206,10 @@ Default: `"build"`
 
 ## config.installOptions
 `todo`
-Default: TODO
+
+TODO: Had to pull from config.ts because these are in types.ts
+
+TODO: copy editing
 
 Configure how npm packages are installed. Settings that determine how Snowpack handles installing modules.See the section below for all options.
 
@@ -216,15 +219,12 @@ Default:`”web_modules”`
 
 - Configure the install directory.
 
-### installOptions.sourceMap 
-`boolean`
+### installOptions.externalPackage 
+`string[]`
 
-- Emit source maps for installed packages.
-
-### installOptions.env 
-`{[ENV_NAME: string]: (string true)}`
-
-- Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
+- _NOTE: This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser._
+- Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
+- Example: `"externalPackage": ["fs"]`
 
 ### installOptions.treeshake 
 `boolean`
@@ -236,35 +236,6 @@ Default:`false`, or `true` when run with `snowpack build`
 `boolean`
 
 - Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#typescript) to pick up these types.
-
-### installOptions.namedExports 
-`string[]`
-
-- _NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed._
-- Import CJS packages using named exports (Example: `import {useTable} from 'react-table'`).
-- Example: `"namedExports": ["react-table"]`
-
-### installOptions.externalPackage 
-`string[]`
-
-- _NOTE: This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser._
-- Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
-- Example: `"externalPackage": ["fs"]`
-
-### installOptions.packageLookupFields 
-`string[]`
-
-- Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the defaults like "module", "main", etc. Useful for package ecosystems like Svelte where dependencies aren't shipped as traditional JavaScript.
-- Example: `"packageLookupFields": ["svelte"]`
-
-### installOptions.rollup 
-`Object`
-
-- Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use.
-
-- **installOptions.rollup.plugins** - Specify [Custom Rollup plugins](/reference/common-error-details#installing-non-js-packages) if you are dealing with non-standard files.
-- **installOptions.rollup.dedupe** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/main/packages/node-resolve#usage) for more documentation.
-- **installOptions.rollup.context** - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning ("'this' keyword is equivalent to 'undefined' ... and has been rewritten") is silenced by default, unless `--verbose` is used.
 
 ### installOptions.polyfillNode
 `boolean`
@@ -284,6 +255,43 @@ module.exports = {
   },
 };
 ```
+
+### installOptions.sourceMap 
+`boolean`
+
+- Emit source maps for installed packages.
+
+### installOptions.env 
+`{[ENV_NAME: string]: (string true)}`
+
+- Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
+
+
+### installOptions.rollup 
+`Object`
+
+- Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use.
+
+- **installOptions.rollup.plugins** - Specify [Custom Rollup plugins](/reference/common-error-details#installing-non-js-packages) if you are dealing with non-standard files.
+- **installOptions.rollup.dedupe** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/main/packages/node-resolve#usage) for more documentation.
+- **installOptions.rollup.context** - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning ("'this' keyword is equivalent to 'undefined' ... and has been rewritten") is silenced by default, unless `--verbose` is used.
+
+### installOptions.namedExports 
+`string[]`
+
+TODO I don’t see in types.ts or config.ts
+
+- _NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed._
+- Import CJS packages using named exports (Example: `import {useTable} from 'react-table'`).
+- Example: `"namedExports": ["react-table"]`
+
+### installOptions.packageLookupFields 
+`string[]`
+
+TODO I don’t see in types.ts or config.ts
+
+- Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the defaults like "module", "main", etc. Useful for package ecosystems like Svelte where dependencies aren't shipped as traditional JavaScript.
+- Example: `"packageLookupFields": ["svelte"]`
 
 ## config.buildOptions
 `todo`
