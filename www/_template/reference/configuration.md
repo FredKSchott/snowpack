@@ -78,25 +78,6 @@ Default: TODO
 
 Configure how npm packages are installed. Settings that determine how Snowpack handles installing modules.See the section below for all options.
 
-## config.devOptions
-`todo`
-Default: TODO
-
-Configure your dev server. See the section below for all options.
-
-## config.buildOptions
-`todo`
-Default: TODO
-
-Configure your build. See the section below for all options.
-
-## config.testOptions
- 
- Configure your tests. See the section below for all options.
- 
- ——-
- Below here needs to be reordered
-
 ### installOptions.dest 
 `string`
 Default:`”web_modules”`
@@ -171,6 +152,26 @@ module.exports = {
   },
 };
 ```
+
+
+## config.devOptions
+`todo`
+Default: TODO
+
+Configure your dev server. See the section below for all options.
+
+## config.buildOptions
+`todo`
+Default: TODO
+
+Configure your build. See the section below for all options.
+
+## config.testOptions
+ 
+ Configure your tests. See the section below for all options.
+ 
+ ——-
+ Below here needs to be reordered
 
 ### devOptions.port 
 `number`
