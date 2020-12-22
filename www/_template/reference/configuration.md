@@ -25,33 +25,77 @@ export default {
 
 > To generate a basic configuration file scaffold in your Snowpack project run `snowpack init`.
 
+## config.extends
+`string`
+Default: TODO
 
-<!--
-### config.plugins
+Inherit from a separate "base" config. 
 
-- **`extends`** | `string`
-  - Inherit from a separate "base" config. Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
-- **`exclude`** | `string[]`
-  - Exclude any files from scanning, building, etc. Defaults to exclude common test file locations: `['**/node_modules/**/*', '**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`
-  - Useful for excluding tests and other unnecessary files from the final build. Supports glob pattern matching.
-- **`install`** | `string[]`
+Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
+
+## config.exclude
+`string[]`
+Default: TODO
+
+Exclude any files from scanning, building, etc. Defaults to exclude common test file locations: `['**/node_modules/**/*', '**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`
+
+Useful for excluding tests and other unnecessary files from the final build. Supports glob pattern matching.
+
+## config.install
+`string[]`
+Default: todo
+
   - Known dependencies to install with Snowpack. Useful for installing packages manually and any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
-- **`mount.*`**
-  - Mount local directories to custom URLs in your built application.
-- **`alias.*`**
-  - Configure import aliases for directories and packages. See the section below for all options.
-- **`proxy.*`**
-  - Configure the dev server to proxy requests. See the section below for all options.
-- **`plugins`**
-  - Extend Snowpack with third-party tools and plugins. See the section below for more info.
-- **`installOptions.*`**
-  - Configure how npm packages are installed. See the section below for all options.
-- **`devOptions.*`**
-  - Configure your dev server. See the section below for all options.
-- **`buildOptions.*`**
-  - Configure your build. See the section below for all options.
-- **`testOptions.*`**
-  - Configure your tests. See the section below for all options. -->
+  
+## config.mount
+`todo`
+Default: TODO
+
+Mount local directories to custom URLs in your built application.
+
+
+## config.alias
+`todo`
+Default: TODO
+
+Configure import aliases for directories and packages. See the section below for all options.
+
+## config.proxy
+`todo`
+Default: TODO
+
+Configure the dev server to proxy requests. See the section below for all options.
+
+## config.plugins
+`todo`
+Default: TODO
+
+Extend Snowpack with third-party tools and plugins. See the section below for more info.
+
+## config.installOptions
+`todo`
+Default: TODO
+
+Configure how npm packages are installed. See the section below for all options.
+
+## config.devOptions
+`todo`
+Default: TODO
+
+Configure your dev server. See the section below for all options.
+
+## config.buildOptions
+`todo`
+Default: TODO
+
+Configure your build. See the section below for all options.
+
+## config.testOptions
+ 
+ Configure your tests. See the section below for all options.
+ 
+ ——-
+ Below here needs to be reordered
 
 ### config.installOptions
 
