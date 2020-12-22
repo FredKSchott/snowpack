@@ -83,13 +83,13 @@ You can run your local snowpack by path
 ```bash
 yarn build
 cd path/to/some-other-project
-/path/to/snowpack/pkg/dist-node/index.bin.js dev --verbose --reload
+/path/to/snowpack-repository/snowpack/index.bin.js dev --verbose --reload
 ```
 
 Or by linking the global `snowpack` library to your local clone
 
 ```bash
-cd pkg
+cd snowpack
 npm link
 cd path/to/some-other-project
 snowpack dev --verbose --reload
@@ -98,7 +98,7 @@ snowpack dev --verbose --reload
 To test a local version of the CLI tool use
 
 ```bash
-node /path/to/snowpack/create-snowpack-app/cli [my-new-dir] --template @snowpack/app-template-vue
+node /path/to/snowpack-repository/create-snowpack-app/cli [my-new-dir] --template @snowpack/app-template-vue
 ```
 
 To test a local version of the `create-snowpack-app` templates use
