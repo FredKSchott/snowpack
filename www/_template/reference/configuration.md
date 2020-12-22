@@ -3,30 +3,28 @@ layout: layouts/content.njk
 title: snowpack.config.js
 description: The Snowpack configuration API reference.
 ---
-
 ```js
-// Example Configuration File
+// Example: snowpack.config.js
 module.exports = {
   plugins: [
     /* ... */
   ],
-  installOptions: {
-    /* ... */
-  },
-  devOptions: {
-    /* ... */
-  },
-  buildOptions: {
-    /* ... */
-  },
-  mount: {
-    /* ... */
-  },
-  alias: {
-    /* ... */
-  },
 };
 ```
+
+```js
+// Example: snowpack.config.js (ESM)
+// This is ESM-format config file. to enable
+// Add "type": "module" in your package.json
+export default {
+  plugins: [
+    /* ... */
+  ],
+};
+```
+
+> To generate a basic configuration file scaffold in your Snowpack project run `snowpack init`.
+
 
 <!--
 ### config.plugins
