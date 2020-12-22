@@ -222,13 +222,6 @@ Default: TODO
 
 Configure your build. See the section below for all options.
 
-## config.testOptions
- 
- Configure your tests. See the section below for all options.
- 
- ——-
- Below here needs to be reordered
-
 ### buildOptions.out
 `string`
 Default: `"build"`
@@ -276,6 +269,13 @@ Default: `React.createElement` (or `h` if Preact import is detected)
 Default: `React.Fragment` (or `Fragment` if Preact import is detected)
 
 - Set the name of the used function to create JSX fragments.
+
+## config.testOptions
+ 
+ Configure your tests. See the section below for all options.
+ 
+ ——-
+ Below here needs to be reordered
 
 ### testOptions.files
 `string[]`
