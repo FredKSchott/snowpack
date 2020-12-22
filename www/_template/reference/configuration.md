@@ -349,9 +349,23 @@ Default: `["__tests__/**/*", "**/*.@(spec|test).*"]`
 - The location of all test files.
 - All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
  
+ 
+## config.experiments
+
+`object` (option name: value)
+
+This section is experimental and not yet finalized. May change across versions.
+
+[See the code for options](https://github.com/snowpackjs/snowpack/blob/main/snowpack/src/types/snowpack.ts#L235)
+
+## config.\_extensionMap
+
+TODO: I think this matches input extentions to output but I am not sure
+
 
 
 ## config.proxy
+TODO: I no longer see this in the types.ts file is it deprecated?
 `todo`
 Default: TODO
 
