@@ -274,15 +274,15 @@ Default: `React.Fragment` (or `Fragment` if Preact import is detected)
  
  Configure your tests. See the section below for all options.
  
- ——-
- Below here needs to be reordered
-
 ### testOptions.files
 `string[]`
 Default: `["__tests__/**/*", "**/*.@(spec|test).*"]`
 
 - The location of all test files.
 - All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
+ 
+ ——-
+ Below here needs to be reordered
 
 ### config.proxy
 REORDER
