@@ -127,6 +127,11 @@ Configure import aliases for directories and packages.
 }
 ```
 
+## config.plugins
+`todo`
+Default: TODO
+
+Extend Snowpack with third-party tools and plugins. See the section below for more info.
 
 ## config.proxy
 `todo`
@@ -162,12 +167,6 @@ Options:
 - **`"path".on`** | `object` (string: function)
   - `on` is a special Snowpack property for setting event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
 - All options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
-
-## config.plugins
-`todo`
-Default: TODO
-
-Extend Snowpack with third-party tools and plugins. See the section below for more info.
 
 ## config.installOptions
 `todo`
