@@ -205,13 +205,13 @@ Default: `"build"`
 > _NOTE:_ Deprecated, see `buildOptions.out`.
 
 ## config.installOptions
-`todo`
+`object` (option name: value)
+
+Configure how npm packages are installed.
 
 TODO: Had to pull from config.ts because these are in types.ts
 
 TODO: copy editing
-
-Configure how npm packages are installed. Settings that determine how Snowpack handles installing modules.See the section below for all options.
 
 ### installOptions.dest 
 `string`
@@ -294,10 +294,9 @@ TODO I don’t see in types.ts or config.ts
 - Example: `"packageLookupFields": ["svelte"]`
 
 ## config.buildOptions
-`todo`
-Default: TODO
+`object` (option name: value)
 
-Configure your build. See the section below for all options.
+Configure your final build.
 
 ### buildOptions.out
 `string`
