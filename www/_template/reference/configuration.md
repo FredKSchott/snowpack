@@ -239,36 +239,48 @@ Configure how npm packages are installed.
 
 TODO: Had to pull from config.ts because these are in types.ts
 
-TODO: copy editing
-
 ### installOptions.dest 
 `string`
 Default:`”web_modules”`
 
-- Configure the install directory.
+Configures the destination for npm modules converted by Snowpack
+
+TODO: I think???
 
 ### installOptions.externalPackage 
 `string[]`
 
-- _NOTE: This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser._
-- Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
-- Example: `"externalPackage": ["fs"]`
+Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
+
+Example: `"externalPackage": ["fs"]`
+
+> ⚠️ This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser.
 
 ### installOptions.treeshake 
 `boolean`
 Default:`false`, or `true` when run with `snowpack build`
 
-- Treeshake your dependencies to optimize your installed files. Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
+Treeshake your dependencies to optimize your installed files.
+
+Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
 
 ### installOptions.installTypes 
 `boolean`
+Default: `false`
 
-- Install TypeScript type declarations with your packages. Requires changes to your [tsconfig.json](#typescript) to pick up these types.
+Install TypeScript type declarations with your packages.
+
+> Requires changes to your `tsconfig.json` to pick up these types.
+
+TODO: TypeScript guide or example
 
 ### installOptions.polyfillNode
 `boolean`
+Default: `false`
 
-If you depend on packages that depend on Node.js built-in modules (`"fs"`, `"path"`, `"url"`, etc.) you can run Snowpack with `--polyfill-node` (or `installOptions.polyfillNode: true` in your config file). This will automatically polyfill any Node.js dependencies as much as possible for the browser. You can see the full list of supported polyfills here: https://github.com/ionic-team/rollup-plugin-node-polyfills
+This will automatically polyfill any Node.js dependencies as much as possible for the browser
+
+Converts packages that depend on Node.js built-in modules (`"fs"`, `"path"`, `"url"`, etc.). You can see the full list of supported polyfills at the [rollup-plugin-node-polyfills documentation](https://github.com/ionic-team/rollup-plugin-node-polyfills)
 
 If you'd like to customize this polyfill behavior, skip the `--polyfill-node` flag and instead provide your own Rollup plugin for the installer:
 
@@ -286,17 +298,27 @@ module.exports = {
 
 ### installOptions.sourceMap 
 `boolean`
+Default: `false`
 
-- Emit source maps for installed packages.
+TODO: needs copy edits
+Emit source maps for installed packages.
+
+- installOptions.sourceMap | `type` | _optional/required_ | Default: `value` : description
+
+- **_Experimental:_** Set to `true` to enable source maps
 
 ### installOptions.env 
 `{[ENV_NAME: string]: (string true)}`
+
+TODO: needs copy edits
 
 - Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
 
 
 ### installOptions.rollup 
 `Object`
+
+TODO: Needs copy editing
 
 - Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use.
 
@@ -330,17 +352,23 @@ Configure your final build.
 `string`
 Default: `"build"`
 
+TODO: copy edits
+
 - The local directory that we output your final build to.
 
 ### buildOptions.baseUrl
 `string`
 Default: `/`
 
+TODO: copy edits
+
 - In your HTML, replace all instances of `%PUBLIC_URL%` with this (inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept). This is useful if your app will be deployed to a subdirectory. _Note: if you have `homepage` in your `package.json`, Snowpack will actually pick up on that, too._
 
 ### buildOptions.webModulesUrl
 `string`
 Default: `web_modules`
+
+TODO: copy edits
 
 - Rename your web modules directory.
 
@@ -349,29 +377,43 @@ Default: `web_modules`
 `boolean`
 Default: `true`
 
+TODO: copy edits
+
 - Set to `false` to prevent Snowpack from deleting the build output folder (`buildOptions.out`) between builds.
 
 ### buildOptions.metaDir
 `string`
 Default: `__snowpack__`
 
+TODO: copy edits
+
 - By default, Snowpack outputs Snowpack-related metadata such as [HMR](/concepts/hot-module-replacement) and [ENV](/reference/configuration#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
 
 ### buildOptions.minify
+
+TODO: document
 
 ### buildOptions.sourceMaps
 `boolean`
 Default: `false`
 
+TODO: copy edit/document
+
 - **_Experimental:_** Set to `true` to enable source maps
 
 ### buildOptions.watch
 
+TODO: document
+
 ### buildOptions.htmlFragments
+
+TODO: document
 
 ### buildOptions.jsxFactory
 `string`
 Default: `React.createElement` (or `h` if Preact import is detected)
+
+TODO: copy edit
 
 - Set the name of the used function to create JSX elements.
 
@@ -379,15 +421,19 @@ Default: `React.createElement` (or `h` if Preact import is detected)
 `string`
 Default: `React.Fragment` (or `Fragment` if Preact import is detected)
 
+TODO: copy edit
+
 - Set the name of the used function to create JSX fragments.
 
 ## config.testOptions
- 
+ TODO: entire section needs copy editing
  Configure your tests. See the section below for all options.
  
 ### testOptions.files
 `string[]`
 Default: `["__tests__/**/*", "**/*.@(spec|test).*"]`
+
+TODO: copy edit
 
 - The location of all test files.
 - All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
