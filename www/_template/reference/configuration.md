@@ -140,6 +140,68 @@ Enable Snowpack plugins and their options
 }
 ```
 
+## config.devOptions
+`todo`
+Default: TODO
+
+Configure your dev server. See the section below for all options.
+
+### devOptions.port 
+`number`
+Default: `8080`
+
+- The port number to run the dev server on.
+
+### devOptions.fallback
+`string` 
+Default: `"index.html"`
+
+- When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
+
+### devOptions.open 
+`string`
+Default: `"default"`
+
+- Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
+
+### devOptions.output 
+`"stream" | "dashboard"`
+Default: `"dashboard"`
+
+- Set the output mode of the `dev` console.
+- `"dashboard"` delivers an organized layout of console output and the logs of any connected tools. This is recommended for most users and results in the best logging experience.
+- `"stream"` is useful when Snowpack is run in parallel with other commands, where clearing the shell would clear important output of other commands running in the same shell.
+
+### devOptions.hostname
+`string`
+Default: `localhost`
+
+- The hostname where the browser tab will be open.
+
+### devOptions.hmr
+`boolean`
+Default: `true`
+
+- Toggles whether or not Snowpack dev server should have HMR enabled.
+
+### devOptions.hmrErrorOverlay
+`boolean`
+Default: `true`
+
+- When HMR is enabled, toggles whether or not a browser overlay should display javascript errors.
+
+### devOptions.secure
+`boolean`
+
+- Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
+
+### devOptions.out
+`string` 
+Default: `"build"`
+
+- _NOTE:_ Deprecated, see `buildOptions.out`.
+- The local directory that we output your final build to.
+
 ## config.proxy
 `todo`
 Default: TODO
@@ -256,68 +318,6 @@ module.exports = {
 };
 ```
 
-
-## config.devOptions
-`todo`
-Default: TODO
-
-Configure your dev server. See the section below for all options.
-
-### devOptions.port 
-`number`
-Default: `8080`
-
-- The port number to run the dev server on.
-
-### devOptions.fallback
-`string` 
-Default: `"index.html"`
-
-- When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. Make sure that you configure your production servers to serve this as well.
-
-### devOptions.open 
-`string`
-Default: `"default"`
-
-- Opens the dev server in a new browser tab. If Chrome is available on macOS, an attempt will be made to reuse an existing browser tab. Any installed browser may also be specified. E.g., "chrome", "firefox", "brave". Set "none" to disable.
-
-### devOptions.output 
-`"stream" | "dashboard"`
-Default: `"dashboard"`
-
-- Set the output mode of the `dev` console.
-- `"dashboard"` delivers an organized layout of console output and the logs of any connected tools. This is recommended for most users and results in the best logging experience.
-- `"stream"` is useful when Snowpack is run in parallel with other commands, where clearing the shell would clear important output of other commands running in the same shell.
-
-### devOptions.hostname
-`string`
-Default: `localhost`
-
-- The hostname where the browser tab will be open.
-
-### devOptions.hmr
-`boolean`
-Default: `true`
-
-- Toggles whether or not Snowpack dev server should have HMR enabled.
-
-### devOptions.hmrErrorOverlay
-`boolean`
-Default: `true`
-
-- When HMR is enabled, toggles whether or not a browser overlay should display javascript errors.
-
-### devOptions.secure
-`boolean`
-
-- Toggles whether or not Snowpack dev server should use HTTPS with HTTP2 enabled.
-
-### devOptions.out
-`string` 
-Default: `"build"`
-
-- _NOTE:_ Deprecated, see `buildOptions.out`.
-- The local directory that we output your final build to.
 
 ## config.buildOptions
 `todo`
