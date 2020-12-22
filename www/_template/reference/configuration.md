@@ -141,6 +141,7 @@ Enable Snowpack plugins and their options
 ```
 
 ## config.devOptions
+TODO COPY EDIT AND REORDER SUB SECTIONS
 `todo`
 Default: TODO
 
@@ -201,41 +202,6 @@ Default: `"build"`
 
 - _NOTE:_ Deprecated, see `buildOptions.out`.
 - The local directory that we output your final build to.
-
-## config.proxy
-`todo`
-Default: TODO
-
-Configure the dev server to proxy requests. See the section below for all options.
-
-If desired, `"proxy"` is where you configure the proxy behavior of your dev server. Define different paths that should be proxied, and where they should be proxied to.
-
-The short form of a full URL string is enough for general use. For advanced configuration, you can use the object format to set all options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
-
-This configuration has no effect on the final build.
-
-Example:
-
-```js
-// snowpack.config.json
-{
-  "proxy": {
-    // Short form:
-    "/api/01": "https://pokeapi.co/api/v2/",
-    // Long form:
-    "/api/02": {
-      on: { proxyReq: (p, req, res) => /* Custom event handlers (JS only) */ },
-      /* Custom http-proxy options */
-    }
-  }
-}
-```
-
-Options:
-
-- **`"path".on`** | `object` (string: function)
-  - `on` is a special Snowpack property for setting event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
-- All options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
 
 ## config.installOptions
 `todo`
@@ -318,6 +284,42 @@ module.exports = {
 };
 ```
 
+
+
+## config.proxy
+`todo`
+Default: TODO
+
+Configure the dev server to proxy requests. See the section below for all options.
+
+If desired, `"proxy"` is where you configure the proxy behavior of your dev server. Define different paths that should be proxied, and where they should be proxied to.
+
+The short form of a full URL string is enough for general use. For advanced configuration, you can use the object format to set all options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
+
+This configuration has no effect on the final build.
+
+Example:
+
+```js
+// snowpack.config.json
+{
+  "proxy": {
+    // Short form:
+    "/api/01": "https://pokeapi.co/api/v2/",
+    // Long form:
+    "/api/02": {
+      on: { proxyReq: (p, req, res) => /* Custom event handlers (JS only) */ },
+      /* Custom http-proxy options */
+    }
+  }
+}
+```
+
+Options:
+
+- **`"path".on`** | `object` (string: function)
+  - `on` is a special Snowpack property for setting event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
+- All options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
 
 ## config.buildOptions
 `todo`
