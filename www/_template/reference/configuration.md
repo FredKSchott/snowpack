@@ -160,19 +160,6 @@ Default: TODO
 
 Configure your dev server. See the section below for all options.
 
-## config.buildOptions
-`todo`
-Default: TODO
-
-Configure your build. See the section below for all options.
-
-## config.testOptions
- 
- Configure your tests. See the section below for all options.
- 
- ——-
- Below here needs to be reordered
-
 ### devOptions.port 
 `number`
 Default: `8080`
@@ -228,6 +215,19 @@ Default: `"build"`
 
 - _NOTE:_ Deprecated, see `buildOptions.out`.
 - The local directory that we output your final build to.
+
+## config.buildOptions
+`todo`
+Default: TODO
+
+Configure your build. See the section below for all options.
+
+## config.testOptions
+ 
+ Configure your tests. See the section below for all options.
+ 
+ ——-
+ Below here needs to be reordered
 
 ### buildOptions.out
 `string`
