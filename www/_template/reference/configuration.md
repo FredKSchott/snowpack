@@ -338,6 +338,18 @@ Default: `React.Fragment` (or `Fragment` if Preact import is detected)
 
 - Set the name of the used function to create JSX fragments.
 
+## config.testOptions
+ 
+ Configure your tests. See the section below for all options.
+ 
+### testOptions.files
+`string[]`
+Default: `["__tests__/**/*", "**/*.@(spec|test).*"]`
+
+- The location of all test files.
+- All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
+ 
+
 
 ## config.proxy
 `todo`
@@ -373,18 +385,6 @@ Options:
 - **`"path".on`** | `object` (string: function)
   - `on` is a special Snowpack property for setting event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
 - All options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
-
-## config.testOptions
- 
- Configure your tests. See the section below for all options.
- 
-### testOptions.files
-`string[]`
-Default: `["__tests__/**/*", "**/*.@(spec|test).*"]`
-
-- The location of all test files.
-- All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
- 
 
 ## Environment Variables
 TODO: Figure out where this goes
