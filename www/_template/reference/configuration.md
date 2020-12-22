@@ -42,29 +42,18 @@ Known dependencies to install with Snowpack.
 
 ## config.extends
 `string`
-Default: TODO
 
-Inherit from a separate "base" config. 
+Inherit from a separate "base" config.
 
-Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
+> Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
 
 ## config.exclude
 `string[]`
-Default: TODO
+Default: `['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*']`
 
-Exclude any files from scanning, building, etc. Defaults to exclude common test file locations: `['**/node_modules/**/*', '**/__tests__/*', '**/*.@(spec|test).@(js|mjs)']`
+Exclude any files from the Snowpack pipeline.
 
-Useful for excluding tests and other unnecessary files from the final build. Supports glob pattern matching.
-
-Exclude will ignore certain directories from being watched. Example:
-
-```js
-// snowpack.config.json
-{
-  exclude: ['**/vendor/**/*'];
-}
-```
-
+Supports glob pattern matching.
   
 ## config.mount
 `todo`
