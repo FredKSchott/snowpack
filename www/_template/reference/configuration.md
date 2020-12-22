@@ -106,28 +106,15 @@ You can further customize this the build behavior for any mounted directory by u
 - `mount.resolve` | `boolean` | _optional_ | default: `true`: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written.
 - 
 ## config.alias
-`todo`
-Default: TODO
-
-Configure import aliases for directories and packages. See the section below for all options.
-
 `object` (package: package or path)
+
+Configure import aliases for directories and packages. 
 
 > Note: In an older version of Snowpack, all mounted directories were also available as aliases by default. As of Snowpack 2.7, this is no longer the case and no aliases are defined by default.
 
-The `alias` config option lets you define an import alias in your application. When aliasing a package, this allows you to import that package by another name in your application. This applies to imports inside of your dependencies as well, essentially replacing all references to the aliased package.
-
-Aliasing a local directory (any path that starts with "./") creates a shortcut to import that file or directory. While we don't necessarily recommend this pattern, some projects do enjoy using these instead of relative paths:
-
-```diff
--import '../../../../../Button.js';
-+import '@app/Button.js';
-```
-
-Example:
-
 ```js
-// snowpack.config.json
+// snowpack.config.js
+// Example: alias types
 {
   alias: {
     // Type 1: Package Import Alias
