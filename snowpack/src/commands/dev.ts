@@ -96,6 +96,8 @@ interface FoundFile {
   isResolve: boolean;
 }
 
+import {installDependencies} from '../sources/local';
+
 const FILE_BUILD_RESULT_ERROR = `Build Result Error: There was a problem with a file build result.`;
 
 /**
@@ -1341,8 +1343,16 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
       .filter(([_, packageManifest]) => packageManifest && !packageManifest['_id']) // only watch symlinked deps for now
       .map(([fileLoc]) => `${path.dirname(fileLoc!)}/**`),
   );
+
+  let working : Promise<any> | null = null; // only one installl at a time
   function onDepWatchEvent() {
-    hmrEngine.broadcastMessage({type: 'reload'});
+    if (!working)
+      // FIXME: If one changes, reinstall _all_.  Inefficient?
+      working = installDependencies(config)
+        .then(() => {
+          hmrEngine.broadcastMessage({type: 'reload'})
+          working = null;
+        });
   }
   const depWatcher = chokidar.watch([...symlinkedFileLocs], {
     cwd: '/', // we’re using absolute paths, so watch from root

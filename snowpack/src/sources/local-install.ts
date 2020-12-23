@@ -18,7 +18,7 @@ interface InstallRunOptions {
   shouldPrintStats: boolean;
 }
 
-interface InstallRunResult {
+export interface InstallRunResult {
   importMap: ImportMap;
   newLockfile: ImportMap | null;
   stats: DependencyStatsOutput | null;

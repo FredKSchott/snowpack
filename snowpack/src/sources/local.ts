@@ -6,7 +6,7 @@ import {ImportMap, InstallOptions as EsinstallOptions} from 'esinstall';
 import {existsSync, promises as fs} from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
-import {run as installRunner} from './local-install';
+import {InstallRunResult, run as installRunner} from './local-install';
 import {logger} from '../logger';
 import {getInstallTargets} from '../scan-imports';
 import {CommandOptions, PackageSource, PackageSourceLocal, SnowpackConfig} from '../types';
@@ -26,14 +26,15 @@ const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, process.env.NODE_ENV |
  * your entire source app for dependency install targets, installs them,
  * and then updates the "hash" file used to check node_modules freshness.
  */
-async function installDependencies(config: SnowpackConfig) {
+export async function installDependencies(config: SnowpackConfig)
+: Promise <InstallRunResult | null> {
   const installTargets = await getInstallTargets(
     config,
     config.packageOptions.source === 'local' ? config.packageOptions.knownEntrypoints : [],
   );
   if (installTargets.length === 0) {
     logger.info('Nothing to install.');
-    return;
+    return null;
   }
   // 2. Install dependencies, based on the scan of your final build.
   const installResult = await installRunner({
