@@ -20,6 +20,12 @@ beforeEach(() => {
   };
 });
 
+afterEach(() => {
+  mockCompiler.mockClear();
+  mockPreprocessor.mockClear();
+  mockPreprocessorWithDeps.mockClear();
+});
+
 describe('@snowpack/plugin-svelte (mocked)', () => {
   jest.mock('svelte/compiler', () => ({compile: mockCompiler, preprocess: mockPreprocessor})); // important: mock before import
   const plugin = require('../plugin');
