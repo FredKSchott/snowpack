@@ -77,8 +77,6 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     }
   }
 
-  console.log(pluginOptions.preprocess);
-
   if (preprocessOptions === undefined) {
     preprocessOptions = require('svelte-preprocess')();
   }

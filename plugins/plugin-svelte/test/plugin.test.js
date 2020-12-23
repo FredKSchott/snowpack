@@ -168,7 +168,7 @@ describe('@snowpack/plugin-svelte (preprocessor deps)', () => {
 
   afterAll(() => jest.resetModules());
 
-  it.only('marks a file as changed when a preprocess dependency changes', async () => {
+  it('marks a file as changed when a preprocess dependency changes', async () => {
     const preprocess = {__test: 'preprocess'};
     const p = plugin(DEFAULT_CONFIG, {preprocess});
     p.markChanged = jest.fn();
