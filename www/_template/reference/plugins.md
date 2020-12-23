@@ -6,7 +6,7 @@ description: The Snowpack Plugin API and how to use it.
 
 Looking to get started writing your own plugin? Check out our [Plugin Guide](/guides/plugins) for an overview of how plugins work and a walk-through to help you create your own.
 
-Looking for a good summary? Check out our ["SnowpackPlugin" TypeScript definition](https://github.com/snowpackjs/snowpack/tree/main/snowpack/src/types/snowpack.ts) for a fully documented and up-to-date overview of the Plugin API and all supported options.
+Looking for a good summary? Check out our ["SnowpackPlugin" TypeScript definition](https://github.com/snowpackjs/snowpack/tree/master/snowpack/src/types/snowpack.ts) for a fully documented and up-to-date overview of the Plugin API and all supported options.
 
 ### Overview
 
@@ -94,7 +94,7 @@ If your plugin defines a `load()` method, Snowpack will need to know what files 
 
 - `input`: An array of file extensions that this plugin will load.
 - `output`: The set of all file extensions that this plugin's `load()` method will output.
-- [Full TypeScript definition](https://github.com/snowpackjs/snowpack/tree/main/snowpack/src/types/snowpack.ts).
+- [Full TypeScript definition](https://github.com/snowpackjs/snowpack/tree/master/snowpack/src/types/snowpack.ts).
 
 ### Plugin Methods
 
