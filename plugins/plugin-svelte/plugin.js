@@ -83,14 +83,12 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     preprocessOptions = require('svelte-preprocess')();
   }
 
-  const importedByMap = new Map();
-
-  function addImportsToMap(filePath, sassImport) {
-    const importedBy = importedByMap.get(sassImport);
+  function addImportsToMap(filePath, imp) {
+    const importedBy = importedByMap.get(imp);
     if (importedBy) {
       importedBy.add(filePath);
     } else {
-      importedByMap.set(sassImport, new Set([filePath]));
+      importedByMap.set(imp, new Set([filePath]));
     }
   }
 

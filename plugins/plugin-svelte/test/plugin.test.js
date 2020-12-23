@@ -2,9 +2,10 @@ const path = require('path');
 
 const mockCompiler = jest.fn().mockImplementation((code) => ({js: {code}}));
 const mockPreprocessor = jest.fn().mockImplementation((code) => code);
-const mockPreprocessorWithDeps = jest
-  .fn()
-  .mockImplementation((code) => ({code, dependencies: ['path/to/file.stylus']}));
+const mockPreprocessorWithDeps = jest.fn().mockImplementation((code) => ({
+  code,
+  dependencies: ['path/to/file.stylus', 'path/to/file2.stylus'],
+}));
 
 let DEFAULT_CONFIG;
 const mockComponent = path.join(__dirname, 'Button.svelte');
@@ -170,8 +171,13 @@ describe('@snowpack/plugin-svelte (preprocessor deps)', () => {
   it.only('marks a file as changed when a preprocess dependency changes', async () => {
     const preprocess = {__test: 'preprocess'};
     const p = plugin(DEFAULT_CONFIG, {preprocess});
+    p.markChanged = jest.fn();
     await p.load({filePath: mockComponent});
+    p.onChange({filePath: 'path/to/file.stylus'});
+    p.onChange({filePath: 'path/to/file2.stylus'});
 
-    expect(mockPreprocessorWithDeps).toHaveBeenCalled();
+    expect(p.markChanged).toHaveBeenCalledTimes(2);
+    expect(p.markChanged.mock.calls[0][0]).toBe(mockComponent);
+    expect(p.markChanged.mock.calls[1][0]).toBe(mockComponent);
   });
 });
