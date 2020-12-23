@@ -9,6 +9,8 @@ let makeHot = (...args) => {
   return makeHot(...args);
 };
 
+require('svelte/register');
+
 module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   const isDev = process.env.NODE_ENV !== 'production';
   const useSourceMaps = snowpackConfig.buildOptions.sourceMaps;
@@ -84,7 +86,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     name: '@snowpack/plugin-svelte',
     resolve: {
       input: resolveInputOption || ['.svelte'],
-      output: ['.js', '.css'],
+      output: ['.js', '.css', '.html'],
     },
     knownEntrypoints: [
       'svelte/internal',
@@ -104,6 +106,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
 
       const finalCompileOptions = {
         generate: isSSR ? 'ssr' : 'dom',
+        hydratable: true,
         css: false,
         ...compilerOptions, // Note(drew) should take precedence over generate above
         dev: isDev,
@@ -142,6 +145,48 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
           map: useSourceMaps ? css.map : undefined,
         };
       }
+
+      const ssr = svelte.compile(codeToCompile, {
+            generate: 'ssr',
+            hydratable: true,
+            format: 'cjs',
+      });
+
+      var Module = module.constructor;
+      var m = new Module(filePath, module.parent);
+      m.filename = filePath
+      m.paths = Module._nodeModulePaths(path.dirname(filePath));
+      m._compile(ssr.js.code, filePath);
+      comp = m.exports.default
+
+      const render = comp.render({});
+      const src = path.basename(filePath).replace('.svelte', '.js')
+
+        output['.html'] = {
+          code: `
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+${render.head}
+<style>
+${render.css.code}
+</style>
+</head>
+<body>
+${render.html}
+<script type=module>
+    import comp from "./${src}";
+
+    let app = new comp({
+        target: document.body,
+        hydrate: true,
+    });
+</script>
+</body>
+</html>
+          `,
+        };
       return output;
     },
   };
