@@ -83,6 +83,17 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     preprocessOptions = require('svelte-preprocess')();
   }
 
+  const importedByMap = new Map();
+
+  function addImportsToMap(filePath, sassImport) {
+    const importedBy = importedByMap.get(sassImport);
+    if (importedBy) {
+      importedBy.add(filePath);
+    } else {
+      importedByMap.set(sassImport, new Set([filePath]));
+    }
+  }
+
   return {
     name: '@snowpack/plugin-svelte',
     resolve: {
@@ -95,6 +106,10 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       'svelte-hmr/runtime/proxy-adapter-dom.js',
     ],
 
+    /**
+     * If any files imported the given file path, mark them as changed.
+     * @private
+     */
     _markImportersAsChanged(filePath) {
       if (importedByMap.has(filePath)) {
         const importedBy = importedByMap.get(filePath);
@@ -105,13 +120,19 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       }
     },
 
+    /**
+     * When a file changes, also mark it's importers as changed.
+     * svelte.preprocess returns a list of preprocess deps - https://svelte.dev/docs#svelte_preprocess
+     */
+    onChange({filePath}) {
+      this._markImportersAsChanged(filePath);
+    },
+
     async load({filePath, isHmrEnabled, isSSR}) {
       let dependencies = [];
       let codeToCompile = await fs.promises.readFile(filePath, 'utf-8');
       // PRE-PROCESS
       if (preprocessOptions !== false) {
-        console.log('boo!');
-
         ({code: codeToCompile, dependencies} = await svelte.preprocess(
           codeToCompile,
           preprocessOptions,
@@ -121,11 +142,9 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
         ));
       }
 
+      // in dev mode, track preprocess dependencies
       if (isDev && dependencies) {
-        dependencies.forEach((depPath) => {
-          console.log(depPath, filePath);
-          importedByMap.set(depPath, filePath);
-        });
+        dependencies.forEach((imp) => addImportsToMap(filePath, imp));
       }
 
       const finalCompileOptions = {
