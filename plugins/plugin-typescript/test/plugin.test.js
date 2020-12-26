@@ -36,6 +36,11 @@ describe('plugin-typescript', () => {
     await p.run({isDev: false, log: jest.fn});
     expect(execaFn.mock.calls[0][0]).toContain('--foo bar');
   });
+  test('calls custom tsc command correctly with args', async () => {
+    const p = plugin({}, {tsc: 'echo', args: 'Echo message'});
+    await p.run({isDev: false, log: jest.fn});
+    expect(execaFn.mock.calls[0][0]).toContain('Echo message');
+  });
   test('handles tsc output', async () => {
     const logFn = jest.fn();
     const p = plugin({});
