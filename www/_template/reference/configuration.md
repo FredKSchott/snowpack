@@ -271,8 +271,6 @@ _NOTE:_ Deprecated, see `buildOptions.out`.
 
 Configure how npm packages are installed.
 
-TODO: Had to pull from config.ts because these are in types.ts
-
 ### installOptions.dest
 
 **Type**: `string`
@@ -345,51 +343,54 @@ module.exports = {
 
 **Default**: `false`
 
-TODO: needs copy edits
 Emit source maps for installed packages.
 
-- installOptions.sourceMap | `type` | _optional/required_ | **Default**: `value` : description
-
-- **_Experimental:_** Set to `true` to enable source maps
+**_Experimental:_** Set to `true` to enable source maps.
 
 ### installOptions.env
 
 **Type**: `{[ENV_NAME: string]: (string true)}`
 
-TODO: needs copy edits
+Sets a `process.env.` environment variable inside the installed dependencies.
 
-- Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
+If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
 
 ### installOptions.rollup
 
 **Type**: `Object`
 
-TODO: Needs copy editing
+Allows customization of Snowpack's internal Rollup configuration.
 
-- Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal rollup configuration that we use.
+Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal Rollup configuration that we use.
 
-- **installOptions.rollup.plugins** - Specify [Custom Rollup plugins](/reference/common-error-details#installing-non-js-packages) if you are dealing with non-standard files.
-- **installOptions.rollup.dedupe** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/main/packages/node-resolve#usage) for more documentation.
-- **installOptions.rollup.context** - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning ("'this' keyword is equivalent to 'undefined' ... and has been rewritten") is silenced by **Default**, unless `--verbose` is used.
+- installOptions.rollup.plugins | `TODO I'm not sure the best way to specify this, it appears to be an array of objects? an example would be useful` - Specify Custom Rollup plugins if you are dealing with non-standard files.
+- installOptions.rollup.dedupe | `array[string]` - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/main/packages/node-resolve#usage) for more documentation.
+- installOptions.rollup.context | `string` - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning ("'this' keyword is equivalent to 'undefined' ... and has been rewritten") is silenced by **Default**, unless `--verbose` is used.
 
 ### installOptions.namedExports
 
 **Type**: `string[]`
 
+Import CJS packages using named exports
+
 TODO I don’t see in types.ts or config.ts
 
-- _NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed._
-- Import CJS packages using named exports (Example: `import {useTable} from 'react-table'`).
-- Example: `"namedExports": ["react-table"]`
+Example: `"namedExports": ["react-table"]`
+
+_NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed._
+
 
 ### installOptions.packageLookupFields
 
 **Type**: `string[]`
 
+Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the **Default**s like "module", "main", etc.
+
 TODO I don’t see in types.ts or config.ts
 
-- Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the **Default**s like "module", "main", etc. Useful for package ecosystems like Svelte where dependencies aren't shipped as traditional JavaScript.
-- Example: `"packageLookupFields": ["svelte"]`
+Useful for package ecosystems like Svelte where dependencies aren't shipped as traditional JavaScript.
+
+Example: `"packageLookupFields": ["svelte"]`
 
 ## config.buildOptions
 
@@ -402,9 +403,7 @@ Configure your final build.
 **Type**: `string`
 **Default**: `"build"`
 
-TODO: copy edits
-
-- The local directory that we output your final build to.
+The local directory that we output your final build to.
 
 ### buildOptions.baseUrl
 
@@ -412,9 +411,11 @@ TODO: copy edits
 
 **Default**: `/`
 
-TODO: copy edits
+In your HTML, replace all instances of `%PUBLIC_URL%` with this
 
-- In your HTML, replace all instances of `%PUBLIC_URL%` with this (inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept). This is useful if your app will be deployed to a subdirectory. _Note: if you have `homepage` in your `package.json`, Snowpack will actually pick up on that, too._
+Inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept. This is useful if your app will be deployed to a subdirectory.
+
+_Note: if you have `homepage` in your `package.json`, Snowpack will actually pick up on that, too._
 
 ### buildOptions.webModulesUrl
 
@@ -422,9 +423,7 @@ TODO: copy edits
 
 **Default**: `web_modules`
 
-TODO: copy edits
-
-- Rename your web modules directory.
+Rename your web modules directory.
 
 ### buildOptions.clean
 
@@ -442,13 +441,17 @@ TODO: copy edits
 
 **Default**: `__snowpack__`
 
-TODO: copy edits
+Rename the default directory for Snowpack metadata.
 
-- By **Default**, Snowpack outputs Snowpack-related metadata such as [HMR](/concepts/hot-module-replacement) and [ENV](/reference/configuration#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
+Snowpack-related metadata includes [HMR](/concepts/hot-module-replacement) and [ENV](/reference/configuration#environment-variables) info.
 
 ### buildOptions.minify
 
-TODO: document
+**Type**: `boolean`
+
+**Default**: `true`
+
+By default, Snowpack will minify your dependencies on `snowpack build` using Esbuild. TODO is this correct?
 
 ### buildOptions.sourceMaps
 
@@ -456,27 +459,39 @@ TODO: document
 
 **Default**: `false`
 
-TODO: copy edit/document
+Generates source maps.
 
-- **_Experimental:_** Set to `true` to enable source maps
+**_Experimental:_** Lit Element, Preact, Svelte and React sourcemaps in build and dev. With blank templates, esbuild will generate source maps if it can, if another compiler like Babel, Vue, or Svelte isn’t being used
+
+TODO: is this correct?
 
 ### buildOptions.watch
+**Type**: `boolean`
 
-TODO: document
+**Default**: `false`
+
+Run Snowpack's build pipeline through a file watcher.
+
+Designed to allow local development with an output directory that can be served by a custom frontend server (ex: Rails, PHP, etc.)
+
+TODO: is this right? based on https://github.com/snowpackjs/snowpack/issues/1002
 
 ### buildOptions.htmlFragments
 
-TODO: document
+**Type**: `boolean`
 
+**Default**: `false`
+
+Toggles whether HTML fragments are transformed like full HTML pages.
+
+HTML fragments are HTML files not starting with "<!doctype html>".
 ### buildOptions.jsxFactory
 
 **Type**: `string`
 
 **Default**: `React.createElement` (or `h` if Preact import is detected)
 
-TODO: copy edit
-
-- Set the name of the used function to create JSX elements.
+Set the name of the used function to create JSX elements.
 
 ### buildOptions.jsxFragment
 
@@ -484,14 +499,13 @@ TODO: copy edit
 
 **Default**: `React.Fragment` (or `Fragment` if Preact import is detected)
 
-TODO: copy edit
-
-- Set the name of the used function to create JSX fragments.
+Set the name of the used function to create JSX fragments.
 
 ## config.testOptions
 
-TODO: entire section needs copy editing
-Configure your tests. See the section below for all options.
+Configure your tests
+
+TODO: is this enough? should we be more specific like "how Snowpack runs tests?"
 
 ### testOptions.files
 
@@ -499,11 +513,11 @@ Configure your tests. See the section below for all options.
 
 **Default**: `["__tests__/**/*", "**/*.@(spec|test).*"]`
 
-TODO: copy edit
+Specifies what files Snowpack recognizes as tests.
 
-- The location of all test files.
-- All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
+All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
 
+TODO: I think this is using glob matching?
 ## config.experiments
 
 **Type**: `object` (option name: value)
