@@ -204,7 +204,6 @@ export function resolveEntrypoint(
       `React workaround packages no longer needed! Revert back to the official React & React-DOM packages.`,
     );
   }
-  let plf = packageLookupFields;
   let foundEntrypoint = resolveManifestEntry(depManifest, dep, {
     packageName,
     packageLookupFields,
