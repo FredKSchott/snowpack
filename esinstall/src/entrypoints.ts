@@ -1,16 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import validatePackageName from 'validate-npm-package-name';
-import {
-  ExportMap,
-  ExportMapEntry,
-  PackageManifestWithExports,
-  PackageManifest,
-} from './types';
-import {
-  parsePackageImportSpecifier,
-  resolveDependencyManifest
-} from './util';
+import {ExportMap, ExportMapEntry, PackageManifestWithExports, PackageManifest} from './types';
+import {parsePackageImportSpecifier, resolveDependencyManifest} from './util';
 
 // Rarely, a package will ship a broken "browser" package.json entrypoint.
 // Ignore the "browser" entrypoint in those packages.
@@ -27,20 +19,22 @@ function manifestHasTypes(manifest: PackageManifest): boolean {
 type ResolveManifestEntryOptions = {
   packageLookupFields?: string[];
   packageName?: string;
-}
+};
 
-function resolveManifestEntry(manifest: PackageManifest, entry?: string, {
-  packageLookupFields = [],
-  packageName
-}: ResolveManifestEntryOptions = {}): string | undefined {
+function resolveManifestEntry(
+  manifest: PackageManifest,
+  entry?: string,
+  {packageLookupFields = [], packageName}: ResolveManifestEntryOptions = {},
+): string | undefined {
   let foundEntrypoint: string | undefined;
 
-  if(manifest.exports) {
-    foundEntrypoint = typeof manifest.exports === 'string' ?
-      manifest.exports :
-      resolveExportMapEntry(manifest.exports['.']);
+  if (manifest.exports) {
+    foundEntrypoint =
+      typeof manifest.exports === 'string'
+        ? manifest.exports
+        : resolveExportMapEntry(manifest.exports['.']);
 
-    if(typeof foundEntrypoint === 'string') {
+    if (typeof foundEntrypoint === 'string') {
       return foundEntrypoint;
     }
   }
@@ -61,7 +55,7 @@ function resolveManifestEntry(manifest: PackageManifest, entry?: string, {
     // See: https://github.com/defunctzombie/package-browser-field-spec
     let browserField = manifest.browser;
 
-    if(typeof browserField === 'string') {
+    if (typeof browserField === 'string') {
       foundEntrypoint = browserField;
     } else if (typeof browserField === 'object') {
       let browserEntrypoint =
@@ -73,7 +67,7 @@ function resolveManifestEntry(manifest: PackageManifest, entry?: string, {
         browserField['./'] ||
         browserField['.'];
 
-      if(typeof browserEntrypoint === 'string') {
+      if (typeof browserEntrypoint === 'string') {
         foundEntrypoint = browserEntrypoint;
       }
     }
@@ -94,7 +88,10 @@ export function resolveMainEntrypoint(manifest: PackageManifest) {
 /**
  * Given an ExportMapEntry find the entry point, resolving recursively.
  */
-export function resolveExportMapEntry(exportMapEntry?: ExportMapEntry, conditions?: string[]): string | undefined {
+export function resolveExportMapEntry(
+  exportMapEntry?: ExportMapEntry,
+  conditions?: string[],
+): string | undefined {
   // If this is a string or undefined we can skip checking for conditions
   switch (typeof exportMapEntry) {
     case 'string':
@@ -104,10 +101,10 @@ export function resolveExportMapEntry(exportMapEntry?: ExportMapEntry, condition
   }
 
   let entry = exportMapEntry;
-  for(let i = 0, len = conditions?.length || 0; i < len; i++) {
+  for (let i = 0, len = conditions?.length || 0; i < len; i++) {
     let condition = conditions![i];
 
-    if(entry[condition]) {
+    if (entry[condition]) {
       entry = entry[condition];
     }
   }
@@ -134,7 +131,7 @@ type ResolveManifestFn = (dep: string, cwd: string) => [string | null, any];
 type ResolveEntrypointOptions = {
   cwd: string;
   packageLookupFields: string[];
-  resolveManifest?: ResolveManifestFn | undefined
+  resolveManifest?: ResolveManifestFn | undefined;
 };
 
 /**
@@ -145,10 +142,7 @@ type ResolveEntrypointOptions = {
  */
 export function resolveEntrypoint(
   dep: string,
-  {
-    cwd,
-    packageLookupFields,
-  }: ResolveEntrypointOptions,
+  {cwd, packageLookupFields}: ResolveEntrypointOptions,
 ): string {
   // We first need to check for an export map in the package.json. If one exists, resolve to it.
   const [packageName, packageEntrypoint] = parsePackageImportSpecifier(dep);
@@ -157,7 +151,10 @@ export function resolveEntrypoint(
   if (packageManifestLoc && packageManifest && typeof packageManifest.exports !== 'undefined') {
     // If this is a non-main entry point
     if (packageEntrypoint) {
-      const exportMapValue = resolveExportsMap(packageManifest as PackageManifestWithExports, './' + packageEntrypoint);
+      const exportMapValue = resolveExportsMap(
+        packageManifest as PackageManifestWithExports,
+        './' + packageEntrypoint,
+      );
 
       if (typeof exportMapValue !== 'string') {
         throw new Error(
@@ -185,6 +182,15 @@ export function resolveEntrypoint(
   // maps should not be supported.
   const [depManifestLoc, depManifest] = resolveDependencyManifest(dep, cwd);
 
+  if (!depManifest) {
+    try {
+      const maybeLoc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
+      return maybeLoc;
+    } catch (err) {
+      // Oh well, was worth a try
+    }
+  }
+
   if (!depManifestLoc || !depManifest) {
     throw new Error(
       `Package "${dep}" not found. Have you installed it? ${depManifestLoc ? depManifestLoc : ''}`,
@@ -201,13 +207,13 @@ export function resolveEntrypoint(
   let plf = packageLookupFields;
   let foundEntrypoint = resolveManifestEntry(depManifest, dep, {
     packageName,
-    packageLookupFields
-  })
+    packageLookupFields,
+  });
 
   // Some packages are types-only. If this is one of those packages, resolve with that.
   if (!foundEntrypoint && manifestHasTypes(depManifest)) {
     const typesLoc = (depManifest.types || depManifest.typings) as string;
-    return path.join(depManifestLoc, '..', typesLoc)
+    return path.join(depManifestLoc, '..', typesLoc);
   }
   // Sometimes packages don't give an entrypoint, assuming you'll fall back to "index.js".
   if (!foundEntrypoint) {

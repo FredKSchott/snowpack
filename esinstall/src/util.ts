@@ -42,7 +42,10 @@ export function parsePackageImportSpecifier(imp: string): [string, string | null
  * NOTE: You used to be able to require() a package.json file directly,
  * but now with export map support in Node v13 that's no longer possible.
  */
-export function resolveDependencyManifest(dep: string, cwd: string): [string | null, PackageManifest | null] {
+export function resolveDependencyManifest(
+  dep: string,
+  cwd: string,
+): [string | null, PackageManifest | null] {
   // Attempt #1: Resolve the dependency manifest normally. This works for most
   // packages, but fails when the package defines an export map that doesn't
   // include a package.json. If we detect that to be the reason for failure,

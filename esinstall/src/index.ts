@@ -24,7 +24,7 @@ import {
   DependencyStatsOutput,
   EnvVarReplacements,
   ImportMap,
-  InstallTarget
+  InstallTarget,
 } from './types';
 import {
   createInstallTarget,
@@ -36,14 +36,14 @@ import {
   sanitizePackageName,
   writeLockfile,
 } from './util';
-import { resolveEntrypoint } from './entrypoints';
+import {resolveEntrypoint} from './entrypoints';
 
 export * from './types';
 export {
   resolveExportMapEntry,
   resolveMainEntrypoint,
   resolveEntrypoint,
-  normalizeExportMap
+  normalizeExportMap,
 } from './entrypoints';
 export {printStats} from './stats';
 
@@ -89,7 +89,7 @@ function resolveWebDependency(
 
   return {
     loc,
-    type: getWebDependencyType(loc)
+    type: getWebDependencyType(loc),
   };
 }
 

@@ -1,4 +1,4 @@
-import { resolveExportMapEntry } from "./entrypoints";
+import {resolveExportMapEntry} from './entrypoints';
 
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -69,7 +69,7 @@ export type ExportMapEntry =
 
 export type ExportMap = Record<string, ExportMapEntry>;
 
-// 
+//
 /**
  * https://github.com/defunctzombie/package-browser-field-spec
  * "browser": "main.js",
@@ -92,4 +92,4 @@ export type PackageManifest = {
 
 export type PackageManifestWithExports = PackageManifest & {
   exports: ExportMap;
-}
+};
