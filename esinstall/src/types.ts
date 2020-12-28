@@ -66,6 +66,7 @@ export type ExportMapEntry =
     };
 
 export type ExportMap = Record<string, ExportMapEntry>;
+export type ExportField = string | ExportMap;
 
 //
 /**
@@ -82,7 +83,7 @@ export type PackageManifest = {
   version: string;
   main?: string; // This is optional, actually
   module?: string;
-  exports?: string | ExportMap;
+  exports?: ExportField;
   browser?: BrowserField;
   types?: string;
   typings?: string;

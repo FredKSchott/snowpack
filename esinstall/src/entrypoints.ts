@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import validatePackageName from 'validate-npm-package-name';
-import {ExportMap, ExportMapEntry, PackageManifestWithExports, PackageManifest} from './types';
+import {ExportField, ExportMapEntry, PackageManifestWithExports, PackageManifest} from './types';
 import {parsePackageImportSpecifier, resolveDependencyManifest} from './util';
 
 // Rarely, a package will ship a broken "browser" package.json entrypoint.
@@ -230,18 +230,18 @@ export function resolveEntrypoint(
 /**
  * Given an export map and all of the crazy variations, condense down to a key/value map of string keys to string values.
  */
-export function normalizeExportMap(exportMap?: ExportMap): Record<string, string> | undefined {
-  if (!exportMap) {
+export function normalizeExportMap(exportField?: ExportField): Record<string, string> | undefined {
+  if (!exportField) {
     return;
   }
   const cleanExportMap: Record<string, string> = {};
 
-  const simpleExportMap = resolveExportMapEntry(exportMap); // handle case where export map is a string, or if there‘s only one file in the entire export map
+  const simpleExportMap = resolveExportMapEntry(exportField); // handle case where export map is a string, or if there‘s only one file in the entire export map
   if (simpleExportMap) {
     return {'.': simpleExportMap} as Record<string, string>;
   }
 
-  for (const [key, val] of Object.entries(exportMap)) {
+  for (const [key, val] of Object.entries(exportField)) {
     // skip invalid entries
     if (!key.startsWith('.')) {
       continue;
