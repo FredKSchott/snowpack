@@ -43,7 +43,9 @@ If it's a heading use the truncated format with the rest of the information belo
 ```
 #### name
 `string`
+
 Default: `value`
+
 _optional/required_
 
 Short 1-2 sentence description.

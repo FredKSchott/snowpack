@@ -36,7 +36,7 @@ Previously config.cwd
 ## config.install
 `string[]`
 
-Known dependencies to install with Snowpack. 
+Known dependencies to install with Snowpack.
 
 > Used for installing packages any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
 
@@ -49,6 +49,7 @@ Inherit from a separate "base" config.
 
 ## config.exclude
 `string[]`
+
 Default: `['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*']`
 
 Exclude any files from the Snowpack pipeline.
@@ -59,7 +60,7 @@ Supports glob pattern matching.
 `string[]`
 
 TODO: I think it's similar to plugin.knownEntrypoints
-  
+
 ## config.mount
 ```
 mount: {
@@ -68,8 +69,6 @@ mount: {
 ```
 
 Mount local directories to custom URLs in your built application.
-
-application.
 
 ```js
 // snowpack.config.js
@@ -104,11 +103,11 @@ You can further customize this the build behavior for any mounted directory by u
  <!-- TODO: does this still exist?
 - `staticHtml` _optional, default: false_: If true, don't build HTML (`.html`) files in this directory. This special option exists because HTML files are almost always built to support HMR and the popular pattern of keeping HTML files in a `public/` directory that's otherwise full of static. -->
 - `mount.resolve` | `boolean` | _optional_ | default: `true`: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written.
-- 
+-
 ## config.alias
 `object` (package: package or path)
 
-Configure import aliases for directories and packages. 
+Configure import aliases for directories and packages.
 
 > Note: In an older version of Snowpack, all mounted directories were also available as aliases by default. As of Snowpack 2.7, this is no longer the case and no aliases are defined by default.
 
@@ -147,72 +146,80 @@ Configure the Snowpack dev server.
 
 ### devOptions.secure
 `boolean`
+
 Default: `false`
 
 Toggles whether Snowpack dev server should use HTTPS with HTTP2 enabled.
 
 ### devOptions.hostname
 `string`
+
 Default: `localhost`
 
 The hostname the dev server runs on.
 
 TODO: originally "The hostname where the browser tab will be open." is this more correct? Also why isn't it in the devoptions object in config.ts?
 
-### devOptions.port 
+### devOptions.port
 `number`
 Default: `8080`
 
 The port the dev server runs on.
 
 ### devOptions.fallback
-`string` 
+`string`
 Default: `"index.html"`
 
 The HTML file to serve for non-resource routes.
 
-When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route. 
+When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route.
 
-> ⚠️ Make sure that you configure your production servers to serve this.
+⚠️ Make sure that you configure your production servers to serve this.
 
 ### devOptions.bundle
 
 `boolean`
+
 Default: TODO
 
 TODO: This is still in config.ts but seems deprecated
 
-### devOptions.open 
+### devOptions.open
 `string`
+
 Default: `"default"`
 
 Configures how the dev server opens in the browser when it starts.
 
 Any installed browser, e.g., "chrome", "firefox", "brave". Set "none" to disable.
 
-### devOptions.output 
+### devOptions.output
 `"stream" | "dashboard"`
+
 Default: `"dashboard"`
 
-Set the output mode of the `dev` console: 
+Set the output mode of the `dev` console:
 
 - `"dashboard"` delivers an organized layout of console output and the logs of any connected tools. This is recommended for most users and results in the best logging experience.
 - `"stream"` is useful when Snowpack is run in parallel with other commands, where clearing the shell would clear important output of other commands running in the same shell.
 
 ### devOptions.hmr
 `boolean`
+
 Default: `true`
 
 Toggles HMR on the Snowpack dev server.
 
 ### devOptions.hmrDelay
 `number` (milliseconds)
+
 Default: `0`
 
 Milliseconds to delay HMR-triggered browser update.
 
 ### devoptions.hmrPort
 `number`
+
 Default: `undefined`
 
 The port where Snowpack's HMR Websocket runs.
@@ -222,15 +229,17 @@ The default of `undefined` means it runs on the same port as the Snowpack dev se
 
 ### devOptions.hmrErrorOverlay
 `boolean`
+
 Default: `true`
 
 Toggles a browser overlay that displays JavaScript runtime errors when running HMR.
 
 ### devOptions.out
-`string` 
+`string`
+
 Default: `"build"`
 
-> _NOTE:_ Deprecated, see `buildOptions.out`.
+ _NOTE:_ Deprecated, see `buildOptions.out`.
 
 ## config.installOptions
 `object` (option name: value)
@@ -239,43 +248,47 @@ Configure how npm packages are installed.
 
 TODO: Had to pull from config.ts because these are in types.ts
 
-### installOptions.dest 
+### installOptions.dest
 `string`
+
 Default:`”web_modules”`
 
 Configures the destination for npm modules converted by Snowpack
 
 TODO: I think???
 
-### installOptions.externalPackage 
+### installOptions.externalPackage
 `string[]`
 
 Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
 
 Example: `"externalPackage": ["fs"]`
 
-> ⚠️ This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser.
+⚠️ This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser.
 
-### installOptions.treeshake 
+### installOptions.treeshake
 `boolean`
+
 Default:`false`, or `true` when run with `snowpack build`
 
 Treeshake your dependencies to optimize your installed files.
 
 Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
 
-### installOptions.installTypes 
+### installOptions.installTypes
 `boolean`
+
 Default: `false`
 
 Install TypeScript type declarations with your packages.
 
-> Requires changes to your `tsconfig.json` to pick up these types.
+Requires changes to your `tsconfig.json` to pick up these types.
 
 TODO: TypeScript guide or example
 
 ### installOptions.polyfillNode
 `boolean`
+
 Default: `false`
 
 This will automatically polyfill any Node.js dependencies as much as possible for the browser
@@ -296,8 +309,9 @@ module.exports = {
 };
 ```
 
-### installOptions.sourceMap 
+### installOptions.sourceMap
 `boolean`
+
 Default: `false`
 
 TODO: needs copy edits
@@ -307,7 +321,7 @@ Emit source maps for installed packages.
 
 - **_Experimental:_** Set to `true` to enable source maps
 
-### installOptions.env 
+### installOptions.env
 `{[ENV_NAME: string]: (string true)}`
 
 TODO: needs copy edits
@@ -315,7 +329,7 @@ TODO: needs copy edits
 - Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
 
 
-### installOptions.rollup 
+### installOptions.rollup
 `Object`
 
 TODO: Needs copy editing
@@ -326,7 +340,7 @@ TODO: Needs copy editing
 - **installOptions.rollup.dedupe** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/main/packages/node-resolve#usage) for more documentation.
 - **installOptions.rollup.context** - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning ("'this' keyword is equivalent to 'undefined' ... and has been rewritten") is silenced by default, unless `--verbose` is used.
 
-### installOptions.namedExports 
+### installOptions.namedExports
 `string[]`
 
 TODO I don’t see in types.ts or config.ts
@@ -335,7 +349,7 @@ TODO I don’t see in types.ts or config.ts
 - Import CJS packages using named exports (Example: `import {useTable} from 'react-table'`).
 - Example: `"namedExports": ["react-table"]`
 
-### installOptions.packageLookupFields 
+### installOptions.packageLookupFields
 `string[]`
 
 TODO I don’t see in types.ts or config.ts
@@ -358,6 +372,7 @@ TODO: copy edits
 
 ### buildOptions.baseUrl
 `string`
+
 Default: `/`
 
 TODO: copy edits
@@ -366,6 +381,7 @@ TODO: copy edits
 
 ### buildOptions.webModulesUrl
 `string`
+
 Default: `web_modules`
 
 TODO: copy edits
@@ -375,6 +391,7 @@ TODO: copy edits
 
 ### buildOptions.clean
 `boolean`
+
 Default: `true`
 
 TODO: copy edits
@@ -383,6 +400,7 @@ TODO: copy edits
 
 ### buildOptions.metaDir
 `string`
+
 Default: `__snowpack__`
 
 TODO: copy edits
@@ -395,6 +413,7 @@ TODO: document
 
 ### buildOptions.sourceMaps
 `boolean`
+
 Default: `false`
 
 TODO: copy edit/document
@@ -411,6 +430,7 @@ TODO: document
 
 ### buildOptions.jsxFactory
 `string`
+
 Default: `React.createElement` (or `h` if Preact import is detected)
 
 TODO: copy edit
@@ -419,6 +439,7 @@ TODO: copy edit
 
 ### buildOptions.jsxFragment
 `string`
+
 Default: `React.Fragment` (or `Fragment` if Preact import is detected)
 
 TODO: copy edit
@@ -428,17 +449,18 @@ TODO: copy edit
 ## config.testOptions
  TODO: entire section needs copy editing
  Configure your tests. See the section below for all options.
- 
+
 ### testOptions.files
 `string[]`
+
 Default: `["__tests__/**/*", "**/*.@(spec|test).*"]`
 
 TODO: copy edit
 
 - The location of all test files.
 - All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
- 
- 
+
+
 ## config.experiments
 
 `object` (option name: value)
@@ -455,7 +477,7 @@ TODO: I think this matches input extentions to output but I am not sure
 
 ## config.proxy
 TODO: I no longer see this in the types.ts file is it deprecated?
-`todo`
+
 Default: TODO
 
 Configure the dev server to proxy requests. See the section below for all options.
