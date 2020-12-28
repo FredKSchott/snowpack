@@ -38,17 +38,17 @@ Example:
 devOptions.open | `string` | _optional_ | Default: `"default"`
 ```
 
-If it's a heading use the truncated format with the rest of the information below the heading:
+If it's a heading use the extended format with the rest of the information below the heading:
 
 ```
 #### name
-`string`
+**Type:** `string`
 
-Default: `value`
+**Default:** `value`
 
 _optional/required_
 
-Short 1-2 sentence description.
+Short 1-2 sentence description ideally the same as what's in the code comments.
 
 Details
 ```

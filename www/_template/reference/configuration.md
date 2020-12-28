@@ -3,6 +3,7 @@ layout: layouts/content.njk
 title: snowpack.config.js
 description: The Snowpack configuration API reference.
 ---
+
 ```js
 // Example: snowpack.config.js
 module.exports = {
@@ -16,7 +17,7 @@ module.exports = {
 // Example: snowpack.config.js (ESM)
 // This is ESM-format config file. to enable
 // Add "type": "module" in your package.json
-export default {
+export **Default** {
   plugins: [
     /* ... */
   ],
@@ -26,42 +27,49 @@ export default {
 > To generate a basic configuration file scaffold in your Snowpack project run `snowpack init`.
 
 ## config.root
-`string`
-Default: `/`
+
+**Type**: `string`
+
+**Default**: `/`
 
 Specify the root of a project using Snowpack.
 
 Previously config.cwd
 
 ## config.install
-`string[]`
+
+**Type**: `string[]`
 
 Known dependencies to install with Snowpack.
 
 > Used for installing packages any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
 
 ## config.extends
-`string`
+
+**Type**: `string`
 
 Inherit from a separate "base" config.
 
 > Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
 
 ## config.exclude
-`string[]`
 
-Default: `['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*']`
+**Type**: `string[]`
+
+**Default**: `['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*']`
 
 Exclude any files from the Snowpack pipeline.
 
 Supports glob pattern matching.
 
 ## config.knownEntrypoints
-`string[]`
+
+**Type**: `string[]`
 
 TODO: I think it's similar to plugin.knownEntrypoints
 
 ## config.mount
+
 ```
 mount: {
   [path: string]: string | {url: string, resolve: boolean, static: boolean, staticHtml: boolean}
@@ -99,17 +107,19 @@ You can further customize this the build behavior for any mounted directory by u
 ```
 
 - `mount.url` | `string` | _required_ : The URL to mount to, matching the string in the simple form above.
-- `mount.static` | `boolean` | _optional_ | Default: `false` : If true, don't build files in this directory. Copy and serve them directly from disk to the browser.
- <!-- TODO: does this still exist?
-- `staticHtml` _optional, default: false_: If true, don't build HTML (`.html`) files in this directory. This special option exists because HTML files are almost always built to support HMR and the popular pattern of keeping HTML files in a `public/` directory that's otherwise full of static. -->
-- `mount.resolve` | `boolean` | _optional_ | default: `true`: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written.
+- `mount.static` | `boolean` | _optional_ | **Default**: `false` : If true, don't build files in this directory. Copy and serve them directly from disk to the browser.
+<!-- TODO: does this still exist?
+- `staticHtml` _optional, **Default**: false_: If true, don't build HTML (`.html`) files in this directory. This special option exists because HTML files are almost always built to support HMR and the popular pattern of keeping HTML files in a `public/` directory that's otherwise full of static. -->
+- `mount.resolve` | `boolean` | _optional_ | **Default**: `true`: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written.
 -
+
 ## config.alias
-`object` (package: package or path)
+
+**Type**: `object` (package: package or path)
 
 Configure import aliases for directories and packages.
 
-> Note: In an older version of Snowpack, all mounted directories were also available as aliases by default. As of Snowpack 2.7, this is no longer the case and no aliases are defined by default.
+> Note: In an older version of Snowpack, all mounted directories were also available as aliases by **Default**. As of Snowpack 2.7, this is no longer the case and no aliases are defined by **Default**.
 
 ```js
 // snowpack.config.js
@@ -127,7 +137,8 @@ Configure import aliases for directories and packages.
 ```
 
 ## config.plugins
-`array` containing pluginName `string` or an array [`pluginName`, {`pluginOptions`}
+
+**Type**: `array` containing pluginName `string` or an array [`pluginName`, {`pluginOptions`}
 
 Enable Snowpack plugins and their options
 
@@ -140,35 +151,42 @@ Enable Snowpack plugins and their options
 ```
 
 ## config.devOptions
-`object` (option name: value)
+
+**Type**: `object` (option name: value)
 
 Configure the Snowpack dev server.
 
 ### devOptions.secure
-`boolean`
 
-Default: `false`
+**Type**: `boolean`
+
+**Default**: `false`
 
 Toggles whether Snowpack dev server should use HTTPS with HTTP2 enabled.
 
 ### devOptions.hostname
-`string`
 
-Default: `localhost`
+**Type**: `string`
+
+**Default**: `localhost`
 
 The hostname the dev server runs on.
 
 TODO: originally "The hostname where the browser tab will be open." is this more correct? Also why isn't it in the devoptions object in config.ts?
 
 ### devOptions.port
-`number`
-Default: `8080`
+
+**Type**: `number`
+
+**Default**: `8080`
 
 The port the dev server runs on.
 
 ### devOptions.fallback
-`string`
-Default: `"index.html"`
+
+**Type**: `string`
+
+**Default**: `"index.html"`
 
 The HTML file to serve for non-resource routes.
 
@@ -178,25 +196,27 @@ When using the Single-Page Application (SPA) pattern, this is the HTML "shell" f
 
 ### devOptions.bundle
 
-`boolean`
+**Type**: `boolean`
 
-Default: TODO
+**Default**: TODO
 
 TODO: This is still in config.ts but seems deprecated
 
 ### devOptions.open
-`string`
 
-Default: `"default"`
+**Type**: `string`
+
+**Default**: `"**Default**"`
 
 Configures how the dev server opens in the browser when it starts.
 
 Any installed browser, e.g., "chrome", "firefox", "brave". Set "none" to disable.
 
 ### devOptions.output
-`"stream" | "dashboard"`
 
-Default: `"dashboard"`
+**Type**: `"stream" | "dashboard"`
+
+**Default**: `"dashboard"`
 
 Set the output mode of the `dev` console:
 
@@ -204,61 +224,68 @@ Set the output mode of the `dev` console:
 - `"stream"` is useful when Snowpack is run in parallel with other commands, where clearing the shell would clear important output of other commands running in the same shell.
 
 ### devOptions.hmr
-`boolean`
 
-Default: `true`
+**Type**: `boolean`
+
+**Default**: `true`
 
 Toggles HMR on the Snowpack dev server.
 
 ### devOptions.hmrDelay
-`number` (milliseconds)
 
-Default: `0`
+**Type**: `number` (milliseconds)
+
+**Default**: `0`
 
 Milliseconds to delay HMR-triggered browser update.
 
 ### devoptions.hmrPort
-`number`
 
-Default: `undefined`
+**Type**: `number`
+
+**Default**: `undefined`
 
 The port where Snowpack's HMR Websocket runs.
 
-The default of `undefined` means it runs on the same port as the Snowpack dev server. TODO I think
-
+The **Default** of `undefined` means it runs on the same port as the Snowpack dev server. TODO I think
 
 ### devOptions.hmrErrorOverlay
-`boolean`
 
-Default: `true`
+**Type**: `boolean`
+
+**Default**: `true`
 
 Toggles a browser overlay that displays JavaScript runtime errors when running HMR.
 
 ### devOptions.out
-`string`
 
-Default: `"build"`
+**Type**: `string`
 
- _NOTE:_ Deprecated, see `buildOptions.out`.
+**Default**: `"build"`
+
+_NOTE:_ Deprecated, see `buildOptions.out`.
 
 ## config.installOptions
-`object` (option name: value)
+
+**Type**: `object` (option name: value)
 
 Configure how npm packages are installed.
 
 TODO: Had to pull from config.ts because these are in types.ts
 
 ### installOptions.dest
-`string`
 
-Default:`”web_modules”`
+**Type**: `string`
+
+**Default**:`”web_modules”`
 
 Configures the destination for npm modules converted by Snowpack
 
 TODO: I think???
 
 ### installOptions.externalPackage
-`string[]`
+
+**Type**: `string[]`
 
 Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
 
@@ -267,18 +294,20 @@ Example: `"externalPackage": ["fs"]`
 ⚠️ This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser.
 
 ### installOptions.treeshake
-`boolean`
 
-Default:`false`, or `true` when run with `snowpack build`
+**Type**: `boolean`
+
+**Default**:`false`, or `true` when run with `snowpack build`
 
 Treeshake your dependencies to optimize your installed files.
 
 Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
 
 ### installOptions.installTypes
-`boolean`
 
-Default: `false`
+**Type**: `boolean`
+
+**Default**: `false`
 
 Install TypeScript type declarations with your packages.
 
@@ -287,9 +316,10 @@ Requires changes to your `tsconfig.json` to pick up these types.
 TODO: TypeScript guide or example
 
 ### installOptions.polyfillNode
-`boolean`
 
-Default: `false`
+**Type**: `boolean`
+
+**Default**: `false`
 
 This will automatically polyfill any Node.js dependencies as much as possible for the browser
 
@@ -310,27 +340,29 @@ module.exports = {
 ```
 
 ### installOptions.sourceMap
-`boolean`
 
-Default: `false`
+**Type**: `boolean`
+
+**Default**: `false`
 
 TODO: needs copy edits
 Emit source maps for installed packages.
 
-- installOptions.sourceMap | `type` | _optional/required_ | Default: `value` : description
+- installOptions.sourceMap | `type` | _optional/required_ | **Default**: `value` : description
 
 - **_Experimental:_** Set to `true` to enable source maps
 
 ### installOptions.env
-`{[ENV_NAME: string]: (string true)}`
+
+**Type**: `{[ENV_NAME: string]: (string true)}`
 
 TODO: needs copy edits
 
 - Sets a `process.env.` environment variable inside the installed dependencies. If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
 
-
 ### installOptions.rollup
-`Object`
+
+**Type**: `Object`
 
 TODO: Needs copy editing
 
@@ -338,10 +370,11 @@ TODO: Needs copy editing
 
 - **installOptions.rollup.plugins** - Specify [Custom Rollup plugins](/reference/common-error-details#installing-non-js-packages) if you are dealing with non-standard files.
 - **installOptions.rollup.dedupe** - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/main/packages/node-resolve#usage) for more documentation.
-- **installOptions.rollup.context** - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning ("'this' keyword is equivalent to 'undefined' ... and has been rewritten") is silenced by default, unless `--verbose` is used.
+- **installOptions.rollup.context** - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning ("'this' keyword is equivalent to 'undefined' ... and has been rewritten") is silenced by **Default**, unless `--verbose` is used.
 
 ### installOptions.namedExports
-`string[]`
+
+**Type**: `string[]`
 
 TODO I don’t see in types.ts or config.ts
 
@@ -350,71 +383,78 @@ TODO I don’t see in types.ts or config.ts
 - Example: `"namedExports": ["react-table"]`
 
 ### installOptions.packageLookupFields
-`string[]`
+
+**Type**: `string[]`
 
 TODO I don’t see in types.ts or config.ts
 
-- Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the defaults like "module", "main", etc. Useful for package ecosystems like Svelte where dependencies aren't shipped as traditional JavaScript.
+- Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the **Default**s like "module", "main", etc. Useful for package ecosystems like Svelte where dependencies aren't shipped as traditional JavaScript.
 - Example: `"packageLookupFields": ["svelte"]`
 
 ## config.buildOptions
-`object` (option name: value)
+
+**Type**: `object` (option name: value)
 
 Configure your final build.
 
 ### buildOptions.out
-`string`
-Default: `"build"`
+
+**Type**: `string`
+**Default**: `"build"`
 
 TODO: copy edits
 
 - The local directory that we output your final build to.
 
 ### buildOptions.baseUrl
-`string`
 
-Default: `/`
+**Type**: `string`
+
+**Default**: `/`
 
 TODO: copy edits
 
 - In your HTML, replace all instances of `%PUBLIC_URL%` with this (inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept). This is useful if your app will be deployed to a subdirectory. _Note: if you have `homepage` in your `package.json`, Snowpack will actually pick up on that, too._
 
 ### buildOptions.webModulesUrl
-`string`
 
-Default: `web_modules`
+**Type**: `string`
+
+**Default**: `web_modules`
 
 TODO: copy edits
 
 - Rename your web modules directory.
 
-
 ### buildOptions.clean
-`boolean`
 
-Default: `true`
+**Type**: `boolean`
+
+**Default**: `true`
 
 TODO: copy edits
 
 - Set to `false` to prevent Snowpack from deleting the build output folder (`buildOptions.out`) between builds.
 
 ### buildOptions.metaDir
-`string`
 
-Default: `__snowpack__`
+**Type**: `string`
+
+**Default**: `__snowpack__`
 
 TODO: copy edits
 
-- By default, Snowpack outputs Snowpack-related metadata such as [HMR](/concepts/hot-module-replacement) and [ENV](/reference/configuration#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
+- By **Default**, Snowpack outputs Snowpack-related metadata such as [HMR](/concepts/hot-module-replacement) and [ENV](/reference/configuration#environment-variables) info to a folder called `__snowpack__`. You can rename that folder with this option (e.g.: `metaDir: 'static/snowpack'`).
 
 ### buildOptions.minify
 
 TODO: document
 
 ### buildOptions.sourceMaps
-`boolean`
 
-Default: `false`
+**Type**: `boolean`
+
+**Default**: `false`
 
 TODO: copy edit/document
 
@@ -429,41 +469,44 @@ TODO: document
 TODO: document
 
 ### buildOptions.jsxFactory
-`string`
 
-Default: `React.createElement` (or `h` if Preact import is detected)
+**Type**: `string`
+
+**Default**: `React.createElement` (or `h` if Preact import is detected)
 
 TODO: copy edit
 
 - Set the name of the used function to create JSX elements.
 
 ### buildOptions.jsxFragment
-`string`
 
-Default: `React.Fragment` (or `Fragment` if Preact import is detected)
+**Type**: `string`
+
+**Default**: `React.Fragment` (or `Fragment` if Preact import is detected)
 
 TODO: copy edit
 
 - Set the name of the used function to create JSX fragments.
 
 ## config.testOptions
- TODO: entire section needs copy editing
- Configure your tests. See the section below for all options.
+
+TODO: entire section needs copy editing
+Configure your tests. See the section below for all options.
 
 ### testOptions.files
-`string[]`
 
-Default: `["__tests__/**/*", "**/*.@(spec|test).*"]`
+**Type**: `string[]`
+
+**Default**: `["__tests__/**/*", "**/*.@(spec|test).*"]`
 
 TODO: copy edit
 
 - The location of all test files.
 - All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
 
-
 ## config.experiments
 
-`object` (option name: value)
+**Type**: `object` (option name: value)
 
 This section is experimental and not yet finalized. May change across versions.
 
@@ -473,12 +516,11 @@ This section is experimental and not yet finalized. May change across versions.
 
 TODO: I think this matches input extentions to output but I am not sure
 
-
-
 ## config.proxy
+
 TODO: I no longer see this in the types.ts file is it deprecated?
 
-Default: TODO
+**Default**: TODO
 
 Configure the dev server to proxy requests. See the section below for all options.
 
@@ -512,6 +554,7 @@ Options:
 - All options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
 
 ## Environment Variables
+
 TODO: Figure out where this goes
 
 ```js
@@ -540,4 +583,3 @@ You can also use environment variables in HTML files. All occurrences of `%SNOWP
 ```
 
 ```
-
