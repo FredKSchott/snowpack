@@ -94,7 +94,7 @@ export function resolveMainEntrypoint(manifest: PackageManifest) {
 /**
  * Given an ExportMapEntry find the entry point, resolving recursively.
  */
-export function resolveExportMapEntry(exportMapEntry?: ExportMapEntry): string | undefined {
+export function resolveExportMapEntry(exportMapEntry?: ExportMapEntry, conditions?: string[]): string | undefined {
   // If this is a string or undefined we can skip checking for conditions
   switch (typeof exportMapEntry) {
     case 'string':
@@ -103,11 +103,20 @@ export function resolveExportMapEntry(exportMapEntry?: ExportMapEntry): string |
       return exportMapEntry;
   }
 
+  let entry = exportMapEntry;
+  for(let i = 0, len = conditions?.length || 0; i < len; i++) {
+    let condition = conditions![i];
+
+    if(entry[condition]) {
+      entry = entry[condition];
+    }
+  }
+
   return (
-    resolveExportMapEntry(exportMapEntry?.browser) ||
-    resolveExportMapEntry(exportMapEntry?.import) ||
-    resolveExportMapEntry(exportMapEntry?.default) ||
-    resolveExportMapEntry(exportMapEntry?.require) ||
+    resolveExportMapEntry(entry?.browser) ||
+    resolveExportMapEntry(entry?.import) ||
+    resolveExportMapEntry(entry?.default) ||
+    resolveExportMapEntry(entry?.require) ||
     undefined
   );
 }

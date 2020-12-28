@@ -40,6 +40,17 @@ describe('ESInstall API', () => {
         other: 'other.js'
       })).toBe('require.js');
     });
+
+    it('takes conditions', () => {
+      expect(resolveExportMapEntry({
+        development: {
+          browser: 'error.js'
+        },
+        production: {
+          import: 'prod.js'
+        }
+      }, ['production'])).toBe('prod.js');
+    })
   })
 
   describe('normalizeExportMap', () => {
