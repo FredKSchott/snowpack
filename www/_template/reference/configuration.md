@@ -62,17 +62,12 @@ Exclude any files from the Snowpack pipeline.
 
 Supports glob pattern matching.
 
-## config.knownEntrypoints
-
-**Type**: `string[]`
-
-TODO: I think it's similar to plugin.knownEntrypoints
 
 ## config.mount
 
 ```
 mount: {
-  [path: string]: string | {url: string, resolve: boolean, static: boolean, staticHtml: boolean}
+  [path: string]: string | {url: string, resolve: boolean, static: boolean}
 }
 ```
 
@@ -108,8 +103,6 @@ You can further customize this the build behavior for any mounted directory by u
 
 - `mount.url` | `string` | _required_ : The URL to mount to, matching the string in the simple form above.
 - `mount.static` | `boolean` | _optional_ | **Default**: `false` : If true, don't build files in this directory. Copy and serve them directly from disk to the browser.
-<!-- TODO: does this still exist?
-- `staticHtml` _optional, **Default**: false_: If true, don't build HTML (`.html`) files in this directory. This special option exists because HTML files are almost always built to support HMR and the popular pattern of keeping HTML files in a `public/` directory that's otherwise full of static. -->
 - `mount.resolve` | `boolean` | _optional_ | **Default**: `true`: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written.
 -
 
@@ -121,8 +114,6 @@ Configure import aliases for directories and packages.
 
 > Note: In an older version of Snowpack, all mounted directories were also available as aliases by **Default**. As of Snowpack 2.7, this is no longer the case and no aliases are defined by **Default**.
 
-
-TODO: this example my no longer work see https://github.com/snowpackjs/snowpack/issues/1247#issuecomment-719817940
 ```js
 // snowpack.config.js
 // Example: alias types
@@ -172,9 +163,7 @@ Toggles whether Snowpack dev server should use HTTPS with HTTP2 enabled.
 
 **Default**: `localhost`
 
-The hostname the dev server runs on.
-
-TODO: originally "The hostname where the browser tab will be open." is this more correct? Also why isn't it in the devoptions object in config.ts?
+The hostname that the dev server is running on. Snowpack uses this information to configure the HMR websocket and properly open your browser on startup (see: [`devOptions.open`](#devoptions.open)).
 
 ### devOptions.port
 
@@ -195,14 +184,6 @@ The HTML file to serve for non-resource routes.
 When using the Single-Page Application (SPA) pattern, this is the HTML "shell" file that gets served for every (non-resource) user route.
 
 ⚠️ Make sure that you configure your production servers to serve this.
-
-### devOptions.bundle
-
-**Type**: `boolean`
-
-**Default**: TODO
-
-TODO: This is still in config.ts but seems deprecated
 
 ### devOptions.open
 
@@ -245,11 +226,9 @@ Milliseconds to delay HMR-triggered browser update.
 
 **Type**: `number`
 
-**Default**: `undefined`
+**Default**: [`devOptions.port`](#devoptions.port)
 
 The port where Snowpack's HMR Websocket runs.
-
-The **Default** of `undefined` means it runs on the same port as the Snowpack dev server. TODO I think
 
 ### devOptions.hmrErrorOverlay
 
@@ -273,15 +252,6 @@ _NOTE:_ Deprecated, see `buildOptions.out`.
 
 Configure how npm packages are installed.
 
-### installOptions.dest
-
-**Type**: `string`
-
-**Default**:`”web_modules”`
-
-Configures the destination for npm modules converted by Snowpack
-
-TODO: I think???
 
 ### installOptions.externalPackage
 
@@ -302,18 +272,6 @@ Example: `"externalPackage": ["fs"]`
 Treeshake your dependencies to optimize your installed files.
 
 Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
-
-### installOptions.installTypes
-
-**Type**: `boolean`
-
-**Default**: `false`
-
-Install TypeScript type declarations with your packages.
-
-Requires changes to your `tsconfig.json` to pick up these types.
-
-TODO: TypeScript guide or example
 
 ### installOptions.polyfillNode
 
@@ -365,32 +323,16 @@ Allows customization of Snowpack's internal Rollup configuration.
 
 Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal Rollup configuration that we use.
 
-- installOptions.rollup.plugins | `TODO I'm not sure the best way to specify this, it appears to be an array of objects? an example would be useful` - Specify Custom Rollup plugins if you are dealing with non-standard files.
-- installOptions.rollup.dedupe | `array[string]` - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/main/packages/node-resolve#usage) for more documentation.
+- installOptions.rollup.plugins | `RollupPlugin[]` - Specify Custom Rollup plugins if you are dealing with non-standard files.
+- installOptions.rollup.dedupe | `string[]` - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/main/packages/node-resolve#usage) for more documentation.
 - installOptions.rollup.context | `string` - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning ("'this' keyword is equivalent to 'undefined' ... and has been rewritten") is silenced by **Default**, unless `--verbose` is used.
-
-### installOptions.namedExports
-
-**Type**: `string[]`
-
-Import CJS packages using named exports
-
-TODO I don’t see in types.ts or config.ts
-
-Example: `"namedExports": ["react-table"]`
-
-_NOTE(v2.13.0): Snowpack now automatically supports named exports for most Common.js packages. This configuration remains for any package that Snowpack can't handle automatically. In most cases, this should no longer be needed._
 
 
 ### installOptions.packageLookupFields
 
 **Type**: `string[]`
 
-Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the **Default**s like "module", "main", etc.
-
-TODO I don’t see in types.ts or config.ts
-
-Useful for package ecosystems like Svelte where dependencies aren't shipped as traditional JavaScript.
+Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the defaults like "module", "main", etc.
 
 Example: `"packageLookupFields": ["svelte"]`
 
@@ -447,13 +389,6 @@ Rename the default directory for Snowpack metadata.
 
 Snowpack-related metadata includes [HMR](/concepts/hot-module-replacement) and [ENV](/reference/configuration#environment-variables) info.
 
-### buildOptions.minify
-
-**Type**: `boolean`
-
-**Default**: `true`
-
-By default, Snowpack will minify your dependencies on `snowpack build` using Esbuild. TODO is this correct?
 
 ### buildOptions.sourceMaps
 
@@ -463,20 +398,14 @@ By default, Snowpack will minify your dependencies on `snowpack build` using Esb
 
 Generates source maps.
 
-**_Experimental:_** Lit Element, Preact, Svelte and React sourcemaps in build and dev. With blank templates, esbuild will generate source maps if it can, if another compiler like Babel, Vue, or Svelte isn’t being used
-
-TODO: is this correct?
+**_Experimental:_** Lit Element, Preact, Svelte and React sourcemaps in build and dev.
 
 ### buildOptions.watch
 **Type**: `boolean`
 
 **Default**: `false`
 
-Run Snowpack's build pipeline through a file watcher.
-
-Designed to allow local development with an output directory that can be served by a custom frontend server (ex: Rails, PHP, etc.)
-
-TODO: is this right? based on https://github.com/snowpackjs/snowpack/issues/1002
+Run Snowpack's build pipeline through a file watcher. This option works best for local development when you have a custom frontend server (ex: Rails, PHP, etc.) and the Snowpack dev server cannot be used.
 
 ### buildOptions.htmlFragments
 
@@ -515,11 +444,9 @@ TODO: is this enough? should we be more specific like "how Snowpack runs tests?"
 
 **Default**: `["__tests__/**/*", "**/*.@(spec|test).*"]`
 
-Specifies what files Snowpack recognizes as tests.
+Specifies your test files. If `NODE_ENV` is set to "test", Snowpack includes these files in your site build and scan them for installable dependencies. Otherwise, Snowpack excludes these files.
 
-All matching test files are scanned for installable dependencies during development, but excluded from both scanning and building in your final build.
 
-TODO: I think this is using glob matching?
 ## config.experiments
 
 **Type**: `object` (option name: value)
@@ -527,47 +454,6 @@ TODO: I think this is using glob matching?
 This section is experimental and not yet finalized. May change across versions.
 
 [See the code for options](https://github.com/snowpackjs/snowpack/blob/main/snowpack/src/types/snowpack.ts#L235)
-
-## config.\_extensionMap
-
-TODO: I think this matches input extentions to output but I am not sure
-
-## config.proxy
-
-TODO: I no longer see this in the types.ts file is it deprecated?
-
-**Default**: TODO
-
-Configure the dev server to proxy requests. See the section below for all options.
-
-If desired, `"proxy"` is where you configure the proxy behavior of your dev server. Define different paths that should be proxied, and where they should be proxied to.
-
-The short form of a full URL string is enough for general use. For advanced configuration, you can use the object format to set all options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
-
-This configuration has no effect on the final build.
-
-Example:
-
-```js
-// snowpack.config.json
-{
-  "proxy": {
-    // Short form:
-    "/api/01": "https://pokeapi.co/api/v2/",
-    // Long form:
-    "/api/02": {
-      on: { proxyReq: (p, req, res) => /* Custom event handlers (JS only) */ },
-      /* Custom http-proxy options */
-    }
-  }
-}
-```
-
-Options:
-
-- **`"path".on`** | `object` (string: function)
-  - `on` is a special Snowpack property for setting event handler functions on proxy server events. See the section on ["Listening for Proxy Events"](https://github.com/http-party/node-http-proxy#listening-for-proxy-events) for a list of all supported events. You must be using a `snowpack.config.js` JavaScript configuration file to set this.
-- All options supported by [http-proxy](https://github.com/http-party/node-http-proxy).
 
 ## Environment Variables
 
