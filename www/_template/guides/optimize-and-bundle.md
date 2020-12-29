@@ -56,3 +56,12 @@ Snowpack supports popular bundlers via plugin:
 **For now, we recommend using @snowpack/plugin-webpack until our built-in optimize support is more mature.**
 
 Check out our [Plugins Catalog](/plugins) to browse all available Snowpack plugins, and read the [Plugins Guide](/guides/plugins) if you're interested in creating your own.
+
+### Legacy browser support
+
+You can customize the set of browsers you'd like a bundler to support via the `package.json` "browserslist" property, going all the way back to IE11. This will be picked up when you run `snowpack build` to build for production.
+
+```js
+/* package.json */
+"browserslist": ">0.75%, not ie 11, not UCAndroid >0, not OperaMini all",
+```
