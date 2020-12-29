@@ -214,14 +214,13 @@ export interface SnowpackConfig {
     hmrPort: number | undefined;
     hmrErrorOverlay: boolean;
   };
-  installOptions: Omit<InstallOptions, 'alias'>;
+  installOptions: Omit<InstallOptions, 'alias' | 'dest'>;
   buildOptions: {
     out: string;
     baseUrl: string;
     webModulesUrl: string;
     clean: boolean;
     metaDir: string;
-    minify: boolean;
     sourceMaps: boolean;
     watch: boolean;
     htmlFragments: boolean;
@@ -264,7 +263,6 @@ export type SnowpackUserConfig = {
     routes?: Pick<RouteConfigObject, 'src' | 'dest' | 'match'>[];
   };
 };
-
 export interface CLIFlags {
   help?: boolean; // display help text
   version?: boolean; // display Snowpack version
