@@ -79,7 +79,7 @@ Restart your Snowpack dev server to run it with the new configuration. Exit the 
 
 > 💡 Tip: Restart the Snowpack development server when you make configuration changes (changes to the `snowpack.config.js`).
 
-Snowpack will recognize the new new dependency (Svelte, or "svelte/internal") and print the following output as installs your dependencies for the frontend:
+Snowpack will recognize the new dependency (Svelte, or "svelte/internal") and print the following output as installs your dependencies for the frontend:
 
 ```bash
 [snowpack] installing dependencies...
