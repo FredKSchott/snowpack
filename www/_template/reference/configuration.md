@@ -121,6 +121,8 @@ Configure import aliases for directories and packages.
 
 > Note: In an older version of Snowpack, all mounted directories were also available as aliases by **Default**. As of Snowpack 2.7, this is no longer the case and no aliases are defined by **Default**.
 
+
+TODO: this example my no longer work see https://github.com/snowpackjs/snowpack/issues/1247#issuecomment-719817940
 ```js
 // snowpack.config.js
 // Example: alias types
