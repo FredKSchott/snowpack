@@ -6901,6 +6901,9 @@ expect@^26.6.2:
 "export-map-object-require@file:./test/esinstall/package-entrypoints/export-map-object-require":
   version "1.2.3"
 
+"export-map-star@file:./test/esinstall/package-entrypoints/export-map-star":
+  version "1.2.3"
+
 extend-shallow@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/extend-shallow/-/extend-shallow-2.0.1.tgz#51af7d614ad9a9f610ea1bafbb989d6b1c56890f"
@@ -9706,6 +9709,9 @@ magic-string@^0.25.5, magic-string@^0.25.7:
   integrity sha512-4CrMT5DOHTDk4HYDlzmwu4FVCcIYI8gauveasrdCu2IKIFOJ3f0v/8MDGJCDL9oD2ppz/Av1b0Nj345H9M+XIA==
   dependencies:
     sourcemap-codec "^1.4.4"
+
+"main-folder@file:./test/esinstall/package-entrypoints/main-folder":
+  version "1.2.3"
 
 make-dir@^1.0.0:
   version "1.3.0"

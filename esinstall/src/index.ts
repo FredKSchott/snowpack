@@ -40,10 +40,10 @@ import {resolveEntrypoint} from './entrypoints';
 
 export * from './types';
 export {
-  resolveExportMapEntry,
-  resolveMainEntrypoint,
+  findExportMapEntry,
+  findManifestEntry,
   resolveEntrypoint,
-  normalizeExportMap,
+  explodeExportMap,
 } from './entrypoints';
 export {printStats} from './stats';
 
