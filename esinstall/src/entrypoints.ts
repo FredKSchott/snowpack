@@ -1,4 +1,4 @@
-import fs from 'fs';
+import {readdirSync, existsSync, realpathSync} from 'fs';
 import path from 'path';
 import validatePackageName from 'validate-npm-package-name';
 import {ExportField, ExportMapEntry, PackageManifestWithExports, PackageManifest} from './types';
@@ -158,7 +158,7 @@ export function resolveEntrypoint(
 
   // if, no export map and dep points directly to a file within a package, return that reference.
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
-    return fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
+    return realpathSync.native(require.resolve(dep, {paths: [cwd]}));
   }
 
   // Otherwise, resolve directly to the dep specifier. Note that this supports both
@@ -169,7 +169,7 @@ export function resolveEntrypoint(
 
   if (!depManifest) {
     try {
-      const maybeLoc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
+      const maybeLoc = realpathSync.native(require.resolve(dep, {paths: [cwd]}));
       return maybeLoc;
     } catch {
       // Oh well, was worth a try
@@ -200,7 +200,7 @@ export function resolveEntrypoint(
     throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
   }
 
-  return fs.realpathSync.native(
+  return realpathSync.native(
     require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
   );
 }
@@ -237,24 +237,36 @@ function* forEachWildcardEntry(
   value: string,
   cwd: string,
 ): Generator<[string, string], any, undefined> {
-  try {
-    let expr = pm.makeRe(value, picoMatchGlobalOptions);
-    let reldirnm = path.dirname(value);
-    let dirpth = path.join(cwd, reldirnm);
-    let files = fs.readdirSync(dirpth);
+  // Creates a regex from a pattern like ./src/extras/*
+  let expr = pm.makeRe(value, picoMatchGlobalOptions);
 
-    for (let file of files) {
-      let relfile = path.join(reldirnm, file);
-      let match = expr.exec(relfile);
+  // The directory, ie ./src/extras
+  let valueDirectoryName = path.dirname(value);
+  let valueDirectoryFullPath = path.join(cwd, valueDirectoryName);
+
+  if (existsSync(valueDirectoryFullPath)) {
+    let filesInDirectory = readdirSync(valueDirectoryFullPath);
+
+    for (let filename of filesInDirectory) {
+      // Create a relative path for this file to match against the regex
+      // ex, ./src/extras/one.js
+      let relativeFilePath = path.join(valueDirectoryName, filename);
+      let match = expr.exec(relativeFilePath);
 
       if (match && match[1]) {
-        let [pth, repl] = match;
-        let k = key.replace('*', repl);
-        yield [k, './' + pth];
+        let [matchingPath, matchGroup] = match;
+        let normalizedKey = key.replace('*', matchGroup);
+
+        // Normalized to posix paths, like ./src/extras/one.js
+        let normalizedFilePath =
+          '.' + path.posix.sep + matchingPath.split(path.sep).join(path.posix.sep);
+
+        // Yield out a non-wildcard match, for ex.
+        // ['./src/extras/one', './src/extras/one.js']
+
+        yield [normalizedKey, normalizedFilePath];
       }
     }
-  } catch {
-    // Should we just pretend this didn't happen?
   }
 }
 
