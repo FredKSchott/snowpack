@@ -67,7 +67,7 @@ async function transformJs(contents, id, cwd, skipTransform) {
 /** React Refresh: Setup **/
 if (import.meta.hot) {
   if (!window.$RefreshReg$ || !window.$RefreshSig$ || !window.$RefreshRuntime$) {
-    console.warn('@snowpack/plugin-react-refresh: HTML setup script not run. React Fast Refresh only works when Snowpack serves your HTML routes. You many want to remove this plugin.');
+    console.warn('@snowpack/plugin-react-refresh: HTML setup script not run. React Fast Refresh only works when Snowpack serves your HTML routes. You may want to remove this plugin.');
   } else {
     var prevRefreshReg = window.$RefreshReg$;
     var prevRefreshSig = window.$RefreshSig$;
