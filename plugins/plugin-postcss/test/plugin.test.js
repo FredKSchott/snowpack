@@ -2,37 +2,26 @@ const fs = require('fs');
 const path = require('path');
 const plugin = require('../plugin.js');
 
-const cssPath = path.resolve(__dirname, './stubs/style.css');
+const cssPath = path.resolve(__dirname, 'stubs', 'style.css');
+const minCssPath = path.resolve(__dirname, 'stubs', 'style.min.css');
 const cssContent = fs.readFileSync(cssPath, 'utf-8');
+const minCssContent = fs.readFileSync(minCssPath, 'utf-8');
 const configFilePath = path.resolve(__dirname, './stubs/postcss.config.js');
 
-jest.mock('execa');
-const execa = require('execa');
-
 describe('@snowpack/plugin-postcss', () => {
-  beforeEach(() => {
-    execa.mockClear();
-    execaFn = jest.fn(() => {
-      return {
-        stdout: 'stdout',
-        stderr: 'stderr',
-      };
-    });
-    execa.mockImplementation(execaFn);
-  });
-
-  test('with no options', async () => {
-    const pluginInstance = plugin({}, {});
+  test('loads postcss config with no options', async () => {
+    const pluginInstance = plugin({root: path.resolve(__dirname, 'stubs')}, {});
     const transformCSSResults = await pluginInstance.transform({
       id: cssPath,
       fileExt: path.extname(cssPath),
       contents: cssContent,
     });
-    expect(execa.mock.calls[0]).toContain('postcss');
-    expect(execa.mock.calls[0][1]).not.toEqual([`--config ${configFilePath}`]);
+    expect(transformCSSResults).toHaveProperty(['.css', 'code'], minCssContent);
+    expect(transformCSSResults).toHaveProperty(['.css', 'map'], undefined);
+    await pluginInstance.cleanup();
   });
 
-  test('passing in a config file', async () => {
+  test('accepts a path to a config file', async () => {
     const options = {
       config: path.resolve(configFilePath),
     };
@@ -42,7 +31,41 @@ describe('@snowpack/plugin-postcss', () => {
       fileExt: path.extname(cssPath),
       contents: cssContent,
     });
-    expect(execa.mock.calls[0]).toContain('postcss');
-    expect(execa.mock.calls[0][1]).toEqual([`--config ${configFilePath}`]);
+    expect(transformCSSResults).toHaveProperty(['.css', 'code'], minCssContent);
+    expect(transformCSSResults).toHaveProperty(['.css', 'map'], undefined);
+    await pluginInstance.cleanup();
+  });
+
+  test('produces source maps with sourceMaps: true', async () => {
+    const pluginInstance = plugin(
+      {root: path.resolve(__dirname, 'stubs'), buildOptions: {sourceMaps: true}},
+      {},
+    );
+    const transformCSSResults = await pluginInstance.transform({
+      id: cssPath,
+      fileExt: path.extname(cssPath),
+      contents: cssContent,
+    });
+    expect(transformCSSResults).toHaveProperty(['.css', 'code'], minCssContent);
+    expect(transformCSSResults).toHaveProperty(
+      ['.css', 'map'],
+      // a raw source map object
+      expect.objectContaining({
+        version: expect.any(Number),
+        mappings: expect.any(String),
+      }),
+    );
+    await pluginInstance.cleanup();
+  });
+
+  test('bails with empty input array', async () => {
+    const pluginInstance = plugin({root: path.resolve(__dirname, 'stubs')}, {input: []});
+    const transformCSSResults = await pluginInstance.transform({
+      id: cssPath,
+      fileExt: path.extname(cssPath),
+      contents: cssContent,
+    });
+    expect(transformCSSResults).toBeFalsy();
+    await pluginInstance.cleanup();
   });
 });
