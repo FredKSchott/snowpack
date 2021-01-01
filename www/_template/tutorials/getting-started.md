@@ -197,7 +197,7 @@ Include it in your project by adding it to index.html in the `<head>`
 
 ## Build for production/deployment
 
-OK you've now built a very simple website and you want to launch it. It's time to use `Snowpack build`.
+OK you've now built a very simple website and you want to launch it. It's time to use `snowpack build`.
 
 By default, `snowpack build` builds your site using the same unbundled approach as the `dev` command. Building is integrated with your development setup which guarantees a near-exact copy of the same code that you saw during development.
 
