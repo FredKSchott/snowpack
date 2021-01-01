@@ -103,7 +103,7 @@ The [`postcss-cli`](https://github.com/postcss/postcss-cli) package must be inst
 // snowpack.config.json
 "plugins": [
   ["@snowpack/plugin-run-script", {
-    "cmd": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
+    "cmd": "eslint src --ext .js,jsx,.ts,.tsx",
     // Optional: Use npm package "watch" to run on every file change
     "watch": "watch \"$1\" src"
   }]
