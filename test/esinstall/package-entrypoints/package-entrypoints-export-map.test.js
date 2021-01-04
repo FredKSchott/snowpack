@@ -24,6 +24,9 @@ describe('package-entrypoints exports configuration', () => {
 
       // "." : { "browser": { "development": "index.js" } }
       'export-map-object-browser-object',
+
+      // { "browser": "index.js" }
+      'export-map-object-no-key',
     ];
 
     const {

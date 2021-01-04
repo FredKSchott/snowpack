@@ -6898,6 +6898,9 @@ expect@^26.6.2:
 "export-map-object-import@file:./test/esinstall/package-entrypoints/export-map-object-import":
   version "1.2.3"
 
+"export-map-object-no-key@file:./test/esinstall/package-entrypoints/export-map-object-no-key":
+  version "1.2.3"
+
 "export-map-object-require@file:./test/esinstall/package-entrypoints/export-map-object-require":
   version "1.2.3"
 

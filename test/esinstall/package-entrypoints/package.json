@@ -27,6 +27,7 @@
     "export-map-object-import": "file:./export-map-object-import",
     "export-map-object-default": "file:./export-map-object-default",
     "export-map-object-require": "file:./export-map-object-require",
+    "export-map-object-no-key": "file:./export-map-object-no-key",
     "export-map-star": "file:./export-map-star",
     "preact": "^10.0.0"
   }

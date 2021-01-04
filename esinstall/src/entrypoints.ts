@@ -32,7 +32,7 @@ export function findManifestEntry(
     foundEntrypoint =
       typeof manifest.exports === 'string'
         ? manifest.exports
-        : findExportMapEntry(manifest.exports['.']);
+        : findExportMapEntry(manifest.exports['.'] || manifest.exports);
 
     if (typeof foundEntrypoint === 'string') {
       return foundEntrypoint;
@@ -147,7 +147,7 @@ export function resolveEntrypoint(
       }
       return path.join(packageManifestLoc, '..', mapValue);
     } else {
-      const exportMapEntry = exportField['.'];
+      const exportMapEntry = exportField['.'] || exportField;
       const mapValue = findExportMapEntry(exportMapEntry);
 
       if (mapValue) {
