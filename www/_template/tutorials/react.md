@@ -24,7 +24,7 @@ Prerequisites: Snowpack is a command line tool installed from npm. This guide as
 
 ## Getting started
 
-The easiest way to start a new Snowpack project is with [Create Snowpack App](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli), a tool to set up Snowpack in a new directory `@snowpack/project-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
+The easiest way to start a new Snowpack project is with [Create Snowpack App](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/cli), a tool to set up Snowpack in a new directory. `@snowpack/project-template-minimal` is a Create Snowpack App template for a simple, bare-bones Snowpack project setup that the rest of this guide builds on.
 
 To get started, open your terminal and head to a directory where you want to put your new project. Now run the following command in your terminal to create a new directory called `react-snowpack` with the minimal template automatically installed.
 
