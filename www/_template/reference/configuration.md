@@ -24,7 +24,7 @@ export **Default** {
 };
 ```
 
-> To generate a basic configuration file scaffold in your Snowpack project run `snowpack init`.
+To generate a basic configuration file scaffold in your Snowpack project run `snowpack init`.
 
 ## config.root
 
@@ -42,7 +42,7 @@ Previously config.cwd
 
 Known dependencies to install with Snowpack.
 
-> Used for installing packages any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
+Used for installing packages any dependencies that couldn't be detected by our automatic import scanner (ex: package CSS files).
 
 ## config.extends
 
@@ -50,7 +50,7 @@ Known dependencies to install with Snowpack.
 
 Inherit from a separate "base" config.
 
-> Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
+Can be a relative file path, an npm package, or a file within an npm package. Your configuration will be merged on top of the extended base config.
 
 ## config.exclude
 
@@ -62,7 +62,6 @@ Exclude any files from the Snowpack pipeline.
 
 Supports glob pattern matching.
 
-
 ## config.mount
 
 ```
@@ -72,6 +71,13 @@ mount: {
 ```
 
 Mount local directories to custom URLs in your built application.
+
+- `mount.url` | `string` | _required_ : The URL to mount to, matching the string in the simple form above.
+- `mount.static` | `boolean` | _optional_ | **Default**: `false` : If true, don't build files in this directory. Copy and serve them directly from disk to the browser.
+- `mount.resolve` | `boolean` | _optional_ | **Default**: `true`: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written.
+-
+
+Example:
 
 ```js
 // snowpack.config.js
@@ -101,18 +107,13 @@ You can further customize this the build behavior for any mounted directory by u
 }
 ```
 
-- `mount.url` | `string` | _required_ : The URL to mount to, matching the string in the simple form above.
-- `mount.static` | `boolean` | _optional_ | **Default**: `false` : If true, don't build files in this directory. Copy and serve them directly from disk to the browser.
-- `mount.resolve` | `boolean` | _optional_ | **Default**: `true`: If false, don't resolve JS & CSS imports in your JS, CSS, and HTML files. Instead send every import to the browser, as written.
--
-
 ## config.alias
 
 **Type**: `object` (package: package or path)
 
 Configure import aliases for directories and packages.
 
-> Note: In an older version of Snowpack, all mounted directories were also available as aliases by **Default**. As of Snowpack 2.7, this is no longer the case and no aliases are defined by **Default**.
+Note: In an older version of Snowpack, all mounted directories were also available as aliases by **Default**. As of Snowpack 2.7, this is no longer the case and no aliases are defined by **Default**.
 
 ```js
 // snowpack.config.js
@@ -133,13 +134,20 @@ Configure import aliases for directories and packages.
 
 **Type**: `array` containing pluginName `string` or an array [`pluginName`, {`pluginOptions`}
 
-Enable Snowpack plugins and their options
+Enable Snowpack plugins and their options.
+
+Also see our [Plugin guide](/guides/plugins)
 
 ```js
 // snowpack-config.js
 // Example: enable plugins both simple and expanded
 {
-  plugins: ['plugin-1', ['plugin-2', { 'plugin-option': false }]];
+  plugins: [
+    // Simple format: no options needed
+    'plugin-1',
+    // Expanded format: allows you to pass options to the plugin
+    ['plugin-2', { 'plugin-option': false }],
+  ];
 }
 ```
 
@@ -252,7 +260,6 @@ _NOTE:_ Deprecated, see `buildOptions.out`.
 
 Configure how npm packages are installed.
 
-
 ### installOptions.externalPackage
 
 **Type**: `string[]`
@@ -327,8 +334,6 @@ Snowpack uses Rollup internally to install your packages. This `rollup` config o
 - installOptions.rollup.dedupe | `string[]` - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/main/packages/node-resolve#usage) for more documentation.
 - installOptions.rollup.context | `string` - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning ("'this' keyword is equivalent to 'undefined' ... and has been rewritten") is silenced by default, unless `--verbose` is used.
 
-
-
 ### installOptions.packageLookupFields
 
 **Type**: `string[]`
@@ -368,7 +373,9 @@ _Note: if you have `homepage` in your `package.json`, Snowpack will actually pic
 
 **Default**: `web_modules`
 
-Rename your web modules directory.
+Rename your the `web_modules` directory.
+
+The `web_modules` directory is where Snowpack builds your `node_modules` to after converting to ESM.
 
 ### buildOptions.clean
 
@@ -388,7 +395,6 @@ Rename the default directory for Snowpack metadata.
 
 Snowpack-related metadata includes [HMR](/concepts/hot-module-replacement) and [ENV](/reference/configuration#environment-variables) info.
 
-
 ### buildOptions.sourceMaps
 
 **Type**: `boolean`
@@ -400,6 +406,7 @@ Generates source maps.
 **_Experimental:_** Lit Element, Preact, Svelte and React sourcemaps in build and dev.
 
 ### buildOptions.watch
+
 **Type**: `boolean`
 
 **Default**: `false`
@@ -415,13 +422,14 @@ Run Snowpack's build pipeline through a file watcher. This option works best for
 Toggles whether HTML fragments are transformed like full HTML pages.
 
 HTML fragments are HTML files not starting with "<!doctype html>".
+
 ### buildOptions.jsxFactory
 
 **Type**: `string`
 
 **Default**: `React.createElement` (or `h` if Preact import is detected)
 
-Set the name of the used function to create JSX elements.
+Set the name of the function used to create JSX elements.
 
 ### buildOptions.jsxFragment
 
@@ -429,11 +437,12 @@ Set the name of the used function to create JSX elements.
 
 **Default**: `React.Fragment` (or `Fragment` if Preact import is detected)
 
-Set the name of the used function to create JSX fragments.
+Set the name of the function used to create JSX fragments.
 
 ## config.testOptions
 
 Configure your tests.
+
 ### testOptions.files
 
 **Type**: `string[]`
@@ -442,7 +451,6 @@ Configure your tests.
 
 Specifies your test files. If `NODE_ENV` is set to "test", Snowpack includes these files in your site build and scan them for installable dependencies. Otherwise, Snowpack excludes these files.
 
-
 ## config.experiments
 
 **Type**: `object` (option name: value)
@@ -450,4 +458,3 @@ Specifies your test files. If `NODE_ENV` is set to "test", Snowpack includes the
 This section is experimental and not yet finalized. May change across versions.
 
 [See the code for options](https://github.com/snowpackjs/snowpack/blob/main/snowpack/src/types/snowpack.ts#L235)
-
