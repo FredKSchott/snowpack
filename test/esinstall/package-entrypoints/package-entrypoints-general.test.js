@@ -56,4 +56,20 @@ describe('package-entrypoints general tests', () => {
       expect(imports[pkg]).toBeTruthy();
     }
   });
+
+  it('Supports "main" when it points to a folder', async () => {
+    const cwd = __dirname;
+    const dest = path.join(cwd, 'test-main-folder');
+    const spec = 'main-folder';
+
+    const {
+      importMap: {imports},
+    } = await install([spec], {
+      cwd,
+      dest,
+    });
+
+    expect(Object.keys(imports)).toHaveLength(1);
+    expect(imports['main-folder']).toBeTruthy();
+  });
 });

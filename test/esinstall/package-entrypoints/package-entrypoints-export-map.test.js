@@ -1,7 +1,7 @@
 const {install} = require('../../../esinstall/lib');
 const path = require('path');
 
-describe('package-entrypoints browser configuration', () => {
+describe('package-entrypoints exports configuration', () => {
   it('supports all of the variations', async () => {
     const cwd = __dirname;
     const dest = path.join(cwd, 'test-export-map-variations');
@@ -24,6 +24,9 @@ describe('package-entrypoints browser configuration', () => {
 
       // "." : { "browser": { "development": "index.js" } }
       'export-map-object-browser-object',
+
+      // { "browser": "index.js" }
+      'export-map-object-no-key',
     ];
 
     const {
@@ -61,14 +64,29 @@ describe('package-entrypoints browser configuration', () => {
      */
   });
 
-  it.skip('"exports" wildcards', async () => {
-    // This should be in the "supports all of the variations" test, putting here for visibility.
-    /**
-     * "exports": {
-          // …
-          "./utils/*": "./utils/*.js"
-        }
-     */
+  it('"exports" wildcards', async () => {
+    const cwd = __dirname;
+    const dest = path.join(cwd, 'test-export-map-star');
+    const targets = [
+      'export-map-star',
+      'export-map-star/extras/one',
+      'export-map-star/extras/two',
+      'export-map-star/extras/three',
+    ];
+
+    const {
+      importMap: {imports},
+    } = await install(targets, {
+      cwd,
+      dest,
+    });
+
+    expect(imports).toStrictEqual({
+      'export-map-star': './export-map-star.js',
+      'export-map-star/extras/one': './export-map-star/extras/one.js',
+      'export-map-star/extras/three': './export-map-star/extras/three.js',
+      'export-map-star/extras/two': './export-map-star/extras/two.js',
+    });
   });
 
   it.skip('"exports" with arrays', async () => {
@@ -81,7 +99,7 @@ describe('package-entrypoints browser configuration', () => {
      */
   });
 
-  it("supports preact's configuration", async () => {
+  it.only("supports preact's configuration", async () => {
     const cwd = __dirname;
     const dest = path.join(cwd, 'test-export-preact');
 
