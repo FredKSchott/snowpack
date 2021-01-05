@@ -403,7 +403,7 @@ Snowpack-related metadata includes [HMR](/concepts/hot-module-replacement) and [
 
 Generates source maps.
 
-**_Experimental:_** Lit Element, Preact, Svelte and React sourcemaps in build and dev.
+**_Experimental:_** Still in progress, you may encounter some issues when using source maps until this support is finalized.
 
 ### buildOptions.watch
 
