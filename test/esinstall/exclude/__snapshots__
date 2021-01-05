@@ -9,7 +9,8 @@ Array [
 `;
 
 exports[`exclude matches the snapshot: cli output 1`] = `
-"[snowpack] ! installing dependencies...
+"[snowpack] Hint: run \\"snowpack init\\" to create a project config file. Using defaults...
+[snowpack] ! installing dependencies...
 [snowpack] ✔ install complete!
 [snowpack]
   ⦿ web_modules/      size       gzip       brotli
