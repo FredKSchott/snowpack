@@ -12,7 +12,6 @@ import {InputOptions, OutputOptions, Plugin as RollupPlugin, rollup, RollupError
 import rollupPluginNodePolyfills from 'rollup-plugin-polyfill-node';
 import rollupPluginReplace from '@rollup/plugin-replace';
 import util from 'util';
-import validatePackageName from 'validate-npm-package-name';
 import {rollupPluginCatchFetch} from './rollup-plugins/rollup-plugin-catch-fetch';
 import {rollupPluginCatchUnresolved} from './rollup-plugins/rollup-plugin-catch-unresolved';
 import {rollupPluginCss} from './rollup-plugins/rollup-plugin-css';
@@ -26,7 +25,6 @@ import {
   EnvVarReplacements,
   ImportMap,
   InstallTarget,
-  ExportMapEntry,
 } from './types';
 import {
   createInstallTarget,
@@ -35,28 +33,24 @@ import {
   getWebDependencyType,
   isPackageAliasEntry,
   MISSING_PLUGIN_SUGGESTIONS,
-  parsePackageImportSpecifier,
-  resolveDependencyManifest,
   sanitizePackageName,
   writeLockfile,
 } from './util';
+import {resolveEntrypoint} from './entrypoints';
 
 export * from './types';
+export {
+  findExportMapEntry,
+  findManifestEntry,
+  resolveEntrypoint,
+  explodeExportMap,
+} from './entrypoints';
 export {printStats} from './stats';
 
-type DependencyLoc =
-  | {
-      type: 'BUNDLE';
-      loc: string;
-    }
-  | {
-      type: 'ASSET';
-      loc: string;
-    }
-  | {
-      type: 'DTS';
-      loc: undefined;
-    };
+type DependencyLoc = {
+  type: 'BUNDLE' | 'ASSET' | 'DTS';
+  loc: string;
+};
 
 // Add popular CJS packages here that use "synthetic" named imports in their documentation.
 // CJS packages should really only be imported via the default export:
@@ -77,38 +71,8 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
   'chai/index.js',
 ];
 
-// Rarely, a package will ship a broken "browser" package.json entrypoint.
-// Ignore the "browser" entrypoint in those packages.
-const BROKEN_BROWSER_ENTRYPOINT = ['@sheerun/mutationobserver-shim'];
-
 function isImportOfPackage(importUrl: string, packageName: string) {
   return packageName === importUrl || importUrl.startsWith(packageName + '/');
-}
-
-function resolveNestedCondition(exportMapEntry: ExportMapEntry | undefined): string | undefined {
-  // If this is a string or undefined we can skip checking for conditions
-  switch (typeof exportMapEntry) {
-    case 'string':
-      return exportMapEntry;
-    case 'undefined':
-      return exportMapEntry;
-  }
-
-  return (
-    resolveNestedCondition(exportMapEntry?.browser) ||
-    resolveNestedCondition(exportMapEntry?.import) ||
-    resolveNestedCondition(exportMapEntry?.default) ||
-    resolveNestedCondition(exportMapEntry?.require) ||
-    undefined
-  );
-}
-
-function resolveExportsMap(
-  packageManifest: {exports: {}},
-  exportsProp: string,
-): string | undefined {
-  const exportMapEntry = packageManifest.exports[exportsProp];
-  return resolveNestedCondition(exportMapEntry);
 }
 
 /**
@@ -119,127 +83,13 @@ function resolveExportsMap(
  */
 function resolveWebDependency(
   dep: string,
-  {cwd, packageLookupFields}: {cwd: string; packageLookupFields: string[]},
+  resolveOptions: {cwd: string; packageLookupFields: string[]},
 ): DependencyLoc {
-  // We first need to check for an export map in the package.json. If one exists, resolve to it.
-  const [packageName, packageEntrypoint] = parsePackageImportSpecifier(dep);
-  const [packageManifestLoc, packageManifest] = resolveDependencyManifest(packageName, cwd);
+  const loc = resolveEntrypoint(dep, resolveOptions);
 
-  if (packageManifestLoc && packageManifest && packageManifest.exports) {
-    // If this is a non-main entry point
-    if (packageEntrypoint) {
-      const exportMapValue = resolveExportsMap(packageManifest, './' + packageEntrypoint);
-
-      if (typeof exportMapValue !== 'string') {
-        throw new Error(
-          `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".`,
-        );
-      }
-      const loc = path.join(packageManifestLoc, '..', exportMapValue);
-      return {
-        type: getWebDependencyType(loc),
-        loc,
-      };
-    } else {
-      const exportMapValue = resolveExportsMap(packageManifest, '.');
-
-      if (exportMapValue) {
-        const loc = path.join(packageManifestLoc, '..', exportMapValue);
-        return {
-          type: getWebDependencyType(loc),
-          loc,
-        };
-      }
-    }
-  }
-
-  // if, no export map and dep points directly to a file within a package, return that reference.
-  if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
-    // For details on why we need to call fs.realpathSync.native here and other places, see
-    // https://github.com/snowpackjs/snowpack/pull/999.
-    const loc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
-    return {
-      type: getWebDependencyType(loc),
-      loc,
-    };
-  }
-
-  // Otherwise, resolve directly to the dep specifier. Note that this supports both
-  // "package-name" & "package-name/some/path" where "package-name/some/path/package.json"
-  // exists at that lower path, that must be used to resolve. In that case, export
-  // maps should not be supported.
-  const [depManifestLoc, depManifest] = resolveDependencyManifest(dep, cwd);
-  if (!depManifest) {
-    try {
-      const maybeLoc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
-      return {
-        type: getWebDependencyType(maybeLoc),
-        loc: maybeLoc,
-      };
-    } catch (err) {
-      // Oh well, was worth a try
-    }
-  }
-  if (!depManifestLoc || !depManifest) {
-    throw new Error(
-      `Package "${dep}" not found. Have you installed it? ${depManifestLoc ? depManifestLoc : ''}`,
-    );
-  }
-  if (
-    depManifest.name &&
-    (depManifest.name.startsWith('@reactesm') || depManifest.name.startsWith('@pika/react'))
-  ) {
-    throw new Error(
-      `React workaround packages no longer needed! Revert back to the official React & React-DOM packages.`,
-    );
-  }
-  let foundEntrypoint: any = [
-    ...packageLookupFields,
-    'browser:module',
-    'module',
-    'main:esnext',
-    'jsnext:main',
-  ]
-    .map((e) => depManifest[e])
-    .find(Boolean);
-  if (!foundEntrypoint && !BROKEN_BROWSER_ENTRYPOINT.includes(packageName)) {
-    foundEntrypoint = depManifest.browser;
-  }
-
-  // Some packages define "browser" as an object. We'll do our best to find the
-  // right entrypoint in an entrypoint object, or fail otherwise.
-  // See: https://github.com/defunctzombie/package-browser-field-spec
-  if (typeof foundEntrypoint === 'object') {
-    foundEntrypoint =
-      foundEntrypoint[dep] ||
-      foundEntrypoint['./index.js'] ||
-      foundEntrypoint['./index'] ||
-      foundEntrypoint['index.js'] ||
-      foundEntrypoint['index'] ||
-      foundEntrypoint['./'] ||
-      foundEntrypoint['.'];
-  }
-  // If browser object is set but no relevant entrypoint is found, fall back to "main".
-  if (!foundEntrypoint) {
-    foundEntrypoint = depManifest.main;
-  }
-  // Sometimes packages don't give an entrypoint, assuming you'll fall back to "index.js".
-  if (!foundEntrypoint && fs.existsSync(path.join(depManifestLoc, '../index.js'))) {
-    foundEntrypoint = 'index.js';
-  }
-  // Some packages are types-only. If this is one of those packages, resolve with that.
-  if (!foundEntrypoint && (depManifest.types || depManifest.typings)) {
-    return {type: 'DTS', loc: undefined};
-  }
-  if (typeof foundEntrypoint !== 'string') {
-    throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
-  }
-  const loc = fs.realpathSync.native(
-    require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
-  );
   return {
-    type: getWebDependencyType(loc),
     loc,
+    type: getWebDependencyType(loc),
   };
 }
 
