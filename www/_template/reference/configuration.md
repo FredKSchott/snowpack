@@ -373,9 +373,9 @@ _Note: if you have `homepage` in your `package.json`, Snowpack will actually pic
 
 **Default**: `web_modules`
 
-Rename your the `web_modules` directory.
+Where Snowpack installs your NPM packages to in the final build.
 
-The `web_modules` directory is where Snowpack builds your `node_modules` to after converting to ESM.
+This becomes the URL they are loaded from in production.
 
 ### buildOptions.clean
 
