@@ -9,11 +9,8 @@
   "snowpack": {
     "install": [
       "dep-node-fetch-mock-pkg"
-    ],
-    "buildOptions": {
-      "minify": false
-    }
-  },
+    ]
+},
   "dependencies": {
     "dep-node-fetch-mock-pkg": "file:./packages/dep-node-fetch-mock-pkg"
   },

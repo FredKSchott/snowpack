@@ -2,8 +2,5 @@
   "mount": {
     "./src": "/_dist_"
   },
-  "buildOptions": {
-    "minify": false
-  },
   "plugins": ["./custom-optimize-plugin.js"]
 }

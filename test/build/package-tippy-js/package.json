@@ -9,11 +9,8 @@
   "snowpack": {
     "mount": {
       "./src": "/_dist_"
-    },
-    "buildOptions": {
-      "minify": false
     }
-  },
+},
   "dependencies": {
     "tippy.js": "^6.2.5"
   },

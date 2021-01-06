@@ -10,11 +10,8 @@
     "install": [
       "react",
       "react-dom"
-    ],
-    "buildOptions": {
-      "minify": false
-    }
-  },
+    ]
+},
   "dependencies": {
     "react": "16.13.1",
     "react-dom": "16.13.1"
