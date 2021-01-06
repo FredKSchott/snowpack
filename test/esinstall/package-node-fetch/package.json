@@ -10,7 +10,7 @@
     "install": [
       "dep-node-fetch-mock-pkg"
     ]
-},
+  },
   "dependencies": {
     "dep-node-fetch-mock-pkg": "file:./packages/dep-node-fetch-mock-pkg"
   },

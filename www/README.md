@@ -56,14 +56,13 @@ Example(s):
 ```
 
 #### Types
+
 The type notation we use is ???
 
 We could use Swagger
 https://swagger.io/docs/specification/data-models/data-types/
 
 Or use TypeScript notation though will people understand that?
-
-
 
 ### Code blocks
 
