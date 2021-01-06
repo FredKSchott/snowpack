@@ -139,7 +139,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       }
 
       // in dev mode, track preprocess dependencies
-      if (isDev && dependencies) {
+      if (isDev && dependencies.length) {
         dependencies.forEach((imp) => addImportsToMap(filePath, imp));
       }
 
