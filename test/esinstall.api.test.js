@@ -217,5 +217,62 @@ describe('ESInstall API', () => {
         './extras/three': './src/extras/three.js',
       });
     });
+
+    it('explodes wildcard exports with object values', () => {
+      let map = explodeExportMap(
+        {
+          '.': './entrypoint.js',
+          './extras/*': {
+            import: './src/extras/*.js',
+          },
+        },
+        {cwd: __dirname + '/esinstall/package-entrypoints/export-map-star'},
+      );
+
+      expect(map).toStrictEqual({
+        '.': './entrypoint.js',
+        './extras/one': './src/extras/one.js',
+        './extras/two': './src/extras/two.js',
+        './extras/three': './src/extras/three.js',
+      });
+    });
+
+    it('explodes trailing slash exports', () => {
+      let map = explodeExportMap(
+        {
+          '.': './entrypoint.js',
+          './extras/': './src/extras/',
+        },
+        {cwd: __dirname + '/esinstall/package-entrypoints/export-map-trailing-slash'},
+      );
+
+      expect(map).toStrictEqual({
+        '.': './entrypoint.js',
+        './extras/one.js': './src/extras/one.js',
+        './extras/other.css': './src/extras/other.css',
+        './extras/two.js': './src/extras/two.js',
+        './extras/three.js': './src/extras/three.js',
+      });
+    });
+
+    it('explodes trailing slash exports with object values', () => {
+      let map = explodeExportMap(
+        {
+          '.': './entrypoint.js',
+          './extras/': {
+            default: './src/extras/',
+          },
+        },
+        {cwd: __dirname + '/esinstall/package-entrypoints/export-map-trailing-slash'},
+      );
+
+      expect(map).toStrictEqual({
+        '.': './entrypoint.js',
+        './extras/one.js': './src/extras/one.js',
+        './extras/other.css': './src/extras/other.css',
+        './extras/two.js': './src/extras/two.js',
+        './extras/three.js': './src/extras/three.js',
+      });
+    });
   });
 });
