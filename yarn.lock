@@ -6907,6 +6907,9 @@ expect@^26.6.2:
 "export-map-star@file:./test/esinstall/package-entrypoints/export-map-star":
   version "1.2.3"
 
+"export-map-trailing-slash@file:./test/esinstall/package-entrypoints/export-map-trailing-slash":
+  version "1.2.3"
+
 extend-shallow@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/extend-shallow/-/extend-shallow-2.0.1.tgz#51af7d614ad9a9f610ea1bafbb989d6b1c56890f"

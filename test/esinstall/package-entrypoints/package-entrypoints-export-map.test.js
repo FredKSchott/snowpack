@@ -89,6 +89,33 @@ describe('package-entrypoints exports configuration', () => {
     });
   });
 
+  it('"exports" trailing slash', async () => {
+    const cwd = __dirname;
+    const dest = path.join(cwd, 'test-export-map-trailing-slash');
+    const targets = [
+      'export-map-trailing-slash',
+      'export-map-trailing-slash/extras/one.js',
+      'export-map-trailing-slash/extras/two.js',
+      'export-map-trailing-slash/extras/three.js',
+      'export-map-trailing-slash/more/one.js',
+    ];
+
+    const {
+      importMap: {imports},
+    } = await install(targets, {
+      cwd,
+      dest,
+    });
+
+    expect(imports).toStrictEqual({
+      'export-map-trailing-slash': './export-map-trailing-slash.js',
+      'export-map-trailing-slash/extras/one.js': './export-map-trailing-slash/extras/one.js',
+      'export-map-trailing-slash/extras/three.js': './export-map-trailing-slash/extras/three.js',
+      'export-map-trailing-slash/extras/two.js': './export-map-trailing-slash/extras/two.js',
+      'export-map-trailing-slash/more/one.js': './export-map-trailing-slash/more/one.js',
+    });
+  });
+
   it.skip('"exports" with arrays', async () => {
     // This should be in the "supports all of the variations" test, putting here for visibility.
     /**
@@ -99,7 +126,7 @@ describe('package-entrypoints exports configuration', () => {
      */
   });
 
-  it.only("supports preact's configuration", async () => {
+  it("supports preact's configuration", async () => {
     const cwd = __dirname;
     const dest = path.join(cwd, 'test-export-preact');
 
