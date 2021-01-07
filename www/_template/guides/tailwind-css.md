@@ -36,8 +36,8 @@ Follow our [PostCSS guide](/guides/postcss) to set up PostCSS in your Snowpack p
 module.exports = {
   plugins: [
     // ...
-    require('tailwindcss'),
-    require('autoprefixer'),
+    tailwindcss: {},
+    autoprefixer: {},
     // ...
   ],
 };
@@ -48,9 +48,10 @@ Once the plugin is enabled, you can replace your native CSS `dist` imports with 
 ```diff
 /* index.css */
 - @import 'tailwindcss/dist/tailwind.css';
-+ @import 'tailwindcss/base';
-+ @import 'tailwindcss/components';
-+ @import 'tailwindcss/utilities';
++ @tailwind base;
++ @tailwind components;
++ @tailwind utilities;
+
 ```
 
 Follow the official [Tailwind CSS Docs](https://tailwindcss.com/docs/installation/#using-tailwind-with-postcss) for more information.
