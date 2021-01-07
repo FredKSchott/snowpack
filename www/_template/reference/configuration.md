@@ -17,7 +17,7 @@ module.exports = {
 // Example: snowpack.config.js (ESM)
 // This is ESM-format config file. to enable
 // Add "type": "module" in your package.json
-export **Default** {
+export default {
   plugins: [
     /* ... */
   ],
