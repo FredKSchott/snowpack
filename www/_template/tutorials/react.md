@@ -29,7 +29,7 @@ The easiest way to start a new Snowpack project is with [Create Snowpack App](ht
 To get started, open your terminal and head to a directory where you want to put your new project. Now run the following command in your terminal to create a new directory called `react-snowpack` with the minimal template automatically installed.
 
 ```bash
-npx create-snowpack-app react-snowpack --template @snowpack/app-template-minimal
+npx create-snowpack-app react-snowpack --template @snowpack/app-template-react
 ```
 
 You can now head to the new directory and start Snowpack with the following two commands:
