@@ -212,14 +212,14 @@ const picoMatchGlobalOptions = Object.freeze({
 
 function* forEachExportEntry(
   exportField: ExportField,
-): Generator<[string, unknown], any, undefined> {
+): Generator<[string, ExportMapEntry], any, undefined> {
   const simpleExportMap = findExportMapEntry(exportField);
 
   // Handle case where export map is a string, or if there‘s only one file in the entire export map
   if (simpleExportMap) {
     yield ['.', simpleExportMap];
 
-    return;
+    return undefined;
   }
 
   for (const [key, val] of Object.entries(exportField)) {
@@ -278,7 +278,9 @@ function* forEachExportEntryExploded(
     // Deprecated but we still want to support this.
     // https://nodejs.org/api/packages.html#packages_subpath_folder_mappings
     if (key.endsWith('/')) {
-      if (typeof val !== 'string') {
+      const keyValue = findExportMapEntry(val);
+
+      if (typeof keyValue !== 'string') {
         continue;
       }
 
@@ -287,17 +289,19 @@ function* forEachExportEntryExploded(
         continue;
       }
 
-      yield* forEachWildcardEntry(key + '*', val + '*', cwd);
+      yield* forEachWildcardEntry(key + '*', keyValue + '*', cwd);
 
       continue;
     }
 
     // Wildcards https://nodejs.org/api/packages.html#packages_subpath_patterns
     if (key.includes('*')) {
-      if (typeof val !== 'string') {
+      const keyValue = findExportMapEntry(val);
+
+      if (typeof keyValue !== 'string') {
         continue;
       }
-      yield* forEachWildcardEntry(key, val, cwd);
+      yield* forEachWildcardEntry(key, keyValue, cwd);
 
       continue;
     }
