@@ -36,8 +36,8 @@ Follow our [PostCSS guide](/guides/postcss) to set up PostCSS in your Snowpack p
 module.exports = {
   plugins: [
     // ...
-    tailwindcss: {},
-    autoprefixer: {},
+    require('tailwindcss'),
+    require('autoprefixer'),
     // ...
   ],
 };
