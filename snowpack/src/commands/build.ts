@@ -463,10 +463,11 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
 
       const existedFileLoc = finalDestLocMap.get(finalDestLoc);
       if (existedFileLoc) {
-        logger.error(`Error: Two files overlap and build to the same destination: ${finalDestLoc}`);
-        logger.error(`  File 1: ${existedFileLoc}`);
-        logger.error(`  File 2: ${fileLoc}`);
-        process.exit(1);
+        const errorMessage =
+          `Error: Two files overlap and build to the same destination: ${finalDestLoc}\n` +
+          `  File 1: ${existedFileLoc}\n` +
+          `  File 2: ${fileLoc}\n`;
+        throw new Error(errorMessage);
       }
 
       const outDir = path.dirname(finalDestLoc);

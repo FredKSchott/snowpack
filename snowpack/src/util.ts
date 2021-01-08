@@ -427,10 +427,6 @@ export function removeExtension(fileName: string, oldExt: string): string {
   return replaceExtension(fileName, oldExt, '');
 }
 
-export function addExtension(fileName: string, newExt: string): string {
-  return fileName + newExt;
-}
-
 /** Add / to beginning of string (but don’t double-up) */
 export function addLeadingSlash(path: string) {
   return path.replace(/^\/?/, '/');
