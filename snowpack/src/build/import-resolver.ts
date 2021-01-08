@@ -1,7 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../types';
-import {findMatchingAliasEntry, getExtensionMatch, isRemoteUrl, replaceExtension} from '../util';
+import {
+  findMatchingAliasEntry,
+  getExtensionMatch,
+  hasExtension,
+  isRemoteUrl,
+  replaceExtension,
+} from '../util';
 import {getUrlForFile} from './file-urls';
 
 /** Perform a file disk lookup for the requested import specifier. */
@@ -24,6 +30,18 @@ function resolveSourceSpecifier(lazyFileLoc: string, config: SnowpackConfig) {
     lazyFileLoc = lazyFileLoc + trailingSlash + 'index.js';
   } else if (lazyFileStat && lazyFileStat.isFile()) {
     lazyFileLoc = lazyFileLoc;
+  } else if (hasExtension(lazyFileLoc, '.css')) {
+    lazyFileLoc = lazyFileLoc;
+  } else if (hasExtension(lazyFileLoc, '.js')) {
+    const tsWorkaroundImportFileLoc = replaceExtension(lazyFileLoc, '.js', '.ts');
+    if (getFsStat(tsWorkaroundImportFileLoc)) {
+      lazyFileLoc = tsWorkaroundImportFileLoc;
+    }
+  } else if (hasExtension(lazyFileLoc, '.jsx')) {
+    const tsWorkaroundImportFileLoc = replaceExtension(lazyFileLoc, '.jsx', '.tsx');
+    if (getFsStat(tsWorkaroundImportFileLoc)) {
+      lazyFileLoc = tsWorkaroundImportFileLoc;
+    }
   } else {
     lazyFileLoc = lazyFileLoc + '.js';
   }
@@ -46,10 +64,6 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
   return function importResolver(spec: string): string | false {
     // Ignore "http://*" imports
     if (isRemoteUrl(spec)) {
-      return spec;
-    }
-    // Ignore programatically added proxy imports
-    if (spec.endsWith('.proxy.js')) {
       return spec;
     }
     // Ignore packages marked as external

@@ -393,6 +393,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   );
 
   // normalize config URL/path values
+  config.buildOptions.out = removeTrailingSlash(config.buildOptions.out);
   config.buildOptions.baseUrl = addTrailingSlash(config.buildOptions.baseUrl);
   config.buildOptions.webModulesUrl = removeTrailingSlash(
     addLeadingSlash(config.buildOptions.webModulesUrl),

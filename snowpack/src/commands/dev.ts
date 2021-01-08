@@ -84,6 +84,7 @@ import {
   readFile,
   relativeURL,
   removeExtension,
+  replaceExtension,
   resolveDependencyManifest,
 } from '../util';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
@@ -590,9 +591,9 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       throw new NotFoundError(attemptedFileLoads);
     }
 
-    if (!isRoute) {
+    if (!isRoute && !isProxyModule) {
       const expectedUrl = getUrlForFile(foundFile.fileLoc, config);
-      if (isProxyModule ? expectedUrl + '.proxy.js' !== reqUrl : expectedUrl !== reqUrl) {
+      if (expectedUrl !== reqUrl) {
         logger.warn(`Bad Request: "${reqUrl}" should be requested as "${expectedUrl}".`);
         throw new NotFoundError([foundFile.fileLoc]);
       }
@@ -840,7 +841,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       // Handle attached CSS.
       if (requestedFileExt === '.js' && output['.css']) {
         finalResponse =
-          `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` +
+          `import '${replaceExtension(reqPath, '.js', '.css')}';\n` +
           finalResponse;
       }
       // Resolve imports.

@@ -415,7 +415,7 @@ export function getExtension(str: string) {
 }
 
 export function hasExtension(str: string, ext: string) {
-  return str.toLowerCase().endsWith(ext);
+  return new RegExp(`\\${ext}$`, 'i').test(str);
 }
 
 export function replaceExtension(fileName: string, oldExt: string, newExt: string): string {
