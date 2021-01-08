@@ -1,14 +1,15 @@
 import path from 'path';
-import { RawSourceMap, SourceMapConsumer, SourceMapGenerator } from 'source-map';
 import url from 'url';
-import { validatePluginLoadResult } from '../config';
-import { logger } from '../logger';
+import {validatePluginLoadResult} from '../config';
+import {logger} from '../logger';
 import {
-  PluginTransformResult,
   SnowpackBuildMap,
   SnowpackConfig,
+  SnowpackPlugin,
+  PluginTransformResult,
 } from '../types';
-import { getExtension, readFile, removeExtension, removeBuildExtension } from '../util';
+import {getExtension, readFile, removeExtension, replaceExtension} from '../util';
+import {SourceMapConsumer, SourceMapGenerator, RawSourceMap} from 'source-map';
 
 export interface BuildFileOptions {
   isDev: boolean;
@@ -17,21 +18,23 @@ export interface BuildFileOptions {
   config: SnowpackConfig;
 }
 
-export function getInputsFromOutput(fileLoc: string) {
+export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
   const srcFile = removeExtension(fileLoc, '.map'); // if this is a .map file, try loading source
-  return [removeBuildExtension(srcFile)];
-  // const potentialInputs = new Set([srcFile]);
-  // for (const plugin of plugins) {
-  //   if (!plugin.resolve) {
-  //     continue;
-  //   }
-  //   const matchedOutputExt = plugin.resolve.output.find((ext) => srcFile.endsWith(ext));
-  //   if (!matchedOutputExt) {
-  //     continue;
-  //   }
-  //   potentialInputs.add(removeExtension(srcFile, matchedOutputExt));
-  // }
-  // return Array.from(potentialInputs);
+
+  const potentialInputs = new Set([srcFile]);
+  for (const plugin of plugins) {
+    if (!plugin.resolve) {
+      continue;
+    }
+    const matchedOutputExt = plugin.resolve.output.find((ext) => srcFile.endsWith(ext));
+    if (!matchedOutputExt) {
+      continue;
+    }
+    plugin.resolve.input.forEach((inputExt) =>
+      potentialInputs.add(replaceExtension(srcFile, matchedOutputExt, inputExt)),
+    );
+  }
+  return Array.from(potentialInputs);
 }
 
 /**

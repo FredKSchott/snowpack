@@ -1,6 +1,6 @@
 import path from 'path';
-import { MountEntry, SnowpackConfig } from '../types';
-import { addBuildExtension, getExtensionMatch } from '../util';
+import {MountEntry, SnowpackConfig} from '../types';
+import {replaceExtension, getExtensionMatch} from '../util';
 
 /**
  * Map a file path to the hosted URL for a given "mount" entry.
@@ -26,7 +26,11 @@ export function getUrlForFileMount({
   if (!extensionMatch) {
     return mountedUrl;
   }
-  return addBuildExtension(mountedUrl, extensionMatch[1]);
+  return replaceExtension(
+    mountedUrl,
+    extensionMatch[0],
+    extensionMatch[1]
+  );
 }
 
 /**

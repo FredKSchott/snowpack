@@ -3,12 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../types';
 import {
+  addExtension,
   findMatchingAliasEntry,
   getExtensionMatch,
   getExtension,
   isRemoteUrl,
   replaceExtension,
-  addBuildExtension,
 } from '../util';
 import {getUrlForFile} from './file-urls';
 
@@ -67,7 +67,7 @@ function resolveSourceSpecifier(lazyFileLoc: string, config: SnowpackConfig) {
   const extensionMatch = getExtensionMatch(actualFileLoc, config._extensionMap);
   console.log('extensionMatch', actualFileLoc, 'X', extensionMatch);
   if (extensionMatch) {
-    actualFileLoc = addBuildExtension(actualFileLoc, extensionMatch[1]);
+    actualFileLoc = replaceExtension(actualFileLoc, extensionMatch[0], extensionMatch[1]);
   }
 
   const actualUrl = getUrlForFile(actualFileLoc, config);

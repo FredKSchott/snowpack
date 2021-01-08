@@ -4,7 +4,7 @@
   "name": "@snowpack/test-config-mount",
   "description": "Test for mount config",
   "scripts": {
-    "testbuild": "snowpack build --clean"
+    "testbuild": "snowpack build"
   },
   "snowpack": {
     "mount": {

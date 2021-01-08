@@ -427,15 +427,6 @@ export function removeExtension(fileName: string, oldExt: string): string {
   return replaceExtension(fileName, oldExt, '');
 }
 
-export function addBuildExtension(fileName: string, newExt: string): string {
-  return fileName + '~' + newExt;
-}
-
-export function removeBuildExtension(fileName: string): string {
-  return fileName.replace(/\~\..+$/, '');
-}
-
-
 export function addExtension(fileName: string, newExt: string): string {
   return fileName + newExt;
 }
