@@ -262,7 +262,7 @@ Svelte components include component specific scripts in a `<script>` tag. Add th
 
 <script>
   import { onMount } from 'svelte';
-  let count = 0;
+  let count = 0; // @hmr:keep
   onMount(() => {
     const interval = setInterval(() => count++, 1000);
     return () => {
