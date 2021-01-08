@@ -147,7 +147,7 @@ Snowpack lets you import npm packages directly in the browser. Even if a package
 
 > 💡 Tip: when you start up your development server or run a new build, you may see a message that Snowpack is "installing dependencies." This means that Snowpack is converting your dependencies to run in the browser.
 
-Install the canavas-confetti package from npm and use it with the following command:
+Install the canvas-confetti package from npm and use it with the following command:
 
 ```bash
 npm install --save canvas-confetti
