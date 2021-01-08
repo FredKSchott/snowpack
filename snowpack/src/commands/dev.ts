@@ -503,7 +503,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         };
       }
       if (!mountEntry.static) {
-        for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
+        for (const potentialSourceFile of getInputsFromOutput(requestedFile)) {
           const fileLoc = await attemptLoadFile(potentialSourceFile);
           if (fileLoc) {
             return {

@@ -3,12 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../types';
 import {
-  addExtension,
   findMatchingAliasEntry,
   getExtensionMatch,
   getExtension,
   isRemoteUrl,
   replaceExtension,
+  addBuildExtension,
 } from '../util';
 import {getUrlForFile} from './file-urls';
 
@@ -67,7 +67,7 @@ function resolveSourceSpecifier(lazyFileLoc: string, config: SnowpackConfig) {
   const extensionMatch = getExtensionMatch(actualFileLoc, config._extensionMap);
   console.log('extensionMatch', actualFileLoc, 'X', extensionMatch);
   if (extensionMatch) {
-    actualFileLoc = addExtension(actualFileLoc, extensionMatch[1]);
+    actualFileLoc = addBuildExtension(actualFileLoc, extensionMatch[1]);
   }
 
   const actualUrl = getUrlForFile(actualFileLoc, config);
@@ -89,6 +89,7 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
     if (isRemoteUrl(spec)) {
       return spec;
     }
+    // Ignore programatically added proxy imports
     if (spec.endsWith('.proxy.js')) {
       return spec;
     }
@@ -96,19 +97,12 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
     if (config.installOptions.externalPackage?.includes(spec)) {
       return spec;
     }
-    console.log('GO', spec);
     if (spec.startsWith('/')) {
-      // TODO: Throw or ignore?
-      // const importStats = getImportStats(path.resolve(config.root, spec.substr(1)));
-      // return resolveSourceSpecifier(spec, importStats, config);
       return spec;
     }
     if (spec.startsWith('./') || spec.startsWith('../')) {
       const importedFileLoc = path.resolve(path.dirname(fileLoc), spec);
-      // const newSpec = getUrlForFile(trueImportedFileLoc, config) || spec;
       return resolveSourceSpecifier(importedFileLoc, config);
-      // get TRUE importedFileLoc: handle directories, TS -> JS, etc.
-      // return resolveSourceSpecifier(newSpec, config);
     }
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && (aliasEntry.type === 'path' || aliasEntry.type === 'url')) {
@@ -119,10 +113,6 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
       }
       const importedFileLoc = path.resolve(config.root, result);
       return resolveSourceSpecifier(importedFileLoc, config);
-      // const trueImportedFileLoc = resolveFileImport(importedFileLoc);
-      // const importStats = getImportStats(importedFileLoc);
-      // get TRUE importedFileLoc: handle directories, TS -> JS, etc.
-      // return resolveSourceSpecifier(newSpec, importStats, config);
     }
     return false;
   };

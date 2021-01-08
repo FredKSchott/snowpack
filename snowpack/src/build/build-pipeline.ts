@@ -7,9 +7,8 @@ import {
   PluginTransformResult,
   SnowpackBuildMap,
   SnowpackConfig,
-  SnowpackPlugin
 } from '../types';
-import { getExtension, readFile, removeExtension } from '../util';
+import { getExtension, readFile, removeExtension, removeBuildExtension } from '../util';
 
 export interface BuildFileOptions {
   isDev: boolean;
@@ -18,21 +17,21 @@ export interface BuildFileOptions {
   config: SnowpackConfig;
 }
 
-export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) {
+export function getInputsFromOutput(fileLoc: string) {
   const srcFile = removeExtension(fileLoc, '.map'); // if this is a .map file, try loading source
-
-  const potentialInputs = new Set([srcFile]);
-  for (const plugin of plugins) {
-    if (!plugin.resolve) {
-      continue;
-    }
-    const matchedOutputExt = plugin.resolve.output.find((ext) => srcFile.endsWith(ext));
-    if (!matchedOutputExt) {
-      continue;
-    }
-    potentialInputs.add(removeExtension(srcFile, matchedOutputExt));
-  }
-  return Array.from(potentialInputs);
+  return [removeBuildExtension(srcFile)];
+  // const potentialInputs = new Set([srcFile]);
+  // for (const plugin of plugins) {
+  //   if (!plugin.resolve) {
+  //     continue;
+  //   }
+  //   const matchedOutputExt = plugin.resolve.output.find((ext) => srcFile.endsWith(ext));
+  //   if (!matchedOutputExt) {
+  //     continue;
+  //   }
+  //   potentialInputs.add(removeExtension(srcFile, matchedOutputExt));
+  // }
+  // return Array.from(potentialInputs);
 }
 
 /**
