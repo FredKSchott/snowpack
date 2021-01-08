@@ -34,7 +34,6 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
     plugin.resolve.input.forEach((inputExt) =>
     potentialInputs.add(isHubExt ? removeExtension(srcFile, matchedOutputExt) : replaceExtension(srcFile, matchedOutputExt, inputExt)),
     );
-    console.log(fileLoc, isHubExt, plugin.resolve, potentialInputs);
   }
   return Array.from(potentialInputs);
 }
