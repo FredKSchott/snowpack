@@ -244,7 +244,7 @@ export function expandCliFlags(flags: CLIFlags): SnowpackUserConfig {
 /** load and normalize plugins from config */
 function loadPlugins(
   config: SnowpackConfig,
-): {plugins: SnowpackPlugin[]; extensionMap: Record<string, string>} {
+): {plugins: SnowpackPlugin[]; extensionMap: Record<string, string[]>} {
   const plugins: SnowpackPlugin[] = [];
 
   function execPluginFactory(pluginFactory: any, pluginOptions: any = {}): SnowpackPlugin {
@@ -309,11 +309,11 @@ function loadPlugins(
   const extensionMap = plugins.reduce((map, {resolve}) => {
     if (resolve) {
       for (const inputExt of resolve.input) {
-        map[inputExt] = resolve.output[0];
+        map[inputExt] = resolve.output;
       }
     }
     return map;
-  }, {} as Record<string, string>);
+  }, {} as Record<string, string[]>);
 
   return {
     plugins,

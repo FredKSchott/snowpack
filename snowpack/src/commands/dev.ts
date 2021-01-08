@@ -840,9 +840,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       let finalResponse = code;
       // Handle attached CSS.
       if (requestedFileExt === '.js' && output['.css']) {
-        finalResponse =
-          `import '${replaceExtension(reqPath, '.js', '.css')}';\n` +
-          finalResponse;
+        finalResponse = `import '${replaceExtension(reqPath, '.js', '.css')}';\n` + finalResponse;
       }
       // Resolve imports.
       if (

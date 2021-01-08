@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../types';
 import {
+  addExtension,
   findMatchingAliasEntry,
   getExtensionMatch,
   hasExtension,
@@ -48,9 +49,15 @@ function resolveSourceSpecifier(lazyFileLoc: string, config: SnowpackConfig) {
 
   // Transform the file extension (from input to output)
   const extensionMatch = getExtensionMatch(lazyFileLoc, config._extensionMap);
+
   if (extensionMatch) {
-    lazyFileLoc = replaceExtension(lazyFileLoc, extensionMatch[0], extensionMatch[1]);
+  const [inputExt, outputExts] = extensionMatch;
+  if (outputExts.length > 1) {
+    lazyFileLoc = addExtension(lazyFileLoc, outputExts[0]);
+  } else {
+    lazyFileLoc = replaceExtension(lazyFileLoc, inputExt, outputExts[0]);
   }
+}
 
   return getUrlForFile(lazyFileLoc, config);
 }

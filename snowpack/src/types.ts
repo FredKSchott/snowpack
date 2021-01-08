@@ -241,7 +241,7 @@ export interface SnowpackConfig {
     /** (EXPERIMENTAL) Configure routes during development. */
     routes: RouteConfigObject[];
   };
-  _extensionMap: Record<string, string>;
+  _extensionMap: Record<string, string[]>;
 }
 
 export type SnowpackUserConfig = {

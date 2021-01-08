@@ -11,15 +11,19 @@ import sort___ from '@/sort'; // bare import using alias with trailing slash
 import sort____ from '@sort'; // bare import using file alias
 console.log(sort, sort_, sort__, sort___, sort____);
 
-// Importing a plugin-supported file
-import svelteFile from './foo.svelte'; // plugin-provided file extension
-import svelteFile_ from './foo'; // plugin-provided, missing file extension
-console.log(svelteFile, svelteFile_);
+// Importing a 1:1 built file
+import oneToOneBuild from './test-mjs.mjs'; // plugin-provided file extension
+import oneToOneBuild_ from './test-mjs'; // plugin-provided, missing file extension
+console.log(oneToOneBuild, oneToOneBuild_);
+
+// Importing a 1:N built file
+import oneToManyBuild from './foo.svelte'; // plugin-provided file extension
+console.log(oneToManyBuild);
 
 // Importing an absolute URL: we don't touch these
 import absoluteUrl from '/_dist_/sort.js'; // absolute import
 import absoluteUrl_ from '/foo.svelte'; // absolute URL, plugin-provided file extension
-import absoluteUrl__ from '/foo'; // absolute URL, missing file extension
+import absoluteUrl__ from '/test-mjs'; // absolute URL, missing file extension
 console.log(absoluteUrl, absoluteUrl_, absoluteUrl__);
 
 

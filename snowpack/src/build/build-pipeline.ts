@@ -26,13 +26,15 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
     if (!plugin.resolve) {
       continue;
     }
+    const isHubExt = plugin.resolve.output.length > 1;
     const matchedOutputExt = plugin.resolve.output.find((ext) => srcFile.endsWith(ext));
     if (!matchedOutputExt) {
       continue;
     }
     plugin.resolve.input.forEach((inputExt) =>
-      potentialInputs.add(replaceExtension(srcFile, matchedOutputExt, inputExt)),
+    potentialInputs.add(isHubExt ? removeExtension(srcFile, matchedOutputExt) : replaceExtension(srcFile, matchedOutputExt, inputExt)),
     );
+    console.log(fileLoc, isHubExt, plugin.resolve, potentialInputs);
   }
   return Array.from(potentialInputs);
 }
