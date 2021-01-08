@@ -1,14 +1,6 @@
 {
-  "snowpack": {
-    "devOptions": {
-      "open": "none"
-    },
-    "mount": {
-      "public": "/",
-      "src": "/_dist_"
-    }
-  },
   "dependencies": {
+    "@snowpack/plugin-build-script": "^2.0.7",
     "canvas-confetti": "^1.2.0",
     "snowpack": "^2.14.3"
   }

@@ -1,5 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`snowpack dev smoke: about 1`] = `
+"<!DOCTYPE html>
+<html>
+  <head><script type=\\"module\\" integrity=\\"sha384-ZsG+E+8Q6Yh0v98Nd0SfOT1bOX82TJaNaBS1npTZYuq4oD09c6rDD2R9pXqMvter\\" src=\\"/__snowpack__/hmr-client.js\\"></script><script type=\\"module\\" integrity=\\"sha384-LH/mFhEGRB4jHedP0nqOoIUwc4VX8eWJxEL+qTGWtroqiLJ2vxX169J0oSBMHL5o\\" src=\\"/__snowpack__/hmr-error-overlay.js\\"></script></head>
+  <body>
+    <p>this is a template in some language that builds to .html</p>
+  </body>
+</html>"
+`;
+
 exports[`snowpack dev smoke: html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">

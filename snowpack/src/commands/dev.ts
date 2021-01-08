@@ -63,6 +63,7 @@ import {matchDynamicImportValue} from '../scan-imports';
 import {
   CommandOptions,
   LoadResult,
+  MountEntry,
   OnFileChangeCallback,
   RouteConfigObject,
   SnowpackBuildMap,
@@ -489,6 +490,33 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     let responseFileExt = requestedFileExt;
     let isRoute = !requestedFileExt || requestedFileExt === '.html';
 
+    async function getFileFromMount(
+      requestedFile: string,
+      mountEntry: MountEntry,
+    ): Promise<FoundFile | null> {
+      const fileLocExact = await attemptLoadFile(requestedFile);
+      if (fileLocExact) {
+        return {
+          fileLoc: fileLocExact,
+          isStatic: mountEntry.static,
+          isResolve: mountEntry.resolve,
+        };
+      }
+      if (!mountEntry.static) {
+        for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
+          const fileLoc = await attemptLoadFile(potentialSourceFile);
+          if (fileLoc) {
+            return {
+              fileLoc,
+              isStatic: mountEntry.static,
+              isResolve: mountEntry.resolve,
+            };
+          }
+        }
+      }
+      return null;
+    }
+
     async function getFileFromUrl(reqPath: string): Promise<FoundFile | null> {
       for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
         let requestedFile: string;
@@ -499,21 +527,10 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         } else {
           continue;
         }
-        const fileLocExact = await attemptLoadFile(requestedFile);
-        if (fileLocExact) {
-          return {
-            fileLoc: fileLocExact,
-            isStatic: mountEntry.static,
-            isResolve: mountEntry.resolve,
-          };
-        }
-        if (!mountEntry.static) {
-          for (const potentialSourceFile of getInputsFromOutput(requestedFile, config.plugins)) {
-            const fileLoc = await attemptLoadFile(potentialSourceFile);
-            if (fileLoc) {
-              return {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
-            }
-          }
+
+        const file = await getFileFromMount(requestedFile, mountEntry);
+        if (file) {
+          return file;
         }
       }
       return null;
@@ -529,14 +546,14 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         } else {
           continue;
         }
-        let fileLoc =
-          (await attemptLoadFile(requestedFile + '.html')) ||
-          (await attemptLoadFile(requestedFile + 'index.html')) ||
-          (await attemptLoadFile(requestedFile + '/index.html'));
-        if (fileLoc) {
+        const file =
+          (await getFileFromMount(requestedFile + '.html', mountEntry)) ||
+          (await getFileFromMount(requestedFile + 'index.html', mountEntry)) ||
+          (await getFileFromMount(requestedFile + '/index.html', mountEntry));
+        if (file) {
           requestedFileExt = '.html';
           responseFileExt = '.html';
-          return {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
+          return file;
         }
       }
       return null;
@@ -551,11 +568,11 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
           continue;
         }
         const fallbackFile = path.join(mountKey, config.devOptions.fallback);
-        const fileLoc = await attemptLoadFile(fallbackFile);
-        if (fileLoc) {
+        const file = await getFileFromMount(fallbackFile, mountEntry);
+        if (file) {
           requestedFileExt = '.html';
           responseFileExt = '.html';
-          return {fileLoc, isStatic: mountEntry.static, isResolve: mountEntry.resolve};
+          return file;
         }
       }
       return null;
