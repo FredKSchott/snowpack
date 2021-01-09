@@ -7,12 +7,16 @@ export interface ESMRuntimeConfig {
   load: (id: string) => Promise<{contents: string}>;
 }
 export interface ESMRuntime {
-  importModule: (id: string) => Promise<any>;
+  importModule: <T = any>(id: string) => Promise<ESMRuntimeModule<T>>;
   invalidateModule: (id: string) => void;
 }
 
-// This function makes it possible to load modules from the 'server'
-// snowpack server, for the sake of SSR
+export interface ESMRuntimeModule<T> {
+    exports: T,
+    css: string[],
+}
+
+// This function makes it possible to load modules from the snowpack server, for the sake of SSR.
 export function createRuntime({load}: ESMRuntimeConfig): ESMRuntime {
   const cache = new Map();
   const graph = new Map();
@@ -56,7 +60,7 @@ export function createRuntime({load}: ESMRuntimeConfig): ESMRuntime {
     const {code, deps, css, names} = transform(loaded.contents);
 
     const exports = {};
-    const all_css = new Set(css.map((relative) => resolve(url, relative)));
+    const allCss = new Set(css.map((relative) => resolve(url, relative)));
 
     const args = [
       {
@@ -104,7 +108,7 @@ export function createRuntime({load}: ESMRuntimeConfig): ESMRuntime {
       ...(await Promise.all(
         deps.map(async (dep) => {
           const module = await getModule(url, dep.source, urlStack);
-          module.css.forEach((dep) => all_css.add(dep));
+          module.css.forEach((dep) => allCss.add(dep));
 
           return {
             name: dep.name,
@@ -138,7 +142,7 @@ export function createRuntime({load}: ESMRuntimeConfig): ESMRuntime {
 
     return {
       exports,
-      css: Array.from(all_css),
+      css: Array.from(allCss),
     };
   }
 

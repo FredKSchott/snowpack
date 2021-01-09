@@ -1386,8 +1386,8 @@ export async function command(commandOptions: CommandOptions) {
 
 
 
-// TODO: Document
 /*
+TODO: Document as how to use on www.snowpack.dev docs
 
 import {createRuntime, ESMRuntime} from 'esm-runtime';
 
