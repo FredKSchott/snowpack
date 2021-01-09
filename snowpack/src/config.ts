@@ -63,14 +63,14 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   testOptions: {
     files: ['__tests__/**/*', '**/*.@(spec|test).*'],
   },
-  packages: {source: 'local'},
+  packageOptions: {source: 'local'},
   experiments: {
     routes: [],
     ssr: false,
   },
 };
 
-const DEFAULT_PACKAGES_LOCAL_USER_CONFIG: PackageSourceLocal = {
+const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageSourceLocal = {
   source: 'local',
 };
 
@@ -413,18 +413,6 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
     removeTrailingSlash(config.buildOptions.metaDir),
   );
 
-  // normalize "packages" values
-  if (_config.packages === 'skypack' || _config.packages === 'skypack') {
-    config.packages = merge<PackageSourceSkypack>([
-      DEFAULT_PACKAGES_SKYPACK_CONFIG,
-      _config.packages === 'skypack' ? {} : (_config.packages as PackageSourceSkypack),
-    ]);
-    config.packages.cache = path.resolve(config.root, config.packages.cache);
-  }
-  if (_config.packages === 'local' || _config.packages === 'local') {
-    config.packages = DEFAULT_PACKAGES_LOCAL_USER_CONFIG;
-  }
-
   config.mount = normalizeMount(config);
   config.experiments.routes = normalizeRoutes(config.experiments.routes);
   if (config.experiments.optimize) {
@@ -594,6 +582,9 @@ function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): 
   if (config.installOptions?.cwd) {
     config.installOptions.cwd = path.resolve(configBase, config.installOptions.cwd);
   }
+  if (config.packageOptions?.source === 'skypack' && config.packageOptions.cache) {
+    config.packageOptions.cache = path.resolve(configBase, config.packageOptions.cache);
+  }
   if (config.extends) {
     config.extends = path.resolve(configBase, config.extends);
   }
@@ -614,7 +605,6 @@ function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): 
   if (config.alias) {
     config.alias = resolveRelativeConfigAlias(config.alias, configBase);
   }
-
   return config;
 }
 
@@ -636,9 +626,21 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
   // Inherit any undefined values from the default configuration. If no config argument
   // was passed (or no configuration file found in loadConfiguration) then this function
   // will effectively return a copy of the DEFAULT_CONFIG object.
-  const mergedConfig = merge<SnowpackUserConfig>([DEFAULT_CONFIG, config], {
-    isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
-  });
+  const mergedConfig = merge<SnowpackUserConfig>(
+    [
+      DEFAULT_CONFIG,
+      {
+        packageOptions:
+          config.packageOptions?.source === 'skypack'
+            ? DEFAULT_PACKAGES_SKYPACK_CONFIG
+            : DEFAULT_PACKAGES_LOCAL_CONFIG,
+      },
+      config,
+    ],
+    {
+      isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
+    },
+  );
   // Resolve relative config values. If using loadConfiguration, all config values should
   // already be resolved relative to the config file path so that this should be a no-op.
   // But, we still need to run it in case you called this function directly.

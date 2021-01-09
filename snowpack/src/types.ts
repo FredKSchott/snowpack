@@ -201,6 +201,7 @@ export interface PackageSourceSkypack {
   cache: string;
   types: boolean;
 }
+
 // interface this library uses internally
 export interface SnowpackConfig {
   root: string;
@@ -211,7 +212,6 @@ export interface SnowpackConfig {
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   plugins: SnowpackPlugin[];
-  packages: PackageSourceLocal | PackageSourceSkypack;
   devOptions: {
     secure: boolean;
     hostname: string;
@@ -237,6 +237,7 @@ export interface SnowpackConfig {
     jsxFactory: string | undefined;
     jsxFragment: string | undefined;
   };
+  packageOptions: PackageSourceLocal | PackageSourceSkypack;
   testOptions: {
     files: string[];
   };
@@ -264,7 +265,7 @@ export type SnowpackUserConfig = {
   installOptions?: Partial<SnowpackConfig['installOptions']>;
   buildOptions?: Partial<SnowpackConfig['buildOptions']>;
   testOptions?: Partial<SnowpackConfig['testOptions']>;
-  packages?: 'local' | 'skypack' | Partial<SnowpackConfig['packages']>;
+  packageOptions?: Partial<SnowpackConfig['packageOptions']>;
   experiments?: {
     ssr?: SnowpackConfig['experiments']['ssr'];
     optimize?: Partial<SnowpackConfig['experiments']['optimize']>;
