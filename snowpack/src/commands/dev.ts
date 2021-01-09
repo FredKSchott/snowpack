@@ -26,6 +26,7 @@
 
 import cacache from 'cacache';
 import isCompressible from 'compressible';
+import {createLoader as createSSRLoader, SSRLoader} from '../ssr-loader';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, promises as fs, statSync} from 'fs';
@@ -242,6 +243,24 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
   });
   sendResponseError(req, res, 500);
   return;
+}
+
+function getSSRLoader(
+  sp: SnowpackDevServer,
+  options: {invalidateOnChange?: boolean} = {},
+): SSRLoader {
+  const runtime = createSSRLoader({
+    load: (url) => sp.loadUrl(url, {isSSR: true, allowStale: false, encoding: 'utf8'}),
+  });
+  if (options.invalidateOnChange !== false) {
+    sp.onFileChange(({filePath}) => {
+      const url = sp.getUrlForFile(filePath);
+      if (url) {
+        runtime.invalidateModule(url);
+      }
+    });
+  }
+  return runtime;
 }
 
 export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
@@ -1365,6 +1384,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     sendResponseError,
     getUrlForFile: (fileLoc: string) => getUrlForFile(fileLoc, config),
     onFileChange: (callback) => (onFileChangeCallback = callback),
+    getSSRLoader: (options) => getSSRLoader(sp, options),
     async shutdown() {
       await watcher.close();
       server.close();
@@ -1383,30 +1403,3 @@ export async function command(commandOptions: CommandOptions) {
   }
   return new Promise(() => {});
 }
-
-
-
-/*
-TODO: Document as how to use on www.snowpack.dev docs
-
-import {createRuntime, ESMRuntime} from 'esm-runtime';
-
-
-function createServerRuntime(
-  sp: SnowpackDevServer,
-  options: {invalidateOnChange?: boolean} = {},
-): ESMRuntime {
-  const runtime = createRuntime({
-    load: (url) => sp.loadUrl(url, {isSSR: true, allowStale: false, encoding: 'utf8'}),
-  });
-  if (options.invalidateOnChange !== false) {
-    sp.onFileChange(({filePath}) => {
-      const url = sp.getUrlForFile(filePath);
-      if (url) {
-        runtime.invalidateModule(url);
-      }
-    });
-  }
-  return runtime;
-}
-*/

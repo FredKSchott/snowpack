@@ -3,12 +3,12 @@ import {resolve} from 'url';
 import {sourcemap_stacktrace} from './sourcemaps';
 import {transform} from './transform';
 
-export interface ESMRuntimeConfig {
-  load: (id: string) => Promise<{contents: string}>;
+export interface SSRLoaderConfig {
+  load: (url: string) => Promise<{contents: string}>;
 }
-export interface ESMRuntime {
-  importModule: <T = any>(id: string) => Promise<ESMRuntimeModule<T>>;
-  invalidateModule: (id: string) => void;
+export interface SSRLoader {
+  importModule: <T = any>(url: string) => Promise<ESMRuntimeModule<T>>;
+  invalidateModule: (url: string) => void;
 }
 
 export interface ESMRuntimeModule<T> {
@@ -17,7 +17,7 @@ export interface ESMRuntimeModule<T> {
 }
 
 // This function makes it possible to load modules from the snowpack server, for the sake of SSR.
-export function createRuntime({load}: ESMRuntimeConfig): ESMRuntime {
+export function createLoader({load}: SSRLoaderConfig): SSRLoader {
   const cache = new Map();
   const graph = new Map();
 
