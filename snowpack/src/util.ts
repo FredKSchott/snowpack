@@ -1,9 +1,7 @@
 import cacache from 'cacache';
 import globalCacheDir from 'cachedir';
-import crypto from 'crypto';
 import etag from 'etag';
 import execa from 'execa';
-import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import fs from 'fs';
 import {isBinaryFile} from 'isbinaryfile';
@@ -11,7 +9,6 @@ import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
-import {clearCache as clearSkypackCache} from 'skypack';
 import url from 'url';
 import localPackageSource from './sources/local';
 import skypackPackageSource from './sources/skypack';
@@ -28,18 +25,6 @@ export const NATIVE_REQUIRE = eval('require');
 // At that point, bump the version in the cache name to create a new unique
 // cache name.
 export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-2.7');
-
-export const PROJECT_CACHE_DIR =
-  projectCacheDir({name: 'snowpack'}) ||
-  // If `projectCacheDir()` is null, no node_modules directory exists.
-  // Use the current path (hashed) to create a cache entry in the global cache instead.
-  // Because this is specifically for dependencies, this fallback should rarely be used.
-  path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
-
-export const DEV_DEPENDENCIES_DIR = path.join(
-  PROJECT_CACHE_DIR,
-  process.env.NODE_ENV || 'development',
-);
 const LOCKFILE_HASH_FILE = '.hash';
 
 // NOTE(fks): Must match empty script elements to work properly.
@@ -290,9 +275,9 @@ export async function updateLockfileHash(dir: string) {
 
 export async function clearCache() {
   return Promise.all([
-    clearSkypackCache(),
     cacache.rm.all(BUILD_CACHE),
-    rimraf.sync(PROJECT_CACHE_DIR),
+    localPackageSource.clearCache(),
+    skypackPackageSource.clearCache(),
   ]);
 }
 
@@ -408,6 +393,11 @@ export function appendHtmlToHead(doc: string, htmlToAdd: string) {
     throw new Error(`Multiple <head> tags found in HTML (perhaps commented out?):\n${doc}`);
   }
   return doc.replace(closingHeadMatch[0], htmlToAdd + closingHeadMatch[0]);
+}
+
+export function isJavaScript(pathname: string): boolean {
+  const ext = path.extname(pathname).toLowerCase();
+  return ext === '.js' || ext === '.mjs' || ext === '.cjs';
 }
 
 export function getExtension(str: string) {

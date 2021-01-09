@@ -1,4 +1,9 @@
+import mkdirp from 'mkdirp';
 import cacache from 'cacache';
+import path from 'path';
+import tar from 'tar';
+import fs from 'fs';
+import url from 'url';
 import got, {Response} from 'got';
 import {IncomingHttpHeaders} from 'http';
 import {ImportMap, RESOURCE_CACHE, SKYPACK_ORIGIN, HAS_CDN_HASH_REGEX} from './util';
@@ -74,7 +79,7 @@ export async function fetchCDN(
   resourceUrl: string,
   userAgent?: string,
 ): Promise<{
-  body: string;
+  body: Buffer;
   headers: IncomingHttpHeaders;
   statusCode: number;
   isCached: boolean;
@@ -92,18 +97,19 @@ export async function fetchCDN(
       return {
         isCached: true,
         isStale: false,
-        body: cachedResult.data.toString(),
+        body: cachedResult.data,
         headers: cachedResultMetadata.headers,
         statusCode: cachedResultMetadata.statusCode,
       };
     }
   }
 
-  let freshResult: Response<string>;
+  let freshResult: Response<Buffer>;
   try {
     freshResult = await got(resourceUrl, {
       headers: {'user-agent': userAgent || `skypack/v0.0.1`},
       throwHttpErrors: false,
+      responseType: 'buffer',
     });
   } catch (err) {
     if (cachedResult) {
@@ -111,7 +117,7 @@ export async function fetchCDN(
       return {
         isCached: true,
         isStale: true,
-        body: cachedResult.data.toString(),
+        body: cachedResult.data,
         headers: cachedResultMetadata.headers,
         statusCode: cachedResultMetadata.statusCode,
       };
@@ -136,7 +142,7 @@ export async function fetchCDN(
   }
 
   return {
-    body: freshResult.body as string,
+    body: freshResult.body,
     headers: freshResult.headers,
     statusCode: freshResult.statusCode,
     isCached: false,
@@ -176,7 +182,7 @@ export type LookupBySpecifierResponse =
   | {error: Error}
   | {
       error: null;
-      body: string;
+      body: Buffer;
       isCached: boolean;
       isStale: boolean;
       importStatus: string;
@@ -188,17 +194,19 @@ export type LookupBySpecifierResponse =
 export async function lookupBySpecifier(
   spec: string,
   semverString?: string,
+  qs?: string,
   userAgent?: string,
 ): Promise<LookupBySpecifierResponse> {
   const [packageName, packagePath] = parseRawPackageImport(spec);
   const lookupUrl =
     `/${packageName}` +
     (semverString ? `@${semverString}` : ``) +
-    (packagePath ? `/${packagePath}` : ``);
+    (packagePath ? `/${packagePath}` : ``) +
+    (qs ? `?${qs}` : ``);
   try {
     const {body, statusCode, headers, isCached, isStale} = await fetchCDN(lookupUrl, userAgent);
     if (statusCode !== 200) {
-      return {error: new Error(body)};
+      return {error: new Error(body.toString())};
     }
     return {
       error: null,
@@ -216,5 +224,55 @@ export async function lookupBySpecifier(
 }
 
 export async function clearCache() {
-  return Promise.all([cacache.rm.all(RESOURCE_CACHE)]);
+  return cacache.rm.all(RESOURCE_CACHE);
+}
+
+export async function installTypes(
+  spec: string,
+  semverString?: string,
+  dir?: string) {
+  dir = dir || path.join(process.cwd(), '.types');
+  const lookupResult = await lookupBySpecifier(spec, semverString, 'dts');
+  if (lookupResult.error) {
+    throw lookupResult.error;
+  }
+  if (!lookupResult.typesUrl) {
+    throw new Error(`Skypack CDN: No types found "${spec}"`);
+  }
+
+  const typesTarballUrl = lookupResult.typesUrl.replace(/(mode=types.*?)\/.*/, '$1/all.tgz');
+
+  await mkdirp(dir);
+  const tempDir = await cacache.tmp.mkdir(RESOURCE_CACHE);
+
+    let tarballContents: Buffer;
+    const cachedTarball = await cacache
+      .get(RESOURCE_CACHE, typesTarballUrl)
+      .catch((/* ignore */) => null);
+    if (cachedTarball) {
+      tarballContents = cachedTarball.data;
+    } else {
+      const tarballResponse = await fetchCDN(typesTarballUrl);
+      if (tarballResponse.statusCode !== 200) {
+        throw new Error(tarballResponse.body.toString());
+      }
+      tarballContents = (tarballResponse.body as any) as Buffer;
+      await cacache.put(RESOURCE_CACHE, typesTarballUrl, tarballContents);
+    }
+
+    const typesUrlParts = url.parse(typesTarballUrl).pathname!.split('/');
+    const typesPackageName = url.parse(typesTarballUrl).pathname!.startsWith('/-/@')
+      ? typesUrlParts[2] + '/' + typesUrlParts[3].split('@')[0]
+      : typesUrlParts[2].split('@')[0];
+    const typesPackageTarLoc = path.join(tempDir, `${typesPackageName}.tgz`);
+    if (typesPackageName.includes('/')) {
+      await mkdirp(path.dirname(typesPackageTarLoc));
+    }
+    fs.writeFileSync(typesPackageTarLoc, tarballContents);
+    const typesPackageLoc = path.join(dir, typesPackageName);
+    await mkdirp(typesPackageLoc);
+    await tar.x({
+      file: typesPackageTarLoc,
+      cwd: typesPackageLoc,
+    });
 }

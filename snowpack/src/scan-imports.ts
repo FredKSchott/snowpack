@@ -40,6 +40,24 @@ function createInstallTarget(specifier: string, all = true): InstallTarget {
   };
 }
 
+export async function getInstallTargets(
+  config: SnowpackConfig,
+  scannedFiles?: SnowpackSourceFile[],
+) {
+  const {knownEntrypoints} = config;
+  let installTargets: InstallTarget[] = [];
+  if (knownEntrypoints) {
+    installTargets.push(...scanDepList(knownEntrypoints, config.root));
+  }
+  // TODO: remove this if block; move logic inside scanImports
+  if (scannedFiles) {
+    installTargets.push(...(await scanImportsFromFiles(scannedFiles, config)));
+  } else {
+    installTargets.push(...(await scanImports(process.env.NODE_ENV === 'test', config)));
+  }
+  return installTargets;
+}
+
 export function matchDynamicImportValue(importStatement: string) {
   const matched = stripComments(importStatement).match(/^\s*('([^']+)'|"([^"]+)")\s*$/m);
   return matched?.[2] || matched?.[3] || null;

@@ -271,7 +271,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   const {port: defaultPort, hostname, open} = config.devOptions;
   const messageBus = new EventEmitter();
   const port = await getPort(defaultPort);
-  const pkgSource = getPackageSource(config.experiments.source);
+  const pkgSource = getPackageSource(config.packageOptions.source);
 
   // Reset the clock if we had to wait for the user prompt to select a new port.
   if (port !== defaultPort) {

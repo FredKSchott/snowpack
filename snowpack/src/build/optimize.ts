@@ -12,7 +12,6 @@ import {
   hasExtension,
   isRemoteUrl,
   isTruthy,
-  PROJECT_CACHE_DIR,
   removeLeadingSlash,
   removeTrailingSlash,
   deleteFromBuildSafe,
@@ -46,7 +45,7 @@ interface ScannedHtmlEntrypoint {
 // We want to output our bundled build directly into our build directory, but esbuild
 // has a bug where it complains about overwriting source files even when write: false.
 // We create a fake bundle directory for now. Nothing ever actually gets written here.
-const FAKE_BUILD_DIRECTORY = path.join(PROJECT_CACHE_DIR, '~~bundle~~');
+const FAKE_BUILD_DIRECTORY = path.join(process.cwd(), '~~bundle~~');
 const FAKE_BUILD_DIRECTORY_REGEX = /.*\~\~bundle\~\~[\\\/]/;
 /**
  * Scan a directory and remove any empty folders, recursively.

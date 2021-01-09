@@ -10,6 +10,8 @@ import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
   CLIFlags,
   MountEntry,
+  PackageSourceLocal,
+  PackageSourceSkypack,
   PluginLoadResult,
   RouteConfigObject,
   SnowpackConfig,
@@ -61,11 +63,21 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   testOptions: {
     files: ['__tests__/**/*', '**/*.@(spec|test).*'],
   },
+  packageOptions: {source: 'local'},
   experiments: {
-    source: 'local',
     routes: [],
     ssr: false,
   },
+};
+
+const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageSourceLocal = {
+  source: 'local',
+};
+
+const DEFAULT_PACKAGES_SKYPACK_CONFIG: PackageSourceSkypack = {
+  source: 'skypack',
+  cache: '.snowpack',
+  types: false,
 };
 
 const configSchema = {
@@ -185,6 +197,7 @@ const configSchema = {
  */
 export function expandCliFlags(flags: CLIFlags): SnowpackUserConfig {
   const result = {
+    packageOptions: {} as any,
     installOptions: {} as any,
     devOptions: {} as any,
     buildOptions: {} as any,
@@ -202,10 +215,8 @@ export function expandCliFlags(flags: CLIFlags): SnowpackUserConfig {
       result[flag] = val;
       continue;
     }
-    // Special: we moved `devOptions.out` -> `buildOptions.out`.
-    // Handle that flag special here, to prevent risk of undefined matching.
-    if (flag === 'out') {
-      result.buildOptions['out'] = val;
+    if (flag === 'source') {
+      result.packageOptions = {source: val};
       continue;
     }
     if (configSchema.properties.experiments.properties[flag]) {
@@ -461,6 +472,9 @@ function valdiateDeprecatedConfig(rawConfig: any) {
   if (rawConfig.proxy) {
     handleDeprecatedConfigError('[v3.0] Legacy "proxy" config is deprecated in favor of "routes".');
   }
+  if (rawConfig.experiments?.source) {
+    handleDeprecatedConfigError('[v3.0] "config.experiments.source" is now "config.packageOptions".');
+  }
 }
 
 function validatePlugin(plugin: SnowpackPlugin) {
@@ -568,6 +582,9 @@ function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): 
   if (config.installOptions?.cwd) {
     config.installOptions.cwd = path.resolve(configBase, config.installOptions.cwd);
   }
+  if (config.packageOptions?.source === 'skypack' && config.packageOptions.cache) {
+    config.packageOptions.cache = path.resolve(configBase, config.packageOptions.cache);
+  }
   if (config.extends) {
     config.extends = path.resolve(configBase, config.extends);
   }
@@ -588,7 +605,6 @@ function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): 
   if (config.alias) {
     config.alias = resolveRelativeConfigAlias(config.alias, configBase);
   }
-
   return config;
 }
 
@@ -610,9 +626,21 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
   // Inherit any undefined values from the default configuration. If no config argument
   // was passed (or no configuration file found in loadConfiguration) then this function
   // will effectively return a copy of the DEFAULT_CONFIG object.
-  const mergedConfig = merge<SnowpackUserConfig>([DEFAULT_CONFIG, config], {
-    isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
-  });
+  const mergedConfig = merge<SnowpackUserConfig>(
+    [
+      DEFAULT_CONFIG,
+      {
+        packageOptions:
+          config.packageOptions?.source === 'skypack'
+            ? DEFAULT_PACKAGES_SKYPACK_CONFIG
+            : DEFAULT_PACKAGES_LOCAL_CONFIG,
+      },
+      config,
+    ],
+    {
+      isMergeableObject: (val) => isPlainObject(val) || Array.isArray(val),
+    },
+  );
   // Resolve relative config values. If using loadConfiguration, all config values should
   // already be resolved relative to the config file path so that this should be a no-op.
   // But, we still need to run it in case you called this function directly.

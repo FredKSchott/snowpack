@@ -1,12 +1,25 @@
+import rimraf from 'rimraf';
+import crypto from 'crypto';
+import projectCacheDir from 'find-cache-dir';
 import merge from 'deepmerge';
 import {ImportMap} from 'esinstall';
 import {existsSync, promises as fs} from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
-import {getInstallTargets, run as installRunner} from '../commands/install';
+import {run as installRunner} from './local-install';
 import {logger} from '../logger';
+import {getInstallTargets} from '../scan-imports';
 import {CommandOptions, PackageSource, SnowpackConfig} from '../types';
-import {checkLockfileHash, DEV_DEPENDENCIES_DIR, updateLockfileHash} from '../util';
+import {checkLockfileHash, GLOBAL_CACHE_DIR, updateLockfileHash} from '../util';
+
+const PROJECT_CACHE_DIR =
+  projectCacheDir({name: 'snowpack'}) ||
+  // If `projectCacheDir()` is null, no node_modules directory exists.
+  // Use the current path (hashed) to create a cache entry in the global cache instead.
+  // Because this is specifically for dependencies, this fallback should rarely be used.
+  path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
+
+const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, process.env.NODE_ENV || 'development');
 
 /**
  * Install dependencies needed in "dev" mode. Generally speaking, this scans
@@ -103,5 +116,13 @@ export default {
     const installResult = await installDependencies(installCommandOptions);
     const dependencyImportMap = installResult!.importMap;
     return dependencyImportMap;
+  },
+
+  clearCache() {
+    return rimraf.sync(PROJECT_CACHE_DIR);
+  },
+
+  getCacheFolder() {
+    return PROJECT_CACHE_DIR;
   },
 } as PackageSource;

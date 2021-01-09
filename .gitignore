@@ -1,6 +1,7 @@
 .DS_Store
 .build
 .idea
+.snowpack
 .vercel
 www/_site
 www/eleventy
