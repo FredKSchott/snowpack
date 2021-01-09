@@ -90,7 +90,7 @@ async function installOptimizedDependencies(
     },
   });
 
-  const pkgSource = getPackageSource(commandOptions.config.packages.source);
+  const pkgSource = getPackageSource(commandOptions.config.packageOptions.source);
   pkgSource.modifyBuildInstallConfig({config: installConfig, lockfile: commandOptions.lockfile});
 
   // Unlike dev (where we scan from source code) the built output guarantees that we

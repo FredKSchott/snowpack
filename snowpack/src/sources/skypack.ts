@@ -48,8 +48,8 @@ function parseRawPackageImport(spec: string): [string, string | null] {
 export default {
   async prepare(commandOptions) {
     const {config, lockfile} = commandOptions;
-    // Only install types if `packages.types=true`. Otherwise, no need to prepare anything.
-    if (config.packages.source === 'skypack' && !config.packages.types) {
+    // Only install types if `packageOptions.types=true`. Otherwise, no need to prepare anything.
+    if (config.packageOptions.source === 'skypack' && !config.packageOptions.types) {
       return {imports: {}};
     }
     const dependenciesList = lockfile && (Object.keys(lockfile.dependencies) as string[]);
@@ -172,7 +172,7 @@ export default {
 
   getCacheFolder(config) {
     return (
-      (config.packages.source === 'skypack' && config.packages.cache) ||
+      (config.packageOptions.source === 'skypack' && config.packageOptions.cache) ||
       path.join(config.root, '.snowpack')
     );
   },
