@@ -192,6 +192,15 @@ export interface RouteConfigObject {
   _srcRegex: RegExp;
 }
 
+export interface PackageSourceLocal {
+  source: 'local';
+}
+
+export interface PackageSourceSkypack {
+  source: 'skypack';
+  cache: string;
+  types: boolean;
+}
 // interface this library uses internally
 export interface SnowpackConfig {
   root: string;
@@ -202,6 +211,7 @@ export interface SnowpackConfig {
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   plugins: SnowpackPlugin[];
+  packages: PackageSourceLocal | PackageSourceSkypack;
   devOptions: {
     secure: boolean;
     hostname: string;
@@ -232,8 +242,6 @@ export interface SnowpackConfig {
   };
   /** EXPERIMENTAL - This section is experimental and not yet finalized. May change across minor versions. */
   experiments: {
-    /** (EXPERIMENTAL) Where should dependencies be loaded from? */
-    source: 'local' | 'skypack';
     /** (EXPERIMENTAL) If true, "snowpack build" should build your site for SSR. */
     ssr: boolean;
     /** (EXPERIMENTAL) Optimize your site for production. */
@@ -256,8 +264,8 @@ export type SnowpackUserConfig = {
   installOptions?: Partial<SnowpackConfig['installOptions']>;
   buildOptions?: Partial<SnowpackConfig['buildOptions']>;
   testOptions?: Partial<SnowpackConfig['testOptions']>;
+  packages?: 'local' | 'skypack' | Partial<SnowpackConfig['packages']>;
   experiments?: {
-    source?: SnowpackConfig['experiments']['source'];
     ssr?: SnowpackConfig['experiments']['ssr'];
     optimize?: Partial<SnowpackConfig['experiments']['optimize']>;
     routes?: Pick<RouteConfigObject, 'src' | 'dest' | 'match'>[];
@@ -324,4 +332,6 @@ export interface PackageSource {
     config: SnowpackConfig;
     lockfile: ImportMap | null;
   }): Promise<void>;
+  getCacheFolder(config: SnowpackConfig): string;
+  clearCache(): void | Promise<void>;
 }

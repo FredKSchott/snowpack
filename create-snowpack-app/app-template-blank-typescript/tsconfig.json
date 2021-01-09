@@ -5,6 +5,12 @@
     "target": "esnext",
     "moduleResolution": "node",
     "jsx": "preserve",
+    "baseUrl": "./",
+    /* paths - If you configure Snowpack import aliases, add them here. */
+    "paths": {
+      /* "source: skypack" type declarations are installed to ".snowpack/types" */
+      "*": [".snowpack/types/*"]
+    },
     "allowSyntheticDefaultImports": true,
     "importsNotUsedAsValues": "error",
     /* more strict checking for errors that per-file transpilers like `esbuild` would crash */
@@ -16,13 +22,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "useDefineForClassFields": true,
-
-    // You can't currently define paths in your 'extends' config,
-    // so we have to set 'baseUrl' & 'paths' here.
-    // Don't change these unless you know what you're doing.
-    // See: https://github.com/microsoft/TypeScript/issues/25430
-    "baseUrl": "./",
-    "paths": { "*": ["web_modules/.types/*"] }
+    "useDefineForClassFields": true
   }
 }

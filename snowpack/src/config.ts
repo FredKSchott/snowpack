@@ -10,6 +10,8 @@ import {esbuildPlugin} from './plugins/plugin-esbuild';
 import {
   CLIFlags,
   MountEntry,
+  PackageSourceLocal,
+  PackageSourceSkypack,
   PluginLoadResult,
   RouteConfigObject,
   SnowpackConfig,
@@ -61,11 +63,21 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   testOptions: {
     files: ['__tests__/**/*', '**/*.@(spec|test).*'],
   },
+  packages: {source: 'local'},
   experiments: {
-    source: 'local',
     routes: [],
     ssr: false,
   },
+};
+
+const DEFAULT_PACKAGES_LOCAL_USER_CONFIG: PackageSourceLocal = {
+  source: 'local',
+};
+
+const DEFAULT_PACKAGES_SKYPACK_CONFIG: PackageSourceSkypack = {
+  source: 'skypack',
+  cache: '.snowpack',
+  types: false,
 };
 
 const configSchema = {
@@ -185,6 +197,7 @@ const configSchema = {
  */
 export function expandCliFlags(flags: CLIFlags): SnowpackUserConfig {
   const result = {
+    packages: {} as any,
     installOptions: {} as any,
     devOptions: {} as any,
     buildOptions: {} as any,
@@ -202,10 +215,8 @@ export function expandCliFlags(flags: CLIFlags): SnowpackUserConfig {
       result[flag] = val;
       continue;
     }
-    // Special: we moved `devOptions.out` -> `buildOptions.out`.
-    // Handle that flag special here, to prevent risk of undefined matching.
-    if (flag === 'out') {
-      result.buildOptions['out'] = val;
+    if (flag === 'source') {
+      result.packages = {source: val};
       continue;
     }
     if (configSchema.properties.experiments.properties[flag]) {
@@ -402,6 +413,18 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
     removeTrailingSlash(config.buildOptions.metaDir),
   );
 
+  // normalize "packages" values
+  if (_config.packages === 'skypack' || _config.packages === 'skypack') {
+    config.packages = merge<PackageSourceSkypack>([
+      DEFAULT_PACKAGES_SKYPACK_CONFIG,
+      _config.packages === 'skypack' ? {} : (_config.packages as PackageSourceSkypack),
+    ]);
+    config.packages.cache = path.resolve(config.root, config.packages.cache);
+  }
+  if (_config.packages === 'local' || _config.packages === 'local') {
+    config.packages = DEFAULT_PACKAGES_LOCAL_USER_CONFIG;
+  }
+
   config.mount = normalizeMount(config);
   config.experiments.routes = normalizeRoutes(config.experiments.routes);
   if (config.experiments.optimize) {
@@ -460,6 +483,9 @@ function valdiateDeprecatedConfig(rawConfig: any) {
   }
   if (rawConfig.proxy) {
     handleDeprecatedConfigError('[v3.0] Legacy "proxy" config is deprecated in favor of "routes".');
+  }
+  if (rawConfig.experiments?.source) {
+    handleDeprecatedConfigError('[v3.0] "config.experiments.source" is now "config.packages".');
   }
 }
 

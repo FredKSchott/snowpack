@@ -20,6 +20,7 @@ import {runBuiltInOptimize} from '../build/optimize';
 import {EsmHmrEngine} from '../hmr-server-engine';
 import {logger} from '../logger';
 import {transformFileImports} from '../rewrite-imports';
+import {getInstallTargets} from '../scan-imports';
 import localPackageSource from '../sources/local';
 import {
   CommandOptions,
@@ -47,7 +48,7 @@ import {
   removeLeadingSlash,
   replaceExtension,
 } from '../util';
-import {getInstallTargets, run as installRunner} from './install';
+import {run as installRunner} from '../sources/local-install';
 
 const CONCURRENT_WORKERS = require('os').cpus().length;
 
@@ -89,7 +90,7 @@ async function installOptimizedDependencies(
     },
   });
 
-  const pkgSource = getPackageSource(commandOptions.config.experiments.source);
+  const pkgSource = getPackageSource(commandOptions.config.packages.source);
   pkgSource.modifyBuildInstallConfig({config: installConfig, lockfile: commandOptions.lockfile});
 
   // Unlike dev (where we scan from source code) the built output guarantees that we

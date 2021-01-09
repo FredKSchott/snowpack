@@ -1,5 +1,5 @@
 import cacache from 'cacache';
-import {OutputOptions, Plugin, ResolvedId} from 'rollup';
+import {Plugin, ResolvedId} from 'rollup';
 import {fetchCDN} from './index';
 import {SKYPACK_ORIGIN, HAS_CDN_HASH_REGEX, RESOURCE_CACHE} from './util';
 
@@ -15,11 +15,8 @@ const PIKA_CDN_TRIM_LENGTH = SKYPACK_ORIGIN.length;
  * rollup that it's safe to load from the cache in the `load()` hook.
  */
 export function rollupPluginSkypack({
-  installTypes,
 }: {
-  installTypes: boolean;
 }) {
-  // const allTypesToInstall = new Set<string>();
   return {
     name: 'snowpack:rollup-plugin-remote-cdn',
     async resolveId(source: string, importer) {
@@ -74,51 +71,8 @@ export function rollupPluginSkypack({
       }
       const cacheKey = id.substring(CACHED_FILE_ID_PREFIX.length);
       console.debug(`load ${cacheKey}`, {name: 'install:remote'});
-      // const typesUrl: string | undefined = cachedResult.metadata?.typesUrl;
-      // if (typesUrl && installTypes) {
-      //   const typesTarballUrl = typesUrl.replace(/(mode=types.*?)\/.*/, '$1/all.tgz');
-      //   allTypesToInstall.add(typesTarballUrl);
-      // }
       const {body} = await fetchCDN(cacheKey);
       return body;
-    },
-    async writeBundle(_: OutputOptions) {
-      if (!installTypes) {
-        return;
-      }
-      // await mkdirp(path.join(options.dir!, '.types'));
-      // const tempDir = await cacache.tmp.mkdir(RESOURCE_CACHE);
-      // for (const typesTarballUrl of allTypesToInstall) {
-      //   let tarballContents: Buffer;
-      //   const cachedTarball = await cacache
-      //     .get(RESOURCE_CACHE, typesTarballUrl)
-      //     .catch((/* ignore */) => null);
-      //   if (cachedTarball) {
-      //     tarballContents = cachedTarball.data;
-      //   } else {
-      //     const tarballResponse = await fetchCDN(typesTarballUrl, 'buffer');
-      //     if (tarballResponse.statusCode !== 200) {
-      //       continue;
-      //     }
-      //     tarballContents = (tarballResponse.body as any) as Buffer;
-      //     await cacache.put(RESOURCE_CACHE, typesTarballUrl, tarballContents);
-      //   }
-      //   const typesUrlParts = url.parse(typesTarballUrl).pathname!.split('/');
-      //   const typesPackageName = url.parse(typesTarballUrl).pathname!.startsWith('/-/@')
-      //     ? typesUrlParts[2] + '/' + typesUrlParts[3].split('@')[0]
-      //     : typesUrlParts[2].split('@')[0];
-      //   const typesPackageTarLoc = path.join(tempDir, `${typesPackageName}.tgz`);
-      //   if (typesPackageName.includes('/')) {
-      //     await mkdirp(path.dirname(typesPackageTarLoc));
-      //   }
-      //   fs.writeFileSync(typesPackageTarLoc, tarballContents);
-      //   const typesPackageLoc = path.join(options.dir!, `.types/${typesPackageName}`);
-      //   await mkdirp(typesPackageLoc);
-      //   await tar.x({
-      //     file: typesPackageTarLoc,
-      //     cwd: typesPackageLoc,
-      //   });
-      // }
     },
   } as Plugin;
 }

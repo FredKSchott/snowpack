@@ -4,27 +4,9 @@ import path from 'path';
 import {performance} from 'perf_hooks';
 import util from 'util';
 import {logger} from '../logger';
-import {scanDepList, scanImports, scanImportsFromFiles} from '../scan-imports.js';
-import {CommandOptions, ImportMap, SnowpackConfig, SnowpackSourceFile} from '../types';
+import {getInstallTargets} from '../scan-imports.js';
+import {CommandOptions, ImportMap} from '../types';
 import {writeLockfile} from '../util.js';
-
-export async function getInstallTargets(
-  config: SnowpackConfig,
-  scannedFiles?: SnowpackSourceFile[],
-) {
-  const {knownEntrypoints} = config;
-  let installTargets: InstallTarget[] = [];
-  if (knownEntrypoints) {
-    installTargets.push(...scanDepList(knownEntrypoints, config.root));
-  }
-  // TODO: remove this if block; move logic inside scanImports
-  if (scannedFiles) {
-    installTargets.push(...(await scanImportsFromFiles(scannedFiles, config)));
-  } else {
-    installTargets.push(...(await scanImports(process.env.NODE_ENV === 'test', config)));
-  }
-  return installTargets;
-}
 
 export async function command(commandOptions: CommandOptions) {
   const {config} = commandOptions;
@@ -78,7 +60,7 @@ export async function run({
     colors.yellow(
       '! installing dependencies...' +
         colors.cyan(
-          config.experiments.source === 'local' ? '' : ` (source: ${config.experiments.source})`,
+          config.packages.source === 'local' ? '' : ` (source: ${config.packages.source})`,
         ),
     ),
   );
