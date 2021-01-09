@@ -1,0 +1,35 @@
+{
+  "name": "esm-runtime",
+  "version": "0.0.1",
+  "description": "An ESM runtime for Node.js.",
+  "author": "Fred K. Schott <fkschott@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowpackjs/snowpack.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc --noUnusedLocals false --noUnusedParameters false",
+    "build:watch": "tsc --watch --noUnusedLocals false --noUnusedParameters false",
+    "lint": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=10.19.0"
+  },
+  "types": "./lib/index.d.ts",
+  "main": "./lib/index.js",
+  "exports": "./lib/index.js",
+  "files": [],
+  "dependencies": {
+    "estree-walker": "^2.0.2",
+    "is-reference": "^1.2.1",
+    "meriyah": "^3.1.6",
+    "periscopic": "^2.0.3",
+    "source-map": "^0.7.3"
+  },
+  "optionalDependencies": {},
+  "devDependencies": {}
+}

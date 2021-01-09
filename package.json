@@ -3,18 +3,19 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build --scope=esinstall --scope=snowpack --scope=skypack",
-    "build:watch": "lerna run build:watch --parallel --scope=esinstall --scope=snowpack --scope=skypack",
+    "build": "lerna run build --scope=esinstall --scope=esm-runtime --scope=snowpack --scope=skypack",
+    "build:watch": "lerna run build:watch --parallel --scope=esinstall --scope=esm-runtime --scope=snowpack --scope=skypack",
     "build:docs": "cd www && yarn build",
     "bundle": "lerna run bundle --scope=snowpack",
-    "lint": "lerna run lint --parallel --scope=esinstall --scope=snowpack --scope=skypack",
-    "format": "prettier --write '{snowpack,esinstall}/src/**/*.{ts,js}' '{test,plugins}/**/*.{ts,js}' '*.{js,json,md}' '**/*.{json,md}' '.github/**/*.{md,yml}' '!**/{vendor,dist,build,packages,pkg,TEST_BUILD_OUT,web_modules}/**' !test/create-snowpack-app/test-install",
+    "lint": "lerna run lint --parallel --scope=esinstall --scope=esm-runtime --scope=snowpack --scope=skypack",
+    "format": "prettier --write '{snowpack,esinstall,esm-runtime}/src/**/*.{ts,js}' '{test,plugins}/**/*.{ts,js}' '*.{js,json,md}' '**/*.{json,md}' '.github/**/*.{md,yml}' '!**/{vendor,dist,build,packages,pkg,TEST_BUILD_OUT,web_modules}/**' !test/create-snowpack-app/test-install",
     "test": "jest --testPathIgnorePatterns=/test-dev/ --test-timeout=30000",
     "test:dev": "jest /test-dev/ --test-timeout=30000",
     "test:docs": "cd www && yarn && yarn test --passWithNoTests"
   },
   "workspaces": [
     "esinstall",
+    "esm-runtime",
     "snowpack",
     "skypack",
     "create-snowpack-app/*",

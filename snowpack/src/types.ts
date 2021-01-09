@@ -59,6 +59,7 @@ export interface SnowpackDevServer {
     {contents, originalFileLoc, contentType}: LoadResult,
   ) => void;
   sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
+  getUrlForFile: (fileLoc: string) => string | null;
   onFileChange: (callback: OnFileChangeCallback) => void;
   shutdown(): Promise<void>;
 }
