@@ -1,4 +1,4 @@
-import {existsSync, promises as fs} from 'fs';
+import {existsSync} from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import glob from 'glob';
