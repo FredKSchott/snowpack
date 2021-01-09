@@ -473,7 +473,9 @@ function valdiateDeprecatedConfig(rawConfig: any) {
     handleDeprecatedConfigError('[v3.0] Legacy "proxy" config is deprecated in favor of "routes".');
   }
   if (rawConfig.experiments?.source) {
-    handleDeprecatedConfigError('[v3.0] "config.experiments.source" is now "config.packageOptions".');
+    handleDeprecatedConfigError(
+      '[v3.0] "config.experiments.source" is now "config.packageOptions".',
+    );
   }
 }
 

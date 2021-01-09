@@ -12,8 +12,8 @@ export interface SSRLoader {
 }
 
 export interface ESMRuntimeModule<T> {
-    exports: T,
-    css: string[],
+  exports: T;
+  css: string[];
 }
 
 // This function makes it possible to load modules from the snowpack server, for the sake of SSR.
@@ -56,7 +56,7 @@ export function createLoader({load}: SSRLoaderConfig): SSRLoader {
     return promise;
   }
 
-  async function initializeModule(url: string, loaded:{contents: string}, urlStack: string[]) {
+  async function initializeModule(url: string, loaded: {contents: string}, urlStack: string[]) {
     const {code, deps, css, names} = transform(loaded.contents);
 
     const exports = {};

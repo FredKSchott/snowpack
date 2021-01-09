@@ -60,7 +60,9 @@ export async function run({
     colors.yellow(
       '! installing dependencies...' +
         colors.cyan(
-          config.packageOptions.source === 'local' ? '' : ` (source: ${config.packageOptions.source})`,
+          config.packageOptions.source === 'local'
+            ? ''
+            : ` (source: ${config.packageOptions.source})`,
         ),
     ),
   );
