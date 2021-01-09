@@ -32,6 +32,7 @@ import {
   SnowpackSourceFile,
 } from '../types';
 import {
+  addExtension,
   cssSourceMappingURL,
   deleteFromBuildSafe,
   getExtensionMatch,
@@ -164,11 +165,16 @@ class FileBuilder {
       let outFilename = path.basename(url.fileURLToPath(this.fileURL));
       const extensionMatch = getExtensionMatch(this.fileURL.toString(), this.config._extensionMap);
       if (extensionMatch) {
-        outFilename = replaceExtension(
-          path.basename(url.fileURLToPath(this.fileURL)),
-          extensionMatch[0],
-          fileExt,
-        );
+        const [inputExt, outputExts] = extensionMatch;
+        if (outputExts.length > 1) {
+          outFilename = addExtension(path.basename(url.fileURLToPath(this.fileURL)), fileExt);
+        } else {
+          outFilename = replaceExtension(
+            path.basename(url.fileURLToPath(this.fileURL)),
+            inputExt,
+            fileExt,
+          );
+        }
       }
       const outLoc = path.join(this.outDir, outFilename);
       const sourceMappingURL = outFilename + '.map';
@@ -188,8 +194,7 @@ class FileBuilder {
           case '.js': {
             if (fileOutput['.css']) {
               // inject CSS if imported directly
-              const cssFilename = outFilename.replace(/\.js$/i, '.css');
-              code = `import './${cssFilename}';\n` + code;
+              code = `import './${replaceExtension(outFilename, '.js', '.css')}';\n` + code;
             }
             code = wrapImportMeta({code, env: true, hmr: false, config: this.config});
             if (map) code = jsSourceMappingURL(code, sourceMappingURL);
@@ -263,7 +268,7 @@ class FileBuilder {
         }
         // Ignore packages marked as external
         if (this.config.installOptions.externalPackage?.includes(resolvedImportUrl)) {
-          return spec;
+          return resolvedImportUrl;
         }
         // Handle normal "./" & "../" import specifiers
         const importExtName = path.extname(resolvedImportUrl);
@@ -271,6 +276,7 @@ class FileBuilder {
         const isProxyImport =
           importExtName &&
           importExtName !== '.js' &&
+          !path.posix.isAbsolute(spec) &&
           // If using our built-in bundler, treat CSS as a first class citizen (no proxy file needed).
           // TODO: Remove special `.module.css` handling by building css modules to native JS + CSS.
           (!isBundling || !/(?<!module)\.css$/.test(resolvedImportUrl));
@@ -463,10 +469,11 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
 
       const existedFileLoc = finalDestLocMap.get(finalDestLoc);
       if (existedFileLoc) {
-        logger.error(`Error: Two files overlap and build to the same destination: ${finalDestLoc}`);
-        logger.error(`  File 1: ${existedFileLoc}`);
-        logger.error(`  File 2: ${fileLoc}`);
-        process.exit(1);
+        const errorMessage =
+          `Error: Two files overlap and build to the same destination: ${finalDestLoc}\n` +
+          `  File 1: ${existedFileLoc}\n` +
+          `  File 2: ${fileLoc}\n`;
+        throw new Error(errorMessage);
       }
 
       const outDir = path.dirname(finalDestLoc);

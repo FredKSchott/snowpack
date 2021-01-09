@@ -341,8 +341,8 @@ export function findMatchingAliasEntry(
  */
 export function getExtensionMatch(
   fileName: string,
-  extensionMap: Record<string, string>,
-): [string, string] | undefined {
+  extensionMap: Record<string, string[]>,
+): [string, string[]] | undefined {
   let extensionPartial;
   let extensionMatch;
   // If a full URL is given, start at the basename. Otherwise, start at zero.
@@ -415,13 +415,18 @@ export function getExtension(str: string) {
 }
 
 export function hasExtension(str: string, ext: string) {
-  return str.toLowerCase().endsWith(ext);
+  return new RegExp(`\\${ext}$`, 'i').test(str);
 }
 
 export function replaceExtension(fileName: string, oldExt: string, newExt: string): string {
   const extToReplace = new RegExp(`\\${oldExt}$`, 'i');
   return fileName.replace(extToReplace, newExt);
 }
+
+export function addExtension(fileName: string, newExt: string): string {
+  return fileName + newExt;
+}
+
 export function removeExtension(fileName: string, oldExt: string): string {
   return replaceExtension(fileName, oldExt, '');
 }

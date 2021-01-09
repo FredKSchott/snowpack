@@ -8916,9 +8916,9 @@ export const SSR = false;"
 exports[`create-snowpack-app app-template-svelte > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
-  "dist/App.css",
-  "dist/App.css.proxy.js",
-  "dist/App.js",
+  "dist/App.svelte.css",
+  "dist/App.svelte.css.proxy.js",
+  "dist/App.svelte.js",
   "dist/index.js",
   "favicon.ico",
   "index.html",
@@ -8930,9 +8930,9 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-svelte > build: dist/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-rq4gzr.svelte-rq4gzr{text-align:center}.App.svelte-rq4gzr code.svelte-rq4gzr{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-rq4gzr p.svelte-rq4gzr{margin:0.4rem}.App-header.svelte-rq4gzr.svelte-rq4gzr{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-rq4gzr.svelte-rq4gzr{color:#ff3e00}.App-logo.svelte-rq4gzr.svelte-rq4gzr{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-rq4gzr-App-logo-pulse infinite 1.6s ease-in-out alternate}@keyframes svelte-rq4gzr-App-logo-pulse{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
+exports[`create-snowpack-app app-template-svelte > build: dist/App.svelte.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-rq4gzr.svelte-rq4gzr{text-align:center}.App.svelte-rq4gzr code.svelte-rq4gzr{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-rq4gzr p.svelte-rq4gzr{margin:0.4rem}.App-header.svelte-rq4gzr.svelte-rq4gzr{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-rq4gzr.svelte-rq4gzr{color:#ff3e00}.App-logo.svelte-rq4gzr.svelte-rq4gzr{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-rq4gzr-App-logo-pulse infinite 1.6s ease-in-out alternate}@keyframes svelte-rq4gzr-App-logo-pulse{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
 
-exports[`create-snowpack-app app-template-svelte > build: dist/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-svelte > build: dist/App.svelte.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-rq4gzr.svelte-rq4gzr{text-align:center}.App.svelte-rq4gzr code.svelte-rq4gzr{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-rq4gzr p.svelte-rq4gzr{margin:0.4rem}.App-header.svelte-rq4gzr.svelte-rq4gzr{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-rq4gzr.svelte-rq4gzr{color:#ff3e00}.App-logo.svelte-rq4gzr.svelte-rq4gzr{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-rq4gzr-App-logo-pulse infinite 1.6s ease-in-out alternate}@keyframes svelte-rq4gzr-App-logo-pulse{from{transform:scale(1)}to{transform:scale(1.06)}}\\";
@@ -8944,8 +8944,8 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-svelte > build: dist/App.js 1`] = `
-"import './App.css.proxy.js';
+exports[`create-snowpack-app app-template-svelte > build: dist/App.svelte.js 1`] = `
+"import './App.svelte.css.proxy.js';
 import {
 	SvelteComponent,
 	append,
@@ -9050,7 +9050,7 @@ export default App;"
 exports[`create-snowpack-app app-template-svelte > build: dist/index.js 1`] = `
 "import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
-import App from \\"./App.js\\";
+import App from \\"./App.svelte.js\\";
 let app = new App({
   target: document.body,
 });
@@ -9112,9 +9112,9 @@ export const SSR = false;"
 exports[`create-snowpack-app app-template-svelte-typescript > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
-  "dist/App.css",
-  "dist/App.css.proxy.js",
-  "dist/App.js",
+  "dist/App.svelte.css",
+  "dist/App.svelte.css.proxy.js",
+  "dist/App.svelte.js",
   "dist/index.js",
   "favicon.ico",
   "index.html",
@@ -9126,9 +9126,9 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1sqyd3v.svelte-1sqyd3v{text-align:center}.App.svelte-1sqyd3v code.svelte-1sqyd3v{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1sqyd3v p.svelte-1sqyd3v{margin:0.4rem}.App-header.svelte-1sqyd3v.svelte-1sqyd3v{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1sqyd3v.svelte-1sqyd3v{color:#ff3e00}.App-logo.svelte-1sqyd3v.svelte-1sqyd3v{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1sqyd3v-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1sqyd3v-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
+exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.svelte.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1sqyd3v.svelte-1sqyd3v{text-align:center}.App.svelte-1sqyd3v code.svelte-1sqyd3v{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1sqyd3v p.svelte-1sqyd3v{margin:0.4rem}.App-header.svelte-1sqyd3v.svelte-1sqyd3v{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1sqyd3v.svelte-1sqyd3v{color:#ff3e00}.App-logo.svelte-1sqyd3v.svelte-1sqyd3v{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1sqyd3v-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1sqyd3v-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
 
-exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.svelte.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1sqyd3v.svelte-1sqyd3v{text-align:center}.App.svelte-1sqyd3v code.svelte-1sqyd3v{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1sqyd3v p.svelte-1sqyd3v{margin:0.4rem}.App-header.svelte-1sqyd3v.svelte-1sqyd3v{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1sqyd3v.svelte-1sqyd3v{color:#ff3e00}.App-logo.svelte-1sqyd3v.svelte-1sqyd3v{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1sqyd3v-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1sqyd3v-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}\\";
@@ -9140,8 +9140,8 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.js 1`] = `
-"import './App.css.proxy.js';
+exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.svelte.js 1`] = `
+"import './App.svelte.css.proxy.js';
 import {
 	SvelteComponent,
 	append,
@@ -9246,7 +9246,7 @@ export default App;"
 exports[`create-snowpack-app app-template-svelte-typescript > build: dist/index.js 1`] = `
 "import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
-import App2 from \\"./App.js\\";
+import App2 from \\"./App.svelte.js\\";
 var app = new App2({
   target: document.body
 });
@@ -9306,9 +9306,9 @@ export const SSR = false;"
 exports[`create-snowpack-app app-template-vue > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
-  "dist/App.css",
-  "dist/App.css.proxy.js",
-  "dist/App.js",
+  "dist/App.vue.css",
+  "dist/App.vue.css.proxy.js",
+  "dist/App.vue.js",
   "dist/index.js",
   "favicon-32x32.png",
   "favicon.ico",
@@ -9320,7 +9320,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-vue > build: dist/App.css 1`] = `
+exports[`create-snowpack-app app-template-vue > build: dist/App.vue.css 1`] = `
 "
 .App {
   text-align: center;
@@ -9354,7 +9354,7 @@ to {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue > build: dist/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue > build: dist/App.vue.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\".App {  text-align: center;}.App-header {  background-color: #f9f6f6;  color: #32485f;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);}.App-link {  color: #00c185;}.App-logo {  height: 40vmin;  pointer-events: none;  margin-bottom: 1rem;  animation: App-logo-spin infinite 1.6s ease-in-out alternate;}@keyframes App-logo-spin {from {    transform: scale(1);}to {    transform: scale(1.06);}}\\";
@@ -9366,8 +9366,8 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue > build: dist/App.js 1`] = `
-"import './App.css.proxy.js';
+exports[`create-snowpack-app app-template-vue > build: dist/App.vue.js 1`] = `
+"import './App.vue.css.proxy.js';
 const defaultExport = {
   data() {
     return {
@@ -9411,7 +9411,7 @@ exports[`create-snowpack-app app-template-vue > build: dist/index.js 1`] = `
 "import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import { createApp } from \\"../web_modules/vue.js\\";
-import App from \\"./App.js\\";
+import App from \\"./App.vue.js\\";
 const app = createApp(App);
 app.mount(\\"#app\\");
 // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
@@ -14477,21 +14477,21 @@ export const SSR = false;"
 exports[`create-snowpack-app app-template-vue-typescript > build: allFiles 1`] = `
 Array [
   "__snowpack__/env.js",
-  "dist/App.css",
-  "dist/App.css.proxy.js",
-  "dist/App.js",
+  "dist/App.vue.css",
+  "dist/App.vue.css.proxy.js",
+  "dist/App.vue.js",
   "dist/components/Bar.js",
   "dist/components/Bar.module.css",
   "dist/components/Bar.module.css.proxy.js",
-  "dist/components/BarJsx.css",
-  "dist/components/BarJsx.css.proxy.js",
-  "dist/components/BarJsx.js",
+  "dist/components/BarJsx.vue.css",
+  "dist/components/BarJsx.vue.css.proxy.js",
+  "dist/components/BarJsx.vue.js",
   "dist/components/Foo.js",
   "dist/components/Foo.module.css",
   "dist/components/Foo.module.css.proxy.js",
-  "dist/components/FooTsx.css",
-  "dist/components/FooTsx.css.proxy.js",
-  "dist/components/FooTsx.js",
+  "dist/components/FooTsx.vue.css",
+  "dist/components/FooTsx.vue.css.proxy.js",
+  "dist/components/FooTsx.vue.js",
   "dist/index.js",
   "favicon-32x32.png",
   "favicon.ico",
@@ -14503,7 +14503,7 @@ Array [
 ]
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/App.css 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/App.vue.css 1`] = `
 "
 .App {
   text-align: center;
@@ -14544,7 +14544,7 @@ to {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/App.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/App.vue.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\".App {  text-align: center;}.App-header {  background-color: #f9f6f6;  color: #32485f;  min-height: 100vh;  display: flex;  flex-direction: column;  align-items: center;  justify-content: center;  font-size: calc(10px + 2vmin);}.App-link {  color: #00c185;}.App-logo {  height: 40vmin;  pointer-events: none;  margin-bottom: 1rem;  animation: App-logo-spin infinite 1.6s ease-in-out alternate;}.App-tsx {  display: flex;}.App-tsx > div {  margin-left: 30px;  font-size: 16px;}@keyframes App-logo-spin {from {    transform: scale(1);}to {    transform: scale(1.06);}}\\";
@@ -14556,12 +14556,12 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/App.js 1`] = `
-"import './App.css.proxy.js';
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/App.vue.js 1`] = `
+"import './App.vue.css.proxy.js';
 import {defineComponent, reactive} from \\"../web_modules/vue.js\\";
-import FooTsxVue from \\"./components/FooTsx.js\\";
+import FooTsxVue from \\"./components/FooTsx.vue.js\\";
 import FooTsx2 from \\"./components/Foo.js\\";
-import BarJsxVue from \\"./components/BarJsx.js\\";
+import BarJsxVue from \\"./components/BarJsx.vue.js\\";
 import BarJsx2 from \\"./components/Bar.js\\";
 const defaultExport = defineComponent({
   components: {
@@ -14668,14 +14668,14 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.css 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.vue.css 1`] = `
 "
 .bar-jsx-vue {
   color: red;
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.vue.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\"/* unsupport scoped css in vue with tsx, jsx*/.bar-jsx-vue {  color: red;}\\";
@@ -14687,8 +14687,8 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.js 1`] = `
-"import './BarJsx.css.proxy.js';
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.vue.js 1`] = `
+"import './BarJsx.vue.css.proxy.js';
 import { Fragment } from '../../web_modules/vue.js';
 import {createVNode, isVNode} from '../../web_modules/vue.js';
 const slice = Array.prototype.slice;
@@ -14758,14 +14758,14 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/FooTsx.css 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/FooTsx.vue.css 1`] = `
 "
 .foo-tsx-vue {
   color: green;
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/FooTsx.css.proxy.js 1`] = `
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/FooTsx.vue.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
   const code = \\"/* unsupport scoped css in vue with tsx, jsx*/.foo-tsx-vue {  color: green;}\\";
@@ -14777,8 +14777,8 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
-exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/FooTsx.js 1`] = `
-"import './FooTsx.css.proxy.js';
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/FooTsx.vue.js 1`] = `
+"import './FooTsx.vue.css.proxy.js';
 import { Fragment } from '../../web_modules/vue.js';
 import {createVNode, isVNode} from '../../web_modules/vue.js';
 const slice = Array.prototype.slice;
@@ -14806,7 +14806,7 @@ exports[`create-snowpack-app app-template-vue-typescript > build: dist/index.js 
 "import * as __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
 import { createApp } from \\"../web_modules/vue.js\\";
-import App from \\"./App.js\\";
+import App from \\"./App.vue.js\\";
 const app = createApp(App);
 app.mount(\\"#app\\");
 // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.

@@ -84,6 +84,7 @@ import {
   readFile,
   relativeURL,
   removeExtension,
+  replaceExtension,
   resolveDependencyManifest,
 } from '../util';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
@@ -590,6 +591,14 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       throw new NotFoundError(attemptedFileLoads);
     }
 
+    if (!isRoute && !isProxyModule) {
+      const expectedUrl = getUrlForFile(foundFile.fileLoc, config);
+      if (expectedUrl !== reqUrl) {
+        logger.warn(`Bad Request: "${reqUrl}" should be requested as "${expectedUrl}".`);
+        throw new NotFoundError([foundFile.fileLoc]);
+      }
+    }
+
     /**
      * Given a file, build it. Building a file sends it through our internal
      * file builder pipeline, and outputs a build map representing the final
@@ -831,9 +840,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       let finalResponse = code;
       // Handle attached CSS.
       if (requestedFileExt === '.js' && output['.css']) {
-        finalResponse =
-          `import './${path.basename(reqPath).replace(/.js$/, '.css.proxy.js')}';\n` +
-          finalResponse;
+        finalResponse = `import '${replaceExtension(reqPath, '.js', '.css')}';\n` + finalResponse;
       }
       // Resolve imports.
       if (
@@ -979,39 +986,41 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         }
 
         if (!wrappedResponse) {
-          throw new NotFoundError([fileLoc]);
-        }
-        // Trust...
-        return {
-          contents: encodeResponse(wrappedResponse, encoding),
-          originalFileLoc: fileLoc,
-          contentType: mime.lookup(responseFileExt),
-          // ...but verify.
-          checkStale: async () => {
-            let checkFinalBuildResult: SnowpackBuildMap | null = null;
-            try {
-              checkFinalBuildResult = await buildFile(fileLoc!);
-            } catch (err) {
-              // safe to ignore, it will be surfaced later anyway
-            } finally {
-              if (
-                !checkFinalBuildResult ||
-                !cachedBuildData.data.equals(Buffer.from(JSON.stringify(checkFinalBuildResult)))
-              ) {
-                inMemoryBuildCache.clear();
-                await cacache.rm.all(BUILD_CACHE);
-                hmrEngine.broadcastMessage({type: 'reload'});
+          logger.warn(`WARN: Failed to load ${fileLoc} from cold cache.`);
+        } else {
+          // Trust...
+          return {
+            contents: encodeResponse(wrappedResponse, encoding),
+            originalFileLoc: fileLoc,
+            contentType: mime.lookup(responseFileExt),
+            // ...but verify.
+            checkStale: async () => {
+              let checkFinalBuildResult: SnowpackBuildMap | null = null;
+              try {
+                checkFinalBuildResult = await buildFile(fileLoc!);
+              } catch (err) {
+                // safe to ignore, it will be surfaced later anyway
+              } finally {
+                if (
+                  !checkFinalBuildResult ||
+                  !cachedBuildData.data.equals(Buffer.from(JSON.stringify(checkFinalBuildResult)))
+                ) {
+                  inMemoryBuildCache.clear();
+                  await cacache.rm.all(BUILD_CACHE);
+                  hmrEngine.broadcastMessage({type: 'reload'});
+                }
               }
-            }
-            return;
-          },
-        };
+              return;
+            },
+          };
+        }
       }
     }
 
     // 5. Final option: build the file, serve it, and cache it.
     let responseContent: string | Buffer | null;
     let responseOutput: SnowpackBuildMap;
+
     try {
       responseOutput = await buildFile(fileLoc);
     } catch (err) {
