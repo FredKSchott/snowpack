@@ -36,6 +36,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   plugins: [],
   alias: {},
   exclude: [],
+  routes: [],
   installOptions: {
     packageLookupFields: [],
   },
@@ -59,15 +60,12 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
     sourceMaps: false,
     watch: false,
     htmlFragments: false,
+    ssr: false,
   },
   testOptions: {
     files: ['__tests__/**/*', '**/*.@(spec|test).*'],
   },
   packageOptions: {source: 'local'},
-  experiments: {
-    routes: [],
-    ssr: false,
-  },
 };
 
 const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageSourceLocal = {
@@ -177,11 +175,7 @@ const configSchema = {
     },
     experiments: {
       type: ['object'],
-      properties: {
-        ssr: {type: 'boolean'},
-        app: {},
-        routes: {},
-      },
+      properties: {},
     },
     proxy: {
       type: 'object',
@@ -414,15 +408,15 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   );
 
   config.mount = normalizeMount(config);
-  config.experiments.routes = normalizeRoutes(config.experiments.routes);
-  if (config.experiments.optimize) {
-    config.experiments.optimize = {
-      entrypoints: config.experiments.optimize.entrypoints ?? 'auto',
-      preload: config.experiments.optimize.preload ?? false,
-      bundle: config.experiments.optimize.bundle ?? false,
-      manifest: config.experiments.optimize.manifest ?? false,
-      target: config.experiments.optimize.target ?? 'es2020',
-      minify: config.experiments.optimize.minify ?? false,
+  config.routes = normalizeRoutes(config.routes);
+  if (config.optimize) {
+    config.optimize = {
+      entrypoints: config.optimize.entrypoints ?? 'auto',
+      preload: config.optimize.preload ?? false,
+      bundle: config.optimize.bundle ?? false,
+      manifest: config.optimize.manifest ?? false,
+      target: config.optimize.target ?? 'es2020',
+      minify: config.optimize.minify ?? false,
     };
   }
 
@@ -473,7 +467,24 @@ function valdiateDeprecatedConfig(rawConfig: any) {
     handleDeprecatedConfigError('[v3.0] Legacy "proxy" config is deprecated in favor of "routes".');
   }
   if (rawConfig.experiments?.source) {
-    handleDeprecatedConfigError('[v3.0] "config.experiments.source" is now "config.packageOptions".');
+    handleDeprecatedConfigError(
+      '[v3.0] Experiment promoted! "config.experiments.source" is now "config.packageOptions.source".',
+    );
+  }
+  if (rawConfig.experiments?.ssr) {
+    handleDeprecatedConfigError(
+      '[v3.0] Experiment promoted! "config.experiments.ssr" is now "config.buildOptions.ssr".',
+    );
+  }
+  if (rawConfig.experiments?.optimize) {
+    handleDeprecatedConfigError(
+      '[v3.0] Experiment promoted! "config.experiments.optimize" is now "config.packageOptions".',
+    );
+  }
+  if (rawConfig.experiments?.routes) {
+    handleDeprecatedConfigError(
+      '[v3.0] Experiment promoted! "config.experiments.routes" is now "config.routes".',
+    );
   }
 }
 

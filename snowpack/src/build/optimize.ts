@@ -418,8 +418,8 @@ async function runEsbuildOnBuildDirectory(
     platform: 'browser',
     metafile: path.join(config.buildOptions.out, 'build-manifest.json'),
     publicPath: config.buildOptions.baseUrl,
-    minify: config.experiments.optimize!.minify,
-    target: config.experiments.optimize!.target,
+    minify: config.optimize!.minify,
+    target: config.optimize!.target,
     external: Array.from(new Set(allFiles.map((f) => '*' + path.extname(f)))).filter(
       (ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css',
     ),
@@ -440,7 +440,7 @@ async function runEsbuildOnBuildDirectory(
         addTrailingSlash(config.buildOptions.out),
       )),
   );
-  if (!config.experiments.optimize?.bundle) {
+  if (!config.optimize?.bundle) {
     delete manifest.outputs;
   } else {
     Object.entries(manifest.outputs).forEach(([f, val]) => {
@@ -459,13 +459,13 @@ async function runEsbuildOnBuildDirectory(
 export async function runBuiltInOptimize(config: SnowpackConfig) {
   const originalCwd = process.cwd();
   const buildDirectoryLoc = config.buildOptions.out;
-  const options = config.experiments.optimize;
+  const options = config.optimize;
   if (!options) {
     return;
   }
 
   logger.warn(
-    '(early preview: experiments.optimize is experimental, and still subject to change.)',
+    '(early preview: optimize is experimental, and still subject to change.)',
     {
       name: 'optimize',
     },
