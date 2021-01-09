@@ -1,7 +1,7 @@
 const execa = require('execa');
 const npmRunPath = require('npm-run-path');
 
-function typescriptPlugin(snowpackConfig, {tsc, args = `--project ${cwd}/tsconfig.json`} = {}) {
+function typescriptPlugin(snowpackConfig, {tsc, args = `--project ${snowpackConfig.root || process.cwd()}/tsconfig.json`} = {}) {
   return {
     name: '@snowpack/plugin-typescript',
     async run({isDev, log}) {
