@@ -25,4 +25,4 @@ module.exports = {
 | Name   |   Type   | Description                                                                                                                                                                               |
 | :----- | :------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `tsc`  | `string` | Optional custom tsc command. For example, you can use TypeScript compiler by specifying: `tsc: "tsc"`.                                                                                    |
-| `args` | `string` | Optional arguments to pass to the `tsc` CLI. For example, you can configure a custom project directory (with a custom `tsconfig.json` file) using `args: "--project ./your/custom/path"`. |
+| `args` | `string` | Optional arguments to pass to the `tsc` CLI. For example, you can configure a custom project directory (with a custom `tsconfig.json` file) using `args: "--project ./your/custom/path"`. The default value is `"--project ${rootDir}/tsconfig.json"`.|
