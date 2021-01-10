@@ -15,6 +15,6 @@ if (import.meta.hot) {
 }
 ```
 
-Full API Reference: [snowpack/esm-hmr on GithUb](https://github.com/snowpackjs/esm-hmr)
+Full API Reference: [snowpack/esm-hmr on GitHub](https://github.com/snowpackjs/esm-hmr)
 
 [Learn more](/concepts/hot-module-replacement) about HMR, Fast Refresh, and how it's meant to work in Snowpack.
