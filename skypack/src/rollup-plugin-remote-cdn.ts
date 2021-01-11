@@ -72,7 +72,8 @@ export function rollupPluginSkypack({
       const cacheKey = id.substring(CACHED_FILE_ID_PREFIX.length);
       console.debug(`load ${cacheKey}`, {name: 'install:remote'});
       const {body} = await fetchCDN(cacheKey);
-      return body;
+      console.log(body);
+      return body.toString();
     },
   } as Plugin;
 }

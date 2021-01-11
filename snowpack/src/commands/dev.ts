@@ -748,7 +748,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
             return resolvedImportUrl;
           }
           // Ignore packages marked as external
-          if (config.installOptions.externalPackage?.includes(resolvedImportUrl)) {
+          if (config.packageOptions.external?.includes(resolvedImportUrl)) {
             return spec;
           }
           // Handle normal "./" & "../" import specifiers
@@ -778,7 +778,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         // Only retry once, to prevent an infinite loop when a package doesn't actually exist.
         if (retryMissing) {
           try {
-            sourceImportMap = await pkgSource.recoverMissingPackageImport(missingPackages);
+            sourceImportMap = await pkgSource.recoverMissingPackageImport(missingPackages, config);
             return resolveResponseImports(fileLoc, responseExt, wrappedResponse, false);
           } catch (err) {
             const errorTitle = `Dependency Install Error`;
@@ -798,8 +798,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         // eventually saw post-build. In that case, you need to add it manually.
         const errorTitle = `Error: Import "${missingPackages[0]}" could not be resolved.`;
         const errorMessage = `If this import doesn't exist in the source file, add ${colors.bold(
-          `"install": ["${missingPackages[0]}"]`,
-        )} to your Snowpack config file.`;
+          `"knownEntrypoints": ["${missingPackages[0]}"]`,
+        )} to your Snowpack config "packageOptions".`;
         logger.error(`${errorTitle}\n${errorMessage}`);
         hmrEngine.broadcastMessage({
           type: 'error',

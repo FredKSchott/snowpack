@@ -1,4 +1,4 @@
-import type {InstallOptions} from 'esinstall';
+import type {InstallOptions as EsinstallOptions} from 'esinstall';
 import type * as http from 'http';
 import type {RawSourceMap} from 'source-map';
 
@@ -181,6 +181,8 @@ export interface OptimizeOptions {
   entrypoints: 'auto' | string[] | ((options: {files: string[]}) => string[]);
   preload: boolean;
   bundle: boolean;
+  splitting: boolean;
+  treeshake: boolean;
   manifest: boolean;
   minify: boolean;
   target: 'es2020' | 'es2019' | 'es2018' | 'es2017';
@@ -193,12 +195,15 @@ export interface RouteConfigObject {
   _srcRegex: RegExp;
 }
 
-export interface PackageSourceLocal {
+export interface PackageSourceLocal extends Omit<EsinstallOptions, 'alias' | 'dest'> {
   source: 'local';
+  external: string[];
+  knownEntrypoints: string[];
 }
 
 export interface PackageSourceSkypack {
   source: 'skypack';
+  external: string[];
   cache: string;
   types: boolean;
 }
@@ -206,10 +211,8 @@ export interface PackageSourceSkypack {
 // interface this library uses internally
 export interface SnowpackConfig {
   root: string;
-  install: string[];
   extends?: string;
   exclude: string[];
-  knownEntrypoints: string[];
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   plugins: SnowpackPlugin[];
@@ -225,7 +228,6 @@ export interface SnowpackConfig {
     hmrPort: number | undefined;
     hmrErrorOverlay: boolean;
   };
-  installOptions: Omit<InstallOptions, 'alias' | 'dest'>;
   buildOptions: {
     out: string;
     baseUrl: string;
@@ -263,7 +265,6 @@ export type SnowpackUserConfig = {
   alias?: Record<string, string>;
   plugins?: (string | [string, any])[];
   devOptions?: Partial<SnowpackConfig['devOptions']>;
-  installOptions?: Partial<SnowpackConfig['installOptions']>;
   buildOptions?: Partial<SnowpackConfig['buildOptions']>;
   testOptions?: Partial<SnowpackConfig['testOptions']>;
   packageOptions?: Partial<SnowpackConfig['packageOptions']>;
@@ -291,8 +292,9 @@ export interface ImportMap {
   imports: {[specifier: string]: string};
 }
 
-export interface LockfileManifest extends ImportMap {
+export interface LockfileManifest {
   dependencies: {[packageName: string]: string};
+  lock: {[specifier: string]: string};
 }
 
 export interface CommandOptions {
@@ -323,17 +325,21 @@ export interface PackageSource {
    */
   load(
     spec: string,
-    options: {config: SnowpackConfig; lockfile: ImportMap | null},
+    options: {config: SnowpackConfig; lockfile: LockfileManifest | null},
   ): Promise<Buffer | string>;
   /** Resolve a package import to URL (ex: "react" -> "/web_modules/react") */
   resolvePackageImport(spec: string, importMap: ImportMap, config: SnowpackConfig): string | false;
   /** Handle 1+ missing package imports before failing, if possible. */
-  recoverMissingPackageImport(missingPackages: string[]): Promise<ImportMap>;
+  recoverMissingPackageImport(
+    missingPackages: string[],
+    config: SnowpackConfig,
+  ): Promise<ImportMap>;
   /** Modify the build install config for optimized build install. */
-  modifyBuildInstallConfig(options: {
+  modifyBuildInstallOptions(options: {
+    installOptions: EsinstallOptions;
     config: SnowpackConfig;
-    lockfile: ImportMap | null;
-  }): Promise<void>;
+    lockfile: LockfileManifest | null;
+  }): EsinstallOptions;
   getCacheFolder(config: SnowpackConfig): string;
   clearCache(): void | Promise<void>;
 }

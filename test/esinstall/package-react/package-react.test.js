@@ -15,7 +15,7 @@ describe('package-react', () => {
     if (existsPackageJson(cwd) === false) return;
 
     // Run Test
-    const {output, snapshotFile} = await runTest(cwd);
+    const {output, snapshotFile} = await runTest(['react', 'react-dom'], {cwd});
 
     // Test output
     expect(output).toMatchSpecificSnapshot(snapshotFile, 'cli output');
@@ -24,7 +24,7 @@ describe('package-react', () => {
     await testLockFile(cwd);
 
     // Cleanup
-    const {testAllSnapshots, testDiffs} = testWebModules(cwd, snapshotFile);
+    const {testAllSnapshots, testDiffs} = await testWebModules(cwd, snapshotFile);
 
     // Assert that the snapshots match
     testAllSnapshots();

@@ -1,7 +1,6 @@
 import {existsSync} from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
-import glob from 'glob';
 import {
   clearCache as clearSkypackCache,
   buildNewPackage,
@@ -13,21 +12,26 @@ import {
 } from 'skypack';
 import {logger} from '../logger';
 import {ImportMap, LockfileManifest, PackageSource, SnowpackConfig} from '../types';
-import {isJavaScript} from '../util';
+import {convertLockfileToSkypackImportMap, isJavaScript} from '../util';
 import rimraf from 'rimraf';
 
 const fetchedPackages = new Set<string>();
-function logFetching(packageName: string) {
+function logFetching(packageName: string, packageSemver: string | undefined) {
   if (fetchedPackages.has(packageName)) {
     return;
   }
   fetchedPackages.add(packageName);
   logger.info(
-    `Fetching latest ${colors.bold(packageName)} ${colors.dim(
+    `import ${colors.bold(packageName + (packageSemver ? `@${packageSemver}` : ''))} ${colors.dim(
       `→ ${SKYPACK_ORIGIN}/${packageName}`,
     )}`,
-    {name: 'source:skypack'},
+    {name: 'skypack'},
   );
+  if (!packageSemver) {
+    logger.info(colors.yellow(`pin project to this version: \`snowpack add ${packageName}\``), {
+      name: 'skypack',
+    });
+  }
 }
 
 function parseRawPackageImport(spec: string): [string, string | null] {
@@ -52,52 +56,36 @@ export default {
     if (config.packageOptions.source === 'skypack' && !config.packageOptions.types) {
       return {imports: {}};
     }
-    const dependenciesList = lockfile && (Object.keys(lockfile.dependencies) as string[]);
-    if (!lockfile || !dependenciesList || dependenciesList.length === 0) {
-      logger.debug('No types to install.');
+    const lockEntryList = lockfile && (Object.keys(lockfile.lock) as string[]);
+    if (!lockfile || !lockEntryList || lockEntryList.length === 0) {
       return {imports: {}};
     }
 
-    const allTypesFolders = [
-      glob.sync('*', {
-        nodir: false,
-        cwd: path.join(this.getCacheFolder(config), '.snowpack/types'),
-      }),
-      glob.sync('@*/*', {
-        nodir: false,
-        cwd: path.join(this.getCacheFolder(config), '.snowpack/types'),
-      }),
-    ];
-    if (JSON.stringify(allTypesFolders.sort()) === JSON.stringify(dependenciesList.sort())) {
-      // we are up to date, ignore
-      return {imports: {}};
-    } else {
-      await rimraf.sync(path.join(this.getCacheFolder(config), '.snowpack/types'));
-    }
-
-    for (const packageName of dependenciesList) {
-      logFetching(packageName);
+    logger.info('checking for new TypeScript types...', {name: 'packageOptions.types'});
+    await rimraf.sync(path.join(this.getCacheFolder(config), '.snowpack/types'));
+    for (const lockEntry of lockEntryList) {
+      const [packageName, semverRange] = lockEntry.split('#');
+      const exactVersion = lockfile.lock[lockEntry]?.substr(packageName.length + 1);
       await installTypes(
         packageName,
-        lockfile.dependencies[packageName],
-        path.join(this.getCacheFolder(config), '.snowpack/types'),
-      ).catch(() => 'thats fine!');
+        exactVersion || semverRange,
+        path.join(this.getCacheFolder(config), 'types'),
+      ).catch((err) => logger.debug('dts fetch error: ' + err.message));
     }
     // Skypack resolves imports on the fly, so no import map needed.
+    logger.info(`types updated. ${colors.dim('→ ./.snowpack/types')}`, {
+      name: 'packageOptions.types',
+    });
     return {imports: {}};
   },
 
-  async modifyBuildInstallConfig({
-    config,
-    lockfile,
-  }: {
-    config: SnowpackConfig;
-    lockfile: LockfileManifest | null;
-  }) {
-    config.installOptions.lockfile = lockfile || undefined;
-    config.installOptions.rollup = config.installOptions.rollup || {};
-    config.installOptions.rollup.plugins = config.installOptions.rollup.plugins || [];
-    config.installOptions.rollup.plugins.push(rollupPluginSkypack({}) as Plugin);
+  modifyBuildInstallOptions({installOptions, lockfile}) {
+    installOptions.importMap = lockfile ? convertLockfileToSkypackImportMap(lockfile) : undefined;
+    installOptions.rollup = installOptions.rollup || {};
+    installOptions.rollup.plugins = installOptions.rollup.plugins || [];
+    installOptions.rollup.plugins.push(rollupPluginSkypack({}) as Plugin);
+    // config.installOptions.lockfile = lockfile || undefined;
+    return installOptions;
   },
 
   async load(
@@ -114,15 +102,16 @@ export default {
       body = (await fetchCDN(`/${spec}`)).body;
     } else {
       const [packageName, packagePath] = parseRawPackageImport(spec);
-      if (lockfile && lockfile.imports[spec]) {
-        body = (await fetchCDN(lockfile.imports[spec])).body;
-      } else if (lockfile && lockfile.imports[packageName + '/']) {
-        body = (await fetchCDN(lockfile.imports[packageName + '/'] + packagePath)).body;
+      if (lockfile && lockfile.dependencies[packageName]) {
+        const lockEntry = packageName + '#' + lockfile.dependencies[packageName];
+        if (packagePath) {
+          body = (await fetchCDN('/' + lockfile.lock[lockEntry] + '/' + packagePath)).body;
+        } else {
+          body = (await fetchCDN('/' + lockfile.lock[lockEntry])).body;
+        }
       } else {
         const _packageSemver = lockfile?.dependencies && lockfile.dependencies[packageName];
-        if (!_packageSemver) {
-          logFetching(packageName);
-        }
+        logFetching(packageName, _packageSemver);
         const packageSemver = _packageSemver || 'latest';
         let lookupResponse = await lookupBySpecifier(spec, packageSemver);
         if (!lookupResponse.error && lookupResponse.importStatus === 'NEW') {

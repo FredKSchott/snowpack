@@ -1,4 +1,4 @@
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 const path = require('path');
 
 describe('package-entrypoints exports configuration', () => {
@@ -31,7 +31,7 @@ describe('package-entrypoints exports configuration', () => {
 
     const {
       importMap: {imports},
-    } = await install(targets, {
+    } = await runTest(targets, {
       cwd,
       dest,
     });
@@ -76,7 +76,7 @@ describe('package-entrypoints exports configuration', () => {
 
     const {
       importMap: {imports},
-    } = await install(targets, {
+    } = await runTest(targets, {
       cwd,
       dest,
     });
@@ -102,7 +102,7 @@ describe('package-entrypoints exports configuration', () => {
 
     const {
       importMap: {imports},
-    } = await install(targets, {
+    } = await runTest(targets, {
       cwd,
       dest,
     });
@@ -134,7 +134,7 @@ describe('package-entrypoints exports configuration', () => {
 
     const {
       importMap: {imports},
-    } = await install(targets, {
+    } = await runTest(targets, {
       cwd,
       dest,
     });
@@ -152,7 +152,7 @@ describe('package-entrypoints exports configuration', () => {
     const targets = ['export-map-dot-slash'];
 
     const run = async () => {
-      await install(targets, {
+      await runTest(targets, {
         cwd,
         dest,
       });
@@ -168,7 +168,7 @@ describe('package-entrypoints exports configuration', () => {
     const targets = ['preact/debug/src/check-props'];
 
     const run = async () => {
-      await install(targets, {
+      await runTest(targets, {
         cwd,
         dest,
       });

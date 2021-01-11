@@ -1,5 +1,5 @@
 const path = require('path');
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 
 describe('importing types', () => {
   it('preserves the types', async () => {
@@ -9,7 +9,7 @@ describe('importing types', () => {
 
     const {
       importMap: {imports},
-    } = await install([spec, 'array-flatten'], {
+    } = await runTest([spec, 'array-flatten'], {
       cwd,
       dest,
     });

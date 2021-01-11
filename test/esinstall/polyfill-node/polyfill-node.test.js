@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 
 describe('polyfill node', () => {
   it('is enabled through polyfillNode', async () => {
@@ -10,7 +10,7 @@ describe('polyfill node', () => {
 
     const {
       importMap: {imports},
-    } = await install([spec], {
+    } = await runTest([spec], {
       cwd,
       dest,
       polyfillNode: true,

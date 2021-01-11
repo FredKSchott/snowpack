@@ -413,7 +413,7 @@ async function runEsbuildOnBuildDirectory(
     outbase: config.buildOptions.out,
     write: false,
     bundle: true,
-    splitting: true,
+    splitting: config.optimize!.splitting,
     format: 'esm',
     platform: 'browser',
     metafile: path.join(config.buildOptions.out, 'build-manifest.json'),
@@ -464,13 +464,6 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
     return;
   }
 
-  logger.warn(
-    '(early preview: optimize is experimental, and still subject to change.)',
-    {
-      name: 'optimize',
-    },
-  );
-
   // * Scan to collect all build files: We'll need this throughout.
   const allBuildFiles = glob.sync('**/*', {
     cwd: buildDirectoryLoc,
@@ -497,7 +490,11 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
   logger.debug(`htmlEntrypoints: ${JSON.stringify(htmlEntrypoints?.map((f) => f.file))}`);
   logger.debug(`bundleEntrypoints: ${JSON.stringify(bundleEntrypoints)}`);
 
-  if ((!htmlEntrypoints || htmlEntrypoints.length === 0) && bundleEntrypoints.length === 0) {
+  if (
+    (!htmlEntrypoints || htmlEntrypoints.length === 0) &&
+    bundleEntrypoints.length === 0 &&
+    (options.bundle || options.preload)
+  ) {
     throw new Error(
       '[optimize] No HTML entrypoints detected. Set "entrypoints" manually if your site HTML is generated outside of Snowpack (SSR, Rails, PHP, etc.).',
     );
@@ -532,7 +529,7 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
     }
     deleteFromBuildSafe(
       path.resolve(buildDirectoryLoc, removeLeadingSlash(config.buildOptions.webModulesUrl)),
-      config
+      config,
     );
     await removeEmptyFolders(buildDirectoryLoc);
     for (const outputFile of outputFiles!) {

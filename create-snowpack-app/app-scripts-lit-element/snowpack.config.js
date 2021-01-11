@@ -11,7 +11,5 @@ module.exports = {
   },
   plugins: ['@snowpack/plugin-babel', '@snowpack/plugin-dotenv'],
   devOptions: {},
-  installOptions: {
-    installTypes: isTS,
-  },
+  packageOptions: {},
 };

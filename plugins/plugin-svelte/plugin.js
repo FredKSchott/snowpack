@@ -14,18 +14,23 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   const useSourceMaps = snowpackConfig.buildOptions.sourceMaps;
 
   // Support importing Svelte files when you install dependencies.
-  snowpackConfig.installOptions.rollup.plugins.push(
-    svelteRollupPlugin({
-      include: /\.svelte$/,
-      compilerOptions: {dev: isDev},
-      // Snowpack wraps JS-imported CSS in a JS wrapper, so use
-      // Svelte's own first-class `emitCss: false` here.
-      // TODO: Remove once Snowpack adds first-class CSS import support in deps.
-      emitCss: false,
-    }),
-  );
-  // Support importing sharable Svelte components.
-  snowpackConfig.installOptions.packageLookupFields.push('svelte');
+  if (snowpackConfig.packageOptions.source === 'local') {
+    snowpackConfig.packageOptions.rollup = snowpackConfig.packageOptions.rollup || {};
+    snowpackConfig.packageOptions.rollup.plugins =
+      snowpackConfig.packageOptions.rollup.plugins || [];
+    snowpackConfig.packageOptions.rollup.plugins.push(
+      svelteRollupPlugin({
+        include: /\.svelte$/,
+        compilerOptions: {dev: isDev},
+        // Snowpack wraps JS-imported CSS in a JS wrapper, so use
+        // Svelte's own first-class `emitCss: false` here.
+        // TODO: Remove once Snowpack adds first-class CSS import support in deps.
+        emitCss: false,
+      }),
+    );
+    // Support importing sharable Svelte components.
+    snowpackConfig.packageOptions.packageLookupFields.push('svelte');
+  }
 
   if (
     pluginOptions.generate !== undefined ||

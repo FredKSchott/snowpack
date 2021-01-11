@@ -13,7 +13,8 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
   beforeEach(() => {
     DEFAULT_CONFIG = {
       buildOptions: {sourceMaps: false},
-      installOptions: {
+      packageOptions: {
+        source: 'local',
         rollup: {plugins: []},
         packageLookupFields: [],
       },
@@ -140,9 +141,9 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
   it('supports importing svelte components', async () => {
     const config = {...DEFAULT_CONFIG};
     plugin(config, {});
-    expect(config.installOptions.packageLookupFields).toEqual(['svelte']);
-    config.installOptions.packageLookupFields = ['module'];
+    expect(config.packageOptions.packageLookupFields).toEqual(['svelte']);
+    config.packageOptions.packageLookupFields = ['module'];
     plugin(config, {});
-    expect(config.installOptions.packageLookupFields).toEqual(['module', 'svelte']);
+    expect(config.packageOptions.packageLookupFields).toEqual(['module', 'svelte']);
   });
 });

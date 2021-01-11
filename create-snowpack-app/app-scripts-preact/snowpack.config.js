@@ -10,7 +10,5 @@ module.exports = {
     src: {url: '/dist'},
   },
   plugins: ['@snowpack/plugin-babel', '@prefresh/snowpack', '@snowpack/plugin-dotenv'],
-  installOptions: {
-    installTypes: isTS,
-  },
+  packageOptions: {},
 };

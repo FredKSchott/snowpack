@@ -74,7 +74,7 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
       return spec;
     }
     // Ignore packages marked as external
-    if (config.installOptions.externalPackage?.includes(spec)) {
+    if (config.packageOptions.external?.includes(spec)) {
       return spec;
     }
     if (spec.startsWith('/')) {

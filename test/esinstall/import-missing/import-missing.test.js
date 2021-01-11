@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 
 describe('include-missing-in-package-json', () => {
   beforeAll(() => {
@@ -16,7 +16,7 @@ describe('include-missing-in-package-json', () => {
     // install
     const {
       importMap: {imports},
-    } = await install(installTargets, {cwd: __dirname});
+    } = await runTest(installTargets, {cwd: __dirname});
 
     // ensure all targets built
     for (const target of installTargets) {

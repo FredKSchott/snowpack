@@ -9,12 +9,14 @@ import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
+import {SKYPACK_ORIGIN} from 'skypack';
 import url from 'url';
 import localPackageSource from './sources/local';
 import skypackPackageSource from './sources/skypack';
-import {LockfileManifest, PackageSource, SnowpackConfig} from './types';
+import {ImportMap, LockfileManifest, PackageSource, SnowpackConfig} from './types';
 
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
+export const LOCKFILE_NAME = 'snowpack.deps.json';
 
 // We need to use eval here to prevent Rollup from detecting this use of `require()`
 export const NATIVE_REQUIRE = eval('require');
@@ -59,7 +61,7 @@ export async function readFile(filepath: URL): Promise<string | Buffer> {
 
 export async function readLockfile(cwd: string): Promise<LockfileManifest | null> {
   try {
-    var lockfileContents = fs.readFileSync(path.join(cwd, 'snowpack.lock.json'), {
+    var lockfileContents = fs.readFileSync(path.join(cwd, LOCKFILE_NAME), {
       encoding: 'utf8',
     });
   } catch (err) {
@@ -78,9 +80,29 @@ function sortObject<T>(originalObject: Record<string, T>): Record<string, T> {
   return newObject;
 }
 
+export function convertLockfileToSkypackImportMap(lockfile: LockfileManifest): ImportMap {
+  const result = {imports: {}};
+  for (const [key, val] of Object.entries(lockfile.lock)) {
+    result.imports[key.replace(/\#.*/, '')] = SKYPACK_ORIGIN + '/' + val;
+    result.imports[key.replace(/\#.*/, '') + '/'] = SKYPACK_ORIGIN + '/' + val + '/';
+  }
+  return result;
+}
+
+export function convertSkypackImportMapToLockfile(
+  dependencies: Record<string, string>,
+  importMap: ImportMap,
+): LockfileManifest {
+  const result = {dependencies, lock: {}};
+  for (const [key, val] of Object.entries(dependencies)) {
+    result.lock[key + '#' + val] = importMap.imports[key].replace(SKYPACK_ORIGIN + '/', '');
+  }
+  return result;
+}
+
 export async function writeLockfile(loc: string, importMap: LockfileManifest): Promise<void> {
   importMap.dependencies = sortObject(importMap.dependencies);
-  importMap.imports = sortObject(importMap.imports);
+  importMap.lock = sortObject(importMap.lock);
   fs.writeFileSync(loc, JSON.stringify(importMap, undefined, 2), {encoding: 'utf8'});
 }
 

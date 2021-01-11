@@ -1,4 +1,4 @@
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 const path = require('path');
 
 describe('node builtins', () => {
@@ -9,7 +9,7 @@ describe('node builtins', () => {
     const targets = ['bad-node-builtin-pkg'];
 
     const run = async () => {
-      await install(targets, {
+      await runTest(targets, {
         cwd,
         dest,
       });

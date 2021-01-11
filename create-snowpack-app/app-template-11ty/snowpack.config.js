@@ -7,10 +7,7 @@ module.exports = {
   plugins: [
     ['@snowpack/plugin-run-script', { cmd: 'eleventy', watch: '$1 --watch' }],
   ],
-  install: [
-    /* ... */
-  ],
-  installOptions: {
+  packageOptions: {
     /* ... */
   },
   devOptions: {
