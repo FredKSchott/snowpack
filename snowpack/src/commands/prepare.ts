@@ -6,7 +6,7 @@ import {getPackageSource} from '../util';
 export async function command(commandOptions: CommandOptions) {
   const {config, lockfile} = commandOptions;
   logger.info(colors.yellow('! preparing your project...'));
-  if (config.packageOptions.source === 'skypack') {
+  if (config.packageOptions.source === 'stream') {
     if (!config.packageOptions.types) {
       logger.info(
         colors.green('✔') +

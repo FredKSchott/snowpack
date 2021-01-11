@@ -13,19 +13,19 @@ import {
 
 export async function addCommand(addValue: string, commandOptions: CommandOptions) {
   const {lockfile, config} = commandOptions;
-  if (config.packageOptions.source !== 'skypack') {
-    throw new Error(`add command requires packageOptions.source="skypack".`);
+  if (config.packageOptions.source !== 'stream') {
+    throw new Error(`add command requires packageOptions.source="stream".`);
   }
   let [pkgName, pkgSemver] = addValue.split('@');
   const installMessage = pkgSemver ? `${pkgName}@${pkgSemver}` : pkgName;
-  logger.info(`fetching ${cyan(installMessage)} from Skypack CDN...`);
+  logger.info(`fetching ${cyan(installMessage)} from CDN...`);
   if (!pkgSemver || pkgSemver === 'latest') {
     const {data} = await send('GET', `http://registry.npmjs.org/${pkgName}/latest`);
     pkgSemver = `^${data.version}`;
   }
   logger.info(
     `adding ${cyan(
-      underline(`https://cdn.skypack.dev/${pkgName}@${pkgSemver}`),
+      underline(`${pkgName}@${pkgSemver}`),
     )} to your project lockfile. ${dim(`(${LOCKFILE_NAME})`)}`,
   );
   const addedDependency = {[pkgName]: pkgSemver};
@@ -44,8 +44,8 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
 
 export async function rmCommand(addValue: string, commandOptions: CommandOptions) {
   const {lockfile, config} = commandOptions;
-  if (config.packageOptions.source !== 'skypack') {
-    throw new Error(`rm command requires packageOptions.source="skypack".`);
+  if (config.packageOptions.source !== 'stream') {
+    throw new Error(`rm command requires packageOptions.source="stream".`);
   }
   let [pkgName] = addValue.split('@');
   logger.info(`removing ${cyan(pkgName)} from project lockfile...`);

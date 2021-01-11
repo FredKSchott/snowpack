@@ -25,12 +25,9 @@ function logFetching(packageName: string, packageSemver: string | undefined) {
     `import ${colors.bold(packageName + (packageSemver ? `@${packageSemver}` : ''))} ${colors.dim(
       `→ ${SKYPACK_ORIGIN}/${packageName}`,
     )}`,
-    {name: 'skypack'},
   );
   if (!packageSemver) {
-    logger.info(colors.yellow(`pin project to this version: \`snowpack add ${packageName}\``), {
-      name: 'skypack',
-    });
+    logger.info(colors.yellow(`pin project to this version: \`snowpack add ${packageName}\``));
   }
 }
 
@@ -45,7 +42,7 @@ function parseRawPackageImport(spec: string): [string, string | null] {
 }
 
 /**
- * Skypack Package Source: A generic interface through which
+ * Stream Package Source: A generic interface through which
  * Snowpack interacts with the Skypack CDN. Used to load dependencies
  * from the CDN during both development and optimized building.
  */
@@ -53,7 +50,7 @@ export default {
   async prepare(commandOptions) {
     const {config, lockfile} = commandOptions;
     // Only install types if `packageOptions.types=true`. Otherwise, no need to prepare anything.
-    if (config.packageOptions.source === 'skypack' && !config.packageOptions.types) {
+    if (config.packageOptions.source === 'stream' && !config.packageOptions.types) {
       return {imports: {}};
     }
     const lockEntryList = lockfile && (Object.keys(lockfile.lock) as string[]);
@@ -161,7 +158,7 @@ export default {
 
   getCacheFolder(config) {
     return (
-      (config.packageOptions.source === 'skypack' && config.packageOptions.cache) ||
+      (config.packageOptions.source === 'stream' && config.packageOptions.cache) ||
       path.join(config.root, '.snowpack')
     );
   },

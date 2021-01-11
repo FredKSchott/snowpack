@@ -12,7 +12,7 @@ import rimraf from 'rimraf';
 import {SKYPACK_ORIGIN} from 'skypack';
 import url from 'url';
 import localPackageSource from './sources/local';
-import skypackPackageSource from './sources/skypack';
+import streamingPackageSource from './sources/stream';
 import {ImportMap, LockfileManifest, PackageSource, SnowpackConfig} from './types';
 
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
@@ -110,8 +110,8 @@ export function isTruthy<T>(item: T | false | null | undefined): item is T {
   return Boolean(item);
 }
 
-export function getPackageSource(source: 'skypack' | 'local'): PackageSource {
-  return source === 'local' ? localPackageSource : skypackPackageSource;
+export function getPackageSource(source: 'stream' | 'local'): PackageSource {
+  return source === 'local' ? localPackageSource : streamingPackageSource;
 }
 
 /**
@@ -299,7 +299,7 @@ export async function clearCache() {
   return Promise.all([
     cacache.rm.all(BUILD_CACHE),
     localPackageSource.clearCache(),
-    skypackPackageSource.clearCache(),
+    streamingPackageSource.clearCache(),
   ]);
 }
 

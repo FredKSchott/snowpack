@@ -201,8 +201,8 @@ export interface PackageSourceLocal extends Omit<EsinstallOptions, 'alias' | 'de
   knownEntrypoints: string[];
 }
 
-export interface PackageSourceSkypack {
-  source: 'skypack';
+export interface PackageSourceStream {
+  source: 'stream';
   external: string[];
   cache: string;
   types: boolean;
@@ -244,7 +244,7 @@ export interface SnowpackConfig {
   testOptions: {
     files: string[];
   };
-  packageOptions: PackageSourceLocal | PackageSourceSkypack;
+  packageOptions: PackageSourceLocal | PackageSourceStream;
   /** Optimize your site for production. */
   optimize?: OptimizeOptions;
   /** Configure routes during development. */
