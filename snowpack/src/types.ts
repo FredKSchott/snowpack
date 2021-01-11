@@ -248,7 +248,9 @@ export interface SnowpackConfig {
   /** Configure routes during development. */
   routes: RouteConfigObject[];
   /** EXPERIMENTAL - This section is experimental and not yet finalized. May change across minor versions. */
-  experiments: { /* intentionally left blank */ };
+  experiments: {
+    /* intentionally left blank */
+  };
   _extensionMap: Record<string, string[]>;
 }
 
@@ -267,7 +269,9 @@ export type SnowpackUserConfig = {
   packageOptions?: Partial<SnowpackConfig['packageOptions']>;
   optimize?: Partial<SnowpackConfig['optimize']>;
   routes?: Pick<RouteConfigObject, 'src' | 'dest' | 'match'>[];
-  experiments?: { /* intentionally left blank */ };
+  experiments?: {
+    /* intentionally left blank */
+  };
 };
 export interface CLIFlags {
   help?: boolean; // display help text
