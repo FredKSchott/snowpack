@@ -703,12 +703,14 @@ exports.setSignature = setSignature;
 exports[`@snowpack/plugin-react-refresh transform js and html when babel is disabled: html and isDev=false 1`] = `undefined`;
 
 exports[`@snowpack/plugin-react-refresh transform js and html when babel is disabled: js 1`] = `
-"import React from 'react';
+Object {
+  "code": "import React from 'react';
 function App() {
   return /* @__PURE__ */ React.createElement('div', null, 'React App');
 }
 export default App;
-"
+",
+}
 `;
 
 exports[`@snowpack/plugin-react-refresh transform js and html when babel is disabled: js and isDev=false 1`] = `undefined`;
@@ -720,6 +722,14 @@ exports[`@snowpack/plugin-react-refresh transform js and html when hmr is disabl
 exports[`@snowpack/plugin-react-refresh transform js and html when hmr is disabled: js 1`] = `undefined`;
 
 exports[`@snowpack/plugin-react-refresh transform js and html when hmr is disabled: js and isDev=false 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh transform js and html when sourceMaps is enabled: html 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh transform js and html when sourceMaps is enabled: html and isDev=false 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh transform js and html when sourceMaps is enabled: js 1`] = `undefined`;
+
+exports[`@snowpack/plugin-react-refresh transform js and html when sourceMaps is enabled: js and isDev=false 1`] = `undefined`;
 
 exports[`@snowpack/plugin-react-refresh transform js and html: html 1`] = `
 "<!DOCTYPE html>
@@ -1424,17 +1434,19 @@ exports.setSignature = setSignature;
 exports[`@snowpack/plugin-react-refresh transform js and html: html and isDev=false 1`] = `undefined`;
 
 exports[`@snowpack/plugin-react-refresh transform js and html: js 1`] = `
-"
-/** React Refresh: Setup **/
+Object {
+  "code": "/** React Refresh: Setup **/
 if (import.meta.hot) {
   if (!window.$RefreshReg$ || !window.$RefreshSig$ || !window.$RefreshRuntime$) {
     console.warn('@snowpack/plugin-react-refresh: HTML setup script not run. React Fast Refresh only works when Snowpack serves your HTML routes. You may want to remove this plugin.');
   } else {
     var prevRefreshReg = window.$RefreshReg$;
     var prevRefreshSig = window.$RefreshSig$;
+
     window.$RefreshReg$ = (type, id) => {
       window.$RefreshRuntime$.register(type, \\"stub.js\\" + \\" \\" + id);
-    }
+    };
+
     window.$RefreshSig$ = window.$RefreshRuntime$.createSignatureFunctionForTransform;
   }
 }
@@ -1448,18 +1460,19 @@ function App() {
 _c = App;
 export default App;
 
+if (import.meta.hot) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+  import.meta.hot.accept(() => {
+    window.$RefreshRuntime$.performReactRefresh();
+  });
+}
+
 var _c;
 
-$RefreshReg$(_c, \\"App\\");
-
-/** React Refresh: Connect **/
-if (import.meta.hot) {
-  window.$RefreshReg$ = prevRefreshReg
-  window.$RefreshSig$ = prevRefreshSig
-  import.meta.hot.accept(() => {
-    window.$RefreshRuntime$.performReactRefresh()
-  });
-}"
+$RefreshReg$(_c, \\"App\\");",
+  "map": null,
+}
 `;
 
 exports[`@snowpack/plugin-react-refresh transform js and html: js and isDev=false 1`] = `undefined`;

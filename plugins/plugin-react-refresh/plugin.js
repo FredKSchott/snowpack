@@ -32,62 +32,54 @@ function transformHtml(contents) {
 }
 
 const babel = require('@babel/core');
+const { headerText, footerText } = require('./wrappers');
 const IS_FAST_REFRESH_ENABLED = /\$RefreshReg\$\(/;
-async function transformJs(contents, id, cwd, skipTransform) {
+async function transformJs(contents, id, cwd, skipTransform, sourceMaps) {
   let fastRefreshEnhancedCode;
+  let fastRefreshEnhancedMap;
 
   if (skipTransform) {
-    fastRefreshEnhancedCode = contents;
+    fastRefreshEnhancedCode = `${headerText(id)}\n${contents}\n${footerText()}}`;
   } else if (IS_FAST_REFRESH_ENABLED.test(contents)) {
     // Warn in case someone has a bad setup, and to help older users upgrade.
     console.warn(
       `[@snowpack/plugin-react-refresh] ${id}\n"react-refresh/babel" plugin no longer needed in your babel config, safe to remove.`,
     );
-    fastRefreshEnhancedCode = contents;
+
+    fastRefreshEnhancedCode = `${headerText(id)}\n${contents}\n${footerText()}}`
   } else {
-    const {code} = await babel.transformAsync(contents, {
+    const {code, map} = await babel.transformAsync(contents, {
       cwd,
       filename: id,
       ast: false,
       compact: false,
-      sourceMaps: false,
+      sourceMaps,
       configFile: false,
       babelrc: false,
-      plugins: [require('react-refresh/babel'), require('@babel/plugin-syntax-class-properties')],
+      plugins: [
+        require('react-refresh/babel'),
+        require('@babel/plugin-syntax-class-properties'),
+        [require('./babel-plugin-wrap'), {
+          header: headerText(id),
+          footer: footerText()
+        }],
+      ],
     });
     fastRefreshEnhancedCode = code;
+    fastRefreshEnhancedMap = map;
   }
 
   // If fast refresh markup wasn't added, just return the original content.
   if (!fastRefreshEnhancedCode || !IS_FAST_REFRESH_ENABLED.test(fastRefreshEnhancedCode)) {
-    return contents;
+    return {
+      code: contents,
+    };
   }
 
-  return `
-/** React Refresh: Setup **/
-if (import.meta.hot) {
-  if (!window.$RefreshReg$ || !window.$RefreshSig$ || !window.$RefreshRuntime$) {
-    console.warn('@snowpack/plugin-react-refresh: HTML setup script not run. React Fast Refresh only works when Snowpack serves your HTML routes. You may want to remove this plugin.');
-  } else {
-    var prevRefreshReg = window.$RefreshReg$;
-    var prevRefreshSig = window.$RefreshSig$;
-    window.$RefreshReg$ = (type, id) => {
-      window.$RefreshRuntime$.register(type, ${JSON.stringify(id)} + " " + id);
-    }
-    window.$RefreshSig$ = window.$RefreshRuntime$.createSignatureFunctionForTransform;
-  }
-}
-
-${fastRefreshEnhancedCode}
-
-/** React Refresh: Connect **/
-if (import.meta.hot) {
-  window.$RefreshReg$ = prevRefreshReg
-  window.$RefreshSig$ = prevRefreshSig
-  import.meta.hot.accept(() => {
-    window.$RefreshRuntime$.performReactRefresh()
-  });
-}`;
+  return {
+    code: fastRefreshEnhancedCode,
+    map: fastRefreshEnhancedMap
+  };
 }
 
 module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
@@ -103,7 +95,8 @@ module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
       }
       if (fileExt === '.js') {
         const skipTransform = babel === false;
-        return transformJs(contents, id, snowpackConfig.root || process.cwd(), skipTransform);
+        const sourceMaps = !!snowpackConfig.buildOptions.sourceMaps;
+        return transformJs(contents, id, snowpackConfig.root || process.cwd(), skipTransform, sourceMaps);
       }
       if (fileExt === '.html') {
         return transformHtml(contents);

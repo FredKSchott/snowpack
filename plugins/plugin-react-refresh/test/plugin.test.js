@@ -58,11 +58,15 @@ function mockBabel() {
 async function testPluginInstance(pluginInstance) {
   const pluginTransform = pluginInstance.transform;
   expect(await pluginTransform(htmlTransformOptions)).toMatchSnapshot('html');
-  expect(await pluginTransform(jsTransformOptions)).toMatchSnapshot('js');
+
+  const jsResult1 = await pluginTransform(jsTransformOptions);
+  expect(jsResult1).toMatchSnapshot('js');
   expect(await pluginTransform({...htmlTransformOptions, isDev: false})).toMatchSnapshot(
     'html and isDev=false',
   );
-  expect(await pluginTransform({...jsTransformOptions, isDev: false})).toMatchSnapshot(
+
+  const jsResult2 = await await pluginTransform({...jsTransformOptions, isDev: false});
+  expect(jsResult2).toMatchSnapshot(
     'js and isDev=false',
   );
 }
@@ -74,6 +78,9 @@ describe('@snowpack/plugin-react-refresh', () => {
         devOptions: {
           hmr: true,
         },
+        buildOptions: {
+          sourceMaps: false
+        }
       },
       {babel: true},
     );
@@ -86,6 +93,9 @@ describe('@snowpack/plugin-react-refresh', () => {
         devOptions: {
           hmr: false,
         },
+        buildOptions: {
+          sourceMaps: false
+        }
       },
       {babel: true},
     );
@@ -98,8 +108,26 @@ describe('@snowpack/plugin-react-refresh', () => {
         devOptions: {
           hmr: true,
         },
+        buildOptions: {
+          sourceMaps: false
+        }
       },
       {babel: false},
+    );
+    await testPluginInstance(pluginInstance);
+  });
+
+  test('transform js and html when sourceMaps is enabled', async () => {
+    const pluginInstance = pluginReactRefresh(
+      {
+        devOptions: {
+          hmr: true,
+        },
+        buildOptions: {
+          sourceMaps: true
+        }
+      },
+      {babel: true},
     );
     await testPluginInstance(pluginInstance);
   });
