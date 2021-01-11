@@ -1,7 +1,6 @@
 import {send} from 'httpie';
 import {cyan, dim, underline} from 'kleur/colors';
 import path from 'path';
-import {generateImportMap} from 'skypack';
 import {logger} from '../logger';
 import {CommandOptions, LockfileManifest} from '../types';
 import {
@@ -9,6 +8,7 @@ import {
   convertSkypackImportMapToLockfile,
   LOCKFILE_NAME,
   writeLockfile,
+  remotePackageSDK,
 } from '../util';
 
 export async function addCommand(addValue: string, commandOptions: CommandOptions) {
@@ -24,9 +24,9 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
     pkgSemver = `^${data.version}`;
   }
   logger.info(
-    `adding ${cyan(
-      underline(`${pkgName}@${pkgSemver}`),
-    )} to your project lockfile. ${dim(`(${LOCKFILE_NAME})`)}`,
+    `adding ${cyan(underline(`${pkgName}@${pkgSemver}`))} to your project lockfile. ${dim(
+      `(${LOCKFILE_NAME})`,
+    )}`,
   );
   const addedDependency = {[pkgName]: pkgSemver};
   const newLockfile: LockfileManifest = convertSkypackImportMapToLockfile(
@@ -34,7 +34,7 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
       ...lockfile?.dependencies,
       ...addedDependency,
     },
-    await generateImportMap(
+    await remotePackageSDK.generateImportMap(
       addedDependency,
       lockfile ? convertLockfileToSkypackImportMap(lockfile) : undefined,
     ),
@@ -51,7 +51,7 @@ export async function rmCommand(addValue: string, commandOptions: CommandOptions
   logger.info(`removing ${cyan(pkgName)} from project lockfile...`);
   const newLockfile: LockfileManifest = convertSkypackImportMapToLockfile(
     lockfile?.dependencies ?? {},
-    await generateImportMap(
+    await remotePackageSDK.generateImportMap(
       {[pkgName]: null},
       lockfile ? convertLockfileToSkypackImportMap(lockfile) : undefined,
     ),

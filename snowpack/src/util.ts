@@ -9,17 +9,22 @@ import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
-import {SKYPACK_ORIGIN} from 'skypack';
+import {SkypackSDK} from 'skypack';
 import url from 'url';
 import localPackageSource from './sources/local';
 import streamingPackageSource from './sources/stream';
 import {ImportMap, LockfileManifest, PackageSource, SnowpackConfig} from './types';
 
+export const REMOTE_PACKAGE_ORIGIN = 'https://pkg.snowpack.dev';
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
 export const LOCKFILE_NAME = 'snowpack.deps.json';
 
 // We need to use eval here to prevent Rollup from detecting this use of `require()`
 export const NATIVE_REQUIRE = eval('require');
+
+
+export const remotePackageSDK = new SkypackSDK({origin: 'https://pkg.snowpack.dev'});
+
 
 // A note on cache naming/versioning: We currently version our global caches
 // with the version of the last breaking change. This allows us to re-use the
@@ -83,8 +88,8 @@ function sortObject<T>(originalObject: Record<string, T>): Record<string, T> {
 export function convertLockfileToSkypackImportMap(lockfile: LockfileManifest): ImportMap {
   const result = {imports: {}};
   for (const [key, val] of Object.entries(lockfile.lock)) {
-    result.imports[key.replace(/\#.*/, '')] = SKYPACK_ORIGIN + '/' + val;
-    result.imports[key.replace(/\#.*/, '') + '/'] = SKYPACK_ORIGIN + '/' + val + '/';
+    result.imports[key.replace(/\#.*/, '')] = REMOTE_PACKAGE_ORIGIN + '/' + val;
+    result.imports[key.replace(/\#.*/, '') + '/'] = REMOTE_PACKAGE_ORIGIN + '/' + val + '/';
   }
   return result;
 }
@@ -95,7 +100,7 @@ export function convertSkypackImportMapToLockfile(
 ): LockfileManifest {
   const result = {dependencies, lock: {}};
   for (const [key, val] of Object.entries(dependencies)) {
-    result.lock[key + '#' + val] = importMap.imports[key].replace(SKYPACK_ORIGIN + '/', '');
+    result.lock[key + '#' + val] = importMap.imports[key].replace(REMOTE_PACKAGE_ORIGIN + '/', '');
   }
   return result;
 }
