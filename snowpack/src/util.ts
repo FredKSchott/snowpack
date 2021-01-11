@@ -12,10 +12,9 @@ import rimraf from 'rimraf';
 import {SkypackSDK} from 'skypack';
 import url from 'url';
 import localPackageSource from './sources/local';
-import streamingPackageSource from './sources/stream';
+import remotePackageSource from './sources/remote';
 import {ImportMap, LockfileManifest, PackageSource, SnowpackConfig} from './types';
 
-export const REMOTE_PACKAGE_ORIGIN = 'https://pkg.snowpack.dev';
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
 export const LOCKFILE_NAME = 'snowpack.deps.json';
 
@@ -85,11 +84,11 @@ function sortObject<T>(originalObject: Record<string, T>): Record<string, T> {
   return newObject;
 }
 
-export function convertLockfileToSkypackImportMap(lockfile: LockfileManifest): ImportMap {
+export function convertLockfileToSkypackImportMap(origin: string, lockfile: LockfileManifest): ImportMap {
   const result = {imports: {}};
   for (const [key, val] of Object.entries(lockfile.lock)) {
-    result.imports[key.replace(/\#.*/, '')] = REMOTE_PACKAGE_ORIGIN + '/' + val;
-    result.imports[key.replace(/\#.*/, '') + '/'] = REMOTE_PACKAGE_ORIGIN + '/' + val + '/';
+    result.imports[key.replace(/\#.*/, '')] = origin + '/' + val;
+    result.imports[key.replace(/\#.*/, '') + '/'] = origin + '/' + val + '/';
   }
   return result;
 }
@@ -100,7 +99,8 @@ export function convertSkypackImportMapToLockfile(
 ): LockfileManifest {
   const result = {dependencies, lock: {}};
   for (const [key, val] of Object.entries(dependencies)) {
-    result.lock[key + '#' + val] = importMap.imports[key].replace(REMOTE_PACKAGE_ORIGIN + '/', '');
+    const valPath = url.parse(importMap.imports[key]).pathname;
+    result.lock[key + '#' + val] = valPath?.substr(1);
   }
   return result;
 }
@@ -115,8 +115,8 @@ export function isTruthy<T>(item: T | false | null | undefined): item is T {
   return Boolean(item);
 }
 
-export function getPackageSource(source: 'stream' | 'local'): PackageSource {
-  return source === 'local' ? localPackageSource : streamingPackageSource;
+export function getPackageSource(source: 'remote' | 'local'): PackageSource {
+  return source === 'local' ? localPackageSource : remotePackageSource;
 }
 
 /**
@@ -304,7 +304,7 @@ export async function clearCache() {
   return Promise.all([
     cacache.rm.all(BUILD_CACHE),
     localPackageSource.clearCache(),
-    streamingPackageSource.clearCache(),
+    remotePackageSource.clearCache(),
   ]);
 }
 

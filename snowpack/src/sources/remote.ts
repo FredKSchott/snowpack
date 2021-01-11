@@ -6,19 +6,19 @@ import {
   rollupPluginSkypack,
 } from 'skypack';
 import {logger} from '../logger';
-import {ImportMap, LockfileManifest, PackageSource, SnowpackConfig} from '../types';
-import {convertLockfileToSkypackImportMap, isJavaScript, remotePackageSDK, REMOTE_PACKAGE_ORIGIN} from '../util';
+import {ImportMap, LockfileManifest, PackageSource, PackageSourceRemote, SnowpackConfig} from '../types';
+import {convertLockfileToSkypackImportMap, isJavaScript, remotePackageSDK} from '../util';
 import rimraf from 'rimraf';
 
 const fetchedPackages = new Set<string>();
-function logFetching(packageName: string, packageSemver: string | undefined) {
+function logFetching(origin: string, packageName: string, packageSemver: string | undefined) {
   if (fetchedPackages.has(packageName)) {
     return;
   }
   fetchedPackages.add(packageName);
   logger.info(
     `import ${colors.bold(packageName + (packageSemver ? `@${packageSemver}` : ''))} ${colors.dim(
-      `→ ${REMOTE_PACKAGE_ORIGIN}/${packageName}`,
+      `→ ${origin}/${packageName}`,
     )}`,
   );
   if (!packageSemver) {
@@ -37,7 +37,7 @@ function parseRawPackageImport(spec: string): [string, string | null] {
 }
 
 /**
- * Stream Package Source: A generic interface through which
+ * Remote Package Source: A generic interface through which
  * Snowpack interacts with the Skypack CDN. Used to load dependencies
  * from the CDN during both development and optimized building.
  */
@@ -45,7 +45,7 @@ export default {
   async prepare(commandOptions) {
     const {config, lockfile} = commandOptions;
     // Only install types if `packageOptions.types=true`. Otherwise, no need to prepare anything.
-    if (config.packageOptions.source === 'stream' && !config.packageOptions.types) {
+    if (config.packageOptions.source === 'remote' && !config.packageOptions.types) {
       return {imports: {}};
     }
     const lockEntryList = lockfile && (Object.keys(lockfile.lock) as string[]);
@@ -71,8 +71,8 @@ export default {
     return {imports: {}};
   },
 
-  modifyBuildInstallOptions({installOptions, lockfile}) {
-    installOptions.importMap = lockfile ? convertLockfileToSkypackImportMap(lockfile) : undefined;
+  modifyBuildInstallOptions({installOptions, config, lockfile}) {
+    installOptions.importMap = lockfile ? convertLockfileToSkypackImportMap((config.packageOptions as PackageSourceRemote).origin, lockfile) : undefined;
     installOptions.rollup = installOptions.rollup || {};
     installOptions.rollup.plugins = installOptions.rollup.plugins || [];
     installOptions.rollup.plugins.push(rollupPluginSkypack({sdk: remotePackageSDK}) as Plugin);
@@ -104,7 +104,7 @@ export default {
         }
       } else {
         const _packageSemver = lockfile?.dependencies && lockfile.dependencies[packageName];
-        logFetching(packageName, _packageSemver);
+        logFetching((config.packageOptions as PackageSourceRemote).origin, packageName, _packageSemver);
         const packageSemver = _packageSemver || 'latest';
         let lookupResponse = await remotePackageSDK.lookupBySpecifier(spec, packageSemver);
         if (!lookupResponse.error && lookupResponse.importStatus === 'NEW') {
@@ -154,7 +154,7 @@ export default {
 
   getCacheFolder(config) {
     return (
-      (config.packageOptions.source === 'stream' && config.packageOptions.cache) ||
+      (config.packageOptions.source === 'remote' && config.packageOptions.cache) ||
       path.join(config.root, '.snowpack')
     );
   },

@@ -13,8 +13,8 @@ import {
 
 export async function addCommand(addValue: string, commandOptions: CommandOptions) {
   const {lockfile, config} = commandOptions;
-  if (config.packageOptions.source !== 'stream') {
-    throw new Error(`add command requires packageOptions.source="stream".`);
+  if (config.packageOptions.source !== 'remote') {
+    throw new Error(`add command requires packageOptions.source="remote".`);
   }
   let [pkgName, pkgSemver] = addValue.split('@');
   const installMessage = pkgSemver ? `${pkgName}@${pkgSemver}` : pkgName;
@@ -36,7 +36,7 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
     },
     await remotePackageSDK.generateImportMap(
       addedDependency,
-      lockfile ? convertLockfileToSkypackImportMap(lockfile) : undefined,
+      lockfile ? convertLockfileToSkypackImportMap(config.packageOptions.origin, lockfile) : undefined,
     ),
   );
   await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
@@ -44,8 +44,8 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
 
 export async function rmCommand(addValue: string, commandOptions: CommandOptions) {
   const {lockfile, config} = commandOptions;
-  if (config.packageOptions.source !== 'stream') {
-    throw new Error(`rm command requires packageOptions.source="stream".`);
+  if (config.packageOptions.source !== 'remote') {
+    throw new Error(`rm command requires packageOptions.source="remote".`);
   }
   let [pkgName] = addValue.split('@');
   logger.info(`removing ${cyan(pkgName)} from project lockfile...`);
@@ -53,7 +53,7 @@ export async function rmCommand(addValue: string, commandOptions: CommandOptions
     lockfile?.dependencies ?? {},
     await remotePackageSDK.generateImportMap(
       {[pkgName]: null},
-      lockfile ? convertLockfileToSkypackImportMap(lockfile) : undefined,
+      lockfile ? convertLockfileToSkypackImportMap(config.packageOptions.origin, lockfile) : undefined,
     ),
   );
   delete newLockfile.dependencies[pkgName];
