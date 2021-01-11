@@ -147,7 +147,7 @@ class FileBuilder {
 
   async buildFile() {
     this.filesToResolve = {};
-    const isSSR = this.config.experiments.ssr;
+    const isSSR = this.config.buildOptions.ssr;
     const srcExt = path.extname(url.fileURLToPath(this.fileURL));
     const fileOutput = this.mountEntry.static
       ? {[srcExt]: {code: await readFile(this.fileURL)}}
@@ -273,7 +273,7 @@ class FileBuilder {
         }
         // Handle normal "./" & "../" import specifiers
         const importExtName = path.extname(resolvedImportUrl);
-        const isBundling = !!this.config.experiments.optimize?.bundle;
+        const isBundling = !!this.config.optimize?.bundle;
         const isProxyImport =
           importExtName &&
           importExtName !== '.js' &&
@@ -345,7 +345,7 @@ class FileBuilder {
 export async function buildProject(commandOptions: CommandOptions): Promise<SnowpackBuildResult> {
   const {config, lockfile} = commandOptions;
   const isDev = !!config.buildOptions.watch;
-  const isSSR = !!config.experiments.ssr;
+  const isSSR = !!config.buildOptions.ssr;
 
   // Fill in any command-specific plugin methods.
   // NOTE: markChanged only needed during dev, but may not be true for all.
@@ -430,7 +430,7 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
       follow: true,
     });
 
-    if (!config.experiments.optimize?.bundle) {
+    if (!config.optimize?.bundle) {
       for (const installedFileLoc of allFiles) {
         if (
           !installedFileLoc.endsWith('import-map.json') &&
@@ -559,14 +559,14 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
 
   // 5. Optimize the build.
   if (!config.buildOptions.watch) {
-    if (config.experiments.optimize || config.plugins.some((p) => p.optimize)) {
+    if (config.optimize || config.plugins.some((p) => p.optimize)) {
       const optimizeStart = performance.now();
       logger.info(colors.yellow('! optimizing build...'));
       await runBuiltInOptimize(config);
       await runPipelineOptimizeStep(buildDirectoryLoc, {
         config,
         isDev: false,
-        isSSR: config.experiments.ssr,
+        isSSR: config.buildOptions.ssr,
         isHmrEnabled: false,
       });
       const optimizeEnd = performance.now();

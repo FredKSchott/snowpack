@@ -1105,7 +1105,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const reqExt = path.extname(reqPath);
     const isRoute = !reqExt || reqExt.toLowerCase() === '.html';
-    for (const route of config.experiments.routes) {
+    for (const route of config.routes) {
       if (route.match === 'routes' && !isRoute) {
         continue;
       }

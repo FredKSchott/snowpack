@@ -237,20 +237,18 @@ export interface SnowpackConfig {
     htmlFragments: boolean;
     jsxFactory: string | undefined;
     jsxFragment: string | undefined;
+    ssr: boolean;
   };
-  packageOptions: PackageSourceLocal | PackageSourceSkypack;
   testOptions: {
     files: string[];
   };
+  packageOptions: PackageSourceLocal | PackageSourceSkypack;
+  /** Optimize your site for production. */
+  optimize?: OptimizeOptions;
+  /** Configure routes during development. */
+  routes: RouteConfigObject[];
   /** EXPERIMENTAL - This section is experimental and not yet finalized. May change across minor versions. */
-  experiments: {
-    /** (EXPERIMENTAL) If true, "snowpack build" should build your site for SSR. */
-    ssr: boolean;
-    /** (EXPERIMENTAL) Optimize your site for production. */
-    optimize?: OptimizeOptions;
-    /** (EXPERIMENTAL) Configure routes during development. */
-    routes: RouteConfigObject[];
-  };
+  experiments: { /* intentionally left blank */ };
   _extensionMap: Record<string, string[]>;
 }
 
@@ -267,11 +265,9 @@ export type SnowpackUserConfig = {
   buildOptions?: Partial<SnowpackConfig['buildOptions']>;
   testOptions?: Partial<SnowpackConfig['testOptions']>;
   packageOptions?: Partial<SnowpackConfig['packageOptions']>;
-  experiments?: {
-    ssr?: SnowpackConfig['experiments']['ssr'];
-    optimize?: Partial<SnowpackConfig['experiments']['optimize']>;
-    routes?: Pick<RouteConfigObject, 'src' | 'dest' | 'match'>[];
-  };
+  optimize?: Partial<SnowpackConfig['optimize']>;
+  routes?: Pick<RouteConfigObject, 'src' | 'dest' | 'match'>[];
+  experiments?: { /* intentionally left blank */ };
 };
 export interface CLIFlags {
   help?: boolean; // display help text
