@@ -260,13 +260,13 @@ _NOTE:_ Deprecated, see `buildOptions.out`.
 
 Configure how npm packages are installed.
 
-### installOptions.externalPackage
+### installOptions.external
 
 **Type**: `string[]`
 
 Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
 
-Example: `"externalPackage": ["fs"]`
+Example: `"external": ["fs"]`
 
 ⚠️ This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser.
 
