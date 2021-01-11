@@ -31,6 +31,7 @@ import {
   findMatchingAliasEntry,
   getWebDependencyName,
   getWebDependencyType,
+  isJavaScript,
   isPackageAliasEntry,
   MISSING_PLUGIN_SUGGESTIONS,
   sanitizePackageName,
@@ -114,7 +115,7 @@ function generateEnvReplacements(env: Object): {[key: string]: string} {
 interface InstallOptions {
   cwd: string;
   alias: Record<string, string>;
-  lockfile?: ImportMap;
+  importMap?: ImportMap;
   logger: AbstractLogger;
   verbose?: boolean;
   dest: string;
@@ -122,8 +123,8 @@ interface InstallOptions {
   treeshake?: boolean;
   polyfillNode: boolean;
   sourceMap?: boolean | 'inline';
-  externalPackage: string[];
-  externalPackageEsm: string[];
+  external: string[];
+  externalEsm: string[];
   packageLookupFields: string[];
   packageExportLookupFields: string[];
   namedExports: string[];
@@ -145,10 +146,15 @@ function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
   const options = {
     cwd: process.cwd(),
     alias: {},
-    logger: console,
+    logger: {
+      debug: () => {}, // silence debug messages by default
+      log: console.log,
+      warn: console.warn,
+      error: console.error,
+    },
     dest: 'web_modules',
-    externalPackage: [],
-    externalPackageEsm: [],
+    external: [],
+    externalEsm: [],
     polyfillNode: false,
     packageLookupFields: [],
     packageExportLookupFields: [],
@@ -171,12 +177,12 @@ export async function install(
   const {
     cwd,
     alias: installAlias,
-    lockfile,
+    importMap: _importMap,
     logger,
     dest: destLoc,
     namedExports,
-    externalPackage,
-    externalPackageEsm,
+    external,
+    externalEsm,
     sourceMap,
     env: userEnv,
     rollup: userDefinedRollup,
@@ -193,8 +199,7 @@ export async function install(
   const allInstallSpecifiers = new Set(
     installTargets
       .filter(
-        (dep) =>
-          !externalPackage.some((packageName) => isImportOfPackage(dep.specifier, packageName)),
+        (dep) => !external.some((packageName) => isImportOfPackage(dep.specifier, packageName)),
       )
       .map((dep) => dep.specifier)
       .map((specifier) => {
@@ -214,11 +219,32 @@ export async function install(
   for (const installSpecifier of allInstallSpecifiers) {
     let targetName = getWebDependencyName(installSpecifier);
     let proxiedName = sanitizePackageName(targetName); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
-    if (lockfile && lockfile.imports[installSpecifier]) {
-      installEntrypoints[targetName] = lockfile.imports[installSpecifier];
-      importMap.imports[installSpecifier] = `./${proxiedName}.js`;
-      continue;
+    if (_importMap) {
+      if (_importMap.imports[installSpecifier]) {
+        installEntrypoints[targetName] = _importMap.imports[installSpecifier];
+        if (!path.extname(installSpecifier) || isJavaScript(installSpecifier)) {
+          importMap.imports[installSpecifier] = `./${proxiedName}.js`;
+        } else {
+          importMap.imports[installSpecifier] = `./${proxiedName}`;
+        }
+        continue;
+      }
+      const findFolderImportEntry = Object.entries(_importMap.imports).find(([entry]) => {
+        return entry.endsWith('/') && installSpecifier.startsWith(entry);
+      });
+      if (findFolderImportEntry) {
+        installEntrypoints[targetName] =
+          findFolderImportEntry[1] + targetName.substr(findFolderImportEntry[0].length);
+        if (!path.extname(installSpecifier) || isJavaScript(installSpecifier)) {
+          importMap.imports[installSpecifier] = `./${proxiedName}.js`;
+        } else {
+          importMap.imports[installSpecifier] = `./${proxiedName}`;
+        }
+        continue;
+      }
     }
+    console.log(installEntrypoints, importMap);
+
     try {
       const resolvedResult = resolveWebDependency(installSpecifier, {
         cwd,
@@ -267,7 +293,7 @@ ${colors.dim(
   const inputOptions: InputOptions = {
     input: installEntrypoints,
     context: userDefinedRollup.context,
-    external: (id) => externalPackage.some((packageName) => isImportOfPackage(id, packageName)),
+    external: (id) => external.some((packageName) => isImportOfPackage(id, packageName)),
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
       rollupPluginAlias({
@@ -298,7 +324,7 @@ ${colors.dim(
       rollupPluginReplace(generateEnvReplacements(env)),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
-        esmExternals: externalPackageEsm,
+        esmExternals: externalEsm,
         requireReturnsDefault: 'auto',
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),
@@ -357,6 +383,7 @@ ${colors.dim(
   rimraf.sync(destLoc);
   if (Object.keys(installEntrypoints).length > 0) {
     try {
+      logger.debug(process.cwd());
       logger.debug(`running installer with options: ${util.format(inputOptions)}`);
       const packageBundle = await rollup(inputOptions);
       logger.debug(
@@ -368,6 +395,7 @@ ${colors.dim(
       logger.debug(`writing install results to disk`);
       await packageBundle.write(outputOptions);
     } catch (_err) {
+      logger.debug(`FAILURE: ${_err}`);
       const err: RollupError = _err;
       const errFilePath = err.loc?.file || err.id;
       if (!errFilePath) {
@@ -386,7 +414,9 @@ ${colors.dim(
   }
 
   mkdirp.sync(destLoc);
+  console.error('DESTLOC', destLoc, path.join(destLoc, 'import-map.json'), importMap);
   await writeLockfile(path.join(destLoc, 'import-map.json'), importMap);
+  console.error('WRITTEN!', fs.statSync(path.join(destLoc, 'import-map.json')));
   for (const [assetName, assetLoc] of Object.entries(assetEntrypoints)) {
     const assetDest = `${destLoc}/${sanitizePackageName(assetName)}`;
     mkdirp.sync(path.dirname(assetDest));

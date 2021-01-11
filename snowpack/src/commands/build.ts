@@ -1,4 +1,3 @@
-import merge from 'deepmerge';
 import {promises as fs} from 'fs';
 import glob from 'glob';
 import * as colors from 'kleur/colors';
@@ -80,31 +79,32 @@ async function installOptimizedDependencies(
   installDest: string,
   commandOptions: CommandOptions,
 ) {
-  const installConfig = merge(commandOptions.config, {
-    installOptions: {
-      dest: installDest,
-      env: {NODE_ENV: process.env.NODE_ENV || 'production'},
-      treeshake: commandOptions.config.buildOptions.watch
-        ? false
-        : commandOptions.config.installOptions.treeshake ?? true,
-    },
-  });
+  const baseInstallOptions = {
+    dest: installDest,
+    external: commandOptions.config.packageOptions.external,
+    env: {NODE_ENV: process.env.NODE_ENV || 'production'},
+    treeshake: commandOptions.config.buildOptions.watch
+      ? false
+      : commandOptions.config.optimize?.treeshake !== false,
+  };
 
   const pkgSource = getPackageSource(commandOptions.config.packageOptions.source);
-  pkgSource.modifyBuildInstallConfig({config: installConfig, lockfile: commandOptions.lockfile});
+  const installOptions = pkgSource.modifyBuildInstallOptions({
+    installOptions: baseInstallOptions,
+    config: commandOptions.config,
+    lockfile: commandOptions.lockfile,
+  });
 
+  // 1. Scan imports from your final built JS files.
   // Unlike dev (where we scan from source code) the built output guarantees that we
   // will can scan all used entrypoints. Set to `[]` to improve tree-shaking performance.
-  installConfig.knownEntrypoints = [];
-  // 1. Scan imports from your final built JS files.
-  const installTargets = await getInstallTargets(installConfig, scannedFiles);
+  const installTargets = await getInstallTargets(commandOptions.config, [], scannedFiles);
   // 2. Install dependencies, based on the scan of your final build.
   const installResult = await installRunner({
-    ...commandOptions,
     installTargets,
-    config: installConfig,
+    installOptions,
+    config: commandOptions.config,
     shouldPrintStats: false,
-    shouldWriteLockfile: false,
   });
   return installResult;
 }
@@ -123,26 +123,22 @@ class FileBuilder {
   readonly mountEntry: MountEntry;
   readonly outDir: string;
   readonly config: SnowpackConfig;
-  readonly lockfile: ImportMap | null;
 
   constructor({
     fileURL,
     mountEntry,
     outDir,
     config,
-    lockfile,
   }: {
     fileURL: URL;
     mountEntry: MountEntry;
     outDir: string;
     config: SnowpackConfig;
-    lockfile: ImportMap | null;
   }) {
     this.fileURL = fileURL;
     this.mountEntry = mountEntry;
     this.outDir = outDir;
     this.config = config;
-    this.lockfile = lockfile;
   }
 
   async buildFile() {
@@ -268,7 +264,7 @@ class FileBuilder {
           return resolvedImportUrl;
         }
         // Ignore packages marked as external
-        if (this.config.installOptions.externalPackage?.includes(resolvedImportUrl)) {
+        if (this.config.packageOptions.external?.includes(resolvedImportUrl)) {
           return resolvedImportUrl;
         }
         // Handle normal "./" & "../" import specifiers
@@ -343,7 +339,7 @@ class FileBuilder {
 }
 
 export async function buildProject(commandOptions: CommandOptions): Promise<SnowpackBuildResult> {
-  const {config, lockfile} = commandOptions;
+  const {config} = commandOptions;
   const isDev = !!config.buildOptions.watch;
   const isSSR = !!config.buildOptions.ssr;
 
@@ -483,7 +479,6 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
         mountEntry,
         outDir,
         config,
-        lockfile,
       });
       buildPipelineFiles[fileLoc] = buildPipelineFile;
 
@@ -620,7 +615,6 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
       mountEntry,
       outDir,
       config,
-      lockfile,
     });
     buildPipelineFiles[fileLoc] = changedPipelineFile;
     // 1. Build the file.

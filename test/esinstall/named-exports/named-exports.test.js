@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 
 const cwd = __dirname;
 
@@ -8,7 +8,7 @@ describe('named-exports', () => {
   it('cjs', async () => {
     const pkg = 'cjs-named-exports-simple';
     const dest = path.join(cwd, 'test-cjs');
-    await install([pkg], {cwd, dest});
+    await runTest([pkg], {cwd, dest});
 
     const output = fs.readFileSync(path.join(dest, `${pkg}.js`), 'utf8');
 
@@ -23,7 +23,7 @@ describe('named-exports', () => {
   it('cjs (export obj)', async () => {
     const pkg = 'cjs-named-exports-obj';
     const dest = path.join(cwd, 'test-cjs');
-    await install([pkg], {cwd, dest});
+    await runTest([pkg], {cwd, dest});
 
     const output = fs.readFileSync(path.join(dest, `${pkg}.js`), 'utf8');
 
@@ -36,7 +36,7 @@ describe('named-exports', () => {
   it('cjs (re-exported)', async () => {
     const pkg = 'cjs-named-exports-reexported';
     const dest = path.join(cwd, 'test-cjs-02');
-    await install([pkg], {cwd, dest});
+    await runTest([pkg], {cwd, dest});
 
     const output = fs.readFileSync(path.join(dest, `${pkg}.js`), 'utf8');
 
@@ -49,7 +49,7 @@ describe('named-exports', () => {
   it('umd', async () => {
     const pkg = 'umd-named-exports';
     const dest = path.join(cwd, 'test-umd');
-    await install([pkg], {cwd, dest});
+    await runTest([pkg], {cwd, dest});
 
     const output = fs.readFileSync(path.join(dest, `${pkg}.js`), 'utf8');
 

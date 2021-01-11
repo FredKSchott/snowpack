@@ -2,7 +2,7 @@
   "private": true,
   "version": "1.0.0",
   "name": "@snowpack/test-config-external-package",
-  "description": "Test for installOptions.externalPackage as it applies to building.",
+  "description": "Test for packageOptions.external as it applies to building.",
   "scripts": {
     "testbuild": "snowpack build"
   },
@@ -10,8 +10,8 @@
     "mount": {
       "./src": "/_dist_"
     },
-    "installOptions": {
-      "externalPackage": [
+    "packageOptions": {
+      "external": [
         "fs"
       ]
     }

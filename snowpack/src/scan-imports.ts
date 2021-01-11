@@ -42,11 +42,11 @@ function createInstallTarget(specifier: string, all = true): InstallTarget {
 
 export async function getInstallTargets(
   config: SnowpackConfig,
+  knownEntrypoints: string[],
   scannedFiles?: SnowpackSourceFile[],
 ) {
-  const {knownEntrypoints} = config;
   let installTargets: InstallTarget[] = [];
-  if (knownEntrypoints) {
+  if (knownEntrypoints.length > 0) {
     installTargets.push(...scanDepList(knownEntrypoints, config.root));
   }
   // TODO: remove this if block; move logic inside scanImports

@@ -4,7 +4,7 @@ import yargs from 'yargs-parser';
 import {addCommand, rmCommand} from './commands/add-rm';
 import {command as initCommand} from './commands/init';
 import {command as prepareCommand} from './commands/prepare';
-import {command as installCommand} from './sources/local-install';
+// import {command as installCommand} from './sources/local-install';
 import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
 import {logger} from './logger';
@@ -57,7 +57,7 @@ ${colors.bold('Flags:')}
 export async function cli(args: string[]) {
   // parse CLI flags
   const cliFlags = yargs(args, {
-    array: ['install', 'env', 'exclude', 'externalPackage'],
+    array: ['install', 'env', 'exclude', 'external'],
   }) as CLIFlags;
 
   if (cliFlags.verbose) {
@@ -120,10 +120,10 @@ export async function cli(args: string[]) {
   }
 
   // DEPRECATED: To be removed once final esinstall test is moved off of "snowpack install"
-  if (cmd === 'install') {
-    await installCommand(commandOptions);
-    return process.exit(0);
-  }
+  // if (cmd === 'install') {
+  //   await installCommand(commandOptions);
+  //   return process.exit(0);
+  // }
   if (cmd === 'prepare') {
     await prepareCommand(commandOptions);
     return process.exit(0);

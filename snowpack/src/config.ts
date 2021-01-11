@@ -37,9 +37,6 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   alias: {},
   exclude: [],
   routes: [],
-  installOptions: {
-    packageLookupFields: [],
-  },
   devOptions: {
     secure: false,
     hostname: 'localhost',
@@ -68,12 +65,16 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   packageOptions: {source: 'local'},
 };
 
-const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageSourceLocal = {
+export const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageSourceLocal = {
   source: 'local',
+  external: [],
+  packageLookupFields: [],
+  knownEntrypoints: [],
 };
 
 const DEFAULT_PACKAGES_SKYPACK_CONFIG: PackageSourceSkypack = {
   source: 'skypack',
+  external: [],
   cache: '.snowpack',
   types: false,
 };
@@ -120,11 +121,11 @@ const configSchema = {
         hmrErrorOverlay: {type: 'boolean'},
       },
     },
-    installOptions: {
+    packageOptions: {
       type: 'object',
       properties: {
         dest: {type: 'string'},
-        externalPackage: {type: 'array', items: {type: 'string'}},
+        external: {type: 'array', items: {type: 'string'}},
         treeshake: {type: 'boolean'},
         installTypes: {type: 'boolean'},
         polyfillNode: {type: 'boolean'},
@@ -177,6 +178,10 @@ const configSchema = {
       type: ['object'],
       properties: {},
     },
+    optimize: {
+      type: ['object'],
+      properties: {},
+    },
     proxy: {
       type: 'object',
     },
@@ -191,12 +196,11 @@ const configSchema = {
  */
 export function expandCliFlags(flags: CLIFlags): SnowpackUserConfig {
   const result = {
-    packageOptions: {} as any,
-    installOptions: {} as any,
-    devOptions: {} as any,
-    buildOptions: {} as any,
-    experiments: {} as any,
-  };
+    packageOptions: {},
+    devOptions: {},
+    buildOptions: {},
+    experiments: {},
+  } as {packageOptions: any; devOptions: any; buildOptions: any; experiments: any; optimize?: any};
   const {help, version, reload, config, ...relevantFlags} = flags;
 
   const CLI_ONLY_FLAGS = ['quiet', 'verbose'];
@@ -217,8 +221,13 @@ export function expandCliFlags(flags: CLIFlags): SnowpackUserConfig {
       result.experiments[flag] = val;
       continue;
     }
-    if (configSchema.properties.installOptions.properties[flag]) {
-      result.installOptions[flag] = val;
+    if (configSchema.properties.optimize.properties[flag]) {
+      result.optimize = result.optimize || {};
+      result.optimize[flag] = val;
+      continue;
+    }
+    if (configSchema.properties.packageOptions.properties[flag]) {
+      result.packageOptions[flag] = val;
       continue;
     }
     if (configSchema.properties.devOptions.properties[flag]) {
@@ -235,8 +244,8 @@ export function expandCliFlags(flags: CLIFlags): SnowpackUserConfig {
     logger.error(`Unknown CLI flag: "${flag}"`);
     process.exit(1);
   }
-  if (result.installOptions.env) {
-    result.installOptions.env = result.installOptions.env.reduce((acc, id) => {
+  if (result.packageOptions.env) {
+    result.packageOptions.env = result.packageOptions.env.reduce((acc, id) => {
       const index = id.indexOf('=');
       const [key, val] = index > 0 ? [id.substr(0, index), id.substr(index + 1)] : [id, true];
       acc[key] = val;
@@ -389,10 +398,11 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   // SnowpackUserConfig type, we can have this function construct a fresh config object
   // from scratch instead of trying to modify the user's config object in-place.
   let config: SnowpackConfig = (_config as any) as SnowpackConfig;
-  config.knownEntrypoints = (config as any).install || [];
-  config.installOptions.cwd = config.root;
-  config.installOptions.rollup = config.installOptions.rollup || {};
-  config.installOptions.rollup.plugins = config.installOptions.rollup.plugins || [];
+  if (config.packageOptions.source === 'local') {
+    config.packageOptions.cwd = config.root;
+    config.packageOptions.rollup = config.packageOptions.rollup || {};
+    config.packageOptions.rollup.plugins = config.packageOptions.rollup.plugins || [];
+  }
   config.exclude = Array.from(
     new Set([...ALWAYS_EXCLUDE, `${config.buildOptions.out}/**/*`, ...config.exclude]),
   );
@@ -414,6 +424,8 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
       entrypoints: config.optimize.entrypoints ?? 'auto',
       preload: config.optimize.preload ?? false,
       bundle: config.optimize.bundle ?? false,
+      splitting: config.optimize.splitting ?? false,
+      treeshake: config.optimize.treeshake ?? true,
       manifest: config.optimize.manifest ?? false,
       target: config.optimize.target ?? 'es2020',
       minify: config.optimize.minify ?? false,
@@ -427,8 +439,10 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
 
   // If any plugins defined knownEntrypoints, add them here
   for (const {knownEntrypoints} of config.plugins) {
-    if (knownEntrypoints) {
-      config.knownEntrypoints = config.knownEntrypoints.concat(knownEntrypoints);
+    if (knownEntrypoints && config.packageOptions.source === 'local') {
+      config.packageOptions.knownEntrypoints = config.packageOptions.knownEntrypoints.concat(
+        knownEntrypoints,
+      );
     }
   }
 
@@ -466,6 +480,24 @@ function valdiateDeprecatedConfig(rawConfig: any) {
   if (rawConfig.proxy) {
     handleDeprecatedConfigError('[v3.0] Legacy "proxy" config is deprecated in favor of "routes".');
   }
+  if (rawConfig.installOptions) {
+    handleDeprecatedConfigError('[v3.0] "config.installOptions" is now "config.packageOptions".');
+  }
+  if (rawConfig.packageOptions?.externalPackage) {
+    handleDeprecatedConfigError(
+      '[v3.0] "config.installOptions.externalPackage" is now "config.packageOptions.external".',
+    );
+  }
+  if (rawConfig.packageOptions?.treeshake) {
+    handleDeprecatedConfigError(
+      '[v3.0] "config.installOptions.treeshake" is now "config.optimize.treeshake".',
+    );
+  }
+  if (rawConfig.install) {
+    handleDeprecatedConfigError(
+      '[v3.0] "config.install" is now "config.packageOptions.knownEntrypoints".',
+    );
+  }
   if (rawConfig.experiments?.source) {
     handleDeprecatedConfigError(
       '[v3.0] Experiment promoted! "config.experiments.source" is now "config.packageOptions.source".',
@@ -478,7 +510,7 @@ function valdiateDeprecatedConfig(rawConfig: any) {
   }
   if (rawConfig.experiments?.optimize) {
     handleDeprecatedConfigError(
-      '[v3.0] Experiment promoted! "config.experiments.optimize" is now "config.packageOptions".',
+      '[v3.0] Experiment promoted! "config.experiments.optimize" is now "config.optimize".',
     );
   }
   if (rawConfig.experiments?.routes) {
@@ -590,8 +622,8 @@ function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): 
   if (config.buildOptions?.out) {
     config.buildOptions.out = path.resolve(configBase, config.buildOptions.out);
   }
-  if (config.installOptions?.cwd) {
-    config.installOptions.cwd = path.resolve(configBase, config.installOptions.cwd);
+  if (config.packageOptions?.source === 'local' && config.packageOptions.cwd) {
+    config.packageOptions.cwd = path.resolve(configBase, config.packageOptions.cwd);
   }
   if (config.packageOptions?.source === 'skypack' && config.packageOptions.cache) {
     config.packageOptions.cache = path.resolve(configBase, config.packageOptions.cache);
@@ -620,8 +652,18 @@ function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): 
 }
 
 class ConfigValidationError extends Error {
-  constructor(errors: Error[]) {
+  constructor(errors: (Error | string)[]) {
     super(`Configuration Error:\n${errors.map((err) => `  - ${err.toString()}`).join(os.EOL)}`);
+  }
+}
+
+function validateConfig(config: SnowpackConfig) {
+  for (const mountDir of Object.keys(config.mount)) {
+    if (!existsSync(mountDir)) {
+      throw new ConfigValidationError([
+        `config.mount[${mountDir}]: directory does not exist, and cannot be mounted.`,
+      ]);
+    }
   }
 }
 
@@ -657,8 +699,9 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
   // But, we still need to run it in case you called this function directly.
   const configBase = getConfigBasePath(undefined, config.root);
   resolveRelativeConfig(mergedConfig, configBase);
-  // Normalize & return.
-  return normalizeConfig(mergedConfig);
+  const normalizedConfig = normalizeConfig(mergedConfig);
+  validateConfig(normalizedConfig);
+  return normalizedConfig;
 }
 
 function loadConfigurationFile(

@@ -5,7 +5,7 @@ const cwd = path.join(__dirname, 'build');
 
 let files = {};
 
-describe('config: installOptions.externalPackage', () => {
+describe('config: packageOptions.external', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 

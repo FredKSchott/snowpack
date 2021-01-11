@@ -1,5 +1,5 @@
 const path = require('path');
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 
 const tests = [
   {name: 'css', given: 'css.css'},
@@ -19,7 +19,7 @@ describe('import-assets', () => {
       // run it through esinstall
       const {
         importMap: {imports},
-      } = await install([spec], {cwd: __dirname, dest});
+      } = await runTest([spec], {cwd: __dirname, dest});
 
       // test that esinstall completed successfully
       expect(imports[spec]).toBeTruthy();

@@ -15,23 +15,10 @@ describe('error-missing-dep', () => {
     if (existsPackageJson(cwd) === false) return;
 
     // Run Test
-    const {output, snapshotFile} = await runTest(cwd);
-
-    // Test output
-    expect(output).toMatchSpecificSnapshot(snapshotFile, 'cli output');
-
-    // Test Lockfile (if one exists)
-    await testLockFile(cwd);
-
-    // Cleanup
-    const {testAllSnapshots, testDiffs} = testWebModules(cwd, snapshotFile, {
-      throwIfNoWebModules: false,
-    });
-
-    // Assert that the snapshots match
-    testAllSnapshots();
-
-    // If any diffs are detected, we'll assert the difference so that we get nice output.
-    testDiffs();
+    try {
+      const {output, snapshotFile} = await runTest(['fakemodule'], {cwd});
+    } catch (err) {
+      expect(err.message).toEqual('Package "fakemodule" not found. Have you installed it? ');
+    }
   });
 });

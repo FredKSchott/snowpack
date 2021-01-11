@@ -6,7 +6,7 @@ const cwd = path.join(__dirname, 'build');
 
 // Note(drew): full disclosure, I do not know what this test was originally-testing; it was not clear from the snapshot (the snapshot had functions that seemed like they should have been treeshaken)
 
-describe('installOptions.treeshake', () => {
+describe('optimize.treeshake', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
   });

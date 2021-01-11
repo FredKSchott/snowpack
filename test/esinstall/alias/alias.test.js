@@ -1,10 +1,10 @@
 const path = require('path');
 const {readFiles} = require('../../test-utils');
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 
 describe('config-alias', () => {
   it('uses aliases when specified', async () => {
-    await install(['react', 'react-dom', 'vue', 'vue-currency-input'], {
+    await runTest(['react', 'react-dom', 'vue', 'vue-currency-input'], {
       alias: {
         react: 'preact/compat',
         'react-dom': 'preact/compat',

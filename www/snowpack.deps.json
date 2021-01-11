@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "docsearch.js": "^2.6.3",
+    "htm": "^3.0.4",
+    "preact": "^10.5.9"
+  },
+  "lock": {
+    "docsearch.js#^2.6.3": "docsearch.js@v2.6.3-gNs0VAIV71HHAPb0GQLC",
+    "htm#^3.0.4": "htm@v3.0.4-eKPIliCVcHknqhs5clvp",
+    "preact#^10.5.9": "preact@v10.5.9-WjJBSHNrNEdRNYTaCveQ"
+  }
+}

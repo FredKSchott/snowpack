@@ -6,10 +6,7 @@ module.exports = {
   plugins: [
     /* ... */
   ],
-  install: [
-    /* ... */
-  ],
-  installOptions: {
+  packageOptions: {
     /* ... */
   },
   devOptions: {

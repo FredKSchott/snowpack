@@ -5,10 +5,7 @@ module.exports = {
     src: {url: '/dist'},
   },
   plugins: ['@snowpack/plugin-dotenv', '@prefresh/snowpack'],
-  install: [
-    /* ... */
-  ],
-  installOptions: {
+  packageOptions: {
     /* ... */
   },
   devOptions: {

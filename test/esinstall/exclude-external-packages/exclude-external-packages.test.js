@@ -15,7 +15,7 @@ describe('exclude-external-packages', () => {
     if (existsPackageJson(cwd) === false) return;
 
     // Run Test
-    const {output, snapshotFile} = await runTest(cwd);
+    const {output, snapshotFile} = await runTest(['react-dom'], {cwd, external: ['react']});
 
     // Test output
     expect(output).toMatchSpecificSnapshot(snapshotFile, 'cli output');
@@ -24,7 +24,7 @@ describe('exclude-external-packages', () => {
     await testLockFile(cwd);
 
     // Cleanup
-    const {testAllSnapshots, testDiffs} = testWebModules(cwd, snapshotFile);
+    const {testAllSnapshots, testDiffs} = await testWebModules(cwd, snapshotFile);
 
     // Assert that the snapshots match
     testAllSnapshots();

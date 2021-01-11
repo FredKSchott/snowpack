@@ -7,7 +7,9 @@
     "testbuild": "snowpack build"
   },
   "snowpack": {
-    "install": "shallow-equal"
+    "buildOptions": {
+      "ssr": "shallow-equal"
+    }
   },
   "dependencies": {
     "shallow-equal": "^1.2.1"

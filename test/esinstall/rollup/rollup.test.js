@@ -1,5 +1,5 @@
 const path = require('path');
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 
 describe('Rollup config', () => {
   it('it can be passed through the rollup option', async () => {
@@ -9,7 +9,7 @@ describe('Rollup config', () => {
 
     const {
       importMap: {imports},
-    } = await install([spec], {
+    } = await runTest([spec], {
       cwd,
       dest,
       rollup: {
@@ -27,7 +27,7 @@ describe('Rollup config', () => {
     const spec = 'svelte-routing';
 
     try {
-      await install([spec], {
+      await runTest([spec], {
         cwd,
         dest,
         rollup: {

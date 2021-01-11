@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 
 describe('package node-fetch', () => {
   it('allows importing node-fetch', async () => {
@@ -10,7 +10,7 @@ describe('package node-fetch', () => {
 
     const {
       importMap: {imports},
-    } = await install([spec], {
+    } = await runTest([spec], {
       cwd,
       dest,
     });

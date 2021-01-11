@@ -7,7 +7,7 @@
     "testbuild": "snowpack build"
   },
   "snowpack": {
-    "installOptions": {
+    "packageOptions": {
       "packageLookupFields": [
         "custom-lookup"
       ]

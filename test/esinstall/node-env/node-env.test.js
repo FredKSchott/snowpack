@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 
 describe('node-env', () => {
   it('inlines data if specified', async () => {
@@ -16,7 +16,7 @@ describe('node-env', () => {
       ENV_UNDEFINED: undefined,
     };
 
-    await install(['node-env-mock-pkg'], {dest, env, cwd: 'test-success'});
+    await runTest(['node-env-mock-pkg'], {dest, env, cwd: 'test-success'});
 
     const nodeEnvMockPkg = fs.readFileSync(path.join(dest, 'node-env-mock-pkg.js'), 'utf8');
 
@@ -39,7 +39,7 @@ describe('node-env', () => {
       ENV_STRING: 'string',
     };
 
-    await install(['node-env-mock-pkg'], {dest, env, cwd: __dirname});
+    await runTest(['node-env-mock-pkg'], {dest, env, cwd: __dirname});
 
     const nodeEnvMockPkg = fs.readFileSync(path.join(dest, 'node-env-mock-pkg.js'), 'utf8');
 

@@ -1,44 +1,20 @@
-import {DependencyStatsOutput, install, InstallTarget, printStats} from 'esinstall';
+import {
+  DependencyStatsOutput,
+  install,
+  InstallOptions as EsinstallOptions,
+  InstallTarget,
+  printStats,
+} from 'esinstall';
 import * as colors from 'kleur/colors';
-import path from 'path';
 import {performance} from 'perf_hooks';
 import util from 'util';
 import {logger} from '../logger';
-import {getInstallTargets} from '../scan-imports.js';
-import {CommandOptions, ImportMap} from '../types';
-import {writeLockfile} from '../util.js';
+import {ImportMap, SnowpackConfig} from '../types';
 
-export async function command(commandOptions: CommandOptions) {
-  const {config} = commandOptions;
-
-  logger.debug('Starting install');
-  const installTargets = await getInstallTargets(config);
-  logger.debug('Received install targets');
-  if (installTargets.length === 0) {
-    logger.error('Nothing to install.');
-    return;
-  }
-  logger.debug('Running install command');
-  await run({
-    ...commandOptions,
-    installTargets,
-    shouldPrintStats: true,
-    shouldWriteLockfile: true,
-  }).catch((err) => {
-    if (err.loc) {
-      logger.error(colors.red(colors.bold(`✘ ${err.loc.file}`)));
-    }
-    if (err.url) {
-      logger.error(colors.dim(`👉 ${err.url}`));
-    }
-    logger.error(err.message || err);
-    process.exit(1);
-  });
-}
-
-interface InstallRunOptions extends CommandOptions {
+interface InstallRunOptions {
+  config: SnowpackConfig;
+  installOptions: EsinstallOptions;
   installTargets: InstallTarget[];
-  shouldWriteLockfile: boolean;
   shouldPrintStats: boolean;
 }
 
@@ -50,23 +26,10 @@ interface InstallRunResult {
 
 export async function run({
   config,
+  installOptions,
   installTargets,
-  shouldWriteLockfile,
   shouldPrintStats,
 }: InstallRunOptions): Promise<InstallRunResult> {
-  // start
-  const installStart = performance.now();
-  logger.info(
-    colors.yellow(
-      '! installing dependencies...' +
-        colors.cyan(
-          config.packageOptions.source === 'local'
-            ? ''
-            : ` (source: ${config.packageOptions.source})`,
-        ),
-    ),
-  );
-
   if (installTargets.length === 0) {
     return {
       importMap: {imports: {}} as ImportMap,
@@ -74,11 +37,14 @@ export async function run({
       stats: null,
     };
   }
+  // start
+  const installStart = performance.now();
+  logger.info(colors.yellow('! optimizing dependencies...'));
 
   let newLockfile: ImportMap | null = null;
   const finalResult = await install(installTargets, {
     cwd: config.root,
-    lockfile: newLockfile || undefined,
+    importMap: newLockfile || undefined,
     alias: config.alias,
     logger: {
       debug: (...args: [any, ...any[]]) => logger.debug(util.format(...args)),
@@ -86,24 +52,16 @@ export async function run({
       warn: (...args: [any, ...any[]]) => logger.warn(util.format(...args)),
       error: (...args: [any, ...any[]]) => logger.error(util.format(...args)),
     },
-    ...config.installOptions,
+    ...installOptions,
   });
-
-  logger.debug('Install ran successfully!');
-  if (shouldWriteLockfile && newLockfile) {
-    await writeLockfile(path.join(config.root, 'snowpack.lock.json'), newLockfile);
-    logger.debug('Successfully wrote lockfile');
-  }
+  logger.debug('Successfully ran esinstall.');
 
   // finish
   const installEnd = performance.now();
-  const depList = (finalResult.importMap && Object.keys(finalResult.importMap.imports)) || [];
   logger.info(
-    `${
-      depList.length
-        ? colors.green(`✔`) + ' install complete!'
-        : 'install skipped (nothing to install)'
-    } ${colors.dim(`[${((installEnd - installStart) / 1000).toFixed(2)}s]`)}`,
+    `${colors.green(`✔`) + ' optimize complete!'} ${colors.dim(
+      `[${((installEnd - installStart) / 1000).toFixed(2)}s]`,
+    )}`,
   );
 
   if (shouldPrintStats && finalResult.stats) {
