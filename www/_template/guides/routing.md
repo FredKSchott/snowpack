@@ -5,10 +5,6 @@ published: true
 description: This guide will walk you through some common routing scenarios and how to configure the routes option to support them in development.
 ---
 
-<div class="notification">
-Status: Experimental
-</div>
-
 As a web build tool, Snowpack has no knowledge of how (or where) your application is served in production. But Snowpack's dev server can be customized to recreate something close to your production environment for local development.
 
 This guide will walk you through some common routing scenarios and how to configure the `routes` option to support them in development.
@@ -23,7 +19,7 @@ To implement this pattern, you'll want to define a single "catch-all" route for 
 // snowpack.config.js
 "experiments": {
     "routes": [
-        {"src": ".*", "dest": "/index.html", "match": "routes"}
+        {"match": "routes", "src": ".*", "dest": "/index.html"}
     ]
 }
 ```
