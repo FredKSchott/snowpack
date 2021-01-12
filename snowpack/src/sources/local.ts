@@ -66,8 +66,9 @@ export default {
     if (config.packageOptions.source !== 'local') {
       return installOptions;
     }
+    installOptions.cwd = config.root;
     installOptions.rollup = config.packageOptions.rollup;
-    installOptions.sourceMap = config.packageOptions.sourceMap;
+    installOptions.sourcemap = config.buildOptions.sourcemap;
     installOptions.polyfillNode = config.packageOptions.polyfillNode;
     installOptions.packageLookupFields = config.packageOptions.packageLookupFields;
     installOptions.packageExportLookupFields = config.packageOptions.packageExportLookupFields;
@@ -110,7 +111,7 @@ export default {
   ): string | false {
     if (dependencyImportMap.imports[spec]) {
       const importMapEntry = dependencyImportMap.imports[spec];
-      return path.posix.resolve(config.buildOptions.webModulesUrl, importMapEntry);
+      return path.posix.join(config.buildOptions.metaUrlPath, 'pkg', importMapEntry);
     }
     return false;
   },

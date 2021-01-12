@@ -122,7 +122,7 @@ interface InstallOptions {
   env: EnvVarReplacements;
   treeshake?: boolean;
   polyfillNode: boolean;
-  sourceMap?: boolean | 'inline';
+  sourcemap?: boolean | 'inline';
   external: string[];
   externalEsm: string[];
   packageLookupFields: string[];
@@ -183,7 +183,7 @@ export async function install(
     namedExports,
     external,
     externalEsm,
-    sourceMap,
+    sourcemap,
     env: userEnv,
     rollup: userDefinedRollup,
     treeshake: isTreeshake,
@@ -370,7 +370,7 @@ ${colors.dim(
   const outputOptions: OutputOptions = {
     dir: destLoc,
     format: 'esm',
-    sourcemap: sourceMap,
+    sourcemap,
     exports: 'named',
     entryFileNames: (chunk) => {
       const targetName = getWebDependencyName(chunk.name);

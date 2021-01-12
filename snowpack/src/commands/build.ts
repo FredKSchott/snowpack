@@ -352,7 +352,7 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
   }
 
   const buildDirectoryLoc = config.buildOptions.out;
-  const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaDir);
+  const internalFilesBuildLoc = path.join(buildDirectoryLoc, config.buildOptions.metaUrlPath);
 
   if (config.buildOptions.clean) {
     deleteFromBuildSafe(buildDirectoryLoc, config);
@@ -412,7 +412,7 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
     const scannedFiles = Object.values(buildPipelineFiles)
       .map((f) => Object.values(f.filesToResolve))
       .reduce((flat, item) => flat.concat(item), []);
-    const installDest = path.join(buildDirectoryLoc, config.buildOptions.webModulesUrl);
+    const installDest = path.join(buildDirectoryLoc, config.buildOptions.metaUrlPath, 'pkg');
     const installResult = await installOptimizedDependencies(
       scannedFiles,
       installDest,

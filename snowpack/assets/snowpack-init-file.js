@@ -17,8 +17,5 @@ module.exports = {
   },
   buildOptions: {
     /* ... */
-  }, 
-  alias: {
-    /* ... */
   },
 };

@@ -7,6 +7,10 @@ module.exports = {
   plugins: [
     /* ... */
   ],
+  routes: [
+    /* To enable an SPA Fallback in development: */
+    // {"match": "routes", "src": ".*", "dest": "/index.html"}
+  ],
   packageOptions: {
     /* ... */
   },
@@ -14,9 +18,6 @@ module.exports = {
     /* ... */
   },
   buildOptions: {
-    /* ... */
-  }, 
-  alias: {
     /* ... */
   },
 };

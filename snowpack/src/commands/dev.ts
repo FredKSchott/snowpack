@@ -272,6 +272,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   const messageBus = new EventEmitter();
   const port = await getPort(defaultPort);
   const pkgSource = getPackageSource(config.packageOptions.source);
+  const PACKAGE_PATH_PREFIX = path.posix.join(config.buildOptions.metaUrlPath, 'pkg/');
 
   // Reset the clock if we had to wait for the user prompt to select a new port.
   if (port !== defaultPort) {
@@ -464,9 +465,9 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       };
     }
 
-    if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
+    if (reqPath.startsWith(PACKAGE_PATH_PREFIX)) {
       try {
-        const webModuleUrl = reqPath.substr(config.buildOptions.webModulesUrl.length + 1);
+        const webModuleUrl = reqPath.substr(PACKAGE_PATH_PREFIX.length);
         const loadedModule = await pkgSource.load(webModuleUrl, commandOptions);
         let code = loadedModule;
         if (isProxyModule) {
@@ -579,31 +580,9 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       return null;
     }
 
-    async function getFileFromFallback(): Promise<FoundFile | null> {
-      if (!config.devOptions.fallback) {
-        return null;
-      }
-      for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
-        if (mountEntry.url !== '/') {
-          continue;
-        }
-        const fallbackFile = path.join(mountKey, config.devOptions.fallback);
-        const file = await getFileFromMount(fallbackFile, mountEntry);
-        if (file) {
-          requestedFileExt = '.html';
-          responseFileExt = '.html';
-          return file;
-        }
-      }
-      return null;
-    }
-
     let foundFile = await getFileFromUrl(reqPath);
     if (!foundFile && isRoute) {
-      foundFile =
-        (await getFileFromLazyUrl(reqPath)) ||
-        // @deprecated: to be removed in v3
-        (await getFileFromFallback());
+      foundFile = await getFileFromLazyUrl(reqPath);
     }
 
     if (!foundFile) {

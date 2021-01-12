@@ -237,9 +237,8 @@ module.exports = function plugin(config, args = {}) {
   return {
     name: '@snowpack/plugin-webpack',
     async optimize({buildDirectory, log}) {
-      // config.homepage is legacy, remove in future version
       const buildOptions = config.buildOptions || {};
-      let baseUrl = buildOptions.baseUrl || config.homepage || '/';
+      let baseUrl = buildOptions.baseUrl || '/';
       const tempBuildManifest = JSON.parse(
         await fs.readFileSync(path.join(config.root || process.cwd(), 'package.json'), {
           encoding: 'utf-8',

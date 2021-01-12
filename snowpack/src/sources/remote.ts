@@ -133,15 +133,15 @@ export default {
     if (!ext || isJavaScript(spec)) {
       return body
         .toString()
-        .replace(/(from|import) \'\//g, `$1 '${config.buildOptions.webModulesUrl}/`)
-        .replace(/(from|import) \"\//g, `$1 "${config.buildOptions.webModulesUrl}/`);
+        .replace(/(from|import) \'\//g, `$1 '${config.buildOptions.metaUrlPath}/pkg/`)
+        .replace(/(from|import) \"\//g, `$1 "${config.buildOptions.metaUrlPath}/pkg/`);
     }
 
     return body;
   },
 
   resolvePackageImport(missingPackage: string, _: ImportMap, config: SnowpackConfig): string {
-    return path.posix.join(config.buildOptions.webModulesUrl, missingPackage);
+    return path.posix.join(config.buildOptions.metaUrlPath, 'pkg', missingPackage);
   },
 
   async recoverMissingPackageImport(): Promise<ImportMap> {

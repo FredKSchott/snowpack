@@ -528,7 +528,7 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
       }
     }
     deleteFromBuildSafe(
-      path.resolve(buildDirectoryLoc, removeLeadingSlash(config.buildOptions.webModulesUrl)),
+      path.resolve(buildDirectoryLoc, removeLeadingSlash(path.posix.join(config.buildOptions.metaUrlPath, 'pkg'))),
       config,
     );
     await removeEmptyFolders(buildDirectoryLoc);

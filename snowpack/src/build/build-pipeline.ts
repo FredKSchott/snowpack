@@ -94,7 +94,7 @@ async function runPipelineLoadStep(
             result[ext].map = JSON.stringify(result[ext].map);
 
           // if source maps disabled, don’t return any
-          if (!config.buildOptions.sourceMaps) result[ext].map = undefined;
+          if (!config.buildOptions.sourcemap) result[ext].map = undefined;
 
           // clean up empty files
           if (!result[ext].code) delete result[ext];
@@ -185,7 +185,7 @@ async function runPipelineTransformStep(
           output[destExt].code = (result as PluginTransformResult).contents;
           const map = (result as PluginTransformResult).map;
           let outputMap: string | undefined = undefined;
-          if (map && config.buildOptions.sourceMaps) {
+          if (map && config.buildOptions.sourcemap) {
             // if source maps disabled, don’t return any
             if (output[destExt].map) {
               outputMap = await composeSourceMaps(filePath, output[destExt].map!, map);

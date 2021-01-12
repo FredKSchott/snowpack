@@ -22,7 +22,6 @@ import {
   addLeadingSlash,
   addTrailingSlash,
   NATIVE_REQUIRE,
-  removeLeadingSlash,
   removeTrailingSlash,
 } from './util';
 
@@ -51,10 +50,9 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   buildOptions: {
     out: 'build',
     baseUrl: '/',
-    webModulesUrl: '/web_modules',
+    metaUrlPath: '_snowpack_',
     clean: true,
-    metaDir: '__snowpack__',
-    sourceMaps: false,
+    sourcemap: false,
     watch: false,
     htmlFragments: false,
     ssr: false,
@@ -132,7 +130,6 @@ const configSchema = {
         treeshake: {type: 'boolean'},
         installTypes: {type: 'boolean'},
         polyfillNode: {type: 'boolean'},
-        sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
         env: {
           type: 'object',
           additionalProperties: {
@@ -163,7 +160,7 @@ const configSchema = {
         baseUrl: {type: 'string'},
         clean: {type: 'boolean'},
         metaDir: {type: 'string'},
-        sourceMaps: {type: 'boolean'},
+        sourcemap: {type: 'boolean'},
         watch: {type: 'boolean'},
         ssr: {type: 'boolean'},
         htmlFragments: {type: 'boolean'},
@@ -402,7 +399,6 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   // from scratch instead of trying to modify the user's config object in-place.
   let config: SnowpackConfig = (_config as any) as SnowpackConfig;
   if (config.packageOptions.source === 'local') {
-    config.packageOptions.cwd = config.root;
     config.packageOptions.rollup = config.packageOptions.rollup || {};
     config.packageOptions.rollup.plugins = config.packageOptions.rollup.plugins || [];
   }
@@ -413,13 +409,9 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   // normalize config URL/path values
   config.buildOptions.out = removeTrailingSlash(config.buildOptions.out);
   config.buildOptions.baseUrl = addTrailingSlash(config.buildOptions.baseUrl);
-  config.buildOptions.webModulesUrl = removeTrailingSlash(
-    addLeadingSlash(config.buildOptions.webModulesUrl),
+  config.buildOptions.metaUrlPath = removeTrailingSlash(
+    addLeadingSlash(config.buildOptions.metaUrlPath),
   );
-  config.buildOptions.metaDir = removeLeadingSlash(
-    removeTrailingSlash(config.buildOptions.metaDir),
-  );
-
   config.mount = normalizeMount(config);
   config.routes = normalizeRoutes(config.routes);
   if (config.optimize) {
@@ -482,6 +474,15 @@ function valdiateDeprecatedConfig(rawConfig: any) {
   }
   if (rawConfig.proxy) {
     handleDeprecatedConfigError('[v3.0] Legacy "proxy" config is deprecated in favor of "routes".');
+  }
+  if (rawConfig.buildOptions?.metaDir) {
+    handleDeprecatedConfigError('[v3.0] "config.buildOptions.metaDir" is now "config.buildOptions.metaUrlPath".');
+  }
+  if (rawConfig.buildOptions?.webModulesUrl) {
+    handleDeprecatedConfigError('[v3.0] "config.buildOptions.webModulesUrl" is now always set within the "config.buildOptions.metaUrlPath" directory.');
+  }
+  if (rawConfig.buildOptions?.sourceMaps) {
+    handleDeprecatedConfigError('[v3.0] "config.buildOptions.sourceMaps" is now "config.buildOptions.sourcemap".');
   }
   if (rawConfig.installOptions) {
     handleDeprecatedConfigError('[v3.0] "config.installOptions" is now "config.packageOptions".');
@@ -629,9 +630,6 @@ function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): 
   }
   if (config.buildOptions?.out) {
     config.buildOptions.out = path.resolve(configBase, config.buildOptions.out);
-  }
-  if (config.packageOptions?.source === 'local' && config.packageOptions.cwd) {
-    config.packageOptions.cwd = path.resolve(configBase, config.packageOptions.cwd);
   }
   if (config.packageOptions?.source === 'remote' && config.packageOptions.cache) {
     config.packageOptions.cache = path.resolve(configBase, config.packageOptions.cache);

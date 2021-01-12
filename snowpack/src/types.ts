@@ -195,7 +195,7 @@ export interface RouteConfigObject {
   _srcRegex: RegExp;
 }
 
-export interface PackageSourceLocal extends Omit<EsinstallOptions, 'alias' | 'dest'> {
+export interface PackageSourceLocal extends Omit<EsinstallOptions, 'alias' | 'dest' | 'sourcemap' | 'verbose' | 'logger' | 'cwd' | 'dest' | 'treeshake'> {
   source: 'local';
   external: string[];
   knownEntrypoints: string[];
@@ -232,10 +232,9 @@ export interface SnowpackConfig {
   buildOptions: {
     out: string;
     baseUrl: string;
-    webModulesUrl: string;
+    metaUrlPath: string;
     clean: boolean;
-    metaDir: string;
-    sourceMaps: boolean;
+    sourcemap: boolean;
     watch: boolean;
     htmlFragments: boolean;
     jsxFactory: string | undefined;

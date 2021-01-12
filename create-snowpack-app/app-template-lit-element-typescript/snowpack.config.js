@@ -9,6 +9,10 @@ module.exports = {
     '@snowpack/plugin-dotenv',
     '@snowpack/plugin-typescript',
   ],
+  routes: [
+    /* To enable an SPA Fallback in development: */
+    // {"match": "routes", "src": ".*", "dest": "/index.html"}
+  ],
   packageOptions: {
     /* ... */
   },
@@ -16,9 +20,6 @@ module.exports = {
     /* ... */
   },
   buildOptions: {
-    /* ... */
-  }, 
-  alias: {
     /* ... */
   },
 };

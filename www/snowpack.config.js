@@ -20,8 +20,5 @@ module.exports = {
   },
   buildOptions: {
     out: '_site',
-  }, 
-  alias: {
-    /* ... */
   },
 };

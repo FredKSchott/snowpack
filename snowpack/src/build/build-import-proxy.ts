@@ -17,8 +17,7 @@ const SRI_ERROR_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_OVERLAY_CODE));
 const importMetaRegex = /import\s*\.\s*meta/;
 
 export function getMetaUrlPath(urlPath: string, config: SnowpackConfig): string {
-  let {metaDir} = config.buildOptions || {};
-  return path.posix.normalize(path.posix.join('/', metaDir, urlPath));
+  return path.posix.normalize(path.posix.join('/', config.buildOptions.metaUrlPath, urlPath));
 }
 
 export function wrapImportMeta({

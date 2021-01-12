@@ -119,11 +119,6 @@ export async function cli(args: string[]) {
     process.exit(1);
   }
 
-  // DEPRECATED: To be removed once final esinstall test is moved off of "snowpack install"
-  // if (cmd === 'install') {
-  //   await installCommand(commandOptions);
-  //   return process.exit(0);
-  // }
   if (cmd === 'prepare') {
     await prepareCommand(commandOptions);
     return process.exit(0);

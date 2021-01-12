@@ -256,31 +256,30 @@ _NOTE:_ Deprecated, see `buildOptions.out`.
 
 ## config.installOptions
 
-**Type**: `object` (option name: value)
+**Type**: `object`
 
-Configure how npm packages are installed.
+_NOTE:_ Deprecated, see `config.packageOptions`.
 
-### installOptions.externalPackage
+## config.packageOptions
+
+**Type**: `object`
+
+Configure how npm packages are installed and used. Packages can be consumed in two different ways: "local" & "remote". Each mode supports different package options. You can choose your mode by setting the `packageOptions.source` property:
+
+- `packageOptions.source = "local"` Load your dependencies from your local `node_modules/` directory. Install and manage your dependencies using `npm` (or any other npm-ready package manager) and a project `package.json` file.
+- `packageOptions.source = "remote"` Enable streaming package imports. Load dependencies from our remote CDN. Manage your dependencies using `snowpack` and a project `snowpack.deps.json` file.
+
+### packageOptions.external
 
 **Type**: `string[]`
 
 Mark some imports as external. Snowpack won't install them and will ignore them when resolving imports.
 
-Example: `"externalPackage": ["fs"]`
+Example: `"external": ["fs"]`
 
 ⚠️ This is an advanced feature, and may not do what you want! Bare imports are not supported in any major browser, so an ignored import will usually fail when sent directly to the browser.
 
-### installOptions.treeshake
-
-**Type**: `boolean`
-
-**Default**:`false`, or `true` when run with `snowpack build`
-
-Treeshake your dependencies to optimize your installed files.
-
-Snowpack will scan your application to detect which exact imports are used from each package, and then will remove any unused imports from the final install via dead-code elimination (aka tree shaking).
-
-### installOptions.polyfillNode
+### packageOptions.polyfillNode (source=local)
 
 **Type**: `boolean`
 
@@ -290,7 +289,7 @@ This will automatically polyfill any Node.js dependencies as much as possible fo
 
 Converts packages that depend on Node.js built-in modules (`"fs"`, `"path"`, `"url"`, etc.). You can see the full list of supported polyfills at the [rollup-plugin-node-polyfills documentation](https://github.com/ionic-team/rollup-plugin-node-polyfills)
 
-If you'd like to customize this polyfill behavior, skip the `--polyfill-node` flag and instead provide your own Rollup plugin for the installer:
+If you'd like to customize this polyfill behavior, you can provide your own Rollup plugin for the installer:
 
 ```js
 // Example: If `--polyfill-node` doesn't support your use-case, you can provide your own custom Node.js polyfill behavior
@@ -304,17 +303,9 @@ module.exports = {
 };
 ```
 
-### installOptions.sourceMap
+When `source="remote"`, Node.js polyfills are always provided. Configuring this option is only supported in `source="local"` mode. 
 
-**Type**: `boolean`
-
-**Default**: `false`
-
-Emit source maps for installed packages.
-
-**_Experimental:_** Set to `true` to enable source maps.
-
-### installOptions.env
+### packageOptions.env  (source=local)
 
 **Type**: `{[ENV_NAME: string]: (string true)}`
 
@@ -322,7 +313,20 @@ Sets a `process.env.` environment variable inside the installed dependencies.
 
 If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit from your current shell environment variable. Otherwise, set to a string (ex: `{NODE_ENV: 'production'}` or `--env NODE_ENV=production`) to set the exact value manually.
 
-### installOptions.rollup
+This option is only supported in `source="local"` mode. `source="remote"` does not support this feature yet.
+
+### packageOptions.packageLookupFields  (source=local)
+
+**Type**: `string[]`
+
+Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the defaults like "module", "main", etc.
+
+Example: `"packageLookupFields": ["svelte"]`
+
+This option is only supported in `source="local"` mode. `source="remote"` does not support this feature yet.
+
+
+### packageOptions.rollup (source=local)  (source=local)
 
 **Type**: `Object`
 
@@ -330,17 +334,11 @@ Allows customization of Snowpack's internal Rollup configuration.
 
 Snowpack uses Rollup internally to install your packages. This `rollup` config option gives you deeper control over the internal Rollup configuration that we use.
 
-- installOptions.rollup.plugins | `RollupPlugin[]` - Provide an array of custom Rollup plugins that will run on every installed package. Useful for dealing with non-standard file types in your npm packages.
-- installOptions.rollup.dedupe | `string[]` - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/main/packages/node-resolve#usage) for more documentation.
-- installOptions.rollup.context | `string` - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning ("'this' keyword is equivalent to 'undefined' ... and has been rewritten") is silenced by default, unless `--verbose` is used.
+- packageOptions.rollup.plugins | `RollupPlugin[]` - Provide an array of custom Rollup plugins that will run on every installed package. Useful for dealing with non-standard file types in your npm packages.
+- packageOptions.rollup.dedupe | `string[]` - If needed, deduplicate multiple versions/copies of a packages to a single one. This helps prevent issues with some packages when multiple versions are installed from your node_modules tree. See [rollup-plugin-node-resolve](https://github.com/rollup/plugins/tree/main/packages/node-resolve#usage) for more documentation.
+- packageOptions.rollup.context | `string` - Specify top-level `this` value. Useful to silence install errors caused by legacy common.js packages that reference a top-level this variable, which does not exist in a pure ESM environment. Note that the `'THIS_IS_UNDEFINED'` warning ("'this' keyword is equivalent to 'undefined' ... and has been rewritten") is silenced by default, unless `--verbose` is used.
 
-### installOptions.packageLookupFields
-
-**Type**: `string[]`
-
-Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the defaults like "module", "main", etc.
-
-Example: `"packageLookupFields": ["svelte"]`
+This option is only supported in `source="local"` mode. `source="remote"` does not support custom Rollup install options.
 
 ## config.buildOptions
 
@@ -365,18 +363,6 @@ In your HTML, replace all instances of `%PUBLIC_URL%` with this
 
 Inspired by the same [Create React App](https://create-react-app.dev/docs/using-the-public-folder/) concept. This is useful if your app will be deployed to a subdirectory.
 
-_Note: if you have `homepage` in your `package.json`, Snowpack will actually pick up on that, too._
-
-### buildOptions.webModulesUrl
-
-**Type**: `string`
-
-**Default**: `web_modules`
-
-Where Snowpack installs your NPM packages to in the final build.
-
-This becomes the URL they are loaded from in production.
-
 ### buildOptions.clean
 
 **Type**: `boolean`
@@ -385,17 +371,25 @@ This becomes the URL they are loaded from in production.
 
 Set to `false` to prevent Snowpack from deleting the build output folder (`buildOptions.out`) between builds.
 
+### buildOptions.webModulesUrl
+
+_NOTE:_ Deprecated, see `buildOptions.metaUrlPath`.
+
 ### buildOptions.metaDir
+
+_NOTE:_ Deprecated, see `buildOptions.metaUrlPath`.
+
+### buildOptions.metaUrlPath
 
 **Type**: `string`
 
-**Default**: `__snowpack__`
+**Default**: `_snowpack_`
 
-Rename the default directory for Snowpack metadata.
+Rename the default directory for Snowpack metadata. In every build, Snowpack creates meta files for loading things like [HMR](/concepts/hot-module-replacement), [Environment Variables](/reference/configuration#environment-variables), and your built npm packages.
 
-Snowpack-related metadata includes [HMR](/concepts/hot-module-replacement) and [ENV](/reference/configuration#environment-variables) info.
+When you build your project, this will be a path on disk relative to the `buildOptions.out` directory.
 
-### buildOptions.sourceMaps
+### buildOptions.sourcemap
 
 **Type**: `boolean`
 
