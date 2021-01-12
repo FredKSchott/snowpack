@@ -114,13 +114,12 @@ export default {
           body = (await remotePackageSDK.fetch('/' + lockfile.lock[lockEntry])).body;
         }
       } else {
-        const _packageSemver = lockfile?.dependencies && lockfile.dependencies[packageName];
+        const packageSemver = 'latest';
         logFetching(
           (config.packageOptions as PackageSourceRemote).origin,
           packageName,
-          _packageSemver,
+          packageSemver,
         );
-        const packageSemver = _packageSemver || 'latest';
         let lookupResponse = await remotePackageSDK.lookupBySpecifier(spec, packageSemver);
         if (!lookupResponse.error && lookupResponse.importStatus === 'NEW') {
           const buildResponse = await remotePackageSDK.buildNewPackage(spec, packageSemver);
