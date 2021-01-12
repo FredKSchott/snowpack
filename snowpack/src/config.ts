@@ -11,7 +11,7 @@ import {
   CLIFlags,
   MountEntry,
   PackageSourceLocal,
-  PackageSourceSkypack,
+  PackageSourceRemote,
   PluginLoadResult,
   RouteConfigObject,
   SnowpackConfig,
@@ -72,8 +72,11 @@ export const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageSourceLocal = {
   knownEntrypoints: [],
 };
 
-const DEFAULT_PACKAGES_SKYPACK_CONFIG: PackageSourceSkypack = {
-  source: 'skypack',
+const REMOTE_PACKAGE_ORIGIN = 'https://pkg.snowpack.dev';
+
+const DEFAULT_PACKAGES_REMOTE_CONFIG: PackageSourceRemote = {
+  source: 'remote',
+  origin: REMOTE_PACKAGE_ORIGIN,
   external: [],
   cache: '.snowpack',
   types: false,
@@ -498,6 +501,11 @@ function valdiateDeprecatedConfig(rawConfig: any) {
       '[v3.0] "config.install" is now "config.packageOptions.knownEntrypoints".',
     );
   }
+  if (rawConfig.experiments?.source === 'skypack') {
+    handleDeprecatedConfigError(
+      '[v3.0] Experiment promoted! "config.experiments.source=skypack" is now "config.packageOptions.source=remote".',
+    );
+  }
   if (rawConfig.experiments?.source) {
     handleDeprecatedConfigError(
       '[v3.0] Experiment promoted! "config.experiments.source" is now "config.packageOptions.source".',
@@ -625,7 +633,7 @@ function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): 
   if (config.packageOptions?.source === 'local' && config.packageOptions.cwd) {
     config.packageOptions.cwd = path.resolve(configBase, config.packageOptions.cwd);
   }
-  if (config.packageOptions?.source === 'skypack' && config.packageOptions.cache) {
+  if (config.packageOptions?.source === 'remote' && config.packageOptions.cache) {
     config.packageOptions.cache = path.resolve(configBase, config.packageOptions.cache);
   }
   if (config.extends) {
@@ -684,8 +692,8 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
       DEFAULT_CONFIG,
       {
         packageOptions:
-          config.packageOptions?.source === 'skypack'
-            ? DEFAULT_PACKAGES_SKYPACK_CONFIG
+          config.packageOptions?.source === 'remote'
+            ? DEFAULT_PACKAGES_REMOTE_CONFIG
             : DEFAULT_PACKAGES_LOCAL_CONFIG,
       },
       config,

@@ -1,7 +1,6 @@
 import {send} from 'httpie';
 import {cyan, dim, underline} from 'kleur/colors';
 import path from 'path';
-import {generateImportMap} from 'skypack';
 import {logger} from '../logger';
 import {CommandOptions, LockfileManifest} from '../types';
 import {
@@ -9,24 +8,25 @@ import {
   convertSkypackImportMapToLockfile,
   LOCKFILE_NAME,
   writeLockfile,
+  remotePackageSDK,
 } from '../util';
 
 export async function addCommand(addValue: string, commandOptions: CommandOptions) {
   const {lockfile, config} = commandOptions;
-  if (config.packageOptions.source !== 'skypack') {
-    throw new Error(`add command requires packageOptions.source="skypack".`);
+  if (config.packageOptions.source !== 'remote') {
+    throw new Error(`add command requires packageOptions.source="remote".`);
   }
   let [pkgName, pkgSemver] = addValue.split('@');
   const installMessage = pkgSemver ? `${pkgName}@${pkgSemver}` : pkgName;
-  logger.info(`fetching ${cyan(installMessage)} from Skypack CDN...`);
+  logger.info(`fetching ${cyan(installMessage)} from CDN...`);
   if (!pkgSemver || pkgSemver === 'latest') {
     const {data} = await send('GET', `http://registry.npmjs.org/${pkgName}/latest`);
     pkgSemver = `^${data.version}`;
   }
   logger.info(
-    `adding ${cyan(
-      underline(`https://cdn.skypack.dev/${pkgName}@${pkgSemver}`),
-    )} to your project lockfile. ${dim(`(${LOCKFILE_NAME})`)}`,
+    `adding ${cyan(underline(`${pkgName}@${pkgSemver}`))} to your project lockfile. ${dim(
+      `(${LOCKFILE_NAME})`,
+    )}`,
   );
   const addedDependency = {[pkgName]: pkgSemver};
   const newLockfile: LockfileManifest = convertSkypackImportMapToLockfile(
@@ -34,9 +34,9 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
       ...lockfile?.dependencies,
       ...addedDependency,
     },
-    await generateImportMap(
+    await remotePackageSDK.generateImportMap(
       addedDependency,
-      lockfile ? convertLockfileToSkypackImportMap(lockfile) : undefined,
+      lockfile ? convertLockfileToSkypackImportMap(config.packageOptions.origin, lockfile) : undefined,
     ),
   );
   await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
@@ -44,16 +44,16 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
 
 export async function rmCommand(addValue: string, commandOptions: CommandOptions) {
   const {lockfile, config} = commandOptions;
-  if (config.packageOptions.source !== 'skypack') {
-    throw new Error(`rm command requires packageOptions.source="skypack".`);
+  if (config.packageOptions.source !== 'remote') {
+    throw new Error(`rm command requires packageOptions.source="remote".`);
   }
   let [pkgName] = addValue.split('@');
   logger.info(`removing ${cyan(pkgName)} from project lockfile...`);
   const newLockfile: LockfileManifest = convertSkypackImportMapToLockfile(
     lockfile?.dependencies ?? {},
-    await generateImportMap(
+    await remotePackageSDK.generateImportMap(
       {[pkgName]: null},
-      lockfile ? convertLockfileToSkypackImportMap(lockfile) : undefined,
+      lockfile ? convertLockfileToSkypackImportMap(config.packageOptions.origin, lockfile) : undefined,
     ),
   );
   delete newLockfile.dependencies[pkgName];

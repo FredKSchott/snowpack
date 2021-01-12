@@ -53,7 +53,7 @@ async function installDependencies(config: SnowpackConfig) {
 let installOptions: EsinstallOptions;
 
 /**
- * Skypack Package Source: A generic interface through which Snowpack
+ * Local Package Source: A generic interface through which Snowpack
  * interacts with esinstall and your locally installed dependencies.
  */
 export default {
