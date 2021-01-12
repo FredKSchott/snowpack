@@ -303,9 +303,9 @@ module.exports = {
 };
 ```
 
-When `source="remote"`, Node.js polyfills are always provided. Configuring this option is only supported in `source="local"` mode. 
+When `source="remote"`, Node.js polyfills are always provided. Configuring this option is only supported in `source="local"` mode.
 
-### packageOptions.env  (source=local)
+### packageOptions.env (source=local)
 
 **Type**: `{[ENV_NAME: string]: (string true)}`
 
@@ -315,7 +315,7 @@ If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit fr
 
 This option is only supported in `source="local"` mode. `source="remote"` does not support this feature yet.
 
-### packageOptions.packageLookupFields  (source=local)
+### packageOptions.packageLookupFields (source=local)
 
 **Type**: `string[]`
 
@@ -325,8 +325,7 @@ Example: `"packageLookupFields": ["svelte"]`
 
 This option is only supported in `source="local"` mode. `source="remote"` does not support this feature yet.
 
-
-### packageOptions.rollup (source=local)  (source=local)
+### packageOptions.rollup (source=local) (source=local)
 
 **Type**: `Object`
 

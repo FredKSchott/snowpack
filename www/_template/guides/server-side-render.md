@@ -14,7 +14,7 @@ Server-side rendering (SSR) refers to several similar developer stories:
 This guide will walk you through two options for setting up Snowpack with your own custom server:
 
 1. `snowpack build --watch` - Load files out of the static build directory
-2. `startDevServer({ ... })` - Load files on-demand via Snowpack's JavaScript API
+2. `startServer({ ... })` - Load files on-demand via Snowpack's JavaScript API
 
 ### Option 1: Static
 
@@ -40,8 +40,8 @@ Status: Experimental
 The best developer experience is achieved by loading files on-demand. This removes any need for work on startup, giving you a faster developer environment no matter how large your project grows.
 
 ```js
-import {startDevServer} from 'snowpack';
-const server = await startDevServer({ ... });
+import {startServer} from 'snowpack';
+const server = await startServer({ ... });
 
 // Example: Express
 // On request, build each file on request and respond with its built contents

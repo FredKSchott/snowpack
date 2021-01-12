@@ -18,12 +18,7 @@ import {
   SnowpackPlugin,
   SnowpackUserConfig,
 } from './types';
-import {
-  addLeadingSlash,
-  addTrailingSlash,
-  NATIVE_REQUIRE,
-  removeTrailingSlash,
-} from './util';
+import {addLeadingSlash, addTrailingSlash, NATIVE_REQUIRE, removeTrailingSlash} from './util';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*'];
@@ -476,13 +471,19 @@ function valdiateDeprecatedConfig(rawConfig: any) {
     handleDeprecatedConfigError('[v3.0] Legacy "proxy" config is deprecated in favor of "routes".');
   }
   if (rawConfig.buildOptions?.metaDir) {
-    handleDeprecatedConfigError('[v3.0] "config.buildOptions.metaDir" is now "config.buildOptions.metaUrlPath".');
+    handleDeprecatedConfigError(
+      '[v3.0] "config.buildOptions.metaDir" is now "config.buildOptions.metaUrlPath".',
+    );
   }
   if (rawConfig.buildOptions?.webModulesUrl) {
-    handleDeprecatedConfigError('[v3.0] "config.buildOptions.webModulesUrl" is now always set within the "config.buildOptions.metaUrlPath" directory.');
+    handleDeprecatedConfigError(
+      '[v3.0] "config.buildOptions.webModulesUrl" is now always set within the "config.buildOptions.metaUrlPath" directory.',
+    );
   }
   if (rawConfig.buildOptions?.sourceMaps) {
-    handleDeprecatedConfigError('[v3.0] "config.buildOptions.sourceMaps" is now "config.buildOptions.sourcemap".');
+    handleDeprecatedConfigError(
+      '[v3.0] "config.buildOptions.sourceMaps" is now "config.buildOptions.sourcemap".',
+    );
   }
   if (rawConfig.installOptions) {
     handleDeprecatedConfigError('[v3.0] "config.installOptions" is now "config.packageOptions".');

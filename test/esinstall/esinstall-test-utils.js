@@ -62,7 +62,11 @@ async function testLockFile(cwd) {
 exports.testLockFile = testLockFile;
 
 const defaultWebModulesTestOptions = {throwIfNoWebModules: true};
-async function testWebModules(cwd, snapshotFile, {throwIfNoWebModules} = defaultWebModulesTestOptions) {
+async function testWebModules(
+  cwd,
+  snapshotFile,
+  {throwIfNoWebModules} = defaultWebModulesTestOptions,
+) {
   const actual = path.join(cwd, 'web_modules');
   await new Promise((resolve) => setTimeout(resolve, 100));
   const allFiles = glob.sync(`**/*`, {

@@ -195,7 +195,11 @@ export interface RouteConfigObject {
   _srcRegex: RegExp;
 }
 
-export interface PackageSourceLocal extends Omit<EsinstallOptions, 'alias' | 'dest' | 'sourcemap' | 'verbose' | 'logger' | 'cwd' | 'dest' | 'treeshake'> {
+export interface PackageSourceLocal
+  extends Omit<
+    EsinstallOptions,
+    'alias' | 'dest' | 'sourcemap' | 'verbose' | 'logger' | 'cwd' | 'dest' | 'treeshake'
+  > {
   source: 'local';
   external: string[];
   knownEntrypoints: string[];

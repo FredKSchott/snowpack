@@ -36,7 +36,9 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
     },
     await remotePackageSDK.generateImportMap(
       addedDependency,
-      lockfile ? convertLockfileToSkypackImportMap(config.packageOptions.origin, lockfile) : undefined,
+      lockfile
+        ? convertLockfileToSkypackImportMap(config.packageOptions.origin, lockfile)
+        : undefined,
     ),
   );
   await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
@@ -53,7 +55,9 @@ export async function rmCommand(addValue: string, commandOptions: CommandOptions
     lockfile?.dependencies ?? {},
     await remotePackageSDK.generateImportMap(
       {[pkgName]: null},
-      lockfile ? convertLockfileToSkypackImportMap(config.packageOptions.origin, lockfile) : undefined,
+      lockfile
+        ? convertLockfileToSkypackImportMap(config.packageOptions.origin, lockfile)
+        : undefined,
     ),
   );
   delete newLockfile.dependencies[pkgName];

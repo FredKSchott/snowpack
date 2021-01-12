@@ -21,9 +21,7 @@ export const LOCKFILE_NAME = 'snowpack.deps.json';
 // We need to use eval here to prevent Rollup from detecting this use of `require()`
 export const NATIVE_REQUIRE = eval('require');
 
-
 export const remotePackageSDK = new SkypackSDK({origin: 'https://pkg.snowpack.dev'});
-
 
 // A note on cache naming/versioning: We currently version our global caches
 // with the version of the last breaking change. This allows us to re-use the
@@ -84,7 +82,10 @@ function sortObject<T>(originalObject: Record<string, T>): Record<string, T> {
   return newObject;
 }
 
-export function convertLockfileToSkypackImportMap(origin: string, lockfile: LockfileManifest): ImportMap {
+export function convertLockfileToSkypackImportMap(
+  origin: string,
+  lockfile: LockfileManifest,
+): ImportMap {
   const result = {imports: {}};
   for (const [key, val] of Object.entries(lockfile.lock)) {
     result.imports[key.replace(/\#.*/, '')] = origin + '/' + val;

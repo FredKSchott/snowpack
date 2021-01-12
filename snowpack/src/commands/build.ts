@@ -338,7 +338,7 @@ class FileBuilder {
   }
 }
 
-export async function buildProject(commandOptions: CommandOptions): Promise<SnowpackBuildResult> {
+export async function build(commandOptions: CommandOptions): Promise<SnowpackBuildResult> {
   const {config} = commandOptions;
   const isDev = !!config.buildOptions.watch;
   const isSSR = !!config.buildOptions.ssr;
@@ -576,10 +576,10 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
     return {
       result: buildResultManifest,
       onFileChange: () => {
-        throw new Error('buildProject().onFileChange() only supported in "watch" mode.');
+        throw new Error('build().onFileChange() only supported in "watch" mode.');
       },
       shutdown: () => {
-        throw new Error('buildProject().shutdown() only supported in "watch" mode.');
+        throw new Error('build().shutdown() only supported in "watch" mode.');
       },
     };
   }
@@ -685,7 +685,7 @@ export async function buildProject(commandOptions: CommandOptions): Promise<Snow
 
 export async function command(commandOptions: CommandOptions) {
   try {
-    await buildProject(commandOptions);
+    await build(commandOptions);
   } catch (err) {
     logger.error(err.message);
     logger.debug(err.stack);

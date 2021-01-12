@@ -20,7 +20,7 @@ To Resolve:
         devOptions: {open: 'none', output: 'stream', hmr: false},
       });
       fileWatcher.add(Object.keys(config.mount));
-      server = await snowpack.startDevServer({
+      server = await snowpack.startServer({
         config,
         lockfile: null,
       });

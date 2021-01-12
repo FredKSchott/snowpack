@@ -1,12 +1,15 @@
 import {existsSync} from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
-import {
-  clearCache as clearSkypackCache,
-  rollupPluginSkypack,
-} from 'skypack';
+import {clearCache as clearSkypackCache, rollupPluginSkypack} from 'skypack';
 import {logger} from '../logger';
-import {ImportMap, LockfileManifest, PackageSource, PackageSourceRemote, SnowpackConfig} from '../types';
+import {
+  ImportMap,
+  LockfileManifest,
+  PackageSource,
+  PackageSourceRemote,
+  SnowpackConfig,
+} from '../types';
 import {convertLockfileToSkypackImportMap, isJavaScript, remotePackageSDK} from '../util';
 import rimraf from 'rimraf';
 
@@ -58,11 +61,13 @@ export default {
     for (const lockEntry of lockEntryList) {
       const [packageName, semverRange] = lockEntry.split('#');
       const exactVersion = lockfile.lock[lockEntry]?.substr(packageName.length + 1);
-      await remotePackageSDK.installTypes(
-        packageName,
-        exactVersion || semverRange,
-        path.join(this.getCacheFolder(config), 'types'),
-      ).catch((err) => logger.debug('dts fetch error: ' + err.message));
+      await remotePackageSDK
+        .installTypes(
+          packageName,
+          exactVersion || semverRange,
+          path.join(this.getCacheFolder(config), 'types'),
+        )
+        .catch((err) => logger.debug('dts fetch error: ' + err.message));
     }
     // Skypack resolves imports on the fly, so no import map needed.
     logger.info(`types updated. ${colors.dim('→ ./.snowpack/types')}`, {
@@ -72,7 +77,12 @@ export default {
   },
 
   modifyBuildInstallOptions({installOptions, config, lockfile}) {
-    installOptions.importMap = lockfile ? convertLockfileToSkypackImportMap((config.packageOptions as PackageSourceRemote).origin, lockfile) : undefined;
+    installOptions.importMap = lockfile
+      ? convertLockfileToSkypackImportMap(
+          (config.packageOptions as PackageSourceRemote).origin,
+          lockfile,
+        )
+      : undefined;
     installOptions.rollup = installOptions.rollup || {};
     installOptions.rollup.plugins = installOptions.rollup.plugins || [];
     installOptions.rollup.plugins.push(rollupPluginSkypack({sdk: remotePackageSDK}) as Plugin);
@@ -98,13 +108,18 @@ export default {
       if (lockfile && lockfile.dependencies[packageName]) {
         const lockEntry = packageName + '#' + lockfile.dependencies[packageName];
         if (packagePath) {
-          body = (await remotePackageSDK.fetch('/' + lockfile.lock[lockEntry] + '/' + packagePath)).body;
+          body = (await remotePackageSDK.fetch('/' + lockfile.lock[lockEntry] + '/' + packagePath))
+            .body;
         } else {
           body = (await remotePackageSDK.fetch('/' + lockfile.lock[lockEntry])).body;
         }
       } else {
         const _packageSemver = lockfile?.dependencies && lockfile.dependencies[packageName];
-        logFetching((config.packageOptions as PackageSourceRemote).origin, packageName, _packageSemver);
+        logFetching(
+          (config.packageOptions as PackageSourceRemote).origin,
+          packageName,
+          _packageSemver,
+        );
         const packageSemver = _packageSemver || 'latest';
         let lookupResponse = await remotePackageSDK.lookupBySpecifier(spec, packageSemver);
         if (!lookupResponse.error && lookupResponse.importStatus === 'NEW') {
@@ -120,11 +135,13 @@ export default {
         // Trigger a type fetch asynchronously. We want to resolve the JS as fast as possible, and
         // the result of this is totally disconnected from the loading flow.
         if (!existsSync(path.join(this.getCacheFolder(config), '.snowpack/types', packageName))) {
-          remotePackageSDK.installTypes(
-            packageName,
-            packageSemver,
-            path.join(this.getCacheFolder(config), '.snowpack/types'),
-          ).catch(() => 'thats fine!');
+          remotePackageSDK
+            .installTypes(
+              packageName,
+              packageSemver,
+              path.join(this.getCacheFolder(config), '.snowpack/types'),
+            )
+            .catch(() => 'thats fine!');
         }
         body = lookupResponse.body;
       }

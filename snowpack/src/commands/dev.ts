@@ -263,7 +263,7 @@ function getSSRLoader(
   return runtime;
 }
 
-export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
+export async function startServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
   const {config} = commandOptions;
   // Start the startup timer!
   let serverStart = performance.now();
@@ -1374,7 +1374,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
 
 export async function command(commandOptions: CommandOptions) {
   try {
-    await startDevServer(commandOptions);
+    await startServer(commandOptions);
   } catch (err) {
     logger.error(err.message);
     logger.debug(err.stack);

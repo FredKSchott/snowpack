@@ -10,8 +10,8 @@ Status: Experimental
 
 ```js
 // JS API Example
-import {startDevServer} from 'snowpack';
-const server = await startDevServer({ ... });
+import {startServer} from 'snowpack';
+const server = await startServer({ ... });
 ```
 
 Snowpack is most commonly used via the command-line. However, Snowpack also ships a JavaScript API for anyone who wants to integrate with some custom build pipeline or server-side rendering engine.

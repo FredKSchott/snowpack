@@ -14,16 +14,22 @@ import {clearCache, readLockfile} from './util.js';
 export * from './types';
 
 // Stable API (remember to include all in "./index.esm.js" wrapper)
-export {startDevServer} from './commands/dev';
-export {buildProject} from './commands/build';
+export {startServer} from './commands/dev';
+export {build} from './commands/build';
 export {loadConfiguration, createConfiguration} from './config.js';
 export {readLockfile as loadLockfile} from './util.js';
 export {getUrlForFile} from './build/file-urls';
 export {logger} from './logger';
 
+export function startDevServer() {
+  throw new Error('startDevServer() was been renamed to startServer().');
+}
+export function buildProject() {
+  throw new Error('buildProject() was been renamed to build().');
+}
 export function loadAndValidateConfig() {
   throw new Error(
-    'loadAndValidateConfig() has been deprecated in favor of loadConfiguration() and createConfiguration()',
+    'loadAndValidateConfig() has been deprecated in favor of loadConfiguration() and createConfiguration().',
   );
 }
 
