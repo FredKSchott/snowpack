@@ -143,6 +143,18 @@ export type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput}
 const FAILED_INSTALL_MESSAGE = 'Install failed.';
 
 function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
+  if ((_options as any).lockfile) {
+    throw new Error('[eslint@1.0.0] option `lockfile` was renamed to `importMap`.');
+  }
+  if ((_options as any).sourceMap) {
+    throw new Error('[eslint@1.0.0] option `sourceMap` was renamed to `sourcemap`.');
+  }
+  if ((_options as any).externalPackage) {
+    throw new Error('[eslint@1.0.0] option `externalPackage` was renamed to `external`.');
+  }
+  if ((_options as any).externalPackageEsm) {
+    throw new Error('[eslint@1.0.0] option `externalPackageEsm` was renamed to `externalEsm`.');
+  }
   const options = {
     cwd: process.cwd(),
     alias: {},

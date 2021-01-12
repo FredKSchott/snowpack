@@ -42,7 +42,7 @@
     "@types/ws": "^7.2.4",
     "cheerio": "^1.0.0-rc.3",
     "cross-env": "^7.0.2",
-    "execa": "^4.0.3",
+    "execa": "^5.0.0",
     "httpie": "^1.1.2",
     "jest": "^26.2.2",
     "jest-specific-snapshot": "^4.0.0",

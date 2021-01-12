@@ -15,7 +15,7 @@
     "create-snowpack-app": "./index.js"
   },
   "dependencies": {
-    "execa": "^4.0.0",
+    "execa": "^5.0.0",
     "fs-extra": "^9.0.0",
     "kleur": "^4.1.1",
     "yargs-parser": "^20.0.0"

@@ -13,7 +13,7 @@
     "access": "public"
   },
   "dependencies": {
-    "execa": "^4.0.3",
+    "execa": "^5.0.0",
     "npm-run-path": "^4.0.1"
   }
 }
