@@ -74,7 +74,7 @@ async function testWebModules(
     cwd: actual,
     nodir: true,
   });
-  
+
   if (allFiles.length === 0 && throwIfNoWebModules) {
     throw new Error('Empty build directory!');
   }

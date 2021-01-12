@@ -116,7 +116,9 @@ function getSplitChunksConfig({numEntries}) {
       lib: {
         test(module) {
           return (
-            !isCss(module) && module.size() > 100000 && /_snowpack[/\\]pkg[/\\]/.test(module.identifier())
+            !isCss(module) &&
+            module.size() > 100000 &&
+            /_snowpack[/\\]pkg[/\\]/.test(module.identifier())
           );
         },
         name(module) {

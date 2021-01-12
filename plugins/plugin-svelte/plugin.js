@@ -11,7 +11,8 @@ let makeHot = (...args) => {
 
 module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   const isDev = process.env.NODE_ENV !== 'production';
-  const useSourceMaps = snowpackConfig.buildOptions.sourcemap || snowpackConfig.buildOptions.sourceMaps;
+  const useSourceMaps =
+    snowpackConfig.buildOptions.sourcemap || snowpackConfig.buildOptions.sourceMaps;
 
   // Support importing Svelte files when you install dependencies.
   if (snowpackConfig.packageOptions.source === 'local') {
