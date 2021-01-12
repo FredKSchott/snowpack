@@ -232,13 +232,13 @@ body{border:1px solid #fff;margin:1px}
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/target-es2018.js
-export default function r(){const t={bar:"bar"},o=null;return console.log(t==null?void 0:t.bar,o!=null?o:100),!0}
+export default function n(){const t={bar:"bar"},e=null;return console.log(t==null?void 0:t.bar,e!=null?e:100),!0}
 
 
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/target-es2018.js
-export default function r(){const t={bar:"bar"},o=null;return console.log(t==null?void 0:t.bar,o!=null?o:100),!0}
+export default function n(){const t={bar:"bar"},e=null;return console.log(t==null?void 0:t.bar,e!=null?e:100),!0}
 
 `;
 

@@ -2003,9 +2003,8 @@ properties[xlinkHref] = new PropertyInfoRecord('xlinkHref', STRING, false, // mu
   null, // attributeNamespace
   true);
 });
-var ReactDebugCurrentFrame = null;
 {
-  ReactDebugCurrentFrame = ReactSharedInternals.ReactDebugCurrentFrame;
+  ReactSharedInternals.ReactDebugCurrentFrame;
 } // A javascript: URL can contain leading C0 control or \\\\u0020 SPACE,
 // and any newline or tab are filtered out as if they're not part of the URL.
 // https://url.spec.whatwg.org/#url-parsing
@@ -21341,13 +21340,10 @@ function injectIntoDevTools(devToolsConfig) {
   }));
 }
 var IsSomeRendererActing$1 = ReactSharedInternals.IsSomeRendererActing;
-function ReactDOMRoot(container, options) {
-  this._internalRoot = createRootImpl(container, ConcurrentRoot, options);
-}
 function ReactDOMBlockingRoot(container, tag, options) {
   this._internalRoot = createRootImpl(container, tag, options);
 }
-ReactDOMRoot.prototype.render = ReactDOMBlockingRoot.prototype.render = function (children) {
+ReactDOMBlockingRoot.prototype.render = function (children) {
   var root = this._internalRoot;
   {
     if (typeof arguments[1] === 'function') {
@@ -21365,7 +21361,7 @@ ReactDOMRoot.prototype.render = ReactDOMBlockingRoot.prototype.render = function
   }
   updateContainer(children, root, null, null);
 };
-ReactDOMRoot.prototype.unmount = ReactDOMBlockingRoot.prototype.unmount = function () {
+ReactDOMBlockingRoot.prototype.unmount = function () {
   {
     if (typeof arguments[0] === 'function') {
       error('unmount(...): does not support a callback argument. ' + 'To execute a side effect after rendering, declare it in a component body with useEffect().');

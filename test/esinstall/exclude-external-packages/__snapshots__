@@ -1671,8 +1671,6 @@ var REACT_SUSPENSE_LIST_TYPE = 0xead8;
 var REACT_MEMO_TYPE = 0xead3;
 var REACT_LAZY_TYPE = 0xead4;
 var REACT_BLOCK_TYPE = 0xead9;
-var REACT_SERVER_BLOCK_TYPE = 0xeada;
-var REACT_FUNDAMENTAL_TYPE = 0xead5;
 var REACT_SCOPE_TYPE = 0xead7;
 var REACT_OPAQUE_ID_TYPE = 0xeae0;
 var REACT_DEBUG_TRACING_MODE_TYPE = 0xeae1;
@@ -1693,8 +1691,8 @@ if (typeof Symbol === 'function' && Symbol.for) {
   REACT_MEMO_TYPE = symbolFor('react.memo');
   REACT_LAZY_TYPE = symbolFor('react.lazy');
   REACT_BLOCK_TYPE = symbolFor('react.block');
-  REACT_SERVER_BLOCK_TYPE = symbolFor('react.server.block');
-  REACT_FUNDAMENTAL_TYPE = symbolFor('react.fundamental');
+  symbolFor('react.server.block');
+  symbolFor('react.fundamental');
   REACT_SCOPE_TYPE = symbolFor('react.scope');
   REACT_OPAQUE_ID_TYPE = symbolFor('react.opaque.id');
   REACT_DEBUG_TRACING_MODE_TYPE = symbolFor('react.debug_trace_mode');
@@ -8137,18 +8135,17 @@ function addTrappedEventListener(targetContainer, domEventName, eventSystemFlags
     }
   }
   targetContainer =  targetContainer;
-  var unsubscribeListener; // When legacyFBSupport is enabled, it's for when we
   if (isCapturePhaseListener) {
     if (isPassiveListener !== undefined) {
-      unsubscribeListener = addEventCaptureListenerWithPassiveFlag(targetContainer, domEventName, listener, isPassiveListener);
+      addEventCaptureListenerWithPassiveFlag(targetContainer, domEventName, listener, isPassiveListener);
     } else {
-      unsubscribeListener = addEventCaptureListener(targetContainer, domEventName, listener);
+      addEventCaptureListener(targetContainer, domEventName, listener);
     }
   } else {
     if (isPassiveListener !== undefined) {
-      unsubscribeListener = addEventBubbleListenerWithPassiveFlag(targetContainer, domEventName, listener, isPassiveListener);
+      addEventBubbleListenerWithPassiveFlag(targetContainer, domEventName, listener, isPassiveListener);
     } else {
-      unsubscribeListener = addEventBubbleListener(targetContainer, domEventName, listener);
+      addEventBubbleListener(targetContainer, domEventName, listener);
     }
   }
 }
@@ -18946,18 +18943,13 @@ function isSuspenseBoundaryBeingHidden(current, finishedWork) {
 function commitResetTextContent(current) {
   resetTextContent(current.stateNode);
 }
-var COMPONENT_TYPE = 0;
-var HAS_PSEUDO_CLASS_TYPE = 1;
-var ROLE_TYPE = 2;
-var TEST_NAME_TYPE = 3;
-var TEXT_TYPE = 4;
 if (typeof Symbol === 'function' && Symbol.for) {
   var symbolFor$1 = Symbol.for;
-  COMPONENT_TYPE = symbolFor$1('selector.component');
-  HAS_PSEUDO_CLASS_TYPE = symbolFor$1('selector.has_pseudo_class');
-  ROLE_TYPE = symbolFor$1('selector.role');
-  TEST_NAME_TYPE = symbolFor$1('selector.test_id');
-  TEXT_TYPE = symbolFor$1('selector.text');
+  symbolFor$1('selector.component');
+  symbolFor$1('selector.has_pseudo_class');
+  symbolFor$1('selector.role');
+  symbolFor$1('selector.test_id');
+  symbolFor$1('selector.text');
 }
 var commitHooks = [];
 function onCommitRoot$1() {
@@ -22388,13 +22380,10 @@ function injectIntoDevTools(devToolsConfig) {
     getCurrentFiber:  getCurrentFiberForDevTools
   });
 }
-function ReactDOMRoot(container, options) {
-  this._internalRoot = createRootImpl(container, ConcurrentRoot, options);
-}
 function ReactDOMBlockingRoot(container, tag, options) {
   this._internalRoot = createRootImpl(container, tag, options);
 }
-ReactDOMRoot.prototype.render = ReactDOMBlockingRoot.prototype.render = function (children) {
+ReactDOMBlockingRoot.prototype.render = function (children) {
   var root = this._internalRoot;
   {
     if (typeof arguments[1] === 'function') {
@@ -22412,7 +22401,7 @@ ReactDOMRoot.prototype.render = ReactDOMBlockingRoot.prototype.render = function
   }
   updateContainer(children, root, null, null);
 };
-ReactDOMRoot.prototype.unmount = ReactDOMBlockingRoot.prototype.unmount = function () {
+ReactDOMBlockingRoot.prototype.unmount = function () {
   {
     if (typeof arguments[0] === 'function') {
       error('unmount(...): does not support a callback argument. ' + 'To execute a side effect after rendering, declare it in a component body with useEffect().');
