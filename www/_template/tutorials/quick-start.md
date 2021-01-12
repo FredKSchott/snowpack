@@ -52,7 +52,7 @@ snowpack build
 
 This builds your project into a static `build/` directory that you can deploy anywhere. You can customize your build via [configuration](/reference/configuration).
 
-### See all commands & options
+### See all options
 
 ```
 snowpack --help

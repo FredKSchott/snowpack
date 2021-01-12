@@ -8,6 +8,9 @@ module.exports = {
     ['@snowpack/plugin-sass', { compilerOptions: { style: 'compressed' } }],
     ['@snowpack/plugin-postcss', {}],
   ],
+  install: [
+    /* ... */
+  ],
   installOptions: {
     /* ... */
   },
@@ -17,5 +20,8 @@ module.exports = {
   },
   buildOptions: {
     out: '_site',
+  }, 
+  alias: {
+    /* ... */
   },
 };
