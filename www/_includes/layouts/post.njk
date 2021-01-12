@@ -122,7 +122,9 @@
             </g>
         </svg>
         <h1 class="header-snowpack">{{title}}</h1>
-        <p>{{tagline}}<br /> Published <a href='#published-at'>{{page.date | readableDate }}</a> by <a href="https://twitter.com/FredKSchott">Fred K. Schott<a></p>
+
+        
+        <p>{% if tagline %}{{tagline}}<br />{% endif %}Published <a href='#published-at'>{{page.date | readableDate }}</a> by <a href="https://twitter.com/FredKSchott">Fred K. Schott<a></p>
         <!-- Place this tag where you want the button to render. -->
         <div class="hidden-mobile" style="text-align: center; margin-top: 0.5rem; filter: scale(2);">
             <a class="github-button" href="https://github.com/snowpackjs/snowpack" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star snowpackjs/snowpack on GitHub">Star</a>

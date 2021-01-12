@@ -105,8 +105,7 @@ export async function cli(args: string[]) {
   const cliConfig = expandCliFlags(cliFlags);
   const config = await loadConfiguration(cliConfig, cliFlags.config);
   logger.debug(`config loaded: ${util.format(config)}`);
-  // TODO: process.cwd() okay here? Should the lockfile live at root instead of cwd?
-  const lockfile = await readLockfile(process.cwd());
+  const lockfile = await readLockfile(config.root);
   logger.debug(`lockfile ${lockfile ? 'loaded.' : 'not loaded'}`);
   const commandOptions: CommandOptions = {
     config,

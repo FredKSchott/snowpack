@@ -84,4 +84,4 @@ app.use(async (req, res, next) => {
 });
 ```
 
-`getESMRuntime()` is a lower-level tool to help you implement SSR in your project. However, building a custom SSR setup is an advanced task. If you prefer not to implement this yourself, check out Some of the new Snowpack-powered application frameworks and static site generators like [SvelteKit](https://svelte.dev/blog/whats-the-deal-with-sveltekit) or [Microsite](https://www.npmjs.com/package/microsite).
+`getESMRuntime()` is a lower-level tool to help you implement SSR in your project. However, building a custom SSR setup is an advanced task. If you prefer not to implement this yourself, check out some of the new Snowpack-powered application frameworks and static site generators like [SvelteKit](https://svelte.dev/blog/whats-the-deal-with-sveltekit) and [Microsite](https://www.npmjs.com/package/microsite).
