@@ -5,6 +5,12 @@ import fs from 'fs';
 import mkdirp from 'mkdirp';
 import path from 'path';
 
+export interface AbstractLogger {
+  debug: (...args: any[]) => void;
+  log: (...args: any[]) => void;
+  warn: (...args: any[]) => void;
+  error: (...args: any[]) => void;
+}
 export interface ImportMap {
   imports: {[packageName: string]: string};
 }

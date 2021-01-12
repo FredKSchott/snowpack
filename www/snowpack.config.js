@@ -10,7 +10,7 @@ module.exports = {
     ['@snowpack/plugin-postcss', {}],
   ],
   packageOptions: {
-    source: 'skypack',
+    source: 'remote',
     types: true,
   },
   devOptions: {

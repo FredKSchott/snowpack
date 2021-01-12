@@ -1,7 +1,7 @@
 import cacache from 'cacache';
 import {Plugin, ResolvedId} from 'rollup';
 import {SkypackSDK} from './index';
-import {HAS_CDN_HASH_REGEX, RESOURCE_CACHE} from './util';
+import {AbstractLogger, HAS_CDN_HASH_REGEX, RESOURCE_CACHE} from './util';
 
 
 /**
@@ -12,19 +12,19 @@ import {HAS_CDN_HASH_REGEX, RESOURCE_CACHE} from './util';
  * successful CDN resolution, we save the file to the local cache and then tell
  * rollup that it's safe to load from the cache in the `load()` hook.
  */
-export function rollupPluginSkypack({sdk}: {sdk: SkypackSDK}) {
+export function rollupPluginSkypack({sdk, logger}: {sdk: SkypackSDK, logger: AbstractLogger}) {
 const CACHED_FILE_ID_PREFIX = 'remote-pkg-cache:';
 
   return {
     name: 'snowpack:rollup-plugin-remote-cdn',
     async resolveId(source: string, importer) {
       let cacheKey: string;
-      if (source.startsWith(origin)) {
+      if (source.startsWith(sdk.origin)) {
         cacheKey = source;
       } else if (source.startsWith('/-/')) {
-        cacheKey = origin + source;
+        cacheKey = sdk.origin + source;
       } else if (source.startsWith('/pin/')) {
-        cacheKey = origin + source;
+        cacheKey = sdk.origin + source;
       } else {
         return null;
       }
@@ -32,7 +32,7 @@ const CACHED_FILE_ID_PREFIX = 'remote-pkg-cache:';
       // If the source path is a CDN path including a hash, it's assumed the
       // file will never change and it is safe to pull from our local cache
       // without a network request.
-      console.debug(`resolve ${cacheKey}`, {name: 'install:remote'});
+      logger.debug(`resolve ${cacheKey}`, {name: 'install:remote'});
       if (HAS_CDN_HASH_REGEX.test(cacheKey)) {
         const cachedResult = await cacache.get
           .info(RESOURCE_CACHE, cacheKey)
@@ -68,9 +68,8 @@ const CACHED_FILE_ID_PREFIX = 'remote-pkg-cache:';
         return null;
       }
       const cacheKey = id.substring(CACHED_FILE_ID_PREFIX.length);
-      console.debug(`load ${cacheKey}`, {name: 'install:remote'});
+      logger.debug(`load ${cacheKey}`, {name: 'install:remote'});
       const {body} = await sdk.fetch(cacheKey);
-      console.log(body);
       return body.toString();
     },
   } as Plugin;

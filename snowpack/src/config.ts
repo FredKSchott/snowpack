@@ -503,14 +503,14 @@ function valdiateDeprecatedConfig(rawConfig: any) {
       '[v3.0] "config.install" is now "config.packageOptions.knownEntrypoints".',
     );
   }
-  if (rawConfig.experiments?.source === 'skypack') {
-    handleDeprecatedConfigError(
-      '[v3.0] Experiment promoted! "config.experiments.source=skypack" is now "config.packageOptions.source=remote".',
-    );
-  }
   if (rawConfig.experiments?.source) {
     handleDeprecatedConfigError(
       '[v3.0] Experiment promoted! "config.experiments.source" is now "config.packageOptions.source".',
+    );
+  }
+  if (rawConfig.packageOptions?.source === 'skypack') {
+    handleDeprecatedConfigError(
+      '[v3.0] Renamed! "config.experiments.source=skypack" is now "config.packageOptions.source=remote".',
     );
   }
   if (rawConfig.experiments?.ssr) {

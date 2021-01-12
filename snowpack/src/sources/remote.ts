@@ -1,7 +1,9 @@
 import {existsSync} from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
+import rimraf from 'rimraf';
 import {clearCache as clearSkypackCache, rollupPluginSkypack} from 'skypack';
+import util from 'util';
 import {logger} from '../logger';
 import {
   ImportMap,
@@ -11,7 +13,6 @@ import {
   SnowpackConfig,
 } from '../types';
 import {convertLockfileToSkypackImportMap, isJavaScript, remotePackageSDK} from '../util';
-import rimraf from 'rimraf';
 
 const fetchedPackages = new Set<string>();
 function logFetching(origin: string, packageName: string, packageSemver: string | undefined) {
@@ -85,7 +86,17 @@ export default {
       : undefined;
     installOptions.rollup = installOptions.rollup || {};
     installOptions.rollup.plugins = installOptions.rollup.plugins || [];
-    installOptions.rollup.plugins.push(rollupPluginSkypack({sdk: remotePackageSDK}) as Plugin);
+    installOptions.rollup.plugins.push(
+      rollupPluginSkypack({
+        sdk: remotePackageSDK,
+        logger: {
+          debug: (...args: [any, ...any[]]) => logger.debug(util.format(...args)),
+          log: (...args: [any, ...any[]]) => logger.info(util.format(...args)),
+          warn: (...args: [any, ...any[]]) => logger.warn(util.format(...args)),
+          error: (...args: [any, ...any[]]) => logger.error(util.format(...args)),
+        },
+      }) as Plugin,
+    );
     // config.installOptions.lockfile = lockfile || undefined;
     return installOptions;
   },
