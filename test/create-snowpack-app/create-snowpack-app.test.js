@@ -14,7 +14,7 @@ const format = (stdout) =>
     .replace(/((\s+$)|((\\r\\n)|(\\n)))/gm, '') // strip whitespace chars
     .replace(/\n\s*\/\*[^*]+\*\/\s*\n/gm, '\n'); // strip full-line comments (throws Svelte test)
 
-describe.skip('create-snowpack-app', () => {
+describe('create-snowpack-app', () => {
   // Increase timeout for slow tests
   jest.setTimeout(60 * 1000);
 
