@@ -667,9 +667,7 @@ class ConfigValidationError extends Error {
 function validateConfig(config: SnowpackConfig) {
   for (const mountDir of Object.keys(config.mount)) {
     if (!existsSync(mountDir)) {
-      logger.warn(
-        `config.mount[${mountDir}]: mounted directory does not exist.`,
-      );
+      logger.warn(`config.mount[${mountDir}]: mounted directory does not exist.`);
     }
   }
 }
