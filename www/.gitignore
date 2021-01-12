@@ -1,5 +1,7 @@
 .build
 build
+assets/app.min.css
 node_modules
 _site
-_eleventy
+eleventy/**/*
+!eleventy/.placeholder
