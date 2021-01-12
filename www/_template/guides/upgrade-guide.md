@@ -15,13 +15,9 @@ Snowpack v3.0 was mainly designed around new features, and therefore didn't have
 - **package.json "homepage" no longer sets "baseUrl":** This was a behavior of Create React App that we'd originally tried to match. However, it became confusing to explain to users. In Snowpack v3.0, set "buildOptions.baseUrl" directly.
 - **Improved support for relative paths in configuration:** All relative paths in configuration files are now relative to the configuration file itself. Previously, all relative config paths were resolved based on the current working directory of wherever you ran Snowpack, which meant that behavior of the config file changed depending on where you ran it. You can also now set the project `"root"`/`--root` directory, which is useful if you run Snowpack from a different directory than the project iself (ex: in monorepos).
 
-
 ## Upgrading from Snowpack v1
 
 Snowpack v1 only supported installing npm packages as ESM, and had a more limited scope than Snowpack does today. If you are coming from Snowpack v1.0, you may be able to use our internal package installer library [esinstall](https://www.npmjs.com/package/esinstall) directly. `esinstall` is a JavaScript library that implements most of what Snowpack v1.0 gave you via the command-line.
-
-
-
 
 `snowpack build` builds your site into web native JS, CSS, and HTML files. This "unbundled" deployment can be enough for small sites, but many developers prefer to optimize and bundle their final site for production performance.
 
