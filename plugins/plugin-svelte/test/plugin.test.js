@@ -12,7 +12,7 @@ const mockComponent = path.join(__dirname, 'Button.svelte');
 describe('@snowpack/plugin-svelte (mocked)', () => {
   beforeEach(() => {
     DEFAULT_CONFIG = {
-      buildOptions: {sourceMaps: false},
+      buildOptions: {sourcemap: false},
       packageOptions: {
         source: 'local',
         rollup: {plugins: []},

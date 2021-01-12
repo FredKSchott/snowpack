@@ -22,7 +22,7 @@ Node.js recently added support for a package.json "exports" entry that defines w
 
 If you see this error message, that means that you've imported a file path not allowed in the export map. If you believe this to be an error, reach out to the package author to request the file be added to their export map.
 
-### Uncaught SyntaxError: The requested module '/web_modules/XXXXXX.js' does not provide an export named 'YYYYYY'
+### Uncaught SyntaxError: The requested module '/_snowpack/pkg/XXXXXX.js' does not provide an export named 'YYYYYY'
 
 If you are using TypeScript, this error could occur if you are importing something that only exists in TypeScript (like a type or interface) and doesn't actually exist in the final JavaScript code. This issue is rare since our built-in TypeScript support will automatically extract and remove only type-only imports.
 

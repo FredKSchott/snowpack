@@ -5,7 +5,7 @@ const {setupBuildTest, readFiles} = require('../../test-utils');
 const cwd = path.join(__dirname, 'build');
 let files = {};
 
-describe('buildOptions.webModulesUrl', () => {
+describe('buildOptions.metaUrlPath', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 
@@ -13,13 +13,13 @@ describe('buildOptions.webModulesUrl', () => {
   });
 
   it('snowpack: installs in specified directory', () => {
-    const webModulesUrl = path.join(cwd, 'my_modules');
-    expect(fs.existsSync(webModulesUrl)).toBe(true);
+    const metaUrlPath = path.join(cwd, 'my_meta');
+    expect(fs.existsSync(metaUrlPath)).toBe(true);
   });
 
-  it('JS: uses webModulesUrl', () => {
+  it('JS: uses metaUrlPath', () => {
     expect(files['/_dist_/index.js']).toEqual(
-      expect.stringContaining(`import {flatten} from '../my_modules/array-flatten.js';`),
+      expect.stringContaining(`import {flatten} from '../my_meta/pkg/array-flatten.js';`),
     );
   });
 });

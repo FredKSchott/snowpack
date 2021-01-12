@@ -3,6 +3,6 @@
     "knownEntrypoints": ["array-flatten"]
   },
   "buildOptions": {
-    "webModulesUrl": "other_folder"
+    "metaUrlPath": "other_folder"
   }
 }

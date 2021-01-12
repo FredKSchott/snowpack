@@ -50,7 +50,7 @@ Can be a relative file path, an npm package, or a file within an npm package. Yo
 ## exclude
 
 **Type**: `string[]`  
-**Default**: `['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*']`
+**Default**: `['**/node_modules/**/*']`
 
 Exclude any files from the Snowpack pipeline.
 

@@ -13,6 +13,6 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.2",
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

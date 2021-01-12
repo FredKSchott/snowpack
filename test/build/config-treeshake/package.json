@@ -11,6 +11,6 @@
     "async": "^3.2.0"
   },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

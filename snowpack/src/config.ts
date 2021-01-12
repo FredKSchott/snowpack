@@ -21,7 +21,7 @@ import {
 import {addLeadingSlash, addTrailingSlash, NATIVE_REQUIRE, removeTrailingSlash} from './util';
 
 const CONFIG_NAME = 'snowpack';
-const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*'];
+const ALWAYS_EXCLUDE = ['**/node_modules/**/*'];
 
 // default settings
 const DEFAULT_ROOT = process.cwd();
@@ -45,7 +45,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   buildOptions: {
     out: 'build',
     baseUrl: '/',
-    metaUrlPath: '_snowpack_',
+    metaUrlPath: '_snowpack',
     clean: true,
     sourcemap: false,
     watch: false,
@@ -153,7 +153,6 @@ const configSchema = {
         out: {type: 'string'},
         baseUrl: {type: 'string'},
         clean: {type: 'boolean'},
-        metaDir: {type: 'string'},
         sourcemap: {type: 'boolean'},
         watch: {type: 'boolean'},
         ssr: {type: 'boolean'},

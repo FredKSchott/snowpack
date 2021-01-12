@@ -8,6 +8,6 @@
     "react-dom": "16.13.1"
   },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

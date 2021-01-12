@@ -324,14 +324,14 @@ export interface PackageSource {
    */
   prepare(commandOptions: CommandOptions): Promise<ImportMap>;
   /**
-   * Load a dependency with the given spec (ex: "/web_modules/react" -> "react")
+   * Load a dependency with the given spec (ex: "/pkg/react" -> "react")
    * If load fails or is unsuccessful, reject the promise.
    */
   load(
     spec: string,
     options: {config: SnowpackConfig; lockfile: LockfileManifest | null},
   ): Promise<Buffer | string>;
-  /** Resolve a package import to URL (ex: "react" -> "/web_modules/react") */
+  /** Resolve a package import to URL (ex: "react" -> "/pkg/react") */
   resolvePackageImport(spec: string, importMap: ImportMap, config: SnowpackConfig): string | false;
   /** Handle 1+ missing package imports before failing, if possible. */
   recoverMissingPackageImport(

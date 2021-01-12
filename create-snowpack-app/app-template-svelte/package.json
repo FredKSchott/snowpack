@@ -30,7 +30,7 @@
     "@testing-library/svelte": "^3.0.0",
     "@web/test-runner": "^0.10.0",
     "chai": "^4.2.0",
-    "snowpack": "^2.18.4"
+    "snowpack": "^3.0.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

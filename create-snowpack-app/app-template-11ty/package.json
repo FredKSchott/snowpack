@@ -29,7 +29,7 @@
     "@11ty/eleventy": "^0.11.0",
     "@snowpack/plugin-run-script": "^2.2.1",
     "prettier": "^2.0.5",
-    "snowpack": "^2.18.4"
+    "snowpack": "^3.0.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

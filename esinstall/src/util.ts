@@ -12,7 +12,6 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
   for (const key of Object.keys(importMap.imports).sort()) {
     sortedImportMap.imports[key] = importMap.imports[key];
   }
-  console.error('OKAY SRS', loc);
   return fs.writeFile(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
 }
 

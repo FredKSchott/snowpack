@@ -13,6 +13,6 @@
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^2.0.4",
     "@snowpack/plugin-react-refresh": "^2.3.7",
-    "snowpack": "^2.17.1"
+    "snowpack": "^3.0.0"
   }
 }

@@ -5,7 +5,7 @@ const {setupBuildTest, readFiles} = require('../../test-utils');
 const cwd = path.join(__dirname, 'build');
 let files = {};
 
-describe('config: buildOptions.metaDir', () => {
+describe('config: buildOptions.metaUrlPath', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
 

@@ -12,17 +12,17 @@ describe('scan imports in HTML', () => {
     files = readFiles(cwd);
   });
 
-  it('HTML imports of web_modules are scanned', () => {
-    expect(files['/web_modules/array-flatten.js']).toBeDefined();
-    expect(files['/web_modules/css-package/style.css']).toBeDefined();
+  it('HTML imports of packages are scanned', () => {
+    expect(files['/_snowpack/pkg/array-flatten.js']).toBeDefined();
+    expect(files['/_snowpack/pkg/css-package/style.css']).toBeDefined();
   });
 
-  it('HTML imports of web_modules are rewritten', () => {
+  it('HTML imports of packages are rewritten', () => {
     expect(files['/dist/index.html']).toEqual(
-      expect.stringContaining(`import {flatten} from '../web_modules/array-flatten.js';`),
+      expect.stringContaining(`import {flatten} from '../_snowpack/pkg/array-flatten.js';`),
     );
     expect(files['/dist/index.html']).toEqual(
-      expect.stringContaining(`@import "../web_modules/css-package/style.css";`),
+      expect.stringContaining(`@import "../_snowpack/pkg/css-package/style.css";`),
     );
   });
 });

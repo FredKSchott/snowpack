@@ -3,7 +3,7 @@
 exports[`@snowpack/plugin-optimize minimal - no minification: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize minimal - no minification: fs.writeFileSync 1`] = `
-FILE: stubs/minimal/__snowpack__/optimize-manifest.json
+FILE: stubs/minimal/_snowpack/optimize-manifest.json
 {
   "imports": {
     "/index.html": {
@@ -29,7 +29,7 @@ FILE: stubs/minimal/__snowpack__/optimize-manifest.json
 exports[`@snowpack/plugin-optimize minimal - no options: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize minimal - no options: fs.writeFileSync 1`] = `
-FILE: stubs/minimal/__snowpack__/optimize-manifest.json
+FILE: stubs/minimal/_snowpack/optimize-manifest.json
 {
   "imports": {
     "/index.html": {
@@ -137,7 +137,7 @@ export default function r(){const t={bar:"bar"},o=null;return console.log(t?.bar
 exports[`@snowpack/plugin-optimize minimal - target: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize minimal - target: fs.writeFileSync 1`] = `
-FILE: stubs/minimal/__snowpack__/optimize-manifest.json
+FILE: stubs/minimal/_snowpack/optimize-manifest.json
 {
   "imports": {
     "/index.html": {
@@ -245,7 +245,7 @@ export default function r(){const t={bar:"bar"},o=null;return console.log(t==nul
 exports[`@snowpack/plugin-optimize no HTML minification, with preloadModules: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize no HTML minification, with preloadModules: fs.writeFileSync 1`] = `
-FILE: stubs/minimal/__snowpack__/optimize-manifest.json
+FILE: stubs/minimal/_snowpack/optimize-manifest.json
 {
   "imports": {
     "/index.html": {

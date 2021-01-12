@@ -1,6 +1,5 @@
 .build
 build
-web_modules
 node_modules
 _site
 _eleventy

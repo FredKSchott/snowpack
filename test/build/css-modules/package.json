@@ -17,6 +17,6 @@
   "devDependencies": {
     "@snowpack/plugin-optimize": "^0.2.6",
     "@snowpack/plugin-sass": "^1.1.1",
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

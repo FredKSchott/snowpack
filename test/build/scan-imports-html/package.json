@@ -14,6 +14,6 @@
   "dependencies": {
     "array-flatten": "^3.0.0",
     "css-package": "file:./packages/css-package",
-    "snowpack": "^2.18.0"
+    "snowpack": "^3.0.0"
   }
 }

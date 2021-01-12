@@ -16,7 +16,7 @@ module.exports = {
   },
   buildOptions: {
     baseUrl: 'https://example.com/foo',
-    webModulesUrl: '/TEST_WMU/',
+    metaUrlPath: '/TEST_WMU/',
   },
   plugins: ['./simple-file-extension-change-plugin.js'],
 };

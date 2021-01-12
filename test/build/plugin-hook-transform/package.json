@@ -9,6 +9,6 @@
   },
   "devDependencies": {
     "magic-string": "^0.25.7",
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }
