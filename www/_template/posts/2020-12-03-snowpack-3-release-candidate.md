@@ -9,6 +9,8 @@ bannerImage: '/img/banner-2.jpg'
 
 **tl;dr:** Snowpack v3.0 will release on January 6th, 2021 (the one-year anniversary of its original launch post). This is our biggest release yet with some serious new features, including **a new way to load npm imports on-demand** and skip the frontend `npm install` step entirely.
 
+**Update:** Release was delayed for a week for some finishing touches. New release date is January 12th! [More info on Discord](https://discord.com/channels/712696926406967308/783454799051489301/796785330932940800).
+
 Best of all: it's all available to try today!
 
 ## What's New?

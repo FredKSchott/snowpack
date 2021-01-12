@@ -56,6 +56,15 @@ $top-padding: 24px;
     }
   }
 
+  .content-body {
+    h2,
+    h3 {
+      margin-top: -50px;
+      padding-top: 80px;
+      margin-bottom: 20px;
+    }
+  }
+
   // -----------
   //  Components
   // -----------
@@ -89,6 +98,7 @@ $top-padding: 24px;
   .snow-view-subnav {
     grid-area: subnav;
     padding: 90px 0 $top-padding 0;
+    overflow: auto;
 
     @media (max-width: $breakpoint-l) {
       padding-top: $top-padding;

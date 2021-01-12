@@ -245,7 +245,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
   return;
 }
 
-function getSSRLoader(
+function getESMRuntime(
   sp: SnowpackDevServer,
   options: {invalidateOnChange?: boolean} = {},
 ): SSRLoader {
@@ -1363,7 +1363,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     sendResponseError,
     getUrlForFile: (fileLoc: string) => getUrlForFile(fileLoc, config),
     onFileChange: (callback) => (onFileChangeCallback = callback),
-    getSSRLoader: (options) => getSSRLoader(sp, options),
+    getESMRuntime: (options) => getESMRuntime(sp, options),
     async shutdown() {
       await watcher.close();
       server.close();

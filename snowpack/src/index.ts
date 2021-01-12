@@ -13,7 +13,7 @@ import {CLIFlags, CommandOptions} from './types';
 import {clearCache, readLockfile} from './util.js';
 export * from './types';
 
-// Stable API (remember to include all in "./index.esm.js" wrapper)
+// Stable API
 export {startServer} from './commands/dev';
 export {build} from './commands/build';
 export {loadConfiguration, createConfiguration} from './config.js';
@@ -21,6 +21,7 @@ export {readLockfile as loadLockfile} from './util.js';
 export {getUrlForFile} from './build/file-urls';
 export {logger} from './logger';
 
+// Deprecated API
 export function startDevServer() {
   throw new Error('startDevServer() was been renamed to startServer().');
 }
@@ -44,18 +45,19 @@ ${colors.bold(`snowpack`)} - A faster build system for the modern web.
 
 ${colors.bold('Commands:')}
   snowpack init          Create a new project config file.
-  snowpack dev           Develop your app locally.
-  snowpack build         Build your app for production.
-  snowpack add [package] Add a package to your lockfile (import map).
-  snowpack rm [package]  Remove a package from your lockfile.
+  snowpack prepare       Prepare your project for development (optional).
+  snowpack dev           Develop your project locally.
+  snowpack build         Build your project for production.
+  snowpack add [package] Add a package to your project.
+  snowpack rm [package]  Remove a package from your project.
 
 ${colors.bold('Flags:')}
   --config [path]        Set the location of your project config file.
   --help                 Show this help message.
   --version              Show the current version.
-  --reload               Clear Snowpack's local cache (troubleshooting).
-  --verbose              View debug info (where available)
-  --quiet                Don’t output anything (dev server will still log minimally)
+  --reload               Clear the local cache (useful for troubleshooting).
+  --verbose              Enable verbose log messages.
+  --quiet                Enable minimal log messages.
     `.trim(),
   );
 }

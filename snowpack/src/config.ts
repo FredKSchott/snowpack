@@ -79,7 +79,6 @@ const configSchema = {
   type: 'object',
   properties: {
     extends: {type: 'string'},
-    install: {type: 'array', items: {type: 'string'}},
     exclude: {type: 'array', items: {type: 'string'}},
     plugins: {type: 'array'},
     alias: {
