@@ -2,12 +2,7 @@ import path from 'path';
 import url from 'url';
 import {validatePluginLoadResult} from '../config';
 import {logger} from '../logger';
-import {
-  SnowpackBuildMap,
-  SnowpackConfig,
-  SnowpackPlugin,
-  PluginTransformResult,
-} from '../types';
+import {SnowpackBuildMap, SnowpackConfig, SnowpackPlugin, PluginTransformResult} from '../types';
 import {getExtension, readFile, removeExtension, replaceExtension} from '../util';
 import {SourceMapConsumer, SourceMapGenerator, RawSourceMap} from 'source-map';
 
@@ -32,7 +27,11 @@ export function getInputsFromOutput(fileLoc: string, plugins: SnowpackPlugin[]) 
       continue;
     }
     plugin.resolve.input.forEach((inputExt) =>
-    potentialInputs.add(isHubExt ? removeExtension(srcFile, matchedOutputExt) : replaceExtension(srcFile, matchedOutputExt, inputExt)),
+      potentialInputs.add(
+        isHubExt
+          ? removeExtension(srcFile, matchedOutputExt)
+          : replaceExtension(srcFile, matchedOutputExt, inputExt),
+      ),
     );
   }
   return Array.from(potentialInputs);
@@ -176,24 +175,24 @@ async function runPipelineTransformStep(
           // V2 API, simple string variant
           output[destExt].code = result;
           output[destExt].map = undefined;
-        } else if (
-          result &&
-          typeof result === 'object' &&
-          (result as PluginTransformResult).contents
-        ) {
+        } else if (result && typeof result === 'object') {
           // V2 API, structured result variant
-          output[destExt].code = (result as PluginTransformResult).contents;
-          const map = (result as PluginTransformResult).map;
-          let outputMap: string | undefined = undefined;
-          if (map && config.buildOptions.sourcemap) {
-            // if source maps disabled, don’t return any
-            if (output[destExt].map) {
-              outputMap = await composeSourceMaps(filePath, output[destExt].map!, map);
-            } else {
-              outputMap = typeof map === 'object' ? JSON.stringify(map) : map;
+          const contents =
+            (result as PluginTransformResult).contents || (result as any).result;
+          if (contents) {
+            output[destExt].code = contents;
+            const map = (result as PluginTransformResult).map;
+            let outputMap: string | undefined = undefined;
+            if (map && config.buildOptions.sourcemap) {
+              // if source maps disabled, don’t return any
+              if (output[destExt].map) {
+                outputMap = await composeSourceMaps(filePath, output[destExt].map!, map);
+              } else {
+                outputMap = typeof map === 'object' ? JSON.stringify(map) : map;
+              }
             }
+            output[destExt].map = outputMap;
           }
-          output[destExt].map = outputMap;
         }
       }
     } catch (err) {

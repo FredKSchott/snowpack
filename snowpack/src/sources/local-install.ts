@@ -59,7 +59,7 @@ export async function run({
   // finish
   const installEnd = performance.now();
   logger.info(
-    `${colors.green(`✔`) + ' optimize complete!'} ${colors.dim(
+    `${colors.green(`✔`) + ' dependencies ready!'} ${colors.dim(
       `[${((installEnd - installStart) / 1000).toFixed(2)}s]`,
     )}`,
   );

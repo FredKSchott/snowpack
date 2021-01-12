@@ -229,7 +229,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
   if (err instanceof NotFoundError) {
     // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
     // from the server, which creates annoying errors for new apps / first experiences.
-    if (req.path !== '/favicon.ico') {
+    if (req.url !== '/favicon.ico') {
       const attemptedFilesMessage = err.lookups.map((loc) => '  ✘ ' + loc).join('\n');
       logger.error(`[404] ${req.url}\n${attemptedFilesMessage}`);
     }
@@ -591,7 +591,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
 
     if (!isRoute && !isProxyModule) {
       const expectedUrl = getUrlForFile(foundFile.fileLoc, config);
-      if (expectedUrl !== reqUrl) {
+      if (expectedUrl !== url.parse(reqUrl).pathname) {
         logger.warn(`Bad Request: "${reqUrl}" should be requested as "${expectedUrl}".`);
         throw new NotFoundError([foundFile.fileLoc]);
       }
@@ -1138,7 +1138,6 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
       }
       return;
     } catch (err) {
-      console.log(err);
       // Some consumers may want to handle/ignore errors themselves.
       if (handleError === false) {
         throw err;

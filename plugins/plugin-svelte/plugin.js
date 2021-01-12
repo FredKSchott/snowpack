@@ -133,6 +133,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
           hotOptions: {
             ...hmrOptions,
             absoluteImports: false,
+            preserveLocalState: true,
             injectCss: true,
             noOverlay: true,
           },
