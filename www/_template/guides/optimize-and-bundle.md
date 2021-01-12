@@ -31,7 +31,7 @@ The full supported interface is:
 
 ```ts
 export interface OptimizeOptions {
-  entrypoints: 'auto' | string[] | ((options: {files: string[]}) => string[]);
+  entrypoints: 'auto' | string[] | ((options: { files: string[] }) => string[]);
   preload: boolean;
   bundle: boolean;
   splitting: boolean;
@@ -40,7 +40,6 @@ export interface OptimizeOptions {
   minify: boolean;
   target: 'es2020' | 'es2019' | 'es2018' | 'es2017';
 }
-
 ```
 
 ### Option 2: Optimize Plugins
