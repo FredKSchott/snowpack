@@ -1,5 +1,5 @@
 {
-  "version": "2.2.1",
+  "version": "2.3.0",
   "name": "@snowpack/plugin-run-script",
   "main": "plugin.js",
   "license": "MIT",

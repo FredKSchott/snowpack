@@ -1,7 +1,7 @@
 {
   "name": "@snowpack/app-template-vue",
   "description": "A preconfigured template for Snowpack with Vue",
-  "version": "1.11.1",
+  "version": "2.0.0",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-vue#readme",
   "repository": {
@@ -25,8 +25,8 @@
   },
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^2.0.5",
-    "@snowpack/plugin-vue": "^2.2.6",
-    "snowpack": "^3.0.0"
+    "@snowpack/plugin-vue": "^2.3.0",
+    "snowpack": "^3.0.1"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }
