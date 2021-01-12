@@ -16,7 +16,7 @@ describe('core: pkg resolution', () => {
   it('resolves pkg without case-sensitivity', () => {
     IMPORTS.forEach((i) => {
       expect(files['/_dist_/index.js']).toEqual(
-        expect.stringContaining(`import '../_snowpack/pkg/${i}.js';`),
+        expect.stringContaining(`import "../_snowpack/pkg/${i}.js";`),
       );
     });
   });

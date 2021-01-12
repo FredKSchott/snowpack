@@ -10,29 +10,53 @@ Array [
 exports[`dep-list-simple matches the snapshot: cli output 1`] = `""`;
 
 exports[`dep-list-simple matches the snapshot: web_modules/async.js 1`] = `
-"/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
+"function createCommonjsModule(fn, basedir, module) {
+	return module = {
+		path: basedir,
+		exports: {},
+		require: function (path, base) {
+			return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
+		}
+	}, fn(module, module.exports), module.exports;
+}
+function commonjsRequire () {
+	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
+}
+var browser = createCommonjsModule(function (module) {
+// shim for using process in browser
+var process = module.exports = {};
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+var cachedSetTimeout;
+var cachedClearTimeout;
 function defaultSetTimout() {
     throw new Error('setTimeout has not been defined');
 }
 function defaultClearTimeout () {
     throw new Error('clearTimeout has not been defined');
 }
-var cachedSetTimeout = defaultSetTimout;
-var cachedClearTimeout = defaultClearTimeout;
-var globalContext;
-if (typeof window !== 'undefined') {
-    globalContext = window;
-} else if (typeof self !== 'undefined') {
-    globalContext = self;
-} else {
-    globalContext = {};
-}
-if (typeof globalContext.setTimeout === 'function') {
-    cachedSetTimeout = setTimeout;
-}
-if (typeof globalContext.clearTimeout === 'function') {
-    cachedClearTimeout = clearTimeout;
-}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ());
 function runTimeout(fun) {
     if (cachedSetTimeout === setTimeout) {
         //normal enviroments in sane situations
@@ -120,7 +144,7 @@ function drainQueue() {
     draining = false;
     runClearTimeout(timeout);
 }
-function nextTick(fun) {
+process.nextTick = function (fun) {
     var args = new Array(arguments.length - 1);
     if (arguments.length > 1) {
         for (var i = 1; i < arguments.length; i++) {
@@ -131,7 +155,7 @@ function nextTick(fun) {
     if (queue.length === 1 && !draining) {
         runTimeout(drainQueue);
     }
-}
+};
 // v8 likes predictible objects
 function Item(fun, array) {
     this.fun = fun;
@@ -140,85 +164,32 @@ function Item(fun, array) {
 Item.prototype.run = function () {
     this.fun.apply(null, this.array);
 };
-var title = 'browser';
-var platform = 'browser';
-var browser = true;
-var argv = [];
-var version = ''; // empty string to avoid regexp issues
-var versions = {};
-var release = {};
-var config = {};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
 function noop() {}
-var on = noop;
-var addListener = noop;
-var once = noop;
-var off = noop;
-var removeListener = noop;
-var removeAllListeners = noop;
-var emit = noop;
-function binding(name) {
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+process.listeners = function (name) { return [] };
+process.binding = function (name) {
     throw new Error('process.binding is not supported');
-}
-function cwd () { return '/' }
-function chdir (dir) {
-    throw new Error('process.chdir is not supported');
-}function umask() { return 0; }
-// from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
-var performance = globalContext.performance || {};
-var performanceNow =
-  performance.now        ||
-  performance.mozNow     ||
-  performance.msNow      ||
-  performance.oNow       ||
-  performance.webkitNow  ||
-  function(){ return (new Date()).getTime() };
-// generate timestamp or delta
-// see http://nodejs.org/api/process.html#process_process_hrtime
-function hrtime(previousTimestamp){
-  var clocktime = performanceNow.call(performance)*1e-3;
-  var seconds = Math.floor(clocktime);
-  var nanoseconds = Math.floor((clocktime%1)*1e9);
-  if (previousTimestamp) {
-    seconds = seconds - previousTimestamp[0];
-    nanoseconds = nanoseconds - previousTimestamp[1];
-    if (nanoseconds<0) {
-      seconds--;
-      nanoseconds += 1e9;
-    }
-  }
-  return [seconds,nanoseconds]
-}
-var startTime = new Date();
-function uptime() {
-  var currentTime = new Date();
-  var dif = currentTime - startTime;
-  return dif / 1000;
-}
-var process = {
-  nextTick: nextTick,
-  title: title,
-  browser: browser,
-  env: {\\"NODE_ENV\\":\\"test\\"},
-  argv: argv,
-  version: version,
-  versions: versions,
-  on: on,
-  addListener: addListener,
-  once: once,
-  off: off,
-  removeListener: removeListener,
-  removeAllListeners: removeAllListeners,
-  emit: emit,
-  binding: binding,
-  cwd: cwd,
-  chdir: chdir,
-  umask: umask,
-  hrtime: hrtime,
-  platform: platform,
-  release: release,
-  config: config,
-  uptime: uptime
 };
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+});
 /**
  * Creates a continuation function with some arguments already applied.
  *
@@ -275,7 +246,7 @@ function initialParams (fn) {
 }
 /* istanbul ignore file */
 var hasSetImmediate = typeof setImmediate === 'function' && setImmediate;
-var hasNextTick = typeof process === 'object' && typeof process.nextTick === 'function';
+var hasNextTick = typeof browser === 'object' && typeof browser.nextTick === 'function';
 function fallback(fn) {
     setTimeout(fn, 0);
 }
@@ -286,7 +257,7 @@ var _defer;
 if (hasSetImmediate) {
     _defer = setImmediate;
 } else if (hasNextTick) {
-    _defer = process.nextTick;
+    _defer = browser.nextTick;
 } else {
     _defer = fallback;
 }
@@ -453,7 +424,7 @@ function isArrayLike(value) {
 // A temporary value used to identify if the loop should be broken.
 // See #1064, #1293
 const breakLoop = {};
-function once$1(fn) {
+function once(fn) {
     function wrapper (...args) {
         if (fn === null) return;
         var callFn = fn;
@@ -564,7 +535,7 @@ function asyncEachOfLimit(generator, limit, iteratee, callback) {
 }
 var eachOfLimit = (limit) => {
     return (obj, iteratee, callback) => {
-        callback = once$1(callback);
+        callback = once(callback);
         if (limit <= 0) {
             throw new RangeError('concurrency limit cannot be less than 1')
         }
@@ -647,7 +618,7 @@ function eachOfLimit$1(coll, limit, iteratee, callback) {
 var eachOfLimit$2 = awaitify(eachOfLimit$1, 4);
 // eachOf implementation optimized for array-likes
 function eachOfArrayLike(coll, iteratee, callback) {
-    callback = once$1(callback);
+    callback = once(callback);
     var index = 0,
         completed = 0,
         {length} = coll,
@@ -963,7 +934,7 @@ function auto(tasks, concurrency, callback) {
         callback = concurrency;
         concurrency = null;
     }
-    callback = once$1(callback || promiseCallback());
+    callback = once(callback || promiseCallback());
     var numTasks = Object.keys(tasks).length;
     if (!numTasks) {
         return callback(null);
@@ -1318,7 +1289,7 @@ function setInitial(dll, node) {
     dll.length = 1;
     dll.head = dll.tail = node;
 }
-function queue$1(worker, concurrency, payload) {
+function queue(worker, concurrency, payload) {
     if (concurrency == null) {
         concurrency = 1;
     }
@@ -1605,7 +1576,7 @@ function queue$1(worker, concurrency, payload) {
  * console.log('finished processing baz');
  */
 function cargo(worker, payload) {
-    return queue$1(worker, 1, payload);
+    return queue(worker, 1, payload);
 }
 /**
  * Creates a \`cargoQueue\` object with the specified payload. Tasks added to the
@@ -1662,7 +1633,7 @@ function cargo(worker, payload) {
  * });
  */
 function cargo$1(worker, concurrency, payload) {
-    return queue$1(worker, concurrency, payload);
+    return queue(worker, concurrency, payload);
 }
 /**
  * Reduces \`coll\` into a single value using an async \`iteratee\` to return each
@@ -1706,7 +1677,7 @@ function cargo$1(worker, concurrency, payload) {
  * });
  */
 function reduce(coll, memo, iteratee, callback) {
-    callback = once$1(callback);
+    callback = once(callback);
     var _iteratee = wrapAsync(iteratee);
     return eachOfSeries$1(coll, (x, i, iterCb) => {
         _iteratee(memo, x, (err, v) => {
@@ -2768,7 +2739,7 @@ var log = consoleFunc('log');
  * @returns {Promise} a promise, if no callback is passed
  */
 function mapValuesLimit(obj, limit, iteratee, callback) {
-    callback = once$1(callback);
+    callback = once(callback);
     var newObj = {};
     var _iteratee = wrapAsync(iteratee);
     return eachOfLimit(limit)(obj, (val, key, next) => {
@@ -2953,13 +2924,13 @@ function memoize(fn, hasher = v => v) {
  */
 var _defer$1;
 if (hasNextTick) {
-    _defer$1 = process.nextTick;
+    _defer$1 = browser.nextTick;
 } else if (hasSetImmediate) {
     _defer$1 = setImmediate;
 } else {
     _defer$1 = fallback;
 }
-var nextTick$1 = wrap(_defer$1);
+var nextTick = wrap(_defer$1);
 var _parallel = awaitify((eachfn, tasks, callback) => {
     var results = isArrayLike(tasks) ? [] : {};
     eachfn(tasks, (task, key, taskCb) => {
@@ -3209,9 +3180,9 @@ function parallelLimit(tasks, limit, callback) {
  *     console.log('finished processing bar');
  * });
  */
-function queue$1$1 (worker, concurrency) {
+function queue$1 (worker, concurrency) {
     var _worker = wrapAsync(worker);
-    return queue$1((items, cb) => {
+    return queue((items, cb) => {
         _worker(items[0], cb);
     }, concurrency, 1);
 }
@@ -3330,7 +3301,7 @@ function smaller(x, y) {
  */
 function priorityQueue(worker, concurrency) {
     // Start with a normal queue
-    var q = queue$1$1(worker, concurrency);
+    var q = queue$1(worker, concurrency);
     q._tasks = new Heap();
     // Override push to accept second parameter representing priority
     q.push = function(data, priority = 0, callback = () => {}) {
@@ -3396,7 +3367,7 @@ function priorityQueue(worker, concurrency) {
  * });
  */
 function race(tasks, callback) {
-    callback = once$1(callback);
+    callback = once(callback);
     if (!Array.isArray(tasks)) return callback(new TypeError('First argument to race must be an array of functions'));
     if (!tasks.length) return callback();
     for (var i = 0, l = tasks.length; i < l; i++) {
@@ -4261,7 +4232,7 @@ function transform (coll, accumulator, iteratee, callback) {
         iteratee = accumulator;
         accumulator = Array.isArray(coll) ? [] : {};
     }
-    callback = once$1(callback || promiseCallback());
+    callback = once(callback || promiseCallback());
     var _iteratee = wrapAsync(iteratee);
     eachOf$1(coll, (v, k, cb) => {
         _iteratee(accumulator, v, k, cb);
@@ -4494,7 +4465,7 @@ function until(test, iteratee, callback) {
  * }
  */
 function waterfall (tasks, callback) {
-    callback = once$1(callback);
+    callback = once(callback);
     if (!Array.isArray(tasks)) return callback(new Error('First argument to waterfall must be an array of functions'));
     if (!tasks.length) return callback();
     var taskIndex = 0;
@@ -4595,11 +4566,11 @@ var index = {
     mapValuesLimit: mapValuesLimit$1,
     mapValuesSeries,
     memoize,
-    nextTick: nextTick$1,
+    nextTick,
     parallel,
     parallelLimit,
     priorityQueue,
-    queue: queue$1$1,
+    queue: queue$1,
     race: race$1,
     reduce: reduce$1,
     reduceRight,
@@ -4657,7 +4628,7 @@ var index = {
     doDuring: doWhilst$1
 };
 export default index;
-export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick$1 as nextTick, parallel, parallelLimit, priorityQueue, queue$1$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
+export { every$1 as all, everyLimit$1 as allLimit, everySeries$1 as allSeries, some$1 as any, someLimit$1 as anyLimit, someSeries$1 as anySeries, apply, applyEach$1 as applyEach, applyEachSeries, asyncify, auto, autoInject, cargo, cargo$1 as cargoQueue, compose, concat$1 as concat, concatLimit$1 as concatLimit, concatSeries$1 as concatSeries, constant, detect$1 as detect, detectLimit$1 as detectLimit, detectSeries$1 as detectSeries, dir, doWhilst$1 as doDuring, doUntil, doWhilst$1 as doWhilst, whilst$1 as during, each, eachLimit$2 as eachLimit, eachOf$1 as eachOf, eachOfLimit$2 as eachOfLimit, eachOfSeries$1 as eachOfSeries, eachSeries$1 as eachSeries, ensureAsync, every$1 as every, everyLimit$1 as everyLimit, everySeries$1 as everySeries, filter$1 as filter, filterLimit$1 as filterLimit, filterSeries$1 as filterSeries, detect$1 as find, detectLimit$1 as findLimit, detectSeries$1 as findSeries, concat$1 as flatMap, concatLimit$1 as flatMapLimit, concatSeries$1 as flatMapSeries, reduce$1 as foldl, reduceRight as foldr, each as forEach, eachLimit$2 as forEachLimit, eachOf$1 as forEachOf, eachOfLimit$2 as forEachOfLimit, eachOfSeries$1 as forEachOfSeries, eachSeries$1 as forEachSeries, forever$1 as forever, groupBy, groupByLimit$1 as groupByLimit, groupBySeries, reduce$1 as inject, log, map$1 as map, mapLimit$1 as mapLimit, mapSeries$1 as mapSeries, mapValues, mapValuesLimit$1 as mapValuesLimit, mapValuesSeries, memoize, nextTick, parallel, parallelLimit, priorityQueue, queue$1 as queue, race$1 as race, reduce$1 as reduce, reduceRight, reflect, reflectAll, reject$2 as reject, rejectLimit$1 as rejectLimit, rejectSeries$1 as rejectSeries, retry, retryable, filter$1 as select, filterLimit$1 as selectLimit, filterSeries$1 as selectSeries, seq, series, setImmediate$1 as setImmediate, some$1 as some, someLimit$1 as someLimit, someSeries$1 as someSeries, sortBy$1 as sortBy, timeout, times, timesLimit, timesSeries, transform, tryEach$1 as tryEach, unmemoize, until, waterfall$1 as waterfall, whilst$1 as whilst, asyncify as wrapSync };"
 `;
 
 exports[`dep-list-simple matches the snapshot: web_modules/import-map.json 1`] = `

@@ -4,7 +4,7 @@ const {setupBuildTest, readFiles} = require('../../test-utils');
 const cwd = path.join(__dirname);
 let files = {};
 
-const SEARCH_STRING = `console.log('transformed');`;
+const SEARCH_STRING = `console.log("transformed");`;
 
 describe('plugin API: transform()', () => {
   beforeAll(() => {

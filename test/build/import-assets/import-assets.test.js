@@ -19,7 +19,7 @@ describe('import resource', () => {
 
     it('proxy is resolved in JS', () => {
       expect(files['/_dist_/index.js']).toEqual(
-        expect.stringContaining(`import './styles.css.proxy.js';`),
+        expect.stringContaining(`import "./styles.css.proxy.js";`),
       );
     });
   });
@@ -27,7 +27,7 @@ describe('import resource', () => {
   describe('image', () => {
     it('proxy is resolved in JS', () => {
       expect(files['/_dist_/index.js']).toEqual(
-        expect.stringContaining(`import './logo.png.proxy.js';`),
+        expect.stringContaining(`import "./logo.png.proxy.js";`),
       );
     });
   });

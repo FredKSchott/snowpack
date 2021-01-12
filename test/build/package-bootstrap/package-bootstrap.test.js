@@ -14,7 +14,7 @@ describe('package: bootstrap', () => {
   it('resolves JS', () => {
     expect(files['/_dist_/index.js']).toEqual(
       expect.stringContaining(
-        `import '../_snowpack/pkg/bootstrap/dist/css/bootstrap.min.css.proxy.js';`,
+        `import "../_snowpack/pkg/bootstrap/dist/css/bootstrap.min.css.proxy.js";`,
       ),
     );
   });

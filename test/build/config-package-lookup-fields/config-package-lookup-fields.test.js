@@ -14,7 +14,7 @@ describe('custom packageLookupFields', () => {
 
   it('Uses the configuration in the package.json', () => {
     expect(files['/src/index.js']).toEqual(
-      expect.stringContaining(`import '../_snowpack/pkg/some-custom-lookup-package.js';`),
+      expect.stringContaining(`import "../_snowpack/pkg/some-custom-lookup-package.js";`),
     );
     expect(files['/_snowpack/pkg/some-custom-lookup-package.js']).toEqual(
       expect.stringContaining(`console.log('TEST: THIS IS THE GOOD ENTRYPOINT');`),

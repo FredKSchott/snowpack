@@ -27,7 +27,7 @@ describe('buildOptions.baseUrl', () => {
   it('import.meta.env works', () => {
     // env is present in index.js
     expect(files['/index.js']).toEqual(
-      expect.stringContaining(`import * as __SNOWPACK_ENV__ from './_snowpack/env.js';`),
+      expect.stringContaining(`import * as __SNOWPACK_ENV__ from "./_snowpack/env.js";`),
     );
     expect(files['/index.js']).toEqual(
       expect.stringContaining(`console.log(__SNOWPACK_ENV__)`),
@@ -35,7 +35,7 @@ describe('buildOptions.baseUrl', () => {
 
     // env is present in _dist_/index.js too
     expect(files['/_dist_/index.js']).toEqual(
-      expect.stringContaining(`import * as __SNOWPACK_ENV__ from '../_snowpack/env.js';`),
+      expect.stringContaining(`import * as __SNOWPACK_ENV__ from "../_snowpack/env.js";`),
     );
     expect(files['/_dist_/index.js']).toEqual(
       expect.stringContaining(`console.log(__SNOWPACK_ENV__)`),
