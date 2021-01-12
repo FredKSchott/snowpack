@@ -90,6 +90,8 @@ background: linear-gradient(30deg, #A7BFE8, #6190E8);
 - [Streaming NPM Imports](/guides/streaming-npm-imports)
 - [Testing](/guides/testing)
 - [Creating Your Own Plugin](/guides/plugins)
+- [Snowpack Upgrade Guide (from v1, v2)](/guides/upgrade-guide)
+
 </div>
 
 <br/>
