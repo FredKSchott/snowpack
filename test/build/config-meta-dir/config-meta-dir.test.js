@@ -20,10 +20,10 @@ describe('config: buildOptions.metaUrlPath', () => {
 
   it('resolves snowpack env', () => {
     expect(files['/index.js']).toEqual(
-      expect.stringContaining(`import * as __SNOWPACK_ENV__ from "./static/snowpack/env.js";`),
+      expect.stringContaining(`import * as __SNOWPACK_ENV__ from './static/snowpack/env.js';`),
     );
     expect(files['/sub/index.js']).toEqual(
-      expect.stringContaining(`import * as __SNOWPACK_ENV__ from "../static/snowpack/env.js";`),
+      expect.stringContaining(`import * as __SNOWPACK_ENV__ from '../static/snowpack/env.js';`),
     );
   });
 });

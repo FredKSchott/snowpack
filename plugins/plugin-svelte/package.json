@@ -23,6 +23,6 @@
   },
   "devDependencies": {
     "node-sass": "^5.0.0",
-    "svelte-preprocess-sass": "^0.2.0"
+    "svelte-preprocess-sass": "^1.0.0"
   }
 }

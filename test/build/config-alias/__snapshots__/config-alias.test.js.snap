@@ -1,5 +1,147 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`config: alias generates imports as expected 1`] = `undefined`;
+exports[`config: alias generates imports as expected 1`] = `
+"<!DOCTYPE html>
+<html lang=\\"en\\">
+  <head>
+    <meta charset=\\"utf-8\\" />
+    <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
+    <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
+    <title>Snowpack App</title>
+  </head>
+  <body>
+    <script type=\\"module\\" src=\\"https://example.com/foo/_dist_/index.js\\"></script>
+    <script type=\\"module\\">
+      // Path aliases
+      import {flatten} from '../TEST_WMU/pkg/array-flatten.js';
+      import * as aliasedDep from '../TEST_WMU/pkg/array-flatten.js';
+      console.log(flatten, aliasedDep);
 
-exports[`config: alias generates imports as expected 2`] = `undefined`;
+      // Importing a relative URL
+      import sort from './sort.js'; // relative import
+      import sort_ from './sort.js'; // bare import using alias
+      import sort__ from './sort.js'; // bare import using alias + extension
+      import sort___ from './sort.js'; // bare import using alias with trailing slash
+      import sort____ from './sort.js'; // bare import using file alias
+      console.log(sort, sort_, sort__, sort___, sort____);
+
+      // Importing a 1:1 built file
+      import oneToOneBuild from './test-mjs.js'; // plugin-provided file extension
+      import oneToOneBuild_ from './test-mjs.js'; // plugin-provided, missing file extension
+      console.log(oneToOneBuild, oneToOneBuild_);
+
+      // Importing a 1:N built file
+      import oneToManyBuild from './foo.svelte.js'; // plugin-provided file extension
+      console.log(oneToManyBuild);
+
+      // Importing an absolute URL: we don't touch these
+      import absoluteUrl from './sort.js'; // absolute import
+      import absoluteUrl_ from '../foo.svelte'; // absolute URL, plugin-provided file extension
+      import absoluteUrl__ from '../test-mjs'; // absolute URL, missing file extension
+      console.log(absoluteUrl, absoluteUrl_, absoluteUrl__);
+
+      // Importing a directory index.js file
+      import components from './components/index.js'; // relative import
+      import components_ from './components/index.js'; // relative import with index appended
+      import components__ from './components/index.js'; // relative import with index appended
+      import components___ from './components/index.js'; // bare import using alias
+      import components____ from './components/index.js'; // bare import using alias and index appended
+      import components_____ from './components/index.js'; // bare import using alias and index.js appended
+      console.log(
+        components,
+        components_,
+        components__,
+        components___,
+        components____,
+        components_____,
+      );
+
+      // Importing something that isn't JS
+      import styles from './components/style.css.proxy.js'; // relative import
+      import styles_ from './components/style.css.proxy.js'; // relative import
+      console.log(styles, styles_);
+
+      import robotsTxtRef from '../robots.txt.proxy.js';
+      import robotsTxtRef_ from '../robots.txt.proxy.js';
+      console.log(robotsTxtRef, robotsTxtRef_);
+    </script>
+
+    <!-- exception test 1: comments should be ignored -->
+    <!-- <script type=\\"module\\" src=\\"preact\\"></script> -->
+
+    <!-- exception test 2: ignore script tags that aren’t type=\\"module\\" -->
+    <script src=\\"svelte\\"></script>
+
+    <!-- exception test 3: obviously ignore HTML (this tests our RegEx) -->
+    <pre><code>import React from 'react';</code></pre>
+
+    <script></script>
+  </body>
+</html>
+"
+`;
+
+exports[`config: alias generates imports as expected 2`] = `
+"// Path aliases
+import {flatten} from '../TEST_WMU/pkg/array-flatten.js';
+import * as aliasedDep from '../TEST_WMU/pkg/array-flatten.js';
+console.log(flatten, aliasedDep);
+
+// Importing a relative URL
+import sort from './sort.js'; // relative import
+import sort_ from './sort.js'; // bare import using alias
+import sort__ from './sort.js'; // bare import using alias + extension
+import sort___ from './sort.js'; // bare import using alias with trailing slash
+import sort____ from './sort.js'; // bare import using file alias
+console.log(sort, sort_, sort__, sort___, sort____);
+
+// Importing a 1:1 built file
+import oneToOneBuild from './test-mjs.js'; // plugin-provided file extension
+import oneToOneBuild_ from './test-mjs.js'; // plugin-provided, missing file extension
+console.log(oneToOneBuild, oneToOneBuild_);
+
+// Importing a 1:N built file
+import oneToManyBuild from './foo.svelte.js'; // plugin-provided file extension
+console.log(oneToManyBuild);
+
+// Importing an absolute URL: we don't touch these
+import absoluteUrl from './sort.js'; // absolute import
+import absoluteUrl_ from '../foo.svelte'; // absolute URL, plugin-provided file extension
+import absoluteUrl__ from '../test-mjs'; // absolute URL, missing file extension
+console.log(absoluteUrl, absoluteUrl_, absoluteUrl__);
+
+
+// Importing a directory index.js file
+import components from './components/index.js'; // relative import
+import components______ from './components/index.js'; // relative import with trailing slash
+import components_ from './components/index.js'; // relative import with index appended
+import components__ from './components/index.js'; // relative import with index appended
+import components___ from './components/index.js'; // bare import using alias
+import components____ from './components/index.js'; // bare import using alias and index appended
+import components_____ from './components/index.js'; // bare import using alias and index.js appended
+import components2 from './components/index.js'; // alias % to '.'
+console.log(
+  components,
+  components_,
+  components__,
+  components___,
+  components____,
+  components_____,
+  components______,
+  components2,
+);
+
+// Importing something that isn't JS
+import styles from './components/style.css.proxy.js'; // relative import
+import styles_ from './components/style.css.proxy.js'; // relative import
+console.log(styles, styles_);
+
+import adSvg from '../TEST_WMU/pkg/@fortawesome/fontawesome-free/svgs/solid/ad.svg.proxy.js';
+console.log(adSvg);
+
+// Importing across mounted directories
+import robotsTxtRef from '../robots.txt.proxy.js';
+import robotsTxtRef_ from '../robots.txt.proxy.js';
+console.log(robotsTxtRef, robotsTxtRef_);
+"
+`;

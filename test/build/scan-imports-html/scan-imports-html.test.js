@@ -19,7 +19,7 @@ describe('scan imports in HTML', () => {
 
   it('HTML imports of packages are rewritten', () => {
     expect(files['/dist/index.html']).toEqual(
-      expect.stringContaining(`import {flatten} from "../_snowpack/pkg/array-flatten.js";`),
+      expect.stringContaining(`import {flatten} from '../_snowpack/pkg/array-flatten.js';`),
     );
     expect(files['/dist/index.html']).toEqual(
       expect.stringContaining(`@import "../_snowpack/pkg/css-package/style.css";`),

@@ -13,6 +13,6 @@ describe('config: packageOptions.external', () => {
   });
 
   it('preserves external package', () => {
-    expect(files['/_dist_/index.js']).toEqual(expect.stringContaining(`import "fs";`));
+    expect(files['/_dist_/index.js']).toEqual(expect.stringContaining(`import 'fs';`));
   });
 });

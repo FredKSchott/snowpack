@@ -22,7 +22,7 @@ describe('package: tippy.js', () => {
 
   it('resolves imports', () => {
     expect(files['/_dist_/index.js']).toEqual(
-      expect.stringContaining(`import tippy from "../_snowpack/pkg/tippyjs.js";`),
+      expect.stringContaining(`import tippy from '../_snowpack/pkg/tippyjs.js';`),
     );
   });
 });

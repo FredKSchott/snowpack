@@ -407,7 +407,7 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   );
   config.mount = normalizeMount(config);
   config.routes = normalizeRoutes(config.routes);
-  if (config.optimize) {
+  if (config.optimize && JSON.stringify(config.optimize) !== '{}') {
     config.optimize = {
       entrypoints: config.optimize.entrypoints ?? 'auto',
       preload: config.optimize.preload ?? false,
@@ -418,6 +418,8 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
       target: config.optimize.target ?? 'es2020',
       minify: config.optimize.minify ?? false,
     };
+  } else {
+    config.optimize = undefined;
   }
 
   // new pipeline

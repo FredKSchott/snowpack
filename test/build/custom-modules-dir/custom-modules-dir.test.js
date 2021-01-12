@@ -19,7 +19,7 @@ describe('buildOptions.metaUrlPath', () => {
 
   it('JS: uses metaUrlPath', () => {
     expect(files['/_dist_/index.js']).toEqual(
-      expect.stringContaining(`import {flatten} from "../my_meta/pkg/array-flatten.js";`),
+      expect.stringContaining(`import {flatten} from '../my_meta/pkg/array-flatten.js';`),
     );
   });
 });

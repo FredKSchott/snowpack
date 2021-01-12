@@ -9,18 +9,17 @@ describe('polyfill node', () => {
     const spec = 'node-builtin-pkg';
 
     const {
-output,
       importMap: {imports},
     } = await runTest([spec], {
       cwd,
       dest,
       polyfillNode: true,
     });
-    console.error(output, imports);
-    const fileOutput = fs.readFileSync(path.join(dest, `${spec}.js`), 'utf8');
 
-    // test fileOutput (note: this may be a bit too close to a snapshot, but pay attention to changes here)
-    expect(fileOutput).toEqual(
+    const output = fs.readFileSync(path.join(dest, `${spec}.js`), 'utf8');
+
+    // test output (note: this may be a bit too close to a snapshot, but pay attention to changes here)
+    expect(output).toEqual(
       // This is testing that path.dirname is implemented
       expect.stringContaining(`function dirname(path) {`),
     );

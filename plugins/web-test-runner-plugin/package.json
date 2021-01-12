@@ -7,11 +7,11 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@web/test-runner": "^0.11.0",
+    "@web/test-runner": ">=0.11.0",
     "snowpack": "^3.0.0"
   },
   "devDependencies": {
-    "@web/test-runner": "^0.11.0"
+    "@web/test-runner": "^0.12.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

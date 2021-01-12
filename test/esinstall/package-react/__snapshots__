@@ -55,6 +55,14 @@ export { Children, Component, Fragment, Profiler, PureComponent, StrictMode, Sus
 
 exports[`package-react matches the snapshot: web_modules/react-dom.js 1`] = `
 "import { c as createCommonjsModule, r as react, o as objectAssign, a as checkPropTypes_1 } from './common/index-XXXXXXXX.js';
+/** @license React v0.19.1
+ * scheduler.development.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 var scheduler_development = createCommonjsModule(function (module, exports) {
 {
   (function() {
@@ -759,6 +767,14 @@ var scheduler = createCommonjsModule(function (module) {
   module.exports = scheduler_development;
 }
 });
+/** @license React v0.19.1
+ * scheduler-tracing.development.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 var schedulerTracing_development = createCommonjsModule(function (module, exports) {
 {
   (function() {
@@ -1055,6 +1071,14 @@ var tracing = createCommonjsModule(function (module) {
   module.exports = schedulerTracing_development;
 }
 });
+/** @license React v16.13.1
+ * react-dom.development.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 var reactDom_development = createCommonjsModule(function (module, exports) {
 {
   (function() {
