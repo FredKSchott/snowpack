@@ -26,7 +26,6 @@
   ],
   "devDependencies": {
     "@skypack/package-check": "^0.2.0",
-    "@snowpack/plugin-run-script": "^2.3.0",
     "@types/babel__traverse": "^7.0.7",
     "@types/cacache": "^12.0.1",
     "@types/compressible": "^2.0.0",
