@@ -39,7 +39,7 @@ export async function run({
   }
   // start
   const installStart = performance.now();
-  logger.info(colors.yellow('! optimizing dependencies...'));
+  logger.info(colors.yellow('! building dependencies...'));
 
   let newLockfile: ImportMap | null = null;
   const finalResult = await install(installTargets, {

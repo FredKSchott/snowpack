@@ -94,7 +94,6 @@ export default {
     spec: string,
     {config, lockfile}: {config: SnowpackConfig; lockfile: LockfileManifest | null},
   ): Promise<string | Buffer> {
-    console.log(spec);
     let body: Buffer;
     if (
       spec.startsWith('-/') ||

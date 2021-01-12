@@ -243,7 +243,6 @@ export async function install(
         continue;
       }
     }
-    console.log(installEntrypoints, importMap);
 
     try {
       const resolvedResult = resolveWebDependency(installSpecifier, {

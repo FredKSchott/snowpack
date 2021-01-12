@@ -1138,6 +1138,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
       }
       return;
     } catch (err) {
+      console.log(err);
       // Some consumers may want to handle/ignore errors themselves.
       if (handleError === false) {
         throw err;
