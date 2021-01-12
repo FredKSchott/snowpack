@@ -41,7 +41,8 @@
     "assets",
     "lib",
     "index.bin.js",
-    "index.bundle.js"
+    "index.bundle.js",
+    "vendor"
   ],
   "dependencies": {
     "esbuild": "^0.8.7"
