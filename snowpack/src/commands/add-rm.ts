@@ -10,6 +10,7 @@ import {
   writeLockfile,
   remotePackageSDK,
 } from '../util';
+import remotePackageSource from '../sources/remote';
 
 export async function addCommand(addValue: string, commandOptions: CommandOptions) {
   const {lockfile, config} = commandOptions;
@@ -42,6 +43,7 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
     ),
   );
   await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
+  await remotePackageSource.prepare(commandOptions);
 }
 
 export async function rmCommand(addValue: string, commandOptions: CommandOptions) {
@@ -62,4 +64,5 @@ export async function rmCommand(addValue: string, commandOptions: CommandOptions
   );
   delete newLockfile.dependencies[pkgName];
   await writeLockfile(path.join(config.root, LOCKFILE_NAME), newLockfile);
+  await remotePackageSource.prepare(commandOptions);
 }

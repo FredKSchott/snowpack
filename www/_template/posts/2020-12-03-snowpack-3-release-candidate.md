@@ -9,7 +9,7 @@ bannerImage: '/img/banner-2.jpg'
 
 **tl;dr:** Snowpack v3.0 will release on January 6th, 2021 (the one-year anniversary of its original launch post). This is our biggest release yet with some serious new features, including **a new way to load npm imports on-demand** and skip the frontend `npm install` step entirely.
 
-**Update:** Release was delayed for a week for some finishing touches. New release date is January 12th! [More info on Discord](https://discord.com/channels/712696926406967308/783454799051489301/796785330932940800).
+**Update:** Release was delayed for a week for some finishing touches. New release date is January 13th! [More info on Discord](https://discord.com/channels/712696926406967308/783454799051489301/796785330932940800).
 
 Best of all: it's all available to try today!
 
@@ -62,7 +62,7 @@ Check out our guide on [Streaming Package Imports](/guides/streaming-npm-imports
 
 ## Built-in Optimizations, Powered by esbuild
 
-[esbuild](https://esbuild.github.io/) is a marvel: it performs 100x faster than most other popular bundlers and over 300x faster than Parcel (by esbuilds own benchmarks). esbuild is written in Go, a compiled language that can parallelize heavy bundling workloads where other popular bundlers -- written in JavaScript -- cannot.
+[esbuild](https://esbuild.github.io/) is a marvel: it performs 100× faster than most other popular bundlers and over 300× faster than Parcel (by esbuild's own benchmarks). esbuild is written in Go, a compiled language that can parallelize heavy bundling workloads where other popular bundlers -- written in JavaScript -- cannot.
 
 Snowpack already uses esbuild internally as our default single-file builder for JavaScript, TypeScript and JSX files. Snowpack v3.0 takes this integration one step further, with a new built-in build optimization pipeline. Bundle, minify, and transpile your site for production in 1/100th of the time of other bundlers.
 
