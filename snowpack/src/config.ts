@@ -465,10 +465,10 @@ See https://www.snowpack.dev for more info.`);
 
 function valdiateDeprecatedConfig(rawConfig: any) {
   if (rawConfig.scripts) {
-    handleDeprecatedConfigError('[v3.0] Legacy "scripts" config is deprecated.');
+    handleDeprecatedConfigError('[v3.0] Legacy "scripts" config is deprecated in favor of "plugins". Safe to remove if empty.');
   }
   if (rawConfig.proxy) {
-    handleDeprecatedConfigError('[v3.0] Legacy "proxy" config is deprecated in favor of "routes".');
+    handleDeprecatedConfigError('[v3.0] Legacy "proxy" config is deprecated in favor of "routes". Safe to remove if empty.');
   }
   if (rawConfig.buildOptions?.metaDir) {
     handleDeprecatedConfigError(
@@ -486,7 +486,7 @@ function valdiateDeprecatedConfig(rawConfig: any) {
     );
   }
   if (rawConfig.installOptions) {
-    handleDeprecatedConfigError('[v3.0] "config.installOptions" is now "config.packageOptions".');
+    handleDeprecatedConfigError('[v3.0] "config.installOptions" is now "config.packageOptions". Safe to remove if empty.');
   }
   if (rawConfig.packageOptions?.externalPackage) {
     handleDeprecatedConfigError(
@@ -500,7 +500,7 @@ function valdiateDeprecatedConfig(rawConfig: any) {
   }
   if (rawConfig.install) {
     handleDeprecatedConfigError(
-      '[v3.0] "config.install" is now "config.packageOptions.knownEntrypoints".',
+      '[v3.0] "config.install" is now "config.packageOptions.knownEntrypoints". Safe to remove if empty.',
     );
   }
   if (rawConfig.experiments?.source) {
