@@ -635,7 +635,7 @@ function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): 
   if (config.packageOptions?.source === 'remote' && config.packageOptions.cache) {
     config.packageOptions.cache = path.resolve(configBase, config.packageOptions.cache);
   }
-  if (config.extends) {
+  if (config.extends && /^[\.\/\\]/.test(config.extends)) {
     config.extends = path.resolve(configBase, config.extends);
   }
   if (config.plugins) {
@@ -778,7 +778,7 @@ export async function loadConfiguration(
     if (extendValidation.errors && extendValidation.errors.length > 0) {
       handleValidationErrors(extendConfigLoc, new ConfigValidationError(extendValidation.errors));
     }
-    resolveRelativeConfig(extendConfig, extendConfigLoc);
+    resolveRelativeConfig(extendConfig, configBase);
   }
 
   // if valid, apply config over defaults

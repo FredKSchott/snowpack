@@ -2488,6 +2488,13 @@
     kleur "^4.1.3"
     yargs-parser "^20.2.3"
 
+"@sveltejs/snowpack-config@^1.0.0-next.0":
+  version "1.0.0-next.0"
+  resolved "https://registry.yarnpkg.com/@sveltejs/snowpack-config/-/snowpack-config-1.0.0-next.0.tgz#4f016b895c1ba2ff896d416022ce176bbb0938fe"
+  integrity sha512-0G5GPdNIGRmiVWXK/43G4e7RJoiMYUYt85Won9dv/v+OAwlIq1g5Dnrr8bMMohKi/LXQQgySw96GeORWtbMJHg==
+  dependencies:
+    "@snowpack/plugin-svelte" "^3.0.0"
+
 "@szmarczak/http-timer@^4.0.5":
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/@szmarczak/http-timer/-/http-timer-4.0.5.tgz#bfbd50211e9dfa51ba07da58a14cdfd333205152"
