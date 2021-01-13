@@ -5,7 +5,7 @@ published: true
 stream: Fetch your npm dependencies on-demand from a remote ESM CDN.
 ---
 
-Snowpack v3.0 introduces a new feature called **Streaming Imports** that fetches imported packages on-demand during development and building. By managing your frontend dependencies with Snowpack, you can leave `npm` for your tooling-only packages or even drop your dependency on `npm`/`yarn`/`pnpm` all togther. 
+Snowpack v3.0 introduces a new feature called **Streaming Imports** that fetches imported packages on-demand during development and building. By managing your frontend dependencies with Snowpack, you can leave `npm` for your tooling-only packages or even drop your dependency on `npm`/`yarn`/`pnpm` all togther.
 
 ## Enable Streaming Imports
 
@@ -22,7 +22,7 @@ Set `packageOptions.source` to "remote" to enable streaming imports. This tells 
 
 When you enable streaming imports, `snowpack` will start fetching all imports from `https://pkg.snowpack.dev`. For example, `import "preact"` in your project will become something like `import "https://pkg.snowpack.dev/preact"` in the browser. This tells Snowpack (or the browser) to import your package by URL, and only fetch the package ESM when needed. Snowpack is able to cache the response for future, offline use.
 
-`pkg.snowpack.dev` is our ESM Package CDN, powered by [Skypack](https://www.skypack.dev/). Every npm package is hosted as ESM, and any legacy non-ESM packages are upconverted to ESM on the CDN itself. 
+`pkg.snowpack.dev` is our ESM Package CDN, powered by [Skypack](https://www.skypack.dev/). Every npm package is hosted as ESM, and any legacy non-ESM packages are upconverted to ESM on the CDN itself.
 
 ## Benefits of Streaming Imports
 
@@ -37,11 +37,12 @@ Streaming dependencies have several benefits over the traditional "npm install +
 
 By default, Snowpack fetches the latest version of every package available. Breaking changes are possible over time without a way to manage your dependencies by version.
 
-Snowpack uses a `snowpack.deps.json` in your project to manage your dependency versions.  If you're familiar with `npm install`, your `snowpack.deps.json` file is like a combined `package.json` and `package-lock.json`.
+Snowpack uses a `snowpack.deps.json` in your project to manage your dependency versions. If you're familiar with `npm install`, your `snowpack.deps.json` file is like a combined `package.json` and `package-lock.json`.
 
-Two commands are available to work with this file: `snowpack add` and `snowpack rm`. 
+Two commands are available to work with this file: `snowpack add` and `snowpack rm`.
 
 Running `snowpack add [package-name]` for the first time will create a new `snowpack.deps.json` file in your project to store information about your new dependency, like desired SemVer version range and lockfile information.
+
 ## Using Streaming Imports with TypeScript
 
 ```js
