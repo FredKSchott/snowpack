@@ -590,8 +590,11 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     }
 
     if (!isRoute && !isProxyModule && !isSourceMap) {
+      const cleanUrl = url.parse(reqUrl).pathname;
+      const cleanUrlWithMainExtension =
+        cleanUrl && replaceExtension(cleanUrl, path.extname(cleanUrl), '.js');
       const expectedUrl = getUrlForFile(foundFile.fileLoc, config);
-      if (expectedUrl !== url.parse(reqUrl).pathname) {
+      if (cleanUrl !== expectedUrl && cleanUrlWithMainExtension !== expectedUrl) {
         logger.warn(`Bad Request: "${reqUrl}" should be requested as "${expectedUrl}".`);
         throw new NotFoundError([foundFile.fileLoc]);
       }
