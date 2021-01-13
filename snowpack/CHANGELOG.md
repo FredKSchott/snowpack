@@ -7,11 +7,10 @@
 - 8f614490 - final cleanup before v3 goes out
 - 15d77ea3 - cleanup
 
-
 ## snowpack@3.0.7 [2021-01-13]
 
-* 61bd4c3b - [ci] yarn format 
-* eb5b366a - cleanup types, release script 
-* 20e3ed21 - move skypack and esbuild into real dependencies for now 
-* e63d70fd - fix direct foo.svelte.css references 
-* 01a80448 - [ci] yarn format 
+- 61bd4c3b - [ci] yarn format
+- eb5b366a - cleanup types, release script
+- 20e3ed21 - move skypack and esbuild into real dependencies for now
+- e63d70fd - fix direct foo.svelte.css references
+- 01a80448 - [ci] yarn format
