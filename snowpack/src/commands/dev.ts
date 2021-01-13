@@ -26,7 +26,7 @@
 
 import cacache from 'cacache';
 import isCompressible from 'compressible';
-import {createLoader as createSSRLoader, SSRLoader} from '../ssr-loader';
+import {createLoader as createSSRLoader} from '../ssr-loader';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, promises as fs, statSync} from 'fs';
@@ -69,6 +69,7 @@ import {
   RouteConfigObject,
   SnowpackBuildMap,
   SnowpackDevServer,
+  SSRLoader,
 } from '../types';
 import {
   BUILD_CACHE,
