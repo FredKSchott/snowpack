@@ -3270,7 +3270,7 @@
     "@types/mocha" "^8.2.0"
     "@web/test-runner-core" "^0.10.0"
 
-"@web/test-runner@^0.12.0":
+"@web/test-runner@>=0.11.0", "@web/test-runner@^0.12.0":
   version "0.12.2"
   resolved "https://registry.yarnpkg.com/@web/test-runner/-/test-runner-0.12.2.tgz#195097f5874e9bead8560c9502c9008f9cd21d92"
   integrity sha512-7wQ2b3OE4xuAhHOaFbs+9d06bWNKvm9hWjJdHbLczsAkq2+TPbZDynw2b1D2fkTLcOWNbGOyQa742ThWIbXYRw==
