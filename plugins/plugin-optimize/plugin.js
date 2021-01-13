@@ -113,7 +113,7 @@ exports.default = function plugin(config, userDefinedOptions) {
       const allFiles = glob
         .sync('**/*', {
           cwd: buildDirectory,
-          ignore: [`${config.buildOptions.metaDir}/*`],
+          ignore: [`${config.buildOptions.metaUrlPath}/*`],
           nodir: true,
         })
         .map((file) => path.join(buildDirectory, file)); // resolve to root dir
@@ -169,7 +169,7 @@ exports.default = function plugin(config, userDefinedOptions) {
 
       // 6. write manifest
       fs.writeFileSync(
-        path.join(buildDirectory, config.buildOptions.metaDir, 'optimize-manifest.json'),
+        path.join(buildDirectory, config.buildOptions.metaUrlPath, 'optimize-manifest.json'),
         JSON.stringify(
           formatManifest({manifest, buildDirectory, generatedFiles, preloadCSS}),
           undefined,
