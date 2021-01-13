@@ -19,7 +19,7 @@ describe('create-snowpack-app', () => {
   jest.setTimeout(60 * 1000);
 
   // test npx create-snowpack-app bin
-  it.only('npx create-snowpack-app', async () => {
+  it('npx create-snowpack-app', async () => {
     const template = 'app-template-preact'; // any template will do
     const installDir = path.resolve(__dirname, 'test-install');
 
