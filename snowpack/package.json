@@ -48,6 +48,7 @@
     "esbuild": "^0.8.7",
     "esinstall": "^1.0.0",
     "skypack": "^0.3.0",
+    "open": "^7.0.4",
     "postcss": "^8.1.8",
     "postcss-modules": "^4.0.0"
   },
@@ -82,7 +83,6 @@
     "mime-types": "^2.1.26",
     "mkdirp": "^1.0.3",
     "npm-run-path": "^4.0.1",
-    "open": "^7.0.4",
     "p-queue": "^6.6.1",
     "periscopic": "^2.0.3",
     "resolve-from": "^5.0.0",
