@@ -26,17 +26,19 @@ describe('create-snowpack-app', () => {
     rimraf.sync(installDir);
 
     // run the local create-snowpack-app bin
-    console.log(await execa(
-      'node',
-      [
-        './create-snowpack-app/cli',
-        `./test/create-snowpack-app/test-install`,
-        '--template',
-        `./create-snowpack-app/${template}`,
-        '--use-yarn', // we use Yarn for this repo
-      ],
-      {cwd: path.resolve(__dirname, '..', '..')},
-    ));
+    console.log(
+      await execa(
+        'node',
+        [
+          './create-snowpack-app/cli',
+          `./test/create-snowpack-app/test-install`,
+          '--template',
+          `./create-snowpack-app/${template}`,
+          '--use-yarn', // we use Yarn for this repo
+        ],
+        {cwd: path.resolve(__dirname, '..', '..')},
+      ),
+    );
 
     // snowpack.config.json is a file we can test for to assume successful
     // install, since it’s added at the end.
