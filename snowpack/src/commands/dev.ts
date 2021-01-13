@@ -1121,7 +1121,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     const quickETagCheck = req.headers['if-none-match'];
     const quickETagCheckUrl = reqUrl.replace(/\/$/, '/index.html');
     if (quickETagCheck && quickETagCheck === knownETags.get(quickETagCheckUrl)) {
-      logger.debug(`optimized etag! sending 304...`);
+      logger.debug(`optimized etag for ${quickETagCheckUrl}! sending 304...`);
       res.writeHead(304, {'Access-Control-Allow-Origin': '*'});
       res.end();
       return;
@@ -1346,6 +1346,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
 
   let working : Promise<any> | null = null; // only one installl at a time
   function onDepWatchEvent() {
+    knownETags.clear();
     if (!working)
       // FIXME: If one changes, reinstall _all_.  Inefficient?
       working = installDependencies(config)
