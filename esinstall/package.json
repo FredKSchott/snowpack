@@ -54,7 +54,7 @@
     "picomatch": "^2.2.2",
     "rimraf": "^3.0.0",
     "rollup": "^2.34.0",
-    "rollup-plugin-polyfill-node": "^0.4.1",
+    "rollup-plugin-polyfill-node": "^0.5.0",
     "validate-npm-package-name": "^3.0.0",
     "vm2": "^3.9.2"
   }

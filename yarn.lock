@@ -2488,13 +2488,6 @@
     kleur "^4.1.3"
     yargs-parser "^20.2.3"
 
-"@sveltejs/snowpack-config@^1.0.0-next.0":
-  version "1.0.0-next.0"
-  resolved "https://registry.yarnpkg.com/@sveltejs/snowpack-config/-/snowpack-config-1.0.0-next.0.tgz#4f016b895c1ba2ff896d416022ce176bbb0938fe"
-  integrity sha512-0G5GPdNIGRmiVWXK/43G4e7RJoiMYUYt85Won9dv/v+OAwlIq1g5Dnrr8bMMohKi/LXQQgySw96GeORWtbMJHg==
-  dependencies:
-    "@snowpack/plugin-svelte" "^3.0.0"
-
 "@szmarczak/http-timer@^4.0.5":
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/@szmarczak/http-timer/-/http-timer-4.0.5.tgz#bfbd50211e9dfa51ba07da58a14cdfd333205152"
@@ -12734,10 +12727,10 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
-rollup-plugin-polyfill-node@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-polyfill-node/-/rollup-plugin-polyfill-node-0.4.1.tgz#3a1207e725d4b30725b754875a34ee6b4e695f56"
-  integrity sha512-PxON/asmp3BuBaJPUToUQSq3RA6MpDma0zlK+NuQoBgxImMOPjVeelkdLYh0EWo9ZSJbCqDDkckAAM0wOwvysQ==
+rollup-plugin-polyfill-node@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-polyfill-node/-/rollup-plugin-polyfill-node-0.5.0.tgz#afa87f9105233963b89b0f74a2baaac53ab8a232"
+  integrity sha512-CYPf4vKeZG5w/Ut7TR1lEMKiBT2pHfj1RLnk92whXKFtT8IGkm+TydwgDNpgTXBCI4V528YijyFVMz4dKcR3AA==
   dependencies:
     "@rollup/plugin-inject" "^4.0.0"
 
