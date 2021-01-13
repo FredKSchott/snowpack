@@ -5681,10 +5681,10 @@ snapdragon@^0.8.1:
     source-map-resolve "^0.5.0"
     use "^3.1.0"
 
-snowpack@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.0.2.tgz#ff1418892c1a0af9c1eb62c8c30537f4ce1057ea"
-  integrity sha512-yjL+QejITOAUZQNBcgm/gOFBy5MMrnakmG9Oi9a8Mh2XEKTYQupwgWgsiYsztO/2S1ZZKhGF8pV+9IdRExNlkg==
+snowpack@^3.0.4:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.0.4.tgz#ed82261eab90bd3165d7d458c0a43c577fcadf46"
+  integrity sha512-1fQ7sxMAD+mGZNB/zTUfvX60/3YS4fnclgAkJIYt4xztGWqVKoYbqTHJuIxMJEN+a2Vj1hb3c8q2M0GETjtvZA==
   dependencies:
     esbuild "^0.8.7"
   optionalDependencies:
