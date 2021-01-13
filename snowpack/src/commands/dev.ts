@@ -589,7 +589,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
       throw new NotFoundError(attemptedFileLoads);
     }
 
-    if (!isRoute && !isProxyModule) {
+    if (!isRoute && !isProxyModule && !isSourceMap) {
       const expectedUrl = getUrlForFile(foundFile.fileLoc, config);
       if (expectedUrl !== url.parse(reqUrl).pathname) {
         logger.warn(`Bad Request: "${reqUrl}" should be requested as "${expectedUrl}".`);
