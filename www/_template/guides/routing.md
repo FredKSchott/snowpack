@@ -17,11 +17,9 @@ To implement this pattern, you'll want to define a single "catch-all" route for 
 
 ```js
 // snowpack.config.js
-"experiments": {
-    "routes": [
-        {"match": "routes", "src": ".*", "dest": "/index.html"}
-    ]
-}
+"routes": [
+    {"match": "routes", "src": ".*", "dest": "/index.html"}
+]
 ```
 
 This tells Snowpack's dev server to serve the fallback `/index.html` URL for all routes (`.*` in RegEx means "match everything").
@@ -40,14 +38,12 @@ const httpProxy = require('http-proxy');
 const proxy = httpProxy.createServer({ target: 'http://localhost:3001' });
 
 module.exports = {
-  experiments: {
     routes: [
       {
         src: '/api/.*',
         dest: (req, res) => proxy.web(req, res),
       },
     ],
-  },
 };
 ```
 
