@@ -1355,6 +1355,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
         });
   }
   const depWatcher = chokidar.watch([...symlinkedFileLocs], {
+    ignored: config.exclude,
     cwd: '/', // we’re using absolute paths, so watch from root
     persistent: true,
     ignoreInitial: true,
