@@ -6,3 +6,6 @@
 
 * 42c8b482 - update tsconfig to unblock templates 
 * 74419a66 - cleanup 
+
+## @snowpack/app-template-svelte-typescript@2.0.2 [2021-01-13]
+
