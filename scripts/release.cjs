@@ -27,7 +27,7 @@ function generateChangelogUpdate(dir, newTag, oldTag) {
 
 }
 
-module.exports = function release(pkgFolder, tag, bump) {
+module.exports = function release(pkgFolder, tag, bump, skipBuild) {
     console.log(`# release(${pkgFolder}, ${tag}, ${bump})`);
 
     const root = path.resolve(__dirname, '..');
@@ -37,10 +37,12 @@ module.exports = function release(pkgFolder, tag, bump) {
         process.exit(1);
     }
 
-    console.log('Building...');
-    console.log(execa.sync('yarn', ['run', 'build'], {cwd: root}));
-    console.log('Bundling...');
-    console.log(execa.sync('yarn', ['run', 'bundle'], {cwd: root}));
+    if (skipBuild !== false) {
+        console.log('Building...');
+        console.log(execa.sync('yarn', ['run', 'build'], {cwd: root}));
+        console.log('Bundling...');
+        console.log(execa.sync('yarn', ['run', 'bundle'], {cwd: root}));
+    }
 
     console.log('Publishing...');
     const pkgJsonLoc = path.join(dir, 'package.json');
