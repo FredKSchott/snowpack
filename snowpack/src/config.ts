@@ -778,6 +778,7 @@ export async function loadConfiguration(
     if (extendValidation.errors && extendValidation.errors.length > 0) {
       handleValidationErrors(extendConfigLoc, new ConfigValidationError(extendValidation.errors));
     }
+    valdiateDeprecatedConfig(extendConfig);
     resolveRelativeConfig(extendConfig, configBase);
   }
 
