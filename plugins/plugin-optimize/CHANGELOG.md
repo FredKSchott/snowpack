@@ -11,3 +11,9 @@
 - 9515ef50 - make optimize plugin private
 - 1c2a2094 - update lockfile
 - e2c2d5f4 - final cleanup, tests passing
+
+
+## @snowpack/plugin-optimize@0.2.12 [2021-01-13]
+
+* 3eca3476 - [ci] yarn format 
+* 916b18a0 - mark plugin-optimize as no longer private 
