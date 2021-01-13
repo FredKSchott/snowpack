@@ -28,7 +28,7 @@ describe('CDN URLs', () => {
   });
 
   it('JS: doesn’t install remote packages locally', () => {
-    const webModulesLoc = path.join(__dirname, 'build', 'web_modules');
+    const webModulesLoc = path.join(__dirname, 'build', '_snowpack', 'pkg');
     expect(fs.existsSync(webModulesLoc)).toBe(false);
   });
 });

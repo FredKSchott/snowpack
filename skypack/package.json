@@ -1,6 +1,6 @@
 {
   "name": "skypack",
-  "version": "0.2.1",
+  "version": "0.3.1",
   "description": "The Skypack SDK.",
   "keywords": [
     "skypack",
@@ -43,7 +43,7 @@
   "dependencies": {
     "cacache": "^15.0.0",
     "cachedir": "^2.3.0",
-    "esinstall": "^0.5.1",
+    "esinstall": "^1.0.0",
     "etag": "^1.8.1",
     "find-up": "^5.0.0",
     "got": "^11.1.4",

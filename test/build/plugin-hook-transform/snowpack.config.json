@@ -3,7 +3,7 @@
     "./src": "/_dist_"
   },
   "buildOptions": {
-    "sourceMaps": true
+    "sourcemap": true
   },
   "plugins": ["./custom-transform-plugin.js"]
 }

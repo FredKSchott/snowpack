@@ -229,7 +229,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
   if (err instanceof NotFoundError) {
     // Don't log favicon "Not Found" errors. Browsers automatically request a favicon.ico file
     // from the server, which creates annoying errors for new apps / first experiences.
-    if (req.path !== '/favicon.ico') {
+    if (req.url !== '/favicon.ico') {
       const attemptedFilesMessage = err.lookups.map((loc) => '  ✘ ' + loc).join('\n');
       logger.error(`[404] ${req.url}\n${attemptedFilesMessage}`);
     }
@@ -245,7 +245,7 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
   return;
 }
 
-function getSSRLoader(
+function getESMRuntime(
   sp: SnowpackDevServer,
   options: {invalidateOnChange?: boolean} = {},
 ): SSRLoader {
@@ -263,7 +263,7 @@ function getSSRLoader(
   return runtime;
 }
 
-export async function startDevServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
+export async function startServer(commandOptions: CommandOptions): Promise<SnowpackDevServer> {
   const {config} = commandOptions;
   // Start the startup timer!
   let serverStart = performance.now();
@@ -272,6 +272,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
   const messageBus = new EventEmitter();
   const port = await getPort(defaultPort);
   const pkgSource = getPackageSource(config.packageOptions.source);
+  const PACKAGE_PATH_PREFIX = path.posix.join(config.buildOptions.metaUrlPath, 'pkg/');
 
   // Reset the clock if we had to wait for the user prompt to select a new port.
   if (port !== defaultPort) {
@@ -464,9 +465,9 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       };
     }
 
-    if (reqPath.startsWith(config.buildOptions.webModulesUrl)) {
+    if (reqPath.startsWith(PACKAGE_PATH_PREFIX)) {
       try {
-        const webModuleUrl = reqPath.substr(config.buildOptions.webModulesUrl.length + 1);
+        const webModuleUrl = reqPath.substr(PACKAGE_PATH_PREFIX.length);
         const loadedModule = await pkgSource.load(webModuleUrl, commandOptions);
         let code = loadedModule;
         if (isProxyModule) {
@@ -579,40 +580,18 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
       return null;
     }
 
-    async function getFileFromFallback(): Promise<FoundFile | null> {
-      if (!config.devOptions.fallback) {
-        return null;
-      }
-      for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
-        if (mountEntry.url !== '/') {
-          continue;
-        }
-        const fallbackFile = path.join(mountKey, config.devOptions.fallback);
-        const file = await getFileFromMount(fallbackFile, mountEntry);
-        if (file) {
-          requestedFileExt = '.html';
-          responseFileExt = '.html';
-          return file;
-        }
-      }
-      return null;
-    }
-
     let foundFile = await getFileFromUrl(reqPath);
     if (!foundFile && isRoute) {
-      foundFile =
-        (await getFileFromLazyUrl(reqPath)) ||
-        // @deprecated: to be removed in v3
-        (await getFileFromFallback());
+      foundFile = await getFileFromLazyUrl(reqPath);
     }
 
     if (!foundFile) {
       throw new NotFoundError(attemptedFileLoads);
     }
 
-    if (!isRoute && !isProxyModule) {
+    if (!isRoute && !isProxyModule && !isSourceMap) {
       const expectedUrl = getUrlForFile(foundFile.fileLoc, config);
-      if (expectedUrl !== reqUrl) {
+      if (expectedUrl !== url.parse(reqUrl).pathname) {
         logger.warn(`Bad Request: "${reqUrl}" should be requested as "${expectedUrl}".`);
         throw new NotFoundError([foundFile.fileLoc]);
       }
@@ -748,7 +727,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
             return resolvedImportUrl;
           }
           // Ignore packages marked as external
-          if (config.installOptions.externalPackage?.includes(resolvedImportUrl)) {
+          if (config.packageOptions.external?.includes(resolvedImportUrl)) {
             return spec;
           }
           // Handle normal "./" & "../" import specifiers
@@ -778,7 +757,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         // Only retry once, to prevent an infinite loop when a package doesn't actually exist.
         if (retryMissing) {
           try {
-            sourceImportMap = await pkgSource.recoverMissingPackageImport(missingPackages);
+            sourceImportMap = await pkgSource.recoverMissingPackageImport(missingPackages, config);
             return resolveResponseImports(fileLoc, responseExt, wrappedResponse, false);
           } catch (err) {
             const errorTitle = `Dependency Install Error`;
@@ -798,8 +777,8 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
         // eventually saw post-build. In that case, you need to add it manually.
         const errorTitle = `Error: Import "${missingPackages[0]}" could not be resolved.`;
         const errorMessage = `If this import doesn't exist in the source file, add ${colors.bold(
-          `"install": ["${missingPackages[0]}"]`,
-        )} to your Snowpack config file.`;
+          `"knownEntrypoints": ["${missingPackages[0]}"]`,
+        )} to your Snowpack config "packageOptions".`;
         logger.error(`${errorTitle}\n${errorMessage}`);
         hmrEngine.broadcastMessage({
           type: 'error',
@@ -1105,7 +1084,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const reqExt = path.extname(reqPath);
     const isRoute = !reqExt || reqExt.toLowerCase() === '.html';
-    for (const route of config.experiments.routes) {
+    for (const route of config.routes) {
       if (route.match === 'routes' && !isRoute) {
         continue;
       }
@@ -1384,7 +1363,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
     sendResponseError,
     getUrlForFile: (fileLoc: string) => getUrlForFile(fileLoc, config),
     onFileChange: (callback) => (onFileChangeCallback = callback),
-    getSSRLoader: (options) => getSSRLoader(sp, options),
+    getESMRuntime: (options) => getESMRuntime(sp, options),
     async shutdown() {
       await watcher.close();
       server.close();
@@ -1395,7 +1374,7 @@ export async function startDevServer(commandOptions: CommandOptions): Promise<Sn
 
 export async function command(commandOptions: CommandOptions) {
   try {
-    await startDevServer(commandOptions);
+    await startServer(commandOptions);
   } catch (err) {
     logger.error(err.message);
     logger.debug(err.stack);

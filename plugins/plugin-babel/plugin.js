@@ -36,7 +36,7 @@ module.exports = function plugin(snowpackConfig, options = {}) {
         cwd: snowpackConfig.root || process.cwd(),
         ast: false,
         compact: false,
-        sourceMaps: snowpackConfig.buildOptions.sourceMaps,
+        sourceMaps: snowpackConfig.buildOptions.sourcemap || snowpackConfig.buildOptions.sourceMaps,
         ...(options.transformOptions || {}),
       });
       let {code, map} = JSON.parse(encodedResult);

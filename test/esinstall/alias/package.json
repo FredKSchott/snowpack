@@ -3,15 +3,12 @@
   "version": "1.0.1",
   "name": "@snowpack/test-config-alias",
   "description": "Handle deep imports to package entrypoints",
-  "scripts": {
-    "testinstall": "snowpack install"
-  },
   "dependencies": {
     "preact": "^10.0.0",
     "vue": "^2.6.12",
     "vue-currency-input": "^1.21.0"
   },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

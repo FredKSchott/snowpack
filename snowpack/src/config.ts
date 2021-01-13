@@ -11,23 +11,17 @@ import {
   CLIFlags,
   MountEntry,
   PackageSourceLocal,
-  PackageSourceSkypack,
+  PackageSourceRemote,
   PluginLoadResult,
   RouteConfigObject,
   SnowpackConfig,
   SnowpackPlugin,
   SnowpackUserConfig,
 } from './types';
-import {
-  addLeadingSlash,
-  addTrailingSlash,
-  NATIVE_REQUIRE,
-  removeLeadingSlash,
-  removeTrailingSlash,
-} from './util';
+import {addLeadingSlash, addTrailingSlash, NATIVE_REQUIRE, removeTrailingSlash} from './util';
 
 const CONFIG_NAME = 'snowpack';
-const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/web_modules/**/*', '**/.types/**/*'];
+const ALWAYS_EXCLUDE = ['**/node_modules/**/*'];
 
 // default settings
 const DEFAULT_ROOT = process.cwd();
@@ -36,9 +30,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   plugins: [],
   alias: {},
   exclude: [],
-  installOptions: {
-    packageLookupFields: [],
-  },
+  routes: [],
   devOptions: {
     secure: false,
     hostname: 'localhost',
@@ -53,29 +45,32 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
   buildOptions: {
     out: 'build',
     baseUrl: '/',
-    webModulesUrl: '/web_modules',
+    metaUrlPath: '_snowpack',
     clean: true,
-    metaDir: '__snowpack__',
-    sourceMaps: false,
+    sourcemap: false,
     watch: false,
     htmlFragments: false,
+    ssr: false,
   },
   testOptions: {
     files: ['__tests__/**/*', '**/*.@(spec|test).*'],
   },
   packageOptions: {source: 'local'},
-  experiments: {
-    routes: [],
-    ssr: false,
-  },
 };
 
-const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageSourceLocal = {
+export const DEFAULT_PACKAGES_LOCAL_CONFIG: PackageSourceLocal = {
   source: 'local',
+  external: [],
+  packageLookupFields: [],
+  knownEntrypoints: [],
 };
 
-const DEFAULT_PACKAGES_SKYPACK_CONFIG: PackageSourceSkypack = {
-  source: 'skypack',
+const REMOTE_PACKAGE_ORIGIN = 'https://pkg.snowpack.dev';
+
+const DEFAULT_PACKAGES_REMOTE_CONFIG: PackageSourceRemote = {
+  source: 'remote',
+  origin: REMOTE_PACKAGE_ORIGIN,
+  external: [],
   cache: '.snowpack',
   types: false,
 };
@@ -84,7 +79,6 @@ const configSchema = {
   type: 'object',
   properties: {
     extends: {type: 'string'},
-    install: {type: 'array', items: {type: 'string'}},
     exclude: {type: 'array', items: {type: 'string'}},
     plugins: {type: 'array'},
     alias: {
@@ -122,15 +116,14 @@ const configSchema = {
         hmrErrorOverlay: {type: 'boolean'},
       },
     },
-    installOptions: {
+    packageOptions: {
       type: 'object',
       properties: {
         dest: {type: 'string'},
-        externalPackage: {type: 'array', items: {type: 'string'}},
+        external: {type: 'array', items: {type: 'string'}},
         treeshake: {type: 'boolean'},
         installTypes: {type: 'boolean'},
         polyfillNode: {type: 'boolean'},
-        sourceMap: {oneOf: [{type: 'boolean'}, {type: 'string'}]},
         env: {
           type: 'object',
           additionalProperties: {
@@ -160,8 +153,7 @@ const configSchema = {
         out: {type: 'string'},
         baseUrl: {type: 'string'},
         clean: {type: 'boolean'},
-        metaDir: {type: 'string'},
-        sourceMaps: {type: 'boolean'},
+        sourcemap: {type: 'boolean'},
         watch: {type: 'boolean'},
         ssr: {type: 'boolean'},
         htmlFragments: {type: 'boolean'},
@@ -177,11 +169,11 @@ const configSchema = {
     },
     experiments: {
       type: ['object'],
-      properties: {
-        ssr: {type: 'boolean'},
-        app: {},
-        routes: {},
-      },
+      properties: {},
+    },
+    optimize: {
+      type: ['object'],
+      properties: {},
     },
     proxy: {
       type: 'object',
@@ -197,12 +189,11 @@ const configSchema = {
  */
 export function expandCliFlags(flags: CLIFlags): SnowpackUserConfig {
   const result = {
-    packageOptions: {} as any,
-    installOptions: {} as any,
-    devOptions: {} as any,
-    buildOptions: {} as any,
-    experiments: {} as any,
-  };
+    packageOptions: {},
+    devOptions: {},
+    buildOptions: {},
+    experiments: {},
+  } as {packageOptions: any; devOptions: any; buildOptions: any; experiments: any; optimize?: any};
   const {help, version, reload, config, ...relevantFlags} = flags;
 
   const CLI_ONLY_FLAGS = ['quiet', 'verbose'];
@@ -223,8 +214,13 @@ export function expandCliFlags(flags: CLIFlags): SnowpackUserConfig {
       result.experiments[flag] = val;
       continue;
     }
-    if (configSchema.properties.installOptions.properties[flag]) {
-      result.installOptions[flag] = val;
+    if (configSchema.properties.optimize.properties[flag]) {
+      result.optimize = result.optimize || {};
+      result.optimize[flag] = val;
+      continue;
+    }
+    if (configSchema.properties.packageOptions.properties[flag]) {
+      result.packageOptions[flag] = val;
       continue;
     }
     if (configSchema.properties.devOptions.properties[flag]) {
@@ -241,8 +237,8 @@ export function expandCliFlags(flags: CLIFlags): SnowpackUserConfig {
     logger.error(`Unknown CLI flag: "${flag}"`);
     process.exit(1);
   }
-  if (result.installOptions.env) {
-    result.installOptions.env = result.installOptions.env.reduce((acc, id) => {
+  if (result.packageOptions.env) {
+    result.packageOptions.env = result.packageOptions.env.reduce((acc, id) => {
       const index = id.indexOf('=');
       const [key, val] = index > 0 ? [id.substr(0, index), id.substr(index + 1)] : [id, true];
       acc[key] = val;
@@ -395,10 +391,10 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   // SnowpackUserConfig type, we can have this function construct a fresh config object
   // from scratch instead of trying to modify the user's config object in-place.
   let config: SnowpackConfig = (_config as any) as SnowpackConfig;
-  config.knownEntrypoints = (config as any).install || [];
-  config.installOptions.cwd = config.root;
-  config.installOptions.rollup = config.installOptions.rollup || {};
-  config.installOptions.rollup.plugins = config.installOptions.rollup.plugins || [];
+  if (config.packageOptions.source === 'local') {
+    config.packageOptions.rollup = config.packageOptions.rollup || {};
+    config.packageOptions.rollup.plugins = config.packageOptions.rollup.plugins || [];
+  }
   config.exclude = Array.from(
     new Set([...ALWAYS_EXCLUDE, `${config.buildOptions.out}/**/*`, ...config.exclude]),
   );
@@ -406,24 +402,24 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   // normalize config URL/path values
   config.buildOptions.out = removeTrailingSlash(config.buildOptions.out);
   config.buildOptions.baseUrl = addTrailingSlash(config.buildOptions.baseUrl);
-  config.buildOptions.webModulesUrl = removeTrailingSlash(
-    addLeadingSlash(config.buildOptions.webModulesUrl),
+  config.buildOptions.metaUrlPath = removeTrailingSlash(
+    addLeadingSlash(config.buildOptions.metaUrlPath),
   );
-  config.buildOptions.metaDir = removeLeadingSlash(
-    removeTrailingSlash(config.buildOptions.metaDir),
-  );
-
   config.mount = normalizeMount(config);
-  config.experiments.routes = normalizeRoutes(config.experiments.routes);
-  if (config.experiments.optimize) {
-    config.experiments.optimize = {
-      entrypoints: config.experiments.optimize.entrypoints ?? 'auto',
-      preload: config.experiments.optimize.preload ?? false,
-      bundle: config.experiments.optimize.bundle ?? false,
-      manifest: config.experiments.optimize.manifest ?? false,
-      target: config.experiments.optimize.target ?? 'es2020',
-      minify: config.experiments.optimize.minify ?? false,
+  config.routes = normalizeRoutes(config.routes);
+  if (config.optimize && JSON.stringify(config.optimize) !== '{}') {
+    config.optimize = {
+      entrypoints: config.optimize.entrypoints ?? 'auto',
+      preload: config.optimize.preload ?? false,
+      bundle: config.optimize.bundle ?? false,
+      splitting: config.optimize.splitting ?? false,
+      treeshake: config.optimize.treeshake ?? true,
+      manifest: config.optimize.manifest ?? false,
+      target: config.optimize.target ?? 'es2020',
+      minify: config.optimize.minify ?? false,
     };
+  } else {
+    config.optimize = undefined;
   }
 
   // new pipeline
@@ -433,8 +429,10 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
 
   // If any plugins defined knownEntrypoints, add them here
   for (const {knownEntrypoints} of config.plugins) {
-    if (knownEntrypoints) {
-      config.knownEntrypoints = config.knownEntrypoints.concat(knownEntrypoints);
+    if (knownEntrypoints && config.packageOptions.source === 'local') {
+      config.packageOptions.knownEntrypoints = config.packageOptions.knownEntrypoints.concat(
+        knownEntrypoints,
+      );
     }
   }
 
@@ -467,14 +465,73 @@ See https://www.snowpack.dev for more info.`);
 
 function valdiateDeprecatedConfig(rawConfig: any) {
   if (rawConfig.scripts) {
-    handleDeprecatedConfigError('[v3.0] Legacy "scripts" config is deprecated.');
+    handleDeprecatedConfigError(
+      '[v3.0] Legacy "scripts" config is deprecated in favor of "plugins". Safe to remove if empty.',
+    );
   }
   if (rawConfig.proxy) {
-    handleDeprecatedConfigError('[v3.0] Legacy "proxy" config is deprecated in favor of "routes".');
+    handleDeprecatedConfigError(
+      '[v3.0] Legacy "proxy" config is deprecated in favor of "routes". Safe to remove if empty.',
+    );
+  }
+  if (rawConfig.buildOptions?.metaDir) {
+    handleDeprecatedConfigError(
+      '[v3.0] "config.buildOptions.metaDir" is now "config.buildOptions.metaUrlPath".',
+    );
+  }
+  if (rawConfig.buildOptions?.webModulesUrl) {
+    handleDeprecatedConfigError(
+      '[v3.0] "config.buildOptions.webModulesUrl" is now always set within the "config.buildOptions.metaUrlPath" directory.',
+    );
+  }
+  if (rawConfig.buildOptions?.sourceMaps) {
+    handleDeprecatedConfigError(
+      '[v3.0] "config.buildOptions.sourceMaps" is now "config.buildOptions.sourcemap".',
+    );
+  }
+  if (rawConfig.installOptions) {
+    handleDeprecatedConfigError(
+      '[v3.0] "config.installOptions" is now "config.packageOptions". Safe to remove if empty.',
+    );
+  }
+  if (rawConfig.packageOptions?.externalPackage) {
+    handleDeprecatedConfigError(
+      '[v3.0] "config.installOptions.externalPackage" is now "config.packageOptions.external".',
+    );
+  }
+  if (rawConfig.packageOptions?.treeshake) {
+    handleDeprecatedConfigError(
+      '[v3.0] "config.installOptions.treeshake" is now "config.optimize.treeshake".',
+    );
+  }
+  if (rawConfig.install) {
+    handleDeprecatedConfigError(
+      '[v3.0] "config.install" is now "config.packageOptions.knownEntrypoints". Safe to remove if empty.',
+    );
   }
   if (rawConfig.experiments?.source) {
     handleDeprecatedConfigError(
-      '[v3.0] "config.experiments.source" is now "config.packageOptions".',
+      '[v3.0] Experiment promoted! "config.experiments.source" is now "config.packageOptions.source".',
+    );
+  }
+  if (rawConfig.packageOptions?.source === 'skypack') {
+    handleDeprecatedConfigError(
+      '[v3.0] Renamed! "config.experiments.source=skypack" is now "config.packageOptions.source=remote".',
+    );
+  }
+  if (rawConfig.experiments?.ssr) {
+    handleDeprecatedConfigError(
+      '[v3.0] Experiment promoted! "config.experiments.ssr" is now "config.buildOptions.ssr".',
+    );
+  }
+  if (rawConfig.experiments?.optimize) {
+    handleDeprecatedConfigError(
+      '[v3.0] Experiment promoted! "config.experiments.optimize" is now "config.optimize".',
+    );
+  }
+  if (rawConfig.experiments?.routes) {
+    handleDeprecatedConfigError(
+      '[v3.0] Experiment promoted! "config.experiments.routes" is now "config.routes".',
     );
   }
 }
@@ -581,13 +638,10 @@ function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): 
   if (config.buildOptions?.out) {
     config.buildOptions.out = path.resolve(configBase, config.buildOptions.out);
   }
-  if (config.installOptions?.cwd) {
-    config.installOptions.cwd = path.resolve(configBase, config.installOptions.cwd);
-  }
-  if (config.packageOptions?.source === 'skypack' && config.packageOptions.cache) {
+  if (config.packageOptions?.source === 'remote' && config.packageOptions.cache) {
     config.packageOptions.cache = path.resolve(configBase, config.packageOptions.cache);
   }
-  if (config.extends) {
+  if (config.extends && /^[\.\/\\]/.test(config.extends)) {
     config.extends = path.resolve(configBase, config.extends);
   }
   if (config.plugins) {
@@ -611,8 +665,16 @@ function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): 
 }
 
 class ConfigValidationError extends Error {
-  constructor(errors: Error[]) {
+  constructor(errors: (Error | string)[]) {
     super(`Configuration Error:\n${errors.map((err) => `  - ${err.toString()}`).join(os.EOL)}`);
+  }
+}
+
+function validateConfig(config: SnowpackConfig) {
+  for (const mountDir of Object.keys(config.mount)) {
+    if (!existsSync(mountDir)) {
+      logger.warn(`config.mount[${mountDir}]: mounted directory does not exist.`);
+    }
   }
 }
 
@@ -633,8 +695,8 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
       DEFAULT_CONFIG,
       {
         packageOptions:
-          config.packageOptions?.source === 'skypack'
-            ? DEFAULT_PACKAGES_SKYPACK_CONFIG
+          config.packageOptions?.source === 'remote'
+            ? DEFAULT_PACKAGES_REMOTE_CONFIG
             : DEFAULT_PACKAGES_LOCAL_CONFIG,
       },
       config,
@@ -648,8 +710,9 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
   // But, we still need to run it in case you called this function directly.
   const configBase = getConfigBasePath(undefined, config.root);
   resolveRelativeConfig(mergedConfig, configBase);
-  // Normalize & return.
-  return normalizeConfig(mergedConfig);
+  const normalizedConfig = normalizeConfig(mergedConfig);
+  validateConfig(normalizedConfig);
+  return normalizedConfig;
 }
 
 function loadConfigurationFile(
@@ -721,7 +784,8 @@ export async function loadConfiguration(
     if (extendValidation.errors && extendValidation.errors.length > 0) {
       handleValidationErrors(extendConfigLoc, new ConfigValidationError(extendValidation.errors));
     }
-    resolveRelativeConfig(extendConfig, extendConfigLoc);
+    valdiateDeprecatedConfig(extendConfig);
+    resolveRelativeConfig(extendConfig, configBase);
   }
 
   // if valid, apply config over defaults

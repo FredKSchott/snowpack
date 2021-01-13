@@ -1,9 +1,10 @@
 const {readFileSync, existsSync} = require('fs');
 const fs = require('fs').promises;
 const glob = require('glob');
+const snowpack = require('../../snowpack/lib');
+const esinstall = require('../../esinstall/lib');
 const path = require('path');
 const {
-  setupEsinstallTest,
   stripEverything,
   stripLockfile,
   stripWhitespace,
@@ -28,13 +29,18 @@ function existsPackageJson(cwd) {
 }
 exports.existsPackageJson = existsPackageJson;
 
-async function runTest(cwd) {
-  const {all} = await setupEsinstallTest(cwd);
-  const actualOutput = stripEverything(all);
-
-  const snapshotFile = path.join(cwd, '__snapshots__'); // `jest-specific-snapshot` cannot use the .snap extension, since it conflicts with jest
+async function runTest(installTargets, options) {
+  const output = [];
+  const logFn = (...msg) => output.push(...msg);
+  const result = await esinstall.install(installTargets, {
+    ...options,
+    logger: {debug: () => {}, info: logFn, warn: logFn, error: logFn},
+  });
+  const actualOutput = stripEverything(output.join('\n'));
+  const snapshotFile = path.join(options.cwd, '__snapshots__'); // `jest-specific-snapshot` cannot use the .snap extension, since it conflicts with jest
 
   return {
+    ...result,
     output: actualOutput,
     snapshotFile,
   };
@@ -47,7 +53,7 @@ async function testLockFile(cwd) {
   if (existsSync(expectedLockLoc)) {
     const expectedLock = await fs.readFile(expectedLockLoc, {encoding: 'utf8'});
 
-    const actualLockLoc = path.join(__dirname, 'snowpack.lock.json');
+    const actualLockLoc = path.join(__dirname, LOCKFILE_NAME);
     const actualLock = await fs.readFile(actualLockLoc, {encoding: 'utf8'});
 
     expect(stripLockfile(actualLock)).toBe(stripLockfile(expectedLock));
@@ -56,8 +62,13 @@ async function testLockFile(cwd) {
 exports.testLockFile = testLockFile;
 
 const defaultWebModulesTestOptions = {throwIfNoWebModules: true};
-function testWebModules(cwd, snapshotFile, {throwIfNoWebModules} = defaultWebModulesTestOptions) {
+async function testWebModules(
+  cwd,
+  snapshotFile,
+  {throwIfNoWebModules} = defaultWebModulesTestOptions,
+) {
   const actual = path.join(cwd, 'web_modules');
+  await new Promise((resolve) => setTimeout(resolve, 100));
   const allFiles = glob.sync(`**/*`, {
     ignore: ['**/common/**/*'],
     cwd: actual,

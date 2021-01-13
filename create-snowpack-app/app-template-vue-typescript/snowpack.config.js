@@ -9,19 +9,21 @@ module.exports = {
     '@snowpack/plugin-vue/plugin-tsx-jsx.js',
     '@snowpack/plugin-dotenv',
   ],
-  install: [
-    /* ... */
+  routes: [
+    /* Enable an SPA Fallback in development: */
+    // {"match": "routes", "src": ".*", "dest": "/index.html"},
   ],
-  installOptions: {
+  optimize: {
+    /* Example: Bundle your final build: */
+    // "bundle": true,
+  },
+  packageOptions: {
     /* ... */
   },
   devOptions: {
     /* ... */
   },
   buildOptions: {
-    /* ... */
-  }, 
-  alias: {
     /* ... */
   },
 };

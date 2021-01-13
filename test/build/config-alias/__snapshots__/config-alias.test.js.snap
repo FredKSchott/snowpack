@@ -13,8 +13,8 @@ exports[`config: alias generates imports as expected 1`] = `
     <script type=\\"module\\" src=\\"https://example.com/foo/_dist_/index.js\\"></script>
     <script type=\\"module\\">
       // Path aliases
-      import {flatten} from '../TEST_WMU/array-flatten.js';
-      import * as aliasedDep from '../TEST_WMU/array-flatten.js';
+      import {flatten} from '../TEST_WMU/pkg/array-flatten.js';
+      import * as aliasedDep from '../TEST_WMU/pkg/array-flatten.js';
       console.log(flatten, aliasedDep);
 
       // Importing a relative URL
@@ -83,8 +83,8 @@ exports[`config: alias generates imports as expected 1`] = `
 
 exports[`config: alias generates imports as expected 2`] = `
 "// Path aliases
-import {flatten} from '../TEST_WMU/array-flatten.js';
-import * as aliasedDep from '../TEST_WMU/array-flatten.js';
+import {flatten} from '../TEST_WMU/pkg/array-flatten.js';
+import * as aliasedDep from '../TEST_WMU/pkg/array-flatten.js';
 console.log(flatten, aliasedDep);
 
 // Importing a relative URL
@@ -136,7 +136,7 @@ import styles from './components/style.css.proxy.js'; // relative import
 import styles_ from './components/style.css.proxy.js'; // relative import
 console.log(styles, styles_);
 
-import adSvg from '../TEST_WMU/@fortawesome/fontawesome-free/svgs/solid/ad.svg.proxy.js';
+import adSvg from '../TEST_WMU/pkg/@fortawesome/fontawesome-free/svgs/solid/ad.svg.proxy.js';
 console.log(adSvg);
 
 // Importing across mounted directories

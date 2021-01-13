@@ -5,7 +5,6 @@
     "moduleResolution": "node",
     "jsx": "preserve",
     "baseUrl": "./",
-    "paths": {"*": ["web_modules/.types/*"]},
     "allowSyntheticDefaultImports": true,
     "importsNotUsedAsValues": "error",
     /* more strict checking for errors that per-file transpilers like `esbuild` would crash */

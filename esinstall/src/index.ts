@@ -31,6 +31,7 @@ import {
   findMatchingAliasEntry,
   getWebDependencyName,
   getWebDependencyType,
+  isJavaScript,
   isPackageAliasEntry,
   MISSING_PLUGIN_SUGGESTIONS,
   sanitizePackageName,
@@ -114,16 +115,16 @@ function generateEnvReplacements(env: Object): {[key: string]: string} {
 interface InstallOptions {
   cwd: string;
   alias: Record<string, string>;
-  lockfile?: ImportMap;
+  importMap?: ImportMap;
   logger: AbstractLogger;
   verbose?: boolean;
   dest: string;
   env: EnvVarReplacements;
   treeshake?: boolean;
   polyfillNode: boolean;
-  sourceMap?: boolean | 'inline';
-  externalPackage: string[];
-  externalPackageEsm: string[];
+  sourcemap?: boolean | 'inline';
+  external: string[];
+  externalEsm: string[];
   packageLookupFields: string[];
   packageExportLookupFields: string[];
   namedExports: string[];
@@ -142,13 +143,30 @@ export type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput}
 const FAILED_INSTALL_MESSAGE = 'Install failed.';
 
 function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
+  if ((_options as any).lockfile) {
+    throw new Error('[eslint@1.0.0] option `lockfile` was renamed to `importMap`.');
+  }
+  if ((_options as any).sourceMap) {
+    throw new Error('[eslint@1.0.0] option `sourceMap` was renamed to `sourcemap`.');
+  }
+  if ((_options as any).externalPackage) {
+    throw new Error('[eslint@1.0.0] option `externalPackage` was renamed to `external`.');
+  }
+  if ((_options as any).externalPackageEsm) {
+    throw new Error('[eslint@1.0.0] option `externalPackageEsm` was renamed to `externalEsm`.');
+  }
   const options = {
     cwd: process.cwd(),
     alias: {},
-    logger: console,
+    logger: {
+      debug: () => {}, // silence debug messages by default
+      log: console.log,
+      warn: console.warn,
+      error: console.error,
+    },
     dest: 'web_modules',
-    externalPackage: [],
-    externalPackageEsm: [],
+    external: [],
+    externalEsm: [],
     polyfillNode: false,
     packageLookupFields: [],
     packageExportLookupFields: [],
@@ -171,13 +189,13 @@ export async function install(
   const {
     cwd,
     alias: installAlias,
-    lockfile,
+    importMap: _importMap,
     logger,
     dest: destLoc,
     namedExports,
-    externalPackage,
-    externalPackageEsm,
-    sourceMap,
+    external,
+    externalEsm,
+    sourcemap,
     env: userEnv,
     rollup: userDefinedRollup,
     treeshake: isTreeshake,
@@ -193,8 +211,7 @@ export async function install(
   const allInstallSpecifiers = new Set(
     installTargets
       .filter(
-        (dep) =>
-          !externalPackage.some((packageName) => isImportOfPackage(dep.specifier, packageName)),
+        (dep) => !external.some((packageName) => isImportOfPackage(dep.specifier, packageName)),
       )
       .map((dep) => dep.specifier)
       .map((specifier) => {
@@ -214,11 +231,31 @@ export async function install(
   for (const installSpecifier of allInstallSpecifiers) {
     let targetName = getWebDependencyName(installSpecifier);
     let proxiedName = sanitizePackageName(targetName); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
-    if (lockfile && lockfile.imports[installSpecifier]) {
-      installEntrypoints[targetName] = lockfile.imports[installSpecifier];
-      importMap.imports[installSpecifier] = `./${proxiedName}.js`;
-      continue;
+    if (_importMap) {
+      if (_importMap.imports[installSpecifier]) {
+        installEntrypoints[targetName] = _importMap.imports[installSpecifier];
+        if (!path.extname(installSpecifier) || isJavaScript(installSpecifier)) {
+          importMap.imports[installSpecifier] = `./${proxiedName}.js`;
+        } else {
+          importMap.imports[installSpecifier] = `./${proxiedName}`;
+        }
+        continue;
+      }
+      const findFolderImportEntry = Object.entries(_importMap.imports).find(([entry]) => {
+        return entry.endsWith('/') && installSpecifier.startsWith(entry);
+      });
+      if (findFolderImportEntry) {
+        installEntrypoints[targetName] =
+          findFolderImportEntry[1] + targetName.substr(findFolderImportEntry[0].length);
+        if (!path.extname(installSpecifier) || isJavaScript(installSpecifier)) {
+          importMap.imports[installSpecifier] = `./${proxiedName}.js`;
+        } else {
+          importMap.imports[installSpecifier] = `./${proxiedName}`;
+        }
+        continue;
+      }
     }
+
     try {
       const resolvedResult = resolveWebDependency(installSpecifier, {
         cwd,
@@ -267,7 +304,7 @@ ${colors.dim(
   const inputOptions: InputOptions = {
     input: installEntrypoints,
     context: userDefinedRollup.context,
-    external: (id) => externalPackage.some((packageName) => isImportOfPackage(id, packageName)),
+    external: (id) => external.some((packageName) => isImportOfPackage(id, packageName)),
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
       rollupPluginAlias({
@@ -298,7 +335,7 @@ ${colors.dim(
       rollupPluginReplace(generateEnvReplacements(env)),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
-        esmExternals: externalPackageEsm,
+        esmExternals: externalEsm,
         requireReturnsDefault: 'auto',
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),
@@ -344,7 +381,7 @@ ${colors.dim(
   const outputOptions: OutputOptions = {
     dir: destLoc,
     format: 'esm',
-    sourcemap: sourceMap,
+    sourcemap,
     exports: 'named',
     entryFileNames: (chunk) => {
       const targetName = getWebDependencyName(chunk.name);
@@ -357,6 +394,7 @@ ${colors.dim(
   rimraf.sync(destLoc);
   if (Object.keys(installEntrypoints).length > 0) {
     try {
+      logger.debug(process.cwd());
       logger.debug(`running installer with options: ${util.format(inputOptions)}`);
       const packageBundle = await rollup(inputOptions);
       logger.debug(
@@ -368,6 +406,7 @@ ${colors.dim(
       logger.debug(`writing install results to disk`);
       await packageBundle.write(outputOptions);
     } catch (_err) {
+      logger.debug(`FAILURE: ${_err}`);
       const err: RollupError = _err;
       const errFilePath = err.loc?.file || err.id;
       if (!errFilePath) {

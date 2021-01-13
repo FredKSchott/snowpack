@@ -1,5 +1,5 @@
 module.exports = {
-  installOptions: {
+  optimize: {
     treeshake: true,
   },
   mount: {

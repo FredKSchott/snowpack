@@ -4,20 +4,12 @@ title: JavaScript API
 description: Snowpack's JavaScript API is for anyone who wants to integrate with some custom build pipeline or server-side rendering engine.
 ---
 
-<div class="notification">
-Status: Experimental
-</div>
-
 ```js
 // JS API Example
-import {startDevServer} from 'snowpack';
-const server = await startDevServer({ ... });
+import {startServer} from 'snowpack';
+const server = await startServer({ ... });
 ```
 
-Snowpack is most commonly used via the command-line. However, Snowpack also ships a JavaScript API for anyone who wants to integrate with some custom build pipeline or server-side rendering engine.
+Snowpack is most commonly used via the command-line. However, Snowpack also ships a JavaScript API for anyone to integrate with or build on top of.
 
-For example, [SvelteKit](https://svelte.dev/blog/whats-the-deal-with-sveltekit) -- the Svelte team's official app framework -- uses Snowpack's JavaScript API to build a custom SSR engine on top of Snowpack.
-
-### API Reference
-
-This documentation is still in progress as we prepare for Snowpack v3.0. For now, visit the TypeScript type declarations to see a full summary of the current JS API: https://github.com/snowpackjs/snowpack/blob/main/snowpack/src/types.ts#L197-L245
+This documentation is still in progress. However, [Snowpack’s TypeScript type declarations](https://unpkg.com/browse/snowpack@^3.0.0/lib/index.d.ts) give a good summary of the current JS API.

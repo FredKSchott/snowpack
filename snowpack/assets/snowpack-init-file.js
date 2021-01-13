@@ -3,9 +3,19 @@
 
 /** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
-  // mount: {},
-  // plugins: [],
-  // installOptions: {},
-  // devOptions: {},
-  // buildOptions: {},
+  mount: {
+    /* ... */
+  },
+  plugins: [
+    /* ... */
+  ],
+  packageOptions: {
+    /* ... */
+  },
+  devOptions: {
+    /* ... */
+  },
+  buildOptions: {
+    /* ... */
+  },
 };

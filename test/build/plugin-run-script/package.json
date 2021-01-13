@@ -9,6 +9,6 @@
   "devDependencies": {
     "@snowpack/plugin-run-script": "^2.0.0",
     "sass": "^1.26.10",
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

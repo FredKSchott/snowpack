@@ -30,7 +30,6 @@ export function rollupPluginWrapInstallTargets(
 ): Plugin {
   const installTargetSummaries: {[loc: string]: InstallTarget} = {};
   const cjsScannedNamedExports = new Map<string, string[]>();
-
   /**
    * Runtime analysis: High Fidelity, but not always successful.
    * `require()` the CJS file inside of Node.js to load the package and detect it's runtime exports.
@@ -40,7 +39,7 @@ export function rollupPluginWrapInstallTargets(
     try {
       const mod = NATIVE_REQUIRE(normalizedFileLoc);
       // skip analysis for non-object modules, these can only be the default export.
-      if (!mod || mod.constructor !== Object) {
+      if (!mod || mod.constructor?.name?.toString() !== 'Object') {
         return;
       }
       // Collect and filter all properties of the object as named exports.

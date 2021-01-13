@@ -3,8 +3,6 @@
 .idea
 .snowpack
 .vercel
-www/_site
-www/eleventy
 lerna-debug.log
 node_modules
 package-lock.json
@@ -14,4 +12,3 @@ test/build/**/web_modules
 test/create-snowpack-app/test-install
 test/esinstall/**/web_modules
 yarn-error.log
-www/assets/app.min.css

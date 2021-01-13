@@ -2,7 +2,7 @@
   "private": true,
   "version": "1.0.1",
   "name": "@snowpack/test-config-treeshake",
-  "description": "This test ensures that --treeshake can handle complex imports",
+  "description": "This test ensures that optimize.treeshake can handle complex imports",
   "scripts": {
     "testbuild": "snowpack build"
   },
@@ -11,6 +11,6 @@
     "async": "^3.2.0"
   },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

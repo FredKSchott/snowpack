@@ -8,19 +8,21 @@ module.exports = {
     '@snowpack/plugin-svelte',
     '@snowpack/plugin-dotenv',
   ],
-  install: [
-    /* ... */
+  routes: [
+    /* Example: Enable an SPA Fallback in development: */
+    // {"match": "routes", "src": ".*", "dest": "/index.html"},
   ],
-  installOptions: {
+  optimize: {
+    /* Example: Bundle your final build: */
+    // "bundle": true,
+  },
+  packageOptions: {
     /* ... */
   },
   devOptions: {
     /* ... */
   },
   buildOptions: {
-    /* ... */
-  }, 
-  alias: {
     /* ... */
   },
 };

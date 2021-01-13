@@ -16,7 +16,5 @@ module.exports = {
     ...(isTS ? ['@snowpack/plugin-typescript'] : []),
   ],
   devOptions: {},
-  installOptions: {
-    installTypes: isTS,
-  },
+  packageOptions: {},
 };

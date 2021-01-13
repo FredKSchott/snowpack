@@ -93,14 +93,14 @@ description: 'Snowpack plugins allow for configuration-minimal tooling integrati
 </section>
 
 <script type="module">
-  import {html, render} from 'https://cdn.skypack.dev/htm/preact/standalone.module.js'
+  import {html, render} from 'htm/preact/standalone.module.js';
 
     function Card({result}) {
       return html ` <li class="card">
       <img class="plugin-icon" src="/img/plug-light.svg" />
       <header class="card-header">
         <h3 class="card-name">
-          <a href="https://www.skypack.dev/view/${result
+          <a href="https://www.npmjs.com/package/${result
         .name}" target="_blank"><span itemprop="name">${result
         .name}</span></a>
         </h3>

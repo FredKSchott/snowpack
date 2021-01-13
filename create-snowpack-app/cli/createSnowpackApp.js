@@ -114,7 +114,7 @@ async function cleanProject(dir) {
   );
   await fs.promises.writeFile(
     path.join(dir, '.gitignore'),
-    ['.build', 'build', 'web_modules', 'node_modules'].join('\n'),
+    ['.snowpack', 'build', 'node_modules'].join('\n'),
   );
 }
 

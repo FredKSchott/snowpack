@@ -1,4 +1,4 @@
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 const path = require('path');
 
 describe('package-entrypoints general tests', () => {
@@ -10,7 +10,7 @@ describe('package-entrypoints general tests', () => {
 
     const {
       importMap: {imports},
-    } = await install(targets, {
+    } = await runTest(targets, {
       cwd,
       dest,
     });
@@ -28,7 +28,7 @@ describe('package-entrypoints general tests', () => {
 
     const {
       importMap: {imports},
-    } = await install(targets, {
+    } = await runTest(targets, {
       cwd,
       dest,
     });
@@ -46,7 +46,7 @@ describe('package-entrypoints general tests', () => {
 
     const {
       importMap: {imports},
-    } = await install(targets, {
+    } = await runTest(targets, {
       cwd,
       dest,
     });
@@ -64,7 +64,7 @@ describe('package-entrypoints general tests', () => {
 
     const {
       importMap: {imports},
-    } = await install([spec], {
+    } = await runTest([spec], {
       cwd,
       dest,
     });

@@ -1,10 +1,8 @@
 import cacache from 'cacache';
 import {Plugin, ResolvedId} from 'rollup';
-import {fetchCDN} from './index';
-import {SKYPACK_ORIGIN, HAS_CDN_HASH_REGEX, RESOURCE_CACHE} from './util';
+import {SkypackSDK} from './index';
+import {AbstractLogger, HAS_CDN_HASH_REGEX, RESOURCE_CACHE} from './util';
 
-const CACHED_FILE_ID_PREFIX = 'snowpack-pkg-cache:';
-const PIKA_CDN_TRIM_LENGTH = SKYPACK_ORIGIN.length;
 
 /**
  * rollup-plugin-remote-cdn
@@ -14,19 +12,19 @@ const PIKA_CDN_TRIM_LENGTH = SKYPACK_ORIGIN.length;
  * successful CDN resolution, we save the file to the local cache and then tell
  * rollup that it's safe to load from the cache in the `load()` hook.
  */
-export function rollupPluginSkypack({
-}: {
-}) {
+export function rollupPluginSkypack({sdk, logger}: {sdk: SkypackSDK, logger: AbstractLogger}) {
+const CACHED_FILE_ID_PREFIX = 'remote-pkg-cache:';
+
   return {
     name: 'snowpack:rollup-plugin-remote-cdn',
     async resolveId(source: string, importer) {
       let cacheKey: string;
-      if (source.startsWith(SKYPACK_ORIGIN)) {
+      if (source.startsWith(sdk.origin)) {
         cacheKey = source;
       } else if (source.startsWith('/-/')) {
-        cacheKey = SKYPACK_ORIGIN + source;
+        cacheKey = sdk.origin + source;
       } else if (source.startsWith('/pin/')) {
-        cacheKey = SKYPACK_ORIGIN + source;
+        cacheKey = sdk.origin + source;
       } else {
         return null;
       }
@@ -34,7 +32,7 @@ export function rollupPluginSkypack({
       // If the source path is a CDN path including a hash, it's assumed the
       // file will never change and it is safe to pull from our local cache
       // without a network request.
-      console.debug(`resolve ${cacheKey}`, {name: 'install:remote'});
+      logger.debug(`resolve ${cacheKey}`, {name: 'install:remote'});
       if (HAS_CDN_HASH_REGEX.test(cacheKey)) {
         const cachedResult = await cacache.get
           .info(RESOURCE_CACHE, cacheKey)
@@ -45,7 +43,7 @@ export function rollupPluginSkypack({
       }
 
       // Otherwise, make the remote request and cache the file on success.
-      const {statusCode} = await fetchCDN(cacheKey);
+      const {statusCode} = await sdk.fetch(cacheKey);
       if (statusCode === 200) {
         return CACHED_FILE_ID_PREFIX + cacheKey;
       }
@@ -53,7 +51,7 @@ export function rollupPluginSkypack({
       // If lookup failed, skip this plugin and resolve the import locally instead.
       // TODO: Log that this has happened (if some sort of verbose mode is enabled).
       const packageName = cacheKey
-        .substring(PIKA_CDN_TRIM_LENGTH)
+        .substring(sdk.origin.length)
         .replace('/-/', '')
         .replace('/pin/', '')
         .split('@')[0];
@@ -70,9 +68,9 @@ export function rollupPluginSkypack({
         return null;
       }
       const cacheKey = id.substring(CACHED_FILE_ID_PREFIX.length);
-      console.debug(`load ${cacheKey}`, {name: 'install:remote'});
-      const {body} = await fetchCDN(cacheKey);
-      return body;
+      logger.debug(`load ${cacheKey}`, {name: 'install:remote'});
+      const {body} = await sdk.fetch(cacheKey);
+      return body.toString();
     },
   } as Plugin;
 }

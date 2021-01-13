@@ -1,6 +1,0 @@
-{
-  "install": ["array-flatten"],
-  "installOptions": {
-    "externalPackage": ["vue"]
-  }
-}

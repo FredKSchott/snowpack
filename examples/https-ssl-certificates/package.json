@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "snowpack": "^2.17.1"
+    "snowpack": "^3.0.0"
   }
 }

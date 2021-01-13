@@ -10,7 +10,7 @@ describe('config: extends', () => {
   });
 
   it('loads the appropriate plugins', () => {
-    const snowpackEnv = fs.readFileSync(path.join(cwd, '__snowpack__', 'env.js'), 'utf8');
+    const snowpackEnv = fs.readFileSync(path.join(cwd, '_snowpack', 'env.js'), 'utf8');
     expect(snowpackEnv).toEqual(
       expect.stringContaining(`export const SNOWPACK_PUBLIC_SECRET_VALUE = "pumpernickel";`),
     );

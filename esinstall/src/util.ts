@@ -1,4 +1,4 @@
-import fs from 'fs';
+import {promises as fs, realpathSync, readFileSync} from 'fs';
 import path from 'path';
 import url from 'url';
 import validatePackageName from 'validate-npm-package-name';
@@ -12,7 +12,7 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
   for (const key of Object.keys(importMap.imports).sort()) {
     sortedImportMap.imports[key] = importMap.imports[key];
   }
-  fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
+  return fs.writeFile(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
 }
 
 export function isRemoteUrl(val: string): boolean {
@@ -51,9 +51,7 @@ export function resolveDependencyManifest(
   // include a package.json. If we detect that to be the reason for failure,
   // move on to our custom implementation.
   try {
-    const depManifest = fs.realpathSync.native(
-      require.resolve(`${dep}/package.json`, {paths: [cwd]}),
-    );
+    const depManifest = realpathSync.native(require.resolve(`${dep}/package.json`, {paths: [cwd]}));
     return [depManifest, NATIVE_REQUIRE(depManifest)];
   } catch (err) {
     // if its an export map issue, move on to our manual resolver.
@@ -68,7 +66,7 @@ export function resolveDependencyManifest(
   // thorough as Attempt #1, but it should work well until export maps become more
   // established & move out of experimental mode.
   const result = [null, null] as [string | null, any | null];
-  const fullPath = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
+  const fullPath = realpathSync.native(require.resolve(dep, {paths: [cwd]}));
   // Strip everything after the package name to get the package root path
   // NOTE: This find-replace is very gross, replace with something like upath.
   const searchPath = `${path.sep}node_modules${path.sep}${dep.replace('/', path.sep)}`;
@@ -77,7 +75,7 @@ export function resolveDependencyManifest(
     const manifestPath =
       fullPath.substring(0, indexOfSearch + searchPath.length + 1) + 'package.json';
     result[0] = manifestPath;
-    const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf8'});
+    const manifestStr = readFileSync(manifestPath, {encoding: 'utf8'});
     result[1] = JSON.parse(manifestStr);
   }
   return result;

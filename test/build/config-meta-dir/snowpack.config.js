@@ -3,6 +3,6 @@ module.exports = {
     './public': '/',
   },
   buildOptions: {
-    metaDir: '/static/snowpack',
+    metaUrlPath: '/static/snowpack',
   },
 };

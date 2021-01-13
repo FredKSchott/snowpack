@@ -9,15 +9,19 @@ import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
+import {SkypackSDK} from 'skypack';
 import url from 'url';
 import localPackageSource from './sources/local';
-import skypackPackageSource from './sources/skypack';
-import {LockfileManifest, PackageSource, SnowpackConfig} from './types';
+import remotePackageSource from './sources/remote';
+import {ImportMap, LockfileManifest, PackageSource, SnowpackConfig} from './types';
 
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
+export const LOCKFILE_NAME = 'snowpack.deps.json';
 
 // We need to use eval here to prevent Rollup from detecting this use of `require()`
 export const NATIVE_REQUIRE = eval('require');
+
+export const remotePackageSDK = new SkypackSDK({origin: 'https://pkg.snowpack.dev'});
 
 // A note on cache naming/versioning: We currently version our global caches
 // with the version of the last breaking change. This allows us to re-use the
@@ -59,7 +63,7 @@ export async function readFile(filepath: URL): Promise<string | Buffer> {
 
 export async function readLockfile(cwd: string): Promise<LockfileManifest | null> {
   try {
-    var lockfileContents = fs.readFileSync(path.join(cwd, 'snowpack.lock.json'), {
+    var lockfileContents = fs.readFileSync(path.join(cwd, LOCKFILE_NAME), {
       encoding: 'utf8',
     });
   } catch (err) {
@@ -78,9 +82,33 @@ function sortObject<T>(originalObject: Record<string, T>): Record<string, T> {
   return newObject;
 }
 
+export function convertLockfileToSkypackImportMap(
+  origin: string,
+  lockfile: LockfileManifest,
+): ImportMap {
+  const result = {imports: {}};
+  for (const [key, val] of Object.entries(lockfile.lock)) {
+    result.imports[key.replace(/\#.*/, '')] = origin + '/' + val;
+    result.imports[key.replace(/\#.*/, '') + '/'] = origin + '/' + val + '/';
+  }
+  return result;
+}
+
+export function convertSkypackImportMapToLockfile(
+  dependencies: Record<string, string>,
+  importMap: ImportMap,
+): LockfileManifest {
+  const result = {dependencies, lock: {}};
+  for (const [key, val] of Object.entries(dependencies)) {
+    const valPath = url.parse(importMap.imports[key]).pathname;
+    result.lock[key + '#' + val] = valPath?.substr(1);
+  }
+  return result;
+}
+
 export async function writeLockfile(loc: string, importMap: LockfileManifest): Promise<void> {
   importMap.dependencies = sortObject(importMap.dependencies);
-  importMap.imports = sortObject(importMap.imports);
+  importMap.lock = sortObject(importMap.lock);
   fs.writeFileSync(loc, JSON.stringify(importMap, undefined, 2), {encoding: 'utf8'});
 }
 
@@ -88,8 +116,8 @@ export function isTruthy<T>(item: T | false | null | undefined): item is T {
   return Boolean(item);
 }
 
-export function getPackageSource(source: 'skypack' | 'local'): PackageSource {
-  return source === 'local' ? localPackageSource : skypackPackageSource;
+export function getPackageSource(source: 'remote' | 'local'): PackageSource {
+  return source === 'local' ? localPackageSource : remotePackageSource;
 }
 
 /**
@@ -277,7 +305,7 @@ export async function clearCache() {
   return Promise.all([
     cacache.rm.all(BUILD_CACHE),
     localPackageSource.clearCache(),
-    skypackPackageSource.clearCache(),
+    remotePackageSource.clearCache(),
   ]);
 }
 
@@ -447,5 +475,9 @@ export const HMR_CLIENT_CODE = fs.readFileSync(
 );
 export const HMR_OVERLAY_CODE = fs.readFileSync(
   path.resolve(__dirname, '../assets/hmr-error-overlay.js'),
+  'utf8',
+);
+export const INIT_TEMPLATE_FILE = fs.readFileSync(
+  path.resolve(__dirname, '../assets/snowpack-init-file.js'),
   'utf8',
 );

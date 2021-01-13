@@ -2,12 +2,12 @@
   "private": true,
   "version": "1.0.1",
   "name": "@snowpack/test-module-resolution",
-  "description": "Tests that relative web_modules directories work",
+  "description": "Tests that relative pkg directories work",
   "scripts": {
     "testbuild": "snowpack build --no-treeshake"
   },
   "devDependencies": {
     "preact": "^10.0.0",
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

@@ -7,13 +7,7 @@ Array [
 ]
 `;
 
-exports[`dep-list-simple matches the snapshot: cli output 1`] = `
-"[snowpack] ! installing dependencies...
-[snowpack] ✔ install complete!
-[snowpack]
-  ⦿ web_modules/     size       gzip       brotli
-    └─ async.js    XXXX KB    XXXX KB    XXXX KB"
-`;
+exports[`dep-list-simple matches the snapshot: cli output 1`] = `""`;
 
 exports[`dep-list-simple matches the snapshot: web_modules/async.js 1`] = `
 "/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */

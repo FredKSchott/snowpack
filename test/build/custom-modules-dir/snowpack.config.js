@@ -3,6 +3,6 @@ module.exports = {
     './src': '/_dist_',
   },
   buildOptions: {
-    webModulesUrl: '/my_modules',
+    metaUrlPath: '/my_meta',
   },
 };

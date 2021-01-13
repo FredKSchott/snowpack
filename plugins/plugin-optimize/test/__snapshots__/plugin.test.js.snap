@@ -3,7 +3,7 @@
 exports[`@snowpack/plugin-optimize minimal - no minification: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize minimal - no minification: fs.writeFileSync 1`] = `
-FILE: stubs/minimal/__snowpack__/optimize-manifest.json
+FILE: stubs/minimal/_snowpack/optimize-manifest.json
 {
   "imports": {
     "/index.html": {
@@ -29,7 +29,7 @@ FILE: stubs/minimal/__snowpack__/optimize-manifest.json
 exports[`@snowpack/plugin-optimize minimal - no options: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize minimal - no options: fs.writeFileSync 1`] = `
-FILE: stubs/minimal/__snowpack__/optimize-manifest.json
+FILE: stubs/minimal/_snowpack/optimize-manifest.json
 {
   "imports": {
     "/index.html": {
@@ -137,7 +137,7 @@ export default function r(){const t={bar:"bar"},o=null;return console.log(t?.bar
 exports[`@snowpack/plugin-optimize minimal - target: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize minimal - target: fs.writeFileSync 1`] = `
-FILE: stubs/minimal/__snowpack__/optimize-manifest.json
+FILE: stubs/minimal/_snowpack/optimize-manifest.json
 {
   "imports": {
     "/index.html": {
@@ -232,20 +232,20 @@ body{border:1px solid #fff;margin:1px}
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/target-es2018.js
-export default function r(){const t={bar:"bar"},o=null;return console.log(t==null?void 0:t.bar,o!=null?o:100),!0}
+export default function n(){const t={bar:"bar"},e=null;return console.log(t==null?void 0:t.bar,e!=null?e:100),!0}
 
 
 --------------------------------------------------------------------------------
 
 FILE: stubs/minimal/target-es2018.js
-export default function r(){const t={bar:"bar"},o=null;return console.log(t==null?void 0:t.bar,o!=null?o:100),!0}
+export default function n(){const t={bar:"bar"},e=null;return console.log(t==null?void 0:t.bar,e!=null?e:100),!0}
 
 `;
 
 exports[`@snowpack/plugin-optimize no HTML minification, with preloadModules: console.log 1`] = ``;
 
 exports[`@snowpack/plugin-optimize no HTML minification, with preloadModules: fs.writeFileSync 1`] = `
-FILE: stubs/minimal/__snowpack__/optimize-manifest.json
+FILE: stubs/minimal/_snowpack/optimize-manifest.json
 {
   "imports": {
     "/index.html": {

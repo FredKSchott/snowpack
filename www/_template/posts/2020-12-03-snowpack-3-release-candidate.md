@@ -4,10 +4,11 @@ title: 'Snowpack v3.0 Release Candidate'
 tagline: New features to change the way you build for the web.
 description: 'New features to change the way you build for the web. Snowpack v3.0 will release on January 6th, 2021 (the one-year anniversary of its original launch post). This is our biggest release yet with some serious new features, including a new way to load npm packages on-demand that lets you skip the `npm install` step entirely.'
 date: 2020-12-03
-bannerImage: '/img/banner-2.jpg'
 ---
 
 **tl;dr:** Snowpack v3.0 will release on January 6th, 2021 (the one-year anniversary of its original launch post). This is our biggest release yet with some serious new features, including **a new way to load npm imports on-demand** and skip the frontend `npm install` step entirely.
+
+**Update:** Release was delayed for a week for some finishing touches. New release date is January 13th! [More info on Discord](https://discord.com/channels/712696926406967308/783454799051489301/796785330932940800).
 
 Best of all: it's all available to try today!
 
@@ -15,7 +16,7 @@ Best of all: it's all available to try today!
 
 Snowpack v3 will focus on the polish & official release of four features already available today in the current version of Snowpack (v2.18.0) under the `experiments` flag:
 
-- `experiments.source`- Streaming npm imports, no install step required.
+- `experiments.source` - Streaming npm imports, no install step required.
 - `experiments.optimize` - Built-in bundling, preloading, and asset minifying.
 - `experiments.routes` - Advanced config for HTML fallbacks and API proxies.
 - `import 'snowpack'` - A brand new JavaScript API for Snowpack integrations.
@@ -25,7 +26,7 @@ Snowpack v3 will focus on the polish & official release of four features already
     <source src="/img/snowpackskypack.mp4" type="video/mp4">
 </video>
 
-## New: Streaming NPM Imports
+## New: Streaming Package Imports
 
 Snowpack has always pushed the limits of frontend development, and this release is no different. Snowpack v3.0 introduces an exciting new feature to speed up & simplify your development workflow.
 
@@ -41,26 +42,26 @@ import * as React from 'react';
 import * as React from 'https://cdn.skypack.dev/react@17.0.1';
 ```
 
-That URL in the example above points to [Skypack](https://skypack.dev/), a popular JavaScript CDN that we built to serve every npm package as ESM. Importing dependencies by URL like this is well supported in Snowpack, Deno, and all major browsers. But writing these URLs directly into your source code isn't ideal and makes development impossible without a network connection.
+That URL in the example above points to [Skypack](https://www.skypack.dev/), a popular JavaScript CDN that we built to serve every npm package as ESM. Importing dependencies by URL like this is well supported in Snowpack, Deno, and all major browsers. But writing these URLs directly into your source code isn't ideal and makes development impossible without a network connection.
 
 **Snowpack v3.0 brings together the best of both worlds:** Get the simplicity of `import 'react'` in your own source code and let Snowpack fetch these dependencies behind the scenes, pre-built and ready to run in the browser. Snowpack caches everything for you automatically, so you can continue to work offline without relying on Skypack besides the first package fetch.
 
 This has several benefits over the traditional "npm install" approach:
 
-- **Speed:** Skip the install + build steps for dependencies, and load your dependencies as pre-build ESM code directly from the Skypack CDN.
+- **Speed:** Skip the install + build steps for dependencies, and load your dependencies as pre-build ESM code.
 - **Safety:** ESM packages are pre-built into JavaScript for you and never given access to [run code on your machine](https://www.usenix.org/system/files/sec19-zimmermann.pdf). Third-party code only ever run in the browser sandbox.
 - **Simplicity:** ESM packages are managed by Snowpack, so frontend projects that don't need Node.js (Rails, PHP, etc.) can drop the npm CLI entirely if they choose.
 - **Same Final Build:** When you build your site for production, package code is transpiled with the rest of your site and tree-shaken to your exact imports, resulting in a final build that's nearly identical.
 
 If this all sounds too wild for you, don't worry. This is **100% opt-in** behavior for those who want it. By default, Snowpack will continue to pull your npm package dependencies out of your project `node_modules` directory like it always has.
 
-Check out our guide on [Streaming NPM Imports](/guides/streaming-npm-imports) to learn more about how to enable this new behavior in your project today. In a future release, we hope to open this up to custom ESM package sources and other CDNs as well.
+Check out our guide on [Streaming Package Imports](/guides/streaming-imports) to learn more about how to enable this new behavior in your project today. In a future release, we hope to open this up to custom ESM package sources and other CDNs as well.
 
 ![js api](/img/post-snowpackv3-esbuild.png)
 
 ## Built-in Optimizations, Powered by esbuild
 
-[esbuild](https://esbuild.github.io/) is a marvel: it performs 100x faster than most other popular bundlers and over 300x faster than Parcel (by esbuilds own benchmarks). esbuild is written in Go, a compiled language that can parallelize heavy bundling workloads where other popular bundlers -- written in JavaScript -- cannot.
+[esbuild](https://esbuild.github.io/) is a marvel: it performs 100× faster than most other popular bundlers and over 300× faster than Parcel (by esbuild's own benchmarks). esbuild is written in Go, a compiled language that can parallelize heavy bundling workloads where other popular bundlers -- written in JavaScript -- cannot.
 
 Snowpack already uses esbuild internally as our default single-file builder for JavaScript, TypeScript and JSX files. Snowpack v3.0 takes this integration one step further, with a new built-in build optimization pipeline. Bundle, minify, and transpile your site for production in 1/100th of the time of other bundlers.
 

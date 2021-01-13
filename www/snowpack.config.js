@@ -1,3 +1,4 @@
+/** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
   mount: {
     eleventy: '/',
@@ -8,11 +9,9 @@ module.exports = {
     ['@snowpack/plugin-sass', { compilerOptions: { style: 'compressed' } }],
     ['@snowpack/plugin-postcss', {}],
   ],
-  install: [
-    /* ... */
-  ],
-  installOptions: {
-    /* ... */
+  packageOptions: {
+    source: 'remote',
+    types: true,
   },
   devOptions: {
     // Eleventy updates multiple files at once, so add a 1000ms delay before we trigger a browser update
@@ -20,8 +19,5 @@ module.exports = {
   },
   buildOptions: {
     out: '_site',
-  }, 
-  alias: {
-    /* ... */
   },
 };

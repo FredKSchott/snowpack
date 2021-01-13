@@ -63,6 +63,7 @@ module.exports = function release(pkgFolder, tag, bump) {
     console.log(execa.sync('git', ['add', '-A'], {cwd: dir}));
     console.log(execa.sync('git', ['commit', '-m', newPkgTag], {cwd: dir}));
     console.log(execa.sync('git', ['tag', newPkgTag], {cwd: dir}));
-    console.log(execa.sync('npm', ['publish', '--tag', tag, '--dry-run'], {cwd: dir}));
-    console.log(execa.sync('git', ['push', '--tags', '--dry-run'], {cwd: dir}));
+    console.log(execa.sync('npm', ['publish', '--tag', tag], {cwd: dir}));
+    console.log(execa.sync('git', ['push', 'origin', 'main'], {cwd: dir}));
+    console.log(execa.sync('git', ['push', '--tags'], {cwd: dir}));
 }

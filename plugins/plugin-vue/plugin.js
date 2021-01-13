@@ -40,7 +40,7 @@ module.exports = function plugin(snowpackConfig) {
       output: ['.js', '.css'],
     },
     async load({filePath}) {
-      const {sourceMaps} = snowpackConfig.buildOptions;
+      const {sourcemap, sourceMaps} = snowpackConfig.buildOptions;
 
       const id = hashsum(filePath);
       const contents = fs.readFileSync(filePath, 'utf-8');
@@ -85,7 +85,7 @@ module.exports = function plugin(snowpackConfig) {
             console.error(JSON.stringify(css.errors));
           }
           output['.css'].code += css.code;
-          if (sourceMaps && css.map) output['.css'].map += JSON.stringify(css.map);
+          if ((sourcemap || sourceMaps) && css.map) output['.css'].map += JSON.stringify(css.map);
         }),
       );
 
@@ -106,7 +106,7 @@ module.exports = function plugin(snowpackConfig) {
         output['.js'].code += `\ndefaultExport.render = render`;
         output['.js'].code += `\nexport default defaultExport`;
 
-        if (sourceMaps && js.map) output['.js'].map += JSON.stringify(js.map);
+        if ((sourcemap || sourceMaps) && js.map) output['.js'].map += JSON.stringify(js.map);
       }
 
       // clean up

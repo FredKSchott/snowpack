@@ -24,7 +24,7 @@ describe('@snowpack/plugin-optimize', () => {
 
   it('minimal - no options', async () => {
     const pluginInstance = plugin({
-      buildOptions: {metaDir: '__snowpack__'},
+      buildOptions: {metaDir: '_snowpack'},
     });
 
     await pluginInstance.optimize({
@@ -38,7 +38,7 @@ describe('@snowpack/plugin-optimize', () => {
   it('minimal - no minification', async () => {
     const pluginInstance = plugin(
       {
-        buildOptions: {metaDir: '__snowpack__'},
+        buildOptions: {metaDir: '_snowpack'},
       },
       {
         minifyJS: false,
@@ -58,7 +58,7 @@ describe('@snowpack/plugin-optimize', () => {
   it('no HTML minification, with preloadModules', async () => {
     const pluginInstance = plugin(
       {
-        buildOptions: {metaDir: '__snowpack__'},
+        buildOptions: {metaDir: '_snowpack'},
       },
       {
         minifyHTML: false,
@@ -77,7 +77,7 @@ describe('@snowpack/plugin-optimize', () => {
   it('minimal - target', async () => {
     const pluginInstance = plugin(
       {
-        buildOptions: {metaDir: '__snowpack__'},
+        buildOptions: {metaDir: '_snowpack'},
       },
       {
         target: ['es2018'],
