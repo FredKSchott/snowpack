@@ -1,6 +1,6 @@
 {
   "name": "esinstall",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Convert packages to ESM.",
   "license": "MIT",
   "keywords": [
