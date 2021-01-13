@@ -10,7 +10,6 @@ export type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
-
 export interface SSRLoaderConfig {
   load: (url: string) => Promise<{contents: string}>;
 }

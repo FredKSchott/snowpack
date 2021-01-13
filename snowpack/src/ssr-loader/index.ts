@@ -1,6 +1,6 @@
 import {existsSync, readFileSync} from 'fs';
 import {resolve} from 'url';
-import { SSRLoader, SSRLoaderConfig } from '../types';
+import {SSRLoader, SSRLoaderConfig} from '../types';
 import {sourcemap_stacktrace} from './sourcemaps';
 import {transform} from './transform';
 
