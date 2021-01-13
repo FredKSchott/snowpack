@@ -87,7 +87,7 @@ background: linear-gradient(30deg, #A7BFE8, #6190E8);
 - [SSL, HTTPS, and HTTP/2 in Development](/guides/https-ssl-certificates)
 - [Connecting Third-Party Tools](/guides/connecting-tools)
 - [Optimize & Bundle for Production](/guides/optimize-and-bundle)
-- [Streaming NPM Imports](/guides/streaming-npm-imports)
+- [Streaming Imports](/guides/streaming-imports)
 - [Testing](/guides/testing)
 - [Creating Your Own Plugin](/guides/plugins)
 - [Snowpack Upgrade Guide (from v1, v2)](/guides/upgrade-guide)

@@ -55,7 +55,7 @@ This has several benefits over the traditional "npm install" approach:
 
 If this all sounds too wild for you, don't worry. This is **100% opt-in** behavior for those who want it. By default, Snowpack will continue to pull your npm package dependencies out of your project `node_modules` directory like it always has.
 
-Check out our guide on [Streaming Package Imports](/guides/streaming-npm-imports) to learn more about how to enable this new behavior in your project today. In a future release, we hope to open this up to custom ESM package sources and other CDNs as well.
+Check out our guide on [Streaming Package Imports](/guides/streaming-imports) to learn more about how to enable this new behavior in your project today. In a future release, we hope to open this up to custom ESM package sources and other CDNs as well.
 
 ![js api](/img/post-snowpackv3-esbuild.png)
 
