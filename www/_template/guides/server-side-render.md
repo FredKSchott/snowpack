@@ -15,7 +15,7 @@ This guide will walk you through three options for setting up Snowpack with your
 
 1. `snowpack build --watch` - Serve files out of the static build directory.
 2. `startServer({ ... })` - Serve files on-demand via Snowpack's JavaScript API.
-3. `getESMRuntime({ ... })` - Run your built JS files server-side, directly inside of Node.js.
+3. `getServerRuntime({ ... })` - Run your built JS files server-side, directly inside of Node.js.
 
 ### Option 1: Static Serving
 
@@ -60,13 +60,13 @@ While our official API is written in JavaScript and requires Node.js to run, you
 
 Some frontend applications are also designed to run on the server. In the two previous sections, we've just been loading and serving Snowpack files to the client. In this final section, we'll look into how your project can run Snowpack-built JavaScript on the server and return server-rendered HTML to the client for a faster first page load.
 
-Snowpack provides an Node.js SSR Runtime API to help you run & render your application server-side. `getESMRuntime()` returns a `runtime` instance that can be used to import Snowpack-built modules into your current Node.js process, on-demand. This runtime handles the transformation from browser ESM to Node.js Common.js (CJS) so that it can run directly in server without issues.
+Snowpack provides an Node.js SSR Runtime API to help you run & render your application server-side. `getServerRuntime()` returns a `runtime` instance that can be used to import Snowpack-built modules into your current Node.js process, on-demand. This runtime handles the transformation from browser ESM to Node.js Common.js (CJS) so that it can run directly in server without issues.
 
 ```js
 const {readFileSync} = require('fs');
 const {startServer} = require('snowpack');
 const server = await startServer({ ... });
-const runtime = server.getESMRuntime();
+const runtime = server.getServerRuntime();
 
 // Advanced Example: Express + React SSR
 app.use(async (req, res, next) => {
@@ -84,4 +84,4 @@ app.use(async (req, res, next) => {
 });
 ```
 
-`getESMRuntime()` is a lower-level tool to help you implement SSR in your project. However, building a custom SSR setup is an advanced task. If you prefer not to implement this yourself, check out some of the new Snowpack-powered application frameworks and static site generators like [SvelteKit](https://svelte.dev/blog/whats-the-deal-with-sveltekit) and [Microsite](https://www.npmjs.com/package/microsite).
+`getServerRuntime()` is a lower-level tool to help you implement SSR in your project. However, building a custom SSR setup is an advanced task. If you prefer not to implement this yourself, check out some of the new Snowpack-powered application frameworks and static site generators like [SvelteKit](https://svelte.dev/blog/whats-the-deal-with-sveltekit) and [Microsite](https://www.npmjs.com/package/microsite).

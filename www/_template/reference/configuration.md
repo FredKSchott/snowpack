@@ -349,7 +349,7 @@ This option is only supported in `source="local"` mode. `source="remote"` does n
 
 Enable streaming package imports. Load dependencies from our remote CDN. Manage your dependencies using `snowpack` and a project `snowpack.deps.json` file.
 
-[Learn more about Streaming Remote Imports](http://localhost:8080/guides/streaming-npm-imports).
+[Learn more about Streaming Remote Imports](/guides/streaming-imports).
 
 #### packageOptions.origin
 
