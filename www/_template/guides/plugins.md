@@ -7,6 +7,7 @@ description: Learn the basics of our Plugin API through working examples.
 A **Snowpack plugin** lets you extend Snowpack with new behaviors. Plugins can hook into different stages of the Snowpack build pipeline to add support for new file types and your favorite dev tools. Add plugins to support Svelte, compile Sass to CSS, convert SVGs to React components, bundle your final build, type check during development, and much more.
 
 This guide takes you though creating and publishing your first plugin.
+
 - The basic structure of Snowpack plugins
 - How to choose the right hooks from the Snowpack Plugin API
 - How to publish your plugin and add it to our [Plugin](/plugins) directory
@@ -14,6 +15,7 @@ This guide takes you though creating and publishing your first plugin.
 Prerequisites: Snowpack plugins are written in JavaScript and run via Node.js so basic knowledge of both is required.
 
 ## Creating and testing your first plugin
+
 In this step you'll create a simple plugin scaffold that you can turn into a fuctional plugin based on the examples in the guide.
 
 Create a directory for your plugin called `my-snowpack-plugin` and inside it create a `my-snowpack-plugin.js` file:
@@ -25,7 +27,7 @@ Create a directory for your plugin called `my-snowpack-plugin` and inside it cre
 // pluginOptions = user-provided configuration options
 module.exports = function (snowpackConfig, pluginOptions) {
   return {
-    name: 'my-snowpack-plugin'
+    name: 'my-snowpack-plugin',
   };
 };
 ```
@@ -51,10 +53,11 @@ In your example Snowpack project, add your plugin to the `snowpack.config.js` al
 TODO: how to test
 
 ## Adding user-configurable options to your plugin
+
 TODO make this a real example
 In this step, you'll learn how to add user-configurable options to your plugin and to use them in your plugin code.
 
-In your example Snowpack project, instead of enabling the plugin as a string containing the plugin name, use an array.  The first item is name of your plugin and the second a new object containing the plugin options.
+In your example Snowpack project, instead of enabling the plugin as a string containing the plugin name, use an array. The first item is name of your plugin and the second a new object containing the plugin options.
 
 ```diff
 // snowpack.config.js
@@ -78,7 +81,6 @@ module.exports = function (snowpackConfig, pluginOptions) {
   };
 };
 ```
-
 
 ### Plugin Use-Cases
 
