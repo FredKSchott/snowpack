@@ -9,7 +9,7 @@ const pathToBadCode = path.join(__dirname, 'fixtures/bad/bad.scss');
 describe('plugin-sass', () => {
   // For some reason, this is failing on Windows. Need to debug, but skip it for now.
   if (process.platform === 'win32') {
-    return;
+    test('skip', () => {});
   }
 
   test('returns the compiled Sass result', async () => {

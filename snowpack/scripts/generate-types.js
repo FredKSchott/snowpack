@@ -61,4 +61,4 @@ function cleanup() {
 
 bundleTypes('esinstall');
 bundleTypes('skypack');
-cleanup();
+// cleanup(); TODO: Fix tests that rely on these util files
