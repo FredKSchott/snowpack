@@ -58,7 +58,7 @@ Setting `types=true` tells Snowpack to install TypeScript types in your project.
 ```js
 // Example: tsconfig.json /w Snowpack streaming imports
 "baseUrl": "./",
-"paths": {"*": [".snowpack/.types/*"]},
+"paths": {"*": [".snowpack/types/*"]},
 ```
 
 When you start your project (with either `snowpack dev` or `snowpack build`) Snowpack will sync this `.snowpack/types` directory and download any new types that you might need. You can also trigger a sync anytime manually via `snowpack prepare`.
