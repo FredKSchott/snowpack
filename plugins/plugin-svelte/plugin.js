@@ -18,8 +18,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   const packageOptions = snowpackConfig.packageOptions || snowpackConfig.installOptions;
   if (packageOptions.source === 'local') {
     packageOptions.rollup = packageOptions.rollup || {};
-    packageOptions.rollup.plugins =
-      packageOptions.rollup.plugins || [];
+    packageOptions.rollup.plugins = packageOptions.rollup.plugins || [];
     packageOptions.rollup.plugins.push(
       svelteRollupPlugin({
         include: /\.svelte$/,
