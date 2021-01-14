@@ -1,6 +1,17 @@
 import type {InstallOptions as EsinstallOptions} from 'esinstall';
 import type * as http from 'http';
-import type {RawSourceMap} from 'source-map';
+
+// RawSourceMap is inlined here for bundle purposes.
+// import type {RawSourceMap} from 'source-map';
+export interface RawSourceMap {
+  version: number;
+  sources: string[];
+  names: string[];
+  sourceRoot?: string;
+  sourcesContent?: string[];
+  mappings: string;
+  file: string;
+}
 
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>

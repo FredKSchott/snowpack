@@ -1,3 +1,4 @@
 lib/*
 node_modules
 vendor/generated/
+vendor/types/
