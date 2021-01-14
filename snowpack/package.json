@@ -46,7 +46,8 @@
   ],
   "dependencies": {
     "esbuild": "^0.8.7",
-    "open": "^7.0.4"
+    "open": "^7.0.4",
+    "rollup": "^2.34.0"
   },
   "optionalDependencies": {
     "fsevents": "^2.2.0"
