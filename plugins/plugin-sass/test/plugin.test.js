@@ -7,7 +7,6 @@ const pathToScssApp = path.join(__dirname, 'fixtures/scss/App.scss');
 const pathToBadCode = path.join(__dirname, 'fixtures/bad/bad.scss');
 
 describe('plugin-sass', () => {
-
   test('returns the compiled Sass result', async () => {
     const p = plugin(null, {});
     const sassResult = await p.load({filePath: pathToSassApp, isDev: false});
@@ -54,6 +53,8 @@ describe('plugin-sass', () => {
   test('uses native sass CLI when native option = true', async () => {
     const p = plugin(null, {native: true});
     process.env.PATH = '';
-    await expect(p.load({filePath: pathToSassApp, isDev: false})).rejects.toThrow(/(EPIPE|ENOENT|'sass' is not recognized as an internal or external command)/);
+    await expect(p.load({filePath: pathToSassApp, isDev: false})).rejects.toThrow(
+      /(EPIPE|ENOENT|'sass' is not recognized as an internal or external command)/,
+    );
   });
 });
