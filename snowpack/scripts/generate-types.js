@@ -43,5 +43,22 @@ function bundleTypes(packageName) {
   updateTypeReferences(packageName);
 }
 
+
+
+function cleanup() {
+  const files = glob.sync(path.join(rootDirectory, 'snowpack/lib/**/*.js'), {
+    nodir: true,
+    absolute: true,
+  });
+  console.log(files);
+
+  for (const f of files) {
+    if (!f.endsWith('/snowpack/lib/index.js')) {
+      fs.unlinkSync(f);
+    }
+  }
+}
+
 bundleTypes('esinstall');
 bundleTypes('skypack');
+cleanup();
