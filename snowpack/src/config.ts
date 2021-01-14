@@ -37,7 +37,6 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
     port: 8080,
     open: 'default',
     output: 'dashboard',
-    fallback: 'index.html',
     hmrDelay: 0,
     hmrPort: undefined,
     hmrErrorOverlay: true,
@@ -106,7 +105,6 @@ const configSchema = {
       properties: {
         secure: {type: 'boolean'},
         port: {type: 'number'},
-        fallback: {type: 'string'},
         bundle: {type: 'boolean'},
         open: {type: 'string'},
         output: {type: 'string', enum: ['stream', 'dashboard']},
@@ -525,6 +523,12 @@ function valdiateDeprecatedConfig(rawConfig: any) {
   if (rawConfig.experiments?.routes) {
     handleDeprecatedConfigError(
       '[v3.0] Experiment promoted! "config.experiments.routes" is now "config.routes".',
+    );
+  }
+  if (rawConfig.devOptions?.fallback) {
+    handleDeprecatedConfigError(
+      '[v3.0] Deprecated! "devOptions.fallback" is now replaced by "routes".\n' +
+        'More info: https://www.snowpack.dev/guides/routing',
     );
   }
 }

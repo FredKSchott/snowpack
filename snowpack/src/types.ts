@@ -250,7 +250,6 @@ export interface SnowpackConfig {
     secure: boolean;
     hostname: string;
     port: number;
-    fallback: string;
     open: string;
     output: 'stream' | 'dashboard';
     hmr?: boolean;
