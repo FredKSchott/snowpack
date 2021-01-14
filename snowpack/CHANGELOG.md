@@ -27,9 +27,8 @@
 
 - d26c7733 - [ci] yarn format
 
-
 ## snowpack@3.0.10 [2021-01-13]
 
-* 1d071628 - cleanup the bundled build before publishing 
-* beb3f9a1 - stop ignoring postcss in generated bundle 
-* 2b797521 - [ci] yarn format 
+- 1d071628 - cleanup the bundled build before publishing
+- beb3f9a1 - stop ignoring postcss in generated bundle
+- 2b797521 - [ci] yarn format
