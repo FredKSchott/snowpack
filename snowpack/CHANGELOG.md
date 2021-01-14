@@ -22,3 +22,8 @@
 - c566aa10 - add bundled type support for esinstall and skypack, remove as full deps
 - ecf85d52 - move open back to regular dependency
 - b0f7280c - [ci] yarn format
+
+
+## snowpack@3.0.9 [2021-01-13]
+
+* d26c7733 - [ci] yarn format 
