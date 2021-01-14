@@ -15,11 +15,10 @@
 - e63d70fd - fix direct foo.svelte.css references
 - 01a80448 - [ci] yarn format
 
-
 ## snowpack@3.0.8 [2021-01-13]
 
-* c2124bd7 - json fix 
-* e040f071 - Fix postcss-modules being required as a dependency in projects (#2257) <David Bailey>
-* c566aa10 - add bundled type support for esinstall and skypack, remove as full deps 
-* ecf85d52 - move open back to regular dependency 
-* b0f7280c - [ci] yarn format 
+- c2124bd7 - json fix
+- e040f071 - Fix postcss-modules being required as a dependency in projects (#2257) <David Bailey>
+- c566aa10 - add bundled type support for esinstall and skypack, remove as full deps
+- ecf85d52 - move open back to regular dependency
+- b0f7280c - [ci] yarn format
