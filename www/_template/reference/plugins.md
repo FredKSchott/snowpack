@@ -108,4 +108,4 @@ this.markChanged('/some/file/path.scss');
 Manually mark a file as changed, regardless of whether the file changed on disk or not. This can be useful when paired with the `markChanged()` plugin hook, to mark multiple files changed at once.
 
 - See [@snowpack/plugin-sass](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-sass/plugin.js) for an example of how to use this method.
-- [Full TypeScript definition](https://github.com/snowpackjs/snowpack/tree/main/snowpack/src/types/snowpack.ts).
+- [Full TypeScript definition](https://github.com/snowpackjs/snowpack/blob/main/snowpack/src/types.ts).
