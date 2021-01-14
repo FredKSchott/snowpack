@@ -7,10 +7,6 @@ const pathToScssApp = path.join(__dirname, 'fixtures/scss/App.scss');
 const pathToBadCode = path.join(__dirname, 'fixtures/bad/bad.scss');
 
 describe('plugin-sass', () => {
-  // For some reason, this is failing on Windows. Need to debug, but skip it for now.
-  if (process.platform === 'win32') {
-    test('skip', () => {});
-  }
 
   test('returns the compiled Sass result', async () => {
     const p = plugin(null, {});
@@ -58,6 +54,6 @@ describe('plugin-sass', () => {
   test('uses native sass CLI when native option = true', async () => {
     const p = plugin(null, {native: true});
     process.env.PATH = '';
-    await expect(p.load({filePath: pathToSassApp, isDev: false})).rejects.toThrow(/(EPIPE|ENOENT)/);
+    await expect(p.load({filePath: pathToSassApp, isDev: false})).rejects.toThrow(/(EPIPE|ENOENT|'sass' is not recognized as an internal or external command)/);
   });
 });
