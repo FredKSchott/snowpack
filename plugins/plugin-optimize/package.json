@@ -19,6 +19,7 @@
     "glob": "^7.1.6",
     "html-minifier": "^4.0.0",
     "hypertag": "^0.0.3",
+    "mkdirp": "^1.0.4",
     "kleur": "^4.1.3",
     "node-inject-html": "^0.0.5",
     "object.fromentries": "^2.0.2",
