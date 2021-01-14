@@ -303,15 +303,8 @@ function loadPlugins(
     plugins.push(plugin);
   });
 
-  // add internal JS handler plugin if none specified
-  const needsDefaultPlugin = new Set(['.mjs', '.jsx', '.ts', '.tsx']);
-  plugins
-    .filter(({resolve}) => !!resolve)
-    .reduce((arr, a) => arr.concat(a.resolve!.input), [] as string[])
-    .forEach((ext) => needsDefaultPlugin.delete(ext));
-  if (needsDefaultPlugin.size > 0) {
-    plugins.unshift(execPluginFactory(esbuildPlugin, {input: [...needsDefaultPlugin]}));
-  }
+  // add internal JS handler plugin
+  plugins.push(execPluginFactory(esbuildPlugin, {input: ['.mjs', '.jsx', '.ts', '.tsx']}));
 
   const extensionMap = plugins.reduce((map, {resolve}) => {
     if (resolve) {
