@@ -58,7 +58,7 @@ const config = {
   external: (f) => {
     // esbuild needs to be installed on your machine (Go, not JS).
     // This should be the Snowpack packages only dependency.
-    if (f === 'esbuild') {
+    if (['esbuild', 'postcss', 'postcss-modules', 'open'].includes(f)) {
       return true;
     }
     // vm2 can't be bundled, so we vendor the entire directory as-is.

@@ -1,20 +1,8 @@
 import {existsSync, readFileSync} from 'fs';
 import {resolve} from 'url';
+import {SSRLoader, SSRLoaderConfig} from '../types';
 import {sourcemap_stacktrace} from './sourcemaps';
 import {transform} from './transform';
-
-export interface SSRLoaderConfig {
-  load: (url: string) => Promise<{contents: string}>;
-}
-export interface SSRLoader {
-  importModule: <T = any>(url: string) => Promise<ESMRuntimeModule<T>>;
-  invalidateModule: (url: string) => void;
-}
-
-export interface ESMRuntimeModule<T> {
-  exports: T;
-  css: string[];
-}
 
 // This function makes it possible to load modules from the snowpack server, for the sake of SSR.
 export function createLoader({load}: SSRLoaderConfig): SSRLoader {

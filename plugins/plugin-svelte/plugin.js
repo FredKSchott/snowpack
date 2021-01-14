@@ -15,11 +15,11 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     snowpackConfig.buildOptions.sourcemap || snowpackConfig.buildOptions.sourceMaps;
 
   // Support importing Svelte files when you install dependencies.
-  if (snowpackConfig.packageOptions.source === 'local') {
-    snowpackConfig.packageOptions.rollup = snowpackConfig.packageOptions.rollup || {};
-    snowpackConfig.packageOptions.rollup.plugins =
-      snowpackConfig.packageOptions.rollup.plugins || [];
-    snowpackConfig.packageOptions.rollup.plugins.push(
+  const packageOptions = snowpackConfig.packageOptions || snowpackConfig.installOptions;
+  if (packageOptions.source === 'local') {
+    packageOptions.rollup = packageOptions.rollup || {};
+    packageOptions.rollup.plugins = packageOptions.rollup.plugins || [];
+    packageOptions.rollup.plugins.push(
       svelteRollupPlugin({
         include: /\.svelte$/,
         compilerOptions: {dev: isDev},
@@ -30,7 +30,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       }),
     );
     // Support importing sharable Svelte components.
-    snowpackConfig.packageOptions.packageLookupFields.push('svelte');
+    packageOptions.packageLookupFields.push('svelte');
   }
 
   if (
@@ -131,10 +131,10 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
           id: filePath,
           compiledCode: js.code,
           hotOptions: {
-            ...hmrOptions,
-            absoluteImports: false,
             preserveLocalState: true,
             injectCss: true,
+            ...hmrOptions,
+            absoluteImports: false,
             noOverlay: true,
           },
           compiled,

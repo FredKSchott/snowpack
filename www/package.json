@@ -30,6 +30,7 @@
     "stylelint-config-standard": "^20.0.0"
   },
   "dependencies": {
+    "htm": "^3.0.4",
     "docsearch.js": "^2.6.3"
   }
 }

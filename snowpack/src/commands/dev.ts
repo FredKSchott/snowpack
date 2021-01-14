@@ -26,7 +26,7 @@
 
 import cacache from 'cacache';
 import isCompressible from 'compressible';
-import {createLoader as createSSRLoader, SSRLoader} from '../ssr-loader';
+import {createLoader as createSSRLoader} from '../ssr-loader';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, promises as fs, statSync} from 'fs';
@@ -69,6 +69,7 @@ import {
   RouteConfigObject,
   SnowpackBuildMap,
   SnowpackDevServer,
+  SSRLoader,
 } from '../types';
 import {
   BUILD_CACHE,
@@ -590,8 +591,11 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     }
 
     if (!isRoute && !isProxyModule && !isSourceMap) {
+      const cleanUrl = url.parse(reqUrl).pathname;
+      const cleanUrlWithMainExtension =
+        cleanUrl && replaceExtension(cleanUrl, path.extname(cleanUrl), '.js');
       const expectedUrl = getUrlForFile(foundFile.fileLoc, config);
-      if (expectedUrl !== url.parse(reqUrl).pathname) {
+      if (cleanUrl !== expectedUrl && cleanUrlWithMainExtension !== expectedUrl) {
         logger.warn(`Bad Request: "${reqUrl}" should be requested as "${expectedUrl}".`);
         throw new NotFoundError([foundFile.fileLoc]);
       }

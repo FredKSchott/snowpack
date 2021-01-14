@@ -10,8 +10,9 @@ module.exports = {
     ['@snowpack/plugin-postcss', {}],
   ],
   packageOptions: {
-    source: 'remote',
-    types: true,
+    // Blocked by CSS asset support
+    // source: 'remote',
+    // types: true,
   },
   devOptions: {
     // Eleventy updates multiple files at once, so add a 1000ms delay before we trigger a browser update

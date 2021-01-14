@@ -1,6 +1,17 @@
 import type {InstallOptions as EsinstallOptions} from 'esinstall';
 import type * as http from 'http';
-import type {RawSourceMap} from 'source-map';
+
+// RawSourceMap is inlined here for bundle purposes.
+// import type {RawSourceMap} from 'source-map';
+export interface RawSourceMap {
+  version: number;
+  sources: string[];
+  names: string[];
+  sourceRoot?: string;
+  sourcesContent?: string[];
+  mappings: string;
+  file: string;
+}
 
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -9,6 +20,19 @@ export type DeepPartial<T> = {
     ? ReadonlyArray<DeepPartial<U>>
     : DeepPartial<T[P]>;
 };
+
+export interface SSRLoaderConfig {
+  load: (url: string) => Promise<{contents: string}>;
+}
+export interface SSRLoader {
+  importModule: <T = any>(url: string) => Promise<ESMRuntimeModule<T>>;
+  invalidateModule: (url: string) => void;
+}
+
+export interface ESMRuntimeModule<T> {
+  exports: T;
+  css: string[];
+}
 
 export interface LoadResult<T = Buffer | string> {
   contents: T;
@@ -58,6 +82,7 @@ export interface SnowpackDevServer {
     res: http.ServerResponse,
     {contents, originalFileLoc, contentType}: LoadResult,
   ) => void;
+  getServerRuntime: (options?: {invalidateOnChange?: boolean}) => SSRLoader;
   sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
   getUrlForFile: (fileLoc: string) => string | null;
   onFileChange: (callback: OnFileChangeCallback) => void;
