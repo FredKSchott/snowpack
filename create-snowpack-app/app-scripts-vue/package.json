@@ -1,7 +1,6 @@
 {
   "name": "@snowpack/app-scripts-vue",
   "version": "1.8.9",
-  "private": true,
   "main": "snowpack.config.js",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-scripts-vue#readme",
