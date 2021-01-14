@@ -1,14 +1,9 @@
 import path from 'path';
-import type {Postcss} from 'postcss';
+import postCss from 'postcss';
+import postCssModules from 'postcss-modules';
 import {logger} from '../logger';
 import {SnowpackConfig} from '../types';
-import {
-  appendHtmlToHead,
-  hasExtension,
-  HMR_CLIENT_CODE,
-  HMR_OVERLAY_CODE,
-  NATIVE_REQUIRE,
-} from '../util';
+import {appendHtmlToHead, hasExtension, HMR_CLIENT_CODE, HMR_OVERLAY_CODE} from '../util';
 import {generateSRI} from './import-sri';
 
 const SRI_CLIENT_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_CLIENT_CODE));
@@ -168,8 +163,6 @@ if (typeof document !== 'undefined') {${
   return wrapImportMeta({code: cssImportProxyCode, hmr, env: false, config});
 }
 
-let _postCss: Postcss;
-let _postCssModules: any;
 async function generateCssModuleImportProxy({
   url,
   code,
@@ -181,11 +174,9 @@ async function generateCssModuleImportProxy({
   hmr: boolean;
   config: SnowpackConfig;
 }) {
-  _postCssModules = _postCssModules || NATIVE_REQUIRE('postcss-modules');
-  _postCss = _postCss || NATIVE_REQUIRE('postcss');
   let moduleJson: string | undefined;
-  const processor = _postCss([
-    _postCssModules({
+  const processor = postCss([
+    postCssModules({
       getJSON: (_, json) => {
         moduleJson = json;
       },

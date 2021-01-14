@@ -47,8 +47,6 @@
   "dependencies": {
     "esbuild": "^0.8.7",
     "open": "^7.0.4",
-    "postcss": "^8.1.8",
-    "postcss-modules": "^4.0.0"
   },
   "optionalDependencies": {
     "fsevents": "^2.2.0"
@@ -84,6 +82,8 @@
     "npm-run-path": "^4.0.1",
     "p-queue": "^6.6.1",
     "periscopic": "^2.0.3",
+    "postcss": "^8.2.4",
+    "postcss-modules": "^4.0.0",
     "resolve-from": "^5.0.0",
     "rimraf": "^3.0.0",
     "signal-exit": "^3.0.3",
