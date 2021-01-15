@@ -11,9 +11,6 @@ module.exports = {
     './src': '/_dist_',
     './public': '/',
   },
-  devOptions: {
-    fallback: '_dist_/index.html',
-  },
   buildOptions: {
     baseUrl: 'https://example.com/foo',
     metaUrlPath: '/TEST_WMU/',
