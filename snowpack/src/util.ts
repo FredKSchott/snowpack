@@ -477,7 +477,5 @@ export const HMR_OVERLAY_CODE = fs.readFileSync(
   path.resolve(__dirname, '../assets/hmr-error-overlay.js'),
   'utf8',
 );
-export const INIT_TEMPLATE_FILE = fs.readFileSync(
-  path.resolve(__dirname, '../assets/snowpack-init-file.js'),
-  'utf8',
-);
+
+export const INIT_TEMPLATE_FILENAME = path.resolve(__dirname, '../assets/snowpack-init-file.js');
