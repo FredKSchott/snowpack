@@ -48,9 +48,7 @@ export function findManifestEntry(
     }
   }
 
-  foundEntrypoint = [...packageLookupFields, ...MAIN_FIELDS]
-    .map((e) => manifest[e])
-    .find(Boolean);
+  foundEntrypoint = [...packageLookupFields, ...MAIN_FIELDS].map((e) => manifest[e]).find(Boolean);
 
   if (foundEntrypoint && typeof foundEntrypoint === 'string') {
     return foundEntrypoint;
