@@ -5,6 +5,15 @@ import {ExportField, ExportMapEntry, PackageManifestWithExports, PackageManifest
 import {parsePackageImportSpecifier, resolveDependencyManifest} from './util';
 import pm from 'picomatch';
 
+export const MAIN_FIELDS = [
+  'browser:module',
+  'module',
+  'browser',
+  'main:esnext',
+  'jsnext:main',
+  'main',
+];
+
 // Rarely, a package will ship a broken "browser" package.json entrypoint.
 // Ignore the "browser" entrypoint in those packages.
 const BROKEN_BROWSER_ENTRYPOINT = ['@sheerun/mutationobserver-shim'];
@@ -39,17 +48,11 @@ export function findManifestEntry(
     }
   }
 
-  foundEntrypoint = [
-    ...packageLookupFields,
-    'browser:module',
-    'module',
-    'main:esnext',
-    'jsnext:main',
-  ]
+  foundEntrypoint = [...packageLookupFields, ...MAIN_FIELDS]
     .map((e) => manifest[e])
     .find(Boolean);
 
-  if (foundEntrypoint) {
+  if (foundEntrypoint && typeof foundEntrypoint === 'string') {
     return foundEntrypoint;
   }
 
