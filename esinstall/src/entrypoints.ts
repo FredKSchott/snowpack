@@ -8,9 +8,36 @@ import pm from 'picomatch';
 // Rarely, a package will ship a broken "browser" package.json entrypoint.
 // Ignore the "browser" entrypoint in those packages.
 const BROKEN_BROWSER_ENTRYPOINT = ['@sheerun/mutationobserver-shim'];
+const FILE_EXTENSION_REGEX = /\..+$/;
 
 function hasTypes(manifest: PackageManifest): boolean {
   return !!(manifest.types || manifest.typings);
+}
+
+function getMissingEntrypointHint(
+  packageEntrypoint: string,
+  normalizedMap: Record<string, string>,
+): string | undefined {
+  const noExtensionEntrypoint = './' + packageEntrypoint.replace(FILE_EXTENSION_REGEX, '');
+  if (Reflect.get(normalizedMap, noExtensionEntrypoint)) {
+    return `Did you mean "${noExtensionEntrypoint}"?`;
+  }
+  const jsExtensionEntrypoint = './' + packageEntrypoint.replace(FILE_EXTENSION_REGEX, '.js');
+  if (Reflect.get(normalizedMap, jsExtensionEntrypoint)) {
+    return `Did you mean "${jsExtensionEntrypoint}"?`;
+  }
+  const cjsExtensionEntrypoint = './' + packageEntrypoint.replace(FILE_EXTENSION_REGEX, '.cjs');
+  if (Reflect.get(normalizedMap, cjsExtensionEntrypoint)) {
+    return `Did you mean "${cjsExtensionEntrypoint}"?`;
+  }
+  const mjsExtensionEntrypoint = './' + packageEntrypoint.replace(FILE_EXTENSION_REGEX, '.cjs');
+  if (Reflect.get(normalizedMap, mjsExtensionEntrypoint)) {
+    return `Did you mean "${mjsExtensionEntrypoint}"?`;
+  }
+  const directoryEntrypoint = './' + packageEntrypoint + '/index.js';
+  if (Reflect.get(normalizedMap, directoryEntrypoint)) {
+    return `Did you mean "${directoryEntrypoint}"?`;
+  }
 }
 
 type FindManifestEntryOptions = {
@@ -139,10 +166,12 @@ export function resolveEntrypoint(
         cwd: path.dirname(packageManifestLoc),
       });
       const mapValue = normalizedMap && Reflect.get(normalizedMap, './' + packageEntrypoint);
-
       if (typeof mapValue !== 'string') {
+        let helpfulHint =
+          normalizedMap && getMissingEntrypointHint(packageEntrypoint, normalizedMap);
         throw new Error(
-          `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".`,
+          `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".` +
+            (helpfulHint ? `\n${helpfulHint}` : ''),
         );
       }
       return path.join(packageManifestLoc, '..', mapValue);
