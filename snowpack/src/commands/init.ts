@@ -1,4 +1,4 @@
-import {promises as fs, existsSync, constants as fsConstants} from 'fs';
+import {promises as fs, existsSync} from 'fs';
 import {bold, dim} from 'kleur/colors';
 import path from 'path';
 import {logger} from '../logger';
@@ -13,6 +13,6 @@ export async function command(commandOptions: CommandOptions) {
     logger.error(`Error: File already exists, cannot overwrite ${destLoc}`);
     process.exit(1);
   }
-  await fs.copyFile(INIT_TEMPLATE_FILE, destLoc, fsConstants.COPYFILE_EXCL);
+  await fs.writeFile(destLoc, INIT_TEMPLATE_FILE);
   logger.info(`File created! Open ${bold('snowpack.config.js')} to customize your project.`);
 }
