@@ -37,7 +37,7 @@ import {
   sanitizePackageName,
   writeLockfile,
 } from './util';
-import {resolveEntrypoint} from './entrypoints';
+import {resolveEntrypoint, MAIN_FIELDS} from './entrypoints';
 
 export * from './types';
 export {
@@ -317,7 +317,7 @@ ${colors.dim(
       }),
       rollupPluginCatchFetch(),
       rollupPluginNodeResolve({
-        mainFields: ['browser:module', 'module', 'browser', 'main'],
+        mainFields: [...packageLookupFields, ...MAIN_FIELDS],
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: true, // Default: true
