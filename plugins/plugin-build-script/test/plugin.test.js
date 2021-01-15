@@ -5,6 +5,7 @@ const plugin = require('../plugin');
 
 describe('@snowpack/plugin-build-script', () => {
   beforeEach(() => {
+    execa.command.mockClear();
     execa.command = jest.fn().mockName('execa.command').mockResolvedValue({
       stdout: 'stdout',
       stderr: '',

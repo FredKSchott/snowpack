@@ -9,9 +9,10 @@ describe('plugin-typescript', () => {
 
   beforeEach(() => {
     execa.command.mockClear();
-    execaResult = {stderr: new EventEmitter(), stdout: new EventEmitter()};
-    execaFn = jest.fn(() => execaResult);
-    execa.command = execaFn;
+    execa.command = jest
+      .fn()
+      .mockName('execa.command')
+      .mockResolvedValue({stderr: new EventEmitter(), stdout: new EventEmitter()});
   });
 
   test('returns the execa command promise', async () => {
