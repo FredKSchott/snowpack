@@ -13,17 +13,6 @@ module.exports = {
 };
 ```
 
-```js
-// Example: snowpack.config.js (ESM)
-// This is ESM-format config file. to enable
-// Add "type": "module" in your package.json
-export default {
-  plugins: [
-    /* ... */
-  ],
-};
-```
-
 To generate a basic configuration file scaffold in your Snowpack project run `snowpack init`.
 
 ## root
