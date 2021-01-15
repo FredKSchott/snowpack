@@ -317,7 +317,7 @@ ${colors.dim(
       }),
       rollupPluginCatchFetch(),
       rollupPluginNodeResolve({
-        mainFields: MAIN_FIELDS,
+        mainFields: [...packageLookupFields, ...MAIN_FIELDS],
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: true, // Default: true
