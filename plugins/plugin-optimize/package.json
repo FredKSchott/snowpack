@@ -1,6 +1,6 @@
 {
   "name": "@snowpack/plugin-optimize",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "main": "plugin.js",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-optimize#readme",
