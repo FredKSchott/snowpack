@@ -9065,7 +9065,7 @@ export default App;"
 exports[`create-snowpack-app app-template-svelte > build: dist/index.js 1`] = `
 "import * as __SNOWPACK_ENV__ from '../_snowpack/env.js';
 import.meta.env = __SNOWPACK_ENV__;
-import App from \\"./App.svelte.js\\";
+import App from './App.svelte.js';
 let app = new App({
   target: document.body,
 });
@@ -14430,10 +14430,10 @@ export default defaultExport"
 exports[`create-snowpack-app app-template-vue > build: dist/index.js 1`] = `
 "import * as __SNOWPACK_ENV__ from '../_snowpack/env.js';
 import.meta.env = __SNOWPACK_ENV__;
-import { createApp } from \\"../_snowpack/pkg/vue.js\\";
-import App from \\"./App.vue.js\\";
+import {createApp} from '../_snowpack/pkg/vue.js';
+import App from './App.vue.js';
 const app = createApp(App);
-app.mount(\\"#app\\");
+app.mount('#app');
 // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
 // Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
 if (undefined /* [snowpack] import.meta.hot */ ) {
@@ -19948,10 +19948,10 @@ export default defineComponent({
 exports[`create-snowpack-app app-template-vue-typescript > build: dist/index.js 1`] = `
 "import * as __SNOWPACK_ENV__ from '../_snowpack/env.js';
 import.meta.env = __SNOWPACK_ENV__;
-import { createApp } from \\"../_snowpack/pkg/vue.js\\";
-import App from \\"./App.vue.js\\";
+import {createApp} from '../_snowpack/pkg/vue.js';
+import App from './App.vue.js';
 const app = createApp(App);
-app.mount(\\"#app\\");
+app.mount('#app');
 // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
 // Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
 if (undefined /* [snowpack] import.meta.hot */ ) {
