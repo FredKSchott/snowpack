@@ -77,10 +77,8 @@ export class EsmHmrEngine implements IEsmHmrEngine {
       ? new WebSocket.Server({noServer: true})
       : new WebSocket.Server({port: options.port ?? DEFAULT_PORT });
 
-      // @ts-ignore - if address is a string, then the fallbacks will still return the proper value
-    this.port = wss.address()?.port
-      // @ts-ignore - if address is a string, then the fallbacks will still return the proper value
-      ?? this.server?.address()?.port
+    this.port = portOf(wss)
+      ?? portOf(options.server)
       ?? options.port
       ?? DEFAULT_PORT;
 
@@ -282,4 +280,13 @@ export class EsmHmrEngine implements IEsmHmrEngine {
       this.disconnectClient(client);
     }
   }
+}
+
+function portOf(server: WebSocket.Server | http.Server | http2.Http2SecureServer | undefined): number | null {
+  if (!server) { return null; }
+  if (server instanceof WebSocket.Server) {
+    return server.options.noServer ? null : portOf(server.options.server) ?? server.options.port ?? null
+  }
+  // @ts-ignore - fallback handles case where address is a string
+  return server.listening ? server.address()?.port ?? null : null;
 }
