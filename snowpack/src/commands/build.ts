@@ -552,8 +552,15 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   //   contents: generateEnvModule({mode: 'production', isSSR}),
   // };
 
+  // "--watch --hmr" mode - Tell users about the HMR WebSocket URL
+  if (hmrEngine) {
+    logger.info(
+      `[HMR] WebSocket URL available at ${colors.cyan(`ws://localhost:${hmrEngine.port}`)}`,
+    );
+  }
+
   // 5. Optimize the build.
-  if (!config.buildOptions.watch) {
+  if (config.buildOptions.watch) {
     if (config.optimize || config.plugins.some((p) => p.optimize)) {
       const optimizeStart = performance.now();
       logger.info(colors.yellow('! optimizing build...'));
@@ -570,30 +577,23 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
           `[${((optimizeEnd - optimizeStart) / 1000).toFixed(2)}s]`,
         )}`,
       );
+      await runPipelineCleanupStep(config);
+      logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
+      return {
+        result: buildResultManifest,
+        onFileChange: () => {
+          throw new Error('build().onFileChange() only supported in "watch" mode.');
+        },
+        shutdown: () => {
+          throw new Error('build().shutdown() only supported in "watch" mode.');
+        },
+      };
     }
-    await runPipelineCleanupStep(config);
-    logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
-    return {
-      result: buildResultManifest,
-      onFileChange: () => {
-        throw new Error('build().onFileChange() only supported in "watch" mode.');
-      },
-      shutdown: () => {
-        throw new Error('build().shutdown() only supported in "watch" mode.');
-      },
-    };
-  }
-
-  // "--watch --hmr" mode - Tell users about the HMR WebSocket URL
-  if (hmrEngine) {
-    logger.info(
-      `[HMR] WebSocket URL available at ${colors.cyan(`ws://localhost:${hmrEngine.port}`)}`,
-    );
   }
 
   // "--watch" mode - Start watching the file system.
   // Defer "chokidar" loading to here, to reduce impact on overall startup time
-  logger.info(colors.cyan('Watching for changes...'));
+  logger.info(colors.cyan('watching for changes...'));
   const chokidar = await import('chokidar');
 
   function onDeleteEvent(fileLoc: string) {
