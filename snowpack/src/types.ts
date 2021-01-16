@@ -254,6 +254,8 @@ export interface SnowpackConfig {
   plugins: SnowpackPlugin[];
   devOptions: {
     secure: boolean;
+    cert?: string;
+    key?: string;
     hostname: string;
     port: number;
     open?: string;

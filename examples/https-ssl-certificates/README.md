@@ -7,7 +7,12 @@ title: SSL Certificates
 npm start -- --secure
 ```
 
-Snowpack provides an easy way to use a local HTTPS server during development through the use of the `--secure` flag. When enabled, Snowpack will look for a `snowpack.key` and `snowpack.crt` file in the root directory and use that to create an HTTPS server with HTTP2 support enabled.
+Snowpack provides an easy way to use a local HTTPS server during development through the use of the `--secure` flag.
+
+When enabled, Snowpack will create an HTTPS server with HTTP2 support enabled using either:
+
+  - (default) the `snowpack.key` and `snowpack.crt` file in the root directory of your site
+  - (if provided) the TLS certificate and private key files at the paths specified in `devOptions.cert` and `devOptions.key` in the Snowpack configuration.
 
 ## Generating SSL Certificates
 

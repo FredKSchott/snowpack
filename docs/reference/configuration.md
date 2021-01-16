@@ -156,6 +156,16 @@ Configure the Snowpack dev server.
 
 Toggles whether Snowpack dev server should use HTTPS with HTTP2 enabled.
 
+### devOptions.cert
+
+**Type**: `string`  
+**Default**: `<site directory>/snowpack.crt`
+
+### devOptions.key
+
+**Type**: `string`  
+**Default**: `<site directory>/snowpack.key`
+
 ### devOptions.hostname
 
 **Type**: `string`  
