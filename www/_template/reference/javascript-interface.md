@@ -183,7 +183,7 @@ Similar to `SnowpackDevServer.getUrlForFile()`, but requires a second `config` a
 `clearCache() => Promise<void>`
 
 ```js
-import {clearCache} from 'snowpack';
+import { clearCache } from 'snowpack';
 await clearCache();
 ```
 
@@ -196,4 +196,3 @@ import { logger } from 'snowpack';
 ```
 
 You can control Snowpack's internal logger directly by importing it. Note that this is an advanced feature not needed for most users. Instead, use the `verbose` config option to enable debug logging and control log message verbosity.
-
