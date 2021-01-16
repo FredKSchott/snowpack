@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 import stripAnsi from 'strip-ansi';
-import type http from 'http';
+import http from 'http';
 import type http2 from 'http2';
 
 interface Dependency {
@@ -27,9 +27,9 @@ const DEFAULT_CONNECT_DELAY = 2000;
 const DEFAULT_PORT = 12321;
 
 type EsmHmrEngineOptions = {
-  delay: number,
-  server: http.Server | http2.Http2SecureServer,
-  port: number
+  delay?: number
+  server?: http.Server | http2.Http2SecureServer
+  port?: number
 };
 
 export interface IEsmHmrEngine {
@@ -68,15 +68,23 @@ export class EsmHmrEngine implements IEsmHmrEngine {
   private cachedConnectErrors: Set<HMRMessage> = new Set();
   readonly port: number = 0;
   readonly enabled = true;
-  readonly server: http.Server | http2.Http2SecureServer;
+  readonly server?: http.Server | http2.Http2SecureServer;
 
   constructor(options: EsmHmrEngineOptions) {
-    this.port = options.port || DEFAULT_PORT;
-    this.delay = options.delay;
+    this.delay = options.delay ?? 0;
     this.server = options.server;
-    const wss = new WebSocket.Server({noServer: true});
+    const wss = options.server
+      ? new WebSocket.Server({noServer: true})
+      : new WebSocket.Server({port: options.port ?? DEFAULT_PORT });
 
-    options.server.on('upgrade', (req, socket, head) => {
+      // @ts-ignore - if address is a string, then the fallbacks will still return the proper value
+    this.port = wss.address()?.port
+      // @ts-ignore - if address is a string, then the fallbacks will still return the proper value
+      ?? this.server?.address()?.port
+      ?? options.port
+      ?? DEFAULT_PORT;
+
+    options.server?.on('upgrade', (req, socket, head) => {
       // Only handle upgrades to ESM-HMR requests, ignore others.
       if (req.headers['sec-websocket-protocol'] !== 'esm-hmr') {
         return;
@@ -99,16 +107,21 @@ export class EsmHmrEngine implements IEsmHmrEngine {
   }
 
   listen(): Promise<number> {
-    if (this.server.listening) {
+    const server = this.server;
+    if (!server) {
+      return Promise.resolve(this.port);
+    }
+
+    if (server.listening) {
       return Promise.resolve(this.port);
     }
 
     return new Promise((resolve, reject) => {
       const errorHandler = (e: Error) => reject(e);
-      this.server
+      server
         .addListener('error', errorHandler)
         .listen(this.port, () => {
-          this.server.removeListener('error', errorHandler);
+          server.removeListener('error', errorHandler);
           resolve(this.port);
         });
     });

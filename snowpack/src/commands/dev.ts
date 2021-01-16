@@ -1207,7 +1207,10 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
 
     return new EsmHmrEngine({
       delay: config.devOptions.hmrDelay ?? 0,
-      server: createServer(() => {}).listen(hmrPort),
+      server: createServer((_, res) => {
+        res.writeHead(426);
+        res.end('Upgrade Required');
+      }),
       port: hmrPort
     })
   }

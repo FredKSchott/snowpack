@@ -423,7 +423,9 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
       path.resolve(internalFilesBuildLoc, 'hmr-error-overlay.js'),
       HMR_OVERLAY_CODE,
     );
-    hmrEngine = new EsmHmrEngine({port: config.devOptions.hmrPort});
+    hmrEngine = new EsmHmrEngine({
+      port: config.devOptions.hmrPort,
+    });
   }
 
   logger.info(colors.yellow('! building source files...'));
