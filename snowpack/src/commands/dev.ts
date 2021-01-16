@@ -53,7 +53,7 @@ import {
 import {buildFile as _buildFile, getInputsFromOutput} from '../build/build-pipeline';
 import {getUrlForFile} from '../build/file-urls';
 import {createImportResolver} from '../build/import-resolver';
-import {EsmHmrEngine} from '../hmr-server-engine';
+import {EsmHmrEngine, NoopHmrEngine} from '../hmr-server-engine';
 import {logger} from '../logger';
 import {
   scanCodeImportsExports,
@@ -1165,29 +1165,60 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     return http.createServer(responseHandler as http.RequestListener);
   };
 
-  const server = createServer(async (req, res) => {
-    // Attach a request logger.
-    res.on('finish', () => {
-      const {method, url} = req;
-      const {statusCode} = res;
-      logger.debug(`[${statusCode}] ${method} ${url}`);
-    });
-    // Otherwise, pass requests directly to Snowpack's request handler.
-    handleRequest(req, res);
-  })
-    .on('error', (err: Error) => {
-      logger.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);
-      server.close();
-      process.exit(1);
-    })
-    .listen(port);
+  function createServers() {
+    let webServer: http.Server | http2.Http2SecureServer | undefined;
+    if (config.devOptions.server !== false) {
+      webServer = createServer(async (req, res) => {
+        // Attach a request logger.
+        res.on('finish', () => {
+          const {method, url} = req;
+          const {statusCode} = res;
+          logger.debug(`[${statusCode}] ${method} ${url}`);
+        });
+        // Otherwise, pass requests directly to Snowpack's request handler.
+        handleRequest(req, res);
+      })
+      .on('error', (err: Error) => {
+        logger.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port)}.`), err);
+        webServer!.close();
+        process.exit(1);
+      }).listen(config.devOptions.port);
+    }
 
-  const {hmrDelay} = config.devOptions;
-  const hmrEngineOptions = Object.assign(
-    {delay: hmrDelay},
-    config.devOptions.hmrPort ? {port: config.devOptions.hmrPort} : {server, port},
-  );
-  const hmrEngine = new EsmHmrEngine(hmrEngineOptions);
+    return {
+      server: webServer,
+      hmrEngine: createHmrEngine(webServer)
+    }
+  }
+
+  function createHmrEngine(webServer: http.Server | http2.Http2SecureServer | undefined) {
+    if (config.devOptions.hmr === false) {
+      return new NoopHmrEngine();
+    }
+
+    const hmrPort = config.devOptions.hmrPort ?? config.devOptions.port;
+    if (webServer && hmrPort === config.devOptions.port) {
+      return new EsmHmrEngine({
+        delay: config.devOptions.hmrDelay ?? 0,
+        server: webServer,
+        port: hmrPort
+      })
+    }
+
+    return new EsmHmrEngine({
+      delay: config.devOptions.hmrDelay ?? 0,
+      server: createServer(() => {}).listen(hmrPort),
+      port: hmrPort
+    })
+  }
+
+  const {server, hmrEngine} = createServers();
+
+  hmrEngine.listen()
+    .catch(ex => {
+      logger.error(colors.red(`  ✘ Failed to start hmr server on port ${colors.bold(port)}.`), ex);
+    });
+
   onProcessExit(() => {
     hmrEngine.disconnectAllClients();
   });
@@ -1370,7 +1401,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     getServerRuntime: (options) => getServerRuntime(sp, options),
     async shutdown() {
       await watcher.close();
-      server.close();
+      server?.close();
     },
   } as SnowpackDevServer;
   return sp;

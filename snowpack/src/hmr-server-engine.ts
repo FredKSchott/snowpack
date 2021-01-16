@@ -26,23 +26,39 @@ type HMRMessage =
 const DEFAULT_CONNECT_DELAY = 2000;
 const DEFAULT_PORT = 12321;
 
-interface EsmHmrEngineOptionsCommon {
-  delay?: number;
+type EsmHmrEngineOptions = {
+  delay: number,
+  server: http.Server | http2.Http2SecureServer,
+  port: number
+};
+
+export interface IEsmHmrEngine {
+  readonly port: number;
+  readonly enabled: boolean;
+  listen(): Promise<number>;
+  disconnectAllClients(): void;
+
+  setEntry(sourceUrl: string, imports: string[], isHmrEnabled?: boolean): void;
+  getEntry(sourceUrl: string, createIfNotFound?: boolean): Dependency | null;
+
+  broadcastMessage(data: HMRMessage): void;
+  markEntryForReplacement(entry: Dependency, state: boolean): void;
 }
 
-type EsmHmrEngineOptions = (
-  | {
-      server: http.Server | http2.Http2Server;
-      port: number;
-    }
-  | {
-      port?: number;
-      server?: undefined;
-    }
-) &
-  EsmHmrEngineOptionsCommon;
+export class NoopHmrEngine implements IEsmHmrEngine {
+  port = DEFAULT_PORT;
+  enabled = false;
+  listen() {return Promise.resolve(DEFAULT_PORT)}
+  disconnectAllClients() {}
+  getEntry(): Dependency | null {
+    return null;
+  }
+  setEntry() {}
+  broadcastMessage(): void {}
+  markEntryForReplacement(): void {}
+}
 
-export class EsmHmrEngine {
+export class EsmHmrEngine implements IEsmHmrEngine {
   clients: Set<WebSocket> = new Set();
   dependencyTree = new Map<string, Dependency>();
 
@@ -51,27 +67,25 @@ export class EsmHmrEngine {
   private currentBatchTimeout: NodeJS.Timer | null = null;
   private cachedConnectErrors: Set<HMRMessage> = new Set();
   readonly port: number = 0;
+  readonly enabled = true;
+  readonly server: http.Server | http2.Http2SecureServer;
 
   constructor(options: EsmHmrEngineOptions) {
     this.port = options.port || DEFAULT_PORT;
-    const wss = options.server
-      ? new WebSocket.Server({noServer: true})
-      : new WebSocket.Server({port: this.port});
-    if (options.delay) {
-      this.delay = options.delay;
-    }
+    this.delay = options.delay;
+    this.server = options.server;
+    const wss = new WebSocket.Server({noServer: true});
 
-    if (options.server) {
-      options.server.on('upgrade', (req, socket, head) => {
-        // Only handle upgrades to ESM-HMR requests, ignore others.
-        if (req.headers['sec-websocket-protocol'] !== 'esm-hmr') {
-          return;
-        }
-        wss.handleUpgrade(req, socket, head, (client) => {
-          wss.emit('connection', client, req);
-        });
+    options.server.on('upgrade', (req, socket, head) => {
+      // Only handle upgrades to ESM-HMR requests, ignore others.
+      if (req.headers['sec-websocket-protocol'] !== 'esm-hmr') {
+        return;
+      }
+      wss.handleUpgrade(req, socket, head, (client) => {
+        wss.emit('connection', client, req);
       });
-    }
+    });
+
     wss.on('connection', (client) => {
       this.connectClient(client);
       this.registerListener(client);
@@ -81,6 +95,22 @@ export class EsmHmrEngine {
     });
     wss.on('close', (client) => {
       this.disconnectClient(client);
+    });
+  }
+
+  listen(): Promise<number> {
+    if (this.server.listening) {
+      return Promise.resolve(this.port);
+    }
+
+    return new Promise((resolve, reject) => {
+      const errorHandler = (e: Error) => reject(e);
+      this.server
+        .addListener('error', errorHandler)
+        .listen(this.port, () => {
+          this.server.removeListener('error', errorHandler);
+          resolve(this.port);
+        });
     });
   }
 
