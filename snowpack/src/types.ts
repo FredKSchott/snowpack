@@ -133,6 +133,7 @@ export interface PluginLoadOptions {
 }
 
 export interface PluginTransformOptions {
+  /** The absolute file path of the source file, on disk. */
   id: string;
   /** The extension of the file */
   fileExt: string;
