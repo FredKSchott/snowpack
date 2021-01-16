@@ -49,6 +49,7 @@ Start a new Snowpack dev server instance. This is the equvilent of running `snow
 Once started, you can load files from your dev server and Snowpack will build them as requested. This is an important feature to understand: Snowpack's dev server does zero file building on startup, and instead builds files only once they are requested via the server's `loadUrl` method.
 
 ### SnowpackDevServer
+
 #### SnowpackDevServer.port
 
 The port that the server is listening on.
@@ -77,7 +78,6 @@ const {contents} = server.loadUrl(fileUrl, {...});
 ```
 
 A helper function to find the final hosted URL for any source file. Useful when combined with `loadUrl`, since you may only know a file's location on disk without knowing it's final hosted URL.
-
 
 #### SnowpackDevServer.sendResponseError()
 
@@ -113,9 +113,10 @@ const { helloWorld } = (await runtime.importModule('/dist/index.js')).exports;
 helloWorld();
 ```
 
-Returns an ESM Server Runtime that lets Node.js import modules directly out of Snowpack's build cache. Useful for SSR, test running frontend code, and the overall unification of your build pipeline. 
+Returns an ESM Server Runtime that lets Node.js import modules directly out of Snowpack's build cache. Useful for SSR, test running frontend code, and the overall unification of your build pipeline.
 
 For more information, check out our guide on [Server-Side Rendering](/guides/server-side-render) using the `getServerRuntime()` API.
+
 #### ServerRuntime
 
 ```ts
