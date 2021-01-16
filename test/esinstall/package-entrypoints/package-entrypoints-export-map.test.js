@@ -158,13 +158,12 @@ describe('package-entrypoints exports configuration', () => {
       });
     };
 
-    expect(run).rejects.toThrow();
+    return expect(run).rejects.toThrow();
   });
 
   it('loading a missing export throws', async () => {
     const cwd = __dirname;
     const dest = path.join(cwd, 'test-export-missing-export');
-
     const targets = ['preact/debug/src/check-props'];
 
     const run = async () => {
@@ -174,6 +173,23 @@ describe('package-entrypoints exports configuration', () => {
       });
     };
 
-    expect(run).rejects.toThrow();
+    return expect(run).rejects.toThrow(
+      'Package "preact" exists but package.json "exports" does not include entry for "./debug/src/check-props".',
+    );
+  });
+
+  it('loading a missing export throws (with hint)', async () => {
+    const cwd = __dirname;
+    const dest = path.join(cwd, 'test-export-missing-export-hint');
+
+    await expect(() => runTest(['preact/hooks.js'], {cwd, dest})).rejects.toThrow(
+      'Package "preact" exists but package.json "exports" does not include entry for "./hooks.js".\nDid you mean "./hooks"?',
+    );
+    await expect(() => runTest(['preact/hooks.cjs'], {cwd, dest})).rejects.toThrow(
+      'Package "preact" exists but package.json "exports" does not include entry for "./hooks.cjs".\nDid you mean "./hooks"?',
+    );
+    await expect(() => runTest(['preact/hooks.mjs'], {cwd, dest})).rejects.toThrow(
+      'Package "preact" exists but package.json "exports" does not include entry for "./hooks.mjs".\nDid you mean "./hooks"?',
+    );
   });
 });

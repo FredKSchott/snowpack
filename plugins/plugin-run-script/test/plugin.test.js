@@ -13,15 +13,22 @@ describe('plugin-run-script', () => {
 
   beforeEach(() => {
     execa.command.mockClear();
-    execaResult = {stderr: new EventEmitter(), stdout: new EventEmitter()};
-    execaFn = jest.fn(() => execaResult);
+    execaResult = {
+      stderr: new EventEmitter(),
+      stdout: new EventEmitter(),
+      // Execa is weird, and returns a promise that also has other properties. Fake that here.
+      catch: () => {
+        return execaResult;
+      },
+    };
+    execaFn = jest.fn().mockName('execa.command').mockReturnValue(execaResult);
     execa.command = execaFn;
   });
 
   test('returns the execa command promise', async () => {
     const p = plugin({}, DEFAULT_OPTIONS);
     const result = await p.run({isDev: false, log: jest.fn});
-    expect(result).toEqual(result);
+    expect(result).toEqual(execaResult);
   });
   test('calls the given "cmd" command when isDev=false', async () => {
     const p = plugin({}, {cmd: 'CMD'});
