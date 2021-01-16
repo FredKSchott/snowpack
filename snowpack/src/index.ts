@@ -17,7 +17,7 @@ export * from './types';
 export {startServer} from './commands/dev';
 export {build} from './commands/build';
 export {loadConfiguration, createConfiguration} from './config.js';
-export {readLockfile as loadLockfile} from './util.js';
+export {clearCache, readLockfile as loadLockfile} from './util.js';
 export {getUrlForFile} from './build/file-urls';
 export {logger} from './logger';
 
