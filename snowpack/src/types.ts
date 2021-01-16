@@ -21,15 +21,15 @@ export type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
-export interface SSRLoaderConfig {
+export interface ServerRuntimeConfig {
   load: (url: string) => Promise<{contents: string}>;
 }
-export interface SSRLoader {
-  importModule: <T = any>(url: string) => Promise<ESMRuntimeModule<T>>;
+export interface ServerRuntime {
+  importModule: <T = any>(url: string) => Promise<ServerRuntimeModule<T>>;
   invalidateModule: (url: string) => void;
 }
 
-export interface ESMRuntimeModule<T> {
+export interface ServerRuntimeModule<T> {
   exports: T;
   css: string[];
 }
@@ -82,7 +82,7 @@ export interface SnowpackDevServer {
     res: http.ServerResponse,
     {contents, originalFileLoc, contentType}: LoadResult,
   ) => void;
-  getServerRuntime: (options?: {invalidateOnChange?: boolean}) => SSRLoader;
+  getServerRuntime: (options?: {invalidateOnChange?: boolean}) => ServerRuntime;
   sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
   getUrlForFile: (fileLoc: string) => string | null;
   onFileChange: (callback: OnFileChangeCallback) => void;

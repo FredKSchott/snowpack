@@ -1,11 +1,11 @@
 import {existsSync, readFileSync} from 'fs';
 import {resolve} from 'url';
-import {SSRLoader, SSRLoaderConfig} from '../types';
+import {ServerRuntime, ServerRuntimeConfig} from '../types';
 import {sourcemap_stacktrace} from './sourcemaps';
 import {transform} from './transform';
 
 // This function makes it possible to load modules from the snowpack server, for the sake of SSR.
-export function createLoader({load}: SSRLoaderConfig): SSRLoader {
+export function createLoader({load}: ServerRuntimeConfig): ServerRuntime {
   const cache = new Map();
   const graph = new Map();
 
