@@ -46,7 +46,7 @@ What about the other optional configuration options? [The `@snowpack/plugin-sass
 // snowpack.config.js
   plugins: [
 - '@snowpack/plugin-sass'
-+ ['@snowpack/plugin-sass', { style: 'compressed'}
++ ['@snowpack/plugin-sass', { style: 'compressed'}]
   ],
 ```
 
