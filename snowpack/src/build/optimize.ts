@@ -399,7 +399,7 @@ async function runEsbuildOnBuildDirectory(
     minify: config.optimize!.minify,
     target: config.optimize!.target,
     external: Array.from(new Set(allFiles.map((f) => '*' + path.extname(f)))).filter(
-      (ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css'  && ext !== '*',
+      (ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css' && ext !== '*',
     ),
   });
   const manifestFile = outputFiles!.find((f) => f.path.endsWith('build-manifest.json'))!;
