@@ -1,5 +1,5 @@
-"use strict";
-const path = require("path");
+'use strict';
+const path = require('path');
 
 module.exports = {
   process(src, filename) {

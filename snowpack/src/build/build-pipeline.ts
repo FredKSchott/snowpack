@@ -177,7 +177,8 @@ async function runPipelineTransformStep(
           output[destExt].map = undefined;
         } else if (result && typeof result === 'object') {
           // V2 API, structured result variant
-          const contents = (result as PluginTransformResult).contents || (result as any).result;
+          const contents =
+            (result as PluginTransformResult).contents || (result as any).result;
           if (contents) {
             output[destExt].code = contents;
             const map = (result as PluginTransformResult).map;

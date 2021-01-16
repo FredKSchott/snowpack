@@ -5,16 +5,12 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-"use strict";
+'use strict';
 
-const babelJest = require("babel-jest");
-const importMetaBabelPlugin = require("./importMetaBabelPlugin");
+const babelJest = require('babel-jest');
+const importMetaBabelPlugin = require('./importMetaBabelPlugin');
 
 module.exports = babelJest.createTransformer({
-  presets: [
-    "babel-preset-react-app",
-    "@babel/preset-react",
-    "@babel/preset-typescript",
-  ],
+  presets: ['babel-preset-react-app', '@babel/preset-react', '@babel/preset-typescript'],
   plugins: [[importMetaBabelPlugin]],
 });

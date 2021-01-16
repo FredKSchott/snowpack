@@ -5,14 +5,5 @@ packages
 pkg
 TEST_BUILD_OUT
 web_modules
-create-snowpack-app
-
 test/create-snowpack-app/test-install
-
-*.scss
-*.css
-*.vue
-*.html
-
-!snowpack/**
-snowpack/vendor
+.snowpack

@@ -7,5 +7,5 @@ module.exports = {
   plugins: ['@snowpack/plugin-babel', '@snowpack/plugin-react-refresh', '@snowpack/plugin-dotenv'],
   packageOptions: {
     knownEntrypoints: ['react', 'react-dom'],
-  },
+  }
 };

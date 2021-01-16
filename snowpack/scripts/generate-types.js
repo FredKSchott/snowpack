@@ -18,12 +18,10 @@ function updateTypeReferences(packageName) {
   for (const f of files) {
     const body = fs.readFileSync(f, 'utf8');
     const matchOldImport = new RegExp(`from \'${packageName}\';`);
-    const newImport = `from '${path.relative(
-      path.dirname(f),
-      path.join(vendorTypesFolder, packageName),
-    )}';`;
+    const newImport = `from '${path.relative(path.dirname(f), path.join(vendorTypesFolder, packageName))}';`;
     fs.writeFileSync(f, body.replace(matchOldImport, newImport), 'utf8');
   }
+
 }
 
 function bundleTypes(packageName) {
@@ -44,6 +42,8 @@ function bundleTypes(packageName) {
   }
   updateTypeReferences(packageName);
 }
+
+
 
 function cleanup() {
   const files = glob.sync(path.join(rootDirectory, 'snowpack/lib/**/*.js'), {

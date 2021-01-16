@@ -1,8 +1,8 @@
-const template = require("@babel/template").default;
+const template = require('@babel/template').default;
 
 const PUBLIC_ENV_REGEX = /^SNOWPACK_PUBLIC_/;
 function generateEnvObject(mode) {
-  const envObject = { ...process.env };
+  const envObject = {...process.env};
   for (const env of Object.keys(envObject)) {
     if (!PUBLIC_ENV_REGEX.test(env)) {
       delete envObject[env];
@@ -19,7 +19,7 @@ function generateEnvObject(mode) {
  */
 module.exports = function () {
   const ast = template.ast(`
-  ({env: ${JSON.stringify(generateEnvObject("test"))}})
+  ({env: ${JSON.stringify(generateEnvObject('test'))}})
 `);
   return {
     visitor: {

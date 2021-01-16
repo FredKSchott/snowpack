@@ -1,10 +1,10 @@
 module.exports = {
   devOptions: {
-    open: 'none',
+    open: "none"
   },
   mount: {
-    public: '/',
-    src: '/_dist_',
+    public: "/",
+    src: "/_dist_"
   },
   plugins: [
     [

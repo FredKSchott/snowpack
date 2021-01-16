@@ -31,9 +31,8 @@ import builtins from 'builtin-modules';
 import json from '@rollup/plugin-json';
 import alias from '@rollup/plugin-alias';
 
-if (
-  fs.readFileSync(path.resolve(__dirname, '../lib/index.js'), 'utf8').startsWith(`'use strict';`)
-) {
+
+if (fs.readFileSync(path.resolve(__dirname, '../lib/index.js'), 'utf8').startsWith(`'use strict';`)) {
   throw new Error('Input is already bundled! Re-run build to regenerate');
 }
 
@@ -91,10 +90,7 @@ const config = {
         {find: /^fsevents$/, replacement: require.resolve('../vendor/~fsevents.js')},
         // vm2 & others
         {find: /^vm2$/, replacement: require.resolve('../vendor/vm2/index.js')},
-        {
-          find: /^htmlparser2$/,
-          replacement: require.resolve('../vendor/generated/~htmlparser2.js'),
-        },
+        {find: /^htmlparser2$/, replacement: require.resolve('../vendor/generated/~htmlparser2.js')},
       ],
     }),
     commonjs({

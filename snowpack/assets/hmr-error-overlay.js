@@ -890,53 +890,60 @@ const ERROR_OVERLAY_TEMPLATE = `
 const template = document.createElement('template');
 template.innerHTML = ERROR_OVERLAY_TEMPLATE;
 
-customElements.define(
-  'hmr-error-overlay',
-  class HmrErrorOverlay extends HTMLElement {
-    constructor({title, errorMessage, fileLoc, errorStackTrace}) {
-      super();
-      this.title = title;
-      this.errorMessage = errorMessage;
-      this.fileLoc = fileLoc;
-      this.errorStackTrace = errorStackTrace;
-      this.sr = this.attachShadow({mode: 'open'});
-      this.sr.appendChild(template.content.cloneNode(true));
-      this.close = this.close.bind(this);
-    }
+customElements.define('hmr-error-overlay', class HmrErrorOverlay extends HTMLElement {
+  constructor({ title, errorMessage, fileLoc, errorStackTrace }) {
+    super();
+    this.title = title;
+    this.errorMessage = errorMessage;
+    this.fileLoc = fileLoc;
+    this.errorStackTrace = errorStackTrace;
+    this.sr = this.attachShadow({ mode: 'open' });
+    this.sr.appendChild(template.content.cloneNode(true));
+    this.close = this.close.bind(this);
+  }
 
-    connectedCallback() {
-      this.sr.getElementById('close-button').addEventListener('click', this.close);
-      this.sr.querySelector('[data-nextjs-dialog-backdrop]').addEventListener('click', this.close);
+  connectedCallback() {
+    this.sr
+      .getElementById('close-button')
+      .addEventListener('click', this.close);
+    this.sr
+      .querySelector('[data-nextjs-dialog-backdrop]')
+      .addEventListener('click', this.close);
 
-      this.sr.getElementById('nextjs__container_errors_label').innerText = this.title;
-      this.sr.getElementById('nextjs__container_errors_desc').innerText = this.errorMessage;
-      if (this.fileLoc) {
-        this.sr.getElementById('error-file-loc').innerText = this.fileLoc;
-      } else {
-        this.sr.getElementById('error-file-loc').innerText = 'No source file.';
-      }
-      if (this.errorStackTrace) {
-        this.sr.querySelector('pre').innerText = this.errorStackTrace;
-      } else {
-        this.sr.querySelector('pre').style.display = 'none';
-      }
+    this.sr.getElementById(
+      'nextjs__container_errors_label',
+    ).innerText = this.title;
+    this.sr.getElementById(
+      'nextjs__container_errors_desc',
+    ).innerText = this.errorMessage;
+    if (this.fileLoc) {
+      this.sr.getElementById('error-file-loc').innerText = this.fileLoc;
+    } else {
+      this.sr.getElementById('error-file-loc').innerText = 'No source file.';
     }
+    if (this.errorStackTrace) {
+      this.sr.querySelector('pre').innerText = this.errorStackTrace;
+    } else {
+      this.sr.querySelector('pre').style.display = 'none';
+    }
+  }
 
-    disconnectedCallback() {
-      this.sr.getElementById('close-button').removeEventListener('click', this.close);
-      this.sr
-        .querySelector('[data-nextjs-dialog-backdrop]')
-        .removeEventListener('click', this.close);
-    }
+  disconnectedCallback() {
+    this.sr
+      .getElementById('close-button')
+      .removeEventListener('click', this.close);
+    this.sr
+      .querySelector('[data-nextjs-dialog-backdrop]')
+      .removeEventListener('click', this.close);
+  }
 
-    close() {
-      this.parentNode.removeChild(this);
-    }
+  close() {
+    this.parentNode.removeChild(this);
+  }
 
-    _watchEscape(event) {
-      if (event.key === 'Escape') {
-        this.close();
-      }
+  _watchEscape(event) {
+    if (event.key === 'Escape') {
+      this.close();
     }
-  },
-);
+  }
+});

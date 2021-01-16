@@ -9,7 +9,7 @@
     "bundle": "lerna run bundle --scope=snowpack",
     "publish": "npm run build && npm run bundle && lerna publish --no-private",
     "lint": "lerna run lint --parallel --scope=esinstall --scope=snowpack --scope=skypack",
-    "format": "prettier --write .",
+    "format": "prettier --write '{snowpack,skypack,esinstall}/src/**/*.{ts,js,json}'  '{scripts,test,plugins,create-snowpack-app}/**/*.{ts,js,json}' '{.dependabot,.github,www}/**/*.{md,yml,js}'",
     "test": "jest --testPathIgnorePatterns=/test-dev/ --test-timeout=30000",
     "test:dev": "jest /test-dev/ --test-timeout=30000",
     "test:docs": "cd www && yarn && yarn test --passWithNoTests"

@@ -118,9 +118,14 @@ async function cleanProject(dir) {
   );
 }
 
-const {template, useYarn, usePnpm, toInstall, targetDirectoryRelative, targetDirectory} = validateArgs(
-  process.argv,
-);
+const {
+  template,
+  useYarn,
+  usePnpm,
+  toInstall,
+  targetDirectoryRelative,
+  targetDirectory,
+} = validateArgs(process.argv);
 
 let installer = 'npm';
 if (useYarn) {
@@ -215,10 +220,8 @@ const installedTemplate = isLocalTemplate
     formatCommand(
       `${installer} install`,
       `Install your dependencies. ${
-        toInstall
-        ? '(We already ran this one for you!)'
-        : '(You asked us to skip this step!)'
-      }`
+        toInstall ? '(We already ran this one for you!)' : '(You asked us to skip this step!)'
+      }`,
     ),
   );
   console.log(formatCommand(`${installer} start`, 'Start your development server.'));
