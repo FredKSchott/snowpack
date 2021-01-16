@@ -656,7 +656,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
         code = wrapHtmlResponse({
           code: code as string,
           hmr: isHMR,
-          hmrPort: hmrEngine.port !== port ? hmrEngine.port : undefined,
+          hmrPort: hmrEngine ? hmrEngine.port : undefined,
           isDev: true,
           config,
           mode: 'development',
