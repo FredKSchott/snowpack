@@ -583,7 +583,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   }
 
   // 5. Optimize the build.
-  if (config.buildOptions.watch) {
+  if (!config.buildOptions.watch) {
     if (config.optimize || config.plugins.some((p) => p.optimize)) {
       const optimizeStart = performance.now();
       logger.info(colors.yellow('! optimizing build...'));
