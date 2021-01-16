@@ -74,6 +74,29 @@ function createBuildFileManifest(allFiles: FileBuilder[]): SnowpackBuildResultFi
   return result;
 }
 
+/**
+ * Scan a directory and remove any empty folders, recursively.
+ */
+async function removeEmptyFolders(directoryLoc: string): Promise<boolean> {
+  if (!(await fs.stat(directoryLoc)).isDirectory()) {
+    return false;
+  }
+  // If folder is empty, clear it
+  const files = await fs.readdir(directoryLoc);
+  if (files.length === 0) {
+    await fs.rmdir(directoryLoc);
+    return false;
+  }
+  // Otherwise, step in and clean each contained item
+  await Promise.all(files.map((file) => removeEmptyFolders(path.join(directoryLoc, file))));
+  // After, check again if folder is now empty
+  const afterFiles = await fs.readdir(directoryLoc);
+  if (afterFiles.length == 0) {
+    await fs.rmdir(directoryLoc);
+  }
+  return true;
+}
+
 async function installOptimizedDependencies(
   scannedFiles: SnowpackSourceFile[],
   installDest: string,
@@ -577,6 +600,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
           `[${((optimizeEnd - optimizeStart) / 1000).toFixed(2)}s]`,
         )}`,
       );
+      await removeEmptyFolders(buildDirectoryLoc);
       await runPipelineCleanupStep(config);
       logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
       return {

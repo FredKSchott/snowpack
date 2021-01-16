@@ -47,28 +47,6 @@ interface ScannedHtmlEntrypoint {
 // We create a fake bundle directory for now. Nothing ever actually gets written here.
 const FAKE_BUILD_DIRECTORY = path.join(process.cwd(), '~~bundle~~');
 const FAKE_BUILD_DIRECTORY_REGEX = /.*\~\~bundle\~\~[\\\/]/;
-/**
- * Scan a directory and remove any empty folders, recursively.
- */
-async function removeEmptyFolders(directoryLoc: string): Promise<boolean> {
-  if (!(await fs.stat(directoryLoc)).isDirectory()) {
-    return false;
-  }
-  // If folder is empty, clear it
-  const files = await fs.readdir(directoryLoc);
-  if (files.length === 0) {
-    await fs.rmdir(directoryLoc);
-    return false;
-  }
-  // Otherwise, step in and clean each contained item
-  await Promise.all(files.map((file) => removeEmptyFolders(path.join(directoryLoc, file))));
-  // After, check again if folder is now empty
-  const afterFiles = await fs.readdir(directoryLoc);
-  if (afterFiles.length == 0) {
-    await fs.rmdir(directoryLoc);
-  }
-  return true;
-}
 
 /** Collect deep imports in the given set, recursively. */
 function collectDeepImports(url: string, manifest: ESBuildMetaManifest, set: Set<string>): void {
@@ -528,10 +506,12 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
       }
     }
     deleteFromBuildSafe(
-      path.resolve(buildDirectoryLoc, removeLeadingSlash(path.posix.join(config.buildOptions.metaUrlPath, 'pkg'))),
+      path.resolve(
+        buildDirectoryLoc,
+        removeLeadingSlash(path.posix.join(config.buildOptions.metaUrlPath, 'pkg')),
+      ),
       config,
     );
-    await removeEmptyFolders(buildDirectoryLoc);
     for (const outputFile of outputFiles!) {
       mkdirp.sync(path.dirname(outputFile.path));
       await fs.writeFile(outputFile.path, outputFile.contents);
