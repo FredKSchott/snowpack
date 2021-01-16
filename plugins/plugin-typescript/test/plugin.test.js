@@ -13,7 +13,9 @@ describe('plugin-typescript', () => {
       stderr: new EventEmitter(),
       stdout: new EventEmitter(),
       // Execa is weird, and returns a promise that also has other properties. Fake that here.
-      catch: () => { return execaResult; },
+      catch: () => {
+        return execaResult;
+      },
     };
     execaFn = jest.fn().mockName('execa.command').mockReturnValue(execaResult);
     execa.command = execaFn;

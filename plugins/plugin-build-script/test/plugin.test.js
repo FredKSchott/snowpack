@@ -10,7 +10,9 @@ describe('@snowpack/plugin-build-script', () => {
       stderr: '',
       exitCode: 0,
       // Execa is weird, and returns a promise that also has other properties. Fake that here.
-      catch: () => { return execaResult; },
+      catch: () => {
+        return execaResult;
+      },
     };
     execa.command = jest.fn().mockName('execa.command').mockReturnValue(execaResult);
     fs.readFile = jest.fn().mockResolvedValue('content');
