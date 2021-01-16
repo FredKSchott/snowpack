@@ -258,13 +258,17 @@ function loadPlugins(
     return plugin;
   }
 
-  function loadPluginFromConfig(pluginLoc: string, options?: any): SnowpackPlugin {
+  function loadPluginFromConfig(
+    pluginLoc: string,
+    options: any,
+    config: SnowpackConfig,
+  ): SnowpackPlugin {
     if (!path.isAbsolute(pluginLoc)) {
       throw new Error(
         `Snowpack Internal Error: plugin ${pluginLoc} should have been resolved to an absolute path.`,
       );
     }
-    const pluginRef = NATIVE_REQUIRE(pluginLoc);
+    const pluginRef = NATIVE_REQUIRE(pluginLoc, {paths: [config.root]});
     let plugin: SnowpackPlugin;
     try {
       plugin = typeof pluginRef.default === 'function' ? pluginRef.default : pluginRef;
@@ -296,7 +300,7 @@ function loadPlugins(
   config.plugins.forEach((ref) => {
     const pluginName = Array.isArray(ref) ? ref[0] : ref;
     const pluginOptions = Array.isArray(ref) ? ref[1] : {};
-    const plugin = loadPluginFromConfig(pluginName, pluginOptions);
+    const plugin = loadPluginFromConfig(pluginName, pluginOptions, config);
     logger.debug(`loaded plugin: ${pluginName}`);
     plugins.push(plugin);
   });
