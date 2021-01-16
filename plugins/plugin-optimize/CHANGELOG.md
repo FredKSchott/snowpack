@@ -17,8 +17,7 @@
 - 3eca3476 - [ci] yarn format
 - 916b18a0 - mark plugin-optimize as no longer private
 
-
 ## @snowpack/plugin-optimize@0.2.13 [2021-01-16]
 
-* 63f0d8d7 - add mkdirp to plugin-optimize 
-* a65023e2 - [ci] yarn format 
+- 63f0d8d7 - add mkdirp to plugin-optimize
+- a65023e2 - [ci] yarn format

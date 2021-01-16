@@ -33,15 +33,14 @@
 - beb3f9a1 - stop ignoring postcss in generated bundle
 - 2b797521 - [ci] yarn format
 
-
 ## snowpack@3.0.11 [2021-01-16]
 
-* 58a36d4c - fix bad build conditional check 
-* 37f7a55d - remove empty build folders from build 
-* 6e01eeb5 - improve build watch output 
-* 137c58b0 - fix init file issue 
-* e2b74e7b - add fallback deprecation 
-* 968720cf - remove rollup from bundle to pass peerDep checks 
-* 70d25dad - Resolves #2265 (#2289) <Josh Wilson>
-* 7b38b486 - get tests passing 
-* e6b618c5 - [ci] yarn format 
+- 58a36d4c - fix bad build conditional check
+- 37f7a55d - remove empty build folders from build
+- 6e01eeb5 - improve build watch output
+- 137c58b0 - fix init file issue
+- e2b74e7b - add fallback deprecation
+- 968720cf - remove rollup from bundle to pass peerDep checks
+- 70d25dad - Resolves #2265 (#2289) <Josh Wilson>
+- 7b38b486 - get tests passing
+- e6b618c5 - [ci] yarn format

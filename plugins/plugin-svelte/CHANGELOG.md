@@ -8,7 +8,6 @@
 - a8471965 - [ci] yarn format
 - 9b465b6f - add backwards compat for the svelte plugin
 
-
 ## @snowpack/plugin-svelte@3.5.2 [2021-01-16]
 
-* b5b0590f - [ci] yarn format 
+- b5b0590f - [ci] yarn format
