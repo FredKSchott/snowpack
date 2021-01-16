@@ -26,7 +26,7 @@
 
 import cacache from 'cacache';
 import isCompressible from 'compressible';
-import {createLoader as createSSRLoader} from '../ssr-loader';
+import {createLoader as createServerRuntime} from '../ssr-loader';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, promises as fs, statSync} from 'fs';
@@ -69,7 +69,7 @@ import {
   RouteConfigObject,
   SnowpackBuildMap,
   SnowpackDevServer,
-  SSRLoader,
+  ServerRuntime,
 } from '../types';
 import {
   BUILD_CACHE,
@@ -249,8 +249,8 @@ function handleResponseError(req, res, err: Error | NotFoundError) {
 function getServerRuntime(
   sp: SnowpackDevServer,
   options: {invalidateOnChange?: boolean} = {},
-): SSRLoader {
-  const runtime = createSSRLoader({
+): ServerRuntime {
+  const runtime = createServerRuntime({
     load: (url) => sp.loadUrl(url, {isSSR: true, allowStale: false, encoding: 'utf8'}),
   });
   if (options.invalidateOnChange !== false) {
