@@ -3,7 +3,6 @@ import {Plugin, ResolvedId} from 'rollup';
 import {SkypackSDK} from './index';
 import {AbstractLogger, HAS_CDN_HASH_REGEX, RESOURCE_CACHE} from './util';
 
-
 /**
  * rollup-plugin-remote-cdn
  *
@@ -12,8 +11,8 @@ import {AbstractLogger, HAS_CDN_HASH_REGEX, RESOURCE_CACHE} from './util';
  * successful CDN resolution, we save the file to the local cache and then tell
  * rollup that it's safe to load from the cache in the `load()` hook.
  */
-export function rollupPluginSkypack({sdk, logger}: {sdk: SkypackSDK, logger: AbstractLogger}) {
-const CACHED_FILE_ID_PREFIX = 'remote-pkg-cache:';
+export function rollupPluginSkypack({sdk, logger}: {sdk: SkypackSDK; logger: AbstractLogger}) {
+  const CACHED_FILE_ID_PREFIX = 'remote-pkg-cache:';
 
   return {
     name: 'snowpack:rollup-plugin-remote-cdn',
