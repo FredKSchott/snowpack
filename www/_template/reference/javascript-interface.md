@@ -178,6 +178,17 @@ A helper function to find the final hosted URL for any source file. Useful when 
 
 Similar to `SnowpackDevServer.getUrlForFile()`, but requires a second `config` argument to inform the result.
 
+### clearCache()
+
+`clearCache() => Promise<void>`
+
+```js
+import {clearCache} from 'snowpack';
+await clearCache();
+```
+
+Equivalent of using the `--reload` flag with the `snowpack` CLI. Clears all cached data in Snowpack. Useful for troubleshooting, or clearing the cache after making some change that Snowpack couldn't detect.
+
 ### logger
 
 ```js
@@ -185,3 +196,4 @@ import { logger } from 'snowpack';
 ```
 
 You can control Snowpack's internal logger directly by importing it. Note that this is an advanced feature not needed for most users. Instead, use the `verbose` config option to enable debug logging and control log message verbosity.
+
