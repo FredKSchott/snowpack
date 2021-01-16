@@ -6,7 +6,6 @@ import {
   findMatchingAliasEntry,
   getExtensionMatch,
   hasExtension,
-  isRemoteUrl,
   replaceExtension,
 } from '../util';
 import {getUrlForFile} from './file-urls';
@@ -69,14 +68,6 @@ function resolveSourceSpecifier(lazyFileLoc: string, config: SnowpackConfig) {
  */
 export function createImportResolver({fileLoc, config}: {fileLoc: string; config: SnowpackConfig}) {
   return function importResolver(spec: string): string | false {
-    // Ignore "http://*" imports
-    if (isRemoteUrl(spec)) {
-      return spec;
-    }
-    // Ignore packages marked as external
-    if (config.packageOptions.external?.includes(spec)) {
-      return spec;
-    }
     if (spec.startsWith('/')) {
       return spec;
     }

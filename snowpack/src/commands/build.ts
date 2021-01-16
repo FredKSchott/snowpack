@@ -268,6 +268,15 @@ class FileBuilder {
         config: this.config,
       });
       const resolvedCode = await transformFileImports(file, (spec) => {
+        // Ignore "http://*" imports
+        if (isRemoteUrl(spec)) {
+          return spec;
+        }
+        // Ignore packages marked as external
+        if (this.config.packageOptions.external?.includes(spec)) {
+          return spec;
+        }
+
         // Try to resolve the specifier to a known URL in the project
         let resolvedImportUrl = resolveImportSpecifier(spec);
         // If not resolved, then this is a package. During build, dependencies are always
@@ -282,14 +291,7 @@ class FileBuilder {
           logger.error(`${file.locOnDisk} - Could not resolve unknown import "${spec}".`);
           return spec;
         }
-        // Ignore "http://*" imports
-        if (isRemoteUrl(resolvedImportUrl)) {
-          return resolvedImportUrl;
-        }
-        // Ignore packages marked as external
-        if (this.config.packageOptions.external?.includes(resolvedImportUrl)) {
-          return resolvedImportUrl;
-        }
+
         // Handle normal "./" & "../" import specifiers
         const importExtName = path.extname(resolvedImportUrl);
         const isBundling = !!this.config.optimize?.bundle;

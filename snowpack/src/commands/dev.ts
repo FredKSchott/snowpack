@@ -715,6 +715,15 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
           baseExt: responseExt,
         },
         (spec) => {
+          // Ignore "http://*" imports
+          if (isRemoteUrl(spec)) {
+            return spec;
+          }
+          // Ignore packages marked as external
+          if (config.packageOptions.external?.includes(spec)) {
+            return spec;
+          }
+
           // Try to resolve the specifier to a known URL in the project
           let resolvedImportUrl = resolveImportSpecifier(spec);
           // Handle a package import
@@ -726,14 +735,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
             missingPackages.push(spec);
             return spec;
           }
-          // Ignore "http://*" imports
-          if (isRemoteUrl(resolvedImportUrl)) {
-            return resolvedImportUrl;
-          }
-          // Ignore packages marked as external
-          if (config.packageOptions.external?.includes(resolvedImportUrl)) {
-            return spec;
-          }
+
           // Handle normal "./" & "../" import specifiers
           const importExtName = path.posix.extname(resolvedImportUrl);
           const isProxyImport = importExtName && importExtName !== '.js';
