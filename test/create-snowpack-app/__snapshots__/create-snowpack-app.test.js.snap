@@ -7380,7 +7380,7 @@ exports[`create-snowpack-app app-template-minimal > build: index.html 1`] = `
 
 exports[`create-snowpack-app app-template-minimal > build: index.js 1`] = `
 "/* Add JavaScript code here! */
-console.log('Hello World! You did! Welcome to Snowpack :D');"
+console.log('Hello World! You did it! Welcome to Snowpack :D');"
 `;
 
 exports[`create-snowpack-app app-template-minimal > build: package.json 1`] = `
