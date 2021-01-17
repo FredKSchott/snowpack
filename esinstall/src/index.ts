@@ -70,6 +70,7 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
   'scheduler/index.js',
   'react-table',
   'chai/index.js',
+  'events/events.js'
 ];
 
 function isImportOfPackage(importUrl: string, packageName: string) {

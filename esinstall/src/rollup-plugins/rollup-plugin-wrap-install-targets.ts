@@ -38,10 +38,6 @@ export function rollupPluginWrapInstallTargets(
   function cjsAutoDetectExportsTrusted(normalizedFileLoc: string): string[] | undefined {
     try {
       const mod = NATIVE_REQUIRE(normalizedFileLoc);
-      // skip analysis for non-object modules, these can only be the default export.
-      if (!mod || mod.constructor?.name?.toString() !== 'Object') {
-        return;
-      }
       // Collect and filter all properties of the object as named exports.
       return Object.keys(mod).filter((imp) => imp !== 'default' && imp !== '__esModule');
     } catch (err) {
