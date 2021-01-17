@@ -51,13 +51,13 @@ function resolveSourceSpecifier(lazyFileLoc: string, config: SnowpackConfig) {
   const extensionMatch = getExtensionMatch(lazyFileLoc, config._extensionMap);
 
   if (extensionMatch) {
-  const [inputExt, outputExts] = extensionMatch;
-  if (outputExts.length > 1) {
-    lazyFileLoc = addExtension(lazyFileLoc, outputExts[0]);
-  } else {
-    lazyFileLoc = replaceExtension(lazyFileLoc, inputExt, outputExts[0]);
+    const [inputExt, outputExts] = extensionMatch;
+    if (outputExts.length > 1) {
+      lazyFileLoc = addExtension(lazyFileLoc, outputExts[0]);
+    } else {
+      lazyFileLoc = replaceExtension(lazyFileLoc, inputExt, outputExts[0]);
+    }
   }
-}
 
   return getUrlForFile(lazyFileLoc, config);
 }

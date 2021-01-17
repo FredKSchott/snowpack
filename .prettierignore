@@ -1,6 +1,7 @@
 vendor
 dist
-build
+test/**/build
+create-snowpack-app/**/build
 packages
 pkg
 TEST_BUILD_OUT

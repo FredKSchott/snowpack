@@ -48,7 +48,7 @@
     "jest": "^26.2.2",
     "jest-specific-snapshot": "^4.0.0",
     "lerna": "^3.22.1",
-    "prettier": "^2.0.5",
+    "prettier": "^2.2.1",
     "strip-ansi": "^6.0.0",
     "typescript": "^4.0.0"
   },
