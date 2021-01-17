@@ -320,7 +320,7 @@ ${colors.dim(
         mainFields: [...packageLookupFields, ...MAIN_FIELDS],
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
-        preferBuiltins: true, // Default: true
+        preferBuiltins: false, // Default: true
         dedupe: userDefinedRollup.dedupe || [],
         // @ts-ignore: Added in v11+ of this plugin
         exportConditions: packageExportLookupFields,
