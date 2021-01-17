@@ -69,7 +69,7 @@ You can now import React in `index.jsx` and add a simple test component just to 
 
 ```diff
   /* Add JavaScript code here! */
-- console.log('Hello World! You did! Welcome to Snowpack :D');
+- console.log('Hello World! You did it! Welcome to Snowpack :D');
 + import React from 'react';
 + import ReactDOM from 'react-dom';
 + ReactDOM.render(<div>"HELLO REACT"</div>, document.getElementById('root'));
