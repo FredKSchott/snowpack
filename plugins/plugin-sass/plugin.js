@@ -116,6 +116,11 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
             args.push(`--${flagName}=${value}`);
             break;
           }
+          default: {
+            throw new Error(
+              `compilerOptions[${flag}] value not supported. Must be string, number, or boolean.`,
+            );
+          }
         }
       });
 
