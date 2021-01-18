@@ -69,6 +69,6 @@ Skypack (the CDN that powers `pkg.snowpack.dev`) will always prefer a package Ja
 
 ## What do I do if a package isn't supported / working?
 
-Skypack (the CDN that powers `pkg.snowpack.dev`) is always improving, and it's goal is to support all packages. If you find a package that doesn't work, report it to [Skypack's issue tracker](https://github.com/snowpackjs/skypack-cdn/issues) on GitHub. Many of Snowpack's core contributors also work on Skypack, and will be happy to take a look at the broken package.
+Skypack (the CDN that powers `pkg.snowpack.dev`) is always improving, and its goal is to support all packages. If you find a package that doesn't work, report it to [Skypack's issue tracker](https://github.com/snowpackjs/skypack-cdn/issues) on GitHub. Many of Snowpack's core contributors also work on Skypack, and will be happy to take a look at the broken package.
 
 In a future release, we'll add better support to replace broken packages locally.
