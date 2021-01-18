@@ -402,7 +402,10 @@ export async function startServer(
     }
     if (reqPath === getMetaUrlPath('/env.js', config)) {
       return {
-        contents: encodeResponse(generateEnvModule({mode: 'development', isSSR}), encoding),
+        contents: encodeResponse(
+          generateEnvModule({mode: 'development', isSSR, configEnv: config.environment}),
+          encoding,
+        ),
         imports: [],
         originalFileLoc: null,
         contentType: 'application/javascript',

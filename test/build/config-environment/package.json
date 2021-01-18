@@ -1,12 +1,12 @@
 {
   "private": true,
   "version": "1.0.1",
-  "name": "@snowpack/test-config-environment",
+  "name": "@snowpack/test-config-extends-plugins",
   "scripts": {
     "prepare": "snowpack",
     "testbuild": "snowpack build"
   },
   "devDependencies": {
-    "snowpack": "^3.0.0"
+    "snowpack": "^2.14.3"
   }
 }

@@ -250,17 +250,41 @@ export async function wrapImportProxy({
   return generateDefaultImportProxy(url);
 }
 
+export function generateEnvFromConfig(
+  configEnvObj: {[key: string]: string} | string[],
+): {[key: string]: string} {
+  if (Array.isArray(configEnvObj)) {
+    // get env from Env
+    const envObj = {};
+    for (const key of configEnvObj) {
+      envObj[key] = process.env[key];
+    }
+
+    return envObj;
+  } else {
+    return {
+      ...configEnvObj,
+    };
+  }
+}
+
 export function generateEnvModule({
   mode,
   isSSR,
+  configEnv,
 }: {
   mode: 'development' | 'production';
   isSSR: boolean;
+  configEnv?: {[key: string]: string} | string[];
 }) {
-  const envObject: Record<string, string | boolean | undefined> = getSnowpackPublicEnvVariables();
-  envObject.MODE = mode;
-  envObject.NODE_ENV = mode;
-  envObject.SSR = isSSR;
+  const envObject: Record<string, string | boolean | undefined> = {
+    ...getSnowpackPublicEnvVariables(),
+    ...generateEnvFromConfig(configEnv ?? []),
+    MODE: mode,
+    NODE_ENV: mode,
+    SSR: isSSR,
+  };
+
   return Object.entries(envObject)
     .map(([key, val]) => {
       return `export const ${key} = ${JSON.stringify(val)};`;
