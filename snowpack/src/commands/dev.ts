@@ -74,7 +74,6 @@ import {
 import {
   BUILD_CACHE,
   cssSourceMappingURL,
-  getPackageSource,
   hasExtension,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
@@ -90,6 +89,7 @@ import {
   resolveDependencyManifest,
 } from '../util';
 import {getPort, getServerInfoMessage, paintDashboard, paintEvent} from './paint';
+import {getPackageSource} from '../sources/util';
 
 interface FoundFile {
   fileLoc: string;
