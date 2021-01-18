@@ -30,6 +30,10 @@ export async function addCommand(addValue: string, commandOptions: CommandOption
     )}`,
   );
   const addedDependency = {[pkgName]: pkgSemver};
+  const lookupResponse = await remotePackageSDK.lookupBySpecifier(pkgName, pkgSemver);
+  if (lookupResponse.error) {
+    throw new Error(`There was a problem looking up ${pkgName}@${pkgSemver}`);
+  }
   const newLockfile: LockfileManifest = convertSkypackImportMapToLockfile(
     {
       ...lockfile?.dependencies,

@@ -100,8 +100,10 @@ export function convertSkypackImportMapToLockfile(
 ): LockfileManifest {
   const result = {dependencies, lock: {}};
   for (const [key, val] of Object.entries(dependencies)) {
-    const valPath = url.parse(importMap.imports[key]).pathname;
-    result.lock[key + '#' + val] = valPath?.substr(1);
+    if (importMap.imports[key]) {
+      const valPath = url.parse(importMap.imports[key]).pathname;
+      result.lock[key + '#' + val] = valPath?.substr(1);
+    }
   }
   return result;
 }
