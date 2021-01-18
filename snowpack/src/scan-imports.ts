@@ -191,6 +191,7 @@ function parseFileForInstallTargets({
       }
       case '.html':
       case '.svelte':
+      case '.interface':
       case '.vue': {
         logger.debug(`Scanning ${relativeLoc} for imports as HTML`);
         return [
@@ -227,7 +228,7 @@ function extractJsFromHtml({contents, baseExt}: {contents: string; baseExt: stri
   const allMatches: string[][] = [];
   let match;
   let regex = new RegExp(HTML_JS_REGEX);
-  if (baseExt === '.svelte' || baseExt === '.vue') {
+  if (baseExt === '.svelte' || baseExt === '.interface' || baseExt === '.vue') {
     regex = new RegExp(SVELTE_VUE_REGEX); // scan <script> tags, not <script type="module">
   }
   while ((match = regex.exec(contents))) {
