@@ -143,7 +143,7 @@ async function composeSourceMaps(
 async function runPipelineTransformStep(
   output: SnowpackBuildMap,
   srcPath: string,
-  {isDev, config}: BuildFileOptions,
+  {isDev, isHmrEnabled, isSSR, config}: BuildFileOptions,
 ): Promise<SnowpackBuildMap> {
   const rootFilePath = removeExtension(srcPath, getExtension(srcPath));
   const rootFileName = path.basename(rootFilePath);
@@ -169,6 +169,8 @@ async function runPipelineTransformStep(
           filePath: fileName,
           // @ts-ignore: Deprecated
           urlPath: `./${path.basename(rootFileName + destExt)}`,
+          isHmrEnabled,
+          isSSR
         });
         logger.debug(`✔ transform() success [${debugPath}]`, {name: step.name});
         if (typeof result === 'string' || Buffer.isBuffer(result)) {
