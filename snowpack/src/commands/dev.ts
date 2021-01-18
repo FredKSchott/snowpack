@@ -474,12 +474,18 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
         if (isProxyModule) {
           code = await wrapImportProxy({url: reqPath, code: code.toString(), hmr: isHMR, config});
         }
+        let contentType = path.extname(originalReqPath)
+          ? mime.lookup(path.extname(originalReqPath))
+          : 'application/javascript';
+        // We almost never want an 'application/octet-stream' response, so just
+        // convert to JS until we have proper "raw" handling in the URL for non-JS responses.
+        if (contentType === 'application/octet-stream') {
+          contentType = 'application/javascript';
+        }
         return {
           contents: encodeResponse(code, encoding),
           originalFileLoc: null,
-          contentType: path.extname(originalReqPath)
-            ? mime.lookup(path.extname(originalReqPath))
-            : 'application/javascript',
+          contentType,
         };
       } catch (err) {
         const errorTitle = `Dependency Load Error`;
