@@ -170,7 +170,7 @@ async function runPipelineTransformStep(
           // @ts-ignore: Deprecated
           urlPath: `./${path.basename(rootFileName + destExt)}`,
           isHmrEnabled,
-          isSSR
+          isSSR,
         });
         logger.debug(`✔ transform() success [${debugPath}]`, {name: step.name});
         if (typeof result === 'string' || Buffer.isBuffer(result)) {
