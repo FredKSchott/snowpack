@@ -88,6 +88,10 @@ const configSchema = {
     extends: {type: 'string'},
     exclude: {type: 'array', items: {type: 'string'}},
     plugins: {type: 'array'},
+    environment: {
+      type: 'object',
+      additionalProperties: {oneOf: [{type: 'array', items: {type: 'string'}}, {type: 'object'}]},
+    },
     alias: {
       type: 'object',
       additionalProperties: {type: 'string'},

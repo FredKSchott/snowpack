@@ -99,6 +99,31 @@ You can further customize this the build behavior for any mounted directory by u
 }
 ```
 
+
+## environment
+
+**Type**: `{[key: string]: string}` | `string[]`
+
+Declare your environment variable in here, prefix with `SNOWPACK_PUBLIC_*` will auto inject.
+
+```js
+{
+  "environment": ["foo"]
+}
+```
+
+or :
+
+```js
+{
+  "environment": {
+    "foo": "bar"
+  }
+}
+```
+
+Then you can get your environment variables by `import.meta.env.foo`.
+
 ## alias
 
 **Type**: `object` (package: package or path)
