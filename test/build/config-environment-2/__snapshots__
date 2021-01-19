@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snowpack build config-environment-2: allFiles 1`] = `
+Array [
+  "__snowpack__/env.js",
+  "_dist_/index.js",
+]
+`;
+
+exports[`snowpack build config-environment-2: build/__snowpack__/env.js 1`] = `"export default {\\"FOO\\":\\"bar\\",\\"MODE\\":\\"production\\",\\"NODE_ENV\\":\\"production\\",\\"SSR\\":false};"`;
+
+exports[`snowpack build config-environment-2: build/_dist_/index.js 1`] = `
+"import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+console.log(import.meta.env['FOO']);"
+`;

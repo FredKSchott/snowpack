@@ -12,5 +12,5 @@ exports[`snowpack build config-environment: build/__snowpack__/env.js 1`] = `"ex
 exports[`snowpack build config-environment: build/_dist_/index.js 1`] = `
 "import __SNOWPACK_ENV__ from '../__snowpack__/env.js';
 import.meta.env = __SNOWPACK_ENV__;
-console.log(import.meta.env['foo'])"
+console.log(import.meta.env['foo']);"
 `;

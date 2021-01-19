@@ -1,0 +1,6 @@
+{
+  "mount": {
+    "./src": "/_dist_"
+  },
+  "environment": ["FOO"]
+}

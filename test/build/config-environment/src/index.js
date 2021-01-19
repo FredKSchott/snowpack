@@ -1,1 +1,1 @@
-console.log(import.meta.env['foo'])
+console.log(import.meta.env['foo']);

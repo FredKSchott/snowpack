@@ -1,10 +1,10 @@
 {
   "private": true,
   "version": "1.0.1",
-  "name": "@snowpack/test-config-environment",
+  "name": "@snowpack/test-config-environment-2",
   "scripts": {
     "prepare": "snowpack",
-    "testbuild": "snowpack build"
+    "testbuild": "FOO=bar snowpack build"
   },
   "devDependencies": {
     "snowpack": "^2.14.3"
