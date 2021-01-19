@@ -4,9 +4,10 @@
   "name": "@snowpack/test-config-environment-2",
   "scripts": {
     "prepare": "snowpack",
-    "testbuild": "FOO=bar snowpack build"
+    "testbuild": "cross-env FOO=bar snowpack build"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "snowpack": "^3.0.0"
   }
 }
