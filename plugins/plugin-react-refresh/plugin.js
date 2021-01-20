@@ -14,7 +14,7 @@ const reactRefreshCode = fs
 
 function transformHtml(contents) {
   return contents.replace(
-    /<body.*?>/,
+    /<body.*?>/s,
     `$&
 <script>
   function debounce(e,t){let u;return()=>{clearTimeout(u),u=setTimeout(e,t)}}
