@@ -682,7 +682,13 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
         }
         case '.js': {
           if (isProxyModule) {
-            code = await wrapImportProxy({url: reqPath, code, hmr: isHMR, config});
+            const protocol = config.devOptions.secure ? 'https' : 'http';
+            code = await wrapImportProxy({
+              url: `${protocol}://${hostname}:${port}${reqPath}`,
+              code,
+              hmr: isHMR,
+              config,
+            });
           } else {
             code = wrapImportMeta({code: code as string, env: true, hmr: isHMR, config});
           }
