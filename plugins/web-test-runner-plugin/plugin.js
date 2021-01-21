@@ -15,10 +15,13 @@ To Resolve:
   return {
     name: 'snowpack-plugin',
     async serverStart({fileWatcher}) {
-      config = await snowpack.loadConfiguration({
-        packageOptions: {external: ['/__web-dev-server__web-socket.js']},
-        devOptions: {open: 'none', output: 'stream', hmr: false},
-      });
+      const configOverrides = Object.assign({}, snowpackConfig);
+      configOverrides.packageOptions = configOverrides.packageOptions || {};
+      configOverrides.packageOptions.external = configOverrides.packageOptions.external || [];
+      configOverrides.packageOptions.external.push('/__web-dev-server__web-socket.js');
+      configOverrides.devOptions = Object.assign({}, { open: 'none', output: 'stream', hmr: false }, configOverrides.devOptions);
+
+      config = await snowpack.loadConfiguration(configOverrides);
       fileWatcher.add(Object.keys(config.mount));
       server = await snowpack.startServer({
         config,
