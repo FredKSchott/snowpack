@@ -32,7 +32,6 @@ import {
   getWebDependencyName,
   getWebDependencyType,
   isJavaScript,
-  isPackageAliasEntry,
   MISSING_PLUGIN_SUGGESTIONS,
   sanitizePackageName,
   writeLockfile,
@@ -309,12 +308,10 @@ ${colors.dim(
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
       rollupPluginAlias({
-        entries: Object.entries(installAlias)
-          .filter(([, val]) => isPackageAliasEntry(val))
-          .map(([key, val]) => ({
-            find: key,
-            replacement: val,
-          })),
+        entries: Object.entries(installAlias).map(([key, val]) => ({
+          find: key,
+          replacement: val,
+        })),
       }),
       rollupPluginCatchFetch(),
       rollupPluginNodeResolve({
