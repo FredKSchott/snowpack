@@ -727,6 +727,16 @@ export async function startServer(
       // Otherwise, pass requests directly to Snowpack's request handler.
       handleRequest(req, res);
     })
+      .on('upgrade', (req, socket) => {
+        let reqUrl = req.url!;
+        const matchedRoute = matchRoute(reqUrl);
+        // If a route is matched, call the route function
+        if (matchedRoute) {
+          if (typeof matchedRoute.dest !== 'string') {
+            return matchedRoute.dest(req, socket);
+          }
+        }
+      })
       .on('error', (err: Error) => {
         logger.error(colors.red(`  ✘ Failed to start server at port ${colors.bold(port!)}.`), err);
         server!.close();
