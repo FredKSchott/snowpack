@@ -90,6 +90,14 @@ const NEWS = [
     url: 'https://www.youtube.com/watch?v=QAwW0E9BXKc',
     img: '/img/news/learn-snow-youtube.jpg',
   },
+    {
+    title: 'Create a 3D product landing page',
+    description:
+      'Using ThreeJS + React + Snowpack ',
+    date: new Date('2021-01-20'),
+    url: 'https://dev.to/takeshape/create-a-3d-product-landing-page-with-threejs-and-react-3coh',
+    img: '/img/news/3d-product.jpeg',
+  },
 ];
 
 module.exports = NEWS.reverse();
