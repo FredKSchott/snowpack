@@ -45,13 +45,16 @@ export function parsePackageImportSpecifier(imp: string): [string, string | null
 export function resolveDependencyManifest(
   dep: string,
   cwd: string,
+  resolvePaths: string[] = []
 ): [string | null, PackageManifest | null] {
+  const paths = {paths: [cwd].concat(...resolvePaths)};
+
   // Attempt #1: Resolve the dependency manifest normally. This works for most
   // packages, but fails when the package defines an export map that doesn't
   // include a package.json. If we detect that to be the reason for failure,
   // move on to our custom implementation.
   try {
-    const depManifest = realpathSync.native(require.resolve(`${dep}/package.json`, {paths: [cwd]}));
+    const depManifest = realpathSync.native(require.resolve(`${dep}/package.json`, paths));
     return [depManifest, NATIVE_REQUIRE(depManifest)];
   } catch (err) {
     // if its an export map issue, move on to our manual resolver.
@@ -66,7 +69,7 @@ export function resolveDependencyManifest(
   // thorough as Attempt #1, but it should work well until export maps become more
   // established & move out of experimental mode.
   const result = [null, null] as [string | null, any | null];
-  const fullPath = realpathSync.native(require.resolve(dep, {paths: [cwd]}));
+  const fullPath = realpathSync.native(require.resolve(dep, paths));
   // Strip everything after the package name to get the package root path
   // NOTE: This find-replace is very gross, replace with something like upath.
   const searchPath = `${path.sep}node_modules${path.sep}${dep.replace('/', path.sep)}`;

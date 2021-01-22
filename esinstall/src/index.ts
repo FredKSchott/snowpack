@@ -85,7 +85,7 @@ function isImportOfPackage(importUrl: string, packageName: string) {
  */
 function resolveWebDependency(
   dep: string,
-  resolveOptions: {cwd: string; packageLookupFields: string[]},
+  resolveOptions: {cwd: string; packageLookupFields: string[], resolvePaths: string[]},
 ): DependencyLoc {
   const loc = resolveEntrypoint(dep, resolveOptions);
 
@@ -115,6 +115,7 @@ function generateEnvReplacements(env: Object): {[key: string]: string} {
 
 interface InstallOptions {
   cwd: string;
+  resolvePaths?: string[];
   alias: Record<string, string>;
   importMap?: ImportMap;
   logger: AbstractLogger;
@@ -158,6 +159,7 @@ function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
   }
   const options = {
     cwd: process.cwd(),
+    resolvePaths: [],
     alias: {},
     logger: {
       debug: () => {}, // silence debug messages by default
@@ -189,6 +191,7 @@ export async function install(
 ): Promise<InstallResult> {
   const {
     cwd,
+    resolvePaths,
     alias: installAlias,
     importMap: _importMap,
     logger,
@@ -261,6 +264,7 @@ export async function install(
       const resolvedResult = resolveWebDependency(installSpecifier, {
         cwd,
         packageLookupFields,
+        resolvePaths: resolvePaths || []
       });
       if (resolvedResult.type === 'BUNDLE') {
         installEntrypoints[targetName] = resolvedResult.loc;

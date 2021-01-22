@@ -154,14 +154,16 @@ export function parsePackageImportSpecifier(imp: string): [string, string | null
  * NOTE: You used to be able to require() a package.json file directly,
  * but now with export map support in Node v13 that's no longer possible.
  */
-export function resolveDependencyManifest(dep: string, cwd: string): [string | null, any | null] {
+export function resolveDependencyManifest(dep: string, cwd: string, resolvePaths: string[] = []): [string | null, any | null] {
   // Attempt #1: Resolve the dependency manifest normally. This works for most
   // packages, but fails when the package defines an export map that doesn't
   // include a package.json. If we detect that to be the reason for failure,
   // move on to our custom implementation.
+  const paths = {paths: [cwd].concat(...resolvePaths)};
+
   try {
     const depManifest = fs.realpathSync.native(
-      require.resolve(`${dep}/package.json`, {paths: [cwd]}),
+      require.resolve(`${dep}/package.json`, paths),
     );
     return [depManifest, NATIVE_REQUIRE(depManifest)];
   } catch (err) {
@@ -178,7 +180,7 @@ export function resolveDependencyManifest(dep: string, cwd: string): [string | n
   // established & move out of experimental mode.
   let result = [null, null] as [string | null, any | null];
   try {
-    const fullPath = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
+    const fullPath = fs.realpathSync.native(require.resolve(dep, paths));
     // Strip everything after the package name to get the package root path
     // NOTE: This find-replace is very gross, replace with something like upath.
     const searchPath = `${path.sep}node_modules${path.sep}${dep.replace('/', path.sep)}`;

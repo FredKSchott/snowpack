@@ -1346,7 +1346,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     Object.keys(sourceImportMap.imports)
       .map((specifier) => {
         const [packageName] = parsePackageImportSpecifier(specifier);
-        return resolveDependencyManifest(packageName, config.root);
+        return resolveDependencyManifest(packageName, config.root, config.packageOptions.resolvePaths);
       }) // resolve symlink src location
       .filter(([_, packageManifest]) => packageManifest && !packageManifest['_id']) // only watch symlinked deps for now
       .map(([fileLoc]) => `${path.dirname(fileLoc!)}/**`),

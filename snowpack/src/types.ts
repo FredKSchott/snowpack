@@ -235,6 +235,7 @@ export interface PackageSourceLocal
   source: 'local';
   external: string[];
   knownEntrypoints: string[];
+  resolvePaths?: string[];
 }
 
 export interface PackageSourceRemote {
@@ -243,6 +244,7 @@ export interface PackageSourceRemote {
   external: string[];
   cache: string;
   types: boolean;
+  resolvePaths?: string[];
 }
 
 // interface this library uses internally

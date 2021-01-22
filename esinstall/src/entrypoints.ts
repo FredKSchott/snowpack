@@ -142,6 +142,7 @@ export function findExportMapEntry(
 type ResolveEntrypointOptions = {
   cwd: string;
   packageLookupFields: string[];
+  resolvePaths: string[];
 };
 
 /**
@@ -152,11 +153,11 @@ type ResolveEntrypointOptions = {
  */
 export function resolveEntrypoint(
   dep: string,
-  {cwd, packageLookupFields}: ResolveEntrypointOptions,
+  {cwd, packageLookupFields, resolvePaths}: ResolveEntrypointOptions,
 ): string {
   // We first need to check for an export map in the package.json. If one exists, resolve to it.
   const [packageName, packageEntrypoint] = parsePackageImportSpecifier(dep);
-  const [packageManifestLoc, packageManifest] = resolveDependencyManifest(packageName, cwd);
+  const [packageManifestLoc, packageManifest] = resolveDependencyManifest(packageName, cwd, resolvePaths);
 
   if (packageManifestLoc && packageManifest && typeof packageManifest.exports !== 'undefined') {
     const exportField = (packageManifest as PackageManifestWithExports).exports;
@@ -186,20 +187,24 @@ export function resolveEntrypoint(
     }
   }
 
+  // Look in not just the current working directory but any other
+  // custom paths that may have been specified.
+  const paths = {paths: [cwd].concat(...resolvePaths)};
+
   // if, no export map and dep points directly to a file within a package, return that reference.
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
-    return realpathSync.native(require.resolve(dep, {paths: [cwd]}));
+    return realpathSync.native(require.resolve(dep, paths));
   }
 
   // Otherwise, resolve directly to the dep specifier. Note that this supports both
   // "package-name" & "package-name/some/path" where "package-name/some/path/package.json"
   // exists at that lower path, that must be used to resolve. In that case, export
   // maps should not be supported.
-  const [depManifestLoc, depManifest] = resolveDependencyManifest(dep, cwd);
+  const [depManifestLoc, depManifest] = resolveDependencyManifest(dep, cwd, resolvePaths);
 
   if (!depManifest) {
     try {
-      const maybeLoc = realpathSync.native(require.resolve(dep, {paths: [cwd]}));
+      const maybeLoc = realpathSync.native(require.resolve(dep, paths));
       return maybeLoc;
     } catch {
       // Oh well, was worth a try
