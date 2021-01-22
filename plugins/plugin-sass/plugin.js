@@ -99,7 +99,7 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {},includePat
       }
 
       // If file is `.sass`, use YAML-style. Otherwise, use default.
-        const args = ['--stdin',...loadPaths(includePaths)];
+        const args = ['--stdin','--load-path', path.dirname(filePath),...loadPaths(includePaths)];
       if (fileExt === '.sass') {
         args.push('--indented');
       }
