@@ -51,7 +51,7 @@ Now that you have a basic project up and running, to install React, run the foll
 npm install react react-dom --save
 ```
 
-> 💡 Tip: add the "--use-yarn" or "--use-pnpm" flag to use something other than npm
+> 💡 Tip: add the `--use-yarn` or `--use-pnpm` flag to use something other than npm
 
 ## Create your first React component
 
