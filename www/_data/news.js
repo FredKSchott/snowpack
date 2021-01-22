@@ -74,6 +74,22 @@ const NEWS = [
     url: 'https://next.snowpack.dev/tutorials/svelte',
     img: 'https://next.snowpack.dev/img/SvelteGuide.jpg',
   },
+  {
+    title: 'Snowpack v3.0',
+    description:
+      'Snowpack v3.0 is here!',
+    date: new Date('2021-01-13'),
+    url: 'https://www.snowpack.dev/posts/2021-01-13-snowpack-3-0',
+    img: 'https://www.snowpack.dev/img/social-snowpackv3.jpg',
+  },
+  {
+    title: 'Learn Snowpack in 15 minutes',
+    description:
+      'A video tutorial on creating a React app with Snowpack',
+    date: new Date('2021-01-20'),
+    url: 'https://www.youtube.com/watch?v=QAwW0E9BXKc',
+    img: '/img/news/learn-snow-youtube.jpg',
+  },
 ];
 
 module.exports = NEWS.reverse();
