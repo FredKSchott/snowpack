@@ -5,6 +5,7 @@ const npmRunPath = require('npm-run-path');
 
 const IMPORT_REGEX = /\@(use|import)\s*['"](.*?)['"]/g;
 const PARTIAL_REGEX = /([\/\\])_(.+)(?![\/\\])/;
+const loadPaths=(paths=[])=> paths.map(n=>"--load-path="+n);
 
 function stripFileExtension(filename) {
   return filename.split('.').slice(0, -1).join('.');
@@ -28,7 +29,7 @@ function scanSassImports(fileContents, filePath, fileExt) {
     });
 }
 
-module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
+module.exports = function sassPlugin(_, {native, compilerOptions = {},includePaths=[]} = {}) {
   /** A map of partially resolved imports to the files that imported them. */
   const importedByMap = new Map();
 
@@ -98,7 +99,7 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
       }
 
       // If file is `.sass`, use YAML-style. Otherwise, use default.
-      const args = ['--stdin', '--load-path', path.dirname(filePath)];
+        const args = ['--stdin',...loadPaths(includePaths)];
       if (fileExt === '.sass') {
         args.push('--indented');
       }
