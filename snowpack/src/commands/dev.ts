@@ -1376,7 +1376,12 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     getServerRuntime: (options) => getServerRuntime(sp, options),
     async shutdown() {
       await watcher.close();
-      server.close();
+      await new Promise<void>((resolve, reject) => {
+        server.close((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
     },
   } as SnowpackDevServer;
   return sp;
