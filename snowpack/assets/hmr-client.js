@@ -146,7 +146,7 @@ async function runCssStyleAccept({url: id}) {
     () => setTimeout(() => document.head.removeChild(oldLinkEl), 30),
     false,
   );
-  oldLinkEl.parentNode.insertBefore(linkEl, oldLinkEl)
+  oldLinkEl.parentNode.insertBefore(linkEl, oldLinkEl);
   return true;
 }
 
@@ -235,23 +235,24 @@ socket.addEventListener('message', ({data: _data}) => {
 log('listening for file changes...');
 
 /** Runtime error reporting: If a runtime error occurs, show it in an overlay. */
-isWindowDefined && window.addEventListener('error', function (event) {
-  // Generate an "error location" string
-  let fileLoc;
-  if (event.filename) {
-    fileLoc = event.filename;
-    if (event.lineno !== undefined) {
-      fileLoc += ` [:${event.lineno}`;
-      if (event.colno !== undefined) {
-        fileLoc += `:${event.colno}`;
+isWindowDefined &&
+  window.addEventListener('error', function (event) {
+    // Generate an "error location" string
+    let fileLoc;
+    if (event.filename) {
+      fileLoc = event.filename;
+      if (event.lineno !== undefined) {
+        fileLoc += ` [:${event.lineno}`;
+        if (event.colno !== undefined) {
+          fileLoc += `:${event.colno}`;
+        }
+        fileLoc += `]`;
       }
-      fileLoc += `]`;
     }
-  }
-  createNewErrorOverlay({
-    title: 'Unhandled Runtime Error',
-    fileLoc,
-    errorMessage: event.message,
-    errorStackTrace: event.error ? event.error.stack : undefined,
+    createNewErrorOverlay({
+      title: 'Unhandled Runtime Error',
+      fileLoc,
+      errorMessage: event.message,
+      errorStackTrace: event.error ? event.error.stack : undefined,
+    });
   });
-});
