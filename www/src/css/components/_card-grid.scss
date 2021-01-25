@@ -1,9 +1,15 @@
-.news-items {
+.card-grid {
   display: grid;
   grid-column-gap: 15px;
   grid-row-gap: 15px;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   grid-auto-flow: dense;
+}
+
+.card-grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+.card-grid-4 {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 .discord-banner {
   grid-column: 1 / -1;
@@ -32,7 +38,7 @@
   }
 }
 
-.news-item {
+.card {
   display: flex;
   grid-column: span 1;
   overflow: hidden;
@@ -43,24 +49,33 @@
   box-sizing: border-box;
   border: 1px solid #e2e8f0;
 }
-.news-item:hover {
+.card:hover {
   border-color: #2a85ca;
   box-shadow: 0 2px 2px 0 rgba(46, 94, 130, 0.4);
 }
-.news-item:hover .news-item-image {
+.card:hover .card-image {
   opacity: 0.9;
 }
 
-.news-item-image {
+.card-image {
   width: 100%;
-  height: 200px;
   object-fit: cover;
   opacity: 0.8;
 }
-.news-item-text {
+
+
+.card-image-small {
+  flex-grow: 1;
+  height: 120px;
+}
+
+.card-image-large {
+ height: 200px;
+}
+.card-text {
   padding: 1rem;
 }
-.news-item-title {
+.card-title {
   margin: 0 0 0.25rem 0;
   font-weight: 600;
   font-size: 20px;
@@ -71,20 +86,20 @@
   font-family: 'Overpass';
 }
 
-.news-item:nth-child(4n + 0) .news-item-image {
+.card:nth-child(4n + 0) .card-image {
   background: #f2709c;
   background: linear-gradient(30deg, #ff9472, #f2709c);
 }
-.news-item:nth-child(4n + 1) .news-item-image {
+.card:nth-child(4n + 1) .card-image {
   background: #fbd3e9;
   background: linear-gradient(30deg, #bb377d, #fbd3e9);
 }
-.news-item:nth-child(4n + 2) .news-item-image {
+.card:nth-child(4n + 2) .card-image {
   background: #b993d6;
   background: linear-gradient(30deg, #8ca6db, #b993d6);
 }
 
-.news-item:nth-child(4n + 3) .news-item-image {
+.card:nth-child(4n + 3) .card-image {
   background: #00d2ff;
   background: linear-gradient(30deg, #3a7bd5, #00d2ff);
 }

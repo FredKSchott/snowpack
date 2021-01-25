@@ -79,6 +79,7 @@ usersList:
     img: https://assets.website-files.com/5e2c3e23d2e067287ea582e4/5e6a5bca2d401204ada76b95_SeekInnovationLogoRound_Vector.svg
     url: https://seekinnovation.at
 ---
+
 <h2 class="content-title">
   {{ title }}
 </h2>
@@ -87,7 +88,7 @@ Get the latest news, blog posts, and tutorials on Snowpack. [Also available via 
 
 Got something that you think we should feature? [Submit it!](https://github.com/snowpackjs/snowpack/edit/main/www/_data/news.js)
 
-<div class="news-items">
+<div class="card-grid card-grid-3">
   <article class="discord-banner">
     <a href="https://discord.gg/snowpack" style="flex-shrink: 0; height: 48px;"><img alt="Join us on Discord!" src="https://img.shields.io/discord/712696926406967308.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2" style="height: 48px;  border: none; margin-right: 1rem; filter: brightness(1.2) contrast(1.5);"/></a>
     <div>Join us on Discord to discuss Snowpack, meet other developers in our community, and show off what you’re working on!</div>
@@ -95,13 +96,13 @@ Got something that you think we should feature? [Submit it!](https://github.com/
 
 {% for item in news %}
 
-<article class="news-item">
+<article class="card">
   <a href="{{ item.url }}" style="text-decoration: none; color: initial;">
-{% if item.img %}<img class="news-item-image" src="{{ item.img }}" alt="" />
-{% else %}<div class="news-item-image"></div>
+{% if item.img %}<img class="card-image card-image-large" src="{{ item.img }}" alt="" />
+{% else %}<div class="card-image card-image-large"></div>
 {% endif %}
-  <div class="news-item-text">
-    <h3 class="news-item-title">{{ item.title }}</h3>
+  <div class="card-text">
+    <h3 class="card-title">{{ item.title }}</h3>
     <time class="snow-toc-link">{{ item.date | date: "%B %e, %Y" }}</time>
     <p style="margin: 0.5rem 0 0.25rem;">{{ item.description }}</p>
   </div>

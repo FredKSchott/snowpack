@@ -33,16 +33,16 @@ description: Snowpack's usage and integration guides.
   Popular Integration Guides
 </h3>
 
-<div class="news-items">
+<div class="card-grid card-grid-4">
 {% for post in collections.communityGuide %}
 
-<article class="news-item">
+<article class="card">
   <a href="{{ post.url }}" style="text-decoration: none; color: initial; flex-grow: 1;">
-{% if post.data.img %}<img class="news-item-image" src="{{ post.data.img }}" alt="" {% if post.data.imgBackground %} style="background: {{post.data.imgBackground}}" {% endif %} />
-{% else %}<div class="news-item-image"></div>
+{% if post.data.img %}<img class="card-image card-image-small" src="{{ post.data.img }}" alt="" {% if post.data.imgBackground %} style="background: {{post.data.imgBackground}}" {% endif %} />
+{% else %}<div class="card-image card-image-small"></div>
 {% endif %}
-  <div class="news-item-text">
-    <h3 class="news-item-title">{{ post.data.title }}</h3>
+  <div class="card-text">
+    <h3 class="card-title">{{ post.data.title }}</h3>
   </div>
   </a>
 </article>
