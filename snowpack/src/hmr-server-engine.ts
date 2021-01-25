@@ -86,11 +86,15 @@ export class EsmHmrEngine {
 
   registerListener(client: WebSocket) {
     client.on('message', (data) => {
-      const message = JSON.parse(data.toString());
-      if (message.type === 'hotAccept') {
-        const entry = this.getEntry(message.id, true) as Dependency;
-        entry.isHmrAccepted = true;
-        entry.isHmrEnabled = true;
+      try {
+        const message = JSON.parse(data.toString());
+        if (message.type === 'hotAccept') {
+          const entry = this.getEntry(message.id, true) as Dependency;
+          entry.isHmrAccepted = true;
+          entry.isHmrEnabled = true;
+        }
+      } catch (error) {
+        console.error(error)
       }
     });
   }
