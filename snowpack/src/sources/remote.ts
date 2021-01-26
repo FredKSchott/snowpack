@@ -148,7 +148,7 @@ export default {
             .installTypes(
               packageName,
               packageSemver,
-              path.join(this.getCacheFolder(config), '.snowpack/types'),
+              path.join(this.getCacheFolder(config), 'types'),
             )
             .catch(() => 'thats fine!');
         }
