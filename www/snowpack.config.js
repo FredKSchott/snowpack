@@ -24,9 +24,9 @@ module.exports = {
   buildOptions: {
     out: '_site',
   },
-  "optimize": {
-    "bundle": true,
-    "minify": true,
-    "target": 'es2018'
-  }
+  optimize: {
+    bundle: true,
+    minify: true,
+    target: 'es2018',
+  },
 };

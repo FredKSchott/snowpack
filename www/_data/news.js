@@ -76,26 +76,24 @@ const NEWS = [
   },
   {
     title: 'Snowpack v3.0',
-    description:
-      'Snowpack v3.0 is here!',
+    description: 'Snowpack v3.0 is here!',
     date: new Date('2021-01-13'),
     url: 'https://www.snowpack.dev/posts/2021-01-13-snowpack-3-0',
     img: 'https://www.snowpack.dev/img/social-snowpackv3.jpg',
   },
   {
     title: 'Learn Snowpack in 15 minutes',
-    description:
-      'A video tutorial on creating a React app with Snowpack',
+    description: 'A video tutorial on creating a React app with Snowpack',
     date: new Date('2021-01-20'),
     url: 'https://www.youtube.com/watch?v=QAwW0E9BXKc',
     img: '/img/news/learn-snow-youtube.jpg',
   },
-    {
+  {
     title: 'Create a 3D product landing page',
-    description:
-      'Using ThreeJS + React + Snowpack ',
+    description: 'Using ThreeJS + React + Snowpack ',
     date: new Date('2021-01-20'),
-    url: 'https://dev.to/takeshape/create-a-3d-product-landing-page-with-threejs-and-react-3coh',
+    url:
+      'https://dev.to/takeshape/create-a-3d-product-landing-page-with-threejs-and-react-3coh',
     img: '/img/news/3d-product.jpeg',
   },
 ];
