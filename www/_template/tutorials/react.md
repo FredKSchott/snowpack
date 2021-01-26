@@ -320,7 +320,7 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
   };
 ```
 
-Restart Snowpack to apply the new plugin, and then try changing the `App.jsx` component again. If Fast Refresh is working properly, the counter keep its value across changes, without resetting to zero.
+Restart Snowpack to apply the new plugin, and then try changing the `App.jsx` component again. If Fast Refresh is working properly, the counter keeps its value across changes, without resetting to zero.
 
 <div class="frame"><img src="/img/guides/react/react-fast-refresh.gif" alt="GIF showing code side by side with the app. A change in made to App.jsx and it shows immediately when the file is changed. The counter keeps counting uninterrupted." class="screenshot"/></div>
 
