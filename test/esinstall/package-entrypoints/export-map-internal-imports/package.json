@@ -1,0 +1,9 @@
+{
+  "version": "1.2.3",
+  "name": "export-map-internal-imports",
+  "exports": {
+    ".": "./entrypoint.js",
+    "./imported-by-entrypoint": "./imported-by-entrypoint.js",
+    "./imports-entrypoint": "./imports-entrypoint.js"
+  }
+}

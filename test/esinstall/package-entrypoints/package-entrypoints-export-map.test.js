@@ -42,6 +42,33 @@ describe('package-entrypoints exports configuration', () => {
     }
   });
 
+  it('export-map-internal-imports', async () => {
+    const cwd = __dirname;
+    const dest = path.join(cwd, 'test-export-map-internal-imports');
+
+    const {importMap} = await runTest(
+      [
+        'export-map-internal-imports',
+        'export-map-internal-imports/imported-by-entrypoint',
+        'export-map-internal-imports/imports-entrypoint',
+      ],
+      {
+        cwd,
+        dest,
+      },
+    );
+
+    expect(importMap).toStrictEqual({
+      imports: {
+        'export-map-internal-imports': './export-map-internal-imports.js',
+        'export-map-internal-imports/imported-by-entrypoint':
+          './export-map-internal-imports/imported-by-entrypoint.js',
+        'export-map-internal-imports/imports-entrypoint':
+          './export-map-internal-imports/imports-entrypoint.js',
+      },
+    });
+  });
+
   it.skip('"exports": "./index.js"', async () => {
     // This should be in the "supports all of the variations" test, putting here for visibility.
   });
