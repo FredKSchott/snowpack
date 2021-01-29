@@ -258,19 +258,25 @@ This is an advanced feature: Bare imports are not supported in any major browser
 
 Your JavaScript npm packages can be consumed in two different ways: **local** and **remote**. Each mode supports a different set of package options. You can choose between these two different modes by setting the `packageOptions.source` property.
 
-### packageOptions.source=local
+#### packageOptions.source=local
 
 Load your dependencies from your local `node_modules/` directory. Install and manage your dependencies using `npm` (or any other npm-ready package manager) and a project `package.json` file.
 
 This is traditional Snowpack behavior matching Snowpack v2. This mode is recommended for anyone already using npm to manage their frontend dependencies.
 
-#### packageOptions.knownEntrypoints
+#### packageOptions.source=remote
+
+Enable streaming package imports. Load dependencies from our remote CDN. Manage your dependencies using `snowpack` and a project `snowpack.deps.json` file.
+
+[Learn more about Streaming Remote Imports](/guides/streaming-imports).
+
+### packageOptions.knownEntrypoints
 
 **Type**: `string[]`
 
 Known dependencies to install with Snowpack. Used for installing packages any dependencies that cannot be detected by our automatic import scanner (ex: package CSS files).
 
-#### packageOptions.polyfillNode
+### packageOptions.polyfillNode
 
 **Type**: `boolean`  
 **Default**: `false`
@@ -295,7 +301,7 @@ module.exports = {
 
 When `source="remote"`, Node.js polyfills are always provided. Configuring this option is only supported in `source="local"` mode.
 
-#### packageOptions.env
+### packageOptions.env
 
 **Type**: `{[ENV_NAME: string]: (string true)}`
 
@@ -305,7 +311,7 @@ If set to true (ex: `{NODE_ENV: true}` or `--env NODE_ENV`) this will inherit fr
 
 This option is only supported in `source="local"` mode. `source="remote"` does not support this feature yet.
 
-#### packageOptions.packageLookupFields
+### packageOptions.packageLookupFields
 
 **Type**: `string[]`  
 **Example**: `"packageLookupFields": ["svelte"]`
@@ -314,7 +320,7 @@ Set custom lookup fields for dependency `package.json` file entrypoints, in addi
 
 This option is only supported in `source="local"` mode. `source="remote"` does not support this feature yet.
 
-#### packageOptions.packageExportLookupFields
+### packageOptions.packageExportLookupFields
 
 **Type**: `string[]`  
 **Example**: `"packageExportLookupFields": ["svelte"]`
@@ -323,7 +329,7 @@ Set custom lookup fields for dependency `package.json` ["exports" mappings.](htt
 
 This option is only supported in `source="local"` mode. `source="remote"` does not support this feature yet.
 
-#### packageOptions.rollup
+### packageOptions.rollup
 
 **Type**: `Object`
 
@@ -337,13 +343,7 @@ Snowpack uses Rollup internally to install your packages. This `rollup` config o
 
 This option is only supported in `source="local"` mode. `source="remote"` does not support custom Rollup install options.
 
-### packageOptions.source=remote
-
-Enable streaming package imports. Load dependencies from our remote CDN. Manage your dependencies using `snowpack` and a project `snowpack.deps.json` file.
-
-[Learn more about Streaming Remote Imports](/guides/streaming-imports).
-
-#### packageOptions.origin
+### packageOptions.origin
 
 **Type**: `string`  
 **Default**: `https://pkg.snowpack.dev`
@@ -352,14 +352,14 @@ The remote origin to import packages from. When you import a new package, Snowpa
 
 Currently, the origin must implement a specific response format that Snowpack can parse for ESM. In future versions of Snowpack we plan to add support for custom CDNs and import origins.
 
-#### packageOptions.cache
+### packageOptions.cache
 
 **Type**: `string`  
 **Default**: `.snowpack`
 
 The location of your project cache folder, relative to the project root. Snowpack will save cached data to this folder. For example, if `packageOptions.types` is set to true, Snowpack will save TypeScript types to a `types` directory within this folder.
 
-#### packageOptions.types
+### packageOptions.types
 
 **Type**: `boolean`  
 **Default**: `false`
