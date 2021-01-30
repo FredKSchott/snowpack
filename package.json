@@ -25,6 +25,7 @@
     "test/esinstall/*"
   ],
   "devDependencies": {
+    "@rollup/plugin-alias": "^3.0.1",
     "@skypack/package-check": "^0.2.0",
     "@types/babel__traverse": "^7.0.7",
     "@types/cacache": "^12.0.1",

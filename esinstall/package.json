@@ -39,7 +39,6 @@
     "index.esm.mjs"
   ],
   "dependencies": {
-    "@rollup/plugin-alias": "^3.0.1",
     "@rollup/plugin-commonjs": "^16.0.0",
     "@rollup/plugin-inject": "^4.0.2",
     "@rollup/plugin-json": "^4.0.0",
@@ -53,6 +52,7 @@
     "mkdirp": "^1.0.3",
     "picomatch": "^2.2.2",
     "rimraf": "^3.0.0",
+    "slash": "^3.0.0",
     "rollup": "^2.34.0",
     "rollup-plugin-polyfill-node": "^0.5.0",
     "validate-npm-package-name": "^3.0.0",
