@@ -5,7 +5,6 @@ const npmRunPath = require('npm-run-path');
 
 const IMPORT_REGEX = /\@(use|import)\s*['"](.*?)['"]/g;
 const PARTIAL_REGEX = /([\/\\])_(.+)(?![\/\\])/;
-const loadPaths = (paths = []) => paths.map((n) => '--load-path=' + n);
 
 function stripFileExtension(filename) {
   return filename.split('.').slice(0, -1).join('.');
@@ -29,7 +28,7 @@ function scanSassImports(fileContents, filePath, fileExt) {
     });
 }
 
-module.exports = function sassPlugin(_, {native, compilerOptions = {}, includePaths = []} = {}) {
+module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
   /** A map of partially resolved imports to the files that imported them. */
   const importedByMap = new Map();
 
@@ -99,13 +98,13 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}, includePa
       }
 
       // If file is `.sass`, use YAML-style. Otherwise, use default.
-      const args = ['--stdin', '--load-path', path.dirname(filePath), ...loadPaths(includePaths)];
+      const args = ['--stdin', '--load-path', path.dirname(filePath)];
       if (fileExt === '.sass') {
         args.push('--indented');
       }
 
       // Pass in user-defined options
-      Object.entries(compilerOptions).forEach(([flag, value]) => {
+      function parseCompilerOption([flag, value]) {
         let flagName = flag.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`); // convert camelCase to kebab-case
         switch (typeof value) {
           case 'boolean': {
@@ -118,12 +117,19 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}, includePa
             break;
           }
           default: {
+            if (Array.isArray) {
+              for (const val of value) {
+                parseCompilerOption(flag, val);
+              }
+              break;
+            }
             throw new Error(
               `compilerOptions[${flag}] value not supported. Must be string, number, or boolean.`,
             );
           }
         }
-      });
+      }
+      Object.entries(compilerOptions).forEach(parseCompilerOption);
 
       // Build the file.
       const {stdout, stderr} = await execa('sass', args, {

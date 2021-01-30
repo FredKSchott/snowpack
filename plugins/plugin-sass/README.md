@@ -46,6 +46,7 @@ These options are camelCased equivalents of the [Sass CLI Options][sass-options]
 
 | Name             |              Type              | Description                                                                                             |
 | :--------------- | :----------------------------: | :------------------------------------------------------------------------------------------------------ |
+| `loadPath`       |       `string, string[]`       | Add directories to Sass's load path, to support looking up and loading partials (etc.) by name.         |
 | `style`          | `'expanded'` \| `'compressed'` | The output style. Specify `'compressed'` to enable Sass’ built-in minification (default: `'expanded'`). |
 | `sourceMap`      |           `boolean`            | Enable / disable source maps (default: `true`).                                                         |
 | `sourceMapUrls`  |  `'relative'` \| `'absolute'`  | How to link from source maps to source files (default: `'relative'`).                                   |
