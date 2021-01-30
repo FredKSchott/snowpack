@@ -27,5 +27,8 @@
     "terser-webpack-plugin": "^4.0.0",
     "webpack": "^4.43.0",
     "webpack-manifest-plugin": "^2.2.0"
+  },
+  "devDependencies": {
+    "fs-extra": "^9.1.0"
   }
 }

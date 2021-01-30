@@ -1,61 +1,36 @@
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 
 const plugin = require('../plugin');
-const {getSnowpackPluginOutputSnapshotSerializer} = require('./serializer');
+const readFilesSync = require('./readFilesSync');
+
+const STUBS_DIR = path.join(__dirname, 'stubs/minimal/');
+const INGORED_STUBS_DIR = path.join(__dirname, 'stubs/minimal_ignore/');
 
 describe('@snowpack/plugin-webpack', () => {
-  // TODO: reimplement this test without fs.writeFile shim. We have other tests running in parallel that need access to fs
-
-  /*
+  // Copy over the stub folder to an git-ignored path and mock console.log
   beforeEach(() => {
-    expect.addSnapshotSerializer(getSnowpackPluginOutputSnapshotSerializer(__dirname));
-
-    const originalWriteFileSync = fs.writeFileSync;
-    fs.writeFileSync = jest
-      .fn()
-      .mockName('fs.writeFileSync')
-      .mockImplementation((path, ...args) => {
-        if (path.startsWith(__dirname)) return;
-
-        // write files outside of the current folder
-        originalWriteFileSync(path, ...args);
-      });
-
-    const originalWriteFile = fs.writeFile;
-    fs.writeFile = jest
-      .fn()
-      .mockName('fs.writeFile')
-      .mockImplementation((path, ...args) => {
-        if (path.startsWith(__dirname)) {
-          const callback = args.pop();
-          callback();
-          return;
-        }
-
-        // write files outside of the current folder
-        originalWriteFile(path, ...args);
-      });
-
-    console.log = jest.fn().mockName('console.log');
+    if (fs.existsSync(INGORED_STUBS_DIR)) fs.removeSync(INGORED_STUBS_DIR);
+    fs.copySync(STUBS_DIR, INGORED_STUBS_DIR);
   });
-  */
 
-  it.skip('minimal - no options', async () => {
+  afterAll(() => {
+    if (fs.existsSync(INGORED_STUBS_DIR)) fs.removeSync(INGORED_STUBS_DIR);
+  });
+
+  it('minimal - no options', async () => {
     const pluginInstance = plugin({
       buildOptions: {},
     });
 
     await pluginInstance.optimize({
-      buildDirectory: path.resolve(__dirname, 'stubs/minimal/'),
+      buildDirectory: INGORED_STUBS_DIR,
     });
 
-    expect(fs.writeFileSync).toMatchSnapshot('fs.writeFileSync');
-    expect(fs.writeFile).toMatchSnapshot('fs.writeFile');
-    expect(console.log).toMatchSnapshot('console.log');
+    expect(readFilesSync(INGORED_STUBS_DIR)).toMatchSnapshot('files');
   });
 
-  it.skip('minimal - all options', async () => {
+  it('minimal - all options', async () => {
     const pluginInstance = plugin(
       {
         buildOptions: {},
@@ -72,11 +47,9 @@ describe('@snowpack/plugin-webpack', () => {
     );
 
     await pluginInstance.optimize({
-      buildDirectory: path.resolve(__dirname, 'stubs/minimal/'),
+      buildDirectory: INGORED_STUBS_DIR,
     });
 
-    expect(fs.writeFileSync).toMatchSnapshot('fs.writeFileSync');
-    expect(fs.writeFile).toMatchSnapshot('fs.writeFile');
-    expect(console.log).toMatchSnapshot('console.log');
+    expect(readFilesSync(INGORED_STUBS_DIR)).toMatchSnapshot('files');
   });
 });
