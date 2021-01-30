@@ -68,7 +68,7 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMin
           // Clone node so we keep original attributes, and remove
           // `type=module` as that is not needed
           const scriptEl = originalScriptEl.cloneNode();
-          scriptEl.removeAttribute("type")
+          scriptEl.removeAttribute('type');
           scriptEl.src = url.parse(baseUrl).protocol
             ? url.resolve(baseUrl, jsFile)
             : path.posix.join(baseUrl, jsFile);
