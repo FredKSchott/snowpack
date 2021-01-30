@@ -52,7 +52,7 @@ Now that you have a basic project up and running! The next step is to install Sv
 npm install svelte --save
 ```
 
-> 💡 Tip: add the "--use-yarn" or "--use-pnpm" flag to use something other than npm
+> 💡 Tip: add the `--use-yarn` or `--use-pnpm` flag to use something other than npm
 
 ```bash
 npm install @snowpack/plugin-svelte --save-dev

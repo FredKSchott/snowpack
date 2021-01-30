@@ -1,4 +1,4 @@
-import {readdirSync, existsSync, realpathSync} from 'fs';
+import {readdirSync, existsSync, realpathSync, statSync} from 'fs';
 import path from 'path';
 import validatePackageName from 'validate-npm-package-name';
 import {ExportField, ExportMapEntry, PackageManifestWithExports, PackageManifest} from './types';
@@ -275,7 +275,9 @@ function* forEachWildcardEntry(
   let valueDirectoryFullPath = path.join(cwd, valueDirectoryName);
 
   if (existsSync(valueDirectoryFullPath)) {
-    let filesInDirectory = readdirSync(valueDirectoryFullPath);
+    let filesInDirectory = readdirSync(valueDirectoryFullPath).filter(
+      (filepath) => statSync(path.join(valueDirectoryFullPath, filepath)).isFile(), // ignore directories
+    );
 
     for (let filename of filesInDirectory) {
       // Create a relative path for this file to match against the regex

@@ -15,3 +15,11 @@
 - b0f7280c - [ci] yarn format
 - b963af44 - esinstall@1.0.2
 - 188c31bb - esinstall@1.0.2
+
+
+## esinstall@1.0.4 [2021-01-27]
+
+* 150cdf30 - Fix explodeExportMap expanding dirs (#2493) <Drew Powers>
+* df391980 - [ci] yarn format 
+* 977621dc - properly scan named imports from events polyfill package 
+* 49b29f97 - [ci] yarn format 

@@ -1,7 +1,7 @@
 import * as colors from 'kleur/colors';
 import {logger} from '../logger';
+import {getPackageSource} from '../sources/util';
 import {CommandOptions} from '../types';
-import {getPackageSource} from '../util';
 
 export async function command(commandOptions: CommandOptions) {
   const {config, lockfile} = commandOptions;

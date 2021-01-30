@@ -14,7 +14,7 @@ const reactRefreshCode = fs
 
 function transformHtml(contents) {
   return contents.replace(
-    /<body.*?>/,
+    /<body.*?>/s,
     `$&
 <script>
   function debounce(e,t){let u;return()=>{clearTimeout(u),u=setTimeout(e,t)}}
@@ -93,15 +93,17 @@ if (import.meta.hot) {
 module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
   return {
     name: '@snowpack/plugin-react-refresh',
-    transform({contents, fileExt, id, isDev}) {
+    transform({contents, fileExt, id, isDev, isHmrEnabled, isSSR}) {
       // Use long-form "=== false" to handle older Snowpack versions
-      if (snowpackConfig.devOptions.hmr === false) {
+      if (isHmrEnabled === false) {
         return;
       }
       if (!isDev) {
         return;
       }
-      if (fileExt === '.js') {
+
+      // While server-side rendering, the fast-refresh code is not needed.
+      if (fileExt === '.js' && !isSSR) {
         const skipTransform = babel === false;
         return transformJs(contents, id, snowpackConfig.root || process.cwd(), skipTransform);
       }

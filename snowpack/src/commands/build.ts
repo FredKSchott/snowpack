@@ -36,7 +36,6 @@ import {
   cssSourceMappingURL,
   deleteFromBuildSafe,
   getExtensionMatch,
-  getPackageSource,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
   isFsEventsEnabled,
@@ -48,6 +47,7 @@ import {
   replaceExtension,
 } from '../util';
 import {run as installRunner} from '../sources/local-install';
+import {getPackageSource} from '../sources/util';
 
 const CONCURRENT_WORKERS = require('os').cpus().length;
 

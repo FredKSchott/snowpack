@@ -1,4 +1,3 @@
-import cacache from 'cacache';
 import globalCacheDir from 'cachedir';
 import etag from 'etag';
 import execa from 'execa';
@@ -11,9 +10,13 @@ import path from 'path';
 import rimraf from 'rimraf';
 import {SkypackSDK} from 'skypack';
 import url from 'url';
-import localPackageSource from './sources/local';
-import remotePackageSource from './sources/remote';
-import {ImportMap, LockfileManifest, PackageSource, SnowpackConfig} from './types';
+import getDefaultBrowserId from 'default-browser-id';
+import {ImportMap, LockfileManifest, SnowpackConfig} from './types';
+
+// (!) Beware circular dependencies! No relative imports!
+// Because this file is imported from so many different parts of Snowpack,
+// importing other relative files inside of it is likely to introduce broken
+// circular dependencies (sometimes only visible in the final bundled build.)
 
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
 export const LOCKFILE_NAME = 'snowpack.deps.json';
@@ -116,10 +119,6 @@ export async function writeLockfile(loc: string, importMap: LockfileManifest): P
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {
   return Boolean(item);
-}
-
-export function getPackageSource(source: 'remote' | 'local'): PackageSource {
-  return source === 'local' ? localPackageSource : remotePackageSource;
 }
 
 /**
@@ -263,13 +262,13 @@ export async function openInBrowser(
     : /brave/i.test(browser)
     ? appNames[process.platform]['brave']
     : browser;
-  const isMac = process.platform === 'darwin';
-  const isBrowserChrome = /chrome|default/i.test(browser);
-  if (!isMac || !isBrowserChrome) {
+  const isMacChrome =
+    process.platform === 'darwin' &&
+    (/chrome/i.test(browser) || /chrome/i.test(await getDefaultBrowserId()));
+  if (!isMacChrome) {
     await (browser === 'default' ? open(url) : open(url, {app: browser}));
     return;
   }
-
   try {
     // If we're on macOS, and we haven't requested a specific browser,
     // we can try opening Chrome with AppleScript. This lets us reuse an
@@ -301,14 +300,6 @@ export async function updateLockfileHash(dir: string) {
   const newLockHash = etag(await fs.promises.readFile(lockfileLoc));
   await mkdirp(path.dirname(hashLoc));
   await fs.promises.writeFile(hashLoc, newLockHash);
-}
-
-export async function clearCache() {
-  return Promise.all([
-    cacache.rm.all(BUILD_CACHE),
-    localPackageSource.clearCache(),
-    remotePackageSource.clearCache(),
-  ]);
 }
 
 function getAliasType(val: string): 'package' | 'path' | 'url' {

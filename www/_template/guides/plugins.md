@@ -310,4 +310,4 @@ In general, make sure to mind the following checklist:
 - The `resolve.input` and `resolve.output` file extension arrays are vital to how Snowpack understands your build pipeline, and are always required for `load()` to run correctly.
 - If `load()` doesn't return anything, the file isn’t loaded and the `load()` of the next suitable plugin is called.
 - If `transform()` doesn't return anything, the file isn’t transformed.
-- If you want to build a plugin that runs some code only on initialization (such as `@snowpack/pl
+- If you want to build a plugin that runs some code only on initialization (such as `@snowpack/plugin-dotenv`), put your side-effect code inside the function that returns your plugin. But be sure to still return a plugin object. A simple `{ name }` object will do.

@@ -4,21 +4,22 @@ import yargs from 'yargs-parser';
 import {addCommand, rmCommand} from './commands/add-rm';
 import {command as initCommand} from './commands/init';
 import {command as prepareCommand} from './commands/prepare';
-// import {command as installCommand} from './sources/local-install';
 import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
+import {clearCache} from './sources/util';
 import {logger} from './logger';
 import {loadConfiguration, expandCliFlags} from './config';
 import {CLIFlags, CommandOptions} from './types';
-import {clearCache, readLockfile} from './util.js';
+import {readLockfile} from './util.js';
 export * from './types';
 
 // Stable API
 export {startServer} from './commands/dev';
 export {build} from './commands/build';
 export {loadConfiguration, createConfiguration} from './config.js';
-export {clearCache, readLockfile as loadLockfile} from './util.js';
+export {readLockfile as loadLockfile} from './util.js';
 export {getUrlForFile} from './build/file-urls';
+export {clearCache} from './sources/util';
 export {logger} from './logger';
 
 // Deprecated API

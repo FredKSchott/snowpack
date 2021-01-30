@@ -171,7 +171,7 @@ You should now see a nifty confetti effect on your site.
 
 <div class="frame"><img src="/img/guides/getting-started/npm-snowpack-confetti.gif" alt="Gif showing the code next to the project running in the browser. When the code snippet is added and saved, a confetti effect shows in the browser" class="screenshot"/></div>
 
-> 💡 Tip: not all npm modules may work well in the browser. Modules dependent on Node.js built-in modules need a polyfill. Read more about how to do this on our [Starting a New Project page.](/tutorials/getting-started#using-npm-packages)
+> 💡 Tip: not all npm modules may work well in the browser. Modules dependent on Node.js built-in modules need a polyfill. You can enable this polyfill by setting Snowpack’s [`packageOptions.polyfillNode` configuration option](/reference/configuration#packageoptions.polyfillnode) to `true`.
 
 ## Adding CSS
 

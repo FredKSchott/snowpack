@@ -274,5 +274,22 @@ describe('ESInstall API', () => {
         './extras/three.js': './src/extras/three.js',
       });
     });
+
+    it('explodes trailing slash exports but ignores subdirs', () => {
+      let map = explodeExportMap(
+        {
+          '.': './entrypoint.js',
+          './dist/': './dist/',
+          './dist/esm/helpers.js': './dist/esm/helpers.js',
+        },
+        {cwd: __dirname + '/esinstall/package-entrypoints/export-map-trailing-slash'},
+      );
+
+      expect(map).toStrictEqual({
+        '.': './entrypoint.js',
+        './dist/index.js': './dist/index.js',
+        './dist/esm/helpers.js': './dist/esm/helpers.js',
+      });
+    });
   });
 });

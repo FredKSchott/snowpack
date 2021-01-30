@@ -20,6 +20,17 @@ cd snowpack
 yarn
 ```
 
+## Checking out and building a branch
+
+```bash
+git checkout some-branch-name
+yarn # in case dependencies have changed
+yarn build # re-builds all packages
+# that's it! Your monorepo is set up and ready to run/test.
+```
+
+Optionally, you can run `yarn bundle` after every `yarn build` call to bundle Snowpack into a single JS file. Unless you have a specific reason to be testing the bundled output, you generally never need to run this command locally.
+
 ## Build after changes
 
 Some packages in the repo are written in JavaScript, and require no build step. Others (like Snowpack itself) are written in TypeScript, and require a build step to run.
