@@ -13,7 +13,8 @@ function scanJS({file, rootDir, scannedFiles, importList}) {
     // 1. scan file for static imports
     scannedFiles.add(file); // keep track of scanned files so we never redo work
     importList.add(file); // make sure import is marked
-    if (isRemoteModule(file)) { // don’t scan remote modules
+    if (isRemoteModule(file)) {
+      // don’t scan remote modules
       return importList;
     }
 
