@@ -65,7 +65,10 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMin
         const head = dom.window.document.querySelector('head');
 
         for (const jsFile of jsFiles) {
-          const scriptEl = dom.window.document.createElement('script');
+          // Clone node so we keep original attributes, and remove
+          // `type=module` as that is not needed
+          const scriptEl = originalScriptEl.cloneNode();
+          scriptEl.removeAttribute("type")
           scriptEl.src = url.parse(baseUrl).protocol
             ? url.resolve(baseUrl, jsFile)
             : path.posix.join(baseUrl, jsFile);
