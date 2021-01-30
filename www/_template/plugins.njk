@@ -96,6 +96,7 @@ description: 'Snowpack plugins allow for configuration-minimal tooling integrati
   import {html, render} from 'htm/preact/standalone.module.js';
 
     function Card({result}) {
+      const updatedAtFormatted = Intl.DateTimeFormat('en', {month: "long", day: "numeric", year: "numeric"}).format(Date.parse(result.updatedAt));
       return html ` <li class="card">
       <img class="plugin-icon" src="/img/plug-light.svg" />
       <header class="card-header">
@@ -110,7 +111,7 @@ description: 'Snowpack plugins allow for configuration-minimal tooling integrati
         .split('. ')[0]}</p>
       <p class="card-subtitle">
 		    Updated <time class="" datetime="${result
-        .updatedAt}">August 10, 2020</time>
+        .updatedAt}">${updatedAtFormatted}</time>
       </p>
     </li>`;
     }

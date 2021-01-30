@@ -18,13 +18,13 @@ Snowpack recently released a built-in optimization pipeline powered by [esbuild]
 ```js
 // snowpack.config.js
 // Example: Using Snowpack's built-in bundling support
-{
-  "optimize": {
-    "bundle": true,
-    "minify": true,
-    "target": 'es2018'
-  }
-}
+module.exports = {
+  optimize: {
+    bundle: true,
+    minify: true,
+    target: 'es2018',
+  },
+};
 ```
 
 The full supported interface is:

@@ -10,6 +10,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import {SkypackSDK} from 'skypack';
 import url from 'url';
+import getDefaultBrowserId from 'default-browser-id';
 import {ImportMap, LockfileManifest, SnowpackConfig} from './types';
 
 // (!) Beware circular dependencies! No relative imports!
@@ -261,13 +262,13 @@ export async function openInBrowser(
     : /brave/i.test(browser)
     ? appNames[process.platform]['brave']
     : browser;
-  const isMac = process.platform === 'darwin';
-  const isBrowserChrome = /chrome|default/i.test(browser);
-  if (!isMac || !isBrowserChrome) {
+  const isMacChrome =
+    process.platform === 'darwin' &&
+    (/chrome/i.test(browser) || /chrome/i.test(await getDefaultBrowserId()));
+  if (!isMacChrome) {
     await (browser === 'default' ? open(url) : open(url, {app: browser}));
     return;
   }
-
   try {
     // If we're on macOS, and we haven't requested a specific browser,
     // we can try opening Chrome with AppleScript. This lets us reuse an

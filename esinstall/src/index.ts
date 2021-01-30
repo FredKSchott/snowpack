@@ -1,4 +1,3 @@
-import rollupPluginAlias from '@rollup/plugin-alias';
 import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-commonjs';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
@@ -12,6 +11,7 @@ import {InputOptions, OutputOptions, Plugin as RollupPlugin, rollup, RollupError
 import rollupPluginNodePolyfills from 'rollup-plugin-polyfill-node';
 import rollupPluginReplace from '@rollup/plugin-replace';
 import util from 'util';
+import {rollupPluginAlias} from './rollup-plugins/rollup-plugin-alias';
 import {rollupPluginCatchFetch} from './rollup-plugins/rollup-plugin-catch-fetch';
 import {rollupPluginCatchUnresolved} from './rollup-plugins/rollup-plugin-catch-unresolved';
 import {rollupPluginCss} from './rollup-plugins/rollup-plugin-css';
@@ -309,12 +309,22 @@ ${colors.dim(
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
       rollupPluginAlias({
-        entries: Object.entries(installAlias)
-          .filter(([, val]) => isPackageAliasEntry(val))
-          .map(([key, val]) => ({
+        entries: [
+          // Apply all aliases
+          ...Object.entries(installAlias)
+            .filter(([, val]) => isPackageAliasEntry(val))
+            .map(([key, val]) => ({
+              find: key,
+              replacement: val,
+              exact: false,
+            })),
+          // Make sure that internal imports also honor any resolved installEntrypoints
+          ...Object.entries(installEntrypoints).map(([key, val]) => ({
             find: key,
             replacement: val,
+            exact: true,
           })),
+        ],
       }),
       rollupPluginCatchFetch(),
       rollupPluginNodeResolve({

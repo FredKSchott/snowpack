@@ -51,7 +51,7 @@ Now that you have a basic project up and running, to install React, run the foll
 npm install react react-dom --save
 ```
 
-> 💡 Tip: add the "--use-yarn" or "--use-pnpm" flag to use something other than npm
+> 💡 Tip: add the `--use-yarn` or `--use-pnpm` flag to use something other than npm
 
 ## Create your first React component
 
@@ -147,7 +147,7 @@ import React, { useState, useEffect } from 'react';
 function App() {
   // Create the count state.
   const [count, setCount] = useState(0);
-  // Create the counter (+1 every second).
+  // Update the count (+1 every second).
   useEffect(() => {
     const timer = setTimeout(() => setCount(count + 1), 1000);
     return () => clearTimeout(timer);
@@ -320,7 +320,7 @@ Once installed, you'll need to add the plugin to your Snowpack configuration fil
   };
 ```
 
-Restart Snowpack to apply the new plugin, and then try changing the `App.jsx` component again. If Fast Refresh is working properly, the counter keep its value across changes, without resetting to zero.
+Restart Snowpack to apply the new plugin, and then try changing the `App.jsx` component again. If Fast Refresh is working properly, the counter keeps its value across changes, without resetting to zero.
 
 <div class="frame"><img src="/img/guides/react/react-fast-refresh.gif" alt="GIF showing code side by side with the app. A change in made to App.jsx and it shows immediately when the file is changed. The counter keeps counting uninterrupted." class="screenshot"/></div>
 
