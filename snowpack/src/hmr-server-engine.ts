@@ -2,6 +2,7 @@ import WebSocket from 'ws';
 import stripAnsi from 'strip-ansi';
 import type http from 'http';
 import type http2 from 'http2';
+import {logger} from './logger';
 
 interface Dependency {
   dependents: Set<string>;
@@ -94,7 +95,7 @@ export class EsmHmrEngine {
           entry.isHmrEnabled = true;
         }
       } catch (error) {
-        console.error(error)
+        logger.error(error.toString());
       }
     });
   }
