@@ -13,7 +13,7 @@ const htmlTransformOptions = {
   id: 'stub.html',
   isDev: true,
   isHmrEnabled: true,
-  isSSR: false
+  isSSR: false,
 };
 const jsFilePath = path.resolve(__dirname, './stubs/stub.js');
 const jsFileContent = fs.readFileSync(jsFilePath, {
@@ -25,7 +25,7 @@ const jsTransformOptions = {
   id: 'stub.js',
   isDev: true,
   isHmrEnabled: true,
-  isSSR: false
+  isSSR: false,
 };
 
 function mockBabel() {
@@ -67,32 +67,20 @@ async function testPluginInstance(pluginInstance, overrides = {}) {
 
 describe('@snowpack/plugin-react-refresh', () => {
   test('transform js and html', async () => {
-    const pluginInstance = pluginReactRefresh(
-      {},
-      {babel: true},
-    );
+    const pluginInstance = pluginReactRefresh({}, {babel: true});
     await testPluginInstance(pluginInstance);
   });
-  test('don\'t transform when disabled', async () => {
-    const pluginInstance = pluginReactRefresh(
-      {},
-      {babel: true},
-    );
+  test("don't transform when disabled", async () => {
+    const pluginInstance = pluginReactRefresh({}, {babel: true});
     await testPluginInstance(pluginInstance, {isDev: false});
-  })
+  });
   test('transform js and html when hmr is disabled', async () => {
-    const pluginInstance = pluginReactRefresh(
-      {},
-      {babel: true},
-    );
+    const pluginInstance = pluginReactRefresh({}, {babel: true});
     await testPluginInstance(pluginInstance, {isHmrEnabled: false});
   });
 
   test('transform js and html when running in SSR', async () => {
-    const pluginInstance = pluginReactRefresh(
-      {},
-      {babel: true},
-    );
+    const pluginInstance = pluginReactRefresh({}, {babel: true});
     await testPluginInstance(pluginInstance, {isSSR: true});
   });
 
