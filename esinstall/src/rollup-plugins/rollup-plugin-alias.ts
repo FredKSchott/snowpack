@@ -25,9 +25,9 @@ THE SOFTWARE.
 
 */
 
-import { platform } from 'os';
+import {platform} from 'os';
 import slash from 'slash';
-import type { PartialResolvedId, Plugin } from 'rollup';
+import type {PartialResolvedId, Plugin} from 'rollup';
 
 const VOLUME = /^([A-Z]:)/i;
 const IS_WINDOWS = platform() === 'win32';
@@ -61,12 +61,12 @@ function normalizeId(id: string | undefined) {
 }
 
 interface Alias {
-  find: string | RegExp, 
-  replacement: string,
-  exact: boolean,
-};
+  find: string | RegExp;
+  replacement: string;
+  exact: boolean;
+}
 
-function getEntries({ entries }): readonly Alias[] {
+function getEntries({entries}): readonly Alias[] {
   if (!entries) {
     return [];
   }
@@ -79,7 +79,7 @@ export function rollupPluginAlias(options: {entries: Alias[]}): Plugin {
   if (entries.length === 0) {
     return {
       name: 'alias',
-      resolveId: noop
+      resolveId: noop,
     };
   }
 
@@ -96,16 +96,16 @@ export function rollupPluginAlias(options: {entries: Alias[]}): Plugin {
       }
 
       const updatedId = normalizeId(
-        importeeId.replace(matchedEntry.find, matchedEntry.replacement)
+        importeeId.replace(matchedEntry.find, matchedEntry.replacement),
       );
 
-      return this.resolve(updatedId, importer, { skipSelf: true }).then((resolved) => {
+      return this.resolve(updatedId, importer, {skipSelf: true}).then((resolved) => {
         let finalResult: PartialResolvedId | null = resolved;
         if (!finalResult) {
-          finalResult = { id: updatedId };
+          finalResult = {id: updatedId};
         }
         return finalResult;
       });
-    }
+    },
   };
 }
