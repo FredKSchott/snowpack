@@ -41,7 +41,12 @@ module.exports = {
   routes: [
     {
       src: '/api/.*',
-      dest: (req, res) => proxy.web(req, res),
+      dest: (req, res) => {
+        // remove /api prefix (optional)
+        req.url = req.url.replace(/^\/api/, '');
+ 
+        proxy.web(req, res);
+      }
     },
   ],
 };
