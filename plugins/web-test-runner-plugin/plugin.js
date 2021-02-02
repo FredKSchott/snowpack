@@ -2,6 +2,14 @@ const {isTestFilePath} = require('@web/test-runner');
 const snowpack = require('snowpack');
 const path = require('path');
 
+/**
+ * Checks whether the url is a virtual file served by @web/test-runner.
+ * @param {string} url 
+ */
+function isTestRunnerFile(url) {
+  return url.startsWith('/__web-dev-server') || url.startsWith('/__web-test-runner');
+}
+
 module.exports = function () {
   if (process.env.NODE_ENV !== 'test') {
     throw new Error(`@snowpack/web-test-runner-plugin: NODE_ENV must === "test" to build files correctly.
@@ -29,15 +37,19 @@ To Resolve:
       return server.shutdown();
     },
     async serve({request}) {
-      if (request.url.startsWith('/__web-dev-server')) {
+      if (isTestRunnerFile(request.url)) {
         return;
       }
       const reqPath = request.path;
-      const result = await server.loadUrl(reqPath, {isSSR: false});
-      return {body: result.contents, type: result.contentType};
+      try {
+        const result = await server.loadUrl(reqPath, {isSSR: false});
+        return {body: result.contents, type: result.contentType};
+      } catch {
+        return;
+      }
     },
     transformImport({source}) {
-      if (!isTestFilePath(source) || source.startsWith('/__web-dev-server')) {
+      if (!isTestFilePath(source) || isTestRunnerFile(source)) {
         return;
       }
       // PERF(fks): https://github.com/snowpackjs/snowpack/pull/1259/files#r502963818
@@ -46,11 +58,11 @@ To Resolve:
         source.indexOf('?') === -1 ? undefined : source.indexOf('?'),
       );
       const sourcePath = path.join(config.root || process.cwd(), reqPath);
-      const mountedUrl = snowpack.getUrlForFile(sourcePath, config);
-      if (!mountedUrl) {
-        throw new Error(`${source} could not be mounted!`);
+      try {
+        return snowpack.getUrlForFile(sourcePath, config);
+      } catch {
+        return;
       }
-      return mountedUrl;
     },
   };
 };
