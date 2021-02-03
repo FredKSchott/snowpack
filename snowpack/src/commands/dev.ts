@@ -302,7 +302,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     };
     paintDashboard(messageBus, config);
     logger.debug(`dashboard started`);
-  } else {
+  } else if (config.devOptions.output === "stream") {
     // "stream": Log relevent events to the console.
     messageBus.on(paintEvent.WORKER_MSG, ({id, msg}) => {
       logger.info(msg.trim(), {name: id});
@@ -310,6 +310,8 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     messageBus.on(paintEvent.SERVER_START, (info) => {
       console.log(getServerInfoMessage(info));
     });
+  } else {
+    // output is `none` -> do not print anything
   }
 
   const inMemoryBuildCache = new Map<string, SnowpackBuildMap>();

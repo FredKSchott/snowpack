@@ -107,7 +107,7 @@ const configSchema = {
         port: {type: 'number'},
         bundle: {type: 'boolean'},
         open: {type: 'string'},
-        output: {type: 'string', enum: ['stream', 'dashboard']},
+        output: {type: 'string', enum: ['stream', 'dashboard', 'none']},
         hmr: {type: 'boolean'},
         hmrDelay: {type: 'number'},
         hmrPort: {type: 'number'},
