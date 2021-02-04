@@ -14,7 +14,7 @@ describe('tree shaking expressions', () => {
 
     expect(output).toEqual(
       // left hand assignment not removed
-      expect.stringContaining(`var wiggle`)
+      expect.stringContaining(`var wiggle`),
     );
   });
 });

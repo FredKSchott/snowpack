@@ -1,8 +1,3 @@
+var wiggle = function wiggle() {}.bind(this);
 
-var wiggle = function wiggle() {
-
-}.bind(this);
-
-export default function() {
-
-}
+export default function () {}
