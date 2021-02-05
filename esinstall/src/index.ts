@@ -202,7 +202,6 @@ export async function install(
   } = setOptionDefaults(_options);
   const env = generateEnvObject(userEnv);
   const define = {
-    'global': "globalThis",
     ...generateEnvReplacements(env),
     ...userDefine
   };
@@ -305,9 +304,9 @@ ${colors.dim(
   }
 
   const inputOptions: esbuild.BuildOptions = {
-    entryPoints: Object.keys(installEntrypoints).map((ent) =>  ent + '.js'),
+    entryPoints: Object.keys(installEntrypoints).map((ent) =>  path.join('/PKG/', ent + '.js')),
     outdir: destLoc,
-    // outbase: path.join(cwd, 'PKG'),
+    outbase: '/PKG/',
     // write: false,
     bundle: true,
     splitting: true,
@@ -318,12 +317,13 @@ ${colors.dim(
     treeShaking: 'ignore-annotations',
     define,
     inject: [
+      // inject interferes with "define", can't do both
       // require.resolve('@esbuild-plugins/node-globals-polyfill/process'),
       require.resolve('@esbuild-plugins/node-globals-polyfill/Buffer'),
     ],
     plugins: [
-      // esbuildPluginPolyfill(env, cwd),
-      // polyfillNode && esbuildPluginNodePolyfill({}),
+      esbuildPluginPolyfill(env, cwd),
+      polyfillNode && esbuildPluginNodePolyfill({}),
       esbuildPluginEntrypoints(
         installEntrypoints,
         await createVirtualEntrypoints(

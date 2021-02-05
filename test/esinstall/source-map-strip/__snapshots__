@@ -61,7 +61,7 @@ function base64toByteArray(b64) {
   }
   return arr;
 }
-Buffer.TYPED_ARRAY_SUPPORT = global.TYPED_ARRAY_SUPPORT !== void 0 ? global.TYPED_ARRAY_SUPPORT : true;
+Buffer.TYPED_ARRAY_SUPPORT = globalThis.TYPED_ARRAY_SUPPORT !== void 0 ? globalThis.TYPED_ARRAY_SUPPORT : true;
 function kMaxLength() {
   return Buffer.TYPED_ARRAY_SUPPORT ? 2147483647 : 1073741823;
 }
@@ -3919,7 +3919,7 @@ function auth0_spa_js_production_esm_default(e2) {
     });
   });
 }
-// test/esinstall/source-map-strip/PKG/@auth0/auth0-spa-js.js
+// ../../../../PKG/@auth0/auth0-spa-js.js
 var auth0_spa_js_default = auth0_spa_js_production_esm_default;
 export {
   ur as Auth0Client,

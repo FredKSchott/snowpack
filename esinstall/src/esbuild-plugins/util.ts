@@ -252,12 +252,12 @@ export async function createVirtualEntrypoints(
         }
       }
     }
-    const relativeFileLoc = './' + path.relative(process.cwd(), normalizedFileLoc);
+    const relativeFileLoc = normalizedFileLoc;
     console.log('relativeFileLoc', relativeFileLoc);
 
     if (parsedEntrypoint.format === 'esm') {
       result[key] = `
-            ${parsedEntrypoint.named.length > 0 ? `export * from '${relativeFileLoc}';` : ''}
+            ${parsedEntrypoint.named.length > 0 ? `export {${parsedEntrypoint.named.join(',')}} from '${relativeFileLoc}';` : ''}
             ${
               parsedEntrypoint.default
                 ? `import __esinstall_default_export_for_treeshaking__ from '${relativeFileLoc}'; export default __esinstall_default_export_for_treeshaking__;`
@@ -275,6 +275,7 @@ export async function createVirtualEntrypoints(
       throw new Error(`Unexpected parsedEntrypoint format: ${parsedEntrypoint.format}`);
     }
   }
+  console.error('isTreeshake', result);
 
   return result;
 }

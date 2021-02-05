@@ -86,7 +86,6 @@ export function esbuildPluginEntrypoints(
         if (!importer) {
           return {
             path: id,
-            namespace: 'esinstall'
           };
         }
         const installAliasMatch = installAliasEntries.find(getAliasReplacement);
@@ -100,7 +99,7 @@ export function esbuildPluginEntrypoints(
         }
         console.log('IDD', id, resolveDir);
         if (id.startsWith('/') || id.startsWith('./') || id.startsWith('../')) {
-          return installAliasMatch ? {path: id} : {path: path.resolve(resolveDir, id)};
+          return installAliasMatch ? {path: id} : undefined;
         }
         const resolvedResult = resolveWebDependency(id, {
           cwd,
@@ -112,9 +111,9 @@ export function esbuildPluginEntrypoints(
       });
 
       build.onLoad(
-      {filter: /.*/, namespace: 'esinstall'},
+      {filter: /\/PKG\/.*/},
         ({path: id}) => {
-          let originalId = id;
+          let originalId = id.replace('/PKG/', '');
           if (!installEntrypoints[originalId]) {
             originalId = originalId.replace(/\.js$/, '');
           }
