@@ -127,7 +127,7 @@ async function installOptimizedDependencies(
     installTargets,
     installOptions,
     config: commandOptions.config,
-    shouldPrintStats: false,
+    shouldPrintStats: commandOptions.config.buildOptions.stat,
   });
   return installResult;
 }

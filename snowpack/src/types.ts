@@ -275,6 +275,7 @@ export interface SnowpackConfig {
     jsxFactory: string | undefined;
     jsxFragment: string | undefined;
     ssr: boolean;
+    stat: boolean;
   };
   testOptions: {
     files: string[];

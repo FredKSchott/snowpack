@@ -50,6 +50,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
     watch: false,
     htmlFragments: false,
     ssr: false,
+    stat: false,
   },
   testOptions: {
     files: ['__tests__/**/*', '**/*.@(spec|test).*'],
@@ -157,6 +158,7 @@ const configSchema = {
         htmlFragments: {type: 'boolean'},
         jsxFactory: {type: 'string'},
         jsxFragment: {type: 'string'},
+        stat: {type: 'boolean'},
       },
     },
     testOptions: {
