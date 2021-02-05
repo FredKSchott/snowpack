@@ -1352,7 +1352,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
       .map(([fileLoc]) => `${path.dirname(fileLoc!)}/**`),
   );
   function onDepWatchEvent() {
-    hmrEngine.broadcastMessage({type: 'reload'});
+    pkgSource.recoverMissingPackageImport([], config).then(() => hmrEngine.broadcastMessage({type: 'reload'}));
   }
   const depWatcher = chokidar.watch([...symlinkedFileLocs], {
     cwd: '/', // we’re using absolute paths, so watch from root
