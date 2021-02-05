@@ -3,7 +3,7 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import {VM as VM2} from 'vm2';
 import {AbstractLogger, InstallTarget} from '../types';
-import {isJavaScript, isRemoteUrl, isTruthy, NATIVE_REQUIRE} from '../util';
+import {getWebDependencyName, isJavaScript, isRemoteUrl, isTruthy, NATIVE_REQUIRE} from '../util';
 import isValidIdentifier from 'is-valid-identifier';
 import {init as initESModuleLexer, parse as parseEsm} from 'es-module-lexer';
 
@@ -215,7 +215,6 @@ export async function createVirtualEntrypoints(
   await initESModuleLexer;
 
   for (let [key, val] of Object.entries(installEntrypoints)) {
-    key = key.replace(/--/g, '/');
     if (isRemoteUrl(val)) {
       continue;
     }
@@ -237,7 +236,7 @@ export async function createVirtualEntrypoints(
     // If we are tree-shaking, then update parsedEntrypoint with the tree-shaken values.
     if (isTreeshake) {
       const installTargetsSummary = installTargets
-        .filter((imp) => imp.specifier === key)
+        .filter((imp) => getWebDependencyName(imp.specifier) === key)
         .reduce((summary, imp) => {
           summary.all = summary.all || imp.all;
           summary.default = summary.default || imp.default;
@@ -245,14 +244,15 @@ export async function createVirtualEntrypoints(
           summary.named = [...(summary.named || []), ...imp.named];
           return summary;
         }, {} as any);
-      installTargetsSummary.named = Array.from(new Set(installTargetsSummary.named));
-      if (!installTargetsSummary.all) {
+        if (!installTargetsSummary.all) {
+          installTargetsSummary.named = Array.from(new Set(installTargetsSummary.named));
         parsedEntrypoint.default = installTargetsSummary.default;
         if (!installTargetsSummary.namespace) {
           parsedEntrypoint.named = installTargetsSummary.named;
         }
       }
     }
+    // const relativeFileLoc = path.relative(path.join(process.cwd(), 'PKG', key), normalizedFileLoc);
 
     if (parsedEntrypoint.format === 'esm') {
       result[key] = `
@@ -266,7 +266,7 @@ export async function createVirtualEntrypoints(
           `;
     } else if (parsedEntrypoint.format === 'cjs') {
       result[key] = `
-        import __esinstall_default_export_for_treeshaking__ from '${normalizedFileLoc}';
+      const __esinstall_default_export_for_treeshaking__ = require("${normalizedFileLoc}");
         ${`export const {${parsedEntrypoint.named.join(',')}} = '${normalizedFileLoc}';`}
         ${
           parsedEntrypoint.default
@@ -279,6 +279,5 @@ export async function createVirtualEntrypoints(
     }
   }
 
-  console.log(result);
   return result;
 }

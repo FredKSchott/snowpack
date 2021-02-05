@@ -2,15 +2,15 @@
 
 exports[`source-map-strip matches the snapshot: allFiles 1`] = `
 Array [
-  "@auth0--auth0-spa-js.js",
-  "@auth0--auth0-spa-js.js.map",
+  "@auth0/auth0-spa-js.js",
+  "@auth0/auth0-spa-js.js.map",
   "import-map.json",
 ]
 `;
 
 exports[`source-map-strip matches the snapshot: cli output 1`] = `""`;
 
-exports[`source-map-strip matches the snapshot: web_modules/@auth0--auth0-spa-js.js 1`] = `
+exports[`source-map-strip matches the snapshot: web_modules/@auth0/auth0-spa-js.js 1`] = `
 "// node_modules/@esbuild-plugins/node-globals-polyfill/Buffer.js
 /*!
  * The buffer module from node.js, for the browser.
@@ -3919,74 +3919,19 @@ function auth0_spa_js_production_esm_default(e2) {
     });
   });
 }
-// esinstall:@auth0--auth0-spa-js
-var auth0_auth0_spa_js_default = auth0_spa_js_production_esm_default;
+// test/esinstall/source-map-strip/PKG/@auth0/auth0-spa-js.js
+var auth0_spa_js_default = auth0_spa_js_production_esm_default;
 export {
   ur as Auth0Client,
-  auth0_auth0_spa_js_default as default
+  auth0_spa_js_default as default
 };
-//# sourceMappingURL=@auth0--auth0-spa-js.js.map"
-`;
-
-exports[`source-map-strip matches the snapshot: web_modules/build-manifest.json 1`] = `
-"{
-  \\"inputs\\": {
-    \\"node_modules/@esbuild-plugins/node-globals-polyfill/Buffer.js\\": {
-      \\"bytes\\": 60513,
-      \\"imports\\": []
-    },
-    \\"node_modules/@auth0/auth0-spa-js/dist/auth0-spa-js.production.esm.js\\": {
-      \\"bytes\\": 95651,
-      \\"imports\\": []
-    },
-    \\"esinstall:@auth0--auth0-spa-js\\": {
-      \\"bytes\\": 374,
-      \\"imports\\": [
-        {
-          \\"path\\": \\"node_modules/@auth0/auth0-spa-js/dist/auth0-spa-js.production.esm.js\\",
-          \\"kind\\": \\"import-statement\\"
-        },
-        {
-          \\"path\\": \\"node_modules/@auth0/auth0-spa-js/dist/auth0-spa-js.production.esm.js\\",
-          \\"kind\\": \\"import-statement\\"
-        }
-      ]
-    }
-  },
-  \\"outputs\\": {
-    \\"test/esinstall/source-map-strip/web_modules/@auth0--auth0-spa-js.js.map\\": {
-      \\"imports\\": [],
-      \\"exports\\": [],
-      \\"inputs\\": {},
-      \\"bytes\\": 360779
-    },
-    \\"test/esinstall/source-map-strip/web_modules/@auth0--auth0-spa-js.js\\": {
-      \\"imports\\": [],
-      \\"exports\\": [
-        \\"Auth0Client\\",
-        \\"default\\"
-      ],
-      \\"inputs\\": {
-        \\"node_modules/@esbuild-plugins/node-globals-polyfill/Buffer.js\\": {
-          \\"bytesInOutput\\": 45531
-        },
-        \\"node_modules/@auth0/auth0-spa-js/dist/auth0-spa-js.production.esm.js\\": {
-          \\"bytesInOutput\\": 123810
-        },
-        \\"esinstall:@auth0--auth0-spa-js\\": {
-          \\"bytesInOutput\\": 70
-        }
-      },
-      \\"bytes\\": 169706
-    }
-  }
-}"
+//# sourceMappingURL=auth0-spa-js.js.map"
 `;
 
 exports[`source-map-strip matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
-    \\"@auth0/auth0-spa-js\\": \\"./@auth0--auth0-spa-js.js\\"
+    \\"@auth0/auth0-spa-js\\": \\"./@auth0/auth0-spa-js.js\\"
   }
 }"
 `;

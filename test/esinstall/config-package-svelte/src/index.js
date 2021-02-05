@@ -1,1 +1,0 @@
-import 'simple-svelte-autocomplete';

@@ -10,64 +10,6 @@ Array [
 
 exports[`exclude-external-packages matches the snapshot: cli output 1`] = `""`;
 
-exports[`exclude-external-packages matches the snapshot: web_modules/build-manifest.json 1`] = `
-"{
-  \\"inputs\\": {
-    \\"node_modules/@esbuild-plugins/node-globals-polyfill/Buffer.js\\": {
-      \\"bytes\\": 60513,
-      \\"imports\\": []
-    },
-    \\"node_modules/react-dom/index.js\\": {
-      \\"bytes\\": 1363,
-      \\"imports\\": []
-    },
-    \\"esinstall:react-dom\\": {
-      \\"bytes\\": 500,
-      \\"imports\\": [
-        {
-          \\"path\\": \\"node_modules/react-dom/index.js\\",
-          \\"kind\\": \\"import-statement\\"
-        }
-      ]
-    }
-  },
-  \\"outputs\\": {
-    \\"test/esinstall/exclude-external-packages/web_modules/react-dom.js.map\\": {
-      \\"imports\\": [],
-      \\"exports\\": [],
-      \\"inputs\\": {},
-      \\"bytes\\": 2290
-    },
-    \\"test/esinstall/exclude-external-packages/web_modules/react-dom.js\\": {
-      \\"imports\\": [],
-      \\"exports\\": [
-        \\"__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED\\",
-        \\"createPortal\\",
-        \\"default\\",
-        \\"findDOMNode\\",
-        \\"flushSync\\",
-        \\"hydrate\\",
-        \\"render\\",
-        \\"unmountComponentAtNode\\",
-        \\"unstable_batchedUpdates\\",
-        \\"unstable_createPortal\\",
-        \\"unstable_renderSubtreeIntoContainer\\",
-        \\"version\\"
-      ],
-      \\"inputs\\": {
-        \\"node_modules/react-dom/index.js\\": {
-          \\"bytesInOutput\\": 270
-        },
-        \\"esinstall:react-dom\\": {
-          \\"bytesInOutput\\": 398
-        }
-      },
-      \\"bytes\\": 2216
-    }
-  }
-}"
-`;
-
 exports[`exclude-external-packages matches the snapshot: web_modules/import-map.json 1`] = `
 "{
   \\"imports\\": {
@@ -115,7 +57,7 @@ var require_react_dom = __commonJS((exports, module) => {
     module.exports = require(\\"/Users/fks/Code/snowpack/node_modules/react-dom/index.js/cjs/react-dom.development.js\\");
   }
 });
-// esinstall:react-dom
+// test/esinstall/exclude-external-packages/PKG/react-dom.js
 var import_react_dom = __toModule(require_react_dom());
 var {__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED, createPortal, findDOMNode, flushSync, hydrate, render, unmountComponentAtNode, unstable_batchedUpdates, unstable_createPortal, unstable_renderSubtreeIntoContainer, version} = \\"/Users/fks/Code/snowpack/node_modules/react-dom/index.js\\";
 var react_dom_default = import_react_dom.default;

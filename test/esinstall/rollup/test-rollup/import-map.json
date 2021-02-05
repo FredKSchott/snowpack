@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "svelte-routing": "./svelte-routing.js"
+  }
+}

@@ -16,7 +16,7 @@ describe('node-env', () => {
       ENV_UNDEFINED: undefined,
     };
 
-    await runTest(['node-env-mock-pkg'], {dest, env, cwd: 'test-success'});
+    await runTest(['node-env-mock-pkg'], {dest, env, cwd: path.join(__dirname, 'test-success')});
 
     const nodeEnvMockPkg = fs.readFileSync(path.join(dest, 'node-env-mock-pkg.js'), 'utf8');
 

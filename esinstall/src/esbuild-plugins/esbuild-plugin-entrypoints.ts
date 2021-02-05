@@ -2,6 +2,7 @@ import path from 'path';
 import type * as esbuild from 'esbuild';
 import {isPackageAliasEntry, getWebDependencyType} from '../util';
 import {resolveEntrypoint} from '../entrypoints';
+import escapeStringRegExp from 'escape-string-regexp';
 
 type DependencyLoc = {
   type: 'BUNDLE' | 'ASSET' | 'DTS';
@@ -43,11 +44,12 @@ export function esbuildPluginEntrypoints(
       })),
     // Make sure that internal imports also honor any resolved installEntrypoints
     ...Object.entries(installEntrypoints).map(([key, val]) => ({
-      find: key.replace(/--/g, '/'),
+      find: key,
       replacement: val,
       exact: true,
     })),
   ];
+
   return {
     name: 'esinstall',
     setup(build: esbuild.PluginBuild) {
@@ -70,17 +72,24 @@ export function esbuildPluginEntrypoints(
             return replacement;
           }
         }
-        console.error(1, importer, !!importer, 2, id, 3, installEntrypoints);
-        const installAliasMatch = installAliasEntries.find(getAliasReplacement);
+        console.error(
+          1,
+          importer,
+          !!importer,
+          2,
+          id,
+          3,
+          installEntrypoints,
+        );
         if (!importer) {
-          if (!installEntrypoints[id]) {
+          if (!id.startsWith('PKG')) {
             throw new Error('UNEXPECTED');
           }
           return {
-            path: id,
-            namespace: 'esinstall',
+            path: path.join(cwd, id),
           };
         }
+        const installAliasMatch = installAliasEntries.find(getAliasReplacement);
         if (installAliasMatch) {
           id = getAliasReplacement(installAliasMatch);
         }
@@ -101,17 +110,25 @@ export function esbuildPluginEntrypoints(
         }
       });
 
-      build.onLoad({filter: /.*/, namespace: 'esinstall'}, ({path: id}) => {
-        let loader = path.extname(id).substr(1);
-        if (loader !== 'js' && loader !== 'json') {
-          loader = 'js';
-        }
-        return {
-          loader: loader as esbuild.Loader,
-          contents: virtualEntrypoints[id.replace(/--/g, '/')],
-          resolveDir: path.dirname(id.replace(/--/g, '/')),
-        };
-      });
+      build.onLoad(
+        {filter: new RegExp(`^${escapeStringRegExp(path.join(cwd, 'PKG'))}.*`)},
+        ({path: id}) => {
+          let originalId = id.substr(path.join(cwd, 'PKG').length + 1);
+          if (!installEntrypoints[originalId]) {
+            originalId = originalId.replace(/\.js$/, '');
+          }
+          console.error(originalId, installEntrypoints)
+          // let loader = path.extname(originalId).substr(1);
+          // if (loader !== 'js' && loader !== 'json') {
+          //   loader = 'js';
+          // }
+          console.error(path.dirname(installEntrypoints[originalId]));
+          return {
+            loader: 'js',
+            contents: virtualEntrypoints[originalId],
+          };
+        },
+      );
     },
   } as esbuild.Plugin;
 }

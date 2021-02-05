@@ -1,6 +1,6 @@
 import path from 'path';
 import type * as esbuild from 'esbuild';
-import generateProcessPolyfill from '../rollup-plugins/generateProcessPolyfill';
+import generateProcessPolyfill from './generateProcessPolyfill';
 
 const FETCH_POLYFILL = `
 // native patch for: node-fetch, whatwg-fetch
@@ -41,8 +41,8 @@ export function esbuildPluginPolyfill(env: any, cwd: string) {
   return {
     name: 'esinstall:polyfill',
     setup(build: esbuild.PluginBuild) {
-      build.onResolve({filter: /.*/}, ({path: id}) => {
-        console.log('ID', id);
+      build.onResolve({filter: /.*/}, ({path: id, importer}) => {
+        console.log('ID', id, importer);
 
         if (id.endsWith('process-polyfill.js')) {
           return {
@@ -58,13 +58,13 @@ export function esbuildPluginPolyfill(env: any, cwd: string) {
           };
         }
       });
-      build.onLoad({filter: /process/, namespace: 'esinstall:polyfill'}, () => {
-        return {
-          loader: 'js' as esbuild.Loader,
-          contents: generateProcessPolyfill(env),
-          resolveDir: cwd,
-        };
-      });
+      // build.onLoad({filter: /process/, namespace: 'esinstall:polyfill'}, () => {
+      //   return {
+      //     loader: 'js' as esbuild.Loader,
+      //     contents: generateProcessPolyfill(env),
+      //     resolveDir: cwd,
+      //   };
+      // });
       build.onLoad({filter: /fetch/, namespace: 'esinstall:polyfill'}, () => {
         return {
           loader: 'js' as esbuild.Loader,

@@ -1,24 +1,10 @@
 import * as esbuild from 'esbuild';
-import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-commonjs';
-import rollupPluginJson from '@rollup/plugin-json';
-import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import rimraf from 'rimraf';
-import {InputOptions, OutputOptions, Plugin as RollupPlugin, rollup, RollupError} from 'rollup';
-import rollupPluginNodePolyfills from 'rollup-plugin-polyfill-node';
-import rollupPluginReplace from '@rollup/plugin-replace';
 import util from 'util';
-import {rollupPluginAlias} from './rollup-plugins/rollup-plugin-alias';
-import {rollupPluginCatchFetch} from './rollup-plugins/rollup-plugin-catch-fetch';
-import {rollupPluginCatchUnresolved} from './rollup-plugins/rollup-plugin-catch-unresolved';
-import {rollupPluginCss} from './rollup-plugins/rollup-plugin-css';
-import {rollupPluginNodeProcessPolyfill} from './rollup-plugins/rollup-plugin-node-process-polyfill';
-import {rollupPluginDependencyStats} from './rollup-plugins/rollup-plugin-stats';
-import {rollupPluginStripSourceMapping} from './rollup-plugins/rollup-plugin-strip-source-mapping';
-import {rollupPluginWrapInstallTargets} from './rollup-plugins/rollup-plugin-wrap-install-targets';
 import {
   AbstractLogger,
   DefineReplacements,
@@ -33,12 +19,10 @@ import {
   getWebDependencyName,
   getWebDependencyType,
   isJavaScript,
-  isPackageAliasEntry,
-  MISSING_PLUGIN_SUGGESTIONS,
   sanitizePackageName,
   writeLockfile,
 } from './util';
-import {resolveEntrypoint, MAIN_FIELDS} from './entrypoints';
+import {resolveEntrypoint} from './entrypoints';
 import {createVirtualEntrypoints} from './esbuild-plugins/util';
 import {esbuildPluginEntrypoints} from './esbuild-plugins/esbuild-plugin-entrypoints';
 import {esbuildPluginPolyfill} from './esbuild-plugins/esbuild-plugin-polyfill';
@@ -51,7 +35,7 @@ export {
   resolveEntrypoint,
   explodeExportMap,
 } from './entrypoints';
-export {printStats} from './stats';
+// export {printStats} from './stats';
 
 type DependencyLoc = {
   type: 'BUNDLE' | 'ASSET' | 'DTS';
@@ -140,7 +124,7 @@ interface InstallOptions {
   }
   rollup: {
     context?: string;
-    plugins?: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
+    plugins?: any[]; // for simplicity, only Rollup plugins are supported for now
     dedupe?: string[];
   };
 }
@@ -149,8 +133,6 @@ type PublicInstallOptions = Partial<InstallOptions>;
 export {PublicInstallOptions as InstallOptions};
 
 export type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput};
-
-const FAILED_INSTALL_MESSAGE = 'Install failed.';
 
 function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
   if ((_options as any).lockfile) {
@@ -212,7 +194,6 @@ export async function install(
     sourcemap,
     env: userEnv,
     define: userDefine,
-    rollup: userDefinedRollup,
     esbuild: userDefinedEsbuild,
     treeshake: isTreeshake,
     polyfillNode,
@@ -224,7 +205,6 @@ export async function install(
     ...generateEnvReplacements(env),
     ...userDefine
   };
-  console.log('define', define);
 
   const installTargets: InstallTarget[] = _installTargets.map((t) =>
     typeof t === 'string' ? createInstallTarget(t) : t,
@@ -250,8 +230,8 @@ export async function install(
   const autoDetectNamedExports = [...CJS_PACKAGES_TO_AUTO_DETECT, ...namedExports];
 
   for (const installSpecifier of allInstallSpecifiers) {
-    let targetName = getWebDependencyName(installSpecifier).replace(/\//g, '--');
-    let proxiedName = sanitizePackageName(targetName).replace(/\//g, '--'); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
+    let targetName = getWebDependencyName(installSpecifier);
+    let proxiedName = sanitizePackageName(targetName); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
     if (_importMap) {
       if (_importMap.imports[installSpecifier]) {
         installEntrypoints[targetName] = _importMap.imports[installSpecifier];
@@ -277,6 +257,9 @@ export async function install(
       }
     }
 
+    // TODO: Pass resolve as a function, down to the plugin
+    // TODO: Add export map support to resolve function
+    
     try {
       const resolvedResult = resolveWebDependency(installSpecifier, {
         cwd,
@@ -320,113 +303,14 @@ ${colors.dim(
 )}`);
   }
 
-  // await initESModuleLexer;
-  // let isFatalWarningFound = false;
-  // const inputOptions: InputOptions = {
-  //   input: installEntrypoints,
-  //   context: userDefinedRollup.context,
-  //   external: (id) => external.some((packageName) => isImportOfPackage(id, packageName)),
-  //   treeshake: {moduleSideEffects: 'no-external'},
-  //   plugins: [
-  //     rollupPluginAlias({
-  //       entries: [
-  //         // Apply all aliases
-  //         ...Object.entries(installAlias)
-  //           .filter(([, val]) => isPackageAliasEntry(val))
-  //           .map(([key, val]) => ({
-  //             find: key,
-  //             replacement: val,
-  //             exact: false,
-  //           })),
-  //         // Make sure that internal imports also honor any resolved installEntrypoints
-  //         ...Object.entries(installEntrypoints).map(([key, val]) => ({
-  //           find: key,
-  //           replacement: val,
-  //           exact: true,
-  //         })),
-  //       ],
-  //     }),
-  //     rollupPluginCatchFetch(),
-  //     rollupPluginNodeResolve({
-  //       mainFields: [...packageLookupFields, ...MAIN_FIELDS],
-  //       extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
-  //       // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
-  //       preferBuiltins: true, // Default: true
-  //       dedupe: userDefinedRollup.dedupe || [],
-  //       // @ts-ignore: Added in v11+ of this plugin
-  //       exportConditions: packageExportLookupFields,
-  //     }),
-  //     rollupPluginJson({
-  //       preferConst: true,
-  //       indent: '  ',
-  //       compact: false,
-  //       namedExports: true,
-  //     }),
-  //     rollupPluginCss(),
-  //     rollupPluginReplace(generateEnvReplacements(env)),
-  //     rollupPluginCommonjs({
-  //       extensions: ['.js', '.cjs'],
-  //       esmExternals: externalEsm,
-  //       requireReturnsDefault: 'auto',
-  //     } as RollupCommonJSOptions),
-  //     rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),
-  //     rollupPluginDependencyStats((info) => (dependencyStats = info)),
-  //     rollupPluginNodeProcessPolyfill(env),
-  //     polyfillNode && rollupPluginNodePolyfills(),
-  //     ...(userDefinedRollup.plugins || []), // load user-defined plugins last
-  //     rollupPluginCatchUnresolved(),
-  //     rollupPluginStripSourceMapping(),
-  //   ].filter(Boolean) as Plugin[],
-  //   onwarn(warning) {
-  //     // Log "unresolved" import warnings as an error, causing Snowpack to fail at the end.
-  //     if (
-  //       warning.code === 'PLUGIN_WARNING' &&
-  //       warning.plugin === 'snowpack:rollup-plugin-catch-unresolved'
-  //     ) {
-  //       isFatalWarningFound = true;
-  //       // Display posix-style on all environments, mainly to help with CI :)
-  //       if (warning.id) {
-  //         const fileName = path.relative(cwd, warning.id).replace(/\\/g, '/');
-  //         logger.error(`${fileName}\n   ${warning.message}`);
-  //       } else {
-  //         logger.error(
-  //           `${warning.message}. See https://www.snowpack.dev/reference/common-error-details`,
-  //         );
-  //       }
-  //       return;
-  //     }
-  //     const {loc, message} = warning;
-  //     const logMessage = loc ? `${loc.file}:${loc.line}:${loc.column} ${message}` : message;
-  //     // These warnings are usually harmless in packages, so don't show them by default.
-  //     if (
-  //       warning.code === 'CIRCULAR_DEPENDENCY' ||
-  //       warning.code === 'NAMESPACE_CONFLICT' ||
-  //       warning.code === 'THIS_IS_UNDEFINED'
-  //     ) {
-  //       logger.debug(logMessage);
-  //     } else {
-  //       logger.warn(logMessage);
-  //     }
-  //   },
-  // };
-  // const outputOptions: OutputOptions = {
-  //   dir: destLoc,
-  //   format: 'esm',
-  //   sourcemap,
-  //   exports: 'named',
-  //   entryFileNames: (chunk) => {
-  //     const targetName = getWebDependencyName(chunk.name);
-  //     const proxiedName = sanitizePackageName(targetName);
-  //     return `${proxiedName}.js`;
-  //   },
-  //   chunkFileNames: 'common/[name]-[hash].js',
-  // };
-
-  console.log(installEntrypoints);
+  // TODO: GO BACK TO VIRTUAL JUST TO FIX THIS REACT ISSUE
+  // THEN, ONCE WORKING AS OUTPUT, FIGURE OUT THE PATHS
+  // TOO HARD TO DO BOTH AT ONCE.
+  
   const inputOptions: esbuild.BuildOptions = {
-    entryPoints: Object.keys(installEntrypoints),
+    entryPoints: Object.keys(installEntrypoints).map((ent) => path.join('PKG', ent + '.js')),
     outdir: destLoc,
-    // outbase: config.buildOptions.out,
+    outbase: path.join(cwd, 'PKG'),
     // write: false,
     bundle: true,
     splitting: true,
@@ -434,6 +318,7 @@ ${colors.dim(
     format: 'esm',
     platform: 'browser',
     metafile: path.join(destLoc, 'build-manifest.json'),
+    treeShaking: 'ignore-annotations',
     define,
     inject: [
       // require.resolve('@esbuild-plugins/node-globals-polyfill/process'),
@@ -470,9 +355,9 @@ ${colors.dim(
       logger.debug(process.cwd());
       logger.debug(`running installer with options: ${util.format(inputOptions)}`);
       const esbuildService = await esbuild.startService();
-      const {outputFiles, warnings} = await esbuildService.build(inputOptions);
+      const {warnings} = await esbuildService.build(inputOptions);
       esbuildService.stop();
-      console.log(outputFiles, warnings);
+      console.log(warnings);
       // const packageBundle = await rollup(inputOptions);
       // logger.debug(
       //   `installing npm packages:\n    ${Object.keys(installEntrypoints).join('\n    ')}`,
@@ -484,20 +369,7 @@ ${colors.dim(
       // await packageBundle.write(outputOptions);
     } catch (_err) {
       logger.debug(`FAILURE: ${_err}`);
-      const err: RollupError = _err;
-      const errFilePath = err.loc?.file || err.id;
-      if (!errFilePath) {
-        throw err;
-      }
-      // NOTE: Rollup will fail instantly on most errors. Therefore, we can
-      // only report one error at a time. `err.watchFiles` also exists, but
-      // for now `err.loc.file` and `err.id` have all the info that we need.
-      const failedExtension = path.extname(errFilePath);
-      const suggestion = MISSING_PLUGIN_SUGGESTIONS[failedExtension] || err.message;
-      // Display posix-style on all environments, mainly to help with CI :)
-      const fileName = path.relative(cwd, errFilePath).replace(/\\/g, '/');
-      logger.error(`Failed to load ${colors.bold(fileName)}\n  ${suggestion}`);
-      throw new Error(FAILED_INSTALL_MESSAGE);
+      throw _err;
     }
   }
 

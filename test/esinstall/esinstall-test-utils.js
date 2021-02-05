@@ -91,7 +91,7 @@ async function testWebModules(
       // If any diffs are detected, we'll assert the difference so that we get nice output.
       for (const entry of allFiles) {
         // don’t compare CSS or .map files.
-        if (entry.endsWith('.css') || entry.endsWith('.map')) {
+        if (entry.endsWith('.css') || entry.endsWith('.map') || entry.endsWith('build-manifest.json')) {
           continue;
         }
         const f1 = readFileSync(path.resolve(actual, entry), {encoding: 'utf8'});
