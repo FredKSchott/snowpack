@@ -728,13 +728,10 @@ export async function startServer(
       handleRequest(req, res);
     })
       .on('upgrade', (req, socket) => {
-        let reqUrl = req.url!;
-        const matchedRoute = matchRoute(reqUrl);
+        const matchedRoute = matchRoute(req.url!);
         // If a route is matched, call the route function
-        if (matchedRoute) {
-          if (typeof matchedRoute.dest !== 'string') {
-            return matchedRoute.dest(req, socket);
-          }
+        if (matchedRoute && typeof matchedRoute.dest !== 'string') {
+          return matchedRoute.dest(req, socket);
         }
       })
       .on('error', (err: Error) => {
