@@ -6,6 +6,7 @@ export type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
+export type DefineReplacements = Record<string, string>;
 export type EnvVarReplacements = Record<string, string | number | true>;
 
 export interface ImportMap {

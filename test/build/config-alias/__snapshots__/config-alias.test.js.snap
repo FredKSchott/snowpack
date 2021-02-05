@@ -136,7 +136,7 @@ import styles from './components/style.css.proxy.js'; // relative import
 import styles_ from './components/style.css.proxy.js'; // relative import
 console.log(styles, styles_);
 
-import adSvg from '../TEST_WMU/pkg/@fortawesome/fontawesome-free/svgs/solid/ad.svg.proxy.js';
+import adSvg from '../TEST_WMU/pkg/@fortawesome--fontawesome-free--svgs--solid--ad.svg.proxy.js';
 console.log(adSvg);
 
 // Importing across mounted directories

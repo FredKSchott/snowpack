@@ -81,7 +81,8 @@ async function testWebModules(
 
   return {
     testAllSnapshots() {
-      expect(allFiles.map((f) => f.replace(/\\/g, '/'))).toMatchSpecificSnapshot(
+      // NOTE(fks): Safe to remove the build-manifest file entirely before release
+      expect(allFiles.filter(f => !f.endsWith('build-manifest.json')).map((f) => f.replace(/\\/g, '/'))).toMatchSpecificSnapshot(
         snapshotFile,
         'allFiles',
       );

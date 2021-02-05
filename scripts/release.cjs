@@ -65,7 +65,9 @@ module.exports = function release(pkgFolder, tag, bump, skipBuild) {
     }
     changelog += generateChangelogUpdate(dir, newPkgTag, oldPkgTag);
     fs.writeFileSync(changelogLoc, changelog);
-  }
+    // Reformat to make sure the changelog doesn't trigger a format commit
+    console.log(execa.sync('yarn', ['run', 'format'], {cwd: dir}));
+}
 
   console.log(execa.sync('git', ['add', '-A'], {cwd: dir}));
   console.log(execa.sync('git', ['commit', '-m', newPkgTag], {cwd: dir}));

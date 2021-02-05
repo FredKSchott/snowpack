@@ -19,7 +19,9 @@ describe('Auto-detecting CJS exports', () => {
     const output = fs.readFileSync(path.join(dest, `${spec}.js`), 'utf8');
     expect(output).toEqual(
       // This shouldn't contain named exports
-      expect.not.stringContaining(`export {`),
+      expect.stringContaining(`export {
+  cjs_invalid_exports_default as default
+};`),
     );
   });
 
@@ -38,7 +40,12 @@ describe('Auto-detecting CJS exports', () => {
     const output = fs.readFileSync(path.join(dest, `${spec}.js`), 'utf8');
     expect(output).toEqual(
       // Correctly exports the valid identifiers as tree-shakeable identifiers
-      expect.stringContaining(`export { entrypoint as __moduleExports, a, b, d };`),
+      expect.stringContaining(`export {
+  a,
+  b,
+  d,
+  cjs_valid_exports_default as default
+};`),
     );
   });
 });

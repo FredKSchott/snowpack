@@ -46,7 +46,7 @@
   ],
   "dependencies": {
     "default-browser-id": "^2.0.0",
-    "esbuild": "^0.8.7",
+    "esbuild": "^0.8.41",
     "open": "^7.0.4",
     "rollup": "^2.34.0"
   },

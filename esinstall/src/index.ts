@@ -1,7 +1,7 @@
+import * as esbuild from 'esbuild';
 import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-commonjs';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
-import {init as initESModuleLexer} from 'es-module-lexer';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
@@ -21,6 +21,7 @@ import {rollupPluginStripSourceMapping} from './rollup-plugins/rollup-plugin-str
 import {rollupPluginWrapInstallTargets} from './rollup-plugins/rollup-plugin-wrap-install-targets';
 import {
   AbstractLogger,
+  DefineReplacements,
   DependencyStatsOutput,
   EnvVarReplacements,
   ImportMap,
@@ -38,6 +39,10 @@ import {
   writeLockfile,
 } from './util';
 import {resolveEntrypoint, MAIN_FIELDS} from './entrypoints';
+import {createVirtualEntrypoints} from './esbuild-plugins/util';
+import {esbuildPluginEntrypoints} from './esbuild-plugins/esbuild-plugin-entrypoints';
+import {esbuildPluginPolyfill} from './esbuild-plugins/esbuild-plugin-polyfill';
+import {esbuildPluginNodePolyfill} from './esbuild-plugins/esbuild-plugin-node-polyfill';
 
 export * from './types';
 export {
@@ -121,6 +126,7 @@ interface InstallOptions {
   verbose?: boolean;
   dest: string;
   env: EnvVarReplacements;
+  define: DefineReplacements;
   treeshake?: boolean;
   polyfillNode: boolean;
   sourcemap?: boolean | 'inline';
@@ -129,6 +135,9 @@ interface InstallOptions {
   packageLookupFields: string[];
   packageExportLookupFields: string[];
   namedExports: string[];
+  esbuild: {
+    plugins?: esbuild.Plugin[];
+  }
   rollup: {
     context?: string;
     plugins?: RollupPlugin[]; // for simplicity, only Rollup plugins are supported for now
@@ -172,7 +181,11 @@ function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
     packageLookupFields: [],
     packageExportLookupFields: [],
     env: {},
+    define: {},
     namedExports: [],
+    esbuild: {
+      plugins: [],
+    },
     rollup: {
       plugins: [],
       dedupe: [],
@@ -198,13 +211,20 @@ export async function install(
     externalEsm,
     sourcemap,
     env: userEnv,
+    define: userDefine,
     rollup: userDefinedRollup,
+    esbuild: userDefinedEsbuild,
     treeshake: isTreeshake,
     polyfillNode,
     packageLookupFields,
     packageExportLookupFields,
   } = setOptionDefaults(_options);
   const env = generateEnvObject(userEnv);
+  const define = {
+    ...generateEnvReplacements(env),
+    ...userDefine
+  };
+  console.log('define', define);
 
   const installTargets: InstallTarget[] = _installTargets.map((t) =>
     typeof t === 'string' ? createInstallTarget(t) : t,
@@ -230,8 +250,8 @@ export async function install(
   const autoDetectNamedExports = [...CJS_PACKAGES_TO_AUTO_DETECT, ...namedExports];
 
   for (const installSpecifier of allInstallSpecifiers) {
-    let targetName = getWebDependencyName(installSpecifier);
-    let proxiedName = sanitizePackageName(targetName); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
+    let targetName = getWebDependencyName(installSpecifier).replace(/\//g, '--');
+    let proxiedName = sanitizePackageName(targetName).replace(/\//g, '--'); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
     if (_importMap) {
       if (_importMap.imports[installSpecifier]) {
         installEntrypoints[targetName] = _importMap.imports[installSpecifier];
@@ -300,106 +320,148 @@ ${colors.dim(
 )}`);
   }
 
-  await initESModuleLexer;
-  let isFatalWarningFound = false;
-  const inputOptions: InputOptions = {
-    input: installEntrypoints,
-    context: userDefinedRollup.context,
-    external: (id) => external.some((packageName) => isImportOfPackage(id, packageName)),
-    treeshake: {moduleSideEffects: 'no-external'},
-    plugins: [
-      rollupPluginAlias({
-        entries: [
-          // Apply all aliases
-          ...Object.entries(installAlias)
-            .filter(([, val]) => isPackageAliasEntry(val))
-            .map(([key, val]) => ({
-              find: key,
-              replacement: val,
-              exact: false,
-            })),
-          // Make sure that internal imports also honor any resolved installEntrypoints
-          ...Object.entries(installEntrypoints).map(([key, val]) => ({
-            find: key,
-            replacement: val,
-            exact: true,
-          })),
-        ],
-      }),
-      rollupPluginCatchFetch(),
-      rollupPluginNodeResolve({
-        mainFields: [...packageLookupFields, ...MAIN_FIELDS],
-        extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
-        // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
-        preferBuiltins: true, // Default: true
-        dedupe: userDefinedRollup.dedupe || [],
-        // @ts-ignore: Added in v11+ of this plugin
-        exportConditions: packageExportLookupFields,
-      }),
-      rollupPluginJson({
-        preferConst: true,
-        indent: '  ',
-        compact: false,
-        namedExports: true,
-      }),
-      rollupPluginCss(),
-      rollupPluginReplace(generateEnvReplacements(env)),
-      rollupPluginCommonjs({
-        extensions: ['.js', '.cjs'],
-        esmExternals: externalEsm,
-        requireReturnsDefault: 'auto',
-      } as RollupCommonJSOptions),
-      rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),
-      rollupPluginDependencyStats((info) => (dependencyStats = info)),
-      rollupPluginNodeProcessPolyfill(env),
-      polyfillNode && rollupPluginNodePolyfills(),
-      ...(userDefinedRollup.plugins || []), // load user-defined plugins last
-      rollupPluginCatchUnresolved(),
-      rollupPluginStripSourceMapping(),
-    ].filter(Boolean) as Plugin[],
-    onwarn(warning) {
-      // Log "unresolved" import warnings as an error, causing Snowpack to fail at the end.
-      if (
-        warning.code === 'PLUGIN_WARNING' &&
-        warning.plugin === 'snowpack:rollup-plugin-catch-unresolved'
-      ) {
-        isFatalWarningFound = true;
-        // Display posix-style on all environments, mainly to help with CI :)
-        if (warning.id) {
-          const fileName = path.relative(cwd, warning.id).replace(/\\/g, '/');
-          logger.error(`${fileName}\n   ${warning.message}`);
-        } else {
-          logger.error(
-            `${warning.message}. See https://www.snowpack.dev/reference/common-error-details`,
-          );
-        }
-        return;
-      }
-      const {loc, message} = warning;
-      const logMessage = loc ? `${loc.file}:${loc.line}:${loc.column} ${message}` : message;
-      // These warnings are usually harmless in packages, so don't show them by default.
-      if (
-        warning.code === 'CIRCULAR_DEPENDENCY' ||
-        warning.code === 'NAMESPACE_CONFLICT' ||
-        warning.code === 'THIS_IS_UNDEFINED'
-      ) {
-        logger.debug(logMessage);
-      } else {
-        logger.warn(logMessage);
-      }
-    },
-  };
-  const outputOptions: OutputOptions = {
-    dir: destLoc,
+  // await initESModuleLexer;
+  // let isFatalWarningFound = false;
+  // const inputOptions: InputOptions = {
+  //   input: installEntrypoints,
+  //   context: userDefinedRollup.context,
+  //   external: (id) => external.some((packageName) => isImportOfPackage(id, packageName)),
+  //   treeshake: {moduleSideEffects: 'no-external'},
+  //   plugins: [
+  //     rollupPluginAlias({
+  //       entries: [
+  //         // Apply all aliases
+  //         ...Object.entries(installAlias)
+  //           .filter(([, val]) => isPackageAliasEntry(val))
+  //           .map(([key, val]) => ({
+  //             find: key,
+  //             replacement: val,
+  //             exact: false,
+  //           })),
+  //         // Make sure that internal imports also honor any resolved installEntrypoints
+  //         ...Object.entries(installEntrypoints).map(([key, val]) => ({
+  //           find: key,
+  //           replacement: val,
+  //           exact: true,
+  //         })),
+  //       ],
+  //     }),
+  //     rollupPluginCatchFetch(),
+  //     rollupPluginNodeResolve({
+  //       mainFields: [...packageLookupFields, ...MAIN_FIELDS],
+  //       extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
+  //       // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
+  //       preferBuiltins: true, // Default: true
+  //       dedupe: userDefinedRollup.dedupe || [],
+  //       // @ts-ignore: Added in v11+ of this plugin
+  //       exportConditions: packageExportLookupFields,
+  //     }),
+  //     rollupPluginJson({
+  //       preferConst: true,
+  //       indent: '  ',
+  //       compact: false,
+  //       namedExports: true,
+  //     }),
+  //     rollupPluginCss(),
+  //     rollupPluginReplace(generateEnvReplacements(env)),
+  //     rollupPluginCommonjs({
+  //       extensions: ['.js', '.cjs'],
+  //       esmExternals: externalEsm,
+  //       requireReturnsDefault: 'auto',
+  //     } as RollupCommonJSOptions),
+  //     rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),
+  //     rollupPluginDependencyStats((info) => (dependencyStats = info)),
+  //     rollupPluginNodeProcessPolyfill(env),
+  //     polyfillNode && rollupPluginNodePolyfills(),
+  //     ...(userDefinedRollup.plugins || []), // load user-defined plugins last
+  //     rollupPluginCatchUnresolved(),
+  //     rollupPluginStripSourceMapping(),
+  //   ].filter(Boolean) as Plugin[],
+  //   onwarn(warning) {
+  //     // Log "unresolved" import warnings as an error, causing Snowpack to fail at the end.
+  //     if (
+  //       warning.code === 'PLUGIN_WARNING' &&
+  //       warning.plugin === 'snowpack:rollup-plugin-catch-unresolved'
+  //     ) {
+  //       isFatalWarningFound = true;
+  //       // Display posix-style on all environments, mainly to help with CI :)
+  //       if (warning.id) {
+  //         const fileName = path.relative(cwd, warning.id).replace(/\\/g, '/');
+  //         logger.error(`${fileName}\n   ${warning.message}`);
+  //       } else {
+  //         logger.error(
+  //           `${warning.message}. See https://www.snowpack.dev/reference/common-error-details`,
+  //         );
+  //       }
+  //       return;
+  //     }
+  //     const {loc, message} = warning;
+  //     const logMessage = loc ? `${loc.file}:${loc.line}:${loc.column} ${message}` : message;
+  //     // These warnings are usually harmless in packages, so don't show them by default.
+  //     if (
+  //       warning.code === 'CIRCULAR_DEPENDENCY' ||
+  //       warning.code === 'NAMESPACE_CONFLICT' ||
+  //       warning.code === 'THIS_IS_UNDEFINED'
+  //     ) {
+  //       logger.debug(logMessage);
+  //     } else {
+  //       logger.warn(logMessage);
+  //     }
+  //   },
+  // };
+  // const outputOptions: OutputOptions = {
+  //   dir: destLoc,
+  //   format: 'esm',
+  //   sourcemap,
+  //   exports: 'named',
+  //   entryFileNames: (chunk) => {
+  //     const targetName = getWebDependencyName(chunk.name);
+  //     const proxiedName = sanitizePackageName(targetName);
+  //     return `${proxiedName}.js`;
+  //   },
+  //   chunkFileNames: 'common/[name]-[hash].js',
+  // };
+
+  console.log(installEntrypoints);
+  const inputOptions: esbuild.BuildOptions = {
+    entryPoints: Object.keys(installEntrypoints),
+    outdir: destLoc,
+    // outbase: config.buildOptions.out,
+    // write: false,
+    bundle: true,
+    splitting: true,
+    sourcemap: true,
     format: 'esm',
-    sourcemap,
-    exports: 'named',
-    entryFileNames: (chunk) => {
-      const targetName = getWebDependencyName(chunk.name);
-      const proxiedName = sanitizePackageName(targetName);
-      return `${proxiedName}.js`;
-    },
-    chunkFileNames: 'common/[name]-[hash].js',
+    platform: 'browser',
+    metafile: path.join(destLoc, 'build-manifest.json'),
+    define,
+    inject: [
+      // require.resolve('@esbuild-plugins/node-globals-polyfill/process'),
+      require.resolve('@esbuild-plugins/node-globals-polyfill/Buffer'),
+    ],
+    plugins: [
+      esbuildPluginPolyfill(env, cwd),
+      polyfillNode && esbuildPluginNodePolyfill({}),
+      esbuildPluginEntrypoints(
+        installEntrypoints,
+        await createVirtualEntrypoints(
+          !!isTreeshake,
+          autoDetectNamedExports,
+          installTargets,
+          installEntrypoints,
+          logger,
+        ),
+        installAlias,
+        cwd
+      ),
+      ...(userDefinedEsbuild.plugins || []),
+    ].filter(Boolean) as esbuild.Plugin[],
+    // publicPath: config.buildOptions.baseUrl,
+    // minify: config.optimize!.minify,
+    // target: config.optimize!.target,
+    // external: Array.from(new Set(allFiles.map((f) => '*' + path.extname(f)))).filter(
+    //   (ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css' && ext !== '*',
+    // ),
   };
 
   rimraf.sync(destLoc);
@@ -407,15 +469,19 @@ ${colors.dim(
     try {
       logger.debug(process.cwd());
       logger.debug(`running installer with options: ${util.format(inputOptions)}`);
-      const packageBundle = await rollup(inputOptions);
-      logger.debug(
-        `installing npm packages:\n    ${Object.keys(installEntrypoints).join('\n    ')}`,
-      );
-      if (isFatalWarningFound) {
-        throw new Error(FAILED_INSTALL_MESSAGE);
-      }
-      logger.debug(`writing install results to disk`);
-      await packageBundle.write(outputOptions);
+      const esbuildService = await esbuild.startService();
+      const {outputFiles, warnings} = await esbuildService.build(inputOptions);
+      esbuildService.stop();
+      console.log(outputFiles, warnings);
+      // const packageBundle = await rollup(inputOptions);
+      // logger.debug(
+      //   `installing npm packages:\n    ${Object.keys(installEntrypoints).join('\n    ')}`,
+      // );
+      // if (isFatalWarningFound) {
+      //   throw new Error(FAILED_INSTALL_MESSAGE);
+      // }
+      // logger.debug(`writing install results to disk`);
+      // await packageBundle.write(outputOptions);
     } catch (_err) {
       logger.debug(`FAILURE: ${_err}`);
       const err: RollupError = _err;

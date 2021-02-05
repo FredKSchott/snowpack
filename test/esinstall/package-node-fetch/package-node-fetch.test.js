@@ -6,7 +6,7 @@ describe('package node-fetch', () => {
   it('allows importing node-fetch', async () => {
     const cwd = __dirname;
     const dest = path.join(cwd, 'test-node-fetch');
-    const spec = 'node-fetch';
+    const spec = 'dep-node-fetch-mock-pkg';
 
     const {
       importMap: {imports},

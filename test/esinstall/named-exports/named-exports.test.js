@@ -15,7 +15,14 @@ describe('named-exports', () => {
     // test output (note: this may be a bit too close to a snapshot, but pay attention to changes here)
     expect(output).toEqual(
       expect.stringContaining(
-        `export { entrypoint as __moduleExports, export1, export2, export3, export4, export5 };`,
+        `export {
+  cjs_named_exports_simple_default as default,
+  export1,
+  export2,
+  export3,
+  export4,
+  export5
+};`,
       ),
     );
   });
@@ -29,7 +36,11 @@ describe('named-exports', () => {
 
     // test output
     expect(output).toEqual(
-      expect.stringContaining(`export { entrypoint as __moduleExports, export1, export2 };`),
+      expect.stringContaining(`export {
+  cjs_named_exports_obj_default as default,
+  export1,
+  export2
+};`),
     );
   });
 
@@ -42,7 +53,10 @@ describe('named-exports', () => {
 
     // test output
     expect(output).toEqual(
-      expect.stringContaining(`export { entrypoint as __moduleExports, export42$1 as export42 };`),
+      expect.stringContaining(`export {
+  cjs_named_exports_reexported_default as default,
+  export42
+};`),
     );
   });
 
@@ -54,12 +68,16 @@ describe('named-exports', () => {
     const output = fs.readFileSync(path.join(dest, `${pkg}.js`), 'utf8');
 
     // test output
-    expect(output).toEqual(expect.stringMatching(`export default autolayout;`));
-
     expect(output).toEqual(
-      expect.stringContaining(
-        `export { Attribute, Priority, Relation, SubView, View, VisualFormat, autolayout as __moduleExports };`,
-      ),
+      expect.stringContaining(`export {
+  Attribute,
+  Priority,
+  Relation,
+  SubView,
+  View,
+  VisualFormat,
+  umd_named_exports_default as default
+};`),
     );
   });
 });

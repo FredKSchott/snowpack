@@ -21,13 +21,13 @@ describe('node-env', () => {
     const nodeEnvMockPkg = fs.readFileSync(path.join(dest, 'node-env-mock-pkg.js'), 'utf8');
 
     // positive test
-    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const string = "string";`));
-    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const number = 23;`));
-    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const boolean = undefined;`));
-    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const array = [1];`));
-    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const object = {"obj":true};`));
-    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const nullValue = null;`));
-    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const undefinedValue = undefined;`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`string = "string";`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`number = 23;`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`boolean = undefined;`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`define_process_env_ENV_ARRAY_default = [1];`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`define_process_env_ENV_OBJECT_default = {obj};`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`nullValue = null;`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`undefinedValue = undefined;`));
 
     // inverse test (ensure polyfill not loaded)
     expect(nodeEnvMockPkg).not.toEqual(expect.stringContaining(`/* SNOWPACK PROCESS POLYFILL`));
@@ -44,13 +44,11 @@ describe('node-env', () => {
     const nodeEnvMockPkg = fs.readFileSync(path.join(dest, 'node-env-mock-pkg.js'), 'utf8');
 
     // positive test
-    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`const string = "string";`));
+    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`string = "string";`));
     expect(nodeEnvMockPkg).toEqual(
-      expect.stringContaining(`const number = process.env.ENV_NUMBER;`),
+      expect.stringContaining(`number = process.env.ENV_NUMBER;`),
     );
-    expect(nodeEnvMockPkg).toEqual(expect.stringContaining(`/* SNOWPACK PROCESS POLYFILL`));
-
     // inverse test (ensure value is not inlined also somewhere)
-    expect(nodeEnvMockPkg).not.toEqual(expect.stringContaining(`const number = 23;`));
+    expect(nodeEnvMockPkg).not.toEqual(expect.stringContaining(`number = 23;`));
   });
 });

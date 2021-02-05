@@ -62,9 +62,9 @@ describe('package-entrypoints exports configuration', () => {
       imports: {
         'export-map-internal-imports': './export-map-internal-imports.js',
         'export-map-internal-imports/imported-by-entrypoint':
-          './export-map-internal-imports/imported-by-entrypoint.js',
+          './export-map-internal-imports--imported-by-entrypoint.js',
         'export-map-internal-imports/imports-entrypoint':
-          './export-map-internal-imports/imports-entrypoint.js',
+          './export-map-internal-imports--imports-entrypoint.js',
       },
     });
   });
@@ -110,9 +110,9 @@ describe('package-entrypoints exports configuration', () => {
 
     expect(imports).toStrictEqual({
       'export-map-star': './export-map-star.js',
-      'export-map-star/extras/one': './export-map-star/extras/one.js',
-      'export-map-star/extras/three': './export-map-star/extras/three.js',
-      'export-map-star/extras/two': './export-map-star/extras/two.js',
+      'export-map-star/extras/one': './export-map-star--extras--one.js',
+      'export-map-star/extras/three': './export-map-star--extras--three.js',
+      'export-map-star/extras/two': './export-map-star--extras--two.js',
     });
   });
 
@@ -136,10 +136,10 @@ describe('package-entrypoints exports configuration', () => {
 
     expect(imports).toStrictEqual({
       'export-map-trailing-slash': './export-map-trailing-slash.js',
-      'export-map-trailing-slash/extras/one.js': './export-map-trailing-slash/extras/one.js',
-      'export-map-trailing-slash/extras/three.js': './export-map-trailing-slash/extras/three.js',
-      'export-map-trailing-slash/extras/two.js': './export-map-trailing-slash/extras/two.js',
-      'export-map-trailing-slash/more/one.js': './export-map-trailing-slash/more/one.js',
+      'export-map-trailing-slash/extras/one.js': './export-map-trailing-slash--extras--one.js',
+      'export-map-trailing-slash/extras/three.js': './export-map-trailing-slash--extras--three.js',
+      'export-map-trailing-slash/extras/two.js': './export-map-trailing-slash--extras--two.js',
+      'export-map-trailing-slash/more/one.js': './export-map-trailing-slash--more--one.js',
     });
   });
 

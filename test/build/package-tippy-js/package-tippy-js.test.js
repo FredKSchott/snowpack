@@ -14,10 +14,10 @@ describe('package: tippy.js', () => {
 
   it('builds to the correct path', () => {
     const mainEntryLoc = path.join(cwd, '_snowpack', 'pkg', 'tippyjs.js');
-    const assetsLoc = path.join(cwd, '_snowpack', 'pkg', 'tippyjs');
+    const assetEntryLoc = path.join(cwd, '_snowpack', 'pkg', 'tippy.js--dist--tippy.css');
 
     expect(fs.existsSync(mainEntryLoc) && fs.statSync(mainEntryLoc).isFile()).toBe(true);
-    expect(fs.existsSync(assetsLoc) && fs.statSync(assetsLoc).isDirectory()).toBe(true);
+    expect(fs.existsSync(assetEntryLoc) && fs.statSync(assetEntryLoc).isFile()).toBe(true);
   });
 
   it('resolves imports', () => {
