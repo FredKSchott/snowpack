@@ -252,27 +252,24 @@ export async function createVirtualEntrypoints(
         }
       }
     }
-    // const relativeFileLoc = path.relative(path.join(process.cwd(), 'PKG', key), normalizedFileLoc);
+    const relativeFileLoc = './' + path.relative(process.cwd(), normalizedFileLoc);
+    console.log('relativeFileLoc', relativeFileLoc);
 
     if (parsedEntrypoint.format === 'esm') {
       result[key] = `
-            ${parsedEntrypoint.named.length > 0 ? `export * from '${normalizedFileLoc}';` : ''}
+            ${parsedEntrypoint.named.length > 0 ? `export * from '${relativeFileLoc}';` : ''}
             ${
               parsedEntrypoint.default
-                ? `import __esinstall_default_export_for_treeshaking__ from '${normalizedFileLoc}'; export default __esinstall_default_export_for_treeshaking__;`
+                ? `import __esinstall_default_export_for_treeshaking__ from '${relativeFileLoc}'; export default __esinstall_default_export_for_treeshaking__;`
                 : ''
             }
-            ${parsedEntrypoint.named.length === 0 && !parsedEntrypoint.default ? `import  '${normalizedFileLoc}';` : ``}
+            ${parsedEntrypoint.named.length === 0 && !parsedEntrypoint.default ? `import  '${relativeFileLoc}';` : ``}
           `;
     } else if (parsedEntrypoint.format === 'cjs') {
       result[key] = `
-      const __esinstall_default_export_for_treeshaking__ = require("${normalizedFileLoc}");
-        ${`export const {${parsedEntrypoint.named.join(',')}} = '${normalizedFileLoc}';`}
-        ${
-          parsedEntrypoint.default
-            ? `export default __esinstall_default_export_for_treeshaking__;`
-            : ''
-        }
+      const __esinstall_default_export_for_treeshaking__ = require("${relativeFileLoc}");
+      export default __esinstall_default_export_for_treeshaking__;
+        ${parsedEntrypoint.named.length > 0 ? `export const {${parsedEntrypoint.named.join(',')}} = __esinstall_default_export_for_treeshaking__;` : ''}
       `;
     } else {
       throw new Error(`Unexpected parsedEntrypoint format: ${parsedEntrypoint.format}`);

@@ -41,8 +41,8 @@ export function esbuildPluginPolyfill(env: any, cwd: string) {
   return {
     name: 'esinstall:polyfill',
     setup(build: esbuild.PluginBuild) {
-      build.onResolve({filter: /.*/}, ({path: id, importer}) => {
-        console.log('ID', id, importer);
+      build.onResolve({filter: /.*/}, ({path: id, resolveDir}) => {
+        console.log('ID', id, resolveDir);
 
         if (id.endsWith('process-polyfill.js')) {
           return {
