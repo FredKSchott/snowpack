@@ -1,15 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../types';
-import {
-  addExtension,
-  findMatchingAliasEntry,
-  getExtensionMatch,
-  hasExtension,
-  isRemoteUrl,
-  replaceExtension,
-} from '../util';
-import {getUrlForFile} from './file-urls';
+import {findMatchingAliasEntry, hasExtension, isRemoteUrl, replaceExtension} from '../util';
+import {getUrlForFile, transformToBuildFileName} from './file-urls';
 
 /** Perform a file disk lookup for the requested import specifier. */
 export function getFsStat(importedFileOnDisk: string): fs.Stats | false {
@@ -47,17 +40,7 @@ function resolveSourceSpecifier(lazyFileLoc: string, config: SnowpackConfig) {
     lazyFileLoc = lazyFileLoc + '.js';
   }
 
-  // Transform the file extension (from input to output)
-  const extensionMatch = getExtensionMatch(lazyFileLoc, config._extensionMap);
-
-  if (extensionMatch) {
-    const [inputExt, outputExts] = extensionMatch;
-    if (outputExts.length > 1) {
-      lazyFileLoc = addExtension(lazyFileLoc, outputExts[0]);
-    } else {
-      lazyFileLoc = replaceExtension(lazyFileLoc, inputExt, outputExts[0]);
-    }
-  }
+  lazyFileLoc = transformToBuildFileName(lazyFileLoc, config);
 
   return getUrlForFile(lazyFileLoc, config);
 }

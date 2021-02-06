@@ -13,7 +13,11 @@ import {
   wrapImportProxy,
 } from '../build/build-import-proxy';
 import {buildFile, runPipelineCleanupStep, runPipelineOptimizeStep} from '../build/build-pipeline';
-import {getMountEntryForFile, getUrlForFileMount} from '../build/file-urls';
+import {
+  getMountEntryForFile,
+  getUrlForFileMount,
+  transformToBuildFileName,
+} from '../build/file-urls';
 import {createImportResolver} from '../build/import-resolver';
 import {runBuiltInOptimize} from '../build/optimize';
 import {EsmHmrEngine} from '../hmr-server-engine';
@@ -32,10 +36,8 @@ import {
   SnowpackSourceFile,
 } from '../types';
 import {
-  addExtension,
   cssSourceMappingURL,
   deleteFromBuildSafe,
-  getExtensionMatch,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
   isFsEventsEnabled,
@@ -182,20 +184,11 @@ class FileBuilder {
       if (!code) {
         continue;
       }
-      let outFilename = path.basename(url.fileURLToPath(this.fileURL));
-      const extensionMatch = getExtensionMatch(this.fileURL.toString(), this.config._extensionMap);
-      if (extensionMatch) {
-        const [inputExt, outputExts] = extensionMatch;
-        if (outputExts.length > 1) {
-          outFilename = addExtension(path.basename(url.fileURLToPath(this.fileURL)), fileExt);
-        } else {
-          outFilename = replaceExtension(
-            path.basename(url.fileURLToPath(this.fileURL)),
-            inputExt,
-            fileExt,
-          );
-        }
-      }
+      const outFilename = transformToBuildFileName(
+        path.basename(url.fileURLToPath(this.fileURL)),
+        this.config,
+        fileExt,
+      );
       const outLoc = path.join(this.outDir, outFilename);
       const sourceMappingURL = outFilename + '.map';
       if (this.mountEntry.resolve && typeof code === 'string') {

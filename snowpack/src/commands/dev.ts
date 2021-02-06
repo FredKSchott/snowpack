@@ -51,7 +51,7 @@ import {
   wrapImportProxy,
 } from '../build/build-import-proxy';
 import {buildFile as _buildFile, getInputsFromOutput} from '../build/build-pipeline';
-import {getUrlForFile} from '../build/file-urls';
+import {getUrlForFile, transformToBuildFileName} from '../build/file-urls';
 import {createImportResolver} from '../build/import-resolver';
 import {EsmHmrEngine} from '../hmr-server-engine';
 import {logger} from '../logger';
@@ -1372,6 +1372,8 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     sendResponseFile,
     sendResponseError,
     getUrlForFile: (fileLoc: string) => getUrlForFile(fileLoc, config),
+    transformToBuildFileName: (sourceFileName: string) =>
+      transformToBuildFileName(sourceFileName, config),
     onFileChange: (callback) => (onFileChangeCallback = callback),
     getServerRuntime: (options) => getServerRuntime(sp, options),
     async shutdown() {

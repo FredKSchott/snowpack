@@ -16,22 +16,13 @@ export function getUrlForFileMount({
   mountEntry: MountEntry;
   config: SnowpackConfig;
 }): string {
-  const fileName = path.basename(fileLoc);
   const resolvedDirUrl = mountEntry.url === '/' ? '' : mountEntry.url;
   const mountedUrl = fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, '/');
   if (mountEntry.static) {
     return mountedUrl;
   }
-  const extensionMatch = getExtensionMatch(fileName, config._extensionMap);
-  if (!extensionMatch) {
-    return mountedUrl;
-  }
-  const [inputExt, outputExts] = extensionMatch;
-  if (outputExts.length > 1) {
-    return addExtension(mountedUrl, outputExts[0]);
-  } else {
-    return replaceExtension(mountedUrl, inputExt, outputExts[0]);
-  }
+
+  return transformToBuildFileName(mountedUrl, config);
 }
 
 /**
@@ -66,4 +57,29 @@ export function getUrlForFile(fileLoc: string, config: SnowpackConfig): string |
   }
   const [mountKey, mountEntry] = mountEntryResult;
   return getUrlForFileMount({fileLoc, mountKey, mountEntry, config});
+}
+
+/**
+ * Map a source filename to the filename outputted by the build
+ */
+export function transformToBuildFileName(
+  sourceFileName: string,
+  config: SnowpackConfig,
+  customExtension?: string,
+): string {
+  const extensionMatch = getExtensionMatch(sourceFileName, config._extensionMap);
+
+  if (!extensionMatch) {
+    return sourceFileName;
+  }
+
+  const [inputExt, outputExts] = extensionMatch;
+
+  const buildFileExt = customExtension !== undefined ? customExtension : outputExts[0];
+
+  if (outputExts.length > 1) {
+    return addExtension(sourceFileName, buildFileExt);
+  } else {
+    return replaceExtension(sourceFileName, inputExt, buildFileExt);
+  }
 }
