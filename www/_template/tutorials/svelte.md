@@ -186,7 +186,7 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
 <!-- public/index.html -->
 
   <body>
--   <h1>Welcome to Snowpack!</h1>
+    <h1>Welcome to Snowpack!</h1>
 -   <script type="module" src="/index.js"></script>
 +   <script type="module" src="/dist/index.js"></script>
   </body>
