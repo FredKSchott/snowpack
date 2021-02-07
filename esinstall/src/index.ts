@@ -124,8 +124,8 @@ interface InstallOptions {
   treeshake?: boolean;
   polyfillNode: boolean;
   sourcemap?: boolean | 'inline';
-  external: string[];
-  externalEsm: string[];
+  external: string[] | ((spec: string) => boolean);
+  externalEsm: string[] | true;
   packageLookupFields: string[];
   packageExportLookupFields: string[];
   namedExports: string[];
@@ -206,14 +206,19 @@ export async function install(
   } = setOptionDefaults(_options);
   const env = generateEnvObject(userEnv);
 
+  function isExternal(spec: string) {
+    if (Array.isArray(external)) {
+      return external.some((packageName) => isImportOfPackage(spec, packageName));
+    }
+    return external(spec);
+  }
+
   const installTargets: InstallTarget[] = _installTargets.map((t) =>
     typeof t === 'string' ? createInstallTarget(t) : t,
   );
   const allInstallSpecifiers = new Set(
     installTargets
-      .filter(
-        (dep) => !external.some((packageName) => isImportOfPackage(dep.specifier, packageName)),
-      )
+      .filter((dep) => !isExternal(dep.specifier))
       .map((dep) => dep.specifier)
       .map((specifier) => {
         const aliasEntry = findMatchingAliasEntry(installAlias, specifier);
@@ -305,7 +310,7 @@ ${colors.dim(
   const inputOptions: InputOptions = {
     input: installEntrypoints,
     context: userDefinedRollup.context,
-    external: (id) => external.some((packageName) => isImportOfPackage(id, packageName)),
+    external: (id) => isExternal(id),
     treeshake: {moduleSideEffects: 'no-external'},
     plugins: [
       rollupPluginAlias({
