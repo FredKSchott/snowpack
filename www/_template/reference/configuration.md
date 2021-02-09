@@ -408,7 +408,7 @@ _NOTE:_ Deprecated, see `buildOptions.metaUrlPath`.
 **Type**: `string`  
 **Default**: `_snowpack_`
 
-Rename the default directory for Snowpack metadata. In every build, Snowpack creates meta files for loading things like [HMR](/concepts/hot-module-replacement), [Environment Variables](/reference/configuration#environment-variables), and your built npm packages.
+Rename the default directory for Snowpack metadata. In every build, Snowpack creates meta files for loading things like [HMR](/concepts/hot-module-replacement), [Environment Variables](/reference/environment-variables), and your built npm packages.
 
 When you build your project, this will be a path on disk relative to the `buildOptions.out` directory.
 
