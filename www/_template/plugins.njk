@@ -18,12 +18,12 @@ description: 'Snowpack plugins allow for configuration-minimal tooling integrati
   .plugin-icon {
     height: 52px;
     width: 52px;
-    float: left;
-    margin-left: -62px;
-    margin-top: 8px;
-    opacity: 0.5;
+    opacity: .5;
     transform: rotate(45deg);
-    background: radial-gradient(to top, red, blue);
+    /* background: radial-gradient(to top,red,blue); */
+    position: absolute;
+    top: 13px;
+    left: -15px;
   }
   .card:nth-child(3n+2) .plugin-icon {
     filter: hue-rotate(-60deg);
@@ -36,6 +36,8 @@ description: 'Snowpack plugins allow for configuration-minimal tooling integrati
     margin: 0.5rem 0.25em;
     border-radius: 4px;
     padding: 0.5rem 0.5rem 0.5rem 48px;
+    flex-direction: column;
+    position: relative;
   }
   .card-name {
     font-weight: 500;
