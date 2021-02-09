@@ -49,10 +49,11 @@ In your example Snowpack project, add your plugin to the `snowpack.config.js` al
   ]
 }
 ```
+
 ## Testing and Troubleshooting
 
-* TODO: create a full how to test procedure
-* HINT: Add `--verbose` to the command to see the steps, e.g. `snowpack dev --verbose` or `snowpack build --verbose`
+- TODO: create a full how to test procedure
+- HINT: Add `--verbose` to the command to see the steps, e.g. `snowpack dev --verbose` or `snowpack build --verbose`
 
 ## Adding user-configurable options to your plugin
 
