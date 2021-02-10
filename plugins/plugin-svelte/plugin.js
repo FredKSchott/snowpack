@@ -22,7 +22,13 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     packageOptions.rollup.plugins.push(
       svelteRollupPlugin({
         include: /\.svelte$/,
-        compilerOptions: {dev: isDev},
+        compilerOptions: {
+          dev: isDev,
+          hydratable:
+            pluginOptions.compilerOptions
+              ? pluginOptions.compilerOptions.hydratable
+              : false
+        },
         // Snowpack wraps JS-imported CSS in a JS wrapper, so use
         // Svelte's own first-class `emitCss: false` here.
         // TODO: Remove once Snowpack adds first-class CSS import support in deps.
