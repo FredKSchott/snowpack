@@ -24,10 +24,9 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
         include: /\.svelte$/,
         compilerOptions: {
           dev: isDev,
-          hydratable:
-            pluginOptions.compilerOptions
-              ? pluginOptions.compilerOptions.hydratable
-              : false
+          hydratable: pluginOptions.compilerOptions
+            ? pluginOptions.compilerOptions.hydratable
+            : false,
         },
         // Snowpack wraps JS-imported CSS in a JS wrapper, so use
         // Svelte's own first-class `emitCss: false` here.

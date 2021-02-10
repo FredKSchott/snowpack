@@ -2,7 +2,10 @@ const path = require('path');
 
 const mockCompiler = jest.fn().mockImplementation((code) => ({js: {code}}));
 const mockPreprocessor = jest.fn().mockImplementation((code) => code);
+const mockRollup = jest.fn();
+
 jest.mock('svelte/compiler', () => ({compile: mockCompiler, preprocess: mockPreprocessor})); // important: mock before import
+jest.mock('rollup-plugin-svelte', () => mockRollup); // important: mock before import
 
 const plugin = require('../plugin');
 
@@ -145,5 +148,24 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
     config.packageOptions.packageLookupFields = ['module'];
     plugin(config, {});
     expect(config.packageOptions.packageLookupFields).toEqual(['module', 'svelte']);
+  });
+  it('propagates `compilerOptions.hydratable` to rollup', () => {
+    mockRollup.mockClear();
+    const config = {
+      ...DEFAULT_CONFIG,
+    };
+
+    const pluginOptions = {
+      compilerOptions: {
+        dev: true,
+        hydratable: true,
+      },
+      emitCss: false,
+      include: /\.svelte$/,
+    };
+
+    plugin(config, pluginOptions);
+
+    expect(mockRollup).toHaveBeenLastCalledWith(pluginOptions);
   });
 });
