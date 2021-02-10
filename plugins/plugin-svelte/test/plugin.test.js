@@ -141,6 +141,7 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
       ]
     `);
   });
+
   it('supports importing svelte components', async () => {
     const config = {...DEFAULT_CONFIG};
     plugin(config, {});
@@ -149,6 +150,7 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
     plugin(config, {});
     expect(config.packageOptions.packageLookupFields).toEqual(['module', 'svelte']);
   });
+
   it('propagates `compilerOptions.hydratable` to rollup', () => {
     mockRollup.mockClear();
     const config = {
