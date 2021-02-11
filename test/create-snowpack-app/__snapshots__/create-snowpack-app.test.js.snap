@@ -7599,7 +7599,7 @@ import \\"./index.css.proxy.js\\";
 render(/* @__PURE__ */ h(App, null), document.getElementById(\\"root\\"));"
 `;
 
-exports[`create-snowpack-app app-template-preact > build: dist/logo.png.proxy.js 1`] = `"export default \\"/dist/logo.png\\";"`;
+exports[`create-snowpack-app app-template-preact > build: dist/logo.png.proxy.js 1`] = `"export default new URL(\\"/dist/logo.png\\", import.meta.url).href;"`;
 
 exports[`create-snowpack-app app-template-preact > build: index.html 1`] = `
 "<!DOCTYPE html>
@@ -7797,7 +7797,7 @@ if (root) {
 }"
 `;
 
-exports[`create-snowpack-app app-template-preact-typescript > build: dist/logo.png.proxy.js 1`] = `"export default \\"/dist/logo.png\\";"`;
+exports[`create-snowpack-app app-template-preact-typescript > build: dist/logo.png.proxy.js 1`] = `"export default new URL(\\"/dist/logo.png\\", import.meta.url).href;"`;
 
 exports[`create-snowpack-app app-template-preact-typescript > build: index.html 1`] = `
 "<!DOCTYPE html>
@@ -8339,7 +8339,7 @@ if (undefined /* [snowpack] import.meta.hot */ ) {
 }"
 `;
 
-exports[`create-snowpack-app app-template-react > build: dist/logo.svg.proxy.js 1`] = `"export default \\"/dist/logo.svg\\";"`;
+exports[`create-snowpack-app app-template-react > build: dist/logo.svg.proxy.js 1`] = `"export default new URL(\\"/dist/logo.svg\\", import.meta.url).href;"`;
 
 exports[`create-snowpack-app app-template-react > build: index.html 1`] = `
 "<!DOCTYPE html>
@@ -8881,7 +8881,7 @@ if (undefined /* [snowpack] import.meta.hot */ ) {
 }"
 `;
 
-exports[`create-snowpack-app app-template-react-typescript > build: dist/logo.svg.proxy.js 1`] = `"export default \\"/dist/logo.svg\\";"`;
+exports[`create-snowpack-app app-template-react-typescript > build: dist/logo.svg.proxy.js 1`] = `"export default new URL(\\"/dist/logo.svg\\", import.meta.url).href;"`;
 
 exports[`create-snowpack-app app-template-react-typescript > build: index.html 1`] = `
 "<!DOCTYPE html>

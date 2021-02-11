@@ -343,10 +343,9 @@ class FileBuilder {
 
   async getProxy(originalFileLoc: string) {
     const proxiedCode = this.output[originalFileLoc];
-    const proxiedUrl = (
-      this.config.buildOptions.baseUrl +
-      originalFileLoc.substr(this.config.buildOptions.out.length).replace(/\\/g, '/')
-    ).replace(/((?:[^:]|^)\/)\/+/g, '$1');
+    const proxiedUrl = originalFileLoc
+      .substr(this.config.buildOptions.out.length)
+      .replace(/\\/g, '/');
     return wrapImportProxy({
       url: proxiedUrl,
       code: proxiedCode,
@@ -458,10 +457,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
         ) {
           const proxiedCode = await readFile(url.pathToFileURL(installedFileLoc));
           const importProxyFileLoc = installedFileLoc + '.proxy.js';
-          const proxiedUrl = (
-            config.buildOptions.baseUrl +
-            installedFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/')
-          ).replace(/((?:[^:]|^)\/)\/+/g, '$1');
+          const proxiedUrl = installedFileLoc.substr(buildDirectoryLoc.length).replace(/\\/g, '/');
           const proxyCode = await wrapImportProxy({
             url: proxiedUrl,
             code: proxiedCode,

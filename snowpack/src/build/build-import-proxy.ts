@@ -221,7 +221,7 @@ if (typeof document !== 'undefined') {${
 }
 
 function generateDefaultImportProxy(url: string) {
-  return `export default ${JSON.stringify(url)};`;
+  return `export default new URL(${JSON.stringify(url)}, import.meta.url).href;`;
 }
 
 export async function wrapImportProxy({
