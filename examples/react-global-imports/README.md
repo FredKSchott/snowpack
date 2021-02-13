@@ -3,7 +3,7 @@ layout: layouts/main.njk
 title: React + babel-plugin-import-global
 ---
 
-_Based on [app-template-react][app-template-react]_
+_Based on [app-template-react](../../create-snowpack-app/app-template-react)_
 
 Example of using Snowpack in conjuction with [babel-plugin-import-global][babel-plugin-import-global]. This is useful when you need to need to inject an import statement at the top of every file, such as React:
 
