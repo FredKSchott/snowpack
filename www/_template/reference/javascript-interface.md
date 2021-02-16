@@ -44,7 +44,7 @@ const config = createConfiguration({...});
 const server = await startServer({config}); // returns: SnowpackDevServer
 ```
 
-Start a new Snowpack dev server instance. This is the equvilent of running `snowpack dev` on the command line.
+Start a new Snowpack dev server instance. This is the equivalent of running `snowpack dev` on the command line.
 
 Once started, you can load files from your dev server and Snowpack will build them as requested. This is an important feature to understand: Snowpack's dev server does zero file building on startup, and instead builds files only once they are requested via the server's `loadUrl` method.
 
