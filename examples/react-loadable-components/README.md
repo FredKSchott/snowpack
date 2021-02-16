@@ -3,7 +3,7 @@ layout: layouts/main.njk
 title: React + Loadable Components
 ---
 
-_Based on [app-template-react][app-template-react]_
+_Based on [app-template-react](../../create-snowpack-app/app-template-react)_
 
 You can lazy load React components in Snowpack when needed with React‘s builtin `React.lazy` ([docs][react-lazy]):
 
