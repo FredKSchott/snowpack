@@ -78,7 +78,7 @@ See [@snowpack/plugin-sass](https://github.com/snowpackjs/snowpack/tree/main/plu
 knownEntrypoints: ["svelte/internal"]
 ```
 
-An list of any npm dependencies that are added as a part of `load()` or `transform()` that Snowpack will need to know about. Snowpack analyzes most dependency imports automatically when it scans the source code of a project, but some imports are added as a part of a `load()` or `transform()` step, which means that Snowpack would never see them. If your plugin does this, add them here.
+A list of any npm dependencies that are added as a part of `load()` or `transform()` that Snowpack will need to know about. Snowpack analyzes most dependency imports automatically when it scans the source code of a project, but some imports are added as a part of a `load()` or `transform()` step, which means that Snowpack would never see them. If your plugin does this, add them here.
 
 #### resolve
 
