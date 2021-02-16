@@ -44,9 +44,9 @@ module.exports = {
       dest: (req, res) => {
         // remove /api prefix (optional)
         req.url = req.url.replace(/^\/api/, '');
- 
+
         proxy.web(req, res);
-      }
+      },
     },
   ],
 };
