@@ -208,7 +208,7 @@ Toggles HMR on the Snowpack dev server.
 
 Milliseconds to delay HMR-triggered browser update.
 
-### devoptions.hmrPort
+### devOptions.hmrPort
 
 **Type**: `number`  
 **Default**: [`devOptions.port`](#devoptions.port)
