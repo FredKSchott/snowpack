@@ -1,6 +1,6 @@
 # @snowpack/plugin-dotenv
 
-Use [dotenv](https://github.com/motdotla/dotenv) to load environment variables from your project `.env` files. See Snowpack's [Environment Variables](https://www.snowpack.dev/reference/configuration#environment-variables) documentation to learn more.
+Use [dotenv](https://github.com/motdotla/dotenv) to load environment variables from your project `.env` files. See Snowpack's [Environment Variables](https://www.snowpack.dev/reference/environment-variables) documentation to learn more.
 
 ```
 npm install --save-dev @snowpack/plugin-dotenv
