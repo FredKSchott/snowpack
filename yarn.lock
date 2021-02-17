@@ -6991,6 +6991,9 @@ expect@^26.6.2:
 "export-map-trailing-slash@file:./test/esinstall/package-entrypoints/export-map-trailing-slash":
   version "1.2.3"
 
+"exports-only-no-main@file:./test/esinstall/exports-only-no-main/pkg":
+  version "1.0.0"
+
 "exports-only@file:./test/esinstall/exports-only/pkg":
   version "1.0.0"
 
