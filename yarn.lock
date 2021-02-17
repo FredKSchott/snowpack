@@ -4409,6 +4409,9 @@ brorand@^1.0.1:
   resolved "https://registry.yarnpkg.com/brorand/-/brorand-1.1.0.tgz#12c25efe40a45e3c323eb8675a0a0ce57b22371f"
   integrity sha1-EsJe/kCkXjwyPrhnWgoM5XsiNx8=
 
+"browser-dot-slash-index-js@file:./test/esinstall/package-entrypoints/browser-dot-slash-index-js":
+  version "1.2.3"
+
 "browser-dot-slash-index@file:./test/esinstall/package-entrypoints/browser-dot-slash-index":
   version "1.2.3"
 
@@ -6961,6 +6964,12 @@ expect@^26.6.2:
 "export-map-dot-slash@file:./test/esinstall/package-entrypoints/export-map-dot-slash":
   version "1.2.3"
 
+"export-map-internal-imports@file:./test/esinstall/package-entrypoints/export-map-internal-imports":
+  version "1.2.3"
+
+"export-map-object-browser-object@file:./test/esinstall/package-entrypoints/export-map-object-browser-object":
+  version "1.2.3"
+
 "export-map-object-browser@file:./test/esinstall/package-entrypoints/export-map-object-browser":
   version "1.2.3"
 
@@ -6981,6 +6990,9 @@ expect@^26.6.2:
 
 "export-map-trailing-slash@file:./test/esinstall/package-entrypoints/export-map-trailing-slash":
   version "1.2.3"
+
+"exports-only@file:./test/esinstall/exports-only/pkg":
+  version "1.0.0"
 
 extend-shallow@^2.0.1:
   version "2.0.1"
@@ -8346,7 +8358,7 @@ is-color-stop@^1.0.0:
     rgb-regex "^1.0.1"
     rgba-regex "^1.0.0"
 
-is-core-module@^2.1.0:
+is-core-module@^2.1.0, is-core-module@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/is-core-module/-/is-core-module-2.2.0.tgz#97037ef3d52224d85163f5597b2b63d9afed981a"
   integrity sha512-XRAfAdyyY5F5cOXn7hYQDqh2Xmii+DEfIcQGxK/uNwMHhIkPWO0g8msXcbzLe+MpGoR951MlqM/2iIlU4vKDdQ==
@@ -12664,6 +12676,14 @@ resolve@^1.1.6, resolve@^1.10.0, resolve@^1.12.0, resolve@^1.17.0, resolve@^1.18
   integrity sha512-rArEXAgsBG4UgRGcynxWIWKFvh/XZCcS8UJdHhwy91zwAvCZIbcs+vAbflgBnNjYMs/i/i+/Ux6IZhML1yPvxg==
   dependencies:
     is-core-module "^2.1.0"
+    path-parse "^1.0.6"
+
+resolve@^1.20.0:
+  version "1.20.0"
+  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.20.0.tgz#629a013fb3f70755d6f0b7935cc1c2c5378b1975"
+  integrity sha512-wENBPt4ySzg4ybFQW2TT1zMQucPK95HSh/nq2CFTZVOGut2+pQvSsgtda4d26YrYcr067wjbmzOG8byDPBX63A==
+  dependencies:
+    is-core-module "^2.2.0"
     path-parse "^1.0.6"
 
 resp-modifier@6.0.2:
