@@ -80,7 +80,7 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
     if (spec.startsWith('/')) {
       return spec;
     }
-    if (spec.startsWith('./') || spec.startsWith('../')) {
+    if (spec.startsWith('./') || spec.startsWith('../') || spec === '.') {
       const importedFileLoc = path.resolve(path.dirname(fileLoc), spec);
       return resolveSourceSpecifier(importedFileLoc, config) || spec;
     }
