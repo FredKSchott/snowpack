@@ -1090,10 +1090,19 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
    */
   const knownETags = new Map<string, string>();
 
-  function matchRoute(reqUrl: string): RouteConfigObject | null {
+  /**
+   * Match routes in config.
+   *
+   * By default we only search the config if the URL does not have an extension or
+   * it has an `.html` extension.
+   *
+   * If isFallback is true we do not check the URL is a route which is useful for
+   * serving index.html as the fallback in SPAs.
+   */
+  function matchRoute(reqUrl: string, isFallback?: boolean): RouteConfigObject | null {
     let reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const reqExt = path.extname(reqPath);
-    const isRoute = !reqExt || reqExt.toLowerCase() === '.html';
+    const isRoute = !reqExt || isFallback || reqExt.toLowerCase() === '.html';
     for (const route of config.routes) {
       if (route.match === 'routes' && !isRoute) {
         continue;
@@ -1115,45 +1124,54 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     res: http.ServerResponse,
     {handleError}: {handleError?: boolean} = {},
   ) {
-    let reqUrl = req.url!;
-    const matchedRoute = matchRoute(reqUrl);
-    // If a route is matched, rewrite the URL or call the route function
-    if (matchedRoute) {
-      if (typeof matchedRoute.dest === 'string') {
-        reqUrl = matchedRoute.dest;
-      } else {
-        return matchedRoute.dest(req, res);
+    // If we fail to find a resource for the request we retry with
+    // a less restrictive match against routes in the config
+    async function getResponse(isFallback: boolean) {
+      let reqUrl = req.url!;
+      const matchedRoute = matchRoute(reqUrl, isFallback);
+      // If a route is matched, rewrite the URL or call the route function
+      if (matchedRoute) {
+        if (typeof matchedRoute.dest === 'string') {
+          reqUrl = matchedRoute.dest;
+        } else {
+          return matchedRoute.dest(req, res);
+        }
+      }
+      // Check if we can send back an optimized 304 response
+      const quickETagCheck = req.headers['if-none-match'];
+      const quickETagCheckUrl = reqUrl.replace(/\/$/, '/index.html');
+      if (quickETagCheck && quickETagCheck === knownETags.get(quickETagCheckUrl)) {
+        logger.debug(`optimized etag! sending 304...`);
+        res.writeHead(304, {'Access-Control-Allow-Origin': '*'});
+        res.end();
+        return;
+      }
+      // Otherwise, load the file and respond if successful.
+      try {
+        const result = await loadUrl(reqUrl, {allowStale: true, encoding: null});
+        sendResponseFile(req, res, result);
+        if (result.checkStale) {
+          await result.checkStale();
+        }
+        if (result.contents) {
+          const tag = etag(result.contents, {weak: true});
+          const reqPath = decodeURI(url.parse(reqUrl).pathname!);
+          knownETags.set(reqPath, tag);
+        }
+        return;
+      } catch (err) {
+        if (!isFallback && err instanceof NotFoundError) {
+          return await getResponse(true);
+        }
+        // Some consumers may want to handle/ignore errors themselves.
+        if (handleError === false) {
+          throw err;
+        }
+        handleResponseError(req, res, err);
       }
     }
-    // Check if we can send back an optimized 304 response
-    const quickETagCheck = req.headers['if-none-match'];
-    const quickETagCheckUrl = reqUrl.replace(/\/$/, '/index.html');
-    if (quickETagCheck && quickETagCheck === knownETags.get(quickETagCheckUrl)) {
-      logger.debug(`optimized etag! sending 304...`);
-      res.writeHead(304, {'Access-Control-Allow-Origin': '*'});
-      res.end();
-      return;
-    }
-    // Otherwise, load the file and respond if successful.
-    try {
-      const result = await loadUrl(reqUrl, {allowStale: true, encoding: null});
-      sendResponseFile(req, res, result);
-      if (result.checkStale) {
-        await result.checkStale();
-      }
-      if (result.contents) {
-        const tag = etag(result.contents, {weak: true});
-        const reqPath = decodeURI(url.parse(reqUrl).pathname!);
-        knownETags.set(reqPath, tag);
-      }
-      return;
-    } catch (err) {
-      // Some consumers may want to handle/ignore errors themselves.
-      if (handleError === false) {
-        throw err;
-      }
-      handleResponseError(req, res, err);
-    }
+
+    return await getResponse(false);
   }
 
   type Http2RequestListener = (
