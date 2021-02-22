@@ -1,76 +1,92 @@
-import {
-  DependencyStatsOutput,
-  install,
-  InstallOptions as EsinstallOptions,
-  InstallTarget,
-  printStats,
-} from 'esinstall';
-import * as colors from 'kleur/colors';
-import {performance} from 'perf_hooks';
+import {install, InstallOptions as EsinstallOptions, InstallTarget} from 'esinstall';
+import url from 'url';
 import util from 'util';
+import {buildFile} from '../build/build-pipeline';
 import {logger} from '../logger';
 import {ImportMap, SnowpackConfig} from '../types';
 
-interface InstallRunOptions {
+interface InstallOptions {
   config: SnowpackConfig;
+  isDev: boolean;
+  isSSR: boolean;
   installOptions: EsinstallOptions;
-  installTargets: InstallTarget[];
-  shouldPrintStats: boolean;
+  installTargets: (InstallTarget | string)[];
 }
 
-interface InstallRunResult {
+interface InstallResult {
   importMap: ImportMap;
-  newLockfile: ImportMap | null;
-  stats: DependencyStatsOutput | null;
+  needsSsrBuild: boolean;
 }
 
-export async function run({
+export async function installPackages({
   config,
+  isDev,
+  isSSR,
   installOptions,
   installTargets,
-  shouldPrintStats,
-}: InstallRunOptions): Promise<InstallRunResult> {
+}: InstallOptions): Promise<InstallResult> {
   if (installTargets.length === 0) {
     return {
       importMap: {imports: {}} as ImportMap,
-      newLockfile: null,
-      stats: null,
+      needsSsrBuild: false,
     };
   }
-  // start
-  const installStart = performance.now();
-  logger.info(colors.yellow('! building dependencies...'));
+  const loggerName =
+    installTargets.length === 1
+      ? `prepare:${
+          typeof installTargets[0] === 'string' ? installTargets[0] : installTargets[0].specifier
+        }`
+      : `prepare`;
+  let needsSsrBuild = false;
 
-  let newLockfile: ImportMap | null = null;
   const finalResult = await install(installTargets, {
     cwd: config.root,
-    importMap: newLockfile || undefined,
     alias: config.alias,
     logger: {
-      debug: (...args: [any, ...any[]]) => logger.debug(util.format(...args)),
-      log: (...args: [any, ...any[]]) => logger.info(util.format(...args)),
-      warn: (...args: [any, ...any[]]) => logger.warn(util.format(...args)),
-      error: (...args: [any, ...any[]]) => logger.error(util.format(...args)),
+      debug: (...args: [any, ...any[]]) => logger.debug(util.format(...args), {name: loggerName}),
+      log: (...args: [any, ...any[]]) => logger.info(util.format(...args), {name: loggerName}),
+      warn: (...args: [any, ...any[]]) => logger.warn(util.format(...args), {name: loggerName}),
+      error: (...args: [any, ...any[]]) => logger.error(util.format(...args), {name: loggerName}),
     },
     ...installOptions,
+    rollup: {
+      plugins: [
+        {
+          name: 'esinstall:snowpack',
+          async load(id: string) {
+            // SSR Packages: Some file types build differently for SSR vs. non-SSR.
+            // This line checks for those file types. Svelte is the only known file
+            // type for now, but you can add to this line if you encounter another.
+            needsSsrBuild = needsSsrBuild || id.endsWith('.svelte');
+            // TODO: Since this is new, only introduce for non-JS files.
+            // Consider running on all files in future versions.
+            if (id.endsWith('.js')) {
+              return;
+            }
+            const output = await buildFile(url.pathToFileURL(id), {
+              config,
+              isDev,
+              isSSR,
+              isPackage: true,
+              isHmrEnabled: false,
+            });
+            let jsResponse;
+            for (const [outputType, outputContents] of Object.entries(output)) {
+              if (jsResponse) {
+                console.log(`load() Err: ${Object.keys(output)}`);
+              }
+              if (!jsResponse || outputType === '.js') {
+                jsResponse = outputContents;
+              }
+            }
+            return jsResponse;
+          },
+        },
+      ],
+    },
+  }).catch((err) => {
+    throw new Error(`Package(s) failed to build: ${err.message}`);
   });
   logger.debug('Successfully ran esinstall.');
-
-  // finish
-  const installEnd = performance.now();
-  logger.info(
-    `${colors.green(`✔`) + ' dependencies ready!'} ${colors.dim(
-      `[${((installEnd - installStart) / 1000).toFixed(2)}s]`,
-    )}`,
-  );
-
-  if (shouldPrintStats && finalResult.stats) {
-    logger.info(printStats(finalResult.stats));
-  }
-
-  return {
-    importMap: finalResult.importMap,
-    newLockfile,
-    stats: finalResult.stats!,
-  };
+  return {importMap: finalResult.importMap, needsSsrBuild};
 }

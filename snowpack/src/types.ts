@@ -1,5 +1,6 @@
-import type {InstallOptions as EsinstallOptions} from 'esinstall';
+import type {InstallOptions as EsinstallOptions, InstallTarget} from 'esinstall';
 import type * as http from 'http';
+import type {EsmHmrEngine} from './hmr-server-engine';
 
 // RawSourceMap is inlined here for bundle purposes.
 // import type {RawSourceMap} from 'source-map';
@@ -36,41 +37,30 @@ export interface ServerRuntimeModule<T> {
 
 export interface LoadResult<T = Buffer | string> {
   contents: T;
+  imports: InstallTarget[];
   originalFileLoc: string | null;
   contentType: string | false;
   checkStale?: () => Promise<void>;
 }
 
 export type OnFileChangeCallback = ({filePath: string}) => any;
+export interface LoadUrlOptions {
+  isSSR?: boolean;
+  isHMR?: boolean;
+  isResolve?: boolean;
+  allowStale?: boolean;
+  encoding?: undefined | BufferEncoding | null;
+  importMap?: ImportMap;
+}
 export interface SnowpackDevServer {
   port: number;
+  hmrEngine: EsmHmrEngine;
   loadUrl: {
-    (
-      reqUrl: string,
-      opt?:
-        | {
-            isSSR?: boolean | undefined;
-            allowStale?: boolean | undefined;
-            encoding?: undefined;
-          }
-        | undefined,
-    ): Promise<LoadResult<Buffer | string>>;
-    (
-      reqUrl: string,
-      opt: {
-        isSSR?: boolean;
-        allowStale?: boolean;
-        encoding: BufferEncoding;
-      },
-    ): Promise<LoadResult<string>>;
-    (
-      reqUrl: string,
-      opt: {
-        isSSR?: boolean;
-        allowStale?: boolean;
-        encoding: null;
-      },
-    ): Promise<LoadResult<Buffer>>;
+    (reqUrl: string, opt?: (LoadUrlOptions & {encoding?: undefined}) | undefined): Promise<
+      LoadResult<Buffer | string>
+    >;
+    (reqUrl: string, opt: LoadUrlOptions & {encoding: BufferEncoding}): Promise<LoadResult<string>>;
+    (reqUrl: string, opt: LoadUrlOptions & {encoding: null}): Promise<LoadResult<Buffer>>;
   };
   handleRequest: (
     req: http.IncomingMessage,
@@ -95,7 +85,7 @@ export type SnowpackBuildResultFileManifest = Record<
 >;
 
 export interface SnowpackBuildResult {
-  result: SnowpackBuildResultFileManifest;
+  // result: SnowpackBuildResultFileManifest;
   onFileChange: (callback: OnFileChangeCallback) => void;
   shutdown(): Promise<void>;
 }
@@ -126,10 +116,12 @@ export interface PluginLoadOptions {
   fileExt: string;
   /** True if builder is in dev mode (`snowpack dev` or `snowpack build --watch`) */
   isDev: boolean;
-  /** True if builder is in SSR mode */
-  isSSR: boolean;
   /** True if HMR is enabled (add any HMR code to the output here). */
   isHmrEnabled: boolean;
+  /** True if builder is in SSR mode */
+  isSSR: boolean;
+  /** True if file being transformed is inside of a package. */
+  isPackage: boolean;
 }
 
 export interface PluginTransformOptions {
@@ -145,6 +137,8 @@ export interface PluginTransformOptions {
   isHmrEnabled: boolean;
   /** True if builder is in SSR mode */
   isSSR: boolean;
+  /** True if file being transformed is inside of a package. */
+  isPackage: boolean;
 }
 
 export interface PluginRunOptions {
@@ -257,8 +251,8 @@ export interface SnowpackConfig {
     secure: boolean;
     hostname: string;
     port: number;
-    open: string;
-    output: 'stream' | 'dashboard';
+    open?: string;
+    output?: 'stream' | 'dashboard';
     hmr?: boolean;
     hmrDelay: number;
     hmrPort: number | undefined;
@@ -275,6 +269,7 @@ export interface SnowpackConfig {
     jsxFactory: string | undefined;
     jsxFragment: string | undefined;
     ssr: boolean;
+    resolveProxyImports: boolean;
   };
   testOptions: {
     files: string[];
@@ -353,22 +348,18 @@ export interface PackageSource {
    * for this to complete before continuing. Example: For "local", this involves
    * running esinstall (if needed) to prepare your local dependencies as ESM.
    */
-  prepare(commandOptions: CommandOptions): Promise<ImportMap>;
+  prepare(commandOptions: CommandOptions): Promise<void>;
   /**
    * Load a dependency with the given spec (ex: "/pkg/react" -> "react")
    * If load fails or is unsuccessful, reject the promise.
    */
   load(
     spec: string,
+    isSSR: boolean,
     options: {config: SnowpackConfig; lockfile: LockfileManifest | null},
-  ): Promise<Buffer | string>;
+  ): Promise<undefined | {contents: Buffer | string; imports: InstallTarget[]}>;
   /** Resolve a package import to URL (ex: "react" -> "/pkg/react") */
-  resolvePackageImport(spec: string, importMap: ImportMap, config: SnowpackConfig): string | false;
-  /** Handle 1+ missing package imports before failing, if possible. */
-  recoverMissingPackageImport(
-    missingPackages: string[],
-    config: SnowpackConfig,
-  ): Promise<ImportMap>;
+  resolvePackageImport(source: string, spec: string, config: SnowpackConfig): Promise<string>;
   /** Modify the build install config for optimized build install. */
   modifyBuildInstallOptions(options: {
     installOptions: EsinstallOptions;

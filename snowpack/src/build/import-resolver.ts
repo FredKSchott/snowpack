@@ -9,7 +9,7 @@ import {
   isRemoteUrl,
   replaceExtension,
 } from '../util';
-import {getUrlForFile} from './file-urls';
+import {getUrlsForFile} from './file-urls';
 
 /** Perform a file disk lookup for the requested import specifier. */
 export function getFsStat(importedFileOnDisk: string): fs.Stats | false {
@@ -59,7 +59,8 @@ function resolveSourceSpecifier(lazyFileLoc: string, config: SnowpackConfig) {
     }
   }
 
-  return getUrlForFile(lazyFileLoc, config);
+  const resolvedUrls = getUrlsForFile(lazyFileLoc, config);
+  return resolvedUrls ? resolvedUrls[0] : resolvedUrls;
 }
 
 /**

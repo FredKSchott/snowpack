@@ -57,7 +57,6 @@
   "devDependencies": {
     "@types/cheerio": "0.22.22",
     "bufferutil": "^4.0.2",
-    "cacache": "^15.0.0",
     "cachedir": "^2.3.0",
     "cheerio": "1.0.0-rc.3",
     "chokidar": "^3.4.0",

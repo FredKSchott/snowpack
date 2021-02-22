@@ -16,7 +16,7 @@ import {
   removeTrailingSlash,
   deleteFromBuildSafe,
 } from '../util';
-import {getUrlForFile} from './file-urls';
+import {getUrlsForFile} from './file-urls';
 
 interface ESBuildMetaInput {
   bytes: number;
@@ -291,11 +291,11 @@ async function resolveEntrypoints(
       const resolvedSourceFile = path.resolve(cwd, entrypoint);
       let resolvedSourceEntrypoint: string | undefined;
       if (await fs.stat(resolvedSourceFile).catch(() => null)) {
-        const resolvedSourceUrl = getUrlForFile(resolvedSourceFile, config);
-        if (resolvedSourceUrl) {
+        const resolvedSourceUrls = getUrlsForFile(resolvedSourceFile, config);
+        if (resolvedSourceUrls) {
           resolvedSourceEntrypoint = path.resolve(
             buildDirectoryLoc,
-            removeLeadingSlash(resolvedSourceUrl),
+            removeLeadingSlash(resolvedSourceUrls[0]),
           );
           if (await fs.stat(resolvedSourceEntrypoint).catch(() => null)) {
             return resolvedSourceEntrypoint;

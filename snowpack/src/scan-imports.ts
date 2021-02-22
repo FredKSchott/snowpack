@@ -7,6 +7,7 @@ import url from 'url';
 import {logger} from './logger';
 import {SnowpackConfig, SnowpackSourceFile} from './types';
 import {
+  createInstallTarget,
   CSS_REGEX,
   findMatchingAliasEntry,
   getExtension,
@@ -29,16 +30,6 @@ const ESM_DYNAMIC_IMPORT_REGEX = /(?<!\.)\bimport\((?:['"].+['"]|`[^$]+`)\)/gm;
 const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
 const STRIP_AS = /\s+as\s+.*/; // for `import { foo as bar }`, strips “as bar”
 const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s]*\})?\s+from/s;
-
-function createInstallTarget(specifier: string, all = true): InstallTarget {
-  return {
-    specifier,
-    all,
-    default: false,
-    namespace: false,
-    named: [],
-  };
-}
 
 export async function getInstallTargets(
   config: SnowpackConfig,

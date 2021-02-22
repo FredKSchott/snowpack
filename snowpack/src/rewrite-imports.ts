@@ -1,6 +1,5 @@
-import {SnowpackSourceFile} from './types';
-import {HTML_JS_REGEX, CSS_REGEX, HTML_STYLE_REGEX} from './util';
 import {matchDynamicImportValue} from './scan-imports';
+import {CSS_REGEX, HTML_JS_REGEX, HTML_STYLE_REGEX} from './util';
 
 const {parse} = require('es-module-lexer');
 
@@ -28,7 +27,7 @@ export async function scanCodeImportsExports(code: string): Promise<any[]> {
 
 export async function transformEsmImports(
   _code: string,
-  replaceImport: (specifier: string) => string,
+  replaceImport: (specifier: string) => string | Promise<string>,
 ) {
   const imports = await scanCodeImportsExports(_code);
   let rewrittenCode = _code;
@@ -40,7 +39,7 @@ export async function transformEsmImports(
       webpackMagicCommentMatches = spec.match(WEBPACK_MAGIC_COMMENT_REGEX);
       spec = matchDynamicImportValue(spec) || '';
     }
-    let rewrittenImport = replaceImport(spec);
+    let rewrittenImport = await replaceImport(spec);
     if (imp.d > -1) {
       rewrittenImport = webpackMagicCommentMatches
         ? `${webpackMagicCommentMatches.join(' ')} ${JSON.stringify(rewrittenImport)}`
@@ -51,7 +50,10 @@ export async function transformEsmImports(
   return rewrittenCode;
 }
 
-async function transformHtmlImports(code: string, replaceImport: (specifier: string) => string) {
+async function transformHtmlImports(
+  code: string,
+  replaceImport: (specifier: string) => string | Promise<string>,
+) {
   let rewrittenCode = code;
   let match;
   const jsImportRegex = new RegExp(HTML_JS_REGEX);
@@ -83,7 +85,10 @@ async function transformHtmlImports(code: string, replaceImport: (specifier: str
   return rewrittenCode;
 }
 
-async function transformCssImports(code: string, replaceImport: (specifier: string) => string) {
+async function transformCssImports(
+  code: string,
+  replaceImport: (specifier: string) => string | Promise<string>,
+) {
   let rewrittenCode = code;
   let match;
   const importRegex = new RegExp(CSS_REGEX);
@@ -93,7 +98,7 @@ async function transformCssImports(code: string, replaceImport: (specifier: stri
     rewrittenCode = spliceString(
       rewrittenCode,
       // CSS doesn't support proxy files, so always point to the original file
-      `@import "${replaceImport(spec).replace('.proxy.js', '')}";`,
+      `@import "${(await replaceImport(spec)).replace('.proxy.js', '')}";`,
       match.index,
       match.index + fullMatch.length,
     );
@@ -102,19 +107,28 @@ async function transformCssImports(code: string, replaceImport: (specifier: stri
 }
 
 export async function transformFileImports(
-  {baseExt, contents}: SnowpackSourceFile<string>,
-  replaceImport: (specifier: string) => string,
+  {type, contents}: {type: string; contents: string},
+  replaceImport: (specifier: string) => string | Promise<string>,
 ) {
-  if (baseExt === '.js') {
+  if (type === '.js') {
     return transformEsmImports(contents, replaceImport);
   }
-  if (baseExt === '.html') {
+  if (type === '.html') {
     return transformHtmlImports(contents, replaceImport);
   }
-  if (baseExt === '.css') {
+  if (type === '.css') {
     return transformCssImports(contents, replaceImport);
   }
   throw new Error(
-    `Incompatible filetype: cannot scan ${baseExt} files for ESM imports. This is most likely an error within Snowpack.`,
+    `Incompatible filetype: cannot scan ${type} files for ESM imports. This is most likely an error within Snowpack.`,
   );
+}
+
+export async function transformAddMissingDefaultExport(_code: string) {
+  // We need to add a default export, just so that our re-importer doesn't break
+  const [, allExports] = await parse(_code);
+  if (!allExports.includes('default')) {
+    return _code + '\n\nexport default null;';
+  }
+  return _code;
 }

@@ -1,1 +1,1 @@
-console.log('fooey');
+console.log(import.meta.env);

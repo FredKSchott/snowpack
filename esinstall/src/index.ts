@@ -308,7 +308,7 @@ ${colors.dim(
     input: installEntrypoints,
     context: userDefinedRollup.context,
     external: (id) => external.some((packageName) => isImportOfPackage(id, packageName)),
-    treeshake: {moduleSideEffects: 'no-external'},
+    treeshake: {moduleSideEffects: true},
     plugins: [
       rollupPluginAlias({
         entries: [
@@ -346,7 +346,7 @@ ${colors.dim(
       rollupPluginReplace(generateEnvReplacements(env)),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
-        esmExternals: externalEsm,
+        esmExternals: (id) => externalEsm.some((packageName) => isImportOfPackage(id, packageName)),
         requireReturnsDefault: 'auto',
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),
@@ -366,8 +366,7 @@ ${colors.dim(
         isFatalWarningFound = true;
         // Display posix-style on all environments, mainly to help with CI :)
         if (warning.id) {
-          const fileName = path.relative(cwd, warning.id).replace(/\\/g, '/');
-          logger.error(`${fileName}\n   ${warning.message}`);
+          logger.error(`${warning.id}\n   ${warning.message}`);
         } else {
           logger.error(
             `${warning.message}. See https://www.snowpack.dev/reference/common-error-details`,
