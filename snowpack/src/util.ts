@@ -8,10 +8,11 @@ import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
-import {SkypackSDK} from 'skypack';
 import url from 'url';
 import getDefaultBrowserId from 'default-browser-id';
-import {ImportMap, LockfileManifest, SnowpackConfig} from './types';
+import type {ImportMap, LockfileManifest, SnowpackConfig} from './types';
+import type {InstallTarget} from 'esinstall';
+import {SkypackSDK} from 'skypack';
 
 // (!) Beware circular dependencies! No relative imports!
 // Because this file is imported from so many different parts of Snowpack,
@@ -75,6 +76,16 @@ export async function readLockfile(cwd: string): Promise<LockfileManifest | null
   }
   // If this fails, we actually do want to alert the user by throwing
   return JSON.parse(lockfileContents);
+}
+
+export function createInstallTarget(specifier: string, all = true): InstallTarget {
+  return {
+    specifier,
+    all,
+    default: false,
+    namespace: false,
+    named: [],
+  };
 }
 
 function sortObject<T>(originalObject: Record<string, T>): Record<string, T> {
@@ -352,7 +363,7 @@ export function getExtensionMatch(
   let extensionPartial;
   let extensionMatch;
   // If a full URL is given, start at the basename. Otherwise, start at zero.
-  let extensionMatchIndex = Math.max(0, fileName.lastIndexOf('/'));
+  let extensionMatchIndex = Math.max(0, fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
   // Grab expanded file extensions, from longest to shortest.
   while (!extensionMatch && extensionMatchIndex > -1) {
     extensionMatchIndex++;

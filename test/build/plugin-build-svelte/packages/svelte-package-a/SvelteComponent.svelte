@@ -1,0 +1,1 @@
+<div>I am an npm package svelte component!</div>

@@ -35,9 +35,9 @@ exports[`config: alias generates imports as expected 1`] = `
       console.log(oneToManyBuild);
 
       // Importing an absolute URL: we don't touch these
-      import absoluteUrl from './sort.js'; // absolute import
-      import absoluteUrl_ from '../foo.svelte'; // absolute URL, plugin-provided file extension
-      import absoluteUrl__ from '../test-mjs'; // absolute URL, missing file extension
+      import absoluteUrl from './sort.js'; // absolute URL
+      import absoluteUrl_ from './foo.svelte.js'; // absolute URL
+      import absoluteUrl__ from './test-mjs.js'; // absolute URL
       console.log(absoluteUrl, absoluteUrl_, absoluteUrl__);
 
       // Importing a directory index.js file
@@ -105,9 +105,9 @@ import oneToManyBuild from './foo.svelte.js'; // plugin-provided file extension
 console.log(oneToManyBuild);
 
 // Importing an absolute URL: we don't touch these
-import absoluteUrl from './sort.js'; // absolute import
-import absoluteUrl_ from '../foo.svelte'; // absolute URL, plugin-provided file extension
-import absoluteUrl__ from '../test-mjs'; // absolute URL, missing file extension
+import absoluteUrl from './sort.js'; // absolute URL
+import absoluteUrl_ from './foo.svelte.js'; // absolute URL
+import absoluteUrl__ from './test-mjs.js'; // absolute URL
 console.log(absoluteUrl, absoluteUrl_, absoluteUrl__);
 
 

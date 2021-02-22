@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-package-workspace",
+  "description": "A test to make sure linked packages are supported",
+  "scripts": {
+    "testbuild": "snowpack build"
+  },
+  "devDependencies": {
+    "snowpack": "^3.0.0"
+  },
+  "dependencies": {
+    "test-workspace-component": "^1.0.0"
+  }
+}

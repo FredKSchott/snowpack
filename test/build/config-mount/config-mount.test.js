@@ -71,7 +71,7 @@ describe('config: mount', () => {
     it('url', () => {
       const $ = cheerio.load(files['/new-g/main.html']);
       expect(files['/new-g/index.js']).toEqual(expect.stringContaining(`import "./dep.js";`)); // formatter ran
-      expect($('script[type="module"]').attr('src')).toBe('/_dist_/index.js'); // JS resolved
+      expect($('script[type="module"]').attr('src')).toBe('/g/index.js'); // JS resolved
     });
 
     it('static', () => {

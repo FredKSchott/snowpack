@@ -20,10 +20,10 @@ describe('CDN URLs', () => {
 
   it('JS: preserves CDN URLs', () => {
     expect(files['/_dist_/index.js']).toEqual(
-      expect.stringContaining('import React from "https://cdn.pika.dev/react@^16.13.1";'),
+      expect.stringContaining('import React from "https://cdn.skypack.dev/react@^17.0.0";'),
     );
     expect(files['/_dist_/index.js']).toEqual(
-      expect.stringContaining('import ReactDOM from "https://cdn.pika.dev/react-dom@^16.13.1";'),
+      expect.stringContaining('import ReactDOM from "https://cdn.skypack.dev/react-dom@^17.0.0";'),
     );
   });
 
