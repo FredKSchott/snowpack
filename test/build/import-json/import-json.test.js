@@ -8,6 +8,7 @@ describe('import-json', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
     files = readFiles(cwd);
+    console.log(files);
   });
 
   it('imports in source file are transformed correctly', () => {

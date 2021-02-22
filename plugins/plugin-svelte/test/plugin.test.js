@@ -15,7 +15,6 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
       buildOptions: {sourcemap: false},
       packageOptions: {
         source: 'local',
-        rollup: {plugins: []},
         packageLookupFields: [],
       },
     };

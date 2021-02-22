@@ -15,5 +15,8 @@ module.exports = {
     baseUrl: 'https://example.com/foo',
     metaUrlPath: '/TEST_WMU/',
   },
-  plugins: ['./simple-file-extension-change-plugin.js'],
+  plugins: [
+    '@snowpack/plugin-svelte',
+    './simple-file-extension-change-plugin.js'
+  ],
 };
