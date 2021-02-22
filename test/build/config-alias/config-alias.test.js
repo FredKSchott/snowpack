@@ -8,8 +8,8 @@ let files = {};
 describe('config: alias', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
-
     files = readFiles(cwd);
+    console.error('GO!');
   });
 
   it('generates imports as expected', () => {

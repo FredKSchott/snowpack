@@ -5,13 +5,7 @@ import rimraf from 'rimraf';
 import {clearCache as clearSkypackCache, rollupPluginSkypack} from 'skypack';
 import util from 'util';
 import {logger} from '../logger';
-import {
-  ImportMap,
-  LockfileManifest,
-  PackageSource,
-  PackageSourceRemote,
-  SnowpackConfig,
-} from '../types';
+import {LockfileManifest, PackageSource, PackageSourceRemote, SnowpackConfig} from '../types';
 import {convertLockfileToSkypackImportMap, isJavaScript, remotePackageSDK} from '../util';
 
 const fetchedPackages = new Set<string>();
@@ -74,7 +68,6 @@ export default {
     logger.info(`types updated. ${colors.dim('→ ./.snowpack/types')}`, {
       name: 'packageOptions.types',
     });
-    return {imports: {}};
   },
 
   modifyBuildInstallOptions({installOptions, config, lockfile}) {
@@ -103,8 +96,9 @@ export default {
 
   async load(
     spec: string,
+    _isSSR: boolean,
     {config, lockfile}: {config: SnowpackConfig; lockfile: LockfileManifest | null},
-  ): Promise<string | Buffer> {
+  ) {
     let body: Buffer;
     if (
       spec.startsWith('-/') ||
@@ -157,21 +151,21 @@ export default {
     }
     const ext = path.extname(spec);
     if (!ext || isJavaScript(spec)) {
-      return body
-        .toString()
-        .replace(/(from|import) \'\//g, `$1 '${config.buildOptions.metaUrlPath}/pkg/`)
-        .replace(/(from|import) \"\//g, `$1 "${config.buildOptions.metaUrlPath}/pkg/`);
+      return {
+        contents: body
+          .toString()
+          .replace(/(from|import) \'\//g, `$1 '${config.buildOptions.metaUrlPath}/pkg/`)
+          .replace(/(from|import) \"\//g, `$1 "${config.buildOptions.metaUrlPath}/pkg/`),
+        imports: [],
+      };
     }
 
-    return body;
+    return {contents: body, imports: []};
   },
 
-  resolvePackageImport(missingPackage: string, _: ImportMap, config: SnowpackConfig): string {
-    return path.posix.join(config.buildOptions.metaUrlPath, 'pkg', missingPackage);
-  },
-
-  async recoverMissingPackageImport(): Promise<ImportMap> {
-    throw new Error('Unexpected Error: No such thing as a "missing" package import with Skypack.');
+  // TODO: Remove need for lookup URLs
+  async resolvePackageImport(_source: string, spec: string, config: SnowpackConfig) {
+    return path.posix.join(config.buildOptions.metaUrlPath, 'pkg', spec);
   },
 
   clearCache() {
