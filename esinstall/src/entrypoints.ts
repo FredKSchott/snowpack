@@ -189,7 +189,7 @@ export function resolveEntrypoint(
 
   // if, no export map and dep points directly to a file within a package, return that reference.
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
-    return realpathSync.native(resolve.sync(dep, { basedir: cwd }));
+    return realpathSync.native(resolve.sync(dep, {basedir: cwd}));
   }
 
   // Otherwise, resolve directly to the dep specifier. Note that this supports both
@@ -231,9 +231,7 @@ export function resolveEntrypoint(
     throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
   }
 
-  return realpathSync.native(
-    resolve.sync(path.join(depManifestLoc || '', '..', foundEntrypoint)),
-  );
+  return realpathSync.native(resolve.sync(path.join(depManifestLoc || '', '..', foundEntrypoint)));
 }
 
 const picoMatchGlobalOptions = Object.freeze({

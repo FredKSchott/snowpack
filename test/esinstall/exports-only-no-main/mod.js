@@ -1,1 +1,1 @@
-import "exports-only-no-main/mod";
+import 'exports-only-no-main/mod';

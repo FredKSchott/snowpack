@@ -51,7 +51,7 @@ export function resolveDependencyManifest(
     // resolve doesn't care about export map rules, so should find a package.json
     // if one does exist.
     const pkgPth = resolve.sync(`${dep}/package.json`, {
-      basedir: cwd
+      basedir: cwd,
     });
 
     const depManifest = realpathSync.native(pkgPth);

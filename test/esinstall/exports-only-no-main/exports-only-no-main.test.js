@@ -8,7 +8,7 @@ describe('Package with only exports and no main', () => {
 
     await execa('yarn', ['--silent', 'run', 'testinstall'], {
       cwd,
-      reject: true
+      reject: true,
     });
   });
 });
