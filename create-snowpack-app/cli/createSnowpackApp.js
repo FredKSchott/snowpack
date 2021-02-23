@@ -112,10 +112,14 @@ async function cleanProject(dir) {
       2,
     ),
   );
-  await fs.promises.writeFile(
-    path.join(dir, '.gitignore'),
-    ['.snowpack', 'build', 'node_modules'].join('\n'),
-  );
+
+  const gitignore = path.join(dir, '.gitignore');
+  if (!fs.existsSync(gitignore)) {
+    await fs.promises.writeFile(
+      gitignore,
+      ['.snowpack', 'build', 'node_modules'].join('\n'),
+    );
+  }
 }
 
 const {
