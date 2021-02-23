@@ -44,3 +44,25 @@
 - 70d25dad - Resolves #2265 (#2289) <Josh Wilson>
 - 7b38b486 - get tests passing
 - e6b618c5 - [ci] yarn format
+
+
+## snowpack@3.0.12 [2021-02-23]
+
+* d3b6f769 - Support packages that use export maps but have no main (#2659) <Matthew Phillips>
+* 2ae933be - add true logger error message 
+* 0de849ee - Catch WebSocket message parse errors (#2470) <Ben Foxall>
+* da75ff23 - remove circular dependencies in util (#2366) 
+* bfa32aff - proper default browser support for mac (#2364) 
+* 1c44c22d - fix bad url access in import maps, snowpack add 
+* 76dca31a - add octet-stream handling 
+* 10f3461b - [ci] yarn format 
+* 615f13a7 - Add isHmrEnabled and isSSR to plugin transform. (#2332) <Chris Thomas>
+* 65008c63 - fix: prettier snowpack/src/build dir (#2346) <ZYSzys>
+* 690d3b1d - update prettier to use explicit formatting 
+* f07105a9 - Add root level export of clearCache (#2330) <Kevin Scott>
+* 137139b4 - [ci] yarn format 
+* e0f01181 - fix: prettier format (#2316) <ZYSzys>
+* 0fc858cf - fix bad optimize external filter 
+* fb167098 - load plugins relative to config root 
+* 85ddf618 - add JS API docs (#2315) 
+* 49b29f97 - [ci] yarn format 
