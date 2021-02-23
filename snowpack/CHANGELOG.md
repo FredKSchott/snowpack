@@ -66,3 +66,7 @@
 * fb167098 - load plugins relative to config root 
 * 85ddf618 - add JS API docs (#2315) 
 * 49b29f97 - [ci] yarn format 
+
+## snowpack@3.0.13 [2021-02-23]
+
+* 74d0be10 - add resolve for bundled package 
