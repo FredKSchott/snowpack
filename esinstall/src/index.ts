@@ -310,12 +310,11 @@ ${colors.dim(
       rollupPluginAlias({
         entries: [
           // Apply all aliases
-          ...Object.entries(installAlias)
-            .map(([key, val]) => ({
-              find: key,
-              replacement: val,
-              exact: false,
-            })),
+          ...Object.entries(installAlias).map(([key, val]) => ({
+            find: key,
+            replacement: val,
+            exact: false,
+          })),
           // Make sure that internal imports also honor any resolved installEntrypoints
           ...Object.entries(installEntrypoints).map(([key, val]) => ({
             find: key,
