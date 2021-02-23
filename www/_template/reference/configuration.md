@@ -284,7 +284,7 @@ If you'd like to customize this polyfill behavior, you can provide your own Roll
 ```js
 // Example: If `--polyfill-node` doesn't support your use-case, you can provide your own custom Node.js polyfill behavior
 module.exports = {
-  installOptions: {
+  packageOptions: {
     polyfillNode: false,
     rollup: {
       plugins: [require('rollup-plugin-node-polyfills')({crypto: true, ...})],
