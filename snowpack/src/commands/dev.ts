@@ -97,6 +97,12 @@ interface FoundFile {
   isResolve: boolean;
 }
 
+interface HmrUpdate {
+  url: string;
+  bubbled: boolean;
+  updateId: string;
+}
+
 const FILE_BUILD_RESULT_ERROR = `Build Result Error: There was a problem with a file build result.`;
 
 /**
@@ -799,18 +805,25 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
       }
 
       let code = wrappedResponse;
-      if (responseFileExt === '.js' && reqUrlHmrParam)
+      if (responseFileExt === '.js') {
+        // NOTE We need to rewrite imports even for a non modified module,
+        // because the module can still use a module that was already modified
+        // and loaded in the browser (hence the browser will know the "current"
+        // version of the module with a ?mtime).
         code = await transformEsmImports(code as string, (imp) => {
           const importUrl = path.posix.resolve(path.posix.dirname(reqPath), imp);
           const node = hmrEngine.getEntry(importUrl);
-          if (node && node.needsReplacement) {
-            hmrEngine.markEntryForReplacement(node, false);
-            return `${imp}?${reqUrlHmrParam}`;
+          if (node) {
+            if (node.needsReplacement) {
+              hmrEngine.markEntryForReplacement(node, false);
+            }
+            if (node.updateId) {
+              return `${imp}?mtime=${node.updateId}`;
+            }
           }
           return imp;
         });
 
-      if (responseFileExt === '.js') {
         const isHmrEnabled = code.includes('import.meta.hot');
         const rawImports = await scanCodeImportsExports(code);
         const resolvedImports = rawImports.map((imp) => {
@@ -821,6 +834,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
           spec = spec.replace(/\?mtime=[0-9]+$/, '');
           return path.posix.resolve(path.posix.dirname(reqPath), spec);
         });
+
         hmrEngine.setEntry(originalReqPath, resolvedImports, isHmrEnabled);
       }
 
@@ -1201,14 +1215,32 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
   // Live Reload + File System Watching
   let isLiveReloadPaused = false;
 
-  function updateOrBubble(url: string, visited: Set<string>) {
+  function updateOrBubble(url: string) {
+    // A given entry must get the same updateId for a single bubble phase, even
+    // if it is marked multiple times (i.e. multiple importers), or importers
+    // will get different copies of the module
+    const updateId = String(Date.now());
+    const visited = new Set<string>();
+    const updates = new Map();
+    _updateOrBubble(url, updateId, visited, updates);
+    return updates.values();
+  }
+  function _updateOrBubble(
+    url: string,
+    updateId: string,
+    visited: Set<string>,
+    updates: Map<string, HmrUpdate>,
+  ) {
     if (visited.has(url)) {
       return;
     }
     const node = hmrEngine.getEntry(url);
-    const isBubbled = visited.size > 0;
+    if (node) {
+      node.updateId = updateId;
+    }
     if (node && node.isHmrEnabled) {
-      hmrEngine.broadcastMessage({type: 'update', url, bubbled: isBubbled});
+      const bubbled = visited.size > 0;
+      updates.set(url, {url, bubbled, updateId});
     }
     visited.add(url);
     if (node && node.isHmrAccepted) {
@@ -1216,13 +1248,14 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     } else if (node && node.dependents.size > 0) {
       node.dependents.forEach((dep) => {
         hmrEngine.markEntryForReplacement(node, true);
-        updateOrBubble(dep, visited);
+        _updateOrBubble(dep, updateId, visited, updates);
       });
     } else {
       // We've reached the top, trigger a full page refresh
       hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
+
   function handleHmrUpdate(fileLoc: string, originalUrl: string) {
     if (isLiveReloadPaused) {
       return;
@@ -1254,7 +1287,10 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
 
     // If the changed file exists on the page, trigger a new HMR update.
     if (hmrEngine.getEntry(updatedUrl)) {
-      updateOrBubble(updatedUrl, new Set());
+      const updates = updateOrBubble(updatedUrl);
+      for (const {url, bubbled, updateId} of updates) {
+        hmrEngine.broadcastMessage({type: 'update', url, bubbled, updateId});
+      }
       return;
     }
 
@@ -1376,7 +1412,12 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
     getServerRuntime: (options) => getServerRuntime(sp, options),
     async shutdown() {
       await watcher.close();
-      server.close();
+      await new Promise<void>((resolve, reject) => {
+        server.close((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
     },
   } as SnowpackDevServer;
   return sp;

@@ -146,12 +146,12 @@ async function runCssStyleAccept({url: id}) {
     () => setTimeout(() => document.head.removeChild(oldLinkEl), 30),
     false,
   );
-  oldLinkEl.parentNode.insertBefore(linkEl, oldLinkEl)
+  oldLinkEl.parentNode.insertBefore(linkEl, oldLinkEl);
   return true;
 }
 
 /** Called when a new module is loaded, to pass the updated module to the "active" module */
-async function runJsModuleAccept({url: id, bubbled}) {
+async function runJsModuleAccept({url: id, bubbled, updateId}) {
   const state = REGISTERED_MODULES[id];
   if (!state) {
     return false;
@@ -160,11 +160,11 @@ async function runJsModuleAccept({url: id, bubbled}) {
     return false;
   }
   const acceptCallbacks = state.acceptCallbacks;
-  const updateID = Date.now();
   for (const {deps, callback: acceptCallback} of acceptCallbacks) {
     const [module, ...depModules] = await Promise.all([
-      import(id + `?mtime=${updateID}`),
-      ...deps.map((d) => import(d + `?mtime=${updateID}`)),
+      import(id + `?mtime=${updateId}`),
+      // FIXME we can't know the correct updateId for dependencies at this point
+      ...deps.map((d) => import(d + `?mtime=${updateId}`)),
     ]);
     acceptCallback({module, bubbled, deps: depModules});
   }
@@ -235,23 +235,24 @@ socket.addEventListener('message', ({data: _data}) => {
 log('listening for file changes...');
 
 /** Runtime error reporting: If a runtime error occurs, show it in an overlay. */
-isWindowDefined && window.addEventListener('error', function (event) {
-  // Generate an "error location" string
-  let fileLoc;
-  if (event.filename) {
-    fileLoc = event.filename;
-    if (event.lineno !== undefined) {
-      fileLoc += ` [:${event.lineno}`;
-      if (event.colno !== undefined) {
-        fileLoc += `:${event.colno}`;
+isWindowDefined &&
+  window.addEventListener('error', function (event) {
+    // Generate an "error location" string
+    let fileLoc;
+    if (event.filename) {
+      fileLoc = event.filename;
+      if (event.lineno !== undefined) {
+        fileLoc += ` [:${event.lineno}`;
+        if (event.colno !== undefined) {
+          fileLoc += `:${event.colno}`;
+        }
+        fileLoc += `]`;
       }
-      fileLoc += `]`;
     }
-  }
-  createNewErrorOverlay({
-    title: 'Unhandled Runtime Error',
-    fileLoc,
-    errorMessage: event.message,
-    errorStackTrace: event.error ? event.error.stack : undefined,
+    createNewErrorOverlay({
+      title: 'Unhandled Runtime Error',
+      fileLoc,
+      errorMessage: event.message,
+      errorStackTrace: event.error ? event.error.stack : undefined,
+    });
   });
-});

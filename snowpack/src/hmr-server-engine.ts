@@ -11,11 +11,12 @@ interface Dependency {
   isHmrAccepted: boolean;
   needsReplacement: boolean;
   needsReplacementCount: number;
+  updateId?: string;
 }
 
 type HMRMessage =
   | {type: 'reload'}
-  | {type: 'update'; url: string; bubbled: boolean}
+  | {type: 'update'; url: string; bubbled: boolean; updateId?: string}
   | {
       type: 'error';
       title: string;
@@ -108,6 +109,7 @@ export class EsmHmrEngine {
       needsReplacementCount: 0,
       isHmrEnabled: false,
       isHmrAccepted: false,
+      updateId: undefined,
     };
     this.dependencyTree.set(sourceUrl, newEntry);
     return newEntry;
