@@ -32,7 +32,6 @@ import {
   getWebDependencyName,
   getWebDependencyType,
   isJavaScript,
-  isPackageAliasEntry,
   MISSING_PLUGIN_SUGGESTIONS,
   sanitizePackageName,
   writeLockfile,
@@ -312,7 +311,6 @@ ${colors.dim(
         entries: [
           // Apply all aliases
           ...Object.entries(installAlias)
-            .filter(([, val]) => isPackageAliasEntry(val))
             .map(([key, val]) => ({
               find: key,
               replacement: val,
