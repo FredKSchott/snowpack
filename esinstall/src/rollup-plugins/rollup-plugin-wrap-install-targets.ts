@@ -6,6 +6,7 @@ import {VM as VM2} from 'vm2';
 import {AbstractLogger, InstallTarget} from '../types';
 import {getWebDependencyName, isJavaScript, isRemoteUrl, isTruthy, NATIVE_REQUIRE} from '../util';
 import isValidIdentifier from 'is-valid-identifier';
+import resolve from 'resolve';
 
 // Use CJS intentionally here! ESM interface is async but CJS is sync, and this file is sync
 const {parse} = require('cjs-module-lexer');
@@ -77,7 +78,7 @@ export function rollupPluginWrapInstallTargets(
           reexports
             .map((e) =>
               cjsAutoDetectExportsUntrusted(
-                require.resolve(e, {paths: [path.dirname(filename)]}),
+                resolve.sync(e, {basedir: path.dirname(filename)}),
                 visited,
               ),
             )

@@ -1,0 +1,10 @@
+{
+  "name": "test-workspace-component",
+  "private": true,
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "index.mjs",
+  "dependencies": {
+    "canvas-confetti": "^1.2.0"
+  }
+}

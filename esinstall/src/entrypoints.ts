@@ -3,6 +3,7 @@ import path from 'path';
 import validatePackageName from 'validate-npm-package-name';
 import {ExportField, ExportMapEntry, PackageManifestWithExports, PackageManifest} from './types';
 import {parsePackageImportSpecifier, resolveDependencyManifest} from './util';
+import resolve from 'resolve';
 import pm from 'picomatch';
 
 export const MAIN_FIELDS = [
@@ -188,7 +189,7 @@ export function resolveEntrypoint(
 
   // if, no export map and dep points directly to a file within a package, return that reference.
   if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
-    return realpathSync.native(require.resolve(dep, {paths: [cwd]}));
+    return realpathSync.native(resolve.sync(dep, {basedir: cwd}));
   }
 
   // Otherwise, resolve directly to the dep specifier. Note that this supports both
@@ -199,7 +200,7 @@ export function resolveEntrypoint(
 
   if (!depManifest) {
     try {
-      const maybeLoc = realpathSync.native(require.resolve(dep, {paths: [cwd]}));
+      const maybeLoc = realpathSync.native(resolve.sync(dep, {basedir: cwd}));
       return maybeLoc;
     } catch {
       // Oh well, was worth a try
@@ -230,9 +231,7 @@ export function resolveEntrypoint(
     throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
   }
 
-  return realpathSync.native(
-    require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
-  );
+  return realpathSync.native(resolve.sync(path.join(depManifestLoc || '', '..', foundEntrypoint)));
 }
 
 const picoMatchGlobalOptions = Object.freeze({

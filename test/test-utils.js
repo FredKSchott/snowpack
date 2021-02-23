@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const {execSync} = require('child_process');
 const glob = require('glob');
-const execa = require('execa');
 
 const STRIP_CHUNKHASH = /([\w\-]+\-)[a-z0-9]{8}(\.js)/g;
 const STRIP_REV = /\?rev=\w+/gm;
@@ -22,6 +21,7 @@ const UTF8_FRIENDLY_EXTS = [
 
 /** setup for /tests/build/* */
 function setupBuildTest(cwd) {
+  console.log(cwd);
   return execSync('yarn testbuild', {cwd});
 }
 exports.setupBuildTest = setupBuildTest;

@@ -1,0 +1,15 @@
+{
+  "name": "@snowpack/test-exports-only",
+  "version": "1.0.0",
+  "main": "./mod.js",
+  "scripts": {
+    "testinstall": "snowpack prepare",
+    "debuginstall": "node --inspect-brk ../../../node_modules/.bin/snowpack prepare"
+  },
+  "dependencies": {
+    "exports-only": "file:./pkg"
+  },
+  "devDependencies": {
+    "snowpack": "^3.0.11"
+  }
+}

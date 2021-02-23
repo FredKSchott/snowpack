@@ -306,7 +306,7 @@ ${colors.dim(
     input: installEntrypoints,
     context: userDefinedRollup.context,
     external: (id) => external.some((packageName) => isImportOfPackage(id, packageName)),
-    treeshake: {moduleSideEffects: 'no-external'},
+    treeshake: {moduleSideEffects: true},
     plugins: [
       rollupPluginAlias({
         entries: [
@@ -346,7 +346,7 @@ ${colors.dim(
       rollupPluginReplace(generateEnvReplacements(env)),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
-        esmExternals: externalEsm,
+        esmExternals: (id) => externalEsm.some((packageName) => isImportOfPackage(id, packageName)),
         requireReturnsDefault: 'auto',
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),

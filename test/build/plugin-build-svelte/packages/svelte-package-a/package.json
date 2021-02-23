@@ -1,0 +1,6 @@
+{
+  "name": "svelte-package-a",
+  "version": "1.2.3",
+  "main": "index.js",
+  "svelte": "SvelteComponent.svelte"
+}
