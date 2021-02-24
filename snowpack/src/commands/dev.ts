@@ -473,7 +473,7 @@ export async function startServer(
     if (reqPath.startsWith(PACKAGE_LINK_PATH_PREFIX)) {
       const symlinkResourceUrl = reqPath.substr(PACKAGE_LINK_PATH_PREFIX.length);
       const symlinkResourceLoc = path.resolve(
-        config.root,
+        config.workspaceRoot!,
         process.platform === 'win32' ? symlinkResourceUrl.replace(/\//g, '\\') : symlinkResourceUrl,
       );
       const symlinkResourceDirectory = path.dirname(symlinkResourceLoc);
@@ -503,7 +503,7 @@ export async function startServer(
               path.posix.join(
                 config.buildOptions.metaUrlPath,
                 'link',
-                slash(path.relative(config.root, u)),
+                slash(path.relative(config.workspaceRoot!, u)),
               ),
             ),
           );

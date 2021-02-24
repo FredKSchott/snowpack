@@ -216,10 +216,10 @@ export default {
       _packageName += '/' + specParts.shift();
     }
     const isSymlink = !entrypoint.includes(path.join('node_modules', _packageName));
-    const isWithinRoot = entrypoint.startsWith(config.root);
-    if (isSymlink && isWithinRoot) {
+    const isWithinRoot = config.workspaceRoot && entrypoint.startsWith(config.workspaceRoot);
+    if (isSymlink && config.workspaceRoot && isWithinRoot) {
       const builtEntrypointUrls = getBuiltFileUrls(entrypoint, config);
-      const builtEntrypointUrl = slash(path.relative(config.root, builtEntrypointUrls[0]!));
+      const builtEntrypointUrl = slash(path.relative(config.workspaceRoot, builtEntrypointUrls[0]!));
       allSymlinkImports[builtEntrypointUrl] = entrypoint;
       return path.posix.join(config.buildOptions.metaUrlPath, 'link', builtEntrypointUrl);
     }
@@ -313,9 +313,9 @@ export default {
         if (isSymlink) {
           logger.warn(
             colors.bold(`Locally linked package detected outside of project root.\n`) +
-              `If you are working in a workspace/monorepo, set your snowpack.config.js "root"\n` +
-              `to the workspace root to take advantage of fast HMR updates for linked packages.\n` +
-              `Otherwise, this package won't be rebuilt until its package.json "version" changes.`,
+              `If you are working in a workspace/monorepo, set your snowpack.config.js "workspaceRoot"\n` +
+              `to the workspace directory to take advantage of fast HMR updates for linked packages.\n` +
+              `Otherwise, this package will be cached until its package.json "version" changes.`,
           );
         }
         const dependencyFileLoc = path.join(installDest, newImportMap.imports[spec]);

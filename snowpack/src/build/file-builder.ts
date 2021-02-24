@@ -71,7 +71,11 @@ export class FileBuilder {
     this.isSSR = isSSR;
     this.config = config;
     this.hmrEngine = hmrEngine || null;
-    this.urls = getUrlsForFile(loc, config);
+    const urls = getUrlsForFile(loc, config);
+    if (!urls) {
+      throw new Error(`No mounted URLs configured for file: ${loc}`);
+    }
+    this.urls = urls;
   }
 
   private verifyRequestFromBuild(type: string): SnowpackBuiltFile {

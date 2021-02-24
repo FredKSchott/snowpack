@@ -1,6 +1,6 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
-  root: '../',
+  workspaceRoot: '../',
   buildOptions: {
     out: './build'
   },
