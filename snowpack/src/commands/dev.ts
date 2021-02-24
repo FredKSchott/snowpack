@@ -1091,7 +1091,10 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
   const knownETags = new Map<string, string>();
 
   function matchRoute(reqUrl: string): RouteConfigObject | null {
-    let reqPath = decodeURI(url.parse(reqUrl).pathname!);
+    if (reqUrl.startsWith(config.buildOptions.metaUrlPath)) {
+      return null;
+    }
+    const reqPath = decodeURI(url.parse(reqUrl).pathname!);
     const reqExt = path.extname(reqPath);
     const isRoute = !reqExt || reqExt.toLowerCase() === '.html';
     for (const route of config.routes) {
