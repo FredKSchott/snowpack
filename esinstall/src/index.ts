@@ -45,6 +45,7 @@ export {
   resolveEntrypoint,
   explodeExportMap,
 } from './entrypoints';
+export {resolveDependencyManifest} from './util';
 export {printStats} from './stats';
 
 type DependencyLoc = {
@@ -131,7 +132,7 @@ interface InstallOptions {
   polyfillNode: boolean;
   sourcemap?: boolean | 'inline';
   external: string[];
-  externalEsm: string[];
+  externalEsm: string[] | ((imp: string) => boolean);
   packageLookupFields: string[];
   packageExportLookupFields: string[];
   namedExports: string[];
@@ -172,8 +173,8 @@ function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
       error: console.error,
     },
     dest: 'web_modules',
-    external: [],
-    externalEsm: [],
+    external: [] as string[],
+    externalEsm: [] as string[],
     polyfillNode: false,
     packageLookupFields: [],
     packageExportLookupFields: [],
@@ -350,7 +351,7 @@ ${colors.dim(
       rollupPluginReplace(generateReplacements(env)),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
-        esmExternals: (id) => !namedExports.some((packageName) => isImportOfPackage(id, packageName)) && externalEsm.some((packageName) =>  isImportOfPackage(id, packageName)),
+        esmExternals: (id) => !namedExports.some((packageName) => isImportOfPackage(id, packageName)) && Array.isArray(externalEsm) ? externalEsm.some((packageName) =>  isImportOfPackage(id, packageName)) : (externalEsm as Function)(id),
         requireReturnsDefault: 'auto',
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),
