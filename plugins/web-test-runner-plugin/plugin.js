@@ -4,7 +4,7 @@ const path = require('path');
 
 /**
  * Checks whether the url is a virtual file served by @web/test-runner.
- * @param {string} url 
+ * @param {string} url
  */
 function isTestRunnerFile(url) {
   return url.startsWith('/__web-dev-server') || url.startsWith('/__web-test-runner');
