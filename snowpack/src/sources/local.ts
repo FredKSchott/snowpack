@@ -276,8 +276,12 @@ export default {
 
         function getMemoizedResolveDependencyManifest() {
           const results = {};
-          return (packageName: string) =>
-            results[packageName] || _resolveDependencyManifest(packageName, rootPackageDirectory!);
+          return (packageName: string) => {
+            results[packageName] =
+              results[packageName] ||
+              _resolveDependencyManifest(packageName, rootPackageDirectory!);
+            return results[packageName];
+          };
         }
         const resolveDependencyManifest = getMemoizedResolveDependencyManifest();
 
