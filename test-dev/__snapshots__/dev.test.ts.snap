@@ -3,7 +3,7 @@
 exports[`snowpack dev smoke: about 1`] = `
 "<!DOCTYPE html>
 <html>
-  <head><script type=\\"module\\" integrity=\\"sha384-ZsG+E+8Q6Yh0v98Nd0SfOT1bOX82TJaNaBS1npTZYuq4oD09c6rDD2R9pXqMvter\\" src=\\"/_snowpack/hmr-client.js\\"></script><script type=\\"module\\" integrity=\\"sha384-LH/mFhEGRB4jHedP0nqOoIUwc4VX8eWJxEL+qTGWtroqiLJ2vxX169J0oSBMHL5o\\" src=\\"/_snowpack/hmr-error-overlay.js\\"></script></head>
+  <head><script type=\\"module\\" integrity=\\"sha384-rbGo7LspMFxft0OAU/uQAodxT5gCYH2e8y3Awfz2DLVro1Pat6PguxVD6y0usJrc\\" src=\\"/_snowpack/hmr-client.js\\"></script><script type=\\"module\\" integrity=\\"sha384-LH/mFhEGRB4jHedP0nqOoIUwc4VX8eWJxEL+qTGWtroqiLJ2vxX169J0oSBMHL5o\\" src=\\"/_snowpack/hmr-error-overlay.js\\"></script></head>
   <body>
     <p>this is a template in some language that builds to .html</p>
   </body>
@@ -20,7 +20,7 @@ exports[`snowpack dev smoke: html 1`] = `
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/index.css\\" />
     <title>Snowpack App</title>
-  <script type=\\"module\\" integrity=\\"sha384-ZsG+E+8Q6Yh0v98Nd0SfOT1bOX82TJaNaBS1npTZYuq4oD09c6rDD2R9pXqMvter\\" src=\\"/_snowpack/hmr-client.js\\"></script><script type=\\"module\\" integrity=\\"sha384-LH/mFhEGRB4jHedP0nqOoIUwc4VX8eWJxEL+qTGWtroqiLJ2vxX169J0oSBMHL5o\\" src=\\"/_snowpack/hmr-error-overlay.js\\"></script></head>
+  <script type=\\"module\\" integrity=\\"sha384-rbGo7LspMFxft0OAU/uQAodxT5gCYH2e8y3Awfz2DLVro1Pat6PguxVD6y0usJrc\\" src=\\"/_snowpack/hmr-client.js\\"></script><script type=\\"module\\" integrity=\\"sha384-LH/mFhEGRB4jHedP0nqOoIUwc4VX8eWJxEL+qTGWtroqiLJ2vxX169J0oSBMHL5o\\" src=\\"/_snowpack/hmr-error-overlay.js\\"></script></head>
   <body>
     <img id=\\"img\\" src=\\"/logo.svg\\" />
     <canvas id=\\"canvas\\"></canvas>
