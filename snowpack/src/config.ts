@@ -1,5 +1,4 @@
 import {all as merge} from 'deepmerge';
-import findUp from 'find-up';
 import {existsSync} from 'fs';
 import {isPlainObject} from 'is-plain-object';
 import {validate} from 'jsonschema';
