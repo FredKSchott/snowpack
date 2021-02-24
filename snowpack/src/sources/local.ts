@@ -272,7 +272,7 @@ export default {
           ...Object.keys(packageManifest.dependencies || {}),
           ...Object.keys(packageManifest.devDependencies || {}),
           ...Object.keys(packageManifest.peerDependencies || {}),
-        ];
+        ].filter(ext => ext !== _packageName);
 
         const installOptions: InstallOptions = {
           dest: installDest,
@@ -318,11 +318,11 @@ export default {
           logger.debug(colors.yellow(`⦿ ${spec} (ssr) DONE`));
         }
         if (isSymlink) {
-          logger.info(
+          logger.warn(
             colors.bold(`Locally linked package detected outside of project root.\n`) +
-              `Locally linked/symlinked packages are treated as static by default, and will not be\n` +
-              `rebuilt until its "package.json" version changes. To enable local updates for this\n` +
-              `package, set your project root to match your monorepo/workspace root directory.`,
+              `If you are working in a workspace/monorepo, set your snowpack.config.js "root"\n` + 
+              `to the workspace root to take advantage of fast HMR updates for linked packages.\n` + 
+              `Otherwise, this package won't be rebuilt until its package.json "version" changes.`,
           );
         }
         const dependencyFileLoc = path.join(installDest, newImportMap.imports[spec]);
