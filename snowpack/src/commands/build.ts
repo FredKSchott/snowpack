@@ -181,6 +181,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
 
   let optimizedImportMap: undefined | ImportMap;
   if (!config.buildOptions.watch) {
+    logger.info(colors.yellow('! optimizing dependencies...'));
     const packagesStart = performance.now();
     const installDest = path.join(buildDirectoryLoc, config.buildOptions.metaUrlPath, 'pkg');
     const installResult = await installOptimizedDependencies(
@@ -190,7 +191,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
     );
     const packagesEnd = performance.now();
     logger.info(
-      `${colors.green('✔')} packages optimized. ${colors.dim(
+      `${colors.green('✔')} dependencies ready. ${colors.dim(
         `[${((packagesEnd - packagesStart) / 1000).toFixed(2)}s]`,
       )}`,
     );
