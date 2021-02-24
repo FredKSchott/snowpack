@@ -105,7 +105,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
       absolute: true,
       ignore: [
         ...config.exclude,
-        ...(process.env.NODE_ENV === 'test' ? [] : config.testOptions.files),
+        ...config.testOptions.files,
       ],
     });
     for (const f of files) {
