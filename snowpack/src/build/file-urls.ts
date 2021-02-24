@@ -69,15 +69,18 @@ export function getMountEntryForFile(
 /**
  * Get the final, hosted URL path for a given file on disk.
  */
-export function getUrlsForFile(fileLoc: string, config: SnowpackConfig): string[] {
+export function getUrlsForFile(fileLoc: string, config: SnowpackConfig): undefined | string[] {
   const mountEntryResult = getMountEntryForFile(fileLoc, config);
   if (!mountEntryResult) {
+    if (!config.workspaceRoot) {
+      return undefined;
+    }
     const builtEntrypointUrls = getBuiltFileUrls(fileLoc, config);
     return builtEntrypointUrls.map((u) =>
       path.posix.join(
         config.buildOptions.metaUrlPath,
         'link',
-        slash(path.relative(config.root, u)),
+        slash(path.relative(config.workspaceRoot!, u)),
       ),
     );
   }
