@@ -1,0 +1,27 @@
+{
+  "private": true,
+  "version": "1.0.0",
+  "name": "@snowpack/test-prepare-external-package",
+  "description": "Test for packageOptions.external as it applies to prepare.",
+  "scripts": {
+    "testbuild": "snowpack prepare"
+  },
+  "snowpack": {
+    "mount": {
+      "./src": "/_dist_"
+    },
+    "packageOptions": {
+      "external": [
+        "fs",
+        "vue/types"
+      ],
+      "source": "local"
+    }
+  },
+  "devDependencies": {
+    "snowpack": "link:../../../snowpack"
+  },
+  "dependencies": {
+    "array-flatten": "^3.0.0"
+  }
+}
