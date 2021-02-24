@@ -248,10 +248,14 @@ isWindowDefined && window.addEventListener('error', function (event) {
       fileLoc += `]`;
     }
   }
+  let errorMessage = event.message;
+  if (event.message === 'Uncaught ReferenceError: process is not defined') {
+    errorMessage += `\n(Tip: Node's "process" global does not exist in Snowpack. Use "import.meta.env" instead of "process.env").`;
+  }
   createNewErrorOverlay({
     title: 'Unhandled Runtime Error',
     fileLoc,
-    errorMessage: event.message,
+    errorMessage: errorMessage,
     errorStackTrace: event.error ? event.error.stack : undefined,
   });
 });
