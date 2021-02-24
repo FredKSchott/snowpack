@@ -81,7 +81,7 @@ usersList:
   - vipatra:
     name: Vipatra  
     img: https://vigneshksaithal.github.io/img/vipatra-logo-with-text.png
-    url: https:vipatra.in
+    url: https://vipatra.in
 ---
 
 <h2 class="content-title">
