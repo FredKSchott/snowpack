@@ -195,7 +195,14 @@ export default {
       return;
     }
     await Promise.all(
-      [...new Set(installTargets.map((t) => t.specifier))].map((spec) => {
+      [
+        ...new Set(
+          installTargets
+            .map((t) => t.specifier)
+            // external packages need not prepare
+            .filter((t) => !config.packageOptions?.external.includes(t)),
+        ),
+      ].map((spec) => {
         return this.resolvePackageImport(path.join(config.root, 'package.json'), spec, config);
       }),
     );
