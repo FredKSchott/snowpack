@@ -34,7 +34,7 @@ import {
   ServerRuntime,
   SnowpackDevServer,
 } from '../types';
-import {hasExtension, HMR_CLIENT_CODE, HMR_OVERLAY_CODE, openInBrowser} from '../util';
+import {hasExtension, HMR_CLIENT_CODE, HMR_OVERLAY_CODE, isFsEventsEnabled, openInBrowser} from '../util';
 import {getPort, paintDashboard, paintEvent} from './paint';
 
 export class OneToManyMap {
@@ -854,9 +854,11 @@ export async function startServer(
   }
 
   const watcher = chokidar.watch(Object.keys(config.mount), {
+    ignored: config.exclude,
     persistent: true,
     ignoreInitial: true,
     disableGlobbing: false,
+    useFsEvents: isFsEventsEnabled(),
   });
   watcher.on('add', (fileLoc) => {
     knownETags.clear();
