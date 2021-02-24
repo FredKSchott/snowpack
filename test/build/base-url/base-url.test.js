@@ -24,6 +24,12 @@ describe('buildOptions.baseUrl', () => {
     expect($('script').attr('src').startsWith('/static/')).toBe(true);
   });
 
+  it('import proxies works', () => {
+    expect(files['/_dist_/logo.png.proxy.js']).toEqual(
+      expect.stringContaining(`export default "/static/_dist_/logo.png";`),
+    );
+  });
+
   it('import.meta.env works', () => {
     // env is present in index.js
     expect(files['/index.js']).toEqual(

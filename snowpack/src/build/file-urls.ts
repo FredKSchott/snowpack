@@ -74,7 +74,11 @@ export function getUrlsForFile(fileLoc: string, config: SnowpackConfig): string[
   if (!mountEntryResult) {
     const builtEntrypointUrls = getBuiltFileUrls(fileLoc, config);
     return builtEntrypointUrls.map((u) =>
-      path.posix.join(config.buildOptions.metaUrlPath, 'link', slash(path.relative(config.root, u))),
+      path.posix.join(
+        config.buildOptions.metaUrlPath,
+        'link',
+        slash(path.relative(config.root, u)),
+      ),
     );
   }
   const [mountKey, mountEntry] = mountEntryResult;
