@@ -13,6 +13,7 @@ import {
   getExtension,
   HTML_JS_REGEX,
   HTML_STYLE_REGEX,
+  isImportOfPackage,
   isTruthy,
   readFile,
   SVELTE_VUE_REGEX,
@@ -46,7 +47,12 @@ export async function getInstallTargets(
   } else {
     installTargets.push(...(await scanImports(process.env.NODE_ENV === 'test', config)));
   }
-  return installTargets;
+  return installTargets.filter(
+    (dep) =>
+      !config.packageOptions.external.some((packageName) =>
+        isImportOfPackage(dep.specifier, packageName),
+      ),
+  );
 }
 
 export function matchDynamicImportValue(importStatement: string) {

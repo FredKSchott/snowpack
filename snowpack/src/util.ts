@@ -379,6 +379,10 @@ export function isRemoteUrl(val: string): boolean {
   return val.startsWith('//') || !!url.parse(val).protocol?.startsWith('http');
 }
 
+export function isImportOfPackage(importUrl: string, packageName: string) {
+  return packageName === importUrl || importUrl.startsWith(packageName + '/');
+}
+
 /**
  * Sanitizes npm packages that end in .js (e.g `tippy.js` -> `tippyjs`).
  * This is necessary because Snowpack can’t create both a file and directory

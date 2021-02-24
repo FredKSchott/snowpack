@@ -195,14 +195,7 @@ export default {
       return;
     }
     await Promise.all(
-      [
-        ...new Set(
-          installTargets
-            .map((t) => t.specifier)
-            // external packages need not prepare
-            .filter((t) => !config.packageOptions?.external.includes(t)),
-        ),
-      ].map((spec) => {
+      [...new Set(installTargets.map((t) => t.specifier))].map((spec) => {
         return this.resolvePackageImport(path.join(config.root, 'package.json'), spec, config);
       }),
     );
@@ -272,7 +265,7 @@ export default {
           ...Object.keys(packageManifest.dependencies || {}),
           ...Object.keys(packageManifest.devDependencies || {}),
           ...Object.keys(packageManifest.peerDependencies || {}),
-        ].filter(ext => ext !== _packageName);
+        ].filter((ext) => ext !== _packageName);
 
         const installOptions: InstallOptions = {
           dest: installDest,
@@ -320,8 +313,8 @@ export default {
         if (isSymlink) {
           logger.warn(
             colors.bold(`Locally linked package detected outside of project root.\n`) +
-              `If you are working in a workspace/monorepo, set your snowpack.config.js "root"\n` + 
-              `to the workspace root to take advantage of fast HMR updates for linked packages.\n` + 
+              `If you are working in a workspace/monorepo, set your snowpack.config.js "root"\n` +
+              `to the workspace root to take advantage of fast HMR updates for linked packages.\n` +
               `Otherwise, this package won't be rebuilt until its package.json "version" changes.`,
           );
         }
