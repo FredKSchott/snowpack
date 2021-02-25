@@ -12,12 +12,18 @@ import {
 } from '../util';
 import remotePackageSource from '../sources/remote';
 
+function pkgInfoFromString (str) {
+  const idx = str.lastIndexOf('@');
+  if (idx <= 0) return [str];
+  return [str.slice(0, idx), str.slice(idx + 1)]
+}
+
 export async function addCommand(addValue: string, commandOptions: CommandOptions) {
   const {lockfile, config} = commandOptions;
   if (config.packageOptions.source !== 'remote') {
     throw new Error(`add command requires packageOptions.source="remote".`);
   }
-  let [pkgName, pkgSemver] = addValue.split('@');
+  let [pkgName, pkgSemver] = pkgInfoFromString(addValue);
   const installMessage = pkgSemver ? `${pkgName}@${pkgSemver}` : pkgName;
   logger.info(`fetching ${cyan(installMessage)} from CDN...`);
   if (!pkgSemver || pkgSemver === 'latest') {
@@ -55,7 +61,7 @@ export async function rmCommand(addValue: string, commandOptions: CommandOptions
   if (config.packageOptions.source !== 'remote') {
     throw new Error(`rm command requires packageOptions.source="remote".`);
   }
-  let [pkgName] = addValue.split('@');
+  let [pkgName] = pkgInfoFromString(addValue);
   logger.info(`removing ${cyan(pkgName)} from project lockfile...`);
   const newLockfile: LockfileManifest = convertSkypackImportMapToLockfile(
     lockfile?.dependencies ?? {},
