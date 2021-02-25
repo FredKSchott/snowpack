@@ -12,10 +12,10 @@ import {
 } from '../util';
 import remotePackageSource from '../sources/remote';
 
-function pkgInfoFromString (str) {
+function pkgInfoFromString(str) {
   const idx = str.lastIndexOf('@');
   if (idx <= 0) return [str];
-  return [str.slice(0, idx), str.slice(idx + 1)]
+  return [str.slice(0, idx), str.slice(idx + 1)];
 }
 
 export async function addCommand(addValue: string, commandOptions: CommandOptions) {
