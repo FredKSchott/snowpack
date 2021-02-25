@@ -18,7 +18,13 @@ import {
   SnowpackBuiltFile,
   SnowpackConfig,
 } from '../types';
-import {createInstallTarget, isRemoteUrl, relativeURL, removeLeadingSlash, replaceExtension} from '../util';
+import {
+  createInstallTarget,
+  isRemoteUrl,
+  relativeURL,
+  removeLeadingSlash,
+  replaceExtension,
+} from '../util';
 import {
   getMetaUrlPath,
   SRI_CLIENT_HMR_SNOWPACK,

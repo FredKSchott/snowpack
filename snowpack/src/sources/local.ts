@@ -231,7 +231,10 @@ export default {
 
     const entrypoint = resolveEntrypoint(spec, {
       cwd: path.dirname(source),
-      packageLookupFields: (_config.packageOptions as PackageSourceLocal).packageLookupFields || [],
+      packageLookupFields: [
+        'snowpack:source',
+        ...((_config.packageOptions as PackageSourceLocal).packageLookupFields || []),
+      ],
     });
     const specParts = spec.split('/');
     let _packageName: string = specParts.shift()!;

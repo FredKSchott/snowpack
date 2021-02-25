@@ -6,7 +6,8 @@
 <script>
 import TestComponent from 'test-workspace-component/SvelteComponent.svelte';
 import * as tsFile from 'test-workspace-component/works-without-extension';
-console.log(tsFile);
+import * as main from 'test-workspace-component';
+console.log(tsFile, main);
 </script>
 
 <TestComponent />
