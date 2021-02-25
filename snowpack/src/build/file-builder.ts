@@ -18,7 +18,7 @@ import {
   SnowpackBuiltFile,
   SnowpackConfig,
 } from '../types';
-import {createInstallTarget, isRemoteUrl, relativeURL, replaceExtension} from '../util';
+import {createInstallTarget, isRemoteUrl, relativeURL, removeLeadingSlash, replaceExtension} from '../util';
 import {
   getMetaUrlPath,
   SRI_CLIENT_HMR_SNOWPACK,
@@ -324,7 +324,7 @@ export class FileBuilder {
 
   async getProxy(_url: string, type: string) {
     const code = this.resolvedOutput[type].code;
-    const url = path.posix.join(this.isDev ? '/' : this.config.buildOptions.baseUrl, _url);
+    const url = this.isDev ? _url : this.config.buildOptions.baseUrl + removeLeadingSlash(_url);
     return await wrapImportProxy({url, code, hmr: this.isHMR, config: this.config});
   }
 
