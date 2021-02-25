@@ -26,7 +26,6 @@ import absoluteUrl_ from '/_dist_/foo.svelte.js'; // absolute URL
 import absoluteUrl__ from '/_dist_/test-mjs.js'; // absolute URL
 console.log(absoluteUrl, absoluteUrl_, absoluteUrl__);
 
-
 // Importing a directory index.js file
 import components from './components'; // relative import
 import components______ from './components/'; // relative import with trailing slash

@@ -126,22 +126,6 @@ export class FileBuilder {
         config: this.config,
       });
       const resolveImport = async (spec) => {
-        // Try to resolve the specifier to a known URL in the project
-        let resolvedImportUrl = resolveImportSpecifier(spec);
-        if (!isResolveBareImports) {
-          return resolvedImportUrl || spec;
-        }
-        // Handle a package import
-        if (!resolvedImportUrl && importMap) {
-          if (importMap.imports[spec]) {
-            const PACKAGE_PATH_PREFIX = path.posix.join(
-              this.config.buildOptions.metaUrlPath,
-              'pkg/',
-            );
-            return path.posix.join(PACKAGE_PATH_PREFIX, importMap.imports[spec]);
-          }
-          throw new Error(`Unexpected: spec ${spec} not included in import map.`);
-        }
         // Ignore packages marked as external
         if (this.config.packageOptions.external?.includes(spec)) {
           return spec;
@@ -149,8 +133,23 @@ export class FileBuilder {
         if (isRemoteUrl(spec)) {
           return spec;
         }
+        // Try to resolve the specifier to a known URL in the project
+        let resolvedImportUrl = resolveImportSpecifier(spec);
+        // Handle a package import
         if (!resolvedImportUrl) {
-          resolvedImportUrl = await pkgSource.resolvePackageImport(this.loc, spec, this.config);
+          try {
+            return await pkgSource.resolvePackageImport(
+              this.loc,
+              spec,
+              this.config,
+              importMap || (isResolveBareImports ? undefined : {imports: {}}),
+            );
+          } catch (err) {
+            if (!isResolveBareImports && /not included in import map./.test(err.message)) {
+              return spec;
+            }
+            throw err;
+          }
         }
         return resolvedImportUrl || spec;
       };

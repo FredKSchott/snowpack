@@ -1,5 +1,6 @@
 import {readdirSync, existsSync, realpathSync, statSync} from 'fs';
 import path from 'path';
+import builtinModules from 'builtin-modules';
 import validatePackageName from 'validate-npm-package-name';
 import {ExportField, ExportMapEntry, PackageManifestWithExports, PackageManifest} from './types';
 import {parsePackageImportSpecifier, resolveDependencyManifest} from './util';
@@ -188,8 +189,10 @@ export function resolveEntrypoint(
   }
 
   // if, no export map and dep points directly to a file within a package, return that reference.
-  if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
-    return realpathSync.native(resolve.sync(dep, {basedir: cwd}));
+  if (builtinModules.indexOf(dep) === -1 && !validatePackageName(dep).validForNewPackages) {
+    return realpathSync.native(
+      resolve.sync(dep, {basedir: cwd, extensions: ['.js', '.mjs', '.ts', '.jsx', '.tsx']}),
+    );
   }
 
   // Otherwise, resolve directly to the dep specifier. Note that this supports both

@@ -23,7 +23,13 @@ import {
   SnowpackConfig,
   PackageSourceLocal,
 } from '../types';
-import {createInstallTarget, GLOBAL_CACHE_DIR, isJavaScript, isRemoteUrl} from '../util';
+import {
+  createInstallTarget,
+  findMatchingAliasEntry,
+  GLOBAL_CACHE_DIR,
+  isJavaScript,
+  isRemoteUrl,
+} from '../util';
 import {installPackages} from './local-install';
 import findUp from 'find-up';
 
@@ -209,8 +215,20 @@ export default {
     return;
   },
 
-  async resolvePackageImport(source: string, spec: string, _config: SnowpackConfig) {
+  async resolvePackageImport(
+    source: string,
+    spec: string,
+    _config: SnowpackConfig,
+    importMap?: ImportMap,
+  ) {
     config = config || _config;
+
+    const aliasEntry = findMatchingAliasEntry(config, spec);
+    if (aliasEntry && aliasEntry.type === 'package') {
+      const {from, to} = aliasEntry;
+      spec = spec.replace(from, to);
+    }
+
     const entrypoint = resolveEntrypoint(spec, {
       cwd: path.dirname(source),
       packageLookupFields: (_config.packageOptions as PackageSourceLocal).packageLookupFields || [],
@@ -229,6 +247,13 @@ export default {
       );
       allSymlinkImports[builtEntrypointUrl] = entrypoint;
       return path.posix.join(config.buildOptions.metaUrlPath, 'link', builtEntrypointUrl);
+    }
+
+    if (importMap) {
+      if (importMap.imports[spec]) {
+        return path.posix.join(config.buildOptions.metaUrlPath, 'pkg', importMap.imports[spec]);
+      }
+      throw new Error(`Unexpected: spec ${spec} not included in import map.`);
     }
 
     let rootPackageDirectory = getRootPackageDirectory(entrypoint);
