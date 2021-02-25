@@ -76,10 +76,10 @@ export async function installPackages({
                 jsResponse = outputContents;
               }
             }
-            if (jsResponse && Buffer.isBuffer(jsResponse.code )) {
+            if (jsResponse && Buffer.isBuffer(jsResponse.code)) {
               jsResponse.code = jsResponse.code.toString();
             }
-            return jsResponse as {code: string, map?: string};
+            return jsResponse as {code: string; map?: string};
           },
         },
       ],
