@@ -3,7 +3,7 @@ import url from 'url';
 import util from 'util';
 import {buildFile} from '../build/build-pipeline';
 import {logger} from '../logger';
-import {ImportMap, SnowpackConfig} from '../types';
+import {ImportMap, SnowpackBuiltFile, SnowpackConfig} from '../types';
 
 interface InstallOptions {
   config: SnowpackConfig;
@@ -70,16 +70,16 @@ export async function installPackages({
               isPackage: true,
               isHmrEnabled: false,
             });
-            let jsResponse;
+            let jsResponse: SnowpackBuiltFile | undefined;
             for (const [outputType, outputContents] of Object.entries(output)) {
-              if (jsResponse) {
-                console.log(`load() Err: ${Object.keys(output)}`);
-              }
-              if (!jsResponse || outputType === '.js') {
+              if (outputContents && outputType === '.js') {
                 jsResponse = outputContents;
               }
             }
-            return jsResponse;
+            if (jsResponse && Buffer.isBuffer(jsResponse.code )) {
+              jsResponse.code = jsResponse.code.toString();
+            }
+            return jsResponse as {code: string, map?: string};
           },
         },
       ],
