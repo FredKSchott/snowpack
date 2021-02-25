@@ -34,7 +34,13 @@ import {
   ServerRuntime,
   SnowpackDevServer,
 } from '../types';
-import {hasExtension, HMR_CLIENT_CODE, HMR_OVERLAY_CODE, isFsEventsEnabled, openInBrowser} from '../util';
+import {
+  hasExtension,
+  HMR_CLIENT_CODE,
+  HMR_OVERLAY_CODE,
+  isFsEventsEnabled,
+  openInBrowser,
+} from '../util';
 import {getPort, paintDashboard, paintEvent} from './paint';
 
 export class OneToManyMap {

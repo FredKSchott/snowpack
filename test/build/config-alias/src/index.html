@@ -32,9 +32,9 @@
       console.log(oneToManyBuild);
 
       // Importing an absolute URL: we don't touch these
-      import absoluteUrl from '/_dist_/sort.js'; // absolute URL
-      import absoluteUrl_ from '/_dist_/foo.svelte.js'; // absolute URL
-      import absoluteUrl__ from '/_dist_/test-mjs.js'; // absolute URL
+      import absoluteUrl from '/_dist_/sort.js'; // absolute import
+      import absoluteUrl_ from '/_dist_/foo.svelte.js'; // absolute URL, plugin-provided file extension
+      import absoluteUrl__ from '/_dist_/test-mjs.js'; // absolute URL, missing file extension
       console.log(absoluteUrl, absoluteUrl_, absoluteUrl__);
 
       // Importing a directory index.js file

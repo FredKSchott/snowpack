@@ -103,10 +103,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
     const files = glob.sync(path.join(mountKey, '**'), {
       nodir: true,
       absolute: true,
-      ignore: [
-        ...config.exclude,
-        ...config.testOptions.files,
-      ],
+      ignore: [...config.exclude, ...config.testOptions.files],
     });
     for (const f of files) {
       const normalizedFileLoc = path.normalize(f);

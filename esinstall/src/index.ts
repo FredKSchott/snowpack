@@ -354,7 +354,11 @@ ${colors.dim(
       rollupPluginReplace(generateReplacements(env)),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
-        esmExternals: (id) => !namedExports.some((packageName) => isImportOfPackage(id, packageName)) && Array.isArray(externalEsm) ? externalEsm.some((packageName) =>  isImportOfPackage(id, packageName)) : (externalEsm as Function)(id),
+        esmExternals: (id) =>
+          !namedExports.some((packageName) => isImportOfPackage(id, packageName)) &&
+          Array.isArray(externalEsm)
+            ? externalEsm.some((packageName) => isImportOfPackage(id, packageName))
+            : (externalEsm as Function)(id),
         requireReturnsDefault: 'auto',
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),
