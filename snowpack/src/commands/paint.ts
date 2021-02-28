@@ -1,10 +1,12 @@
 import detectPort from 'detect-port';
 import {EventEmitter} from 'events';
 import * as colors from 'kleur/colors';
+import util from 'util';
 import path from 'path';
 import readline from 'readline';
 import {logger, LogRecord} from '../logger';
 import {SnowpackConfig} from '../types';
+import spinners from 'cli-spinners';
 
 const IS_FILE_CHANGED_MESSAGE = /File changed\.\.\./;
 
@@ -73,34 +75,6 @@ export async function getPort(defaultPort: number): Promise<number> {
   return bestAvailablePort;
 }
 
-export function getServerInfoMessage(
-  {startTimeMs, port, protocol, hostname, remoteIp}: ServerInfo,
-  isBuilding = false,
-) {
-  let output = '';
-  const isServerStarted = startTimeMs > 0 && port > 0 && protocol;
-  if (isServerStarted) {
-    output += `  ${colors.bold(colors.cyan(`${protocol}//${hostname}:${port}`))}`;
-    if (remoteIp) {
-      output += `${colors.cyan(` • `)}${colors.bold(
-        colors.cyan(`${protocol}//${remoteIp}:${port}`),
-      )}`;
-    }
-    output += '\n';
-    output += colors.dim(
-      // Not to hide slow startup times, but likely there were extraneous factors (prompts, etc.) where the speed isn’t accurate
-      startTimeMs < 1000 ? `  Server started in ${startTimeMs}ms.` : `  Server started.`,
-    );
-    if (isBuilding) {
-      output += colors.dim(` Building...`);
-    }
-    output += '\n\n';
-  } else {
-    output += colors.dim(`  Server starting…`) + '\n\n';
-  }
-  return output;
-}
-
 interface ServerInfo {
   port: number;
   hostname: string;
@@ -116,87 +90,148 @@ interface WorkerState {
 }
 const WORKER_BASE_STATE: WorkerState = {done: false, error: null, output: ''};
 
-export function paintDashboard(bus: EventEmitter, config: SnowpackConfig) {
-  let serverInfo: ServerInfo;
+export function startDashboard(bus: EventEmitter, config: SnowpackConfig) {
   const allWorkerStates: Record<string, WorkerState> = {};
-  const allFileBuilds = new Set<string>();
+  let spinnerFrame = 0;
 
-  for (const plugin of config.plugins.map((p) => p.name)) {
-    allWorkerStates[plugin] = {...WORKER_BASE_STATE};
-  }
+  // "dashboard": Pipe console methods to the logger, and then start the dashboard.
+  logger.debug(`attaching console.log listeners`);
+  console.log = (...args: [any, ...any[]]) => {
+    logger.info(util.format(...args));
+  };
+  console.warn = (...args: [any, ...any[]]) => {
+    logger.warn(util.format(...args));
+  };
+  console.error = (...args: [any, ...any[]]) => {
+    logger.error(util.format(...args));
+  };
 
-  function setupWorker(id: string) {
-    if (!allWorkerStates[id]) {
-      allWorkerStates[id] = {...WORKER_BASE_STATE};
-    }
-  }
-
-  function repaint() {
-    // Clear Page
-    process.stdout.write(process.platform === 'win32' ? '\x1B[2J\x1B[0f' : '\x1B[2J\x1B[3J\x1B[H');
+  function paintDashboard() {
+    let dashboardMsg = '';
     // Header
-    process.stdout.write(`${colors.bold(`snowpack`)}\n\n`);
-    // Server Stats
-    serverInfo && process.stdout.write(getServerInfoMessage(serverInfo, allFileBuilds.size > 0));
-    // Console Output
-    const history = logger.getHistory();
-    if (history.length) {
-      process.stdout.write(`${colors.underline(colors.bold('▼ Console'))}\n`);
-      process.stdout.write(summarizeHistory(history));
-      process.stdout.write('\n\n');
-    }
+    dashboardMsg +=
+      '\n' + colors.cyan(`${spinners.dots.frames[spinnerFrame]} watching for file changes...`);
     // Worker Dashboards
-    for (const [script, workerState] of Object.entries(allWorkerStates)) {
-      if (!workerState.output) {
-        continue;
-      }
-      const colorsFn = Array.isArray(workerState.error) ? colors.red : colors.reset;
-      process.stdout.write(`${colorsFn(colors.underline(colors.bold('▼ ' + script)))}\n\n`);
-      process.stdout.write('  ' + workerState.output.trim().replace(/\n/gm, '\n  '));
-      process.stdout.write('\n\n');
+    // for (const [script, workerState] of Object.entries(allWorkerStates)) {
+    //   if (!workerState.output) {
+    //     continue;
+    //   }
+    //   const colorsFn = Array.isArray(workerState.error) ? colors.red : colors.reset;
+    //   dashboardMsg += `${colorsFn(colors.underline(colors.bold('▼ ' + script)))}\n\n`;
+    //   dashboardMsg += '  ' + workerState.output.trim().replace(/\n/gm, '\n  ');
+    //   dashboardMsg += '\n\n';
+    // }
+
+    const lines = dashboardMsg.split('\n').length;
+    return {msg: dashboardMsg, lines};
+  }
+
+  function clearDashboard(num, msg?) {
+    // Clear Info Line
+    while (num > 0) {
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+      process.stdout.moveCursor(0, -1);
+      num--;
+    }
+    if (!msg || cleanTimestamp(msg) !== lastMsg) {
+      process.stdout.moveCursor(0, 1);
     }
   }
 
-  bus.on(paintEvent.BUILD_FILE, ({id, isBuilding}) => {
-    if (isBuilding) {
-      allFileBuilds.add(path.relative(config.root, id));
+  let lastMsg: string = '\0';
+  let lastMsgCount = 1;
+  function addTimestamp(msg: string): string {
+    let counter = '';
+    if (cleanTimestamp(msg) === lastMsg) {
+      lastMsgCount++;
+      counter = ` (x${lastMsgCount})`;
     } else {
-      allFileBuilds.delete(path.relative(config.root, id));
+      lastMsgCount = 1;
     }
-    repaint();
-  });
+    return msg + counter;
+  }
+
+  function cleanTimestamp(msg: string): string {
+    return msg.replace(/^.*\]/, '');
+  }
+
+  // bus.on(paintEvent.BUILD_FILE, ({id, isBuilding}) => {
+  //   if (isBuilding) {
+  //     allFileBuilds.add(path.relative(config.root, id));
+  //   } else {
+  //     allFileBuilds.delete(path.relative(config.root, id));
+  //   }
+  //   repaint();
+  // });
   bus.on(paintEvent.WORKER_MSG, ({id, msg}) => {
-    setupWorker(id);
-    allWorkerStates[id].output += msg;
-    repaint();
+    const cleanedMsg = msg.trim();
+    if (!cleanedMsg) {
+      return;
+    }
+    for (const individualMsg of cleanedMsg.split('\n')) {
+      logger.info(individualMsg, {name: id});
+    }
   });
-  bus.on(paintEvent.WORKER_COMPLETE, ({id, error}) => {
-    allWorkerStates[id].done = true;
-    allWorkerStates[id].error = allWorkerStates[id].error || error;
-    repaint();
+  // bus.on(paintEvent.WORKER_COMPLETE, ({id, error}) => {
+  //   allWorkerStates[id].done = true;
+  //   allWorkerStates[id].error = allWorkerStates[id].error || error;
+  //   repaint();
+  // });
+  // bus.on(paintEvent.WORKER_RESET, ({id}) => {
+  //   allWorkerStates[id] = {...WORKER_BASE_STATE};
+  //   repaint();
+  // });
+  // bus.on(paintEvent.SERVER_START, (info: ServerInfo) => {
+  //   serverInfo = info;
+  // });
+
+  // // replace logging behavior with repaint (note: messages are retrieved later, with logger.getHistory())
+  let lines = 0;
+  logger.on('debug', (msg) => {
+    clearDashboard(lines, msg);
+    process.stdout.write(addTimestamp(msg));
+    lastMsg = cleanTimestamp(msg);
+    process.stdout.write('\n');
+    const result = paintDashboard();
+    process.stdout.write(result.msg);
+    lines = result.lines;
   });
-  bus.on(paintEvent.WORKER_RESET, ({id}) => {
-    allWorkerStates[id] = {...WORKER_BASE_STATE};
-    repaint();
+  logger.on('info', (msg) => {
+    clearDashboard(lines, msg);
+    process.stdout.write(addTimestamp(msg));
+    lastMsg = cleanTimestamp(msg);
+    process.stdout.write('\n');
+    const result = paintDashboard();
+    process.stdout.write(result.msg);
+    lines = result.lines;
   });
-  bus.on(paintEvent.SERVER_START, (info: ServerInfo) => {
-    serverInfo = info;
-    repaint();
+  logger.on('warn', (msg) => {
+    clearDashboard(lines, msg);
+    process.stdout.write(addTimestamp(msg));
+    lastMsg = cleanTimestamp(msg);
+    process.stdout.write('\n');
+    const result = paintDashboard();
+    process.stdout.write(result.msg);
+    lines = result.lines;
+  });
+  logger.on('error', (msg) => {
+    clearDashboard(lines, msg);
+    process.stdout.write(addTimestamp(msg));
+    lastMsg = cleanTimestamp(msg);
+    process.stdout.write('\n');
+    const result = paintDashboard();
+    process.stdout.write(result.msg);
+    lines = result.lines;
   });
 
-  // replace logging behavior with repaint (note: messages are retrieved later, with logger.getHistory())
-  logger.on('debug', () => {
-    repaint();
-  });
-  logger.on('info', () => {
-    repaint();
-  });
-  logger.on('warn', () => {
-    repaint();
-  });
-  logger.on('error', () => {
-    repaint();
-  });
-
-  repaint();
+  setInterval(() => {
+    spinnerFrame = (spinnerFrame + 1) % spinners.dots.frames.length;
+    clearDashboard(lines);
+    const result = paintDashboard();
+    process.stdout.write(result.msg);
+    lines = result.lines;
+  }, 1000);
+  logger.debug(`dashboard started`);
+  // repaint();
 }

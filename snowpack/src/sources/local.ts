@@ -189,13 +189,11 @@ export default {
       );
     } else {
       logger.info(
-        `${colors.bold(
-          'Welcome to Snowpack!',
-        )} Because this is your first time running this project${
-          process.env.NODE_ENV === 'test' ? ` (mode: test)` : ``
-        }, \n` +
-          'Snowpack needs to prepare your dependencies. This is a one-time step and the results \n' +
-          'will be reused for the lifetime of your project. Please wait while we prepare...',
+        `${colors.bold('Welcome to Snowpack!')} Because this is your first time running\n` +
+          `this project${
+            process.env.NODE_ENV === 'test' ? ` (mode: test)` : ``
+          }, Snowpack needs to prepare your dependencies. This is a one-time step\n` +
+          `and the results will be cached for the lifetime of your project. Please wait...`,
       );
     }
     const installTargets = await getInstallTargets(
@@ -203,7 +201,7 @@ export default {
       config.packageOptions.source === 'local' ? config.packageOptions.knownEntrypoints : [],
     );
     if (installTargets.length === 0) {
-      logger.info('No dependencies detected. Set up complete!');
+      logger.info('No dependencies detected. Ready!');
       return;
     }
     await Promise.all(
@@ -211,9 +209,10 @@ export default {
         return this.resolvePackageImport(path.join(config.root, 'package.json'), spec, config);
       }),
     );
+    await inProgressBuilds.onIdle();
     await mkdirp(path.dirname(installDirectoryHashLoc));
     await fs.writeFile(installDirectoryHashLoc, 'v1', 'utf-8');
-    logger.info(colors.bold('Set up complete!'));
+    logger.info(colors.bold('Ready! Starting up...'));
     return;
   },
 
@@ -222,6 +221,7 @@ export default {
     spec: string,
     _config: SnowpackConfig,
     importMap?: ImportMap,
+    depth = 0,
   ) {
     config = config || _config;
 
@@ -276,10 +276,9 @@ export default {
     const packageVersion = packageManifest.version || 'unknown';
     const installDest = path.join(DEV_DEPENDENCIES_DIR, packageName + '@' + packageVersion);
 
-    let isNew = !allKnownSpecs.has(spec);
     allKnownSpecs.add(spec);
-    const [newImportMap, loadedFile] = await inProgressBuilds.add(
-      async (): Promise<[ImportMap, Buffer]> => {
+    const newImportMap = await inProgressBuilds.add(
+      async (): Promise<ImportMap> => {
         // Look up the import map of the already-installed package.
         // If spec already exists, then this import map is valid.
         const existingImportMapLoc = path.join(installDest, 'import-map.json');
@@ -288,11 +287,12 @@ export default {
           JSON.parse(await fs.readFile(existingImportMapLoc, 'utf8'));
         if (existingImportMap && existingImportMap.imports[spec]) {
           logger.debug(spec + ' CACHED! (already exists)');
-          const dependencyFileLoc = path.join(installDest, existingImportMap.imports[spec]);
-          return [existingImportMap, await fs.readFile(dependencyFileLoc!)];
+          return existingImportMap;
         }
         // Otherwise, kick off a new build to generate a fresh import map.
-        logger.info(colors.yellow(`⦿ ${spec}`));
+        logger.info(
+          colors.yellow(`${''.padStart(depth + 1, '-')} ${packageName}@${packageVersion}`),
+        );
 
         const installTargets = [...allKnownSpecs].filter(
           (spec) => spec === _packageName || spec.startsWith(_packageName + '/'),
@@ -353,9 +353,11 @@ export default {
           installTargets,
           installOptions,
         });
-        logger.debug(colors.yellow(`⦿ ${spec} DONE`));
+        logger.debug(colors.yellow(`${''.padStart(depth + 1, '-')} ${packageName} DONE`));
         if (needsSsrBuild) {
-          logger.info(colors.yellow(`⦿ ${spec} (ssr)`));
+          logger.info(
+            colors.yellow(`${''.padStart(depth + 1, '-')} ${packageName}@${packageVersion} (ssr)`),
+          );
           await installPackages({
             config,
             isDev: true,
@@ -366,7 +368,7 @@ export default {
               dest: installDest + '-ssr',
             },
           });
-          logger.debug(colors.yellow(`⦿ ${spec} (ssr) DONE`));
+          logger.debug(colors.yellow(`${''.padStart(depth + 1, '-')} ${packageName} (ssr) DONE`));
         }
         if (isSymlink) {
           logger.warn(
@@ -377,31 +379,31 @@ export default {
           );
         }
         const dependencyFileLoc = path.join(installDest, newImportMap.imports[spec]);
-        return [newImportMap, await fs.readFile(dependencyFileLoc!)];
+        const loadedFile = await fs.readFile(dependencyFileLoc!);
+        if (isJavaScript(dependencyFileLoc)) {
+          const packageImports = new Set<string>();
+          const code = loadedFile.toString('utf8');
+          for (const imp of await scanCodeImportsExports(code)) {
+            const spec = code.substring(imp.s, imp.e);
+            if (isRemoteUrl(spec)) {
+              continue;
+            }
+            if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
+              continue;
+            }
+            packageImports.add(spec);
+          }
+
+          [...packageImports].map((packageImport) =>
+            this.resolvePackageImport(entrypoint, packageImport, config, undefined, depth + 1),
+          );
+        }
+        return newImportMap;
       },
+      {priority: depth},
     );
 
     const dependencyFileLoc = path.join(installDest, newImportMap.imports[spec]);
-    if (isNew && isJavaScript(dependencyFileLoc)) {
-      await inProgressBuilds.onIdle();
-      const packageImports = new Set<string>();
-      const code = loadedFile.toString('utf8');
-      for (const imp of await scanCodeImportsExports(code)) {
-        const spec = code.substring(imp.s, imp.e);
-        if (isRemoteUrl(spec)) {
-          continue;
-        }
-        if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
-          continue;
-        }
-        packageImports.add(spec);
-      }
-      await Promise.all(
-        [...packageImports].map((packageImport) =>
-          this.resolvePackageImport(entrypoint, packageImport, config),
-        ),
-      );
-    }
 
     // Flatten the import map value into a resolved, public import ID.
     // ex: "./react.js" -> "react.v17.0.1.js"
