@@ -857,7 +857,7 @@ export async function startServer(
     // Start watching the file system.
     // Defer "chokidar" loading to here, to reduce impact on overall startup time
     const chokidar = await import('chokidar');
-    const watcher = chokidar.watch(Object.keys(config.mount), {
+    watcher = chokidar.watch(Object.keys(config.mount), {
       ignored: config.exclude,
       persistent: true,
       ignoreInitial: true,

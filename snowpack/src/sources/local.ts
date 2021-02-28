@@ -32,6 +32,7 @@ import {
 } from '../util';
 import {installPackages} from './local-install';
 import findUp from 'find-up';
+import mkdirp from 'mkdirp';
 
 const PROJECT_CACHE_DIR =
   projectCacheDir({name: 'snowpack'}) ||
@@ -210,6 +211,7 @@ export default {
         return this.resolvePackageImport(path.join(config.root, 'package.json'), spec, config);
       }),
     );
+    await mkdirp(path.dirname(installDirectoryHashLoc));
     await fs.writeFile(installDirectoryHashLoc, 'v1', 'utf-8');
     logger.info(colors.bold('Set up complete!'));
     return;
