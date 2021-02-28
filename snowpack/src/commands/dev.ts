@@ -1,6 +1,5 @@
 import {FSWatcher} from 'chokidar';
 import isCompressible from 'compressible';
-import detectPort from 'detect-port';
 import {InstallTarget} from 'esinstall';
 import etag from 'etag';
 import {EventEmitter} from 'events';
@@ -752,12 +751,10 @@ export async function startServer(
   }
 
   const {hmrDelay} = config.devOptions;
-  const hmrPort =
-    config.devOptions.hmrPort ||
-    config.devOptions.port;
+  const hmrPort = config.devOptions.hmrPort || config.devOptions.port;
   const hmrEngineOptions = Object.assign(
     {delay: hmrDelay},
-    (config.devOptions.hmrPort || !server) ? {port: hmrPort} : {server, port: hmrPort},
+    config.devOptions.hmrPort || !server ? {port: hmrPort} : {server, port: hmrPort},
   );
   const hmrEngine = new EsmHmrEngine(hmrEngineOptions);
   onProcessExit(() => {

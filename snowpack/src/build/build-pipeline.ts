@@ -72,9 +72,6 @@ async function runPipelineLoadStep(
 
           // if source maps disabled, don’t return any
           if (!config.buildOptions.sourcemap) result[ext].map = undefined;
-
-          // clean up empty files
-          if (!result[ext].code) delete result[ext];
         });
         return result;
       }
