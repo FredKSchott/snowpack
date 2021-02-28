@@ -17,6 +17,7 @@ describe('error-missing-dep', () => {
     // Run Test
     try {
       const {output, snapshotFile} = await runTest(['fakemodule'], {cwd});
+      expect(false).toEqual(true); // should not finish
     } catch (err) {
       expect(err.message).toEqual('Package "fakemodule" not found. Have you installed it? ');
     }
