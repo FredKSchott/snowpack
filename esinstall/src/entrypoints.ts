@@ -221,11 +221,6 @@ export function resolveEntrypoint(
     packageLookupFields,
   });
 
-  // Some packages are types-only. If this is one of those packages, resolve with that.
-  if (!foundEntrypoint && hasTypes(depManifest)) {
-    const typesLoc = (depManifest.types || depManifest.typings) as string;
-    return path.join(depManifestLoc, '..', typesLoc);
-  }
   // Sometimes packages don't give an entrypoint, assuming you'll fall back to "index.js".
   if (!foundEntrypoint) {
     foundEntrypoint = 'index.js';

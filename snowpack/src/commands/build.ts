@@ -213,7 +213,6 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
 
   // "--watch" mode - Start watching the file system.
   if (config.buildOptions.watch) {
-    logger.info(colors.cyan('watching for file changes...'));
     let onFileChangeCallback: OnFileChangeCallback = () => {};
     devServer.onFileChange(async ({filePath}) => {
       // First, do our own re-build logic
@@ -227,6 +226,10 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
       // Then, call the user's onFileChange callback (if one was provided)
       await onFileChangeCallback({filePath});
     });
+    logger.info(colors.cyan('watching for file changes...'));
+    logger.info(
+      `${colors.cyan(`[HMR] WebSocket URL available at ws://localhost:${devServer.hmrEngine.port}`)}`,
+    );
     return {
       onFileChange: (callback) => (onFileChangeCallback = callback),
       shutdown() {

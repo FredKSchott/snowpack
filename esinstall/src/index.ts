@@ -389,7 +389,8 @@ ${colors.dim(
       if (
         warning.code === 'CIRCULAR_DEPENDENCY' ||
         warning.code === 'NAMESPACE_CONFLICT' ||
-        warning.code === 'THIS_IS_UNDEFINED'
+        warning.code === 'THIS_IS_UNDEFINED' || 
+        warning.code === 'EMPTY_BUNDLE'
       ) {
         logger.debug(logMessage);
       } else {
