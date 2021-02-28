@@ -227,11 +227,13 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
       await onFileChangeCallback({filePath});
     });
     logger.info(colors.cyan('watching for file changes...'));
-    logger.info(
-      `${colors.cyan(
-        `[HMR] WebSocket URL available at ws://localhost:${devServer.hmrEngine.port}`,
-      )}`,
-    );
+    if (devServer.hmrEngine) {
+      logger.info(
+        `${colors.cyan(
+          `[HMR] WebSocket URL available at ws://localhost:${devServer.hmrEngine.port}`,
+        )}`,
+      );
+    }
     return {
       onFileChange: (callback) => (onFileChangeCallback = callback),
       shutdown() {
