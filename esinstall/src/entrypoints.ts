@@ -21,10 +21,6 @@ export const MAIN_FIELDS = [
 const BROKEN_BROWSER_ENTRYPOINT = ['@sheerun/mutationobserver-shim'];
 const FILE_EXTENSION_REGEX = /\..+$/;
 
-function hasTypes(manifest: PackageManifest): boolean {
-  return !!(manifest.types || manifest.typings);
-}
-
 function getMissingEntrypointHint(
   packageEntrypoint: string,
   normalizedMap: Record<string, string>,
