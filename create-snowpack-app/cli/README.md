@@ -33,6 +33,7 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 - [snowpack-react-ssr](https://github.com/matthoffner/snowpack-react-ssr) (React + Server Side Rendering)
 - [snowpack-app-template-preact-hmr-tailwind](https://github.com/Mozart409/snowpack-app-template-preact-hmr-tailwind) (Snowpack + Preact + HMR + Tailwindcss)
 - [snowpack-mdx-chakra](https://github.com/molebox/snowpack-mdx)(An opinionated template setup with MDX, Chakra-ui for styling, theme and components, and React Router v6 for routing.)
+- [app-template-sstt](https://github.com/LBrian/app-template-s2t2) (S2T2 - Snowpack + Svelte + Typescript + TailwindCSS)
 - [snowpack-svelte-ts-tw](https://github.com/GarrettCannon/snowpack-svelte-ts-tw) (Snowpack + Svelte + Typescript + TailwindCSS)
 - [snowpack-template-tailwind](https://github.com/jonalvarezz/snowpack-template-tailwind) (Snowpack + TailwindCSS + Autopublish to GitHub Pages)
 - [glimmer-snowpack](https://github.com/rajasegar/glimmer-snowpack) (Snowpack + [Glimmer.js](https://glimmerjs.com))
