@@ -15,7 +15,6 @@ import {performance} from 'perf_hooks';
 import slash from 'slash';
 import stream from 'stream';
 import url from 'url';
-import util from 'util';
 import zlib from 'zlib';
 import {generateEnvModule, getMetaUrlPath, wrapImportProxy} from '../build/build-import-proxy';
 import {FileBuilder} from '../build/file-builder';
@@ -40,7 +39,7 @@ import {
   isFsEventsEnabled,
   openInBrowser,
 } from '../util';
-import {getPort, paintDashboard, paintEvent} from './paint';
+import {getPort, startDashboard, paintEvent} from './paint';
 export class OneToManyMap {
   readonly keyToValue = new Map<string, string[]>();
   readonly valueToKey = new Map<string, string>();
@@ -270,27 +269,20 @@ export async function startServer(
     };
   }
 
+  messageBus.on(paintEvent.SERVER_START, (info) => {
+    logger.info(`Server ready in ${info.startTimeMs}ms.`);
+    logger.info(`${colors.bold('Local:')} ${`${info.protocol}//${hostname}:${port}`}`);
+    if (info.remoteIp) {
+      logger.info(`${colors.bold('Network:')} ${`${info.protocol}//${info.remoteIp}:${port}`}`);
+    }
+  });
+
   if (config.devOptions.output === 'dashboard') {
-    // "dashboard": Pipe console methods to the logger, and then start the dashboard.
-    logger.debug(`attaching console.log listeners`);
-    console.log = (...args: [any, ...any[]]) => {
-      logger.info(util.format(...args));
-    };
-    console.warn = (...args: [any, ...any[]]) => {
-      logger.warn(util.format(...args));
-    };
-    console.error = (...args: [any, ...any[]]) => {
-      logger.error(util.format(...args));
-    };
-    paintDashboard(messageBus, config);
-    logger.debug(`dashboard started`);
+    startDashboard(messageBus, config);
   } else {
     // "stream": Log relevent events to the console.
     messageBus.on(paintEvent.WORKER_MSG, ({id, msg}) => {
       logger.info(msg.trim(), {name: id});
-    });
-    messageBus.on(paintEvent.SERVER_START, (info) => {
-      logger.info(`Server started in ${info.startTimeMs}ms.`);
     });
   }
 
@@ -756,7 +748,10 @@ export async function startServer(
 
   // Watch src files
   async function onWatchEvent(fileLoc: string) {
-    logger.info(colors.cyan('File changed...'));
+    logger.info(
+      colors.cyan('File changed... ') +
+        colors.dim(path.relative(config.workspaceRoot || config.root, fileLoc)),
+    );
     await onFileChangeCallback({filePath: fileLoc});
     const updatedUrls = getUrlsForFile(fileLoc, config);
     if (updatedUrls) {
@@ -838,7 +833,9 @@ export async function command(commandOptions: CommandOptions) {
     const pkgSource = getPackageSource(commandOptions.config.packageOptions.source);
     await pkgSource.prepare(commandOptions);
     await startServer(commandOptions);
-    logger.info(colors.cyan('watching for file changes...'));
+    if (commandOptions.config.devOptions.output !== 'dashboard') {
+      logger.info(colors.cyan('watching for file changes...'));
+    }
   } catch (err) {
     logger.error(err.message);
     logger.debug(err.stack);

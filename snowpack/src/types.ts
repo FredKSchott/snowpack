@@ -54,7 +54,7 @@ export interface LoadUrlOptions {
 }
 export interface SnowpackDevServer {
   port: number;
-  hmrEngine: EsmHmrEngine;
+  hmrEngine?: EsmHmrEngine;
   loadUrl: {
     (reqUrl: string, opt?: (LoadUrlOptions & {encoding?: undefined}) | undefined): Promise<
       LoadResult<Buffer | string>
@@ -366,6 +366,7 @@ export interface PackageSource {
     spec: string,
     config: SnowpackConfig,
     importMap?: ImportMap,
+    depth?: number,
   ): Promise<string>;
   /** Modify the build install config for optimized build install. */
   modifyBuildInstallOptions(options: {
