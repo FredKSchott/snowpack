@@ -70,7 +70,7 @@ async function scanHtmlEntrypoints(htmlFiles: string[]): Promise<(ScannedHtmlEnt
   return Promise.all(
     htmlFiles.map(async (htmlFile) => {
       const code = await fs.readFile(htmlFile, 'utf8');
-      const root = cheerio.load(code);
+      const root = cheerio.load(code, { decodeEntities: false });
       const isHtmlFragment = root.html().startsWith('<html><head></head><body>');
       if (isHtmlFragment) {
         return null;
@@ -401,6 +401,7 @@ async function runEsbuildOnBuildDirectory(
     external: Array.from(new Set(allFiles.map((f) => '*' + path.extname(f)))).filter(
       (ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css' && ext !== '*',
     ),
+    charset: 'utf8',
   });
   const manifestFile = outputFiles!.find((f) => f.path.endsWith('build-manifest.json'))!;
   const manifestContents = manifestFile.text;
@@ -532,6 +533,7 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
           loader: path.extname(f).slice(1) as 'js' | 'css',
           minify: options.minify,
           target: options.target,
+          charset: 'utf8',
         });
         code = minified.code;
         await fs.writeFile(f, code);
