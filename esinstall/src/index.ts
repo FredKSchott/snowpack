@@ -87,11 +87,11 @@ function resolveWebDependency(
   dep: string,
   resolveOptions: {cwd: string; packageLookupFields: string[]},
 ): DependencyLoc {
-    const loc = resolveEntrypoint(dep, resolveOptions);
-    return {
-      loc,
-      type: getWebDependencyType(loc),
-    };
+  const loc = resolveEntrypoint(dep, resolveOptions);
+  return {
+    loc,
+    type: getWebDependencyType(loc),
+  };
 }
 
 function generateEnvObject(userEnv: EnvVarReplacements): Object {
