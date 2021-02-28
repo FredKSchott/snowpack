@@ -269,14 +269,6 @@ export async function startServer(
     };
   }
 
-  messageBus.on(paintEvent.SERVER_START, (info) => {
-    logger.info(colors.green(`Server started in ${info.startTimeMs}ms.`));
-    logger.info(`${colors.green('Local:')} ${`${info.protocol}//${hostname}:${port}`}`);
-    if (info.remoteIp) {
-      logger.info(`${colors.green('Network:')} ${`${info.protocol}//${info.remoteIp}:${port}`}`);
-    }
-  });
-
   if (config.devOptions.output === 'dashboard' && process.stdout.isTTY) {
     startDashboard(messageBus, config);
   } else {
@@ -728,13 +720,14 @@ export async function startServer(
       .filter((i) => i.family === 'IPv4' && i.internal === false)
       .map((i) => i.address);
     const protocol = config.devOptions.secure ? 'https:' : 'http:';
-    messageBus.emit(paintEvent.SERVER_START, {
-      protocol,
-      hostname,
-      port,
-      remoteIp: remoteIps[0],
-      startTimeMs: Math.round(performance.now() - serverStart),
-    });
+
+    // Log the successful server start.
+    const startTimeMs =  Math.round(performance.now() - serverStart);
+    logger.info(colors.green(`Server started in ${startTimeMs}ms.`));
+    logger.info(`${colors.green('Local:')} ${`${protocol}//${hostname}:${port}`}`);
+    if (remoteIps.length > 0) {
+      logger.info(`${colors.green('Network:')} ${`${protocol}//${remoteIps[0]}:${port}`}`);
+    }
   }
 
   // HMR Engine
