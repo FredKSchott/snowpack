@@ -70,7 +70,7 @@ async function scanHtmlEntrypoints(htmlFiles: string[]): Promise<(ScannedHtmlEnt
   return Promise.all(
     htmlFiles.map(async (htmlFile) => {
       const code = await fs.readFile(htmlFile, 'utf8');
-      const root = cheerio.load(code, { decodeEntities: false });
+      const root = cheerio.load(code, {decodeEntities: false});
       const isHtmlFragment = root.html().startsWith('<html><head></head><body>');
       if (isHtmlFragment) {
         return null;
