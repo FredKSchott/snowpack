@@ -60,7 +60,11 @@ exports.default = function plugin(config, userDefinedOptions) {
 
         // minify if enabled
         if (options.minifyJS) {
-          const minified = await esbuildService.transform(code, {minify: true, target});
+          const minified = await esbuildService.transform(code, {
+            minify: true,
+            charset: 'utf8',
+            target,
+          });
           code = minified.code;
           fs.writeFileSync(file, code);
         }
