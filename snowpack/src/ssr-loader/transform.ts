@@ -57,7 +57,7 @@ export function transform(data) {
 
       const source = node.source.value;
 
-      if (source.endsWith('.css.proxy.js')) {
+      if (source.endsWith('.css.proxy.js') && !source.endsWith('.module.css.proxy.js')) {
         css.push(source.replace(/\.proxy\.js$/, ''));
       } else {
         deps.push({name, source});
