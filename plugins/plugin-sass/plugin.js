@@ -117,7 +117,7 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
             break;
           }
           default: {
-            if (Array.isArray) {
+            if (Array.isArray(value)) {
               for (const val of value) {
                 parseCompilerOption(flag, val);
               }
