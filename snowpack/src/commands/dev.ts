@@ -12,7 +12,6 @@ import mime from 'mime-types';
 import os from 'os';
 import path from 'path';
 import {performance} from 'perf_hooks';
-import onProcessExit from 'signal-exit';
 import slash from 'slash';
 import stream from 'stream';
 import url from 'url';
@@ -21,7 +20,7 @@ import zlib from 'zlib';
 import {generateEnvModule, getMetaUrlPath, wrapImportProxy} from '../build/build-import-proxy';
 import {FileBuilder} from '../build/file-builder';
 import {getBuiltFileUrls, getMountEntryForFile, getUrlsForFile} from '../build/file-urls';
-import {EsmHmrEngine} from '../hmr-server-engine';
+import {startHmrEngine} from '../dev/hmr';
 import {logger} from '../logger';
 import {getPackageSource} from '../sources/util';
 import {createLoader as createServerRuntime} from '../ssr-loader';
@@ -35,14 +34,13 @@ import {
   SnowpackDevServer,
 } from '../types';
 import {
-  hasExtension,
+  getCacheKey,
   HMR_CLIENT_CODE,
   HMR_OVERLAY_CODE,
   isFsEventsEnabled,
   openInBrowser,
 } from '../util';
 import {getPort, paintDashboard, paintEvent} from './paint';
-
 export class OneToManyMap {
   readonly keyToValue = new Map<string, string[]>();
   readonly valueToKey = new Map<string, string>();
@@ -102,10 +100,6 @@ function encodeResponse(
   } else {
     return response;
   }
-}
-
-function getCacheKey(fileLoc: string, {isSSR, env}) {
-  return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
 }
 
 /**
@@ -581,13 +575,14 @@ export async function startServer(
 
     function handleFinalizeError(err: Error) {
       logger.error(FILE_BUILD_RESULT_ERROR);
-      hmrEngine && hmrEngine.broadcastMessage({
-        type: 'error',
-        title: FILE_BUILD_RESULT_ERROR,
-        errorMessage: err.toString(),
-        fileLoc,
-        errorStackTrace: err.stack,
-      });
+      hmrEngine &&
+        hmrEngine.broadcastMessage({
+          type: 'error',
+          title: FILE_BUILD_RESULT_ERROR,
+          errorMessage: err.toString(),
+          fileLoc,
+          errorStackTrace: err.stack,
+        });
     }
 
     let finalizedResponse: string | Buffer | undefined;
@@ -750,92 +745,10 @@ export async function startServer(
     });
   }
 
-  let hmrEngine: EsmHmrEngine | undefined;
-  let handleHmrUpdate: ((fileLoc: string, originalUrl: string) => void) | undefined;
-  if (config.devOptions.hmr) {
-  const {hmrDelay} = config.devOptions;
-  const hmrPort = config.devOptions.hmrPort || config.devOptions.port;
-  const hmrEngineOptions = Object.assign(
-    {delay: hmrDelay},
-    config.devOptions.hmrPort || !server ? {port: hmrPort} : {server, port: hmrPort},
-  );
-  const _hmrEngine = new EsmHmrEngine(hmrEngineOptions);
-  hmrEngine = _hmrEngine;
-  onProcessExit(() => {
-    _hmrEngine.disconnectAllClients();
-  });
-
-  // Live Reload + File System Watching
-  let isLiveReloadPaused = false;
-
-  function updateOrBubble(url: string, visited: Set<string>) {
-    if (visited.has(url)) {
-      return;
-    }
-    const node = _hmrEngine.getEntry(url);
-    const isBubbled = visited.size > 0;
-    if (node && node.isHmrEnabled) {
-      _hmrEngine.broadcastMessage({type: 'update', url, bubbled: isBubbled});
-    }
-    visited.add(url);
-    if (node && node.isHmrAccepted) {
-      // Found a boundary, no bubbling needed
-    } else if (node && node.dependents.size > 0) {
-      node.dependents.forEach((dep) => {
-        _hmrEngine.markEntryForReplacement(node, true);
-        updateOrBubble(dep, visited);
-      });
-    } else {
-      // We've reached the top, trigger a full page refresh
-      _hmrEngine.broadcastMessage({type: 'reload'});
-    }
-  }
-  handleHmrUpdate = function handleHmrUpdate(fileLoc: string, originalUrl: string) {
-    if (isLiveReloadPaused) {
-      return;
-    }
-
-    // CSS files may be loaded directly in the client (not via JS import / .proxy.js)
-    // so send an "update" event to live update if thats the case.
-    if (hasExtension(originalUrl, '.css') && !hasExtension(originalUrl, '.module.css')) {
-      _hmrEngine.broadcastMessage({type: 'update', url: originalUrl, bubbled: false});
-    }
-
-    // Append ".proxy.js" to Non-JS files to match their registered URL in the
-    // client app.
-    let updatedUrl = originalUrl;
-    if (!hasExtension(updatedUrl, '.js')) {
-      updatedUrl += '.proxy.js';
-    }
-
-    // Check if a virtual file exists in the resource cache (ex: CSS from a
-    // Svelte file) If it does, mark it for HMR replacement but DONT trigger a
-    // separate HMR update event. This is because a virtual resource doesn't
-    // actually exist on disk, so we need the main resource (the JS) to load
-    // first. Only after that happens will the CSS exist.
-    const virtualCssFileUrl = updatedUrl.replace(/.js$/, '.css');
-    const virtualNode =
-      virtualCssFileUrl.includes(path.basename(fileLoc)) &&
-      _hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
-    if (virtualNode) {
-      _hmrEngine.markEntryForReplacement(virtualNode, true);
-    }
-
-    // If the changed file exists on the page, trigger a new HMR update.
-    if (_hmrEngine.getEntry(updatedUrl)) {
-      updateOrBubble(updatedUrl, new Set());
-      return;
-    }
-
-    // Otherwise, reload the page if the file exists in our hot cache (which
-    // means that the file likely exists on the current page, but is not
-    // supported by HMR (HTML, image, etc)).
-    if (inMemoryBuildCache.has(getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}))) {
-      _hmrEngine.broadcastMessage({type: 'reload'});
-      return;
-    }
-  }
-}
+  // HMR Engine
+  const {hmrEngine, handleHmrUpdate} = config.devOptions.hmr
+    ? startHmrEngine(inMemoryBuildCache, server, config)
+    : {hmrEngine: undefined, handleHmrUpdate: undefined};
 
   // Allow the user to hook into this callback, if they like (noop by default)
   let onFileChangeCallback: OnFileChangeCallback = () => {};
