@@ -156,13 +156,21 @@ export default {
       return await this.resolvePackageImport(entrypoint, spec, config);
     };
     packageCode = await transformFileImports({type, contents: packageCode}, async (spec) => {
-      const resolvedSpec = await resolveImport(spec);
+      let resolvedImportUrl = await resolveImport(spec);
+      const importExtName = path.posix.extname(resolvedImportUrl);
+      const isProxyImport = importExtName && importExtName !== '.js' && importExtName !== '.mjs';
+      if (config.buildOptions.resolveProxyImports && isProxyImport) {
+        resolvedImportUrl = resolvedImportUrl + '.proxy.js';
+      }
       imports.push(
         createInstallTarget(
-          path.resolve(path.posix.join(config.buildOptions.metaUrlPath, 'pkg', id), resolvedSpec),
+          path.resolve(
+            path.posix.join(config.buildOptions.metaUrlPath, 'pkg', id),
+            resolvedImportUrl,
+          ),
         ),
       );
-      return resolvedSpec;
+      return resolvedImportUrl;
     });
     return {contents: packageCode, imports};
   },
@@ -300,7 +308,7 @@ export default {
       async (): Promise<ImportMap> => {
         // Look up the import map of the already-installed package.
         // If spec already exists, then this import map is valid.
-        const lineBullet = colors.dim(depth === 0 ? '+' : '└──'.padStart((depth * 2) + 1, ' '));
+        const lineBullet = colors.dim(depth === 0 ? '+' : '└──'.padStart(depth * 2 + 1, ' '));
         const packageFormatted = spec + colors.dim('@' + packageVersion);
         const existingImportMapLoc = path.join(installDest, 'import-map.json');
         const existingImportMap =
@@ -355,7 +363,7 @@ export default {
               _packageName += '/' + specParts.shift();
             }
             const [, result] = resolveDependencyManifest(_packageName);
-            return !result || !!(result.module || result.exports);
+            return !result || !!(result.module || result.exports || result.type === 'module');
           },
         };
         if (config.packageOptions.source === 'local') {

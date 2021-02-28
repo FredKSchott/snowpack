@@ -354,7 +354,6 @@ ${colors.dim(
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
         esmExternals: (id) =>
-          !namedExports.some((packageName) => isImportOfPackage(id, packageName)) &&
           Array.isArray(externalEsm)
             ? externalEsm.some((packageName) => isImportOfPackage(id, packageName))
             : (externalEsm as Function)(id),
