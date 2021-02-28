@@ -43,6 +43,16 @@ const PROJECT_CACHE_DIR =
 
 const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, process.env.NODE_ENV || 'development');
 
+const NEVER_PEER_PACKAGES: string[] = [
+  '@babel/runtime',
+  '@babel/runtime-corejs3',
+  'babel-runtime',
+  'dom-helpers',
+  'es-abstract',
+  'node-fetch',
+  'whatwg-fetch',
+];
+
 function getRootPackageDirectory(loc: string) {
   const parts = loc.split('node_modules');
   if (parts.length === 1) {
@@ -315,7 +325,7 @@ export default {
           ...Object.keys(packageManifest.dependencies || {}),
           ...Object.keys(packageManifest.devDependencies || {}),
           ...Object.keys(packageManifest.peerDependencies || {}),
-        ].filter((ext) => ext !== _packageName);
+        ].filter((ext) => ext !== _packageName && !NEVER_PEER_PACKAGES.includes(ext));
 
         function getMemoizedResolveDependencyManifest() {
           const results = {};
