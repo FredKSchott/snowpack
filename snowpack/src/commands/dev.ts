@@ -1,3 +1,4 @@
+import {FSWatcher} from 'chokidar';
 import isCompressible from 'compressible';
 import detectPort from 'detect-port';
 import {InstallTarget} from 'esinstall';
@@ -753,11 +754,10 @@ export async function startServer(
   const {hmrDelay} = config.devOptions;
   const hmrPort =
     config.devOptions.hmrPort ||
-    config.devOptions.port ||
-    (await detectPort(config.devOptions.hmrPort || config.devOptions.port));
+    config.devOptions.port;
   const hmrEngineOptions = Object.assign(
     {delay: hmrDelay},
-    config.devOptions.hmrPort || !server ? {port: hmrPort} : {server, port: hmrPort},
+    (config.devOptions.hmrPort || !server) ? {port: hmrPort} : {server, port: hmrPort},
   );
   const hmrEngine = new EsmHmrEngine(hmrEngineOptions);
   onProcessExit(() => {
@@ -835,12 +835,9 @@ export async function startServer(
     }
   }
 
-  // Start watching the file system.
-  // Defer "chokidar" loading to here, to reduce impact on overall startup time
-  const chokidar = await import('chokidar');
-
   // Allow the user to hook into this callback, if they like (noop by default)
   let onFileChangeCallback: OnFileChangeCallback = () => {};
+  let watcher: FSWatcher | undefined;
 
   // Watch src files
   async function onWatchEvent(fileLoc: string) {
@@ -859,27 +856,31 @@ export async function startServer(
     }
   }
 
-  const watcher = chokidar.watch(Object.keys(config.mount), {
-    ignored: config.exclude,
-    persistent: true,
-    ignoreInitial: true,
-    disableGlobbing: false,
-    useFsEvents: isFsEventsEnabled(),
-  });
-  watcher.on('add', (fileLoc) => {
-    knownETags.clear();
-    onWatchEvent(fileLoc);
-    fileToUrlMapping.add(fileLoc, getUrlsForFile(fileLoc, config)!);
-  });
-  watcher.on('unlink', (fileLoc) => {
-    knownETags.clear();
-    onWatchEvent(fileLoc);
-    fileToUrlMapping.delete(fileLoc);
-  });
-  watcher.on('change', (fileLoc) => {
-    onWatchEvent(fileLoc);
-  });
-  logger.info(colors.cyan('watching for file changes...'));
+  if (config.buildOptions.watch) {
+    // Start watching the file system.
+    // Defer "chokidar" loading to here, to reduce impact on overall startup time
+    const chokidar = await import('chokidar');
+    const watcher = chokidar.watch(Object.keys(config.mount), {
+      ignored: config.exclude,
+      persistent: true,
+      ignoreInitial: true,
+      disableGlobbing: false,
+      useFsEvents: isFsEventsEnabled(),
+    });
+    watcher.on('add', (fileLoc) => {
+      knownETags.clear();
+      onWatchEvent(fileLoc);
+      fileToUrlMapping.add(fileLoc, getUrlsForFile(fileLoc, config)!);
+    });
+    watcher.on('unlink', (fileLoc) => {
+      knownETags.clear();
+      onWatchEvent(fileLoc);
+      fileToUrlMapping.delete(fileLoc);
+    });
+    watcher.on('change', (fileLoc) => {
+      onWatchEvent(fileLoc);
+    });
+  }
 
   // Open the user's browser (ignore if failed)
   if (server && port && open && open !== 'none') {
@@ -903,7 +904,7 @@ export async function startServer(
     onFileChange: (callback) => (onFileChangeCallback = callback),
     getServerRuntime: (options) => getServerRuntime(sp, options),
     async shutdown() {
-      await watcher.close();
+      watcher && (await watcher.close());
       server && server.close();
     },
   } as SnowpackDevServer;
@@ -916,10 +917,12 @@ export async function command(commandOptions: CommandOptions) {
     commandOptions.config.devOptions.output =
       commandOptions.config.devOptions.output || 'dashboard';
     commandOptions.config.devOptions.open = commandOptions.config.devOptions.open || 'default';
+    commandOptions.config.buildOptions.watch = true;
     // Start the server
     const pkgSource = getPackageSource(commandOptions.config.packageOptions.source);
     await pkgSource.prepare(commandOptions);
     await startServer(commandOptions);
+    logger.info(colors.cyan('watching for file changes...'));
   } catch (err) {
     logger.error(err.message);
     logger.debug(err.stack);
