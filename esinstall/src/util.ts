@@ -17,7 +17,7 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
 }
 
 export function isRemoteUrl(val: string): boolean {
-  return val.startsWith('//') || !!url.parse(val).protocol?.startsWith('http');
+  return /\w+\:\/\//.test(val) || val.startsWith('//');
 }
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {
