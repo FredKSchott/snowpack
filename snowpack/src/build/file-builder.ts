@@ -88,7 +88,9 @@ export class FileBuilder {
     // Verify that the requested file exists in the build output map.
     if (!this.resolvedOutput[type] || !Object.keys(this.resolvedOutput)) {
       throw new Error(
-        `${this.loc} - Requested content "${type}" but built ${Object.keys(this.resolvedOutput)}`,
+        `${this.loc} - Requested content "${type}" but built ${
+          Object.keys(this.resolvedOutput).toString() || 'none'
+        }.`,
       );
     }
     return this.resolvedOutput[type];

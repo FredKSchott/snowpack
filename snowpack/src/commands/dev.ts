@@ -611,7 +611,7 @@ export async function startServer(
       handleFinalizeError(err);
       throw err;
     }
-    if (!finalizedResponse) {
+    if (finalizedResponse === undefined) {
       throw new NotFoundError(reqPath);
     }
 
