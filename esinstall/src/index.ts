@@ -114,6 +114,7 @@ function generateEnvReplacements(env: Object): {[key: string]: string} {
 
 interface InstallOptions {
   cwd: string;
+  stats: boolean;
   alias: Record<string, string>;
   importMap?: ImportMap;
   logger: AbstractLogger;
@@ -137,23 +138,22 @@ interface InstallOptions {
 
 type PublicInstallOptions = Partial<InstallOptions>;
 export {PublicInstallOptions as InstallOptions};
-
-export type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput};
+export type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput | null};
 
 const FAILED_INSTALL_MESSAGE = 'Install failed.';
 
 function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
   if ((_options as any).lockfile) {
-    throw new Error('[eslint@1.0.0] option `lockfile` was renamed to `importMap`.');
+    throw new Error('[esinstall@1.0.0] option `lockfile` was renamed to `importMap`.');
   }
   if ((_options as any).sourceMap) {
-    throw new Error('[eslint@1.0.0] option `sourceMap` was renamed to `sourcemap`.');
+    throw new Error('[esinstall@1.0.0] option `sourceMap` was renamed to `sourcemap`.');
   }
   if ((_options as any).externalPackage) {
-    throw new Error('[eslint@1.0.0] option `externalPackage` was renamed to `external`.');
+    throw new Error('[esinstall@1.0.0] option `externalPackage` was renamed to `external`.');
   }
   if ((_options as any).externalPackageEsm) {
-    throw new Error('[eslint@1.0.0] option `externalPackageEsm` was renamed to `externalEsm`.');
+    throw new Error('[esinstall@1.0.0] option `externalPackageEsm` was renamed to `externalEsm`.');
   }
   const options = {
     cwd: process.cwd(),
@@ -164,6 +164,8 @@ function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
       warn: console.warn,
       error: console.error,
     },
+    // TODO: Make this default to false in a v2.0 release
+    stats: true,
     dest: 'web_modules',
     external: [],
     externalEsm: [],
@@ -197,6 +199,7 @@ export async function install(
     externalEsm,
     sourcemap,
     env: userEnv,
+    stats,
     rollup: userDefinedRollup,
     treeshake: isTreeshake,
     polyfillNode,
@@ -347,7 +350,7 @@ ${colors.dim(
         requireReturnsDefault: 'auto',
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),
-      rollupPluginDependencyStats((info) => (dependencyStats = info)),
+      stats && rollupPluginDependencyStats((info) => (dependencyStats = info)),
       rollupPluginNodeProcessPolyfill(env),
       polyfillNode && rollupPluginNodePolyfills(),
       ...(userDefinedRollup.plugins || []), // load user-defined plugins last
@@ -442,6 +445,6 @@ ${colors.dim(
 
   return {
     importMap,
-    stats: dependencyStats!,
+    stats: dependencyStats,
   };
 }
