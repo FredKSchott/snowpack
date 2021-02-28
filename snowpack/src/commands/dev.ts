@@ -270,14 +270,14 @@ export async function startServer(
   }
 
   messageBus.on(paintEvent.SERVER_START, (info) => {
-    logger.info(`Server ready in ${info.startTimeMs}ms.`);
-    logger.info(`${colors.bold('Local:')} ${`${info.protocol}//${hostname}:${port}`}`);
+    logger.info(colors.green(`Server started in ${info.startTimeMs}ms.`));
+    logger.info(`${colors.green('Local:')} ${`${info.protocol}//${hostname}:${port}`}`);
     if (info.remoteIp) {
-      logger.info(`${colors.bold('Network:')} ${`${info.protocol}//${info.remoteIp}:${port}`}`);
+      logger.info(`${colors.green('Network:')} ${`${info.protocol}//${info.remoteIp}:${port}`}`);
     }
   });
 
-  if (config.devOptions.output === 'dashboard') {
+  if (config.devOptions.output === 'dashboard' && process.stdout.isTTY) {
     startDashboard(messageBus, config);
   } else {
     // "stream": Log relevent events to the console.
@@ -462,10 +462,10 @@ export async function startServer(
     // The "local" package resolver supports npm packages that live in a local directory, usually a part of your monorepo/workspace.
     // Snowpack treats these files as source files, with each file served individually and rebuilt instantly when changed.
     // In the future, these linked packages may be bundled again with a rapid bundler like esbuild.
-    if (reqPath.startsWith(PACKAGE_LINK_PATH_PREFIX)) {
+    if (config.workspaceRoot && reqPath.startsWith(PACKAGE_LINK_PATH_PREFIX)) {
       const symlinkResourceUrl = reqPath.substr(PACKAGE_LINK_PATH_PREFIX.length);
       const symlinkResourceLoc = path.resolve(
-        config.workspaceRoot!,
+        (config.workspaceRoot as string),
         process.platform === 'win32' ? symlinkResourceUrl.replace(/\//g, '\\') : symlinkResourceUrl,
       );
       const symlinkResourceDirectory = path.dirname(symlinkResourceLoc);
@@ -495,7 +495,7 @@ export async function startServer(
               path.posix.join(
                 config.buildOptions.metaUrlPath,
                 'link',
-                slash(path.relative(config.workspaceRoot!, u)),
+                slash(path.relative((config.workspaceRoot as string), u)),
               ),
             ),
           );
@@ -749,8 +749,7 @@ export async function startServer(
   // Watch src files
   async function onWatchEvent(fileLoc: string) {
     logger.info(
-      colors.cyan('File changed... ') +
-        colors.dim(path.relative(config.workspaceRoot || config.root, fileLoc)),
+      colors.cyan('File changed: ') + path.relative(config.workspaceRoot || config.root, fileLoc),
     );
     await onFileChangeCallback({filePath: fileLoc});
     const updatedUrls = getUrlsForFile(fileLoc, config);
@@ -790,6 +789,9 @@ export async function startServer(
     watcher.on('change', (fileLoc) => {
       onWatchEvent(fileLoc);
     });
+    if (config.devOptions.output !== 'dashboard' || !process.stdout.isTTY) {
+      logger.info(colors.cyan('watching for file changes...'));
+    }
   }
 
   // Open the user's browser (ignore if failed)

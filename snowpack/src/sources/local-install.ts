@@ -33,10 +33,10 @@ export async function installPackages({
   }
   const loggerName =
     installTargets.length === 1
-      ? `prepare:${
+      ? `esinstall:${
           typeof installTargets[0] === 'string' ? installTargets[0] : installTargets[0].specifier
         }`
-      : `prepare`;
+      : `esinstall`;
   let needsSsrBuild = false;
 
   const finalResult = await install(installTargets, {

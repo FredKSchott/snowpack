@@ -74,6 +74,7 @@ const allPackageImports: Record<string, PackageImportData> = {};
 const allSymlinkImports: Record<string, string> = {};
 const allKnownSpecs = new Set<string>();
 const inProgressBuilds = new PQueue({concurrency: 1});
+let hasWorkspaceWarningFired = false;
 
 export function getLinkedUrl(builtUrl: string) {
   return allSymlinkImports[builtUrl];
@@ -252,6 +253,14 @@ export default {
       );
       allSymlinkImports[builtEntrypointUrl] = entrypoint;
       return path.posix.join(config.buildOptions.metaUrlPath, 'link', builtEntrypointUrl);
+    } else if (isSymlink && config.workspaceRoot !== false && !hasWorkspaceWarningFired) {
+      hasWorkspaceWarningFired = true;
+      logger.warn(
+        colors.bold(`${spec}: Locally linked package detected outside of project root.\n`) +
+          `If you are working in a workspace/monorepo, set your snowpack.config.js "workspaceRoot" to your workspace\n` +
+          `directory to take advantage of fast HMR updates for linked packages. Otherwise, this package will be\n` +
+          `cached until its package.json "version" changes. To silence this warning, set "workspaceRoot: false".`,
+      );
     }
 
     if (importMap) {
@@ -281,18 +290,22 @@ export default {
       async (): Promise<ImportMap> => {
         // Look up the import map of the already-installed package.
         // If spec already exists, then this import map is valid.
+        const lineBullet = colors.dim(depth === 0 ? '+' : '└──'.padStart((depth * 2) + 1, ' '));
+        const packageFormatted = spec + colors.dim('@' + packageVersion);
         const existingImportMapLoc = path.join(installDest, 'import-map.json');
         const existingImportMap =
           (await fs.stat(existingImportMapLoc).catch(() => null)) &&
           JSON.parse(await fs.readFile(existingImportMapLoc, 'utf8'));
         if (existingImportMap && existingImportMap.imports[spec]) {
-          logger.debug(spec + ' CACHED! (already exists)');
+          if (depth > 0) {
+            logger.info(`${lineBullet} ${packageFormatted} ${colors.dim(`(dedupe)`)}`);
+          } else {
+            logger.debug(`${lineBullet} ${packageFormatted} ${colors.dim(`(dedupe)`)}`);
+          }
           return existingImportMap;
         }
         // Otherwise, kick off a new build to generate a fresh import map.
-        logger.info(
-          colors.yellow(`${''.padStart(depth + 1, '-')} ${packageName}@${packageVersion}`),
-        );
+        logger.info(`${lineBullet} ${packageFormatted}`);
 
         const installTargets = [...allKnownSpecs].filter(
           (spec) => spec === _packageName || spec.startsWith(_packageName + '/'),
@@ -353,11 +366,9 @@ export default {
           installTargets,
           installOptions,
         });
-        logger.debug(colors.yellow(`${''.padStart(depth + 1, '-')} ${packageName} DONE`));
+        logger.debug(`${lineBullet} ${packageFormatted} DONE`);
         if (needsSsrBuild) {
-          logger.info(
-            colors.yellow(`${''.padStart(depth + 1, '-')} ${packageName}@${packageVersion} (ssr)`),
-          );
+          logger.info(`${lineBullet} ${packageFormatted} ${colors.dim(`(ssr)`)}`);
           await installPackages({
             config,
             isDev: true,
@@ -368,15 +379,7 @@ export default {
               dest: installDest + '-ssr',
             },
           });
-          logger.debug(colors.yellow(`${''.padStart(depth + 1, '-')} ${packageName} (ssr) DONE`));
-        }
-        if (isSymlink) {
-          logger.warn(
-            colors.bold(`Locally linked package detected outside of project root.\n`) +
-              `If you are working in a workspace/monorepo, set your snowpack.config.js "workspaceRoot"\n` +
-              `to the workspace directory to take advantage of fast HMR updates for linked packages.\n` +
-              `Otherwise, this package will be cached until its package.json "version" changes.`,
-          );
+          logger.debug(`${lineBullet} ${packageFormatted} (ssr) DONE`);
         }
         const dependencyFileLoc = path.join(installDest, newImportMap.imports[spec]);
         const loadedFile = await fs.readFile(dependencyFileLoc!);
@@ -397,6 +400,9 @@ export default {
           [...packageImports].map((packageImport) =>
             this.resolvePackageImport(entrypoint, packageImport, config, undefined, depth + 1),
           );
+          // Kick off to a future event loop run, so that the `this.resolvePackageImport()` calls
+          // above have a chance to enter the queue. Prevents a premature exit.
+          await new Promise((resolve) => setTimeout(resolve, 5));
         }
         return newImportMap;
       },

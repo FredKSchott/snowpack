@@ -242,7 +242,7 @@ export interface PackageSourceRemote {
 // interface this library uses internally
 export interface SnowpackConfig {
   root: string;
-  workspaceRoot?: string;
+  workspaceRoot?: string | false;
   extends?: string;
   exclude: string[];
   mount: Record<string, MountEntry>;

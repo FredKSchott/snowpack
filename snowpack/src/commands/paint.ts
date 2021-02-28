@@ -1,34 +1,12 @@
+import spinners from 'cli-spinners';
 import detectPort from 'detect-port';
 import {EventEmitter} from 'events';
 import * as colors from 'kleur/colors';
-import util from 'util';
-import path from 'path';
 import readline from 'readline';
-import {logger, LogRecord} from '../logger';
+import util from 'util';
+import {logger} from '../logger';
 import {SnowpackConfig} from '../types';
-import spinners from 'cli-spinners';
 
-const IS_FILE_CHANGED_MESSAGE = /File changed\.\.\./;
-
-/** Convert a logger's history into the proper dev console format. */
-function summarizeHistory(history: readonly LogRecord[]): string {
-  // Note: history array can get long over time. Performance matters here!
-  return history.reduce((historyString, record) => {
-    let line;
-    // We want to summarize common repeat "file changed" events to reduce noise.
-    // All other logs should be included verbatim, with all repeats added.
-    if (record.count === 1) {
-      line = record.val;
-    } else if (IS_FILE_CHANGED_MESSAGE.test(record.val)) {
-      line = record.val + colors.green(` [x${record.count}]`);
-    } else {
-      line = Array(record.count).fill(record.val).join('\n');
-    }
-    // Note: this includes an extra '\n' character at the start.
-    // Fine for our use-case, but be aware.
-    return historyString + '\n' + line;
-  }, '');
-}
 export const paintEvent = {
   BUILD_FILE: 'BUILD_FILE',
   LOAD_ERROR: 'LOAD_ERROR',
@@ -75,23 +53,7 @@ export async function getPort(defaultPort: number): Promise<number> {
   return bestAvailablePort;
 }
 
-interface ServerInfo {
-  port: number;
-  hostname: string;
-  protocol: string;
-  startTimeMs: number;
-  remoteIp?: string;
-}
-
-interface WorkerState {
-  done: boolean;
-  error: null | Error;
-  output: string;
-}
-const WORKER_BASE_STATE: WorkerState = {done: false, error: null, output: ''};
-
-export function startDashboard(bus: EventEmitter, config: SnowpackConfig) {
-  const allWorkerStates: Record<string, WorkerState> = {};
+export function startDashboard(bus: EventEmitter, _config: SnowpackConfig) {
   let spinnerFrame = 0;
 
   // "dashboard": Pipe console methods to the logger, and then start the dashboard.
@@ -107,21 +69,9 @@ export function startDashboard(bus: EventEmitter, config: SnowpackConfig) {
   };
 
   function paintDashboard() {
-    let dashboardMsg = '';
-    // Header
-    dashboardMsg +=
-      '\n' + colors.cyan(`${spinners.dots.frames[spinnerFrame]} watching for file changes...`);
-    // Worker Dashboards
-    // for (const [script, workerState] of Object.entries(allWorkerStates)) {
-    //   if (!workerState.output) {
-    //     continue;
-    //   }
-    //   const colorsFn = Array.isArray(workerState.error) ? colors.red : colors.reset;
-    //   dashboardMsg += `${colorsFn(colors.underline(colors.bold('▼ ' + script)))}\n\n`;
-    //   dashboardMsg += '  ' + workerState.output.trim().replace(/\n/gm, '\n  ');
-    //   dashboardMsg += '\n\n';
-    // }
-
+    let dashboardMsg = colors.cyan(
+      `${spinners.dots.frames[spinnerFrame]} watching for file changes...`,
+    );
     const lines = dashboardMsg.split('\n').length;
     return {msg: dashboardMsg, lines};
   }
@@ -145,7 +95,7 @@ export function startDashboard(bus: EventEmitter, config: SnowpackConfig) {
     let counter = '';
     if (cleanTimestamp(msg) === lastMsg) {
       lastMsgCount++;
-      counter = ` (x${lastMsgCount})`;
+      counter = colors.yellow(` (x${lastMsgCount})`);
     } else {
       lastMsgCount = 1;
     }
@@ -156,14 +106,6 @@ export function startDashboard(bus: EventEmitter, config: SnowpackConfig) {
     return msg.replace(/^.*\]/, '');
   }
 
-  // bus.on(paintEvent.BUILD_FILE, ({id, isBuilding}) => {
-  //   if (isBuilding) {
-  //     allFileBuilds.add(path.relative(config.root, id));
-  //   } else {
-  //     allFileBuilds.delete(path.relative(config.root, id));
-  //   }
-  //   repaint();
-  // });
   bus.on(paintEvent.WORKER_MSG, ({id, msg}) => {
     const cleanedMsg = msg.trim();
     if (!cleanedMsg) {
@@ -173,65 +115,30 @@ export function startDashboard(bus: EventEmitter, config: SnowpackConfig) {
       logger.info(individualMsg, {name: id});
     }
   });
-  // bus.on(paintEvent.WORKER_COMPLETE, ({id, error}) => {
-  //   allWorkerStates[id].done = true;
-  //   allWorkerStates[id].error = allWorkerStates[id].error || error;
-  //   repaint();
-  // });
-  // bus.on(paintEvent.WORKER_RESET, ({id}) => {
-  //   allWorkerStates[id] = {...WORKER_BASE_STATE};
-  //   repaint();
-  // });
-  // bus.on(paintEvent.SERVER_START, (info: ServerInfo) => {
-  //   serverInfo = info;
-  // });
 
-  // // replace logging behavior with repaint (note: messages are retrieved later, with logger.getHistory())
-  let lines = 0;
-  logger.on('debug', (msg) => {
-    clearDashboard(lines, msg);
+  let currentDashboardHeight = 1;
+
+  function onLog(msg: string) {
+    clearDashboard(currentDashboardHeight, msg);
     process.stdout.write(addTimestamp(msg));
     lastMsg = cleanTimestamp(msg);
     process.stdout.write('\n');
     const result = paintDashboard();
     process.stdout.write(result.msg);
-    lines = result.lines;
-  });
-  logger.on('info', (msg) => {
-    clearDashboard(lines, msg);
-    process.stdout.write(addTimestamp(msg));
-    lastMsg = cleanTimestamp(msg);
-    process.stdout.write('\n');
-    const result = paintDashboard();
-    process.stdout.write(result.msg);
-    lines = result.lines;
-  });
-  logger.on('warn', (msg) => {
-    clearDashboard(lines, msg);
-    process.stdout.write(addTimestamp(msg));
-    lastMsg = cleanTimestamp(msg);
-    process.stdout.write('\n');
-    const result = paintDashboard();
-    process.stdout.write(result.msg);
-    lines = result.lines;
-  });
-  logger.on('error', (msg) => {
-    clearDashboard(lines, msg);
-    process.stdout.write(addTimestamp(msg));
-    lastMsg = cleanTimestamp(msg);
-    process.stdout.write('\n');
-    const result = paintDashboard();
-    process.stdout.write(result.msg);
-    lines = result.lines;
-  });
+    currentDashboardHeight = result.lines;
+  }
+  logger.on('debug', onLog);
+  logger.on('info', onLog);
+  logger.on('warn', onLog);
+  logger.on('error', onLog);
 
   setInterval(() => {
     spinnerFrame = (spinnerFrame + 1) % spinners.dots.frames.length;
-    clearDashboard(lines);
+    clearDashboard(currentDashboardHeight);
     const result = paintDashboard();
     process.stdout.write(result.msg);
-    lines = result.lines;
+    currentDashboardHeight = result.lines;
   }, 1000);
+
   logger.debug(`dashboard started`);
-  // repaint();
 }

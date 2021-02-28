@@ -171,14 +171,14 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   await flushFileQueue(false, {isSSR, isHMR, isResolve: false});
   const buildEnd = performance.now();
   logger.info(
-    `${colors.green('✔')} build complete. ${colors.dim(
+    `${colors.green('✔')} files built. ${colors.dim(
       `[${((buildEnd - buildStart) / 1000).toFixed(2)}s]`,
     )}`,
   );
 
   let optimizedImportMap: undefined | ImportMap;
   if (!config.buildOptions.watch) {
-    logger.info(colors.yellow('! optimizing dependencies...'));
+    logger.info(colors.yellow('! building dependencies...'));
     const packagesStart = performance.now();
     const installDest = path.join(buildDirectoryLoc, config.buildOptions.metaUrlPath, 'pkg');
     const installResult = await installOptimizedDependencies(
@@ -188,14 +188,14 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
     );
     const packagesEnd = performance.now();
     logger.info(
-      `${colors.green('✔')} dependencies ready. ${colors.dim(
+      `${colors.green('✔')} dependencies built. ${colors.dim(
         `[${((packagesEnd - packagesStart) / 1000).toFixed(2)}s]`,
       )}`,
     );
     optimizedImportMap = installResult.importMap;
   }
 
-  logger.info(colors.yellow('! writing files...'));
+  logger.info(colors.yellow('! writing to disk...'));
   const writeStart = performance.now();
   allFileUrlsToProcess = [...allFileUrlsUnique];
   await flushFileQueue(!config.buildOptions.watch, {
@@ -226,13 +226,8 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
       // Then, call the user's onFileChange callback (if one was provided)
       await onFileChangeCallback({filePath});
     });
-    logger.info(colors.cyan('watching for file changes...'));
     if (devServer.hmrEngine) {
-      logger.info(
-        `${colors.cyan(
-          `[HMR] WebSocket URL available at ws://localhost:${devServer.hmrEngine.port}`,
-        )}`,
-      );
+      logger.info(`${colors.green(`HMR ready:`)} ws://localhost:${devServer.hmrEngine.port}`);
     }
     return {
       onFileChange: (callback) => (onFileChangeCallback = callback),
@@ -250,7 +245,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
     await runPipelineOptimizeStep(buildDirectoryLoc, {config});
     const optimizeEnd = performance.now();
     logger.info(
-      `${colors.green('✔')} optimize complete ${colors.dim(
+      `${colors.green('✔')} build optimized. ${colors.dim(
         `[${((optimizeEnd - optimizeStart) / 1000).toFixed(2)}s]`,
       )}`,
     );
@@ -258,7 +253,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
 
   await removeEmptyFolders(buildDirectoryLoc);
   await runPipelineCleanupStep(config);
-  logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}\n\n`);
+  logger.info(`${colors.underline(colors.green(colors.bold('▶ Build Complete!')))}`);
   await devServer.shutdown();
   return {
     onFileChange: () => {
@@ -272,6 +267,9 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
 
 export async function command(commandOptions: CommandOptions) {
   try {
+    commandOptions.config.devOptions.output =
+      commandOptions.config.devOptions.output ||
+      (commandOptions.config.buildOptions.watch ? 'dashboard' : 'stream');
     await build(commandOptions);
   } catch (err) {
     logger.error(err.message);
