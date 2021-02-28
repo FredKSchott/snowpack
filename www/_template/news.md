@@ -78,6 +78,10 @@ usersList:
     name: SeekInnovation
     img: https://assets.website-files.com/5e2c3e23d2e067287ea582e4/5e6a5bca2d401204ada76b95_SeekInnovationLogoRound_Vector.svg
     url: https://seekinnovation.at
+  - vipatra:
+    name: Vipatra  
+    img: https://vigneshksaithal.github.io/img/vipatra-logo-with-text.png
+    url: https://vipatra.in
 ---
 
 <h2 class="content-title">
