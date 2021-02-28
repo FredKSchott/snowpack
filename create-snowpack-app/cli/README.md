@@ -38,4 +38,5 @@ npx create-snowpack-app new-dir --template @snowpack/app-template-NAME [--use-ya
 - [glimmer-snowpack](https://github.com/rajasegar/glimmer-snowpack) (Snowpack + [Glimmer.js](https://glimmerjs.com))
 - [snowpack-cycle](https://github.com/rajasegar/snowpack-cycle) (A pre-configured Snowpack app template for [Cycle.js](https://cycle.js.org))
 - [snowpack-angular-template](https://github.com/YogliB/snowpack-template-angular) (A preconfigured template for Snowpack with [Angular](https://angular.io))
+- [snowpack-solid](https://github.com/amoutonbrady/snowpack-solid) (A pre-configured Snowpack app template for [Solid](https://github.com/ryansolid/solid))
 - PRs that add a link to this list are welcome!
