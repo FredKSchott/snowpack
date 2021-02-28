@@ -408,7 +408,7 @@ export async function startServer(
   ): Promise<LoadResult> {
     const isSSR = _isSSR ?? false;
     //   // Default to HMR on, but disable HMR if SSR mode is enabled.
-    const isHMR = _isHMR ?? ((config.devOptions.hmr ?? true) && !isSSR);
+    const isHMR = _isHMR ?? (!!config.devOptions.hmr && !isSSR);
     const encoding = _encoding ?? null;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     const reqPath = decodeURI(url.parse(reqUrl).pathname!);
@@ -581,7 +581,7 @@ export async function startServer(
 
     function handleFinalizeError(err: Error) {
       logger.error(FILE_BUILD_RESULT_ERROR);
-      hmrEngine.broadcastMessage({
+      hmrEngine && hmrEngine.broadcastMessage({
         type: 'error',
         title: FILE_BUILD_RESULT_ERROR,
         errorMessage: err.toString(),
@@ -750,15 +750,19 @@ export async function startServer(
     });
   }
 
+  let hmrEngine: EsmHmrEngine | undefined;
+  let handleHmrUpdate: ((fileLoc: string, originalUrl: string) => void) | undefined;
+  if (config.devOptions.hmr) {
   const {hmrDelay} = config.devOptions;
   const hmrPort = config.devOptions.hmrPort || config.devOptions.port;
   const hmrEngineOptions = Object.assign(
     {delay: hmrDelay},
     config.devOptions.hmrPort || !server ? {port: hmrPort} : {server, port: hmrPort},
   );
-  const hmrEngine = new EsmHmrEngine(hmrEngineOptions);
+  const _hmrEngine = new EsmHmrEngine(hmrEngineOptions);
+  hmrEngine = _hmrEngine;
   onProcessExit(() => {
-    hmrEngine.disconnectAllClients();
+    _hmrEngine.disconnectAllClients();
   });
 
   // Live Reload + File System Watching
@@ -768,25 +772,25 @@ export async function startServer(
     if (visited.has(url)) {
       return;
     }
-    const node = hmrEngine.getEntry(url);
+    const node = _hmrEngine.getEntry(url);
     const isBubbled = visited.size > 0;
     if (node && node.isHmrEnabled) {
-      hmrEngine.broadcastMessage({type: 'update', url, bubbled: isBubbled});
+      _hmrEngine.broadcastMessage({type: 'update', url, bubbled: isBubbled});
     }
     visited.add(url);
     if (node && node.isHmrAccepted) {
       // Found a boundary, no bubbling needed
     } else if (node && node.dependents.size > 0) {
       node.dependents.forEach((dep) => {
-        hmrEngine.markEntryForReplacement(node, true);
+        _hmrEngine.markEntryForReplacement(node, true);
         updateOrBubble(dep, visited);
       });
     } else {
       // We've reached the top, trigger a full page refresh
-      hmrEngine.broadcastMessage({type: 'reload'});
+      _hmrEngine.broadcastMessage({type: 'reload'});
     }
   }
-  function handleHmrUpdate(fileLoc: string, originalUrl: string) {
+  handleHmrUpdate = function handleHmrUpdate(fileLoc: string, originalUrl: string) {
     if (isLiveReloadPaused) {
       return;
     }
@@ -794,7 +798,7 @@ export async function startServer(
     // CSS files may be loaded directly in the client (not via JS import / .proxy.js)
     // so send an "update" event to live update if thats the case.
     if (hasExtension(originalUrl, '.css') && !hasExtension(originalUrl, '.module.css')) {
-      hmrEngine.broadcastMessage({type: 'update', url: originalUrl, bubbled: false});
+      _hmrEngine.broadcastMessage({type: 'update', url: originalUrl, bubbled: false});
     }
 
     // Append ".proxy.js" to Non-JS files to match their registered URL in the
@@ -812,13 +816,13 @@ export async function startServer(
     const virtualCssFileUrl = updatedUrl.replace(/.js$/, '.css');
     const virtualNode =
       virtualCssFileUrl.includes(path.basename(fileLoc)) &&
-      hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
+      _hmrEngine.getEntry(`${virtualCssFileUrl}.proxy.js`);
     if (virtualNode) {
-      hmrEngine.markEntryForReplacement(virtualNode, true);
+      _hmrEngine.markEntryForReplacement(virtualNode, true);
     }
 
     // If the changed file exists on the page, trigger a new HMR update.
-    if (hmrEngine.getEntry(updatedUrl)) {
+    if (_hmrEngine.getEntry(updatedUrl)) {
       updateOrBubble(updatedUrl, new Set());
       return;
     }
@@ -827,10 +831,11 @@ export async function startServer(
     // means that the file likely exists on the current page, but is not
     // supported by HMR (HTML, image, etc)).
     if (inMemoryBuildCache.has(getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}))) {
-      hmrEngine.broadcastMessage({type: 'reload'});
+      _hmrEngine.broadcastMessage({type: 'reload'});
       return;
     }
   }
+}
 
   // Allow the user to hook into this callback, if they like (noop by default)
   let onFileChangeCallback: OnFileChangeCallback = () => {};
@@ -842,7 +847,7 @@ export async function startServer(
     await onFileChangeCallback({filePath: fileLoc});
     const updatedUrls = getUrlsForFile(fileLoc, config);
     if (updatedUrls) {
-      handleHmrUpdate(fileLoc, updatedUrls[0]);
+      handleHmrUpdate && handleHmrUpdate(fileLoc, updatedUrls[0]);
       knownETags.delete(updatedUrls[0]);
       knownETags.delete(updatedUrls[0] + '.proxy.js');
     }
@@ -915,6 +920,7 @@ export async function command(commandOptions: CommandOptions) {
       commandOptions.config.devOptions.output || 'dashboard';
     commandOptions.config.devOptions.open = commandOptions.config.devOptions.open || 'default';
     commandOptions.config.buildOptions.watch = true;
+    commandOptions.config.devOptions.hmr = true;
     // Start the server
     const pkgSource = getPackageSource(commandOptions.config.packageOptions.source);
     await pkgSource.prepare(commandOptions);
