@@ -1,6 +1,5 @@
 import {promises as fs, realpathSync} from 'fs';
 import path from 'path';
-import url from 'url';
 import validatePackageName from 'validate-npm-package-name';
 import {InstallTarget, ImportMap, PackageManifest} from './types';
 import resolve from 'resolve';
