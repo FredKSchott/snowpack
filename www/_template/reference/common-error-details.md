@@ -28,7 +28,7 @@ If you are using TypeScript, this error could occur if you are importing somethi
 
 **To solve:** Make sure to use `import type { MyInterfaceName }` instead.
 
-This error could also appear if named imports are used with older, Common.js npm packages. Thanks to improvements in our package scanner this is no longer a common issue for most packages. However, some packages are written or compiled in a way that makes automatic import scanning impossible. 
+This error could also appear if named imports are used with older, Common.js npm packages. Thanks to improvements in our package scanner this is no longer a common issue for most packages. However, some packages are written or compiled in a way that makes automatic import scanning impossible.
 
 **To solve:** Use the default import (`import pkg from 'my-old-package'`) for legacy Common.js/UMD packages that cannot be analyzed. Or, add the package name to your `packageOptions.namedExports` configuration for runtime import scanning.
 

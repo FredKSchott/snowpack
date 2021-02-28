@@ -10,6 +10,7 @@ const UTF8_FRIENDLY_EXTS = [
   'css',
   'html',
   'js',
+  'map',
   'jsx',
   'ts',
   'tsx',
@@ -21,7 +22,6 @@ const UTF8_FRIENDLY_EXTS = [
 
 /** setup for /tests/build/* */
 function setupBuildTest(cwd) {
-  console.log(cwd);
   return execSync('yarn testbuild', {cwd});
 }
 exports.setupBuildTest = setupBuildTest;

@@ -80,7 +80,7 @@ export function getUrlsForFile(fileLoc: string, config: SnowpackConfig): undefin
       path.posix.join(
         config.buildOptions.metaUrlPath,
         'link',
-        slash(path.relative((config.workspaceRoot as string), u)),
+        slash(path.relative(config.workspaceRoot as string, u)),
       ),
     );
   }

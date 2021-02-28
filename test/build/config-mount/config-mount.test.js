@@ -77,6 +77,7 @@ describe('config: mount', () => {
     it('static', () => {
       const $ = cheerio.load(files['/h/main.html']);
       expect($('script[type="module"]').attr('src')).toBe('/_dist_/index.js'); // JS resolved
+      expect(files['/h/dep.js.map']).toEqual(`I am a static source map.`); // preserves static source maps
     });
 
     it('resolve: false', () => {

@@ -390,8 +390,6 @@ export async function startServer(
     const encoding = _encoding ?? null;
     const reqUrlHmrParam = reqUrl.includes('?mtime=') && reqUrl.split('?')[1];
     const reqPath = decodeURI(url.parse(reqUrl).pathname!);
-    const resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
-    const resourceType = path.extname(resourcePath) || '.html';
 
     if (reqPath === getMetaUrlPath('/hmr-client.js', config)) {
       return {
@@ -422,6 +420,7 @@ export async function startServer(
     // but as a general rule all URLs contained within are managed by the package source loader. When this URL
     // prefix is hit, we load the file through the selected package source loader.
     if (reqPath.startsWith(PACKAGE_PATH_PREFIX)) {
+      const resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
       const webModuleUrl = resourcePath.substr(PACKAGE_PATH_PREFIX.length);
       let loadedModule = await pkgSource.load(webModuleUrl, isSSR, commandOptions);
       if (!loadedModule) {
@@ -448,16 +447,23 @@ export async function startServer(
       };
     }
 
+    // Most of the time, resourcePath should have ".map" and ".proxy.js" extensions stripped to
+    // match the file on disk. However, sometimes the on disk is an actual source map in a static
+    // directory, so we can't strip that info just yet. Try the exact match first, and then strip
+    // it later on if there is no match.
+    let resourcePath = reqPath;
+    let resourceType = path.extname(reqPath) || '.html';
     let foundFile: FoundFile;
 
     // * Workspaces & Linked Packages:
-    // The "local" package resolver supports npm packages that live in a local directory, usually a part of your monorepo/workspace.
-    // Snowpack treats these files as source files, with each file served individually and rebuilt instantly when changed.
-    // In the future, these linked packages may be bundled again with a rapid bundler like esbuild.
+    // The "local" package resolver supports npm packages that live in a local directory,
+    // usually a part of your monorepo/workspace. Snowpack treats these files as source files,
+    // with each file served individually and rebuilt instantly when changed. In the future,
+    // these linked packages may be bundled again with a rapid bundler like esbuild.
     if (config.workspaceRoot && reqPath.startsWith(PACKAGE_LINK_PATH_PREFIX)) {
       const symlinkResourceUrl = reqPath.substr(PACKAGE_LINK_PATH_PREFIX.length);
       const symlinkResourceLoc = path.resolve(
-        (config.workspaceRoot as string),
+        config.workspaceRoot as string,
         process.platform === 'win32' ? symlinkResourceUrl.replace(/\//g, '\\') : symlinkResourceUrl,
       );
       const symlinkResourceDirectory = path.dirname(symlinkResourceLoc);
@@ -487,7 +493,7 @@ export async function startServer(
               path.posix.join(
                 config.buildOptions.metaUrlPath,
                 'link',
-                slash(path.relative((config.workspaceRoot as string), u)),
+                slash(path.relative(config.workspaceRoot as string, u)),
               ),
             ),
           );
@@ -513,13 +519,18 @@ export async function startServer(
     // Check our file<>URL mapping for the most relevant match, and continue if found.
     // Otherwise, return a 404.
     else {
-      const attemptedFileLoc =
+      let attemptedFileLoc = fileToUrlMapping.key(resourcePath);
+      if (!attemptedFileLoc) {
+        resourcePath = resourcePath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
+        resourceType = path.extname(resourcePath) || '.html';
+      }
+      attemptedFileLoc =
         fileToUrlMapping.key(resourcePath) ||
         fileToUrlMapping.key(resourcePath + '.html') ||
         fileToUrlMapping.key(resourcePath + 'index.html') ||
         fileToUrlMapping.key(resourcePath + '/index.html');
       if (!attemptedFileLoc) {
-        throw new NotFoundError(reqPath, [resourcePath]);
+        throw new NotFoundError(reqPath);
       }
 
       const [, mountEntry] = getMountEntryForFile(attemptedFileLoc, config)!;
@@ -575,9 +586,9 @@ export async function startServer(
       if (Object.keys(fileBuilder.buildOutput).length === 0) {
         await fileBuilder.build(isStatic);
       }
-      if (reqPath.endsWith('.proxy.js')) {
+      if (resourcePath !== reqPath && reqPath.endsWith('.proxy.js')) {
         finalizedResponse = await fileBuilder.getProxy(resourcePath, resourceType);
-      } else if (reqPath.endsWith('.map')) {
+      } else if (resourcePath !== reqPath && reqPath.endsWith('.map')) {
         finalizedResponse = fileBuilder.getSourceMap(resourcePath);
       } else {
         if (foundFile.isResolve) {
@@ -722,7 +733,7 @@ export async function startServer(
     const protocol = config.devOptions.secure ? 'https:' : 'http:';
 
     // Log the successful server start.
-    const startTimeMs =  Math.round(performance.now() - serverStart);
+    const startTimeMs = Math.round(performance.now() - serverStart);
     logger.info(colors.green(`Server started in ${startTimeMs}ms.`));
     logger.info(`${colors.green('Local:')} ${`${protocol}//${hostname}:${port}`}`);
     if (remoteIps.length > 0) {
