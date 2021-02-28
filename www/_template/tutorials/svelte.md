@@ -75,7 +75,7 @@ module.exports = {
   ],
 ```
 
-Restart your Snowpack dev server to run it with the new configuration. Exit the process (ctrl + c in most Windows/Linux and cmd + c for Mac) and start it again with `npm run start`.
+Restart your Snowpack dev server to run it with the new configuration. Exit the process (ctrl + c in most Windows/Linux/macOS) and start it again with `npm run start`.
 
 > 💡 Tip: Restart the Snowpack development server when you make configuration changes (changes to the `snowpack.config.js`).
 
