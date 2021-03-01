@@ -493,16 +493,23 @@ export async function startServer(
           absolute: true,
         })) {
           const normalizedFileLoc = path.normalize(f);
-          fileToUrlMapping.add(
-            normalizedFileLoc,
-            getBuiltFileUrls(normalizedFileLoc, config).map((u) =>
-              path.posix.join(
-                config.buildOptions.metaUrlPath,
-                'link',
-                slash(path.relative(config.workspaceRoot as string, u)),
+          if (fileToUrlMapping.value(normalizedFileLoc)) {
+            logger.warn(
+              `Warning: mounted file is being imported as a package.\n` +
+                `Workspace & monorepo packages work automatically and do not need to be mounted.`,
+            );
+          } else {
+            fileToUrlMapping.add(
+              normalizedFileLoc,
+              getBuiltFileUrls(normalizedFileLoc, config).map((u) =>
+                path.posix.join(
+                  config.buildOptions.metaUrlPath,
+                  'link',
+                  slash(path.relative(config.workspaceRoot as string, u)),
+                ),
               ),
-            ),
-          );
+            );
+          }
         }
       }
       const fileLocation = fileToUrlMapping.key(reqPath);
