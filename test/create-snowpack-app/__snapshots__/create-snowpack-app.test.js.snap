@@ -8785,6 +8785,7 @@ Array [
   "_snowpack/pkg/import-map.json",
   "_snowpack/pkg/svelte.js",
   "_snowpack/pkg/svelte/internal.js",
+  "dist/App.svelte.css",
   "dist/App.svelte.css.proxy.js",
   "dist/App.svelte.js",
   "dist/index.js",
@@ -8794,6 +8795,8 @@ Array [
   "robots.txt",
 ]
 `;
+
+exports[`create-snowpack-app app-template-svelte > build: dist/App.svelte.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-rq4gzr.svelte-rq4gzr{text-align:center}.App.svelte-rq4gzr code.svelte-rq4gzr{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-rq4gzr p.svelte-rq4gzr{margin:0.4rem}.App-header.svelte-rq4gzr.svelte-rq4gzr{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-rq4gzr.svelte-rq4gzr{color:#ff3e00}.App-logo.svelte-rq4gzr.svelte-rq4gzr{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-rq4gzr-App-logo-pulse infinite 1.6s ease-in-out alternate}@keyframes svelte-rq4gzr-App-logo-pulse{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
 
 exports[`create-snowpack-app app-template-svelte > build: dist/App.svelte.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
@@ -8978,6 +8981,7 @@ Array [
   "_snowpack/pkg/import-map.json",
   "_snowpack/pkg/svelte.js",
   "_snowpack/pkg/svelte/internal.js",
+  "dist/App.svelte.css",
   "dist/App.svelte.css.proxy.js",
   "dist/App.svelte.js",
   "dist/index.js",
@@ -8987,6 +8991,8 @@ Array [
   "robots.txt",
 ]
 `;
+
+exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.svelte.css 1`] = `"body{margin:0;font-family:Arial, Helvetica, sans-serif}.App.svelte-1sqyd3v.svelte-1sqyd3v{text-align:center}.App.svelte-1sqyd3v code.svelte-1sqyd3v{background:#0002;padding:4px 8px;border-radius:4px}.App.svelte-1sqyd3v p.svelte-1sqyd3v{margin:0.4rem}.App-header.svelte-1sqyd3v.svelte-1sqyd3v{background-color:#f9f6f6;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin)}.App-link.svelte-1sqyd3v.svelte-1sqyd3v{color:#ff3e00}.App-logo.svelte-1sqyd3v.svelte-1sqyd3v{height:36vmin;pointer-events:none;margin-bottom:3rem;animation:svelte-1sqyd3v-App-logo-spin infinite 1.6s ease-in-out alternate}@keyframes svelte-1sqyd3v-App-logo-spin{from{transform:scale(1)}to{transform:scale(1.06)}}"`;
 
 exports[`create-snowpack-app app-template-svelte-typescript > build: dist/App.svelte.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
@@ -14173,6 +14179,7 @@ Array [
   "_snowpack/env.js",
   "_snowpack/pkg/import-map.json",
   "_snowpack/pkg/vue.js",
+  "dist/App.vue.css",
   "dist/App.vue.css.proxy.js",
   "dist/App.vue.js",
   "dist/index.js",
@@ -14182,6 +14189,40 @@ Array [
   "logo.svg",
   "robots.txt",
 ]
+`;
+
+exports[`create-snowpack-app app-template-vue > build: dist/App.vue.css 1`] = `
+"
+.App {
+  text-align: center;
+}
+.App-header {
+  background-color: #f9f6f6;
+  color: #32485f;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+}
+.App-link {
+  color: #00c185;
+}
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+  margin-bottom: 1rem;
+  animation: App-logo-spin infinite 1.6s ease-in-out alternate;
+}
+@keyframes App-logo-spin {
+from {
+    transform: scale(1);
+}
+to {
+    transform: scale(1.06);
+}
+}"
 `;
 
 exports[`create-snowpack-app app-template-vue > build: dist/App.vue.css.proxy.js 1`] = `
@@ -19432,16 +19473,19 @@ Array [
   "_snowpack/env.js",
   "_snowpack/pkg/import-map.json",
   "_snowpack/pkg/vue.js",
+  "dist/App.vue.css",
   "dist/App.vue.css.proxy.js",
   "dist/App.vue.js",
   "dist/components/Bar.js",
   "dist/components/Bar.module.css",
   "dist/components/Bar.module.css.proxy.js",
+  "dist/components/BarJsx.vue.css",
   "dist/components/BarJsx.vue.css.proxy.js",
   "dist/components/BarJsx.vue.js",
   "dist/components/Foo.js",
   "dist/components/Foo.module.css",
   "dist/components/Foo.module.css.proxy.js",
+  "dist/components/FooTsx.vue.css",
   "dist/components/FooTsx.vue.css.proxy.js",
   "dist/components/FooTsx.vue.js",
   "dist/index.js",
@@ -19451,6 +19495,47 @@ Array [
   "logo.svg",
   "robots.txt",
 ]
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/App.vue.css 1`] = `
+"
+.App {
+  text-align: center;
+}
+.App-header {
+  background-color: #f9f6f6;
+  color: #32485f;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+}
+.App-link {
+  color: #00c185;
+}
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+  margin-bottom: 1rem;
+  animation: App-logo-spin infinite 1.6s ease-in-out alternate;
+}
+.App-tsx {
+  display: flex;
+}
+.App-tsx > div {
+  margin-left: 30px;
+  font-size: 16px;
+}
+@keyframes App-logo-spin {
+from {
+    transform: scale(1);
+}
+to {
+    transform: scale(1.06);
+}
+}"
 `;
 
 exports[`create-snowpack-app app-template-vue-typescript > build: dist/App.vue.css.proxy.js 1`] = `
@@ -19577,6 +19662,13 @@ if (typeof document !== 'undefined') {
 }"
 `;
 
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.vue.css 1`] = `
+"
+.bar-jsx-vue {
+  color: red;
+}"
+`;
+
 exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/BarJsx.vue.css.proxy.js 1`] = `
 "// [snowpack] add styles to the page (skip if no document exists)
 if (typeof document !== 'undefined') {
@@ -19657,6 +19749,13 @@ if (typeof document !== 'undefined') {
   styleEl.type = 'text/css';
   styleEl.appendChild(codeEl);
   document.head.appendChild(styleEl);
+}"
+`;
+
+exports[`create-snowpack-app app-template-vue-typescript > build: dist/components/FooTsx.vue.css 1`] = `
+"
+.foo-tsx-vue {
+  color: green;
 }"
 `;
 

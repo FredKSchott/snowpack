@@ -101,7 +101,7 @@ export class FileBuilder {
    * system, so they can't be cached long-term with the build.
    */
   async resolveImports(
-    isResolveBareImports: boolean,
+    isResolve: boolean,
     hmrParam?: string | false,
     importMap?: ImportMap,
   ): Promise<InstallTarget[]> {
@@ -150,10 +150,10 @@ export class FileBuilder {
               this.loc,
               spec,
               this.config,
-              importMap || (isResolveBareImports ? undefined : {imports: {}}),
+              importMap || (isResolve ? undefined : {imports: {}}),
             );
           } catch (err) {
-            if (!isResolveBareImports && /not included in import map./.test(err.message)) {
+            if (!isResolve && /not included in import map./.test(err.message)) {
               return spec;
             }
             throw err;
@@ -181,7 +181,7 @@ export class FileBuilder {
         const isProxyImport = importExtName && importExtName !== '.js' && importExtName !== '.mjs';
         const isAbsoluteUrlPath = path.posix.isAbsolute(resolvedImportUrl);
         if (isAbsoluteUrlPath) {
-          if (this.config.buildOptions.resolveProxyImports && isProxyImport) {
+          if (isResolve && this.config.buildOptions.resolveProxyImports && isProxyImport) {
             resolvedImportUrl = resolvedImportUrl + '.proxy.js';
           }
           resolvedImports.push(createInstallTarget(resolvedImportUrl));
