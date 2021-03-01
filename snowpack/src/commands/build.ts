@@ -95,7 +95,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   }
   mkdirp.sync(buildDirectoryLoc);
 
-  const devServer = await startServer(commandOptions, {isDev});
+  const devServer = await startServer(commandOptions, {isDev, preparePackages: false});
 
   const allFileUrls: string[] = [];
   for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
@@ -177,23 +177,26 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   );
 
   let optimizedImportMap: undefined | ImportMap;
-  if (!config.buildOptions.watch) {
-    logger.info(colors.yellow('! building dependencies...'));
-    const packagesStart = performance.now();
+  logger.info(colors.yellow('! building dependencies...'));
+  const packagesStart = performance.now();
+  if (config.buildOptions.watch) {
+    const pkgSource = getPackageSource(commandOptions.config.packageOptions.source);
+    await pkgSource.prepare(commandOptions);
+  } else {
     const installDest = path.join(buildDirectoryLoc, config.buildOptions.metaUrlPath, 'pkg');
     const installResult = await installOptimizedDependencies(
       [...allBareModuleSpecifiers],
       installDest,
       commandOptions,
     );
-    const packagesEnd = performance.now();
-    logger.info(
-      `${colors.green('✔')} dependencies built. ${colors.dim(
-        `[${((packagesEnd - packagesStart) / 1000).toFixed(2)}s]`,
-      )}`,
-    );
     optimizedImportMap = installResult.importMap;
   }
+  const packagesEnd = performance.now();
+  logger.info(
+    `${colors.green('✔')} dependencies built. ${colors.dim(
+      `[${((packagesEnd - packagesStart) / 1000).toFixed(2)}s]`,
+    )}`,
+  );
 
   logger.info(colors.yellow('! writing to disk...'));
   const writeStart = performance.now();
@@ -217,7 +220,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
     devServer.onFileChange(async ({filePath}) => {
       // First, do our own re-build logic
       allFileUrlsToProcess.push(...getUrlsForFile(filePath, config)!);
-      await flushFileQueue(true, {
+      await flushFileQueue(false, {
         isSSR,
         isHMR,
         isResolve: true,

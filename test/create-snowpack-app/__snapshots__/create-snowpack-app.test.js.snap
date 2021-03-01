@@ -122,7 +122,7 @@ exports[`create-snowpack-app app-template-11ty > build: _snowpack/pkg/canvas-con
         try {
           worker = new Worker(URL.createObjectURL(new Blob([code])));
         } catch (e) {
-          typeof console !== void 0 && typeof console.warn === \\"function\\" ? console.warn(\\"\\\\u{1F38A} Could not load worker\\", e) : null;
+          typeof console !== void 0 && typeof console.warn === \\"function\\" ? console.warn(\\"🎊 Could not load worker\\", e) : null;
           return null;
         }
         decorate(worker);
@@ -706,7 +706,7 @@ exports[`create-snowpack-app app-template-blank > build: _snowpack/pkg/canvas-co
         try {
           worker = new Worker(URL.createObjectURL(new Blob([code])));
         } catch (e) {
-          typeof console !== void 0 && typeof console.warn === \\"function\\" ? console.warn(\\"\\\\u{1F38A} Could not load worker\\", e) : null;
+          typeof console !== void 0 && typeof console.warn === \\"function\\" ? console.warn(\\"🎊 Could not load worker\\", e) : null;
           return null;
         }
         decorate(worker);
@@ -1245,7 +1245,7 @@ exports[`create-snowpack-app app-template-blank-typescript > build: _snowpack/pk
         try {
           worker = new Worker(URL.createObjectURL(new Blob([code])));
         } catch (e) {
-          typeof console !== void 0 && typeof console.warn === \\"function\\" ? console.warn(\\"\\\\u{1F38A} Could not load worker\\", e) : null;
+          typeof console !== void 0 && typeof console.warn === \\"function\\" ? console.warn(\\"🎊 Could not load worker\\", e) : null;
           return null;
         }
         decorate(worker);

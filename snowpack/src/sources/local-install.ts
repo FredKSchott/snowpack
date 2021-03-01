@@ -49,6 +49,7 @@ export async function installPackages({
       error: (...args: [any, ...any[]]) => logger.error(util.format(...args), {name: loggerName}),
     },
     ...installOptions,
+    stats: false,
     rollup: {
       plugins: [
         {

@@ -241,15 +241,21 @@ function getServerRuntime(
 
 export async function startServer(
   commandOptions: CommandOptions,
-  {isDev}: {isDev: boolean} = {isDev: true},
+  {
+    isDev: _isDev,
+    preparePackages: _preparePackages,
+  }: {isDev?: boolean; preparePackages?: boolean} = {},
 ): Promise<SnowpackDevServer> {
+  const isDev = _isDev ?? true;
+  const isPreparePackages = _preparePackages ?? true;
   const {config} = commandOptions;
-  // Start the startup timer!
+  const pkgSource = getPackageSource(config.packageOptions.source);
+  if (isPreparePackages) {
+    await pkgSource.prepare(commandOptions);
+  }
   let serverStart = performance.now();
-
   const {port: defaultPort, hostname, open} = config.devOptions;
   const messageBus = new EventEmitter();
-  const pkgSource = getPackageSource(config.packageOptions.source);
   const PACKAGE_PATH_PREFIX = path.posix.join(config.buildOptions.metaUrlPath, 'pkg/');
   const PACKAGE_LINK_PATH_PREFIX = path.posix.join(config.buildOptions.metaUrlPath, 'link/');
   let port: number | undefined;
@@ -755,7 +761,6 @@ export async function startServer(
     logger.info(
       colors.cyan('File changed: ') + path.relative(config.workspaceRoot || config.root, fileLoc),
     );
-    await onFileChangeCallback({filePath: fileLoc});
     const updatedUrls = getUrlsForFile(fileLoc, config);
     if (updatedUrls) {
       handleHmrUpdate && handleHmrUpdate(fileLoc, updatedUrls[0]);
@@ -764,6 +769,7 @@ export async function startServer(
     }
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: true, env: process.env.NODE_ENV}));
     inMemoryBuildCache.delete(getCacheKey(fileLoc, {isSSR: false, env: process.env.NODE_ENV}));
+    await onFileChangeCallback({filePath: fileLoc});
     for (const plugin of config.plugins) {
       plugin.onChange && plugin.onChange({filePath: fileLoc});
     }
@@ -794,7 +800,7 @@ export async function startServer(
       onWatchEvent(fileLoc);
     });
     if (config.devOptions.output !== 'dashboard' || !process.stdout.isTTY) {
-      logger.info(colors.cyan('watching for file changes...'));
+      logger.info(colors.cyan('watching for file changes... '));
     }
   }
 
@@ -836,12 +842,7 @@ export async function command(commandOptions: CommandOptions) {
     commandOptions.config.buildOptions.watch = true;
     commandOptions.config.devOptions.hmr = true;
     // Start the server
-    const pkgSource = getPackageSource(commandOptions.config.packageOptions.source);
-    await pkgSource.prepare(commandOptions);
     await startServer(commandOptions);
-    if (commandOptions.config.devOptions.output !== 'dashboard') {
-      logger.info(colors.cyan('watching for file changes...'));
-    }
   } catch (err) {
     logger.error(err.message);
     logger.debug(err.stack);

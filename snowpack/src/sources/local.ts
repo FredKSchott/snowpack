@@ -41,8 +41,6 @@ const PROJECT_CACHE_DIR =
   // Because this is specifically for dependencies, this fallback should rarely be used.
   path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
 
-const DEV_DEPENDENCIES_DIR = path.join(PROJECT_CACHE_DIR, process.env.NODE_ENV || 'development');
-
 const NEVER_PEER_PACKAGES: string[] = [
   '@babel/runtime',
   '@babel/runtime-corejs3',
@@ -195,6 +193,10 @@ export default {
 
   async prepare(commandOptions: CommandOptions) {
     config = commandOptions.config;
+    const DEV_DEPENDENCIES_DIR = path.join(
+      PROJECT_CACHE_DIR,
+      process.env.NODE_ENV || 'development',
+    );
     const installDirectoryHashLoc = path.join(DEV_DEPENDENCIES_DIR, '.meta');
     const installDirectoryHash = await fs
       .readFile(installDirectoryHashLoc, 'utf-8')
@@ -231,7 +233,7 @@ export default {
     await inProgressBuilds.onIdle();
     await mkdirp(path.dirname(installDirectoryHashLoc));
     await fs.writeFile(installDirectoryHashLoc, 'v1', 'utf-8');
-    logger.info(colors.bold('Ready! Starting up...'));
+    logger.info(colors.bold('Ready!'));
     return;
   },
 
@@ -301,6 +303,10 @@ export default {
     const packageManifest = JSON.parse(packageManifestStr);
     const packageName = packageManifest.name || _packageName;
     const packageVersion = packageManifest.version || 'unknown';
+    const DEV_DEPENDENCIES_DIR = path.join(
+      PROJECT_CACHE_DIR,
+      process.env.NODE_ENV || 'development',
+    );
     const installDest = path.join(DEV_DEPENDENCIES_DIR, packageName + '@' + packageVersion);
 
     allKnownSpecs.add(spec);
