@@ -20,10 +20,6 @@ export const MAIN_FIELDS = [
 const BROKEN_BROWSER_ENTRYPOINT = ['@sheerun/mutationobserver-shim'];
 const FILE_EXTENSION_REGEX = /\..+$/;
 
-function hasTypes(manifest: PackageManifest): boolean {
-  return !!(manifest.types || manifest.typings);
-}
-
 function getMissingEntrypointHint(
   packageEntrypoint: string,
   normalizedMap: Record<string, string>,
@@ -218,11 +214,6 @@ export function resolveEntrypoint(
     packageLookupFields,
   });
 
-  // Some packages are types-only. If this is one of those packages, resolve with that.
-  if (!foundEntrypoint && hasTypes(depManifest)) {
-    const typesLoc = (depManifest.types || depManifest.typings) as string;
-    return path.join(depManifestLoc, '..', typesLoc);
-  }
   // Sometimes packages don't give an entrypoint, assuming you'll fall back to "index.js".
   if (!foundEntrypoint) {
     foundEntrypoint = 'index.js';
