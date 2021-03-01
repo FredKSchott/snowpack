@@ -216,7 +216,13 @@ export function resolveEntrypoint(
 
   // Sometimes packages don't give an entrypoint, assuming you'll fall back to "index.js".
   if (!foundEntrypoint) {
-    foundEntrypoint = 'index.js';
+    for(let possibleEntrypoint of ['index.js', 'index.json', depManifest.types || depManifest.typings || 'index.d.ts']) {
+      try {
+        return realpathSync.native(resolve.sync(path.join(depManifestLoc || '', '..', possibleEntrypoint)));
+      } catch {
+
+      }
+    }
   }
   if (typeof foundEntrypoint !== 'string') {
     throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);

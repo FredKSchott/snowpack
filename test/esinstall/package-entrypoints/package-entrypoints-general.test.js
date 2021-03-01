@@ -72,4 +72,20 @@ describe('package-entrypoints general tests', () => {
     expect(Object.keys(imports)).toHaveLength(1);
     expect(imports['main-folder']).toBeTruthy();
   });
+
+  it('Supports an implicit main when types also exist', async () => {
+    const cwd = __dirname;
+    const dest = path.join(cwd, 'test-implicit-main');
+    const spec = 'implicit-main';
+
+    const {
+      importMap: {imports},
+    } = await runTest([spec], {
+      cwd,
+      dest,
+    });
+
+    expect(Object.keys(imports)).toHaveLength(1);
+    expect(imports['implicit-main']).toBeTruthy();
+  });
 });

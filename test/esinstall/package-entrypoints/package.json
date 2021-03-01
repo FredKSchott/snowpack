@@ -28,6 +28,7 @@
     "export-map-object-no-key": "file:./export-map-object-no-key",
     "export-map-star": "file:./export-map-star",
     "export-map-trailing-slash": "file:./export-map-trailing-slash",
-    "preact": "^10.0.0"
+    "preact": "^10.0.0",
+    "implicit-main": "file:./implicit-main"
   }
 }
