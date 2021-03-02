@@ -3,6 +3,9 @@
 </script>
 
 <style>
+  div {
+    color: red;
+  }
 </style>
 
 <div class="SvelteComponent">

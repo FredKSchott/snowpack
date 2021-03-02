@@ -512,16 +512,21 @@ export async function startServer(
           }
         }
       }
-      const fileLocation = fileToUrlMapping.key(reqPath);
-      if (!fileLocation) {
+      let attemptedFileLoc = fileToUrlMapping.key(reqPath);
+      if (!attemptedFileLoc) {
+        resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
+        resourceType = path.extname(resourcePath) || '.html';
+      }
+      attemptedFileLoc = fileToUrlMapping.key(resourcePath);
+      if (!attemptedFileLoc) {
         throw new NotFoundError(reqPath);
       }
-      const fileLocationExists = await fs.stat(fileLocation).catch(() => null);
+      const fileLocationExists = await fs.stat(attemptedFileLoc).catch(() => null);
       if (!fileLocationExists) {
-        throw new NotFoundError(reqPath, [fileLocation]);
+        throw new NotFoundError(reqPath, [attemptedFileLoc]);
       }
       foundFile = {
-        loc: fileLocation,
+        loc: attemptedFileLoc,
         type: path.extname(reqPath),
         isStatic: false,
         isResolve: true,
@@ -534,7 +539,7 @@ export async function startServer(
     else {
       let attemptedFileLoc = fileToUrlMapping.key(resourcePath);
       if (!attemptedFileLoc) {
-        resourcePath = resourcePath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
+        resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
         resourceType = path.extname(resourcePath) || '.html';
       }
       attemptedFileLoc =

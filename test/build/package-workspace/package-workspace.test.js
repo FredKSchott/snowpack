@@ -18,5 +18,6 @@ describe('test workspace linked packages', () => {
 
   it('builds workspace package files as expected', () => {
     expect(fs.existsSync(path.join(cwd, '_snowpack', 'link', 'test-workspace-component', 'SvelteComponent.svelte.js'))).toBe(true); // import exists
+    expect(fs.existsSync(path.join(cwd, '_snowpack', 'link', 'test-workspace-component', 'SvelteComponent.svelte.css.proxy.js'))).toBe(true); // import exists
   });
 });
