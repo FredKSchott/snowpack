@@ -1,0 +1,5 @@
+{
+  "version": "1.0.0",
+  "name": "mock-pkg-import-meta",
+  "main": "./entrypoint.js"
+}

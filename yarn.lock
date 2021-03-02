@@ -3214,6 +3214,15 @@
     "@types/parse5" "^5.0.3"
     parse5 "^6.0.1"
 
+"@web/rollup-plugin-import-meta-assets@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@web/rollup-plugin-import-meta-assets/-/rollup-plugin-import-meta-assets-1.0.4.tgz#32d7c381a976c8d40b9c3db861bc2f8651af849c"
+  integrity sha512-Yu1U63aMZdWY6SSRNlukuNBMB5TdDq530Bs2cFQOJ+bwWnz1OHE0JyvPRvDmG48jf1XMsIOaormbIruaRsP+KA==
+  dependencies:
+    "@rollup/pluginutils" "^3.1.0"
+    estree-walker "^2.0.1"
+    magic-string "^0.25.7"
+
 "@web/test-runner-chrome@^0.9.0":
   version "0.9.0"
   resolved "https://registry.yarnpkg.com/@web/test-runner-chrome/-/test-runner-chrome-0.9.0.tgz#388913102687fe8eff7ebf9667cd3ffed14ec696"
@@ -10257,6 +10266,9 @@ mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@^0.5.3, mkdirp@^0.5.5, mkdirp@~0.5.1:
   integrity sha512-NKmAlESf6jMGym1++R0Ra7wvhV+wFW63FaSOFPwRahvea0gMUcGUhVeAg/0BC0wiv9ih5NYPB1Wn1UEI1/L+xQ==
   dependencies:
     minimist "^1.2.5"
+
+"mock-pkg-import-meta@file:./test/esinstall/import-meta/packages/mock-pkg-import-meta":
+  version "1.0.0"
 
 "mock-pkg-install-assets@file:./test/esinstall/import-assets/packages/mock-pkg-install-assets":
   version "1.0.0"

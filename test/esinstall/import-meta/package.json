@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-import-meta",
+  "dependencies": {
+    "mock-pkg-import-meta": "file:./packages/mock-pkg-import-meta"
+  }
+}

@@ -19,6 +19,7 @@ import {rollupPluginNodeProcessPolyfill} from './rollup-plugins/rollup-plugin-no
 import {rollupPluginDependencyStats} from './rollup-plugins/rollup-plugin-stats';
 import {rollupPluginStripSourceMapping} from './rollup-plugins/rollup-plugin-strip-source-mapping';
 import {rollupPluginWrapInstallTargets} from './rollup-plugins/rollup-plugin-wrap-install-targets';
+import {importMetaAssets} from '@web/rollup-plugin-import-meta-assets';
 import {
   AbstractLogger,
   DependencyStatsOutput,
@@ -356,6 +357,9 @@ ${colors.dim(
       ...(userDefinedRollup.plugins || []), // load user-defined plugins last
       rollupPluginCatchUnresolved(),
       rollupPluginStripSourceMapping(),
+      importMetaAssets({
+        warnOnError: true
+      }),
     ].filter(Boolean) as Plugin[],
     onwarn(warning) {
       // Log "unresolved" import warnings as an error, causing Snowpack to fail at the end.
