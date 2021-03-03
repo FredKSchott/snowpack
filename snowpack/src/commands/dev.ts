@@ -1369,6 +1369,7 @@ export async function startServer(commandOptions: CommandOptions): Promise<Snowp
   depWatcher.on('unlink', onDepWatchEvent);
 
   const sp = {
+    server,
     port,
     loadUrl,
     handleRequest,
