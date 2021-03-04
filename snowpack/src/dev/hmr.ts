@@ -10,15 +10,12 @@ import {getCacheKey, hasExtension} from '../util';
 export function startHmrEngine(
   inMemoryBuildCache: Map<string, FileBuilder>,
   server: http.Server | http2.Http2SecureServer | undefined,
+  serverPort: number | undefined,
   config: SnowpackConfig,
 ) {
   const {hmrDelay} = config.devOptions;
-  const hmrPort = config.devOptions.hmrPort || config.devOptions.port;
-  const hmrEngineOptions = Object.assign(
-    {delay: hmrDelay},
-    config.devOptions.hmrPort || !server ? {port: hmrPort} : {server, port: hmrPort},
-  );
-  const hmrEngine = new EsmHmrEngine(hmrEngineOptions);
+  const hmrPort = config.devOptions.hmrPort || serverPort;
+  const hmrEngine = new EsmHmrEngine({server, port: hmrPort, delay: hmrDelay});
   onProcessExit(() => {
     hmrEngine.disconnectAllClients();
   });

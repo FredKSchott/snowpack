@@ -761,7 +761,7 @@ export async function startServer(
 
   // HMR Engine
   const {hmrEngine, handleHmrUpdate} = config.devOptions.hmr
-    ? startHmrEngine(inMemoryBuildCache, server, config)
+    ? startHmrEngine(inMemoryBuildCache, server, port, config)
     : {hmrEngine: undefined, handleHmrUpdate: undefined};
 
   // Allow the user to hook into this callback, if they like (noop by default)
