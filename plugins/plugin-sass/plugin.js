@@ -49,7 +49,7 @@ function scanSassImports(fileContents, filePath, fileExt, partials = new Set()) 
     // Avoid node packages and core sass libraries.
     .filter((s) => !s.includes('node_modules') && !s.includes('sass:'))
     .forEach((fileName) => {
-      const pathName = path.resolve(path.dirname(filePath), fileName);
+      let pathName = path.resolve(path.dirname(filePath), fileName);
 
       // Recursively find any child partials that have not already been added.
       if (partials.has(pathName)) {
@@ -60,17 +60,17 @@ function scanSassImports(fileContents, filePath, fileExt, partials = new Set()) 
       partials.add(pathName);
 
       // If it is a directory then look for an _index file.
-      let childPath = pathName;
       try {
         if (fs.lstatSync(pathName).isDirectory()) {
           fileName = 'index';
-          childPath += '/' + fileName;
+          pathName += '/' + fileName;
         }
       } catch (err) {}
 
-      const partialsContent = findChildPartials(childPath, fileName, fileExt);
+      const partialsContent = findChildPartials(pathName, fileName, fileExt);
       if (partialsContent) {
-        scanSassImports(partialsContent, childPath, fileExt, partials);
+        const childPartials = scanSassImports(partialsContent, pathName, fileExt, partials);
+        partials.add(...childPartials);
       }
     });
 
@@ -143,7 +143,7 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
       // During development, we need to track changes to Sass dependencies.
       if (isDev) {
         const sassImports = scanSassImports(contents, filePath, fileExt);
-        sassImports.forEach((imp) => addImportsToMap(filePath, imp));
+        [...sassImports].forEach((imp) => addImportsToMap(filePath, imp));
       }
 
       // If file is `.sass`, use YAML-style. Otherwise, use default.
