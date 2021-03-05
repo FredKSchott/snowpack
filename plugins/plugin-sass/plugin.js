@@ -3,14 +3,46 @@ const path = require('path');
 const execa = require('execa');
 const npmRunPath = require('npm-run-path');
 
-const IMPORT_REGEX = /\@(use|import)\s*['"](.*?)['"]/g;
+const IMPORT_REGEX = /\@(use|import|forward)\s*['"](.*?)['"]/g;
 const PARTIAL_REGEX = /([\/\\])_(.+)(?![\/\\])/;
 
 function stripFileExtension(filename) {
   return filename.split('.').slice(0, -1).join('.');
 }
 
-function scanSassImports(fileContents, filePath, fileExt) {
+function findChildPartials(pathName, fileExt) {
+  let dirPath = path.parse(pathName).dir;
+  let fileName = pathName.split('/').pop();
+
+  // If it is a directory then look for an _index file.
+  // try {
+  //   if (fs.lstatSync(pathName).isDirectory()) {
+  //     fileName = 'index';
+  //     dirPath = pathName;
+  //   }
+  // } catch (err) {}
+
+  // Prepend a "_" to signify a partial.
+  if (!fileName.startsWith('_')) {
+    fileName = '_' + fileName;
+  }
+
+  // Add on the file extension if it is not already used.
+  if (!fileName.endsWith('.scss') || !fileName.endsWith('.sass')) {
+    fileName += fileExt;
+  }
+
+  const filePath = path.resolve(dirPath, fileName);
+
+  let contents = '';
+  try {
+    contents = fs.readFileSync(filePath, 'utf8');
+  } catch (err) {}
+
+  return contents;
+}
+
+function scanSassImports(fileContents, filePath, fileExt, partials = []) {
   // TODO: Replace with matchAll once Node v10 is out of TLS.
   // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
   const allMatches = [];
@@ -23,8 +55,32 @@ function scanSassImports(fileContents, filePath, fileExt) {
   return allMatches
     .map((match) => match[2])
     .filter((s) => s.trim())
-    .map((s) => {
-      return path.resolve(path.dirname(filePath), s);
+    // Avoid node packages and core sass libraries.
+    .filter((s) => !s.includes('node_modules') && !s.includes('sass:'))
+    .flatMap((fileName) => {
+      let pathName = path.resolve(path.dirname(filePath), fileName);
+
+      // If it is a directory then look for an _index.s(ac)ss file.
+      try {
+        if (fs.lstatSync(pathName).isDirectory()) {
+          fileName = 'index';
+          pathName += '/' + fileName;
+        }
+      } catch (err) {}
+
+      // Recursively find any child partials that have not already been added.
+      let childPartials = [];
+      if (!partials.includes(pathName)) {
+        // Add this partial to the main list being passed to avoid duplicates.
+        partials.push(pathName);
+
+        const partialsContent = findChildPartials(pathName, fileExt);
+        if (partialsContent) {
+          childPartials = scanSassImports(partialsContent, pathName, fileExt, partials);
+        }
+      }
+
+      return [pathName, ...childPartials];
     });
 }
 
