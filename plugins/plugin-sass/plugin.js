@@ -51,7 +51,6 @@ function scanSassImports(fileContents, filePath, fileExt, partials = new Set()) 
     .forEach((fileName) => {
       let pathName = path.resolve(path.dirname(filePath), fileName);
 
-      // Recursively find any child partials that have not already been added.
       if (partials.has(pathName)) {
         return;
       }
@@ -67,6 +66,7 @@ function scanSassImports(fileContents, filePath, fileExt, partials = new Set()) 
         }
       } catch (err) {}
 
+      // Recursively find any child partials that have not already been added.
       const partialsContent = findChildPartials(pathName, fileName, fileExt);
       if (partialsContent) {
         const childPartials = scanSassImports(partialsContent, pathName, fileExt, partials);
