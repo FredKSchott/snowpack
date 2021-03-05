@@ -27,7 +27,7 @@ The easiest way to think about the difference is that `SnowpackUserConfig` is th
 
 ```js
 import {loadConfiguration} from 'snowpack';
-const config = loadConfiguration({...}, '/path/to/snowpack.config.js');
+const config = await loadConfiguration({...}, '/path/to/snowpack.config.js');
 ```
 
 Similar to `createConfiguration`, but this function will actually check the file system to load a configuration file from disk.
