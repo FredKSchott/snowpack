@@ -3,11 +3,12 @@ const path = require('path');
 
 const pathToSassApp = path.join(__dirname, 'fixtures/sass/App.sass');
 const pathToSassBase = path.join(__dirname, 'fixtures/sass/_base.sass');
+const pathToSassIndex = path.join(__dirname, 'fixtures/sass/folder/_index.sass');
 const pathToSassChild = path.join(__dirname, 'fixtures/sass/folder/_child-partial.sass');
 const pathToScssApp = path.join(__dirname, 'fixtures/scss/App.scss');
 const pathToBadCode = path.join(__dirname, 'fixtures/bad/bad.scss');
 
-describe.only('plugin-sass', () => {
+describe('plugin-sass', () => {
   test('returns the compiled Sass result', async () => {
     const p = plugin(null, {});
     const sassResult = await p.load({filePath: pathToSassApp, isDev: false});
@@ -40,7 +41,10 @@ describe.only('plugin-sass', () => {
     expect(p.markChanged.mock.calls).toEqual([]);
     p.onChange({filePath: pathToSassBase});
     expect(p.markChanged.mock.calls).toEqual([[pathToSassApp]]);
-    // p.markChanged.mockClear();
+    p.markChanged.mockClear();
+    p.onChange({filePath: pathToSassIndex});
+    expect(p.markChanged.mock.calls).toEqual([[pathToSassApp]]);
+    p.markChanged.mockClear();
     p.onChange({filePath: pathToSassChild});
     expect(p.markChanged.mock.calls).toEqual([[pathToSassApp]]);
   });
@@ -51,7 +55,6 @@ describe.only('plugin-sass', () => {
     await p.load({filePath: pathToSassApp, isDev: false});
     p.onChange({filePath: pathToSassApp});
     p.onChange({filePath: pathToSassBase});
-    p.onChange({filePath: pathToSassChild});
     expect(p.markChanged.mock.calls).toEqual([]);
   });
 

@@ -14,14 +14,6 @@ function findChildPartials(pathName, fileExt) {
   let dirPath = path.parse(pathName).dir;
   let fileName = pathName.split('/').pop();
 
-  // If it is a directory then look for an _index file.
-  // try {
-  //   if (fs.lstatSync(pathName).isDirectory()) {
-  //     fileName = 'index';
-  //     dirPath = pathName;
-  //   }
-  // } catch (err) {}
-
   // Prepend a "_" to signify a partial.
   if (!fileName.startsWith('_')) {
     fileName = '_' + fileName;
@@ -52,36 +44,39 @@ function scanSassImports(fileContents, filePath, fileExt, partials = []) {
     allMatches.push(match);
   }
   // return all imports, resolved to true files on disk.
-  return allMatches
-    .map((match) => match[2])
-    .filter((s) => s.trim())
-    // Avoid node packages and core sass libraries.
-    .filter((s) => !s.includes('node_modules') && !s.includes('sass:'))
-    .flatMap((fileName) => {
-      let pathName = path.resolve(path.dirname(filePath), fileName);
+  return (
+    allMatches
+      .map((match) => match[2])
+      .filter((s) => s.trim())
+      // Avoid node packages and core sass libraries.
+      .filter((s) => !s.includes('node_modules') && !s.includes('sass:'))
+      .flatMap((fileName) => {
+        let pathName = path.resolve(path.dirname(filePath), fileName);
 
-      // If it is a directory then look for an _index.s(ac)ss file.
-      try {
-        if (fs.lstatSync(pathName).isDirectory()) {
-          fileName = 'index';
-          pathName += '/' + fileName;
+        // Recursively find any child partials that have not already been added.
+        let childPartials = [];
+        if (!partials.includes(pathName)) {
+          // Add this partial to the main list being passed to avoid duplicates.
+          partials.push(pathName);
+
+          // If it is a directory then look for an _index file.
+          let childPath = pathName;
+          try {
+            if (fs.lstatSync(childPath).isDirectory()) {
+              fileName = 'index';
+              childPath += '/' + fileName;
+            }
+          } catch (err) {}
+
+          const partialsContent = findChildPartials(childPath, fileExt);
+          if (partialsContent) {
+            childPartials = scanSassImports(partialsContent, childPath, fileExt, partials);
+          }
         }
-      } catch (err) {}
 
-      // Recursively find any child partials that have not already been added.
-      let childPartials = [];
-      if (!partials.includes(pathName)) {
-        // Add this partial to the main list being passed to avoid duplicates.
-        partials.push(pathName);
-
-        const partialsContent = findChildPartials(pathName, fileExt);
-        if (partialsContent) {
-          childPartials = scanSassImports(partialsContent, pathName, fileExt, partials);
-        }
-      }
-
-      return [pathName, ...childPartials];
-    });
+        return [pathName, ...childPartials];
+      })
+  );
 }
 
 module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
