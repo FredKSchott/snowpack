@@ -34,6 +34,7 @@ export interface OptimizeOptions {
   entrypoints: 'auto' | string[] | ((options: { files: string[] }) => string[]);
   preload: boolean;
   bundle: boolean;
+  sourcemap: boolean | 'external' | 'inline' | 'both';
   splitting: boolean;
   treeshake: boolean;
   manifest: boolean;
