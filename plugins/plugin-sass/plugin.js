@@ -11,7 +11,7 @@ function stripFileExtension(filename) {
 }
 
 function findChildPartials(pathName, fileExt) {
-  let dirPath = path.parse(pathName).dir;
+  const dirPath = path.parse(pathName).dir;
   let fileName = pathName.split('/').pop();
 
   // Prepend a "_" to signify a partial.
