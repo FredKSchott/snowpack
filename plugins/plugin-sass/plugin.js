@@ -55,7 +55,7 @@ function scanSassImports(fileContents, filePath, fileExt, partials = new Set()) 
         return;
       }
 
-      // Add this partial to the main list to avoid duplicates.
+      // Add this partial to the main list being passed to avoid duplicates.
       partials.add(pathName);
 
       // If it is a directory then look for an _index file.
