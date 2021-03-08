@@ -17,10 +17,8 @@ describe('importing types', () => {
 
       // This package should not have been installed because it only contains types.
       expect(imports[spec]).toBeFalsy();
-    } catch(err) {
-      expect(err.toString()).toEqual(
-        expect.stringContaining('Unable to find any entrypoint')
-      );
+    } catch (err) {
+      expect(err.toString()).toEqual(expect.stringContaining('Unable to find any entrypoint'));
     }
   });
 });
