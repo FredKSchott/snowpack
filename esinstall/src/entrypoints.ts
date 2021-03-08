@@ -231,10 +231,11 @@ export function resolveEntrypoint(
     throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
   }
 
+  const finalPath = path.join(depManifestLoc || '', '..', foundEntrypoint);
   try {
-    return realpathSync.native(resolve.sync(path.join(depManifestLoc || '', '..', foundEntrypoint)));
+    return realpathSync.native(resolve.sync(finalPath));
   } catch {
-    throw new Error(`We were able to resolve "${dep}", but the file does not exist on disk.`);
+    throw new Error(`We resolved "${dep}" to ${finalPath}, but the file does not exist on disk.`);
   }
 }
 
