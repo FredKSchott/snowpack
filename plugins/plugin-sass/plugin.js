@@ -28,7 +28,7 @@ function scanSassImports(fileContents, filePath, fileExt) {
     });
 }
 
-module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
+module.exports = function sassPlugin({root}, {native, compilerOptions = {}} = {}) {
   /** A map of partially resolved imports to the files that imported them. */
   const importedByMap = new Map();
 
@@ -136,6 +136,8 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
         input: contents,
         env: native ? undefined : npmRunPath.env(),
         extendEnv: native ? true : false,
+        preferLocal: native ? false : true,
+        localDir: native ? undefined : root
       });
       // Handle the output.
       if (stderr) throw new Error(stderr);
