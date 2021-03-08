@@ -20,10 +20,6 @@ export const MAIN_FIELDS = [
 const BROKEN_BROWSER_ENTRYPOINT = ['@sheerun/mutationobserver-shim'];
 const FILE_EXTENSION_REGEX = /\..+$/;
 
-function hasTypes(manifest: PackageManifest): boolean {
-  return !!(manifest.types || manifest.typings);
-}
-
 function getMissingEntrypointHint(
   packageEntrypoint: string,
   normalizedMap: Record<string, string>,
@@ -218,20 +214,29 @@ export function resolveEntrypoint(
     packageLookupFields,
   });
 
-  // Some packages are types-only. If this is one of those packages, resolve with that.
-  if (!foundEntrypoint && hasTypes(depManifest)) {
-    const typesLoc = (depManifest.types || depManifest.typings) as string;
-    return path.join(depManifestLoc, '..', typesLoc);
-  }
   // Sometimes packages don't give an entrypoint, assuming you'll fall back to "index.js".
   if (!foundEntrypoint) {
-    foundEntrypoint = 'index.js';
+    for(let possibleEntrypoint of ['index.js', 'index.json']) {
+      try {
+        return realpathSync.native(resolve.sync(path.join(depManifestLoc || '', '..', possibleEntrypoint)));
+      } catch {
+
+      }
+    }
+
+    // Couldn't find any entrypoints so throwing
+    throw new Error(`Unable to find any entrypoint for "${dep}". It could be a typo, or this package might not have a main entrypoint.`);
   }
   if (typeof foundEntrypoint !== 'string') {
     throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
   }
 
-  return realpathSync.native(resolve.sync(path.join(depManifestLoc || '', '..', foundEntrypoint)));
+  const finalPath = path.join(depManifestLoc || '', '..', foundEntrypoint);
+  try {
+    return realpathSync.native(resolve.sync(finalPath));
+  } catch {
+    throw new Error(`We resolved "${dep}" to ${finalPath}, but the file does not exist on disk.`);
+  }
 }
 
 const picoMatchGlobalOptions = Object.freeze({
