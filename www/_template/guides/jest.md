@@ -16,7 +16,7 @@ Snowpack ships pre-built Jest configuration files for several popular frameworks
 - Preact: [@snowpack/app-scripts-preact](https://www.npmjs.com/package/@snowpack/app-scripts-preact)
 - Svelte: [@snowpack/app-scripts-svelte](https://www.npmjs.com/package/@snowpack/app-scripts-svelte)
 
-Note: You will need a `jest.setup.js` file in the root directory of your project.
+Note: You will need a `jest.config.js` file in the root directory of your project.
 
 ### Example
 
