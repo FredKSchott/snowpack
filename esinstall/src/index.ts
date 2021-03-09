@@ -71,6 +71,7 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
   'react-table',
   'chai/index.js',
   'events/events.js',
+  'uuid/index.js',
 ];
 
 function isImportOfPackage(importUrl: string, packageName: string) {

@@ -219,7 +219,7 @@ export default {
     }
     const installTargets = await getInstallTargets(
       config,
-      config.packageOptions.source === 'local' ? config.packageOptions.knownEntrypoints : [],
+      config.packageOptions.knownEntrypoints,
     );
     if (installTargets.length === 0) {
       logger.info('No dependencies detected. Ready!');

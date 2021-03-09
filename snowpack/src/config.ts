@@ -69,6 +69,7 @@ const DEFAULT_PACKAGES_REMOTE_CONFIG: PackageSourceRemote = {
   source: 'remote',
   origin: REMOTE_PACKAGE_ORIGIN,
   external: [],
+  knownEntrypoints: [],
   cache: '.snowpack',
   types: false,
 };

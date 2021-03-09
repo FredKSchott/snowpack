@@ -233,8 +233,9 @@ export interface PackageSourceLocal
 
 export interface PackageSourceRemote {
   source: 'remote';
-  origin: string;
   external: string[];
+  knownEntrypoints: string[];
+  origin: string;
   cache: string;
   types: boolean;
 }
