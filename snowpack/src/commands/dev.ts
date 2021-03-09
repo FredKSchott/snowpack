@@ -462,7 +462,7 @@ export async function startServer(
     let foundFile: FoundFile;
 
     // * Workspaces & Linked Packages:
-    // The "local" package resolver supports npm packages that live in a local directory,
+    // The `/_snowpack/link` "local" package resolver supports npm packages that live in a local directory,
     // usually a part of your monorepo/workspace. Snowpack treats these files as source files,
     // with each file served individually and rebuilt instantly when changed. In the future,
     // these linked packages may be bundled again with a rapid bundler like esbuild.
@@ -601,9 +601,11 @@ export async function startServer(
     let finalizedResponse: string | Buffer | undefined;
     let resolvedImports: InstallTarget[] = [];
     try {
+      // Build it!
       if (Object.keys(fileBuilder.buildOutput).length === 0) {
         await fileBuilder.build(isStatic);
       }
+      // Get the correct response!
       if (resourcePath !== reqPath && reqPath.endsWith('.proxy.js')) {
         finalizedResponse = await fileBuilder.getProxy(resourcePath, resourceType);
       } else if (resourcePath !== reqPath && reqPath.endsWith('.map')) {

@@ -98,6 +98,7 @@ export default {
     if (!packageImport) {
       return;
     }
+    // mapping react.v17.0.1.js -> {...}
     const {loc, entrypoint, packageName, packageVersion} = packageImport;
     let {installDest} = packageImport;
     if (isSSR && existsSync(installDest + '-ssr')) {
@@ -107,6 +108,7 @@ export default {
     // Wait for any in progress builds to complete, in case they've
     // cleared out the directory that you're trying to read out of.
     await inProgressBuilds.onIdle();
+    // loading /web_modules/react.js
     let packageCode = await fs.readFile(loc, 'utf8');
     const imports: InstallTarget[] = [];
     const type = path.extname(loc);
@@ -228,6 +230,24 @@ export default {
       }),
     );
     await inProgressBuilds.onIdle();
+    // Verify the dependencies that have just been installed, and all others!
+    // for every file that lives in the web_modules install location
+    // - scan its imports (scanCodeImportsExports)
+    // - for each import, verify that that export exists on the destination
+    // - if an import exists for an export that doesnt exist, warn to the user (maybe error?)
+    // - current step to resolve: add the package to `namedExports`
+    // - abstracted for both source files and local files?
+
+    /*
+    Implemention Idea:
+      "_exports": {
+        "react": {"named": ["useState", "useEffect"], "default": true}
+      }
+
+      - esinstall: save that within an installed package's import-map.json
+      - snowpack: use this to compare each scanned import with, warn if bad
+        - scanned import = user file or within the dependency tree, depending on context
+    */
     await mkdirp(path.dirname(installDirectoryHashLoc));
     await fs.writeFile(installDirectoryHashLoc, 'v1', 'utf-8');
     logger.info(colors.bold('Ready!'));
@@ -249,6 +269,7 @@ export default {
       spec = spec.replace(from, to);
     }
 
+    // resolve "preact/hooks" -> "node_modules/preact/hooks/dist/index.js"
     const entrypoint = resolveEntrypoint(spec, {
       cwd: path.dirname(source),
       packageLookupFields: [
@@ -280,6 +301,7 @@ export default {
       );
     }
 
+    // for builds, we want to resolve these imports to their "full installed tree" location
     if (importMap) {
       if (importMap.imports[spec]) {
         return path.posix.join(config.buildOptions.metaUrlPath, 'pkg', importMap.imports[spec]);
