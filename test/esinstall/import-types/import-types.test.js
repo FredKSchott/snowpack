@@ -11,7 +11,7 @@ describe('importing types', () => {
       await runTest(['type-only-pkg', 'array-flatten'], {cwd, dest});
       expect(false).toEqual(true); // should not finish
     } catch (err) {
-      expect(err.message).toContain('Unable to find any entrypoint for \"type-only-pkg\"');
+      expect(err.message).toContain('Unable to find any entrypoint for "type-only-pkg"');
     }
   });
 });

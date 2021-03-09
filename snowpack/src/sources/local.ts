@@ -217,10 +217,7 @@ export default {
           `and the results will be cached for the lifetime of your project. Please wait...`,
       );
     }
-    const installTargets = await getInstallTargets(
-      config,
-      config.packageOptions.knownEntrypoints,
-    );
+    const installTargets = await getInstallTargets(config, config.packageOptions.knownEntrypoints);
     if (installTargets.length === 0) {
       logger.info('No dependencies detected. Ready!');
       return;
