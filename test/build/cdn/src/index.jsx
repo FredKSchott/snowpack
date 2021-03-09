@@ -1,5 +1,5 @@
-import React from 'https://cdn.pika.dev/react@^16.13.1';
-import ReactDOM from 'https://cdn.pika.dev/react-dom@^16.13.1';
+import React from 'https://cdn.skypack.dev/react@^17.0.0';
+import ReactDOM from 'https://cdn.skypack.dev/react-dom@^17.0.0';
 
 const App = () => <div>I’m an app!</div>;
 

@@ -7,11 +7,13 @@ import url from 'url';
 import {logger} from './logger';
 import {SnowpackConfig, SnowpackSourceFile} from './types';
 import {
+  createInstallTarget,
   CSS_REGEX,
   findMatchingAliasEntry,
   getExtension,
   HTML_JS_REGEX,
   HTML_STYLE_REGEX,
+  isImportOfPackage,
   isTruthy,
   readFile,
   SVELTE_VUE_REGEX,
@@ -28,17 +30,7 @@ const ESM_IMPORT_REGEX = /import(?:["'\s]*([\w*${}\n\r\t, ]+)\s*from\s*)?\s*["']
 const ESM_DYNAMIC_IMPORT_REGEX = /(?<!\.)\bimport\((?:['"].+['"]|`[^$]+`)\)/gm;
 const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
 const STRIP_AS = /\s+as\s+.*/; // for `import { foo as bar }`, strips “as bar”
-const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s]*\})?\s+from/s;
-
-function createInstallTarget(specifier: string, all = true): InstallTarget {
-  return {
-    specifier,
-    all,
-    default: false,
-    namespace: false,
-    named: [],
-  };
-}
+const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s,]*\})?\s+from/s;
 
 export async function getInstallTargets(
   config: SnowpackConfig,
@@ -55,7 +47,12 @@ export async function getInstallTargets(
   } else {
     installTargets.push(...(await scanImports(process.env.NODE_ENV === 'test', config)));
   }
-  return installTargets;
+  return installTargets.filter(
+    (dep) =>
+      !config.packageOptions.external.some((packageName) =>
+        isImportOfPackage(dep.specifier, packageName),
+      ),
+  );
 }
 
 export function matchDynamicImportValue(importStatement: string) {

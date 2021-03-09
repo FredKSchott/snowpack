@@ -1,11 +1,12 @@
 import path from 'path';
+import slash from 'slash';
 import {MountEntry, SnowpackConfig} from '../types';
-import {replaceExtension, getExtensionMatch, addExtension} from '../util';
+import {addExtension, getExtensionMatch, replaceExtension} from '../util';
 
 /**
  * Map a file path to the hosted URL for a given "mount" entry.
  */
-export function getUrlForFileMount({
+export function getUrlsForFileMount({
   fileLoc,
   mountKey,
   mountEntry,
@@ -15,23 +16,32 @@ export function getUrlForFileMount({
   mountKey: string;
   mountEntry: MountEntry;
   config: SnowpackConfig;
-}): string {
-  const fileName = path.basename(fileLoc);
+}): string[] {
   const resolvedDirUrl = mountEntry.url === '/' ? '' : mountEntry.url;
   const mountedUrl = fileLoc.replace(mountKey, resolvedDirUrl).replace(/[/\\]+/g, '/');
   if (mountEntry.static) {
-    return mountedUrl;
+    return [mountedUrl];
   }
+  return getBuiltFileUrls(mountedUrl, config);
+}
+
+/**
+ * Map a file path to the hosted URL for a given "mount" entry.
+ */
+export function getBuiltFileUrls(filepath: string, config: SnowpackConfig): string[] {
+  const fileName = path.basename(filepath);
   const extensionMatch = getExtensionMatch(fileName, config._extensionMap);
   if (!extensionMatch) {
-    return mountedUrl;
+    return [filepath];
   }
   const [inputExt, outputExts] = extensionMatch;
-  if (outputExts.length > 1) {
-    return addExtension(mountedUrl, outputExts[0]);
-  } else {
-    return replaceExtension(mountedUrl, inputExt, outputExts[0]);
-  }
+  return outputExts.map((outputExt) => {
+    if (outputExts.length > 1) {
+      return addExtension(filepath, outputExt);
+    } else {
+      return replaceExtension(filepath, inputExt, outputExt);
+    }
+  });
 }
 
 /**
@@ -59,11 +69,21 @@ export function getMountEntryForFile(
 /**
  * Get the final, hosted URL path for a given file on disk.
  */
-export function getUrlForFile(fileLoc: string, config: SnowpackConfig): string | null {
+export function getUrlsForFile(fileLoc: string, config: SnowpackConfig): undefined | string[] {
   const mountEntryResult = getMountEntryForFile(fileLoc, config);
   if (!mountEntryResult) {
-    return null;
+    if (!config.workspaceRoot) {
+      return undefined;
+    }
+    const builtEntrypointUrls = getBuiltFileUrls(fileLoc, config);
+    return builtEntrypointUrls.map((u) =>
+      path.posix.join(
+        config.buildOptions.metaUrlPath,
+        'link',
+        slash(path.relative(config.workspaceRoot as string, u)),
+      ),
+    );
   }
   const [mountKey, mountEntry] = mountEntryResult;
-  return getUrlForFileMount({fileLoc, mountKey, mountEntry, config});
+  return getUrlsForFileMount({fileLoc, mountKey, mountEntry, config});
 }

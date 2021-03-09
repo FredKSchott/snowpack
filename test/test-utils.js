@@ -10,6 +10,7 @@ const UTF8_FRIENDLY_EXTS = [
   'css',
   'html',
   'js',
+  'map',
   'jsx',
   'ts',
   'tsx',

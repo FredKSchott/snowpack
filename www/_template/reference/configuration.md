@@ -23,9 +23,15 @@ To generate a basic configuration file scaffold in your Snowpack project run `sn
 **Type**: `string`  
 **Default**: `/`
 
-Specify the root of a project using Snowpack.
+Specify the root of a project using Snowpack. (Previously: `config.cwd`)
 
-Previously config.cwd
+## workspaceRoot
+
+**Type**: `string`
+
+Specify the root of your workspace or monorepo, if you are using one. When configured, Snowpack will treat any sibling packages in your workspace like source files, and pass them through your unbundled Snowpack build pipeline during development. This allows for fast refresh, HMR support, file change watching, and other dev improvements when working in monorepos.
+
+When you build your site for production, symlinked packages will be treated like any other package, bundled and tree-shaken into single files for faster loading.
 
 ## install
 
@@ -406,7 +412,7 @@ _NOTE:_ Deprecated, see `buildOptions.metaUrlPath`.
 ### buildOptions.metaUrlPath
 
 **Type**: `string`  
-**Default**: `_snowpack_`
+**Default**: `_snowpack`
 
 Rename the default directory for Snowpack metadata. In every build, Snowpack creates meta files for loading things like [HMR](/concepts/hot-module-replacement), [Environment Variables](/reference/environment-variables), and your built npm packages.
 

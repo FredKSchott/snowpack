@@ -27,6 +27,8 @@ To Resolve:
         packageOptions: {external: ['/__web-dev-server__web-socket.js']},
         devOptions: {open: 'none', output: 'stream', hmr: false},
       });
+      // npm packages should be installed/prepared ahead of time.
+      console.log('[snowpack] starting server...');
       fileWatcher.add(Object.keys(config.mount));
       server = await snowpack.startServer({
         config,

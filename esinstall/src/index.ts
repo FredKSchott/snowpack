@@ -45,6 +45,7 @@ export {
   resolveEntrypoint,
   explodeExportMap,
 } from './entrypoints';
+export {resolveDependencyManifest} from './util';
 export {printStats} from './stats';
 
 type DependencyLoc = {
@@ -70,6 +71,7 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
   'react-table',
   'chai/index.js',
   'events/events.js',
+  'uuid/index.js',
 ];
 
 function isImportOfPackage(importUrl: string, packageName: string) {
@@ -87,7 +89,6 @@ function resolveWebDependency(
   resolveOptions: {cwd: string; packageLookupFields: string[]},
 ): DependencyLoc {
   const loc = resolveEntrypoint(dep, resolveOptions);
-
   return {
     loc,
     type: getWebDependencyType(loc),
@@ -105,11 +106,18 @@ function generateEnvObject(userEnv: EnvVarReplacements): Object {
   };
 }
 
-function generateEnvReplacements(env: Object): {[key: string]: string} {
-  return Object.keys(env).reduce((acc, key) => {
-    acc[`process.env.${key}`] = JSON.stringify(env[key]);
-    return acc;
-  }, {});
+function generateReplacements(env: Object): {[key: string]: string} {
+  return Object.keys(env).reduce(
+    (acc, key) => {
+      acc[`process.env.${key}`] = JSON.stringify(env[key]);
+      return acc;
+    },
+    {
+      // Other find & replacements:
+      // tslib: fights with Rollup's namespace/default handling, so just remove it.
+      'return (mod && mod.__esModule) ? mod : { "default": mod };': 'return mod;',
+    },
+  );
 }
 
 interface InstallOptions {
@@ -125,7 +133,7 @@ interface InstallOptions {
   polyfillNode: boolean;
   sourcemap?: boolean | 'inline';
   external: string[];
-  externalEsm: string[];
+  externalEsm: string[] | ((imp: string) => boolean);
   packageLookupFields: string[];
   packageExportLookupFields: string[];
   namedExports: string[];
@@ -167,8 +175,8 @@ function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
     // TODO: Make this default to false in a v2.0 release
     stats: true,
     dest: 'web_modules',
-    external: [],
-    externalEsm: [],
+    external: [] as string[],
+    externalEsm: [] as string[],
     polyfillNode: false,
     packageLookupFields: [],
     packageExportLookupFields: [],
@@ -308,7 +316,7 @@ ${colors.dim(
     input: installEntrypoints,
     context: userDefinedRollup.context,
     external: (id) => external.some((packageName) => isImportOfPackage(id, packageName)),
-    treeshake: {moduleSideEffects: 'no-external'},
+    treeshake: {moduleSideEffects: true},
     plugins: [
       rollupPluginAlias({
         entries: [
@@ -343,10 +351,13 @@ ${colors.dim(
         namedExports: true,
       }),
       rollupPluginCss(),
-      rollupPluginReplace(generateEnvReplacements(env)),
+      rollupPluginReplace(generateReplacements(env)),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
-        esmExternals: externalEsm,
+        esmExternals: (id) =>
+          Array.isArray(externalEsm)
+            ? externalEsm.some((packageName) => isImportOfPackage(id, packageName))
+            : (externalEsm as Function)(id),
         requireReturnsDefault: 'auto',
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),
@@ -366,8 +377,7 @@ ${colors.dim(
         isFatalWarningFound = true;
         // Display posix-style on all environments, mainly to help with CI :)
         if (warning.id) {
-          const fileName = path.relative(cwd, warning.id).replace(/\\/g, '/');
-          logger.error(`${fileName}\n   ${warning.message}`);
+          logger.error(`${warning.id}\n   ${warning.message}`);
         } else {
           logger.error(
             `${warning.message}. See https://www.snowpack.dev/reference/common-error-details`,
@@ -381,7 +391,8 @@ ${colors.dim(
       if (
         warning.code === 'CIRCULAR_DEPENDENCY' ||
         warning.code === 'NAMESPACE_CONFLICT' ||
-        warning.code === 'THIS_IS_UNDEFINED'
+        warning.code === 'THIS_IS_UNDEFINED' ||
+        warning.code === 'EMPTY_BUNDLE'
       ) {
         logger.debug(logMessage);
       } else {

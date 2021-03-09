@@ -8,10 +8,11 @@ import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
-import {SkypackSDK} from 'skypack';
 import url from 'url';
 import getDefaultBrowserId from 'default-browser-id';
-import {ImportMap, LockfileManifest, SnowpackConfig} from './types';
+import type {ImportMap, LockfileManifest, SnowpackConfig} from './types';
+import type {InstallTarget} from 'esinstall';
+import {SkypackSDK} from 'skypack';
 
 // (!) Beware circular dependencies! No relative imports!
 // Because this file is imported from so many different parts of Snowpack,
@@ -39,6 +40,10 @@ export const HTML_JS_REGEX = /(<script[^>]*?type="module".*?>)(.*?)<\/script>/gi
 export const HTML_STYLE_REGEX = /(<style.*?>)(.*?)<\/style>/gims;
 export const CSS_REGEX = /@import\s*['"](.*?)['"];/gs;
 export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
+
+export function getCacheKey(fileLoc: string, {isSSR, env}) {
+  return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
+}
 
 /**
  * Like rimraf, but will fail if "dir" is outside of your configured build output directory.
@@ -75,6 +80,16 @@ export async function readLockfile(cwd: string): Promise<LockfileManifest | null
   }
   // If this fails, we actually do want to alert the user by throwing
   return JSON.parse(lockfileContents);
+}
+
+export function createInstallTarget(specifier: string, all = true): InstallTarget {
+  return {
+    specifier,
+    all,
+    default: false,
+    namespace: false,
+    named: [],
+  };
 }
 
 function sortObject<T>(originalObject: Record<string, T>): Record<string, T> {
@@ -352,7 +367,7 @@ export function getExtensionMatch(
   let extensionPartial;
   let extensionMatch;
   // If a full URL is given, start at the basename. Otherwise, start at zero.
-  let extensionMatchIndex = Math.max(0, fileName.lastIndexOf('/'));
+  let extensionMatchIndex = Math.max(0, fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
   // Grab expanded file extensions, from longest to shortest.
   while (!extensionMatch && extensionMatchIndex > -1) {
     extensionMatchIndex++;
@@ -366,6 +381,10 @@ export function getExtensionMatch(
 
 export function isRemoteUrl(val: string): boolean {
   return val.startsWith('//') || !!url.parse(val).protocol?.startsWith('http');
+}
+
+export function isImportOfPackage(importUrl: string, packageName: string) {
+  return packageName === importUrl || importUrl.startsWith(packageName + '/');
 }
 
 /**

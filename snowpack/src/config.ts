@@ -21,7 +21,7 @@ import {
 import {addLeadingSlash, addTrailingSlash, NATIVE_REQUIRE, removeTrailingSlash} from './util';
 
 const CONFIG_NAME = 'snowpack';
-const ALWAYS_EXCLUDE = ['**/node_modules/**/*'];
+const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/*.d.ts'];
 
 // default settings
 const DEFAULT_ROOT = process.cwd();
@@ -35,8 +35,6 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
     secure: false,
     hostname: 'localhost',
     port: 8080,
-    open: 'default',
-    output: 'dashboard',
     hmrDelay: 0,
     hmrPort: undefined,
     hmrErrorOverlay: true,
@@ -50,6 +48,7 @@ const DEFAULT_CONFIG: SnowpackUserConfig = {
     watch: false,
     htmlFragments: false,
     ssr: false,
+    resolveProxyImports: true,
   },
   testOptions: {
     files: ['__tests__/**/*', '**/*.@(spec|test).*'],
@@ -70,6 +69,7 @@ const DEFAULT_PACKAGES_REMOTE_CONFIG: PackageSourceRemote = {
   source: 'remote',
   origin: REMOTE_PACKAGE_ORIGIN,
   external: [],
+  knownEntrypoints: [],
   cache: '.snowpack',
   types: false,
 };
@@ -105,7 +105,6 @@ const configSchema = {
       properties: {
         secure: {type: 'boolean'},
         port: {type: 'number'},
-        bundle: {type: 'boolean'},
         open: {type: 'string'},
         output: {type: 'string', enum: ['stream', 'dashboard']},
         hmr: {type: 'boolean'},
@@ -171,7 +170,15 @@ const configSchema = {
     },
     optimize: {
       type: ['object'],
-      properties: {},
+      properties: {
+        preload: {type: 'boolean'},
+        bundle: {type: 'boolean'},
+        splitting: {type: 'boolean'},
+        treeshake: {type: 'boolean'},
+        manifest: {type: 'boolean'},
+        minify: {type: 'boolean'},
+        target: {type: 'string'},
+      },
     },
     proxy: {
       type: 'object',
@@ -393,7 +400,6 @@ function normalizeConfig(_config: SnowpackUserConfig): SnowpackConfig {
   config.exclude = Array.from(
     new Set([...ALWAYS_EXCLUDE, `${config.buildOptions.out}/**/*`, ...config.exclude]),
   );
-
   // normalize config URL/path values
   config.buildOptions.out = removeTrailingSlash(config.buildOptions.out);
   config.buildOptions.baseUrl = addTrailingSlash(config.buildOptions.baseUrl);
@@ -635,6 +641,9 @@ function resolveRelativeConfigMount(
 function resolveRelativeConfig(config: SnowpackUserConfig, configBase: string): SnowpackUserConfig {
   if (config.root) {
     config.root = path.resolve(configBase, config.root);
+  }
+  if (config.workspaceRoot) {
+    config.workspaceRoot = path.resolve(configBase, config.workspaceRoot);
   }
   if (config.buildOptions?.out) {
     config.buildOptions.out = path.resolve(configBase, config.buildOptions.out);

@@ -8,7 +8,6 @@ let files = {};
 describe('config: alias', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
-
     files = readFiles(cwd);
   });
 

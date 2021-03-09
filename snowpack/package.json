@@ -45,11 +45,12 @@
     "vendor"
   ],
   "dependencies": {
+    "cli-spinners": "^2.5.0",
     "default-browser-id": "^2.0.0",
     "esbuild": "^0.8.7",
     "open": "^7.0.4",
-    "rollup": "^2.34.0",
-    "resolve": "^1.20.0"
+    "resolve": "^1.20.0",
+    "rollup": "^2.34.0"
   },
   "optionalDependencies": {
     "fsevents": "^2.2.0"
@@ -57,7 +58,6 @@
   "devDependencies": {
     "@types/cheerio": "0.22.22",
     "bufferutil": "^4.0.2",
-    "cacache": "^15.0.0",
     "cachedir": "^2.3.0",
     "cheerio": "1.0.0-rc.3",
     "chokidar": "^3.4.0",
