@@ -28,7 +28,9 @@ function scanSassImports(fileContents, filePath, fileExt) {
     });
 }
 
-module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
+module.exports = function sassPlugin(snowpackConfig, {native, compilerOptions = {}} = {}) {
+  const {root} = snowpackConfig || {};
+
   /** A map of partially resolved imports to the files that imported them. */
   const importedByMap = new Map();
 
@@ -132,11 +134,23 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
       Object.entries(compilerOptions).forEach(parseCompilerOption);
 
       // Build the file.
-      const {stdout, stderr} = await execa('sass', args, {
+      const execaOptions = {
         input: contents,
+        // Adds the PATH param to the command so it can find local sass
         env: native ? undefined : npmRunPath.env(),
-        extendEnv: native ? true : false,
-      });
+        extendEnv: native ? true : false
+      };
+
+      // If not using native them specify the project root so execa finds the right sass binary.
+      if(!native && root) {
+        // Prefer the node_modules/.bin
+        execaOptions.preferLocal = true;
+
+        // Specifies the local directory (which contains a .bin with sass)
+        execaOptions.localDir = root
+      }
+
+      const {stdout, stderr} = await execa('sass', args, execaOptions);
       // Handle the output.
       if (stderr) throw new Error(stderr);
       if (stdout) return stdout;
