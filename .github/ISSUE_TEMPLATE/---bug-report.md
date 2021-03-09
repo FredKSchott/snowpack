@@ -1,17 +1,16 @@
 ---
 name: "\U0001F41B Bug report"
 about: '"Snowpack is broken, or not behaving as expected"'
-title: "[BUG] "
+title: '[BUG] '
 labels: ''
 assignees: ''
-
 ---
 
 ### Bug Report Quick Checklist
 
 - [x] I am on the latest version of Snowpack & plugins.
-- [x] I use package manager ______ (Fill in: npm, yarn, pnpm, etc).
-- [x] I run Snowpack on OS ****\_\_**** (Fill in: Windows, Mac, Linux, etc).
+- [x] I use package manager **\_\_** (Fill in: npm, yarn, pnpm, etc).
+- [x] I run Snowpack on OS \***\*\_\_\*\*** (Fill in: Windows, Mac, Linux, etc).
 - [x] I run Snowpack on Node.js v12+
 
 ### Describe the bug
