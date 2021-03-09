@@ -185,6 +185,8 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   } else {
     const installDest = path.join(buildDirectoryLoc, config.buildOptions.metaUrlPath, 'pkg');
     const installResult = await installOptimizedDependencies(
+      // TODO (v4): We should add `...config.packageOptions.knownEntrypoints` to this array
+      // now that knownEntrypoints is no longer needed for dev/test imports.
       [...allBareModuleSpecifiers],
       installDest,
       commandOptions,
