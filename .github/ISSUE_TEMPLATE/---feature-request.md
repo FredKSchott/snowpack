@@ -1,10 +1,9 @@
 ---
 name: "\U0001F4A1 Feature request"
 about: Suggest an idea for this project
-title: "[FEATURE]"
+title: '[FEATURE]'
 labels: ''
 assignees: ''
-
 ---
 
 **The problem that you want to solve.**
