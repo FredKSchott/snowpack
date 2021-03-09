@@ -138,16 +138,16 @@ module.exports = function sassPlugin(snowpackConfig, {native, compilerOptions = 
         input: contents,
         // Adds the PATH param to the command so it can find local sass
         env: native ? undefined : npmRunPath.env(),
-        extendEnv: native ? true : false
+        extendEnv: native ? true : false,
       };
 
       // If not using native them specify the project root so execa finds the right sass binary.
-      if(!native && root) {
+      if (!native && root) {
         // Prefer the node_modules/.bin
         execaOptions.preferLocal = true;
 
         // Specifies the local directory (which contains a .bin with sass)
-        execaOptions.localDir = root
+        execaOptions.localDir = root;
       }
 
       const {stdout, stderr} = await execa('sass', args, execaOptions);
