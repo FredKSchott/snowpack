@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: 💬 Ask a Question, Discuss
+  - name: 💬 Everything else
+    about: Ask questions and get help from our community!
     url: https://github.com/snowpackjs/snowpack/discussions
-    about: Get help using Snowpack
