@@ -3,14 +3,37 @@ const path = require('path');
 const execa = require('execa');
 const npmRunPath = require('npm-run-path');
 
-const IMPORT_REGEX = /\@(use|import)\s*['"](.*?)['"]/g;
+const IMPORT_REGEX = /\@(use|import|forward)\s*['"](.*?)['"]/g;
 const PARTIAL_REGEX = /([\/\\])_(.+)(?![\/\\])/;
 
 function stripFileExtension(filename) {
   return filename.split('.').slice(0, -1).join('.');
 }
 
-function scanSassImports(fileContents, filePath, fileExt) {
+function findChildPartials(pathName, fileName, fileExt) {
+  const dirPath = path.parse(pathName).dir;
+
+  // Prepend a "_" to signify a partial.
+  if (!fileName.startsWith('_')) {
+    fileName = '_' + fileName;
+  }
+
+  // Add on the file extension if it is not already used.
+  if (!fileName.endsWith('.scss') || !fileName.endsWith('.sass')) {
+    fileName += fileExt;
+  }
+
+  const filePath = path.resolve(dirPath, fileName);
+
+  let contents = '';
+  try {
+    contents = fs.readFileSync(filePath, 'utf8');
+  } catch (err) {}
+
+  return contents;
+}
+
+function scanSassImports(fileContents, filePath, fileExt, partials = new Set()) {
   // TODO: Replace with matchAll once Node v10 is out of TLS.
   // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
   const allMatches = [];
@@ -20,12 +43,38 @@ function scanSassImports(fileContents, filePath, fileExt) {
     allMatches.push(match);
   }
   // return all imports, resolved to true files on disk.
-  return allMatches
+  allMatches
     .map((match) => match[2])
     .filter((s) => s.trim())
-    .map((s) => {
-      return path.resolve(path.dirname(filePath), s);
+    // Avoid node packages and core sass libraries.
+    .filter((s) => !s.includes('node_modules') && !s.includes('sass:'))
+    .forEach((fileName) => {
+      let pathName = path.resolve(path.dirname(filePath), fileName);
+
+      if (partials.has(pathName)) {
+        return;
+      }
+
+      // Add this partial to the main list being passed to avoid duplicates.
+      partials.add(pathName);
+
+      // If it is a directory then look for an _index file.
+      try {
+        if (fs.lstatSync(pathName).isDirectory()) {
+          fileName = 'index';
+          pathName += '/' + fileName;
+        }
+      } catch (err) {}
+
+      // Recursively find any child partials that have not already been added.
+      const partialsContent = findChildPartials(pathName, fileName, fileExt);
+      if (partialsContent) {
+        const childPartials = scanSassImports(partialsContent, pathName, fileExt, partials);
+        partials.add(...childPartials);
+      }
     });
+
+  return partials;
 }
 
 module.exports = function sassPlugin(snowpackConfig, {native, compilerOptions = {}} = {}) {
@@ -96,7 +145,7 @@ module.exports = function sassPlugin(snowpackConfig, {native, compilerOptions = 
       // During development, we need to track changes to Sass dependencies.
       if (isDev) {
         const sassImports = scanSassImports(contents, filePath, fileExt);
-        sassImports.forEach((imp) => addImportsToMap(filePath, imp));
+        [...sassImports].forEach((imp) => addImportsToMap(filePath, imp));
       }
 
       // If file is `.sass`, use YAML-style. Otherwise, use default.

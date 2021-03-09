@@ -1,7 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`plugin-sass returns the compiled Sass result: App.sass 1`] = `
-"body {
+".child {
+  text-align: left;
+}
+
+body {
   font-family: Helvetica, sans-serif;
 }
 

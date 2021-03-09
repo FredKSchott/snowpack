@@ -3,6 +3,8 @@ const path = require('path');
 
 const pathToSassApp = path.join(__dirname, 'fixtures/sass/App.sass');
 const pathToSassBase = path.join(__dirname, 'fixtures/sass/_base.sass');
+const pathToSassIndex = path.join(__dirname, 'fixtures/sass/folder/_index.sass');
+const pathToSassChild = path.join(__dirname, 'fixtures/sass/folder/_child-partial.sass');
 const pathToScssApp = path.join(__dirname, 'fixtures/scss/App.scss');
 const pathToBadCode = path.join(__dirname, 'fixtures/bad/bad.scss');
 
@@ -38,6 +40,12 @@ describe('plugin-sass', () => {
     p.onChange({filePath: pathToSassApp});
     expect(p.markChanged.mock.calls).toEqual([]);
     p.onChange({filePath: pathToSassBase});
+    expect(p.markChanged.mock.calls).toEqual([[pathToSassApp]]);
+    p.markChanged.mockClear();
+    p.onChange({filePath: pathToSassIndex});
+    expect(p.markChanged.mock.calls).toEqual([[pathToSassApp]]);
+    p.markChanged.mockClear();
+    p.onChange({filePath: pathToSassChild});
     expect(p.markChanged.mock.calls).toEqual([[pathToSassApp]]);
   });
 
