@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "default-only-pkg": "./default-only-pkg.js"
-  }
-}
