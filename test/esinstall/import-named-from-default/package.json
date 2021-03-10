@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-import-named-from-default",
+  "dependencies": {
+    "default-only-esm": "file:./package/default-only-esm"
+  }
+}
