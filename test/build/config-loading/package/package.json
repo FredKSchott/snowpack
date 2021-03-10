@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-config-loading",
+  "scripts": {
+    "testbuild": "snowpack build"
+  },
+  "snowpack": {
+    "buildOptions": {
+      "out": "TEST_BUILD_OUT"
+    }
+  }
+}

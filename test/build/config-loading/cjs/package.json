@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-config-loading-cjs",
+  "dependencies": {
+    "snowpack": "^3.0.0"
+  }
+}
