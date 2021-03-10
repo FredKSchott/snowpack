@@ -430,6 +430,21 @@ ${colors.dim(
     } catch (_err) {
       logger.debug(`FAILURE: ${_err}`);
       const err: RollupError = _err;
+
+      if (err.code === 'MISSING_EXPORT') {
+        let [exportSpecifier, tail] = err.message.split(' is not exported by ');
+        exportSpecifier = exportSpecifier.slice(1, -1);
+        const specifier = tail.split('imported by ')[1];
+        let modName;
+        for (const [key, value] of Object.entries(installEntrypoints)) {
+          if (value === specifier) {
+            modName = key;
+            break;
+          }
+        }
+        throw new Error(`Module "${modName}" has no exported member "${exportSpecifier}". Did you mean to use "import ${exportSpecifier} from '${modName}'" instead?`);
+      }
+
       const errFilePath = err.loc?.file || err.id;
       if (!errFilePath) {
         throw err;
