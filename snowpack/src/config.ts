@@ -19,6 +19,7 @@ import {
   SnowpackUserConfig,
 } from './types';
 import {addLeadingSlash, addTrailingSlash, NATIVE_REQUIRE, removeTrailingSlash} from './util';
+import type { Awaited } from './util';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/*.d.ts'];
@@ -725,24 +726,34 @@ export function createConfiguration(config: SnowpackUserConfig = {}): SnowpackCo
   return normalizedConfig;
 }
 
-function loadConfigurationFile(
+async function loadConfigurationFile(
   filename: string,
-): {filepath: string | undefined; config: SnowpackUserConfig} | null {
+): Promise<{filepath: string | undefined; config: SnowpackUserConfig} | null> {
   const loc = path.resolve(process.cwd(), filename);
   if (!existsSync(loc)) {
     return null;
   }
-  return {filepath: loc, config: NATIVE_REQUIRE(loc)};
+
+  try {
+    return {filepath: loc, config: NATIVE_REQUIRE(loc)};
+  } catch (e) {
+      if (e.code === 'ERR_REQUIRE_ESM') {
+        // TODO: keep TypeScript/rollup from transpiling this to `require`
+        return import(loc).then(config => ({ filepath: loc, config }));
+      };
+  }
+
+  return null;
 }
 
 export async function loadConfiguration(
   overrides: SnowpackUserConfig = {},
   configPath?: string,
 ): Promise<SnowpackConfig> {
-  let result: ReturnType<typeof loadConfigurationFile> = null;
+  let result: Awaited<ReturnType<typeof loadConfigurationFile>> = null;
   // if user specified --config path, load that
   if (configPath) {
-    result = loadConfigurationFile(configPath);
+    result = await loadConfigurationFile(configPath);
     if (!result) {
       throw new Error(`Snowpack config file could not be found: ${configPath}`);
     }
@@ -751,14 +762,14 @@ export async function loadConfiguration(
   // If no config was found above, search for one.
   result =
     result ||
-    loadConfigurationFile('snowpack.config.mjs') ||
-    loadConfigurationFile('snowpack.config.cjs') ||
-    loadConfigurationFile('snowpack.config.js') ||
-    loadConfigurationFile('snowpack.config.json');
+    await loadConfigurationFile('snowpack.config.mjs') ||
+    await loadConfigurationFile('snowpack.config.cjs') ||
+    await loadConfigurationFile('snowpack.config.js') ||
+    await loadConfigurationFile('snowpack.config.json');
 
   // Support package.json "snowpack" config
   if (!result) {
-    const potentialPackageJsonConfig = loadConfigurationFile('package.json');
+    const potentialPackageJsonConfig = await loadConfigurationFile('package.json');
     if (potentialPackageJsonConfig && (potentialPackageJsonConfig.config as any).snowpack) {
       result = {
         filepath: potentialPackageJsonConfig.filepath,
@@ -781,7 +792,7 @@ export async function loadConfiguration(
   let extendConfig: SnowpackUserConfig = {} as SnowpackUserConfig;
   if (config.extends) {
     const extendConfigLoc = require.resolve(config.extends, {paths: [configBase]});
-    const extendResult = loadConfigurationFile(extendConfigLoc);
+    const extendResult = await loadConfigurationFile(extendConfigLoc);
     if (!extendResult) {
       handleConfigError(`Could not locate "extends" config at ${extendConfigLoc}`);
       process.exit(1);

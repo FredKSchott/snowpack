@@ -45,6 +45,8 @@ export function getCacheKey(fileLoc: string, {isSSR, env}) {
   return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
 }
 
+export type Awaited<T> = T extends PromiseLike<infer U> ? Awaited<U> : T
+
 /**
  * Like rimraf, but will fail if "dir" is outside of your configured build output directory.
  */
