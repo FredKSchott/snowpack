@@ -442,7 +442,9 @@ ${colors.dim(
             break;
           }
         }
-        throw new Error(`Module "${modName}" has no exported member "${exportSpecifier}". Did you mean to use "import ${exportSpecifier} from '${modName}'" instead?`);
+        throw new Error(
+          `Module "${modName}" has no exported member "${exportSpecifier}". Did you mean to use "import ${exportSpecifier} from '${modName}'" instead?`,
+        );
       }
 
       const errFilePath = err.loc?.file || err.id;

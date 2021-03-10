@@ -1,3 +1,3 @@
-function EventEmitter () {}
+function EventEmitter() {}
 
 export default EventEmitter;
