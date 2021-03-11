@@ -370,18 +370,6 @@ export async function startServer(
     }
   }
 
-  function loadUrl(
-    reqUrl: string,
-    opt?: (LoadUrlOptions & {encoding?: undefined}) | undefined,
-  ): Promise<LoadResult<Buffer | string>>;
-  function loadUrl(
-    reqUrl: string,
-    opt: LoadUrlOptions & {encoding: BufferEncoding},
-  ): Promise<LoadResult<string>>;
-  function loadUrl(
-    reqUrl: string,
-    opt: LoadUrlOptions & {encoding: null},
-  ): Promise<LoadResult<Buffer>>;
   async function loadUrl(
     reqUrl: string,
     {
