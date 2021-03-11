@@ -8,6 +8,7 @@ node_modules
 package-lock.json
 create-snowpack-app/*/build
 test/build/**/build
+test/build/**/TEST_BUILD_OUT
 test/build/**/web_modules
 test/create-snowpack-app/test-install
 test/esinstall/**/web_modules

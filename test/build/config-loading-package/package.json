@@ -1,7 +1,7 @@
 {
   "private": true,
-  "version": "1.0.1",
-  "name": "@snowpack/test-config-loading",
+  "version": "0.1.0",
+  "name": "@snowpack/test-config-loading-package",
   "scripts": {
     "testbuild": "snowpack build"
   },
