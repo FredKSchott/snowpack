@@ -33,10 +33,7 @@
   "type": "commonjs",
   "types": "./lib/index.d.ts",
   "main": "./lib/index.js",
-  "exports": {
-    ".": "./lib/index.js",
-    "./assets/require-or-import.js": "./assets/require-or-import.js"
-  },
+  "exports": "./lib/index.js",
   "bin": {
     "sp": "./index.bin.js",
     "snowpack": "./index.bin.js"
