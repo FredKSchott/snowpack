@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * 
+ * A utility function to use Node's native `require` or dynamic `import` to load CJS or ESM files
  * @param {string} filepath 
  */
 module.exports = async function requireOrImport(filepath) {
