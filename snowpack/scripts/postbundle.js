@@ -4,7 +4,7 @@ const path = require('path');
 const rootDirectory = path.join(__dirname, '../..');
 
 function replaceNativeImport() {
-  const filepath = path.join(rootDirectory, 'snowpack', '/lib/index.js');
+  const filepath = path.join(rootDirectory, 'snowpack', 'lib', 'index.js');
 
   let contents = fs.readFileSync(filepath).toString();
   contents = contents.replace(/^(const NATIVE_IMPORT =.*)$/gm, '').replace(/NATIVE_IMPORT\(/gm, 'import(');
