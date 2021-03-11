@@ -18,7 +18,7 @@ import {
   SnowpackPlugin,
   SnowpackUserConfig,
 } from './types';
-import {addLeadingSlash, addTrailingSlash, NATIVE_REQUIRE, removeTrailingSlash} from './util';
+import {addLeadingSlash, addTrailingSlash, NATIVE_REQUIRE, REQUIRE_OR_IMPORT, removeTrailingSlash} from './util';
 import type { Awaited } from './util';
 
 const CONFIG_NAME = 'snowpack';
@@ -730,20 +730,13 @@ async function loadConfigurationFile(
   filename: string,
 ): Promise<{filepath: string | undefined; config: SnowpackUserConfig} | null> {
   const loc = path.resolve(process.cwd(), filename);
+  console.log(loc);
   if (!existsSync(loc)) {
     return null;
   }
 
-  try {
-    return {filepath: loc, config: NATIVE_REQUIRE(loc)};
-  } catch (e) {
-      if (e.code === 'ERR_REQUIRE_ESM') {
-        // TODO: keep TypeScript/rollup from transpiling this to `require`
-        return import(loc).then(config => ({ filepath: loc, config }));
-      };
-  }
-
-  return null;
+  const config = await REQUIRE_OR_IMPORT(loc);
+  return { filepath: loc, config };
 }
 
 export async function loadConfiguration(
@@ -759,13 +752,15 @@ export async function loadConfiguration(
     }
   }
 
+  const configs = ['snowpack.config.mjs', 'snowpack.config.cjs', 'snowpack.config.js', 'snowpack.config.json'];
+
   // If no config was found above, search for one.
-  result =
-    result ||
-    await loadConfigurationFile('snowpack.config.mjs') ||
-    await loadConfigurationFile('snowpack.config.cjs') ||
-    await loadConfigurationFile('snowpack.config.js') ||
-    await loadConfigurationFile('snowpack.config.json');
+  if (!result) {
+    for (const potentialConfigurationFile of configs) {
+      if (result) break;
+      result = await loadConfigurationFile(potentialConfigurationFile)
+    }
+  }
 
   // Support package.json "snowpack" config
   if (!result) {
