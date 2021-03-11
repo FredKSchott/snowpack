@@ -4,6 +4,9 @@ const {setupBuildTest} = require('../../test-utils');
 
 const cwd = path.join(__dirname, 'TEST_BUILD_OUT');
 
+// Skip tests on node@10.x (expected to fail)
+describe = process.version.startsWith('v10') ? describe.skip : describe;
+
 describe('config-loading: detects snowpack.config.js inside of "type": "module" package', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
