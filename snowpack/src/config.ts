@@ -730,7 +730,6 @@ async function loadConfigurationFile(
   filename: string,
 ): Promise<{filepath: string | undefined; config: SnowpackUserConfig} | null> {
   const loc = path.resolve(process.cwd(), filename);
-  console.log(loc);
   if (!existsSync(loc)) {
     return null;
   }
