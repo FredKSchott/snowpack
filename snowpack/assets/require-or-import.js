@@ -1,5 +1,5 @@
 "use strict";
-
+const { pathToFileURL } = require('url');
 const NATIVE_REQUIRE = eval('require');
 const NATIVE_IMPORT = (filepath) => import(filepath);
 
@@ -14,7 +14,8 @@ module.exports = async function requireOrImport(filepath) {
             resolve(mdl);
         } catch (e) {
             if (e.code === 'ERR_REQUIRE_ESM') {
-                return NATIVE_IMPORT(filepath).then(mdl => resolve(mdl.default ? mdl.default : mdl));
+                const url = pathToFileURL(filepath);
+                return NATIVE_IMPORT(url).then(mdl => resolve(mdl.default ? mdl.default : mdl));
             };
             reject(e);
         }
