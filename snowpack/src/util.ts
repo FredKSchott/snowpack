@@ -26,7 +26,7 @@ export const LOCKFILE_NAME = 'snowpack.deps.json';
 export const NATIVE_REQUIRE = eval('require');
 
 // We need to use an external file here to prevent Typescript/Rollup from modifying `require` and `import`
-export const REQUIRE_OR_IMPORT = require('snowpack/assets/require-or-import.js');
+export const REQUIRE_OR_IMPORT = require('../assets/require-or-import.js');
 
 export const remotePackageSDK = new SkypackSDK({origin: 'https://pkg.snowpack.dev'});
 
