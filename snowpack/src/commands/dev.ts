@@ -243,10 +243,12 @@ export async function startServer(
   commandOptions: CommandOptions,
   {
     isDev: _isDev,
+    isWatch: _isWatch,
     preparePackages: _preparePackages,
-  }: {isDev?: boolean; preparePackages?: boolean} = {},
+  }: {isDev?: boolean; isWatch?: boolean; preparePackages?: boolean} = {},
 ): Promise<SnowpackDevServer> {
   const isDev = _isDev ?? true;
+  const isWatch = _isWatch ?? true;
   const isPreparePackages = _preparePackages ?? true;
   const {config} = commandOptions;
   const pkgSource = getPackageSource(config.packageOptions.source);
@@ -275,7 +277,7 @@ export async function startServer(
     };
   }
 
-  if (config.devOptions.output === 'dashboard' && process.stdout.isTTY) {
+  if (isWatch && config.devOptions.output === 'dashboard' && process.stdout.isTTY) {
     startDashboard(messageBus, config);
   } else {
     // "stream": Log relevent events to the console.
@@ -787,7 +789,7 @@ export async function startServer(
     }
   }
 
-  if (config.buildOptions.watch) {
+  if (isWatch) {
     // Start watching the file system.
     // Defer "chokidar" loading to here, to reduce impact on overall startup time
     const chokidar = await import('chokidar');
@@ -851,10 +853,9 @@ export async function command(commandOptions: CommandOptions) {
     commandOptions.config.devOptions.output =
       commandOptions.config.devOptions.output || 'dashboard';
     commandOptions.config.devOptions.open = commandOptions.config.devOptions.open || 'default';
-    commandOptions.config.buildOptions.watch = true;
     commandOptions.config.devOptions.hmr = true;
     // Start the server
-    await startServer(commandOptions);
+    await startServer(commandOptions, {isWatch: true});
   } catch (err) {
     logger.error(err.message);
     logger.debug(err.stack);
