@@ -82,7 +82,8 @@ async function installOptimizedDependencies(
 
 export async function build(commandOptions: CommandOptions): Promise<SnowpackBuildResult> {
   const {config} = commandOptions;
-  const isDev = !!config.buildOptions.watch;
+  const isWatch = !!config.buildOptions.watch;
+  const isDev = !!isWatch;
   const isSSR = !!config.buildOptions.ssr;
   const isHMR = getIsHmrEnabled(config);
   config.buildOptions.resolveProxyImports = !config.optimize?.bundle;
@@ -95,7 +96,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   }
   mkdirp.sync(buildDirectoryLoc);
 
-  const devServer = await startServer(commandOptions, {isDev, preparePackages: false});
+  const devServer = await startServer(commandOptions, {isDev, isWatch, preparePackages: false});
 
   const allFileUrls: string[] = [];
   for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
@@ -179,7 +180,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   let optimizedImportMap: undefined | ImportMap;
   logger.info(colors.yellow('! building dependencies...'));
   const packagesStart = performance.now();
-  if (config.buildOptions.watch) {
+  if (isWatch) {
     const pkgSource = getPackageSource(commandOptions.config.packageOptions.source);
     await pkgSource.prepare(commandOptions);
   } else {
@@ -203,7 +204,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   logger.info(colors.yellow('! writing to disk...'));
   const writeStart = performance.now();
   allFileUrlsToProcess = [...allFileUrlsUnique];
-  await flushFileQueue(!config.buildOptions.watch, {
+  await flushFileQueue(!isWatch, {
     isSSR,
     isHMR,
     isResolve: true,
@@ -217,7 +218,7 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   );
 
   // "--watch" mode - Start watching the file system.
-  if (config.buildOptions.watch) {
+  if (isWatch) {
     let onFileChangeCallback: OnFileChangeCallback = () => {};
     devServer.onFileChange(async ({filePath}) => {
       // First, do our own re-build logic
