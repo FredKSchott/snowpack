@@ -104,6 +104,14 @@ const config = {
       extensions: ['.mjs', '.js', '.json', '.es6', '.node'],
     }),
     json(),
+    {
+      name: 'snowpack:inject-native-import',
+      writeBundle(options, bundle) {
+        let { code } = bundle['index.js'];
+        code = code.replace(/^(const NATIVE_IMPORT =.*)$/gm, '').replace(/NATIVE_IMPORT\(/gm, 'import(')
+        fs.writeFileSync(options.file, code);
+      }
+    }
     // {
     //   name: 'clear-bundled-files',
     //   generateBundle() {

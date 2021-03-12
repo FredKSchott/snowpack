@@ -25,6 +25,10 @@ export const LOCKFILE_NAME = 'snowpack.deps.json';
 // We need to use eval here to prevent Rollup from detecting this use of `require()`
 export const NATIVE_REQUIRE = eval('require');
 
+// We need to use an external file here to prevent Typescript/Rollup from modifying `require` and `import`
+// NOTE: revisit this when `node@10` reaches EOL. Can we move everything to ESM and just use `import`?
+export const REQUIRE_OR_IMPORT: (id: string) => Promise<any> = require('../assets/require-or-import.js');
+
 export const remotePackageSDK = new SkypackSDK({origin: 'https://pkg.snowpack.dev'});
 
 // A note on cache naming/versioning: We currently version our global caches
@@ -44,6 +48,8 @@ export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
 export function getCacheKey(fileLoc: string, {isSSR, env}) {
   return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
 }
+
+export type Awaited<T> = T extends PromiseLike<infer U> ? Awaited<U> : T
 
 /**
  * Like rimraf, but will fail if "dir" is outside of your configured build output directory.

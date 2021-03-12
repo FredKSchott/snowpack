@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "version": "0.1.0",
+  "name": "@snowpack/test-config-loading-mjs",
+  "scripts": {
+    "testbuild": "snowpack build"
+  },
+  "dependencies": {
+    "snowpack": "^3.0.0"
+  }
+}
