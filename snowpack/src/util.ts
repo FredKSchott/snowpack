@@ -23,7 +23,7 @@ export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
 export const LOCKFILE_NAME = 'snowpack.deps.json';
 
 // We need to use eval here to prevent Rollup from detecting this use of `require()`
-export const NATIVE_REQUIRE: NodeRequire = eval('require');
+export const NATIVE_REQUIRE = eval('require');
 
 // We need to use an external file here to prevent Typescript/Rollup from modifying `require` and `import`
 // NOTE: revisit this when `node@10` reaches EOL. Can we move everything to ESM and just use `import`?
