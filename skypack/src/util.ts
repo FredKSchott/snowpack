@@ -5,13 +5,18 @@ import fs from 'fs';
 import mkdirp from 'mkdirp';
 import path from 'path';
 
+export interface AbstractLogger {
+  debug: (...args: any[]) => void;
+  log: (...args: any[]) => void;
+  warn: (...args: any[]) => void;
+  error: (...args: any[]) => void;
+}
 export interface ImportMap {
   imports: {[packageName: string]: string};
 }
 
 export const GLOBAL_CACHE_DIR = globalCacheDir('skypack');
 export const RESOURCE_CACHE = path.join(GLOBAL_CACHE_DIR, 'pkg-cache-3.0');
-export const SKYPACK_ORIGIN = `https://cdn.skypack.dev`;
 export const HAS_CDN_HASH_REGEX = /\-[a-zA-Z0-9]{16,}/;
 
 // A note on cache naming/versioning: We currently version our global caches

@@ -2,7 +2,7 @@
   "private": true,
   "version": "1.0.1",
   "name": "@snowpack/test-custom-modules-dir",
-  "description": "This test ensures that Snowpack can build when /my_modules is the web modules dir",
+  "description": "This test ensures that Snowpack can build when /my_meta is the web modules dir",
   "scripts": {
     "testbuild": "snowpack build"
   },
@@ -10,6 +10,6 @@
     "array-flatten": "^3.0.0"
   },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

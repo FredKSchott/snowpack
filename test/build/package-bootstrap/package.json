@@ -2,7 +2,7 @@
   "private": true,
   "version": "1.0.1",
   "name": "@snowpack/test-package-bootstrap",
-  "description": "Tests that CSS proxy files are properly imported from web_modules",
+  "description": "Tests that CSS proxy files are properly imported from _snowpack/pkg",
   "scripts": {
     "testbuild": "snowpack build"
   },
@@ -15,6 +15,6 @@
     "bootstrap": "^4.5.2"
   },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

@@ -147,7 +147,7 @@ Snowpack lets you import npm packages directly in the browser. Even if a package
 
 > 💡 Tip: when you start up your development server or run a new build, you may see a message that Snowpack is "installing dependencies." This means that Snowpack is converting your dependencies to run in the browser.
 
-Install the canavas-confetti package from npm and use it with the following command:
+Install the canvas-confetti package from npm and use it with the following command:
 
 ```bash
 npm install --save canvas-confetti
@@ -171,7 +171,7 @@ You should now see a nifty confetti effect on your site.
 
 <div class="frame"><img src="/img/guides/getting-started/npm-snowpack-confetti.gif" alt="Gif showing the code next to the project running in the browser. When the code snippet is added and saved, a confetti effect shows in the browser" class="screenshot"/></div>
 
-> 💡 Tip: not all npm modules may work well in the browser. Modules dependent on Node.js built-in modules need a polyfill. Read more about how to do this on our [Starting a New Project page.](/tutorials/getting-started#using-npm-packages)
+> 💡 Tip: not all npm modules may work well in the browser. Modules dependent on Node.js built-in modules need a polyfill. You can enable this polyfill by setting Snowpack’s [`packageOptions.polyfillNode` configuration option](/reference/configuration#packageoptions.polyfillnode) to `true`.
 
 ## Adding CSS
 
@@ -197,7 +197,7 @@ Include it in your project by adding it to index.html in the `<head>`
 
 ## Build for production/deployment
 
-OK you've now built a very simple website and you want to launch it. It's time to use `Snowpack build`.
+OK you've now built a very simple website and you want to launch it. It's time to use `snowpack build`.
 
 By default, `snowpack build` builds your site using the same unbundled approach as the `dev` command. Building is integrated with your development setup which guarantees a near-exact copy of the same code that you saw during development.
 

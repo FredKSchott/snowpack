@@ -1,18 +1,18 @@
-import {promises as fs, existsSync, constants as fsConstants} from 'fs';
+import {promises as fs, existsSync} from 'fs';
 import {bold, dim} from 'kleur/colors';
 import path from 'path';
 import {logger} from '../logger';
 import {CommandOptions} from '../types';
+import {INIT_TEMPLATE_FILE} from '../util';
 
 export async function command(commandOptions: CommandOptions) {
   const {config} = commandOptions;
   logger.info(`Creating new project configuration file... ${dim('(snowpack.config.js)')}`);
-  const templateLoc = path.join(__dirname, '../../assets/snowpack-init-file.js');
   const destLoc = path.join(config.root, 'snowpack.config.js');
   if (existsSync(destLoc)) {
     logger.error(`Error: File already exists, cannot overwrite ${destLoc}`);
     process.exit(1);
   }
-  await fs.copyFile(templateLoc, destLoc, fsConstants.COPYFILE_EXCL);
+  await fs.writeFile(destLoc, INIT_TEMPLATE_FILE);
   logger.info(`File created! Open ${bold('snowpack.config.js')} to customize your project.`);
 }

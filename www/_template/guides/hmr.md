@@ -27,6 +27,8 @@ HMR is enabled by default when you run `snowpack dev`. The Snowpack dev server w
 
 ### Enable HMR: Custom Server
 
+_Note: Full HMR is not yet supported. Only full page reloads are currently working. Follow updates here: [https://github.com/snowpackjs/snowpack/issues/1935](https://github.com/snowpackjs/snowpack/issues/1935)_
+
 If you use your own server (ex: Rails) to serve your application during development, there are a couple of small steps to enable HMR.
 
 HMR is not enabled by default if you are using `snowpack build --watch` for local development (instead of `snowpack dev`). Set `devOptions.hmr: true` in your Snowpack configuration (or, use `--hmr`) to enable HMR support in your application.
@@ -35,7 +37,7 @@ We also recommend that you manually add the Snowpack HMR client to your HTML (de
 
 ```html
 <!-- Load the script to enable HMR. -->
-<script type="module" src="/__snowpack__/hmr-client.js"></script>
+<script type="module" src="/_snowpack/hmr-client.js"></script>
 ```
 
 ### Configuring HMR
@@ -56,7 +58,7 @@ You can control this by setting `devOptions.hmrPort` manually via configuration 
 <script>
   window.HMR_WEBSOCKET_URL = 'ws://localhost:4444';
 </script>
-<script type="module" src="/__snowpack__/hmr-client.js"></script>
+<script type="module" src="/_snowpack/hmr-client.js"></script>
 ```
 
 ### Disable HMR

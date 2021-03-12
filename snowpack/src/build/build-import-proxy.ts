@@ -1,24 +1,18 @@
 import path from 'path';
-import type {Postcss} from 'postcss';
+import postCss from 'postcss';
+import postCssModules from 'postcss-modules';
 import {logger} from '../logger';
 import {SnowpackConfig} from '../types';
-import {
-  appendHtmlToHead,
-  hasExtension,
-  HMR_CLIENT_CODE,
-  HMR_OVERLAY_CODE,
-  NATIVE_REQUIRE,
-} from '../util';
+import {appendHtmlToHead, hasExtension, HMR_CLIENT_CODE, HMR_OVERLAY_CODE} from '../util';
 import {generateSRI} from './import-sri';
 
-const SRI_CLIENT_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_CLIENT_CODE));
-const SRI_ERROR_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_OVERLAY_CODE));
+export const SRI_CLIENT_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_CLIENT_CODE));
+export const SRI_ERROR_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_OVERLAY_CODE));
 
 const importMetaRegex = /import\s*\.\s*meta/;
 
 export function getMetaUrlPath(urlPath: string, config: SnowpackConfig): string {
-  let {metaDir} = config.buildOptions || {};
-  return path.posix.normalize(path.posix.join('/', metaDir, urlPath));
+  return path.posix.normalize(path.posix.join('/', config.buildOptions.metaUrlPath, urlPath));
 }
 
 export function wrapImportMeta({
@@ -169,8 +163,6 @@ if (typeof document !== 'undefined') {${
   return wrapImportMeta({code: cssImportProxyCode, hmr, env: false, config});
 }
 
-let _postCss: Postcss;
-let _postCssModules: any;
 async function generateCssModuleImportProxy({
   url,
   code,
@@ -182,11 +174,9 @@ async function generateCssModuleImportProxy({
   hmr: boolean;
   config: SnowpackConfig;
 }) {
-  _postCssModules = _postCssModules || NATIVE_REQUIRE('postcss-modules');
-  _postCss = _postCss || NATIVE_REQUIRE('postcss');
   let moduleJson: string | undefined;
-  const processor = _postCss([
-    _postCssModules({
+  const processor = postCss([
+    postCssModules({
       getJSON: (_, json) => {
         moduleJson = json;
       },
@@ -245,18 +235,16 @@ export async function wrapImportProxy({
   hmr: boolean;
   config: SnowpackConfig;
 }) {
-  if (typeof code === 'string') {
-    if (hasExtension(url, '.json')) {
-      return generateJsonImportProxy({code, hmr, config});
-    }
+  if (hasExtension(url, '.json')) {
+    return generateJsonImportProxy({code: code.toString(), hmr, config});
+  }
 
-    if (hasExtension(url, '.css')) {
-      // if proxying a CSS file, remove its source map (the path no longer applies)
-      const sanitized = code.replace(/\/\*#\s*sourceMappingURL=[^/]+\//gm, '');
-      return hasExtension(url, '.module.css')
-        ? generateCssModuleImportProxy({url, code: sanitized, hmr, config})
-        : generateCssImportProxy({code: sanitized, hmr, config});
-    }
+  if (hasExtension(url, '.css')) {
+    // if proxying a CSS file, remove its source map (the path no longer applies)
+    const sanitized = code.toString().replace(/\/\*#\s*sourceMappingURL=[^/]+\//gm, '');
+    return hasExtension(url, '.module.css')
+      ? generateCssModuleImportProxy({url, code: sanitized, hmr, config})
+      : generateCssImportProxy({code: sanitized, hmr, config});
   }
 
   return generateDefaultImportProxy(url);

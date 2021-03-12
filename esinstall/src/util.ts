@@ -1,8 +1,8 @@
-import fs from 'fs';
+import {promises as fs, realpathSync} from 'fs';
 import path from 'path';
-import url from 'url';
 import validatePackageName from 'validate-npm-package-name';
-import {InstallTarget, ImportMap} from './types';
+import {InstallTarget, ImportMap, PackageManifest} from './types';
+import resolve from 'resolve';
 
 // We need to use eval here to prevent Rollup from detecting this use of `require()`
 export const NATIVE_REQUIRE = eval('require');
@@ -12,11 +12,11 @@ export async function writeLockfile(loc: string, importMap: ImportMap): Promise<
   for (const key of Object.keys(importMap.imports).sort()) {
     sortedImportMap.imports[key] = importMap.imports[key];
   }
-  fs.writeFileSync(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
+  return fs.writeFile(loc, JSON.stringify(sortedImportMap, undefined, 2), {encoding: 'utf8'});
 }
 
 export function isRemoteUrl(val: string): boolean {
-  return val.startsWith('//') || !!url.parse(val).protocol?.startsWith('http');
+  return /\w+\:\/\//.test(val) || val.startsWith('//');
 }
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {
@@ -42,42 +42,23 @@ export function parsePackageImportSpecifier(imp: string): [string, string | null
  * NOTE: You used to be able to require() a package.json file directly,
  * but now with export map support in Node v13 that's no longer possible.
  */
-export function resolveDependencyManifest(dep: string, cwd: string): [string | null, any | null] {
-  // Attempt #1: Resolve the dependency manifest normally. This works for most
-  // packages, but fails when the package defines an export map that doesn't
-  // include a package.json. If we detect that to be the reason for failure,
-  // move on to our custom implementation.
+export function resolveDependencyManifest(
+  dep: string,
+  cwd: string,
+): [string | null, PackageManifest | null] {
   try {
-    const depManifest = fs.realpathSync.native(
-      require.resolve(`${dep}/package.json`, {paths: [cwd]}),
-    );
-    return [depManifest, NATIVE_REQUIRE(depManifest)];
-  } catch (err) {
-    // if its an export map issue, move on to our manual resolver.
-    if (err.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
-      return [null, null];
-    }
-  }
+    // resolve doesn't care about export map rules, so should find a package.json
+    // if one does exist.
+    const pkgPth = resolve.sync(`${dep}/package.json`, {
+      basedir: cwd,
+    });
 
-  // Attempt #2: Resolve the dependency manifest manually. This involves resolving
-  // the dep itself to find the entrypoint file, and then haphazardly replacing the
-  // file path within the package with a "./package.json" instead. It's not as
-  // thorough as Attempt #1, but it should work well until export maps become more
-  // established & move out of experimental mode.
-  const result = [null, null] as [string | null, any | null];
-  const fullPath = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
-  // Strip everything after the package name to get the package root path
-  // NOTE: This find-replace is very gross, replace with something like upath.
-  const searchPath = `${path.sep}node_modules${path.sep}${dep.replace('/', path.sep)}`;
-  const indexOfSearch = fullPath.lastIndexOf(searchPath);
-  if (indexOfSearch >= 0) {
-    const manifestPath =
-      fullPath.substring(0, indexOfSearch + searchPath.length + 1) + 'package.json';
-    result[0] = manifestPath;
-    const manifestStr = fs.readFileSync(manifestPath, {encoding: 'utf8'});
-    result[1] = JSON.parse(manifestStr);
+    const depManifest = realpathSync.native(pkgPth);
+    return [depManifest, NATIVE_REQUIRE(depManifest)];
+  } catch {
+    // This shouldn't ever happen if the package does exist.
+    return [null, null];
   }
-  return result;
 }
 
 /**
@@ -203,7 +184,7 @@ export function isJavaScript(pathname: string): boolean {
  *   - BUNDLE: Install and bundle this file with Rollup engine.
  *   - ASSET: Copy this file directly.
  */
-export function getWebDependencyType(pathname: string): 'ASSET' | 'BUNDLE' {
+export function getWebDependencyType(pathname: string): 'ASSET' | 'BUNDLE' | 'DTS' {
   const ext = path.extname(pathname).toLowerCase();
   // JavaScript should always be bundled.
   if (isJavaScript(pathname)) {
@@ -215,6 +196,12 @@ export function getWebDependencyType(pathname: string): 'ASSET' | 'BUNDLE' {
   if (ext === '.svelte' || ext === '.vue') {
     return 'BUNDLE';
   }
+
+  // TypeScript typings
+  if (pathname.endsWith('.d.ts')) {
+    return 'DTS';
+  }
+
   // All other files should be treated as assets (copied over directly).
   return 'ASSET';
 }

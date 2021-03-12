@@ -13,8 +13,8 @@ describe('package: tippy.js', () => {
   });
 
   it('builds to the correct path', () => {
-    const mainEntryLoc = path.join(cwd, 'web_modules', 'tippyjs.js');
-    const assetsLoc = path.join(cwd, 'web_modules', 'tippyjs');
+    const mainEntryLoc = path.join(cwd, '_snowpack', 'pkg', 'tippyjs.js');
+    const assetsLoc = path.join(cwd, '_snowpack', 'pkg', 'tippyjs');
 
     expect(fs.existsSync(mainEntryLoc) && fs.statSync(mainEntryLoc).isFile()).toBe(true);
     expect(fs.existsSync(assetsLoc) && fs.statSync(assetsLoc).isDirectory()).toBe(true);
@@ -22,7 +22,7 @@ describe('package: tippy.js', () => {
 
   it('resolves imports', () => {
     expect(files['/_dist_/index.js']).toEqual(
-      expect.stringContaining(`import tippy from '../web_modules/tippyjs.js';`),
+      expect.stringContaining(`import tippy from '../_snowpack/pkg/tippyjs.js';`),
     );
   });
 });

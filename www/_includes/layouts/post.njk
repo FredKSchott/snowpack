@@ -18,14 +18,14 @@
     <meta property="og:url" content="https://www.snowpack.dev{{permalink}}">
     <meta property="og:title" content="{{title}}">
     <meta property="og:description" content="{{description}}">
-    <meta property="og:image" content="https://www.snowpack.dev/img/social-snowpackv3.png">
+    <meta property="og:image" content="https://www.snowpack.dev/img/social-snowpackv3.jpg">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://www.snowpack.dev{{permalink}}">
     <meta property="twitter:title" content="{{title}}">
     <meta property="twitter:description" content="{{description}}">
-    <meta property="twitter:image" content="https://www.snowpack.dev/img/social-snowpackv3.png">
+    <meta property="twitter:image" content="https://www.snowpack.dev/img/social-snowpackv3.jpg">
 
     <!-- Global Stylesheets -->
     <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;700;900&display=swap" rel="stylesheet">
@@ -122,7 +122,9 @@
             </g>
         </svg>
         <h1 class="header-snowpack">{{title}}</h1>
-        <p>{{tagline}}<br /> Published <a href='#published-at'>{{page.date | readableDate }}</a> by <a href="https://twitter.com/FredKSchott">Fred K. Schott<a></p>
+
+        
+        <p>{% if tagline %}{{tagline}}<br />{% endif %}Published <a href='#published-at'>{{page.date | readableDate }}</a> by <a href="https://twitter.com/FredKSchott">Fred K. Schott<a></p>
         <!-- Place this tag where you want the button to render. -->
         <div class="hidden-mobile" style="text-align: center; margin-top: 0.5rem; filter: scale(2);">
             <a class="github-button" href="https://github.com/snowpackjs/snowpack" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star snowpackjs/snowpack on GitHub">Star</a>

@@ -57,7 +57,13 @@ class SnowpackLogger {
     let text = message;
     if (level === 'warn') text = colors.yellow(text);
     if (level === 'error') text = colors.red(text);
-    const log = `${colors.dim(`[${name}]`)} ${text}`;
+    const time = new Date();
+    const log = `${colors.dim(
+      `[${String(time.getHours() + 1).padStart(2, '0')}:${String(time.getMinutes() + 1).padStart(
+        2,
+        '0',
+      )}:${String(time.getSeconds()).padStart(2, '0')}]`,
+    )} ${colors.dim(`[${name}]`)} ${text}`;
 
     // add to log history and remove old logs to keep memory low
     const lastHistoryItem = this.history[this.history.length - 1];

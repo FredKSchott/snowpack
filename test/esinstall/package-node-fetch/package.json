@@ -7,17 +7,16 @@
     "testinstall": "snowpack install"
   },
   "snowpack": {
-    "install": [
-      "dep-node-fetch-mock-pkg"
-    ],
-    "buildOptions": {
-      "minify": false
+    "packageOptions": {
+      "knownEntrypoints": [
+        "dep-node-fetch-mock-pkg"
+      ]
     }
   },
   "dependencies": {
     "dep-node-fetch-mock-pkg": "file:./packages/dep-node-fetch-mock-pkg"
   },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

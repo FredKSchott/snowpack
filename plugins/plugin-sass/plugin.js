@@ -3,14 +3,37 @@ const path = require('path');
 const execa = require('execa');
 const npmRunPath = require('npm-run-path');
 
-const IMPORT_REGEX = /\@(use|import)\s*['"](.*?)['"]/g;
+const IMPORT_REGEX = /\@(use|import|forward)\s*['"](.*?)['"]/g;
 const PARTIAL_REGEX = /([\/\\])_(.+)(?![\/\\])/;
 
 function stripFileExtension(filename) {
   return filename.split('.').slice(0, -1).join('.');
 }
 
-function scanSassImports(fileContents, filePath, fileExt) {
+function findChildPartials(pathName, fileName, fileExt) {
+  const dirPath = path.parse(pathName).dir;
+
+  // Prepend a "_" to signify a partial.
+  if (!fileName.startsWith('_')) {
+    fileName = '_' + fileName;
+  }
+
+  // Add on the file extension if it is not already used.
+  if (!fileName.endsWith('.scss') || !fileName.endsWith('.sass')) {
+    fileName += fileExt;
+  }
+
+  const filePath = path.resolve(dirPath, fileName);
+
+  let contents = '';
+  try {
+    contents = fs.readFileSync(filePath, 'utf8');
+  } catch (err) {}
+
+  return contents;
+}
+
+function scanSassImports(fileContents, filePath, fileExt, partials = new Set()) {
   // TODO: Replace with matchAll once Node v10 is out of TLS.
   // const allMatches = [...result.matchAll(new RegExp(HTML_JS_REGEX))];
   const allMatches = [];
@@ -20,15 +43,43 @@ function scanSassImports(fileContents, filePath, fileExt) {
     allMatches.push(match);
   }
   // return all imports, resolved to true files on disk.
-  return allMatches
+  allMatches
     .map((match) => match[2])
     .filter((s) => s.trim())
-    .map((s) => {
-      return path.resolve(path.dirname(filePath), s);
+    // Avoid node packages and core sass libraries.
+    .filter((s) => !s.includes('node_modules') && !s.includes('sass:'))
+    .forEach((fileName) => {
+      let pathName = path.resolve(path.dirname(filePath), fileName);
+
+      if (partials.has(pathName)) {
+        return;
+      }
+
+      // Add this partial to the main list being passed to avoid duplicates.
+      partials.add(pathName);
+
+      // If it is a directory then look for an _index file.
+      try {
+        if (fs.lstatSync(pathName).isDirectory()) {
+          fileName = 'index';
+          pathName += '/' + fileName;
+        }
+      } catch (err) {}
+
+      // Recursively find any child partials that have not already been added.
+      const partialsContent = findChildPartials(pathName, fileName, fileExt);
+      if (partialsContent) {
+        const childPartials = scanSassImports(partialsContent, pathName, fileExt, partials);
+        partials.add(...childPartials);
+      }
     });
+
+  return partials;
 }
 
-module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
+module.exports = function sassPlugin(snowpackConfig, {native, compilerOptions = {}} = {}) {
+  const {root} = snowpackConfig || {};
+
   /** A map of partially resolved imports to the files that imported them. */
   const importedByMap = new Map();
 
@@ -94,7 +145,7 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
       // During development, we need to track changes to Sass dependencies.
       if (isDev) {
         const sassImports = scanSassImports(contents, filePath, fileExt);
-        sassImports.forEach((imp) => addImportsToMap(filePath, imp));
+        [...sassImports].forEach((imp) => addImportsToMap(filePath, imp));
       }
 
       // If file is `.sass`, use YAML-style. Otherwise, use default.
@@ -104,7 +155,7 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
       }
 
       // Pass in user-defined options
-      Object.entries(compilerOptions).forEach(([flag, value]) => {
+      function parseCompilerOption([flag, value]) {
         let flagName = flag.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`); // convert camelCase to kebab-case
         switch (typeof value) {
           case 'boolean': {
@@ -116,15 +167,39 @@ module.exports = function sassPlugin(_, {native, compilerOptions = {}} = {}) {
             args.push(`--${flagName}=${value}`);
             break;
           }
+          default: {
+            if (Array.isArray(value)) {
+              for (const val of value) {
+                parseCompilerOption(flag, val);
+              }
+              break;
+            }
+            throw new Error(
+              `compilerOptions[${flag}] value not supported. Must be string, number, or boolean.`,
+            );
+          }
         }
-      });
+      }
+      Object.entries(compilerOptions).forEach(parseCompilerOption);
 
       // Build the file.
-      const {stdout, stderr} = await execa('sass', args, {
+      const execaOptions = {
         input: contents,
+        // Adds the PATH param to the command so it can find local sass
         env: native ? undefined : npmRunPath.env(),
         extendEnv: native ? true : false,
-      });
+      };
+
+      // If not using native them specify the project root so execa finds the right sass binary.
+      if (!native && root) {
+        // Prefer the node_modules/.bin
+        execaOptions.preferLocal = true;
+
+        // Specifies the local directory (which contains a .bin with sass)
+        execaOptions.localDir = root;
+      }
+
+      const {stdout, stderr} = await execa('sass', args, execaOptions);
       // Handle the output.
       if (stderr) throw new Error(stderr);
       if (stdout) return stdout;

@@ -23,7 +23,7 @@ function hasPmInstalled(packageManager) {
 }
 
 function validateArgs(args) {
-  const {template, useYarn, usePnpm, force, target, install, _} = yargs(args);
+  const {template, useYarn, usePnpm, force, target, install, verbose, _} = yargs(args);
   const toInstall = install !== undefined ? install : true;
   if (useYarn && usePnpm) {
     logError('You can not use Yarn and pnpm at the same time.');
@@ -55,6 +55,7 @@ function validateArgs(args) {
     targetDirectoryRelative,
     targetDirectory,
     toInstall,
+    verbose,
   };
 }
 
@@ -112,15 +113,22 @@ async function cleanProject(dir) {
       2,
     ),
   );
-  await fs.promises.writeFile(
-    path.join(dir, '.gitignore'),
-    ['.build', 'build', 'web_modules', 'node_modules'].join('\n'),
-  );
+
+  const gitignore = path.join(dir, '.gitignore');
+  if (!fs.existsSync(gitignore)) {
+    await fs.promises.writeFile(gitignore, ['.snowpack', 'build', 'node_modules'].join('\n'));
+  }
 }
 
-const {template, useYarn, usePnpm, toInstall, targetDirectoryRelative, targetDirectory} = validateArgs(
-  process.argv,
-);
+const {
+  template,
+  useYarn,
+  usePnpm,
+  toInstall,
+  targetDirectoryRelative,
+  targetDirectory,
+  verbose,
+} = validateArgs(process.argv);
 
 let installer = 'npm';
 if (useYarn) {
@@ -139,16 +147,19 @@ const installedTemplate = isLocalTemplate
 
   console.log(`\n  - Using template ${colors.cyan(template)}`);
   console.log(`  - Creating a new project in ${colors.cyan(targetDirectory)}`);
-
   fs.mkdirSync(targetDirectory, {recursive: true});
   await fs.promises.writeFile(path.join(targetDirectory, 'package.json'), `{"name": "my-csa-app"}`);
   // fetch from npm or GitHub if not local (which will be most of the time)
   if (!isLocalTemplate) {
     try {
-      await execa('npm', ['install', template, '--ignore-scripts'], {
-        cwd: targetDirectory,
-        all: true,
-      });
+      await execa(
+        'npm',
+        ['install', template, '--ignore-scripts', '--loglevel', verbose ? 'verbose' : 'error'],
+        {
+          cwd: targetDirectory,
+          all: true,
+        },
+      );
     } catch (err) {
       // Only log output if the command failed
       console.error(err.all);
@@ -169,11 +180,19 @@ const installedTemplate = isLocalTemplate
     function installProcess(packageManager) {
       switch (packageManager) {
         case 'npm':
-          return execa('npm', ['install', '--loglevel', 'error'], npmInstallOptions);
+          return execa(
+            'npm',
+            ['install', '--loglevel', verbose ? 'verbose' : 'error'],
+            npmInstallOptions,
+          );
         case 'yarn':
-          return execa('yarn', ['--silent'], npmInstallOptions);
+          return execa('yarn', [verbose ? '--verbose' : '--silent'], npmInstallOptions);
         case 'pnpm':
-          return execa('pnpm', ['install', '--reporter=silent'], npmInstallOptions);
+          return execa(
+            'pnpm',
+            ['install', `--reporter=${verbose ? 'default' : 'silent'}`],
+            npmInstallOptions,
+          );
         default:
           throw new Error('Unspecified package installer.');
       }
@@ -215,10 +234,8 @@ const installedTemplate = isLocalTemplate
     formatCommand(
       `${installer} install`,
       `Install your dependencies. ${
-        toInstall
-        ? '(We already ran this one for you!)'
-        : '(You asked us to skip this step!)'
-      }`
+        toInstall ? '(We already ran this one for you!)' : '(You asked us to skip this step!)'
+      }`,
     ),
   );
   console.log(formatCommand(`${installer} start`, 'Start your development server.'));

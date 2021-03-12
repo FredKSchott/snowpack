@@ -22,15 +22,24 @@ Node.js recently added support for a package.json "exports" entry that defines w
 
 If you see this error message, that means that you've imported a file path not allowed in the export map. If you believe this to be an error, reach out to the package author to request the file be added to their export map.
 
-### Uncaught SyntaxError: The requested module '/web_modules/XXXXXX.js' does not provide an export named 'YYYYYY'
+### Uncaught SyntaxError: The requested module '/\_snowpack/pkg/XXXXXX.js' does not provide an export named 'YYYYYY'
 
 If you are using TypeScript, this error could occur if you are importing something that only exists in TypeScript (like a type or interface) and doesn't actually exist in the final JavaScript code. This issue is rare since our built-in TypeScript support will automatically extract and remove only type-only imports.
 
 **To solve:** Make sure to use `import type { MyInterfaceName }` instead.
 
-This error could also appear if you importing named exports from older, non-ESM npm packages. We do our best to statically analyze legacy packages for named exports, but this is not always possible. While this used to be a common problem for Snowpack users, thanks to improvements in our scanner this is no longer an issue the latest versions of Snowpack.
+This error could also appear if named imports are used with older, Common.js npm packages. Thanks to improvements in our package scanner this is no longer a common issue for most packages. However, some packages are written or compiled in a way that makes automatic import scanning impossible.
 
-**To solve:** Use the default import (`import pkg from 'my-old-package'`) for legacy Common.js/UMD packages that cannot be analyzed.
+**To solve:** Use the default import (`import pkg from 'my-old-package'`) for legacy Common.js/UMD packages that cannot be analyzed. Or, add the package name to your `packageOptions.namedExports` configuration for runtime import scanning.
+
+```js
+// snowpack.config.js
+{
+  "packageOptions": {
+    "namedExports": ["@shopify/polaris-tokens"]
+  }
+}
+```
 
 ### Installing Non-JS Packages
 

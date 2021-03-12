@@ -1,0 +1,7 @@
+{
+  "name": "@snowpack/test-tree-shake-expression",
+  "version": "1.0.0",
+  "dependencies": {
+    "inner-module": "file:./inner-module"
+  }
+}

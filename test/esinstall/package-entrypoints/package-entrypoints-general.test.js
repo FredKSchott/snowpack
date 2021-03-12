@@ -1,4 +1,4 @@
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 const path = require('path');
 
 describe('package-entrypoints general tests', () => {
@@ -10,7 +10,7 @@ describe('package-entrypoints general tests', () => {
 
     const {
       importMap: {imports},
-    } = await install(targets, {
+    } = await runTest(targets, {
       cwd,
       dest,
     });
@@ -28,7 +28,7 @@ describe('package-entrypoints general tests', () => {
 
     const {
       importMap: {imports},
-    } = await install(targets, {
+    } = await runTest(targets, {
       cwd,
       dest,
     });
@@ -46,7 +46,7 @@ describe('package-entrypoints general tests', () => {
 
     const {
       importMap: {imports},
-    } = await install(targets, {
+    } = await runTest(targets, {
       cwd,
       dest,
     });
@@ -55,5 +55,37 @@ describe('package-entrypoints general tests', () => {
     for (let pkg of targets) {
       expect(imports[pkg]).toBeTruthy();
     }
+  });
+
+  it('Supports "main" when it points to a folder', async () => {
+    const cwd = __dirname;
+    const dest = path.join(cwd, 'test-main-folder');
+    const spec = 'main-folder';
+
+    const {
+      importMap: {imports},
+    } = await runTest([spec], {
+      cwd,
+      dest,
+    });
+
+    expect(Object.keys(imports)).toHaveLength(1);
+    expect(imports['main-folder']).toBeTruthy();
+  });
+
+  it('Supports an implicit main when types also exist', async () => {
+    const cwd = __dirname;
+    const dest = path.join(cwd, 'test-implicit-main');
+    const spec = 'implicit-main';
+
+    const {
+      importMap: {imports},
+    } = await runTest([spec], {
+      cwd,
+      dest,
+    });
+
+    expect(Object.keys(imports)).toHaveLength(1);
+    expect(imports['implicit-main']).toBeTruthy();
   });
 });

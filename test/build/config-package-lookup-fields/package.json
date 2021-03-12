@@ -7,7 +7,7 @@
     "testbuild": "snowpack build"
   },
   "snowpack": {
-    "installOptions": {
+    "packageOptions": {
       "packageLookupFields": [
         "custom-lookup"
       ]
@@ -17,6 +17,6 @@
     "some-custom-lookup-package": "file:./packages/some-custom-lookup-package"
   },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

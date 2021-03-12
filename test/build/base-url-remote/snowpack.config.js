@@ -5,6 +5,5 @@ module.exports = {
   },
   buildOptions: {
     baseUrl: 'https://www.example.com/',
-    minify: false,
   },
 };

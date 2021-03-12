@@ -1,7 +1,7 @@
 {
   "name": "@snowpack/app-template-preact-typescript",
   "description": "A preconfigured template for Snowpack with Preact and Typescript",
-  "version": "1.4.1",
+  "version": "2.0.2",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-preact-typescript#readme",
   "repository": {
@@ -26,16 +26,16 @@
     "preact": "^10.0.0"
   },
   "devDependencies": {
-    "@prefresh/snowpack": "^2.0.1",
+    "@prefresh/snowpack": "^3.0.0",
     "@snowpack/plugin-dotenv": "^2.0.5",
-    "@snowpack/plugin-typescript": "^1.1.1",
-    "@snowpack/web-test-runner-plugin": "^0.1.5",
+    "@snowpack/plugin-typescript": "^1.2.0",
+    "@snowpack/web-test-runner-plugin": "^0.2.0",
     "@testing-library/preact": "^2.0.0",
     "@types/chai": "^4.2.14",
-    "@web/test-runner": "^0.10.0",
+    "@web/test-runner": "^0.12.0",
     "chai": "^4.2.0",
     "prettier": "^2.0.5",
-    "snowpack": "^2.18.4",
+    "snowpack": "^3.0.1",
     "typescript": "^4.0.3"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"

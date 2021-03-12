@@ -19,46 +19,51 @@ describe('create-snowpack-app', () => {
   jest.setTimeout(60 * 1000);
 
   // test npx create-snowpack-app bin
-  it('npx create-snowpack-app', () => {
+  it('npx create-snowpack-app', async () => {
     const template = 'app-template-preact'; // any template will do
     const installDir = path.resolve(__dirname, 'test-install');
 
     rimraf.sync(installDir);
 
     // run the local create-snowpack-app bin
-    execa.sync(
-      'node',
-      [
-        './create-snowpack-app/cli',
-        `./test/create-snowpack-app/test-install`,
-        '--template',
-        `./create-snowpack-app/${template}`,
-        '--use-yarn', // we use Yarn for this repo
-      ],
-      {cwd: path.resolve(__dirname, '..', '..')},
+    console.log(
+      await execa(
+        'node',
+        [
+          './create-snowpack-app/cli',
+          `./test/create-snowpack-app/test-install`,
+          '--template',
+          `./create-snowpack-app/${template}`,
+          '--use-yarn', // we use Yarn for this repo
+        ],
+        {cwd: path.resolve(__dirname, '..', '..')},
+      ),
     );
 
     // snowpack.config.json is a file we can test for to assume successful
     // install, since it’s added at the end.
     const snowpackConfigExists =
-      fs.existsSync(path.join(installDir, 'snowpack.config.json')) ||
-      fs.existsSync(path.join(installDir, 'snowpack.config.js'));
-    expect(snowpackConfigExists).toBe(true);
+      (await fs.promises.stat(path.join(installDir, 'snowpack.config.json')).catch(() => false)) ||
+      (await fs.promises.stat(path.join(installDir, 'snowpack.config.js')).catch(() => false));
+    expect(snowpackConfigExists).toBeDefined();
 
     // install node_modules by default
-    const modulesExist = fs.existsSync(path.join(installDir, 'node_modules'));
-    expect(modulesExist).toBe(true);
+    console.log(path.join(installDir, 'node_modules'));
+    const modulesExist = await fs.promises
+      .stat(path.join(installDir, 'node_modules'))
+      .catch(() => false);
+    expect(modulesExist).toBeDefined();
   });
 
   // test `--no-install` option
-  it('npx create-snowpack-app --no-install', () => {
+  it('npx create-snowpack-app --no-install', async () => {
     const template = 'app-template-preact'; // any template will do
     const installDir = path.resolve(__dirname, 'test-install');
 
     rimraf.sync(installDir);
 
     // run the local create-snowpack-app bin
-    execa.sync(
+    await execa(
       'node',
       [
         './create-snowpack-app/cli',
@@ -74,13 +79,15 @@ describe('create-snowpack-app', () => {
     // snowpack.config.json is a file we can test for to assume successful
     // install, since it’s added at the end.
     const snowpackConfigExists =
-      fs.existsSync(path.join(installDir, 'snowpack.config.json')) ||
-      fs.existsSync(path.join(installDir, 'snowpack.config.js'));
-    expect(snowpackConfigExists).toBe(true);
+      (await fs.promises.stat(path.join(installDir, 'snowpack.config.json')).catch(() => false)) ||
+      (await fs.promises.stat(path.join(installDir, 'snowpack.config.js')).catch(() => false));
+    expect(snowpackConfigExists).toBeDefined();
 
     // install node_modules by default
-    const modulesExist = fs.existsSync(path.join(installDir, 'node_modules'));
-    expect(modulesExist).toBe(false);
+    const modulesExist = await fs.promises
+      .stat(path.join(installDir, 'node_modules'))
+      .catch(() => false);
+    expect(modulesExist).toBeDefined();
   });
 
   // template snapshots

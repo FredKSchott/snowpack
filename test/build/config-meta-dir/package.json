@@ -11,6 +11,6 @@
     "shallow-equal": "^1.2.1"
   },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

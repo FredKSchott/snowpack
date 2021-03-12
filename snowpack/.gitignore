@@ -1,4 +1,4 @@
 lib/*
 node_modules
-vendor/generated
-polyfills
+vendor/generated/
+vendor/types/

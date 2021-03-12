@@ -1,0 +1,5 @@
+{
+  "name": "default-only-esm",
+  "version": "0.1.0",
+  "module": "index.js"
+}

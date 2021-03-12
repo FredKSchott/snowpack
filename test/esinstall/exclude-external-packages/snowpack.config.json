@@ -1,9 +1,0 @@
-{
-  "install": ["array-flatten"],
-  "buildOptions": {
-    "minify": false
-  },
-  "installOptions": {
-    "externalPackage": ["vue"]
-  }
-}

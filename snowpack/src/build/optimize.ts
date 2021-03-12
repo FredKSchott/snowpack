@@ -12,12 +12,11 @@ import {
   hasExtension,
   isRemoteUrl,
   isTruthy,
-  PROJECT_CACHE_DIR,
   removeLeadingSlash,
   removeTrailingSlash,
   deleteFromBuildSafe,
 } from '../util';
-import {getUrlForFile} from './file-urls';
+import {getUrlsForFile} from './file-urls';
 
 interface ESBuildMetaInput {
   bytes: number;
@@ -46,30 +45,8 @@ interface ScannedHtmlEntrypoint {
 // We want to output our bundled build directly into our build directory, but esbuild
 // has a bug where it complains about overwriting source files even when write: false.
 // We create a fake bundle directory for now. Nothing ever actually gets written here.
-const FAKE_BUILD_DIRECTORY = path.join(PROJECT_CACHE_DIR, '~~bundle~~');
+const FAKE_BUILD_DIRECTORY = path.join(process.cwd(), '~~bundle~~');
 const FAKE_BUILD_DIRECTORY_REGEX = /.*\~\~bundle\~\~[\\\/]/;
-/**
- * Scan a directory and remove any empty folders, recursively.
- */
-async function removeEmptyFolders(directoryLoc: string): Promise<boolean> {
-  if (!(await fs.stat(directoryLoc)).isDirectory()) {
-    return false;
-  }
-  // If folder is empty, clear it
-  const files = await fs.readdir(directoryLoc);
-  if (files.length === 0) {
-    await fs.rmdir(directoryLoc);
-    return false;
-  }
-  // Otherwise, step in and clean each contained item
-  await Promise.all(files.map((file) => removeEmptyFolders(path.join(directoryLoc, file))));
-  // After, check again if folder is now empty
-  const afterFiles = await fs.readdir(directoryLoc);
-  if (afterFiles.length == 0) {
-    await fs.rmdir(directoryLoc);
-  }
-  return true;
-}
 
 /** Collect deep imports in the given set, recursively. */
 function collectDeepImports(url: string, manifest: ESBuildMetaManifest, set: Set<string>): void {
@@ -93,7 +70,7 @@ async function scanHtmlEntrypoints(htmlFiles: string[]): Promise<(ScannedHtmlEnt
   return Promise.all(
     htmlFiles.map(async (htmlFile) => {
       const code = await fs.readFile(htmlFile, 'utf8');
-      const root = cheerio.load(code);
+      const root = cheerio.load(code, {decodeEntities: false});
       const isHtmlFragment = root.html().startsWith('<html><head></head><body>');
       if (isHtmlFragment) {
         return null;
@@ -314,11 +291,11 @@ async function resolveEntrypoints(
       const resolvedSourceFile = path.resolve(cwd, entrypoint);
       let resolvedSourceEntrypoint: string | undefined;
       if (await fs.stat(resolvedSourceFile).catch(() => null)) {
-        const resolvedSourceUrl = getUrlForFile(resolvedSourceFile, config);
-        if (resolvedSourceUrl) {
+        const resolvedSourceUrls = getUrlsForFile(resolvedSourceFile, config);
+        if (resolvedSourceUrls) {
           resolvedSourceEntrypoint = path.resolve(
             buildDirectoryLoc,
-            removeLeadingSlash(resolvedSourceUrl),
+            removeLeadingSlash(resolvedSourceUrls[0]),
           );
           if (await fs.stat(resolvedSourceEntrypoint).catch(() => null)) {
             return resolvedSourceEntrypoint;
@@ -414,16 +391,17 @@ async function runEsbuildOnBuildDirectory(
     outbase: config.buildOptions.out,
     write: false,
     bundle: true,
-    splitting: true,
+    splitting: config.optimize!.splitting,
     format: 'esm',
     platform: 'browser',
     metafile: path.join(config.buildOptions.out, 'build-manifest.json'),
     publicPath: config.buildOptions.baseUrl,
-    minify: config.experiments.optimize!.minify,
-    target: config.experiments.optimize!.target,
+    minify: config.optimize!.minify,
+    target: config.optimize!.target,
     external: Array.from(new Set(allFiles.map((f) => '*' + path.extname(f)))).filter(
-      (ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css',
+      (ext) => ext !== '*.js' && ext !== '*.mjs' && ext !== '*.css' && ext !== '*',
     ),
+    charset: 'utf8',
   });
   const manifestFile = outputFiles!.find((f) => f.path.endsWith('build-manifest.json'))!;
   const manifestContents = manifestFile.text;
@@ -441,7 +419,7 @@ async function runEsbuildOnBuildDirectory(
         addTrailingSlash(config.buildOptions.out),
       )),
   );
-  if (!config.experiments.optimize?.bundle) {
+  if (!config.optimize?.bundle) {
     delete manifest.outputs;
   } else {
     Object.entries(manifest.outputs).forEach(([f, val]) => {
@@ -460,17 +438,10 @@ async function runEsbuildOnBuildDirectory(
 export async function runBuiltInOptimize(config: SnowpackConfig) {
   const originalCwd = process.cwd();
   const buildDirectoryLoc = config.buildOptions.out;
-  const options = config.experiments.optimize;
+  const options = config.optimize;
   if (!options) {
     return;
   }
-
-  logger.warn(
-    '(early preview: experiments.optimize is experimental, and still subject to change.)',
-    {
-      name: 'optimize',
-    },
-  );
 
   // * Scan to collect all build files: We'll need this throughout.
   const allBuildFiles = glob.sync('**/*', {
@@ -498,7 +469,11 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
   logger.debug(`htmlEntrypoints: ${JSON.stringify(htmlEntrypoints?.map((f) => f.file))}`);
   logger.debug(`bundleEntrypoints: ${JSON.stringify(bundleEntrypoints)}`);
 
-  if ((!htmlEntrypoints || htmlEntrypoints.length === 0) && bundleEntrypoints.length === 0) {
+  if (
+    (!htmlEntrypoints || htmlEntrypoints.length === 0) &&
+    bundleEntrypoints.length === 0 &&
+    (options.bundle || options.preload)
+  ) {
     throw new Error(
       '[optimize] No HTML entrypoints detected. Set "entrypoints" manually if your site HTML is generated outside of Snowpack (SSR, Rails, PHP, etc.).',
     );
@@ -532,10 +507,12 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
       }
     }
     deleteFromBuildSafe(
-      path.resolve(buildDirectoryLoc, removeLeadingSlash(config.buildOptions.webModulesUrl)),
-      config
+      path.resolve(
+        buildDirectoryLoc,
+        removeLeadingSlash(path.posix.join(config.buildOptions.metaUrlPath, 'pkg')),
+      ),
+      config,
     );
-    await removeEmptyFolders(buildDirectoryLoc);
     for (const outputFile of outputFiles!) {
       mkdirp.sync(path.dirname(outputFile.path));
       await fs.writeFile(outputFile.path, outputFile.contents);
@@ -556,6 +533,7 @@ export async function runBuiltInOptimize(config: SnowpackConfig) {
           loader: path.extname(f).slice(1) as 'js' | 'css',
           minify: options.minify,
           target: options.target,
+          charset: 'utf8',
         });
         code = minified.code;
         await fs.writeFile(f, code);

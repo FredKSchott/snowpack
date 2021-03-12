@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 
 // This test simulates what keyboard-key is doing.
 describe('Auto-detecting CJS exports', () => {
@@ -11,7 +11,7 @@ describe('Auto-detecting CJS exports', () => {
 
     const {
       importMap: {imports},
-    } = await install([spec], {
+    } = await runTest([spec], {
       cwd,
       dest,
     });
@@ -30,7 +30,7 @@ describe('Auto-detecting CJS exports', () => {
 
     const {
       importMap: {imports},
-    } = await install([spec], {
+    } = await runTest([spec], {
       cwd,
       dest,
     });

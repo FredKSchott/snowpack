@@ -11,21 +11,32 @@ let makeHot = (...args) => {
 
 module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   const isDev = process.env.NODE_ENV !== 'production';
-  const useSourceMaps = snowpackConfig.buildOptions.sourceMaps;
+  const useSourceMaps =
+    snowpackConfig.buildOptions.sourcemap || snowpackConfig.buildOptions.sourceMaps;
+  // Old Snowpack versions wouldn't build dependencies. Starting in v3.1, Snowpack's build pipeline
+  // is run on all files, including npm package files. The rollup plugin is no longer needed.
+  const needsRollupPlugin = typeof snowpackConfig.buildOptions.resolveProxyImports === 'undefined';
 
   // Support importing Svelte files when you install dependencies.
-  snowpackConfig.installOptions.rollup.plugins.push(
-    svelteRollupPlugin({
-      include: /\.svelte$/,
-      compilerOptions: {dev: isDev},
-      // Snowpack wraps JS-imported CSS in a JS wrapper, so use
-      // Svelte's own first-class `emitCss: false` here.
-      // TODO: Remove once Snowpack adds first-class CSS import support in deps.
-      emitCss: false,
-    }),
-  );
-  // Support importing sharable Svelte components.
-  snowpackConfig.installOptions.packageLookupFields.push('svelte');
+  const packageOptions = snowpackConfig.packageOptions || snowpackConfig.installOptions;
+  if (packageOptions.source === 'local') {
+    if (needsRollupPlugin) {
+      packageOptions.rollup = packageOptions.rollup || {};
+      packageOptions.rollup.plugins = packageOptions.rollup.plugins || [];
+      packageOptions.rollup.plugins.push(
+        svelteRollupPlugin({
+          include: /\.svelte$/,
+          compilerOptions: {dev: isDev},
+          // Snowpack wraps JS-imported CSS in a JS wrapper, so use
+          // Svelte's own first-class `emitCss: false` here.
+          // TODO: Remove once Snowpack adds first-class CSS import support in deps.
+          emitCss: false,
+        }),
+      );
+    }
+    // Support importing sharable Svelte components.
+    packageOptions.packageLookupFields.push('svelte');
+  }
 
   if (
     pluginOptions.generate !== undefined ||
@@ -91,7 +102,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       'svelte-hmr/runtime/hot-api-esm.js',
       'svelte-hmr/runtime/proxy-adapter-dom.js',
     ],
-    async load({filePath, isHmrEnabled, isSSR}) {
+    async load({filePath, isHmrEnabled, isSSR, isPackage}) {
       let codeToCompile = await fs.promises.readFile(filePath, 'utf-8');
       // PRE-PROCESS
       if (preprocessOptions !== false) {
@@ -104,9 +115,9 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
 
       const finalCompileOptions = {
         generate: isSSR ? 'ssr' : 'dom',
-        css: false,
+        css: isPackage ? true : false,
         ...compilerOptions, // Note(drew) should take precedence over generate above
-        dev: isDev,
+        dev: isHmrEnabled || isDev,
         outputFilename: filePath,
         filename: filePath,
       };
@@ -125,9 +136,10 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
           id: filePath,
           compiledCode: js.code,
           hotOptions: {
+            preserveLocalState: true,
+            injectCss: true,
             ...hmrOptions,
             absoluteImports: false,
-            injectCss: true,
             noOverlay: true,
           },
           compiled,

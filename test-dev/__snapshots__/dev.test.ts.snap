@@ -1,5 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`snowpack dev smoke: about 1`] = `
+"<!DOCTYPE html>
+<html>
+  <head><script type=\\"text/javascript\\">window.HMR_WEBSOCKET_PORT=8080</script>
+<script type=\\"module\\" integrity=\\"sha384-rbGo7LspMFxft0OAU/uQAodxT5gCYH2e8y3Awfz2DLVro1Pat6PguxVD6y0usJrc\\" src=\\"/_snowpack/hmr-client.js\\"></script><script type=\\"module\\" integrity=\\"sha384-LH/mFhEGRB4jHedP0nqOoIUwc4VX8eWJxEL+qTGWtroqiLJ2vxX169J0oSBMHL5o\\" src=\\"/_snowpack/hmr-error-overlay.js\\"></script></head>
+  <body>
+    <p>this is a template in some language that builds to .html</p>
+  </body>
+</html>"
+`;
+
 exports[`snowpack dev smoke: html 1`] = `
 "<!DOCTYPE html>
 <html lang=\\"en\\">
@@ -10,7 +21,8 @@ exports[`snowpack dev smoke: html 1`] = `
     <meta name=\\"description\\" content=\\"Web site created using create-snowpack-app\\" />
     <link rel=\\"stylesheet\\" type=\\"text/css\\" href=\\"/index.css\\" />
     <title>Snowpack App</title>
-  <script type=\\"module\\" integrity=\\"sha384-ZsG+E+8Q6Yh0v98Nd0SfOT1bOX82TJaNaBS1npTZYuq4oD09c6rDD2R9pXqMvter\\" src=\\"/__snowpack__/hmr-client.js\\"></script><script type=\\"module\\" integrity=\\"sha384-LH/mFhEGRB4jHedP0nqOoIUwc4VX8eWJxEL+qTGWtroqiLJ2vxX169J0oSBMHL5o\\" src=\\"/__snowpack__/hmr-error-overlay.js\\"></script></head>
+  <script type=\\"text/javascript\\">window.HMR_WEBSOCKET_PORT=8080</script>
+<script type=\\"module\\" integrity=\\"sha384-rbGo7LspMFxft0OAU/uQAodxT5gCYH2e8y3Awfz2DLVro1Pat6PguxVD6y0usJrc\\" src=\\"/_snowpack/hmr-client.js\\"></script><script type=\\"module\\" integrity=\\"sha384-LH/mFhEGRB4jHedP0nqOoIUwc4VX8eWJxEL+qTGWtroqiLJ2vxX169J0oSBMHL5o\\" src=\\"/_snowpack/hmr-error-overlay.js\\"></script></head>
   <body>
     <img id=\\"img\\" src=\\"/logo.svg\\" />
     <canvas id=\\"canvas\\"></canvas>
@@ -37,7 +49,7 @@ exports[`snowpack dev smoke: js 1`] = `
  * When you're ready to start on your site, clear the file. Happy hacking!
  **/
 
-import confetti from '../web_modules/canvas-confetti.js';
+import confetti from '../_snowpack/pkg/canvas-confetti.v1.3.2.js';
 
 confetti.create(document.getElementById('canvas'), {
   resize: true,

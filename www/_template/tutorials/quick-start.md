@@ -11,7 +11,7 @@ description: A very basic guide for developers who want to run Snowpack as quick
 npm install --save-dev snowpack
 # yarn:
 yarn add --dev snowpack
-#pnpm:
+# pnpm:
 pnpm add --save-dev snowpack
 ```
 
@@ -52,7 +52,7 @@ snowpack build
 
 This builds your project into a static `build/` directory that you can deploy anywhere. You can customize your build via [configuration](/reference/configuration).
 
-### See all options
+### See all commands & options
 
 ```
 snowpack --help

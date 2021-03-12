@@ -23,7 +23,7 @@ This guide is a step by step from an empty directory to a fully configured Snowp
 
 Prerequisites: Snowpack is a command-line tool installed from npm. This guide assumes a basic understanding of Node.js, npm, and how to run commands in the terminal. Knowledge of Svelte is not required: Snowpack is an excellent way to learn Svelte!
 
-> 💡 Tip: a [Svelte/Snowpack](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) working example is available in our Create Snowpack App templates.
+> 💡 Tip: a [Svelte/Snowpack](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-svelte) working example is available in our Create Snowpack App templates.
 
 ## Getting started
 
@@ -52,7 +52,7 @@ Now that you have a basic project up and running! The next step is to install Sv
 npm install svelte --save
 ```
 
-> 💡 Tip: add the "--use-yarn" or "--use-pnpm" flag to use something other than npm
+> 💡 Tip: add the `--use-yarn` or `--use-pnpm` flag to use something other than npm
 
 ```bash
 npm install @snowpack/plugin-svelte --save-dev
@@ -75,7 +75,7 @@ module.exports = {
   ],
 ```
 
-Restart your Snowpack dev server to run it with the new configuration. Exit the process (ctrl + c in most Windows/Linux and cmd + c for Mac) and start it again with `npm run start`.
+Restart your Snowpack dev server to run it with the new configuration. Exit the process (ctrl + c in most Windows/Linux/macOS) and start it again with `npm run start`.
 
 > 💡 Tip: Restart the Snowpack development server when you make configuration changes (changes to the `snowpack.config.js`).
 
@@ -186,7 +186,7 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
 <!-- public/index.html -->
 
   <body>
--   <h1>Welcome to Snowpack!</h1>
+    <h1>Welcome to Snowpack!</h1>
 -   <script type="module" src="/index.js"></script>
 +   <script type="module" src="/dist/index.js"></script>
   </body>
@@ -198,7 +198,7 @@ You'll need to restart Snowpack (stop the process in terminal and then run `npm 
 
 In Svelte you can add CSS directly to your component. This step demonstrates this capability by adding an animated logo.
 
-[Download `logo.svg`](https://github.com/snowpackjs/snowpack/blob/master/create-snowpack-app/app-template-svelte/public/logo.svg) to your `public` directory. Now you can add it to your `App.svelte`
+[Download `logo.svg`](https://github.com/snowpackjs/snowpack/blob/main/create-snowpack-app/app-template-svelte/public/logo.svg) to your `public` directory. Now you can add it to your `App.svelte`
 
 ```diff
 <!-- src/App.svelte -->
@@ -315,16 +315,16 @@ Great job! You're now ready to build the Svelte project of your dreams with Snow
 
 <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-text="I just learned how to build a Svelte app with #Snowpack. Check out the tutorial:" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-At this point you have the basics and have a great starter for any Svelte project. The official [Snowpack Svelte](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte) example has a few other tools you might find useful:
+At this point you have the basics and have a great starter for any Svelte project. The official [Snowpack Svelte](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-svelte) example has a few other tools you might find useful:
 
 - [Prettier](https://prettier.io/)—a popular code formatter
 
 - [Tests](/guides/testing)—Snowpack supports any popular JavaScript testing framework
 
-- [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/master/plugins/plugin-dotenv)—Use `dotenv` in your Snowpack. This is useful for environment specific variables
+- [`@snowpack/plugin-dotenv`](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-dotenv)—Use `dotenv` in your Snowpack. This is useful for environment specific variables
 
 We also recommend the official [Svelte](https://svelte.dev/tutorial/basics) tutorial, which teaches more about how Svelte works and how to build Svelte components.
 
-If you'd like to use Typescript with Snowpack and Svelte, check out the [Snowpack Svelte Typescript](https://github.com/snowpackjs/snowpack/tree/master/create-snowpack-app/app-template-svelte-typescript) template.
+If you'd like to use Typescript with Snowpack and Svelte, check out the [Snowpack Svelte Typescript](https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-svelte-typescript) template.
 
 If you have any questions, comments, or corrections, we'd love to hear from you in the Snowpack [discussion](https://github.com/snowpackjs/snowpack/discussions) forum or our [Snowpack Discord community](https://discord.gg/rS8SnRk).

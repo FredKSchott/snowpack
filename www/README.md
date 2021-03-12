@@ -27,10 +27,10 @@ We aim to follow the [Divio documentation system](https://documentation.divio.co
 For reference documentation (APIs, configuration, etc.), use the following format:
 
 ```
-method/name | `type` | Default: `value` : description
+method/name | `type` |  Default: `value` | _required_ : description
 ```
 
-`Default` is optional and only applies if there is a default.
+`Default` is optional and only applies if there is a default. `_required_` can be omitted if the value is optional.
 
 Example:
 
@@ -38,16 +38,31 @@ Example:
 devOptions.open | `string` | Default: `"default"`
 ```
 
-If it's a heading use the truncated format with the rest of the information below the heading:
+If it's a heading use the extended format with the rest of the information below the heading:
 
 ```
 #### name
-`string`
-Default: `value`
-Description
+**Type:** `string`
+
+**Default:** `value`
+
+_required_
+
+Short 1-2 sentence description ideally the same as what's in the code comments.
+
+Details
+
+Example(s):
 ```
 
-Examples:
+#### Types
+
+The type notation we use is ???
+
+We could use Swagger
+https://swagger.io/docs/specification/data-models/data-types/
+
+Or use TypeScript notation though will people understand that?
 
 ### Code blocks
 

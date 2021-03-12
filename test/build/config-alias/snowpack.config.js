@@ -11,12 +11,12 @@ module.exports = {
     './src': '/_dist_',
     './public': '/',
   },
-  devOptions: {
-    fallback: '_dist_/index.html',
-  },
   buildOptions: {
     baseUrl: 'https://example.com/foo',
-    webModulesUrl: '/TEST_WMU/',
+    metaUrlPath: '/TEST_WMU/',
   },
-  plugins: ['./simple-file-extension-change-plugin.js'],
+  plugins: [
+    '@snowpack/plugin-svelte',
+    './simple-file-extension-change-plugin.js'
+  ],
 };

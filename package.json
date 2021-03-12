@@ -7,14 +7,16 @@
     "build:watch": "lerna run build:watch --parallel --scope=esinstall --scope=snowpack --scope=skypack",
     "build:docs": "cd www && yarn build",
     "bundle": "lerna run bundle --scope=snowpack",
+    "publish": "npm run build && npm run bundle && lerna publish --no-private",
     "lint": "lerna run lint --parallel --scope=esinstall --scope=snowpack --scope=skypack",
-    "format": "prettier --write '{snowpack,esinstall}/src/**/*.{ts,js}' '{test,plugins}/**/*.{ts,js}' '*.{js,json,md}' '**/*.{json,md}' '.github/**/*.{md,yml}' '!**/{vendor,dist,build,packages,pkg,TEST_BUILD_OUT,web_modules}/**' !test/create-snowpack-app/test-install",
+    "format": "prettier --write '{snowpack,skypack,esinstall}/src/**/*.{ts,js,json}'  '{scripts,test,plugins,create-snowpack-app}/**/*.{ts,js,json}' '{.dependabot,.github,www}/**/*.{md,yml,js}'",
     "test": "jest --testPathIgnorePatterns=/test-dev/ --test-timeout=30000",
     "test:dev": "jest /test-dev/ --test-timeout=30000",
     "test:docs": "cd www && yarn && yarn test --passWithNoTests"
   },
   "workspaces": [
     "esinstall",
+    "esm-runtime",
     "snowpack",
     "skypack",
     "create-snowpack-app/*",
@@ -23,6 +25,7 @@
     "test/esinstall/*"
   ],
   "devDependencies": {
+    "@rollup/plugin-alias": "^3.0.1",
     "@skypack/package-check": "^0.2.0",
     "@types/babel__traverse": "^7.0.7",
     "@types/cacache": "^12.0.1",
@@ -41,12 +44,12 @@
     "@types/ws": "^7.2.4",
     "cheerio": "^1.0.0-rc.3",
     "cross-env": "^7.0.2",
-    "execa": "^4.0.3",
+    "execa": "^5.0.0",
     "httpie": "^1.1.2",
     "jest": "^26.2.2",
     "jest-specific-snapshot": "^4.0.0",
     "lerna": "^3.22.1",
-    "prettier": "^2.0.5",
+    "prettier": "^2.2.1",
     "strip-ansi": "^6.0.0",
     "typescript": "^4.0.0"
   },

@@ -5,31 +5,31 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-("use strict");
+('use strict');
 
-const babelJest = require("babel-jest");
+const babelJest = require('babel-jest');
 
 module.exports = babelJest.createTransformer({
   presets: [
     [
-      "@babel/preset-env",
+      '@babel/preset-env',
       {
         targets: {
-          node: "current",
+          node: 'current',
         },
       },
     ],
     [
-      "@babel/preset-react",
+      '@babel/preset-react',
       {
-        pragma: "h",
-        pragmaFrag: "Fragment",
+        pragma: 'h',
+        pragmaFrag: 'Fragment',
       },
     ],
     [
-      "@babel/preset-typescript",
+      '@babel/preset-typescript',
       {
-        jsxPragma: "h",
+        jsxPragma: 'h',
       },
     ],
   ],

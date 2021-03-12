@@ -16,6 +16,6 @@
     "ansi-styles": "*"
   },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

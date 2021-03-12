@@ -1,6 +1,8 @@
 const execa = require('execa');
 const npmRunPath = require('npm-run-path');
 
+const CLEAR_SEQUENCES = ['\x1Bc', '\x1B[2J\x1B[0;0f'];
+
 function runScriptPlugin(snowpackConfig, {name, cmd, watch, output}) {
   const [cmdProgram] = cmd.split(' ');
   const watchCmd = watch && watch.replace('$1', cmd);
@@ -22,9 +24,11 @@ function runScriptPlugin(snowpackConfig, {name, cmd, watch, output}) {
           log('CONSOLE_INFO', {msg: stdOutput});
           return;
         }
-        if (stdOutput.includes('\u001bc') || stdOutput.includes('\x1Bc')) {
+        if (CLEAR_SEQUENCES.some((s) => stdOutput.includes(s))) {
           log('WORKER_RESET', {});
-          stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
+          for (let s of CLEAR_SEQUENCES) {
+            stdOutput = stdOutput.replace(s, '');
+          }
         }
         if (cmdProgram === 'tsc') {
           const errorMatch = stdOutput.match(/Found (\d+) error/);

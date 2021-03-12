@@ -7,11 +7,13 @@ import url from 'url';
 import {logger} from './logger';
 import {SnowpackConfig, SnowpackSourceFile} from './types';
 import {
+  createInstallTarget,
   CSS_REGEX,
   findMatchingAliasEntry,
   getExtension,
   HTML_JS_REGEX,
   HTML_STYLE_REGEX,
+  isImportOfPackage,
   isTruthy,
   readFile,
   SVELTE_VUE_REGEX,
@@ -28,16 +30,29 @@ const ESM_IMPORT_REGEX = /import(?:["'\s]*([\w*${}\n\r\t, ]+)\s*from\s*)?\s*["']
 const ESM_DYNAMIC_IMPORT_REGEX = /(?<!\.)\bimport\((?:['"].+['"]|`[^$]+`)\)/gm;
 const HAS_NAMED_IMPORTS_REGEX = /^[\w\s\,]*\{(.*)\}/s;
 const STRIP_AS = /\s+as\s+.*/; // for `import { foo as bar }`, strips “as bar”
-const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s]*\})?\s+from/s;
+const DEFAULT_IMPORT_REGEX = /import\s+(\w)+(,\s\{[\w\s,]*\})?\s+from/s;
 
-function createInstallTarget(specifier: string, all = true): InstallTarget {
-  return {
-    specifier,
-    all,
-    default: false,
-    namespace: false,
-    named: [],
-  };
+export async function getInstallTargets(
+  config: SnowpackConfig,
+  knownEntrypoints: string[],
+  scannedFiles?: SnowpackSourceFile[],
+) {
+  let installTargets: InstallTarget[] = [];
+  if (knownEntrypoints.length > 0) {
+    installTargets.push(...scanDepList(knownEntrypoints, config.root));
+  }
+  // TODO: remove this if block; move logic inside scanImports
+  if (scannedFiles) {
+    installTargets.push(...(await scanImportsFromFiles(scannedFiles, config)));
+  } else {
+    installTargets.push(...(await scanImports(process.env.NODE_ENV === 'test', config)));
+  }
+  return installTargets.filter(
+    (dep) =>
+      !config.packageOptions.external.some((packageName) =>
+        isImportOfPackage(dep.specifier, packageName),
+      ),
+  );
 }
 
 export function matchDynamicImportValue(importStatement: string) {
@@ -173,6 +188,7 @@ function parseFileForInstallTargets({
       }
       case '.html':
       case '.svelte':
+      case '.interface':
       case '.vue': {
         logger.debug(`Scanning ${relativeLoc} for imports as HTML`);
         return [
@@ -209,7 +225,7 @@ function extractJsFromHtml({contents, baseExt}: {contents: string; baseExt: stri
   const allMatches: string[][] = [];
   let match;
   let regex = new RegExp(HTML_JS_REGEX);
-  if (baseExt === '.svelte' || baseExt === '.vue') {
+  if (baseExt === '.svelte' || baseExt === '.interface' || baseExt === '.vue') {
     regex = new RegExp(SVELTE_VUE_REGEX); // scan <script> tags, not <script type="module">
   }
   while ((match = regex.exec(contents))) {

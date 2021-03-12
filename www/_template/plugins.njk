@@ -14,16 +14,17 @@ description: 'Snowpack plugins allow for configuration-minimal tooling integrati
   .cards {
     list-style: none;
     max-width: 600px;
+    padding-left: 0;
   }
   .plugin-icon {
     height: 52px;
     width: 52px;
-    float: left;
-    margin-left: -62px;
-    margin-top: 8px;
-    opacity: 0.5;
+    opacity: .5;
     transform: rotate(45deg);
-    background: radial-gradient(to top, red, blue);
+    /* background: radial-gradient(to top,red,blue); */
+    position: absolute;
+    top: 13px;
+    left: -15px;
   }
   .card:nth-child(3n+2) .plugin-icon {
     filter: hue-rotate(-60deg);
@@ -36,6 +37,8 @@ description: 'Snowpack plugins allow for configuration-minimal tooling integrati
     margin: 0.5rem 0.25em;
     border-radius: 4px;
     padding: 0.5rem 0.5rem 0.5rem 48px;
+    flex-direction: column;
+    position: relative;
   }
   .card-name {
     font-weight: 500;
@@ -93,14 +96,15 @@ description: 'Snowpack plugins allow for configuration-minimal tooling integrati
 </section>
 
 <script type="module">
-  import {html, render} from 'https://cdn.skypack.dev/htm/preact/standalone.module.js'
+  import {html, render} from 'htm/preact/standalone.module.js';
 
     function Card({result}) {
+      const updatedAtFormatted = Intl.DateTimeFormat('en', {month: "long", day: "numeric", year: "numeric"}).format(Date.parse(result.updatedAt));
       return html ` <li class="card">
       <img class="plugin-icon" src="/img/plug-light.svg" />
       <header class="card-header">
         <h3 class="card-name">
-          <a href="https://www.skypack.dev/view/${result
+          <a href="https://www.npmjs.com/package/${result
         .name}" target="_blank"><span itemprop="name">${result
         .name}</span></a>
         </h3>
@@ -110,7 +114,7 @@ description: 'Snowpack plugins allow for configuration-minimal tooling integrati
         .split('. ')[0]}</p>
       <p class="card-subtitle">
 		    Updated <time class="" datetime="${result
-        .updatedAt}">August 10, 2020</time>
+        .updatedAt}">${updatedAtFormatted}</time>
       </p>
     </li>`;
     }

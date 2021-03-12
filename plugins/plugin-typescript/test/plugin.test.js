@@ -9,15 +9,22 @@ describe('plugin-typescript', () => {
 
   beforeEach(() => {
     execa.command.mockClear();
-    execaResult = {stderr: new EventEmitter(), stdout: new EventEmitter()};
-    execaFn = jest.fn(() => execaResult);
+    execaResult = {
+      stderr: new EventEmitter(),
+      stdout: new EventEmitter(),
+      // Execa is weird, and returns a promise that also has other properties. Fake that here.
+      catch: () => {
+        return execaResult;
+      },
+    };
+    execaFn = jest.fn().mockName('execa.command').mockReturnValue(execaResult);
     execa.command = execaFn;
   });
 
   test('returns the execa command promise', async () => {
     const p = plugin({});
     const result = await p.run({isDev: false, log: jest.fn});
-    expect(result).toEqual(result);
+    expect(result).toEqual(execaResult);
   });
   test('calls "tsc" correctly when isDev=false', async () => {
     const p = plugin({});
@@ -48,8 +55,8 @@ describe('plugin-typescript', () => {
     execaResult.stdout.emit('data', Buffer.from('STDOUT_TEST_MESSAGE'));
     execaResult.stderr.emit('data', Buffer.from('STDERR_TEST_MESSAGE'));
     expect(logFn.mock.calls).toEqual([
-      ['WORKER_MSG', {level: 'log', msg: 'STDOUT_TEST_MESSAGE'}],
-      ['WORKER_MSG', {level: 'log', msg: 'STDERR_TEST_MESSAGE'}],
+      ['WORKER_MSG', {msg: 'STDOUT_TEST_MESSAGE'}],
+      ['WORKER_MSG', {msg: 'STDERR_TEST_MESSAGE'}],
     ]);
   });
   test('handles tsc clear character messages', async () => {
@@ -60,9 +67,9 @@ describe('plugin-typescript', () => {
     execaResult.stderr.emit('data', Buffer.from('\x1BcTEST_CLEAR_MESSAGE'));
     expect(logFn.mock.calls).toEqual([
       ['WORKER_RESET', {}],
-      ['WORKER_MSG', {level: 'log', msg: 'TEST_CLEAR_MESSAGE'}],
+      ['WORKER_MSG', {msg: 'TEST_CLEAR_MESSAGE'}],
       ['WORKER_RESET', {}],
-      ['WORKER_MSG', {level: 'log', msg: 'TEST_CLEAR_MESSAGE'}],
+      ['WORKER_MSG', {msg: 'TEST_CLEAR_MESSAGE'}],
     ]);
   });
 });

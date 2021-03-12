@@ -1,0 +1,10 @@
+vendor
+dist
+test/**/build
+create-snowpack-app/**/build
+packages
+pkg
+TEST_BUILD_OUT
+web_modules
+test/create-snowpack-app/test-install
+.snowpack

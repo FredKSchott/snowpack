@@ -6,6 +6,7 @@ import {VM as VM2} from 'vm2';
 import {AbstractLogger, InstallTarget} from '../types';
 import {getWebDependencyName, isJavaScript, isRemoteUrl, isTruthy, NATIVE_REQUIRE} from '../util';
 import isValidIdentifier from 'is-valid-identifier';
+import resolve from 'resolve';
 
 // Use CJS intentionally here! ESM interface is async but CJS is sync, and this file is sync
 const {parse} = require('cjs-module-lexer');
@@ -30,7 +31,6 @@ export function rollupPluginWrapInstallTargets(
 ): Plugin {
   const installTargetSummaries: {[loc: string]: InstallTarget} = {};
   const cjsScannedNamedExports = new Map<string, string[]>();
-
   /**
    * Runtime analysis: High Fidelity, but not always successful.
    * `require()` the CJS file inside of Node.js to load the package and detect it's runtime exports.
@@ -39,10 +39,6 @@ export function rollupPluginWrapInstallTargets(
   function cjsAutoDetectExportsTrusted(normalizedFileLoc: string): string[] | undefined {
     try {
       const mod = NATIVE_REQUIRE(normalizedFileLoc);
-      // skip analysis for non-object modules, these can only be the default export.
-      if (!mod || mod.constructor !== Object) {
-        return;
-      }
       // Collect and filter all properties of the object as named exports.
       return Object.keys(mod).filter((imp) => imp !== 'default' && imp !== '__esModule');
     } catch (err) {
@@ -82,7 +78,7 @@ export function rollupPluginWrapInstallTargets(
           reexports
             .map((e) =>
               cjsAutoDetectExportsUntrusted(
-                require.resolve(e, {paths: [path.dirname(filename)]}),
+                resolve.sync(e, {basedir: path.dirname(filename)}),
                 visited,
               ),
             )

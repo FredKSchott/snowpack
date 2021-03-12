@@ -13,7 +13,7 @@ describe('CLI: --out flag', () => {
     const distJSLoc = path.join(cwd, 'src', 'index.js');
     expect(fs.existsSync(distJSLoc)).toBe(true); // JS file exists
 
-    const snowpackMetaLoc = path.join(cwd, '__snowpack__', 'env.js');
+    const snowpackMetaLoc = path.join(cwd, '_snowpack', 'env.js');
     expect(fs.existsSync(snowpackMetaLoc)).toBe(true); // snowpack meta exists
   });
 });

@@ -2,6 +2,7 @@ import WebSocket from 'ws';
 import stripAnsi from 'strip-ansi';
 import type http from 'http';
 import type http2 from 'http2';
+import {logger} from './logger';
 
 interface Dependency {
   dependents: Set<string>;
@@ -26,22 +27,11 @@ type HMRMessage =
 const DEFAULT_CONNECT_DELAY = 2000;
 const DEFAULT_PORT = 12321;
 
-interface EsmHmrEngineOptionsCommon {
+interface EsmHmrEngineOptions {
+  server: http.Server | http2.Http2Server | undefined;
+  port?: number | undefined;
   delay?: number;
 }
-
-type EsmHmrEngineOptions = (
-  | {
-      server: http.Server | http2.Http2Server;
-      port: number;
-    }
-  | {
-      port?: number;
-      server?: undefined;
-    }
-) &
-  EsmHmrEngineOptionsCommon;
-
 export class EsmHmrEngine {
   clients: Set<WebSocket> = new Set();
   dependencyTree = new Map<string, Dependency>();
@@ -86,11 +76,15 @@ export class EsmHmrEngine {
 
   registerListener(client: WebSocket) {
     client.on('message', (data) => {
-      const message = JSON.parse(data.toString());
-      if (message.type === 'hotAccept') {
-        const entry = this.getEntry(message.id, true) as Dependency;
-        entry.isHmrAccepted = true;
-        entry.isHmrEnabled = true;
+      try {
+        const message = JSON.parse(data.toString());
+        if (message.type === 'hotAccept') {
+          const entry = this.getEntry(message.id, true) as Dependency;
+          entry.isHmrAccepted = true;
+          entry.isHmrEnabled = true;
+        }
+      } catch (error) {
+        logger.error(error.toString());
       }
     });
   }

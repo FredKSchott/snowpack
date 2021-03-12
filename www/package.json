@@ -14,6 +14,7 @@
     "@11ty/eleventy-plugin-rss": "^1.0.9",
     "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.4",
     "@snowpack/plugin-postcss": "^1.0.7",
+    "@snowpack/plugin-run-script": "^2.3.0",
     "@snowpack/plugin-sass": "^1.1.1",
     "eleventy-plugin-nesting-toc": "^1.2.0",
     "luxon": "^1.25.0",
@@ -22,13 +23,14 @@
     "postcss-cli": "^8.3.0",
     "postcss-preset-env": "^6.7.0",
     "prettier": "^2.0.5",
-    "snowpack": "^2.18.0",
+    "snowpack": "^3.0.0",
     "stylelint": "^13.8.0",
     "stylelint-config-prettier": "^8.0.2",
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^20.0.0"
   },
   "dependencies": {
-    "docsearch.js": "^2.6.3"
+    "docsearch.js": "^2.6.3",
+    "htm": "^3.0.4"
   }
 }

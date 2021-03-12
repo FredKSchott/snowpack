@@ -1,5 +1,5 @@
 const path = require('path');
-const {install} = require('../../../esinstall/lib');
+const {runTest} = require('../esinstall-test-utils.js');
 
 describe('sub package with package.json', () => {
   it('resolves to the right place', async () => {
@@ -9,7 +9,7 @@ describe('sub package with package.json', () => {
 
     const {
       importMap: {imports},
-    } = await install([spec], {
+    } = await runTest([spec], {
       cwd,
       dest,
     });

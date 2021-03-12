@@ -1,9 +1,6 @@
-import cacache from 'cacache';
 import globalCacheDir from 'cachedir';
-import crypto from 'crypto';
 import etag from 'etag';
 import execa from 'execa';
-import projectCacheDir from 'find-cache-dir';
 import findUp from 'find-up';
 import fs from 'fs';
 import {isBinaryFile} from 'isbinaryfile';
@@ -11,16 +8,30 @@ import mkdirp from 'mkdirp';
 import open from 'open';
 import path from 'path';
 import rimraf from 'rimraf';
-import {clearCache as clearSkypackCache} from 'skypack';
 import url from 'url';
-import localPackageSource from './sources/local';
-import skypackPackageSource from './sources/skypack';
-import {LockfileManifest, PackageSource, SnowpackConfig} from './types';
+import getDefaultBrowserId from 'default-browser-id';
+import type {ImportMap, LockfileManifest, SnowpackConfig} from './types';
+import type {InstallTarget} from 'esinstall';
+import {SkypackSDK} from 'skypack';
+
+// (!) Beware circular dependencies! No relative imports!
+// Because this file is imported from so many different parts of Snowpack,
+// importing other relative files inside of it is likely to introduce broken
+// circular dependencies (sometimes only visible in the final bundled build.)
 
 export const GLOBAL_CACHE_DIR = globalCacheDir('snowpack');
+export const LOCKFILE_NAME = 'snowpack.deps.json';
 
 // We need to use eval here to prevent Rollup from detecting this use of `require()`
 export const NATIVE_REQUIRE = eval('require');
+
+// We need to use an external file here to prevent Typescript/Rollup from modifying `require` and `import`
+// NOTE: revisit this when `node@10` reaches EOL. Can we move everything to ESM and just use `import`?
+export const REQUIRE_OR_IMPORT: (
+  id: string,
+) => Promise<any> = require('../assets/require-or-import.js');
+
+export const remotePackageSDK = new SkypackSDK({origin: 'https://pkg.snowpack.dev'});
 
 // A note on cache naming/versioning: We currently version our global caches
 // with the version of the last breaking change. This allows us to re-use the
@@ -28,18 +39,6 @@ export const NATIVE_REQUIRE = eval('require');
 // At that point, bump the version in the cache name to create a new unique
 // cache name.
 export const BUILD_CACHE = path.join(GLOBAL_CACHE_DIR, 'build-cache-2.7');
-
-export const PROJECT_CACHE_DIR =
-  projectCacheDir({name: 'snowpack'}) ||
-  // If `projectCacheDir()` is null, no node_modules directory exists.
-  // Use the current path (hashed) to create a cache entry in the global cache instead.
-  // Because this is specifically for dependencies, this fallback should rarely be used.
-  path.join(GLOBAL_CACHE_DIR, crypto.createHash('md5').update(process.cwd()).digest('hex'));
-
-export const DEV_DEPENDENCIES_DIR = path.join(
-  PROJECT_CACHE_DIR,
-  process.env.NODE_ENV || 'development',
-);
 const LOCKFILE_HASH_FILE = '.hash';
 
 // NOTE(fks): Must match empty script elements to work properly.
@@ -47,6 +46,12 @@ export const HTML_JS_REGEX = /(<script[^>]*?type="module".*?>)(.*?)<\/script>/gi
 export const HTML_STYLE_REGEX = /(<style.*?>)(.*?)<\/style>/gims;
 export const CSS_REGEX = /@import\s*['"](.*?)['"];/gs;
 export const SVELTE_VUE_REGEX = /(<script[^>]*>)(.*?)<\/script>/gims;
+
+export function getCacheKey(fileLoc: string, {isSSR, env}) {
+  return `${fileLoc}?env=${env}&isSSR=${isSSR ? '1' : '0'}`;
+}
+
+export type Awaited<T> = T extends PromiseLike<infer U> ? Awaited<U> : T;
 
 /**
  * Like rimraf, but will fail if "dir" is outside of your configured build output directory.
@@ -74,7 +79,7 @@ export async function readFile(filepath: URL): Promise<string | Buffer> {
 
 export async function readLockfile(cwd: string): Promise<LockfileManifest | null> {
   try {
-    var lockfileContents = fs.readFileSync(path.join(cwd, 'snowpack.lock.json'), {
+    var lockfileContents = fs.readFileSync(path.join(cwd, LOCKFILE_NAME), {
       encoding: 'utf8',
     });
   } catch (err) {
@@ -85,6 +90,16 @@ export async function readLockfile(cwd: string): Promise<LockfileManifest | null
   return JSON.parse(lockfileContents);
 }
 
+export function createInstallTarget(specifier: string, all = true): InstallTarget {
+  return {
+    specifier,
+    all,
+    default: false,
+    namespace: false,
+    named: [],
+  };
+}
+
 function sortObject<T>(originalObject: Record<string, T>): Record<string, T> {
   const newObject = {};
   for (const key of Object.keys(originalObject).sort()) {
@@ -93,18 +108,40 @@ function sortObject<T>(originalObject: Record<string, T>): Record<string, T> {
   return newObject;
 }
 
+export function convertLockfileToSkypackImportMap(
+  origin: string,
+  lockfile: LockfileManifest,
+): ImportMap {
+  const result = {imports: {}};
+  for (const [key, val] of Object.entries(lockfile.lock)) {
+    result.imports[key.replace(/\#.*/, '')] = origin + '/' + val;
+    result.imports[key.replace(/\#.*/, '') + '/'] = origin + '/' + val + '/';
+  }
+  return result;
+}
+
+export function convertSkypackImportMapToLockfile(
+  dependencies: Record<string, string>,
+  importMap: ImportMap,
+): LockfileManifest {
+  const result = {dependencies, lock: {}};
+  for (const [key, val] of Object.entries(dependencies)) {
+    if (importMap.imports[key]) {
+      const valPath = url.parse(importMap.imports[key]).pathname;
+      result.lock[key + '#' + val] = valPath?.substr(1);
+    }
+  }
+  return result;
+}
+
 export async function writeLockfile(loc: string, importMap: LockfileManifest): Promise<void> {
   importMap.dependencies = sortObject(importMap.dependencies);
-  importMap.imports = sortObject(importMap.imports);
+  importMap.lock = sortObject(importMap.lock);
   fs.writeFileSync(loc, JSON.stringify(importMap, undefined, 2), {encoding: 'utf8'});
 }
 
 export function isTruthy<T>(item: T | false | null | undefined): item is T {
   return Boolean(item);
-}
-
-export function getPackageSource(source: 'skypack' | 'local'): PackageSource {
-  return source === 'local' ? localPackageSource : skypackPackageSource;
 }
 
 /**
@@ -248,13 +285,13 @@ export async function openInBrowser(
     : /brave/i.test(browser)
     ? appNames[process.platform]['brave']
     : browser;
-  const isMac = process.platform === 'darwin';
-  const isBrowserChrome = /chrome|default/i.test(browser);
-  if (!isMac || !isBrowserChrome) {
+  const isMacChrome =
+    process.platform === 'darwin' &&
+    (/chrome/i.test(browser) || /chrome/i.test(await getDefaultBrowserId()));
+  if (!isMacChrome) {
     await (browser === 'default' ? open(url) : open(url, {app: browser}));
     return;
   }
-
   try {
     // If we're on macOS, and we haven't requested a specific browser,
     // we can try opening Chrome with AppleScript. This lets us reuse an
@@ -286,14 +323,6 @@ export async function updateLockfileHash(dir: string) {
   const newLockHash = etag(await fs.promises.readFile(lockfileLoc));
   await mkdirp(path.dirname(hashLoc));
   await fs.promises.writeFile(hashLoc, newLockHash);
-}
-
-export async function clearCache() {
-  return Promise.all([
-    clearSkypackCache(),
-    cacache.rm.all(BUILD_CACHE),
-    rimraf.sync(PROJECT_CACHE_DIR),
-  ]);
 }
 
 function getAliasType(val: string): 'package' | 'path' | 'url' {
@@ -341,12 +370,12 @@ export function findMatchingAliasEntry(
  */
 export function getExtensionMatch(
   fileName: string,
-  extensionMap: Record<string, string>,
-): [string, string] | undefined {
+  extensionMap: Record<string, string[]>,
+): [string, string[]] | undefined {
   let extensionPartial;
   let extensionMatch;
   // If a full URL is given, start at the basename. Otherwise, start at zero.
-  let extensionMatchIndex = Math.max(0, fileName.lastIndexOf('/'));
+  let extensionMatchIndex = Math.max(0, fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
   // Grab expanded file extensions, from longest to shortest.
   while (!extensionMatch && extensionMatchIndex > -1) {
     extensionMatchIndex++;
@@ -360,6 +389,10 @@ export function getExtensionMatch(
 
 export function isRemoteUrl(val: string): boolean {
   return val.startsWith('//') || !!url.parse(val).protocol?.startsWith('http');
+}
+
+export function isImportOfPackage(importUrl: string, packageName: string) {
+  return packageName === importUrl || importUrl.startsWith(packageName + '/');
 }
 
 /**
@@ -410,18 +443,28 @@ export function appendHtmlToHead(doc: string, htmlToAdd: string) {
   return doc.replace(closingHeadMatch[0], htmlToAdd + closingHeadMatch[0]);
 }
 
+export function isJavaScript(pathname: string): boolean {
+  const ext = path.extname(pathname).toLowerCase();
+  return ext === '.js' || ext === '.mjs' || ext === '.cjs';
+}
+
 export function getExtension(str: string) {
   return path.extname(str).toLowerCase();
 }
 
 export function hasExtension(str: string, ext: string) {
-  return str.toLowerCase().endsWith(ext);
+  return new RegExp(`\\${ext}$`, 'i').test(str);
 }
 
 export function replaceExtension(fileName: string, oldExt: string, newExt: string): string {
   const extToReplace = new RegExp(`\\${oldExt}$`, 'i');
   return fileName.replace(extToReplace, newExt);
 }
+
+export function addExtension(fileName: string, newExt: string): string {
+  return fileName + newExt;
+}
+
 export function removeExtension(fileName: string, oldExt: string): string {
   return replaceExtension(fileName, oldExt, '');
 }
@@ -452,5 +495,9 @@ export const HMR_CLIENT_CODE = fs.readFileSync(
 );
 export const HMR_OVERLAY_CODE = fs.readFileSync(
   path.resolve(__dirname, '../assets/hmr-error-overlay.js'),
+  'utf8',
+);
+export const INIT_TEMPLATE_FILE = fs.readFileSync(
+  path.resolve(__dirname, '../assets/snowpack-init-file.js'),
   'utf8',
 );

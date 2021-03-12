@@ -65,7 +65,10 @@ function emitHTMLFiles({doms, jsEntries, stats, baseUrl, buildDirectory, htmlMin
         const head = dom.window.document.querySelector('head');
 
         for (const jsFile of jsFiles) {
-          const scriptEl = dom.window.document.createElement('script');
+          // Clone node so we keep original attributes, and remove
+          // `type=module` as that is not needed
+          const scriptEl = originalScriptEl.cloneNode();
+          scriptEl.removeAttribute('type');
           scriptEl.src = url.parse(baseUrl).protocol
             ? url.resolve(baseUrl, jsFile)
             : path.posix.join(baseUrl, jsFile);
@@ -116,14 +119,16 @@ function getSplitChunksConfig({numEntries}) {
       lib: {
         test(module) {
           return (
-            !isCss(module) && module.size() > 100000 && /web_modules[/\\]/.test(module.identifier())
+            !isCss(module) &&
+            module.size() > 100000 &&
+            /_snowpack[/\\]pkg[/\\]/.test(module.identifier())
           );
         },
         name(module) {
           /**
-           * Name the chunk based on the filename in /web_modules.
+           * Name the chunk based on the filename in /pkg/*.
            *
-           * E.g. /web_modules/moment.js -> lib-moment.HASH.js
+           * E.g. /pkg/moment.js -> lib-moment.HASH.js
            */
           const ident = module.libIdent({context: 'dir'});
           const lastItem = ident
@@ -237,9 +242,8 @@ module.exports = function plugin(config, args = {}) {
   return {
     name: '@snowpack/plugin-webpack',
     async optimize({buildDirectory, log}) {
-      // config.homepage is legacy, remove in future version
       const buildOptions = config.buildOptions || {};
-      let baseUrl = buildOptions.baseUrl || config.homepage || '/';
+      let baseUrl = buildOptions.baseUrl || '/';
       const tempBuildManifest = JSON.parse(
         await fs.readFileSync(path.join(config.root || process.cwd(), 'package.json'), {
           encoding: 'utf-8',
@@ -265,6 +269,8 @@ module.exports = function plugin(config, args = {}) {
         context: buildDirectory,
         resolve: {
           alias: {
+            // TODO: Support a custom config.buildOptions.metaUrlPath
+            '/_snowpack': path.join(buildDirectory, '_snowpack'),
             '/__snowpack__': path.join(buildDirectory, '__snowpack__'),
             '/web_modules': path.join(buildDirectory, 'web_modules'),
           },

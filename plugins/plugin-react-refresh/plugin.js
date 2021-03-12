@@ -14,7 +14,7 @@ const reactRefreshCode = fs
 
 function transformHtml(contents) {
   return contents.replace(
-    /<body.*?>/,
+    /<body.*?>/s,
     `$&
 <script>
   function debounce(e,t){let u;return()=>{clearTimeout(u),u=setTimeout(e,t)}}
@@ -53,7 +53,10 @@ async function transformJs(contents, id, cwd, skipTransform) {
       sourceMaps: false,
       configFile: false,
       babelrc: false,
-      plugins: [require('react-refresh/babel'), require('@babel/plugin-syntax-class-properties')],
+      plugins: [
+        [require('react-refresh/babel'), {skipEnvCheck: true}],
+        require('@babel/plugin-syntax-class-properties'),
+      ],
     });
     fastRefreshEnhancedCode = code;
   }
@@ -67,7 +70,7 @@ async function transformJs(contents, id, cwd, skipTransform) {
 /** React Refresh: Setup **/
 if (import.meta.hot) {
   if (!window.$RefreshReg$ || !window.$RefreshSig$ || !window.$RefreshRuntime$) {
-    console.warn('@snowpack/plugin-react-refresh: HTML setup script not run. React Fast Refresh only works when Snowpack serves your HTML routes. You many want to remove this plugin.');
+    console.warn('@snowpack/plugin-react-refresh: HTML setup script not run. React Fast Refresh only works when Snowpack serves your HTML routes. You may want to remove this plugin.');
   } else {
     var prevRefreshReg = window.$RefreshReg$;
     var prevRefreshSig = window.$RefreshSig$;
@@ -93,15 +96,17 @@ if (import.meta.hot) {
 module.exports = function reactRefreshTransform(snowpackConfig, {babel}) {
   return {
     name: '@snowpack/plugin-react-refresh',
-    transform({contents, fileExt, id, isDev}) {
+    transform({contents, fileExt, id, isDev, isHmrEnabled, isSSR}) {
       // Use long-form "=== false" to handle older Snowpack versions
-      if (snowpackConfig.devOptions.hmr === false) {
+      if (isHmrEnabled === false) {
         return;
       }
       if (!isDev) {
         return;
       }
-      if (fileExt === '.js') {
+
+      // While server-side rendering, the fast-refresh code is not needed.
+      if (fileExt === '.js' && !isSSR) {
         const skipTransform = babel === false;
         return transformJs(contents, id, snowpackConfig.root || process.cwd(), skipTransform);
       }

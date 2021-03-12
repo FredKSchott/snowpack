@@ -6,7 +6,7 @@ function typescriptPlugin(snowpackConfig, {tsc, args} = {}) {
     name: '@snowpack/plugin-typescript',
     async run({isDev, log}) {
       const workerPromise = execa.command(
-        `${tsc ? tsc : 'tsc'} --noEmit ${isDev ? '--watch' : ''} ${args ? args : ''}`,
+        `${tsc ? tsc : 'tsc'} ${args ? args : ''} --noEmit ${isDev ? '--watch' : ''}`,
         {
           env: npmRunPath.env(),
           extendEnv: true,
@@ -22,11 +22,18 @@ function typescriptPlugin(snowpackConfig, {tsc, args} = {}) {
           log('WORKER_RESET', {});
           stdOutput = stdOutput.replace(/\x1Bc/, '').replace(/\u001bc/, '');
         }
-        log('WORKER_MSG', {level: 'log', msg: stdOutput});
+        log('WORKER_MSG', {msg: stdOutput});
       }
       stdout && stdout.on('data', dataListener);
       stderr && stderr.on('data', dataListener);
-      return workerPromise;
+      return workerPromise.catch((err) => {
+        if (/ENOENT/.test(err.message)) {
+          log('WORKER_MSG', {
+            msg: 'WARN: "tsc" run failed. Is typescript installed in your project?',
+          });
+        }
+        throw err;
+      });
     },
   };
 }

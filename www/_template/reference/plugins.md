@@ -6,7 +6,7 @@ description: The Snowpack Plugin API and how to use it.
 
 Looking to get started writing your own plugin? Check out our [Plugin Guide](/guides/plugins) for an overview of how plugins work and a walk-through to help you create your own.
 
-Looking for a good summary? Check out our ["SnowpackPlugin" TypeScript definition](https://github.com/snowpackjs/snowpack/tree/main/snowpack/src/types/snowpack.ts) for a fully documented and up-to-date overview of the Plugin API and all supported options.
+Looking for a good summary? Check out our ["SnowpackPlugin" TypeScript definition](https://github.com/snowpackjs/snowpack/blob/main/snowpack/src/types.ts#L130) for a fully documented and up-to-date overview of the Plugin API and all supported options.
 
 ### Overview
 
@@ -78,7 +78,7 @@ See [@snowpack/plugin-sass](https://github.com/snowpackjs/snowpack/tree/main/plu
 knownEntrypoints: ["svelte/internal"]
 ```
 
-An list of any npm dependencies that are added as a part of `load()` or `transform()` that Snowpack will need to know about. Snowpack analyzes most dependency imports automatically when it scans the source code of a project, but some imports are added as a part of a `load()` or `transform()` step, which means that Snowpack would never see them. If your plugin does this, add them here.
+A list of any npm dependencies that are added as a part of `load()` or `transform()` that Snowpack will need to know about. Snowpack analyzes most dependency imports automatically when it scans the source code of a project, but some imports are added as a part of a `load()` or `transform()` step, which means that Snowpack would never see them. If your plugin does this, add them here.
 
 #### resolve
 
@@ -108,4 +108,4 @@ this.markChanged('/some/file/path.scss');
 Manually mark a file as changed, regardless of whether the file changed on disk or not. This can be useful when paired with the `markChanged()` plugin hook, to mark multiple files changed at once.
 
 - See [@snowpack/plugin-sass](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-sass/plugin.js) for an example of how to use this method.
-- [Full TypeScript definition](https://github.com/snowpackjs/snowpack/tree/main/snowpack/src/types/snowpack.ts).
+- [Full TypeScript definition](https://github.com/snowpackjs/snowpack/blob/main/snowpack/src/types.ts).

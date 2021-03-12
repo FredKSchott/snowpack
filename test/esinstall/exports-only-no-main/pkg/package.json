@@ -1,0 +1,9 @@
+{
+  "name": "@snowpack/test-esinstall-pkg-exports-only-no-main",
+  "version": "1.0.0",
+  "exports": {
+    "./mod": {
+      "import": "./mod.mjs"
+    }
+  }
+}

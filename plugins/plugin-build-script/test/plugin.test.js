@@ -5,11 +5,16 @@ const plugin = require('../plugin');
 
 describe('@snowpack/plugin-build-script', () => {
   beforeEach(() => {
-    execa.command = jest.fn().mockName('execa.command').mockResolvedValue({
+    const execaResult = {
       stdout: 'stdout',
       stderr: '',
       exitCode: 0,
-    });
+      // Execa is weird, and returns a promise that also has other properties. Fake that here.
+      catch: () => {
+        return execaResult;
+      },
+    };
+    execa.command = jest.fn().mockName('execa.command').mockReturnValue(execaResult);
     fs.readFile = jest.fn().mockResolvedValue('content');
   });
   test(`README example`, async () => {

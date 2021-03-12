@@ -2,12 +2,23 @@ const fs = require('fs');
 const path = require('path');
 const {execSync} = require('child_process');
 const glob = require('glob');
-const execa = require('execa');
 
 const STRIP_CHUNKHASH = /([\w\-]+\-)[a-z0-9]{8}(\.js)/g;
 const STRIP_REV = /\?rev=\w+/gm;
 const STRIP_WHITESPACE = /((\s+$)|((\\r\\n)|(\\n)))/gm;
-const UTF8_FRIENDLY_EXTS = ['css', 'html', 'js', 'jsx', 'ts', 'tsx', 'svelte', 'svg', 'vue']; // only read non-binary files (add more exts here as needed)
+const UTF8_FRIENDLY_EXTS = [
+  'css',
+  'html',
+  'js',
+  'map',
+  'jsx',
+  'ts',
+  'tsx',
+  'svelte',
+  'svg',
+  'vue',
+  'json',
+]; // only read non-binary files (add more exts here as needed)
 
 /** setup for /tests/build/* */
 function setupBuildTest(cwd) {
@@ -25,16 +36,6 @@ function getFile(results, TEST_OUT, id) {
   return foundFile.contents;
 }
 exports.getFile = getFile;
-
-/** steup for /tests/esinstall/* */
-async function setupEsinstallTest(cwd) {
-  return await execa('yarn', ['--silent', 'run', 'testinstall'], {
-    cwd,
-    reject: false,
-    all: true,
-  });
-}
-exports.setupEsinstallTest = setupEsinstallTest;
 
 /** read a directory of files */
 function readFiles(directory, {ignore} = {}) {
@@ -131,7 +132,8 @@ exports.stripSvelteComment = stripSvelteComment;
 
 /** strip away the home path */
 function stripHomePath(stdout) {
-  return stdout.replace(process.cwd(), 'XHOMEX').replace(/\\/g, '/');
+  // Use the split->join trick to replace all instances of a string instead of just the first one
+  return stdout.split(process.cwd()).join('XHOMEX').replace(/\\/g, '/');
 }
 exports.stripHomePath = stripHomePath;
 

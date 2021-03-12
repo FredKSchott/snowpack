@@ -1,0 +1,13 @@
+{
+  "version": "1.2.3",
+  "name": "export-map-star",
+  "description": "With star (wildcards)",
+  "exports": {
+    ".": "./entrypoint.js",
+    "./extras/": "./src/extras/",
+    "./more/": {
+      "default": "./src/more/",
+      "fake_prop": "./error/more/"
+    }
+  }
+}

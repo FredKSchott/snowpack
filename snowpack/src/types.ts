@@ -1,6 +1,18 @@
-import type {InstallOptions} from 'esinstall';
+import type {InstallOptions as EsinstallOptions, InstallTarget} from 'esinstall';
 import type * as http from 'http';
-import type {RawSourceMap} from 'source-map';
+import type {EsmHmrEngine} from './hmr-server-engine';
+
+// RawSourceMap is inlined here for bundle purposes.
+// import type {RawSourceMap} from 'source-map';
+export interface RawSourceMap {
+  version: number;
+  sources: string[];
+  names: string[];
+  sourceRoot?: string;
+  sourcesContent?: string[];
+  mappings: string;
+  file: string;
+}
 
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -10,43 +22,45 @@ export type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
+export interface ServerRuntimeConfig {
+  load: (url: string) => Promise<{contents: string}>;
+}
+export interface ServerRuntime {
+  importModule: <T = any>(url: string) => Promise<ServerRuntimeModule<T>>;
+  invalidateModule: (url: string) => void;
+}
+
+export interface ServerRuntimeModule<T> {
+  exports: T;
+  css: string[];
+}
+
 export interface LoadResult<T = Buffer | string> {
   contents: T;
+  imports: InstallTarget[];
   originalFileLoc: string | null;
   contentType: string | false;
   checkStale?: () => Promise<void>;
 }
 
 export type OnFileChangeCallback = ({filePath: string}) => any;
+export interface LoadUrlOptions {
+  isSSR?: boolean;
+  isHMR?: boolean;
+  isResolve?: boolean;
+  allowStale?: boolean;
+  encoding?: undefined | BufferEncoding | null;
+  importMap?: ImportMap;
+}
 export interface SnowpackDevServer {
   port: number;
+  hmrEngine?: EsmHmrEngine;
   loadUrl: {
-    (
-      reqUrl: string,
-      opt?:
-        | {
-            isSSR?: boolean | undefined;
-            allowStale?: boolean | undefined;
-            encoding?: undefined;
-          }
-        | undefined,
-    ): Promise<LoadResult<Buffer | string>>;
-    (
-      reqUrl: string,
-      opt: {
-        isSSR?: boolean;
-        allowStale?: boolean;
-        encoding: BufferEncoding;
-      },
-    ): Promise<LoadResult<string>>;
-    (
-      reqUrl: string,
-      opt: {
-        isSSR?: boolean;
-        allowStale?: boolean;
-        encoding: null;
-      },
-    ): Promise<LoadResult<Buffer>>;
+    (reqUrl: string, opt?: (LoadUrlOptions & {encoding?: undefined}) | undefined): Promise<
+      LoadResult<Buffer | string>
+    >;
+    (reqUrl: string, opt: LoadUrlOptions & {encoding: BufferEncoding}): Promise<LoadResult<string>>;
+    (reqUrl: string, opt: LoadUrlOptions & {encoding: null}): Promise<LoadResult<Buffer>>;
   };
   handleRequest: (
     req: http.IncomingMessage,
@@ -58,7 +72,9 @@ export interface SnowpackDevServer {
     res: http.ServerResponse,
     {contents, originalFileLoc, contentType}: LoadResult,
   ) => void;
+  getServerRuntime: (options?: {invalidateOnChange?: boolean}) => ServerRuntime;
   sendResponseError: (req: http.IncomingMessage, res: http.ServerResponse, status: number) => void;
+  getUrlForFile: (fileLoc: string) => string | null;
   onFileChange: (callback: OnFileChangeCallback) => void;
   shutdown(): Promise<void>;
 }
@@ -69,7 +85,7 @@ export type SnowpackBuildResultFileManifest = Record<
 >;
 
 export interface SnowpackBuildResult {
-  result: SnowpackBuildResultFileManifest;
+  // result: SnowpackBuildResultFileManifest;
   onFileChange: (callback: OnFileChangeCallback) => void;
   shutdown(): Promise<void>;
 }
@@ -100,18 +116,29 @@ export interface PluginLoadOptions {
   fileExt: string;
   /** True if builder is in dev mode (`snowpack dev` or `snowpack build --watch`) */
   isDev: boolean;
-  /** True if builder is in SSR mode */
-  isSSR: boolean;
   /** True if HMR is enabled (add any HMR code to the output here). */
   isHmrEnabled: boolean;
+  /** True if builder is in SSR mode */
+  isSSR: boolean;
+  /** True if file being transformed is inside of a package. */
+  isPackage: boolean;
 }
 
 export interface PluginTransformOptions {
+  /** The absolute file path of the source file, on disk. */
   id: string;
+  /** The extension of the file */
   fileExt: string;
+  /** Contents of the file to transform */
   contents: string | Buffer;
+  /** True if builder is in dev mode (`snowpack dev` or `snowpack build --watch`) */
   isDev: boolean;
+  /** True if HMR is enabled (add any HMR code to the output here). */
   isHmrEnabled: boolean;
+  /** True if builder is in SSR mode */
+  isSSR: boolean;
+  /** True if file being transformed is inside of a package. */
+  isPackage: boolean;
 }
 
 export interface PluginRunOptions {
@@ -180,6 +207,8 @@ export interface OptimizeOptions {
   entrypoints: 'auto' | string[] | ((options: {files: string[]}) => string[]);
   preload: boolean;
   bundle: boolean;
+  splitting: boolean;
+  treeshake: boolean;
   manifest: boolean;
   minify: boolean;
   target: 'es2020' | 'es2019' | 'es2018' | 'es2017';
@@ -192,13 +221,31 @@ export interface RouteConfigObject {
   _srcRegex: RegExp;
 }
 
+export interface PackageSourceLocal
+  extends Omit<
+    EsinstallOptions,
+    'alias' | 'dest' | 'sourcemap' | 'verbose' | 'logger' | 'cwd' | 'dest' | 'treeshake'
+  > {
+  source: 'local';
+  external: string[];
+  knownEntrypoints: string[];
+}
+
+export interface PackageSourceRemote {
+  source: 'remote';
+  external: string[];
+  knownEntrypoints: string[];
+  origin: string;
+  cache: string;
+  types: boolean;
+}
+
 // interface this library uses internally
 export interface SnowpackConfig {
   root: string;
-  install: string[];
+  workspaceRoot?: string | false;
   extends?: string;
   exclude: string[];
-  knownEntrypoints: string[];
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   plugins: SnowpackPlugin[];
@@ -206,47 +253,44 @@ export interface SnowpackConfig {
     secure: boolean;
     hostname: string;
     port: number;
-    fallback: string;
-    open: string;
-    output: 'stream' | 'dashboard';
+    open?: string;
+    output?: 'stream' | 'dashboard';
     hmr?: boolean;
     hmrDelay: number;
     hmrPort: number | undefined;
     hmrErrorOverlay: boolean;
   };
-  installOptions: Omit<InstallOptions, 'alias'>;
   buildOptions: {
     out: string;
     baseUrl: string;
-    webModulesUrl: string;
+    metaUrlPath: string;
     clean: boolean;
-    metaDir: string;
-    minify: boolean;
-    sourceMaps: boolean;
+    sourcemap: boolean;
     watch: boolean;
     htmlFragments: boolean;
     jsxFactory: string | undefined;
     jsxFragment: string | undefined;
+    ssr: boolean;
+    resolveProxyImports: boolean;
   };
   testOptions: {
     files: string[];
   };
+  packageOptions: PackageSourceLocal | PackageSourceRemote;
+  /** Optimize your site for production. */
+  optimize?: OptimizeOptions;
+  /** Configure routes during development. */
+  routes: RouteConfigObject[];
   /** EXPERIMENTAL - This section is experimental and not yet finalized. May change across minor versions. */
   experiments: {
-    /** (EXPERIMENTAL) Where should dependencies be loaded from? */
-    source: 'local' | 'skypack';
-    /** (EXPERIMENTAL) If true, "snowpack build" should build your site for SSR. */
-    ssr: boolean;
-    /** (EXPERIMENTAL) Optimize your site for production. */
-    optimize?: OptimizeOptions;
-    /** (EXPERIMENTAL) Configure routes during development. */
-    routes: RouteConfigObject[];
+    /* intentionally left blank */
   };
-  _extensionMap: Record<string, string>;
+  _extensionMap: Record<string, string[]>;
 }
 
 export type SnowpackUserConfig = {
   root?: string;
+  workspaceRoot?: string;
   install?: string[];
   extends?: string;
   exclude?: string[];
@@ -254,17 +298,15 @@ export type SnowpackUserConfig = {
   alias?: Record<string, string>;
   plugins?: (string | [string, any])[];
   devOptions?: Partial<SnowpackConfig['devOptions']>;
-  installOptions?: Partial<SnowpackConfig['installOptions']>;
   buildOptions?: Partial<SnowpackConfig['buildOptions']>;
   testOptions?: Partial<SnowpackConfig['testOptions']>;
+  packageOptions?: Partial<SnowpackConfig['packageOptions']>;
+  optimize?: Partial<SnowpackConfig['optimize']>;
+  routes?: Pick<RouteConfigObject, 'src' | 'dest' | 'match'>[];
   experiments?: {
-    source?: SnowpackConfig['experiments']['source'];
-    ssr?: SnowpackConfig['experiments']['ssr'];
-    optimize?: Partial<SnowpackConfig['experiments']['optimize']>;
-    routes?: Pick<RouteConfigObject, 'src' | 'dest' | 'match'>[];
+    /* intentionally left blank */
   };
 };
-
 export interface CLIFlags {
   help?: boolean; // display help text
   version?: boolean; // display Snowpack version
@@ -283,8 +325,9 @@ export interface ImportMap {
   imports: {[specifier: string]: string};
 }
 
-export interface LockfileManifest extends ImportMap {
+export interface LockfileManifest {
   dependencies: {[packageName: string]: string};
+  lock: {[specifier: string]: string};
 }
 
 export interface CommandOptions {
@@ -308,22 +351,30 @@ export interface PackageSource {
    * for this to complete before continuing. Example: For "local", this involves
    * running esinstall (if needed) to prepare your local dependencies as ESM.
    */
-  prepare(commandOptions: CommandOptions): Promise<ImportMap>;
+  prepare(commandOptions: CommandOptions): Promise<void>;
   /**
-   * Load a dependency with the given spec (ex: "/web_modules/react" -> "react")
+   * Load a dependency with the given spec (ex: "/pkg/react" -> "react")
    * If load fails or is unsuccessful, reject the promise.
    */
   load(
     spec: string,
-    options: {config: SnowpackConfig; lockfile: ImportMap | null},
-  ): Promise<Buffer | string>;
-  /** Resolve a package import to URL (ex: "react" -> "/web_modules/react") */
-  resolvePackageImport(spec: string, importMap: ImportMap, config: SnowpackConfig): string | false;
-  /** Handle 1+ missing package imports before failing, if possible. */
-  recoverMissingPackageImport(missingPackages: string[]): Promise<ImportMap>;
+    isSSR: boolean,
+    options: {config: SnowpackConfig; lockfile: LockfileManifest | null},
+  ): Promise<undefined | {contents: Buffer | string; imports: InstallTarget[]}>;
+  /** Resolve a package import to URL (ex: "react" -> "/pkg/react") */
+  resolvePackageImport(
+    source: string,
+    spec: string,
+    config: SnowpackConfig,
+    importMap?: ImportMap,
+    depth?: number,
+  ): Promise<string>;
   /** Modify the build install config for optimized build install. */
-  modifyBuildInstallConfig(options: {
+  modifyBuildInstallOptions(options: {
+    installOptions: EsinstallOptions;
     config: SnowpackConfig;
-    lockfile: ImportMap | null;
-  }): Promise<void>;
+    lockfile: LockfileManifest | null;
+  }): EsinstallOptions;
+  getCacheFolder(config: SnowpackConfig): string;
+  clearCache(): void | Promise<void>;
 }

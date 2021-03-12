@@ -1,4 +1,3 @@
-import rollupPluginAlias from '@rollup/plugin-alias';
 import rollupPluginCommonjs, {RollupCommonJSOptions} from '@rollup/plugin-commonjs';
 import rollupPluginJson from '@rollup/plugin-json';
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
@@ -12,7 +11,7 @@ import {InputOptions, OutputOptions, Plugin as RollupPlugin, rollup, RollupError
 import rollupPluginNodePolyfills from 'rollup-plugin-polyfill-node';
 import rollupPluginReplace from '@rollup/plugin-replace';
 import util from 'util';
-import validatePackageName from 'validate-npm-package-name';
+import {rollupPluginAlias} from './rollup-plugins/rollup-plugin-alias';
 import {rollupPluginCatchFetch} from './rollup-plugins/rollup-plugin-catch-fetch';
 import {rollupPluginCatchUnresolved} from './rollup-plugins/rollup-plugin-catch-unresolved';
 import {rollupPluginCss} from './rollup-plugins/rollup-plugin-css';
@@ -26,37 +25,33 @@ import {
   EnvVarReplacements,
   ImportMap,
   InstallTarget,
-  ExportMapEntry,
 } from './types';
 import {
   createInstallTarget,
   findMatchingAliasEntry,
   getWebDependencyName,
   getWebDependencyType,
-  isPackageAliasEntry,
+  isJavaScript,
   MISSING_PLUGIN_SUGGESTIONS,
-  parsePackageImportSpecifier,
-  resolveDependencyManifest,
   sanitizePackageName,
   writeLockfile,
 } from './util';
+import {resolveEntrypoint, MAIN_FIELDS} from './entrypoints';
 
 export * from './types';
+export {
+  findExportMapEntry,
+  findManifestEntry,
+  resolveEntrypoint,
+  explodeExportMap,
+} from './entrypoints';
+export {resolveDependencyManifest} from './util';
 export {printStats} from './stats';
 
-type DependencyLoc =
-  | {
-      type: 'BUNDLE';
-      loc: string;
-    }
-  | {
-      type: 'ASSET';
-      loc: string;
-    }
-  | {
-      type: 'DTS';
-      loc: undefined;
-    };
+type DependencyLoc = {
+  type: 'BUNDLE' | 'ASSET' | 'DTS';
+  loc: string;
+};
 
 // Add popular CJS packages here that use "synthetic" named imports in their documentation.
 // CJS packages should really only be imported via the default export:
@@ -75,40 +70,12 @@ const CJS_PACKAGES_TO_AUTO_DETECT = [
   'scheduler/index.js',
   'react-table',
   'chai/index.js',
+  'events/events.js',
+  'uuid/index.js',
 ];
-
-// Rarely, a package will ship a broken "browser" package.json entrypoint.
-// Ignore the "browser" entrypoint in those packages.
-const BROKEN_BROWSER_ENTRYPOINT = ['@sheerun/mutationobserver-shim'];
 
 function isImportOfPackage(importUrl: string, packageName: string) {
   return packageName === importUrl || importUrl.startsWith(packageName + '/');
-}
-
-function resolveNestedCondition(exportMapEntry: ExportMapEntry | undefined): string | undefined {
-  // If this is a string or undefined we can skip checking for conditions
-  switch (typeof exportMapEntry) {
-    case 'string':
-      return exportMapEntry;
-    case 'undefined':
-      return exportMapEntry;
-  }
-
-  return (
-    resolveNestedCondition(exportMapEntry?.browser) ||
-    resolveNestedCondition(exportMapEntry?.import) ||
-    resolveNestedCondition(exportMapEntry?.default) ||
-    resolveNestedCondition(exportMapEntry?.require) ||
-    undefined
-  );
-}
-
-function resolveExportsMap(
-  packageManifest: {exports: {}},
-  exportsProp: string,
-): string | undefined {
-  const exportMapEntry = packageManifest.exports[exportsProp];
-  return resolveNestedCondition(exportMapEntry);
 }
 
 /**
@@ -119,127 +86,12 @@ function resolveExportsMap(
  */
 function resolveWebDependency(
   dep: string,
-  {cwd, packageLookupFields}: {cwd: string; packageLookupFields: string[]},
+  resolveOptions: {cwd: string; packageLookupFields: string[]},
 ): DependencyLoc {
-  // We first need to check for an export map in the package.json. If one exists, resolve to it.
-  const [packageName, packageEntrypoint] = parsePackageImportSpecifier(dep);
-  const [packageManifestLoc, packageManifest] = resolveDependencyManifest(packageName, cwd);
-
-  if (packageManifestLoc && packageManifest && packageManifest.exports) {
-    // If this is a non-main entry point
-    if (packageEntrypoint) {
-      const exportMapValue = resolveExportsMap(packageManifest, './' + packageEntrypoint);
-
-      if (typeof exportMapValue !== 'string') {
-        throw new Error(
-          `Package "${packageName}" exists but package.json "exports" does not include entry for "./${packageEntrypoint}".`,
-        );
-      }
-      const loc = path.join(packageManifestLoc, '..', exportMapValue);
-      return {
-        type: getWebDependencyType(loc),
-        loc,
-      };
-    } else {
-      const exportMapValue = resolveExportsMap(packageManifest, '.');
-
-      if (exportMapValue) {
-        const loc = path.join(packageManifestLoc, '..', exportMapValue);
-        return {
-          type: getWebDependencyType(loc),
-          loc,
-        };
-      }
-    }
-  }
-
-  // if, no export map and dep points directly to a file within a package, return that reference.
-  if (path.extname(dep) && !validatePackageName(dep).validForNewPackages) {
-    // For details on why we need to call fs.realpathSync.native here and other places, see
-    // https://github.com/snowpackjs/snowpack/pull/999.
-    const loc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
-    return {
-      type: getWebDependencyType(loc),
-      loc,
-    };
-  }
-
-  // Otherwise, resolve directly to the dep specifier. Note that this supports both
-  // "package-name" & "package-name/some/path" where "package-name/some/path/package.json"
-  // exists at that lower path, that must be used to resolve. In that case, export
-  // maps should not be supported.
-  const [depManifestLoc, depManifest] = resolveDependencyManifest(dep, cwd);
-  if (!depManifest) {
-    try {
-      const maybeLoc = fs.realpathSync.native(require.resolve(dep, {paths: [cwd]}));
-      return {
-        type: getWebDependencyType(maybeLoc),
-        loc: maybeLoc,
-      };
-    } catch (err) {
-      // Oh well, was worth a try
-    }
-  }
-  if (!depManifestLoc || !depManifest) {
-    throw new Error(
-      `Package "${dep}" not found. Have you installed it? ${depManifestLoc ? depManifestLoc : ''}`,
-    );
-  }
-  if (
-    depManifest.name &&
-    (depManifest.name.startsWith('@reactesm') || depManifest.name.startsWith('@pika/react'))
-  ) {
-    throw new Error(
-      `React workaround packages no longer needed! Revert back to the official React & React-DOM packages.`,
-    );
-  }
-  let foundEntrypoint: any = [
-    ...packageLookupFields,
-    'browser:module',
-    'module',
-    'main:esnext',
-    'jsnext:main',
-  ]
-    .map((e) => depManifest[e])
-    .find(Boolean);
-  if (!foundEntrypoint && !BROKEN_BROWSER_ENTRYPOINT.includes(packageName)) {
-    foundEntrypoint = depManifest.browser;
-  }
-
-  // Some packages define "browser" as an object. We'll do our best to find the
-  // right entrypoint in an entrypoint object, or fail otherwise.
-  // See: https://github.com/defunctzombie/package-browser-field-spec
-  if (typeof foundEntrypoint === 'object') {
-    foundEntrypoint =
-      foundEntrypoint[dep] ||
-      foundEntrypoint['./index.js'] ||
-      foundEntrypoint['./index'] ||
-      foundEntrypoint['index.js'] ||
-      foundEntrypoint['index'] ||
-      foundEntrypoint['./'] ||
-      foundEntrypoint['.'];
-  }
-  // If browser object is set but no relevant entrypoint is found, fall back to "main".
-  if (!foundEntrypoint) {
-    foundEntrypoint = depManifest.main;
-  }
-  // Sometimes packages don't give an entrypoint, assuming you'll fall back to "index.js".
-  if (!foundEntrypoint && fs.existsSync(path.join(depManifestLoc, '../index.js'))) {
-    foundEntrypoint = 'index.js';
-  }
-  // Some packages are types-only. If this is one of those packages, resolve with that.
-  if (!foundEntrypoint && (depManifest.types || depManifest.typings)) {
-    return {type: 'DTS', loc: undefined};
-  }
-  if (typeof foundEntrypoint !== 'string') {
-    throw new Error(`"${dep}" has unexpected entrypoint: ${JSON.stringify(foundEntrypoint)}.`);
-  }
-  const loc = fs.realpathSync.native(
-    require.resolve(path.join(depManifestLoc || '', '..', foundEntrypoint)),
-  );
+  const loc = resolveEntrypoint(dep, resolveOptions);
   return {
-    type: getWebDependencyType(loc),
     loc,
+    type: getWebDependencyType(loc),
   };
 }
 
@@ -254,26 +106,34 @@ function generateEnvObject(userEnv: EnvVarReplacements): Object {
   };
 }
 
-function generateEnvReplacements(env: Object): {[key: string]: string} {
-  return Object.keys(env).reduce((acc, key) => {
-    acc[`process.env.${key}`] = JSON.stringify(env[key]);
-    return acc;
-  }, {});
+function generateReplacements(env: Object): {[key: string]: string} {
+  return Object.keys(env).reduce(
+    (acc, key) => {
+      acc[`process.env.${key}`] = JSON.stringify(env[key]);
+      return acc;
+    },
+    {
+      // Other find & replacements:
+      // tslib: fights with Rollup's namespace/default handling, so just remove it.
+      'return (mod && mod.__esModule) ? mod : { "default": mod };': 'return mod;',
+    },
+  );
 }
 
 interface InstallOptions {
   cwd: string;
+  stats: boolean;
   alias: Record<string, string>;
-  lockfile?: ImportMap;
+  importMap?: ImportMap;
   logger: AbstractLogger;
   verbose?: boolean;
   dest: string;
   env: EnvVarReplacements;
   treeshake?: boolean;
   polyfillNode: boolean;
-  sourceMap?: boolean | 'inline';
-  externalPackage: string[];
-  externalPackageEsm: string[];
+  sourcemap?: boolean | 'inline';
+  external: string[];
+  externalEsm: string[] | ((imp: string) => boolean);
   packageLookupFields: string[];
   packageExportLookupFields: string[];
   namedExports: string[];
@@ -286,19 +146,37 @@ interface InstallOptions {
 
 type PublicInstallOptions = Partial<InstallOptions>;
 export {PublicInstallOptions as InstallOptions};
-
-export type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput};
+export type InstallResult = {importMap: ImportMap; stats: DependencyStatsOutput | null};
 
 const FAILED_INSTALL_MESSAGE = 'Install failed.';
 
 function setOptionDefaults(_options: PublicInstallOptions): InstallOptions {
+  if ((_options as any).lockfile) {
+    throw new Error('[esinstall@1.0.0] option `lockfile` was renamed to `importMap`.');
+  }
+  if ((_options as any).sourceMap) {
+    throw new Error('[esinstall@1.0.0] option `sourceMap` was renamed to `sourcemap`.');
+  }
+  if ((_options as any).externalPackage) {
+    throw new Error('[esinstall@1.0.0] option `externalPackage` was renamed to `external`.');
+  }
+  if ((_options as any).externalPackageEsm) {
+    throw new Error('[esinstall@1.0.0] option `externalPackageEsm` was renamed to `externalEsm`.');
+  }
   const options = {
     cwd: process.cwd(),
     alias: {},
-    logger: console,
+    logger: {
+      debug: () => {}, // silence debug messages by default
+      log: console.log,
+      warn: console.warn,
+      error: console.error,
+    },
+    // TODO: Make this default to false in a v2.0 release
+    stats: true,
     dest: 'web_modules',
-    externalPackage: [],
-    externalPackageEsm: [],
+    external: [] as string[],
+    externalEsm: [] as string[],
     polyfillNode: false,
     packageLookupFields: [],
     packageExportLookupFields: [],
@@ -321,14 +199,15 @@ export async function install(
   const {
     cwd,
     alias: installAlias,
-    lockfile,
+    importMap: _importMap,
     logger,
     dest: destLoc,
     namedExports,
-    externalPackage,
-    externalPackageEsm,
-    sourceMap,
+    external,
+    externalEsm,
+    sourcemap,
     env: userEnv,
+    stats,
     rollup: userDefinedRollup,
     treeshake: isTreeshake,
     polyfillNode,
@@ -343,8 +222,7 @@ export async function install(
   const allInstallSpecifiers = new Set(
     installTargets
       .filter(
-        (dep) =>
-          !externalPackage.some((packageName) => isImportOfPackage(dep.specifier, packageName)),
+        (dep) => !external.some((packageName) => isImportOfPackage(dep.specifier, packageName)),
       )
       .map((dep) => dep.specifier)
       .map((specifier) => {
@@ -364,11 +242,31 @@ export async function install(
   for (const installSpecifier of allInstallSpecifiers) {
     let targetName = getWebDependencyName(installSpecifier);
     let proxiedName = sanitizePackageName(targetName); // sometimes we need to sanitize webModule names, as in the case of tippy.js -> tippyjs
-    if (lockfile && lockfile.imports[installSpecifier]) {
-      installEntrypoints[targetName] = lockfile.imports[installSpecifier];
-      importMap.imports[installSpecifier] = `./${proxiedName}.js`;
-      continue;
+    if (_importMap) {
+      if (_importMap.imports[installSpecifier]) {
+        installEntrypoints[targetName] = _importMap.imports[installSpecifier];
+        if (!path.extname(installSpecifier) || isJavaScript(installSpecifier)) {
+          importMap.imports[installSpecifier] = `./${proxiedName}.js`;
+        } else {
+          importMap.imports[installSpecifier] = `./${proxiedName}`;
+        }
+        continue;
+      }
+      const findFolderImportEntry = Object.entries(_importMap.imports).find(([entry]) => {
+        return entry.endsWith('/') && installSpecifier.startsWith(entry);
+      });
+      if (findFolderImportEntry) {
+        installEntrypoints[targetName] =
+          findFolderImportEntry[1] + targetName.substr(findFolderImportEntry[0].length);
+        if (!path.extname(installSpecifier) || isJavaScript(installSpecifier)) {
+          importMap.imports[installSpecifier] = `./${proxiedName}.js`;
+        } else {
+          importMap.imports[installSpecifier] = `./${proxiedName}`;
+        }
+        continue;
+      }
     }
+
     try {
       const resolvedResult = resolveWebDependency(installSpecifier, {
         cwd,
@@ -417,20 +315,28 @@ ${colors.dim(
   const inputOptions: InputOptions = {
     input: installEntrypoints,
     context: userDefinedRollup.context,
-    external: (id) => externalPackage.some((packageName) => isImportOfPackage(id, packageName)),
-    treeshake: {moduleSideEffects: 'no-external'},
+    external: (id) => external.some((packageName) => isImportOfPackage(id, packageName)),
+    treeshake: {moduleSideEffects: true},
     plugins: [
       rollupPluginAlias({
-        entries: Object.entries(installAlias)
-          .filter(([, val]) => isPackageAliasEntry(val))
-          .map(([key, val]) => ({
+        entries: [
+          // Apply all aliases
+          ...Object.entries(installAlias).map(([key, val]) => ({
             find: key,
             replacement: val,
+            exact: false,
           })),
+          // Make sure that internal imports also honor any resolved installEntrypoints
+          ...Object.entries(installEntrypoints).map(([key, val]) => ({
+            find: key,
+            replacement: val,
+            exact: true,
+          })),
+        ],
       }),
       rollupPluginCatchFetch(),
       rollupPluginNodeResolve({
-        mainFields: ['browser:module', 'module', 'browser', 'main'],
+        mainFields: [...packageLookupFields, ...MAIN_FIELDS],
         extensions: ['.mjs', '.cjs', '.js', '.json'], // Default: [ '.mjs', '.js', '.json', '.node' ]
         // whether to prefer built-in modules (e.g. `fs`, `path`) or local ones with the same names
         preferBuiltins: true, // Default: true
@@ -445,14 +351,17 @@ ${colors.dim(
         namedExports: true,
       }),
       rollupPluginCss(),
-      rollupPluginReplace(generateEnvReplacements(env)),
+      rollupPluginReplace(generateReplacements(env)),
       rollupPluginCommonjs({
         extensions: ['.js', '.cjs'],
-        esmExternals: externalPackageEsm,
+        esmExternals: (id) =>
+          Array.isArray(externalEsm)
+            ? externalEsm.some((packageName) => isImportOfPackage(id, packageName))
+            : (externalEsm as Function)(id),
         requireReturnsDefault: 'auto',
       } as RollupCommonJSOptions),
       rollupPluginWrapInstallTargets(!!isTreeshake, autoDetectNamedExports, installTargets, logger),
-      rollupPluginDependencyStats((info) => (dependencyStats = info)),
+      stats && rollupPluginDependencyStats((info) => (dependencyStats = info)),
       rollupPluginNodeProcessPolyfill(env),
       polyfillNode && rollupPluginNodePolyfills(),
       ...(userDefinedRollup.plugins || []), // load user-defined plugins last
@@ -468,8 +377,7 @@ ${colors.dim(
         isFatalWarningFound = true;
         // Display posix-style on all environments, mainly to help with CI :)
         if (warning.id) {
-          const fileName = path.relative(cwd, warning.id).replace(/\\/g, '/');
-          logger.error(`${fileName}\n   ${warning.message}`);
+          logger.error(`${warning.id}\n   ${warning.message}`);
         } else {
           logger.error(
             `${warning.message}. See https://www.snowpack.dev/reference/common-error-details`,
@@ -483,7 +391,8 @@ ${colors.dim(
       if (
         warning.code === 'CIRCULAR_DEPENDENCY' ||
         warning.code === 'NAMESPACE_CONFLICT' ||
-        warning.code === 'THIS_IS_UNDEFINED'
+        warning.code === 'THIS_IS_UNDEFINED' ||
+        warning.code === 'EMPTY_BUNDLE'
       ) {
         logger.debug(logMessage);
       } else {
@@ -494,7 +403,7 @@ ${colors.dim(
   const outputOptions: OutputOptions = {
     dir: destLoc,
     format: 'esm',
-    sourcemap: sourceMap,
+    sourcemap,
     exports: 'named',
     entryFileNames: (chunk) => {
       const targetName = getWebDependencyName(chunk.name);
@@ -507,6 +416,7 @@ ${colors.dim(
   rimraf.sync(destLoc);
   if (Object.keys(installEntrypoints).length > 0) {
     try {
+      logger.debug(process.cwd());
       logger.debug(`running installer with options: ${util.format(inputOptions)}`);
       const packageBundle = await rollup(inputOptions);
       logger.debug(
@@ -518,7 +428,25 @@ ${colors.dim(
       logger.debug(`writing install results to disk`);
       await packageBundle.write(outputOptions);
     } catch (_err) {
+      logger.debug(`FAILURE: ${_err}`);
       const err: RollupError = _err;
+
+      if (err.code === 'MISSING_EXPORT') {
+        let [exportSpecifier, tail] = err.message.split(' is not exported by ');
+        exportSpecifier = exportSpecifier.slice(1, -1);
+        const specifier = tail.split('imported by ')[1];
+        let modName;
+        for (const [key, value] of Object.entries(installEntrypoints)) {
+          if (value === specifier) {
+            modName = key;
+            break;
+          }
+        }
+        throw new Error(
+          `Module "${modName}" has no exported member "${exportSpecifier}". Did you mean to use "import ${exportSpecifier} from '${modName}'" instead?`,
+        );
+      }
+
       const errFilePath = err.loc?.file || err.id;
       if (!errFilePath) {
         throw err;
@@ -545,6 +473,6 @@ ${colors.dim(
 
   return {
     importMap,
-    stats: dependencyStats!,
+    stats: dependencyStats,
   };
 }

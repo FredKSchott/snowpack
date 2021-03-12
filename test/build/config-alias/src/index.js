@@ -3,21 +3,28 @@ import {flatten} from 'array-flatten';
 import * as aliasedDep from 'aliased-dep';
 console.log(flatten, aliasedDep);
 
-// Importing a file
+// Importing a relative URL
 import sort from './sort'; // relative import
-import sort_ from '/_dist_/sort.js'; // absolute import
-import sort__ from '@app/sort'; // bare import using alias
-import sort___ from '@app/sort.js'; // bare import using alias + extension
-import sort____ from '@/sort'; // bare import using alias with trailing slash
-import sort_____ from '@sort'; // bare import using file alias
-console.log(sort, sort_, sort__, sort___, sort___, sort____, sort_____);
+import sort_ from '@app/sort'; // bare import using alias
+import sort__ from '@app/sort.js'; // bare import using alias + extension
+import sort___ from '@/sort'; // bare import using alias with trailing slash
+import sort____ from '@sort'; // bare import using file alias
+console.log(sort, sort_, sort__, sort___, sort____);
 
-// Note: file does not need to exist for these checks:
-import svelteFile from './foo.svelte'; // plugin-provided file extension
-import svelteFile_ from './foo'; // plugin-provided, missing file extension
-import svelteFile__ from '/foo.svelte'; // absolute URL, plugin-provided file extension
-import svelteFile___ from '/foo'; // absolute URL, missing file extension
-console.log(svelteFile, svelteFile_, svelteFile__, svelteFile___);
+// Importing a 1:1 built file
+import oneToOneBuild from './test-mjs.mjs'; // plugin-provided file extension
+import oneToOneBuild_ from './test-mjs'; // plugin-provided, missing file extension
+console.log(oneToOneBuild, oneToOneBuild_);
+
+// Importing a 1:N built file
+import oneToManyBuild from './foo.svelte'; // plugin-provided file extension
+console.log(oneToManyBuild);
+
+// Importing an absolute URL: we don't touch these
+import absoluteUrl from '/_dist_/sort.js'; // absolute URL
+import absoluteUrl_ from '/_dist_/foo.svelte.js'; // absolute URL
+import absoluteUrl__ from '/_dist_/test-mjs.js'; // absolute URL
+console.log(absoluteUrl, absoluteUrl_, absoluteUrl__);
 
 // Importing a directory index.js file
 import components from './components'; // relative import

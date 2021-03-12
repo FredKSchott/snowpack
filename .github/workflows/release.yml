@@ -24,6 +24,8 @@ jobs:
     steps:
       # SETUP:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Use Node.js ${{ env.node_version }}
         uses: actions/setup-node@v1
         with:

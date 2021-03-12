@@ -1,5 +1,5 @@
 {
-  "version": "1.1.1",
+  "version": "1.2.1",
   "name": "@snowpack/plugin-typescript",
   "main": "plugin.js",
   "license": "MIT",
@@ -16,7 +16,7 @@
     "typescript": "*"
   },
   "dependencies": {
-    "execa": "^4.0.3",
+    "execa": "^5.0.0",
     "npm-run-path": "^4.0.1"
   }
 }

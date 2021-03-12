@@ -8,12 +8,11 @@
   },
   "snowpack": {
     "buildOptions": {
-      "clean": true,
       "out": "TEST_BUILD_OUT"
     }
   },
   "devDependencies": {
     "cross-env": "^7.0.2",
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

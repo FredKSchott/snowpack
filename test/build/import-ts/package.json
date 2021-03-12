@@ -5,11 +5,6 @@
   "scripts": {
     "testbuild": "snowpack build"
   },
-  "snowpack": {
-    "buildOptions": {
-      "minify": false
-    }
-  },
   "dependencies": {
     "array-flatten": "^3.0.0",
     "http-vue-loader": "^1.4.1",
@@ -18,6 +13,6 @@
     "vue-router": "^3.0.0"
   },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

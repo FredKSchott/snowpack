@@ -55,6 +55,7 @@ export interface LoggerOptions {
   name?: string;
 }
 
+// TODO this is incomplete and could be an array.
 export type ExportMapEntry =
   | string
   | {
@@ -63,3 +64,31 @@ export type ExportMapEntry =
       default?: ExportMapEntry;
       require?: ExportMapEntry;
     };
+
+export type ExportMap = Record<string, ExportMapEntry>;
+export type ExportField = string | ExportMap;
+
+//
+/**
+ * https://github.com/defunctzombie/package-browser-field-spec
+ * "browser": "main.js",
+ * "browser": { "./": "main.js" }
+ * "browser": { "./foo": false } // don't include in bundle
+ */
+export type BrowserField = string | Record<string, string | boolean>;
+
+// This is the package.json, with fields we care about
+export type PackageManifest = {
+  name: string;
+  version: string;
+  main?: string; // This is optional, actually
+  module?: string;
+  exports?: ExportField;
+  browser?: BrowserField;
+  types?: string;
+  typings?: string;
+};
+
+export type PackageManifestWithExports = PackageManifest & {
+  exports: ExportMap;
+};

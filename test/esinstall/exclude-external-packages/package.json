@@ -2,14 +2,11 @@
   "private": true,
   "version": "1.0.1",
   "name": "@snowpack/test-exclude-external-packages",
-  "scripts": {
-    "testinstall": "snowpack install"
-  },
   "dependencies": {
-    "array-flatten": "^3.0.0",
-    "vue": "^2.0.0"
+    "react": "17.0.1",
+    "react-dom": "17.0.1"
   },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

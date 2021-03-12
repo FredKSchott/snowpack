@@ -3,23 +3,11 @@
   "version": "1.0.1",
   "name": "@snowpack/test-package-react",
   "description": "Ensures React still works",
-  "scripts": {
-    "testinstall": "snowpack install"
-  },
-  "snowpack": {
-    "install": [
-      "react",
-      "react-dom"
-    ],
-    "buildOptions": {
-      "minify": false
-    }
-  },
   "dependencies": {
     "react": "16.13.1",
     "react-dom": "16.13.1"
   },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }

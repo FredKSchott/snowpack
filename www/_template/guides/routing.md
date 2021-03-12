@@ -5,10 +5,6 @@ published: true
 description: This guide will walk you through some common routing scenarios and how to configure the routes option to support them in development.
 ---
 
-<div class="notification">
-Status: Experimental
-</div>
-
 As a web build tool, Snowpack has no knowledge of how (or where) your application is served in production. But Snowpack's dev server can be customized to recreate something close to your production environment for local development.
 
 This guide will walk you through some common routing scenarios and how to configure the `routes` option to support them in development.
@@ -21,16 +17,14 @@ To implement this pattern, you'll want to define a single "catch-all" route for 
 
 ```js
 // snowpack.config.js
-"experiments": {
-    "routes": [
-        {"src": ".*", "dest": "/index.html", "match": "routes"}
-    ]
-}
+"routes": [
+    {"match": "routes", "src": ".*", "dest": "/index.html"}
+]
 ```
 
 This tells Snowpack's dev server to serve the fallback `/index.html` URL for all routes (`.*` in RegEx means "match everything").
 
-The term "route", in this case, refers to all URLs that either do not include a file extension or that include the ".html" file extension. If you changed the above example to `"match": "all"` instead, then all URLs (including JS and CSS files) would respond with the fallback HTML file. This wouldn't make much sense, which is why `"match": "routes"` is Snowpack's default when not explicitly included.
+`"match": "routes"` refers to all URLs that either do not include a file extension or that include the ".html" file extension. If you changed the above example to `"match": "all"` instead, then all URLs (including JS, CSS, Image files and more) would respond with the fallback HTML file.
 
 ### Scenario 2: Proxy API Paths
 
@@ -44,14 +38,17 @@ const httpProxy = require('http-proxy');
 const proxy = httpProxy.createServer({ target: 'http://localhost:3001' });
 
 module.exports = {
-  experiments: {
-    routes: [
-      {
-        src: '/api/.*',
-        dest: (req, res) => proxy.web(req, res),
+  routes: [
+    {
+      src: '/api/.*',
+      dest: (req, res) => {
+        // remove /api prefix (optional)
+        req.url = req.url.replace(/^\/api/, '');
+
+        proxy.web(req, res);
       },
-    ],
-  },
+    },
+  ],
 };
 ```
 

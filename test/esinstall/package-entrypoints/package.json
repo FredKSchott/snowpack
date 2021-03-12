@@ -4,16 +4,13 @@
   "name": "@snowpack/test-package-entrypoint",
   "description": "Test that we properly handle all package entry points.",
   "scripts": {},
-  "snowpack": {
-    "buildOptions": {
-      "minify": false
-    }
-  },
   "dependencies": {
+    "main-folder": "file:./main-folder",
     "browser-path": "file:./browser-path",
     "browser-dot": "file:./browser-dot",
     "browser-dot-slash": "file:./browser-dot-slash",
     "browser-dot-slash-index": "file:./browser-dot-slash-index",
+    "browser-dot-slash-index-js": "file:./browser-dot-slash-index-js",
     "browser-index": "file:./browser-index",
     "browser-index-js": "file:./browser-index-js",
     "browser-no-valid": "file:./browser-no-valid",
@@ -22,10 +19,16 @@
     "pkg-with-dot.in-the-name": "file:./pkg-with-dot.in-the-name",
     "export-map-dot-no-slash": "file:./export-map-dot-no-slash",
     "export-map-dot-slash": "file:./export-map-dot-slash",
+    "export-map-internal-imports": "file:./export-map-internal-imports",
     "export-map-object-browser": "file:./export-map-object-browser",
+    "export-map-object-browser-object": "file:./export-map-object-browser-object",
     "export-map-object-import": "file:./export-map-object-import",
     "export-map-object-default": "file:./export-map-object-default",
     "export-map-object-require": "file:./export-map-object-require",
-    "preact": "^10.0.0"
+    "export-map-object-no-key": "file:./export-map-object-no-key",
+    "export-map-star": "file:./export-map-star",
+    "export-map-trailing-slash": "file:./export-map-trailing-slash",
+    "preact": "^10.0.0",
+    "implicit-main": "file:./implicit-main"
   }
 }

@@ -2,8 +2,8 @@
 'use strict';
 
 const currentVersion = process.versions.node;
-const requiredMajorVersion = parseInt(currentVersion.split(".")[0], 10);
-const minimumMajorVersion = 10
+const requiredMajorVersion = parseInt(currentVersion.split('.')[0], 10);
+const minimumMajorVersion = 10;
 
 if (requiredMajorVersion < minimumMajorVersion) {
   console.error(`Node.js v${currentVersion} is out of date and unsupported!`);

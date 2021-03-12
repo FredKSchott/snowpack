@@ -1,7 +1,7 @@
 {
   "name": "@snowpack/app-template-minimal",
   "description": "A preconfigured minimal template for Snowpack",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "license": "MIT",
   "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-template-preact#readme",
   "repository": {
@@ -19,6 +19,6 @@
     "test": "echo \"This template does not include a test runner by default.\" && exit 1"
   },
   "devDependencies": {
-    "snowpack": "^2.18.4"
+    "snowpack": "^3.0.1"
   }
 }

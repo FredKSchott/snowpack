@@ -1,17 +1,23 @@
 {
   "name": "@snowpack/web-test-runner-plugin",
-  "version": "0.1.5",
+  "version": "0.2.1",
   "main": "plugin.js",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowpackjs/snowpack.git",
+    "directory": "plugins/web-test-runner-plugin"
+  },
+  "homepage": "https://www.snowpack.dev/guides/web-test-runner",
   "peerDependencies": {
-    "@web/test-runner": "^0.10.0",
-    "snowpack": "^2.14.3"
+    "@web/test-runner": ">=0.10.0 <1.0.0",
+    "snowpack": "^3.0.0"
   },
   "devDependencies": {
-    "@web/test-runner": "^0.10.0"
+    "@web/test-runner": ">=0.11.0"
   },
   "gitHead": "a01616bb0787d56cd782f94cecf2daa12c7594e4"
 }

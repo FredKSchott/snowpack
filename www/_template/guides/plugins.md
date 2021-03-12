@@ -4,18 +4,86 @@ title: Creating Your Own Plugin
 description: Learn the basics of our Plugin API through working examples.
 ---
 
-#### Who is this page for?
+A **Snowpack plugin** lets you extend Snowpack with new behaviors. Plugins can hook into different stages of the Snowpack build pipeline to add support for new file types and your favorite dev tools. Add plugins to support Svelte, compile Sass to CSS, convert SVGs to React components, bundle your final build, type check during development, and much more.
 
-- Anyone interested in writing a custom plugin for Snowpack.
-- Anyone extending Snowpack to support new file types.
-- Anyone extending Snowpack with a custom bundler or production optimization.
-- Anyone adding Fast Refresh or automatic HMR for a framework.
+This guide takes you though creating and publishing your first plugin.
 
-### Overview
+- The basic structure of Snowpack plugins
+- How to choose the right hooks from the Snowpack Plugin API
+- How to publish your plugin and add it to our [Plugin](/plugins) directory
 
-A **Snowpack Plugin** is an object interface that lets you customize Snowpack's behavior. Snowpack provides different hooks for your plugin to connect to. For example, you can add a plugin to handle Svelte files, optimize CSS, convert SVGs to React components, run TypeScript during development, and much more.
+Prerequisites: Snowpack plugins are written in JavaScript and run via Node.js so basic knowledge of both is required.
 
-Snowpack's plugin interface is inspired by [Rollup](https://rollupjs.org/). If you've ever written a Rollup plugin before, then hopefully these concepts and terms feel familiar.
+## Creating and testing your first plugin
+
+In this step you'll create a simple plugin scaffold that you can turn into a fuctional plugin based on the examples in the guide.
+
+Create a directory for your plugin called `my-snowpack-plugin` and inside it create a `my-snowpack-plugin.js` file:
+
+```js
+// my-snowpack-plugin.js
+// Example: a basic Snowpack plugin file, customize the name of the file and the value of the name in the object
+// snowpackConfig = The Snowpack configuration object
+// pluginOptions = user-provided configuration options
+module.exports = function (snowpackConfig, pluginOptions) {
+  return {
+    name: 'my-snowpack-plugin',
+  };
+};
+```
+
+To test your new plugin, run `npm init` to create a basic `package.json` then run `npm link` in your plugin’s directory to expose the plugin globally (on your development machine).
+
+For testing, [create a new, example Snowpack project](/tutorials/getting-started) in a different directory. In your example Snowpack project, run `npm install && npm link my-snowpack-plugin` (use the name from your plugin’s `package.json`).
+
+> The alternative would be to use `npm install --save-dev path_to_your_plugin`, which would create the "symlink-like" entry in your example Snowpack project’s `package.json`
+
+In your example Snowpack project, add your plugin to the `snowpack.config.js` along with any plugin options you’d like to test:
+
+```js
+// snowpack.config.js
+// Example: enabling a Snowpack plugin called "my-snowpack-plugin"
+{
+  "plugins": [
+    "my-snowpack-plugin"
+  ]
+}
+```
+
+## Testing and Troubleshooting
+
+- TODO: create a full how to test procedure
+- HINT: Add `--verbose` to the command to see the steps, e.g. `snowpack dev --verbose` or `snowpack build --verbose`
+
+## Adding user-configurable options to your plugin
+
+TODO make this a real example
+In this step, you'll learn how to add user-configurable options to your plugin and to use them in your plugin code.
+
+In your example Snowpack project, instead of enabling the plugin as a string containing the plugin name, use an array. The first item is name of your plugin and the second a new object containing the plugin options.
+
+```diff
+// snowpack.config.js
+{
+  "plugins": [
+-    "my-snowpack-plugin"
++    ["my-snowpack-plugin", { "optionA": "foo", "optionB": true }]
+  ]
+}
+```
+
+You access these through the `pluginOptions`
+
+```diff
+// my-snowpack-plugin.js
+module.exports = function (snowpackConfig, pluginOptions) {
++ let optionA = pluginOptions.optionA
++ let optionB = pluginOptions.optionB
+  return {
+    name: 'my-snowpack-plugin'
+  };
+};
+```
 
 ### Plugin Use-Cases
 
@@ -88,7 +156,7 @@ module.exports = function (snowpackConfig, pluginOptions) {
 The object returned by this function is a **Snowpack Plugin**. A plugin consists of a `name` property and some hooks into the Snowpack lifecycle to customizes your build pipeline or dev environment. In the example above we have:
 
 - The **name** property: The name of your plugin. This is usually the same as your package name if published to npm.
-- The **transform** method: A function that allows you to transform & modify built files. In this case, we add a simple comment (`/* I’m a comment */`) to the beginning of every JS file in your build.
+- The **transform** method: A function that allows you to transform & modify built files. In this case, we add a simple comment (`/* I’m a comment */`) to the beginning of every JS file in your build.
 
 This covers the basics of single-file transformations. In our next example, we’ll show how to compile a source file and change the file extension in the process.
 

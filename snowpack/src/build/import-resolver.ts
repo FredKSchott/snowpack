@@ -1,11 +1,18 @@
 import fs from 'fs';
 import path from 'path';
 import {SnowpackConfig} from '../types';
-import {findMatchingAliasEntry, getExtensionMatch, hasExtension, isRemoteUrl, replaceExtension} from '../util';
-import {getUrlForFile} from './file-urls';
+import {
+  addExtension,
+  findMatchingAliasEntry,
+  getExtensionMatch,
+  hasExtension,
+  isRemoteUrl,
+  replaceExtension,
+} from '../util';
+import {getUrlsForFile} from './file-urls';
 
 /** Perform a file disk lookup for the requested import specifier. */
-export function getImportStats(importedFileOnDisk: string): fs.Stats | false {
+export function getFsStat(importedFileOnDisk: string): fs.Stats | false {
   try {
     return fs.statSync(importedFileOnDisk);
   } catch (err) {
@@ -15,22 +22,45 @@ export function getImportStats(importedFileOnDisk: string): fs.Stats | false {
 }
 
 /** Resolve an import based on the state of the file/folder found on disk. */
-function resolveSourceSpecifier(spec: string, stats: fs.Stats | false, config: SnowpackConfig) {
+function resolveSourceSpecifier(lazyFileLoc: string, config: SnowpackConfig) {
+  const lazyFileStat = getFsStat(lazyFileLoc);
+
   // Handle directory imports (ex: "./components" -> "./components/index.js")
-  if (stats && stats.isDirectory()) {
-    const trailingSlash = spec.endsWith('/') ? '' : '/';
-    spec = spec + trailingSlash + 'index.js';
+  if (lazyFileStat && lazyFileStat.isDirectory()) {
+    const trailingSlash = lazyFileLoc.endsWith('/') ? '' : '/';
+    lazyFileLoc = lazyFileLoc + trailingSlash + 'index.js';
+  } else if (lazyFileStat && lazyFileStat.isFile()) {
+    lazyFileLoc = lazyFileLoc;
+  } else if (hasExtension(lazyFileLoc, '.css')) {
+    lazyFileLoc = lazyFileLoc;
+  } else if (hasExtension(lazyFileLoc, '.js')) {
+    const tsWorkaroundImportFileLoc = replaceExtension(lazyFileLoc, '.js', '.ts');
+    if (getFsStat(tsWorkaroundImportFileLoc)) {
+      lazyFileLoc = tsWorkaroundImportFileLoc;
+    }
+  } else if (hasExtension(lazyFileLoc, '.jsx')) {
+    const tsWorkaroundImportFileLoc = replaceExtension(lazyFileLoc, '.jsx', '.tsx');
+    if (getFsStat(tsWorkaroundImportFileLoc)) {
+      lazyFileLoc = tsWorkaroundImportFileLoc;
+    }
+  } else {
+    lazyFileLoc = lazyFileLoc + '.js';
   }
+
   // Transform the file extension (from input to output)
-  const extensionMatch = getExtensionMatch(spec, config._extensionMap);
+  const extensionMatch = getExtensionMatch(lazyFileLoc, config._extensionMap);
+
   if (extensionMatch) {
-    spec = replaceExtension(spec, extensionMatch[0], extensionMatch[1]);
+    const [inputExt, outputExts] = extensionMatch;
+    if (outputExts.length > 1) {
+      lazyFileLoc = addExtension(lazyFileLoc, outputExts[0]);
+    } else {
+      lazyFileLoc = replaceExtension(lazyFileLoc, inputExt, outputExts[0]);
+    }
   }
-  // Lazy check to handle imports that are missing file extensions
-  if (!stats && !hasExtension(spec, '.js') && !hasExtension(spec, '.css')) {
-    spec = spec + '.js';
-  }
-  return spec;
+
+  const resolvedUrls = getUrlsForFile(lazyFileLoc, config);
+  return resolvedUrls ? resolvedUrls[0] : resolvedUrls;
 }
 
 /**
@@ -45,18 +75,15 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
       return spec;
     }
     // Ignore packages marked as external
-    if (config.installOptions.externalPackage?.includes(spec)) {
+    if (config.packageOptions.external?.includes(spec)) {
       return spec;
     }
     if (spec.startsWith('/')) {
-      const importStats = getImportStats(path.resolve(config.root, spec.substr(1)));
-      return resolveSourceSpecifier(spec, importStats, config);
+      return spec;
     }
-    if (spec.startsWith('./') || spec.startsWith('../')) {
+    if (spec.startsWith('./') || spec.startsWith('../') || spec === '.') {
       const importedFileLoc = path.resolve(path.dirname(fileLoc), spec);
-      const importStats = getImportStats(importedFileLoc);
-      const newSpec = getUrlForFile(importedFileLoc, config) || spec;
-      return resolveSourceSpecifier(newSpec, importStats, config);
+      return resolveSourceSpecifier(importedFileLoc, config) || spec;
     }
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && (aliasEntry.type === 'path' || aliasEntry.type === 'url')) {
@@ -66,9 +93,7 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
         return result;
       }
       const importedFileLoc = path.resolve(config.root, result);
-      const importStats = getImportStats(importedFileLoc);
-      const newSpec = getUrlForFile(importedFileLoc, config) || spec;
-      return resolveSourceSpecifier(newSpec, importStats, config);
+      return resolveSourceSpecifier(importedFileLoc, config) || spec;
     }
     return false;
   };

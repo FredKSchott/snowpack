@@ -3,26 +3,45 @@ import util from 'util';
 import yargs from 'yargs-parser';
 import {addCommand, rmCommand} from './commands/add-rm';
 import {command as initCommand} from './commands/init';
-import {command as installCommand} from './commands/install';
+import {command as prepareCommand} from './commands/prepare';
 import {command as buildCommand} from './commands/build';
 import {command as devCommand} from './commands/dev';
+import {clearCache, getPackageSource} from './sources/util';
 import {logger} from './logger';
 import {loadConfiguration, expandCliFlags} from './config';
-import {CLIFlags, CommandOptions} from './types';
-import {clearCache, readLockfile} from './util.js';
+import {CLIFlags, CommandOptions, SnowpackConfig} from './types';
+import {readLockfile} from './util.js';
+import {getUrlsForFile} from './build/file-urls';
 export * from './types';
 
-// Stable API (remember to include all in "./index.esm.js" wrapper)
-export {startDevServer} from './commands/dev';
-export {buildProject} from './commands/build';
+// Stable API
+export {startServer} from './commands/dev';
+export {build} from './commands/build';
 export {loadConfiguration, createConfiguration} from './config.js';
 export {readLockfile as loadLockfile} from './util.js';
-export {getUrlForFile} from './build/file-urls';
+export {clearCache} from './sources/util';
 export {logger} from './logger';
 
+// Helper API
+export function getUrlForFile(fileLoc: string, config: SnowpackConfig) {
+  const result = getUrlsForFile(fileLoc, config);
+  return result ? result[0] : result;
+}
+export function preparePackages({config, lockfile}: CommandOptions) {
+  const pkgSource = getPackageSource(config.packageOptions.source);
+  return pkgSource.prepare({config, lockfile});
+}
+
+// Deprecated API
+export function startDevServer() {
+  throw new Error('startDevServer() was been renamed to startServer().');
+}
+export function buildProject() {
+  throw new Error('buildProject() was been renamed to build().');
+}
 export function loadAndValidateConfig() {
   throw new Error(
-    'loadAndValidateConfig() has been deprecated in favor of loadConfiguration() and createConfiguration()',
+    'loadAndValidateConfig() has been deprecated in favor of loadConfiguration() and createConfiguration().',
   );
 }
 
@@ -37,18 +56,19 @@ ${colors.bold(`snowpack`)} - A faster build system for the modern web.
 
 ${colors.bold('Commands:')}
   snowpack init          Create a new project config file.
-  snowpack dev           Develop your app locally.
-  snowpack build         Build your app for production.
-  snowpack add [package] Add a package to your lockfile (import map).
-  snowpack rm [package]  Remove a package from your lockfile.
+  snowpack prepare       Prepare your project for development (optional).
+  snowpack dev           Develop your project locally.
+  snowpack build         Build your project for production.
+  snowpack add [package] Add a package to your project.
+  snowpack rm [package]  Remove a package from your project.
 
 ${colors.bold('Flags:')}
   --config [path]        Set the location of your project config file.
   --help                 Show this help message.
   --version              Show the current version.
-  --reload               Clear Snowpack's local cache (troubleshooting).
-  --verbose              View debug info (where available)
-  --quiet                Don’t output anything (dev server will still log minimally)
+  --reload               Clear the local cache (useful for troubleshooting).
+  --verbose              Enable verbose log messages.
+  --quiet                Enable minimal log messages.
     `.trim(),
   );
 }
@@ -56,7 +76,7 @@ ${colors.bold('Flags:')}
 export async function cli(args: string[]) {
   // parse CLI flags
   const cliFlags = yargs(args, {
-    array: ['install', 'env', 'exclude', 'externalPackage'],
+    array: ['install', 'env', 'exclude', 'external'],
   }) as CLIFlags;
 
   if (cliFlags.verbose) {
@@ -96,8 +116,7 @@ export async function cli(args: string[]) {
   const cliConfig = expandCliFlags(cliFlags);
   const config = await loadConfiguration(cliConfig, cliFlags.config);
   logger.debug(`config loaded: ${util.format(config)}`);
-  // TODO: process.cwd() okay here? Should the lockfile live at root instead of cwd?
-  const lockfile = await readLockfile(process.cwd());
+  const lockfile = await readLockfile(config.root);
   logger.debug(`lockfile ${lockfile ? 'loaded.' : 'not loaded'}`);
   const commandOptions: CommandOptions = {
     config,
@@ -118,9 +137,8 @@ export async function cli(args: string[]) {
     process.exit(1);
   }
 
-  // DEPRECATED: To be removed once final esinstall test is moved off of "snowpack install"
-  if (cmd === 'install') {
-    await installCommand(commandOptions);
+  if (cmd === 'prepare') {
+    await prepareCommand(commandOptions);
     return process.exit(0);
   }
   if (cmd === 'init') {

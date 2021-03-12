@@ -14,10 +14,8 @@ You can import and use Preact without any custom configuration needed.
 ```js
 // Example: Lets you import "react" in your application, but uses preact internally
 // snowpack.config.json
-"installOptions": {
-  "alias": {
+"alias": {
     "react": "preact/compat",
     "react-dom": "preact/compat"
-  }
 }
 ```

@@ -2,15 +2,7 @@
   "private": true,
   "version": "1.0.1",
   "name": "@snowpack/test-error-missing-dep",
-  "scripts": {
-    "testinstall": "snowpack install"
-  },
-  "snowpack": {
-    "install": [
-      "fake-module"
-    ]
-  },
   "devDependencies": {
-    "snowpack": "^2.14.3"
+    "snowpack": "^3.0.0"
   }
 }
