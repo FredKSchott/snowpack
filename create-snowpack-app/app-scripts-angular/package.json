@@ -1,0 +1,18 @@
+{
+  "name": "@snowpack/app-scripts-angular",
+  "version": "2.0.0",
+  "main": "snowpack.config.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/snowpackjs/snowpack/tree/main/create-snowpack-app/app-scripts-angular#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowpackjs/snowpack.git",
+    "directory": "create-snowpack-app/app-scripts-angular"
+  },
+  "peerDependencies": {
+    "@snowpack/plugin-angular": "^2.0.0"
+  }
+}
