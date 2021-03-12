@@ -18,8 +18,14 @@ import {
   SnowpackPlugin,
   SnowpackUserConfig,
 } from './types';
-import {addLeadingSlash, addTrailingSlash, NATIVE_REQUIRE, REQUIRE_OR_IMPORT, removeTrailingSlash} from './util';
-import type { Awaited } from './util';
+import {
+  addLeadingSlash,
+  addTrailingSlash,
+  NATIVE_REQUIRE,
+  REQUIRE_OR_IMPORT,
+  removeTrailingSlash,
+} from './util';
+import type {Awaited} from './util';
 
 const CONFIG_NAME = 'snowpack';
 const ALWAYS_EXCLUDE = ['**/node_modules/**/*', '**/*.d.ts'];
@@ -735,7 +741,7 @@ async function loadConfigurationFile(
   }
 
   const config = await REQUIRE_OR_IMPORT(loc);
-  return { filepath: loc, config };
+  return {filepath: loc, config};
 }
 
 export async function loadConfiguration(
@@ -751,13 +757,18 @@ export async function loadConfiguration(
     }
   }
 
-  const configs = ['snowpack.config.mjs', 'snowpack.config.cjs', 'snowpack.config.js', 'snowpack.config.json'];
+  const configs = [
+    'snowpack.config.mjs',
+    'snowpack.config.cjs',
+    'snowpack.config.js',
+    'snowpack.config.json',
+  ];
 
   // If no config was found above, search for one.
   if (!result) {
     for (const potentialConfigurationFile of configs) {
       if (result) break;
-      result = await loadConfigurationFile(potentialConfigurationFile)
+      result = await loadConfigurationFile(potentialConfigurationFile);
     }
   }
 
