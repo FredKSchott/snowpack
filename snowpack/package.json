@@ -23,7 +23,7 @@
   "scripts": {
     "build": "tsc --noUnusedLocals false --noUnusedParameters false",
     "build:watch": "tsc --watch --noUnusedLocals false --noUnusedParameters false",
-    "bundle": "webpack -c ./scripts/generate-vendor.js && rollup -c ./scripts/generate-bundle.js && node ./scripts/generate-types.js && node ./scripts/postbundle.js",
+    "bundle": "webpack -c ./scripts/generate-vendor.js && rollup -c ./scripts/generate-bundle.js && node ./scripts/generate-types.js",
     "lint": "tsc --noEmit"
   },
   "engines": {
