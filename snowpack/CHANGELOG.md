@@ -70,3 +70,18 @@
 ## snowpack@3.0.13 [2021-02-23]
 
 * 74d0be10 - add resolve for bundled package 
+
+## snowpack@3.1.0-pre.12 [2021-03-12]
+
+* 9d987e4a - fix watching logic and dashboard output 
+* 15428ae4 - [ci] yarn format 
+* bea1c56c - Simplify. cleanup, enhance snowpack internals (#2707) 
+* 43677e89 - Add import support for .interface files, alongside .svelte, and .vue. (#2380) <Aral Balkan>
+* 3d457a8e - fix(ssr-loader): support css modules (#2528) <Nate Moore>
+* 23d7b450 - fix: recognise dot as a valid relative import (#2662) <Jon Rimmer>
+* 582808c3 - [ci] yarn format 
+* deabcb0e - don't escape utf-8 characters by cheerio and esbuild (#2755) <bsl-zcs>
+* d35d50b4 - [ci] yarn format 
+* b756b49d - Fix snowpack add/rm for npm packages with @ prefix (#2665) <Nigel>
+* 58df86d4 - add a tip if someone uses process.env 
+* fdda447d - dont match meta paths to routes 
