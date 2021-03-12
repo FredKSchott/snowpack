@@ -6,12 +6,10 @@ const execa = require('execa');
 const root = path.resolve(__dirname, '..');
 
 /** Update  */
-function updateLocalDepVersions(dependencyName, newVersion) {
-  const pkgJsonLocs = glob.sync('**/*/package.json', {
-    cwd: root,
-    ignore: ['**/node_modules/**', 'create-snowpack-app/**'],
-    nodir: true,
-  });
+function updateLocalDepVersions(dependencyName, newVersion, tag) {
+  const ignore = ['**/node_modules/**'];
+  if (tag === 'latest') ignore.push('create-snowpack-app/**');
+  const pkgJsonLocs = glob.sync('**/*/package.json', {cwd: root, ignore, nodir: true});
   for (const pkgJsonLoc of pkgJsonLocs) {
     const pkgJson = JSON.parse(fs.readFileSync(path.join(root, pkgJsonLoc), 'utf8'));
     for (const depScope of ['dependencies', 'devDependencies']) {
@@ -75,7 +73,7 @@ module.exports = function release(pkgFolder, tag, bump, skipBuild) {
   const {version: newPkgVersion} = JSON.parse(fs.readFileSync(pkgJsonLoc, 'utf8'));
   const newPkgTag = `${pkgName}@${newPkgVersion}`;
 
-  updateLocalDepVersions(pkgFolder, newPkgVersion);
+  updateLocalDepVersions(pkgFolder, newPkgVersion, tag);
 
   if (!pkgFolder.startsWith('create-snowpack-app/')) {
     const changelogLoc = path.join(dir, 'CHANGELOG.md');
