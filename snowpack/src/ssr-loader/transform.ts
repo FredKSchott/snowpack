@@ -157,6 +157,7 @@ export function transform(data) {
 
         if (!is_reference(node, parent)) return;
         if (!replacements.has(node.name)) return;
+        if(parent.type === 'ExportSpecifier') return;
 
         if (current_scope.find_owner(node.name) === scope) {
           let replacement = replacements.get(node.name);
