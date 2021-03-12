@@ -4,8 +4,8 @@ const plugin = require('../plugin.js');
 
 const cssPath = path.resolve(__dirname, 'stubs', 'style.css');
 const minCssPath = path.resolve(__dirname, 'stubs', 'style.min.css');
-const cssContent = fs.readFileSync(cssPath, 'utf-8');
-const minCssContent = fs.readFileSync(minCssPath, 'utf-8');
+const cssContent = fs.readFileSync(cssPath, 'utf8');
+const minCssContent = fs.readFileSync(minCssPath, 'utf8');
 const configFilePath = path.resolve(__dirname, './stubs/postcss.config.js');
 
 describe('@snowpack/plugin-postcss', () => {
@@ -16,8 +16,9 @@ describe('@snowpack/plugin-postcss', () => {
       fileExt: path.extname(cssPath),
       contents: cssContent,
     });
-    expect(transformCSSResults).toHaveProperty(['.css', 'code'], minCssContent);
-    expect(transformCSSResults).toHaveProperty(['.css', 'map'], undefined);
+    expect(transformCSSResults.code).toBe(minCssContent); // TODO: remove this?
+    expect(transformCSSResults.contents).toBe(minCssContent);
+    expect(transformCSSResults.map).toBe(undefined);
     await pluginInstance.cleanup();
   });
 
@@ -31,8 +32,9 @@ describe('@snowpack/plugin-postcss', () => {
       fileExt: path.extname(cssPath),
       contents: cssContent,
     });
-    expect(transformCSSResults).toHaveProperty(['.css', 'code'], minCssContent);
-    expect(transformCSSResults).toHaveProperty(['.css', 'map'], undefined);
+    expect(transformCSSResults.code).toBe(minCssContent); // TODO: remove this?
+    expect(transformCSSResults.contents).toBe(minCssContent);
+    expect(transformCSSResults.map).toBe(undefined);
     await pluginInstance.cleanup();
   });
 
@@ -46,9 +48,9 @@ describe('@snowpack/plugin-postcss', () => {
       fileExt: path.extname(cssPath),
       contents: cssContent,
     });
-    expect(transformCSSResults).toHaveProperty(['.css', 'code'], minCssContent);
-    expect(transformCSSResults).toHaveProperty(
-      ['.css', 'map'],
+    expect(transformCSSResults.code).toBe(minCssContent); // TODO: remove this?
+    expect(transformCSSResults.contents).toBe(minCssContent);
+    expect(transformCSSResults.map).toEqual(
       // a raw source map object
       expect.objectContaining({
         version: expect.any(Number),

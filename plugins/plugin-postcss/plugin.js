@@ -6,7 +6,8 @@ const workerpool = require('workerpool');
 module.exports = function postcssPlugin(snowpackConfig, options) {
   // options validation
   if (options) {
-    if (typeof options !== 'object') throw new Error('options isn’t an object. Please see README.');
+    if (typeof options !== 'object' || Array.isArray(options))
+      throw new Error('options isn’t an object. Please see README.');
     if (options.config && typeof options.config !== 'string')
       throw new Error('options.config must be a path to a PostCSS config file.');
   }
@@ -39,10 +40,11 @@ module.exports = function postcssPlugin(snowpackConfig, options) {
               }
             : false,
       });
-      const {code, map} = JSON.parse(encodedResult);
-
+      const {css, map} = JSON.parse(encodedResult);
       return {
-        '.css': {code, map},
+        code: css, // old API (keep)
+        contents: css, // new API
+        map,
       };
     },
     cleanup() {

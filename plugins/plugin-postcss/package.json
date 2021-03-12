@@ -12,14 +12,14 @@
   "publishConfig": {
     "access": "public"
   },
-  "peerDependencies": {
-    "postcss": "*"
-  },
   "dependencies": {
-    "postcss-load-config": "^3.0.0",
-    "workerpool": "^6.0.0"
+    "postcss-load-config": "^3.0.1",
+    "workerpool": "^6.1.2"
   },
   "devDependencies": {
-    "postcss": "^8.2.2"
+    "postcss": "^8.2.8"
+  },
+  "peerDependencies": {
+    "postcss": "*"
   }
 }
