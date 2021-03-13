@@ -72,7 +72,16 @@ export function deleteFromBuildSafe(dir: string, config: SnowpackConfig) {
 
 /** Read file from disk; return a string if it’s a code file */
 export async function readFile(filepath: string): Promise<string | Buffer> {
-  const data = await fs.promises.readFile(filepath);
+  let data = await fs.promises.readFile(filepath);
+  if (!data) {
+    console.error(
+      `Unexpected Node.js error: readFile(${url.fileURLToPath(filepath)}) returned undefined.\n\n` +
+        `Somehow in Github CI / Jest its possible for fs.promises.readFile to return undefined.\n` +
+        `This should be impossible, and has not yet been reproduced in the real world, but we do see it in our own CI.\n` +
+        `If you are seeing this error, please report!`,
+    );
+    data = fs.readFileSync(url.fileURLToPath(filepath));
+  }
   const isBinary = await isBinaryFile(data);
   return isBinary ? data : data.toString('utf8');
 }
