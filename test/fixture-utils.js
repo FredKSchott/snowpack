@@ -54,7 +54,6 @@ exports.testFixture = async function testFixture(
     nodir: true,
     absolute: true,
   });
-
   for (const fileLoc of allFiles) {
     result[absolute ? fileLoc : path.relative(outDir, fileLoc)] = await fs.readFile(
       fileLoc,
