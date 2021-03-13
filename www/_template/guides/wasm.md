@@ -25,7 +25,7 @@ In the future, we may add `import "/example.wasm"` ESM import support to automat
 In any case, WASM import support would just be a shortcut or wrapper around the code snippet above. You can recreate this helper today in your own project:
 
 ```js
-// Example: WASM Loader (move this into some utilility/helper file for reuse)
+// Example: WASM Loader (move this into some utility/helper file for reuse)
 export function loadWasm(url, importObject = {module: {}, env: {abort() {}}}) => {
   const result = await WebAssembly.instantiateStreaming(fetch(url), importObject);
   return result.instance; // or, return result;
