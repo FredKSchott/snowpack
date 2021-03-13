@@ -53,7 +53,8 @@ function resolveSourceSpecifier(
       lazyFileLoc = lazyFileLoc + path.extname(parentFile);
     } else {
       // otherwise, try and match any extension from the extension map
-      for (const ext of Object.keys(config._extensionMap)) {
+      for (const [ext, outputExts] of Object.entries(config._extensionMap)) {
+        if (!outputExts.includes('.js')) continue; // only look through .js-friendly extensions
         if (getFsStat(lazyFileLoc + ext)) {
           lazyFileLoc = lazyFileLoc + ext;
           break;
