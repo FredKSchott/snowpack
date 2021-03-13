@@ -287,7 +287,8 @@ export async function openInBrowser(
     : browser;
   const isMacChrome =
     process.platform === 'darwin' &&
-    (/chrome/i.test(browser) || /chrome/i.test(await getDefaultBrowserId()));
+    (/chrome/i.test(browser) ||
+      (/default/i.test(browser) && /chrome/i.test(await getDefaultBrowserId())));
   if (!isMacChrome) {
     await (browser === 'default' ? open(url) : open(url, {app: browser}));
     return;
