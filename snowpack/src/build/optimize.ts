@@ -391,6 +391,7 @@ async function runEsbuildOnBuildDirectory(
     outbase: config.buildOptions.out,
     write: false,
     bundle: true,
+    sourcemap: config.optimize!.sourcemap,
     splitting: config.optimize!.splitting,
     format: 'esm',
     platform: 'browser',
