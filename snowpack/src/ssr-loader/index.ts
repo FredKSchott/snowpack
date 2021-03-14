@@ -21,7 +21,7 @@ export function createLoader({load}: ServerRuntimeConfig): ServerRuntime {
 
     return {
       exports: mod,
-      css: []
+      css: [],
     };
   }
 
@@ -86,7 +86,7 @@ export function createLoader({load}: ServerRuntimeConfig): ServerRuntime {
           for (const name in mod) {
             Object.defineProperty(exports, name, {
               get: () => mod[name],
-              enumerable: true
+              enumerable: true,
             });
           }
         },
