@@ -3,20 +3,26 @@ import {resolve} from 'url';
 import {ServerRuntime, ServerRuntimeConfig} from '../types';
 import {sourcemap_stacktrace} from './sourcemaps';
 import {transform} from './transform';
+import {REQUIRE_OR_IMPORT} from '../util';
 
 // This function makes it possible to load modules from the snowpack server, for the sake of SSR.
 export function createLoader({load}: ServerRuntimeConfig): ServerRuntime {
   const cache = new Map();
   const graph = new Map();
 
-  function getModule(importer: string, imported: string, urlStack: string[]) {
+  async function getModule(importer: string, imported: string, urlStack: string[]) {
     if (imported[0] === '/' || imported[0] === '.') {
       const pathname = resolve(importer, imported);
       if (!graph.has(pathname)) graph.set(pathname, new Set());
       graph.get(pathname).add(importer);
       return _load(pathname, urlStack);
     }
-    return Promise.resolve(nodeRequire(imported));
+    const mod = await REQUIRE_OR_IMPORT(imported);
+
+    return {
+      exports: mod,
+      css: []
+    };
   }
 
   function invalidateModule(path) {
@@ -71,7 +77,7 @@ export function createLoader({load}: ServerRuntimeConfig): ServerRuntime {
       {
         name: names.__export,
         value: (name, get) => {
-          Object.defineProperty(exports, name, {get});
+          Object.defineProperty(exports, name, {get, enumerable: true});
         },
       },
       {
@@ -80,6 +86,7 @@ export function createLoader({load}: ServerRuntimeConfig): ServerRuntime {
           for (const name in mod) {
             Object.defineProperty(exports, name, {
               get: () => mod[name],
+              enumerable: true
             });
           }
         },
@@ -141,20 +148,5 @@ export function createLoader({load}: ServerRuntimeConfig): ServerRuntime {
     invalidateModule: (url) => {
       invalidateModule(url);
     },
-  };
-}
-
-function nodeRequire(source) {
-  // mirror Rollup's interop by allowing both of these:
-  //  import fs from 'fs';
-  //  import { readFileSync } from 'fs';
-  return {
-    exports: new Proxy(require(source), {
-      get(mod, prop) {
-        if (prop === 'default') return mod;
-        return mod[prop];
-      },
-    }),
-    css: [],
   };
 }
