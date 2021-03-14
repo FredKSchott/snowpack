@@ -1,6 +1,6 @@
 vendor
 dist
-test/**/build
+test/build/**/build
 create-snowpack-app/**/build
 packages
 pkg

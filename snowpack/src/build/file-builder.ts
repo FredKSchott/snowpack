@@ -86,7 +86,7 @@ export class FileBuilder {
 
   private verifyRequestFromBuild(type: string): SnowpackBuiltFile {
     // Verify that the requested file exists in the build output map.
-    if (!this.resolvedOutput[type] || !Object.keys(this.resolvedOutput)) {
+    if (!this.resolvedOutput[type] || !Object.keys(this.resolvedOutput).length) {
       throw new Error(
         `${this.loc} - Requested content "${type}" but built ${
           Object.keys(this.resolvedOutput).toString() || 'none'

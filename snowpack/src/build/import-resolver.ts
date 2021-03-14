@@ -22,7 +22,10 @@ export function getFsStat(importedFileOnDisk: string): fs.Stats | false {
 }
 
 /** Resolve an import based on the state of the file/folder found on disk. */
-function resolveSourceSpecifier(lazyFileLoc: string, config: SnowpackConfig) {
+function resolveSourceSpecifier(
+  lazyFileLoc: string,
+  {parentFile, config}: {parentFile: string; config: SnowpackConfig},
+) {
   const lazyFileStat = getFsStat(lazyFileLoc);
 
   // Handle directory imports (ex: "./components" -> "./components/index.js")
@@ -44,7 +47,25 @@ function resolveSourceSpecifier(lazyFileLoc: string, config: SnowpackConfig) {
       lazyFileLoc = tsWorkaroundImportFileLoc;
     }
   } else {
-    lazyFileLoc = lazyFileLoc + '.js';
+    // missing extension
+    if (getFsStat(lazyFileLoc + path.extname(parentFile))) {
+      // first, try parent file’s extension
+      lazyFileLoc = lazyFileLoc + path.extname(parentFile);
+    } else {
+      // otherwise, try and match any extension from the extension map
+      for (const [ext, outputExts] of Object.entries(config._extensionMap)) {
+        if (!outputExts.includes('.js')) continue; // only look through .js-friendly extensions
+        if (getFsStat(lazyFileLoc + ext)) {
+          lazyFileLoc = lazyFileLoc + ext;
+          break;
+        }
+      }
+    }
+
+    // if still no extension match, fall back to .js
+    if (!path.extname(lazyFileLoc)) {
+      lazyFileLoc = lazyFileLoc + '.js';
+    }
   }
 
   // Transform the file extension (from input to output)
@@ -83,7 +104,7 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
     }
     if (spec.startsWith('./') || spec.startsWith('../') || spec === '.') {
       const importedFileLoc = path.resolve(path.dirname(fileLoc), spec);
-      return resolveSourceSpecifier(importedFileLoc, config) || spec;
+      return resolveSourceSpecifier(importedFileLoc, {parentFile: fileLoc, config}) || spec;
     }
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && (aliasEntry.type === 'path' || aliasEntry.type === 'url')) {
@@ -93,7 +114,7 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
         return result;
       }
       const importedFileLoc = path.resolve(config.root, result);
-      return resolveSourceSpecifier(importedFileLoc, config) || spec;
+      return resolveSourceSpecifier(importedFileLoc, {parentFile: fileLoc, config}) || spec;
     }
     return false;
   };
