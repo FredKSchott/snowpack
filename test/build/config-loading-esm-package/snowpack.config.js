@@ -1,5 +1,5 @@
 export default {
   buildOptions: {
-    "out": "TEST_BUILD_OUT"
-  }
-}
+    out: 'TEST_BUILD_OUT',
+  },
+};

@@ -19,7 +19,7 @@ describe('optimize.treeshake', () => {
   });
 
   it('built async.js', () => {
-    const webModuleLoc = path.join(cwd,'_snowpack', 'pkg', 'async.js');
+    const webModuleLoc = path.join(cwd, '_snowpack', 'pkg', 'async.js');
 
     expect(fs.existsSync(webModuleLoc)).toBe(true); // file exists
     expect(fs.readFileSync(webModuleLoc, 'utf8')).toBeTruthy(); // file has contents

@@ -12,7 +12,9 @@ describe('module resolution', () => {
   });
 
   it('JS: resolves pkg URLs relatively', () => {
-    expect(files['/src.js']).toEqual(expect.stringContaining(`import "./_snowpack/pkg/preact.js";`));
+    expect(files['/src.js']).toEqual(
+      expect.stringContaining(`import "./_snowpack/pkg/preact.js";`),
+    );
   });
 
   it('HTML: <script> tags also resolve relatively', () => {

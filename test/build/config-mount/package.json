@@ -13,10 +13,23 @@
       "src/c": "/deep/c",
       "src/d": "/bad/d/",
       "src/e/f": "/e",
-      "src/g": {"url": "/new-g"},
-      "src/h": {"url": "/h", "static": true},
-      "src/i": {"url": "/i", "static": false, "resolve": false},
-      "src/j": {"url": "/j", "static": true, "resolve": false}
+      "src/g": {
+        "url": "/new-g"
+      },
+      "src/h": {
+        "url": "/h",
+        "static": true
+      },
+      "src/i": {
+        "url": "/i",
+        "static": false,
+        "resolve": false
+      },
+      "src/j": {
+        "url": "/j",
+        "static": true,
+        "resolve": false
+      }
     }
   },
   "devDependencies": {

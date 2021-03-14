@@ -10,7 +10,7 @@
     "mount": {
       "./src": "/_dist_"
     }
-},
+  },
   "dependencies": {
     "tippy.js": "^6.2.5"
   },

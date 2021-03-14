@@ -13,14 +13,10 @@ describe('utf8', () => {
   });
 
   it("Unicode characters aren't escaped in html", () => {
-    expect(files['/index.html']).toEqual(
-      expect.stringContaining("проверка юникода"),
-    );
+    expect(files['/index.html']).toEqual(expect.stringContaining('проверка юникода'));
   });
 
   it("Unicode characters aren't escaped in typescript", () => {
-    expect(files['/index.js']).toEqual(
-      expect.stringContaining("юникод не эскейпится 👌"),
-    );
+    expect(files['/index.js']).toEqual(expect.stringContaining('юникод не эскейпится 👌'));
   });
 });

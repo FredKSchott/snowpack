@@ -1,5 +1,3 @@
 {
-  "plugins": [
-    "@snowpack/plugin-dotenv"
-  ]
+  "plugins": ["@snowpack/plugin-dotenv"]
 }

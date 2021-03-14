@@ -15,5 +15,5 @@ describe('TypeScript', () => {
     expect(files['/dir/a.js']).toBeTruthy();
     expect(files['/dir/b.js']).toBeTruthy();
     expect(files['/dir/c.js']).toBeTruthy();
-  })
+  });
 });

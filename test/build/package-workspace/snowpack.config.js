@@ -2,14 +2,10 @@
 module.exports = {
   workspaceRoot: '../',
   buildOptions: {
-    out: './build'
+    out: './build',
   },
   mount: {
     src: '/_dist_',
   },
-  plugins: [
-    [
-      '@snowpack/plugin-svelte',
-    ],
-  ],
+  plugins: [['@snowpack/plugin-svelte']],
 };

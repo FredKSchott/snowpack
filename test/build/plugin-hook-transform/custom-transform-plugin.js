@@ -11,8 +11,8 @@ module.exports = function () {
       return {
         contents: ms.toString(),
         // Try returning both object and string map formats.
-        map: fileExt === '.js' ? map : map.toString()
-      }
+        map: fileExt === '.js' ? map : map.toString(),
+      };
     },
   };
 };

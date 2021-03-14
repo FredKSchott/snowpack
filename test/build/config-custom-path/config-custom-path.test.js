@@ -16,5 +16,5 @@ describe('config-custom-path', () => {
     expect(files['/src/index.js']).toEqual(
       expect.stringContaining(`import {flatten} from '../other_folder/pkg/array-flatten.js';`),
     );
-  })
+  });
 });

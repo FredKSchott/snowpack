@@ -19,5 +19,5 @@ describe('custom packageLookupFields', () => {
     expect(files['/_snowpack/pkg/some-custom-lookup-package.js']).toEqual(
       expect.stringContaining(`console.log('TEST: THIS IS THE GOOD ENTRYPOINT');`),
     );
-  })
+  });
 });

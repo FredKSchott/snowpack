@@ -7,6 +7,4 @@ export default function doNothing() {
 }
 
 // Triggers a snowpack meta import URL
-console.log(import
-  .meta
-  .env)
+console.log(import.meta.env);

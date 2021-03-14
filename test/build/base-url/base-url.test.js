@@ -35,9 +35,7 @@ describe('buildOptions.baseUrl', () => {
     expect(files['/index.js']).toEqual(
       expect.stringContaining(`import * as __SNOWPACK_ENV__ from './_snowpack/env.js';`),
     );
-    expect(files['/index.js']).toEqual(
-      expect.stringContaining(`console.log(__SNOWPACK_ENV__)`),
-    );
+    expect(files['/index.js']).toEqual(expect.stringContaining(`console.log(__SNOWPACK_ENV__)`));
 
     // env is present in _dist_/index.js too
     expect(files['/_dist_/index.js']).toEqual(
