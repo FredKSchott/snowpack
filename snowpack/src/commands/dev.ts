@@ -714,7 +714,7 @@ export async function startServer(
     return http.createServer(responseHandler as http.RequestListener);
   };
 
-  let server: ReturnType<typeof createServer> | undefined;
+  let server: http.Server | http2.Http2Server | undefined;
   if (port) {
     server = createServer(async (req, res) => {
       // Attach a request logger.
@@ -817,6 +817,7 @@ export async function startServer(
   const sp = {
     port,
     hmrEngine,
+    rawServer: server,
     loadUrl,
     handleRequest,
     sendResponseFile,

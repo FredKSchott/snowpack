@@ -1,17 +1,14 @@
 import crypto from 'crypto';
-import {
-  InstallOptions,
-  InstallTarget,
-  resolveDependencyManifest as _resolveDependencyManifest,
-  resolveEntrypoint,
-} from 'esinstall';
+import {InstallOptions, InstallTarget, resolveEntrypoint} from 'esinstall';
 import projectCacheDir from 'find-cache-dir';
+import findUp from 'find-up';
 import {existsSync, promises as fs} from 'fs';
-import PQueue from 'p-queue';
 import * as colors from 'kleur/colors';
-import slash from 'slash';
+import mkdirp from 'mkdirp';
+import PQueue from 'p-queue';
 import path from 'path';
 import rimraf from 'rimraf';
+import slash from 'slash';
 import {getBuiltFileUrls} from '../build/file-urls';
 import {logger} from '../logger';
 import {scanCodeImportsExports, transformFileImports} from '../rewrite-imports';
@@ -20,8 +17,8 @@ import {
   CommandOptions,
   ImportMap,
   PackageSource,
-  SnowpackConfig,
   PackageSourceLocal,
+  SnowpackConfig,
 } from '../types';
 import {
   createInstallTarget,
@@ -31,8 +28,6 @@ import {
   isRemoteUrl,
 } from '../util';
 import {installPackages} from './local-install';
-import findUp from 'find-up';
-import mkdirp from 'mkdirp';
 
 const PROJECT_CACHE_DIR =
   projectCacheDir({name: 'snowpack'}) ||
@@ -49,6 +44,7 @@ const NEVER_PEER_PACKAGES: string[] = [
   'es-abstract',
   'node-fetch',
   'whatwg-fetch',
+  'tslib',
 ];
 
 function getRootPackageDirectory(loc: string) {
@@ -312,7 +308,7 @@ export default {
         // Look up the import map of the already-installed package.
         // If spec already exists, then this import map is valid.
         const lineBullet = colors.dim(depth === 0 ? '+' : '└──'.padStart(depth * 2 + 1, ' '));
-        const packageFormatted = spec + colors.dim('@' + packageVersion);
+        let packageFormatted = spec + colors.dim('@' + packageVersion);
         const existingImportMapLoc = path.join(installDest, 'import-map.json');
         const existingImportMap =
           (await fs.stat(existingImportMapLoc).catch(() => null)) &&
@@ -320,8 +316,6 @@ export default {
         if (existingImportMap && existingImportMap.imports[spec]) {
           if (depth > 0) {
             logger.info(`${lineBullet} ${packageFormatted} ${colors.dim(`(dedupe)`)}`);
-          } else {
-            logger.debug(`${lineBullet} ${packageFormatted} ${colors.dim(`(dedupe)`)}`);
           }
           return existingImportMap;
         }
@@ -338,17 +332,6 @@ export default {
           ...Object.keys(packageManifest.peerDependencies || {}),
         ].filter((ext) => ext !== _packageName && !NEVER_PEER_PACKAGES.includes(ext));
 
-        function getMemoizedResolveDependencyManifest() {
-          const results = {};
-          return (packageName: string) => {
-            results[packageName] =
-              results[packageName] ||
-              _resolveDependencyManifest(packageName, rootPackageDirectory!);
-            return results[packageName];
-          };
-        }
-        const resolveDependencyManifest = getMemoizedResolveDependencyManifest();
-
         const installOptions: InstallOptions = {
           dest: installDest,
           cwd: packageManifestLoc,
@@ -357,17 +340,7 @@ export default {
           sourcemap: config.buildOptions.sourcemap,
           alias: config.alias,
           external: externalPackages,
-          // ESM<>CJS Compatability: If we can detect that a dependency is common.js vs. ESM, then
-          // we can provide this hint to esinstall to improve our cross-package import support.
-          externalEsm: (imp) => {
-            const specParts = imp.split('/');
-            let _packageName: string = specParts.shift()!;
-            if (_packageName?.startsWith('@')) {
-              _packageName += '/' + specParts.shift();
-            }
-            const [, result] = resolveDependencyManifest(_packageName);
-            return !result || !!(result.module || result.exports || result.type === 'module');
-          },
+          externalEsm: true,
         };
         if (config.packageOptions.source === 'local') {
           if (config.packageOptions.polyfillNode !== undefined) {

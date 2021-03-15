@@ -1,5 +1,6 @@
 import type {InstallOptions as EsinstallOptions, InstallTarget} from 'esinstall';
 import type * as http from 'http';
+import type * as http2 from 'http2';
 import type {EsmHmrEngine} from './hmr-server-engine';
 
 // RawSourceMap is inlined here for bundle purposes.
@@ -55,6 +56,7 @@ export interface LoadUrlOptions {
 export interface SnowpackDevServer {
   port: number;
   hmrEngine?: EsmHmrEngine;
+  rawServer?: http.Server | http2.Http2Server | undefined;
   loadUrl: {
     (reqUrl: string, opt?: (LoadUrlOptions & {encoding?: undefined}) | undefined): Promise<
       LoadResult<Buffer | string>
