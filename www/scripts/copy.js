@@ -14,9 +14,6 @@ async function copy() {
     if (['README.md', '.DS_Store'].includes(path.basename(src))) return;
 
     const dest = path.join(__dirname, '..', '_template', src.replace(docsDir, ''));
-
-    console.log(src.replace(docsDir, '') + " -> " + dest);
-
     return fs.mkdir(path.dirname(dest), { recursive: true }).then(() => fs.copyFile(src, dest));
   }));
 
