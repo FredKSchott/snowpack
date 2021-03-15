@@ -76,7 +76,7 @@ app.use(async (req, res, next) => {
   // Render your react component to HTML
   const html = ReactDOMServer.renderToString(React.createElement(MyReactComponent, null));
   // Load contents of index.html
-  const htmlFile = fs.readFileSync('./index.html', 'utf8');
+  const htmlFile = readFileSync('./index.html', 'utf8');
   // Inserts the rendered React HTML into our main div
   const document = htmlFile.replace(/<div id="app"><\/div>/, `<div id="app">${html}</div>`);
   // Sends the response back to the client
