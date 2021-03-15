@@ -19,6 +19,8 @@ async function copy() {
 
     return fs.mkdir(path.dirname(dest), { recursive: true }).then(() => fs.copyFile(src, dest));
   }));
+
+  return process.exit(0);
 }
 
 copy()
