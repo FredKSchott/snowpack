@@ -11,23 +11,23 @@ describe('import-glob', () => {
     console.log(files);
   });
 
-  it('import globs in source file are transformed correctly', () => {
-    expect(stripWS(files['/_dist_/index.js']))
-      .toEqual(`async function run() {
-  const modules = {
-    './pages/a.js': () => import('./pages/a.js'),
-    './pages/b.js': () => import('./pages/b.js'),
-    './pages/c.js': () => import('./pages/c.js')
-  }
+  it('import.meta.glob is transformed correctly', () => {
+    expect(stripWS(files['/_dist_/glob.js']))
+      .toEqual(`const modules = {
+  './pages/a.js': () => import('./pages/a.js'),
+  './pages/b.js': () => import('./pages/b.js'),
+  './pages/c.js': () => import('./pages/c.js')
+}
+`);
+  });
 
-  for (const path in modules) {
-    modules[path]().then((mod) => {
-      console.log(path, mod)
-    })
-  }
-};
-
-run();
+  it('import.meta.globEager is transformed correctly', () => {
+    expect(stripWS(files['/_dist_/glob.js']))
+      .toEqual(`const modules = {
+  './pages/a.js': () => import('./pages/a.js'),
+  './pages/b.js': () => import('./pages/b.js'),
+  './pages/c.js': () => import('./pages/c.js')
+}
 `);
   });
 });

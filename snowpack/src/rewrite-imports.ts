@@ -1,5 +1,7 @@
 import {matchDynamicImportValue} from './scan-imports';
+import {scanImportGlob} from './scan-import-glob';
 import {CSS_REGEX, HTML_JS_REGEX, HTML_STYLE_REGEX} from './util';
+import { logger } from './logger';
 
 const {parse} = require('es-module-lexer');
 
@@ -23,6 +25,17 @@ export async function scanCodeImportsExports(code: string): Promise<any[]> {
     }
     return true;
   });
+}
+
+export function transformGlobImports(_code: string) {
+  const importGlobs = scanImportGlob(_code);
+  let rewrittenCode = _code;
+
+  for (const impGlob of importGlobs.reverse()) {
+    logger.warn(JSON.stringify(impGlob));
+  }
+
+  return rewrittenCode;
 }
 
 export async function transformEsmImports(
@@ -111,7 +124,7 @@ export async function transformFileImports(
   replaceImport: (specifier: string) => string | Promise<string>,
 ) {
   if (type === '.js') {
-    return transformEsmImports(contents, replaceImport);
+    return transformEsmImports(transformGlobImports(contents), replaceImport)
   }
   if (type === '.html') {
     return transformHtmlImports(contents, replaceImport);
