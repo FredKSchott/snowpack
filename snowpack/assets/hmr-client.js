@@ -236,6 +236,15 @@ log('listening for file changes...');
 
 /** Runtime error reporting: If a runtime error occurs, show it in an overlay. */
 isWindowDefined && window.addEventListener('error', function (event) {
+  if (window.snowpackHmrErrorOverlayIgnoreErrors) {
+    const ignoreErrors = window.snowpackHmrErrorOverlayIgnoreErrors;
+    for (const item of ignoreErrors) {
+      if (event.message && event.message.match(item)) {
+        console.warn('[ESM-HMR] Hmr Error Overlay Ignored', event.message);
+        return
+      }
+    }
+  }
   // Generate an "error location" string
   let fileLoc;
   if (event.filename) {
