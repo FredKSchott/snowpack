@@ -9,12 +9,12 @@ const getAllFiles = async (dir) => {
 async function copy() {
   const docsDir = path.resolve(__dirname, '../../docs');
   const docs = await getAllFiles(docsDir);
-
-  console.log(docs);
   
   await Promise.all(docs.map(src => {
     if (['README.md', '.DS_Store'].includes(path.basename(src))) return;
-    const dest = path.join(__dirname, '..', '_template', src.replace(docsDir, ''));
+
+    console.log(src.replace(docsDir, ''));
+    const dest = path.join(process.cwd(), '_template', src.replace(docsDir, ''));
     return fs.mkdir(path.dirname(dest), { recursive: true }).then(() => fs.copyFile(src, dest));
   }));
 }
