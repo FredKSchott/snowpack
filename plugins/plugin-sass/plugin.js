@@ -170,7 +170,7 @@ module.exports = function sassPlugin(snowpackConfig, {native, compilerOptions = 
           default: {
             if (Array.isArray(value)) {
               for (const val of value) {
-                parseCompilerOption(flag, val);
+                parseCompilerOption([flag, val]);
               }
               break;
             }
