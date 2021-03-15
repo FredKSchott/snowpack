@@ -1,6 +1,25 @@
 const fs = require('fs');
+const glob = require('glob');
 const path = require('path');
 const execa = require('execa');
+
+const root = path.resolve(__dirname, '..');
+
+/** Update  */
+function updateLocalDepVersions(dependencyName, newVersion, tag) {
+  const ignore = ['**/node_modules/**'];
+  if (tag === 'latest') ignore.push('create-snowpack-app/**');
+  const pkgJsonLocs = glob.sync('**/*/package.json', {cwd: root, ignore, nodir: true});
+  for (const pkgJsonLoc of pkgJsonLocs) {
+    const pkgJson = JSON.parse(fs.readFileSync(path.join(root, pkgJsonLoc), 'utf8'));
+    for (const depScope of ['dependencies', 'devDependencies']) {
+      if (pkgJson[depScope] && pkgJson[depScope][dependencyName]) {
+        pkgJson[depScope][dependencyName] = `^${newVersion}`;
+      }
+    }
+    fs.writeFileSync(pkgJsonLoc, JSON.stringify(pkgJson, undefined, 2) + '\n', 'utf8');
+  }
+}
 
 function formatDate() {
   var d = new Date(),
@@ -33,7 +52,6 @@ function generateChangelogUpdate(dir, newTag, oldTag) {
 module.exports = function release(pkgFolder, tag, bump, skipBuild) {
   console.log(`# release(${pkgFolder}, ${tag}, ${bump})`);
 
-  const root = path.resolve(__dirname, '..');
   const dir = path.resolve(root, pkgFolder);
   if (execa.sync('git', ['status', '--porcelain'], {cwd: dir}).stdout) {
     console.error('working directory not clean!');
@@ -54,6 +72,8 @@ module.exports = function release(pkgFolder, tag, bump, skipBuild) {
   console.log(execa.sync('npm', ['version', bump], {cwd: dir}));
   const {version: newPkgVersion} = JSON.parse(fs.readFileSync(pkgJsonLoc, 'utf8'));
   const newPkgTag = `${pkgName}@${newPkgVersion}`;
+
+  updateLocalDepVersions(pkgFolder, newPkgVersion, tag);
 
   if (!pkgFolder.startsWith('create-snowpack-app/')) {
     const changelogLoc = path.join(dir, 'CHANGELOG.md');
