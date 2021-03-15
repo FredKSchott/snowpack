@@ -5,3 +5,9 @@ node_modules
 _site
 eleventy/**/*
 !eleventy/.placeholder
+
+# Ignore files that are copied from /docs
+_template/concepts/**/*.md
+_template/guides/**/*.md
+_template/reference/**/*.md
+_template/tutorials/**/*.md
