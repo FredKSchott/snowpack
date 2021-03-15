@@ -20,7 +20,9 @@ Set `packageOptions.source` to "remote" to enable streaming imports. This tells 
 
 ## How Streaming Imports Work
 
-When you enable streaming imports, `snowpack` will start fetching all imports from `https://pkg.snowpack.dev`. For example, `import "preact"` in your project will become something like `import "https://pkg.snowpack.dev/preact"` in the browser. This tells Snowpack (or the browser) to import your package by URL, and only fetch the package ESM when needed. Snowpack is able to cache the response for future, offline use.
+When you enable streaming imports and run `snowpack dev`, the local server will start fetching all imports from `https://pkg.snowpack.dev`. For example, `import "preact"` in your project will become something like `import "https://pkg.snowpack.dev/preact"` in the browser. This tells Snowpack (or the browser) to import your package by URL, and only fetch the package ESM when needed. Snowpack is able to cache the response for future, offline use.
+
+The translation is done by the web server, so your source file will still contain the bare `import "preact"` statement. When you run `snowpack build`, the generated files in the build folder will contain `import '../_snowpack/pkg/preact.js';`.
 
 `pkg.snowpack.dev` is our ESM Package CDN, powered by [Skypack](https://www.skypack.dev/). Every npm package is hosted as ESM, and any legacy non-ESM packages are upconverted to ESM on the CDN itself.
 
