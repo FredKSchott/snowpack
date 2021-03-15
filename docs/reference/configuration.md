@@ -138,7 +138,7 @@ Also see our [Plugin guide](/guides/plugins)
     // Simple format: no options needed
     'plugin-1',
     // Expanded format: allows you to pass options to the plugin
-    ['plugin-2', { 'plugin-option': false }],
+    ['plugin-2', {'plugin-option': false}],
   ];
 }
 ```

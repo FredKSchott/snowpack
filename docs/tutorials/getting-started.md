@@ -106,7 +106,7 @@ Then create an `index.js` that imports your new module using ESM syntax:
 
 ```js
 // my-first-snowpack/index.js
-import { helloWorld } from './hello-world.js';
+import {helloWorld} from './hello-world.js';
 
 helloWorld();
 ```

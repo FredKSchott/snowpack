@@ -36,7 +36,7 @@ For more advanced HMR integrations, Snowpack created the [esm-hmr spec](https://
 ```js
 // HMR Code Snippet Example
 if (import.meta.hot) {
-  import.meta.hot.accept(({ module }) => {
+  import.meta.hot.accept(({module}) => {
     // Accept the module, apply it into your application.
   });
 }

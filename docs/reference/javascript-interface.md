@@ -96,7 +96,7 @@ Listen for watched file change events. Useful for situations where you might wan
 `shutdown() => Promise<void>;`
 
 ```ts
-const server = await startServer({ config });
+const server = await startServer({config});
 await server.shutdown();
 ```
 
@@ -107,9 +107,9 @@ Shut down the Snowpack dev server. Cleanup any long-running commands, file watch
 `getServerRuntime({invalidateOnChange?: boolean}) => ServerRuntime;`
 
 ```ts
-const server = await startServer({ config });
+const server = await startServer({config});
 const runtime = server.getServerRuntime();
-const { helloWorld } = (await runtime.importModule('/dist/index.js')).exports;
+const {helloWorld} = (await runtime.importModule('/dist/index.js')).exports;
 helloWorld();
 ```
 
@@ -170,7 +170,7 @@ In normal build mode (non-watch mode) this function will throw with a warning.
 `getUrlForFile(fileLoc: string, config: SnowpackConfig) => string | null`
 
 ```js
-import { getUrlForFile } from 'snowpack';
+import {getUrlForFile} from 'snowpack';
 const fileUrl = getUrlForFile('/path/to/file.js', config);
 ```
 
@@ -183,7 +183,7 @@ Similar to `SnowpackDevServer.getUrlForFile()`, but requires a second `config` a
 `clearCache() => Promise<void>`
 
 ```js
-import { clearCache } from 'snowpack';
+import {clearCache} from 'snowpack';
 await clearCache();
 ```
 
@@ -192,7 +192,7 @@ Equivalent of using the `--reload` flag with the `snowpack` CLI. Clears all cach
 ### logger
 
 ```js
-import { logger } from 'snowpack';
+import {logger} from 'snowpack';
 ```
 
 You can control Snowpack's internal logger directly by importing it. Note that this is an advanced feature not needed for most users. Instead, use the `verbose` config option to enable debug logging and control log message verbosity.

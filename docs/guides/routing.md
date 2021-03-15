@@ -35,7 +35,7 @@ To serve the correct API response to a URL like `/api/users` in development, you
 ```js
 // snowpack.config.js
 const httpProxy = require('http-proxy');
-const proxy = httpProxy.createServer({ target: 'http://localhost:3001' });
+const proxy = httpProxy.createServer({target: 'http://localhost:3001'});
 
 module.exports = {
   routes: [

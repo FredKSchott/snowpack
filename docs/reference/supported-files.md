@@ -28,7 +28,7 @@ export function getUser() {
 }
 
 // src/index.js
-import { getUser } from './user.js';
+import {getUser} from './user.js';
 ```
 
 All modern browsers support ESM, so Snowpack is able to ship this code directly to the browser during development. This is what makes Snowpack's **unbundled development** workflow possible.

@@ -14,7 +14,7 @@ _Based on [app-template-react][app-template-react]_
 You can lazy load React components in Snowpack when needed with React‘s builtin `React.lazy` ([docs][react-lazy]):
 
 ```jsx
-import React, { useState, useEffect, Suspense } from 'react';
+import React, {useState, useEffect, Suspense} from 'react';
 
 const Async = React.lazy(() => import('./Async'));
 

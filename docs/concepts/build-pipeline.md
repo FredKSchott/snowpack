@@ -18,7 +18,7 @@ Bundlers normally require dozens or even hundreds of lines of configuration, but
 
 ```js
 // Bundlers plugins are pre-configured to work with Snowpack apps.
-// No config required! You just need to install the plugin first. 
+// No config required! You just need to install the plugin first.
 {
   "plugins": [["@snowpack/plugin-webpack"]]
 }

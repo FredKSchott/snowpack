@@ -142,7 +142,7 @@ You'll need to restart Snowpack for configuration file changes. When you start u
 Create a new file at `src/App.jsx` and paste the following code into this new file to create an `App` component:
 
 ```jsx
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 
 function App() {
   // Create the count state.

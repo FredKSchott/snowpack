@@ -107,12 +107,7 @@ Create a file named `App.svelte` in your project directory with the following co
 </style>
 <div class="App">
   <header class="App-header">
-    <a
-      class="App-link"
-      href="https://svelte.dev"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <a class="App-link" href="https://svelte.dev" target="_blank" rel="noopener noreferrer">
       Learn Svelte
     </a>
   </header>
@@ -261,7 +256,7 @@ Svelte components include component specific scripts in a `<script>` tag. Add th
 <!-- src/App.svelte -->
 
 <script>
-  import { onMount } from 'svelte';
+  import {onMount} from 'svelte';
   let count = 0;
   onMount(() => {
     const interval = setInterval(() => count++, 1000);

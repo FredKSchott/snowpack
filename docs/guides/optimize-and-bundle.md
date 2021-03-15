@@ -31,7 +31,7 @@ The full supported interface is:
 
 ```ts
 export interface OptimizeOptions {
-  entrypoints: 'auto' | string[] | ((options: { files: string[] }) => string[]);
+  entrypoints: 'auto' | string[] | ((options: {files: string[]}) => string[]);
   preload: boolean;
   bundle: boolean;
   sourcemap: boolean | 'external' | 'inline' | 'both';
