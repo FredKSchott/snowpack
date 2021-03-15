@@ -122,6 +122,17 @@ Note the path must start with must start with a `.` to be considered local
 
 The `--verbose` flag enables additional logs which will help to identify the source of a problem. The `--reload` will clear the local cache which might have been created by a different `snowpack` version. Learn more about [Snowpack's CLI flags](/reference/cli-command-line-interface).
 
+## Documentation
+
+The [Snowpack website](https://snowpack.dev) source is located in [`/www`](./www). The documentation source files are located in [`/docs`](./docs) for contributor convenience.
+
+The directories inside of `/docs` are symlinked to `/www/_template`, so relative URLs in the documentation use `/www` as their base path. If you need to add a new `/docs` directory, be sure to symlink it to the `/www/_template` directory by running
+
+```shell
+cd www/_template
+ln -s ../../docs/<dirname> ./<dirname>
+```
+
 ## Pull Request Guidelines
 
 Checkout a topic branch from a base branch, e.g. `main`, and merge back against that branch.
