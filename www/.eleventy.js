@@ -48,7 +48,7 @@ module.exports = function (eleventyConfig) {
   });
 
   eleventyConfig.addFilter('toDocPath', function (str) {
-    return str.replace(/^\.\/\_template/, '/docs')
+    return str.replace(/^\.\/\_template/, 'docs')
   })
 
   eleventyConfig.setLibrary(
