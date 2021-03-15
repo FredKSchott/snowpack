@@ -2,10 +2,8 @@
   "name": "snowpack-www",
   "version": "3.0.0",
   "scripts": {
-    "prestart": "npm run copy",
-    "start": "snowpack dev",
-    "prebuild": "npm run copy",
-    "build": "ELEVENTY_ENV=prod snowpack build",
+    "start": "yarn copy && snowpack dev",
+    "build": "yarn copy && ELEVENTY_ENV=prod snowpack build",
     "copy": "node scripts/copy.js",
     "test": "jest /__test__/",
     "format": "prettier --write \"src/**/*.js\" && yarn format:css",
