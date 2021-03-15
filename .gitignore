@@ -13,3 +13,7 @@ test/build/**/web_modules
 test/create-snowpack-app/test-install
 test/esinstall/**/web_modules
 yarn-error.log
+
+# Ignore files that are copied from /docs
+www/_template/**/*.md
+!www/_template/posts/**/*.md

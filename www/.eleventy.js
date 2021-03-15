@@ -47,6 +47,10 @@ module.exports = function (eleventyConfig) {
     return JSON.stringify(obj);
   });
 
+  eleventyConfig.addFilter('toDocPath', function (str) {
+    return str.replace(/^\.\/\_template/, `${process.env.VERCEL_GIT_COMMIT_REF || 'main'}/docs`)
+  })
+
   eleventyConfig.setLibrary(
     'md',
     markdownIt({

@@ -2,8 +2,9 @@
   "name": "snowpack-www",
   "version": "3.0.0",
   "scripts": {
-    "start": "snowpack dev",
-    "build": "ELEVENTY_ENV=prod snowpack build",
+    "start": "yarn copy && snowpack dev",
+    "build": "yarn copy && ELEVENTY_ENV=prod snowpack build",
+    "copy": "node scripts/copy.js",
     "test": "jest /__test__/",
     "format": "prettier --write \"src/**/*.js\" && yarn format:css",
     "format:css": "stylelint 'src/**/*.scss' --fix",
