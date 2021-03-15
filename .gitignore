@@ -15,7 +15,5 @@ test/esinstall/**/web_modules
 yarn-error.log
 
 # Ignore files that are copied from /docs
-www/_template/concepts/**/*.md
-www/_template/guides/**/*.md
-www/_template/reference/**/*.md
-www/_template/tutorials/**/*.md
+www/_template/**/*.md
+!www/_template/posts/**/*.md
