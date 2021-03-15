@@ -4,7 +4,7 @@ const {runTest} = require('../esinstall-test-utils.js');
 
 // This test simulates what keyboard-key is doing.
 describe('Auto-detecting CJS exports', () => {
-  it('should not attempt to convert package with invalid identifiers as exports', async () => {
+  it('should not convert invalid identifiers as exports', async () => {
     const cwd = __dirname;
     const dest = path.join(cwd, 'test-cjs-invalid-exports');
     const spec = 'cjs-invalid-exports';
@@ -18,8 +18,8 @@ describe('Auto-detecting CJS exports', () => {
 
     const output = fs.readFileSync(path.join(dest, `${spec}.js`), 'utf8');
     expect(output).toEqual(
-      // This shouldn't contain named exports
-      expect.not.stringContaining(`export {`),
+      // This shouldn't contain the ")" export
+      expect.stringContaining(`export { entrypoint as __moduleExports, a }`),
     );
   });
 

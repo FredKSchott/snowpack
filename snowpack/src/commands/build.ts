@@ -222,7 +222,11 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
     let onFileChangeCallback: OnFileChangeCallback = () => {};
     devServer.onFileChange(async ({filePath}) => {
       // First, do our own re-build logic
-      allFileUrlsToProcess.push(...getUrlsForFile(filePath, config)!);
+      const fileUrls = getUrlsForFile(filePath, config);
+      if (!fileUrls || fileUrls.length === 0) {
+        return;
+      }
+      allFileUrlsToProcess.push(fileUrls[0]);
       await flushFileQueue(false, {
         isSSR,
         isHMR,

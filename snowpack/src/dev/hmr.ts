@@ -1,5 +1,5 @@
-import http from 'http';
-import http2 from 'http2';
+import type http from 'http';
+import type http2 from 'http2';
 import path from 'path';
 import onProcessExit from 'signal-exit';
 import {FileBuilder} from '../build/file-builder';
@@ -9,7 +9,7 @@ import {getCacheKey, hasExtension} from '../util';
 
 export function startHmrEngine(
   inMemoryBuildCache: Map<string, FileBuilder>,
-  server: http.Server | http2.Http2SecureServer | undefined,
+  server: http.Server | http2.Http2Server | undefined,
   serverPort: number | undefined,
   config: SnowpackConfig,
 ) {
