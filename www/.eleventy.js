@@ -47,6 +47,10 @@ module.exports = function (eleventyConfig) {
     return JSON.stringify(obj);
   });
 
+  eleventyConfig.addFilter('toDocPath', function (str) {
+    return str.replace(/^\.\/\_template/, '/docs')
+  })
+
   eleventyConfig.setLibrary(
     'md',
     markdownIt({
