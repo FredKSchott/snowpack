@@ -1,6 +1,6 @@
 <script lang='typescript'>
 	import {onMount} from 'svelte';
-	let count: number = 0;
+	let count = 0;
 	onMount(() => {
 	  const interval = setInterval(() => count++, 1000);
 	  return () => {
