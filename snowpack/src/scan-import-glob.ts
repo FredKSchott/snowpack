@@ -1,5 +1,3 @@
-import { logger } from "./logger";
-
 export interface ImportGlobStatement {
   start: number;
   end: number;
