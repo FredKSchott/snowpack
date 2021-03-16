@@ -29,13 +29,14 @@ import {
   getMetaUrlPath,
   SRI_CLIENT_HMR_SNOWPACK,
   SRI_ERROR_HMR_SNOWPACK,
+  transformGlobImports,
   wrapHtmlResponse,
   wrapImportMeta,
   wrapImportProxy,
 } from './build-import-proxy';
 import {buildFile} from './build-pipeline';
 import {getUrlsForFile} from './file-urls';
-import {createImportResolver} from './import-resolver';
+import {createImportResolver, createImportGlobResolver} from './import-resolver';
 
 /**
  * FileBuilder - This class is responsible for building a file. It is broken into
@@ -128,6 +129,11 @@ export class FileBuilder {
       }
       // Finalize the response
       contents = this.finalizeResult(type, contents);
+      // 
+      const resolveImportGlobSpecifier = createImportGlobResolver({
+        fileLoc: this.loc,
+        config: this.config,
+      });
       // resolve all imports
       const resolveImportSpecifier = createImportResolver({
         fileLoc: this.loc,
@@ -173,7 +179,8 @@ export class FileBuilder {
         ],
         this.config,
       );
-      contents = await transformFileImports({type, contents}, async (spec) => {
+      contents = await transformGlobImports({ contents, resolveImportGlobSpecifier })
+      contents = await transformFileImports({type, contents }, async (spec) => {
         let resolvedImportUrl = await resolveImport(spec);
 
         // Handle normal "./" & "../" import specifiers

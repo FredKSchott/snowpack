@@ -1,15 +1,9 @@
 import {matchDynamicImportValue} from './scan-imports';
-import {scanImportGlob} from './scan-import-glob';
-import {CSS_REGEX, HTML_JS_REGEX, HTML_STYLE_REGEX} from './util';
-import { logger } from './logger';
+import {spliceString, CSS_REGEX, HTML_JS_REGEX, HTML_STYLE_REGEX} from './util';
 
 const {parse} = require('es-module-lexer');
 
 const WEBPACK_MAGIC_COMMENT_REGEX = /\/\*[\s\S]*?\*\//g;
-
-function spliceString(source: string, withSlice: string, start: number, end: number) {
-  return source.slice(0, start) + (withSlice || '') + source.slice(end);
-}
 
 export async function scanCodeImportsExports(code: string): Promise<any[]> {
   const [imports] = await parse(code);
@@ -25,17 +19,6 @@ export async function scanCodeImportsExports(code: string): Promise<any[]> {
     }
     return true;
   });
-}
-
-export function transformGlobImports(_code: string) {
-  const importGlobs = scanImportGlob(_code);
-  let rewrittenCode = _code;
-
-  for (const impGlob of importGlobs.reverse()) {
-    logger.warn(JSON.stringify(impGlob));
-  }
-
-  return rewrittenCode;
 }
 
 export async function transformEsmImports(
@@ -124,7 +107,7 @@ export async function transformFileImports(
   replaceImport: (specifier: string) => string | Promise<string>,
 ) {
   if (type === '.js') {
-    return transformEsmImports(transformGlobImports(contents), replaceImport)
+    return transformEsmImports(contents, replaceImport)
   }
   if (type === '.html') {
     return transformHtmlImports(contents, replaceImport);

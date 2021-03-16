@@ -8,26 +8,30 @@ describe('import-glob', () => {
   beforeAll(() => {
     setupBuildTest(__dirname);
     files = readFiles(cwd);
-    console.log(files);
   });
 
   it('import.meta.glob is transformed correctly', () => {
     expect(stripWS(files['/_dist_/glob.js']))
-      .toEqual(`const modules = {
-  './pages/a.js': () => import('./pages/a.js'),
-  './pages/b.js': () => import('./pages/b.js'),
-  './pages/c.js': () => import('./pages/c.js')
-}
-`);
+      .toEqual(`import * as __SNOWPACK_ENV__ from '../_snowpack/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+const modules = {
+\t"./pages/a.js": () => import("./pages/a.js"),
+\t"./pages/b.js": () => import("./pages/b.js"),
+\t"./pages/c.js": () => import("./pages/c.js")
+};`);
   });
 
   it('import.meta.globEager is transformed correctly', () => {
-    expect(stripWS(files['/_dist_/glob.js']))
-      .toEqual(`const modules = {
-  './pages/a.js': () => import('./pages/a.js'),
-  './pages/b.js': () => import('./pages/b.js'),
-  './pages/c.js': () => import('./pages/c.js')
-}
-`);
+    expect(stripWS(files['/_dist_/globEager.js']))
+      .toEqual(`import * as __glob__0_0 from './pages/a.js';
+import * as __glob__0_1 from './pages/b.js';
+import * as __glob__0_2 from './pages/c.js';
+import * as __SNOWPACK_ENV__ from '../_snowpack/env.js';
+import.meta.env = __SNOWPACK_ENV__;
+const modules = {
+\t"./pages/a.js": __glob__0_0,
+\t"./pages/b.js": __glob__0_1,
+\t"./pages/c.js": __glob__0_2
+};`);
   });
 });
