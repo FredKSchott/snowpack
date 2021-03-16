@@ -194,8 +194,6 @@ export async function transformGlobImports({ contents: _code, resolveImportGlobS
     }
   })
 
-  logger.warn(rewrittenCode);
-
   return rewrittenCode;
 }
 
