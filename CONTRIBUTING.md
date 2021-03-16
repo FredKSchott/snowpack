@@ -4,7 +4,7 @@ Interested in contributing? We'd love your help!
 
 If you run into problems or find something confusing, please share it with us in [this discussion](https://github.com/snowpackjs/snowpack/discussions/958). A great experience for new contributors is very important to us!
 
-Please note that all activity on the [`snowpackjs/snowpack` repository](https://github.com/snowpackjs/snowpack) and our [Discord](https://discord.gg/rS8SnRk) is moderated and will be strictly enforced under Snowpack's [Contributor Code of Conduct](CODE_OF_CONDUCT.md).
+Please note that all activity on the [`snowpackjs/snowpack` repository](https://github.com/snowpackjs/snowpack) and our [Discord][discord] is moderated and will be strictly enforced under Snowpack's [Contributor Code of Conduct](CODE_OF_CONDUCT.md).
 
 Our [issue tracker](https://github.com/snowpackjs/snowpack/issues) is always organized with a selection of high-priority bugs, feature requests, and ["help wanted!"](https://github.com/snowpackjs/snowpack/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)/["good first issue"](https://github.com/snowpackjs/snowpack/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) items. For general package troubleshooting and discussions, check out our [Package Community](https://www.pika.dev/npm/snowpack/discuss) discussion board.
 
@@ -128,11 +128,23 @@ The [Snowpack website](https://snowpack.dev) source is located in [`/www`](./www
 
 The directories inside of `/docs` are automatically copied to `/www/_template`, so relative URLs in the documentation use `/www` as their base path.
 
+### Localization
+
+If you’d like to help localize, we’d love your help! This is our proposed structure for [`/docs`](./docs):
+
+- English translations in the root (e.g. `/docs/tutorials/getting-started.md` is English)
+- All other languages located in `/docs/[ISO 639-1]/` folders, mirroring structure (e.g. `/docs/tutorials/es/getting-started.md`).
+
+Some other considerations:
+
+- The `.md` filename should match its English name, only to mark it as the same document. Within the document itself, the title shown to users will be localized.
+- We’re open to having locale-specific guides that don’t exist in English, but please [start a discussion][discussion] before doing so, so we understand the context.
+
 ## Pull Request Guidelines
 
 Checkout a topic branch from a base branch, e.g. `main`, and merge back against that branch.
 
-If adding a feature, it probably should have been brought up in a [discussion](https://github.com/snowpackjs/snowpack/discussions) instead before the PR was created.
+If adding a feature, it probably should have been brought up in a [discussion][discussion] instead before the PR was created.
 
 Some tips for creating your first pull request:
 
@@ -143,4 +155,7 @@ Some tips for creating your first pull request:
 
 ## Discussion
 
-[Join the Pika Discord](https://discord.gg/rS8SnRk)
+[Join the Pika Discord][discord]
+
+[discord]: https://discord.gg/rS8SnRk
+[discussion]: https://github.com/snowpackjs/snowpack/discussions
