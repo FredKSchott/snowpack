@@ -138,7 +138,7 @@ export function createImportGlobResolver({fileLoc, config}: {fileLoc: string; co
     if (aliasEntry && (aliasEntry.type === 'path')) {
       const {from, to} = aliasEntry;
       spec = spec.replace(from, to);
-      spec = path.resolve(config.root, pathToFileURL(spec).href);
+      spec = path.resolve(config.root, spec));
     }
 
     let url = fileURLToPath(spec);
@@ -147,8 +147,8 @@ export function createImportGlobResolver({fileLoc, config}: {fileLoc: string; co
       throw new Error(`Glob imports must be relative (starting with ".") or absolute (starting with "/", which is treated as relative to project root)`)
     }
 
-    if (url.startsWith('/')) {
-      spec = path.resolve(config.root, pathToFileURL(spec).href);
+    if (spec.startsWith('/')) {
+      spec = path.resolve(config.root, spec));
       spec = path.relative(path.dirname(fileLoc), spec);
     }
     const resolved = await fastGlob(spec, { cwd: path.dirname(fileLoc) });
