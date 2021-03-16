@@ -9,10 +9,9 @@ import {
   isRemoteUrl,
   replaceExtension,
 } from '../util';
-import { fileURLToPath, pathToFileUrl } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import {getUrlsForFile} from './file-urls';
 import fastGlob from 'fast-glob';
-import { logger } from '../logger';
 
 /** Perform a file disk lookup for the requested import specifier. */
 export function getFsStat(importedFileOnDisk: string): fs.Stats | false {
@@ -131,14 +130,14 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
 export function createImportGlobResolver({fileLoc, config}: {fileLoc: string; config: SnowpackConfig}) {
   return async function importGlobResolver(spec: string): Promise<string[]> {
     if (spec.startsWith('/')) {
-      spec = path.join(config.root, pathToFileUrl(spec));
+      spec = path.join(config.root, pathToFileURL(spec).href);
     }
 
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && (aliasEntry.type === 'path')) {
       const {from, to} = aliasEntry;
       spec = spec.replace(from, to);
-      spec = path.resolve(config.root, pathToFileUrl(spec));
+      spec = path.resolve(config.root, pathToFileURL(spec).href);
     }
 
     let url = fileURLToPath(spec);
@@ -148,7 +147,7 @@ export function createImportGlobResolver({fileLoc, config}: {fileLoc: string; co
     }
 
     if (url.startsWith('/')) {
-      spec = path.resolve(config.root, pathToFileUrl(spec));
+      spec = path.resolve(config.root, pathToFileURL(spec).href);
       spec = path.relative(path.dirname(fileLoc), spec);
     }
     const resolved = await fastGlob(spec, { cwd: path.dirname(fileLoc) });
