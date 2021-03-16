@@ -59,11 +59,6 @@ export async function installPackages({
             // This line checks for those file types. Svelte is the only known file
             // type for now, but you can add to this line if you encounter another.
             needsSsrBuild = needsSsrBuild || id.endsWith('.svelte');
-            // TODO: Since this is new, only introduce for non-JS files.
-            // Consider running on all files in future versions.
-            if (id.endsWith('.js')) {
-              return;
-            }
             const output = await buildFile(url.pathToFileURL(id), {
               config,
               isDev,
