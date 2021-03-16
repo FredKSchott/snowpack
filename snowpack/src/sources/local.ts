@@ -300,9 +300,10 @@ export default {
       PROJECT_CACHE_DIR,
       process.env.NODE_ENV || 'development',
     );
-    const installDest = path.join(DEV_DEPENDENCIES_DIR, packageName + '@' + packageVersion);
+    const packageUID = packageName + '@' + packageVersion;
+    const installDest = path.join(DEV_DEPENDENCIES_DIR, packageUID);
 
-    allKnownSpecs.add(spec);
+    allKnownSpecs.add(`${packageUID}:${spec}`);
     const newImportMap = await inProgressBuilds.add(
       async (): Promise<ImportMap> => {
         // Look up the import map of the already-installed package.
@@ -322,9 +323,9 @@ export default {
         // Otherwise, kick off a new build to generate a fresh import map.
         logger.info(`${lineBullet} ${packageFormatted}`);
 
-        const installTargets = [...allKnownSpecs].filter(
-          (spec) => spec === _packageName || spec.startsWith(_packageName + '/'),
-        );
+        const installTargets = [...allKnownSpecs]
+          .filter((spec) => spec.startsWith(packageUID))
+          .map((spec) => spec.substr(packageUID.length + 1));
         // TODO: external should be a function in esinstall
         const externalPackages = [
           ...Object.keys(packageManifest.dependencies || {}),

@@ -85,8 +85,6 @@ export async function installPackages({
         },
       ],
     },
-  }).catch((err) => {
-    throw new Error(`Package(s) failed to build: ${err.message}`);
   });
   logger.debug('Successfully ran esinstall.');
   return {importMap: finalResult.importMap, needsSsrBuild};
