@@ -10,6 +10,7 @@ import {
   isRemoteUrl,
   replaceExtension,
 } from '../util';
+import { fileURLToPath, pathToFileUrl } from 'url';
 import {getUrlsForFile} from './file-urls';
 import fastGlob from 'fast-glob';
 import { logger } from '../logger';
@@ -130,34 +131,31 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
  */
 export function createImportGlobResolver({fileLoc, config}: {fileLoc: string; config: SnowpackConfig}) {
   return async function importGlobResolver(spec: string): Promise<string[]> {
-
     if (spec.startsWith('/')) {
-      spec = path.join(config.root, spec);
+      spec = path.join(config.root, pathToFileUrl(spec));
     }
 
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && (aliasEntry.type === 'path')) {
       const {from, to} = aliasEntry;
       spec = spec.replace(from, to);
-      spec = path.resolve(config.root, spec);
+      spec = path.resolve(config.root, pathToFileUrl(spec));
     }
 
-    if (!(spec.startsWith('/') || spec.startsWith('.'))) {
+    let url = fileURLToPath(spec);
+
+    if (!(url.startsWith('/') || url.startsWith('.'))) {
       throw new Error(`Glob imports must be relative (starting with ".") or absolute (starting with "/", which is treated as relative to project root)`)
     }
 
-    if (spec.startsWith('/')) {
-      spec = path.resolve(config.root, spec);
-      logger.warn(spec);
+    if (url.startsWith('/')) {
+      spec = path.resolve(config.root, pathToFileUrl(spec));
       spec = path.relative(path.dirname(fileLoc), spec);
-      logger.warn('---HERE---');
-      logger.warn(spec);
-      // spec = (spec.startsWith('.') || spec.startsWith('/')) ? spec : `./${spec}`;
     }
     const resolved = await fastGlob(spec, { cwd: path.dirname(fileLoc) });
     return resolved.map(spec => {
-      if (spec.startsWith('.') || spec.startsWith('/')) return spec;
-      return `./${spec}`
+      if (spec.startsWith('.') || spec.startsWith('/')) return fileURLToPath(spec);
+      return `./${fileURLToPath(spec)}`
     });
   };
 }
