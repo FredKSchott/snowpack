@@ -10,7 +10,7 @@ import {
   isRemoteUrl,
   replaceExtension,
 } from '../util';
-import { fileURLToPath, pathToFileURL } from 'url';
+import slash from 'slash';
 import {getUrlsForFile} from './file-urls';
 import fastGlob from 'fast-glob';
 
@@ -131,30 +131,28 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
 export function createImportGlobResolver({fileLoc, config}: {fileLoc: string; config: SnowpackConfig}) {
   return async function importGlobResolver(spec: string): Promise<string[]> {
     if (spec.startsWith('/')) {
-      spec = path.join(config.root, pathToFileURL(spec).href);
+      spec = path.join(config.root, spec);
     }
 
     const aliasEntry = findMatchingAliasEntry(config, spec);
     if (aliasEntry && (aliasEntry.type === 'path')) {
       const {from, to} = aliasEntry;
       spec = spec.replace(from, to);
-      spec = path.resolve(config.root, spec));
+      spec = path.posix.resolve(config.root, spec);
     }
 
-    let url = fileURLToPath(spec);
-
-    if (!(url.startsWith('/') || url.startsWith('.'))) {
+    if (!(spec.startsWith('/') || spec.startsWith('.'))) {
       throw new Error(`Glob imports must be relative (starting with ".") or absolute (starting with "/", which is treated as relative to project root)`)
     }
 
     if (spec.startsWith('/')) {
-      spec = path.resolve(config.root, spec));
-      spec = path.relative(path.dirname(fileLoc), spec);
+      spec = path.posix.resolve(config.root, spec);
+      spec = path.posix.relative(path.posix.dirname(fileLoc), spec);
     }
-    const resolved = await fastGlob(spec, { cwd: path.dirname(fileLoc) });
+    const resolved = await fastGlob(spec, { cwd: path.posix.dirname(fileLoc), onlyFiles: true });
     return resolved.map(spec => {
-      if (spec.startsWith('.') || spec.startsWith('/')) return fileURLToPath(spec);
-      return `./${fileURLToPath(spec)}`
+      if (spec.startsWith('.') || spec.startsWith('/')) return spec;
+      return `./${spec}`
     });
   };
 }
