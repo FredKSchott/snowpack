@@ -71,8 +71,8 @@ export function deleteFromBuildSafe(dir: string, config: SnowpackConfig) {
 }
 
 /** Read file from disk; return a string if it’s a code file */
-export async function readFile(filepath: URL): Promise<string | Buffer> {
-  const data = await fs.promises.readFile(url.fileURLToPath(filepath));
+export async function readFile(filepath: string): Promise<string | Buffer> {
+  const data = await fs.promises.readFile(filepath);
   const isBinary = await isBinaryFile(data);
   return isBinary ? data : data.toString('utf8');
 }

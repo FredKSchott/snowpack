@@ -1,6 +1,7 @@
 import {ImportMap, InstallTarget} from 'esinstall';
 import {promises as fs} from 'fs';
-import glob from 'glob';
+import {fdir} from 'fdir';
+import micromatch from 'micromatch';
 import * as colors from 'kleur/colors';
 import mkdirp from 'mkdirp';
 import path from 'path';
@@ -101,14 +102,14 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
   const allFileUrls: string[] = [];
   for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
     logger.debug(`Mounting directory: '${mountKey}' as URL '${mountEntry.url}'`);
-    const files = glob.sync(path.join(mountKey, '**'), {
-      nodir: true,
-      absolute: true,
-      ignore: [...config.exclude, ...config.testOptions.files],
-    });
+    const files = (await new fdir().withFullPaths().crawl(mountKey).withPromise()) as string[];
+    const excludePrivate = new RegExp(`\\${path.sep}\\.`);
+    const excludeGlobs = [...config.exclude, ...config.testOptions.files];
     for (const f of files) {
-      const normalizedFileLoc = path.normalize(f);
-      const fileUrls = getUrlsForFile(normalizedFileLoc, config)!;
+      if (micromatch.isMatch(f, excludeGlobs) || excludePrivate.test(f)) {
+        continue;
+      }
+      const fileUrls = getUrlsForFile(f, config)!;
       // Only push the first URL. In multi-file builds, this is always the JS that the
       // CSS is imported from (if it exists). That CSS may not exist, and we don't know
       // until the JS has been built/loaded.

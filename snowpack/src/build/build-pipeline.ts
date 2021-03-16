@@ -84,7 +84,7 @@ async function runPipelineLoadStep(
 
   return {
     [srcExt]: {
-      code: await readFile(url.pathToFileURL(srcPath)),
+      code: await readFile(srcPath),
     },
   };
 }

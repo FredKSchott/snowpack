@@ -4,7 +4,8 @@ import {InstallTarget} from 'esinstall';
 import etag from 'etag';
 import {EventEmitter} from 'events';
 import {createReadStream, promises as fs, statSync} from 'fs';
-import {glob} from 'glob';
+import {fdir} from 'fdir';
+import micromatch from 'micromatch';
 import http from 'http';
 import http2 from 'http2';
 import * as colors from 'kleur/colors';
@@ -292,17 +293,13 @@ export async function startServer(
 
   for (const [mountKey, mountEntry] of Object.entries(config.mount)) {
     logger.debug(`Mounting directory: '${mountKey}' as URL '${mountEntry.url}'`);
-    const files = glob.sync(path.join(mountKey, '**'), {
-      absolute: true,
-      nodir: true,
-      ignore: [
-        ...config.exclude,
-        ...(process.env.NODE_ENV === 'test' ? [] : config.testOptions.files),
-      ],
-    });
+    const files = (await new fdir().withFullPaths().crawl(mountKey).withPromise()) as string[];
+    const excludePrivate = new RegExp(`\\${path.sep}\\.`);
     for (const f of files) {
-      const normalizedFileLoc = path.normalize(f);
-      fileToUrlMapping.add(normalizedFileLoc, getUrlsForFile(normalizedFileLoc, config)!);
+      if (micromatch.isMatch(f, config.exclude) || excludePrivate.test(f)) {
+        continue;
+      }
+      fileToUrlMapping.add(f, getUrlsForFile(f, config)!);
     }
   }
 
@@ -478,20 +475,21 @@ export async function startServer(
             reqPath,
           )}'`,
         );
-        for (const f of glob.sync(path.join(symlinkResourceDirectory, '*'), {
-          nodir: true,
-          absolute: true,
-        })) {
-          const normalizedFileLoc = path.normalize(f);
-          if (fileToUrlMapping.value(normalizedFileLoc)) {
+        const shallowFiles = (await new fdir()
+          .withFullPaths()
+          .withMaxDepth(0)
+          .crawl(symlinkResourceDirectory)
+          .withPromise()) as string[];
+        for (const f of shallowFiles) {
+          if (fileToUrlMapping.value(f)) {
             logger.warn(
               `Warning: mounted file is being imported as a package.\n` +
                 `Workspace & monorepo packages work automatically and do not need to be mounted.`,
             );
           } else {
             fileToUrlMapping.add(
-              normalizedFileLoc,
-              getBuiltFileUrls(normalizedFileLoc, config).map((u) =>
+              f,
+              getBuiltFileUrls(f, config).map((u) =>
                 path.posix.join(
                   config.buildOptions.metaUrlPath,
                   'link',
