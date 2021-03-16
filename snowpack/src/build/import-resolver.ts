@@ -130,7 +130,7 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
 export function createImportGlobResolver({fileLoc, config}: {fileLoc: string; config: SnowpackConfig}) {
   return async function importGlobResolver(spec: string): Promise<string[]> {
     if (spec.startsWith('/')) {
-      spec = path.join(config.root, spec);
+      spec = path.posix.join(config.root, spec);
     }
 
     const aliasEntry = findMatchingAliasEntry(config, spec);
