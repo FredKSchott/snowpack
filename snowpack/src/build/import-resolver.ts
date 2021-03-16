@@ -9,7 +9,6 @@ import {
   isRemoteUrl,
   replaceExtension,
 } from '../util';
-import slash from 'slash';
 import {getUrlsForFile} from './file-urls';
 import fastGlob from 'fast-glob';
 
