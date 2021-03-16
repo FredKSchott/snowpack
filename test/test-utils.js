@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const {execSync} = require('child_process');
 const glob = require('glob');
+const slash = require('slash');
 
 const STRIP_CHUNKHASH = /([\w\-]+\-)[a-z0-9]{8}(\.js)/g;
 const STRIP_REV = /\?rev=\w+/gm;
@@ -50,7 +51,7 @@ function readFiles(directory, {ignore} = {}) {
 
   allFiles.forEach((filepath) => {
     const relativePath = filepath.replace(/^\/?/, '/');
-    contents[relativePath] = fs.readFileSync(path.join(directory, filepath), 'utf8');
+    contents[slash(relativePath)] = fs.readFileSync(path.join(directory, filepath), 'utf8');
   });
 
   return contents;
