@@ -94,7 +94,7 @@ export function scanImportGlob(code: string) {
       }
       case ')': {
         state = ScannerState.idle;
-        end = pos;
+        end = pos + 1;
         if (importGlob) {
           Object.assign(importGlob, { glob, end });
           importGlobs.push(importGlob);

@@ -3,8 +3,9 @@ import postCss from 'postcss';
 import postCssModules from 'postcss-modules';
 import {logger} from '../logger';
 import {SnowpackConfig} from '../types';
-import {appendHtmlToHead, hasExtension, HMR_CLIENT_CODE, HMR_OVERLAY_CODE} from '../util';
+import {appendHtmlToHead, hasExtension, spliceString, HMR_CLIENT_CODE, HMR_OVERLAY_CODE} from '../util';
 import {generateSRI} from './import-sri';
+import {scanImportGlob} from '../scan-import-glob';
 
 export const SRI_CLIENT_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_CLIENT_CODE));
 export const SRI_ERROR_HMR_SNOWPACK = generateSRI(Buffer.from(HMR_OVERLAY_CODE));
@@ -161,6 +162,41 @@ if (typeof document !== 'undefined') {${
   document.head.appendChild(styleEl);
 }`;
   return wrapImportMeta({code: cssImportProxyCode, hmr, env: false, config});
+}
+
+function createImportGlobValue(importGlob, i: number): { value: string, imports: string } {
+  let value: string;
+  let imports: string;
+
+  if (importGlob.isEager) {
+    value = `{\n${importGlob.resolvedImports.map((spec: string, j: number, { length: len }) => `\t"${spec}": __glob__${i}_${j}${j === len - 1 ? '' : ','}`).join('\n')}\n}`;
+    imports = importGlob.resolvedImports.map((spec: string, j: number) => `import * as __glob__${i}_${j} from '${spec}';`).join('\n');
+  } else {
+    value = `{\n${importGlob.resolvedImports.map((spec: string, j: number, { length: len }) => `\t"${spec}": () => import("${spec}")${j === len - 1 ? '' : ','}`).join('\n')}\n}`;
+    imports = '';
+  }
+
+  return { value, imports };
+}
+
+export async function transformGlobImports({ contents: _code, resolveImportGlobSpecifier = async (i) => [i] }: { contents: string, resolveImportGlobSpecifier: any }) {
+  const importGlobs = scanImportGlob(_code);
+  let rewrittenCode = _code;
+  const resolvedImportGlobs = await Promise.all(importGlobs.reverse().map(({ glob, ...importGlob }) => {
+    return resolveImportGlobSpecifier(glob).then(resolvedImports => ({ ...importGlob, glob, resolvedImports }))
+  }))
+
+  resolvedImportGlobs.forEach((importGlob, i) => {
+    const { value, imports } = createImportGlobValue(importGlob, i);
+    rewrittenCode = spliceString(rewrittenCode, value, importGlob.start, importGlob.end);
+    if (imports) {
+      rewrittenCode = `${imports}\n${rewrittenCode}`;
+    }
+  })
+
+  logger.warn(rewrittenCode);
+
+  return rewrittenCode;
 }
 
 async function generateCssModuleImportProxy({

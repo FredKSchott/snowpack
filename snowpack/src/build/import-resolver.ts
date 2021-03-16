@@ -11,6 +11,7 @@ import {
   replaceExtension,
 } from '../util';
 import {getUrlsForFile} from './file-urls';
+import fastGlob from 'fast-glob';
 
 /** Perform a file disk lookup for the requested import specifier. */
 export function getFsStat(importedFileOnDisk: string): fs.Stats | false {
@@ -118,5 +119,30 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
       return resolveSourceSpecifier(importedFileLoc, {parentFile: fileLoc, config}) || spec;
     }
     return false;
+  };
+}
+
+/**
+ * Create a import glob resolver function, which converts any import globs relative to the given file at "fileLoc"
+ * to a local file. These will additionally be transformed by the regular import resolver, so they do not need
+ * to be finalized just yet
+ */
+export function createImportGlobResolver({fileLoc, config}: {fileLoc: string; config: SnowpackConfig}) {
+  return async function importGlobResolver(spec: string): Promise<string[]> {
+    const dir = path.dirname(fileLoc);
+
+    const aliasEntry = findMatchingAliasEntry(config, spec);
+    if (aliasEntry && (aliasEntry.type === 'path')) {
+      const {from, to} = aliasEntry;
+      spec = spec.replace(from, to);
+    }
+    if (!(spec.startsWith('/') || spec.startsWith('.'))) {
+      throw new Error(`Glob imports must be relative (starting with ".") or absolute (starting with "/", which is treated as relative to project root)`)
+    }
+    if (spec.startsWith('/')) {
+      spec = path.resolve(config.root, spec);
+    }
+    const resolved = await fastGlob(spec, { cwd: dir });
+    return resolved;
   };
 }

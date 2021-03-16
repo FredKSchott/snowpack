@@ -1,1 +1,1 @@
-const modules = import.meta.glob('./dir/*.js');
+const modules = import.meta.glob('./pages/*.js');
