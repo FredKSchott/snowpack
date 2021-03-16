@@ -6,6 +6,7 @@ import {
   findMatchingAliasEntry,
   getExtensionMatch,
   hasExtension,
+  isPathImport,
   isRemoteUrl,
   replaceExtension,
 } from '../util';
@@ -30,7 +31,7 @@ function resolveSourceSpecifier(
 
   // Handle directory imports (ex: "./components" -> "./components/index.js")
   if (lazyFileStat && lazyFileStat.isDirectory()) {
-    const trailingSlash = lazyFileLoc.endsWith('/') ? '' : '/';
+    const trailingSlash = lazyFileLoc.endsWith(path.sep) ? '' : path.sep;
     lazyFileLoc = lazyFileLoc + trailingSlash + 'index.js';
   } else if (lazyFileStat && lazyFileStat.isFile()) {
     lazyFileLoc = lazyFileLoc;
@@ -99,11 +100,11 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
     if (config.packageOptions.external?.includes(spec)) {
       return spec;
     }
-    if (spec.startsWith('/')) {
+    if (spec[0] === '/') {
       return spec;
     }
-    if (spec.startsWith('./') || spec.startsWith('../') || spec === '.') {
-      const importedFileLoc = path.resolve(path.dirname(fileLoc), spec);
+    if (isPathImport(spec)) {
+      const importedFileLoc = path.resolve(path.dirname(fileLoc), path.normalize(spec));
       return resolveSourceSpecifier(importedFileLoc, {parentFile: fileLoc, config}) || spec;
     }
     const aliasEntry = findMatchingAliasEntry(config, spec);

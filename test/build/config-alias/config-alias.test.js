@@ -14,5 +14,6 @@ describe('config: alias', () => {
   it('generates imports as expected', () => {
     expect(files['/_dist_/index.html']).toMatchSnapshot();
     expect(files['/_dist_/index.js']).toMatchSnapshot();
+    expect(files['/_dist_/nested/foo.js']).toMatchSnapshot();
   });
 });

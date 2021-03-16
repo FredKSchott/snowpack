@@ -19,7 +19,7 @@ import {
   SnowpackBuildResult,
   SnowpackConfig,
 } from '../types';
-import {deleteFromBuildSafe, isRemoteUrl} from '../util';
+import {deleteFromBuildSafe, isPathImport, isRemoteUrl} from '../util';
 import {startServer} from './dev';
 
 function getIsHmrEnabled(config: SnowpackConfig) {
@@ -155,13 +155,17 @@ export async function build(commandOptions: CommandOptions): Promise<SnowpackBui
         logger.debug(`ADD: ${importedUrl}`);
         if (isRemoteUrl(importedUrl)) {
           // do nothing
-        } else if (importedUrl.startsWith('./') || importedUrl.startsWith('../')) {
-          logger.warn(`warn: import "${importedUrl}" of "${fileUrl}" could not be resolved.`);
-        } else if (!importedUrl.startsWith('/')) {
+        } else if (isPathImport(importedUrl)) {
+          if (importedUrl[0] === '/') {
+            if (!allFileUrlsUnique.has(importedUrl)) {
+              allFileUrlsUnique.add(importedUrl);
+              allFileUrlsToProcess.push(importedUrl);
+            }
+          } else {
+            logger.warn(`warn: import "${importedUrl}" of "${fileUrl}" could not be resolved.`);
+          }
+        } else {
           allBareModuleSpecifiers.push(installTarget);
-        } else if (!allFileUrlsUnique.has(importedUrl)) {
-          allFileUrlsUnique.add(importedUrl);
-          allFileUrlsToProcess.push(importedUrl);
         }
       }
     }

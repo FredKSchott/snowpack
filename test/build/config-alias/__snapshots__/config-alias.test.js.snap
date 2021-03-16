@@ -144,3 +144,13 @@ import robotsTxtRef_ from '../robots.txt.proxy.js';
 console.log(robotsTxtRef, robotsTxtRef_);
 "
 `;
+
+exports[`config: alias generates imports as expected 3`] = `
+"// importing index.js by shortcut
+import index from './index.js';
+import index_ from './index.js';
+import index__ from '../index.js';
+import index___ from '../index.js';
+console.log(index, index_, index__, index___);
+"
+`;

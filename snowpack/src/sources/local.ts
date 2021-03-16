@@ -25,6 +25,7 @@ import {
   findMatchingAliasEntry,
   GLOBAL_CACHE_DIR,
   isJavaScript,
+  isPathImport,
   isRemoteUrl,
 } from '../util';
 import {installPackages} from './local-install';
@@ -124,7 +125,7 @@ export default {
       // relative files within the built package (ex: 'pkg/common/XXX-hash.js`).
       // We resolve these to a new kind of "internal" import URL that's different
       // from the normal, flattened URL for public imports.
-      if (spec.startsWith('./') || spec.startsWith('../')) {
+      if (isPathImport(spec)) {
         const newLoc = path.resolve(path.dirname(loc), spec);
         const resolvedSpec = slash(path.relative(installDest, newLoc));
         const publicImportEntry = Object.entries(packageImportMap.imports).find(
@@ -386,7 +387,7 @@ export default {
             if (isRemoteUrl(spec)) {
               continue;
             }
-            if (spec.startsWith('/') || spec.startsWith('./') || spec.startsWith('../')) {
+            if (isPathImport(spec)) {
               continue;
             }
             packageImports.add(spec);
