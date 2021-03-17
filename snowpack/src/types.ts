@@ -273,6 +273,7 @@ export interface SnowpackConfig {
     htmlFragments: boolean;
     jsxFactory: string | undefined;
     jsxFragment: string | undefined;
+    jsxInject: string | undefined;
     ssr: boolean;
     resolveProxyImports: boolean;
   };

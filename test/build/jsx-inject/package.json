@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "version": "1.0.1",
+  "name": "@snowpack/test-jsx-inject",
+  "scripts": {
+    "start": "snowpack dev",
+    "testbuild": "snowpack build"
+  },
+  "dependencies": {
+    "preact": "^10.5.13",
+    "snowpack": "^3.0.0"
+  }
+}

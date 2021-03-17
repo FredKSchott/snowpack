@@ -164,6 +164,7 @@ const configSchema = {
         htmlFragments: {type: 'boolean'},
         jsxFactory: {type: 'string'},
         jsxFragment: {type: 'string'},
+        jsxInject: {type: 'string'},
       },
     },
     testOptions: {
