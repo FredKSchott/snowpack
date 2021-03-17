@@ -117,7 +117,7 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
      * If any files imported the given file path, mark them as changed.
      * @private
      */
-     _markImportersAsChanged(filePath) {
+    _markImportersAsChanged(filePath) {
       if (importedByMap.has(filePath)) {
         const importedBy = importedByMap.get(filePath);
         importedByMap.delete(filePath);

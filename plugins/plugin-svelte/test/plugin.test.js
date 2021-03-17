@@ -27,7 +27,6 @@ afterEach(() => {
 });
 
 describe('@snowpack/plugin-svelte (mocked)', () => {
-
   jest.mock('svelte/compiler', () => ({compile: mockCompiler, preprocess: mockPreprocessor})); // important: mock before import
   const plugin = require('../plugin');
 
@@ -161,7 +160,6 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
     expect(config.packageOptions.packageLookupFields).toEqual(['module', 'svelte']);
   });
 });
-
 
 describe('@snowpack/plugin-svelte (preprocessor deps)', () => {
   let plugin;
