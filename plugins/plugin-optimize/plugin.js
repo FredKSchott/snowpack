@@ -28,7 +28,7 @@ exports.default = function plugin(config, userDefinedOptions) {
 
   const CONCURRENT_WORKERS = require('os').cpus().length;
 
-  async function optimizeFile({esbuildService, file, preloadCSS, target, rootDir}) {
+  async function optimizeFile({file, preloadCSS, target, rootDir}) {
     const baseExt = path.extname(file).toLowerCase();
 
     // TODO: add debug in plugins?
@@ -60,7 +60,7 @@ exports.default = function plugin(config, userDefinedOptions) {
 
         // minify if enabled
         if (options.minifyJS) {
-          const minified = await esbuildService.transform(code, {
+          const minified = await esbuild.transform(code, {
             minify: true,
             charset: 'utf8',
             target,
@@ -109,7 +109,6 @@ exports.default = function plugin(config, userDefinedOptions) {
     name: '@snowpack/plugin-optimize',
     async optimize({buildDirectory}) {
       // 0. setup
-      const esbuildService = await esbuild.startService();
       await init;
       let generatedFiles = {};
 
@@ -150,7 +149,6 @@ exports.default = function plugin(config, userDefinedOptions) {
           parallelWorkQueue.add(() =>
             optimizeFile({
               file,
-              esbuildService,
               preloadCSS,
               rootDir: buildDirectory,
               target: options.target,
@@ -160,7 +158,6 @@ exports.default = function plugin(config, userDefinedOptions) {
           );
         });
       await parallelWorkQueue.onIdle();
-      esbuildService.stop();
 
       // 5. build CSS file
       if (preloadCSS) {
