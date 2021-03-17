@@ -11,16 +11,12 @@ let makeHot = (...args) => {
 
 module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
   const isDev = process.env.NODE_ENV !== 'production';
-<<<<<<< HEAD
   const useSourceMaps =
     snowpackConfig.buildOptions.sourcemap || snowpackConfig.buildOptions.sourceMaps;
   // Old Snowpack versions wouldn't build dependencies. Starting in v3.1, Snowpack's build pipeline
   // is run on all files, including npm package files. The rollup plugin is no longer needed.
-  const needsRollupPlugin = typeof snowpackConfig.buildOptions.resolveProxyImports === 'undefined';
-=======
-  const useSourceMaps = snowpackConfig.buildOptions.sourceMaps;
   const importedByMap = new Map();
->>>>>>> 2b7f590d... feat(plugin-svelte): track preprocess dependencies
+  const needsRollupPlugin = typeof snowpackConfig.buildOptions.resolveProxyImports === 'undefined';
 
   // Support importing Svelte files when you install dependencies.
   const packageOptions = snowpackConfig.packageOptions || snowpackConfig.installOptions;
@@ -96,6 +92,15 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
     preprocessOptions = require('svelte-preprocess')();
   }
 
+  function addImportsToMap(filePath, imp) {
+    const importedBy = importedByMap.get(imp);
+    if (importedBy) {
+      importedBy.add(filePath);
+    } else {
+      importedByMap.set(imp, new Set([filePath]));
+    }
+  }
+
   return {
     name: '@snowpack/plugin-svelte',
     resolve: {
@@ -107,11 +112,12 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       'svelte-hmr/runtime/hot-api-esm.js',
       'svelte-hmr/runtime/proxy-adapter-dom.js',
     ],
-<<<<<<< HEAD
-    async load({filePath, isHmrEnabled, isSSR, isPackage}) {
-=======
 
-    _markImportersAsChanged(filePath) {
+    /**
+     * If any files imported the given file path, mark them as changed.
+     * @private
+     */
+     _markImportersAsChanged(filePath) {
       if (importedByMap.has(filePath)) {
         const importedBy = importedByMap.get(filePath);
         importedByMap.delete(filePath);
@@ -121,9 +127,16 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
       }
     },
 
-    async load({filePath, isHmrEnabled, isSSR}) {
+    /**
+     * When a file changes, also mark it's importers as changed.
+     * svelte.preprocess returns a list of preprocess deps - https://svelte.dev/docs#svelte_preprocess
+     */
+    onChange({filePath}) {
+      this._markImportersAsChanged(filePath);
+    },
+
+    async load({filePath, isHmrEnabled, isSSR, isPackage}) {
       let dependencies = [];
->>>>>>> 2b7f590d... feat(plugin-svelte): track preprocess dependencies
       let codeToCompile = await fs.promises.readFile(filePath, 'utf-8');
       // PRE-PROCESS
       if (preprocessOptions !== false) {
@@ -136,11 +149,9 @@ module.exports = function plugin(snowpackConfig, pluginOptions = {}) {
         ));
       }
 
-      if (isDev && dependencies) {
-        dependencies.forEach((depPath) => {
-          console.log(depPath, filePath);
-          importedByMap(depPath, filePath);
-        });
+      // in dev mode, track preprocess dependencies
+      if (isDev && dependencies && dependencies.length) {
+        dependencies.forEach((imp) => addImportsToMap(filePath, imp));
       }
 
       const finalCompileOptions = {

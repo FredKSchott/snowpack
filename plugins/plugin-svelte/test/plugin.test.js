@@ -2,27 +2,42 @@ const path = require('path');
 
 const mockCompiler = jest.fn().mockImplementation((code) => ({js: {code}}));
 const mockPreprocessor = jest.fn().mockImplementation((code) => code);
-jest.mock('svelte/compiler', () => ({compile: mockCompiler, preprocess: mockPreprocessor})); // important: mock before import
-
-const plugin = require('../plugin');
+const mockPreprocessorWithDeps = jest.fn().mockImplementation((code) => ({
+  code,
+  dependencies: ['path/to/file.stylus', 'path/to/file2.stylus'],
+}));
 
 let DEFAULT_CONFIG;
 const mockComponent = path.join(__dirname, 'Button.svelte');
 
+beforeEach(() => {
+  DEFAULT_CONFIG = {
+    buildOptions: {sourceMaps: false},
+    installOptions: {
+      rollup: {plugins: []},
+      packageLookupFields: [],
+    },
+  };
+});
+
+afterEach(() => {
+  mockCompiler.mockClear();
+  mockPreprocessor.mockClear();
+  mockPreprocessorWithDeps.mockClear();
+});
+
 describe('@snowpack/plugin-svelte (mocked)', () => {
-  beforeEach(() => {
-    DEFAULT_CONFIG = {
-      buildOptions: {sourcemap: false},
-      packageOptions: {
-        source: 'local',
-        packageLookupFields: [],
-      },
-    };
-  });
+
+  jest.mock('svelte/compiler', () => ({compile: mockCompiler, preprocess: mockPreprocessor})); // important: mock before import
+  const plugin = require('../plugin');
+
+  // TODO: safe to remove?
   afterEach(() => {
     mockCompiler.mockClear();
     mockPreprocessor.mockClear();
   });
+
+  afterAll(() => jest.resetModules());
 
   it('logs error if config options set but finds no file', async () => {
     expect(() => {
@@ -144,5 +159,33 @@ describe('@snowpack/plugin-svelte (mocked)', () => {
     config.packageOptions.packageLookupFields = ['module'];
     plugin(config, {});
     expect(config.packageOptions.packageLookupFields).toEqual(['module', 'svelte']);
+  });
+});
+
+
+describe('@snowpack/plugin-svelte (preprocessor deps)', () => {
+  let plugin;
+
+  beforeAll(() => {
+    jest.mock('svelte/compiler', () => ({
+      compile: mockCompiler,
+      preprocess: mockPreprocessorWithDeps,
+    })); // important: mock before import
+    plugin = require('../plugin');
+  });
+
+  afterAll(() => jest.resetModules());
+
+  it('marks a file as changed when a preprocess dependency changes', async () => {
+    const preprocess = {__test: 'preprocess'};
+    const p = plugin(DEFAULT_CONFIG, {preprocess});
+    p.markChanged = jest.fn();
+    await p.load({filePath: mockComponent});
+    p.onChange({filePath: 'path/to/file.stylus'});
+    p.onChange({filePath: 'path/to/file2.stylus'});
+
+    expect(p.markChanged).toHaveBeenCalledTimes(2);
+    expect(p.markChanged.mock.calls[0][0]).toBe(mockComponent);
+    expect(p.markChanged.mock.calls[1][0]).toBe(mockComponent);
   });
 });
