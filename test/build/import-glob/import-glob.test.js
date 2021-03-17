@@ -57,7 +57,7 @@ const modules = {
 };`);
   });
 
-    it('import.meta.glob supports aliases from deeply nested directory', () => {
+  it('import.meta.glob supports aliases from deeply nested directory', () => {
     expect(stripWS(files['/_dist_/deep/nest/globAlias.js']))
       .toEqual(`import * as __SNOWPACK_ENV__ from '../../../_snowpack/env.js';
 import.meta.env = __SNOWPACK_ENV__;
