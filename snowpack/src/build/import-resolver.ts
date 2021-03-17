@@ -13,6 +13,7 @@ import {
 } from '../util';
 import {getUrlsForFile} from './file-urls';
 import glob from 'glob';
+import { logger } from '../logger'
 
 /** Perform a file disk lookup for the requested import specifier. */
 export function getFsStat(importedFileOnDisk: string): fs.Stats | false {
@@ -123,6 +124,10 @@ export function createImportResolver({fileLoc, config}: {fileLoc: string; config
   };
 }
 
+function toPath(url: string) {
+  return url.replace(/\//g, path.sep);
+}
+
 /**
  * Create a import glob resolver function, which converts any import globs relative to the given file at "fileLoc"
  * to a local file. These will additionally be transformed by the regular import resolver, so they do not need
@@ -137,7 +142,7 @@ export function createImportGlobResolver({
 }) {
   const rootDir = path.parse(process.cwd()).root;
   return async function importGlobResolver(spec: string): Promise<string[]> {
-    let searchSpec = spec.replace(/\//g, path.sep);
+    let searchSpec = toPath(spec);
     if (spec.startsWith('/')) {
       searchSpec = path.join(config.root, spec);
     }
@@ -176,11 +181,9 @@ export function createImportGlobResolver({
       return `./${normalized}`;
     }).filter(_fileLoc => {
       // If final import *might* be the same as the source file, double check to avoid importing self
-      if (path.basename(_fileLoc) === path.basename(fileLoc)) {
-        const finalImportAbsolute = slash(path.resolve(path.dirname(fileLoc), _fileLoc.replace(/\//g, path.sep)))
-        return finalImportAbsolute !== fileLoc
-      }
-      return true;
+      const finalImportAbsolute = slash(path.resolve(path.dirname(fileLoc), toPath(_fileLoc)));
+      logger.warn(`${fileLoc} === ${finalImportAbsolute}`);
+      return finalImportAbsolute !== fileLoc;
     });
   };
 }
