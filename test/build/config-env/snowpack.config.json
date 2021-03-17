@@ -2,5 +2,7 @@
   "mount": {
     "./src": "/_dist_"
   },
-  "environment": ["FOO"]
+  "env": {
+    "API_URL": "TEST"
+  }
 }

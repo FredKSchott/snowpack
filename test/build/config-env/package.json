@@ -1,7 +1,7 @@
 {
   "private": true,
   "version": "1.0.0",
-  "name": "@snowpack/test-config-environment",
+  "name": "@snowpack/test-config-env",
   "scripts": {
     "prepare": "snowpack",
     "testbuild": "snowpack build"

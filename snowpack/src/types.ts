@@ -205,12 +205,6 @@ export type MountEntry = {
   resolve: boolean;
 };
 
-type SnowpackEnvironment =
-  | {
-      [key: string]: string;
-    }
-  | string[];
-
 export interface OptimizeOptions {
   entrypoints: 'auto' | string[] | ((options: {files: string[]}) => string[]);
   preload: boolean;
@@ -255,7 +249,7 @@ export interface SnowpackConfig {
   workspaceRoot?: string | false;
   extends?: string;
   exclude: string[];
-  environment?: SnowpackEnvironment;
+  env?: Record<string, string|boolean|undefined>;
   mount: Record<string, MountEntry>;
   alias: Record<string, string>;
   plugins: SnowpackPlugin[];

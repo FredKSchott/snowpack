@@ -250,24 +250,6 @@ export async function wrapImportProxy({
   return generateDefaultImportProxy(url);
 }
 
-export function generateEnvFromConfig(
-  configEnvObj: {[key: string]: string} | string[],
-): {[key: string]: string} {
-  if (Array.isArray(configEnvObj)) {
-    // get env from Env
-    const envObj = {};
-    for (const key of configEnvObj) {
-      envObj[key] = process.env[key];
-    }
-
-    return envObj;
-  } else {
-    return {
-      ...configEnvObj,
-    };
-  }
-}
-
 export function generateEnvModule({
   mode,
   isSSR,
@@ -275,11 +257,11 @@ export function generateEnvModule({
 }: {
   mode: 'development' | 'production';
   isSSR: boolean;
-  configEnv?: {[key: string]: string} | string[];
+  configEnv?: Record<string, string|boolean|undefined>;
 }) {
   const envObject: Record<string, string | boolean | undefined> = {
     ...getSnowpackPublicEnvVariables(),
-    ...generateEnvFromConfig(configEnv ?? []),
+    ...(configEnv ?? {}),
     MODE: mode,
     NODE_ENV: mode,
     SSR: isSSR,
