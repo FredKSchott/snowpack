@@ -12,7 +12,7 @@ import {
   replaceExtension,
 } from '../util';
 import {getUrlsForFile} from './file-urls';
-import fastGlob from 'fast-glob';
+import glob from 'glob';
 
 /** Perform a file disk lookup for the requested import specifier. */
 export function getFsStat(importedFileOnDisk: string): fs.Stats | false {
@@ -160,10 +160,16 @@ export function createImportGlobResolver({
       searchSpec = path.relative(path.dirname(fileLoc), searchSpec);
     }
 
-    const resolved = await fastGlob(slash(searchSpec), {
-      cwd: path.dirname(fileLoc),
-      onlyFiles: true,
-    });
+
+
+    const resolved = await new Promise<string[]>((resolve, reject) => 
+      glob(searchSpec, { cwd: path.dirname(fileLoc), nodir: true }, (err, matches) => {
+        if (err) {
+          return reject(err)
+        }
+        return resolve(matches)
+      })
+    );
     return resolved.map((fileLoc) => {
       const normalized = slash(fileLoc);
       if (normalized.startsWith('.') || normalized.startsWith('/')) return normalized;
