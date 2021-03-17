@@ -8,16 +8,17 @@ import {logger} from '../logger';
 let esbuildService: Service | null = null;
 
 const IS_PREACT = /from\s+['"]preact['"]/;
-function checkIsPreact(filePath: string, contents: string) {
-  return (filePath.endsWith('.jsx') || filePath.endsWith('.tsx')) && IS_PREACT.test(contents);
+function checkIsPreact(contents: string) {
+  return IS_PREACT.test(contents);
 }
 
-function getLoader(filePath: string): 'js' | 'jsx' | 'ts' | 'tsx' {
+type Loader = 'js' | 'jsx' | 'ts' | 'tsx';
+
+function getLoader(filePath: string): { loader: Loader, isJSX: boolean } {
   const ext = path.extname(filePath);
-  if (ext === '.mjs') {
-    return 'js';
-  }
-  return ext.substr(1) as 'jsx' | 'ts' | 'tsx';
+  const loader: Loader = (ext === '.mjs') ? 'js' : ext.substr(1) as Loader;
+  const isJSX = loader.endsWith('x');
+  return { loader, isJSX };
 }
 
 export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}): SnowpackPlugin {
@@ -30,17 +31,17 @@ export function esbuildPlugin(config: SnowpackConfig, {input}: {input: string[]}
     async load({filePath}) {
       esbuildService = esbuildService || (await startService());
       let contents = await fs.readFile(filePath, 'utf8');
-      const isPreact = checkIsPreact(filePath, contents);
-      const loader = getLoader(filePath);
+      const { loader, isJSX } = getLoader(filePath);
+      if (isJSX) {
+        const jsxInject = config.buildOptions.jsxInject ? `${config.buildOptions.jsxInject}\n` : '';
+        contents = jsxInject + contents;
+      }
+      const isPreact = isJSX && checkIsPreact(contents);
       let jsxFactory = config.buildOptions.jsxFactory ?? (isPreact ? 'h' : undefined);
       let jsxFragment = config.buildOptions.jsxFragment ?? (isPreact ? 'Fragment' : undefined);
 
-      if (loader.endsWith('x') && config.buildOptions.jsxInject) {
-        contents = `${config.buildOptions.jsxInject}\n${contents}`;
-      }
-
       const {code, map, warnings} = await esbuildService!.transform(contents, {
-        loader,
+        loader: loader,
         jsxFactory,
         jsxFragment,
         sourcefile: filePath,
