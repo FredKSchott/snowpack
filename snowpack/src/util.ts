@@ -341,15 +341,7 @@ export function findMatchingAliasEntry(
   spec: string,
 ): {from: string; to: string; type: 'package' | 'path' | 'url'} | undefined {
   // Only match bare module specifiers. relative and absolute imports should not match
-  if (
-    spec === '.' ||
-    spec === '..' ||
-    spec.startsWith('./') ||
-    spec.startsWith('../') ||
-    spec.startsWith('/') ||
-    spec.startsWith('http://') ||
-    spec.startsWith('https://')
-  ) {
+  if (isPathImport(spec) || isRemoteUrl(spec)) {
     return undefined;
   }
 
@@ -386,6 +378,10 @@ export function getExtensionMatch(
   }
   // Return the first match, if one was found. Otherwise, return undefined.
   return extensionMatch ? [extensionPartial, extensionMatch] : undefined;
+}
+
+export function isPathImport(spec: string): boolean {
+  return spec[0] === '.' || spec[0] === '/';
 }
 
 export function isRemoteUrl(val: string): boolean {

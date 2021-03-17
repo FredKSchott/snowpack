@@ -24,6 +24,7 @@ import {
   NATIVE_REQUIRE,
   REQUIRE_OR_IMPORT,
   removeTrailingSlash,
+  isPathImport,
 } from './util';
 import type {Awaited} from './util';
 
@@ -618,13 +619,7 @@ function resolveRelativeConfigAlias(
   const cleanAliasConfig = {};
   for (const [target, replacement] of Object.entries(aliasConfig)) {
     const isDirectory = target.endsWith('/');
-    const isPath =
-      replacement === '.' ||
-      replacement === '..' ||
-      replacement.startsWith('./') ||
-      replacement.startsWith('../') ||
-      replacement.startsWith('/');
-    if (isPath) {
+    if (isPathImport(replacement)) {
       cleanAliasConfig[target] = isDirectory
         ? addTrailingSlash(path.resolve(configBase, replacement))
         : removeTrailingSlash(path.resolve(configBase, replacement));
